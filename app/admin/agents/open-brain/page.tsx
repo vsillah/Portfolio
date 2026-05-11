@@ -1,0 +1,474 @@
+'use client'
+
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import type { ReactNode } from 'react'
+import Link from 'next/link'
+import {
+  AlertTriangle,
+  Brain,
+  CheckCircle2,
+  Database,
+  FileText,
+  GitBranch,
+  Network,
+  RefreshCw,
+  ShieldCheck,
+} from 'lucide-react'
+import ProtectedRoute from '@/components/ProtectedRoute'
+import Breadcrumbs from '@/components/admin/Breadcrumbs'
+import { getCurrentSession } from '@/lib/auth'
+import type { OpenBrainSnapshot } from '@/lib/open-brain'
+
+type ViewMode = 'sources' | 'proposals' | 'wiki' | 'parity'
+
+export default function OpenBrainPage() {
+  return (
+    <ProtectedRoute requireAdmin>
+      <OpenBrainContent />
+    </ProtectedRoute>
+  )
+}
+
+function OpenBrainContent() {
+  const [snapshot, setSnapshot] = useState<OpenBrainSnapshot | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<ViewMode>('sources')
+  const [actionMessage, setActionMessage] = useState<string | null>(null)
+  const [reviewingProposalId, setReviewingProposalId] = useState<string | null>(null)
+
+  const authedFetch = useCallback(async (url: string, init: RequestInit = {}) => {
+    const session = await getCurrentSession()
+    if (!session?.access_token) throw new Error('Missing admin session')
+    const res = await fetch(url, {
+      ...init,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+        ...(init.headers || {}),
+      },
+    })
+    const body = await res.json().catch(() => ({}))
+    if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
+    return body
+  }, [])
+
+  const fetchSnapshot = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      setSnapshot(await authedFetch('/api/admin/agents/open-brain'))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load Open Brain status')
+      setSnapshot(null)
+    } finally {
+      setLoading(false)
+    }
+  }, [authedFetch])
+
+  useEffect(() => {
+    fetchSnapshot()
+  }, [fetchSnapshot])
+
+  const pendingProposals = useMemo(
+    () => snapshot?.proposals.filter((proposal) => proposal.status === 'pending') || [],
+    [snapshot?.proposals],
+  )
+
+  async function compileWiki() {
+    setActionMessage(null)
+    try {
+      const body = await authedFetch('/api/admin/agents/open-brain/wiki/compile', { method: 'POST', body: '{}' })
+      setActionMessage(`${body.pages?.length || 0} wiki page preview(s) compiled. Approval is required before repo writes.`)
+    } catch (err) {
+      setActionMessage(err instanceof Error ? err.message : 'Wiki compile failed')
+    }
+  }
+
+  async function reviewProposal(id: string, action: 'approve' | 'reject') {
+    setActionMessage(null)
+    setReviewingProposalId(id)
+    try {
+      await authedFetch(`/api/admin/agents/open-brain/proposals/${encodeURIComponent(id)}/${action}`, {
+        method: 'POST',
+        body: JSON.stringify({ reason: `${action === 'approve' ? 'Approved' : 'Rejected'} from Portfolio Admin.` }),
+      })
+      setActionMessage(`Proposal ${action === 'approve' ? 'approved' : 'rejected'}.`)
+      await fetchSnapshot()
+    } catch (err) {
+      setActionMessage(err instanceof Error ? err.message : `Proposal ${action} failed`)
+    } finally {
+      setReviewingProposalId(null)
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-background text-foreground p-6 lg:p-8">
+      <div className="mx-auto max-w-7xl">
+        <Breadcrumbs items={[
+          { label: 'Admin Dashboard', href: '/admin' },
+          { label: 'Agent Operations', href: '/admin/agents' },
+          { label: 'Open Brain' },
+        ]} />
+
+        <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Agent Operations</p>
+            <h1 className="mt-1 text-3xl font-bold">Open Brain</h1>
+            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+              Local-first memory projection for Portfolio Agent Ops. The local Open Brain remains the source of truth; Portfolio shows health, proposals, source freshness, and generated wiki previews.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/admin/agents/automations"
+              className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm hover:border-radiant-gold/60"
+            >
+              <GitBranch size={16} />
+              Automation Context
+            </Link>
+            <button
+              onClick={fetchSnapshot}
+              disabled={loading}
+              className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
+            >
+              <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+              Refresh
+            </button>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="py-16 text-center text-muted-foreground">Loading Open Brain status...</div>
+        ) : error ? (
+          <FailureState title="Failed to load Open Brain" message={error} />
+        ) : snapshot ? (
+          <>
+            {!snapshot.service.available ? (
+              <section className="mb-6 rounded-lg border border-yellow-400/40 bg-yellow-500/10 p-4 text-yellow-100">
+                <div className="mb-2 flex items-center gap-2 font-medium">
+                  <AlertTriangle size={18} />
+                  Local Open Brain service not initialized
+                </div>
+                <p className="text-sm">{snapshot.service.reason}</p>
+                <p className="mt-2 text-xs text-yellow-100/80">Home: {snapshot.service.home}</p>
+              </section>
+            ) : null}
+
+            <div className="mb-6 grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-3">
+              <MetricCard label="Sources" value={snapshot.overview.sources} tone="slate" />
+              <MetricCard label="Memories" value={snapshot.overview.memories} tone={snapshot.overview.memories ? 'green' : 'yellow'} />
+              <MetricCard label="Pending" value={snapshot.overview.pendingProposals} tone={snapshot.overview.pendingProposals ? 'yellow' : 'slate'} />
+              <MetricCard label="Approved" value={snapshot.overview.approvedProposals} tone="green" />
+              <MetricCard label="Rejected" value={snapshot.overview.rejectedProposals} tone="slate" />
+              <MetricCard label="Wiki pages" value={snapshot.overview.wikiPages} tone={snapshot.overview.wikiPages ? 'green' : 'yellow'} />
+              <MetricCard label="Stale sources" value={snapshot.overview.staleSources} tone={snapshot.overview.staleSources ? 'yellow' : 'slate'} />
+              <MetricCard label="Private" value={snapshot.overview.privateRecords} tone={snapshot.overview.privateRecords ? 'red' : 'slate'} />
+            </div>
+
+            <section className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
+              <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <div className="flex items-center gap-2 text-radiant-gold">
+                    <Brain size={18} />
+                    <h2 className="font-semibold">Context Packet</h2>
+                  </div>
+                  <p className="mt-2 text-sm text-muted-foreground">{snapshot.contextPacket.purpose}</p>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <HealthPill label="Sources" value={snapshot.health.sourceFreshness} />
+                  <HealthPill label="Memory" value={snapshot.health.memoryHealth} />
+                  <HealthPill label="Proposals" value={snapshot.health.proposalHealth} />
+                  <HealthPill label="Wiki" value={snapshot.health.wikiOverlay} />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 text-sm">
+                <ListBlock label="Boundaries" values={snapshot.contextPacket.boundaries} />
+                <ListBlock label="Current risks" values={snapshot.contextPacket.currentRisks} empty="No immediate risks in the projection." />
+                <ListBlock label="Expected outputs" values={snapshot.contextPacket.expectedOutputs} />
+              </div>
+            </section>
+
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+              <div className="inline-flex rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-1">
+                <ModeButton icon={<Database size={16} />} active={viewMode === 'sources'} onClick={() => setViewMode('sources')}>Sources</ModeButton>
+                <ModeButton icon={<ShieldCheck size={16} />} active={viewMode === 'proposals'} onClick={() => setViewMode('proposals')}>Proposals</ModeButton>
+                <ModeButton icon={<FileText size={16} />} active={viewMode === 'wiki'} onClick={() => setViewMode('wiki')}>Wiki Overlay</ModeButton>
+                <ModeButton icon={<Network size={16} />} active={viewMode === 'parity'} onClick={() => setViewMode('parity')}>Runtime Parity</ModeButton>
+              </div>
+              <button
+                onClick={compileWiki}
+                className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15"
+              >
+                <FileText size={16} />
+                Compile wiki preview
+              </button>
+            </div>
+
+            {actionMessage ? (
+              <div className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-3 text-sm text-muted-foreground">
+                {actionMessage}
+              </div>
+            ) : null}
+
+            {viewMode === 'sources' ? <SourcesView snapshot={snapshot} /> : null}
+            {viewMode === 'proposals' ? (
+              <ProposalsView
+                proposals={pendingProposals.length ? pendingProposals : snapshot.proposals}
+                reviewingProposalId={reviewingProposalId}
+                onReview={reviewProposal}
+              />
+            ) : null}
+            {viewMode === 'wiki' ? <WikiView pages={snapshot.wikiPages} /> : null}
+            {viewMode === 'parity' ? <ParityView snapshot={snapshot} /> : null}
+
+            <p className="mt-5 text-xs text-muted-foreground">
+              Generated {formatDateTime(snapshot.generatedAt)}. {snapshot.service.operationalBoundary}
+            </p>
+          </>
+        ) : null}
+      </div>
+    </div>
+  )
+}
+
+function SourcesView({ snapshot }: { snapshot: OpenBrainSnapshot }) {
+  return (
+    <div className="overflow-hidden rounded-lg border border-silicon-slate/70">
+      <table className="w-full text-sm">
+        <thead className="bg-silicon-slate/40 text-muted-foreground">
+          <tr>
+            <th className="px-4 py-3 text-left font-medium">Source</th>
+            <th className="px-4 py-3 text-left font-medium">Kind</th>
+            <th className="px-4 py-3 text-left font-medium">Privacy</th>
+            <th className="px-4 py-3 text-left font-medium">Confidence</th>
+            <th className="px-4 py-3 text-left font-medium">Last observed</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-silicon-slate/60">
+          {snapshot.sources.map((source) => (
+            <tr key={source.id}>
+              <td className="px-4 py-3">
+                <p className="font-medium">{source.title}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{source.summary}</p>
+                <p className="mt-1 break-all text-xs text-muted-foreground">{source.path || source.id}</p>
+              </td>
+              <td className="px-4 py-3">{source.kind}</td>
+              <td className="px-4 py-3"><PrivacyBadge tier={source.privacyTier} /></td>
+              <td className="px-4 py-3">{Math.round(source.confidence * 100)}%</td>
+              <td className="px-4 py-3 text-muted-foreground">{formatDateTime(source.lastObservedAt)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function ProposalsView({
+  proposals,
+  reviewingProposalId,
+  onReview,
+}: {
+  proposals: OpenBrainSnapshot['proposals']
+  reviewingProposalId: string | null
+  onReview: (id: string, action: 'approve' | 'reject') => void
+}) {
+  if (proposals.length === 0) {
+    return <EmptyState message="No Open Brain memory proposals are pending or stored locally." />
+  }
+  return (
+    <section className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+      {proposals.map((proposal) => (
+        <article key={proposal.id} className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <h3 className="font-semibold">{proposal.proposedMemory.title}</h3>
+            <StatusBadge value={proposal.status} />
+          </div>
+          <p className="mb-3 text-sm text-muted-foreground">{proposal.proposedMemory.body}</p>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <Detail label="Kind" value={proposal.proposedMemory.kind} />
+            <Detail label="Privacy" value={proposal.proposedMemory.privacyTier} />
+            <Detail label="Confidence" value={`${Math.round(proposal.proposedMemory.confidence * 100)}%`} />
+            <Detail label="Created" value={formatDateTime(proposal.createdAt)} />
+          </div>
+          <p className="mt-3 text-xs text-muted-foreground">{proposal.reason}</p>
+          {proposal.status === 'pending' ? (
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                onClick={() => onReview(proposal.id, 'approve')}
+                disabled={reviewingProposalId === proposal.id}
+                className="inline-flex items-center gap-2 rounded-lg border border-green-400/40 bg-green-500/10 px-3 py-2 text-sm text-green-200 hover:bg-green-500/15 disabled:opacity-60"
+              >
+                <CheckCircle2 size={16} />
+                Approve
+              </button>
+              <button
+                onClick={() => onReview(proposal.id, 'reject')}
+                disabled={reviewingProposalId === proposal.id}
+                className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background px-3 py-2 text-sm text-muted-foreground hover:border-radiant-gold/60 disabled:opacity-60"
+              >
+                Reject
+              </button>
+            </div>
+          ) : null}
+        </article>
+      ))}
+    </section>
+  )
+}
+
+function WikiView({ pages }: { pages: OpenBrainSnapshot['wikiPages'] }) {
+  if (pages.length === 0) {
+    return <EmptyState message="No generated wiki overlays yet. Approve memory proposals before compiling repo-owned docs." />
+  }
+  return (
+    <section className="space-y-4">
+      {pages.map((page) => (
+        <article key={page.slug} className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
+          <div className="mb-3 flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <h3 className="font-semibold">{page.title}</h3>
+              <p className="mt-1 text-xs text-muted-foreground">{page.path}</p>
+            </div>
+            <PrivacyBadge tier={page.privacyTier} />
+          </div>
+          <pre className="max-h-72 overflow-auto rounded-lg border border-silicon-slate/60 bg-black/20 p-3 text-xs text-muted-foreground whitespace-pre-wrap">
+            {page.markdown}
+          </pre>
+        </article>
+      ))}
+    </section>
+  )
+}
+
+function ParityView({ snapshot }: { snapshot: OpenBrainSnapshot }) {
+  return (
+    <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <article className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
+        <div className="mb-4 flex items-center gap-2 text-radiant-gold">
+          <Database size={18} />
+          <h2 className="font-semibold">Local Service</h2>
+        </div>
+        <div className="grid grid-cols-1 gap-2 text-sm">
+          <Detail label="Storage" value={snapshot.service.storage} />
+          <Detail label="Home" value={snapshot.service.home} />
+          <Detail label="Database configured" value={snapshot.service.databaseConfigured ? 'yes' : 'no'} />
+          <Detail label="MCP configured" value={snapshot.service.mcpConfigured ? 'yes' : 'no'} />
+          <Detail label="MCP URL" value={snapshot.service.mcpUrl || 'not configured'} />
+        </div>
+      </article>
+
+      <div className="space-y-3">
+        {snapshot.runtimeParity.map((runtime) => (
+          <article key={runtime.runtime} className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <h3 className="font-semibold">{runtime.runtime}</h3>
+              <StatusBadge value={runtime.status} />
+            </div>
+            <p className="break-all text-xs text-muted-foreground">{runtime.configPath}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{runtime.note}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function MetricCard({ label, value, tone = 'slate' }: { label: string; value: number; tone?: 'slate' | 'green' | 'yellow' | 'red' }) {
+  const toneClass = tone === 'green' ? 'text-green-300' : tone === 'yellow' ? 'text-yellow-200' : tone === 'red' ? 'text-red-300' : 'text-foreground'
+  return (
+    <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
+      <p className={`text-2xl font-bold ${toneClass}`}>{value}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{label}</p>
+    </div>
+  )
+}
+
+function ModeButton({ active, onClick, icon, children }: { active: boolean; onClick: () => void; icon: ReactNode; children: ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm ${active ? 'bg-radiant-gold/15 text-radiant-gold' : 'text-muted-foreground hover:text-foreground'}`}
+    >
+      {icon}
+      {children}
+    </button>
+  )
+}
+
+function ListBlock({ label, values, empty = 'None.' }: { label: string; values: string[]; empty?: string }) {
+  return (
+    <div>
+      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</h3>
+      {values.length > 0 ? (
+        <ul className="space-y-2">
+          {values.map((value) => <li key={value} className="rounded-lg border border-silicon-slate/60 bg-black/10 p-3">{value}</li>)}
+        </ul>
+      ) : (
+        <p className="rounded-lg border border-silicon-slate/60 bg-black/10 p-3 text-muted-foreground">{empty}</p>
+      )}
+    </div>
+  )
+}
+
+function HealthPill({ label, value }: { label: string; value: 'green' | 'yellow' | 'red' }) {
+  return (
+    <div className="rounded-lg border border-silicon-slate/60 bg-black/10 p-2">
+      <p className="text-muted-foreground">{label}</p>
+      <p className={value === 'green' ? 'text-green-300' : value === 'yellow' ? 'text-yellow-200' : 'text-red-300'}>{value}</p>
+    </div>
+  )
+}
+
+function StatusBadge({ value }: { value: string }) {
+  const tone = value === 'approved' || value === 'connected'
+    ? 'border-green-400/30 bg-green-500/10 text-green-200'
+    : value === 'pending' || value === 'blocked'
+      ? 'border-yellow-400/30 bg-yellow-500/10 text-yellow-100'
+      : 'border-silicon-slate/70 bg-silicon-slate/30 text-muted-foreground'
+  return <span className={`rounded-full border px-2 py-1 text-xs ${tone}`}>{value}</span>
+}
+
+function PrivacyBadge({ tier }: { tier: string }) {
+  const tone = tier === 'private' ? 'border-red-400/30 bg-red-500/10 text-red-200' : 'border-silicon-slate/70 bg-silicon-slate/30 text-muted-foreground'
+  return <span className={`rounded-full border px-2 py-1 text-xs ${tone}`}>{tier}</span>
+}
+
+function Detail({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-silicon-slate/60 bg-black/10 p-3">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="mt-1 break-all">{value}</p>
+    </div>
+  )
+}
+
+function EmptyState({ message }: { message: string }) {
+  return (
+    <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-8 text-center text-muted-foreground">
+      {message}
+    </div>
+  )
+}
+
+function FailureState({ title, message }: { title: string; message: string }) {
+  return (
+    <div className="rounded-lg border border-red-400/40 bg-red-500/10 p-6 text-red-100">
+      <div className="mb-2 flex items-center gap-2 font-medium">
+        <AlertTriangle size={18} />
+        {title}
+      </div>
+      <p className="text-sm">{message}</p>
+    </div>
+  )
+}
+
+function formatDateTime(value: string) {
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(new Date(value))
+}

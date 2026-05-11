@@ -70,6 +70,7 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
         { label: 'Agent Coordination', href: '/admin/agents/coordination' },
         { label: 'Client Swarm Board', href: '/admin/agents/swarm-board' },
         { label: 'Automation Context', href: '/admin/agents/automations' },
+        { label: 'Open Brain', href: '/admin/agents/open-brain' },
         { label: 'Technology Bakeoffs', href: '/admin/technology-bakeoffs' },
         { label: 'Source Protocol', href: '/admin/source-protocol' },
         { label: 'Client Experience', href: '/admin/client-experience' },
