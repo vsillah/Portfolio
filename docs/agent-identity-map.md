@@ -17,6 +17,7 @@ The Chief of Staff identity is fixed by rule:
 | `research-source-register` | Askia Muhammad (Songhai) - Research Source Register |
 | `private-knowledge-librarian` | Hatshepsut (Kemet) - Private Knowledge Librarian |
 | `decision-journal` | Nzinga (Ndongo/Matamba) - Decision Journal |
+| `risk-compliance-intelligence` | Moremi (Ife) - Risk & Compliance |
 | `voice-content-architect` | Nefertiti (Kemet) - Voice & Content Architect |
 | `content-repurposing` | Hannibal (Carthage) - Content Repurposing |
 | `amadutown-brand` | Taharqa (Kush) - AmaduTown Brand |

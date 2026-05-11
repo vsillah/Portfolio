@@ -97,4 +97,21 @@ describe('agent organization registry', () => {
     expect(librarian?.approvalGate).toContain('public chatbot/RAG policy changes')
     expect(sourceRegister?.approvalGate).toContain('unclassified material')
   })
+
+  it('adds a narrow AI risk and compliance owner without taking over source intake', () => {
+    const riskAgent = getAgentByKey('risk-compliance-intelligence')
+    const sourceRegister = getAgentByKey('research-source-register')
+
+    expect(riskAgent).toMatchObject({
+      name: 'Moremi (Ife) - Risk & Compliance',
+      podKey: 'research_knowledge',
+      status: 'partial',
+      primaryRuntime: 'mixed',
+      n8nWorkflows: [],
+    })
+    expect(riskAgent?.responsibility).toContain('map them to Portfolio exposure')
+    expect(riskAgent?.responsibility).toContain('open upgrade requests')
+    expect(riskAgent?.approvalGate).toContain('Read-only exposure assessment')
+    expect(sourceRegister?.responsibility).toContain('Collect and classify source-backed evidence')
+  })
 })

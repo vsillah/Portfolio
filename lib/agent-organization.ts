@@ -167,6 +167,17 @@ export const AGENT_ORGANIZATION: AgentOrganizationNode[] = [
     n8nWorkflows: [],
   },
   {
+    key: 'risk-compliance-intelligence',
+    name: 'Moremi (Ife) - Risk & Compliance',
+    podKey: 'research_knowledge',
+    status: 'partial',
+    primaryRuntime: 'mixed',
+    responsibility: 'Monitor AI agent, AI ethics, security, privacy, and regulatory signals, map them to Portfolio exposure, and open upgrade requests when gaps appear.',
+    engagementPath: 'Research intake from source registers and news monitors, Agent Ops work items, Chief of Staff escalation, and future Slack status routing.',
+    approvalGate: 'Read-only exposure assessment by default; policy changes, production config changes, public claims, workflow mutation, or client-data access require approval.',
+    n8nWorkflows: [],
+  },
+  {
     key: 'voice-content-architect',
     name: 'Nefertiti (Kemet) - Voice & Content Architect',
     podKey: 'content_production',
