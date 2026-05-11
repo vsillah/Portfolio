@@ -44,6 +44,40 @@ describe('AI risk signal monitor', () => {
     expect(assessment.upgradeRequest).toBeNull()
   })
 
+  it('routes prompt and runtime security signals through approval-required packets', () => {
+    const [assessment] = assessAiRiskSignals([
+      {
+        id: 'security-advisory-1',
+        title: 'AI agent prompt injection vulnerability affects browser automation',
+        summary: 'Security researchers report indirect prompt injection that can trigger unsafe tool calls.',
+        sourceName: 'Security advisory',
+        sourceUrl: 'https://example.com/advisory',
+        tags: ['tool injection'],
+      },
+    ])
+
+    expect(assessment).toMatchObject({
+      classification: 'approval_required',
+      severity: 'high',
+      category: 'prompt_injection',
+    })
+    expect(assessment.exposureSurfaces.map((surface) => surface.key)).toEqual(expect.arrayContaining([
+      'agent-tool-use',
+      'runtime-security',
+    ]))
+    expect(assessment.upgradeRequest).toMatchObject({
+      source_id: 'security-advisory-1',
+      source_label: 'Security advisory',
+      priority: 'urgent',
+      metadata: expect.objectContaining({
+        approval_required: true,
+        classification: 'approval_required',
+        source_url: 'https://example.com/advisory',
+        exposure_surfaces: expect.arrayContaining(['agent-tool-use', 'runtime-security']),
+      }),
+    })
+  })
+
   it('returns a read-only monitor summary with Moremi as owner', () => {
     expect(getAiRiskSignalMonitorSummary()).toMatchObject({
       ownerAgentKey: 'risk-compliance-intelligence',

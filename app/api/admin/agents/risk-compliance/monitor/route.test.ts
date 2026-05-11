@@ -66,8 +66,15 @@ describe('/api/admin/agents/risk-compliance/monitor', () => {
       ok: true,
       assessments: [
         {
-          classification: expect.stringMatching(/exposure_check|upgrade_request|approval_required/),
+          classification: 'approval_required',
           ownerAgentKey: 'risk-compliance-intelligence',
+          upgradeRequest: expect.objectContaining({
+            priority: 'urgent',
+            metadata: expect.objectContaining({
+              approval_required: true,
+              exposure_surfaces: expect.arrayContaining(['agent-tool-use', 'runtime-security']),
+            }),
+          }),
         },
       ],
       side_effects: {

@@ -88,7 +88,7 @@ const KEYWORD_SURFACES: Array<{
     },
   },
   {
-    keywords: ['eu ai act', 'regulation', 'regulatory', 'compliance', 'enforcement', 'gpaI', 'general-purpose ai', 'automated decision'],
+    keywords: ['eu ai act', 'regulation', 'regulatory', 'compliance', 'enforcement', 'gpai', 'general-purpose ai', 'automated decision'],
     surface: {
       key: 'ai-policy-governance',
       label: 'AI policy, disclosure, and approval governance',
@@ -205,6 +205,12 @@ function surfacesForSignal(text: string) {
 }
 
 function classifySignal(severity: AiRiskSignalSeverity, surfaces: AiRiskExposureSurface[], text: string): AiRiskSignalClassification {
+  const approvalSurfaceKeys = new Set([
+    'agent-tool-use',
+    'client-data-boundary',
+    'ai-policy-governance',
+    'runtime-security',
+  ])
   const approvalKeywords = [
     'production config',
     'credential',
@@ -212,11 +218,20 @@ function classifySignal(severity: AiRiskSignalSeverity, surfaces: AiRiskExposure
     'client data',
     'customer data',
     'personal data',
+    'prompt injection',
+    'tool injection',
+    'jailbreak',
+    'indirect prompt',
+    'unsafe tool',
+    'browser automation',
+    'remote code',
+    'api key',
     'public claim',
     'regulation',
     'enforcement',
   ]
   if (severity === 'critical' || approvalKeywords.some((keyword) => text.includes(keyword))) return 'approval_required'
+  if (severityRank(severity) >= 2 && surfaces.some((surface) => approvalSurfaceKeys.has(surface.key))) return 'approval_required'
   if (severity === 'high' && surfaces.length > 0) return 'upgrade_request'
   if (surfaces.length > 0) return 'exposure_check'
   return 'watch_only'
