@@ -35,6 +35,31 @@ Every signal should be classified before it becomes work:
 | `upgrade_request` | Confirmed gap or missing control. | Open a scoped implementation request. |
 | `approval_required` | Fix may touch policy, production config, public content, external sends, or client data. | Route to Shaka and approval gate. |
 
+## Read-Only Monitor Endpoint
+
+The first implementation surface is read-only:
+
+- `GET /api/admin/agents/risk-compliance/monitor` returns Moremi's monitor configuration and safety boundary.
+- `POST /api/admin/agents/risk-compliance/monitor` accepts supplied signal briefs and returns exposure assessments plus proposed upgrade-request payloads.
+- The endpoint does not fetch live news, create work items, mutate workflows, write to production tables, or send notifications in v1.
+
+Expected signal payload:
+
+```json
+{
+  "signals": [
+    {
+      "title": "Regulator issues AI agent privacy warning",
+      "summary": "The warning focuses on agents processing customer data without consent controls.",
+      "sourceName": "Regulator bulletin",
+      "sourceUrl": "https://example.com/source",
+      "severity": "high",
+      "category": "privacy_data"
+    }
+  ]
+}
+```
+
 ## Exposure Checklist
 
 When a signal is relevant, Moremi checks Portfolio for:
@@ -60,6 +85,16 @@ When a signal is relevant, Moremi checks Portfolio for:
 - No production workflow mutation, config change, prompt change, public claim, vendor switch, database write outside known safe workflows, publishing, or external send is allowed without approval.
 - Do not copy production customer, lead, client, contact, meeting, payment, or private operational data into non-production validation.
 - Do not treat news commentary as policy. Prefer primary sources, regulator guidance, vendor incident notices, standards bodies, and security advisories where available.
+
+## Baseline Source Families
+
+Moremi should prioritize primary and standards-oriented sources before commentary:
+
+- [OWASP Agent Security Initiative](https://owasp.org/www-project-top-10-for-large-language-model-applications/initiatives/agent_security_initiative/) for agentic AI security risks.
+- [OWASP AI Vulnerability Scoring System](https://aivss.owasp.org/) for severity scoring patterns specific to AI risks.
+- [NIST AI Risk Management Framework](https://www.nist.gov/itl/ai-risk-management-framework) and the Generative AI Profile for risk management vocabulary.
+- [EU Regulation 2024/1689](https://eur-lex.europa.eu/eli/reg/2024/1689/oj) for AI Act obligations and regulatory language.
+- [FTC AI business guidance](https://www.ftc.gov/business-guidance/technology/artificial-intelligence) for consumer protection and AI claims/disclosure risk.
 
 ## Definition Of Done
 
