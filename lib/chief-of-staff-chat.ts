@@ -216,6 +216,13 @@ export function normalizeChiefOfStaffHistory(
     .slice(-8)
 }
 
+export function getChiefOfStaffTriggeredByUserId(userId: string | undefined) {
+  if (!userId) return null
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)
+    ? userId
+    : null
+}
+
 function isAgentAction(value: unknown): value is AgentAction {
   return typeof value === 'string' && CHIEF_OF_STAFF_ACTIONS.includes(value as AgentAction)
 }
@@ -514,7 +521,7 @@ export async function runChiefOfStaffChat(input: ChiefOfStaffChatRequest): Promi
     status: 'running',
     subject: { type: 'admin_chat', id: input.userId ?? 'admin', label: 'Admin chat' },
     triggerSource: input.triggerSource ?? 'admin_chief_of_staff_chat',
-    triggeredByUserId: input.userId,
+    triggeredByUserId: getChiefOfStaffTriggeredByUserId(input.userId),
     currentStep: 'Collecting operating context',
     metadata: { message_preview: message.slice(0, 240) },
   })
