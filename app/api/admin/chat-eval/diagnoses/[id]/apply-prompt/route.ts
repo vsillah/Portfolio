@@ -42,6 +42,13 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       )
     }
 
+    if (diagnosis.status !== 'approved') {
+      return NextResponse.json(
+        { error: 'Diagnosis must be approved before applying prompt fixes' },
+        { status: 400 }
+      )
+    }
+
     // Find the recommendation
     const recommendations = diagnosis.recommendations || []
     let recommendation: any = null
@@ -58,6 +65,13 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json(
         { error: 'Prompt recommendation not found' },
         { status: 404 }
+      )
+    }
+
+    if (recommendation.approved !== true) {
+      return NextResponse.json(
+        { error: 'Prompt recommendation must be approved before applying' },
+        { status: 400 }
       )
     }
 
