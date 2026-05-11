@@ -13,6 +13,7 @@ import {
   CircleDollarSign,
   ClipboardList,
   Clock3,
+  Gauge,
   MessageSquare,
   Network,
   Radio,
@@ -20,6 +21,7 @@ import {
   Send,
   ShieldCheck,
   Sparkles,
+  TrendingDown,
   Users,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
@@ -106,6 +108,45 @@ type MissionSnapshot = {
     by_workflow: CostSummaryGroup[]
     by_client_project: CostSummaryGroup[]
     by_artifact_type: CostSummaryGroup[]
+  }
+  quality_summary: {
+    window_hours: number
+    generated_at: string
+    rubric_count: number
+    evaluation_count: number
+    average_score: number | null
+    pass_rate: number | null
+    by_agent: Array<{
+      agent_key: string
+      evaluation_count: number
+      average_score: number | null
+      pass_rate: number | null
+      latest_score: number | null
+      latest_evaluated_at: string | null
+    }>
+    needs_coaching: Array<{
+      agent_key: string
+      rubric_key: string
+      rubric_name: string
+      latest_score: number | null
+      threshold: number
+      reason: string
+      run_id: string | null
+      evaluated_at: string | null
+    }>
+    rubric_trends: Array<{
+      rubric_key: string
+      rubric_name: string
+      agent_key: string
+      workflow_key: string | null
+      latest_score: number | null
+      average_score: number | null
+      pass_rate: number | null
+      evaluation_count: number
+      threshold: number
+      latest_evaluated_at: string | null
+      direction: 'up' | 'down' | 'flat' | 'unknown'
+    }>
   }
   operating_signals: Array<{
     run_id: string
@@ -475,6 +516,7 @@ export default function AgentOperationsPage() {
 
           <DailyBriefPanel brief={snapshot?.daily_brief ?? null} loading={loading} />
           <CostSummaryPanel summary={snapshot?.cost_summary ?? null} />
+          <QualitySignalsPanel summary={snapshot?.quality_summary ?? null} />
           <OperatingSignalsPanel signals={snapshot?.operating_signals ?? []} />
           <KnowledgeGovernancePanel governance={snapshot?.knowledge_governance ?? null} />
 
@@ -776,6 +818,99 @@ function CostSummaryCard({ title, group }: { title: string; group: CostSummaryGr
         {group ? `${group.event_count} event(s), ${group.run_count} run(s)` : 'No linked cost events'}
       </p>
     </div>
+  )
+}
+
+function QualitySignalsPanel({ summary }: { summary: MissionSnapshot['quality_summary'] | null }) {
+  const hasEvaluations = Boolean(summary?.evaluation_count)
+  const qualityScore = summary?.average_score === null || summary?.average_score === undefined
+    ? 'No score'
+    : `${summary.average_score.toFixed(1)}`
+  const passRate = summary?.pass_rate === null || summary?.pass_rate === undefined
+    ? 'No pass rate'
+    : `${Math.round(summary.pass_rate * 100)}%`
+
+  return (
+    <section className="mt-5 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-radiant-gold">
+            <Gauge size={18} />
+            <h2 className="font-semibold">Quality Signals</h2>
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Rubric-backed scoring for agent output quality, coaching needs, and trend visibility.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+          <CostChip label={`${summary?.window_hours ?? 24}h score`} value={qualityScore} />
+          <CostChip label="Pass rate" value={passRate} />
+          <CostChip label="Rubrics" value={summary?.rubric_count ?? 0} />
+          <CostChip label="Evaluations" value={summary?.evaluation_count ?? 0} />
+        </div>
+      </div>
+
+      {hasEvaluations ? (
+        <div className="mt-3 grid grid-cols-1 gap-3 xl:grid-cols-[0.9fr_1.1fr]">
+          <div className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3">
+            <div className="flex items-center gap-2 text-yellow-200">
+              <TrendingDown size={16} />
+              <p className="text-sm font-semibold">Needs Coaching</p>
+            </div>
+            <div className="mt-3 space-y-2">
+              {summary?.needs_coaching.length ? summary.needs_coaching.slice(0, 4).map((item) => (
+                <Link
+                  key={`${item.agent_key}-${item.rubric_key}`}
+                  href={item.run_id ? `/admin/agents/runs/${item.run_id}` : '/admin/agents'}
+                  className="block rounded-lg border border-yellow-400/20 bg-yellow-500/5 p-3 text-sm hover:border-yellow-400/40"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="font-medium">{item.agent_key.replace(/-/g, ' ')}</p>
+                    <span className="rounded-full border border-yellow-400/40 bg-yellow-500/10 px-2 py-0.5 text-xs text-yellow-100">
+                      {item.latest_score === null ? 'No score' : `${item.latest_score.toFixed(1)} / ${item.threshold.toFixed(0)}`}
+                    </span>
+                  </div>
+                  <p className="mt-1 line-clamp-2 text-muted-foreground">{item.rubric_name}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{item.reason}</p>
+                </Link>
+              )) : (
+                <p className="rounded-lg border border-silicon-slate/50 bg-background/30 p-3 text-sm text-muted-foreground">
+                  No coaching signals in the current window.
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3">
+            <p className="text-sm font-semibold">Rubric Trends</p>
+            <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2">
+              {(summary?.rubric_trends ?? []).slice(0, 6).map((trend) => (
+                <div key={trend.rubric_key} className="rounded-lg border border-silicon-slate/50 bg-background/30 p-3 text-sm">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="truncate font-medium">{trend.rubric_name}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">{trend.agent_key.replace(/-/g, ' ')}</p>
+                    </div>
+                    <span className={`shrink-0 rounded-full border px-2 py-0.5 text-xs ${trend.latest_score !== null && trend.latest_score < trend.threshold ? 'border-yellow-400/40 bg-yellow-500/10 text-yellow-100' : 'border-silicon-slate/50 bg-black/10 text-muted-foreground'}`}>
+                      {trend.latest_score === null ? 'Pending' : trend.latest_score.toFixed(1)}
+                    </span>
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                    <span>{trend.evaluation_count} eval(s)</span>
+                    <span>Pass {trend.pass_rate === null ? '-' : `${Math.round(trend.pass_rate * 100)}%`}</span>
+                    <span>{trend.direction}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <p className="mt-3 rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm text-muted-foreground">
+          No evaluations recorded yet. Run a rubric evaluation from a trace detail page or the evaluation API to establish the first quality baseline.
+        </p>
+      )}
+    </section>
   )
 }
 
