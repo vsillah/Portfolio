@@ -20,6 +20,7 @@ import {
   buildChiefOfStaffPrompt,
   evaluateChiefOfStaffBudget,
   getChiefOfStaffAgentRoutingCatalog,
+  getChiefOfStaffTriggeredByUserId,
   normalizeChiefOfStaffHistory,
   parseChiefOfStaffJson,
   summarizeAutomationContext,
@@ -103,6 +104,14 @@ describe('Chief of Staff chat helpers', () => {
       { role: 'assistant', content: 'second' },
       { role: 'user', content: 'third' },
     ])
+  })
+
+  it('only writes UUID user identifiers to agent run ownership fields', () => {
+    expect(getChiefOfStaffTriggeredByUserId('019e111a-4fb3-7950-86ae-d9608f4e1a14')).toBe(
+      '019e111a-4fb3-7950-86ae-d9608f4e1a14',
+    )
+    expect(getChiefOfStaffTriggeredByUserId('slack:U08FJLLKWF3')).toBeNull()
+    expect(getChiefOfStaffTriggeredByUserId(undefined)).toBeNull()
   })
 
   it('parses the model JSON contract', () => {
