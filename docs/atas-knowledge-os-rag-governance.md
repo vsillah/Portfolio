@@ -68,7 +68,9 @@ public namespaces, and excluded private sources marked as RAG-approved.
 | `legacy_health` | `legacy_quarantine` | `internal` | Legacy connectivity checks only |
 
 Portfolio's curated `/api/knowledge` bundle remains the authoritative public
-fact source for products, services, campaigns, and public-safe bio context.
+fact projection for products, services, campaigns, and public-safe bio context.
+The canonical durable-memory layer is the local Open Brain; `/api/knowledge`
+and Pinecone are downstream projections.
 
 ## Agent Ops Visibility
 
@@ -98,6 +100,16 @@ Current write mode is intentionally blocked. Requests with `{ "write": true }`
 return `blocked_pending_pinecone_cutover_approval` until Pinecone index creation,
 production n8n activation, and default retrieval cutover are explicitly approved.
 
+Each shadow plan also records sanitized Open Brain source/event records:
+
+- source kind `rag_projection` for shadow-only plans,
+- source kind `pinecone_projection` when a write was requested and blocked,
+- event kind `rag_projection_staged` with counts, status, privacy-violation
+  count, and approval state.
+
+These records are trace metadata only. They do not write Pinecone, promote
+private-derived material, or create durable Open Brain memories.
+
 ## Approval Gates
 
 The following actions require explicit approval:
@@ -107,3 +119,6 @@ The following actions require explicit approval:
 - production n8n activation/deactivation for RAG workflows
 - promoting private-derived material into public retrieval
 - deleting or overwriting the legacy Pinecone index
+- ingesting Open Brain projections into Pinecone
+- promoting any Open Brain memory into public chatbot or RAG projections unless
+  it is approved and `public_safe`

@@ -7,9 +7,13 @@ import {
   createOpenBrainProposal,
   fingerprintOpenBrainRecord,
   getOpenBrainSnapshot,
+  linkOpenBrainRecords,
+  recordOpenBrainEvent,
+  recordOpenBrainSource,
   reviewOpenBrainProposal,
   sanitizeOpenBrainText,
   validateMemoryProposal,
+  buildOpenBrainRagProjection,
   type OpenBrainMemoryRecord,
 } from './open-brain'
 
@@ -81,7 +85,11 @@ describe('Open Brain projection', () => {
       'workspace_root_report',
       'repair_packet',
       'runbook',
+      'personality_corpus',
+      'chatbot_knowledge',
+      'rag_projection',
     ]))
+    expect(snapshot.events.map((event) => event.kind)).toContain('source_observed')
     expect(snapshot.proposals[0]).toEqual(expect.objectContaining({
       id: 'proposal:repair:portfolio-operations-manager',
       status: 'pending',
@@ -116,6 +124,10 @@ describe('Open Brain projection', () => {
 
     expect(approved.status).toBe('approved')
     expect(snapshot.memories).toHaveLength(1)
+    expect(snapshot.events.map((event) => event.kind)).toEqual(expect.arrayContaining([
+      'proposal_created',
+      'proposal_approved',
+    ]))
     expect(snapshot.wikiPages[0]).toEqual(expect.objectContaining({
       slug: 'decision-memory',
       path: 'docs/open-brain/wiki/decision-memory.md',
@@ -155,6 +167,82 @@ describe('Open Brain projection', () => {
     }
 
     expect(compileKarpathyWikiOverlay([memory])).toEqual([])
+  })
+
+  it('persists source, event, and link records in the local Open Brain home', async () => {
+    const root = await makeTempRoot()
+    const source = await recordOpenBrainSource({
+      id: 'autoresearch:proposal:test',
+      kind: 'autoresearch_proposal',
+      title: 'Test AutoResearch proposal',
+      summary: 'Approval packet created without executing the experiment.',
+      path: null,
+      privacyTier: 'internal_ops',
+      confidence: 0.8,
+    }, root)
+    await recordOpenBrainEvent({
+      id: 'event:autoresearch-proposal-created:test',
+      kind: 'autoresearch_proposal_created',
+      title: 'AutoResearch proposal created',
+      summary: 'Proposal trace only.',
+      privacyTier: 'internal_ops',
+      confidence: 0.82,
+      sourceIds: [source.id],
+    }, root)
+    const proposal = await createOpenBrainProposal({
+      kind: 'workflow',
+      title: 'Approved trace linking',
+      body: 'Open Brain links approved memory records back to source records.',
+      privacyTier: 'internal_ops',
+      sourceIds: [source.id],
+      reason: 'test',
+    }, root)
+    const approved = await reviewOpenBrainProposal(proposal.id, 'approved', 'Accepted', 'admin', root)
+    const link = await linkOpenBrainRecords({
+      fromId: `memory:${approved.id.replace(/^proposal:/, '')}`,
+      toId: source.id,
+      relationship: 'derived_from',
+    }, root)
+    const snapshot = await getOpenBrainSnapshot(root)
+
+    expect(snapshot.sources).toEqual(expect.arrayContaining([expect.objectContaining({ id: source.id })]))
+    expect(snapshot.events).toEqual(expect.arrayContaining([expect.objectContaining({ kind: 'autoresearch_proposal_created' })]))
+    expect(snapshot.links).toEqual([expect.objectContaining({ id: link.id, relationship: 'derived_from' })])
+    expect(snapshot.wikiPages.map((page) => page.slug)).toContain('autoresearch-experiment-ledger')
+  })
+
+  it('projects only approved public-safe memories into RAG documents', () => {
+    const publicMemory: OpenBrainMemoryRecord = {
+      id: 'memory:public',
+      kind: 'fact',
+      title: 'Public-safe profile',
+      body: 'Public-safe derived summary only.',
+      privacyTier: 'public_safe',
+      confidence: 0.9,
+      sourceIds: ['personality-corpus:public-safe'],
+      createdAt: '2026-05-10T12:00:00.000Z',
+      updatedAt: '2026-05-10T12:00:00.000Z',
+      fingerprint: fingerprintOpenBrainRecord(['public']),
+    }
+    const privateMemory: OpenBrainMemoryRecord = {
+      ...publicMemory,
+      id: 'memory:private',
+      title: 'Private profile',
+      privacyTier: 'private',
+      fingerprint: fingerprintOpenBrainRecord(['private']),
+    }
+    const projection = buildOpenBrainRagProjection([publicMemory, privateMemory])
+
+    expect(projection.documents).toHaveLength(1)
+    expect(projection.documents[0].metadata).toEqual(expect.objectContaining({
+      openBrainMemoryId: 'memory:public',
+      openBrainSourceIds: ['personality-corpus:public-safe'],
+      privacyTier: 'public_safe',
+      projectionVersion: 'open-brain-rag-projection-v1',
+      deletionKey: 'open-brain:memory:public',
+    }))
+    expect(projection.pineconeWriteStatus).toBe('blocked_pending_approval')
+    expect(projection.excludedPrivateCount).toBe(1)
   })
 
   it('sanitizes secret-like content', () => {

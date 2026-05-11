@@ -17,6 +17,9 @@ npm run deploy:research:plan -- --json
 The planner uses the current deployment metrics scorecard to propose focused
 experiments. A proposal becomes actionable only after it is routed into Agent
 Coordination as a pending `vercel_deployment_research_proposal` approval.
+Creating that approval also records sanitized Open Brain source/event records so
+the proposal is visible in the local memory timeline without becoming durable
+memory.
 
 ## Approval Gate
 
@@ -52,8 +55,11 @@ Proposal-ready notifications are event-driven. There is no schedule.
 - Agent Coordination is the visible review surface.
 - Integration Captain still owns merge and deployment sequencing.
 - Technology Bakeoff owns vendor, runtime, or provider promotion decisions.
-- Open Brain may receive approved summaries later, but it is not the execution
-  engine, approval source of truth, or notification service.
+- Open Brain records the proposal trace as source/event metadata, but it is not
+  the execution engine, approval source of truth, or notification service.
+- Approved experiment outcomes may become Open Brain memory proposals later.
+  They do not become durable memory unless reviewed and approved in the Open
+  Brain flow.
 - Vercel project settings, env vars, build commands, ignored build steps,
   branch protection, domains, log drains, and provider integrations remain
   separate production-config approval gates.

@@ -20,8 +20,23 @@ export type OpenBrainSourceKind =
   | 'model_ops_report'
   | 'model_ops_dashboard'
   | 'model_ops_swap_request'
+  | 'personality_corpus'
+  | 'chatbot_knowledge'
+  | 'rag_projection'
+  | 'pinecone_projection'
+  | 'autoresearch_proposal'
+  | 'autoresearch_result'
+  | 'open_brain_runtime'
 export type OpenBrainMemoryKind = 'fact' | 'decision' | 'preference' | 'workflow' | 'risk' | 'operating_rule'
 export type OpenBrainProposalStatus = 'pending' | 'approved' | 'rejected'
+export type OpenBrainEventKind =
+  | 'source_observed'
+  | 'proposal_created'
+  | 'proposal_approved'
+  | 'proposal_rejected'
+  | 'projection_compiled'
+  | 'autoresearch_proposal_created'
+  | 'rag_projection_staged'
 
 export interface OpenBrainSourceRecord {
   id: string
@@ -56,6 +71,19 @@ export interface OpenBrainLinkRecord {
   createdAt: string
 }
 
+export interface OpenBrainEventRecord {
+  id: string
+  kind: OpenBrainEventKind
+  title: string
+  summary: string
+  privacyTier: OpenBrainPrivacyTier
+  confidence: number
+  sourceIds: string[]
+  createdAt: string
+  fingerprint: string
+  metadata?: Record<string, unknown>
+}
+
 export interface OpenBrainProposalRecord {
   id: string
   status: OpenBrainProposalStatus
@@ -76,6 +104,21 @@ export interface OpenBrainWikiPage {
   markdown: string
   sourceMemoryIds: string[]
   privacyTier: OpenBrainPrivacyTier
+}
+
+export interface OpenBrainRagProjectionDocument {
+  id: string
+  title: string
+  text: string
+  metadata: {
+    openBrainMemoryId: string
+    openBrainSourceIds: string[]
+    privacyTier: Extract<OpenBrainPrivacyTier, 'public_safe'>
+    sourceHash: string
+    projectionVersion: string
+    deletionKey: string
+    rollbackKey: string
+  }
 }
 
 export interface OpenBrainRuntimeParity {
@@ -104,6 +147,9 @@ export interface OpenBrainSnapshot {
     approvedProposals: number
     rejectedProposals: number
     wikiPages: number
+    events: number
+    links: number
+    ragProjectionDocuments: number
     staleSources: number
     privateRecords: number
   }
@@ -114,9 +160,18 @@ export interface OpenBrainSnapshot {
     wikiOverlay: 'green' | 'yellow' | 'red'
   }
   sources: OpenBrainSourceRecord[]
+  events: OpenBrainEventRecord[]
+  links: OpenBrainLinkRecord[]
   memories: OpenBrainMemoryRecord[]
   proposals: OpenBrainProposalRecord[]
   wikiPages: OpenBrainWikiPage[]
+  ragProjection: {
+    version: string
+    documents: OpenBrainRagProjectionDocument[]
+    eligibleMemoryCount: number
+    excludedPrivateCount: number
+    pineconeWriteStatus: 'blocked_pending_approval'
+  }
   runtimeParity: OpenBrainRuntimeParity[]
   modelOps: ModelOpsProjection
   contextPacket: {
@@ -143,6 +198,10 @@ const DEFAULT_OPEN_BRAIN_HOME = path.join(homedir(), '.open-brain')
 const PORTFOLIO_ROOT = '/Users/vambahsillah/Projects/Portfolio'
 const PROPOSALS_FILE = 'proposals.json'
 const MEMORIES_FILE = 'memories.json'
+const SOURCES_FILE = 'sources.json'
+const EVENTS_FILE = 'events.json'
+const LINKS_FILE = 'links.json'
+const RAG_PROJECTION_VERSION = 'open-brain-rag-projection-v1'
 const SECRETISH_PATTERN =
   /(sk-[A-Za-z0-9_-]{12,}|github_pat_[A-Za-z0-9_]{12,}|[A-Za-z0-9_]*(?:TOKEN|SECRET|KEY|PASSWORD)[A-Za-z0-9_]*\s*[:=]\s*["']?[^"'\s,}]+)/gi
 
@@ -152,11 +211,23 @@ export function getOpenBrainHome() {
 
 export async function getOpenBrainSnapshot(openBrainHome = getOpenBrainHome()): Promise<OpenBrainSnapshot> {
   const generatedAt = new Date().toISOString()
-  const [inventory, workspaceRoots, persistedMemories, persistedProposals, modelOps] = await Promise.all([
+  const [
+    inventory,
+    workspaceRoots,
+    persistedMemories,
+    persistedProposals,
+    persistedSources,
+    persistedEvents,
+    persistedLinks,
+    modelOps,
+  ] = await Promise.all([
     listCodexAutomationInventory(),
     getCodexWorkspaceRootReport(),
     readJsonArray<OpenBrainMemoryRecord>(path.join(openBrainHome, MEMORIES_FILE)),
     readJsonArray<OpenBrainProposalRecord>(path.join(openBrainHome, PROPOSALS_FILE)),
+    readJsonArray<OpenBrainSourceRecord>(path.join(openBrainHome, SOURCES_FILE)),
+    readJsonArray<OpenBrainEventRecord>(path.join(openBrainHome, EVENTS_FILE)),
+    readJsonArray<OpenBrainLinkRecord>(path.join(openBrainHome, LINKS_FILE)),
     getModelOpsProjection(),
   ])
 
@@ -198,6 +269,8 @@ export async function getOpenBrainSnapshot(openBrainHome = getOpenBrainHome()): 
     },
     ...buildRunbookSources(generatedAt),
     ...buildModelOpsSources(modelOps),
+    ...(await buildKnowledgeProjectionSources(generatedAt)),
+    ...persistedSources,
   ])
 
   const repairProposals = inventory.repairPackets.map((packet): OpenBrainProposalRecord => {
@@ -234,7 +307,13 @@ export async function getOpenBrainSnapshot(openBrainHome = getOpenBrainHome()): 
     ...persistedMemories,
     ...proposals.filter((proposal) => proposal.status === 'approved').map(proposalToMemory),
   ])
-  const wikiPages = compileKarpathyWikiOverlay(memories)
+  const events = dedupeEvents([
+    ...buildObservedSourceEvents(sources, generatedAt),
+    ...persistedEvents,
+  ])
+  const links = dedupeLinks(persistedLinks)
+  const wikiPages = compileKarpathyWikiOverlay(memories, events)
+  const ragProjection = buildOpenBrainRagProjection(memories)
   const pendingProposals = proposals.filter((proposal) => proposal.status === 'pending').length
   const approvedProposals = proposals.filter((proposal) => proposal.status === 'approved').length
   const rejectedProposals = proposals.filter((proposal) => proposal.status === 'rejected').length
@@ -250,9 +329,13 @@ export async function getOpenBrainSnapshot(openBrainHome = getOpenBrainHome()): 
       approvedProposals,
       rejectedProposals,
       wikiPages: wikiPages.length,
+      events: events.length,
+      links: links.length,
+      ragProjectionDocuments: ragProjection.documents.length,
       staleSources: sources.filter((source) => isStale(source.lastObservedAt, generatedAt)).length,
       privateRecords: [
         ...sources.map((source) => source.privacyTier),
+        ...events.map((event) => event.privacyTier),
         ...memories.map((memory) => memory.privacyTier),
         ...proposals.map((proposal) => proposal.proposedMemory.privacyTier),
       ].filter((tier) => tier === 'private').length,
@@ -264,9 +347,12 @@ export async function getOpenBrainSnapshot(openBrainHome = getOpenBrainHome()): 
       wikiOverlay: wikiPages.length > 0 ? 'green' : approvedProposals > 0 ? 'yellow' : 'red',
     },
     sources,
+    events,
+    links,
     memories,
     proposals,
     wikiPages,
+    ragProjection,
     runtimeParity: buildRuntimeParity(openBrainHome),
     modelOps,
     contextPacket: buildContextPacket(sources, memories, proposals, modelOps),
@@ -315,6 +401,19 @@ export async function createOpenBrainProposal(
     reviewReason: null,
   }
   await writeJsonArray(proposalsPath, [...proposals, proposal])
+  await recordOpenBrainEvent({
+    kind: 'proposal_created',
+    title: `Memory proposal created: ${proposal.proposedMemory.title}`,
+    summary: proposal.reason,
+    privacyTier: proposal.proposedMemory.privacyTier,
+    confidence: proposal.proposedMemory.confidence,
+    sourceIds: proposal.sourceIds,
+    metadata: {
+      proposalId: proposal.id,
+      createdBy: proposal.createdBy,
+      memoryKind: proposal.proposedMemory.kind,
+    },
+  }, openBrainHome)
   return proposal
 }
 
@@ -348,10 +447,129 @@ export async function reviewOpenBrainProposal(
     const memories = await readJsonArray<OpenBrainMemoryRecord>(memoriesPath)
     await writeJsonArray(memoriesPath, dedupeMemories([...memories, proposalToMemory(reviewed)]))
   }
+  await recordOpenBrainEvent({
+    kind: status === 'approved' ? 'proposal_approved' : 'proposal_rejected',
+    title: `Memory proposal ${status}: ${reviewed.proposedMemory.title}`,
+    summary: reviewed.reviewReason || status,
+    privacyTier: reviewed.proposedMemory.privacyTier,
+    confidence: reviewed.proposedMemory.confidence,
+    sourceIds: reviewed.sourceIds,
+    metadata: {
+      proposalId: reviewed.id,
+      reviewedBy: reviewed.reviewedBy,
+      memoryKind: reviewed.proposedMemory.kind,
+    },
+  }, openBrainHome)
   return reviewed
 }
 
-export function compileKarpathyWikiOverlay(memories: OpenBrainMemoryRecord[]): OpenBrainWikiPage[] {
+export async function recordOpenBrainSource(
+  source: Omit<OpenBrainSourceRecord, 'lastObservedAt' | 'fingerprint'> & {
+    lastObservedAt?: string
+    fingerprint?: string
+  },
+  openBrainHome = getOpenBrainHome(),
+): Promise<OpenBrainSourceRecord> {
+  const now = new Date().toISOString()
+  const record: OpenBrainSourceRecord = {
+    ...source,
+    title: sanitizeOpenBrainText(source.title, 180),
+    summary: sanitizeOpenBrainText(source.summary),
+    lastObservedAt: source.lastObservedAt || now,
+    fingerprint: source.fingerprint || fingerprintOpenBrainRecord([
+      source.kind,
+      source.id,
+      source.title,
+      source.summary,
+      source.path || '',
+    ]),
+  }
+  const filePath = path.join(openBrainHome, SOURCES_FILE)
+  const sources = await readJsonArray<OpenBrainSourceRecord>(filePath)
+  await writeJsonArray(filePath, dedupeSources([...sources, record]))
+  return record
+}
+
+export async function recordOpenBrainEvent(
+  input: Omit<OpenBrainEventRecord, 'id' | 'createdAt' | 'fingerprint'> & {
+    id?: string
+    createdAt?: string
+    fingerprint?: string
+  },
+  openBrainHome = getOpenBrainHome(),
+): Promise<OpenBrainEventRecord> {
+  const now = new Date().toISOString()
+  const record: OpenBrainEventRecord = {
+    id: input.id || `event:${randomUUID()}`,
+    kind: input.kind,
+    title: sanitizeOpenBrainText(input.title, 180),
+    summary: sanitizeOpenBrainText(input.summary),
+    privacyTier: input.privacyTier,
+    confidence: clampConfidence(input.confidence),
+    sourceIds: input.sourceIds,
+    createdAt: input.createdAt || now,
+    fingerprint: input.fingerprint || fingerprintOpenBrainRecord([
+      input.kind,
+      input.title,
+      input.summary,
+      input.sourceIds.join(','),
+      input.createdAt || now,
+    ]),
+    metadata: input.metadata,
+  }
+  const filePath = path.join(openBrainHome, EVENTS_FILE)
+  const events = await readJsonArray<OpenBrainEventRecord>(filePath)
+  await writeJsonArray(filePath, dedupeEvents([...events, record]))
+  return record
+}
+
+export async function linkOpenBrainRecords(
+  input: Omit<OpenBrainLinkRecord, 'id' | 'createdAt'> & { id?: string; createdAt?: string },
+  openBrainHome = getOpenBrainHome(),
+): Promise<OpenBrainLinkRecord> {
+  const record: OpenBrainLinkRecord = {
+    id: input.id || `link:${fingerprintOpenBrainRecord([input.fromId, input.toId, input.relationship]).slice(0, 16)}`,
+    fromId: input.fromId,
+    toId: input.toId,
+    relationship: sanitizeOpenBrainText(input.relationship, 160),
+    createdAt: input.createdAt || new Date().toISOString(),
+  }
+  const filePath = path.join(openBrainHome, LINKS_FILE)
+  const links = await readJsonArray<OpenBrainLinkRecord>(filePath)
+  await writeJsonArray(filePath, dedupeLinks([...links, record]))
+  return record
+}
+
+export function buildOpenBrainRagProjection(memories: OpenBrainMemoryRecord[]): OpenBrainSnapshot['ragProjection'] {
+  const publicSafe = memories.filter((memory) => memory.privacyTier === 'public_safe')
+  const documents = publicSafe.map((memory): OpenBrainRagProjectionDocument => ({
+    id: `open-brain-rag:${memory.id}`,
+    title: memory.title,
+    text: memory.body,
+    metadata: {
+      openBrainMemoryId: memory.id,
+      openBrainSourceIds: memory.sourceIds,
+      privacyTier: 'public_safe',
+      sourceHash: memory.fingerprint,
+      projectionVersion: RAG_PROJECTION_VERSION,
+      deletionKey: `open-brain:${memory.id}`,
+      rollbackKey: `open-brain:${memory.fingerprint}`,
+    },
+  }))
+
+  return {
+    version: RAG_PROJECTION_VERSION,
+    documents,
+    eligibleMemoryCount: publicSafe.length,
+    excludedPrivateCount: memories.filter((memory) => memory.privacyTier !== 'public_safe').length,
+    pineconeWriteStatus: 'blocked_pending_approval',
+  }
+}
+
+export function compileKarpathyWikiOverlay(
+  memories: OpenBrainMemoryRecord[],
+  events: OpenBrainEventRecord[] = [],
+): OpenBrainWikiPage[] {
   const approved = memories.filter((memory) => memory.privacyTier !== 'private')
   const grouped = new Map<OpenBrainMemoryKind, OpenBrainMemoryRecord[]>()
   for (const memory of approved) {
@@ -385,6 +603,35 @@ export function compileKarpathyWikiOverlay(memories: OpenBrainMemoryRecord[]): O
       markdown,
       sourceMemoryIds: records.map((record) => record.id),
       privacyTier: records.some((record) => record.privacyTier === 'internal_ops') ? 'internal_ops' : 'public_safe',
+    })
+  }
+
+  const autoresearchEvents = events.filter((event) =>
+    event.privacyTier !== 'private' && event.kind.startsWith('autoresearch_')
+  )
+  if (autoresearchEvents.length > 0) {
+    pages.push({
+      slug: 'autoresearch-experiment-ledger',
+      title: 'AutoResearch Experiment Ledger',
+      path: 'docs/open-brain/wiki/autoresearch-experiment-ledger.md',
+      markdown: [
+        '# AutoResearch Experiment Ledger',
+        '',
+        'Generated Karpathy Wiki overlay from Open Brain source/event records. The local Open Brain remains the source of truth.',
+        '',
+        ...autoresearchEvents.map((event) => [
+          `## ${event.title}`,
+          '',
+          event.summary,
+          '',
+          `- Open Brain event: \`${event.id}\``,
+          `- Privacy tier: \`${event.privacyTier}\``,
+          `- Sources: ${event.sourceIds.map((sourceId) => `\`${sourceId}\``).join(', ') || 'none'}`,
+          '',
+        ].join('\n')),
+      ].join('\n'),
+      sourceMemoryIds: [],
+      privacyTier: autoresearchEvents.some((event) => event.privacyTier === 'internal_ops') ? 'internal_ops' : 'public_safe',
     })
   }
   return pages.sort((a, b) => a.slug.localeCompare(b.slug))
@@ -433,6 +680,78 @@ function buildRunbookSources(generatedAt: string): OpenBrainSourceRecord[] {
     confidence: 0.8,
     lastObservedAt: generatedAt,
     fingerprint: fingerprintOpenBrainRecord(['runbook', docPath]),
+  }))
+}
+
+async function buildKnowledgeProjectionSources(generatedAt: string): Promise<OpenBrainSourceRecord[]> {
+  const personalityPath = path.join(PORTFOLIO_ROOT, 'docs/vambah-personality-public-safe.md')
+  const chatbotPath = path.join(PORTFOLIO_ROOT, 'lib/chatbot-knowledge.ts')
+  const ragManifestPath = path.join(PORTFOLIO_ROOT, 'lib/knowledge-source-manifest.ts')
+  const sources: OpenBrainSourceRecord[] = []
+
+  if (existsSync(personalityPath)) {
+    const content = await readFile(personalityPath, 'utf8').catch(() => '')
+    sources.push({
+      id: 'personality-corpus:public-safe',
+      kind: 'personality_corpus',
+      title: 'Personality corpus public-safe pack',
+      summary: 'Public-safe derived personality corpus pack used by content agents and chatbot knowledge. Raw private exports are excluded.',
+      path: personalityPath,
+      privacyTier: 'public_safe',
+      confidence: 0.9,
+      lastObservedAt: generatedAt,
+      fingerprint: fingerprintOpenBrainRecord(['personality_corpus', personalityPath, content]),
+    })
+  }
+
+  if (existsSync(chatbotPath)) {
+    const content = await readFile(chatbotPath, 'utf8').catch(() => '')
+    sources.push({
+      id: 'chatbot-knowledge:local-bundle',
+      kind: 'chatbot_knowledge',
+      title: 'Portfolio chatbot knowledge bundle',
+      summary: 'Local /api/knowledge bundle remains a public-safe projection and should not become canonical memory.',
+      path: chatbotPath,
+      privacyTier: 'public_safe',
+      confidence: 0.86,
+      lastObservedAt: generatedAt,
+      fingerprint: fingerprintOpenBrainRecord(['chatbot_knowledge', chatbotPath, content]),
+    })
+  }
+
+  if (existsSync(ragManifestPath)) {
+    const content = await readFile(ragManifestPath, 'utf8').catch(() => '')
+    sources.push({
+      id: 'rag-projection:knowledge-source-manifest',
+      kind: 'rag_projection',
+      title: 'Governed RAG source manifest',
+      summary: 'Repo-owned RAG manifest stages approved public-safe/client-safe projections; Pinecone writes remain approval-gated.',
+      path: ragManifestPath,
+      privacyTier: 'internal_ops',
+      confidence: 0.88,
+      lastObservedAt: generatedAt,
+      fingerprint: fingerprintOpenBrainRecord(['rag_projection', ragManifestPath, content]),
+    })
+  }
+
+  return sources
+}
+
+function buildObservedSourceEvents(sources: OpenBrainSourceRecord[], generatedAt: string): OpenBrainEventRecord[] {
+  return sources.map((source) => ({
+    id: `event:source-observed:${source.id}`,
+    kind: 'source_observed',
+    title: `Observed source: ${source.title}`,
+    summary: source.summary,
+    privacyTier: source.privacyTier,
+    confidence: source.confidence,
+    sourceIds: [source.id],
+    createdAt: generatedAt,
+    fingerprint: fingerprintOpenBrainRecord(['source_observed', source.id, source.fingerprint]),
+    metadata: {
+      sourceKind: source.kind,
+      path: source.path,
+    },
   }))
 }
 
@@ -600,6 +919,14 @@ function proposalToMemory(proposal: OpenBrainProposalRecord): OpenBrainMemoryRec
 
 function dedupeSources(sources: OpenBrainSourceRecord[]) {
   return [...new Map(sources.map((source) => [source.fingerprint, source])).values()]
+}
+
+function dedupeEvents(events: OpenBrainEventRecord[]) {
+  return [...new Map(events.map((event) => [event.fingerprint, event])).values()]
+}
+
+function dedupeLinks(links: OpenBrainLinkRecord[]) {
+  return [...new Map(links.map((link) => [link.id, link])).values()]
 }
 
 function dedupeMemories(memories: OpenBrainMemoryRecord[]) {

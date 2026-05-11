@@ -81,6 +81,20 @@ The Portfolio memory/context workflow now treats a local Open Brain as the durab
 
 See [`open-brain-local-service.md`](./open-brain-local-service.md) for the local service contract, MCP tool expectations, privacy tiers, and Karpathy Wiki overlay boundary.
 
+All future memory-producing systems should route through the Open Brain record
+order: source/event first, proposal second, approved memory third, projection
+last. Portfolio docs, chatbot knowledge, Pinecone, and Karpathy Wiki output are
+compiled projections, not canonical memory.
+
+Initial producer routes now covered by the contract:
+
+- personality corpus public-safe pack,
+- local chatbot knowledge bundle,
+- governed RAG/Pinecone shadow ingestion plans,
+- Vercel AutoResearch proposal packets,
+- Model Ops router decisions and swap requests,
+- Codex automation and workspace-root reports.
+
 ## Enhancement Impact Preflight
 
 ### Enhancement Impact Preflight
@@ -157,6 +171,8 @@ Allowed:
 - Show progress and task status computed from the inventory.
 - Show read-only Codex workspace-root and active thread placement drift.
 - Show Open Brain source freshness, proposal health, runtime parity, and wiki overlay previews.
+- Show Open Brain source/event traces from personality corpus, chatbot knowledge, RAG shadow plans, AutoResearch proposal packets, Model Ops, and Codex automation state.
+- Show public-safe Open Brain RAG projection previews with deletion and rollback metadata.
 
 Not allowed in this workflow without an explicit operational-state step:
 
@@ -166,3 +182,5 @@ Not allowed in this workflow without an explicit operational-state step:
 - Rewriting Codex Desktop workspace roots.
 - Pausing, deleting, creating, or rescheduling automations.
 - Registering Open Brain MCP config in Codex, Hermes, OpenCode, Claude, Cursor, or ChatGPT without a separate operational-state approval.
+- Writing Open Brain projection documents into Pinecone without a separate cutover approval.
+- Promoting private or unapproved Open Brain records into wiki pages, chatbot knowledge, public docs, or public RAG.

@@ -6,6 +6,7 @@ import {
   type VercelResearchProposal,
 } from './vercel-deployment-research'
 import { notifyVercelResearchApprovalReady } from './vercel-autoresearch-notification'
+import { fingerprintOpenBrainRecord, recordOpenBrainEvent, recordOpenBrainSource } from './open-brain'
 
 export type VercelResearchApprovalCard = {
   approvalId: string
@@ -197,6 +198,15 @@ export async function createVercelResearchApproval(input: {
       },
       idempotencyKey: `${workItem.id}:vercel-autoresearch-approval-created`,
     }).catch(() => {})
+
+    await recordVercelResearchOpenBrainTrace({
+      proposal,
+      approvalId: approval.id,
+      runId: workItem.active_run_id,
+      workItemId: workItem.id,
+    }).catch((error) => {
+      console.warn('[vercel-autoresearch] Open Brain trace skipped:', error instanceof Error ? error.message : error)
+    })
   }
 
   const notification = await notifyApprovalOnce(approval, workItem.id, proposal)
@@ -207,6 +217,60 @@ export async function createVercelResearchApproval(input: {
     runId: approval.run_id,
     notification,
   }
+}
+
+async function recordVercelResearchOpenBrainTrace(input: {
+  proposal: VercelResearchProposal
+  approvalId: string
+  runId: string
+  workItemId: string
+}) {
+  const sourceId = `autoresearch:proposal:${input.proposal.id}`
+  const source = await recordOpenBrainSource({
+    id: sourceId,
+    kind: 'autoresearch_proposal',
+    title: input.proposal.title,
+    summary: [
+      input.proposal.hypothesis,
+      `Approval question: ${input.proposal.approvalQuestion}`,
+      `Risk level: ${input.proposal.riskLevel}.`,
+    ].join(' '),
+    path: null,
+    privacyTier: 'internal_ops',
+    confidence: 0.84,
+    fingerprint: fingerprintOpenBrainRecord([
+      'autoresearch_proposal',
+      input.proposal.id,
+      input.proposal.hypothesis,
+      input.proposal.approvalQuestion,
+    ]),
+  })
+
+  await recordOpenBrainEvent({
+    id: `event:autoresearch-proposal-created:${input.proposal.id}`,
+    kind: 'autoresearch_proposal_created',
+    title: `AutoResearch proposal created: ${input.proposal.title}`,
+    summary: 'Approval packet created. The proposal does not execute experiments, merge, deploy, mutate production config, or write durable memory directly.',
+    privacyTier: 'internal_ops',
+    confidence: 0.86,
+    sourceIds: [source.id],
+    fingerprint: fingerprintOpenBrainRecord([
+      'autoresearch_proposal_created',
+      input.proposal.id,
+      input.approvalId,
+      input.runId,
+      input.workItemId,
+    ]),
+    metadata: {
+      proposalId: input.proposal.id,
+      approvalId: input.approvalId,
+      runId: input.runId,
+      workItemId: input.workItemId,
+      approvalState: input.proposal.approvalState,
+      riskLevel: input.proposal.riskLevel,
+      executesAction: false,
+    },
+  })
 }
 
 export async function listPendingVercelResearchApprovals(): Promise<VercelResearchApprovalCard[]> {
