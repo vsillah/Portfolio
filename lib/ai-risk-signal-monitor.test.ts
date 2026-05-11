@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   assessAiRiskSignals,
+  buildAiRiskWorkItemRequests,
   getAiRiskSignalMonitorSummary,
   getAiRiskSourceFeeds,
 } from './ai-risk-signal-monitor'
@@ -103,5 +104,38 @@ describe('AI risk signal monitor', () => {
       'owasp-aivss',
     ]))
     expect(getAiRiskSourceFeeds({ priority: 'vendor', enabledOnly: true })).toEqual([])
+  })
+
+  it('builds proposed work item requests only for actionable assessments', () => {
+    const assessments = assessAiRiskSignals([
+      {
+        id: 'actionable-risk',
+        title: 'AI agent prompt injection vulnerability affects browser automation',
+        summary: 'Security researchers report indirect prompt injection that can trigger unsafe tool calls.',
+        sourceName: 'Security advisory',
+      },
+      {
+        id: 'watch-risk',
+        title: 'AI conference announces new keynote track',
+        summary: 'The event includes broad commentary about AI adoption and demos.',
+        sourceName: 'Conference site',
+        severity: 'low',
+      },
+    ])
+
+    expect(buildAiRiskWorkItemRequests(assessments)).toEqual([
+      expect.objectContaining({
+        title: 'Review AI risk signal: AI agent prompt injection vulnerability affects browser automation',
+        status: 'proposed',
+        ownerAgentKey: 'risk-compliance-intelligence',
+        ownerRuntime: 'manual',
+        overlapGroup: 'ai-risk-compliance',
+        idempotencyKey: 'ai-risk-signal:actionable-risk:approval_required',
+        metadata: expect.objectContaining({
+          conversion_requires_review: true,
+          exposure_surfaces: expect.arrayContaining(['agent-tool-use', 'runtime-security']),
+        }),
+      }),
+    ])
   })
 })

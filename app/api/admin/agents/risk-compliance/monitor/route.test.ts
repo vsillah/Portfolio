@@ -3,11 +3,16 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const mocks = vi.hoisted(() => ({
   verifyAdmin: vi.fn(),
   isAuthError: vi.fn(),
+  createAgentWorkItem: vi.fn(),
 }))
 
 vi.mock('@/lib/auth-server', () => ({
   verifyAdmin: mocks.verifyAdmin,
   isAuthError: mocks.isAuthError,
+}))
+
+vi.mock('@/lib/agent-work-items', () => ({
+  createAgentWorkItem: mocks.createAgentWorkItem,
 }))
 
 import { GET, POST } from './route'
@@ -25,6 +30,11 @@ describe('/api/admin/agents/risk-compliance/monitor', () => {
     vi.clearAllMocks()
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-user' } })
     mocks.isAuthError.mockReturnValue(false)
+    mocks.createAgentWorkItem.mockResolvedValue({
+      id: 'work-item-1',
+      title: 'Review AI risk signal: AI agent prompt injection vulnerability affects browser automation',
+      status: 'proposed',
+    })
   })
 
   it('requires admin auth', async () => {
@@ -103,8 +113,83 @@ describe('/api/admin/agents/risk-compliance/monitor', () => {
           }),
         },
       ],
+      work_item_requests: [
+        expect.objectContaining({
+          status: 'proposed',
+          ownerAgentKey: 'risk-compliance-intelligence',
+          ownerRuntime: 'manual',
+          overlapGroup: 'ai-risk-compliance',
+          idempotencyKey: expect.stringMatching(/^ai-risk-signal:security-advisory-ai-agent-prompt-injection-vulnerability/),
+        }),
+      ],
+      work_items: [],
       side_effects: {
         work_items_created: false,
+        work_item_count: 0,
+        production_mutation_allowed: false,
+      },
+    })
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
+  })
+
+  it('requires confirmation before creating work items', async () => {
+    const response = await POST(request({
+      create_work_items: true,
+      signals: [
+        {
+          id: 'security-advisory-1',
+          title: 'AI agent prompt injection vulnerability affects browser automation',
+          summary: 'Security researchers report indirect prompt injection that can trigger unsafe tool calls.',
+          sourceName: 'Security advisory',
+        },
+      ],
+    }) as never)
+
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({
+      error: 'confirmation must be create_ai_risk_work_items to create work items',
+    })
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
+  })
+
+  it('creates proposed work items when explicitly confirmed', async () => {
+    const response = await POST(request({
+      create_work_items: true,
+      confirmation: 'create_ai_risk_work_items',
+      signals: [
+        {
+          id: 'security-advisory-1',
+          title: 'AI agent prompt injection vulnerability affects browser automation',
+          summary: 'Security researchers report indirect prompt injection that can trigger unsafe tool calls.',
+          sourceName: 'Security advisory',
+        },
+      ],
+    }) as never)
+
+    expect(response.status).toBe(200)
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'Review AI risk signal: AI agent prompt injection vulnerability affects browser automation',
+      status: 'proposed',
+      ownerAgentKey: 'risk-compliance-intelligence',
+      ownerRuntime: 'manual',
+      overlapGroup: 'ai-risk-compliance',
+      idempotencyKey: 'ai-risk-signal:security-advisory-1:approval_required',
+      metadata: expect.objectContaining({
+        conversion_requires_review: true,
+        exposure_surfaces: expect.arrayContaining(['agent-tool-use', 'runtime-security']),
+      }),
+    }))
+    expect(await response.json()).toMatchObject({
+      ok: true,
+      work_items: [
+        {
+          id: 'work-item-1',
+          status: 'proposed',
+        },
+      ],
+      side_effects: {
+        work_items_created: true,
+        work_item_count: 1,
         production_mutation_allowed: false,
       },
     })

@@ -35,13 +35,16 @@ Every signal should be classified before it becomes work:
 | `upgrade_request` | Confirmed gap or missing control. | Open a scoped implementation request. |
 | `approval_required` | Fix may touch policy, production config, public content, external sends, or client data. | Route to Shaka and approval gate. |
 
-## Read-Only Monitor Endpoint
+## Monitor Endpoint
 
-The first implementation surface is read-only:
+The first implementation surface is read-only by default and approval-gated for work creation:
 
 - `GET /api/admin/agents/risk-compliance/monitor` returns Moremi's monitor configuration and safety boundary.
 - `POST /api/admin/agents/risk-compliance/monitor` accepts supplied signal briefs and returns exposure assessments plus proposed upgrade-request payloads.
-- The endpoint does not fetch live news, create work items, mutate workflows, write to production tables, or send notifications in v1.
+- Default `POST` behavior does not create work items, mutate workflows, write remediation changes, or send notifications.
+- `POST` may create proposed Agent Ops work items only when the caller sends both `create_work_items: true` and `confirmation: "create_ai_risk_work_items"`.
+- Created work items stay in `proposed` status with human review required before remediation, merge, deployment, production config, or workflow mutation.
+- The endpoint does not fetch live news automatically in v1.
 - Source feeds are explicit and filterable before ingestion is automated:
   - `GET /api/admin/agents/risk-compliance/monitor?category=prompt_injection`
   - `GET /api/admin/agents/risk-compliance/monitor?priority=standards`
@@ -57,6 +60,25 @@ Expected signal payload:
       "summary": "The warning focuses on agents processing customer data without consent controls.",
       "sourceName": "Regulator bulletin",
       "sourceUrl": "https://example.com/source",
+      "severity": "high",
+      "category": "privacy_data"
+    }
+  ]
+}
+```
+
+Explicit work-item conversion payload:
+
+```json
+{
+  "create_work_items": true,
+  "confirmation": "create_ai_risk_work_items",
+  "signals": [
+    {
+      "id": "regulator-agent-privacy-warning",
+      "title": "Regulator issues AI agent privacy warning",
+      "summary": "The warning focuses on agents processing customer data without consent controls.",
+      "sourceName": "Regulator bulletin",
       "severity": "high",
       "category": "privacy_data"
     }
@@ -80,6 +102,7 @@ When a signal is relevant, Moremi checks Portfolio for:
 - Risk signal brief with source, affected Portfolio surface, likelihood, impact, and confidence.
 - Portfolio exposure assessment.
 - Upgrade request routed to the right owner agent.
+- Proposed Agent Ops work item when explicitly confirmed.
 - Approval packet when remediation crosses an approval gate.
 - Decision journal entry after acceptance, rejection, or deferral.
 
