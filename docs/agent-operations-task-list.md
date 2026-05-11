@@ -67,6 +67,8 @@ This is the active implementation queue for Agent Operations. The phase gates, d
    - [x] Add the global `agent-org-load-balancer` meta-skill for identifying overloaded or overlapping agents.
    - [x] Spin out warm lead capture from the overloaded Samori Toure (Wassoulou) - Inbox & Follow-Up.
    - [x] Spin out meeting intake and follow-up from the overloaded Samori Toure (Wassoulou) - Inbox & Follow-Up.
+   - [x] Spin out Moremi (Ife) - Risk & Compliance for AI agent/current-event risk monitoring and Portfolio exposure checks.
+   - [ ] Add a scheduled read-only risk signal monitor once source feeds and scoring criteria are approved.
    - [ ] Continue monitoring Yaa Asantewaa (Ashanti) - Automation Systems for a future split only if trace/work-item load stays high.
 
 ## Completed Or In Review

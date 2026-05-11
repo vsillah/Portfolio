@@ -58,7 +58,7 @@ Current pod alignment:
 
 - Chief of Staff — Agent Ops morning review and executive escalation layer.
 - Strategy & Narrative — planned Codex/Hermes-first agents; not primarily n8n yet.
-- Research & Knowledge — lead research, RAG, diagnostics, value evidence, source register workflows.
+- Research & Knowledge — lead research, RAG, diagnostics, value evidence, source register workflows, and AI risk/compliance intelligence.
 - Content Production — social extraction, repurposing, audio/image regeneration, brand/course agents.
 - Product & Automation — client workflow backbone, monitoring, provisioning, task sync, tooling parity.
 - Publishing & Follow-Up — social publish, outbound/follow-up, Gmail draft, nurture, warm lead capture, and meeting intake/follow-up.
@@ -68,6 +68,12 @@ Agent organization load balancing now splits the former overloaded `Samori Toure
 - `Samori Toure (Wassoulou) - Inbox & Follow-Up` owns cold outreach sends, reply detection, Gmail draft preparation, and lead-magnet nurture.
 - `Behanzin (Dahomey) - Warm Lead Capture` owns approved WRM Facebook, Google Contacts, and LinkedIn warm-source capture while preserving source-specific traceability.
 - `Amanirenas (Kush) - Meeting Intake & Follow-Up` owns Slack intake, Calendly routing, meeting completion, agenda generation/sending, and follow-up scheduling.
+
+AI risk and compliance work is now a separate Research & Knowledge lane:
+
+- `Askia Muhammad (Songhai) - Research Source Register` collects and classifies source-backed evidence.
+- `Moremi (Ife) - Risk & Compliance` watches AI agent, AI ethics, security, privacy, and regulatory signals, maps them to Portfolio exposure, and opens upgrade requests when a gap appears.
+- `Piye (Kush) - Engineering Copilot` and `Yaa Asantewaa (Ashanti) - Automation Systems` own remediation only after the risk owner produces a scoped upgrade request.
 
 The shared trace tables are:
 
