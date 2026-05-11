@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { AGENT_APPROVAL_STATUSES, type AgentApprovalStatus } from '@/lib/agent-run'
+import { VERCEL_RESEARCH_APPROVAL_TYPE } from '@/lib/vercel-deployment-research'
 
 export const dynamic = 'force-dynamic'
 
@@ -46,6 +47,8 @@ export async function POST(
 
   const decided = status !== 'pending'
   let approvalId = body.approval_id ?? null
+  let approvalType = body.approval_type ?? null
+  let approvalMetadata: Record<string, unknown> = body.metadata ?? {}
 
   if (approvalId) {
     const { data: existing, error: existingError } = await supabaseAdmin
@@ -64,6 +67,7 @@ export async function POST(
       existing.metadata && typeof existing.metadata === 'object'
         ? existing.metadata as Record<string, unknown>
         : {}
+    approvalType = existing.approval_type as string
     const decisionMetadata = decided
       ? {
           status,
@@ -78,6 +82,7 @@ export async function POST(
       ...(existingMetadata.action_payload ? { action_payload: existingMetadata.action_payload } : {}),
       ...(decisionMetadata ? { decision: decisionMetadata } : {}),
     }
+    approvalMetadata = mergedMetadata
 
     const { data, error } = await supabaseAdmin
       .from('agent_approvals')
@@ -99,6 +104,8 @@ export async function POST(
     }
     approvalId = data.id as string
   } else {
+    approvalType = body.approval_type as string
+    approvalMetadata = body.metadata ?? {}
     const { data, error } = await supabaseAdmin
       .from('agent_approvals')
       .insert({
@@ -125,7 +132,7 @@ export async function POST(
     run_id: params.runId,
     event_type: approvalId === body.approval_id ? 'approval_decided' : 'approval_recorded',
     severity: status === 'rejected' ? 'warning' : 'info',
-    message: `${body.approval_type ?? body.approval_id}: ${status}`,
+    message: `${approvalType ?? body.approval_id}: ${status}`,
     metadata: {
       approval_id: approvalId,
       status,
@@ -133,6 +140,25 @@ export async function POST(
       ...(body.metadata ?? {}),
     },
   })
+
+  const workItemId =
+    approvalType === VERCEL_RESEARCH_APPROVAL_TYPE && typeof approvalMetadata.work_item_id === 'string'
+      ? approvalMetadata.work_item_id
+      : null
+  if (workItemId && (status === 'approved' || status === 'rejected' || status === 'cancelled')) {
+    await supabaseAdmin
+      .from('agent_work_items')
+      .update({
+        status: status === 'approved' ? 'assigned' : 'blocked',
+        blocker_summary: status === 'approved' ? null : body.decision_notes ?? `Vercel AutoResearch proposal ${status}`,
+        validation_summary:
+          status === 'approved'
+            ? 'Vercel AutoResearch proposal approved for the next scoped research action. Merge and production deployment remain gated.'
+            : body.decision_notes ?? `Vercel AutoResearch proposal ${status}.`,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', workItemId)
+  }
 
   if (status === 'pending') {
     await supabaseAdmin

@@ -29,6 +29,7 @@
     "deploy:watch": "tsx scripts/vercel-deployment-watch.ts",
     "deploy:watch:once": "tsx scripts/vercel-deployment-watch.ts --once",
     "deploy:metrics": "tsx scripts/vercel-deployment-metrics.ts",
+    "deploy:research:plan": "tsx scripts/vercel-deployment-research-plan.ts",
     "git:hygiene:report": "tsx scripts/git-hygiene-report.ts",
     "open-brain:mcp": "tsx scripts/open-brain-mcp-server.ts",
     "wrm:smoke-gate": "tsx scripts/wrm-production-smoke-gate.ts",

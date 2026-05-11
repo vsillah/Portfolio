@@ -5,18 +5,21 @@ import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import {
   AlertTriangle,
   ArrowRight,
+  BellRing,
   Bot,
   CheckCircle2,
   GitPullRequest,
   Network,
   RefreshCw,
   ShieldCheck,
+  XCircle,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
 import type { AgentRuntime } from '@/lib/agent-run'
 import type { AgentWorkItem, AgentWorkItemStatus } from '@/lib/agent-work-items'
+import type { VercelResearchProposal } from '@/lib/vercel-deployment-research'
 
 const STATUSES: Array<'all' | AgentWorkItemStatus> = [
   'all',
@@ -39,6 +42,27 @@ type WorkItemForm = {
   branch_name: string
   worktree_path: string
   expected_files: string
+}
+
+type VercelResearchApprovalCard = {
+  approvalId: string
+  runId: string
+  workItemId: string
+  status: string
+  requestedAt: string
+  proposal: VercelResearchProposal
+  notification: {
+    slackSentAt: string | null
+    slackSkippedAt: string | null
+  }
+  workItem: {
+    id: string
+    title: string
+    status: string
+    active_run_id: string | null
+    approval_id: string | null
+    updated_at: string
+  } | null
 }
 
 const DEFAULT_FORM: WorkItemForm = {
@@ -67,6 +91,7 @@ function AgentCoordinationContent() {
   const [actionId, setActionId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [form, setForm] = useState<WorkItemForm>(DEFAULT_FORM)
+  const [vercelResearchApprovals, setVercelResearchApprovals] = useState<VercelResearchApprovalCard[]>([])
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -98,9 +123,22 @@ function AgentCoordinationContent() {
     }
   }, [authedFetch, status])
 
+  const loadVercelResearchApprovals = useCallback(async () => {
+    try {
+      const response = await authedFetch('/api/admin/agents/vercel-research/proposals')
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      setVercelResearchApprovals(body.approvals ?? [])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load Vercel AutoResearch approvals')
+      setVercelResearchApprovals([])
+    }
+  }, [authedFetch])
+
   useEffect(() => {
     loadItems()
-  }, [loadItems])
+    loadVercelResearchApprovals()
+  }, [loadItems, loadVercelResearchApprovals])
 
   const summary = useMemo(() => ({
     active: items.filter((item) => !['merged', 'deployed', 'cancelled'].includes(item.status)).length,
@@ -108,6 +146,10 @@ function AgentCoordinationContent() {
     review: items.filter((item) => item.status === 'ready_for_review' || item.status === 'ready_for_merge').length,
     approvals: items.filter((item) => Boolean(item.approval_id)).length,
   }), [items])
+
+  async function refreshAll() {
+    await Promise.all([loadItems(), loadVercelResearchApprovals()])
+  }
 
   async function createWorkItem(event: FormEvent) {
     event.preventDefault()
@@ -131,7 +173,7 @@ function AgentCoordinationContent() {
       const body = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
       setForm(DEFAULT_FORM)
-      await loadItems()
+      await refreshAll()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create work item')
     } finally {
@@ -169,9 +211,34 @@ function AgentCoordinationContent() {
       const response = await authedFetch(path, { method: 'POST', body: JSON.stringify(body) })
       const responseBody = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(responseBody.error || `HTTP ${response.status}`)
-      await loadItems()
+      await refreshAll()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Action failed')
+    } finally {
+      setActionId(null)
+    }
+  }
+
+  async function decideVercelResearchApproval(card: VercelResearchApprovalCard, status: 'approved' | 'rejected') {
+    setActionId(`${status}:${card.approvalId}`)
+    setError(null)
+    try {
+      const response = await authedFetch(`/api/admin/agents/runs/${card.runId}/approval`, {
+        method: 'POST',
+        body: JSON.stringify({
+          approval_id: card.approvalId,
+          status,
+          decision_notes:
+            status === 'approved'
+              ? 'Approved Vercel AutoResearch proposal from Agent Coordination.'
+              : 'Rejected Vercel AutoResearch proposal from Agent Coordination.',
+        }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      await refreshAll()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Approval update failed')
     } finally {
       setActionId(null)
     }
@@ -206,7 +273,7 @@ function AgentCoordinationContent() {
               Mission Control
             </Link>
             <button
-              onClick={loadItems}
+              onClick={refreshAll}
               disabled={loading}
               className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
             >
@@ -222,6 +289,12 @@ function AgentCoordinationContent() {
           <Metric label="Review queue" value={summary.review} tone={summary.review ? 'yellow' : 'slate'} />
           <Metric label="Approval-linked" value={summary.approvals} tone={summary.approvals ? 'green' : 'slate'} />
         </div>
+
+        <VercelResearchApprovalPanel
+          approvals={vercelResearchApprovals}
+          actionId={actionId}
+          onDecision={decideVercelResearchApproval}
+        />
 
         <section className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
           <div className="mb-4 flex flex-wrap gap-2">
@@ -307,6 +380,90 @@ function AgentCoordinationContent() {
         )}
       </div>
     </div>
+  )
+}
+
+function VercelResearchApprovalPanel({
+  approvals,
+  actionId,
+  onDecision,
+}: {
+  approvals: VercelResearchApprovalCard[]
+  actionId: string | null
+  onDecision: (card: VercelResearchApprovalCard, status: 'approved' | 'rejected') => void
+}) {
+  return (
+    <section className="mb-6 rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-4">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <BellRing size={18} className="text-yellow-200" />
+          <div>
+            <h2 className="font-semibold text-yellow-100">Vercel AutoResearch approvals</h2>
+            <p className="text-sm text-muted-foreground">Event-driven proposal gates ready for one-click review.</p>
+          </div>
+        </div>
+        <span className="rounded-full border border-yellow-500/30 px-2 py-1 text-xs text-yellow-100">
+          {approvals.length} pending
+        </span>
+      </div>
+
+      {approvals.length === 0 ? (
+        <p className="rounded-lg border border-silicon-slate/60 bg-background/40 p-3 text-sm text-muted-foreground">
+          No Vercel AutoResearch proposal is waiting for approval.
+        </p>
+      ) : (
+        <div className="grid gap-3 lg:grid-cols-2">
+          {approvals.map((card) => (
+            <article key={card.approvalId} className="rounded-lg border border-yellow-500/25 bg-background/50 p-4">
+              <div className="mb-2 flex flex-wrap items-center gap-2">
+                <span className="rounded-full border border-yellow-500/30 bg-yellow-500/10 px-2 py-1 text-xs text-yellow-100">
+                  {card.proposal.riskLevel} risk
+                </span>
+                <span className="rounded-full border border-silicon-slate/70 px-2 py-1 text-xs text-muted-foreground">
+                  {card.proposal.approvalState.replace(/_/g, ' ')}
+                </span>
+                {card.notification.slackSentAt ? (
+                  <span className="rounded-full border border-green-500/30 bg-green-500/10 px-2 py-1 text-xs text-green-100">
+                    Slack notified
+                  </span>
+                ) : null}
+              </div>
+              <h3 className="font-semibold">{card.proposal.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{card.proposal.approvalQuestion}</p>
+              <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
+                <SmallField label="Work item" value={card.workItem?.title ?? card.workItemId} />
+                <SmallField label="Requested" value={new Date(card.requestedAt).toLocaleString()} />
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  onClick={() => onDecision(card, 'approved')}
+                  disabled={Boolean(actionId)}
+                  className="inline-flex items-center gap-2 rounded-lg border border-green-500/40 bg-green-500/10 px-3 py-2 text-sm text-green-100 hover:bg-green-500/15 disabled:opacity-50"
+                >
+                  <CheckCircle2 size={16} />
+                  Approve
+                </button>
+                <button
+                  onClick={() => onDecision(card, 'rejected')}
+                  disabled={Boolean(actionId)}
+                  className="inline-flex items-center gap-2 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-100 hover:bg-red-500/15 disabled:opacity-50"
+                >
+                  <XCircle size={16} />
+                  Reject
+                </button>
+                <Link
+                  href={`/admin/agents/runs/${card.runId}`}
+                  className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 px-3 py-2 text-sm hover:border-radiant-gold/60"
+                >
+                  Evidence
+                  <ArrowRight size={16} />
+                </Link>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
   )
 }
 
