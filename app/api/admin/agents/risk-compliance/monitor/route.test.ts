@@ -47,7 +47,33 @@ describe('/api/admin/agents/risk-compliance/monitor', () => {
         ownerAgentKey: 'risk-compliance-intelligence',
         ownerAgentName: 'Moremi (Ife) - Risk & Compliance',
       },
+      source_feeds: expect.arrayContaining([
+        expect.objectContaining({ key: 'owasp-agent-security-initiative', enabled: true }),
+        expect.objectContaining({ key: 'ftc-ai-guidance', enabled: true }),
+      ]),
     })
+  })
+
+  it('filters source feeds by category and priority', async () => {
+    const response = await GET(
+      new Request('http://localhost/api/admin/agents/risk-compliance/monitor?category=prompt_injection&priority=standards') as never,
+    )
+
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    expect(body.source_feeds.map((feed: { key: string }) => feed.key)).toEqual([
+      'owasp-agent-security-initiative',
+      'owasp-aivss',
+    ])
+  })
+
+  it('rejects invalid source feed filters', async () => {
+    const response = await GET(
+      new Request('http://localhost/api/admin/agents/risk-compliance/monitor?category=unknown') as never,
+    )
+
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({ error: 'Invalid category' })
   })
 
   it('assesses supplied signals without creating work items', async () => {

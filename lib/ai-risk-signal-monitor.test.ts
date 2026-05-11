@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { assessAiRiskSignals, getAiRiskSignalMonitorSummary } from './ai-risk-signal-monitor'
+import {
+  assessAiRiskSignals,
+  getAiRiskSignalMonitorSummary,
+  getAiRiskSourceFeeds,
+} from './ai-risk-signal-monitor'
 
 describe('AI risk signal monitor', () => {
   it('classifies privacy and regulatory signals as approval-routed exposure', () => {
@@ -82,7 +86,22 @@ describe('AI risk signal monitor', () => {
     expect(getAiRiskSignalMonitorSummary()).toMatchObject({
       ownerAgentKey: 'risk-compliance-intelligence',
       ownerAgentName: 'Moremi (Ife) - Risk & Compliance',
+      enabledSourceFeedCount: 5,
       safetyBoundary: expect.stringContaining('Read-only signal assessment'),
     })
+  })
+
+  it('exposes approved source feeds with filtering before live ingestion exists', () => {
+    expect(getAiRiskSourceFeeds({ enabledOnly: true }).map((feed) => feed.key)).toEqual(expect.arrayContaining([
+      'owasp-agent-security-initiative',
+      'nist-ai-rmf',
+      'eu-ai-act',
+      'ftc-ai-guidance',
+    ]))
+    expect(getAiRiskSourceFeeds({ category: 'prompt_injection' }).map((feed) => feed.key)).toEqual(expect.arrayContaining([
+      'owasp-agent-security-initiative',
+      'owasp-aivss',
+    ]))
+    expect(getAiRiskSourceFeeds({ priority: 'vendor', enabledOnly: true })).toEqual([])
   })
 })

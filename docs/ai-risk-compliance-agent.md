@@ -42,6 +42,10 @@ The first implementation surface is read-only:
 - `GET /api/admin/agents/risk-compliance/monitor` returns Moremi's monitor configuration and safety boundary.
 - `POST /api/admin/agents/risk-compliance/monitor` accepts supplied signal briefs and returns exposure assessments plus proposed upgrade-request payloads.
 - The endpoint does not fetch live news, create work items, mutate workflows, write to production tables, or send notifications in v1.
+- Source feeds are explicit and filterable before ingestion is automated:
+  - `GET /api/admin/agents/risk-compliance/monitor?category=prompt_injection`
+  - `GET /api/admin/agents/risk-compliance/monitor?priority=standards`
+  - `GET /api/admin/agents/risk-compliance/monitor?enabled_only=false`
 
 Expected signal payload:
 

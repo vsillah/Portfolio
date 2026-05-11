@@ -13,10 +13,12 @@ export const AI_RISK_SIGNAL_CATEGORIES = [
 
 export const AI_RISK_SIGNAL_SEVERITIES = ['low', 'medium', 'high', 'critical'] as const
 export const AI_RISK_SIGNAL_CLASSIFICATIONS = ['watch_only', 'exposure_check', 'upgrade_request', 'approval_required'] as const
+export const AI_RISK_SOURCE_PRIORITIES = ['primary', 'standards', 'vendor', 'news', 'commentary'] as const
 
 export type AiRiskSignalCategory = (typeof AI_RISK_SIGNAL_CATEGORIES)[number]
 export type AiRiskSignalSeverity = (typeof AI_RISK_SIGNAL_SEVERITIES)[number]
 export type AiRiskSignalClassification = (typeof AI_RISK_SIGNAL_CLASSIFICATIONS)[number]
+export type AiRiskSourcePriority = (typeof AI_RISK_SOURCE_PRIORITIES)[number]
 
 export type AiRiskSignalInput = {
   id?: string
@@ -62,6 +64,87 @@ export type AiRiskSignalAssessment = {
     metadata: Record<string, unknown>
   } | null
 }
+
+export type AiRiskSourceFeed = {
+  key: string
+  name: string
+  url: string
+  priority: AiRiskSourcePriority
+  ownerAgentKey: 'research-source-register' | 'risk-compliance-intelligence' | 'agent-tooling-parity'
+  categories: AiRiskSignalCategory[]
+  cadence: 'daily' | 'weekly' | 'event_driven'
+  enabled: boolean
+  notes: string
+}
+
+export const AI_RISK_SOURCE_FEEDS: AiRiskSourceFeed[] = [
+  {
+    key: 'owasp-agent-security-initiative',
+    name: 'OWASP Agent Security Initiative',
+    url: 'https://owasp.org/www-project-top-10-for-large-language-model-applications/initiatives/agent_security_initiative/',
+    priority: 'standards',
+    ownerAgentKey: 'research-source-register',
+    categories: ['agent_autonomy', 'prompt_injection', 'security'],
+    cadence: 'weekly',
+    enabled: true,
+    notes: 'Agentic AI security standards and risk vocabulary.',
+  },
+  {
+    key: 'owasp-aivss',
+    name: 'OWASP AI Vulnerability Scoring System',
+    url: 'https://aivss.owasp.org/',
+    priority: 'standards',
+    ownerAgentKey: 'research-source-register',
+    categories: ['security', 'agent_autonomy', 'prompt_injection'],
+    cadence: 'weekly',
+    enabled: true,
+    notes: 'Severity scoring reference for AI-specific vulnerability triage.',
+  },
+  {
+    key: 'nist-ai-rmf',
+    name: 'NIST AI Risk Management Framework',
+    url: 'https://www.nist.gov/itl/ai-risk-management-framework',
+    priority: 'standards',
+    ownerAgentKey: 'research-source-register',
+    categories: ['regulatory', 'bias_safety', 'privacy_data'],
+    cadence: 'weekly',
+    enabled: true,
+    notes: 'Risk management vocabulary and governance reference.',
+  },
+  {
+    key: 'eu-ai-act',
+    name: 'EU Artificial Intelligence Act',
+    url: 'https://eur-lex.europa.eu/eli/reg/2024/1689/oj',
+    priority: 'primary',
+    ownerAgentKey: 'risk-compliance-intelligence',
+    categories: ['regulatory', 'consumer_disclosure', 'privacy_data'],
+    cadence: 'weekly',
+    enabled: true,
+    notes: 'Primary regulation text for EU AI Act obligations.',
+  },
+  {
+    key: 'ftc-ai-guidance',
+    name: 'FTC Artificial Intelligence Business Guidance',
+    url: 'https://www.ftc.gov/business-guidance/technology/artificial-intelligence',
+    priority: 'primary',
+    ownerAgentKey: 'risk-compliance-intelligence',
+    categories: ['consumer_disclosure', 'bias_safety', 'privacy_data'],
+    cadence: 'weekly',
+    enabled: true,
+    notes: 'US consumer protection, AI claims, disclosure, and unfair/deceptive practice guidance.',
+  },
+  {
+    key: 'model-provider-security-notices',
+    name: 'Model Provider Security and Incident Notices',
+    url: 'https://status.openai.com/',
+    priority: 'vendor',
+    ownerAgentKey: 'agent-tooling-parity',
+    categories: ['vendor_incident', 'security'],
+    cadence: 'event_driven',
+    enabled: false,
+    notes: 'Placeholder vendor signal family; enable only after provider-specific feed policy is approved.',
+  },
+]
 
 const KEYWORD_SURFACES: Array<{
   keywords: string[]
@@ -307,6 +390,7 @@ export function assessAiRiskSignals(signals: AiRiskSignalInput[]): AiRiskSignalA
 }
 
 export function getAiRiskSignalMonitorSummary() {
+  const enabledFeeds = AI_RISK_SOURCE_FEEDS.filter((feed) => feed.enabled)
   return {
     ownerAgentKey: 'risk-compliance-intelligence',
     ownerAgentName: getAgentByKey('risk-compliance-intelligence')?.name ?? 'Moremi (Ife) - Risk & Compliance',
@@ -319,6 +403,22 @@ export function getAiRiskSignalMonitorSummary() {
     ],
     categories: AI_RISK_SIGNAL_CATEGORIES,
     classifications: AI_RISK_SIGNAL_CLASSIFICATIONS,
+    sourceFeeds: AI_RISK_SOURCE_FEEDS,
+    enabledSourceFeedCount: enabledFeeds.length,
+    sourceFeedPriorities: AI_RISK_SOURCE_PRIORITIES,
     safetyBoundary: 'Read-only signal assessment. Work-item creation, production config, workflow mutation, public claims, and client-data access require approval.',
   }
+}
+
+export function getAiRiskSourceFeeds(input: {
+  enabledOnly?: boolean
+  priority?: AiRiskSourcePriority
+  category?: AiRiskSignalCategory
+} = {}) {
+  return AI_RISK_SOURCE_FEEDS.filter((feed) => {
+    if (input.enabledOnly && !feed.enabled) return false
+    if (input.priority && feed.priority !== input.priority) return false
+    if (input.category && !feed.categories.includes(input.category)) return false
+    return true
+  })
 }

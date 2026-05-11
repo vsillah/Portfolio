@@ -3,6 +3,11 @@ import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import {
   assessAiRiskSignals,
   getAiRiskSignalMonitorSummary,
+  getAiRiskSourceFeeds,
+  AI_RISK_SIGNAL_CATEGORIES,
+  AI_RISK_SOURCE_PRIORITIES,
+  type AiRiskSignalCategory,
+  type AiRiskSourcePriority,
   type AiRiskSignalInput,
 } from '@/lib/ai-risk-signal-monitor'
 
@@ -32,9 +37,27 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: auth.error }, { status: auth.status })
   }
 
+  const { searchParams } = new URL(request.url)
+  const category = searchParams.get('category')
+  if (category && !AI_RISK_SIGNAL_CATEGORIES.includes(category as AiRiskSignalCategory)) {
+    return NextResponse.json({ error: 'Invalid category' }, { status: 400 })
+  }
+  const priority = searchParams.get('priority')
+  if (priority && !AI_RISK_SOURCE_PRIORITIES.includes(priority as AiRiskSourcePriority)) {
+    return NextResponse.json({ error: 'Invalid source priority' }, { status: 400 })
+  }
+  const enabledOnly = searchParams.get('enabled_only') !== 'false'
+  const categoryFilter = category ? category as AiRiskSignalCategory : undefined
+  const priorityFilter = priority ? priority as AiRiskSourcePriority : undefined
+
   return NextResponse.json({
     ok: true,
     monitor: getAiRiskSignalMonitorSummary(),
+    source_feeds: getAiRiskSourceFeeds({
+      enabledOnly,
+      category: categoryFilter,
+      priority: priorityFilter,
+    }),
   })
 }
 
