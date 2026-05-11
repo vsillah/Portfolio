@@ -5,6 +5,7 @@ import { homedir } from 'os'
 import path from 'path'
 import { listCodexAutomationInventory } from './codex-automation-inventory'
 import { getCodexWorkspaceRootReport } from './codex-workspace-roots'
+import { getModelOpsProjection, type ModelOpsProjection } from './model-ops-open-brain'
 
 export type OpenBrainPrivacyTier = 'public_safe' | 'client_safe' | 'internal_ops' | 'private'
 export type OpenBrainSourceKind =
@@ -16,6 +17,9 @@ export type OpenBrainSourceKind =
   | 'handoff'
   | 'work_item'
   | 'wiki_page'
+  | 'model_ops_report'
+  | 'model_ops_dashboard'
+  | 'model_ops_swap_request'
 export type OpenBrainMemoryKind = 'fact' | 'decision' | 'preference' | 'workflow' | 'risk' | 'operating_rule'
 export type OpenBrainProposalStatus = 'pending' | 'approved' | 'rejected'
 
@@ -114,6 +118,7 @@ export interface OpenBrainSnapshot {
   proposals: OpenBrainProposalRecord[]
   wikiPages: OpenBrainWikiPage[]
   runtimeParity: OpenBrainRuntimeParity[]
+  modelOps: ModelOpsProjection
   contextPacket: {
     purpose: string
     boundaries: string[]
@@ -147,11 +152,12 @@ export function getOpenBrainHome() {
 
 export async function getOpenBrainSnapshot(openBrainHome = getOpenBrainHome()): Promise<OpenBrainSnapshot> {
   const generatedAt = new Date().toISOString()
-  const [inventory, workspaceRoots, persistedMemories, persistedProposals] = await Promise.all([
+  const [inventory, workspaceRoots, persistedMemories, persistedProposals, modelOps] = await Promise.all([
     listCodexAutomationInventory(),
     getCodexWorkspaceRootReport(),
     readJsonArray<OpenBrainMemoryRecord>(path.join(openBrainHome, MEMORIES_FILE)),
     readJsonArray<OpenBrainProposalRecord>(path.join(openBrainHome, PROPOSALS_FILE)),
+    getModelOpsProjection(),
   ])
 
   const sources = dedupeSources([
@@ -191,6 +197,7 @@ export async function getOpenBrainSnapshot(openBrainHome = getOpenBrainHome()): 
       fingerprint: fingerprintOpenBrainRecord(['workspace_root_report', workspaceRoots.generatedAt, JSON.stringify(workspaceRoots.overview)]),
     },
     ...buildRunbookSources(generatedAt),
+    ...buildModelOpsSources(modelOps),
   ])
 
   const repairProposals = inventory.repairPackets.map((packet): OpenBrainProposalRecord => {
@@ -261,7 +268,8 @@ export async function getOpenBrainSnapshot(openBrainHome = getOpenBrainHome()): 
     proposals,
     wikiPages,
     runtimeParity: buildRuntimeParity(openBrainHome),
-    contextPacket: buildContextPacket(sources, memories, proposals),
+    modelOps,
+    contextPacket: buildContextPacket(sources, memories, proposals, modelOps),
   }
 }
 
@@ -428,6 +436,58 @@ function buildRunbookSources(generatedAt: string): OpenBrainSourceRecord[] {
   }))
 }
 
+function buildModelOpsSources(modelOps: ModelOpsProjection): OpenBrainSourceRecord[] {
+  if (!modelOps.available) {
+    return [{
+      id: 'model-ops:dashboard:missing',
+      kind: 'model_ops_dashboard',
+      title: 'Model Ops dashboard data unavailable',
+      summary: sanitizeOpenBrainText(modelOps.reason || 'Local LLM Model Ops reports are not available.'),
+      path: modelOps.sourceRoot,
+      privacyTier: 'internal_ops',
+      confidence: 0.4,
+      lastObservedAt: modelOps.generatedAt,
+      fingerprint: fingerprintOpenBrainRecord(['model_ops_missing', modelOps.sourceRoot, modelOps.reason || '']),
+    }]
+  }
+
+  return [
+    {
+      id: 'model-ops:dashboard:latest',
+      kind: 'model_ops_dashboard',
+      title: `${modelOps.projectName} dashboard data`,
+      summary: sanitizeOpenBrainText(`${modelOps.routerDecisions.length} router decision(s), ${modelOps.benchmarkResults.length} benchmark result(s), ${modelOps.ragQualityRuns.length} RAG quality run(s).`),
+      path: path.join(modelOps.sourceRoot, 'reports/latest-dashboard-data.json'),
+      privacyTier: 'internal_ops',
+      confidence: 0.9,
+      lastObservedAt: modelOps.generatedAt,
+      fingerprint: fingerprintOpenBrainRecord(['model_ops_dashboard', modelOps.generatedAt, modelOps.routerDecisions.length]),
+    },
+    {
+      id: 'model-ops:monitor:latest',
+      kind: 'model_ops_report',
+      title: modelOps.monitor.name,
+      summary: sanitizeOpenBrainText(`${modelOps.monitor.cadence}. ${modelOps.monitor.productionGate}`),
+      path: modelOps.monitor.latestReportPath,
+      privacyTier: 'internal_ops',
+      confidence: 0.86,
+      lastObservedAt: modelOps.generatedAt,
+      fingerprint: fingerprintOpenBrainRecord(['model_ops_monitor', modelOps.monitor.latestReportPath || '', modelOps.generatedAt]),
+    },
+    ...modelOps.swapRequests.map((request): OpenBrainSourceRecord => ({
+      id: `model-ops:swap-request:${request.id}`,
+      kind: 'model_ops_swap_request',
+      title: request.title,
+      summary: `Approval state ${request.approvalState}; linked router decision(s): ${request.routerDecisionIds.join(', ') || 'none'}.`,
+      path: request.sourcePath,
+      privacyTier: 'internal_ops',
+      confidence: 0.8,
+      lastObservedAt: request.sourceGeneratedAt || modelOps.generatedAt,
+      fingerprint: request.fingerprint,
+    })),
+  ]
+}
+
 function buildRuntimeParity(openBrainHome: string): OpenBrainRuntimeParity[] {
   const codexConfig = path.join(homedir(), '.codex', 'config.toml')
   const hermesConfig = path.join(homedir(), '.hermes', 'hermes-agent')
@@ -485,6 +545,7 @@ function buildContextPacket(
   sources: OpenBrainSourceRecord[],
   memories: OpenBrainMemoryRecord[],
   proposals: OpenBrainProposalRecord[],
+  modelOps: ModelOpsProjection,
 ): OpenBrainSnapshot['contextPacket'] {
   return {
     purpose: 'Use the local Open Brain to understand Portfolio Agent Ops context before acting; Portfolio Admin is the projection and approval layer.',
@@ -492,16 +553,23 @@ function buildContextPacket(
       'Do not treat generated wiki pages as the source of truth.',
       'Do not write durable memories from agent inference without approval.',
       'Do not mutate ~/.codex operational state from Portfolio APIs.',
+      'Do not bifurcate local open-source and frontier model routing surfaces; use the unified router decision record.',
+      'Do not change production model defaults without an approved Model Ops swap request.',
     ],
     requiredInputs: sources.slice(0, 6).map((source) => source.title),
     currentRisks: [
       ...(memories.length === 0 ? ['No approved durable Open Brain memories have been accepted yet.'] : []),
       ...(proposals.some((proposal) => proposal.status === 'pending') ? ['Pending memory proposals need review before wiki overlay generation.'] : []),
+      ...(!modelOps.available ? ['Model Ops reports are not available to the Open Brain projection.'] : []),
+      ...(modelOps.available && modelOps.routerDecisions.some((decision) => decision.approvalState === 'approval_required')
+        ? ['Model Ops has approval-gated router decisions that cannot be applied automatically.']
+        : []),
     ],
     expectedOutputs: [
       'Context packet before agent action',
       'Approval-gated memory proposal',
       'Generated wiki overlay from approved non-private records',
+      'Unified router decision before local, frontier, hybrid, tool, or approval-gated model execution',
     ],
   }
 }

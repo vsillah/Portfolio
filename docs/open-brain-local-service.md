@@ -17,6 +17,7 @@ This document defines the Portfolio-facing contract for the local Open Brain. Th
 - `memories`: approved facts, decisions, preferences, workflows, risks, and operating rules.
 - `links`: relationships between sources, memories, docs, automations, runs, and agents.
 - `proposals`: approval-gated requests before durable memory changes are accepted.
+- `model_ops`: local LLM benchmark, RAG quality, candidate, cultural-resource, swap-request, and unified router-decision projections.
 
 Every record must carry:
 
@@ -50,7 +51,31 @@ Portfolio must not:
 - generate durable memories from inference without approval,
 - write directly to `~/.codex/memories`, `~/.codex/automations`, Codex SQLite, or Desktop workspace state,
 - publish private memory records into repo-owned docs,
+- bifurcate local open-source and frontier model routing into separate user-facing router experiences,
+- change production model defaults without an approved Model Ops swap request,
 - or assume Codex MCP configuration applies to Hermes, OpenCode, Claude, Cursor, or ChatGPT.
+
+## Model Ops Router Projection
+
+`Local LLM Model Ops & Hermes Automation` is a domain projection inside Open Brain, not a separate router surface. Portfolio Admin should show one governance-aware router status view that can choose local, frontier, hybrid, tool, or approval-gated execution lanes.
+
+The router decision record carries:
+
+- `task_class`
+- `selected_runtime`
+- `fallback_runtime`
+- `execution_lane`
+- `confidence`
+- `evidence_source`
+- `approval_state`
+- `reason`
+
+The default policy is conservative:
+
+- local for bounded extraction, scoring, classification, prompt formatting, and retrieval compression,
+- frontier for client-facing drafts, strategic copy, ambiguous reasoning, and agent loops without enough local evidence,
+- hybrid when local results are promising but still need fallback,
+- approval-required for production model swaps and sensitive cultural corpus decisions.
 
 ## MCP Tool Contract
 
