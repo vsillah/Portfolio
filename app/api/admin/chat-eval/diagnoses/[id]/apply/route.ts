@@ -50,9 +50,22 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     const recommendations = diagnosis.recommendations || []
-    
+    const hasSpecificRecommendationIds = Array.isArray(recommendation_ids)
+
+    if (hasSpecificRecommendationIds) {
+      const selectedRecommendations = recommendations.filter((rec: any) => recommendation_ids.includes(rec.id))
+      const unapprovedSelection = selectedRecommendations.find((rec: any) => rec.approved !== true)
+
+      if (unapprovedSelection) {
+        return NextResponse.json(
+          { error: 'Only approved recommendations can be applied' },
+          { status: 400 }
+        )
+      }
+    }
+
     // Filter recommendations if specific IDs provided
-    const recommendationsToApply = recommendation_ids && Array.isArray(recommendation_ids)
+    const recommendationsToApply = hasSpecificRecommendationIds
       ? recommendations.filter((rec: any) => recommendation_ids.includes(rec.id))
       : recommendations.filter((rec: any) => rec.approved !== false)
 
