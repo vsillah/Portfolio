@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   approvalUpdate: vi.fn(),
   eventInsert: vi.fn(),
   runUpdate: vi.fn(),
+  workItemUpdate: vi.fn(),
 }))
 
 vi.mock('@/lib/auth-server', () => ({
@@ -36,11 +37,11 @@ function eqChain<T>(result: T) {
   return { eq: firstEq }
 }
 
-function setupSupabase(existingMetadata: Record<string, unknown> = {}) {
+function setupSupabase(existingMetadata: Record<string, unknown> = {}, approvalType = 'send_email') {
   const existingSingle = vi.fn().mockResolvedValue({
     data: {
       id: 'approval-1',
-      approval_type: 'send_email',
+      approval_type: approvalType,
       metadata: existingMetadata,
     },
     error: null,
@@ -63,6 +64,9 @@ function setupSupabase(existingMetadata: Record<string, unknown> = {}) {
   mocks.runUpdate.mockImplementation(() => ({
     eq: vi.fn(() => ({ eq: vi.fn().mockResolvedValue({ data: null, error: null }) })),
   }))
+  mocks.workItemUpdate.mockImplementation(() => ({
+    eq: vi.fn().mockResolvedValue({ data: null, error: null }),
+  }))
   mocks.from.mockImplementation((table: string) => {
     if (table === 'agent_approvals') {
       return {
@@ -73,6 +77,7 @@ function setupSupabase(existingMetadata: Record<string, unknown> = {}) {
     }
     if (table === 'agent_run_events') return { insert: mocks.eventInsert }
     if (table === 'agent_runs') return { update: mocks.runUpdate }
+    if (table === 'agent_work_items') return { update: mocks.workItemUpdate }
     return {}
   })
 }
@@ -147,5 +152,25 @@ describe('POST /api/admin/agents/runs/[runId]/approval', () => {
     expect(response.status).toBe(404)
     expect(await response.json()).toEqual({ error: 'Approval not found' })
     expect(mocks.approvalUpdate).not.toHaveBeenCalled()
+  })
+
+  it('blocks rejected Vercel AutoResearch proposals instead of advancing them', async () => {
+    setupSupabase({
+      work_item_id: 'work-1',
+      proposal_id: 'next-build-profile',
+    }, 'vercel_deployment_research_proposal')
+
+    const response = await POST(makeRequest({
+      approval_id: 'approval-1',
+      status: 'rejected',
+      decision_notes: 'Not worth the deployment risk.',
+    }) as never, { params: { runId: 'run-1' } })
+
+    expect(response.status).toBe(200)
+    expect(mocks.workItemUpdate).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'blocked',
+      blocker_summary: 'Not worth the deployment risk.',
+      validation_summary: 'Not worth the deployment risk.',
+    }))
   })
 })
