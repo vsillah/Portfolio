@@ -7,8 +7,10 @@ import {
   ArrowRight,
   Bot,
   CheckCircle2,
+  ClipboardList,
   FileText,
   ListChecks,
+  PlayCircle,
   RefreshCw,
   ShieldAlert,
   SlidersHorizontal,
@@ -137,13 +139,64 @@ type AutomationInventoryResponse = {
   }
 }
 
+type AutomationActionStatus = 'open' | 'in_progress' | 'blocked' | 'done' | 'dismissed'
+type AutomationActionItem = {
+  id: string
+  automationId: string
+  automationName: string
+  statusColor: 'green' | 'yellow' | 'red' | 'unknown'
+  headline: string
+  summary: string
+  kind: 'blocker_or_approval' | 'next_run_focus'
+  text: string
+  priority: 'low' | 'medium' | 'high' | 'urgent'
+  actionStatus: AutomationActionStatus
+  owner: string | null
+  note: string | null
+  linkedWorkItemId: string | null
+  firstSeenAt: string
+  lastSeenAt: string
+  occurrenceCount: number
+  sourceFiles: string[]
+  latestSourceFile: string
+  codexThreadHint: string | null
+}
+
+type AutomationActionTrackerResponse = {
+  available: boolean
+  reason?: string
+  generatedAt: string
+  sourceDirectory: string
+  stateFile: string
+  actions: AutomationActionItem[]
+  recentNotifications: {
+    automationId: string
+    automationName: string
+    ranAtUtc: string
+    status: string
+    headline: string
+    sourceFile: string
+    actionCount: number
+  }[]
+  summary: {
+    total: number
+    open: number
+    inProgress: number
+    blocked: number
+    done: number
+    dismissed: number
+    urgent: number
+    high: number
+  }
+}
+
 const ALL = 'all'
 const CATEGORIES = [ALL, 'Operations', 'Credentials', 'Model Ops', 'Organization', 'Content/Voice', 'Subscriptions', 'Other'] as const
 const STATUSES = [ALL, 'ACTIVE', 'PAUSED'] as const
 const RISKS = [ALL, 'low', 'medium', 'high'] as const
 const CONTEXT_HEALTH = [ALL, 'green', 'yellow', 'red'] as const
 const EMPTY_AUTOMATIONS: AutomationProfile[] = []
-type ViewMode = 'inventory' | 'context-gaps' | 'repair-packets'
+type ViewMode = 'actions' | 'inventory' | 'context-gaps' | 'repair-packets'
 
 export default function AgentAutomationsPage() {
   return (
@@ -157,12 +210,15 @@ function AgentAutomationsContent() {
   const [inventory, setInventory] = useState<AutomationInventoryResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [actionTracker, setActionTracker] = useState<AutomationActionTrackerResponse | null>(null)
+  const [actionError, setActionError] = useState<string | null>(null)
+  const [actionLoadingId, setActionLoadingId] = useState<string | null>(null)
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>(ALL)
   const [status, setStatus] = useState<(typeof STATUSES)[number]>(ALL)
   const [risk, setRisk] = useState<(typeof RISKS)[number]>(ALL)
   const [contextHealth, setContextHealth] = useState<(typeof CONTEXT_HEALTH)[number]>(ALL)
   const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [viewMode, setViewMode] = useState<ViewMode>('inventory')
+  const [viewMode, setViewMode] = useState<ViewMode>('actions')
 
   const fetchInventory = useCallback(async () => {
     setLoading(true)
@@ -170,12 +226,22 @@ function AgentAutomationsContent() {
     try {
       const session = await getCurrentSession()
       if (!session?.access_token) throw new Error('Missing admin session')
-      const res = await fetch('/api/admin/agents/automations', {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      })
-      const body = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
+      const headers = { Authorization: `Bearer ${session.access_token}` }
+      const [inventoryRes, actionsRes] = await Promise.all([
+        fetch('/api/admin/agents/automations', { headers }),
+        fetch('/api/admin/agents/automation-actions', { headers }),
+      ])
+      const body = await inventoryRes.json().catch(() => ({}))
+      if (!inventoryRes.ok) throw new Error(body.error || `HTTP ${inventoryRes.status}`)
       setInventory(body)
+      const actionsBody = await actionsRes.json().catch(() => ({}))
+      if (actionsRes.ok) {
+        setActionTracker(actionsBody)
+        setActionError(null)
+      } else {
+        setActionTracker(null)
+        setActionError(actionsBody.error || `HTTP ${actionsRes.status}`)
+      }
       const first = body.automations?.[0]?.id
       setSelectedId((current) => current || first || null)
     } catch (err) {
@@ -185,6 +251,54 @@ function AgentAutomationsContent() {
       setLoading(false)
     }
   }, [])
+
+  const updateAction = useCallback(async (action: AutomationActionItem, status: AutomationActionStatus, note?: string | null) => {
+    setActionLoadingId(action.id)
+    setActionError(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) throw new Error('Missing admin session')
+      const res = await fetch('/api/admin/agents/automation-actions', {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action_id: action.id, status, note }),
+      })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
+      await fetchInventory()
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Failed to update action')
+    } finally {
+      setActionLoadingId(null)
+    }
+  }, [fetchInventory])
+
+  const promoteAction = useCallback(async (action: AutomationActionItem) => {
+    setActionLoadingId(action.id)
+    setActionError(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) throw new Error('Missing admin session')
+      const res = await fetch('/api/admin/agents/automation-actions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action_id: action.id }),
+      })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
+      await fetchInventory()
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Failed to create Agent Ops work item')
+    } finally {
+      setActionLoadingId(null)
+    }
+  }, [fetchInventory])
 
   useEffect(() => {
     fetchInventory()
@@ -263,11 +377,11 @@ function AgentAutomationsContent() {
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-7 gap-3 mb-6">
               <MetricCard label="Portfolio automations" value={inventory.overview.total} />
               <MetricCard label="Active" value={inventory.overview.active} tone="green" />
-              <MetricCard label="Paused" value={inventory.overview.paused} />
+              <MetricCard label="Open actions" value={actionTracker?.summary.open ?? 0} tone={(actionTracker?.summary.open ?? 0) ? 'yellow' : 'slate'} />
+              <MetricCard label="Blocked actions" value={actionTracker?.summary.blocked ?? 0} tone={(actionTracker?.summary.blocked ?? 0) ? 'red' : 'slate'} />
               <MetricCard label="Duplicates" value={inventory.overview.duplicateCandidates} tone={inventory.overview.duplicateCandidates ? 'yellow' : 'slate'} />
               <MetricCard label="High risk" value={inventory.overview.highRisk} tone={inventory.overview.highRisk ? 'red' : 'slate'} />
               <MetricCard label="Missing context" value={inventory.overview.missingContext} tone={inventory.overview.missingContext ? 'yellow' : 'slate'} />
-              <MetricCard label="Repair packets" value={inventory.repairPackets.length} tone={inventory.repairPackets.length ? 'yellow' : 'slate'} />
             </div>
 
             <WarningPanels
@@ -283,6 +397,13 @@ function AgentAutomationsContent() {
             <MemoryOrganizationProgress progress={inventory.progress} />
 
             <div className="mb-6 inline-flex rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-1">
+              <button
+                onClick={() => setViewMode('actions')}
+                className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm ${viewMode === 'actions' ? 'bg-radiant-gold/15 text-radiant-gold' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                <ClipboardList size={16} />
+                Action Tracker
+              </button>
               <button
                 onClick={() => setViewMode('inventory')}
                 className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm ${viewMode === 'inventory' ? 'bg-radiant-gold/15 text-radiant-gold' : 'text-muted-foreground hover:text-foreground'}`}
@@ -324,7 +445,15 @@ function AgentAutomationsContent() {
               </div>
             </section>
 
-            {viewMode === 'inventory' ? (
+            {viewMode === 'actions' ? (
+              <AutomationActionsView
+                tracker={actionTracker}
+                error={actionError}
+                actionLoadingId={actionLoadingId}
+                onUpdate={updateAction}
+                onPromote={promoteAction}
+              />
+            ) : viewMode === 'inventory' ? (
               <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_420px] gap-6">
                 <AutomationTable automations={filtered} selectedId={selected?.id || null} onSelect={setSelectedId} />
                 {selected ? <ContextReadiness automation={selected} /> : null}
@@ -403,6 +532,208 @@ function AutomationTable({
         </tbody>
       </table>
     </div>
+  )
+}
+
+function AutomationActionsView({
+  tracker,
+  error,
+  actionLoadingId,
+  onUpdate,
+  onPromote,
+}: {
+  tracker: AutomationActionTrackerResponse | null
+  error: string | null
+  actionLoadingId: string | null
+  onUpdate: (action: AutomationActionItem, status: AutomationActionStatus, note?: string | null) => void
+  onPromote: (action: AutomationActionItem) => void
+}) {
+  if (error) {
+    return <FailureState title="Failed to load automation actions" message={error} />
+  }
+
+  if (!tracker) {
+    return (
+      <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-8 text-center text-muted-foreground">
+        Loading automation action tracker...
+      </div>
+    )
+  }
+
+  if (!tracker.available) {
+    return <FailureState title="Automation action tracker unavailable" message={tracker.reason || 'Local notification state could not be read.'} />
+  }
+
+  const activeActions = tracker.actions.filter((action) => action.actionStatus !== 'dismissed')
+
+  return (
+    <section className="space-y-5">
+      <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <div className="flex items-center gap-2 text-radiant-gold">
+              <ClipboardList size={18} />
+              <h2 className="font-semibold">Automation Action Tracker</h2>
+            </div>
+            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+              Converts daily automation blockers and next-run focus items into a local working queue. Status, notes, and Agent Ops links are written to {tracker.stateFile}; summarized progress is exported for the next automation pass.
+            </p>
+          </div>
+          <div className="grid grid-cols-3 gap-2 text-right text-xs">
+            <DetailPill label="Tracked" value={String(tracker.summary.total)} />
+            <DetailPill label="In progress" value={String(tracker.summary.inProgress)} />
+            <DetailPill label="Done" value={String(tracker.summary.done)} />
+          </div>
+        </div>
+      </div>
+
+      {activeActions.length === 0 ? (
+        <div className="rounded-lg border border-green-400/30 bg-green-500/10 p-6 text-green-100">
+          <div className="flex items-center gap-2 font-medium">
+            <CheckCircle2 size={18} />
+            No active automation actions are waiting on the tracker.
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_360px] gap-5">
+          <div className="space-y-4">
+            {activeActions.map((action) => (
+              <AutomationActionCard
+                key={action.id}
+                action={action}
+                loading={actionLoadingId === action.id}
+                onUpdate={onUpdate}
+                onPromote={onPromote}
+              />
+            ))}
+          </div>
+
+          <aside className="space-y-4">
+            <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
+              <h3 className="mb-3 text-sm font-semibold text-radiant-gold">Recent Automation Reports</h3>
+              <div className="space-y-3">
+                {tracker.recentNotifications.slice(0, 8).map((notification) => (
+                  <div key={notification.sourceFile} className="rounded-md border border-silicon-slate/50 bg-black/10 p-3">
+                    <div className="mb-1 flex items-center justify-between gap-2">
+                      <p className="text-sm font-medium">{notification.automationName}</p>
+                      <StatusColorBadge status={notification.status} />
+                    </div>
+                    <p className="text-xs text-muted-foreground">{notification.headline}</p>
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      {notification.actionCount} action(s) · {formatDateTime(notification.ranAtUtc)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </aside>
+        </div>
+      )}
+    </section>
+  )
+}
+
+function AutomationActionCard({
+  action,
+  loading,
+  onUpdate,
+  onPromote,
+}: {
+  action: AutomationActionItem
+  loading: boolean
+  onUpdate: (action: AutomationActionItem, status: AutomationActionStatus, note?: string | null) => void
+  onPromote: (action: AutomationActionItem) => void
+}) {
+  const [note, setNote] = useState(action.note ?? '')
+
+  useEffect(() => {
+    setNote(action.note ?? '')
+  }, [action.note, action.id])
+
+  return (
+    <article className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
+      <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <ActionStatusBadge status={action.actionStatus} />
+            <ActionPriorityBadge priority={action.priority} />
+            <StatusColorBadge status={action.statusColor} />
+            <span className="rounded-full border border-silicon-slate/60 bg-black/10 px-2 py-1 text-xs text-muted-foreground">
+              {action.kind === 'blocker_or_approval' ? 'Blocker or approval' : 'Next run focus'}
+            </span>
+          </div>
+          <h3 className="text-base font-semibold">{action.text}</h3>
+          <p className="mt-2 text-sm text-muted-foreground">{action.summary || action.headline}</p>
+        </div>
+        {action.linkedWorkItemId ? (
+          <Link
+            href="/admin/agents/coordination"
+            className="inline-flex items-center gap-2 rounded-lg border border-green-400/40 bg-green-500/10 px-3 py-2 text-sm text-green-100 hover:underline"
+          >
+            Open work item
+            <ArrowRight size={15} />
+          </Link>
+        ) : (
+          <button
+            onClick={() => onPromote(action)}
+            disabled={loading}
+            className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
+          >
+            <PlayCircle size={15} />
+            Create work item
+          </button>
+        )}
+      </div>
+
+      <div className="mb-4 grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+        <DetailPill label="Automation" value={action.automationName} />
+        <DetailPill label="Seen" value={`${action.occurrenceCount}x`} />
+        <DetailPill label="First seen" value={formatDateShort(action.firstSeenAt)} />
+        <DetailPill label="Last seen" value={formatDateShort(action.lastSeenAt)} />
+      </div>
+
+      <label className="mb-3 block text-sm">
+        <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Progress note for next automation run</span>
+        <textarea
+          value={note}
+          onChange={(event) => setNote(event.target.value)}
+          rows={2}
+          className="w-full rounded-lg border border-silicon-slate/70 bg-background px-3 py-2 text-sm"
+          placeholder="Add what changed, what is blocked, or what the next run should check."
+        />
+      </label>
+
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={() => onUpdate(action, 'in_progress', note)}
+          disabled={loading}
+          className="rounded-lg border border-silicon-slate/70 bg-background px-3 py-2 text-sm hover:border-radiant-gold/60 disabled:opacity-60"
+        >
+          Mark in progress
+        </button>
+        <button
+          onClick={() => onUpdate(action, 'blocked', note)}
+          disabled={loading}
+          className="rounded-lg border border-red-400/40 bg-red-500/10 px-3 py-2 text-sm text-red-100 hover:bg-red-500/15 disabled:opacity-60"
+        >
+          Mark blocked
+        </button>
+        <button
+          onClick={() => onUpdate(action, 'done', note)}
+          disabled={loading}
+          className="rounded-lg border border-green-400/40 bg-green-500/10 px-3 py-2 text-sm text-green-100 hover:bg-green-500/15 disabled:opacity-60"
+        >
+          Mark done
+        </button>
+        <button
+          onClick={() => onUpdate(action, 'dismissed', note)}
+          disabled={loading}
+          className="rounded-lg border border-silicon-slate/70 bg-black/10 px-3 py-2 text-sm text-muted-foreground hover:text-foreground disabled:opacity-60"
+        >
+          Dismiss
+        </button>
+      </div>
+    </article>
   )
 }
 
@@ -888,6 +1219,44 @@ function TaskStatusBadge({ status }: { status: MemoryOrganizationTaskStatus }) {
   return <span className={`rounded-full border px-2 py-1 text-[11px] ${className}`}>{status.replace('_', ' ')}</span>
 }
 
+function ActionStatusBadge({ status }: { status: AutomationActionStatus }) {
+  const className =
+    status === 'done'
+      ? 'border-green-400/40 bg-green-500/10 text-green-200'
+      : status === 'blocked'
+        ? 'border-red-400/40 bg-red-500/10 text-red-200'
+        : status === 'in_progress'
+          ? 'border-yellow-400/40 bg-yellow-500/10 text-yellow-200'
+          : status === 'dismissed'
+            ? 'border-silicon-slate/60 bg-black/20 text-muted-foreground'
+            : 'border-radiant-gold/40 bg-radiant-gold/10 text-radiant-gold'
+  return <span className={`rounded-full border px-2 py-1 text-xs ${className}`}>{status.replace('_', ' ')}</span>
+}
+
+function ActionPriorityBadge({ priority }: { priority: AutomationActionItem['priority'] }) {
+  const className =
+    priority === 'urgent'
+      ? 'border-red-400/50 bg-red-500/15 text-red-100'
+      : priority === 'high'
+        ? 'border-yellow-400/40 bg-yellow-500/10 text-yellow-100'
+        : priority === 'medium'
+          ? 'border-blue-400/40 bg-blue-500/10 text-blue-100'
+          : 'border-silicon-slate/60 bg-black/20 text-muted-foreground'
+  return <span className={`rounded-full border px-2 py-1 text-xs ${className}`}>{priority}</span>
+}
+
+function StatusColorBadge({ status }: { status: string }) {
+  const className =
+    status === 'green'
+      ? 'border-green-400/40 bg-green-500/10 text-green-200'
+      : status === 'yellow'
+        ? 'border-yellow-400/40 bg-yellow-500/10 text-yellow-200'
+        : status === 'red'
+          ? 'border-red-400/40 bg-red-500/10 text-red-200'
+          : 'border-silicon-slate/60 bg-black/20 text-muted-foreground'
+  return <span className={`rounded-full border px-2 py-1 text-xs ${className}`}>{status}</span>
+}
+
 function DetailPill({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-md border border-silicon-slate/50 bg-black/10 p-2">
@@ -969,5 +1338,15 @@ function formatDateTime(value: string | number | null) {
     day: 'numeric',
     hour: 'numeric',
     minute: '2-digit',
+  }).format(date)
+}
+
+function formatDateShort(value: string | null) {
+  if (!value) return '-'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '-'
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
   }).format(date)
 }
