@@ -12,6 +12,7 @@ import {
   GitBranch,
   Network,
   RefreshCw,
+  Route,
   ShieldCheck,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
@@ -19,7 +20,7 @@ import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
 import type { OpenBrainSnapshot } from '@/lib/open-brain'
 
-type ViewMode = 'sources' | 'proposals' | 'wiki' | 'parity'
+type ViewMode = 'router' | 'sources' | 'proposals' | 'wiki' | 'parity'
 
 export default function OpenBrainPage() {
   return (
@@ -33,7 +34,7 @@ function OpenBrainContent() {
   const [snapshot, setSnapshot] = useState<OpenBrainSnapshot | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [viewMode, setViewMode] = useState<ViewMode>('sources')
+  const [viewMode, setViewMode] = useState<ViewMode>('router')
   const [actionMessage, setActionMessage] = useState<string | null>(null)
   const [reviewingProposalId, setReviewingProposalId] = useState<string | null>(null)
 
@@ -164,6 +165,7 @@ function OpenBrainContent() {
               <MetricCard label="Wiki pages" value={snapshot.overview.wikiPages} tone={snapshot.overview.wikiPages ? 'green' : 'yellow'} />
               <MetricCard label="Stale sources" value={snapshot.overview.staleSources} tone={snapshot.overview.staleSources ? 'yellow' : 'slate'} />
               <MetricCard label="Private" value={snapshot.overview.privateRecords} tone={snapshot.overview.privateRecords ? 'red' : 'slate'} />
+              <MetricCard label="Router lanes" value={snapshot.modelOps.routerDecisions.length} tone={snapshot.modelOps.available ? 'green' : 'yellow'} />
             </div>
 
             <section className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
@@ -191,6 +193,7 @@ function OpenBrainContent() {
 
             <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
               <div className="inline-flex rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-1">
+                <ModeButton icon={<Route size={16} />} active={viewMode === 'router'} onClick={() => setViewMode('router')}>Router</ModeButton>
                 <ModeButton icon={<Database size={16} />} active={viewMode === 'sources'} onClick={() => setViewMode('sources')}>Sources</ModeButton>
                 <ModeButton icon={<ShieldCheck size={16} />} active={viewMode === 'proposals'} onClick={() => setViewMode('proposals')}>Proposals</ModeButton>
                 <ModeButton icon={<FileText size={16} />} active={viewMode === 'wiki'} onClick={() => setViewMode('wiki')}>Wiki Overlay</ModeButton>
@@ -211,6 +214,7 @@ function OpenBrainContent() {
               </div>
             ) : null}
 
+            {viewMode === 'router' ? <RouterView snapshot={snapshot} /> : null}
             {viewMode === 'sources' ? <SourcesView snapshot={snapshot} /> : null}
             {viewMode === 'proposals' ? (
               <ProposalsView
@@ -229,6 +233,123 @@ function OpenBrainContent() {
         ) : null}
       </div>
     </div>
+  )
+}
+
+function RouterView({ snapshot }: { snapshot: OpenBrainSnapshot }) {
+  const modelOps = snapshot.modelOps
+  if (!modelOps.available) {
+    return <EmptyState message={modelOps.reason || 'Model Ops reports are not available to the Open Brain projection.'} />
+  }
+
+  const localEligible = modelOps.routerDecisions.filter((decision) => decision.executionLane === 'local')
+  const frontierHeld = modelOps.routerDecisions.filter((decision) => decision.executionLane === 'frontier')
+  const approvalRequired = modelOps.routerDecisions.filter((decision) => decision.approvalState === 'approval_required')
+
+  return (
+    <section className="space-y-5">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
+        <Detail label="Local default" value={modelOps.currentLocalDefault} />
+        <Detail label="Frontier fallback" value={modelOps.currentFrontierFallback} />
+        <Detail label="Embedding model" value={modelOps.currentEmbeddingModel} />
+        <Detail label="Monitor cadence" value={modelOps.monitor.cadence} />
+      </div>
+
+      <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
+        <div className="mb-4 flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <div className="flex items-center gap-2 text-radiant-gold">
+              <Route size={18} />
+              <h2 className="font-semibold">Unified Router Status</h2>
+            </div>
+            <p className="mt-2 text-sm text-muted-foreground">
+              One governance-aware router decides between local, frontier, hybrid, tool, and approval-gated execution.
+            </p>
+          </div>
+          <StatusBadge value={approvalRequired.length ? 'approval_required' : 'approved_policy'} />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 text-sm">
+          <ListBlock label="Local eligible" values={localEligible.map((decision) => decision.taskClass)} empty="No task classes are local-only yet." />
+          <ListBlock label="Held on frontier" values={frontierHeld.map((decision) => decision.taskClass)} empty="No task classes are frontier-only." />
+          <ListBlock label="Approval gated" values={approvalRequired.map((decision) => decision.taskClass)} empty="No approval-gated router decisions." />
+        </div>
+      </section>
+
+      <section className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        {modelOps.routerDecisions.map((decision) => (
+          <article key={decision.id} className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
+            <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <h3 className="font-semibold">{decision.taskClass.replace(/_/g, ' ')}</h3>
+                <p className="mt-1 text-xs text-muted-foreground">{decision.id}</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <LaneBadge lane={decision.executionLane} />
+                <StatusBadge value={decision.approvalState} />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+              <Detail label="Selected runtime" value={decision.selectedRuntime} />
+              <Detail label="Fallback runtime" value={decision.fallbackRuntime || 'none'} />
+              <Detail label="Confidence" value={`${Math.round(decision.confidence * 100)}%`} />
+              <Detail label="Evidence" value={decision.evidenceSource} />
+            </div>
+            <p className="mt-3 text-sm text-muted-foreground">{decision.reason}</p>
+            {decision.linkedRecordIds.length > 0 ? (
+              <p className="mt-3 break-all text-xs text-muted-foreground">
+                Linked evidence: {decision.linkedRecordIds.join(', ')}
+              </p>
+            ) : null}
+          </article>
+        ))}
+      </section>
+
+      <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
+        <h2 className="mb-3 font-semibold">Latest Benchmark Evidence</h2>
+        <div className="overflow-hidden rounded-lg border border-silicon-slate/70">
+          <table className="w-full text-sm">
+            <thead className="bg-silicon-slate/40 text-muted-foreground">
+              <tr>
+                <th className="px-4 py-3 text-left font-medium">Task</th>
+                <th className="px-4 py-3 text-left font-medium">Model</th>
+                <th className="px-4 py-3 text-left font-medium">Score</th>
+                <th className="px-4 py-3 text-left font-medium">Latency</th>
+                <th className="px-4 py-3 text-left font-medium">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-silicon-slate/60">
+              {modelOps.benchmarkResults.map((result) => (
+                <tr key={result.id}>
+                  <td className="px-4 py-3">{result.task}</td>
+                  <td className="px-4 py-3">{result.model}</td>
+                  <td className="px-4 py-3">{result.score === null ? 'n/a' : `${Math.round(result.score * 1000) / 10}%`}</td>
+                  <td className="px-4 py-3">{result.latencyMs === null ? 'n/a' : `${Math.round(result.latencyMs)}ms`}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{result.confidenceStatus}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
+        <h2 className="mb-3 font-semibold">RAG Quality Progress</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          {modelOps.ragQualityRuns.map((run) => (
+            <article key={run.id} className="rounded-lg border border-silicon-slate/60 bg-black/10 p-4">
+              <div className="mb-2 flex items-start justify-between gap-3">
+                <h3 className="font-medium">{run.name}</h3>
+                <span className="text-xs text-muted-foreground">{run.totalQueries}/200</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Local sufficient {run.localSufficient}, partial {run.localPartial}, weak {run.localWeak}. Better/same/worse: {run.localBetter}/{run.localSame}/{run.localWorse}.
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+    </section>
   )
 }
 
@@ -421,10 +542,25 @@ function HealthPill({ label, value }: { label: string; value: 'green' | 'yellow'
   )
 }
 
+function LaneBadge({ lane }: { lane: string }) {
+  const tone = lane === 'local'
+    ? 'border-green-400/30 bg-green-500/10 text-green-200'
+    : lane === 'frontier'
+      ? 'border-blue-400/30 bg-blue-500/10 text-blue-100'
+      : lane === 'hybrid'
+        ? 'border-radiant-gold/40 bg-radiant-gold/10 text-radiant-gold'
+        : lane === 'approval_required'
+          ? 'border-yellow-400/30 bg-yellow-500/10 text-yellow-100'
+          : 'border-silicon-slate/70 bg-silicon-slate/30 text-muted-foreground'
+  return <span className={`rounded-full border px-2 py-1 text-xs ${tone}`}>{lane}</span>
+}
+
 function StatusBadge({ value }: { value: string }) {
   const tone = value === 'approved' || value === 'connected'
     ? 'border-green-400/30 bg-green-500/10 text-green-200'
-    : value === 'pending' || value === 'blocked'
+    : value === 'approved_policy'
+      ? 'border-green-400/30 bg-green-500/10 text-green-200'
+      : value === 'pending' || value === 'blocked' || value === 'approval_required' || value === 'shadow_only'
       ? 'border-yellow-400/30 bg-yellow-500/10 text-yellow-100'
       : 'border-silicon-slate/70 bg-silicon-slate/30 text-muted-foreground'
   return <span className={`rounded-full border px-2 py-1 text-xs ${tone}`}>{value}</span>
