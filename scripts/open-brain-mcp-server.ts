@@ -1,5 +1,7 @@
 #!/usr/bin/env tsx
-import { createInterface } from 'readline'
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
+import * as z from 'zod/v4'
 import {
   compileKarpathyWikiOverlay,
   createOpenBrainProposal,
@@ -9,167 +11,128 @@ import {
   type OpenBrainPrivacyTier,
 } from '../lib/open-brain'
 
-type RpcRequest = {
-  id?: string | number
-  method?: string
-  params?: {
-    name?: string
-    arguments?: Record<string, unknown>
-  }
-}
-
-const tools = [
-  {
-    name: 'capture_memory',
-    description: 'Create an approval-gated Open Brain memory proposal. Durable memory writes still require approval.',
-    inputSchema: proposalSchema(),
-  },
-  {
-    name: 'search_memory',
-    description: 'Search approved local Open Brain memories and source projections.',
-    inputSchema: {
-      type: 'object',
-      properties: { query: { type: 'string' } },
-      required: ['query'],
-    },
-  },
-  {
-    name: 'get_context_packet',
-    description: 'Return the compact context packet agents should read before acting.',
-    inputSchema: { type: 'object', properties: {} },
-  },
-  {
-    name: 'propose_memory_write',
-    description: 'Create an approval-gated proposed memory write.',
-    inputSchema: proposalSchema(),
-  },
-  {
-    name: 'list_pending_memory_proposals',
-    description: 'List pending Open Brain memory proposals.',
-    inputSchema: { type: 'object', properties: {} },
-  },
-  {
-    name: 'link_memory_to_source',
-    description: 'Create an auditable local Open Brain link between an approved memory and source record.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        memoryId: { type: 'string' },
-        sourceId: { type: 'string' },
-        relationship: { type: 'string' },
-      },
-      required: ['memoryId', 'sourceId', 'relationship'],
-    },
-  },
-  {
-    name: 'compile_wiki_overlay',
-    description: 'Compile Karpathy Wiki overlay previews from approved non-private memories.',
-    inputSchema: { type: 'object', properties: {} },
-  },
-]
-
-const rl = createInterface({ input: process.stdin, crlfDelay: Infinity })
-
-rl.on('line', async (line) => {
-  if (!line.trim()) return
-  let request: RpcRequest
-  try {
-    request = JSON.parse(line)
-  } catch {
-    write({ error: { code: -32700, message: 'Parse error' } })
-    return
-  }
-
-  try {
-    if (request.method === 'initialize') {
-      write({ id: request.id, result: { protocolVersion: '2024-11-05', serverInfo: { name: 'portfolio-open-brain', version: '0.1.0' }, capabilities: { tools: {} } } })
-      return
-    }
-    if (request.method === 'tools/list') {
-      write({ id: request.id, result: { tools } })
-      return
-    }
-    if (request.method === 'tools/call') {
-      write({ id: request.id, result: await callTool(request.params?.name || '', request.params?.arguments || {}) })
-      return
-    }
-    write({ id: request.id, error: { code: -32601, message: 'Method not found' } })
-  } catch (err) {
-    write({ id: request.id, error: { code: -32000, message: err instanceof Error ? err.message : 'Tool call failed' } })
-  }
+const server = new McpServer({
+  name: 'portfolio-open-brain',
+  version: '0.2.0',
 })
 
-async function callTool(name: string, args: Record<string, unknown>) {
+server.registerTool('capture_memory', {
+  description: 'Create an approval-gated Open Brain memory proposal. Durable memory writes still require approval.',
+  inputSchema: proposalSchema(),
+}, async (args) => createProposalToolResult(args))
+
+server.registerTool('search_memory', {
+  description: 'Search approved local Open Brain memories and source projections.',
+  inputSchema: {
+    query: z.string(),
+  },
+}, async ({ query }) => {
   const snapshot = await getOpenBrainSnapshot()
-  if (name === 'get_context_packet') return asText(snapshot.contextPacket)
-  if (name === 'list_pending_memory_proposals') return asText(snapshot.proposals.filter((proposal) => proposal.status === 'pending'))
-  if (name === 'compile_wiki_overlay') return asText({ mode: 'preview', pages: compileKarpathyWikiOverlay(snapshot.memories, snapshot.events) })
-  if (name === 'search_memory') {
-    const query = String(args.query || '').toLowerCase()
-    return asText({
-      memories: snapshot.memories.filter((memory) => `${memory.title} ${memory.body}`.toLowerCase().includes(query)),
-      sources: snapshot.sources.filter((source) => `${source.title} ${source.summary} ${source.path || ''}`.toLowerCase().includes(query)),
-    })
-  }
-  if (name === 'capture_memory' || name === 'propose_memory_write') {
-    const proposal = await createOpenBrainProposal({
-      kind: args.kind as OpenBrainMemoryKind,
-      title: String(args.title || ''),
-      body: String(args.body || ''),
-      privacyTier: args.privacyTier as OpenBrainPrivacyTier,
-      confidence: typeof args.confidence === 'number' ? args.confidence : undefined,
-      sourceIds: Array.isArray(args.sourceIds) ? args.sourceIds.filter((item): item is string => typeof item === 'string') : [],
-      reason: String(args.reason || ''),
-      createdBy: 'open-brain-mcp',
-    })
-    return asText({ proposal, approvalRequired: true })
-  }
-  if (name === 'link_memory_to_source') {
-    const memoryId = String(args.memoryId || '')
-    const sourceId = String(args.sourceId || '')
-    const relationship = String(args.relationship || '')
-    if (!snapshot.memories.some((memory) => memory.id === memoryId)) throw new Error('Memory not found.')
-    if (!snapshot.sources.some((source) => source.id === sourceId)) throw new Error('Source not found.')
-    const link = await linkOpenBrainRecords({
-      fromId: memoryId,
-      toId: sourceId,
-      relationship,
-    })
-    return asText({
-      link,
-      note: 'Link recorded locally. This does not promote any memory, mutate agent config, or write to public docs.',
-    })
-  }
-  throw new Error(`Unknown tool: ${name}`)
+  const normalizedQuery = query.toLowerCase()
+  return asText({
+    memories: snapshot.memories.filter((memory) => `${memory.title} ${memory.body}`.toLowerCase().includes(normalizedQuery)),
+    sources: snapshot.sources.filter((source) => `${source.title} ${source.summary} ${source.path || ''}`.toLowerCase().includes(normalizedQuery)),
+  })
+})
+
+server.registerTool('get_context_packet', {
+  description: 'Return the compact context packet agents should read before acting.',
+  inputSchema: {},
+}, async () => {
+  const snapshot = await getOpenBrainSnapshot()
+  return asText(snapshot.contextPacket)
+})
+
+server.registerTool('propose_memory_write', {
+  description: 'Create an approval-gated proposed memory write.',
+  inputSchema: proposalSchema(),
+}, async (args) => createProposalToolResult(args))
+
+server.registerTool('list_pending_memory_proposals', {
+  description: 'List pending Open Brain memory proposals.',
+  inputSchema: {},
+}, async () => {
+  const snapshot = await getOpenBrainSnapshot()
+  return asText(snapshot.proposals.filter((proposal) => proposal.status === 'pending'))
+})
+
+server.registerTool('link_memory_to_source', {
+  description: 'Create an auditable local Open Brain link between an approved memory and source record.',
+  inputSchema: {
+    memoryId: z.string(),
+    sourceId: z.string(),
+    relationship: z.string(),
+  },
+}, async ({ memoryId, sourceId, relationship }) => {
+  const snapshot = await getOpenBrainSnapshot()
+  if (!snapshot.memories.some((memory) => memory.id === memoryId)) throw new Error('Memory not found.')
+  if (!snapshot.sources.some((source) => source.id === sourceId)) throw new Error('Source not found.')
+  const link = await linkOpenBrainRecords({ fromId: memoryId, toId: sourceId, relationship })
+  return asText({
+    link,
+    note: 'Link recorded locally. This does not promote any memory, mutate agent config, or write to public docs.',
+  })
+})
+
+server.registerTool('compile_wiki_overlay', {
+  description: 'Compile Karpathy Wiki overlay previews from approved non-private memories.',
+  inputSchema: {},
+}, async () => {
+  const snapshot = await getOpenBrainSnapshot()
+  return asText({ mode: 'preview', pages: compileKarpathyWikiOverlay(snapshot.memories, snapshot.events) })
+})
+
+async function createProposalToolResult(args: {
+  kind: OpenBrainMemoryKind
+  title: string
+  body: string
+  privacyTier: OpenBrainPrivacyTier
+  confidence?: number
+  sourceIds?: string[]
+  reason: string
+}) {
+  const proposal = await createOpenBrainProposal({
+    kind: args.kind,
+    title: args.title,
+    body: args.body,
+    privacyTier: args.privacyTier,
+    confidence: args.confidence,
+    sourceIds: args.sourceIds || [],
+    reason: args.reason,
+    createdBy: 'open-brain-mcp',
+  })
+  return asText({ proposal, approvalRequired: true })
 }
 
 function asText(value: unknown) {
   return {
     content: [
       {
-        type: 'text',
+        type: 'text' as const,
         text: JSON.stringify(value, null, 2),
       },
     ],
   }
 }
 
-function write(value: unknown) {
-  process.stdout.write(`${JSON.stringify(value)}\n`)
-}
-
 function proposalSchema() {
   return {
-    type: 'object',
-    properties: {
-      kind: { type: 'string', enum: ['fact', 'decision', 'preference', 'workflow', 'risk', 'operating_rule'] },
-      title: { type: 'string' },
-      body: { type: 'string' },
-      privacyTier: { type: 'string', enum: ['public_safe', 'client_safe', 'internal_ops', 'private'] },
-      confidence: { type: 'number' },
-      sourceIds: { type: 'array', items: { type: 'string' } },
-      reason: { type: 'string' },
-    },
-    required: ['kind', 'title', 'body', 'privacyTier', 'reason'],
+    kind: z.enum(['fact', 'decision', 'preference', 'workflow', 'risk', 'operating_rule']),
+    title: z.string(),
+    body: z.string(),
+    privacyTier: z.enum(['public_safe', 'client_safe', 'internal_ops', 'private']),
+    confidence: z.number().optional(),
+    sourceIds: z.array(z.string()).optional(),
+    reason: z.string(),
   }
 }
+
+async function main() {
+  const transport = new StdioServerTransport()
+  await server.connect(transport)
+}
+
+main().catch((error) => {
+  console.error('[open-brain-mcp] Server error:', error instanceof Error ? error.message : error)
+  process.exit(1)
+})
