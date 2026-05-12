@@ -65,6 +65,20 @@ type VercelResearchApprovalCard = {
   } | null
 }
 
+type MoremiOperationalDrillResult = {
+  work_item: AgentWorkItem
+  assessment: {
+    classification: string
+    severity: string
+    recommendedNextAction: string
+  }
+  verification: {
+    admin_path: string
+    slack_command: string
+    expected_status: string
+  }
+}
+
 const DEFAULT_FORM: WorkItemForm = {
   title: '',
   objective: '',
@@ -92,6 +106,7 @@ function AgentCoordinationContent() {
   const [error, setError] = useState<string | null>(null)
   const [form, setForm] = useState<WorkItemForm>(DEFAULT_FORM)
   const [vercelResearchApprovals, setVercelResearchApprovals] = useState<VercelResearchApprovalCard[]>([])
+  const [moremiDrillResult, setMoremiDrillResult] = useState<MoremiOperationalDrillResult | null>(null)
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -244,6 +259,25 @@ function AgentCoordinationContent() {
     }
   }
 
+  async function runMoremiOperationalDrill() {
+    setActionId('moremi-drill')
+    setError(null)
+    try {
+      const response = await authedFetch('/api/admin/agents/risk-compliance/drill', {
+        method: 'POST',
+        body: JSON.stringify({ confirmation: 'run_moremi_operational_drill' }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      setMoremiDrillResult(body)
+      await refreshAll()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Moremi drill failed')
+    } finally {
+      setActionId(null)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground p-6 lg:p-8">
       <div className="mx-auto max-w-7xl">
@@ -294,6 +328,12 @@ function AgentCoordinationContent() {
           approvals={vercelResearchApprovals}
           actionId={actionId}
           onDecision={decideVercelResearchApproval}
+        />
+
+        <MoremiOperationalDrillPanel
+          result={moremiDrillResult}
+          running={actionId === 'moremi-drill'}
+          onRun={runMoremiOperationalDrill}
         />
 
         <section className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
@@ -380,6 +420,55 @@ function AgentCoordinationContent() {
         )}
       </div>
     </div>
+  )
+}
+
+function MoremiOperationalDrillPanel({
+  result,
+  running,
+  onRun,
+}: {
+  result: MoremiOperationalDrillResult | null
+  running: boolean
+  onRun: () => void
+}) {
+  return (
+    <section className="mb-6 rounded-lg border border-green-500/30 bg-green-500/5 p-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <div className="mb-2 flex items-center gap-2 text-sm text-green-100">
+            <ShieldCheck size={18} />
+            Moremi operational drill
+          </div>
+          <h2 className="font-semibold">Synthetic AI risk signal to Agent Ops work item</h2>
+          <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+            Creates or reuses one proposed, synthetic Moremi work item. This validates the Agent Coordination and Slack visibility path without production remediation, external sends, or client-data access.
+          </p>
+        </div>
+        <button
+          onClick={onRun}
+          disabled={running}
+          className="inline-flex items-center justify-center gap-2 rounded-lg border border-green-500/40 bg-green-500/10 px-3 py-2 text-sm text-green-100 hover:bg-green-500/15 disabled:opacity-50"
+        >
+          <RefreshCw size={16} className={running ? 'animate-spin' : ''} />
+          Run drill
+        </button>
+      </div>
+
+      {result ? (
+        <div className="mt-4 grid gap-3 lg:grid-cols-3">
+          <SmallField label="Work item" value={result.work_item.title} />
+          <SmallField label="Status" value={result.work_item.status} />
+          <SmallField label="Slack check" value={result.verification.slack_command} />
+          <div className="rounded-lg border border-green-500/20 bg-background/40 p-3 text-sm lg:col-span-3">
+            <p className="font-medium text-green-100">Drill created or reused</p>
+            <p className="mt-1 text-muted-foreground">
+              {result.assessment.classification.replace(/_/g, ' ')} / {result.assessment.severity}. Expected visibility: {result.verification.expected_status} in Agent Coordination and Slack.
+            </p>
+          </div>
+        </div>
+      ) : null}
+    </section>
   )
 }
 

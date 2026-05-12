@@ -82,6 +82,20 @@ export type AiRiskSourceFeed = {
   notes: string
 }
 
+export const MOREMI_OPERATIONAL_DRILL_SIGNAL: AiRiskSignalInput = {
+  id: 'moremi-operational-drill-prompt-injection-browser-automation',
+  title: 'Synthetic Moremi drill: prompt injection risk in browser automation',
+  summary: [
+    'Synthetic Agent Ops validation signal for indirect prompt injection in tool-using agents.',
+    'Use this to prove Moremi can create a proposed work item without production remediation, external sends, or client-data access.',
+  ].join(' '),
+  sourceName: 'Synthetic Agent Ops drill',
+  sourceUrl: null,
+  category: 'prompt_injection',
+  severity: 'high',
+  tags: ['synthetic', 'agent-ops-drill', 'prompt injection', 'browser automation', 'unsafe tool call'],
+}
+
 export const AI_RISK_SOURCE_FEEDS: AiRiskSourceFeed[] = [
   {
     key: 'owasp-agent-security-initiative',
@@ -428,6 +442,32 @@ export function buildAiRiskWorkItemRequests(
         sourceAssessment: assessment,
       }
     })
+}
+
+export function buildMoremiOperationalDrillWorkItemRequest() {
+  const [assessment] = assessAiRiskSignals([MOREMI_OPERATIONAL_DRILL_SIGNAL])
+  const [request] = buildAiRiskWorkItemRequests([assessment])
+
+  if (!request) {
+    throw new Error('Moremi operational drill did not produce a work item request')
+  }
+
+  return {
+    assessment,
+    workItemRequest: {
+      ...request,
+      metadata: {
+        ...request.metadata,
+        synthetic_drill: true,
+        non_production_data: true,
+        production_mutation_allowed: false,
+        approval_required_before_remediation: true,
+        admin_verification_path: '/admin/agents/coordination',
+        slack_verification_command: '/agent work',
+      },
+      idempotencyKey: 'ai-risk-drill:moremi-operational-drill:v1',
+    },
+  }
 }
 
 export function getAiRiskSignalMonitorSummary() {
