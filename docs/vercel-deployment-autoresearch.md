@@ -17,9 +17,18 @@ npm run deploy:research:plan -- --json
 The planner uses the current deployment metrics scorecard to propose focused
 experiments. A proposal becomes actionable only after it is routed into Agent
 Coordination as a pending `vercel_deployment_research_proposal` approval.
-Creating that approval also records sanitized Open Brain source/event records so
-the proposal is visible in the local memory timeline without becoming durable
-memory.
+When `OPEN_BRAIN_AUTORESEARCH_TRACE=true`, creating that approval also records
+sanitized Open Brain source/event records so the proposal is visible in the
+local memory timeline without becoming durable memory.
+
+Default:
+
+```bash
+OPEN_BRAIN_AUTORESEARCH_TRACE=false
+```
+
+Enable the flag deliberately in local or staging first. Production should only
+enable it after reviewing trace volume and privacy behavior.
 
 ## Approval Gate
 
@@ -56,7 +65,8 @@ Proposal-ready notifications are event-driven. There is no schedule.
 - Integration Captain still owns merge and deployment sequencing.
 - Technology Bakeoff owns vendor, runtime, or provider promotion decisions.
 - Open Brain records the proposal trace as source/event metadata, but it is not
-  the execution engine, approval source of truth, or notification service.
+  the execution engine, approval source of truth, or notification service. This
+  trace path is disabled unless `OPEN_BRAIN_AUTORESEARCH_TRACE=true`.
 - Approved experiment outcomes may become Open Brain memory proposals later.
   They do not become durable memory unless reviewed and approved in the Open
   Brain flow.

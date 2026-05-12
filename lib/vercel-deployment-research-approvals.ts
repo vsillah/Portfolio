@@ -30,6 +30,12 @@ type ApprovalRow = {
   metadata: Record<string, unknown> | null
 }
 
+function shouldRecordOpenBrainTrace() {
+  const raw = process.env.OPEN_BRAIN_AUTORESEARCH_TRACE
+  if (!raw) return false
+  return raw === '1' || raw.toLowerCase() === 'true'
+}
+
 function db() {
   if (!supabaseAdmin) throw new Error('Database not available')
   return supabaseAdmin
@@ -199,14 +205,16 @@ export async function createVercelResearchApproval(input: {
       idempotencyKey: `${workItem.id}:vercel-autoresearch-approval-created`,
     }).catch(() => {})
 
-    await recordVercelResearchOpenBrainTrace({
-      proposal,
-      approvalId: approval.id,
-      runId: workItem.active_run_id,
-      workItemId: workItem.id,
-    }).catch((error) => {
-      console.warn('[vercel-autoresearch] Open Brain trace skipped:', error instanceof Error ? error.message : error)
-    })
+    if (shouldRecordOpenBrainTrace()) {
+      await recordVercelResearchOpenBrainTrace({
+        proposal,
+        approvalId: approval.id,
+        runId: workItem.active_run_id,
+        workItemId: workItem.id,
+      }).catch((error) => {
+        console.warn('[vercel-autoresearch] Open Brain trace skipped:', error instanceof Error ? error.message : error)
+      })
+    }
   }
 
   const notification = await notifyApprovalOnce(approval, workItem.id, proposal)

@@ -91,7 +91,7 @@ Initial producer routes now covered by the contract:
 - personality corpus public-safe pack,
 - local chatbot knowledge bundle,
 - governed RAG/Pinecone shadow ingestion plans,
-- Vercel AutoResearch proposal packets,
+- Vercel AutoResearch proposal packets when `OPEN_BRAIN_AUTORESEARCH_TRACE=true`,
 - Model Ops router decisions and swap requests,
 - Codex automation and workspace-root reports.
 
@@ -171,7 +171,7 @@ Allowed:
 - Show progress and task status computed from the inventory.
 - Show read-only Codex workspace-root and active thread placement drift.
 - Show Open Brain source freshness, proposal health, runtime parity, and wiki overlay previews.
-- Show Open Brain source/event traces from personality corpus, chatbot knowledge, RAG shadow plans, AutoResearch proposal packets, Model Ops, and Codex automation state.
+- Show Open Brain source/event traces from personality corpus, chatbot knowledge, RAG shadow plans, gated AutoResearch proposal packets, Model Ops, and Codex automation state.
 - Show public-safe Open Brain RAG projection previews with deletion and rollback metadata.
 
 Not allowed in this workflow without an explicit operational-state step:

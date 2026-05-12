@@ -127,6 +127,7 @@ function setupExistingApproval() {
 describe('createVercelResearchApproval', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    process.env.OPEN_BRAIN_AUTORESEARCH_TRACE = '1'
     mocks.recordAgentEvent.mockResolvedValue({ id: 'event-1' })
     mocks.notify.mockResolvedValue(true)
     mocks.recordOpenBrainSource.mockResolvedValue({
@@ -202,5 +203,25 @@ describe('createVercelResearchApproval', () => {
     })
 
     expect(mocks.notify).not.toHaveBeenCalled()
+  })
+
+  it('skips Open Brain trace when disabled', async () => {
+    delete process.env.OPEN_BRAIN_AUTORESEARCH_TRACE
+    mocks.createAgentWorkItem.mockResolvedValue({
+      id: 'work-1',
+      active_run_id: 'run-1',
+      approval_id: null,
+    })
+    setupNewApproval()
+
+    await expect(createVercelResearchApproval({
+      proposal,
+      createdByUserId: 'admin-user',
+    })).resolves.toMatchObject({
+      approvalId: 'approval-1',
+    })
+
+    expect(mocks.recordOpenBrainSource).not.toHaveBeenCalled()
+    expect(mocks.recordOpenBrainEvent).not.toHaveBeenCalled()
   })
 })
