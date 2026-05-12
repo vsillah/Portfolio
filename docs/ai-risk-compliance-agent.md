@@ -50,6 +50,16 @@ The first implementation surface is read-only by default and approval-gated for 
   - `GET /api/admin/agents/risk-compliance/monitor?priority=standards`
   - `GET /api/admin/agents/risk-compliance/monitor?enabled_only=false`
 
+### Scheduled Read-Only Monitor
+
+Moremi runs a weekly source-feed coverage monitor through Vercel cron:
+
+- `GET /api/cron/moremi-risk-monitor` runs from Vercel cron with `CRON_SECRET`.
+- `POST /api/cron/moremi-risk-monitor` remains available for n8n/manual cron triggering with `N8N_INGEST_SECRET`.
+- The monitor creates an Agent Ops run and artifact with enabled/disabled feed counts, category coverage, priority coverage, and warnings.
+- The monitor does not fetch live external pages, create work items, mutate workflows, change production config, send public content, or touch client data.
+- The first schedule is weekly on Monday at 14:00 UTC, after the daily client AI Ops monitor.
+
 ### Operational Drill
 
 Moremi has a repeatable synthetic drill for proving the signal-to-work-item path without production remediation or client-data access.
