@@ -31,6 +31,8 @@
     "deploy:metrics": "tsx scripts/vercel-deployment-metrics.ts",
     "deploy:research:plan": "tsx scripts/vercel-deployment-research-plan.ts",
     "git:hygiene:report": "tsx scripts/git-hygiene-report.ts",
+    "model-ops:snapshot": "tsx scripts/sync-model-ops-snapshot.ts",
+    "model-ops:snapshot:check": "tsx scripts/sync-model-ops-snapshot.ts --check",
     "open-brain:mcp": "tsx scripts/open-brain-mcp-server.ts",
     "wrm:smoke-gate": "tsx scripts/wrm-production-smoke-gate.ts",
     "source-protocol:smoke": "tsx scripts/source-protocol-smoke.ts",
