@@ -43,6 +43,24 @@ type SourceProtocolOverview = {
   monthlyPayouts?: any[]
   disputes?: any[]
   modelReviews?: any[]
+  bannedBooksCorpus?: {
+    generatedAt: string
+    scope: string
+    licenseModel: string
+    sourceSpine: any[]
+    swarmAgents: any[]
+    summary: {
+      stagedRecords: number
+      sourceSpineCount: number
+      rightsReadyRecords: number
+      outreachReadyRecords: number
+      activeLicenseRecords: number
+      retrievableRecords: number
+      blockedRecords: number
+    }
+    records: any[]
+    safeguards: string[]
+  }
 }
 
 type AdminUserOption = {
@@ -51,9 +69,10 @@ type AdminUserOption = {
   role: string
 }
 
-type TabKey = 'portal' | 'creators' | 'works' | 'grants' | 'chunks' | 'receipts' | 'payouts' | 'reviews'
+type TabKey = 'bannedBooks' | 'portal' | 'creators' | 'works' | 'grants' | 'chunks' | 'receipts' | 'payouts' | 'reviews'
 
 const TABS: Array<{ key: TabKey; label: string }> = [
+  { key: 'bannedBooks', label: 'Banned Books' },
   { key: 'portal', label: 'Portal Access' },
   { key: 'creators', label: 'Creators' },
   { key: 'works', label: 'Works' },
@@ -76,7 +95,7 @@ function SourceProtocolContent() {
   const [overview, setOverview] = useState<SourceProtocolOverview | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [tab, setTab] = useState<TabKey>('portal')
+  const [tab, setTab] = useState<TabKey>('bannedBooks')
   const [userSearch, setUserSearch] = useState('')
   const [userOptions, setUserOptions] = useState<AdminUserOption[]>([])
   const [selectedUserId, setSelectedUserId] = useState('')
@@ -198,6 +217,7 @@ function SourceProtocolContent() {
       receipts: overview?.receipts?.length ?? 0,
       payouts: overview?.monthlyPayouts?.length ?? 0,
       reviews: overview?.modelReviews?.length ?? 0,
+      bannedBooks: overview?.bannedBooksCorpus?.summary.stagedRecords ?? 0,
     }),
     [overview]
   )
@@ -325,6 +345,7 @@ function SourceProtocolContent() {
                   onUpdate={updatePortalAccount}
                 />
               )}
+              {tab === 'bannedBooks' && <BannedBooksCorpusPanel corpus={overview.bannedBooksCorpus} />}
               {tab === 'creators' && <CreatorsTable rows={overview.creators ?? []} />}
               {tab === 'works' && <WorksTable rows={overview.works ?? []} />}
               {tab === 'grants' && <GrantsTable rows={overview.licenseGrants ?? []} />}
@@ -567,6 +588,108 @@ function PortalAccountsPanel({
                   <RefreshCw size={12} className="inline" /> Receipts
                 </button>
               </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  )
+}
+
+function BannedBooksCorpusPanel({ corpus }: { corpus: SourceProtocolOverview['bannedBooksCorpus'] }) {
+  if (!corpus) {
+    return (
+      <div className="rounded-lg border border-silicon-slate px-4 py-8 text-center text-sm text-muted-foreground">
+        No banned-books corpus projection is available.
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      <section className="rounded-lg border border-silicon-slate bg-silicon-slate/30 p-5">
+        <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <div className="mb-2 flex items-center gap-2">
+              <BookOpenCheck size={20} className="text-radiant-gold" />
+              <h2 className="text-lg font-semibold">Banned Books Rights-Ready Corpus</h2>
+            </div>
+            <p className="max-w-4xl text-sm text-muted-foreground">{corpus.scope}</p>
+            <p className="mt-2 max-w-4xl text-sm text-muted-foreground">{corpus.licenseModel}</p>
+          </div>
+          <div className="rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-300">
+            Staged only
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-6">
+          <Stat icon={<FileText size={18} />} label="Staged" value={corpus.summary.stagedRecords} />
+          <Stat icon={<Database size={18} />} label="Sources" value={corpus.summary.sourceSpineCount} />
+          <Stat icon={<ShieldCheck size={18} />} label="Rights-ready" value={corpus.summary.rightsReadyRecords} />
+          <Stat icon={<Users size={18} />} label="Outreach-ready" value={corpus.summary.outreachReadyRecords} />
+          <Stat icon={<CircleDollarSign size={18} />} label="Active licenses" value={corpus.summary.activeLicenseRecords} />
+          <Stat icon={<BookOpenCheck size={18} />} label="Retrievable" value={corpus.summary.retrievableRecords} />
+        </div>
+      </section>
+
+      <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <Panel title="Source spine">
+          {corpus.sourceSpine.map((source) => (
+            <KeyValue key={source.name} label={source.name} value={source.role} />
+          ))}
+        </Panel>
+        <Panel title="Safeguards">
+          {corpus.safeguards.map((safeguard, index) => (
+            <KeyValue key={safeguard} label={`Gate ${index + 1}`} value={safeguard} />
+          ))}
+        </Panel>
+      </section>
+
+      <section className="overflow-hidden rounded-lg border border-silicon-slate">
+        <div className="bg-silicon-slate/60 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          MECE agent lanes
+        </div>
+        <div className="divide-y divide-silicon-slate">
+          {corpus.swarmAgents.map((agent) => (
+            <div key={agent.key} className="grid grid-cols-1 gap-3 px-4 py-4 text-sm lg:grid-cols-5 lg:gap-4">
+              <div>
+                <p className="font-medium text-foreground">{agent.name}</p>
+                <p className="font-mono text-xs text-muted-foreground">{agent.key}</p>
+              </div>
+              <div className="text-muted-foreground">{agent.lane}</div>
+              <div className="text-muted-foreground">{agent.output}</div>
+              <div className="text-muted-foreground">{agent.boundary}</div>
+              <div className="text-muted-foreground">{agent.approvalGate}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="overflow-hidden rounded-lg border border-silicon-slate">
+        <div className="bg-silicon-slate/60 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Staged rights-ready shortlist
+        </div>
+        <div className="divide-y divide-silicon-slate">
+          {corpus.records.map((record) => (
+            <div key={record.id} className="grid grid-cols-1 gap-3 px-4 py-4 text-sm lg:grid-cols-5 lg:gap-4">
+              <div>
+                <p className="font-medium text-foreground">{record.canonicalTitle}</p>
+                <p className="text-muted-foreground">{list(record.authors)}</p>
+              </div>
+              <div className="text-muted-foreground">
+                <p>{record.banStatus}</p>
+                <p>{record.jurisdictionContext}</p>
+              </div>
+              <div className="text-muted-foreground">
+                <p>{record.rightsholderCandidate.name}</p>
+                <p>{record.rightsholderCandidate.confidence} confidence</p>
+              </div>
+              <div className="text-muted-foreground">
+                <p>Outreach: {record.outreachStatus}</p>
+                <p>License: {record.licenseStatus}</p>
+                <p>Ingestion: {record.ingestionStatus}</p>
+              </div>
+              <div className="text-muted-foreground">{record.nextAction}</div>
             </div>
           ))}
         </div>

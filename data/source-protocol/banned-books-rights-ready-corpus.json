@@ -1,0 +1,221 @@
+{
+  "generatedAt": "2026-05-12T00:00:00.000Z",
+  "scope": "U.S. school and library bans/challenges first; rights-ready shortlist before maximum title volume.",
+  "licenseModel": "RAG only: retrieval, citation, summarization, educational use, optional commercial use, limited excerpt allowance, revocation, payout participation; fine-tuning excluded for v1.",
+  "sourceSpine": [
+    {
+      "name": "ALA Most Challenged Books",
+      "url": "https://www.ala.org/bbooks/frequentlychallengedbooks/top10",
+      "role": "Annual challenged-title evidence and censorship trend context."
+    },
+    {
+      "name": "PEN America Index of School Book Bans",
+      "url": "https://pen.org/pen-america-index-of-school-book-bans-2024-2025/",
+      "role": "School-ban index source spine for title-level discovery and jurisdiction evidence."
+    },
+    {
+      "name": "EveryLibrary Banned Book Database",
+      "url": "https://action.everylibrary.org/everylibrary_s_banned_book_database",
+      "role": "Secondary title discovery and public advocacy evidence."
+    },
+    {
+      "name": "NCAC and publisher/author pages",
+      "url": "https://ncac.org/resource/book-censorship-toolkit",
+      "role": "Enrichment for public statements, advocacy context, and rightsholder contact paths."
+    }
+  ],
+  "records": [
+    {
+      "id": "gender-queer-maia-kobabe",
+      "canonicalTitle": "Gender Queer",
+      "authors": ["Maia Kobabe"],
+      "editionAliases": ["Gender Queer: A Memoir"],
+      "isbnCandidates": [],
+      "banStatus": "challenged",
+      "jurisdictionContext": "U.S. libraries and schools; ALA 2025 Most Challenged Books list.",
+      "affectedAudience": "K-12 students and public library patrons",
+      "evidence": [
+        {
+          "sourceName": "ALA Most Challenged Books",
+          "sourceUrl": "https://www.ala.org/bbooks/frequentlychallengedbooks/top10",
+          "evidenceType": "challenge_list",
+          "note": "Listed as number 3 on ALA's 2025 Most Challenged Books page."
+        }
+      ],
+      "rightsholderCandidate": {
+        "name": "Maia Kobabe or publisher/agent",
+        "type": "author",
+        "contactPath": "Author/publisher permissions inquiry",
+        "confidence": "medium"
+      },
+      "outreachStatus": "not_started",
+      "licenseStatus": "not_requested",
+      "ingestionStatus": "not_started",
+      "chainOfTitleStatus": "unknown",
+      "sensitivityFlags": ["lgbtqia"],
+      "notes": "Prioritize careful outreach because the work is frequently targeted for LGBTQIA+ content."
+    },
+    {
+      "id": "sold-patricia-mccormick",
+      "canonicalTitle": "Sold",
+      "authors": ["Patricia McCormick"],
+      "editionAliases": [],
+      "isbnCandidates": [],
+      "banStatus": "challenged",
+      "jurisdictionContext": "U.S. libraries and schools; ALA 2025 Most Challenged Books list.",
+      "affectedAudience": "K-12 students and public library patrons",
+      "evidence": [
+        {
+          "sourceName": "ALA Most Challenged Books",
+          "sourceUrl": "https://www.ala.org/bbooks/frequentlychallengedbooks/top10",
+          "evidenceType": "challenge_list",
+          "note": "Listed as number 1 on ALA's 2025 Most Challenged Books page."
+        }
+      ],
+      "rightsholderCandidate": {
+        "name": "Patricia McCormick or publisher/agent",
+        "type": "author",
+        "contactPath": "Author/publisher permissions inquiry",
+        "confidence": "medium"
+      },
+      "outreachStatus": "not_started",
+      "licenseStatus": "not_requested",
+      "ingestionStatus": "not_started",
+      "chainOfTitleStatus": "unknown",
+      "sensitivityFlags": ["sexual_violence", "minors"],
+      "notes": "Sensitive subject matter requires blocked-topic and excerpt-limit review before any retrievability."
+    },
+    {
+      "id": "last-night-at-the-telegraph-club-malinda-lo",
+      "canonicalTitle": "Last Night at the Telegraph Club",
+      "authors": ["Malinda Lo"],
+      "editionAliases": [],
+      "isbnCandidates": [],
+      "banStatus": "challenged",
+      "jurisdictionContext": "U.S. libraries and schools; ALA 2025 Most Challenged Books list.",
+      "affectedAudience": "K-12 students and public library patrons",
+      "evidence": [
+        {
+          "sourceName": "ALA Most Challenged Books",
+          "sourceUrl": "https://www.ala.org/bbooks/frequentlychallengedbooks/top10",
+          "evidenceType": "challenge_list",
+          "note": "Listed as tied number 5 on ALA's 2025 Most Challenged Books page."
+        }
+      ],
+      "rightsholderCandidate": {
+        "name": "Malinda Lo or publisher/agent",
+        "type": "author",
+        "contactPath": "Author/publisher permissions inquiry",
+        "confidence": "medium"
+      },
+      "outreachStatus": "not_started",
+      "licenseStatus": "not_requested",
+      "ingestionStatus": "not_started",
+      "chainOfTitleStatus": "unknown",
+      "sensitivityFlags": ["lgbtqia", "asian_american_history"],
+      "notes": "Good rights-ready candidate because author-facing mission alignment may be strong."
+    },
+    {
+      "id": "the-bluest-eye-toni-morrison",
+      "canonicalTitle": "The Bluest Eye",
+      "authors": ["Toni Morrison"],
+      "editionAliases": [],
+      "isbnCandidates": [],
+      "banStatus": "challenged",
+      "jurisdictionContext": "Recurring U.S. school and library challenge subject; include in first rights mapping pass.",
+      "affectedAudience": "K-12 students and public library patrons",
+      "evidence": [
+        {
+          "sourceName": "PEN America Index of School Book Bans",
+          "sourceUrl": "https://pen.org/pen-america-index-of-school-book-bans-2024-2025/",
+          "evidenceType": "school_ban_index",
+          "note": "Use PEN index enrichment to confirm current district-level evidence before outreach."
+        },
+        {
+          "sourceName": "ALA Most Challenged Books",
+          "sourceUrl": "https://www.ala.org/bbooks/frequentlychallengedbooks/top10",
+          "evidenceType": "challenge_context",
+          "note": "ALA states current censorship justifications frequently target race, racism, equity, and social justice."
+        }
+      ],
+      "rightsholderCandidate": {
+        "name": "Toni Morrison estate or publisher",
+        "type": "estate",
+        "contactPath": "Estate/publisher permissions inquiry",
+        "confidence": "medium"
+      },
+      "outreachStatus": "not_started",
+      "licenseStatus": "not_requested",
+      "ingestionStatus": "not_started",
+      "chainOfTitleStatus": "unknown",
+      "sensitivityFlags": ["race", "sexual_violence", "minors"],
+      "notes": "Estate/publisher-controlled rights likely; hold for rights-holder verification before author-facing sequence."
+    },
+    {
+      "id": "the-hate-u-give-angie-thomas",
+      "canonicalTitle": "The Hate U Give",
+      "authors": ["Angie Thomas"],
+      "editionAliases": [],
+      "isbnCandidates": [],
+      "banStatus": "challenged",
+      "jurisdictionContext": "Recurring U.S. school and library challenge subject; include in first rights mapping pass.",
+      "affectedAudience": "K-12 students and public library patrons",
+      "evidence": [
+        {
+          "sourceName": "PEN America Index of School Book Bans",
+          "sourceUrl": "https://pen.org/pen-america-index-of-school-book-bans-2024-2025/",
+          "evidenceType": "school_ban_index",
+          "note": "Use PEN index enrichment to confirm current district-level evidence before outreach."
+        },
+        {
+          "sourceName": "ALA Most Challenged Books",
+          "sourceUrl": "https://www.ala.org/bbooks/frequentlychallengedbooks/top10",
+          "evidenceType": "challenge_context",
+          "note": "ALA states current censorship justifications frequently target race, racism, equity, and social justice."
+        }
+      ],
+      "rightsholderCandidate": {
+        "name": "Angie Thomas or publisher/agent",
+        "type": "author",
+        "contactPath": "Author/publisher permissions inquiry",
+        "confidence": "medium"
+      },
+      "outreachStatus": "not_started",
+      "licenseStatus": "not_requested",
+      "ingestionStatus": "not_started",
+      "chainOfTitleStatus": "unknown",
+      "sensitivityFlags": ["race", "police_violence"],
+      "notes": "Good candidate for mission-forward outreach once publisher/agent path is verified."
+    },
+    {
+      "id": "looking-for-alaska-john-green",
+      "canonicalTitle": "Looking for Alaska",
+      "authors": ["John Green"],
+      "editionAliases": [],
+      "isbnCandidates": [],
+      "banStatus": "challenged",
+      "jurisdictionContext": "U.S. libraries and schools; ALA 2025 Most Challenged Books list.",
+      "affectedAudience": "K-12 students and public library patrons",
+      "evidence": [
+        {
+          "sourceName": "ALA Most Challenged Books",
+          "sourceUrl": "https://www.ala.org/bbooks/frequentlychallengedbooks/top10",
+          "evidenceType": "challenge_list",
+          "note": "Listed as tied number 8 on ALA's 2025 Most Challenged Books page."
+        }
+      ],
+      "rightsholderCandidate": {
+        "name": "John Green or publisher/agent",
+        "type": "author",
+        "contactPath": "Author/publisher permissions inquiry",
+        "confidence": "medium"
+      },
+      "outreachStatus": "not_started",
+      "licenseStatus": "not_requested",
+      "ingestionStatus": "not_started",
+      "chainOfTitleStatus": "unknown",
+      "sensitivityFlags": ["sexual_content", "substance_use"],
+      "notes": "Include in outreach sequencing after rights-holder contact verification."
+    }
+  ]
+}

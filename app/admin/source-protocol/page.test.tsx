@@ -63,6 +63,54 @@ const overview = {
   monthlyPayouts: [],
   disputes: [],
   modelReviews: [],
+  bannedBooksCorpus: {
+    generatedAt: '2026-05-12T00:00:00.000Z',
+    scope: 'U.S. school and library bans/challenges first.',
+    licenseModel: 'RAG only.',
+    sourceSpine: [
+      {
+        name: 'ALA Most Challenged Books',
+        role: 'Annual challenged-title evidence.',
+      },
+    ],
+    swarmAgents: [
+      {
+        key: 'banned-book-source-registry',
+        name: 'Amina, Source Registry Lead',
+        lane: 'Discovery evidence',
+        output: 'Source evidence only.',
+        boundary: 'No rights-holder guesses.',
+        approvalGate: 'Source evidence required.',
+      },
+    ],
+    summary: {
+      stagedRecords: 1,
+      sourceSpineCount: 1,
+      rightsReadyRecords: 1,
+      outreachReadyRecords: 1,
+      activeLicenseRecords: 0,
+      retrievableRecords: 0,
+      blockedRecords: 0,
+    },
+    records: [
+      {
+        id: 'demo-book',
+        canonicalTitle: 'Demo Challenged Book',
+        authors: ['Demo Author'],
+        banStatus: 'challenged',
+        jurisdictionContext: 'U.S. school challenge evidence.',
+        rightsholderCandidate: {
+          name: 'Demo Author or publisher',
+          confidence: 'medium',
+        },
+        outreachStatus: 'not_started',
+        licenseStatus: 'not_requested',
+        ingestionStatus: 'not_started',
+        nextAction: 'Draft RAG-only permission packet.',
+      },
+    ],
+    safeguards: ['Do not ingest full text before license approval.'],
+  },
 }
 
 describe('SourceProtocolPage', () => {
@@ -81,6 +129,12 @@ describe('SourceProtocolPage', () => {
     render(<SourceProtocolPage />)
 
     expect(await screen.findByRole('heading', { name: 'Source Protocol' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Banned Books Rights-Ready Corpus' })).toBeInTheDocument()
+    expect(screen.getByText('Amina, Source Registry Lead')).toBeInTheDocument()
+    expect(screen.getByText('Demo Challenged Book')).toBeInTheDocument()
+
+    fireEvent.click(screen.getAllByRole('button', { name: /Portal Access/i })[0])
+
     expect(screen.getByText(/Payouts accrue per answer receipt/i)).toBeInTheDocument()
     expect(screen.getByText('Demo Creator')).toBeInTheDocument()
     expect(screen.getByText('creator@example.com')).toBeInTheDocument()

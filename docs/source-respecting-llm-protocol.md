@@ -121,6 +121,13 @@ Creator portal foundation:
 - `/admin/source-protocol` includes a `Portal Access` tab for admins to link a creator profile to an authenticated user account, set earnings/receipt visibility, and suspend or revoke portal access.
 - `POST/PATCH /api/admin/source-protocol/portal-accounts` are admin-only account-linking routes. They do not create creators, users, works, grants, receipts, disputes, or payouts.
 
+Banned-books corpus foundation:
+
+- `data/source-protocol/banned-books-rights-ready-corpus.json` stages the U.S.-first banned/challenged books shortlist, source evidence, rightsholder candidates, outreach status, license status, and ingestion status.
+- `lib/banned-books-corpus.ts` projects that staged inventory into Source Protocol draft records and enforces the v1 guardrail: no full text, OCR, embeddings, or retrievable chunks until an active RAG-only license grant and verified chain of title exist.
+- `/admin/source-protocol` includes a `Banned Books` tab for the MECE agent lanes, staged shortlist, source spine, and safeguards.
+- `npm run banned-books:report` prints the current staged registry, swarm lanes, next actions, and safeguards for recurring review.
+
 Smoke test:
 
 - `npm run source-protocol:smoke` builds a synthetic receipt and monthly settlement without network calls.
