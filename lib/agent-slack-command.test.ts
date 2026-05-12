@@ -32,6 +32,11 @@ const workItemMocks = vi.hoisted(() => ({
   handoffAgentWorkItem: vi.fn(),
 }))
 
+const moremiReviewMocks = vi.hoisted(() => ({
+  getLatestMoremiMonitorReview: vi.fn(),
+  createMoremiWarningWorkItems: vi.fn(),
+}))
+
 vi.mock('@/lib/agent-run', () => ({
   startAgentRun: agentRunMocks.startAgentRun,
   recordAgentEvent: agentRunMocks.recordAgentEvent,
@@ -59,6 +64,12 @@ vi.mock('@/lib/agent-work-items', () => ({
   handoffAgentWorkItem: workItemMocks.handoffAgentWorkItem,
 }))
 
+vi.mock('@/lib/moremi-monitor-review', () => ({
+  MOREMI_WARNING_WORK_ITEMS_CONFIRMATION: 'create_moremi_warning_work_items',
+  getLatestMoremiMonitorReview: moremiReviewMocks.getLatestMoremiMonitorReview,
+  createMoremiWarningWorkItems: moremiReviewMocks.createMoremiWarningWorkItems,
+}))
+
 import {
   agentSlackCommandInternals,
   buildAgentBlockersSlackText,
@@ -79,6 +90,36 @@ import {
 describe('agent Slack command parsing', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    moremiReviewMocks.getLatestMoremiMonitorReview.mockResolvedValue({
+      has_monitor: true,
+      run: {
+        id: 'moremi-run',
+        href: '/admin/agents/runs/moremi-run',
+        status: 'completed',
+        overall: 'warning',
+      },
+      warnings: ['OWASP AIVSS is disabled pending policy approval.'],
+      warning_count: 1,
+      enabled_source_feed_count: 5,
+      disabled_source_feed_count: 1,
+      linked_work_items: [],
+    })
+    moremiReviewMocks.createMoremiWarningWorkItems.mockResolvedValue({
+      review: {
+        run: {
+          id: 'moremi-run',
+          href: '/admin/agents/runs/moremi-run',
+        },
+        warning_count: 1,
+      },
+      work_items: [
+        {
+          id: 'work-1',
+          title: 'Review Moremi warning: OWASP AIVSS is disabled pending policy approval.',
+          status: 'proposed',
+        },
+      ],
+    })
   })
 
   it('maps supported aliases to command handlers', () => {
@@ -282,33 +323,55 @@ describe('agent Slack command parsing', () => {
   })
 
   it('formats Moremi risk monitor status for Slack', async () => {
-    inboxMocks.buildAgentMissionControlSnapshot.mockResolvedValue({
-      operating_signals: [
-        {
-          run_id: 'moremi-run',
-          kind: 'ai_risk_signal_monitor',
-          title: 'Moremi Risk Monitor',
-          status: 'completed',
-          signal: 'Coverage: warning',
-          summary: 'Moremi AI risk signal monitor ready',
-          updated_at: '2026-05-12T12:00:00.000Z',
-          href: '/admin/agents/runs/moremi-run',
-          details: [
-            '2 warning(s)',
-            '5 enabled feed(s)',
-            '1 disabled feed(s)',
-            'Read-only; remediation approval-gated',
-          ],
-        },
-      ],
-    })
-
     const text = await buildAgentRiskMonitorSlackText()
 
     expect(text).toContain('Moremi Risk Monitor')
     expect(text).toContain('Coverage: warning')
+    expect(text).toContain('1 warning(s)')
     expect(text).toContain('Read-only; remediation approval-gated')
     expect(text).toContain('/admin/agents/runs/moremi-run')
+  })
+
+  it('creates proposed Moremi warning work items from Slack only when confirmed', async () => {
+    const text = await buildAgentRiskMonitorSlackText({
+      text: 'risk review create_moremi_warning_work_items',
+      userId: 'U123',
+      userName: 'vambah',
+    })
+
+    expect(moremiReviewMocks.createMoremiWarningWorkItems).toHaveBeenCalled()
+    expect(text).toContain('Moremi Risk Review')
+    expect(text).toContain('Work items created or reused: 1')
+    expect(text).toContain('work-1')
+    expect(text).toContain('/admin/agents/coordination')
+  })
+
+  it('rejects malformed Moremi risk review confirmation from Slack', async () => {
+    const text = await buildAgentRiskMonitorSlackText({
+      text: 'risk review wrong',
+      userId: 'U123',
+      userName: 'vambah',
+    })
+
+    expect(moremiReviewMocks.createMoremiWarningWorkItems).not.toHaveBeenCalled()
+    expect(text).toContain('Malformed confirmation')
+    expect(text).toContain('create_moremi_warning_work_items')
+  })
+
+  it('handles a missing Moremi monitor from Slack', async () => {
+    moremiReviewMocks.getLatestMoremiMonitorReview.mockResolvedValueOnce({
+      has_monitor: false,
+      run: null,
+      warnings: [],
+      warning_count: 0,
+      enabled_source_feed_count: 0,
+      disabled_source_feed_count: 0,
+      linked_work_items: [],
+    })
+
+    const text = await buildAgentRiskMonitorSlackText()
+
+    expect(text).toContain('No Moremi risk monitor trace is visible yet')
   })
 
   it('routes an Agent Inbox item from Slack', async () => {

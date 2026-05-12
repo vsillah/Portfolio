@@ -12,6 +12,11 @@ import {
   listAgentWorkItems,
   type AgentWorkItem,
 } from '@/lib/agent-work-items'
+import {
+  createMoremiWarningWorkItems,
+  getLatestMoremiMonitorReview,
+  MOREMI_WARNING_WORK_ITEMS_CONFIRMATION,
+} from '@/lib/moremi-monitor-review'
 
 type SlackCommandName =
   | 'help'
@@ -128,6 +133,7 @@ function formatHelp() {
     '`/agent approvals` - pending approval checkpoints.',
     '`/agent morning-review` - run the approved Agent Ops morning review trace.',
     '`/agent risk` - show Moremi risk monitor coverage and latest trace.',
+    '`/agent risk review create_moremi_warning_work_items` - create or reuse proposed work items from latest Moremi warnings.',
     '`/agent agents` - list currently mapped agents and engagement keys.',
     '`/agent engagements` - show the latest routed engagement work queue.',
     '`/agent work [id]` - show coordination work items or one work packet.',
@@ -336,11 +342,46 @@ export async function buildAgentBriefSlackText() {
   }
 }
 
-export async function buildAgentRiskMonitorSlackText() {
+export async function buildAgentRiskMonitorSlackText(input: AgentSlackCommandInput = { text: 'risk' }) {
   try {
-    const snapshot = await buildAgentMissionControlSnapshot()
-    const signal = snapshot.operating_signals.find((item) => item.kind === 'ai_risk_signal_monitor')
-    if (!signal) {
+    const [subcommand, confirmation] = commandArgs(input.text)
+
+    if (subcommand === 'review' && confirmation === MOREMI_WARNING_WORK_ITEMS_CONFIRMATION) {
+      const result = await createMoremiWarningWorkItems()
+      if (!result.review.run) {
+        return [
+          '*Moremi Risk Review*',
+          'No Moremi monitor trace is visible yet.',
+          `Review: ${baseUrl()}/admin/agents`,
+        ].join('\n')
+      }
+
+      const itemLines = result.work_items.length
+        ? result.work_items.map((item) => `- ${item.id}: ${item.title} [${item.status}]`)
+        : ['- No warnings required new work items.']
+
+      return [
+        '*Moremi Risk Review*',
+        `Latest trace: <${baseUrl()}${result.review.run.href}|${result.review.run.id}>`,
+        `Warnings: ${result.review.warning_count}`,
+        `Work items created or reused: ${result.work_items.length}`,
+        '',
+        '*Work items*',
+        ...itemLines,
+        `Coordination: ${baseUrl()}/admin/agents/coordination`,
+      ].join('\n')
+    }
+
+    if (subcommand === 'review' && confirmation) {
+      return [
+        '*Moremi Risk Review*',
+        `Malformed confirmation. Use \`/agent risk review ${MOREMI_WARNING_WORK_ITEMS_CONFIRMATION}\` to create proposed work items.`,
+        'Slack cannot approve remediation, merge code, mutate workflows, or touch production config.',
+      ].join('\n')
+    }
+
+    const review = await getLatestMoremiMonitorReview()
+    if (!review.run) {
       return [
         '*Moremi Risk Monitor*',
         'No Moremi risk monitor trace is visible yet.',
@@ -348,14 +389,25 @@ export async function buildAgentRiskMonitorSlackText() {
       ].join('\n')
     }
 
+    const warnings = review.warnings.length
+      ? review.warnings.slice(0, 5).map((warning) => `- ${warning}`)
+      : ['- None']
+
     return [
       '*Moremi Risk Monitor*',
-      `*${signal.signal}*`,
-      signal.summary,
+      `*Coverage: ${review.run.overall ?? review.run.status}*`,
+      `Latest trace: <${baseUrl()}${review.run.href}|${review.run.id}>`,
       '',
       '*Details*',
-      ...signal.details.map((detail) => `- ${detail}`),
-      `Review: ${baseUrl()}${signal.href}`,
+      `- ${review.warning_count} warning(s)`,
+      `- ${review.enabled_source_feed_count} enabled feed(s)`,
+      `- ${review.disabled_source_feed_count} disabled feed(s)`,
+      `- ${review.linked_work_items.length} linked work item(s)`,
+      '- Read-only; remediation approval-gated',
+      '',
+      '*Warnings*',
+      ...warnings,
+      `Create proposed work items: \`/agent risk review ${MOREMI_WARNING_WORK_ITEMS_CONFIRMATION}\``,
     ].join('\n')
   } catch (error) {
     return `Moremi risk monitor lookup failed: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -669,7 +721,7 @@ export async function handleAgentSlackCommand(input: AgentSlackCommandInput): Pr
           : command === 'morning-review'
             ? await runMorningReviewSlackText(input)
             : command === 'risk'
-              ? await buildAgentRiskMonitorSlackText()
+              ? await buildAgentRiskMonitorSlackText(input)
               : command === 'agents'
                 ? formatAgentListSlackText()
                 : command === 'engagements'
