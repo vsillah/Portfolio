@@ -19,6 +19,7 @@ type SlackCommandName =
   | 'failed'
   | 'approvals'
   | 'morning-review'
+  | 'risk'
   | 'agents'
   | 'engagements'
   | 'work-items'
@@ -97,6 +98,7 @@ function commandFromText(text: string): SlackCommandName {
   if (command === 'failed' || command === 'failures') return 'failed'
   if (command === 'approval' || command === 'approvals') return 'approvals'
   if (command === 'morning-review' || command === 'morning' || command === 'review') return 'morning-review'
+  if (command === 'risk' || command === 'moremi') return 'risk'
   if (command === 'agents' || command === 'list') return 'agents'
   if (command === 'engagements' || command === 'queue') return 'engagements'
   if (command === 'work') return 'work-items'
@@ -125,6 +127,7 @@ function formatHelp() {
     '`/agent failed` - latest failed or stale runs.',
     '`/agent approvals` - pending approval checkpoints.',
     '`/agent morning-review` - run the approved Agent Ops morning review trace.',
+    '`/agent risk` - show Moremi risk monitor coverage and latest trace.',
     '`/agent agents` - list currently mapped agents and engagement keys.',
     '`/agent engagements` - show the latest routed engagement work queue.',
     '`/agent work [id]` - show coordination work items or one work packet.',
@@ -330,6 +333,32 @@ export async function buildAgentBriefSlackText() {
     ].join('\n')
   } catch (error) {
     return `Daily Operating Brief lookup failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+  }
+}
+
+export async function buildAgentRiskMonitorSlackText() {
+  try {
+    const snapshot = await buildAgentMissionControlSnapshot()
+    const signal = snapshot.operating_signals.find((item) => item.kind === 'ai_risk_signal_monitor')
+    if (!signal) {
+      return [
+        '*Moremi Risk Monitor*',
+        'No Moremi risk monitor trace is visible yet.',
+        `Review: ${baseUrl()}/admin/agents`,
+      ].join('\n')
+    }
+
+    return [
+      '*Moremi Risk Monitor*',
+      `*${signal.signal}*`,
+      signal.summary,
+      '',
+      '*Details*',
+      ...signal.details.map((detail) => `- ${detail}`),
+      `Review: ${baseUrl()}${signal.href}`,
+    ].join('\n')
+  } catch (error) {
+    return `Moremi risk monitor lookup failed: ${error instanceof Error ? error.message : 'Unknown error'}`
   }
 }
 
@@ -639,35 +668,37 @@ export async function handleAgentSlackCommand(input: AgentSlackCommandInput): Pr
           ? await buildApprovalsSlackText()
           : command === 'morning-review'
             ? await runMorningReviewSlackText(input)
-            : command === 'agents'
-              ? formatAgentListSlackText()
-              : command === 'engagements'
-                ? await buildAgentEngagementQueueSlackText()
-                : command === 'work-items'
-                  ? await buildAgentWorkItemsSlackText(input)
-                  : command === 'claim'
-                    ? await claimAgentWorkItemSlackText(input)
-                    : command === 'handoff'
-                      ? await handoffAgentWorkItemSlackText(input)
-                      : command === 'blockers'
-                        ? await buildAgentBlockersSlackText()
-                        : command === 'prs'
-                          ? await buildAgentPrsSlackText()
-                          : command === 'captain'
-                            ? await buildCaptainQueueSlackText()
-                            : command === 'inbox'
-                              ? await buildAgentInboxSlackText()
-                              : command === 'brief'
-                                ? await buildAgentBriefSlackText()
-                                : command === 'route'
-                                  ? await routeAgentInboxSlackText(input)
-                                  : command === 'run'
-                                    ? await createAgentEngagementSlackText(input)
-                                    : command === 'standup'
-                                      ? await runWarRoomStandupSlackText(input)
-                                      : command === 'discuss'
-                                        ? await runWarRoomDiscussSlackText(input)
-                                        : formatHelp()
+            : command === 'risk'
+              ? await buildAgentRiskMonitorSlackText()
+              : command === 'agents'
+                ? formatAgentListSlackText()
+                : command === 'engagements'
+                  ? await buildAgentEngagementQueueSlackText()
+                  : command === 'work-items'
+                    ? await buildAgentWorkItemsSlackText(input)
+                    : command === 'claim'
+                      ? await claimAgentWorkItemSlackText(input)
+                      : command === 'handoff'
+                        ? await handoffAgentWorkItemSlackText(input)
+                        : command === 'blockers'
+                          ? await buildAgentBlockersSlackText()
+                          : command === 'prs'
+                            ? await buildAgentPrsSlackText()
+                            : command === 'captain'
+                              ? await buildCaptainQueueSlackText()
+                              : command === 'inbox'
+                                ? await buildAgentInboxSlackText()
+                                : command === 'brief'
+                                  ? await buildAgentBriefSlackText()
+                                  : command === 'route'
+                                    ? await routeAgentInboxSlackText(input)
+                                    : command === 'run'
+                                      ? await createAgentEngagementSlackText(input)
+                                      : command === 'standup'
+                                        ? await runWarRoomStandupSlackText(input)
+                                        : command === 'discuss'
+                                          ? await runWarRoomDiscussSlackText(input)
+                                          : formatHelp()
 
   return { responseType: 'ephemeral', text }
 }

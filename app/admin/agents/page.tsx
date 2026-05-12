@@ -150,7 +150,7 @@ type MissionSnapshot = {
   }
   operating_signals: Array<{
     run_id: string
-    kind: 'morning_review' | 'deployment_watch'
+    kind: 'morning_review' | 'deployment_watch' | 'ai_risk_signal_monitor'
     title: string
     status: string
     signal: string
@@ -920,7 +920,11 @@ function OperatingSignalsPanel({ signals }: { signals: MissionSnapshot['operatin
   return (
     <section className="mt-5 grid grid-cols-1 gap-3 lg:grid-cols-2">
       {signals.map((signal) => {
-        const isHealthy = signal.status === 'completed' || signal.signal.toLowerCase().includes('success')
+        const signalText = signal.signal.toLowerCase()
+        const isHealthy =
+          (signal.status === 'completed' || signalText.includes('success')) &&
+          !signalText.includes('warning') &&
+          !signalText.includes('failed')
         return (
           <Link
             key={`${signal.kind}-${signal.run_id}`}
