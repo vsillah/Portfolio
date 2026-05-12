@@ -1,0 +1,230 @@
+{
+  "projectName": "Local LLM Model Ops & Hermes Automation",
+  "generatedAt": "2026-05-04T13:11:08.027Z",
+  "recommendations": {
+    "replyIntentDefault": "Keep qwen3-4b-instruct-2507 for reply-intent classification. It has the best current accuracy/latency balance.",
+    "ragDefault": "Use routed local RAG as the leading local/shadow candidate, with Pinecone/OpenAI fallback until larger answer-level evals pass.",
+    "productionGate": "No public production swap should occur without a dated approval packet under model-ops/swap-requests/ and explicit approval in Codex."
+  },
+  "replyRuns": [
+    {
+      "file": "eval-results/reply-intent-review/lmstudio-review-results-qwen3-4b-controlled.json",
+      "model": "qwen3-4b-instruct-2507",
+      "observedModel": "qwen3-4b-instruct-2507",
+      "total": 211,
+      "scored": 211,
+      "correct": 211,
+      "accuracy": 1,
+      "avgLatencyMs": 353.66350710900474,
+      "medianLatencyMs": 343,
+      "estimated200Minutes": 1.1788783570300156,
+      "status": "fixture_pipeline_timing_only",
+      "caveat": "Fixture/synthetic examples are useful for runner timing and failure discovery, but do not satisfy the production 200-example significance gate.",
+      "sourceAccuracy": {
+        "n8n_execution": {
+          "scored": 5,
+          "correct": 5,
+          "accuracy": 1
+        },
+        "gmail_backfill": {
+          "scored": 6,
+          "correct": 6,
+          "accuracy": 1
+        },
+        "portfolio_test_fixture": {
+          "scored": 200,
+          "correct": 200,
+          "accuracy": 1
+        }
+      }
+    },
+    {
+      "file": "eval-results/reply-intent-review/lmstudio-review-results-qwen3-14b.json",
+      "model": "qwen/qwen3-14b",
+      "observedModel": "qwen/qwen3-14b",
+      "total": 211,
+      "scored": 211,
+      "correct": 211,
+      "accuracy": 1,
+      "avgLatencyMs": 1025.6161137440758,
+      "medianLatencyMs": 1009,
+      "estimated200Minutes": 3.4187203791469196,
+      "status": "fixture_pipeline_timing_only",
+      "caveat": "Fixture/synthetic examples are useful for runner timing and failure discovery, but do not satisfy the production 200-example significance gate.",
+      "sourceAccuracy": {
+        "n8n_execution": {
+          "scored": 5,
+          "correct": 5,
+          "accuracy": 1
+        },
+        "gmail_backfill": {
+          "scored": 6,
+          "correct": 6,
+          "accuracy": 1
+        },
+        "portfolio_test_fixture": {
+          "scored": 200,
+          "correct": 200,
+          "accuracy": 1
+        }
+      }
+    },
+    {
+      "file": "eval-results/reply-intent-review/lmstudio-review-results-qwen2.5-coder-14b-controlled.json",
+      "model": "qwen2.5-coder-14b-instruct",
+      "observedModel": "qwen2.5-coder-14b-instruct",
+      "total": 211,
+      "scored": 211,
+      "correct": 210,
+      "accuracy": 0.995260663507109,
+      "avgLatencyMs": 959.0710900473933,
+      "medianLatencyMs": 914,
+      "estimated200Minutes": 3.1969036334913112,
+      "status": "fixture_pipeline_timing_only",
+      "caveat": "Fixture/synthetic examples are useful for runner timing and failure discovery, but do not satisfy the production 200-example significance gate.",
+      "sourceAccuracy": {
+        "n8n_execution": {
+          "scored": 5,
+          "correct": 5,
+          "accuracy": 1
+        },
+        "gmail_backfill": {
+          "scored": 6,
+          "correct": 5,
+          "accuracy": 0.8333333333333334
+        },
+        "portfolio_test_fixture": {
+          "scored": 200,
+          "correct": 200,
+          "accuracy": 1
+        }
+      }
+    },
+    {
+      "file": "eval-results/reply-intent-review/lmstudio-review-results-qwen3-coder-30b-controlled.json",
+      "model": "qwen/qwen3-coder-30b",
+      "observedModel": "qwen/qwen3-coder-30b",
+      "total": 211,
+      "scored": 211,
+      "correct": 209,
+      "accuracy": 0.990521327014218,
+      "avgLatencyMs": 635.6777251184834,
+      "medianLatencyMs": 621,
+      "estimated200Minutes": 2.118925750394945,
+      "status": "fixture_pipeline_timing_only",
+      "caveat": "Fixture/synthetic examples are useful for runner timing and failure discovery, but do not satisfy the production 200-example significance gate.",
+      "sourceAccuracy": {
+        "n8n_execution": {
+          "scored": 5,
+          "correct": 4,
+          "accuracy": 0.8
+        },
+        "gmail_backfill": {
+          "scored": 6,
+          "correct": 5,
+          "accuracy": 0.8333333333333334
+        },
+        "portfolio_test_fixture": {
+          "scored": 200,
+          "correct": 200,
+          "accuracy": 1
+        }
+      }
+    }
+  ],
+  "ragRuns": [
+    {
+      "file": "rag/pinecone/priority-rag-retrieval-quality-judged.json",
+      "name": "Seed/local baseline",
+      "generatedAt": "2026-04-30T02:36:38.493Z",
+      "totalQueries": 67,
+      "overall": {
+        "pinecone": {
+          "sufficient": 1,
+          "partial": 37,
+          "weak": 29,
+          "parse_error": 0
+        },
+        "local": {
+          "sufficient": 3,
+          "partial": 36,
+          "weak": 28,
+          "parse_error": 0
+        },
+        "local_better": 12,
+        "local_same": 46,
+        "local_worse": 9
+      }
+    },
+    {
+      "file": "rag/pinecone/priority-rag-retrieval-quality-canonical-judged.json",
+      "name": "Canonical local",
+      "generatedAt": "2026-04-30T02:51:57.960Z",
+      "totalQueries": 67,
+      "overall": {
+        "pinecone": {
+          "sufficient": 1,
+          "partial": 37,
+          "weak": 29,
+          "parse_error": 0
+        },
+        "local": {
+          "sufficient": 21,
+          "partial": 35,
+          "weak": 11,
+          "parse_error": 0
+        },
+        "local_better": 32,
+        "local_same": 29,
+        "local_worse": 6
+      }
+    },
+    {
+      "file": "rag/pinecone/priority-rag-retrieval-quality-mixed-judged.json",
+      "name": "Mixed local",
+      "generatedAt": "2026-04-30T02:55:54.816Z",
+      "totalQueries": 67,
+      "overall": {
+        "pinecone": {
+          "sufficient": 1,
+          "partial": 40,
+          "weak": 26,
+          "parse_error": 0
+        },
+        "local": {
+          "sufficient": 15,
+          "partial": 37,
+          "weak": 15,
+          "parse_error": 0
+        },
+        "local_better": 24,
+        "local_same": 38,
+        "local_worse": 5
+      }
+    },
+    {
+      "file": "rag/pinecone/priority-rag-retrieval-quality-routed-judged.json",
+      "name": "Routed local",
+      "generatedAt": "2026-04-30T02:59:57.977Z",
+      "totalQueries": 67,
+      "overall": {
+        "pinecone": {
+          "sufficient": 1,
+          "partial": 38,
+          "weak": 28,
+          "parse_error": 0
+        },
+        "local": {
+          "sufficient": 21,
+          "partial": 39,
+          "weak": 7,
+          "parse_error": 0
+        },
+        "local_better": 33,
+        "local_same": 31,
+        "local_worse": 3
+      }
+    }
+  ],
+  "swapRequests": []
+}

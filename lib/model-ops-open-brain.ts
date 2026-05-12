@@ -156,6 +156,7 @@ interface RagRun {
 }
 
 const DEFAULT_MODEL_OPS_HOME = '/Users/vambahsillah/Documents/Codex/2026-04-29/hey-can-you-confirm-that-i/model-ops'
+const REPO_MODEL_OPS_HOME = path.join(process.cwd(), 'data/model-ops')
 const DASHBOARD_DATA_PATH = 'reports/latest-dashboard-data.json'
 const CULTURAL_FRAMEWORK_PATH = 'cultural-preservation-resource-evaluation-framework.md'
 const SECRETISH_PATTERN =
@@ -165,13 +166,38 @@ export function getModelOpsHome() {
   return process.env.MODEL_OPS_HOME || DEFAULT_MODEL_OPS_HOME
 }
 
-export async function getModelOpsProjection(modelOpsHome = getModelOpsHome()): Promise<ModelOpsProjection> {
+export async function getModelOpsProjection(modelOpsHome?: string): Promise<ModelOpsProjection> {
   const generatedAt = new Date().toISOString()
-  const dashboardPath = path.join(modelOpsHome, DASHBOARD_DATA_PATH)
+  const requestedHome = modelOpsHome || getModelOpsHome()
+  const dashboardPath = path.join(requestedHome, DASHBOARD_DATA_PATH)
+  if (process.env.MODEL_OPS_FORCE_REPO_SNAPSHOT === '1' && shouldUseRepoSnapshotFallback(modelOpsHome)) {
+    return buildRepoSnapshotProjection(requestedHome, dashboardPath, generatedAt)
+  }
   if (!existsSync(dashboardPath)) {
-    return emptyProjection(modelOpsHome, generatedAt, `Model Ops dashboard data was not found at ${dashboardPath}.`)
+    if (!shouldUseRepoSnapshotFallback(modelOpsHome)) {
+      return emptyProjection(requestedHome, generatedAt, `Model Ops dashboard data was not found at ${dashboardPath}.`)
+    }
+    return buildRepoSnapshotProjection(requestedHome, dashboardPath, generatedAt)
   }
 
+  return buildProjectionFromDashboard(requestedHome, dashboardPath, false, generatedAt)
+}
+
+function buildRepoSnapshotProjection(requestedHome: string, requestedDashboardPath: string, generatedAt: string) {
+  const fallbackHome = REPO_MODEL_OPS_HOME
+  const fallbackDashboardPath = path.join(fallbackHome, DASHBOARD_DATA_PATH)
+  if (!existsSync(fallbackDashboardPath)) {
+    return emptyProjection(requestedHome, generatedAt, `Model Ops dashboard data was not found at ${requestedDashboardPath}.`)
+  }
+  return buildProjectionFromDashboard(fallbackHome, fallbackDashboardPath, true, generatedAt)
+}
+
+async function buildProjectionFromDashboard(
+  modelOpsHome: string,
+  dashboardPath: string,
+  usingRepoSnapshot: boolean,
+  generatedAt: string,
+): Promise<ModelOpsProjection> {
   const dashboard = await readDashboardData(dashboardPath)
   const sourceGeneratedAt = dashboard.generatedAt || generatedAt
   const latestReportPath = await findLatestReport(modelOpsHome, 'open-source-model-evaluation-swap-monitor-')
@@ -207,7 +233,7 @@ export async function getModelOpsProjection(modelOpsHome = getModelOpsHome()): P
     currentEmbeddingModel,
     monitor: {
       name: 'Open Source Model Evaluation and Swap Monitor',
-      cadence: 'weekly Monday 8 AM',
+      cadence: usingRepoSnapshot ? 'weekly Monday 8 AM; displayed from repo snapshot fallback' : 'weekly Monday 8 AM',
       latestReportPath,
       productionGate: dashboard.recommendations?.productionGate
         || 'No public production swap should occur without a dated approval packet and explicit approval.',
@@ -219,6 +245,10 @@ export async function getModelOpsProjection(modelOpsHome = getModelOpsHome()): P
     swapRequests,
     culturalResourceReviews: buildCulturalResourceReviews(modelOpsHome, sourceGeneratedAt),
   }
+}
+
+function shouldUseRepoSnapshotFallback(modelOpsHome?: string) {
+  return !modelOpsHome && !process.env.MODEL_OPS_HOME
 }
 
 function emptyProjection(modelOpsHome: string, generatedAt: string, reason: string): ModelOpsProjection {
