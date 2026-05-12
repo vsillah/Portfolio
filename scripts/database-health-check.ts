@@ -39,17 +39,6 @@ const SUPABASE_SERVICE_KEY = useDev
 const urlVar = useDev ? 'NEXT_PUBLIC_SUPABASE_URL' : 'PROD_SUPABASE_URL'
 const keyVar = useDev ? 'SUPABASE_SERVICE_ROLE_KEY' : 'PROD_SUPABASE_SERVICE_ROLE_KEY'
 
-if (!SUPABASE_URL?.trim()) {
-  console.error(`❌ ${urlVar} is missing.`)
-  console.error('   Add it to .env.local in the project root (or set in CI).')
-  process.exit(1)
-}
-if (!SUPABASE_SERVICE_KEY?.trim()) {
-  console.error(`❌ ${keyVar} is missing.`)
-  console.error('   Add it to .env.local in the project root (or set in CI).')
-  process.exit(1)
-}
-
 const SUPABASE_URL_SAFE: string = SUPABASE_URL as string
 const SUPABASE_SERVICE_KEY_SAFE: string = SUPABASE_SERVICE_KEY as string
 const BASELINE_FILE = path.join(
@@ -157,6 +146,17 @@ async function main() {
     console.log('   To enforce prod row counts before push, add those vars (same project as .database-baseline.json).')
     console.log('   To check your dev database: npm run db:health-check:dev')
     process.exit(0)
+  }
+
+  if (!SUPABASE_URL?.trim()) {
+    console.error(`❌ ${urlVar} is missing.`)
+    console.error('   Add it to .env.local in the project root (or set in CI).')
+    process.exit(1)
+  }
+  if (!SUPABASE_SERVICE_KEY?.trim()) {
+    console.error(`❌ ${keyVar} is missing.`)
+    console.error('   Add it to .env.local in the project root (or set in CI).')
+    process.exit(1)
   }
 
   console.log(`🔍 Running database health check [${envLabel}]...\n`)

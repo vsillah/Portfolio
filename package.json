@@ -22,6 +22,7 @@
     "credentials:rotate": "tsx scripts/credential-broker.ts rotate",
     "credentials:sync-runtime": "tsx scripts/credential-broker.ts sync-runtime",
     "credentials:smoke": "tsx scripts/credential-broker.ts smoke",
+    "worktree:env": "tsx scripts/bootstrap-worktree-env.ts",
     "db:health-check": "tsx scripts/database-health-check.ts",
     "db:health-check:update": "tsx scripts/database-health-check.ts --update",
     "db:health-check:dev": "tsx scripts/database-health-check.ts --dev",
