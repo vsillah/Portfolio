@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import {
   assessAiRiskSignals,
+  buildAiRiskWorkItemRequests,
   getAiRiskSignalMonitorSummary,
   getAiRiskSourceFeeds,
   AI_RISK_SIGNAL_CATEGORIES,
@@ -10,6 +11,7 @@ import {
   type AiRiskSourcePriority,
   type AiRiskSignalInput,
 } from '@/lib/ai-risk-signal-monitor'
+import { createAgentWorkItem } from '@/lib/agent-work-items'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,6 +31,13 @@ function parseSignals(value: unknown): AiRiskSignalInput[] {
       tags: Array.isArray(item.tags) ? item.tags.filter((tag): tag is string => typeof tag === 'string') : [],
     }))
     .filter((item) => item.title && item.summary)
+}
+
+function toCreateWorkItemInput(
+  request: ReturnType<typeof buildAiRiskWorkItemRequests>[number],
+) {
+  const { sourceAssessment: _sourceAssessment, ...input } = request
+  return input
 }
 
 export async function GET(request: NextRequest) {
@@ -74,15 +83,35 @@ export async function POST(request: NextRequest) {
   }
 
   const assessments = assessAiRiskSignals(signals)
+  const workItemRequests = buildAiRiskWorkItemRequests(assessments)
+  const shouldCreateWorkItems = body.create_work_items === true
+  if (shouldCreateWorkItems && body.confirmation !== 'create_ai_risk_work_items') {
+    return NextResponse.json(
+      { error: 'confirmation must be create_ai_risk_work_items to create work items' },
+      { status: 400 },
+    )
+  }
+
+  const workItems = shouldCreateWorkItems
+    ? await Promise.all(workItemRequests.map((request) =>
+        createAgentWorkItem(toCreateWorkItemInput(request)),
+      ))
+    : []
+
   return NextResponse.json({
     ok: true,
     monitor: getAiRiskSignalMonitorSummary(),
     assessments,
     upgrade_requests: assessments.map((assessment) => assessment.upgradeRequest).filter(Boolean),
+    work_item_requests: workItemRequests.map(toCreateWorkItemInput),
+    work_items: workItems,
     side_effects: {
-      work_items_created: false,
+      work_items_created: workItems.length > 0,
+      work_item_count: workItems.length,
       production_mutation_allowed: false,
-      note: 'This endpoint only classifies supplied signals. Creating work items remains approval-gated.',
+      note: shouldCreateWorkItems
+        ? 'Created proposed Agent Ops work items only. Production remediation remains approval-gated.'
+        : 'This endpoint only classifies supplied signals. Set create_work_items with confirmation to create proposed work items.',
     },
   })
 }

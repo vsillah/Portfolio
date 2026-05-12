@@ -1,4 +1,5 @@
 import { getAgentByKey } from '@/lib/agent-organization'
+import type { CreateAgentWorkItemInput } from '@/lib/agent-work-items'
 
 export const AI_RISK_SIGNAL_CATEGORIES = [
   'agent_autonomy',
@@ -63,6 +64,10 @@ export type AiRiskSignalAssessment = {
     source_label: string
     metadata: Record<string, unknown>
   } | null
+}
+
+export type AiRiskWorkItemRequest = CreateAgentWorkItemInput & {
+  sourceAssessment: AiRiskSignalAssessment
 }
 
 export type AiRiskSourceFeed = {
@@ -387,6 +392,42 @@ export function assessAiRiskSignals(signals: AiRiskSignalInput[]): AiRiskSignalA
       upgradeRequest,
     }
   })
+}
+
+export function buildAiRiskWorkItemRequests(
+  assessments: AiRiskSignalAssessment[],
+): AiRiskWorkItemRequest[] {
+  return assessments
+    .filter((assessment) => assessment.upgradeRequest)
+    .map((assessment) => {
+      const request = assessment.upgradeRequest!
+      return {
+        title: request.title,
+        objective: request.objective,
+        priority: request.priority,
+        status: 'proposed',
+        ownerAgentKey: request.owner_agent_key,
+        ownerRuntime: 'manual',
+        source: {
+          type: request.source_type,
+          id: request.source_id,
+          label: request.source_label,
+        },
+        expectedFiles: [],
+        overlapGroup: 'ai-risk-compliance',
+        metadata: {
+          ...request.metadata,
+          owner_agent_name: assessment.ownerAgentName,
+          recommended_next_action: assessment.recommendedNextAction,
+          confidence: assessment.confidence,
+          rationale: assessment.rationale,
+          exposure_surfaces_detail: assessment.exposureSurfaces,
+          conversion_requires_review: true,
+        },
+        idempotencyKey: `ai-risk-signal:${request.source_id}:${assessment.classification}`,
+        sourceAssessment: assessment,
+      }
+    })
 }
 
 export function getAiRiskSignalMonitorSummary() {
