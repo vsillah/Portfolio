@@ -33,6 +33,7 @@
     "git:hygiene:report": "tsx scripts/git-hygiene-report.ts",
     "model-ops:snapshot": "tsx scripts/sync-model-ops-snapshot.ts",
     "model-ops:snapshot:check": "tsx scripts/sync-model-ops-snapshot.ts --check",
+    "model-ops:research:plan": "tsx scripts/model-ops-research-plan.ts",
     "open-brain:mcp": "tsx scripts/open-brain-mcp-server.ts",
     "wrm:smoke-gate": "tsx scripts/wrm-production-smoke-gate.ts",
     "source-protocol:smoke": "tsx scripts/source-protocol-smoke.ts",
