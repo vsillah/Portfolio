@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { buildBannedBooksCorpusProjection } from '@/lib/banned-books-corpus'
 
 export const dynamic = 'force-dynamic'
 
@@ -191,6 +192,7 @@ export async function GET(request: NextRequest) {
       monthlyPayouts: payoutRows,
       disputes: disputeRows,
       modelReviews: modelReviewRows,
+      bannedBooksCorpus: buildBannedBooksCorpusProjection(),
     })
   } catch (error: any) {
     if (isMissingSourceProtocolSchema(error)) {

@@ -192,6 +192,17 @@ describe('GET /api/admin/source-protocol/overview', () => {
         { id: 'payout-2', accrued_payout_usd: 0.0000004 },
       ],
       modelReviews: [{ id: 'review-1', recommendation: 'keep' }],
+      bannedBooksCorpus: {
+        summary: {
+          stagedRecords: expect.any(Number),
+          rightsReadyRecords: expect.any(Number),
+          retrievableRecords: 0,
+        },
+        swarmAgents: expect.arrayContaining([
+          expect.objectContaining({ key: 'banned-book-source-registry' }),
+          expect.objectContaining({ key: 'rights-governance-review' }),
+        ]),
+      },
     })
     expect(mocks.from).toHaveBeenCalledWith('source_creators')
     expect(mocks.from).toHaveBeenCalledWith('answer_receipt_chunks')
