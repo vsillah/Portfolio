@@ -1,7 +1,7 @@
 import { mkdir, mkdtemp, writeFile } from 'fs/promises'
 import { tmpdir } from 'os'
 import path from 'path'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { getModelOpsProjection } from './model-ops-open-brain'
 
 let tempRoot: string | null = null
@@ -61,6 +61,7 @@ afterEach(async () => {
     await import('fs/promises').then(({ rm }) => rm(tempRoot as string, { recursive: true, force: true }))
     tempRoot = null
   }
+  vi.unstubAllEnvs()
 })
 
 describe('Model Ops Open Brain projection', () => {
@@ -111,5 +112,16 @@ describe('Model Ops Open Brain projection', () => {
     expect(projection.available).toBe(false)
     expect(projection.routerDecisions).toEqual([])
     expect(projection.reason).toContain('Model Ops dashboard data was not found')
+  })
+
+  it('falls back to the repo-owned sanitized snapshot when no local Model Ops home is configured', async () => {
+    vi.stubEnv('MODEL_OPS_FORCE_REPO_SNAPSHOT', '1')
+    const projection = await getModelOpsProjection()
+
+    expect(projection.available).toBe(true)
+    expect(projection.sourceRoot).toContain('data/model-ops')
+    expect(projection.currentLocalDefault).toBe('qwen3-4b-instruct-2507')
+    expect(projection.routerDecisions.length).toBeGreaterThan(0)
+    expect(projection.monitor.cadence).toContain('repo snapshot fallback')
   })
 })
