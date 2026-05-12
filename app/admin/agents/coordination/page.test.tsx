@@ -62,6 +62,55 @@ describe('AgentCoordinationPage Vercel AutoResearch approvals', () => {
       if (url.startsWith('/api/admin/agents/vercel-research/proposals')) {
         return { ok: true, json: async () => ({ ok: true, approvals: [approvalCard] }) }
       }
+      if (url === '/api/admin/agents/risk-compliance/drill' && init?.method === 'POST') {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            work_item: {
+              id: 'work-moremi-drill',
+              title: 'Review AI risk signal: Synthetic Moremi drill: prompt injection risk in browser automation',
+              objective: 'Assess synthetic prompt injection risk.',
+              status: 'proposed',
+              priority: 'urgent',
+              owner_agent_key: 'risk-compliance-intelligence',
+              owner_runtime: 'manual',
+              source_type: 'ai_risk_signal',
+              source_id: 'moremi-operational-drill-prompt-injection-browser-automation',
+              source_label: 'Synthetic Agent Ops drill',
+              source_run_id: null,
+              active_run_id: 'run-moremi-drill',
+              parent_work_item_id: null,
+              branch_name: null,
+              worktree_path: null,
+              pr_number: null,
+              pr_url: null,
+              expected_files: [],
+              touched_files: [],
+              overlap_group: 'ai-risk-compliance',
+              dependency_ids: [],
+              blocker_summary: null,
+              validation_summary: null,
+              approval_id: null,
+              metadata: {},
+              idempotency_key: 'ai-risk-drill:moremi-operational-drill:v1',
+              created_at: '2026-05-11T12:02:00.000Z',
+              updated_at: '2026-05-11T12:02:00.000Z',
+              completed_at: null,
+            },
+            assessment: {
+              classification: 'approval_required',
+              severity: 'high',
+              recommendedNextAction: 'Create an approval-routed risk packet before any remediation work begins.',
+            },
+            verification: {
+              admin_path: '/admin/agents/coordination',
+              slack_command: '/agent work',
+              expected_status: 'proposed',
+            },
+          }),
+        }
+      }
       if (url.startsWith('/api/admin/agents/work-items')) {
         return { ok: true, json: async () => ({ work_items: [] }) }
       }
@@ -93,5 +142,20 @@ describe('AgentCoordinationPage Vercel AutoResearch approvals', () => {
         body: expect.stringContaining('"status":"approved"'),
       }))
     })
+  })
+
+  it('runs the Moremi operational drill and shows the Slack verification command', async () => {
+    render(<AgentCoordinationPage />)
+
+    expect(await screen.findByText('Moremi operational drill')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Run drill' }))
+
+    expect(await screen.findByText('Drill created or reused')).toBeInTheDocument()
+    expect(screen.getByText('/agent work')).toBeInTheDocument()
+    expect(fetch).toHaveBeenCalledWith('/api/admin/agents/risk-compliance/drill', expect.objectContaining({
+      method: 'POST',
+      headers: expect.objectContaining({ Authorization: 'Bearer admin-token' }),
+      body: expect.stringContaining('run_moremi_operational_drill'),
+    }))
   })
 })

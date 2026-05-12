@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   assessAiRiskSignals,
   buildAiRiskWorkItemRequests,
+  buildMoremiOperationalDrillWorkItemRequest,
   getAiRiskSignalMonitorSummary,
   getAiRiskSourceFeeds,
 } from './ai-risk-signal-monitor'
@@ -137,5 +138,31 @@ describe('AI risk signal monitor', () => {
         }),
       }),
     ])
+  })
+
+  it('builds an idempotent synthetic Moremi operational drill packet', () => {
+    const { assessment, workItemRequest } = buildMoremiOperationalDrillWorkItemRequest()
+
+    expect(assessment).toMatchObject({
+      signalId: 'moremi-operational-drill-prompt-injection-browser-automation',
+      classification: 'approval_required',
+      severity: 'high',
+      ownerAgentKey: 'risk-compliance-intelligence',
+    })
+    expect(workItemRequest).toMatchObject({
+      title: 'Review AI risk signal: Synthetic Moremi drill: prompt injection risk in browser automation',
+      status: 'proposed',
+      ownerAgentKey: 'risk-compliance-intelligence',
+      ownerRuntime: 'manual',
+      overlapGroup: 'ai-risk-compliance',
+      idempotencyKey: 'ai-risk-drill:moremi-operational-drill:v1',
+      metadata: expect.objectContaining({
+        synthetic_drill: true,
+        non_production_data: true,
+        production_mutation_allowed: false,
+        slack_verification_command: '/agent work',
+        admin_verification_path: '/admin/agents/coordination',
+      }),
+    })
   })
 })

@@ -50,6 +50,16 @@ The first implementation surface is read-only by default and approval-gated for 
   - `GET /api/admin/agents/risk-compliance/monitor?priority=standards`
   - `GET /api/admin/agents/risk-compliance/monitor?enabled_only=false`
 
+### Operational Drill
+
+Moremi has a repeatable synthetic drill for proving the signal-to-work-item path without production remediation or client-data access.
+
+- `GET /api/admin/agents/risk-compliance/drill` previews the synthetic signal, assessment, and proposed work-item request.
+- `POST /api/admin/agents/risk-compliance/drill` creates or reuses one idempotent proposed work item only when the caller sends `confirmation: "run_moremi_operational_drill"`.
+- The drill uses the fixed idempotency key `ai-risk-drill:moremi-operational-drill:v1`.
+- The created work item stays `proposed`, is tagged as synthetic/non-production data, and should be visible in `/admin/agents/coordination` and Slack `/agent work`.
+- Production remediation, workflow mutation, public claims, and client-data access remain approval-gated.
+
 Expected signal payload:
 
 ```json
