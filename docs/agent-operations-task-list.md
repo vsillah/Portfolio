@@ -70,6 +70,7 @@ This is the active implementation queue for Agent Operations. The phase gates, d
    - [x] Spin out Moremi (Ife) - Risk & Compliance for AI agent/current-event risk monitoring and Portfolio exposure checks.
    - [x] Add a synthetic Moremi operational drill that proves AI risk signal conversion into proposed Agent Ops work items.
    - [x] Add a scheduled read-only risk signal monitor once source feeds and scoring criteria are approved.
+   - [x] Add the Moremi governance loop that reviews latest monitor warnings and explicitly converts them into proposed Agent Ops work items from Admin or Slack.
    - [ ] Continue monitoring Yaa Asantewaa (Ashanti) - Automation Systems for a future split only if trace/work-item load stays high.
 
 ## Completed Or In Review

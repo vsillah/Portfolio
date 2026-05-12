@@ -41,8 +41,10 @@ The first implementation surface is read-only by default and approval-gated for 
 
 - `GET /api/admin/agents/risk-compliance/monitor` returns Moremi's monitor configuration and safety boundary.
 - `POST /api/admin/agents/risk-compliance/monitor` accepts supplied signal briefs and returns exposure assessments plus proposed upgrade-request payloads.
+- `GET /api/admin/agents/risk-compliance/monitor?review=latest` returns the latest scheduled monitor run, monitor artifact, warnings, source-feed coverage, safety boundary, and linked work items.
 - Default `POST` behavior does not create work items, mutate workflows, write remediation changes, or send notifications.
 - `POST` may create proposed Agent Ops work items only when the caller sends both `create_work_items: true` and `confirmation: "create_ai_risk_work_items"`.
+- Latest monitor warnings may be converted into proposed Agent Ops work items only when the caller sends `action: "create_moremi_warning_work_items"` and `confirmation: "create_moremi_warning_work_items"`.
 - Created work items stay in `proposed` status with human review required before remediation, merge, deployment, production config, or workflow mutation.
 - The endpoint does not fetch live news automatically in v1.
 - Source feeds are explicit and filterable before ingestion is automated:
@@ -59,6 +61,20 @@ Moremi runs a weekly source-feed coverage monitor through Vercel cron:
 - The monitor creates an Agent Ops run and artifact with enabled/disabled feed counts, category coverage, priority coverage, and warnings.
 - The monitor does not fetch live external pages, create work items, mutate workflows, change production config, send public content, or touch client data.
 - The first schedule is weekly on Monday at 14:00 UTC, after the daily client AI Ops monitor.
+- Admins can review the latest monitor warning state in Agent Operations Mission Control and explicitly create or reuse proposed warning work items from the same control plane.
+- Slack mirrors the same read/write boundary: `/agent risk` is read-only, and `/agent risk review create_moremi_warning_work_items` creates or reuses proposed work items only.
+
+### Moremi Signal Resolution
+
+A Moremi signal is considered done when one of these outcomes is recorded through Agent Ops:
+
+- No action needed after review.
+- A proposed work item exists for the warning.
+- An approval packet is routed for gated remediation.
+- Risk is explicitly accepted with rationale.
+- The resulting work item reaches `merged`, `deployed`, or `cancelled`.
+
+The review loop does not add new statuses. It uses the existing coordination statuses from `proposed` through `deployed` so warnings remain visible in `/admin/agents/coordination`, `/agent work`, and `/agent captain`.
 
 ### Operational Drill
 
@@ -103,6 +119,15 @@ Explicit work-item conversion payload:
       "category": "privacy_data"
     }
   ]
+}
+```
+
+Latest monitor warning conversion payload:
+
+```json
+{
+  "action": "create_moremi_warning_work_items",
+  "confirmation": "create_moremi_warning_work_items"
 }
 ```
 

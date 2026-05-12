@@ -262,9 +262,34 @@ type ChiefReply = {
   }>
 }
 
+type MoremiMonitorReview = {
+  has_monitor: boolean
+  run: {
+    id: string
+    status: string
+    overall: string | null
+    generated_at: string | null
+    completed_at: string | null
+    href: string
+  } | null
+  warnings: string[]
+  warning_count: number
+  enabled_source_feed_count: number
+  disabled_source_feed_count: number
+  safety_boundary: string | null
+  linked_work_items: Array<{
+    id: string
+    title: string
+    status: string
+    owner_agent_key: string | null
+  }>
+}
+
 export default function AgentOperationsPage() {
   const [snapshot, setSnapshot] = useState<MissionSnapshot | null>(null)
+  const [moremiReview, setMoremiReview] = useState<MoremiMonitorReview | null>(null)
   const [loading, setLoading] = useState(true)
+  const [moremiReviewLoading, setMoremiReviewLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [command, setCommand] = useState('')
   const [chiefLoading, setChiefLoading] = useState(false)
@@ -276,6 +301,7 @@ export default function AgentOperationsPage() {
   const [inboxRoutingId, setInboxRoutingId] = useState<string | null>(null)
   const [engagementLoadingKey, setEngagementLoadingKey] = useState<string | null>(null)
   const [recoveryLoadingRunId, setRecoveryLoadingRunId] = useState<string | null>(null)
+  const [moremiReviewConfirm, setMoremiReviewConfirm] = useState(false)
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -305,9 +331,28 @@ export default function AgentOperationsPage() {
     }
   }, [authedFetch])
 
+  const loadMoremiReview = useCallback(async () => {
+    setMoremiReviewLoading(true)
+    try {
+      const response = await authedFetch('/api/admin/agents/risk-compliance/monitor?review=latest')
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      setMoremiReview(body.review)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load Moremi review')
+    } finally {
+      setMoremiReviewLoading(false)
+    }
+  }, [authedFetch])
+
   useEffect(() => {
     loadMissionControl()
-  }, [loadMissionControl])
+    loadMoremiReview()
+  }, [loadMissionControl, loadMoremiReview])
+
+  async function refreshMissionControl() {
+    await Promise.all([loadMissionControl(), loadMoremiReview()])
+  }
 
   async function submitChiefOfStaff(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -459,6 +504,36 @@ export default function AgentOperationsPage() {
     }
   }
 
+  async function createMoremiWarningWorkItems() {
+    if (!moremiReviewConfirm) {
+      setMoremiReviewConfirm(true)
+      return
+    }
+
+    setActionLoading('moremi-review')
+    setActionResult(null)
+    setError(null)
+    try {
+      const response = await authedFetch('/api/admin/agents/risk-compliance/monitor', {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'create_moremi_warning_work_items',
+          confirmation: 'create_moremi_warning_work_items',
+        }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      setMoremiReview(body.review)
+      setMoremiReviewConfirm(false)
+      setActionResult({ label: `Moremi proposed ${body.work_items?.length ?? 0} work item(s)`, runId: body.review?.run?.id ?? 'moremi' })
+      await loadMissionControl()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Moremi review action failed')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
   const topAgents = useMemo(
     () => snapshot?.roster.flatMap((pod) => pod.agents).filter((agent) => agent.status !== 'planned').slice(0, 10) ?? [],
     [snapshot],
@@ -480,11 +555,11 @@ export default function AgentOperationsPage() {
             </div>
             <div className="flex flex-wrap gap-2">
               <button
-                onClick={loadMissionControl}
-                disabled={loading}
+                onClick={refreshMissionControl}
+                disabled={loading || moremiReviewLoading}
                 className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60 disabled:opacity-60"
               >
-                <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+                <RefreshCw size={16} className={loading || moremiReviewLoading ? 'animate-spin' : ''} />
                 Refresh
               </button>
               <Link href="/admin/agents/runs" className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15">
@@ -518,6 +593,14 @@ export default function AgentOperationsPage() {
           <CostSummaryPanel summary={snapshot?.cost_summary ?? null} />
           <QualitySignalsPanel summary={snapshot?.quality_summary ?? null} />
           <OperatingSignalsPanel signals={snapshot?.operating_signals ?? []} />
+          <MoremiReviewPanel
+            review={moremiReview}
+            loading={moremiReviewLoading}
+            confirm={moremiReviewConfirm}
+            actionLoading={actionLoading === 'moremi-review'}
+            onCreate={createMoremiWarningWorkItems}
+            onCancel={() => setMoremiReviewConfirm(false)}
+          />
           <KnowledgeGovernancePanel governance={snapshot?.knowledge_governance ?? null} />
 
           <section className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[1.2fr_0.8fr]">
@@ -711,6 +794,16 @@ function MetricCard({ icon, label, value, tone = 'default' }: { icon: ReactNode;
         <span className="text-xs font-semibold uppercase tracking-wider">{label}</span>
       </div>
       <p className={`mt-2 text-2xl font-semibold ${toneClass}`}>{value}</p>
+    </div>
+  )
+}
+
+function MiniMetric({ label, value, tone = 'default' }: { label: string; value: string | number; tone?: 'default' | 'yellow' | 'green' }) {
+  const toneClass = tone === 'yellow' ? 'text-yellow-200' : tone === 'green' ? 'text-emerald-200' : 'text-foreground'
+  return (
+    <div className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3">
+      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className={`mt-1 text-lg font-semibold ${toneClass}`}>{value}</p>
     </div>
   )
 }
@@ -956,6 +1049,130 @@ function OperatingSignalsPanel({ signals }: { signals: MissionSnapshot['operatin
           </Link>
         )
       })}
+    </section>
+  )
+}
+
+function MoremiReviewPanel({
+  review,
+  loading,
+  confirm,
+  actionLoading,
+  onCreate,
+  onCancel,
+}: {
+  review: MoremiMonitorReview | null
+  loading: boolean
+  confirm: boolean
+  actionLoading: boolean
+  onCreate: () => void
+  onCancel: () => void
+}) {
+  const hasWarnings = (review?.warning_count ?? 0) > 0
+  const linkedCount = review?.linked_work_items.length ?? 0
+
+  return (
+    <section className="mt-5 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-radiant-gold">
+            {hasWarnings ? <AlertTriangle size={18} /> : <ShieldCheck size={18} />}
+            <h2 className="font-semibold">Moremi Warning Review</h2>
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Converts the latest read-only AI risk monitor warnings into proposed Agent Ops work items only after explicit confirmation.
+          </p>
+        </div>
+        {review?.run ? (
+          <Link
+            href={review.run.href}
+            className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60"
+          >
+            Latest trace
+            <ArrowRight size={16} />
+          </Link>
+        ) : null}
+      </div>
+
+      {loading ? (
+        <p className="mt-3 text-sm text-muted-foreground">Loading latest Moremi review...</p>
+      ) : !review?.has_monitor ? (
+        <p className="mt-3 rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm text-muted-foreground">
+          No Moremi monitor trace exists yet. Run the scheduled monitor or wait for the next read-only review before creating work items.
+        </p>
+      ) : (
+        <>
+          <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-5">
+            <MiniMetric label="Status" value={review.run?.overall ?? review.run?.status ?? 'unknown'} />
+            <MiniMetric label="Warnings" value={review.warning_count} tone={hasWarnings ? 'yellow' : 'green'} />
+            <MiniMetric label="Enabled feeds" value={review.enabled_source_feed_count} />
+            <MiniMetric label="Disabled feeds" value={review.disabled_source_feed_count} tone={review.disabled_source_feed_count ? 'yellow' : undefined} />
+            <MiniMetric label="Linked work" value={linkedCount} />
+          </div>
+
+          {review.warnings.length ? (
+            <div className="mt-4 rounded-lg border border-silicon-slate/50 bg-black/10 p-3">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Warnings</p>
+              <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
+                {review.warnings.slice(0, 5).map((warning) => (
+                  <li key={warning} className="flex gap-2">
+                    <AlertTriangle size={14} className="mt-0.5 shrink-0 text-radiant-gold" />
+                    <span>{warning}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
+          {review.linked_work_items.length ? (
+            <div className="mt-4 rounded-lg border border-silicon-slate/50 bg-black/10 p-3">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Linked proposed work</p>
+              <div className="mt-2 space-y-2 text-sm">
+                {review.linked_work_items.slice(0, 4).map((item) => (
+                  <div key={item.id} className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="text-foreground">{item.title}</span>
+                    <span className="rounded-full border border-silicon-slate/50 bg-black/10 px-2.5 py-1 text-xs text-muted-foreground">
+                      {item.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <Link href="/admin/agents/coordination" className="mt-3 inline-flex items-center gap-2 text-sm text-radiant-gold hover:underline">
+                Open Agent Coordination
+                <ArrowRight size={14} />
+              </Link>
+            </div>
+          ) : null}
+
+          <div className="mt-4 flex flex-col gap-3 rounded-lg border border-silicon-slate/50 bg-black/10 p-3 md:flex-row md:items-center md:justify-between">
+            <p className="text-sm text-muted-foreground">
+              {confirm
+                ? 'Confirming creates or reuses proposed work items only. Remediation and production changes remain approval-gated.'
+                : 'Review warnings first, then create proposed work items when they need tracked follow-through.'}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {confirm ? (
+                <button
+                  type="button"
+                  onClick={onCancel}
+                  className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60"
+                >
+                  Cancel
+                </button>
+              ) : null}
+              <button
+                type="button"
+                onClick={onCreate}
+                disabled={!hasWarnings || actionLoading}
+                className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
+              >
+                <ClipboardList size={16} />
+                {confirm ? 'Confirm proposed work items' : 'Create proposed work items'}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </section>
   )
 }

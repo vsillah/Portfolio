@@ -12,6 +12,11 @@ import {
   type AiRiskSignalInput,
 } from '@/lib/ai-risk-signal-monitor'
 import { createAgentWorkItem } from '@/lib/agent-work-items'
+import {
+  createMoremiWarningWorkItems,
+  getLatestMoremiMonitorReview,
+  MOREMI_WARNING_WORK_ITEMS_CONFIRMATION,
+} from '@/lib/moremi-monitor-review'
 
 export const dynamic = 'force-dynamic'
 
@@ -47,6 +52,14 @@ export async function GET(request: NextRequest) {
   }
 
   const { searchParams } = new URL(request.url)
+  const reviewMode = searchParams.get('review') === 'latest' || searchParams.get('mode') === 'latest_review'
+  if (reviewMode) {
+    return NextResponse.json({
+      ok: true,
+      review: await getLatestMoremiMonitorReview(),
+    })
+  }
+
   const category = searchParams.get('category')
   if (category && !AI_RISK_SIGNAL_CATEGORIES.includes(category as AiRiskSignalCategory)) {
     return NextResponse.json({ error: 'Invalid category' }, { status: 400 })
@@ -77,6 +90,30 @@ export async function POST(request: NextRequest) {
   }
 
   const body = (await request.json().catch(() => ({}))) as Record<string, unknown>
+  if (body.action === 'create_moremi_warning_work_items') {
+    if (body.confirmation !== MOREMI_WARNING_WORK_ITEMS_CONFIRMATION) {
+      return NextResponse.json(
+        { error: `confirmation must be ${MOREMI_WARNING_WORK_ITEMS_CONFIRMATION} to create Moremi warning work items` },
+        { status: 400 },
+      )
+    }
+
+    const result = await createMoremiWarningWorkItems()
+    return NextResponse.json({
+      ok: true,
+      review: result.review,
+      work_items: result.work_items,
+      side_effects: {
+        work_items_created: result.work_items.length > 0,
+        work_item_count: result.work_items.length,
+        production_mutation_allowed: false,
+        live_external_fetch: false,
+        client_data_access: false,
+        note: 'Created or reused proposed Agent Ops work items only. Remediation remains approval-gated.',
+      },
+    })
+  }
+
   const signals = parseSignals(body.signals)
   if (!signals.length) {
     return NextResponse.json({ error: 'signals array with title and summary is required' }, { status: 400 })

@@ -4,6 +4,8 @@ const mocks = vi.hoisted(() => ({
   verifyAdmin: vi.fn(),
   isAuthError: vi.fn(),
   createAgentWorkItem: vi.fn(),
+  getLatestMoremiMonitorReview: vi.fn(),
+  createMoremiWarningWorkItems: vi.fn(),
 }))
 
 vi.mock('@/lib/auth-server', () => ({
@@ -13,6 +15,12 @@ vi.mock('@/lib/auth-server', () => ({
 
 vi.mock('@/lib/agent-work-items', () => ({
   createAgentWorkItem: mocks.createAgentWorkItem,
+}))
+
+vi.mock('@/lib/moremi-monitor-review', () => ({
+  MOREMI_WARNING_WORK_ITEMS_CONFIRMATION: 'create_moremi_warning_work_items',
+  getLatestMoremiMonitorReview: mocks.getLatestMoremiMonitorReview,
+  createMoremiWarningWorkItems: mocks.createMoremiWarningWorkItems,
 }))
 
 import { GET, POST } from './route'
@@ -34,6 +42,29 @@ describe('/api/admin/agents/risk-compliance/monitor', () => {
       id: 'work-item-1',
       title: 'Review AI risk signal: AI agent prompt injection vulnerability affects browser automation',
       status: 'proposed',
+    })
+    mocks.getLatestMoremiMonitorReview.mockResolvedValue({
+      has_monitor: true,
+      run: { id: 'moremi-run', href: '/admin/agents/runs/moremi-run', overall: 'warning' },
+      warnings: ['OWASP AIVSS is disabled pending policy approval.'],
+      warning_count: 1,
+      linked_work_items: [],
+      side_effects: {
+        work_items_created: false,
+        production_mutation_allowed: false,
+        live_external_fetch: false,
+        client_data_access: false,
+      },
+    })
+    mocks.createMoremiWarningWorkItems.mockResolvedValue({
+      review: {
+        has_monitor: true,
+        run: { id: 'moremi-run', href: '/admin/agents/runs/moremi-run', overall: 'warning' },
+        warnings: ['OWASP AIVSS is disabled pending policy approval.'],
+        warning_count: 1,
+        linked_work_items: [{ id: 'moremi-work-1', status: 'proposed' }],
+      },
+      work_items: [{ id: 'moremi-work-1', status: 'proposed' }],
     })
   })
 
@@ -75,6 +106,23 @@ describe('/api/admin/agents/risk-compliance/monitor', () => {
       'owasp-agent-security-initiative',
       'owasp-aivss',
     ])
+  })
+
+  it('returns the latest monitor review state', async () => {
+    const response = await GET(
+      new Request('http://localhost/api/admin/agents/risk-compliance/monitor?review=latest') as never,
+    )
+
+    expect(response.status).toBe(200)
+    expect(mocks.getLatestMoremiMonitorReview).toHaveBeenCalled()
+    expect(await response.json()).toMatchObject({
+      ok: true,
+      review: {
+        has_monitor: true,
+        run: { id: 'moremi-run' },
+        warnings: ['OWASP AIVSS is disabled pending policy approval.'],
+      },
+    })
   })
 
   it('rejects invalid source feed filters', async () => {
@@ -191,6 +239,40 @@ describe('/api/admin/agents/risk-compliance/monitor', () => {
         work_items_created: true,
         work_item_count: 1,
         production_mutation_allowed: false,
+      },
+    })
+  })
+
+  it('requires Moremi review confirmation before creating warning work items', async () => {
+    const response = await POST(request({
+      action: 'create_moremi_warning_work_items',
+      confirmation: 'wrong',
+    }) as never)
+
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({
+      error: 'confirmation must be create_moremi_warning_work_items to create Moremi warning work items',
+    })
+    expect(mocks.createMoremiWarningWorkItems).not.toHaveBeenCalled()
+  })
+
+  it('creates or reuses proposed work items from the latest Moremi warnings when confirmed', async () => {
+    const response = await POST(request({
+      action: 'create_moremi_warning_work_items',
+      confirmation: 'create_moremi_warning_work_items',
+    }) as never)
+
+    expect(response.status).toBe(200)
+    expect(mocks.createMoremiWarningWorkItems).toHaveBeenCalled()
+    expect(await response.json()).toMatchObject({
+      ok: true,
+      work_items: [{ id: 'moremi-work-1', status: 'proposed' }],
+      side_effects: {
+        work_items_created: true,
+        work_item_count: 1,
+        production_mutation_allowed: false,
+        live_external_fetch: false,
+        client_data_access: false,
       },
     })
   })
