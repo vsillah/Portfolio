@@ -134,7 +134,7 @@ export type AgentCostSummary = {
 
 export type AgentOperatingSignal = {
   run_id: string
-  kind: 'morning_review' | 'deployment_watch'
+  kind: 'morning_review' | 'deployment_watch' | 'ai_risk_signal_monitor'
   title: string
   status: string
   signal: string
@@ -378,6 +378,7 @@ export function buildAgentCostSummary(input: {
 export function buildAgentOperatingSignals(runs: AgentRunRow[]): AgentOperatingSignal[] {
   const latestMorningReview = runs.find((run) => run.kind === 'agent_ops_morning_review')
   const latestDeploymentWatch = runs.find((run) => run.kind === 'agent_ops_deployment_watch')
+  const latestRiskSignalMonitor = runs.find((run) => run.kind === 'ai_risk_signal_monitor')
   const signals: AgentOperatingSignal[] = []
 
   if (latestMorningReview) {
@@ -448,6 +449,42 @@ export function buildAgentOperatingSignals(runs: AgentRunRow[]): AgentOperatingS
       updated_at: latestDeploymentWatch.completed_at ?? latestDeploymentWatch.started_at,
       href: `/admin/agents/runs/${latestDeploymentWatch.id}`,
       details: [...contexts.slice(0, 2), ...guidance.slice(0, 1)],
+    })
+  }
+
+  if (latestRiskSignalMonitor) {
+    const overall =
+      typeof latestRiskSignalMonitor.outcome?.overall === 'string'
+        ? latestRiskSignalMonitor.outcome.overall
+        : latestRiskSignalMonitor.status
+    const warningCount =
+      typeof latestRiskSignalMonitor.outcome?.warning_count === 'number'
+        ? latestRiskSignalMonitor.outcome.warning_count
+        : null
+    const enabledFeeds =
+      typeof latestRiskSignalMonitor.outcome?.enabled_source_feed_count === 'number'
+        ? latestRiskSignalMonitor.outcome.enabled_source_feed_count
+        : null
+    const disabledFeeds =
+      typeof latestRiskSignalMonitor.outcome?.disabled_source_feed_count === 'number'
+        ? latestRiskSignalMonitor.outcome.disabled_source_feed_count
+        : null
+
+    signals.push({
+      run_id: latestRiskSignalMonitor.id,
+      kind: 'ai_risk_signal_monitor',
+      title: 'Moremi Risk Monitor',
+      status: latestRiskSignalMonitor.status,
+      signal: `Coverage: ${overall}`,
+      summary: latestRiskSignalMonitor.error_message ?? latestRiskSignalMonitor.current_step ?? latestRiskSignalMonitor.title,
+      updated_at: latestRiskSignalMonitor.completed_at ?? latestRiskSignalMonitor.started_at,
+      href: `/admin/agents/runs/${latestRiskSignalMonitor.id}`,
+      details: [
+        warningCount === null ? null : `${warningCount} warning(s)`,
+        enabledFeeds === null ? null : `${enabledFeeds} enabled feed(s)`,
+        disabledFeeds === null ? null : `${disabledFeeds} disabled feed(s)`,
+        'Read-only; remediation approval-gated',
+      ].filter((detail): detail is string => Boolean(detail)),
     })
   }
 

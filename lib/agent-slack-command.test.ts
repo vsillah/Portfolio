@@ -65,6 +65,7 @@ import {
   buildAgentBriefSlackText,
   buildAgentEngagementQueueSlackText,
   buildAgentPrsSlackText,
+  buildAgentRiskMonitorSlackText,
   buildAgentWorkItemsSlackText,
   buildCaptainQueueSlackText,
   claimAgentWorkItemSlackText,
@@ -88,6 +89,8 @@ describe('agent Slack command parsing', () => {
     expect(agentSlackCommandInternals.commandFromText('approvals')).toBe('approvals')
     expect(agentSlackCommandInternals.commandFromText('morning-review')).toBe('morning-review')
     expect(agentSlackCommandInternals.commandFromText('morning')).toBe('morning-review')
+    expect(agentSlackCommandInternals.commandFromText('risk')).toBe('risk')
+    expect(agentSlackCommandInternals.commandFromText('moremi')).toBe('risk')
     expect(agentSlackCommandInternals.commandFromText('agents')).toBe('agents')
     expect(agentSlackCommandInternals.commandFromText('list')).toBe('agents')
     expect(agentSlackCommandInternals.commandFromText('engagements')).toBe('engagements')
@@ -111,6 +114,7 @@ describe('agent Slack command parsing', () => {
     expect(agentSlackCommandInternals.commandFromText('unknown')).toBe('help')
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent status')
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent run <agent-key>')
+    expect(agentSlackCommandInternals.formatHelp()).toContain('/agent risk')
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent engagements')
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent work [id]')
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent captain')
@@ -275,6 +279,36 @@ describe('agent Slack command parsing', () => {
     expect(text).toContain('Daily Operating Brief')
     expect(text).toContain('Chief of Staff recommends')
     expect(text).toContain('/admin/agents/runs/standup-run')
+  })
+
+  it('formats Moremi risk monitor status for Slack', async () => {
+    inboxMocks.buildAgentMissionControlSnapshot.mockResolvedValue({
+      operating_signals: [
+        {
+          run_id: 'moremi-run',
+          kind: 'ai_risk_signal_monitor',
+          title: 'Moremi Risk Monitor',
+          status: 'completed',
+          signal: 'Coverage: warning',
+          summary: 'Moremi AI risk signal monitor ready',
+          updated_at: '2026-05-12T12:00:00.000Z',
+          href: '/admin/agents/runs/moremi-run',
+          details: [
+            '2 warning(s)',
+            '5 enabled feed(s)',
+            '1 disabled feed(s)',
+            'Read-only; remediation approval-gated',
+          ],
+        },
+      ],
+    })
+
+    const text = await buildAgentRiskMonitorSlackText()
+
+    expect(text).toContain('Moremi Risk Monitor')
+    expect(text).toContain('Coverage: warning')
+    expect(text).toContain('Read-only; remediation approval-gated')
+    expect(text).toContain('/admin/agents/runs/moremi-run')
   })
 
   it('routes an Agent Inbox item from Slack', async () => {

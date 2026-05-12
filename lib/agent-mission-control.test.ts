@@ -327,7 +327,7 @@ describe('Agent Mission Control helpers', () => {
     expect(summary.by_artifact_type[0]).toMatchObject({ key: 'warm_lead', label: 'warm lead' })
   })
 
-  it('surfaces morning review and deployment watcher traces as operating signals', () => {
+  it('surfaces morning review, deployment watcher, and Moremi monitor traces as operating signals', () => {
     const signals = buildAgentOperatingSignals([
       run({
         id: 'morning-run',
@@ -355,9 +355,21 @@ describe('Agent Mission Control helpers', () => {
           guidance: ['guidance=ready; both required Vercel contexts passed'],
         },
       }),
+      run({
+        id: 'moremi-run',
+        kind: 'ai_risk_signal_monitor',
+        status: 'completed',
+        current_step: 'Moremi AI risk signal monitor ready',
+        outcome: {
+          overall: 'warning',
+          warning_count: 2,
+          enabled_source_feed_count: 5,
+          disabled_source_feed_count: 1,
+        },
+      }),
     ])
 
-    expect(signals).toHaveLength(2)
+    expect(signals).toHaveLength(3)
     expect(signals[0]).toMatchObject({
       kind: 'morning_review',
       signal: 'Overall: ok',
@@ -369,5 +381,17 @@ describe('Agent Mission Control helpers', () => {
       summary: 'Latest watcher snapshot for main.',
     })
     expect(signals[1].details).toContain('Vercel – portfolio-staging: success')
+    expect(signals[2]).toMatchObject({
+      kind: 'ai_risk_signal_monitor',
+      title: 'Moremi Risk Monitor',
+      signal: 'Coverage: warning',
+      summary: 'Moremi AI risk signal monitor ready',
+      details: [
+        '2 warning(s)',
+        '5 enabled feed(s)',
+        '1 disabled feed(s)',
+        'Read-only; remediation approval-gated',
+      ],
+    })
   })
 })
