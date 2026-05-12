@@ -69,7 +69,7 @@ This is the active implementation queue for Agent Operations. The phase gates, d
    - [x] Spin out meeting intake and follow-up from the overloaded Samori Toure (Wassoulou) - Inbox & Follow-Up.
    - [x] Spin out Moremi (Ife) - Risk & Compliance for AI agent/current-event risk monitoring and Portfolio exposure checks.
    - [x] Add a synthetic Moremi operational drill that proves AI risk signal conversion into proposed Agent Ops work items.
-   - [ ] Add a scheduled read-only risk signal monitor once source feeds and scoring criteria are approved.
+   - [x] Add a scheduled read-only risk signal monitor once source feeds and scoring criteria are approved.
    - [ ] Continue monitoring Yaa Asantewaa (Ashanti) - Automation Systems for a future split only if trace/work-item load stays high.
 
 ## Completed Or In Review
