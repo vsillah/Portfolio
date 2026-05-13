@@ -31,6 +31,12 @@ const baseReport = {
     providerConfirmed: 0,
     providerPending: 2,
   },
+  sinkPresenceSummary: {
+    present: 1,
+    missing: 0,
+    unknown: 1,
+    unavailable: 0,
+  },
   bySource: { infisical: 1, '1password': 1 },
   byRisk: { 'standard-api': 1, 'oauth-session': 1 },
   byRuntimeSink: { Vercel: 1, 'local-env': 1 },
@@ -67,6 +73,20 @@ const baseReport = {
       lastRotatedAt: null,
       dueAt: null,
       status: 'needs-baseline',
+      sinkPresence: [
+        {
+          sink: 'Vercel',
+          status: 'unknown',
+          evidence: 'Runtime sink was not checked for this report.',
+          checkedAt: 'not-checked',
+        },
+      ],
+      sinkPresenceSummary: {
+        present: 0,
+        missing: 0,
+        unknown: 1,
+        unavailable: 0,
+      },
       nextAction: 'Confirm provider history and record lastRotatedAt evidence.',
     },
     {
@@ -81,6 +101,20 @@ const baseReport = {
       lastRotatedAt: null,
       dueAt: null,
       status: 'needs-baseline',
+      sinkPresence: [
+        {
+          sink: 'local-env',
+          status: 'present',
+          evidence: 'Found key name in local env file: .env.staging.',
+          checkedAt: '2026-05-09T12:00:00.000Z',
+        },
+      ],
+      sinkPresenceSummary: {
+        present: 1,
+        missing: 0,
+        unknown: 0,
+        unavailable: 0,
+      },
       nextAction: 'Confirm provider history and record lastRotatedAt evidence.',
     },
   ],
@@ -118,6 +152,9 @@ describe('CredentialAdminPage', () => {
     expect(screen.getAllByText('OPENAI_API_KEY').length).toBeGreaterThan(0)
     expect(screen.getByText('LINKEDIN_COOKIE')).toBeInTheDocument()
     expect(screen.getByText('Rotation packets')).toBeInTheDocument()
+    expect(screen.getByText('Runtime sink presence')).toBeInTheDocument()
+    expect(screen.getByText('local-env: present')).toBeInTheDocument()
+    expect(screen.getByText('Vercel: unknown')).toBeInTheDocument()
     expect(screen.getByText('Drafted')).toBeInTheDocument()
     expect(screen.queryByText('super-secret-value')).not.toBeInTheDocument()
 
