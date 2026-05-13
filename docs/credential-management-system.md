@@ -93,6 +93,7 @@ Use `credentials:baseline-template` when `credentials:report` shows `needs-basel
 
 - `docs/credential-rotation-map.md`
 - `docs/credential-rotation-runbook.md`
+- `docs/credential-baseline-evidence.md`
 - `docs/n8n-secrets-remediation.md`
 - `n8n-exports/environment-variables-reference.md`
 
