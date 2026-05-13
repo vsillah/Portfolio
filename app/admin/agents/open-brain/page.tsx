@@ -20,7 +20,7 @@ import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
 import type { OpenBrainSnapshot } from '@/lib/open-brain'
 
-type ViewMode = 'router' | 'sources' | 'proposals' | 'wiki' | 'parity'
+type ViewMode = 'router' | 'sources' | 'proposals' | 'wiki' | 'parity' | 'producers'
 
 export default function OpenBrainPage() {
   return (
@@ -117,7 +117,7 @@ function OpenBrainContent() {
             <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Agent Operations</p>
             <h1 className="mt-1 text-3xl font-bold">Open Brain</h1>
             <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-              Local-first memory projection for Portfolio Agent Ops. The local Open Brain remains the source of truth; Portfolio shows health, proposals, source freshness, and generated wiki previews.
+              Local-first memory projection for Portfolio Agent Ops. The local Open Brain remains the source of truth; Portfolio shows health, proposals, source freshness, producer gates, and generated wiki previews.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -168,6 +168,7 @@ function OpenBrainContent() {
               <MetricCard label="Stale sources" value={snapshot.overview.staleSources} tone={snapshot.overview.staleSources ? 'yellow' : 'slate'} />
               <MetricCard label="Private" value={snapshot.overview.privateRecords} tone={snapshot.overview.privateRecords ? 'red' : 'slate'} />
               <MetricCard label="Router lanes" value={snapshot.modelOps.routerDecisions.length} tone={snapshot.modelOps.available ? 'green' : 'yellow'} />
+              <MetricCard label="Producer gates" value={snapshot.overview.enabledProducerGates} tone={snapshot.overview.enabledProducerGates ? 'green' : 'yellow'} />
             </div>
 
             <section className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
@@ -200,6 +201,7 @@ function OpenBrainContent() {
                 <ModeButton icon={<ShieldCheck size={16} />} active={viewMode === 'proposals'} onClick={() => setViewMode('proposals')}>Proposals</ModeButton>
                 <ModeButton icon={<FileText size={16} />} active={viewMode === 'wiki'} onClick={() => setViewMode('wiki')}>Wiki Overlay</ModeButton>
                 <ModeButton icon={<Network size={16} />} active={viewMode === 'parity'} onClick={() => setViewMode('parity')}>Runtime Parity</ModeButton>
+                <ModeButton icon={<GitBranch size={16} />} active={viewMode === 'producers'} onClick={() => setViewMode('producers')}>Producers</ModeButton>
               </div>
               <button
                 onClick={compileWiki}
@@ -227,6 +229,7 @@ function OpenBrainContent() {
             ) : null}
             {viewMode === 'wiki' ? <WikiView pages={snapshot.wikiPages} /> : null}
             {viewMode === 'parity' ? <ParityView snapshot={snapshot} /> : null}
+            {viewMode === 'producers' ? <ProducerView snapshot={snapshot} /> : null}
 
             <p className="mt-5 text-xs text-muted-foreground">
               Generated {formatDateTime(snapshot.generatedAt)}. {snapshot.service.operationalBoundary}
@@ -498,6 +501,31 @@ function ParityView({ snapshot }: { snapshot: OpenBrainSnapshot }) {
   )
 }
 
+function ProducerView({ snapshot }: { snapshot: OpenBrainSnapshot }) {
+  return (
+    <section className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+      {snapshot.producerGates.map((gate) => (
+        <article key={gate.id} className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
+          <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
+            <div>
+              <h3 className="font-semibold">{gate.label}</h3>
+              <p className="mt-1 text-xs text-muted-foreground">{gate.id}</p>
+            </div>
+            <StatusBadge value={gate.status} />
+          </div>
+          <p className="mb-4 text-sm text-muted-foreground">{gate.note}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+            <Detail label="Source kind" value={gate.sourceKind} />
+            <Detail label="Event kind" value={gate.eventKind || 'none'} />
+            <Detail label="Privacy" value={gate.privacyTier} />
+            <Detail label="Config" value={gate.envVar ? `${gate.envVar}=${gate.configuredValue || 'unset'}` : 'always evaluated'} />
+          </div>
+        </article>
+      ))}
+    </section>
+  )
+}
+
 function MetricCard({ label, value, tone = 'slate' }: { label: string; value: number; tone?: 'slate' | 'green' | 'yellow' | 'red' }) {
   const toneClass = tone === 'green' ? 'text-green-300' : tone === 'yellow' ? 'text-yellow-200' : tone === 'red' ? 'text-red-300' : 'text-foreground'
   return (
@@ -558,11 +586,11 @@ function LaneBadge({ lane }: { lane: string }) {
 }
 
 function StatusBadge({ value }: { value: string }) {
-  const tone = value === 'approved' || value === 'connected'
+  const tone = value === 'approved' || value === 'connected' || value === 'enabled'
     ? 'border-green-400/30 bg-green-500/10 text-green-200'
     : value === 'approved_policy'
       ? 'border-green-400/30 bg-green-500/10 text-green-200'
-      : value === 'pending' || value === 'blocked' || value === 'approval_required' || value === 'shadow_only'
+      : value === 'pending' || value === 'blocked' || value === 'approval_required' || value === 'shadow_only' || value === 'approval_gated'
       ? 'border-yellow-400/30 bg-yellow-500/10 text-yellow-100'
       : 'border-silicon-slate/70 bg-silicon-slate/30 text-muted-foreground'
   return <span className={`rounded-full border px-2 py-1 text-xs ${tone}`}>{value}</span>
