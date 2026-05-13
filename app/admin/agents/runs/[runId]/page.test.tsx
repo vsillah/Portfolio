@@ -104,6 +104,27 @@ describe('AgentRunDetailPage scoped Shaka context', () => {
     }))
   })
 
+  it('sends suggested Shaka actions as scoped follow-up prompts', async () => {
+    render(<AgentRunDetailPage params={{ runId: 'run-1' }} />)
+
+    expect(await screen.findByRole('heading', { name: 'Approval notification trace' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Ask Shaka about this run' }))
+    expect(await screen.findByRole('button', { name: 'Ask Shaka follow-up: Review payload' })).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ask Shaka follow-up: Review payload' }))
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/admin/agents/chief-of-staff/chat', expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('"message":"Review payload"'),
+      }))
+      expect(fetch).toHaveBeenCalledWith('/api/admin/agents/chief-of-staff/chat', expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('"context_ref":{"type":"run","id":"run-1"}'),
+      }))
+    })
+  })
+
   it('asks Shaka about a pending approval from the run detail approval card', async () => {
     render(<AgentRunDetailPage params={{ runId: 'run-1' }} />)
 

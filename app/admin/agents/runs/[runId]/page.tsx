@@ -28,6 +28,11 @@ type ShakaContextReply = {
   suggested_actions: string[]
 }
 
+type ShakaContextRef = {
+  type: 'run' | 'approval'
+  id: string
+}
+
 const RUBRIC_OPTIONS = [
   { key: 'chief-of-staff-synthesis-quality', label: 'Chief of Staff synthesis quality' },
   { key: 'warm-lead-capture-trace-completeness', label: 'Warm lead trace completeness' },
@@ -52,6 +57,7 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
   const [evaluating, setEvaluating] = useState(false)
   const [shakaLoading, setShakaLoading] = useState<string | null>(null)
   const [shakaReply, setShakaReply] = useState<ShakaContextReply | null>(null)
+  const [shakaContextRef, setShakaContextRef] = useState<ShakaContextRef | null>(null)
 
   const fetchDetail = useCallback(async () => {
     setLoading(true)
@@ -131,9 +137,10 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
     }
   }
 
-  async function askShaka(contextRef: { type: 'run' | 'approval'; id: string }, message: string) {
+  async function askShaka(contextRef: ShakaContextRef, message: string) {
     setShakaLoading(`${contextRef.type}:${contextRef.id}`)
     setShakaReply(null)
+    setShakaContextRef(contextRef)
     setError(null)
     try {
       const session = await getCurrentSession()
@@ -227,7 +234,13 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
               </div>
             </div>
 
-            {shakaReply ? <ShakaContextResponse reply={shakaReply} /> : null}
+            {shakaReply ? (
+              <ShakaContextResponse
+                reply={shakaReply}
+                disabled={Boolean(shakaLoading)}
+                onSuggestedAction={(action) => askShaka(shakaContextRef ?? { type: 'run', id: runId }, action)}
+              />
+            ) : null}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               <Metric icon={<Bot size={18} />} label="Runtime" value={String(data.run.runtime ?? '-')} />
@@ -289,7 +302,15 @@ function Metric({ icon, label, value }: { icon: ReactNode; label: string; value:
   )
 }
 
-function ShakaContextResponse({ reply }: { reply: ShakaContextReply }) {
+function ShakaContextResponse({
+  reply,
+  disabled,
+  onSuggestedAction,
+}: {
+  reply: ShakaContextReply
+  disabled?: boolean
+  onSuggestedAction: (action: string) => void
+}) {
   return (
     <section className="mb-6 rounded-lg border border-radiant-gold/35 bg-radiant-gold/10 p-5">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -310,9 +331,16 @@ function ShakaContextResponse({ reply }: { reply: ShakaContextReply }) {
       {reply.suggested_actions.length ? (
         <div className="mt-3 flex flex-wrap gap-2">
           {reply.suggested_actions.map((action) => (
-            <span key={action} className="rounded-full border border-radiant-gold/30 bg-background/40 px-2.5 py-1 text-xs text-radiant-gold">
+            <button
+              key={action}
+              type="button"
+              onClick={() => onSuggestedAction(action)}
+              disabled={disabled}
+              aria-label={`Ask Shaka follow-up: ${action}`}
+              className="rounded-full border border-radiant-gold/30 bg-background/40 px-2.5 py-1 text-xs text-radiant-gold hover:bg-radiant-gold/15 focus:outline-none focus:ring-2 focus:ring-radiant-gold/50 disabled:cursor-not-allowed disabled:opacity-60"
+            >
               {action}
-            </span>
+            </button>
           ))}
         </div>
       ) : null}
