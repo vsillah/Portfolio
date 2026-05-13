@@ -545,7 +545,7 @@ export default function AgentOperationsPage() {
 
   return (
     <ProtectedRoute requireAdmin>
-      <div className="min-h-screen bg-[#06080d] p-5 text-foreground lg:p-7">
+      <div className="min-h-screen bg-background p-5 text-foreground lg:p-7">
         <div className="max-w-7xl mx-auto">
           <Breadcrumbs items={[{ label: 'Admin Dashboard', href: '/admin' }, { label: 'Agent Operations' }]} />
 
