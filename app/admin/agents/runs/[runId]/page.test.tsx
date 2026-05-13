@@ -40,6 +40,17 @@ const runDetail = {
       approval_type: 'production_config_change',
       status: 'pending',
       metadata: {
+        approval_question: 'Approve preparing a Vercel project-setting proposal packet without applying any hosted setting yet?',
+        proposal: {
+          title: 'Review Vercel queue pressure before changing project settings',
+          hypothesis: 'Queue pressure may be reduced by adjusting preview deployment policy or build concurrency.',
+          expectedImpact: 'Reduce integration-captain waiting time when queue findings repeat across sweeps.',
+          touchedFiles: ['docs/vercel-deployment-runbook.md'],
+          touchedSettings: ['Vercel project preview deployment setting'],
+          riskLevel: 'high',
+          approvalQuestion: 'Approve preparing a Vercel project-setting proposal packet without applying any hosted setting yet?',
+          evidence: ['portfolio/production: queue above threshold'],
+        },
         action_payload: {
           action: 'production_config_change',
           approval_type: 'production_config_change',
@@ -52,7 +63,25 @@ const runDetail = {
   ],
   handoffs: [],
   costs: [],
-  evaluations: [],
+  evaluations: [
+    {
+      id: 'eval-1',
+      rubric_key: 'chief-of-staff-synthesis-quality',
+      agent_key: 'chief-of-staff',
+      judge_model: 'deterministic-agent-eval-v1',
+      summary: 'Chief of Staff Synthesis Quality needs coaching at 68.00.',
+      score: 68,
+      passed: false,
+      dimension_scores: {
+        grounding: 68,
+        synthesis: 68,
+        next_actions: 68,
+        approval_gates: 68,
+      },
+      failure_reasons: ['Score 68.00 is below threshold 82.00.'],
+      created_at: '2026-05-13T12:30:00.000Z',
+    },
+  ],
   cost_total: 0,
 }
 
@@ -128,13 +157,39 @@ describe('AgentRunDetailPage scoped Shaka context', () => {
   it('asks Shaka about a pending approval from the run detail approval card', async () => {
     render(<AgentRunDetailPage params={{ runId: 'run-1' }} />)
 
-    expect(await screen.findByText('production_config_change')).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Review Vercel queue pressure before changing project settings' })).toBeInTheDocument()
+    expect(screen.getByText('Problem / opportunity')).toBeInTheDocument()
+    expect(screen.getByText('Benefits')).toBeInTheDocument()
+    expect(screen.getByText('Drawbacks')).toBeInTheDocument()
+    expect(screen.getByText('Recommendation')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Approve' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Decline' })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Ask Shaka about approval approval-1' }))
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith('/api/admin/agents/chief-of-staff/chat', expect.objectContaining({
         method: 'POST',
         body: expect.stringContaining('"context_ref":{"type":"approval","id":"approval-1"}'),
+      }))
+    })
+  })
+
+  it('asks Shaka to coach a failed evaluation', async () => {
+    render(<AgentRunDetailPage params={{ runId: 'run-1' }} />)
+
+    expect(await screen.findByText('Chief of Staff Synthesis Quality needs coaching at 68.00.')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', {
+      name: 'Ask Shaka for coaching on evaluation chief-of-staff-synthesis-quality',
+    }))
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/admin/agents/chief-of-staff/chat', expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('Coach this evaluation: chief-of-staff-synthesis-quality.'),
+      }))
+      expect(fetch).toHaveBeenCalledWith('/api/admin/agents/chief-of-staff/chat', expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('"context_ref":{"type":"run","id":"run-1"}'),
       }))
     })
   })
