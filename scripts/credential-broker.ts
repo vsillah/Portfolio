@@ -93,6 +93,7 @@ const AUDIT_DIR = path.join(ROOT, '.credential-rotation-audits')
 const VALID_ENVS: EnvironmentName[] = ['dev', 'staging', 'prod']
 const PROVIDER_READ_TIMEOUT_MS = 10_000
 const VERCEL_METADATA_TIMEOUT_MS = 15_000
+const N8N_METADATA_TIMEOUT_MS = 15_000
 
 function main() {
   const args = parseArgs(process.argv.slice(2))
@@ -525,6 +526,7 @@ function collectRuntimeSinkPresence(
   const checkedAt = new Date().toISOString()
   const localEnvKeys = readLocalEnvKeys(env)
   const vercelEnvKeys = readVercelEnvKeys(env)
+  const n8nCredentialMetadata = readN8nCredentialMetadata()
 
   return envSecrets(inventory, env).flatMap((secret) => secret.runtimeSinks.map((sink) => {
     if (sink === 'local-env') {
@@ -532,6 +534,12 @@ function collectRuntimeSinkPresence(
     }
     if (sink === 'Vercel') {
       return vercelPresenceObservation(secret, sink, checkedAt, vercelEnvKeys)
+    }
+    if (sink === 'n8n Variables') {
+      return n8nVariablePresenceObservation(secret, sink, checkedAt)
+    }
+    if (sink === 'n8n Credentials') {
+      return n8nCredentialPresenceObservation(secret, sink, checkedAt, n8nCredentialMetadata)
     }
 
     return {
@@ -543,6 +551,144 @@ function collectRuntimeSinkPresence(
       checkedAt,
     } satisfies CredentialSinkPresenceObservation
   }))
+}
+
+type N8nCredentialMetadata = {
+  unavailableReason: string | null
+  credentials: Array<{ name: string; type: string }>
+}
+
+function readN8nCredentialMetadata(): N8nCredentialMetadata {
+  const apiKey = process.env.N8N_API_KEY
+  const baseUrl = (process.env.N8N_BASE_URL || 'https://amadutown.app.n8n.cloud').replace(/\/$/, '')
+
+  if (!apiKey) {
+    return {
+      unavailableReason: 'n8n credential metadata unavailable because N8N_API_KEY is not set.',
+      credentials: [],
+    }
+  }
+
+  const script = `
+const baseUrl = process.env.N8N_BASE_URL || 'https://amadutown.app.n8n.cloud';
+const apiKey = process.env.N8N_API_KEY;
+(async () => {
+  const response = await fetch(baseUrl.replace(/\\/$/, '') + '/api/v1/credentials', {
+    headers: { 'X-N8N-API-KEY': apiKey, Accept: 'application/json' },
+  });
+  if (!response.ok) process.exit(1);
+  const body = await response.json();
+  const items = Array.isArray(body) ? body : Array.isArray(body.data) ? body.data : [];
+  const credentials = items.map((item) => ({ name: String(item.name || ''), type: String(item.type || '') }));
+  console.log(JSON.stringify({ credentials }));
+})().catch(() => process.exit(1));
+`
+  const result = spawnSync(process.execPath, ['-e', script], {
+    cwd: ROOT,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    env: { ...process.env, N8N_BASE_URL: baseUrl, N8N_API_KEY: apiKey },
+    timeout: N8N_METADATA_TIMEOUT_MS,
+  })
+
+  if (result.status !== 0) {
+    return {
+      unavailableReason: 'n8n credential metadata unavailable. Authenticate N8N_API_KEY and confirm read access to /api/v1/credentials.',
+      credentials: [],
+    }
+  }
+
+  try {
+    const parsed = JSON.parse(result.stdout) as { credentials?: Array<{ name?: string; type?: string }> }
+    return {
+      unavailableReason: null,
+      credentials: (parsed.credentials ?? []).map((credential) => ({
+        name: credential.name ?? '',
+        type: credential.type ?? '',
+      })),
+    }
+  } catch {
+    return {
+      unavailableReason: 'n8n credential metadata returned invalid JSON after value-free reduction.',
+      credentials: [],
+    }
+  }
+}
+
+function n8nVariablePresenceObservation(
+  secret: CredentialSecret,
+  sink: string,
+  checkedAt: string
+): CredentialSinkPresenceObservation {
+  return {
+    secretId: secret.id,
+    envVar: secret.envVar,
+    sink,
+    status: 'unknown',
+    evidence: 'n8n variable metadata was not checked because the variables API may include secret values. Use a future key-only adapter or approved sanitized export.',
+    checkedAt,
+  }
+}
+
+function n8nCredentialPresenceObservation(
+  secret: CredentialSecret,
+  sink: string,
+  checkedAt: string,
+  metadata: N8nCredentialMetadata
+): CredentialSinkPresenceObservation {
+  if (metadata.unavailableReason) {
+    return {
+      secretId: secret.id,
+      envVar: secret.envVar,
+      sink,
+      status: 'unavailable',
+      evidence: metadata.unavailableReason,
+      checkedAt,
+    }
+  }
+
+  const keys = n8nCredentialReferenceKeys(secret).map((key) => key.toLowerCase())
+  const matches = metadata.credentials.filter((credential) => {
+    const name = credential.name.toLowerCase()
+    const type = credential.type.toLowerCase()
+    return keys.some((key) => name === key || type === key || name.includes(key) || type.includes(key))
+  })
+
+  if (matches.length > 0) {
+    return {
+      secretId: secret.id,
+      envVar: secret.envVar,
+      sink,
+      status: 'present',
+      evidence: `Found n8n credential metadata for ${secret.envVar}: ${formatReferenceList(matches.map((credential) => `${credential.name || 'unnamed'}:${credential.type || 'unknown'}`))}.`,
+      checkedAt,
+    }
+  }
+
+  return {
+    secretId: secret.id,
+    envVar: secret.envVar,
+    sink,
+    status: 'missing',
+    evidence: `No n8n credential metadata matched ${secret.envVar}.`,
+    checkedAt,
+  }
+}
+
+function n8nCredentialReferenceKeys(secret: CredentialSecret): string[] {
+  const keys: Record<string, string[]> = {
+    ANTHROPIC_API_KEY: ['anthropicApi', 'anthropic api key', 'anthropic account'],
+    APIFY_API_TOKEN: ['apifyApi', 'apify account'],
+    OPENAI_API_KEY: ['openAiApi', 'openai account', 'openai staging account'],
+    OPENROUTER_API_KEY: ['openRouterApi', 'openrouter account', 'openrouter api'],
+  }
+  return keys[secret.envVar] ?? [secret.envVar.toLowerCase(), secret.displayName.toLowerCase()]
+}
+
+function formatReferenceList(references: string[]): string {
+  const displayed = references.slice(0, 4)
+  const suffix = references.length > displayed.length ? ` and ${references.length - displayed.length} more` : ''
+  return `${displayed.join(', ')}${suffix}`
 }
 
 function vercelTargetForEnv(env: EnvironmentName): 'development' | 'preview' | 'production' {
