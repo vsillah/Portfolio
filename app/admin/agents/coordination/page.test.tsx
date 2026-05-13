@@ -257,6 +257,30 @@ describe('AgentCoordinationPage decision queue controller', () => {
     }))
   })
 
+  it('sends suggested Shaka actions as approval-scoped follow-up prompts', async () => {
+    render(<AgentCoordinationPage />)
+
+    expect(await screen.findByText('Vercel AutoResearch approvals decision queue')).toBeInTheDocument()
+    const approvalCardElement = screen.getByText('Approve a read-only/local build-profile experiment?').closest('article')
+    expect(approvalCardElement).not.toBeNull()
+
+    fireEvent.click(within(approvalCardElement as HTMLElement).getByRole('button', { name: 'Ask Shaka' }))
+    expect(await screen.findByRole('button', { name: 'Ask Shaka follow-up: Open evidence' })).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ask Shaka follow-up: Open evidence' }))
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/admin/agents/chief-of-staff/chat', expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('"message":"Open evidence"'),
+      }))
+      expect(fetch).toHaveBeenCalledWith('/api/admin/agents/chief-of-staff/chat', expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('"context_ref":{"type":"approval","id":"approval-1"}'),
+      }))
+    })
+  })
+
   it('runs the Moremi operational drill and shows the Slack verification command', async () => {
     render(<AgentCoordinationPage />)
 

@@ -122,6 +122,7 @@ function AgentCoordinationContent() {
   const [vercelResearchApprovals, setVercelResearchApprovals] = useState<VercelResearchApprovalCard[]>([])
   const [moremiDrillResult, setMoremiDrillResult] = useState<MoremiOperationalDrillResult | null>(null)
   const [shakaReply, setShakaReply] = useState<ShakaContextReply | null>(null)
+  const [shakaContextRef, setShakaContextRef] = useState<ShakaContextRef | null>(null)
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -296,6 +297,7 @@ function AgentCoordinationContent() {
   async function askShaka(message: string, contextRef: ShakaContextRef) {
     setActionId(`shaka:${contextRef.type}:${contextRef.id}`)
     setShakaReply(null)
+    setShakaContextRef(contextRef)
     setError(null)
     try {
       const response = await authedFetch('/api/admin/agents/chief-of-staff/chat', {
@@ -377,7 +379,13 @@ function AgentCoordinationContent() {
           onRun={runMoremiOperationalDrill}
         />
 
-        {shakaReply ? <ShakaContextResponse reply={shakaReply} /> : null}
+        {shakaReply && shakaContextRef ? (
+          <ShakaContextResponse
+            reply={shakaReply}
+            disabled={Boolean(actionId)}
+            onSuggestedAction={(action) => askShaka(action, shakaContextRef)}
+          />
+        ) : null}
 
         <section className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
           <div className="mb-4 flex flex-col gap-3">
@@ -548,7 +556,15 @@ function MoremiOperationalDrillPanel({
   )
 }
 
-function ShakaContextResponse({ reply }: { reply: ShakaContextReply }) {
+function ShakaContextResponse({
+  reply,
+  disabled,
+  onSuggestedAction,
+}: {
+  reply: ShakaContextReply
+  disabled?: boolean
+  onSuggestedAction: (action: string) => void
+}) {
   return (
     <section className="mb-6 rounded-lg border border-radiant-gold/35 bg-radiant-gold/10 p-4">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -570,9 +586,16 @@ function ShakaContextResponse({ reply }: { reply: ShakaContextReply }) {
       {reply.suggested_actions.length ? (
         <div className="mt-3 flex flex-wrap gap-2">
           {reply.suggested_actions.map((action) => (
-            <span key={action} className="rounded-full border border-radiant-gold/30 bg-background/40 px-2.5 py-1 text-xs text-radiant-gold">
+            <button
+              key={action}
+              type="button"
+              onClick={() => onSuggestedAction(action)}
+              disabled={disabled}
+              aria-label={`Ask Shaka follow-up: ${action}`}
+              className="rounded-full border border-radiant-gold/30 bg-background/40 px-2.5 py-1 text-xs text-radiant-gold hover:bg-radiant-gold/15 focus:outline-none focus:ring-2 focus:ring-radiant-gold/50 disabled:cursor-not-allowed disabled:opacity-60"
+            >
               {action}
-            </span>
+            </button>
           ))}
         </div>
       ) : null}

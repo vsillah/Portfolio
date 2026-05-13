@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import Link from 'next/link'
-import { AlertTriangle, ArrowLeft, Bot, DollarSign, FileText, Gauge, MessageSquare, RefreshCw } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Bot, CheckCircle2, DollarSign, FileText, Gauge, MessageSquare, RefreshCw, XCircle } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
@@ -26,6 +26,11 @@ type ShakaContextReply = {
   run_id: string
   reply: string
   suggested_actions: string[]
+}
+
+type ShakaContextRef = {
+  type: 'run' | 'approval'
+  id: string
 }
 
 const RUBRIC_OPTIONS = [
@@ -52,6 +57,7 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
   const [evaluating, setEvaluating] = useState(false)
   const [shakaLoading, setShakaLoading] = useState<string | null>(null)
   const [shakaReply, setShakaReply] = useState<ShakaContextReply | null>(null)
+  const [shakaContextRef, setShakaContextRef] = useState<ShakaContextRef | null>(null)
 
   const fetchDetail = useCallback(async () => {
     setLoading(true)
@@ -131,9 +137,10 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
     }
   }
 
-  async function askShaka(contextRef: { type: 'run' | 'approval'; id: string }, message: string) {
+  async function askShaka(contextRef: ShakaContextRef, message: string) {
     setShakaLoading(`${contextRef.type}:${contextRef.id}`)
     setShakaReply(null)
+    setShakaContextRef(contextRef)
     setError(null)
     try {
       const session = await getCurrentSession()
@@ -227,7 +234,13 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
               </div>
             </div>
 
-            {shakaReply ? <ShakaContextResponse reply={shakaReply} /> : null}
+            {shakaReply ? (
+              <ShakaContextResponse
+                reply={shakaReply}
+                disabled={Boolean(shakaLoading)}
+                onSuggestedAction={(action) => askShaka(shakaContextRef ?? { type: 'run', id: runId }, action)}
+              />
+            ) : null}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               <Metric icon={<Bot size={18} />} label="Runtime" value={String(data.run.runtime ?? '-')} />
@@ -238,7 +251,14 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
 
             <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5 mb-6">
               <h2 className="text-lg font-semibold mb-4">Evaluations</h2>
-              <EvaluationList rows={data.evaluations} />
+              <EvaluationList
+                rows={data.evaluations}
+                disabled={Boolean(shakaLoading)}
+                onCoach={(row) => askShaka(
+                  { type: 'run', id: runId },
+                  evaluationCoachingPrompt(row),
+                )}
+              />
             </section>
 
             <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5 mb-6">
@@ -251,24 +271,22 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
               <Timeline rows={data.events} timeKey="occurred_at" titleKey="event_type" detailKey="message" fallback="No events recorded yet." />
             </section>
 
+            <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5 mb-6">
+              <h2 className="text-lg font-semibold mb-4">Approval Decision</h2>
+              <ApprovalDecisionList
+                rows={data.approvals}
+                onDecision={decideApproval}
+                onAskShaka={(approvalId) => askShaka(
+                  { type: 'approval', id: approvalId },
+                  'Should I approve or reject this approval? Summarize the problem or opportunity, benefits, drawbacks, recommendation, evidence, and safest next step.',
+                )}
+                shakaLoading={shakaLoading}
+              />
+            </section>
+
             <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
-              <h2 className="text-lg font-semibold mb-4">Artifacts & Approvals</h2>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <List rows={data.artifacts} titleKey="title" fallbackTitle="Artifact" detailKey="artifact_type" empty="No artifacts attached." />
-                <List
-                  rows={data.approvals}
-                  titleKey="approval_type"
-                  fallbackTitle="Approval"
-                  detailKey="status"
-                  empty="No approvals recorded."
-                  onDecision={decideApproval}
-                  onAskShaka={(approvalId) => askShaka(
-                    { type: 'approval', id: approvalId },
-                    'Should I approve or reject this approval? Summarize the action required, risk, evidence, and safest next step.',
-                  )}
-                  shakaLoading={shakaLoading}
-                />
-              </div>
+              <h2 className="text-lg font-semibold mb-4">Artifacts</h2>
+              <List rows={data.artifacts} titleKey="title" fallbackTitle="Artifact" detailKey="artifact_type" empty="No artifacts attached." />
             </section>
           </>
         ) : null}
@@ -289,7 +307,15 @@ function Metric({ icon, label, value }: { icon: ReactNode; label: string; value:
   )
 }
 
-function ShakaContextResponse({ reply }: { reply: ShakaContextReply }) {
+function ShakaContextResponse({
+  reply,
+  disabled,
+  onSuggestedAction,
+}: {
+  reply: ShakaContextReply
+  disabled?: boolean
+  onSuggestedAction: (action: string) => void
+}) {
   return (
     <section className="mb-6 rounded-lg border border-radiant-gold/35 bg-radiant-gold/10 p-5">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -310,9 +336,16 @@ function ShakaContextResponse({ reply }: { reply: ShakaContextReply }) {
       {reply.suggested_actions.length ? (
         <div className="mt-3 flex flex-wrap gap-2">
           {reply.suggested_actions.map((action) => (
-            <span key={action} className="rounded-full border border-radiant-gold/30 bg-background/40 px-2.5 py-1 text-xs text-radiant-gold">
+            <button
+              key={action}
+              type="button"
+              onClick={() => onSuggestedAction(action)}
+              disabled={disabled}
+              aria-label={`Ask Shaka follow-up: ${action}`}
+              className="rounded-full border border-radiant-gold/30 bg-background/40 px-2.5 py-1 text-xs text-radiant-gold hover:bg-radiant-gold/15 focus:outline-none focus:ring-2 focus:ring-radiant-gold/50 disabled:cursor-not-allowed disabled:opacity-60"
+            >
               {action}
-            </span>
+            </button>
           ))}
         </div>
       ) : null}
@@ -338,7 +371,15 @@ function Timeline({ rows, timeKey, titleKey, detailKey, fallback }: { rows: AnyR
   )
 }
 
-function EvaluationList({ rows }: { rows: AnyRow[] }) {
+function EvaluationList({
+  rows,
+  disabled,
+  onCoach,
+}: {
+  rows: AnyRow[]
+  disabled?: boolean
+  onCoach: (row: AnyRow) => void
+}) {
   if (rows.length === 0) {
     return <p className="text-sm text-muted-foreground">No rubric evaluations recorded yet.</p>
   }
@@ -387,9 +428,143 @@ function EvaluationList({ rows }: { rows: AnyRow[] }) {
                 ))}
               </div>
             ) : null}
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => onCoach(row)}
+                disabled={disabled}
+                aria-label={`Ask Shaka for coaching on evaluation ${String(row.rubric_key ?? 'rubric')}`}
+                className="inline-flex items-center gap-2 rounded-md border border-radiant-gold/40 bg-radiant-gold/10 px-3 py-1.5 text-xs font-medium text-radiant-gold hover:bg-radiant-gold/20 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <MessageSquare size={13} />
+                Coach this evaluation
+              </button>
+            </div>
           </div>
         )
       })}
+    </div>
+  )
+}
+
+function ApprovalDecisionList({
+  rows,
+  onDecision,
+  onAskShaka,
+  shakaLoading,
+}: {
+  rows: AnyRow[]
+  onDecision: (approvalId: string, status: 'approved' | 'rejected') => void
+  onAskShaka: (approvalId: string) => void
+  shakaLoading?: string | null
+}) {
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+
+  if (rows.length === 0) {
+    return <p className="text-sm text-muted-foreground">No approvals recorded.</p>
+  }
+
+  return (
+    <div className="space-y-4">
+      {rows.map((row) => {
+        const id = typeof row.id === 'string' ? row.id : String(row.id)
+        const summary = approvalExecutiveSummary(row)
+        const pending = row.status === 'pending'
+        const expanded = expandedId === id
+
+        return (
+          <article key={id} className="rounded-lg border border-silicon-slate/60 bg-background/45 p-4">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-base font-semibold">{summary.title}</h3>
+                  <span className={`rounded-full border px-2 py-0.5 text-xs ${pending ? 'border-yellow-400/40 bg-yellow-500/10 text-yellow-100' : 'border-silicon-slate/60 bg-silicon-slate/30 text-muted-foreground'}`}>
+                    {String(row.status ?? 'unknown').replace(/_/g, ' ')}
+                  </span>
+                  <span className="rounded-full border border-silicon-slate/60 bg-black/10 px-2 py-0.5 text-xs text-muted-foreground">
+                    Risk: {summary.risk}
+                  </span>
+                </div>
+                <p className="mt-1 text-sm text-muted-foreground">{summary.actionRequired}</p>
+              </div>
+              {pending ? (
+                <div className="flex shrink-0 flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => onDecision(id, 'approved')}
+                    className="inline-flex items-center gap-2 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm font-medium text-emerald-200 hover:bg-emerald-500/20"
+                  >
+                    <CheckCircle2 size={15} />
+                    Approve
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onDecision(id, 'rejected')}
+                    className="inline-flex items-center gap-2 rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm font-medium text-red-200 hover:bg-red-500/20"
+                  >
+                    <XCircle size={15} />
+                    Decline
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onAskShaka(id)}
+                    disabled={shakaLoading === `approval:${id}`}
+                    aria-label={`Ask Shaka about approval ${id}`}
+                    className="inline-flex items-center gap-2 rounded-md border border-radiant-gold/40 bg-radiant-gold/10 px-3 py-2 text-sm font-medium text-radiant-gold hover:bg-radiant-gold/20 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <MessageSquare size={15} />
+                    {shakaLoading === `approval:${id}` ? 'Asking...' : 'Ask Shaka'}
+                  </button>
+                </div>
+              ) : null}
+            </div>
+
+            <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
+              <DecisionBlock label="Problem / opportunity" value={summary.problem} />
+              <DecisionBlock label="Benefits" value={summary.benefits} />
+              <DecisionBlock label="Drawbacks" value={summary.drawbacks} />
+              <DecisionBlock label="Recommendation" value={summary.recommendation} emphasis />
+            </div>
+
+            {summary.evidence.length ? (
+              <div className="mt-4 rounded-md border border-silicon-slate/50 bg-black/10 p-3">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Evidence</p>
+                <ul className="mt-2 space-y-1 text-sm text-foreground/85">
+                  {summary.evidence.slice(0, 4).map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setExpandedId(expanded ? null : id)}
+                className="text-sm text-radiant-gold hover:underline"
+              >
+                {expanded ? 'Hide decision packet' : 'Show decision packet'}
+              </button>
+              {row.url ? <a className="text-sm text-radiant-gold hover:underline" href={String(row.url)}>Open source</a> : null}
+            </div>
+
+            {expanded && rowSummary(row) ? (
+              <pre className="mt-3 max-h-80 overflow-auto whitespace-pre-wrap rounded-md bg-black/20 p-3 text-xs text-muted-foreground">
+                {rowSummary(row)}
+              </pre>
+            ) : null}
+          </article>
+        )
+      })}
+    </div>
+  )
+}
+
+function DecisionBlock({ label, value, emphasis }: { label: string; value: string; emphasis?: boolean }) {
+  return (
+    <div className={`rounded-md border p-3 ${emphasis ? 'border-radiant-gold/30 bg-radiant-gold/10' : 'border-silicon-slate/50 bg-black/10'}`}>
+      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className="mt-1 text-sm text-foreground/90">{value}</p>
     </div>
   )
 }
@@ -471,6 +646,90 @@ function formatDate(value?: string) {
 
 function asString(value: unknown): string | undefined {
   return typeof value === 'string' ? value : undefined
+}
+
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {}
+}
+
+function asStringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0) : []
+}
+
+function formatLabel(value: unknown, fallback = '-'): string {
+  if (typeof value !== 'string' || value.length === 0) return fallback
+  return value.replace(/_/g, ' ')
+}
+
+function evaluationCoachingPrompt(row: AnyRow): string {
+  const dimensions = row.dimension_scores && typeof row.dimension_scores === 'object'
+    ? Object.entries(row.dimension_scores as Record<string, unknown>)
+      .map(([key, value]) => `${key}: ${Number(value).toFixed(1)}`)
+      .join(', ')
+    : 'No dimension scores recorded.'
+  const reasons = asStringArray(row.failure_reasons).join('; ') || 'No failure reasons recorded.'
+
+  return [
+    `Coach this evaluation: ${String(row.rubric_key ?? 'rubric')}.`,
+    `Score: ${String(row.score ?? '-')}. Passed: ${row.passed === true ? 'yes' : 'no'}.`,
+    `Summary: ${String(row.summary ?? '-')}.`,
+    `Dimensions: ${dimensions}.`,
+    `Failure reasons: ${reasons}.`,
+    'Explain what needs to improve, which agent or workflow should handle it, and the safest next action.',
+  ].join('\n')
+}
+
+function approvalExecutiveSummary(row: AnyRow) {
+  const metadata = asRecord(row.metadata)
+  const proposal = asRecord(metadata.proposal)
+  const actionPayload = asRecord(metadata.action_payload)
+  const evidence = asStringArray(proposal.evidence)
+  const touchedSettings = asStringArray(proposal.touchedSettings)
+  const touchedFiles = asStringArray(proposal.touchedFiles)
+  const approvalQuestion = typeof metadata.approval_question === 'string' ? metadata.approval_question : null
+  const executesAction = actionPayload.executes_action === true
+  const risk = String(proposal.riskLevel ?? metadata.risk_level ?? metadata.risk ?? actionPayload.risk_level ?? 'not specified')
+  const title = String(proposal.title ?? row.approval_type ?? 'Approval checkpoint')
+  const action = formatLabel(actionPayload.action, formatLabel(row.approval_type, 'approval checkpoint'))
+
+  const problem = String(
+    proposal.hypothesis
+      ?? approvalQuestion
+      ?? metadata.problem_statement
+      ?? `A human decision is required before ${action}.`,
+  )
+  const benefits = String(
+    proposal.expectedImpact
+      ?? metadata.benefits
+      ?? 'Approving lets the agent proceed through the existing gated workflow with a recorded decision.',
+  )
+  const drawbacksParts = [
+    risk !== 'not specified' ? `Risk level is ${risk}.` : null,
+    touchedSettings.length ? `Touches settings: ${touchedSettings.join(', ')}.` : null,
+    touchedFiles.length ? `Touches files: ${touchedFiles.slice(0, 4).join(', ')}.` : null,
+    executesAction ? 'This approval can authorize a follow-up action.' : 'This checkpoint does not execute the action by itself.',
+  ].filter((part): part is string => Boolean(part))
+  const recommendation = String(
+    metadata.recommendation
+      ?? proposal.approvalQuestion
+      ?? approvalQuestion
+      ?? (executesAction
+        ? 'Approve only after the evidence and risk boundary are clear; decline if the trace is incomplete.'
+        : 'Approve if the proposal should move to the next scoped step; decline if the evidence is incomplete or the risk boundary is unclear.'),
+  )
+
+  return {
+    title,
+    actionRequired: `Action required: ${action}.`,
+    problem,
+    benefits,
+    drawbacks: drawbacksParts.join(' '),
+    recommendation,
+    risk,
+    evidence,
+  }
 }
 
 function rowSummary(row: AnyRow): string | null {
