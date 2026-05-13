@@ -210,7 +210,7 @@ export interface OpenBrainProposalInput {
 }
 
 const DEFAULT_OPEN_BRAIN_HOME = path.join(homedir(), '.open-brain')
-const PORTFOLIO_ROOT = '/Users/vambahsillah/Projects/Portfolio'
+const PORTFOLIO_ROOT = path.resolve(process.env.OPEN_BRAIN_PORTFOLIO_ROOT || process.cwd())
 const PROPOSALS_FILE = 'proposals.json'
 const MEMORIES_FILE = 'memories.json'
 const SOURCES_FILE = 'sources.json'

@@ -6,6 +6,7 @@ This document defines the Portfolio-facing contract for the local Open Brain. Th
 
 - Primary memory owner: local Open Brain service outside the Portfolio repo.
 - Default local home: `OPEN_BRAIN_HOME=~/.open-brain`.
+- Portfolio source root: defaults to the current repo working directory; set `OPEN_BRAIN_PORTFOLIO_ROOT=/path/to/Portfolio` when launching the MCP server or projection scripts from another directory.
 - Later storage target: local Postgres with pgvector.
 - Local fallback for V1 development: `OPEN_BRAIN_HOME` JSON files for sources, events, links, proposals, and approved memories.
 - Optional projection: Portfolio Admin at `/admin/agents/open-brain`.
