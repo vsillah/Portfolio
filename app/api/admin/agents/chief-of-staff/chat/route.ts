@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import {
   normalizeChiefOfStaffHistory,
+  normalizeChiefOfStaffContextRef,
   runChiefOfStaffChat,
   type ChiefOfStaffChatMessage,
 } from '@/lib/chief-of-staff-chat'
@@ -22,7 +23,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: auth.error }, { status: auth.status })
   }
 
-  let body: { message?: unknown; history?: unknown }
+  let body: { message?: unknown; history?: unknown; context_ref?: unknown }
   try {
     body = await request.json()
   } catch {
@@ -37,12 +38,17 @@ export async function POST(request: NextRequest) {
   const history = Array.isArray(body.history)
     ? normalizeChiefOfStaffHistory(body.history as ChiefOfStaffChatMessage[])
     : []
+  const contextRef = normalizeChiefOfStaffContextRef(body.context_ref)
+  if (body.context_ref !== undefined && !contextRef) {
+    return NextResponse.json({ error: 'Invalid context_ref' }, { status: 400 })
+  }
 
   try {
     const result = await runChiefOfStaffChat({
       message,
       history,
       userId: auth.user.id,
+      contextRef,
     })
 
     return NextResponse.json({

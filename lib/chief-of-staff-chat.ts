@@ -27,11 +27,17 @@ export type ChiefOfStaffChatMessage = {
   content: string
 }
 
+export type ChiefOfStaffContextRef = {
+  type: 'run' | 'work_item' | 'approval'
+  id: string
+}
+
 export type ChiefOfStaffChatRequest = {
   message: string
   history?: ChiefOfStaffChatMessage[]
   userId?: string
   triggerSource?: string
+  contextRef?: ChiefOfStaffContextRef | null
 }
 
 export type ChiefOfStaffChatResponse = {
@@ -122,6 +128,7 @@ export type ChiefOfStaffContext = {
   activeRuns: AgentRunSummaryRow[]
   recentFailures: AgentRunSummaryRow[]
   pendingApprovals: AgentApprovalSummaryRow[]
+  scopedContext: ChiefOfStaffScopedContext | null
   costEvents24h: {
     count: number
     totalUsd: number
@@ -141,6 +148,20 @@ export type ChiefOfStaffAgentRoutingEntry = {
   engagementPath: string
   approvalGate: string
   activeWorkflowCount: number
+}
+
+export type ChiefOfStaffScopedContext = {
+  ref: ChiefOfStaffContextRef
+  available: boolean
+  label: string
+  summary: string
+  actionRequired: boolean
+  recommendation: string
+  riskStatus: string
+  owner: string | null
+  status: string | null
+  evidenceLinks: string[]
+  records: Record<string, unknown>
 }
 
 const DEFAULT_MODEL = 'gpt-4o-mini'
@@ -215,6 +236,15 @@ export function normalizeChiefOfStaffHistory(
     .slice(-8)
 }
 
+export function normalizeChiefOfStaffContextRef(value: unknown): ChiefOfStaffContextRef | null {
+  if (!value || typeof value !== 'object') return null
+  const record = value as Record<string, unknown>
+  const type = record.type
+  const id = typeof record.id === 'string' ? record.id.trim() : ''
+  if ((type !== 'run' && type !== 'work_item' && type !== 'approval') || !id) return null
+  return { type, id: id.slice(0, 160) }
+}
+
 export function getChiefOfStaffTriggeredByUserId(userId: string | undefined) {
   if (!userId) return null
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)
@@ -224,6 +254,133 @@ export function getChiefOfStaffTriggeredByUserId(userId: string | undefined) {
 
 function isAgentAction(value: unknown): value is AgentAction {
   return typeof value === 'string' && CHIEF_OF_STAFF_ACTIONS.includes(value as AgentAction)
+}
+
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {}
+}
+
+function compactValue(value: unknown): unknown {
+  if (typeof value === 'string') return value.length > 900 ? `${value.slice(0, 900)}...` : value
+  if (Array.isArray(value)) return value.slice(0, 8).map(compactValue)
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .slice(0, 20)
+        .map(([key, item]) => [key, compactValue(item)]),
+    )
+  }
+  return value
+}
+
+function pickCompactRecord(row: unknown, keys: string[]): Record<string, unknown> | null {
+  if (!row || typeof row !== 'object') return null
+  const record = row as Record<string, unknown>
+  return Object.fromEntries(
+    keys
+      .filter((key) => key in record)
+      .map((key) => [key, compactValue(record[key])]),
+  )
+}
+
+function statusRequiresAction(status: unknown) {
+  return typeof status === 'string' && [
+    'pending',
+    'queued',
+    'running',
+    'waiting_for_approval',
+    'failed',
+    'stale',
+    'blocked',
+    'ready_for_review',
+    'ready_for_merge',
+    'proposed',
+  ].includes(status)
+}
+
+function scopedUnavailable(ref: ChiefOfStaffContextRef, label: string): ChiefOfStaffScopedContext {
+  return {
+    ref,
+    available: false,
+    label,
+    summary: 'The requested context was not found or is not available to Shaka.',
+    actionRequired: false,
+    recommendation: 'Refresh the page and confirm the source record still exists before taking action.',
+    riskStatus: 'unknown',
+    owner: null,
+    status: null,
+    evidenceLinks: [],
+    records: {},
+  }
+}
+
+export function buildChiefOfStaffScopedContextFromRows(input: {
+  ref: ChiefOfStaffContextRef
+  run?: Record<string, unknown> | null
+  workItem?: Record<string, unknown> | null
+  approval?: Record<string, unknown> | null
+  steps?: Record<string, unknown>[]
+  events?: Record<string, unknown>[]
+}): ChiefOfStaffScopedContext {
+  const run = input.run ?? null
+  const workItem = input.workItem ?? null
+  const approval = input.approval ?? null
+  const primary = input.ref.type === 'run' ? run : input.ref.type === 'work_item' ? workItem : approval
+  if (!primary) {
+    return scopedUnavailable(input.ref, `${input.ref.type.replace(/_/g, ' ')} ${input.ref.id}`)
+  }
+
+  const status = String(primary.status ?? run?.status ?? workItem?.status ?? approval?.status ?? '')
+  const title = String(primary.title ?? primary.approval_type ?? primary.id ?? input.ref.id)
+  const owner = String(workItem?.owner_agent_key ?? run?.agent_key ?? run?.runtime ?? '') || null
+  const actionRequired = statusRequiresAction(status)
+  const riskStatus = String(
+    asRecord(workItem?.metadata).risk
+      ?? asRecord(approval?.metadata).risk_level
+      ?? asRecord(approval?.metadata).risk
+      ?? (approval ? approval.approval_type : null)
+      ?? (status === 'failed' || status === 'stale' || status === 'blocked' ? 'elevated' : 'normal'),
+  )
+  const recommendation = String(
+    asRecord(workItem?.metadata).recommendation
+      ?? workItem?.validation_summary
+      ?? (approval && approval.status === 'pending' ? 'Review the approval payload, trace evidence, and risk boundary before approving or rejecting.' : null)
+      ?? (run && (run.status === 'failed' || run.status === 'stale') ? 'Inspect the latest events and route recovery through the existing Agent Ops approval path.' : null)
+      ?? 'Summarize the evidence, confirm whether action is required, and keep any mutation behind the existing approval gates.'
+  )
+
+  const evidenceLinks = Array.from(new Set([
+    run?.id ? `/admin/agents/runs/${String(run.id)}` : null,
+    workItem?.id ? '/admin/agents/coordination' : null,
+    approval?.run_id ? `/admin/agents/runs/${String(approval.run_id)}` : null,
+  ].filter((link): link is string => Boolean(link))))
+
+  const summaryParts = [
+    `${input.ref.type.replace(/_/g, ' ')}: ${title}`,
+    status ? `status: ${status}` : null,
+    owner ? `owner: ${owner}` : null,
+    actionRequired ? 'action required' : 'no immediate action indicated',
+  ].filter(Boolean)
+
+  return {
+    ref: input.ref,
+    available: true,
+    label: title,
+    summary: summaryParts.join(' / '),
+    actionRequired,
+    recommendation,
+    riskStatus,
+    owner,
+    status: status || null,
+    evidenceLinks,
+    records: {
+      run: pickCompactRecord(run, ['id', 'agent_key', 'runtime', 'kind', 'title', 'status', 'current_step', 'error_message', 'started_at', 'completed_at', 'outcome', 'metadata']),
+      workItem: pickCompactRecord(workItem, ['id', 'title', 'objective', 'status', 'priority', 'owner_agent_key', 'owner_runtime', 'active_run_id', 'approval_id', 'branch_name', 'pr_url', 'blocker_summary', 'validation_summary', 'metadata', 'updated_at']),
+      approval: pickCompactRecord(approval, ['id', 'run_id', 'approval_type', 'status', 'requested_by', 'requested_at', 'decided_at', 'decision_notes', 'metadata']),
+      latestSteps: (input.steps ?? []).slice(0, 5).map((step) => pickCompactRecord(step, ['id', 'step_key', 'name', 'status', 'output_summary', 'started_at', 'completed_at'])),
+      latestEvents: (input.events ?? []).slice(-5).map((event) => pickCompactRecord(event, ['id', 'event_type', 'severity', 'message', 'occurred_at', 'metadata'])),
+    },
+  }
 }
 
 function parseRiskLevel(value: unknown, requiresApproval: boolean): ChiefOfStaffActionProposal['riskLevel'] {
@@ -452,6 +609,7 @@ export async function collectChiefOfStaffContext(): Promise<ChiefOfStaffContext>
     activeRuns: (activeRes.data ?? []) as AgentRunSummaryRow[],
     recentFailures: (failedRes.data ?? []) as AgentRunSummaryRow[],
     pendingApprovals: (approvalsRes.data ?? []) as AgentApprovalSummaryRow[],
+    scopedContext: null,
     costEvents24h: {
       count: costRows.length,
       totalUsd: Number(totalUsd.toFixed(4)),
@@ -462,6 +620,80 @@ export async function collectChiefOfStaffContext(): Promise<ChiefOfStaffContext>
   }
 }
 
+export async function collectChiefOfStaffScopedContext(
+  contextRef: ChiefOfStaffContextRef | null | undefined,
+): Promise<ChiefOfStaffScopedContext | null> {
+  if (!contextRef) return null
+  const db = assertDatabase()
+
+  if (contextRef.type === 'run') {
+    const runRes = await db.from('agent_runs').select('*').eq('id', contextRef.id).maybeSingle()
+    if (runRes.error) throw new Error(runRes.error.message)
+    if (!runRes.data) return scopedUnavailable(contextRef, `run ${contextRef.id}`)
+
+    const [stepsRes, eventsRes, approvalsRes, workItemsRes] = await Promise.all([
+      db.from('agent_run_steps').select('*').eq('run_id', contextRef.id).order('started_at', { ascending: true }).limit(8),
+      db.from('agent_run_events').select('*').eq('run_id', contextRef.id).order('occurred_at', { ascending: true }).limit(12),
+      db.from('agent_approvals').select('*').eq('run_id', contextRef.id).order('requested_at', { ascending: false }).limit(5),
+      db.from('agent_work_items').select('*').eq('active_run_id', contextRef.id).order('updated_at', { ascending: false }).limit(1),
+    ])
+    for (const result of [stepsRes, eventsRes, approvalsRes, workItemsRes]) {
+      if (result.error) throw new Error(result.error.message)
+    }
+    return buildChiefOfStaffScopedContextFromRows({
+      ref: contextRef,
+      run: runRes.data as Record<string, unknown>,
+      workItem: ((workItemsRes.data ?? [])[0] ?? null) as Record<string, unknown> | null,
+      approval: ((approvalsRes.data ?? [])[0] ?? null) as Record<string, unknown> | null,
+      steps: (stepsRes.data ?? []) as Record<string, unknown>[],
+      events: (eventsRes.data ?? []) as Record<string, unknown>[],
+    })
+  }
+
+  if (contextRef.type === 'work_item') {
+    const workItemRes = await db.from('agent_work_items').select('*').eq('id', contextRef.id).maybeSingle()
+    if (workItemRes.error) throw new Error(workItemRes.error.message)
+    const workItem = (workItemRes.data ?? null) as Record<string, unknown> | null
+    if (!workItem) return scopedUnavailable(contextRef, `work item ${contextRef.id}`)
+
+    const activeRunId = typeof workItem.active_run_id === 'string' ? workItem.active_run_id : null
+    const approvalId = typeof workItem.approval_id === 'string' ? workItem.approval_id : null
+    const [runRes, approvalRes] = await Promise.all([
+      activeRunId ? db.from('agent_runs').select('*').eq('id', activeRunId).maybeSingle() : Promise.resolve({ data: null, error: null }),
+      approvalId ? db.from('agent_approvals').select('*').eq('id', approvalId).maybeSingle() : Promise.resolve({ data: null, error: null }),
+    ])
+    for (const result of [runRes, approvalRes]) {
+      if (result.error) throw new Error(result.error.message)
+    }
+    return buildChiefOfStaffScopedContextFromRows({
+      ref: contextRef,
+      run: (runRes.data ?? null) as Record<string, unknown> | null,
+      workItem,
+      approval: (approvalRes.data ?? null) as Record<string, unknown> | null,
+    })
+  }
+
+  const approvalRes = await db.from('agent_approvals').select('*').eq('id', contextRef.id).maybeSingle()
+  if (approvalRes.error) throw new Error(approvalRes.error.message)
+  const approval = (approvalRes.data ?? null) as Record<string, unknown> | null
+  if (!approval) return scopedUnavailable(contextRef, `approval ${contextRef.id}`)
+
+  const runId = typeof approval.run_id === 'string' ? approval.run_id : null
+  const [runRes, workItemsRes] = await Promise.all([
+    runId ? db.from('agent_runs').select('*').eq('id', runId).maybeSingle() : Promise.resolve({ data: null, error: null }),
+    db.from('agent_work_items').select('*').eq('approval_id', contextRef.id).order('updated_at', { ascending: false }).limit(1),
+  ])
+  for (const result of [runRes, workItemsRes]) {
+    if (result.error) throw new Error(result.error.message)
+  }
+  return buildChiefOfStaffScopedContextFromRows({
+    ref: contextRef,
+    run: (runRes.data ?? null) as Record<string, unknown> | null,
+    workItem: ((workItemsRes.data ?? [])[0] ?? null) as Record<string, unknown> | null,
+    approval,
+  })
+}
+
 export function buildChiefOfStaffPrompt(context: ChiefOfStaffContext, history: ChiefOfStaffChatMessage[]) {
   const agentKeys = context.agentRoutingCatalog.map((agent) => agent.key)
 
@@ -470,6 +702,8 @@ export function buildChiefOfStaffPrompt(context: ChiefOfStaffContext, history: C
       'You are the Shaka (Zulu) - Chief of Staff for Vambah and AmaduTown.',
       'Your job is to translate executive intent into clear priorities, operational status, escalation decisions, and next actions.',
       'Use only the provided operating context. If the user asks for production mutations, sending messages, publishing, or config changes, explain that approval is required and suggest the approval path.',
+      'When scopedContext is present, answer about that specific run, work item, or approval before giving broader operating guidance.',
+      'For scopedContext, clearly state whether action is required, the recommended next step, the risk/status, the owner when known, and the evidence link path. Do not approve, reject, retry, merge, deploy, or mutate anything yourself.',
       'Be concise, direct, and operational. Do not pretend to have run tools that are not in the context.',
       'Automation context is a summarized, read-only inventory. Use it to identify risky automations, missing context, duplicate jobs, and when the Yaa Asantewaa (Ashanti) - Automation Systems should be engaged.',
       'When proposing an executable next step, include a typed action proposal. The proposal is only a recommendation; it does not execute work.',
@@ -518,28 +752,38 @@ export async function runChiefOfStaffChat(input: ChiefOfStaffChatRequest): Promi
   }
 
   const history = normalizeChiefOfStaffHistory(input.history)
+  const contextRef = input.contextRef ?? null
   const run = await startAgentRun({
     agentKey: 'chief-of-staff',
     runtime: 'codex',
     kind: 'chief_of_staff_chat',
     title: 'Chief of Staff chat',
     status: 'running',
-    subject: { type: 'admin_chat', id: input.userId ?? 'admin', label: 'Admin chat' },
+    subject: contextRef
+      ? { type: `admin_chat:${contextRef.type}`, id: contextRef.id, label: `Scoped ${contextRef.type.replace(/_/g, ' ')}` }
+      : { type: 'admin_chat', id: input.userId ?? 'admin', label: 'Admin chat' },
     triggerSource: input.triggerSource ?? 'admin_chief_of_staff_chat',
     triggeredByUserId: getChiefOfStaffTriggeredByUserId(input.userId),
     currentStep: 'Collecting operating context',
-    metadata: { message_preview: message.slice(0, 240) },
+    metadata: { message_preview: message.slice(0, 240), context_ref: contextRef },
   })
 
   try {
-    const context = await collectChiefOfStaffContext()
+    const [context, scopedContext] = await Promise.all([
+      collectChiefOfStaffContext(),
+      collectChiefOfStaffScopedContext(contextRef),
+    ])
+    context.scopedContext = scopedContext
     await recordAgentStep({
       runId: run.id,
       stepKey: 'collect_context',
       name: 'Collected operating context',
       status: 'completed',
       inputSummary: message.slice(0, 500),
-      outputSummary: `${context.activeRuns.length} active, ${context.recentFailures.length} failed/stale, ${context.pendingApprovals.length} approvals`,
+      outputSummary: scopedContext
+        ? `${context.activeRuns.length} active, ${context.recentFailures.length} failed/stale, ${context.pendingApprovals.length} approvals; scoped ${scopedContext.ref.type}: ${scopedContext.label}`
+        : `${context.activeRuns.length} active, ${context.recentFailures.length} failed/stale, ${context.pendingApprovals.length} approvals`,
+      metadata: scopedContext ? { scoped_context: scopedContext } : undefined,
     })
 
     await recordAgentEvent({
@@ -608,6 +852,7 @@ export async function runChiefOfStaffChat(input: ChiefOfStaffChatRequest): Promi
         reference: { type: 'agent', id: 'chief-of-staff' },
         metadata: {
           operation: 'chief_of_staff_chat',
+          context_ref: contextRef,
           budget_status: budgetDecision.status,
           budget_rule_key: budgetDecision.rule.key,
           estimated_cost_usd: budgetDecision.estimatedCostUsd,
@@ -634,6 +879,7 @@ export async function runChiefOfStaffChat(input: ChiefOfStaffChatRequest): Promi
         suggested_actions: parsed.suggestedActions,
         action_proposals: parsed.actionProposals,
         agent_engagements: parsed.agentEngagements,
+        context_ref: contextRef,
       },
     })
 
@@ -651,6 +897,7 @@ export async function runChiefOfStaffChat(input: ChiefOfStaffChatRequest): Promi
         suggested_actions: parsed.suggestedActions,
         action_proposals: parsed.actionProposals,
         agent_engagements: parsed.agentEngagements,
+        context_ref: contextRef,
       },
     })
 

@@ -183,6 +183,18 @@ function setupFetch({ failWorkItems = false } = {}) {
       return { ok: true, json: async () => ({ ok: true, approval_id: 'approval-1' }) }
     }
 
+    if (url === '/api/admin/agents/chief-of-staff/chat' && init?.method === 'POST') {
+      return {
+        ok: true,
+        json: async () => ({
+          ok: true,
+          run_id: 'shaka-context-run',
+          reply: 'Shaka says this needs a trace review before approval.',
+          suggested_actions: ['Open evidence', 'Review risk'],
+        }),
+      }
+    }
+
     return { ok: false, status: 404, json: async () => ({ error: 'not found' }) }
   }))
 }
@@ -226,6 +238,23 @@ describe('AgentCoordinationPage decision queue controller', () => {
         body: expect.stringContaining('"status":"approved"'),
       }))
     })
+  })
+
+  it('asks Shaka about a pending approval with scoped context', async () => {
+    render(<AgentCoordinationPage />)
+
+    expect(await screen.findByText('Vercel AutoResearch approvals decision queue')).toBeInTheDocument()
+    const approvalCardElement = screen.getByText('Approve a read-only/local build-profile experiment?').closest('article')
+    expect(approvalCardElement).not.toBeNull()
+
+    fireEvent.click(within(approvalCardElement as HTMLElement).getByRole('button', { name: 'Ask Shaka' }))
+
+    expect(await screen.findByText('Shaka context answer')).toBeInTheDocument()
+    expect(screen.getByText('Shaka says this needs a trace review before approval.')).toBeInTheDocument()
+    expect(fetch).toHaveBeenCalledWith('/api/admin/agents/chief-of-staff/chat', expect.objectContaining({
+      method: 'POST',
+      body: expect.stringContaining('"context_ref":{"type":"approval","id":"approval-1"}'),
+    }))
   })
 
   it('runs the Moremi operational drill and shows the Slack verification command', async () => {
@@ -294,6 +323,19 @@ describe('AgentCoordinationPage decision queue controller', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Handoff Approve agent run recovery request' }))
     await waitFor(() => expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items/work-queue-1/handoff', expect.objectContaining({ method: 'POST' })))
+  })
+
+  it('asks Shaka about a work item with scoped context', async () => {
+    render(<AgentCoordinationPage />)
+
+    await screen.findByText('Approve agent run recovery request')
+    fireEvent.click(screen.getByRole('button', { name: 'Ask Shaka about Approve agent run recovery request' }))
+
+    expect(await screen.findByText('Shaka context answer')).toBeInTheDocument()
+    expect(fetch).toHaveBeenCalledWith('/api/admin/agents/chief-of-staff/chat', expect.objectContaining({
+      method: 'POST',
+      body: expect.stringContaining('"context_ref":{"type":"work_item","id":"work-queue-1"}'),
+    }))
   })
 
   it('shows the failed fetch state when the work-item queue is unavailable', async () => {

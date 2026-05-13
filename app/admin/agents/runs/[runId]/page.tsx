@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import Link from 'next/link'
-import { AlertTriangle, ArrowLeft, Bot, DollarSign, FileText, Gauge, RefreshCw } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Bot, DollarSign, FileText, Gauge, MessageSquare, RefreshCw } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
@@ -20,6 +20,12 @@ type RunDetail = {
   costs: AnyRow[]
   evaluations: AnyRow[]
   cost_total: number
+}
+
+type ShakaContextReply = {
+  run_id: string
+  reply: string
+  suggested_actions: string[]
 }
 
 const RUBRIC_OPTIONS = [
@@ -44,6 +50,8 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
   const [error, setError] = useState<string | null>(null)
   const [rubricKey, setRubricKey] = useState(RUBRIC_OPTIONS[0].key)
   const [evaluating, setEvaluating] = useState(false)
+  const [shakaLoading, setShakaLoading] = useState<string | null>(null)
+  const [shakaReply, setShakaReply] = useState<ShakaContextReply | null>(null)
 
   const fetchDetail = useCallback(async () => {
     setLoading(true)
@@ -123,6 +131,34 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
     }
   }
 
+  async function askShaka(contextRef: { type: 'run' | 'approval'; id: string }, message: string) {
+    setShakaLoading(`${contextRef.type}:${contextRef.id}`)
+    setShakaReply(null)
+    setError(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) throw new Error('Missing admin session')
+      const res = await fetch('/api/admin/agents/chief-of-staff/chat', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message,
+          context_ref: contextRef,
+        }),
+      })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
+      setShakaReply(body)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Shaka context request failed')
+    } finally {
+      setShakaLoading(null)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground p-6 lg:p-8">
       <div className="max-w-6xl mx-auto">
@@ -162,6 +198,18 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
                   ))}
                 </select>
                 <button
+                  onClick={() => askShaka(
+                    { type: 'run', id: runId },
+                    'Summarize this run trace. What failed or needs action, what evidence matters, and what is the safest next step?',
+                  )}
+                  disabled={Boolean(shakaLoading)}
+                  aria-label="Ask Shaka about this run"
+                  className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
+                >
+                  <MessageSquare size={16} />
+                  {shakaLoading === `run:${runId}` ? 'Asking...' : 'Ask Shaka'}
+                </button>
+                <button
                   onClick={evaluateRun}
                   disabled={evaluating}
                   className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
@@ -178,6 +226,8 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
                 </button>
               </div>
             </div>
+
+            {shakaReply ? <ShakaContextResponse reply={shakaReply} /> : null}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               <Metric icon={<Bot size={18} />} label="Runtime" value={String(data.run.runtime ?? '-')} />
@@ -212,6 +262,11 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
                   detailKey="status"
                   empty="No approvals recorded."
                   onDecision={decideApproval}
+                  onAskShaka={(approvalId) => askShaka(
+                    { type: 'approval', id: approvalId },
+                    'Should I approve or reject this approval? Summarize the action required, risk, evidence, and safest next step.',
+                  )}
+                  shakaLoading={shakaLoading}
                 />
               </div>
             </section>
@@ -231,6 +286,37 @@ function Metric({ icon, label, value }: { icon: ReactNode; label: string; value:
       </div>
       <p className="font-semibold">{value}</p>
     </div>
+  )
+}
+
+function ShakaContextResponse({ reply }: { reply: ShakaContextReply }) {
+  return (
+    <section className="mb-6 rounded-lg border border-radiant-gold/35 bg-radiant-gold/10 p-5">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-radiant-gold">
+            <MessageSquare size={18} />
+            <h2 className="font-semibold">Shaka context answer</h2>
+          </div>
+          <p className="mt-2 whitespace-pre-wrap text-sm text-foreground/90">{reply.reply}</p>
+        </div>
+        <Link
+          href={`/admin/agents/runs/${reply.run_id}`}
+          className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-radiant-gold/50 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15"
+        >
+          Open Shaka trace
+        </Link>
+      </div>
+      {reply.suggested_actions.length ? (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {reply.suggested_actions.map((action) => (
+            <span key={action} className="rounded-full border border-radiant-gold/30 bg-background/40 px-2.5 py-1 text-xs text-radiant-gold">
+              {action}
+            </span>
+          ))}
+        </div>
+      ) : null}
+    </section>
   )
 }
 
@@ -315,6 +401,8 @@ function List({
   detailKey,
   empty,
   onDecision,
+  onAskShaka,
+  shakaLoading,
 }: {
   rows: AnyRow[]
   titleKey: string
@@ -322,6 +410,8 @@ function List({
   detailKey: string
   empty: string
   onDecision?: (approvalId: string, status: 'approved' | 'rejected') => void
+  onAskShaka?: (approvalId: string) => void
+  shakaLoading?: string | null
 }) {
   if (rows.length === 0) return <p className="text-sm text-muted-foreground">{empty}</p>
   return (
@@ -336,7 +426,7 @@ function List({
             </pre>
           ) : null}
           {onDecision && row.status === 'pending' && typeof row.id === 'string' ? (
-            <div className="mt-3 flex gap-2">
+            <div className="mt-3 flex flex-wrap gap-2">
               <button
                 onClick={() => onDecision(row.id as string, 'approved')}
                 className="rounded-md border border-green-500/40 bg-green-500/10 px-3 py-1 text-xs text-green-300 hover:bg-green-500/20"
@@ -349,6 +439,17 @@ function List({
               >
                 Reject
               </button>
+              {onAskShaka ? (
+                <button
+                  onClick={() => onAskShaka(row.id as string)}
+                  disabled={shakaLoading === `approval:${String(row.id)}`}
+                  aria-label={`Ask Shaka about approval ${String(row.id)}`}
+                  className="inline-flex items-center gap-1 rounded-md border border-radiant-gold/40 bg-radiant-gold/10 px-3 py-1 text-xs text-radiant-gold hover:bg-radiant-gold/20 disabled:opacity-60"
+                >
+                  <MessageSquare size={13} />
+                  {shakaLoading === `approval:${String(row.id)}` ? 'Asking...' : 'Ask Shaka'}
+                </button>
+              ) : null}
             </div>
           ) : null}
           {row.url ? <a className="text-sm text-radiant-gold hover:underline" href={String(row.url)}>Open</a> : null}

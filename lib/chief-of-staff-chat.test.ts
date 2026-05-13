@@ -18,9 +18,11 @@ vi.mock('@/lib/supabase', () => ({
 
 import {
   buildChiefOfStaffPrompt,
+  buildChiefOfStaffScopedContextFromRows,
   evaluateChiefOfStaffBudget,
   getChiefOfStaffAgentRoutingCatalog,
   getChiefOfStaffTriggeredByUserId,
+  normalizeChiefOfStaffContextRef,
   normalizeChiefOfStaffHistory,
   parseChiefOfStaffJson,
   summarizeAutomationContext,
@@ -45,6 +47,7 @@ const context: ChiefOfStaffContext = {
   ],
   recentFailures: [],
   pendingApprovals: [],
+  scopedContext: null,
   costEvents24h: {
     count: 2,
     totalUsd: 0.0123,
@@ -114,6 +117,51 @@ describe('Chief of Staff chat helpers', () => {
     expect(getChiefOfStaffTriggeredByUserId(undefined)).toBeNull()
   })
 
+  it('normalizes supported scoped context references', () => {
+    expect(normalizeChiefOfStaffContextRef({ type: 'run', id: ' run-1 ' })).toEqual({ type: 'run', id: 'run-1' })
+    expect(normalizeChiefOfStaffContextRef({ type: 'work_item', id: 'work-1' })).toEqual({ type: 'work_item', id: 'work-1' })
+    expect(normalizeChiefOfStaffContextRef({ type: 'approval', id: 'approval-1' })).toEqual({ type: 'approval', id: 'approval-1' })
+    expect(normalizeChiefOfStaffContextRef({ type: 'lane', id: 'lane-1' })).toBeNull()
+    expect(normalizeChiefOfStaffContextRef({ type: 'run', id: '   ' })).toBeNull()
+  })
+
+  it('builds scoped context packets from work item, run, and approval rows', () => {
+    const scoped = buildChiefOfStaffScopedContextFromRows({
+      ref: { type: 'work_item', id: 'work-1' },
+      workItem: {
+        id: 'work-1',
+        title: 'Approve production Slack agent ops notification',
+        objective: 'Verify approval notification before sending.',
+        status: 'blocked',
+        priority: 'high',
+        owner_agent_key: 'chief-of-staff',
+        owner_runtime: 'codex',
+        active_run_id: 'run-1',
+        approval_id: 'approval-1',
+        metadata: { recommendation: 'Reject until the trace has production evidence.', risk: 'high' },
+      },
+      run: {
+        id: 'run-1',
+        title: 'Approval notification trace',
+        status: 'waiting_for_approval',
+        agent_key: 'chief-of-staff',
+      },
+      approval: {
+        id: 'approval-1',
+        run_id: 'run-1',
+        approval_type: 'production_config_change',
+        status: 'pending',
+      },
+    })
+
+    expect(scoped.available).toBe(true)
+    expect(scoped.actionRequired).toBe(true)
+    expect(scoped.recommendation).toBe('Reject until the trace has production evidence.')
+    expect(scoped.riskStatus).toBe('high')
+    expect(scoped.evidenceLinks).toEqual(['/admin/agents/runs/run-1', '/admin/agents/coordination'])
+    expect(scoped.records.workItem).toMatchObject({ id: 'work-1', active_run_id: 'run-1' })
+  })
+
   it('parses the model JSON contract', () => {
     const result = parseChiefOfStaffJson(JSON.stringify({
       reply: 'Focus on the pending deployment and the approval queue.',
@@ -180,6 +228,32 @@ describe('Chief of Staff chat helpers', () => {
     expect(prompt.userPrompt).toContain('Strategy & Narrative Pod')
     expect(prompt.userPrompt).toContain('Portfolio Credential Rotation Due Report')
     expect(prompt.userPrompt).toContain('What needs attention?')
+  })
+
+  it('prioritizes scoped context instructions in the prompt', () => {
+    const prompt = buildChiefOfStaffPrompt({
+      ...context,
+      scopedContext: buildChiefOfStaffScopedContextFromRows({
+        ref: { type: 'approval', id: 'approval-1' },
+        approval: {
+          id: 'approval-1',
+          run_id: 'run-1',
+          approval_type: 'production_config_change',
+          status: 'pending',
+        },
+        run: {
+          id: 'run-1',
+          title: 'Production config drill',
+          status: 'waiting_for_approval',
+        },
+      }),
+    }, [{ role: 'user', content: 'Should I approve this?' }])
+
+    expect(prompt.systemPrompt).toContain('When scopedContext is present')
+    expect(prompt.systemPrompt).toContain('Do not approve, reject, retry, merge, deploy, or mutate anything yourself')
+    expect(prompt.userPrompt).toContain('scopedContext')
+    expect(prompt.userPrompt).toContain('production_config_change')
+    expect(prompt.userPrompt).toContain('/admin/agents/runs/run-1')
   })
 
   it('evaluates the Chief of Staff LLM budget before dispatch', () => {
