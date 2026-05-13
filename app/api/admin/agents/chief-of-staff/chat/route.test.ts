@@ -21,6 +21,13 @@ vi.mock('@/lib/chief-of-staff-chat', () => {
 
   return {
     normalizeChiefOfStaffHistory,
+    normalizeChiefOfStaffContextRef: (value: unknown) => {
+      if (!value || typeof value !== 'object') return null
+      const record = value as Record<string, unknown>
+      return (record.type === 'run' || record.type === 'work_item' || record.type === 'approval') && typeof record.id === 'string' && record.id.trim()
+        ? { type: record.type, id: record.id.trim() }
+        : null
+    },
     runChiefOfStaffChat: mocks.runChiefOfStaffChat,
   }
 })
@@ -94,6 +101,17 @@ describe('POST /api/admin/agents/chief-of-staff/chat', () => {
     expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
   })
 
+  it('rejects invalid scoped context references', async () => {
+    const response = await POST(makeRequest({
+      message: 'What should I do here?',
+      context_ref: { type: 'lane', id: 'integration-captain' },
+    }) as never)
+
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({ error: 'Invalid context_ref' })
+    expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
+  })
+
   it('runs an observable Chief of Staff chat', async () => {
     const response = await POST(makeRequest({
       message: 'What needs attention?',
@@ -139,6 +157,20 @@ describe('POST /api/admin/agents/chief-of-staff/chat', () => {
       message: 'What needs attention?',
       userId: 'admin-user',
       history: [{ role: 'user', content: 'Earlier question' }],
+      contextRef: null,
+    }))
+  })
+
+  it('passes scoped context references to Shaka', async () => {
+    const response = await POST(makeRequest({
+      message: 'Should I approve this?',
+      context_ref: { type: 'approval', id: 'approval-1' },
+    }) as never)
+
+    expect(response.status).toBe(200)
+    expect(mocks.runChiefOfStaffChat).toHaveBeenCalledWith(expect.objectContaining({
+      message: 'Should I approve this?',
+      contextRef: { type: 'approval', id: 'approval-1' },
     }))
   })
 })

@@ -9,6 +9,7 @@ import {
   Bot,
   CheckCircle2,
   GitPullRequest,
+  MessageSquare,
   Network,
   RefreshCw,
   ShieldCheck,
@@ -81,6 +82,17 @@ type MoremiOperationalDrillResult = {
   }
 }
 
+type ShakaContextRef = {
+  type: 'work_item' | 'approval'
+  id: string
+}
+
+type ShakaContextReply = {
+  run_id: string
+  reply: string
+  suggested_actions: string[]
+}
+
 const DEFAULT_FORM: WorkItemForm = {
   title: '',
   objective: '',
@@ -109,6 +121,7 @@ function AgentCoordinationContent() {
   const [form, setForm] = useState<WorkItemForm>(DEFAULT_FORM)
   const [vercelResearchApprovals, setVercelResearchApprovals] = useState<VercelResearchApprovalCard[]>([])
   const [moremiDrillResult, setMoremiDrillResult] = useState<MoremiOperationalDrillResult | null>(null)
+  const [shakaReply, setShakaReply] = useState<ShakaContextReply | null>(null)
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -280,6 +293,28 @@ function AgentCoordinationContent() {
     }
   }
 
+  async function askShaka(message: string, contextRef: ShakaContextRef) {
+    setActionId(`shaka:${contextRef.type}:${contextRef.id}`)
+    setShakaReply(null)
+    setError(null)
+    try {
+      const response = await authedFetch('/api/admin/agents/chief-of-staff/chat', {
+        method: 'POST',
+        body: JSON.stringify({
+          message,
+          context_ref: contextRef,
+        }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      setShakaReply(body)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Shaka context request failed')
+    } finally {
+      setActionId(null)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground p-6 lg:p-8">
       <div className="mx-auto max-w-7xl">
@@ -330,6 +365,10 @@ function AgentCoordinationContent() {
           approvals={vercelResearchApprovals}
           actionId={actionId}
           onDecision={decideVercelResearchApproval}
+          onAskShaka={(card) => askShaka(
+            'Should I approve or reject this approval request? Summarize the recommendation, risk, evidence, and safest next step.',
+            { type: 'approval', id: card.approvalId },
+          )}
         />
 
         <MoremiOperationalDrillPanel
@@ -337,6 +376,8 @@ function AgentCoordinationContent() {
           running={actionId === 'moremi-drill'}
           onRun={runMoremiOperationalDrill}
         />
+
+        {shakaReply ? <ShakaContextResponse reply={shakaReply} /> : null}
 
         <section className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
           <div className="mb-4 flex flex-col gap-3">
@@ -440,6 +481,10 @@ function AgentCoordinationContent() {
                 item={item}
                 actionId={actionId}
                 onAction={quickAction}
+                onAskShaka={(workItem) => askShaka(
+                  'What action is required on this work item? Summarize the recommendation, risk, evidence, and next approval-safe step.',
+                  { type: 'work_item', id: workItem.id },
+                )}
               />
             ))}
           </div>
@@ -503,14 +548,48 @@ function MoremiOperationalDrillPanel({
   )
 }
 
+function ShakaContextResponse({ reply }: { reply: ShakaContextReply }) {
+  return (
+    <section className="mb-6 rounded-lg border border-radiant-gold/35 bg-radiant-gold/10 p-4">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-radiant-gold">
+            <MessageSquare size={18} />
+            <h2 className="font-semibold">Shaka context answer</h2>
+          </div>
+          <p className="mt-2 whitespace-pre-wrap text-sm text-foreground/90">{reply.reply}</p>
+        </div>
+        <Link
+          href={`/admin/agents/runs/${reply.run_id}`}
+          className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-radiant-gold/50 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15"
+        >
+          Open Shaka trace
+          <ArrowRight size={16} />
+        </Link>
+      </div>
+      {reply.suggested_actions.length ? (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {reply.suggested_actions.map((action) => (
+            <span key={action} className="rounded-full border border-radiant-gold/30 bg-background/40 px-2.5 py-1 text-xs text-radiant-gold">
+              {action}
+            </span>
+          ))}
+        </div>
+      ) : null}
+    </section>
+  )
+}
+
 function VercelResearchApprovalPanel({
   approvals,
   actionId,
   onDecision,
+  onAskShaka,
 }: {
   approvals: VercelResearchApprovalCard[]
   actionId: string | null
   onDecision: (card: VercelResearchApprovalCard, status: 'approved' | 'rejected') => void
+  onAskShaka: (card: VercelResearchApprovalCard) => void
 }) {
   return (
     <section className="mb-6 rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-4">
@@ -587,6 +666,14 @@ function VercelResearchApprovalPanel({
                   Evidence
                   <ArrowRight size={16} />
                 </Link>
+                <button
+                  onClick={() => onAskShaka(card)}
+                  disabled={Boolean(actionId)}
+                  className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-50"
+                >
+                  <MessageSquare size={16} />
+                  Ask Shaka
+                </button>
               </div>
             </article>
           ))}
@@ -600,10 +687,12 @@ function WorkItemCard({
   item,
   actionId,
   onAction,
+  onAskShaka,
 }: {
   item: AgentWorkItem
   actionId: string | null
   onAction: (item: AgentWorkItem, action: 'block' | 'validation' | 'handoff') => void
+  onAskShaka: (item: AgentWorkItem) => void
 }) {
   const recommendation = typeof item.metadata?.recommendation === 'string'
     ? item.metadata.recommendation
@@ -673,6 +762,15 @@ function WorkItemCard({
               <ArrowRight size={16} />
             </Link>
           ) : null}
+          <button
+            onClick={() => onAskShaka(item)}
+            disabled={Boolean(actionId)}
+            aria-label={`Ask Shaka about ${item.title}`}
+            className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold shadow-sm hover:bg-radiant-gold/15 disabled:opacity-50"
+          >
+            <MessageSquare size={16} />
+            Ask Shaka
+          </button>
           <button
             onClick={() => onAction(item, 'block')}
             disabled={Boolean(actionId)}
