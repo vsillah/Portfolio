@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const mocks = vi.hoisted(() => ({
   verifyAdmin: vi.fn(),
   isAuthError: vi.fn(),
+  readdir: vi.fn(),
   readFile: vi.fn(),
 }))
 
@@ -12,8 +13,9 @@ vi.mock('@/lib/auth-server', () => ({
 }))
 
 vi.mock('node:fs/promises', () => ({
+  readdir: mocks.readdir,
   readFile: mocks.readFile,
-  default: { readFile: mocks.readFile },
+  default: { readdir: mocks.readdir, readFile: mocks.readFile },
 }))
 
 import { GET } from './route'
@@ -77,7 +79,28 @@ describe('GET /api/admin/credentials/report', () => {
     vi.clearAllMocks()
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-user' } })
     mocks.isAuthError.mockReturnValue(false)
-    mocks.readFile.mockResolvedValue(JSON.stringify(inventory))
+    mocks.readdir.mockResolvedValue(['2026-05-09-staging-openai-api-key-rotation.json'])
+    mocks.readFile.mockImplementation(async (file: string) => {
+      if (file.includes('.credential-rotation-audits')) {
+        return JSON.stringify({
+          createdAt: '2026-05-09T12:00:00.000Z',
+          type: 'rotation',
+          environment: 'staging',
+          secretId: 'openai-api-key',
+          envVar: 'OPENAI_API_KEY',
+          sourceOfTruth: 'infisical',
+          rotationMode: 'provider-dashboard-or-api',
+          cadenceDays: 90,
+          runtimeSinks: ['Vercel'],
+          approvalRequired: false,
+          generatedFingerprint: null,
+          action: 'Provider-backed rotation required.',
+          verification: ['npm run credentials:smoke -- --env staging'],
+          rollback: 'Restore previous key.',
+        })
+      }
+      return JSON.stringify(inventory)
+    })
   })
 
   it('requires admin auth before reading the inventory', async () => {
@@ -106,6 +129,10 @@ describe('GET /api/admin/credentials/report', () => {
       providerContext: {
         infisicalProject: 'portfolio',
         onePasswordVault: 'Portfolio / staging',
+      },
+      packetSummary: {
+        total: 1,
+        drafted: 1,
       },
     })
     expect(body.rows[0]).toMatchObject({

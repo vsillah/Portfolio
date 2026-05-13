@@ -42,6 +42,8 @@ Use plain `credentials:smoke` for local registry checks. Use `--require-provider
 
 Use `credentials:report` for rotation visibility. It is read-only and summarizes the inventory by status, source of truth, risk, runtime sink, approval boundary, and next action. It does not fetch or print secret values. The same report is exposed to admins at `/admin/credentials` through `/api/admin/credentials/report`.
 
+When local `.credential-rotation-audits/*.json` packets exist, `credentials:report` and `/admin/credentials` also summarize packet metadata by status (`drafted`, `synced`, `verified`, `revocation-pending`, `blocked`). Packet reporting is value-free: it shows secret ids/env var names, timestamps, approval state, runtime sinks, and verification commands, not credential values.
+
 Use `credentials:baseline-template` when `credentials:report` shows `needs-baseline`. It emits provider-confirmation placeholders for each missing environment baseline so the operator can verify provider history, fill `lastRotatedAt`, preserve evidence, and update `docs/credential-inventory.json` without guessing from local env files.
 
 ## Rotation Rules

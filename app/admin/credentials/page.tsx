@@ -46,6 +46,23 @@ type CredentialReport = {
   bySource: Record<string, number>
   byRisk: Record<string, number>
   byRuntimeSink: Record<string, number>
+  packetSummary: {
+    total: number
+    drafted: number
+    synced: number
+    verified: number
+    revocationPending: number
+    blocked: number
+    latestCreatedAt: string | null
+  }
+  packets: Array<{
+    createdAt: string
+    type: 'rotation' | 'runtime-sync'
+    envVar: string
+    status: 'drafted' | 'synced' | 'verified' | 'revocation-pending' | 'blocked'
+    approvalRequired: boolean
+    localEnvUpdated: boolean
+  }>
   blockers: string[]
   rows: CredentialReportRow[]
 }
@@ -183,6 +200,50 @@ function CredentialAdminContent() {
               <Breakdown title="Runtime Sinks" rows={report.byRuntimeSink} />
             </section>
 
+            <section className="mb-6 rounded-lg border border-silicon-slate bg-silicon-slate/30 p-4">
+              <div className="mb-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                <h2 className="font-semibold">Rotation packets</h2>
+                <div className="text-xs text-muted-foreground">
+                  Latest: {report.packetSummary.latestCreatedAt ? new Date(report.packetSummary.latestCreatedAt).toLocaleString() : 'none'}
+                </div>
+              </div>
+              <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-5">
+                <MiniMetric label="Drafted" value={report.packetSummary.drafted} />
+                <MiniMetric label="Synced" value={report.packetSummary.synced} />
+                <MiniMetric label="Verified" value={report.packetSummary.verified} />
+                <MiniMetric label="Revocation" value={report.packetSummary.revocationPending} />
+                <MiniMetric label="Blocked" value={report.packetSummary.blocked} />
+              </div>
+              {report.packets.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-silicon-slate text-sm">
+                    <thead className="text-left text-xs uppercase tracking-wide text-muted-foreground">
+                      <tr>
+                        <th className="px-2 py-2">Status</th>
+                        <th className="px-2 py-2">Created</th>
+                        <th className="px-2 py-2">Type</th>
+                        <th className="px-2 py-2">Secret</th>
+                        <th className="px-2 py-2">Approval</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-silicon-slate">
+                      {report.packets.slice(0, 8).map((packet) => (
+                        <tr key={`${packet.createdAt}-${packet.envVar}-${packet.type}`}>
+                          <td className="px-2 py-2">{packet.status}</td>
+                          <td className="px-2 py-2">{new Date(packet.createdAt).toLocaleString()}</td>
+                          <td className="px-2 py-2">{packet.type}</td>
+                          <td className="px-2 py-2 font-mono text-xs">{packet.envVar}</td>
+                          <td className="px-2 py-2">{packet.approvalRequired ? 'required' : 'not required'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No local rotation packets found.</p>
+              )}
+            </section>
+
             <section className="overflow-hidden rounded-lg border border-silicon-slate">
               <div className="border-b border-silicon-slate bg-silicon-slate/40 px-4 py-3">
                 <h2 className="font-semibold">Rotation inventory</h2>
@@ -251,6 +312,15 @@ function Breakdown({ title, rows }: { title: string; rows: Record<string, number
           </div>
         ))}
       </div>
+    </div>
+  )
+}
+
+function MiniMetric({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-lg border border-silicon-slate bg-background/40 px-3 py-2">
+      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="text-lg font-semibold">{value}</div>
     </div>
   )
 }

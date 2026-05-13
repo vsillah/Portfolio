@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises'
+import { readdir, readFile } from 'node:fs/promises'
 import * as path from 'node:path'
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
@@ -6,11 +6,13 @@ import {
   buildCredentialReport,
   isCredentialEnvironment,
   type CredentialInventory,
+  type CredentialRotationPacket,
 } from '@/lib/credential-report'
 
 export const dynamic = 'force-dynamic'
 
 const INVENTORY_PATH = path.join(process.cwd(), 'docs', 'credential-inventory.json')
+const AUDIT_DIR = path.join(process.cwd(), '.credential-rotation-audits')
 
 export async function GET(request: NextRequest) {
   const auth = await verifyAdmin(request)
@@ -28,11 +30,31 @@ export async function GET(request: NextRequest) {
 
   try {
     const inventory = JSON.parse(await readFile(INVENTORY_PATH, 'utf8')) as CredentialInventory
-    return NextResponse.json(buildCredentialReport(inventory, env, asOf))
+    return NextResponse.json(buildCredentialReport(inventory, env, asOf, await readRotationPackets()))
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to build credential report' },
       { status: 500 }
     )
+  }
+}
+
+async function readRotationPackets(): Promise<CredentialRotationPacket[]> {
+  try {
+    const files = await readdir(AUDIT_DIR)
+    const packets = await Promise.all(
+      files
+        .filter((file) => file.endsWith('.json'))
+        .map(async (file) => {
+          try {
+            return JSON.parse(await readFile(path.join(AUDIT_DIR, file), 'utf8')) as CredentialRotationPacket
+          } catch {
+            return null
+          }
+        })
+    )
+    return packets.filter((packet): packet is CredentialRotationPacket => Boolean(packet))
+  } catch {
+    return []
   }
 }

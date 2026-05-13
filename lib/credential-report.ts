@@ -93,8 +93,55 @@ export type CredentialReport = {
   bySource: Record<CredentialSourceOfTruth, number>
   byRisk: Record<string, number>
   byRuntimeSink: Record<string, number>
+  packetSummary: CredentialPacketSummary
+  packets: CredentialPacketReport[]
   blockers: string[]
   rows: CredentialReportRow[]
+}
+
+export type CredentialPacketStatus = 'drafted' | 'synced' | 'verified' | 'revocation-pending' | 'blocked'
+
+export type CredentialRotationPacket = {
+  createdAt: string
+  type: 'rotation' | 'runtime-sync'
+  environment: CredentialEnvironment
+  secretId: string
+  envVar: string
+  sourceOfTruth: CredentialSourceOfTruth
+  rotationMode: string
+  cadenceDays: number
+  runtimeSinks: string[]
+  approvalRequired: boolean
+  generatedFingerprint: string | null
+  action: string
+  verification: string[]
+  rollback: string
+  localEnvUpdated?: string
+}
+
+export type CredentialPacketReport = {
+  createdAt: string
+  type: CredentialRotationPacket['type']
+  environment: CredentialEnvironment
+  secretId: string
+  envVar: string
+  sourceOfTruth: CredentialSourceOfTruth
+  status: CredentialPacketStatus
+  approvalRequired: boolean
+  runtimeSinks: string[]
+  verification: string[]
+  generatedFingerprint: string | null
+  localEnvUpdated: boolean
+}
+
+export type CredentialPacketSummary = {
+  total: number
+  drafted: number
+  synced: number
+  verified: number
+  revocationPending: number
+  blocked: number
+  latestCreatedAt: string | null
 }
 
 export type CredentialBaselineTemplateEntry = {
@@ -116,7 +163,8 @@ export function isCredentialEnvironment(value: string): value is CredentialEnvir
 export function buildCredentialReport(
   inventory: CredentialInventory,
   env: CredentialEnvironment,
-  asOfInput: string | Date = new Date()
+  asOfInput: string | Date = new Date(),
+  packets: CredentialRotationPacket[] = []
 ): CredentialReport {
   const asOfDate = asDate(asOfInput)
   const rows = inventory.secrets
@@ -138,6 +186,10 @@ export function buildCredentialReport(
     providerConfirmed: rows.filter((row) => row.baselineStatus === 'confirmed').length,
     providerPending: rows.filter((row) => row.baselineStatus !== 'confirmed').length,
   }
+  const packetReports = packets
+    .filter((packet) => packet.environment === env)
+    .map(toPacketReport)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 
   return {
     generatedAt: new Date().toISOString(),
@@ -154,7 +206,9 @@ export function buildCredentialReport(
     bySource: countBy(rows, (row) => row.sourceOfTruth),
     byRisk: countBy(rows, (row) => row.risk),
     byRuntimeSink: countRuntimeSinks(rows),
-    blockers: buildBlockers(summary, env),
+    packetSummary: summarizePackets(packetReports),
+    packets: packetReports,
+    blockers: buildBlockers(summary, env, packetReports),
     rows,
   }
 }
@@ -184,6 +238,30 @@ export function renderCredentialReportMarkdown(report: CredentialReport): string
     '',
     ...(report.blockers.length > 0 ? report.blockers.map((blocker) => `- ${blocker}`) : ['- None']),
     '',
+    '## Rotation Packets',
+    '',
+    `- Total packets: ${report.packetSummary.total}`,
+    `- Drafted: ${report.packetSummary.drafted}`,
+    `- Synced: ${report.packetSummary.synced}`,
+    `- Verified: ${report.packetSummary.verified}`,
+    `- Revocation pending: ${report.packetSummary.revocationPending}`,
+    `- Blocked: ${report.packetSummary.blocked}`,
+    `- Latest packet: ${report.packetSummary.latestCreatedAt ?? 'none'}`,
+    '',
+    ...(report.packets.length > 0
+      ? [
+        '| Status | Created | Type | Env Var | Approval |',
+        '| --- | --- | --- | --- | --- |',
+        ...report.packets.slice(0, 10).map((packet) => [
+          packet.status,
+          packet.createdAt,
+          packet.type,
+          packet.envVar,
+          packet.approvalRequired ? 'required' : 'not-required',
+        ].map(escapeTableCell).join(' | ')).map((line) => `| ${line} |`),
+        '',
+      ]
+      : ['No local rotation packets found.', '']),
     '## Secrets',
     '',
     '| Status | Env Var | Source | Risk | Due | Baseline | Next action |',
@@ -303,11 +381,55 @@ function nextAction(status: CredentialReportRow['status'], baselineStatus: Crede
   return 'No action needed.'
 }
 
-function buildBlockers(summary: CredentialReport['summary'], env: CredentialEnvironment): string[] {
+function toPacketReport(packet: CredentialRotationPacket): CredentialPacketReport {
+  return {
+    createdAt: packet.createdAt,
+    type: packet.type,
+    environment: packet.environment,
+    secretId: packet.secretId,
+    envVar: packet.envVar,
+    sourceOfTruth: packet.sourceOfTruth,
+    status: inferPacketStatus(packet),
+    approvalRequired: packet.approvalRequired,
+    runtimeSinks: packet.runtimeSinks,
+    verification: packet.verification,
+    generatedFingerprint: packet.generatedFingerprint,
+    localEnvUpdated: Boolean(packet.localEnvUpdated),
+  }
+}
+
+function inferPacketStatus(packet: CredentialRotationPacket): CredentialPacketStatus {
+  const action = packet.action.toLowerCase()
+  if (action.includes('blocked')) return 'blocked'
+  if (action.includes('verified')) return 'verified'
+  if (packet.approvalRequired) return 'revocation-pending'
+  if (packet.localEnvUpdated) return 'synced'
+  return 'drafted'
+}
+
+function summarizePackets(packets: CredentialPacketReport[]): CredentialPacketSummary {
+  return {
+    total: packets.length,
+    drafted: packets.filter((packet) => packet.status === 'drafted').length,
+    synced: packets.filter((packet) => packet.status === 'synced').length,
+    verified: packets.filter((packet) => packet.status === 'verified').length,
+    revocationPending: packets.filter((packet) => packet.status === 'revocation-pending').length,
+    blocked: packets.filter((packet) => packet.status === 'blocked').length,
+    latestCreatedAt: packets[0]?.createdAt ?? null,
+  }
+}
+
+function buildBlockers(
+  summary: CredentialReport['summary'],
+  env: CredentialEnvironment,
+  packets: CredentialPacketReport[]
+): string[] {
   const blockers: string[] = []
   if (summary.needsBaseline > 0) blockers.push(`${summary.needsBaseline} ${env} secrets need provider-confirmed rotation baselines.`)
   if (summary.due > 0) blockers.push(`${summary.due} ${env} secrets are due for rotation.`)
   if (env === 'prod' && summary.approvalRequired > 0) blockers.push('Production rotation or revocation requires an approval packet.')
+  if (packets.some((packet) => packet.status === 'blocked')) blockers.push('At least one local rotation packet is blocked.')
+  if (packets.some((packet) => packet.status === 'revocation-pending')) blockers.push('At least one local rotation packet is waiting on revocation approval.')
   return blockers
 }
 

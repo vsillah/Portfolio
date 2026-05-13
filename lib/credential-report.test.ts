@@ -87,7 +87,25 @@ describe('credential report', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-05-09T12:00:00.000Z'))
 
-    const report = buildCredentialReport(inventory, 'staging', '2026-05-09')
+    const report = buildCredentialReport(inventory, 'staging', '2026-05-09', [
+      {
+        createdAt: '2026-05-08T12:00:00.000Z',
+        type: 'rotation',
+        environment: 'staging',
+        secretId: 'missing-baseline',
+        envVar: 'MISSING_BASELINE',
+        sourceOfTruth: '1password',
+        rotationMode: 'manual-reauth',
+        cadenceDays: 90,
+        runtimeSinks: ['local-env'],
+        approvalRequired: false,
+        generatedFingerprint: null,
+        action: 'Generated replacement value and wrote it to the requested ignored local env sink.',
+        verification: ['Manual login check'],
+        rollback: 'Re-authenticate.',
+        localEnvUpdated: '.env.staging',
+      },
+    ])
 
     expect(report.summary).toMatchObject({
       total: 2,
@@ -104,6 +122,16 @@ describe('credential report', () => {
       onePasswordVault: 'Portfolio / staging',
     })
     expect(report.bySource).toEqual({ infisical: 1, '1password': 1 })
+    expect(report.packetSummary).toMatchObject({
+      total: 1,
+      synced: 1,
+      latestCreatedAt: '2026-05-08T12:00:00.000Z',
+    })
+    expect(report.packets[0]).toMatchObject({
+      envVar: 'MISSING_BASELINE',
+      status: 'synced',
+      localEnvUpdated: true,
+    })
     expect(report.blockers).toEqual([
       '1 staging secrets need provider-confirmed rotation baselines.',
       '1 staging secrets are due for rotation.',
@@ -112,6 +140,7 @@ describe('credential report', () => {
 
     const markdown = renderCredentialReportMarkdown(report)
     expect(markdown).toContain('Credential Rotation Visibility (staging)')
+    expect(markdown).toContain('Rotation Packets')
     expect(markdown).toContain('DUE_SECRET')
     expect(markdown).not.toContain('super-secret')
 
