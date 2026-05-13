@@ -1,11 +1,12 @@
 #!/usr/bin/env tsx
 import { spawnSync } from 'node:child_process'
 import { createHash, randomBytes } from 'node:crypto'
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import * as path from 'node:path'
 import {
   buildCredentialBaselineTemplate,
   buildCredentialReport,
+  type CredentialRotationPacket,
   renderCredentialBaselineTemplateMarkdown,
   renderCredentialReportMarkdown,
 } from '../lib/credential-report'
@@ -212,7 +213,7 @@ function listDue(inventory: CredentialInventory, args: ParsedArgs) {
 function report(inventory: CredentialInventory, args: ParsedArgs) {
   const env = getEnv(args)
   const asOf = String(args.options['as-of'] || new Date().toISOString())
-  const credentialReport = buildCredentialReport(inventory, env, asOf)
+  const credentialReport = buildCredentialReport(inventory, env, asOf, readRotationPackets())
 
   if (args.options.json) {
     console.log(JSON.stringify(credentialReport, null, 2))
@@ -499,6 +500,19 @@ function writePacket(packet: RotationPacket) {
   const stamp = packet.createdAt.split(':').join('-').replace(/\.\d+Z$/, 'Z')
   const filename = `${stamp}-${packet.environment}-${packet.secretId}-${packet.type}.json`
   writeFileSync(path.join(AUDIT_DIR, filename), `${JSON.stringify(packet, null, 2)}\n`)
+}
+
+function readRotationPackets(): CredentialRotationPacket[] {
+  if (!existsSync(AUDIT_DIR)) return []
+  return readdirSync(AUDIT_DIR)
+    .filter((file) => file.endsWith('.json'))
+    .flatMap((file) => {
+      try {
+        return [JSON.parse(readFileSync(path.join(AUDIT_DIR, file), 'utf8')) as CredentialRotationPacket]
+      } catch {
+        return []
+      }
+    })
 }
 
 function printPacketSummary(packet: RotationPacket) {

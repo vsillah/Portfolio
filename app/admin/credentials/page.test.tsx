@@ -34,6 +34,25 @@ const baseReport = {
   bySource: { infisical: 1, '1password': 1 },
   byRisk: { 'standard-api': 1, 'oauth-session': 1 },
   byRuntimeSink: { Vercel: 1, 'local-env': 1 },
+  packetSummary: {
+    total: 1,
+    drafted: 1,
+    synced: 0,
+    verified: 0,
+    revocationPending: 0,
+    blocked: 0,
+    latestCreatedAt: '2026-05-09T12:00:00.000Z',
+  },
+  packets: [
+    {
+      createdAt: '2026-05-09T12:00:00.000Z',
+      type: 'rotation',
+      envVar: 'OPENAI_API_KEY',
+      status: 'drafted',
+      approvalRequired: false,
+      localEnvUpdated: false,
+    },
+  ],
   blockers: ['2 staging secrets need provider-confirmed rotation baselines.'],
   rows: [
     {
@@ -96,8 +115,10 @@ describe('CredentialAdminPage', () => {
     expect(await screen.findByRole('heading', { name: 'Credential Reporting' })).toBeInTheDocument()
     expect(screen.getByText('Baseline needed')).toBeInTheDocument()
     expect(screen.getByText('2 need baseline / 0 due / 0 ok')).toBeInTheDocument()
-    expect(screen.getByText('OPENAI_API_KEY')).toBeInTheDocument()
+    expect(screen.getAllByText('OPENAI_API_KEY').length).toBeGreaterThan(0)
     expect(screen.getByText('LINKEDIN_COOKIE')).toBeInTheDocument()
+    expect(screen.getByText('Rotation packets')).toBeInTheDocument()
+    expect(screen.getByText('Drafted')).toBeInTheDocument()
     expect(screen.queryByText('super-secret-value')).not.toBeInTheDocument()
 
     await waitFor(() => {
