@@ -1,0 +1,269 @@
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import type { ReactNode } from 'react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import AgentOperationsPage from './page'
+
+vi.mock('@/components/ProtectedRoute', () => ({
+  default: ({ children }: { children: ReactNode }) => <>{children}</>,
+}))
+
+vi.mock('@/components/admin/Breadcrumbs', () => ({
+  default: () => null,
+}))
+
+vi.mock('@/lib/auth', () => ({
+  getCurrentSession: vi.fn(async () => ({ access_token: 'admin-token' })),
+}))
+
+const missionSnapshot = {
+  generated_at: '2026-05-13T12:00:00.000Z',
+  status_strip: {
+    active: 4,
+    queued: 2,
+    running: 1,
+    waiting_for_approval: 3,
+    failed: 0,
+    stale: 0,
+    cost_today: 1.2345,
+    pending_approvals: 3,
+  },
+  roster: [
+    {
+      key: 'command',
+      name: 'Command',
+      purpose: 'Coordinate agent work.',
+      agents: [
+        {
+          key: 'chief-of-staff',
+          name: 'Shaka',
+          pod: 'Command',
+          status: 'active',
+          runtime: 'portfolio',
+          responsibility: 'Chief of Staff for agent operations.',
+          active_workflow_count: 2,
+          latest_run: {
+            id: 'run-shaka',
+            agent_key: 'chief-of-staff',
+            runtime: 'portfolio',
+            kind: 'standup',
+            title: 'Latest Shaka standup',
+            status: 'completed',
+            subject_label: null,
+            current_step: null,
+            error_message: null,
+            started_at: '2026-05-13T11:45:00.000Z',
+            completed_at: '2026-05-13T11:50:00.000Z',
+            cost_total: 0,
+          },
+        },
+        {
+          key: 'automation-systems',
+          name: 'Amina',
+          pod: 'Automation',
+          status: 'active',
+          runtime: 'n8n',
+          responsibility: 'Keeps automation lanes moving.',
+          active_workflow_count: 1,
+          latest_run: null,
+        },
+      ],
+    },
+  ],
+  attention_queue: [],
+  active_runs: [],
+  latest_events: [
+    {
+      run_id: 'run-shaka',
+      event_type: 'standup.completed',
+      severity: 'info',
+      message: 'Standup finished.',
+      occurred_at: '2026-05-13T11:50:00.000Z',
+    },
+  ],
+  latest_standup: null,
+  daily_brief: {
+    headline: 'Agent Ops is steady',
+    synthesis: 'Decision queue is visible and the Kanban lanes are ready for review.',
+    generated_from: 'current_state',
+    run_id: null,
+    updated_at: '2026-05-13T12:00:00.000Z',
+    signals: ['1 running run', '3 pending approvals'],
+    next_actions: ['Review the decision queue.', 'Open Kanban for lane ownership.'],
+  },
+  cost_summary: {
+    window_hours: 24,
+    total: 0,
+    event_count: 0,
+    linked_event_count: 0,
+    unlinked_event_count: 0,
+    by_runtime: [],
+    by_agent: [],
+    by_workflow: [],
+    by_client_project: [],
+    by_artifact_type: [],
+  },
+  quality_summary: {
+    window_hours: 24,
+    generated_at: '2026-05-13T12:00:00.000Z',
+    rubric_count: 1,
+    evaluation_count: 0,
+    average_score: null,
+    pass_rate: null,
+    by_agent: [],
+    needs_coaching: [],
+    rubric_trends: [],
+  },
+  operating_signals: [],
+  knowledge_governance: null,
+  agent_inbox: [
+    {
+      id: 'chief-of-staff:standup',
+      priority: 'medium',
+      agent_key: 'chief-of-staff',
+      agent_name: 'Shaka',
+      pod: 'Command',
+      title: 'Run the daily standup',
+      reason: 'Keep the operating brief fresh.',
+      action_label: 'Run standup',
+      href: '/admin/agents',
+      source_run_id: null,
+    },
+  ],
+  engagement_queue: [],
+  dead_letter_queue: [],
+}
+
+const moremiReview = {
+  has_monitor: true,
+  run: {
+    id: 'moremi-run',
+    status: 'completed',
+    overall: 'clean',
+    generated_at: '2026-05-13T12:00:00.000Z',
+    completed_at: '2026-05-13T12:00:00.000Z',
+    href: '/admin/agents/runs/moremi-run',
+  },
+  warnings: [],
+  warning_count: 0,
+  enabled_source_feed_count: 2,
+  disabled_source_feed_count: 0,
+  safety_boundary: 'read_only',
+  linked_work_items: [],
+}
+
+describe('AgentOperationsPage mission control landing', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url === '/api/admin/agents/mission-control') {
+        return { ok: true, json: async () => missionSnapshot }
+      }
+      if (url === '/api/admin/agents/risk-compliance/monitor?review=latest') {
+        return { ok: true, json: async () => ({ review: moremiReview }) }
+      }
+      if (url === '/api/admin/agents/chief-of-staff/chat' && init?.method === 'POST') {
+        return {
+          ok: true,
+          json: async () => ({
+            run_id: 'shaka-chat-run',
+            reply: 'Review approvals first, then clear the Kanban blockers.',
+            suggested_actions: ['Open coordination', 'Open Kanban'],
+            agent_engagements: [],
+          }),
+        }
+      }
+      if (url === '/api/admin/agents/war-room' && init?.method === 'POST') {
+        return {
+          ok: true,
+          json: async () => ({
+            run_id: 'standup-run',
+            command: 'standup',
+            synthesis: 'Standup complete.',
+            updates: [
+              {
+                agent_key: 'chief-of-staff',
+                agent_name: 'Shaka',
+                pod: 'Command',
+                runtime: 'portfolio',
+                status: 'completed',
+                update: 'Decision queue is ready.',
+                next_action: 'Review pending approvals.',
+                approval_gate: 'required',
+              },
+            ],
+          }),
+        }
+      }
+      return { ok: false, status: 404, json: async () => ({ error: 'not found' }) }
+    }))
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('loads the mission control landing with primary actions and status hierarchy', async () => {
+    render(<AgentOperationsPage />)
+
+    expect(await screen.findByRole('heading', { name: 'Agent Ops Mission Control' })).toBeInTheDocument()
+
+    const actionBar = screen.getByLabelText('Mission Control actions')
+    expect(within(actionBar).getByRole('button', { name: /Refresh/i })).toBeInTheDocument()
+    expect(within(actionBar).getByRole('link', { name: /Open Kanban/i })).toHaveAttribute('href', '/admin/agents/swarm-board')
+    expect(within(actionBar).getByRole('link', { name: /Open controller/i })).toHaveAttribute('href', '/admin/agents/coordination')
+    expect(within(actionBar).getByRole('link', { name: /Run Console/i })).toHaveAttribute('href', '/admin/agents/runs')
+    expect(within(actionBar).getByRole('button', { name: /Run standup/i })).toBeInTheDocument()
+
+    const statusBlocks = screen.getByLabelText('Mission Control status blocks')
+    expect(within(statusBlocks).getByRole('link', { name: /Decision Queue/i })).toHaveAttribute('href', '/admin/agents/coordination')
+    expect(within(statusBlocks).getByRole('link', { name: /Kanban/i })).toHaveAttribute('href', '/admin/agents/swarm-board')
+    expect(within(statusBlocks).getByLabelText('Agents roster status')).toHaveTextContent('2')
+    expect(within(statusBlocks).getByLabelText('Health / read-only status')).toHaveTextContent('Read-only healthy')
+
+    expect(screen.getByRole('heading', { name: 'Ask Shaka' })).toBeInTheDocument()
+    expect(screen.getByRole('textbox', { name: 'Ask Shaka' })).toBeInTheDocument()
+    expect(screen.getByText('Daily Operating Brief')).toBeInTheDocument()
+
+    expect(within(statusBlocks).queryByRole('button', { name: /Status only/i })).not.toBeInTheDocument()
+    expect(within(statusBlocks).getByText('Status only')).toHaveAttribute('data-status-only', 'true')
+    expect(within(statusBlocks).getByText('No mutation')).toHaveAttribute('data-status-only', 'true')
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/admin/agents/mission-control', expect.objectContaining({
+        headers: expect.objectContaining({ Authorization: 'Bearer admin-token' }),
+      }))
+    })
+  })
+
+  it('posts inline Ask Shaka messages through the existing Chief of Staff chat endpoint', async () => {
+    render(<AgentOperationsPage />)
+
+    const input = await screen.findByRole('textbox', { name: 'Ask Shaka' })
+    fireEvent.change(input, { target: { value: 'What needs attention?' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Ask' }))
+
+    expect(await screen.findByText('Review approvals first, then clear the Kanban blockers.')).toBeInTheDocument()
+    expect(screen.getAllByText('Shaka').length).toBeGreaterThan(0)
+
+    expect(fetch).toHaveBeenCalledWith('/api/admin/agents/chief-of-staff/chat', expect.objectContaining({
+      method: 'POST',
+      headers: expect.objectContaining({ Authorization: 'Bearer admin-token' }),
+      body: JSON.stringify({ message: 'What needs attention?' }),
+    }))
+  })
+
+  it('runs the top-bar standup through the war-room POST action', async () => {
+    render(<AgentOperationsPage />)
+
+    fireEvent.click(await screen.findByRole('button', { name: /Run standup/i }))
+
+    expect(await screen.findByText('Standup complete.')).toBeInTheDocument()
+    expect(screen.getByText('War Room Standup')).toBeInTheDocument()
+
+    expect(fetch).toHaveBeenCalledWith('/api/admin/agents/war-room', expect.objectContaining({
+      method: 'POST',
+      headers: expect.objectContaining({ Authorization: 'Bearer admin-token' }),
+      body: JSON.stringify({ command: 'standup', message: '' }),
+    }))
+  })
+})

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import AgentCoordinationPage from './page'
@@ -15,12 +15,79 @@ vi.mock('@/lib/auth', () => ({
   getCurrentSession: vi.fn(async () => ({ access_token: 'admin-token' })),
 }))
 
+const now = '2026-05-11T12:00:00.000Z'
+
+const workItems = [
+  {
+    id: 'work-queue-1',
+    title: 'Approve agent run recovery request',
+    objective: 'Decide whether Shaka can move the recovery packet into validation.',
+    status: 'ready_for_review',
+    priority: 'high',
+    owner_agent_key: 'chief-of-staff',
+    owner_runtime: 'codex',
+    source_type: 'agent_run',
+    source_id: 'run-queue-1',
+    source_label: 'Agent run trace',
+    source_run_id: 'run-queue-1',
+    active_run_id: 'run-queue-1',
+    parent_work_item_id: null,
+    branch_name: 'codex/agent-run-recovery',
+    worktree_path: '/Users/vambahsillah/Projects/Portfolio.worktrees/recovery',
+    pr_number: 231,
+    pr_url: 'https://github.com/example/portfolio/pull/231',
+    expected_files: ['app/admin/agents/coordination/page.tsx'],
+    touched_files: [],
+    overlap_group: 'agent-ops',
+    dependency_ids: [],
+    blocker_summary: null,
+    validation_summary: 'Focused tests pass; awaiting executive decision.',
+    approval_id: 'approval-1',
+    metadata: { recommendation: 'Approve validation after checking the trace and PR evidence.', risk: 'medium' },
+    idempotency_key: null,
+    created_at: now,
+    updated_at: now,
+    completed_at: null,
+  },
+  {
+    id: 'work-queue-2',
+    title: 'Unblock Moremi drill handoff',
+    objective: 'Resolve the synthetic risk signal owner handoff before any remediation.',
+    status: 'blocked',
+    priority: 'urgent',
+    owner_agent_key: 'risk-compliance-intelligence',
+    owner_runtime: 'manual',
+    source_type: 'ai_risk_signal',
+    source_id: 'moremi-operational-drill',
+    source_label: 'Synthetic Agent Ops drill',
+    source_run_id: null,
+    active_run_id: 'run-moremi-drill',
+    parent_work_item_id: null,
+    branch_name: null,
+    worktree_path: null,
+    pr_number: null,
+    pr_url: null,
+    expected_files: [],
+    touched_files: [],
+    overlap_group: 'ai-risk-compliance',
+    dependency_ids: [],
+    blocker_summary: 'Needs Integration Captain owner decision.',
+    validation_summary: null,
+    approval_id: null,
+    metadata: {},
+    idempotency_key: 'ai-risk-drill:moremi-operational-drill:v1',
+    created_at: now,
+    updated_at: now,
+    completed_at: null,
+  },
+]
+
 const approvalCard = {
   approvalId: 'approval-1',
   runId: 'run-1',
   workItemId: 'work-1',
   status: 'pending',
-  requestedAt: '2026-05-11T12:00:00.000Z',
+  requestedAt: now,
   proposal: {
     id: 'next-build-profile',
     title: 'Profile the Next.js build path',
@@ -51,84 +118,101 @@ const approvalCard = {
     status: 'ready_for_review',
     active_run_id: 'run-1',
     approval_id: 'approval-1',
-    updated_at: '2026-05-11T12:00:00.000Z',
+    updated_at: now,
   },
 }
 
-describe('AgentCoordinationPage Vercel AutoResearch approvals', () => {
+function moremiDrillResponse() {
+  return {
+    ok: true,
+    work_item: {
+      ...workItems[1],
+      id: 'work-moremi-drill',
+      title: 'Review AI risk signal: Synthetic Moremi drill: prompt injection risk in browser automation',
+      status: 'proposed',
+    },
+    assessment: {
+      classification: 'approval_required',
+      severity: 'high',
+      recommendedNextAction: 'Create an approval-routed risk packet before any remediation work begins.',
+    },
+    verification: {
+      admin_path: '/admin/agents/coordination',
+      slack_command: '/agent work',
+      expected_status: 'proposed',
+    },
+  }
+}
+
+function setupFetch({ failWorkItems = false } = {}) {
+  vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = String(input)
+
+    if (url === '/api/admin/agents/work-items' && init?.method === 'POST') {
+      return { ok: true, json: async () => ({ ok: true, work_item: workItems[0] }) }
+    }
+
+    if (url.includes('/api/admin/agents/work-items/work-queue-1/block') && init?.method === 'POST') {
+      return { ok: true, json: async () => ({ ok: true }) }
+    }
+
+    if (url.includes('/api/admin/agents/work-items/work-queue-1/validation') && init?.method === 'POST') {
+      return { ok: true, json: async () => ({ ok: true }) }
+    }
+
+    if (url.includes('/api/admin/agents/work-items/work-queue-1/handoff') && init?.method === 'POST') {
+      return { ok: true, json: async () => ({ ok: true }) }
+    }
+
+    if (url.startsWith('/api/admin/agents/work-items')) {
+      if (failWorkItems) return { ok: false, status: 503, json: async () => ({ error: 'work item service unavailable' }) }
+      const status = new URL(`http://localhost${url}`).searchParams.get('status')
+      const filtered = status ? workItems.filter((item) => item.status === status) : workItems
+      return { ok: true, json: async () => ({ work_items: filtered }) }
+    }
+
+    if (url.startsWith('/api/admin/agents/vercel-research/proposals')) {
+      return { ok: true, json: async () => ({ ok: true, approvals: [approvalCard] }) }
+    }
+
+    if (url === '/api/admin/agents/risk-compliance/drill' && init?.method === 'POST') {
+      return { ok: true, json: async () => moremiDrillResponse() }
+    }
+
+    if (url === '/api/admin/agents/runs/run-1/approval' && init?.method === 'POST') {
+      return { ok: true, json: async () => ({ ok: true, approval_id: 'approval-1' }) }
+    }
+
+    return { ok: false, status: 404, json: async () => ({ error: 'not found' }) }
+  }))
+}
+
+describe('AgentCoordinationPage decision queue controller', () => {
   beforeEach(() => {
-    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-      const url = String(input)
-      if (url.startsWith('/api/admin/agents/vercel-research/proposals')) {
-        return { ok: true, json: async () => ({ ok: true, approvals: [approvalCard] }) }
-      }
-      if (url === '/api/admin/agents/risk-compliance/drill' && init?.method === 'POST') {
-        return {
-          ok: true,
-          json: async () => ({
-            ok: true,
-            work_item: {
-              id: 'work-moremi-drill',
-              title: 'Review AI risk signal: Synthetic Moremi drill: prompt injection risk in browser automation',
-              objective: 'Assess synthetic prompt injection risk.',
-              status: 'proposed',
-              priority: 'urgent',
-              owner_agent_key: 'risk-compliance-intelligence',
-              owner_runtime: 'manual',
-              source_type: 'ai_risk_signal',
-              source_id: 'moremi-operational-drill-prompt-injection-browser-automation',
-              source_label: 'Synthetic Agent Ops drill',
-              source_run_id: null,
-              active_run_id: 'run-moremi-drill',
-              parent_work_item_id: null,
-              branch_name: null,
-              worktree_path: null,
-              pr_number: null,
-              pr_url: null,
-              expected_files: [],
-              touched_files: [],
-              overlap_group: 'ai-risk-compliance',
-              dependency_ids: [],
-              blocker_summary: null,
-              validation_summary: null,
-              approval_id: null,
-              metadata: {},
-              idempotency_key: 'ai-risk-drill:moremi-operational-drill:v1',
-              created_at: '2026-05-11T12:02:00.000Z',
-              updated_at: '2026-05-11T12:02:00.000Z',
-              completed_at: null,
-            },
-            assessment: {
-              classification: 'approval_required',
-              severity: 'high',
-              recommendedNextAction: 'Create an approval-routed risk packet before any remediation work begins.',
-            },
-            verification: {
-              admin_path: '/admin/agents/coordination',
-              slack_command: '/agent work',
-              expected_status: 'proposed',
-            },
-          }),
-        }
-      }
-      if (url.startsWith('/api/admin/agents/work-items')) {
-        return { ok: true, json: async () => ({ work_items: [] }) }
-      }
-      if (url === '/api/admin/agents/runs/run-1/approval' && init?.method === 'POST') {
-        return { ok: true, json: async () => ({ ok: true, approval_id: 'approval-1' }) }
-      }
-      return { ok: false, status: 404, json: async () => ({ error: 'not found' }) }
-    }))
+    setupFetch()
   })
 
   afterEach(() => {
     vi.unstubAllGlobals()
   })
 
+  it('renders the Decision Queue hierarchy with action-required cards and trace language', async () => {
+    render(<AgentCoordinationPage />)
+
+    expect(await screen.findByRole('heading', { name: 'Decision Queue Controller' })).toBeInTheDocument()
+    expect(screen.getByText('Action required')).toBeInTheDocument()
+    expect(screen.getAllByText('Executive summary').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Controller recommendation').length).toBeGreaterThan(0)
+    expect(screen.getByText('Approve validation after checking the trace and PR evidence.')).toBeInTheDocument()
+    expect(screen.getByText('risk: medium')).toBeInTheDocument()
+    expect(screen.getAllByText('Trace').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Owner').length).toBeGreaterThan(0)
+  })
+
   it('shows pending Vercel AutoResearch approvals inline and approves from the card', async () => {
     render(<AgentCoordinationPage />)
 
-    expect(await screen.findByText('Vercel AutoResearch approvals')).toBeInTheDocument()
+    expect(await screen.findByText('Vercel AutoResearch approvals decision queue')).toBeInTheDocument()
     expect(screen.getAllByText('Profile the Next.js build path').length).toBeGreaterThan(0)
     expect(screen.getByText('Approve a read-only/local build-profile experiment?')).toBeInTheDocument()
     expect(screen.getByText('Slack notified')).toBeInTheDocument()
@@ -152,10 +236,74 @@ describe('AgentCoordinationPage Vercel AutoResearch approvals', () => {
 
     expect(await screen.findByText('Drill created or reused')).toBeInTheDocument()
     expect(screen.getByText('/agent work')).toBeInTheDocument()
+    expect(screen.getByText('Create an approval-routed risk packet before any remediation work begins.')).toBeInTheDocument()
     expect(fetch).toHaveBeenCalledWith('/api/admin/agents/risk-compliance/drill', expect.objectContaining({
       method: 'POST',
       headers: expect.objectContaining({ Authorization: 'Bearer admin-token' }),
       body: expect.stringContaining('run_moremi_operational_drill'),
     }))
+  })
+
+  it('creates a controller work item with expected files and owner runtime', async () => {
+    render(<AgentCoordinationPage />)
+
+    await screen.findByText('Create controller work item')
+    fireEvent.change(screen.getByPlaceholderText('Work item title'), { target: { value: 'Prepare controller decision packet' } })
+    fireEvent.change(screen.getByPlaceholderText('owner agent key'), { target: { value: 'integration-captain' } })
+    fireEvent.change(screen.getByLabelText('owner runtime'), { target: { value: 'hermes' } })
+    fireEvent.change(screen.getByPlaceholderText('branch name'), { target: { value: 'codex/controller-decision' } })
+    fireEvent.change(screen.getByPlaceholderText('Objective and acceptance criteria'), { target: { value: 'Route one decision through the controller.' } })
+    fireEvent.change(screen.getByPlaceholderText('worktree path'), { target: { value: '/tmp/controller' } })
+    fireEvent.change(screen.getByPlaceholderText('expected files, one per line'), { target: { value: 'app/admin/agents/coordination/page.tsx\napp/admin/agents/coordination/page.test.tsx' } })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create work item' }))
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items', expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('"owner_runtime":"hermes"'),
+      }))
+    })
+    expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items', expect.objectContaining({
+      body: expect.stringContaining('app/admin/agents/coordination/page.test.tsx'),
+    }))
+  })
+
+  it('filters by status without changing the route or API shape', async () => {
+    render(<AgentCoordinationPage />)
+
+    expect(await screen.findByText('Approve agent run recovery request')).toBeInTheDocument()
+    const filters = screen.getByLabelText('Status filters')
+    fireEvent.click(within(filters).getByRole('button', { name: 'blocked' }))
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items?status=blocked', expect.any(Object))
+    })
+    expect(await screen.findByText('Unblock Moremi drill handoff')).toBeInTheDocument()
+  })
+
+  it('runs quick actions for block, validation, and handoff from executable controls', async () => {
+    render(<AgentCoordinationPage />)
+
+    await screen.findByText('Approve agent run recovery request')
+    fireEvent.click(screen.getByRole('button', { name: 'Block Approve agent run recovery request' }))
+    await waitFor(() => expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items/work-queue-1/block', expect.objectContaining({ method: 'POST' })))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Record validation for Approve agent run recovery request' }))
+    await waitFor(() => expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items/work-queue-1/validation', expect.objectContaining({ method: 'POST' })))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Handoff Approve agent run recovery request' }))
+    await waitFor(() => expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items/work-queue-1/handoff', expect.objectContaining({ method: 'POST' })))
+  })
+
+  it('shows the failed fetch state when the work-item queue is unavailable', async () => {
+    vi.unstubAllGlobals()
+    setupFetch({ failWorkItems: true })
+
+    render(<AgentCoordinationPage />)
+
+    expect(await screen.findByText('Coordination layer unavailable')).toBeInTheDocument()
+    expect(screen.getByText('work item service unavailable')).toBeInTheDocument()
+    expect(screen.getByText('No agent coordination work items match the current filter.')).toBeInTheDocument()
   })
 })

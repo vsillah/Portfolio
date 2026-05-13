@@ -33,14 +33,14 @@ type BoardSnapshot = AgentSwarmBoardSnapshot & {
   organization?: AgentOrgBoardSnapshot
 }
 
-type BoardMode = 'mission' | 'hive' | 'agents' | 'war-room' | 'client-builder'
+type BoardMode = 'kanban' | 'hive' | 'agents' | 'war-room' | 'client-builder'
 
 const MODES: Array<{ key: BoardMode; label: string; icon: typeof LayoutDashboard }> = [
-  { key: 'mission', label: 'Mission Control', icon: LayoutDashboard },
-  { key: 'hive', label: 'Hive Mind', icon: Activity },
-  { key: 'agents', label: 'Agents', icon: Users },
-  { key: 'war-room', label: 'War Room', icon: MessageSquare },
-  { key: 'client-builder', label: 'Client AI Builder', icon: Columns },
+  { key: 'kanban', label: 'Kanban lanes', icon: LayoutDashboard },
+  { key: 'hive', label: 'Activity board', icon: Activity },
+  { key: 'agents', label: 'Agent roster', icon: Users },
+  { key: 'war-room', label: 'War room board', icon: MessageSquare },
+  { key: 'client-builder', label: 'Client builder board', icon: Columns },
 ]
 
 export default function AgentSwarmBoardPage() {
@@ -55,7 +55,7 @@ function AgentSwarmBoardContent() {
   const [snapshot, setSnapshot] = useState<BoardSnapshot | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [mode, setMode] = useState<BoardMode>('mission')
+  const [mode, setMode] = useState<BoardMode>('kanban')
   const [activityFilter, setActivityFilter] = useState('all')
 
   const fetchBoard = useCallback(async () => {
@@ -95,18 +95,18 @@ function AgentSwarmBoardContent() {
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
           { label: 'Agent Operations', href: '/admin/agents' },
-          { label: 'Agent Org Board' },
+          { label: 'Agent Kanban' },
         ]} />
 
         <header className="mb-5 flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
           <div>
             <div className="mb-2 inline-flex items-center gap-2 text-sm text-radiant-gold">
               <Bot size={16} />
-              ATAS AI Agent Organization
+              ATAS Agent Ops drilldown
             </div>
-            <h1 className="text-3xl font-bold">Agent Org Board</h1>
+            <h1 className="text-3xl font-bold">Agent Kanban</h1>
             <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-              One Portfolio-native command surface for ATAS agent work, shared activity, handoffs, and client AI org builder execution.
+              Agent Org Board work lanes for ownership, blockers, validation, traces, and pull requests across the Portfolio agent team.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -135,16 +135,16 @@ function AgentSwarmBoardContent() {
         ) : snapshot && organization ? (
           <div className="grid gap-5 xl:grid-cols-[220px_minmax(0,1fr)]">
             <aside className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-3">
-              <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Workspace</p>
-              <div className="space-y-1">
+              <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Board views</p>
+              <div className="space-y-1" role="tablist" aria-label="Agent board views">
                 {MODES.map((item) => {
                   const Icon = item.icon
                   return (
                     <button
                       key={item.key}
                       onClick={() => setMode(item.key)}
-                      aria-pressed={mode === item.key}
-                      aria-current={mode === item.key ? 'page' : undefined}
+                      role="tab"
+                      aria-selected={mode === item.key}
                       className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition ${
                         mode === item.key
                           ? 'bg-radiant-gold/15 text-radiant-gold'
@@ -157,6 +157,9 @@ function AgentSwarmBoardContent() {
                   )
                 })}
               </div>
+              <p className="mt-3 px-2 text-xs leading-relaxed text-muted-foreground">
+                Kanban lanes are the default work drilldown. Other views summarize the same org snapshot from different board angles.
+              </p>
 
               <div className="mt-5 grid grid-cols-2 gap-2">
                 <RailMetric label="Live" value={organization.summary.live_agents} />
@@ -167,7 +170,7 @@ function AgentSwarmBoardContent() {
             </aside>
 
             <main className="min-w-0">
-              {mode === 'mission' && <MissionBoard organization={organization} />}
+              {mode === 'kanban' && <KanbanBoard organization={organization} />}
               {mode === 'hive' && (
                 <HiveMind
                   organization={organization}
@@ -187,10 +190,21 @@ function AgentSwarmBoardContent() {
   )
 }
 
-function MissionBoard({ organization }: { organization: AgentOrgBoardSnapshot }) {
+function KanbanBoard({ organization }: { organization: AgentOrgBoardSnapshot }) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" role="tabpanel" aria-label="Kanban lanes">
       <SummaryStrip organization={organization} />
+      <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-4">
+        <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold">Agent Org Board</h2>
+            <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
+              Work-lane Kanban organized by agent ownership. Use each card to inspect the trace, PR, owner, blocker, validation, and current status before handoff or merge review.
+            </p>
+          </div>
+          <Badge label="default Kanban view" />
+        </div>
+      </section>
       <div className="grid gap-3 xl:grid-cols-4">
         {organization.lanes.map((lane) => (
           <TaskLane key={lane.key} lane={lane} />
@@ -216,12 +230,12 @@ function SummaryStrip({ organization }: { organization: AgentOrgBoardSnapshot })
 
 function TaskLane({ lane }: { lane: AgentOrgBoardLane }) {
   return (
-    <section className="min-h-[420px] rounded-lg border border-silicon-slate/70 bg-silicon-slate/15">
+    <section className="min-h-[420px] rounded-lg border border-silicon-slate/70 bg-silicon-slate/15" aria-label={`${lane.label} lane`}>
       <div className="border-b border-silicon-slate/60 p-3">
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <h2 className="truncate font-semibold" title={lane.label}>{lane.label}</h2>
-            <p className="mt-1 truncate text-xs text-muted-foreground" title={lane.agentName}>{lane.agentName}</p>
+            <h2 className="break-words font-semibold" title={lane.label}>{lane.label}</h2>
+            <p className="mt-1 break-words text-xs text-muted-foreground" title={lane.agentName}>{lane.agentName}</p>
           </div>
           <span className="rounded-full border border-silicon-slate/70 px-2 py-1 text-xs text-muted-foreground">
             {lane.tasks.length}
@@ -233,7 +247,7 @@ function TaskLane({ lane }: { lane: AgentOrgBoardLane }) {
           lane.tasks.map((task) => <WorkItemCard key={task.id} task={task} />)
         ) : (
           <p className="rounded-lg border border-dashed border-silicon-slate/60 px-3 py-8 text-center text-sm text-muted-foreground">
-            No active tasks
+            No active tasks in this lane
           </p>
         )}
       </div>
@@ -246,22 +260,34 @@ function WorkItemCard({ task }: { task: AgentOrgBoardTask }) {
     <article className="rounded-lg border border-silicon-slate/70 bg-background/70 p-3">
       <div className="mb-2 flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold" title={task.title}>{task.title}</p>
-          <p className="mt-1 text-xs text-muted-foreground">{task.status.replace(/_/g, ' ')}</p>
+          <p className="break-words text-sm font-semibold" title={task.title}>{task.title}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            <span className="font-medium text-foreground/80">Status:</span> {task.status.replace(/_/g, ' ')}
+          </p>
         </div>
         <span className={`rounded-full px-2 py-1 text-xs ${priorityClass(task.priority)}`}>{task.priority}</span>
       </div>
       {task.objective && <p className="mb-3 line-clamp-2 text-xs text-muted-foreground">{task.objective}</p>}
-      <div className="flex flex-wrap gap-2 text-xs">
+      <dl className="grid gap-2 text-xs">
+        <CardDetail label="Trace" value={task.activeRunId ?? 'No active trace'} />
+        <CardDetail label="Owner" value={task.ownerAgentName} />
+        {task.ownerRuntime && <CardDetail label="Runtime" value={task.ownerRuntime} />}
+        {task.branchName && <CardDetail label="Branch" value={task.branchName} />}
+        {task.overlapGroup && <CardDetail label="Overlap" value={task.overlapGroup} />}
+      </dl>
+      <div className="mt-3 flex flex-wrap gap-2 text-xs">
         {task.branchName && <Badge label={task.branchName} />}
         {task.ownerRuntime && <Badge label={task.ownerRuntime} />}
-        {task.overlapGroup && <Badge label={`overlap: ${task.overlapGroup}`} />}
       </div>
       {task.blockerSummary && (
-        <p className="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 p-2 text-xs text-red-200">{task.blockerSummary}</p>
+        <p className="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 p-2 text-xs text-red-200">
+          <span className="font-semibold">Blocker:</span> {task.blockerSummary}
+        </p>
       )}
       {task.validationSummary && (
-        <p className="mt-3 rounded-lg border border-green-500/30 bg-green-500/10 p-2 text-xs text-green-200">{task.validationSummary}</p>
+        <p className="mt-3 rounded-lg border border-green-500/30 bg-green-500/10 p-2 text-xs text-green-200">
+          <span className="font-semibold">Validation:</span> {task.validationSummary}
+        </p>
       )}
       <div className="mt-3 flex items-center justify-between gap-2 text-xs text-muted-foreground">
         <span>{formatRelative(task.updatedAt)}</span>
@@ -275,10 +301,28 @@ function WorkItemCard({ task }: { task: AgentOrgBoardTask }) {
             PR {task.prNumber}
           </a>
         ) : (
-          <span>No PR</span>
+          <span>PR: none</span>
         )}
+        {task.activeRunId ? (
+          <a
+            href={`/admin/agents/runs/${task.activeRunId}`}
+            aria-label={`Open trace ${task.activeRunId} for ${task.title}`}
+            className="inline-flex items-center gap-1 text-radiant-gold hover:underline"
+          >
+            Trace
+          </a>
+        ) : null}
       </div>
     </article>
+  )
+}
+
+function CardDetail({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="grid grid-cols-[64px_minmax(0,1fr)] gap-2 rounded-lg border border-silicon-slate/60 bg-silicon-slate/10 px-2 py-1.5">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="min-w-0 break-words text-foreground/85" title={value}>{value}</dd>
+    </div>
   )
 }
 

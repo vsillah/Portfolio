@@ -116,6 +116,7 @@ export type AgentOrgBoardTask = {
   worktreePath: string | null
   prNumber: number | null
   prUrl: string | null
+  activeRunId: string | null
   blockerSummary: string | null
   validationSummary: string | null
   overlapGroup: string | null
@@ -806,6 +807,7 @@ export function buildAgentOrgBoardSnapshotFromRows(input: AgentOrgBoardBuildInpu
     worktreePath: item.worktree_path,
     prNumber: item.pr_number,
     prUrl: item.pr_url,
+    activeRunId: item.active_run_id,
     blockerSummary: item.blocker_summary,
     validationSummary: item.validation_summary,
     overlapGroup: item.overlap_group,

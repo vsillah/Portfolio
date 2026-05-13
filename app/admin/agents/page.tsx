@@ -538,23 +538,28 @@ export default function AgentOperationsPage() {
     () => snapshot?.roster.flatMap((pod) => pod.agents).filter((agent) => agent.status !== 'planned').slice(0, 10) ?? [],
     [snapshot],
   )
+  const rosterCount = snapshot?.roster.flatMap((pod) => pod.agents).filter((agent) => agent.status !== 'planned').length ?? 0
+  const decisionQueueCount = snapshot?.status_strip.pending_approvals ?? snapshot?.status_strip.waiting_for_approval ?? 0
+  const kanbanSignalCount = (snapshot?.status_strip.running ?? 0) + (snapshot?.status_strip.queued ?? 0)
+  const healthLabel = (snapshot?.status_strip.failed ?? 0) || (snapshot?.status_strip.stale ?? 0) ? 'Needs review' : 'Read-only healthy'
 
   return (
     <ProtectedRoute requireAdmin>
-      <div className="min-h-screen bg-background text-foreground p-5 lg:p-7">
+      <div className="min-h-screen bg-[#06080d] p-5 text-foreground lg:p-7">
         <div className="max-w-7xl mx-auto">
           <Breadcrumbs items={[{ label: 'Admin Dashboard', href: '/admin' }, { label: 'Agent Operations' }]} />
 
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="flex flex-col gap-4 rounded-xl border border-silicon-slate/70 bg-silicon-slate/15 p-5 shadow-2xl shadow-black/30 lg:flex-row lg:items-start lg:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Mission Control</p>
-              <h1 className="mt-1 text-3xl font-bold">Agent Operations</h1>
+              <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Mission Control Landing</p>
+              <h1 className="mt-1 text-3xl font-bold">Agent Ops Mission Control</h1>
               <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-                One command surface for agent status, standups, blockers, and traceable engagement across Codex, n8n, Hermes, OpenCode, and manual work.
+                Command the agent operating layer from one landing page: decisions, Kanban work, roster health, read-only status, standups, and Shaka guidance.
               </p>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2" aria-label="Mission Control actions">
               <button
+                type="button"
                 onClick={refreshMissionControl}
                 disabled={loading || moremiReviewLoading}
                 className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60 disabled:opacity-60"
@@ -562,14 +567,27 @@ export default function AgentOperationsPage() {
                 <RefreshCw size={16} className={loading || moremiReviewLoading ? 'animate-spin' : ''} />
                 Refresh
               </button>
-              <Link href="/admin/agents/runs" className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15">
-                <Activity size={16} />
-                Runs
-              </Link>
-              <Link href="/admin/agents/swarm-board" className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60">
+              <Link href="/admin/agents/swarm-board" className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15">
                 <Columns size={16} />
-                Swarm Board
+                Open Kanban
               </Link>
+              <Link href="/admin/agents/coordination" className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60">
+                <ShieldCheck size={16} />
+                Open controller
+              </Link>
+              <Link href="/admin/agents/runs" className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60">
+                <Activity size={16} />
+                Run Console
+              </Link>
+              <button
+                type="button"
+                onClick={() => runWarRoom('standup')}
+                disabled={warRoomLoading !== null}
+                className="inline-flex items-center gap-2 rounded-lg border border-emerald-400/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-100 hover:bg-emerald-500/15 disabled:opacity-60"
+              >
+                {warRoomLoading === 'standup' ? <RefreshCw size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                Run standup
+              </button>
             </div>
           </div>
 
@@ -579,41 +597,60 @@ export default function AgentOperationsPage() {
             </div>
           ) : null}
 
-          <section className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-7">
-            <MetricCard icon={<Radio size={16} />} label="Active" value={snapshot?.status_strip.active ?? 0} />
-            <MetricCard icon={<Clock3 size={16} />} label="Running" value={snapshot?.status_strip.running ?? 0} />
-            <MetricCard icon={<ShieldCheck size={16} />} label="Approvals" value={snapshot?.status_strip.pending_approvals ?? 0} />
-            <MetricCard icon={<AlertTriangle size={16} />} label="Failed" value={snapshot?.status_strip.failed ?? 0} tone="red" />
-            <MetricCard icon={<AlertTriangle size={16} />} label="Stale" value={snapshot?.status_strip.stale ?? 0} tone="yellow" />
-            <MetricCard icon={<CircleDollarSign size={16} />} label="Cost today" value={`$${(snapshot?.status_strip.cost_today ?? 0).toFixed(4)}`} />
-            <MetricCard icon={<Users size={16} />} label="Agents" value={topAgents.length} />
+          <section className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4" aria-label="Mission Control status blocks">
+            <MissionStatusCard
+              as="link"
+              href="/admin/agents/coordination"
+              icon={<ShieldCheck size={18} />}
+              label="Decision Queue"
+              value={decisionQueueCount}
+              detail="Approval-gated coordination"
+              status={decisionQueueCount ? 'Needs decision' : 'Clear'}
+              tone={decisionQueueCount ? 'yellow' : 'green'}
+            />
+            <MissionStatusCard
+              as="link"
+              href="/admin/agents/swarm-board"
+              icon={<Columns size={18} />}
+              label="Kanban"
+              value={kanbanSignalCount}
+              detail="Queued and running lanes"
+              status="Open board"
+              tone="blue"
+            />
+            <MissionStatusCard
+              icon={<Users size={18} />}
+              label="Agents roster"
+              value={rosterCount}
+              detail={`${snapshot?.roster.length ?? 0} operating pod(s)`}
+              status="Status only"
+              tone="neutral"
+            />
+            <MissionStatusCard
+              icon={<Radio size={18} />}
+              label="Health / read-only"
+              value={healthLabel}
+              detail={`${snapshot?.status_strip.failed ?? 0} failed, ${snapshot?.status_strip.stale ?? 0} stale`}
+              status="No mutation"
+              tone={healthLabel === 'Read-only healthy' ? 'green' : 'red'}
+            />
           </section>
-
-          <DailyBriefPanel brief={snapshot?.daily_brief ?? null} loading={loading} />
-          <CostSummaryPanel summary={snapshot?.cost_summary ?? null} />
-          <QualitySignalsPanel summary={snapshot?.quality_summary ?? null} />
-          <OperatingSignalsPanel signals={snapshot?.operating_signals ?? []} />
-          <MoremiReviewPanel
-            review={moremiReview}
-            loading={moremiReviewLoading}
-            confirm={moremiReviewConfirm}
-            actionLoading={actionLoading === 'moremi-review'}
-            onCreate={createMoremiWarningWorkItems}
-            onCancel={() => setMoremiReviewConfirm(false)}
-          />
-          <KnowledgeGovernancePanel governance={snapshot?.knowledge_governance ?? null} />
 
           <section className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[1.2fr_0.8fr]">
             <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/25 p-4">
               <div className="flex items-center gap-2 text-radiant-gold">
                 <MessageSquare size={18} />
-                <h2 className="font-semibold">Chief of Staff Command</h2>
+                <h2 className="font-semibold">Ask Shaka</h2>
               </div>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Inline Chief of Staff guidance uses the existing chat endpoint. Recommendations stay read-only until routed through the approval gates below.
+              </p>
               <form onSubmit={submitChiefOfStaff} className="mt-3 flex flex-col gap-3 md:flex-row">
                 <input
                   value={command}
                   onChange={(event) => setCommand(event.target.value)}
-                  placeholder="Ask what needs attention, or type a topic for /discuss..."
+                  aria-label="Ask Shaka"
+                  placeholder="Ask Shaka what needs attention, or type a topic for discussion..."
                   className="min-h-[44px] flex-1 rounded-lg border border-silicon-slate/70 bg-background/70 px-3 text-sm outline-none focus:border-radiant-gold/70"
                 />
                 <div className="flex gap-2">
@@ -624,15 +661,6 @@ export default function AgentOperationsPage() {
                   >
                     <Send size={16} />
                     Ask
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => runWarRoom('standup')}
-                    disabled={warRoomLoading !== null}
-                    className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60 disabled:opacity-60"
-                  >
-                    <Sparkles size={16} />
-                    Standup
                   </button>
                   <button
                     type="button"
@@ -649,7 +677,7 @@ export default function AgentOperationsPage() {
               {chiefReply ? (
                 <>
                   <ResultPanel
-                    title="Chief of Staff"
+                    title="Shaka"
                     href={`/admin/agents/runs/${chiefReply.run_id}`}
                     body={chiefReply.reply}
                     items={chiefReply.suggested_actions}
@@ -696,6 +724,31 @@ export default function AgentOperationsPage() {
               </div>
             </div>
           </section>
+
+          <DailyBriefPanel brief={snapshot?.daily_brief ?? null} loading={loading} />
+
+          <section className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-7">
+            <MetricCard icon={<Radio size={16} />} label="Active" value={snapshot?.status_strip.active ?? 0} />
+            <MetricCard icon={<Clock3 size={16} />} label="Running" value={snapshot?.status_strip.running ?? 0} />
+            <MetricCard icon={<ShieldCheck size={16} />} label="Approvals" value={snapshot?.status_strip.pending_approvals ?? 0} />
+            <MetricCard icon={<AlertTriangle size={16} />} label="Failed" value={snapshot?.status_strip.failed ?? 0} tone="red" />
+            <MetricCard icon={<AlertTriangle size={16} />} label="Stale" value={snapshot?.status_strip.stale ?? 0} tone="yellow" />
+            <MetricCard icon={<CircleDollarSign size={16} />} label="Cost today" value={`$${(snapshot?.status_strip.cost_today ?? 0).toFixed(4)}`} />
+            <MetricCard icon={<Users size={16} />} label="Agents" value={rosterCount} />
+          </section>
+
+          <CostSummaryPanel summary={snapshot?.cost_summary ?? null} />
+          <QualitySignalsPanel summary={snapshot?.quality_summary ?? null} />
+          <OperatingSignalsPanel signals={snapshot?.operating_signals ?? []} />
+          <MoremiReviewPanel
+            review={moremiReview}
+            loading={moremiReviewLoading}
+            confirm={moremiReviewConfirm}
+            actionLoading={actionLoading === 'moremi-review'}
+            onCreate={createMoremiWarningWorkItems}
+            onCancel={() => setMoremiReviewConfirm(false)}
+          />
+          <KnowledgeGovernancePanel governance={snapshot?.knowledge_governance ?? null} />
 
           <EngagementQueuePanel items={snapshot?.engagement_queue ?? []} />
 
@@ -745,7 +798,7 @@ export default function AgentOperationsPage() {
               <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-1">
                 <ControlLink href="/admin/agents/chief-of-staff" label="Chief of Staff Chat" />
                 <ControlLink href="/admin/agents/runs" label="Run Console" />
-                <ControlLink href="/admin/agents/swarm-board" label="Client Swarm Board" />
+                <ControlLink href="/admin/agents/swarm-board" label="Agent Kanban" />
                 <ControlLink href="/admin/agents/automations" label="Automation Context" />
                 <ActionButton label="Morning review" loading={actionLoading === 'morning-review'} onClick={() => runOperatorAction('morning-review')} />
                 <ActionButton label="Hermes health" loading={actionLoading === 'hermes'} onClick={() => runOperatorAction('hermes')} />
@@ -795,6 +848,70 @@ function MetricCard({ icon, label, value, tone = 'default' }: { icon: ReactNode;
       </div>
       <p className={`mt-2 text-2xl font-semibold ${toneClass}`}>{value}</p>
     </div>
+  )
+}
+
+function MissionStatusCard({
+  as = 'status',
+  href,
+  icon,
+  label,
+  value,
+  detail,
+  status,
+  tone,
+}: {
+  as?: 'link' | 'status'
+  href?: string
+  icon: ReactNode
+  label: string
+  value: string | number
+  detail: string
+  status: string
+  tone: 'green' | 'yellow' | 'red' | 'blue' | 'neutral'
+}) {
+  const content = (
+    <>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-2 text-radiant-gold">
+          {icon}
+          <p className="text-xs font-semibold uppercase tracking-wider">{label}</p>
+        </div>
+        <StatusOnlyPill tone={tone}>{status}</StatusOnlyPill>
+      </div>
+      <p className="mt-4 text-2xl font-semibold">{value}</p>
+      <p className="mt-1 text-sm text-muted-foreground">{detail}</p>
+    </>
+  )
+
+  if (as === 'link' && href) {
+    return (
+      <Link href={href} className="block rounded-lg border border-silicon-slate/60 bg-silicon-slate/20 p-4 hover:border-radiant-gold/50">
+        {content}
+      </Link>
+    )
+  }
+
+  return (
+    <div className="rounded-lg border border-silicon-slate/60 bg-silicon-slate/20 p-4" aria-label={`${label} status`}>
+      {content}
+    </div>
+  )
+}
+
+function StatusOnlyPill({ children, tone }: { children: ReactNode; tone: 'green' | 'yellow' | 'red' | 'blue' | 'neutral' }) {
+  const toneClass = {
+    green: 'border-emerald-400/40 bg-emerald-500/10 text-emerald-200',
+    yellow: 'border-yellow-400/40 bg-yellow-500/10 text-yellow-100',
+    red: 'border-red-400/40 bg-red-500/10 text-red-200',
+    blue: 'border-sky-400/40 bg-sky-500/10 text-sky-200',
+    neutral: 'border-silicon-slate/60 bg-black/20 text-muted-foreground',
+  }[tone]
+
+  return (
+    <span className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium ${toneClass}`} data-status-only="true">
+      {children}
+    </span>
   )
 }
 
