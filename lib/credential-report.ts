@@ -67,6 +67,8 @@ export type CredentialReportRow = {
   dueAt: string | null
   daysUntilDue: number | null
   status: 'needs-baseline' | 'due' | 'ok'
+  sinkPresence: CredentialSinkPresenceObservation[]
+  sinkPresenceSummary: CredentialSinkPresenceSummary
   nextAction: string
 }
 
@@ -90,6 +92,7 @@ export type CredentialReport = {
     providerConfirmed: number
     providerPending: number
   }
+  sinkPresenceSummary: CredentialSinkPresenceSummary
   bySource: Record<CredentialSourceOfTruth, number>
   byRisk: Record<string, number>
   byRuntimeSink: Record<string, number>
@@ -144,6 +147,24 @@ export type CredentialPacketSummary = {
   latestCreatedAt: string | null
 }
 
+export type CredentialSinkPresenceStatus = 'present' | 'missing' | 'unknown' | 'unavailable'
+
+export type CredentialSinkPresenceObservation = {
+  secretId: string
+  envVar: string
+  sink: string
+  status: CredentialSinkPresenceStatus
+  evidence: string
+  checkedAt: string
+}
+
+export type CredentialSinkPresenceSummary = {
+  present: number
+  missing: number
+  unknown: number
+  unavailable: number
+}
+
 export type CredentialBaselineTemplateEntry = {
   secretId: string
   envVar: string
@@ -164,12 +185,13 @@ export function buildCredentialReport(
   inventory: CredentialInventory,
   env: CredentialEnvironment,
   asOfInput: string | Date = new Date(),
-  packets: CredentialRotationPacket[] = []
+  packets: CredentialRotationPacket[] = [],
+  sinkPresence: CredentialSinkPresenceObservation[] = []
 ): CredentialReport {
   const asOfDate = asDate(asOfInput)
   const rows = inventory.secrets
     .filter((secret) => secret.environments.includes(env))
-    .map((secret) => buildReportRow(secret, env, asOfDate))
+    .map((secret) => buildReportRow(secret, env, asOfDate, sinkPresenceForSecret(secret, sinkPresence)))
     .sort((a, b) => {
       const statusOrder = { due: 0, 'needs-baseline': 1, ok: 2 }
       const statusDelta = statusOrder[a.status] - statusOrder[b.status]
@@ -203,6 +225,7 @@ export function buildCredentialReport(
       onePasswordVault: inventory.providers.onepassword.vaults[env],
     },
     summary,
+    sinkPresenceSummary: summarizeSinkPresence(rows.flatMap((row) => row.sinkPresence)),
     bySource: countBy(rows, (row) => row.sourceOfTruth),
     byRisk: countBy(rows, (row) => row.risk),
     byRuntimeSink: countRuntimeSinks(rows),
@@ -227,6 +250,9 @@ export function renderCredentialReportMarkdown(report: CredentialReport): string
     `- Due: ${report.summary.due}`,
     `- Missing provider-confirmed baseline: ${report.summary.needsBaseline}`,
     `- Approval-gated in this environment: ${report.summary.approvalRequired}`,
+    `- Runtime sinks present: ${report.sinkPresenceSummary.present}`,
+    `- Runtime sinks missing: ${report.sinkPresenceSummary.missing}`,
+    `- Runtime sinks unknown/unavailable: ${report.sinkPresenceSummary.unknown + report.sinkPresenceSummary.unavailable}`,
     '',
     '## Provider Context',
     '',
@@ -262,10 +288,17 @@ export function renderCredentialReportMarkdown(report: CredentialReport): string
         '',
       ]
       : ['No local rotation packets found.', '']),
+    '## Runtime Sink Presence',
+    '',
+    `- Present: ${report.sinkPresenceSummary.present}`,
+    `- Missing: ${report.sinkPresenceSummary.missing}`,
+    `- Unknown: ${report.sinkPresenceSummary.unknown}`,
+    `- Unavailable: ${report.sinkPresenceSummary.unavailable}`,
+    '',
     '## Secrets',
     '',
-    '| Status | Env Var | Source | Risk | Due | Baseline | Next action |',
-    '| --- | --- | --- | --- | --- | --- | --- |',
+    '| Status | Env Var | Source | Risk | Due | Baseline | Sink presence | Next action |',
+    '| --- | --- | --- | --- | --- | --- | --- | --- |',
     ...report.rows.map((row) => [
       row.status,
       row.envVar,
@@ -273,6 +306,7 @@ export function renderCredentialReportMarkdown(report: CredentialReport): string
       row.risk,
       row.dueAt ?? 'unknown',
       row.baselineStatus,
+      formatSinkPresence(row.sinkPresenceSummary),
       row.nextAction,
     ].map(escapeTableCell).join(' | ')).map((line) => `| ${line} |`),
     '',
@@ -334,7 +368,12 @@ export function renderCredentialBaselineTemplateMarkdown(env: CredentialEnvironm
   return `${lines.join('\n')}\n`
 }
 
-function buildReportRow(secret: CredentialSecret, env: CredentialEnvironment, asOfDate: Date): CredentialReportRow {
+function buildReportRow(
+  secret: CredentialSecret,
+  env: CredentialEnvironment,
+  asOfDate: Date,
+  sinkPresence: CredentialSinkPresenceObservation[]
+): CredentialReportRow {
   const baseline = getBaseline(secret, env)
   const lastRotatedAt = baseline.lastRotatedAt
   const dueDate = lastRotatedAt ? addDays(new Date(lastRotatedAt), secret.rotationCadenceDays) : null
@@ -358,8 +397,49 @@ function buildReportRow(secret: CredentialSecret, env: CredentialEnvironment, as
     dueAt: dueDate ? dateOnly(dueDate) : null,
     daysUntilDue,
     status,
+    sinkPresence,
+    sinkPresenceSummary: summarizeSinkPresence(sinkPresence),
     nextAction: nextAction(status, baseline.status, secret.approvalRequired?.includes(env) ?? false),
   }
+}
+
+function sinkPresenceForSecret(
+  secret: CredentialSecret,
+  observations: CredentialSinkPresenceObservation[]
+): CredentialSinkPresenceObservation[] {
+  const bySink = new Map(
+    observations
+      .filter((observation) => observation.secretId === secret.id || observation.envVar === secret.envVar)
+      .map((observation) => [observation.sink, observation])
+  )
+
+  return secret.runtimeSinks.map((sink) => bySink.get(sink) ?? {
+    secretId: secret.id,
+    envVar: secret.envVar,
+    sink,
+    status: 'unknown',
+    evidence: 'Runtime sink was not checked for this report.',
+    checkedAt: 'not-checked',
+  })
+}
+
+function summarizeSinkPresence(observations: CredentialSinkPresenceObservation[]): CredentialSinkPresenceSummary {
+  return {
+    present: observations.filter((observation) => observation.status === 'present').length,
+    missing: observations.filter((observation) => observation.status === 'missing').length,
+    unknown: observations.filter((observation) => observation.status === 'unknown').length,
+    unavailable: observations.filter((observation) => observation.status === 'unavailable').length,
+  }
+}
+
+function formatSinkPresence(summary: CredentialSinkPresenceSummary): string {
+  const parts = [
+    summary.present > 0 ? `${summary.present} present` : '',
+    summary.missing > 0 ? `${summary.missing} missing` : '',
+    summary.unknown > 0 ? `${summary.unknown} unknown` : '',
+    summary.unavailable > 0 ? `${summary.unavailable} unavailable` : '',
+  ].filter(Boolean)
+  return parts.length > 0 ? parts.join(', ') : 'none'
 }
 
 function getBaseline(secret: CredentialSecret, env: CredentialEnvironment): CredentialBaseline {

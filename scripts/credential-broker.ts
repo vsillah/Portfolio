@@ -6,6 +6,7 @@ import * as path from 'node:path'
 import {
   buildCredentialBaselineTemplate,
   buildCredentialReport,
+  type CredentialSinkPresenceObservation,
   type CredentialRotationPacket,
   renderCredentialBaselineTemplateMarkdown,
   renderCredentialReportMarkdown,
@@ -213,7 +214,8 @@ function listDue(inventory: CredentialInventory, args: ParsedArgs) {
 function report(inventory: CredentialInventory, args: ParsedArgs) {
   const env = getEnv(args)
   const asOf = String(args.options['as-of'] || new Date().toISOString())
-  const credentialReport = buildCredentialReport(inventory, env, asOf, readRotationPackets())
+  const sinkPresence = args.options['check-sinks'] ? collectRuntimeSinkPresence(inventory, env) : []
+  const credentialReport = buildCredentialReport(inventory, env, asOf, readRotationPackets(), sinkPresence)
 
   if (args.options.json) {
     console.log(JSON.stringify(credentialReport, null, 2))
@@ -515,6 +517,94 @@ function readRotationPackets(): CredentialRotationPacket[] {
     })
 }
 
+function collectRuntimeSinkPresence(
+  inventory: CredentialInventory,
+  env: EnvironmentName
+): CredentialSinkPresenceObservation[] {
+  const checkedAt = new Date().toISOString()
+  const localEnvKeys = readLocalEnvKeys(env)
+
+  return envSecrets(inventory, env).flatMap((secret) => secret.runtimeSinks.map((sink) => {
+    if (sink === 'local-env') {
+      return localEnvPresenceObservation(secret, sink, checkedAt, localEnvKeys)
+    }
+
+    return {
+      secretId: secret.id,
+      envVar: secret.envVar,
+      sink,
+      status: 'unknown',
+      evidence: `${sink} metadata check is not configured in this read-only broker path.`,
+      checkedAt,
+    } satisfies CredentialSinkPresenceObservation
+  }))
+}
+
+function readLocalEnvKeys(env: EnvironmentName): { files: Array<{ file: string; keys: Set<string> }>; missingFiles: string[] } {
+  const candidates = Array.from(new Set([
+    `.env.${env}`,
+    env === 'dev' ? '.env.local' : `.env.${env}.local`,
+    '.env.local',
+  ]))
+  const files: Array<{ file: string; keys: Set<string> }> = []
+  const missingFiles: string[] = []
+
+  for (const file of candidates) {
+    const resolved = path.join(ROOT, file)
+    if (!existsSync(resolved)) {
+      missingFiles.push(file)
+      continue
+    }
+    const keys = new Set<string>()
+    for (const line of readFileSync(resolved, 'utf8').split(/\r?\n/)) {
+      const match = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=/)
+      if (match) keys.add(match[1])
+    }
+    files.push({ file, keys })
+  }
+
+  return { files, missingFiles }
+}
+
+function localEnvPresenceObservation(
+  secret: CredentialSecret,
+  sink: string,
+  checkedAt: string,
+  localEnvKeys: { files: Array<{ file: string; keys: Set<string> }>; missingFiles: string[] }
+): CredentialSinkPresenceObservation {
+  const matches = localEnvKeys.files.filter((file) => file.keys.has(secret.envVar)).map((file) => file.file)
+  if (matches.length > 0) {
+    return {
+      secretId: secret.id,
+      envVar: secret.envVar,
+      sink,
+      status: 'present',
+      evidence: `Found key name in local env file: ${matches.join(', ')}.`,
+      checkedAt,
+    }
+  }
+
+  if (localEnvKeys.files.length === 0) {
+    return {
+      secretId: secret.id,
+      envVar: secret.envVar,
+      sink,
+      status: 'unavailable',
+      evidence: `No local env files found to inspect. Checked: ${localEnvKeys.missingFiles.join(', ')}.`,
+      checkedAt,
+    }
+  }
+
+  return {
+    secretId: secret.id,
+    envVar: secret.envVar,
+    sink,
+    status: 'missing',
+    evidence: `Key name was not found in inspected local env files: ${localEnvKeys.files.map((file) => file.file).join(', ')}.`,
+    checkedAt,
+  }
+}
+
 function printPacketSummary(packet: RotationPacket) {
   console.log(`${packet.type} packet written for ${packet.envVar} (${packet.environment})`)
   console.log(`source=${packet.sourceOfTruth} sinks=${packet.runtimeSinks.join(', ')}`)
@@ -562,7 +652,7 @@ function printHelp() {
 
 Commands:
   list-due      --env <dev|staging|prod> [--as-of YYYY-MM-DD] [--json]
-  report        --env <dev|staging|prod> [--as-of YYYY-MM-DD] [--json]
+  report        --env <dev|staging|prod> [--as-of YYYY-MM-DD] [--check-sinks] [--json]
   baseline-template --env <dev|staging|prod> [--updated-at YYYY-MM-DD] [--json]
   inject        --env <dev|staging|prod> [--secret id-or-envVar[,..]] -- <command>
   rotate        --env <dev|staging|prod> --secret <id-or-envVar> [--local-env .env.staging] [--length 48]

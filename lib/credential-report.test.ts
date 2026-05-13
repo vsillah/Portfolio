@@ -127,6 +127,12 @@ describe('credential report', () => {
       synced: 1,
       latestCreatedAt: '2026-05-08T12:00:00.000Z',
     })
+    expect(report.sinkPresenceSummary).toEqual({
+      present: 0,
+      missing: 0,
+      unknown: 3,
+      unavailable: 0,
+    })
     expect(report.packets[0]).toMatchObject({
       envVar: 'MISSING_BASELINE',
       status: 'synced',
@@ -141,10 +147,46 @@ describe('credential report', () => {
     const markdown = renderCredentialReportMarkdown(report)
     expect(markdown).toContain('Credential Rotation Visibility (staging)')
     expect(markdown).toContain('Rotation Packets')
+    expect(markdown).toContain('Runtime Sink Presence')
     expect(markdown).toContain('DUE_SECRET')
     expect(markdown).not.toContain('super-secret')
 
     vi.useRealTimers()
+  })
+
+  it('merges value-free runtime sink presence observations into report rows', () => {
+    const report = buildCredentialReport(inventory, 'staging', '2026-05-09', [], [
+      {
+        secretId: 'missing-baseline',
+        envVar: 'MISSING_BASELINE',
+        sink: 'local-env',
+        status: 'present',
+        evidence: 'Found key name in local env file: .env.staging.',
+        checkedAt: '2026-05-09T12:00:00.000Z',
+      },
+      {
+        secretId: 'due-secret',
+        envVar: 'DUE_SECRET',
+        sink: 'Vercel',
+        status: 'missing',
+        evidence: 'Key name was not listed by Vercel metadata.',
+        checkedAt: '2026-05-09T12:00:00.000Z',
+      },
+    ])
+
+    expect(report.sinkPresenceSummary).toEqual({
+      present: 1,
+      missing: 1,
+      unknown: 1,
+      unavailable: 0,
+    })
+    expect(report.rows.find((row) => row.envVar === 'MISSING_BASELINE')?.sinkPresence).toEqual([
+      expect.objectContaining({
+        sink: 'local-env',
+        status: 'present',
+      }),
+    ])
+    expect(JSON.stringify(report)).not.toContain('super-secret')
   })
 
   it('builds a provider-confirmation template for missing baselines', () => {

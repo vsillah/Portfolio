@@ -21,7 +21,21 @@ type CredentialReportRow = {
   lastRotatedAt: string | null
   dueAt: string | null
   status: 'needs-baseline' | 'due' | 'ok'
+  sinkPresence: Array<{
+    sink: string
+    status: 'present' | 'missing' | 'unknown' | 'unavailable'
+    evidence: string
+    checkedAt: string
+  }>
+  sinkPresenceSummary: CredentialSinkPresenceSummary
   nextAction: string
+}
+
+type CredentialSinkPresenceSummary = {
+  present: number
+  missing: number
+  unknown: number
+  unavailable: number
 }
 
 type CredentialReport = {
@@ -43,6 +57,7 @@ type CredentialReport = {
     providerConfirmed: number
     providerPending: number
   }
+  sinkPresenceSummary: CredentialSinkPresenceSummary
   bySource: Record<string, number>
   byRisk: Record<string, number>
   byRuntimeSink: Record<string, number>
@@ -182,6 +197,19 @@ function CredentialAdminContent() {
               <Metric icon={<AlertTriangle size={18} />} label="Need baseline" value={report.summary.needsBaseline} />
             </section>
 
+            <section className="mb-6 rounded-lg border border-silicon-slate bg-silicon-slate/30 p-4">
+              <div className="mb-3 flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
+                <h2 className="font-semibold">Runtime sink presence</h2>
+                <p className="text-xs text-muted-foreground">Name-only checks; values are not read or displayed.</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                <MiniMetric label="Present" value={report.sinkPresenceSummary.present} />
+                <MiniMetric label="Missing" value={report.sinkPresenceSummary.missing} />
+                <MiniMetric label="Unknown" value={report.sinkPresenceSummary.unknown} />
+                <MiniMetric label="Unavailable" value={report.sinkPresenceSummary.unavailable} />
+              </div>
+            </section>
+
             {report.blockers.length > 0 && (
               <section className="mb-6 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
                 <h2 className="mb-2 flex items-center gap-2 text-sm font-semibold text-amber-100">
@@ -255,6 +283,7 @@ function CredentialAdminContent() {
                       <th className="px-4 py-3">Status</th>
                       <th className="px-4 py-3">Secret</th>
                       <th className="px-4 py-3">Source</th>
+                      <th className="px-4 py-3">Runtime sinks</th>
                       <th className="px-4 py-3">Cadence</th>
                       <th className="px-4 py-3">Due</th>
                       <th className="px-4 py-3">Next action</th>
@@ -269,6 +298,7 @@ function CredentialAdminContent() {
                           <div className="text-xs text-muted-foreground">{row.displayName}</div>
                         </td>
                         <td className="px-4 py-3">{row.sourceOfTruth}</td>
+                        <td className="px-4 py-3"><SinkPresenceBadges observations={row.sinkPresence} /></td>
                         <td className="px-4 py-3">{row.cadenceDays}d</td>
                         <td className="px-4 py-3">{row.dueAt ?? 'unknown'}</td>
                         <td className="px-4 py-3 text-muted-foreground">{row.nextAction}</td>
@@ -333,6 +363,31 @@ function StatusPill({ status }: { status: CredentialReportRow['status'] }) {
       : 'border-amber-500/30 bg-amber-500/10 text-amber-200'
 
   return <span className={`inline-flex rounded-full border px-2 py-1 text-xs ${classes}`}>{status}</span>
+}
+
+function SinkPresenceBadges({ observations }: { observations: CredentialReportRow['sinkPresence'] }) {
+  if (observations.length === 0) return <span className="text-xs text-muted-foreground">not checked</span>
+
+  return (
+    <div className="flex min-w-44 flex-wrap gap-1">
+      {observations.map((observation) => (
+        <span
+          key={`${observation.sink}-${observation.status}`}
+          title={observation.evidence}
+          className={`inline-flex rounded-full border px-2 py-1 text-xs ${sinkPresenceClass(observation.status)}`}
+        >
+          {observation.sink}: {observation.status}
+        </span>
+      ))}
+    </div>
+  )
+}
+
+function sinkPresenceClass(status: CredentialReportRow['sinkPresence'][number]['status']) {
+  if (status === 'present') return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200'
+  if (status === 'missing') return 'border-red-500/30 bg-red-500/10 text-red-200'
+  if (status === 'unavailable') return 'border-slate-500/30 bg-slate-500/10 text-slate-200'
+  return 'border-amber-500/30 bg-amber-500/10 text-amber-200'
 }
 
 function Notice({ title, body, tone }: { title: string; body: string; tone: 'red' | 'amber' }) {

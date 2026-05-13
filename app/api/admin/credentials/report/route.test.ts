@@ -134,6 +134,9 @@ describe('GET /api/admin/credentials/report', () => {
         total: 1,
         drafted: 1,
       },
+      sinkPresenceSummary: {
+        unknown: 1,
+      },
     })
     expect(body.rows[0]).toMatchObject({
       envVar: 'OPENAI_API_KEY',
