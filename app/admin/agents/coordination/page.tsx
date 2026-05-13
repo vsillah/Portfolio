@@ -12,6 +12,7 @@ import {
   Network,
   RefreshCw,
   ShieldCheck,
+  ShieldAlert,
   XCircle,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
@@ -23,6 +24,7 @@ import type { VercelResearchProposal } from '@/lib/vercel-deployment-research'
 
 const STATUSES: Array<'all' | AgentWorkItemStatus> = [
   'all',
+  'proposed',
   'queued',
   'assigned',
   'in_progress',
@@ -290,12 +292,12 @@ function AgentCoordinationContent() {
         <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <div className="mb-2 inline-flex items-center gap-2 text-sm text-radiant-gold">
-              <Network size={16} />
-              Agent Coordination Substrate
+              <ShieldAlert size={16} />
+              Agent Ops controller
             </div>
-            <h1 className="text-3xl font-bold">Agent Coordination</h1>
+            <h1 className="text-3xl font-bold">Decision Queue Controller</h1>
             <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-              Durable work packets, handoffs, blockers, PR links, and approval-gated merge/deploy states across Codex, n8n, Hermes, OpenCode, and manual operators.
+              Executive queue for action-required work, approval decisions, controller recommendations, risk posture, ownership, status, and trace links across Codex, n8n, Hermes, OpenCode, and manual operators.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -318,7 +320,7 @@ function AgentCoordinationContent() {
         </div>
 
         <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-          <Metric label="Active" value={summary.active} />
+          <Metric label="Action required" value={summary.active} />
           <Metric label="Blocked" value={summary.blocked} tone={summary.blocked ? 'red' : 'slate'} />
           <Metric label="Review queue" value={summary.review} tone={summary.review ? 'yellow' : 'slate'} />
           <Metric label="Approval-linked" value={summary.approvals} tone={summary.approvals ? 'green' : 'slate'} />
@@ -337,7 +339,12 @@ function AgentCoordinationContent() {
         />
 
         <section className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
-          <div className="mb-4 flex flex-wrap gap-2">
+          <div className="mb-4 flex flex-col gap-3">
+            <div>
+              <h2 className="text-base font-semibold">Queue filters</h2>
+              <p className="mt-1 text-sm text-muted-foreground">Filter controller decisions by status without changing the route or work-item APIs.</p>
+            </div>
+            <div className="flex flex-wrap gap-2" aria-label="Status filters">
             {STATUSES.map((item) => (
               <button
                 key={item}
@@ -351,9 +358,14 @@ function AgentCoordinationContent() {
                 {item.replace(/_/g, ' ')}
               </button>
             ))}
+            </div>
           </div>
 
-          <form onSubmit={createWorkItem} className="grid gap-3 lg:grid-cols-3">
+          <form onSubmit={createWorkItem} className="grid gap-3 border-t border-silicon-slate/60 pt-4 lg:grid-cols-3">
+            <div className="lg:col-span-3">
+              <h2 className="text-base font-semibold">Create controller work item</h2>
+              <p className="mt-1 text-sm text-muted-foreground">Open a decision packet with owner, objective, expected files, branch, and worktree context.</p>
+            </div>
             <input
               value={form.title}
               onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
@@ -366,6 +378,17 @@ function AgentCoordinationContent() {
               placeholder="owner agent key"
               className="rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm"
             />
+            <select
+              value={form.owner_runtime}
+              onChange={(event) => setForm((prev) => ({ ...prev, owner_runtime: event.target.value as AgentRuntime }))}
+              aria-label="owner runtime"
+              className="rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm"
+            >
+              <option value="codex">codex</option>
+              <option value="n8n">n8n</option>
+              <option value="hermes">hermes</option>
+              <option value="manual">manual</option>
+            </select>
             <input
               value={form.branch_name}
               onChange={(event) => setForm((prev) => ({ ...prev, branch_name: event.target.value }))}
@@ -384,6 +407,13 @@ function AgentCoordinationContent() {
                 value={form.worktree_path}
                 onChange={(event) => setForm((prev) => ({ ...prev, worktree_path: event.target.value }))}
                 placeholder="worktree path"
+                className="rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm"
+              />
+              <textarea
+                value={form.expected_files}
+                onChange={(event) => setForm((prev) => ({ ...prev, expected_files: event.target.value }))}
+                placeholder="expected files, one per line"
+                rows={2}
                 className="rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm"
               />
               <button
@@ -438,9 +468,9 @@ function MoremiOperationalDrillPanel({
         <div>
           <div className="mb-2 flex items-center gap-2 text-sm text-green-100">
             <ShieldCheck size={18} />
-            Moremi operational drill
+            Moremi controller drill
           </div>
-          <h2 className="font-semibold">Synthetic AI risk signal to Agent Ops work item</h2>
+          <h2 className="font-semibold">Moremi operational drill</h2>
           <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
             Creates or reuses one proposed, synthetic Moremi work item. This validates the Agent Coordination and Slack visibility path without production remediation, external sends, or client-data access.
           </p>
@@ -459,6 +489,7 @@ function MoremiOperationalDrillPanel({
         <div className="mt-4 grid gap-3 lg:grid-cols-3">
           <SmallField label="Work item" value={result.work_item.title} />
           <SmallField label="Status" value={result.work_item.status} />
+          <SmallField label="Recommendation" value={result.assessment.recommendedNextAction} />
           <SmallField label="Slack check" value={result.verification.slack_command} />
           <div className="rounded-lg border border-green-500/20 bg-background/40 p-3 text-sm lg:col-span-3">
             <p className="font-medium text-green-100">Drill created or reused</p>
@@ -487,8 +518,8 @@ function VercelResearchApprovalPanel({
         <div className="flex items-center gap-2">
           <BellRing size={18} className="text-yellow-200" />
           <div>
-            <h2 className="font-semibold text-yellow-100">Vercel AutoResearch approvals</h2>
-            <p className="text-sm text-muted-foreground">Event-driven proposal gates ready for one-click review.</p>
+            <h2 className="font-semibold text-yellow-100">Vercel AutoResearch approvals decision queue</h2>
+            <p className="text-sm text-muted-foreground">Approval cards ready for controller review, recommendation, risk check, and trace follow-up.</p>
           </div>
         </div>
         <span className="rounded-full border border-yellow-500/30 px-2 py-1 text-xs text-yellow-100">
@@ -518,10 +549,19 @@ function VercelResearchApprovalPanel({
                 ) : null}
               </div>
               <h3 className="font-semibold">{card.proposal.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{card.proposal.approvalQuestion}</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                <span className="font-medium text-yellow-100">Action required: </span>
+                {card.proposal.approvalQuestion}
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                <span className="font-medium text-foreground">Recommendation: </span>
+                {card.proposal.hypothesis}
+              </p>
               <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
                 <SmallField label="Work item" value={card.workItem?.title ?? card.workItemId} />
+                <SmallField label="Status" value={card.workItem?.status ?? card.status} />
                 <SmallField label="Requested" value={new Date(card.requestedAt).toLocaleString()} />
+                <SmallField label="Trace" value={card.runId} />
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
                 <button
@@ -565,6 +605,15 @@ function WorkItemCard({
   actionId: string | null
   onAction: (item: AgentWorkItem, action: 'block' | 'validation' | 'handoff') => void
 }) {
+  const recommendation = typeof item.metadata?.recommendation === 'string'
+    ? item.metadata.recommendation
+    : item.validation_summary || 'Review owner packet, trace evidence, and next gate before changing status.'
+  const risk = typeof item.metadata?.risk === 'string'
+    ? item.metadata.risk
+    : item.approval_id
+      ? 'approval linked'
+      : item.priority
+
   return (
     <article className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -579,13 +628,23 @@ function WorkItemCard({
                 {item.owner_agent_key}
               </span>
             ) : null}
+            <span className="rounded-full border border-radiant-gold/30 bg-radiant-gold/10 px-2 py-1 text-xs text-radiant-gold">
+              risk: {risk}
+            </span>
           </div>
-          <h2 className="text-lg font-semibold">{item.title}</h2>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground/70">Executive summary</p>
+          <h2 className="mt-1 text-lg font-semibold">{item.title}</h2>
           <p className="mt-1 max-w-4xl text-sm text-muted-foreground">{item.objective}</p>
+          <div className="mt-3 rounded-lg border border-radiant-gold/20 bg-radiant-gold/5 p-3 text-sm">
+            <p className="font-medium text-radiant-gold">Controller recommendation</p>
+            <p className="mt-1 text-muted-foreground">{recommendation}</p>
+          </div>
           <div className="mt-3 grid gap-2 text-xs text-muted-foreground md:grid-cols-2 xl:grid-cols-4">
+            <SmallField label="Owner" value={item.owner_agent_key} />
+            <SmallField label="Status" value={item.status} />
             <SmallField label="Branch" value={item.branch_name} />
             <SmallField label="Worktree" value={item.worktree_path} />
-            <SmallField label="Overlap" value={item.overlap_group} />
+            <SmallField label="Trace" value={item.active_run_id} />
             <SmallField label="Updated" value={new Date(item.updated_at).toLocaleString()} />
           </div>
           {item.blocker_summary || item.validation_summary ? (
@@ -595,7 +654,7 @@ function WorkItemCard({
             </div>
           ) : null}
         </div>
-        <div className="flex flex-wrap gap-2 lg:justify-end">
+        <div className="flex flex-wrap gap-2 lg:min-w-64 lg:justify-end">
           {item.pr_url ? (
             <Link
               href={item.pr_url}
@@ -617,22 +676,28 @@ function WorkItemCard({
           <button
             onClick={() => onAction(item, 'block')}
             disabled={Boolean(actionId)}
-            className="rounded-lg border border-silicon-slate/70 px-3 py-2 text-sm hover:border-red-400/60 disabled:opacity-50"
+            aria-label={`Block ${item.title}`}
+            className="inline-flex items-center gap-2 rounded-lg border border-red-500/45 bg-red-500/10 px-3 py-2 text-sm text-red-100 shadow-sm hover:bg-red-500/15 disabled:opacity-50"
           >
+            <AlertTriangle size={16} />
             Block
           </button>
           <button
             onClick={() => onAction(item, 'validation')}
             disabled={Boolean(actionId)}
-            className="rounded-lg border border-silicon-slate/70 px-3 py-2 text-sm hover:border-yellow-400/60 disabled:opacity-50"
+            aria-label={`Record validation for ${item.title}`}
+            className="inline-flex items-center gap-2 rounded-lg border border-yellow-500/45 bg-yellow-500/10 px-3 py-2 text-sm text-yellow-100 shadow-sm hover:bg-yellow-500/15 disabled:opacity-50"
           >
+            <CheckCircle2 size={16} />
             Validate
           </button>
           <button
             onClick={() => onAction(item, 'handoff')}
             disabled={Boolean(actionId)}
-            className="rounded-lg border border-silicon-slate/70 px-3 py-2 text-sm hover:border-radiant-gold/60 disabled:opacity-50"
+            aria-label={`Handoff ${item.title}`}
+            className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold shadow-sm hover:bg-radiant-gold/15 disabled:opacity-50"
           >
+            <Network size={16} />
             Handoff
           </button>
         </div>
