@@ -92,6 +92,7 @@ const INVENTORY_PATH = path.join(ROOT, 'docs', 'credential-inventory.json')
 const AUDIT_DIR = path.join(ROOT, '.credential-rotation-audits')
 const VALID_ENVS: EnvironmentName[] = ['dev', 'staging', 'prod']
 const PROVIDER_READ_TIMEOUT_MS = 10_000
+const VERCEL_METADATA_TIMEOUT_MS = 15_000
 
 function main() {
   const args = parseArgs(process.argv.slice(2))
@@ -523,10 +524,14 @@ function collectRuntimeSinkPresence(
 ): CredentialSinkPresenceObservation[] {
   const checkedAt = new Date().toISOString()
   const localEnvKeys = readLocalEnvKeys(env)
+  const vercelEnvKeys = readVercelEnvKeys(env)
 
   return envSecrets(inventory, env).flatMap((secret) => secret.runtimeSinks.map((sink) => {
     if (sink === 'local-env') {
       return localEnvPresenceObservation(secret, sink, checkedAt, localEnvKeys)
+    }
+    if (sink === 'Vercel') {
+      return vercelPresenceObservation(secret, sink, checkedAt, vercelEnvKeys)
     }
 
     return {
@@ -538,6 +543,93 @@ function collectRuntimeSinkPresence(
       checkedAt,
     } satisfies CredentialSinkPresenceObservation
   }))
+}
+
+function vercelTargetForEnv(env: EnvironmentName): 'development' | 'preview' | 'production' {
+  if (env === 'dev') return 'development'
+  if (env === 'prod') return 'production'
+  return 'preview'
+}
+
+function readVercelEnvKeys(env: EnvironmentName): { target: string; keys: Set<string>; unavailableReason: string | null } {
+  const target = vercelTargetForEnv(env)
+  const result = spawnSync('vercel', ['env', 'list', target, '--format', 'json', '--cwd', ROOT, '--non-interactive'], {
+    cwd: ROOT,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    env: process.env,
+    timeout: VERCEL_METADATA_TIMEOUT_MS,
+  })
+
+  if (result.status !== 0) {
+    return {
+      target,
+      keys: new Set(),
+      unavailableReason: `Vercel env metadata unavailable for ${target}. Authenticate the Vercel CLI and confirm project access.`,
+    }
+  }
+
+  const jsonStart = result.stdout.indexOf('{')
+  if (jsonStart === -1) {
+    return {
+      target,
+      keys: new Set(),
+      unavailableReason: `Vercel env metadata for ${target} did not include JSON output.`,
+    }
+  }
+
+  try {
+    const parsed = JSON.parse(result.stdout.slice(jsonStart)) as { envs?: Array<{ key?: string }> }
+    return {
+      target,
+      keys: new Set((parsed.envs ?? []).flatMap((item) => item.key ? [item.key] : [])),
+      unavailableReason: null,
+    }
+  } catch {
+    return {
+      target,
+      keys: new Set(),
+      unavailableReason: `Vercel env metadata for ${target} returned invalid JSON.`,
+    }
+  }
+}
+
+function vercelPresenceObservation(
+  secret: CredentialSecret,
+  sink: string,
+  checkedAt: string,
+  vercelEnvKeys: { target: string; keys: Set<string>; unavailableReason: string | null }
+): CredentialSinkPresenceObservation {
+  if (vercelEnvKeys.unavailableReason) {
+    return {
+      secretId: secret.id,
+      envVar: secret.envVar,
+      sink,
+      status: 'unavailable',
+      evidence: vercelEnvKeys.unavailableReason,
+      checkedAt,
+    }
+  }
+
+  if (vercelEnvKeys.keys.has(secret.envVar)) {
+    return {
+      secretId: secret.id,
+      envVar: secret.envVar,
+      sink,
+      status: 'present',
+      evidence: `Found key name in Vercel ${vercelEnvKeys.target} environment metadata.`,
+      checkedAt,
+    }
+  }
+
+  return {
+    secretId: secret.id,
+    envVar: secret.envVar,
+    sink,
+    status: 'missing',
+    evidence: `Key name was not listed in Vercel ${vercelEnvKeys.target} environment metadata.`,
+    checkedAt,
+  }
 }
 
 function readLocalEnvKeys(env: EnvironmentName): { files: Array<{ file: string; keys: Set<string> }>; missingFiles: string[] } {

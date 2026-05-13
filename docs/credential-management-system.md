@@ -43,7 +43,7 @@ Use plain `credentials:smoke` for local registry checks. Use `--require-provider
 
 Use `credentials:report` for rotation visibility. It is read-only and summarizes the inventory by status, source of truth, risk, runtime sink, approval boundary, and next action. It does not fetch or print secret values. The same report is exposed to admins at `/admin/credentials` through `/api/admin/credentials/report`.
 
-Use `credentials:report -- --check-sinks` when the operator needs runtime sink presence visibility. This mode inspects local env files by key name only and marks other runtime sinks as `unknown` unless a value-free metadata adapter is configured. It never reads or prints secret values, and unknown/unavailable sink states should be treated as visibility gaps, not proof that a credential is absent.
+Use `credentials:report -- --check-sinks` when the operator needs runtime sink presence visibility. This mode inspects local env files and Vercel environment metadata by key name only, then marks other runtime sinks as `unknown` unless a value-free metadata adapter is configured. It never reads or prints secret values, and unknown/unavailable sink states should be treated as visibility gaps, not proof that a credential is absent.
 
 When local `.credential-rotation-audits/*.json` packets exist, `credentials:report` and `/admin/credentials` also summarize packet metadata by status (`drafted`, `synced`, `verified`, `revocation-pending`, `blocked`). Packet reporting is value-free: it shows secret ids/env var names, timestamps, approval state, runtime sinks, and verification commands, not credential values.
 
