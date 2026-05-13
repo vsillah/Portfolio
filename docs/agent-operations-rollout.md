@@ -116,7 +116,8 @@ Current n8n trace coverage:
 - Social content extraction creates an `n8n` run, dispatches `agent_run_id`, and completes/fails the shared run from the n8n completion callback.
 - Value evidence workflows create an `n8n` run, dispatch `agent_run_id`, record progress stages, preserve auto-chained VEP-001 to VEP-002 behavior, and complete/fail the shared run after the final phase.
 - Warm lead scrapers create an `n8n` run, dispatch `agent_run_id`, and the versioned WRM exports preserve the trace envelope through normalization before reporting successful ingest completion to `/api/admin/outreach/run-complete` and the generic trace event callback.
-- Social content extraction, value evidence, and warm lead scraper payloads now include a shared `agent_trace` envelope with the generic event callback URL when `agent_run_id` exists.
+- Client progress updates create an `n8n` run before dispatching the progress-update router, include `agent_run_id` and `agent_trace` in the webhook payload, and complete/fail the shared run from the delivery callback when n8n echoes `agent_run_id`.
+- Social content extraction, value evidence, warm lead scraper, and client progress update payloads now include a shared `agent_trace` envelope with the generic event callback URL when `agent_run_id` exists.
 
 ## Legacy Workflow Run Tables
 
@@ -129,6 +130,7 @@ Current n8n trace coverage:
 | `warm_lead_trigger_audit` | Warm Lead Capture / warm lead scrapers | Linked through `agent_run_id` for app-triggered scraper runs and completion artifacts. | Keep for source last-run checks, trigger audit, and scraper-specific options. Agent Operations remains canonical for run outcome visibility. |
 | `video_generation_workflow_runs` | Content Production / video sync workflows | Linked through `agent_run_id` for admin-triggered HeyGen catalog and Drive script sync runs. | Keep as domain progress for video sync chips/history; shared Agent Ops runs are canonical for audit, stale detection, artifacts, and cross-runtime visibility. |
 | `video_generation_jobs` | Content Production / generated media | Artifact/job table, not a generic run table. | Keep as the media job source of truth. Future video agents should attach job references as `agent_run_artifacts` instead of migrating the job table into `agent_runs`. |
+| `progress_update_log` | Product & Automation / client progress updates | New sends start an `n8n` Agent Ops run and n8n delivery callbacks can complete/fail that run when `agent_run_id` is echoed. | Keep as client-update delivery history and message body storage; Agent Ops handles cross-runtime visibility, stale detection, and delivery trace status. |
 
 Migration rules:
 

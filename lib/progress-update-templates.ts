@@ -8,6 +8,13 @@
 
 import { supabaseAdmin } from './supabase'
 import { n8nWebhookUrl } from './n8n'
+import {
+  attachAgentArtifact,
+  endAgentRun,
+  markAgentRunFailed,
+  recordAgentStep,
+  startAgentRun,
+} from './agent-run'
 import type {
   Milestone,
   CommunicationPlan,
@@ -96,6 +103,9 @@ export interface ProgressUpdateWebhookPayload {
   milestones_progress: string
   attachments: ProgressUpdateAttachment[]
   callback_url: string
+  agent_run_id?: string | null
+  agent_event_callback_url?: string | null
+  agent_trace?: Record<string, unknown> | null
 }
 
 export interface ProgressUpdateLogEntry {
@@ -112,6 +122,43 @@ export interface ProgressUpdateLogEntry {
   delivery_status: 'pending' | 'sent' | 'failed' | 'skipped'
   n8n_webhook_fired_at: string | null
   triggered_by: 'admin' | 'slack_cmd' | 'system'
+}
+
+const PROGRESS_UPDATE_WORKFLOW_ID = 'client-progress-update-router'
+
+function portfolioBaseUrl(): string {
+  if (process.env.NEXT_PUBLIC_BASE_URL) return process.env.NEXT_PUBLIC_BASE_URL.replace(/\/+$/, '')
+  if (process.env.PORTFOLIO_BASE_URL) return process.env.PORTFOLIO_BASE_URL.replace(/\/+$/, '')
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`.replace(/\/+$/, '')
+  return 'http://localhost:3000'
+}
+
+export function buildProgressUpdateAgentTracePayload(
+  agentRunId: string | null,
+  workflowId = PROGRESS_UPDATE_WORKFLOW_ID,
+): Pick<ProgressUpdateWebhookPayload, 'agent_run_id' | 'agent_event_callback_url' | 'agent_trace'> {
+  if (!agentRunId) {
+    return {
+      agent_run_id: null,
+      agent_event_callback_url: null,
+      agent_trace: null,
+    }
+  }
+
+  const eventsUrl = `${portfolioBaseUrl()}/api/admin/agents/runs/${agentRunId}/events`
+  return {
+    agent_run_id: agentRunId,
+    agent_event_callback_url: eventsUrl,
+    agent_trace: {
+      version: 1,
+      runtime: 'n8n',
+      agent_run_id: agentRunId,
+      workflow_id: workflowId,
+      events_url: eventsUrl,
+      auth: 'Bearer N8N_INGEST_SECRET',
+      completion_callback: 'n8n should echo agent_run_id to callback_url after delivery.',
+    },
+  }
 }
 
 // ============================================================================
@@ -490,7 +537,8 @@ export async function createProgressUpdateLog(
 export async function updateProgressUpdateLogStatus(
   logId: string,
   status: 'sent' | 'failed',
-  errorMessage?: string
+  errorMessage?: string,
+  agentRunId?: string | null,
 ): Promise<boolean> {
   try {
     const updateData: Record<string, unknown> = {
@@ -510,7 +558,49 @@ export async function updateProgressUpdateLogStatus(
 
     if (error) {
       console.error('Error updating progress update log:', error)
+      if (agentRunId) {
+        await markAgentRunFailed(agentRunId, `Progress update delivery callback failed for log ${logId}`, {
+          log_id: logId,
+          delivery_status: status,
+          error_message: error.message,
+        }).catch(() => {})
+      }
       return false
+    }
+
+    if (agentRunId) {
+      await recordAgentStep({
+        runId: agentRunId,
+        stepKey: 'delivery_callback_received',
+        name: status === 'sent' ? 'Progress update delivery confirmed' : 'Progress update delivery failed',
+        status: status === 'sent' ? 'completed' : 'failed',
+        outputSummary: errorMessage ?? `Delivery status: ${status}`,
+        metadata: { log_id: logId, delivery_status: status },
+        idempotencyKey: `${agentRunId}:delivery:${logId}:${status}`,
+      }).catch(() => {})
+
+      if (status === 'sent') {
+        await attachAgentArtifact({
+          runId: agentRunId,
+          artifactType: 'progress_update_delivery',
+          title: 'Client progress update delivery',
+          refType: 'progress_update_log',
+          refId: logId,
+          metadata: { delivery_status: status },
+          idempotencyKey: `${agentRunId}:artifact:${logId}`,
+        }).catch(() => {})
+        await endAgentRun({
+          runId: agentRunId,
+          status: 'completed',
+          currentStep: 'Progress update delivered',
+          outcome: { log_id: logId, delivery_status: status },
+        }).catch(() => {})
+      } else {
+        await markAgentRunFailed(agentRunId, errorMessage ?? 'Progress update delivery failed', {
+          log_id: logId,
+          delivery_status: status,
+        }).catch(() => {})
+      }
     }
 
     return true
@@ -609,7 +699,7 @@ export async function triggerProgressUpdate(params: {
   customNote?: string
   attachments?: ProgressUpdateAttachment[]
   triggeredBy?: 'admin' | 'slack_cmd' | 'system'
-}): Promise<{ logId: string; channel: string; updateType: string } | null> {
+}): Promise<{ logId: string; channel: string; updateType: string; agentRunId: string | null } | null> {
   const {
     clientProjectId,
     milestoneIndex,
@@ -661,9 +751,7 @@ export async function triggerProgressUpdate(params: {
   const channel: 'slack' | 'email' = plan.slack_channel ? 'slack' : 'email'
 
   // 7. Build callback URL
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : 'http://localhost:3000'
+  const baseUrl = portfolioBaseUrl()
 
   // 8. Create log entry (pre-send, status=pending)
   const logEntry: ProgressUpdateLogEntry = {
@@ -688,6 +776,47 @@ export async function triggerProgressUpdate(params: {
     return null
   }
 
+  let agentRunId: string | null = null
+  try {
+    const agentRun = await startAgentRun({
+      agentKey: 'automation-systems',
+      runtime: 'n8n',
+      kind: 'client_progress_update_delivery',
+      title: 'Deliver client progress update',
+      subject: { type: 'client_project', id: clientProjectId, label: plan.client_name },
+      triggerSource: `progress_update_${triggeredBy}`,
+      currentStep: 'Preparing progress update delivery',
+      metadata: {
+        workflow_id: PROGRESS_UPDATE_WORKFLOW_ID,
+        log_id: logResult.id,
+        onboarding_plan_id: plan.id,
+        update_type: updateType,
+        channel,
+        milestone_index: milestoneIndex,
+        approval_boundary: 'This trace observes delivery only. Client-visible sends remain governed by the existing progress-update workflow and approval policy.',
+      },
+      idempotencyKey: `progress-update:${logResult.id}`,
+    })
+    agentRunId = agentRun.id
+    await recordAgentStep({
+      runId: agentRunId,
+      stepKey: 'progress_update_rendered',
+      name: 'Progress update rendered',
+      status: 'completed',
+      inputSummary: `${updateType} for ${plan.client_name}`,
+      outputSummary: `Prepared ${channel} delivery payload`,
+      metadata: {
+        log_id: logResult.id,
+        channel,
+        update_type: updateType,
+        milestone_index: milestoneIndex,
+      },
+      idempotencyKey: `${agentRunId}:rendered:${logResult.id}`,
+    })
+  } catch (traceError) {
+    console.warn('[progress-update] Agent Ops trace unavailable:', traceError)
+  }
+
   // 9. Fire n8n webhook
   const callbackUrl = `${baseUrl}/api/progress-updates/${logResult.id}/delivered`
 
@@ -706,17 +835,36 @@ export async function triggerProgressUpdate(params: {
     milestones_progress: context.milestones_progress,
     attachments: attachments || [],
     callback_url: callbackUrl,
+    ...buildProgressUpdateAgentTracePayload(agentRunId),
   }
 
   const webhookFired = await fireProgressUpdateWebhook(webhookPayload)
 
   // Update log with webhook timestamp
   if (webhookFired) {
+    if (agentRunId) {
+      await recordAgentStep({
+        runId: agentRunId,
+        stepKey: 'n8n_webhook_dispatched',
+        name: 'n8n progress update workflow dispatched',
+        status: 'running',
+        outputSummary: `Waiting for ${channel} delivery callback`,
+        metadata: { log_id: logResult.id, channel, callback_url: callbackUrl },
+        idempotencyKey: `${agentRunId}:dispatch:${logResult.id}`,
+      }).catch(() => {})
+    }
     await supabaseAdmin
       .from('progress_update_log')
       .update({ n8n_webhook_fired_at: new Date().toISOString() })
       .eq('id', logResult.id)
   } else {
+    if (agentRunId) {
+      await markAgentRunFailed(agentRunId, 'Failed to fire progress update webhook', {
+        log_id: logResult.id,
+        channel,
+        update_type: updateType,
+      }).catch(() => {})
+    }
     await supabaseAdmin
       .from('progress_update_log')
       .update({
@@ -730,6 +878,7 @@ export async function triggerProgressUpdate(params: {
     logId: logResult.id,
     channel,
     updateType,
+    agentRunId,
   }
 }
 
