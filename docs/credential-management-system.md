@@ -45,6 +45,8 @@ Use `credentials:report` for rotation visibility. It is read-only and summarizes
 
 Use `credentials:report -- --check-sinks` when the operator needs runtime sink presence visibility. This mode inspects local env files and Vercel environment metadata by key name only. It also checks n8n credential metadata names/types through the n8n API when `N8N_API_KEY` is available; n8n Variables remain `unknown` until a key-only path exists because the variables API may include values. It never reads or prints secret values, and unknown/unavailable sink states should be treated as visibility gaps, not proof that a credential is absent.
 
+The report includes runtime sink gap actions for `missing`, `unknown`, and `unavailable` sink states. These are operator tasks, not automatic mutations: sync missing sinks from the source of truth, restore read-only metadata access when checks are unavailable, or add a key-only adapter before treating unknown states as verified.
+
 When local `.credential-rotation-audits/*.json` packets exist, `credentials:report` and `/admin/credentials` also summarize packet metadata by status (`drafted`, `synced`, `verified`, `revocation-pending`, `blocked`). Packet reporting is value-free: it shows secret ids/env var names, timestamps, approval state, runtime sinks, and verification commands, not credential values.
 
 Use `credentials:baseline-template` when `credentials:report` shows `needs-baseline`. It emits provider-confirmation placeholders for each missing environment baseline so the operator can verify provider history, fill `lastRotatedAt`, preserve evidence, and update `docs/credential-inventory.json` without guessing from local env files.

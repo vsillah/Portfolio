@@ -137,6 +137,13 @@ describe('GET /api/admin/credentials/report', () => {
       sinkPresenceSummary: {
         unknown: 1,
       },
+      sinkGapActions: [
+        expect.objectContaining({
+          envVar: 'OPENAI_API_KEY',
+          sink: 'Vercel',
+          status: 'unknown',
+        }),
+      ],
     })
     expect(body.rows[0]).toMatchObject({
       envVar: 'OPENAI_API_KEY',

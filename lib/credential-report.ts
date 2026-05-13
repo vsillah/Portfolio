@@ -98,6 +98,7 @@ export type CredentialReport = {
   byRuntimeSink: Record<string, number>
   packetSummary: CredentialPacketSummary
   packets: CredentialPacketReport[]
+  sinkGapActions: CredentialSinkGapAction[]
   blockers: string[]
   rows: CredentialReportRow[]
 }
@@ -165,6 +166,15 @@ export type CredentialSinkPresenceSummary = {
   unavailable: number
 }
 
+export type CredentialSinkGapAction = {
+  secretId: string
+  envVar: string
+  sink: string
+  status: Exclude<CredentialSinkPresenceStatus, 'present'>
+  action: string
+  evidence: string
+}
+
 export type CredentialBaselineTemplateEntry = {
   secretId: string
   envVar: string
@@ -212,6 +222,7 @@ export function buildCredentialReport(
     .filter((packet) => packet.environment === env)
     .map(toPacketReport)
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+  const sinkGapActions = buildSinkGapActions(rows)
 
   return {
     generatedAt: new Date().toISOString(),
@@ -231,7 +242,8 @@ export function buildCredentialReport(
     byRuntimeSink: countRuntimeSinks(rows),
     packetSummary: summarizePackets(packetReports),
     packets: packetReports,
-    blockers: buildBlockers(summary, env, packetReports),
+    sinkGapActions,
+    blockers: buildBlockers(summary, env, packetReports, sinkGapActions),
     rows,
   }
 }
@@ -295,6 +307,21 @@ export function renderCredentialReportMarkdown(report: CredentialReport): string
     `- Unknown: ${report.sinkPresenceSummary.unknown}`,
     `- Unavailable: ${report.sinkPresenceSummary.unavailable}`,
     '',
+    '## Runtime Sink Gap Actions',
+    '',
+    ...(report.sinkGapActions.length > 0
+      ? [
+        '| Env Var | Sink | Status | Action |',
+        '| --- | --- | --- | --- |',
+        ...report.sinkGapActions.slice(0, 20).map((gap) => [
+          gap.envVar,
+          gap.sink,
+          gap.status,
+          gap.action,
+        ].map(escapeTableCell).join(' | ')).map((line) => `| ${line} |`),
+        '',
+      ]
+      : ['No runtime sink gaps found.', '']),
     '## Secrets',
     '',
     '| Status | Env Var | Source | Risk | Due | Baseline | Sink presence | Next action |',
@@ -432,6 +459,37 @@ function summarizeSinkPresence(observations: CredentialSinkPresenceObservation[]
   }
 }
 
+function buildSinkGapActions(rows: CredentialReportRow[]): CredentialSinkGapAction[] {
+  return rows.flatMap((row) => row.sinkPresence
+    .filter((observation): observation is CredentialSinkPresenceObservation & { status: CredentialSinkGapAction['status'] } => observation.status !== 'present')
+    .map((observation) => ({
+      secretId: row.id,
+      envVar: row.envVar,
+      sink: observation.sink,
+      status: observation.status,
+      action: sinkGapAction(observation),
+      evidence: observation.evidence,
+    })))
+    .sort((a, b) => {
+      const statusOrder = { missing: 0, unavailable: 1, unknown: 2 }
+      const statusDelta = statusOrder[a.status] - statusOrder[b.status]
+      if (statusDelta !== 0) return statusDelta
+      const sinkDelta = a.sink.localeCompare(b.sink)
+      if (sinkDelta !== 0) return sinkDelta
+      return a.envVar.localeCompare(b.envVar)
+    })
+}
+
+function sinkGapAction(observation: CredentialSinkPresenceObservation): string {
+  if (observation.status === 'missing') {
+    return `Sync ${observation.envVar} into ${observation.sink} from the source of truth, then rerun credentials:report -- --check-sinks.`
+  }
+  if (observation.status === 'unavailable') {
+    return `Restore read-only ${observation.sink} metadata access, then rerun credentials:report -- --check-sinks.`
+  }
+  return `Add a key-only metadata adapter or approved sanitized evidence path for ${observation.sink}.`
+}
+
 function formatSinkPresence(summary: CredentialSinkPresenceSummary): string {
   const parts = [
     summary.present > 0 ? `${summary.present} present` : '',
@@ -502,7 +560,8 @@ function summarizePackets(packets: CredentialPacketReport[]): CredentialPacketSu
 function buildBlockers(
   summary: CredentialReport['summary'],
   env: CredentialEnvironment,
-  packets: CredentialPacketReport[]
+  packets: CredentialPacketReport[],
+  sinkGapActions: CredentialSinkGapAction[]
 ): string[] {
   const blockers: string[] = []
   if (summary.needsBaseline > 0) blockers.push(`${summary.needsBaseline} ${env} secrets need provider-confirmed rotation baselines.`)
@@ -510,6 +569,8 @@ function buildBlockers(
   if (env === 'prod' && summary.approvalRequired > 0) blockers.push('Production rotation or revocation requires an approval packet.')
   if (packets.some((packet) => packet.status === 'blocked')) blockers.push('At least one local rotation packet is blocked.')
   if (packets.some((packet) => packet.status === 'revocation-pending')) blockers.push('At least one local rotation packet is waiting on revocation approval.')
+  if (sinkGapActions.some((gap) => gap.status === 'missing')) blockers.push('At least one runtime sink is missing expected credential metadata.')
+  if (sinkGapActions.some((gap) => gap.status === 'unavailable')) blockers.push('At least one runtime sink metadata check is unavailable.')
   return blockers
 }
 
