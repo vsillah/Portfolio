@@ -59,6 +59,16 @@ const baseReport = {
       localEnvUpdated: false,
     },
   ],
+  sinkGapActions: [
+    {
+      secretId: 'openai-api-key',
+      envVar: 'OPENAI_API_KEY',
+      sink: 'Vercel',
+      status: 'unknown',
+      action: 'Add a key-only metadata adapter or approved sanitized evidence path for Vercel.',
+      evidence: 'Runtime sink was not checked for this report.',
+    },
+  ],
   blockers: ['2 staging secrets need provider-confirmed rotation baselines.'],
   rows: [
     {
@@ -153,6 +163,8 @@ describe('CredentialAdminPage', () => {
     expect(screen.getByText('LINKEDIN_COOKIE')).toBeInTheDocument()
     expect(screen.getByText('Rotation packets')).toBeInTheDocument()
     expect(screen.getByText('Runtime sink presence')).toBeInTheDocument()
+    expect(screen.getByText('Runtime sink gap actions')).toBeInTheDocument()
+    expect(screen.getByText('Add a key-only metadata adapter or approved sanitized evidence path for Vercel.')).toBeInTheDocument()
     expect(screen.getByText('local-env: present')).toBeInTheDocument()
     expect(screen.getByText('Vercel: unknown')).toBeInTheDocument()
     expect(screen.getByText('Drafted')).toBeInTheDocument()

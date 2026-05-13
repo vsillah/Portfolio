@@ -78,6 +78,14 @@ type CredentialReport = {
     approvalRequired: boolean
     localEnvUpdated: boolean
   }>
+  sinkGapActions: Array<{
+    secretId: string
+    envVar: string
+    sink: string
+    status: 'missing' | 'unknown' | 'unavailable'
+    action: string
+    evidence: string
+  }>
   blockers: string[]
   rows: CredentialReportRow[]
 }
@@ -226,6 +234,39 @@ function CredentialAdminContent() {
               <Breakdown title="Sources" rows={report.bySource} />
               <Breakdown title="Risk" rows={report.byRisk} />
               <Breakdown title="Runtime Sinks" rows={report.byRuntimeSink} />
+            </section>
+
+            <section className="mb-6 rounded-lg border border-silicon-slate bg-silicon-slate/30 p-4">
+              <div className="mb-3 flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
+                <h2 className="font-semibold">Runtime sink gap actions</h2>
+                <p className="text-xs text-muted-foreground">Actionable visibility gaps without secret values.</p>
+              </div>
+              {report.sinkGapActions.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-silicon-slate text-sm">
+                    <thead className="text-left text-xs uppercase tracking-wide text-muted-foreground">
+                      <tr>
+                        <th className="px-2 py-2">Secret</th>
+                        <th className="px-2 py-2">Sink</th>
+                        <th className="px-2 py-2">Status</th>
+                        <th className="px-2 py-2">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-silicon-slate">
+                      {report.sinkGapActions.slice(0, 10).map((gap) => (
+                        <tr key={`${gap.envVar}-${gap.sink}-${gap.status}`}>
+                          <td className="px-2 py-2 font-mono text-xs">{gap.envVar}</td>
+                          <td className="px-2 py-2">{gap.sink}</td>
+                          <td className="px-2 py-2">{gap.status}</td>
+                          <td className="px-2 py-2 text-muted-foreground">{gap.action}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No runtime sink gaps found.</p>
+              )}
             </section>
 
             <section className="mb-6 rounded-lg border border-silicon-slate bg-silicon-slate/30 p-4">

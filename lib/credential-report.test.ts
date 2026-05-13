@@ -133,6 +133,14 @@ describe('credential report', () => {
       unknown: 3,
       unavailable: 0,
     })
+    expect(report.sinkGapActions).toHaveLength(3)
+    expect(report.sinkGapActions).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        envVar: 'DUE_SECRET',
+        sink: 'Vercel',
+        status: 'unknown',
+      }),
+    ]))
     expect(report.packets[0]).toMatchObject({
       envVar: 'MISSING_BASELINE',
       status: 'synced',
@@ -148,6 +156,7 @@ describe('credential report', () => {
     expect(markdown).toContain('Credential Rotation Visibility (staging)')
     expect(markdown).toContain('Rotation Packets')
     expect(markdown).toContain('Runtime Sink Presence')
+    expect(markdown).toContain('Runtime Sink Gap Actions')
     expect(markdown).toContain('DUE_SECRET')
     expect(markdown).not.toContain('super-secret')
 
@@ -180,6 +189,11 @@ describe('credential report', () => {
       unknown: 1,
       unavailable: 0,
     })
+    expect(report.sinkGapActions.map((gap) => `${gap.envVar}:${gap.sink}:${gap.status}`)).toEqual([
+      'DUE_SECRET:Vercel:missing',
+      'DUE_SECRET:n8n:unknown',
+    ])
+    expect(report.blockers).toContain('At least one runtime sink is missing expected credential metadata.')
     expect(report.rows.find((row) => row.envVar === 'MISSING_BASELINE')?.sinkPresence).toEqual([
       expect.objectContaining({
         sink: 'local-env',
