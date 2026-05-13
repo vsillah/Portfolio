@@ -95,6 +95,32 @@ describe('Open Brain projection', () => {
       status: 'pending',
     }))
     expect(snapshot.contextPacket.boundaries).toContain('Do not mutate ~/.codex operational state from Portfolio APIs.')
+    expect(snapshot.producerGates.map((gate) => gate.id)).toEqual(expect.arrayContaining([
+      'producer:personality-corpus',
+      'producer:chatbot-knowledge',
+      'producer:autoresearch',
+      'producer:model-ops',
+      'producer:rag-pinecone',
+    ]))
+    expect(snapshot.overview.producerGates).toBe(snapshot.producerGates.length)
+  })
+
+  it('keeps AutoResearch producer traces disabled until explicitly configured', async () => {
+    const root = await makeTempRoot()
+    let snapshot = await getOpenBrainSnapshot(root)
+
+    expect(snapshot.producerGates.find((gate) => gate.id === 'producer:autoresearch')).toEqual(expect.objectContaining({
+      status: 'disabled',
+      envVar: 'OPEN_BRAIN_AUTORESEARCH_TRACE',
+    }))
+
+    vi.stubEnv('OPEN_BRAIN_AUTORESEARCH_TRACE', 'true')
+    snapshot = await getOpenBrainSnapshot(root)
+
+    expect(snapshot.producerGates.find((gate) => gate.id === 'producer:autoresearch')).toEqual(expect.objectContaining({
+      status: 'enabled',
+      configuredValue: 'true',
+    }))
   })
 
   it('validates privacy tiers and secret-like public text', () => {

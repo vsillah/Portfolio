@@ -128,6 +128,18 @@ export interface OpenBrainRuntimeParity {
   note: string
 }
 
+export interface OpenBrainProducerGate {
+  id: string
+  label: string
+  status: 'enabled' | 'disabled' | 'shadow_only' | 'approval_gated' | 'blocked'
+  sourceKind: OpenBrainSourceKind
+  eventKind: OpenBrainEventKind | null
+  privacyTier: OpenBrainPrivacyTier
+  envVar: string | null
+  configuredValue: string | null
+  note: string
+}
+
 export interface OpenBrainSnapshot {
   generatedAt: string
   service: {
@@ -152,6 +164,8 @@ export interface OpenBrainSnapshot {
     ragProjectionDocuments: number
     staleSources: number
     privateRecords: number
+    producerGates: number
+    enabledProducerGates: number
   }
   health: {
     sourceFreshness: 'green' | 'yellow' | 'red'
@@ -173,6 +187,7 @@ export interface OpenBrainSnapshot {
     pineconeWriteStatus: 'blocked_pending_approval'
   }
   runtimeParity: OpenBrainRuntimeParity[]
+  producerGates: OpenBrainProducerGate[]
   modelOps: ModelOpsProjection
   contextPacket: {
     purpose: string
@@ -314,10 +329,12 @@ export async function getOpenBrainSnapshot(openBrainHome = getOpenBrainHome()): 
   const links = dedupeLinks(persistedLinks)
   const wikiPages = compileKarpathyWikiOverlay(memories, events)
   const ragProjection = buildOpenBrainRagProjection(memories)
+  const runtimeParity = await buildRuntimeParity(openBrainHome)
+  const producerGates = buildProducerGates(modelOps)
   const pendingProposals = proposals.filter((proposal) => proposal.status === 'pending').length
   const approvedProposals = proposals.filter((proposal) => proposal.status === 'approved').length
   const rejectedProposals = proposals.filter((proposal) => proposal.status === 'rejected').length
-  const service = getServiceStatus(openBrainHome)
+  const service = getServiceStatus(openBrainHome, runtimeParity.some((runtime) => runtime.status === 'connected'))
 
   return {
     generatedAt,
@@ -339,6 +356,8 @@ export async function getOpenBrainSnapshot(openBrainHome = getOpenBrainHome()): 
         ...memories.map((memory) => memory.privacyTier),
         ...proposals.map((proposal) => proposal.proposedMemory.privacyTier),
       ].filter((tier) => tier === 'private').length,
+      producerGates: producerGates.length,
+      enabledProducerGates: producerGates.filter((gate) => gate.status === 'enabled').length,
     },
     health: {
       sourceFreshness: classifyFreshness(sources, generatedAt),
@@ -353,9 +372,10 @@ export async function getOpenBrainSnapshot(openBrainHome = getOpenBrainHome()): 
     proposals,
     wikiPages,
     ragProjection,
-    runtimeParity: buildRuntimeParity(openBrainHome),
+    runtimeParity,
+    producerGates,
     modelOps,
-    contextPacket: buildContextPacket(sources, memories, proposals, modelOps),
+    contextPacket: buildContextPacket(sources, memories, proposals, modelOps, producerGates),
   }
 }
 
@@ -645,7 +665,7 @@ export function sanitizeOpenBrainText(value: string, maxLength = 700) {
   return value.replace(SECRETISH_PATTERN, '[redacted]').replace(/\s+/g, ' ').trim().slice(0, maxLength)
 }
 
-function getServiceStatus(openBrainHome: string): OpenBrainSnapshot['service'] {
+function getServiceStatus(openBrainHome: string, runtimeMcpConfigured = false): OpenBrainSnapshot['service'] {
   const databaseUrl = process.env.OPEN_BRAIN_DATABASE_URL || ''
   const mcpUrl = process.env.OPEN_BRAIN_MCP_URL || ''
   const storage = databaseUrl ? 'postgres_pgvector' : existsSync(openBrainHome) ? 'local_jsonl' : 'unconfigured'
@@ -655,7 +675,7 @@ function getServiceStatus(openBrainHome: string): OpenBrainSnapshot['service'] {
     storage,
     home: openBrainHome,
     databaseConfigured: Boolean(databaseUrl),
-    mcpConfigured: Boolean(mcpUrl),
+    mcpConfigured: Boolean(mcpUrl || runtimeMcpConfigured),
     mcpUrl: mcpUrl || null,
     reason: available ? null : 'Local Open Brain storage is not configured yet. Set OPEN_BRAIN_DATABASE_URL or initialize OPEN_BRAIN_HOME.',
     operationalBoundary: 'Portfolio is a projection and approval surface. The local Open Brain service remains the source of truth; direct writes to Codex operational state require a separate approved repair step.',
@@ -807,26 +827,36 @@ function buildModelOpsSources(modelOps: ModelOpsProjection): OpenBrainSourceReco
   ]
 }
 
-function buildRuntimeParity(openBrainHome: string): OpenBrainRuntimeParity[] {
+async function buildRuntimeParity(openBrainHome: string): Promise<OpenBrainRuntimeParity[]> {
   const codexConfig = path.join(homedir(), '.codex', 'config.toml')
-  const hermesConfig = path.join(homedir(), '.hermes', 'hermes-agent')
+  const hermesConfig = path.join(homedir(), '.hermes', 'config.yaml')
   const opencodeConfig = path.join(homedir(), '.config', 'opencode')
   const cursorConfig = path.join(homedir(), '.cursor')
+  const [codexConfigText, hermesConfigText] = await Promise.all([
+    readOptionalText(codexConfig),
+    readOptionalText(hermesConfig),
+  ])
+  const codexConnected = hasOpenBrainMcpRegistration(codexConfigText, openBrainHome)
+  const hermesConnected = hasOpenBrainMcpRegistration(hermesConfigText, openBrainHome)
   return [
     {
       runtime: 'Codex',
-      status: existsSync(codexConfig) ? 'blocked' : 'skipped',
+      status: codexConnected ? 'connected' : existsSync(codexConfig) ? 'blocked' : 'skipped',
       configPath: codexConfig,
-      note: existsSync(codexConfig)
-        ? 'Codex config exists; register the Open Brain MCP server after approval.'
+      note: codexConnected
+        ? 'Codex config includes the open-brain MCP stdio server and local OPEN_BRAIN_HOME.'
+        : existsSync(codexConfig)
+        ? 'Codex config exists, but the Open Brain MCP registration was not detected.'
         : 'Codex config was not found on this machine.',
     },
     {
       runtime: 'Hermes',
-      status: existsSync(hermesConfig) ? 'blocked' : 'skipped',
+      status: hermesConnected ? 'connected' : existsSync(hermesConfig) ? 'blocked' : 'skipped',
       configPath: hermesConfig,
-      note: existsSync(hermesConfig)
-        ? 'Hermes runtime exists; MCP parity registration still needs an approved operational step.'
+      note: hermesConnected
+        ? 'Hermes config includes the open-brain MCP stdio server and local OPEN_BRAIN_HOME.'
+        : existsSync(hermesConfig)
+        ? 'Hermes config exists, but the Open Brain MCP registration was not detected.'
         : 'Hermes runtime was not found on this machine.',
     },
     {
@@ -860,11 +890,77 @@ function buildRuntimeParity(openBrainHome: string): OpenBrainRuntimeParity[] {
   ]
 }
 
+function buildProducerGates(modelOps: ModelOpsProjection): OpenBrainProducerGate[] {
+  const autoresearchTrace = process.env.OPEN_BRAIN_AUTORESEARCH_TRACE || null
+  return [
+    {
+      id: 'producer:personality-corpus',
+      label: 'Personality corpus',
+      status: 'enabled',
+      sourceKind: 'personality_corpus',
+      eventKind: 'source_observed',
+      privacyTier: 'public_safe',
+      envVar: null,
+      configuredValue: null,
+      note: 'Public-safe derived corpus pack may be observed as an Open Brain source. Raw private exports remain excluded.',
+    },
+    {
+      id: 'producer:chatbot-knowledge',
+      label: 'Chatbot knowledge',
+      status: 'enabled',
+      sourceKind: 'chatbot_knowledge',
+      eventKind: 'source_observed',
+      privacyTier: 'public_safe',
+      envVar: null,
+      configuredValue: null,
+      note: 'Portfolio /api/knowledge is a projection source only; durable memory still requires approval.',
+    },
+    {
+      id: 'producer:autoresearch',
+      label: 'AutoResearch traces',
+      status: autoresearchTrace === 'true' || autoresearchTrace === '1' ? 'enabled' : 'disabled',
+      sourceKind: 'autoresearch_proposal',
+      eventKind: 'autoresearch_proposal_created',
+      privacyTier: 'internal_ops',
+      envVar: 'OPEN_BRAIN_AUTORESEARCH_TRACE',
+      configuredValue: autoresearchTrace,
+      note: autoresearchTrace === 'true' || autoresearchTrace === '1'
+        ? 'AutoResearch can emit source/event traces and approval packets, but cannot execute experiments automatically.'
+        : 'AutoResearch trace emission is off until OPEN_BRAIN_AUTORESEARCH_TRACE=true is explicitly configured.',
+    },
+    {
+      id: 'producer:model-ops',
+      label: 'Model Ops projection',
+      status: modelOps.available ? 'enabled' : 'blocked',
+      sourceKind: modelOps.available ? 'model_ops_dashboard' : 'model_ops_report',
+      eventKind: 'source_observed',
+      privacyTier: 'internal_ops',
+      envVar: null,
+      configuredValue: null,
+      note: modelOps.available
+        ? 'Model Ops reports can be observed as source records; model swaps remain approval-gated.'
+        : modelOps.reason || 'Model Ops report data is not currently available.',
+    },
+    {
+      id: 'producer:rag-pinecone',
+      label: 'RAG and Pinecone',
+      status: 'approval_gated',
+      sourceKind: 'rag_projection',
+      eventKind: 'rag_projection_staged',
+      privacyTier: 'public_safe',
+      envVar: null,
+      configuredValue: null,
+      note: 'RAG staging can use approved public-safe projections. Pinecone writes remain blocked until a separate approval step.',
+    },
+  ]
+}
+
 function buildContextPacket(
   sources: OpenBrainSourceRecord[],
   memories: OpenBrainMemoryRecord[],
   proposals: OpenBrainProposalRecord[],
   modelOps: ModelOpsProjection,
+  producerGates: OpenBrainProducerGate[],
 ): OpenBrainSnapshot['contextPacket'] {
   return {
     purpose: 'Use the local Open Brain to understand Portfolio Agent Ops context before acting; Portfolio Admin is the projection and approval layer.',
@@ -883,6 +979,9 @@ function buildContextPacket(
       ...(modelOps.available && modelOps.routerDecisions.some((decision) => decision.approvalState === 'approval_required')
         ? ['Model Ops has approval-gated router decisions that cannot be applied automatically.']
         : []),
+      ...(producerGates.some((gate) => gate.status === 'blocked')
+        ? ['One or more Open Brain producer gates are blocked and should not emit records yet.']
+        : []),
     ],
     expectedOutputs: [
       'Context packet before agent action',
@@ -891,6 +990,20 @@ function buildContextPacket(
       'Unified router decision before local, frontier, hybrid, tool, or approval-gated model execution',
     ],
   }
+}
+
+async function readOptionalText(filePath: string) {
+  if (!existsSync(filePath)) return null
+  try {
+    return await readFile(filePath, 'utf8')
+  } catch {
+    return null
+  }
+}
+
+function hasOpenBrainMcpRegistration(configText: string | null, openBrainHome: string) {
+  if (!configText) return false
+  return configText.includes('open-brain') && configText.includes('OPEN_BRAIN_HOME') && configText.includes(openBrainHome)
 }
 
 function mergeProposals(persisted: OpenBrainProposalRecord[], generated: OpenBrainProposalRecord[]) {
