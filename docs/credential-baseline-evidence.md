@@ -18,9 +18,9 @@ No secret values were read, printed, committed, or copied into this file. The ev
 | `GEMINI_API_KEY` | 2026-03-22 | n8n credential metadata for `Gemini API Key`, updated 2026-03-22T00:45:06Z. |
 | `ELEVENLABS_API_KEY` | 2026-03-22 | n8n credential metadata for `ElevenLabs API Key`, updated 2026-03-22T00:45:54Z. |
 | `APIFY_API_TOKEN` | 2026-03-22 | n8n credential metadata for `Apify API Token`, updated 2026-03-22T00:44:30Z. |
-| `STRIPE_SECRET_KEY` | 2026-02-23 | n8n credential metadata for `Stripe Test`, updated 2026-02-23T21:05:10Z. |
-| `STRIPE_WEBHOOK_SECRET` | 2026-01-13 | Vercel Preview metadata for `STRIPE_WEBHOOK_SECRET`, updated 2026-01-13T16:51:05Z. |
-| `GITHUB_TOKEN` | 2026-03-12 | n8n credential metadata for `GitHub account`, updated 2026-03-12T02:25:06Z. |
+| `STRIPE_SECRET_KEY` | 2026-05-13 | Approved staging-only rotation drill: Infisical staging `/portfolio` secret synced, local and `portfolio-staging` Vercel runtime sinks updated, staging redeployed, and Stripe API smokes returned 200. |
+| `STRIPE_WEBHOOK_SECRET` | 2026-05-13 | Approved staging-only rotation drill: Infisical staging `/portfolio` secret synced, local and `portfolio-staging` Vercel runtime sinks updated, Stripe destination URL corrected to `/api/payments/webhook`, and a signed staging webhook probe returned 200. |
+| `GITHUB_TOKEN` | 2026-05-13 | Approved staging-only rotation drill: Infisical staging `/portfolio` secret synced, local and `portfolio-staging` Vercel runtime sinks updated, and GitHub repo-read smoke returned 200. |
 | `GOOGLE_SERVICE_ACCOUNT_KEY` | 2026-05-13 | Vercel Preview metadata after approved preview sync on 2026-05-13T13:27:32Z. |
 | `LINKEDIN_COOKIE` | 2026-05-13 | Operator added a current LinkedIn `li_at` session cookie to local env on 2026-05-13. |
 | `GMAIL_APP_PASSWORD` | 2026-05-01 | 1Password `Portfolio / staging` item metadata for `GMAIL_APP_PASSWORD`, created/updated 2026-05-01T14:48:30Z. |
