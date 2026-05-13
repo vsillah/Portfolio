@@ -63,6 +63,7 @@ Use `credentials:baseline-template` when `credentials:report` shows `needs-basel
 ## Source And Sink Rules
 
 - The inventory owns canonical secret names, owners, source of truth, runtime sinks, cadence, verification, and rollback notes.
+- Stripe Projects may be evaluated as a provisioning adapter for new stacks, but it is not a credential source of truth until it passes `docs/stripe-projects-bakeoff.md`.
 - Each inventory entry has per-environment `baseline` metadata. `pending-provider-confirmation` means the secret is tracked but the last rotation date has not been verified from Infisical, 1Password, a provider dashboard/API, or an approved rotation packet.
 - `.env.local` and `.env.staging` are local runtime sinks only. Do not treat them as primary records.
 - n8n Variables/Credentials are runtime consumers. Prefer external secrets if the active n8n plan supports it; otherwise keep n8n values synced from Infisical/1Password.
@@ -94,6 +95,7 @@ Use `credentials:baseline-template` when `credentials:report` shows `needs-basel
 - `docs/credential-rotation-map.md`
 - `docs/credential-rotation-runbook.md`
 - `docs/credential-baseline-evidence.md`
+- `docs/stripe-projects-bakeoff.md`
 - `docs/n8n-secrets-remediation.md`
 - `n8n-exports/environment-variables-reference.md`
 
