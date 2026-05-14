@@ -31,6 +31,7 @@
     "deploy:watch:once": "tsx scripts/vercel-deployment-watch.ts --once",
     "deploy:metrics": "tsx scripts/vercel-deployment-metrics.ts",
     "deploy:research:plan": "tsx scripts/vercel-deployment-research-plan.ts",
+    "deploy:research:seed-ideas": "tsx scripts/seed-vercel-autoresearch-ideas.ts",
     "git:hygiene:report": "tsx scripts/git-hygiene-report.ts",
     "banned-books:report": "tsx scripts/banned-books-corpus-report.ts",
     "model-ops:snapshot": "tsx scripts/sync-model-ops-snapshot.ts",

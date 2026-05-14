@@ -22,6 +22,7 @@ import { getCurrentSession } from '@/lib/auth'
 import type { AgentRuntime } from '@/lib/agent-run'
 import type { AgentWorkItem, AgentWorkItemStatus } from '@/lib/agent-work-items'
 import type { VercelResearchProposal } from '@/lib/vercel-deployment-research'
+import { VERCEL_AUTORESEARCH_DEFINITION_OF_READY, VERCEL_AUTORESEARCH_IDEA_SOURCE_TYPE } from '@/lib/vercel-autoresearch-ideas'
 
 const STATUSES: Array<'all' | AgentWorkItemStatus> = [
   'all',
@@ -103,6 +104,22 @@ const DEFAULT_FORM: WorkItemForm = {
   expected_files: '',
 }
 
+const PRIORITIES = ['urgent', 'high', 'medium', 'low'] as const
+
+function isAutoResearchIdea(item: AgentWorkItem) {
+  return item.source_type === VERCEL_AUTORESEARCH_IDEA_SOURCE_TYPE || item.metadata?.autoresearch_idea === true
+}
+
+function textArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0) : []
+}
+
+function definitionOfReadyText(item: AgentWorkItem) {
+  const criteria = textArray(item.metadata?.definition_of_ready)
+  const source = criteria.length ? criteria : VERCEL_AUTORESEARCH_DEFINITION_OF_READY
+  return source.map((criterion) => `- ${criterion}`).join('\n')
+}
+
 export default function AgentCoordinationPage() {
   return (
     <ProtectedRoute requireAdmin>
@@ -178,6 +195,13 @@ function AgentCoordinationContent() {
     approvals: items.filter((item) => Boolean(item.approval_id)).length,
   }), [items])
 
+  const autoResearchIdeas = useMemo(() => {
+    const rank: Record<AgentWorkItem['priority'], number> = { urgent: 0, high: 1, medium: 2, low: 3 }
+    return items
+      .filter(isAutoResearchIdea)
+      .sort((a, b) => rank[a.priority] - rank[b.priority] || new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+  }, [items])
+
   async function refreshAll() {
     await Promise.all([loadItems(), loadVercelResearchApprovals()])
   }
@@ -245,6 +269,47 @@ function AgentCoordinationContent() {
       await refreshAll()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Action failed')
+    } finally {
+      setActionId(null)
+    }
+  }
+
+  async function prioritizeWorkItem(item: AgentWorkItem, priority: AgentWorkItem['priority']) {
+    setActionId(`priority:${item.id}`)
+    setError(null)
+    try {
+      const response = await authedFetch(`/api/admin/agents/work-items/${item.id}/priority`, {
+        method: 'POST',
+        body: JSON.stringify({
+          priority,
+          note: `AutoResearch idea priority set to ${priority} from Decision Queue Controller.`,
+        }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      await refreshAll()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Priority update failed')
+    } finally {
+      setActionId(null)
+    }
+  }
+
+  async function markReadyForKanban(item: AgentWorkItem) {
+    setActionId(`ready:${item.id}`)
+    setError(null)
+    try {
+      const response = await authedFetch(`/api/admin/agents/work-items/${item.id}/ready`, {
+        method: 'POST',
+        body: JSON.stringify({
+          definition_of_ready: definitionOfReadyText(item),
+        }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      await refreshAll()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Ready-for-Kanban update failed')
     } finally {
       setActionId(null)
     }
@@ -378,6 +443,17 @@ function AgentCoordinationContent() {
           onAskShaka={(card) => askShaka(
             'Should I approve, reject, run another test, or close this approval request? Summarize the experiment, objective, goal, current run, distance from goal, recommendation, risk, evidence, and safest next step.',
             { type: 'approval', id: card.approvalId },
+          )}
+        />
+
+        <AutoResearchIdeaInboxPanel
+          ideas={autoResearchIdeas}
+          actionId={actionId}
+          onPrioritize={prioritizeWorkItem}
+          onReadyForKanban={markReadyForKanban}
+          onAskShaka={(item) => askShaka(
+            'Should this AutoResearch idea be prioritized or marked ready for the Kanban inbox? Summarize the definition of ready, risk, owner lane, and safest next step.',
+            { type: 'work_item', id: item.id },
           )}
         />
 
@@ -560,6 +636,116 @@ function MoremiOperationalDrillPanel({
           </div>
         </div>
       ) : null}
+    </section>
+  )
+}
+
+function AutoResearchIdeaInboxPanel({
+  ideas,
+  actionId,
+  onPrioritize,
+  onReadyForKanban,
+  onAskShaka,
+}: {
+  ideas: AgentWorkItem[]
+  actionId: string | null
+  onPrioritize: (item: AgentWorkItem, priority: AgentWorkItem['priority']) => void
+  onReadyForKanban: (item: AgentWorkItem) => void
+  onAskShaka: (item: AgentWorkItem) => void
+}) {
+  const proposed = ideas.filter((item) => item.status === 'proposed').length
+  const queued = ideas.filter((item) => item.status === 'queued').length
+  return (
+    <section className="mb-6 rounded-lg border border-blue-400/30 bg-blue-400/5 p-4">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-blue-100">AutoResearch idea inbox</p>
+          <h2 className="mt-1 font-semibold">Prioritize ideas before they enter the Kanban board.</h2>
+          <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
+            Proposed ideas stay here for admin ordering. Marking one ready moves it to the Kanban inbox as queued work so agents can pick up the top item when current work clears.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2 text-xs">
+          <span className="rounded-full border border-blue-400/30 bg-blue-400/10 px-2 py-1 text-blue-100">{ideas.length} ideas</span>
+          <span className="rounded-full border border-silicon-slate/70 px-2 py-1 text-muted-foreground">{proposed} proposed</span>
+          <span className="rounded-full border border-green-500/30 bg-green-500/10 px-2 py-1 text-green-100">{queued} Kanban-ready</span>
+        </div>
+      </div>
+
+      {ideas.length === 0 ? (
+        <p className="rounded-lg border border-silicon-slate/60 bg-background/40 p-3 text-sm text-muted-foreground">
+          No Vercel AutoResearch ideas have been seeded yet. Run <code className="font-mono">npm run deploy:research:seed-ideas</code> to create the inbox items.
+        </p>
+      ) : (
+        <div className="grid gap-3">
+          {ideas.map((item) => {
+            const readyForKanban = item.status !== 'proposed'
+            const criteria = textArray(item.metadata?.definition_of_ready)
+            const recommendation = typeof item.metadata?.recommendation === 'string'
+              ? item.metadata.recommendation
+              : 'Review this idea against the definition of ready before moving it into Kanban.'
+            return (
+              <article key={item.id} className="rounded-lg border border-blue-400/20 bg-background/55 p-4">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="min-w-0">
+                    <div className="mb-2 flex flex-wrap items-center gap-2">
+                      <StatusBadge status={item.status} />
+                      <span className="rounded-full border border-radiant-gold/30 bg-radiant-gold/10 px-2 py-1 text-xs text-radiant-gold">
+                        {item.priority} priority
+                      </span>
+                      {readyForKanban ? (
+                        <span className="rounded-full border border-green-500/30 bg-green-500/10 px-2 py-1 text-xs text-green-100">
+                          ready for Kanban
+                        </span>
+                      ) : null}
+                    </div>
+                    <h3 className="text-lg font-semibold">{item.title}</h3>
+                    <p className="mt-1 max-w-4xl text-sm text-muted-foreground">{item.objective}</p>
+                    <div className="mt-3 grid gap-3 lg:grid-cols-2">
+                      <DecisionSummaryBlock label="Admin recommendation" value={recommendation} />
+                      <DecisionSummaryBlock label="Definition of ready" value={criteria.length ? criteria.join('\n') : VERCEL_AUTORESEARCH_DEFINITION_OF_READY.join('\n')} tone="yellow" />
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 flex-wrap gap-2 lg:w-72 lg:justify-end">
+                    <label className="min-w-32 text-xs uppercase tracking-wide text-muted-foreground">
+                      Priority
+                      <select
+                        value={item.priority}
+                        onChange={(event) => onPrioritize(item, event.target.value as AgentWorkItem['priority'])}
+                        disabled={Boolean(actionId)}
+                        aria-label={`Prioritize ${item.title}`}
+                        className="mt-1 w-full rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+                      >
+                        {PRIORITIES.map((priority) => (
+                          <option key={priority} value={priority}>{priority}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <button
+                      onClick={() => onReadyForKanban(item)}
+                      disabled={Boolean(actionId) || readyForKanban}
+                      aria-label={`Mark ${item.title} ready for Kanban`}
+                      className="inline-flex items-center gap-2 rounded-lg border border-green-500/40 bg-green-500/10 px-3 py-2 text-sm text-green-100 hover:bg-green-500/15 disabled:opacity-50"
+                    >
+                      <CheckCircle2 size={16} />
+                      Ready for Kanban
+                    </button>
+                    <button
+                      onClick={() => onAskShaka(item)}
+                      disabled={Boolean(actionId)}
+                      aria-label={`Ask Shaka about ${item.title}`}
+                      className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-50"
+                    >
+                      <MessageSquare size={16} />
+                      Ask Shaka
+                    </button>
+                  </div>
+                </div>
+              </article>
+            )
+          })}
+        </div>
+      )}
     </section>
   )
 }
