@@ -9,6 +9,8 @@ import {
   ArrowRight,
   Bot,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   Columns,
   CircleDollarSign,
   ClipboardList,
@@ -302,6 +304,8 @@ export default function AgentOperationsPage() {
   const [engagementLoadingKey, setEngagementLoadingKey] = useState<string | null>(null)
   const [recoveryLoadingRunId, setRecoveryLoadingRunId] = useState<string | null>(null)
   const [moremiReviewConfirm, setMoremiReviewConfirm] = useState(false)
+  const [activeWorkPage, setActiveWorkPage] = useState(0)
+  const [inboxPage, setInboxPage] = useState(0)
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -540,16 +544,27 @@ export default function AgentOperationsPage() {
     }
   }
 
-  const topAgents = useMemo(
-    () => snapshot?.roster.flatMap((pod) => pod.agents).filter((agent) => agent.status !== 'planned').slice(0, 10) ?? [],
-    [snapshot],
-  )
   const rosterCount = snapshot?.roster.flatMap((pod) => pod.agents).filter((agent) => agent.status !== 'planned').length ?? 0
   const decisionQueueCount = snapshot?.status_strip.pending_approvals ?? snapshot?.status_strip.waiting_for_approval ?? 0
   const kanbanSignalCount = (snapshot?.status_strip.running ?? 0) + (snapshot?.status_strip.queued ?? 0)
   const healthLabel = (snapshot?.status_strip.failed ?? 0) || (snapshot?.status_strip.stale ?? 0) ? 'Needs review' : 'Read-only healthy'
+  const failedOrStaleCount = (snapshot?.status_strip.failed ?? 0) + (snapshot?.status_strip.stale ?? 0)
+  const deadLetterCount = snapshot?.dead_letter_queue.length ?? 0
+  const engagementCount = snapshot?.engagement_queue.length ?? 0
+  const operatingSignalCount = snapshot?.operating_signals.length ?? 0
+  const moremiWarningCount = moremiReview?.warning_count ?? 0
+  const qualityScore = snapshot?.quality_summary.average_score === null || snapshot?.quality_summary.average_score === undefined
+    ? 'No score'
+    : snapshot.quality_summary.average_score.toFixed(1)
+  const qualityDetail = snapshot?.quality_summary.evaluation_count
+    ? `${snapshot.quality_summary.evaluation_count} evaluation(s)`
+    : 'Chat Eval home'
+  const ragStatus = snapshot?.knowledge_governance
+    ? snapshot.knowledge_governance.validation.ok ? 'Ready' : 'Blocked'
+    : 'Open Brain'
+  const firstDeadLetter = snapshot?.dead_letter_queue.find((item) => !item.routed) ?? null
   const activeWorkRows = [
-    ...(snapshot?.active_runs ?? []).slice(0, 2).map((run) => ({
+    ...(snapshot?.active_runs ?? []).map((run) => ({
       key: `run:${run.id}`,
       label: run.status.replace(/_/g, ' '),
       title: run.title,
@@ -557,7 +572,7 @@ export default function AgentOperationsPage() {
       href: `/admin/agents/runs/${run.id}`,
       action: 'Open run',
     })),
-    ...(snapshot?.agent_inbox ?? []).slice(0, 2).map((item) => ({
+    ...(snapshot?.agent_inbox ?? []).map((item) => ({
       key: `inbox:${item.id}`,
       label: item.priority,
       title: item.title,
@@ -565,12 +580,110 @@ export default function AgentOperationsPage() {
       href: item.href,
       action: item.action_label,
     })),
-  ].slice(0, 4)
+  ]
+  const activeWorkPageCount = Math.max(1, Math.ceil(activeWorkRows.length / 3))
+  const visibleActiveWorkRows = activeWorkRows.slice(activeWorkPage * 3, activeWorkPage * 3 + 3)
+  const inboxItems = snapshot?.agent_inbox ?? []
+  const inboxPageCount = Math.max(1, Math.ceil(inboxItems.length / 3))
+  const visibleInboxItems = inboxItems.slice(inboxPage * 3, inboxPage * 3 + 3)
   const missionHeadline = decisionQueueCount
     ? `System is active. ${decisionQueueCount} decision${decisionQueueCount === 1 ? '' : 's'} waiting.`
     : healthLabel === 'Read-only healthy'
       ? 'System is active. No decisions are waiting.'
       : 'System needs review. Health signals are waiting.'
+  const primaryWorkHomes = [
+    {
+      eyebrow: 'Decision Queue',
+      title: 'Approval controller',
+      body: 'Action required, recommendation, risk, owner, and approve/reject controls.',
+      href: '/admin/agents/coordination',
+      metric: `${decisionQueueCount} waiting`,
+      icon: <ShieldCheck size={18} />,
+      tone: decisionQueueCount ? 'yellow' : 'green',
+    },
+    {
+      eyebrow: 'Agent Kanban',
+      title: 'Work by state, owner, and blocker',
+      body: 'Standup follow-up, roster, blockers, PRs, traces, validation, and handoffs.',
+      href: '/admin/agents/swarm-board',
+      metric: `${kanbanSignalCount} moving`,
+      icon: <Columns size={18} />,
+      tone: 'blue',
+    },
+    {
+      eyebrow: 'Run Console',
+      title: 'Trace, evaluation, and dead-letter history',
+      body: 'Failed, stale, running, evaluated, and routed traces with artifacts.',
+      href: '/admin/agents/runs',
+      metric: `${failedOrStaleCount} review`,
+      icon: <Activity size={18} />,
+      tone: failedOrStaleCount ? 'red' : 'neutral',
+    },
+    {
+      eyebrow: 'Automation Context',
+      title: 'Recurring jobs and scheduled operators',
+      body: 'Morning review, Hermes health, approval drills, and runtime probes.',
+      href: '/admin/agents/automations',
+      metric: 'Scheduled',
+      icon: <Clock3 size={18} />,
+      tone: 'neutral',
+    },
+    {
+      eyebrow: 'Open Brain',
+      title: 'Memory and RAG governance',
+      body: 'Knowledge proposals, RAG health, source governance, and approval gates.',
+      href: '/admin/agents/open-brain',
+      metric: ragStatus,
+      icon: <Network size={18} />,
+      tone: ragStatus === 'Blocked' ? 'red' : 'green',
+    },
+  ] as const
+  const operationalSignalHomes = [
+    {
+      title: 'Cost Intelligence',
+      detail: `$${(snapshot?.status_strip.cost_today ?? 0).toFixed(4)} today`,
+      href: '/admin/cost-revenue',
+      icon: <CircleDollarSign size={16} />,
+    },
+    {
+      title: 'Quality Signals',
+      detail: `${qualityScore} · ${qualityDetail}`,
+      href: '/admin/chat-eval',
+      icon: <Gauge size={16} />,
+    },
+    {
+      title: 'Deployment Watcher',
+      detail: operatingSignalCount ? `${operatingSignalCount} signal(s)` : 'Trace home',
+      href: '/admin/agents/runs',
+      icon: <Radio size={16} />,
+    },
+    {
+      title: 'Moremi Warning Review',
+      detail: moremiWarningCount ? `${moremiWarningCount} warning(s)` : 'Read-only monitor',
+      href: moremiReview?.run?.href ?? '/admin/agents/coordination',
+      icon: moremiWarningCount ? <AlertTriangle size={16} /> : <ShieldCheck size={16} />,
+    },
+    {
+      title: 'Engagement Work Queue',
+      detail: engagementCount ? `${engagementCount} request(s)` : 'Kanban and traces',
+      href: engagementCount ? '/admin/agents/runs' : '/admin/agents/swarm-board',
+      icon: <ClipboardList size={16} />,
+    },
+    {
+      title: 'Dead-Letter Monitor',
+      detail: deadLetterCount ? `${deadLetterCount} failed or stale` : 'No dead letters',
+      href: '/admin/agents/runs',
+      icon: deadLetterCount ? <AlertTriangle size={16} /> : <CheckCircle2 size={16} />,
+    },
+  ] as const
+
+  useEffect(() => {
+    setActiveWorkPage((page) => Math.min(page, Math.max(activeWorkPageCount - 1, 0)))
+  }, [activeWorkPageCount])
+
+  useEffect(() => {
+    setInboxPage((page) => Math.min(page, Math.max(inboxPageCount - 1, 0)))
+  }, [inboxPageCount])
 
   return (
     <ProtectedRoute requireAdmin>
@@ -699,6 +812,8 @@ export default function AgentOperationsPage() {
                   </div>
                 </div>
 
+                <DailyBriefPanel brief={snapshot?.daily_brief ?? null} loading={loading} />
+
                 <div className="agent-ops-command-card mt-5 rounded-lg border p-4">
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                     <div>
@@ -741,21 +856,21 @@ export default function AgentOperationsPage() {
                     <QuickPrompt label="Who owns this?" disabled={chiefLoading} onClick={() => askChiefOfStaff('Who owns the current Agent Ops work, and which L2 or L3 surface should I use for follow-up?')} />
                   </div>
 
-              {chiefReply ? (
-                <>
-                  <ResultPanel
-                    title="Shaka"
-                    href={`/admin/agents/runs/${chiefReply.run_id}`}
-                    body={chiefReply.reply}
-                    items={chiefReply.suggested_actions}
-                  />
-                  <AgentEngagementRecommendations
-                    recommendations={chiefReply.agent_engagements}
-                    loadingKey={engagementLoadingKey}
-                    onLaunch={(agent) => launchAgentEngagement(agent.agentKey, agent.agentName, agent.rationale)}
-                  />
-                </>
-              ) : null}
+                  {chiefReply ? (
+                    <>
+                      <ResultPanel
+                        title="Shaka"
+                        href={`/admin/agents/runs/${chiefReply.run_id}`}
+                        body={chiefReply.reply}
+                        items={chiefReply.suggested_actions}
+                      />
+                      <AgentEngagementRecommendations
+                        recommendations={chiefReply.agent_engagements}
+                        loadingKey={engagementLoadingKey}
+                        onLaunch={(agent) => launchAgentEngagement(agent.agentKey, agent.agentName, agent.rationale)}
+                      />
+                    </>
+                  ) : null}
 
                   {warRoomResult ? (
                     <ResultPanel
@@ -768,9 +883,22 @@ export default function AgentOperationsPage() {
                 </div>
 
                 <div className="mt-5">
-                  <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Active work</p>
+                  <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Active work</p>
+                      <p className="mt-1 text-xs text-muted-foreground">Showing up to three items. Use the arrows for more.</p>
+                    </div>
+                    <PagerControls
+                      label="Active work"
+                      page={activeWorkPage}
+                      pageCount={activeWorkPageCount}
+                      itemCount={activeWorkRows.length}
+                      onPrevious={() => setActiveWorkPage((page) => Math.max(page - 1, 0))}
+                      onNext={() => setActiveWorkPage((page) => Math.min(page + 1, activeWorkPageCount - 1))}
+                    />
+                  </div>
                   <div className="space-y-2">
-                    {activeWorkRows.length ? activeWorkRows.map((row) => (
+                    {visibleActiveWorkRows.length ? visibleActiveWorkRows.map((row) => (
                       <Link key={row.key} href={row.href} className="flex flex-col gap-2 rounded-lg border border-silicon-slate/60 bg-background/40 px-3 py-3 hover:border-radiant-gold/50 sm:flex-row sm:items-center sm:justify-between">
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-3">
@@ -792,11 +920,15 @@ export default function AgentOperationsPage() {
 
               <aside className="space-y-4">
                 <div className="agent-ops-card rounded-lg border p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Board actions</p>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Agent interaction</p>
                   <div className="mt-3 grid gap-3">
+                    <Link href="/admin/agents/chief-of-staff" className="block rounded-lg border border-silicon-slate/60 bg-background/40 p-3 hover:border-radiant-gold/50">
+                      <p className="font-semibold">Open Shaka chat</p>
+                      <p className="mt-1 text-sm text-muted-foreground">Use the full chat surface when the question becomes a longer thread.</p>
+                    </Link>
                     <Link href="/admin/agents/swarm-board" className="block rounded-lg border border-radiant-gold/45 bg-radiant-gold/10 p-3 shadow-gold-glow-sm hover:bg-radiant-gold/15">
-                      <p className="font-semibold">Open Kanban</p>
-                      <p className="mt-1 text-sm text-muted-foreground">Review standup tasks and work-item columns.</p>
+                      <p className="font-semibold">Open Agent Kanban</p>
+                      <p className="mt-1 text-sm text-muted-foreground">Review work lanes, roster, blockers, traces, validation, and PRs.</p>
                     </Link>
                     <button
                       type="button"
@@ -807,16 +939,63 @@ export default function AgentOperationsPage() {
                       <p className="font-semibold">Run standup</p>
                       <p className="mt-1 text-sm">Generate brief and update queue context.</p>
                     </button>
+                    <Link href="/admin/agents/runs" className="block rounded-lg border border-silicon-slate/60 bg-background/40 p-3 hover:border-radiant-gold/50">
+                      <p className="font-semibold">Open Run Console</p>
+                      <p className="mt-1 text-sm text-muted-foreground">Inspect traces, evaluations, dead letters, and artifacts.</p>
+                    </Link>
+                    <div className="grid grid-cols-2 gap-2">
+                      <ActionButton label="Morning review" loading={actionLoading === 'morning-review'} onClick={() => runOperatorAction('morning-review')} />
+                      <ActionButton label="Hermes health" loading={actionLoading === 'hermes'} onClick={() => runOperatorAction('hermes')} />
+                      <ActionButton label="Approval drill" loading={actionLoading === 'approval-drill'} onClick={() => runOperatorAction('approval-drill')} />
+                      <ActionButton label="Runtime probe" loading={actionLoading === 'runtime-evaluation'} onClick={() => runOperatorAction('runtime-evaluation')} />
+                    </div>
+                    {firstDeadLetter ? (
+                      <button
+                        type="button"
+                        onClick={() => requestRunRecovery(firstDeadLetter)}
+                        disabled={recoveryLoadingRunId === firstDeadLetter.run_id}
+                        className="rounded-lg border border-red-400/40 bg-red-500/10 p-3 text-left text-red-100 hover:border-red-300/60 disabled:opacity-60"
+                      >
+                        <p className="font-semibold">Request dead-letter retry</p>
+                        <p className="mt-1 text-sm text-red-100/80">{firstDeadLetter.title}</p>
+                      </button>
+                    ) : null}
+                    {moremiReview?.has_monitor ? (
+                      <button
+                        type="button"
+                        onClick={createMoremiWarningWorkItems}
+                        disabled={!moremiReview.warning_count || actionLoading === 'moremi-review'}
+                        className="rounded-lg border border-silicon-slate/60 bg-background/40 p-3 text-left hover:border-radiant-gold/50 disabled:opacity-60"
+                      >
+                        <p className="font-semibold">{moremiReviewConfirm ? 'Confirm Moremi work items' : 'Route Moremi warnings'}</p>
+                        <p className="mt-1 text-sm text-muted-foreground">{moremiReview.warning_count} warning(s), {moremiReview.linked_work_items.length} linked item(s).</p>
+                      </button>
+                    ) : null}
+                    {actionResult ? (
+                      <Link href={`/admin/agents/runs/${actionResult.runId}`} className="rounded-lg border border-emerald-400/30 bg-emerald-500/10 p-3 text-sm text-emerald-200 hover:underline">
+                        Open {actionResult.label} run
+                      </Link>
+                    ) : null}
                   </div>
                 </div>
 
                 <div className="agent-ops-card rounded-lg border p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Agent Inbox</p>
-                    <Link href="/admin/agents/runs" className="text-xs text-radiant-gold hover:underline">Run Console</Link>
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Agent Inbox</p>
+                      <p className="mt-1 text-xs text-muted-foreground">Three visible at a time.</p>
+                    </div>
+                    <PagerControls
+                      label="Agent Inbox"
+                      page={inboxPage}
+                      pageCount={inboxPageCount}
+                      itemCount={inboxItems.length}
+                      onPrevious={() => setInboxPage((page) => Math.max(page - 1, 0))}
+                      onNext={() => setInboxPage((page) => Math.min(page + 1, inboxPageCount - 1))}
+                    />
                   </div>
                   <div className="mt-3 space-y-2">
-                    {snapshot?.agent_inbox.length ? snapshot.agent_inbox.slice(0, 4).map((item) => (
+                    {visibleInboxItems.length ? visibleInboxItems.map((item) => (
                       <InboxRow
                         key={item.id}
                         item={item}
@@ -841,15 +1020,13 @@ export default function AgentOperationsPage() {
             </div>
           </section>
 
-          <DailyBriefPanel brief={snapshot?.daily_brief ?? null} loading={loading} />
-
-          <section className="agent-ops-panel mt-5 rounded-xl border p-5" aria-label="Mission Control drilldown homes">
+          <section className="agent-ops-panel mt-5 rounded-xl border p-5" aria-label="Agent Ops system map">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Where Mission Control signals go</p>
-                <h2 className="mt-2 text-2xl font-bold">Drilldowns become full work surfaces</h2>
+                <h2 className="mt-2 text-2xl font-bold">Every signal has a durable home</h2>
                 <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-                  Mission Control answers what is happening. These L2/L3 homes answer what needs approval, what work is moving, and where the evidence lives.
+                  Mission Control answers what needs attention now and how to interact with agents. The L2/L3 homes below hold the deeper work so this page stays short.
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -857,147 +1034,40 @@ export default function AgentOperationsPage() {
                 <Link href="/admin/agents/swarm-board" className="rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60">Open Kanban</Link>
               </div>
             </div>
-            <div className="mt-5 grid gap-4 xl:grid-cols-2">
-              <DrilldownHomeCard
-                eyebrow="Decision Queue"
-                title="Approval controller"
-                body="One escalation at a time with the action, rationale, risk, recommendation, and trace ready."
-                href="/admin/agents/coordination"
-                cta="Open controller"
-              />
-              <DrilldownHomeCard
-                eyebrow="Agent Kanban"
-                title="Work by state, owner, and blocker"
-                body="Follow up after standup with enough space for cards, owners, blockers, validation, traces, and PRs."
-                href="/admin/agents/swarm-board"
-                cta="Open Kanban"
-              />
-              <DrilldownHomeCard
-                eyebrow="Run Console"
-                title="Trace, evaluation, and dead-letter history"
-                body="Inspect failed, stale, running, and evaluated traces without turning Mission Control into a log table."
-                href="/admin/agents/runs"
-                cta="Open traces"
-              />
-              <DrilldownHomeCard
-                eyebrow="Governance"
-                title="Automation, memory, quality, and cost homes"
-                body="Automation Context owns recurring jobs, Open Brain owns memory proposals, Chat Eval owns quality, and Cost & Revenue owns spend."
-                href="/admin/agents/automations"
-                cta="Open automation context"
-              />
-            </div>
-          </section>
 
-          <section className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-7">
-            <MetricCard icon={<Radio size={16} />} label="Active" value={snapshot?.status_strip.active ?? 0} />
-            <MetricCard icon={<Clock3 size={16} />} label="Running" value={snapshot?.status_strip.running ?? 0} />
-            <MetricCard icon={<ShieldCheck size={16} />} label="Approvals" value={snapshot?.status_strip.pending_approvals ?? 0} />
-            <MetricCard icon={<AlertTriangle size={16} />} label="Failed" value={snapshot?.status_strip.failed ?? 0} tone="red" />
-            <MetricCard icon={<AlertTriangle size={16} />} label="Stale" value={snapshot?.status_strip.stale ?? 0} tone="yellow" />
-            <MetricCard icon={<CircleDollarSign size={16} />} label="Cost today" value={`$${(snapshot?.status_strip.cost_today ?? 0).toFixed(4)}`} />
-            <MetricCard icon={<Users size={16} />} label="Agents" value={rosterCount} />
-          </section>
-
-          <CostSummaryPanel summary={snapshot?.cost_summary ?? null} />
-          <QualitySignalsPanel summary={snapshot?.quality_summary ?? null} />
-          <OperatingSignalsPanel signals={snapshot?.operating_signals ?? []} />
-          <MoremiReviewPanel
-            review={moremiReview}
-            loading={moremiReviewLoading}
-            confirm={moremiReviewConfirm}
-            actionLoading={actionLoading === 'moremi-review'}
-            onCreate={createMoremiWarningWorkItems}
-            onCancel={() => setMoremiReviewConfirm(false)}
-          />
-          <KnowledgeGovernancePanel governance={snapshot?.knowledge_governance ?? null} />
-
-          <EngagementQueuePanel items={snapshot?.engagement_queue ?? []} />
-
-          <DeadLetterPanel
-            items={snapshot?.dead_letter_queue ?? []}
-            recoveryLoadingRunId={recoveryLoadingRunId}
-            onRecover={requestRunRecovery}
-          />
-
-          <section className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[1fr_0.8fr]">
-            <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
-              <div className="flex items-center gap-2 text-radiant-gold">
-                <Network size={18} />
-                <h2 className="font-semibold">Agent Roster</h2>
+            <div className="mt-5 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+              <div>
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Primary work surfaces</p>
+                <div className="grid gap-3 lg:grid-cols-2">
+                  {primaryWorkHomes.map((home) => (
+                    <SystemHomeCard key={home.eyebrow} {...home} />
+                  ))}
+                </div>
               </div>
-              <div className="mt-2">
-                <SignalHomeLink href="/admin/agents/swarm-board" label="Agent Kanban is the roster and workload home" />
-              </div>
-              <div className="mt-3 grid grid-cols-1 gap-2 lg:grid-cols-2">
-                {topAgents.map((agent) => (
-                  <div key={agent.key} className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-medium">{agent.name}</p>
-                      <StatusPill status={agent.status} />
-                      <span className="rounded-full border border-silicon-slate/50 px-2 py-0.5 text-xs text-muted-foreground">
-                        {agent.runtime}
-                      </span>
+
+              <div>
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Operating signals</p>
+                <div className="grid gap-2">
+                  {operationalSignalHomes.map((home) => (
+                    <SignalRouteCard key={home.title} {...home} />
+                  ))}
+                  <SignalRouteCard
+                    title="Latest Activity"
+                    detail={`${snapshot?.latest_events.length ?? 0} recent event(s)`}
+                    href="/admin/agents/runs"
+                    icon={<Activity size={16} />}
+                  />
+                  <div className="rounded-lg border border-silicon-slate/60 bg-background/35 p-3">
+                    <div className="flex items-center gap-2 text-radiant-gold">
+                      <Bot size={16} />
+                      <p className="text-sm font-semibold">Drilldowns & Controls</p>
                     </div>
-                    <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{agent.responsibility}</p>
-                    <div className="mt-3 flex items-center justify-between gap-3 text-xs text-muted-foreground">
-                      <span>{agent.active_workflow_count} active workflow(s)</span>
-                      {agent.latest_run ? (
-                        <Link href={`/admin/agents/runs/${agent.latest_run.id}`} className="text-radiant-gold hover:underline">
-                          {agent.latest_run.status.replace(/_/g, ' ')}
-                        </Link>
-                      ) : (
-                        <span>No recent trace</span>
-                      )}
-                    </div>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Consolidated into the route map, Agent interaction rail, and sidebar so controls stay near their context.
+                    </p>
                   </div>
-                ))}
+                </div>
               </div>
-            </div>
-
-            <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
-              <div className="flex items-center gap-2 text-radiant-gold">
-                <Bot size={18} />
-                <h2 className="font-semibold">Drilldowns & Controls</h2>
-              </div>
-              <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-1">
-                <ControlLink href="/admin/agents/chief-of-staff" label="Chief of Staff Chat" />
-                <ControlLink href="/admin/agents/runs" label="Run Console" />
-                <ControlLink href="/admin/agents/swarm-board" label="Agent Kanban" />
-                <ControlLink href="/admin/agents/automations" label="Automation Context" />
-                <ActionButton label="Morning review" loading={actionLoading === 'morning-review'} onClick={() => runOperatorAction('morning-review')} />
-                <ActionButton label="Hermes health" loading={actionLoading === 'hermes'} onClick={() => runOperatorAction('hermes')} />
-                <ActionButton label="Approval drill" loading={actionLoading === 'approval-drill'} onClick={() => runOperatorAction('approval-drill')} />
-                <ActionButton label="OpenCode probe" loading={actionLoading === 'runtime-evaluation'} onClick={() => runOperatorAction('runtime-evaluation')} />
-              </div>
-              {actionResult ? (
-                <Link href={`/admin/agents/runs/${actionResult.runId}`} className="mt-3 block rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200 hover:underline">
-                  Open {actionResult.label} run
-                </Link>
-              ) : null}
-            </div>
-          </section>
-
-          <section className="mt-5 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
-            <div className="flex items-center gap-2 text-radiant-gold">
-              <Activity size={18} />
-              <h2 className="font-semibold">Latest Activity</h2>
-            </div>
-            <div className="mt-2">
-              <SignalHomeLink href="/admin/agents/runs" label="Run Console owns trace history and events" />
-            </div>
-            <div className="mt-3 grid grid-cols-1 gap-2 lg:grid-cols-2">
-              {snapshot?.latest_events.length ? snapshot.latest_events.slice(0, 6).map((event) => (
-                <Link key={`${event.run_id}-${event.occurred_at}-${event.event_type}`} href={`/admin/agents/runs/${event.run_id}`} className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm hover:border-radiant-gold/50">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="font-medium">{event.event_type}</p>
-                    <span className="text-xs text-muted-foreground">{formatTime(event.occurred_at)}</span>
-                  </div>
-                  <p className="mt-1 line-clamp-2 text-muted-foreground">{event.message || event.severity}</p>
-                </Link>
-              )) : (
-                <p className="text-sm text-muted-foreground">No recent agent events found.</p>
-              )}
             </div>
           </section>
         </div>
@@ -1016,6 +1086,99 @@ function MetricCard({ icon, label, value, tone = 'default' }: { icon: ReactNode;
       </div>
       <p className={`mt-2 text-2xl font-semibold ${toneClass}`}>{value}</p>
     </div>
+  )
+}
+
+function PagerControls({
+  label,
+  page,
+  pageCount,
+  itemCount,
+  onPrevious,
+  onNext,
+}: {
+  label: string
+  page: number
+  pageCount: number
+  itemCount: number
+  onPrevious: () => void
+  onNext: () => void
+}) {
+  return (
+    <div className="inline-flex items-center gap-2 text-xs text-muted-foreground" aria-label={`${label} pagination`}>
+      <span>{itemCount ? `${page + 1}/${pageCount}` : '0/0'}</span>
+      <div className="inline-flex overflow-hidden rounded-full border border-silicon-slate/60 bg-black/10">
+        <button
+          type="button"
+          onClick={onPrevious}
+          disabled={page <= 0 || itemCount <= 3}
+          className="inline-flex h-7 w-7 items-center justify-center hover:bg-radiant-gold/10 disabled:cursor-not-allowed disabled:opacity-35"
+          aria-label={`Previous ${label} page`}
+        >
+          <ChevronLeft size={14} />
+        </button>
+        <button
+          type="button"
+          onClick={onNext}
+          disabled={page >= pageCount - 1 || itemCount <= 3}
+          className="inline-flex h-7 w-7 items-center justify-center border-l border-silicon-slate/60 hover:bg-radiant-gold/10 disabled:cursor-not-allowed disabled:opacity-35"
+          aria-label={`Next ${label} page`}
+        >
+          <ChevronRight size={14} />
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function SystemHomeCard({
+  eyebrow,
+  title,
+  body,
+  href,
+  metric,
+  icon,
+  tone,
+}: {
+  eyebrow: string
+  title: string
+  body: string
+  href: string
+  metric: string
+  icon: ReactNode
+  tone: 'green' | 'yellow' | 'red' | 'blue' | 'neutral'
+}) {
+  return (
+    <Link href={href} className={`agent-ops-metric agent-ops-metric-${tone} block rounded-lg border p-4 hover:border-radiant-gold/50`}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 text-radiant-gold">
+            {icon}
+            <p className="text-xs font-semibold uppercase tracking-wider">{eyebrow}</p>
+          </div>
+          <h3 className="mt-2 text-lg font-semibold">{title}</h3>
+        </div>
+        <span className="shrink-0 rounded-full border border-silicon-slate/60 bg-black/15 px-2.5 py-1 text-xs text-muted-foreground">
+          {metric}
+        </span>
+      </div>
+      <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">{body}</p>
+    </Link>
+  )
+}
+
+function SignalRouteCard({ title, detail, href, icon }: { title: string; detail: string; href: string; icon: ReactNode }) {
+  return (
+    <Link href={href} className="flex items-center justify-between gap-3 rounded-lg border border-silicon-slate/60 bg-background/35 p-3 hover:border-radiant-gold/50">
+      <div className="flex min-w-0 items-center gap-2">
+        <span className="text-radiant-gold">{icon}</span>
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold">{title}</p>
+          <p className="truncate text-xs text-muted-foreground">{detail}</p>
+        </div>
+      </div>
+      <ArrowRight size={14} className="shrink-0 text-muted-foreground" />
+    </Link>
   )
 }
 
@@ -1154,7 +1317,7 @@ function MiniMetric({ label, value, tone = 'default' }: { label: string; value: 
 
 function DailyBriefPanel({ brief, loading }: { brief: MissionSnapshot['daily_brief'] | null; loading: boolean }) {
   return (
-    <section className="mt-5 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
+    <section className="agent-ops-card mt-5 rounded-lg border p-4">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="flex items-center gap-2 text-radiant-gold">

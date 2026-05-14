@@ -227,11 +227,21 @@ describe('AgentOperationsPage mission control landing', () => {
     expect(screen.getByRole('textbox', { name: 'Ask Shaka' })).toBeInTheDocument()
     expect(screen.getByLabelText('Ask Shaka quick prompts')).toBeInTheDocument()
     expect(screen.getByText('Active work')).toBeInTheDocument()
+    expect(screen.getByLabelText('Active work pagination')).toBeInTheDocument()
+    expect(screen.getByText('Agent interaction')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Open Shaka chat/i })).toHaveAttribute('href', '/admin/agents/chief-of-staff')
+    expect(screen.getByRole('link', { name: /Open Agent Kanban/i })).toHaveAttribute('href', '/admin/agents/swarm-board')
+    expect(screen.getByRole('link', { name: /Open Run Console/i })).toHaveAttribute('href', '/admin/agents/runs')
+    expect(screen.getByLabelText('Agent Inbox pagination')).toBeInTheDocument()
     expect(screen.getByText('Daily Operating Brief')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Run Console home/i })).toHaveAttribute('href', '/admin/agents/runs')
-    expect(screen.getByLabelText('Mission Control drilldown homes')).toBeInTheDocument()
+    expect(screen.getByLabelText('Agent Ops system map')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Every signal has a durable home' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Decision Queue Approval controller/i })).toHaveAttribute('href', '/admin/agents/coordination')
     expect(screen.getByRole('link', { name: /Run Console Trace, evaluation, and dead-letter history/i })).toHaveAttribute('href', '/admin/agents/runs')
+    expect(screen.getByRole('link', { name: /Cost Intelligence/i })).toHaveAttribute('href', '/admin/cost-revenue')
+    expect(screen.getByRole('link', { name: /Quality Signals/i })).toHaveAttribute('href', '/admin/chat-eval')
+    expect(screen.getByText('Drilldowns & Controls')).toBeInTheDocument()
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith('/api/admin/agents/mission-control', expect.objectContaining({
