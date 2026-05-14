@@ -146,6 +146,17 @@ describe('AgentStandupRoomPage', () => {
                   acceptance_criteria: ['Renders'],
                   risk_notes: 'Low',
                   goal_progress_weight: 1,
+                }, {
+                  id: 'task-validation',
+                  title: 'Validate room',
+                  objective: 'Test it.',
+                  owner_agent_key: 'chief-of-staff',
+                  priority: 'medium',
+                  dependencies: [],
+                  expected_files: ['app/admin/agents/standup/page.test.tsx'],
+                  acceptance_criteria: ['Covered'],
+                  risk_notes: 'Low',
+                  goal_progress_weight: 1,
                 }],
               },
               messages: [],
@@ -225,6 +236,16 @@ describe('AgentStandupRoomPage', () => {
         body: JSON.stringify({ command: 'ask_agent', message: '@Shaka what is blocked?', target_agent_key: 'chief-of-staff' }),
       }))
     })
+
+    fireEvent.change(screen.getByPlaceholderText(/Ask about blockers/i), { target: { value: '@Piye give me your implementation update' } })
+    fireEvent.click(screen.getByRole('button', { name: /Ask all/i }))
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/admin/agents/war-room', expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ command: 'ask_agent', message: '@Piye give me your implementation update', target_agent_key: 'engineering-copilot' }),
+      }))
+    })
   })
 
   it('drafts a goal before approving work item creation', async () => {
@@ -239,14 +260,17 @@ describe('AgentStandupRoomPage', () => {
       body: JSON.stringify({ command: 'draft_goal', goal: 'Improve standup' }),
     }))
 
+    fireEvent.change(screen.getByDisplayValue('Implement room'), { target: { value: 'Implement reviewed room' } })
+    fireEvent.click(screen.getByRole('button', { name: /Remove Validate room/i }))
     fireEvent.click(screen.getByRole('button', { name: /Approve goal/i }))
 
     await waitFor(() => {
       expect(screen.getByText(/Created 1 child work item/i)).toBeInTheDocument()
     })
-    expect(fetch).toHaveBeenCalledWith('/api/admin/agents/war-room', expect.objectContaining({
-      method: 'POST',
-      body: expect.stringContaining('"command":"approve_goal"'),
-    }))
+    const approveCall = vi.mocked(fetch).mock.calls.find(([, init]) => String((init as RequestInit)?.body ?? '').includes('"command":"approve_goal"'))
+    expect(approveCall).toBeTruthy()
+    const approveBody = JSON.parse(String((approveCall?.[1] as RequestInit).body))
+    expect(approveBody.draft.tasks).toHaveLength(1)
+    expect(approveBody.draft.tasks[0].title).toBe('Implement reviewed room')
   })
 })

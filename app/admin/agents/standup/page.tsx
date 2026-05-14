@@ -11,6 +11,7 @@ import {
   Play,
   Send,
   Sparkles,
+  Trash2,
   Users,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
@@ -43,6 +44,23 @@ type WarRoomResponse = {
     children: Array<{ id: string; title: string }>
   } | null
   error?: string
+}
+
+function agentMentionToken(agent: AgentOrgBoardAgent) {
+  return agent.name.split(' - ')[0].replace(/\s+/g, '').toLowerCase()
+}
+
+function findMentionedAgent(text: string, agents: AgentOrgBoardAgent[]) {
+  const match = text.match(/(?:^|\s)@([a-z0-9_-]+)/i)
+  if (!match) return null
+  const token = match[1].toLowerCase()
+  return agents.find((agent) => {
+    const display = agentMentionToken(agent)
+    return token === display ||
+      token === agent.key.toLowerCase() ||
+      token === agent.key.toLowerCase().replace(/-/g, '') ||
+      agent.name.toLowerCase().includes(token)
+  }) ?? null
 }
 
 export default function AgentStandupRoomPage() {
@@ -139,7 +157,13 @@ function StandupRoomContent() {
   async function askAll() {
     if (!message.trim()) return
     const text = message.trim()
+    const mentionedAgent = findMentionedAgent(text, participants)
     setMessage('')
+    if (mentionedAgent) {
+      setSelectedAgentKey(mentionedAgent.key)
+      await postWarRoom({ command: 'ask_agent', message: text, target_agent_key: mentionedAgent.key }, 'ask-agent')
+      return
+    }
     await postWarRoom({ command: 'discuss', message: text }, 'ask-all')
   }
 
@@ -158,6 +182,26 @@ function StandupRoomContent() {
   async function approveGoal() {
     if (!goalDraft) return
     await postWarRoom({ command: 'approve_goal', draft: goalDraft }, 'approve-goal')
+  }
+
+  function updateGoalTask(taskId: string, patch: Partial<AgentGoalDraft['tasks'][number]>) {
+    setGoalDraft((current) => {
+      if (!current) return current
+      return {
+        ...current,
+        tasks: current.tasks.map((task) => task.id === taskId ? { ...task, ...patch } : task),
+      }
+    })
+  }
+
+  function removeGoalTask(taskId: string) {
+    setGoalDraft((current) => {
+      if (!current) return current
+      return {
+        ...current,
+        tasks: current.tasks.filter((task) => task.id !== taskId),
+      }
+    })
   }
 
   return (
@@ -222,9 +266,12 @@ function StandupRoomContent() {
                 goalDraft={goalDraft}
                 createdItems={createdItems}
                 busy={busy}
+                participants={participants}
                 onGoalChange={setGoal}
                 onDraftGoal={draftGoal}
                 onApproveGoal={approveGoal}
+                onUpdateTask={updateGoalTask}
+                onRemoveTask={removeGoalTask}
               />
             </main>
             <aside className="space-y-5">
@@ -317,8 +364,8 @@ function ChatRoom({
       </div>
 
       <div className="max-h-[360px] space-y-3 overflow-y-auto rounded-lg border border-silicon-slate/60 bg-background/50 p-3">
-        {transcript.map((entry) => (
-          <div key={entry.id} className={`flex gap-3 ${entry.role === 'user' ? 'justify-end' : ''}`}>
+        {transcript.map((entry, index) => (
+          <div key={`${entry.id}-${index}`} className={`flex gap-3 ${entry.role === 'user' ? 'justify-end' : ''}`}>
             {entry.role !== 'user' && <AgentAvatar agentKey={entry.agent_key ?? 'chief-of-staff'} size="sm" />}
             <div className={`max-w-[85%] rounded-lg border px-3 py-2 text-sm ${
               entry.role === 'user'
@@ -365,17 +412,23 @@ function GoalPlanner({
   goalDraft,
   createdItems,
   busy,
+  participants,
   onGoalChange,
   onDraftGoal,
   onApproveGoal,
+  onUpdateTask,
+  onRemoveTask,
 }: {
   goal: string
   goalDraft: AgentGoalDraft | null
   createdItems: WarRoomResponse['created_work_items']
   busy: string | null
+  participants: AgentOrgBoardAgent[]
   onGoalChange: (value: string) => void
   onDraftGoal: () => void
   onApproveGoal: () => void
+  onUpdateTask: (taskId: string, patch: Partial<AgentGoalDraft['tasks'][number]>) => void
+  onRemoveTask: (taskId: string) => void
 }) {
   return (
     <section className="agent-ops-card rounded-lg border p-4">
@@ -403,7 +456,7 @@ function GoalPlanner({
               <h3 className="mt-1 text-lg font-semibold">{goalDraft.title}</h3>
               <p className="mt-1 text-sm text-muted-foreground">{goalDraft.recommendation}</p>
             </div>
-            <button onClick={onApproveGoal} disabled={busy != null} className="inline-flex items-center justify-center gap-2 rounded-lg bg-radiant-gold px-4 py-2 text-sm font-semibold text-obsidian hover:bg-radiant-gold/90 disabled:opacity-50">
+            <button onClick={onApproveGoal} disabled={busy != null || goalDraft.tasks.length === 0} className="inline-flex items-center justify-center gap-2 rounded-lg bg-radiant-gold px-4 py-2 text-sm font-semibold text-obsidian hover:bg-radiant-gold/90 disabled:opacity-50">
               <CheckCircle2 size={16} />
               Approve goal
             </button>
@@ -414,17 +467,75 @@ function GoalPlanner({
                 <div className="flex items-start gap-3">
                   <span className="rounded-full border border-radiant-gold/40 px-2 py-1 text-xs text-radiant-gold">{index + 1}</span>
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold">{task.title}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">{task.objective}</p>
-                    <div className="mt-2 flex flex-wrap gap-2 text-xs">
-                      <span className="rounded-full border border-silicon-slate/60 px-2 py-1">Owner: {task.owner_agent_key}</span>
-                      <span className="rounded-full border border-silicon-slate/60 px-2 py-1">Priority: {task.priority}</span>
-                      <span className="rounded-full border border-silicon-slate/60 px-2 py-1">Weight: {task.goal_progress_weight}</span>
+                    <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_180px_120px_90px_auto]">
+                      <label className="text-xs text-muted-foreground">
+                        Task
+                        <input
+                          value={task.title}
+                          onChange={(event) => onUpdateTask(task.id, { title: event.target.value })}
+                          className="mt-1 w-full rounded-md border border-silicon-slate/60 bg-background/70 px-2 py-1.5 text-sm text-foreground outline-none focus:border-radiant-gold/70"
+                        />
+                      </label>
+                      <label className="text-xs text-muted-foreground">
+                        Owner
+                        <select
+                          value={task.owner_agent_key}
+                          onChange={(event) => onUpdateTask(task.id, { owner_agent_key: event.target.value })}
+                          className="mt-1 w-full rounded-md border border-silicon-slate/60 bg-background/70 px-2 py-1.5 text-sm text-foreground outline-none focus:border-radiant-gold/70"
+                        >
+                          {participants.map((agent) => (
+                            <option key={agent.key} value={agent.key}>{agent.name.split(' - ')[0]}</option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="text-xs text-muted-foreground">
+                        Priority
+                        <select
+                          value={task.priority}
+                          onChange={(event) => onUpdateTask(task.id, { priority: event.target.value as AgentGoalDraft['tasks'][number]['priority'] })}
+                          className="mt-1 w-full rounded-md border border-silicon-slate/60 bg-background/70 px-2 py-1.5 text-sm text-foreground outline-none focus:border-radiant-gold/70"
+                        >
+                          {['urgent', 'high', 'medium', 'low'].map((priority) => <option key={priority} value={priority}>{priority}</option>)}
+                        </select>
+                      </label>
+                      <label className="text-xs text-muted-foreground">
+                        Weight
+                        <input
+                          type="number"
+                          min={1}
+                          max={5}
+                          value={task.goal_progress_weight}
+                          onChange={(event) => onUpdateTask(task.id, { goal_progress_weight: Number(event.target.value) || 1 })}
+                          className="mt-1 w-full rounded-md border border-silicon-slate/60 bg-background/70 px-2 py-1.5 text-sm text-foreground outline-none focus:border-radiant-gold/70"
+                        />
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => onRemoveTask(task.id)}
+                        className="mt-5 inline-flex h-9 items-center justify-center rounded-md border border-red-400/40 px-2 text-red-200 hover:bg-red-500/10"
+                        aria-label={`Remove ${task.title}`}
+                      >
+                        <Trash2 size={15} />
+                      </button>
                     </div>
+                    <label className="mt-2 block text-xs text-muted-foreground">
+                      Objective
+                      <textarea
+                        value={task.objective}
+                        onChange={(event) => onUpdateTask(task.id, { objective: event.target.value })}
+                        rows={2}
+                        className="mt-1 w-full rounded-md border border-silicon-slate/60 bg-background/70 px-2 py-1.5 text-sm text-foreground outline-none focus:border-radiant-gold/70"
+                      />
+                    </label>
                   </div>
                 </div>
               </div>
             ))}
+            {!goalDraft.tasks.length && (
+              <div className="rounded-lg border border-dashed border-silicon-slate/60 p-4 text-sm text-muted-foreground">
+                No tasks are selected for creation. Draft the goal again or keep at least one task before approving.
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -440,6 +551,7 @@ function GoalPlanner({
 
 function MetricsPanel({ organization }: { organization: AgentOrgBoardSnapshot }) {
   const goals = organization.summary.goals.slice(0, 2)
+  const wip = organization.summary.wip.slice(0, 4)
   return (
     <section className="agent-ops-card rounded-lg border p-4">
       <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-radiant-gold">Info radiators</h2>
@@ -453,6 +565,17 @@ function MetricsPanel({ organization }: { organization: AgentOrgBoardSnapshot })
         {goals.length ? goals.map((goal) => <GoalProgress key={goal.id} goal={goal} />) : (
           <p className="rounded-lg border border-dashed border-silicon-slate/60 p-3 text-sm text-muted-foreground">No goal-tagged work yet.</p>
         )}
+      </div>
+      <div className="mt-4 space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">WIP limits</p>
+        {wip.map((lane) => (
+          <div key={lane.laneKey} className={`rounded-md border px-2 py-1.5 text-xs ${lane.overLimit ? 'border-red-400/45 bg-red-500/10 text-red-100' : 'border-silicon-slate/60 bg-background/40 text-muted-foreground'}`}>
+            <div className="flex items-center justify-between gap-2">
+              <span className="truncate">{lane.label}</span>
+              <span>{lane.count}/{lane.limit}</span>
+            </div>
+          </div>
+        ))}
       </div>
       <Link href="/admin/agents/swarm-board" className="mt-4 inline-flex items-center gap-2 text-sm text-radiant-gold hover:underline">
         Full metrics
@@ -470,6 +593,21 @@ function GoalProgress({ goal }: { goal: AgentOrgBoardGoalMetric }) {
         <div className="h-full bg-radiant-gold" style={{ width: `${goal.progress}%` }} />
       </div>
       <p className="mt-2 text-xs text-muted-foreground">{goal.progress}% complete · {goal.open} open · {goal.blocked} blocked</p>
+      {goal.burndown.length > 0 && (
+        <div className="mt-3 flex h-12 items-end gap-1" aria-label={`Burndown for ${goal.title}`}>
+          {goal.burndown.map((point) => {
+            const max = Math.max(...goal.burndown.map((item) => item.remaining), 1)
+            return (
+              <span
+                key={point.label}
+                title={`${point.label}: ${point.remaining} remaining`}
+                className="flex-1 rounded-t bg-radiant-gold/55"
+                style={{ height: `${Math.max(18, (point.remaining / max) * 100)}%` }}
+              />
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }
@@ -501,14 +639,24 @@ function MiniKanban({ lanes }: { lanes: AgentOrgBoardLane[] }) {
 }
 
 function MiniTask({ task }: { task: AgentOrgBoardTask }) {
+  const ageHours = Math.max(0, Math.round((Date.now() - new Date(task.createdAt).getTime()) / 36e5))
   return (
     <div className="rounded-md border border-silicon-slate/50 bg-silicon-slate/15 p-2 text-xs">
       <p className="line-clamp-2 font-medium">{task.title}</p>
       <div className="mt-2 flex flex-wrap gap-1 text-muted-foreground">
         {task.goal && <span className="rounded-full border border-radiant-gold/35 px-2 py-0.5 text-radiant-gold">{task.goal.title}</span>}
+        <span>{task.ownerAgentName.split(' - ')[0]}</span>
+        <span>{ageHours}h</span>
         <span>{task.status.replace(/_/g, ' ')}</span>
         {task.prUrl && <GitPullRequest size={12} />}
+        {task.activeRunId && (
+          <Link href={`/admin/agents/runs/${task.activeRunId}`} className="text-radiant-gold hover:underline">
+            Trace
+          </Link>
+        )}
       </div>
+      {task.blockerSummary && <p className="mt-1 line-clamp-1 text-red-200">Blocked: {task.blockerSummary}</p>}
+      {task.validationSummary && <p className="mt-1 line-clamp-1 text-muted-foreground">Next: {task.validationSummary}</p>}
     </div>
   )
 }
