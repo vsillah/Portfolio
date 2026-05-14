@@ -450,6 +450,58 @@ export async function updateAgentWorkItemStatus(input: {
   )
 }
 
+export async function prioritizeAgentWorkItem(input: {
+  id: string
+  priority: AgentWorkItemPriority
+  note?: string | null
+}) {
+  assertPriority(input.priority)
+  const item = await requireAgentWorkItem(input.id)
+  return updateWorkItem(
+    item,
+    { priority: input.priority },
+    {
+      type: 'agent_work_item_prioritized',
+      message: input.note ?? `${item.title}: priority set to ${input.priority}`,
+      metadata: { priority: input.priority },
+    },
+  )
+}
+
+export async function markAgentWorkItemReadyForKanban(input: {
+  id: string
+  definitionOfReady: string
+  actorLabel?: string | null
+}) {
+  const definitionOfReady = input.definitionOfReady.trim()
+  if (!definitionOfReady) throw new Error('Definition of ready is required')
+  const item = await requireAgentWorkItem(input.id)
+  const now = new Date().toISOString()
+  const metadata = {
+    ...(item.metadata ?? {}),
+    kanban_readiness: {
+      ready: true,
+      ready_at: now,
+      actor_label: input.actorLabel ?? 'Admin user',
+      definition_of_ready: definitionOfReady,
+    },
+  }
+  return updateWorkItem(
+    item,
+    {
+      status: 'queued',
+      blocker_summary: null,
+      validation_summary: definitionOfReady,
+      metadata,
+    },
+    {
+      type: 'agent_work_item_ready_for_kanban',
+      message: definitionOfReady,
+      metadata: { actor_label: input.actorLabel ?? 'Admin user' },
+    },
+  )
+}
+
 export async function recordAgentWorkItemBlocker(input: { id: string; blockerSummary: string }) {
   const item = await requireAgentWorkItem(input.id)
   return updateWorkItem(
