@@ -80,6 +80,45 @@ const workItems = [
     updated_at: now,
     completed_at: null,
   },
+  {
+    id: 'work-autoresearch-1',
+    title: 'Build-profile attribution',
+    objective: 'Measure whether deploy time is dominated by Next build or generated knowledge work.',
+    status: 'proposed',
+    priority: 'high',
+    owner_agent_key: null,
+    owner_runtime: 'codex',
+    source_type: 'vercel_autoresearch_idea',
+    source_id: 'build-profile-attribution',
+    source_label: 'Vercel AutoResearch idea inbox',
+    source_run_id: null,
+    active_run_id: 'run-autoresearch-idea',
+    parent_work_item_id: null,
+    branch_name: null,
+    worktree_path: null,
+    pr_number: null,
+    pr_url: null,
+    expected_files: ['package.json'],
+    touched_files: [],
+    overlap_group: 'vercel-autoresearch-build-profile',
+    dependency_ids: [],
+    blocker_summary: null,
+    validation_summary: null,
+    approval_id: null,
+    metadata: {
+      autoresearch_idea: true,
+      recommendation: 'Start here because it produces the baseline every later idea needs.',
+      risk: 'low',
+      definition_of_ready: [
+        'Clear hypothesis tied to a deployment metric baseline.',
+        'Rollback path is explicit and low-friction.',
+      ],
+    },
+    idempotency_key: 'vercel-autoresearch-idea:build-profile-attribution',
+    created_at: now,
+    updated_at: now,
+    completed_at: null,
+  },
 ]
 
 const approvalCard = {
@@ -107,6 +146,22 @@ const approvalCard = {
     approvalQuestion: 'Approve a read-only/local build-profile experiment?',
     rollbackPath: 'Discard the branch.',
     evidence: ['build=3m41s'],
+    decisionFrame: {
+      experiment: 'Local build-profile experiment before hosted deployment changes',
+      objective: 'Identify whether slow deployments are caused by app compilation or generated knowledge.',
+      successMetric: 'Build duration and named bottleneck',
+      target: 'Keep build time under 8m or name the bottleneck.',
+      currentRun: 'portfolio/preview built in 3m41s.',
+      distanceFromGoal: '4m19s inside the build watch goal.',
+      goalStatus: 'on_track',
+      recommendedAction: 'run_another_test',
+      recommendation: 'Run another timing sample or close unless build time crosses the watch threshold again.',
+      decisionOptions: [
+        { action: 'approve', label: 'Approve read-only profile', when: 'Use when build time crosses the target.' },
+        { action: 'run_another_test', label: 'Collect another timing sample', when: 'Use when the latest run is inside target.' },
+        { action: 'close', label: 'Close as healthy', when: 'Use when build timing is inside target.' },
+      ],
+    },
   },
   notification: {
     slackSentAt: '2026-05-11T12:01:00.000Z',
@@ -164,6 +219,14 @@ function setupFetch({ failWorkItems = false } = {}) {
       return { ok: true, json: async () => ({ ok: true }) }
     }
 
+    if (url.includes('/api/admin/agents/work-items/work-autoresearch-1/priority') && init?.method === 'POST') {
+      return { ok: true, json: async () => ({ ok: true }) }
+    }
+
+    if (url.includes('/api/admin/agents/work-items/work-autoresearch-1/ready') && init?.method === 'POST') {
+      return { ok: true, json: async () => ({ ok: true }) }
+    }
+
     if (url.startsWith('/api/admin/agents/work-items')) {
       if (failWorkItems) return { ok: false, status: 503, json: async () => ({ error: 'work item service unavailable' }) }
       const status = new URL(`http://localhost${url}`).searchParams.get('status')
@@ -218,8 +281,34 @@ describe('AgentCoordinationPage decision queue controller', () => {
     expect(screen.getAllByText('Controller recommendation').length).toBeGreaterThan(0)
     expect(screen.getByText('Approve validation after checking the trace and PR evidence.')).toBeInTheDocument()
     expect(screen.getByText('risk: medium')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Prioritize ideas before they enter the Kanban board.' })).toBeInTheDocument()
+    expect(screen.getAllByText('Build-profile attribution').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Start here because it produces the baseline every later idea needs.').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Trace').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Owner').length).toBeGreaterThan(0)
+  })
+
+  it('prioritizes AutoResearch ideas and marks them ready for the Kanban inbox', async () => {
+    render(<AgentCoordinationPage />)
+
+    expect(await screen.findByRole('heading', { name: 'Prioritize ideas before they enter the Kanban board.' })).toBeInTheDocument()
+    const select = screen.getByLabelText('Prioritize Build-profile attribution')
+    fireEvent.change(select, { target: { value: 'urgent' } })
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items/work-autoresearch-1/priority', expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('"priority":"urgent"'),
+      }))
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mark Build-profile attribution ready for Kanban' }))
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items/work-autoresearch-1/ready', expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('Clear hypothesis tied to a deployment metric baseline.'),
+      }))
+    })
   })
 
   it('shows pending Vercel AutoResearch approvals inline and approves from the card', async () => {
@@ -227,7 +316,9 @@ describe('AgentCoordinationPage decision queue controller', () => {
 
     expect(await screen.findByText('Vercel AutoResearch approvals decision queue')).toBeInTheDocument()
     expect(screen.getAllByText('Profile the Next.js build path').length).toBeGreaterThan(0)
-    expect(screen.getByText('Approve a read-only/local build-profile experiment?')).toBeInTheDocument()
+    expect(screen.getByText('Distance from goal')).toBeInTheDocument()
+    expect(screen.getByText('4m19s inside the build watch goal.')).toBeInTheDocument()
+    expect(screen.getByText('Collect another timing sample')).toBeInTheDocument()
     expect(screen.getByText('Slack notified')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Approve' }))
@@ -245,7 +336,7 @@ describe('AgentCoordinationPage decision queue controller', () => {
     render(<AgentCoordinationPage />)
 
     expect(await screen.findByText('Vercel AutoResearch approvals decision queue')).toBeInTheDocument()
-    const approvalCardElement = screen.getByText('Approve a read-only/local build-profile experiment?').closest('article')
+    const approvalCardElement = screen.getByText('4m19s inside the build watch goal.').closest('article')
     expect(approvalCardElement).not.toBeNull()
 
     fireEvent.click(within(approvalCardElement as HTMLElement).getByRole('button', { name: 'Ask Shaka' }))
@@ -262,7 +353,7 @@ describe('AgentCoordinationPage decision queue controller', () => {
     render(<AgentCoordinationPage />)
 
     expect(await screen.findByText('Vercel AutoResearch approvals decision queue')).toBeInTheDocument()
-    const approvalCardElement = screen.getByText('Approve a read-only/local build-profile experiment?').closest('article')
+    const approvalCardElement = screen.getByText('4m19s inside the build watch goal.').closest('article')
     expect(approvalCardElement).not.toBeNull()
 
     fireEvent.click(within(approvalCardElement as HTMLElement).getByRole('button', { name: 'Ask Shaka' }))

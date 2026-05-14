@@ -110,14 +110,18 @@ export async function createVercelResearchApproval(input: {
   createdByUserId: string
 }) {
   const proposal = input.proposal
+  const decisionFrame = proposal.decisionFrame
   const workItem = await createAgentWorkItem({
     title: proposal.title,
     objective: [
-      proposal.hypothesis,
-      '',
-      `Expected impact: ${proposal.expectedImpact}`,
+      decisionFrame ? `Experiment: ${decisionFrame.experiment}` : proposal.hypothesis,
+      decisionFrame ? `Objective: ${decisionFrame.objective}` : '',
+      decisionFrame ? `Goal: ${decisionFrame.target}` : '',
+      decisionFrame ? `Current run: ${decisionFrame.currentRun}` : '',
+      decisionFrame ? `Distance from goal: ${decisionFrame.distanceFromGoal}` : '',
+      decisionFrame ? `Recommended action: ${decisionFrame.recommendation}` : `Expected impact: ${proposal.expectedImpact}`,
       `Approval question: ${proposal.approvalQuestion}`,
-    ].join('\n'),
+    ].filter(Boolean).join('\n'),
     priority: proposal.riskLevel === 'high' ? 'high' : 'medium',
     status: 'queued',
     ownerAgentKey: 'integration-captain',
@@ -134,6 +138,12 @@ export async function createVercelResearchApproval(input: {
       proposal,
       approval_type: VERCEL_RESEARCH_APPROVAL_TYPE,
       created_by_user_id: input.createdByUserId,
+      ...(decisionFrame ? {
+        experiment_objective: decisionFrame.objective,
+        goal_status: decisionFrame.goalStatus,
+        distance_from_goal: decisionFrame.distanceFromGoal,
+        recommendation: decisionFrame.recommendation,
+      } : {}),
     },
     idempotencyKey: `vercel-autoresearch:${proposal.id}`,
   })

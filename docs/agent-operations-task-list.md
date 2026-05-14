@@ -28,6 +28,7 @@ This is the active implementation queue for Agent Operations. The phase gates, d
    - [x] Pass `agent_run_id` plus a generic callback URL into traced social content, value evidence, and warm lead payloads.
    - [x] Let generic n8n callbacks record both run events and stage steps.
    - [x] Add warm lead export callbacks for successful ingest completion across Facebook, Google Contacts, and LinkedIn workflows.
+   - [x] Add client progress update delivery trace callbacks for the progress-update n8n router.
    - Add remaining workflow-specific progress, completion, and failure callbacks where legacy workflows still lack them.
    - Keep legacy workflow pages active until replacement views are proven.
 
