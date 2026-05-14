@@ -50,6 +50,22 @@ const runDetail = {
           riskLevel: 'high',
           approvalQuestion: 'Approve preparing a Vercel project-setting proposal packet without applying any hosted setting yet?',
           evidence: ['portfolio/production: queue above threshold'],
+          decisionFrame: {
+            experiment: 'Queue-pressure review for staging production deployments',
+            objective: 'Decide whether repeated staging queue time is worth a deeper Vercel settings proposal.',
+            successMetric: 'Deployment queue time',
+            target: 'Stay under the 5m queue watch threshold.',
+            currentRun: 'portfolio-staging/production queued for 9m13s.',
+            distanceFromGoal: '4m13s over the watch goal and 47s under the blocked threshold.',
+            goalStatus: 'watch',
+            recommendedAction: 'approve',
+            recommendation: 'Approve preparing a settings proposal packet only. Do not change Vercel settings yet.',
+            decisionOptions: [
+              { action: 'approve', label: 'Approve proposal packet', when: 'Use when the queue gap is real enough to justify a scoped settings proposal.' },
+              { action: 'run_another_test', label: 'Run another deployment watch', when: 'Use when the signal may be one noisy deployment.' },
+              { action: 'reject', label: 'Reject as not worth pursuing', when: 'Use when the settings lane is too risky.' },
+            ],
+          },
         },
         action_payload: {
           action: 'production_config_change',
@@ -158,10 +174,13 @@ describe('AgentRunDetailPage scoped Shaka context', () => {
     render(<AgentRunDetailPage params={{ runId: 'run-1' }} />)
 
     expect(await screen.findByRole('heading', { name: 'Review Vercel queue pressure before changing project settings' })).toBeInTheDocument()
-    expect(screen.getByText('Problem / opportunity')).toBeInTheDocument()
-    expect(screen.getByText('Benefits')).toBeInTheDocument()
+    expect(screen.getByText('Experiment')).toBeInTheDocument()
+    expect(screen.getByText('Objective')).toBeInTheDocument()
+    expect(screen.getByText('Goal')).toBeInTheDocument()
+    expect(screen.getByText('Distance from goal')).toBeInTheDocument()
+    expect(screen.getByText('4m13s over the watch goal and 47s under the blocked threshold.')).toBeInTheDocument()
     expect(screen.getByText('Drawbacks')).toBeInTheDocument()
-    expect(screen.getByText('Recommendation')).toBeInTheDocument()
+    expect(screen.getByText('Recommended next action')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Approve' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Decline' })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Ask Shaka about approval approval-1' }))

@@ -376,7 +376,7 @@ function AgentCoordinationContent() {
           actionId={actionId}
           onDecision={decideVercelResearchApproval}
           onAskShaka={(card) => askShaka(
-            'Should I approve or reject this approval request? Summarize the recommendation, risk, evidence, and safest next step.',
+            'Should I approve, reject, run another test, or close this approval request? Summarize the experiment, objective, goal, current run, distance from goal, recommendation, risk, evidence, and safest next step.',
             { type: 'approval', id: card.approvalId },
           )}
         />
@@ -643,7 +643,9 @@ function VercelResearchApprovalPanel({
         </p>
       ) : (
         <div className="grid gap-4">
-          {approvals.map((card) => (
+          {approvals.map((card) => {
+            const decision = card.proposal.decisionFrame
+            return (
             <article key={card.approvalId} className="rounded-lg border border-yellow-500/25 bg-background/55 p-5">
               <div className="mb-2 flex flex-wrap items-center gap-2">
                 <span className="rounded-full border border-yellow-500/30 bg-yellow-500/10 px-2 py-1 text-xs text-yellow-100">
@@ -659,11 +661,50 @@ function VercelResearchApprovalPanel({
                 ) : null}
               </div>
               <h3 className="text-xl font-semibold">{card.proposal.title}</h3>
-              <div className="mt-4 grid gap-3 lg:grid-cols-2">
-                <DecisionSummaryBlock label="Action required" value={card.proposal.approvalQuestion} tone="yellow" />
-                <DecisionSummaryBlock label="Controller recommendation" value={card.proposal.hypothesis} />
-                <DecisionSummaryBlock label="Benefits" value={card.proposal.expectedImpact} />
-                <DecisionSummaryBlock label="Rollback path" value={card.proposal.rollbackPath} />
+              <div className="mt-4 grid gap-3">
+                <DecisionSummaryBlock
+                  label="Experiment"
+                  value={decision?.experiment ?? card.proposal.hypothesis}
+                />
+                <DecisionSummaryBlock
+                  label="Objective"
+                  value={decision?.objective ?? card.proposal.expectedImpact}
+                />
+                <div className="grid gap-2 md:grid-cols-2">
+                  <DecisionSummaryBlock
+                    label="Goal"
+                    value={decision?.target ?? 'No explicit goal recorded for this proposal.'}
+                    tone="yellow"
+                  />
+                  <DecisionSummaryBlock
+                    label="Current run"
+                    value={decision?.currentRun ?? card.proposal.evidence.join('; ')}
+                  />
+                  <DecisionSummaryBlock
+                    label="Distance from goal"
+                    value={decision?.distanceFromGoal ?? 'No goal-distance calculation was recorded.'}
+                    tone={decision?.goalStatus === 'blocked' ? 'red' : decision?.goalStatus === 'watch' ? 'yellow' : 'green'}
+                  />
+                  <DecisionSummaryBlock
+                    label="Recommended next step"
+                    value={decision?.recommendation ?? card.proposal.approvalQuestion}
+                    tone="yellow"
+                  />
+                </div>
+              </div>
+              <div className="mt-3 rounded-lg border border-silicon-slate/60 bg-background/40 p-3">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground/70">Decision choices</p>
+                <div className="mt-2 grid gap-2">
+                  {(decision?.decisionOptions ?? [
+                    { label: 'Approve', when: card.proposal.approvalQuestion },
+                    { label: 'Reject', when: 'Use when the evidence is not strong enough or the risk boundary is unclear.' },
+                  ]).map((option) => (
+                    <div key={option.label} className="rounded-md border border-silicon-slate/60 px-3 py-2 text-sm">
+                      <p className="font-medium text-foreground">{option.label}</p>
+                      <p className="text-muted-foreground">{option.when}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
               <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
                 <SmallField label="Work item" value={card.workItem?.title ?? card.workItemId} />
@@ -705,19 +746,11 @@ function VercelResearchApprovalPanel({
                 </button>
               </div>
             </article>
-          ))}
+            )
+          })}
         </div>
       )}
     </section>
-  )
-}
-
-function DecisionSummaryBlock({ label, value, tone = 'default' }: { label: string; value: string; tone?: 'default' | 'yellow' }) {
-  return (
-    <div className={`rounded-lg border p-3 ${tone === 'yellow' ? 'border-yellow-500/30 bg-yellow-500/10' : 'border-silicon-slate/60 bg-black/10'}`}>
-      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
-      <p className="mt-2 text-sm leading-6 text-foreground/90">{value}</p>
-    </div>
   )
 }
 
@@ -869,6 +902,31 @@ function StatusBadge({ status }: { status: string }) {
           ? 'border-green-500/40 bg-green-500/10 text-green-100'
           : 'border-silicon-slate/70 bg-silicon-slate/20 text-muted-foreground'
   return <span className={`rounded-full border px-2 py-1 text-xs ${tone}`}>{status.replace(/_/g, ' ')}</span>
+}
+
+function DecisionSummaryBlock({
+  label,
+  value,
+  tone = 'slate',
+}: {
+  label: string
+  value: string
+  tone?: 'slate' | 'red' | 'yellow' | 'green'
+}) {
+  const toneClass =
+    tone === 'red'
+      ? 'border-red-500/35 bg-red-500/10'
+      : tone === 'yellow'
+        ? 'border-yellow-500/35 bg-yellow-500/10'
+        : tone === 'green'
+          ? 'border-green-500/35 bg-green-500/10'
+          : 'border-silicon-slate/60 bg-background/40'
+  return (
+    <div className={`rounded-lg border p-3 text-sm ${toneClass}`}>
+      <p className="text-xs uppercase tracking-wide text-muted-foreground/70">{label}</p>
+      <p className="mt-1 text-foreground">{value}</p>
+    </div>
+  )
 }
 
 function SmallField({ label, value }: { label: string; value: string | null }) {
