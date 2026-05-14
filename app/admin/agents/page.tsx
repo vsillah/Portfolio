@@ -7,7 +7,6 @@ import {
   Activity,
   AlertTriangle,
   ArrowRight,
-  Bot,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
@@ -365,7 +364,6 @@ export default function AgentOperationsPage() {
   const [inboxRoutingId, setInboxRoutingId] = useState<string | null>(null)
   const [engagementLoadingKey, setEngagementLoadingKey] = useState<string | null>(null)
   const [moremiReviewConfirm, setMoremiReviewConfirm] = useState(false)
-  const [activeWorkPage, setActiveWorkPage] = useState(0)
   const [inboxPage, setInboxPage] = useState(0)
   const [operatorRuns, setOperatorRuns] = useState<OperatorRun[]>([])
 
@@ -614,26 +612,6 @@ export default function AgentOperationsPage() {
   const ragStatus = snapshot?.knowledge_governance
     ? snapshot.knowledge_governance.validation.ok ? 'Ready' : 'Blocked'
     : 'Open Brain'
-  const activeWorkRows = [
-    ...(snapshot?.active_runs ?? []).map((run) => ({
-      key: `run:${run.id}`,
-      label: run.status.replace(/_/g, ' '),
-      title: run.title,
-      detail: run.current_step ?? run.kind,
-      href: `/admin/agents/runs/${run.id}`,
-      action: 'Open run',
-    })),
-    ...(snapshot?.agent_inbox ?? []).map((item) => ({
-      key: `inbox:${item.id}`,
-      label: item.priority,
-      title: item.title,
-      detail: item.reason,
-      href: item.href,
-      action: item.action_label,
-    })),
-  ]
-  const activeWorkPageCount = Math.max(1, Math.ceil(activeWorkRows.length / 3))
-  const visibleActiveWorkRows = activeWorkRows.slice(activeWorkPage * 3, activeWorkPage * 3 + 3)
   const inboxItems = snapshot?.agent_inbox ?? []
   const inboxPageCount = Math.max(1, Math.ceil(inboxItems.length / 3))
   const visibleInboxItems = inboxItems.slice(inboxPage * 3, inboxPage * 3 + 3)
@@ -722,10 +700,6 @@ export default function AgentOperationsPage() {
       icon: deadLetterCount ? <AlertTriangle size={16} /> : <CheckCircle2 size={16} />,
     },
   ] as const
-
-  useEffect(() => {
-    setActiveWorkPage((page) => Math.min(page, Math.max(activeWorkPageCount - 1, 0)))
-  }, [activeWorkPageCount])
 
   useEffect(() => {
     setInboxPage((page) => Math.min(page, Math.max(inboxPageCount - 1, 0)))
@@ -835,7 +809,13 @@ export default function AgentOperationsPage() {
                       <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Ask Shaka</p>
                       <h3 className="mt-2 text-xl font-semibold">What should I pay attention to before approving this queue?</h3>
                     </div>
-                    <span className="text-xs text-muted-foreground">Chief of Staff · inline</span>
+                    <Link
+                      href="/admin/agents/chief-of-staff"
+                      className="inline-flex w-fit items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/50 px-3 py-2 text-xs font-medium text-muted-foreground hover:border-radiant-gold/60 hover:text-radiant-gold"
+                    >
+                      <MessageSquare size={14} />
+                      Expand chat
+                    </Link>
                   </div>
                   <form onSubmit={submitChiefOfStaff} className="mt-3 flex flex-col gap-3 md:flex-row">
                     <input
@@ -897,50 +877,12 @@ export default function AgentOperationsPage() {
                   ) : null}
                 </div>
 
-                <div className="mt-5">
-                  <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Active work</p>
-                      <p className="mt-1 text-xs text-muted-foreground">Showing up to three items. Use the arrows for more.</p>
-                    </div>
-                    <PagerControls
-                      label="Active work"
-                      page={activeWorkPage}
-                      pageCount={activeWorkPageCount}
-                      itemCount={activeWorkRows.length}
-                      onPrevious={() => setActiveWorkPage((page) => Math.max(page - 1, 0))}
-                      onNext={() => setActiveWorkPage((page) => Math.min(page + 1, activeWorkPageCount - 1))}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    {visibleActiveWorkRows.length ? visibleActiveWorkRows.map((row) => (
-                      <Link key={row.key} href={row.href} className="flex flex-col gap-2 rounded-lg border border-silicon-slate/60 bg-background/40 px-3 py-3 hover:border-radiant-gold/50 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="min-w-0">
-                          <div className="flex flex-wrap items-center gap-3">
-                            <span className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">{row.label}</span>
-                            <p className="truncate text-sm font-medium">{row.title}</p>
-                          </div>
-                          <p className="mt-1 line-clamp-1 text-sm text-muted-foreground">{row.detail}</p>
-                        </div>
-                        <span className="shrink-0 text-sm font-medium text-radiant-gold">{row.action}</span>
-                      </Link>
-                    )) : (
-                      <div className="rounded-lg border border-silicon-slate/60 bg-background/40 px-3 py-4 text-sm text-muted-foreground">
-                        No active work needs attention. Use Decision Queue or Kanban when new work appears.
-                      </div>
-                    )}
-                  </div>
-                </div>
               </div>
 
               <aside className="space-y-4">
                 <div className="agent-ops-card rounded-lg border p-4">
                   <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Agent interaction</p>
                   <div className="mt-3 grid gap-3">
-                    <Link href="/admin/agents/chief-of-staff" className="block rounded-lg border border-silicon-slate/60 bg-background/40 p-3 hover:border-radiant-gold/50">
-                      <p className="font-semibold">Open Shaka chat</p>
-                      <p className="mt-1 text-sm text-muted-foreground">Use the full chat surface when the question becomes a longer thread.</p>
-                    </Link>
                     <Link href="/admin/agents/swarm-board" className="block rounded-lg border border-radiant-gold/45 bg-radiant-gold/10 p-3 shadow-gold-glow-sm hover:bg-radiant-gold/15">
                       <p className="font-semibold">Open Agent Kanban</p>
                       <p className="mt-1 text-sm text-muted-foreground">Review work lanes, roster, blockers, traces, validation, and PRs.</p>
@@ -990,6 +932,7 @@ export default function AgentOperationsPage() {
                       page={inboxPage}
                       pageCount={inboxPageCount}
                       itemCount={inboxItems.length}
+                      pageSize={3}
                       onPrevious={() => setInboxPage((page) => Math.max(page - 1, 0))}
                       onNext={() => setInboxPage((page) => Math.min(page + 1, inboxPageCount - 1))}
                     />
@@ -1037,15 +980,6 @@ export default function AgentOperationsPage() {
                     href="/admin/agents/runs"
                     icon={<Activity size={16} />}
                   />
-                  <div className="rounded-lg border border-silicon-slate/60 bg-background/35 p-3">
-                    <div className="flex items-center gap-2 text-radiant-gold">
-                      <Bot size={16} />
-                      <p className="text-sm font-semibold">Drilldowns & Controls</p>
-                    </div>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Consolidated into the route map, Agent interaction rail, and sidebar so controls stay near their context.
-                    </p>
-                  </div>
                 </div>
               </div>
             </div>
@@ -1074,6 +1008,7 @@ function PagerControls({
   page,
   pageCount,
   itemCount,
+  pageSize = 3,
   onPrevious,
   onNext,
 }: {
@@ -1081,17 +1016,23 @@ function PagerControls({
   page: number
   pageCount: number
   itemCount: number
+  pageSize?: number
   onPrevious: () => void
   onNext: () => void
 }) {
+  const start = itemCount ? page * pageSize + 1 : 0
+  const end = itemCount ? Math.min(itemCount, (page + 1) * pageSize) : 0
+  const pageLabel = itemCount ? `Showing ${start}-${end} of ${itemCount} · ${page + 1}/${pageCount}` : '0 items'
+  const pagingDisabled = itemCount <= pageSize
+
   return (
     <div className="inline-flex items-center gap-2 text-xs text-muted-foreground" aria-label={`${label} pagination`}>
-      <span>{itemCount ? `${page + 1}/${pageCount}` : '0/0'}</span>
+      <span>{pageLabel}</span>
       <div className="inline-flex overflow-hidden rounded-full border border-silicon-slate/60 bg-black/10">
         <button
           type="button"
           onClick={onPrevious}
-          disabled={page <= 0 || itemCount <= 3}
+          disabled={page <= 0 || pagingDisabled}
           className="inline-flex h-7 w-7 items-center justify-center hover:bg-radiant-gold/10 disabled:cursor-not-allowed disabled:opacity-35"
           aria-label={`Previous ${label} page`}
         >
@@ -1100,7 +1041,7 @@ function PagerControls({
         <button
           type="button"
           onClick={onNext}
-          disabled={page >= pageCount - 1 || itemCount <= 3}
+          disabled={page >= pageCount - 1 || pagingDisabled}
           className="inline-flex h-7 w-7 items-center justify-center border-l border-silicon-slate/60 hover:bg-radiant-gold/10 disabled:cursor-not-allowed disabled:opacity-35"
           aria-label={`Next ${label} page`}
         >
@@ -1176,19 +1117,38 @@ function OperatorChecksPanel({
   onRun: (kind: OperatorActionKind) => void
 }) {
   const now = new Date()
+  const pageSize = 2
+  const [page, setPage] = useState(0)
+  const pageCount = Math.max(1, Math.ceil(actions.length / pageSize))
+  const visibleActions = actions.slice(page * pageSize, page * pageSize + pageSize)
+
+  useEffect(() => {
+    setPage((currentPage) => Math.min(currentPage, Math.max(pageCount - 1, 0)))
+  }, [pageCount])
 
   return (
     <div className="rounded-lg border border-silicon-slate/60 bg-background/35 p-3">
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Operator checks</p>
           <p className="mt-1 text-xs text-muted-foreground">Scheduled manual triggers with duplicate-run guards.</p>
         </div>
-        <Link href="/admin/agents/runs?kind=operator_checks" className="text-xs text-radiant-gold hover:underline">Full history</Link>
+        <div className="flex flex-wrap items-center gap-3 sm:justify-end">
+          <PagerControls
+            label="Operator checks"
+            page={page}
+            pageCount={pageCount}
+            itemCount={actions.length}
+            pageSize={pageSize}
+            onPrevious={() => setPage((currentPage) => Math.max(currentPage - 1, 0))}
+            onNext={() => setPage((currentPage) => Math.min(currentPage + 1, pageCount - 1))}
+          />
+          <Link href="/admin/agents/runs?kind=operator_checks" className="text-xs text-radiant-gold hover:underline">Full history</Link>
+        </div>
       </div>
 
       <div className="mt-3 grid gap-2" aria-label="Operator checks">
-        {actions.map((action) => {
+        {visibleActions.map((action) => {
           const actionRuns = runs.filter((run) => run.kind === action.runKind)
           const latest = actionRuns[0] ?? null
           const activeRun = actionRuns.find((run) => isActiveOperatorRun(run)) ?? null
@@ -1457,7 +1417,7 @@ function DailyBriefPanel({
 
   return (
     <section className="agent-ops-card mt-5 rounded-lg border p-4" aria-label="Daily Operating Brief">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+      <div className="flex flex-col gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2 text-radiant-gold">
             <Sparkles size={18} />
@@ -1466,19 +1426,9 @@ function DailyBriefPanel({
           <p className="mt-2 text-lg font-semibold">
             {brief?.headline ?? (loading ? 'Loading today’s agent brief...' : 'Run a standup to create today’s operating brief')}
           </p>
-        </div>
-        <div className="flex shrink-0 flex-wrap gap-2">
-          <span className="rounded-full border border-silicon-slate/60 bg-black/10 px-2.5 py-1 text-xs text-muted-foreground">
-            {brief?.generated_from === 'standup' ? 'From latest standup' : 'From current traces'}
-          </span>
-          <Link href="/admin/agents/runs" className="rounded-full border border-silicon-slate/60 bg-black/10 px-2.5 py-1 text-xs text-muted-foreground hover:border-radiant-gold/50 hover:text-radiant-gold">
-            Run Console
-          </Link>
-          {brief?.run_id ? (
-            <Link href={`/admin/agents/runs/${brief.run_id}`} className="rounded-full border border-radiant-gold/50 bg-radiant-gold/10 px-2.5 py-1 text-xs text-radiant-gold hover:bg-radiant-gold/15">
-              Open brief trace
-            </Link>
-          ) : null}
+          <p className="mt-1 text-xs text-muted-foreground">
+            Source: {brief?.generated_from === 'standup' ? 'latest standup' : 'current traces'}
+          </p>
         </div>
       </div>
 
