@@ -76,6 +76,30 @@ describe('POST /api/admin/agents/war-room', () => {
     expect(mocks.runAgentWarRoom).not.toHaveBeenCalled()
   })
 
+  it('requires a target agent for ask_agent', async () => {
+    const response = await POST(request({ command: 'ask_agent', message: 'Status?' }) as never)
+
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({ error: 'target_agent_key is required for ask_agent' })
+    expect(mocks.runAgentWarRoom).not.toHaveBeenCalled()
+  })
+
+  it('requires a goal for draft_goal', async () => {
+    const response = await POST(request({ command: 'draft_goal', goal: ' ' }) as never)
+
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({ error: 'Goal is required for draft_goal' })
+    expect(mocks.runAgentWarRoom).not.toHaveBeenCalled()
+  })
+
+  it('requires a draft payload for approve_goal', async () => {
+    const response = await POST(request({ command: 'approve_goal' }) as never)
+
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({ error: 'draft is required for approve_goal' })
+    expect(mocks.runAgentWarRoom).not.toHaveBeenCalled()
+  })
+
   it('runs a traced standup', async () => {
     const response = await POST(request({ command: 'standup' }) as never)
     const body = await response.json()
@@ -91,6 +115,46 @@ describe('POST /api/admin/agents/war-room', () => {
       command: 'standup',
       triggerSource: 'admin_agent_war_room',
       actor: expect.objectContaining({ id: 'admin-user' }),
+    }))
+  })
+
+  it('passes ask_agent payloads to the war room', async () => {
+    mocks.runAgentWarRoom.mockResolvedValue({
+      runId: 'ask-run',
+      command: 'ask_agent',
+      synthesis: 'Agent responded.',
+      updates: [],
+      messages: [],
+    })
+
+    const response = await POST(request({ command: 'ask_agent', message: 'What is blocked?', target_agent_key: 'chief-of-staff' }) as never)
+
+    expect(response.status).toBe(200)
+    expect(mocks.runAgentWarRoom).toHaveBeenCalledWith(expect.objectContaining({
+      command: 'ask_agent',
+      message: 'What is blocked?',
+      targetAgentKey: 'chief-of-staff',
+    }))
+  })
+
+  it('passes draft_goal without creating work items in the route layer', async () => {
+    mocks.runAgentWarRoom.mockResolvedValue({
+      runId: 'goal-run',
+      command: 'draft_goal',
+      synthesis: 'Goal draft ready.',
+      updates: [],
+      messages: [],
+      goalDraft: { goal_id: 'goal-1', title: 'Ship standup room', objective: 'Ship', recommendation: 'Approve', risk_notes: 'Low', tasks: [] },
+    })
+
+    const response = await POST(request({ command: 'draft_goal', goal: 'Ship standup room' }) as never)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.goal_draft.goal_id).toBe('goal-1')
+    expect(mocks.runAgentWarRoom).toHaveBeenCalledWith(expect.objectContaining({
+      command: 'draft_goal',
+      goal: 'Ship standup room',
     }))
   })
 })

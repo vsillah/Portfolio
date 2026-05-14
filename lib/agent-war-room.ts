@@ -5,14 +5,49 @@ import {
   recordAgentStep,
   startAgentRun,
 } from '@/lib/agent-run'
-import { AGENT_ORGANIZATION, AGENT_PODS } from '@/lib/agent-organization'
+import { AGENT_ORGANIZATION, AGENT_PODS, getAgentByKey, type AgentOrganizationNode } from '@/lib/agent-organization'
 import { buildAgentMissionControlSnapshot } from '@/lib/agent-mission-control'
+import { createAgentWorkItem, type AgentWorkItem, type AgentWorkItemPriority } from '@/lib/agent-work-items'
 
-export type AgentWarRoomCommand = 'standup' | 'discuss'
+export type AgentWarRoomCommand = 'standup' | 'discuss' | 'ask_agent' | 'draft_goal' | 'approve_goal'
+
+export interface AgentGoalDraftTask {
+  id: string
+  title: string
+  objective: string
+  owner_agent_key: string
+  priority: AgentWorkItemPriority
+  dependencies: string[]
+  expected_files: string[]
+  acceptance_criteria: string[]
+  risk_notes: string
+  goal_progress_weight: number
+}
+
+export interface AgentGoalDraft {
+  goal_id: string
+  title: string
+  objective: string
+  recommendation: string
+  risk_notes: string
+  tasks: AgentGoalDraftTask[]
+}
+
+export interface AgentWarRoomMessage {
+  id: string
+  role: 'system' | 'user' | 'agent'
+  agent_key?: string
+  agent_name?: string
+  content: string
+  created_at: string
+}
 
 export interface RunAgentWarRoomInput {
   command: AgentWarRoomCommand
   message?: string | null
+  targetAgentKey?: string | null
+  goal?: string | null
+  draft?: AgentGoalDraft | null
   triggerSource: string
   actor?: {
     id?: string | null
@@ -22,7 +57,7 @@ export interface RunAgentWarRoomInput {
 }
 
 function assertCommand(command: string): asserts command is AgentWarRoomCommand {
-  if (command !== 'standup' && command !== 'discuss') {
+  if (!['standup', 'discuss', 'ask_agent', 'draft_goal', 'approve_goal'].includes(command)) {
     throw new Error('Invalid war room command')
   }
 }
@@ -31,9 +66,28 @@ function podName(podKey: string) {
   return AGENT_PODS.find((pod) => pod.key === podKey)?.name ?? podKey
 }
 
-function selectAgents(command: AgentWarRoomCommand, message: string | null) {
-  const callable = AGENT_ORGANIZATION.filter((agent) => agent.status !== 'planned')
+function callableAgents() {
+  return AGENT_ORGANIZATION.filter((agent) => agent.status !== 'planned')
+}
+
+function selectAgents(command: AgentWarRoomCommand, message: string | null, targetAgentKey?: string | null) {
+  if (command === 'ask_agent') {
+    const agent = getAgentByKey(targetAgentKey ?? '')
+    if (!agent || agent.status === 'planned') throw new Error('Invalid agent key')
+    return [agent]
+  }
+
+  const callable = callableAgents()
   if (command === 'standup') return callable.slice(0, 8)
+  if (command === 'draft_goal' || command === 'approve_goal') {
+    return [
+      getAgentByKey('chief-of-staff'),
+      getAgentByKey('engineering-copilot'),
+      getAgentByKey('automation-systems'),
+      getAgentByKey('research-source-register'),
+      getAgentByKey('risk-compliance-intelligence'),
+    ].filter(Boolean) as AgentOrganizationNode[]
+  }
 
   const text = (message ?? '').toLowerCase()
   const ranked = callable
@@ -55,12 +109,14 @@ function selectAgents(command: AgentWarRoomCommand, message: string | null) {
   return (picked.length ? picked : callable).slice(0, 5)
 }
 
-function agentUpdate(agent: (typeof AGENT_ORGANIZATION)[number], command: AgentWarRoomCommand, message: string | null) {
+function agentUpdate(agent: AgentOrganizationNode, command: AgentWarRoomCommand, message: string | null) {
   const activeWorkflows = agent.n8nWorkflows.filter((workflow) => workflow.active).length
   const scope =
     command === 'standup'
       ? `Current posture: ${agent.status}; ${activeWorkflows} active mapped workflow(s).`
-      : `Perspective on "${message}": ${agent.responsibility}`
+      : command === 'ask_agent'
+        ? `Direct response: ${agent.responsibility}. Request: "${message}".`
+        : `Perspective on "${message}": ${agent.responsibility}`
 
   return {
     agent_key: agent.key,
@@ -71,7 +127,7 @@ function agentUpdate(agent: (typeof AGENT_ORGANIZATION)[number], command: AgentW
     update: scope,
     next_action: agent.status === 'active'
       ? 'Ready for read-only engagement through Agent Ops.'
-      : 'Use Chief of Staff routing before assigning production work.',
+      : 'Use Shaka routing before assigning production work.',
     approval_gate: agent.approvalGate,
   }
 }
@@ -80,50 +136,263 @@ function synthesize(command: AgentWarRoomCommand, updates: ReturnType<typeof age
   if (command === 'standup') {
     const ready = updates.filter((update) => update.status === 'active').length
     const partial = updates.filter((update) => update.status === 'partial').length
-    return `Standup complete: ${ready} active agent(s), ${partial} partial agent(s), and ${attentionCount} item(s) in the attention queue. Start with the attention queue, then route the next task through Chief of Staff.`
+    return `Standup complete: ${ready} active agent(s), ${partial} partial agent(s), and ${attentionCount} item(s) in the attention queue. Start with the attention queue, then route the next task through Shaka.`
+  }
+  if (command === 'ask_agent') {
+    return `${updates[0]?.agent_name ?? 'Selected agent'} responded with scoped Agent Ops context.`
+  }
+  if (command === 'draft_goal') {
+    return 'Goal draft ready for operator review. No work items were created.'
+  }
+  if (command === 'approve_goal') {
+    return 'Goal approved and converted into traceable Agent Ops work items.'
   }
 
   const pods = Array.from(new Set(updates.map((update) => update.pod))).join(', ')
-  return `Discussion complete across ${pods}. Treat this as advisory context: use Chief of Staff to convert it into one traced engagement or approval-gated action.`
+  return `Discussion complete across ${pods}. Treat this as advisory context until Shaka converts it into traced work.`
+}
+
+function messageFromUpdate(update: ReturnType<typeof agentUpdate>, index: number): AgentWarRoomMessage {
+  return {
+    id: `agent-${index}-${update.agent_key}`,
+    role: 'agent',
+    agent_key: update.agent_key,
+    agent_name: update.agent_name,
+    content: `${update.update} Next action: ${update.next_action}`,
+    created_at: new Date().toISOString(),
+  }
+}
+
+function goalIdFromTitle(title: string) {
+  const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 48) || 'goal'
+  return `goal-${slug}-${Date.now().toString(36)}`
+}
+
+function draftGoal(goal: string): AgentGoalDraft {
+  const title = goal.trim().replace(/\s+/g, ' ').slice(0, 120)
+  const goalId = goalIdFromTitle(title)
+  const tasks: AgentGoalDraftTask[] = [
+    {
+      id: `${goalId}-scope`,
+      title: `Frame the goal and acceptance gate`,
+      objective: `Shaka converts "${title}" into a reviewable execution packet with scope, owners, and approval boundaries.`,
+      owner_agent_key: 'chief-of-staff',
+      priority: 'high',
+      dependencies: [],
+      expected_files: ['app/admin/agents/**', 'lib/agent-*.ts'],
+      acceptance_criteria: ['Goal scope is explicit', 'Approval and rollback gates are named', 'Kanban owner lanes are assigned'],
+      risk_notes: 'Scope can sprawl if the goal is not constrained before worker assignment.',
+      goal_progress_weight: 1,
+    },
+    {
+      id: `${goalId}-implementation`,
+      title: `Implement the primary change set`,
+      objective: 'Piye owns the code path or product surface that most directly satisfies the approved goal.',
+      owner_agent_key: 'engineering-copilot',
+      priority: 'high',
+      dependencies: [`${goalId}-scope`],
+      expected_files: ['app/**', 'components/**', 'lib/**'],
+      acceptance_criteria: ['Feature works in the relevant admin surface', 'Focused tests cover the new behavior', 'No unrelated draft work is swept in'],
+      risk_notes: 'Implementation should remain in a feature branch until validation passes.',
+      goal_progress_weight: 2,
+    },
+    {
+      id: `${goalId}-automation`,
+      title: `Check workflow and trace impact`,
+      objective: 'Yaa Asantewaa verifies whether existing automation, trace, or operator workflows need updates for the goal.',
+      owner_agent_key: 'automation-systems',
+      priority: 'medium',
+      dependencies: [`${goalId}-scope`],
+      expected_files: ['app/api/admin/agents/**', 'lib/agent-run.ts', 'lib/agent-work-items.ts'],
+      acceptance_criteria: ['Trace behavior is visible', 'Mutation gates stay review-gated', 'Operator workflow has clear next steps'],
+      risk_notes: 'Avoid production workflow mutation unless a separate approval packet exists.',
+      goal_progress_weight: 1,
+    },
+    {
+      id: `${goalId}-evidence`,
+      title: `Attach supporting context and validation notes`,
+      objective: 'Askia Muhammad captures evidence, references, and validation notes so the goal can be audited later.',
+      owner_agent_key: 'research-source-register',
+      priority: 'medium',
+      dependencies: [`${goalId}-implementation`],
+      expected_files: ['docs/**', 'app/admin/agents/**.test.tsx', 'lib/**.test.ts'],
+      acceptance_criteria: ['Validation commands are documented', 'Known risks are recorded', 'Trace and PR links are preserved'],
+      risk_notes: 'Evidence should summarize private traces without exposing secrets or raw private data.',
+      goal_progress_weight: 1,
+    },
+    {
+      id: `${goalId}-risk`,
+      title: `Review risk, governance, and rollout path`,
+      objective: 'Moremi reviews blast radius, approval gates, and rollback path before merge or deployment.',
+      owner_agent_key: 'risk-compliance-intelligence',
+      priority: 'medium',
+      dependencies: [`${goalId}-implementation`, `${goalId}-automation`],
+      expected_files: ['docs/**', 'app/admin/agents/**'],
+      acceptance_criteria: ['Rollback path is clear', 'Production mutation remains gated', 'User-facing claims are supported'],
+      risk_notes: 'Risk review is advisory in V1 and should not imply deployment approval.',
+      goal_progress_weight: 1,
+    },
+  ]
+
+  return {
+    goal_id: goalId,
+    title,
+    objective: `Accomplish: ${title}`,
+    recommendation: 'Approve the packet if the scope is right, then track each child task on Agent Kanban with the shared goal tag.',
+    risk_notes: 'V1 creates reviewable work items only after approval; merge and deploy gates remain outside this room.',
+    tasks,
+  }
+}
+
+function assertDraft(value: AgentGoalDraft | null | undefined): AgentGoalDraft {
+  if (!value || typeof value.goal_id !== 'string' || typeof value.title !== 'string' || !Array.isArray(value.tasks)) {
+    throw new Error('Invalid goal draft')
+  }
+  for (const task of value.tasks) {
+    if (!task.title || !task.owner_agent_key || !getAgentByKey(task.owner_agent_key)) {
+      throw new Error('Invalid goal draft task')
+    }
+  }
+  return value
+}
+
+async function approveGoalDraft(runId: string, draft: AgentGoalDraft) {
+  const parent = await createAgentWorkItem({
+    title: `Goal: ${draft.title}`,
+    objective: draft.objective,
+    priority: 'high',
+    status: 'queued',
+    ownerAgentKey: 'chief-of-staff',
+    source: { type: 'agent_standup_goal', id: draft.goal_id, label: 'Standup Room goal' },
+    sourceRunId: runId,
+    metadata: {
+      goal_id: draft.goal_id,
+      goal_title: draft.title,
+      goal_status: 'approved',
+      goal_role: 'parent',
+      goal_created_by_run_id: runId,
+      goal_progress_weight: 0,
+      recommendation: draft.recommendation,
+    },
+    idempotencyKey: `agent-goal:${draft.goal_id}:parent`,
+  })
+
+  const children: AgentWorkItem[] = []
+  for (const [index, task] of draft.tasks.entries()) {
+    const child = await createAgentWorkItem({
+      title: task.title,
+      objective: task.objective,
+      priority: task.priority,
+      status: 'assigned',
+      ownerAgentKey: task.owner_agent_key,
+      source: { type: 'agent_standup_goal_task', id: task.id, label: draft.title },
+      sourceRunId: runId,
+      parentWorkItemId: parent.id,
+      expectedFiles: task.expected_files,
+      metadata: {
+        goal_id: draft.goal_id,
+        goal_title: draft.title,
+        goal_sequence: index + 1,
+        goal_status: 'approved',
+        goal_role: 'task',
+        goal_created_by_run_id: runId,
+        goal_progress_weight: task.goal_progress_weight,
+        goal_task_id: task.id,
+        goal_dependencies: task.dependencies,
+        acceptance_criteria: task.acceptance_criteria,
+        risk_notes: task.risk_notes,
+      },
+      idempotencyKey: `agent-goal:${draft.goal_id}:task:${index + 1}`,
+    })
+    children.push(child)
+  }
+
+  return { parent, children }
 }
 
 export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
   assertCommand(input.command)
   const message = input.message?.trim().slice(0, 1000) || null
-  if (input.command === 'discuss' && !message) {
-    throw new Error('Message is required for discuss')
+  const goal = input.goal?.trim().slice(0, 1000) || null
+  if ((input.command === 'discuss' || input.command === 'ask_agent') && !message) {
+    throw new Error(`Message is required for ${input.command}`)
+  }
+  if (input.command === 'draft_goal' && !goal) {
+    throw new Error('Goal is required for draft_goal')
+  }
+  if (input.command === 'ask_agent') {
+    const agent = getAgentByKey(input.targetAgentKey ?? '')
+    if (!agent || agent.status === 'planned') throw new Error('Invalid agent key')
+  }
+  if (input.command === 'approve_goal') {
+    assertDraft(input.draft)
   }
 
-  const title = input.command === 'standup' ? 'Agent War Room standup' : 'Agent War Room discussion'
+  const titles: Record<AgentWarRoomCommand, string> = {
+    standup: 'Agent Standup Room session',
+    discuss: 'Agent Standup Room discussion',
+    ask_agent: 'Agent Standup Room direct ask',
+    draft_goal: 'Agent Standup Room goal draft',
+    approve_goal: 'Agent Standup Room goal approval',
+  }
   const run = await startAgentRun({
     agentKey: 'chief-of-staff',
     runtime: 'manual',
-    kind: input.command === 'standup' ? 'agent_war_room_standup' : 'agent_war_room_discussion',
-    title,
+    kind: `agent_war_room_${input.command}`,
+    title: titles[input.command],
     status: 'running',
     subject: {
       type: input.actor?.type ?? 'agent_war_room',
       id: input.actor?.id ?? input.command,
-      label: input.actor?.label ?? 'Agent War Room',
+      label: input.actor?.label ?? 'Agent Standup Room',
     },
     triggerSource: input.triggerSource,
-    currentStep: 'Collecting mission control state',
+    currentStep: 'Collecting Agent Ops context',
     metadata: {
       command: input.command,
       message_preview: message,
-      executes_action: false,
+      target_agent_key: input.targetAgentKey ?? null,
+      goal_preview: goal,
+      executes_action: input.command === 'approve_goal',
     },
   })
 
   const snapshot = await buildAgentMissionControlSnapshot()
-  const agents = selectAgents(input.command, message)
-  const updates = agents.map((agent) => agentUpdate(agent, input.command, message))
+  const agents = selectAgents(input.command, message ?? goal, input.targetAgentKey)
+  const updates = agents.map((agent) => agentUpdate(agent, input.command, message ?? goal))
   const synthesis = synthesize(input.command, updates, snapshot.attention_queue.length)
+  const messages: AgentWarRoomMessage[] = [
+    ...(message ? [{
+      id: 'operator-message',
+      role: 'user' as const,
+      content: message,
+      created_at: new Date().toISOString(),
+    }] : []),
+    ...updates.map(messageFromUpdate),
+    {
+      id: 'shaka-synthesis',
+      role: 'agent',
+      agent_key: 'chief-of-staff',
+      agent_name: 'Shaka (Zulu) - Chief of Staff',
+      content: synthesis,
+      created_at: new Date().toISOString(),
+    },
+  ]
+
+  let goalDraft: AgentGoalDraft | null = null
+  let createdWorkItems: { parent: AgentWorkItem; children: AgentWorkItem[] } | null = null
+  if (input.command === 'draft_goal') {
+    goalDraft = draftGoal(goal ?? '')
+  }
+  if (input.command === 'approve_goal') {
+    const draft = assertDraft(input.draft)
+    createdWorkItems = await approveGoalDraft(run.id, draft)
+  }
 
   await recordAgentStep({
     runId: run.id,
     stepKey: 'collect_war_room_context',
-    name: 'Collected mission control state',
+    name: 'Collected Agent Ops context',
     status: 'completed',
     outputSummary: `${snapshot.status_strip.active} active run(s), ${snapshot.attention_queue.length} attention item(s)`,
     metadata: {
@@ -134,47 +403,56 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
 
   await recordAgentStep({
     runId: run.id,
-    stepKey: 'agent_updates',
-    name: input.command === 'standup' ? 'Collected agent standup updates' : 'Collected agent discussion updates',
+    stepKey: input.command === 'approve_goal' ? 'goal_work_items_created' : 'agent_updates',
+    name: input.command === 'approve_goal' ? 'Created approved goal work items' : 'Collected agent responses',
     status: 'completed',
-    outputSummary: `${updates.length} agent update(s)`,
-    metadata: { updates },
+    outputSummary: input.command === 'approve_goal'
+      ? `${createdWorkItems?.children.length ?? 0} child work item(s)`
+      : `${updates.length} agent response(s)`,
+    metadata: { updates, goalDraft, createdWorkItems },
   })
 
   await attachAgentArtifact({
     runId: run.id,
-    artifactType: input.command === 'standup' ? 'war_room_standup_transcript' : 'war_room_discussion_transcript',
-    title: input.command === 'standup' ? 'Agent standup transcript' : 'Agent discussion transcript',
+    artifactType: input.command === 'draft_goal' ? 'war_room_goal_draft' : 'war_room_transcript',
+    title: input.command === 'draft_goal' ? 'Standup Room goal draft' : 'Standup Room transcript',
     refType: 'agent_war_room',
     refId: input.command,
     metadata: {
       command: input.command,
       message,
+      goal,
+      target_agent_key: input.targetAgentKey ?? null,
       updates,
       synthesis,
+      messages,
+      goal_draft: goalDraft,
+      created_work_items: createdWorkItems,
       status_strip: snapshot.status_strip,
-      executes_action: false,
+      executes_action: input.command === 'approve_goal',
     },
-    idempotencyKey: `${run.id}:war-room-transcript`,
+    idempotencyKey: `${run.id}:war-room-artifact`,
   })
 
   await recordAgentEvent({
     runId: run.id,
-    eventType: input.command === 'standup' ? 'war_room_standup_completed' : 'war_room_discussion_completed',
+    eventType: `war_room_${input.command}_completed`,
     severity: 'info',
     message: synthesis,
-    metadata: { command: input.command, update_count: updates.length },
+    metadata: { command: input.command, update_count: updates.length, goal_id: goalDraft?.goal_id ?? input.draft?.goal_id ?? null },
   })
 
   await endAgentRun({
     runId: run.id,
     status: 'completed',
-    currentStep: input.command === 'standup' ? 'Standup synthesis ready' : 'Discussion synthesis ready',
+    currentStep: synthesis,
     outcome: {
       command: input.command,
       update_count: updates.length,
       synthesis,
-      executes_action: false,
+      executes_action: input.command === 'approve_goal',
+      goal_id: goalDraft?.goal_id ?? input.draft?.goal_id ?? null,
+      created_child_count: createdWorkItems?.children.length ?? 0,
     },
   })
 
@@ -183,5 +461,8 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
     command: input.command,
     updates,
     synthesis,
+    messages,
+    goalDraft,
+    createdWorkItems,
   }
 }
