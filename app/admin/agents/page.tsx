@@ -287,6 +287,45 @@ type MoremiMonitorReview = {
   }>
 }
 
+type OperatorActionKind = 'morning-review' | 'hermes' | 'approval-drill' | 'runtime-evaluation'
+
+const OPERATOR_ACTIONS: Array<{
+  kind: OperatorActionKind
+  label: string
+  purpose: string
+  cadence: string
+  output: string
+}> = [
+  {
+    kind: 'morning-review',
+    label: 'Morning review',
+    purpose: 'Polls current Agent Ops health, stale runs, approvals, and operating signals.',
+    cadence: 'Run at start of day or after a major deployment.',
+    output: 'Creates a Run Console trace and refreshes Mission Control.',
+  },
+  {
+    kind: 'hermes',
+    label: 'Hermes health',
+    purpose: 'Checks Hermes runtime health and records the result as an agent trace.',
+    cadence: 'Run when automation behavior looks stale or inconsistent.',
+    output: 'Creates a Hermes health trace in Run Console.',
+  },
+  {
+    kind: 'approval-drill',
+    label: 'Approval drill',
+    purpose: 'Creates a synthetic approval-path check without production mutation.',
+    cadence: 'Run before trusting a new approval or deployment path.',
+    output: 'Creates an approval drill trace and approval packet.',
+  },
+  {
+    kind: 'runtime-evaluation',
+    label: 'Runtime probe',
+    purpose: 'Runs a read-only OpenCode/runtime probe for execution-path readiness.',
+    cadence: 'Run when validating runtime availability or routing.',
+    output: 'Creates a runtime evaluation trace in Run Console.',
+  },
+]
+
 export default function AgentOperationsPage() {
   const [snapshot, setSnapshot] = useState<MissionSnapshot | null>(null)
   const [moremiReview, setMoremiReview] = useState<MoremiMonitorReview | null>(null)
@@ -299,13 +338,14 @@ export default function AgentOperationsPage() {
   const [warRoomLoading, setWarRoomLoading] = useState<'standup' | 'discuss' | null>(null)
   const [warRoomResult, setWarRoomResult] = useState<WarRoomResult | null>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
-  const [actionResult, setActionResult] = useState<{ label: string; runId: string } | null>(null)
+  const [actionResult, setActionResult] = useState<{ label: string; runId: string; kind?: OperatorActionKind } | null>(null)
   const [inboxRoutingId, setInboxRoutingId] = useState<string | null>(null)
   const [engagementLoadingKey, setEngagementLoadingKey] = useState<string | null>(null)
   const [recoveryLoadingRunId, setRecoveryLoadingRunId] = useState<string | null>(null)
   const [moremiReviewConfirm, setMoremiReviewConfirm] = useState(false)
   const [activeWorkPage, setActiveWorkPage] = useState(0)
   const [inboxPage, setInboxPage] = useState(0)
+  const [operatorActionKind, setOperatorActionKind] = useState<OperatorActionKind>('morning-review')
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -416,7 +456,8 @@ export default function AgentOperationsPage() {
     }
   }
 
-  async function runOperatorAction(kind: 'morning-review' | 'hermes' | 'approval-drill' | 'runtime-evaluation') {
+  async function runOperatorAction(kind: OperatorActionKind) {
+    setOperatorActionKind(kind)
     const paths = {
       'morning-review': '/api/admin/agents/morning-review',
       hermes: '/api/admin/agents/hermes/system-health',
@@ -440,7 +481,7 @@ export default function AgentOperationsPage() {
       })
       const body = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
-      setActionResult({ label: kind.replace(/-/g, ' '), runId: body.run_id })
+      setActionResult({ label: OPERATOR_ACTIONS.find((action) => action.kind === kind)?.label ?? kind.replace(/-/g, ' '), runId: body.run_id, kind })
       await loadMissionControl()
     } catch (err) {
       setError(err instanceof Error ? err.message : `${kind} failed`)
@@ -712,13 +753,6 @@ export default function AgentOperationsPage() {
               </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-1 gap-3 lg:grid-cols-5" aria-label="Agent Ops route map">
-              <RouteMapCard title="Mission Control" label="Inline command" detail="Ask Shaka without leaving the page." active />
-              <RouteMapCard title="Decision Queue" label="Controller drilldown" detail="Approval packets and approve/reject controls." href="/admin/agents/coordination" />
-              <RouteMapCard title="Kanban" label="Board drilldown" detail="Work lanes, owner, blocker, validation, trace, and PR." href="/admin/agents/swarm-board" />
-              <RouteMapCard title="Run Console" label="Trace history" detail="Filter, audit, evaluate, and inspect artifacts." href="/admin/agents/runs" />
-              <RouteMapCard title="Health" label="Read-only status" detail="Costs, quality, governance, and stale signals route below." href="/admin/agents/runs" />
-            </div>
           </section>
 
           {error ? (
@@ -812,7 +846,14 @@ export default function AgentOperationsPage() {
                   </div>
                 </div>
 
-                <DailyBriefPanel brief={snapshot?.daily_brief ?? null} loading={loading} />
+                <DailyBriefPanel
+                  brief={snapshot?.daily_brief ?? null}
+                  loading={loading}
+                  activeRuns={snapshot?.status_strip.active ?? 0}
+                  failedOrStaleRuns={failedOrStaleCount}
+                  pendingApprovals={decisionQueueCount}
+                  costToday={snapshot?.status_strip.cost_today ?? 0}
+                />
 
                 <div className="agent-ops-command-card mt-5 rounded-lg border p-4">
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -943,12 +984,14 @@ export default function AgentOperationsPage() {
                       <p className="font-semibold">Open Run Console</p>
                       <p className="mt-1 text-sm text-muted-foreground">Inspect traces, evaluations, dead letters, and artifacts.</p>
                     </Link>
-                    <div className="grid grid-cols-2 gap-2">
-                      <ActionButton label="Morning review" loading={actionLoading === 'morning-review'} onClick={() => runOperatorAction('morning-review')} />
-                      <ActionButton label="Hermes health" loading={actionLoading === 'hermes'} onClick={() => runOperatorAction('hermes')} />
-                      <ActionButton label="Approval drill" loading={actionLoading === 'approval-drill'} onClick={() => runOperatorAction('approval-drill')} />
-                      <ActionButton label="Runtime probe" loading={actionLoading === 'runtime-evaluation'} onClick={() => runOperatorAction('runtime-evaluation')} />
-                    </div>
+                    <OperatorChecksPanel
+                      actions={OPERATOR_ACTIONS}
+                      selectedKind={operatorActionKind}
+                      loadingKind={actionLoading as OperatorActionKind | null}
+                      result={actionResult?.kind ? actionResult : null}
+                      onSelect={setOperatorActionKind}
+                      onRun={runOperatorAction}
+                    />
                     {firstDeadLetter ? (
                       <button
                         type="button"
@@ -1010,12 +1053,6 @@ export default function AgentOperationsPage() {
                   </div>
                 </div>
 
-                <div className="agent-ops-card rounded-lg border p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Rule</p>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                    Inline Shaka handles quick questions. Kanban, controller, traces, and governance links are the homes for durable follow-up.
-                  </p>
-                </div>
               </aside>
             </div>
           </section>
@@ -1182,28 +1219,93 @@ function SignalRouteCard({ title, detail, href, icon }: { title: string; detail:
   )
 }
 
-function RouteMapCard({ title, label, detail, href, active = false }: { title: string; label: string; detail: string; href?: string; active?: boolean }) {
-  const toneClass = {
-    'Mission Control': 'agent-ops-route-card-active',
-    'Decision Queue': 'agent-ops-route-card-decision',
-    Kanban: 'agent-ops-route-card-kanban',
-    'Run Console': 'agent-ops-route-card-console',
-    Health: 'agent-ops-route-card-health',
-  }[title] ?? ''
-  const className = `agent-ops-route-card block rounded-lg border p-4 text-left transition ${
-    active
-      ? 'agent-ops-route-card-active'
-      : toneClass
-  }`
-  const content = (
-    <>
-      <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">{title}</p>
-      <h2 className="mt-3 text-lg font-semibold">{label}</h2>
-      <p className="mt-2 text-sm leading-6 text-muted-foreground">{detail}</p>
-    </>
-  )
+function OperatorChecksPanel({
+  actions,
+  selectedKind,
+  loadingKind,
+  result,
+  onSelect,
+  onRun,
+}: {
+  actions: typeof OPERATOR_ACTIONS
+  selectedKind: OperatorActionKind
+  loadingKind: OperatorActionKind | null
+  result: { label: string; runId: string; kind?: OperatorActionKind } | null
+  onSelect: (kind: OperatorActionKind) => void
+  onRun: (kind: OperatorActionKind) => void
+}) {
+  const selected = actions.find((action) => action.kind === selectedKind) ?? actions[0]
+  const selectedResult = result?.kind === selected.kind ? result : null
 
-  return href ? <Link href={href} className={className}>{content}</Link> : <div className={className}>{content}</div>
+  return (
+    <div className="rounded-lg border border-silicon-slate/60 bg-background/35 p-3">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Operator checks</p>
+          <p className="mt-1 text-xs text-muted-foreground">Manual pollers. Each run writes a trace to Run Console.</p>
+        </div>
+        <Link href="/admin/agents/runs?active=true" className="text-xs text-radiant-gold hover:underline">View runs</Link>
+      </div>
+
+      <div className="mt-3 grid grid-cols-2 gap-2" role="tablist" aria-label="Operator checks">
+        {actions.map((action) => {
+          const selectedAction = action.kind === selected.kind
+          const loading = loadingKind === action.kind
+          return (
+            <button
+              key={action.kind}
+              type="button"
+              role="tab"
+              aria-selected={selectedAction}
+              onClick={() => onSelect(action.kind)}
+              className={`inline-flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-sm ${
+                selectedAction
+                  ? 'border-radiant-gold/60 bg-radiant-gold/10 text-radiant-gold'
+                  : 'border-silicon-slate/60 bg-black/10 hover:border-radiant-gold/45'
+              }`}
+            >
+              <span className="min-w-0 truncate">{action.label}</span>
+              {loading ? <RefreshCw size={14} className="shrink-0 animate-spin" /> : <CheckCircle2 size={14} className="shrink-0" />}
+            </button>
+          )
+        })}
+      </div>
+
+      <div className="mt-3 rounded-lg border border-silicon-slate/50 bg-black/10 p-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <p className="font-semibold">{selected.label}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{selected.purpose}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => onRun(selected.kind)}
+            disabled={loadingKind !== null}
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
+          >
+            {loadingKind === selected.kind ? <RefreshCw size={14} className="animate-spin" /> : <Sparkles size={14} />}
+            Run check
+          </button>
+        </div>
+        <dl className="mt-3 grid grid-cols-1 gap-2 text-xs text-muted-foreground">
+          <div className="rounded-md border border-silicon-slate/50 bg-background/30 p-2">
+            <dt className="font-semibold uppercase tracking-wider text-foreground/70">When to run</dt>
+            <dd className="mt-1">{selected.cadence}</dd>
+          </div>
+          <div className="rounded-md border border-silicon-slate/50 bg-background/30 p-2">
+            <dt className="font-semibold uppercase tracking-wider text-foreground/70">Where results appear</dt>
+            <dd className="mt-1">{selected.output}</dd>
+          </div>
+        </dl>
+        {selectedResult ? (
+          <Link href={`/admin/agents/runs/${selectedResult.runId}`} className="mt-3 flex items-center justify-between gap-3 rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200 hover:underline">
+            <span>Open {selectedResult.label} run</span>
+            <ArrowRight size={14} />
+          </Link>
+        ) : null}
+      </div>
+    </div>
+  )
 }
 
 function QuickPrompt({ label, disabled, onClick }: { label: string; disabled: boolean; onClick: () => void }) {
@@ -1315,9 +1417,54 @@ function MiniMetric({ label, value, tone = 'default' }: { label: string; value: 
   )
 }
 
-function DailyBriefPanel({ brief, loading }: { brief: MissionSnapshot['daily_brief'] | null; loading: boolean }) {
+function DailyBriefPanel({
+  brief,
+  loading,
+  activeRuns,
+  failedOrStaleRuns,
+  pendingApprovals,
+  costToday,
+}: {
+  brief: MissionSnapshot['daily_brief'] | null
+  loading: boolean
+  activeRuns: number
+  failedOrStaleRuns: number
+  pendingApprovals: number
+  costToday: number
+}) {
+  const routeCards = [
+    {
+      label: 'Active runs',
+      value: activeRuns,
+      detail: 'Live or queued traces',
+      href: '/admin/agents/runs?active=true',
+      tone: 'blue',
+    },
+    {
+      label: 'Failed or stale runs',
+      value: failedOrStaleRuns,
+      detail: 'Needs trace review',
+      href: '/admin/agents/runs?status=needs_review',
+      tone: failedOrStaleRuns ? 'red' : 'green',
+    },
+    {
+      label: 'Pending approvals',
+      value: pendingApprovals,
+      detail: 'Controller queue',
+      href: '/admin/agents/coordination',
+      tone: pendingApprovals ? 'yellow' : 'green',
+    },
+    {
+      label: 'Cost today',
+      value: `$${costToday.toFixed(4)}`,
+      detail: 'Spend analysis',
+      href: '/admin/cost-revenue',
+      tone: 'neutral',
+    },
+  ] as const
+
   return (
-    <section className="agent-ops-card mt-5 rounded-lg border p-4">
+    <section className="agent-ops-card mt-5 rounded-lg border p-4" aria-label="Daily Operating Brief">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="flex items-center gap-2 text-radiant-gold">
@@ -1336,7 +1483,7 @@ function DailyBriefPanel({ brief, loading }: { brief: MissionSnapshot['daily_bri
             {brief?.generated_from === 'standup' ? 'From latest standup' : 'From current traces'}
           </span>
           <Link href="/admin/agents/runs" className="rounded-full border border-silicon-slate/60 bg-black/10 px-2.5 py-1 text-xs text-muted-foreground hover:border-radiant-gold/50 hover:text-radiant-gold">
-            Run Console home
+            Run Console
           </Link>
           {brief?.run_id ? (
             <Link href={`/admin/agents/runs/${brief.run_id}`} className="rounded-full border border-radiant-gold/50 bg-radiant-gold/10 px-2.5 py-1 text-xs text-radiant-gold hover:bg-radiant-gold/15">
@@ -1346,23 +1493,63 @@ function DailyBriefPanel({ brief, loading }: { brief: MissionSnapshot['daily_bri
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="flex flex-wrap gap-2">
-          {(brief?.signals ?? ['0 active run(s)', '0 failed or stale run(s)', '0 pending approval(s)']).map((signal) => (
-            <span key={signal} className="rounded-full border border-silicon-slate/50 bg-black/10 px-2.5 py-1 text-xs text-muted-foreground">
-              {signal}
-            </span>
-          ))}
+      <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-[1fr_0.95fr]">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Attention routes</p>
+          <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {routeCards.map((card) => (
+              <BriefRouteCard key={card.label} {...card} />
+            ))}
+          </div>
         </div>
-        <div className="space-y-1">
+
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Recommended next actions</p>
+          <div className="mt-2 space-y-2">
           {(brief?.next_actions ?? ['Run War Room standup.']).slice(0, 3).map((action) => (
-            <p key={action} className="text-sm text-muted-foreground">
+            <p key={action} className="rounded-lg border border-silicon-slate/50 bg-black/10 px-3 py-2 text-sm text-muted-foreground">
               {action}
             </p>
           ))}
+          </div>
         </div>
       </div>
     </section>
+  )
+}
+
+function BriefRouteCard({
+  label,
+  value,
+  detail,
+  href,
+  tone,
+}: {
+  label: string
+  value: string | number
+  detail: string
+  href: string
+  tone: 'blue' | 'green' | 'red' | 'yellow' | 'neutral'
+}) {
+  const toneClass = {
+    blue: 'border-sky-400/30 bg-sky-500/10',
+    green: 'border-emerald-400/30 bg-emerald-500/10',
+    red: 'border-red-400/35 bg-red-500/10',
+    yellow: 'border-yellow-400/35 bg-yellow-500/10',
+    neutral: 'border-silicon-slate/60 bg-black/10',
+  }[tone]
+
+  return (
+    <Link href={href} className={`group rounded-lg border p-3 transition hover:border-radiant-gold/60 ${toneClass}`}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
+          <p className="mt-1 text-2xl font-semibold">{value}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{detail}</p>
+        </div>
+        <ArrowRight size={14} className="mt-1 shrink-0 text-muted-foreground group-hover:text-radiant-gold" />
+      </div>
+    </Link>
   )
 }
 
