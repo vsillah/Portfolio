@@ -648,14 +648,14 @@ export default function AgentOperationsPage() {
 
             <div className="grid gap-5 p-5 xl:grid-cols-[minmax(0,1fr)_340px]">
               <div>
-                <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_560px]">
-                  <div>
-                    <h3 className="text-3xl font-bold leading-tight">{missionHeadline}</h3>
+                <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_560px]">
+                  <div className="min-w-0">
+                    <h3 className="text-2xl font-bold leading-tight sm:text-3xl">{missionHeadline}</h3>
                     <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
                       Ask Shaka directly below, then move into Decision Queue, Kanban, Run Console, or the governance homes when the answer needs a larger work surface.
                     </p>
                   </div>
-                  <div className="grid grid-cols-2 gap-3 md:grid-cols-4" aria-label="Mission Control status blocks">
+                  <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 2xl:grid-cols-4" aria-label="Mission Control status blocks">
                     <MissionStatusCard
                       as="link"
                       href="/admin/agents/coordination"
@@ -1099,8 +1099,8 @@ function MissionStatusCard({
 }) {
   const content = (
     <>
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-2 text-radiant-gold">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex min-w-0 items-center gap-2 text-radiant-gold">
           {icon}
           <p className="text-xs font-semibold uppercase tracking-wider">{label}</p>
         </div>
@@ -1113,14 +1113,14 @@ function MissionStatusCard({
 
   if (as === 'link' && href) {
     return (
-      <Link href={href} className={`agent-ops-metric agent-ops-metric-${tone} block rounded-lg border p-4`}>
+      <Link href={href} className={`agent-ops-metric agent-ops-metric-${tone} block min-w-0 rounded-lg border p-4`}>
         {content}
       </Link>
     )
   }
 
   return (
-    <div className={`agent-ops-metric agent-ops-metric-${tone} rounded-lg border p-4`} aria-label={`${label} status`}>
+    <div className={`agent-ops-metric agent-ops-metric-${tone} min-w-0 rounded-lg border p-4`} aria-label={`${label} status`}>
       {content}
     </div>
   )
@@ -1136,7 +1136,7 @@ function StatusOnlyPill({ children, tone }: { children: ReactNode; tone: 'green'
   }[tone]
 
   return (
-    <span className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium ${toneClass}`} data-status-only="true">
+    <span className={`w-fit max-w-full rounded-full border px-2.5 py-1 text-left text-xs font-medium ${toneClass}`} data-status-only="true">
       {children}
     </span>
   )
