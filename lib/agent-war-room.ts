@@ -7,6 +7,7 @@ import {
 } from '@/lib/agent-run'
 import { AGENT_ORGANIZATION, AGENT_PODS, getAgentByKey, type AgentOrganizationNode } from '@/lib/agent-organization'
 import { buildAgentMissionControlSnapshot } from '@/lib/agent-mission-control'
+import { buildAgentOrgBoardSnapshot, type AgentOrgBoardSnapshot, type AgentOrgBoardTask } from '@/lib/agent-swarm-board'
 import { createAgentWorkItem, type AgentWorkItem, type AgentWorkItemPriority } from '@/lib/agent-work-items'
 
 export type AgentWarRoomCommand = 'standup' | 'discuss' | 'ask_agent' | 'draft_goal' | 'approve_goal'
@@ -109,14 +110,58 @@ function selectAgents(command: AgentWarRoomCommand, message: string | null, targ
   return (picked.length ? picked : callable).slice(0, 5)
 }
 
-function agentUpdate(agent: AgentOrganizationNode, command: AgentWarRoomCommand, message: string | null) {
+function isOpenTask(task: AgentOrgBoardTask) {
+  return !['merged', 'deployed', 'cancelled'].includes(task.status)
+}
+
+function hoursSince(value: string, now = new Date()) {
+  const time = new Date(value).getTime()
+  if (!Number.isFinite(time)) return null
+  return Math.max(0, Math.round(((now.getTime() - time) / 36e5) * 10) / 10)
+}
+
+function workContextForAgent(agent: AgentOrganizationNode, snapshot: AgentOrgBoardSnapshot) {
+  const tasks = snapshot.lanes
+    .flatMap((lane) => lane.tasks)
+    .filter((task) => task.ownerAgentKey === agent.key && isOpenTask(task))
+  const blocked = tasks.filter((task) => task.status === 'blocked' || Boolean(task.blockerSummary))
+  const reviewReady = tasks.filter((task) => task.status === 'ready_for_review' || task.status === 'ready_for_merge')
+  const oldest = [...tasks].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())[0] ?? null
+  const nextTask = blocked[0] ?? reviewReady[0] ?? oldest
+  const agentSnapshot = snapshot.agents.find((item) => item.key === agent.key)
+  const oldestHours = oldest ? hoursSince(oldest.createdAt) : null
+
+  return {
+    activeCount: tasks.length,
+    blockedCount: blocked.length,
+    reviewReadyCount: reviewReady.length,
+    oldestHours,
+    nextTask,
+    latestRunId: agentSnapshot?.latestRunId ?? null,
+    latestAction: agentSnapshot?.latestAction ?? 'No recent traced activity',
+  }
+}
+
+function summarizeWorkContext(context: ReturnType<typeof workContextForAgent>) {
+  if (!context.activeCount) return 'No active Kanban work is assigned right now.'
+
+  const age = context.oldestHours != null ? ` Oldest in-flight item: ${context.oldestHours}h.` : ''
+  const next = context.nextTask
+    ? ` Next: ${context.nextTask.title} (${context.nextTask.status.replace(/_/g, ' ')}).${context.nextTask.blockerSummary ? ` Blocker: ${context.nextTask.blockerSummary}.` : ''}`
+    : ''
+  return `${context.activeCount} active Kanban item(s), ${context.blockedCount} blocked, ${context.reviewReadyCount} review-ready.${age}${next}`
+}
+
+function agentUpdate(agent: AgentOrganizationNode, command: AgentWarRoomCommand, message: string | null, orgSnapshot: AgentOrgBoardSnapshot) {
   const activeWorkflows = agent.n8nWorkflows.filter((workflow) => workflow.active).length
+  const workContext = workContextForAgent(agent, orgSnapshot)
+  const workSummary = summarizeWorkContext(workContext)
   const scope =
     command === 'standup'
-      ? `Current posture: ${agent.status}; ${activeWorkflows} active mapped workflow(s).`
+      ? `Current posture: ${agent.status}; ${activeWorkflows} active mapped workflow(s). ${workSummary}`
       : command === 'ask_agent'
-        ? `Direct response: ${agent.responsibility}. Request: "${message}".`
-        : `Perspective on "${message}": ${agent.responsibility}`
+        ? `Direct update on "${message}": ${workSummary} Role scope: ${agent.responsibility}.`
+        : `Perspective on "${message}": ${workSummary} Role scope: ${agent.responsibility}.`
 
   return {
     agent_key: agent.key,
@@ -126,9 +171,15 @@ function agentUpdate(agent: AgentOrganizationNode, command: AgentWarRoomCommand,
     status: agent.status,
     update: scope,
     next_action: agent.status === 'active'
-      ? 'Ready for read-only engagement through Agent Ops.'
+      ? workContext.nextTask?.activeRunId
+        ? `Open trace ${workContext.nextTask.activeRunId} or ask for the next handoff.`
+        : 'Ready for read-only engagement through Agent Ops.'
       : 'Use Shaka routing before assigning production work.',
     approval_gate: agent.approvalGate,
+    active_work_count: workContext.activeCount,
+    blocked_work_count: workContext.blockedCount,
+    review_ready_count: workContext.reviewReadyCount,
+    latest_run_id: workContext.latestRunId,
   }
 }
 
@@ -335,6 +386,7 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
     draft_goal: 'Agent Standup Room goal draft',
     approve_goal: 'Agent Standup Room goal approval',
   }
+  const draftGoalId = input.command === 'approve_goal' ? input.draft?.goal_id ?? null : null
   const run = await startAgentRun({
     agentKey: 'chief-of-staff',
     runtime: 'manual',
@@ -353,13 +405,17 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
       message_preview: message,
       target_agent_key: input.targetAgentKey ?? null,
       goal_preview: goal,
+      goal_id: draftGoalId,
       executes_action: input.command === 'approve_goal',
     },
   })
 
-  const snapshot = await buildAgentMissionControlSnapshot()
+  const [snapshot, orgSnapshot] = await Promise.all([
+    buildAgentMissionControlSnapshot(),
+    buildAgentOrgBoardSnapshot(),
+  ])
   const agents = selectAgents(input.command, message ?? goal, input.targetAgentKey)
-  const updates = agents.map((agent) => agentUpdate(agent, input.command, message ?? goal))
+  const updates = agents.map((agent) => agentUpdate(agent, input.command, message ?? goal, orgSnapshot))
   const synthesis = synthesize(input.command, updates, snapshot.attention_queue.length)
   const messages: AgentWarRoomMessage[] = [
     ...(message ? [{

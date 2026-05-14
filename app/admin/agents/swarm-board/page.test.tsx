@@ -187,6 +187,17 @@ const boardSnapshot = {
     ],
     warRoom: {
       roster: [],
+      recentRuns: [
+        {
+          id: 'war-room-run-1',
+          title: 'Agent Standup Room direct ask',
+          command: 'ask_agent',
+          status: 'completed',
+          startedAt: '2026-05-14T11:00:00.000Z',
+          summary: 'Shaka answered with scoped work context.',
+          goalId: 'goal-1',
+        },
+      ],
       commands: ['/agent work'],
       suggestedPrompt: 'Ask for blockers.',
     },
@@ -297,6 +308,18 @@ describe('AgentSwarmBoardPage', () => {
     expect(await screen.findByRole('heading', { name: 'Hive Mind' })).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'Activity board' })).toHaveAttribute('aria-selected', 'true')
     expect(screen.getByRole('tab', { name: 'Kanban lanes' })).toHaveAttribute('aria-selected', 'false')
+  })
+
+  it('shows recent standup-room traces in the War Room view', async () => {
+    render(<AgentSwarmBoardPage />)
+
+    fireEvent.click(await screen.findByRole('tab', { name: 'War room board' }))
+
+    expect(screen.getByRole('heading', { name: 'War Room' })).toBeInTheDocument()
+    expect(screen.getByText('Recent room traces')).toBeInTheDocument()
+    expect(screen.getByText('Agent Standup Room direct ask')).toBeInTheDocument()
+    expect(screen.getByText('Shaka answered with scoped work context.')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Open trace' })).toHaveAttribute('href', '/admin/agents/runs/war-room-run-1')
   })
 
   it('keeps lane order fixed while collapsing empty lanes', async () => {

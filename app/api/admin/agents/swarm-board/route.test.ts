@@ -105,6 +105,7 @@ describe('GET /api/admin/agents/swarm-board', () => {
       activity: [],
       warRoom: {
         roster: [],
+        recentRuns: [],
         commands: ['/agent work'],
         suggestedPrompt: 'Ask for status.',
       },

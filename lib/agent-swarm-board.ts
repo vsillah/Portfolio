@@ -195,6 +195,16 @@ export type AgentOrgBoardWarRoomAgent = {
   latestAction: string
 }
 
+export type AgentOrgBoardWarRoomRun = {
+  id: string
+  title: string
+  command: string
+  status: string
+  startedAt: string
+  summary: string
+  goalId: string | null
+}
+
 export type AgentOrgBoardSnapshot = {
   generated_at: string
   summary: {
@@ -217,6 +227,7 @@ export type AgentOrgBoardSnapshot = {
   activity: AgentOrgBoardActivity[]
   warRoom: {
     roster: AgentOrgBoardWarRoomAgent[]
+    recentRuns: AgentOrgBoardWarRoomRun[]
     commands: string[]
     suggestedPrompt: string
   }
@@ -989,6 +1000,18 @@ export function buildAgentOrgBoardSnapshotFromRows(input: AgentOrgBoardBuildInpu
       status: agent.status === 'planned' ? 'planned' : agent.live ? 'live' : 'idle',
       latestAction: agent.latestAction,
     }))
+  const recentWarRoomRuns: AgentOrgBoardWarRoomRun[] = input.runs
+    .filter((run) => run.kind?.startsWith('agent_war_room_'))
+    .slice(0, 5)
+    .map((run) => ({
+      id: run.id,
+      title: run.title,
+      command: String(run.metadata?.command ?? run.kind?.replace(/^agent_war_room_/, '') ?? 'war_room'),
+      status: run.status,
+      startedAt: run.started_at,
+      summary: run.current_step ?? run.title,
+      goalId: stringValue(run.metadata?.goal_id) ?? stringValue(run.metadata?.goal_preview),
+    }))
 
   const activeTasks = tasks.filter((task) => isActiveWorkStatus(task.status))
   const completedCycleHours = tasks
@@ -1034,6 +1057,7 @@ export function buildAgentOrgBoardSnapshotFromRows(input: AgentOrgBoardBuildInpu
     activity,
     warRoom: {
       roster,
+      recentRuns: recentWarRoomRuns,
       commands: ['/agent work', '/agent blockers', '/agent prs', '/agent captain'],
       suggestedPrompt: 'Ask the team for status, blockers, overlap risk, or the next safe handoff.',
     },

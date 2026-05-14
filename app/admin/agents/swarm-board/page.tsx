@@ -909,12 +909,12 @@ function WarRoom({ organization }: { organization: AgentOrgBoardSnapshot }) {
         <div className="flex items-center justify-between border-b border-silicon-slate/60 p-4">
           <div>
             <h2 className="text-xl font-semibold">War Room</h2>
-            <p className="text-sm text-muted-foreground">Coordinate through Agent Ops records and Slack commands.</p>
+            <p className="text-sm text-muted-foreground">Recent standup-room commands, traces, and team prompts.</p>
           </div>
-          <Badge label="text mode" />
+          <Badge label={`${organization.warRoom.recentRuns.length} trace(s)`} />
         </div>
-        <div className="flex flex-1 items-center justify-center p-8 text-center">
-          <div>
+        <div className="flex-1 space-y-4 p-4">
+          <div className="rounded-lg border border-silicon-slate/70 bg-background/55 p-4 text-center">
             <Sparkles className="mx-auto mb-4 text-radiant-gold" size={28} />
             <h3 className="text-lg font-semibold">Start with a specific question.</h3>
             <p className="mt-2 max-w-xl text-sm text-muted-foreground">{organization.warRoom.suggestedPrompt}</p>
@@ -922,10 +922,38 @@ function WarRoom({ organization }: { organization: AgentOrgBoardSnapshot }) {
               {organization.warRoom.commands.map((command) => <Badge key={command} label={command} />)}
             </div>
           </div>
+          <div className="rounded-lg border border-silicon-slate/70 bg-background/55 p-4">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-radiant-gold">Recent room traces</h3>
+              <Link href="/admin/agents/runs" className="text-xs text-radiant-gold hover:underline">View all traces</Link>
+            </div>
+            <div className="space-y-2">
+              {organization.warRoom.recentRuns.length ? organization.warRoom.recentRuns.map((run) => (
+                <article key={run.id} className="grid gap-3 rounded-lg border border-silicon-slate/60 bg-silicon-slate/15 p-3 text-sm md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge label={run.command.replace(/_/g, ' ')} />
+                      <Badge label={run.status} />
+                      {run.goalId ? <Badge label={`goal ${run.goalId}`} /> : null}
+                    </div>
+                    <p className="mt-2 font-medium">{run.title}</p>
+                    <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{run.summary}</p>
+                  </div>
+                  <Link href={`/admin/agents/runs/${run.id}`} className="inline-flex items-center justify-end gap-2 text-radiant-gold hover:underline">
+                    Open trace
+                  </Link>
+                </article>
+              )) : (
+                <div className="rounded-lg border border-dashed border-silicon-slate/60 p-4 text-sm text-muted-foreground">
+                  No standup-room traces yet. Start a standup or ask an agent to create the first room trace.
+                </div>
+              )}
+            </div>
+          </div>
         </div>
         <div className="border-t border-silicon-slate/60 p-4">
           <div className="flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-3 text-sm text-muted-foreground">
-            Message the team from Slack with /agent captain, /agent work, or /agent blockers.
+            Use the Standup Room for interactive questions; Slack commands remain available for mobile check-ins.
           </div>
         </div>
       </section>
