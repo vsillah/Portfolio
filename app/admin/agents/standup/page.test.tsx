@@ -116,6 +116,7 @@ const organization = {
 
 describe('AgentStandupRoomPage', () => {
   beforeEach(() => {
+    window.history.pushState({}, '', '/admin/agents/standup')
     vi.stubGlobal('fetch', vi.fn(async (url, init) => {
       if (String(url).includes('/api/admin/agents/swarm-board')) {
         return { ok: true, json: async () => ({ ok: true, organization }) }
@@ -201,6 +202,7 @@ describe('AgentStandupRoomPage', () => {
 
   afterEach(() => {
     vi.unstubAllGlobals()
+    window.history.pushState({}, '', '/')
   })
 
   it('renders participants, chat, goal planner, mini Kanban, metrics, and avatars', async () => {
@@ -226,6 +228,7 @@ describe('AgentStandupRoomPage', () => {
         body: JSON.stringify({ command: 'standup' }),
       }))
     })
+    expect(await screen.findByRole('link', { name: /Open trace/i })).toHaveAttribute('href', '/admin/agents/runs/room-run')
 
     fireEvent.change(screen.getByPlaceholderText(/Ask about blockers/i), { target: { value: '@Shaka what is blocked?' } })
     fireEvent.click(screen.getByRole('button', { name: /Ask agent/i }))
@@ -255,6 +258,7 @@ describe('AgentStandupRoomPage', () => {
     fireEvent.click(screen.getByRole('button', { name: /Draft plan/i }))
 
     expect(await screen.findByText('Approve after review.')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Open trace/i })).toHaveAttribute('href', '/admin/agents/runs/goal-run')
     expect(fetch).toHaveBeenCalledWith('/api/admin/agents/war-room', expect.objectContaining({
       method: 'POST',
       body: JSON.stringify({ command: 'draft_goal', goal: 'Improve standup' }),
@@ -267,10 +271,29 @@ describe('AgentStandupRoomPage', () => {
     await waitFor(() => {
       expect(screen.getByText(/Created 1 child work item/i)).toBeInTheDocument()
     })
+    expect(screen.getByRole('link', { name: /Open goal on Kanban/i })).toHaveAttribute('href', '/admin/agents/swarm-board?goal=goal-draft')
     const approveCall = vi.mocked(fetch).mock.calls.find(([, init]) => String((init as RequestInit)?.body ?? '').includes('"command":"approve_goal"'))
     expect(approveCall).toBeTruthy()
     const approveBody = JSON.parse(String((approveCall?.[1] as RequestInit).body))
     expect(approveBody.draft.tasks).toHaveLength(1)
     expect(approveBody.draft.tasks[0].title).toBe('Implement reviewed room')
+  })
+
+  it('opens a linked goal session from the query string', async () => {
+    window.history.pushState({}, '', '/admin/agents/standup?goal=goal-1')
+
+    render(<AgentStandupRoomPage />)
+
+    expect(await screen.findByText('Goal session')).toBeInTheDocument()
+    expect(screen.getByText('1/2 complete · 1 open · 0 blocked')).toBeInTheDocument()
+    expect(screen.getAllByText('Draft standup room').length).toBeGreaterThan(0)
+    expect(screen.getByRole('link', { name: 'Open Kanban focus' })).toHaveAttribute('href', '/admin/agents/swarm-board?goal=goal-1')
+    expect(screen.getByRole('link', { name: 'Open board' })).toHaveAttribute('href', '/admin/agents/swarm-board?goal=goal-1')
+    expect(screen.getByText('Goal Kanban preview')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear focus' }))
+
+    expect(screen.queryByText('Goal session')).not.toBeInTheDocument()
+    expect(window.location.search).toBe('')
   })
 })

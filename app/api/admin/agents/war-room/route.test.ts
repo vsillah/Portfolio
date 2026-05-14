@@ -157,4 +157,47 @@ describe('POST /api/admin/agents/war-room', () => {
       goal: 'Ship standup room',
     }))
   })
+
+  it('passes approved goal drafts to the war room executor', async () => {
+    const draft = {
+      goal_id: 'goal-1',
+      title: 'Ship standup room',
+      objective: 'Ship the reviewed room',
+      recommendation: 'Approve',
+      risk_notes: 'Low',
+      tasks: [{
+        id: 'goal-1-task-1',
+        title: 'Implement',
+        objective: 'Build it',
+        owner_agent_key: 'engineering-copilot',
+        priority: 'high',
+        dependencies: [],
+        expected_files: ['app/admin/agents/standup/page.tsx'],
+        acceptance_criteria: ['Works'],
+        risk_notes: 'Low',
+        goal_progress_weight: 1,
+      }],
+    }
+    mocks.runAgentWarRoom.mockResolvedValue({
+      runId: 'approval-run',
+      command: 'approve_goal',
+      synthesis: 'Goal approved and converted into traceable Agent Ops work items.',
+      updates: [],
+      messages: [],
+      createdWorkItems: {
+        parent: { id: 'parent', title: 'Goal: Ship standup room' },
+        children: [{ id: 'child', title: 'Implement' }],
+      },
+    })
+
+    const response = await POST(request({ command: 'approve_goal', draft }) as never)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.created_work_items.children).toHaveLength(1)
+    expect(mocks.runAgentWarRoom).toHaveBeenCalledWith(expect.objectContaining({
+      command: 'approve_goal',
+      draft,
+    }))
+  })
 })
