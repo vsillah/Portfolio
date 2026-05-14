@@ -88,7 +88,12 @@ const missionSnapshot = {
     run_id: null,
     updated_at: '2026-05-13T12:00:00.000Z',
     signals: ['1 running run', '3 pending approvals'],
-    next_actions: ['Review the decision queue.', 'Open Kanban for lane ownership.'],
+    next_actions: [
+      'Review the decision queue.',
+      'Open Kanban for lane ownership.',
+      'Ask Shaka to summarize blockers.',
+      'Escalate stale traces through Run Console.',
+    ],
   },
   cost_summary: {
     window_hours: 24,
@@ -205,28 +210,54 @@ describe('AgentOperationsPage mission control landing', () => {
   it('loads the mission control landing with primary actions and status hierarchy', async () => {
     render(<AgentOperationsPage />)
 
-    expect(await screen.findByRole('heading', { name: 'Agent Ops Mission Control' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Mission Control' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Mission Control routes the work. Drilldowns own the details.' })).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Agent Ops route map')).not.toBeInTheDocument()
 
     const actionBar = screen.getByLabelText('Mission Control actions')
     expect(within(actionBar).getByRole('button', { name: /Refresh/i })).toBeInTheDocument()
     expect(within(actionBar).getByRole('link', { name: /Open Kanban/i })).toHaveAttribute('href', '/admin/agents/swarm-board')
-    expect(within(actionBar).getByRole('link', { name: /Open controller/i })).toHaveAttribute('href', '/admin/agents/coordination')
-    expect(within(actionBar).getByRole('link', { name: /Run Console/i })).toHaveAttribute('href', '/admin/agents/runs')
     expect(within(actionBar).getByRole('button', { name: /Run standup/i })).toBeInTheDocument()
 
     const statusBlocks = screen.getByLabelText('Mission Control status blocks')
     expect(within(statusBlocks).getByRole('link', { name: /Decision Queue/i })).toHaveAttribute('href', '/admin/agents/coordination')
     expect(within(statusBlocks).getByRole('link', { name: /Kanban/i })).toHaveAttribute('href', '/admin/agents/swarm-board')
-    expect(within(statusBlocks).getByLabelText('Agents roster status')).toHaveTextContent('2')
-    expect(within(statusBlocks).getByLabelText('Health / read-only status')).toHaveTextContent('Read-only healthy')
+    expect(within(statusBlocks).getByRole('link', { name: /Agents/i })).toHaveAttribute('href', '/admin/agents/swarm-board')
+    expect(within(statusBlocks).getByRole('link', { name: /Health/i })).toHaveAttribute('href', '/admin/agents/runs')
 
-    expect(screen.getByRole('heading', { name: 'Ask Shaka' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'What should I pay attention to before approving this queue?' })).toBeInTheDocument()
     expect(screen.getByRole('textbox', { name: 'Ask Shaka' })).toBeInTheDocument()
-    expect(screen.getByText('Daily Operating Brief')).toBeInTheDocument()
-
-    expect(within(statusBlocks).queryByRole('button', { name: /Status only/i })).not.toBeInTheDocument()
-    expect(within(statusBlocks).getByText('Status only')).toHaveAttribute('data-status-only', 'true')
-    expect(within(statusBlocks).getByText('No mutation')).toHaveAttribute('data-status-only', 'true')
+    expect(screen.getByLabelText('Ask Shaka quick prompts')).toBeInTheDocument()
+    expect(screen.getByText('Active work')).toBeInTheDocument()
+    expect(screen.getByLabelText('Active work pagination')).toBeInTheDocument()
+    expect(screen.getByText('Agent interaction')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Open Shaka chat/i })).toHaveAttribute('href', '/admin/agents/chief-of-staff')
+    expect(screen.getByRole('link', { name: /Open Agent Kanban/i })).toHaveAttribute('href', '/admin/agents/swarm-board')
+    expect(screen.getByRole('link', { name: /Open Run Console/i })).toHaveAttribute('href', '/admin/agents/runs')
+    expect(screen.getByLabelText('Operator checks')).toBeInTheDocument()
+    expect(screen.getByText('Scheduled manual triggers with duplicate-run guards.')).toBeInTheDocument()
+    expect(screen.getByText('Morning review')).toBeInTheDocument()
+    expect(screen.getByText('Hermes health')).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: /^Run$/ }).length).toBeGreaterThan(0)
+    expect(screen.getByRole('link', { name: /Full history/i })).toHaveAttribute('href', '/admin/agents/runs?kind=operator_checks')
+    expect(screen.queryByText('Recent operator runs')).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Agent Inbox pagination')).toBeInTheDocument()
+    const dailyBrief = screen.getByLabelText('Daily Operating Brief')
+    expect(dailyBrief).toBeInTheDocument()
+    expect(within(dailyBrief).getByText('Summary')).toBeInTheDocument()
+    expect(within(dailyBrief).getByText('Decision queue is visible and the Kanban lanes are ready for review.')).toBeInTheDocument()
+    expect(within(dailyBrief).queryByText('Recommended next actions')).not.toBeInTheDocument()
+    expect(within(dailyBrief).getByRole('link', { name: /Run Console/i })).toHaveAttribute('href', '/admin/agents/runs')
+    expect(screen.getByRole('link', { name: /Active runs/i })).toHaveAttribute('href', '/admin/agents/runs?active=true')
+    expect(screen.getByRole('link', { name: /Failed or stale runs/i })).toHaveAttribute('href', '/admin/agents/runs?status=needs_review')
+    expect(screen.getByRole('link', { name: /Pending approvals/i })).toHaveAttribute('href', '/admin/agents/coordination')
+    expect(screen.getByLabelText('Agent Ops system map')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Every signal has a durable home' })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Decision Queue Approval controller/i })).toHaveAttribute('href', '/admin/agents/coordination')
+    expect(screen.getByRole('link', { name: /Run Console Trace, evaluation, and dead-letter history/i })).toHaveAttribute('href', '/admin/agents/runs')
+    expect(screen.getByRole('link', { name: /Cost Intelligence/i })).toHaveAttribute('href', '/admin/cost-revenue')
+    expect(screen.getByRole('link', { name: /Quality Signals/i })).toHaveAttribute('href', '/admin/chat-eval')
+    expect(screen.getByText('Drilldowns & Controls')).toBeInTheDocument()
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith('/api/admin/agents/mission-control', expect.objectContaining({
@@ -252,10 +283,23 @@ describe('AgentOperationsPage mission control landing', () => {
     }))
   })
 
+  it('sends quick Shaka prompts through the existing chat endpoint', async () => {
+    render(<AgentOperationsPage />)
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Find blockers' }))
+
+    expect(await screen.findByText('Review approvals first, then clear the Kanban blockers.')).toBeInTheDocument()
+    expect(fetch).toHaveBeenCalledWith('/api/admin/agents/chief-of-staff/chat', expect.objectContaining({
+      method: 'POST',
+      body: JSON.stringify({ message: 'Find the most important blockers across Agent Ops and tell me where to handle each one.' }),
+    }))
+  })
+
   it('runs the top-bar standup through the war-room POST action', async () => {
     render(<AgentOperationsPage />)
 
-    fireEvent.click(await screen.findByRole('button', { name: /Run standup/i }))
+    const actionBar = await screen.findByLabelText('Mission Control actions')
+    fireEvent.click(within(actionBar).getByRole('button', { name: /Run standup/i }))
 
     expect(await screen.findByText('Standup complete.')).toBeInTheDocument()
     expect(screen.getByText('War Room Standup')).toBeInTheDocument()

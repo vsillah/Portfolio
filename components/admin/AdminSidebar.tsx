@@ -45,6 +45,10 @@ import {
   Inbox,
   UserCheck,
   Bot,
+  Brain,
+  ClipboardCheck,
+  Columns,
+  TerminalSquare,
 } from 'lucide-react'
 import { ADMIN_NAV, isNavItemActive, isContentExpanded, isChatEvalExpanded } from '@/lib/admin-nav'
 import { useState, useEffect } from 'react'
@@ -82,6 +86,11 @@ const NAV_ITEM_ICONS: Record<string, LucideIcon> = {
   '/admin/analytics': BarChart3,
   '/admin/cost-revenue': DollarSign,
   '/admin/agents': Bot,
+  '/admin/agents/coordination': ClipboardCheck,
+  '/admin/agents/swarm-board': Columns,
+  '/admin/agents/runs': TerminalSquare,
+  '/admin/agents/automations': RefreshCw,
+  '/admin/agents/open-brain': Brain,
   '/admin/client-experience': UserCheck,
   '/admin/testing': FlaskConical,
   '/admin/content': FolderOpen,

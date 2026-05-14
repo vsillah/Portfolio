@@ -322,6 +322,143 @@ html.dark .card-brand {
 }
 
 /* ========================================
+   Agent Ops Paper Polish
+   ======================================== */
+
+.agent-ops-page {
+  position: relative;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(212, 175, 55, 0.045), transparent 28rem),
+    linear-gradient(180deg, #121e31 0%, #0f1a2b 100%);
+}
+
+.agent-ops-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(234, 236, 238, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(234, 236, 238, 0.014) 1px, transparent 1px);
+  background-size: 42px 42px;
+  opacity: 0.45;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), transparent 72%);
+}
+
+.agent-ops-panel,
+.agent-ops-route-card,
+.agent-ops-metric,
+.agent-ops-card,
+.agent-ops-command-card,
+.agent-ops-drill-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.agent-ops-panel {
+  border-color: rgba(212, 175, 55, 0.2);
+  background: rgba(18, 30, 49, 0.78);
+  box-shadow:
+    0 18px 46px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(234, 236, 238, 0.055);
+}
+
+.agent-ops-panel::before,
+.agent-ops-command-card::before,
+.agent-ops-route-card::before,
+.agent-ops-drill-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(212, 175, 55, 0.055), transparent 14rem),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.035), transparent 46%);
+  opacity: 0.55;
+}
+
+.agent-ops-panel > *,
+.agent-ops-route-card > *,
+.agent-ops-metric > *,
+.agent-ops-card > *,
+.agent-ops-command-card > *,
+.agent-ops-drill-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.agent-ops-route-card,
+.agent-ops-card,
+.agent-ops-drill-card {
+  border-color: rgba(212, 175, 55, 0.16);
+  background: rgba(18, 30, 49, 0.72);
+  box-shadow:
+    inset 0 1px 0 rgba(234, 236, 238, 0.045),
+    0 12px 28px rgba(0, 0, 0, 0.16);
+}
+
+.agent-ops-route-card-active,
+.agent-ops-command-card {
+  border-color: rgba(212, 175, 55, 0.58);
+  background:
+    radial-gradient(circle at 18% 0%, rgba(212, 175, 55, 0.08), transparent 13rem),
+    rgba(18, 30, 49, 0.9);
+  box-shadow:
+    0 0 0 1px rgba(212, 175, 55, 0.09),
+    0 0 28px rgba(212, 175, 55, 0.1),
+    0 16px 42px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(245, 208, 96, 0.14);
+}
+
+.agent-ops-route-card-decision {
+  background: rgba(44, 62, 80, 0.58);
+  border-color: rgba(212, 175, 55, 0.42);
+}
+
+.agent-ops-route-card-kanban,
+.agent-ops-metric-blue {
+  background: rgba(20, 42, 63, 0.72);
+}
+
+.agent-ops-route-card-console,
+.agent-ops-metric-neutral {
+  background: rgba(18, 30, 49, 0.72);
+}
+
+.agent-ops-route-card-health,
+.agent-ops-metric-green {
+  background: rgba(22, 50, 48, 0.58);
+}
+
+.agent-ops-metric-yellow {
+  border-color: rgba(212, 175, 55, 0.5);
+  background: rgba(44, 62, 80, 0.62);
+  box-shadow: 0 0 22px rgba(212, 175, 55, 0.08);
+}
+
+.agent-ops-metric-red {
+  background: rgba(63, 36, 48, 0.58);
+}
+
+.agent-ops-metric {
+  border-color: rgba(212, 175, 55, 0.18);
+  box-shadow:
+    inset 0 1px 0 rgba(234, 236, 238, 0.05),
+    0 12px 30px rgba(0, 0, 0, 0.16);
+}
+
+.agent-ops-route-card:hover,
+.agent-ops-drill-card:hover,
+.agent-ops-card:hover,
+.agent-ops-metric:hover {
+  border-color: rgba(245, 208, 96, 0.58);
+  box-shadow:
+    0 0 0 1px rgba(212, 175, 55, 0.1),
+    0 0 34px rgba(212, 175, 55, 0.12),
+    0 18px 48px rgba(0, 0, 0, 0.24);
+}
+
+/* ========================================
    Circuit Mesh Animation Classes
    ======================================== */
 
@@ -638,4 +775,3 @@ html.dark .pac-icon {
 html.dark .pac-logo::after {
   filter: invert(1) opacity(0.5);
 }
-

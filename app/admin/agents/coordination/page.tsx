@@ -318,7 +318,7 @@ function AgentCoordinationContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-6 lg:p-8">
+    <div className="agent-ops-page min-h-screen text-foreground p-6 lg:p-8">
       <div className="mx-auto max-w-7xl">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
@@ -334,7 +334,7 @@ function AgentCoordinationContent() {
             </div>
             <h1 className="text-3xl font-bold">Decision Queue Controller</h1>
             <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-              Executive queue for action-required work, approval decisions, controller recommendations, risk posture, ownership, status, and trace links across Codex, n8n, Hermes, OpenCode, and manual operators.
+              Approval controller for one decision at a time: executive summary, action required, recommendation, risk, owner, trace, and fixed approve/reject/Ask Shaka controls.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -355,6 +355,14 @@ function AgentCoordinationContent() {
             </button>
           </div>
         </div>
+
+        <section className="agent-ops-command-card mb-6 rounded-xl border p-4">
+          <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Approval controller</p>
+          <h2 className="mt-2 text-2xl font-bold">Start with the decision, then inspect the trace.</h2>
+          <p className="mt-2 max-w-4xl text-sm leading-6 text-muted-foreground">
+            Mission Control routes here when a human decision is required. This page keeps approval cards and work-item decisions above secondary queue tools.
+          </p>
+        </section>
 
         <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
           <Metric label="Action required" value={summary.active} />
@@ -387,11 +395,11 @@ function AgentCoordinationContent() {
           />
         ) : null}
 
-        <section className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
+        <section className="agent-ops-card mb-6 rounded-lg border p-4">
           <div className="mb-4 flex flex-col gap-3">
             <div>
-              <h2 className="text-base font-semibold">Queue filters</h2>
-              <p className="mt-1 text-sm text-muted-foreground">Filter controller decisions by status without changing the route or work-item APIs.</p>
+              <h2 className="text-base font-semibold">Secondary queue tools</h2>
+              <p className="mt-1 text-sm text-muted-foreground">Filter or create controller work items after reviewing action-required cards above.</p>
             </div>
             <div className="flex flex-wrap gap-2" aria-label="Status filters">
             {STATUSES.map((item) => (
@@ -634,9 +642,9 @@ function VercelResearchApprovalPanel({
           No Vercel AutoResearch proposal is waiting for approval.
         </p>
       ) : (
-        <div className="grid gap-3 lg:grid-cols-2">
+        <div className="grid gap-4">
           {approvals.map((card) => (
-            <article key={card.approvalId} className="rounded-lg border border-yellow-500/25 bg-background/50 p-4">
+            <article key={card.approvalId} className="rounded-lg border border-yellow-500/25 bg-background/55 p-5">
               <div className="mb-2 flex flex-wrap items-center gap-2">
                 <span className="rounded-full border border-yellow-500/30 bg-yellow-500/10 px-2 py-1 text-xs text-yellow-100">
                   {card.proposal.riskLevel} risk
@@ -650,22 +658,20 @@ function VercelResearchApprovalPanel({
                   </span>
                 ) : null}
               </div>
-              <h3 className="font-semibold">{card.proposal.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">
-                <span className="font-medium text-yellow-100">Action required: </span>
-                {card.proposal.approvalQuestion}
-              </p>
-              <p className="mt-2 text-sm text-muted-foreground">
-                <span className="font-medium text-foreground">Recommendation: </span>
-                {card.proposal.hypothesis}
-              </p>
+              <h3 className="text-xl font-semibold">{card.proposal.title}</h3>
+              <div className="mt-4 grid gap-3 lg:grid-cols-2">
+                <DecisionSummaryBlock label="Action required" value={card.proposal.approvalQuestion} tone="yellow" />
+                <DecisionSummaryBlock label="Controller recommendation" value={card.proposal.hypothesis} />
+                <DecisionSummaryBlock label="Benefits" value={card.proposal.expectedImpact} />
+                <DecisionSummaryBlock label="Rollback path" value={card.proposal.rollbackPath} />
+              </div>
               <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
                 <SmallField label="Work item" value={card.workItem?.title ?? card.workItemId} />
                 <SmallField label="Status" value={card.workItem?.status ?? card.status} />
                 <SmallField label="Requested" value={new Date(card.requestedAt).toLocaleString()} />
                 <SmallField label="Trace" value={card.runId} />
               </div>
-              <div className="mt-4 flex flex-wrap gap-2">
+              <div className="mt-4 flex flex-wrap gap-2 border-t border-silicon-slate/60 pt-4">
                 <button
                   onClick={() => onDecision(card, 'approved')}
                   disabled={Boolean(actionId)}
@@ -703,6 +709,15 @@ function VercelResearchApprovalPanel({
         </div>
       )}
     </section>
+  )
+}
+
+function DecisionSummaryBlock({ label, value, tone = 'default' }: { label: string; value: string; tone?: 'default' | 'yellow' }) {
+  return (
+    <div className={`rounded-lg border p-3 ${tone === 'yellow' ? 'border-yellow-500/30 bg-yellow-500/10' : 'border-silicon-slate/60 bg-black/10'}`}>
+      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className="mt-2 text-sm leading-6 text-foreground/90">{value}</p>
+    </div>
   )
 }
 

@@ -9,6 +9,8 @@ import {
   ArrowRight,
   Bot,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   Columns,
   CircleDollarSign,
   ClipboardList,
@@ -16,6 +18,7 @@ import {
   Gauge,
   MessageSquare,
   Network,
+  Play,
   Radio,
   RefreshCw,
   Send,
@@ -262,6 +265,18 @@ type ChiefReply = {
   }>
 }
 
+type OperatorRun = {
+  id: string
+  kind: string
+  title: string
+  runtime: string
+  status: string
+  current_step: string | null
+  started_at: string
+  completed_at: string | null
+  stale: boolean
+}
+
 type MoremiMonitorReview = {
   has_monitor: boolean
   run: {
@@ -285,6 +300,55 @@ type MoremiMonitorReview = {
   }>
 }
 
+type OperatorActionKind = 'morning-review' | 'hermes' | 'approval-drill' | 'runtime-evaluation'
+
+const OPERATOR_ACTIONS: Array<{
+  kind: OperatorActionKind
+  label: string
+  purpose: string
+  runKind: string
+  windowLabel: string
+  isAvailable: (now: Date) => boolean
+  windowKey: (now: Date) => string
+}> = [
+  {
+    kind: 'morning-review',
+    label: 'Morning review',
+    purpose: 'Polls current Agent Ops health, stale runs, approvals, and operating signals.',
+    runKind: 'agent_ops_morning_review',
+    windowLabel: 'Weekdays, 6-11 AM',
+    isAvailable: (now) => isWeekday(now) && now.getHours() >= 6 && now.getHours() < 11,
+    windowKey: (now) => `${localDateKey(now)}:morning`,
+  },
+  {
+    kind: 'hermes',
+    label: 'Hermes health',
+    purpose: 'Checks Hermes runtime health and records the result as an agent trace.',
+    runKind: 'system_health_summary',
+    windowLabel: 'Every 4 hours',
+    isAvailable: () => true,
+    windowKey: (now) => `${localDateKey(now)}:${Math.floor(now.getHours() / 4)}`,
+  },
+  {
+    kind: 'approval-drill',
+    label: 'Approval drill',
+    purpose: 'Creates a synthetic approval-path check without production mutation.',
+    runKind: 'approval_gate_drill',
+    windowLabel: 'Weekdays, 9 AM-5 PM',
+    isAvailable: (now) => isWeekday(now) && now.getHours() >= 9 && now.getHours() < 17,
+    windowKey: (now) => `${localDateKey(now)}:business-day`,
+  },
+  {
+    kind: 'runtime-evaluation',
+    label: 'Runtime probe',
+    purpose: 'Runs a read-only OpenCode/runtime probe for execution-path readiness.',
+    runKind: 'runtime_evaluation',
+    windowLabel: 'Weekdays, 9 AM-6 PM',
+    isAvailable: (now) => isWeekday(now) && now.getHours() >= 9 && now.getHours() < 18,
+    windowKey: (now) => `${localDateKey(now)}:${Math.floor(now.getHours() / 6)}`,
+  },
+]
+
 export default function AgentOperationsPage() {
   const [snapshot, setSnapshot] = useState<MissionSnapshot | null>(null)
   const [moremiReview, setMoremiReview] = useState<MoremiMonitorReview | null>(null)
@@ -297,11 +361,13 @@ export default function AgentOperationsPage() {
   const [warRoomLoading, setWarRoomLoading] = useState<'standup' | 'discuss' | null>(null)
   const [warRoomResult, setWarRoomResult] = useState<WarRoomResult | null>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
-  const [actionResult, setActionResult] = useState<{ label: string; runId: string } | null>(null)
+  const [actionResult, setActionResult] = useState<{ label: string; runId: string; kind?: OperatorActionKind } | null>(null)
   const [inboxRoutingId, setInboxRoutingId] = useState<string | null>(null)
   const [engagementLoadingKey, setEngagementLoadingKey] = useState<string | null>(null)
-  const [recoveryLoadingRunId, setRecoveryLoadingRunId] = useState<string | null>(null)
   const [moremiReviewConfirm, setMoremiReviewConfirm] = useState(false)
+  const [activeWorkPage, setActiveWorkPage] = useState(0)
+  const [inboxPage, setInboxPage] = useState(0)
+  const [operatorRuns, setOperatorRuns] = useState<OperatorRun[]>([])
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -345,19 +411,30 @@ export default function AgentOperationsPage() {
     }
   }, [authedFetch])
 
+  const loadOperatorRuns = useCallback(async () => {
+    try {
+      const response = await authedFetch('/api/admin/agents/runs?kind=operator_checks&limit=75')
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      setOperatorRuns(body.runs || [])
+    } catch {
+      setOperatorRuns([])
+    }
+  }, [authedFetch])
+
   useEffect(() => {
     loadMissionControl()
     loadMoremiReview()
-  }, [loadMissionControl, loadMoremiReview])
+    loadOperatorRuns()
+  }, [loadMissionControl, loadMoremiReview, loadOperatorRuns])
 
   async function refreshMissionControl() {
-    await Promise.all([loadMissionControl(), loadMoremiReview()])
+    await Promise.all([loadMissionControl(), loadMoremiReview(), loadOperatorRuns()])
   }
 
-  async function submitChiefOfStaff(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    const message = command.trim()
-    if (!message) return
+  async function askChiefOfStaff(message: string) {
+    const trimmedMessage = message.trim()
+    if (!trimmedMessage) return
 
     setChiefLoading(true)
     setChiefReply(null)
@@ -365,7 +442,7 @@ export default function AgentOperationsPage() {
     try {
       const response = await authedFetch('/api/admin/agents/chief-of-staff/chat', {
         method: 'POST',
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message: trimmedMessage }),
       })
       const body = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
@@ -377,6 +454,13 @@ export default function AgentOperationsPage() {
     } finally {
       setChiefLoading(false)
     }
+  }
+
+  async function submitChiefOfStaff(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const message = command.trim()
+    if (!message) return
+    await askChiefOfStaff(message)
   }
 
   async function runWarRoom(commandName: 'standup' | 'discuss') {
@@ -406,7 +490,7 @@ export default function AgentOperationsPage() {
     }
   }
 
-  async function runOperatorAction(kind: 'morning-review' | 'hermes' | 'approval-drill' | 'runtime-evaluation') {
+  async function runOperatorAction(kind: OperatorActionKind) {
     const paths = {
       'morning-review': '/api/admin/agents/morning-review',
       hermes: '/api/admin/agents/hermes/system-health',
@@ -430,8 +514,8 @@ export default function AgentOperationsPage() {
       })
       const body = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
-      setActionResult({ label: kind.replace(/-/g, ' '), runId: body.run_id })
-      await loadMissionControl()
+      setActionResult({ label: OPERATOR_ACTIONS.find((action) => action.kind === kind)?.label ?? kind.replace(/-/g, ' '), runId: body.run_id, kind })
+      await Promise.all([loadMissionControl(), loadOperatorRuns()])
     } catch (err) {
       setError(err instanceof Error ? err.message : `${kind} failed`)
     } finally {
@@ -482,28 +566,6 @@ export default function AgentOperationsPage() {
     }
   }
 
-  async function requestRunRecovery(item: MissionSnapshot['dead_letter_queue'][number]) {
-    setRecoveryLoadingRunId(item.run_id)
-    setActionResult(null)
-    setError(null)
-    try {
-      const response = await authedFetch(`/api/admin/agents/runs/${item.run_id}/retry`, {
-        method: 'POST',
-        body: JSON.stringify({
-          note: `Mission Control recovery request for ${item.status} ${item.runtime} run.`,
-        }),
-      })
-      const body = await response.json().catch(() => ({}))
-      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
-      setActionResult({ label: `recovery for ${item.agent_name}`, runId: body.run_id })
-      await loadMissionControl()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to request recovery')
-    } finally {
-      setRecoveryLoadingRunId(null)
-    }
-  }
-
   async function createMoremiWarningWorkItems() {
     if (!moremiReviewConfirm) {
       setMoremiReviewConfirm(true)
@@ -534,62 +596,146 @@ export default function AgentOperationsPage() {
     }
   }
 
-  const topAgents = useMemo(
-    () => snapshot?.roster.flatMap((pod) => pod.agents).filter((agent) => agent.status !== 'planned').slice(0, 10) ?? [],
-    [snapshot],
-  )
   const rosterCount = snapshot?.roster.flatMap((pod) => pod.agents).filter((agent) => agent.status !== 'planned').length ?? 0
   const decisionQueueCount = snapshot?.status_strip.pending_approvals ?? snapshot?.status_strip.waiting_for_approval ?? 0
   const kanbanSignalCount = (snapshot?.status_strip.running ?? 0) + (snapshot?.status_strip.queued ?? 0)
   const healthLabel = (snapshot?.status_strip.failed ?? 0) || (snapshot?.status_strip.stale ?? 0) ? 'Needs review' : 'Read-only healthy'
+  const failedOrStaleCount = (snapshot?.status_strip.failed ?? 0) + (snapshot?.status_strip.stale ?? 0)
+  const deadLetterCount = snapshot?.dead_letter_queue.length ?? 0
+  const engagementCount = snapshot?.engagement_queue.length ?? 0
+  const operatingSignalCount = snapshot?.operating_signals.length ?? 0
+  const moremiWarningCount = moremiReview?.warning_count ?? 0
+  const qualityScore = snapshot?.quality_summary.average_score === null || snapshot?.quality_summary.average_score === undefined
+    ? 'No score'
+    : snapshot.quality_summary.average_score.toFixed(1)
+  const qualityDetail = snapshot?.quality_summary.evaluation_count
+    ? `${snapshot.quality_summary.evaluation_count} evaluation(s)`
+    : 'Chat Eval home'
+  const ragStatus = snapshot?.knowledge_governance
+    ? snapshot.knowledge_governance.validation.ok ? 'Ready' : 'Blocked'
+    : 'Open Brain'
+  const activeWorkRows = [
+    ...(snapshot?.active_runs ?? []).map((run) => ({
+      key: `run:${run.id}`,
+      label: run.status.replace(/_/g, ' '),
+      title: run.title,
+      detail: run.current_step ?? run.kind,
+      href: `/admin/agents/runs/${run.id}`,
+      action: 'Open run',
+    })),
+    ...(snapshot?.agent_inbox ?? []).map((item) => ({
+      key: `inbox:${item.id}`,
+      label: item.priority,
+      title: item.title,
+      detail: item.reason,
+      href: item.href,
+      action: item.action_label,
+    })),
+  ]
+  const activeWorkPageCount = Math.max(1, Math.ceil(activeWorkRows.length / 3))
+  const visibleActiveWorkRows = activeWorkRows.slice(activeWorkPage * 3, activeWorkPage * 3 + 3)
+  const inboxItems = snapshot?.agent_inbox ?? []
+  const inboxPageCount = Math.max(1, Math.ceil(inboxItems.length / 3))
+  const visibleInboxItems = inboxItems.slice(inboxPage * 3, inboxPage * 3 + 3)
+  const primaryWorkHomes = [
+    {
+      eyebrow: 'Decision Queue',
+      title: 'Approval controller',
+      body: 'Action required, recommendation, risk, owner, and approve/reject controls.',
+      href: '/admin/agents/coordination',
+      metric: `${decisionQueueCount} waiting`,
+      icon: <ShieldCheck size={18} />,
+      tone: decisionQueueCount ? 'yellow' : 'green',
+    },
+    {
+      eyebrow: 'Agent Kanban',
+      title: 'Work by state, owner, and blocker',
+      body: 'Standup follow-up, roster, blockers, PRs, traces, validation, and handoffs.',
+      href: '/admin/agents/swarm-board',
+      metric: `${kanbanSignalCount} moving`,
+      icon: <Columns size={18} />,
+      tone: 'blue',
+    },
+    {
+      eyebrow: 'Run Console',
+      title: 'Trace, evaluation, and dead-letter history',
+      body: 'Failed, stale, running, evaluated, and routed traces with artifacts.',
+      href: '/admin/agents/runs',
+      metric: `${failedOrStaleCount} review`,
+      icon: <Activity size={18} />,
+      tone: failedOrStaleCount ? 'red' : 'neutral',
+    },
+    {
+      eyebrow: 'Automation Context',
+      title: 'Recurring jobs and scheduled operators',
+      body: 'Morning review, Hermes health, approval drills, and runtime probes.',
+      href: '/admin/agents/automations',
+      metric: 'Scheduled',
+      icon: <Clock3 size={18} />,
+      tone: 'neutral',
+    },
+    {
+      eyebrow: 'Open Brain',
+      title: 'Memory and RAG governance',
+      body: 'Knowledge proposals, RAG health, source governance, and approval gates.',
+      href: '/admin/agents/open-brain',
+      metric: ragStatus,
+      icon: <Network size={18} />,
+      tone: ragStatus === 'Blocked' ? 'red' : 'green',
+    },
+  ] as const
+  const operationalSignalHomes = [
+    {
+      title: 'Cost Intelligence',
+      detail: `$${(snapshot?.status_strip.cost_today ?? 0).toFixed(4)} today`,
+      href: '/admin/cost-revenue',
+      icon: <CircleDollarSign size={16} />,
+    },
+    {
+      title: 'Quality Signals',
+      detail: `${qualityScore} · ${qualityDetail}`,
+      href: '/admin/chat-eval',
+      icon: <Gauge size={16} />,
+    },
+    {
+      title: 'Deployment Watcher',
+      detail: operatingSignalCount ? `${operatingSignalCount} signal(s)` : 'Trace home',
+      href: '/admin/agents/runs',
+      icon: <Radio size={16} />,
+    },
+    {
+      title: 'Moremi Warning Review',
+      detail: moremiWarningCount ? `${moremiWarningCount} warning(s)` : 'Read-only monitor',
+      href: moremiReview?.run?.href ?? '/admin/agents/coordination',
+      icon: moremiWarningCount ? <AlertTriangle size={16} /> : <ShieldCheck size={16} />,
+    },
+    {
+      title: 'Engagement Work Queue',
+      detail: engagementCount ? `${engagementCount} request(s)` : 'Kanban and traces',
+      href: engagementCount ? '/admin/agents/runs' : '/admin/agents/swarm-board',
+      icon: <ClipboardList size={16} />,
+    },
+    {
+      title: 'Dead-Letter Monitor',
+      detail: deadLetterCount ? `${deadLetterCount} failed or stale` : 'No dead letters',
+      href: '/admin/agents/runs',
+      icon: deadLetterCount ? <AlertTriangle size={16} /> : <CheckCircle2 size={16} />,
+    },
+  ] as const
+
+  useEffect(() => {
+    setActiveWorkPage((page) => Math.min(page, Math.max(activeWorkPageCount - 1, 0)))
+  }, [activeWorkPageCount])
+
+  useEffect(() => {
+    setInboxPage((page) => Math.min(page, Math.max(inboxPageCount - 1, 0)))
+  }, [inboxPageCount])
 
   return (
     <ProtectedRoute requireAdmin>
-      <div className="min-h-screen bg-background p-5 text-foreground lg:p-7">
+      <div className="agent-ops-page min-h-screen p-5 text-foreground lg:p-7">
         <div className="max-w-7xl mx-auto">
           <Breadcrumbs items={[{ label: 'Admin Dashboard', href: '/admin' }, { label: 'Agent Operations' }]} />
-
-          <div className="flex flex-col gap-4 rounded-xl border border-silicon-slate/70 bg-silicon-slate/15 p-5 shadow-2xl shadow-black/30 lg:flex-row lg:items-start lg:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Mission Control Landing</p>
-              <h1 className="mt-1 text-3xl font-bold">Agent Ops Mission Control</h1>
-              <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-                Command the agent operating layer from one landing page: decisions, Kanban work, roster health, read-only status, standups, and Shaka guidance.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2" aria-label="Mission Control actions">
-              <button
-                type="button"
-                onClick={refreshMissionControl}
-                disabled={loading || moremiReviewLoading}
-                className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60 disabled:opacity-60"
-              >
-                <RefreshCw size={16} className={loading || moremiReviewLoading ? 'animate-spin' : ''} />
-                Refresh
-              </button>
-              <Link href="/admin/agents/swarm-board" className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15">
-                <Columns size={16} />
-                Open Kanban
-              </Link>
-              <Link href="/admin/agents/coordination" className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60">
-                <ShieldCheck size={16} />
-                Open controller
-              </Link>
-              <Link href="/admin/agents/runs" className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60">
-                <Activity size={16} />
-                Run Console
-              </Link>
-              <button
-                type="button"
-                onClick={() => runWarRoom('standup')}
-                disabled={warRoomLoading !== null}
-                className="inline-flex items-center gap-2 rounded-lg border border-emerald-400/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-100 hover:bg-emerald-500/15 disabled:opacity-60"
-              >
-                {warRoomLoading === 'standup' ? <RefreshCw size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                Run standup
-              </button>
-            </div>
-          </div>
 
           {error ? (
             <div className="mt-4 rounded-lg border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
@@ -597,239 +743,318 @@ export default function AgentOperationsPage() {
             </div>
           ) : null}
 
-          <section className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4" aria-label="Mission Control status blocks">
-            <MissionStatusCard
-              as="link"
-              href="/admin/agents/coordination"
-              icon={<ShieldCheck size={18} />}
-              label="Decision Queue"
-              value={decisionQueueCount}
-              detail="Approval-gated coordination"
-              status={decisionQueueCount ? 'Needs decision' : 'Clear'}
-              tone={decisionQueueCount ? 'yellow' : 'green'}
-            />
-            <MissionStatusCard
-              as="link"
-              href="/admin/agents/swarm-board"
-              icon={<Columns size={18} />}
-              label="Kanban"
-              value={kanbanSignalCount}
-              detail="Queued and running lanes"
-              status="Open board"
-              tone="blue"
-            />
-            <MissionStatusCard
-              icon={<Users size={18} />}
-              label="Agents roster"
-              value={rosterCount}
-              detail={`${snapshot?.roster.length ?? 0} operating pod(s)`}
-              status="Status only"
-              tone="neutral"
-            />
-            <MissionStatusCard
-              icon={<Radio size={18} />}
-              label="Health / read-only"
-              value={healthLabel}
-              detail={`${snapshot?.status_strip.failed ?? 0} failed, ${snapshot?.status_strip.stale ?? 0} stale`}
-              status="No mutation"
-              tone={healthLabel === 'Read-only healthy' ? 'green' : 'red'}
-            />
-          </section>
-
-          <section className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[1.2fr_0.8fr]">
-            <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/25 p-4">
-              <div className="flex items-center gap-2 text-radiant-gold">
-                <MessageSquare size={18} />
-                <h2 className="font-semibold">Ask Shaka</h2>
+          <section className="agent-ops-panel mt-5 rounded-xl border">
+            <div className="flex flex-col gap-4 border-b border-silicon-slate/60 p-5 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Agent Operations</p>
+                <h2 className="mt-1 text-2xl font-bold">Mission Control</h2>
               </div>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Inline Chief of Staff guidance uses the existing chat endpoint. Recommendations stay read-only until routed through the approval gates below.
-              </p>
-              <form onSubmit={submitChiefOfStaff} className="mt-3 flex flex-col gap-3 md:flex-row">
-                <input
-                  value={command}
-                  onChange={(event) => setCommand(event.target.value)}
-                  aria-label="Ask Shaka"
-                  placeholder="Ask Shaka what needs attention, or type a topic for discussion..."
-                  className="min-h-[44px] flex-1 rounded-lg border border-silicon-slate/70 bg-background/70 px-3 text-sm outline-none focus:border-radiant-gold/70"
-                />
-                <div className="flex gap-2">
-                  <button
-                    type="submit"
-                    disabled={chiefLoading || !command.trim()}
-                    className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
-                  >
-                    <Send size={16} />
-                    Ask
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => runWarRoom('discuss')}
-                    disabled={warRoomLoading !== null || !command.trim()}
-                    className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60 disabled:opacity-60"
-                  >
-                    <Users size={16} />
-                    Discuss
-                  </button>
-                </div>
-              </form>
-
-              {chiefReply ? (
-                <>
-                  <ResultPanel
-                    title="Shaka"
-                    href={`/admin/agents/runs/${chiefReply.run_id}`}
-                    body={chiefReply.reply}
-                    items={chiefReply.suggested_actions}
-                  />
-                  <AgentEngagementRecommendations
-                    recommendations={chiefReply.agent_engagements}
-                    loadingKey={engagementLoadingKey}
-                    onLaunch={(agent) => launchAgentEngagement(agent.agentKey, agent.agentName, agent.rationale)}
-                  />
-                </>
-              ) : null}
-
-              {warRoomResult ? (
-                <ResultPanel
-                  title={warRoomResult.command === 'standup' ? 'War Room Standup' : 'War Room Discussion'}
-                  href={`/admin/agents/runs/${warRoomResult.run_id}`}
-                  body={warRoomResult.synthesis}
-                  items={warRoomResult.updates.map((update) => `${update.agent_name}: ${update.update}`)}
-                />
-              ) : null}
-            </div>
-
-            <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/25 p-4">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2 text-radiant-gold">
-                  <ClipboardList size={18} />
-                  <h2 className="font-semibold">Agent Inbox</h2>
-                </div>
-                <Link href="/admin/agents/runs" className="text-xs text-radiant-gold hover:underline">Open all</Link>
-              </div>
-              <div className="mt-3 space-y-2">
-                {snapshot?.agent_inbox.length ? snapshot.agent_inbox.slice(0, 5).map((item) => (
-                  <InboxRow
-                    key={item.id}
-                    item={item}
-                    routing={inboxRoutingId === item.id}
-                    onRoute={() => routeInboxItem(item)}
-                  />
-                )) : (
-                  <p className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm text-muted-foreground">
-                    No agent inbox items need attention.
-                  </p>
-                )}
-              </div>
-            </div>
-          </section>
-
-          <DailyBriefPanel brief={snapshot?.daily_brief ?? null} loading={loading} />
-
-          <section className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-7">
-            <MetricCard icon={<Radio size={16} />} label="Active" value={snapshot?.status_strip.active ?? 0} />
-            <MetricCard icon={<Clock3 size={16} />} label="Running" value={snapshot?.status_strip.running ?? 0} />
-            <MetricCard icon={<ShieldCheck size={16} />} label="Approvals" value={snapshot?.status_strip.pending_approvals ?? 0} />
-            <MetricCard icon={<AlertTriangle size={16} />} label="Failed" value={snapshot?.status_strip.failed ?? 0} tone="red" />
-            <MetricCard icon={<AlertTriangle size={16} />} label="Stale" value={snapshot?.status_strip.stale ?? 0} tone="yellow" />
-            <MetricCard icon={<CircleDollarSign size={16} />} label="Cost today" value={`$${(snapshot?.status_strip.cost_today ?? 0).toFixed(4)}`} />
-            <MetricCard icon={<Users size={16} />} label="Agents" value={rosterCount} />
-          </section>
-
-          <CostSummaryPanel summary={snapshot?.cost_summary ?? null} />
-          <QualitySignalsPanel summary={snapshot?.quality_summary ?? null} />
-          <OperatingSignalsPanel signals={snapshot?.operating_signals ?? []} />
-          <MoremiReviewPanel
-            review={moremiReview}
-            loading={moremiReviewLoading}
-            confirm={moremiReviewConfirm}
-            actionLoading={actionLoading === 'moremi-review'}
-            onCreate={createMoremiWarningWorkItems}
-            onCancel={() => setMoremiReviewConfirm(false)}
-          />
-          <KnowledgeGovernancePanel governance={snapshot?.knowledge_governance ?? null} />
-
-          <EngagementQueuePanel items={snapshot?.engagement_queue ?? []} />
-
-          <DeadLetterPanel
-            items={snapshot?.dead_letter_queue ?? []}
-            recoveryLoadingRunId={recoveryLoadingRunId}
-            onRecover={requestRunRecovery}
-          />
-
-          <section className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[1fr_0.8fr]">
-            <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
-              <div className="flex items-center gap-2 text-radiant-gold">
-                <Network size={18} />
-                <h2 className="font-semibold">Agent Roster</h2>
-              </div>
-              <div className="mt-3 grid grid-cols-1 gap-2 lg:grid-cols-2">
-                {topAgents.map((agent) => (
-                  <div key={agent.key} className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-medium">{agent.name}</p>
-                      <StatusPill status={agent.status} />
-                      <span className="rounded-full border border-silicon-slate/50 px-2 py-0.5 text-xs text-muted-foreground">
-                        {agent.runtime}
-                      </span>
-                    </div>
-                    <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{agent.responsibility}</p>
-                    <div className="mt-3 flex items-center justify-between gap-3 text-xs text-muted-foreground">
-                      <span>{agent.active_workflow_count} active workflow(s)</span>
-                      {agent.latest_run ? (
-                        <Link href={`/admin/agents/runs/${agent.latest_run.id}`} className="text-radiant-gold hover:underline">
-                          {agent.latest_run.status.replace(/_/g, ' ')}
-                        </Link>
-                      ) : (
-                        <span>No recent trace</span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
-              <div className="flex items-center gap-2 text-radiant-gold">
-                <Bot size={18} />
-                <h2 className="font-semibold">Drilldowns & Controls</h2>
-              </div>
-              <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-1">
-                <ControlLink href="/admin/agents/chief-of-staff" label="Chief of Staff Chat" />
-                <ControlLink href="/admin/agents/runs" label="Run Console" />
-                <ControlLink href="/admin/agents/swarm-board" label="Agent Kanban" />
-                <ControlLink href="/admin/agents/automations" label="Automation Context" />
-                <ActionButton label="Morning review" loading={actionLoading === 'morning-review'} onClick={() => runOperatorAction('morning-review')} />
-                <ActionButton label="Hermes health" loading={actionLoading === 'hermes'} onClick={() => runOperatorAction('hermes')} />
-                <ActionButton label="Approval drill" loading={actionLoading === 'approval-drill'} onClick={() => runOperatorAction('approval-drill')} />
-                <ActionButton label="OpenCode probe" loading={actionLoading === 'runtime-evaluation'} onClick={() => runOperatorAction('runtime-evaluation')} />
-              </div>
-              {actionResult ? (
-                <Link href={`/admin/agents/runs/${actionResult.runId}`} className="mt-3 block rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200 hover:underline">
-                  Open {actionResult.label} run
+              <div className="flex flex-wrap gap-2" aria-label="Mission Control actions">
+                <button
+                  type="button"
+                  onClick={refreshMissionControl}
+                  disabled={loading || moremiReviewLoading}
+                  className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60 disabled:opacity-60"
+                >
+                  <RefreshCw size={16} className={loading || moremiReviewLoading ? 'animate-spin' : ''} />
+                  Refresh
+                </button>
+                <Link href="/admin/agents/swarm-board" className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15">
+                  <Columns size={16} />
+                  Open Kanban
                 </Link>
-              ) : null}
+                <button
+                  type="button"
+                  onClick={() => runWarRoom('standup')}
+                  disabled={warRoomLoading !== null}
+                  className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/60 bg-radiant-gold px-3 py-2 text-sm font-semibold text-silicon-slate hover:bg-radiant-gold/90 disabled:opacity-60"
+                >
+                  {warRoomLoading === 'standup' ? <RefreshCw size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                  Run standup
+                </button>
+              </div>
+            </div>
+
+            <div className="grid gap-5 p-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+              <div>
+                <div className="grid gap-4">
+                  <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 2xl:grid-cols-4" aria-label="Mission Control status blocks">
+                    <MissionStatusCard
+                      as="link"
+                      href="/admin/agents/coordination"
+                      icon={<ShieldCheck size={18} />}
+                      label="Decision Queue"
+                      value={decisionQueueCount}
+                      detail="Open controller"
+                      status={decisionQueueCount ? 'Needs decision' : 'Clear'}
+                      tone={decisionQueueCount ? 'yellow' : 'green'}
+                    />
+                    <MissionStatusCard
+                      as="link"
+                      href="/admin/agents/swarm-board"
+                      icon={<Columns size={18} />}
+                      label="Kanban"
+                      value={kanbanSignalCount}
+                      detail="Work items"
+                      status="Open board"
+                      tone="blue"
+                    />
+                    <MissionStatusCard
+                      as="link"
+                      href="/admin/agents/swarm-board"
+                      icon={<Users size={18} />}
+                      label="Agents"
+                      value={rosterCount}
+                      detail="Roster"
+                      status="Board home"
+                      tone="neutral"
+                    />
+                    <MissionStatusCard
+                      as="link"
+                      href="/admin/agents/runs"
+                      icon={<Radio size={18} />}
+                      label="Health"
+                      value={healthLabel}
+                      detail={`${snapshot?.status_strip.failed ?? 0} failed, ${snapshot?.status_strip.stale ?? 0} stale`}
+                      status="Trace home"
+                      tone={healthLabel === 'Read-only healthy' ? 'green' : 'red'}
+                    />
+                  </div>
+                </div>
+
+                <DailyBriefPanel
+                  brief={snapshot?.daily_brief ?? null}
+                  loading={loading}
+                  activeRuns={snapshot?.status_strip.active ?? 0}
+                  failedOrStaleRuns={failedOrStaleCount}
+                  pendingApprovals={decisionQueueCount}
+                  costToday={snapshot?.status_strip.cost_today ?? 0}
+                />
+
+                <div className="agent-ops-command-card mt-5 rounded-lg border p-4">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Ask Shaka</p>
+                      <h3 className="mt-2 text-xl font-semibold">What should I pay attention to before approving this queue?</h3>
+                    </div>
+                    <span className="text-xs text-muted-foreground">Chief of Staff · inline</span>
+                  </div>
+                  <form onSubmit={submitChiefOfStaff} className="mt-3 flex flex-col gap-3 md:flex-row">
+                    <input
+                      value={command}
+                      onChange={(event) => setCommand(event.target.value)}
+                      aria-label="Ask Shaka"
+                      placeholder="Ask about blockers, owners, risk, next action, or summarize active agents..."
+                      className="min-h-[48px] flex-1 rounded-lg border border-silicon-slate/70 bg-background/70 px-3 text-sm outline-none focus:border-radiant-gold/70"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        type="submit"
+                        disabled={chiefLoading || !command.trim()}
+                        className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/60 bg-radiant-gold px-4 py-2 text-sm font-semibold text-silicon-slate hover:bg-radiant-gold/90 disabled:opacity-60"
+                      >
+                        <Send size={16} />
+                        Ask
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => runWarRoom('discuss')}
+                        disabled={warRoomLoading !== null || !command.trim()}
+                        className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60 disabled:opacity-60"
+                      >
+                        <Users size={16} />
+                        Discuss
+                      </button>
+                    </div>
+                  </form>
+                  <div className="mt-3 flex flex-wrap gap-2" aria-label="Ask Shaka quick prompts">
+                    <QuickPrompt label="Summarize today" disabled={chiefLoading} onClick={() => askChiefOfStaff('Summarize today. What needs attention, what can wait, and what should I do next?')} />
+                    <QuickPrompt label="Find blockers" disabled={chiefLoading} onClick={() => askChiefOfStaff('Find the most important blockers across Agent Ops and tell me where to handle each one.')} />
+                    <QuickPrompt label="Who owns this?" disabled={chiefLoading} onClick={() => askChiefOfStaff('Who owns the current Agent Ops work, and which L2 or L3 surface should I use for follow-up?')} />
+                  </div>
+
+                  {chiefReply ? (
+                    <>
+                      <ResultPanel
+                        title="Shaka"
+                        href={`/admin/agents/runs/${chiefReply.run_id}`}
+                        body={chiefReply.reply}
+                        items={chiefReply.suggested_actions}
+                      />
+                      <AgentEngagementRecommendations
+                        recommendations={chiefReply.agent_engagements}
+                        loadingKey={engagementLoadingKey}
+                        onLaunch={(agent) => launchAgentEngagement(agent.agentKey, agent.agentName, agent.rationale)}
+                      />
+                    </>
+                  ) : null}
+
+                  {warRoomResult ? (
+                    <ResultPanel
+                      title={warRoomResult.command === 'standup' ? 'War Room Standup' : 'War Room Discussion'}
+                      href={`/admin/agents/runs/${warRoomResult.run_id}`}
+                      body={warRoomResult.synthesis}
+                      items={warRoomResult.updates.map((update) => `${update.agent_name}: ${update.update}`)}
+                    />
+                  ) : null}
+                </div>
+
+                <div className="mt-5">
+                  <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Active work</p>
+                      <p className="mt-1 text-xs text-muted-foreground">Showing up to three items. Use the arrows for more.</p>
+                    </div>
+                    <PagerControls
+                      label="Active work"
+                      page={activeWorkPage}
+                      pageCount={activeWorkPageCount}
+                      itemCount={activeWorkRows.length}
+                      onPrevious={() => setActiveWorkPage((page) => Math.max(page - 1, 0))}
+                      onNext={() => setActiveWorkPage((page) => Math.min(page + 1, activeWorkPageCount - 1))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    {visibleActiveWorkRows.length ? visibleActiveWorkRows.map((row) => (
+                      <Link key={row.key} href={row.href} className="flex flex-col gap-2 rounded-lg border border-silicon-slate/60 bg-background/40 px-3 py-3 hover:border-radiant-gold/50 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-3">
+                            <span className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">{row.label}</span>
+                            <p className="truncate text-sm font-medium">{row.title}</p>
+                          </div>
+                          <p className="mt-1 line-clamp-1 text-sm text-muted-foreground">{row.detail}</p>
+                        </div>
+                        <span className="shrink-0 text-sm font-medium text-radiant-gold">{row.action}</span>
+                      </Link>
+                    )) : (
+                      <div className="rounded-lg border border-silicon-slate/60 bg-background/40 px-3 py-4 text-sm text-muted-foreground">
+                        No active work needs attention. Use Decision Queue or Kanban when new work appears.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <aside className="space-y-4">
+                <div className="agent-ops-card rounded-lg border p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Agent interaction</p>
+                  <div className="mt-3 grid gap-3">
+                    <Link href="/admin/agents/chief-of-staff" className="block rounded-lg border border-silicon-slate/60 bg-background/40 p-3 hover:border-radiant-gold/50">
+                      <p className="font-semibold">Open Shaka chat</p>
+                      <p className="mt-1 text-sm text-muted-foreground">Use the full chat surface when the question becomes a longer thread.</p>
+                    </Link>
+                    <Link href="/admin/agents/swarm-board" className="block rounded-lg border border-radiant-gold/45 bg-radiant-gold/10 p-3 shadow-gold-glow-sm hover:bg-radiant-gold/15">
+                      <p className="font-semibold">Open Agent Kanban</p>
+                      <p className="mt-1 text-sm text-muted-foreground">Review work lanes, roster, blockers, traces, validation, and PRs.</p>
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => runWarRoom('standup')}
+                      disabled={warRoomLoading !== null}
+                      className="rounded-lg border border-radiant-gold/60 bg-radiant-gold p-3 text-left text-silicon-slate hover:bg-radiant-gold/90 disabled:opacity-60"
+                    >
+                      <p className="font-semibold">Run standup</p>
+                      <p className="mt-1 text-sm">Generate brief and update queue context.</p>
+                    </button>
+                    <Link href="/admin/agents/runs" className="block rounded-lg border border-silicon-slate/60 bg-background/40 p-3 hover:border-radiant-gold/50">
+                      <p className="font-semibold">Open Run Console</p>
+                      <p className="mt-1 text-sm text-muted-foreground">Inspect traces, evaluations, dead letters, and artifacts.</p>
+                    </Link>
+                    <OperatorChecksPanel
+                      actions={OPERATOR_ACTIONS}
+                      loadingKind={actionLoading as OperatorActionKind | null}
+                      result={actionResult?.kind ? actionResult : null}
+                      runs={operatorRuns}
+                      onRun={runOperatorAction}
+                    />
+                    {moremiReview?.has_monitor ? (
+                      <button
+                        type="button"
+                        onClick={createMoremiWarningWorkItems}
+                        disabled={!moremiReview.warning_count || actionLoading === 'moremi-review'}
+                        className="rounded-lg border border-silicon-slate/60 bg-background/40 p-3 text-left hover:border-radiant-gold/50 disabled:opacity-60"
+                      >
+                        <p className="font-semibold">{moremiReviewConfirm ? 'Confirm Moremi work items' : 'Route Moremi warnings'}</p>
+                        <p className="mt-1 text-sm text-muted-foreground">{moremiReview.warning_count} warning(s), {moremiReview.linked_work_items.length} linked item(s).</p>
+                      </button>
+                    ) : null}
+                    {actionResult ? (
+                      <Link href={`/admin/agents/runs/${actionResult.runId}`} className="rounded-lg border border-emerald-400/30 bg-emerald-500/10 p-3 text-sm text-emerald-200 hover:underline">
+                        Open {actionResult.label} run
+                      </Link>
+                    ) : null}
+                  </div>
+                </div>
+
+                <div className="agent-ops-card rounded-lg border p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Agent Inbox</p>
+                      <p className="mt-1 text-xs text-muted-foreground">Three visible at a time.</p>
+                    </div>
+                    <PagerControls
+                      label="Agent Inbox"
+                      page={inboxPage}
+                      pageCount={inboxPageCount}
+                      itemCount={inboxItems.length}
+                      onPrevious={() => setInboxPage((page) => Math.max(page - 1, 0))}
+                      onNext={() => setInboxPage((page) => Math.min(page + 1, inboxPageCount - 1))}
+                    />
+                  </div>
+                  <div className="mt-3 space-y-2">
+                    {visibleInboxItems.length ? visibleInboxItems.map((item) => (
+                      <InboxRow
+                        key={item.id}
+                        item={item}
+                        routing={inboxRoutingId === item.id}
+                        onRoute={() => routeInboxItem(item)}
+                      />
+                    )) : (
+                      <p className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm text-muted-foreground">
+                        No agent inbox items need attention.
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+              </aside>
             </div>
           </section>
 
-          <section className="mt-5 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
-            <div className="flex items-center gap-2 text-radiant-gold">
-              <Activity size={18} />
-              <h2 className="font-semibold">Latest Activity</h2>
-            </div>
-            <div className="mt-3 grid grid-cols-1 gap-2 lg:grid-cols-2">
-              {snapshot?.latest_events.length ? snapshot.latest_events.slice(0, 6).map((event) => (
-                <Link key={`${event.run_id}-${event.occurred_at}-${event.event_type}`} href={`/admin/agents/runs/${event.run_id}`} className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm hover:border-radiant-gold/50">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="font-medium">{event.event_type}</p>
-                    <span className="text-xs text-muted-foreground">{formatTime(event.occurred_at)}</span>
+          <section className="agent-ops-panel mt-5 rounded-xl border p-5" aria-label="Agent Ops system map">
+            <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+              <div>
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Primary work surfaces</p>
+                <div className="grid gap-3 lg:grid-cols-2">
+                  {primaryWorkHomes.map((home) => (
+                    <SystemHomeCard key={home.eyebrow} {...home} />
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Operating signals</p>
+                <div className="grid gap-2">
+                  {operationalSignalHomes.map((home) => (
+                    <SignalRouteCard key={home.title} {...home} />
+                  ))}
+                  <SignalRouteCard
+                    title="Latest Activity"
+                    detail={`${snapshot?.latest_events.length ?? 0} recent event(s)`}
+                    href="/admin/agents/runs"
+                    icon={<Activity size={16} />}
+                  />
+                  <div className="rounded-lg border border-silicon-slate/60 bg-background/35 p-3">
+                    <div className="flex items-center gap-2 text-radiant-gold">
+                      <Bot size={16} />
+                      <p className="text-sm font-semibold">Drilldowns & Controls</p>
+                    </div>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Consolidated into the route map, Agent interaction rail, and sidebar so controls stay near their context.
+                    </p>
                   </div>
-                  <p className="mt-1 line-clamp-2 text-muted-foreground">{event.message || event.severity}</p>
-                </Link>
-              )) : (
-                <p className="text-sm text-muted-foreground">No recent agent events found.</p>
-              )}
+                </div>
+              </div>
             </div>
           </section>
         </div>
@@ -848,6 +1073,271 @@ function MetricCard({ icon, label, value, tone = 'default' }: { icon: ReactNode;
       </div>
       <p className={`mt-2 text-2xl font-semibold ${toneClass}`}>{value}</p>
     </div>
+  )
+}
+
+function PagerControls({
+  label,
+  page,
+  pageCount,
+  itemCount,
+  onPrevious,
+  onNext,
+}: {
+  label: string
+  page: number
+  pageCount: number
+  itemCount: number
+  onPrevious: () => void
+  onNext: () => void
+}) {
+  return (
+    <div className="inline-flex items-center gap-2 text-xs text-muted-foreground" aria-label={`${label} pagination`}>
+      <span>{itemCount ? `${page + 1}/${pageCount}` : '0/0'}</span>
+      <div className="inline-flex overflow-hidden rounded-full border border-silicon-slate/60 bg-black/10">
+        <button
+          type="button"
+          onClick={onPrevious}
+          disabled={page <= 0 || itemCount <= 3}
+          className="inline-flex h-7 w-7 items-center justify-center hover:bg-radiant-gold/10 disabled:cursor-not-allowed disabled:opacity-35"
+          aria-label={`Previous ${label} page`}
+        >
+          <ChevronLeft size={14} />
+        </button>
+        <button
+          type="button"
+          onClick={onNext}
+          disabled={page >= pageCount - 1 || itemCount <= 3}
+          className="inline-flex h-7 w-7 items-center justify-center border-l border-silicon-slate/60 hover:bg-radiant-gold/10 disabled:cursor-not-allowed disabled:opacity-35"
+          aria-label={`Next ${label} page`}
+        >
+          <ChevronRight size={14} />
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function SystemHomeCard({
+  eyebrow,
+  title,
+  body,
+  href,
+  metric,
+  icon,
+  tone,
+}: {
+  eyebrow: string
+  title: string
+  body: string
+  href: string
+  metric: string
+  icon: ReactNode
+  tone: 'green' | 'yellow' | 'red' | 'blue' | 'neutral'
+}) {
+  return (
+    <Link href={href} className={`agent-ops-metric agent-ops-metric-${tone} block rounded-lg border p-4 hover:border-radiant-gold/50`}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 text-radiant-gold">
+            {icon}
+            <p className="text-xs font-semibold uppercase tracking-wider">{eyebrow}</p>
+          </div>
+          <h3 className="mt-2 text-lg font-semibold">{title}</h3>
+        </div>
+        <span className="shrink-0 rounded-full border border-silicon-slate/60 bg-black/15 px-2.5 py-1 text-xs text-muted-foreground">
+          {metric}
+        </span>
+      </div>
+      <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">{body}</p>
+    </Link>
+  )
+}
+
+function SignalRouteCard({ title, detail, href, icon }: { title: string; detail: string; href: string; icon: ReactNode }) {
+  return (
+    <Link href={href} className="flex items-center justify-between gap-3 rounded-lg border border-silicon-slate/60 bg-background/35 p-3 hover:border-radiant-gold/50">
+      <div className="flex min-w-0 items-center gap-2">
+        <span className="text-radiant-gold">{icon}</span>
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold">{title}</p>
+          <p className="truncate text-xs text-muted-foreground">{detail}</p>
+        </div>
+      </div>
+      <ArrowRight size={14} className="shrink-0 text-muted-foreground" />
+    </Link>
+  )
+}
+
+function OperatorChecksPanel({
+  actions,
+  loadingKind,
+  result,
+  runs,
+  onRun,
+}: {
+  actions: typeof OPERATOR_ACTIONS
+  loadingKind: OperatorActionKind | null
+  result: { label: string; runId: string; kind?: OperatorActionKind } | null
+  runs: OperatorRun[]
+  onRun: (kind: OperatorActionKind) => void
+}) {
+  const now = new Date()
+
+  return (
+    <div className="rounded-lg border border-silicon-slate/60 bg-background/35 p-3">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Operator checks</p>
+          <p className="mt-1 text-xs text-muted-foreground">Scheduled manual triggers with duplicate-run guards.</p>
+        </div>
+        <Link href="/admin/agents/runs?kind=operator_checks" className="text-xs text-radiant-gold hover:underline">Full history</Link>
+      </div>
+
+      <div className="mt-3 grid gap-2" aria-label="Operator checks">
+        {actions.map((action) => {
+          const actionRuns = runs.filter((run) => run.kind === action.runKind)
+          const latest = actionRuns[0] ?? null
+          const activeRun = actionRuns.find((run) => isActiveOperatorRun(run)) ?? null
+          const available = action.isAvailable(now)
+          const alreadyTriggered = Boolean(latest && action.windowKey(new Date(latest.started_at)) === action.windowKey(now))
+          const loading = loadingKind === action.kind
+          const disabledReason = activeRun
+            ? 'Already running'
+            : alreadyTriggered
+              ? 'Run complete for this window'
+              : !available
+                ? 'Outside run window'
+                : null
+          const progress = operatorProgress(activeRun ?? latest)
+          const canRun = !loadingKind && available && !alreadyTriggered && !activeRun
+          const latestResult = result?.kind === action.kind ? result : null
+
+          return (
+            <div
+              key={action.kind}
+              className={`rounded-lg border p-3 ${canRun ? 'border-radiant-gold/45 bg-radiant-gold/10' : activeRun ? 'border-sky-400/35 bg-sky-500/10' : 'border-silicon-slate/60 bg-black/10'}`}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-semibold">{action.label}</p>
+                  <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{action.purpose}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onRun(action.kind)}
+                  disabled={!canRun || loading}
+                  className="inline-flex shrink-0 items-center justify-center gap-1 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-2.5 py-1.5 text-xs text-radiant-gold hover:bg-radiant-gold/15 disabled:border-silicon-slate/50 disabled:bg-black/10 disabled:text-muted-foreground disabled:opacity-70"
+                  title={disabledReason ?? `Run ${action.label}`}
+                >
+                  {loading ? <RefreshCw size={13} className="animate-spin" /> : <Play size={13} fill="currentColor" />}
+                  Run
+                </button>
+              </div>
+              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-black/25">
+                <div className={`h-full rounded-full ${activeRun ? 'bg-sky-300' : progress === 100 ? 'bg-emerald-300' : 'bg-radiant-gold'}`} style={{ width: `${progress}%` }} />
+              </div>
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+                <span>{disabledReason ?? 'Available now'}</span>
+                <span>{action.windowLabel}</span>
+              </div>
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs">
+                {latest ? (
+                  <Link href={`/admin/agents/runs/${latest.id}`} className="text-radiant-gold hover:underline">
+                    Latest: {formatOperatorRunStatus(latest)}
+                  </Link>
+                ) : (
+                  <span className="text-muted-foreground">No prior run</span>
+                )}
+                <Link href={`/admin/agents/runs?kind=${action.runKind}`} className="text-muted-foreground hover:text-radiant-gold">
+                  View history
+                </Link>
+              </div>
+              {latestResult ? (
+                <Link href={`/admin/agents/runs/${latestResult.runId}`} className="mt-2 flex items-center justify-between gap-3 rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200 hover:underline">
+                  <span>Open {latestResult.label} run</span>
+                  <ArrowRight size={14} />
+                </Link>
+              ) : null}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function isWeekday(value: Date) {
+  const day = value.getDay()
+  return day >= 1 && day <= 5
+}
+
+function localDateKey(value: Date) {
+  const year = value.getFullYear()
+  const month = `${value.getMonth() + 1}`.padStart(2, '0')
+  const day = `${value.getDate()}`.padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+function isActiveOperatorRun(run: OperatorRun) {
+  return run.stale || ['queued', 'running', 'waiting_for_approval'].includes(run.status)
+}
+
+function operatorProgress(run: OperatorRun | null) {
+  if (!run) return 0
+  if (run.stale) return 80
+  if (run.status === 'queued') return 20
+  if (run.status === 'running') return 55
+  if (run.status === 'waiting_for_approval') return 75
+  return 100
+}
+
+function formatOperatorRunStatus(run: OperatorRun) {
+  const status = run.stale ? 'stale' : run.status.replace(/_/g, ' ')
+  return `${status} · ${formatTime(run.started_at)}`
+}
+
+function splitBriefSummary(value: string | null | undefined) {
+  if (!value) return []
+  return value
+    .split(/(?<=[.!?])\s+/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .slice(0, 4)
+}
+
+function QuickPrompt({ label, disabled, onClick }: { label: string; disabled: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="rounded-full border border-radiant-gold/30 bg-background/40 px-3 py-1.5 text-xs text-radiant-gold hover:bg-radiant-gold/15 disabled:cursor-not-allowed disabled:opacity-60"
+    >
+      {label}
+    </button>
+  )
+}
+
+function SignalHomeLink({ href, label }: { href: string; label: string }) {
+  return (
+    <Link href={href} className="inline-flex items-center gap-1 text-xs font-medium text-radiant-gold hover:underline">
+      {label}
+      <ArrowRight size={12} />
+    </Link>
+  )
+}
+
+function DrilldownHomeCard({ eyebrow, title, body, href, cta }: { eyebrow: string; title: string; body: string; href: string; cta: string }) {
+  return (
+    <Link href={href} className="agent-ops-drill-card block rounded-lg border p-4">
+      <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">{eyebrow}</p>
+      <h3 className="mt-2 text-xl font-semibold">{title}</h3>
+      <p className="mt-2 min-h-[48px] text-sm leading-6 text-muted-foreground">{body}</p>
+      <span className="mt-4 inline-flex rounded-lg border border-radiant-gold/40 bg-radiant-gold/10 px-3 py-2 text-sm font-medium text-radiant-gold">
+        {cta}
+      </span>
+    </Link>
   )
 }
 
@@ -872,8 +1362,8 @@ function MissionStatusCard({
 }) {
   const content = (
     <>
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-2 text-radiant-gold">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex min-w-0 items-center gap-2 text-radiant-gold">
           {icon}
           <p className="text-xs font-semibold uppercase tracking-wider">{label}</p>
         </div>
@@ -886,14 +1376,14 @@ function MissionStatusCard({
 
   if (as === 'link' && href) {
     return (
-      <Link href={href} className="block rounded-lg border border-silicon-slate/60 bg-silicon-slate/20 p-4 hover:border-radiant-gold/50">
+      <Link href={href} className={`agent-ops-metric agent-ops-metric-${tone} block min-w-0 rounded-lg border p-4`}>
         {content}
       </Link>
     )
   }
 
   return (
-    <div className="rounded-lg border border-silicon-slate/60 bg-silicon-slate/20 p-4" aria-label={`${label} status`}>
+    <div className={`agent-ops-metric agent-ops-metric-${tone} min-w-0 rounded-lg border p-4`} aria-label={`${label} status`}>
       {content}
     </div>
   )
@@ -909,7 +1399,7 @@ function StatusOnlyPill({ children, tone }: { children: ReactNode; tone: 'green'
   }[tone]
 
   return (
-    <span className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium ${toneClass}`} data-status-only="true">
+    <span className={`w-fit max-w-full rounded-full border px-2.5 py-1 text-left text-xs font-medium ${toneClass}`} data-status-only="true">
       {children}
     </span>
   )
@@ -925,9 +1415,55 @@ function MiniMetric({ label, value, tone = 'default' }: { label: string; value: 
   )
 }
 
-function DailyBriefPanel({ brief, loading }: { brief: MissionSnapshot['daily_brief'] | null; loading: boolean }) {
+function DailyBriefPanel({
+  brief,
+  loading,
+  activeRuns,
+  failedOrStaleRuns,
+  pendingApprovals,
+  costToday,
+}: {
+  brief: MissionSnapshot['daily_brief'] | null
+  loading: boolean
+  activeRuns: number
+  failedOrStaleRuns: number
+  pendingApprovals: number
+  costToday: number
+}) {
+  const routeCards = [
+    {
+      label: 'Active runs',
+      value: activeRuns,
+      detail: 'Live or queued traces',
+      href: '/admin/agents/runs?active=true',
+      tone: 'blue',
+    },
+    {
+      label: 'Failed or stale runs',
+      value: failedOrStaleRuns,
+      detail: 'Needs trace review',
+      href: '/admin/agents/runs?status=needs_review',
+      tone: failedOrStaleRuns ? 'red' : 'green',
+    },
+    {
+      label: 'Pending approvals',
+      value: pendingApprovals,
+      detail: 'Controller queue',
+      href: '/admin/agents/coordination',
+      tone: pendingApprovals ? 'yellow' : 'green',
+    },
+    {
+      label: 'Cost today',
+      value: `$${costToday.toFixed(4)}`,
+      detail: 'Spend analysis',
+      href: '/admin/cost-revenue',
+      tone: 'neutral',
+    },
+  ] as const
+  const summaryItems = splitBriefSummary(brief?.synthesis)
+
   return (
-    <section className="mt-5 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
+    <section className="agent-ops-card mt-5 rounded-lg border p-4" aria-label="Daily Operating Brief">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="flex items-center gap-2 text-radiant-gold">
@@ -937,14 +1473,14 @@ function DailyBriefPanel({ brief, loading }: { brief: MissionSnapshot['daily_bri
           <p className="mt-2 text-lg font-semibold">
             {brief?.headline ?? (loading ? 'Loading today’s agent brief...' : 'Run a standup to create today’s operating brief')}
           </p>
-          <p className="mt-2 max-w-4xl text-sm leading-6 text-muted-foreground">
-            {brief?.synthesis ?? 'Mission Control will summarize standups, blockers, approvals, cost, and next actions here.'}
-          </p>
         </div>
         <div className="flex shrink-0 flex-wrap gap-2">
           <span className="rounded-full border border-silicon-slate/60 bg-black/10 px-2.5 py-1 text-xs text-muted-foreground">
             {brief?.generated_from === 'standup' ? 'From latest standup' : 'From current traces'}
           </span>
+          <Link href="/admin/agents/runs" className="rounded-full border border-silicon-slate/60 bg-black/10 px-2.5 py-1 text-xs text-muted-foreground hover:border-radiant-gold/50 hover:text-radiant-gold">
+            Run Console
+          </Link>
           {brief?.run_id ? (
             <Link href={`/admin/agents/runs/${brief.run_id}`} className="rounded-full border border-radiant-gold/50 bg-radiant-gold/10 px-2.5 py-1 text-xs text-radiant-gold hover:bg-radiant-gold/15">
               Open brief trace
@@ -953,23 +1489,67 @@ function DailyBriefPanel({ brief, loading }: { brief: MissionSnapshot['daily_bri
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="flex flex-wrap gap-2">
-          {(brief?.signals ?? ['0 active run(s)', '0 failed or stale run(s)', '0 pending approval(s)']).map((signal) => (
-            <span key={signal} className="rounded-full border border-silicon-slate/50 bg-black/10 px-2.5 py-1 text-xs text-muted-foreground">
-              {signal}
-            </span>
-          ))}
-        </div>
-        <div className="space-y-1">
-          {(brief?.next_actions ?? ['Run War Room standup.']).slice(0, 3).map((action) => (
-            <p key={action} className="text-sm text-muted-foreground">
-              {action}
-            </p>
+      <div className="mt-4 rounded-lg border border-silicon-slate/55 bg-black/10 p-3">
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Summary</p>
+        {summaryItems.length ? (
+          <div className="mt-3 grid gap-2 md:grid-cols-2">
+            {summaryItems.map((item) => (
+              <div key={item} className="rounded-md border border-silicon-slate/45 bg-background/35 px-3 py-2 text-sm leading-6 text-muted-foreground">
+                {item}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            Mission Control will summarize standups, blockers, approvals, cost, and next actions here.
+          </p>
+        )}
+      </div>
+
+      <div className="mt-4">
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Attention routes</p>
+        <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+          {routeCards.map((card) => (
+            <BriefRouteCard key={card.label} {...card} />
           ))}
         </div>
       </div>
     </section>
+  )
+}
+
+function BriefRouteCard({
+  label,
+  value,
+  detail,
+  href,
+  tone,
+}: {
+  label: string
+  value: string | number
+  detail: string
+  href: string
+  tone: 'blue' | 'green' | 'red' | 'yellow' | 'neutral'
+}) {
+  const toneClass = {
+    blue: 'border-sky-400/30 bg-sky-500/10',
+    green: 'border-emerald-400/30 bg-emerald-500/10',
+    red: 'border-red-400/35 bg-red-500/10',
+    yellow: 'border-yellow-400/35 bg-yellow-500/10',
+    neutral: 'border-silicon-slate/60 bg-black/10',
+  }[tone]
+
+  return (
+    <Link href={href} className={`group rounded-lg border p-3 transition hover:border-radiant-gold/60 ${toneClass}`}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
+          <p className="mt-1 text-2xl font-semibold">{value}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{detail}</p>
+        </div>
+        <ArrowRight size={14} className="mt-1 shrink-0 text-muted-foreground group-hover:text-radiant-gold" />
+      </div>
+    </Link>
   )
 }
 
@@ -988,9 +1568,14 @@ function CostSummaryPanel({ summary }: { summary: MissionSnapshot['cost_summary'
   return (
     <section className="mt-5 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex items-center gap-2 text-radiant-gold">
-          <CircleDollarSign size={18} />
-          <h2 className="font-semibold">Cost Intelligence</h2>
+        <div>
+          <div className="flex items-center gap-2 text-radiant-gold">
+            <CircleDollarSign size={18} />
+            <h2 className="font-semibold">Cost Intelligence</h2>
+          </div>
+          <div className="mt-2">
+            <SignalHomeLink href="/admin/cost-revenue" label="Cost & Revenue owns spend analysis" />
+          </div>
         </div>
         <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
           <CostChip label={`${summary.window_hours}h total`} value={`$${summary.total.toFixed(4)}`} />
@@ -1051,6 +1636,10 @@ function QualitySignalsPanel({ summary }: { summary: MissionSnapshot['quality_su
           <p className="mt-1 text-sm text-muted-foreground">
             Rubric-backed scoring for agent output quality, coaching needs, and trend visibility.
           </p>
+          <div className="mt-2 flex flex-wrap gap-3">
+            <SignalHomeLink href="/admin/chat-eval" label="Chat Eval owns rubric management" />
+            <SignalHomeLink href="/admin/agents/runs" label="Run detail owns agent evaluations" />
+          </div>
         </div>
         <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
           <CostChip label={`${summary?.window_hours ?? 24}h score`} value={qualityScore} />
@@ -1312,6 +1901,9 @@ function KnowledgeGovernancePanel({ governance }: { governance: MissionSnapshot[
           <p className="mt-1 text-sm text-muted-foreground">
             {governance.targetIndex} is staged in {governance.mode.replace(/_/g, ' ')}; {governance.legacyIndex} remains legacy read-only.
           </p>
+          <div className="mt-2">
+            <SignalHomeLink href="/admin/agents/open-brain" label="Open Brain owns memory and knowledge follow-up" />
+          </div>
         </div>
         <Link href="/api/admin/rag-health" className="rounded-full border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-1.5 text-xs text-radiant-gold hover:bg-radiant-gold/15">
           RAG health

@@ -1,7 +1,8 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { Suspense, useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { AlertTriangle, Bot, RefreshCw } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -28,24 +29,28 @@ type RunRow = {
 }
 
 const RUNTIMES = ['all', 'codex', 'n8n', 'hermes', 'opencode', 'manual'] as const
-const STATUSES = ['all', 'queued', 'running', 'waiting_for_approval', 'completed', 'failed', 'cancelled', 'stale'] as const
+const STATUSES = ['all', 'active', 'needs_review', 'queued', 'running', 'waiting_for_approval', 'completed', 'failed', 'cancelled', 'stale'] as const
 
 export default function AgentRunsPage() {
   return (
     <ProtectedRoute requireAdmin>
-      <AgentRunsContent />
+      <Suspense fallback={<div className="min-h-screen bg-background p-6 text-muted-foreground">Loading agent runs...</div>}>
+        <AgentRunsContent />
+      </Suspense>
     </ProtectedRoute>
   )
 }
 
 function AgentRunsContent() {
+  const searchParams = useSearchParams()
   const [runs, setRuns] = useState<RunRow[]>([])
   const [runtime, setRuntime] = useState<(typeof RUNTIMES)[number]>('all')
-  const [status, setStatus] = useState<(typeof STATUSES)[number]>('all')
+  const [status, setStatus] = useState<(typeof STATUSES)[number]>(() => normalizeStatusFilter(searchParams.get('status'), searchParams.get('active')))
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [sweepLoading, setSweepLoading] = useState(false)
   const [sweepMessage, setSweepMessage] = useState<string | null>(null)
+  const kindFilter = searchParams.get('kind')
 
   const fetchRuns = useCallback(async () => {
     setLoading(true)
@@ -55,7 +60,9 @@ function AgentRunsContent() {
       if (!session?.access_token) throw new Error('Missing admin session')
       const qs = new URLSearchParams({ limit: '75' })
       if (runtime !== 'all') qs.set('runtime', runtime)
-      if (status !== 'all') qs.set('status', status)
+      if (status === 'active') qs.set('active', 'true')
+      else if (status !== 'all') qs.set('status', status)
+      if (kindFilter) qs.set('kind', kindFilter)
       const res = await fetch(`/api/admin/agents/runs?${qs.toString()}`, {
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
@@ -71,11 +78,15 @@ function AgentRunsContent() {
     } finally {
       setLoading(false)
     }
-  }, [runtime, status])
+  }, [kindFilter, runtime, status])
 
   useEffect(() => {
     fetchRuns()
   }, [fetchRuns])
+
+  useEffect(() => {
+    setStatus(normalizeStatusFilter(searchParams.get('status'), searchParams.get('active')))
+  }, [searchParams])
 
   async function sweepStaleRuns() {
     setSweepLoading(true)
@@ -154,7 +165,7 @@ function AgentRunsContent() {
             className="rounded-lg border border-silicon-slate/70 bg-background px-3 py-2 text-sm"
           >
             {STATUSES.map((value) => (
-              <option key={value} value={value}>{value === 'all' ? 'All statuses' : value}</option>
+              <option key={value} value={value}>{formatStatusOption(value)}</option>
             ))}
           </select>
         </div>
@@ -211,6 +222,18 @@ function AgentRunsContent() {
       </div>
     </div>
   )
+}
+
+function normalizeStatusFilter(status: string | null, active: string | null): (typeof STATUSES)[number] {
+  if (active === 'true') return 'active'
+  return STATUSES.includes(status as (typeof STATUSES)[number]) ? status as (typeof STATUSES)[number] : 'all'
+}
+
+function formatStatusOption(value: (typeof STATUSES)[number]) {
+  if (value === 'all') return 'All statuses'
+  if (value === 'active') return 'Active runs'
+  if (value === 'needs_review') return 'Needs review'
+  return value.replace(/_/g, ' ')
 }
 
 function StatusBadge({ status }: { status: string }) {

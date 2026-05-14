@@ -50,13 +50,17 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const runtime = searchParams.get('runtime')
   const status = searchParams.get('status')
+  const kind = searchParams.get('kind')
   const activeOnly = searchParams.get('active') === 'true'
   const limit = Math.min(parseInt(searchParams.get('limit') || '50', 10), 100)
 
   if (runtime && runtime !== 'all' && !isRuntime(runtime)) {
     return NextResponse.json({ error: 'Invalid runtime filter' }, { status: 400 })
   }
-  if (status && status !== 'all' && !isStatus(status)) {
+  if (kind && kind.length > 120) {
+    return NextResponse.json({ error: 'Invalid kind filter' }, { status: 400 })
+  }
+  if (status && status !== 'all' && status !== 'needs_review' && !isStatus(status)) {
     return NextResponse.json({ error: 'Invalid status filter' }, { status: 400 })
   }
 
@@ -69,7 +73,15 @@ export async function GET(request: NextRequest) {
     .limit(limit)
 
   if (runtime && runtime !== 'all') query = query.eq('runtime', runtime)
-  if (status && status !== 'all') query = query.eq('status', status)
+  if (kind && kind !== 'all') {
+    if (kind === 'operator_checks') {
+      query = query.in('kind', ['agent_ops_morning_review', 'system_health_summary', 'approval_gate_drill', 'runtime_evaluation'])
+    } else {
+      query = query.eq('kind', kind)
+    }
+  }
+  if (status === 'needs_review') query = query.in('status', ['failed', 'stale'])
+  else if (status && status !== 'all') query = query.eq('status', status)
   if (activeOnly) query = query.in('status', ['queued', 'running', 'waiting_for_approval'])
 
   const { data: runs, error } = await query
