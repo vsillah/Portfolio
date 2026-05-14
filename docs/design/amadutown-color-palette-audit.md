@@ -6,6 +6,28 @@
 
 ---
 
+## 0. Portfolio UI architecture standard
+
+The Agent Ops Mission Control surface at `/admin/agents` is the current reference implementation for the Portfolio visual system. Treat it as the design architecture standard for admin, dashboard, and operational control surfaces, and as the palette/hierarchy benchmark for the broader Portfolio experience.
+
+### Design principles
+
+- **Operating-console hierarchy:** Start with the work surface, current state, and next action. Avoid marketing-style hero blocks, decorative route maps, or explanatory copy that does not help the user decide, inspect, or act.
+- **AmaduTown dark system:** Use the shared navy/gold palette from `app/globals.css` and `tailwind.config.ts`, anchored by `bg-background`, deep navy panels, radiant gold command accents, platinum text, and restrained slate support tones.
+- **Mission Control surfaces:** Prefer panel/card structures similar to the Agent Ops shared visual language: luminous but controlled backgrounds, fine borders, subtle glow, 8px-ish radii, dense spacing, and scannable headings.
+- **Action clarity:** Status blocks, counts, health labels, and read-only pills must be visually distinct from executable controls. Buttons should use clear verbs and should show consistent hover, focus, disabled, and loading states.
+- **Subtle texture only:** Glow and depth can guide the eye, but noisy grain, high-contrast textures, and decorative effects should not compete with data or controls.
+- **Consistent drilldowns:** L1 command surfaces summarize and route. L2/L3 pages own detail, history, approvals, logs, charts, and full work boards.
+
+### Implementation guidance
+
+- Reuse or extract shared styling from the Agent Ops visual layer (`agent-ops-page`, `agent-ops-panel`, `agent-ops-card`, and related token usage) instead of recreating one-off page-specific CSS.
+- New admin pages should match Mission Control's density, command hierarchy, palette discipline, and action/status separation unless there is an explicit product reason to diverge.
+- Public, commerce, and client-facing pages may adapt the structure for their audience, but should remain recognizably AmaduTown: navy/gold first, polished operational clarity, and no unrelated gray, purple, cyan, or generic SaaS palette drift.
+- When a page is redesigned, check this audit table for known off-palette areas and update the table if the implementation resolves or changes the design debt.
+
+---
+
 ## 1. Summary table
 
 | Area / Route or component | Deviation type | Files and line references | Priority |
