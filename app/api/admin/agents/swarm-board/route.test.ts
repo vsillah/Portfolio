@@ -85,6 +85,20 @@ describe('GET /api/admin/agents/swarm-board', () => {
         ready_for_merge: 0,
         pending_approvals: 0,
         activity_entries: 1,
+        active_goals: 1,
+        average_cycle_hours: 4.5,
+        oldest_in_flight_hours: 12,
+        wip: [{ laneKey: 'automation-systems', label: 'Automation Systems', count: 5, limit: 4, overLimit: true }],
+        goals: [{
+          id: 'goal-1',
+          title: 'Launch Standup Room',
+          total: 2,
+          completed: 1,
+          progress: 50,
+          blocked: 0,
+          open: 1,
+          burndown: [{ label: 'May 14', remaining: 1 }],
+        }],
       },
       agents: [],
       lanes: [],
@@ -126,6 +140,17 @@ describe('GET /api/admin/agents/swarm-board', () => {
     expect(body.organization.summary).toMatchObject({
       agents: 2,
       active_work_items: 1,
+      active_goals: 1,
+      average_cycle_hours: 4.5,
+    })
+    expect(body.organization.summary.wip[0]).toMatchObject({
+      laneKey: 'automation-systems',
+      count: 5,
+      overLimit: true,
+    })
+    expect(body.organization.summary.goals[0]).toMatchObject({
+      id: 'goal-1',
+      progress: 50,
     })
   })
 

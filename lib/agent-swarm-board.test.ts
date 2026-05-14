@@ -593,6 +593,108 @@ describe('buildAgentOrgBoardSnapshotFromRows', () => {
     })
   })
 
+  it('derives weighted goal progress and burndown from goal-tagged work items', () => {
+    const snapshot = buildAgentOrgBoardSnapshotFromRows({
+      now: new Date('2026-05-05T16:00:00.000Z'),
+      runs: [],
+      events: [],
+      workItems: [
+        orgWorkItem({
+          id: 'goal-done',
+          title: 'Ship goal foundation',
+          status: 'deployed',
+          priority: 'high',
+          owner_agent_key: 'engineering-copilot',
+          completed_at: '2026-05-05T13:00:00.000Z',
+          metadata: {
+            goal_id: 'goal kanban v1',
+            goal_title: 'Kanban Goal-Aware Operating Board V1',
+            goal_sequence: 1,
+            goal_status: 'approved',
+            goal_progress_weight: 2,
+          },
+        }),
+        orgWorkItem({
+          id: 'goal-blocked',
+          title: 'Resolve goal blocker',
+          status: 'blocked',
+          priority: 'urgent',
+          owner_agent_key: 'automation-systems',
+          blocker_summary: 'Needs owner decision',
+          metadata: {
+            goal_id: 'goal kanban v1',
+            goal_title: 'Kanban Goal-Aware Operating Board V1',
+            goal_sequence: 2,
+            goal_status: 'approved',
+            goal_progress_weight: 1,
+          },
+        }),
+        orgWorkItem({
+          id: 'goal-progress',
+          title: 'Continue goal implementation',
+          status: 'in_progress',
+          priority: 'medium',
+          owner_agent_key: 'engineering-copilot',
+          metadata: {
+            goal_id: 'goal kanban v1',
+            goal_title: 'Kanban Goal-Aware Operating Board V1',
+            goal_sequence: 3,
+            goal_status: 'approved',
+            goal_progress_weight: 1,
+          },
+        }),
+      ],
+      approvals: [],
+    })
+
+    expect(snapshot.summary.active_goals).toBe(1)
+    expect(snapshot.summary.goals[0]).toMatchObject({
+      id: 'goal kanban v1',
+      title: 'Kanban Goal-Aware Operating Board V1',
+      total: 3,
+      completed: 1,
+      progress: 50,
+      blocked: 1,
+      open: 2,
+    })
+    expect(snapshot.summary.goals[0].burndown.length).toBeGreaterThan(0)
+    expect(snapshot.lanes.flatMap((lane) => lane.tasks).find((task) => task.id === 'goal-blocked')?.goal).toMatchObject({
+      id: 'goal kanban v1',
+      sessionHref: '/admin/agents/standup?goal=goal%20kanban%20v1',
+      sequence: 2,
+    })
+  })
+
+  it('flags WIP limit pressure and preserves priority ordering inside lanes', () => {
+    const workItems = [
+      orgWorkItem({ id: 'low-old', title: 'Low old', status: 'in_progress', priority: 'low', owner_agent_key: 'automation-systems', updated_at: '2026-05-05T11:00:00.000Z' }),
+      orgWorkItem({ id: 'medium', title: 'Medium task', status: 'in_progress', priority: 'medium', owner_agent_key: 'automation-systems', updated_at: '2026-05-05T12:00:00.000Z' }),
+      orgWorkItem({ id: 'high', title: 'High task', status: 'in_progress', priority: 'high', owner_agent_key: 'automation-systems', updated_at: '2026-05-05T13:00:00.000Z' }),
+      orgWorkItem({ id: 'urgent', title: 'Urgent task', status: 'in_progress', priority: 'urgent', owner_agent_key: 'automation-systems', updated_at: '2026-05-05T10:00:00.000Z' }),
+      orgWorkItem({ id: 'low-new', title: 'Low new', status: 'in_progress', priority: 'low', owner_agent_key: 'automation-systems', updated_at: '2026-05-05T14:00:00.000Z' }),
+    ]
+    const snapshot = buildAgentOrgBoardSnapshotFromRows({
+      now: new Date('2026-05-05T16:00:00.000Z'),
+      runs: [],
+      events: [],
+      workItems,
+      approvals: [],
+    })
+
+    expect(snapshot.summary.wip.find((lane) => lane.laneKey === 'automation-systems')).toMatchObject({
+      count: 5,
+      limit: 4,
+      overLimit: true,
+    })
+    expect(snapshot.lanes.find((lane) => lane.key === 'automation-systems')?.tasks.map((task) => task.id)).toEqual([
+      'urgent',
+      'high',
+      'medium',
+      'low-new',
+      'low-old',
+    ])
+  })
+
   it('attributes fallback activity to the right agents and caps the activity feed', () => {
     const fillerEvents = Array.from({ length: 101 }, (_, index) => orgEvent({
       id: `filler-event-${index}`,
