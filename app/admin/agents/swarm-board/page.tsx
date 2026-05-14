@@ -106,6 +106,9 @@ function AgentSwarmBoardContent() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0 })
+    const params = new URLSearchParams(window.location.search)
+    const goalId = params.get('goal')
+    if (goalId) setSelectedGoalId(goalId)
     fetchBoard()
   }, [fetchBoard])
 

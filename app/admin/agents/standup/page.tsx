@@ -46,6 +46,14 @@ type WarRoomResponse = {
   error?: string
 }
 
+type WarRoomCommandTrace = {
+  runId: string
+  command: string
+  synthesis?: string
+  goalId?: string | null
+  createdAt: string
+}
+
 function agentMentionToken(agent: AgentOrgBoardAgent) {
   return agent.name.split(' - ')[0].replace(/\s+/g, '').toLowerCase()
 }
@@ -78,8 +86,10 @@ function StandupRoomContent() {
   const [selectedAgentKey, setSelectedAgentKey] = useState('chief-of-staff')
   const [message, setMessage] = useState('')
   const [goal, setGoal] = useState('')
+  const [focusedGoalId, setFocusedGoalId] = useState<string | null>(null)
   const [goalDraft, setGoalDraft] = useState<AgentGoalDraft | null>(null)
   const [createdItems, setCreatedItems] = useState<WarRoomResponse['created_work_items']>(null)
+  const [commandTraces, setCommandTraces] = useState<WarRoomCommandTrace[]>([])
   const [transcript, setTranscript] = useState<AgentWarRoomMessage[]>([
     {
       id: 'system-ready',
@@ -113,11 +123,37 @@ function StandupRoomContent() {
     fetchBoard()
   }, [fetchBoard])
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const goalId = params.get('goal')
+    if (goalId) setFocusedGoalId(goalId)
+  }, [])
+
   const participants = useMemo(() => {
     const agents = organization?.agents ?? []
     return agents.filter((agent) => agent.status !== 'planned').slice(0, 12)
   }, [organization?.agents])
   const selectedAgent = participants.find((agent) => agent.key === selectedAgentKey) ?? participants[0]
+  const allTasks = useMemo(() => organization?.lanes.flatMap((lane) => lane.tasks) ?? [], [organization?.lanes])
+  const focusedGoal = useMemo(() => {
+    if (!focusedGoalId || !organization) return null
+    return organization.summary.goals.find((item) => item.id === focusedGoalId) ?? null
+  }, [focusedGoalId, organization])
+  const focusedGoalTasks = useMemo(() => {
+    if (!focusedGoalId) return []
+    return allTasks.filter((task) => task.goal?.id === focusedGoalId)
+  }, [allTasks, focusedGoalId])
+
+  function focusGoal(goalId: string | null) {
+    setFocusedGoalId(goalId)
+    const url = new URL(window.location.href)
+    if (goalId) {
+      url.searchParams.set('goal', goalId)
+    } else {
+      url.searchParams.delete('goal')
+    }
+    window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`)
+  }
 
   async function postWarRoom(payload: Record<string, unknown>, loadingKey: string) {
     setBusy(loadingKey)
@@ -137,6 +173,15 @@ function StandupRoomContent() {
       if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
       if (body.messages?.length) setTranscript((current) => [...current, ...body.messages!])
       if (body.goal_draft) setGoalDraft(body.goal_draft)
+      if (body.run_id) {
+        setCommandTraces((current) => [{
+          runId: body.run_id,
+          command: body.command,
+          synthesis: body.synthesis,
+          goalId: body.goal_draft?.goal_id ?? (payload.draft as AgentGoalDraft | undefined)?.goal_id ?? null,
+          createdAt: new Date().toISOString(),
+        }, ...current].slice(0, 5))
+      }
       if (body.created_work_items) {
         setCreatedItems(body.created_work_items)
         await fetchBoard()
@@ -181,7 +226,9 @@ function StandupRoomContent() {
 
   async function approveGoal() {
     if (!goalDraft) return
-    await postWarRoom({ command: 'approve_goal', draft: goalDraft }, 'approve-goal')
+    const approvedGoalId = goalDraft.goal_id
+    const result = await postWarRoom({ command: 'approve_goal', draft: goalDraft }, 'approve-goal')
+    if (result?.created_work_items) focusGoal(approvedGoalId)
   }
 
   function updateGoalTask(taskId: string, patch: Partial<AgentGoalDraft['tasks'][number]>) {
@@ -225,7 +272,7 @@ function StandupRoomContent() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Link href="/admin/agents/swarm-board" className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/10">
+            <Link href={focusedGoalId ? `/admin/agents/swarm-board?goal=${encodeURIComponent(focusedGoalId)}` : '/admin/agents/swarm-board'} className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/10">
               <KanbanSquare size={16} />
               Open full Kanban
             </Link>
@@ -251,8 +298,16 @@ function StandupRoomContent() {
               }}
             />
             <main className="space-y-5">
+              {focusedGoal && (
+                <GoalSessionPanel
+                  goal={focusedGoal}
+                  tasks={focusedGoalTasks}
+                  onClear={() => focusGoal(null)}
+                />
+              )}
               <ChatRoom
                 transcript={transcript}
+                commandTraces={commandTraces}
                 message={message}
                 onMessageChange={setMessage}
                 selectedAgent={selectedAgent}
@@ -276,7 +331,7 @@ function StandupRoomContent() {
             </main>
             <aside className="space-y-5">
               <MetricsPanel organization={organization} />
-              <MiniKanban lanes={organization.lanes} />
+              <MiniKanban lanes={organization.lanes} focusedGoalId={focusedGoalId} />
             </aside>
           </div>
         ) : null}
@@ -328,6 +383,7 @@ function ParticipantRail({
 
 function ChatRoom({
   transcript,
+  commandTraces,
   message,
   selectedAgent,
   busy,
@@ -337,6 +393,7 @@ function ChatRoom({
   onQuickPrompt,
 }: {
   transcript: AgentWarRoomMessage[]
+  commandTraces: WarRoomCommandTrace[]
   message: string
   selectedAgent?: AgentOrgBoardAgent
   busy: string | null
@@ -345,6 +402,7 @@ function ChatRoom({
   onAskAgent: () => void
   onQuickPrompt: (value: string) => void
 }) {
+  const latestTrace = commandTraces[0]
   return (
     <section className="agent-ops-card rounded-lg border p-4">
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -362,6 +420,19 @@ function ChatRoom({
           </div>
         )}
       </div>
+
+      {latestTrace && (
+        <div className="mb-4 flex flex-col gap-2 rounded-lg border border-radiant-gold/35 bg-radiant-gold/10 p-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-radiant-gold">Latest trace</p>
+            <p className="mt-1 truncate text-foreground/90">{latestTrace.synthesis ?? `${latestTrace.command} completed`}</p>
+          </div>
+          <Link href={`/admin/agents/runs/${latestTrace.runId}`} className="inline-flex items-center gap-2 text-radiant-gold hover:underline">
+            Open trace
+            <ArrowRight size={14} />
+          </Link>
+        </div>
+      )}
 
       <div className="max-h-[360px] space-y-3 overflow-y-auto rounded-lg border border-silicon-slate/60 bg-background/50 p-3">
         {transcript.map((entry, index) => (
@@ -542,9 +613,81 @@ function GoalPlanner({
 
       {createdItems && (
         <div className="mt-4 rounded-lg border border-green-500/30 bg-green-500/10 p-3 text-sm text-green-100">
-          Created {createdItems.children.length} child work item(s) under {createdItems.parent.title}.
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <p>Created {createdItems.children.length} child work item(s) under {createdItems.parent.title}.</p>
+            {goalDraft && (
+              <Link href={`/admin/agents/swarm-board?goal=${encodeURIComponent(goalDraft.goal_id)}`} className="inline-flex items-center gap-2 text-radiant-gold hover:underline">
+                Open goal on Kanban
+                <ArrowRight size={14} />
+              </Link>
+            )}
+          </div>
+          <div className="mt-2 grid gap-1">
+            {createdItems.children.slice(0, 4).map((item, index) => (
+              <p key={item.id} className="text-xs text-green-100/80">{index + 1}. {item.title}</p>
+            ))}
+          </div>
         </div>
       )}
+    </section>
+  )
+}
+
+function GoalSessionPanel({
+  goal,
+  tasks,
+  onClear,
+}: {
+  goal: AgentOrgBoardGoalMetric
+  tasks: AgentOrgBoardTask[]
+  onClear: () => void
+}) {
+  const orderedTasks = [...tasks].sort((a, b) => (a.goal?.sequence ?? 999) - (b.goal?.sequence ?? 999))
+  return (
+    <section className="agent-ops-card rounded-lg border border-radiant-gold/35 p-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-radiant-gold">Goal session</p>
+          <h2 className="mt-1 text-xl font-semibold">{goal.title}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {goal.completed}/{goal.total} complete · {goal.open} open · {goal.blocked} blocked
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Link href={`/admin/agents/swarm-board?goal=${encodeURIComponent(goal.id)}`} className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/10">
+            Open Kanban focus
+          </Link>
+          <button type="button" onClick={onClear} className="rounded-lg border border-silicon-slate/60 px-3 py-2 text-sm text-muted-foreground hover:text-foreground">
+            Clear focus
+          </button>
+        </div>
+      </div>
+      <div className="mt-4 h-2 overflow-hidden rounded-full bg-silicon-slate/70">
+        <div className="h-full bg-radiant-gold" style={{ width: `${goal.progress}%` }} />
+      </div>
+      <div className="mt-4 grid gap-2">
+        {orderedTasks.slice(0, 5).map((task) => (
+          <div key={task.id} className="grid gap-2 rounded-lg border border-silicon-slate/60 bg-background/55 p-3 text-sm sm:grid-cols-[40px_minmax(0,1fr)_auto] sm:items-center">
+            <span className="text-xs font-semibold uppercase tracking-wide text-radiant-gold">
+              {task.goal?.sequence ? `#${task.goal.sequence}` : 'Task'}
+            </span>
+            <div className="min-w-0">
+              <p className="truncate font-medium">{task.title}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{task.ownerAgentName.split(' - ')[0]} · {task.status.replace(/_/g, ' ')}</p>
+            </div>
+            {task.activeRunId && (
+              <Link href={`/admin/agents/runs/${task.activeRunId}`} className="text-xs text-radiant-gold hover:underline">
+                Trace
+              </Link>
+            )}
+          </div>
+        ))}
+        {!orderedTasks.length && (
+          <p className="rounded-lg border border-dashed border-silicon-slate/60 p-3 text-sm text-muted-foreground">
+            This goal has no visible Kanban cards yet. Refresh after approval or open the full Kanban board.
+          </p>
+        )}
+      </div>
     </section>
   )
 }
@@ -612,16 +755,22 @@ function GoalProgress({ goal }: { goal: AgentOrgBoardGoalMetric }) {
   )
 }
 
-function MiniKanban({ lanes }: { lanes: AgentOrgBoardLane[] }) {
-  const visible = lanes.filter((lane) => lane.tasks.length > 0).slice(0, 3)
+function MiniKanban({ lanes, focusedGoalId }: { lanes: AgentOrgBoardLane[]; focusedGoalId: string | null }) {
+  const scopedLanes = focusedGoalId
+    ? lanes.map((lane) => ({
+      ...lane,
+      tasks: lane.tasks.filter((task) => task.goal?.id === focusedGoalId),
+    }))
+    : lanes
+  const visible = scopedLanes.filter((lane) => lane.tasks.length > 0).slice(0, 3)
   return (
     <section className="agent-ops-card rounded-lg border p-4">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-radiant-gold">Kanban preview</h2>
-        <Link href="/admin/agents/swarm-board" className="text-xs text-radiant-gold hover:underline">Open board</Link>
+        <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-radiant-gold">{focusedGoalId ? 'Goal Kanban preview' : 'Kanban preview'}</h2>
+        <Link href={focusedGoalId ? `/admin/agents/swarm-board?goal=${encodeURIComponent(focusedGoalId)}` : '/admin/agents/swarm-board'} className="text-xs text-radiant-gold hover:underline">Open board</Link>
       </div>
       <div className="space-y-3">
-        {(visible.length ? visible : lanes.slice(0, 3)).map((lane) => (
+        {(visible.length ? visible : scopedLanes.slice(0, 3)).map((lane) => (
           <div key={lane.key} className="rounded-lg border border-silicon-slate/60 bg-background/50 p-3">
             <div className="mb-2 flex items-center justify-between text-sm">
               <span className="font-semibold">{lane.label}</span>

@@ -195,6 +195,7 @@ const boardSnapshot = {
 
 describe('AgentSwarmBoardPage', () => {
   beforeEach(() => {
+    window.history.pushState({}, '', '/admin/agents/swarm-board')
     window.scrollTo = vi.fn()
     vi.stubGlobal('fetch', vi.fn(async () => ({
       ok: true,
@@ -204,6 +205,7 @@ describe('AgentSwarmBoardPage', () => {
 
   afterEach(() => {
     vi.unstubAllGlobals()
+    window.history.pushState({}, '', '/')
   })
 
   it('defaults to the Agent Kanban work-lane view', async () => {
@@ -255,6 +257,17 @@ describe('AgentSwarmBoardPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }))
 
     expect(screen.getByText('Maintain automation context outside the selected goal')).toBeInTheDocument()
+  })
+
+  it('honors a goal query parameter as the initial board scope', async () => {
+    window.history.pushState({}, '', '/admin/agents/swarm-board?goal=goal-1')
+
+    render(<AgentSwarmBoardPage />)
+
+    expect(await screen.findByRole('region', { name: 'Selected goal work' })).toBeInTheDocument()
+    expect(screen.getByText(/0\/2 complete/)).toBeInTheDocument()
+    expect(screen.queryByText('Maintain automation context outside the selected goal')).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Goal')).toHaveValue('goal-1')
   })
 
   it('filters visible cards by status and attention state', async () => {
