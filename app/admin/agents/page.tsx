@@ -627,11 +627,6 @@ export default function AgentOperationsPage() {
   const inboxItems = snapshot?.agent_inbox ?? []
   const inboxPageCount = Math.max(1, Math.ceil(inboxItems.length / 3))
   const visibleInboxItems = inboxItems.slice(inboxPage * 3, inboxPage * 3 + 3)
-  const missionHeadline = decisionQueueCount
-    ? `System is active. ${decisionQueueCount} decision${decisionQueueCount === 1 ? '' : 's'} waiting.`
-    : healthLabel === 'Read-only healthy'
-      ? 'System is active. No decisions are waiting.'
-      : 'System needs review. Health signals are waiting.'
   const primaryWorkHomes = [
     {
       eyebrow: 'Decision Queue',
@@ -732,29 +727,6 @@ export default function AgentOperationsPage() {
         <div className="max-w-7xl mx-auto">
           <Breadcrumbs items={[{ label: 'Admin Dashboard', href: '/admin' }, { label: 'Agent Operations' }]} />
 
-          <section className="agent-ops-panel rounded-xl border p-5">
-            <div className="grid gap-5 xl:grid-cols-[1fr_340px]">
-              <div>
-                <div className="mb-3 flex items-center gap-3">
-                  <span className="h-2 w-12 rounded-full bg-radiant-gold" aria-hidden />
-                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Agent Ops hierarchy</p>
-                </div>
-                <h1 className="max-w-4xl text-4xl font-bold leading-tight lg:text-5xl">Mission Control routes the work. Drilldowns own the details.</h1>
-                <p className="mt-3 max-w-4xl text-sm leading-6 text-muted-foreground">
-                  Ask Shaka in place, open Kanban for work lanes, use Decision Queue for approvals, and use Run Console for traces. Mission Control stays a summary and routing surface.
-                </p>
-              </div>
-              <div className="border-silicon-slate/70 xl:border-l xl:pl-5">
-                <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Design rule</p>
-                <h2 className="mt-2 text-lg font-semibold">Prompt in place, boards one click away</h2>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  Small agent asks belong in the widget. Multi-column work views, approvals, traces, and governance each link to their own L2/L3 home.
-                </p>
-              </div>
-            </div>
-
-          </section>
-
           {error ? (
             <div className="mt-4 rounded-lg border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
               {error}
@@ -795,13 +767,7 @@ export default function AgentOperationsPage() {
 
             <div className="grid gap-5 p-5 xl:grid-cols-[minmax(0,1fr)_340px]">
               <div>
-                <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_560px]">
-                  <div className="min-w-0">
-                    <h3 className="text-2xl font-bold leading-tight sm:text-3xl">{missionHeadline}</h3>
-                    <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
-                      Ask Shaka directly below, then move into Decision Queue, Kanban, Run Console, or the governance homes when the answer needs a larger work surface.
-                    </p>
-                  </div>
+                <div className="grid gap-4">
                   <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 2xl:grid-cols-4" aria-label="Mission Control status blocks">
                     <MissionStatusCard
                       as="link"
@@ -1058,21 +1024,7 @@ export default function AgentOperationsPage() {
           </section>
 
           <section className="agent-ops-panel mt-5 rounded-xl border p-5" aria-label="Agent Ops system map">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Where Mission Control signals go</p>
-                <h2 className="mt-2 text-2xl font-bold">Every signal has a durable home</h2>
-                <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-                  Mission Control answers what needs attention now and how to interact with agents. The L2/L3 homes below hold the deeper work so this page stays short.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Link href="/admin/agents/coordination" className="rounded-lg border border-radiant-gold/50 bg-radiant-gold px-3 py-2 text-sm font-semibold text-silicon-slate hover:bg-radiant-gold/90">Open controller</Link>
-                <Link href="/admin/agents/swarm-board" className="rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60">Open Kanban</Link>
-              </div>
-            </div>
-
-            <div className="mt-5 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+            <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
               <div>
                 <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Primary work surfaces</p>
                 <div className="grid gap-3 lg:grid-cols-2">

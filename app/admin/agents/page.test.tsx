@@ -205,7 +205,8 @@ describe('AgentOperationsPage mission control landing', () => {
   it('loads the mission control landing with primary actions and status hierarchy', async () => {
     render(<AgentOperationsPage />)
 
-    expect(await screen.findByRole('heading', { name: 'Mission Control routes the work. Drilldowns own the details.' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Mission Control' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Mission Control routes the work. Drilldowns own the details.' })).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Agent Ops route map')).not.toBeInTheDocument()
 
     const actionBar = screen.getByLabelText('Mission Control actions')
@@ -240,7 +241,7 @@ describe('AgentOperationsPage mission control landing', () => {
     expect(screen.getByRole('link', { name: /Failed or stale runs/i })).toHaveAttribute('href', '/admin/agents/runs?status=needs_review')
     expect(screen.getByRole('link', { name: /Pending approvals/i })).toHaveAttribute('href', '/admin/agents/coordination')
     expect(screen.getByLabelText('Agent Ops system map')).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Every signal has a durable home' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Every signal has a durable home' })).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Decision Queue Approval controller/i })).toHaveAttribute('href', '/admin/agents/coordination')
     expect(screen.getByRole('link', { name: /Run Console Trace, evaluation, and dead-letter history/i })).toHaveAttribute('href', '/admin/agents/runs')
     expect(screen.getByRole('link', { name: /Cost Intelligence/i })).toHaveAttribute('href', '/admin/cost-revenue')
