@@ -217,7 +217,7 @@ describe('AgentOperationsPage mission control landing', () => {
     const actionBar = screen.getByLabelText('Mission Control actions')
     expect(within(actionBar).getByRole('button', { name: /Refresh/i })).toBeInTheDocument()
     expect(within(actionBar).getByRole('link', { name: /Open Kanban/i })).toHaveAttribute('href', '/admin/agents/swarm-board')
-    expect(within(actionBar).getByRole('button', { name: /Run standup/i })).toBeInTheDocument()
+    expect(within(actionBar).getByRole('link', { name: /Open standup/i })).toHaveAttribute('href', '/admin/agents/standup')
 
     const statusBlocks = screen.getByLabelText('Mission Control status blocks')
     expect(within(statusBlocks).getByRole('link', { name: /Decision Queue/i })).toHaveAttribute('href', '/admin/agents/coordination')
@@ -295,19 +295,11 @@ describe('AgentOperationsPage mission control landing', () => {
     }))
   })
 
-  it('runs the top-bar standup through the war-room POST action', async () => {
+  it('routes standup work into the interactive Standup Room', async () => {
     render(<AgentOperationsPage />)
 
     const actionBar = await screen.findByLabelText('Mission Control actions')
-    fireEvent.click(within(actionBar).getByRole('button', { name: /Run standup/i }))
-
-    expect(await screen.findByText('Standup complete.')).toBeInTheDocument()
-    expect(screen.getByText('War Room Standup')).toBeInTheDocument()
-
-    expect(fetch).toHaveBeenCalledWith('/api/admin/agents/war-room', expect.objectContaining({
-      method: 'POST',
-      headers: expect.objectContaining({ Authorization: 'Bearer admin-token' }),
-      body: JSON.stringify({ command: 'standup', message: '' }),
-    }))
+    expect(within(actionBar).getByRole('link', { name: /Open standup/i })).toHaveAttribute('href', '/admin/agents/standup')
+    expect(screen.getByRole('link', { name: /Open Standup Room/i })).toHaveAttribute('href', '/admin/agents/standup')
   })
 })

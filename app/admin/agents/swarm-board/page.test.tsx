@@ -41,6 +41,20 @@ const boardSnapshot = {
       ready_for_merge: 0,
       pending_approvals: 0,
       activity_entries: 1,
+      active_goals: 1,
+      average_cycle_hours: 4.5,
+      oldest_in_flight_hours: 12,
+      wip: [{ laneKey: 'operations', label: longLaneLabel, count: 1, limit: 4, overLimit: false }],
+      goals: [{
+        id: 'goal-1',
+        title: 'Launch Standup Room',
+        total: 1,
+        completed: 0,
+        progress: 35,
+        blocked: 1,
+        open: 1,
+        burndown: [{ label: 'May 13', remaining: 1 }],
+      }],
     },
     lanes: [
       {
@@ -67,7 +81,18 @@ const boardSnapshot = {
             blockerSummary: 'Waiting on staging smoke confirmation.',
             validationSummary: 'Focused route tests passed.',
             overlapGroup: 'agent-ops-redesign',
+            parentWorkItemId: 'goal-parent',
+            createdAt: '2026-05-13T08:00:00.000Z',
             updatedAt: '2026-05-13T11:50:00.000Z',
+            completedAt: null,
+            goal: {
+              id: 'goal-1',
+              title: 'Launch Standup Room',
+              sequence: 1,
+              status: 'approved',
+              progressWeight: 1,
+              sessionHref: '/admin/agents/standup?goal=goal-1',
+            },
           },
         ],
       },
@@ -134,6 +159,8 @@ describe('AgentSwarmBoardPage', () => {
     expect(screen.getByRole('heading', { name: 'Work by state, owner, and blocker' })).toBeInTheDocument()
     expect(screen.getAllByText(/Work by state, owner, and blocker/i).length).toBeGreaterThan(0)
     expect(screen.getByText(/Work-lane Kanban organized by agent ownership/i)).toBeInTheDocument()
+    expect(screen.getByText('Goal progress')).toBeInTheDocument()
+    expect(screen.getByText('Launch Standup Room')).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'Kanban lanes' })).toHaveAttribute('aria-selected', 'true')
     expect(fetch).toHaveBeenCalledWith('/api/admin/agents/swarm-board', expect.objectContaining({
       headers: expect.objectContaining({ Authorization: 'Bearer admin-token' }),

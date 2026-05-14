@@ -120,7 +120,37 @@ export type AgentOrgBoardTask = {
   blockerSummary: string | null
   validationSummary: string | null
   overlapGroup: string | null
+  parentWorkItemId: string | null
+  createdAt: string
   updatedAt: string
+  completedAt: string | null
+  goal: {
+    id: string
+    title: string
+    sequence: number | null
+    status: string | null
+    progressWeight: number
+    sessionHref: string
+  } | null
+}
+
+export type AgentOrgBoardGoalMetric = {
+  id: string
+  title: string
+  total: number
+  completed: number
+  progress: number
+  blocked: number
+  open: number
+  burndown: Array<{ label: string; remaining: number }>
+}
+
+export type AgentOrgBoardWipMetric = {
+  laneKey: string
+  label: string
+  count: number
+  limit: number
+  overLimit: boolean
 }
 
 export type AgentOrgBoardLane = {
@@ -176,6 +206,11 @@ export type AgentOrgBoardSnapshot = {
     ready_for_merge: number
     pending_approvals: number
     activity_entries: number
+    active_goals: number
+    average_cycle_hours: number | null
+    oldest_in_flight_hours: number | null
+    wip: AgentOrgBoardWipMetric[]
+    goals: AgentOrgBoardGoalMetric[]
   }
   agents: AgentOrgBoardAgent[]
   lanes: AgentOrgBoardLane[]
@@ -289,6 +324,9 @@ type AgentWorkItemRow = {
   blocker_summary: string | null
   validation_summary: string | null
   approval_id: string | null
+  parent_work_item_id?: string | null
+  metadata?: JsonRecord | null
+  completed_at?: string | null
   created_at: string
   updated_at: string
 }
@@ -754,6 +792,68 @@ function laneKeyForTask(task: AgentWorkItemRow) {
   return task.owner_agent_key
 }
 
+function numberValue(value: unknown, fallback = 0) {
+  return typeof value === 'number' && Number.isFinite(value) ? value : fallback
+}
+
+function goalForTask(item: AgentWorkItemRow): AgentOrgBoardTask['goal'] {
+  const metadata = item.metadata ?? {}
+  const goalId = stringValue(metadata.goal_id)
+  const goalTitle = stringValue(metadata.goal_title)
+  if (!goalId || !goalTitle) return null
+  return {
+    id: goalId,
+    title: goalTitle,
+    sequence: typeof metadata.goal_sequence === 'number' ? metadata.goal_sequence : null,
+    status: stringValue(metadata.goal_status),
+    progressWeight: numberValue(metadata.goal_progress_weight, 1),
+    sessionHref: `/admin/agents/standup?goal=${encodeURIComponent(goalId)}`,
+  }
+}
+
+function hoursBetween(start: string | null | undefined, end: Date | string | null | undefined) {
+  if (!start) return null
+  const startMs = new Date(start).getTime()
+  const endMs = end ? new Date(end).getTime() : Date.now()
+  if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || endMs < startMs) return null
+  return Math.round(((endMs - startMs) / 3_600_000) * 10) / 10
+}
+
+function isCompletedWorkStatus(status: AgentOrgBoardTaskStatus) {
+  return status === 'merged' || status === 'deployed'
+}
+
+function buildGoalMetrics(tasks: AgentOrgBoardTask[]): AgentOrgBoardGoalMetric[] {
+  const grouped = new Map<string, AgentOrgBoardTask[]>()
+  for (const task of tasks) {
+    if (!task.goal) continue
+    grouped.set(task.goal.id, [...(grouped.get(task.goal.id) ?? []), task])
+  }
+
+  return [...grouped.entries()].map(([id, goalTasks]) => {
+    const title = goalTasks[0]?.goal?.title ?? id
+    const totalWeight = goalTasks.reduce((sum, task) => sum + (task.goal?.progressWeight ?? 1), 0) || goalTasks.length || 1
+    const completedWeight = goalTasks
+      .filter((task) => isCompletedWorkStatus(task.status))
+      .reduce((sum, task) => sum + (task.goal?.progressWeight ?? 1), 0)
+    const sorted = [...goalTasks].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+    const burndown = sorted.slice(0, 6).map((task, index) => ({
+      label: task.completedAt ? new Date(task.completedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : `T${index + 1}`,
+      remaining: sorted.filter((candidate) => !isCompletedWorkStatus(candidate.status) || new Date(candidate.updatedAt).getTime() > new Date(task.updatedAt).getTime()).length,
+    }))
+    return {
+      id,
+      title,
+      total: goalTasks.length,
+      completed: goalTasks.filter((task) => isCompletedWorkStatus(task.status)).length,
+      progress: Math.round((completedWeight / totalWeight) * 100),
+      blocked: goalTasks.filter((task) => task.status === 'blocked').length,
+      open: goalTasks.filter((task) => isActiveWorkStatus(task.status)).length,
+      burndown,
+    }
+  })
+}
+
 function fallbackAgentForRun(run: AgentRunRow | undefined) {
   if (!run) return AGENT_ORGANIZATION[0]
   if (run.agent_key) return getAgentByKey(run.agent_key) ?? AGENT_ORGANIZATION[0]
@@ -811,7 +911,11 @@ export function buildAgentOrgBoardSnapshotFromRows(input: AgentOrgBoardBuildInpu
     blockerSummary: item.blocker_summary,
     validationSummary: item.validation_summary,
     overlapGroup: item.overlap_group,
+    parentWorkItemId: item.parent_work_item_id ?? null,
+    createdAt: item.created_at,
     updatedAt: item.updated_at,
+    completedAt: item.completed_at ?? null,
+    goal: goalForTask(item),
   }))
 
   const laneSeeds: AgentOrgBoardLane[] = [
@@ -887,6 +991,24 @@ export function buildAgentOrgBoardSnapshotFromRows(input: AgentOrgBoardBuildInpu
     }))
 
   const activeTasks = tasks.filter((task) => isActiveWorkStatus(task.status))
+  const completedCycleHours = tasks
+    .filter((task) => isCompletedWorkStatus(task.status))
+    .map((task) => hoursBetween(task.createdAt, task.completedAt ?? task.updatedAt))
+    .filter((value): value is number => value != null)
+  const activeAges = activeTasks
+    .map((task) => hoursBetween(task.createdAt, now))
+    .filter((value): value is number => value != null)
+  const wip = lanes.map((lane) => {
+    const limit = lane.key === 'integration-captain' ? 3 : lane.key === 'inbox' ? 6 : 4
+    return {
+      laneKey: lane.key,
+      label: lane.label,
+      count: lane.tasks.length,
+      limit,
+      overLimit: lane.tasks.length > limit,
+    }
+  })
+  const goals = buildGoalMetrics(tasks)
 
   return {
     generated_at: now.toISOString(),
@@ -899,6 +1021,13 @@ export function buildAgentOrgBoardSnapshotFromRows(input: AgentOrgBoardBuildInpu
       ready_for_merge: activeTasks.filter((task) => task.status === 'ready_for_merge').length,
       pending_approvals: pendingApprovals.length,
       activity_entries: activity.length,
+      active_goals: goals.filter((goal) => goal.open > 0).length,
+      average_cycle_hours: completedCycleHours.length
+        ? Math.round((completedCycleHours.reduce((sum, value) => sum + value, 0) / completedCycleHours.length) * 10) / 10
+        : null,
+      oldest_in_flight_hours: activeAges.length ? Math.max(...activeAges) : null,
+      wip,
+      goals,
     },
     agents,
     lanes,
@@ -1031,7 +1160,7 @@ export async function buildAgentOrgBoardSnapshot(): Promise<AgentOrgBoardSnapsho
       .limit(120),
     db
       .from('agent_work_items')
-      .select('id, title, objective, status, priority, owner_agent_key, owner_runtime, active_run_id, branch_name, worktree_path, pr_number, pr_url, overlap_group, blocker_summary, validation_summary, approval_id, created_at, updated_at')
+      .select('id, title, objective, status, priority, owner_agent_key, owner_runtime, active_run_id, parent_work_item_id, branch_name, worktree_path, pr_number, pr_url, overlap_group, blocker_summary, validation_summary, approval_id, metadata, completed_at, created_at, updated_at')
       .order('updated_at', { ascending: false })
       .limit(100),
     db

@@ -16,6 +16,7 @@ describe('AdminSidebar Agent Ops hierarchy', () => {
     const nav = screen.getByRole('navigation', { name: 'Admin navigation' })
     expect(within(nav).getByText('Agent Ops')).toBeInTheDocument()
     expect(within(nav).getByRole('link', { name: 'Mission Control' })).toHaveAttribute('href', '/admin/agents')
+    expect(within(nav).getByRole('link', { name: 'Standup Room' })).toHaveAttribute('href', '/admin/agents/standup')
     expect(within(nav).getByRole('link', { name: 'Decision Queue' })).toHaveAttribute('href', '/admin/agents/coordination')
     expect(within(nav).getByRole('link', { name: 'Agent Kanban' })).toHaveAttribute('href', '/admin/agents/swarm-board')
     expect(within(nav).getByRole('link', { name: 'Run Console' })).toHaveAttribute('href', '/admin/agents/runs')
@@ -30,6 +31,7 @@ describe('AdminSidebar Agent Ops hierarchy', () => {
     expect(qualityCategory?.items.map((item) => item.href)).not.toContain('/admin/agents')
     expect(agentOpsCategory?.items.map((item) => item.href)).toEqual([
       '/admin/agents',
+      '/admin/agents/standup',
       '/admin/agents/coordination',
       '/admin/agents/swarm-board',
       '/admin/agents/runs',

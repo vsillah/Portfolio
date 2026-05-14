@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
+import AgentAvatar from '@/components/admin/AgentAvatar'
 import { getCurrentSession } from '@/lib/auth'
 import type {
   AgentOrgBoardActivity,
@@ -194,6 +195,7 @@ function KanbanBoard({ organization }: { organization: AgentOrgBoardSnapshot }) 
   return (
     <div className="space-y-4" role="tabpanel" aria-label="Kanban lanes">
       <SummaryStrip organization={organization} />
+      <GoalRadiators organization={organization} />
       <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-4">
         <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
           <div>
@@ -214,9 +216,56 @@ function KanbanBoard({ organization }: { organization: AgentOrgBoardSnapshot }) 
   )
 }
 
+function GoalRadiators({ organization }: { organization: AgentOrgBoardSnapshot }) {
+  const wipAlerts = organization.summary.wip.filter((lane) => lane.overLimit).slice(0, 3)
+  const goals = organization.summary.goals.slice(0, 3)
+  return (
+    <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-4" aria-label="Goal and Kanban metrics">
+      <div className="grid gap-3 lg:grid-cols-[minmax(0,1.5fr)_minmax(260px,0.8fr)]">
+        <div>
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-radiant-gold">Goal progress</h2>
+            <Link href="/admin/agents/standup" className="text-xs text-radiant-gold hover:underline">Open Standup Room</Link>
+          </div>
+          <div className="grid gap-3 md:grid-cols-3">
+            {goals.length ? goals.map((goal) => (
+              <div key={goal.id} className="rounded-lg border border-silicon-slate/60 bg-background/60 p-3">
+                <p className="line-clamp-1 text-sm font-semibold">{goal.title}</p>
+                <div className="mt-2 h-2 overflow-hidden rounded-full bg-silicon-slate/70">
+                  <div className="h-full bg-radiant-gold" style={{ width: `${goal.progress}%` }} />
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">{goal.progress}% · {goal.open} open · {goal.blocked} blocked</p>
+              </div>
+            )) : (
+              <p className="rounded-lg border border-dashed border-silicon-slate/60 p-3 text-sm text-muted-foreground md:col-span-3">
+                Goal-tagged cards will appear after a Standup Room goal is approved.
+              </p>
+            )}
+          </div>
+        </div>
+        <div className="rounded-lg border border-silicon-slate/60 bg-background/60 p-3">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-radiant-gold">WIP limits</h3>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {wipAlerts.length
+              ? `${wipAlerts.length} lane(s) are above configured limit.`
+              : 'All visible lanes are within configured WIP limits.'}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {organization.summary.wip.slice(0, 5).map((lane) => (
+              <span key={lane.laneKey} className={`rounded-full border px-2 py-1 text-xs ${lane.overLimit ? 'border-red-500/50 text-red-200' : 'border-silicon-slate/60 text-muted-foreground'}`}>
+                {lane.label}: {lane.count}/{lane.limit}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function SummaryStrip({ organization }: { organization: AgentOrgBoardSnapshot }) {
   return (
-    <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-7">
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
       <MetricCard label="Agents" value={organization.summary.agents} />
       <MetricCard label="Live" value={organization.summary.live_agents} tone="green" />
       <MetricCard label="Work items" value={organization.summary.active_work_items} />
@@ -224,6 +273,7 @@ function SummaryStrip({ organization }: { organization: AgentOrgBoardSnapshot })
       <MetricCard label="Blocked" value={organization.summary.blocked_work_items} tone={organization.summary.blocked_work_items ? 'red' : 'slate'} />
       <MetricCard label="Ready merge" value={organization.summary.ready_for_merge} tone={organization.summary.ready_for_merge ? 'yellow' : 'slate'} />
       <MetricCard label="Approvals" value={organization.summary.pending_approvals} tone={organization.summary.pending_approvals ? 'yellow' : 'slate'} />
+      <MetricCard label="Goals" value={organization.summary.active_goals} tone={organization.summary.active_goals ? 'yellow' : 'slate'} />
     </div>
   )
 }
@@ -267,6 +317,14 @@ function WorkItemCard({ task }: { task: AgentOrgBoardTask }) {
         </div>
         <span className={`rounded-full px-2 py-1 text-xs ${priorityClass(task.priority)}`}>{task.priority}</span>
       </div>
+      {task.goal && (
+        <Link
+          href={task.goal.sessionHref}
+          className="mb-3 inline-flex max-w-full items-center rounded-full border border-radiant-gold/40 bg-radiant-gold/10 px-2 py-1 text-xs text-radiant-gold hover:bg-radiant-gold/15"
+        >
+          <span className="truncate">Goal: {task.goal.title}</span>
+        </Link>
+      )}
       {task.objective && <p className="mb-3 line-clamp-2 text-xs text-muted-foreground">{task.objective}</p>}
       <dl className="grid gap-2 text-xs">
         <CardDetail label="Trace" value={task.activeRunId ?? 'No active trace'} />
@@ -290,7 +348,7 @@ function WorkItemCard({ task }: { task: AgentOrgBoardTask }) {
         </p>
       )}
       <div className="mt-3 flex items-center justify-between gap-2 text-xs text-muted-foreground">
-        <span>{formatRelative(task.updatedAt)}</span>
+        <span>{task.completedAt ? `Cycle ${formatHours(task.createdAt, task.completedAt)}` : `Age ${formatHours(task.createdAt)}`}</span>
         {task.prUrl ? (
           <a
             href={task.prUrl}
@@ -409,9 +467,7 @@ function AgentsGrid({ agents }: { agents: AgentOrgBoardAgent[] }) {
       {agents.map((agent) => (
         <article key={agent.key} className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-4">
           <div className="mb-4 flex items-start gap-3">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-radiant-gold/30 bg-radiant-gold/10 text-radiant-gold">
-              <Bot size={22} />
-            </div>
+            <AgentAvatar agentKey={agent.key} size="lg" />
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <h2 className="truncate font-semibold" title={agent.name}>{agent.name}</h2>
@@ -456,9 +512,7 @@ function WarRoom({ organization }: { organization: AgentOrgBoardSnapshot }) {
         {organization.warRoom.roster.map((agent) => (
           <article key={agent.key} className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-4">
             <div className="mb-2 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-silicon-slate/70 bg-background/60">
-                <Bot size={18} />
-              </div>
+              <AgentAvatar agentKey={agent.key} size="sm" />
               <div>
                 <p className="font-semibold" title={agent.name}>{agent.name}</p>
                 <p className="text-xs text-muted-foreground">{agent.podName}</p>
@@ -634,4 +688,12 @@ function formatRelative(value: string) {
   if (hours < 24) return `${hours}h ago`
   const days = Math.round(hours / 24)
   return `${days}d ago`
+}
+
+function formatHours(start: string, end?: string | null) {
+  const startTime = new Date(start).getTime()
+  const endTime = end ? new Date(end).getTime() : Date.now()
+  if (!Number.isFinite(startTime) || !Number.isFinite(endTime) || endTime < startTime) return formatRelative(start)
+  const hours = Math.round(((endTime - startTime) / 3_600_000) * 10) / 10
+  return hours < 24 ? `${hours}h` : `${Math.round((hours / 24) * 10) / 10}d`
 }

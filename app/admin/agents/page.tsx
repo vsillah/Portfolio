@@ -763,15 +763,13 @@ export default function AgentOperationsPage() {
                   <Columns size={16} />
                   Open Kanban
                 </Link>
-                <button
-                  type="button"
-                  onClick={() => runWarRoom('standup')}
-                  disabled={warRoomLoading !== null}
-                  className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/60 bg-radiant-gold px-3 py-2 text-sm font-semibold text-silicon-slate hover:bg-radiant-gold/90 disabled:opacity-60"
+                <Link
+                  href="/admin/agents/standup"
+                  className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/60 bg-radiant-gold px-3 py-2 text-sm font-semibold text-silicon-slate hover:bg-radiant-gold/90"
                 >
-                  {warRoomLoading === 'standup' ? <RefreshCw size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                  Run standup
-                </button>
+                  <MessageSquare size={16} />
+                  Open standup
+                </Link>
               </div>
             </div>
 
@@ -947,15 +945,10 @@ export default function AgentOperationsPage() {
                       <p className="font-semibold">Open Agent Kanban</p>
                       <p className="mt-1 text-sm text-muted-foreground">Review work lanes, roster, blockers, traces, validation, and PRs.</p>
                     </Link>
-                    <button
-                      type="button"
-                      onClick={() => runWarRoom('standup')}
-                      disabled={warRoomLoading !== null}
-                      className="rounded-lg border border-radiant-gold/60 bg-radiant-gold p-3 text-left text-silicon-slate hover:bg-radiant-gold/90 disabled:opacity-60"
-                    >
-                      <p className="font-semibold">Run standup</p>
-                      <p className="mt-1 text-sm">Generate brief and update queue context.</p>
-                    </button>
+                    <Link href="/admin/agents/standup" className="block rounded-lg border border-radiant-gold/60 bg-radiant-gold p-3 text-left text-silicon-slate hover:bg-radiant-gold/90">
+                      <p className="font-semibold">Open Standup Room</p>
+                      <p className="mt-1 text-sm">Ask agents, start standup, and turn goals into tracked work.</p>
+                    </Link>
                     <Link href="/admin/agents/runs" className="block rounded-lg border border-silicon-slate/60 bg-background/40 p-3 hover:border-radiant-gold/50">
                       <p className="font-semibold">Open Run Console</p>
                       <p className="mt-1 text-sm text-muted-foreground">Inspect traces, evaluations, dead letters, and artifacts.</p>

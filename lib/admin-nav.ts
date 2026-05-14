@@ -84,6 +84,7 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
       label: 'Agent Ops',
       items: [
         { label: 'Mission Control', href: '/admin/agents' },
+        { label: 'Standup Room', href: '/admin/agents/standup' },
         { label: 'Decision Queue', href: '/admin/agents/coordination' },
         { label: 'Agent Kanban', href: '/admin/agents/swarm-board' },
         { label: 'Run Console', href: '/admin/agents/runs' },
