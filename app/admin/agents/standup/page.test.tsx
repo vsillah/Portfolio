@@ -109,6 +109,7 @@ const organization = {
   activity: [],
   warRoom: {
     roster: [],
+    recentRuns: [],
     commands: [],
     suggestedPrompt: 'Ask for blockers.',
   },

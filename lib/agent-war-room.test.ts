@@ -12,6 +12,10 @@ const missionMocks = vi.hoisted(() => ({
   buildAgentMissionControlSnapshot: vi.fn(),
 }))
 
+const orgBoardMocks = vi.hoisted(() => ({
+  buildAgentOrgBoardSnapshot: vi.fn(),
+}))
+
 const workItemMocks = vi.hoisted(() => ({
   createAgentWorkItem: vi.fn(),
 }))
@@ -26,6 +30,10 @@ vi.mock('@/lib/agent-run', () => ({
 
 vi.mock('@/lib/agent-mission-control', () => ({
   buildAgentMissionControlSnapshot: missionMocks.buildAgentMissionControlSnapshot,
+}))
+
+vi.mock('@/lib/agent-swarm-board', () => ({
+  buildAgentOrgBoardSnapshot: orgBoardMocks.buildAgentOrgBoardSnapshot,
 }))
 
 vi.mock('@/lib/agent-work-items', () => ({
@@ -54,30 +62,85 @@ describe('runAgentWarRoom', () => {
       },
       attention_queue: [],
     })
-    workItemMocks.createAgentWorkItem.mockImplementation(async (input) => ({
-      id: input.parentWorkItemId ? `child-${input.title}` : 'parent-goal',
-      title: input.title,
-      objective: input.objective,
-      metadata: input.metadata ?? {},
-    }))
-    workItemMocks.createAgentWorkItem.mockImplementation(async (input) => ({
-      id: input.parentWorkItemId ? `child-${input.title}` : 'parent-goal',
-      title: input.title,
-      objective: input.objective,
-      metadata: input.metadata ?? {},
-    }))
-    missionMocks.buildAgentMissionControlSnapshot.mockResolvedValue({
-      status_strip: {
-        active: 2,
-        running: 1,
-        failed: 0,
-        stale: 0,
-        waiting_for_approval: 0,
+    orgBoardMocks.buildAgentOrgBoardSnapshot.mockResolvedValue({
+      generated_at: '2026-05-14T12:00:00.000Z',
+      summary: {
+        agents: 1,
+        live_agents: 0,
+        active_work_items: 1,
+        unassigned_work_items: 0,
+        blocked_work_items: 1,
+        ready_for_merge: 0,
         pending_approvals: 0,
-        cost_today: 0,
+        activity_entries: 0,
+        active_goals: 0,
+        average_cycle_hours: null,
+        oldest_in_flight_hours: 12,
+        wip: [],
+        goals: [],
       },
-      attention_queue: [],
+      agents: [
+        {
+          key: 'chief-of-staff',
+          name: 'Shaka (Zulu) - Chief of Staff',
+          podKey: 'chief_of_staff',
+          podName: 'Command',
+          status: 'active',
+          runtime: 'codex',
+          live: false,
+          todayTurns: 1,
+          latestAction: 'Recent traced standup',
+          latestRunId: 'run-latest',
+        },
+      ],
+      lanes: [
+        {
+          key: 'chief-of-staff',
+          label: 'Shaka (Zulu) - Chief of Staff',
+          agentKey: 'chief-of-staff',
+          agentName: 'Shaka (Zulu) - Chief of Staff',
+          status: 'idle',
+          tasks: [
+            {
+              id: 'task-1',
+              title: 'Route blocked approval packet',
+              objective: 'Clarify the next approval step',
+              status: 'blocked',
+              priority: 'high',
+              ownerAgentKey: 'chief-of-staff',
+              ownerAgentName: 'Shaka (Zulu) - Chief of Staff',
+              ownerRuntime: 'codex',
+              branchName: null,
+              worktreePath: null,
+              prNumber: null,
+              prUrl: null,
+              activeRunId: 'run-task-1',
+              blockerSummary: 'Needs operator decision',
+              validationSummary: null,
+              overlapGroup: null,
+              parentWorkItemId: null,
+              createdAt: '2026-05-14T00:00:00.000Z',
+              updatedAt: '2026-05-14T10:00:00.000Z',
+              completedAt: null,
+              goal: null,
+            },
+          ],
+        },
+      ],
+      activity: [],
+      warRoom: {
+        roster: [],
+        recentRuns: [],
+        commands: [],
+        suggestedPrompt: 'Ask for blockers.',
+      },
     })
+    workItemMocks.createAgentWorkItem.mockImplementation(async (input) => ({
+      id: input.parentWorkItemId ? `child-${input.title}` : 'parent-goal',
+      title: input.title,
+      objective: input.objective,
+      metadata: input.metadata ?? {},
+    }))
   })
 
   it('creates a traced standup run with transcript artifact', async () => {
@@ -111,6 +174,8 @@ describe('runAgentWarRoom', () => {
     }))
     expect(result.synthesis).toContain('Standup complete')
     expect(result.updates.length).toBeGreaterThan(0)
+    expect(result.messages.map((message) => message.content).join(' ')).toContain('Route blocked approval packet')
+    expect(result.messages.map((message) => message.content).join(' ')).toContain('Needs operator decision')
   })
 
   it('rejects discuss without a message', async () => {
