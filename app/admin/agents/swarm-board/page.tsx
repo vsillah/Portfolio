@@ -90,7 +90,7 @@ function AgentSwarmBoardContent() {
   }, [activityFilter, organization?.activity])
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-6 lg:p-8">
+    <div className="agent-ops-page min-h-screen text-foreground p-6 lg:p-8">
       <div className="mx-auto max-w-[1680px]">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
@@ -106,7 +106,7 @@ function AgentSwarmBoardContent() {
             </div>
             <h1 className="text-3xl font-bold">Agent Kanban</h1>
             <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-              Agent Org Board work lanes for ownership, blockers, validation, traces, and pull requests across the Portfolio agent team.
+              Work by state, owner, and blocker. This is the drilldown for standup output, active work lanes, trace links, validation, and pull requests across the Portfolio agent team.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -134,7 +134,7 @@ function AgentSwarmBoardContent() {
           <FailureState message={error} />
         ) : snapshot && organization ? (
           <div className="grid gap-5 xl:grid-cols-[220px_minmax(0,1fr)]">
-            <aside className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-3">
+            <aside className="agent-ops-card rounded-lg border p-3">
               <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Board views</p>
               <div className="space-y-1" role="tablist" aria-label="Agent board views">
                 {MODES.map((item) => {
@@ -158,7 +158,7 @@ function AgentSwarmBoardContent() {
                 })}
               </div>
               <p className="mt-3 px-2 text-xs leading-relaxed text-muted-foreground">
-                Kanban lanes are the default work drilldown. Other views summarize the same org snapshot from different board angles.
+                Kanban lanes are the default work drilldown. Alternate views summarize the same org snapshot without replacing the primary lane model.
               </p>
 
               <div className="mt-5 grid grid-cols-2 gap-2">
@@ -197,7 +197,7 @@ function KanbanBoard({ organization }: { organization: AgentOrgBoardSnapshot }) 
       <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-4">
         <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h2 className="text-xl font-semibold">Agent Org Board</h2>
+            <h2 className="text-xl font-semibold">Work by state, owner, and blocker</h2>
             <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
               Work-lane Kanban organized by agent ownership. Use each card to inspect the trace, PR, owner, blocker, validation, and current status before handoff or merge review.
             </p>

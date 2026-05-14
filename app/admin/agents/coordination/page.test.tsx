@@ -212,7 +212,8 @@ describe('AgentCoordinationPage decision queue controller', () => {
     render(<AgentCoordinationPage />)
 
     expect(await screen.findByRole('heading', { name: 'Decision Queue Controller' })).toBeInTheDocument()
-    expect(screen.getByText('Action required')).toBeInTheDocument()
+    expect(screen.getByText('Start with the decision, then inspect the trace.')).toBeInTheDocument()
+    expect(screen.getAllByText('Action required').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Executive summary').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Controller recommendation').length).toBeGreaterThan(0)
     expect(screen.getByText('Approve validation after checking the trace and PR evidence.')).toBeInTheDocument()

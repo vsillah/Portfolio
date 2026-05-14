@@ -354,10 +354,9 @@ export default function AgentOperationsPage() {
     await Promise.all([loadMissionControl(), loadMoremiReview()])
   }
 
-  async function submitChiefOfStaff(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    const message = command.trim()
-    if (!message) return
+  async function askChiefOfStaff(message: string) {
+    const trimmedMessage = message.trim()
+    if (!trimmedMessage) return
 
     setChiefLoading(true)
     setChiefReply(null)
@@ -365,7 +364,7 @@ export default function AgentOperationsPage() {
     try {
       const response = await authedFetch('/api/admin/agents/chief-of-staff/chat', {
         method: 'POST',
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message: trimmedMessage }),
       })
       const body = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
@@ -377,6 +376,13 @@ export default function AgentOperationsPage() {
     } finally {
       setChiefLoading(false)
     }
+  }
+
+  async function submitChiefOfStaff(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const message = command.trim()
+    if (!message) return
+    await askChiefOfStaff(message)
   }
 
   async function runWarRoom(commandName: 'standup' | 'discuss') {
@@ -542,54 +548,65 @@ export default function AgentOperationsPage() {
   const decisionQueueCount = snapshot?.status_strip.pending_approvals ?? snapshot?.status_strip.waiting_for_approval ?? 0
   const kanbanSignalCount = (snapshot?.status_strip.running ?? 0) + (snapshot?.status_strip.queued ?? 0)
   const healthLabel = (snapshot?.status_strip.failed ?? 0) || (snapshot?.status_strip.stale ?? 0) ? 'Needs review' : 'Read-only healthy'
+  const activeWorkRows = [
+    ...(snapshot?.active_runs ?? []).slice(0, 2).map((run) => ({
+      key: `run:${run.id}`,
+      label: run.status.replace(/_/g, ' '),
+      title: run.title,
+      detail: run.current_step ?? run.kind,
+      href: `/admin/agents/runs/${run.id}`,
+      action: 'Open run',
+    })),
+    ...(snapshot?.agent_inbox ?? []).slice(0, 2).map((item) => ({
+      key: `inbox:${item.id}`,
+      label: item.priority,
+      title: item.title,
+      detail: item.reason,
+      href: item.href,
+      action: item.action_label,
+    })),
+  ].slice(0, 4)
+  const missionHeadline = decisionQueueCount
+    ? `System is active. ${decisionQueueCount} decision${decisionQueueCount === 1 ? '' : 's'} waiting.`
+    : healthLabel === 'Read-only healthy'
+      ? 'System is active. No decisions are waiting.'
+      : 'System needs review. Health signals are waiting.'
 
   return (
     <ProtectedRoute requireAdmin>
-      <div className="min-h-screen bg-background p-5 text-foreground lg:p-7">
+      <div className="agent-ops-page min-h-screen p-5 text-foreground lg:p-7">
         <div className="max-w-7xl mx-auto">
           <Breadcrumbs items={[{ label: 'Admin Dashboard', href: '/admin' }, { label: 'Agent Operations' }]} />
 
-          <div className="flex flex-col gap-4 rounded-xl border border-silicon-slate/70 bg-silicon-slate/15 p-5 shadow-2xl shadow-black/30 lg:flex-row lg:items-start lg:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Mission Control Landing</p>
-              <h1 className="mt-1 text-3xl font-bold">Agent Ops Mission Control</h1>
-              <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-                Command the agent operating layer from one landing page: decisions, Kanban work, roster health, read-only status, standups, and Shaka guidance.
-              </p>
+          <section className="agent-ops-panel rounded-xl border p-5">
+            <div className="grid gap-5 xl:grid-cols-[1fr_340px]">
+              <div>
+                <div className="mb-3 flex items-center gap-3">
+                  <span className="h-2 w-12 rounded-full bg-radiant-gold" aria-hidden />
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Agent Ops hierarchy</p>
+                </div>
+                <h1 className="max-w-4xl text-4xl font-bold leading-tight lg:text-5xl">Mission Control routes the work. Drilldowns own the details.</h1>
+                <p className="mt-3 max-w-4xl text-sm leading-6 text-muted-foreground">
+                  Ask Shaka in place, open Kanban for work lanes, use Decision Queue for approvals, and use Run Console for traces. Mission Control stays a summary and routing surface.
+                </p>
+              </div>
+              <div className="border-silicon-slate/70 xl:border-l xl:pl-5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Design rule</p>
+                <h2 className="mt-2 text-lg font-semibold">Prompt in place, boards one click away</h2>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  Small agent asks belong in the widget. Multi-column work views, approvals, traces, and governance each link to their own L2/L3 home.
+                </p>
+              </div>
             </div>
-            <div className="flex flex-wrap gap-2" aria-label="Mission Control actions">
-              <button
-                type="button"
-                onClick={refreshMissionControl}
-                disabled={loading || moremiReviewLoading}
-                className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60 disabled:opacity-60"
-              >
-                <RefreshCw size={16} className={loading || moremiReviewLoading ? 'animate-spin' : ''} />
-                Refresh
-              </button>
-              <Link href="/admin/agents/swarm-board" className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15">
-                <Columns size={16} />
-                Open Kanban
-              </Link>
-              <Link href="/admin/agents/coordination" className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60">
-                <ShieldCheck size={16} />
-                Open controller
-              </Link>
-              <Link href="/admin/agents/runs" className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60">
-                <Activity size={16} />
-                Run Console
-              </Link>
-              <button
-                type="button"
-                onClick={() => runWarRoom('standup')}
-                disabled={warRoomLoading !== null}
-                className="inline-flex items-center gap-2 rounded-lg border border-emerald-400/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-100 hover:bg-emerald-500/15 disabled:opacity-60"
-              >
-                {warRoomLoading === 'standup' ? <RefreshCw size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                Run standup
-              </button>
+
+            <div className="mt-6 grid grid-cols-1 gap-3 lg:grid-cols-5" aria-label="Agent Ops route map">
+              <RouteMapCard title="Mission Control" label="Inline command" detail="Ask Shaka without leaving the page." active />
+              <RouteMapCard title="Decision Queue" label="Controller drilldown" detail="Approval packets and approve/reject controls." href="/admin/agents/coordination" />
+              <RouteMapCard title="Kanban" label="Board drilldown" detail="Work lanes, owner, blocker, validation, trace, and PR." href="/admin/agents/swarm-board" />
+              <RouteMapCard title="Run Console" label="Trace history" detail="Filter, audit, evaluate, and inspect artifacts." href="/admin/agents/runs" />
+              <RouteMapCard title="Health" label="Read-only status" detail="Costs, quality, governance, and stale signals route below." href="/admin/agents/runs" />
             </div>
-          </div>
+          </section>
 
           {error ? (
             <div className="mt-4 rounded-lg border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
@@ -597,82 +614,132 @@ export default function AgentOperationsPage() {
             </div>
           ) : null}
 
-          <section className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4" aria-label="Mission Control status blocks">
-            <MissionStatusCard
-              as="link"
-              href="/admin/agents/coordination"
-              icon={<ShieldCheck size={18} />}
-              label="Decision Queue"
-              value={decisionQueueCount}
-              detail="Approval-gated coordination"
-              status={decisionQueueCount ? 'Needs decision' : 'Clear'}
-              tone={decisionQueueCount ? 'yellow' : 'green'}
-            />
-            <MissionStatusCard
-              as="link"
-              href="/admin/agents/swarm-board"
-              icon={<Columns size={18} />}
-              label="Kanban"
-              value={kanbanSignalCount}
-              detail="Queued and running lanes"
-              status="Open board"
-              tone="blue"
-            />
-            <MissionStatusCard
-              icon={<Users size={18} />}
-              label="Agents roster"
-              value={rosterCount}
-              detail={`${snapshot?.roster.length ?? 0} operating pod(s)`}
-              status="Status only"
-              tone="neutral"
-            />
-            <MissionStatusCard
-              icon={<Radio size={18} />}
-              label="Health / read-only"
-              value={healthLabel}
-              detail={`${snapshot?.status_strip.failed ?? 0} failed, ${snapshot?.status_strip.stale ?? 0} stale`}
-              status="No mutation"
-              tone={healthLabel === 'Read-only healthy' ? 'green' : 'red'}
-            />
-          </section>
-
-          <section className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[1.2fr_0.8fr]">
-            <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/25 p-4">
-              <div className="flex items-center gap-2 text-radiant-gold">
-                <MessageSquare size={18} />
-                <h2 className="font-semibold">Ask Shaka</h2>
+          <section className="agent-ops-panel mt-5 rounded-xl border">
+            <div className="flex flex-col gap-4 border-b border-silicon-slate/60 p-5 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Agent Operations</p>
+                <h2 className="mt-1 text-2xl font-bold">Mission Control</h2>
               </div>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Inline Chief of Staff guidance uses the existing chat endpoint. Recommendations stay read-only until routed through the approval gates below.
-              </p>
-              <form onSubmit={submitChiefOfStaff} className="mt-3 flex flex-col gap-3 md:flex-row">
-                <input
-                  value={command}
-                  onChange={(event) => setCommand(event.target.value)}
-                  aria-label="Ask Shaka"
-                  placeholder="Ask Shaka what needs attention, or type a topic for discussion..."
-                  className="min-h-[44px] flex-1 rounded-lg border border-silicon-slate/70 bg-background/70 px-3 text-sm outline-none focus:border-radiant-gold/70"
-                />
-                <div className="flex gap-2">
-                  <button
-                    type="submit"
-                    disabled={chiefLoading || !command.trim()}
-                    className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
-                  >
-                    <Send size={16} />
-                    Ask
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => runWarRoom('discuss')}
-                    disabled={warRoomLoading !== null || !command.trim()}
-                    className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60 disabled:opacity-60"
-                  >
-                    <Users size={16} />
-                    Discuss
-                  </button>
+              <div className="flex flex-wrap gap-2" aria-label="Mission Control actions">
+                <button
+                  type="button"
+                  onClick={refreshMissionControl}
+                  disabled={loading || moremiReviewLoading}
+                  className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60 disabled:opacity-60"
+                >
+                  <RefreshCw size={16} className={loading || moremiReviewLoading ? 'animate-spin' : ''} />
+                  Refresh
+                </button>
+                <Link href="/admin/agents/swarm-board" className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15">
+                  <Columns size={16} />
+                  Open Kanban
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => runWarRoom('standup')}
+                  disabled={warRoomLoading !== null}
+                  className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/60 bg-radiant-gold px-3 py-2 text-sm font-semibold text-silicon-slate hover:bg-radiant-gold/90 disabled:opacity-60"
+                >
+                  {warRoomLoading === 'standup' ? <RefreshCw size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                  Run standup
+                </button>
+              </div>
+            </div>
+
+            <div className="grid gap-5 p-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+              <div>
+                <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_560px]">
+                  <div>
+                    <h3 className="text-3xl font-bold leading-tight">{missionHeadline}</h3>
+                    <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
+                      Ask Shaka directly below, then move into Decision Queue, Kanban, Run Console, or the governance homes when the answer needs a larger work surface.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 md:grid-cols-4" aria-label="Mission Control status blocks">
+                    <MissionStatusCard
+                      as="link"
+                      href="/admin/agents/coordination"
+                      icon={<ShieldCheck size={18} />}
+                      label="Decision Queue"
+                      value={decisionQueueCount}
+                      detail="Open controller"
+                      status={decisionQueueCount ? 'Needs decision' : 'Clear'}
+                      tone={decisionQueueCount ? 'yellow' : 'green'}
+                    />
+                    <MissionStatusCard
+                      as="link"
+                      href="/admin/agents/swarm-board"
+                      icon={<Columns size={18} />}
+                      label="Kanban"
+                      value={kanbanSignalCount}
+                      detail="Work items"
+                      status="Open board"
+                      tone="blue"
+                    />
+                    <MissionStatusCard
+                      as="link"
+                      href="/admin/agents/swarm-board"
+                      icon={<Users size={18} />}
+                      label="Agents"
+                      value={rosterCount}
+                      detail="Roster"
+                      status="Board home"
+                      tone="neutral"
+                    />
+                    <MissionStatusCard
+                      as="link"
+                      href="/admin/agents/runs"
+                      icon={<Radio size={18} />}
+                      label="Health"
+                      value={healthLabel}
+                      detail={`${snapshot?.status_strip.failed ?? 0} failed, ${snapshot?.status_strip.stale ?? 0} stale`}
+                      status="Trace home"
+                      tone={healthLabel === 'Read-only healthy' ? 'green' : 'red'}
+                    />
+                  </div>
                 </div>
-              </form>
+
+                <div className="agent-ops-command-card mt-5 rounded-lg border p-4">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Ask Shaka</p>
+                      <h3 className="mt-2 text-xl font-semibold">What should I pay attention to before approving this queue?</h3>
+                    </div>
+                    <span className="text-xs text-muted-foreground">Chief of Staff · inline</span>
+                  </div>
+                  <form onSubmit={submitChiefOfStaff} className="mt-3 flex flex-col gap-3 md:flex-row">
+                    <input
+                      value={command}
+                      onChange={(event) => setCommand(event.target.value)}
+                      aria-label="Ask Shaka"
+                      placeholder="Ask about blockers, owners, risk, next action, or summarize active agents..."
+                      className="min-h-[48px] flex-1 rounded-lg border border-silicon-slate/70 bg-background/70 px-3 text-sm outline-none focus:border-radiant-gold/70"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        type="submit"
+                        disabled={chiefLoading || !command.trim()}
+                        className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/60 bg-radiant-gold px-4 py-2 text-sm font-semibold text-silicon-slate hover:bg-radiant-gold/90 disabled:opacity-60"
+                      >
+                        <Send size={16} />
+                        Ask
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => runWarRoom('discuss')}
+                        disabled={warRoomLoading !== null || !command.trim()}
+                        className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60 disabled:opacity-60"
+                      >
+                        <Users size={16} />
+                        Discuss
+                      </button>
+                    </div>
+                  </form>
+                  <div className="mt-3 flex flex-wrap gap-2" aria-label="Ask Shaka quick prompts">
+                    <QuickPrompt label="Summarize today" disabled={chiefLoading} onClick={() => askChiefOfStaff('Summarize today. What needs attention, what can wait, and what should I do next?')} />
+                    <QuickPrompt label="Find blockers" disabled={chiefLoading} onClick={() => askChiefOfStaff('Find the most important blockers across Agent Ops and tell me where to handle each one.')} />
+                    <QuickPrompt label="Who owns this?" disabled={chiefLoading} onClick={() => askChiefOfStaff('Who owns the current Agent Ops work, and which L2 or L3 surface should I use for follow-up?')} />
+                  </div>
 
               {chiefReply ? (
                 <>
@@ -690,42 +757,137 @@ export default function AgentOperationsPage() {
                 </>
               ) : null}
 
-              {warRoomResult ? (
-                <ResultPanel
-                  title={warRoomResult.command === 'standup' ? 'War Room Standup' : 'War Room Discussion'}
-                  href={`/admin/agents/runs/${warRoomResult.run_id}`}
-                  body={warRoomResult.synthesis}
-                  items={warRoomResult.updates.map((update) => `${update.agent_name}: ${update.update}`)}
-                />
-              ) : null}
-            </div>
-
-            <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/25 p-4">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2 text-radiant-gold">
-                  <ClipboardList size={18} />
-                  <h2 className="font-semibold">Agent Inbox</h2>
+                  {warRoomResult ? (
+                    <ResultPanel
+                      title={warRoomResult.command === 'standup' ? 'War Room Standup' : 'War Room Discussion'}
+                      href={`/admin/agents/runs/${warRoomResult.run_id}`}
+                      body={warRoomResult.synthesis}
+                      items={warRoomResult.updates.map((update) => `${update.agent_name}: ${update.update}`)}
+                    />
+                  ) : null}
                 </div>
-                <Link href="/admin/agents/runs" className="text-xs text-radiant-gold hover:underline">Open all</Link>
+
+                <div className="mt-5">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Active work</p>
+                  <div className="space-y-2">
+                    {activeWorkRows.length ? activeWorkRows.map((row) => (
+                      <Link key={row.key} href={row.href} className="flex flex-col gap-2 rounded-lg border border-silicon-slate/60 bg-background/40 px-3 py-3 hover:border-radiant-gold/50 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-3">
+                            <span className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">{row.label}</span>
+                            <p className="truncate text-sm font-medium">{row.title}</p>
+                          </div>
+                          <p className="mt-1 line-clamp-1 text-sm text-muted-foreground">{row.detail}</p>
+                        </div>
+                        <span className="shrink-0 text-sm font-medium text-radiant-gold">{row.action}</span>
+                      </Link>
+                    )) : (
+                      <div className="rounded-lg border border-silicon-slate/60 bg-background/40 px-3 py-4 text-sm text-muted-foreground">
+                        No active work needs attention. Use Decision Queue or Kanban when new work appears.
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div className="mt-3 space-y-2">
-                {snapshot?.agent_inbox.length ? snapshot.agent_inbox.slice(0, 5).map((item) => (
-                  <InboxRow
-                    key={item.id}
-                    item={item}
-                    routing={inboxRoutingId === item.id}
-                    onRoute={() => routeInboxItem(item)}
-                  />
-                )) : (
-                  <p className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm text-muted-foreground">
-                    No agent inbox items need attention.
+
+              <aside className="space-y-4">
+                <div className="agent-ops-card rounded-lg border p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Board actions</p>
+                  <div className="mt-3 grid gap-3">
+                    <Link href="/admin/agents/swarm-board" className="block rounded-lg border border-radiant-gold/45 bg-radiant-gold/10 p-3 shadow-gold-glow-sm hover:bg-radiant-gold/15">
+                      <p className="font-semibold">Open Kanban</p>
+                      <p className="mt-1 text-sm text-muted-foreground">Review standup tasks and work-item columns.</p>
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => runWarRoom('standup')}
+                      disabled={warRoomLoading !== null}
+                      className="rounded-lg border border-radiant-gold/60 bg-radiant-gold p-3 text-left text-silicon-slate hover:bg-radiant-gold/90 disabled:opacity-60"
+                    >
+                      <p className="font-semibold">Run standup</p>
+                      <p className="mt-1 text-sm">Generate brief and update queue context.</p>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="agent-ops-card rounded-lg border p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Agent Inbox</p>
+                    <Link href="/admin/agents/runs" className="text-xs text-radiant-gold hover:underline">Run Console</Link>
+                  </div>
+                  <div className="mt-3 space-y-2">
+                    {snapshot?.agent_inbox.length ? snapshot.agent_inbox.slice(0, 4).map((item) => (
+                      <InboxRow
+                        key={item.id}
+                        item={item}
+                        routing={inboxRoutingId === item.id}
+                        onRoute={() => routeInboxItem(item)}
+                      />
+                    )) : (
+                      <p className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm text-muted-foreground">
+                        No agent inbox items need attention.
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="agent-ops-card rounded-lg border p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Rule</p>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                    Inline Shaka handles quick questions. Kanban, controller, traces, and governance links are the homes for durable follow-up.
                   </p>
-                )}
-              </div>
+                </div>
+              </aside>
             </div>
           </section>
 
           <DailyBriefPanel brief={snapshot?.daily_brief ?? null} loading={loading} />
+
+          <section className="agent-ops-panel mt-5 rounded-xl border p-5" aria-label="Mission Control drilldown homes">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Where Mission Control signals go</p>
+                <h2 className="mt-2 text-2xl font-bold">Drilldowns become full work surfaces</h2>
+                <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+                  Mission Control answers what is happening. These L2/L3 homes answer what needs approval, what work is moving, and where the evidence lives.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Link href="/admin/agents/coordination" className="rounded-lg border border-radiant-gold/50 bg-radiant-gold px-3 py-2 text-sm font-semibold text-silicon-slate hover:bg-radiant-gold/90">Open controller</Link>
+                <Link href="/admin/agents/swarm-board" className="rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60">Open Kanban</Link>
+              </div>
+            </div>
+            <div className="mt-5 grid gap-4 xl:grid-cols-2">
+              <DrilldownHomeCard
+                eyebrow="Decision Queue"
+                title="Approval controller"
+                body="One escalation at a time with the action, rationale, risk, recommendation, and trace ready."
+                href="/admin/agents/coordination"
+                cta="Open controller"
+              />
+              <DrilldownHomeCard
+                eyebrow="Agent Kanban"
+                title="Work by state, owner, and blocker"
+                body="Follow up after standup with enough space for cards, owners, blockers, validation, traces, and PRs."
+                href="/admin/agents/swarm-board"
+                cta="Open Kanban"
+              />
+              <DrilldownHomeCard
+                eyebrow="Run Console"
+                title="Trace, evaluation, and dead-letter history"
+                body="Inspect failed, stale, running, and evaluated traces without turning Mission Control into a log table."
+                href="/admin/agents/runs"
+                cta="Open traces"
+              />
+              <DrilldownHomeCard
+                eyebrow="Governance"
+                title="Automation, memory, quality, and cost homes"
+                body="Automation Context owns recurring jobs, Open Brain owns memory proposals, Chat Eval owns quality, and Cost & Revenue owns spend."
+                href="/admin/agents/automations"
+                cta="Open automation context"
+              />
+            </div>
+          </section>
 
           <section className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-7">
             <MetricCard icon={<Radio size={16} />} label="Active" value={snapshot?.status_strip.active ?? 0} />
@@ -763,6 +925,9 @@ export default function AgentOperationsPage() {
               <div className="flex items-center gap-2 text-radiant-gold">
                 <Network size={18} />
                 <h2 className="font-semibold">Agent Roster</h2>
+              </div>
+              <div className="mt-2">
+                <SignalHomeLink href="/admin/agents/swarm-board" label="Agent Kanban is the roster and workload home" />
               </div>
               <div className="mt-3 grid grid-cols-1 gap-2 lg:grid-cols-2">
                 {topAgents.map((agent) => (
@@ -818,6 +983,9 @@ export default function AgentOperationsPage() {
               <Activity size={18} />
               <h2 className="font-semibold">Latest Activity</h2>
             </div>
+            <div className="mt-2">
+              <SignalHomeLink href="/admin/agents/runs" label="Run Console owns trace history and events" />
+            </div>
             <div className="mt-3 grid grid-cols-1 gap-2 lg:grid-cols-2">
               {snapshot?.latest_events.length ? snapshot.latest_events.slice(0, 6).map((event) => (
                 <Link key={`${event.run_id}-${event.occurred_at}-${event.event_type}`} href={`/admin/agents/runs/${event.run_id}`} className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm hover:border-radiant-gold/50">
@@ -848,6 +1016,65 @@ function MetricCard({ icon, label, value, tone = 'default' }: { icon: ReactNode;
       </div>
       <p className={`mt-2 text-2xl font-semibold ${toneClass}`}>{value}</p>
     </div>
+  )
+}
+
+function RouteMapCard({ title, label, detail, href, active = false }: { title: string; label: string; detail: string; href?: string; active?: boolean }) {
+  const toneClass = {
+    'Mission Control': 'agent-ops-route-card-active',
+    'Decision Queue': 'agent-ops-route-card-decision',
+    Kanban: 'agent-ops-route-card-kanban',
+    'Run Console': 'agent-ops-route-card-console',
+    Health: 'agent-ops-route-card-health',
+  }[title] ?? ''
+  const className = `agent-ops-route-card block rounded-lg border p-4 text-left transition ${
+    active
+      ? 'agent-ops-route-card-active'
+      : toneClass
+  }`
+  const content = (
+    <>
+      <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">{title}</p>
+      <h2 className="mt-3 text-lg font-semibold">{label}</h2>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">{detail}</p>
+    </>
+  )
+
+  return href ? <Link href={href} className={className}>{content}</Link> : <div className={className}>{content}</div>
+}
+
+function QuickPrompt({ label, disabled, onClick }: { label: string; disabled: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="rounded-full border border-radiant-gold/30 bg-background/40 px-3 py-1.5 text-xs text-radiant-gold hover:bg-radiant-gold/15 disabled:cursor-not-allowed disabled:opacity-60"
+    >
+      {label}
+    </button>
+  )
+}
+
+function SignalHomeLink({ href, label }: { href: string; label: string }) {
+  return (
+    <Link href={href} className="inline-flex items-center gap-1 text-xs font-medium text-radiant-gold hover:underline">
+      {label}
+      <ArrowRight size={12} />
+    </Link>
+  )
+}
+
+function DrilldownHomeCard({ eyebrow, title, body, href, cta }: { eyebrow: string; title: string; body: string; href: string; cta: string }) {
+  return (
+    <Link href={href} className="agent-ops-drill-card block rounded-lg border p-4">
+      <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">{eyebrow}</p>
+      <h3 className="mt-2 text-xl font-semibold">{title}</h3>
+      <p className="mt-2 min-h-[48px] text-sm leading-6 text-muted-foreground">{body}</p>
+      <span className="mt-4 inline-flex rounded-lg border border-radiant-gold/40 bg-radiant-gold/10 px-3 py-2 text-sm font-medium text-radiant-gold">
+        {cta}
+      </span>
+    </Link>
   )
 }
 
@@ -886,14 +1113,14 @@ function MissionStatusCard({
 
   if (as === 'link' && href) {
     return (
-      <Link href={href} className="block rounded-lg border border-silicon-slate/60 bg-silicon-slate/20 p-4 hover:border-radiant-gold/50">
+      <Link href={href} className={`agent-ops-metric agent-ops-metric-${tone} block rounded-lg border p-4`}>
         {content}
       </Link>
     )
   }
 
   return (
-    <div className="rounded-lg border border-silicon-slate/60 bg-silicon-slate/20 p-4" aria-label={`${label} status`}>
+    <div className={`agent-ops-metric agent-ops-metric-${tone} rounded-lg border p-4`} aria-label={`${label} status`}>
       {content}
     </div>
   )
@@ -945,6 +1172,9 @@ function DailyBriefPanel({ brief, loading }: { brief: MissionSnapshot['daily_bri
           <span className="rounded-full border border-silicon-slate/60 bg-black/10 px-2.5 py-1 text-xs text-muted-foreground">
             {brief?.generated_from === 'standup' ? 'From latest standup' : 'From current traces'}
           </span>
+          <Link href="/admin/agents/runs" className="rounded-full border border-silicon-slate/60 bg-black/10 px-2.5 py-1 text-xs text-muted-foreground hover:border-radiant-gold/50 hover:text-radiant-gold">
+            Run Console home
+          </Link>
           {brief?.run_id ? (
             <Link href={`/admin/agents/runs/${brief.run_id}`} className="rounded-full border border-radiant-gold/50 bg-radiant-gold/10 px-2.5 py-1 text-xs text-radiant-gold hover:bg-radiant-gold/15">
               Open brief trace
@@ -988,9 +1218,14 @@ function CostSummaryPanel({ summary }: { summary: MissionSnapshot['cost_summary'
   return (
     <section className="mt-5 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex items-center gap-2 text-radiant-gold">
-          <CircleDollarSign size={18} />
-          <h2 className="font-semibold">Cost Intelligence</h2>
+        <div>
+          <div className="flex items-center gap-2 text-radiant-gold">
+            <CircleDollarSign size={18} />
+            <h2 className="font-semibold">Cost Intelligence</h2>
+          </div>
+          <div className="mt-2">
+            <SignalHomeLink href="/admin/cost-revenue" label="Cost & Revenue owns spend analysis" />
+          </div>
         </div>
         <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
           <CostChip label={`${summary.window_hours}h total`} value={`$${summary.total.toFixed(4)}`} />
@@ -1051,6 +1286,10 @@ function QualitySignalsPanel({ summary }: { summary: MissionSnapshot['quality_su
           <p className="mt-1 text-sm text-muted-foreground">
             Rubric-backed scoring for agent output quality, coaching needs, and trend visibility.
           </p>
+          <div className="mt-2 flex flex-wrap gap-3">
+            <SignalHomeLink href="/admin/chat-eval" label="Chat Eval owns rubric management" />
+            <SignalHomeLink href="/admin/agents/runs" label="Run detail owns agent evaluations" />
+          </div>
         </div>
         <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
           <CostChip label={`${summary?.window_hours ?? 24}h score`} value={qualityScore} />
@@ -1312,6 +1551,9 @@ function KnowledgeGovernancePanel({ governance }: { governance: MissionSnapshot[
           <p className="mt-1 text-sm text-muted-foreground">
             {governance.targetIndex} is staged in {governance.mode.replace(/_/g, ' ')}; {governance.legacyIndex} remains legacy read-only.
           </p>
+          <div className="mt-2">
+            <SignalHomeLink href="/admin/agents/open-brain" label="Open Brain owns memory and knowledge follow-up" />
+          </div>
         </div>
         <Link href="/api/admin/rag-health" className="rounded-full border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-1.5 text-xs text-radiant-gold hover:bg-radiant-gold/15">
           RAG health

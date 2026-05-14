@@ -66,11 +66,6 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
         { label: 'Analytics', href: '/admin/analytics' },
         { label: 'Cost & Revenue', href: '/admin/cost-revenue' },
         { label: 'Subscription Watch', href: '/admin/subscriptions' },
-        { label: 'Agent Operations', href: '/admin/agents' },
-        { label: 'Agent Coordination', href: '/admin/agents/coordination' },
-        { label: 'Client Swarm Board', href: '/admin/agents/swarm-board' },
-        { label: 'Automation Context', href: '/admin/agents/automations' },
-        { label: 'Open Brain', href: '/admin/agents/open-brain' },
         { label: 'Technology Bakeoffs', href: '/admin/technology-bakeoffs' },
         { label: 'Source Protocol', href: '/admin/source-protocol' },
         { label: 'Client Experience', href: '/admin/client-experience' },
@@ -83,6 +78,17 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
         { label: 'Axial Codes', href: '/admin/chat-eval/axial-codes' },
         { label: 'Error Diagnoses', href: '/admin/chat-eval/diagnoses' },
         { label: 'Start Annotating', href: '/admin/chat-eval/queue' },
+      ],
+    },
+    {
+      label: 'Agent Ops',
+      items: [
+        { label: 'Mission Control', href: '/admin/agents' },
+        { label: 'Decision Queue', href: '/admin/agents/coordination' },
+        { label: 'Agent Kanban', href: '/admin/agents/swarm-board' },
+        { label: 'Run Console', href: '/admin/agents/runs' },
+        { label: 'Automation Context', href: '/admin/agents/automations' },
+        { label: 'Open Brain', href: '/admin/agents/open-brain' },
       ],
     },
     {
@@ -119,6 +125,7 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
  * Returns whether pathname matches href (exact) or is a child path (e.g. /admin/content/outcome-groups when href is /admin/content).
  */
 export function isNavItemActive(href: string, pathname: string): boolean {
+  if (href === '/admin/agents') return pathname === href
   if (pathname === href) return true
   if (href !== '/admin' && pathname.startsWith(href + '/')) return true
   return false

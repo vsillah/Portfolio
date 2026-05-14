@@ -131,7 +131,8 @@ describe('AgentSwarmBoardPage', () => {
     render(<AgentSwarmBoardPage />)
 
     expect(await screen.findByRole('heading', { name: 'Agent Kanban' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Agent Org Board' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Work by state, owner, and blocker' })).toBeInTheDocument()
+    expect(screen.getAllByText(/Work by state, owner, and blocker/i).length).toBeGreaterThan(0)
     expect(screen.getByText(/Work-lane Kanban organized by agent ownership/i)).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'Kanban lanes' })).toHaveAttribute('aria-selected', 'true')
     expect(fetch).toHaveBeenCalledWith('/api/admin/agents/swarm-board', expect.objectContaining({
