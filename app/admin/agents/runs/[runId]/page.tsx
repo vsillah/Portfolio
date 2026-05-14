@@ -278,7 +278,7 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
                 onDecision={decideApproval}
                 onAskShaka={(approvalId) => askShaka(
                   { type: 'approval', id: approvalId },
-                  'Should I approve or reject this approval? Summarize the problem or opportunity, benefits, drawbacks, recommendation, evidence, and safest next step.',
+                  'Should I approve, reject, run another test, or close this approval? Summarize the experiment, objective, goal, current run, distance from goal, evidence, risk, and safest next action.',
                 )}
                 shakaLoading={shakaLoading}
               />
@@ -520,10 +520,13 @@ function ApprovalDecisionList({
             </div>
 
             <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
-              <DecisionBlock label="Problem / opportunity" value={summary.problem} />
-              <DecisionBlock label="Benefits" value={summary.benefits} />
+              <DecisionBlock label="Experiment" value={summary.experiment} />
+              <DecisionBlock label="Objective" value={summary.problem} />
+              {summary.goal ? <DecisionBlock label="Goal" value={summary.goal} /> : null}
+              {summary.currentRun ? <DecisionBlock label="Current run" value={summary.currentRun} /> : null}
+              {summary.distanceFromGoal ? <DecisionBlock label="Distance from goal" value={summary.distanceFromGoal} emphasis={summary.goalStatus === 'watch' || summary.goalStatus === 'blocked'} /> : null}
               <DecisionBlock label="Drawbacks" value={summary.drawbacks} />
-              <DecisionBlock label="Recommendation" value={summary.recommendation} emphasis />
+              <DecisionBlock label="Recommended next action" value={summary.benefits} emphasis />
             </div>
 
             {summary.evidence.length ? (
@@ -688,20 +691,24 @@ function approvalExecutiveSummary(row: AnyRow) {
   const evidence = asStringArray(proposal.evidence)
   const touchedSettings = asStringArray(proposal.touchedSettings)
   const touchedFiles = asStringArray(proposal.touchedFiles)
+  const decisionFrame = asRecord(proposal.decisionFrame)
   const approvalQuestion = typeof metadata.approval_question === 'string' ? metadata.approval_question : null
   const executesAction = actionPayload.executes_action === true
   const risk = String(proposal.riskLevel ?? metadata.risk_level ?? metadata.risk ?? actionPayload.risk_level ?? 'not specified')
   const title = String(proposal.title ?? row.approval_type ?? 'Approval checkpoint')
   const action = formatLabel(actionPayload.action, formatLabel(row.approval_type, 'approval checkpoint'))
 
-  const problem = String(
-    proposal.hypothesis
+  const experiment = String(decisionFrame.experiment ?? proposal.title ?? title)
+  const objective = String(
+    decisionFrame.objective
+      ?? proposal.hypothesis
       ?? approvalQuestion
       ?? metadata.problem_statement
       ?? `A human decision is required before ${action}.`,
   )
   const benefits = String(
-    proposal.expectedImpact
+    decisionFrame.recommendation
+      ?? proposal.expectedImpact
       ?? metadata.benefits
       ?? 'Approving lets the agent proceed through the existing gated workflow with a recorded decision.',
   )
@@ -723,12 +730,17 @@ function approvalExecutiveSummary(row: AnyRow) {
   return {
     title,
     actionRequired: `Action required: ${action}.`,
-    problem,
+    problem: objective,
     benefits,
     drawbacks: drawbacksParts.join(' '),
     recommendation,
     risk,
     evidence,
+    experiment,
+    goal: typeof decisionFrame.target === 'string' ? decisionFrame.target : null,
+    currentRun: typeof decisionFrame.currentRun === 'string' ? decisionFrame.currentRun : null,
+    distanceFromGoal: typeof decisionFrame.distanceFromGoal === 'string' ? decisionFrame.distanceFromGoal : null,
+    goalStatus: typeof decisionFrame.goalStatus === 'string' ? decisionFrame.goalStatus : null,
   }
 }
 

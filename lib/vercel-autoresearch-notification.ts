@@ -22,13 +22,21 @@ export function buildVercelResearchApprovalUrl(input: Pick<VercelResearchApprova
 
 export function buildVercelResearchApprovalSlackText(input: VercelResearchApprovalNotificationInput) {
   const proposal = input.proposal
+  const decision = proposal.decisionFrame
   const url = buildVercelResearchApprovalUrl(input)
   return [
     '*Vercel AutoResearch proposal ready for approval*',
     `*Proposal:* ${proposal.title}`,
     `*Risk:* ${proposal.riskLevel}`,
-    `*Approval:* ${proposal.approvalQuestion}`,
-    `*Expected impact:* ${proposal.expectedImpact}`,
+    ...(decision ? [
+      `*Experiment:* ${decision.experiment}`,
+      `*Objective:* ${decision.objective}`,
+      `*Goal gap:* ${decision.distanceFromGoal}`,
+      `*Recommendation:* ${decision.recommendation}`,
+    ] : [
+      `*Expected impact:* ${proposal.expectedImpact}`,
+    ]),
+    `*Decision needed:* ${proposal.approvalQuestion}`,
     `*Work item:* ${input.workItemId}`,
     `*Approve / reject:* ${url}`,
   ].join('\n')

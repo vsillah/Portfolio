@@ -107,6 +107,22 @@ const approvalCard = {
     approvalQuestion: 'Approve a read-only/local build-profile experiment?',
     rollbackPath: 'Discard the branch.',
     evidence: ['build=3m41s'],
+    decisionFrame: {
+      experiment: 'Local build-profile experiment before hosted deployment changes',
+      objective: 'Identify whether slow deployments are caused by app compilation or generated knowledge.',
+      successMetric: 'Build duration and named bottleneck',
+      target: 'Keep build time under 8m or name the bottleneck.',
+      currentRun: 'portfolio/preview built in 3m41s.',
+      distanceFromGoal: '4m19s inside the build watch goal.',
+      goalStatus: 'on_track',
+      recommendedAction: 'run_another_test',
+      recommendation: 'Run another timing sample or close unless build time crosses the watch threshold again.',
+      decisionOptions: [
+        { action: 'approve', label: 'Approve read-only profile', when: 'Use when build time crosses the target.' },
+        { action: 'run_another_test', label: 'Collect another timing sample', when: 'Use when the latest run is inside target.' },
+        { action: 'close', label: 'Close as healthy', when: 'Use when build timing is inside target.' },
+      ],
+    },
   },
   notification: {
     slackSentAt: '2026-05-11T12:01:00.000Z',
@@ -227,7 +243,9 @@ describe('AgentCoordinationPage decision queue controller', () => {
 
     expect(await screen.findByText('Vercel AutoResearch approvals decision queue')).toBeInTheDocument()
     expect(screen.getAllByText('Profile the Next.js build path').length).toBeGreaterThan(0)
-    expect(screen.getByText('Approve a read-only/local build-profile experiment?')).toBeInTheDocument()
+    expect(screen.getByText('Distance from goal')).toBeInTheDocument()
+    expect(screen.getByText('4m19s inside the build watch goal.')).toBeInTheDocument()
+    expect(screen.getByText('Collect another timing sample')).toBeInTheDocument()
     expect(screen.getByText('Slack notified')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Approve' }))
@@ -245,7 +263,7 @@ describe('AgentCoordinationPage decision queue controller', () => {
     render(<AgentCoordinationPage />)
 
     expect(await screen.findByText('Vercel AutoResearch approvals decision queue')).toBeInTheDocument()
-    const approvalCardElement = screen.getByText('Approve a read-only/local build-profile experiment?').closest('article')
+    const approvalCardElement = screen.getByText('4m19s inside the build watch goal.').closest('article')
     expect(approvalCardElement).not.toBeNull()
 
     fireEvent.click(within(approvalCardElement as HTMLElement).getByRole('button', { name: 'Ask Shaka' }))
@@ -262,7 +280,7 @@ describe('AgentCoordinationPage decision queue controller', () => {
     render(<AgentCoordinationPage />)
 
     expect(await screen.findByText('Vercel AutoResearch approvals decision queue')).toBeInTheDocument()
-    const approvalCardElement = screen.getByText('Approve a read-only/local build-profile experiment?').closest('article')
+    const approvalCardElement = screen.getByText('4m19s inside the build watch goal.').closest('article')
     expect(approvalCardElement).not.toBeNull()
 
     fireEvent.click(within(approvalCardElement as HTMLElement).getByRole('button', { name: 'Ask Shaka' }))

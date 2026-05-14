@@ -33,6 +33,10 @@ describe('buildVercelResearchPlan', () => {
       id: 'next-build-profile',
       riskLevel: 'low',
       approvalState: 'not_required',
+      decisionFrame: {
+        successMetric: 'Build duration and identified bottleneck',
+        goalStatus: 'on_track',
+      },
     })
     expect(plan.operatingRules.join(' ')).toContain('does not execute experiments automatically')
   })
@@ -54,6 +58,10 @@ describe('buildVercelResearchPlan', () => {
       riskLevel: 'high',
       approvalState: 'approval_required',
       touchedSettings: expect.arrayContaining(['Vercel project preview deployment setting']),
+      decisionFrame: {
+        goalStatus: 'blocked',
+        recommendedAction: 'approve',
+      },
     })
   })
 })
