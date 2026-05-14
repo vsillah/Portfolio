@@ -238,6 +238,8 @@ describe('AgentOperationsPage mission control landing', () => {
     expect(screen.getByLabelText('Agent Inbox pagination')).toBeInTheDocument()
     const dailyBrief = screen.getByLabelText('Daily Operating Brief')
     expect(dailyBrief).toBeInTheDocument()
+    expect(within(dailyBrief).getByText('Summary')).toBeInTheDocument()
+    expect(within(dailyBrief).getByText('Decision queue is visible and the Kanban lanes are ready for review.')).toBeInTheDocument()
     expect(within(dailyBrief).getByRole('link', { name: /Run Console/i })).toHaveAttribute('href', '/admin/agents/runs')
     expect(screen.getByRole('link', { name: /Active runs/i })).toHaveAttribute('href', '/admin/agents/runs?active=true')
     expect(screen.getByRole('link', { name: /Failed or stale runs/i })).toHaveAttribute('href', '/admin/agents/runs?status=needs_review')

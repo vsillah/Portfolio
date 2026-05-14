@@ -363,11 +363,9 @@ export default function AgentOperationsPage() {
   const [actionResult, setActionResult] = useState<{ label: string; runId: string; kind?: OperatorActionKind } | null>(null)
   const [inboxRoutingId, setInboxRoutingId] = useState<string | null>(null)
   const [engagementLoadingKey, setEngagementLoadingKey] = useState<string | null>(null)
-  const [recoveryLoadingRunId, setRecoveryLoadingRunId] = useState<string | null>(null)
   const [moremiReviewConfirm, setMoremiReviewConfirm] = useState(false)
   const [activeWorkPage, setActiveWorkPage] = useState(0)
   const [inboxPage, setInboxPage] = useState(0)
-  const [operatorActionKind, setOperatorActionKind] = useState<OperatorActionKind>('morning-review')
   const [operatorRuns, setOperatorRuns] = useState<OperatorRun[]>([])
   const [operatorRunsLoading, setOperatorRunsLoading] = useState(false)
 
@@ -496,7 +494,6 @@ export default function AgentOperationsPage() {
   }
 
   async function runOperatorAction(kind: OperatorActionKind) {
-    setOperatorActionKind(kind)
     const paths = {
       'morning-review': '/api/admin/agents/morning-review',
       hermes: '/api/admin/agents/hermes/system-health',
@@ -572,28 +569,6 @@ export default function AgentOperationsPage() {
     }
   }
 
-  async function requestRunRecovery(item: MissionSnapshot['dead_letter_queue'][number]) {
-    setRecoveryLoadingRunId(item.run_id)
-    setActionResult(null)
-    setError(null)
-    try {
-      const response = await authedFetch(`/api/admin/agents/runs/${item.run_id}/retry`, {
-        method: 'POST',
-        body: JSON.stringify({
-          note: `Mission Control recovery request for ${item.status} ${item.runtime} run.`,
-        }),
-      })
-      const body = await response.json().catch(() => ({}))
-      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
-      setActionResult({ label: `recovery for ${item.agent_name}`, runId: body.run_id })
-      await loadMissionControl()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to request recovery')
-    } finally {
-      setRecoveryLoadingRunId(null)
-    }
-  }
-
   async function createMoremiWarningWorkItems() {
     if (!moremiReviewConfirm) {
       setMoremiReviewConfirm(true)
@@ -642,7 +617,6 @@ export default function AgentOperationsPage() {
   const ragStatus = snapshot?.knowledge_governance
     ? snapshot.knowledge_governance.validation.ok ? 'Ready' : 'Blocked'
     : 'Open Brain'
-  const firstDeadLetter = snapshot?.dead_letter_queue.find((item) => !item.routed) ?? null
   const activeWorkRows = [
     ...(snapshot?.active_runs ?? []).map((run) => ({
       key: `run:${run.id}`,
@@ -991,25 +965,12 @@ export default function AgentOperationsPage() {
                     </Link>
                     <OperatorChecksPanel
                       actions={OPERATOR_ACTIONS}
-                      selectedKind={operatorActionKind}
                       loadingKind={actionLoading as OperatorActionKind | null}
                       result={actionResult?.kind ? actionResult : null}
                       runs={operatorRuns}
                       runsLoading={operatorRunsLoading}
-                      onSelect={setOperatorActionKind}
                       onRun={runOperatorAction}
                     />
-                    {firstDeadLetter ? (
-                      <button
-                        type="button"
-                        onClick={() => requestRunRecovery(firstDeadLetter)}
-                        disabled={recoveryLoadingRunId === firstDeadLetter.run_id}
-                        className="rounded-lg border border-red-400/40 bg-red-500/10 p-3 text-left text-red-100 hover:border-red-300/60 disabled:opacity-60"
-                      >
-                        <p className="font-semibold">Request dead-letter retry</p>
-                        <p className="mt-1 text-sm text-red-100/80">{firstDeadLetter.title}</p>
-                      </button>
-                    ) : null}
                     {moremiReview?.has_monitor ? (
                       <button
                         type="button"
@@ -1221,12 +1182,10 @@ function OperatorChecksPanel({
   onRun,
 }: {
   actions: typeof OPERATOR_ACTIONS
-  selectedKind: OperatorActionKind
   loadingKind: OperatorActionKind | null
   result: { label: string; runId: string; kind?: OperatorActionKind } | null
   runs: OperatorRun[]
   runsLoading: boolean
-  onSelect: (kind: OperatorActionKind) => void
   onRun: (kind: OperatorActionKind) => void
 }) {
   const now = new Date()
@@ -1368,6 +1327,15 @@ function formatOperatorRunStatus(run: OperatorRun) {
 
 function operatorLabelForKind(kind: string) {
   return OPERATOR_ACTIONS.find((action) => action.runKind === kind)?.label ?? kind.replace(/_/g, ' ')
+}
+
+function splitBriefSummary(value: string | null | undefined) {
+  if (!value) return []
+  return value
+    .split(/(?<=[.!?])\s+/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .slice(0, 4)
 }
 
 function QuickPrompt({ label, disabled, onClick }: { label: string; disabled: boolean; onClick: () => void }) {
@@ -1524,6 +1492,7 @@ function DailyBriefPanel({
       tone: 'neutral',
     },
   ] as const
+  const summaryItems = splitBriefSummary(brief?.synthesis)
 
   return (
     <section className="agent-ops-card mt-5 rounded-lg border p-4" aria-label="Daily Operating Brief">
@@ -1535,9 +1504,6 @@ function DailyBriefPanel({
           </div>
           <p className="mt-2 text-lg font-semibold">
             {brief?.headline ?? (loading ? 'Loading today’s agent brief...' : 'Run a standup to create today’s operating brief')}
-          </p>
-          <p className="mt-2 max-w-4xl text-sm leading-6 text-muted-foreground">
-            {brief?.synthesis ?? 'Mission Control will summarize standups, blockers, approvals, cost, and next actions here.'}
           </p>
         </div>
         <div className="flex shrink-0 flex-wrap gap-2">
@@ -1555,6 +1521,23 @@ function DailyBriefPanel({
         </div>
       </div>
 
+      <div className="mt-4 rounded-lg border border-silicon-slate/55 bg-black/10 p-3">
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Summary</p>
+        {summaryItems.length ? (
+          <div className="mt-3 grid gap-2 md:grid-cols-2">
+            {summaryItems.map((item) => (
+              <div key={item} className="rounded-md border border-silicon-slate/45 bg-background/35 px-3 py-2 text-sm leading-6 text-muted-foreground">
+                {item}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            Mission Control will summarize standups, blockers, approvals, cost, and next actions here.
+          </p>
+        )}
+      </div>
+
       <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-[1fr_0.95fr]">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Attention routes</p>
@@ -1568,11 +1551,11 @@ function DailyBriefPanel({
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Recommended next actions</p>
           <div className="mt-2 space-y-2">
-          {(brief?.next_actions ?? ['Run War Room standup.']).slice(0, 3).map((action) => (
-            <p key={action} className="rounded-lg border border-silicon-slate/50 bg-black/10 px-3 py-2 text-sm text-muted-foreground">
-              {action}
-            </p>
-          ))}
+            {(brief?.next_actions ?? ['Run War Room standup.']).slice(0, 3).map((action) => (
+              <p key={action} className="rounded-lg border border-silicon-slate/50 bg-black/10 px-3 py-2 text-sm text-muted-foreground">
+                {action}
+              </p>
+            ))}
           </div>
         </div>
       </div>
