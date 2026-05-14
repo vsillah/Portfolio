@@ -264,6 +264,18 @@ type ChiefReply = {
   }>
 }
 
+type OperatorRun = {
+  id: string
+  kind: string
+  title: string
+  runtime: string
+  status: string
+  current_step: string | null
+  started_at: string
+  completed_at: string | null
+  stale: boolean
+}
+
 type MoremiMonitorReview = {
   has_monitor: boolean
   run: {
@@ -293,36 +305,46 @@ const OPERATOR_ACTIONS: Array<{
   kind: OperatorActionKind
   label: string
   purpose: string
-  cadence: string
-  output: string
+  runKind: string
+  windowLabel: string
+  isAvailable: (now: Date) => boolean
+  windowKey: (now: Date) => string
 }> = [
   {
     kind: 'morning-review',
     label: 'Morning review',
     purpose: 'Polls current Agent Ops health, stale runs, approvals, and operating signals.',
-    cadence: 'Run at start of day or after a major deployment.',
-    output: 'Creates a Run Console trace and refreshes Mission Control.',
+    runKind: 'agent_ops_morning_review',
+    windowLabel: 'Weekdays, 6-11 AM',
+    isAvailable: (now) => isWeekday(now) && now.getHours() >= 6 && now.getHours() < 11,
+    windowKey: (now) => `${localDateKey(now)}:morning`,
   },
   {
     kind: 'hermes',
     label: 'Hermes health',
     purpose: 'Checks Hermes runtime health and records the result as an agent trace.',
-    cadence: 'Run when automation behavior looks stale or inconsistent.',
-    output: 'Creates a Hermes health trace in Run Console.',
+    runKind: 'system_health_summary',
+    windowLabel: 'Every 4 hours',
+    isAvailable: () => true,
+    windowKey: (now) => `${localDateKey(now)}:${Math.floor(now.getHours() / 4)}`,
   },
   {
     kind: 'approval-drill',
     label: 'Approval drill',
     purpose: 'Creates a synthetic approval-path check without production mutation.',
-    cadence: 'Run before trusting a new approval or deployment path.',
-    output: 'Creates an approval drill trace and approval packet.',
+    runKind: 'approval_gate_drill',
+    windowLabel: 'Weekdays, 9 AM-5 PM',
+    isAvailable: (now) => isWeekday(now) && now.getHours() >= 9 && now.getHours() < 17,
+    windowKey: (now) => `${localDateKey(now)}:business-day`,
   },
   {
     kind: 'runtime-evaluation',
     label: 'Runtime probe',
     purpose: 'Runs a read-only OpenCode/runtime probe for execution-path readiness.',
-    cadence: 'Run when validating runtime availability or routing.',
-    output: 'Creates a runtime evaluation trace in Run Console.',
+    runKind: 'runtime_evaluation',
+    windowLabel: 'Weekdays, 9 AM-6 PM',
+    isAvailable: (now) => isWeekday(now) && now.getHours() >= 9 && now.getHours() < 18,
+    windowKey: (now) => `${localDateKey(now)}:${Math.floor(now.getHours() / 6)}`,
   },
 ]
 
@@ -346,6 +368,8 @@ export default function AgentOperationsPage() {
   const [activeWorkPage, setActiveWorkPage] = useState(0)
   const [inboxPage, setInboxPage] = useState(0)
   const [operatorActionKind, setOperatorActionKind] = useState<OperatorActionKind>('morning-review')
+  const [operatorRuns, setOperatorRuns] = useState<OperatorRun[]>([])
+  const [operatorRunsLoading, setOperatorRunsLoading] = useState(false)
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -389,13 +413,28 @@ export default function AgentOperationsPage() {
     }
   }, [authedFetch])
 
+  const loadOperatorRuns = useCallback(async () => {
+    setOperatorRunsLoading(true)
+    try {
+      const response = await authedFetch('/api/admin/agents/runs?kind=operator_checks&limit=75')
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      setOperatorRuns(body.runs || [])
+    } catch {
+      setOperatorRuns([])
+    } finally {
+      setOperatorRunsLoading(false)
+    }
+  }, [authedFetch])
+
   useEffect(() => {
     loadMissionControl()
     loadMoremiReview()
-  }, [loadMissionControl, loadMoremiReview])
+    loadOperatorRuns()
+  }, [loadMissionControl, loadMoremiReview, loadOperatorRuns])
 
   async function refreshMissionControl() {
-    await Promise.all([loadMissionControl(), loadMoremiReview()])
+    await Promise.all([loadMissionControl(), loadMoremiReview(), loadOperatorRuns()])
   }
 
   async function askChiefOfStaff(message: string) {
@@ -482,7 +521,7 @@ export default function AgentOperationsPage() {
       const body = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
       setActionResult({ label: OPERATOR_ACTIONS.find((action) => action.kind === kind)?.label ?? kind.replace(/-/g, ' '), runId: body.run_id, kind })
-      await loadMissionControl()
+      await Promise.all([loadMissionControl(), loadOperatorRuns()])
     } catch (err) {
       setError(err instanceof Error ? err.message : `${kind} failed`)
     } finally {
@@ -955,6 +994,8 @@ export default function AgentOperationsPage() {
                       selectedKind={operatorActionKind}
                       loadingKind={actionLoading as OperatorActionKind | null}
                       result={actionResult?.kind ? actionResult : null}
+                      runs={operatorRuns}
+                      runsLoading={operatorRunsLoading}
                       onSelect={setOperatorActionKind}
                       onRun={runOperatorAction}
                     />
@@ -1173,91 +1214,160 @@ function SignalRouteCard({ title, detail, href, icon }: { title: string; detail:
 
 function OperatorChecksPanel({
   actions,
-  selectedKind,
   loadingKind,
   result,
-  onSelect,
+  runs,
+  runsLoading,
   onRun,
 }: {
   actions: typeof OPERATOR_ACTIONS
   selectedKind: OperatorActionKind
   loadingKind: OperatorActionKind | null
   result: { label: string; runId: string; kind?: OperatorActionKind } | null
+  runs: OperatorRun[]
+  runsLoading: boolean
   onSelect: (kind: OperatorActionKind) => void
   onRun: (kind: OperatorActionKind) => void
 }) {
-  const selected = actions.find((action) => action.kind === selectedKind) ?? actions[0]
-  const selectedResult = result?.kind === selected.kind ? result : null
+  const now = new Date()
+  const recentRuns = runs.slice(0, 5)
 
   return (
     <div className="rounded-lg border border-silicon-slate/60 bg-background/35 p-3">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Operator checks</p>
-          <p className="mt-1 text-xs text-muted-foreground">Manual pollers. Each run writes a trace to Run Console.</p>
+          <p className="mt-1 text-xs text-muted-foreground">Scheduled manual triggers with duplicate-run guards.</p>
         </div>
-        <Link href="/admin/agents/runs?active=true" className="text-xs text-radiant-gold hover:underline">View runs</Link>
+        <Link href="/admin/agents/runs?kind=operator_checks" className="text-xs text-radiant-gold hover:underline">Full history</Link>
       </div>
 
-      <div className="mt-3 grid grid-cols-2 gap-2" role="tablist" aria-label="Operator checks">
+      <div className="mt-3 grid gap-2" aria-label="Operator checks">
         {actions.map((action) => {
-          const selectedAction = action.kind === selected.kind
+          const actionRuns = runs.filter((run) => run.kind === action.runKind)
+          const latest = actionRuns[0] ?? null
+          const activeRun = actionRuns.find((run) => isActiveOperatorRun(run)) ?? null
+          const available = action.isAvailable(now)
+          const alreadyTriggered = Boolean(latest && action.windowKey(new Date(latest.started_at)) === action.windowKey(now))
           const loading = loadingKind === action.kind
+          const disabledReason = activeRun
+            ? 'Already running'
+            : alreadyTriggered
+              ? 'Run complete for this window'
+              : !available
+                ? 'Outside run window'
+                : null
+          const progress = operatorProgress(activeRun ?? latest)
+          const canRun = !loadingKind && available && !alreadyTriggered && !activeRun
+          const latestResult = result?.kind === action.kind ? result : null
+
           return (
-            <button
+            <div
               key={action.kind}
-              type="button"
-              role="tab"
-              aria-selected={selectedAction}
-              onClick={() => onSelect(action.kind)}
-              className={`inline-flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-sm ${
-                selectedAction
-                  ? 'border-radiant-gold/60 bg-radiant-gold/10 text-radiant-gold'
-                  : 'border-silicon-slate/60 bg-black/10 hover:border-radiant-gold/45'
-              }`}
+              className={`rounded-lg border p-3 ${canRun ? 'border-radiant-gold/45 bg-radiant-gold/10' : activeRun ? 'border-sky-400/35 bg-sky-500/10' : 'border-silicon-slate/60 bg-black/10'}`}
             >
-              <span className="min-w-0 truncate">{action.label}</span>
-              {loading ? <RefreshCw size={14} className="shrink-0 animate-spin" /> : <CheckCircle2 size={14} className="shrink-0" />}
-            </button>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-semibold">{action.label}</p>
+                  <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{action.purpose}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onRun(action.kind)}
+                  disabled={!canRun || loading}
+                  className="inline-flex shrink-0 items-center justify-center gap-1 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-2.5 py-1.5 text-xs text-radiant-gold hover:bg-radiant-gold/15 disabled:border-silicon-slate/50 disabled:bg-black/10 disabled:text-muted-foreground disabled:opacity-70"
+                  title={disabledReason ?? `Run ${action.label}`}
+                >
+                  {loading ? <RefreshCw size={13} className="animate-spin" /> : <Sparkles size={13} />}
+                  Run
+                </button>
+              </div>
+              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-black/25">
+                <div className={`h-full rounded-full ${activeRun ? 'bg-sky-300' : progress === 100 ? 'bg-emerald-300' : 'bg-radiant-gold'}`} style={{ width: `${progress}%` }} />
+              </div>
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+                <span>{disabledReason ?? 'Available now'}</span>
+                <span>{action.windowLabel}</span>
+              </div>
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs">
+                {latest ? (
+                  <Link href={`/admin/agents/runs/${latest.id}`} className="text-radiant-gold hover:underline">
+                    Latest: {formatOperatorRunStatus(latest)}
+                  </Link>
+                ) : (
+                  <span className="text-muted-foreground">No prior run</span>
+                )}
+                <Link href={`/admin/agents/runs?kind=${action.runKind}`} className="text-muted-foreground hover:text-radiant-gold">
+                  View history
+                </Link>
+              </div>
+              {latestResult ? (
+                <Link href={`/admin/agents/runs/${latestResult.runId}`} className="mt-2 flex items-center justify-between gap-3 rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200 hover:underline">
+                  <span>Open {latestResult.label} run</span>
+                  <ArrowRight size={14} />
+                </Link>
+              ) : null}
+            </div>
           )
         })}
       </div>
 
       <div className="mt-3 rounded-lg border border-silicon-slate/50 bg-black/10 p-3">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0">
-            <p className="font-semibold">{selected.label}</p>
-            <p className="mt-1 text-sm text-muted-foreground">{selected.purpose}</p>
-          </div>
-          <button
-            type="button"
-            onClick={() => onRun(selected.kind)}
-            disabled={loadingKind !== null}
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
-          >
-            {loadingKind === selected.kind ? <RefreshCw size={14} className="animate-spin" /> : <Sparkles size={14} />}
-            Run check
-          </button>
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Recent operator runs</p>
+          <Link href="/admin/agents/runs?kind=operator_checks" className="text-xs text-radiant-gold hover:underline">View all</Link>
         </div>
-        <dl className="mt-3 grid grid-cols-1 gap-2 text-xs text-muted-foreground">
-          <div className="rounded-md border border-silicon-slate/50 bg-background/30 p-2">
-            <dt className="font-semibold uppercase tracking-wider text-foreground/70">When to run</dt>
-            <dd className="mt-1">{selected.cadence}</dd>
+        {runsLoading ? (
+          <p className="text-sm text-muted-foreground">Loading recent runs...</p>
+        ) : recentRuns.length ? (
+          <div className="space-y-1">
+            {recentRuns.map((run) => (
+              <Link key={run.id} href={`/admin/agents/runs/${run.id}`} className="flex items-center justify-between gap-3 rounded-md px-2 py-1.5 text-xs hover:bg-radiant-gold/10">
+                <span className="min-w-0 truncate">{operatorLabelForKind(run.kind)} · {run.title}</span>
+                <span className="shrink-0 text-muted-foreground">{formatOperatorRunStatus(run)}</span>
+              </Link>
+            ))}
           </div>
-          <div className="rounded-md border border-silicon-slate/50 bg-background/30 p-2">
-            <dt className="font-semibold uppercase tracking-wider text-foreground/70">Where results appear</dt>
-            <dd className="mt-1">{selected.output}</dd>
-          </div>
-        </dl>
-        {selectedResult ? (
-          <Link href={`/admin/agents/runs/${selectedResult.runId}`} className="mt-3 flex items-center justify-between gap-3 rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200 hover:underline">
-            <span>Open {selectedResult.label} run</span>
-            <ArrowRight size={14} />
-          </Link>
-        ) : null}
+        ) : (
+          <p className="text-sm text-muted-foreground">No operator runs recorded yet.</p>
+        )}
       </div>
     </div>
   )
+}
+
+function isWeekday(value: Date) {
+  const day = value.getDay()
+  return day >= 1 && day <= 5
+}
+
+function localDateKey(value: Date) {
+  const year = value.getFullYear()
+  const month = `${value.getMonth() + 1}`.padStart(2, '0')
+  const day = `${value.getDate()}`.padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+function isActiveOperatorRun(run: OperatorRun) {
+  return run.stale || ['queued', 'running', 'waiting_for_approval'].includes(run.status)
+}
+
+function operatorProgress(run: OperatorRun | null) {
+  if (!run) return 0
+  if (run.stale) return 80
+  if (run.status === 'queued') return 20
+  if (run.status === 'running') return 55
+  if (run.status === 'waiting_for_approval') return 75
+  return 100
+}
+
+function formatOperatorRunStatus(run: OperatorRun) {
+  const status = run.stale ? 'stale' : run.status.replace(/_/g, ' ')
+  return `${status} · ${formatTime(run.started_at)}`
+}
+
+function operatorLabelForKind(kind: string) {
+  return OPERATOR_ACTIONS.find((action) => action.runKind === kind)?.label ?? kind.replace(/_/g, ' ')
 }
 
 function QuickPrompt({ label, disabled, onClick }: { label: string; disabled: boolean; onClick: () => void }) {

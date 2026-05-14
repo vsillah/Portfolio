@@ -50,6 +50,7 @@ function AgentRunsContent() {
   const [error, setError] = useState<string | null>(null)
   const [sweepLoading, setSweepLoading] = useState(false)
   const [sweepMessage, setSweepMessage] = useState<string | null>(null)
+  const kindFilter = searchParams.get('kind')
 
   const fetchRuns = useCallback(async () => {
     setLoading(true)
@@ -61,6 +62,7 @@ function AgentRunsContent() {
       if (runtime !== 'all') qs.set('runtime', runtime)
       if (status === 'active') qs.set('active', 'true')
       else if (status !== 'all') qs.set('status', status)
+      if (kindFilter) qs.set('kind', kindFilter)
       const res = await fetch(`/api/admin/agents/runs?${qs.toString()}`, {
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
@@ -76,7 +78,7 @@ function AgentRunsContent() {
     } finally {
       setLoading(false)
     }
-  }, [runtime, status])
+  }, [kindFilter, runtime, status])
 
   useEffect(() => {
     fetchRuns()
