@@ -7,12 +7,14 @@ import {
   AlertTriangle,
   Bot,
   Columns,
+  Filter,
   GitPullRequest,
   LayoutDashboard,
   MessageSquare,
   RefreshCw,
   ShieldCheck,
   Sparkles,
+  Timer,
   Users,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
@@ -35,6 +37,7 @@ type BoardSnapshot = AgentSwarmBoardSnapshot & {
 }
 
 type BoardMode = 'kanban' | 'hive' | 'agents' | 'war-room' | 'client-builder'
+type AttentionFilter = 'all' | 'blocked' | 'review' | 'unassigned'
 
 const MODES: Array<{ key: BoardMode; label: string; icon: typeof LayoutDashboard }> = [
   { key: 'kanban', label: 'Kanban lanes', icon: LayoutDashboard },
@@ -42,6 +45,24 @@ const MODES: Array<{ key: BoardMode; label: string; icon: typeof LayoutDashboard
   { key: 'agents', label: 'Agent roster', icon: Users },
   { key: 'war-room', label: 'War room board', icon: MessageSquare },
   { key: 'client-builder', label: 'Client builder board', icon: Columns },
+]
+
+const STATUS_FILTERS: Array<'all' | AgentOrgBoardTask['status']> = [
+  'all',
+  'proposed',
+  'queued',
+  'assigned',
+  'in_progress',
+  'blocked',
+  'ready_for_review',
+  'ready_for_merge',
+]
+
+const ATTENTION_FILTERS: Array<{ key: AttentionFilter; label: string }> = [
+  { key: 'all', label: 'All work' },
+  { key: 'blocked', label: 'Blocked' },
+  { key: 'review', label: 'Review ready' },
+  { key: 'unassigned', label: 'Unassigned' },
 ]
 
 export default function AgentSwarmBoardPage() {
@@ -58,6 +79,10 @@ function AgentSwarmBoardContent() {
   const [error, setError] = useState<string | null>(null)
   const [mode, setMode] = useState<BoardMode>('kanban')
   const [activityFilter, setActivityFilter] = useState('all')
+  const [selectedGoalId, setSelectedGoalId] = useState('all')
+  const [ownerFilter, setOwnerFilter] = useState('all')
+  const [statusFilter, setStatusFilter] = useState<'all' | AgentOrgBoardTask['status']>('all')
+  const [attentionFilter, setAttentionFilter] = useState<AttentionFilter>('all')
 
   const fetchBoard = useCallback(async () => {
     setLoading(true)
@@ -80,6 +105,7 @@ function AgentSwarmBoardContent() {
   }, [])
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0 })
     fetchBoard()
   }, [fetchBoard])
 
@@ -171,7 +197,25 @@ function AgentSwarmBoardContent() {
             </aside>
 
             <main className="min-w-0">
-              {mode === 'kanban' && <KanbanBoard organization={organization} />}
+              {mode === 'kanban' && (
+                <KanbanBoard
+                  organization={organization}
+                  selectedGoalId={selectedGoalId}
+                  ownerFilter={ownerFilter}
+                  statusFilter={statusFilter}
+                  attentionFilter={attentionFilter}
+                  onGoalChange={setSelectedGoalId}
+                  onOwnerChange={setOwnerFilter}
+                  onStatusChange={setStatusFilter}
+                  onAttentionChange={setAttentionFilter}
+                  onClearFilters={() => {
+                    setSelectedGoalId('all')
+                    setOwnerFilter('all')
+                    setStatusFilter('all')
+                    setAttentionFilter('all')
+                  }}
+                />
+              )}
               {mode === 'hive' && (
                 <HiveMind
                   organization={organization}
@@ -191,11 +235,85 @@ function AgentSwarmBoardContent() {
   )
 }
 
-function KanbanBoard({ organization }: { organization: AgentOrgBoardSnapshot }) {
+function KanbanBoard({
+  organization,
+  selectedGoalId,
+  ownerFilter,
+  statusFilter,
+  attentionFilter,
+  onGoalChange,
+  onOwnerChange,
+  onStatusChange,
+  onAttentionChange,
+  onClearFilters,
+}: {
+  organization: AgentOrgBoardSnapshot
+  selectedGoalId: string
+  ownerFilter: string
+  statusFilter: 'all' | AgentOrgBoardTask['status']
+  attentionFilter: AttentionFilter
+  onGoalChange: (value: string) => void
+  onOwnerChange: (value: string) => void
+  onStatusChange: (value: 'all' | AgentOrgBoardTask['status']) => void
+  onAttentionChange: (value: AttentionFilter) => void
+  onClearFilters: () => void
+}) {
+  const allTasks = useMemo(() => organization.lanes.flatMap((lane) => lane.tasks), [organization.lanes])
+  const ownerOptions = useMemo(() => {
+    const options = new Map<string, string>()
+    for (const task of allTasks) {
+      if (task.ownerAgentKey) options.set(task.ownerAgentKey, task.ownerAgentName)
+    }
+    return [...options.entries()].sort((a, b) => a[1].localeCompare(b[1]))
+  }, [allTasks])
+  const filteredLanes = useMemo(() => {
+    return organization.lanes.map((lane) => ({
+      ...lane,
+      tasks: lane.tasks.filter((task) => {
+        if (selectedGoalId !== 'all' && task.goal?.id !== selectedGoalId) return false
+        if (ownerFilter !== 'all') {
+          if (ownerFilter === 'unassigned') {
+            if (task.ownerAgentKey) return false
+          } else if (task.ownerAgentKey !== ownerFilter) {
+            return false
+          }
+        }
+        if (statusFilter !== 'all' && task.status !== statusFilter) return false
+        if (attentionFilter === 'blocked' && task.status !== 'blocked') return false
+        if (attentionFilter === 'review' && task.status !== 'ready_for_review' && task.status !== 'ready_for_merge') return false
+        if (attentionFilter === 'unassigned' && task.ownerAgentKey) return false
+        return true
+      }),
+    }))
+  }, [attentionFilter, organization.lanes, ownerFilter, selectedGoalId, statusFilter])
+  const filteredTasks = filteredLanes.flatMap((lane) => lane.tasks)
+  const selectedGoal = organization.summary.goals.find((goal) => goal.id === selectedGoalId) ?? null
+  const filtersActive = selectedGoalId !== 'all' || ownerFilter !== 'all' || statusFilter !== 'all' || attentionFilter !== 'all'
+
   return (
     <div className="space-y-4" role="tabpanel" aria-label="Kanban lanes">
       <SummaryStrip organization={organization} />
-      <GoalRadiators organization={organization} />
+      <GoalRadiators
+        organization={organization}
+        selectedGoalId={selectedGoalId}
+        onGoalChange={onGoalChange}
+      />
+      <KanbanFilterPanel
+        goals={organization.summary.goals}
+        ownerOptions={ownerOptions}
+        selectedGoalId={selectedGoalId}
+        ownerFilter={ownerFilter}
+        statusFilter={statusFilter}
+        attentionFilter={attentionFilter}
+        filteredCount={filteredTasks.length}
+        totalCount={allTasks.length}
+        onGoalChange={onGoalChange}
+        onOwnerChange={onOwnerChange}
+        onStatusChange={onStatusChange}
+        onAttentionChange={onAttentionChange}
+        onClearFilters={onClearFilters}
+      />
+      {selectedGoal ? <SelectedGoalPanel goal={selectedGoal} tasks={filteredTasks} /> : null}
       <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-4">
         <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
           <div>
@@ -204,11 +322,14 @@ function KanbanBoard({ organization }: { organization: AgentOrgBoardSnapshot }) 
               Work-lane Kanban organized by agent ownership. Use each card to inspect the trace, PR, owner, blocker, validation, and current status before handoff or merge review.
             </p>
           </div>
-          <Badge label="default Kanban view" />
+          <div className="flex flex-wrap gap-2">
+            {filtersActive ? <Badge label={`${filteredTasks.length}/${allTasks.length} visible`} /> : null}
+            <Badge label="default Kanban view" />
+          </div>
         </div>
       </section>
-      <div className="grid gap-3 xl:grid-cols-4">
-        {organization.lanes.map((lane) => (
+      <div className="grid items-start gap-3 xl:grid-cols-4">
+        {filteredLanes.map((lane) => (
           <TaskLane key={lane.key} lane={lane} />
         ))}
       </div>
@@ -216,7 +337,15 @@ function KanbanBoard({ organization }: { organization: AgentOrgBoardSnapshot }) 
   )
 }
 
-function GoalRadiators({ organization }: { organization: AgentOrgBoardSnapshot }) {
+function GoalRadiators({
+  organization,
+  selectedGoalId,
+  onGoalChange,
+}: {
+  organization: AgentOrgBoardSnapshot
+  selectedGoalId: string
+  onGoalChange: (value: string) => void
+}) {
   const wipAlerts = organization.summary.wip.filter((lane) => lane.overLimit).slice(0, 3)
   const goals = organization.summary.goals.slice(0, 3)
   return (
@@ -229,13 +358,23 @@ function GoalRadiators({ organization }: { organization: AgentOrgBoardSnapshot }
           </div>
           <div className="grid gap-3 md:grid-cols-3">
             {goals.length ? goals.map((goal) => (
-              <div key={goal.id} className="rounded-lg border border-silicon-slate/60 bg-background/60 p-3">
+              <button
+                key={goal.id}
+                type="button"
+                onClick={() => onGoalChange(selectedGoalId === goal.id ? 'all' : goal.id)}
+                aria-pressed={selectedGoalId === goal.id}
+                className={`rounded-lg border p-3 text-left transition ${
+                  selectedGoalId === goal.id
+                    ? 'border-radiant-gold/70 bg-radiant-gold/15 shadow-[0_0_24px_rgba(222,184,65,0.12)]'
+                    : 'border-silicon-slate/60 bg-background/60 hover:border-radiant-gold/45'
+                }`}
+              >
                 <p className="line-clamp-1 text-sm font-semibold">{goal.title}</p>
                 <div className="mt-2 h-2 overflow-hidden rounded-full bg-silicon-slate/70">
                   <div className="h-full bg-radiant-gold" style={{ width: `${goal.progress}%` }} />
                 </div>
                 <p className="mt-2 text-xs text-muted-foreground">{goal.progress}% · {goal.open} open · {goal.blocked} blocked</p>
-              </div>
+              </button>
             )) : (
               <p className="rounded-lg border border-dashed border-silicon-slate/60 p-3 text-sm text-muted-foreground md:col-span-3">
                 Goal-tagged cards will appear after a Standup Room goal is approved.
@@ -263,6 +402,181 @@ function GoalRadiators({ organization }: { organization: AgentOrgBoardSnapshot }
   )
 }
 
+function KanbanFilterPanel({
+  goals,
+  ownerOptions,
+  selectedGoalId,
+  ownerFilter,
+  statusFilter,
+  attentionFilter,
+  filteredCount,
+  totalCount,
+  onGoalChange,
+  onOwnerChange,
+  onStatusChange,
+  onAttentionChange,
+  onClearFilters,
+}: {
+  goals: AgentOrgBoardSnapshot['summary']['goals']
+  ownerOptions: Array<[string, string]>
+  selectedGoalId: string
+  ownerFilter: string
+  statusFilter: 'all' | AgentOrgBoardTask['status']
+  attentionFilter: AttentionFilter
+  filteredCount: number
+  totalCount: number
+  onGoalChange: (value: string) => void
+  onOwnerChange: (value: string) => void
+  onStatusChange: (value: 'all' | AgentOrgBoardTask['status']) => void
+  onAttentionChange: (value: AttentionFilter) => void
+  onClearFilters: () => void
+}) {
+  return (
+    <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-4" aria-label="Kanban filters">
+      <div className="mb-3 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-center gap-2">
+          <Filter size={16} className="text-radiant-gold" />
+          <div>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-radiant-gold">Board scope</h2>
+            <p className="text-sm text-muted-foreground">Filter by goal, owner, status, or attention state without leaving the Kanban surface.</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <span>{filteredCount}/{totalCount} visible</span>
+          <button type="button" onClick={onClearFilters} className="text-radiant-gold hover:underline">
+            Clear filters
+          </button>
+        </div>
+      </div>
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <label className="text-xs uppercase tracking-wide text-muted-foreground">
+          Goal
+          <select
+            value={selectedGoalId}
+            onChange={(event) => onGoalChange(event.target.value)}
+            className="mt-1 w-full rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+          >
+            <option value="all">All goals</option>
+            {goals.map((goal) => (
+              <option key={goal.id} value={goal.id}>{goal.title}</option>
+            ))}
+          </select>
+        </label>
+        <label className="text-xs uppercase tracking-wide text-muted-foreground">
+          Owner
+          <select
+            value={ownerFilter}
+            onChange={(event) => onOwnerChange(event.target.value)}
+            className="mt-1 w-full rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+          >
+            <option value="all">All owners</option>
+            <option value="unassigned">Unassigned</option>
+            {ownerOptions.map(([key, label]) => (
+              <option key={key} value={key}>{label}</option>
+            ))}
+          </select>
+        </label>
+        <label className="text-xs uppercase tracking-wide text-muted-foreground">
+          Status
+          <select
+            value={statusFilter}
+            onChange={(event) => onStatusChange(event.target.value as 'all' | AgentOrgBoardTask['status'])}
+            className="mt-1 w-full rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+          >
+            {STATUS_FILTERS.map((status) => (
+              <option key={status} value={status}>{status.replace(/_/g, ' ')}</option>
+            ))}
+          </select>
+        </label>
+        <label className="text-xs uppercase tracking-wide text-muted-foreground">
+          Attention
+          <select
+            value={attentionFilter}
+            onChange={(event) => onAttentionChange(event.target.value as AttentionFilter)}
+            className="mt-1 w-full rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+          >
+            {ATTENTION_FILTERS.map((filter) => (
+              <option key={filter.key} value={filter.key}>{filter.label}</option>
+            ))}
+          </select>
+        </label>
+      </div>
+    </section>
+  )
+}
+
+function SelectedGoalPanel({ goal, tasks }: { goal: AgentOrgBoardSnapshot['summary']['goals'][number]; tasks: AgentOrgBoardTask[] }) {
+  const orderedTasks = [...tasks]
+    .filter((task) => task.goal?.id === goal.id)
+    .sort((a, b) => (a.goal?.sequence ?? 999) - (b.goal?.sequence ?? 999))
+  return (
+    <section className="rounded-lg border border-radiant-gold/35 bg-radiant-gold/10 p-4" aria-label="Selected goal work">
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div>
+          <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-radiant-gold">Selected goal</p>
+              <h2 className="mt-1 text-xl font-semibold">{goal.title}</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {goal.completed}/{goal.total} complete · {goal.open} open · {goal.blocked} blocked
+              </p>
+            </div>
+            <Link href={`/admin/agents/standup?goal=${encodeURIComponent(goal.id)}`} className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15">
+              Open goal session
+            </Link>
+          </div>
+          <div className="mt-4 h-3 overflow-hidden rounded-full bg-silicon-slate/70">
+            <div className="h-full bg-radiant-gold" style={{ width: `${goal.progress}%` }} />
+          </div>
+          <div className="mt-4 grid gap-2">
+            {orderedTasks.length ? orderedTasks.map((task) => (
+              <div key={task.id} className="grid gap-2 rounded-lg border border-silicon-slate/60 bg-background/55 p-3 text-sm md:grid-cols-[48px_minmax(0,1fr)_140px] md:items-center">
+                <span className="text-xs font-semibold uppercase tracking-wide text-radiant-gold">
+                  {task.goal?.sequence ? `#${task.goal.sequence}` : 'Task'}
+                </span>
+                <div className="min-w-0">
+                  <p className="break-words font-medium">{task.title}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{task.ownerAgentName} · {task.status.replace(/_/g, ' ')}</p>
+                </div>
+                <div className="flex gap-2 md:justify-end">
+                  {task.activeRunId ? <Link href={`/admin/agents/runs/${task.activeRunId}`} className="text-xs text-radiant-gold hover:underline">Trace</Link> : null}
+                  {task.prUrl ? <a href={task.prUrl} className="text-xs text-radiant-gold hover:underline">PR</a> : null}
+                </div>
+              </div>
+            )) : (
+              <p className="rounded-lg border border-dashed border-silicon-slate/60 p-3 text-sm text-muted-foreground">
+                No visible cards match this goal and the current filters.
+              </p>
+            )}
+          </div>
+        </div>
+        <div className="rounded-lg border border-silicon-slate/60 bg-background/55 p-3">
+          <h3 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-radiant-gold">
+            <Timer size={15} />
+            Burndown
+          </h3>
+          <div className="mt-3 space-y-2">
+            {goal.burndown.length ? goal.burndown.map((point, index) => {
+              const max = Math.max(...goal.burndown.map((item) => item.remaining), 1)
+              return (
+                <div key={`${point.label}-${index}`} className="grid grid-cols-[64px_minmax(0,1fr)_32px] items-center gap-2 text-xs">
+                  <span className="text-muted-foreground">{point.label}</span>
+                  <div className="h-2 overflow-hidden rounded-full bg-silicon-slate/70">
+                    <div className="h-full bg-radiant-gold/80" style={{ width: `${Math.max(8, (point.remaining / max) * 100)}%` }} />
+                  </div>
+                  <span className="text-right tabular-nums">{point.remaining}</span>
+                </div>
+              )
+            }) : (
+              <p className="text-sm text-muted-foreground">Burndown appears after goal-tagged work starts moving.</p>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function SummaryStrip({ organization }: { organization: AgentOrgBoardSnapshot }) {
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
@@ -279,9 +593,12 @@ function SummaryStrip({ organization }: { organization: AgentOrgBoardSnapshot })
 }
 
 function TaskLane({ lane }: { lane: AgentOrgBoardLane }) {
+  const isEmpty = lane.tasks.length === 0
+  const blocked = lane.tasks.filter((task) => task.status === 'blocked').length
+  const review = lane.tasks.filter((task) => task.status === 'ready_for_review' || task.status === 'ready_for_merge').length
   return (
-    <section className="min-h-[420px] rounded-lg border border-silicon-slate/70 bg-silicon-slate/15" aria-label={`${lane.label} lane`}>
-      <div className="border-b border-silicon-slate/60 p-3">
+    <section className={`rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 ${isEmpty ? 'opacity-75' : 'min-h-[420px]'}`} aria-label={`${lane.label} lane`}>
+      <div className={`${isEmpty ? '' : 'border-b border-silicon-slate/60'} p-3`}>
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <h2 className="break-words font-semibold" title={lane.label}>{lane.label}</h2>
@@ -291,21 +608,26 @@ function TaskLane({ lane }: { lane: AgentOrgBoardLane }) {
             {lane.tasks.length}
           </span>
         </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {blocked ? <span className="rounded-full border border-red-500/40 bg-red-500/10 px-2 py-1 text-xs text-red-200">{blocked} blocked</span> : null}
+          {review ? <span className="rounded-full border border-yellow-500/40 bg-yellow-500/10 px-2 py-1 text-xs text-yellow-100">{review} review</span> : null}
+          {isEmpty ? (
+            <span className="rounded-full border border-silicon-slate/60 bg-silicon-slate/10 px-2 py-1 text-xs text-muted-foreground">No visible work</span>
+          ) : null}
+          {!isEmpty && !blocked && !review ? <span className="rounded-full border border-green-500/30 bg-green-500/10 px-2 py-1 text-xs text-green-200">within flow</span> : null}
+        </div>
       </div>
-      <div className="space-y-3 p-3">
-        {lane.tasks.length ? (
-          lane.tasks.map((task) => <WorkItemCard key={task.id} task={task} />)
-        ) : (
-          <p className="rounded-lg border border-dashed border-silicon-slate/60 px-3 py-8 text-center text-sm text-muted-foreground">
-            No active tasks in this lane
-          </p>
-        )}
-      </div>
+      {!isEmpty ? (
+        <div className="space-y-3 p-3">
+          {lane.tasks.map((task) => <WorkItemCard key={task.id} task={task} />)}
+        </div>
+      ) : null}
     </section>
   )
 }
 
 function WorkItemCard({ task }: { task: AgentOrgBoardTask }) {
+  const nextAction = nextActionForTask(task)
   return (
     <article className="rounded-lg border border-silicon-slate/70 bg-background/70 p-3">
       <div className="mb-2 flex items-start justify-between gap-2">
@@ -326,6 +648,10 @@ function WorkItemCard({ task }: { task: AgentOrgBoardTask }) {
         </Link>
       )}
       {task.objective && <p className="mb-3 line-clamp-2 text-xs text-muted-foreground">{task.objective}</p>}
+      <div className={`mb-3 rounded-lg border p-2 text-xs ${nextAction.tone}`}>
+        <p className="font-semibold">{nextAction.label}</p>
+        <p className="mt-1 text-foreground/80">{nextAction.detail}</p>
+      </div>
       <dl className="grid gap-2 text-xs">
         <CardDetail label="Trace" value={task.activeRunId ?? 'No active trace'} />
         <CardDetail label="Owner" value={task.ownerAgentName} />
@@ -349,30 +675,84 @@ function WorkItemCard({ task }: { task: AgentOrgBoardTask }) {
       )}
       <div className="mt-3 flex items-center justify-between gap-2 text-xs text-muted-foreground">
         <span>{task.completedAt ? `Cycle ${formatHours(task.createdAt, task.completedAt)}` : `Age ${formatHours(task.createdAt)}`}</span>
-        {task.prUrl ? (
-          <a
-            href={task.prUrl}
-            aria-label={`Open pull request ${task.prNumber ?? ''} for ${task.title}`.trim()}
-            className="inline-flex items-center gap-1 text-radiant-gold hover:underline"
-          >
-            <GitPullRequest size={13} />
-            PR {task.prNumber}
-          </a>
-        ) : (
-          <span>PR: none</span>
-        )}
+        <span>{task.prUrl ? `PR ${task.prNumber}` : 'PR: none'}</span>
+      </div>
+      <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
         {task.activeRunId ? (
           <a
             href={`/admin/agents/runs/${task.activeRunId}`}
             aria-label={`Open trace ${task.activeRunId} for ${task.title}`}
-            className="inline-flex items-center gap-1 text-radiant-gold hover:underline"
+            className="inline-flex items-center justify-center rounded-lg border border-radiant-gold/45 bg-radiant-gold/10 px-2 py-2 text-radiant-gold hover:bg-radiant-gold/15"
           >
             Trace
           </a>
-        ) : null}
+        ) : (
+          <span className="inline-flex items-center justify-center rounded-lg border border-silicon-slate/60 px-2 py-2 text-muted-foreground">No trace</span>
+        )}
+        {task.prUrl ? (
+          <a
+            href={task.prUrl}
+            aria-label={`Open pull request ${task.prNumber ?? ''} for ${task.title}`.trim()}
+            className="inline-flex items-center justify-center gap-1 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-2 py-2 text-radiant-gold hover:border-radiant-gold/45"
+          >
+            <GitPullRequest size={13} />
+            PR
+          </a>
+        ) : (
+          <span className="inline-flex items-center justify-center rounded-lg border border-silicon-slate/60 px-2 py-2 text-muted-foreground">No PR</span>
+        )}
       </div>
     </article>
   )
+}
+
+function nextActionForTask(task: AgentOrgBoardTask) {
+  if (task.status === 'blocked') {
+    return {
+      label: 'Resolve blocker',
+      detail: task.blockerSummary ?? 'Open the trace or owner lane and clear the blocker before routing forward.',
+      tone: 'border-red-500/35 bg-red-500/10 text-red-200',
+    }
+  }
+  if (task.status === 'ready_for_merge' || task.status === 'ready_for_review') {
+    return task.prUrl
+      ? {
+          label: 'Review PR',
+          detail: `Review PR ${task.prNumber ?? ''}, validation, and merge readiness.`,
+          tone: 'border-yellow-500/35 bg-yellow-500/10 text-yellow-100',
+        }
+      : {
+          label: 'Attach PR',
+          detail: 'This item is review-ready but does not have a pull request attached.',
+          tone: 'border-yellow-500/35 bg-yellow-500/10 text-yellow-100',
+        }
+  }
+  if (task.status === 'queued' || task.status === 'proposed' || !task.ownerAgentKey) {
+    return {
+      label: 'Assign owner',
+      detail: 'Move this work from intake into an owner lane before implementation starts.',
+      tone: 'border-silicon-slate/60 bg-silicon-slate/15 text-foreground',
+    }
+  }
+  if (task.activeRunId) {
+    return {
+      label: 'Open trace',
+      detail: 'Inspect the current trace for live status, evidence, and next step.',
+      tone: 'border-radiant-gold/35 bg-radiant-gold/10 text-radiant-gold',
+    }
+  }
+  if (!task.validationSummary) {
+    return {
+      label: 'Add validation summary',
+      detail: 'Record focused validation before handing this work to review.',
+      tone: 'border-silicon-slate/60 bg-silicon-slate/15 text-foreground',
+    }
+  }
+  return {
+    label: 'Continue work',
+    detail: 'Keep the owner, trace, and validation packet current as this item moves.',
+    tone: 'border-silicon-slate/60 bg-silicon-slate/15 text-foreground',
+  }
 }
 
 function CardDetail({ label, value }: { label: string; value: string }) {

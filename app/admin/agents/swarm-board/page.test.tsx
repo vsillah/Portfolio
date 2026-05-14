@@ -35,25 +35,25 @@ const boardSnapshot = {
     summary: {
       agents: 2,
       live_agents: 1,
-      active_work_items: 1,
+      active_work_items: 3,
       unassigned_work_items: 0,
       blocked_work_items: 1,
-      ready_for_merge: 0,
+      ready_for_merge: 1,
       pending_approvals: 0,
       activity_entries: 1,
       active_goals: 1,
       average_cycle_hours: 4.5,
       oldest_in_flight_hours: 12,
-      wip: [{ laneKey: 'operations', label: longLaneLabel, count: 1, limit: 4, overLimit: false }],
+      wip: [{ laneKey: 'operations', label: longLaneLabel, count: 5, limit: 4, overLimit: true }],
       goals: [{
         id: 'goal-1',
         title: 'Launch Standup Room',
-        total: 1,
+        total: 2,
         completed: 0,
         progress: 35,
         blocked: 1,
-        open: 1,
-        burndown: [{ label: 'May 13', remaining: 1 }],
+        open: 2,
+        burndown: [{ label: 'May 13', remaining: 2 }, { label: 'May 14', remaining: 1 }],
       }],
     },
     lanes: [
@@ -93,6 +93,59 @@ const boardSnapshot = {
               progressWeight: 1,
               sessionHref: '/admin/agents/standup?goal=goal-1',
             },
+          },
+          {
+            id: 'work-2',
+            title: 'Prepare review packet without an attached PR',
+            objective: 'Make sure review-ready work cannot hide missing implementation links.',
+            status: 'ready_for_merge',
+            priority: 'medium',
+            ownerAgentKey: 'automation-systems',
+            ownerAgentName: 'Amina - Automation Systems',
+            ownerRuntime: 'codex',
+            branchName: 'codex/review-packet',
+            worktreePath: '/Users/vambahsillah/Projects/Portfolio.worktrees/review-packet',
+            prNumber: null,
+            prUrl: null,
+            activeRunId: null,
+            blockerSummary: null,
+            validationSummary: 'Focused validation passed.',
+            overlapGroup: 'agent-ops-redesign',
+            parentWorkItemId: 'goal-parent',
+            createdAt: '2026-05-13T09:00:00.000Z',
+            updatedAt: '2026-05-13T12:00:00.000Z',
+            completedAt: null,
+            goal: {
+              id: 'goal-1',
+              title: 'Launch Standup Room',
+              sequence: 2,
+              status: 'approved',
+              progressWeight: 1,
+              sessionHref: '/admin/agents/standup?goal=goal-1',
+            },
+          },
+          {
+            id: 'work-3',
+            title: 'Maintain automation context outside the selected goal',
+            objective: 'This should disappear when the goal filter is active.',
+            status: 'in_progress',
+            priority: 'low',
+            ownerAgentKey: 'automation-systems',
+            ownerAgentName: 'Amina - Automation Systems',
+            ownerRuntime: 'codex',
+            branchName: null,
+            worktreePath: null,
+            prNumber: null,
+            prUrl: null,
+            activeRunId: 'run-3',
+            blockerSummary: null,
+            validationSummary: null,
+            overlapGroup: null,
+            parentWorkItemId: null,
+            createdAt: '2026-05-13T10:00:00.000Z',
+            updatedAt: '2026-05-13T12:10:00.000Z',
+            completedAt: null,
+            goal: null,
           },
         ],
       },
@@ -142,6 +195,7 @@ const boardSnapshot = {
 
 describe('AgentSwarmBoardPage', () => {
   beforeEach(() => {
+    window.scrollTo = vi.fn()
     vi.stubGlobal('fetch', vi.fn(async () => ({
       ok: true,
       json: async () => boardSnapshot,
@@ -160,7 +214,9 @@ describe('AgentSwarmBoardPage', () => {
     expect(screen.getAllByText(/Work by state, owner, and blocker/i).length).toBeGreaterThan(0)
     expect(screen.getByText(/Work-lane Kanban organized by agent ownership/i)).toBeInTheDocument()
     expect(screen.getByText('Goal progress')).toBeInTheDocument()
-    expect(screen.getByText('Launch Standup Room')).toBeInTheDocument()
+    expect(screen.getAllByText('Launch Standup Room').length).toBeGreaterThan(0)
+    expect(screen.getByText('1 lane(s) are above configured limit.')).toBeInTheDocument()
+    expect(screen.getByText(`${longLaneLabel}: 5/4`)).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'Kanban lanes' })).toHaveAttribute('aria-selected', 'true')
     expect(fetch).toHaveBeenCalledWith('/api/admin/agents/swarm-board', expect.objectContaining({
       headers: expect.objectContaining({ Authorization: 'Bearer admin-token' }),
@@ -174,11 +230,48 @@ describe('AgentSwarmBoardPage', () => {
     expect(screen.getByRole('region', { name: 'Empty validation lane lane' })).toBeInTheDocument()
     expect(screen.getByText(longTaskTitle)).toBeInTheDocument()
     expect(screen.getAllByText('Trace').length).toBeGreaterThan(0)
-    expect(screen.getByText('Owner')).toBeInTheDocument()
+    expect(screen.getAllByText('Owner').length).toBeGreaterThan(0)
     expect(screen.getByText('Blocker:')).toBeInTheDocument()
-    expect(screen.getByText('Validation:')).toBeInTheDocument()
+    expect(screen.getAllByText('Validation:').length).toBeGreaterThan(0)
+    expect(screen.getByText('Resolve blocker')).toBeInTheDocument()
+    expect(screen.getByText('Attach PR')).toBeInTheDocument()
+    expect(screen.getAllByText('Open trace').length).toBeGreaterThan(0)
     expect(screen.getByRole('link', { name: `Open pull request 203 for ${longTaskTitle}` })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: `Open trace run-1 for ${longTaskTitle}` })).toHaveAttribute('href', '/admin/agents/runs/run-1')
+  })
+
+  it('filters visible cards by goal and can clear the filter', async () => {
+    render(<AgentSwarmBoardPage />)
+
+    expect(await screen.findByText('Maintain automation context outside the selected goal')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /Launch Standup Room/i }))
+
+    expect(screen.getByRole('region', { name: 'Selected goal work' })).toBeInTheDocument()
+    expect(screen.getByText(/0\/2 complete/)).toBeInTheDocument()
+    expect(screen.queryByText('Maintain automation context outside the selected goal')).not.toBeInTheDocument()
+    expect(screen.getAllByText('2/3 visible').length).toBeGreaterThan(0)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }))
+
+    expect(screen.getByText('Maintain automation context outside the selected goal')).toBeInTheDocument()
+  })
+
+  it('filters visible cards by status and attention state', async () => {
+    render(<AgentSwarmBoardPage />)
+
+    await screen.findByText(longTaskTitle)
+
+    fireEvent.change(screen.getByLabelText('Status'), { target: { value: 'ready_for_merge' } })
+
+    expect(screen.getByText('Prepare review packet without an attached PR')).toBeInTheDocument()
+    expect(screen.queryByText(longTaskTitle)).not.toBeInTheDocument()
+
+    fireEvent.change(screen.getByLabelText('Status'), { target: { value: 'all' } })
+    fireEvent.change(screen.getByLabelText('Attention'), { target: { value: 'blocked' } })
+
+    expect(screen.getByText(longTaskTitle)).toBeInTheDocument()
+    expect(screen.queryByText('Prepare review packet without an attached PR')).not.toBeInTheDocument()
   })
 
   it('switches secondary modes as board views', async () => {
@@ -193,10 +286,16 @@ describe('AgentSwarmBoardPage', () => {
     expect(screen.getByRole('tab', { name: 'Kanban lanes' })).toHaveAttribute('aria-selected', 'false')
   })
 
-  it('shows empty lane copy when no tasks are active', async () => {
+  it('keeps lane order fixed while collapsing empty lanes', async () => {
     render(<AgentSwarmBoardPage />)
 
-    expect(await screen.findByText('No active tasks in this lane')).toBeInTheDocument()
+    const populatedLane = await screen.findByRole('region', { name: `${longLaneLabel} lane` })
+    const emptyLane = screen.getByRole('region', { name: 'Empty validation lane lane' })
+
+    expect(populatedLane.compareDocumentPosition(emptyLane) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(screen.getByText('No visible work')).toBeInTheDocument()
+    expect(screen.queryByText('No active tasks in this lane')).not.toBeInTheDocument()
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, left: 0 })
   })
 
   it('keeps long lane and card labels accessible without truncation-only styling', async () => {
@@ -209,5 +308,26 @@ describe('AgentSwarmBoardPage', () => {
     expect(laneLabel).toHaveClass('break-words')
     expect(cardTitle).toHaveTextContent(longTaskTitle)
     expect(cardTitle).toHaveClass('break-words')
+  })
+
+  it('shows the empty goal state when no goals are present', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        ...boardSnapshot,
+        organization: {
+          ...boardSnapshot.organization,
+          summary: {
+            ...boardSnapshot.organization.summary,
+            active_goals: 0,
+            goals: [],
+          },
+        },
+      }),
+    })))
+
+    render(<AgentSwarmBoardPage />)
+
+    expect(await screen.findByText('Goal-tagged cards will appear after a Standup Room goal is approved.')).toBeInTheDocument()
   })
 })
