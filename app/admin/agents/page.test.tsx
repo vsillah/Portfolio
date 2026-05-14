@@ -88,7 +88,12 @@ const missionSnapshot = {
     run_id: null,
     updated_at: '2026-05-13T12:00:00.000Z',
     signals: ['1 running run', '3 pending approvals'],
-    next_actions: ['Review the decision queue.', 'Open Kanban for lane ownership.'],
+    next_actions: [
+      'Review the decision queue.',
+      'Open Kanban for lane ownership.',
+      'Ask Shaka to summarize blockers.',
+      'Escalate stale traces through Run Console.',
+    ],
   },
   cost_summary: {
     window_hours: 24,
@@ -235,11 +240,13 @@ describe('AgentOperationsPage mission control landing', () => {
     expect(screen.getByText('Hermes health')).toBeInTheDocument()
     expect(screen.getAllByRole('button', { name: /^Run$/ }).length).toBeGreaterThan(0)
     expect(screen.getByRole('link', { name: /Full history/i })).toHaveAttribute('href', '/admin/agents/runs?kind=operator_checks')
+    expect(screen.queryByText('Recent operator runs')).not.toBeInTheDocument()
     expect(screen.getByLabelText('Agent Inbox pagination')).toBeInTheDocument()
     const dailyBrief = screen.getByLabelText('Daily Operating Brief')
     expect(dailyBrief).toBeInTheDocument()
     expect(within(dailyBrief).getByText('Summary')).toBeInTheDocument()
     expect(within(dailyBrief).getByText('Decision queue is visible and the Kanban lanes are ready for review.')).toBeInTheDocument()
+    expect(within(dailyBrief).queryByText('Recommended next actions')).not.toBeInTheDocument()
     expect(within(dailyBrief).getByRole('link', { name: /Run Console/i })).toHaveAttribute('href', '/admin/agents/runs')
     expect(screen.getByRole('link', { name: /Active runs/i })).toHaveAttribute('href', '/admin/agents/runs?active=true')
     expect(screen.getByRole('link', { name: /Failed or stale runs/i })).toHaveAttribute('href', '/admin/agents/runs?status=needs_review')

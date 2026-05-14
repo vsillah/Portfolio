@@ -18,6 +18,7 @@ import {
   Gauge,
   MessageSquare,
   Network,
+  Play,
   Radio,
   RefreshCw,
   Send,
@@ -367,7 +368,6 @@ export default function AgentOperationsPage() {
   const [activeWorkPage, setActiveWorkPage] = useState(0)
   const [inboxPage, setInboxPage] = useState(0)
   const [operatorRuns, setOperatorRuns] = useState<OperatorRun[]>([])
-  const [operatorRunsLoading, setOperatorRunsLoading] = useState(false)
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -412,7 +412,6 @@ export default function AgentOperationsPage() {
   }, [authedFetch])
 
   const loadOperatorRuns = useCallback(async () => {
-    setOperatorRunsLoading(true)
     try {
       const response = await authedFetch('/api/admin/agents/runs?kind=operator_checks&limit=75')
       const body = await response.json().catch(() => ({}))
@@ -420,8 +419,6 @@ export default function AgentOperationsPage() {
       setOperatorRuns(body.runs || [])
     } catch {
       setOperatorRuns([])
-    } finally {
-      setOperatorRunsLoading(false)
     }
   }, [authedFetch])
 
@@ -968,7 +965,6 @@ export default function AgentOperationsPage() {
                       loadingKind={actionLoading as OperatorActionKind | null}
                       result={actionResult?.kind ? actionResult : null}
                       runs={operatorRuns}
-                      runsLoading={operatorRunsLoading}
                       onRun={runOperatorAction}
                     />
                     {moremiReview?.has_monitor ? (
@@ -1178,18 +1174,15 @@ function OperatorChecksPanel({
   loadingKind,
   result,
   runs,
-  runsLoading,
   onRun,
 }: {
   actions: typeof OPERATOR_ACTIONS
   loadingKind: OperatorActionKind | null
   result: { label: string; runId: string; kind?: OperatorActionKind } | null
   runs: OperatorRun[]
-  runsLoading: boolean
   onRun: (kind: OperatorActionKind) => void
 }) {
   const now = new Date()
-  const recentRuns = runs.slice(0, 5)
 
   return (
     <div className="rounded-lg border border-silicon-slate/60 bg-background/35 p-3">
@@ -1237,7 +1230,7 @@ function OperatorChecksPanel({
                   className="inline-flex shrink-0 items-center justify-center gap-1 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-2.5 py-1.5 text-xs text-radiant-gold hover:bg-radiant-gold/15 disabled:border-silicon-slate/50 disabled:bg-black/10 disabled:text-muted-foreground disabled:opacity-70"
                   title={disabledReason ?? `Run ${action.label}`}
                 >
-                  {loading ? <RefreshCw size={13} className="animate-spin" /> : <Sparkles size={13} />}
+                  {loading ? <RefreshCw size={13} className="animate-spin" /> : <Play size={13} fill="currentColor" />}
                   Run
                 </button>
               </div>
@@ -1269,27 +1262,6 @@ function OperatorChecksPanel({
             </div>
           )
         })}
-      </div>
-
-      <div className="mt-3 rounded-lg border border-silicon-slate/50 bg-black/10 p-3">
-        <div className="mb-2 flex items-center justify-between gap-3">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Recent operator runs</p>
-          <Link href="/admin/agents/runs?kind=operator_checks" className="text-xs text-radiant-gold hover:underline">View all</Link>
-        </div>
-        {runsLoading ? (
-          <p className="text-sm text-muted-foreground">Loading recent runs...</p>
-        ) : recentRuns.length ? (
-          <div className="space-y-1">
-            {recentRuns.map((run) => (
-              <Link key={run.id} href={`/admin/agents/runs/${run.id}`} className="flex items-center justify-between gap-3 rounded-md px-2 py-1.5 text-xs hover:bg-radiant-gold/10">
-                <span className="min-w-0 truncate">{operatorLabelForKind(run.kind)} · {run.title}</span>
-                <span className="shrink-0 text-muted-foreground">{formatOperatorRunStatus(run)}</span>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">No operator runs recorded yet.</p>
-        )}
       </div>
     </div>
   )
@@ -1323,10 +1295,6 @@ function operatorProgress(run: OperatorRun | null) {
 function formatOperatorRunStatus(run: OperatorRun) {
   const status = run.stale ? 'stale' : run.status.replace(/_/g, ' ')
   return `${status} · ${formatTime(run.started_at)}`
-}
-
-function operatorLabelForKind(kind: string) {
-  return OPERATOR_ACTIONS.find((action) => action.runKind === kind)?.label ?? kind.replace(/_/g, ' ')
 }
 
 function splitBriefSummary(value: string | null | undefined) {
@@ -1538,25 +1506,12 @@ function DailyBriefPanel({
         )}
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-[1fr_0.95fr]">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Attention routes</p>
-          <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {routeCards.map((card) => (
-              <BriefRouteCard key={card.label} {...card} />
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Recommended next actions</p>
-          <div className="mt-2 space-y-2">
-            {(brief?.next_actions ?? ['Run War Room standup.']).slice(0, 3).map((action) => (
-              <p key={action} className="rounded-lg border border-silicon-slate/50 bg-black/10 px-3 py-2 text-sm text-muted-foreground">
-                {action}
-              </p>
-            ))}
-          </div>
+      <div className="mt-4">
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Attention routes</p>
+        <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+          {routeCards.map((card) => (
+            <BriefRouteCard key={card.label} {...card} />
+          ))}
         </div>
       </div>
     </section>
