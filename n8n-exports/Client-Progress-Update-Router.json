@@ -120,10 +120,27 @@
             {
               "name": "delivery_status",
               "value": "sent"
+            },
+            {
+              "name": "agent_run_id",
+              "value": "={{ $('Progress Update Webhook').item.json.body.agent_run_id || '' }}"
+            },
+            {
+              "name": "channel",
+              "value": "slack"
             }
           ]
         },
-        "options": {}
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-ingest-secret",
+              "value": "={{ $vars.N8N_INGEST_SECRET || $env.N8N_INGEST_SECRET }}"
+            }
+          ]
+        }
       },
       "name": "Slack Delivery Callback",
       "waitBetweenTries": 2000,
@@ -147,10 +164,27 @@
             {
               "name": "delivery_status",
               "value": "sent"
+            },
+            {
+              "name": "agent_run_id",
+              "value": "={{ $('Progress Update Webhook').item.json.body.agent_run_id || '' }}"
+            },
+            {
+              "name": "channel",
+              "value": "email"
             }
           ]
         },
-        "options": {}
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-ingest-secret",
+              "value": "={{ $vars.N8N_INGEST_SECRET || $env.N8N_INGEST_SECRET }}"
+            }
+          ]
+        }
       },
       "name": "Email Delivery Callback",
       "waitBetweenTries": 2000,
@@ -166,7 +200,7 @@
     },
     {
       "parameters": {
-        "content": "## Client Progress Update Router\n\nReceives progress update payloads from the portfolio app when a milestone is marked complete.\n\n**Routing Logic:**\n- If `channel == 'slack'` -> Posts to the client's Slack channel (by ID)\n- If `channel == 'email'` -> Sends email via Gmail\n\n**After delivery:** Calls the callback URL to confirm delivery status.\n\n**Note:** Attachments are included as links in the message body."
+        "content": "## Client Progress Update Router\n\nReceives progress update payloads from the portfolio app when a milestone is marked complete.\n\n**Routing Logic:**\n- If `channel == 'slack'` -> Posts to the client's Slack channel (by ID)\n- If `channel == 'email'` -> Sends email via Gmail\n\n**After delivery:** Calls the callback URL to confirm delivery status.\n\n**Note:** Attachments are included as links in the message body.\n\n**Agent Ops trace:** The Portfolio payload may include `agent_run_id` and `agent_trace`. Callback nodes echo `agent_run_id` so Portfolio can complete the shared Agent Operations run after delivery."
       },
       "name": "Workflow Notes",
       "id": "workflow-note",

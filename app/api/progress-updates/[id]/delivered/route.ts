@@ -20,7 +20,7 @@ export async function POST(
     const { id: logId } = await params
     const body = await request.json()
 
-    const { delivery_status, error_message } = body
+    const { delivery_status, error_message, agent_run_id } = body
 
     if (!delivery_status || !['sent', 'failed'].includes(delivery_status)) {
       return NextResponse.json(
@@ -32,7 +32,8 @@ export async function POST(
     const success = await updateProgressUpdateLogStatus(
       logId,
       delivery_status,
-      error_message
+      error_message,
+      typeof agent_run_id === 'string' ? agent_run_id : null,
     )
 
     if (!success) {
@@ -46,6 +47,7 @@ export async function POST(
       success: true,
       log_id: logId,
       delivery_status,
+      agent_run_id: typeof agent_run_id === 'string' ? agent_run_id : null,
     })
   } catch (error) {
     console.error(
