@@ -61,6 +61,7 @@ interface ContactInfo {
   name: string;
   email: string;
   company: string | null;
+  message?: string | null;
   phone?: string;
   industry?: string | null;
   employee_count?: string | null;
@@ -272,6 +273,7 @@ export default function ConversationPage() {
             name: lead.name ?? '',
             email: lead.email ?? '',
             company: lead.company ?? null,
+            message: lead.message ?? null,
             phone: lead.phone_number,
             industry: lead.industry ?? null,
             employee_count: lead.employee_count ?? null,
@@ -286,6 +288,7 @@ export default function ConversationPage() {
           name: session.client_name ?? 'Client',
           email: session.client_email ?? '',
           company: session.client_company ?? null,
+          message: null,
         };
       }
       setContact(contactData);
@@ -706,6 +709,8 @@ export default function ConversationPage() {
           availableContent: content.filter(c => c.is_active),
           conversationHistory: conversationState.responseHistory,
           contactSubmissionId: contact?.id ? parseInt(contact.id, 10) : null,
+          contactNotes: contact?.message ?? null,
+          callNotes: notes,
         }),
       });
       if (res.ok) {

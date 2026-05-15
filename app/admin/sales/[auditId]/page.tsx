@@ -166,6 +166,7 @@ interface ContactInfo {
   name: string;
   email: string;
   company: string | null;
+  message?: string | null;
   phone?: string;
   industry?: string | null;
   employee_count?: string | null;
@@ -789,6 +790,8 @@ export default function ClientWalkthroughPage() {
           availableContent: content.filter(c => c.is_active),
           conversationHistory: conversationState.responseHistory,
           contactSubmissionId: contact?.id ? parseInt(contact.id, 10) : null,
+          contactNotes: contact?.message ?? null,
+          callNotes: notes,
         }),
       });
 
