@@ -416,6 +416,7 @@ function StandupRoomContent() {
             </main>
             <aside className="space-y-5">
               <MetricsPanel organization={organization} />
+              <TraceHistory runs={organization.warRoom.recentRuns} />
               <MiniKanban lanes={organization.lanes} focusedGoalId={focusedGoalId} />
             </aside>
           </div>
@@ -890,6 +891,39 @@ function GoalProgress({ goal }: { goal: AgentOrgBoardGoalMetric }) {
         </div>
       )}
     </div>
+  )
+}
+
+function TraceHistory({ runs }: { runs: AgentOrgBoardSnapshot['warRoom']['recentRuns'] }) {
+  return (
+    <section className="agent-ops-card rounded-lg border p-4">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-radiant-gold">Trace history</h2>
+        <span className="rounded-full border border-silicon-slate/60 px-2 py-1 text-xs text-muted-foreground">{runs.length} trace(s)</span>
+      </div>
+      {runs.length ? (
+        <div className="space-y-2">
+          {runs.slice(0, 5).map((run) => (
+            <div key={run.id} className="rounded-lg border border-silicon-slate/60 bg-background/50 p-3 text-sm">
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <span className="rounded-full border border-radiant-gold/35 px-2 py-0.5 text-radiant-gold">{run.command.replace(/_/g, ' ')}</span>
+                <span className="rounded-full border border-silicon-slate/60 px-2 py-0.5 text-muted-foreground">{run.status}</span>
+                {run.goalId ? <span className="rounded-full border border-silicon-slate/60 px-2 py-0.5 text-muted-foreground">goal {run.goalId}</span> : null}
+              </div>
+              <p className="mt-2 font-medium">{run.title}</p>
+              <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{run.summary}</p>
+              <Link href={`/admin/agents/runs/${run.id}`} className="mt-3 inline-flex text-xs text-radiant-gold hover:underline">
+                Open trace
+              </Link>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="rounded-lg border border-dashed border-silicon-slate/60 p-3 text-sm text-muted-foreground">
+          No standup-room traces yet. Start a standup or ask an agent to create the first room trace.
+        </p>
+      )}
+    </section>
   )
 }
 

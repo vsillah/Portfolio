@@ -131,7 +131,15 @@ const organization = {
   activity: [],
   warRoom: {
     roster: [],
-    recentRuns: [],
+    recentRuns: [{
+      id: 'war-room-run-1',
+      title: 'Agent Standup Room direct ask',
+      command: 'ask_agent',
+      status: 'completed',
+      startedAt: '2026-05-14T11:00:00.000Z',
+      summary: 'Shaka answered with scoped work context.',
+      goalId: 'goal-1',
+    }],
     commands: [],
     suggestedPrompt: 'Ask for blockers.',
   },
@@ -240,7 +248,27 @@ describe('AgentStandupRoomPage', () => {
     expect(screen.getByText('Fixed lane order · 1 active lane(s). Empty lanes collapse so the board stays scannable.')).toBeInTheDocument()
     expect(screen.getAllByText('Piye').length).toBeGreaterThan(0)
     expect(screen.getByText('Info radiators')).toBeInTheDocument()
+    expect(screen.getByText('Trace history')).toBeInTheDocument()
+    expect(screen.getByText('Agent Standup Room direct ask')).toBeInTheDocument()
+    expect(screen.getByText('Shaka answered with scoped work context.')).toBeInTheDocument()
+    expect(screen.getByText('ask agent')).toBeInTheDocument()
+    expect(screen.getAllByText('completed').length).toBeGreaterThan(0)
+    expect(screen.getByText('goal goal-1')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Open trace/i })).toHaveAttribute('href', '/admin/agents/runs/war-room-run-1')
     expect(screen.getAllByText('Improve standup transparency').length).toBeGreaterThan(0)
+  })
+
+  it('renders an empty persisted trace history state', async () => {
+    vi.mocked(fetch).mockImplementation(async (url) => {
+      if (String(url).includes('/api/admin/agents/swarm-board')) {
+        return { ok: true, json: async () => ({ ok: true, organization: { ...organization, warRoom: { ...organization.warRoom, recentRuns: [] } } }) } as Response
+      }
+      return { ok: false, json: async () => ({ error: 'not found' }) } as Response
+    })
+
+    render(<AgentStandupRoomPage />)
+
+    expect(await screen.findByText('No standup-room traces yet. Start a standup or ask an agent to create the first room trace.')).toBeInTheDocument()
   })
 
   it('posts standup and direct agent asks through war-room commands', async () => {
@@ -253,7 +281,9 @@ describe('AgentStandupRoomPage', () => {
         body: JSON.stringify({ command: 'standup' }),
       }))
     })
-    expect(await screen.findByRole('link', { name: /Open trace/i })).toHaveAttribute('href', '/admin/agents/runs/room-run')
+    await waitFor(() => {
+      expect(screen.getAllByRole('link', { name: /Open trace/i }).some((link) => link.getAttribute('href') === '/admin/agents/runs/room-run')).toBe(true)
+    })
     expect(screen.getByText('Question tracker')).toBeInTheDocument()
     expect(screen.getByText('1/1 answered')).toBeInTheDocument()
 
@@ -299,7 +329,7 @@ describe('AgentStandupRoomPage', () => {
     fireEvent.click(screen.getByRole('button', { name: /Draft plan/i }))
 
     expect(await screen.findByText('Approve after review.')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Open trace/i })).toHaveAttribute('href', '/admin/agents/runs/goal-run')
+    expect(screen.getAllByRole('link', { name: /Open trace/i }).some((link) => link.getAttribute('href') === '/admin/agents/runs/goal-run')).toBe(true)
     expect(fetch).toHaveBeenCalledWith('/api/admin/agents/war-room', expect.objectContaining({
       method: 'POST',
       body: JSON.stringify({ command: 'draft_goal', goal: 'Improve standup' }),
