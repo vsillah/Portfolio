@@ -248,6 +248,7 @@ describe('AgentSwarmBoardPage', () => {
     expect(screen.getAllByText(/Work by state, owner, and blocker/i).length).toBeGreaterThan(0)
     expect(screen.getByText(/Work-lane Kanban organized by agent ownership/i)).toBeInTheDocument()
     expect(screen.getByText('Goal progress')).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Kanban action queue' })).toBeInTheDocument()
     expect(screen.getAllByText('Launch Standup Room').length).toBeGreaterThan(0)
     expect(screen.getByText('1 lane(s) are above configured limit.')).toBeInTheDocument()
     expect(screen.getByText(`${longLaneLabel}: 5/4`)).toBeInTheDocument()
@@ -262,22 +263,37 @@ describe('AgentSwarmBoardPage', () => {
 
     expect(await screen.findByRole('region', { name: `${longLaneLabel} lane` })).toBeInTheDocument()
     expect(screen.getByRole('region', { name: 'Empty validation lane lane' })).toBeInTheDocument()
-    expect(screen.getByText(longTaskTitle)).toBeInTheDocument()
+    expect(screen.getAllByText(longTaskTitle).length).toBeGreaterThan(0)
     expect(screen.getAllByText('Trace').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Owner').length).toBeGreaterThan(0)
     expect(screen.getByText('Blocker:')).toBeInTheDocument()
     expect(screen.getAllByText('Validation:').length).toBeGreaterThan(0)
-    expect(screen.getByText('Resolve blocker')).toBeInTheDocument()
-    expect(screen.getByText('Attach PR')).toBeInTheDocument()
+    expect(screen.getAllByText('Resolve blocker').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Attach PR').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Open trace').length).toBeGreaterThan(0)
     expect(screen.getByRole('link', { name: `Open pull request 203 for ${longTaskTitle}` })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: `Open trace run-1 for ${longTaskTitle}` })).toHaveAttribute('href', '/admin/agents/runs/run-1')
   })
 
+  it('surfaces the top Kanban actions before the lanes', async () => {
+    render(<AgentSwarmBoardPage />)
+
+    const actionQueue = await screen.findByRole('region', { name: 'Kanban action queue' })
+    const laneSurface = screen.getByRole('heading', { name: 'Work by state, owner, and blocker' })
+
+    expect(actionQueue.compareDocumentPosition(laneSurface) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(screen.getByText('Board action queue')).toBeInTheDocument()
+    expect(screen.getByText('3 action candidates')).toBeInTheDocument()
+    expect(screen.getAllByText(longTaskTitle).length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Prepare review packet without an attached PR').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Maintain automation context outside the selected goal').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Open trace').length).toBeGreaterThan(0)
+  })
+
   it('filters visible cards by goal and can clear the filter', async () => {
     render(<AgentSwarmBoardPage />)
 
-    expect(await screen.findByText('Maintain automation context outside the selected goal')).toBeInTheDocument()
+    expect((await screen.findAllByText('Maintain automation context outside the selected goal')).length).toBeGreaterThan(0)
 
     fireEvent.click(screen.getByRole('button', { name: /Launch Standup Room/i }))
 
@@ -292,7 +308,7 @@ describe('AgentSwarmBoardPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }))
 
-    expect(screen.getByText('Maintain automation context outside the selected goal')).toBeInTheDocument()
+    expect(screen.getAllByText('Maintain automation context outside the selected goal').length).toBeGreaterThan(0)
   })
 
   it('honors a goal query parameter as the initial board scope', async () => {
@@ -309,17 +325,17 @@ describe('AgentSwarmBoardPage', () => {
   it('filters visible cards by status and attention state', async () => {
     render(<AgentSwarmBoardPage />)
 
-    await screen.findByText(longTaskTitle)
+    await screen.findAllByText(longTaskTitle)
 
     fireEvent.change(screen.getByLabelText('Status'), { target: { value: 'ready_for_merge' } })
 
-    expect(screen.getByText('Prepare review packet without an attached PR')).toBeInTheDocument()
+    expect(screen.getAllByText('Prepare review packet without an attached PR').length).toBeGreaterThan(0)
     expect(screen.queryByText(longTaskTitle)).not.toBeInTheDocument()
 
     fireEvent.change(screen.getByLabelText('Status'), { target: { value: 'all' } })
     fireEvent.change(screen.getByLabelText('Attention'), { target: { value: 'blocked' } })
 
-    expect(screen.getByText(longTaskTitle)).toBeInTheDocument()
+    expect(screen.getAllByText(longTaskTitle).length).toBeGreaterThan(0)
     expect(screen.queryByText('Prepare review packet without an attached PR')).not.toBeInTheDocument()
   })
 
@@ -354,7 +370,8 @@ describe('AgentSwarmBoardPage', () => {
     const emptyLane = screen.getByRole('region', { name: 'Empty validation lane lane' })
 
     expect(populatedLane.compareDocumentPosition(emptyLane) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    expect(screen.getByText('No visible work')).toBeInTheDocument()
+    expect(screen.getByText('Collapsed empty lane')).toBeInTheDocument()
+    expect(emptyLane).toHaveAttribute('data-collapsed', 'true')
     expect(screen.queryByText('No active tasks in this lane')).not.toBeInTheDocument()
     expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, left: 0 })
   })
@@ -363,10 +380,11 @@ describe('AgentSwarmBoardPage', () => {
     render(<AgentSwarmBoardPage />)
 
     const laneLabel = await screen.findByTitle(longLaneLabel)
-    const cardTitle = screen.getByTitle(longTaskTitle)
+    const cardTitle = screen.getAllByTitle(longTaskTitle).find((element) => element.tagName.toLowerCase() === 'p')
 
     expect(laneLabel).toHaveTextContent(longLaneLabel)
     expect(laneLabel).toHaveClass('break-words')
+    expect(cardTitle).toBeDefined()
     expect(cardTitle).toHaveTextContent(longTaskTitle)
     expect(cardTitle).toHaveClass('break-words')
   })
