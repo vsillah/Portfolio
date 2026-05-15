@@ -9,6 +9,7 @@ export interface AgentAvatarDefinition {
   motif: string
   tone: AgentAvatarTone
   culturalCue: string
+  imagePath: string
 }
 
 const AVATAR_TONES: Record<AgentAvatarTone, { ring: string; wash: string; mark: string }> = {
@@ -20,7 +21,7 @@ const AVATAR_TONES: Record<AgentAvatarTone, { ring: string; wash: string; mark: 
   amber: { ring: '#f59e0b', wash: '#3a260a', mark: '#fde68a' },
 }
 
-export const AGENT_AVATARS: Record<string, AgentAvatarDefinition> = {
+const AGENT_AVATAR_SEEDS: Record<string, Omit<AgentAvatarDefinition, 'imagePath'>> = {
   'chief-of-staff': {
     agentKey: 'chief-of-staff',
     label: 'Illustrated avatar for Shaka, Chief of Staff',
@@ -183,6 +184,16 @@ export const AGENT_AVATARS: Record<string, AgentAvatarDefinition> = {
   },
 }
 
+export const AGENT_AVATARS: Record<string, AgentAvatarDefinition> = Object.fromEntries(
+  Object.entries(AGENT_AVATAR_SEEDS).map(([key, avatar]) => [
+    key,
+    {
+      ...avatar,
+      imagePath: `/agent-avatars/${key}.svg`,
+    },
+  ]),
+) as Record<string, AgentAvatarDefinition>
+
 export function getAgentAvatar(agentKey: string | null | undefined): AgentAvatarDefinition {
   if (agentKey && AGENT_AVATARS[agentKey]) return AGENT_AVATARS[agentKey]
   return {
@@ -192,6 +203,7 @@ export function getAgentAvatar(agentKey: string | null | undefined): AgentAvatar
     motif: 'node',
     tone: 'cyan',
     culturalCue: 'Unassigned work cue',
+    imagePath: '/agent-avatars/unknown.svg',
   }
 }
 
