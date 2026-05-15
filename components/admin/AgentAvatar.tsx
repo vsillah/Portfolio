@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { getAgentAvatar, getAvatarToneStyles } from '@/lib/agent-avatars'
 
 export default function AgentAvatar({
@@ -26,10 +27,19 @@ export default function AgentAvatar({
         color: tone.mark,
       }}
     >
+      <Image
+        src={avatar.imagePath}
+        alt=""
+        aria-hidden="true"
+        fill
+        sizes="56px"
+        unoptimized
+        className="absolute inset-0 h-full w-full object-cover"
+      />
       <svg
         aria-hidden="true"
         viewBox="0 0 64 64"
-        className="absolute inset-0 h-full w-full"
+        className="absolute inset-0 h-full w-full opacity-0"
       >
         <circle cx="32" cy="27" r="13" fill="#0b1726" opacity="0.92" />
         <path d="M17 58c2.8-11.2 8.1-16.8 15-16.8S44.2 46.8 47 58" fill="#101f33" opacity="0.96" />
