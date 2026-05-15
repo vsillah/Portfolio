@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import Link from 'next/link'
-import { AlertTriangle, ArrowLeft, Bot, CheckCircle2, DollarSign, FileText, Gauge, MessageSquare, RefreshCw, XCircle } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Bot, CheckCircle2, Clock3, DollarSign, FileText, Gauge, MessageSquare, RefreshCw, RotateCcw, ShieldAlert, XCircle } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import AgentAvatar from '@/components/admin/AgentAvatar'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -34,6 +34,20 @@ type ShakaContextRef = {
   id: string
 }
 
+type RecoveryResult = {
+  ok?: boolean
+  error?: string
+  run_id?: string
+  recovery_run_id?: string
+  source_run_id?: string
+  retry_attempt?: number
+  earliest_retry_at?: string
+  target_agent_key?: string
+  target_agent_name?: string
+  recovery_packet_attached?: boolean
+  execution_mode?: string
+}
+
 const RUBRIC_OPTIONS = [
   { key: 'chief-of-staff-synthesis-quality', label: 'Chief of Staff synthesis quality' },
   { key: 'warm-lead-capture-trace-completeness', label: 'Warm lead trace completeness' },
@@ -59,6 +73,8 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
   const [shakaLoading, setShakaLoading] = useState<string | null>(null)
   const [shakaReply, setShakaReply] = useState<ShakaContextReply | null>(null)
   const [shakaContextRef, setShakaContextRef] = useState<ShakaContextRef | null>(null)
+  const [recoveryLoading, setRecoveryLoading] = useState(false)
+  const [recoveryResult, setRecoveryResult] = useState<RecoveryResult | null>(null)
 
   const fetchDetail = useCallback(async () => {
     setLoading(true)
@@ -167,6 +183,38 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
     }
   }
 
+  async function requestRecovery() {
+    setRecoveryLoading(true)
+    setRecoveryResult(null)
+    setError(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) throw new Error('Missing admin session')
+      const res = await fetch(`/api/admin/agents/runs/${runId}/retry`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          note: 'Requested from Run Console stale resolution card.',
+        }),
+      })
+      const body = await res.json().catch(() => ({})) as RecoveryResult
+      if (!res.ok && !body.recovery_run_id) {
+        throw new Error(body.error || `HTTP ${res.status}`)
+      }
+      setRecoveryResult(body)
+      if (res.ok) {
+        await fetchDetail()
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create recovery request')
+    } finally {
+      setRecoveryLoading(false)
+    }
+  }
+
   return (
     <div className="agent-ops-page min-h-screen p-5 text-foreground lg:p-7">
       <div className="mx-auto max-w-7xl">
@@ -260,6 +308,21 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
               <Metric icon={<FileText size={18} />} label="Artifacts" value={String(data.artifacts.length)} />
             </div>
 
+            {isRecoverableRunStatus(data.run.status) ? (
+              <RunRecoveryPanel
+                run={data.run}
+                result={recoveryResult}
+                loading={recoveryLoading}
+                onRequestRecovery={requestRecovery}
+                onRefresh={fetchDetail}
+                onAskShaka={() => askShaka(
+                  { type: 'run', id: runId },
+                  'This run needs recovery. Explain why it is stale or blocked, what evidence proves the issue, who should own it, and the safest next action before any retry.',
+                )}
+                shakaLoading={shakaLoading === `run:${runId}`}
+              />
+            ) : null}
+
             <section className="agent-ops-card rounded-lg border p-5 mb-6">
               <h2 className="text-lg font-semibold mb-4">Evaluations</h2>
               <EvaluationList
@@ -314,6 +377,129 @@ function Metric({ icon, label, value }: { icon: ReactNode; label: string; value:
         {label}
       </div>
       <p className="font-semibold">{value}</p>
+    </div>
+  )
+}
+
+function RunRecoveryPanel({
+  run,
+  result,
+  loading,
+  shakaLoading,
+  onRequestRecovery,
+  onRefresh,
+  onAskShaka,
+}: {
+  run: AnyRow
+  result: RecoveryResult | null
+  loading: boolean
+  shakaLoading?: boolean
+  onRequestRecovery: () => void
+  onRefresh: () => void
+  onAskShaka: () => void
+}) {
+  const status = formatLabel(run.status, 'unknown')
+  const reason = runRecoveryReason(run)
+  const recoveryId = result?.run_id ?? result?.recovery_run_id
+  const isBackoff = Boolean(result?.recovery_run_id && result?.ok === false)
+
+  return (
+    <section className="agent-ops-card mb-6 rounded-lg border border-red-400/35 bg-red-500/10 p-5">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0">
+          <div className="agent-ops-eyebrow text-red-200">
+            <ShieldAlert size={16} />
+            {status === 'stale' ? 'Stale run resolution' : 'Run recovery'}
+          </div>
+          <h2 className="mt-2 text-xl font-semibold">This trace needs operator recovery.</h2>
+          <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+            Refresh only reloads the trace. To resolve this run, confirm why it stopped and create a read-only recovery request that is tracked as its own Run Console item.
+          </p>
+        </div>
+        <div className="flex shrink-0 flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={onAskShaka}
+            disabled={shakaLoading}
+            className="agent-ops-button-secondary disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <MessageSquare size={16} />
+            {shakaLoading ? 'Asking...' : 'Ask Shaka for triage'}
+          </button>
+          <button
+            type="button"
+            onClick={onRequestRecovery}
+            disabled={loading}
+            className="agent-ops-button-primary disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <RotateCcw size={16} />
+            {loading ? 'Creating...' : 'Create recovery request'}
+          </button>
+          <button
+            type="button"
+            onClick={onRefresh}
+            className="agent-ops-button-muted"
+          >
+            <RefreshCw size={16} />
+            Refresh trace
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-3 lg:grid-cols-3">
+        <RecoveryBlock
+          title="Why it is stale"
+          value={reason}
+        />
+        <RecoveryBlock
+          title="What the action does"
+          value="Creates an agent recovery request with a recovery packet. It does not rerun production automation directly."
+        />
+        <RecoveryBlock
+          title="Operator sequence"
+          value="Review the latest event, ask Shaka if ownership is unclear, then queue recovery only when the original runtime is no longer active."
+        />
+      </div>
+
+      {result ? (
+        <div className={`mt-4 rounded-lg border p-4 ${isBackoff ? 'border-yellow-400/40 bg-yellow-500/10' : 'border-emerald-400/40 bg-emerald-500/10'}`}>
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="font-semibold">{isBackoff ? 'Recovery request already queued' : 'Recovery request queued'}</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {result.error ?? 'A read-only recovery packet is now available in Run Console.'}
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                {result.retry_attempt ? <span>Attempt {result.retry_attempt}</span> : null}
+                {result.earliest_retry_at ? (
+                  <span className="inline-flex items-center gap-1">
+                    <Clock3 size={12} />
+                    Earliest retry {formatDate(result.earliest_retry_at)}
+                  </span>
+                ) : null}
+                {result.execution_mode ? <span>{formatLabel(result.execution_mode)}</span> : null}
+              </div>
+            </div>
+            {recoveryId ? (
+              <Link
+                href={`/admin/agents/runs/${recoveryId}`}
+                className="agent-ops-button-secondary shrink-0"
+              >
+                Open recovery request
+              </Link>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+    </section>
+  )
+}
+
+function RecoveryBlock({ title, value }: { title: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-silicon-slate/60 bg-black/15 p-3">
+      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</p>
+      <p className="mt-2 text-sm text-foreground/90">{value}</p>
     </div>
   )
 }
@@ -661,6 +847,34 @@ function formatDate(value?: string) {
 
 function asString(value: unknown): string | undefined {
   return typeof value === 'string' ? value : undefined
+}
+
+function isRecoverableRunStatus(value: unknown): boolean {
+  return ['failed', 'stale', 'cancelled'].includes(String(value ?? '').toLowerCase())
+}
+
+function runRecoveryReason(run: AnyRow): string {
+  const errorMessage = asString(run.error_message)
+  if (errorMessage) {
+    return `Latest error: ${errorMessage}`
+  }
+
+  const currentStep = asString(run.current_step)
+  const staleAfter = asString(run.stale_after)
+  if (staleAfter) {
+    return `The stale-after checkpoint passed at ${formatDate(staleAfter)} before the run reached a successful terminal state${currentStep ? `; latest step: ${currentStep}.` : '.'}`
+  }
+
+  const updatedAt = asString(run.updated_at)
+  if (updatedAt) {
+    return `The run is marked ${formatLabel(run.status, 'needs recovery')} and has not reported progress since ${formatDate(updatedAt)}${currentStep ? `; latest step: ${currentStep}.` : '.'}`
+  }
+
+  if (currentStep) {
+    return `The run is marked ${formatLabel(run.status, 'needs recovery')} while stopped at ${currentStep}.`
+  }
+
+  return `The run is marked ${formatLabel(run.status, 'needs recovery')} and no completion evidence is attached to this trace.`
 }
 
 function asRecord(value: unknown): Record<string, unknown> {

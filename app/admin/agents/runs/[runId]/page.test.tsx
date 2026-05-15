@@ -102,11 +102,25 @@ const runDetail = {
   cost_total: 0,
 }
 
-function setupFetch() {
+const staleRunDetail = {
+  ...runDetail,
+  run: {
+    ...runDetail.run,
+    title: 'Production WRM smoke trace',
+    status: 'stale',
+    current_step: 'waiting for runtime heartbeat',
+    stale_after: '2026-05-13T13:00:00.000Z',
+    updated_at: '2026-05-13T13:30:00.000Z',
+  },
+  approvals: [],
+  evaluations: [],
+}
+
+function setupFetch(detail = runDetail) {
   vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input)
     if (url === '/api/admin/agents/runs/run-1' && !init?.method) {
-      return { ok: true, json: async () => runDetail }
+      return { ok: true, json: async () => detail }
     }
     if (url === '/api/admin/agents/chief-of-staff/chat' && init?.method === 'POST') {
       return {
@@ -121,6 +135,20 @@ function setupFetch() {
     }
     if (url === '/api/admin/agents/runs/run-1/approval' && init?.method === 'POST') {
       return { ok: true, json: async () => ({ ok: true }) }
+    }
+    if (url === '/api/admin/agents/runs/run-1/retry' && init?.method === 'POST') {
+      return {
+        ok: true,
+        json: async () => ({
+          ok: true,
+          run_id: 'recovery-run-1',
+          source_run_id: 'run-1',
+          retry_attempt: 1,
+          earliest_retry_at: '2026-05-13T14:00:00.000Z',
+          recovery_packet_attached: true,
+          execution_mode: 'read_only_recovery_request',
+        }),
+      }
     }
     return { ok: false, status: 404, json: async () => ({ error: 'not found' }) }
   }))
@@ -213,5 +241,29 @@ describe('AgentRunDetailPage scoped Shaka context', () => {
         body: expect.stringContaining('"context_ref":{"type":"run","id":"run-1"}'),
       }))
     })
+  })
+
+  it('explains stale runs and queues a read-only recovery request', async () => {
+    setupFetch(staleRunDetail)
+    render(<AgentRunDetailPage params={{ runId: 'run-1' }} />)
+
+    expect(await screen.findByRole('heading', { name: 'Production WRM smoke trace' })).toBeInTheDocument()
+    expect(screen.getByText('Stale run resolution')).toBeInTheDocument()
+    expect(screen.getByText('Why it is stale')).toBeInTheDocument()
+    expect(screen.getByText(/stale-after checkpoint passed/i)).toBeInTheDocument()
+    expect(screen.getByText('What the action does')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create recovery request' }))
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/admin/agents/runs/run-1/retry', expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({ Authorization: 'Bearer admin-token' }),
+        body: expect.stringContaining('Run Console stale resolution card'),
+      }))
+    })
+
+    expect(await screen.findByText('Recovery request queued')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Open recovery request' })).toHaveAttribute('href', '/admin/agents/runs/recovery-run-1')
   })
 })
