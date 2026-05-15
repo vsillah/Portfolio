@@ -120,7 +120,7 @@ function AgentSwarmBoardContent() {
   }, [activityFilter, organization?.activity])
 
   return (
-    <div className="agent-ops-page min-h-screen text-foreground p-6 lg:p-8">
+    <div className="agent-ops-page min-h-screen p-5 text-foreground lg:p-7">
       <div className="mx-auto max-w-[1680px]">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
@@ -128,9 +128,9 @@ function AgentSwarmBoardContent() {
           { label: 'Agent Kanban' },
         ]} />
 
-        <header className="mb-5 flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+        <header className="agent-ops-surface-header mb-5 mt-5 flex flex-col gap-4 rounded-xl border p-5 xl:flex-row xl:items-center xl:justify-between">
           <div>
-            <div className="mb-2 inline-flex items-center gap-2 text-sm text-radiant-gold">
+            <div className="agent-ops-eyebrow mb-2">
               <Bot size={16} />
               ATAS Agent Ops drilldown
             </div>
@@ -139,10 +139,10 @@ function AgentSwarmBoardContent() {
               Work by state, owner, and blocker. This is the drilldown for standup output, active work lanes, trace links, validation, and pull requests across the Portfolio agent team.
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="agent-ops-header-actions">
             <Link
               href="/admin/agents"
-              className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm hover:border-radiant-gold/60"
+              className="agent-ops-button-muted"
             >
               <ShieldCheck size={16} />
               Agent Ops
@@ -150,7 +150,7 @@ function AgentSwarmBoardContent() {
             <button
               onClick={fetchBoard}
               disabled={loading}
-              className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
+              className="agent-ops-button-secondary disabled:opacity-60"
             >
               <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
               Refresh

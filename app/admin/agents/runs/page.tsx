@@ -111,37 +111,41 @@ function AgentRunsContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="agent-ops-page min-h-screen p-5 text-foreground lg:p-7">
+      <div className="mx-auto max-w-7xl">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
           { label: 'Agent Operations', href: '/admin/agents' },
           { label: 'Runs' },
         ]} />
 
-        <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
+        <header className="agent-ops-surface-header mb-6 mt-5 flex flex-col gap-4 rounded-xl border p-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h1 className="text-3xl font-bold mb-1">Agent Runs</h1>
-            <p className="text-muted-foreground text-sm">Live and historical traces across supported runtimes.</p>
+            <div className="agent-ops-eyebrow mb-2">
+              <Bot size={16} />
+              Agent Ops trace history
+            </div>
+            <h1 className="text-3xl font-bold">Run Console</h1>
+            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">Live and historical traces across supported runtimes, evaluations, dead letters, approvals, and artifacts.</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="agent-ops-header-actions">
             <button
               onClick={sweepStaleRuns}
               disabled={sweepLoading}
-              className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm hover:border-radiant-gold/60 disabled:opacity-60"
+              className="agent-ops-button-muted disabled:opacity-60"
             >
               <RefreshCw size={16} className={sweepLoading ? 'animate-spin' : ''} />
               Sweep stale
             </button>
             <button
               onClick={fetchRuns}
-              className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm hover:border-radiant-gold/60"
+              className="agent-ops-button-secondary"
             >
               <RefreshCw size={16} />
               Refresh
             </button>
           </div>
-        </div>
+        </header>
 
         {sweepMessage ? (
           <div className="mb-4 rounded-lg border border-cyan-500/40 bg-cyan-500/10 p-3 text-sm text-cyan-100">
@@ -178,11 +182,11 @@ function AgentRunsContent() {
             <p className="text-sm mt-1">{error}</p>
           </div>
         ) : runs.length === 0 ? (
-          <div className="rounded-lg border border-silicon-slate/60 bg-silicon-slate/20 p-8 text-center text-muted-foreground">
+          <div className="agent-ops-card rounded-lg border p-8 text-center text-muted-foreground">
             No agent runs match the current filters.
           </div>
         ) : (
-          <div className="overflow-hidden rounded-lg border border-silicon-slate/70">
+          <div className="agent-ops-card overflow-hidden rounded-lg border">
             <table className="w-full text-sm">
               <thead className="bg-silicon-slate/40 text-muted-foreground">
                 <tr>

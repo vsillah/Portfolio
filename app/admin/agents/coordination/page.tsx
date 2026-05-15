@@ -384,7 +384,7 @@ function AgentCoordinationContent() {
   }
 
   return (
-    <div className="agent-ops-page min-h-screen text-foreground p-6 lg:p-8">
+    <div className="agent-ops-page min-h-screen p-5 text-foreground lg:p-7">
       <div className="mx-auto max-w-7xl">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
@@ -392,9 +392,9 @@ function AgentCoordinationContent() {
           { label: 'Coordination' },
         ]} />
 
-        <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <header className="agent-ops-surface-header mb-6 mt-5 flex flex-col gap-4 rounded-xl border p-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <div className="mb-2 inline-flex items-center gap-2 text-sm text-radiant-gold">
+            <div className="agent-ops-eyebrow mb-2">
               <ShieldAlert size={16} />
               Agent Ops controller
             </div>
@@ -403,10 +403,10 @@ function AgentCoordinationContent() {
               Approval controller for one decision at a time: executive summary, action required, recommendation, risk, owner, trace, and fixed approve/reject/Ask Shaka controls.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="agent-ops-header-actions">
             <Link
               href="/admin/agents"
-              className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm hover:border-radiant-gold/60"
+              className="agent-ops-button-muted"
             >
               <Bot size={16} />
               Mission Control
@@ -414,13 +414,13 @@ function AgentCoordinationContent() {
             <button
               onClick={refreshAll}
               disabled={loading}
-              className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
+              className="agent-ops-button-secondary disabled:opacity-60"
             >
               <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
               Refresh
             </button>
           </div>
-        </div>
+        </header>
 
         <section className="agent-ops-command-card mb-6 rounded-xl border p-4">
           <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Approval controller</p>
