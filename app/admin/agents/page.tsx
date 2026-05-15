@@ -15,7 +15,7 @@ import {
   ClipboardList,
   Clock3,
   Gauge,
-  MessageSquare,
+  Maximize2,
   Network,
   Play,
   Radio,
@@ -734,17 +734,6 @@ export default function AgentOperationsPage() {
                   <RefreshCw size={16} className={loading || moremiReviewLoading ? 'animate-spin' : ''} />
                   Refresh
                 </button>
-                <Link href="/admin/agents/swarm-board" className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15">
-                  <Columns size={16} />
-                  Open Kanban
-                </Link>
-                <Link
-                  href="/admin/agents/standup"
-                  className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/60 bg-radiant-gold px-3 py-2 text-sm font-semibold text-silicon-slate hover:bg-radiant-gold/90"
-                >
-                  <MessageSquare size={16} />
-                  Open standup
-                </Link>
               </div>
             </div>
 
@@ -810,22 +799,25 @@ export default function AgentOperationsPage() {
                       <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Ask Shaka</p>
                       <h3 className="mt-2 text-xl font-semibold">What should I pay attention to before approving this queue?</h3>
                     </div>
-                    <Link
-                      href="/admin/agents/chief-of-staff"
-                      className="inline-flex w-fit items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/50 px-3 py-2 text-xs font-medium text-muted-foreground hover:border-radiant-gold/60 hover:text-radiant-gold"
-                    >
-                      <MessageSquare size={14} />
-                      Expand chat
-                    </Link>
                   </div>
                   <form onSubmit={submitChiefOfStaff} className="mt-3 flex flex-col gap-3 md:flex-row">
-                    <input
-                      value={command}
-                      onChange={(event) => setCommand(event.target.value)}
-                      aria-label="Ask Shaka"
-                      placeholder="Ask about blockers, owners, risk, next action, or summarize active agents..."
-                      className="min-h-[48px] flex-1 rounded-lg border border-silicon-slate/70 bg-background/70 px-3 text-sm outline-none focus:border-radiant-gold/70"
-                    />
+                    <div className="relative min-h-[48px] flex-1">
+                      <input
+                        value={command}
+                        onChange={(event) => setCommand(event.target.value)}
+                        aria-label="Ask Shaka"
+                        placeholder="Ask about blockers, owners, risk, next action, or summarize active agents..."
+                        className="h-full min-h-[48px] w-full rounded-lg border border-silicon-slate/70 bg-background/70 px-3 pr-12 text-sm outline-none focus:border-radiant-gold/70"
+                      />
+                      <Link
+                        href="/admin/agents/chief-of-staff"
+                        aria-label="Expand Shaka chat"
+                        title="Expand Shaka chat"
+                        className="absolute right-2 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md border border-silicon-slate/60 bg-background/70 text-muted-foreground hover:border-radiant-gold/60 hover:text-radiant-gold"
+                      >
+                        <Maximize2 size={15} />
+                      </Link>
+                    </div>
                     <div className="flex gap-2">
                       <button
                         type="submit"
@@ -1260,6 +1252,81 @@ function splitBriefSummary(value: string | null | undefined) {
     .slice(0, 4)
 }
 
+function briefSourceLabel(brief: MissionSnapshot['daily_brief'] | null) {
+  return brief?.generated_from === 'standup' ? 'Latest standup' : 'Current traces'
+}
+
+function buildBriefSnapshotItems(brief: MissionSnapshot['daily_brief'] | null, loading: boolean) {
+  if (loading) return ['Loading today’s operating snapshot.']
+
+  const narrativeLines = splitBriefSummary(brief?.synthesis).slice(0, 2)
+  const signalLines = (brief?.signals ?? [])
+    .filter((signal) => signal.trim())
+    .filter((signal) => !/\b(active|partial|running|queued|failed|stale|attention queue|pending approvals?|cost)\b/i.test(signal))
+    .slice(0, 2)
+
+  const items = [...narrativeLines, ...signalLines]
+
+  if (brief?.updated_at) {
+    items.push(`Updated ${formatTime(brief.updated_at)} from ${briefSourceLabel(brief).toLowerCase()}.`)
+  }
+
+  return items.length ? items.slice(0, 4) : ['No brief narrative is available yet. Run standup when you want a fresh operator snapshot.']
+}
+
+function inferActionHref(text: string) {
+  const normalized = text.toLowerCase()
+  if (normalized.includes('kanban') || normalized.includes('lane') || normalized.includes('owner')) return '/admin/agents/swarm-board'
+  if (normalized.includes('approval') || normalized.includes('decision') || normalized.includes('queue')) return '/admin/agents/coordination'
+  if (normalized.includes('trace') || normalized.includes('run') || normalized.includes('stale') || normalized.includes('failed')) return '/admin/agents/runs'
+  if (normalized.includes('cost') || normalized.includes('spend')) return '/admin/cost-revenue'
+  return '/admin/agents/standup'
+}
+
+function getBriefNextAction({
+  brief,
+  activeRuns,
+  failedOrStaleRuns,
+  pendingApprovals,
+}: {
+  brief: MissionSnapshot['daily_brief'] | null
+  activeRuns: number
+  failedOrStaleRuns: number
+  pendingApprovals: number
+}) {
+  if (pendingApprovals) {
+    return {
+      label: 'Open Decision Queue',
+      detail: `${pendingApprovals} approval ${pendingApprovals === 1 ? 'needs' : 'items need'} a human decision.`,
+      href: '/admin/agents/coordination',
+    }
+  }
+
+  if (failedOrStaleRuns) {
+    return {
+      label: 'Review failed or stale runs',
+      detail: `${failedOrStaleRuns} trace ${failedOrStaleRuns === 1 ? 'needs' : 'items need'} review before the queue is clean.`,
+      href: '/admin/agents/runs?status=needs_review',
+    }
+  }
+
+  if (activeRuns) {
+    return {
+      label: 'Inspect active runs',
+      detail: `${activeRuns} live or queued ${activeRuns === 1 ? 'trace is' : 'traces are'} still moving.`,
+      href: '/admin/agents/runs?active=true',
+    }
+  }
+
+  const actionText = brief?.next_actions?.find((item) => item.trim()) ?? 'Open Standup Room'
+
+  return {
+    label: actionText.replace(/\.$/, ''),
+    detail: 'Next best action from the current operating brief.',
+    href: inferActionHref(actionText),
+  }
+}
+
 function QuickPrompt({ label, disabled, onClick }: { label: string; disabled: boolean; onClick: () => void }) {
   return (
     <button
@@ -1414,7 +1481,8 @@ function DailyBriefPanel({
       tone: 'neutral',
     },
   ] as const
-  const summaryItems = splitBriefSummary(brief?.synthesis)
+  const snapshotItems = buildBriefSnapshotItems(brief, loading)
+  const nextAction = getBriefNextAction({ brief, activeRuns, failedOrStaleRuns, pendingApprovals })
 
   return (
     <section className="agent-ops-card mt-5 rounded-lg border p-4" aria-label="Daily Operating Brief">
@@ -1424,30 +1492,38 @@ function DailyBriefPanel({
             <Sparkles size={18} />
             <h2 className="font-semibold">Daily Operating Brief</h2>
           </div>
-          <p className="mt-2 text-lg font-semibold">
-            {brief?.headline ?? (loading ? 'Loading today’s agent brief...' : 'Run a standup to create today’s operating brief')}
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Source: {brief?.generated_from === 'standup' ? 'latest standup' : 'current traces'}
-          </p>
         </div>
       </div>
 
-      <div className="mt-4 rounded-lg border border-silicon-slate/55 bg-black/10 p-3">
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Summary</p>
-        {summaryItems.length ? (
-          <div className="mt-3 grid gap-2 md:grid-cols-2">
-            {summaryItems.map((item) => (
-              <div key={item} className="rounded-md border border-silicon-slate/45 bg-background/35 px-3 py-2 text-sm leading-6 text-muted-foreground">
-                {item}
-              </div>
-            ))}
+      <div className="mt-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(240px,0.8fr)]">
+        <div className="rounded-lg border border-silicon-slate/55 bg-black/10 p-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Snapshot</p>
+            <StatusOnlyPill tone="neutral">{briefSourceLabel(brief)}</StatusOnlyPill>
           </div>
-        ) : (
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            Mission Control will summarize standups, blockers, approvals, cost, and next actions here.
-          </p>
-        )}
+          <ul className="mt-3 space-y-2">
+            {snapshotItems.map((item) => (
+              <li key={item} className="rounded-md border border-silicon-slate/45 bg-background/35 px-3 py-2 text-sm leading-6 text-muted-foreground">
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <Link
+          href={nextAction.href}
+          className="group flex min-h-full flex-col justify-between rounded-lg border border-radiant-gold/45 bg-radiant-gold/10 p-3 transition hover:border-radiant-gold/70 hover:bg-radiant-gold/15"
+        >
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Next best action</p>
+            <p className="mt-3 text-base font-semibold">{nextAction.label}</p>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">{nextAction.detail}</p>
+          </div>
+          <div className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-radiant-gold">
+            Open next step
+            <ArrowRight size={14} className="transition group-hover:translate-x-0.5" />
+          </div>
+        </Link>
       </div>
 
       <div className="mt-4">
