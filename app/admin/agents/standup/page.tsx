@@ -54,8 +54,30 @@ type WarRoomCommandTrace = {
   createdAt: string
 }
 
+type StandupQuestion = {
+  id: string
+  prompt: string
+  targetLabel: string
+  targetAgentKey: string | null
+  command: 'standup' | 'discuss' | 'ask_agent'
+  status: 'pending' | 'answered' | 'failed'
+  runId?: string
+  createdAt: string
+}
+
+type ParticipantSessionState = {
+  asked: boolean
+  responded: boolean
+  messageCount: number
+  lastResponseAt: string | null
+}
+
+function agentShortName(name: string) {
+  return name.split(' - ')[0].replace(/\s*\([^)]*\)/g, '').trim()
+}
+
 function agentMentionToken(agent: AgentOrgBoardAgent) {
-  return agent.name.split(' - ')[0].replace(/\s+/g, '').toLowerCase()
+  return agentShortName(agent.name).replace(/\s+/g, '').toLowerCase()
 }
 
 function findMentionedAgent(text: string, agents: AgentOrgBoardAgent[]) {
@@ -90,6 +112,7 @@ function StandupRoomContent() {
   const [goalDraft, setGoalDraft] = useState<AgentGoalDraft | null>(null)
   const [createdItems, setCreatedItems] = useState<WarRoomResponse['created_work_items']>(null)
   const [commandTraces, setCommandTraces] = useState<WarRoomCommandTrace[]>([])
+  const [standupQuestions, setStandupQuestions] = useState<StandupQuestion[]>([])
   const [transcript, setTranscript] = useState<AgentWarRoomMessage[]>([
     {
       id: 'system-ready',
@@ -143,6 +166,19 @@ function StandupRoomContent() {
     if (!focusedGoalId) return []
     return allTasks.filter((task) => task.goal?.id === focusedGoalId)
   }, [allTasks, focusedGoalId])
+  const participantSession = useMemo(() => {
+    const session = new Map<string, ParticipantSessionState>()
+    for (const agent of participants) {
+      const responses = transcript.filter((entry) => entry.agent_key === agent.key)
+      session.set(agent.key, {
+        asked: standupQuestions.some((question) => question.targetAgentKey === agent.key || question.targetAgentKey === null),
+        responded: responses.length > 0,
+        messageCount: responses.length,
+        lastResponseAt: responses.at(-1)?.created_at ?? null,
+      })
+    }
+    return session
+  }, [participants, standupQuestions, transcript])
 
   function focusGoal(goalId: string | null) {
     setFocusedGoalId(goalId)
@@ -155,7 +191,24 @@ function StandupRoomContent() {
     window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`)
   }
 
-  async function postWarRoom(payload: Record<string, unknown>, loadingKey: string) {
+  function addQuestion(question: Omit<StandupQuestion, 'id' | 'status' | 'createdAt'>) {
+    const id = `question-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+    setStandupQuestions((current) => [{
+      ...question,
+      id,
+      status: 'pending' as const,
+      createdAt: new Date().toISOString(),
+    }, ...current].slice(0, 8))
+    return id
+  }
+
+  function completeQuestion(id: string, status: StandupQuestion['status'], runId?: string) {
+    setStandupQuestions((current) => current.map((question) => (
+      question.id === id ? { ...question, status, runId } : question
+    )))
+  }
+
+  async function postWarRoom(payload: Record<string, unknown>, loadingKey: string, questionId?: string) {
     setBusy(loadingKey)
     setError(null)
     try {
@@ -186,9 +239,11 @@ function StandupRoomContent() {
         setCreatedItems(body.created_work_items)
         await fetchBoard()
       }
+      if (questionId) completeQuestion(questionId, 'answered', body.run_id)
       return body
     } catch (err) {
       setError(err instanceof Error ? err.message : 'War Room command failed')
+      if (questionId) completeQuestion(questionId, 'failed')
       return null
     } finally {
       setBusy(null)
@@ -196,7 +251,13 @@ function StandupRoomContent() {
   }
 
   async function startStandup() {
-    await postWarRoom({ command: 'standup' }, 'standup')
+    const questionId = addQuestion({
+      command: 'standup',
+      prompt: 'Start standup and ask every available agent for current posture.',
+      targetLabel: 'All available agents',
+      targetAgentKey: null,
+    })
+    await postWarRoom({ command: 'standup' }, 'standup', questionId)
   }
 
   async function askAll() {
@@ -206,17 +267,35 @@ function StandupRoomContent() {
     setMessage('')
     if (mentionedAgent) {
       setSelectedAgentKey(mentionedAgent.key)
-      await postWarRoom({ command: 'ask_agent', message: text, target_agent_key: mentionedAgent.key }, 'ask-agent')
+      const questionId = addQuestion({
+        command: 'ask_agent',
+        prompt: text,
+        targetLabel: agentShortName(mentionedAgent.name),
+        targetAgentKey: mentionedAgent.key,
+      })
+      await postWarRoom({ command: 'ask_agent', message: text, target_agent_key: mentionedAgent.key }, 'ask-agent', questionId)
       return
     }
-    await postWarRoom({ command: 'discuss', message: text }, 'ask-all')
+    const questionId = addQuestion({
+      command: 'discuss',
+      prompt: text,
+      targetLabel: 'All relevant agents',
+      targetAgentKey: null,
+    })
+    await postWarRoom({ command: 'discuss', message: text }, 'ask-all', questionId)
   }
 
   async function askSelectedAgent() {
     if (!message.trim() || !selectedAgent) return
     const text = message.trim()
     setMessage('')
-    await postWarRoom({ command: 'ask_agent', message: text, target_agent_key: selectedAgent.key }, 'ask-agent')
+    const questionId = addQuestion({
+      command: 'ask_agent',
+      prompt: text,
+      targetLabel: agentShortName(selectedAgent.name),
+      targetAgentKey: selectedAgent.key,
+    })
+    await postWarRoom({ command: 'ask_agent', message: text, target_agent_key: selectedAgent.key }, 'ask-agent', questionId)
   }
 
   async function draftGoal() {
@@ -292,9 +371,10 @@ function StandupRoomContent() {
             <ParticipantRail
               participants={participants}
               selectedAgentKey={selectedAgent?.key ?? selectedAgentKey}
+              session={participantSession}
               onSelect={(agent) => {
                 setSelectedAgentKey(agent.key)
-                setMessage((current) => current || `@${agent.name.split(' - ')[0]} `)
+                setMessage((current) => current || `@${agentShortName(agent.name)} `)
               }}
             />
             <main className="space-y-5">
@@ -307,6 +387,7 @@ function StandupRoomContent() {
               )}
               <ChatRoom
                 transcript={transcript}
+                questions={standupQuestions}
                 commandTraces={commandTraces}
                 message={message}
                 onMessageChange={setMessage}
@@ -343,10 +424,12 @@ function StandupRoomContent() {
 function ParticipantRail({
   participants,
   selectedAgentKey,
+  session,
   onSelect,
 }: {
   participants: AgentOrgBoardAgent[]
   selectedAgentKey: string
+  session: Map<string, ParticipantSessionState>
   onSelect: (agent: AgentOrgBoardAgent) => void
 }) {
   return (
@@ -356,26 +439,33 @@ function ParticipantRail({
         <span className="rounded-full border border-silicon-slate/60 px-2 py-1 text-xs text-muted-foreground">{participants.length}</span>
       </div>
       <div className="space-y-2">
-        {participants.map((agent) => (
-          <button
-            key={agent.key}
-            type="button"
-            onClick={() => onSelect(agent)}
-            aria-pressed={selectedAgentKey === agent.key}
-            className={`flex w-full items-center gap-3 rounded-lg border p-2 text-left transition ${
-              selectedAgentKey === agent.key
-                ? 'border-radiant-gold/60 bg-radiant-gold/10'
-                : 'border-silicon-slate/60 bg-background/40 hover:border-radiant-gold/40'
-            }`}
-          >
-            <AgentAvatar agentKey={agent.key} size="sm" />
-            <span className="min-w-0">
-              <span className="block truncate text-sm font-medium">{agent.name.split(' - ')[0]}</span>
-              <span className="block truncate text-xs text-muted-foreground">{agent.podName}</span>
-            </span>
-            <span aria-hidden="true" className={`ml-auto h-2 w-2 rounded-full ${agent.live ? 'bg-green-400' : 'bg-silicon-slate'}`} />
-          </button>
-        ))}
+        {participants.map((agent) => {
+          const state = session.get(agent.key)
+          const statusLabel = state?.responded ? 'Responded' : state?.asked ? 'Asked' : agent.live ? 'Available' : 'Idle'
+          return (
+            <button
+              key={agent.key}
+              type="button"
+              onClick={() => onSelect(agent)}
+              aria-pressed={selectedAgentKey === agent.key}
+              className={`flex w-full items-center gap-3 rounded-lg border p-2 text-left transition ${
+                selectedAgentKey === agent.key
+                  ? 'border-radiant-gold/60 bg-radiant-gold/10'
+                  : 'border-silicon-slate/60 bg-background/40 hover:border-radiant-gold/40'
+              }`}
+            >
+              <AgentAvatar agentKey={agent.key} size="sm" />
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-medium">{agentShortName(agent.name)}</span>
+                <span className="block truncate text-xs text-muted-foreground">{agent.podName}</span>
+                <span className="mt-1 inline-flex rounded-full border border-silicon-slate/50 px-2 py-0.5 text-[11px] text-muted-foreground">
+                  {statusLabel}{state?.messageCount ? ` · ${state.messageCount}` : ''}
+                </span>
+              </span>
+              <span aria-hidden="true" className={`h-2 w-2 rounded-full ${state?.responded ? 'bg-radiant-gold' : agent.live ? 'bg-green-400' : 'bg-silicon-slate'}`} />
+            </button>
+          )
+        })}
       </div>
     </aside>
   )
@@ -383,6 +473,7 @@ function ParticipantRail({
 
 function ChatRoom({
   transcript,
+  questions,
   commandTraces,
   message,
   selectedAgent,
@@ -393,6 +484,7 @@ function ChatRoom({
   onQuickPrompt,
 }: {
   transcript: AgentWarRoomMessage[]
+  questions: StandupQuestion[]
   commandTraces: WarRoomCommandTrace[]
   message: string
   selectedAgent?: AgentOrgBoardAgent
@@ -416,7 +508,7 @@ function ChatRoom({
         {selectedAgent && (
           <div className="flex items-center gap-2 rounded-full border border-silicon-slate/60 px-3 py-1 text-xs text-muted-foreground">
             <AgentAvatar agentKey={selectedAgent.key} size="sm" />
-            Target: {selectedAgent.name.split(' - ')[0]}
+            Target: {agentShortName(selectedAgent.name)}
           </div>
         )}
       </div>
@@ -431,6 +523,32 @@ function ChatRoom({
             Open trace
             <ArrowRight size={14} />
           </Link>
+        </div>
+      )}
+
+      {questions.length > 0 && (
+        <div className="mb-4 rounded-lg border border-silicon-slate/60 bg-background/45 p-3">
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Question tracker</p>
+            <span className="text-xs text-muted-foreground">{questions.filter((question) => question.status === 'answered').length}/{questions.length} answered</span>
+          </div>
+          <div className="grid gap-2">
+            {questions.slice(0, 4).map((question) => (
+              <div key={question.id} className="grid gap-2 rounded-md border border-silicon-slate/50 bg-black/10 px-3 py-2 text-xs sm:grid-cols-[120px_minmax(0,1fr)_auto] sm:items-center">
+                <span className="font-semibold text-radiant-gold">{question.targetLabel}</span>
+                <span className="line-clamp-1 text-muted-foreground">{question.prompt}</span>
+                <span className={`rounded-full border px-2 py-0.5 ${
+                  question.status === 'answered'
+                    ? 'border-green-400/35 text-green-200'
+                    : question.status === 'failed'
+                      ? 'border-red-400/40 text-red-200'
+                      : 'border-yellow-400/35 text-yellow-200'
+                }`}>
+                  {question.status}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -555,7 +673,7 @@ function GoalPlanner({
                           className="mt-1 w-full rounded-md border border-silicon-slate/60 bg-background/70 px-2 py-1.5 text-sm text-foreground outline-none focus:border-radiant-gold/70"
                         >
                           {participants.map((agent) => (
-                            <option key={agent.key} value={agent.key}>{agent.name.split(' - ')[0]}</option>
+                            <option key={agent.key} value={agent.key}>{agentShortName(agent.name)}</option>
                           ))}
                         </select>
                       </label>
@@ -673,7 +791,7 @@ function GoalSessionPanel({
             </span>
             <div className="min-w-0">
               <p className="truncate font-medium">{task.title}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{task.ownerAgentName.split(' - ')[0]} · {task.status.replace(/_/g, ' ')}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{agentShortName(task.ownerAgentName)} · {task.status.replace(/_/g, ' ')}</p>
             </div>
             {task.activeRunId && (
               <Link href={`/admin/agents/runs/${task.activeRunId}`} className="text-xs text-radiant-gold hover:underline">
@@ -762,24 +880,34 @@ function MiniKanban({ lanes, focusedGoalId }: { lanes: AgentOrgBoardLane[]; focu
       tasks: lane.tasks.filter((task) => task.goal?.id === focusedGoalId),
     }))
     : lanes
-  const visible = scopedLanes.filter((lane) => lane.tasks.length > 0).slice(0, 3)
+  const previewLanes = scopedLanes.slice(0, 6)
+  const activeLaneCount = scopedLanes.filter((lane) => lane.tasks.length > 0).length
   return (
     <section className="agent-ops-card rounded-lg border p-4">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-radiant-gold">{focusedGoalId ? 'Goal Kanban preview' : 'Kanban preview'}</h2>
         <Link href={focusedGoalId ? `/admin/agents/swarm-board?goal=${encodeURIComponent(focusedGoalId)}` : '/admin/agents/swarm-board'} className="text-xs text-radiant-gold hover:underline">Open board</Link>
       </div>
+      <p className="mb-3 text-xs text-muted-foreground">
+        Fixed lane order · {activeLaneCount} active lane(s). Empty lanes collapse so the board stays scannable.
+      </p>
       <div className="space-y-3">
-        {(visible.length ? visible : scopedLanes.slice(0, 3)).map((lane) => (
-          <div key={lane.key} className="rounded-lg border border-silicon-slate/60 bg-background/50 p-3">
-            <div className="mb-2 flex items-center justify-between text-sm">
+        {previewLanes.map((lane) => (
+          <div key={lane.key} className={`rounded-lg border border-silicon-slate/60 bg-background/50 ${lane.tasks.length ? 'p-3' : 'px-3 py-2 opacity-75'}`}>
+            <div className={`flex items-center justify-between text-sm ${lane.tasks.length ? 'mb-2' : ''}`}>
               <span className="font-semibold">{lane.label}</span>
               <span className="text-muted-foreground">{lane.tasks.length}</span>
             </div>
-            <div className="space-y-2">
-              {lane.tasks.slice(0, 2).map((task) => <MiniTask key={task.id} task={task} />)}
-              {!lane.tasks.length && <p className="text-xs text-muted-foreground">No active cards.</p>}
-            </div>
+            {lane.tasks.length ? (
+              <div className="space-y-2">
+                {lane.tasks.slice(0, 2).map((task) => <MiniTask key={task.id} task={task} />)}
+                {lane.tasks.length > 2 && (
+                  <Link href={focusedGoalId ? `/admin/agents/swarm-board?goal=${encodeURIComponent(focusedGoalId)}` : '/admin/agents/swarm-board'} className="inline-flex text-xs text-radiant-gold hover:underline">
+                    View {lane.tasks.length - 2} more
+                  </Link>
+                )}
+              </div>
+            ) : null}
           </div>
         ))}
       </div>
@@ -794,7 +922,7 @@ function MiniTask({ task }: { task: AgentOrgBoardTask }) {
       <p className="line-clamp-2 font-medium">{task.title}</p>
       <div className="mt-2 flex flex-wrap gap-1 text-muted-foreground">
         {task.goal && <span className="rounded-full border border-radiant-gold/35 px-2 py-0.5 text-radiant-gold">{task.goal.title}</span>}
-        <span>{task.ownerAgentName.split(' - ')[0]}</span>
+        <span>{agentShortName(task.ownerAgentName)}</span>
         <span>{ageHours}h</span>
         <span>{task.status.replace(/_/g, ' ')}</span>
         {task.prUrl && <GitPullRequest size={12} />}
