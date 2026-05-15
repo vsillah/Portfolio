@@ -7,6 +7,7 @@ import {
   AlertTriangle,
   Bot,
   Columns,
+  ExternalLink,
   Filter,
   GitPullRequest,
   LayoutDashboard,
@@ -38,6 +39,11 @@ type BoardSnapshot = AgentSwarmBoardSnapshot & {
 
 type BoardMode = 'kanban' | 'hive' | 'agents' | 'war-room' | 'client-builder'
 type AttentionFilter = 'all' | 'blocked' | 'review' | 'unassigned'
+type BoardAction = {
+  task: AgentOrgBoardTask
+  lane: AgentOrgBoardLane
+  nextAction: ReturnType<typeof nextActionForTask>
+}
 
 const MODES: Array<{ key: BoardMode; label: string; icon: typeof LayoutDashboard }> = [
   { key: 'kanban', label: 'Kanban lanes', icon: LayoutDashboard },
@@ -290,12 +296,14 @@ function KanbanBoard({
     }))
   }, [attentionFilter, organization.lanes, ownerFilter, selectedGoalId, statusFilter])
   const filteredTasks = filteredLanes.flatMap((lane) => lane.tasks)
+  const boardActions = useMemo(() => buildBoardActions(filteredLanes), [filteredLanes])
   const selectedGoal = organization.summary.goals.find((goal) => goal.id === selectedGoalId) ?? null
   const filtersActive = selectedGoalId !== 'all' || ownerFilter !== 'all' || statusFilter !== 'all' || attentionFilter !== 'all'
 
   return (
     <div className="space-y-4" role="tabpanel" aria-label="Kanban lanes">
       <SummaryStrip organization={organization} />
+      <BoardActionQueue actions={boardActions} filtersActive={filtersActive} totalCount={filteredTasks.length} />
       <GoalRadiators
         organization={organization}
         selectedGoalId={selectedGoalId}
@@ -337,6 +345,84 @@ function KanbanBoard({
         ))}
       </div>
     </div>
+  )
+}
+
+function BoardActionQueue({
+  actions,
+  filtersActive,
+  totalCount,
+}: {
+  actions: BoardAction[]
+  filtersActive: boolean
+  totalCount: number
+}) {
+  return (
+    <section className="rounded-lg border border-radiant-gold/35 bg-radiant-gold/10 p-4" aria-label="Kanban action queue">
+      <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <div className="flex items-center gap-2">
+            <Sparkles size={16} className="text-radiant-gold" />
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-radiant-gold">Board action queue</h2>
+          </div>
+          <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+            Start here for blocked work, review-ready cards, missing owners, and cards that need validation before handoff.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2 text-xs">
+          <Badge label={filtersActive ? `${totalCount} filtered cards` : `${totalCount} visible cards`} />
+          <Badge label={`${actions.length} action candidates`} />
+        </div>
+      </div>
+      <div className="mt-4 grid gap-3 xl:grid-cols-3">
+        {actions.length ? actions.map(({ task, lane, nextAction }) => (
+          <article key={task.id} className="rounded-lg border border-silicon-slate/70 bg-background/70 p-3">
+            <div className="mb-3 flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{lane.label}</p>
+                <h3 className="mt-1 break-words text-sm font-semibold" title={task.title}>{task.title}</h3>
+              </div>
+              <span className={`shrink-0 rounded-full px-2 py-1 text-xs ${priorityClass(task.priority)}`}>{task.priority}</span>
+            </div>
+            <div className={`rounded-lg border p-2 text-xs ${nextAction.tone}`}>
+              <p className="font-semibold">{nextAction.label}</p>
+              <p className="mt-1 text-foreground/80">{nextAction.detail}</p>
+            </div>
+            <div className="mt-3 grid gap-2 text-xs sm:grid-cols-2">
+              <CardDetail label="Owner" value={task.ownerAgentName} />
+              <CardDetail label="Age" value={task.completedAt ? `Cycle ${formatHours(task.createdAt, task.completedAt)}` : formatHours(task.createdAt)} />
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2 text-xs">
+              {task.goal ? (
+                <Link href={task.goal.sessionHref} className="inline-flex items-center gap-1 rounded-lg border border-radiant-gold/45 px-2 py-2 text-radiant-gold hover:bg-radiant-gold/15">
+                  Goal
+                  <ExternalLink size={12} />
+                </Link>
+              ) : null}
+              {task.activeRunId ? (
+                <Link href={`/admin/agents/runs/${task.activeRunId}`} className="inline-flex items-center gap-1 rounded-lg border border-radiant-gold/45 px-2 py-2 text-radiant-gold hover:bg-radiant-gold/15">
+                  Open trace
+                  <ExternalLink size={12} />
+                </Link>
+              ) : null}
+              {task.prUrl ? (
+                <a href={task.prUrl} className="inline-flex items-center gap-1 rounded-lg border border-silicon-slate/70 px-2 py-2 text-radiant-gold hover:border-radiant-gold/45">
+                  <GitPullRequest size={13} />
+                  PR {task.prNumber ?? ''}
+                </a>
+              ) : null}
+              {!task.activeRunId && !task.prUrl ? (
+                <span className="rounded-lg border border-silicon-slate/60 px-2 py-2 text-muted-foreground">Evidence link pending</span>
+              ) : null}
+            </div>
+          </article>
+        )) : (
+          <div className="rounded-lg border border-dashed border-silicon-slate/60 p-4 text-sm text-muted-foreground xl:col-span-3">
+            No blocked, review-ready, unassigned, or validation-missing work is visible in the current scope.
+          </div>
+        )}
+      </div>
+    </section>
   )
 }
 
@@ -616,7 +702,7 @@ function TaskLane({ lane }: { lane: AgentOrgBoardLane }) {
   const blocked = lane.tasks.filter((task) => task.status === 'blocked').length
   const review = lane.tasks.filter((task) => task.status === 'ready_for_review' || task.status === 'ready_for_merge').length
   return (
-    <section className={`rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 ${isEmpty ? 'opacity-75' : 'min-h-[420px]'}`} aria-label={`${lane.label} lane`}>
+    <section className={`rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 ${isEmpty ? 'min-h-[132px] opacity-70' : 'min-h-[420px]'}`} aria-label={`${lane.label} lane`} data-collapsed={isEmpty ? 'true' : 'false'}>
       <div className={`${isEmpty ? '' : 'border-b border-silicon-slate/60'} p-3`}>
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
@@ -631,7 +717,7 @@ function TaskLane({ lane }: { lane: AgentOrgBoardLane }) {
           {blocked ? <span className="rounded-full border border-red-500/40 bg-red-500/10 px-2 py-1 text-xs text-red-200">{blocked} blocked</span> : null}
           {review ? <span className="rounded-full border border-yellow-500/40 bg-yellow-500/10 px-2 py-1 text-xs text-yellow-100">{review} review</span> : null}
           {isEmpty ? (
-            <span className="rounded-full border border-silicon-slate/60 bg-silicon-slate/10 px-2 py-1 text-xs text-muted-foreground">No visible work</span>
+            <span className="rounded-full border border-silicon-slate/60 bg-silicon-slate/10 px-2 py-1 text-xs text-muted-foreground">Collapsed empty lane</span>
           ) : null}
           {!isEmpty && !blocked && !review ? <span className="rounded-full border border-green-500/30 bg-green-500/10 px-2 py-1 text-xs text-green-200">within flow</span> : null}
         </div>
@@ -643,6 +729,28 @@ function TaskLane({ lane }: { lane: AgentOrgBoardLane }) {
       ) : null}
     </section>
   )
+}
+
+function buildBoardActions(lanes: AgentOrgBoardLane[]): BoardAction[] {
+  return lanes
+    .flatMap((lane) => lane.tasks.map((task) => ({ task, lane, nextAction: nextActionForTask(task) })))
+    .filter(({ task }) => {
+      if (task.status === 'blocked' || task.status === 'ready_for_review' || task.status === 'ready_for_merge') return true
+      if (!task.ownerAgentKey) return true
+      if (!task.validationSummary && (task.status === 'in_progress' || task.status === 'assigned')) return true
+      return false
+    })
+    .sort((a, b) => actionRank(a.task) - actionRank(b.task) || new Date(a.task.updatedAt).getTime() - new Date(b.task.updatedAt).getTime())
+    .slice(0, 3)
+}
+
+function actionRank(task: AgentOrgBoardTask) {
+  if (task.status === 'blocked') return 0
+  if (task.status === 'ready_for_merge') return 1
+  if (task.status === 'ready_for_review') return 2
+  if (!task.ownerAgentKey) return 3
+  if (!task.validationSummary) return 4
+  return 5
 }
 
 function WorkItemCard({ task }: { task: AgentOrgBoardTask }) {
