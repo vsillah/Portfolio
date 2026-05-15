@@ -166,6 +166,7 @@ interface ContactInfo {
   name: string;
   email: string;
   company: string | null;
+  message?: string | null;
   phone?: string;
   industry?: string | null;
   employee_count?: string | null;
@@ -307,6 +308,7 @@ export default function ClientWalkthroughPage() {
   const [aiRecommendations, setAiRecommendations] = useState<AIRecommendation[]>([]);
   const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
   const [isLoadingNextStep, setIsLoadingNextStep] = useState(false);
+  const [scriptGenerationError, setScriptGenerationError] = useState<string | null>(null);
   /** Value evidence summary for script (pain points + total value) to guide the conversation */
   const [scriptValueEvidence, setScriptValueEvidence] = useState<{
     painPoints: { display_name: string | null; monetary_indicator: number; monetary_context: string | null }[];
@@ -788,15 +790,21 @@ export default function ClientWalkthroughPage() {
           availableContent: content.filter(c => c.is_active),
           conversationHistory: conversationState.responseHistory,
           contactSubmissionId: contact?.id ? parseInt(contact.id, 10) : null,
+          contactNotes: contact?.message ?? null,
+          callNotes: notes,
         }),
       });
 
       if (res.ok) {
         const data = await res.json();
+        setScriptGenerationError(null);
         return data.step;
       }
+      const errorBody = await res.json().catch(() => null);
+      setScriptGenerationError(errorBody?.error || `Script generation failed with status ${res.status}.`);
     } catch (err) {
       console.error('Failed to generate step:', err);
+      setScriptGenerationError('Script generation failed before Portfolio received a response.');
     }
     return null;
   };
@@ -804,7 +812,7 @@ export default function ClientWalkthroughPage() {
   // Start the call - generate opening step
   const startCall = async () => {
     setIsLoadingNextStep(true);
-    setConversationState(prev => ({ ...prev, isCallActive: true }));
+    setScriptGenerationError(null);
 
     const openingStep = await generateStep('opening', []);
     
@@ -812,7 +820,15 @@ export default function ClientWalkthroughPage() {
       openingStep.status = 'active';
       setConversationState(prev => ({
         ...prev,
+        isCallActive: true,
         dynamicSteps: [openingStep],
+        currentStep: 0,
+      }));
+    } else {
+      setConversationState(prev => ({
+        ...prev,
+        isCallActive: false,
+        dynamicSteps: [],
         currentStep: 0,
       }));
     }
@@ -841,6 +857,12 @@ export default function ClientWalkthroughPage() {
         ...prev,
         dynamicSteps: [...stepsToUse, newStep],
         currentStep: stepsToUse.length,
+        offersPresented: offersToUse,
+      }));
+    } else {
+      setConversationState(prev => ({
+        ...prev,
+        dynamicSteps: stepsToUse,
         offersPresented: offersToUse,
       }));
     }
@@ -1667,6 +1689,7 @@ export default function ClientWalkthroughPage() {
                     aiRecommendations={aiRecommendations}
                     isLoadingRecommendations={isLoadingRecommendations}
                     isLoadingNextStep={isLoadingNextStep}
+                    generationError={scriptGenerationError}
                     isCallActive={conversationState.isCallActive}
                     onStartCall={startCall}
                     onRefreshRecommendations={refreshRecommendations}

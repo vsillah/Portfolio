@@ -11,6 +11,7 @@ type ContactRow = {
   name: string | null;
   email: string | null;
   company: string | null;
+  message: string | null;
   industry: string | null;
   employee_count: string | null;
   created_at: string | null;
@@ -134,7 +135,7 @@ export async function GET(request: NextRequest) {
     // 3. Fetch contacts
     const { data: contacts, error: contactsError } = await supabaseAdmin
       .from('contact_submissions')
-      .select('id, name, email, company, industry, employee_count, created_at')
+      .select('id, name, email, company, message, industry, employee_count, created_at')
       .in('id', allContactIds);
 
     if (contactsError) {
@@ -276,7 +277,7 @@ export async function GET(request: NextRequest) {
         opportunity_score: a.opportunity_score,
         created_at: a.created_at,
         contact_submissions: contact
-          ? { id: contact.id, name: contact.name, email: contact.email, company: contact.company, created_at: contact.created_at }
+          ? { id: contact.id, name: contact.name, email: contact.email, company: contact.company, message: contact.message, created_at: contact.created_at }
           : null,
         sales_session: session
           ? { diagnostic_audit_id: session.diagnostic_audit_id, outcome: session.outcome, next_follow_up: session.next_follow_up, funnel_stage: session.funnel_stage }

@@ -65,6 +65,10 @@ interface GenerateStepRequest {
   conversationHistory: ConversationResponse[];
   /** When set, value evidence (pain points + dollar impact) is fetched and used in script steps */
   contactSubmissionId?: number | null;
+  /** Lead/contact notes captured before or outside this sales session */
+  contactNotes?: string | null;
+  /** Current sales-session notes captured in the call workspace */
+  callNotes?: string | null;
 }
 
 export async function POST(request: NextRequest) {
@@ -88,6 +92,8 @@ export async function POST(request: NextRequest) {
       availableContent,
       conversationHistory,
       contactSubmissionId,
+      contactNotes,
+      callNotes,
     } = body;
 
     // Fetch value evidence for this contact so script steps can reference quantified pain and value
@@ -176,6 +182,8 @@ export async function POST(request: NextRequest) {
       availableProducts: products,
       conversationHistory,
       valueEvidenceSummary,
+      contactNotes,
+      callNotes,
     });
 
     return NextResponse.json({ step });
@@ -196,6 +204,8 @@ function generateStep(context: GenerateStepRequest & { valueEvidenceSummary?: st
     chosenStrategy,
     availableProducts,
     valueEvidenceSummary,
+    contactNotes,
+    callNotes,
   } = context;
 
   const stepNumber = previousSteps.length + 1;
@@ -216,6 +226,7 @@ function generateStep(context: GenerateStepRequest & { valueEvidenceSummary?: st
   const urgency = audit?.urgency_score || 5;
   const opportunity = audit?.opportunity_score || 5;
   const keyInsights = audit?.key_insights || [];
+  const operatorNotes = formatOperatorNotes(contactNotes, callNotes);
 
   // Get products by role
   const products = availableProducts || [];
@@ -485,6 +496,11 @@ function generateStep(context: GenerateStepRequest & { valueEvidenceSummary?: st
       suggestedActions = ['Listen actively and ask follow-up questions.'];
   }
 
+  if (operatorNotes.length > 0) {
+    talkingPoints.push(...operatorNotes.map(note => `[Operator note to incorporate: ${note}]`));
+    suggestedActions.push('Use the contact and call notes when choosing language, examples, and next questions');
+  }
+
   return {
     id: stepId,
     stepNumber,
@@ -499,6 +515,18 @@ function generateStep(context: GenerateStepRequest & { valueEvidenceSummary?: st
       : undefined,
     status: 'pending',
   };
+}
+
+function formatOperatorNotes(contactNotes?: string | null, callNotes?: string | null): string[] {
+  return [
+    ['Contact', contactNotes],
+    ['Call', callNotes],
+  ].flatMap(([label, value]) => {
+    if (typeof value !== 'string') return [];
+    const trimmed = value.replace(/\s+/g, ' ').trim();
+    if (!trimmed) return [];
+    return [`${label}: ${trimmed.slice(0, 600)}`];
+  });
 }
 
 function getObjectionContext(
