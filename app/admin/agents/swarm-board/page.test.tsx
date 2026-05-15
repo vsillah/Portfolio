@@ -54,6 +54,13 @@ const boardSnapshot = {
         blocked: 1,
         open: 2,
         burndown: [{ label: 'May 13', remaining: 2 }, { label: 'May 14', remaining: 1 }],
+        sessionHref: '/admin/agents/standup?goal=goal-1',
+        draftRunId: 'draft-run',
+        approvalRunId: 'approval-run',
+        latestRunId: 'war-room-run-1',
+        draftTraceHref: '/admin/agents/runs/draft-run',
+        approvalTraceHref: '/admin/agents/runs/approval-run',
+        latestTraceHref: '/admin/agents/runs/war-room-run-1',
       }],
     },
     lanes: [
@@ -92,6 +99,13 @@ const boardSnapshot = {
               status: 'approved',
               progressWeight: 1,
               sessionHref: '/admin/agents/standup?goal=goal-1',
+              draftRunId: 'draft-run',
+              approvalRunId: 'approval-run',
+              latestRunId: 'war-room-run-1',
+              parentWorkItemId: 'goal-parent',
+              draftTraceHref: '/admin/agents/runs/draft-run',
+              approvalTraceHref: '/admin/agents/runs/approval-run',
+              latestTraceHref: '/admin/agents/runs/war-room-run-1',
             },
           },
           {
@@ -122,6 +136,13 @@ const boardSnapshot = {
               status: 'approved',
               progressWeight: 1,
               sessionHref: '/admin/agents/standup?goal=goal-1',
+              draftRunId: 'draft-run',
+              approvalRunId: 'approval-run',
+              latestRunId: 'war-room-run-1',
+              parentWorkItemId: 'goal-parent',
+              draftTraceHref: '/admin/agents/runs/draft-run',
+              approvalTraceHref: '/admin/agents/runs/approval-run',
+              latestTraceHref: '/admin/agents/runs/war-room-run-1',
             },
           },
           {
@@ -262,6 +283,10 @@ describe('AgentSwarmBoardPage', () => {
 
     expect(screen.getByRole('region', { name: 'Selected goal work' })).toBeInTheDocument()
     expect(screen.getByText(/0\/2 complete/)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Open goal session' })).toHaveAttribute('href', '/admin/agents/standup?goal=goal-1')
+    expect(screen.getByRole('link', { name: 'Draft trace' })).toHaveAttribute('href', '/admin/agents/runs/draft-run')
+    expect(screen.getByRole('link', { name: 'Approval trace' })).toHaveAttribute('href', '/admin/agents/runs/approval-run')
+    expect(screen.getByRole('link', { name: 'Latest room trace' })).toHaveAttribute('href', '/admin/agents/runs/war-room-run-1')
     expect(screen.queryByText('Maintain automation context outside the selected goal')).not.toBeInTheDocument()
     expect(screen.getAllByText('2/3 visible').length).toBeGreaterThan(0)
 

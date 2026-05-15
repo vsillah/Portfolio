@@ -32,6 +32,8 @@ export async function POST(request: NextRequest) {
     message?: unknown
     target_agent_key?: unknown
     targetAgentKey?: unknown
+    goal_id?: unknown
+    goalId?: unknown
     goal?: unknown
     draft?: unknown
   }
@@ -61,6 +63,11 @@ export async function POST(request: NextRequest) {
   }
 
   const goal = typeof body.goal === 'string' ? body.goal.trim() : ''
+  const goalId = typeof body.goal_id === 'string'
+    ? body.goal_id.trim()
+    : typeof body.goalId === 'string'
+      ? body.goalId.trim()
+      : ''
   if (command === 'draft_goal' && !goal) {
     return NextResponse.json({ error: 'Goal is required for draft_goal' }, { status: 400 })
   }
@@ -74,6 +81,7 @@ export async function POST(request: NextRequest) {
       command,
       message,
       targetAgentKey,
+      goalId,
       goal,
       draft: command === 'approve_goal' ? body.draft as never : null,
       triggerSource: 'admin_agent_war_room',

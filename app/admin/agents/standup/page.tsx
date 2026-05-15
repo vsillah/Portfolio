@@ -211,6 +211,10 @@ function StandupRoomContent() {
   async function postWarRoom(payload: Record<string, unknown>, loadingKey: string, questionId?: string) {
     setBusy(loadingKey)
     setError(null)
+    const command = typeof payload.command === 'string' ? payload.command : null
+    const scopedPayload = focusedGoalId && command !== 'draft_goal'
+      ? { ...payload, goal_id: focusedGoalId }
+      : payload
     try {
       const session = await getCurrentSession()
       if (!session?.access_token) throw new Error('Missing admin session')
@@ -220,7 +224,7 @@ function StandupRoomContent() {
           Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(scopedPayload),
       })
       const body = await response.json().catch(() => ({})) as WarRoomResponse
       if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
@@ -770,6 +774,14 @@ function GoalSessionPanel({
           <p className="mt-1 text-sm text-muted-foreground">
             {goal.completed}/{goal.total} complete · {goal.open} open · {goal.blocked} blocked
           </p>
+          <div className="mt-3 flex flex-wrap gap-2 text-xs">
+            {goal.draftTraceHref && <AuditLink href={goal.draftTraceHref} label="Draft trace" />}
+            {goal.approvalTraceHref && <AuditLink href={goal.approvalTraceHref} label="Approval trace" />}
+            {goal.latestTraceHref && <AuditLink href={goal.latestTraceHref} label="Latest room trace" />}
+            {!goal.draftTraceHref && !goal.approvalTraceHref && !goal.latestTraceHref ? (
+              <span className="rounded-full border border-silicon-slate/60 px-2 py-1 text-muted-foreground">Audit traces pending</span>
+            ) : null}
+          </div>
         </div>
         <div className="flex flex-wrap gap-2">
           <Link href={`/admin/agents/swarm-board?goal=${encodeURIComponent(goal.id)}`} className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/10">
@@ -807,6 +819,14 @@ function GoalSessionPanel({
         )}
       </div>
     </section>
+  )
+}
+
+function AuditLink({ href, label }: { href: string; label: string }) {
+  return (
+    <Link href={href} className="rounded-full border border-radiant-gold/35 bg-radiant-gold/10 px-2 py-1 text-radiant-gold hover:bg-radiant-gold/15">
+      {label}
+    </Link>
   )
 }
 

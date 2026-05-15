@@ -131,6 +131,13 @@ export type AgentOrgBoardTask = {
     status: string | null
     progressWeight: number
     sessionHref: string
+    draftRunId: string | null
+    approvalRunId: string | null
+    latestRunId: string | null
+    parentWorkItemId: string | null
+    draftTraceHref: string | null
+    approvalTraceHref: string | null
+    latestTraceHref: string | null
   } | null
 }
 
@@ -143,6 +150,13 @@ export type AgentOrgBoardGoalMetric = {
   blocked: number
   open: number
   burndown: Array<{ label: string; remaining: number }>
+  sessionHref: string
+  draftRunId: string | null
+  approvalRunId: string | null
+  latestRunId: string | null
+  draftTraceHref: string | null
+  approvalTraceHref: string | null
+  latestTraceHref: string | null
 }
 
 export type AgentOrgBoardWipMetric = {
@@ -812,13 +826,24 @@ function goalForTask(item: AgentWorkItemRow): AgentOrgBoardTask['goal'] {
   const goalId = stringValue(metadata.goal_id)
   const goalTitle = stringValue(metadata.goal_title)
   if (!goalId || !goalTitle) return null
+  const draftRunId = stringValue(metadata.goal_draft_run_id) ?? stringValue(metadata.draft_run_id)
+  const approvalRunId = stringValue(metadata.goal_approved_by_run_id) ?? stringValue(metadata.approved_by_run_id) ?? stringValue(metadata.goal_created_by_run_id)
+  const latestRunId = item.active_run_id ?? approvalRunId ?? draftRunId
+  const sessionHref = stringValue(metadata.goal_session_href) ?? `/admin/agents/standup?goal=${encodeURIComponent(goalId)}`
   return {
     id: goalId,
     title: goalTitle,
     sequence: typeof metadata.goal_sequence === 'number' ? metadata.goal_sequence : null,
     status: stringValue(metadata.goal_status),
     progressWeight: numberValue(metadata.goal_progress_weight, 1),
-    sessionHref: `/admin/agents/standup?goal=${encodeURIComponent(goalId)}`,
+    sessionHref,
+    draftRunId,
+    approvalRunId,
+    latestRunId,
+    parentWorkItemId: stringValue(metadata.goal_parent_work_item_id) ?? item.parent_work_item_id ?? null,
+    draftTraceHref: draftRunId ? `/admin/agents/runs/${draftRunId}` : null,
+    approvalTraceHref: approvalRunId ? `/admin/agents/runs/${approvalRunId}` : null,
+    latestTraceHref: latestRunId ? `/admin/agents/runs/${latestRunId}` : null,
   }
 }
 
@@ -843,6 +868,10 @@ function buildGoalMetrics(tasks: AgentOrgBoardTask[]): AgentOrgBoardGoalMetric[]
 
   return [...grouped.entries()].map(([id, goalTasks]) => {
     const title = goalTasks[0]?.goal?.title ?? id
+    const firstGoal = goalTasks.find((task) => task.goal)?.goal ?? null
+    const draftRunId = goalTasks.find((task) => task.goal?.draftRunId)?.goal?.draftRunId ?? null
+    const approvalRunId = goalTasks.find((task) => task.goal?.approvalRunId)?.goal?.approvalRunId ?? null
+    const latestRunId = goalTasks.find((task) => task.goal?.latestRunId)?.goal?.latestRunId ?? approvalRunId ?? draftRunId
     const totalWeight = goalTasks.reduce((sum, task) => sum + (task.goal?.progressWeight ?? 1), 0) || goalTasks.length || 1
     const completedWeight = goalTasks
       .filter((task) => isCompletedWorkStatus(task.status))
@@ -861,6 +890,13 @@ function buildGoalMetrics(tasks: AgentOrgBoardTask[]): AgentOrgBoardGoalMetric[]
       blocked: goalTasks.filter((task) => task.status === 'blocked').length,
       open: goalTasks.filter((task) => isActiveWorkStatus(task.status)).length,
       burndown,
+      sessionHref: firstGoal?.sessionHref ?? `/admin/agents/standup?goal=${encodeURIComponent(id)}`,
+      draftRunId,
+      approvalRunId,
+      latestRunId,
+      draftTraceHref: draftRunId ? `/admin/agents/runs/${draftRunId}` : null,
+      approvalTraceHref: approvalRunId ? `/admin/agents/runs/${approvalRunId}` : null,
+      latestTraceHref: latestRunId ? `/admin/agents/runs/${latestRunId}` : null,
     }
   })
 }
