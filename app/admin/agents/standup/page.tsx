@@ -343,9 +343,9 @@ function StandupRoomContent() {
           { label: 'Standup Room' },
         ]} />
 
-        <header className="mt-5 flex flex-col gap-4 rounded-xl border border-radiant-gold/25 bg-silicon-slate/20 p-5 lg:flex-row lg:items-center lg:justify-between">
+        <header className="agent-ops-surface-header mt-5 flex flex-col gap-4 rounded-xl border p-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <div className="mb-2 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-radiant-gold">
+            <div className="agent-ops-eyebrow mb-2">
               <Users size={15} />
               Agent Ops
             </div>
@@ -354,12 +354,12 @@ function StandupRoomContent() {
               Ask Shaka or the swarm directly, inspect the active board, and turn goals into review-gated Agent Ops work items.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Link href={focusedGoalId ? `/admin/agents/swarm-board?goal=${encodeURIComponent(focusedGoalId)}` : '/admin/agents/swarm-board'} className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/10">
+          <div className="agent-ops-header-actions">
+            <Link href={focusedGoalId ? `/admin/agents/swarm-board?goal=${encodeURIComponent(focusedGoalId)}` : '/admin/agents/swarm-board'} className="agent-ops-button-secondary">
               <KanbanSquare size={16} />
               Open full Kanban
             </Link>
-            <button onClick={startStandup} disabled={busy != null} className="inline-flex items-center gap-2 rounded-lg bg-radiant-gold px-3 py-2 text-sm font-semibold text-obsidian hover:bg-radiant-gold/90 disabled:opacity-60">
+            <button onClick={startStandup} disabled={busy != null} className="agent-ops-button-primary disabled:opacity-60">
               <Play size={16} />
               Start standup
             </button>

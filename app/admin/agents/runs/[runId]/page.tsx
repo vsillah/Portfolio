@@ -168,15 +168,15 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-6 lg:p-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="agent-ops-page min-h-screen p-5 text-foreground lg:p-7">
+      <div className="mx-auto max-w-7xl">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
           { label: 'Agent Operations', href: '/admin/agents' },
           { label: 'Runs', href: '/admin/agents/runs' },
           { label: 'Run Detail' },
         ]} />
-        <Link href="/admin/agents/runs" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-5">
+        <Link href="/admin/agents/runs" className="mb-5 mt-4 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft size={16} />
           Back to runs
         </Link>
@@ -190,18 +190,22 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
           </div>
         ) : data ? (
           <>
-            <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
+            <header className="agent-ops-surface-header mb-6 flex flex-col gap-4 rounded-xl border p-5 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex min-w-0 gap-3">
                 {asString(data.run.agent_key) ? <AgentAvatar agentKey={asString(data.run.agent_key)} size="lg" /> : null}
                 <div className="min-w-0">
-                <h1 className="text-3xl font-bold mb-1">{String(data.run.title ?? 'Agent run')}</h1>
-                <p className="text-sm text-muted-foreground">{String(data.run.kind ?? 'run')} · {String(data.run.id)}</p>
-                {asString(data.run.agent_key) ? (
-                  <p className="mt-1 text-xs text-muted-foreground">Owner: {String(data.run.agent_key).replace(/-/g, ' ')}</p>
-                ) : null}
+                  <div className="agent-ops-eyebrow mb-2">
+                    <Bot size={16} />
+                    Run Console detail
+                  </div>
+                  <h1 className="text-3xl font-bold mb-1">{String(data.run.title ?? 'Agent run')}</h1>
+                  <p className="text-sm text-muted-foreground">{String(data.run.kind ?? 'run')} · {String(data.run.id)}</p>
+                  {asString(data.run.agent_key) ? (
+                    <p className="mt-1 text-xs text-muted-foreground">Owner: {String(data.run.agent_key).replace(/-/g, ' ')}</p>
+                  ) : null}
                 </div>
               </div>
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="agent-ops-header-actions">
                 <select
                   value={rubricKey}
                   onChange={(event) => setRubricKey(event.target.value)}
@@ -218,7 +222,7 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
                   )}
                   disabled={Boolean(shakaLoading)}
                   aria-label="Ask Shaka about this run"
-                  className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
+                  className="agent-ops-button-secondary disabled:opacity-60"
                 >
                   <MessageSquare size={16} />
                   {shakaLoading === `run:${runId}` ? 'Asking...' : 'Ask Shaka'}
@@ -226,20 +230,20 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
                 <button
                   onClick={evaluateRun}
                   disabled={evaluating}
-                  className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
+                  className="agent-ops-button-secondary disabled:opacity-60"
                 >
                   <Gauge size={16} />
                   {evaluating ? 'Evaluating...' : 'Evaluate'}
                 </button>
                 <button
                   onClick={fetchDetail}
-                  className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm hover:border-radiant-gold/60"
+                  className="agent-ops-button-muted"
                 >
                   <RefreshCw size={16} />
                   Refresh
                 </button>
               </div>
-            </div>
+            </header>
 
             {shakaReply ? (
               <ShakaContextResponse
@@ -256,7 +260,7 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
               <Metric icon={<FileText size={18} />} label="Artifacts" value={String(data.artifacts.length)} />
             </div>
 
-            <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5 mb-6">
+            <section className="agent-ops-card rounded-lg border p-5 mb-6">
               <h2 className="text-lg font-semibold mb-4">Evaluations</h2>
               <EvaluationList
                 rows={data.evaluations}
@@ -268,17 +272,17 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
               />
             </section>
 
-            <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5 mb-6">
+            <section className="agent-ops-card rounded-lg border p-5 mb-6">
               <h2 className="text-lg font-semibold mb-4">Steps</h2>
               <Timeline rows={data.steps} timeKey="started_at" titleKey="name" detailKey="output_summary" fallback="No steps recorded yet." />
             </section>
 
-            <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5 mb-6">
+            <section className="agent-ops-card rounded-lg border p-5 mb-6">
               <h2 className="text-lg font-semibold mb-4">Events</h2>
               <Timeline rows={data.events} timeKey="occurred_at" titleKey="event_type" detailKey="message" fallback="No events recorded yet." />
             </section>
 
-            <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5 mb-6">
+            <section className="agent-ops-card rounded-lg border p-5 mb-6">
               <h2 className="text-lg font-semibold mb-4">Approval Decision</h2>
               <ApprovalDecisionList
                 rows={data.approvals}
@@ -291,7 +295,7 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
               />
             </section>
 
-            <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
+            <section className="agent-ops-card rounded-lg border p-5">
               <h2 className="text-lg font-semibold mb-4">Artifacts</h2>
               <List rows={data.artifacts} titleKey="title" fallbackTitle="Artifact" detailKey="artifact_type" empty="No artifacts attached." />
             </section>
