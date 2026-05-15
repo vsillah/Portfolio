@@ -612,6 +612,9 @@ describe('buildAgentOrgBoardSnapshotFromRows', () => {
             goal_sequence: 1,
             goal_status: 'approved',
             goal_progress_weight: 2,
+            goal_draft_run_id: 'draft-run',
+            goal_approved_by_run_id: 'approval-run',
+            goal_session_href: '/admin/agents/standup?goal=goal%20kanban%20v1',
           },
         }),
         orgWorkItem({
@@ -627,7 +630,10 @@ describe('buildAgentOrgBoardSnapshotFromRows', () => {
             goal_sequence: 2,
             goal_status: 'approved',
             goal_progress_weight: 1,
-          },
+            goal_draft_run_id: 'draft-run',
+            goal_approved_by_run_id: 'approval-run',
+            goal_parent_work_item_id: 'goal-parent',
+            },
         }),
         orgWorkItem({
           id: 'goal-progress',
@@ -641,6 +647,8 @@ describe('buildAgentOrgBoardSnapshotFromRows', () => {
             goal_sequence: 3,
             goal_status: 'approved',
             goal_progress_weight: 1,
+            goal_draft_run_id: 'draft-run',
+            goal_approved_by_run_id: 'approval-run',
           },
         }),
       ],
@@ -656,12 +664,22 @@ describe('buildAgentOrgBoardSnapshotFromRows', () => {
       progress: 50,
       blocked: 1,
       open: 2,
+      sessionHref: '/admin/agents/standup?goal=goal%20kanban%20v1',
+      draftRunId: 'draft-run',
+      approvalRunId: 'approval-run',
+      latestRunId: 'approval-run',
+      draftTraceHref: '/admin/agents/runs/draft-run',
+      approvalTraceHref: '/admin/agents/runs/approval-run',
     })
     expect(snapshot.summary.goals[0].burndown.length).toBeGreaterThan(0)
     expect(snapshot.lanes.flatMap((lane) => lane.tasks).find((task) => task.id === 'goal-blocked')?.goal).toMatchObject({
       id: 'goal kanban v1',
       sessionHref: '/admin/agents/standup?goal=goal%20kanban%20v1',
       sequence: 2,
+      draftRunId: 'draft-run',
+      approvalRunId: 'approval-run',
+      draftTraceHref: '/admin/agents/runs/draft-run',
+      approvalTraceHref: '/admin/agents/runs/approval-run',
     })
   })
 

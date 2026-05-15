@@ -197,10 +197,22 @@ describe('runAgentWarRoom', () => {
     })
 
     expect(result.goalDraft?.title).toBe('Build a transparent standup room')
+    expect(result.goalDraft?.draft_run_id).toBe('war-room-run')
     expect(result.goalDraft?.tasks.length).toBeGreaterThan(2)
     expect(workItemMocks.createAgentWorkItem).not.toHaveBeenCalled()
+    expect(agentRunMocks.startAgentRun).toHaveBeenCalledWith(expect.objectContaining({
+      metadata: expect.objectContaining({
+        command: 'draft_goal',
+        goal_id: result.goalDraft?.goal_id,
+        goal_session_href: `/admin/agents/standup?goal=${encodeURIComponent(result.goalDraft?.goal_id ?? '')}`,
+      }),
+    }))
     expect(agentRunMocks.attachAgentArtifact).toHaveBeenCalledWith(expect.objectContaining({
       artifactType: 'war_room_goal_draft',
+      metadata: expect.objectContaining({
+        goal_id: result.goalDraft?.goal_id,
+        goal_draft_run_id: 'war-room-run',
+      }),
     }))
   })
 
@@ -226,9 +238,78 @@ describe('runAgentWarRoom', () => {
     expect(workItemMocks.createAgentWorkItem).toHaveBeenCalledTimes(1 + (draftResult.goalDraft?.tasks.length ?? 0))
     expect(workItemMocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
       title: expect.stringContaining('Goal:'),
-      metadata: expect.objectContaining({ goal_role: 'parent' }),
+      sourceRunId: 'approval-run',
+      source: expect.objectContaining({ type: 'agent_standup_goal' }),
+      metadata: expect.objectContaining({
+        goal_role: 'parent',
+        goal_id: draftResult.goalDraft?.goal_id,
+        goal_draft_run_id: 'war-room-run',
+        goal_approved_by_run_id: 'approval-run',
+        goal_session_href: `/admin/agents/standup?goal=${encodeURIComponent(draftResult.goalDraft?.goal_id ?? '')}`,
+      }),
+    }))
+    expect(workItemMocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
+      parentWorkItemId: 'parent-goal',
+      source: expect.objectContaining({ type: 'agent_standup_goal_task' }),
+      expectedFiles: expect.any(Array),
+      metadata: expect.objectContaining({
+        goal_role: 'task',
+        goal_draft_run_id: 'war-room-run',
+        goal_approved_by_run_id: 'approval-run',
+        goal_parent_work_item_id: 'parent-goal',
+        goal_sequence: expect.any(Number),
+        acceptance_criteria: expect.any(Array),
+        risk_notes: expect.any(String),
+      }),
+    }))
+    expect(agentRunMocks.recordAgentStep).toHaveBeenCalledWith(expect.objectContaining({
+      stepKey: 'goal_work_items_created',
+    }))
+    expect(agentRunMocks.attachAgentArtifact).toHaveBeenCalledWith(expect.objectContaining({
+      artifactType: 'war_room_transcript',
+      metadata: expect.objectContaining({
+        executes_action: true,
+        goal_id: draftResult.goalDraft?.goal_id,
+        goal_draft_run_id: 'war-room-run',
+        goal_approved_by_run_id: 'approval-run',
+        created_parent_work_item_id: 'parent-goal',
+        created_child_work_item_ids: expect.any(Array),
+      }),
+    }))
+    expect(agentRunMocks.endAgentRun).toHaveBeenCalledWith(expect.objectContaining({
+      outcome: expect.objectContaining({
+        goal_id: draftResult.goalDraft?.goal_id,
+        goal_draft_run_id: 'war-room-run',
+        goal_approved_by_run_id: 'approval-run',
+        created_child_count: draftResult.goalDraft?.tasks.length,
+      }),
     }))
     expect(result.createdWorkItems?.children.length).toBe(draftResult.goalDraft?.tasks.length)
+  })
+
+  it('records focused goal context on room asks without creating work items', async () => {
+    await runAgentWarRoom({
+      command: 'discuss',
+      message: 'What changed for this goal?',
+      goalId: 'goal-existing',
+      triggerSource: 'test_war_room',
+    })
+
+    expect(agentRunMocks.startAgentRun).toHaveBeenCalledWith(expect.objectContaining({
+      metadata: expect.objectContaining({
+        command: 'discuss',
+        goal_id: 'goal-existing',
+        goal_session_href: '/admin/agents/standup?goal=goal-existing',
+        executes_action: false,
+      }),
+    }))
+    expect(workItemMocks.createAgentWorkItem).not.toHaveBeenCalled()
+    expect(agentRunMocks.endAgentRun).toHaveBeenCalledWith(expect.objectContaining({
+      outcome: expect.objectContaining({
+        goal_id: 'goal-existing',
+        goal_session_href: '/admin/agents/standup?goal=goal-existing',
+      }),
+    }))
   })
 
   it('rejects invalid direct agent asks', async () => {

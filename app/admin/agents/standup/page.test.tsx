@@ -39,6 +39,13 @@ const organization = {
       blocked: 0,
       open: 1,
       burndown: [{ label: 'May 14', remaining: 1 }],
+      sessionHref: '/admin/agents/standup?goal=goal-1',
+      draftRunId: 'draft-run',
+      approvalRunId: 'approval-run',
+      latestRunId: 'room-run',
+      draftTraceHref: '/admin/agents/runs/draft-run',
+      approvalTraceHref: '/admin/agents/runs/approval-run',
+      latestTraceHref: '/admin/agents/runs/room-run',
     }],
   },
   agents: [
@@ -102,6 +109,13 @@ const organization = {
           status: 'approved',
           progressWeight: 1,
           sessionHref: '/admin/agents/standup?goal=goal-1',
+          draftRunId: 'draft-run',
+          approvalRunId: 'approval-run',
+          latestRunId: 'room-run',
+          parentWorkItemId: 'goal-parent',
+          draftTraceHref: '/admin/agents/runs/draft-run',
+          approvalTraceHref: '/admin/agents/runs/approval-run',
+          latestTraceHref: '/admin/agents/runs/room-run',
         },
       }],
     },
@@ -316,7 +330,19 @@ describe('AgentStandupRoomPage', () => {
     expect(screen.getAllByText('Draft standup room').length).toBeGreaterThan(0)
     expect(screen.getByRole('link', { name: 'Open Kanban focus' })).toHaveAttribute('href', '/admin/agents/swarm-board?goal=goal-1')
     expect(screen.getByRole('link', { name: 'Open board' })).toHaveAttribute('href', '/admin/agents/swarm-board?goal=goal-1')
+    expect(screen.getByRole('link', { name: 'Draft trace' })).toHaveAttribute('href', '/admin/agents/runs/draft-run')
+    expect(screen.getByRole('link', { name: 'Approval trace' })).toHaveAttribute('href', '/admin/agents/runs/approval-run')
+    expect(screen.getByRole('link', { name: 'Latest room trace' })).toHaveAttribute('href', '/admin/agents/runs/room-run')
     expect(screen.getByText('Goal Kanban preview')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /Start standup/i }))
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/admin/agents/war-room', expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ command: 'standup', goal_id: 'goal-1' }),
+      }))
+    })
 
     fireEvent.click(screen.getByRole('button', { name: 'Clear focus' }))
 

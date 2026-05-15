@@ -524,9 +524,17 @@ function SelectedGoalPanel({ goal, tasks }: { goal: AgentOrgBoardSnapshot['summa
                 {goal.completed}/{goal.total} complete · {goal.open} open · {goal.blocked} blocked
               </p>
             </div>
-            <Link href={`/admin/agents/standup?goal=${encodeURIComponent(goal.id)}`} className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15">
+            <Link href={goal.sessionHref} className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15">
               Open goal session
             </Link>
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2 text-xs">
+            {goal.draftTraceHref && <AuditLink href={goal.draftTraceHref} label="Draft trace" />}
+            {goal.approvalTraceHref && <AuditLink href={goal.approvalTraceHref} label="Approval trace" />}
+            {goal.latestTraceHref && <AuditLink href={goal.latestTraceHref} label="Latest room trace" />}
+            {!goal.draftTraceHref && !goal.approvalTraceHref && !goal.latestTraceHref ? (
+              <span className="rounded-full border border-silicon-slate/60 px-2 py-1 text-muted-foreground">Audit traces pending</span>
+            ) : null}
           </div>
           <div className="mt-4 h-3 overflow-hidden rounded-full bg-silicon-slate/70">
             <div className="h-full bg-radiant-gold" style={{ width: `${goal.progress}%` }} />
@@ -577,6 +585,14 @@ function SelectedGoalPanel({ goal, tasks }: { goal: AgentOrgBoardSnapshot['summa
         </div>
       </div>
     </section>
+  )
+}
+
+function AuditLink({ href, label }: { href: string; label: string }) {
+  return (
+    <Link href={href} className="rounded-full border border-radiant-gold/35 bg-radiant-gold/10 px-2 py-1 text-radiant-gold hover:bg-radiant-gold/15">
+      {label}
+    </Link>
   )
 }
 

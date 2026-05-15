@@ -127,13 +127,14 @@ describe('POST /api/admin/agents/war-room', () => {
       messages: [],
     })
 
-    const response = await POST(request({ command: 'ask_agent', message: 'What is blocked?', target_agent_key: 'chief-of-staff' }) as never)
+    const response = await POST(request({ command: 'ask_agent', message: 'What is blocked?', target_agent_key: 'chief-of-staff', goal_id: 'goal-1' }) as never)
 
     expect(response.status).toBe(200)
     expect(mocks.runAgentWarRoom).toHaveBeenCalledWith(expect.objectContaining({
       command: 'ask_agent',
       message: 'What is blocked?',
       targetAgentKey: 'chief-of-staff',
+      goalId: 'goal-1',
     }))
   })
 
@@ -198,6 +199,7 @@ describe('POST /api/admin/agents/war-room', () => {
     expect(mocks.runAgentWarRoom).toHaveBeenCalledWith(expect.objectContaining({
       command: 'approve_goal',
       draft,
+      goalId: '',
     }))
   })
 })

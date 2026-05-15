@@ -31,6 +31,7 @@ export interface AgentGoalDraft {
   objective: string
   recommendation: string
   risk_notes: string
+  draft_run_id?: string | null
   tasks: AgentGoalDraftTask[]
 }
 
@@ -47,6 +48,7 @@ export interface RunAgentWarRoomInput {
   command: AgentWarRoomCommand
   message?: string | null
   targetAgentKey?: string | null
+  goalId?: string | null
   goal?: string | null
   draft?: AgentGoalDraft | null
   triggerSource: string
@@ -307,7 +309,13 @@ function assertDraft(value: AgentGoalDraft | null | undefined): AgentGoalDraft {
   return value
 }
 
+function goalSessionHref(goalId: string) {
+  return `/admin/agents/standup?goal=${encodeURIComponent(goalId)}`
+}
+
 async function approveGoalDraft(runId: string, draft: AgentGoalDraft) {
+  const draftRunId = draft.draft_run_id ?? null
+  const sessionHref = goalSessionHref(draft.goal_id)
   const parent = await createAgentWorkItem({
     title: `Goal: ${draft.title}`,
     objective: draft.objective,
@@ -322,6 +330,9 @@ async function approveGoalDraft(runId: string, draft: AgentGoalDraft) {
       goal_status: 'approved',
       goal_role: 'parent',
       goal_created_by_run_id: runId,
+      goal_draft_run_id: draftRunId,
+      goal_approved_by_run_id: runId,
+      goal_session_href: sessionHref,
       goal_progress_weight: 0,
       recommendation: draft.recommendation,
     },
@@ -347,6 +358,10 @@ async function approveGoalDraft(runId: string, draft: AgentGoalDraft) {
         goal_status: 'approved',
         goal_role: 'task',
         goal_created_by_run_id: runId,
+        goal_draft_run_id: draftRunId,
+        goal_approved_by_run_id: runId,
+        goal_parent_work_item_id: parent.id,
+        goal_session_href: sessionHref,
         goal_progress_weight: task.goal_progress_weight,
         goal_task_id: task.id,
         goal_dependencies: task.dependencies,
@@ -365,6 +380,7 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
   assertCommand(input.command)
   const message = input.message?.trim().slice(0, 1000) || null
   const goal = input.goal?.trim().slice(0, 1000) || null
+  const contextGoalId = input.goalId?.trim().slice(0, 160) || null
   if ((input.command === 'discuss' || input.command === 'ask_agent') && !message) {
     throw new Error(`Message is required for ${input.command}`)
   }
@@ -386,7 +402,10 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
     draft_goal: 'Agent Standup Room goal draft',
     approve_goal: 'Agent Standup Room goal approval',
   }
-  const draftGoalId = input.command === 'approve_goal' ? input.draft?.goal_id ?? null : null
+  const precomputedGoalDraft = input.command === 'draft_goal' ? draftGoal(goal ?? '') : null
+  const draftGoalId = input.command === 'approve_goal' ? input.draft?.goal_id ?? null : precomputedGoalDraft?.goal_id ?? null
+  const activeGoalId = draftGoalId ?? contextGoalId
+  const draftRunId = input.command === 'approve_goal' ? input.draft?.draft_run_id ?? null : null
   const run = await startAgentRun({
     agentKey: 'chief-of-staff',
     runtime: 'manual',
@@ -405,7 +424,10 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
       message_preview: message,
       target_agent_key: input.targetAgentKey ?? null,
       goal_preview: goal,
-      goal_id: draftGoalId,
+      goal_id: activeGoalId,
+      goal_session_href: activeGoalId ? goalSessionHref(activeGoalId) : null,
+      goal_draft_run_id: draftRunId,
+      goal_approved_by_run_id: input.command === 'approve_goal' ? null : null,
       executes_action: input.command === 'approve_goal',
     },
   })
@@ -438,7 +460,7 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
   let goalDraft: AgentGoalDraft | null = null
   let createdWorkItems: { parent: AgentWorkItem; children: AgentWorkItem[] } | null = null
   if (input.command === 'draft_goal') {
-    goalDraft = draftGoal(goal ?? '')
+    goalDraft = precomputedGoalDraft ? { ...precomputedGoalDraft, draft_run_id: run.id } : null
   }
   if (input.command === 'approve_goal') {
     const draft = assertDraft(input.draft)
@@ -468,6 +490,11 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
     metadata: { updates, goalDraft, createdWorkItems },
   })
 
+  const finalGoalId = goalDraft?.goal_id ?? input.draft?.goal_id ?? contextGoalId
+  const finalGoalSessionHref = finalGoalId ? goalSessionHref(finalGoalId) : null
+  const createdParentId = createdWorkItems?.parent.id ?? null
+  const createdChildIds = createdWorkItems?.children.map((item) => item.id) ?? []
+
   await attachAgentArtifact({
     runId: run.id,
     artifactType: input.command === 'draft_goal' ? 'war_room_goal_draft' : 'war_room_transcript',
@@ -484,6 +511,12 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
       messages,
       goal_draft: goalDraft,
       created_work_items: createdWorkItems,
+      goal_id: finalGoalId,
+      goal_session_href: finalGoalSessionHref,
+      goal_draft_run_id: goalDraft?.draft_run_id ?? input.draft?.draft_run_id ?? null,
+      goal_approved_by_run_id: input.command === 'approve_goal' ? run.id : null,
+      created_parent_work_item_id: createdParentId,
+      created_child_work_item_ids: createdChildIds,
       status_strip: snapshot.status_strip,
       executes_action: input.command === 'approve_goal',
     },
@@ -495,7 +528,14 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
     eventType: `war_room_${input.command}_completed`,
     severity: 'info',
     message: synthesis,
-    metadata: { command: input.command, update_count: updates.length, goal_id: goalDraft?.goal_id ?? input.draft?.goal_id ?? null },
+    metadata: {
+      command: input.command,
+      update_count: updates.length,
+      goal_id: finalGoalId,
+      goal_session_href: finalGoalSessionHref,
+      goal_draft_run_id: goalDraft?.draft_run_id ?? input.draft?.draft_run_id ?? null,
+      goal_approved_by_run_id: input.command === 'approve_goal' ? run.id : null,
+    },
   })
 
   await endAgentRun({
@@ -507,7 +547,12 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
       update_count: updates.length,
       synthesis,
       executes_action: input.command === 'approve_goal',
-      goal_id: goalDraft?.goal_id ?? input.draft?.goal_id ?? null,
+      goal_id: finalGoalId,
+      goal_session_href: finalGoalSessionHref,
+      goal_draft_run_id: goalDraft?.draft_run_id ?? input.draft?.draft_run_id ?? null,
+      goal_approved_by_run_id: input.command === 'approve_goal' ? run.id : null,
+      created_parent_work_item_id: createdParentId,
+      created_child_work_item_ids: createdChildIds,
       created_child_count: createdWorkItems?.children.length ?? 0,
     },
   })
