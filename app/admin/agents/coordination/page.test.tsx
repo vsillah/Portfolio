@@ -281,6 +281,8 @@ describe('AgentCoordinationPage decision queue controller', () => {
     expect(screen.getAllByText('Controller recommendation').length).toBeGreaterThan(0)
     expect(screen.getByText('Approve validation after checking the trace and PR evidence.')).toBeInTheDocument()
     expect(screen.getByText('risk: medium')).toBeInTheDocument()
+    expect(screen.getAllByRole('img', { name: /Illustrated avatar for Shaka/i }).length).toBeGreaterThan(0)
+    expect(screen.getByRole('img', { name: /Illustrated avatar for Moremi/i })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Prioritize ideas before they enter the Kanban board.' })).toBeInTheDocument()
     expect(screen.getAllByText('Build-profile attribution').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Start here because it produces the baseline every later idea needs.').length).toBeGreaterThan(0)

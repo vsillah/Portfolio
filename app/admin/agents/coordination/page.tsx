@@ -17,6 +17,7 @@ import {
   XCircle,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
+import AgentAvatar from '@/components/admin/AgentAvatar'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
 import type { AgentRuntime } from '@/lib/agent-run'
@@ -959,11 +960,14 @@ function WorkItemCard({
     : item.approval_id
       ? 'approval linked'
       : item.priority
+  const ownerAgentKey = item.owner_agent_key || null
 
   return (
     <article className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0">
+        <div className="flex min-w-0 gap-3">
+          {ownerAgentKey ? <AgentAvatar agentKey={ownerAgentKey} size="md" /> : null}
+          <div className="min-w-0">
           <div className="mb-2 flex flex-wrap items-center gap-2">
             <StatusBadge status={item.status} />
             <span className="rounded-full border border-silicon-slate/70 px-2 py-1 text-xs text-muted-foreground">
@@ -999,6 +1003,7 @@ function WorkItemCard({
               {item.validation_summary ? <Callout icon="check" label="Validation" value={item.validation_summary} /> : null}
             </div>
           ) : null}
+          </div>
         </div>
         <div className="flex flex-wrap gap-2 lg:min-w-64 lg:justify-end">
           {item.pr_url ? (

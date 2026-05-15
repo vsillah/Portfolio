@@ -5,6 +5,7 @@ import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { AlertTriangle, ArrowLeft, Bot, CheckCircle2, DollarSign, FileText, Gauge, MessageSquare, RefreshCw, XCircle } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
+import AgentAvatar from '@/components/admin/AgentAvatar'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
 
@@ -190,9 +191,15 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
         ) : data ? (
           <>
             <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
-              <div>
+              <div className="flex min-w-0 gap-3">
+                {asString(data.run.agent_key) ? <AgentAvatar agentKey={asString(data.run.agent_key)} size="lg" /> : null}
+                <div className="min-w-0">
                 <h1 className="text-3xl font-bold mb-1">{String(data.run.title ?? 'Agent run')}</h1>
                 <p className="text-sm text-muted-foreground">{String(data.run.kind ?? 'run')} · {String(data.run.id)}</p>
+                {asString(data.run.agent_key) ? (
+                  <p className="mt-1 text-xs text-muted-foreground">Owner: {String(data.run.agent_key).replace(/-/g, ' ')}</p>
+                ) : null}
+                </div>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <select
@@ -407,7 +414,8 @@ function EvaluationList({
                 {Number.isFinite(score) ? score.toFixed(1) : '-'} {passed ? 'pass' : 'review'}
               </span>
             </div>
-            <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+              <AgentAvatar agentKey={asString(row.agent_key)} size="sm" />
               <span>{String(row.agent_key ?? '-').replace(/-/g, ' ')}</span>
               <span>{String(row.judge_model ?? '-')}</span>
               <span>{formatDate(asString(row.created_at))}</span>

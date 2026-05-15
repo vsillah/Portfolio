@@ -27,6 +27,7 @@ import {
   Users,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
+import AgentAvatar from '@/components/admin/AgentAvatar'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
 
@@ -1889,7 +1890,9 @@ function AgentEngagementRecommendations({
       {recommendations.slice(0, 4).map((agent) => (
         <div key={`${agent.agentKey}-${agent.label}`} className="rounded-lg border border-radiant-gold/20 bg-radiant-gold/5 p-3">
           <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-            <div className="min-w-0">
+            <div className="flex min-w-0 gap-3">
+              <AgentAvatar agentKey={agent.agentKey} size="sm" />
+              <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <p className="font-medium">{agent.agentName}</p>
                 <span className="rounded-full border border-silicon-slate/50 bg-black/10 px-2 py-0.5 text-xs text-muted-foreground">
@@ -1900,6 +1903,7 @@ function AgentEngagementRecommendations({
                 </span>
               </div>
               <p className="mt-1 text-sm text-muted-foreground">{agent.rationale}</p>
+              </div>
             </div>
             <button
               type="button"
@@ -1991,6 +1995,7 @@ function EngagementQueuePanel({ items }: { items: MissionSnapshot['engagement_qu
             className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm hover:border-radiant-gold/50"
           >
             <div className="flex flex-wrap items-center gap-2">
+              <AgentAvatar agentKey={item.agent_key} size="sm" />
               <span className="font-medium">{item.agent_name}</span>
               <span className="rounded-full border border-silicon-slate/50 bg-black/10 px-2 py-0.5 text-xs text-muted-foreground">
                 {item.status.replace(/_/g, ' ')}
@@ -2188,7 +2193,9 @@ function InboxRow({
   return (
     <div className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm">
       <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
+        <div className="flex min-w-0 gap-3">
+          <AgentAvatar agentKey={item.agent_key} size="sm" />
+          <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <PriorityPill priority={item.priority} />
             <span className="text-xs text-muted-foreground">{item.agent_name}</span>
@@ -2196,6 +2203,7 @@ function InboxRow({
           <p className="mt-2 font-medium">{item.title}</p>
           <p className="mt-1 line-clamp-2 text-muted-foreground">{item.reason}</p>
           <p className="mt-2 text-xs text-muted-foreground">{item.pod}</p>
+          </div>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-2">
           <button

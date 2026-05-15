@@ -228,6 +228,7 @@ describe('AgentOperationsPage mission control landing', () => {
     expect(screen.getByRole('heading', { name: 'What should I pay attention to before approving this queue?' })).toBeInTheDocument()
     expect(screen.getByRole('textbox', { name: 'Ask Shaka' })).toBeInTheDocument()
     expect(screen.getByLabelText('Ask Shaka quick prompts')).toBeInTheDocument()
+    expect(screen.getAllByRole('img', { name: /Illustrated avatar for Shaka/i }).length).toBeGreaterThan(0)
     expect(screen.queryByText('Active work')).not.toBeInTheDocument()
     expect(screen.getByText('Agent interaction')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Expand chat/i })).toHaveAttribute('href', '/admin/agents/chief-of-staff')

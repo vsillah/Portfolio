@@ -20,6 +20,7 @@ const runDetail = {
     id: 'run-1',
     title: 'Approval notification trace',
     kind: 'chief_of_staff_chat',
+    agent_key: 'chief-of-staff',
     runtime: 'codex',
     status: 'waiting_for_approval',
   },
@@ -138,6 +139,7 @@ describe('AgentRunDetailPage scoped Shaka context', () => {
     render(<AgentRunDetailPage params={{ runId: 'run-1' }} />)
 
     expect(await screen.findByRole('heading', { name: 'Approval notification trace' })).toBeInTheDocument()
+    expect(screen.getAllByRole('img', { name: /Illustrated avatar for Shaka/i }).length).toBeGreaterThan(0)
     fireEvent.click(screen.getByRole('button', { name: 'Ask Shaka about this run' }))
 
     expect(await screen.findByText('Shaka context answer')).toBeInTheDocument()
