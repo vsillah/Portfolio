@@ -105,6 +105,14 @@ const organization = {
         },
       }],
     },
+    {
+      key: 'engineering-copilot',
+      label: 'Piye',
+      agentKey: 'engineering-copilot',
+      agentName: 'Piye (Kush) - Engineering Copilot',
+      status: 'idle',
+      tasks: [],
+    },
   ],
   activity: [],
   warRoom: {
@@ -215,6 +223,8 @@ describe('AgentStandupRoomPage', () => {
     expect(screen.getByRole('heading', { name: 'Swarm chat' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Goal planner' })).toBeInTheDocument()
     expect(screen.getByText('Kanban preview')).toBeInTheDocument()
+    expect(screen.getByText('Fixed lane order · 1 active lane(s). Empty lanes collapse so the board stays scannable.')).toBeInTheDocument()
+    expect(screen.getAllByText('Piye').length).toBeGreaterThan(0)
     expect(screen.getByText('Info radiators')).toBeInTheDocument()
     expect(screen.getAllByText('Improve standup transparency').length).toBeGreaterThan(0)
   })
@@ -230,6 +240,8 @@ describe('AgentStandupRoomPage', () => {
       }))
     })
     expect(await screen.findByRole('link', { name: /Open trace/i })).toHaveAttribute('href', '/admin/agents/runs/room-run')
+    expect(screen.getByText('Question tracker')).toBeInTheDocument()
+    expect(screen.getByText('1/1 answered')).toBeInTheDocument()
 
     fireEvent.change(screen.getByPlaceholderText(/Ask about blockers/i), { target: { value: '@Shaka what is blocked?' } })
     fireEvent.click(screen.getByRole('button', { name: /Ask agent/i }))
@@ -238,6 +250,20 @@ describe('AgentStandupRoomPage', () => {
       expect(fetch).toHaveBeenCalledWith('/api/admin/agents/war-room', expect.objectContaining({
         method: 'POST',
         body: JSON.stringify({ command: 'ask_agent', message: '@Shaka what is blocked?', target_agent_key: 'chief-of-staff' }),
+      }))
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: /Piye/i }))
+    expect(screen.getByText(/Target: Piye/i)).toBeInTheDocument()
+    expect(screen.getByPlaceholderText(/Ask about blockers/i)).toHaveValue('@Piye ')
+
+    fireEvent.change(screen.getByPlaceholderText(/Ask about blockers/i), { target: { value: 'What changed since last standup?' } })
+    fireEvent.click(screen.getByRole('button', { name: /Ask all/i }))
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/admin/agents/war-room', expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ command: 'discuss', message: 'What changed since last standup?' }),
       }))
     })
 
