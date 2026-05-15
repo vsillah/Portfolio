@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
+import type { ReactNode } from 'react'
 import {
   AlertTriangle,
   ArrowRight,
@@ -121,6 +122,24 @@ function definitionOfReadyText(item: AgentWorkItem) {
   return source.map((criterion) => `- ${criterion}`).join('\n')
 }
 
+const PRIORITY_RANK: Record<AgentWorkItem['priority'], number> = { urgent: 0, high: 1, medium: 2, low: 3 }
+const STATUS_RANK: Record<AgentWorkItemStatus, number> = {
+  blocked: 0,
+  ready_for_review: 1,
+  ready_for_merge: 2,
+  proposed: 3,
+  queued: 4,
+  assigned: 5,
+  in_progress: 6,
+  merged: 7,
+  deployed: 8,
+  cancelled: 9,
+}
+
+function isTerminalWorkItem(item: AgentWorkItem) {
+  return item.status === 'merged' || item.status === 'deployed' || item.status === 'cancelled'
+}
+
 export default function AgentCoordinationPage() {
   return (
     <ProtectedRoute requireAdmin>
@@ -197,10 +216,22 @@ function AgentCoordinationContent() {
   }), [items])
 
   const autoResearchIdeas = useMemo(() => {
-    const rank: Record<AgentWorkItem['priority'], number> = { urgent: 0, high: 1, medium: 2, low: 3 }
     return items
       .filter(isAutoResearchIdea)
-      .sort((a, b) => rank[a.priority] - rank[b.priority] || new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+      .sort((a, b) => PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority] || new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+  }, [items])
+
+  const controllerQueueItems = useMemo(() => {
+    return items
+      .filter((item) => !isTerminalWorkItem(item))
+      .sort((a, b) => {
+        const statusDelta = STATUS_RANK[a.status] - STATUS_RANK[b.status]
+        if (statusDelta !== 0) return statusDelta
+        const priorityDelta = PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority]
+        if (priorityDelta !== 0) return priorityDelta
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      })
+      .slice(0, 3)
   }, [items])
 
   async function refreshAll() {
@@ -437,6 +468,17 @@ function AgentCoordinationContent() {
           <Metric label="Approval-linked" value={summary.approvals} tone={summary.approvals ? 'green' : 'slate'} />
         </div>
 
+        <ControllerDecisionQueuePanel
+          items={controllerQueueItems}
+          totalOpen={summary.active}
+          actionId={actionId}
+          onAction={quickAction}
+          onAskShaka={(workItem) => askShaka(
+            'What action is required on this Decision Queue item? Summarize the action required, problem or opportunity, recommendation, risk, owner, evidence, and safest next approval-gated step.',
+            { type: 'work_item', id: workItem.id },
+          )}
+        />
+
         <VercelResearchApprovalPanel
           approvals={vercelResearchApprovals}
           actionId={actionId}
@@ -475,8 +517,8 @@ function AgentCoordinationContent() {
         <section className="agent-ops-card mb-6 rounded-lg border p-4">
           <div className="mb-4 flex flex-col gap-3">
             <div>
-              <h2 className="text-base font-semibold">Secondary queue tools</h2>
-              <p className="mt-1 text-sm text-muted-foreground">Filter or create controller work items after reviewing action-required cards above.</p>
+              <h2 className="text-base font-semibold">Queue tools and intake</h2>
+              <p className="mt-1 text-sm text-muted-foreground">Use filters and creation after the decision cards above. This section is for queue administration, not the first decision path.</p>
             </div>
             <div className="flex flex-wrap gap-2" aria-label="Status filters">
             {STATUSES.map((item) => (
@@ -568,6 +610,10 @@ function AgentCoordinationContent() {
           <div className="py-16 text-center text-muted-foreground">Loading coordination work...</div>
         ) : items.length ? (
           <div className="space-y-3">
+            <div>
+              <h2 className="text-base font-semibold">Full work-item archive</h2>
+              <p className="mt-1 text-sm text-muted-foreground">All matching controller items, including lower-priority and non-actionable records.</p>
+            </div>
             {items.map((item) => (
               <WorkItemCard
                 key={item.id}
@@ -637,6 +683,120 @@ function MoremiOperationalDrillPanel({
           </div>
         </div>
       ) : null}
+    </section>
+  )
+}
+
+function ControllerDecisionQueuePanel({
+  items,
+  totalOpen,
+  actionId,
+  onAction,
+  onAskShaka,
+}: {
+  items: AgentWorkItem[]
+  totalOpen: number
+  actionId: string | null
+  onAction: (item: AgentWorkItem, action: 'block' | 'validation' | 'handoff') => void
+  onAskShaka: (item: AgentWorkItem) => void
+}) {
+  return (
+    <section className="agent-ops-card mb-6 rounded-lg border border-radiant-gold/30 p-4">
+      <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Decision queue</p>
+          <h2 className="mt-1 text-xl font-semibold">Top controller decisions</h2>
+          <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
+            Showing the next three non-terminal items by urgency. Each card states the action required, recommendation, risk, owner, evidence, and the safest control.
+          </p>
+        </div>
+        <div className="rounded-full border border-silicon-slate/70 bg-background/40 px-3 py-1 text-xs text-muted-foreground">
+          Showing {items.length} of {totalOpen} open item(s)
+        </div>
+      </div>
+
+      {items.length === 0 ? (
+        <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-4 text-sm text-green-100">
+          No controller decision is waiting. Continue monitoring Mission Control and Agent Kanban.
+        </div>
+      ) : (
+        <div className="grid gap-3">
+          {items.map((item) => {
+            const model = decisionQueueModel(item)
+            return (
+              <article key={item.id} className={`rounded-lg border p-4 ${model.toneClass}`}>
+                <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                  <div className="min-w-0">
+                    <div className="mb-2 flex flex-wrap items-center gap-2">
+                      <StatusBadge status={item.status} />
+                      <span className="rounded-full border border-radiant-gold/30 bg-radiant-gold/10 px-2 py-1 text-xs text-radiant-gold">
+                        {item.priority} priority
+                      </span>
+                      {item.approval_id ? (
+                        <span className="rounded-full border border-green-500/30 bg-green-500/10 px-2 py-1 text-xs text-green-100">
+                          approval linked
+                        </span>
+                      ) : null}
+                    </div>
+                    <h3 className="text-lg font-semibold">{item.title}</h3>
+                    <p className="mt-1 max-w-4xl text-sm text-muted-foreground">{item.objective}</p>
+                    <div className="mt-3 grid gap-3 lg:grid-cols-2">
+                      <DecisionSummaryBlock label="Action required" value={model.actionRequired} tone={model.tone} />
+                      <DecisionSummaryBlock label="Recommendation" value={model.recommendation} tone="yellow" />
+                      <DecisionSummaryBlock label="Risk and status" value={model.riskStatus} />
+                      <DecisionSummaryBlock label="Evidence home" value={model.evidenceHome} />
+                    </div>
+                    <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2 xl:grid-cols-4">
+                      <SmallField label="Owner" value={item.owner_agent_key ?? item.owner_runtime} />
+                      <SmallField label="Source" value={item.source_label ?? item.source_type} />
+                      <SmallField label="Updated" value={new Date(item.updated_at).toLocaleString()} />
+                      <SmallField label="Worktree" value={item.worktree_path} />
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 flex-wrap gap-2 xl:w-72 xl:justify-end">
+                    {item.active_run_id ? (
+                      <Link
+                        href={`/admin/agents/runs/${item.active_run_id}`}
+                        className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 px-3 py-2 text-sm hover:border-radiant-gold/60"
+                      >
+                        Open trace
+                        <ArrowRight size={16} />
+                      </Link>
+                    ) : null}
+                    {item.pr_url ? (
+                      <Link
+                        href={item.pr_url}
+                        className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 px-3 py-2 text-sm hover:border-radiant-gold/60"
+                      >
+                        <GitPullRequest size={16} />
+                        PR {item.pr_number ?? ''}
+                      </Link>
+                    ) : null}
+                    <button
+                      onClick={() => onAskShaka(item)}
+                      disabled={Boolean(actionId)}
+                      aria-label={`Ask Shaka about top decision ${item.title}`}
+                      className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-50"
+                    >
+                      <MessageSquare size={16} />
+                      Ask Shaka
+                    </button>
+                    <button
+                      onClick={() => onAction(item, model.primaryAction)}
+                      disabled={Boolean(actionId)}
+                      aria-label={`${model.primaryLabel} ${item.title}`}
+                      className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm shadow-sm disabled:opacity-50 ${model.primaryClass}`}
+                    >
+                      {model.primaryIcon}
+                      {model.primaryLabel}
+                    </button>
+                  </div>
+                </div>
+              </article>
+            )
+          })}
+        </div>
+      )}
     </section>
   )
 }
@@ -1064,6 +1224,89 @@ function WorkItemCard({
       </div>
     </article>
   )
+}
+
+function decisionQueueModel(item: AgentWorkItem): {
+  actionRequired: string
+  recommendation: string
+  riskStatus: string
+  evidenceHome: string
+  tone: 'slate' | 'red' | 'yellow' | 'green'
+  toneClass: string
+  primaryAction: 'block' | 'validation' | 'handoff'
+  primaryLabel: string
+  primaryClass: string
+  primaryIcon: ReactNode
+} {
+  const metadataRecommendation = typeof item.metadata?.recommendation === 'string' ? item.metadata.recommendation : null
+  const metadataRisk = typeof item.metadata?.risk === 'string' ? item.metadata.risk : null
+  const evidenceHome = item.active_run_id
+    ? `Trace ${item.active_run_id} owns the evidence.`
+    : item.pr_url
+      ? `PR ${item.pr_number ?? ''} owns the implementation evidence.`
+      : item.validation_summary
+        ? 'Validation summary is the current evidence source.'
+        : 'No trace or PR evidence is attached yet.'
+
+  if (item.status === 'blocked') {
+    return {
+      actionRequired: 'Resolve the blocker or hand the item to the Integration Captain with a clear owner decision.',
+      recommendation: item.blocker_summary || metadataRecommendation || 'Clarify ownership before any execution continues.',
+      riskStatus: `${metadataRisk ?? item.priority} risk; blocked items should not move forward without a controller decision.`,
+      evidenceHome,
+      tone: 'red',
+      toneClass: 'border-red-500/35 bg-red-500/10',
+      primaryAction: 'handoff',
+      primaryLabel: 'Handoff',
+      primaryClass: 'border-radiant-gold/50 bg-radiant-gold/10 text-radiant-gold hover:bg-radiant-gold/15',
+      primaryIcon: <Network size={16} />,
+    }
+  }
+
+  if (item.status === 'ready_for_review' || item.status === 'ready_for_merge') {
+    return {
+      actionRequired: item.status === 'ready_for_merge'
+        ? 'Confirm the validation packet and route the merge decision through the Integration Captain.'
+        : 'Review the validation packet, recommendation, and trace evidence before marking this ready.',
+      recommendation: metadataRecommendation || item.validation_summary || 'Validate the evidence, then approve the next gated handoff only if the risk is acceptable.',
+      riskStatus: `${metadataRisk ?? item.priority} risk; approval gates remain active until the controller decision is complete.`,
+      evidenceHome,
+      tone: 'yellow',
+      toneClass: 'border-yellow-500/35 bg-yellow-500/10',
+      primaryAction: 'validation',
+      primaryLabel: 'Validate',
+      primaryClass: 'border-yellow-500/45 bg-yellow-500/10 text-yellow-100 hover:bg-yellow-500/15',
+      primaryIcon: <CheckCircle2 size={16} />,
+    }
+  }
+
+  if (item.status === 'proposed' || item.status === 'queued') {
+    return {
+      actionRequired: 'Decide whether this belongs in active Kanban work, needs more evidence, or should stay parked.',
+      recommendation: metadataRecommendation || 'Check owner, acceptance criteria, and expected files before routing this into execution.',
+      riskStatus: `${metadataRisk ?? item.priority} risk; proposed and queued work should be shaped before agents pick it up.`,
+      evidenceHome,
+      tone: 'slate',
+      toneClass: 'border-silicon-slate/70 bg-silicon-slate/20',
+      primaryAction: 'handoff',
+      primaryLabel: 'Handoff',
+      primaryClass: 'border-radiant-gold/50 bg-radiant-gold/10 text-radiant-gold hover:bg-radiant-gold/15',
+      primaryIcon: <Network size={16} />,
+    }
+  }
+
+  return {
+    actionRequired: 'Monitor progress and intervene only if the trace, blocker, or owner signal changes.',
+    recommendation: metadataRecommendation || item.validation_summary || 'Keep this moving in Kanban unless a blocker or approval gate appears.',
+    riskStatus: `${metadataRisk ?? item.priority} risk; current status is ${item.status.replace(/_/g, ' ')}.`,
+    evidenceHome,
+    tone: 'green',
+    toneClass: 'border-green-500/30 bg-green-500/10',
+    primaryAction: 'block',
+    primaryLabel: 'Block',
+    primaryClass: 'border-red-500/45 bg-red-500/10 text-red-100 hover:bg-red-500/15',
+    primaryIcon: <AlertTriangle size={16} />,
+  }
 }
 
 function Metric({ label, value, tone = 'slate' }: { label: string; value: number; tone?: 'slate' | 'red' | 'yellow' | 'green' }) {
