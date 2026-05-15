@@ -384,6 +384,12 @@ function AgentAutomationsContent() {
               <MetricCard label="Missing context" value={inventory.overview.missingContext} tone={inventory.overview.missingContext ? 'yellow' : 'slate'} />
             </div>
 
+            <AutomationControlPanel
+              inventory={inventory}
+              tracker={actionTracker}
+              onViewModeChange={setViewMode}
+            />
+
             <WarningPanels
               hiddenCount={inventory.hiddenCount}
               duplicateWarnings={duplicateWarnings}
@@ -477,6 +483,124 @@ function AgentAutomationsContent() {
         ) : null}
       </div>
     </div>
+  )
+}
+
+function AutomationControlPanel({
+  inventory,
+  tracker,
+  onViewModeChange,
+}: {
+  inventory: AutomationInventoryResponse
+  tracker: AutomationActionTrackerResponse | null
+  onViewModeChange: (mode: ViewMode) => void
+}) {
+  const activeActions = (tracker?.summary.open ?? 0) + (tracker?.summary.inProgress ?? 0) + (tracker?.summary.blocked ?? 0)
+  const driftCount = inventory.workspaceRoots.available
+    ? inventory.workspaceRoots.overview.nonPortfolioThreads
+      + inventory.workspaceRoots.overview.savedRootDrift
+      + inventory.workspaceRoots.overview.activeRootDrift
+      + inventory.workspaceRoots.overview.projectOrderDrift
+    : 1
+  const primary = activeActions
+    ? {
+        label: 'Automation actions need review',
+        detail: `${activeActions} open, active, or blocked action(s) are waiting in the tracker.`,
+        action: 'Open action tracker',
+        mode: 'actions' as ViewMode,
+        tone: 'border-radiant-gold/40 bg-radiant-gold/10',
+      }
+    : inventory.overview.missingContext
+      ? {
+          label: 'Context gaps need routing',
+          detail: `${inventory.overview.missingContext} automation(s) are missing operating context before agents can safely act.`,
+          action: 'Review context gaps',
+          mode: 'context-gaps' as ViewMode,
+          tone: 'border-yellow-400/35 bg-yellow-500/10',
+        }
+      : inventory.repairPackets.length
+        ? {
+            label: 'Repair packets are available',
+            detail: `${inventory.repairPackets.length} packet(s) explain duplicate, governance, or missing-doc follow-up.`,
+            action: 'Open repair packets',
+            mode: 'repair-packets' as ViewMode,
+            tone: 'border-yellow-400/35 bg-yellow-500/10',
+          }
+        : {
+            label: 'Automation context is clear',
+            detail: 'No tracked automation action is currently waiting for operator review.',
+            action: 'Inspect inventory',
+            mode: 'inventory' as ViewMode,
+            tone: 'border-green-400/30 bg-green-500/10',
+          }
+
+  const cards = [
+    {
+      label: 'Action tracker',
+      value: String(activeActions),
+      detail: tracker ? `${tracker.summary.blocked} blocked, ${tracker.summary.inProgress} in progress` : 'Tracker unavailable',
+      action: 'Open actions',
+      mode: 'actions' as ViewMode,
+    },
+    {
+      label: 'Context gaps',
+      value: String(inventory.overview.missingContext),
+      detail: 'Missing purpose, boundary, inputs, or expected-output answers.',
+      action: 'Review gaps',
+      mode: 'context-gaps' as ViewMode,
+    },
+    {
+      label: 'Repair packets',
+      value: String(inventory.repairPackets.length),
+      detail: 'Read-only packets for duplicate, doc, authority, and context repair.',
+      action: 'Open packets',
+      mode: 'repair-packets' as ViewMode,
+    },
+    {
+      label: 'Workspace drift',
+      value: String(driftCount),
+      detail: inventory.workspaceRoots.available ? 'Codex root alignment signals.' : 'Workspace-root visibility unavailable.',
+      action: 'Inspect inventory',
+      mode: 'inventory' as ViewMode,
+    },
+  ]
+
+  return (
+    <section className={`mb-6 rounded-lg border p-5 ${primary.tone}`} aria-label="Automation next actions">
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.4fr)]">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Next automation action</p>
+          <h2 className="mt-2 text-xl font-semibold">{primary.label}</h2>
+          <p className="mt-2 text-sm text-muted-foreground">{primary.detail}</p>
+          <button
+            type="button"
+            onClick={() => onViewModeChange(primary.mode)}
+            className="mt-4 inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15"
+          >
+            {primary.action}
+            <ArrowRight size={15} />
+          </button>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {cards.map((card) => (
+            <button
+              key={card.label}
+              type="button"
+              onClick={() => onViewModeChange(card.mode)}
+              className="rounded-lg border border-silicon-slate/70 bg-background/55 p-3 text-left transition hover:border-radiant-gold/45"
+            >
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{card.label}</p>
+              <p className="mt-2 text-2xl font-bold tabular-nums">{card.value}</p>
+              <p className="mt-1 min-h-[42px] text-xs text-muted-foreground">{card.detail}</p>
+              <span className="mt-3 inline-flex items-center gap-1 text-xs text-radiant-gold">
+                {card.action}
+                <ArrowRight size={12} />
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
   )
 }
 

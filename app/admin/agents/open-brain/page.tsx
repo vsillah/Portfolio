@@ -171,6 +171,13 @@ function OpenBrainContent() {
               <MetricCard label="Producer gates" value={snapshot.overview.enabledProducerGates} tone={snapshot.overview.enabledProducerGates ? 'green' : 'yellow'} />
             </div>
 
+            <OpenBrainControlPanel
+              snapshot={snapshot}
+              pendingProposals={pendingProposals.length}
+              onViewModeChange={setViewMode}
+              onCompileWiki={compileWiki}
+            />
+
             <section className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
               <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
@@ -238,6 +245,127 @@ function OpenBrainContent() {
         ) : null}
       </div>
     </div>
+  )
+}
+
+function OpenBrainControlPanel({
+  snapshot,
+  pendingProposals,
+  onViewModeChange,
+  onCompileWiki,
+}: {
+  snapshot: OpenBrainSnapshot
+  pendingProposals: number
+  onViewModeChange: (mode: ViewMode) => void
+  onCompileWiki: () => void
+}) {
+  const blockedProducerGates = snapshot.producerGates.filter((gate) => gate.status === 'blocked').length
+  const parityIssues = snapshot.runtimeParity.filter((runtime) => runtime.status !== 'connected').length
+  const primary = pendingProposals
+    ? {
+        label: 'Memory proposals need review',
+        detail: `${pendingProposals} proposal(s) are waiting for approve or reject before becoming durable Open Brain memory.`,
+        action: 'Review proposals',
+        mode: 'proposals' as ViewMode,
+        tone: 'border-radiant-gold/40 bg-radiant-gold/10',
+      }
+    : snapshot.overview.staleSources
+      ? {
+          label: 'Source freshness needs review',
+          detail: `${snapshot.overview.staleSources} source(s) are stale and should be inspected before RAG or wiki promotion.`,
+          action: 'Inspect sources',
+          mode: 'sources' as ViewMode,
+          tone: 'border-yellow-400/35 bg-yellow-500/10',
+        }
+      : blockedProducerGates
+        ? {
+            label: 'Producer gates are blocked',
+            detail: `${blockedProducerGates} producer gate(s) need context or configuration before emitting records.`,
+            action: 'Review producers',
+            mode: 'producers' as ViewMode,
+            tone: 'border-yellow-400/35 bg-yellow-500/10',
+          }
+        : {
+            label: 'Open Brain projection is ready',
+            detail: 'No pending proposal is waiting. Router, source, parity, and producer views remain available for audit.',
+            action: 'Inspect router',
+            mode: 'router' as ViewMode,
+            tone: 'border-green-400/30 bg-green-500/10',
+          }
+
+  const cards = [
+    {
+      label: 'Pending proposals',
+      value: String(pendingProposals),
+      detail: 'Approve or reject proposed durable memories.',
+      action: 'Review',
+      onClick: () => onViewModeChange('proposals'),
+    },
+    {
+      label: 'Stale sources',
+      value: String(snapshot.overview.staleSources),
+      detail: 'Inspect source freshness before RAG/wiki use.',
+      action: 'Inspect',
+      onClick: () => onViewModeChange('sources'),
+    },
+    {
+      label: 'Producer gates',
+      value: String(blockedProducerGates),
+      detail: 'Blocked producers cannot safely emit records.',
+      action: 'Open',
+      onClick: () => onViewModeChange('producers'),
+    },
+    {
+      label: 'Runtime parity',
+      value: String(parityIssues),
+      detail: 'Confirm Codex, Hermes, and bridge registration.',
+      action: 'Check',
+      onClick: () => onViewModeChange('parity'),
+    },
+  ]
+
+  return (
+    <section className={`mb-6 rounded-lg border p-5 ${primary.tone}`} aria-label="Open Brain next actions">
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.4fr)]">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Next Open Brain action</p>
+          <h2 className="mt-2 text-xl font-semibold">{primary.label}</h2>
+          <p className="mt-2 text-sm text-muted-foreground">{primary.detail}</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => onViewModeChange(primary.mode)}
+              className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15"
+            >
+              {primary.action}
+            </button>
+            <button
+              type="button"
+              onClick={onCompileWiki}
+              className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/55 px-3 py-2 text-sm hover:border-radiant-gold/45"
+            >
+              <FileText size={15} />
+              Compile wiki preview
+            </button>
+          </div>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {cards.map((card) => (
+            <button
+              key={card.label}
+              type="button"
+              onClick={card.onClick}
+              className="rounded-lg border border-silicon-slate/70 bg-background/55 p-3 text-left transition hover:border-radiant-gold/45"
+            >
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{card.label}</p>
+              <p className="mt-2 text-2xl font-bold tabular-nums">{card.value}</p>
+              <p className="mt-1 min-h-[42px] text-xs text-muted-foreground">{card.detail}</p>
+              <span className="mt-3 inline-flex text-xs text-radiant-gold">{card.action}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
   )
 }
 
