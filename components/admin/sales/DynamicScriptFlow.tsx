@@ -36,6 +36,7 @@ interface DynamicScriptFlowProps {
   aiRecommendations: AIRecommendation[];
   isLoadingRecommendations: boolean;
   isLoadingNextStep: boolean;
+  generationError?: string | null;
   isCallActive: boolean;
   onStartCall: () => void;
   onRefreshRecommendations: () => void;
@@ -50,6 +51,7 @@ export function DynamicScriptFlow({
   aiRecommendations,
   isLoadingRecommendations,
   isLoadingNextStep,
+  generationError,
   isCallActive,
   onStartCall,
   onRefreshRecommendations,
@@ -72,12 +74,18 @@ export function DynamicScriptFlow({
           Click below to generate your personalized opening based on the client&apos;s diagnostic data.
           The script will adapt to their responses throughout the conversation.
         </p>
+        {generationError && (
+          <div className="max-w-md mx-auto mb-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+            {generationError}
+          </div>
+        )}
         <button
           onClick={onStartCall}
-          className="px-6 py-3 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors flex items-center gap-2 mx-auto"
+          disabled={isLoadingNextStep}
+          className="px-6 py-3 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors flex items-center gap-2 mx-auto disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <Play className="w-5 h-5" />
-          Start Dynamic Script
+          {isLoadingNextStep ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5" />}
+          {generationError ? 'Retry Dynamic Script' : 'Start Dynamic Script'}
         </button>
       </div>
     );
@@ -90,6 +98,27 @@ export function DynamicScriptFlow({
         <RefreshCw className="w-10 h-10 text-purple-400 animate-spin mx-auto mb-4" />
         <h3 className="text-lg font-medium text-white mb-2">Generating Your Opening...</h3>
         <p className="text-gray-400">Analyzing diagnostic data to create personalized talking points</p>
+      </div>
+    );
+  }
+
+  if (isCallActive && steps.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <div className="w-20 h-20 mx-auto mb-4 bg-red-500/20 rounded-full flex items-center justify-center">
+          <RefreshCw className="w-10 h-10 text-red-300" />
+        </div>
+        <h3 className="text-lg font-medium text-white mb-2">Script could not start</h3>
+        <p className="text-gray-400 mb-4 max-w-md mx-auto">
+          {generationError || 'The opening step did not return. Retry after refreshing the admin session.'}
+        </p>
+        <button
+          onClick={onStartCall}
+          disabled={isLoadingNextStep}
+          className="px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Retry
+        </button>
       </div>
     );
   }

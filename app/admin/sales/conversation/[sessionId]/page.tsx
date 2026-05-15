@@ -182,6 +182,7 @@ export default function ConversationPage() {
   const [accumulatedProducts, setAccumulatedProducts] = useState<Array<{ id: number; name: string; reason: string }>>([]);
   const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
   const [isLoadingNextStep, setIsLoadingNextStep] = useState(false);
+  const [scriptGenerationError, setScriptGenerationError] = useState<string | null>(null);
 
   /* ---- in-person diagnostic ---- */
   const [auditData, setAuditData] = useState<Record<string, unknown> | null>(null);
@@ -688,11 +689,16 @@ export default function ConversationPage() {
     stepType: StepType, previousSteps: DynamicStep[],
     lastResponse?: ResponseType, chosenStrategy?: OfferStrategy,
   ): Promise<DynamicStep | null> => {
-    if (!authSession?.access_token) return null;
+    const currentSession = await getCurrentSession();
+    const accessToken = currentSession?.access_token ?? authSession?.access_token;
+    if (!accessToken) {
+      setScriptGenerationError('Your admin session is not available. Refresh the page and sign in again.');
+      return null;
+    }
     try {
       const res = await fetch('/api/admin/sales/generate-step', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authSession.access_token}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
         body: JSON.stringify({
           stepType, audit: auditData || null,
           clientName: contact?.name, clientCompany: contact?.company,
@@ -702,18 +708,34 @@ export default function ConversationPage() {
           contactSubmissionId: contact?.id ? parseInt(contact.id, 10) : null,
         }),
       });
-      if (res.ok) { const d = await res.json(); return d.step; }
-    } catch (err) { console.error('Failed to generate step:', err); }
+      if (res.ok) {
+        const d = await res.json();
+        setScriptGenerationError(null);
+        return d.step;
+      }
+      const errorBody = await res.json().catch(() => null);
+      setScriptGenerationError(errorBody?.error || `Script generation failed with status ${res.status}.`);
+    } catch (err) {
+      console.error('Failed to generate step:', err);
+      setScriptGenerationError('Script generation failed before Portfolio received a response.');
+    }
     return null;
   };
 
   const startCall = async () => {
     setIsLoadingNextStep(true);
-    setConversationState(prev => ({ ...prev, isCallActive: true }));
+    setScriptGenerationError(null);
     const openingStep = await generateStep('opening', []);
     if (openingStep) {
       openingStep.status = 'active';
-      setConversationState(prev => ({ ...prev, dynamicSteps: [openingStep], currentStep: 0 }));
+      setConversationState(prev => ({
+        ...prev,
+        isCallActive: true,
+        dynamicSteps: [openingStep],
+        currentStep: 0,
+      }));
+    } else {
+      setConversationState(prev => ({ ...prev, isCallActive: false, dynamicSteps: [], currentStep: 0 }));
     }
     setIsLoadingNextStep(false);
   };
@@ -782,6 +804,8 @@ export default function ConversationPage() {
     if (newStep) {
       newStep.status = 'active';
       setConversationState(prev => ({ ...prev, dynamicSteps: [...updatedSteps, newStep], currentStep: updatedSteps.length, offersPresented: newOffers }));
+    } else {
+      setConversationState(prev => ({ ...prev, dynamicSteps: updatedSteps, offersPresented: newOffers }));
     }
     setIsLoadingNextStep(false);
   };
@@ -1013,6 +1037,7 @@ export default function ConversationPage() {
                 aiRecommendations={aiRecommendations}
                 isLoadingRecommendations={isLoadingRecommendations}
                 isLoadingNextStep={isLoadingNextStep}
+                generationError={scriptGenerationError}
                 isCallActive={conversationState.isCallActive}
                 onStartCall={startCall}
                 onRefreshRecommendations={refreshRecommendations}
