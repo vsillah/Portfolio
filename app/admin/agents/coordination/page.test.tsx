@@ -276,10 +276,14 @@ describe('AgentCoordinationPage decision queue controller', () => {
 
     expect(await screen.findByRole('heading', { name: 'Decision Queue Controller' })).toBeInTheDocument()
     expect(screen.getByText('Start with the decision, then inspect the trace.')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Top controller decisions' })).toBeInTheDocument()
+    expect(screen.getByText('Showing 3 of 3 open item(s)')).toBeInTheDocument()
     expect(screen.getAllByText('Action required').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Executive summary').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Recommendation').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Evidence home').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Controller recommendation').length).toBeGreaterThan(0)
-    expect(screen.getByText('Approve validation after checking the trace and PR evidence.')).toBeInTheDocument()
+    expect(screen.getAllByText('Approve validation after checking the trace and PR evidence.').length).toBeGreaterThan(0)
     expect(screen.getByText('risk: medium')).toBeInTheDocument()
     expect(screen.getAllByRole('img', { name: /Illustrated avatar for Shaka/i }).length).toBeGreaterThan(0)
     expect(screen.getByRole('img', { name: /Illustrated avatar for Moremi/i })).toBeInTheDocument()
@@ -288,6 +292,22 @@ describe('AgentCoordinationPage decision queue controller', () => {
     expect(screen.getAllByText('Start here because it produces the baseline every later idea needs.').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Trace').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Owner').length).toBeGreaterThan(0)
+  })
+
+  it('runs top controller decision actions with scoped Shaka context', async () => {
+    render(<AgentCoordinationPage />)
+
+    expect(await screen.findByRole('heading', { name: 'Top controller decisions' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Ask Shaka about top decision Unblock Moremi drill handoff' }))
+
+    expect(await screen.findByText('Shaka context answer')).toBeInTheDocument()
+    expect(fetch).toHaveBeenCalledWith('/api/admin/agents/chief-of-staff/chat', expect.objectContaining({
+      method: 'POST',
+      body: expect.stringContaining('"context_ref":{"type":"work_item","id":"work-queue-2"}'),
+    }))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Validate Approve agent run recovery request' }))
+    await waitFor(() => expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items/work-queue-1/validation', expect.objectContaining({ method: 'POST' })))
   })
 
   it('prioritizes AutoResearch ideas and marks them ready for the Kanban inbox', async () => {
@@ -419,20 +439,20 @@ describe('AgentCoordinationPage decision queue controller', () => {
   it('filters by status without changing the route or API shape', async () => {
     render(<AgentCoordinationPage />)
 
-    expect(await screen.findByText('Approve agent run recovery request')).toBeInTheDocument()
+    expect((await screen.findAllByText('Approve agent run recovery request')).length).toBeGreaterThan(0)
     const filters = screen.getByLabelText('Status filters')
     fireEvent.click(within(filters).getByRole('button', { name: 'blocked' }))
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items?status=blocked', expect.any(Object))
     })
-    expect(await screen.findByText('Unblock Moremi drill handoff')).toBeInTheDocument()
+    expect((await screen.findAllByText('Unblock Moremi drill handoff')).length).toBeGreaterThan(0)
   })
 
   it('runs quick actions for block, validation, and handoff from executable controls', async () => {
     render(<AgentCoordinationPage />)
 
-    await screen.findByText('Approve agent run recovery request')
+    expect((await screen.findAllByText('Approve agent run recovery request')).length).toBeGreaterThan(0)
     fireEvent.click(screen.getByRole('button', { name: 'Block Approve agent run recovery request' }))
     await waitFor(() => expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items/work-queue-1/block', expect.objectContaining({ method: 'POST' })))
 
@@ -446,7 +466,7 @@ describe('AgentCoordinationPage decision queue controller', () => {
   it('asks Shaka about a work item with scoped context', async () => {
     render(<AgentCoordinationPage />)
 
-    await screen.findByText('Approve agent run recovery request')
+    expect((await screen.findAllByText('Approve agent run recovery request')).length).toBeGreaterThan(0)
     fireEvent.click(screen.getByRole('button', { name: 'Ask Shaka about Approve agent run recovery request' }))
 
     expect(await screen.findByText('Shaka context answer')).toBeInTheDocument()
