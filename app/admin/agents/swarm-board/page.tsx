@@ -882,11 +882,29 @@ function nextActionForTask(task: AgentOrgBoardTask) {
   }
 }
 
+function displayDetailValue(label: string, value: string) {
+  if (label !== 'Owner') return value
+  if (value.includes(' - ')) return value
+  if (!/^[a-z0-9_-]+$/i.test(value)) return value
+
+  const minorWords = new Set(['and', 'for', 'in', 'of', 'the', 'to'])
+  return value
+    .replace(/[_-]+/g, ' ')
+    .split(' ')
+    .map((word, index) => {
+      const lower = word.toLowerCase()
+      if (index > 0 && minorWords.has(lower)) return lower
+      return `${lower.slice(0, 1).toUpperCase()}${lower.slice(1)}`
+    })
+    .join(' ')
+}
+
 function CardDetail({ label, value }: { label: string; value: string }) {
+  const displayValue = displayDetailValue(label, value)
   return (
-    <div className="grid grid-cols-[64px_minmax(0,1fr)] gap-2 rounded-lg border border-silicon-slate/60 bg-silicon-slate/10 px-2 py-1.5">
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className="min-w-0 break-words text-foreground/85" title={value}>{value}</dd>
+    <div className="rounded-lg border border-silicon-slate/60 bg-silicon-slate/10 px-2.5 py-2">
+      <dt className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</dt>
+      <dd className="mt-1 min-w-0 break-words text-xs leading-snug text-foreground/85" title={value}>{displayValue}</dd>
     </div>
   )
 }
