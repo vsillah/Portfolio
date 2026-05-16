@@ -118,6 +118,19 @@ describe('POST /api/admin/agents/war-room', () => {
     }))
   })
 
+  it('passes selected standup participants to the war room', async () => {
+    const response = await POST(request({
+      command: 'standup',
+      target_agent_keys: ['chief-of-staff', 'engineering-copilot'],
+    }) as never)
+
+    expect(response.status).toBe(200)
+    expect(mocks.runAgentWarRoom).toHaveBeenCalledWith(expect.objectContaining({
+      command: 'standup',
+      targetAgentKeys: ['chief-of-staff', 'engineering-copilot'],
+    }))
+  })
+
   it('passes ask_agent payloads to the war room', async () => {
     mocks.runAgentWarRoom.mockResolvedValue({
       runId: 'ask-run',

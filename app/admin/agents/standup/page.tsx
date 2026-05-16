@@ -105,7 +105,8 @@ function StandupRoomContent() {
   const [organization, setOrganization] = useState<AgentOrgBoardSnapshot | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [selectedAgentKey, setSelectedAgentKey] = useState('chief-of-staff')
+  const [selectedAgentKeys, setSelectedAgentKeys] = useState<string[]>([])
+  const [selectionInitialized, setSelectionInitialized] = useState(false)
   const [message, setMessage] = useState('')
   const [goal, setGoal] = useState('')
   const [focusedGoalId, setFocusedGoalId] = useState<string | null>(null)
@@ -156,7 +157,15 @@ function StandupRoomContent() {
     const agents = organization?.agents ?? []
     return agents.filter((agent) => agent.status !== 'planned').slice(0, 12)
   }, [organization?.agents])
-  const selectedAgent = participants.find((agent) => agent.key === selectedAgentKey) ?? participants[0]
+  useEffect(() => {
+    if (selectionInitialized || !participants.length) return
+    setSelectedAgentKeys(participants.map((agent) => agent.key))
+    setSelectionInitialized(true)
+  }, [participants, selectionInitialized])
+  const selectedAgents = useMemo(() => {
+    const selected = participants.filter((agent) => selectedAgentKeys.includes(agent.key))
+    return selected
+  }, [participants, selectedAgentKeys])
   const allTasks = useMemo(() => organization?.lanes.flatMap((lane) => lane.tasks) ?? [], [organization?.lanes])
   const focusedGoal = useMemo(() => {
     if (!focusedGoalId || !organization) return null
@@ -255,13 +264,16 @@ function StandupRoomContent() {
   }
 
   async function startStandup() {
+    const targetAgentKeys = selectedAgents.map((agent) => agent.key)
     const questionId = addQuestion({
       command: 'standup',
-      prompt: 'Start standup and ask every available agent for current posture.',
-      targetLabel: 'All available agents',
+      prompt: targetAgentKeys.length
+        ? `Start standup with ${targetAgentKeys.length} selected agent(s).`
+        : 'Start standup and ask every available agent for current posture.',
+      targetLabel: targetAgentKeys.length ? `${targetAgentKeys.length} selected agent(s)` : 'All available agents',
       targetAgentKey: null,
     })
-    await postWarRoom({ command: 'standup' }, 'standup', questionId)
+    await postWarRoom(targetAgentKeys.length ? { command: 'standup', target_agent_keys: targetAgentKeys } : { command: 'standup' }, 'standup', questionId)
   }
 
   async function askAll() {
@@ -270,7 +282,7 @@ function StandupRoomContent() {
     const mentionedAgent = findMentionedAgent(text, participants)
     setMessage('')
     if (mentionedAgent) {
-      setSelectedAgentKey(mentionedAgent.key)
+      setSelectedAgentKeys([mentionedAgent.key])
       const questionId = addQuestion({
         command: 'ask_agent',
         prompt: text,
@@ -289,17 +301,32 @@ function StandupRoomContent() {
     await postWarRoom({ command: 'discuss', message: text }, 'ask-all', questionId)
   }
 
-  async function askSelectedAgent() {
-    if (!message.trim() || !selectedAgent) return
+  async function askSelectedAgents() {
+    if (!message.trim() || !selectedAgents.length) return
     const text = message.trim()
     setMessage('')
+    if (selectedAgents.length === 1) {
+      const agent = selectedAgents[0]
+      const questionId = addQuestion({
+        command: 'ask_agent',
+        prompt: text,
+        targetLabel: agentShortName(agent.name),
+        targetAgentKey: agent.key,
+      })
+      await postWarRoom({ command: 'ask_agent', message: text, target_agent_key: agent.key }, 'ask-agent', questionId)
+      return
+    }
     const questionId = addQuestion({
-      command: 'ask_agent',
+      command: 'discuss',
       prompt: text,
-      targetLabel: agentShortName(selectedAgent.name),
-      targetAgentKey: selectedAgent.key,
+      targetLabel: `${selectedAgents.length} selected agents`,
+      targetAgentKey: null,
     })
-    await postWarRoom({ command: 'ask_agent', message: text, target_agent_key: selectedAgent.key }, 'ask-agent', questionId)
+    await postWarRoom({
+      command: 'discuss',
+      message: text,
+      target_agent_keys: selectedAgents.map((agent) => agent.key),
+    }, 'ask-agent', questionId)
   }
 
   async function draftGoal() {
@@ -374,12 +401,18 @@ function StandupRoomContent() {
           <div className="mt-5 grid gap-5 xl:grid-cols-[260px_minmax(0,1fr)_340px]">
             <ParticipantRail
               participants={participants}
-              selectedAgentKey={selectedAgent?.key ?? selectedAgentKey}
+              selectedAgentKeys={selectedAgents.map((agent) => agent.key)}
               session={participantSession}
-              onSelect={(agent) => {
-                setSelectedAgentKey(agent.key)
+              onToggle={(agent) => {
+                setSelectedAgentKeys((current) => (
+                  current.includes(agent.key)
+                    ? current.filter((key) => key !== agent.key)
+                    : [...current, agent.key]
+                ))
                 setMessage((current) => current || `@${agentShortName(agent.name)} `)
               }}
+              onSelectAll={() => setSelectedAgentKeys(participants.map((agent) => agent.key))}
+              onClear={() => setSelectedAgentKeys([])}
             />
             <main className="space-y-5">
               {focusedGoal && (
@@ -395,10 +428,10 @@ function StandupRoomContent() {
                 commandTraces={commandTraces}
                 message={message}
                 onMessageChange={setMessage}
-                selectedAgent={selectedAgent}
+                selectedAgents={selectedAgents}
                 busy={busy}
                 onAskAll={askAll}
-                onAskAgent={askSelectedAgent}
+                onAskAgent={askSelectedAgents}
                 onQuickPrompt={setMessage}
               />
               <GoalPlanner
@@ -428,34 +461,53 @@ function StandupRoomContent() {
 
 function ParticipantRail({
   participants,
-  selectedAgentKey,
+  selectedAgentKeys,
   session,
-  onSelect,
+  onToggle,
+  onSelectAll,
+  onClear,
 }: {
   participants: AgentOrgBoardAgent[]
-  selectedAgentKey: string
+  selectedAgentKeys: string[]
   session: Map<string, ParticipantSessionState>
-  onSelect: (agent: AgentOrgBoardAgent) => void
+  onToggle: (agent: AgentOrgBoardAgent) => void
+  onSelectAll: () => void
+  onClear: () => void
 }) {
   return (
     <aside className="agent-ops-card rounded-lg border p-3">
       <div className="mb-3 flex items-center justify-between gap-2">
         <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-radiant-gold">Attendance</h2>
-        <span className="rounded-full border border-silicon-slate/60 px-2 py-1 text-xs text-muted-foreground">{participants.length}</span>
+        <span
+          aria-label={`${selectedAgentKeys.length} of ${participants.length} selected`}
+          className="rounded-full border border-silicon-slate/60 px-2 py-1 text-xs text-muted-foreground"
+        >
+          {selectedAgentKeys.length}/{participants.length}
+        </span>
+      </div>
+      <div className="mb-3 grid grid-cols-2 gap-2">
+        <button type="button" onClick={onSelectAll} className="rounded-lg border border-silicon-slate/60 px-2 py-1 text-xs text-muted-foreground hover:border-radiant-gold/50 hover:text-radiant-gold">
+          Select all
+        </button>
+        <button type="button" onClick={onClear} className="rounded-lg border border-silicon-slate/60 px-2 py-1 text-xs text-muted-foreground hover:border-radiant-gold/50 hover:text-radiant-gold">
+          Clear
+        </button>
       </div>
       <div className="space-y-2">
         {participants.map((agent) => {
           const state = session.get(agent.key)
           const statusLabel = state?.responded ? 'Responded' : state?.asked ? 'Asked' : agent.live ? 'Available' : 'Idle'
+          const selected = selectedAgentKeys.includes(agent.key)
           return (
             <button
               key={agent.key}
               type="button"
-              onClick={() => onSelect(agent)}
-              aria-pressed={selectedAgentKey === agent.key}
+              onClick={() => onToggle(agent)}
+              aria-pressed={selected}
+              aria-label={`${selected ? 'Remove' : 'Add'} ${agentShortName(agent.name)} from standup selection`}
               className={`flex w-full items-center gap-3 rounded-lg border p-2 text-left transition ${
-                selectedAgentKey === agent.key
-                  ? 'border-radiant-gold/60 bg-radiant-gold/10'
+                selected
+                  ? 'border-silicon-slate/70 bg-silicon-slate/20 ring-1 ring-radiant-gold/25'
                   : 'border-silicon-slate/60 bg-background/40 hover:border-radiant-gold/40'
               }`}
             >
@@ -467,7 +519,17 @@ function ParticipantRail({
                   {statusLabel}{state?.messageCount ? ` · ${state.messageCount}` : ''}
                 </span>
               </span>
-              <span aria-hidden="true" className={`h-2 w-2 rounded-full ${state?.responded ? 'bg-radiant-gold' : agent.live ? 'bg-green-400' : 'bg-silicon-slate'}`} />
+              <span aria-hidden="true" className={`flex h-5 w-5 items-center justify-center rounded-full border ${
+                selected
+                  ? 'border-radiant-gold/70 text-radiant-gold'
+                  : state?.responded
+                    ? 'border-radiant-gold/50 bg-radiant-gold'
+                    : agent.live
+                      ? 'border-green-400/60 bg-green-400'
+                      : 'border-silicon-slate bg-silicon-slate'
+              }`}>
+                {selected && <CheckCircle2 size={14} />}
+              </span>
             </button>
           )
         })}
@@ -481,7 +543,7 @@ function ChatRoom({
   questions,
   commandTraces,
   message,
-  selectedAgent,
+  selectedAgents,
   busy,
   onMessageChange,
   onAskAll,
@@ -492,7 +554,7 @@ function ChatRoom({
   questions: StandupQuestion[]
   commandTraces: WarRoomCommandTrace[]
   message: string
-  selectedAgent?: AgentOrgBoardAgent
+  selectedAgents: AgentOrgBoardAgent[]
   busy: string | null
   onMessageChange: (value: string) => void
   onAskAll: () => void
@@ -508,12 +570,12 @@ function ChatRoom({
             <MessageSquare size={20} className="text-radiant-gold" />
             Swarm chat
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">Use @agent targeting or select a participant from attendance.</p>
+        <p className="mt-1 text-sm text-muted-foreground">Use @agent targeting or select one or more participants from attendance.</p>
         </div>
-        {selectedAgent && (
+        {selectedAgents.length > 0 && (
           <div className="flex items-center gap-2 rounded-full border border-silicon-slate/60 px-3 py-1 text-xs text-muted-foreground">
-            <AgentAvatar agentKey={selectedAgent.key} size="sm" />
-            Target: {agentShortName(selectedAgent.name)}
+            <AgentAvatar agentKey={selectedAgents[0].key} size="sm" />
+            Target: {selectedAgents.length === 1 ? agentShortName(selectedAgents[0].name) : `${selectedAgents.length} selected`}
           </div>
         )}
       </div>
@@ -577,16 +639,16 @@ function ChatRoom({
         <input
           value={message}
           onChange={(event) => onMessageChange(event.target.value)}
-          className="min-h-11 flex-1 rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm outline-none focus:border-radiant-gold/70"
+          className="min-h-11 flex-1 rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground/80 focus:border-radiant-gold/70"
           placeholder="Ask about blockers, owners, risk, next steps, or @Shaka for a direct update..."
         />
         <button onClick={onAskAll} disabled={busy != null || !message.trim()} className="inline-flex items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 px-4 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/10 disabled:opacity-50">
           <Send size={16} />
           Ask all
         </button>
-        <button onClick={onAskAgent} disabled={busy != null || !message.trim()} className="inline-flex items-center justify-center gap-2 rounded-lg bg-radiant-gold px-4 py-2 text-sm font-semibold text-obsidian hover:bg-radiant-gold/90 disabled:opacity-50">
+        <button onClick={onAskAgent} disabled={busy != null || !message.trim() || selectedAgents.length === 0} className="inline-flex items-center justify-center gap-2 rounded-lg bg-radiant-gold px-4 py-2 text-sm font-semibold text-obsidian hover:bg-radiant-gold/90 disabled:opacity-50">
           <Send size={16} />
-          Ask agent
+          {selectedAgents.length > 1 ? `Ask ${selectedAgents.length} agents` : 'Ask selected'}
         </button>
       </div>
 
@@ -634,7 +696,7 @@ function GoalPlanner({
         <input
           value={goal}
           onChange={(event) => onGoalChange(event.target.value)}
-          className="min-h-11 flex-1 rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm outline-none focus:border-radiant-gold/70"
+          className="min-h-11 flex-1 rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground/80 focus:border-radiant-gold/70"
           placeholder="What should the swarm accomplish?"
         />
         <button onClick={onDraftGoal} disabled={busy != null || !goal.trim()} className="inline-flex items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 px-4 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/10 disabled:opacity-50">

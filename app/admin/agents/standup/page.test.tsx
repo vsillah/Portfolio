@@ -241,6 +241,9 @@ describe('AgentStandupRoomPage', () => {
 
     expect(await screen.findByRole('heading', { name: 'Standup Room' })).toBeInTheDocument()
     expect(screen.getByText('Attendance')).toBeInTheDocument()
+    expect(await screen.findByLabelText('2 of 2 selected')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Select all' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Clear' })).toBeInTheDocument()
     expect(screen.getAllByRole('img', { name: /Illustrated avatar for Shaka/i }).length).toBeGreaterThan(0)
     expect(screen.getByRole('heading', { name: 'Swarm chat' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Goal planner' })).toBeInTheDocument()
@@ -278,7 +281,7 @@ describe('AgentStandupRoomPage', () => {
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith('/api/admin/agents/war-room', expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ command: 'standup' }),
+        body: JSON.stringify({ command: 'standup', target_agent_keys: ['chief-of-staff', 'engineering-copilot'] }),
       }))
     })
     await waitFor(() => {
@@ -288,7 +291,7 @@ describe('AgentStandupRoomPage', () => {
     expect(screen.getByText('1/1 answered')).toBeInTheDocument()
 
     fireEvent.change(screen.getByPlaceholderText(/Ask about blockers/i), { target: { value: '@Shaka what is blocked?' } })
-    fireEvent.click(screen.getByRole('button', { name: /Ask agent/i }))
+    fireEvent.click(screen.getByRole('button', { name: /Ask all/i }))
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith('/api/admin/agents/war-room', expect.objectContaining({
@@ -297,8 +300,8 @@ describe('AgentStandupRoomPage', () => {
       }))
     })
 
-    fireEvent.click(screen.getByRole('button', { name: /Piye/i }))
-    expect(screen.getByText(/Target: Piye/i)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /Add Piye from standup selection/i }))
+    expect(screen.getByText(/Target: 2 selected/i)).toBeInTheDocument()
     expect(screen.getByPlaceholderText(/Ask about blockers/i)).toHaveValue('@Piye ')
 
     fireEvent.change(screen.getByPlaceholderText(/Ask about blockers/i), { target: { value: 'What changed since last standup?' } })
@@ -311,13 +314,17 @@ describe('AgentStandupRoomPage', () => {
       }))
     })
 
-    fireEvent.change(screen.getByPlaceholderText(/Ask about blockers/i), { target: { value: '@Piye give me your implementation update' } })
-    fireEvent.click(screen.getByRole('button', { name: /Ask all/i }))
+    fireEvent.change(screen.getByPlaceholderText(/Ask about blockers/i), { target: { value: 'Give us your implementation updates' } })
+    fireEvent.click(screen.getByRole('button', { name: /Ask 2 agents/i }))
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith('/api/admin/agents/war-room', expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ command: 'ask_agent', message: '@Piye give me your implementation update', target_agent_key: 'engineering-copilot' }),
+        body: JSON.stringify({
+          command: 'discuss',
+          message: 'Give us your implementation updates',
+          target_agent_keys: ['chief-of-staff', 'engineering-copilot'],
+        }),
       }))
     })
   })
@@ -370,7 +377,7 @@ describe('AgentStandupRoomPage', () => {
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith('/api/admin/agents/war-room', expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ command: 'standup', goal_id: 'goal-1' }),
+        body: JSON.stringify({ command: 'standup', target_agent_keys: ['chief-of-staff', 'engineering-copilot'], goal_id: 'goal-1' }),
       }))
     })
 
