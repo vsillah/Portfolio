@@ -50,6 +50,17 @@ type WorkItemForm = {
   expected_files: string
 }
 
+type GuidedIntakeTemplate = {
+  key: string
+  label: string
+  summary: string
+  title: string
+  objective: string
+  owner_agent_key: string
+  owner_runtime: AgentRuntime
+  expected_files: string
+}
+
 type VercelResearchApprovalCard = {
   approvalId: string
   runId: string
@@ -97,16 +108,67 @@ type ShakaContextReply = {
 }
 
 const DEFAULT_FORM: WorkItemForm = {
-  title: '',
-  objective: '',
-  owner_agent_key: 'chief-of-staff',
+  title: 'Review controller decision packet',
+  objective: 'Summarize the decision needed, confirm the evidence source, state the safest next step, and route the packet through the controller before execution continues.',
+  owner_agent_key: 'integration-captain',
   owner_runtime: 'codex',
   branch_name: '',
   worktree_path: '',
-  expected_files: '',
+  expected_files: 'app/admin/agents/coordination/page.tsx\napp/admin/agents/coordination/page.test.tsx',
 }
 
 const PRIORITIES = ['urgent', 'high', 'medium', 'low'] as const
+
+const OWNER_OPTIONS = [
+  { key: 'integration-captain', label: 'Integration Captain' },
+  { key: 'chief-of-staff', label: 'Shaka' },
+  { key: 'risk-compliance-intelligence', label: 'Moremi' },
+  { key: 'automation-systems', label: 'Automation Systems' },
+  { key: 'research-source-register', label: 'Research Source Register' },
+]
+
+const GUIDED_INTAKE_TEMPLATES: GuidedIntakeTemplate[] = [
+  {
+    key: 'controller-review',
+    label: 'Controller review',
+    summary: 'A decision packet needs owner, evidence, recommendation, and approval path.',
+    title: DEFAULT_FORM.title,
+    objective: DEFAULT_FORM.objective,
+    owner_agent_key: DEFAULT_FORM.owner_agent_key,
+    owner_runtime: DEFAULT_FORM.owner_runtime,
+    expected_files: DEFAULT_FORM.expected_files,
+  },
+  {
+    key: 'blocker-triage',
+    label: 'Blocker triage',
+    summary: 'A blocked item needs a named owner decision before work continues.',
+    title: 'Triage blocked Agent Ops work item',
+    objective: 'Identify the blocker, name the owner decision required, confirm the evidence source, and recommend whether to unblock, park, or hand off to the Integration Captain.',
+    owner_agent_key: 'integration-captain',
+    owner_runtime: 'codex',
+    expected_files: 'app/admin/agents/swarm-board/page.tsx\napp/admin/agents/runs/[runId]/page.tsx',
+  },
+  {
+    key: 'validation-handoff',
+    label: 'Validation handoff',
+    summary: 'A review-ready item needs checks, evidence, and merge readiness summarized.',
+    title: 'Prepare validation handoff packet',
+    objective: 'Collect focused validation results, trace links, PR status, rollback path, and the merge-readiness recommendation before moving the work to the captain lane.',
+    owner_agent_key: 'integration-captain',
+    owner_runtime: 'codex',
+    expected_files: 'app/admin/agents/swarm-board/page.tsx\napp/admin/agents/swarm-board/page.test.tsx',
+  },
+  {
+    key: 'agent-follow-up',
+    label: 'Agent follow-up',
+    summary: 'An agent needs a concrete follow-up task with acceptance criteria.',
+    title: 'Route follow-up task to agent owner',
+    objective: 'Turn the requested follow-up into a bounded task with owner, expected output, acceptance criteria, trace link, and next checkpoint.',
+    owner_agent_key: 'chief-of-staff',
+    owner_runtime: 'codex',
+    expected_files: 'app/admin/agents/standup/page.tsx\napp/admin/agents/swarm-board/page.tsx',
+  },
+]
 
 function isAutoResearchIdea(item: AgentWorkItem) {
   return item.source_type === VERCEL_AUTORESEARCH_IDEA_SOURCE_TYPE || item.metadata?.autoresearch_idea === true
@@ -156,6 +218,7 @@ function AgentCoordinationContent() {
   const [actionId, setActionId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [form, setForm] = useState<WorkItemForm>(DEFAULT_FORM)
+  const [selectedTemplateKey, setSelectedTemplateKey] = useState(GUIDED_INTAKE_TEMPLATES[0].key)
   const [vercelResearchApprovals, setVercelResearchApprovals] = useState<VercelResearchApprovalCard[]>([])
   const [moremiDrillResult, setMoremiDrillResult] = useState<MoremiOperationalDrillResult | null>(null)
   const [shakaReply, setShakaReply] = useState<ShakaContextReply | null>(null)
@@ -260,12 +323,25 @@ function AgentCoordinationContent() {
       const body = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
       setForm(DEFAULT_FORM)
+      setSelectedTemplateKey(GUIDED_INTAKE_TEMPLATES[0].key)
       await refreshAll()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create work item')
     } finally {
       setSubmitting(false)
     }
+  }
+
+  function selectGuidedTemplate(template: GuidedIntakeTemplate) {
+    setSelectedTemplateKey(template.key)
+    setForm((prev) => ({
+      ...prev,
+      title: template.title,
+      objective: template.objective,
+      owner_agent_key: template.owner_agent_key,
+      owner_runtime: template.owner_runtime,
+      expected_files: template.expected_files,
+    }))
   }
 
   async function quickAction(item: AgentWorkItem, action: 'block' | 'validation' | 'handoff') {
@@ -517,8 +593,10 @@ function AgentCoordinationContent() {
         <section className="agent-ops-card mb-6 rounded-lg border p-4">
           <div className="mb-4 flex flex-col gap-3">
             <div>
-              <h2 className="text-base font-semibold">Queue tools and intake</h2>
-              <p className="mt-1 text-sm text-muted-foreground">Use filters and creation after the decision cards above. This section is for queue administration, not the first decision path.</p>
+              <h2 className="text-base font-semibold">Queue administration</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Filter the archive or create a guided controller packet. Intake starts from a decision type so the operator does not have to write a work item from scratch.
+              </p>
             </div>
             <div className="flex flex-wrap gap-2" aria-label="Status filters">
             {STATUSES.map((item) => (
@@ -537,70 +615,122 @@ function AgentCoordinationContent() {
             </div>
           </div>
 
-          <form onSubmit={createWorkItem} className="grid gap-3 border-t border-silicon-slate/60 pt-4 lg:grid-cols-3">
-            <div className="lg:col-span-3">
-              <h2 className="text-base font-semibold">Create controller work item</h2>
-              <p className="mt-1 text-sm text-muted-foreground">Open a decision packet with owner, objective, expected files, branch, and worktree context.</p>
+          <form onSubmit={createWorkItem} className="grid gap-4 border-t border-silicon-slate/60 pt-4">
+            <div>
+              <h2 className="text-base font-semibold">Guided intake</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Pick the closest decision pattern, then adjust only the few fields that change.
+              </p>
             </div>
-            <input
-              value={form.title}
-              onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
-              placeholder="Work item title"
-              className="rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm"
-            />
-            <input
-              value={form.owner_agent_key}
-              onChange={(event) => setForm((prev) => ({ ...prev, owner_agent_key: event.target.value }))}
-              placeholder="owner agent key"
-              className="rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm"
-            />
-            <select
-              value={form.owner_runtime}
-              onChange={(event) => setForm((prev) => ({ ...prev, owner_runtime: event.target.value as AgentRuntime }))}
-              aria-label="owner runtime"
-              className="rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm"
-            >
-              <option value="codex">codex</option>
-              <option value="n8n">n8n</option>
-              <option value="hermes">hermes</option>
-              <option value="manual">manual</option>
-            </select>
-            <input
-              value={form.branch_name}
-              onChange={(event) => setForm((prev) => ({ ...prev, branch_name: event.target.value }))}
-              placeholder="branch name"
-              className="rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm"
-            />
-            <textarea
-              value={form.objective}
-              onChange={(event) => setForm((prev) => ({ ...prev, objective: event.target.value }))}
-              placeholder="Objective and acceptance criteria"
-              rows={3}
-              className="rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm lg:col-span-2"
-            />
-            <div className="grid gap-3">
-              <input
-                value={form.worktree_path}
-                onChange={(event) => setForm((prev) => ({ ...prev, worktree_path: event.target.value }))}
-                placeholder="worktree path"
-                className="rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm"
-              />
-              <textarea
-                value={form.expected_files}
-                onChange={(event) => setForm((prev) => ({ ...prev, expected_files: event.target.value }))}
-                placeholder="expected files, one per line"
-                rows={2}
-                className="rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm"
-              />
-              <button
-                type="submit"
-                disabled={submitting || !form.title.trim() || !form.objective.trim()}
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-radiant-gold/60 bg-radiant-gold/15 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/20 disabled:opacity-50"
-              >
-                <Network size={16} />
-                Create work item
-              </button>
+
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4" aria-label="Guided intake templates">
+              {GUIDED_INTAKE_TEMPLATES.map((template) => (
+                <button
+                  key={template.key}
+                  type="button"
+                  onClick={() => selectGuidedTemplate(template)}
+                  className={`rounded-lg border p-3 text-left transition ${
+                    selectedTemplateKey === template.key
+                      ? 'border-radiant-gold/60 bg-radiant-gold/15 text-foreground'
+                      : 'border-silicon-slate/70 bg-silicon-slate/20 text-muted-foreground hover:border-radiant-gold/35 hover:text-foreground'
+                  }`}
+                >
+                  <span className="text-sm font-semibold">{template.label}</span>
+                  <span className="mt-1 block text-xs leading-5">{template.summary}</span>
+                </button>
+              ))}
             </div>
+
+            <div className="grid gap-4 rounded-lg border border-silicon-slate/70 bg-background/45 p-4 lg:grid-cols-[1fr_280px]">
+              <div className="grid gap-3">
+                <label className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Decision title
+                  <input
+                    value={form.title}
+                    onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
+                    className="mt-1 w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm normal-case tracking-normal text-foreground outline-none focus:border-radiant-gold/70"
+                  />
+                </label>
+                <label className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Narrative packet
+                  <textarea
+                    value={form.objective}
+                    onChange={(event) => setForm((prev) => ({ ...prev, objective: event.target.value }))}
+                    rows={4}
+                    className="mt-1 w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm normal-case tracking-normal text-foreground outline-none focus:border-radiant-gold/70"
+                  />
+                </label>
+              </div>
+
+              <div className="grid content-start gap-3">
+                <label className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Owner
+                  <select
+                    value={form.owner_agent_key}
+                    onChange={(event) => setForm((prev) => ({ ...prev, owner_agent_key: event.target.value }))}
+                    className="mt-1 w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm normal-case tracking-normal text-foreground outline-none focus:border-radiant-gold/70"
+                  >
+                    {OWNER_OPTIONS.map((owner) => (
+                      <option key={owner.key} value={owner.key}>{owner.label}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Runtime
+                  <select
+                    value={form.owner_runtime}
+                    onChange={(event) => setForm((prev) => ({ ...prev, owner_runtime: event.target.value as AgentRuntime }))}
+                    className="mt-1 w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm normal-case tracking-normal text-foreground outline-none focus:border-radiant-gold/70"
+                  >
+                    <option value="codex">codex</option>
+                    <option value="n8n">n8n</option>
+                    <option value="hermes">hermes</option>
+                    <option value="manual">manual</option>
+                  </select>
+                </label>
+                <button
+                  type="submit"
+                  disabled={submitting || !form.title.trim() || !form.objective.trim()}
+                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-radiant-gold/60 bg-radiant-gold/15 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/20 disabled:opacity-50"
+                >
+                  <Network size={16} />
+                  Create controller packet
+                </button>
+              </div>
+            </div>
+
+            <details className="rounded-lg border border-silicon-slate/60 bg-silicon-slate/15 p-3">
+              <summary className="cursor-pointer text-sm font-medium text-muted-foreground hover:text-radiant-gold">
+                Advanced routing details
+              </summary>
+              <div className="mt-3 grid gap-3 lg:grid-cols-3">
+                <label className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Branch
+                  <input
+                    value={form.branch_name}
+                    onChange={(event) => setForm((prev) => ({ ...prev, branch_name: event.target.value }))}
+                    className="mt-1 w-full rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+                  />
+                </label>
+                <label className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Worktree
+                  <input
+                    value={form.worktree_path}
+                    onChange={(event) => setForm((prev) => ({ ...prev, worktree_path: event.target.value }))}
+                    className="mt-1 w-full rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+                  />
+                </label>
+                <label className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Expected files
+                  <textarea
+                    value={form.expected_files}
+                    onChange={(event) => setForm((prev) => ({ ...prev, expected_files: event.target.value }))}
+                    rows={2}
+                    className="mt-1 w-full rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+                  />
+                </label>
+              </div>
+            </details>
           </form>
         </section>
 
