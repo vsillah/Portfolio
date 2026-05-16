@@ -19,12 +19,10 @@
 
 import { config } from 'dotenv'
 import { resolve } from 'path'
+import { pathToFileURL } from 'url'
 import { diffLines } from 'diff'
 
-config({ path: resolve(process.cwd(), '.env.local') })
-config()
-
-type WorkflowPair = {
+export type WorkflowPair = {
   label: string
   prodId: string
   stagId: string
@@ -33,7 +31,7 @@ type WorkflowPair = {
   ignorePaths?: string[]
 }
 
-const WORKFLOW_PAIRS: WorkflowPair[] = [
+export const WORKFLOW_PAIRS: WorkflowPair[] = [
   // WF-CLG-002 (Outreach Generation) was retired 2026-04-27 — outreach drafts are
   // now generated in-app via lib/outreach-queue-generator.ts. Auto-follow-ups
   // re-enter the app via /api/webhooks/n8n/outreach-followup-trigger called from
@@ -76,7 +74,12 @@ const DEFAULT_IGNORE_PATHS = [
   /^credentials\./,
 ]
 
-type N8nNode = {
+type Logger = {
+  log: (...args: unknown[]) => void
+  error: (...args: unknown[]) => void
+}
+
+export type N8nNode = {
   id?: string
   name: string
   type: string
@@ -92,7 +95,7 @@ type N8nNode = {
   [key: string]: unknown
 }
 
-type N8nWorkflow = {
+export type N8nWorkflow = {
   id: string
   name: string
   active: boolean
@@ -100,20 +103,17 @@ type N8nWorkflow = {
   connections: Record<string, unknown>
 }
 
-const API_BASE = (process.env.N8N_BASE_URL || 'https://amadutown.app.n8n.cloud').replace(/\/$/, '')
-const API_KEY = process.env.N8N_API_KEY
-
-if (!API_KEY) {
-  console.error('❌ N8N_API_KEY is required (Settings → API Keys in n8n Cloud).')
-  console.error('   Add it to .env.local or export it in your shell.')
-  process.exit(2)
+export function loadN8nDriftEnv(cwd = process.cwd()) {
+  config({ path: resolve(cwd, '.env.local') })
+  config({ path: resolve(cwd, '.env') })
 }
 
-const WARN_ONLY = process.argv.includes('--warn')
-
-async function fetchWorkflow(id: string): Promise<N8nWorkflow> {
-  const res = await fetch(`${API_BASE}/api/v1/workflows/${id}`, {
-    headers: { 'X-N8N-API-KEY': API_KEY as string, Accept: 'application/json' },
+async function fetchWorkflow(
+  id: string,
+  options: { apiBase: string; apiKey: string; fetchImpl: typeof fetch }
+): Promise<N8nWorkflow> {
+  const res = await options.fetchImpl(`${options.apiBase}/api/v1/workflows/${id}`, {
+    headers: { 'X-N8N-API-KEY': options.apiKey, Accept: 'application/json' },
   })
   if (!res.ok) {
     throw new Error(`n8n API ${res.status} for workflow ${id}: ${await res.text()}`)
@@ -122,7 +122,7 @@ async function fetchWorkflow(id: string): Promise<N8nWorkflow> {
 }
 
 /** Strip fields that drift by env, recursively. */
-function prune(value: unknown, pathStack: string[] = [], ignoreExtra: string[] = []): unknown {
+export function prune(value: unknown, pathStack: string[] = [], ignoreExtra: string[] = []): unknown {
   const currentPath = pathStack.join('.')
   const ignoreAll = [...DEFAULT_IGNORE_PATHS, ...ignoreExtra]
   for (const rule of ignoreAll) {
@@ -143,27 +143,27 @@ function prune(value: unknown, pathStack: string[] = [], ignoreExtra: string[] =
   return value
 }
 
-function normalizeNode(node: N8nNode, ignoreExtra: string[]): Record<string, unknown> {
+export function normalizeNode(node: N8nNode, ignoreExtra: string[]): Record<string, unknown> {
   const pruned = prune(node, [], ignoreExtra) as Record<string, unknown>
   return pruned
 }
 
 /** Normalize connections to be stable under env-specific node ID/position drift. */
-function normalizeConnections(connections: Record<string, unknown>): string {
+export function normalizeConnections(connections: Record<string, unknown>): string {
   const keys = Object.keys(connections).sort()
   const out: Record<string, unknown> = {}
   for (const k of keys) out[k] = connections[k]
   return JSON.stringify(out, null, 2)
 }
 
-type DriftReport = {
+export type DriftReport = {
   label: string
   nodeDiffs: Array<{ name: string; kind: 'only-prod' | 'only-stag' | 'different'; detail?: string }>
   connectionDiff?: string
   hasDrift: boolean
 }
 
-function compareWorkflows(label: string, prod: N8nWorkflow, stag: N8nWorkflow, ignoreExtra: string[]): DriftReport {
+export function compareWorkflows(label: string, prod: N8nWorkflow, stag: N8nWorkflow, ignoreExtra: string[]): DriftReport {
   const prodByName = new Map<string, N8nNode>()
   const stagByName = new Map<string, N8nNode>()
   for (const n of prod.nodes) prodByName.set(n.name, n)
@@ -222,56 +222,91 @@ function compareWorkflows(label: string, prod: N8nWorkflow, stag: N8nWorkflow, i
   }
 }
 
-function printReport(report: DriftReport) {
+export function printReport(report: DriftReport, logger: Pick<Logger, 'log'> = console) {
   const bar = '─'.repeat(Math.max(40, report.label.length + 2))
-  console.log(`\n${bar}\n${report.label}\n${bar}`)
+  logger.log(`\n${bar}\n${report.label}\n${bar}`)
   if (!report.hasDrift) {
-    console.log('✅ No drift — PROD and STAG match on tracked fields.')
+    logger.log('✅ No drift — PROD and STAG match on tracked fields.')
     return
   }
   for (const n of report.nodeDiffs) {
-    if (n.kind === 'only-prod') console.log(`  ➕ Only in PROD: "${n.name}"`)
-    else if (n.kind === 'only-stag') console.log(`  ➕ Only in STAG: "${n.name}"`)
+    if (n.kind === 'only-prod') logger.log(`  ➕ Only in PROD: "${n.name}"`)
+    else if (n.kind === 'only-stag') logger.log(`  ➕ Only in STAG: "${n.name}"`)
     else {
-      console.log(`  ≠ Node drift on "${n.name}":`)
-      if (n.detail) console.log(n.detail.split('\n').map((l) => '      ' + l).join('\n'))
+      logger.log(`  ≠ Node drift on "${n.name}":`)
+      if (n.detail) logger.log(n.detail.split('\n').map((l) => '      ' + l).join('\n'))
     }
   }
   if (report.connectionDiff) {
-    console.log('  ≠ Connection graph drift:')
-    console.log(report.connectionDiff.split('\n').map((l) => '      ' + l).join('\n'))
+    logger.log('  ≠ Connection graph drift:')
+    logger.log(report.connectionDiff.split('\n').map((l) => '      ' + l).join('\n'))
   }
 }
 
-async function main() {
-  console.log(`🔎 n8n drift check @ ${API_BASE}\n   Pairs: ${WORKFLOW_PAIRS.length}`)
+export async function runDriftCheck(options: {
+  env?: NodeJS.ProcessEnv | Record<string, string | undefined>
+  fetchImpl?: typeof fetch
+  warnOnly?: boolean
+  workflowPairs?: WorkflowPair[]
+  logger?: Logger
+} = {}): Promise<number> {
+  const env = options.env ?? process.env
+  const logger = options.logger ?? console
+  const workflowPairs = options.workflowPairs ?? WORKFLOW_PAIRS
+  const apiBase = (env.N8N_BASE_URL || 'https://amadutown.app.n8n.cloud').replace(/\/$/, '')
+  const apiKey = env.N8N_API_KEY
+
+  if (!apiKey) {
+    logger.error('❌ N8N_API_KEY is required (Settings → API Keys in n8n Cloud).')
+    logger.error('   Add it to .env.local or export it in your shell.')
+    return 2
+  }
+
+  logger.log(`🔎 n8n drift check @ ${apiBase}\n   Pairs: ${workflowPairs.length}`)
   let anyDrift = false
-  for (const pair of WORKFLOW_PAIRS) {
+  for (const pair of workflowPairs) {
     try {
-      const [prod, stag] = await Promise.all([fetchWorkflow(pair.prodId), fetchWorkflow(pair.stagId)])
+      const fetchOptions = { apiBase, apiKey, fetchImpl: options.fetchImpl ?? fetch }
+      const [prod, stag] = await Promise.all([
+        fetchWorkflow(pair.prodId, fetchOptions),
+        fetchWorkflow(pair.stagId, fetchOptions),
+      ])
       const report = compareWorkflows(pair.label, prod, stag, pair.ignorePaths ?? [])
-      printReport(report)
+      printReport(report, logger)
       if (report.hasDrift) anyDrift = true
     } catch (err) {
-      console.log(`\n❌ ${pair.label}: ${err instanceof Error ? err.message : String(err)}`)
+      logger.log(`\n❌ ${pair.label}: ${err instanceof Error ? err.message : String(err)}`)
       anyDrift = true
     }
   }
 
-  console.log('')
+  logger.log('')
   if (!anyDrift) {
-    console.log('✅ All workflow pairs are in sync.')
-    process.exit(0)
+    logger.log('✅ All workflow pairs are in sync.')
+    return 0
   }
-  if (WARN_ONLY) {
-    console.log('⚠️  Drift detected but --warn mode is on; exiting 0.')
-    process.exit(0)
+  if (options.warnOnly) {
+    logger.log('⚠️  Drift detected but --warn mode is on; exiting 0.')
+    return 0
   }
-  console.log('❌ Drift detected. Fix STAG/PROD or update ignorePaths for expected diffs.')
-  process.exit(1)
+  logger.log('❌ Drift detected. Fix STAG/PROD or update ignorePaths for expected diffs.')
+  return 1
 }
 
-main().catch((err) => {
-  console.error('Unexpected error:', err)
-  process.exit(2)
-})
+export async function main() {
+  loadN8nDriftEnv()
+  return runDriftCheck({ warnOnly: process.argv.includes('--warn') })
+}
+
+const invokedAsCli = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href
+
+if (invokedAsCli) {
+  main()
+    .then((exitCode) => {
+      process.exit(exitCode)
+    })
+    .catch((err) => {
+      console.error('Unexpected error:', err)
+      process.exit(2)
+    })
+}
