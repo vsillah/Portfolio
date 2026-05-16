@@ -17,8 +17,12 @@
  * Add/edit workflow pairs in WORKFLOW_PAIRS below.
  */
 
-import 'dotenv/config'
+import { config } from 'dotenv'
+import { resolve } from 'path'
 import { diffLines } from 'diff'
+
+config({ path: resolve(process.cwd(), '.env.local') })
+config()
 
 type WorkflowPair = {
   label: string
