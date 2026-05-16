@@ -156,6 +156,15 @@ const moremiReview = {
   linked_work_items: [],
 }
 
+function formatExpectedPageTime(value: string) {
+  return new Intl.DateTimeFormat('en', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(new Date(value))
+}
+
 describe('AgentOperationsPage mission control landing', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -249,7 +258,9 @@ describe('AgentOperationsPage mission control landing', () => {
     expect(within(dailyBrief).queryByText(/high-priority item/i)).not.toBeInTheDocument()
     expect(within(dailyBrief).getByText('Snapshot')).toBeInTheDocument()
     expect(within(dailyBrief).getByText('Decision queue is visible and the Kanban lanes are ready for review.')).toBeInTheDocument()
-    expect(within(dailyBrief).getByText(/Updated May 13, 8:00 AM from current traces/i)).toBeInTheDocument()
+    expect(within(dailyBrief).getByText(
+      `Updated ${formatExpectedPageTime(missionSnapshot.daily_brief.updated_at)} from current traces.`
+    )).toBeInTheDocument()
     expect(within(dailyBrief).getByText('Next best action')).toBeInTheDocument()
     expect(within(dailyBrief).getByRole('link', { name: /Open Decision Queue/i })).toHaveAttribute('href', '/admin/agents/coordination')
     expect(within(dailyBrief).queryByText('Recommended next actions')).not.toBeInTheDocument()
