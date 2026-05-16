@@ -620,47 +620,37 @@ export default function AgentOperationsPage() {
     {
       eyebrow: 'Decision Queue',
       title: 'Approval controller',
-      body: 'Action required, recommendation, risk, owner, and approve/reject controls.',
       href: '/admin/agents/coordination',
       metric: `${decisionQueueCount} waiting`,
       icon: <ShieldCheck size={18} />,
-      tone: decisionQueueCount ? 'yellow' : 'green',
     },
     {
       eyebrow: 'Agent Kanban',
       title: 'Work by state, owner, and blocker',
-      body: 'Standup follow-up, roster, blockers, PRs, traces, validation, and handoffs.',
       href: '/admin/agents/swarm-board',
       metric: `${kanbanSignalCount} moving`,
       icon: <Columns size={18} />,
-      tone: 'blue',
     },
     {
       eyebrow: 'Run Console',
       title: 'Trace, evaluation, and dead-letter history',
-      body: 'Failed, stale, running, evaluated, and routed traces with artifacts.',
       href: '/admin/agents/runs',
       metric: `${failedOrStaleCount} review`,
       icon: <Activity size={18} />,
-      tone: failedOrStaleCount ? 'red' : 'neutral',
     },
     {
       eyebrow: 'Automation Context',
       title: 'Recurring jobs and scheduled operators',
-      body: 'Morning review, Hermes health, approval drills, and runtime probes.',
       href: '/admin/agents/automations',
       metric: 'Scheduled',
       icon: <Clock3 size={18} />,
-      tone: 'neutral',
     },
     {
       eyebrow: 'Open Brain',
       title: 'Memory and RAG governance',
-      body: 'Knowledge proposals, RAG health, source governance, and approval gates.',
       href: '/admin/agents/open-brain',
       metric: ragStatus,
       icon: <Network size={18} />,
-      tone: ragStatus === 'Blocked' ? 'red' : 'green',
     },
   ] as const
   const operationalSignalHomes = [
@@ -950,19 +940,38 @@ export default function AgentOperationsPage() {
             </div>
           </section>
 
-          <section className="agent-ops-panel mt-5 rounded-xl border p-5" aria-label="Agent Ops system map">
-            <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+          <section className="agent-ops-panel mt-5 rounded-xl border p-5" aria-label="Agent Ops signal homes">
+            <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Primary work surfaces</p>
-                <div className="grid gap-3 lg:grid-cols-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Signal homes</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Use Mission Control for triage; use these homes for deeper review, recovery, and governance.
+                </p>
+              </div>
+              <Link href="/admin/agents/runs" className="inline-flex w-fit items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/55 px-3 py-2 text-sm hover:border-radiant-gold/55">
+                Trace history
+                <ArrowRight size={14} />
+              </Link>
+            </div>
+
+            <div className="grid gap-4 xl:grid-cols-2">
+              <div>
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Primary work homes</p>
+                <div className="grid gap-2">
                   {primaryWorkHomes.map((home) => (
-                    <SystemHomeCard key={home.eyebrow} {...home} />
+                    <SignalRouteCard
+                      key={home.eyebrow}
+                      title={home.eyebrow}
+                      detail={`${home.title} · ${home.metric}`}
+                      href={home.href}
+                      icon={home.icon}
+                    />
                   ))}
                 </div>
               </div>
 
               <div>
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Operating signals</p>
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Operating signal homes</p>
                 <div className="grid gap-2">
                   {operationalSignalHomes.map((home) => (
                     <SignalRouteCard key={home.title} {...home} />
@@ -1042,42 +1051,6 @@ function PagerControls({
         </button>
       </div>
     </div>
-  )
-}
-
-function SystemHomeCard({
-  eyebrow,
-  title,
-  body,
-  href,
-  metric,
-  icon,
-  tone,
-}: {
-  eyebrow: string
-  title: string
-  body: string
-  href: string
-  metric: string
-  icon: ReactNode
-  tone: 'green' | 'yellow' | 'red' | 'blue' | 'neutral'
-}) {
-  return (
-    <Link href={href} className={`agent-ops-metric agent-ops-metric-${tone} block rounded-lg border p-4 hover:border-radiant-gold/50`}>
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2 text-radiant-gold">
-            {icon}
-            <p className="text-xs font-semibold uppercase tracking-wider">{eyebrow}</p>
-          </div>
-          <h3 className="mt-2 text-lg font-semibold">{title}</h3>
-        </div>
-        <span className="shrink-0 rounded-full border border-silicon-slate/60 bg-black/15 px-2.5 py-1 text-xs text-muted-foreground">
-          {metric}
-        </span>
-      </div>
-      <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">{body}</p>
-    </Link>
   )
 }
 
