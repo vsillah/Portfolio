@@ -292,6 +292,8 @@ describe('AgentCoordinationPage decision queue controller', () => {
     expect(screen.getAllByText('Start here because it produces the baseline every later idea needs.').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Trace').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Owner').length).toBeGreaterThan(0)
+    expect(screen.getByRole('heading', { name: 'Decision intake' })).toBeInTheDocument()
+    expect(screen.getByText('Use this only when the queue needs a new decision packet. Pick the scenario, confirm the owner and evidence home, then create the item.')).toBeInTheDocument()
   })
 
   it('runs top controller decision actions with scoped Shaka context', async () => {
@@ -411,19 +413,24 @@ describe('AgentCoordinationPage decision queue controller', () => {
     }))
   })
 
-  it('creates a controller work item with expected files and owner runtime', async () => {
+  it('creates a structured decision packet with generated objective, expected surfaces, and owner runtime', async () => {
     render(<AgentCoordinationPage />)
 
-    await screen.findByText('Create controller work item')
-    fireEvent.change(screen.getByPlaceholderText('Work item title'), { target: { value: 'Prepare controller decision packet' } })
-    fireEvent.change(screen.getByPlaceholderText('owner agent key'), { target: { value: 'integration-captain' } })
-    fireEvent.change(screen.getByLabelText('owner runtime'), { target: { value: 'hermes' } })
-    fireEvent.change(screen.getByPlaceholderText('branch name'), { target: { value: 'codex/controller-decision' } })
-    fireEvent.change(screen.getByPlaceholderText('Objective and acceptance criteria'), { target: { value: 'Route one decision through the controller.' } })
-    fireEvent.change(screen.getByPlaceholderText('worktree path'), { target: { value: '/tmp/controller' } })
-    fireEvent.change(screen.getByPlaceholderText('expected files, one per line'), { target: { value: 'app/admin/agents/coordination/page.tsx\napp/admin/agents/coordination/page.test.tsx' } })
+    await screen.findByRole('heading', { name: 'Decision intake' })
+    expect(screen.queryByPlaceholderText('expected files, one per line')).not.toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Create work item' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Use Ready for Kanban intake template' }))
+    fireEvent.change(screen.getByLabelText('Decision title'), { target: { value: 'Prepare controller decision packet' } })
+    fireEvent.change(screen.getByLabelText('What decision is needed?'), { target: { value: 'Confirm this can move into implementation lanes.' } })
+    fireEvent.change(screen.getByLabelText('Recommended path'), { target: { value: 'Create a bounded Kanban handoff with one owner and a validation gate.' } })
+    fireEvent.change(screen.getByLabelText('Acceptance criteria'), { target: { value: 'Owner, goal tag, evidence link, and validation path are visible.' } })
+    fireEvent.change(screen.getByLabelText('Evidence home'), { target: { value: 'Decision Queue card and linked trace.' } })
+    fireEvent.change(screen.getByLabelText('Owner agent'), { target: { value: 'integration-captain' } })
+    fireEvent.change(screen.getByLabelText('owner runtime'), { target: { value: 'hermes' } })
+    fireEvent.change(screen.getByLabelText('Branch name'), { target: { value: 'codex/controller-decision' } })
+    fireEvent.click(screen.getByLabelText('Expected surface Standup Room'))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create decision packet' }))
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items', expect.objectContaining({
@@ -432,7 +439,16 @@ describe('AgentCoordinationPage decision queue controller', () => {
       }))
     })
     expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items', expect.objectContaining({
-      body: expect.stringContaining('app/admin/agents/coordination/page.test.tsx'),
+      body: expect.stringContaining('Decision type: Ready for Kanban'),
+    }))
+    expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items', expect.objectContaining({
+      body: expect.stringContaining('Recommended path: Create a bounded Kanban handoff with one owner and a validation gate.'),
+    }))
+    expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items', expect.objectContaining({
+      body: expect.stringContaining('app/admin/agents/swarm-board/page.test.tsx'),
+    }))
+    expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items', expect.objectContaining({
+      body: expect.stringContaining('app/admin/agents/standup/page.test.tsx'),
     }))
   })
 

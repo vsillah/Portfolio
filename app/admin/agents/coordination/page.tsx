@@ -9,7 +9,10 @@ import {
   BellRing,
   Bot,
   CheckCircle2,
+  ClipboardCheck,
+  FileText,
   GitPullRequest,
+  ListChecks,
   MessageSquare,
   Network,
   RefreshCw,
@@ -41,13 +44,17 @@ const STATUSES: Array<'all' | AgentWorkItemStatus> = [
 ]
 
 type WorkItemForm = {
+  template_key: IntakeTemplateKey
   title: string
-  objective: string
+  decision_needed: string
+  recommendation: string
+  evidence_home: string
+  acceptance_criteria: string
   owner_agent_key: string
   owner_runtime: AgentRuntime
   branch_name: string
   worktree_path: string
-  expected_files: string
+  expected_surfaces: string[]
 }
 
 type VercelResearchApprovalCard = {
@@ -96,17 +103,166 @@ type ShakaContextReply = {
   suggested_actions: string[]
 }
 
-const DEFAULT_FORM: WorkItemForm = {
-  title: '',
-  objective: '',
-  owner_agent_key: 'chief-of-staff',
-  owner_runtime: 'codex',
-  branch_name: '',
-  worktree_path: '',
-  expected_files: '',
+const PRIORITIES = ['urgent', 'high', 'medium', 'low'] as const
+
+const OWNER_OPTIONS = [
+  { key: 'chief-of-staff', label: 'Shaka', role: 'Chief of Staff' },
+  { key: 'integration-captain', label: 'Integration Captain', role: 'Merge and validation owner' },
+  { key: 'risk-compliance-intelligence', label: 'Moremi', role: 'Risk and compliance review' },
+  { key: 'automation-systems', label: 'Automation Systems', role: 'Runtime and workflow checks' },
+  { key: 'research-source-register', label: 'Research Source Register', role: 'Evidence and RAG governance' },
+  { key: 'engineering-copilot', label: 'Engineering Copilot', role: 'Implementation support' },
+]
+
+const SURFACE_OPTIONS = [
+  {
+    key: 'coordination',
+    label: 'Decision Queue',
+    files: ['app/admin/agents/coordination/page.tsx', 'app/admin/agents/coordination/page.test.tsx'],
+  },
+  {
+    key: 'run_console',
+    label: 'Run Console',
+    files: ['app/admin/agents/runs/page.tsx', 'app/admin/agents/runs/[runId]/page.tsx'],
+  },
+  {
+    key: 'kanban',
+    label: 'Agent Kanban',
+    files: ['app/admin/agents/swarm-board/page.tsx', 'app/admin/agents/swarm-board/page.test.tsx'],
+  },
+  {
+    key: 'standup',
+    label: 'Standup Room',
+    files: ['app/admin/agents/standup/page.tsx', 'app/admin/agents/standup/page.test.tsx'],
+  },
+  {
+    key: 'automation',
+    label: 'Automation Context',
+    files: ['app/admin/agents/automations/page.tsx'],
+  },
+  {
+    key: 'open_brain',
+    label: 'Open Brain',
+    files: ['app/admin/agents/open-brain/page.tsx'],
+  },
+]
+
+type IntakeTemplateKey = 'approval_packet' | 'stale_run' | 'kanban_handoff' | 'risk_review'
+
+type IntakeTemplate = {
+  key: IntakeTemplateKey
+  label: string
+  summary: string
+  title: string
+  decisionNeeded: string
+  recommendation: string
+  evidenceHome: string
+  acceptanceCriteria: string
+  ownerAgentKey: string
+  ownerRuntime: AgentRuntime
+  branchName: string
+  worktreePath: string
+  expectedSurfaces: string[]
 }
 
-const PRIORITIES = ['urgent', 'high', 'medium', 'low'] as const
+const INTAKE_TEMPLATES: IntakeTemplate[] = [
+  {
+    key: 'approval_packet',
+    label: 'Approval packet',
+    summary: 'Use when a card needs approve, reject, or send-back with evidence visible.',
+    title: 'Review approval packet',
+    decisionNeeded: 'Confirm whether the requested work is safe to approve, reject, or send back for more evidence.',
+    recommendation: 'Approve only after the trace, owner, risk, and rollback path are explicit.',
+    evidenceHome: 'Decision Queue card and linked run trace.',
+    acceptanceCriteria: 'Decision is recorded, evidence link is visible, and the next owner knows the exact follow-up.',
+    ownerAgentKey: 'integration-captain',
+    ownerRuntime: 'codex',
+    branchName: 'codex/approval-packet-review',
+    worktreePath: '',
+    expectedSurfaces: ['coordination', 'run_console'],
+  },
+  {
+    key: 'stale_run',
+    label: 'Blocked or stale run',
+    summary: 'Use when a run is stale, failed, ownerless, or needs a recovery path.',
+    title: 'Resolve stale run recovery path',
+    decisionNeeded: 'Identify why the run is stale or blocked and choose the safest recovery action.',
+    recommendation: 'Route to Run Console, document the stale reason, then either retry, reassign, or close with a trace note.',
+    evidenceHome: 'Run Console trace, events, and current owner state.',
+    acceptanceCriteria: 'The stale reason, recovery owner, retry decision, and trace link are visible before the item leaves the queue.',
+    ownerAgentKey: 'chief-of-staff',
+    ownerRuntime: 'codex',
+    branchName: 'codex/stale-run-recovery',
+    worktreePath: '',
+    expectedSurfaces: ['run_console', 'coordination'],
+  },
+  {
+    key: 'kanban_handoff',
+    label: 'Ready for Kanban',
+    summary: 'Use when a decision should become tracked implementation work.',
+    title: 'Prepare Kanban handoff',
+    decisionNeeded: 'Confirm the owner, scope, expected files, blocker state, and validation path before moving the work to Kanban.',
+    recommendation: 'Create a bounded handoff with a single owner, visible acceptance criteria, and a clear validation gate.',
+    evidenceHome: 'Decision Queue item, Agent Kanban card, and PR or trace evidence when available.',
+    acceptanceCriteria: 'The Kanban card has an owner, goal tag or trace link, expected surfaces, WIP lane, and next action.',
+    ownerAgentKey: 'integration-captain',
+    ownerRuntime: 'codex',
+    branchName: 'codex/kanban-handoff',
+    worktreePath: '',
+    expectedSurfaces: ['kanban', 'coordination'],
+  },
+  {
+    key: 'risk_review',
+    label: 'Risk review',
+    summary: 'Use when Moremi, governance, RAG, or deployment safety needs a decision.',
+    title: 'Review risk signal',
+    decisionNeeded: 'Decide whether the signal blocks work, requires approval, or can move forward with monitoring.',
+    recommendation: 'Keep production mutation blocked until the risk, evidence, and rollback path are explicit.',
+    evidenceHome: 'Moremi signal, governance record, Open Brain proposal, or deployment trace.',
+    acceptanceCriteria: 'Risk decision is documented, owner is assigned, and the next step is approval-gated when needed.',
+    ownerAgentKey: 'risk-compliance-intelligence',
+    ownerRuntime: 'manual',
+    branchName: 'codex/risk-review',
+    worktreePath: '',
+    expectedSurfaces: ['open_brain', 'coordination', 'run_console'],
+  },
+]
+
+const INTAKE_TEMPLATE_MAP = Object.fromEntries(INTAKE_TEMPLATES.map((template) => [template.key, template])) as Record<IntakeTemplateKey, IntakeTemplate>
+
+function formFromTemplate(template: IntakeTemplate): WorkItemForm {
+  return {
+    template_key: template.key,
+    title: template.title,
+    decision_needed: template.decisionNeeded,
+    recommendation: template.recommendation,
+    evidence_home: template.evidenceHome,
+    acceptance_criteria: template.acceptanceCriteria,
+    owner_agent_key: template.ownerAgentKey,
+    owner_runtime: template.ownerRuntime,
+    branch_name: template.branchName,
+    worktree_path: template.worktreePath,
+    expected_surfaces: template.expectedSurfaces,
+  }
+}
+
+const DEFAULT_FORM: WorkItemForm = formFromTemplate(INTAKE_TEMPLATES[0])
+
+function expectedFilesForSurfaces(surfaceKeys: string[]) {
+  const files = surfaceKeys.flatMap((surfaceKey) => SURFACE_OPTIONS.find((surface) => surface.key === surfaceKey)?.files ?? [])
+  return Array.from(new Set(files))
+}
+
+function decisionObjective(form: WorkItemForm) {
+  const template = INTAKE_TEMPLATE_MAP[form.template_key]
+  return [
+    `Decision type: ${template.label}`,
+    `Action needed: ${form.decision_needed.trim()}`,
+    `Recommended path: ${form.recommendation.trim()}`,
+    form.evidence_home.trim() ? `Evidence home: ${form.evidence_home.trim()}` : null,
+    `Acceptance criteria: ${form.acceptance_criteria.trim()}`,
+  ].filter(Boolean).join('\n\n')
+}
 
 function isAutoResearchIdea(item: AgentWorkItem) {
   return item.source_type === VERCEL_AUTORESEARCH_IDEA_SOURCE_TYPE || item.metadata?.autoresearch_idea === true
@@ -243,18 +399,26 @@ function AgentCoordinationContent() {
     setSubmitting(true)
     setError(null)
     try {
+      const objective = decisionObjective(form)
       const response = await authedFetch('/api/admin/agents/work-items', {
         method: 'POST',
         body: JSON.stringify({
           title: form.title,
-          objective: form.objective,
+          objective,
           owner_agent_key: form.owner_agent_key,
           owner_runtime: form.owner_runtime,
           branch_name: form.branch_name || null,
           worktree_path: form.worktree_path || null,
-          expected_files: form.expected_files.split('\n').map((line) => line.trim()).filter(Boolean),
+          expected_files: expectedFilesForSurfaces(form.expected_surfaces),
           source_type: 'admin_agent_coordination',
           source_label: 'Agent Coordination',
+          metadata: {
+            intake_template: form.template_key,
+            action_required: form.decision_needed,
+            recommendation: form.recommendation,
+            evidence_home: form.evidence_home,
+            expected_surfaces: form.expected_surfaces,
+          },
         }),
       })
       const body = await response.json().catch(() => ({}))
@@ -266,6 +430,22 @@ function AgentCoordinationContent() {
     } finally {
       setSubmitting(false)
     }
+  }
+
+  function applyIntakeTemplate(templateKey: IntakeTemplateKey) {
+    setForm(formFromTemplate(INTAKE_TEMPLATE_MAP[templateKey]))
+  }
+
+  function toggleExpectedSurface(surfaceKey: string) {
+    setForm((prev) => {
+      const hasSurface = prev.expected_surfaces.includes(surfaceKey)
+      return {
+        ...prev,
+        expected_surfaces: hasSurface
+          ? prev.expected_surfaces.filter((key) => key !== surfaceKey)
+          : [...prev.expected_surfaces, surfaceKey],
+      }
+    })
   }
 
   async function quickAction(item: AgentWorkItem, action: 'block' | 'validation' | 'handoff') {
@@ -515,10 +695,10 @@ function AgentCoordinationContent() {
         ) : null}
 
         <section className="agent-ops-card mb-6 rounded-lg border p-4">
-          <div className="mb-4 flex flex-col gap-3">
+          <div className="mb-5 flex flex-col gap-3">
             <div>
-              <h2 className="text-base font-semibold">Queue tools and intake</h2>
-              <p className="mt-1 text-sm text-muted-foreground">Use filters and creation after the decision cards above. This section is for queue administration, not the first decision path.</p>
+              <h2 className="text-base font-semibold">Queue filters</h2>
+              <p className="mt-1 text-sm text-muted-foreground">Narrow the archive after the controller cards. Filters are for finding existing decisions, not creating new work.</p>
             </div>
             <div className="flex flex-wrap gap-2" aria-label="Status filters">
             {STATUSES.map((item) => (
@@ -537,69 +717,192 @@ function AgentCoordinationContent() {
             </div>
           </div>
 
-          <form onSubmit={createWorkItem} className="grid gap-3 border-t border-silicon-slate/60 pt-4 lg:grid-cols-3">
-            <div className="lg:col-span-3">
-              <h2 className="text-base font-semibold">Create controller work item</h2>
-              <p className="mt-1 text-sm text-muted-foreground">Open a decision packet with owner, objective, expected files, branch, and worktree context.</p>
+          <form onSubmit={createWorkItem} className="border-t border-silicon-slate/60 pt-5">
+            <div className="mb-4 flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <h2 className="flex items-center gap-2 text-base font-semibold">
+                  <ClipboardCheck size={18} className="text-radiant-gold" />
+                  Decision intake
+                </h2>
+                <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
+                  Use this only when the queue needs a new decision packet. Pick the scenario, confirm the owner and evidence home, then create the item.
+                </p>
+              </div>
+              <div className="rounded-full border border-silicon-slate/70 bg-silicon-slate/20 px-3 py-1 text-xs text-muted-foreground">
+                Structured intake
+              </div>
             </div>
-            <input
-              value={form.title}
-              onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
-              placeholder="Work item title"
-              className="rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm"
-            />
-            <input
-              value={form.owner_agent_key}
-              onChange={(event) => setForm((prev) => ({ ...prev, owner_agent_key: event.target.value }))}
-              placeholder="owner agent key"
-              className="rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm"
-            />
-            <select
-              value={form.owner_runtime}
-              onChange={(event) => setForm((prev) => ({ ...prev, owner_runtime: event.target.value as AgentRuntime }))}
-              aria-label="owner runtime"
-              className="rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm"
-            >
-              <option value="codex">codex</option>
-              <option value="n8n">n8n</option>
-              <option value="hermes">hermes</option>
-              <option value="manual">manual</option>
-            </select>
-            <input
-              value={form.branch_name}
-              onChange={(event) => setForm((prev) => ({ ...prev, branch_name: event.target.value }))}
-              placeholder="branch name"
-              className="rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm"
-            />
-            <textarea
-              value={form.objective}
-              onChange={(event) => setForm((prev) => ({ ...prev, objective: event.target.value }))}
-              placeholder="Objective and acceptance criteria"
-              rows={3}
-              className="rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm lg:col-span-2"
-            />
-            <div className="grid gap-3">
-              <input
-                value={form.worktree_path}
-                onChange={(event) => setForm((prev) => ({ ...prev, worktree_path: event.target.value }))}
-                placeholder="worktree path"
-                className="rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm"
-              />
-              <textarea
-                value={form.expected_files}
-                onChange={(event) => setForm((prev) => ({ ...prev, expected_files: event.target.value }))}
-                placeholder="expected files, one per line"
-                rows={2}
-                className="rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm"
-              />
-              <button
-                type="submit"
-                disabled={submitting || !form.title.trim() || !form.objective.trim()}
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-radiant-gold/60 bg-radiant-gold/15 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/20 disabled:opacity-50"
-              >
-                <Network size={16} />
-                Create work item
-              </button>
+
+            <div className="grid gap-3 lg:grid-cols-4">
+              {INTAKE_TEMPLATES.map((template) => {
+                const selected = form.template_key === template.key
+                return (
+                  <button
+                    type="button"
+                    key={template.key}
+                    onClick={() => applyIntakeTemplate(template.key)}
+                    aria-label={`Use ${template.label} intake template`}
+                    className={`rounded-lg border p-3 text-left transition ${
+                      selected
+                        ? 'border-radiant-gold/70 bg-radiant-gold/10 text-foreground'
+                        : 'border-silicon-slate/70 bg-background/50 text-muted-foreground hover:border-radiant-gold/40 hover:text-foreground'
+                    }`}
+                    aria-pressed={selected}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-semibold">
+                      {template.key === 'approval_packet' ? <ClipboardCheck size={16} /> : template.key === 'stale_run' ? <AlertTriangle size={16} /> : template.key === 'kanban_handoff' ? <ListChecks size={16} /> : <ShieldAlert size={16} />}
+                      {template.label}
+                    </span>
+                    <span className="mt-2 block text-xs leading-5 text-muted-foreground">{template.summary}</span>
+                  </button>
+                )
+              })}
+            </div>
+
+            <div className="mt-4 grid gap-4 rounded-lg border border-silicon-slate/70 bg-background/45 p-4 lg:grid-cols-[1.2fr_0.8fr]">
+              <div className="space-y-3">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Decision title
+                  <input
+                    value={form.title}
+                    onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
+                    aria-label="Decision title"
+                    className="mt-2 w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm font-normal normal-case tracking-normal text-foreground outline-none placeholder:text-muted-foreground/70 focus:border-radiant-gold/70"
+                  />
+                </label>
+
+                <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  What decision is needed?
+                  <textarea
+                    value={form.decision_needed}
+                    onChange={(event) => setForm((prev) => ({ ...prev, decision_needed: event.target.value }))}
+                    aria-label="What decision is needed?"
+                    rows={2}
+                    className="mt-2 w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm font-normal normal-case leading-6 tracking-normal text-foreground outline-none placeholder:text-muted-foreground/70 focus:border-radiant-gold/70"
+                  />
+                </label>
+
+                <div className="grid gap-3 md:grid-cols-2">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Recommended path
+                    <textarea
+                      value={form.recommendation}
+                      onChange={(event) => setForm((prev) => ({ ...prev, recommendation: event.target.value }))}
+                      aria-label="Recommended path"
+                      rows={3}
+                      className="mt-2 w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm font-normal normal-case leading-6 tracking-normal text-foreground outline-none placeholder:text-muted-foreground/70 focus:border-radiant-gold/70"
+                    />
+                  </label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Acceptance criteria
+                    <textarea
+                      value={form.acceptance_criteria}
+                      onChange={(event) => setForm((prev) => ({ ...prev, acceptance_criteria: event.target.value }))}
+                      aria-label="Acceptance criteria"
+                      rows={3}
+                      className="mt-2 w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm font-normal normal-case leading-6 tracking-normal text-foreground outline-none placeholder:text-muted-foreground/70 focus:border-radiant-gold/70"
+                    />
+                  </label>
+                </div>
+
+                <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Evidence home
+                  <input
+                    value={form.evidence_home}
+                    onChange={(event) => setForm((prev) => ({ ...prev, evidence_home: event.target.value }))}
+                    aria-label="Evidence home"
+                    className="mt-2 w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm font-normal normal-case tracking-normal text-foreground outline-none placeholder:text-muted-foreground/70 focus:border-radiant-gold/70"
+                  />
+                </label>
+              </div>
+
+              <div className="space-y-3">
+                <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-1">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Owner
+                    <select
+                      value={form.owner_agent_key}
+                      onChange={(event) => setForm((prev) => ({ ...prev, owner_agent_key: event.target.value }))}
+                      aria-label="Owner agent"
+                      className="mt-2 w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm font-normal normal-case tracking-normal text-foreground outline-none placeholder:text-muted-foreground/70 focus:border-radiant-gold/70"
+                    >
+                      {OWNER_OPTIONS.map((owner) => (
+                        <option key={owner.key} value={owner.key}>{owner.label} · {owner.role}</option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Runtime
+                    <select
+                      value={form.owner_runtime}
+                      onChange={(event) => setForm((prev) => ({ ...prev, owner_runtime: event.target.value as AgentRuntime }))}
+                      aria-label="owner runtime"
+                      className="mt-2 w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm font-normal normal-case tracking-normal text-foreground outline-none placeholder:text-muted-foreground/70 focus:border-radiant-gold/70"
+                    >
+                      <option value="codex">codex</option>
+                      <option value="n8n">n8n</option>
+                      <option value="hermes">hermes</option>
+                      <option value="opencode">opencode</option>
+                      <option value="manual">manual</option>
+                    </select>
+                  </label>
+                </div>
+
+                <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-3">
+                  <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <FileText size={14} />
+                    Expected surfaces
+                  </div>
+                  <div className="grid gap-2">
+                    {SURFACE_OPTIONS.map((surface) => (
+                      <label key={surface.key} className="flex items-center gap-2 rounded-md border border-silicon-slate/60 bg-background/40 px-3 py-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={form.expected_surfaces.includes(surface.key)}
+                          onChange={() => toggleExpectedSurface(surface.key)}
+                          aria-label={`Expected surface ${surface.label}`}
+                          className="accent-radiant-gold"
+                        />
+                        <span>{surface.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <details className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-3 text-sm">
+                  <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wider text-muted-foreground">Implementation context</summary>
+                  <div className="mt-3 grid gap-3">
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      Branch
+                      <input
+                        value={form.branch_name}
+                        onChange={(event) => setForm((prev) => ({ ...prev, branch_name: event.target.value }))}
+                        aria-label="Branch name"
+                        className="mt-2 w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm font-normal normal-case tracking-normal text-foreground outline-none placeholder:text-muted-foreground/70 focus:border-radiant-gold/70"
+                      />
+                    </label>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      Worktree path
+                      <input
+                        value={form.worktree_path}
+                        onChange={(event) => setForm((prev) => ({ ...prev, worktree_path: event.target.value }))}
+                        aria-label="Worktree path"
+                        className="mt-2 w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm font-normal normal-case tracking-normal text-foreground outline-none placeholder:text-muted-foreground/70 focus:border-radiant-gold/70"
+                      />
+                    </label>
+                  </div>
+                </details>
+
+                <button
+                  type="submit"
+                  disabled={submitting || !form.title.trim() || !form.decision_needed.trim() || !form.acceptance_criteria.trim() || form.expected_surfaces.length === 0}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-radiant-gold/60 bg-radiant-gold/15 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/20 disabled:opacity-50"
+                >
+                  <Network size={16} />
+                  Create decision packet
+                </button>
+              </div>
             </div>
           </form>
         </section>
