@@ -115,7 +115,7 @@ const boardSnapshot = {
             status: 'ready_for_merge',
             priority: 'medium',
             ownerAgentKey: 'automation-systems',
-            ownerAgentName: 'Amina - Automation Systems',
+            ownerAgentName: 'integration-captain',
             ownerRuntime: 'codex',
             branchName: 'codex/review-packet',
             worktreePath: '/Users/vambahsillah/Projects/Portfolio.worktrees/review-packet',
@@ -271,6 +271,7 @@ describe('AgentSwarmBoardPage', () => {
     expect(screen.getAllByText('Resolve blocker').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Attach PR').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Open trace').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Integration Captain').length).toBeGreaterThan(0)
     expect(screen.getByRole('link', { name: `Open pull request 203 for ${longTaskTitle}` })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: `Open trace run-1 for ${longTaskTitle}` })).toHaveAttribute('href', '/admin/agents/runs/run-1')
   })
