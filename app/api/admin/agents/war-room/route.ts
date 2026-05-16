@@ -31,7 +31,9 @@ export async function POST(request: NextRequest) {
     command?: unknown
     message?: unknown
     target_agent_key?: unknown
+    target_agent_keys?: unknown
     targetAgentKey?: unknown
+    targetAgentKeys?: unknown
     goal_id?: unknown
     goalId?: unknown
     goal?: unknown
@@ -58,6 +60,15 @@ export async function POST(request: NextRequest) {
     : typeof body.targetAgentKey === 'string'
       ? body.targetAgentKey.trim()
       : ''
+  const targetAgentKeysRaw = Array.isArray(body.target_agent_keys)
+    ? body.target_agent_keys
+    : Array.isArray(body.targetAgentKeys)
+      ? body.targetAgentKeys
+      : []
+  const targetAgentKeys = targetAgentKeysRaw
+    .filter((value): value is string => typeof value === 'string')
+    .map((value) => value.trim())
+    .filter(Boolean)
   if (command === 'ask_agent' && !targetAgentKey) {
     return NextResponse.json({ error: 'target_agent_key is required for ask_agent' }, { status: 400 })
   }
@@ -81,6 +92,7 @@ export async function POST(request: NextRequest) {
       command,
       message,
       targetAgentKey,
+      targetAgentKeys,
       goalId,
       goal,
       draft: command === 'approve_goal' ? body.draft as never : null,

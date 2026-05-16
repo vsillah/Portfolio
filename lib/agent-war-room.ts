@@ -48,6 +48,7 @@ export interface RunAgentWarRoomInput {
   command: AgentWarRoomCommand
   message?: string | null
   targetAgentKey?: string | null
+  targetAgentKeys?: string[] | null
   goalId?: string | null
   goal?: string | null
   draft?: AgentGoalDraft | null
@@ -73,11 +74,30 @@ function callableAgents() {
   return AGENT_ORGANIZATION.filter((agent) => agent.status !== 'planned')
 }
 
-function selectAgents(command: AgentWarRoomCommand, message: string | null, targetAgentKey?: string | null) {
+function selectedCallableAgents(targetAgentKeys?: string[] | null) {
+  if (!targetAgentKeys?.length) return []
+  const seen = new Set<string>()
+  return targetAgentKeys.map((key) => {
+    const agent = getAgentByKey(key)
+    if (!agent || agent.status === 'planned') throw new Error(`Invalid agent key: ${key}`)
+    return agent
+  }).filter((agent) => {
+    if (seen.has(agent.key)) return false
+    seen.add(agent.key)
+    return true
+  })
+}
+
+function selectAgents(command: AgentWarRoomCommand, message: string | null, targetAgentKey?: string | null, targetAgentKeys?: string[] | null) {
   if (command === 'ask_agent') {
     const agent = getAgentByKey(targetAgentKey ?? '')
     if (!agent || agent.status === 'planned') throw new Error('Invalid agent key')
     return [agent]
+  }
+
+  if (command === 'standup' || command === 'discuss') {
+    const selected = selectedCallableAgents(targetAgentKeys)
+    if (selected.length) return selected
   }
 
   const callable = callableAgents()
@@ -423,6 +443,7 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
       command: input.command,
       message_preview: message,
       target_agent_key: input.targetAgentKey ?? null,
+      target_agent_keys: input.targetAgentKeys ?? null,
       goal_preview: goal,
       goal_id: activeGoalId,
       goal_session_href: activeGoalId ? goalSessionHref(activeGoalId) : null,
@@ -436,7 +457,7 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
     buildAgentMissionControlSnapshot(),
     buildAgentOrgBoardSnapshot(),
   ])
-  const agents = selectAgents(input.command, message ?? goal, input.targetAgentKey)
+  const agents = selectAgents(input.command, message ?? goal, input.targetAgentKey, input.targetAgentKeys)
   const updates = agents.map((agent) => agentUpdate(agent, input.command, message ?? goal, orgSnapshot))
   const synthesis = synthesize(input.command, updates, snapshot.attention_queue.length)
   const messages: AgentWarRoomMessage[] = [

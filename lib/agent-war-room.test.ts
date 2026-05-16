@@ -178,6 +178,22 @@ describe('runAgentWarRoom', () => {
     expect(result.messages.map((message) => message.content).join(' ')).toContain('Needs operator decision')
   })
 
+  it('limits standup updates to selected agent keys when provided', async () => {
+    const result = await runAgentWarRoom({
+      command: 'standup',
+      targetAgentKeys: ['engineering-copilot', 'chief-of-staff', 'engineering-copilot'],
+      triggerSource: 'test_war_room',
+      actor: { id: 'admin-user', label: 'Admin', type: 'admin_user' },
+    })
+
+    expect(result.updates.map((update) => update.agent_key)).toEqual(['engineering-copilot', 'chief-of-staff'])
+    expect(agentRunMocks.startAgentRun).toHaveBeenCalledWith(expect.objectContaining({
+      metadata: expect.objectContaining({
+        target_agent_keys: ['engineering-copilot', 'chief-of-staff', 'engineering-copilot'],
+      }),
+    }))
+  })
+
   it('rejects discuss without a message', async () => {
     await expect(
       runAgentWarRoom({
