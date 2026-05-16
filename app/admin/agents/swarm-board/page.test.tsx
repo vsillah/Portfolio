@@ -244,9 +244,13 @@ describe('AgentSwarmBoardPage', () => {
     render(<AgentSwarmBoardPage />)
 
     expect(await screen.findByRole('heading', { name: 'Agent Kanban' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Work by state, owner, and blocker' })).toBeInTheDocument()
-    expect(screen.getAllByText(/Work by state, owner, and blocker/i).length).toBeGreaterThan(0)
-    expect(screen.getByText(/Work-lane Kanban organized by agent ownership/i)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Work by status, owner, and blocker' })).toBeInTheDocument()
+    expect(screen.getAllByText(/Work by status, owner, and blocker/i).length).toBeGreaterThan(0)
+    expect(screen.getByText(/Default Kanban uses fixed status swimlanes/i)).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'To Do lane' })).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'In Progress lane' })).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Blocked lane' })).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Complete lane' })).toBeInTheDocument()
     expect(screen.getByText('Goal progress')).toBeInTheDocument()
     expect(screen.getByRole('region', { name: 'Kanban action queue' })).toBeInTheDocument()
     expect(screen.getAllByText('Launch Standup Room').length).toBeGreaterThan(0)
@@ -261,8 +265,10 @@ describe('AgentSwarmBoardPage', () => {
   it('renders lanes and explicit card affordances', async () => {
     render(<AgentSwarmBoardPage />)
 
-    expect(await screen.findByRole('region', { name: `${longLaneLabel} lane` })).toBeInTheDocument()
-    expect(screen.getByRole('region', { name: 'Empty validation lane lane' })).toBeInTheDocument()
+    expect(await screen.findByRole('region', { name: 'Blocked lane' })).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'In Progress lane' })).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'To Do lane' })).toHaveAttribute('data-collapsed', 'true')
+    expect(screen.getByRole('region', { name: 'Complete lane' })).toHaveAttribute('data-collapsed', 'true')
     expect(screen.getAllByText(longTaskTitle).length).toBeGreaterThan(0)
     expect(screen.getAllByText('Trace').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Owner').length).toBeGreaterThan(0)
@@ -272,8 +278,9 @@ describe('AgentSwarmBoardPage', () => {
     expect(screen.getAllByText('Attach PR').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Open trace').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Integration Captain').length).toBeGreaterThan(0)
-    expect(screen.getAllByText('Trace unavailable').length).toBeGreaterThan(0)
-    expect(screen.getAllByText('PR unavailable').length).toBeGreaterThan(0)
+    expect(screen.getAllByRole('img', { name: /Illustrated avatar for/i }).length).toBeGreaterThan(0)
+    expect(screen.getAllByText('No trace').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('No PR').length).toBeGreaterThan(0)
     expect(screen.getByLabelText('Trace unavailable for Prepare review packet without an attached PR')).toBeInTheDocument()
     expect(screen.getByLabelText('Pull request unavailable for Prepare review packet without an attached PR')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: `Open pull request 203 for ${longTaskTitle}` })).toBeInTheDocument()
@@ -284,7 +291,7 @@ describe('AgentSwarmBoardPage', () => {
     render(<AgentSwarmBoardPage />)
 
     const actionQueue = await screen.findByRole('region', { name: 'Kanban action queue' })
-    const laneSurface = screen.getByRole('heading', { name: 'Work by state, owner, and blocker' })
+    const laneSurface = screen.getByRole('heading', { name: 'Work by status, owner, and blocker' })
 
     expect(actionQueue.compareDocumentPosition(laneSurface) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(screen.getByText('Board action queue')).toBeInTheDocument()
@@ -368,27 +375,30 @@ describe('AgentSwarmBoardPage', () => {
     expect(screen.getByRole('link', { name: 'Open trace' })).toHaveAttribute('href', '/admin/agents/runs/war-room-run-1')
   })
 
-  it('keeps lane order fixed while collapsing empty lanes', async () => {
+  it('keeps fixed status lane order while collapsing empty lanes', async () => {
     render(<AgentSwarmBoardPage />)
 
-    const populatedLane = await screen.findByRole('region', { name: `${longLaneLabel} lane` })
-    const emptyLane = screen.getByRole('region', { name: 'Empty validation lane lane' })
+    const todoLane = await screen.findByRole('region', { name: 'To Do lane' })
+    const inProgressLane = screen.getByRole('region', { name: 'In Progress lane' })
+    const blockedLane = screen.getByRole('region', { name: 'Blocked lane' })
+    const completeLane = screen.getByRole('region', { name: 'Complete lane' })
 
-    expect(populatedLane.compareDocumentPosition(emptyLane) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    expect(screen.getByText('Collapsed empty lane')).toBeInTheDocument()
-    expect(emptyLane).toHaveAttribute('data-collapsed', 'true')
+    expect(todoLane.compareDocumentPosition(inProgressLane) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(inProgressLane.compareDocumentPosition(blockedLane) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(blockedLane.compareDocumentPosition(completeLane) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(screen.getAllByText('Collapsed empty lane').length).toBeGreaterThan(0)
+    expect(todoLane).toHaveAttribute('data-collapsed', 'true')
+    expect(completeLane).toHaveAttribute('data-collapsed', 'true')
     expect(screen.queryByText('No active tasks in this lane')).not.toBeInTheDocument()
     expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, left: 0 })
   })
 
-  it('keeps long lane and card labels accessible without truncation-only styling', async () => {
+  it('keeps long card labels accessible without truncation-only styling', async () => {
     render(<AgentSwarmBoardPage />)
 
-    const laneLabel = await screen.findByTitle(longLaneLabel)
+    await screen.findByRole('region', { name: 'Blocked lane' })
     const cardTitle = screen.getAllByTitle(longTaskTitle).find((element) => element.tagName.toLowerCase() === 'p')
 
-    expect(laneLabel).toHaveTextContent(longLaneLabel)
-    expect(laneLabel).toHaveClass('break-words')
     expect(cardTitle).toBeDefined()
     expect(cardTitle).toHaveTextContent(longTaskTitle)
     expect(cardTitle).toHaveClass('break-words')

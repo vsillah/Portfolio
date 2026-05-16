@@ -41,9 +41,43 @@ type BoardMode = 'kanban' | 'hive' | 'agents' | 'war-room' | 'client-builder'
 type AttentionFilter = 'all' | 'blocked' | 'review' | 'unassigned'
 type BoardAction = {
   task: AgentOrgBoardTask
-  lane: AgentOrgBoardLane
+  lane: Pick<AgentOrgBoardLane, 'key' | 'label' | 'tasks'>
   nextAction: ReturnType<typeof nextActionForTask>
 }
+type StatusSwimlane = {
+  key: 'todo' | 'in_progress' | 'blocked' | 'complete'
+  label: string
+  description: string
+  statuses: AgentOrgBoardTask['status'][]
+  tasks: AgentOrgBoardTask[]
+}
+
+const STATUS_SWIMLANES: Array<Omit<StatusSwimlane, 'tasks'>> = [
+  {
+    key: 'todo',
+    label: 'To Do',
+    description: 'Queued, proposed, or assigned work that has not started.',
+    statuses: ['proposed', 'queued', 'assigned'],
+  },
+  {
+    key: 'in_progress',
+    label: 'In Progress',
+    description: 'Active work, validation, and review-ready cards moving toward handoff.',
+    statuses: ['in_progress', 'ready_for_review', 'ready_for_merge'],
+  },
+  {
+    key: 'blocked',
+    label: 'Blocked',
+    description: 'Work that needs an owner decision, recovery action, or blocker removal.',
+    statuses: ['blocked'],
+  },
+  {
+    key: 'complete',
+    label: 'Complete',
+    description: 'Merged, deployed, or cancelled work retained when present in the board snapshot.',
+    statuses: ['merged', 'deployed', 'cancelled'],
+  },
+]
 
 const MODES: Array<{ key: BoardMode; label: string; icon: typeof LayoutDashboard }> = [
   { key: 'kanban', label: 'Kanban lanes', icon: LayoutDashboard },
@@ -142,7 +176,7 @@ function AgentSwarmBoardContent() {
             </div>
             <h1 className="text-3xl font-bold">Agent Kanban</h1>
             <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-              Work by state, owner, and blocker. This is the drilldown for standup output, active work lanes, trace links, validation, and pull requests across the Portfolio agent team.
+              Work by status swimlane with owner badges on each card. This is the drilldown for standup output, active work, trace links, validation, and pull requests across the Portfolio agent team.
             </p>
           </div>
           <div className="agent-ops-header-actions">
@@ -275,10 +309,8 @@ function KanbanBoard({
     }
     return [...options.entries()].sort((a, b) => a[1].localeCompare(b[1]))
   }, [allTasks])
-  const filteredLanes = useMemo(() => {
-    return organization.lanes.map((lane) => ({
-      ...lane,
-      tasks: lane.tasks.filter((task) => {
+  const visibleTasks = useMemo(() => {
+    return allTasks.filter((task) => {
         if (selectedGoalId !== 'all' && task.goal?.id !== selectedGoalId) return false
         if (ownerFilter !== 'all') {
           if (ownerFilter === 'unassigned') {
@@ -292,11 +324,18 @@ function KanbanBoard({
         if (attentionFilter === 'review' && task.status !== 'ready_for_review' && task.status !== 'ready_for_merge') return false
         if (attentionFilter === 'unassigned' && task.ownerAgentKey) return false
         return true
-      }),
+    })
+  }, [allTasks, attentionFilter, ownerFilter, selectedGoalId, statusFilter])
+  const statusLanes = useMemo(() => {
+    return STATUS_SWIMLANES.map((lane) => ({
+      ...lane,
+      tasks: visibleTasks
+        .filter((task) => lane.statuses.includes(task.status))
+        .sort(sortTasksForLane),
     }))
-  }, [attentionFilter, organization.lanes, ownerFilter, selectedGoalId, statusFilter])
-  const filteredTasks = filteredLanes.flatMap((lane) => lane.tasks)
-  const boardActions = useMemo(() => buildBoardActions(filteredLanes), [filteredLanes])
+  }, [visibleTasks])
+  const filteredTasks = visibleTasks
+  const boardActions = useMemo(() => buildBoardActions(statusLanes), [statusLanes])
   const selectedGoal = organization.summary.goals.find((goal) => goal.id === selectedGoalId) ?? null
   const filtersActive = selectedGoalId !== 'all' || ownerFilter !== 'all' || statusFilter !== 'all' || attentionFilter !== 'all'
 
@@ -328,9 +367,9 @@ function KanbanBoard({
       <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-4">
         <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h2 className="text-xl font-semibold">Work by state, owner, and blocker</h2>
+            <h2 className="text-xl font-semibold">Work by status, owner, and blocker</h2>
             <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-              Work-lane Kanban organized by agent ownership. Use each card to inspect the trace, PR, owner, blocker, validation, and current status before handoff or merge review.
+              Default Kanban uses fixed status swimlanes: To Do, In Progress, Blocked, and Complete. Owner badges on each card show who is responsible without changing the board layout.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -340,7 +379,7 @@ function KanbanBoard({
         </div>
       </section>
       <div className="grid items-start gap-3 xl:grid-cols-4">
-        {filteredLanes.map((lane) => (
+        {statusLanes.map((lane) => (
           <TaskLane key={lane.key} lane={lane} />
         ))}
       </div>
@@ -543,7 +582,7 @@ function KanbanFilterPanel({
           <select
             value={selectedGoalId}
             onChange={(event) => onGoalChange(event.target.value)}
-            className="mt-1 w-full rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+            className="mt-1 w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm normal-case tracking-normal text-foreground outline-none focus:border-radiant-gold/70"
           >
             <option value="all">All goals</option>
             {goals.map((goal) => (
@@ -556,7 +595,7 @@ function KanbanFilterPanel({
           <select
             value={ownerFilter}
             onChange={(event) => onOwnerChange(event.target.value)}
-            className="mt-1 w-full rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+            className="mt-1 w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm normal-case tracking-normal text-foreground outline-none focus:border-radiant-gold/70"
           >
             <option value="all">All owners</option>
             <option value="unassigned">Unassigned</option>
@@ -570,7 +609,7 @@ function KanbanFilterPanel({
           <select
             value={statusFilter}
             onChange={(event) => onStatusChange(event.target.value as 'all' | AgentOrgBoardTask['status'])}
-            className="mt-1 w-full rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+            className="mt-1 w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm normal-case tracking-normal text-foreground outline-none focus:border-radiant-gold/70"
           >
             {STATUS_FILTERS.map((status) => (
               <option key={status} value={status}>{status.replace(/_/g, ' ')}</option>
@@ -582,7 +621,7 @@ function KanbanFilterPanel({
           <select
             value={attentionFilter}
             onChange={(event) => onAttentionChange(event.target.value as AttentionFilter)}
-            className="mt-1 w-full rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+            className="mt-1 w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm normal-case tracking-normal text-foreground outline-none focus:border-radiant-gold/70"
           >
             {ATTENTION_FILTERS.map((filter) => (
               <option key={filter.key} value={filter.key}>{filter.label}</option>
@@ -697,7 +736,7 @@ function SummaryStrip({ organization }: { organization: AgentOrgBoardSnapshot })
   )
 }
 
-function TaskLane({ lane }: { lane: AgentOrgBoardLane }) {
+function TaskLane({ lane }: { lane: StatusSwimlane }) {
   const isEmpty = lane.tasks.length === 0
   const blocked = lane.tasks.filter((task) => task.status === 'blocked').length
   const review = lane.tasks.filter((task) => task.status === 'ready_for_review' || task.status === 'ready_for_merge').length
@@ -707,7 +746,7 @@ function TaskLane({ lane }: { lane: AgentOrgBoardLane }) {
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <h2 className="break-words font-semibold" title={lane.label}>{lane.label}</h2>
-            <p className="mt-1 break-words text-xs text-muted-foreground" title={lane.agentName}>{lane.agentName}</p>
+            <p className="mt-1 break-words text-xs text-muted-foreground" title={lane.description}>{lane.description}</p>
           </div>
           <span className="rounded-full border border-silicon-slate/70 px-2 py-1 text-xs text-muted-foreground">
             {lane.tasks.length}
@@ -731,7 +770,12 @@ function TaskLane({ lane }: { lane: AgentOrgBoardLane }) {
   )
 }
 
-function buildBoardActions(lanes: AgentOrgBoardLane[]): BoardAction[] {
+function sortTasksForLane(a: AgentOrgBoardTask, b: AgentOrgBoardTask) {
+  const rank: Record<AgentOrgBoardTask['priority'], number> = { urgent: 0, high: 1, medium: 2, low: 3 }
+  return rank[a.priority] - rank[b.priority] || new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+}
+
+function buildBoardActions(lanes: Array<Pick<AgentOrgBoardLane, 'key' | 'label' | 'tasks'>>): BoardAction[] {
   return lanes
     .flatMap((lane) => lane.tasks.map((task) => ({ task, lane, nextAction: nextActionForTask(task) })))
     .filter(({ task }) => {
@@ -756,83 +800,100 @@ function actionRank(task: AgentOrgBoardTask) {
 function WorkItemCard({ task }: { task: AgentOrgBoardTask }) {
   const nextAction = nextActionForTask(task)
   return (
-    <article className="rounded-lg border border-silicon-slate/70 bg-background/70 p-3">
-      <div className="mb-2 flex items-start justify-between gap-2">
+    <article className="rounded-lg border border-silicon-slate/70 bg-background/70 p-2">
+      <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="break-words text-sm font-semibold" title={task.title}>{task.title}</p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            <span className="font-medium text-foreground/80">Status:</span> {task.status.replace(/_/g, ' ')}
+          <p
+            className="break-words text-sm font-semibold leading-snug"
+            title={task.title}
+            style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+          >
+            {task.title}
           </p>
+          <div className="mt-1.5 flex min-w-0 items-center gap-1.5 text-[11px] text-muted-foreground">
+            <span className="inline-flex min-w-0 flex-1 items-center gap-1.5 rounded-full border border-silicon-slate/70 bg-silicon-slate/20 px-1.5 py-0.5 text-foreground/85">
+              <AgentAvatar agentKey={task.ownerAgentKey} size="sm" className="h-5 w-5 rounded-md text-[8px]" />
+              <span className="truncate">{displayDetailValue('Owner', task.ownerAgentName)}</span>
+            </span>
+            <span className="shrink-0 rounded-full border border-silicon-slate/60 bg-silicon-slate/10 px-1.5 py-0.5">
+              {task.status.replace(/_/g, ' ')}
+            </span>
+            <span className="shrink-0">
+              {task.completedAt ? `Cycle ${formatHours(task.createdAt, task.completedAt)}` : `Age ${formatHours(task.createdAt)}`}
+            </span>
+          </div>
         </div>
-        <span className={`rounded-full px-2 py-1 text-xs ${priorityClass(task.priority)}`}>{task.priority}</span>
+        <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-[11px] ${priorityClass(task.priority)}`}>{task.priority}</span>
       </div>
       {task.goal && (
         <Link
           href={task.goal.sessionHref}
-          className="mb-3 inline-flex max-w-full items-center rounded-full border border-radiant-gold/40 bg-radiant-gold/10 px-2 py-1 text-xs text-radiant-gold hover:bg-radiant-gold/15"
+          className="mt-1.5 inline-flex max-w-full items-center rounded-full border border-radiant-gold/40 bg-radiant-gold/10 px-1.5 py-0.5 text-[11px] text-radiant-gold hover:bg-radiant-gold/15"
         >
           <span className="truncate">Goal: {task.goal.title}</span>
         </Link>
       )}
-      {task.objective && <p className="mb-3 line-clamp-2 text-xs text-muted-foreground">{task.objective}</p>}
-      <div className={`mb-3 rounded-lg border p-2 text-xs ${nextAction.tone}`}>
-        <p className="font-semibold">{nextAction.label}</p>
-        <p className="mt-1 text-foreground/80">{nextAction.detail}</p>
-      </div>
-      <dl className="grid gap-2 text-xs">
-        <CardDetail label="Trace" value={task.activeRunId ?? 'No active trace'} />
-        <CardDetail label="Owner" value={task.ownerAgentName} />
-        {task.ownerRuntime && <CardDetail label="Runtime" value={task.ownerRuntime} />}
-        {task.branchName && <CardDetail label="Branch" value={task.branchName} />}
-        {task.overlapGroup && <CardDetail label="Overlap" value={task.overlapGroup} />}
-      </dl>
-      <div className="mt-3 flex flex-wrap gap-2 text-xs">
-        {task.branchName && <Badge label={task.branchName} />}
-        {task.ownerRuntime && <Badge label={task.ownerRuntime} />}
-      </div>
-      {task.blockerSummary && (
-        <p className="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 p-2 text-xs text-red-200">
-          <span className="font-semibold">Blocker:</span> {task.blockerSummary}
-        </p>
-      )}
-      {task.validationSummary && (
-        <p className="mt-3 rounded-lg border border-green-500/30 bg-green-500/10 p-2 text-xs text-green-200">
-          <span className="font-semibold">Validation:</span> {task.validationSummary}
-        </p>
-      )}
-      <div className="mt-3 flex items-center justify-between gap-2 text-xs text-muted-foreground">
-        <span>{task.completedAt ? `Cycle ${formatHours(task.createdAt, task.completedAt)}` : `Age ${formatHours(task.createdAt)}`}</span>
-        <span>{task.prUrl ? `PR ${task.prNumber}` : 'PR: none'}</span>
-      </div>
-      <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+
+      <div className="mt-1.5 flex items-center gap-1.5 text-[11px]">
+        <span className={`min-w-0 flex-1 truncate rounded-md border px-1.5 py-1 ${nextAction.tone}`} title={nextAction.detail}>
+          {nextAction.label}
+        </span>
         {task.activeRunId ? (
           <a
             href={`/admin/agents/runs/${task.activeRunId}`}
             aria-label={`Open trace ${task.activeRunId} for ${task.title}`}
-            className="inline-flex items-center justify-center rounded-lg border border-radiant-gold/45 bg-radiant-gold/10 px-2 py-2 text-radiant-gold hover:bg-radiant-gold/15"
+            className="inline-flex shrink-0 items-center justify-center rounded-md border border-radiant-gold/45 bg-radiant-gold/10 px-1.5 py-1 text-radiant-gold hover:bg-radiant-gold/15"
           >
             Trace
           </a>
         ) : (
-          <span className="inline-flex items-center justify-center rounded-lg border border-dashed border-silicon-slate/50 bg-transparent px-2 py-2 text-muted-foreground/75" aria-label={`Trace unavailable for ${task.title}`}>
-            Trace unavailable
+          <span className="inline-flex shrink-0 items-center justify-center rounded-md border border-dashed border-silicon-slate/50 bg-transparent px-1.5 py-1 text-muted-foreground/75" aria-label={`Trace unavailable for ${task.title}`}>
+            No trace
           </span>
         )}
         {task.prUrl ? (
           <a
             href={task.prUrl}
             aria-label={`Open pull request ${task.prNumber ?? ''} for ${task.title}`.trim()}
-            className="inline-flex items-center justify-center gap-1 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-2 py-2 text-radiant-gold hover:border-radiant-gold/45"
+            className="inline-flex shrink-0 items-center justify-center gap-1 rounded-md border border-silicon-slate/70 bg-silicon-slate/20 px-1.5 py-1 text-radiant-gold hover:border-radiant-gold/45"
           >
             <GitPullRequest size={13} />
             PR
           </a>
         ) : (
-          <span className="inline-flex items-center justify-center rounded-lg border border-dashed border-silicon-slate/50 bg-transparent px-2 py-2 text-muted-foreground/75" aria-label={`Pull request unavailable for ${task.title}`}>
-            PR unavailable
+          <span className="inline-flex shrink-0 items-center justify-center rounded-md border border-dashed border-silicon-slate/50 bg-transparent px-1.5 py-1 text-muted-foreground/75" aria-label={`Pull request unavailable for ${task.title}`}>
+            No PR
           </span>
         )}
       </div>
+
+      <details className="mt-1.5 border-t border-silicon-slate/50 pt-1.5">
+        <summary className="cursor-pointer text-[11px] text-muted-foreground hover:text-radiant-gold">Details</summary>
+        <div className="mt-2 space-y-2">
+          {task.objective && <p className="line-clamp-3 text-xs text-muted-foreground">{task.objective}</p>}
+          <p className={`rounded-lg border p-2 text-xs ${nextAction.tone}`}>
+            <span className="font-semibold">{nextAction.label}: </span>
+            {nextAction.detail}
+          </p>
+          <dl className="grid gap-2 text-xs">
+            <CardDetail label="Trace" value={task.activeRunId ?? 'No active trace'} />
+            <CardDetail label="Owner" value={task.ownerAgentName} />
+            {task.ownerRuntime && <CardDetail label="Runtime" value={task.ownerRuntime} />}
+            {task.branchName && <CardDetail label="Branch" value={task.branchName} />}
+            {task.overlapGroup && <CardDetail label="Overlap" value={task.overlapGroup} />}
+          </dl>
+          {task.blockerSummary && (
+            <p className="rounded-lg border border-red-500/30 bg-red-500/10 p-2 text-xs text-red-200">
+              <span className="font-semibold">Blocker:</span> {task.blockerSummary}
+            </p>
+          )}
+          {task.validationSummary && (
+            <p className="rounded-lg border border-green-500/30 bg-green-500/10 p-2 text-xs text-green-200">
+              <span className="font-semibold">Validation:</span> {task.validationSummary}
+            </p>
+          )}
+        </div>
+      </details>
     </article>
   )
 }
