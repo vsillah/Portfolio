@@ -814,7 +814,9 @@ function WorkItemCard({ task }: { task: AgentOrgBoardTask }) {
             Trace
           </a>
         ) : (
-          <span className="inline-flex items-center justify-center rounded-lg border border-silicon-slate/60 px-2 py-2 text-muted-foreground">No trace</span>
+          <span className="inline-flex items-center justify-center rounded-lg border border-dashed border-silicon-slate/50 bg-transparent px-2 py-2 text-muted-foreground/75" aria-label={`Trace unavailable for ${task.title}`}>
+            Trace unavailable
+          </span>
         )}
         {task.prUrl ? (
           <a
@@ -826,7 +828,9 @@ function WorkItemCard({ task }: { task: AgentOrgBoardTask }) {
             PR
           </a>
         ) : (
-          <span className="inline-flex items-center justify-center rounded-lg border border-silicon-slate/60 px-2 py-2 text-muted-foreground">No PR</span>
+          <span className="inline-flex items-center justify-center rounded-lg border border-dashed border-silicon-slate/50 bg-transparent px-2 py-2 text-muted-foreground/75" aria-label={`Pull request unavailable for ${task.title}`}>
+            PR unavailable
+          </span>
         )}
       </div>
     </article>
