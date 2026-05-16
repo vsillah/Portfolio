@@ -358,7 +358,7 @@ function BoardActionQueue({
   totalCount: number
 }) {
   return (
-    <section className="rounded-lg border border-radiant-gold/35 bg-radiant-gold/10 p-4" aria-label="Kanban action queue">
+    <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-4" aria-label="Kanban action queue">
       <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <div className="flex items-center gap-2">
