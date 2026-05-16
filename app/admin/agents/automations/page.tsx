@@ -332,7 +332,7 @@ function AgentAutomationsContent() {
   const docWarnings = automations.filter((automation) => automation.controlDocs.length === 0)
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-6 lg:p-8">
+    <div className="agent-ops-page min-h-screen p-5 text-foreground lg:p-7">
       <div className="max-w-7xl mx-auto">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
@@ -340,17 +340,18 @@ function AgentAutomationsContent() {
           { label: 'Automation Context' },
         ]} />
 
-        <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <header className="agent-ops-surface-header mb-6 mt-5 flex flex-col gap-4 rounded-xl border p-5 lg:flex-row lg:items-start lg:justify-between">
           <div>
+            <p className="agent-ops-eyebrow"><Bot size={16} /> Agent Ops Automation</p>
             <h1 className="text-3xl font-bold mb-1">Automation Context</h1>
             <p className="text-muted-foreground text-sm max-w-3xl">
               Local-first inventory for Portfolio-related Codex automations, their risk boundaries, and the context agents need before acting.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="agent-ops-header-actions">
             <Link
               href="/admin/agents"
-              className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm hover:border-radiant-gold/60"
+              className="agent-ops-button-muted"
             >
               <Bot size={16} />
               Agent Operations
@@ -358,13 +359,13 @@ function AgentAutomationsContent() {
             <button
               onClick={fetchInventory}
               disabled={loading}
-              className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
+              className="agent-ops-button-secondary disabled:opacity-60"
             >
               <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
               Refresh
             </button>
           </div>
-        </div>
+        </header>
 
         {loading ? (
           <div className="py-16 text-center text-muted-foreground">Loading automation inventory...</div>
@@ -402,7 +403,8 @@ function AgentAutomationsContent() {
 
             <MemoryOrganizationProgress progress={inventory.progress} />
 
-            <div className="mb-6 inline-flex rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-1">
+            <div className="mb-6 max-w-full overflow-x-auto rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-1">
+              <div className="inline-flex min-w-max">
               <button
                 onClick={() => setViewMode('actions')}
                 className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm ${viewMode === 'actions' ? 'bg-radiant-gold/15 text-radiant-gold' : 'text-muted-foreground hover:text-foreground'}`}
@@ -431,6 +433,7 @@ function AgentAutomationsContent() {
                 <ShieldAlert size={16} />
                 Repair Packets
               </button>
+              </div>
             </div>
 
             <section className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
@@ -622,8 +625,8 @@ function AutomationTable({
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-silicon-slate/70">
-      <table className="w-full text-sm">
+    <div className="overflow-x-auto rounded-lg border border-silicon-slate/70">
+      <table className="min-w-[860px] w-full text-sm">
         <thead className="bg-silicon-slate/40 text-muted-foreground">
           <tr>
             <th className="text-left px-4 py-3 font-medium">Automation</th>
@@ -911,8 +914,8 @@ function WorkspaceRootVisibility({ report }: { report: AutomationInventoryRespon
       )}
 
       <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_360px] gap-4">
-        <div className="overflow-hidden rounded-lg border border-silicon-slate/70">
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto rounded-lg border border-silicon-slate/70">
+          <table className="min-w-[720px] w-full text-sm">
             <thead className="bg-silicon-slate/40 text-muted-foreground">
               <tr>
                 <th className="text-left px-4 py-3 font-medium">Thread root</th>
