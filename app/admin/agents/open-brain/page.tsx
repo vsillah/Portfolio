@@ -104,7 +104,7 @@ function OpenBrainContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-6 lg:p-8">
+    <div className="agent-ops-page min-h-screen p-5 text-foreground lg:p-7">
       <div className="mx-auto max-w-7xl">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
@@ -112,18 +112,18 @@ function OpenBrainContent() {
           { label: 'Open Brain' },
         ]} />
 
-        <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <header className="agent-ops-surface-header mb-6 mt-5 flex flex-col gap-4 rounded-xl border p-5 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Agent Operations</p>
+            <p className="agent-ops-eyebrow"><Brain size={16} /> Agent Ops Memory</p>
             <h1 className="mt-1 text-3xl font-bold">Open Brain</h1>
             <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
               Local-first memory projection for Portfolio Agent Ops. The local Open Brain remains the source of truth; Portfolio shows health, proposals, source freshness, producer gates, and generated wiki previews.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="agent-ops-header-actions">
             <Link
               href="/admin/agents/automations"
-              className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm hover:border-radiant-gold/60"
+              className="agent-ops-button-muted"
             >
               <GitBranch size={16} />
               Automation Context
@@ -131,13 +131,13 @@ function OpenBrainContent() {
             <button
               onClick={fetchSnapshot}
               disabled={loading}
-              className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
+              className="agent-ops-button-secondary disabled:opacity-60"
             >
               <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
               Refresh
             </button>
           </div>
-        </div>
+        </header>
 
         {loading ? (
           <div className="py-16 text-center text-muted-foreground">Loading Open Brain status...</div>
@@ -202,17 +202,19 @@ function OpenBrainContent() {
             </section>
 
             <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-              <div className="inline-flex rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-1">
+              <div className="max-w-full overflow-x-auto rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-1">
+                <div className="inline-flex min-w-max">
                 <ModeButton icon={<Route size={16} />} active={viewMode === 'router'} onClick={() => setViewMode('router')}>Router</ModeButton>
                 <ModeButton icon={<Database size={16} />} active={viewMode === 'sources'} onClick={() => setViewMode('sources')}>Sources</ModeButton>
                 <ModeButton icon={<ShieldCheck size={16} />} active={viewMode === 'proposals'} onClick={() => setViewMode('proposals')}>Proposals</ModeButton>
                 <ModeButton icon={<FileText size={16} />} active={viewMode === 'wiki'} onClick={() => setViewMode('wiki')}>Wiki Overlay</ModeButton>
                 <ModeButton icon={<Network size={16} />} active={viewMode === 'parity'} onClick={() => setViewMode('parity')}>Runtime Parity</ModeButton>
                 <ModeButton icon={<GitBranch size={16} />} active={viewMode === 'producers'} onClick={() => setViewMode('producers')}>Producers</ModeButton>
+                </div>
               </div>
               <button
                 onClick={compileWiki}
-                className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15"
+                className="agent-ops-button-secondary"
               >
                 <FileText size={16} />
                 Compile wiki preview
@@ -440,8 +442,8 @@ function RouterView({ snapshot }: { snapshot: OpenBrainSnapshot }) {
 
       <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
         <h2 className="mb-3 font-semibold">Latest Benchmark Evidence</h2>
-        <div className="overflow-hidden rounded-lg border border-silicon-slate/70">
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto rounded-lg border border-silicon-slate/70">
+          <table className="min-w-[720px] w-full text-sm">
             <thead className="bg-silicon-slate/40 text-muted-foreground">
               <tr>
                 <th className="px-4 py-3 text-left font-medium">Task</th>
@@ -488,8 +490,8 @@ function RouterView({ snapshot }: { snapshot: OpenBrainSnapshot }) {
 
 function SourcesView({ snapshot }: { snapshot: OpenBrainSnapshot }) {
   return (
-    <div className="overflow-hidden rounded-lg border border-silicon-slate/70">
-      <table className="w-full text-sm">
+    <div className="overflow-x-auto rounded-lg border border-silicon-slate/70">
+      <table className="min-w-[760px] w-full text-sm">
         <thead className="bg-silicon-slate/40 text-muted-foreground">
           <tr>
             <th className="px-4 py-3 text-left font-medium">Source</th>
