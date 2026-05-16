@@ -258,7 +258,7 @@ describe('AgentOperationsPage mission control landing', () => {
     expect(screen.getByRole('link', { name: /Active runs/i })).toHaveAttribute('href', '/admin/agents/runs?active=true')
     expect(screen.getByRole('link', { name: /Failed or stale runs/i })).toHaveAttribute('href', '/admin/agents/runs?status=needs_review')
     expect(screen.getByRole('link', { name: /Pending approvals/i })).toHaveAttribute('href', '/admin/agents/coordination')
-    expect(screen.getByLabelText('Agent Ops system map')).toBeInTheDocument()
+    expect(screen.getByLabelText('Agent Ops signal homes')).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'Every signal has a durable home' })).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Decision Queue Approval controller/i })).toHaveAttribute('href', '/admin/agents/coordination')
     expect(screen.getByRole('link', { name: /Run Console Trace, evaluation, and dead-letter history/i })).toHaveAttribute('href', '/admin/agents/runs')
