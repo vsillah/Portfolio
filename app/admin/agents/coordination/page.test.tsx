@@ -292,6 +292,10 @@ describe('AgentCoordinationPage decision queue controller', () => {
     expect(screen.getAllByText('Start here because it produces the baseline every later idea needs.').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Trace').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Owner').length).toBeGreaterThan(0)
+    expect(screen.getByRole('heading', { name: 'Queue administration' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Guided intake' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Controller review/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Validation handoff/ })).toBeInTheDocument()
   })
 
   it('runs top controller decision actions with scoped Shaka context', async () => {
@@ -411,19 +415,24 @@ describe('AgentCoordinationPage decision queue controller', () => {
     }))
   })
 
-  it('creates a controller work item with expected files and owner runtime', async () => {
+  it('creates a guided controller packet with expected files and owner runtime', async () => {
     render(<AgentCoordinationPage />)
 
-    await screen.findByText('Create controller work item')
-    fireEvent.change(screen.getByPlaceholderText('Work item title'), { target: { value: 'Prepare controller decision packet' } })
-    fireEvent.change(screen.getByPlaceholderText('owner agent key'), { target: { value: 'integration-captain' } })
-    fireEvent.change(screen.getByLabelText('owner runtime'), { target: { value: 'hermes' } })
-    fireEvent.change(screen.getByPlaceholderText('branch name'), { target: { value: 'codex/controller-decision' } })
-    fireEvent.change(screen.getByPlaceholderText('Objective and acceptance criteria'), { target: { value: 'Route one decision through the controller.' } })
-    fireEvent.change(screen.getByPlaceholderText('worktree path'), { target: { value: '/tmp/controller' } })
-    fireEvent.change(screen.getByPlaceholderText('expected files, one per line'), { target: { value: 'app/admin/agents/coordination/page.tsx\napp/admin/agents/coordination/page.test.tsx' } })
+    await screen.findByText('Guided intake')
+    fireEvent.click(screen.getByRole('button', { name: /Validation handoff/ }))
+    expect(screen.getByDisplayValue('Prepare validation handoff packet')).toBeInTheDocument()
+    expect(screen.getByDisplayValue(/Collect focused validation results/)).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Create work item' }))
+    fireEvent.change(screen.getByLabelText('Decision title'), { target: { value: 'Prepare controller decision packet' } })
+    fireEvent.change(screen.getByLabelText('Narrative packet'), { target: { value: 'Route one decision through the controller.' } })
+    fireEvent.change(screen.getByLabelText('Owner'), { target: { value: 'integration-captain' } })
+    fireEvent.change(screen.getByLabelText('Runtime'), { target: { value: 'hermes' } })
+    fireEvent.click(screen.getByText('Advanced routing details'))
+    fireEvent.change(screen.getByLabelText('Branch'), { target: { value: 'codex/controller-decision' } })
+    fireEvent.change(screen.getByLabelText('Worktree'), { target: { value: '/tmp/controller' } })
+    fireEvent.change(screen.getByLabelText('Expected files'), { target: { value: 'app/admin/agents/coordination/page.tsx\napp/admin/agents/coordination/page.test.tsx' } })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create controller packet' }))
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items', expect.objectContaining({
