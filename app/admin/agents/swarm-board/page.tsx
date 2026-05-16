@@ -41,9 +41,43 @@ type BoardMode = 'kanban' | 'hive' | 'agents' | 'war-room' | 'client-builder'
 type AttentionFilter = 'all' | 'blocked' | 'review' | 'unassigned'
 type BoardAction = {
   task: AgentOrgBoardTask
-  lane: AgentOrgBoardLane
+  lane: Pick<AgentOrgBoardLane, 'key' | 'label' | 'tasks'>
   nextAction: ReturnType<typeof nextActionForTask>
 }
+type StatusSwimlane = {
+  key: 'todo' | 'in_progress' | 'blocked' | 'complete'
+  label: string
+  description: string
+  statuses: AgentOrgBoardTask['status'][]
+  tasks: AgentOrgBoardTask[]
+}
+
+const STATUS_SWIMLANES: Array<Omit<StatusSwimlane, 'tasks'>> = [
+  {
+    key: 'todo',
+    label: 'To Do',
+    description: 'Queued, proposed, or assigned work that has not started.',
+    statuses: ['proposed', 'queued', 'assigned'],
+  },
+  {
+    key: 'in_progress',
+    label: 'In Progress',
+    description: 'Active work, validation, and review-ready cards moving toward handoff.',
+    statuses: ['in_progress', 'ready_for_review', 'ready_for_merge'],
+  },
+  {
+    key: 'blocked',
+    label: 'Blocked',
+    description: 'Work that needs an owner decision, recovery action, or blocker removal.',
+    statuses: ['blocked'],
+  },
+  {
+    key: 'complete',
+    label: 'Complete',
+    description: 'Merged, deployed, or cancelled work retained when present in the board snapshot.',
+    statuses: ['merged', 'deployed', 'cancelled'],
+  },
+]
 
 const MODES: Array<{ key: BoardMode; label: string; icon: typeof LayoutDashboard }> = [
   { key: 'kanban', label: 'Kanban lanes', icon: LayoutDashboard },
@@ -142,7 +176,7 @@ function AgentSwarmBoardContent() {
             </div>
             <h1 className="text-3xl font-bold">Agent Kanban</h1>
             <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-              Work by state, owner, and blocker. This is the drilldown for standup output, active work lanes, trace links, validation, and pull requests across the Portfolio agent team.
+              Work by status swimlane with owner badges on each card. This is the drilldown for standup output, active work, trace links, validation, and pull requests across the Portfolio agent team.
             </p>
           </div>
           <div className="agent-ops-header-actions">
@@ -275,10 +309,8 @@ function KanbanBoard({
     }
     return [...options.entries()].sort((a, b) => a[1].localeCompare(b[1]))
   }, [allTasks])
-  const filteredLanes = useMemo(() => {
-    return organization.lanes.map((lane) => ({
-      ...lane,
-      tasks: lane.tasks.filter((task) => {
+  const visibleTasks = useMemo(() => {
+    return allTasks.filter((task) => {
         if (selectedGoalId !== 'all' && task.goal?.id !== selectedGoalId) return false
         if (ownerFilter !== 'all') {
           if (ownerFilter === 'unassigned') {
@@ -292,11 +324,18 @@ function KanbanBoard({
         if (attentionFilter === 'review' && task.status !== 'ready_for_review' && task.status !== 'ready_for_merge') return false
         if (attentionFilter === 'unassigned' && task.ownerAgentKey) return false
         return true
-      }),
+    })
+  }, [allTasks, attentionFilter, ownerFilter, selectedGoalId, statusFilter])
+  const statusLanes = useMemo(() => {
+    return STATUS_SWIMLANES.map((lane) => ({
+      ...lane,
+      tasks: visibleTasks
+        .filter((task) => lane.statuses.includes(task.status))
+        .sort(sortTasksForLane),
     }))
-  }, [attentionFilter, organization.lanes, ownerFilter, selectedGoalId, statusFilter])
-  const filteredTasks = filteredLanes.flatMap((lane) => lane.tasks)
-  const boardActions = useMemo(() => buildBoardActions(filteredLanes), [filteredLanes])
+  }, [visibleTasks])
+  const filteredTasks = visibleTasks
+  const boardActions = useMemo(() => buildBoardActions(statusLanes), [statusLanes])
   const selectedGoal = organization.summary.goals.find((goal) => goal.id === selectedGoalId) ?? null
   const filtersActive = selectedGoalId !== 'all' || ownerFilter !== 'all' || statusFilter !== 'all' || attentionFilter !== 'all'
 
@@ -328,9 +367,9 @@ function KanbanBoard({
       <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-4">
         <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h2 className="text-xl font-semibold">Work by state, owner, and blocker</h2>
+            <h2 className="text-xl font-semibold">Work by status, owner, and blocker</h2>
             <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-              Work-lane Kanban organized by agent ownership. Use each card to inspect the trace, PR, owner, blocker, validation, and current status before handoff or merge review.
+              Default Kanban uses fixed status swimlanes: To Do, In Progress, Blocked, and Complete. Owner badges on each card show who is responsible without changing the board layout.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -340,7 +379,7 @@ function KanbanBoard({
         </div>
       </section>
       <div className="grid items-start gap-3 xl:grid-cols-4">
-        {filteredLanes.map((lane) => (
+        {statusLanes.map((lane) => (
           <TaskLane key={lane.key} lane={lane} />
         ))}
       </div>
@@ -697,7 +736,7 @@ function SummaryStrip({ organization }: { organization: AgentOrgBoardSnapshot })
   )
 }
 
-function TaskLane({ lane }: { lane: AgentOrgBoardLane }) {
+function TaskLane({ lane }: { lane: StatusSwimlane }) {
   const isEmpty = lane.tasks.length === 0
   const blocked = lane.tasks.filter((task) => task.status === 'blocked').length
   const review = lane.tasks.filter((task) => task.status === 'ready_for_review' || task.status === 'ready_for_merge').length
@@ -707,7 +746,7 @@ function TaskLane({ lane }: { lane: AgentOrgBoardLane }) {
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <h2 className="break-words font-semibold" title={lane.label}>{lane.label}</h2>
-            <p className="mt-1 break-words text-xs text-muted-foreground" title={lane.agentName}>{lane.agentName}</p>
+            <p className="mt-1 break-words text-xs text-muted-foreground" title={lane.description}>{lane.description}</p>
           </div>
           <span className="rounded-full border border-silicon-slate/70 px-2 py-1 text-xs text-muted-foreground">
             {lane.tasks.length}
@@ -731,7 +770,12 @@ function TaskLane({ lane }: { lane: AgentOrgBoardLane }) {
   )
 }
 
-function buildBoardActions(lanes: AgentOrgBoardLane[]): BoardAction[] {
+function sortTasksForLane(a: AgentOrgBoardTask, b: AgentOrgBoardTask) {
+  const rank: Record<AgentOrgBoardTask['priority'], number> = { urgent: 0, high: 1, medium: 2, low: 3 }
+  return rank[a.priority] - rank[b.priority] || new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+}
+
+function buildBoardActions(lanes: Array<Pick<AgentOrgBoardLane, 'key' | 'label' | 'tasks'>>): BoardAction[] {
   return lanes
     .flatMap((lane) => lane.tasks.map((task) => ({ task, lane, nextAction: nextActionForTask(task) })))
     .filter(({ task }) => {
@@ -760,9 +804,15 @@ function WorkItemCard({ task }: { task: AgentOrgBoardTask }) {
       <div className="mb-2 flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="break-words text-sm font-semibold" title={task.title}>{task.title}</p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            <span className="font-medium text-foreground/80">Status:</span> {task.status.replace(/_/g, ' ')}
-          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-silicon-slate/70 bg-silicon-slate/20 px-2 py-1 text-foreground/85">
+              <AgentAvatar agentKey={task.ownerAgentKey} size="sm" className="h-5 w-5 rounded-md text-[8px]" />
+              <span className="truncate">{displayDetailValue('Owner', task.ownerAgentName)}</span>
+            </span>
+            <span className="rounded-full border border-silicon-slate/60 bg-silicon-slate/10 px-2 py-1">
+              {task.status.replace(/_/g, ' ')}
+            </span>
+          </div>
         </div>
         <span className={`rounded-full px-2 py-1 text-xs ${priorityClass(task.priority)}`}>{task.priority}</span>
       </div>
