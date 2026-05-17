@@ -166,6 +166,18 @@ describe('OpenBrainPage', () => {
   it('renders Open Brain next actions and routes operators to the right view', async () => {
     render(<OpenBrainPage />)
 
+    const metrics = await screen.findByRole('region', { name: 'Open Brain actionable metrics' })
+    expect(metrics).toBeInTheDocument()
+    expect(within(metrics).getByText('Actionable signals')).toBeInTheDocument()
+    expect(within(metrics).getByText('Pending proposals')).toBeInTheDocument()
+    expect(within(metrics).getByText('Stale sources')).toBeInTheDocument()
+    expect(within(metrics).getByText('Producer gates')).toBeInTheDocument()
+    expect(within(metrics).getByText('Runtime parity')).toBeInTheDocument()
+    expect(within(metrics).getAllByText('1/2')).toHaveLength(2)
+    expect(within(metrics).queryByText('Approved')).not.toBeInTheDocument()
+    expect(within(metrics).queryByText('Rejected')).not.toBeInTheDocument()
+    expect(within(metrics).queryByText('RAG docs')).not.toBeInTheDocument()
+
     const nextActions = await screen.findByRole('region', { name: 'Open Brain next actions' })
     expect(nextActions).toBeInTheDocument()
     expect(within(nextActions).getByText('Open Brain operator packet')).toBeInTheDocument()
@@ -178,15 +190,21 @@ describe('OpenBrainPage', () => {
     expect(within(nextActions).getByText(/does not publish private raw exports/i)).toBeInTheDocument()
     expect(within(nextActions).getByText('Evidence home')).toBeInTheDocument()
     expect(within(nextActions).getByText(/Proposal review history and status live in the Proposals view/i)).toBeInTheDocument()
-    expect(within(nextActions).getByText('Pending proposals')).toBeInTheDocument()
-    expect(within(nextActions).getByText('Stale sources')).toBeInTheDocument()
-    expect(within(nextActions).getByText('Producer gates')).toBeInTheDocument()
-    expect(within(nextActions).getByText('Runtime parity')).toBeInTheDocument()
 
     fireEvent.click(within(nextActions).getByRole('button', { name: /Review proposals/i }))
 
     expect(screen.getByText('Adopt action-first governance reviews')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Approve' })).toBeInTheDocument()
+  })
+
+  it('routes the actionable Open Brain metric cards to underlying data', async () => {
+    render(<OpenBrainPage />)
+
+    const metrics = await screen.findByRole('region', { name: 'Open Brain actionable metrics' })
+    fireEvent.click(within(metrics).getByRole('button', { name: 'Open stale source records' }))
+
+    expect(screen.getByText('Morning review source')).toBeInTheDocument()
+    expect(screen.getByText('/tmp/source.json')).toBeInTheDocument()
   })
 
   it('keeps wiki compilation as an explicit gated action', async () => {

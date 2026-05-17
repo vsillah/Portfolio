@@ -5,6 +5,7 @@ import type { ReactNode } from 'react'
 import Link from 'next/link'
 import {
   AlertTriangle,
+  ArrowRight,
   Brain,
   CheckCircle2,
   Database,
@@ -157,20 +158,11 @@ function OpenBrainContent() {
               </section>
             ) : null}
 
-            <div className="mb-6 grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-3">
-              <MetricCard label="Sources" value={snapshot.overview.sources} tone="slate" />
-              <MetricCard label="Events" value={snapshot.overview.events} tone={snapshot.overview.events ? 'green' : 'slate'} />
-              <MetricCard label="Memories" value={snapshot.overview.memories} tone={snapshot.overview.memories ? 'green' : 'yellow'} />
-              <MetricCard label="Pending" value={snapshot.overview.pendingProposals} tone={snapshot.overview.pendingProposals ? 'yellow' : 'slate'} />
-              <MetricCard label="Approved" value={snapshot.overview.approvedProposals} tone="green" />
-              <MetricCard label="Rejected" value={snapshot.overview.rejectedProposals} tone="slate" />
-              <MetricCard label="Wiki pages" value={snapshot.overview.wikiPages} tone={snapshot.overview.wikiPages ? 'green' : 'yellow'} />
-              <MetricCard label="RAG docs" value={snapshot.overview.ragProjectionDocuments} tone={snapshot.overview.ragProjectionDocuments ? 'green' : 'slate'} />
-              <MetricCard label="Stale sources" value={snapshot.overview.staleSources} tone={snapshot.overview.staleSources ? 'yellow' : 'slate'} />
-              <MetricCard label="Private" value={snapshot.overview.privateRecords} tone={snapshot.overview.privateRecords ? 'red' : 'slate'} />
-              <MetricCard label="Router lanes" value={snapshot.modelOps.routerDecisions.length} tone={snapshot.modelOps.available ? 'green' : 'yellow'} />
-              <MetricCard label="Producer gates" value={snapshot.overview.enabledProducerGates} tone={snapshot.overview.enabledProducerGates ? 'green' : 'yellow'} />
-            </div>
+            <OpenBrainActionMetrics
+              snapshot={snapshot}
+              pendingProposals={pendingProposals.length}
+              onViewModeChange={setViewMode}
+            />
 
             <OpenBrainControlPanel
               snapshot={snapshot}
@@ -312,37 +304,6 @@ function OpenBrainControlPanel({
             tone: 'border-green-400/30 bg-green-500/10',
           }
 
-  const cards = [
-    {
-      label: 'Pending proposals',
-      value: String(pendingProposals),
-      detail: 'Approve or reject proposed durable memories.',
-      action: 'Review',
-      onClick: () => onViewModeChange('proposals'),
-    },
-    {
-      label: 'Stale sources',
-      value: String(snapshot.overview.staleSources),
-      detail: 'Inspect source freshness before RAG/wiki use.',
-      action: 'Inspect',
-      onClick: () => onViewModeChange('sources'),
-    },
-    {
-      label: 'Producer gates',
-      value: String(blockedProducerGates),
-      detail: 'Blocked producers cannot safely emit records.',
-      action: 'Open',
-      onClick: () => onViewModeChange('producers'),
-    },
-    {
-      label: 'Runtime parity',
-      value: String(parityIssues),
-      detail: 'Confirm Codex, Hermes, and bridge registration.',
-      action: 'Check',
-      onClick: () => onViewModeChange('parity'),
-    },
-  ]
-
   return (
     <section className={`mb-6 rounded-lg border p-5 ${primary.tone}`} aria-label="Open Brain next actions">
       <div className="grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.4fr)]">
@@ -378,21 +339,98 @@ function OpenBrainControlPanel({
           <OperatorPacketBlock title="Evidence home" value={primary.proof} />
         </div>
       </div>
+    </section>
+  )
+}
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {cards.map((card) => (
-            <button
-              key={card.label}
-              type="button"
-              onClick={card.onClick}
-              className="rounded-lg border border-silicon-slate/70 bg-background/55 p-3 text-left transition hover:border-radiant-gold/45"
-            >
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{card.label}</p>
-              <p className="mt-2 text-2xl font-bold tabular-nums">{card.value}</p>
-              <p className="mt-1 min-h-[42px] text-xs text-muted-foreground">{card.detail}</p>
-              <span className="mt-3 inline-flex text-xs text-radiant-gold">{card.action}</span>
-            </button>
-          ))}
+function OpenBrainActionMetrics({
+  snapshot,
+  pendingProposals,
+  onViewModeChange,
+}: {
+  snapshot: OpenBrainSnapshot
+  pendingProposals: number
+  onViewModeChange: (mode: ViewMode) => void
+}) {
+  const blockedProducerGates = snapshot.producerGates.filter((gate) => gate.status === 'blocked').length
+  const parityIssues = snapshot.runtimeParity.filter((runtime) => runtime.status !== 'connected').length
+  const metricCards = [
+    {
+      label: 'Pending proposals',
+      value: String(pendingProposals),
+      detail: 'Approve or reject memory before it becomes durable.',
+      action: 'Review queue',
+      mode: 'proposals' as ViewMode,
+      icon: <ShieldCheck size={17} />,
+      tone: pendingProposals ? 'border-radiant-gold/55 bg-radiant-gold/10' : 'border-green-400/35 bg-green-500/10',
+      ariaLabel: 'Open pending memory proposals',
+    },
+    {
+      label: 'Stale sources',
+      value: String(snapshot.overview.staleSources),
+      detail: 'Check source freshness before wiki or RAG use.',
+      action: 'Inspect sources',
+      mode: 'sources' as ViewMode,
+      icon: <Database size={17} />,
+      tone: snapshot.overview.staleSources ? 'border-yellow-400/45 bg-yellow-500/10' : 'border-silicon-slate/70 bg-silicon-slate/20',
+      ariaLabel: 'Open stale source records',
+    },
+    {
+      label: 'Producer gates',
+      value: `${blockedProducerGates}/${snapshot.producerGates.length}`,
+      detail: 'See which producers can safely emit records.',
+      action: 'Review gates',
+      mode: 'producers' as ViewMode,
+      icon: <GitBranch size={17} />,
+      tone: blockedProducerGates ? 'border-yellow-400/45 bg-yellow-500/10' : 'border-green-400/35 bg-green-500/10',
+      ariaLabel: 'Open producer gate status',
+    },
+    {
+      label: 'Runtime parity',
+      value: `${parityIssues}/${snapshot.runtimeParity.length}`,
+      detail: 'Verify Codex, Hermes, and bridge registration.',
+      action: 'Check runtimes',
+      mode: 'parity' as ViewMode,
+      icon: <Network size={17} />,
+      tone: parityIssues ? 'border-yellow-400/45 bg-yellow-500/10' : 'border-green-400/35 bg-green-500/10',
+      ariaLabel: 'Open runtime parity checks',
+    },
+  ]
+
+  return (
+    <section className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4" aria-label="Open Brain actionable metrics">
+      <div className="mb-4 flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p className="agent-ops-eyebrow"><Target size={14} /> Actionable signals</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Four entry points for work that may need an operator. Broader counts stay inside their drilldown views.
+          </p>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          {snapshot.overview.sources} sources · {snapshot.overview.events} events · {snapshot.overview.wikiPages} wiki page(s)
+        </p>
+      </div>
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        {metricCards.map((card) => (
+          <button
+            key={card.label}
+            type="button"
+            aria-label={card.ariaLabel}
+            onClick={() => onViewModeChange(card.mode)}
+            className={`group rounded-lg border p-4 text-left transition hover:border-radiant-gold/70 hover:bg-radiant-gold/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold/60 ${card.tone}`}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-2 text-radiant-gold">
+                {card.icon}
+                <p className="text-xs font-semibold uppercase tracking-[0.14em]">{card.label}</p>
+              </div>
+              <ArrowRight size={16} className="text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-radiant-gold" />
+            </div>
+            <p className="mt-4 text-3xl font-bold tabular-nums text-foreground">{card.value}</p>
+            <p className="mt-1 min-h-[40px] text-sm text-muted-foreground">{card.detail}</p>
+            <span className="mt-3 inline-flex text-sm font-medium text-radiant-gold">{card.action}</span>
+          </button>
+        ))}
       </div>
     </section>
   )
@@ -689,16 +727,6 @@ function ProducerView({ snapshot }: { snapshot: OpenBrainSnapshot }) {
         </article>
       ))}
     </section>
-  )
-}
-
-function MetricCard({ label, value, tone = 'slate' }: { label: string; value: number; tone?: 'slate' | 'green' | 'yellow' | 'red' }) {
-  const toneClass = tone === 'green' ? 'text-green-300' : tone === 'yellow' ? 'text-yellow-200' : tone === 'red' ? 'text-red-300' : 'text-foreground'
-  return (
-    <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
-      <p className={`text-2xl font-bold ${toneClass}`}>{value}</p>
-      <p className="mt-1 text-xs text-muted-foreground">{label}</p>
-    </div>
   )
 }
 
