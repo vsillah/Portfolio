@@ -334,7 +334,7 @@ describe('AgentOperationsPage mission control landing', () => {
     expect(within(automationPanel).getAllByRole('link', { name: /Kanban/i })[0]).toHaveAttribute('href', '/admin/agents/swarm-board?goal=automation%3Ameeting-intake-follow-up-drafts')
     expect(within(automationPanel).getByText('n8n proposal in controller')).toBeInTheDocument()
     expect(within(automationPanel).getByText('n8n proposal: Warm lead review-ready outreach')).toBeInTheDocument()
-    expect(within(automationPanel).getByRole('link', { name: /Review proposal/i })).toHaveAttribute('href', '/admin/agents/coordination')
+    expect(within(automationPanel).getByRole('link', { name: /Review proposal/i })).toHaveAttribute('href', '/admin/agents/coordination?proposal=n8n-proposal-warm-lead')
     expect(screen.getByText('Morning review')).toBeInTheDocument()
     expect(screen.getByText('Hermes health')).toBeInTheDocument()
     expect(screen.getAllByRole('button', { name: /^Run$/ }).length).toBeGreaterThan(0)

@@ -211,6 +211,10 @@ function stringValue(value: unknown): string | null {
   return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null
 }
 
+function n8nProposalElementId(proposalId: string) {
+  return `n8n-proposal-${proposalId}`
+}
+
 function definitionOfReadyText(item: AgentWorkItem) {
   const criteria = textArray(item.metadata?.definition_of_ready)
   const source = criteria.length ? criteria : VERCEL_AUTORESEARCH_DEFINITION_OF_READY
@@ -257,6 +261,10 @@ function AgentCoordinationContent() {
   const [moremiDrillResult, setMoremiDrillResult] = useState<MoremiOperationalDrillResult | null>(null)
   const [shakaReply, setShakaReply] = useState<ShakaContextReply | null>(null)
   const [shakaContextRef, setShakaContextRef] = useState<ShakaContextRef | null>(null)
+  const [n8nDeepLink, setN8nDeepLink] = useState<{ proposalId: string | null; goalId: string | null }>({
+    proposalId: null,
+    goalId: null,
+  })
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -304,6 +312,14 @@ function AgentCoordinationContent() {
     loadItems()
     loadVercelResearchApprovals()
   }, [loadItems, loadVercelResearchApprovals])
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    setN8nDeepLink({
+      proposalId: params.get('proposal'),
+      goalId: params.get('goal'),
+    })
+  }, [])
 
   const summary = useMemo(() => ({
     active: items.filter((item) => !['merged', 'deployed', 'cancelled'].includes(item.status)).length,
@@ -613,6 +629,8 @@ function AgentCoordinationContent() {
 
         <N8nWorkflowProposalPanel
           proposals={n8nWorkflowProposals}
+          highlightedProposalId={n8nDeepLink.proposalId}
+          highlightedGoalId={n8nDeepLink.goalId}
           actionId={actionId}
           onAction={quickAction}
           onAskShaka={(workItem) => askShaka(
@@ -1211,15 +1229,35 @@ function ShakaContextResponse({
 
 function N8nWorkflowProposalPanel({
   proposals,
+  highlightedProposalId,
+  highlightedGoalId,
   actionId,
   onAction,
   onAskShaka,
 }: {
   proposals: AgentWorkItem[]
+  highlightedProposalId: string | null
+  highlightedGoalId: string | null
   actionId: string | null
   onAction: (item: AgentWorkItem, action: 'block' | 'validation' | 'handoff') => void
   onAskShaka: (item: AgentWorkItem) => void
 }) {
+  const highlightedProposal = useMemo(() => {
+    if (highlightedProposalId) {
+      return proposals.find((item) => item.id === highlightedProposalId) ?? null
+    }
+    if (highlightedGoalId) {
+      return proposals.find((item) => item.metadata?.goal_id === highlightedGoalId) ?? null
+    }
+    return null
+  }, [highlightedGoalId, highlightedProposalId, proposals])
+
+  useEffect(() => {
+    if (!highlightedProposal) return
+    const target = document.getElementById(n8nProposalElementId(highlightedProposal.id))
+    target?.scrollIntoView?.({ block: 'center', behavior: 'smooth' })
+  }, [highlightedProposal])
+
   return (
     <section className="agent-ops-card mb-6 rounded-lg border border-green-500/25 p-4">
       <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -1260,12 +1298,29 @@ function N8nWorkflowProposalPanel({
             const recommendation = item.status === 'ready_for_review' || item.status === 'ready_for_merge'
               ? 'Validate the draft packet and route the next gate through the controller. Do not activate production from this review.'
               : 'Review the proposal as draft-only. Move to validation only after the trigger, credentials, callbacks, and rollback path are clear.'
+            const highlighted = highlightedProposal?.id === item.id
 
             return (
-              <article key={item.id} className="rounded-lg border border-green-500/25 bg-background/55 p-4">
+              <article
+                key={item.id}
+                id={n8nProposalElementId(item.id)}
+                data-n8n-proposal-id={item.id}
+                data-n8n-goal-id={goalId ?? undefined}
+                aria-label={`n8n proposal ${item.title}`}
+                className={`rounded-lg border bg-background/55 p-4 scroll-mt-24 ${
+                  highlighted
+                    ? 'border-radiant-gold/70 shadow-[0_0_0_1px_rgba(221,184,65,0.35),0_0_32px_rgba(221,184,65,0.16)]'
+                    : 'border-green-500/25'
+                }`}
+              >
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                   <div className="min-w-0">
                     <div className="mb-2 flex flex-wrap items-center gap-2">
+                      {highlighted ? (
+                        <span className="rounded-full border border-radiant-gold/40 bg-radiant-gold/15 px-2 py-1 text-xs text-radiant-gold">
+                          linked from Mission Control
+                        </span>
+                      ) : null}
                       <StatusBadge status={item.status} />
                       <span className="rounded-full border border-green-500/30 bg-green-500/10 px-2 py-1 text-xs text-green-100">
                         {action}

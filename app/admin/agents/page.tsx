@@ -1362,6 +1362,9 @@ function AutomationGoalRow({ goal }: { goal: AutomationGoalSummary }) {
   const kanbanHref = typeof metadata.goal_kanban_href === 'string'
     ? metadata.goal_kanban_href
     : `/admin/agents/swarm-board?goal=${encodeURIComponent(goalId)}`
+  const proposalHref = proposal
+    ? `/admin/agents/coordination?proposal=${encodeURIComponent(proposal.id)}`
+    : `/admin/agents/coordination?goal=${encodeURIComponent(goalId)}`
   const tone = goal.seeded ? 'green' : goal.requiresNewWorkflow ? 'yellow' : 'blue'
 
   return (
@@ -1408,7 +1411,7 @@ function AutomationGoalRow({ goal }: { goal: AutomationGoalSummary }) {
             Standup
           </Link>
           {proposal ? (
-            <Link href="/admin/agents/coordination" className="text-radiant-gold hover:underline">
+            <Link href={proposalHref} className="text-radiant-gold hover:underline">
               Review proposal
             </Link>
           ) : null}
