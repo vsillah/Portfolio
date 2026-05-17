@@ -189,7 +189,7 @@ export const AGENT_AVATARS: Record<string, AgentAvatarDefinition> = Object.fromE
     key,
     {
       ...avatar,
-      imagePath: `/agent-avatars/${key}.svg`,
+      imagePath: `/agent-avatars/baroque/${key}.png`,
     },
   ]),
 ) as Record<string, AgentAvatarDefinition>

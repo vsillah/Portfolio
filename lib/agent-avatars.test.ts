@@ -13,7 +13,7 @@ describe('agent avatar manifest', () => {
     for (const agent of AGENT_ORGANIZATION) {
       expect(AGENT_AVATARS[agent.key]?.label).toContain('Illustrated avatar')
       expect(AGENT_AVATARS[agent.key]?.initials.length).toBeGreaterThan(1)
-      expect(AGENT_AVATARS[agent.key]?.imagePath).toBe(`/agent-avatars/${agent.key}.svg`)
+      expect(AGENT_AVATARS[agent.key]?.imagePath).toBe(`/agent-avatars/baroque/${agent.key}.png`)
     }
   })
 
