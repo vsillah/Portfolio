@@ -17,6 +17,7 @@ import {
   Sparkles,
   Timer,
   Users,
+  Workflow,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -637,6 +638,7 @@ function SelectedGoalPanel({ goal, tasks }: { goal: AgentOrgBoardSnapshot['summa
   const orderedTasks = [...tasks]
     .filter((task) => task.goal?.id === goal.id)
     .sort((a, b) => (a.goal?.sequence ?? 999) - (b.goal?.sequence ?? 999))
+  const isAutomationGoal = Boolean(goal.automationGoalSeedId || goal.id.startsWith('automation:'))
   return (
     <section className="rounded-lg border border-radiant-gold/35 bg-radiant-gold/10 p-4" aria-label="Selected goal work">
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
@@ -664,6 +666,27 @@ function SelectedGoalPanel({ goal, tasks }: { goal: AgentOrgBoardSnapshot['summa
           <div className="mt-4 h-3 overflow-hidden rounded-full bg-silicon-slate/70">
             <div className="h-full bg-radiant-gold" style={{ width: `${goal.progress}%` }} />
           </div>
+          {isAutomationGoal && (
+            <div className="mt-4 rounded-lg border border-silicon-slate/60 bg-background/55 p-3">
+              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                <div>
+                  <div className="flex items-center gap-2 text-radiant-gold">
+                    <Workflow size={15} />
+                    <p className="text-xs font-semibold uppercase tracking-wide">Automation workflow</p>
+                  </div>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {goal.nextAction ?? 'Use the Standup Room to ask the automation agent for a governed n8n workflow proposal.'}
+                  </p>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {goal.n8nWorkflows.length ? `${goal.n8nWorkflows.length} known n8n workflow(s)` : 'No existing n8n workflow mapped yet'} · {goal.approvalGate ?? 'Activation remains approval-gated.'}
+                  </p>
+                </div>
+                <Link href={goal.sessionHref} className="inline-flex items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15">
+                  Draft proposal in Standup
+                </Link>
+              </div>
+            </div>
+          )}
           <div className="mt-4 grid gap-2">
             {orderedTasks.length ? orderedTasks.map((task) => (
               <div key={task.id} className="grid gap-2 rounded-lg border border-silicon-slate/60 bg-background/55 p-3 text-sm md:grid-cols-[48px_minmax(0,1fr)_140px] md:items-center">

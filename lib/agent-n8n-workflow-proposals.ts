@@ -8,6 +8,9 @@ export type CreateN8nWorkflowProposalInput = {
   objective: string
   workflowFamily?: string | null
   automationGoalSeedId?: string | null
+  goalId?: string | null
+  goalTitle?: string | null
+  goalSessionHref?: string | null
   existingWorkflowId?: string | null
   proposedWorkflowName?: string | null
   trigger?: string | null
@@ -59,6 +62,12 @@ export async function createN8nWorkflowProposal(input: CreateN8nWorkflowProposal
       n8n_proposal_action: input.action,
       workflow_family: input.workflowFamily ?? null,
       automation_goal_seed_id: input.automationGoalSeedId ?? null,
+      goal_id: input.goalId ?? (input.automationGoalSeedId ? `automation:${input.automationGoalSeedId}` : null),
+      goal_title: input.goalTitle ?? null,
+      goal_status: input.goalId || input.automationGoalSeedId ? 'proposed' : null,
+      goal_role: input.goalId || input.automationGoalSeedId ? 'task' : null,
+      goal_progress_weight: input.goalId || input.automationGoalSeedId ? 1 : null,
+      goal_session_href: input.goalSessionHref ?? (input.goalId ? `/admin/agents/standup?goal=${encodeURIComponent(input.goalId)}` : null),
       existing_workflow_id: input.existingWorkflowId ?? null,
       proposed_workflow_name: input.proposedWorkflowName ?? null,
       trigger: input.trigger ?? null,

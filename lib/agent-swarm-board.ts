@@ -138,6 +138,13 @@ export type AgentOrgBoardTask = {
     draftTraceHref: string | null
     approvalTraceHref: string | null
     latestTraceHref: string | null
+    automationGoalSeedId: string | null
+    workflowFamily: string | null
+    automationLevel: string | null
+    requiresNewWorkflow: boolean
+    n8nWorkflows: string[]
+    approvalGate: string | null
+    nextAction: string | null
   } | null
 }
 
@@ -157,6 +164,13 @@ export type AgentOrgBoardGoalMetric = {
   draftTraceHref: string | null
   approvalTraceHref: string | null
   latestTraceHref: string | null
+  automationGoalSeedId: string | null
+  workflowFamily: string | null
+  automationLevel: string | null
+  requiresNewWorkflow: boolean
+  n8nWorkflows: string[]
+  approvalGate: string | null
+  nextAction: string | null
 }
 
 export type AgentOrgBoardWipMetric = {
@@ -821,6 +835,10 @@ function numberValue(value: unknown, fallback = 0) {
   return typeof value === 'number' && Number.isFinite(value) ? value : fallback
 }
 
+function stringArrayValue(value: unknown) {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
+}
+
 function goalForTask(item: AgentWorkItemRow): AgentOrgBoardTask['goal'] {
   const metadata = item.metadata ?? {}
   const goalId = stringValue(metadata.goal_id)
@@ -844,6 +862,13 @@ function goalForTask(item: AgentWorkItemRow): AgentOrgBoardTask['goal'] {
     draftTraceHref: draftRunId ? `/admin/agents/runs/${draftRunId}` : null,
     approvalTraceHref: approvalRunId ? `/admin/agents/runs/${approvalRunId}` : null,
     latestTraceHref: latestRunId ? `/admin/agents/runs/${latestRunId}` : null,
+    automationGoalSeedId: stringValue(metadata.automation_goal_seed_id),
+    workflowFamily: stringValue(metadata.workflow_family),
+    automationLevel: stringValue(metadata.automation_level),
+    requiresNewWorkflow: metadata.requires_new_workflow === true,
+    n8nWorkflows: stringArrayValue(metadata.n8n_workflows),
+    approvalGate: stringValue(metadata.approval_gate),
+    nextAction: stringValue(metadata.next_action),
   }
 }
 
@@ -897,6 +922,13 @@ function buildGoalMetrics(tasks: AgentOrgBoardTask[]): AgentOrgBoardGoalMetric[]
       draftTraceHref: draftRunId ? `/admin/agents/runs/${draftRunId}` : null,
       approvalTraceHref: approvalRunId ? `/admin/agents/runs/${approvalRunId}` : null,
       latestTraceHref: latestRunId ? `/admin/agents/runs/${latestRunId}` : null,
+      automationGoalSeedId: firstGoal?.automationGoalSeedId ?? null,
+      workflowFamily: firstGoal?.workflowFamily ?? null,
+      automationLevel: firstGoal?.automationLevel ?? null,
+      requiresNewWorkflow: firstGoal?.requiresNewWorkflow ?? false,
+      n8nWorkflows: firstGoal?.n8nWorkflows ?? [],
+      approvalGate: firstGoal?.approvalGate ?? null,
+      nextAction: firstGoal?.nextAction ?? null,
     }
   })
 }

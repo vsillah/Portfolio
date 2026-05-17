@@ -334,6 +334,59 @@ describe('AgentSwarmBoardPage', () => {
     expect(screen.getByLabelText('Goal')).toHaveValue('goal-1')
   })
 
+  it('routes automation goals to Standup for n8n workflow proposal drafting', async () => {
+    const automationGoal = {
+      ...boardSnapshot.organization.summary.goals[0],
+      id: 'automation:meeting-intake-follow-up-drafts',
+      title: 'Automate meeting intake to follow-up drafts',
+      sessionHref: '/admin/agents/standup?goal=automation%3Ameeting-intake-follow-up-drafts',
+      automationGoalSeedId: 'meeting-intake-follow-up-drafts',
+      workflowFamily: 'meeting_follow_up',
+      automationLevel: 'draft_to_review',
+      requiresNewWorkflow: false,
+      n8nWorkflows: ['WF-SLK', 'WF-CAL'],
+      approvalGate: 'External sends stay approval-gated.',
+      nextAction: 'Confirm every meeting can route into a draft follow-up.',
+    }
+    const automationTasks = boardSnapshot.organization.lanes[0].tasks.slice(0, 2).map((task, index) => ({
+      ...task,
+      goal: {
+        ...task.goal!,
+        id: automationGoal.id,
+        title: automationGoal.title,
+        sequence: index + 1,
+        sessionHref: automationGoal.sessionHref,
+        automationGoalSeedId: automationGoal.automationGoalSeedId,
+        workflowFamily: automationGoal.workflowFamily,
+        automationLevel: automationGoal.automationLevel,
+        requiresNewWorkflow: automationGoal.requiresNewWorkflow,
+        n8nWorkflows: automationGoal.n8nWorkflows,
+        approvalGate: automationGoal.approvalGate,
+        nextAction: automationGoal.nextAction,
+      },
+    }))
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        ...boardSnapshot,
+        organization: {
+          ...boardSnapshot.organization,
+          summary: { ...boardSnapshot.organization.summary, goals: [automationGoal] },
+          lanes: [{ ...boardSnapshot.organization.lanes[0], tasks: automationTasks }],
+        },
+      }),
+    })))
+    window.history.pushState({}, '', '/admin/agents/swarm-board?goal=automation%3Ameeting-intake-follow-up-drafts')
+
+    render(<AgentSwarmBoardPage />)
+
+    expect(await screen.findByRole('region', { name: 'Selected goal work' })).toBeInTheDocument()
+    expect(screen.getByText('Automation workflow')).toBeInTheDocument()
+    expect(screen.getByText(/2 known n8n workflow/i)).toBeInTheDocument()
+    expect(screen.getByText(/External sends stay approval-gated/i)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Draft proposal in Standup' })).toHaveAttribute('href', '/admin/agents/standup?goal=automation%3Ameeting-intake-follow-up-drafts')
+  })
+
   it('filters visible cards by status and attention state', async () => {
     render(<AgentSwarmBoardPage />)
 
