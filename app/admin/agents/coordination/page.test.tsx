@@ -354,6 +354,7 @@ function setupFetch({ failWorkItems = false } = {}) {
 
 describe('AgentCoordinationPage decision queue controller', () => {
   beforeEach(() => {
+    window.history.replaceState({}, '', '/admin/agents/coordination')
     setupFetch()
   })
 
@@ -456,6 +457,24 @@ describe('AgentCoordinationPage decision queue controller', () => {
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items/work-n8n-proposal-1/validation', expect.objectContaining({ method: 'POST' }))
     })
+  })
+
+  it('highlights a linked n8n proposal from query params', async () => {
+    window.history.replaceState({}, '', '/admin/agents/coordination?proposal=work-n8n-proposal-1')
+    render(<AgentCoordinationPage />)
+
+    const linkedProposal = await screen.findByLabelText('n8n proposal n8n proposal: Automate meeting intake to follow-up drafts')
+    expect(linkedProposal).toHaveAttribute('id', 'n8n-proposal-work-n8n-proposal-1')
+    expect(within(linkedProposal).getByText('linked from Mission Control')).toBeInTheDocument()
+  })
+
+  it('highlights the first n8n proposal that matches a linked goal', async () => {
+    window.history.replaceState({}, '', '/admin/agents/coordination?goal=automation%3Ameeting-intake-follow-up-drafts')
+    render(<AgentCoordinationPage />)
+
+    const linkedProposal = await screen.findByLabelText('n8n proposal n8n proposal: Automate meeting intake to follow-up drafts')
+    expect(linkedProposal).toHaveAttribute('data-n8n-goal-id', 'automation:meeting-intake-follow-up-drafts')
+    expect(within(linkedProposal).getByText('linked from Mission Control')).toBeInTheDocument()
   })
 
   it('shows pending Vercel AutoResearch approvals inline and approves from the card', async () => {
