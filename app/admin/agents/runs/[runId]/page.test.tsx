@@ -249,9 +249,16 @@ describe('AgentRunDetailPage scoped Shaka context', () => {
 
     expect(await screen.findByRole('heading', { name: 'Production WRM smoke trace' })).toBeInTheDocument()
     expect(screen.getByText('Stale run resolution')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Operator action required' })).toBeInTheDocument()
+    expect(screen.getByText(/refresh only reloads the trace and will not resolve the stale status/i)).toBeInTheDocument()
     expect(screen.getByText('Why it is stale')).toBeInTheDocument()
     expect(screen.getByText(/stale-after checkpoint passed/i)).toBeInTheDocument()
-    expect(screen.getByText('What the action does')).toBeInTheDocument()
+    expect(screen.getByText('Recommended resolution')).toBeInTheDocument()
+    expect(screen.getByText(/opens a separate Run Console item with the recovery packet/i)).toBeInTheDocument()
+    expect(screen.getByText('What refresh does')).toBeInTheDocument()
+    expect(screen.getByText(/not the stale-run remedy/i)).toBeInTheDocument()
+    expect(screen.getByText('Latest evidence')).toBeInTheDocument()
+    expect(screen.getByText(/Last progress May 13, 9:30 AM; stale checkpoint May 13, 9:00 AM/i)).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Create recovery request' }))
 

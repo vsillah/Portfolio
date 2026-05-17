@@ -301,13 +301,6 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
               />
             ) : null}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              <Metric icon={<Bot size={18} />} label="Runtime" value={String(data.run.runtime ?? '-')} />
-              <Metric icon={<RefreshCw size={18} />} label="Status" value={String(data.run.status ?? '-')} />
-              <Metric icon={<DollarSign size={18} />} label="Cost" value={`$${data.cost_total.toFixed(4)}`} />
-              <Metric icon={<FileText size={18} />} label="Artifacts" value={String(data.artifacts.length)} />
-            </div>
-
             {isRecoverableRunStatus(data.run.status) ? (
               <RunRecoveryPanel
                 run={data.run}
@@ -322,6 +315,13 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
                 shakaLoading={shakaLoading === `run:${runId}`}
               />
             ) : null}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <Metric icon={<Bot size={18} />} label="Runtime" value={String(data.run.runtime ?? '-')} />
+              <Metric icon={<RefreshCw size={18} />} label="Status" value={String(data.run.status ?? '-')} />
+              <Metric icon={<DollarSign size={18} />} label="Cost" value={`$${data.cost_total.toFixed(4)}`} />
+              <Metric icon={<FileText size={18} />} label="Artifacts" value={String(data.artifacts.length)} />
+            </div>
 
             <section className="agent-ops-card rounded-lg border p-5 mb-6">
               <h2 className="text-lg font-semibold mb-4">Evaluations</h2>
@@ -400,32 +400,24 @@ function RunRecoveryPanel({
 }) {
   const status = formatLabel(run.status, 'unknown')
   const reason = runRecoveryReason(run)
+  const latestEvidence = runRecoveryEvidence(run)
   const recoveryId = result?.run_id ?? result?.recovery_run_id
   const isBackoff = Boolean(result?.recovery_run_id && result?.ok === false)
 
   return (
     <section className="agent-ops-card mb-6 rounded-lg border border-red-400/35 bg-red-500/10 p-5">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
         <div className="min-w-0">
           <div className="agent-ops-eyebrow text-red-200">
             <ShieldAlert size={16} />
             {status === 'stale' ? 'Stale run resolution' : 'Run recovery'}
           </div>
-          <h2 className="mt-2 text-xl font-semibold">This trace needs operator recovery.</h2>
-          <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-            Refresh only reloads the trace. To resolve this run, confirm why it stopped and create a read-only recovery request that is tracked as its own Run Console item.
+          <h2 className="mt-2 text-xl font-semibold">Operator action required</h2>
+          <p className="mt-2 max-w-4xl text-sm text-muted-foreground">
+            This run stopped before a successful terminal state. Use the recovery request to create a tracked follow-up; refresh only reloads the trace and will not resolve the stale status.
           </p>
         </div>
         <div className="flex shrink-0 flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={onAskShaka}
-            disabled={shakaLoading}
-            className="agent-ops-button-secondary disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <MessageSquare size={16} />
-            {shakaLoading ? 'Asking...' : 'Ask Shaka for triage'}
-          </button>
           <button
             type="button"
             onClick={onRequestRecovery}
@@ -434,6 +426,15 @@ function RunRecoveryPanel({
           >
             <RotateCcw size={16} />
             {loading ? 'Creating...' : 'Create recovery request'}
+          </button>
+          <button
+            type="button"
+            onClick={onAskShaka}
+            disabled={shakaLoading}
+            className="agent-ops-button-secondary disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <MessageSquare size={16} />
+            {shakaLoading ? 'Asking...' : 'Ask Shaka for triage'}
           </button>
           <button
             type="button"
@@ -446,18 +447,26 @@ function RunRecoveryPanel({
         </div>
       </div>
 
-      <div className="mt-5 grid gap-3 lg:grid-cols-3">
+      <div className="mt-5 grid gap-3 lg:grid-cols-[1.1fr_0.9fr]">
         <RecoveryBlock
           title="Why it is stale"
           value={reason}
         />
         <RecoveryBlock
-          title="What the action does"
-          value="Creates an agent recovery request with a recovery packet. It does not rerun production automation directly."
+          title="Recommended resolution"
+          value="Create the recovery request. It opens a separate Run Console item with the recovery packet so the operator can inspect, assign, and close it without mutating production automation directly."
         />
+      </div>
+
+      <div className="mt-3 grid gap-3 lg:grid-cols-3">
+        <RecoveryBlock
+          title="What refresh does"
+          value="Reloads current trace data only. Use it after another agent or poller reports progress; it is not the stale-run remedy."
+        />
+        <RecoveryBlock title="Latest evidence" value={latestEvidence} />
         <RecoveryBlock
           title="Operator sequence"
-          value="Review the latest event, ask Shaka if ownership is unclear, then queue recovery only when the original runtime is no longer active."
+          value="Confirm the last heartbeat or error, ask Shaka if ownership is unclear, then queue recovery once the original runtime is no longer active."
         />
       </div>
 
@@ -875,6 +884,31 @@ function runRecoveryReason(run: AnyRow): string {
   }
 
   return `The run is marked ${formatLabel(run.status, 'needs recovery')} and no completion evidence is attached to this trace.`
+}
+
+function runRecoveryEvidence(run: AnyRow): string {
+  const currentStep = asString(run.current_step)
+  const updatedAt = asString(run.updated_at)
+  const staleAfter = asString(run.stale_after)
+  const errorMessage = asString(run.error_message)
+
+  if (errorMessage && updatedAt) {
+    return `Last reported ${formatDate(updatedAt)} with error evidence attached.`
+  }
+
+  if (staleAfter && updatedAt) {
+    return `Last progress ${formatDate(updatedAt)}; stale checkpoint ${formatDate(staleAfter)}.`
+  }
+
+  if (currentStep && updatedAt) {
+    return `Last progress ${formatDate(updatedAt)} at ${currentStep}.`
+  }
+
+  if (updatedAt) {
+    return `Last progress reported ${formatDate(updatedAt)}.`
+  }
+
+  return 'No recent heartbeat, completion event, or terminal artifact is attached to this trace.'
 }
 
 function asRecord(value: unknown): Record<string, unknown> {
