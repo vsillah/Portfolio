@@ -258,7 +258,9 @@ describe('AgentRunDetailPage scoped Shaka context', () => {
     expect(screen.getByText('What refresh does')).toBeInTheDocument()
     expect(screen.getByText(/not the stale-run remedy/i)).toBeInTheDocument()
     expect(screen.getByText('Latest evidence')).toBeInTheDocument()
-    expect(screen.getByText(/Last progress May 13, 9:30 AM; stale checkpoint May 13, 9:00 AM/i)).toBeInTheDocument()
+    expect(screen.getByText(
+      `Last progress ${formatTestDate(staleRunDetail.run.updated_at)}; stale checkpoint ${formatTestDate(staleRunDetail.run.stale_after)}.`
+    )).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Create recovery request' }))
 
@@ -274,3 +276,12 @@ describe('AgentRunDetailPage scoped Shaka context', () => {
     expect(screen.getByRole('link', { name: 'Open recovery request' })).toHaveAttribute('href', '/admin/agents/runs/recovery-run-1')
   })
 })
+
+function formatTestDate(value: string) {
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(new Date(value))
+}
