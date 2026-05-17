@@ -199,8 +199,16 @@ function isAutoResearchIdea(item: AgentWorkItem) {
   return item.source_type === VERCEL_AUTORESEARCH_IDEA_SOURCE_TYPE || item.metadata?.autoresearch_idea === true
 }
 
+function isN8nWorkflowProposal(item: AgentWorkItem) {
+  return item.source_type === 'n8n_workflow_proposal' || item.metadata?.n8n_workflow_proposal === true
+}
+
 function textArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0) : []
+}
+
+function stringValue(value: unknown): string | null {
+  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null
 }
 
 function definitionOfReadyText(item: AgentWorkItem) {
@@ -299,9 +307,11 @@ function AgentCoordinationContent() {
 
   const summary = useMemo(() => ({
     active: items.filter((item) => !['merged', 'deployed', 'cancelled'].includes(item.status)).length,
+    controllerOpen: items.filter((item) => !isTerminalWorkItem(item) && !isN8nWorkflowProposal(item)).length,
     blocked: items.filter((item) => item.status === 'blocked').length,
     review: items.filter((item) => item.status === 'ready_for_review' || item.status === 'ready_for_merge').length,
     approvals: items.filter((item) => Boolean(item.approval_id)).length,
+    n8nProposals: items.filter((item) => isN8nWorkflowProposal(item) && !isTerminalWorkItem(item)).length,
   }), [items])
 
   const autoResearchIdeas = useMemo(() => {
@@ -312,7 +322,7 @@ function AgentCoordinationContent() {
 
   const controllerQueueItems = useMemo(() => {
     return items
-      .filter((item) => !isTerminalWorkItem(item))
+      .filter((item) => !isTerminalWorkItem(item) && !isN8nWorkflowProposal(item))
       .sort((a, b) => {
         const statusDelta = STATUS_RANK[a.status] - STATUS_RANK[b.status]
         if (statusDelta !== 0) return statusDelta
@@ -321,6 +331,16 @@ function AgentCoordinationContent() {
         return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
       })
       .slice(0, 3)
+  }, [items])
+
+  const n8nWorkflowProposals = useMemo(() => {
+    return items
+      .filter((item) => isN8nWorkflowProposal(item) && !isTerminalWorkItem(item))
+      .sort((a, b) => {
+        const priorityDelta = PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority]
+        if (priorityDelta !== 0) return priorityDelta
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      })
   }, [items])
 
   const archiveTotalPages = Math.max(1, Math.ceil(items.length / ARCHIVE_PAGE_SIZE))
@@ -577,16 +597,26 @@ function AgentCoordinationContent() {
           <Metric label="Action required" value={summary.active} />
           <Metric label="Blocked" value={summary.blocked} tone={summary.blocked ? 'red' : 'slate'} />
           <Metric label="Review queue" value={summary.review} tone={summary.review ? 'yellow' : 'slate'} />
-          <Metric label="Approval-linked" value={summary.approvals} tone={summary.approvals ? 'green' : 'slate'} />
+          <Metric label="n8n proposals" value={summary.n8nProposals} tone={summary.n8nProposals ? 'yellow' : 'slate'} />
         </div>
 
         <ControllerDecisionQueuePanel
           items={controllerQueueItems}
-          totalOpen={summary.active}
+          totalOpen={summary.controllerOpen}
           actionId={actionId}
           onAction={quickAction}
           onAskShaka={(workItem) => askShaka(
             'What action is required on this Decision Queue item? Summarize the action required, problem or opportunity, recommendation, risk, owner, evidence, and safest next approval-gated step.',
+            { type: 'work_item', id: workItem.id },
+          )}
+        />
+
+        <N8nWorkflowProposalPanel
+          proposals={n8nWorkflowProposals}
+          actionId={actionId}
+          onAction={quickAction}
+          onAskShaka={(workItem) => askShaka(
+            'Review this n8n workflow proposal as a controller packet. Summarize the goal, workflow draft, trigger, credential boundary, expected callbacks, approval gate, rollback path, and safest next step without activating production.',
             { type: 'work_item', id: workItem.id },
           )}
         />
@@ -1179,6 +1209,178 @@ function ShakaContextResponse({
   )
 }
 
+function N8nWorkflowProposalPanel({
+  proposals,
+  actionId,
+  onAction,
+  onAskShaka,
+}: {
+  proposals: AgentWorkItem[]
+  actionId: string | null
+  onAction: (item: AgentWorkItem, action: 'block' | 'validation' | 'handoff') => void
+  onAskShaka: (item: AgentWorkItem) => void
+}) {
+  return (
+    <section className="agent-ops-card mb-6 rounded-lg border border-green-500/25 p-4">
+      <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-green-100">n8n workflow proposals</p>
+          <h2 className="mt-1 text-xl font-semibold">Review automation workflow drafts before staging.</h2>
+          <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
+            These are proposal packets from Standup goals. Review the business goal, workflow plan, credential boundary, callbacks, and rollback path before any staging or production activation is requested.
+          </p>
+        </div>
+        <span className="rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1 text-xs text-green-100">
+          {proposals.length} proposal{proposals.length === 1 ? '' : 's'}
+        </span>
+      </div>
+
+      {proposals.length === 0 ? (
+        <p className="rounded-lg border border-silicon-slate/60 bg-background/40 p-3 text-sm text-muted-foreground">
+          No n8n workflow proposal is waiting. Draft workflow proposals from the Standup Room when an automation goal needs an n8n plan.
+        </p>
+      ) : (
+        <div className="grid gap-3">
+          {proposals.map((item) => {
+            const action = stringValue(item.metadata?.n8n_proposal_action)?.replace(/_/g, ' ') ?? 'proposal'
+            const workflowFamily = stringValue(item.metadata?.workflow_family)?.replace(/_/g, ' ') ?? 'automation workflow'
+            const goalId = stringValue(item.metadata?.goal_id)
+            const goalTitle = stringValue(item.metadata?.goal_title) ?? item.title.replace(/^n8n proposal:\s*/i, '')
+            const goalSessionHref = stringValue(item.metadata?.goal_session_href)
+              ?? (goalId ? `/admin/agents/standup?goal=${encodeURIComponent(goalId)}` : null)
+            const goalKanbanHref = goalId ? `/admin/agents/swarm-board?goal=${encodeURIComponent(goalId)}` : '/admin/agents/swarm-board'
+            const requiredEnvVars = textArray(item.metadata?.required_env_vars)
+            const credentialNeeds = textArray(item.metadata?.credential_needs)
+            const nodePlan = textArray(item.metadata?.node_plan)
+            const ingestCallbacks = textArray(item.metadata?.ingest_callbacks)
+            const testEvidence = stringValue(item.metadata?.test_evidence)
+            const rollbackPath = stringValue(item.metadata?.rollback_path) ?? 'Delete the inactive draft workflow and leave production unchanged.'
+            const approvalGate = stringValue(item.metadata?.approval_gate)
+              ?? 'Production activation, credential changes, outbound sends, public publishing, and client-visible mutation require approval.'
+            const recommendation = item.status === 'ready_for_review' || item.status === 'ready_for_merge'
+              ? 'Validate the draft packet and route the next gate through the controller. Do not activate production from this review.'
+              : 'Review the proposal as draft-only. Move to validation only after the trigger, credentials, callbacks, and rollback path are clear.'
+
+            return (
+              <article key={item.id} className="rounded-lg border border-green-500/25 bg-background/55 p-4">
+                <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                  <div className="min-w-0">
+                    <div className="mb-2 flex flex-wrap items-center gap-2">
+                      <StatusBadge status={item.status} />
+                      <span className="rounded-full border border-green-500/30 bg-green-500/10 px-2 py-1 text-xs text-green-100">
+                        {action}
+                      </span>
+                      <span className="rounded-full border border-silicon-slate/70 px-2 py-1 text-xs text-muted-foreground">
+                        {workflowFamily}
+                      </span>
+                    </div>
+                    <h3 className="text-lg font-semibold">{goalTitle}</h3>
+                    <p className="mt-1 max-w-4xl text-sm text-muted-foreground">{item.objective}</p>
+
+                    <div className="mt-3 grid gap-3 lg:grid-cols-2">
+                      <DecisionSummaryBlock
+                        label="Problem or opportunity"
+                        value={`This automation goal needs a governed n8n workflow proposal before agents can move from planning into staging. Current request: ${item.title.replace(/^n8n proposal:\s*/i, '')}.`}
+                      />
+                      <DecisionSummaryBlock
+                        label="Controller recommendation"
+                        value={recommendation}
+                        tone="yellow"
+                      />
+                      <DecisionSummaryBlock
+                        label="Benefits"
+                        value="Keeps workflow design traceable to a goal, captures required credentials before staging, and gives the controller a reviewable rollback path."
+                        tone="green"
+                      />
+                      <DecisionSummaryBlock
+                        label="Drawbacks and risk"
+                        value="The proposal may still need credential review, staging validation, and production activation approval before it can execute real outbound or client-visible work."
+                        tone="red"
+                      />
+                      <DecisionSummaryBlock
+                        label="Approval boundary"
+                        value={approvalGate}
+                        tone="yellow"
+                      />
+                      <DecisionSummaryBlock
+                        label="Rollback"
+                        value={rollbackPath}
+                      />
+                    </div>
+
+                    <div className="mt-3 grid gap-3 md:grid-cols-2">
+                      <ListField label="Node plan" values={nodePlan} fallback="No node plan has been attached yet." />
+                      <ListField label="Credential and env needs" values={[...credentialNeeds, ...requiredEnvVars.map((envVar) => `Env: ${envVar}`)]} fallback="No credential needs have been declared." />
+                      <ListField label="Ingest callbacks" values={ingestCallbacks} fallback="No callback endpoints have been declared." />
+                      <DecisionSummaryBlock label="Test evidence" value={testEvidence ?? 'No test evidence has been attached yet.'} />
+                    </div>
+
+                    <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2 xl:grid-cols-4">
+                      <SmallField label="Owner" value={item.owner_agent_key ?? item.owner_runtime} />
+                      <SmallField label="Goal" value={goalId} />
+                      <SmallField label="Source" value={item.source_label ?? item.source_type} />
+                      <SmallField label="Updated" value={new Date(item.updated_at).toLocaleString()} />
+                    </div>
+                  </div>
+
+                  <div className="flex shrink-0 flex-wrap gap-2 xl:w-80 xl:justify-end">
+                    {goalSessionHref ? (
+                      <Link
+                        href={goalSessionHref}
+                        className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 px-3 py-2 text-sm hover:border-radiant-gold/60"
+                      >
+                        Goal session
+                        <ArrowRight size={16} />
+                      </Link>
+                    ) : null}
+                    <Link
+                      href={goalKanbanHref}
+                      className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 px-3 py-2 text-sm hover:border-radiant-gold/60"
+                    >
+                      Goal Kanban
+                      <ArrowRight size={16} />
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => onAskShaka(item)}
+                      disabled={Boolean(actionId)}
+                      aria-label={`Ask Shaka about n8n proposal ${item.title}`}
+                      className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-50"
+                    >
+                      <MessageSquare size={16} />
+                      Ask Shaka
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onAction(item, 'validation')}
+                      disabled={Boolean(actionId)}
+                      aria-label={`Mark n8n proposal validation ready ${item.title}`}
+                      className="inline-flex items-center gap-2 rounded-lg border border-yellow-500/45 bg-yellow-500/10 px-3 py-2 text-sm text-yellow-100 hover:bg-yellow-500/15 disabled:opacity-50"
+                    >
+                      <CheckCircle2 size={16} />
+                      Mark validation
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onAction(item, 'handoff')}
+                      disabled={Boolean(actionId)}
+                      aria-label={`Hand off n8n proposal ${item.title}`}
+                      className="inline-flex items-center gap-2 rounded-lg border border-green-500/40 bg-green-500/10 px-3 py-2 text-sm text-green-100 hover:bg-green-500/15 disabled:opacity-50"
+                    >
+                      <Network size={16} />
+                      Hand off
+                    </button>
+                  </div>
+                </div>
+              </article>
+            )
+          })}
+        </div>
+      )}
+    </section>
+  )
+}
+
 function VercelResearchApprovalPanel({
   approvals,
   actionId,
@@ -1580,6 +1782,26 @@ function DecisionSummaryBlock({
     <div className={`rounded-lg border p-3 text-sm ${toneClass}`}>
       <p className="text-xs uppercase tracking-wide text-muted-foreground/70">{label}</p>
       <p className="mt-1 text-foreground">{value}</p>
+    </div>
+  )
+}
+
+function ListField({ label, values, fallback }: { label: string; values: string[]; fallback: string }) {
+  return (
+    <div className="rounded-lg border border-silicon-slate/60 bg-background/40 p-3 text-sm">
+      <p className="text-xs uppercase tracking-wide text-muted-foreground/70">{label}</p>
+      {values.length ? (
+        <ul className="mt-2 space-y-1 text-foreground">
+          {values.map((value) => (
+            <li key={value} className="flex gap-2">
+              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-radiant-gold/80" />
+              <span>{value}</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-1 text-muted-foreground">{fallback}</p>
+      )}
     </div>
   )
 }
