@@ -14,6 +14,7 @@ import {
   RefreshCw,
   Route,
   ShieldCheck,
+  Target,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -267,6 +268,10 @@ function OpenBrainControlPanel({
     ? {
         label: 'Memory proposals need review',
         detail: `${pendingProposals} proposal(s) are waiting for approve or reject before becoming durable Open Brain memory.`,
+        reason: 'Unreviewed proposals are not durable memory yet. They should stay out of compiled wiki and RAG projections until a human approves or rejects them.',
+        recommendation: 'Review the pending proposal queue first, then approve only the memories that are sourced, non-private, and operationally useful.',
+        safety: 'Approve/reject records a review decision. It does not publish private raw exports or write generated wiki pages to the repo.',
+        proof: 'Proposal review history and status live in the Proposals view.',
         action: 'Review proposals',
         mode: 'proposals' as ViewMode,
         tone: 'border-radiant-gold/40 bg-radiant-gold/10',
@@ -275,6 +280,10 @@ function OpenBrainControlPanel({
       ? {
           label: 'Source freshness needs review',
           detail: `${snapshot.overview.staleSources} source(s) are stale and should be inspected before RAG or wiki promotion.`,
+          reason: 'Stale source records can make memory, wiki, and RAG projections look more current than they are.',
+          recommendation: 'Inspect source freshness before compiling wiki previews or promoting knowledge into retrieval.',
+          safety: 'Inspection is read-only. Refreshing or replacing a source remains outside this page unless a producer writes a new approved record.',
+          proof: 'Source timestamps and privacy tiers live in the Sources view.',
           action: 'Inspect sources',
           mode: 'sources' as ViewMode,
           tone: 'border-yellow-400/35 bg-yellow-500/10',
@@ -283,6 +292,10 @@ function OpenBrainControlPanel({
         ? {
             label: 'Producer gates are blocked',
             detail: `${blockedProducerGates} producer gate(s) need context or configuration before emitting records.`,
+            reason: 'Blocked producers cannot safely emit memory records, so downstream dashboards may miss current context.',
+            recommendation: 'Review the producer gate notes and unblock only the producers with clear approval and privacy boundaries.',
+            safety: 'Opening producer gates here is informational; configuration changes still happen through their runtime-specific approval paths.',
+            proof: 'Producer status and required environment handles live in the Producers view.',
             action: 'Review producers',
             mode: 'producers' as ViewMode,
             tone: 'border-yellow-400/35 bg-yellow-500/10',
@@ -290,6 +303,10 @@ function OpenBrainControlPanel({
         : {
             label: 'Open Brain projection is ready',
             detail: 'No pending proposal is waiting. Router, source, parity, and producer views remain available for audit.',
+            reason: 'The projection has no immediate memory-review blocker, so the next useful action is an audit rather than a mutation.',
+            recommendation: 'Inspect router policy or runtime parity when you need to confirm how memory-aware work will execute.',
+            safety: 'Audit actions are read-only. Wiki compilation still creates a preview and requires approval before repo writes.',
+            proof: 'Router decisions, parity status, and generated timestamps live in their drilldown views.',
             action: 'Inspect router',
             mode: 'router' as ViewMode,
             tone: 'border-green-400/30 bg-green-500/10',
@@ -330,7 +347,10 @@ function OpenBrainControlPanel({
     <section className={`mb-6 rounded-lg border p-5 ${primary.tone}`} aria-label="Open Brain next actions">
       <div className="grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.4fr)]">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Next Open Brain action</p>
+          <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-radiant-gold">
+            <Target size={14} />
+            Open Brain operator packet
+          </p>
           <h2 className="mt-2 text-xl font-semibold">{primary.label}</h2>
           <p className="mt-2 text-sm text-muted-foreground">{primary.detail}</p>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -351,7 +371,15 @@ function OpenBrainControlPanel({
             </button>
           </div>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-3 lg:grid-cols-2">
+          <OperatorPacketBlock title="Why this matters" value={primary.reason} />
+          <OperatorPacketBlock title="Recommended action" value={primary.recommendation} />
+          <OperatorPacketBlock title="Safety boundary" value={primary.safety} />
+          <OperatorPacketBlock title="Evidence home" value={primary.proof} />
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {cards.map((card) => (
             <button
               key={card.label}
@@ -365,9 +393,17 @@ function OpenBrainControlPanel({
               <span className="mt-3 inline-flex text-xs text-radiant-gold">{card.action}</span>
             </button>
           ))}
-        </div>
       </div>
     </section>
+  )
+}
+
+function OperatorPacketBlock({ title, value }: { title: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-silicon-slate/70 bg-background/55 p-3">
+      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{title}</p>
+      <p className="mt-2 text-sm leading-relaxed text-foreground/90">{value}</p>
+    </div>
   )
 }
 
