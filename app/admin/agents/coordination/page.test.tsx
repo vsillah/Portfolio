@@ -120,6 +120,57 @@ const workItems = [
     completed_at: null,
   },
   {
+    id: 'work-n8n-proposal-1',
+    title: 'n8n proposal: Automate meeting intake to follow-up drafts',
+    objective: 'Draft a staging-safe n8n workflow that turns meeting intake into reviewed follow-up drafts.',
+    status: 'proposed',
+    priority: 'high',
+    owner_agent_key: 'automation-systems',
+    owner_runtime: 'n8n',
+    source_type: 'n8n_workflow_proposal',
+    source_id: 'meeting-intake-follow-up-drafts',
+    source_label: 'n8n workflow proposal',
+    source_run_id: null,
+    active_run_id: null,
+    parent_work_item_id: null,
+    branch_name: null,
+    worktree_path: null,
+    pr_number: null,
+    pr_url: null,
+    expected_files: [],
+    touched_files: [],
+    overlap_group: 'agent-ops-automation-goals',
+    dependency_ids: [],
+    blocker_summary: null,
+    validation_summary: null,
+    approval_id: null,
+    metadata: {
+      n8n_workflow_proposal: true,
+      n8n_proposal_action: 'draft_workflow',
+      workflow_family: 'meeting_follow_up',
+      automation_goal_seed_id: 'meeting-intake-follow-up-drafts',
+      goal_id: 'automation:meeting-intake-follow-up-drafts',
+      goal_title: 'Automate meeting intake to follow-up drafts',
+      goal_session_href: '/admin/agents/standup?goal=automation%3Ameeting-intake-follow-up-drafts',
+      proposed_workflow_name: 'Automate meeting intake to follow-up drafts',
+      trigger: 'Agent Ops Standup Room goal session',
+      required_env_vars: ['N8N_INGEST_SECRET'],
+      credential_needs: ['Confirm required source credentials before staging.'],
+      node_plan: [
+        'Identify the source trigger and dedupe/idempotency key.',
+        'Draft staging-safe transformation and routing nodes.',
+      ],
+      ingest_callbacks: ['/api/admin/agents/work-items'],
+      test_evidence: 'No staging test has run yet.',
+      rollback_path: 'Delete the inactive draft workflow.',
+      approval_gate: 'Production activation, credential changes, outbound sends, public publishing, and client-visible mutation require approval.',
+    },
+    idempotency_key: 'n8n-workflow-proposal:draft_workflow:meeting-intake-follow-up-drafts',
+    created_at: now,
+    updated_at: now,
+    completed_at: null,
+  },
+  {
     id: 'work-queue-3',
     title: 'Route standup room follow-up',
     objective: 'Convert the standup room follow-up into a bounded agent task.',
@@ -258,6 +309,14 @@ function setupFetch({ failWorkItems = false } = {}) {
       return { ok: true, json: async () => ({ ok: true }) }
     }
 
+    if (url.includes('/api/admin/agents/work-items/work-n8n-proposal-1/validation') && init?.method === 'POST') {
+      return { ok: true, json: async () => ({ ok: true }) }
+    }
+
+    if (url.includes('/api/admin/agents/work-items/work-n8n-proposal-1/handoff') && init?.method === 'POST') {
+      return { ok: true, json: async () => ({ ok: true }) }
+    }
+
     if (url.startsWith('/api/admin/agents/work-items')) {
       if (failWorkItems) return { ok: false, status: 503, json: async () => ({ error: 'work item service unavailable' }) }
       const status = new URL(`http://localhost${url}`).searchParams.get('status')
@@ -329,7 +388,7 @@ describe('AgentCoordinationPage decision queue controller', () => {
     expect(screen.getByRole('button', { name: /Validation handoff/ })).toBeInTheDocument()
     expect(screen.getByText('Objective: Package validation evidence so the captain can make a merge or handoff decision.')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Full work-item archive' })).toBeInTheDocument()
-    expect(screen.getByText('Showing 1-3 of 4')).toBeInTheDocument()
+    expect(screen.getByText('Showing 1-3 of 5')).toBeInTheDocument()
   })
 
   it('runs top controller decision actions with scoped Shaka context', async () => {
@@ -368,6 +427,34 @@ describe('AgentCoordinationPage decision queue controller', () => {
         method: 'POST',
         body: expect.stringContaining('Clear hypothesis tied to a deployment metric baseline.'),
       }))
+    })
+  })
+
+  it('surfaces n8n workflow proposals as approval-gated controller packets', async () => {
+    render(<AgentCoordinationPage />)
+
+    expect(await screen.findByText('n8n workflow proposals')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Review automation workflow drafts before staging.' })).toBeInTheDocument()
+    expect(screen.getAllByText('Automate meeting intake to follow-up drafts').length).toBeGreaterThan(0)
+    expect(screen.getByText('draft workflow')).toBeInTheDocument()
+    expect(screen.getByText('meeting follow up')).toBeInTheDocument()
+    expect(screen.getByText('Production activation, credential changes, outbound sends, public publishing, and client-visible mutation require approval.')).toBeInTheDocument()
+    expect(screen.getByText('Delete the inactive draft workflow.')).toBeInTheDocument()
+    expect(screen.getByText('Identify the source trigger and dedupe/idempotency key.')).toBeInTheDocument()
+    expect(screen.getByText('Env: N8N_INGEST_SECRET')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Goal session/ })).toHaveAttribute('href', '/admin/agents/standup?goal=automation%3Ameeting-intake-follow-up-drafts')
+    expect(screen.getByRole('link', { name: /Goal Kanban/ })).toHaveAttribute('href', '/admin/agents/swarm-board?goal=automation%3Ameeting-intake-follow-up-drafts')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ask Shaka about n8n proposal n8n proposal: Automate meeting intake to follow-up drafts' }))
+    expect(await screen.findByText('Shaka context answer')).toBeInTheDocument()
+    expect(fetch).toHaveBeenCalledWith('/api/admin/agents/chief-of-staff/chat', expect.objectContaining({
+      method: 'POST',
+      body: expect.stringContaining('"context_ref":{"type":"work_item","id":"work-n8n-proposal-1"}'),
+    }))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mark n8n proposal validation ready n8n proposal: Automate meeting intake to follow-up drafts' }))
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items/work-n8n-proposal-1/validation', expect.objectContaining({ method: 'POST' }))
     })
   })
 
@@ -500,13 +587,13 @@ describe('AgentCoordinationPage decision queue controller', () => {
     expect(await screen.findByRole('heading', { name: 'Full work-item archive' })).toBeInTheDocument()
     const archive = screen.getByRole('heading', { name: 'Full work-item archive' }).closest('section')
     expect(archive).not.toBeNull()
-    expect(within(archive as HTMLElement).getByText('Showing 1-3 of 4')).toBeInTheDocument()
+    expect(within(archive as HTMLElement).getByText('Showing 1-3 of 5')).toBeInTheDocument()
     expect(within(archive as HTMLElement).getByLabelText('Status filters')).toBeInTheDocument()
     expect(within(archive as HTMLElement).queryByText('Route standup room follow-up')).not.toBeInTheDocument()
 
     fireEvent.click(within(archive as HTMLElement).getByRole('button', { name: 'Next' }))
 
-    expect(within(archive as HTMLElement).getByText('Showing 4-4 of 4')).toBeInTheDocument()
+    expect(within(archive as HTMLElement).getByText('Showing 4-5 of 5')).toBeInTheDocument()
     expect(within(archive as HTMLElement).getByText('Route standup room follow-up')).toBeInTheDocument()
   })
 
