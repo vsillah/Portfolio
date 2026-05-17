@@ -13,6 +13,7 @@ export type AutomationGoalSeedState = {
   seedId: string
   parent: AgentWorkItem | null
   children: AgentWorkItem[]
+  n8nProposals: AgentWorkItem[]
 }
 
 export type SeedAutomationGoalsInput = {
@@ -74,13 +75,18 @@ function baseMetadata(seed: AutomationGoalSeed, triggeredByUserId?: string | nul
 export async function listAutomationGoalSeedStates(limit = 250): Promise<AutomationGoalSeedState[]> {
   const items = await listAgentWorkItems({ limit })
   const seededItems = items.filter((item) => item.metadata?.automation_seed === true)
+  const n8nProposalItems = items.filter((item) => item.source_type === 'n8n_workflow_proposal' || item.metadata?.n8n_workflow_proposal === true)
 
   return listAutomationGoalSeeds().map((seed) => {
+    const goalId = goalIdForSeed(seed)
     const parent = seededItems.find((item) => item.idempotency_key === parentIdempotencyKey(seed)) ?? null
     const children = seededItems
       .filter((item) => item.metadata?.automation_goal_seed_id === seed.id && item.metadata?.goal_role === 'task')
       .sort((a, b) => Number(a.metadata?.goal_sequence ?? 0) - Number(b.metadata?.goal_sequence ?? 0))
-    return { seedId: seed.id, parent, children }
+    const n8nProposals = n8nProposalItems
+      .filter((item) => item.metadata?.automation_goal_seed_id === seed.id || item.metadata?.goal_id === goalId)
+      .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+    return { seedId: seed.id, parent, children, n8nProposals }
   })
 }
 

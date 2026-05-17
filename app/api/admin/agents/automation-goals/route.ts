@@ -30,6 +30,8 @@ export async function GET(request: NextRequest) {
         seeded: Boolean(state?.parent),
         seeded_parent_work_item: state?.parent ?? null,
         seeded_child_count: state?.children.length ?? 0,
+        n8n_proposal_count: state?.n8nProposals?.length ?? 0,
+        latest_n8n_proposal: state?.n8nProposals?.[0] ?? null,
       }
     }),
   })

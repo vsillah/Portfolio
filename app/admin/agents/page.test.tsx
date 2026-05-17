@@ -175,6 +175,8 @@ const automationGoals = [
     seeded: false,
     seeded_child_count: 0,
     seeded_parent_work_item: null,
+    n8n_proposal_count: 0,
+    latest_n8n_proposal: null,
   },
   {
     id: 'warm-lead-review-ready-outreach',
@@ -199,6 +201,17 @@ const automationGoals = [
       metadata: {
         goal_session_href: '/admin/agents/standup?goal=automation%3Awarm-lead-review-ready-outreach',
         goal_kanban_href: '/admin/agents/swarm-board?goal=automation%3Awarm-lead-review-ready-outreach',
+      },
+    },
+    n8n_proposal_count: 1,
+    latest_n8n_proposal: {
+      id: 'n8n-proposal-warm-lead',
+      title: 'n8n proposal: Warm lead review-ready outreach',
+      status: 'proposed',
+      priority: 'medium',
+      metadata: {
+        n8n_workflow_proposal: true,
+        goal_id: 'automation:warm-lead-review-ready-outreach',
       },
     },
   },
@@ -319,6 +332,9 @@ describe('AgentOperationsPage mission control landing', () => {
     expect(screen.getByText('1/2 seeded')).toBeInTheDocument()
     expect(within(automationPanel).getAllByRole('link', { name: /Standup/i })[0]).toHaveAttribute('href', '/admin/agents/standup?goal=automation%3Ameeting-intake-follow-up-drafts')
     expect(within(automationPanel).getAllByRole('link', { name: /Kanban/i })[0]).toHaveAttribute('href', '/admin/agents/swarm-board?goal=automation%3Ameeting-intake-follow-up-drafts')
+    expect(within(automationPanel).getByText('n8n proposal in controller')).toBeInTheDocument()
+    expect(within(automationPanel).getByText('n8n proposal: Warm lead review-ready outreach')).toBeInTheDocument()
+    expect(within(automationPanel).getByRole('link', { name: /Review proposal/i })).toHaveAttribute('href', '/admin/agents/coordination')
     expect(screen.getByText('Morning review')).toBeInTheDocument()
     expect(screen.getByText('Hermes health')).toBeInTheDocument()
     expect(screen.getAllByRole('button', { name: /^Run$/ }).length).toBeGreaterThan(0)

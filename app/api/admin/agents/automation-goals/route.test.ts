@@ -33,6 +33,7 @@ describe('GET /api/admin/agents/automation-goals', () => {
         seedId: 'meeting-intake-follow-up-drafts',
         parent: { id: 'parent-work-item' },
         children: [{ id: 'child-1' }, { id: 'child-2' }],
+        n8nProposals: [{ id: 'proposal-1', status: 'proposed', title: 'n8n proposal: Meeting follow-up draft' }],
       },
     ])
   })
@@ -58,6 +59,8 @@ describe('GET /api/admin/agents/automation-goals', () => {
       seeded: true,
       seeded_parent_work_item: { id: 'parent-work-item' },
       seeded_child_count: 2,
+      n8n_proposal_count: 1,
+      latest_n8n_proposal: { id: 'proposal-1', status: 'proposed' },
     })
   })
 })
