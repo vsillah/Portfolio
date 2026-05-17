@@ -54,8 +54,9 @@ type GuidedIntakeTemplate = {
   key: string
   label: string
   summary: string
-  title: string
   objective: string
+  title: string
+  narrative: string
   owner_agent_key: string
   owner_runtime: AgentRuntime
   expected_files: string
@@ -118,6 +119,7 @@ const DEFAULT_FORM: WorkItemForm = {
 }
 
 const PRIORITIES = ['urgent', 'high', 'medium', 'low'] as const
+const ARCHIVE_PAGE_SIZE = 3
 
 const OWNER_OPTIONS = [
   { key: 'integration-captain', label: 'Integration Captain' },
@@ -132,8 +134,9 @@ const GUIDED_INTAKE_TEMPLATES: GuidedIntakeTemplate[] = [
     key: 'controller-review',
     label: 'Controller review',
     summary: 'A decision packet needs owner, evidence, recommendation, and approval path.',
+    objective: 'Convert an ambiguous decision into a reviewable controller packet.',
     title: DEFAULT_FORM.title,
-    objective: DEFAULT_FORM.objective,
+    narrative: DEFAULT_FORM.objective,
     owner_agent_key: DEFAULT_FORM.owner_agent_key,
     owner_runtime: DEFAULT_FORM.owner_runtime,
     expected_files: DEFAULT_FORM.expected_files,
@@ -142,8 +145,9 @@ const GUIDED_INTAKE_TEMPLATES: GuidedIntakeTemplate[] = [
     key: 'blocker-triage',
     label: 'Blocker triage',
     summary: 'A blocked item needs a named owner decision before work continues.',
+    objective: 'Make the blocker, owner, and unblock condition explicit.',
     title: 'Triage blocked Agent Ops work item',
-    objective: 'Identify the blocker, name the owner decision required, confirm the evidence source, and recommend whether to unblock, park, or hand off to the Integration Captain.',
+    narrative: 'Identify the blocker, name the owner decision required, confirm the evidence source, and recommend whether to unblock, park, or hand off to the Integration Captain.',
     owner_agent_key: 'integration-captain',
     owner_runtime: 'codex',
     expected_files: 'app/admin/agents/swarm-board/page.tsx\napp/admin/agents/runs/[runId]/page.tsx',
@@ -152,8 +156,9 @@ const GUIDED_INTAKE_TEMPLATES: GuidedIntakeTemplate[] = [
     key: 'validation-handoff',
     label: 'Validation handoff',
     summary: 'A review-ready item needs checks, evidence, and merge readiness summarized.',
+    objective: 'Package validation evidence so the captain can make a merge or handoff decision.',
     title: 'Prepare validation handoff packet',
-    objective: 'Collect focused validation results, trace links, PR status, rollback path, and the merge-readiness recommendation before moving the work to the captain lane.',
+    narrative: 'Collect focused validation results, trace links, PR status, rollback path, and the merge-readiness recommendation before moving the work to the captain lane.',
     owner_agent_key: 'integration-captain',
     owner_runtime: 'codex',
     expected_files: 'app/admin/agents/swarm-board/page.tsx\napp/admin/agents/swarm-board/page.test.tsx',
@@ -162,11 +167,31 @@ const GUIDED_INTAKE_TEMPLATES: GuidedIntakeTemplate[] = [
     key: 'agent-follow-up',
     label: 'Agent follow-up',
     summary: 'An agent needs a concrete follow-up task with acceptance criteria.',
+    objective: 'Turn an operator request into bounded work assigned to an agent owner.',
     title: 'Route follow-up task to agent owner',
-    objective: 'Turn the requested follow-up into a bounded task with owner, expected output, acceptance criteria, trace link, and next checkpoint.',
+    narrative: 'Turn the requested follow-up into a bounded task with owner, expected output, acceptance criteria, trace link, and next checkpoint.',
     owner_agent_key: 'chief-of-staff',
     owner_runtime: 'codex',
     expected_files: 'app/admin/agents/standup/page.tsx\napp/admin/agents/swarm-board/page.tsx',
+  },
+]
+
+const INTAKE_MADLIB_CHIPS = [
+  {
+    label: 'Decision needed',
+    text: 'Decision needed: approve, reject, block, hand off, or request more evidence.',
+  },
+  {
+    label: 'Evidence',
+    text: 'Evidence to inspect: trace, PR, validation summary, owner note, and rollback path.',
+  },
+  {
+    label: 'Recommendation',
+    text: 'Recommendation: state the safest next step and why it is reversible or approval-gated.',
+  },
+  {
+    label: 'Done when',
+    text: 'Done when: the owner, action required, risk, and next checkpoint are clear enough for the controller queue.',
   },
 ]
 
@@ -219,6 +244,7 @@ function AgentCoordinationContent() {
   const [error, setError] = useState<string | null>(null)
   const [form, setForm] = useState<WorkItemForm>(DEFAULT_FORM)
   const [selectedTemplateKey, setSelectedTemplateKey] = useState(GUIDED_INTAKE_TEMPLATES[0].key)
+  const [archivePage, setArchivePage] = useState(1)
   const [vercelResearchApprovals, setVercelResearchApprovals] = useState<VercelResearchApprovalCard[]>([])
   const [moremiDrillResult, setMoremiDrillResult] = useState<MoremiOperationalDrillResult | null>(null)
   const [shakaReply, setShakaReply] = useState<ShakaContextReply | null>(null)
@@ -297,6 +323,15 @@ function AgentCoordinationContent() {
       .slice(0, 3)
   }, [items])
 
+  const archiveTotalPages = Math.max(1, Math.ceil(items.length / ARCHIVE_PAGE_SIZE))
+  const archivePageSafe = Math.min(archivePage, archiveTotalPages)
+  const archiveStart = items.length ? (archivePageSafe - 1) * ARCHIVE_PAGE_SIZE : 0
+  const archiveItems = items.slice(archiveStart, archiveStart + ARCHIVE_PAGE_SIZE)
+
+  useEffect(() => {
+    setArchivePage(1)
+  }, [status, items.length])
+
   async function refreshAll() {
     await Promise.all([loadItems(), loadVercelResearchApprovals()])
   }
@@ -337,10 +372,19 @@ function AgentCoordinationContent() {
     setForm((prev) => ({
       ...prev,
       title: template.title,
-      objective: template.objective,
+      objective: template.narrative,
       owner_agent_key: template.owner_agent_key,
       owner_runtime: template.owner_runtime,
       expected_files: template.expected_files,
+    }))
+  }
+
+  function addMadlibText(text: string) {
+    setForm((prev) => ({
+      ...prev,
+      objective: prev.objective.includes(text)
+        ? prev.objective
+        : `${prev.objective.trim()}${prev.objective.trim() ? '\n' : ''}${text}`,
     }))
   }
 
@@ -529,14 +573,6 @@ function AgentCoordinationContent() {
           </div>
         </header>
 
-        <section className="agent-ops-command-card mb-6 rounded-xl border p-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Approval controller</p>
-          <h2 className="mt-2 text-2xl font-bold">Start with the decision, then inspect the trace.</h2>
-          <p className="mt-2 max-w-4xl text-sm leading-6 text-muted-foreground">
-            Mission Control routes here when a human decision is required. This page keeps approval cards and work-item decisions above secondary queue tools.
-          </p>
-        </section>
-
         <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
           <Metric label="Action required" value={summary.active} />
           <Metric label="Blocked" value={summary.blocked} tone={summary.blocked ? 'red' : 'slate'} />
@@ -591,35 +627,20 @@ function AgentCoordinationContent() {
         ) : null}
 
         <section className="agent-ops-card mb-6 rounded-lg border p-4">
-          <div className="mb-4 flex flex-col gap-3">
+          <div className="mb-4">
             <div>
-              <h2 className="text-base font-semibold">Queue administration</h2>
+              <h2 className="text-base font-semibold">Create controller packet</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Filter the archive or create a guided controller packet. Intake starts from a decision type so the operator does not have to write a work item from scratch.
+                Use this when a decision, blocker, validation handoff, or agent follow-up is missing from the queue. Pick a template, fill the madlib-style packet, and create tracked work for the controller.
               </p>
-            </div>
-            <div className="flex flex-wrap gap-2" aria-label="Status filters">
-            {STATUSES.map((item) => (
-              <button
-                key={item}
-                onClick={() => setStatus(item)}
-                className={`rounded-lg border px-3 py-2 text-sm ${
-                  status === item
-                    ? 'border-radiant-gold/60 bg-radiant-gold/15 text-radiant-gold'
-                    : 'border-silicon-slate/70 bg-silicon-slate/20 text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {item.replace(/_/g, ' ')}
-              </button>
-            ))}
             </div>
           </div>
 
           <form onSubmit={createWorkItem} className="grid gap-4 border-t border-silicon-slate/60 pt-4">
             <div>
-              <h2 className="text-base font-semibold">Guided intake</h2>
+              <h2 className="text-base font-semibold">Decision pattern templates</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Pick the closest decision pattern, then adjust only the few fields that change.
+                Each template pre-fills the objective, owner, runtime, and expected evidence. Choose the pattern that matches the operator question.
               </p>
             </div>
 
@@ -637,6 +658,9 @@ function AgentCoordinationContent() {
                 >
                   <span className="text-sm font-semibold">{template.label}</span>
                   <span className="mt-1 block text-xs leading-5">{template.summary}</span>
+                  <span className="mt-2 block rounded-md border border-silicon-slate/60 bg-background/35 px-2 py-1 text-xs leading-5 text-muted-foreground">
+                    Objective: {template.objective}
+                  </span>
                 </button>
               ))}
             </div>
@@ -660,6 +684,21 @@ function AgentCoordinationContent() {
                     className="mt-1 w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm normal-case tracking-normal text-foreground outline-none focus:border-radiant-gold/70"
                   />
                 </label>
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground">Complete the packet</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {INTAKE_MADLIB_CHIPS.map((chip) => (
+                      <button
+                        key={chip.label}
+                        type="button"
+                        onClick={() => addMadlibText(chip.text)}
+                        className="rounded-full border border-radiant-gold/35 bg-radiant-gold/10 px-2.5 py-1 text-xs text-radiant-gold hover:bg-radiant-gold/15"
+                      >
+                        {chip.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               <div className="grid content-start gap-3">
@@ -738,29 +777,81 @@ function AgentCoordinationContent() {
 
         {loading ? (
           <div className="py-16 text-center text-muted-foreground">Loading coordination work...</div>
-        ) : items.length ? (
-          <div className="space-y-3">
-            <div>
-              <h2 className="text-base font-semibold">Full work-item archive</h2>
-              <p className="mt-1 text-sm text-muted-foreground">All matching controller items, including lower-priority and non-actionable records.</p>
-            </div>
-            {items.map((item) => (
-              <WorkItemCard
-                key={item.id}
-                item={item}
-                actionId={actionId}
-                onAction={quickAction}
-                onAskShaka={(workItem) => askShaka(
-                  'What action is required on this work item? Summarize the recommendation, risk, evidence, and next approval-safe step.',
-                  { type: 'work_item', id: workItem.id },
-                )}
-              />
-            ))}
-          </div>
         ) : (
-          <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-4 py-12 text-center text-muted-foreground">
-            No agent coordination work items match the current filter.
-          </div>
+          <section className="agent-ops-card mb-6 rounded-lg border p-4">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <h2 className="text-base font-semibold">Full work-item archive</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Filter and inspect matching controller items here. The filter applies only to the archive results below.
+                </p>
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {items.length
+                  ? `Showing ${archiveStart + 1}-${Math.min(archiveStart + ARCHIVE_PAGE_SIZE, items.length)} of ${items.length}`
+                  : 'Showing 0 of 0'}
+              </div>
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2" aria-label="Status filters">
+              {STATUSES.map((item) => (
+                <button
+                  key={item}
+                  onClick={() => setStatus(item)}
+                  className={`rounded-lg border px-3 py-2 text-sm ${
+                    status === item
+                      ? 'border-radiant-gold/60 bg-radiant-gold/15 text-radiant-gold'
+                      : 'border-silicon-slate/70 bg-silicon-slate/20 text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {item.replace(/_/g, ' ')}
+                </button>
+              ))}
+            </div>
+
+            {items.length ? (
+              <div className="mt-4 space-y-3">
+                {archiveItems.map((item) => (
+                  <WorkItemCard
+                    key={item.id}
+                    item={item}
+                    actionId={actionId}
+                    onAction={quickAction}
+                    onAskShaka={(workItem) => askShaka(
+                      'What action is required on this work item? Summarize the recommendation, risk, evidence, and next approval-safe step.',
+                      { type: 'work_item', id: workItem.id },
+                    )}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="mt-4 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-4 py-12 text-center text-muted-foreground">
+                No agent coordination work items match the current filter.
+              </div>
+            )}
+
+            <div className="mt-4 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setArchivePage((page) => Math.max(1, page - 1))}
+                disabled={archivePageSafe <= 1}
+                className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-3 py-2 text-sm text-muted-foreground hover:text-foreground disabled:cursor-not-allowed disabled:opacity-45"
+              >
+                Previous
+              </button>
+              <span className="text-sm text-muted-foreground">
+                Page {archivePageSafe} of {archiveTotalPages}
+              </span>
+              <button
+                type="button"
+                onClick={() => setArchivePage((page) => Math.min(archiveTotalPages, page + 1))}
+                disabled={archivePageSafe >= archiveTotalPages}
+                className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-3 py-2 text-sm text-muted-foreground hover:text-foreground disabled:cursor-not-allowed disabled:opacity-45"
+              >
+                Next
+              </button>
+            </div>
+          </section>
         )}
       </div>
     </div>
@@ -831,7 +922,7 @@ function ControllerDecisionQueuePanel({
   onAskShaka: (item: AgentWorkItem) => void
 }) {
   return (
-    <section className="agent-ops-card mb-6 rounded-lg border border-radiant-gold/30 p-4">
+    <section className="agent-ops-card mb-6 rounded-lg border border-silicon-slate/70 p-4">
       <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Decision queue</p>
@@ -846,7 +937,7 @@ function ControllerDecisionQueuePanel({
       </div>
 
       {items.length === 0 ? (
-        <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-4 text-sm text-green-100">
+        <div className="rounded-lg border border-green-500/30 bg-green-500/5 p-4 text-sm text-green-100">
           No controller decision is waiting. Continue monitoring Mission Control and Agent Kanban.
         </div>
       ) : (
@@ -1385,7 +1476,7 @@ function decisionQueueModel(item: AgentWorkItem): {
       riskStatus: `${metadataRisk ?? item.priority} risk; blocked items should not move forward without a controller decision.`,
       evidenceHome,
       tone: 'red',
-      toneClass: 'border-red-500/35 bg-red-500/10',
+      toneClass: 'border-red-500/30 bg-background/55',
       primaryAction: 'handoff',
       primaryLabel: 'Handoff',
       primaryClass: 'border-radiant-gold/50 bg-radiant-gold/10 text-radiant-gold hover:bg-radiant-gold/15',
@@ -1402,7 +1493,7 @@ function decisionQueueModel(item: AgentWorkItem): {
       riskStatus: `${metadataRisk ?? item.priority} risk; approval gates remain active until the controller decision is complete.`,
       evidenceHome,
       tone: 'yellow',
-      toneClass: 'border-yellow-500/35 bg-yellow-500/10',
+      toneClass: 'border-yellow-500/30 bg-background/55',
       primaryAction: 'validation',
       primaryLabel: 'Validate',
       primaryClass: 'border-yellow-500/45 bg-yellow-500/10 text-yellow-100 hover:bg-yellow-500/15',
@@ -1417,7 +1508,7 @@ function decisionQueueModel(item: AgentWorkItem): {
       riskStatus: `${metadataRisk ?? item.priority} risk; proposed and queued work should be shaped before agents pick it up.`,
       evidenceHome,
       tone: 'slate',
-      toneClass: 'border-silicon-slate/70 bg-silicon-slate/20',
+      toneClass: 'border-silicon-slate/70 bg-background/55',
       primaryAction: 'handoff',
       primaryLabel: 'Handoff',
       primaryClass: 'border-radiant-gold/50 bg-radiant-gold/10 text-radiant-gold hover:bg-radiant-gold/15',
@@ -1431,7 +1522,7 @@ function decisionQueueModel(item: AgentWorkItem): {
     riskStatus: `${metadataRisk ?? item.priority} risk; current status is ${item.status.replace(/_/g, ' ')}.`,
     evidenceHome,
     tone: 'green',
-    toneClass: 'border-green-500/30 bg-green-500/10',
+    toneClass: 'border-green-500/30 bg-background/55',
     primaryAction: 'block',
     primaryLabel: 'Block',
     primaryClass: 'border-red-500/45 bg-red-500/10 text-red-100 hover:bg-red-500/15',
@@ -1479,11 +1570,11 @@ function DecisionSummaryBlock({
 }) {
   const toneClass =
     tone === 'red'
-      ? 'border-red-500/35 bg-red-500/10'
+      ? 'border-red-500/35 bg-red-500/5'
       : tone === 'yellow'
-        ? 'border-yellow-500/35 bg-yellow-500/10'
+        ? 'border-yellow-500/35 bg-yellow-500/5'
         : tone === 'green'
-          ? 'border-green-500/35 bg-green-500/10'
+          ? 'border-green-500/35 bg-green-500/5'
           : 'border-silicon-slate/60 bg-background/40'
   return (
     <div className={`rounded-lg border p-3 text-sm ${toneClass}`}>
