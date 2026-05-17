@@ -322,6 +322,14 @@ type AutomationGoalSummary = {
     status: string
     metadata?: Record<string, unknown>
   } | null
+  n8n_proposal_count?: number
+  latest_n8n_proposal?: {
+    id: string
+    title: string
+    status: string
+    priority?: string
+    metadata?: Record<string, unknown>
+  } | null
 }
 
 type OperatorActionKind = 'morning-review' | 'hermes' | 'approval-drill' | 'runtime-evaluation'
@@ -1346,6 +1354,8 @@ function AutomationGoalsPanel({
 function AutomationGoalRow({ goal }: { goal: AutomationGoalSummary }) {
   const goalId = `automation:${goal.id}`
   const metadata = goal.seeded_parent_work_item?.metadata ?? {}
+  const proposal = goal.latest_n8n_proposal ?? null
+  const proposalCount = goal.n8n_proposal_count ?? 0
   const standupHref = typeof metadata.goal_session_href === 'string'
     ? metadata.goal_session_href
     : `/admin/agents/standup?goal=${encodeURIComponent(goalId)}`
@@ -1370,13 +1380,38 @@ function AutomationGoalRow({ goal }: { goal: AutomationGoalSummary }) {
         {goal.n8nWorkflows.length ? (
           <span className="rounded-full border border-silicon-slate/50 bg-background/40 px-2 py-0.5">{goal.n8nWorkflows.length} n8n workflow(s)</span>
         ) : null}
+        {proposalCount ? (
+          <span className="rounded-full border border-green-500/30 bg-green-500/10 px-2 py-0.5 text-green-100">
+            {proposalCount} proposal{proposalCount === 1 ? '' : 's'}
+          </span>
+        ) : goal.requiresNewWorkflow ? (
+          <span className="rounded-full border border-radiant-gold/35 bg-radiant-gold/10 px-2 py-0.5 text-radiant-gold">
+            proposal needed
+          </span>
+        ) : null}
       </div>
+      {proposal ? (
+        <div className="mt-3 rounded-md border border-green-500/25 bg-green-500/5 p-2 text-xs">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="font-medium text-green-100">n8n proposal in controller</p>
+            <StatusOnlyPill tone={proposal.status === 'blocked' ? 'red' : proposal.status === 'ready_for_review' || proposal.status === 'ready_for_merge' ? 'yellow' : 'green'}>
+              {proposal.status.replace(/_/g, ' ')}
+            </StatusOnlyPill>
+          </div>
+          <p className="mt-1 line-clamp-1 text-muted-foreground">{proposal.title}</p>
+        </div>
+      ) : null}
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs">
         <span className="text-muted-foreground">{goal.seeded_child_count} task(s)</span>
         <div className="flex gap-3">
           <Link href={standupHref} className="text-radiant-gold hover:underline">
             Standup
           </Link>
+          {proposal ? (
+            <Link href="/admin/agents/coordination" className="text-radiant-gold hover:underline">
+              Review proposal
+            </Link>
+          ) : null}
           <Link href={kanbanHref} className="text-radiant-gold hover:underline">
             Kanban
           </Link>

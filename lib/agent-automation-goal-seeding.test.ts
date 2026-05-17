@@ -94,6 +94,25 @@ describe('agent automation goal seeding', () => {
         idempotency_key: 'automation-goal:meeting-intake-follow-up-drafts:task:1',
         metadata: { automation_seed: true, automation_goal_seed_id: 'meeting-intake-follow-up-drafts', goal_role: 'task', goal_sequence: 1 },
       },
+      {
+        id: 'n8n-proposal-1',
+        source_type: 'n8n_workflow_proposal',
+        updated_at: '2026-05-12T12:00:00.000Z',
+        metadata: {
+          n8n_workflow_proposal: true,
+          automation_goal_seed_id: 'meeting-intake-follow-up-drafts',
+          goal_id: 'automation:meeting-intake-follow-up-drafts',
+        },
+      },
+      {
+        id: 'n8n-proposal-2',
+        source_type: 'n8n_workflow_proposal',
+        updated_at: '2026-05-13T12:00:00.000Z',
+        metadata: {
+          n8n_workflow_proposal: true,
+          goal_id: 'automation:meeting-intake-follow-up-drafts',
+        },
+      },
     ])
 
     const states = await listAutomationGoalSeedStates()
@@ -101,5 +120,6 @@ describe('agent automation goal seeding', () => {
 
     expect(state?.parent?.id).toBe('parent')
     expect(state?.children.map((item) => item.id)).toEqual(['child-1', 'child-2'])
+    expect(state?.n8nProposals.map((item) => item.id)).toEqual(['n8n-proposal-2', 'n8n-proposal-1'])
   })
 })
