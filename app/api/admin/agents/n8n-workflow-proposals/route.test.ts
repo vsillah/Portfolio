@@ -56,6 +56,9 @@ describe('POST /api/admin/agents/n8n-workflow-proposals', () => {
       objective: 'Draft the n8n workflow.',
       workflow_family: 'meeting_follow_up',
       automation_goal_seed_id: 'meeting-intake-follow-up-drafts',
+      goal_id: 'automation:meeting-intake-follow-up-drafts',
+      goal_title: 'Automate meeting intake to follow-up drafts',
+      goal_session_href: '/admin/agents/standup?goal=automation%3Ameeting-intake-follow-up-drafts',
       required_env_vars: ['N8N_INGEST_SECRET'],
       credential_needs: ['Supabase API'],
       node_plan: ['Webhook trigger'],
@@ -67,6 +70,8 @@ describe('POST /api/admin/agents/n8n-workflow-proposals', () => {
     expect(mocks.createN8nWorkflowProposal).toHaveBeenCalledWith(expect.objectContaining({
       action: 'draft_workflow',
       title: 'Meeting follow-up workflow',
+      goalId: 'automation:meeting-intake-follow-up-drafts',
+      goalTitle: 'Automate meeting intake to follow-up drafts',
       requestedByUserId: 'admin-user',
       requiredEnvVars: ['N8N_INGEST_SECRET'],
     }))

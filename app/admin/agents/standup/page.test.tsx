@@ -227,6 +227,18 @@ describe('AgentStandupRoomPage', () => {
           }),
         }
       }
+      if (String(url).includes('/api/admin/agents/n8n-workflow-proposals')) {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            work_item: {
+              id: 'n8n-proposal-work-item',
+              title: 'n8n proposal: Automate meeting intake to follow-up drafts workflow',
+            },
+          }),
+        }
+      }
       return { ok: false, json: async () => ({ error: 'not found' }) }
     }))
   })
@@ -390,6 +402,90 @@ describe('AgentStandupRoomPage', () => {
 
     expect(screen.queryByText('Goal session')).not.toBeInTheDocument()
     expect(window.location.search).toBe('')
+  })
+
+  it('creates governed n8n workflow proposals from automation goal sessions', async () => {
+    const automationGoal = {
+      ...organization.summary.goals[0],
+      id: 'automation:meeting-intake-follow-up-drafts',
+      title: 'Automate meeting intake to follow-up drafts',
+      sessionHref: '/admin/agents/standup?goal=automation%3Ameeting-intake-follow-up-drafts',
+      automationGoalSeedId: 'meeting-intake-follow-up-drafts',
+      workflowFamily: 'meeting_follow_up',
+      automationLevel: 'draft_to_review',
+      requiresNewWorkflow: false,
+      n8nWorkflows: ['WF-SLK', 'WF-CAL'],
+      approvalGate: 'External emails and calendar invitations stay approval-gated.',
+      nextAction: 'Confirm every meeting can route into a draft follow-up.',
+    }
+    const automationTask = {
+      ...organization.lanes[0].tasks[0],
+      goal: {
+        ...organization.lanes[0].tasks[0].goal!,
+        id: automationGoal.id,
+        title: automationGoal.title,
+        sessionHref: automationGoal.sessionHref,
+        automationGoalSeedId: automationGoal.automationGoalSeedId,
+        workflowFamily: automationGoal.workflowFamily,
+        automationLevel: automationGoal.automationLevel,
+        requiresNewWorkflow: automationGoal.requiresNewWorkflow,
+        n8nWorkflows: automationGoal.n8nWorkflows,
+        approvalGate: automationGoal.approvalGate,
+        nextAction: automationGoal.nextAction,
+      },
+    }
+    vi.mocked(fetch).mockImplementation(async (url, init) => {
+      if (String(url).includes('/api/admin/agents/swarm-board')) {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            organization: {
+              ...organization,
+              summary: { ...organization.summary, goals: [automationGoal] },
+              lanes: [{ ...organization.lanes[0], tasks: [automationTask] }, organization.lanes[1]],
+            },
+          }),
+        } as Response
+      }
+      if (String(url).includes('/api/admin/agents/n8n-workflow-proposals')) {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            work_item: {
+              id: 'n8n-proposal-work-item',
+              title: 'n8n proposal: Automate meeting intake to follow-up drafts workflow',
+            },
+          }),
+        } as Response
+      }
+      return { ok: false, json: async () => ({ error: 'not found' }) } as Response
+    })
+    window.history.pushState({}, '', '/admin/agents/standup?goal=automation%3Ameeting-intake-follow-up-drafts')
+
+    render(<AgentStandupRoomPage />)
+
+    expect(await screen.findByLabelText('Automation workflow proposal')).toBeInTheDocument()
+    expect(screen.getByText('meeting follow up')).toBeInTheDocument()
+    expect(screen.getByText('2 known workflow(s)')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /Draft workflow proposal/i }))
+
+    await waitFor(() => {
+      expect(screen.getByText(/Created n8n proposal: Automate meeting intake to follow-up drafts workflow/i)).toBeInTheDocument()
+    })
+    const proposalCall = vi.mocked(fetch).mock.calls.find(([url]) => String(url).includes('/api/admin/agents/n8n-workflow-proposals'))
+    expect(proposalCall).toBeTruthy()
+    const proposalBody = JSON.parse(String((proposalCall?.[1] as RequestInit).body))
+    expect(proposalBody).toMatchObject({
+      action: 'draft_workflow',
+      automation_goal_seed_id: 'meeting-intake-follow-up-drafts',
+      goal_id: 'automation:meeting-intake-follow-up-drafts',
+      goal_title: 'Automate meeting intake to follow-up drafts',
+      workflow_family: 'meeting_follow_up',
+    })
+    expect(proposalBody.confirmation).toBeUndefined()
   })
 
   it('requires at least one selected participant before starting standup', async () => {

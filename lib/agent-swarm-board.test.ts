@@ -615,6 +615,13 @@ describe('buildAgentOrgBoardSnapshotFromRows', () => {
             goal_draft_run_id: 'draft-run',
             goal_approved_by_run_id: 'approval-run',
             goal_session_href: '/admin/agents/standup?goal=goal%20kanban%20v1',
+            automation_goal_seed_id: 'meeting-intake-follow-up-drafts',
+            workflow_family: 'meeting_follow_up',
+            automation_level: 'draft_to_review',
+            requires_new_workflow: false,
+            n8n_workflows: ['WF-SLK', 'WF-CAL'],
+            approval_gate: 'External sends stay approval-gated.',
+            next_action: 'Confirm every meeting can route into a draft follow-up.',
           },
         }),
         orgWorkItem({
@@ -670,6 +677,13 @@ describe('buildAgentOrgBoardSnapshotFromRows', () => {
       latestRunId: 'approval-run',
       draftTraceHref: '/admin/agents/runs/draft-run',
       approvalTraceHref: '/admin/agents/runs/approval-run',
+      automationGoalSeedId: 'meeting-intake-follow-up-drafts',
+      workflowFamily: 'meeting_follow_up',
+      automationLevel: 'draft_to_review',
+      requiresNewWorkflow: false,
+      n8nWorkflows: ['WF-SLK', 'WF-CAL'],
+      approvalGate: 'External sends stay approval-gated.',
+      nextAction: 'Confirm every meeting can route into a draft follow-up.',
     })
     expect(snapshot.summary.goals[0].burndown.length).toBeGreaterThan(0)
     expect(snapshot.lanes.flatMap((lane) => lane.tasks).find((task) => task.id === 'goal-blocked')?.goal).toMatchObject({

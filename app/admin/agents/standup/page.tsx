@@ -14,6 +14,7 @@ import {
   Target,
   Trash2,
   Users,
+  Workflow,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -73,6 +74,12 @@ type ParticipantSessionState = {
   lastResponseAt: string | null
 }
 
+type N8nProposalState = {
+  workItemId: string
+  title: string
+  createdAt: string
+}
+
 function agentShortName(name: string) {
   return name.split(' - ')[0].replace(/\s*\([^)]*\)/g, '').trim()
 }
@@ -115,6 +122,7 @@ function StandupRoomContent() {
   const [createdItems, setCreatedItems] = useState<WarRoomResponse['created_work_items']>(null)
   const [commandTraces, setCommandTraces] = useState<WarRoomCommandTrace[]>([])
   const [standupQuestions, setStandupQuestions] = useState<StandupQuestion[]>([])
+  const [n8nProposal, setN8nProposal] = useState<N8nProposalState | null>(null)
   const [transcript, setTranscript] = useState<AgentWarRoomMessage[]>([
     {
       id: 'system-ready',
@@ -192,6 +200,7 @@ function StandupRoomContent() {
 
   function focusGoal(goalId: string | null) {
     setFocusedGoalId(goalId)
+    setN8nProposal(null)
     const url = new URL(window.location.href)
     if (goalId) {
       url.searchParams.set('goal', goalId)
@@ -341,6 +350,56 @@ function StandupRoomContent() {
     if (result?.created_work_items) focusGoal(approvedGoalId)
   }
 
+  async function createN8nProposalForGoal(goalMetric: AgentOrgBoardGoalMetric) {
+    const seedId = goalMetric.automationGoalSeedId ?? goalMetric.id.replace(/^automation:/, '')
+    setBusy('n8n-proposal')
+    setError(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) throw new Error('Missing admin session')
+      const response = await fetch('/api/admin/agents/n8n-workflow-proposals', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'draft_workflow',
+          title: `${goalMetric.title} workflow`,
+          objective: goalMetric.nextAction ?? `Draft the governed n8n workflow plan for ${goalMetric.title}.`,
+          workflow_family: goalMetric.workflowFamily,
+          automation_goal_seed_id: seedId,
+          goal_id: goalMetric.id,
+          goal_title: goalMetric.title,
+          goal_session_href: goalMetric.sessionHref,
+          proposed_workflow_name: goalMetric.title,
+          trigger: 'Agent Ops Standup Room goal session',
+          required_env_vars: ['N8N_INGEST_SECRET'],
+          credential_needs: ['Confirm required source credentials before staging.'],
+          node_plan: [
+            'Identify the source trigger and dedupe/idempotency key.',
+            'Draft staging-safe transformation and routing nodes.',
+            'Write back Agent Ops trace, work-item, and approval evidence.',
+          ],
+          ingest_callbacks: ['/api/admin/agents/work-items', '/api/admin/agents/runs'],
+          rollback_path: 'Delete the inactive draft workflow and close the proposal work item before any activation request.',
+        }),
+      })
+      const body = await response.json().catch(() => ({})) as { ok?: boolean; work_item?: { id?: string; title?: string }; error?: string }
+      if (!response.ok || !body.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      setN8nProposal({
+        workItemId: body.work_item?.id ?? 'n8n-proposal',
+        title: body.work_item?.title ?? `${goalMetric.title} workflow proposal`,
+        createdAt: new Date().toISOString(),
+      })
+      await fetchBoard()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to create n8n workflow proposal')
+    } finally {
+      setBusy(null)
+    }
+  }
+
   function updateGoalTask(taskId: string, patch: Partial<AgentGoalDraft['tasks'][number]>) {
     setGoalDraft((current) => {
       if (!current) return current
@@ -415,6 +474,9 @@ function StandupRoomContent() {
                 <GoalSessionPanel
                   goal={focusedGoal}
                   tasks={focusedGoalTasks}
+                  n8nProposal={n8nProposal}
+                  busy={busy}
+                  onCreateN8nProposal={() => createN8nProposalForGoal(focusedGoal)}
                   onClear={() => focusGoal(null)}
                 />
               )}
@@ -896,13 +958,20 @@ function GoalPlanner({
 function GoalSessionPanel({
   goal,
   tasks,
+  n8nProposal,
+  busy,
+  onCreateN8nProposal,
   onClear,
 }: {
   goal: AgentOrgBoardGoalMetric
   tasks: AgentOrgBoardTask[]
+  n8nProposal: N8nProposalState | null
+  busy: string | null
+  onCreateN8nProposal: () => void
   onClear: () => void
 }) {
   const orderedTasks = [...tasks].sort((a, b) => (a.goal?.sequence ?? 999) - (b.goal?.sequence ?? 999))
+  const isAutomationGoal = Boolean(goal.automationGoalSeedId || goal.id.startsWith('automation:'))
   return (
     <section className="agent-ops-card rounded-lg border border-radiant-gold/35 p-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -933,6 +1002,45 @@ function GoalSessionPanel({
       <div className="mt-4 h-2 overflow-hidden rounded-full bg-silicon-slate/70">
         <div className="h-full bg-radiant-gold" style={{ width: `${goal.progress}%` }} />
       </div>
+      {isAutomationGoal && (
+        <div className="mt-4 rounded-lg border border-silicon-slate/60 bg-background/55 p-3" aria-label="Automation workflow proposal">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <div className="flex items-center gap-2 text-radiant-gold">
+                <Workflow size={16} />
+                <p className="text-xs font-semibold uppercase tracking-[0.16em]">n8n workflow proposal</p>
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {goal.nextAction ?? 'Ask Yaa Asantewaa to draft the governed workflow plan before any staging, credential, outbound, or activation step.'}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                {goal.workflowFamily && <span className="rounded-full border border-silicon-slate/60 px-2 py-1 text-muted-foreground">{goal.workflowFamily.replace(/_/g, ' ')}</span>}
+                <span className="rounded-full border border-silicon-slate/60 px-2 py-1 text-muted-foreground">
+                  {goal.n8nWorkflows.length ? `${goal.n8nWorkflows.length} known workflow(s)` : 'New workflow likely'}
+                </span>
+                {goal.approvalGate && <span className="rounded-full border border-radiant-gold/35 px-2 py-1 text-radiant-gold">Approval gated</span>}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={onCreateN8nProposal}
+              disabled={busy != null}
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/10 disabled:opacity-50"
+            >
+              <Workflow size={15} />
+              {busy === 'n8n-proposal' ? 'Drafting...' : 'Draft workflow proposal'}
+            </button>
+          </div>
+          {n8nProposal && (
+            <div className="mt-3 rounded-lg border border-green-500/30 bg-green-500/10 p-3 text-sm text-green-100">
+              <p className="font-medium">Created {n8nProposal.title}.</p>
+              <Link href="/admin/agents/coordination" className="mt-1 inline-flex text-xs text-radiant-gold hover:underline">
+                Review in Decision Queue
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
       <div className="mt-4 grid gap-2">
         {orderedTasks.slice(0, 5).map((task) => (
           <div key={task.id} className="grid gap-2 rounded-lg border border-silicon-slate/60 bg-background/55 p-3 text-sm sm:grid-cols-[40px_minmax(0,1fr)_auto] sm:items-center">
