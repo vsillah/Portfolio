@@ -85,6 +85,27 @@ describe('n8n workflow drift check helpers', () => {
     expect(process.env.N8N_BASE_URL).toBe('https://local-n8n.example/')
   })
 
+  it('keeps exported shell credentials ahead of local env files', async () => {
+    const root = await makeTempRoot()
+    process.env.N8N_API_KEY = 'exported-test-key'
+    process.env.N8N_BASE_URL = 'https://exported-n8n.example/'
+    await writeFile(path.join(root, '.env.local'), [
+      'N8N_API_KEY=local-test-key',
+      'N8N_BASE_URL=https://local-n8n.example/',
+      '',
+    ].join('\n'))
+    await writeFile(path.join(root, '.env'), [
+      'N8N_API_KEY=env-test-key',
+      'N8N_BASE_URL=https://env-n8n.example/',
+      '',
+    ].join('\n'))
+
+    loadN8nDriftEnv(root)
+
+    expect(process.env.N8N_API_KEY).toBe('exported-test-key')
+    expect(process.env.N8N_BASE_URL).toBe('https://exported-n8n.example/')
+  })
+
   it('returns a configuration error without calling n8n when the API key is missing', async () => {
     const fetchImpl = vi.fn<typeof fetch>()
     const logger = { log: vi.fn(), error: vi.fn() }
@@ -119,6 +140,28 @@ describe('n8n workflow drift check helpers', () => {
     expect(fetchImpl).toHaveBeenCalledWith('https://n8n.example/api/v1/workflows/prod', expect.any(Object))
     expect(fetchImpl).toHaveBeenCalledWith('https://n8n.example/api/v1/workflows/stag', expect.any(Object))
     expect(logger.log).toHaveBeenCalledWith(expect.stringContaining('Drift detected but --warn mode is on'))
+  })
+
+  it('fails the check when tracked workflow drift exists outside warn-only mode', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async (input) => {
+      const id = String(input).endsWith('/prod') ? 'prod' : 'stag'
+      return new Response(JSON.stringify(workflow(id, id === 'prod' ? 'prod-only' : 'stag-only')), {
+        status: 200,
+      })
+    })
+    const logger = { log: vi.fn(), error: vi.fn() }
+
+    await expect(runDriftCheck({
+      env: {
+        N8N_API_KEY: 'local-test-key',
+        N8N_BASE_URL: 'https://n8n.example/',
+      },
+      fetchImpl,
+      logger,
+      workflowPairs: [{ label: 'Lead workflow', prodId: 'prod', stagId: 'stag' }],
+    })).resolves.toBe(1)
+
+    expect(logger.log).toHaveBeenCalledWith(expect.stringContaining('Drift detected. Fix STAG/PROD'))
   })
 
   it('ignores environment-specific node fields while reporting tracked parameter drift', () => {
