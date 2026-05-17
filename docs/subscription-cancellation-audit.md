@@ -10,6 +10,89 @@ no meaningful usage signal, or after clear redundancy plus a lower-risk
 replacement path. Production changes require explicit approval in the form
 `Cancel <tool/vendor> for Portfolio`.
 
+## 2026-05-16 Daily Monitor Run
+
+Status: YELLOW
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- The checkout at `/Users/vambahsillah/Projects/Portfolio` was clean on `codex/standup-multiselect-agents`; no unrelated dirty work needed preservation.
+- Core runtime signals moved again: Supabase production `agent_runs` increased to 63 with the latest row at 2026-05-15T14:00:27Z, `contact_submissions` increased to 269 with the latest row at 2026-05-15T13:19:58Z, and n8n Cloud reported 77 workflows, 72 active workflows, and a successful execution started at 2026-05-16T12:00:52Z.
+- Stripe remains a live revenue dependency: checkout sessions, charges, and payment intents were readable; the latest sampled charge/payment intent remained paid/succeeded on 2026-04-06, and the latest sampled checkout session remained a paid completed payment-mode session from 2026-02-23.
+- No vendor crossed the cancellation threshold. OpenRouter returned zero current-key usage again, and Vapi returned no calls in the current default call sample, but neither has confirmed active spend plus an approved replacement/deprecation packet.
+- Apify account evidence is active: Starter plan remains visible and the latest account-level actor run sample was a succeeded run started 2026-05-15.
+- BuiltWith remains a protected watch item during the outreach/client-volume ramp. Fireflies remains resolved as canceled per Vambah's 2026-05-01 confirmation unless new paid-plan evidence appears.
+
+Raw Findings
+
+- Prior automation memory file was missing at `$CODEX_HOME/automations/portfolio-subscription-cancellation-monitor/memory.md`; this run creates it. The durable tracker and admin status JSON were used as continuity state.
+- Action tracker feedback file was available, but it had no entry for `portfolio-subscription-cancellation-monitor`; no completed, dismissed, blocked, or in-progress tracker actions were applied.
+- Read-only provider checks ran at 2026-05-16T12:33Z. Secret values, raw account payloads, and raw logs are not included in this report.
+- Supabase production aggregates: `analytics_events` 5052, `meeting_records` 110, `orders` 26, `gamma_reports` 6, `social_content_queue` 29, `drive_video_queue` 35, `email_messages` 9, `documents_local_rag` 3434, `printful_sync_log` 0, `cost_events` 21, `video_generation_jobs` 4, `diagnostic_audits` 29, `outreach_queue` 9, `contact_submissions` 269, and `agent_runs` 63.
+- Supabase latest usage signals: latest `agent_runs` row at 2026-05-15, latest `contact_submissions` row at 2026-05-15, latest `analytics_events` row at 2026-05-15, latest `cost_events` row remains 2026-05-14, latest Gamma report remains 2026-05-02, latest social content row remains 2026-05-07, latest video generation job remains 2026-04-15, latest meeting record remains 2026-05-06, and `printful_sync_log` remains empty.
+- n8n Cloud API: `N8N_CLOUD_API_KEY` was valid and returned 77 workflows, 72 active workflows, and a successful execution started at 2026-05-16T12:00:52Z.
+- Vercel CLI authentication was available as `vsillah`; plain deployment listings returned current deployment URLs for both `portfolio` and `portfolio-staging`.
+- Stripe API: checkout sessions, charges, and payment intents were readable. Latest sampled charge was created 2026-04-06T19:37:14Z with paid/succeeded status; latest sampled payment intent was created 2026-04-06T19:35:48Z with succeeded status; latest sampled checkout session was created 2026-02-23T21:05:32Z with `payment` mode, `paid` payment status, and `complete` status.
+- Apify API: account still reports Starter; latest account-level actor run sample returned a succeeded run started at 2026-05-15T14:03:10Z.
+- ElevenLabs API: subscription remains active on Creator with 18,068 of 164,102 characters used; next character reset remains 2026-05-19T18:38:26Z.
+- OpenRouter API: current key again reports zero usage.
+- Vapi API: default calls sample returned 200 with zero calls; prior visible call evidence remains the 2026-04-30 `webCall`.
+- Pinecone API: one ready serverless index named `publications` exists in `aws/us-east-1`.
+- Printful API: two native stores remain visible; `printful_sync_log` remains empty.
+- Hunter.io API: account remains Free with 50 available calls.
+- HeyGen API: avatar catalog listing returned successfully with 1289 avatars; quota/billing still needs dashboard verification.
+- Slack bot auth was readable. OpenAI and Anthropic model-list endpoints were readable. Gemini model-list check returned 403. Read AI direct check was skipped because no local API key was present. Calendly direct check returned 401.
+- Local reference counts, excluding subscription tracker files: Supabase 3974, n8n 3800, Vercel 661, Stripe 546, OpenAI 751, Anthropic 242, Gamma 986, HeyGen 621, Read.ai/Read AI 294, Vapi 271, Printful 408, Resend 122, Pinecone 291, BuiltWith 216, Fireflies 1, Apify 247, Hunter 43, OpenRouter 86, ElevenLabs 122, Calendly 453, Slack 1376, Gmail 467, Gemini 55, Google Cloud 21, Perplexity 42, Figma 2, Paper 22, Excalidraw 3, and Canva 2.
+- Local n8n export footprint includes 46 workflow JSON files and 38 exports marked active. Relevant node types include 64 Supabase nodes, 58 HTTP Request nodes, 41 Slack nodes, 27 OpenAI/OpenAI-chat/embedding nodes, 17 Gmail/Gmail-trigger nodes, 10 Google Drive/Docs/Sheets nodes, 5 Apify nodes, 3 Pinecone vector-store nodes, 3 Perplexity nodes, 2 Calendly triggers, 1 Stripe trigger, 1 Slack trigger, and 1 Anthropic node.
+
+Derived Movement Since Prior Run
+
+| Tool/vendor | Latest evidence | Inactivity status | Recommendation |
+| --- | --- | --- | --- |
+| Supabase | `agent_runs` increased from 56 to 63; `contact_submissions` increased from 268 to 269 | Active | Keep |
+| n8n Cloud | Successful execution on 2026-05-16 with 72 active workflows | Active | Keep; retire/replace stale legacy key only after runtime ownership is clear |
+| Vercel | CLI authenticated; deployment listings returned URLs for both projects | Active hosting | Keep |
+| Stripe | Latest sampled charge/payment intent remains succeeded on 2026-04-06 | Revenue dependency | Keep |
+| OpenAI | Model list readable; code/cost/event references remain | Active | Keep; continue cost monitoring |
+| Anthropic | Model list readable; code and n8n fallback/eval references remain | Watch | Decide after next receipt/bakeoff refresh |
+| Gamma | Latest report remains 2026-05-02; admin/report code active | Active enough | Keep; watch deck alternatives |
+| HeyGen | Avatar API works; billing/quota still not API-verified | Campaign-dependent active | Keep; verify dashboard quota/billing |
+| Read.ai | Local API key absent; meeting rows/docs remain | Auth unresolved | Keep; refresh auth/API access |
+| BuiltWith | Protected outreach-ramp decision remains | Protected watch | Keep during outreach/client-volume ramp |
+| Fireflies.ai | No new paid evidence; previously confirmed canceled | Resolved canceled | Keep out of active queue |
+| Vapi | Default call sample returned zero calls | Quiet | Investigate billing/voice UX |
+| Printful | Two API stores visible; `printful_sync_log` still empty | Quiet sync | Investigate store/order strategy |
+| Resend | Local key absent; optional code/env references remain | Usage unresolved | Verify Vercel env/billing before deciding |
+| Pinecone | Ready `publications` serverless index remains | Active infrastructure exists | Investigate billing/API traffic |
+| Hunter.io | API reports Free plan with 50 available calls | Not a paid cancellation target | Keep/watch |
+| OpenRouter | Zero current-key usage again | Consecutive quiet key evidence | Watch; prepare deprecation packet only after bakeoff |
+| Apify | Starter plan; latest account-level run sample 2026-05-15 | Account active, actor-level mixed | Keep; pause/replace weak actor surfaces first |
+| ElevenLabs | Active Creator subscription; reset date 2026-05-19 | Paid, low recent movement | Review before renewal against campaign plan |
+| Calendly | Direct API check returned 401 again; scheduling references remain | Auth unresolved | Refresh token; keep |
+| Gemini / Google AI | Model-list check returned 403; social image workflow references remain | Auth/config unresolved | Investigate key/project status before relying on it |
+| Slack | Bot auth readable; Slack/n8n references remain heavy | Active integration | Keep |
+
+Candidate Cancellations
+
+- **No automatic cancellation.**
+- **No current vendor meets the cancellation threshold in this daily run.**
+- OpenRouter, Vapi, Printful, Pinecone, Resend, Read.ai auth, Calendly auth, Gemini auth, and ElevenLabs remain decision/investigation items, not approved cancellation actions.
+- No approval phrase was given in this run.
+
+Next Audit Focus
+
+- Review ElevenLabs before the 2026-05-19 reset/renewal window against the next planned social/audio/video campaign.
+- Refresh Read AI auth/API access before using meeting-intelligence usage as provider evidence.
+- Refresh Calendly token and re-run event-type usage checks.
+- Confirm OpenRouter's role in the next media/model bakeoff; if unused again and no active spend exists, prepare a deprecation packet rather than canceling automatically.
+- Confirm Vapi dashboard billing and whether production voice UX is intended to stay enabled.
+- Check Printful dashboard/order history and decide whether both stores remain strategically active.
+- Verify whether Resend exists in Vercel production env or billing, and whether Gmail/n8n is the only real outbound path.
+- Check Pinecone billing/API traffic and compare with the Supabase/local RAG replacement path.
+- Check Gemini/Google AI key and project status before depending on Gemini image/social workflows.
+- Continue the Apify actor-level replacement bakeoff by pausing or replacing weak actor surfaces before considering account-level changes.
+
 ## 2026-05-15 Daily Monitor Run
 
 Status: YELLOW
