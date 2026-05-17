@@ -119,6 +119,37 @@ const workItems = [
     updated_at: now,
     completed_at: null,
   },
+  {
+    id: 'work-queue-3',
+    title: 'Route standup room follow-up',
+    objective: 'Convert the standup room follow-up into a bounded agent task.',
+    status: 'assigned',
+    priority: 'medium',
+    owner_agent_key: 'chief-of-staff',
+    owner_runtime: 'codex',
+    source_type: 'admin_agent_coordination',
+    source_id: 'standup-follow-up',
+    source_label: 'Standup Room follow-up',
+    source_run_id: null,
+    active_run_id: null,
+    parent_work_item_id: null,
+    branch_name: 'codex/standup-follow-up',
+    worktree_path: '/Users/vambahsillah/Projects/Portfolio.worktrees/standup-follow-up',
+    pr_number: null,
+    pr_url: null,
+    expected_files: ['app/admin/agents/standup/page.tsx'],
+    touched_files: [],
+    overlap_group: 'agent-ops',
+    dependency_ids: [],
+    blocker_summary: null,
+    validation_summary: null,
+    approval_id: null,
+    metadata: { recommendation: 'Clarify owner, acceptance criteria, and next checkpoint before execution.' },
+    idempotency_key: null,
+    created_at: now,
+    updated_at: now,
+    completed_at: null,
+  },
 ]
 
 const approvalCard = {
@@ -275,9 +306,9 @@ describe('AgentCoordinationPage decision queue controller', () => {
     render(<AgentCoordinationPage />)
 
     expect(await screen.findByRole('heading', { name: 'Decision Queue Controller' })).toBeInTheDocument()
-    expect(screen.getByText('Start with the decision, then inspect the trace.')).toBeInTheDocument()
+    expect(screen.queryByText('Start with the decision, then inspect the trace.')).not.toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Top controller decisions' })).toBeInTheDocument()
-    expect(screen.getByText('Showing 3 of 3 open item(s)')).toBeInTheDocument()
+    expect(screen.getByText('Showing 3 of 4 open item(s)')).toBeInTheDocument()
     expect(screen.getAllByText('Action required').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Executive summary').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Recommendation').length).toBeGreaterThan(0)
@@ -292,10 +323,13 @@ describe('AgentCoordinationPage decision queue controller', () => {
     expect(screen.getAllByText('Start here because it produces the baseline every later idea needs.').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Trace').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Owner').length).toBeGreaterThan(0)
-    expect(screen.getByRole('heading', { name: 'Queue administration' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Guided intake' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Create controller packet' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Decision pattern templates' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Controller review/ })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Validation handoff/ })).toBeInTheDocument()
+    expect(screen.getByText('Objective: Package validation evidence so the captain can make a merge or handoff decision.')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Full work-item archive' })).toBeInTheDocument()
+    expect(screen.getByText('Showing 1-3 of 4')).toBeInTheDocument()
   })
 
   it('runs top controller decision actions with scoped Shaka context', async () => {
@@ -418,10 +452,12 @@ describe('AgentCoordinationPage decision queue controller', () => {
   it('creates a guided controller packet with expected files and owner runtime', async () => {
     render(<AgentCoordinationPage />)
 
-    await screen.findByText('Guided intake')
+    await screen.findByText('Decision pattern templates')
     fireEvent.click(screen.getByRole('button', { name: /Validation handoff/ }))
     expect(screen.getByDisplayValue('Prepare validation handoff packet')).toBeInTheDocument()
     expect(screen.getByDisplayValue(/Collect focused validation results/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Decision needed' }))
+    expect(screen.getByDisplayValue(/Decision needed: approve, reject, block, hand off, or request more evidence/)).toBeInTheDocument()
 
     fireEvent.change(screen.getByLabelText('Decision title'), { target: { value: 'Prepare controller decision packet' } })
     fireEvent.change(screen.getByLabelText('Narrative packet'), { target: { value: 'Route one decision through the controller.' } })
@@ -456,6 +492,22 @@ describe('AgentCoordinationPage decision queue controller', () => {
       expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items?status=blocked', expect.any(Object))
     })
     expect((await screen.findAllByText('Unblock Moremi drill handoff')).length).toBeGreaterThan(0)
+  })
+
+  it('paginates the full work-item archive next to its filters', async () => {
+    render(<AgentCoordinationPage />)
+
+    expect(await screen.findByRole('heading', { name: 'Full work-item archive' })).toBeInTheDocument()
+    const archive = screen.getByRole('heading', { name: 'Full work-item archive' }).closest('section')
+    expect(archive).not.toBeNull()
+    expect(within(archive as HTMLElement).getByText('Showing 1-3 of 4')).toBeInTheDocument()
+    expect(within(archive as HTMLElement).getByLabelText('Status filters')).toBeInTheDocument()
+    expect(within(archive as HTMLElement).queryByText('Route standup room follow-up')).not.toBeInTheDocument()
+
+    fireEvent.click(within(archive as HTMLElement).getByRole('button', { name: 'Next' }))
+
+    expect(within(archive as HTMLElement).getByText('Showing 4-4 of 4')).toBeInTheDocument()
+    expect(within(archive as HTMLElement).getByText('Route standup room follow-up')).toBeInTheDocument()
   })
 
   it('runs quick actions for block, validation, and handoff from executable controls', async () => {
