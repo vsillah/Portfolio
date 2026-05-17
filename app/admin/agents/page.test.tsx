@@ -156,6 +156,54 @@ const moremiReview = {
   linked_work_items: [],
 }
 
+const automationGoals = [
+  {
+    id: 'meeting-intake-follow-up-drafts',
+    tier: 1,
+    title: 'Automate meeting intake to follow-up drafts',
+    objective: 'Convert meeting signals into records and follow-up drafts.',
+    workflowFamily: 'meeting_follow_up',
+    automationLevel: 'draft_to_review',
+    ownerAgentKey: 'meeting-intake-follow-up',
+    collaboratorAgentKeys: ['chief-of-staff'],
+    sourceRoutes: ['/admin/meetings'],
+    sourceDocs: ['docs/meeting-follow-up-communications-guide.md'],
+    n8nWorkflows: ['WF-MCH'],
+    approvalGate: 'External sends require approval.',
+    nextAction: 'Confirm every meeting can route into a draft follow-up.',
+    requiresNewWorkflow: false,
+    seeded: false,
+    seeded_child_count: 0,
+    seeded_parent_work_item: null,
+  },
+  {
+    id: 'warm-lead-review-ready-outreach',
+    tier: 1,
+    title: 'Automate warm lead capture to review-ready outreach',
+    objective: 'Ingest and draft outreach.',
+    workflowFamily: 'warm_lead_capture',
+    automationLevel: 'draft_to_review',
+    ownerAgentKey: 'warm-lead-capture',
+    collaboratorAgentKeys: ['inbox-follow-up'],
+    sourceRoutes: ['/admin/outreach'],
+    sourceDocs: ['docs/warm-lead-workflow-integration.md'],
+    n8nWorkflows: ['WF-WRM-001', 'WF-WRM-002'],
+    approvalGate: 'Outbound use requires approval.',
+    nextAction: 'Seed source-specific exception tasks.',
+    requiresNewWorkflow: false,
+    seeded: true,
+    seeded_child_count: 2,
+    seeded_parent_work_item: {
+      id: 'automation-parent-2',
+      status: 'queued',
+      metadata: {
+        goal_session_href: '/admin/agents/standup?goal=automation%3Awarm-lead-review-ready-outreach',
+        goal_kanban_href: '/admin/agents/swarm-board?goal=automation%3Awarm-lead-review-ready-outreach',
+      },
+    },
+  },
+]
+
 function formatExpectedPageTime(value: string) {
   return new Intl.DateTimeFormat('en', {
     month: 'short',
@@ -174,6 +222,23 @@ describe('AgentOperationsPage mission control landing', () => {
       }
       if (url === '/api/admin/agents/risk-compliance/monitor?review=latest') {
         return { ok: true, json: async () => ({ review: moremiReview }) }
+      }
+      if (url === '/api/admin/agents/automation-goals?tier=1') {
+        return { ok: true, json: async () => ({ goals: automationGoals }) }
+      }
+      if (url === '/api/admin/agents/automation-goals/seed' && init?.method === 'POST') {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            seeded_goals: [
+              {
+                seed_id: 'meeting-intake-follow-up-drafts',
+                parent_work_item: { id: 'automation-parent-1', active_run_id: 'automation-run-1' },
+              },
+            ],
+          }),
+        }
       }
       if (url === '/api/admin/agents/chief-of-staff/chat' && init?.method === 'POST') {
         return {
@@ -247,6 +312,13 @@ describe('AgentOperationsPage mission control landing', () => {
     expect(screen.getByLabelText('Operator checks')).toBeInTheDocument()
     expect(screen.getByLabelText('Operator checks pagination')).toHaveTextContent('Showing 1-2 of 4 · 1/2')
     expect(screen.getByText('Scheduled manual triggers with duplicate-run guards.')).toBeInTheDocument()
+    const automationPanel = screen.getByLabelText('Automation to-do')
+    expect(automationPanel).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Seed Tier 1/i })).toBeInTheDocument()
+    expect(screen.getByText('Automate meeting intake to follow-up drafts')).toBeInTheDocument()
+    expect(screen.getByText('1/2 seeded')).toBeInTheDocument()
+    expect(within(automationPanel).getAllByRole('link', { name: /Standup/i })[0]).toHaveAttribute('href', '/admin/agents/standup?goal=automation%3Ameeting-intake-follow-up-drafts')
+    expect(within(automationPanel).getAllByRole('link', { name: /Kanban/i })[0]).toHaveAttribute('href', '/admin/agents/swarm-board?goal=automation%3Ameeting-intake-follow-up-drafts')
     expect(screen.getByText('Morning review')).toBeInTheDocument()
     expect(screen.getByText('Hermes health')).toBeInTheDocument()
     expect(screen.getAllByRole('button', { name: /^Run$/ }).length).toBeGreaterThan(0)
@@ -319,5 +391,22 @@ describe('AgentOperationsPage mission control landing', () => {
     const actionBar = await screen.findByLabelText('Mission Control actions')
     expect(within(actionBar).queryByRole('link', { name: /Open standup/i })).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Open Standup Room/i })).toHaveAttribute('href', '/admin/agents/standup')
+  })
+
+  it('seeds Tier 1 automation goals from Mission Control', async () => {
+    render(<AgentOperationsPage />)
+
+    fireEvent.click(await screen.findByRole('button', { name: /Seed Tier 1/i }))
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/admin/agents/automation-goals/seed', expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({ Authorization: 'Bearer admin-token' }),
+        body: JSON.stringify({
+          tier: 1,
+          confirmation: 'seed_agent_automation_goals',
+        }),
+      }))
+    })
   })
 })

@@ -300,6 +300,30 @@ type MoremiMonitorReview = {
   }>
 }
 
+type AutomationGoalSummary = {
+  id: string
+  tier: 1 | 2
+  title: string
+  objective: string
+  workflowFamily: string
+  automationLevel: 'full_internal' | 'draft_to_review' | 'approval_gated' | 'discovery_only'
+  ownerAgentKey: string
+  collaboratorAgentKeys: string[]
+  sourceRoutes: string[]
+  sourceDocs: string[]
+  n8nWorkflows: string[]
+  approvalGate: string
+  nextAction: string
+  requiresNewWorkflow: boolean
+  seeded: boolean
+  seeded_child_count: number
+  seeded_parent_work_item: {
+    id: string
+    status: string
+    metadata?: Record<string, unknown>
+  } | null
+}
+
 type OperatorActionKind = 'morning-review' | 'hermes' | 'approval-drill' | 'runtime-evaluation'
 
 const OPERATOR_ACTIONS: Array<{
@@ -367,6 +391,10 @@ export default function AgentOperationsPage() {
   const [moremiReviewConfirm, setMoremiReviewConfirm] = useState(false)
   const [inboxPage, setInboxPage] = useState(0)
   const [operatorRuns, setOperatorRuns] = useState<OperatorRun[]>([])
+  const [automationGoals, setAutomationGoals] = useState<AutomationGoalSummary[]>([])
+  const [automationGoalsLoading, setAutomationGoalsLoading] = useState(false)
+  const [automationSeedLoading, setAutomationSeedLoading] = useState(false)
+  const [automationGoalPage, setAutomationGoalPage] = useState(0)
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -421,14 +449,29 @@ export default function AgentOperationsPage() {
     }
   }, [authedFetch])
 
+  const loadAutomationGoals = useCallback(async () => {
+    setAutomationGoalsLoading(true)
+    try {
+      const response = await authedFetch('/api/admin/agents/automation-goals?tier=1')
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      setAutomationGoals(Array.isArray(body.goals) ? body.goals : [])
+    } catch {
+      setAutomationGoals([])
+    } finally {
+      setAutomationGoalsLoading(false)
+    }
+  }, [authedFetch])
+
   useEffect(() => {
     loadMissionControl()
     loadMoremiReview()
     loadOperatorRuns()
-  }, [loadMissionControl, loadMoremiReview, loadOperatorRuns])
+    loadAutomationGoals()
+  }, [loadMissionControl, loadMoremiReview, loadOperatorRuns, loadAutomationGoals])
 
   async function refreshMissionControl() {
-    await Promise.all([loadMissionControl(), loadMoremiReview(), loadOperatorRuns()])
+    await Promise.all([loadMissionControl(), loadMoremiReview(), loadOperatorRuns(), loadAutomationGoals()])
   }
 
   async function askChiefOfStaff(message: string) {
@@ -595,6 +638,29 @@ export default function AgentOperationsPage() {
     }
   }
 
+  async function seedTierOneAutomationGoals() {
+    setAutomationSeedLoading(true)
+    setActionResult(null)
+    setError(null)
+    try {
+      const response = await authedFetch('/api/admin/agents/automation-goals/seed', {
+        method: 'POST',
+        body: JSON.stringify({
+          tier: 1,
+          confirmation: 'seed_agent_automation_goals',
+        }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      setActionResult({ label: `seeded ${body.seeded_goals?.length ?? 0} automation goal(s)`, runId: body.seeded_goals?.[0]?.parent_work_item?.active_run_id ?? 'automation-goals' })
+      await Promise.all([loadAutomationGoals(), loadMissionControl()])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Automation goal seeding failed')
+    } finally {
+      setAutomationSeedLoading(false)
+    }
+  }
+
   const rosterCount = snapshot?.roster.flatMap((pod) => pod.agents).filter((agent) => agent.status !== 'planned').length ?? 0
   const decisionQueueCount = snapshot?.status_strip.pending_approvals ?? snapshot?.status_strip.waiting_for_approval ?? 0
   const kanbanSignalCount = (snapshot?.status_strip.running ?? 0) + (snapshot?.status_strip.queued ?? 0)
@@ -616,6 +682,8 @@ export default function AgentOperationsPage() {
   const inboxItems = snapshot?.agent_inbox ?? []
   const inboxPageCount = Math.max(1, Math.ceil(inboxItems.length / 3))
   const visibleInboxItems = inboxItems.slice(inboxPage * 3, inboxPage * 3 + 3)
+  const automationGoalPageCount = Math.max(1, Math.ceil(automationGoals.length / 3))
+  const visibleAutomationGoals = automationGoals.slice(automationGoalPage * 3, automationGoalPage * 3 + 3)
   const primaryWorkHomes = [
     {
       eyebrow: 'Decision Queue',
@@ -695,6 +763,10 @@ export default function AgentOperationsPage() {
   useEffect(() => {
     setInboxPage((page) => Math.min(page, Math.max(inboxPageCount - 1, 0)))
   }, [inboxPageCount])
+
+  useEffect(() => {
+    setAutomationGoalPage((page) => Math.min(page, Math.max(automationGoalPageCount - 1, 0)))
+  }, [automationGoalPageCount])
 
   return (
     <ProtectedRoute requireAdmin>
@@ -884,6 +956,17 @@ export default function AgentOperationsPage() {
                       result={actionResult?.kind ? actionResult : null}
                       runs={operatorRuns}
                       onRun={runOperatorAction}
+                    />
+                    <AutomationGoalsPanel
+                      goals={visibleAutomationGoals}
+                      allGoals={automationGoals}
+                      loading={automationGoalsLoading}
+                      seeding={automationSeedLoading}
+                      page={automationGoalPage}
+                      pageCount={automationGoalPageCount}
+                      onSeedTierOne={seedTierOneAutomationGoals}
+                      onPrevious={() => setAutomationGoalPage((page) => Math.max(page - 1, 0))}
+                      onNext={() => setAutomationGoalPage((page) => Math.min(page + 1, automationGoalPageCount - 1))}
                     />
                     {moremiReview?.has_monitor ? (
                       <button
@@ -1181,6 +1264,123 @@ function OperatorChecksPanel({
             </div>
           )
         })}
+      </div>
+    </div>
+  )
+}
+
+function AutomationGoalsPanel({
+  goals,
+  allGoals,
+  loading,
+  seeding,
+  page,
+  pageCount,
+  onSeedTierOne,
+  onPrevious,
+  onNext,
+}: {
+  goals: AutomationGoalSummary[]
+  allGoals: AutomationGoalSummary[]
+  loading: boolean
+  seeding: boolean
+  page: number
+  pageCount: number
+  onSeedTierOne: () => void
+  onPrevious: () => void
+  onNext: () => void
+}) {
+  const seededCount = allGoals.filter((goal) => goal.seeded).length
+  const allSeeded = allGoals.length > 0 && seededCount === allGoals.length
+
+  return (
+    <div className="rounded-lg border border-silicon-slate/60 bg-background/35 p-3" aria-label="Automation to-do">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Automation to-do</p>
+          <p className="mt-1 text-xs text-muted-foreground">Seed reviewable goals for workflows agents can automate.</p>
+        </div>
+        <button
+          type="button"
+          onClick={onSeedTierOne}
+          disabled={loading || seeding || allSeeded}
+          className="inline-flex items-center gap-1 rounded-md border border-radiant-gold/50 bg-radiant-gold/10 px-2.5 py-1.5 text-xs font-medium text-radiant-gold hover:bg-radiant-gold/15 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {seeding ? <RefreshCw size={13} className="animate-spin" /> : <Sparkles size={13} />}
+          Seed Tier 1
+        </button>
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+        <StatusOnlyPill tone={allSeeded ? 'green' : 'yellow'}>
+          {seededCount}/{allGoals.length} seeded
+        </StatusOnlyPill>
+        <PagerControls
+          label="Automation goals"
+          page={page}
+          pageCount={pageCount}
+          itemCount={allGoals.length}
+          pageSize={3}
+          onPrevious={onPrevious}
+          onNext={onNext}
+        />
+      </div>
+
+      <div className="mt-3 space-y-2">
+        {loading ? (
+          <p className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm text-muted-foreground">
+            Loading automation goals.
+          </p>
+        ) : goals.length ? goals.map((goal) => (
+          <AutomationGoalRow key={goal.id} goal={goal} />
+        )) : (
+          <p className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm text-muted-foreground">
+            No automation goal seeds are available.
+          </p>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function AutomationGoalRow({ goal }: { goal: AutomationGoalSummary }) {
+  const goalId = `automation:${goal.id}`
+  const metadata = goal.seeded_parent_work_item?.metadata ?? {}
+  const standupHref = typeof metadata.goal_session_href === 'string'
+    ? metadata.goal_session_href
+    : `/admin/agents/standup?goal=${encodeURIComponent(goalId)}`
+  const kanbanHref = typeof metadata.goal_kanban_href === 'string'
+    ? metadata.goal_kanban_href
+    : `/admin/agents/swarm-board?goal=${encodeURIComponent(goalId)}`
+  const tone = goal.seeded ? 'green' : goal.requiresNewWorkflow ? 'yellow' : 'blue'
+
+  return (
+    <div className="rounded-lg border border-silicon-slate/55 bg-black/10 p-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-radiant-gold">{goal.workflowFamily.replace(/_/g, ' ')}</p>
+          <p className="mt-1 line-clamp-2 text-sm font-semibold">{goal.title}</p>
+        </div>
+        <StatusOnlyPill tone={tone}>{goal.seeded ? 'Seeded' : goal.requiresNewWorkflow ? 'Needs workflow' : 'Ready'}</StatusOnlyPill>
+      </div>
+      <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">{goal.nextAction}</p>
+      <div className="mt-2 flex flex-wrap gap-1.5 text-[11px] text-muted-foreground">
+        <span className="rounded-full border border-silicon-slate/50 bg-background/40 px-2 py-0.5">{goal.ownerAgentKey.replace(/-/g, ' ')}</span>
+        <span className="rounded-full border border-silicon-slate/50 bg-background/40 px-2 py-0.5">{goal.automationLevel.replace(/_/g, ' ')}</span>
+        {goal.n8nWorkflows.length ? (
+          <span className="rounded-full border border-silicon-slate/50 bg-background/40 px-2 py-0.5">{goal.n8nWorkflows.length} n8n workflow(s)</span>
+        ) : null}
+      </div>
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+        <span className="text-muted-foreground">{goal.seeded_child_count} task(s)</span>
+        <div className="flex gap-3">
+          <Link href={standupHref} className="text-radiant-gold hover:underline">
+            Standup
+          </Link>
+          <Link href={kanbanHref} className="text-radiant-gold hover:underline">
+            Kanban
+          </Link>
+        </div>
       </div>
     </div>
   )
