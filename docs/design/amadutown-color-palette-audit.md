@@ -16,6 +16,7 @@ The Agent Ops Mission Control surface at `/admin/agents` is the current referenc
 - **AmaduTown dark system:** Use the shared navy/gold palette from `app/globals.css` and `tailwind.config.ts`, anchored by `bg-background`, deep navy panels, radiant gold command accents, platinum text, and restrained slate support tones.
 - **Mission Control surfaces:** Prefer panel/card structures similar to the Agent Ops shared visual language: luminous but controlled backgrounds, fine borders, subtle glow, 8px-ish radii, dense spacing, and scannable headings.
 - **Action clarity:** Status blocks, counts, health labels, and read-only pills must be visually distinct from executable controls. Buttons should use clear verbs and should show consistent hover, focus, disabled, and loading states.
+- **Active surfaces over shaded boxes:** Operational panels should not rely on heavy blue, slate, gold, or semantic tinted fills for whole sections. If a panel is active and actionable, keep the background light/neutral within the dark system and carry state through border accents, labels, icons, and explicit controls. Reserve dense muted shading for disabled, archived, loading, or intentionally de-emphasized content.
 - **Subtle texture only:** Glow and depth can guide the eye, but noisy grain, high-contrast textures, and decorative effects should not compete with data or controls.
 - **Consistent drilldowns:** L1 command surfaces summarize and route. L2/L3 pages own detail, history, approvals, logs, charts, and full work boards.
 

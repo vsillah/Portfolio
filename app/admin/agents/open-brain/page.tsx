@@ -266,7 +266,7 @@ function OpenBrainControlPanel({
         proof: 'Proposal review history and status live in the Proposals view.',
         action: 'Review proposals',
         mode: 'proposals' as ViewMode,
-        tone: 'border-radiant-gold/40 bg-radiant-gold/10',
+        tone: 'border-radiant-gold/45',
       }
     : snapshot.overview.staleSources
       ? {
@@ -278,7 +278,7 @@ function OpenBrainControlPanel({
           proof: 'Source timestamps and privacy tiers live in the Sources view.',
           action: 'Inspect sources',
           mode: 'sources' as ViewMode,
-          tone: 'border-yellow-400/35 bg-yellow-500/10',
+          tone: 'border-yellow-400/45',
         }
       : blockedProducerGates
         ? {
@@ -290,7 +290,7 @@ function OpenBrainControlPanel({
             proof: 'Producer status and required environment handles live in the Producers view.',
             action: 'Review producers',
             mode: 'producers' as ViewMode,
-            tone: 'border-yellow-400/35 bg-yellow-500/10',
+            tone: 'border-yellow-400/45',
           }
         : {
             label: 'Open Brain projection is ready',
@@ -301,11 +301,11 @@ function OpenBrainControlPanel({
             proof: 'Router decisions, parity status, and generated timestamps live in their drilldown views.',
             action: 'Inspect router',
             mode: 'router' as ViewMode,
-            tone: 'border-green-400/30 bg-green-500/10',
+            tone: 'border-green-400/45',
           }
 
   return (
-    <section className={`mb-6 rounded-lg border p-5 ${primary.tone}`} aria-label="Open Brain next actions">
+    <section className={`mb-6 rounded-lg border bg-background/20 p-5 ${primary.tone}`} aria-label="Open Brain next actions">
       <div className="grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.4fr)]">
         <div>
           <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-radiant-gold">
@@ -438,7 +438,7 @@ function OpenBrainActionMetrics({
 
 function OperatorPacketBlock({ title, value }: { title: string; value: string }) {
   return (
-    <div className="rounded-lg border border-silicon-slate/70 bg-background/55 p-3">
+    <div className="rounded-lg border border-silicon-slate/55 bg-background/20 p-3">
       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{title}</p>
       <p className="mt-2 text-sm leading-relaxed text-foreground/90">{value}</p>
     </div>
