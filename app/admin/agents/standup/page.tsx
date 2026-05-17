@@ -11,6 +11,7 @@ import {
   Play,
   Send,
   Sparkles,
+  Target,
   Trash2,
   Users,
 } from 'lucide-react'
@@ -265,15 +266,14 @@ function StandupRoomContent() {
 
   async function startStandup() {
     const targetAgentKeys = selectedAgents.map((agent) => agent.key)
+    if (!targetAgentKeys.length) return
     const questionId = addQuestion({
       command: 'standup',
-      prompt: targetAgentKeys.length
-        ? `Start standup with ${targetAgentKeys.length} selected agent(s).`
-        : 'Start standup and ask every available agent for current posture.',
-      targetLabel: targetAgentKeys.length ? `${targetAgentKeys.length} selected agent(s)` : 'All available agents',
+      prompt: `Start standup with ${targetAgentKeys.length} selected agent(s).`,
+      targetLabel: `${targetAgentKeys.length} selected agent(s)`,
       targetAgentKey: null,
     })
-    await postWarRoom(targetAgentKeys.length ? { command: 'standup', target_agent_keys: targetAgentKeys } : { command: 'standup' }, 'standup', questionId)
+    await postWarRoom({ command: 'standup', target_agent_keys: targetAgentKeys }, 'standup', questionId)
   }
 
   async function askAll() {
@@ -386,10 +386,6 @@ function StandupRoomContent() {
               <KanbanSquare size={16} />
               Open full Kanban
             </Link>
-            <button onClick={startStandup} disabled={busy != null} className="agent-ops-button-primary disabled:opacity-60">
-              <Play size={16} />
-              Start standup
-            </button>
           </div>
         </header>
 
@@ -422,6 +418,13 @@ function StandupRoomContent() {
                   onClear={() => focusGoal(null)}
                 />
               )}
+              <StandupControlPanel
+                selectedAgents={selectedAgents}
+                focusedGoal={focusedGoal}
+                latestTrace={commandTraces[0] ?? null}
+                busy={busy}
+                onStartStandup={startStandup}
+              />
               <ChatRoom
                 transcript={transcript}
                 questions={standupQuestions}
@@ -535,6 +538,78 @@ function ParticipantRail({
         })}
       </div>
     </aside>
+  )
+}
+
+function StandupControlPanel({
+  selectedAgents,
+  focusedGoal,
+  latestTrace,
+  busy,
+  onStartStandup,
+}: {
+  selectedAgents: AgentOrgBoardAgent[]
+  focusedGoal: AgentOrgBoardGoalMetric | null
+  latestTrace: WarRoomCommandTrace | null
+  busy: string | null
+  onStartStandup: () => void
+}) {
+  const hasSelection = selectedAgents.length > 0
+  return (
+    <section className="agent-ops-card rounded-lg border border-radiant-gold/35 p-4">
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+        <div className="min-w-0">
+          <div className="agent-ops-eyebrow">
+            <Target size={16} />
+            Standup control
+          </div>
+          <h2 className="mt-2 text-xl font-semibold">
+            {hasSelection ? `Run standup with ${selectedAgents.length} selected participant${selectedAgents.length === 1 ? '' : 's'}` : 'Select participants to start'}
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+            The standup creates a traced room update, appends agent responses to this transcript, and gives the next follow-up a home in Trace History or Kanban.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onStartStandup}
+          disabled={busy != null || !hasSelection}
+          className="agent-ops-button-primary shrink-0 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <Play size={16} />
+          {busy === 'standup' ? 'Starting...' : 'Start selected standup'}
+        </button>
+      </div>
+
+      <div className="mt-4 grid gap-3 lg:grid-cols-3">
+        <StandupControlBlock
+          title="Participants"
+          value={hasSelection ? selectedAgents.map((agent) => agentShortName(agent.name)).join(', ') : 'No agents selected.'}
+          tone={hasSelection ? 'default' : 'warning'}
+        />
+        <StandupControlBlock
+          title="Scope"
+          value={focusedGoal ? `Goal session: ${focusedGoal.title}` : 'General Agent Ops room. Use a goal session when work should land as traceable Kanban tasks.'}
+        />
+        <StandupControlBlock
+          title="Output"
+          value={latestTrace ? `Latest trace is ready: ${latestTrace.synthesis ?? latestTrace.command}.` : 'The next run will appear in Trace History and link back to this room.'}
+        />
+      </div>
+    </section>
+  )
+}
+
+function StandupControlBlock({ title, value, tone = 'default' }: { title: string; value: string; tone?: 'default' | 'warning' }) {
+  return (
+    <div className={`rounded-lg border p-3 ${
+      tone === 'warning'
+        ? 'border-yellow-400/35 bg-yellow-500/10'
+        : 'border-silicon-slate/60 bg-background/45'
+    }`}>
+      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{title}</p>
+      <p className="mt-2 text-sm text-foreground/90">{value}</p>
+    </div>
   )
 }
 

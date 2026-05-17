@@ -245,6 +245,10 @@ describe('AgentStandupRoomPage', () => {
     expect(screen.getByRole('button', { name: 'Select all' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Clear' })).toBeInTheDocument()
     expect(screen.getAllByRole('img', { name: /Illustrated avatar for Shaka/i }).length).toBeGreaterThan(0)
+    expect(screen.getByText('Standup control')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Run standup with 2 selected participants' })).toBeInTheDocument()
+    expect(screen.getByText('Shaka, Piye')).toBeInTheDocument()
+    expect(screen.getByText(/The next run will appear in Trace History/i)).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Swarm chat' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Goal planner' })).toBeInTheDocument()
     expect(screen.getByText('Kanban preview')).toBeInTheDocument()
@@ -277,7 +281,7 @@ describe('AgentStandupRoomPage', () => {
   it('posts standup and direct agent asks through war-room commands', async () => {
     render(<AgentStandupRoomPage />)
 
-    fireEvent.click(await screen.findByRole('button', { name: /Start standup/i }))
+    fireEvent.click(await screen.findByRole('button', { name: /Start selected standup/i }))
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith('/api/admin/agents/war-room', expect.objectContaining({
         method: 'POST',
@@ -372,7 +376,8 @@ describe('AgentStandupRoomPage', () => {
     expect(screen.getByRole('link', { name: 'Latest room trace' })).toHaveAttribute('href', '/admin/agents/runs/room-run')
     expect(screen.getByText('Goal Kanban preview')).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: /Start standup/i }))
+    expect(screen.getByText(/Goal session: Improve standup transparency/i)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /Start selected standup/i }))
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith('/api/admin/agents/war-room', expect.objectContaining({
@@ -385,5 +390,15 @@ describe('AgentStandupRoomPage', () => {
 
     expect(screen.queryByText('Goal session')).not.toBeInTheDocument()
     expect(window.location.search).toBe('')
+  })
+
+  it('requires at least one selected participant before starting standup', async () => {
+    render(<AgentStandupRoomPage />)
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Clear' }))
+
+    expect(screen.getByRole('heading', { name: 'Select participants to start' })).toBeInTheDocument()
+    expect(screen.getByText('No agents selected.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Start selected standup/i })).toBeDisabled()
   })
 })
