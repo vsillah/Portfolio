@@ -753,6 +753,82 @@ export async function recordAgentWorkItemMcpBuildResult(input: {
   )
 }
 
+function recordValue(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : null
+}
+
+function metadataString(value: unknown): string | null {
+  return typeof value === 'string' && value.trim() ? value.trim() : null
+}
+
+export async function requestAgentWorkItemN8nActivationReview(input: {
+  id: string
+  reviewSummary: string
+  actorLabel?: string | null
+}) {
+  const reviewSummary = input.reviewSummary.trim()
+  if (!reviewSummary) throw new Error('n8n activation review summary is required')
+  const item = await requireAgentWorkItem(input.id)
+  if (['merged', 'deployed', 'cancelled'].includes(item.status)) {
+    throw new Error(`Cannot request n8n activation review for ${item.status} work item`)
+  }
+
+  const buildResult = recordValue(item.metadata?.mcp_build_result)
+  if (!buildResult) throw new Error('MCP build result is required before requesting activation review')
+  const credentialGaps = normalizeStringArray(Array.isArray(buildResult.credential_gaps) ? buildResult.credential_gaps : [])
+  const envGaps = normalizeStringArray(Array.isArray(buildResult.env_gaps) ? buildResult.env_gaps : [])
+  const unresolvedGaps = [...credentialGaps, ...envGaps]
+  if (unresolvedGaps.length) {
+    throw new Error(`Resolve MCP build gaps before requesting activation review: ${unresolvedGaps.join(', ')}`)
+  }
+
+  const workflowId = metadataString(buildResult.workflow_id)
+  const inspectionResult = metadataString(buildResult.inspection_result)
+  if (!workflowId && !inspectionResult) {
+    throw new Error('MCP build result must include a workflow id or inspection result before activation review')
+  }
+
+  const now = new Date().toISOString()
+  const metadata = {
+    ...(item.metadata ?? {}),
+    n8n_activation_review_request: {
+      requested: true,
+      requested_at: now,
+      actor_label: input.actorLabel ?? 'Admin user',
+      summary: reviewSummary,
+      workflow_id: workflowId,
+      inspection_result: inspectionResult,
+      result_summary: metadataString(buildResult.result_summary),
+      validation_result: metadataString(buildResult.validation_result),
+      test_evidence: metadataString(buildResult.test_evidence),
+      rollback_notes: metadataString(buildResult.rollback_notes),
+      approval_boundary: [
+        'No n8n workflow is activated by this request.',
+        'Production activation, credentials, outbound sends, public publishing, live schedules, and client-visible mutation remain approval-gated.',
+        'Controller must inspect workflow id, validation evidence, rollback notes, and data boundary before any activation action.',
+      ],
+    },
+  }
+
+  return updateWorkItem(
+    item,
+    {
+      status: 'ready_for_review',
+      blocker_summary: null,
+      validation_summary: reviewSummary,
+      metadata,
+    },
+    {
+      type: 'agent_work_item_n8n_activation_review_requested',
+      message: reviewSummary,
+      metadata: {
+        actor_label: input.actorLabel ?? 'Admin user',
+        workflow_id: workflowId,
+      },
+    },
+  )
+}
+
 export async function cancelAgentWorkItem(input: { id: string; reason?: string | null }) {
   const item = await requireAgentWorkItem(input.id)
   return updateWorkItem(

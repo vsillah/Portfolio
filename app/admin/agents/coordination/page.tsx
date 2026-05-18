@@ -109,7 +109,14 @@ type ShakaContextReply = {
   suggested_actions: string[]
 }
 
-type WorkItemQuickAction = 'block' | 'validation' | 'handoff' | 'ready' | 'proposal_validation' | 'mcp_build_request'
+type WorkItemQuickAction =
+  | 'block'
+  | 'validation'
+  | 'handoff'
+  | 'ready'
+  | 'proposal_validation'
+  | 'mcp_build_request'
+  | 'n8n_activation_review'
 
 type N8nMcpHandoffPacketView = {
   version: string
@@ -157,6 +164,14 @@ type N8nMcpBuildResultView = {
   rollbackNotes: string | null
   activationRequested: boolean
   activationGate: string | null
+}
+
+type N8nActivationReviewRequestView = {
+  requestedAt: string | null
+  actorLabel: string | null
+  summary: string | null
+  workflowId: string | null
+  approvalBoundary: string[]
 }
 
 const DEFAULT_FORM: WorkItemForm = {
@@ -348,6 +363,18 @@ function n8nMcpBuildResultForItem(item: AgentWorkItem): N8nMcpBuildResultView | 
     rollbackNotes: stringValue(result.rollback_notes),
     activationRequested: result.activation_requested === true,
     activationGate: stringValue(result.activation_gate),
+  }
+}
+
+function n8nActivationReviewRequestForItem(item: AgentWorkItem): N8nActivationReviewRequestView | null {
+  const request = recordValue(item.metadata?.n8n_activation_review_request)
+  if (!request) return null
+  return {
+    requestedAt: stringValue(request.requested_at),
+    actorLabel: stringValue(request.actor_label),
+    summary: stringValue(request.summary),
+    workflowId: stringValue(request.workflow_id),
+    approvalBoundary: textArray(request.approval_boundary),
   }
 }
 
@@ -570,19 +597,23 @@ function AgentCoordinationContent() {
         ? 'Needs Integration Captain review before proceeding.'
         : action === 'validation'
           ? 'Validation packet recorded from Agent Coordination.'
-          : action === 'mcp_build_request'
-            ? 'n8n MCP build requested from the structured handoff packet. Create or inspect an inactive staging workflow only; return workflow id, validation evidence, credential gaps, and rollback notes to this controller before activation.'
-          : action === 'proposal_validation'
-            ? 'n8n proposal packet reviewed. Trigger, credential boundary, callbacks, rollback path, and approval gate are ready for the next controller step.'
-            : action === 'ready'
-              ? 'n8n proposal is ready for Kanban execution planning. Keep staging and production activation behind the controller approval gate.'
-              : 'Hand off to Integration Captain for gated review.'
+          : action === 'n8n_activation_review'
+            ? 'n8n activation review requested from returned MCP build evidence. Inspect workflow id, validation evidence, credential/env boundary, rollback notes, and approval gate before any workflow activation.'
+            : action === 'mcp_build_request'
+              ? 'n8n MCP build requested from the structured handoff packet. Create or inspect an inactive staging workflow only; return workflow id, validation evidence, credential gaps, and rollback notes to this controller before activation.'
+              : action === 'proposal_validation'
+                ? 'n8n proposal packet reviewed. Trigger, credential boundary, callbacks, rollback path, and approval gate are ready for the next controller step.'
+                : action === 'ready'
+                  ? 'n8n proposal is ready for Kanban execution planning. Keep staging and production activation behind the controller approval gate.'
+                  : 'Hand off to Integration Captain for gated review.'
     setActionId(`${action}:${item.id}`)
     setError(null)
     try {
       const path =
         action === 'block'
           ? `/api/admin/agents/work-items/${item.id}/block`
+          : action === 'n8n_activation_review'
+            ? `/api/admin/agents/work-items/${item.id}/n8n-activation-review`
           : action === 'mcp_build_request'
             ? `/api/admin/agents/work-items/${item.id}/mcp-build-request`
           : action === 'validation' || action === 'proposal_validation'
@@ -593,6 +624,8 @@ function AgentCoordinationContent() {
       const body =
         action === 'block'
           ? { blocker_summary: note }
+          : action === 'n8n_activation_review'
+            ? { review_summary: note }
           : action === 'mcp_build_request'
             ? { request_summary: note }
           : action === 'validation'
@@ -1453,6 +1486,10 @@ function N8nWorkflowProposalPanel({
               ?? 'Production activation, credential changes, outbound sends, public publishing, and client-visible mutation require approval.'
             const mcpBuildRequest = n8nMcpBuildRequestForItem(item)
             const mcpBuildResult = n8nMcpBuildResultForItem(item)
+            const activationReviewRequest = n8nActivationReviewRequestForItem(item)
+            const mcpBuildGaps = mcpBuildResult
+              ? [...mcpBuildResult.credentialGaps, ...mcpBuildResult.envGaps]
+              : []
             const mcpHandoffPacket = n8nMcpHandoffPacketForProposal({
               item,
               action,
@@ -1543,7 +1580,7 @@ function N8nWorkflowProposalPanel({
                     </div>
 
                     <McpHandoffPacketPanel packet={mcpHandoffPacket} />
-                    <McpBuildStatusPanel request={mcpBuildRequest} result={mcpBuildResult} />
+                    <McpBuildStatusPanel request={mcpBuildRequest} result={mcpBuildResult} activationReview={activationReviewRequest} />
 
                     <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2 xl:grid-cols-4">
                       <SmallField label="Owner" value={item.owner_agent_key ?? item.owner_runtime} />
@@ -1610,6 +1647,18 @@ function N8nWorkflowProposalPanel({
                       <Workflow size={16} />
                       Request MCP build
                     </button>
+                    {mcpBuildResult && mcpBuildGaps.length === 0 && !activationReviewRequest ? (
+                      <button
+                        type="button"
+                        onClick={() => onAction(item, 'n8n_activation_review')}
+                        disabled={Boolean(actionId)}
+                        aria-label={`Request activation review for n8n proposal ${item.title}`}
+                        className="inline-flex items-center gap-2 rounded-lg border border-yellow-500/45 bg-yellow-500/10 px-3 py-2 text-sm text-yellow-100 hover:bg-yellow-500/15 disabled:opacity-50"
+                      >
+                        <ShieldCheck size={16} />
+                        Request activation review
+                      </button>
+                    ) : null}
                     <button
                       type="button"
                       onClick={() => onAction(item, 'block')}
@@ -2105,9 +2154,11 @@ function McpHandoffPacketPanel({ packet }: { packet: N8nMcpHandoffPacketView }) 
 function McpBuildStatusPanel({
   request,
   result,
+  activationReview,
 }: {
   request: N8nMcpBuildRequestView | null
   result: N8nMcpBuildResultView | null
+  activationReview: N8nActivationReviewRequestView | null
 }) {
   if (!request && !result) return null
 
@@ -2185,6 +2236,23 @@ function McpBuildStatusPanel({
             label="Rollback and activation gate"
             value={`${result.rollbackNotes ?? 'Rollback notes were not returned.'} ${result.activationRequested ? 'Activation was requested but still requires controller approval.' : result.activationGate ?? 'Activation remains approval-gated.'}`}
             tone={result.activationRequested ? 'yellow' : 'slate'}
+          />
+        </div>
+      ) : null}
+
+      {activationReview ? (
+        <div className="mt-3 rounded-lg border border-yellow-500/35 bg-yellow-500/10 p-3">
+          <p className="text-xs uppercase tracking-wide text-yellow-100">Activation review requested</p>
+          <p className="mt-1 text-foreground">{activationReview.summary ?? 'Review returned MCP build evidence before any activation decision.'}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {activationReview.actorLabel ?? 'Unknown requester'}
+            {activationReview.requestedAt ? ` · ${new Date(activationReview.requestedAt).toLocaleString()}` : ''}
+            {activationReview.workflowId ? ` · ${activationReview.workflowId}` : ''}
+          </p>
+          <ListField
+            label="Approval boundary"
+            values={activationReview.approvalBoundary}
+            fallback="Production activation, credentials, outbound sends, schedules, and client-visible mutation remain approval-gated."
           />
         </div>
       ) : null}

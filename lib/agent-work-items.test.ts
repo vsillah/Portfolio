@@ -34,6 +34,7 @@ import {
   recordAgentWorkItemMcpBuildResult,
   recordAgentWorkItemValidation,
   requestAgentWorkItemMcpBuild,
+  requestAgentWorkItemN8nActivationReview,
 } from './agent-work-items'
 
 function chain() {
@@ -334,6 +335,87 @@ describe('agent work item helpers', () => {
       status: 'ready_for_review',
       blocker_summary: null,
     }))
+  })
+
+  it('requests n8n activation review only after a clean MCP build result', async () => {
+    queueExistingItem({
+      ...baseItem,
+      status: 'ready_for_review',
+      metadata: {
+        mcp_build_result: {
+          recorded: true,
+          result_summary: 'Inactive workflow passed dry-run validation.',
+          workflow_id: 'wf_456',
+          validation_result: 'Dry run passed.',
+          test_evidence: 'Synthetic fixture completed without outbound sends.',
+          credential_gaps: [],
+          env_gaps: [],
+          rollback_notes: 'Disable or delete inactive workflow wf_456.',
+        },
+      },
+    })
+    mocks.singleQueue.push({
+      data: {
+        ...baseItem,
+        status: 'ready_for_review',
+        validation_summary: 'Review inactive workflow evidence before any activation decision.',
+        metadata: {
+          mcp_build_result: { recorded: true, workflow_id: 'wf_456' },
+          n8n_activation_review_request: {
+            requested: true,
+            workflow_id: 'wf_456',
+          },
+        },
+      },
+      error: null,
+    })
+
+    const result = await requestAgentWorkItemN8nActivationReview({
+      id: 'work-1',
+      reviewSummary: 'Review inactive workflow evidence before any activation decision.',
+      actorLabel: 'admin@example.com',
+    })
+
+    expect(result.status).toBe('ready_for_review')
+    expect(mocks.updateMock).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'ready_for_review',
+      blocker_summary: null,
+      validation_summary: 'Review inactive workflow evidence before any activation decision.',
+      metadata: expect.objectContaining({
+        n8n_activation_review_request: expect.objectContaining({
+          requested: true,
+          actor_label: 'admin@example.com',
+          workflow_id: 'wf_456',
+          approval_boundary: expect.arrayContaining([
+            expect.stringContaining('No n8n workflow is activated'),
+          ]),
+        }),
+      }),
+    }))
+    expect(mocks.recordAgentEvent).toHaveBeenCalledWith(expect.objectContaining({
+      eventType: 'agent_work_item_n8n_activation_review_requested',
+      message: 'Review inactive workflow evidence before any activation decision.',
+    }))
+  })
+
+  it('rejects n8n activation review when MCP build gaps remain', async () => {
+    queueExistingItem({
+      ...baseItem,
+      status: 'blocked',
+      metadata: {
+        mcp_build_result: {
+          recorded: true,
+          workflow_id: 'wf_456',
+          credential_gaps: ['Gmail OAuth staging credential'],
+          env_gaps: [],
+        },
+      },
+    })
+
+    await expect(requestAgentWorkItemN8nActivationReview({
+      id: 'work-1',
+      reviewSummary: 'Review inactive workflow evidence before any activation decision.',
+    })).rejects.toThrow('Resolve MCP build gaps before requesting activation review')
   })
 
   it('records handoffs through agent_handoffs', async () => {

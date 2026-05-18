@@ -181,15 +181,15 @@ const workItems = [
         recorded: true,
         recorded_at: now,
         actor_label: 'automation-systems',
-        result_summary: 'Inactive staging workflow created; credential mapping remains blocked.',
+        result_summary: 'Inactive staging workflow created and validated with synthetic data.',
         workflow_id: 'wf_meeting_followup_draft',
         inspection_result: 'Inactive workflow inspected with no outbound activation.',
-        validation_result: 'Static validation passed; dry run blocked by missing credential.',
-        test_evidence: 'Synthetic payload reached the draft-email node with sends disabled.',
-        credential_gaps: ['Gmail OAuth staging credential'],
-        env_gaps: ['N8N_INGEST_SECRET'],
+        validation_result: 'Static validation and synthetic dry run passed.',
+        test_evidence: 'Synthetic payload reached the draft-email node with sends disabled and no outbound calls.',
+        credential_gaps: [],
+        env_gaps: [],
         rollback_notes: 'Delete inactive workflow wf_meeting_followup_draft.',
-        activation_requested: true,
+        activation_requested: false,
         activation_gate: 'Production activation remains approval-gated and is not performed by this result update.',
       },
     },
@@ -349,6 +349,10 @@ function setupFetch({ failWorkItems = false } = {}) {
       return { ok: true, json: async () => ({ ok: true }) }
     }
 
+    if (url.includes('/api/admin/agents/work-items/work-n8n-proposal-1/n8n-activation-review') && init?.method === 'POST') {
+      return { ok: true, json: async () => ({ ok: true }) }
+    }
+
     if (url.includes('/api/admin/agents/work-items/work-n8n-proposal-1/block') && init?.method === 'POST') {
       return { ok: true, json: async () => ({ ok: true }) }
     }
@@ -492,14 +496,14 @@ describe('AgentCoordinationPage decision queue controller', () => {
     expect(screen.getByText('View JSON handoff packet')).toBeInTheDocument()
     expect(screen.getByText('MCP build status')).toBeInTheDocument()
     expect(screen.getByText('Returned build evidence is attached to this controller packet.')).toBeInTheDocument()
-    expect(screen.getByText('gaps returned')).toBeInTheDocument()
+    expect(screen.getAllByText('ready for review').length).toBeGreaterThan(0)
     expect(screen.getByText('Create or inspect an inactive staging workflow only.')).toBeInTheDocument()
-    expect(screen.getByText('Inactive staging workflow created; credential mapping remains blocked.')).toBeInTheDocument()
+    expect(screen.getByText('Inactive staging workflow created and validated with synthetic data.')).toBeInTheDocument()
     expect(screen.getByText('wf_meeting_followup_draft')).toBeInTheDocument()
-    expect(screen.getByText('Static validation passed; dry run blocked by missing credential.')).toBeInTheDocument()
-    expect(screen.getByText('Credential: Gmail OAuth staging credential')).toBeInTheDocument()
+    expect(screen.getByText('Static validation and synthetic dry run passed.')).toBeInTheDocument()
+    expect(screen.getByText('No credential or env gaps were returned.')).toBeInTheDocument()
     expect(screen.getAllByText('Env: N8N_INGEST_SECRET').length).toBeGreaterThan(0)
-    expect(screen.getByText(/Activation was requested but still requires controller approval/i)).toBeInTheDocument()
+    expect(screen.getByText(/Production activation remains approval-gated/i)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Goal session/ })).toHaveAttribute('href', '/admin/agents/standup?goal=automation%3Ameeting-intake-follow-up-drafts')
     expect(screen.getByRole('link', { name: /Goal Kanban/ })).toHaveAttribute('href', '/admin/agents/swarm-board?goal=automation%3Ameeting-intake-follow-up-drafts')
 
@@ -531,6 +535,14 @@ describe('AgentCoordinationPage decision queue controller', () => {
       expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items/work-n8n-proposal-1/mcp-build-request', expect.objectContaining({
         method: 'POST',
         body: expect.stringContaining('Create or inspect an inactive staging workflow only'),
+      }))
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Request activation review for n8n proposal n8n proposal: Automate meeting intake to follow-up drafts' }))
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items/work-n8n-proposal-1/n8n-activation-review', expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('n8n activation review requested from returned MCP build evidence'),
       }))
     })
 
