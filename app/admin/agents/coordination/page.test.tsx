@@ -164,6 +164,34 @@ const workItems = [
       test_evidence: 'No staging test has run yet.',
       rollback_path: 'Delete the inactive draft workflow.',
       approval_gate: 'Production activation, credential changes, outbound sends, public publishing, and client-visible mutation require approval.',
+      mcp_build_request: {
+        requested: true,
+        requested_at: now,
+        actor_label: 'admin@example.com',
+        summary: 'Create or inspect an inactive staging workflow only.',
+        packet_version: 'agent-ops-n8n-mcp-handoff/v1',
+        expected_return: [
+          'n8n workflow id or inspection result',
+          'validation result and test evidence',
+          'credential/env gaps',
+          'rollback notes',
+        ],
+      },
+      mcp_build_result: {
+        recorded: true,
+        recorded_at: now,
+        actor_label: 'automation-systems',
+        result_summary: 'Inactive staging workflow created; credential mapping remains blocked.',
+        workflow_id: 'wf_meeting_followup_draft',
+        inspection_result: 'Inactive workflow inspected with no outbound activation.',
+        validation_result: 'Static validation passed; dry run blocked by missing credential.',
+        test_evidence: 'Synthetic payload reached the draft-email node with sends disabled.',
+        credential_gaps: ['Gmail OAuth staging credential'],
+        env_gaps: ['N8N_INGEST_SECRET'],
+        rollback_notes: 'Delete inactive workflow wf_meeting_followup_draft.',
+        activation_requested: true,
+        activation_gate: 'Production activation remains approval-gated and is not performed by this result update.',
+      },
     },
     idempotency_key: 'n8n-workflow-proposal:draft_workflow:meeting-intake-follow-up-drafts',
     created_at: now,
@@ -454,7 +482,7 @@ describe('AgentCoordinationPage decision queue controller', () => {
     expect(screen.getByText('Production activation, credential changes, outbound sends, public publishing, and client-visible mutation require approval.')).toBeInTheDocument()
     expect(screen.getByText('Delete the inactive draft workflow.')).toBeInTheDocument()
     expect(screen.getByText('Identify the source trigger and dedupe/idempotency key.')).toBeInTheDocument()
-    expect(screen.getByText('Env: N8N_INGEST_SECRET')).toBeInTheDocument()
+    expect(screen.getAllByText('Env: N8N_INGEST_SECRET').length).toBeGreaterThan(0)
     expect(screen.getByText('n8n MCP handoff packet')).toBeInTheDocument()
     expect(screen.getByText(/Use this structured packet when an agent asks the n8n MCP/i)).toBeInTheDocument()
     expect(screen.getByText('MCP guardrails')).toBeInTheDocument()
@@ -462,6 +490,16 @@ describe('AgentCoordinationPage decision queue controller', () => {
     expect(screen.getByText('Builder return contract')).toBeInTheDocument()
     expect(screen.getAllByText(/Return the n8n workflow id/i).length).toBeGreaterThan(0)
     expect(screen.getByText('View JSON handoff packet')).toBeInTheDocument()
+    expect(screen.getByText('MCP build status')).toBeInTheDocument()
+    expect(screen.getByText('Returned build evidence is attached to this controller packet.')).toBeInTheDocument()
+    expect(screen.getByText('gaps returned')).toBeInTheDocument()
+    expect(screen.getByText('Create or inspect an inactive staging workflow only.')).toBeInTheDocument()
+    expect(screen.getByText('Inactive staging workflow created; credential mapping remains blocked.')).toBeInTheDocument()
+    expect(screen.getByText('wf_meeting_followup_draft')).toBeInTheDocument()
+    expect(screen.getByText('Static validation passed; dry run blocked by missing credential.')).toBeInTheDocument()
+    expect(screen.getByText('Credential: Gmail OAuth staging credential')).toBeInTheDocument()
+    expect(screen.getAllByText('Env: N8N_INGEST_SECRET').length).toBeGreaterThan(0)
+    expect(screen.getByText(/Activation was requested but still requires controller approval/i)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Goal session/ })).toHaveAttribute('href', '/admin/agents/standup?goal=automation%3Ameeting-intake-follow-up-drafts')
     expect(screen.getByRole('link', { name: /Goal Kanban/ })).toHaveAttribute('href', '/admin/agents/swarm-board?goal=automation%3Ameeting-intake-follow-up-drafts')
 
