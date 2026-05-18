@@ -15,6 +15,7 @@ import {
   RefreshCw,
   ShieldCheck,
   ShieldAlert,
+  Workflow,
   XCircle,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
@@ -109,6 +110,31 @@ type ShakaContextReply = {
 }
 
 type WorkItemQuickAction = 'block' | 'validation' | 'handoff' | 'ready' | 'proposal_validation'
+
+type N8nMcpHandoffPacketView = {
+  version: string
+  action: string
+  workflowFamily: string | null
+  automationGoalSeedId: string | null
+  goalId: string | null
+  goalTitle: string | null
+  workflow: {
+    proposedName: string | null
+    existingWorkflowId: string | null
+    trigger: string | null
+    nodePlan: string[]
+  }
+  requirements: {
+    requiredEnvVars: string[]
+    credentialNeeds: string[]
+    ingestCallbacks: string[]
+    testEvidence: string | null
+  }
+  approvalGate: string
+  rollbackPath: string | null
+  guardrails: string[]
+  handoffInstructions: string[]
+}
 
 const DEFAULT_FORM: WorkItemForm = {
   title: 'Review controller decision packet',
@@ -211,6 +237,63 @@ function textArray(value: unknown): string[] {
 
 function stringValue(value: unknown): string | null {
   return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null
+}
+
+function recordValue(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : null
+}
+
+function n8nMcpHandoffPacketForProposal(input: {
+  item: AgentWorkItem
+  action: string
+  workflowFamily: string
+  goalId: string | null
+  goalTitle: string
+  requiredEnvVars: string[]
+  credentialNeeds: string[]
+  nodePlan: string[]
+  ingestCallbacks: string[]
+  testEvidence: string | null
+  rollbackPath: string | null
+  approvalGate: string
+}): N8nMcpHandoffPacketView {
+  const metadata = input.item.metadata ?? {}
+  const stored = recordValue(metadata.mcp_handoff_packet)
+  const storedWorkflow = recordValue(stored?.workflow)
+  const storedRequirements = recordValue(stored?.requirements)
+  return {
+    version: stringValue(stored?.version) ?? 'agent-ops-n8n-mcp-handoff/v1',
+    action: stringValue(stored?.action) ?? input.action.replace(/\s+/g, '_'),
+    workflowFamily: stringValue(stored?.workflowFamily) ?? stringValue(metadata.workflow_family) ?? input.workflowFamily.replace(/\s+/g, '_'),
+    automationGoalSeedId: stringValue(stored?.automationGoalSeedId) ?? stringValue(metadata.automation_goal_seed_id),
+    goalId: stringValue(stored?.goalId) ?? input.goalId,
+    goalTitle: stringValue(stored?.goalTitle) ?? input.goalTitle,
+    workflow: {
+      proposedName: stringValue(storedWorkflow?.proposedName) ?? stringValue(metadata.proposed_workflow_name) ?? input.goalTitle,
+      existingWorkflowId: stringValue(storedWorkflow?.existingWorkflowId) ?? stringValue(metadata.existing_workflow_id),
+      trigger: stringValue(storedWorkflow?.trigger) ?? stringValue(metadata.trigger),
+      nodePlan: textArray(storedWorkflow?.nodePlan).length ? textArray(storedWorkflow?.nodePlan) : input.nodePlan,
+    },
+    requirements: {
+      requiredEnvVars: textArray(storedRequirements?.requiredEnvVars).length ? textArray(storedRequirements?.requiredEnvVars) : input.requiredEnvVars,
+      credentialNeeds: textArray(storedRequirements?.credentialNeeds).length ? textArray(storedRequirements?.credentialNeeds) : input.credentialNeeds,
+      ingestCallbacks: textArray(storedRequirements?.ingestCallbacks).length ? textArray(storedRequirements?.ingestCallbacks) : input.ingestCallbacks,
+      testEvidence: stringValue(storedRequirements?.testEvidence) ?? input.testEvidence,
+    },
+    approvalGate: stringValue(stored?.approvalGate) ?? input.approvalGate,
+    rollbackPath: stringValue(stored?.rollbackPath) ?? input.rollbackPath,
+    guardrails: textArray(stored?.guardrails).length ? textArray(stored?.guardrails) : [
+      'Use staging, inactive, or inspection-only n8n workflows until the controller explicitly approves activation.',
+      'Do not create or rotate credentials from this packet; report credential needs back to Agent Ops.',
+      'Do not send outbound email, publish content, mutate production customer data, or enable live schedules without approval.',
+      'Use synthetic or test-owned validation data unless the controller approves a narrower live-data drill.',
+    ],
+    handoffInstructions: textArray(stored?.handoffInstructions).length ? textArray(stored?.handoffInstructions) : [
+      'Create or inspect the workflow using the workflow name, trigger, node plan, credential needs, and callback routes in this packet.',
+      'Return the n8n workflow id, validation result, test evidence, and rollback notes to the Decision Queue controller.',
+      'Attach trace evidence before asking for staging, production activation, credential, outbound, or client-visible approval.',
+    ],
+  }
 }
 
 function n8nProposalElementId(proposalId: string) {
@@ -1307,6 +1390,20 @@ function N8nWorkflowProposalPanel({
             const rollbackPath = stringValue(item.metadata?.rollback_path) ?? 'Delete the inactive draft workflow and leave production unchanged.'
             const approvalGate = stringValue(item.metadata?.approval_gate)
               ?? 'Production activation, credential changes, outbound sends, public publishing, and client-visible mutation require approval.'
+            const mcpHandoffPacket = n8nMcpHandoffPacketForProposal({
+              item,
+              action,
+              workflowFamily,
+              goalId,
+              goalTitle,
+              requiredEnvVars,
+              credentialNeeds,
+              nodePlan,
+              ingestCallbacks,
+              testEvidence,
+              rollbackPath,
+              approvalGate,
+            })
             const recommendation = item.status === 'ready_for_review' || item.status === 'ready_for_merge'
               ? 'Validate the draft packet and route the next gate through the controller. Do not activate production from this review.'
               : 'Review the proposal as draft-only. Move to validation only after the trigger, credentials, callbacks, and rollback path are clear.'
@@ -1381,6 +1478,8 @@ function N8nWorkflowProposalPanel({
                       <ListField label="Ingest callbacks" values={ingestCallbacks} fallback="No callback endpoints have been declared." />
                       <DecisionSummaryBlock label="Test evidence" value={testEvidence ?? 'No test evidence has been attached yet.'} />
                     </div>
+
+                    <McpHandoffPacketPanel packet={mcpHandoffPacket} />
 
                     <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2 xl:grid-cols-4">
                       <SmallField label="Owner" value={item.owner_agent_key ?? item.owner_runtime} />
@@ -1889,6 +1988,42 @@ function ListField({ label, values, fallback }: { label: string; values: string[
       ) : (
         <p className="mt-1 text-muted-foreground">{fallback}</p>
       )}
+    </div>
+  )
+}
+
+function McpHandoffPacketPanel({ packet }: { packet: N8nMcpHandoffPacketView }) {
+  return (
+    <div className="mt-3 rounded-lg border border-radiant-gold/35 bg-radiant-gold/10 p-3 text-sm">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-radiant-gold">
+            <Workflow size={16} />
+            <p className="text-xs font-semibold uppercase tracking-wide">n8n MCP handoff packet</p>
+          </div>
+          <p className="mt-2 text-foreground">
+            Use this structured packet when an agent asks the n8n MCP to create, inspect, or stage the workflow.
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {packet.workflow.proposedName ?? 'Unnamed workflow'} · {packet.workflowFamily?.replace(/_/g, ' ') ?? 'workflow family pending'} · {packet.action.replace(/_/g, ' ')}
+          </p>
+        </div>
+        <span className="inline-flex w-fit rounded-full border border-yellow-500/35 bg-yellow-500/10 px-2 py-1 text-xs text-yellow-100">
+          activation approval required
+        </span>
+      </div>
+      <div className="mt-3 grid gap-3 md:grid-cols-2">
+        <ListField label="MCP guardrails" values={packet.guardrails.slice(0, 4)} fallback="No guardrails have been declared." />
+        <ListField label="Builder return contract" values={packet.handoffInstructions.slice(0, 3)} fallback="No handoff instructions have been declared." />
+      </div>
+      <details className="mt-3 rounded-lg border border-silicon-slate/60 bg-background/60 p-3">
+        <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-radiant-gold">
+          View JSON handoff packet
+        </summary>
+        <pre className="mt-3 max-h-80 overflow-auto rounded-md bg-black/25 p-3 text-xs text-muted-foreground">
+          {JSON.stringify(packet, null, 2)}
+        </pre>
+      </details>
     </div>
   )
 }

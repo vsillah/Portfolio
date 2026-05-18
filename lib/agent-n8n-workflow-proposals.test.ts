@@ -8,7 +8,11 @@ vi.mock('@/lib/agent-work-items', () => ({
   createAgentWorkItem: mocks.createAgentWorkItem,
 }))
 
-import { createN8nWorkflowProposal, isN8nWorkflowProposalAction } from './agent-n8n-workflow-proposals'
+import {
+  buildN8nMcpHandoffPacket,
+  createN8nWorkflowProposal,
+  isN8nWorkflowProposalAction,
+} from './agent-n8n-workflow-proposals'
 
 describe('agent n8n workflow proposals', () => {
   beforeEach(() => {
@@ -54,8 +58,60 @@ describe('agent n8n workflow proposals', () => {
         goal_role: 'task',
         goal_progress_weight: 1,
         approval_gate: expect.stringContaining('Production activation'),
+        mcp_handoff_packet: expect.objectContaining({
+          version: 'agent-ops-n8n-mcp-handoff/v1',
+          action: 'draft_workflow',
+          workflowFamily: 'meeting_follow_up',
+          workflow: expect.objectContaining({
+            nodePlan: ['Webhook trigger', 'HTTP callback'],
+          }),
+          guardrails: expect.arrayContaining([
+            expect.stringContaining('inactive'),
+          ]),
+        }),
       }),
     }))
+  })
+
+  it('builds a governed MCP handoff packet for workflow builders', () => {
+    const packet = buildN8nMcpHandoffPacket({
+      action: 'stage_workflow',
+      title: 'Stage warm lead workflow',
+      objective: 'Create a staging-safe workflow.',
+      workflowFamily: 'warm_lead_capture',
+      automationGoalSeedId: 'warm-lead-review-ready-outreach',
+      proposedWorkflowName: 'Warm lead review-ready outreach',
+      trigger: 'Manual Agent Ops controller approval',
+      requiredEnvVars: ['N8N_INGEST_SECRET'],
+      credentialNeeds: ['Supabase API'],
+      nodePlan: ['Webhook trigger', 'Dedupe lead', 'Create work item'],
+      ingestCallbacks: ['/api/admin/agents/work-items'],
+      testEvidence: 'Synthetic lead fixture pending.',
+      rollbackPath: 'Delete inactive staging workflow.',
+    })
+
+    expect(packet).toMatchObject({
+      version: 'agent-ops-n8n-mcp-handoff/v1',
+      action: 'stage_workflow',
+      workflowFamily: 'warm_lead_capture',
+      automationGoalSeedId: 'warm-lead-review-ready-outreach',
+      goalId: 'automation:warm-lead-review-ready-outreach',
+      workflow: {
+        proposedName: 'Warm lead review-ready outreach',
+        existingWorkflowId: null,
+        trigger: 'Manual Agent Ops controller approval',
+        nodePlan: ['Webhook trigger', 'Dedupe lead', 'Create work item'],
+      },
+      requirements: {
+        requiredEnvVars: ['N8N_INGEST_SECRET'],
+        credentialNeeds: ['Supabase API'],
+        ingestCallbacks: ['/api/admin/agents/work-items'],
+        testEvidence: 'Synthetic lead fixture pending.',
+      },
+      rollbackPath: 'Delete inactive staging workflow.',
+    })
+    expect(packet.guardrails.join(' ')).toContain('Do not send outbound email')
+    expect(packet.handoffInstructions.join(' ')).toContain('Return the n8n workflow id')
   })
 
   it('rejects malformed proposals', async () => {

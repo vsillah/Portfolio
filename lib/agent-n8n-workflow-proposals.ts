@@ -23,6 +23,31 @@ export type CreateN8nWorkflowProposalInput = {
   requestedByUserId?: string | null
 }
 
+export type N8nMcpHandoffPacket = {
+  version: 'agent-ops-n8n-mcp-handoff/v1'
+  action: N8nWorkflowProposalAction
+  workflowFamily: string | null
+  automationGoalSeedId: string | null
+  goalId: string | null
+  goalTitle: string | null
+  workflow: {
+    proposedName: string | null
+    existingWorkflowId: string | null
+    trigger: string | null
+    nodePlan: string[]
+  }
+  requirements: {
+    requiredEnvVars: string[]
+    credentialNeeds: string[]
+    ingestCallbacks: string[]
+    testEvidence: string | null
+  }
+  approvalGate: string
+  rollbackPath: string | null
+  guardrails: string[]
+  handoffInstructions: string[]
+}
+
 const ALLOWED_ACTIONS: N8nWorkflowProposalAction[] = [
   'inspect_workflow',
   'draft_workflow',
@@ -32,6 +57,43 @@ const ALLOWED_ACTIONS: N8nWorkflowProposalAction[] = [
 
 export function isN8nWorkflowProposalAction(value: string): value is N8nWorkflowProposalAction {
   return ALLOWED_ACTIONS.includes(value as N8nWorkflowProposalAction)
+}
+
+export function buildN8nMcpHandoffPacket(input: CreateN8nWorkflowProposalInput): N8nMcpHandoffPacket {
+  const approvalGate = 'Production activation, credential changes, outbound sends, public publishing, and client-visible mutation require approval.'
+  return {
+    version: 'agent-ops-n8n-mcp-handoff/v1',
+    action: input.action,
+    workflowFamily: input.workflowFamily ?? null,
+    automationGoalSeedId: input.automationGoalSeedId ?? null,
+    goalId: input.goalId ?? (input.automationGoalSeedId ? `automation:${input.automationGoalSeedId}` : null),
+    goalTitle: input.goalTitle ?? null,
+    workflow: {
+      proposedName: input.proposedWorkflowName ?? input.title.trim() ?? null,
+      existingWorkflowId: input.existingWorkflowId ?? null,
+      trigger: input.trigger ?? null,
+      nodePlan: input.nodePlan ?? [],
+    },
+    requirements: {
+      requiredEnvVars: input.requiredEnvVars ?? [],
+      credentialNeeds: input.credentialNeeds ?? [],
+      ingestCallbacks: input.ingestCallbacks ?? [],
+      testEvidence: input.testEvidence ?? null,
+    },
+    approvalGate,
+    rollbackPath: input.rollbackPath ?? null,
+    guardrails: [
+      'Use staging, inactive, or inspection-only n8n workflows until the controller explicitly approves activation.',
+      'Do not create or rotate credentials from this packet; report credential needs back to Agent Ops.',
+      'Do not send outbound email, publish content, mutate production customer data, or enable live schedules without approval.',
+      'Use synthetic or test-owned validation data unless the controller approves a narrower live-data drill.',
+    ],
+    handoffInstructions: [
+      'Create or inspect the workflow using the workflow name, trigger, node plan, credential needs, and callback routes in this packet.',
+      'Return the n8n workflow id, validation result, test evidence, and rollback notes to the Decision Queue controller.',
+      'Attach trace evidence before asking for staging, production activation, credential, outbound, or client-visible approval.',
+    ],
+  }
 }
 
 export async function createN8nWorkflowProposal(input: CreateN8nWorkflowProposalInput): Promise<AgentWorkItem> {
@@ -44,6 +106,7 @@ export async function createN8nWorkflowProposal(input: CreateN8nWorkflowProposal
   if (!title || !objective) {
     throw new Error('title and objective are required')
   }
+  const mcpHandoffPacket = buildN8nMcpHandoffPacket(input)
 
   return createAgentWorkItem({
     title: `n8n proposal: ${title}`,
@@ -78,6 +141,7 @@ export async function createN8nWorkflowProposal(input: CreateN8nWorkflowProposal
       test_evidence: input.testEvidence ?? null,
       rollback_path: input.rollbackPath ?? null,
       approval_gate: 'Production activation, credential changes, outbound sends, public publishing, and client-visible mutation require approval.',
+      mcp_handoff_packet: mcpHandoffPacket,
       requested_by_user_id: input.requestedByUserId ?? null,
     },
     idempotencyKey: `n8n-workflow-proposal:${input.action}:${input.automationGoalSeedId ?? input.existingWorkflowId ?? title}`,
