@@ -697,6 +697,61 @@ describe('buildAgentOrgBoardSnapshotFromRows', () => {
     })
   })
 
+  it('projects n8n proposal context onto goal-tagged Kanban cards', () => {
+    const snapshot = buildAgentOrgBoardSnapshotFromRows({
+      now: new Date('2026-05-05T16:00:00.000Z'),
+      runs: [],
+      events: [],
+      workItems: [
+        orgWorkItem({
+          id: 'work-n8n-proposal-1',
+          title: 'n8n proposal: Automate meeting intake to follow-up drafts',
+          status: 'proposed',
+          priority: 'medium',
+          owner_agent_key: 'automation-systems',
+          owner_runtime: 'n8n',
+          source_type: 'n8n_workflow_proposal',
+          metadata: {
+            n8n_workflow_proposal: true,
+            n8n_proposal_action: 'draft_workflow',
+            proposed_workflow_name: 'Automate meeting intake to follow-up drafts',
+            required_env_vars: ['N8N_INGEST_SECRET'],
+            credential_needs: ['Confirm calendar and email source credentials before staging.'],
+            node_plan: ['Webhook trigger', 'Agent Ops work-item callback'],
+            ingest_callbacks: ['/api/admin/agents/work-items'],
+            rollback_path: 'Delete the inactive draft workflow and close the proposal work item.',
+            goal_id: 'automation:meeting-intake-follow-up-drafts',
+            goal_title: 'Automate meeting intake to follow-up drafts',
+            goal_sequence: 1,
+            goal_status: 'proposed',
+            goal_progress_weight: 1,
+            goal_session_href: '/admin/agents/standup?goal=automation%3Ameeting-intake-follow-up-drafts',
+            automation_goal_seed_id: 'meeting-intake-follow-up-drafts',
+            workflow_family: 'meeting_follow_up',
+            automation_level: 'draft_to_review',
+            requires_new_workflow: true,
+            approval_gate: 'Activation remains approval-gated.',
+            next_action: 'Review the n8n proposal packet.',
+          },
+        }),
+      ],
+      approvals: [],
+    })
+
+    const proposalTask = snapshot.lanes.flatMap((lane) => lane.tasks).find((task) => task.id === 'work-n8n-proposal-1')
+
+    expect(proposalTask?.goal?.n8nProposal).toMatchObject({
+      action: 'draft_workflow',
+      proposedWorkflowName: 'Automate meeting intake to follow-up drafts',
+      requiredEnvVars: ['N8N_INGEST_SECRET'],
+      credentialNeeds: ['Confirm calendar and email source credentials before staging.'],
+      nodePlan: ['Webhook trigger', 'Agent Ops work-item callback'],
+      ingestCallbacks: ['/api/admin/agents/work-items'],
+      rollbackPath: 'Delete the inactive draft workflow and close the proposal work item.',
+      controllerHref: '/admin/agents/coordination?proposal=work-n8n-proposal-1',
+    })
+  })
+
   it('flags WIP limit pressure and preserves priority ordering inside lanes', () => {
     const workItems = [
       orgWorkItem({ id: 'low-old', title: 'Low old', status: 'in_progress', priority: 'low', owner_agent_key: 'automation-systems', updated_at: '2026-05-05T11:00:00.000Z' }),
