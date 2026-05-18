@@ -31,6 +31,7 @@ import {
   handoffAgentWorkItem,
   listAgentWorkItems,
   recordAgentWorkItemBlocker,
+  recordAgentWorkItemMcpBuildResult,
   recordAgentWorkItemValidation,
   requestAgentWorkItemMcpBuild,
 } from './agent-work-items'
@@ -234,6 +235,104 @@ describe('agent work item helpers', () => {
     expect(mocks.recordAgentEvent).toHaveBeenCalledWith(expect.objectContaining({
       eventType: 'agent_work_item_mcp_build_requested',
       message: 'Create inactive staging workflow from the handoff packet.',
+    }))
+  })
+
+  it('records MCP build results and blocks work when gaps remain', async () => {
+    queueExistingItem({
+      ...baseItem,
+      status: 'queued',
+      metadata: {
+        mcp_build_request: {
+          requested: true,
+          requested_at: '2026-05-09T01:00:00.000Z',
+        },
+      },
+    })
+    mocks.singleQueue.push({
+      data: {
+        ...baseItem,
+        status: 'blocked',
+        blocker_summary: 'MCP build returned unresolved gaps: N8N_INGEST_SECRET',
+        validation_summary: 'Inactive staging workflow was created but cannot run until secrets are mapped.',
+        metadata: {
+          mcp_build_request: { requested: true },
+          mcp_build_result: {
+            recorded: true,
+            workflow_id: 'wf_123',
+            env_gaps: ['N8N_INGEST_SECRET'],
+          },
+        },
+      },
+      error: null,
+    })
+
+    const result = await recordAgentWorkItemMcpBuildResult({
+      id: 'work-1',
+      resultSummary: 'Inactive staging workflow was created but cannot run until secrets are mapped.',
+      workflowId: 'wf_123',
+      validationResult: 'Inspection passed; dry run blocked by missing env.',
+      testEvidence: 'Fixture dry run stopped before outbound execution.',
+      envGaps: ['N8N_INGEST_SECRET'],
+      rollbackNotes: 'Delete inactive workflow wf_123.',
+      activationRequested: true,
+      actorLabel: 'admin@example.com',
+    })
+
+    expect(result.status).toBe('blocked')
+    expect(mocks.updateMock).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'blocked',
+      blocker_summary: 'MCP build returned unresolved gaps: N8N_INGEST_SECRET',
+      validation_summary: 'Inactive staging workflow was created but cannot run until secrets are mapped.',
+      metadata: expect.objectContaining({
+        mcp_build_request: expect.objectContaining({ requested: true }),
+        mcp_build_result: expect.objectContaining({
+          workflow_id: 'wf_123',
+          env_gaps: ['N8N_INGEST_SECRET'],
+          activation_requested: true,
+          activation_gate: expect.stringContaining('approval-gated'),
+        }),
+      }),
+    }))
+    expect(mocks.recordAgentEvent).toHaveBeenCalledWith(expect.objectContaining({
+      eventType: 'agent_work_item_mcp_build_result_recorded',
+      message: 'Inactive staging workflow was created but cannot run until secrets are mapped.',
+    }))
+  })
+
+  it('marks MCP build results ready for review when no gaps remain', async () => {
+    queueExistingItem({ ...baseItem, status: 'queued' })
+    mocks.singleQueue.push({
+      data: {
+        ...baseItem,
+        status: 'ready_for_review',
+        validation_summary: 'Inactive workflow passed dry-run validation.',
+        metadata: {
+          mcp_build_result: {
+            recorded: true,
+            workflow_id: 'wf_456',
+            credential_gaps: [],
+            env_gaps: [],
+          },
+        },
+      },
+      error: null,
+    })
+
+    const result = await recordAgentWorkItemMcpBuildResult({
+      id: 'work-1',
+      resultSummary: 'Inactive workflow passed dry-run validation.',
+      workflowId: 'wf_456',
+      validationResult: 'Dry run passed.',
+      testEvidence: 'No outbound calls were made.',
+      credentialGaps: [],
+      envGaps: [],
+    })
+
+    expect(result.status).toBe('ready_for_review')
+    expect(mocks.updateMock).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'ready_for_review',
+      blocker_summary: null,
     }))
   })
 

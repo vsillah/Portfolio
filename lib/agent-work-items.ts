@@ -685,6 +685,74 @@ export async function requestAgentWorkItemMcpBuild(input: {
   )
 }
 
+export async function recordAgentWorkItemMcpBuildResult(input: {
+  id: string
+  resultSummary: string
+  workflowId?: string | null
+  inspectionResult?: string | null
+  validationResult?: string | null
+  testEvidence?: string | null
+  credentialGaps?: string[]
+  envGaps?: string[]
+  rollbackNotes?: string | null
+  activationRequested?: boolean
+  actorLabel?: string | null
+}) {
+  const resultSummary = input.resultSummary.trim()
+  if (!resultSummary) throw new Error('MCP build result summary is required')
+
+  const item = await requireAgentWorkItem(input.id)
+  if (['merged', 'deployed', 'cancelled'].includes(item.status)) {
+    throw new Error(`Cannot record MCP build result for ${item.status} work item`)
+  }
+
+  const credentialGaps = normalizeStringArray(input.credentialGaps)
+  const envGaps = normalizeStringArray(input.envGaps)
+  const unresolvedGaps = [...credentialGaps, ...envGaps]
+  const now = new Date().toISOString()
+  const metadata = {
+    ...(item.metadata ?? {}),
+    mcp_build_result: {
+      recorded: true,
+      recorded_at: now,
+      actor_label: input.actorLabel ?? 'Admin user',
+      result_summary: resultSummary,
+      workflow_id: input.workflowId?.trim() || null,
+      inspection_result: input.inspectionResult?.trim() || null,
+      validation_result: input.validationResult?.trim() || null,
+      test_evidence: input.testEvidence?.trim() || null,
+      credential_gaps: credentialGaps,
+      env_gaps: envGaps,
+      rollback_notes: input.rollbackNotes?.trim() || null,
+      activation_requested: input.activationRequested === true,
+      activation_gate: 'Production activation remains approval-gated and is not performed by this result update.',
+    },
+  }
+  const blockerSummary = unresolvedGaps.length
+    ? `MCP build returned unresolved gaps: ${unresolvedGaps.slice(0, 4).join(', ')}`
+    : null
+
+  return updateWorkItem(
+    item,
+    {
+      status: unresolvedGaps.length ? 'blocked' : 'ready_for_review',
+      blocker_summary: blockerSummary,
+      validation_summary: resultSummary,
+      metadata,
+    },
+    {
+      type: 'agent_work_item_mcp_build_result_recorded',
+      message: resultSummary,
+      metadata: {
+        actor_label: input.actorLabel ?? 'Admin user',
+        workflow_id: metadata.mcp_build_result.workflow_id,
+        has_unresolved_gaps: unresolvedGaps.length > 0,
+        activation_requested: metadata.mcp_build_result.activation_requested,
+      },
+    },
+  )
+}
+
 export async function cancelAgentWorkItem(input: { id: string; reason?: string | null }) {
   const item = await requireAgentWorkItem(input.id)
   return updateWorkItem(

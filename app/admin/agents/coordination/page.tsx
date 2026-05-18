@@ -136,6 +136,29 @@ type N8nMcpHandoffPacketView = {
   handoffInstructions: string[]
 }
 
+type N8nMcpBuildRequestView = {
+  requestedAt: string | null
+  actorLabel: string | null
+  summary: string | null
+  packetVersion: string | null
+  expectedReturn: string[]
+}
+
+type N8nMcpBuildResultView = {
+  recordedAt: string | null
+  actorLabel: string | null
+  resultSummary: string
+  workflowId: string | null
+  inspectionResult: string | null
+  validationResult: string | null
+  testEvidence: string | null
+  credentialGaps: string[]
+  envGaps: string[]
+  rollbackNotes: string | null
+  activationRequested: boolean
+  activationGate: string | null
+}
+
 const DEFAULT_FORM: WorkItemForm = {
   title: 'Review controller decision packet',
   objective: 'Summarize the decision needed, confirm the evidence source, state the safest next step, and route the packet through the controller before execution continues.',
@@ -293,6 +316,38 @@ function n8nMcpHandoffPacketForProposal(input: {
       'Return the n8n workflow id, validation result, test evidence, and rollback notes to the Decision Queue controller.',
       'Attach trace evidence before asking for staging, production activation, credential, outbound, or client-visible approval.',
     ],
+  }
+}
+
+function n8nMcpBuildRequestForItem(item: AgentWorkItem): N8nMcpBuildRequestView | null {
+  const request = recordValue(item.metadata?.mcp_build_request)
+  if (!request) return null
+  return {
+    requestedAt: stringValue(request.requested_at),
+    actorLabel: stringValue(request.actor_label),
+    summary: stringValue(request.summary),
+    packetVersion: stringValue(request.packet_version),
+    expectedReturn: textArray(request.expected_return),
+  }
+}
+
+function n8nMcpBuildResultForItem(item: AgentWorkItem): N8nMcpBuildResultView | null {
+  const result = recordValue(item.metadata?.mcp_build_result)
+  const resultSummary = stringValue(result?.result_summary)
+  if (!result || !resultSummary) return null
+  return {
+    recordedAt: stringValue(result.recorded_at),
+    actorLabel: stringValue(result.actor_label),
+    resultSummary,
+    workflowId: stringValue(result.workflow_id),
+    inspectionResult: stringValue(result.inspection_result),
+    validationResult: stringValue(result.validation_result),
+    testEvidence: stringValue(result.test_evidence),
+    credentialGaps: textArray(result.credential_gaps),
+    envGaps: textArray(result.env_gaps),
+    rollbackNotes: stringValue(result.rollback_notes),
+    activationRequested: result.activation_requested === true,
+    activationGate: stringValue(result.activation_gate),
   }
 }
 
@@ -1396,6 +1451,8 @@ function N8nWorkflowProposalPanel({
             const rollbackPath = stringValue(item.metadata?.rollback_path) ?? 'Delete the inactive draft workflow and leave production unchanged.'
             const approvalGate = stringValue(item.metadata?.approval_gate)
               ?? 'Production activation, credential changes, outbound sends, public publishing, and client-visible mutation require approval.'
+            const mcpBuildRequest = n8nMcpBuildRequestForItem(item)
+            const mcpBuildResult = n8nMcpBuildResultForItem(item)
             const mcpHandoffPacket = n8nMcpHandoffPacketForProposal({
               item,
               action,
@@ -1486,6 +1543,7 @@ function N8nWorkflowProposalPanel({
                     </div>
 
                     <McpHandoffPacketPanel packet={mcpHandoffPacket} />
+                    <McpBuildStatusPanel request={mcpBuildRequest} result={mcpBuildResult} />
 
                     <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2 xl:grid-cols-4">
                       <SmallField label="Owner" value={item.owner_agent_key ?? item.owner_runtime} />
@@ -2040,6 +2098,96 @@ function McpHandoffPacketPanel({ packet }: { packet: N8nMcpHandoffPacketView }) 
           {JSON.stringify(packet, null, 2)}
         </pre>
       </details>
+    </div>
+  )
+}
+
+function McpBuildStatusPanel({
+  request,
+  result,
+}: {
+  request: N8nMcpBuildRequestView | null
+  result: N8nMcpBuildResultView | null
+}) {
+  if (!request && !result) return null
+
+  const gaps = result ? [...result.credentialGaps, ...result.envGaps] : []
+  return (
+    <div className="mt-3 rounded-lg border border-blue-400/30 bg-blue-500/10 p-3 text-sm">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-blue-100">
+            <Workflow size={16} />
+            <p className="text-xs font-semibold uppercase tracking-wide">MCP build status</p>
+          </div>
+          <p className="mt-2 text-foreground">
+            {result
+              ? 'Returned build evidence is attached to this controller packet.'
+              : 'Build request is waiting for an n8n MCP result packet.'}
+          </p>
+        </div>
+        <span className={`inline-flex w-fit rounded-full border px-2 py-1 text-xs ${
+          result
+            ? gaps.length
+              ? 'border-red-500/35 bg-red-500/10 text-red-100'
+              : 'border-green-500/35 bg-green-500/10 text-green-100'
+            : 'border-yellow-500/35 bg-yellow-500/10 text-yellow-100'
+        }`}>
+          {result ? (gaps.length ? 'gaps returned' : 'ready for review') : 'requested'}
+        </span>
+      </div>
+
+      {request ? (
+        <div className="mt-3 rounded-lg border border-silicon-slate/60 bg-background/45 p-3">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground/70">Build request</p>
+          <p className="mt-1 text-foreground">{request.summary ?? 'No request summary was attached.'}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {request.actorLabel ?? 'Unknown requester'}
+            {request.requestedAt ? ` · ${new Date(request.requestedAt).toLocaleString()}` : ''}
+            {request.packetVersion ? ` · ${request.packetVersion}` : ''}
+          </p>
+          {request.expectedReturn.length ? (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Expected return: {request.expectedReturn.join(', ')}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+
+      {result ? (
+        <div className="mt-3 grid gap-3 lg:grid-cols-2">
+          <DecisionSummaryBlock
+            label="Result summary"
+            value={result.resultSummary}
+            tone={gaps.length ? 'yellow' : 'green'}
+          />
+          <DecisionSummaryBlock
+            label="Workflow or inspection"
+            value={result.workflowId ?? result.inspectionResult ?? 'No workflow id or inspection result returned.'}
+          />
+          <DecisionSummaryBlock
+            label="Validation"
+            value={result.validationResult ?? 'No validation result returned.'}
+          />
+          <DecisionSummaryBlock
+            label="Test evidence"
+            value={result.testEvidence ?? 'No test evidence returned.'}
+          />
+          <ListField
+            label="Credential and env gaps"
+            values={[
+              ...result.credentialGaps.map((gap) => `Credential: ${gap}`),
+              ...result.envGaps.map((gap) => `Env: ${gap}`),
+            ]}
+            fallback="No credential or env gaps were returned."
+          />
+          <DecisionSummaryBlock
+            label="Rollback and activation gate"
+            value={`${result.rollbackNotes ?? 'Rollback notes were not returned.'} ${result.activationRequested ? 'Activation was requested but still requires controller approval.' : result.activationGate ?? 'Activation remains approval-gated.'}`}
+            tone={result.activationRequested ? 'yellow' : 'slate'}
+          />
+        </div>
+      ) : null}
     </div>
   )
 }
