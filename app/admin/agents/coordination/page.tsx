@@ -108,6 +108,8 @@ type ShakaContextReply = {
   suggested_actions: string[]
 }
 
+type WorkItemQuickAction = 'block' | 'validation' | 'handoff' | 'ready' | 'proposal_validation'
+
 const DEFAULT_FORM: WorkItemForm = {
   title: 'Review controller decision packet',
   objective: 'Summarize the decision needed, confirm the evidence source, state the safest next step, and route the packet through the controller before execution continues.',
@@ -424,27 +426,37 @@ function AgentCoordinationContent() {
     }))
   }
 
-  async function quickAction(item: AgentWorkItem, action: 'block' | 'validation' | 'handoff') {
+  async function quickAction(item: AgentWorkItem, action: WorkItemQuickAction) {
     const note =
       action === 'block'
         ? 'Needs Integration Captain review before proceeding.'
         : action === 'validation'
           ? 'Validation packet recorded from Agent Coordination.'
-          : 'Hand off to Integration Captain for gated review.'
+          : action === 'proposal_validation'
+            ? 'n8n proposal packet reviewed. Trigger, credential boundary, callbacks, rollback path, and approval gate are ready for the next controller step.'
+            : action === 'ready'
+              ? 'n8n proposal is ready for Kanban execution planning. Keep staging and production activation behind the controller approval gate.'
+              : 'Hand off to Integration Captain for gated review.'
     setActionId(`${action}:${item.id}`)
     setError(null)
     try {
       const path =
         action === 'block'
           ? `/api/admin/agents/work-items/${item.id}/block`
-          : action === 'validation'
+          : action === 'validation' || action === 'proposal_validation'
             ? `/api/admin/agents/work-items/${item.id}/validation`
-            : `/api/admin/agents/work-items/${item.id}/handoff`
+            : action === 'ready'
+              ? `/api/admin/agents/work-items/${item.id}/ready`
+              : `/api/admin/agents/work-items/${item.id}/handoff`
       const body =
         action === 'block'
           ? { blocker_summary: note }
           : action === 'validation'
             ? { validation_summary: note, ready_for_merge: true }
+            : action === 'proposal_validation'
+              ? { validation_summary: note, ready_for_merge: false }
+              : action === 'ready'
+                ? { definition_of_ready: note }
             : {
                 to_agent_key: 'integration-captain',
                 to_runtime: 'codex',
@@ -1239,7 +1251,7 @@ function N8nWorkflowProposalPanel({
   highlightedProposalId: string | null
   highlightedGoalId: string | null
   actionId: string | null
-  onAction: (item: AgentWorkItem, action: 'block' | 'validation' | 'handoff') => void
+  onAction: (item: AgentWorkItem, action: WorkItemQuickAction) => void
   onAskShaka: (item: AgentWorkItem) => void
 }) {
   const highlightedProposal = useMemo(() => {
@@ -1407,13 +1419,33 @@ function N8nWorkflowProposalPanel({
                     </button>
                     <button
                       type="button"
-                      onClick={() => onAction(item, 'validation')}
+                      onClick={() => onAction(item, 'ready')}
                       disabled={Boolean(actionId)}
-                      aria-label={`Mark n8n proposal validation ready ${item.title}`}
-                      className="inline-flex items-center gap-2 rounded-lg border border-yellow-500/45 bg-yellow-500/10 px-3 py-2 text-sm text-yellow-100 hover:bg-yellow-500/15 disabled:opacity-50"
+                      aria-label={`Send n8n proposal to Kanban ${item.title}`}
+                      className="inline-flex items-center gap-2 rounded-lg border border-green-500/45 bg-green-500/10 px-3 py-2 text-sm text-green-100 hover:bg-green-500/15 disabled:opacity-50"
                     >
                       <CheckCircle2 size={16} />
-                      Mark validation
+                      Send to Kanban
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onAction(item, 'proposal_validation')}
+                      disabled={Boolean(actionId)}
+                      aria-label={`Validate n8n proposal packet ${item.title}`}
+                      className="inline-flex items-center gap-2 rounded-lg border border-yellow-500/45 bg-yellow-500/10 px-3 py-2 text-sm text-yellow-100 hover:bg-yellow-500/15 disabled:opacity-50"
+                    >
+                      <ShieldCheck size={16} />
+                      Validate packet
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onAction(item, 'block')}
+                      disabled={Boolean(actionId)}
+                      aria-label={`Request changes for n8n proposal ${item.title}`}
+                      className="inline-flex items-center gap-2 rounded-lg border border-red-500/45 bg-red-500/10 px-3 py-2 text-sm text-red-100 hover:bg-red-500/15 disabled:opacity-50"
+                    >
+                      <XCircle size={16} />
+                      Request changes
                     </button>
                     <button
                       type="button"

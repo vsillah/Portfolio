@@ -313,6 +313,14 @@ function setupFetch({ failWorkItems = false } = {}) {
       return { ok: true, json: async () => ({ ok: true }) }
     }
 
+    if (url.includes('/api/admin/agents/work-items/work-n8n-proposal-1/ready') && init?.method === 'POST') {
+      return { ok: true, json: async () => ({ ok: true }) }
+    }
+
+    if (url.includes('/api/admin/agents/work-items/work-n8n-proposal-1/block') && init?.method === 'POST') {
+      return { ok: true, json: async () => ({ ok: true }) }
+    }
+
     if (url.includes('/api/admin/agents/work-items/work-n8n-proposal-1/handoff') && init?.method === 'POST') {
       return { ok: true, json: async () => ({ ok: true }) }
     }
@@ -453,9 +461,28 @@ describe('AgentCoordinationPage decision queue controller', () => {
       body: expect.stringContaining('"context_ref":{"type":"work_item","id":"work-n8n-proposal-1"}'),
     }))
 
-    fireEvent.click(screen.getByRole('button', { name: 'Mark n8n proposal validation ready n8n proposal: Automate meeting intake to follow-up drafts' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Send n8n proposal to Kanban n8n proposal: Automate meeting intake to follow-up drafts' }))
     await waitFor(() => {
-      expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items/work-n8n-proposal-1/validation', expect.objectContaining({ method: 'POST' }))
+      expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items/work-n8n-proposal-1/ready', expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('ready for Kanban execution planning'),
+      }))
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Validate n8n proposal packet n8n proposal: Automate meeting intake to follow-up drafts' }))
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items/work-n8n-proposal-1/validation', expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('"ready_for_merge":false'),
+      }))
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Request changes for n8n proposal n8n proposal: Automate meeting intake to follow-up drafts' }))
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items/work-n8n-proposal-1/block', expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('Needs Integration Captain review before proceeding.'),
+      }))
     })
   })
 
