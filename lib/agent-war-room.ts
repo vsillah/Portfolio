@@ -325,8 +325,31 @@ function assertDraft(value: AgentGoalDraft | null | undefined): AgentGoalDraft {
     if (!task.title || !task.owner_agent_key || !getAgentByKey(task.owner_agent_key)) {
       throw new Error('Invalid goal draft task')
     }
+    task.dependencies = normalizeDraftStringArray(task.dependencies)
+    task.expected_files = normalizeDraftStringArray(task.expected_files)
+    task.acceptance_criteria = normalizeDraftStringArray(task.acceptance_criteria)
+    task.risk_notes = typeof task.risk_notes === 'string' ? task.risk_notes : ''
   }
   return value
+}
+
+function normalizeDraftStringArray(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0).map((item) => item.trim())
+    : []
+}
+
+function isUuid(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
+}
+
+function resolveGoalDependencyIds(dependencies: string[], draftTaskIdToWorkItemId: Map<string, string>) {
+  return dependencies
+    .map((dependency) => {
+      if (isUuid(dependency)) return dependency
+      return draftTaskIdToWorkItemId.get(dependency) ?? null
+    })
+    .filter((dependencyId): dependencyId is string => Boolean(dependencyId))
 }
 
 function goalSessionHref(goalId: string) {
@@ -360,6 +383,7 @@ async function approveGoalDraft(runId: string, draft: AgentGoalDraft) {
   })
 
   const children: AgentWorkItem[] = []
+  const draftTaskIdToWorkItemId = new Map<string, string>()
   for (const [index, task] of draft.tasks.entries()) {
     const child = await createAgentWorkItem({
       title: task.title,
@@ -371,6 +395,7 @@ async function approveGoalDraft(runId: string, draft: AgentGoalDraft) {
       sourceRunId: runId,
       parentWorkItemId: parent.id,
       expectedFiles: task.expected_files,
+      dependencyIds: resolveGoalDependencyIds(task.dependencies, draftTaskIdToWorkItemId),
       metadata: {
         goal_id: draft.goal_id,
         goal_title: draft.title,
@@ -391,6 +416,7 @@ async function approveGoalDraft(runId: string, draft: AgentGoalDraft) {
       idempotencyKey: `agent-goal:${draft.goal_id}:task:${index + 1}`,
     })
     children.push(child)
+    draftTaskIdToWorkItemId.set(task.id, child.id)
   }
 
   return { parent, children }

@@ -1494,6 +1494,13 @@ function N8nWorkflowProposalPanel({
             const mcpBuildGaps = mcpBuildResult
               ? [...mcpBuildResult.credentialGaps, ...mcpBuildResult.envGaps]
               : []
+            const hasMcpBuildRequest = Boolean(mcpBuildRequest)
+            const hasCleanMcpBuildResult = Boolean(mcpBuildResult && mcpBuildGaps.length === 0)
+            const hasActivationReviewRequest = Boolean(activationReviewRequest)
+            const canSendToKanban = !['ready_for_review', 'ready_for_merge'].includes(item.status)
+            const canValidatePacket = !hasCleanMcpBuildResult && !hasActivationReviewRequest
+            const canRequestMcpBuild = !hasMcpBuildRequest && !mcpBuildResult && !hasActivationReviewRequest
+            const canRequestActivationReview = hasCleanMcpBuildResult && !hasActivationReviewRequest
             const mcpHandoffPacket = n8nMcpHandoffPacketForProposal({
               item,
               action,
@@ -1621,37 +1628,48 @@ function N8nWorkflowProposalPanel({
                       <MessageSquare size={16} />
                       Ask Shaka
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => onAction(item, 'ready')}
-                      disabled={Boolean(actionId)}
-                      aria-label={`Send n8n proposal to Kanban ${item.title}`}
-                      className="inline-flex items-center gap-2 rounded-lg border border-green-500/45 bg-green-500/10 px-3 py-2 text-sm text-green-100 hover:bg-green-500/15 disabled:opacity-50"
-                    >
-                      <CheckCircle2 size={16} />
-                      Send to Kanban
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onAction(item, 'proposal_validation')}
-                      disabled={Boolean(actionId)}
-                      aria-label={`Validate n8n proposal packet ${item.title}`}
-                      className="inline-flex items-center gap-2 rounded-lg border border-yellow-500/45 bg-yellow-500/10 px-3 py-2 text-sm text-yellow-100 hover:bg-yellow-500/15 disabled:opacity-50"
-                    >
-                      <ShieldCheck size={16} />
-                      Validate packet
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onAction(item, 'mcp_build_request')}
-                      disabled={Boolean(actionId)}
-                      aria-label={`Request n8n MCP build for proposal ${item.title}`}
-                      className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-50"
-                    >
-                      <Workflow size={16} />
-                      Request MCP build
-                    </button>
-                    {mcpBuildResult && mcpBuildGaps.length === 0 && !activationReviewRequest ? (
+                    {canSendToKanban ? (
+                      <button
+                        type="button"
+                        onClick={() => onAction(item, 'ready')}
+                        disabled={Boolean(actionId)}
+                        aria-label={`Send n8n proposal to Kanban ${item.title}`}
+                        className="inline-flex items-center gap-2 rounded-lg border border-green-500/45 bg-green-500/10 px-3 py-2 text-sm text-green-100 hover:bg-green-500/15 disabled:opacity-50"
+                      >
+                        <CheckCircle2 size={16} />
+                        Send to Kanban
+                      </button>
+                    ) : null}
+                    {canValidatePacket ? (
+                      <button
+                        type="button"
+                        onClick={() => onAction(item, 'proposal_validation')}
+                        disabled={Boolean(actionId)}
+                        aria-label={`Validate n8n proposal packet ${item.title}`}
+                        className="inline-flex items-center gap-2 rounded-lg border border-yellow-500/45 bg-yellow-500/10 px-3 py-2 text-sm text-yellow-100 hover:bg-yellow-500/15 disabled:opacity-50"
+                      >
+                        <ShieldCheck size={16} />
+                        Validate packet
+                      </button>
+                    ) : null}
+                    {canRequestMcpBuild ? (
+                      <button
+                        type="button"
+                        onClick={() => onAction(item, 'mcp_build_request')}
+                        disabled={Boolean(actionId)}
+                        aria-label={`Request n8n MCP build for proposal ${item.title}`}
+                        className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-50"
+                      >
+                        <Workflow size={16} />
+                        Request MCP build
+                      </button>
+                    ) : null}
+                    {hasMcpBuildRequest && !mcpBuildResult ? (
+                      <span className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/60 bg-black/10 px-3 py-2 text-sm text-muted-foreground">
+                        MCP build requested
+                      </span>
+                    ) : null}
+                    {canRequestActivationReview ? (
                       <button
                         type="button"
                         onClick={() => onAction(item, 'n8n_activation_review')}
@@ -1662,6 +1680,11 @@ function N8nWorkflowProposalPanel({
                         <ShieldCheck size={16} />
                         Request activation review
                       </button>
+                    ) : null}
+                    {hasActivationReviewRequest ? (
+                      <span className="inline-flex items-center gap-2 rounded-lg border border-yellow-500/35 bg-yellow-500/10 px-3 py-2 text-sm text-yellow-100">
+                        Activation review requested
+                      </span>
                     ) : null}
                     <button
                       type="button"
