@@ -109,7 +109,7 @@ type ShakaContextReply = {
   suggested_actions: string[]
 }
 
-type WorkItemQuickAction = 'block' | 'validation' | 'handoff' | 'ready' | 'proposal_validation'
+type WorkItemQuickAction = 'block' | 'validation' | 'handoff' | 'ready' | 'proposal_validation' | 'mcp_build_request'
 
 type N8nMcpHandoffPacketView = {
   version: string
@@ -515,6 +515,8 @@ function AgentCoordinationContent() {
         ? 'Needs Integration Captain review before proceeding.'
         : action === 'validation'
           ? 'Validation packet recorded from Agent Coordination.'
+          : action === 'mcp_build_request'
+            ? 'n8n MCP build requested from the structured handoff packet. Create or inspect an inactive staging workflow only; return workflow id, validation evidence, credential gaps, and rollback notes to this controller before activation.'
           : action === 'proposal_validation'
             ? 'n8n proposal packet reviewed. Trigger, credential boundary, callbacks, rollback path, and approval gate are ready for the next controller step.'
             : action === 'ready'
@@ -526,6 +528,8 @@ function AgentCoordinationContent() {
       const path =
         action === 'block'
           ? `/api/admin/agents/work-items/${item.id}/block`
+          : action === 'mcp_build_request'
+            ? `/api/admin/agents/work-items/${item.id}/mcp-build-request`
           : action === 'validation' || action === 'proposal_validation'
             ? `/api/admin/agents/work-items/${item.id}/validation`
             : action === 'ready'
@@ -534,6 +538,8 @@ function AgentCoordinationContent() {
       const body =
         action === 'block'
           ? { blocker_summary: note }
+          : action === 'mcp_build_request'
+            ? { request_summary: note }
           : action === 'validation'
             ? { validation_summary: note, ready_for_merge: true }
             : action === 'proposal_validation'
@@ -1535,6 +1541,16 @@ function N8nWorkflowProposalPanel({
                     >
                       <ShieldCheck size={16} />
                       Validate packet
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onAction(item, 'mcp_build_request')}
+                      disabled={Boolean(actionId)}
+                      aria-label={`Request n8n MCP build for proposal ${item.title}`}
+                      className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-50"
+                    >
+                      <Workflow size={16} />
+                      Request MCP build
                     </button>
                     <button
                       type="button"

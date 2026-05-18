@@ -32,6 +32,7 @@ import {
   listAgentWorkItems,
   recordAgentWorkItemBlocker,
   recordAgentWorkItemValidation,
+  requestAgentWorkItemMcpBuild,
 } from './agent-work-items'
 
 function chain() {
@@ -183,6 +184,56 @@ describe('agent work item helpers', () => {
     expect(mocks.fromMock).toHaveBeenCalledWith('agent_approvals')
     expect(mocks.updateMock).toHaveBeenCalledWith(expect.objectContaining({
       status: 'waiting_for_approval',
+    }))
+  })
+
+  it('records MCP build requests without activating external workflows', async () => {
+    queueExistingItem({
+      ...baseItem,
+      status: 'proposed',
+      metadata: {
+        mcp_handoff_packet: {
+          version: 'agent-ops-n8n-mcp-handoff/v1',
+        },
+      },
+    })
+    mocks.singleQueue.push({
+      data: {
+        ...baseItem,
+        status: 'queued',
+        validation_summary: 'Create inactive staging workflow from the handoff packet.',
+        metadata: {
+          mcp_handoff_packet: { version: 'agent-ops-n8n-mcp-handoff/v1' },
+          mcp_build_request: {
+            requested: true,
+            packet_version: 'agent-ops-n8n-mcp-handoff/v1',
+          },
+        },
+      },
+      error: null,
+    })
+
+    const result = await requestAgentWorkItemMcpBuild({
+      id: 'work-1',
+      requestSummary: 'Create inactive staging workflow from the handoff packet.',
+      actorLabel: 'admin@example.com',
+    })
+
+    expect(result.status).toBe('queued')
+    expect(mocks.updateMock).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'queued',
+      validation_summary: 'Create inactive staging workflow from the handoff packet.',
+      metadata: expect.objectContaining({
+        mcp_build_request: expect.objectContaining({
+          requested: true,
+          actor_label: 'admin@example.com',
+          expected_return: expect.arrayContaining(['n8n workflow id or inspection result']),
+        }),
+      }),
+    }))
+    expect(mocks.recordAgentEvent).toHaveBeenCalledWith(expect.objectContaining({
+      eventType: 'agent_work_item_mcp_build_requested',
+      message: 'Create inactive staging workflow from the handoff packet.',
     }))
   })
 
