@@ -68,4 +68,17 @@ describe('POST /api/admin/agents/work-items/[id]/mcp-build-result', () => {
     expect(response.status).toBe(400)
     expect(mocks.recordAgentWorkItemMcpBuildResult).not.toHaveBeenCalled()
   })
+
+  it('rejects non-admin callers before recording build evidence', async () => {
+    mocks.verifyAdmin.mockResolvedValue({ error: 'Unauthorized', status: 401 })
+    mocks.isAuthError.mockReturnValue(true)
+
+    const response = await POST(request({
+      result_summary: 'Inactive staging workflow created and inspected.',
+    }) as never, { params: { id: 'work-1' } })
+
+    expect(response.status).toBe(401)
+    expect(await response.json()).toEqual({ error: 'Unauthorized' })
+    expect(mocks.recordAgentWorkItemMcpBuildResult).not.toHaveBeenCalled()
+  })
 })

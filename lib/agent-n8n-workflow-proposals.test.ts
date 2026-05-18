@@ -73,6 +73,47 @@ describe('agent n8n workflow proposals', () => {
     }))
   })
 
+  it('prioritizes request-activation proposals and keys them to the existing workflow', async () => {
+    await createN8nWorkflowProposal({
+      action: 'request_activation',
+      title: 'Activate staged follow-up workflow',
+      objective: 'Request approval for activation after dry-run evidence is attached.',
+      existingWorkflowId: 'wf_staged_123',
+      proposedWorkflowName: 'Staged meeting follow-up',
+      testEvidence: 'Synthetic dry run passed; workflow is still inactive.',
+      rollbackPath: 'Keep the workflow inactive or delete wf_staged_123.',
+      requestedByUserId: 'admin-user',
+    })
+
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'n8n proposal: Activate staged follow-up workflow',
+      priority: 'high',
+      status: 'proposed',
+      ownerAgentKey: 'automation-systems',
+      ownerRuntime: 'n8n',
+      source: expect.objectContaining({
+        type: 'n8n_workflow_proposal',
+        id: 'wf_staged_123',
+      }),
+      metadata: expect.objectContaining({
+        n8n_proposal_action: 'request_activation',
+        existing_workflow_id: 'wf_staged_123',
+        mcp_handoff_packet: expect.objectContaining({
+          action: 'request_activation',
+          workflow: expect.objectContaining({
+            existingWorkflowId: 'wf_staged_123',
+            proposedName: 'Staged meeting follow-up',
+          }),
+          approvalGate: expect.stringContaining('Production activation'),
+          guardrails: expect.arrayContaining([
+            expect.stringContaining('without approval'),
+          ]),
+        }),
+      }),
+      idempotencyKey: 'n8n-workflow-proposal:request_activation:wf_staged_123',
+    }))
+  })
+
   it('builds a governed MCP handoff packet for workflow builders', () => {
     const packet = buildN8nMcpHandoffPacket({
       action: 'stage_workflow',
