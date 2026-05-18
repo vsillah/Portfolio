@@ -84,7 +84,7 @@ const baseItem = {
   completed_at: null,
 }
 
-function queueExistingItem(item = baseItem) {
+function queueExistingItem(item: unknown = baseItem) {
   mocks.maybeSingleQueue.push({ data: item, error: null })
   mocks.listQueue.push({ data: [], error: null })
 }
@@ -366,21 +366,27 @@ describe('agent work item helpers', () => {
         },
       },
     })
-    mocks.singleQueue.push({
-      data: {
-        ...baseItem,
-        status: 'ready_for_review',
-        validation_summary: 'Review inactive workflow evidence before any activation decision.',
-        metadata: {
-          mcp_build_result: { recorded: true, workflow_id: 'wf_456' },
-          n8n_activation_review_request: {
-            requested: true,
-            workflow_id: 'wf_456',
+    mocks.singleQueue.push(
+      { data: { id: 'approval-n8n-1' }, error: null },
+      {
+        data: {
+          ...baseItem,
+          status: 'ready_for_review',
+          validation_summary: 'Review inactive workflow evidence before any activation decision.',
+          approval_id: 'approval-n8n-1',
+          metadata: {
+            mcp_build_result: { recorded: true, workflow_id: 'wf_456' },
+            n8n_activation_review_request: {
+              requested: true,
+              workflow_id: 'wf_456',
+              approval_id: 'approval-n8n-1',
+              approval_type: 'n8n_workflow_activation',
+            },
           },
         },
+        error: null,
       },
-      error: null,
-    })
+    )
 
     const result = await requestAgentWorkItemN8nActivationReview({
       id: 'work-1',
@@ -389,14 +395,40 @@ describe('agent work item helpers', () => {
     })
 
     expect(result.status).toBe('ready_for_review')
+    expect(result.approval_id).toBe('approval-n8n-1')
+    expect(mocks.fromMock).toHaveBeenCalledWith('agent_approvals')
+    expect(mocks.insertMock).toHaveBeenCalledWith(expect.objectContaining({
+      run_id: 'run-1',
+      approval_type: 'n8n_workflow_activation',
+      status: 'pending',
+      requested_by_agent_key: 'chief-of-staff',
+      metadata: expect.objectContaining({
+        work_item_id: 'work-1',
+        workflow_id: 'wf_456',
+        validation_result: 'Dry run passed.',
+        test_evidence: 'Synthetic fixture completed without outbound sends.',
+        rollback_notes: 'Disable or delete inactive workflow wf_456.',
+        action_payload: expect.objectContaining({
+          action: 'review_n8n_workflow_activation',
+          non_mutating: true,
+        }),
+      }),
+    }))
+    expect(mocks.updateMock).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'waiting_for_approval',
+      current_step: 'Approval required: n8n workflow activation',
+    }))
     expect(mocks.updateMock).toHaveBeenCalledWith(expect.objectContaining({
       status: 'ready_for_review',
       blocker_summary: null,
       validation_summary: 'Review inactive workflow evidence before any activation decision.',
+      approval_id: 'approval-n8n-1',
       metadata: expect.objectContaining({
         n8n_activation_review_request: expect.objectContaining({
           requested: true,
           actor_label: 'admin@example.com',
+          approval_id: 'approval-n8n-1',
+          approval_type: 'n8n_workflow_activation',
           workflow_id: 'wf_456',
           approval_boundary: expect.arrayContaining([
             expect.stringContaining('No n8n workflow is activated'),
@@ -407,7 +439,39 @@ describe('agent work item helpers', () => {
     expect(mocks.recordAgentEvent).toHaveBeenCalledWith(expect.objectContaining({
       eventType: 'agent_work_item_n8n_activation_review_requested',
       message: 'Review inactive workflow evidence before any activation decision.',
+      metadata: expect.objectContaining({
+        approval_id: 'approval-n8n-1',
+        approval_type: 'n8n_workflow_activation',
+      }),
     }))
+  })
+
+  it('requires a trace-linked run before n8n activation approval can be requested', async () => {
+    queueExistingItem({
+      ...baseItem,
+      active_run_id: null,
+      status: 'ready_for_review',
+      metadata: {
+        mcp_build_result: {
+          recorded: true,
+          result_summary: 'Inactive workflow passed dry-run validation.',
+          workflow_id: 'wf_456',
+          validation_result: 'Dry run passed.',
+          test_evidence: 'Synthetic fixture completed without outbound sends.',
+          credential_gaps: [],
+          env_gaps: [],
+          rollback_notes: 'Disable or delete inactive workflow wf_456.',
+        },
+      },
+    })
+
+    await expect(requestAgentWorkItemN8nActivationReview({
+      id: 'work-1',
+      reviewSummary: 'Review inactive workflow evidence before any activation decision.',
+    })).rejects.toThrow('Trace-linked run is required before requesting n8n activation approval')
+
+    expect(mocks.insertMock).not.toHaveBeenCalled()
+    expect(mocks.updateMock).not.toHaveBeenCalled()
   })
 
   it('requires an MCP build result before n8n activation review', async () => {

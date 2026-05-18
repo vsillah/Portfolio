@@ -134,6 +134,8 @@ const APPROVAL_GATED_STATUSES: ReadonlySet<AgentWorkItemStatus> = new Set([
   'deployed',
 ])
 
+export const N8N_WORKFLOW_ACTIVATION_APPROVAL_TYPE = 'n8n_workflow_activation'
+
 function db() {
   if (!supabaseAdmin) throw new Error('Database not available')
   return supabaseAdmin
@@ -271,6 +273,67 @@ async function createApprovalCheckpoint(item: AgentWorkItem, status: AgentWorkIt
       updated_at: new Date().toISOString(),
     })
     .eq('id', item.active_run_id)
+    .in('status', ['queued', 'running'])
+
+  return data.id as string
+}
+
+async function createN8nActivationApprovalCheckpoint(input: {
+  item: AgentWorkItem
+  reviewSummary: string
+  actorLabel: string
+  workflowId: string | null
+  inspectionResult: string | null
+  buildResult: Record<string, unknown>
+  approvalBoundary: string[]
+  existingApprovalId?: string | null
+}) {
+  const existingApprovalId = metadataString(input.existingApprovalId)
+  if (existingApprovalId) return existingApprovalId
+  if (!input.item.active_run_id) {
+    throw new Error('Trace-linked run is required before requesting n8n activation approval')
+  }
+
+  const { data, error } = await db()
+    .from('agent_approvals')
+    .insert({
+      run_id: input.item.active_run_id,
+      approval_type: N8N_WORKFLOW_ACTIVATION_APPROVAL_TYPE,
+      status: 'pending',
+      requested_by_agent_key: input.item.owner_agent_key ?? null,
+      metadata: {
+        work_item_id: input.item.id,
+        requested_status: 'n8n_activation_review',
+        workflow_id: input.workflowId,
+        inspection_result: input.inspectionResult,
+        review_summary: input.reviewSummary,
+        result_summary: metadataString(input.buildResult.result_summary),
+        validation_result: metadataString(input.buildResult.validation_result),
+        test_evidence: metadataString(input.buildResult.test_evidence),
+        rollback_notes: metadataString(input.buildResult.rollback_notes),
+        approval_boundary: input.approvalBoundary,
+        requested_by: input.actorLabel,
+        action_payload: {
+          action: 'review_n8n_workflow_activation',
+          workflow_id: input.workflowId,
+          work_item_id: input.item.id,
+          non_mutating: true,
+        },
+      },
+    })
+    .select('id')
+    .single()
+
+  if (error || !data?.id) throw new Error(error?.message ?? 'Failed to create n8n activation approval')
+
+  await db()
+    .from('agent_runs')
+    .update({
+      status: 'waiting_for_approval',
+      current_step: 'Approval required: n8n workflow activation',
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', input.item.active_run_id)
     .in('status', ['queued', 'running'])
 
   return data.id as string
@@ -789,6 +852,22 @@ export async function requestAgentWorkItemN8nActivationReview(input: {
   }
 
   const now = new Date().toISOString()
+  const existingActivationRequest = recordValue(item.metadata?.n8n_activation_review_request)
+  const approvalBoundary = [
+    'No n8n workflow is activated by this request.',
+    'Production activation, credentials, outbound sends, public publishing, live schedules, and client-visible mutation remain approval-gated.',
+    'Controller must inspect workflow id, validation evidence, rollback notes, and data boundary before any activation action.',
+  ]
+  const approvalId = await createN8nActivationApprovalCheckpoint({
+    item,
+    reviewSummary,
+    actorLabel: input.actorLabel ?? 'Admin user',
+    workflowId,
+    inspectionResult,
+    buildResult,
+    approvalBoundary,
+    existingApprovalId: metadataString(existingActivationRequest?.approval_id),
+  })
   const metadata = {
     ...(item.metadata ?? {}),
     n8n_activation_review_request: {
@@ -796,17 +875,15 @@ export async function requestAgentWorkItemN8nActivationReview(input: {
       requested_at: now,
       actor_label: input.actorLabel ?? 'Admin user',
       summary: reviewSummary,
+      approval_id: approvalId,
+      approval_type: N8N_WORKFLOW_ACTIVATION_APPROVAL_TYPE,
       workflow_id: workflowId,
       inspection_result: inspectionResult,
       result_summary: metadataString(buildResult.result_summary),
       validation_result: metadataString(buildResult.validation_result),
       test_evidence: metadataString(buildResult.test_evidence),
       rollback_notes: metadataString(buildResult.rollback_notes),
-      approval_boundary: [
-        'No n8n workflow is activated by this request.',
-        'Production activation, credentials, outbound sends, public publishing, live schedules, and client-visible mutation remain approval-gated.',
-        'Controller must inspect workflow id, validation evidence, rollback notes, and data boundary before any activation action.',
-      ],
+      approval_boundary: approvalBoundary,
     },
   }
 
@@ -816,6 +893,7 @@ export async function requestAgentWorkItemN8nActivationReview(input: {
       status: 'ready_for_review',
       blocker_summary: null,
       validation_summary: reviewSummary,
+      approval_id: approvalId,
       metadata,
     },
     {
@@ -824,6 +902,8 @@ export async function requestAgentWorkItemN8nActivationReview(input: {
       metadata: {
         actor_label: input.actorLabel ?? 'Admin user',
         workflow_id: workflowId,
+        approval_id: approvalId,
+        approval_type: N8N_WORKFLOW_ACTIVATION_APPROVAL_TYPE,
       },
     },
   )
