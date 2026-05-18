@@ -638,6 +638,53 @@ export async function completeAgentWorkItem(input: {
   )
 }
 
+export async function requestAgentWorkItemMcpBuild(input: {
+  id: string
+  requestSummary: string
+  actorLabel?: string | null
+}) {
+  const requestSummary = input.requestSummary.trim()
+  if (!requestSummary) throw new Error('MCP build request summary is required')
+  const item = await requireAgentWorkItem(input.id)
+  const now = new Date().toISOString()
+  const metadata = {
+    ...(item.metadata ?? {}),
+    mcp_build_request: {
+      requested: true,
+      requested_at: now,
+      actor_label: input.actorLabel ?? 'Admin user',
+      summary: requestSummary,
+      packet_version: typeof item.metadata?.mcp_handoff_packet === 'object'
+        && item.metadata.mcp_handoff_packet
+        && !Array.isArray(item.metadata.mcp_handoff_packet)
+        ? String((item.metadata.mcp_handoff_packet as Record<string, unknown>).version ?? 'agent-ops-n8n-mcp-handoff/v1')
+        : 'agent-ops-n8n-mcp-handoff/v1',
+      expected_return: [
+        'n8n workflow id or inspection result',
+        'validation result and test evidence',
+        'credential/env gaps',
+        'rollback notes',
+      ],
+    },
+  }
+  return updateWorkItem(
+    item,
+    {
+      status: item.status === 'proposed' ? 'queued' : item.status,
+      validation_summary: requestSummary,
+      metadata,
+    },
+    {
+      type: 'agent_work_item_mcp_build_requested',
+      message: requestSummary,
+      metadata: {
+        actor_label: input.actorLabel ?? 'Admin user',
+        expected_return: metadata.mcp_build_request.expected_return,
+      },
+    },
+  )
+}
+
 export async function cancelAgentWorkItem(input: { id: string; reason?: string | null }) {
   const item = await requireAgentWorkItem(input.id)
   return updateWorkItem(

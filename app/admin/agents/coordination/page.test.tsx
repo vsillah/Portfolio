@@ -317,6 +317,10 @@ function setupFetch({ failWorkItems = false } = {}) {
       return { ok: true, json: async () => ({ ok: true }) }
     }
 
+    if (url.includes('/api/admin/agents/work-items/work-n8n-proposal-1/mcp-build-request') && init?.method === 'POST') {
+      return { ok: true, json: async () => ({ ok: true }) }
+    }
+
     if (url.includes('/api/admin/agents/work-items/work-n8n-proposal-1/block') && init?.method === 'POST') {
       return { ok: true, json: async () => ({ ok: true }) }
     }
@@ -481,6 +485,14 @@ describe('AgentCoordinationPage decision queue controller', () => {
       expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items/work-n8n-proposal-1/validation', expect.objectContaining({
         method: 'POST',
         body: expect.stringContaining('"ready_for_merge":false'),
+      }))
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Request n8n MCP build for proposal n8n proposal: Automate meeting intake to follow-up drafts' }))
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items/work-n8n-proposal-1/mcp-build-request', expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('Create or inspect an inactive staging workflow only'),
       }))
     })
 
