@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { AGENT_APPROVAL_STATUSES, type AgentApprovalStatus } from '@/lib/agent-run'
+import { N8N_WORKFLOW_ACTIVATION_APPROVAL_TYPE } from '@/lib/agent-work-items'
 import { VERCEL_RESEARCH_APPROVAL_TYPE } from '@/lib/vercel-deployment-research'
 
 export const dynamic = 'force-dynamic'
@@ -158,6 +159,55 @@ export async function POST(
         updated_at: new Date().toISOString(),
       })
       .eq('id', workItemId)
+  }
+
+  const n8nWorkItemId =
+    approvalType === N8N_WORKFLOW_ACTIVATION_APPROVAL_TYPE && typeof approvalMetadata.work_item_id === 'string'
+      ? approvalMetadata.work_item_id
+      : null
+  if (n8nWorkItemId && (status === 'approved' || status === 'rejected' || status === 'cancelled')) {
+    const decision = {
+      status,
+      decided_at: new Date().toISOString(),
+      decided_by_user_id: auth.user.id,
+      decision_notes: body.decision_notes ?? null,
+      activation_executed: false,
+      activation_boundary:
+        'This approval records the controller decision only. It does not activate n8n workflows, change credentials, enable schedules, send outbound messages, or mutate production data.',
+    }
+    const { data: workItem, error: workItemReadError } = await supabaseAdmin
+      .from('agent_work_items')
+      .select('metadata')
+      .eq('id', n8nWorkItemId)
+      .single()
+    if (workItemReadError || !workItem) {
+      console.error('[agent-approval] n8n work item read failed:', workItemReadError)
+      return NextResponse.json({ error: 'Failed to record n8n activation boundary' }, { status: 500 })
+    }
+    const workItemMetadata =
+      workItem?.metadata && typeof workItem.metadata === 'object'
+        ? workItem.metadata as Record<string, unknown>
+        : {}
+    const { error: workItemUpdateError } = await supabaseAdmin
+      .from('agent_work_items')
+      .update({
+        status: status === 'approved' ? 'ready_for_review' : 'blocked',
+        blocker_summary: status === 'approved' ? null : body.decision_notes ?? `n8n workflow activation review ${status}`,
+        validation_summary:
+          status === 'approved'
+            ? 'n8n workflow activation packet approved for the next governed activation request. No workflow activation, credential change, schedule enablement, outbound send, or production data mutation was performed.'
+            : body.decision_notes ?? `n8n workflow activation review ${status}.`,
+        metadata: {
+          ...workItemMetadata,
+          n8n_activation_decision: decision,
+        },
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', n8nWorkItemId)
+    if (workItemUpdateError) {
+      console.error('[agent-approval] n8n work item update failed:', workItemUpdateError)
+      return NextResponse.json({ error: 'Failed to record n8n activation boundary' }, { status: 500 })
+    }
   }
 
   if (status === 'pending') {

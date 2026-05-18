@@ -132,6 +132,9 @@ export type AgentOrgBoardTask = {
   validationSummary: string | null
   overlapGroup: string | null
   parentWorkItemId: string | null
+  expectedFiles: string[]
+  dependencyIds: string[]
+  acceptanceCriteria: string[]
   createdAt: string
   updatedAt: string
   completedAt: string | null
@@ -376,6 +379,8 @@ type AgentWorkItemRow = {
   validation_summary: string | null
   approval_id: string | null
   parent_work_item_id?: string | null
+  expected_files?: string[] | null
+  dependency_ids?: string[] | null
   source_type?: string | null
   metadata?: JsonRecord | null
   completed_at?: string | null
@@ -1015,6 +1020,9 @@ export function buildAgentOrgBoardSnapshotFromRows(input: AgentOrgBoardBuildInpu
     validationSummary: item.validation_summary,
     overlapGroup: item.overlap_group,
     parentWorkItemId: item.parent_work_item_id ?? null,
+    expectedFiles: stringArrayValue(item.expected_files),
+    dependencyIds: stringArrayValue(item.dependency_ids),
+    acceptanceCriteria: stringArrayValue(item.metadata?.acceptance_criteria),
     createdAt: item.created_at,
     updatedAt: item.updated_at,
     completedAt: item.completed_at ?? null,
@@ -1276,7 +1284,7 @@ export async function buildAgentOrgBoardSnapshot(): Promise<AgentOrgBoardSnapsho
       .limit(120),
     db
       .from('agent_work_items')
-      .select('id, title, objective, status, priority, owner_agent_key, owner_runtime, active_run_id, parent_work_item_id, source_type, branch_name, worktree_path, pr_number, pr_url, overlap_group, blocker_summary, validation_summary, approval_id, metadata, completed_at, created_at, updated_at')
+      .select('id, title, objective, status, priority, owner_agent_key, owner_runtime, active_run_id, parent_work_item_id, source_type, branch_name, worktree_path, pr_number, pr_url, overlap_group, blocker_summary, validation_summary, approval_id, expected_files, dependency_ids, metadata, completed_at, created_at, updated_at')
       .order('updated_at', { ascending: false })
       .limit(100),
     db

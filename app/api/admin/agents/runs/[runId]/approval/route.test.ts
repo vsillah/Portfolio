@@ -37,7 +37,14 @@ function eqChain<T>(result: T) {
   return { eq: firstEq }
 }
 
-function setupSupabase(existingMetadata: Record<string, unknown> = {}, approvalType = 'send_email') {
+function setupSupabase(
+  existingMetadata: Record<string, unknown> = {},
+  approvalType = 'send_email',
+  options: {
+    workItemReadError?: unknown
+    workItemUpdateError?: unknown
+  } = {},
+) {
   const existingSingle = vi.fn().mockResolvedValue({
     data: {
       id: 'approval-1',
@@ -65,8 +72,17 @@ function setupSupabase(existingMetadata: Record<string, unknown> = {}, approvalT
     eq: vi.fn(() => ({ eq: vi.fn().mockResolvedValue({ data: null, error: null }) })),
   }))
   mocks.workItemUpdate.mockImplementation(() => ({
-    eq: vi.fn().mockResolvedValue({ data: null, error: null }),
+    eq: vi.fn().mockResolvedValue({ data: null, error: options.workItemUpdateError ?? null }),
   }))
+  const workItemSingle = vi.fn().mockResolvedValue({
+    data: options.workItemReadError ? null : {
+      metadata: {
+        existing_work_item_metadata: true,
+      },
+    },
+    error: options.workItemReadError ?? null,
+  })
+  const workItemSelect = vi.fn(() => ({ eq: vi.fn(() => ({ single: workItemSingle })) }))
   mocks.from.mockImplementation((table: string) => {
     if (table === 'agent_approvals') {
       return {
@@ -77,7 +93,7 @@ function setupSupabase(existingMetadata: Record<string, unknown> = {}, approvalT
     }
     if (table === 'agent_run_events') return { insert: mocks.eventInsert }
     if (table === 'agent_runs') return { update: mocks.runUpdate }
-    if (table === 'agent_work_items') return { update: mocks.workItemUpdate }
+    if (table === 'agent_work_items') return { update: mocks.workItemUpdate, select: workItemSelect }
     return {}
   })
 }
@@ -171,6 +187,82 @@ describe('POST /api/admin/agents/runs/[runId]/approval', () => {
       status: 'blocked',
       blocker_summary: 'Not worth the deployment risk.',
       validation_summary: 'Not worth the deployment risk.',
+    }))
+  })
+
+  it('records n8n activation decisions without activating workflows', async () => {
+    setupSupabase({
+      work_item_id: 'work-n8n-1',
+      workflow_id: 'wf_staging_123',
+      action_payload: {
+        action: 'review_n8n_workflow_activation',
+        workflow_id: 'wf_staging_123',
+        work_item_id: 'work-n8n-1',
+        non_mutating: true,
+      },
+    }, 'n8n_workflow_activation')
+
+    const response = await POST(makeRequest({
+      approval_id: 'approval-1',
+      status: 'approved',
+      decision_notes: 'Approved for the next governed activation request.',
+    }) as never, { params: { runId: 'run-1' } })
+
+    expect(response.status).toBe(200)
+    expect(mocks.workItemUpdate).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'ready_for_review',
+      blocker_summary: null,
+      validation_summary: expect.stringContaining('No workflow activation'),
+      metadata: expect.objectContaining({
+        existing_work_item_metadata: true,
+        n8n_activation_decision: expect.objectContaining({
+          status: 'approved',
+          activation_executed: false,
+          activation_boundary: expect.stringContaining('does not activate n8n workflows'),
+        }),
+      }),
+    }))
+  })
+
+  it('fails closed when n8n activation boundary cannot be read', async () => {
+    setupSupabase({
+      work_item_id: 'work-n8n-1',
+      workflow_id: 'wf_staging_123',
+    }, 'n8n_workflow_activation', {
+      workItemReadError: { message: 'work item read failed' },
+    })
+
+    const response = await POST(makeRequest({
+      approval_id: 'approval-1',
+      status: 'approved',
+      decision_notes: 'Approved for the next governed activation request.',
+    }) as never, { params: { runId: 'run-1' } })
+
+    expect(response.status).toBe(500)
+    expect(await response.json()).toEqual({ error: 'Failed to record n8n activation boundary' })
+    expect(mocks.runUpdate).not.toHaveBeenCalledWith(expect.objectContaining({
+      status: 'running',
+    }))
+  })
+
+  it('fails closed when n8n activation boundary cannot be updated', async () => {
+    setupSupabase({
+      work_item_id: 'work-n8n-1',
+      workflow_id: 'wf_staging_123',
+    }, 'n8n_workflow_activation', {
+      workItemUpdateError: { message: 'work item update failed' },
+    })
+
+    const response = await POST(makeRequest({
+      approval_id: 'approval-1',
+      status: 'approved',
+      decision_notes: 'Approved for the next governed activation request.',
+    }) as never, { params: { runId: 'run-1' } })
+
+    expect(response.status).toBe(500)
+    expect(await response.json()).toEqual({ error: 'Failed to record n8n activation boundary' })
+    expect(mocks.runUpdate).not.toHaveBeenCalledWith(expect.objectContaining({
+      status: 'running',
     }))
   })
 })

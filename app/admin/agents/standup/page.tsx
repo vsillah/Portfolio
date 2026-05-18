@@ -61,6 +61,7 @@ type StandupQuestion = {
   prompt: string
   targetLabel: string
   targetAgentKey: string | null
+  targetAgentKeys: string[]
   command: 'standup' | 'discuss' | 'ask_agent'
   status: 'pending' | 'answered' | 'failed'
   runId?: string
@@ -189,7 +190,7 @@ function StandupRoomContent() {
     for (const agent of participants) {
       const responses = transcript.filter((entry) => entry.agent_key === agent.key)
       session.set(agent.key, {
-        asked: standupQuestions.some((question) => question.targetAgentKey === agent.key || question.targetAgentKey === null),
+        asked: standupQuestions.some((question) => question.targetAgentKey === agent.key || question.targetAgentKeys.includes(agent.key)),
         responded: responses.length > 0,
         messageCount: responses.length,
         lastResponseAt: responses.at(-1)?.created_at ?? null,
@@ -250,13 +251,16 @@ function StandupRoomContent() {
       if (body.messages?.length) setTranscript((current) => [...current, ...body.messages!])
       if (body.goal_draft) setGoalDraft(body.goal_draft)
       if (body.run_id) {
-        setCommandTraces((current) => [{
-          runId: body.run_id,
-          command: body.command,
-          synthesis: body.synthesis,
-          goalId: body.goal_draft?.goal_id ?? (payload.draft as AgentGoalDraft | undefined)?.goal_id ?? null,
-          createdAt: new Date().toISOString(),
-        }, ...current].slice(0, 5))
+        setCommandTraces((current) => {
+          const nextTrace = {
+            runId: body.run_id,
+            command: body.command,
+            synthesis: body.synthesis,
+            goalId: body.goal_draft?.goal_id ?? (payload.draft as AgentGoalDraft | undefined)?.goal_id ?? null,
+            createdAt: new Date().toISOString(),
+          }
+          return [nextTrace, ...current.filter((trace) => trace.runId !== body.run_id)].slice(0, 5)
+        })
       }
       if (body.created_work_items) {
         setCreatedItems(body.created_work_items)
@@ -281,6 +285,7 @@ function StandupRoomContent() {
       prompt: `Start standup with ${targetAgentKeys.length} selected agent(s).`,
       targetLabel: `${targetAgentKeys.length} selected agent(s)`,
       targetAgentKey: null,
+      targetAgentKeys,
     })
     await postWarRoom({ command: 'standup', target_agent_keys: targetAgentKeys }, 'standup', questionId)
   }
@@ -297,17 +302,20 @@ function StandupRoomContent() {
         prompt: text,
         targetLabel: agentShortName(mentionedAgent.name),
         targetAgentKey: mentionedAgent.key,
+        targetAgentKeys: [mentionedAgent.key],
       })
       await postWarRoom({ command: 'ask_agent', message: text, target_agent_key: mentionedAgent.key }, 'ask-agent', questionId)
       return
     }
+    const targetAgentKeys = participants.map((agent) => agent.key)
     const questionId = addQuestion({
       command: 'discuss',
       prompt: text,
-      targetLabel: 'All relevant agents',
+      targetLabel: 'All agents',
       targetAgentKey: null,
+      targetAgentKeys,
     })
-    await postWarRoom({ command: 'discuss', message: text }, 'ask-all', questionId)
+    await postWarRoom({ command: 'discuss', message: text, target_agent_keys: targetAgentKeys }, 'ask-all', questionId)
   }
 
   async function askSelectedAgents() {
@@ -321,20 +329,23 @@ function StandupRoomContent() {
         prompt: text,
         targetLabel: agentShortName(agent.name),
         targetAgentKey: agent.key,
+        targetAgentKeys: [agent.key],
       })
       await postWarRoom({ command: 'ask_agent', message: text, target_agent_key: agent.key }, 'ask-agent', questionId)
       return
     }
+    const targetAgentKeys = selectedAgents.map((agent) => agent.key)
     const questionId = addQuestion({
       command: 'discuss',
       prompt: text,
       targetLabel: `${selectedAgents.length} selected agents`,
       targetAgentKey: null,
+      targetAgentKeys,
     })
     await postWarRoom({
       command: 'discuss',
       message: text,
-      target_agent_keys: selectedAgents.map((agent) => agent.key),
+      target_agent_keys: targetAgentKeys,
     }, 'ask-agent', questionId)
   }
 
@@ -514,7 +525,7 @@ function StandupRoomContent() {
             </main>
             <aside className="space-y-5">
               <MetricsPanel organization={organization} />
-              <TraceHistory runs={organization.warRoom.recentRuns} />
+              <TraceHistory runs={organization.warRoom.recentRuns} commandTraces={commandTraces} />
               <MiniKanban lanes={organization.lanes} focusedGoalId={focusedGoalId} />
             </aside>
           </div>
@@ -920,6 +931,46 @@ function GoalPlanner({
                         className="mt-1 w-full rounded-md border border-silicon-slate/60 bg-background/70 px-2 py-1.5 text-sm text-foreground outline-none focus:border-radiant-gold/70"
                       />
                     </label>
+                    <div className="mt-2 grid gap-2 lg:grid-cols-3">
+                      <label className="block text-xs text-muted-foreground">
+                        Dependencies
+                        <textarea
+                          value={task.dependencies.join('\n')}
+                          onChange={(event) => onUpdateTask(task.id, { dependencies: textareaLines(event.target.value) })}
+                          rows={3}
+                          className="mt-1 w-full rounded-md border border-silicon-slate/60 bg-background/70 px-2 py-1.5 text-sm text-foreground outline-none focus:border-radiant-gold/70"
+                          placeholder="One dependency id per line"
+                        />
+                      </label>
+                      <label className="block text-xs text-muted-foreground">
+                        Acceptance criteria
+                        <textarea
+                          value={task.acceptance_criteria.join('\n')}
+                          onChange={(event) => onUpdateTask(task.id, { acceptance_criteria: textareaLines(event.target.value) })}
+                          rows={3}
+                          className="mt-1 w-full rounded-md border border-silicon-slate/60 bg-background/70 px-2 py-1.5 text-sm text-foreground outline-none focus:border-radiant-gold/70"
+                          placeholder="One acceptance criterion per line"
+                        />
+                      </label>
+                      <label className="block text-xs text-muted-foreground">
+                        Expected files
+                        <textarea
+                          value={task.expected_files.join('\n')}
+                          onChange={(event) => onUpdateTask(task.id, { expected_files: textareaLines(event.target.value) })}
+                          rows={3}
+                          className="mt-1 w-full rounded-md border border-silicon-slate/60 bg-background/70 px-2 py-1.5 text-sm text-foreground outline-none focus:border-radiant-gold/70"
+                          placeholder="One file or surface per line"
+                        />
+                      </label>
+                    </div>
+                    <label className="mt-2 block text-xs text-muted-foreground">
+                      Risk notes
+                      <input
+                        value={task.risk_notes}
+                        onChange={(event) => onUpdateTask(task.id, { risk_notes: event.target.value })}
+                        className="mt-1 w-full rounded-md border border-silicon-slate/60 bg-background/70 px-2 py-1.5 text-sm text-foreground outline-none focus:border-radiant-gold/70"
+                      />
+                    </label>
                   </div>
                 </div>
               </div>
@@ -953,6 +1004,13 @@ function GoalPlanner({
       )}
     </section>
   )
+}
+
+function textareaLines(value: string) {
+  return value
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
 }
 
 function GoalSessionPanel({
@@ -1139,16 +1197,35 @@ function GoalProgress({ goal }: { goal: AgentOrgBoardGoalMetric }) {
   )
 }
 
-function TraceHistory({ runs }: { runs: AgentOrgBoardSnapshot['warRoom']['recentRuns'] }) {
+function TraceHistory({
+  runs,
+  commandTraces,
+}: {
+  runs: AgentOrgBoardSnapshot['warRoom']['recentRuns']
+  commandTraces: WarRoomCommandTrace[]
+}) {
+  const localRuns = commandTraces.map((trace) => ({
+    id: trace.runId,
+    title: trace.synthesis ?? `${trace.command.replace(/_/g, ' ')} trace`,
+    command: trace.command,
+    status: 'created',
+    startedAt: trace.createdAt,
+    summary: trace.synthesis ?? 'Trace was created from this Standup Room session.',
+    goalId: trace.goalId ?? null,
+  }))
+  const mergedRuns = [
+    ...localRuns,
+    ...runs.filter((run) => !localRuns.some((local) => local.id === run.id)),
+  ]
   return (
     <section className="agent-ops-card rounded-lg border p-4">
       <div className="mb-3 flex items-center justify-between gap-3">
         <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-radiant-gold">Trace history</h2>
-        <span className="rounded-full border border-silicon-slate/60 px-2 py-1 text-xs text-muted-foreground">{runs.length} trace(s)</span>
+        <span className="rounded-full border border-silicon-slate/60 px-2 py-1 text-xs text-muted-foreground">{mergedRuns.length} trace(s)</span>
       </div>
-      {runs.length ? (
+      {mergedRuns.length ? (
         <div className="space-y-2">
-          {runs.slice(0, 5).map((run) => (
+          {mergedRuns.slice(0, 5).map((run) => (
             <div key={run.id} className="rounded-lg border border-silicon-slate/60 bg-background/50 p-3 text-sm">
               <div className="flex flex-wrap items-center gap-2 text-xs">
                 <span className="rounded-full border border-radiant-gold/35 px-2 py-0.5 text-radiant-gold">{run.command.replace(/_/g, ' ')}</span>
@@ -1216,6 +1293,8 @@ function MiniKanban({ lanes, focusedGoalId }: { lanes: AgentOrgBoardLane[]; focu
 
 function MiniTask({ task }: { task: AgentOrgBoardTask }) {
   const ageHours = Math.max(0, Math.round((Date.now() - new Date(task.createdAt).getTime()) / 36e5))
+  const dependencyIds = task.dependencyIds ?? []
+  const acceptanceCriteria = task.acceptanceCriteria ?? []
   return (
     <div className="rounded-md border border-silicon-slate/50 bg-silicon-slate/15 p-2 text-xs">
       <p className="line-clamp-2 font-medium">{task.title}</p>
@@ -1224,6 +1303,8 @@ function MiniTask({ task }: { task: AgentOrgBoardTask }) {
         <span>{agentShortName(task.ownerAgentName)}</span>
         <span>{ageHours}h</span>
         <span>{task.status.replace(/_/g, ' ')}</span>
+        <span>{task.priority}</span>
+        {dependencyIds.length ? <span>{dependencyIds.length} dep.</span> : null}
         {task.prUrl && <GitPullRequest size={12} />}
         {task.activeRunId && (
           <Link href={`/admin/agents/runs/${task.activeRunId}`} className="text-radiant-gold hover:underline">
@@ -1231,8 +1312,10 @@ function MiniTask({ task }: { task: AgentOrgBoardTask }) {
           </Link>
         )}
       </div>
+      {task.objective && <p className="mt-1 line-clamp-1 text-muted-foreground">Action: {task.objective}</p>}
       {task.blockerSummary && <p className="mt-1 line-clamp-1 text-red-200">Blocked: {task.blockerSummary}</p>}
       {task.validationSummary && <p className="mt-1 line-clamp-1 text-muted-foreground">Next: {task.validationSummary}</p>}
+      {acceptanceCriteria.length ? <p className="mt-1 line-clamp-1 text-muted-foreground">Done when: {acceptanceCriteria[0]}</p> : null}
     </div>
   )
 }
