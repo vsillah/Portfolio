@@ -337,6 +337,18 @@ describe('agent work item helpers', () => {
     }))
   })
 
+  it('rejects MCP build results for terminal work items', async () => {
+    queueExistingItem({ ...baseItem, status: 'deployed' })
+
+    await expect(recordAgentWorkItemMcpBuildResult({
+      id: 'work-1',
+      resultSummary: 'Workflow result arrived after deployment.',
+      workflowId: 'wf_456',
+    })).rejects.toThrow('Cannot record MCP build result for deployed work item')
+
+    expect(mocks.updateMock).not.toHaveBeenCalled()
+  })
+
   it('requests n8n activation review only after a clean MCP build result', async () => {
     queueExistingItem({
       ...baseItem,
@@ -396,6 +408,45 @@ describe('agent work item helpers', () => {
       eventType: 'agent_work_item_n8n_activation_review_requested',
       message: 'Review inactive workflow evidence before any activation decision.',
     }))
+  })
+
+  it('requires an MCP build result before n8n activation review', async () => {
+    queueExistingItem({
+      ...baseItem,
+      status: 'ready_for_review',
+      metadata: {},
+    })
+
+    await expect(requestAgentWorkItemN8nActivationReview({
+      id: 'work-1',
+      reviewSummary: 'Review inactive workflow evidence before any activation decision.',
+    })).rejects.toThrow('MCP build result is required before requesting activation review')
+
+    expect(mocks.updateMock).not.toHaveBeenCalled()
+  })
+
+  it('requires workflow evidence before n8n activation review', async () => {
+    queueExistingItem({
+      ...baseItem,
+      status: 'ready_for_review',
+      metadata: {
+        mcp_build_result: {
+          recorded: true,
+          result_summary: 'Dry run completed without a workflow identifier.',
+          workflow_id: '   ',
+          inspection_result: '',
+          credential_gaps: [],
+          env_gaps: [],
+        },
+      },
+    })
+
+    await expect(requestAgentWorkItemN8nActivationReview({
+      id: 'work-1',
+      reviewSummary: 'Review inactive workflow evidence before any activation decision.',
+    })).rejects.toThrow('MCP build result must include a workflow id or inspection result before activation review')
+
+    expect(mocks.updateMock).not.toHaveBeenCalled()
   })
 
   it('rejects n8n activation review when MCP build gaps remain', async () => {

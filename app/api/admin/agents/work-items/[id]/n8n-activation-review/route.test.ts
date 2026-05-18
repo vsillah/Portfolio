@@ -53,4 +53,17 @@ describe('POST /api/admin/agents/work-items/[id]/n8n-activation-review', () => {
     expect(response.status).toBe(400)
     expect(mocks.requestAgentWorkItemN8nActivationReview).not.toHaveBeenCalled()
   })
+
+  it('rejects non-admin callers before requesting activation review', async () => {
+    mocks.verifyAdmin.mockResolvedValue({ error: 'Unauthorized', status: 401 })
+    mocks.isAuthError.mockReturnValue(true)
+
+    const response = await POST(request({
+      review_summary: 'Review inactive workflow evidence before any activation decision.',
+    }) as never, { params: { id: 'work-1' } })
+
+    expect(response.status).toBe(401)
+    expect(await response.json()).toEqual({ error: 'Unauthorized' })
+    expect(mocks.requestAgentWorkItemN8nActivationReview).not.toHaveBeenCalled()
+  })
 })
