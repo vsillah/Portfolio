@@ -402,6 +402,7 @@ export default function AgentOperationsPage() {
   const [automationGoals, setAutomationGoals] = useState<AutomationGoalSummary[]>([])
   const [automationGoalsLoading, setAutomationGoalsLoading] = useState(false)
   const [automationSeedLoading, setAutomationSeedLoading] = useState(false)
+  const [automationProposalLoadingId, setAutomationProposalLoadingId] = useState<string | null>(null)
   const [automationGoalPage, setAutomationGoalPage] = useState(0)
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
@@ -666,6 +667,51 @@ export default function AgentOperationsPage() {
       setError(err instanceof Error ? err.message : 'Automation goal seeding failed')
     } finally {
       setAutomationSeedLoading(false)
+    }
+  }
+
+  async function createN8nProposalForAutomationGoal(goal: AutomationGoalSummary) {
+    setAutomationProposalLoadingId(goal.id)
+    setActionResult(null)
+    setError(null)
+    try {
+      const goalId = `automation:${goal.id}`
+      const response = await authedFetch('/api/admin/agents/n8n-workflow-proposals', {
+        method: 'POST',
+        body: JSON.stringify({
+          action: goal.requiresNewWorkflow || goal.n8nWorkflows.length === 0 ? 'draft_workflow' : 'inspect_workflow',
+          title: `${goal.title} workflow`,
+          objective: goal.nextAction || goal.objective,
+          workflow_family: goal.workflowFamily,
+          automation_goal_seed_id: goal.id,
+          goal_id: goalId,
+          goal_title: goal.title,
+          goal_session_href: `/admin/agents/standup?goal=${encodeURIComponent(goalId)}`,
+          existing_workflow_id: goal.n8nWorkflows[0] ?? null,
+          proposed_workflow_name: goal.title,
+          trigger: 'Mission Control automation goal',
+          required_env_vars: ['N8N_INGEST_SECRET'],
+          credential_needs: ['Confirm required source credentials before staging.'],
+          node_plan: [
+            'Confirm trigger, idempotency key, and source data boundary.',
+            'Draft staging-safe transformation and routing nodes.',
+            'Write back Agent Ops trace, work-item, and approval evidence.',
+          ],
+          ingest_callbacks: ['/api/admin/agents/work-items', '/api/admin/agents/runs'],
+          rollback_path: 'Close the proposal work item and delete any inactive n8n draft before activation.',
+        }),
+      })
+      const body = await response.json().catch(() => ({})) as { ok?: boolean; work_item?: { id?: string; title?: string }; error?: string }
+      if (!response.ok || !body.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      setActionResult({
+        label: `created ${body.work_item?.title ?? 'n8n workflow proposal'}`,
+        runId: body.work_item?.id ?? 'n8n-proposal',
+      })
+      await Promise.all([loadAutomationGoals(), loadMissionControl()])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'n8n workflow proposal creation failed')
+    } finally {
+      setAutomationProposalLoadingId(null)
     }
   }
 
@@ -970,9 +1016,11 @@ export default function AgentOperationsPage() {
                       allGoals={automationGoals}
                       loading={automationGoalsLoading}
                       seeding={automationSeedLoading}
+                      proposalLoadingId={automationProposalLoadingId}
                       page={automationGoalPage}
                       pageCount={automationGoalPageCount}
                       onSeedTierOne={seedTierOneAutomationGoals}
+                      onCreateProposal={createN8nProposalForAutomationGoal}
                       onPrevious={() => setAutomationGoalPage((page) => Math.max(page - 1, 0))}
                       onNext={() => setAutomationGoalPage((page) => Math.min(page + 1, automationGoalPageCount - 1))}
                     />
@@ -1282,9 +1330,11 @@ function AutomationGoalsPanel({
   allGoals,
   loading,
   seeding,
+  proposalLoadingId,
   page,
   pageCount,
   onSeedTierOne,
+  onCreateProposal,
   onPrevious,
   onNext,
 }: {
@@ -1292,9 +1342,11 @@ function AutomationGoalsPanel({
   allGoals: AutomationGoalSummary[]
   loading: boolean
   seeding: boolean
+  proposalLoadingId: string | null
   page: number
   pageCount: number
   onSeedTierOne: () => void
+  onCreateProposal: (goal: AutomationGoalSummary) => void
   onPrevious: () => void
   onNext: () => void
 }) {
@@ -1340,7 +1392,12 @@ function AutomationGoalsPanel({
             Loading automation goals.
           </p>
         ) : goals.length ? goals.map((goal) => (
-          <AutomationGoalRow key={goal.id} goal={goal} />
+          <AutomationGoalRow
+            key={goal.id}
+            goal={goal}
+            proposalLoading={proposalLoadingId === goal.id}
+            onCreateProposal={onCreateProposal}
+          />
         )) : (
           <p className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm text-muted-foreground">
             No automation goal seeds are available.
@@ -1351,7 +1408,15 @@ function AutomationGoalsPanel({
   )
 }
 
-function AutomationGoalRow({ goal }: { goal: AutomationGoalSummary }) {
+function AutomationGoalRow({
+  goal,
+  proposalLoading,
+  onCreateProposal,
+}: {
+  goal: AutomationGoalSummary
+  proposalLoading: boolean
+  onCreateProposal: (goal: AutomationGoalSummary) => void
+}) {
   const goalId = `automation:${goal.id}`
   const metadata = goal.seeded_parent_work_item?.metadata ?? {}
   const proposal = goal.latest_n8n_proposal ?? null
@@ -1414,7 +1479,17 @@ function AutomationGoalRow({ goal }: { goal: AutomationGoalSummary }) {
             <Link href={proposalHref} className="text-radiant-gold hover:underline">
               Review proposal
             </Link>
-          ) : null}
+          ) : (
+            <button
+              type="button"
+              onClick={() => onCreateProposal(goal)}
+              disabled={proposalLoading}
+              className="inline-flex items-center gap-1 text-radiant-gold hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {proposalLoading ? <RefreshCw size={12} className="animate-spin" /> : <Network size={12} />}
+              Draft proposal
+            </button>
+          )}
           <Link href={kanbanHref} className="text-radiant-gold hover:underline">
             Kanban
           </Link>

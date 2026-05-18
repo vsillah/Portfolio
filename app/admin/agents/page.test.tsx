@@ -253,6 +253,18 @@ describe('AgentOperationsPage mission control landing', () => {
           }),
         }
       }
+      if (url === '/api/admin/agents/n8n-workflow-proposals' && init?.method === 'POST') {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            work_item: {
+              id: 'n8n-proposal-meeting-follow-up',
+              title: 'n8n proposal: Automate meeting intake to follow-up drafts workflow',
+            },
+          }),
+        }
+      }
       if (url === '/api/admin/agents/chief-of-staff/chat' && init?.method === 'POST') {
         return {
           ok: true,
@@ -423,6 +435,32 @@ describe('AgentOperationsPage mission control landing', () => {
           confirmation: 'seed_agent_automation_goals',
         }),
       }))
+    })
+  })
+
+  it('creates a governed n8n proposal from an automation goal row', async () => {
+    render(<AgentOperationsPage />)
+
+    const automationPanel = await screen.findByLabelText('Automation to-do')
+    fireEvent.click(within(automationPanel).getByRole('button', { name: /Draft proposal/i }))
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/admin/agents/n8n-workflow-proposals', expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({ Authorization: 'Bearer admin-token' }),
+      }))
+    })
+
+    const proposalCall = vi.mocked(fetch).mock.calls.find(([url]) => url === '/api/admin/agents/n8n-workflow-proposals')
+    const proposalBody = JSON.parse(String(proposalCall?.[1]?.body ?? '{}'))
+    expect(proposalBody).toMatchObject({
+      action: 'inspect_workflow',
+      title: 'Automate meeting intake to follow-up drafts workflow',
+      automation_goal_seed_id: 'meeting-intake-follow-up-drafts',
+      goal_id: 'automation:meeting-intake-follow-up-drafts',
+      workflow_family: 'meeting_follow_up',
+      existing_workflow_id: 'WF-MCH',
+      trigger: 'Mission Control automation goal',
     })
   })
 })
