@@ -103,6 +103,17 @@ export type AgentOrgBoardTaskStatus =
   | 'deployed'
   | 'cancelled'
 
+export type AgentOrgBoardN8nProposalContext = {
+  action: string | null
+  proposedWorkflowName: string | null
+  requiredEnvVars: string[]
+  credentialNeeds: string[]
+  nodePlan: string[]
+  ingestCallbacks: string[]
+  rollbackPath: string | null
+  controllerHref: string
+}
+
 export type AgentOrgBoardTask = {
   id: string
   title: string
@@ -145,6 +156,7 @@ export type AgentOrgBoardTask = {
     n8nWorkflows: string[]
     approvalGate: string | null
     nextAction: string | null
+    n8nProposal: AgentOrgBoardN8nProposalContext | null
   } | null
 }
 
@@ -364,6 +376,7 @@ type AgentWorkItemRow = {
   validation_summary: string | null
   approval_id: string | null
   parent_work_item_id?: string | null
+  source_type?: string | null
   metadata?: JsonRecord | null
   completed_at?: string | null
   created_at: string
@@ -848,6 +861,7 @@ function goalForTask(item: AgentWorkItemRow): AgentOrgBoardTask['goal'] {
   const approvalRunId = stringValue(metadata.goal_approved_by_run_id) ?? stringValue(metadata.approved_by_run_id) ?? stringValue(metadata.goal_created_by_run_id)
   const latestRunId = item.active_run_id ?? approvalRunId ?? draftRunId
   const sessionHref = stringValue(metadata.goal_session_href) ?? `/admin/agents/standup?goal=${encodeURIComponent(goalId)}`
+  const isN8nProposal = item.source_type === 'n8n_workflow_proposal' || metadata.n8n_workflow_proposal === true
   return {
     id: goalId,
     title: goalTitle,
@@ -869,6 +883,16 @@ function goalForTask(item: AgentWorkItemRow): AgentOrgBoardTask['goal'] {
     n8nWorkflows: stringArrayValue(metadata.n8n_workflows),
     approvalGate: stringValue(metadata.approval_gate),
     nextAction: stringValue(metadata.next_action),
+    n8nProposal: isN8nProposal ? {
+      action: stringValue(metadata.n8n_proposal_action),
+      proposedWorkflowName: stringValue(metadata.proposed_workflow_name),
+      requiredEnvVars: stringArrayValue(metadata.required_env_vars),
+      credentialNeeds: stringArrayValue(metadata.credential_needs),
+      nodePlan: stringArrayValue(metadata.node_plan),
+      ingestCallbacks: stringArrayValue(metadata.ingest_callbacks),
+      rollbackPath: stringValue(metadata.rollback_path),
+      controllerHref: `/admin/agents/coordination?proposal=${encodeURIComponent(item.id)}`,
+    } : null,
   }
 }
 
@@ -1252,7 +1276,7 @@ export async function buildAgentOrgBoardSnapshot(): Promise<AgentOrgBoardSnapsho
       .limit(120),
     db
       .from('agent_work_items')
-      .select('id, title, objective, status, priority, owner_agent_key, owner_runtime, active_run_id, parent_work_item_id, branch_name, worktree_path, pr_number, pr_url, overlap_group, blocker_summary, validation_summary, approval_id, metadata, completed_at, created_at, updated_at')
+      .select('id, title, objective, status, priority, owner_agent_key, owner_runtime, active_run_id, parent_work_item_id, source_type, branch_name, worktree_path, pr_number, pr_url, overlap_group, blocker_summary, validation_summary, approval_id, metadata, completed_at, created_at, updated_at')
       .order('updated_at', { ascending: false })
       .limit(100),
     db

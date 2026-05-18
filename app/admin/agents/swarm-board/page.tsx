@@ -696,6 +696,11 @@ function SelectedGoalPanel({ goal, tasks }: { goal: AgentOrgBoardSnapshot['summa
                 <div className="min-w-0">
                   <p className="break-words font-medium">{task.title}</p>
                   <p className="mt-1 text-xs text-muted-foreground">{task.ownerAgentName} · {task.status.replace(/_/g, ' ')}</p>
+                  {task.goal?.n8nProposal ? (
+                    <Link href={task.goal.n8nProposal.controllerHref} className="mt-1 inline-flex text-xs text-radiant-gold hover:underline">
+                      n8n proposal · open controller
+                    </Link>
+                  ) : null}
                 </div>
                 <div className="flex gap-2 md:justify-end">
                   {task.activeRunId ? <Link href={`/admin/agents/runs/${task.activeRunId}`} className="text-xs text-radiant-gold hover:underline">Trace</Link> : null}
@@ -822,6 +827,7 @@ function actionRank(task: AgentOrgBoardTask) {
 
 function WorkItemCard({ task }: { task: AgentOrgBoardTask }) {
   const nextAction = nextActionForTask(task)
+  const n8nProposal = task.goal?.n8nProposal ?? null
   return (
     <article className="rounded-lg border border-silicon-slate/70 bg-background/70 p-2">
       <div className="flex items-start justify-between gap-2">
@@ -856,6 +862,21 @@ function WorkItemCard({ task }: { task: AgentOrgBoardTask }) {
           <span className="truncate">Goal: {task.goal.title}</span>
         </Link>
       )}
+      {n8nProposal ? (
+        <div className="mt-1.5 flex items-center gap-1.5 rounded-md border border-radiant-gold/35 bg-radiant-gold/10 px-1.5 py-1 text-[11px] text-radiant-gold">
+          <Workflow size={12} className="shrink-0" />
+          <span className="min-w-0 flex-1 truncate" title={n8nProposal.proposedWorkflowName ?? undefined}>
+            n8n proposal · {formatProposalAction(n8nProposal.action)}
+            {n8nProposal.proposedWorkflowName ? ` · ${n8nProposal.proposedWorkflowName}` : ''}
+          </span>
+          <Link
+            href={n8nProposal.controllerHref}
+            className="shrink-0 rounded border border-radiant-gold/40 px-1.5 py-0.5 hover:bg-radiant-gold/15"
+          >
+            Controller
+          </Link>
+        </div>
+      ) : null}
 
       <div className="mt-1.5 flex items-center gap-1.5 text-[11px]">
         <span className={`min-w-0 flex-1 truncate rounded-md border px-1.5 py-1 ${nextAction.tone}`} title={nextAction.detail}>
@@ -1310,6 +1331,10 @@ function FailureState({ message }: { message: string }) {
       <p className="text-sm text-red-100/80">{message}</p>
     </div>
   )
+}
+
+function formatProposalAction(action: string | null) {
+  return action ? action.replace(/_/g, ' ') : 'review'
 }
 
 function priorityClass(priority: SwarmBoardCard['priority'] | AgentOrgBoardTask['priority']) {

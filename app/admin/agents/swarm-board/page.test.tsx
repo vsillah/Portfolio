@@ -363,6 +363,16 @@ describe('AgentSwarmBoardPage', () => {
         n8nWorkflows: automationGoal.n8nWorkflows,
         approvalGate: automationGoal.approvalGate,
         nextAction: automationGoal.nextAction,
+        n8nProposal: index === 0 ? {
+          action: 'draft_workflow',
+          proposedWorkflowName: 'Automate meeting intake to follow-up drafts',
+          requiredEnvVars: ['N8N_INGEST_SECRET'],
+          credentialNeeds: ['Confirm required source credentials before staging.'],
+          nodePlan: ['Webhook trigger', 'Agent Ops callback'],
+          ingestCallbacks: ['/api/admin/agents/work-items'],
+          rollbackPath: 'Delete the inactive draft workflow.',
+          controllerHref: '/admin/agents/coordination?proposal=work-n8n-proposal-1',
+        } : null,
       },
     }))
     vi.stubGlobal('fetch', vi.fn(async () => ({
@@ -385,6 +395,8 @@ describe('AgentSwarmBoardPage', () => {
     expect(screen.getByText(/2 known n8n workflow/i)).toBeInTheDocument()
     expect(screen.getByText(/External sends stay approval-gated/i)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Draft proposal in Standup' })).toHaveAttribute('href', '/admin/agents/standup?goal=automation%3Ameeting-intake-follow-up-drafts')
+    expect(screen.getAllByText(/n8n proposal/i).length).toBeGreaterThan(0)
+    expect(screen.getByRole('link', { name: 'Controller' })).toHaveAttribute('href', '/admin/agents/coordination?proposal=work-n8n-proposal-1')
   })
 
   it('filters visible cards by status and attention state', async () => {
