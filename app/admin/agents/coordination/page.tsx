@@ -170,6 +170,8 @@ type N8nActivationReviewRequestView = {
   requestedAt: string | null
   actorLabel: string | null
   summary: string | null
+  approvalId: string | null
+  approvalType: string | null
   workflowId: string | null
   approvalBoundary: string[]
 }
@@ -373,6 +375,8 @@ function n8nActivationReviewRequestForItem(item: AgentWorkItem): N8nActivationRe
     requestedAt: stringValue(request.requested_at),
     actorLabel: stringValue(request.actor_label),
     summary: stringValue(request.summary),
+    approvalId: stringValue(request.approval_id),
+    approvalType: stringValue(request.approval_type),
     workflowId: stringValue(request.workflow_id),
     approvalBoundary: textArray(request.approval_boundary),
   }
@@ -2247,6 +2251,8 @@ function McpBuildStatusPanel({
           <p className="mt-1 text-xs text-muted-foreground">
             {activationReview.actorLabel ?? 'Unknown requester'}
             {activationReview.requestedAt ? ` · ${new Date(activationReview.requestedAt).toLocaleString()}` : ''}
+            {activationReview.approvalId ? ` · approval ${activationReview.approvalId}` : ''}
+            {activationReview.approvalType ? ` · ${activationReview.approvalType}` : ''}
             {activationReview.workflowId ? ` · ${activationReview.workflowId}` : ''}
           </p>
           <ListField

@@ -131,7 +131,7 @@ const workItems = [
     source_id: 'meeting-intake-follow-up-drafts',
     source_label: 'n8n workflow proposal',
     source_run_id: null,
-    active_run_id: null,
+    active_run_id: 'run-n8n-proposal-1',
     parent_work_item_id: null,
     branch_name: null,
     worktree_path: null,
