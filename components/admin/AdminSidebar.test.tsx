@@ -44,4 +44,19 @@ describe('AdminSidebar Agent Ops hierarchy', () => {
     expect(isNavItemActive('/admin/agents/runs', '/admin/agents/runs/run-1')).toBe(true)
     expect(isNavItemActive('/admin/agents', '/admin/agents/runs/run-1')).toBe(false)
   })
+
+  it('keeps Content Hub expanded and product management active for nested catalog routes', () => {
+    usePathnameMock.mockReturnValue('/admin/content/products')
+
+    render(<AdminSidebar />)
+
+    const nav = screen.getByRole('navigation', { name: 'Admin navigation' })
+    const productHubLink = within(nav)
+      .getAllByRole('link', { name: 'Products' })
+      .find((link) => link.getAttribute('href') === '/admin/products')
+
+    expect(within(nav).getByRole('button', { name: /Content Hub/i })).toHaveAttribute('aria-current', 'page')
+    expect(productHubLink).toHaveAttribute('aria-current', 'page')
+    expect(isNavItemActive('/admin/products', '/admin/content/products')).toBe(true)
+  })
 })

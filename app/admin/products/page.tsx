@@ -13,20 +13,18 @@ export default function ProductsHubPage() {
       href: '/admin/content/products',
       icon: <ShoppingBag size={32} />,
       description: 'Ebooks, templates, calculators, apps, and digital products',
-      color: 'from-emerald-500 to-teal-500',
     },
     {
       name: 'Lead Magnets',
       href: '/admin/content/lead-magnets',
       icon: <Download size={32} />,
       description: 'Manage downloadable resources and lead capture',
-      color: 'from-orange-500 to-amber-500',
     },
   ]
 
   return (
     <ProtectedRoute requireAdmin>
-      <div className="min-h-screen bg-background text-foreground p-8">
+      <div className="admin-console-page min-h-screen px-4 py-6 text-foreground sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <Breadcrumbs items={[
             { label: 'Admin Dashboard', href: '/admin' },
@@ -34,29 +32,31 @@ export default function ProductsHubPage() {
             { label: 'Products' },
           ]} />
 
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-2">Products</h1>
-            <p className="text-gray-400">Manage products, templates, and lead magnets</p>
+          <div className="admin-console-surface-header mb-6 rounded-xl border p-5 sm:p-6">
+            <div className="admin-console-eyebrow mb-2">Content Hub</div>
+            <h1 className="text-3xl font-bold text-foreground">Products</h1>
+            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+              Manage the product catalog and lead capture assets that feed the public store and sales workflows.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {sections.map((section, index) => (
               <Link key={section.name} href={section.href}>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ scale: 1.02, y: -2 }}
-                  className="p-6 bg-gray-900 border border-gray-800 rounded-xl hover:border-emerald-500/30 transition-all cursor-pointer flex items-center gap-4"
+                  transition={{ delay: index * 0.04 }}
+                  className="admin-console-card admin-console-interactive flex h-full items-center gap-4 rounded-lg border p-5 transition-all"
                 >
-                  <div className={`w-16 h-16 rounded-lg bg-gradient-to-r ${section.color} flex items-center justify-center text-white shrink-0`}>
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-radiant-gold/25 bg-radiant-gold/12 text-radiant-gold">
                     {section.icon}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-xl font-bold text-white mb-1">{section.name}</h3>
-                    <p className="text-gray-400 text-sm">{section.description}</p>
+                    <h3 className="text-lg font-semibold text-foreground">{section.name}</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">{section.description}</p>
                   </div>
-                  <ArrowRight className="w-5 h-5 text-gray-500 shrink-0" />
+                  <ArrowRight className="h-5 w-5 shrink-0 text-radiant-gold" />
                 </motion.div>
               </Link>
             ))}

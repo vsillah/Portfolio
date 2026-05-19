@@ -33,6 +33,7 @@ The Agent Ops Mission Control surface at `/admin/agents` is the current referenc
 - **First applied slice:** `/admin`, `/admin/cost-revenue`, and `/admin/subscriptions` use the shared page/header/card/metric treatment as the first bounded Phase 6 rollout.
 - **Second applied slice:** `/admin/value-evidence`, `/admin/email-center`, and `/admin/social-content` now use the shared admin page/header/card treatment for their workflow shells while preserving their existing pipeline controls.
 - **Global shell slice:** `AdminSidebar` and the admin mobile drawer now use the same operating-console frame: navy depth, gold active state, restrained hover/focus treatment, and clearer section hierarchy around the page-level work surfaces.
+- **Content Hub slice:** `/admin/content`, `/admin/products`, and `/admin/content/products` now use the shared admin console shell and card language for the content routing and catalog management surfaces.
 - **Next rollout candidates:** deeper content, outreach, sales, and detail pages still carry older gray, blue, purple, and cyan styling and should move to the same primitives in smaller follow-up PRs.
 
 ---
