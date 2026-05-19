@@ -136,7 +136,7 @@ describe('runAgentWarRoom', () => {
       },
     })
     workItemMocks.createAgentWorkItem.mockImplementation(async (input) => ({
-      id: input.parentWorkItemId ? `child-${input.title}` : 'parent-goal',
+      id: input.parentWorkItemId ? `child-${String(input.source?.id)}` : 'parent-goal',
       title: input.title,
       objective: input.objective,
       metadata: input.metadata ?? {},
@@ -277,6 +277,20 @@ describe('runAgentWarRoom', () => {
         acceptance_criteria: expect.any(Array),
         risk_notes: expect.any(String),
       }),
+    }))
+    const createCalls = workItemMocks.createAgentWorkItem.mock.calls.map(([input]) => input)
+    const scopeCall = createCalls.find((input) => String(input.source?.id).endsWith('-scope'))
+    const implementationCall = createCalls.find((input) => String(input.source?.id).endsWith('-implementation'))
+    const automationCall = createCalls.find((input) => String(input.source?.id).endsWith('-automation'))
+    const riskCall = createCalls.find((input) => String(input.source?.id).endsWith('-risk'))
+    expect(implementationCall).toEqual(expect.objectContaining({
+      dependencyIds: [`child-${String(scopeCall?.source?.id)}`],
+    }))
+    expect(riskCall).toEqual(expect.objectContaining({
+      dependencyIds: [
+        `child-${String(implementationCall?.source?.id)}`,
+        `child-${String(automationCall?.source?.id)}`,
+      ],
     }))
     expect(agentRunMocks.recordAgentStep).toHaveBeenCalledWith(expect.objectContaining({
       stepKey: 'goal_work_items_created',

@@ -828,6 +828,9 @@ function actionRank(task: AgentOrgBoardTask) {
 function WorkItemCard({ task }: { task: AgentOrgBoardTask }) {
   const nextAction = nextActionForTask(task)
   const n8nProposal = task.goal?.n8nProposal ?? null
+  const dependencyIds = task.dependencyIds ?? []
+  const expectedFiles = task.expectedFiles ?? []
+  const acceptanceCriteria = task.acceptanceCriteria ?? []
   return (
     <article className="rounded-lg border border-silicon-slate/70 bg-background/70 p-2">
       <div className="flex items-start justify-between gap-2">
@@ -875,6 +878,12 @@ function WorkItemCard({ task }: { task: AgentOrgBoardTask }) {
           >
             Controller
           </Link>
+        </div>
+      ) : null}
+      {dependencyIds.length ? (
+        <div className="mt-1.5 flex items-center gap-1.5 rounded-md border border-silicon-slate/60 bg-silicon-slate/15 px-1.5 py-1 text-[11px] text-muted-foreground">
+          <span className="font-semibold text-radiant-gold">Dependencies</span>
+          <span>{dependencyIds.length} upstream</span>
         </div>
       ) : null}
 
@@ -925,7 +934,19 @@ function WorkItemCard({ task }: { task: AgentOrgBoardTask }) {
             {task.ownerRuntime && <CardDetail label="Runtime" value={task.ownerRuntime} />}
             {task.branchName && <CardDetail label="Branch" value={task.branchName} />}
             {task.overlapGroup && <CardDetail label="Overlap" value={task.overlapGroup} />}
+            {dependencyIds.length ? <CardDetail label="Waiting on" value={dependencyIds.join(', ')} /> : null}
+            {expectedFiles.length ? <CardDetail label="Expected files" value={expectedFiles.slice(0, 4).join(', ')} /> : null}
           </dl>
+          {acceptanceCriteria.length ? (
+            <div className="rounded-lg border border-silicon-slate/60 bg-silicon-slate/10 p-2 text-xs">
+              <p className="font-semibold text-muted-foreground">Acceptance criteria</p>
+              <ul className="mt-1 space-y-1 text-foreground/85">
+                {acceptanceCriteria.slice(0, 4).map((criterion) => (
+                  <li key={criterion}>{criterion}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
           {task.blockerSummary && (
             <p className="rounded-lg border border-red-500/30 bg-red-500/10 p-2 text-xs text-red-200">
               <span className="font-semibold">Blocker:</span> {task.blockerSummary}
@@ -943,6 +964,14 @@ function WorkItemCard({ task }: { task: AgentOrgBoardTask }) {
 }
 
 function nextActionForTask(task: AgentOrgBoardTask) {
+  const dependencyIds = task.dependencyIds ?? []
+  if (dependencyIds.length && !['merged', 'deployed', 'cancelled'].includes(task.status)) {
+    return {
+      label: 'Check dependencies',
+      detail: `This card is linked to ${dependencyIds.length} upstream dependency${dependencyIds.length === 1 ? '' : 'ies'} before handoff.`,
+      tone: 'border-yellow-500/35 bg-yellow-500/10 text-yellow-100',
+    }
+  }
   if (task.status === 'blocked') {
     return {
       label: 'Resolve blocker',

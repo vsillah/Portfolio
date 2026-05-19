@@ -29,6 +29,7 @@
       "2026-05-14 daily refresh kept the budget status yellow: Supabase, n8n, Stripe, Slack, OpenAI, and Anthropic had live read-only signals; OpenRouter stayed zero-usage, Vapi stayed quiet since 2026-04-30, Read.ai/Calendly auth remained blocked, and no vendor crossed the cancellation threshold.",
       "2026-05-15 daily refresh kept the budget status yellow: Supabase, n8n, Stripe, Slack, OpenAI, Anthropic, Apify, HeyGen, Pinecone, Printful, and ElevenLabs had live read-only signals; OpenRouter stayed zero-usage, Vapi returned no current sampled calls, Read.ai/Calendly auth remained blocked, Gemini returned 403, and no vendor crossed the cancellation threshold.",
       "2026-05-16 daily refresh kept the budget status yellow: Supabase, n8n, Vercel, Stripe, Slack, OpenAI, Anthropic, Apify, HeyGen, Pinecone, Printful, Hunter, and ElevenLabs had live read-only signals; OpenRouter stayed zero-usage, Vapi returned no current sampled calls, Calendly auth remained blocked, Gemini returned 403, Read AI lacked a local API key, and no vendor crossed the cancellation threshold.",
+      "2026-05-18 weekly refresh kept the budget status yellow: n8n, Supabase local-project samples, Vercel, Stripe, Slack, OpenAI, Anthropic, Apify, HeyGen, Pinecone, Printful, Hunter, and ElevenLabs had readable signals; OpenRouter stayed zero-usage, Calendly auth remained blocked, Gemini returned 403, Read AI/Resend/Vapi local keys were absent, and no vendor crossed the cancellation threshold.",
       "2026-05-18 daily refresh kept the budget status yellow: Supabase, n8n, Vercel, Stripe, Slack, OpenAI, Anthropic, Apify, HeyGen, Pinecone, Printful, Hunter, and ElevenLabs had live read-only signals; OpenRouter stayed zero-usage, Vapi returned no current sampled calls, Calendly auth remained blocked, Gemini returned 403, Read AI lacked a local API key, and no vendor crossed the cancellation threshold."
     ],
     "transitionAdjustments": [
@@ -41,7 +42,7 @@
     ],
     "apifyCallAnalysis": {
       "configuredActorSurfaces": 12,
-      "lastMonitorExecution": "Direct provider refresh on 2026-05-18 still reports Apify STARTER; latest account-level run sample remained succeeded on 2026-05-15, and prior actor-level bakeoff evidence remains the active replacement-analysis base.",
+      "lastMonitorExecution": "Direct provider refresh on 2026-05-18 sampled a succeeded account-level run from 2026-05-15; prior Starter-plan evidence and actor-level bakeoff evidence remain the active replacement-analysis base.",
       "sampledRuns": 59,
       "succeededRuns": 40,
       "failedRuns": 19,
@@ -334,7 +335,7 @@
   },
   "summary": {
     "status": "yellow",
-    "headline": "Daily refresh: Supabase, n8n, Vercel, Stripe, Slack, OpenAI, Anthropic, Apify, HeyGen, Pinecone, Printful, Hunter, and ElevenLabs still show active or readable signals; OpenRouter and Vapi remain quiet watch items, and no vendor reached the cancellation threshold.",
+    "headline": "Weekly and daily refreshes: n8n, Supabase, Vercel, Stripe, Slack, OpenAI, Anthropic, Apify, HeyGen, Pinecone, Printful, Hunter, and ElevenLabs still show active or readable signals; OpenRouter remains zero-usage, Vapi remains a quiet watch item, and no vendor reached the cancellation threshold.",
     "nextReviewFocus": [
       "Review ElevenLabs reset/renewal window against the next planned campaign.",
       "Refresh Read AI auth before treating meeting-intelligence usage as current provider evidence.",
@@ -403,8 +404,8 @@
       "name": "Vapi",
       "status": "watch",
       "statusColor": "yellow",
-      "billingSignal": "Dashboard billing still needs verification; direct API returned zero calls in the default 2026-05-18 sample; prior visible call remains 2026-04-30.",
-      "usageSignal": "Vapi Calls API returned no current sampled calls again; code/env/webhook references remain, including the optional website voice path.",
+      "billingSignal": "Dashboard billing still needs verification; local VAPI_API_KEY was absent in the weekly run, while the daily VAPI_PRIVATE_KEY sample returned zero calls; prior visible call remains 2026-04-30.",
+      "usageSignal": "No meaningful current Vapi usage appeared in either 2026-05-18 monitor path; code/env/webhook references remain, including the optional website voice path.",
       "portfolioDependency": "Voice/audit experience risk if production voice UX is enabled.",
       "recommendation": "Investigate billing and intended voice UX; no cancellation action without a dashboard/billing decision and replacement/deprecation packet.",
       "nextAction": "Check Vapi dashboard billing and decide whether the voice path should stay enabled.",
@@ -526,7 +527,7 @@
       "name": "Apify",
       "status": "keep",
       "statusColor": "green",
-      "billingSignal": "Prior invoice evidence remains; direct API still reports STARTER plan on 2026-05-18.",
+      "billingSignal": "Prior invoice and Starter-plan evidence remains; 2026-05-18 account-level run sampling stayed active while plan-name parsing differed by monitor path.",
       "usageSignal": "n8n exports include Apify nodes; direct account-level sample showed latest succeeded actor run from 2026-05-15, while prior actor-level run history still shows four useful categories plus eight weak surfaces.",
       "portfolioDependency": "Lead sourcing, scraping, and actor-monitor automation.",
       "recommendation": "Keep account-level subscription for now; pause or replace weak actor surfaces before any account-level decision.",

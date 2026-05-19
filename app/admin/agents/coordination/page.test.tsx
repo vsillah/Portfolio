@@ -522,21 +522,8 @@ describe('AgentCoordinationPage decision queue controller', () => {
       }))
     })
 
-    fireEvent.click(screen.getByRole('button', { name: 'Validate n8n proposal packet n8n proposal: Automate meeting intake to follow-up drafts' }))
-    await waitFor(() => {
-      expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items/work-n8n-proposal-1/validation', expect.objectContaining({
-        method: 'POST',
-        body: expect.stringContaining('"ready_for_merge":false'),
-      }))
-    })
-
-    fireEvent.click(screen.getByRole('button', { name: 'Request n8n MCP build for proposal n8n proposal: Automate meeting intake to follow-up drafts' }))
-    await waitFor(() => {
-      expect(fetch).toHaveBeenCalledWith('/api/admin/agents/work-items/work-n8n-proposal-1/mcp-build-request', expect.objectContaining({
-        method: 'POST',
-        body: expect.stringContaining('Create or inspect an inactive staging workflow only'),
-      }))
-    })
+    expect(screen.queryByRole('button', { name: 'Validate n8n proposal packet n8n proposal: Automate meeting intake to follow-up drafts' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Request n8n MCP build for proposal n8n proposal: Automate meeting intake to follow-up drafts' })).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Request activation review for n8n proposal n8n proposal: Automate meeting intake to follow-up drafts' }))
     await waitFor(() => {

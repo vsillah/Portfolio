@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import Link from 'next/link'
-import { AlertTriangle, ArrowLeft, Bot, CheckCircle2, Clock3, DollarSign, FileText, Gauge, MessageSquare, RefreshCw, RotateCcw, ShieldAlert, XCircle } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Bot, CheckCircle2, Clock3, DollarSign, FileText, Gauge, MessageSquare, RefreshCw, RotateCcw, ShieldAlert, Workflow, XCircle } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import AgentAvatar from '@/components/admin/AgentAvatar'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -316,6 +316,33 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
               />
             ) : null}
 
+            {String(data.run.status ?? '') === 'waiting_for_approval' && data.approvals.length ? (
+              <section className="agent-ops-card rounded-lg border border-radiant-gold/40 bg-radiant-gold/10 p-5 mb-6">
+                <div className="mb-4 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+                  <div>
+                    <div className="agent-ops-eyebrow text-radiant-gold">
+                      <ShieldAlert size={16} />
+                      Approval gate
+                    </div>
+                    <h2 className="mt-1 text-xl font-semibold">Decision required before this run can continue</h2>
+                  </div>
+                  <Link href="/admin/agents/coordination" className="agent-ops-button-secondary w-fit">
+                    Open Decision Queue
+                  </Link>
+                </div>
+                <ApprovalDecisionList
+                  rows={data.approvals}
+                  runId={runId}
+                  onDecision={decideApproval}
+                  onAskShaka={(approvalId) => askShaka(
+                    { type: 'approval', id: approvalId },
+                    'Should I approve, reject, run another test, or close this approval? Summarize the experiment, objective, goal, current run, distance from goal, evidence, risk, and safest next action.',
+                  )}
+                  shakaLoading={shakaLoading}
+                />
+              </section>
+            ) : null}
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               <Metric icon={<Bot size={18} />} label="Runtime" value={String(data.run.runtime ?? '-')} />
               <Metric icon={<RefreshCw size={18} />} label="Status" value={String(data.run.status ?? '-')} />
@@ -345,18 +372,21 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
               <Timeline rows={data.events} timeKey="occurred_at" titleKey="event_type" detailKey="message" fallback="No events recorded yet." />
             </section>
 
-            <section className="agent-ops-card rounded-lg border p-5 mb-6">
-              <h2 className="text-lg font-semibold mb-4">Approval Decision</h2>
-              <ApprovalDecisionList
-                rows={data.approvals}
-                onDecision={decideApproval}
-                onAskShaka={(approvalId) => askShaka(
-                  { type: 'approval', id: approvalId },
-                  'Should I approve, reject, run another test, or close this approval? Summarize the experiment, objective, goal, current run, distance from goal, evidence, risk, and safest next action.',
-                )}
-                shakaLoading={shakaLoading}
-              />
-            </section>
+            {String(data.run.status ?? '') !== 'waiting_for_approval' || !data.approvals.length ? (
+              <section className="agent-ops-card rounded-lg border p-5 mb-6">
+                <h2 className="text-lg font-semibold mb-4">Approval Decision</h2>
+                <ApprovalDecisionList
+                  rows={data.approvals}
+                  runId={runId}
+                  onDecision={decideApproval}
+                  onAskShaka={(approvalId) => askShaka(
+                    { type: 'approval', id: approvalId },
+                    'Should I approve, reject, run another test, or close this approval? Summarize the experiment, objective, goal, current run, distance from goal, evidence, risk, and safest next action.',
+                  )}
+                  shakaLoading={shakaLoading}
+                />
+              </section>
+            ) : null}
 
             <section className="agent-ops-card rounded-lg border p-5">
               <h2 className="text-lg font-semibold mb-4">Artifacts</h2>
@@ -656,11 +686,13 @@ function EvaluationList({
 
 function ApprovalDecisionList({
   rows,
+  runId,
   onDecision,
   onAskShaka,
   shakaLoading,
 }: {
   rows: AnyRow[]
+  runId: string
   onDecision: (approvalId: string, status: 'approved' | 'rejected') => void
   onAskShaka: (approvalId: string) => void
   shakaLoading?: string | null
@@ -676,6 +708,7 @@ function ApprovalDecisionList({
       {rows.map((row) => {
         const id = typeof row.id === 'string' ? row.id : String(row.id)
         const summary = approvalExecutiveSummary(row)
+        const n8nSummary = n8nApprovalSummary(row)
         const pending = row.status === 'pending'
         const expanded = expandedId === id
 
@@ -684,6 +717,7 @@ function ApprovalDecisionList({
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
+                  {n8nSummary ? <Workflow size={18} className="text-radiant-gold" /> : null}
                   <h3 className="text-base font-semibold">{summary.title}</h3>
                   <span className={`rounded-full border px-2 py-0.5 text-xs ${pending ? 'border-yellow-400/40 bg-yellow-500/10 text-yellow-100' : 'border-silicon-slate/60 bg-silicon-slate/30 text-muted-foreground'}`}>
                     {String(row.status ?? 'unknown').replace(/_/g, ' ')}
@@ -735,6 +769,51 @@ function ApprovalDecisionList({
               <DecisionBlock label="Drawbacks" value={summary.drawbacks} />
               <DecisionBlock label="Recommended next action" value={summary.benefits} emphasis />
             </div>
+
+            {n8nSummary ? (
+              <div className="mt-4 rounded-lg border border-radiant-gold/35 bg-radiant-gold/10 p-4">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">n8n activation review</p>
+                    <p className="mt-1 text-sm text-foreground/90">{n8nSummary.boundary}</p>
+                  </div>
+                  <div className="flex shrink-0 flex-wrap gap-2">
+                    {n8nSummary.workItemId ? (
+                      <>
+                        <Link href={`/admin/agents/coordination?proposal=${encodeURIComponent(n8nSummary.workItemId)}`} className="agent-ops-button-secondary">
+                          Decision Queue
+                        </Link>
+                        <Link href={`/admin/agents/swarm-board?work_item=${encodeURIComponent(n8nSummary.workItemId)}`} className="agent-ops-button-muted">
+                          Kanban card
+                        </Link>
+                      </>
+                    ) : null}
+                    <Link href={`/admin/agents/runs/${runId}`} className="agent-ops-button-muted">
+                      Trace
+                    </Link>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-3">
+                  <DecisionBlock label="Workflow" value={n8nSummary.workflowId ?? n8nSummary.inspectionResult ?? 'Workflow id or inspection result is required before activation.'} />
+                  <DecisionBlock label="Validation" value={n8nSummary.validationResult ?? 'No validation result recorded.'} />
+                  <DecisionBlock label="Test evidence" value={n8nSummary.testEvidence ?? 'No test evidence recorded.'} />
+                  <DecisionBlock label="Rollback path" value={n8nSummary.rollbackNotes ?? 'Rollback notes were not recorded.'} />
+                  <DecisionBlock label="If approved" value="Records that the activation packet may move to the next governed step. It does not activate a workflow, change credentials, enable schedules, send outbound messages, or mutate production data." emphasis />
+                  <DecisionBlock label="If declined" value="Blocks the work item and keeps workflow activation unavailable until the controller requests changes or new evidence." />
+                </div>
+                {n8nSummary.approvalBoundary.length ? (
+                  <div className="mt-3 rounded-md border border-silicon-slate/50 bg-black/15 p-3">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Approval boundary</p>
+                    <ul className="mt-2 space-y-1 text-sm text-foreground/85">
+                      {n8nSummary.approvalBoundary.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
 
             {summary.evidence.length ? (
               <div className="mt-4 rounded-md border border-silicon-slate/50 bg-black/10 p-3">
@@ -1004,12 +1083,43 @@ function approvalExecutiveSummary(row: AnyRow) {
   }
 }
 
+function n8nApprovalSummary(row: AnyRow) {
+  if (row.approval_type !== 'n8n_workflow_activation') return null
+  const metadata = asRecord(row.metadata)
+  const actionPayload = asRecord(metadata.action_payload)
+  const boundary = asStringArray(metadata.approval_boundary)
+  return {
+    workItemId: asString(metadata.work_item_id) ?? asString(actionPayload.work_item_id),
+    workflowId: asString(metadata.workflow_id) ?? asString(actionPayload.workflow_id),
+    inspectionResult: asString(metadata.inspection_result),
+    validationResult: asString(metadata.validation_result),
+    testEvidence: asString(metadata.test_evidence),
+    rollbackNotes: asString(metadata.rollback_notes),
+    approvalBoundary: boundary,
+    boundary: boundary[0] ?? 'No n8n workflow is activated by this approval card.',
+  }
+}
+
 function rowSummary(row: AnyRow): string | null {
   const metadata = row.metadata
   if (!metadata || typeof metadata !== 'object') return null
   const record = metadata as Record<string, unknown>
   const summary = record.summary_markdown
   if (typeof summary === 'string') return summary
+
+  if (row.approval_type === 'n8n_workflow_activation') {
+    const actionPayload = asRecord(record.action_payload)
+    return [
+      `Approval type: n8n workflow activation`,
+      `Workflow: ${String(record.workflow_id ?? actionPayload.workflow_id ?? '-')}`,
+      `Work item: ${String(record.work_item_id ?? actionPayload.work_item_id ?? '-')}`,
+      `Validation: ${String(record.validation_result ?? '-')}`,
+      `Test evidence: ${String(record.test_evidence ?? '-')}`,
+      `Rollback: ${String(record.rollback_notes ?? '-')}`,
+      `Executes activation now: no`,
+      `Boundary: ${asStringArray(record.approval_boundary).join(' ') || 'No n8n workflow is activated by this checkpoint.'}`,
+    ].join('\n')
+  }
 
   const payload = record.action_payload
   if (payload && typeof payload === 'object') {

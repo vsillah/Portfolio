@@ -326,7 +326,11 @@ describe('AgentStandupRoomPage', () => {
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith('/api/admin/agents/war-room', expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ command: 'discuss', message: 'What changed since last standup?' }),
+        body: JSON.stringify({
+          command: 'discuss',
+          message: 'What changed since last standup?',
+          target_agent_keys: ['chief-of-staff', 'engineering-copilot'],
+        }),
       }))
     })
 

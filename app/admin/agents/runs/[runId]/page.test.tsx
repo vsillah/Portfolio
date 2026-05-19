@@ -116,7 +116,36 @@ const staleRunDetail = {
   evaluations: [],
 }
 
-function setupFetch(detail = runDetail) {
+const n8nRunDetail = {
+  ...runDetail,
+  approvals: [
+    {
+      id: 'approval-n8n-1',
+      approval_type: 'n8n_workflow_activation',
+      status: 'pending',
+      metadata: {
+        work_item_id: 'work-n8n-1',
+        workflow_id: 'wf_staging_123',
+        validation_result: 'Static validation and synthetic dry run passed.',
+        test_evidence: 'Synthetic payload reached the draft-email node with sends disabled.',
+        rollback_notes: 'Disable or delete inactive workflow wf_staging_123.',
+        review_summary: 'Review returned MCP build evidence before activation.',
+        approval_boundary: [
+          'No n8n workflow is activated by this request.',
+          'Production activation, credentials, outbound sends, public publishing, live schedules, and client-visible mutation remain approval-gated.',
+        ],
+        action_payload: {
+          action: 'review_n8n_workflow_activation',
+          workflow_id: 'wf_staging_123',
+          work_item_id: 'work-n8n-1',
+          non_mutating: true,
+        },
+      },
+    },
+  ],
+}
+
+function setupFetch(detail: unknown = runDetail) {
   vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input)
     if (url === '/api/admin/agents/runs/run-1' && !init?.method) {
@@ -274,6 +303,22 @@ describe('AgentRunDetailPage scoped Shaka context', () => {
 
     expect(await screen.findByText('Recovery request queued')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Open recovery request' })).toHaveAttribute('href', '/admin/agents/runs/recovery-run-1')
+  })
+
+  it('renders n8n activation approvals as non-mutating operator decisions near the top', async () => {
+    setupFetch(n8nRunDetail)
+    render(<AgentRunDetailPage params={{ runId: 'run-1' }} />)
+
+    expect(await screen.findByText('Approval gate')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Decision required before this run can continue' })).toBeInTheDocument()
+    expect(screen.getByText('n8n activation review')).toBeInTheDocument()
+    expect(screen.getByText('wf_staging_123')).toBeInTheDocument()
+    expect(screen.getByText('Static validation and synthetic dry run passed.')).toBeInTheDocument()
+    expect(screen.getByText('Synthetic payload reached the draft-email node with sends disabled.')).toBeInTheDocument()
+    expect(screen.getByText('Disable or delete inactive workflow wf_staging_123.')).toBeInTheDocument()
+    expect(screen.getByText(/It does not activate a workflow, change credentials, enable schedules/i)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Decision Queue' })).toHaveAttribute('href', '/admin/agents/coordination?proposal=work-n8n-1')
+    expect(screen.getByRole('link', { name: 'Kanban card' })).toHaveAttribute('href', '/admin/agents/swarm-board?work_item=work-n8n-1')
   })
 })
 
