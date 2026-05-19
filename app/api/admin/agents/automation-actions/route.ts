@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('[automation-actions] create work item failed:', error)
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to create work item' },
+      { error: 'Failed to create work item' },
       { status: 500 },
     )
   }
