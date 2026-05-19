@@ -214,10 +214,31 @@ describe('/api/admin/agents/automation-actions', () => {
     const response = await POST(request('POST', { action_id: 'automation-1:blocker_or_approval:abc123' }) as never)
 
     expect(response.status).toBe(500)
-    expect(await response.json()).toEqual({ error: 'Failed to create work item' })
+    expect(await response.json()).toEqual({ error: 'Failed to promote automation action' })
     expect(mocks.updateAutomationActionState).not.toHaveBeenCalled()
     expect(consoleError).toHaveBeenCalledWith(
-      '[automation-actions] create work item failed:',
+      '[automation-actions] promote action failed:',
+      expect.any(Error),
+    )
+  })
+
+  it('handles tracker linkage failures after the work item is created without leaking details', async () => {
+    mocks.updateAutomationActionState.mockRejectedValue(new Error('tracker state file is locked'))
+
+    const response = await POST(request('POST', { action_id: 'automation-1:blocker_or_approval:abc123' }) as never)
+
+    expect(response.status).toBe(500)
+    expect(await response.json()).toEqual({ error: 'Failed to promote automation action' })
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
+      idempotencyKey: 'automation-1:blocker_or_approval:abc123',
+    }))
+    expect(mocks.updateAutomationActionState).toHaveBeenCalledWith('automation-1:blocker_or_approval:abc123', {
+      status: 'in_progress',
+      linkedWorkItemId: 'work-1',
+      note: 'Promoted into Agent Ops work item.',
+    })
+    expect(consoleError).toHaveBeenCalledWith(
+      '[automation-actions] promote action failed:',
       expect.any(Error),
     )
   })

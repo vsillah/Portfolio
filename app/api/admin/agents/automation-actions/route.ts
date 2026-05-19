@@ -109,9 +109,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ ok: true, work_item: workItem })
   } catch (error) {
-    console.error('[automation-actions] create work item failed:', error)
+    console.error('[automation-actions] promote action failed:', error)
     return NextResponse.json(
-      { error: 'Failed to create work item' },
+      { error: 'Failed to promote automation action' },
       { status: 500 },
     )
   }
