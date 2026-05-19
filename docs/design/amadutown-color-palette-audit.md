@@ -31,7 +31,8 @@ The Agent Ops Mission Control surface at `/admin/agents` is the current referenc
 
 - **Shared admin primitives:** `app/globals.css` now includes `admin-console-*` primitives extracted from the Mission Control visual language for non-Agent-Ops admin surfaces.
 - **First applied slice:** `/admin`, `/admin/cost-revenue`, and `/admin/subscriptions` use the shared page/header/card/metric treatment as the first bounded Phase 6 rollout.
-- **Next rollout candidates:** high-traffic admin content and outreach pages still carry older gray, blue, purple, and cyan styling and should move to the same primitives in smaller follow-up PRs.
+- **Second applied slice:** `/admin/value-evidence`, `/admin/email-center`, and `/admin/social-content` now use the shared admin page/header/card treatment for their workflow shells while preserving their existing pipeline controls.
+- **Next rollout candidates:** deeper content, outreach, sales, and detail pages still carry older gray, blue, purple, and cyan styling and should move to the same primitives in smaller follow-up PRs.
 
 ---
 

@@ -186,7 +186,7 @@ function EmailCenterContent() {
   }, [load])
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-8">
+    <div className="admin-console-page min-h-screen p-6 text-foreground lg:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         <Breadcrumbs
           items={[
@@ -195,13 +195,14 @@ function EmailCenterContent() {
           ]}
         />
 
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="admin-console-surface-header flex flex-col gap-4 rounded-xl border p-5 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 flex items-center justify-center">
-              <Inbox size={24} className="text-white" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-radiant-gold/40 bg-radiant-gold/15 text-radiant-gold">
+              <Inbox size={24} />
             </div>
             <div>
-              <h1 className="text-3xl font-bold gradient-text">Email Center</h1>
+              <div className="admin-console-eyebrow mb-2">Pipeline Messaging</div>
+              <h1 className="text-3xl font-bold text-foreground">Email Center</h1>
               <p className="text-muted-foreground text-sm mt-0.5">
                 One place to see what was sent, how it went out, and where the source row lives.
               </p>
@@ -217,7 +218,7 @@ function EmailCenterContent() {
             <button
               type="button"
               onClick={() => void load()}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-silicon-slate hover:bg-silicon-slate/50 text-sm"
+              className="admin-console-button-muted"
             >
               <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
               Refresh
@@ -225,7 +226,7 @@ function EmailCenterContent() {
           </div>
         </div>
 
-        <div className="space-y-3">
+        <div className="admin-console-card space-y-3 rounded-lg border p-4">
           {contactFromUrl && !Number.isNaN(Number(contactFromUrl)) && (
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs text-muted-foreground">Lead filter (from your link):</span>
@@ -337,7 +338,7 @@ function EmailCenterContent() {
           Showing {items.length} of {total} rows (most recent first).
         </div>
 
-        <div className="overflow-x-auto rounded-xl border border-silicon-slate bg-silicon-slate/20">
+        <div className="admin-console-card overflow-x-auto rounded-xl border">
           <table className="min-w-full text-sm">
             <thead>
               <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground border-b border-silicon-slate">

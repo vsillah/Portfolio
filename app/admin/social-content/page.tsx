@@ -264,26 +264,27 @@ function SocialContentQueuePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-8">
+    <div className="admin-console-page min-h-screen p-6 text-foreground lg:p-8">
       <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Social Content' }]} />
 
       {/* Header */}
-      <div className="flex items-center gap-4 mb-8">
-        <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 flex items-center justify-center">
-          <Share2 className="w-6 h-6 text-white" />
+      <div className="admin-console-surface-header mb-6 mt-5 flex items-center gap-4 rounded-xl border p-5">
+        <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-radiant-gold/40 bg-radiant-gold/15 text-radiant-gold">
+          <Share2 className="h-6 w-6" />
         </div>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold">Social Content Queue</h1>
-          <p className="text-gray-400 text-sm">AI-generated posts from meeting transcripts — review, edit, and publish</p>
+          <div className="admin-console-eyebrow mb-2">Content Operations</div>
+          <h1 className="text-2xl font-bold text-foreground">Social Content Queue</h1>
+          <p className="text-muted-foreground text-sm">AI-generated posts from meeting transcripts, ready for review, edit, and publish.</p>
         </div>
       </div>
 
       {/* Extraction Trigger */}
-      <div className="mb-6">
+      <div className="admin-console-card mb-6 rounded-lg border p-4">
         <div className="flex items-center gap-3">
           <button
             onClick={() => setShowTriggerPanel((p) => !p)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-lg text-sm font-medium hover:from-amber-500 hover:to-orange-500 transition-all"
+            className="admin-console-button-primary"
           >
             <Zap className="w-4 h-4" />
             Run Extraction
@@ -309,7 +310,7 @@ function SocialContentQueuePage() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="mt-3 bg-gray-900 border border-gray-800 rounded-xl p-5 space-y-4"
+            className="mt-3 rounded-lg border border-silicon-slate bg-imperial-navy/55 p-5 space-y-4"
           >
             <div className="flex items-center gap-2">
               <h3 className="text-sm font-semibold text-gray-200">Trigger Content Extraction (WF-SOC-001)</h3>
@@ -332,24 +333,24 @@ function SocialContentQueuePage() {
                     value={meetingSearch}
                     onChange={(e) => setMeetingSearch(e.target.value)}
                     placeholder="Type, transcript, topic..."
-                    className="w-full bg-gray-800 text-gray-300 border border-gray-700 rounded-lg pl-8 pr-3 py-2 text-sm focus:outline-none focus:border-amber-600 transition-colors"
+                    className="w-full rounded-lg border border-silicon-slate bg-imperial-navy/70 py-2 pl-8 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-radiant-gold/60 transition-colors"
                   />
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Calendar className="w-3.5 h-3.5 text-gray-500 shrink-0" />
                 <input
                   type="date"
                   value={meetingDateFrom}
                   onChange={(e) => setMeetingDateFrom(e.target.value)}
-                  className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-2 py-2 text-sm w-32 focus:outline-none focus:border-amber-600"
+                  className="w-full rounded-lg border border-silicon-slate bg-imperial-navy/70 px-2 py-2 text-sm text-foreground focus:outline-none focus:border-radiant-gold/60 sm:w-32"
                 />
                 <span className="text-xs text-gray-500">to</span>
                 <input
                   type="date"
                   value={meetingDateTo}
                   onChange={(e) => setMeetingDateTo(e.target.value)}
-                  className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-2 py-2 text-sm w-32 focus:outline-none focus:border-amber-600"
+                  className="w-full rounded-lg border border-silicon-slate bg-imperial-navy/70 px-2 py-2 text-sm text-foreground focus:outline-none focus:border-radiant-gold/60 sm:w-32"
                 />
                 {(meetingDateFrom || meetingDateTo) && (
                   <button onClick={() => { setMeetingDateFrom(''); setMeetingDateTo('') }} className="text-xs text-gray-400 hover:text-white">Clear</button>
@@ -515,7 +516,7 @@ function SocialContentQueuePage() {
                 <button
                   onClick={() => handleTriggerExtraction()}
                   disabled={triggerLoading}
-                  className="inline-flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="admin-console-button-primary disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {triggerLoading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -570,7 +571,7 @@ function SocialContentQueuePage() {
           { label: 'Published', value: stats.published, color: 'text-green-400' },
           { label: 'Rejected', value: stats.rejected, color: 'text-red-400' },
         ].map((stat) => (
-          <div key={stat.label} className="bg-gray-900 border border-gray-800 rounded-xl p-3 text-center">
+          <div key={stat.label} className="admin-console-metric rounded-xl border p-3 text-center">
             <div className={`text-xl font-bold ${stat.color}`}>{stat.value}</div>
             <div className="text-xs text-gray-500">{stat.label}</div>
           </div>
@@ -578,12 +579,12 @@ function SocialContentQueuePage() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3 mb-6">
+      <div className="admin-console-card mb-6 flex flex-wrap items-center gap-3 rounded-lg border p-4">
         <Filter className="w-4 h-4 text-gray-500" />
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as ContentStatus | 'all')}
-          className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm"
+          className="rounded-lg border border-silicon-slate bg-imperial-navy/70 px-3 py-1.5 text-sm text-foreground"
         >
           <option value="all">All Statuses</option>
           {CONTENT_STATUSES.map((s) => (
@@ -593,7 +594,7 @@ function SocialContentQueuePage() {
         <select
           value={platformFilter}
           onChange={(e) => setPlatformFilter(e.target.value as SocialPlatform | 'all')}
-          className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm"
+          className="rounded-lg border border-silicon-slate bg-imperial-navy/70 px-3 py-1.5 text-sm text-foreground"
         >
           <option value="all">All Platforms</option>
           {PLATFORMS.map((p) => (
@@ -605,7 +606,7 @@ function SocialContentQueuePage() {
           placeholder="Search posts..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm flex-1 min-w-[200px]"
+          className="min-w-[200px] flex-1 rounded-lg border border-silicon-slate bg-imperial-navy/70 px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground"
         />
       </div>
 
@@ -633,11 +634,11 @@ function SocialContentQueuePage() {
               >
                 <Link
                   href={buildLinkWithReturn(`/admin/social-content/${item.id}`, '/admin/social-content')}
-                  className="block bg-gray-900 border border-gray-800 rounded-xl p-4 hover:border-gray-700 transition-colors"
+                  className="admin-console-card admin-console-interactive block rounded-xl border p-4 transition-colors"
                 >
                   <div className="flex items-start gap-4">
                     {/* Image thumbnail */}
-                    <div className="w-16 h-16 rounded-lg bg-gray-800 flex-shrink-0 overflow-hidden flex items-center justify-center relative">
+                    <div className="w-16 h-16 rounded-lg border border-silicon-slate bg-imperial-navy/70 flex-shrink-0 overflow-hidden flex items-center justify-center relative">
                       {item.image_url ? (
                         <Image src={item.image_url} alt="" className="object-cover" fill sizes="64px" />
                       ) : (
