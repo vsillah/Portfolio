@@ -991,7 +991,7 @@ export default function ClientWalkthroughPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+      <div className="admin-console-page min-h-screen flex items-center justify-center text-foreground">
         <div className="text-center">
           <RefreshCw className="w-8 h-8 text-gray-500 animate-spin mx-auto mb-3" />
           <p className="text-gray-400">Loading client information...</p>
@@ -1002,7 +1002,7 @@ export default function ClientWalkthroughPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+      <div className="admin-console-page min-h-screen flex items-center justify-center text-foreground">
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-3" />
           <h2 className="text-lg font-medium text-white mb-2">Error Loading Data</h2>
@@ -1019,8 +1019,8 @@ export default function ClientWalkthroughPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="max-w-7xl mx-auto px-4 py-6">
+    <div className="admin-console-page min-h-screen text-foreground">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <Breadcrumbs 
           items={[
             { label: 'Admin', href: '/admin' },
@@ -1039,23 +1039,25 @@ export default function ClientWalkthroughPage() {
         </div>
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="admin-console-surface-header mb-6 flex flex-col gap-4 rounded-xl border p-5 lg:flex-row lg:items-center lg:justify-between lg:p-6">
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.push(backUrl)}
-              className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-white"
+              aria-label="Back to sales dashboard"
+              className="admin-console-button-muted p-2"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="text-xl font-bold text-white">
+              <div className="admin-console-eyebrow mb-2">Sales Call Workbench</div>
+              <h1 className="text-2xl font-bold tracking-tight text-foreground">
                 Sales Call: {contact?.name}
               </h1>
-              <p className="text-gray-400">{contact?.company || contact?.email}</p>
+              <p className="text-muted-foreground">{contact?.company || contact?.email}</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {isSaving && (
               <span className="text-sm text-gray-400 flex items-center gap-1">
                 <RefreshCw className="w-4 h-4 animate-spin" />
@@ -1072,7 +1074,7 @@ export default function ClientWalkthroughPage() {
                       href={leadDashboardUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-3 py-2 bg-blue-600/20 border border-blue-500/50 rounded-lg text-blue-300 text-sm hover:bg-blue-600/30 flex items-center gap-2"
+                      className="admin-console-button-secondary text-sm"
                     >
                       <ExternalLink className="w-4 h-4" />
                       Open dashboard
@@ -1084,7 +1086,7 @@ export default function ClientWalkthroughPage() {
                         setLeadDashboardCopied(true);
                         setTimeout(() => setLeadDashboardCopied(false), 2000);
                       }}
-                      className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-300 text-sm hover:bg-gray-700 flex items-center gap-2"
+                      className="admin-console-button-muted text-sm"
                     >
                       <Copy className="w-4 h-4" />
                       {leadDashboardCopied ? 'Copied' : 'Copy link'}
@@ -1115,7 +1117,7 @@ export default function ClientWalkthroughPage() {
                         setIsCreatingLeadDashboard(false);
                       }
                     }}
-                    className="px-3 py-2 bg-blue-600/20 border border-blue-500/50 rounded-lg text-blue-300 text-sm hover:bg-blue-600/30 flex items-center gap-2 disabled:opacity-50"
+                    className="admin-console-button-secondary text-sm disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {isCreatingLeadDashboard ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -1132,7 +1134,7 @@ export default function ClientWalkthroughPage() {
             <select
               value={salesSession?.outcome || 'in_progress'}
               onChange={(e) => handleOutcomeChange(e.target.value as SessionOutcome)}
-              className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+              className="rounded-lg border border-white/10 bg-silicon-slate/50 px-3 py-2 text-foreground"
             >
               <option value="in_progress">In Progress</option>
               <option value="converted">Converted</option>
@@ -1146,7 +1148,7 @@ export default function ClientWalkthroughPage() {
               <select
                 value={salesSession?.loss_reason || ''}
                 onChange={(e) => handleLossReasonChange(e.target.value || null)}
-                className="px-3 py-2 bg-gray-800 border border-red-700/50 rounded-lg text-white"
+                className="rounded-lg border border-red-500/40 bg-silicon-slate/50 px-3 py-2 text-foreground"
               >
                 <option value="">Select reason...</option>
                 <option value="price">Price Too High</option>
@@ -1163,8 +1165,8 @@ export default function ClientWalkthroughPage() {
         </div>
 
         {/* Funnel Stage */}
-        <div className="bg-gray-900 rounded-lg border border-gray-800 p-4 mb-6">
-          <h3 className="text-sm font-medium text-gray-400 mb-3">Client Stage</h3>
+        <div className="admin-console-card mb-6 rounded-lg border p-4">
+          <h3 className="admin-console-eyebrow mb-3">Client Stage</h3>
           <FunnelStageSelector
             currentStage={salesSession?.funnel_stage || 'prospect'}
             onChange={handleStageChange}
@@ -1175,9 +1177,9 @@ export default function ClientWalkthroughPage() {
           {/* Left Panel - Client Context */}
           <div className="space-y-6">
             {/* Contact Info */}
-            <div className="bg-gray-900 rounded-lg border border-gray-800 p-4">
-              <h3 className="font-medium text-white mb-4 flex items-center gap-2">
-                <User className="w-5 h-5 text-blue-500" />
+            <div className="admin-console-card rounded-lg border p-4">
+              <h3 className="mb-4 flex items-center gap-2 font-medium text-foreground">
+                <User className="w-5 h-5 text-radiant-gold" />
                 Client Information
               </h3>
               
