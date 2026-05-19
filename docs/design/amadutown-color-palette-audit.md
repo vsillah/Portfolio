@@ -22,10 +22,16 @@ The Agent Ops Mission Control surface at `/admin/agents` is the current referenc
 
 ### Implementation guidance
 
-- Reuse or extract shared styling from the Agent Ops visual layer (`agent-ops-page`, `agent-ops-panel`, `agent-ops-card`, and related token usage) instead of recreating one-off page-specific CSS.
+- Reuse the shared admin console layer (`admin-console-page`, `admin-console-surface-header`, `admin-console-card`, `admin-console-metric`, and `admin-console-button-*`) for admin/dashboard/control-plane pages. The older Agent Ops classes remain valid for Agent Ops-specific surfaces, but new cross-admin styling should use the `admin-console-*` primitives.
 - New admin pages should match Mission Control's density, command hierarchy, palette discipline, and action/status separation unless there is an explicit product reason to diverge.
 - Public, commerce, and client-facing pages may adapt the structure for their audience, but should remain recognizably AmaduTown: navy/gold first, polished operational clarity, and no unrelated gray, purple, cyan, or generic SaaS palette drift.
 - When a page is redesigned, check this audit table for known off-palette areas and update the table if the implementation resolves or changes the design debt.
+
+### Current extraction status
+
+- **Shared admin primitives:** `app/globals.css` now includes `admin-console-*` primitives extracted from the Mission Control visual language for non-Agent-Ops admin surfaces.
+- **First applied slice:** `/admin`, `/admin/cost-revenue`, and `/admin/subscriptions` use the shared page/header/card/metric treatment as the first bounded Phase 6 rollout.
+- **Next rollout candidates:** high-traffic admin content and outreach pages still carry older gray, blue, purple, and cyan styling and should move to the same primitives in smaller follow-up PRs.
 
 ---
 
@@ -44,7 +50,7 @@ The Agent Ops Mission Control surface at `/admin/agents` is the current referenc
 | Lead magnets (public) | Gray text | `app/lead-magnets/page.tsx` (text-gray-400) | Low |
 | Purchases | Blue–purple gradients, green semantic | `app/purchases/page.tsx` (from-blue-600 to-purple-600, green-* semantic) | Medium |
 | Proposal | Green/orange/indigo type badges, green CTAs | `app/proposal/[id]/page.tsx` (green-*, orange-*, indigo-*) | Medium |
-| Admin dashboard | Slate–indigo, sky–blue, violet–purple, cyan–blue, purple–pink gradients | `app/admin/page.tsx` (from-slate-*, from-sky-*, from-violet-*, from-cyan-*, from-purple-*) | High |
+| Admin dashboard | Partially remediated: shared `admin-console-*` page/header/card treatment applied; nested chart and feed details may still need follow-up polish | `app/admin/page.tsx` | Medium |
 | Admin content – products | Gray UI, blue–purple gradients, purple/blue/cyan badges, purple focus | `app/admin/content/products/page.tsx`, `[id]/page.tsx` (gray-*, from-blue-600 to-purple-600, purple-*, blue-*, cyan-*, focus:border-purple-500) | High |
 | Admin content – discount codes | Gray inputs, purple focus, blue–purple gradient CTAs, purple/green badges | `app/admin/content/discount-codes/page.tsx` | High |
 | Admin content – merchandise | Gray inputs, purple focus/gradients, purple–blue card gradient | `app/admin/content/merchandise/page.tsx` | High |
