@@ -71,7 +71,8 @@ describe('agent automation goal seeding', () => {
   it('defaults to Tier 1 seeds and rejects unknown selected seeds', async () => {
     const seeded = await seedAutomationGoals({ triggeredByUserId: 'admin-user' })
 
-    expect(seeded).toHaveLength(5)
+    expect(seeded).toHaveLength(6)
+    expect(seeded.map((item) => item.seed.id)).toContain('inbound-lead-triage-to-booking')
     expect(mocks.createAgentWorkItem).toHaveBeenCalled()
 
     await expect(seedAutomationGoals({ seedIds: ['missing-seed'] })).rejects.toThrow('Unknown automation goal seed')

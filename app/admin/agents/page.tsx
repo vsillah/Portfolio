@@ -478,7 +478,7 @@ export default function AgentOperationsPage() {
   const loadAutomationGoals = useCallback(async () => {
     setAutomationGoalsLoading(true)
     try {
-      const response = await authedFetch('/api/admin/agents/automation-goals?tier=1')
+      const response = await authedFetch('/api/admin/agents/automation-goals')
       const body = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
       setAutomationGoals(Array.isArray(body.goals) ? body.goals : [])
@@ -1375,20 +1375,21 @@ function AutomationGoalsPanel({
   onPrevious: () => void
   onNext: () => void
 }) {
-  const seededCount = allGoals.filter((goal) => goal.seeded).length
-  const allSeeded = allGoals.length > 0 && seededCount === allGoals.length
+  const tierOneGoals = allGoals.filter((goal) => goal.tier === 1)
+  const tierOneSeededCount = tierOneGoals.filter((goal) => goal.seeded).length
+  const allTierOneSeeded = tierOneGoals.length > 0 && tierOneSeededCount === tierOneGoals.length
 
   return (
     <div className="rounded-lg border border-silicon-slate/60 bg-background/35 p-3" aria-label="Automation to-do">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Automation to-do</p>
-          <p className="mt-1 text-xs text-muted-foreground">Seed reviewable goals for workflows agents can automate.</p>
+          <p className="mt-1 text-xs text-muted-foreground">Tier 1 seeds create work items; Tier 2 stays as the governed backlog.</p>
         </div>
         <button
           type="button"
           onClick={onSeedTierOne}
-          disabled={loading || seeding || allSeeded}
+          disabled={loading || seeding || allTierOneSeeded}
           className="inline-flex items-center gap-1 rounded-md border border-radiant-gold/50 bg-radiant-gold/10 px-2.5 py-1.5 text-xs font-medium text-radiant-gold hover:bg-radiant-gold/15 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {seeding ? <RefreshCw size={13} className="animate-spin" /> : <Sparkles size={13} />}
@@ -1397,8 +1398,8 @@ function AutomationGoalsPanel({
       </div>
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-        <StatusOnlyPill tone={allSeeded ? 'green' : 'yellow'}>
-          {seededCount}/{allGoals.length} seeded
+        <StatusOnlyPill tone={allTierOneSeeded ? 'green' : 'yellow'}>
+          {tierOneSeededCount}/{tierOneGoals.length} Tier 1 seeded
         </StatusOnlyPill>
         <PagerControls
           label="Automation goals"
@@ -1467,7 +1468,12 @@ function AutomationGoalRow({
         <StatusOnlyPill tone={tone}>{goal.seeded ? 'Seeded' : goal.requiresNewWorkflow ? 'Needs workflow' : 'Ready'}</StatusOnlyPill>
       </div>
       <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">{goal.nextAction}</p>
+      <div className="mt-2 rounded-md border border-silicon-slate/45 bg-background/35 px-2 py-1.5 text-[11px] leading-5 text-muted-foreground">
+        <span className="font-semibold uppercase tracking-wider text-radiant-gold">Approval gate: </span>
+        {goal.approvalGate}
+      </div>
       <div className="mt-2 flex flex-wrap gap-1.5 text-[11px] text-muted-foreground">
+        <span className="rounded-full border border-silicon-slate/50 bg-background/40 px-2 py-0.5">Tier {goal.tier}</span>
         <span className="rounded-full border border-silicon-slate/50 bg-background/40 px-2 py-0.5">{goal.ownerAgentKey.replace(/-/g, ' ')}</span>
         <span className="rounded-full border border-silicon-slate/50 bg-background/40 px-2 py-0.5">{goal.automationLevel.replace(/_/g, ' ')}</span>
         {goal.n8nWorkflows.length ? (
