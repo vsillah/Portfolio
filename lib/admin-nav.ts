@@ -127,6 +127,9 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
  */
 export function isNavItemActive(href: string, pathname: string): boolean {
   if (href === '/admin/agents') return pathname === href
+  if (href === '/admin/products') {
+    return pathname === href || pathname === '/admin/content/products' || pathname.startsWith('/admin/content/products/')
+  }
   if (pathname === href) return true
   if (href !== '/admin' && pathname.startsWith(href + '/')) return true
   return false

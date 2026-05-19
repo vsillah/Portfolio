@@ -206,16 +206,23 @@ export default function AdminSidebar({ showHeader = true }: { showHeader?: boole
                             <button
                               type="button"
                               onClick={() => setExpanded((o: boolean) => !o)}
-                              className="group flex w-full items-center gap-2 rounded-lg border border-transparent py-2 pl-3 pr-3 text-left text-sm font-medium text-foreground/85 transition-colors hover:border-radiant-gold/20 hover:bg-radiant-gold/10 hover:text-foreground"
+                              className={`${navItemClass(active)} w-full text-left font-medium`}
                               aria-expanded={expanded}
                               aria-controls={childrenId}
+                              aria-current={active ? 'page' : undefined}
                             >
                               {expanded ? (
-                                <ChevronDown size={ITEM_ICON_SIZE} className="shrink-0" />
+                                <ChevronDown
+                                  size={ITEM_ICON_SIZE}
+                                  className={`shrink-0 ${active ? 'text-radiant-gold' : ''}`}
+                                />
                               ) : (
-                                <ChevronRight size={ITEM_ICON_SIZE} className="shrink-0" />
+                                <ChevronRight
+                                  size={ITEM_ICON_SIZE}
+                                  className={`shrink-0 ${active ? 'text-radiant-gold' : ''}`}
+                                />
                               )}
-                              <NavItemIcon href={item.href} />
+                              <NavItemIcon href={item.href} active={active} />
                               {item.label}
                             </button>
                             <div
