@@ -215,6 +215,27 @@ const automationGoals = [
       },
     },
   },
+  {
+    id: 'subscription-revenue-monitoring',
+    tier: 2,
+    title: 'Automate subscription and revenue monitoring',
+    objective: 'Monitor subscription and revenue signals.',
+    workflowFamily: 'revenue_operations',
+    automationLevel: 'approval_gated',
+    ownerAgentKey: 'risk-compliance-intelligence',
+    collaboratorAgentKeys: ['chief-of-staff'],
+    sourceRoutes: ['/admin/cost-revenue'],
+    sourceDocs: ['docs/subscription-cancellation-audit.md'],
+    n8nWorkflows: [],
+    approvalGate: 'Cancellation and payment changes require approval.',
+    nextAction: 'Route subscription anomalies into controller packets.',
+    requiresNewWorkflow: true,
+    seeded: false,
+    seeded_child_count: 0,
+    seeded_parent_work_item: null,
+    n8n_proposal_count: 0,
+    latest_n8n_proposal: null,
+  },
 ]
 
 function formatExpectedPageTime(value: string) {
@@ -236,7 +257,7 @@ describe('AgentOperationsPage mission control landing', () => {
       if (url === '/api/admin/agents/risk-compliance/monitor?review=latest') {
         return { ok: true, json: async () => ({ review: moremiReview }) }
       }
-      if (url === '/api/admin/agents/automation-goals?tier=1') {
+      if (url === '/api/admin/agents/automation-goals') {
         return { ok: true, json: async () => ({ goals: automationGoals }) }
       }
       if (url === '/api/admin/agents/automation-goals/seed' && init?.method === 'POST') {
@@ -339,9 +360,11 @@ describe('AgentOperationsPage mission control landing', () => {
     expect(screen.getByText('Scheduled manual triggers with duplicate-run guards.')).toBeInTheDocument()
     const automationPanel = screen.getByLabelText('Automation to-do')
     expect(automationPanel).toBeInTheDocument()
+    expect(within(automationPanel).getByText('Tier 1 seeds create work items; Tier 2 stays as the governed backlog.')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Seed Tier 1/i })).toBeInTheDocument()
     expect(screen.getByText('Automate meeting intake to follow-up drafts')).toBeInTheDocument()
-    expect(screen.getByText('1/2 seeded')).toBeInTheDocument()
+    expect(within(automationPanel).getAllByText(/Approval gate:/i).length).toBeGreaterThan(0)
+    expect(screen.getByText('1/2 Tier 1 seeded')).toBeInTheDocument()
     expect(within(automationPanel).getAllByRole('link', { name: /Standup/i })[0]).toHaveAttribute('href', '/admin/agents/standup?goal=automation%3Ameeting-intake-follow-up-drafts')
     expect(within(automationPanel).getAllByRole('link', { name: /Kanban/i })[0]).toHaveAttribute('href', '/admin/agents/swarm-board?goal=automation%3Ameeting-intake-follow-up-drafts')
     expect(within(automationPanel).getByText('n8n proposal in controller')).toBeInTheDocument()
@@ -438,11 +461,28 @@ describe('AgentOperationsPage mission control landing', () => {
     })
   })
 
+  it('keeps the seed control tied to Tier 1 even when Tier 2 backlog remains', async () => {
+    const originalSeeded = automationGoals[0]?.seeded
+    if (automationGoals[0]) automationGoals[0].seeded = true
+
+    try {
+      render(<AgentOperationsPage />)
+
+      const automationPanel = await screen.findByLabelText('Automation to-do')
+      expect(within(automationPanel).getByText('2/2 Tier 1 seeded')).toBeInTheDocument()
+      expect(within(automationPanel).getByRole('button', { name: /Seed Tier 1/i })).toBeDisabled()
+      expect(within(automationPanel).getByText('Automate subscription and revenue monitoring')).toBeInTheDocument()
+      expect(within(automationPanel).getByText('Tier 2')).toBeInTheDocument()
+    } finally {
+      if (automationGoals[0]) automationGoals[0].seeded = originalSeeded ?? false
+    }
+  })
+
   it('creates a governed n8n proposal from an automation goal row', async () => {
     render(<AgentOperationsPage />)
 
     const automationPanel = await screen.findByLabelText('Automation to-do')
-    fireEvent.click(within(automationPanel).getByRole('button', { name: /Draft proposal/i }))
+    fireEvent.click(within(automationPanel).getAllByRole('button', { name: /Draft proposal/i })[0])
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith('/api/admin/agents/n8n-workflow-proposals', expect.objectContaining({
