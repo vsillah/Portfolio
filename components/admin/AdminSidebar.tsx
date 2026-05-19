@@ -57,6 +57,15 @@ const CONTENT_HUB_CHILDREN_ID = 'admin-nav-content-children'
 const CHAT_EVAL_CHILDREN_ID = 'admin-nav-chat-eval-children'
 const ITEM_ICON_SIZE = 16
 
+function navItemClass(active: boolean, depth: 'root' | 'item' | 'child' = 'item') {
+  const depthPadding = depth === 'root' ? 'px-3' : depth === 'child' ? 'pl-7 pr-3' : 'pl-4 pr-3'
+  return `group flex items-center gap-2 rounded-lg ${depthPadding} py-2 text-sm transition-colors ${
+    active
+      ? 'border border-radiant-gold/35 bg-radiant-gold/15 text-radiant-gold shadow-[0_0_22px_rgba(212,175,55,0.08)]'
+      : 'border border-transparent text-foreground/85 hover:border-radiant-gold/20 hover:bg-radiant-gold/10 hover:text-foreground'
+  }`
+}
+
 /** Small icon per nav item so category items have clear hierarchy. */
 const NAV_ITEM_ICONS: Record<string, LucideIcon> = {
   '/admin/outreach': Send,
@@ -114,13 +123,20 @@ const NAV_ITEM_ICONS: Record<string, LucideIcon> = {
   '/admin/content/store-settings': Settings,
 }
 
-function NavItemIcon({ href }: { href: string }) {
+function NavItemIcon({ href, active = false }: { href: string; active?: boolean }) {
   const Icon = NAV_ITEM_ICONS[href]
   if (!Icon) return null
-  return <Icon size={ITEM_ICON_SIZE} className="shrink-0 text-muted-foreground" />
+  return (
+    <Icon
+      size={ITEM_ICON_SIZE}
+      className={`shrink-0 transition-colors ${
+        active ? 'text-radiant-gold' : 'text-muted-foreground group-hover:text-radiant-gold/80'
+      }`}
+    />
+  )
 }
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ showHeader = true }: { showHeader?: boolean }) {
   const pathname = usePathname()
   const [contentOpen, setContentOpen] = useState(false)
   const [chatEvalOpen, setChatEvalOpen] = useState(false)
@@ -136,7 +152,7 @@ export default function AdminSidebar() {
 
   return (
     <nav
-      className="flex flex-col h-full bg-silicon-slate/50 border-r border-silicon-slate text-foreground"
+      className="flex h-full min-w-[264px] flex-col border-r border-radiant-gold/10 bg-[linear-gradient(180deg,rgba(18,30,49,0.97)_0%,rgba(15,26,43,0.98)_100%)] text-foreground shadow-[8px_0_32px_rgba(0,0,0,0.18)]"
       aria-label="Admin navigation"
     >
       <a
@@ -145,24 +161,33 @@ export default function AdminSidebar() {
       >
         Skip to main content
       </a>
-      <div className="flex flex-col gap-1 py-4 pl-3 pr-4 min-w-[220px] overflow-y-auto">
+      {showHeader && (
+        <div className="border-b border-radiant-gold/10 px-4 py-4">
+          <div className="mb-1 block text-[11px] font-bold uppercase tracking-[0.16em] text-radiant-gold">
+            Admin
+          </div>
+          <div className="text-lg font-semibold text-foreground">Command Center</div>
+        </div>
+      )}
+      <div className="flex min-w-[240px] flex-col gap-4 overflow-y-auto px-3 py-4">
         {/* Dashboard */}
         <Link
           href={ADMIN_NAV.dashboard.href}
-          className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-            pathname === ADMIN_NAV.dashboard.href
-              ? 'bg-radiant-gold/20 text-radiant-gold border-l-2 border-radiant-gold -ml-0.5 pl-3.5'
-              : 'text-foreground/90 hover:bg-silicon-slate hover:text-foreground'
-          }`}
+          className={navItemClass(pathname === ADMIN_NAV.dashboard.href, 'root')}
           aria-current={pathname === ADMIN_NAV.dashboard.href ? 'page' : undefined}
         >
-          <LayoutDashboard size={18} className="shrink-0" />
+          <LayoutDashboard
+            size={18}
+            className={`shrink-0 ${
+              pathname === ADMIN_NAV.dashboard.href ? 'text-radiant-gold' : 'text-muted-foreground'
+            }`}
+          />
           {ADMIN_NAV.dashboard.label}
         </Link>
 
         {ADMIN_NAV.categories.map((cat) => (
-          <div key={cat.label} className="flex flex-col gap-0.5">
-            <div className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <div key={cat.label} className="flex flex-col gap-1">
+            <div className="px-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/78">
               {cat.label}
             </div>
             {cat.children && cat.expandableItemHref ? (
@@ -181,7 +206,7 @@ export default function AdminSidebar() {
                             <button
                               type="button"
                               onClick={() => setExpanded((o: boolean) => !o)}
-                              className="flex w-full items-center gap-2 rounded-lg pl-5 pr-3 py-2 text-sm font-medium transition-colors text-left text-foreground/90 hover:bg-silicon-slate hover:text-foreground"
+                              className="group flex w-full items-center gap-2 rounded-lg border border-transparent py-2 pl-3 pr-3 text-left text-sm font-medium text-foreground/85 transition-colors hover:border-radiant-gold/20 hover:bg-radiant-gold/10 hover:text-foreground"
                               aria-expanded={expanded}
                               aria-controls={childrenId}
                             >
@@ -195,7 +220,7 @@ export default function AdminSidebar() {
                             </button>
                             <div
                               id={childrenId}
-                              className="flex flex-col gap-0.5 overflow-hidden"
+                              className="mt-1 flex flex-col gap-0.5 overflow-hidden border-l border-radiant-gold/10 pl-2"
                               hidden={!expanded}
                             >
                               {expanded &&
@@ -205,14 +230,10 @@ export default function AdminSidebar() {
                                     <Link
                                       key={child.href}
                                       href={child.href}
-                                      className={`flex items-center gap-2 ml-5 pl-6 rounded-lg pr-3 py-2 text-sm transition-colors ${
-                                        childActive
-                                          ? 'bg-radiant-gold/20 text-radiant-gold border-l-2 border-radiant-gold -ml-0.5 pl-5'
-                                          : 'text-muted-foreground hover:bg-silicon-slate hover:text-foreground'
-                                      }`}
+                                      className={navItemClass(childActive, 'child')}
                                       aria-current={childActive ? 'page' : undefined}
                                     >
-                                      <NavItemIcon href={child.href} />
+                                      <NavItemIcon href={child.href} active={childActive} />
                                       {child.label}
                                     </Link>
                                   )
@@ -222,14 +243,10 @@ export default function AdminSidebar() {
                         ) : (
                           <Link
                             href={item.href}
-                            className={`flex items-center gap-2 rounded-lg pl-5 pr-3 py-2 text-sm font-medium transition-colors ${
-                              active
-                                ? 'bg-radiant-gold/20 text-radiant-gold border-l-2 border-radiant-gold -ml-0.5 pl-5'
-                                : 'text-foreground/90 hover:bg-silicon-slate hover:text-foreground'
-                            }`}
+                            className={navItemClass(active)}
                             aria-current={active ? 'page' : undefined}
                           >
-                            <NavItemIcon href={item.href} />
+                            <NavItemIcon href={item.href} active={active} />
                             {item.label}
                           </Link>
                         )}
@@ -245,14 +262,10 @@ export default function AdminSidebar() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`flex items-center gap-2 rounded-lg pl-5 pr-3 py-2 text-sm font-medium transition-colors ${
-                      active
-                        ? 'bg-radiant-gold/20 text-radiant-gold border-l-2 border-radiant-gold -ml-0.5 pl-5'
-                        : 'text-foreground/90 hover:bg-silicon-slate hover:text-foreground'
-                    }`}
+                    className={navItemClass(active)}
                     aria-current={active ? 'page' : undefined}
                   >
-                    <NavItemIcon href={item.href} />
+                    <NavItemIcon href={item.href} active={active} />
                     {item.label}
                   </Link>
                 )
