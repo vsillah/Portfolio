@@ -1143,6 +1143,8 @@ function MetricsPanel({ organization }: { organization: AgentOrgBoardSnapshot })
       <div className="mt-3 grid grid-cols-2 gap-2">
         <Metric label="Active goals" value={organization.summary.active_goals} />
         <Metric label="Blocked" value={organization.summary.blocked_work_items} />
+        <Metric label="Waiting on" value={organization.summary.dependencies?.waiting_on ?? 0} />
+        <Metric label="Handoffs" value={organization.summary.dependencies?.pending_handoffs ?? 0} />
         <Metric label="Cycle time" value={organization.summary.average_cycle_hours == null ? 'n/a' : `${organization.summary.average_cycle_hours}h`} />
         <Metric label="Oldest WIP" value={organization.summary.oldest_in_flight_hours == null ? 'n/a' : `${organization.summary.oldest_in_flight_hours}h`} />
       </div>
@@ -1294,6 +1296,8 @@ function MiniKanban({ lanes, focusedGoalId }: { lanes: AgentOrgBoardLane[]; focu
 function MiniTask({ task }: { task: AgentOrgBoardTask }) {
   const ageHours = Math.max(0, Math.round((Date.now() - new Date(task.createdAt).getTime()) / 36e5))
   const dependencyIds = task.dependencyIds ?? []
+  const dependencies = task.dependencies ?? []
+  const pendingHandoffs = (task.handoffs ?? []).filter((handoff) => handoff.status === 'pending')
   const acceptanceCriteria = task.acceptanceCriteria ?? []
   return (
     <div className="rounded-md border border-silicon-slate/50 bg-silicon-slate/15 p-2 text-xs">
@@ -1305,6 +1309,7 @@ function MiniTask({ task }: { task: AgentOrgBoardTask }) {
         <span>{task.status.replace(/_/g, ' ')}</span>
         <span>{task.priority}</span>
         {dependencyIds.length ? <span>{dependencyIds.length} dep.</span> : null}
+        {pendingHandoffs.length ? <span>{pendingHandoffs.length} handoff</span> : null}
         {task.prUrl && <GitPullRequest size={12} />}
         {task.activeRunId && (
           <Link href={`/admin/agents/runs/${task.activeRunId}`} className="text-radiant-gold hover:underline">
@@ -1313,6 +1318,7 @@ function MiniTask({ task }: { task: AgentOrgBoardTask }) {
         )}
       </div>
       {task.objective && <p className="mt-1 line-clamp-1 text-muted-foreground">Action: {task.objective}</p>}
+      {dependencies.length ? <p className="mt-1 line-clamp-1 text-yellow-100">Waiting on: {dependencies[0].title}</p> : null}
       {task.blockerSummary && <p className="mt-1 line-clamp-1 text-red-200">Blocked: {task.blockerSummary}</p>}
       {task.validationSummary && <p className="mt-1 line-clamp-1 text-muted-foreground">Next: {task.validationSummary}</p>}
       {acceptanceCriteria.length ? <p className="mt-1 line-clamp-1 text-muted-foreground">Done when: {acceptanceCriteria[0]}</p> : null}

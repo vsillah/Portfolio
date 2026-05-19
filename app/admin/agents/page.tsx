@@ -233,6 +233,23 @@ type MissionSnapshot = {
     next_action: string
     href: string
   }>
+  dependency_blockers?: Array<{
+    id: string
+    title: string
+    status: string
+    priority: string
+    owner_agent_key: string | null
+    owner_name: string
+    waiting_on: Array<{
+      id: string
+      title: string
+      status: string
+      owner_name: string
+      href: string
+    }>
+    href: string
+    updated_at: string
+  }>
 }
 
 type WarRoomResult = {
@@ -723,6 +740,8 @@ export default function AgentOperationsPage() {
   const deadLetterCount = snapshot?.dead_letter_queue.length ?? 0
   const engagementCount = snapshot?.engagement_queue.length ?? 0
   const operatingSignalCount = snapshot?.operating_signals.length ?? 0
+  const dependencyBlockers = snapshot?.dependency_blockers ?? []
+  const dependencyBlockerCount = dependencyBlockers.length
   const moremiWarningCount = moremiReview?.warning_count ?? 0
   const qualityScore = snapshot?.quality_summary.average_score === null || snapshot?.quality_summary.average_score === undefined
     ? 'No score'
@@ -805,6 +824,12 @@ export default function AgentOperationsPage() {
       detail: engagementCount ? `${engagementCount} request(s)` : 'Kanban and traces',
       href: engagementCount ? '/admin/agents/runs' : '/admin/agents/swarm-board',
       icon: <ClipboardList size={16} />,
+    },
+    {
+      title: 'Dependency Blockers',
+      detail: dependencyBlockerCount ? `${dependencyBlockerCount} waiting on upstream` : 'No dependency blockers',
+      href: dependencyBlockerCount ? '/admin/agents/swarm-board' : '/admin/agents/swarm-board',
+      icon: dependencyBlockerCount ? <Network size={16} /> : <CheckCircle2 size={16} />,
     },
     {
       title: 'Dead-Letter Monitor',
