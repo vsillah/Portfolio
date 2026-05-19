@@ -745,7 +745,7 @@ function OutreachContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-8">
+    <div className="admin-console-page min-h-screen px-4 py-6 text-foreground sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <Breadcrumbs
           items={[
@@ -755,12 +755,13 @@ function OutreachContent() {
         />
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="admin-console-surface-header mb-6 flex flex-col gap-4 rounded-xl border p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
           <div className="flex-1">
-            <h1 className="text-3xl font-bold gradient-text">
+            <div className="admin-console-eyebrow mb-2">Pipeline Operations</div>
+            <h1 className="text-3xl font-bold text-foreground">
               Lead Pipeline
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
               {activeTab === 'escalations'
                 ? 'Chat and voice escalations — link to leads and view transcripts'
                 : 'Manage all leads, view details, and track progress. For email send history and rows, use Email center.'}
@@ -790,14 +791,14 @@ function OutreachContent() {
               <button
                 type="button"
                 onClick={() => setShowAddLeadModal(true)}
-                className="flex items-center gap-1.5 px-3 py-2 btn-gold text-imperial-navy rounded-lg text-sm font-medium transition-colors"
+                className="admin-console-button-primary"
               >
                 <Plus size={14} />
                 Add lead
               </button>
             )}
             <Link href="/admin/outreach/dashboard">
-              <button className="flex items-center gap-2 px-4 py-2 btn-gold text-imperial-navy font-semibold rounded-lg transition-colors">
+              <button className="admin-console-button-secondary">
                 <BarChart3 size={16} />
                 Dashboard & Triggers
               </button>
@@ -807,7 +808,7 @@ function OutreachContent() {
                 if (activeTab === 'leads') void fetchLeads()
                 else void fetchEscalations()
               }}
-              className="flex items-center gap-2 px-4 py-2 btn-ghost rounded-lg transition-colors"
+              className="admin-console-button-muted"
             >
               <RefreshCw size={16} className={(leadsLoading || escalationsLoading) ? 'animate-spin' : ''} />
               Refresh
@@ -856,11 +857,11 @@ function OutreachContent() {
           <>
             {/* Filters */}
             <div className="flex flex-wrap items-center gap-3 mb-6">
-              <Filter size={14} className="text-gray-500" />
+              <Filter size={14} className="text-muted-foreground" />
               <select
                 value={leadsTempFilter}
                 onChange={(e) => setLeadsTempFilter(e.target.value as 'all' | 'warm' | 'cold')}
-                className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm"
+                className="bg-silicon-slate/50 text-foreground border border-white/10 rounded-lg px-3 py-1.5 text-sm"
               >
                 <option value="all">All Leads</option>
                 <option value="warm">Warm</option>
@@ -869,7 +870,7 @@ function OutreachContent() {
               <select
                 value={leadsStatusFilter}
                 onChange={(e) => setLeadsStatusFilter(e.target.value)}
-                className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm"
+                className="bg-silicon-slate/50 text-foreground border border-white/10 rounded-lg px-3 py-1.5 text-sm"
               >
                 <option value="all">All Status</option>
                 <option value="new">New</option>
@@ -881,7 +882,7 @@ function OutreachContent() {
               <select
                 value={leadsSourceFilter}
                 onChange={(e) => setLeadsSourceFilter(e.target.value)}
-                className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm"
+                className="bg-silicon-slate/50 text-foreground border border-white/10 rounded-lg px-3 py-1.5 text-sm"
               >
                 <option value="all">All Sources</option>
                 <option value="warm_facebook">Facebook</option>
@@ -892,7 +893,7 @@ function OutreachContent() {
               <select
                 value={leadsVisibilityFilter}
                 onChange={(e) => setLeadsVisibilityFilter(e.target.value as 'active' | 'do_not_contact' | 'removed' | 'all')}
-                className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm"
+                className="bg-silicon-slate/50 text-foreground border border-white/10 rounded-lg px-3 py-1.5 text-sm"
                 title="Show leads by contact status"
               >
                 <option value="active">Active only</option>
@@ -905,7 +906,7 @@ function OutreachContent() {
                 placeholder="Search by name, email, or company..."
                 value={leadsSearch}
                 onChange={(e) => setLeadsSearch(e.target.value)}
-                className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm flex-1 min-w-[200px]"
+                className="bg-silicon-slate/50 text-foreground border border-white/10 rounded-lg px-3 py-1.5 text-sm flex-1 min-w-[200px]"
               />
             </div>
 
@@ -1063,7 +1064,7 @@ function OutreachContent() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className={`bg-silicon-slate/50 border border-silicon-slate rounded-xl overflow-visible ${
+                        className={`rounded-xl border border-radiant-gold/12 bg-gradient-to-br from-white/[0.055] via-white/[0.025] to-transparent shadow-[0_18px_50px_rgba(0,0,0,0.18)] overflow-visible ${
                           leadRowMenuOpenId === lead.id ? 'relative z-20' : ''
                         }`}
                       >
@@ -1120,7 +1121,7 @@ function OutreachContent() {
                                   Score: {lead.lead_score}
                                 </span>
                               )}
-                              <span className="px-2 py-0.5 bg-gray-800 text-foreground rounded text-xs">
+                              <span className="px-2 py-0.5 border border-white/10 bg-white/5 text-foreground rounded text-xs">
                                 {lead.lead_source
                                   ?.replace(/^(warm|cold)_/i, '') // Remove warm_ or cold_ prefix
                                   .replace(/_/g, ' ') // Replace all underscores with spaces
@@ -1982,7 +1983,7 @@ function OutreachContent() {
                       <button
                         onClick={() => setLeadsPage(p => Math.max(1, p - 1))}
                         disabled={leadsPage === 1}
-                        className="px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg hover:bg-silicon-slate transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="admin-console-button-muted disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         Previous
                       </button>
@@ -1992,7 +1993,7 @@ function OutreachContent() {
                       <button
                         onClick={() => setLeadsPage(p => p + 1)}
                         disabled={leadsPage >= Math.ceil(leadsTotal / leadsPerPage)}
-                        className="px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg hover:bg-silicon-slate transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="admin-console-button-muted disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         Next
                       </button>
@@ -2008,11 +2009,11 @@ function OutreachContent() {
         {activeTab === 'escalations' && (
           <>
             <div className="flex flex-wrap items-center gap-3 mb-6">
-              <Filter size={14} className="text-gray-500" />
+              <Filter size={14} className="text-muted-foreground" />
               <select
                 value={escalationsLinkedFilter}
                 onChange={(e) => setEscalationsLinkedFilter(e.target.value as 'all' | 'linked' | 'unlinked')}
-                className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm"
+                className="bg-silicon-slate/50 text-foreground border border-white/10 rounded-lg px-3 py-1.5 text-sm"
               >
                 <option value="all">All Escalations</option>
                 <option value="linked">Linked to lead</option>
@@ -2083,7 +2084,7 @@ function OutreachContent() {
                   <button
                     onClick={() => setEscalationsPage(p => Math.max(1, p - 1))}
                     disabled={escalationsPage === 1}
-                    className="px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg hover:bg-silicon-slate transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="admin-console-button-muted disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Previous
                   </button>
@@ -2093,7 +2094,7 @@ function OutreachContent() {
                   <button
                     onClick={() => setEscalationsPage(p => p + 1)}
                     disabled={escalationsPage >= Math.ceil(escalationsTotal / escalationsPerPage)}
-                    className="px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg hover:bg-silicon-slate transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="admin-console-button-muted disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Next
                   </button>

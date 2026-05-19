@@ -155,7 +155,7 @@ function getSourceIcon(source: string) {
   if (source.includes('apollo')) return { Icon: Search, color: 'text-purple-400' }
   if (source.includes('google_maps')) return { Icon: Building2, color: 'text-yellow-400' }
   if (source.includes('referral')) return { Icon: Users, color: 'text-pink-400' }
-  return { Icon: Search, color: 'text-gray-400' }
+  return { Icon: Search, color: 'text-muted-foreground' }
 }
 
 function DashboardContent() {
@@ -275,17 +275,17 @@ function DashboardContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-        <RefreshCw size={32} className="animate-spin text-muted-foreground" />
+      <div className="admin-console-page min-h-screen text-foreground flex items-center justify-center">
+        <RefreshCw size={32} className="animate-spin text-radiant-gold" />
       </div>
     )
   }
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-background text-foreground p-8">
+      <div className="admin-console-page min-h-screen text-foreground p-8">
         <div className="max-w-7xl mx-auto text-center py-20">
-          <p className="text-gray-400">Failed to load dashboard data</p>
+          <p className="text-muted-foreground">Failed to load dashboard data</p>
         </div>
       </div>
     )
@@ -305,15 +305,15 @@ function DashboardContent() {
   })
 
   const funnelSteps = [
-    { label: 'Sourced', value: activeFunnel.total, icon: Search, color: 'text-blue-400' },
-    { label: 'Enriched', value: activeFunnel.enriched, icon: Zap, color: 'text-purple-400' },
+    { label: 'Sourced', value: activeFunnel.total, icon: Search, color: 'text-radiant-gold' },
+    { label: 'Enriched', value: activeFunnel.enriched, icon: Zap, color: 'text-radiant-gold' },
     { label: 'Contacted', value: activeFunnel.contacted, icon: Mail, color: 'text-yellow-400' },
     { label: 'Replied', value: activeFunnel.replied, icon: MessageSquare, color: 'text-green-400' },
     { label: 'Booked', value: activeFunnel.booked, icon: Calendar, color: 'text-emerald-400' },
   ]
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-8">
+    <div className="admin-console-page min-h-screen px-4 py-6 text-foreground sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <Breadcrumbs
           items={[
@@ -324,18 +324,19 @@ function DashboardContent() {
         />
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="admin-console-surface-header mb-6 flex flex-col gap-4 rounded-xl border p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-400 via-green-400 to-blue-400 bg-clip-text text-transparent">
+            <div className="admin-console-eyebrow mb-2">Outreach Operations</div>
+            <h1 className="text-3xl font-bold text-foreground">
               Lead Pipeline
             </h1>
-            <p className="text-gray-400 mt-1">
+            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
               Performance metrics for your warm and cold outreach pipeline
             </p>
           </div>
           <button
             onClick={fetchData}
-            className="flex items-center gap-2 px-4 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg hover:bg-silicon-slate transition-colors"
+            className="admin-console-button-muted"
           >
             <RefreshCw size={16} />
             Refresh
@@ -345,17 +346,17 @@ function DashboardContent() {
         {/* Temperature Filter Toggle */}
         <div className="flex items-center gap-2 mb-8">
           {([
-            { key: 'all' as const, label: 'All Leads', icon: Layers, gradient: 'from-gray-600 to-gray-500' },
-            { key: 'warm' as const, label: 'Warm Leads', icon: Flame, gradient: 'from-orange-600 to-amber-500' },
-            { key: 'cold' as const, label: 'Cold Leads', icon: Snowflake, gradient: 'from-blue-600 to-cyan-500' },
-          ]).map(({ key, label, icon: FilterIcon, gradient }) => (
+            { key: 'all' as const, label: 'All Leads', icon: Layers },
+            { key: 'warm' as const, label: 'Warm Leads', icon: Flame },
+            { key: 'cold' as const, label: 'Cold Leads', icon: Snowflake },
+          ]).map(({ key, label, icon: FilterIcon }) => (
             <button
               key={key}
               onClick={() => setTempFilter(key)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${
                 tempFilter === key
-                  ? `bg-gradient-to-r ${gradient} border-radiant-gold/50 text-white shadow-lg`
-                  : 'bg-silicon-slate/50 border-silicon-slate text-gray-400 hover:bg-silicon-slate'
+                  ? 'border-radiant-gold/50 bg-radiant-gold/15 text-radiant-gold'
+                  : 'border-white/10 bg-white/5 text-muted-foreground hover:border-radiant-gold/30 hover:text-foreground'
               }`}
             >
               <FilterIcon size={16} />
@@ -370,20 +371,20 @@ function DashboardContent() {
         </div>
 
         {/* Trigger Warm Lead Scraping Section */}
-        <div className="mb-8 bg-silicon-slate/50 border border-silicon-slate rounded-xl overflow-hidden">
+        <div className="admin-console-card mb-8 rounded-lg border overflow-hidden">
           <button
             onClick={() => setShowTriggerSection(!showTriggerSection)}
-            className="w-full p-4 flex items-center justify-between hover:bg-silicon-slate/50 transition-colors"
+            className="w-full p-4 flex items-center justify-between hover:bg-white/[0.03] transition-colors"
           >
             <div className="flex items-center gap-3">
-              <Zap size={20} className="text-yellow-400" />
+              <Zap size={20} className="text-radiant-gold" />
               <h2 className="text-xl font-semibold">Trigger Warm Lead Scraping</h2>
             </div>
             {showTriggerSection ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
           </button>
 
           {showTriggerSection && (
-            <div className="p-6 border-t border-silicon-slate space-y-6">
+            <div className="p-6 border-t border-white/10 space-y-6">
               {/* Trigger Message */}
               {triggerMessage && (
                 <motion.div
@@ -407,12 +408,12 @@ function DashboardContent() {
               {/* Trigger Sources */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Facebook */}
-                <div className="p-4 bg-silicon-slate/50 border border-radiant-gold/30 rounded-lg">
+                <div className="admin-console-metric rounded-lg border p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Facebook size={20} className="text-blue-400" />
                     <h3 className="font-semibold">Facebook</h3>
                   </div>
-                  <p className="text-sm text-gray-400 mb-3">
+                  <p className="text-sm text-muted-foreground mb-3">
                     Friends, group members, post engagement
                   </p>
                   <div className="mb-3">
@@ -421,7 +422,7 @@ function DashboardContent() {
                       type="number"
                       value={maxLeads.facebook}
                       onChange={(e) => setMaxLeads({ ...maxLeads, facebook: parseInt(e.target.value) || 100 })}
-                      className="w-full mt-1 px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded text-sm"
+                      className="w-full mt-1 px-3 py-2 bg-silicon-slate/50 border border-white/10 rounded text-sm focus:border-radiant-gold/50 focus:outline-none"
                       min={10}
                       max={500}
                     />
@@ -446,12 +447,12 @@ function DashboardContent() {
                 </div>
 
                 {/* Google Contacts */}
-                <div className="p-4 bg-silicon-slate/50 border border-radiant-gold/30 rounded-lg">
+                <div className="admin-console-metric rounded-lg border p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Phone size={20} className="text-green-400" />
                     <h3 className="font-semibold">Google Contacts</h3>
                   </div>
-                  <p className="text-sm text-gray-400 mb-3">
+                  <p className="text-sm text-muted-foreground mb-3">
                     Contacts with business information
                   </p>
                   <div className="mb-3">
@@ -460,7 +461,7 @@ function DashboardContent() {
                       type="number"
                       value={maxLeads.google_contacts}
                       onChange={(e) => setMaxLeads({ ...maxLeads, google_contacts: parseInt(e.target.value) || 500 })}
-                      className="w-full mt-1 px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded text-sm"
+                      className="w-full mt-1 px-3 py-2 bg-silicon-slate/50 border border-white/10 rounded text-sm focus:border-radiant-gold/50 focus:outline-none"
                       min={10}
                       max={1000}
                     />
@@ -485,12 +486,12 @@ function DashboardContent() {
                 </div>
 
                 {/* LinkedIn */}
-                <div className="p-4 bg-silicon-slate/50 border border-radiant-gold/30 rounded-lg">
+                <div className="admin-console-metric rounded-lg border p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Linkedin size={20} className="text-sky-400" />
                     <h3 className="font-semibold">LinkedIn</h3>
                   </div>
-                  <p className="text-sm text-gray-400 mb-3">
+                  <p className="text-sm text-muted-foreground mb-3">
                     Connections and post engagement
                   </p>
                   <div className="mb-3">
@@ -499,7 +500,7 @@ function DashboardContent() {
                       type="number"
                       value={maxLeads.linkedin}
                       onChange={(e) => setMaxLeads({ ...maxLeads, linkedin: parseInt(e.target.value) || 200 })}
-                      className="w-full mt-1 px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded text-sm"
+                      className="w-full mt-1 px-3 py-2 bg-silicon-slate/50 border border-white/10 rounded text-sm focus:border-radiant-gold/50 focus:outline-none"
                       min={10}
                       max={1000}
                     />
@@ -528,7 +529,7 @@ function DashboardContent() {
               <button
                 onClick={() => triggerScraping('all')}
                 disabled={triggeringSource !== null}
-                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-600 to-purple-600 hover:from-orange-700 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed rounded-lg font-medium transition-colors"
+                className="admin-console-button-primary w-full justify-center disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {triggeringSource === 'all' ? (
                   <RefreshCw size={20} className="animate-spin" />
@@ -547,7 +548,7 @@ function DashboardContent() {
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="bg-gradient-to-br bg-silicon-slate/50 border border-radiant-gold/30 rounded-xl p-5 cursor-pointer hover:border-radiant-gold/50 transition-all"
+              className="admin-console-card admin-console-interactive rounded-lg border p-5 transition-all"
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
@@ -581,7 +582,7 @@ function DashboardContent() {
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="bg-gradient-to-br bg-silicon-slate/50 border border-radiant-gold/30 rounded-xl p-5 cursor-pointer hover:border-radiant-gold/50 transition-all"
+              className="admin-console-card admin-console-interactive rounded-lg border p-5 transition-all"
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
@@ -646,11 +647,11 @@ function DashboardContent() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="flex-1 bg-silicon-slate/50 border border-silicon-slate rounded-xl p-4 text-center cursor-pointer hover:bg-silicon-slate hover:border-radiant-gold/50 transition-all"
+                      className="flex-1 admin-console-card rounded-lg border p-4 text-center cursor-pointer hover:bg-silicon-slate hover:border-radiant-gold/50 transition-all"
                     >
                       <step.icon size={24} className={`mx-auto mb-2 ${step.color}`} />
                       <div className="text-2xl font-bold">{step.value}</div>
-                      <div className="text-xs text-gray-400 mt-1">{step.label}</div>
+                      <div className="text-xs text-muted-foreground mt-1">{step.label}</div>
                       {index > 0 && step.value > 0 && funnelSteps[index - 1].value > 0 && (
                         <div className="text-xs text-muted-foreground mt-1">
                           {Math.round((step.value / funnelSteps[index - 1].value) * 100)}%
@@ -669,19 +670,19 @@ function DashboardContent() {
 
         {/* Key Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-gradient-to-br bg-silicon-slate/50 border border-radiant-gold/30 rounded-xl p-4">
+          <div className="admin-console-metric rounded-lg border p-4">
             <div className="text-sm text-blue-400">Reply Rate</div>
             <div className="text-3xl font-bold mt-1">{activeFunnel.reply_rate}%</div>
           </div>
-          <div className="bg-gradient-to-br bg-silicon-slate/50 border border-radiant-gold/30 rounded-xl p-4">
+          <div className="admin-console-metric rounded-lg border p-4">
             <div className="text-sm text-green-400">Booking Rate</div>
             <div className="text-3xl font-bold mt-1">{activeFunnel.booking_rate}%</div>
           </div>
-          <div className="bg-gradient-to-br bg-silicon-slate/50 border border-radiant-gold/30 rounded-xl p-4">
+          <div className="admin-console-metric rounded-lg border p-4">
             <div className="text-sm text-yellow-400">Drafts Pending</div>
             <div className="text-3xl font-bold mt-1">{data.queueStats.draft || 0}</div>
           </div>
-          <div className="bg-gradient-to-br bg-silicon-slate/50 border border-radiant-gold/30 rounded-xl p-4">
+          <div className="admin-console-metric rounded-lg border p-4">
             <div className="text-sm text-purple-400">Active Sequences</div>
             <div className="text-3xl font-bold mt-1">
               {activeFunnel.contacted}
@@ -691,7 +692,7 @@ function DashboardContent() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Channel Performance */}
-          <div className="bg-silicon-slate/50 border border-silicon-slate rounded-xl p-6">
+          <div className="admin-console-card rounded-lg border p-6">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <BarChart3 size={20} className="text-purple-400" />
               Channel Performance
@@ -702,14 +703,14 @@ function DashboardContent() {
                   <Mail size={20} className="text-blue-400" />
                   <div>
                     <div className="font-medium">Email</div>
-                    <div className="text-xs text-gray-400">
+                    <div className="text-xs text-muted-foreground">
                       {data.channelStats.email.sent} sent, {data.channelStats.email.replied} replied
                     </div>
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="text-lg font-bold">{data.channelStats.email.reply_rate}%</div>
-                  <div className="text-xs text-gray-400">reply rate</div>
+                  <div className="text-xs text-muted-foreground">reply rate</div>
                 </div>
               </div>
               <div className="flex items-center justify-between p-3 bg-silicon-slate/50 rounded-lg">
@@ -717,21 +718,21 @@ function DashboardContent() {
                   <Linkedin size={20} className="text-sky-400" />
                   <div>
                     <div className="font-medium">LinkedIn</div>
-                    <div className="text-xs text-gray-400">
+                    <div className="text-xs text-muted-foreground">
                       {data.channelStats.linkedin.sent} sent, {data.channelStats.linkedin.replied} replied
                     </div>
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="text-lg font-bold">{data.channelStats.linkedin.reply_rate}%</div>
-                  <div className="text-xs text-gray-400">reply rate</div>
+                  <div className="text-xs text-muted-foreground">reply rate</div>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Sequence Step Performance */}
-          <div className="bg-silicon-slate/50 border border-silicon-slate rounded-xl p-6">
+          <div className="admin-console-card rounded-lg border p-6">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Target size={20} className="text-green-400" />
               Sequence Step Performance
@@ -743,15 +744,15 @@ function DashboardContent() {
                   : 0
                 return (
                   <div key={step} className="flex items-center gap-3">
-                    <div className="w-16 text-sm text-gray-400">Step {step}</div>
+                    <div className="w-16 text-sm text-muted-foreground">Step {step}</div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between text-xs mb-1">
-                        <span className="text-gray-400">{stat.sent} sent</span>
+                        <span className="text-muted-foreground">{stat.sent} sent</span>
                         <span className="text-green-400">{stat.replied} replied ({replyRate}%)</span>
                       </div>
                       <div className="w-full bg-silicon-slate rounded-full h-2">
                         <div
-                          className="bg-gradient-to-r from-green-600 to-green-400 h-2 rounded-full transition-all"
+                          className="bg-emerald-400 h-2 rounded-full transition-all"
                           style={{ width: `${replyRate}%` }}
                         />
                       </div>
@@ -768,7 +769,7 @@ function DashboardContent() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Source Breakdown */}
-          <div className="bg-silicon-slate/50 border border-silicon-slate rounded-xl p-6">
+          <div className="admin-console-card rounded-lg border p-6">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Building2 size={20} className="text-yellow-400" />
               Source Breakdown
@@ -793,7 +794,7 @@ function DashboardContent() {
                               {isWarm ? 'WARM' : 'COLD'}
                             </span>
                           </div>
-                          <span className="text-xs text-gray-400">{stats.total} leads</span>
+                          <span className="text-xs text-muted-foreground">{stats.total} leads</span>
                         </div>
                       <div className="grid grid-cols-5 gap-2 text-xs">
                         <div>
@@ -834,7 +835,7 @@ function DashboardContent() {
           </div>
 
           {/* Lead Sources */}
-          <div className="bg-silicon-slate/50 border border-silicon-slate rounded-xl p-6">
+          <div className="admin-console-card rounded-lg border p-6">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Search size={20} className="text-blue-400" />
               Lead Sources
@@ -855,12 +856,12 @@ function DashboardContent() {
                         <span className={`px-2 py-0.5 rounded text-xs ${
                           source.is_active
                             ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50'
-                            : 'bg-silicon-slate text-gray-400'
+                            : 'bg-silicon-slate text-muted-foreground'
                         }`}>
                           {source.is_active ? 'Active' : 'Paused'}
                         </span>
                       </div>
-                      <div className="flex items-center gap-4 text-xs text-gray-400">
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <span className={`px-1.5 py-0.5 rounded ${
                           isWarmPlatform
                             ? 'bg-orange-900/30 text-orange-400'
@@ -888,9 +889,9 @@ function DashboardContent() {
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-silicon-slate/50 border border-silicon-slate rounded-xl p-6">
+        <div className="admin-console-card rounded-lg border p-6">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <Clock size={20} className="text-gray-400" />
+            <Clock size={20} className="text-muted-foreground" />
             Recent Activity
           </h3>
           {data.recentActivity.length > 0 ? (
