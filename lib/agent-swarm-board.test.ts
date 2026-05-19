@@ -752,6 +752,75 @@ describe('buildAgentOrgBoardSnapshotFromRows', () => {
     })
   })
 
+  it('resolves dependency and handoff relationships without a schema migration', () => {
+    const snapshot = buildAgentOrgBoardSnapshotFromRows({
+      now: new Date('2026-05-05T16:00:00.000Z'),
+      runs: [],
+      events: [],
+      workItems: [
+        orgWorkItem({
+          id: 'work-upstream',
+          title: 'Finish upstream validation',
+          status: 'in_progress',
+          priority: 'high',
+          owner_agent_key: 'engineering-copilot',
+        }),
+        orgWorkItem({
+          id: 'work-downstream',
+          title: 'Merge dependent board changes',
+          status: 'ready_for_merge',
+          priority: 'urgent',
+          owner_agent_key: 'integration-captain',
+          dependency_ids: ['work-upstream'],
+        }),
+      ],
+      handoffs: [
+        {
+          id: 'handoff-1',
+          run_id: 'run-handoff',
+          work_item_id: 'work-downstream',
+          from_agent_key: 'engineering-copilot',
+          to_agent_key: 'integration-captain',
+          handoff_type: 'agent_work_item_handoff',
+          summary: 'Review once validation lands.',
+          status: 'pending',
+          created_at: '2026-05-05T15:30:00.000Z',
+        },
+      ],
+      approvals: [],
+    })
+
+    const upstream = snapshot.lanes.flatMap((lane) => lane.tasks).find((task) => task.id === 'work-upstream')
+    const downstream = snapshot.lanes.flatMap((lane) => lane.tasks).find((task) => task.id === 'work-downstream')
+
+    expect(downstream?.dependencies[0]).toMatchObject({
+      id: 'work-upstream',
+      title: 'Finish upstream validation',
+      status: 'in_progress',
+      blocking: true,
+      ownerAgentName: 'Piye (Kush) - Engineering Copilot',
+    })
+    expect(upstream?.dependents[0]).toMatchObject({
+      id: 'work-downstream',
+      title: 'Merge dependent board changes',
+      status: 'ready_for_merge',
+      blocking: true,
+    })
+    expect(downstream?.handoffs[0]).toMatchObject({
+      id: 'handoff-1',
+      direction: 'incoming',
+      fromAgentName: 'Piye (Kush) - Engineering Copilot',
+      toAgentName: 'Integration Captain',
+      status: 'pending',
+    })
+    expect(snapshot.summary.dependencies).toEqual({
+      waiting_on: 1,
+      blocking_downstream: 1,
+      pending_handoffs: 1,
+      blocked_by_dependency: 1,
+    })
+  })
+
   it('flags WIP limit pressure and preserves priority ordering inside lanes', () => {
     const workItems = [
       orgWorkItem({ id: 'low-old', title: 'Low old', status: 'in_progress', priority: 'low', owner_agent_key: 'automation-systems', updated_at: '2026-05-05T11:00:00.000Z' }),

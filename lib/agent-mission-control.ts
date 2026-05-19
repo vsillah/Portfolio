@@ -44,6 +44,17 @@ type EventRow = {
   occurred_at: string
 }
 
+type MissionWorkItemRow = {
+  id: string
+  title: string
+  status: string
+  priority: string
+  owner_agent_key: string | null
+  dependency_ids: string[] | null
+  active_run_id: string | null
+  updated_at: string
+}
+
 export type AgentMissionControlSnapshot = Awaited<ReturnType<typeof buildAgentMissionControlSnapshot>>
 
 export type AgentInboxItem = {
@@ -142,6 +153,24 @@ export type AgentOperatingSignal = {
   updated_at: string
   href: string
   details: string[]
+}
+
+export type AgentDependencyBlocker = {
+  id: string
+  title: string
+  status: string
+  priority: string
+  owner_agent_key: string | null
+  owner_name: string
+  waiting_on: Array<{
+    id: string
+    title: string
+    status: string
+    owner_name: string
+    href: string
+  }>
+  href: string
+  updated_at: string
 }
 
 function sinceHours(hours: number) {
@@ -556,6 +585,48 @@ function inboxItemForApproval(approval: ApprovalRow, runsById: Map<string, Agent
   }
 }
 
+function buildDependencyBlockers(workItems: MissionWorkItemRow[]): AgentDependencyBlocker[] {
+  const rowsById = new Map(workItems.map((item) => [item.id, item]))
+  const ownerName = (agentKey: string | null) => agentKey ? findAgent(agentKey)?.name ?? agentKey : 'Unassigned'
+  return workItems
+    .filter((item) => Array.isArray(item.dependency_ids) && item.dependency_ids.length > 0 && !['merged', 'deployed', 'cancelled'].includes(item.status))
+    .map((item) => {
+      const waitingOn = (item.dependency_ids ?? [])
+        .map((id) => rowsById.get(id))
+        .filter((dependency): dependency is MissionWorkItemRow => Boolean(dependency))
+        .filter((dependency) => !['merged', 'deployed', 'cancelled'].includes(dependency.status))
+        .map((dependency) => ({
+          id: dependency.id,
+          title: dependency.title,
+          status: dependency.status,
+          owner_name: ownerName(dependency.owner_agent_key),
+          href: dependency.active_run_id
+            ? `/admin/agents/runs/${dependency.active_run_id}`
+            : `/admin/agents/swarm-board?work_item=${encodeURIComponent(dependency.id)}`,
+        }))
+
+      return {
+        id: item.id,
+        title: item.title,
+        status: item.status,
+        priority: item.priority,
+        owner_agent_key: item.owner_agent_key,
+        owner_name: ownerName(item.owner_agent_key),
+        waiting_on: waitingOn,
+        href: item.active_run_id
+          ? `/admin/agents/runs/${item.active_run_id}`
+          : `/admin/agents/swarm-board?work_item=${encodeURIComponent(item.id)}`,
+        updated_at: item.updated_at,
+      }
+    })
+    .filter((item) => item.waiting_on.length > 0)
+    .sort((a, b) => {
+      const rank: Record<string, number> = { urgent: 0, high: 1, medium: 2, low: 3 }
+      return (rank[a.priority] ?? 4) - (rank[b.priority] ?? 4) || new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+    })
+    .slice(0, 5)
+}
+
 export function buildAgentInbox(input: {
   runs: AgentRunRow[]
   approvals: ApprovalRow[]
@@ -747,7 +818,7 @@ export async function buildAgentMissionControlSnapshot() {
   const db = assertDatabase()
   const since = sinceHours(24)
 
-  const [runsRes, costsRes, approvalsRes, eventsRes] = await Promise.all([
+  const [runsRes, costsRes, approvalsRes, eventsRes, workItemsRes] = await Promise.all([
     db
       .from('agent_runs')
       .select('id, agent_key, runtime, kind, title, status, subject_label, current_step, error_message, started_at, completed_at, outcome, metadata')
@@ -769,6 +840,11 @@ export async function buildAgentMissionControlSnapshot() {
       .select('run_id, event_type, severity, message, occurred_at')
       .order('occurred_at', { ascending: false })
       .limit(12),
+    db
+      .from('agent_work_items')
+      .select('id, title, status, priority, owner_agent_key, dependency_ids, active_run_id, updated_at')
+      .order('updated_at', { ascending: false })
+      .limit(100),
   ])
 
   for (const result of [runsRes, costsRes, approvalsRes, eventsRes]) {
@@ -777,10 +853,15 @@ export async function buildAgentMissionControlSnapshot() {
     }
   }
 
+  if (workItemsRes.error) {
+    console.warn('[agent-mission-control] dependency blocker projection unavailable:', workItemsRes.error.message)
+  }
+
   const runs = (runsRes.data ?? []) as AgentRunRow[]
   const costs = (costsRes.data ?? []) as CostEventRow[]
   const approvals = (approvalsRes.data ?? []) as ApprovalRow[]
   const events = (eventsRes.data ?? []) as EventRow[]
+  const workItems = workItemsRes.error ? [] : (workItemsRes.data ?? []) as MissionWorkItemRow[]
   const costByRun = new Map<string, number>()
   const runsById = new Map(runs.map((run) => [run.id, run]))
 
@@ -813,6 +894,7 @@ export async function buildAgentMissionControlSnapshot() {
   const engagementQueue = buildAgentEngagementQueue(runs)
   const deadLetterQueue = buildAgentDeadLetterQueue(runs)
   const operatingSignals = buildAgentOperatingSignals(runs)
+  const dependencyBlockers = buildDependencyBlockers(workItems)
   const costToday = Number(costs.reduce((sum, row) => sum + Number(row.amount ?? 0), 0).toFixed(4))
   const costSummary = buildAgentCostSummary({ costs, runsById, windowHours: 24 })
   const dailyBrief = buildDailyOperatingBrief({
@@ -873,6 +955,7 @@ export async function buildAgentMissionControlSnapshot() {
     cost_summary: costSummary,
     quality_summary: qualitySummary,
     operating_signals: operatingSignals,
+    dependency_blockers: dependencyBlockers,
     knowledge_governance: KNOWLEDGE_GOVERNANCE_STATUS,
     agent_inbox: agentInbox,
     engagement_queue: engagementQueue,

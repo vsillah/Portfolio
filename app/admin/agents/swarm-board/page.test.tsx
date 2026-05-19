@@ -45,6 +45,12 @@ const boardSnapshot = {
       average_cycle_hours: 4.5,
       oldest_in_flight_hours: 12,
       wip: [{ laneKey: 'operations', label: longLaneLabel, count: 5, limit: 4, overLimit: true }],
+      dependencies: {
+        waiting_on: 1,
+        blocking_downstream: 1,
+        pending_handoffs: 1,
+        blocked_by_dependency: 1,
+      },
       goals: [{
         id: 'goal-1',
         title: 'Launch Standup Room',
@@ -89,6 +95,32 @@ const boardSnapshot = {
             validationSummary: 'Focused route tests passed.',
             overlapGroup: 'agent-ops-redesign',
             parentWorkItemId: 'goal-parent',
+            expectedFiles: ['app/admin/agents/swarm-board/page.tsx'],
+            dependencyIds: ['work-2'],
+            dependencies: [{
+              id: 'work-2',
+              title: 'Prepare review packet without an attached PR',
+              status: 'ready_for_merge',
+              ownerAgentKey: 'automation-systems',
+              ownerAgentName: 'integration-captain',
+              href: '/admin/agents/swarm-board?work_item=work-2',
+              blocking: true,
+            }],
+            dependents: [],
+            handoffs: [{
+              id: 'handoff-1',
+              direction: 'incoming',
+              fromAgentKey: 'chief-of-staff',
+              fromAgentName: 'Shaka (Zulu) - Chief of Staff',
+              toAgentKey: 'automation-systems',
+              toAgentName: 'Amina - Automation Systems',
+              handoffType: 'agent_work_item_handoff',
+              summary: 'Confirm the dependency before merge.',
+              status: 'pending',
+              runId: 'handoff-run',
+              createdAt: '2026-05-13T11:00:00.000Z',
+            }],
+            acceptanceCriteria: ['Dependency is cleared before merge.'],
             createdAt: '2026-05-13T08:00:00.000Z',
             updatedAt: '2026-05-13T11:50:00.000Z',
             completedAt: null,
@@ -126,6 +158,20 @@ const boardSnapshot = {
             validationSummary: 'Focused validation passed.',
             overlapGroup: 'agent-ops-redesign',
             parentWorkItemId: 'goal-parent',
+            expectedFiles: [],
+            dependencyIds: [],
+            dependencies: [],
+            dependents: [{
+              id: 'work-1',
+              title: longTaskTitle,
+              status: 'blocked',
+              ownerAgentKey: 'automation-systems',
+              ownerAgentName: 'Amina - Automation Systems',
+              href: '/admin/agents/runs/run-1',
+              blocking: true,
+            }],
+            handoffs: [],
+            acceptanceCriteria: [],
             createdAt: '2026-05-13T09:00:00.000Z',
             updatedAt: '2026-05-13T12:00:00.000Z',
             completedAt: null,
@@ -163,6 +209,12 @@ const boardSnapshot = {
             validationSummary: null,
             overlapGroup: null,
             parentWorkItemId: null,
+            expectedFiles: [],
+            dependencyIds: [],
+            dependencies: [],
+            dependents: [],
+            handoffs: [],
+            acceptanceCriteria: [],
             createdAt: '2026-05-13T10:00:00.000Z',
             updatedAt: '2026-05-13T12:10:00.000Z',
             completedAt: null,
@@ -253,6 +305,8 @@ describe('AgentSwarmBoardPage', () => {
     expect(screen.getByRole('region', { name: 'Complete lane' })).toBeInTheDocument()
     expect(screen.getByText('Goal progress')).toBeInTheDocument()
     expect(screen.getByRole('region', { name: 'Kanban action queue' })).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Dependency tracing' })).toBeInTheDocument()
+    expect(screen.getByText('Blocked by dependency')).toBeInTheDocument()
     expect(screen.getAllByText('Launch Standup Room').length).toBeGreaterThan(0)
     expect(screen.getByText('1 lane(s) are above configured limit.')).toBeInTheDocument()
     expect(screen.getByText(`${longLaneLabel}: 5/4`)).toBeInTheDocument()
@@ -274,7 +328,9 @@ describe('AgentSwarmBoardPage', () => {
     expect(screen.getAllByText('Owner').length).toBeGreaterThan(0)
     expect(screen.getByText('Blocker:')).toBeInTheDocument()
     expect(screen.getAllByText('Validation:').length).toBeGreaterThan(0)
-    expect(screen.getAllByText('Resolve blocker').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Check dependencies').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Dependencies').length).toBeGreaterThan(0)
+    expect(screen.getByRole('button', { name: `Open dependency details for ${longTaskTitle}` })).toBeInTheDocument()
     expect(screen.getAllByText('Attach PR').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Open trace').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Integration Captain').length).toBeGreaterThan(0)
@@ -285,6 +341,24 @@ describe('AgentSwarmBoardPage', () => {
     expect(screen.getByLabelText('Pull request unavailable for Prepare review packet without an attached PR')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: `Open pull request 203 for ${longTaskTitle}` })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: `Open trace run-1 for ${longTaskTitle}` })).toHaveAttribute('href', '/admin/agents/runs/run-1')
+  })
+
+  it('opens dependency details and filters dependency-linked work', async () => {
+    render(<AgentSwarmBoardPage />)
+
+    fireEvent.click(await screen.findByRole('button', { name: `Open dependency details for ${longTaskTitle}` }))
+
+    expect(screen.getByRole('region', { name: 'Dependency detail drawer' })).toBeInTheDocument()
+    expect(screen.getAllByText('Waiting on').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Prepare review packet without an attached PR').length).toBeGreaterThan(0)
+    expect(screen.getByText('Agent handoffs')).toBeInTheDocument()
+    expect(screen.getAllByText(/Shaka \(Zulu\) - Chief of Staff to Amina - Automation Systems/i).length).toBeGreaterThan(0)
+    expect(screen.getByText(/Confirm the dependency before merge/i)).toBeInTheDocument()
+
+    fireEvent.change(screen.getByLabelText('Dependencies'), { target: { value: 'waiting' } })
+
+    expect(screen.getAllByText(longTaskTitle).length).toBeGreaterThan(0)
+    expect(screen.queryByText('Maintain automation context outside the selected goal')).not.toBeInTheDocument()
   })
 
   it('surfaces the top Kanban actions before the lanes', async () => {
@@ -332,6 +406,16 @@ describe('AgentSwarmBoardPage', () => {
     expect(screen.getByText(/0\/2 complete/)).toBeInTheDocument()
     expect(screen.queryByText('Maintain automation context outside the selected goal')).not.toBeInTheDocument()
     expect(screen.getByLabelText('Goal')).toHaveValue('goal-1')
+  })
+
+  it('opens the dependency drawer from a work item query parameter', async () => {
+    window.history.pushState({}, '', '/admin/agents/swarm-board?work_item=work-1')
+
+    render(<AgentSwarmBoardPage />)
+
+    expect(await screen.findByRole('region', { name: 'Dependency detail drawer' })).toBeInTheDocument()
+    expect(screen.getAllByText('Prepare review packet without an attached PR').length).toBeGreaterThan(0)
+    expect(screen.getByText(/Confirm the dependency before merge/i)).toBeInTheDocument()
   })
 
   it('routes automation goals to Standup for n8n workflow proposal drafting', async () => {
@@ -407,13 +491,13 @@ describe('AgentSwarmBoardPage', () => {
     fireEvent.change(screen.getByLabelText('Status'), { target: { value: 'ready_for_merge' } })
 
     expect(screen.getAllByText('Prepare review packet without an attached PR').length).toBeGreaterThan(0)
-    expect(screen.queryByText(longTaskTitle)).not.toBeInTheDocument()
+    expect(document.querySelectorAll(`p[title="${longTaskTitle}"]`).length).toBe(0)
 
     fireEvent.change(screen.getByLabelText('Status'), { target: { value: 'all' } })
     fireEvent.change(screen.getByLabelText('Attention'), { target: { value: 'blocked' } })
 
     expect(screen.getAllByText(longTaskTitle).length).toBeGreaterThan(0)
-    expect(screen.queryByText('Prepare review packet without an attached PR')).not.toBeInTheDocument()
+    expect(document.querySelectorAll('p[title="Prepare review packet without an attached PR"]').length).toBe(0)
   })
 
   it('switches secondary modes as board views', async () => {

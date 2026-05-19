@@ -114,6 +114,30 @@ export type AgentOrgBoardN8nProposalContext = {
   controllerHref: string
 }
 
+export type AgentOrgBoardDependencyLink = {
+  id: string
+  title: string
+  status: AgentOrgBoardTaskStatus
+  ownerAgentKey: string | null
+  ownerAgentName: string
+  href: string
+  blocking: boolean
+}
+
+export type AgentOrgBoardHandoffLink = {
+  id: string
+  direction: 'incoming' | 'outgoing'
+  fromAgentKey: string | null
+  fromAgentName: string
+  toAgentKey: string | null
+  toAgentName: string
+  handoffType: string | null
+  summary: string | null
+  status: string
+  runId: string | null
+  createdAt: string
+}
+
 export type AgentOrgBoardTask = {
   id: string
   title: string
@@ -134,6 +158,9 @@ export type AgentOrgBoardTask = {
   parentWorkItemId: string | null
   expectedFiles: string[]
   dependencyIds: string[]
+  dependencies: AgentOrgBoardDependencyLink[]
+  dependents: AgentOrgBoardDependencyLink[]
+  handoffs: AgentOrgBoardHandoffLink[]
   acceptanceCriteria: string[]
   createdAt: string
   updatedAt: string
@@ -194,6 +221,13 @@ export type AgentOrgBoardWipMetric = {
   count: number
   limit: number
   overLimit: boolean
+}
+
+export type AgentOrgBoardDependencyMetric = {
+  waiting_on: number
+  blocking_downstream: number
+  pending_handoffs: number
+  blocked_by_dependency: number
 }
 
 export type AgentOrgBoardLane = {
@@ -264,6 +298,7 @@ export type AgentOrgBoardSnapshot = {
     oldest_in_flight_hours: number | null
     wip: AgentOrgBoardWipMetric[]
     goals: AgentOrgBoardGoalMetric[]
+    dependencies: AgentOrgBoardDependencyMetric
   }
   agents: AgentOrgBoardAgent[]
   lanes: AgentOrgBoardLane[]
@@ -388,6 +423,18 @@ type AgentWorkItemRow = {
   updated_at: string
 }
 
+type AgentHandoffRow = {
+  id: string
+  run_id: string | null
+  work_item_id: string | null
+  from_agent_key: string | null
+  to_agent_key: string | null
+  handoff_type: string | null
+  summary: string | null
+  status: string
+  created_at: string
+}
+
 type ContactSubmissionRow = {
   id: number
   email: string | null
@@ -419,6 +466,7 @@ type AgentOrgBoardBuildInput = {
   runs: AgentRunRow[]
   events: AgentRunEventRow[]
   workItems: AgentWorkItemRow[]
+  handoffs?: AgentHandoffRow[]
   approvals: ApprovalRow[]
   now?: Date
 }
@@ -811,6 +859,7 @@ function podName(podKey: AgentPodKey) {
 
 function agentName(agentKey: string | null) {
   if (!agentKey) return 'Unassigned'
+  if (agentKey === 'integration-captain') return 'Integration Captain'
   return getAgentByKey(agentKey)?.name ?? agentKey
 }
 
@@ -1022,12 +1071,59 @@ export function buildAgentOrgBoardSnapshotFromRows(input: AgentOrgBoardBuildInpu
     parentWorkItemId: item.parent_work_item_id ?? null,
     expectedFiles: stringArrayValue(item.expected_files),
     dependencyIds: stringArrayValue(item.dependency_ids),
+    dependencies: [],
+    dependents: [],
+    handoffs: [],
     acceptanceCriteria: stringArrayValue(item.metadata?.acceptance_criteria),
     createdAt: item.created_at,
     updatedAt: item.updated_at,
     completedAt: item.completed_at ?? null,
     goal: goalForTask(item),
   }))
+  const tasksById = new Map(tasks.map((task) => [task.id, task]))
+  const dependencyLinkForTask = (task: AgentOrgBoardTask): AgentOrgBoardDependencyLink => ({
+    id: task.id,
+    title: task.title,
+    status: task.status,
+    ownerAgentKey: task.ownerAgentKey,
+    ownerAgentName: task.ownerAgentName,
+    href: task.activeRunId ? `/admin/agents/runs/${task.activeRunId}` : `/admin/agents/swarm-board?work_item=${encodeURIComponent(task.id)}`,
+    blocking: isActiveWorkStatus(task.status),
+  })
+
+  for (const task of tasks) {
+    task.dependencies = task.dependencyIds
+      .map((id) => tasksById.get(id))
+      .filter((dependency): dependency is AgentOrgBoardTask => Boolean(dependency))
+      .map(dependencyLinkForTask)
+  }
+
+  for (const task of tasks) {
+    for (const dependency of task.dependencies) {
+      const upstream = tasksById.get(dependency.id)
+      if (!upstream) continue
+      upstream.dependents.push(dependencyLinkForTask(task))
+    }
+  }
+
+  for (const handoff of input.handoffs ?? []) {
+    if (!handoff.work_item_id) continue
+    const task = tasksById.get(handoff.work_item_id)
+    if (!task) continue
+    task.handoffs.push({
+      id: handoff.id,
+      direction: handoff.to_agent_key === task.ownerAgentKey ? 'incoming' : 'outgoing',
+      fromAgentKey: handoff.from_agent_key,
+      fromAgentName: agentName(handoff.from_agent_key),
+      toAgentKey: handoff.to_agent_key,
+      toAgentName: agentName(handoff.to_agent_key),
+      handoffType: handoff.handoff_type,
+      summary: handoff.summary,
+      status: handoff.status,
+      runId: handoff.run_id,
+      createdAt: handoff.created_at,
+    })
+  }
 
   const laneSeeds: AgentOrgBoardLane[] = [
     {
@@ -1132,6 +1228,16 @@ export function buildAgentOrgBoardSnapshotFromRows(input: AgentOrgBoardBuildInpu
     }
   })
   const goals = buildGoalMetrics(tasks)
+  const dependencyMetrics: AgentOrgBoardDependencyMetric = {
+    waiting_on: activeTasks.filter((task) => {
+      const resolvedIds = new Set(task.dependencies.map((dependency) => dependency.id))
+      const unresolvedIds = task.dependencyIds.filter((id) => !resolvedIds.has(id))
+      return task.dependencies.some((dependency) => dependency.blocking) || unresolvedIds.length > 0
+    }).length,
+    blocking_downstream: activeTasks.filter((task) => task.dependents.some((dependent) => dependent.blocking)).length,
+    pending_handoffs: activeTasks.filter((task) => task.handoffs.some((handoff) => handoff.status === 'pending')).length,
+    blocked_by_dependency: activeTasks.filter((task) => task.dependencies.some((dependency) => dependency.blocking)).length,
+  }
 
   return {
     generated_at: now.toISOString(),
@@ -1151,6 +1257,7 @@ export function buildAgentOrgBoardSnapshotFromRows(input: AgentOrgBoardBuildInpu
       oldest_in_flight_hours: activeAges.length ? Math.max(...activeAges) : null,
       wip,
       goals,
+      dependencies: dependencyMetrics,
     },
     agents,
     lanes,
@@ -1299,10 +1406,25 @@ export async function buildAgentOrgBoardSnapshot(): Promise<AgentOrgBoardSnapsho
     if (result.error) throw new Error(result.error.message)
   }
 
+  const workItemIds = ((workItemsRes.data ?? []) as AgentWorkItemRow[]).map((item) => item.id)
+  const handoffsRes = workItemIds.length
+    ? await db
+        .from('agent_handoffs')
+        .select('id, run_id, work_item_id, from_agent_key, to_agent_key, handoff_type, summary, status, created_at')
+        .in('work_item_id', workItemIds)
+        .order('created_at', { ascending: false })
+        .limit(150)
+    : { data: [], error: null }
+
+  if (handoffsRes.error) {
+    console.warn('[agent-swarm-board] handoff projection unavailable:', handoffsRes.error.message)
+  }
+
   return buildAgentOrgBoardSnapshotFromRows({
     runs: (runsRes.data ?? []) as AgentRunRow[],
     events: (eventsRes.data ?? []) as AgentRunEventRow[],
     workItems: (workItemsRes.data ?? []) as AgentWorkItemRow[],
+    handoffs: handoffsRes.error ? [] : (handoffsRes.data ?? []) as AgentHandoffRow[],
     approvals: (approvalsRes.data ?? []) as ApprovalRow[],
   })
 }
