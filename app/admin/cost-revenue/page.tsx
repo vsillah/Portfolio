@@ -6,6 +6,7 @@ import { DollarSign, TrendingUp, TrendingDown, Percent } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import AdminPieChart from '@/components/admin/AdminPieChart'
+import { getCurrentSession } from '@/lib/auth'
 
 type DatePreset = 'mtd' | 'qtd' | 'ytd'
 
@@ -87,7 +88,11 @@ function CostRevenuePageContent() {
     setError(null)
     const { from, to } = getDateRange(preset)
     try {
-      const res = await fetch(`/api/admin/cost-revenue/summary?from=${from}&to=${to}`)
+      const session = await getCurrentSession()
+      if (!session?.access_token) throw new Error('Missing admin session')
+      const res = await fetch(`/api/admin/cost-revenue/summary?from=${from}&to=${to}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
       if (!res.ok) {
         const body = await res.json().catch(() => ({}))
         throw new Error(body.error || `HTTP ${res.status}`)
@@ -113,17 +118,20 @@ function CostRevenuePageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-8">
+    <div className="admin-console-page min-h-screen p-6 text-foreground lg:p-8">
       <div className="max-w-7xl mx-auto">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
           { label: 'Cost & Revenue' },
         ]} />
 
-        <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
+        <header className="admin-console-surface-header mb-6 mt-5 flex flex-wrap items-start justify-between gap-4 rounded-xl border p-5">
           <div>
-            <h1 className="text-3xl font-bold mb-1">Cost & Revenue</h1>
-            <p className="text-muted-foreground text-sm">Portfolio cost and revenue summary by period.</p>
+            <div className="admin-console-eyebrow mb-2">Financial Operations</div>
+            <h1 className="text-3xl font-bold">Cost & Revenue</h1>
+            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+              Portfolio cost and revenue summary by period, with spend signals separated from command actions.
+            </p>
           </div>
 
           <div className="flex gap-2">
@@ -133,15 +141,15 @@ function CostRevenuePageContent() {
                 onClick={() => setPreset(p)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   preset === p
-                    ? 'bg-radiant-gold/20 text-radiant-gold border border-radiant-gold/50'
-                    : 'bg-silicon-slate/40 text-muted-foreground border border-silicon-slate/60 hover:border-silicon-slate/80'
+                    ? 'border border-radiant-gold/50 bg-radiant-gold/20 text-radiant-gold'
+                    : 'border border-silicon-slate/60 bg-background/45 text-muted-foreground hover:border-radiant-gold/45 hover:text-foreground'
                 }`}
               >
                 {presetLabels[p]}
               </button>
             ))}
           </div>
-        </div>
+        </header>
 
         {loading ? (
           <div className="flex items-center justify-center py-16 text-muted-foreground">
@@ -198,15 +206,15 @@ function CostRevenuePageContent() {
             <div className="mb-8">
               <h2 className="text-lg font-semibold mb-3 text-foreground/90">Revenue breakdown</h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-4">
+                <div className="admin-console-metric rounded-lg border p-4">
                   <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">Orders</p>
                   <p className="text-xl font-bold tabular-nums text-radiant-gold">{formatCurrency(data.revenue.orders)}</p>
                 </div>
-                <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-4">
+                <div className="admin-console-metric rounded-lg border p-4">
                   <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">Proposals (no order)</p>
                   <p className="text-xl font-bold tabular-nums text-radiant-gold">{formatCurrency(data.revenue.proposals)}</p>
                 </div>
-                <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-4">
+                <div className="admin-console-metric rounded-lg border p-4">
                   <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">Subscriptions</p>
                   <p className="text-xl font-bold tabular-nums text-radiant-gold">{formatCurrency(data.revenue.subscriptions)}</p>
                 </div>
@@ -217,7 +225,7 @@ function CostRevenuePageContent() {
             <div>
               <h2 className="text-lg font-semibold mb-3 text-foreground/90">Cost by source</h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="rounded-lg border border-silicon-slate/60 bg-silicon-slate/20 p-4">
+                <div className="admin-console-card rounded-lg border p-4">
                   <AdminPieChart
                     data={data.cost.bySource.map(({ source, amount }) => ({
                       name: source,
@@ -228,7 +236,7 @@ function CostRevenuePageContent() {
                     title="Cost by source"
                   />
                 </div>
-                <div className="rounded-lg border border-silicon-slate/60 bg-silicon-slate/20 p-4">
+                <div className="admin-console-card rounded-lg border p-4">
                   <p className="text-xs font-medium text-muted-foreground mb-3">Cost by source (list)</p>
                   <ul className="space-y-2">
                     {data.cost.bySource.length > 0 ? (
@@ -277,7 +285,7 @@ function SummaryCard({
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-5"
+      className="admin-console-metric rounded-lg border p-5"
     >
       <div className="flex items-start justify-between gap-2">
         <div className={`${accentClasses[accent]} opacity-90`}>{icon}</div>
