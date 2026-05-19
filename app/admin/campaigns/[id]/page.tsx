@@ -190,17 +190,21 @@ export default function CampaignDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center">
-        <Loader2 size={32} className="animate-spin text-gray-400" />
+      <div className="admin-console-page min-h-screen flex items-center justify-center text-foreground">
+        <Loader2 size={32} className="animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   if (!campaign) {
     return (
-      <div className="min-h-screen bg-gray-950 text-white p-6">
-        <p className="text-gray-400">Campaign not found.</p>
-        <Link href={backUrl} className="text-amber-400 hover:underline mt-2 inline-block">Back</Link>
+      <div className="admin-console-page min-h-screen px-4 py-6 text-foreground sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="admin-console-card rounded-lg border p-6">
+            <p className="text-muted-foreground">Campaign not found.</p>
+            <Link href={backUrl} className="admin-console-button-secondary mt-4 inline-flex">Back</Link>
+          </div>
+        </div>
       </div>
     );
   }
@@ -212,7 +216,8 @@ export default function CampaignDetailPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-6">
+    <div className="admin-console-page min-h-screen px-4 py-6 text-foreground sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
       <Breadcrumbs items={[
         { label: 'Admin', href: '/admin' },
         { label: 'Campaigns', href: '/admin/campaigns' },
@@ -220,41 +225,42 @@ export default function CampaignDetailPage() {
       ]} />
 
       {/* Header */}
-      <div className="mb-8">
-        <Link href={backUrl} className="text-gray-400 hover:text-white text-sm flex items-center gap-1 mb-4">
+      <div className="admin-console-surface-header mb-6 mt-4 rounded-xl border p-5 sm:p-6">
+        <Link href={backUrl} className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground">
           <ArrowLeft size={14} /> Back
         </Link>
-        <div className="flex items-center gap-4">
-          <h1 className="text-3xl font-bold">{campaign.name}</h1>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="admin-console-eyebrow w-full">Campaign Detail</div>
+          <h1 className="text-3xl font-bold tracking-tight">{campaign.name}</h1>
           <span className={`px-3 py-1 text-sm rounded-full border ${CAMPAIGN_STATUS_COLORS[campaign.status]}`}>
             {CAMPAIGN_STATUS_LABELS[campaign.status]}
           </span>
-          <span className="px-3 py-1 text-sm rounded-full bg-gray-700 text-gray-300">
+          <span className="rounded-full border border-white/10 bg-silicon-slate/50 px-3 py-1 text-sm text-muted-foreground">
             {CAMPAIGN_TYPE_LABELS[campaign.campaign_type]}
           </span>
         </div>
-        {campaign.description && <p className="text-gray-400 mt-2">{campaign.description}</p>}
-        <div className="flex items-center gap-6 mt-3 text-sm text-gray-400">
+        {campaign.description && <p className="mt-2 max-w-3xl text-muted-foreground">{campaign.description}</p>}
+        <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
           <span className="flex items-center gap-1"><Clock size={14} /> {campaign.completion_window_days} day window</span>
           <span className="flex items-center gap-1"><Calendar size={14} /> {campaign.starts_at ? new Date(campaign.starts_at).toLocaleDateString() : '—'} to {campaign.ends_at ? new Date(campaign.ends_at).toLocaleDateString() : '—'}</span>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 border-b border-gray-700">
+      <div className="admin-console-card mb-6 flex gap-1 overflow-x-auto rounded-lg border p-1">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+            className={`flex items-center gap-2 rounded-md px-4 py-3 text-sm font-medium transition-colors ${
               activeTab === tab.key
-                ? 'border-amber-400 text-amber-400'
-                : 'border-transparent text-gray-400 hover:text-white'
+                ? 'bg-radiant-gold text-imperial-navy'
+                : 'text-muted-foreground hover:bg-silicon-slate/60 hover:text-foreground'
             }`}
           >
             <tab.icon size={16} />
             {tab.label}
-            <span className="px-1.5 py-0.5 text-xs bg-gray-700 rounded-full">{tab.count}</span>
+            <span className="rounded-full border border-current/20 px-1.5 py-0.5 text-xs">{tab.count}</span>
           </button>
         ))}
       </div>
@@ -264,50 +270,50 @@ export default function CampaignDetailPage() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Criteria Templates</h2>
-            <button onClick={() => setShowCriteriaForm(!showCriteriaForm)} className="flex items-center gap-1 px-3 py-1.5 bg-amber-600 hover:bg-amber-500 rounded-lg text-sm">
+            <button onClick={() => setShowCriteriaForm(!showCriteriaForm)} className={showCriteriaForm ? 'admin-console-button-secondary' : 'admin-console-button-primary'}>
               {showCriteriaForm ? <X size={14} /> : <Plus size={14} />}
               {showCriteriaForm ? 'Cancel' : 'Add Criterion'}
             </button>
           </div>
 
           {showCriteriaForm && (
-            <div className="mb-6 p-4 bg-gray-900 border border-gray-700 rounded-xl space-y-3">
+            <div className="admin-console-card mb-6 space-y-3 rounded-lg border p-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="md:col-span-2">
-                  <label className="block text-xs text-gray-400 mb-1">Label Template *</label>
+                  <label className="mb-1 block text-xs text-muted-foreground">Label Template *</label>
                   <input type="text" value={criteriaForm.label_template} onChange={(e) => setCriteriaForm({ ...criteriaForm, label_template: e.target.value })}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm" placeholder='Achieve {{revenue_target}} monthly revenue' />
+                    className="w-full rounded-lg border border-white/10 bg-silicon-slate/50 px-3 py-2 text-sm text-foreground" placeholder='Achieve {{revenue_target}} monthly revenue' />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1">Type</label>
+                  <label className="mb-1 block text-xs text-muted-foreground">Type</label>
                   <select value={criteriaForm.criteria_type} onChange={(e) => setCriteriaForm({ ...criteriaForm, criteria_type: e.target.value as CriteriaType })}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm">
+                    className="w-full rounded-lg border border-white/10 bg-silicon-slate/50 px-3 py-2 text-sm text-foreground">
                     {Object.entries(CRITERIA_TYPE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1">Tracking Source</label>
+                  <label className="mb-1 block text-xs text-muted-foreground">Tracking Source</label>
                   <select value={criteriaForm.tracking_source} onChange={(e) => setCriteriaForm({ ...criteriaForm, tracking_source: e.target.value as TrackingSource })}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm">
+                    className="w-full rounded-lg border border-white/10 bg-silicon-slate/50 px-3 py-2 text-sm text-foreground">
                     {Object.entries(TRACKING_SOURCE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1">Threshold Source</label>
+                  <label className="mb-1 block text-xs text-muted-foreground">Threshold Source</label>
                   <input type="text" value={criteriaForm.threshold_source} onChange={(e) => setCriteriaForm({ ...criteriaForm, threshold_source: e.target.value })}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm" placeholder="audit.desired_monthly_revenue" />
+                    className="w-full rounded-lg border border-white/10 bg-silicon-slate/50 px-3 py-2 text-sm text-foreground" placeholder="audit.desired_monthly_revenue" />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1">Threshold Default</label>
+                  <label className="mb-1 block text-xs text-muted-foreground">Threshold Default</label>
                   <input type="text" value={criteriaForm.threshold_default} onChange={(e) => setCriteriaForm({ ...criteriaForm, threshold_default: e.target.value })}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm" placeholder="50000" />
+                    className="w-full rounded-lg border border-white/10 bg-silicon-slate/50 px-3 py-2 text-sm text-foreground" placeholder="50000" />
                 </div>
                 <div className="flex items-center gap-2">
                   <input type="checkbox" checked={criteriaForm.required} onChange={(e) => setCriteriaForm({ ...criteriaForm, required: e.target.checked })} className="rounded" />
-                  <label className="text-sm text-gray-300">Required</label>
+                  <label className="text-sm text-muted-foreground">Required</label>
                 </div>
               </div>
-              <button onClick={handleAddCriterion} disabled={!criteriaForm.label_template.trim()} className="px-4 py-1.5 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 rounded-lg text-sm">
+              <button onClick={handleAddCriterion} disabled={!criteriaForm.label_template.trim()} className="admin-console-button-primary disabled:cursor-not-allowed disabled:opacity-50">
                 Add Criterion
               </button>
             </div>
@@ -315,25 +321,29 @@ export default function CampaignDetailPage() {
 
           <div className="space-y-3">
             {campaign.campaign_criteria_templates.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No criteria templates yet. Add criteria that clients must meet.</p>
+              <p className="admin-console-card rounded-lg border py-8 text-center text-muted-foreground">No criteria templates yet. Add criteria that clients must meet.</p>
             ) : (
               campaign.campaign_criteria_templates
                 .sort((a, b) => a.display_order - b.display_order)
                 .map((ct, i) => (
-                  <div key={ct.id} className="p-4 bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
+                  <div key={ct.id} className="admin-console-card flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                      <div className="mb-1 flex min-w-0 flex-wrap items-center gap-2">
                         <span className="text-xs text-gray-500">#{i + 1}</span>
-                        <span className="font-medium">{ct.label_template}</span>
+                        <span className="min-w-0 break-words font-medium">{ct.label_template}</span>
                         {ct.required && <span className="text-xs text-red-400">Required</span>}
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-gray-400">
+                      <div className="flex min-w-0 flex-wrap items-center gap-3 text-xs text-gray-400">
                         <span>{CRITERIA_TYPE_LABELS[ct.criteria_type]}</span>
                         <span>{TRACKING_SOURCE_LABELS[ct.tracking_source]}</span>
-                        {ct.threshold_source && <span>Source: {ct.threshold_source}</span>}
+                        {ct.threshold_source && <span className="break-all">Source: {ct.threshold_source}</span>}
                       </div>
                     </div>
-                    <button onClick={() => handleDeleteCriterion(ct.id)} className="p-1.5 text-gray-500 hover:text-red-400 transition-colors">
+                    <button
+                      onClick={() => handleDeleteCriterion(ct.id)}
+                      aria-label={`Delete criterion ${ct.label_template}`}
+                      className="self-start rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-300 sm:self-center"
+                    >
                       <Trash2 size={16} />
                     </button>
                   </div>
@@ -348,25 +358,25 @@ export default function CampaignDetailPage() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Eligible Bundles</h2>
-            <button onClick={() => setShowBundleForm(!showBundleForm)} className="flex items-center gap-1 px-3 py-1.5 bg-amber-600 hover:bg-amber-500 rounded-lg text-sm">
+            <button onClick={() => setShowBundleForm(!showBundleForm)} className={showBundleForm ? 'admin-console-button-secondary' : 'admin-console-button-primary'}>
               {showBundleForm ? <X size={14} /> : <Plus size={14} />}
               {showBundleForm ? 'Cancel' : 'Add Bundle'}
             </button>
           </div>
 
           {showBundleForm && (
-            <div className="mb-6 p-4 bg-gray-900 border border-gray-700 rounded-xl flex items-end gap-3">
+            <div className="admin-console-card mb-6 flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-end">
               <div className="flex-1">
-                <label className="block text-xs text-gray-400 mb-1">Bundle</label>
+                <label className="mb-1 block text-xs text-muted-foreground">Bundle</label>
                 <select value={selectedBundleId} onChange={(e) => setSelectedBundleId(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm">
+                  className="w-full rounded-lg border border-white/10 bg-silicon-slate/50 px-3 py-2 text-sm text-foreground">
                   <option value="">Select a bundle...</option>
                   {availableBundles.map((b) => (
                     <option key={b.id} value={b.id}>{b.name} {b.pricing_tier_slug ? `(${b.pricing_tier_slug})` : ''} — ${b.bundle_price}</option>
                   ))}
                 </select>
               </div>
-              <button onClick={handleAddBundle} disabled={!selectedBundleId} className="px-4 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 rounded-lg text-sm">
+              <button onClick={handleAddBundle} disabled={!selectedBundleId} className="admin-console-button-primary disabled:cursor-not-allowed disabled:opacity-50">
                 Add
               </button>
             </div>
@@ -374,18 +384,22 @@ export default function CampaignDetailPage() {
 
           <div className="space-y-3">
             {campaign.campaign_eligible_bundles.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No eligible bundles yet. Add bundles that qualify for this campaign.</p>
+              <p className="admin-console-card rounded-lg border py-8 text-center text-muted-foreground">No eligible bundles yet. Add bundles that qualify for this campaign.</p>
             ) : (
               campaign.campaign_eligible_bundles.map((eb) => (
-                <div key={eb.id} className="p-4 bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-between">
-                  <div>
-                    <span className="font-medium">{eb.offer_bundles?.name || 'Unknown bundle'}</span>
-                    <div className="flex items-center gap-3 text-xs text-gray-400 mt-1">
+                <div key={eb.id} className="admin-console-card flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <span className="block min-w-0 break-words font-medium">{eb.offer_bundles?.name || 'Unknown bundle'}</span>
+                    <div className="mt-1 flex min-w-0 flex-wrap items-center gap-3 text-xs text-gray-400">
                       {eb.offer_bundles?.pricing_tier_slug && <span>Tier: {eb.offer_bundles.pricing_tier_slug}</span>}
                       {eb.offer_bundles?.bundle_price != null && <span>${eb.offer_bundles.bundle_price}</span>}
                     </div>
                   </div>
-                  <button onClick={() => handleRemoveBundle(eb.bundle_id)} className="p-1.5 text-gray-500 hover:text-red-400 transition-colors">
+                  <button
+                    onClick={() => handleRemoveBundle(eb.bundle_id)}
+                    aria-label={`Remove bundle ${eb.offer_bundles?.name || eb.bundle_id}`}
+                    className="self-start rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-300 sm:self-center"
+                  >
                     <Trash2 size={16} />
                   </button>
                 </div>
@@ -400,14 +414,14 @@ export default function CampaignDetailPage() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Enrollments</h2>
-            <button onClick={() => setShowEnrollForm(!showEnrollForm)} className="flex items-center gap-1 px-3 py-1.5 bg-amber-600 hover:bg-amber-500 rounded-lg text-sm">
+            <button onClick={() => setShowEnrollForm(!showEnrollForm)} className={showEnrollForm ? 'admin-console-button-secondary' : 'admin-console-button-primary'}>
               {showEnrollForm ? <X size={14} /> : <UserPlus size={14} />}
               {showEnrollForm ? 'Cancel' : 'Enroll Client'}
             </button>
           </div>
 
           {showEnrollForm && (
-            <div className="mb-6 p-4 bg-gray-900 border border-gray-700 rounded-xl space-y-3">
+            <div className="admin-console-card mb-6 space-y-3 rounded-lg border p-4">
               {enrollError && (
                 <div className="flex items-center gap-2 p-3 bg-red-900/30 border border-red-500/50 rounded-lg text-sm text-red-300">
                   <AlertCircle size={16} /> {enrollError}
@@ -415,18 +429,18 @@ export default function CampaignDetailPage() {
               )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1">Client Email *</label>
+                  <label className="mb-1 block text-xs text-muted-foreground">Client Email *</label>
                   <input type="email" value={enrollForm.client_email} onChange={(e) => setEnrollForm({ ...enrollForm, client_email: e.target.value })}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm" placeholder="client@example.com" />
+                    className="w-full rounded-lg border border-white/10 bg-silicon-slate/50 px-3 py-2 text-sm text-foreground" placeholder="client@example.com" />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1">Client Name</label>
+                  <label className="mb-1 block text-xs text-muted-foreground">Client Name</label>
                   <input type="text" value={enrollForm.client_name} onChange={(e) => setEnrollForm({ ...enrollForm, client_name: e.target.value })}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm" placeholder="John Doe" />
+                    className="w-full rounded-lg border border-white/10 bg-silicon-slate/50 px-3 py-2 text-sm text-foreground" placeholder="John Doe" />
                 </div>
               </div>
-              <p className="text-xs text-gray-500">Client must have completed the AI Audit Calculator. The system will look up their audit data by email.</p>
-              <button onClick={handleEnroll} disabled={!enrollForm.client_email.trim()} className="px-4 py-1.5 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 rounded-lg text-sm">
+              <p className="text-xs text-muted-foreground">Client must have completed the AI Audit Calculator. The system will look up their audit data by email.</p>
+              <button onClick={handleEnroll} disabled={!enrollForm.client_email.trim()} className="admin-console-button-primary disabled:cursor-not-allowed disabled:opacity-50">
                 Enroll
               </button>
             </div>
@@ -434,13 +448,13 @@ export default function CampaignDetailPage() {
 
           <div className="space-y-3">
             {enrollments.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No enrollments yet.</p>
+              <p className="admin-console-card rounded-lg border py-8 text-center text-muted-foreground">No enrollments yet.</p>
             ) : (
               enrollments.map((e) => {
                 const progress = calculateOverallProgress(e.campaign_progress || []);
                 return (
                   <Link key={e.id} href={buildLinkWithReturn(`/admin/campaigns/${campaignId}/enrollments/${e.id}`, `/admin/campaigns/${campaignId}`)}>
-                    <motion.div whileHover={{ scale: 1.002 }} className="p-4 bg-gray-900 border border-gray-700 rounded-lg hover:border-amber-500/50 transition-colors cursor-pointer">
+                    <motion.div whileHover={{ scale: 1.002 }} className="admin-console-card admin-console-interactive cursor-pointer rounded-lg border p-4 transition-colors">
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-1">
@@ -448,21 +462,21 @@ export default function CampaignDetailPage() {
                             <span className={`px-2 py-0.5 text-xs rounded-full border ${ENROLLMENT_STATUS_COLORS[e.status as keyof typeof ENROLLMENT_STATUS_COLORS] || ''}`}>
                               {ENROLLMENT_STATUS_LABELS[e.status as keyof typeof ENROLLMENT_STATUS_LABELS] || e.status}
                             </span>
-                            <span className="text-xs text-gray-500">{ENROLLMENT_SOURCE_LABELS[e.enrollment_source as keyof typeof ENROLLMENT_SOURCE_LABELS] || e.enrollment_source}</span>
+                            <span className="text-xs text-muted-foreground">{ENROLLMENT_SOURCE_LABELS[e.enrollment_source as keyof typeof ENROLLMENT_SOURCE_LABELS] || e.enrollment_source}</span>
                           </div>
-                          <div className="flex items-center gap-4 text-xs text-gray-400">
+                          <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
                             <span>{e.client_email}</span>
                             <span>Enrolled: {new Date(e.enrolled_at).toLocaleDateString()}</span>
                             <span>Deadline: {new Date(e.deadline_at).toLocaleDateString()}</span>
                           </div>
                           <div className="mt-2 flex items-center gap-2">
-                            <div className="flex-1 h-2 bg-gray-700 rounded-full overflow-hidden">
-                              <div className="h-full bg-amber-500 rounded-full transition-all" style={{ width: `${progress}%` }} />
+                            <div className="h-2 flex-1 overflow-hidden rounded-full bg-silicon-slate/70">
+                              <div className="h-full rounded-full bg-radiant-gold transition-all" style={{ width: `${progress}%` }} />
                             </div>
-                            <span className="text-xs text-gray-400">{progress}%</span>
+                            <span className="text-xs text-muted-foreground">{progress}%</span>
                           </div>
                         </div>
-                        <ChevronRight size={20} className="text-gray-500" />
+                        <ChevronRight size={20} className="text-muted-foreground" />
                       </div>
                     </motion.div>
                   </Link>
@@ -472,6 +486,7 @@ export default function CampaignDetailPage() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

@@ -183,6 +183,11 @@ The Agent Ops Mission Control surface at `/admin/agents` is the current referenc
 - **`app/admin/outreach/dashboard/page.tsx`** — Title gradient orange–green–blue; cold leads from-blue-600 to-cyan-500; orange–purple CTA; blue/purple card gradients.
 - **`app/admin/value-evidence/page.tsx`** — Blue–cyan and purple–pink gradient cards/borders.
 
+### Remediation notes
+
+- **Outreach/Sales L1 slice complete:** `/admin/outreach`, `/admin/outreach/dashboard`, `/admin/sales`, `/admin/lead-dashboards`, and `/admin/campaigns` now use the shared admin console shell/header treatment, with the noisiest sales/outreach gradients replaced by restrained command surfaces.
+- **Outreach/Sales detail slice in progress:** `/admin/campaigns/[id]`, `/admin/campaigns/[id]/enrollments/[enrollmentId]`, `/admin/outreach/escalations/[id]`, `/admin/sales/[auditId]`, and `/admin/sales/conversation/[sessionId]` carry the same console shell, operational headers, command buttons, and muted form/card treatment so the L2/L3 sales workflow no longer falls back to gray SaaS panels.
+
 ### Admin – Client projects, guarantees, analytics, prompts, meeting-tasks, users
 
 - **`app/admin/client-projects/page.tsx`** — Blue–cyan button; progress bar from-blue-500 to-emerald-500.
