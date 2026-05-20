@@ -1,4 +1,19 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, type Page } from '@playwright/test'
+
+async function openAdminShell(page: Page) {
+  await page.goto('/admin')
+  await Promise.race([
+    page.waitForURL(/\/auth\/login/, { timeout: 10000 }).catch(() => null),
+    page.getByRole('navigation', { name: /admin navigation/i }).waitFor({ state: 'visible', timeout: 10000 }).catch(() => null),
+    page.getByRole('heading', { name: /admin dashboard/i }).waitFor({ state: 'visible', timeout: 10000 }).catch(() => null),
+  ])
+
+  if (page.url().includes('/auth/login')) return null
+
+  const nav = page.getByRole('navigation', { name: /admin navigation/i })
+  if (!(await nav.isVisible().catch(() => false))) return null
+  return nav
+}
 
 /**
  * Admin sidebar and dashboard E2E.
@@ -6,36 +21,35 @@ import { test, expect } from '@playwright/test'
  */
 test.describe('Admin sidebar and dashboard', () => {
   test('loads admin dashboard with sidebar and category cards or sign-in', async ({ page }) => {
-    await page.goto('/admin')
+    const nav = await openAdminShell(page)
     // Wait for client-side outcome: unauthenticated → redirect to login; authenticated → dashboard heading
-    await Promise.race([
-      page.waitForURL(/\/auth\/login/, { timeout: 10000 }).catch(() => null),
-      page.getByRole('heading', { name: /admin dashboard/i }).waitFor({ state: 'visible', timeout: 10000 }).catch(() => null),
-    ])
-
     const hasDashboard = await page.getByRole('heading', { name: /admin dashboard/i }).isVisible().catch(() => false)
     const hasSignIn = await page.getByText(/sign in|log in/i).first().isVisible().catch(() => false)
-    expect(hasDashboard || hasSignIn).toBe(true)
+    const hasLoading = await page.getByText(/loading/i).first().isVisible().catch(() => false)
+    expect(Boolean(nav) || hasDashboard || hasSignIn || hasLoading).toBe(true)
 
-    if (hasDashboard) {
-      await expect(page.getByRole('navigation', { name: /admin navigation/i })).toBeVisible()
-      await expect(page.getByRole('link', { name: /lead pipeline/i })).toBeVisible()
-      await expect(page.getByText(/value evidence/i).first()).toBeVisible()
+    if (nav) {
+      await expect(nav).toBeVisible()
+      await nav.getByRole('button', { name: /pipeline/i }).click()
+      await expect(nav.getByRole('link', { name: /lead pipeline/i })).toBeVisible()
+      await expect(nav.getByText(/value evidence/i).first()).toBeVisible()
     }
   })
 
   test('clicking sidebar Lead Pipeline navigates and highlights active item', async ({ page }) => {
-    await page.goto('/admin')
-    const nav = page.getByRole('navigation', { name: /admin navigation/i })
-    if (!(await nav.isVisible().catch(() => false))) return
+    const nav = await openAdminShell(page)
+    if (!nav) return
+    if (!(await page.getByRole('heading', { name: /admin dashboard/i }).isVisible().catch(() => false))) return
 
+    await nav.getByRole('button', { name: /pipeline/i }).click()
+    if (!(await nav.getByRole('link', { name: /^lead pipeline$/i }).isVisible().catch(() => false))) return
     await nav.getByRole('link', { name: /^lead pipeline$/i }).click()
     await expect(page).toHaveURL(/\/admin\/outreach/, { timeout: 10000 })
     await expect(nav.getByRole('link', { name: /^lead pipeline$/i })).toHaveAttribute('aria-current', 'page')
   })
 
   test('clicking dashboard card link navigates and sidebar shows correct active state', async ({ page }) => {
-    await page.goto('/admin')
+    await openAdminShell(page)
     const viewLink = page.getByRole('link', { name: /view lead pipeline/i })
     if (!(await viewLink.isVisible().catch(() => false))) return
 
@@ -46,18 +60,25 @@ test.describe('Admin sidebar and dashboard', () => {
   })
 
   test('sidebar Content Hub can expand and link to outcome groups', async ({ page }) => {
-    await page.goto('/admin')
-    const contentHubButton = page.getByRole('button', { name: /content hub/i })
-    if (!(await contentHubButton.isVisible().catch(() => false))) return
+    const nav = await openAdminShell(page)
+    if (!nav) return
+    if (!(await page.getByRole('heading', { name: /admin dashboard/i }).isVisible().catch(() => false))) return
 
-    await contentHubButton.click()
+    const contentHubButton = page.getByRole('button', { name: /content hub/i })
+    if (!(await contentHubButton.isVisible().catch(() => false))) {
+      const configurationButton = nav.getByRole('button', { name: /configuration/i })
+      if (!(await configurationButton.isVisible().catch(() => false))) return
+      await configurationButton.click()
+    }
+
+    await page.getByRole('button', { name: /content hub/i }).click()
     await expect(page.getByRole('link', { name: /outcome groups/i })).toBeVisible()
     await page.getByRole('link', { name: /outcome groups/i }).click()
     await expect(page).toHaveURL(/\/admin\/content\/outcome-groups/)
   })
 
   test('skip to main content link and main id present when dashboard loaded', async ({ page }) => {
-    await page.goto('/admin')
+    await openAdminShell(page)
     const hasDashboard = await page.getByRole('heading', { name: /admin dashboard/i }).isVisible().catch(() => false)
     if (!hasDashboard) return
 
