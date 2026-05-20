@@ -67,7 +67,7 @@ function navItemClass(active: boolean, depth: 'root' | 'item' | 'child' = 'item'
 }
 
 /** Small icon per nav item so category items have clear hierarchy. */
-const NAV_ITEM_ICONS: Record<string, LucideIcon> = {
+export const NAV_ITEM_ICONS: Record<string, LucideIcon> = {
   '/admin/outreach': Send,
   '/admin/email-center': Inbox,
   '/admin/value-evidence': FileCheck,
@@ -80,6 +80,7 @@ const NAV_ITEM_ICONS: Record<string, LucideIcon> = {
   '/admin/sales/scripts': FileText,
   '/admin/sales/upsell-paths': Route,
   '/admin/presentations': Sparkles,
+  '/admin/sales/implementation-roadmap': ClipboardList,
   '/admin/reports/gamma': Presentation,
   '/admin/client-projects': FolderKanban,
   '/admin/meetings': Video,
@@ -95,6 +96,9 @@ const NAV_ITEM_ICONS: Record<string, LucideIcon> = {
   '/admin/chat-eval/queue': MessageSquare,
   '/admin/analytics': BarChart3,
   '/admin/cost-revenue': DollarSign,
+  '/admin/subscriptions': RefreshCw,
+  '/admin/technology-bakeoffs': FlaskConical,
+  '/admin/source-protocol': BookOpen,
   '/admin/agents': Bot,
   '/admin/agents/standup': MessagesSquare,
   '/admin/agents/coordination': ClipboardCheck,
@@ -108,6 +112,7 @@ const NAV_ITEM_ICONS: Record<string, LucideIcon> = {
   '/admin/users': Users,
   '/admin/prompts': FileCode,
   '/admin/module-sync': GitCompare,
+  '/admin/credentials': ShieldCheck,
   '/admin/email-preview': Mail,
   '/admin/content/outcome-groups': Target,
   '/admin/content/projects': FolderKanban,
