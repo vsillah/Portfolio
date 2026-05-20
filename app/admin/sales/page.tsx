@@ -505,7 +505,7 @@ export default function SalesDashboardPage() {
                   <th className="text-right px-4 py-3 text-sm font-medium text-muted-foreground">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-800">
+              <tbody className="divide-y divide-white/10">
                 {filteredLeads.map((lead) => {
                   const primaryDate = lead.audit?.created_at ?? lead.session?.created_at ?? '';
                   return (
@@ -515,7 +515,7 @@ export default function SalesDashboardPage() {
                           <div className="font-medium text-foreground flex items-center gap-2">
                             <Link
                               href={buildLinkWithReturn(`/admin/contacts/${lead.contact_id}`, '/admin/sales')}
-                              className="inline-flex items-center gap-1.5 text-white hover:text-teal-300 transition-colors underline decoration-dotted decoration-teal-400/70 underline-offset-4 hover:decoration-teal-300"
+                              className="inline-flex items-center gap-1.5 text-foreground hover:text-teal-300 transition-colors underline decoration-dotted decoration-teal-400/70 underline-offset-4 hover:decoration-teal-300"
                               title="Open contact record"
                             >
                               <span>{lead.name || 'Unknown'}</span>
@@ -528,7 +528,7 @@ export default function SalesDashboardPage() {
                                 <span className="inline-flex items-center gap-1">
                                   <span className="w-2 h-2 rounded-full bg-emerald-400" title="Value report generated" />
                                   {status.gammaUrl && (
-                                    <span className="w-2 h-2 rounded-full bg-purple-400" title="Gamma deck ready" />
+                                    <span className="w-2 h-2 rounded-full bg-radiant-gold" title="Gamma deck ready" />
                                   )}
                                 </span>
                               );
@@ -611,7 +611,7 @@ export default function SalesDashboardPage() {
                       <td className="px-4 py-4 text-sm text-muted-foreground">
                         {primaryDate ? formatDate(primaryDate) : '—'}
                         {lead.session?.next_follow_up && (
-                          <div className="text-xs text-blue-400 mt-1 flex items-center gap-1">
+                          <div className="mt-1 flex items-center gap-1 text-xs text-sky-300">
                             <Calendar className="w-3 h-3" />
                             Follow-up: {formatDate(lead.session.next_follow_up)}
                           </div>
@@ -658,7 +658,7 @@ export default function SalesDashboardPage() {
                           })()}
                           <Link
                             href={buildLinkWithReturn(`/admin/outreach?tab=leads&id=${lead.contact_id}`, '/admin/sales')}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-900/30 hover:bg-purple-800/50 text-purple-400 rounded-lg text-sm transition-colors"
+                            className="inline-flex items-center gap-1 rounded-lg border border-radiant-gold/30 bg-radiant-gold/10 px-3 py-1.5 text-sm text-radiant-gold transition-colors hover:bg-radiant-gold/20"
                           >
                             <Users className="w-4 h-4" />
                             View Lead
@@ -694,7 +694,7 @@ export default function SalesDashboardPage() {
         {conversationSessions.length > 0 && (
           <div className="mt-8">
             <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-              <Phone className="w-5 h-5 text-purple-500" />
+              <Phone className="w-5 h-5 text-radiant-gold" />
               Active Conversations
               <span className="text-sm font-normal text-muted-foreground">({filteredConversationSessions.length})</span>
             </h2>
@@ -709,7 +709,7 @@ export default function SalesDashboardPage() {
                     <th className="text-right px-4 py-3 text-sm font-medium text-muted-foreground">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-800">
+                <tbody className="divide-y divide-white/10">
                   {filteredConversationSessions.map(s => (
                     <tr key={s.id} className="hover:bg-silicon-slate/50">
                       <td className="px-4 py-4">
@@ -729,7 +729,7 @@ export default function SalesDashboardPage() {
                       <td className="px-4 py-4 text-sm text-muted-foreground">
                         {formatDate(s.created_at)}
                         {s.next_follow_up && (
-                          <div className="text-xs text-blue-400 mt-1 flex items-center gap-1">
+                          <div className="mt-1 flex items-center gap-1 text-xs text-sky-300">
                             <Calendar className="w-3 h-3" />
                             Follow-up: {formatDate(s.next_follow_up)}
                           </div>

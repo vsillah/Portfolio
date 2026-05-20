@@ -35,8 +35,10 @@ The Agent Ops Mission Control surface at `/admin/agents` is the current referenc
 - **Global shell slice:** `AdminSidebar` and the admin mobile drawer now use the same operating-console frame: navy depth, gold active state, restrained hover/focus treatment, and clearer section hierarchy around the page-level work surfaces.
 - **Content Hub slice:** `/admin/content`, `/admin/products`, and `/admin/content/products` now use the shared admin console shell and card language for the content routing and catalog management surfaces.
 - **Outreach/Sales slice:** `/admin/outreach`, `/admin/outreach/dashboard`, `/admin/sales`, `/admin/lead-dashboards`, and `/admin/campaigns` now use the shared admin console shell/header treatment, with the noisiest sales/outreach gradients replaced by restrained command surfaces.
+- **Outreach/Sales workflow polish:** Lead Pipeline rows, Outreach Dashboard metrics/activity, escalation links, and Sales Dashboard table actions now use the shared console palette for their nested workflow controls and status affordances.
 - **Sales subpage slice:** `/admin/sales/products`, `/admin/sales/bundles`, `/admin/sales/scripts`, `/admin/sales/upsell-paths`, and `/admin/sales/implementation-roadmap` now use the shared admin console shell, surface headers, metric cards, muted form controls, and gold command actions.
-- **Next rollout candidates:** deeper content, outreach, sales, and detail pages still carry older gray, blue, purple, and cyan styling and should move to the same primitives in smaller follow-up PRs.
+- **Future auth slice:** Login, signup, forgot-password, and reset-password should be redesigned around the same AmaduTown operating-console language so the entry point no longer feels visually disconnected from admin.
+- **Next rollout candidates:** deeper content, auth, public commerce, checkout, and client-facing detail pages still carry older gray, blue, purple, and cyan styling and should move to the same primitives in smaller follow-up PRs.
 
 ---
 
