@@ -1,10 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
 import { getCurrentSession } from '@/lib/auth';
-import { 
+import {
   ContentWithRole,
   ContentType,
   OfferRole,
@@ -12,17 +11,16 @@ import {
   OFFER_ROLE_COLORS,
   CONTENT_TYPE_LABELS,
   CONTENT_TYPE_ICONS,
-  CONTENT_TYPE_COLORS,
   buildGrandSlamOffer,
   ProductWithRole,
 } from '@/lib/sales-scripts';
 import { ContentClassifier, ContentOfferRoleInput } from '@/components/admin/sales/ProductClassifier';
 import { OfferStack } from '@/components/admin/sales/OfferCard';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
-import { 
-  Package, 
-  Filter, 
-  Search, 
+import {
+  Package,
+  Filter,
+  Search,
   RefreshCw,
   Eye,
   AlertCircle,
@@ -54,13 +52,12 @@ const CONTENT_TYPES: ContentType[] = [
 ];
 
 export default function ProductClassificationPage() {
-  const router = useRouter();
   const { user } = useAuth();
   const [content, setContent] = useState<ContentWithRole[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedContent, setExpandedContent] = useState<string | null>(null);
-  
+
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<OfferRole | 'all' | 'unclassified'>('all');
@@ -70,10 +67,10 @@ export default function ProductClassificationPage() {
   const fetchContent = useCallback(async () => {
     const session = await getCurrentSession();
     if (!session?.access_token) return;
-    
+
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const params = new URLSearchParams();
       if (roleFilter !== 'all' && roleFilter !== 'unclassified') {
@@ -82,14 +79,14 @@ export default function ProductClassificationPage() {
       if (contentTypeFilter !== 'all') {
         params.append('content_type', contentTypeFilter);
       }
-      
+
       const response = await fetch(`/api/admin/sales/products?${params}`, {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
         },
       });
       if (!response.ok) throw new Error('Failed to fetch content');
-      
+
       const data = await response.json();
       setContent(data.content || []);
     } catch (err) {
@@ -110,7 +107,7 @@ export default function ProductClassificationPage() {
     const session = await getCurrentSession();
     const response = await fetch('/api/admin/sales/products', {
       method: 'POST',
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${session?.access_token}`,
       },
@@ -150,17 +147,17 @@ export default function ProductClassificationPage() {
     // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      if (!item.title.toLowerCase().includes(query) && 
+      if (!item.title.toLowerCase().includes(query) &&
           !item.description?.toLowerCase().includes(query)) {
         return false;
       }
     }
-    
+
     // Role filter
     if (roleFilter === 'unclassified' && item.offer_role) {
       return false;
     }
-    
+
     return true;
   });
 
@@ -210,35 +207,38 @@ export default function ProductClassificationPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <Breadcrumbs 
+    <div className="admin-console-page min-h-screen p-6 text-foreground lg:p-8">
+      <div className="max-w-7xl mx-auto">
+        <Breadcrumbs
           items={[
             { label: 'Admin', href: '/admin' },
             { label: 'Sales', href: '/admin/sales' },
             { label: 'Content Classification' },
-          ]} 
+          ]}
         />
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <header className="admin-console-surface-header mb-6 mt-5 flex flex-wrap items-start justify-between gap-4 rounded-xl border p-5">
           <div>
-            <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-              <Layers className="w-7 h-7 text-emerald-500" />
+            <div className="admin-console-eyebrow mb-2">
+              <Layers className="h-4 w-4" />
+              Sales Operations
+            </div>
+            <h1 className="text-3xl font-bold text-foreground">
               Content Classification
             </h1>
-            <p className="text-gray-400 mt-1">
-              Classify your products using Alex Hormozi&apos;s offer framework
+            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+              Assign offer roles, classify content types, and inspect the offer stack before sales calls.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => setShowPreview(!showPreview)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                showPreview 
-                  ? 'bg-emerald-600 text-white' 
-                  : 'bg-gray-900 border border-gray-700 text-white hover:border-purple-500/50'
+              className={`admin-console-button-secondary ${
+                showPreview
+                  ? 'bg-radiant-gold text-background hover:bg-radiant-gold/90'
+                  : ''
               }`}
             >
               <Eye className="w-4 h-4" />
@@ -248,68 +248,68 @@ export default function ProductClassificationPage() {
             <button
               onClick={fetchContent}
               disabled={isLoading}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white hover:border-purple-500/50"
+              className="admin-console-button-muted disabled:opacity-60"
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
               Refresh
             </button>
           </div>
-        </div>
+        </header>
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-gray-900 rounded-lg border border-gray-800 p-4">
-            <div className="text-sm text-gray-400">Total Products</div>
-            <div className="text-2xl font-bold text-white">{stats.total}</div>
+          <div className="admin-console-metric rounded-lg border p-4">
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Total Products</div>
+            <div className="mt-2 text-2xl font-bold text-foreground">{stats.total}</div>
           </div>
-          <div className="bg-green-500/20 rounded-lg border border-green-500/50 p-4">
-            <div className="text-sm text-gray-400 flex items-center gap-1">
-              <CheckCircle className="w-4 h-4 text-green-500" />
+          <div className="admin-console-metric rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4">
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+              <CheckCircle className="w-4 h-4 text-emerald-300" />
               Classified
             </div>
-            <div className="text-2xl font-bold text-green-400">{stats.classified}</div>
+            <div className="mt-2 text-2xl font-bold text-emerald-200">{stats.classified}</div>
           </div>
-          <div className="bg-orange-500/20 rounded-lg border border-orange-500/50 p-4">
-            <div className="text-sm text-gray-400 flex items-center gap-1">
-              <AlertCircle className="w-4 h-4 text-orange-500" />
+          <div className="admin-console-metric rounded-lg border border-amber-500/35 bg-amber-500/10 p-4">
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+              <AlertCircle className="w-4 h-4 text-radiant-gold" />
               Unclassified
             </div>
-            <div className="text-2xl font-bold text-orange-400">{stats.unclassified}</div>
+            <div className="mt-2 text-2xl font-bold text-radiant-gold">{stats.unclassified}</div>
           </div>
-          <div className="bg-blue-500/20 rounded-lg border border-blue-500/50 p-4">
-            <div className="text-sm text-gray-400 flex items-center gap-1">
-              <Tag className="w-4 h-4 text-blue-500" />
+          <div className="admin-console-metric rounded-lg border border-sky-500/30 bg-sky-500/10 p-4">
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+              <Tag className="w-4 h-4 text-sky-300" />
               Core Offers
             </div>
-            <div className="text-2xl font-bold text-blue-400">{stats.byRole.core_offer}</div>
+            <div className="mt-2 text-2xl font-bold text-sky-100">{stats.byRole.core_offer}</div>
           </div>
         </div>
 
-        <div className="flex gap-6">
+        <div className="flex flex-col gap-6 xl:flex-row">
           {/* Main content */}
-          <div className={`flex-1 ${showPreview ? 'max-w-3xl' : ''}`}>
+          <div className={`min-w-0 flex-1 ${showPreview ? 'xl:max-w-3xl' : ''}`}>
             {/* Filters */}
-            <div className="bg-gray-900 rounded-lg border border-gray-800 p-4 mb-6">
+            <div className="admin-console-card rounded-lg border p-4 mb-6">
               <div className="flex flex-col md:flex-row gap-4">
                 {/* Search */}
                 <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-500" />
+                  <Search className="absolute left-3 top-2.5 w-5 h-5 text-muted-foreground" />
                   <input
                     type="text"
                     placeholder="Search products..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500"
+                    className="w-full rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 py-2 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-radiant-gold/70 focus:outline-none"
                   />
                 </div>
 
                 {/* Content type filter */}
                 <div className="flex items-center gap-2">
-                  <Layers className="w-5 h-5 text-gray-500" />
+                  <Layers className="w-5 h-5 text-muted-foreground" />
                   <select
                     value={contentTypeFilter}
                     onChange={(e) => setContentTypeFilter(e.target.value as ContentType | 'all')}
-                    className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                    className="rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 px-3 py-2 text-sm text-foreground focus:border-radiant-gold/70 focus:outline-none"
                   >
                     <option value="all">All Content Types</option>
                     {CONTENT_TYPES.map((type) => (
@@ -322,11 +322,11 @@ export default function ProductClassificationPage() {
 
                 {/* Role filter */}
                 <div className="flex items-center gap-2">
-                  <Filter className="w-5 h-5 text-gray-500" />
+                  <Filter className="w-5 h-5 text-muted-foreground" />
                   <select
                     value={roleFilter}
                     onChange={(e) => setRoleFilter(e.target.value as OfferRole | 'all' | 'unclassified')}
-                    className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                    className="rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 px-3 py-2 text-sm text-foreground focus:border-radiant-gold/70 focus:outline-none"
                   >
                     <option value="all">All Products</option>
                     <option value="unclassified">Unclassified Only</option>
@@ -344,7 +344,7 @@ export default function ProductClassificationPage() {
 
             {/* Error */}
             {error && (
-              <div className="bg-red-500/20 text-red-400 p-4 rounded-lg border border-red-500/50 mb-6">
+              <div className="rounded-lg border border-red-500/50 bg-red-500/10 p-4 text-red-300 mb-6">
                 {error}
               </div>
             )}
@@ -352,16 +352,16 @@ export default function ProductClassificationPage() {
             {/* Content list */}
             {isLoading ? (
               <div className="text-center py-12">
-                <RefreshCw className="w-8 h-8 text-gray-500 animate-spin mx-auto mb-3" />
-                <p className="text-gray-400">Loading content...</p>
+                <RefreshCw className="w-8 h-8 text-muted-foreground animate-spin mx-auto mb-3" />
+                <p className="text-muted-foreground">Loading content...</p>
               </div>
             ) : filteredContent.length === 0 ? (
-              <div className="text-center py-12 bg-gray-900 rounded-lg border border-gray-800">
-                <Layers className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-                <h3 className="text-lg font-medium text-white mb-1">No content found</h3>
-                <p className="text-gray-400">
+              <div className="admin-console-card rounded-lg border py-12 text-center">
+                <Layers className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                <h3 className="text-lg font-medium text-foreground mb-1">No content found</h3>
+                <p className="text-muted-foreground">
                   {searchQuery || roleFilter !== 'all' || contentTypeFilter !== 'all'
-                    ? 'Try adjusting your filters' 
+                    ? 'Try adjusting your filters'
                     : 'Add content to classify'}
                 </p>
               </div>
@@ -388,14 +388,14 @@ export default function ProductClassificationPage() {
 
           {/* Offer Preview Panel */}
           {showPreview && (
-            <div className="w-96 flex-shrink-0">
+            <div className="w-full flex-shrink-0 xl:w-96">
               <div className="sticky top-4">
-                <h3 className="font-semibold text-white mb-4">Grand Slam Offer Preview</h3>
-                
+                <h3 className="font-semibold text-foreground mb-4">Grand Slam Offer Preview</h3>
+
                 {stats.classified === 0 ? (
-                  <div className="bg-gray-900 rounded-lg border border-gray-800 p-6 text-center">
-                    <Package className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-                    <p className="text-gray-400">
+                  <div className="admin-console-card rounded-lg border p-6 text-center">
+                    <Package className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                    <p className="text-muted-foreground">
                       Classify content to see your offer preview
                     </p>
                   </div>
@@ -411,8 +411,8 @@ export default function ProductClassificationPage() {
                 )}
 
                 {/* Role breakdown */}
-                <div className="mt-6 bg-gray-900 rounded-lg border border-gray-800 p-4">
-                  <h4 className="font-medium text-white mb-3">Offer Composition</h4>
+                <div className="admin-console-card mt-6 rounded-lg border p-4">
+                  <h4 className="font-medium text-foreground mb-3">Offer Composition</h4>
                   <div className="space-y-2">
                     {OFFER_ROLES.map((role) => {
                       const count = stats.byRole[role];
@@ -422,7 +422,7 @@ export default function ProductClassificationPage() {
                           <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${OFFER_ROLE_COLORS[role]}`}>
                             {OFFER_ROLE_LABELS[role]}
                           </span>
-                          <span className="text-gray-400">{count} product{count !== 1 ? 's' : ''}</span>
+                          <span className="text-muted-foreground">{count} product{count !== 1 ? 's' : ''}</span>
                         </div>
                       );
                     })}

@@ -3,19 +3,19 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/components/AuthProvider';
 import { getCurrentSession } from '@/lib/auth';
-import { 
+import {
   SalesScript,
   OfferType,
   FunnelStage,
   FUNNEL_STAGE_LABELS,
 } from '@/lib/sales-scripts';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
-import { 
-  FileText, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  ChevronDown, 
+import {
+  FileText,
+  Plus,
+  Edit,
+  Trash2,
+  ChevronDown,
   ChevronUp,
   Save,
   X,
@@ -36,12 +36,12 @@ const OFFER_TYPE_LABELS: Record<OfferType, string> = {
 };
 
 const OFFER_TYPE_COLORS: Record<OfferType, string> = {
-  attraction: 'bg-pink-100 text-pink-700 border-pink-300',
-  upsell: 'bg-purple-100 text-purple-700 border-purple-300',
-  downsell: 'bg-orange-100 text-orange-700 border-orange-300',
-  continuity: 'bg-teal-100 text-teal-700 border-teal-300',
-  core: 'bg-blue-100 text-blue-700 border-blue-300',
-  objection: 'bg-red-100 text-red-700 border-red-300',
+  attraction: 'bg-radiant-gold/10 text-radiant-gold border-radiant-gold/35',
+  upsell: 'bg-sky-500/10 text-sky-200 border-sky-500/30',
+  downsell: 'bg-amber-500/10 text-amber-200 border-amber-500/30',
+  continuity: 'bg-emerald-500/10 text-emerald-200 border-emerald-500/30',
+  core: 'bg-sky-500/10 text-sky-200 border-sky-500/30',
+  objection: 'bg-red-500/10 text-red-200 border-red-500/30',
 };
 
 const FUNNEL_STAGES: FunnelStage[] = [
@@ -84,7 +84,7 @@ export default function ScriptsManagementPage() {
   const [scripts, setScripts] = useState<SalesScript[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // UI state
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<OfferType | 'all'>('all');
@@ -97,24 +97,24 @@ export default function ScriptsManagementPage() {
   const fetchScripts = useCallback(async () => {
     const session = await getCurrentSession();
     if (!session?.access_token) return;
-    
+
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const params = new URLSearchParams();
       params.append('active', 'false'); // Get all scripts including inactive
       if (typeFilter !== 'all') {
         params.append('offer_type', typeFilter);
       }
-      
+
       const response = await fetch(`/api/admin/sales/scripts?${params}`, {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
         },
       });
       if (!response.ok) throw new Error('Failed to fetch scripts');
-      
+
       const data = await response.json();
       setScripts(data.scripts || []);
     } catch (err) {
@@ -134,17 +134,17 @@ export default function ScriptsManagementPage() {
   const handleSave = async () => {
     setIsSaving(true);
     setError(null);
-    
+
     try {
       const session = await getCurrentSession();
       const method = editingScript ? 'PUT' : 'POST';
-      const body = editingScript 
+      const body = editingScript
         ? { id: editingScript, ...formData }
         : formData;
-      
+
       const response = await fetch('/api/admin/sales/scripts', {
         method,
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session?.access_token}`,
         },
@@ -169,7 +169,7 @@ export default function ScriptsManagementPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this script?')) return;
-    
+
     try {
       const session = await getCurrentSession();
       const response = await fetch(`/api/admin/sales/scripts?id=${id}`, {
@@ -180,7 +180,7 @@ export default function ScriptsManagementPage() {
       });
 
       if (!response.ok) throw new Error('Failed to delete');
-      
+
       await fetchScripts();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete');
@@ -192,18 +192,18 @@ export default function ScriptsManagementPage() {
       const session = await getCurrentSession();
       const response = await fetch('/api/admin/sales/scripts', {
         method: 'PUT',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session?.access_token}`,
         },
-        body: JSON.stringify({ 
-          id: script.id, 
-          is_active: !script.is_active 
+        body: JSON.stringify({
+          id: script.id,
+          is_active: !script.is_active
         }),
       });
 
       if (!response.ok) throw new Error('Failed to update');
-      
+
       await fetchScripts();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to toggle status');
@@ -294,24 +294,27 @@ export default function ScriptsManagementPage() {
   });
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <Breadcrumbs 
+    <div className="admin-console-page min-h-screen p-6 text-foreground lg:p-8">
+      <div className="max-w-6xl mx-auto">
+        <Breadcrumbs
           items={[
             { label: 'Admin', href: '/admin' },
             { label: 'Sales', href: '/admin/sales' },
             { label: 'Scripts' },
-          ]} 
+          ]}
         />
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <header className="admin-console-surface-header mb-6 mt-5 flex flex-wrap items-start justify-between gap-4 rounded-xl border p-5">
           <div>
-            <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-              <FileText className="w-7 h-7 text-emerald-500" />
+            <div className="admin-console-eyebrow mb-2">
+              <FileText className="h-4 w-4" />
+              Sales Operations
+            </div>
+            <h1 className="text-3xl font-bold text-foreground">
               Sales Scripts
             </h1>
-            <p className="text-gray-400 mt-1">
+            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
               Create and manage guided sales conversation scripts
             </p>
           </div>
@@ -322,33 +325,33 @@ export default function ScriptsManagementPage() {
               setEditingScript(null);
               setFormData(EMPTY_SCRIPT);
             }}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+            className="admin-console-button-primary"
           >
             <Plus className="w-4 h-4" />
             New Script
           </button>
-        </div>
+        </header>
 
         {/* Filters */}
-        <div className="bg-gray-900 rounded-lg border border-gray-800 p-4 mb-6">
+        <div className="admin-console-card rounded-lg border p-4 mb-6">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-500" />
+              <Search className="absolute left-3 top-2.5 w-5 h-5 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Search scripts..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500"
+                className="w-full rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 py-2 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-radiant-gold/70 focus:outline-none"
               />
             </div>
 
             <div className="flex items-center gap-2">
-              <Filter className="w-5 h-5 text-gray-500" />
+              <Filter className="w-5 h-5 text-muted-foreground" />
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value as OfferType | 'all')}
-                className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                className="rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 px-3 py-2 text-sm text-foreground focus:border-radiant-gold/70 focus:outline-none"
               >
                 <option value="all">All Types</option>
                 {Object.entries(OFFER_TYPE_LABELS).map(([type, label]) => (
@@ -361,19 +364,19 @@ export default function ScriptsManagementPage() {
 
         {/* Error */}
         {error && (
-          <div className="bg-red-500/20 text-red-400 p-4 rounded-lg border border-red-500/50 mb-6">
+          <div className="rounded-lg border border-red-500/50 bg-red-500/10 p-4 text-red-300 mb-6">
             {error}
           </div>
         )}
 
         {/* Create/Edit Form */}
         {(isCreating || editingScript) && (
-          <div className="bg-gray-900 rounded-lg border border-gray-800 p-6 mb-6">
+          <div className="admin-console-card rounded-lg border p-6 mb-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-medium text-white">
+              <h2 className="text-lg font-medium text-foreground">
                 {editingScript ? 'Edit Script' : 'Create New Script'}
               </h2>
-              <button onClick={cancelEdit} className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-white">
+              <button onClick={cancelEdit} className="rounded-lg p-2 text-muted-foreground hover:bg-white/5 hover:text-foreground" aria-label="Close script form">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -382,7 +385,7 @@ export default function ScriptsManagementPage() {
               {/* Basic Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">
                     Script Name *
                   </label>
                   <input
@@ -390,18 +393,18 @@ export default function ScriptsManagementPage() {
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="e.g., Core Offer Presentation"
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500"
+                    className="w-full rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-radiant-gold/70 focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">
                     Offer Type *
                   </label>
                   <select
                     value={formData.offer_type}
                     onChange={(e) => setFormData({ ...formData, offer_type: e.target.value as OfferType })}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                    className="w-full rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 px-3 py-2 text-sm text-foreground focus:border-radiant-gold/70 focus:outline-none"
                   >
                     {Object.entries(OFFER_TYPE_LABELS).map(([type, label]) => (
                       <option key={type} value={type}>{label}</option>
@@ -411,20 +414,20 @@ export default function ScriptsManagementPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-muted-foreground mb-1">
                   Description
                 </label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="What is this script used for?"
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500"
+                  className="w-full rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-radiant-gold/70 focus:outline-none"
                   rows={2}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-muted-foreground mb-2">
                   Target Funnel Stages
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -440,8 +443,8 @@ export default function ScriptsManagementPage() {
                       }}
                       className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
                         formData.target_funnel_stage.includes(stage)
-                          ? 'bg-emerald-600 text-white'
-                          : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                          ? 'border border-radiant-gold/60 bg-radiant-gold text-background'
+                          : 'border border-silicon-slate/70 bg-imperial-navy/70 text-muted-foreground hover:border-radiant-gold/50'
                       }`}
                     >
                       {FUNNEL_STAGE_LABELS[stage]}
@@ -453,13 +456,13 @@ export default function ScriptsManagementPage() {
               {/* Script Steps */}
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <label className="block text-sm font-medium text-gray-300">
+                  <label className="block text-sm font-medium text-muted-foreground">
                     Script Steps
                   </label>
                   <button
                     type="button"
                     onClick={addStep}
-                    className="text-sm text-emerald-500 hover:text-emerald-400 flex items-center gap-1"
+                    className="text-sm text-radiant-gold hover:text-gold-light flex items-center gap-1"
                   >
                     <Plus className="w-4 h-4" />
                     Add Step
@@ -468,14 +471,15 @@ export default function ScriptsManagementPage() {
 
                 <div className="space-y-4">
                   {formData.script_content.steps.map((step, index) => (
-                    <div key={step.id} className="border border-gray-700 bg-gray-800 rounded-lg p-4">
+                    <div key={step.id} className="rounded-lg border border-silicon-slate/70 bg-imperial-navy/55 p-4">
                       <div className="flex items-center justify-between mb-3">
-                        <span className="text-sm font-medium text-gray-400">Step {index + 1}</span>
+                        <span className="text-sm font-medium text-muted-foreground">Step {index + 1}</span>
                         {formData.script_content.steps.length > 1 && (
                           <button
                             type="button"
                             onClick={() => removeStep(step.id)}
-                            className="text-red-500 hover:text-red-400"
+                            className="text-red-300 hover:text-red-200"
+                            aria-label={`Remove step ${index + 1}`}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -487,17 +491,17 @@ export default function ScriptsManagementPage() {
                         value={step.title}
                         onChange={(e) => updateStep(step.id, 'title', e.target.value)}
                         placeholder="Step title"
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg mb-3 text-white placeholder-gray-500"
+                        className="mb-3 w-full rounded-lg border border-silicon-slate/70 bg-background/35 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-radiant-gold/70 focus:outline-none"
                       />
 
-                      <label className="block text-xs text-gray-500 mb-1">
+                      <label className="block text-xs text-muted-foreground mb-1">
                         Talking Points (one per line)
                       </label>
                       <textarea
                         value={step.talking_points.join('\n')}
                         onChange={(e) => updateStep(step.id, 'talking_points', e.target.value.split('\n'))}
                         placeholder="Enter talking points, one per line..."
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-sm text-white placeholder-gray-500"
+                        className="w-full rounded-lg border border-silicon-slate/70 bg-background/35 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-radiant-gold/70 focus:outline-none"
                         rows={3}
                       />
                     </div>
@@ -512,25 +516,25 @@ export default function ScriptsManagementPage() {
                   id="is_active"
                   checked={formData.is_active}
                   onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                  className="rounded border-gray-600 bg-gray-800"
+                  className="rounded border-silicon-slate bg-imperial-navy/70"
                 />
-                <label htmlFor="is_active" className="text-sm text-gray-300">
+                <label htmlFor="is_active" className="text-sm text-muted-foreground">
                   Active (visible in sales calls)
                 </label>
               </div>
 
               {/* Actions */}
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-700">
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
                 <button
                   onClick={cancelEdit}
-                  className="px-4 py-2 text-gray-400 hover:bg-gray-800 rounded-lg"
+                  className="admin-console-button-muted"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSave}
                   disabled={isSaving || !formData.name}
-                  className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50"
+                  className="admin-console-button-primary disabled:opacity-50"
                 >
                   <Save className="w-4 h-4" />
                   {isSaving ? 'Saving...' : 'Save Script'}
@@ -543,22 +547,22 @@ export default function ScriptsManagementPage() {
         {/* Scripts List */}
         {isLoading ? (
           <div className="text-center py-12">
-            <RefreshCw className="w-8 h-8 text-gray-500 animate-spin mx-auto mb-3" />
-            <p className="text-gray-400">Loading scripts...</p>
+            <RefreshCw className="w-8 h-8 text-muted-foreground animate-spin mx-auto mb-3" />
+            <p className="text-muted-foreground">Loading scripts...</p>
           </div>
         ) : filteredScripts.length === 0 ? (
-          <div className="text-center py-12 bg-gray-900 rounded-lg border border-gray-800">
-            <FileText className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-            <h3 className="text-lg font-medium text-white mb-1">No scripts found</h3>
-            <p className="text-gray-400 mb-4">
-              {searchQuery || typeFilter !== 'all' 
-                ? 'Try adjusting your filters' 
+          <div className="admin-console-card rounded-lg border py-12 text-center">
+            <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+            <h3 className="text-lg font-medium text-foreground mb-1">No scripts found</h3>
+            <p className="text-muted-foreground mb-4">
+              {searchQuery || typeFilter !== 'all'
+                ? 'Try adjusting your filters'
                 : 'Create your first sales script to get started'}
             </p>
             {!isCreating && (
               <button
                 onClick={() => setIsCreating(true)}
-                className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+                className="admin-console-button-primary"
               >
                 Create Script
               </button>
@@ -567,53 +571,53 @@ export default function ScriptsManagementPage() {
         ) : (
           <div className="space-y-3">
             {filteredScripts.map((script) => (
-              <div 
-                key={script.id} 
-                className="bg-gray-900 rounded-lg border border-gray-800 overflow-hidden"
+              <div
+                key={script.id}
+                className="admin-console-card rounded-lg border overflow-hidden"
               >
-                <div 
-                  className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-800/50"
+                <div
+                  className="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"
                   onClick={() => setExpandedScript(expandedScript === script.id ? null : script.id)}
                 >
                   <div className="flex items-center gap-4">
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="font-medium text-white">{script.name}</h3>
+                        <h3 className="font-medium text-foreground">{script.name}</h3>
                         <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${OFFER_TYPE_COLORS[script.offer_type]}`}>
                           {OFFER_TYPE_LABELS[script.offer_type]}
                         </span>
                         {!script.is_active && (
-                          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-700 text-gray-400">
+                          <span className="px-2 py-0.5 rounded-full text-xs font-medium border border-white/10 bg-white/5 text-muted-foreground">
                             Inactive
                           </span>
                         )}
                       </div>
                       {script.description && (
-                        <p className="text-sm text-gray-400 mt-1">{script.description}</p>
+                        <p className="text-sm text-muted-foreground mt-1">{script.description}</p>
                       )}
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-muted-foreground">
                       {script.script_content.steps.length} steps
                     </span>
                     {expandedScript === script.id ? (
-                      <ChevronUp className="w-5 h-5 text-gray-500" />
+                      <ChevronUp className="w-5 h-5 text-muted-foreground" />
                     ) : (
-                      <ChevronDown className="w-5 h-5 text-gray-500" />
+                      <ChevronDown className="w-5 h-5 text-muted-foreground" />
                     )}
                   </div>
                 </div>
 
                 {expandedScript === script.id && (
-                  <div className="border-t border-gray-800 p-4 bg-gray-800/50">
+                  <div className="border-t border-white/10 p-4 bg-imperial-navy/40">
                     {/* Target stages */}
                     {script.target_funnel_stage.length > 0 && (
                       <div className="mb-4">
-                        <span className="text-sm text-gray-500">Target stages: </span>
+                        <span className="text-sm text-muted-foreground">Target stages: </span>
                         {script.target_funnel_stage.map(stage => (
-                          <span key={stage} className="inline-block px-2 py-0.5 bg-gray-700 text-gray-300 rounded text-xs mr-1">
+                          <span key={stage} className="inline-block px-2 py-0.5 border border-white/10 bg-white/5 text-muted-foreground rounded text-xs mr-1">
                             {FUNNEL_STAGE_LABELS[stage]}
                           </span>
                         ))}
@@ -624,12 +628,12 @@ export default function ScriptsManagementPage() {
                     <div className="space-y-2 mb-4">
                       {script.script_content.steps.map((step, i) => (
                         <div key={step.id} className="flex items-start gap-2 text-sm">
-                          <span className="w-6 h-6 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0">
+                          <span className="w-6 h-6 border border-radiant-gold/35 bg-radiant-gold/10 text-radiant-gold rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0">
                             {i + 1}
                           </span>
                           <div>
-                            <span className="font-medium text-white">{step.title}</span>
-                            <span className="text-gray-500 ml-2">
+                            <span className="font-medium text-foreground">{step.title}</span>
+                            <span className="text-muted-foreground ml-2">
                               ({step.talking_points.filter(p => p.trim()).length} talking points)
                             </span>
                           </div>
@@ -638,16 +642,16 @@ export default function ScriptsManagementPage() {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-2 pt-3 border-t border-gray-700">
+                    <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-white/10">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleToggleActive(script);
                         }}
                         className={`flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg ${
-                          script.is_active 
-                            ? 'text-orange-400 hover:bg-orange-500/20' 
-                            : 'text-emerald-400 hover:bg-emerald-500/20'
+                          script.is_active
+                            ? 'text-amber-200 hover:bg-amber-500/10'
+                            : 'text-radiant-gold hover:bg-radiant-gold/10'
                         }`}
                       >
                         {script.is_active ? (
@@ -667,7 +671,7 @@ export default function ScriptsManagementPage() {
                           e.stopPropagation();
                           handleEdit(script);
                         }}
-                        className="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-300 hover:bg-gray-700 rounded-lg"
+                        className="flex items-center gap-1 px-3 py-1.5 text-sm text-muted-foreground hover:bg-white/5 hover:text-foreground rounded-lg"
                       >
                         <Edit className="w-4 h-4" />
                         Edit
@@ -677,7 +681,7 @@ export default function ScriptsManagementPage() {
                           e.stopPropagation();
                           handleDuplicate(script);
                         }}
-                        className="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-300 hover:bg-gray-700 rounded-lg"
+                        className="flex items-center gap-1 px-3 py-1.5 text-sm text-muted-foreground hover:bg-white/5 hover:text-foreground rounded-lg"
                       >
                         <Copy className="w-4 h-4" />
                         Duplicate

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { TIER_OPTIONS, PRICING_SEGMENT_OPTIONS } from '@/lib/constants/bundle-tiers';
 import { BundleCard } from './BundleCard';
 import { useAuth } from '@/components/AuthProvider';
@@ -43,7 +42,6 @@ import {
 } from 'lucide-react';
 
 export default function BundleManagementPage() {
-  const router = useRouter();
   const { user } = useAuth();
   const [bundles, setBundles] = useState<OfferBundleWithStats[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -179,7 +177,7 @@ export default function BundleManagementPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-6">
+    <div className="admin-console-page min-h-screen p-6 text-foreground lg:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Breadcrumbs */}
         <Breadcrumbs 
@@ -191,86 +189,91 @@ export default function BundleManagementPage() {
         />
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <header className="admin-console-surface-header mb-6 mt-5 flex flex-wrap items-start justify-between gap-4 rounded-xl border p-5">
           <div>
-            <h1 className="text-2xl font-bold">Offer Bundles</h1>
-            <p className="text-gray-400 mt-1">
+            <div className="admin-console-eyebrow mb-2">
+              <Package className="h-4 w-4" />
+              Sales Operations
+            </div>
+            <h1 className="text-3xl font-bold">Offer Bundles</h1>
+            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
               Pre-configured offer templates for sales calls
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => fetchBundles()}
-              className="p-2 text-gray-400 hover:text-white transition-colors"
+              className="admin-console-button-muted"
               title="Refresh"
+              aria-label="Refresh bundles"
             >
               <RefreshCw className="w-5 h-5" />
             </button>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+              className="admin-console-button-primary"
             >
               <Plus className="w-4 h-4" />
               Create Bundle
             </button>
           </div>
-        </div>
+        </header>
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-gray-900 rounded-lg border border-gray-800 p-4">
+          <div className="admin-console-metric rounded-lg border p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-900/50 rounded-lg">
-                <Package className="w-5 h-5 text-blue-400" />
+              <div className="rounded-lg border border-radiant-gold/25 bg-radiant-gold/10 p-2">
+                <Package className="w-5 h-5 text-radiant-gold" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{stats.total}</p>
-                <p className="text-sm text-gray-400">Total Bundles</p>
+                <p className="text-sm text-muted-foreground">Total Bundles</p>
               </div>
             </div>
           </div>
-          <div className="bg-gray-900 rounded-lg border border-gray-800 p-4">
+          <div className="admin-console-metric rounded-lg border p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-900/50 rounded-lg">
-                <Layers className="w-5 h-5 text-green-400" />
+              <div className="rounded-lg border border-emerald-500/25 bg-emerald-500/10 p-2">
+                <Layers className="w-5 h-5 text-emerald-200" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{stats.standard}</p>
-                <p className="text-sm text-gray-400">Standard Templates</p>
+                <p className="text-sm text-muted-foreground">Standard Templates</p>
               </div>
             </div>
           </div>
-          <div className="bg-gray-900 rounded-lg border border-gray-800 p-4">
+          <div className="admin-console-metric rounded-lg border p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-900/50 rounded-lg">
-                <GitFork className="w-5 h-5 text-purple-400" />
+              <div className="rounded-lg border border-sky-500/25 bg-sky-500/10 p-2">
+                <GitFork className="w-5 h-5 text-sky-200" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{stats.custom}</p>
-                <p className="text-sm text-gray-400">Custom (Forked)</p>
+                <p className="text-sm text-muted-foreground">Custom (Forked)</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="admin-console-card mb-6 flex flex-col gap-4 rounded-lg border p-4 sm:flex-row sm:items-center">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
               placeholder="Search bundles..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-gray-900 border border-gray-800 rounded-lg focus:outline-none focus:border-blue-500"
+              className="w-full rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 py-2 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-radiant-gold/70 focus:outline-none"
             />
           </div>
-          <label className="flex items-center gap-2 text-sm text-gray-400">
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
             <input
               type="checkbox"
               checked={showInactive}
               onChange={(e) => setShowInactive(e.target.checked)}
-              className="rounded border-gray-600"
+              className="rounded border-silicon-slate bg-imperial-navy"
             />
             Show inactive
           </label>
@@ -278,10 +281,10 @@ export default function BundleManagementPage() {
 
         {/* Error */}
         {error && (
-          <div className="mb-6 p-4 bg-red-900/50 border border-red-800 rounded-lg flex items-center gap-3">
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg flex items-center gap-3">
             <AlertCircle className="w-5 h-5 text-red-400" />
-            <p className="text-red-200">{error}</p>
-            <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-300">
+            <p className="text-red-300">{error}</p>
+            <button onClick={() => setError(null)} className="ml-auto text-red-300 hover:text-red-200" aria-label="Dismiss error">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -290,7 +293,7 @@ export default function BundleManagementPage() {
         {/* Loading */}
         {isLoading && (
           <div className="flex items-center justify-center py-12">
-            <RefreshCw className="w-6 h-6 text-gray-400 animate-spin" />
+            <RefreshCw className="w-6 h-6 text-muted-foreground animate-spin" />
           </div>
         )}
 
@@ -309,13 +312,13 @@ export default function BundleManagementPage() {
             ))}
             
             {filteredBundles.length === 0 && (
-              <div className="col-span-full flex flex-col items-center justify-center py-12 text-gray-400">
+              <div className="admin-console-card col-span-full flex flex-col items-center justify-center rounded-lg border py-12 text-muted-foreground">
                 <Package className="w-12 h-12 mb-4 opacity-50" />
                 <p className="text-lg font-medium">No bundles found</p>
                 <p className="text-sm mt-1">Create your first bundle to get started</p>
                 <button
                   onClick={() => setShowCreateModal(true)}
-                  className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors text-white"
+                  className="admin-console-button-primary mt-4"
                 >
                   Create Bundle
                 </button>
@@ -468,24 +471,24 @@ function CreateBundleModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-      <div className="bg-gray-900 rounded-xl border border-gray-800 w-full max-w-md p-6">
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+      <div className="admin-console-card rounded-xl border w-full max-w-md p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold">Create New Bundle</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white">
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground" aria-label="Close create bundle modal">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-900/50 border border-red-800 rounded-lg text-sm text-red-200">
+          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-sm text-red-300">
             {error}
           </div>
         )}
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
               Bundle Name *
             </label>
             <input
@@ -493,12 +496,12 @@ function CreateBundleModal({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g., Enterprise Starter Pack"
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500"
+              className="w-full rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-radiant-gold/70 focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
               Description
             </label>
             <textarea
@@ -506,22 +509,22 @@ function CreateBundleModal({
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe what this bundle includes and who it's for..."
               rows={3}
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 resize-none"
+              className="w-full rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-radiant-gold/70 focus:outline-none resize-none"
             />
           </div>
 
           {/* Community Impact / Decoy toggle */}
-          <div className="border-t border-gray-800 pt-4">
+          <div className="border-t border-white/10 pt-4">
             <label className="flex items-center gap-3 cursor-pointer">
-              <div className={`relative w-10 h-5 rounded-full transition-colors ${isDecoy ? 'bg-emerald-600' : 'bg-gray-700'}`}>
+              <div className={`relative w-10 h-5 rounded-full transition-colors ${isDecoy ? 'bg-emerald-600' : 'bg-imperial-navy/80'}`}>
                 <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${isDecoy ? 'translate-x-5' : ''}`} />
               </div>
               <div>
-                <span className="text-sm font-medium text-gray-300 flex items-center gap-1.5">
+                <span className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
                   <Heart className="w-3.5 h-3.5 text-emerald-400" />
                   Community Impact (Decoy) Offer
                 </span>
-                <span className="text-xs text-gray-500 block mt-0.5">
+                <span className="text-xs text-muted-foreground block mt-0.5">
                   Lower price, self-serve delivery, no guarantee
                 </span>
               </div>
@@ -530,7 +533,7 @@ function CreateBundleModal({
             {isDecoy && (
               <div className="mt-4 space-y-3 pl-1">
                 <div>
-                  <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">
                     Target Audience
                   </label>
                   <div className="flex gap-2">
@@ -541,8 +544,8 @@ function CreateBundleModal({
                         onClick={() => toggleAudience(audience)}
                         className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${
                           targetAudience.includes(audience)
-                            ? 'bg-emerald-900/50 text-emerald-300 border-emerald-700'
-                            : 'bg-gray-800 text-gray-400 border-gray-700 hover:border-gray-600'
+                            ? 'bg-radiant-gold/10 text-radiant-gold border-radiant-gold/45'
+                            : 'bg-imperial-navy/70 text-muted-foreground border-silicon-slate/70 hover:border-radiant-gold/40'
                         }`}
                       >
                         {audience.charAt(0).toUpperCase() + audience.slice(1)}
@@ -552,13 +555,13 @@ function CreateBundleModal({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">
                     Mirrors Premium Tier
                   </label>
                   <select
                     value={mirrorsTierId}
                     onChange={(e) => setMirrorsTierId(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-emerald-500"
+                    className="w-full rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 px-3 py-2 text-sm text-foreground focus:border-radiant-gold/70 focus:outline-none"
                   >
                     <option value="">None (standalone)</option>
                     {TIER_OPTIONS.map(tier => (
@@ -571,8 +574,8 @@ function CreateBundleModal({
           </div>
 
           {/* Service Term */}
-          <div className="border-t border-gray-800 pt-4">
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+          <div className="border-t border-white/10 pt-4">
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
               Default Service Term (months)
             </label>
             <input
@@ -582,29 +585,29 @@ function CreateBundleModal({
               value={defaultServiceTermMonths}
               onChange={(e) => setDefaultServiceTermMonths(e.target.value ? parseInt(e.target.value, 10) : '')}
               placeholder="e.g. 3, 6, 12"
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500"
+              className="w-full rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-radiant-gold/70 focus:outline-none"
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Used as the default number of installments when clients choose to pay in installments.
             </p>
           </div>
 
           {/* Pricing page (standard/decoy only; custom comes from save-as) */}
-          <div className="border-t border-gray-800 pt-4">
-            <h3 className="text-sm font-medium text-gray-300 mb-3">Pricing Page</h3>
+          <div className="border-t border-white/10 pt-4">
+            <h3 className="text-sm font-medium text-muted-foreground mb-3">Pricing Page</h3>
             <label className="flex items-center gap-3 cursor-pointer mb-3">
               <input
                 type="checkbox"
                 checked={showOnPricingPage}
                 onChange={(e) => setShowOnPricingPage(e.target.checked)}
-                className="rounded border-gray-600"
+                className="rounded border-silicon-slate"
               />
-              <span className="text-sm text-gray-300">Show on pricing page</span>
+              <span className="text-sm text-muted-foreground">Show on pricing page</span>
             </label>
             {showOnPricingPage && (
               <div className="space-y-3 pl-1">
                 <div>
-                  <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">
                     Show on which pricing tab(s)
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -615,8 +618,8 @@ function CreateBundleModal({
                         onClick={() => togglePricingSegment(opt.value)}
                         className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${
                           pricingSegments.includes(opt.value)
-                            ? 'bg-blue-900/50 text-blue-300 border-blue-700'
-                            : 'bg-gray-800 text-gray-400 border-gray-700'
+                            ? 'bg-radiant-gold/10 text-radiant-gold border-radiant-gold/45'
+                            : 'bg-imperial-navy/70 text-muted-foreground border-silicon-slate/70'
                         }`}
                       >
                         {opt.label}
@@ -625,13 +628,13 @@ function CreateBundleModal({
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">
                     Tier
                   </label>
                   <select
                     value={pricingTierSlug}
                     onChange={(e) => setPricingTierSlug(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                    className="w-full rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 px-3 py-2 text-sm text-foreground focus:border-radiant-gold/70 focus:outline-none"
                   >
                     <option value="">— No tier</option>
                     {TIER_OPTIONS.map((tier) => (
@@ -640,16 +643,16 @@ function CreateBundleModal({
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-400 mb-1.5">Tagline</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">Tagline</label>
                   <input
                     type="text"
                     value={tagline}
                     onChange={(e) => setTagline(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                    className="w-full rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 px-3 py-2 text-sm text-foreground focus:border-radiant-gold/70 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">
                     Target audience (display)
                   </label>
                   <input
@@ -657,11 +660,11 @@ function CreateBundleModal({
                     value={targetAudienceDisplay}
                     onChange={(e) => setTargetAudienceDisplay(e.target.value)}
                     placeholder="e.g. Nonprofits & educational institutions"
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                    className="w-full rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-radiant-gold/70 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">
                     Display order
                   </label>
                   <input
@@ -671,7 +674,7 @@ function CreateBundleModal({
                       setPricingDisplayOrder(parseInt(e.target.value, 10) || 0)
                     }
                     min={0}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                    className="w-full rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 px-3 py-2 text-sm text-foreground focus:border-radiant-gold/70 focus:outline-none"
                   />
                 </div>
                 <label className="flex items-center gap-3 cursor-pointer">
@@ -679,9 +682,9 @@ function CreateBundleModal({
                     type="checkbox"
                     checked={isFeatured}
                     onChange={(e) => setIsFeatured(e.target.checked)}
-                    className="rounded border-gray-600"
+                    className="rounded border-silicon-slate"
                   />
-                  <span className="text-sm text-gray-300">Featured (Most Popular)</span>
+                  <span className="text-sm text-muted-foreground">Featured (Most Popular)</span>
                 </label>
               </div>
             )}
@@ -691,14 +694,14 @@ function CreateBundleModal({
         <div className="flex items-center gap-3 mt-6">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
+            className="admin-console-button-muted flex-1"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed rounded-lg transition-colors"
+            className="admin-console-button-primary flex-1 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSaving ? (
               <RefreshCw className="w-4 h-4 animate-spin" />
@@ -709,7 +712,7 @@ function CreateBundleModal({
           </button>
         </div>
 
-        <p className="text-xs text-gray-500 mt-4 text-center">
+        <p className="text-xs text-muted-foreground mt-4 text-center">
           You can add items to this bundle after creating it
         </p>
       </div>
@@ -817,45 +820,45 @@ function EditBundleModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-      <div className="bg-gray-900 rounded-xl border border-gray-800 w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+      <div className="admin-console-card rounded-xl border w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold">Edit Bundle</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white">
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground" aria-label="Close edit bundle modal">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-900/50 border border-red-800 rounded-lg text-sm text-red-200">
+          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-sm text-red-300">
             {error}
           </div>
         )}
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Bundle Name *</label>
+            <label className="block text-sm font-medium text-muted-foreground mb-2">Bundle Name *</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500"
+              className="w-full rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 px-4 py-2 text-sm text-foreground focus:border-radiant-gold/70 focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
+            <label className="block text-sm font-medium text-muted-foreground mb-2">Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 resize-none"
+              className="w-full rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 px-4 py-2 text-sm text-foreground focus:border-radiant-gold/70 focus:outline-none resize-none"
             />
           </div>
 
           {/* Service Term */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
               Default Service Term (months)
             </label>
             <input
@@ -865,9 +868,9 @@ function EditBundleModal({
               value={editServiceTermMonths}
               onChange={(e) => setEditServiceTermMonths(e.target.value ? parseInt(e.target.value, 10) : '')}
               placeholder="e.g. 3, 6, 12"
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500"
+              className="w-full rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-radiant-gold/70 focus:outline-none"
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Default installment count for proposals using this bundle.
             </p>
           </div>
@@ -875,14 +878,14 @@ function EditBundleModal({
           {/* Base bundle - hidden for custom bundles */}
           {!isCustom && (
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Base bundle</label>
-              <p className="text-xs text-gray-500 mb-2">
+              <label className="block text-sm font-medium text-muted-foreground mb-2">Base bundle</label>
+              <p className="text-xs text-muted-foreground mb-2">
                 {bundle.base_bundle_name ? `Currently based on: ${bundle.base_bundle_name}` : 'Currently: None'}
               </p>
               <select
                 value={baseBundleId}
                 onChange={(e) => setBaseBundleId(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500"
+                className="w-full rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 px-4 py-2 text-sm text-foreground focus:border-radiant-gold/70 focus:outline-none"
               >
                 <option value="">— None</option>
                 {allBundles
@@ -896,18 +899,18 @@ function EditBundleModal({
 
           {/* Pricing page section - hidden for custom bundles */}
           {!isCustom && (
-            <div className="border-t border-gray-800 pt-4 space-y-4">
-              <h3 className="text-sm font-medium text-gray-300">Pricing Page</h3>
+            <div className="border-t border-white/10 pt-4 space-y-4">
+              <h3 className="text-sm font-medium text-muted-foreground">Pricing Page</h3>
 
               <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1.5">Tier</label>
-                <p className="text-xs text-gray-500 mb-1.5">
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Tier</label>
+                <p className="text-xs text-muted-foreground mb-1.5">
                   Which pricing tier this bundle belongs to (e.g. Quick Win, Accelerator). Used when shown on the pricing page.
                 </p>
                 <select
                   value={pricingTierSlug}
                   onChange={(e) => setPricingTierSlug(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 text-sm text-foreground focus:border-radiant-gold/70 focus:outline-none"
                 >
                   <option value="">— No tier</option>
                   {TIER_OPTIONS.map((tier) => (
@@ -921,15 +924,15 @@ function EditBundleModal({
                   type="checkbox"
                   checked={showOnPricingPage}
                   onChange={(e) => setShowOnPricingPage(e.target.checked)}
-                  className="rounded border-gray-600"
+                  className="rounded border-silicon-slate"
                 />
-                <span className="text-sm text-gray-300">Show on pricing page</span>
+                <span className="text-sm text-muted-foreground">Show on pricing page</span>
               </label>
 
               {showOnPricingPage && (
                 <>
                   <div>
-                    <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                    <label className="block text-xs font-medium text-muted-foreground mb-1.5">
                       Show on which pricing tab(s)
                     </label>
                     <div className="flex flex-wrap gap-2">
@@ -940,8 +943,8 @@ function EditBundleModal({
                           onClick={() => toggleSegment(opt.value)}
                           className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${
                             pricingSegments.includes(opt.value)
-                              ? 'bg-blue-900/50 text-blue-300 border-blue-700'
-                              : 'bg-gray-800 text-gray-400 border-gray-700'
+                              ? 'bg-radiant-gold/10 text-radiant-gold border-radiant-gold/45'
+                              : 'bg-imperial-navy/70 text-muted-foreground border-silicon-slate/70'
                           }`}
                         >
                           {opt.label}
@@ -951,17 +954,17 @@ function EditBundleModal({
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-gray-400 mb-1.5">Tagline</label>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1.5">Tagline</label>
                     <input
                       type="text"
                       value={tagline}
                       onChange={(e) => setTagline(e.target.value)}
-                      className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                      className="w-full px-3 py-2 rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 text-sm text-foreground focus:border-radiant-gold/70 focus:outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                    <label className="block text-xs font-medium text-muted-foreground mb-1.5">
                       Target audience (display)
                     </label>
                     <input
@@ -969,12 +972,12 @@ function EditBundleModal({
                       value={targetAudienceDisplay}
                       onChange={(e) => setTargetAudienceDisplay(e.target.value)}
                       placeholder="e.g. Nonprofits & educational institutions"
-                      className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                      className="w-full px-3 py-2 rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 text-sm text-foreground focus:border-radiant-gold/70 focus:outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                    <label className="block text-xs font-medium text-muted-foreground mb-1.5">
                       Display order
                     </label>
                     <input
@@ -982,7 +985,7 @@ function EditBundleModal({
                       value={pricingDisplayOrder}
                       onChange={(e) => setPricingDisplayOrder(parseInt(e.target.value, 10) || 0)}
                       min={0}
-                      className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                      className="w-full px-3 py-2 rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 text-sm text-foreground focus:border-radiant-gold/70 focus:outline-none"
                     />
                   </div>
 
@@ -991,61 +994,61 @@ function EditBundleModal({
                       type="checkbox"
                       checked={isFeatured}
                       onChange={(e) => setIsFeatured(e.target.checked)}
-                      className="rounded border-gray-600"
+                      className="rounded border-silicon-slate"
                     />
-                    <span className="text-sm text-gray-300">Featured (Most Popular)</span>
+                    <span className="text-sm text-muted-foreground">Featured (Most Popular)</span>
                   </label>
                 </>
               )}
 
               <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">
                   Guarantee name
                 </label>
                 <input
                   type="text"
                   value={guaranteeName}
                   onChange={(e) => setGuaranteeName(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 text-sm text-foreground focus:border-radiant-gold/70 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">
                   Guarantee description
                 </label>
                 <input
                   type="text"
                   value={guaranteeDescription}
                   onChange={(e) => setGuaranteeDescription(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 text-sm text-foreground focus:border-radiant-gold/70 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1.5">CTA text</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">CTA text</label>
                 <input
                   type="text"
                   value={ctaText}
                   onChange={(e) => setCtaText(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 text-sm text-foreground focus:border-radiant-gold/70 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1.5">CTA href</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">CTA href</label>
                 <input
                   type="text"
                   value={ctaHref}
                   onChange={(e) => setCtaHref(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 text-sm text-foreground focus:border-radiant-gold/70 focus:outline-none"
                 />
               </div>
             </div>
           )}
 
           {isCustom && (
-            <p className="text-xs text-gray-500 italic">
+            <p className="text-xs text-muted-foreground italic">
               Custom bundles do not appear on the pricing page.
             </p>
           )}
@@ -1054,14 +1057,14 @@ function EditBundleModal({
         <div className="flex items-center gap-3 mt-6">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
+            className="admin-console-button-muted flex-1"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed rounded-lg transition-colors"
+            className="admin-console-button-primary flex-1 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSaving ? (
               <RefreshCw className="w-4 h-4 animate-spin" />
@@ -1173,35 +1176,35 @@ function ViewBundleModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-      <div className="bg-gray-900 rounded-xl border border-gray-800 w-full max-w-3xl max-h-[85vh] overflow-hidden flex flex-col">
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+      <div className="admin-console-card rounded-xl border w-full max-w-3xl max-h-[85vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-start justify-between p-6 border-b border-gray-800">
+        <div className="flex items-start justify-between p-6 border-b border-white/10">
           {isEditingHeader ? (
             <div className="flex-1 mr-4 space-y-3">
               <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1">Bundle Name</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">Bundle Name</label>
                 <input
                   type="text"
                   value={bundleName}
                   onChange={(e) => setBundleName(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-lg font-semibold"
+                  className="w-full rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 px-3 py-2 text-lg font-semibold text-foreground focus:border-radiant-gold/70 focus:outline-none"
                   autoFocus
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1">Description</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">Description</label>
                 <textarea
                   value={bundleDescription}
                   onChange={(e) => setBundleDescription(e.target.value)}
                   placeholder="Enter bundle description..."
                   rows={2}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-sm text-gray-300 resize-y"
+                  className="w-full rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-radiant-gold/70 focus:outline-none resize-y"
                 />
               </div>
               <button
                 onClick={handleHeaderChange}
-                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm transition-colors"
+                className="admin-console-button-primary px-3 py-1.5"
               >
                 Done
               </button>
@@ -1210,12 +1213,12 @@ function ViewBundleModal({
             <div className="flex-1 min-w-0 group cursor-pointer" onClick={() => setIsEditingHeader(true)}>
               <div className="flex items-center gap-2">
                 <h2 className="text-xl font-semibold">{bundleName}</h2>
-                <Edit className="w-4 h-4 text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <Edit className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
               {bundleDescription ? (
-                <p className="text-sm text-gray-400 mt-1">{bundleDescription}</p>
+                <p className="text-sm text-muted-foreground mt-1">{bundleDescription}</p>
               ) : (
-                <p className="text-sm text-gray-600 mt-1 italic opacity-0 group-hover:opacity-100 transition-opacity">Click to add description...</p>
+                <p className="text-sm text-muted-foreground mt-1 italic opacity-0 group-hover:opacity-100 transition-opacity">Click to add description...</p>
               )}
             </div>
           )}
@@ -1223,13 +1226,13 @@ function ViewBundleModal({
             {onEditSettings && (
               <button
                 onClick={onEditSettings}
-                className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+                className="admin-console-button-muted px-3 py-1.5"
                 title="Edit tier, pricing page, and other bundle settings"
               >
                 Edit bundle settings
               </button>
             )}
-            <button onClick={onClose} className="text-gray-400 hover:text-white">
+            <button onClick={onClose} className="text-muted-foreground hover:text-foreground" aria-label="Close bundle detail modal">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -1237,37 +1240,37 @@ function ViewBundleModal({
 
         {/* Base bundle info */}
         {bundle.base_bundle_name && (
-          <div className="px-6 py-2 bg-gray-950/50 border-b border-gray-800">
-            <p className="text-sm text-blue-400">
+          <div className="px-6 py-2 bg-imperial-navy/55 border-b border-white/10">
+            <p className="text-sm text-sky-200">
               <Layers className="w-4 h-4 inline-block mr-1.5 align-middle" />
               Based on: {bundle.base_bundle_name}
             </p>
-            <p className="text-xs text-gray-500 mt-1">This bundle includes all items from the base bundle plus the items below.</p>
+            <p className="text-xs text-muted-foreground mt-1">This bundle includes all items from the base bundle plus the items below.</p>
           </div>
         )}
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4 p-4 bg-gray-950 border-b border-gray-800">
+        <div className="grid grid-cols-2 gap-4 border-b border-white/10 bg-imperial-navy/55 p-4 sm:grid-cols-4 lg:grid-cols-6">
           <div className="text-center">
-            <p className="text-2xl font-bold text-white">{items.length}</p>
-            <p className="text-xs text-gray-400">Items</p>
+            <p className="text-2xl font-bold text-foreground">{items.length}</p>
+            <p className="text-xs text-muted-foreground">Items</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-green-400">${Math.round(totals.totalRetailValue).toLocaleString()}</p>
-            <p className="text-xs text-gray-400">Retail Value</p>
+            <p className="text-2xl font-bold text-emerald-200">${Math.round(totals.totalRetailValue).toLocaleString()}</p>
+            <p className="text-xs text-muted-foreground">Retail Value</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-blue-400">${Math.round(totals.totalPerceivedValue).toLocaleString()}</p>
-            <p className="text-xs text-gray-400">Perceived Value</p>
+            <p className="text-2xl font-bold text-sky-200">${Math.round(totals.totalPerceivedValue).toLocaleString()}</p>
+            <p className="text-xs text-muted-foreground">Perceived Value</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-purple-400">{totals.coreOfferCount}</p>
-            <p className="text-xs text-gray-400">Core Offers</p>
+            <p className="text-2xl font-bold text-radiant-gold">{totals.coreOfferCount}</p>
+            <p className="text-xs text-muted-foreground">Core Offers</p>
           </div>
           <div className="text-center">
             <div className="flex flex-col items-center gap-1">
               <p className="text-2xl font-bold text-amber-400">${Math.round(effectiveCost).toLocaleString()}</p>
-              <p className="text-xs text-gray-400">Blended Cost</p>
+              <p className="text-xs text-muted-foreground">Blended Cost</p>
               <input
                 type="number"
                 value={blendedCostOverride}
@@ -1275,7 +1278,7 @@ function ViewBundleModal({
                 placeholder="Override"
                 min={0}
                 step={0.01}
-                className="w-20 px-1.5 py-0.5 text-xs bg-gray-800 border border-gray-600 rounded text-center"
+                className="w-20 rounded border border-silicon-slate/70 bg-imperial-navy/70 px-1.5 py-0.5 text-center text-xs text-foreground focus:border-radiant-gold/70 focus:outline-none"
                 title="Override blended cost (leave empty to use sum of line costs)"
               />
             </div>
@@ -1284,16 +1287,16 @@ function ViewBundleModal({
             <p className="text-2xl font-bold text-radiant-gold">
               {totals.totalRetailValue > 0 ? formatMarginPercent(totals.totalRetailValue, effectiveCost) : '—'}
             </p>
-            <p className="text-xs text-gray-400">Blended Margin</p>
+            <p className="text-xs text-muted-foreground">Blended Margin</p>
           </div>
         </div>
         
         {/* Error */}
         {error && (
-          <div className="mx-4 mt-4 p-3 bg-red-900/50 border border-red-800 rounded-lg flex items-center gap-2 text-sm text-red-200">
+          <div className="mx-4 mt-4 p-3 bg-red-500/10 border border-red-500/50 rounded-lg flex items-center gap-2 text-sm text-red-300">
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
             {error}
-            <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-300">
+            <button onClick={() => setError(null)} className="ml-auto text-red-300 hover:text-red-200" aria-label="Dismiss error">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -1309,10 +1312,10 @@ function ViewBundleModal({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-gray-800 bg-gray-950 flex items-center gap-3">
+        <div className="p-4 border-t border-white/10 bg-imperial-navy/70 flex items-center gap-3">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
+            className="admin-console-button-muted flex-1"
           >
             {hasChanges ? 'Cancel' : 'Close'}
           </button>
@@ -1320,7 +1323,7 @@ function ViewBundleModal({
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed rounded-lg transition-colors"
+              className="admin-console-button-primary flex-1 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSaving ? (
                 <RefreshCw className="w-4 h-4 animate-spin" />
