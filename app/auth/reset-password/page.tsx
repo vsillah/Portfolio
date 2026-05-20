@@ -95,7 +95,7 @@ export default function ResetPasswordPage() {
             New password
           </label>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+            <Lock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
             <input
               id="password"
               type="password"
@@ -103,7 +103,8 @@ export default function ResetPasswordPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              className="input-brand w-full py-3 pl-10 pr-4 transition-colors"
+              className="input-brand w-full py-3 pr-4 transition-colors"
+              style={{ paddingLeft: '3.25rem' }}
               placeholder="••••••••"
             />
           </div>
@@ -114,7 +115,7 @@ export default function ResetPasswordPage() {
             Confirm password
           </label>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+            <Lock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
             <input
               id="confirm"
               type="password"
@@ -122,7 +123,8 @@ export default function ResetPasswordPage() {
               onChange={(e) => setConfirm(e.target.value)}
               required
               minLength={6}
-              className="input-brand w-full py-3 pl-10 pr-4 transition-colors"
+              className="input-brand w-full py-3 pr-4 transition-colors"
+              style={{ paddingLeft: '3.25rem' }}
               placeholder="••••••••"
             />
           </div>
