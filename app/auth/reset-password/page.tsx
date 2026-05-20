@@ -6,7 +6,7 @@ import { Lock } from 'lucide-react'
 import { updatePassword } from '@/lib/auth'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import SiteThemeCorner from '@/components/SiteThemeCorner'
+import AuthShell from '@/components/auth/AuthShell'
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState('')
@@ -55,99 +55,95 @@ export default function ResetPasswordPage() {
 
   if (!ready) {
     return (
-      <>
-        <SiteThemeCorner />
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center px-4 py-12">
-        <div className="w-full max-w-md bg-silicon-slate border border-silicon-slate rounded-xl p-8 text-center">
-          <p className="text-muted-foreground mb-4">Checking your reset link…</p>
-          <p className="text-muted-foreground text-sm">
+      <AuthShell>
+        <div className="admin-console-card rounded-xl border p-8 text-center">
+          <div className="admin-console-eyebrow mb-3 justify-center">Recovery link</div>
+          <p className="mb-4 text-muted-foreground">Checking your reset link...</p>
+          <p className="text-sm leading-6 text-muted-foreground">
             If this page doesn’t update, the link may be invalid or expired.{' '}
             <Link href="/auth/forgot-password" className="text-radiant-gold hover:text-gold-light">Request a new one</Link>.
           </p>
         </div>
-      </div>
-      </>
+      </AuthShell>
     )
   }
 
   return (
-    <>
-      <SiteThemeCorner />
-    <div className="min-h-screen bg-background text-foreground flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
-        <motion.form
-          onSubmit={handleSubmit}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-6 bg-silicon-slate border border-silicon-slate rounded-xl p-8"
-        >
-          <div>
-            <h2 className="text-3xl font-bold text-foreground mb-2">Set new password</h2>
-            <p className="text-muted-foreground">Choose a password you’ll use to sign in with email.</p>
-          </div>
-
-          {error && (
-            <div className="p-4 bg-red-500/20 border border-red-500/50 rounded-lg text-red-400 text-sm">
-              {error}
-            </div>
-          )}
-
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
-              New password
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-                className="w-full pl-10 pr-4 py-3 input-brand transition-colors"
-                placeholder="••••••••"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="confirm" className="block text-sm font-medium text-foreground mb-2">
-              Confirm password
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
-              <input
-                id="confirm"
-                type="password"
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
-                required
-                minLength={6}
-                className="w-full pl-10 pr-4 py-3 input-brand transition-colors"
-                placeholder="••••••••"
-              />
-            </div>
-          </div>
-
-          <motion.button
-            type="submit"
-            disabled={loading}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="w-full py-3 btn-gold text-imperial-navy font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? 'Saving…' : 'Set password'}
-          </motion.button>
-
-          <p className="text-center text-sm text-muted-foreground">
-            <Link href="/auth/login" className="text-radiant-gold hover:text-gold-light transition-colors">
-              Back to sign in
-            </Link>
+    <AuthShell>
+      <motion.form
+        onSubmit={handleSubmit}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="admin-console-command-card space-y-6 rounded-xl border p-6 sm:p-8"
+      >
+        <div>
+          <div className="admin-console-eyebrow mb-3">Account recovery</div>
+          <h2 className="text-3xl font-bold text-foreground">Set new password</h2>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            Choose the password you will use to sign in with email.
           </p>
-        </motion.form>
-      </div>
-    </div>
-    </>
+        </div>
+
+        {error && (
+          <div className="rounded-lg border border-red-500/45 bg-red-500/15 p-4 text-sm text-red-200">
+            {error}
+          </div>
+        )}
+
+        <div>
+          <label htmlFor="password" className="mb-2 block text-sm font-medium text-foreground">
+            New password
+          </label>
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+              className="input-brand w-full py-3 pl-10 pr-4 transition-colors"
+              placeholder="••••••••"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="confirm" className="mb-2 block text-sm font-medium text-foreground">
+            Confirm password
+          </label>
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+            <input
+              id="confirm"
+              type="password"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              required
+              minLength={6}
+              className="input-brand w-full py-3 pl-10 pr-4 transition-colors"
+              placeholder="••••••••"
+            />
+          </div>
+        </div>
+
+        <motion.button
+          type="submit"
+          disabled={loading}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="admin-console-button-primary h-12 w-full text-base disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {loading ? 'Saving...' : 'Set password'}
+        </motion.button>
+
+        <p className="text-center text-sm text-muted-foreground">
+          <Link href="/auth/login" className="text-radiant-gold transition-colors hover:text-gold-light">
+            Back to sign in
+          </Link>
+        </p>
+      </motion.form>
+    </AuthShell>
   )
 }
