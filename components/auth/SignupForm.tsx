@@ -116,14 +116,15 @@ export default function SignupForm() {
               Email
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+              <Mail className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
               <input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="input-brand w-full py-3 pl-10 pr-4"
+                className="input-brand w-full py-3 pr-4"
+                style={{ paddingLeft: '3.25rem' }}
                 placeholder="you@example.com"
               />
             </div>
@@ -134,7 +135,7 @@ export default function SignupForm() {
               Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+              <Lock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
               <input
                 id="password"
                 type="password"
@@ -142,7 +143,8 @@ export default function SignupForm() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
-                className="input-brand w-full py-3 pl-10 pr-4"
+                className="input-brand w-full py-3 pr-4"
+                style={{ paddingLeft: '3.25rem' }}
                 placeholder="••••••••"
               />
             </div>
@@ -153,7 +155,7 @@ export default function SignupForm() {
               Confirm Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+              <Lock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
               <input
                 id="confirmPassword"
                 type="password"
@@ -161,7 +163,8 @@ export default function SignupForm() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 minLength={6}
-                className="input-brand w-full py-3 pl-10 pr-4"
+                className="input-brand w-full py-3 pr-4"
+                style={{ paddingLeft: '3.25rem' }}
                 placeholder="••••••••"
               />
             </div>
