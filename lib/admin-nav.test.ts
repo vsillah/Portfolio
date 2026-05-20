@@ -34,6 +34,7 @@ describe('admin sidebar expandable route helpers', () => {
     expect(isContentExpanded('/admin/content/publications')).toBe(true)
     expect(isContentExpanded('/admin/products')).toBe(true)
     expect(isContentExpanded('/admin/products/sku-1')).toBe(true)
+    expect(isContentExpanded('/admin/contention')).toBe(false)
     expect(isContentExpanded('/admin/productivity')).toBe(false)
   })
 
