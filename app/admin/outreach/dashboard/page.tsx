@@ -149,10 +149,10 @@ function formatSourceLabel(source: string): string {
  * Get the icon and color for a platform/source
  */
 function getSourceIcon(source: string) {
-  if (source.includes('facebook')) return { Icon: Facebook, color: 'text-blue-500' }
+  if (source.includes('facebook')) return { Icon: Facebook, color: 'text-sky-300' }
   if (source.includes('linkedin')) return { Icon: Linkedin, color: 'text-sky-400' }
   if (source.includes('google_contacts')) return { Icon: Phone, color: 'text-green-400' }
-  if (source.includes('apollo')) return { Icon: Search, color: 'text-purple-400' }
+  if (source.includes('apollo')) return { Icon: Search, color: 'text-radiant-gold' }
   if (source.includes('google_maps')) return { Icon: Building2, color: 'text-yellow-400' }
   if (source.includes('referral')) return { Icon: Users, color: 'text-pink-400' }
   return { Icon: Search, color: 'text-muted-foreground' }
@@ -356,7 +356,7 @@ function DashboardContent() {
               className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${
                 tempFilter === key
                   ? 'border-radiant-gold/50 bg-radiant-gold/15 text-radiant-gold'
-                  : 'border-white/10 bg-white/5 text-muted-foreground hover:border-radiant-gold/30 hover:text-foreground'
+                  : 'border-white/10 bg-silicon-slate/45 text-muted-foreground hover:border-radiant-gold/30 hover:text-foreground'
               }`}
             >
               <FilterIcon size={16} />
@@ -374,7 +374,7 @@ function DashboardContent() {
         <div className="admin-console-card mb-8 rounded-lg border overflow-hidden">
           <button
             onClick={() => setShowTriggerSection(!showTriggerSection)}
-            className="w-full p-4 flex items-center justify-between hover:bg-white/[0.03] transition-colors"
+            className="flex w-full items-center justify-between p-4 transition-colors hover:bg-silicon-slate/45"
           >
             <div className="flex items-center gap-3">
               <Zap size={20} className="text-radiant-gold" />
@@ -410,7 +410,7 @@ function DashboardContent() {
                 {/* Facebook */}
                 <div className="admin-console-metric rounded-lg border p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <Facebook size={20} className="text-blue-400" />
+                    <Facebook size={20} className="text-sky-300" />
                     <h3 className="font-semibold">Facebook</h3>
                   </div>
                   <p className="text-sm text-muted-foreground mb-3">
@@ -586,19 +586,19 @@ function DashboardContent() {
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <Snowflake size={20} className="text-blue-400" />
-                  <span className="font-semibold text-blue-300">Cold Leads</span>
+                  <Snowflake size={20} className="text-sky-300" />
+                  <span className="font-semibold text-sky-200">Cold Leads</span>
                 </div>
                 <span className="text-2xl font-bold">{data.coldFunnel.total}</span>
               </div>
             <div className="grid grid-cols-4 gap-3 text-xs">
               <div>
                 <div className="text-muted-foreground">Enriched</div>
-                <div className="font-medium text-blue-200">{data.coldFunnel.enriched}</div>
+                <div className="font-medium text-sky-100">{data.coldFunnel.enriched}</div>
               </div>
               <div>
                 <div className="text-muted-foreground">Contacted</div>
-                <div className="font-medium text-blue-200">{data.coldFunnel.contacted}</div>
+                <div className="font-medium text-sky-100">{data.coldFunnel.contacted}</div>
               </div>
               <div>
                 <div className="text-muted-foreground">Reply Rate</div>
@@ -616,13 +616,13 @@ function DashboardContent() {
         {/* Funnel Visualization */}
         <div className="mb-8">
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <TrendingUp size={20} className="text-blue-400" />
+            <TrendingUp size={20} className="text-sky-300" />
             Pipeline Funnel
             {tempFilter !== 'all' && (
               <span className={`text-xs px-2 py-0.5 rounded ${
                 tempFilter === 'warm'
                   ? 'bg-orange-900/50 text-orange-400'
-                  : 'bg-blue-900/50 text-blue-400'
+                  : 'bg-sky-500/10 text-sky-300'
               }`}>
                 {tempFilter === 'warm' ? 'Warm Only' : 'Cold Only'}
               </span>
@@ -671,7 +671,7 @@ function DashboardContent() {
         {/* Key Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <div className="admin-console-metric rounded-lg border p-4">
-            <div className="text-sm text-blue-400">Reply Rate</div>
+            <div className="text-sm text-sky-300">Reply Rate</div>
             <div className="text-3xl font-bold mt-1">{activeFunnel.reply_rate}%</div>
           </div>
           <div className="admin-console-metric rounded-lg border p-4">
@@ -683,7 +683,7 @@ function DashboardContent() {
             <div className="text-3xl font-bold mt-1">{data.queueStats.draft || 0}</div>
           </div>
           <div className="admin-console-metric rounded-lg border p-4">
-            <div className="text-sm text-purple-400">Active Sequences</div>
+            <div className="text-sm text-radiant-gold">Active Sequences</div>
             <div className="text-3xl font-bold mt-1">
               {activeFunnel.contacted}
             </div>
@@ -694,13 +694,13 @@ function DashboardContent() {
           {/* Channel Performance */}
           <div className="admin-console-card rounded-lg border p-6">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <BarChart3 size={20} className="text-purple-400" />
+              <BarChart3 size={20} className="text-radiant-gold" />
               Channel Performance
             </h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between p-3 bg-silicon-slate/50 rounded-lg">
                 <div className="flex items-center gap-3">
-                  <Mail size={20} className="text-blue-400" />
+                  <Mail size={20} className="text-sky-300" />
                   <div>
                     <div className="font-medium">Email</div>
                     <div className="text-xs text-muted-foreground">
@@ -837,7 +837,7 @@ function DashboardContent() {
           {/* Lead Sources */}
           <div className="admin-console-card rounded-lg border p-6">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Search size={20} className="text-blue-400" />
+              <Search size={20} className="text-sky-300" />
               Lead Sources
             </h3>
             {data.leadSources.length > 0 ? (
@@ -865,7 +865,7 @@ function DashboardContent() {
                         <span className={`px-1.5 py-0.5 rounded ${
                           isWarmPlatform
                             ? 'bg-orange-900/30 text-orange-400'
-                            : 'bg-blue-900/30 text-blue-400'
+                            : 'bg-sky-500/10 text-sky-300'
                         }`}>
                           {source.platform}
                         </span>
@@ -901,7 +901,7 @@ function DashboardContent() {
                   <div className="flex items-center justify-between p-3 bg-silicon-slate/50 rounded-lg hover:bg-silicon-slate/70 cursor-pointer transition-all hover:border hover:border-radiant-gold/50">
                     <div className="flex items-center gap-3">
                       {activity.channel === 'email' ? (
-                        <Mail size={16} className="text-blue-400" />
+                        <Mail size={16} className="text-sky-300" />
                       ) : (
                         <Linkedin size={16} className="text-sky-400" />
                       )}
@@ -918,7 +918,7 @@ function DashboardContent() {
                     <span className={`px-2 py-0.5 rounded ${
                       activity.status === 'replied'
                         ? 'bg-green-900/50 text-green-400'
-                        : 'bg-purple-900/50 text-purple-400'
+                        : 'bg-radiant-gold/10 text-radiant-gold'
                     }`}>
                       {activity.status}
                     </span>

@@ -845,7 +845,7 @@ function OutreachContent() {
             <AlertTriangle size={18} />
             <span className="font-medium">Escalations</span>
             {escalationsTotal > 0 && (
-              <span className="px-2 py-0.5 bg-orange-500/80 text-white text-xs font-semibold rounded-full">
+              <span className="rounded-full border border-radiant-gold/50 bg-radiant-gold/20 px-2 py-0.5 text-xs font-semibold text-radiant-gold">
                 {escalationsTotal}
               </span>
             )}
@@ -1032,7 +1032,7 @@ function OutreachContent() {
                       <button
                         type="button"
                         onClick={() => setSelectedLeadIds(new Set())}
-                        className="text-sm text-muted-foreground hover:text-white"
+                        className="text-sm text-muted-foreground hover:text-foreground"
                       >
                         Clear selection
                       </button>
@@ -1064,7 +1064,7 @@ function OutreachContent() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className={`rounded-xl border border-radiant-gold/12 bg-gradient-to-br from-white/[0.055] via-white/[0.025] to-transparent shadow-[0_18px_50px_rgba(0,0,0,0.18)] overflow-visible ${
+                        className={`admin-console-card admin-console-interactive overflow-visible rounded-xl border ${
                           leadRowMenuOpenId === lead.id ? 'relative z-20' : ''
                         }`}
                       >
@@ -1093,7 +1093,7 @@ function OutreachContent() {
                             className={`p-2 rounded-lg ${
                               isWarmLeadSource(lead.lead_source)
                                 ? 'bg-orange-900/30 text-orange-400'
-                                : 'bg-blue-900/30 text-blue-400'
+                                : 'bg-sky-500/10 text-sky-300'
                             }`}
                           >
                             {isWarmLeadSource(lead.lead_source) ? (
@@ -1106,10 +1106,10 @@ function OutreachContent() {
                           {/* Lead Info */}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <h3 className="font-semibold text-white">
+                              <h3 className="font-semibold text-foreground">
                                 <Link
                                   href={`/admin/contacts/${lead.id}`}
-                                  className="inline-flex items-center gap-1.5 text-white hover:text-teal-300 transition-colors underline decoration-dotted decoration-teal-400/70 underline-offset-4 hover:decoration-teal-300"
+                                  className="inline-flex items-center gap-1.5 text-foreground hover:text-teal-300 transition-colors underline decoration-dotted decoration-teal-400/70 underline-offset-4 hover:decoration-teal-300"
                                   title="Open contact record"
                                 >
                                   <span>{lead.name}</span>
@@ -1121,7 +1121,7 @@ function OutreachContent() {
                                   Score: {lead.lead_score}
                                 </span>
                               )}
-                              <span className="px-2 py-0.5 border border-white/10 bg-white/5 text-foreground rounded text-xs">
+                              <span className="rounded border border-white/10 bg-silicon-slate/50 px-2 py-0.5 text-xs text-foreground">
                                 {lead.lead_source
                                   ?.replace(/^(warm|cold)_/i, '') // Remove warm_ or cold_ prefix
                                   .replace(/_/g, ' ') // Replace all underscores with spaces
@@ -1150,7 +1150,7 @@ function OutreachContent() {
                               )}
                               <Link
                                 href={`/admin/email-center?contact=${lead.id}`}
-                                className="inline-flex items-center gap-1 text-muted-foreground hover:text-blue-300 transition-colors underline decoration-dotted decoration-blue-400/50 underline-offset-2 hover:decoration-blue-300"
+                                className="inline-flex items-center gap-1 text-muted-foreground hover:text-sky-300 transition-colors underline decoration-dotted decoration-sky-400/50 underline-offset-2 hover:decoration-sky-300"
                                 title={`Open Email center for this lead (${lead.messages_count} messages, ${lead.messages_sent} sent)`}
                                 aria-label={`Open Email center for ${lead.name}`}
                               >
@@ -1255,12 +1255,12 @@ function OutreachContent() {
                                     onClick={() => openReviewEnrichModal([lead.id])}
                                     title={pushTitle}
                                     aria-label={pushTitle}
-                                    className={`group inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium border transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500/40 ${
+                                    className={`group inline-flex items-center gap-1 rounded border px-2 py-1 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-radiant-gold/40 ${
                                       failed
-                                        ? 'bg-red-900/35 text-red-200 border-red-700/60 enabled:hover:bg-purple-600/85 enabled:hover:text-white enabled:hover:border-purple-400'
+                                        ? 'bg-red-900/35 text-red-200 border-red-700/60 enabled:hover:bg-radiant-gold/20 enabled:hover:text-radiant-gold enabled:hover:border-radiant-gold/50'
                                         : isVepStalePending
-                                          ? 'bg-amber-900/35 text-amber-200 border-amber-700/60 enabled:hover:bg-purple-600/85 enabled:hover:text-white enabled:hover:border-purple-400'
-                                          : 'bg-gray-700/90 text-foreground/85 border-gray-600 enabled:hover:bg-purple-600/85 enabled:hover:text-white enabled:hover:border-purple-400'
+                                          ? 'bg-amber-900/35 text-amber-200 border-amber-700/60 enabled:hover:bg-radiant-gold/20 enabled:hover:text-radiant-gold enabled:hover:border-radiant-gold/50'
+                                          : 'bg-silicon-slate/80 text-foreground/85 border-white/10 enabled:hover:bg-radiant-gold/20 enabled:hover:text-radiant-gold enabled:hover:border-radiant-gold/50'
                                     } disabled:opacity-55 disabled:cursor-not-allowed`}
                                   >
                                     <span>{chipLabel}</span>
@@ -1318,7 +1318,7 @@ function OutreachContent() {
                               {leadRowMenuOpenId === lead.id && (
                                 <div
                                   role="menu"
-                                  className="absolute right-0 top-full mt-1 z-50 min-w-[14rem] py-1 rounded-lg border border-silicon-slate bg-background shadow-xl"
+                                  className="absolute right-0 top-full mt-1 z-50 min-w-[14rem] rounded-lg border border-white/10 bg-background py-1 shadow-[0_18px_50px_rgba(0,0,0,0.35)]"
                                 >
                                   {/* Compose & in-app generation live on the lead row (OutreachEmailGenerateRow). */}
 
@@ -1585,7 +1585,7 @@ function OutreachContent() {
                                     {lead.email && (
                                       <div className="flex items-center gap-2">
                                         <Mail size={14} className="text-muted-foreground" />
-                                        <a href={`mailto:${lead.email}`} className="text-blue-400 hover:text-blue-300">
+                                        <a href={`mailto:${lead.email}`} className="text-sky-300 hover:text-sky-200">
                                           {lead.email}
                                         </a>
                                       </div>
@@ -1613,7 +1613,7 @@ function OutreachContent() {
                                     {lead.phone_number && (
                                       <div className="flex items-center gap-2">
                                         <Phone size={14} className="text-muted-foreground" />
-                                        <a href={`tel:${lead.phone_number}`} className="text-foreground hover:text-white">
+                                        <a href={`tel:${lead.phone_number}`} className="text-foreground hover:text-radiant-gold">
                                           {lead.phone_number}
                                         </a>
                                       </div>
@@ -1631,7 +1631,7 @@ function OutreachContent() {
                                           href={lead.company_domain.startsWith('http') ? lead.company_domain : `https://${lead.company_domain}`}
                                           target="_blank"
                                           rel="noopener noreferrer"
-                                          className="text-blue-400 hover:text-blue-300 flex items-center gap-1"
+                                          className="flex items-center gap-1 text-sky-300 hover:text-sky-200"
                                         >
                                           {lead.company_domain}
                                           <ExternalLink size={12} />
@@ -1806,7 +1806,7 @@ function OutreachContent() {
                                             `/admin/meeting-tasks?contact_submission_id=${lead.id}`,
                                             `/admin/outreach?tab=leads&id=${lead.id}`
                                           )}
-                                          className="text-[11px] text-violet-400 hover:text-violet-300"
+                                          className="text-[11px] text-radiant-gold hover:text-amber-300"
                                         >
                                           Manage →
                                         </Link>
@@ -1821,8 +1821,8 @@ function OutreachContent() {
                                             <li key={t.id} className="flex items-center gap-2 text-xs">
                                               <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
                                                 t.status === 'complete' ? 'bg-emerald-500'
-                                                  : t.status === 'cancelled' ? 'bg-gray-600'
-                                                  : t.status === 'in_progress' ? 'bg-blue-500'
+                                                  : t.status === 'cancelled' ? 'bg-silicon-slate'
+                                                  : t.status === 'in_progress' ? 'bg-sky-400'
                                                   : 'bg-amber-500'
                                               }`} />
                                               <span className={`truncate flex-1 ${
@@ -1833,7 +1833,7 @@ function OutreachContent() {
                                                 {t.title}
                                               </span>
                                               {t.task_category === 'outreach' && (
-                                                <span className="text-[10px] px-1 py-0.5 rounded bg-violet-500/10 text-violet-300 border border-violet-500/20">
+                                                <span className="rounded border border-radiant-gold/30 bg-radiant-gold/10 px-1 py-0.5 text-[10px] text-radiant-gold">
                                                   outreach
                                                 </span>
                                               )}
@@ -1873,11 +1873,11 @@ function OutreachContent() {
                                             <Link
                                               key={m.id}
                                               href={buildLinkWithReturn(`/admin/meetings/${m.id}`, `/admin/outreach?tab=leads&id=${lead.id}`)}
-                                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-violet-900/30 text-violet-300 border border-violet-800/50 text-xs hover:bg-violet-800/40 transition-colors"
+                                              className="inline-flex items-center gap-1.5 rounded-md border border-radiant-gold/30 bg-radiant-gold/10 px-2.5 py-1 text-xs text-radiant-gold transition-colors hover:bg-radiant-gold/20"
                                             >
                                               <Video size={12} />
                                               {m.meeting_type.replace(/_/g, ' ')}
-                                              <span className="text-violet-400/70">
+                                              <span className="text-radiant-gold/70">
                                                 {new Date(m.meeting_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                                               </span>
                                             </Link>
@@ -1927,7 +1927,7 @@ function OutreachContent() {
                                             console.error('Failed to start conversation:', err)
                                           }
                                         }}
-                                        className="flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300"
+                                        className="flex items-center gap-2 text-sm text-radiant-gold hover:text-amber-300"
                                       >
                                         <MessageSquare size={14} />
                                         Start Conversation
@@ -2053,7 +2053,7 @@ function OutreachContent() {
                         </td>
                         <td className="px-4 py-3 text-sm">
                           {e.contact_submissions ? (
-                            <Link href={`/admin/outreach?tab=leads&id=${e.contact_submission_id}`} className="text-purple-400 hover:text-purple-300">
+                            <Link href={`/admin/outreach?tab=leads&id=${e.contact_submission_id}`} className="text-radiant-gold hover:text-amber-300">
                               {e.contact_submissions.name || e.contact_submissions.email || 'Lead'}
                             </Link>
                           ) : (
