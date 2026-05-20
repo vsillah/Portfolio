@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import AdminSidebar from './AdminSidebar'
+import AdminSidebar, { NAV_ITEM_ICONS } from './AdminSidebar'
 import { ADMIN_NAV, isNavItemActive } from '@/lib/admin-nav'
 
 const usePathnameMock = vi.fn(() => '/admin/agents/runs/run-1')
@@ -58,5 +58,15 @@ describe('AdminSidebar Agent Ops hierarchy', () => {
     expect(within(nav).getByRole('button', { name: /Content Hub/i })).toHaveAttribute('aria-current', 'page')
     expect(productHubLink).toHaveAttribute('aria-current', 'page')
     expect(isNavItemActive('/admin/products', '/admin/content/products')).toBe(true)
+  })
+
+  it('keeps every sidebar nav link mapped to an icon', () => {
+    const navHrefs = ADMIN_NAV.categories.flatMap((category) => [
+      ...category.items.map((item) => item.href),
+      ...(category.children ?? []).map((item) => item.href),
+    ])
+    const missingIcons = [...new Set(navHrefs)].filter((href) => !NAV_ITEM_ICONS[href])
+
+    expect(missingIcons).toEqual([])
   })
 })
