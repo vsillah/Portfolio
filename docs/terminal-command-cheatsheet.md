@@ -157,6 +157,58 @@ Push the branch:
 git push -u origin codex/name-of-change
 ```
 
+## Trace Branch Origin
+
+Use these when a local branch is still hanging around and you need to understand where it came from, what it changed, and whether it should be revived or retired.
+
+List local branches, tracking branches, and latest commit messages:
+
+```bash
+git branch -vv
+```
+
+Show when a branch was created and how it moved locally:
+
+```bash
+git reflog show --date=iso codex/name-of-branch
+```
+
+Find the branch point against current `main`:
+
+```bash
+git merge-base origin/main codex/name-of-branch
+```
+
+Show commits that exist on the branch but not on `main`:
+
+```bash
+git log --oneline --graph codex/name-of-branch --not origin/main
+```
+
+Summarize the files changed by the branch:
+
+```bash
+git diff --stat origin/main...codex/name-of-branch
+```
+
+Show the exact changed files:
+
+```bash
+git diff --name-status origin/main...codex/name-of-branch
+```
+
+Inspect the related GitHub PR when you know the PR number:
+
+```bash
+gh pr view 288 --json title,state,body,comments,files,commits
+```
+
+Search recent PRs by feature phrase when you do not know the PR number:
+
+```bash
+gh pr list --state all --search "decision queue" --json number,title,state,mergedAt,headRefName,url --limit 20
+```
+
 ## Validation
 
 Run one focused test file:
