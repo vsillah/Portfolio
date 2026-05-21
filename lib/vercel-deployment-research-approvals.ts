@@ -82,6 +82,24 @@ async function notifyApprovalOnce(approval: ApprovalRow, workItemId: string, pro
     return { sent: Boolean(notification.slackSentAt), skipped: Boolean(notification.slackSkippedAt) }
   }
 
+  if (approval.status !== 'pending') {
+    const now = new Date().toISOString()
+    const nextMetadata = {
+      ...metadata,
+      notification: {
+        ...(typeof metadata.notification === 'object' && metadata.notification ? metadata.notification : {}),
+        slack_agent_ops_skipped_at: now,
+        slack_agent_ops_skip_reason: 'approval_not_pending',
+      },
+    }
+    await db()
+      .from('agent_approvals')
+      .update({ metadata: nextMetadata })
+      .eq('id', approval.id)
+
+    return { sent: false, skipped: true }
+  }
+
   const sent = await notifyVercelResearchApprovalReady({
     approvalId: approval.id,
     runId: approval.run_id,
