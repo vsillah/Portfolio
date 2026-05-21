@@ -1913,6 +1913,7 @@ function AgentGovernancePanel({ governance }: { governance: MissionSnapshot['gov
   const profiles = governance.capability_profiles.slice(0, 4)
   const latestDelegation = governance.recent_delegation_decisions[0]
   const latestPaymentAction = governance.payment_authority_actions[0]
+  const pendingAuthority = governance.pending_authority_approvals[0]
   const statusTone = governance.summary.pending_authority_approvals > 0
     ? 'yellow'
     : governance.summary.least_privilege_attention > 0
@@ -1953,6 +1954,24 @@ function AgentGovernancePanel({ governance }: { governance: MissionSnapshot['gov
           <ShieldCheck size={15} />
           Export audit JSON
         </Link>
+        {latestDelegation ? (
+          <Link
+            href={governanceExportHref('markdown', { runId: latestDelegation.run_id })}
+            className="inline-flex items-center gap-2 rounded-md border border-sky-400/40 bg-sky-500/10 px-3 py-2 text-sm font-medium text-sky-100 hover:border-sky-300/70"
+          >
+            <ClipboardList size={15} />
+            Export latest trace
+          </Link>
+        ) : null}
+        {pendingAuthority ? (
+          <Link
+            href={governanceExportHref('markdown', { runId: pendingAuthority.run_id })}
+            className="inline-flex items-center gap-2 rounded-md border border-yellow-400/40 bg-yellow-500/10 px-3 py-2 text-sm font-medium text-yellow-100 hover:border-yellow-300/70"
+          >
+            <ShieldCheck size={15} />
+            Export authority trace
+          </Link>
+        ) : null}
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-4">
@@ -2002,7 +2021,7 @@ function AgentGovernancePanel({ governance }: { governance: MissionSnapshot['gov
           </Link>
 
           <Link
-            href={governance.pending_authority_approvals[0]?.run_id ? `/admin/agents/runs/${governance.pending_authority_approvals[0].run_id}` : '/admin/agents/coordination'}
+            href={pendingAuthority?.run_id ? `/admin/agents/runs/${pendingAuthority.run_id}` : '/admin/agents/coordination'}
             className="block rounded-lg border border-silicon-slate/60 bg-background/40 p-3 hover:border-radiant-gold/50"
           >
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Payment authority</p>
@@ -2019,6 +2038,16 @@ function AgentGovernancePanel({ governance }: { governance: MissionSnapshot['gov
       </div>
     </section>
   )
+}
+
+function governanceExportHref(
+  format: 'json' | 'markdown',
+  scope: { runId?: string; clientProjectId?: string } = {},
+) {
+  const params = new URLSearchParams({ format })
+  if (scope.runId) params.set('runId', scope.runId)
+  if (scope.clientProjectId) params.set('clientProjectId', scope.clientProjectId)
+  return `/api/admin/agents/governance/export?${params.toString()}`
 }
 
 function BriefRouteCard({

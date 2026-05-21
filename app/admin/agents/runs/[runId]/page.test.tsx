@@ -23,6 +23,9 @@ const runDetail = {
     agent_key: 'chief-of-staff',
     runtime: 'codex',
     status: 'waiting_for_approval',
+    subject_type: 'client_project',
+    subject_id: 'client-123',
+    subject_label: 'Client 123',
   },
   steps: [
     {
@@ -197,6 +200,8 @@ describe('AgentRunDetailPage scoped Shaka context', () => {
 
     expect(await screen.findByRole('heading', { name: 'Approval notification trace' })).toBeInTheDocument()
     expect(screen.getAllByRole('img', { name: /Illustrated avatar for Shaka/i }).length).toBeGreaterThan(0)
+    expect(screen.getByRole('link', { name: 'Export run audit' })).toHaveAttribute('href', '/api/admin/agents/governance/export?format=markdown&runId=run-1&clientProjectId=client-123')
+    expect(screen.getByRole('link', { name: 'Export JSON' })).toHaveAttribute('href', '/api/admin/agents/governance/export?format=json&runId=run-1&clientProjectId=client-123')
     fireEvent.click(screen.getByRole('button', { name: 'Ask Shaka about this run' }))
 
     expect(await screen.findByText('Shaka context answer')).toBeInTheDocument()
