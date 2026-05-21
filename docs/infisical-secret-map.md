@@ -19,7 +19,7 @@ As of 2026-05-21:
 | --- | --- |
 | `dev` | `/portfolio` exists and inventory-owned machine secrets are synced from the local runtime sink. Rotation baselines still need provider confirmation. |
 | `staging` | `/portfolio` exists and inventory-owned machine secrets are synced. Existing staging baseline evidence remains in `docs/credential-inventory.json`; newly mapped secrets need provider confirmation. |
-| `prod` | `/portfolio` exists and provider access is working, but production is only partially populated. A value-free scan on 2026-05-21 found `N8N_INGEST_SECRET` populated and 33 tracked Infisical-backed production secrets empty. See `docs/credential-prod-source-gap-2026-05-21.md`. |
+| `prod` | `/portfolio` exists and provider access is working. On 2026-05-21, 34 tracked Infisical-backed production secrets were bootstrapped from `.env.local` after approval; a value-free follow-up scan found 34 present, 0 empty, and 0 failed. Rotation baselines still require provider confirmation. See `docs/credential-prod-source-gap-2026-05-21.md`. |
 
 ## Source-Of-Truth Rules
 

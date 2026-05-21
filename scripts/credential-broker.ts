@@ -1,7 +1,8 @@
 #!/usr/bin/env tsx
 import { spawnSync } from 'node:child_process'
 import { createHash, randomBytes } from 'node:crypto'
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import * as path from 'node:path'
 import {
   buildCredentialBaselineTemplate,
@@ -92,6 +93,7 @@ const INVENTORY_PATH = path.join(ROOT, 'docs', 'credential-inventory.json')
 const AUDIT_DIR = path.join(ROOT, '.credential-rotation-audits')
 const VALID_ENVS: EnvironmentName[] = ['dev', 'staging', 'prod']
 const PROVIDER_READ_TIMEOUT_MS = 10_000
+const PROVIDER_WRITE_TIMEOUT_MS = 60_000
 const VERCEL_METADATA_TIMEOUT_MS = 15_000
 const N8N_METADATA_TIMEOUT_MS = 15_000
 
@@ -108,6 +110,9 @@ function main() {
       break
     case 'baseline-template':
       baselineTemplate(inventory, args)
+      break
+    case 'bootstrap-infisical':
+      bootstrapInfisical(inventory, args)
       break
     case 'inject':
       inject(inventory, args)
@@ -238,6 +243,55 @@ function baselineTemplate(inventory: CredentialInventory, args: ParsedArgs) {
   }
 
   console.log(renderCredentialBaselineTemplateMarkdown(env, entries))
+}
+
+function bootstrapInfisical(inventory: CredentialInventory, args: ParsedArgs) {
+  const env = getEnv(args)
+  const sourceFile = String(args.options.source || '.env.local')
+  const apply = Boolean(args.options.apply)
+  const localValues = readLocalEnvValues(sourceFile)
+  const selected = selectSecrets(inventory, args, env)
+    .filter((secret) => secret.sourceOfTruth === 'infisical')
+
+  const rows = selected.map((secret) => {
+    const value = localValues.get(secret.envVar)?.trim() ?? ''
+    return {
+      envVar: secret.envVar,
+      secretId: secret.id,
+      runtimeSinks: secret.runtimeSinks,
+      action: value ? apply ? 'will-import' : 'would-import' : 'skipped-missing-or-empty',
+      hasValue: Boolean(value),
+      value,
+    }
+  })
+  const importable = rows.filter((row) => row.hasValue)
+  const skipped = rows.filter((row) => !row.hasValue)
+
+  console.log(`Infisical bootstrap ${apply ? 'apply' : 'dry-run'} for ${env}`)
+  console.log(`source=${sourceFile}`)
+  console.log(`tracked-infisical-secrets=${selected.length}`)
+  console.log(`importable=${importable.length}`)
+  console.log(`skipped-missing-or-empty=${skipped.length}`)
+  console.log('')
+  for (const row of rows) {
+    console.log(`${row.action.padEnd(24)} ${row.envVar}`)
+  }
+
+  if (!apply) {
+    console.log('')
+    console.log('No values were written. Re-run with --apply to populate Infisical from the local runtime sink.')
+    return
+  }
+
+  if (importable.length === 0) {
+    console.log('No importable values found; Infisical was not changed.')
+    return
+  }
+
+  const imported = writeInfisicalSecretsFile(inventory, env, importable.map((row) => [row.envVar, row.value]))
+  console.log('')
+  console.log(`Infisical populated for ${imported} key(s). Values were not printed.`)
+  console.log('Baseline evidence remains pending-provider-confirmation until provider history or approved rotation packets are recorded.')
 }
 
 function inject(inventory: CredentialInventory, args: ParsedArgs) {
@@ -471,6 +525,67 @@ function writeLocalEnv(filePath: string, envVar: string, value: string) {
   })
   if (!replaced) next.push(nextLine)
   writeFileSync(resolved, `${next.filter((line, index) => line.length > 0 || index < next.length - 1).join('\n')}\n`)
+}
+
+function readLocalEnvValues(filePath: string): Map<string, string> {
+  const resolved = path.resolve(ROOT, filePath)
+  if (!resolved.startsWith(ROOT)) fail(`Refusing to read outside repo: ${filePath}`)
+  if (!existsSync(resolved)) fail(`Local env source not found: ${filePath}`)
+
+  const values = new Map<string, string>()
+  for (const line of readFileSync(resolved, 'utf8').split(/\r?\n/)) {
+    const match = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/)
+    if (!match) continue
+    const key = match[1]
+    let value = match[2] ?? ''
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1)
+    }
+    values.set(key, value)
+  }
+  return values
+}
+
+function writeInfisicalSecretsFile(
+  inventory: CredentialInventory,
+  env: EnvironmentName,
+  entries: Array<[string, string]>
+): number {
+  const infisicalEnv = inventory.providers.infisical.envMap[env]
+  const secretPath = inventory.providers.infisical.secretPath
+  const tempDir = mkdtempSync(path.join(tmpdir(), 'portfolio-infisical-bootstrap-'))
+  const tempFile = path.join(tempDir, 'secrets.env')
+
+  try {
+    const content = entries.map(([key, value]) => `${key}=${formatEnvValue(value)}`).join('\n')
+    writeFileSync(tempFile, `${content}\n`, { mode: 0o600 })
+
+    const command = ['secrets', 'set', '--file', tempFile, '--env', infisicalEnv, '--path', secretPath, '--silent']
+    if (inventory.providers.infisical.projectId) command.push('--projectId', inventory.providers.infisical.projectId)
+    const result = spawnSync('infisical', command, {
+      cwd: ROOT,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env: process.env,
+      timeout: PROVIDER_WRITE_TIMEOUT_MS,
+    })
+
+    if (result.status !== 0) {
+      fail(`Infisical bootstrap failed for ${env}. Confirm CLI authentication and ${infisicalEnv}${secretPath} write access.`)
+    }
+
+    return entries.length
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true })
+  }
+}
+
+function formatEnvValue(value: string): string {
+  if (/^[A-Za-z0-9_./:@%+=,-]*$/.test(value)) return value
+  return JSON.stringify(value)
 }
 
 function buildPacket(input: {
@@ -892,6 +1007,7 @@ Commands:
   list-due      --env <dev|staging|prod> [--as-of YYYY-MM-DD] [--json]
   report        --env <dev|staging|prod> [--as-of YYYY-MM-DD] [--check-sinks] [--json]
   baseline-template --env <dev|staging|prod> [--updated-at YYYY-MM-DD] [--json]
+  bootstrap-infisical --env <dev|staging|prod> [--source .env.local] [--secret id-or-envVar[,..]] [--apply]
   inject        --env <dev|staging|prod> [--secret id-or-envVar[,..]] -- <command>
   rotate        --env <dev|staging|prod> --secret <id-or-envVar> [--local-env .env.staging] [--length 48]
   sync-runtime  --env <dev|staging|prod> --secret <id-or-envVar> [--local-env .env.staging]
