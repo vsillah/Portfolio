@@ -13,13 +13,13 @@ This map records the Portfolio machine-secret source-of-truth layout. It is valu
 
 ## Current State
 
-As of 2026-05-20:
+As of 2026-05-21:
 
 | Environment | State |
 | --- | --- |
 | `dev` | `/portfolio` exists and inventory-owned machine secrets are synced from the local runtime sink. Rotation baselines still need provider confirmation. |
 | `staging` | `/portfolio` exists and inventory-owned machine secrets are synced. Existing staging baseline evidence remains in `docs/credential-inventory.json`; newly mapped secrets need provider confirmation. |
-| `prod` | `/portfolio` exists but values are intentionally not imported from ambiguous local runtime data. Production import must come from provider-confirmed production sources or an approved production packet. |
+| `prod` | `/portfolio` exists and provider access is working, but production is only partially populated. A value-free scan on 2026-05-21 found `N8N_INGEST_SECRET` populated and 33 tracked Infisical-backed production secrets empty. See `docs/credential-prod-source-gap-2026-05-21.md`. |
 
 ## Source-Of-Truth Rules
 
