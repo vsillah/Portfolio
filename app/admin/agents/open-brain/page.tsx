@@ -352,7 +352,7 @@ function OpenBrainActionMetrics({
   pendingProposals: number
   onViewModeChange: (mode: ViewMode) => void
 }) {
-  const blockedProducerGates = snapshot.producerGates.filter((gate) => gate.status === 'blocked').length
+  const enabledProducerGates = snapshot.producerGates.filter((gate) => gate.status === 'enabled').length
   const parityIssues = snapshot.runtimeParity.filter((runtime) => runtime.status !== 'connected').length
   const metricCards = [
     {
@@ -377,12 +377,12 @@ function OpenBrainActionMetrics({
     },
     {
       label: 'Producer gates',
-      value: `${blockedProducerGates}/${snapshot.producerGates.length}`,
+      value: `${enabledProducerGates}/${snapshot.producerGates.length}`,
       detail: 'See which producers can safely emit records.',
       action: 'Review gates',
       mode: 'producers' as ViewMode,
       icon: <GitBranch size={17} />,
-      tone: blockedProducerGates ? 'border-yellow-400/45 bg-yellow-500/10' : 'border-green-400/35 bg-green-500/10',
+      tone: enabledProducerGates === snapshot.producerGates.length ? 'border-green-400/35 bg-green-500/10' : 'border-yellow-400/45 bg-yellow-500/10',
       ariaLabel: 'Open producer gate status',
     },
     {
