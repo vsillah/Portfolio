@@ -37,8 +37,9 @@ The Agent Ops Mission Control surface at `/admin/agents` is the current referenc
 - **Outreach/Sales slice:** `/admin/outreach`, `/admin/outreach/dashboard`, `/admin/sales`, `/admin/lead-dashboards`, and `/admin/campaigns` now use the shared admin console shell/header treatment, with the noisiest sales/outreach gradients replaced by restrained command surfaces.
 - **Outreach/Sales workflow polish:** Lead Pipeline rows, Outreach Dashboard metrics/activity, escalation links, and Sales Dashboard table actions now use the shared console palette for their nested workflow controls and status affordances.
 - **Sales subpage slice:** `/admin/sales/products`, `/admin/sales/bundles`, `/admin/sales/scripts`, `/admin/sales/upsell-paths`, and `/admin/sales/implementation-roadmap` now use the shared admin console shell, surface headers, metric cards, muted form controls, and gold command actions.
-- **Future auth slice:** Login, signup, forgot-password, and reset-password should be redesigned around the same AmaduTown operating-console language so the entry point no longer feels visually disconnected from admin.
-- **Next rollout candidates:** deeper content, auth, public commerce, checkout, and client-facing detail pages still carry older gray, blue, purple, and cyan styling and should move to the same primitives in smaller follow-up PRs.
+- **Auth slice:** Login, signup, forgot-password, and reset-password now use the AmaduTown operating-console language so the entry point no longer feels visually disconnected from admin.
+- **Public commerce catalog slice:** `/store`, `/store/[id]`, `ProductCard`, `ServiceCard`, and `ShoppingCart` now use the Mission Control navy/gold surface language, gold command affordances, and restrained status badges. Checkout remains a separate commerce-flow pass.
+- **Next rollout candidates:** deeper content, checkout, public services, and client-facing detail pages still carry older gray, blue, purple, and cyan styling and should move to the same primitives in smaller follow-up PRs.
 
 ---
 

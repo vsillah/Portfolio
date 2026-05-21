@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { attachAgentArtifact, recordAgentEvent, startAgentRun } from '@/lib/agent-run'
 import {
+  AGENT_ACTIONS,
   actionRequiresApproval,
   getApprovalGate,
   type AgentAction,
@@ -11,18 +12,7 @@ import type { ChiefOfStaffActionProposal } from '@/lib/chief-of-staff-chat'
 
 export const dynamic = 'force-dynamic'
 
-const ACTIONS: AgentAction[] = [
-  'read_files',
-  'write_files',
-  'external_api_call',
-  'client_data_access',
-  'known_workflow_db_write',
-  'unknown_db_write',
-  'publish_public_content',
-  'send_email',
-  'production_config_change',
-  'public_content_from_private_material',
-]
+const ACTIONS: readonly AgentAction[] = AGENT_ACTIONS
 
 function isAgentAction(value: unknown): value is AgentAction {
   return typeof value === 'string' && ACTIONS.includes(value as AgentAction)
@@ -68,6 +58,18 @@ function sideEffectBoundary(action: AgentAction) {
       return 'No database write outside known workflows is performed until this approval checkpoint is approved.'
     case 'public_content_from_private_material':
       return 'No private-derived material is moved to a public channel until this approval checkpoint is approved.'
+    case 'create_checkout_session':
+      return 'No checkout session is created until this payment authority checkpoint is approved and linked to a trace.'
+    case 'create_subscription':
+      return 'No subscription is created until this payment authority checkpoint is approved and linked to a trace.'
+    case 'create_refund':
+      return 'No refund is issued until this payment authority checkpoint is approved and linked to a trace.'
+    case 'make_vendor_payment':
+      return 'No vendor payment is sent until this payment authority checkpoint is approved and linked to a trace.'
+    case 'increase_paid_api_budget':
+      return 'No paid API budget is increased until this payment authority checkpoint is approved and linked to a trace.'
+    case 'start_paid_external_job':
+      return 'No paid external job is started until this payment authority checkpoint is approved and linked to a trace.'
     default:
       return 'The proposed action is recorded for review; no side effect is executed by this checkpoint.'
   }

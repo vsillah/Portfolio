@@ -1,4 +1,5 @@
 import { AGENT_ORGANIZATION, AGENT_PODS } from '@/lib/agent-organization'
+import { buildAgentGovernanceSnapshot } from '@/lib/agent-governance'
 import { getAgentQualitySummary, getEmptyAgentQualitySummary } from '@/lib/agent-evaluations'
 import { KNOWLEDGE_GOVERNANCE_STATUS } from '@/lib/knowledge-source-manifest'
 import { supabaseAdmin } from '@/lib/supabase'
@@ -42,6 +43,7 @@ type EventRow = {
   severity: string
   message: string | null
   occurred_at: string
+  metadata: Record<string, unknown> | null
 }
 
 type MissionWorkItemRow = {
@@ -837,7 +839,7 @@ export async function buildAgentMissionControlSnapshot() {
       .limit(20),
     db
       .from('agent_run_events')
-      .select('run_id, event_type, severity, message, occurred_at')
+      .select('run_id, event_type, severity, message, occurred_at, metadata')
       .order('occurred_at', { ascending: false })
       .limit(12),
     db
@@ -897,6 +899,7 @@ export async function buildAgentMissionControlSnapshot() {
   const dependencyBlockers = buildDependencyBlockers(workItems)
   const costToday = Number(costs.reduce((sum, row) => sum + Number(row.amount ?? 0), 0).toFixed(4))
   const costSummary = buildAgentCostSummary({ costs, runsById, windowHours: 24 })
+  const governance = buildAgentGovernanceSnapshot({ approvals, events })
   const dailyBrief = buildDailyOperatingBrief({
     approvals,
     costToday,
@@ -954,6 +957,7 @@ export async function buildAgentMissionControlSnapshot() {
     daily_brief: dailyBrief,
     cost_summary: costSummary,
     quality_summary: qualitySummary,
+    governance,
     operating_signals: operatingSignals,
     dependency_blockers: dependencyBlockers,
     knowledge_governance: KNOWLEDGE_GOVERNANCE_STATUS,

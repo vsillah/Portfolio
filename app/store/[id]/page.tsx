@@ -135,7 +135,7 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background text-foreground">
+      <div className="dark agent-ops-page min-h-screen text-foreground">
         <Navigation />
         <div className="pt-24 pb-12 px-4 flex items-center justify-center">
           <div className="text-muted-foreground">Loading product...</div>
@@ -146,7 +146,7 @@ export default function ProductDetailPage() {
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-background text-foreground">
+      <div className="dark agent-ops-page min-h-screen text-foreground">
         <Navigation />
         <div className="pt-24 pb-12 px-4">
           <div className="max-w-7xl mx-auto text-center">
@@ -197,7 +197,7 @@ export default function ProductDetailPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="dark agent-ops-page min-h-screen text-foreground">
       <Navigation />
       <div className="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
@@ -281,7 +281,7 @@ export default function ProductDetailPage() {
                   </span>
                 )}
                 {bundles.some((b) => getCampaignForBundle(b.bundleId)) && (
-                  <span className="ml-2 inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full text-xs font-bold">
+                  <span className="ml-2 inline-flex items-center gap-1 rounded-full border border-radiant-gold/50 bg-radiant-gold/15 px-3 py-1 text-xs font-bold text-radiant-gold">
                     <Sparkles className="w-3 h-3" />
                     Campaign Eligible
                   </span>
@@ -401,7 +401,7 @@ export default function ProductDetailPage() {
                           {campaign && (
                             <Link
                               href={`/campaigns/${campaign.slug}`}
-                              className="inline-flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 rounded text-amber-400 text-xs hover:bg-amber-500/30 transition-colors"
+                              className="inline-flex items-center gap-1 rounded border border-radiant-gold/40 bg-radiant-gold/10 px-2 py-1 text-xs text-radiant-gold transition-colors hover:bg-radiant-gold/20"
                             >
                               <Sparkles className="w-3 h-3" />
                               {campaign.campaign_type === 'win_money_back' ? 'Win $ Back' : campaign.name}

@@ -120,6 +120,81 @@ const missionSnapshot = {
   },
   operating_signals: [],
   knowledge_governance: null,
+  governance: {
+    generated_at: '2026-05-13T12:00:00.000Z',
+    summary: {
+      total_agents: 3,
+      reviewed_agents: 2,
+      planned_agents: 1,
+      least_privilege_attention: 1,
+      pending_authority_approvals: 1,
+      payment_authority_actions: 6,
+    },
+    capability_profiles: [
+      {
+        agent_key: 'chief-of-staff',
+        display_name: 'Shaka (Zulu) - Chief of Staff',
+        pod: 'Chief of Staff',
+        status: 'partial',
+        primary_runtime: 'mixed',
+        allowed_tools: ['Agent Ops traces', 'Mission Control context', 'Shaka routing catalog'],
+        allowed_data_classes: ['agent_ops_traces', 'cross_agent_status'],
+        allowed_write_classes: ['agent_run_events', 'agent_work_items'],
+        outbound_authority: 'draft_only',
+        spend_authority: 'none',
+        approval_required_for: ['production_config_change'],
+        sensitive_boundaries: ['Read-only status by default; production config changes require approval.'],
+        last_reviewed_at: '2026-05-21',
+        review_status: 'reviewed',
+        governance_status: 'green',
+      },
+      {
+        agent_key: 'automation-systems',
+        display_name: 'Yaa Asantewaa (Ashanti) - Automation Systems',
+        pod: 'Product & Automation Pod',
+        status: 'active',
+        primary_runtime: 'n8n',
+        allowed_tools: ['Agent Ops traces', 'Mission Control context', 'n8n workflow hooks'],
+        allowed_data_classes: ['agent_ops_traces', 'workflow_config'],
+        allowed_write_classes: ['agent_run_events', 'agent_work_items', 'known_workflow_records'],
+        outbound_authority: 'known_workflow',
+        spend_authority: 'approval_required',
+        approval_required_for: ['create_checkout_session', 'create_refund'],
+        sensitive_boundaries: ['Known workflow writes allowed; config and unknown production writes require approval.'],
+        last_reviewed_at: '2026-05-21',
+        review_status: 'reviewed',
+        governance_status: 'yellow',
+      },
+    ],
+    payment_authority_actions: [
+      {
+        action: 'create_checkout_session',
+        approval_type: 'payment_create_checkout_session',
+        label: 'Create checkout session',
+        description: 'Creating a payment checkout session that could collect funds from a client or customer.',
+      },
+    ],
+    pending_authority_approvals: [
+      {
+        run_id: 'payment-run',
+        approval_type: 'payment_create_refund',
+        status: 'pending',
+        requested_at: '2026-05-13T11:30:00.000Z',
+      },
+    ],
+    recent_delegation_decisions: [
+      {
+        run_id: 'delegation-run',
+        selected_agent_key: 'automation-systems',
+        selected_agent_name: 'Yaa Asantewaa (Ashanti) - Automation Systems',
+        task_type: 'payment',
+        risk_class: 'payment_spend',
+        confidence: 0.9,
+        occurred_at: '2026-05-13T11:40:00.000Z',
+        reason: 'Yaa Asantewaa matches payment work.',
+      },
+    ],
+  },
   agent_inbox: [
     {
       id: 'chief-of-staff:standup',
@@ -389,6 +464,14 @@ describe('AgentOperationsPage mission control landing', () => {
     expect(within(dailyBrief).queryByText('Recommended next actions')).not.toBeInTheDocument()
     expect(within(dailyBrief).queryByText('Open brief trace')).not.toBeInTheDocument()
     expect(within(dailyBrief).getAllByText(/Current traces/i).length).toBeGreaterThan(0)
+    const governancePanel = screen.getByLabelText('Agent Governance')
+    expect(governancePanel).toBeInTheDocument()
+    expect(within(governancePanel).getByText('Scope, delegation, spend authority, and audit state for the agentic operating system.')).toBeInTheDocument()
+    expect(within(governancePanel).getByText('2/3')).toBeInTheDocument()
+    expect(within(governancePanel).getAllByText('Yaa Asantewaa (Ashanti) - Automation Systems').length).toBeGreaterThan(0)
+    expect(within(governancePanel).getByText('Spend gated')).toBeInTheDocument()
+    expect(within(governancePanel).getByText(/payment · 90% confidence/i)).toBeInTheDocument()
+    expect(within(governancePanel).getByText(/1 pending authority checkpoint/i)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Active runs/i })).toHaveAttribute('href', '/admin/agents/runs?active=true')
     expect(screen.getByRole('link', { name: /Failed or stale runs/i })).toHaveAttribute('href', '/admin/agents/runs?status=needs_review')
     expect(screen.getByRole('link', { name: /Pending approvals/i })).toHaveAttribute('href', '/admin/agents/coordination')

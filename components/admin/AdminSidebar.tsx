@@ -51,7 +51,13 @@ import {
   TerminalSquare,
   MessagesSquare,
 } from 'lucide-react'
-import { ADMIN_NAV, isNavItemActive, isContentExpanded, isChatEvalExpanded } from '@/lib/admin-nav'
+import {
+  ADMIN_NAV,
+  isNavItemActive,
+  isContentExpanded,
+  isChatEvalExpanded,
+  type AdminNavCategory,
+} from '@/lib/admin-nav'
 import { useState, useEffect } from 'react'
 const CONTENT_HUB_CHILDREN_ID = 'admin-nav-content-children'
 const CHAT_EVAL_CHILDREN_ID = 'admin-nav-chat-eval-children'
@@ -141,10 +147,19 @@ function NavItemIcon({ href, active = false }: { href: string; active?: boolean 
   )
 }
 
+function categoryPanelId(label: string) {
+  return `admin-nav-section-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`
+}
+
+function isCategoryActive(category: AdminNavCategory, pathname: string): boolean {
+  return [...category.items, ...(category.children ?? [])].some((item) => isNavItemActive(item.href, pathname))
+}
+
 export default function AdminSidebar({ showHeader = true }: { showHeader?: boolean }) {
   const pathname = usePathname()
   const [contentOpen, setContentOpen] = useState(false)
   const [chatEvalOpen, setChatEvalOpen] = useState(false)
+  const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({})
   const contentExpanded = contentOpen || isContentExpanded(pathname ?? '')
   const chatEvalExpanded = chatEvalOpen || isChatEvalExpanded(pathname ?? '')
 
@@ -153,6 +168,18 @@ export default function AdminSidebar({ showHeader = true }: { showHeader?: boole
   }, [pathname])
   useEffect(() => {
     if (isChatEvalExpanded(pathname ?? '')) setChatEvalOpen(true)
+  }, [pathname])
+  useEffect(() => {
+    const activeCategories = ADMIN_NAV.categories.filter((cat) => isCategoryActive(cat, pathname ?? ''))
+    if (activeCategories.length === 0) return
+
+    setOpenCategories((current) => {
+      const next = { ...current }
+      activeCategories.forEach((cat) => {
+        next[cat.label] = true
+      })
+      return next
+    })
   }, [pathname])
 
   return (
@@ -190,101 +217,133 @@ export default function AdminSidebar({ showHeader = true }: { showHeader?: boole
           {ADMIN_NAV.dashboard.label}
         </Link>
 
-        {ADMIN_NAV.categories.map((cat) => (
-          <div key={cat.label} className="flex flex-col gap-1">
-            <div className="px-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/78">
-              {cat.label}
+        {ADMIN_NAV.categories.map((cat) => {
+          const categoryActive = isCategoryActive(cat, pathname ?? '')
+          const categoryExpanded = categoryActive || Boolean(openCategories[cat.label])
+          const categoryId = categoryPanelId(cat.label)
+
+          return (
+            <div key={cat.label} className="flex flex-col gap-1">
+              <button
+                type="button"
+                onClick={() =>
+                  setOpenCategories((current) => ({
+                    ...current,
+                    [cat.label]: !categoryExpanded,
+                  }))
+                }
+                className={`group flex min-h-8 items-center justify-between rounded-lg border px-2 py-1.5 text-left text-[11px] font-semibold uppercase tracking-[0.18em] transition-colors ${
+                  categoryActive
+                    ? 'border-radiant-gold/25 bg-radiant-gold/10 text-radiant-gold'
+                    : 'border-transparent text-muted-foreground/78 hover:border-radiant-gold/20 hover:bg-radiant-gold/10 hover:text-foreground'
+                }`}
+                aria-expanded={categoryExpanded}
+                aria-controls={categoryId}
+              >
+                <span>{cat.label}</span>
+                <span className="flex items-center gap-1.5">
+                  <span className="rounded-full border border-radiant-gold/15 px-1.5 py-0.5 text-[10px] tracking-normal text-muted-foreground/75">
+                    {cat.items.length + (cat.children?.length ?? 0)}
+                  </span>
+                  {categoryExpanded ? (
+                    <ChevronDown size={14} className="text-muted-foreground group-hover:text-radiant-gold" />
+                  ) : (
+                    <ChevronRight size={14} className="text-muted-foreground group-hover:text-radiant-gold" />
+                  )}
+                </span>
+              </button>
+              <div id={categoryId} className="flex flex-col gap-1" hidden={!categoryExpanded}>
+                {categoryExpanded &&
+                  (cat.children && cat.expandableItemHref ? (
+                    <div className="flex flex-col gap-0.5">
+                      {cat.items.map((item) => {
+                        const active = isNavItemActive(item.href, pathname ?? '')
+                        const isExpandable = item.href === cat.expandableItemHref
+                        const expanded = item.href === '/admin/content' ? contentExpanded : chatEvalExpanded
+                        const setExpanded = item.href === '/admin/content' ? setContentOpen : setChatEvalOpen
+                        const childrenId = item.href === '/admin/content' ? CONTENT_HUB_CHILDREN_ID : CHAT_EVAL_CHILDREN_ID
+                        return (
+                          <div key={item.href}>
+                            {isExpandable ? (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => setExpanded((o: boolean) => !o)}
+                                  className={`${navItemClass(active)} w-full text-left font-medium`}
+                                  aria-expanded={expanded}
+                                  aria-controls={childrenId}
+                                  aria-current={active ? 'page' : undefined}
+                                >
+                                  {expanded ? (
+                                    <ChevronDown
+                                      size={ITEM_ICON_SIZE}
+                                      className={`shrink-0 ${active ? 'text-radiant-gold' : ''}`}
+                                    />
+                                  ) : (
+                                    <ChevronRight
+                                      size={ITEM_ICON_SIZE}
+                                      className={`shrink-0 ${active ? 'text-radiant-gold' : ''}`}
+                                    />
+                                  )}
+                                  <NavItemIcon href={item.href} active={active} />
+                                  {item.label}
+                                </button>
+                                <div
+                                  id={childrenId}
+                                  className="mt-1 flex flex-col gap-0.5 overflow-hidden border-l border-radiant-gold/10 pl-2"
+                                  hidden={!expanded}
+                                >
+                                  {expanded &&
+                                    cat.children!.map((child) => {
+                                      const childActive = isNavItemActive(child.href, pathname ?? '')
+                                      return (
+                                        <Link
+                                          key={child.href}
+                                          href={child.href}
+                                          className={navItemClass(childActive, 'child')}
+                                          aria-current={childActive ? 'page' : undefined}
+                                        >
+                                          <NavItemIcon href={child.href} active={childActive} />
+                                          {child.label}
+                                        </Link>
+                                      )
+                                    })}
+                                </div>
+                              </>
+                            ) : (
+                              <Link
+                                href={item.href}
+                                className={navItemClass(active)}
+                                aria-current={active ? 'page' : undefined}
+                              >
+                                <NavItemIcon href={item.href} active={active} />
+                                {item.label}
+                              </Link>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    cat.items.map((item) => {
+                      const active = isNavItemActive(item.href, pathname ?? '')
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          className={navItemClass(active)}
+                          aria-current={active ? 'page' : undefined}
+                        >
+                          <NavItemIcon href={item.href} active={active} />
+                          {item.label}
+                        </Link>
+                      )
+                    })
+                  ))}
+              </div>
             </div>
-            {cat.children && cat.expandableItemHref ? (
-              <>
-                <div className="flex flex-col gap-0.5">
-                  {cat.items.map((item) => {
-                    const active = isNavItemActive(item.href, pathname ?? '')
-                    const isExpandable = item.href === cat.expandableItemHref
-                    const expanded = item.href === '/admin/content' ? contentExpanded : chatEvalExpanded
-                    const setExpanded = item.href === '/admin/content' ? setContentOpen : setChatEvalOpen
-                    const childrenId = item.href === '/admin/content' ? CONTENT_HUB_CHILDREN_ID : CHAT_EVAL_CHILDREN_ID
-                    return (
-                      <div key={item.href}>
-                        {isExpandable ? (
-                          <>
-                            <button
-                              type="button"
-                              onClick={() => setExpanded((o: boolean) => !o)}
-                              className={`${navItemClass(active)} w-full text-left font-medium`}
-                              aria-expanded={expanded}
-                              aria-controls={childrenId}
-                              aria-current={active ? 'page' : undefined}
-                            >
-                              {expanded ? (
-                                <ChevronDown
-                                  size={ITEM_ICON_SIZE}
-                                  className={`shrink-0 ${active ? 'text-radiant-gold' : ''}`}
-                                />
-                              ) : (
-                                <ChevronRight
-                                  size={ITEM_ICON_SIZE}
-                                  className={`shrink-0 ${active ? 'text-radiant-gold' : ''}`}
-                                />
-                              )}
-                              <NavItemIcon href={item.href} active={active} />
-                              {item.label}
-                            </button>
-                            <div
-                              id={childrenId}
-                              className="mt-1 flex flex-col gap-0.5 overflow-hidden border-l border-radiant-gold/10 pl-2"
-                              hidden={!expanded}
-                            >
-                              {expanded &&
-                                cat.children!.map((child) => {
-                                  const childActive = isNavItemActive(child.href, pathname ?? '')
-                                  return (
-                                    <Link
-                                      key={child.href}
-                                      href={child.href}
-                                      className={navItemClass(childActive, 'child')}
-                                      aria-current={childActive ? 'page' : undefined}
-                                    >
-                                      <NavItemIcon href={child.href} active={childActive} />
-                                      {child.label}
-                                    </Link>
-                                  )
-                                })}
-                            </div>
-                          </>
-                        ) : (
-                          <Link
-                            href={item.href}
-                            className={navItemClass(active)}
-                            aria-current={active ? 'page' : undefined}
-                          >
-                            <NavItemIcon href={item.href} active={active} />
-                            {item.label}
-                          </Link>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              </>
-            ) : (
-              cat.items.map((item) => {
-                const active = isNavItemActive(item.href, pathname ?? '')
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={navItemClass(active)}
-                    aria-current={active ? 'page' : undefined}
-                  >
-                    <NavItemIcon href={item.href} active={active} />
-                    {item.label}
-                  </Link>
-                )
-              })
-            )}
-          </div>
-        ))}
+          )
+        })}
       </div>
     </nav>
   )
