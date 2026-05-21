@@ -1974,6 +1974,8 @@ function AgentGovernancePanel({ governance }: { governance: MissionSnapshot['gov
         ) : null}
       </div>
 
+      <GovernanceExportBuilder />
+
       <div className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-4">
         <MiniMetric label="Profiles" value={`${governance.summary.reviewed_agents}/${governance.summary.total_agents}`} tone="green" />
         <MiniMetric label="Needs review" value={governance.summary.least_privilege_attention} tone={governance.summary.least_privilege_attention ? 'yellow' : 'green'} />
@@ -2040,13 +2042,118 @@ function AgentGovernancePanel({ governance }: { governance: MissionSnapshot['gov
   )
 }
 
+function GovernanceExportBuilder() {
+  const [runId, setRunId] = useState('')
+  const [clientProjectId, setClientProjectId] = useState('')
+  const [from, setFrom] = useState('')
+  const [to, setTo] = useState('')
+  const invalidDateWindow = Boolean(from && to && from > to)
+  const scopedAuditHref = governanceExportHref('markdown', {
+    runId,
+    clientProjectId,
+    from,
+    to,
+  })
+  const scopedJsonHref = governanceExportHref('json', {
+    runId,
+    clientProjectId,
+    from,
+    to,
+  })
+
+  function resetScope() {
+    setRunId('')
+    setClientProjectId('')
+    setFrom('')
+    setTo('')
+  }
+
+  return (
+    <div className="mt-4 border-t border-silicon-slate/55 pt-4" aria-label="Scoped governance export builder">
+      <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_160px_160px]">
+        <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Run ID
+          <input
+            value={runId}
+            onChange={(event) => setRunId(event.target.value)}
+            placeholder="Run UUID"
+            className="mt-2 h-10 w-full rounded-md border border-silicon-slate/65 bg-background/55 px-3 text-sm font-normal normal-case text-foreground outline-none placeholder:text-muted-foreground/70 focus:border-radiant-gold/60"
+          />
+        </label>
+        <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Client project ID
+          <input
+            value={clientProjectId}
+            onChange={(event) => setClientProjectId(event.target.value)}
+            placeholder="Client/project key"
+            className="mt-2 h-10 w-full rounded-md border border-silicon-slate/65 bg-background/55 px-3 text-sm font-normal normal-case text-foreground outline-none placeholder:text-muted-foreground/70 focus:border-radiant-gold/60"
+          />
+        </label>
+        <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          From
+          <input
+            type="date"
+            value={from}
+            onChange={(event) => setFrom(event.target.value)}
+            className="mt-2 h-10 w-full rounded-md border border-silicon-slate/65 bg-background/55 px-3 text-sm font-normal normal-case text-foreground outline-none focus:border-radiant-gold/60"
+          />
+        </label>
+        <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          To
+          <input
+            type="date"
+            value={to}
+            onChange={(event) => setTo(event.target.value)}
+            className="mt-2 h-10 w-full rounded-md border border-silicon-slate/65 bg-background/55 px-3 text-sm font-normal normal-case text-foreground outline-none focus:border-radiant-gold/60"
+          />
+        </label>
+      </div>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        {invalidDateWindow ? (
+          <span className="text-sm text-red-300">Date range is inverted.</span>
+        ) : (
+          <>
+            <Link
+              href={scopedAuditHref}
+              className="inline-flex items-center gap-2 rounded-md border border-radiant-gold/45 bg-radiant-gold/10 px-3 py-2 text-sm font-medium text-radiant-gold hover:border-radiant-gold/70"
+            >
+              <ClipboardList size={15} />
+              Export scoped audit
+            </Link>
+            <Link
+              href={scopedJsonHref}
+              className="inline-flex items-center gap-2 rounded-md border border-silicon-slate/60 bg-background/40 px-3 py-2 text-sm font-medium text-foreground hover:border-radiant-gold/50"
+            >
+              <ShieldCheck size={15} />
+              Export scoped JSON
+            </Link>
+          </>
+        )}
+        <button
+          type="button"
+          onClick={resetScope}
+          className="inline-flex items-center gap-2 rounded-md border border-silicon-slate/60 bg-transparent px-3 py-2 text-sm font-medium text-muted-foreground hover:border-radiant-gold/50 hover:text-foreground"
+        >
+          Reset
+        </button>
+      </div>
+    </div>
+  )
+}
+
 function governanceExportHref(
   format: 'json' | 'markdown',
-  scope: { runId?: string; clientProjectId?: string } = {},
+  scope: { runId?: string; clientProjectId?: string; from?: string; to?: string } = {},
 ) {
   const params = new URLSearchParams({ format })
-  if (scope.runId) params.set('runId', scope.runId)
-  if (scope.clientProjectId) params.set('clientProjectId', scope.clientProjectId)
+  const runId = scope.runId?.trim()
+  const clientProjectId = scope.clientProjectId?.trim()
+  const from = scope.from?.trim()
+  const to = scope.to?.trim()
+  if (runId) params.set('runId', runId)
+  if (clientProjectId) params.set('clientProjectId', clientProjectId)
+  if (from) params.set('from', from)
+  if (to) params.set('to', to)
   return `/api/admin/agents/governance/export?${params.toString()}`
 }
 
