@@ -1,10 +1,14 @@
 import type { AgentGovernanceSnapshot } from '@/lib/agent-governance'
+import type { AgentGovernanceExportScope } from '@/lib/agent-governance-scope'
 
 export type AgentGovernanceClientExport = {
   export_type: 'agent_governance_client_audit'
   generated_at: string
   classification: 'client_safe'
   title: string
+  scope: AgentGovernanceExportScope & {
+    description: string
+  }
   summary: {
     total_agents: number
     reviewed_agents: number
@@ -69,12 +73,18 @@ function percent(value: number) {
 
 export function buildAgentGovernanceClientExport(
   governance: AgentGovernanceSnapshot,
+  scope: AgentGovernanceExportScope = {},
 ): AgentGovernanceClientExport {
+  const scoped = Boolean(scope.run_id || scope.client_project_id || scope.from || scope.to)
   return {
     export_type: 'agent_governance_client_audit',
     generated_at: new Date().toISOString(),
     classification: 'client_safe',
     title: 'Agentic Operating System Governance Audit',
+    scope: {
+      ...scope,
+      description: scoped ? 'Scoped governance export.' : 'Current governance snapshot.',
+    },
     summary: governance.summary,
     client_positioning: {
       headline: 'Governed agents, not unchecked automation.',
@@ -162,6 +172,15 @@ export function formatAgentGovernanceClientMarkdown(clientExport: AgentGovernanc
     clientExport.client_positioning.headline,
     '',
     list(clientExport.client_positioning.proof_points),
+    '',
+    '## Export Scope',
+    '',
+    `- Scope: ${clientExport.scope.description}`,
+    `- Run ID: ${clientExport.scope.run_id ?? 'All visible governance runs'}`,
+    `- Client project ID: ${clientExport.scope.client_project_id ?? 'All visible client projects'}`,
+    `- From: ${clientExport.scope.from ?? 'No lower bound'}`,
+    `- To: ${clientExport.scope.to ?? 'No upper bound'}`,
+    `- Matching runs: ${clientExport.scope.matching_run_count ?? 'Not scoped by run set'}`,
     '',
     '## Governance Snapshot',
     '',

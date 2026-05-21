@@ -83,6 +83,7 @@ describe('agent governance client export', () => {
     const clientExport = buildAgentGovernanceClientExport(governance)
 
     expect(clientExport.classification).toBe('client_safe')
+    expect(clientExport.scope.description).toBe('Current governance snapshot.')
     expect(clientExport.summary.pending_authority_approvals).toBe(1)
     expect(clientExport.capability_inventory[1]).toMatchObject({
       agent: 'Yaa Asantewaa (Ashanti) - Automation Systems',
@@ -100,9 +101,32 @@ describe('agent governance client export', () => {
     const markdown = formatAgentGovernanceClientMarkdown(buildAgentGovernanceClientExport(governance))
 
     expect(markdown).toContain('# Agentic Operating System Governance Audit')
+    expect(markdown).toContain('## Export Scope')
+    expect(markdown).toContain('- Run ID: All visible governance runs')
     expect(markdown).toContain('## Capability Inventory')
     expect(markdown).toContain('| Yaa Asantewaa (Ashanti) - Automation Systems | active | n8n | yellow | approval_required | known_workflow |')
     expect(markdown).toContain('| run-delegation | Yaa Asantewaa (Ashanti) - Automation Systems | payment | payment_spend | 90% |')
     expect(markdown).toContain('Payment and paid-job actions are represented as approval gates')
+  })
+
+  it('includes run, client, and date scope in exports', () => {
+    const clientExport = buildAgentGovernanceClientExport(governance, {
+      run_id: 'run-delegation',
+      client_project_id: 'client-123',
+      from: '2026-05-01T00:00:00.000Z',
+      to: '2026-05-21T23:59:59.999Z',
+      matching_run_count: 1,
+    })
+    const markdown = formatAgentGovernanceClientMarkdown(clientExport)
+
+    expect(clientExport.scope).toMatchObject({
+      description: 'Scoped governance export.',
+      run_id: 'run-delegation',
+      client_project_id: 'client-123',
+      matching_run_count: 1,
+    })
+    expect(markdown).toContain('- Run ID: run-delegation')
+    expect(markdown).toContain('- Client project ID: client-123')
+    expect(markdown).toContain('- Matching runs: 1')
   })
 })

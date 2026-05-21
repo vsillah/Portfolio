@@ -188,3 +188,10 @@ Phase 5 has a v1 implementation:
 - `docs/agentic-os-client-advisory-explainer.md` provides the first advisory/sales framing for client conversations.
 
 The next refinement is to add scoped exports by run, client project, or date range after operators review the v1 report against real governance traces.
+
+Scoped exports are now the next implementation slice:
+
+- `runId` or `run_id` should restrict delegation and authority evidence to one trace. The value must be an Agent Ops run UUID.
+- `clientProjectId` or `client_project_id` should restrict evidence to matching Agent Ops runs.
+- `from`/`to` should restrict evidence by ISO timestamp or `YYYY-MM-DD` date.
+- Capability inventory remains visible because it describes the operating system boundary; trace and authority evidence are the scoped parts.
