@@ -180,4 +180,11 @@ Phase 1 through Phase 4 have a v1 implementation in Portfolio:
 - `lib/agent-policy.ts` now treats payment and paid-job actions as approval-gated authority events across runtimes.
 - `/admin/agents` includes an Agent Governance section with capability inventory, delegation trace, payment authority, and governance status signals.
 
-Phase 5 remains open: client-safe audit exports and the advisory/sales explainer should be packaged after operators have reviewed the v1 governance surface against real runs.
+Phase 5 has a v1 implementation:
+
+- `lib/agent-governance-export.ts` converts the governance snapshot into a client-safe audit payload and Markdown report.
+- `GET /api/admin/agents/governance/export` returns authenticated JSON or Markdown exports without raw prompts, private logs, secrets, or sensitive records.
+- `/admin/agents` links the export actions from the Agent Governance panel.
+- `docs/agentic-os-client-advisory-explainer.md` provides the first advisory/sales framing for client conversations.
+
+The next refinement is to add scoped exports by run, client project, or date range after operators review the v1 report against real governance traces.
