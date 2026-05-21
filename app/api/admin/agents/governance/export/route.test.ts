@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   buildAgentMissionControlSnapshot: vi.fn(),
   parseAgentGovernanceExportScope: vi.fn(),
   buildScopedAgentGovernanceSnapshot: vi.fn(),
+  recordAgentEvent: vi.fn(),
 }))
 
 vi.mock('@/lib/auth-server', () => ({
@@ -20,6 +21,10 @@ vi.mock('@/lib/agent-mission-control', () => ({
 vi.mock('@/lib/agent-governance-scope', () => ({
   parseAgentGovernanceExportScope: mocks.parseAgentGovernanceExportScope,
   buildScopedAgentGovernanceSnapshot: mocks.buildScopedAgentGovernanceSnapshot,
+}))
+
+vi.mock('@/lib/agent-run', () => ({
+  recordAgentEvent: mocks.recordAgentEvent,
 }))
 
 import { GET } from './route'
@@ -111,6 +116,7 @@ describe('GET /api/admin/agents/governance/export', () => {
     expect(body.export.classification).toBe('client_safe')
     expect(body.export.capability_inventory[0].agent).toBe('Shaka (Zulu) - Chief of Staff')
     expect(body.export.scope.description).toBe('Current governance snapshot.')
+    expect(mocks.recordAgentEvent).not.toHaveBeenCalled()
   })
 
   it('returns markdown when requested', async () => {
@@ -162,7 +168,47 @@ describe('GET /api/admin/agents/governance/export', () => {
       from: '2026-05-01T00:00:00.000Z',
       to: '2026-05-21T23:59:59.999Z',
     })
+    expect(mocks.recordAgentEvent).toHaveBeenCalledWith(expect.objectContaining({
+      runId: 'run-123',
+      eventType: 'agent_governance_exported',
+      severity: 'info',
+      message: 'Agent governance json export generated.',
+      metadata: expect.objectContaining({
+        export_type: 'agent_governance_client_audit',
+        classification: 'client_safe',
+        format: 'json',
+        requested_by_user_id: 'admin-user',
+        scope: expect.objectContaining({
+          run_id: 'run-123',
+          client_project_id: 'client-456',
+          matching_run_count: 1,
+          description: 'Scoped governance export.',
+        }),
+      }),
+    }))
     expect(mocks.buildAgentMissionControlSnapshot).not.toHaveBeenCalled()
+  })
+
+  it('does not record an export event when the scoped run does not exist', async () => {
+    mocks.parseAgentGovernanceExportScope.mockReturnValue({
+      scope: {
+        run_id: 'run-missing',
+      },
+      has_scope: true,
+      errors: [],
+    })
+    mocks.buildScopedAgentGovernanceSnapshot.mockResolvedValue({
+      governance,
+      scope: {
+        run_id: 'run-missing',
+        matching_run_count: 0,
+      },
+    })
+
+    const response = await GET(request('markdown') as never)
+
+    expect(response.status).toBe(200)
+    expect(mocks.recordAgentEvent).not.toHaveBeenCalled()
   })
 
   it('returns validation errors for invalid scope filters', async () => {

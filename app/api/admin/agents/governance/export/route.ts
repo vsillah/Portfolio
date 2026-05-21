@@ -6,11 +6,38 @@ import {
   formatAgentGovernanceClientMarkdown,
 } from '@/lib/agent-governance-export'
 import { buildScopedAgentGovernanceSnapshot, parseAgentGovernanceExportScope } from '@/lib/agent-governance-scope'
+import { recordAgentEvent } from '@/lib/agent-run'
 
 export const dynamic = 'force-dynamic'
 
 function exportFilename(extension: 'json' | 'md') {
   return `agent-governance-audit-${new Date().toISOString().slice(0, 10)}.${extension}`
+}
+
+async function recordGovernanceExportEvent(input: {
+  runId?: string
+  matchingRunCount?: number
+  format: 'json' | 'markdown'
+  userId: string
+  scope: Record<string, unknown>
+  generatedAt: string
+}) {
+  if (!input.runId || !input.matchingRunCount) return
+
+  await recordAgentEvent({
+    runId: input.runId,
+    eventType: 'agent_governance_exported',
+    severity: 'info',
+    message: `Agent governance ${input.format} export generated.`,
+    metadata: {
+      export_type: 'agent_governance_client_audit',
+      classification: 'client_safe',
+      format: input.format,
+      scope: input.scope,
+      generated_at: input.generatedAt,
+      requested_by_user_id: input.userId,
+    },
+  })
 }
 
 export async function GET(request: NextRequest) {
@@ -32,6 +59,15 @@ export async function GET(request: NextRequest) {
       : null
     const governance = scoped?.governance ?? (await buildAgentMissionControlSnapshot()).governance
     const clientExport = buildAgentGovernanceClientExport(governance, scoped?.scope ?? parsedScope.scope)
+
+    await recordGovernanceExportEvent({
+      runId: scoped?.scope.run_id,
+      matchingRunCount: scoped?.scope.matching_run_count,
+      format,
+      userId: auth.user.id,
+      scope: clientExport.scope,
+      generatedAt: clientExport.generated_at,
+    })
 
     if (format === 'markdown') {
       return new NextResponse(formatAgentGovernanceClientMarkdown(clientExport), {
