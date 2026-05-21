@@ -103,9 +103,13 @@ After each merge:
 Clean conservatively:
 
 - Delete merged remote branches when GitHub did not already delete them.
-- Delete local branches only after confirming they have no commits missing from `origin/main`.
+- Delete local branches only after checking both GitHub PR state and local commit state. Squash-merged PR branches can still show commits missing from `origin/main`.
+- Treat a closed-unmerged PR as a product decision, not routine cleanup. Preserve it until the owner decides revive, archive, or delete.
+- Classify dirty worktree files as temporary evidence, normalized proposal, approved durable artifact, or stale debris before removing the worktree.
 - Preserve recovery stashes and unknown worktrees unless Vambah explicitly approves cleanup.
 - Leave watch/debt items documented instead of guessing ownership.
+
+If a branch or worktree origin is unclear, run the RCA sequence in `docs/terminal-command-cheatsheet.md` and use the postmortem protocol in `docs/postmortems/2026-05-21-branch-worktree-residue-and-traceability.md` before deleting anything.
 
 ## Agent Coordination Gate
 
