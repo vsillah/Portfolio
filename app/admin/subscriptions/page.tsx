@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { AlertTriangle, CheckCircle2, CircleDollarSign, Clock3, FileText, ShieldCheck } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
+import { getCurrentSession } from '@/lib/auth'
 
 type StatusKey = 'keep' | 'watch' | 'unresolved' | 'resolved_canceled'
 type StatusColor = 'green' | 'yellow' | 'red'
@@ -154,7 +155,11 @@ function AdminSubscriptionsPageContent() {
       setLoading(true)
       setError(null)
       try {
-        const res = await fetch('/api/admin/subscriptions/status')
+        const session = await getCurrentSession()
+        if (!session?.access_token) throw new Error('Missing admin session')
+        const res = await fetch('/api/admin/subscriptions/status', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
         if (!res.ok) {
           const body = await res.json().catch(() => ({}))
           throw new Error(body.error || `HTTP ${res.status}`)
@@ -184,7 +189,11 @@ function AdminSubscriptionsPageContent() {
     setQueryLoading(true)
     setError(null)
     try {
-      const res = await fetch(`/api/admin/subscriptions/status?q=${encodeURIComponent(query)}`)
+      const session = await getCurrentSession()
+      if (!session?.access_token) throw new Error('Missing admin session')
+      const res = await fetch(`/api/admin/subscriptions/status?q=${encodeURIComponent(query)}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
       if (!res.ok) {
         const body = await res.json().catch(() => ({}))
         throw new Error(body.error || `HTTP ${res.status}`)
@@ -198,22 +207,25 @@ function AdminSubscriptionsPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-6 lg:p-8">
+    <div className="admin-console-page min-h-screen p-6 text-foreground lg:p-8">
       <div className="max-w-7xl mx-auto">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
           { label: 'Subscription Watch' },
         ]} />
 
-        <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+        <header className="admin-console-surface-header mb-6 mt-5 flex flex-wrap items-start justify-between gap-4 rounded-xl border p-5">
           <div>
-            <h1 className="text-3xl font-bold mb-1">Subscription Watch</h1>
-            <p className="text-muted-foreground text-sm">Read-only view of paid tools, watch items, unresolved vendors, and cancellation gates.</p>
+            <div className="admin-console-eyebrow mb-2">Cost Governance</div>
+            <h1 className="text-3xl font-bold">Subscription Watch</h1>
+            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+              Read-only view of paid tools, watch items, unresolved vendors, and cancellation gates.
+            </p>
           </div>
-          <div className="rounded-lg border border-silicon-slate bg-silicon-slate/30 px-4 py-3 text-sm text-muted-foreground">
+          <div className="admin-console-metric rounded-lg border px-4 py-3 text-sm text-muted-foreground">
             Approval phrase: <span className="text-foreground font-medium">Cancel &lt;tool/vendor&gt; for Portfolio</span>
           </div>
-        </div>
+        </header>
 
         {loading ? (
           <div className="flex items-center justify-center py-16 text-muted-foreground">Loading…</div>
@@ -224,7 +236,7 @@ function AdminSubscriptionsPageContent() {
           </div>
         ) : data ? (
           <>
-            <section className="mb-6 rounded-lg border border-silicon-slate bg-silicon-slate/30 p-5">
+            <section className="admin-console-card mb-6 rounded-lg border p-5">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2 mb-2">
@@ -240,7 +252,7 @@ function AdminSubscriptionsPageContent() {
             </section>
 
             {budget && (
-              <section className="mb-6 rounded-lg border border-silicon-slate bg-silicon-slate/30 p-5">
+              <section className="admin-console-card mb-6 rounded-lg border p-5">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div>
                     <div className="flex items-center gap-2 mb-2">
@@ -271,7 +283,7 @@ function AdminSubscriptionsPageContent() {
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
                     placeholder="Ask a budget question"
-                    className="min-w-0 flex-1 rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm"
+                    className="min-w-0 flex-1 rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground"
                   />
                   <button
                     type="button"
@@ -348,7 +360,7 @@ function AdminSubscriptionsPageContent() {
             </section>
 
             {decisionItems.length > 0 && (
-              <section className="mb-6 rounded-lg border border-amber-500/40 bg-amber-500/10 p-5">
+              <section className="admin-console-card mb-6 rounded-lg border border-amber-500/40 p-5">
                 <h2 className="text-lg font-semibold text-amber-200 mb-3">Needs attention</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {decisionItems.map((vendor) => (
@@ -367,8 +379,8 @@ function AdminSubscriptionsPageContent() {
             <section className="mb-6">
               <h2 className="text-lg font-semibold mb-3">Vendor status</h2>
               {budget && (
-                <div className="mb-3 overflow-hidden rounded-lg border border-silicon-slate">
-                  <div className="hidden lg:grid grid-cols-[180px_120px_1fr_1fr] gap-4 bg-silicon-slate/60 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <div className="mb-3 overflow-hidden rounded-lg border border-radiant-gold/15 bg-background/30">
+                  <div className="hidden lg:grid grid-cols-[180px_120px_1fr_1fr] gap-4 bg-background/55 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     <span>Vendor</span>
                     <span>Monthly</span>
                     <span>Evidence</span>
@@ -386,8 +398,8 @@ function AdminSubscriptionsPageContent() {
                   </div>
                 </div>
               )}
-              <div className="overflow-hidden rounded-lg border border-silicon-slate">
-                <div className="hidden lg:grid grid-cols-[160px_130px_1fr_1fr_1fr] gap-4 bg-silicon-slate/60 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <div className="overflow-hidden rounded-lg border border-radiant-gold/15 bg-background/30">
+                <div className="hidden lg:grid grid-cols-[160px_130px_1fr_1fr_1fr] gap-4 bg-background/55 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   <span>Vendor</span>
                   <span>Status</span>
                   <span>Billing signal</span>
@@ -422,7 +434,7 @@ function AdminSubscriptionsPageContent() {
             </section>
 
             <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <div className="rounded-lg border border-silicon-slate bg-silicon-slate/30 p-5">
+              <div className="admin-console-card rounded-lg border p-5">
                 <h2 className="text-lg font-semibold mb-3">Next review focus</h2>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   {data.summary.nextReviewFocus.map((item) => (
@@ -430,7 +442,7 @@ function AdminSubscriptionsPageContent() {
                   ))}
                 </ul>
               </div>
-              <div className="rounded-lg border border-silicon-slate bg-silicon-slate/30 p-5">
+              <div className="admin-console-card rounded-lg border p-5">
                 <h2 className="text-lg font-semibold mb-3">Automation</h2>
                 <dl className="space-y-2 text-sm">
                   <KeyValue label="Daily monitor" value={data.dailyMonitorAutomationId} />
@@ -449,7 +461,7 @@ function AdminSubscriptionsPageContent() {
 
 function BucketStat({ icon, label, count }: { icon: React.ReactNode; label: string; count: number }) {
   return (
-    <div className="rounded-lg border border-silicon-slate bg-silicon-slate/30 p-4">
+    <div className="admin-console-metric rounded-lg border p-4">
       <div className="flex items-center gap-2 text-muted-foreground mb-2">
         {icon}
         <span className="text-xs font-semibold uppercase tracking-wide">{label}</span>
@@ -478,7 +490,7 @@ function SignalBlock({ label, value }: { label: string; value: string }) {
 
 function Signal({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-silicon-slate/60 bg-background/35 p-4">
+    <div className="admin-console-metric rounded-lg border p-4">
       <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
       <p className="mt-2 text-sm font-medium">{value}</p>
     </div>

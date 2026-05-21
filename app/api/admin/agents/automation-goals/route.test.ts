@@ -53,8 +53,8 @@ describe('GET /api/admin/agents/automation-goals', () => {
     const body = await response.json()
 
     expect(response.status).toBe(200)
-    expect(body.goals).toHaveLength(5)
-    expect(body.goals[0]).toMatchObject({
+    expect(body.goals).toHaveLength(6)
+    expect(body.goals.find((goal: { id: string }) => goal.id === 'meeting-intake-follow-up-drafts')).toMatchObject({
       id: 'meeting-intake-follow-up-drafts',
       seeded: true,
       seeded_parent_work_item: { id: 'parent-work-item' },

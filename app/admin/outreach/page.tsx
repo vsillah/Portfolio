@@ -745,7 +745,7 @@ function OutreachContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-8">
+    <div className="admin-console-page min-h-screen px-4 py-6 text-foreground sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <Breadcrumbs
           items={[
@@ -755,12 +755,13 @@ function OutreachContent() {
         />
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="admin-console-surface-header mb-6 flex flex-col gap-4 rounded-xl border p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
           <div className="flex-1">
-            <h1 className="text-3xl font-bold gradient-text">
+            <div className="admin-console-eyebrow mb-2">Pipeline Operations</div>
+            <h1 className="text-3xl font-bold text-foreground">
               Lead Pipeline
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
               {activeTab === 'escalations'
                 ? 'Chat and voice escalations — link to leads and view transcripts'
                 : 'Manage all leads, view details, and track progress. For email send history and rows, use Email center.'}
@@ -790,14 +791,14 @@ function OutreachContent() {
               <button
                 type="button"
                 onClick={() => setShowAddLeadModal(true)}
-                className="flex items-center gap-1.5 px-3 py-2 btn-gold text-imperial-navy rounded-lg text-sm font-medium transition-colors"
+                className="admin-console-button-primary"
               >
                 <Plus size={14} />
                 Add lead
               </button>
             )}
             <Link href="/admin/outreach/dashboard">
-              <button className="flex items-center gap-2 px-4 py-2 btn-gold text-imperial-navy font-semibold rounded-lg transition-colors">
+              <button className="admin-console-button-secondary">
                 <BarChart3 size={16} />
                 Dashboard & Triggers
               </button>
@@ -807,7 +808,7 @@ function OutreachContent() {
                 if (activeTab === 'leads') void fetchLeads()
                 else void fetchEscalations()
               }}
-              className="flex items-center gap-2 px-4 py-2 btn-ghost rounded-lg transition-colors"
+              className="admin-console-button-muted"
             >
               <RefreshCw size={16} className={(leadsLoading || escalationsLoading) ? 'animate-spin' : ''} />
               Refresh
@@ -844,7 +845,7 @@ function OutreachContent() {
             <AlertTriangle size={18} />
             <span className="font-medium">Escalations</span>
             {escalationsTotal > 0 && (
-              <span className="px-2 py-0.5 bg-orange-500/80 text-white text-xs font-semibold rounded-full">
+              <span className="rounded-full border border-radiant-gold/50 bg-radiant-gold/20 px-2 py-0.5 text-xs font-semibold text-radiant-gold">
                 {escalationsTotal}
               </span>
             )}
@@ -856,11 +857,11 @@ function OutreachContent() {
           <>
             {/* Filters */}
             <div className="flex flex-wrap items-center gap-3 mb-6">
-              <Filter size={14} className="text-gray-500" />
+              <Filter size={14} className="text-muted-foreground" />
               <select
                 value={leadsTempFilter}
                 onChange={(e) => setLeadsTempFilter(e.target.value as 'all' | 'warm' | 'cold')}
-                className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm"
+                className="bg-silicon-slate/50 text-foreground border border-white/10 rounded-lg px-3 py-1.5 text-sm"
               >
                 <option value="all">All Leads</option>
                 <option value="warm">Warm</option>
@@ -869,7 +870,7 @@ function OutreachContent() {
               <select
                 value={leadsStatusFilter}
                 onChange={(e) => setLeadsStatusFilter(e.target.value)}
-                className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm"
+                className="bg-silicon-slate/50 text-foreground border border-white/10 rounded-lg px-3 py-1.5 text-sm"
               >
                 <option value="all">All Status</option>
                 <option value="new">New</option>
@@ -881,7 +882,7 @@ function OutreachContent() {
               <select
                 value={leadsSourceFilter}
                 onChange={(e) => setLeadsSourceFilter(e.target.value)}
-                className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm"
+                className="bg-silicon-slate/50 text-foreground border border-white/10 rounded-lg px-3 py-1.5 text-sm"
               >
                 <option value="all">All Sources</option>
                 <option value="warm_facebook">Facebook</option>
@@ -892,7 +893,7 @@ function OutreachContent() {
               <select
                 value={leadsVisibilityFilter}
                 onChange={(e) => setLeadsVisibilityFilter(e.target.value as 'active' | 'do_not_contact' | 'removed' | 'all')}
-                className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm"
+                className="bg-silicon-slate/50 text-foreground border border-white/10 rounded-lg px-3 py-1.5 text-sm"
                 title="Show leads by contact status"
               >
                 <option value="active">Active only</option>
@@ -905,7 +906,7 @@ function OutreachContent() {
                 placeholder="Search by name, email, or company..."
                 value={leadsSearch}
                 onChange={(e) => setLeadsSearch(e.target.value)}
-                className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm flex-1 min-w-[200px]"
+                className="bg-silicon-slate/50 text-foreground border border-white/10 rounded-lg px-3 py-1.5 text-sm flex-1 min-w-[200px]"
               />
             </div>
 
@@ -1031,7 +1032,7 @@ function OutreachContent() {
                       <button
                         type="button"
                         onClick={() => setSelectedLeadIds(new Set())}
-                        className="text-sm text-muted-foreground hover:text-white"
+                        className="text-sm text-muted-foreground hover:text-foreground"
                       >
                         Clear selection
                       </button>
@@ -1063,7 +1064,7 @@ function OutreachContent() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className={`bg-silicon-slate/50 border border-silicon-slate rounded-xl overflow-visible ${
+                        className={`admin-console-card admin-console-interactive overflow-visible rounded-xl border ${
                           leadRowMenuOpenId === lead.id ? 'relative z-20' : ''
                         }`}
                       >
@@ -1092,7 +1093,7 @@ function OutreachContent() {
                             className={`p-2 rounded-lg ${
                               isWarmLeadSource(lead.lead_source)
                                 ? 'bg-orange-900/30 text-orange-400'
-                                : 'bg-blue-900/30 text-blue-400'
+                                : 'bg-sky-500/10 text-sky-300'
                             }`}
                           >
                             {isWarmLeadSource(lead.lead_source) ? (
@@ -1105,10 +1106,10 @@ function OutreachContent() {
                           {/* Lead Info */}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <h3 className="font-semibold text-white">
+                              <h3 className="font-semibold text-foreground">
                                 <Link
                                   href={`/admin/contacts/${lead.id}`}
-                                  className="inline-flex items-center gap-1.5 text-white hover:text-teal-300 transition-colors underline decoration-dotted decoration-teal-400/70 underline-offset-4 hover:decoration-teal-300"
+                                  className="inline-flex items-center gap-1.5 text-foreground hover:text-teal-300 transition-colors underline decoration-dotted decoration-teal-400/70 underline-offset-4 hover:decoration-teal-300"
                                   title="Open contact record"
                                 >
                                   <span>{lead.name}</span>
@@ -1120,7 +1121,7 @@ function OutreachContent() {
                                   Score: {lead.lead_score}
                                 </span>
                               )}
-                              <span className="px-2 py-0.5 bg-gray-800 text-foreground rounded text-xs">
+                              <span className="rounded border border-white/10 bg-silicon-slate/50 px-2 py-0.5 text-xs text-foreground">
                                 {lead.lead_source
                                   ?.replace(/^(warm|cold)_/i, '') // Remove warm_ or cold_ prefix
                                   .replace(/_/g, ' ') // Replace all underscores with spaces
@@ -1149,7 +1150,7 @@ function OutreachContent() {
                               )}
                               <Link
                                 href={`/admin/email-center?contact=${lead.id}`}
-                                className="inline-flex items-center gap-1 text-muted-foreground hover:text-blue-300 transition-colors underline decoration-dotted decoration-blue-400/50 underline-offset-2 hover:decoration-blue-300"
+                                className="inline-flex items-center gap-1 text-muted-foreground hover:text-sky-300 transition-colors underline decoration-dotted decoration-sky-400/50 underline-offset-2 hover:decoration-sky-300"
                                 title={`Open Email center for this lead (${lead.messages_count} messages, ${lead.messages_sent} sent)`}
                                 aria-label={`Open Email center for ${lead.name}`}
                               >
@@ -1254,12 +1255,12 @@ function OutreachContent() {
                                     onClick={() => openReviewEnrichModal([lead.id])}
                                     title={pushTitle}
                                     aria-label={pushTitle}
-                                    className={`group inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium border transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500/40 ${
+                                    className={`group inline-flex items-center gap-1 rounded border px-2 py-1 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-radiant-gold/40 ${
                                       failed
-                                        ? 'bg-red-900/35 text-red-200 border-red-700/60 enabled:hover:bg-purple-600/85 enabled:hover:text-white enabled:hover:border-purple-400'
+                                        ? 'bg-red-900/35 text-red-200 border-red-700/60 enabled:hover:bg-radiant-gold/20 enabled:hover:text-radiant-gold enabled:hover:border-radiant-gold/50'
                                         : isVepStalePending
-                                          ? 'bg-amber-900/35 text-amber-200 border-amber-700/60 enabled:hover:bg-purple-600/85 enabled:hover:text-white enabled:hover:border-purple-400'
-                                          : 'bg-gray-700/90 text-foreground/85 border-gray-600 enabled:hover:bg-purple-600/85 enabled:hover:text-white enabled:hover:border-purple-400'
+                                          ? 'bg-amber-900/35 text-amber-200 border-amber-700/60 enabled:hover:bg-radiant-gold/20 enabled:hover:text-radiant-gold enabled:hover:border-radiant-gold/50'
+                                          : 'bg-silicon-slate/80 text-foreground/85 border-white/10 enabled:hover:bg-radiant-gold/20 enabled:hover:text-radiant-gold enabled:hover:border-radiant-gold/50'
                                     } disabled:opacity-55 disabled:cursor-not-allowed`}
                                   >
                                     <span>{chipLabel}</span>
@@ -1317,7 +1318,7 @@ function OutreachContent() {
                               {leadRowMenuOpenId === lead.id && (
                                 <div
                                   role="menu"
-                                  className="absolute right-0 top-full mt-1 z-50 min-w-[14rem] py-1 rounded-lg border border-silicon-slate bg-background shadow-xl"
+                                  className="absolute right-0 top-full mt-1 z-50 min-w-[14rem] rounded-lg border border-white/10 bg-background py-1 shadow-[0_18px_50px_rgba(0,0,0,0.35)]"
                                 >
                                   {/* Compose & in-app generation live on the lead row (OutreachEmailGenerateRow). */}
 
@@ -1584,7 +1585,7 @@ function OutreachContent() {
                                     {lead.email && (
                                       <div className="flex items-center gap-2">
                                         <Mail size={14} className="text-muted-foreground" />
-                                        <a href={`mailto:${lead.email}`} className="text-blue-400 hover:text-blue-300">
+                                        <a href={`mailto:${lead.email}`} className="text-sky-300 hover:text-sky-200">
                                           {lead.email}
                                         </a>
                                       </div>
@@ -1612,7 +1613,7 @@ function OutreachContent() {
                                     {lead.phone_number && (
                                       <div className="flex items-center gap-2">
                                         <Phone size={14} className="text-muted-foreground" />
-                                        <a href={`tel:${lead.phone_number}`} className="text-foreground hover:text-white">
+                                        <a href={`tel:${lead.phone_number}`} className="text-foreground hover:text-radiant-gold">
                                           {lead.phone_number}
                                         </a>
                                       </div>
@@ -1630,7 +1631,7 @@ function OutreachContent() {
                                           href={lead.company_domain.startsWith('http') ? lead.company_domain : `https://${lead.company_domain}`}
                                           target="_blank"
                                           rel="noopener noreferrer"
-                                          className="text-blue-400 hover:text-blue-300 flex items-center gap-1"
+                                          className="flex items-center gap-1 text-sky-300 hover:text-sky-200"
                                         >
                                           {lead.company_domain}
                                           <ExternalLink size={12} />
@@ -1805,7 +1806,7 @@ function OutreachContent() {
                                             `/admin/meeting-tasks?contact_submission_id=${lead.id}`,
                                             `/admin/outreach?tab=leads&id=${lead.id}`
                                           )}
-                                          className="text-[11px] text-violet-400 hover:text-violet-300"
+                                          className="text-[11px] text-radiant-gold hover:text-amber-300"
                                         >
                                           Manage →
                                         </Link>
@@ -1820,8 +1821,8 @@ function OutreachContent() {
                                             <li key={t.id} className="flex items-center gap-2 text-xs">
                                               <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
                                                 t.status === 'complete' ? 'bg-emerald-500'
-                                                  : t.status === 'cancelled' ? 'bg-gray-600'
-                                                  : t.status === 'in_progress' ? 'bg-blue-500'
+                                                  : t.status === 'cancelled' ? 'bg-silicon-slate'
+                                                  : t.status === 'in_progress' ? 'bg-sky-400'
                                                   : 'bg-amber-500'
                                               }`} />
                                               <span className={`truncate flex-1 ${
@@ -1832,7 +1833,7 @@ function OutreachContent() {
                                                 {t.title}
                                               </span>
                                               {t.task_category === 'outreach' && (
-                                                <span className="text-[10px] px-1 py-0.5 rounded bg-violet-500/10 text-violet-300 border border-violet-500/20">
+                                                <span className="rounded border border-radiant-gold/30 bg-radiant-gold/10 px-1 py-0.5 text-[10px] text-radiant-gold">
                                                   outreach
                                                 </span>
                                               )}
@@ -1872,11 +1873,11 @@ function OutreachContent() {
                                             <Link
                                               key={m.id}
                                               href={buildLinkWithReturn(`/admin/meetings/${m.id}`, `/admin/outreach?tab=leads&id=${lead.id}`)}
-                                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-violet-900/30 text-violet-300 border border-violet-800/50 text-xs hover:bg-violet-800/40 transition-colors"
+                                              className="inline-flex items-center gap-1.5 rounded-md border border-radiant-gold/30 bg-radiant-gold/10 px-2.5 py-1 text-xs text-radiant-gold transition-colors hover:bg-radiant-gold/20"
                                             >
                                               <Video size={12} />
                                               {m.meeting_type.replace(/_/g, ' ')}
-                                              <span className="text-violet-400/70">
+                                              <span className="text-radiant-gold/70">
                                                 {new Date(m.meeting_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                                               </span>
                                             </Link>
@@ -1926,7 +1927,7 @@ function OutreachContent() {
                                             console.error('Failed to start conversation:', err)
                                           }
                                         }}
-                                        className="flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300"
+                                        className="flex items-center gap-2 text-sm text-radiant-gold hover:text-amber-300"
                                       >
                                         <MessageSquare size={14} />
                                         Start Conversation
@@ -1982,7 +1983,7 @@ function OutreachContent() {
                       <button
                         onClick={() => setLeadsPage(p => Math.max(1, p - 1))}
                         disabled={leadsPage === 1}
-                        className="px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg hover:bg-silicon-slate transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="admin-console-button-muted disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         Previous
                       </button>
@@ -1992,7 +1993,7 @@ function OutreachContent() {
                       <button
                         onClick={() => setLeadsPage(p => p + 1)}
                         disabled={leadsPage >= Math.ceil(leadsTotal / leadsPerPage)}
-                        className="px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg hover:bg-silicon-slate transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="admin-console-button-muted disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         Next
                       </button>
@@ -2008,11 +2009,11 @@ function OutreachContent() {
         {activeTab === 'escalations' && (
           <>
             <div className="flex flex-wrap items-center gap-3 mb-6">
-              <Filter size={14} className="text-gray-500" />
+              <Filter size={14} className="text-muted-foreground" />
               <select
                 value={escalationsLinkedFilter}
                 onChange={(e) => setEscalationsLinkedFilter(e.target.value as 'all' | 'linked' | 'unlinked')}
-                className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm"
+                className="bg-silicon-slate/50 text-foreground border border-white/10 rounded-lg px-3 py-1.5 text-sm"
               >
                 <option value="all">All Escalations</option>
                 <option value="linked">Linked to lead</option>
@@ -2052,7 +2053,7 @@ function OutreachContent() {
                         </td>
                         <td className="px-4 py-3 text-sm">
                           {e.contact_submissions ? (
-                            <Link href={`/admin/outreach?tab=leads&id=${e.contact_submission_id}`} className="text-purple-400 hover:text-purple-300">
+                            <Link href={`/admin/outreach?tab=leads&id=${e.contact_submission_id}`} className="text-radiant-gold hover:text-amber-300">
                               {e.contact_submissions.name || e.contact_submissions.email || 'Lead'}
                             </Link>
                           ) : (
@@ -2083,7 +2084,7 @@ function OutreachContent() {
                   <button
                     onClick={() => setEscalationsPage(p => Math.max(1, p - 1))}
                     disabled={escalationsPage === 1}
-                    className="px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg hover:bg-silicon-slate transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="admin-console-button-muted disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Previous
                   </button>
@@ -2093,7 +2094,7 @@ function OutreachContent() {
                   <button
                     onClick={() => setEscalationsPage(p => p + 1)}
                     disabled={escalationsPage >= Math.ceil(escalationsTotal / escalationsPerPage)}
-                    className="px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg hover:bg-silicon-slate transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="admin-console-button-muted disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Next
                   </button>

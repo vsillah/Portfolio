@@ -4,6 +4,12 @@ Single source of truth for how this repo applies the 20 agentic AI design patter
 
 Keep this doc in sync with reality: any PR that touches an agentic flow must update the relevant section.
 
+## Agentic OS Governance Overlay
+
+The operating-system layer is tracked in [`docs/agentic-operating-system-governance.md`](agentic-operating-system-governance.md). Use that companion doc when the work touches agent scope, least-privilege permissions, Shaka delegation rules, payment/spend authorization, or the user-facing audit trail.
+
+Current recommendation: keep these improvements inside existing Agent Ops rather than adding a separate control plane. The next hardening step is to move from runtime-level permissions to agent-specialty capability profiles, then record deterministic delegation decisions and payment authority as trace-linked approvals.
+
 ## Canonical list (4 buckets)
 
 Our pinned 20 patterns, grouped the same way as the talk:

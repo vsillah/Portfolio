@@ -181,6 +181,56 @@ type MissionSnapshot = {
       publicUnsafeApprovedCount: number
     }
   }
+  governance?: {
+    generated_at: string
+    summary: {
+      total_agents: number
+      reviewed_agents: number
+      planned_agents: number
+      least_privilege_attention: number
+      pending_authority_approvals: number
+      payment_authority_actions: number
+    }
+    capability_profiles: Array<{
+      agent_key: string
+      display_name: string
+      pod: string
+      status: 'active' | 'partial' | 'planned'
+      primary_runtime: string
+      allowed_tools: string[]
+      allowed_data_classes: string[]
+      allowed_write_classes: string[]
+      outbound_authority: 'none' | 'draft_only' | 'known_workflow' | 'approval_required'
+      spend_authority: 'none' | 'approval_required'
+      approval_required_for: string[]
+      sensitive_boundaries: string[]
+      last_reviewed_at: string
+      review_status: 'reviewed' | 'planned'
+      governance_status: 'green' | 'yellow' | 'red'
+    }>
+    payment_authority_actions: Array<{
+      action: string
+      approval_type: string
+      label: string
+      description: string
+    }>
+    pending_authority_approvals: Array<{
+      run_id: string
+      approval_type: string
+      status: string
+      requested_at: string
+    }>
+    recent_delegation_decisions: Array<{
+      run_id: string
+      selected_agent_key: string
+      selected_agent_name: string
+      task_type: string
+      risk_class: string
+      confidence: number
+      occurred_at: string
+      reason: string
+    }>
+  }
   agent_inbox: Array<{
     id: string
     priority: 'high' | 'medium' | 'low'
@@ -232,6 +282,23 @@ type MissionSnapshot = {
     recovery_backoff_active: boolean
     next_action: string
     href: string
+  }>
+  dependency_blockers?: Array<{
+    id: string
+    title: string
+    status: string
+    priority: string
+    owner_agent_key: string | null
+    owner_name: string
+    waiting_on: Array<{
+      id: string
+      title: string
+      status: string
+      owner_name: string
+      href: string
+    }>
+    href: string
+    updated_at: string
   }>
 }
 
@@ -461,7 +528,7 @@ export default function AgentOperationsPage() {
   const loadAutomationGoals = useCallback(async () => {
     setAutomationGoalsLoading(true)
     try {
-      const response = await authedFetch('/api/admin/agents/automation-goals?tier=1')
+      const response = await authedFetch('/api/admin/agents/automation-goals')
       const body = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
       setAutomationGoals(Array.isArray(body.goals) ? body.goals : [])
@@ -723,6 +790,8 @@ export default function AgentOperationsPage() {
   const deadLetterCount = snapshot?.dead_letter_queue.length ?? 0
   const engagementCount = snapshot?.engagement_queue.length ?? 0
   const operatingSignalCount = snapshot?.operating_signals.length ?? 0
+  const dependencyBlockers = snapshot?.dependency_blockers ?? []
+  const dependencyBlockerCount = dependencyBlockers.length
   const moremiWarningCount = moremiReview?.warning_count ?? 0
   const qualityScore = snapshot?.quality_summary.average_score === null || snapshot?.quality_summary.average_score === undefined
     ? 'No score'
@@ -805,6 +874,12 @@ export default function AgentOperationsPage() {
       detail: engagementCount ? `${engagementCount} request(s)` : 'Kanban and traces',
       href: engagementCount ? '/admin/agents/runs' : '/admin/agents/swarm-board',
       icon: <ClipboardList size={16} />,
+    },
+    {
+      title: 'Dependency Blockers',
+      detail: dependencyBlockerCount ? `${dependencyBlockerCount} waiting on upstream` : 'No dependency blockers',
+      href: dependencyBlockerCount ? '/admin/agents/swarm-board' : '/admin/agents/swarm-board',
+      icon: dependencyBlockerCount ? <Network size={16} /> : <CheckCircle2 size={16} />,
     },
     {
       title: 'Dead-Letter Monitor',
@@ -908,6 +983,8 @@ export default function AgentOperationsPage() {
                   pendingApprovals={decisionQueueCount}
                   costToday={snapshot?.status_strip.cost_today ?? 0}
                 />
+
+                <AgentGovernancePanel governance={snapshot?.governance ?? null} />
 
                 <div className="agent-ops-command-card mt-5 rounded-lg border p-4">
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -1350,20 +1427,21 @@ function AutomationGoalsPanel({
   onPrevious: () => void
   onNext: () => void
 }) {
-  const seededCount = allGoals.filter((goal) => goal.seeded).length
-  const allSeeded = allGoals.length > 0 && seededCount === allGoals.length
+  const tierOneGoals = allGoals.filter((goal) => goal.tier === 1)
+  const tierOneSeededCount = tierOneGoals.filter((goal) => goal.seeded).length
+  const allTierOneSeeded = tierOneGoals.length > 0 && tierOneSeededCount === tierOneGoals.length
 
   return (
     <div className="rounded-lg border border-silicon-slate/60 bg-background/35 p-3" aria-label="Automation to-do">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Automation to-do</p>
-          <p className="mt-1 text-xs text-muted-foreground">Seed reviewable goals for workflows agents can automate.</p>
+          <p className="mt-1 text-xs text-muted-foreground">Tier 1 seeds create work items; Tier 2 stays as the governed backlog.</p>
         </div>
         <button
           type="button"
           onClick={onSeedTierOne}
-          disabled={loading || seeding || allSeeded}
+          disabled={loading || seeding || allTierOneSeeded}
           className="inline-flex items-center gap-1 rounded-md border border-radiant-gold/50 bg-radiant-gold/10 px-2.5 py-1.5 text-xs font-medium text-radiant-gold hover:bg-radiant-gold/15 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {seeding ? <RefreshCw size={13} className="animate-spin" /> : <Sparkles size={13} />}
@@ -1372,8 +1450,8 @@ function AutomationGoalsPanel({
       </div>
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-        <StatusOnlyPill tone={allSeeded ? 'green' : 'yellow'}>
-          {seededCount}/{allGoals.length} seeded
+        <StatusOnlyPill tone={allTierOneSeeded ? 'green' : 'yellow'}>
+          {tierOneSeededCount}/{tierOneGoals.length} Tier 1 seeded
         </StatusOnlyPill>
         <PagerControls
           label="Automation goals"
@@ -1442,7 +1520,12 @@ function AutomationGoalRow({
         <StatusOnlyPill tone={tone}>{goal.seeded ? 'Seeded' : goal.requiresNewWorkflow ? 'Needs workflow' : 'Ready'}</StatusOnlyPill>
       </div>
       <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">{goal.nextAction}</p>
+      <div className="mt-2 rounded-md border border-silicon-slate/45 bg-background/35 px-2 py-1.5 text-[11px] leading-5 text-muted-foreground">
+        <span className="font-semibold uppercase tracking-wider text-radiant-gold">Approval gate: </span>
+        {goal.approvalGate}
+      </div>
       <div className="mt-2 flex flex-wrap gap-1.5 text-[11px] text-muted-foreground">
+        <span className="rounded-full border border-silicon-slate/50 bg-background/40 px-2 py-0.5">Tier {goal.tier}</span>
         <span className="rounded-full border border-silicon-slate/50 bg-background/40 px-2 py-0.5">{goal.ownerAgentKey.replace(/-/g, ' ')}</span>
         <span className="rounded-full border border-silicon-slate/50 bg-background/40 px-2 py-0.5">{goal.automationLevel.replace(/_/g, ' ')}</span>
         {goal.n8nWorkflows.length ? (
@@ -1818,6 +1901,103 @@ function DailyBriefPanel({
           {routeCards.map((card) => (
             <BriefRouteCard key={card.label} {...card} />
           ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function AgentGovernancePanel({ governance }: { governance: MissionSnapshot['governance'] | null }) {
+  if (!governance) return null
+
+  const profiles = governance.capability_profiles.slice(0, 4)
+  const latestDelegation = governance.recent_delegation_decisions[0]
+  const latestPaymentAction = governance.payment_authority_actions[0]
+  const statusTone = governance.summary.pending_authority_approvals > 0
+    ? 'yellow'
+    : governance.summary.least_privilege_attention > 0
+      ? 'blue'
+      : 'green'
+
+  return (
+    <section className="agent-ops-card mt-5 rounded-lg border p-4" aria-label="Agent Governance">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-radiant-gold">
+            <ShieldCheck size={18} />
+            <h2 className="font-semibold">Agent Governance</h2>
+          </div>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            Scope, delegation, spend authority, and audit state for the agentic operating system.
+          </p>
+        </div>
+        <StatusOnlyPill tone={statusTone}>
+          {governance.summary.pending_authority_approvals
+            ? `${governance.summary.pending_authority_approvals} authority approval(s)`
+            : `${governance.summary.reviewed_agents} reviewed`}
+        </StatusOnlyPill>
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-4">
+        <MiniMetric label="Profiles" value={`${governance.summary.reviewed_agents}/${governance.summary.total_agents}`} tone="green" />
+        <MiniMetric label="Needs review" value={governance.summary.least_privilege_attention} tone={governance.summary.least_privilege_attention ? 'yellow' : 'green'} />
+        <MiniMetric label="Payment gates" value={governance.summary.payment_authority_actions} />
+        <MiniMetric label="Planned agents" value={governance.summary.planned_agents} />
+      </div>
+
+      <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(240px,0.8fr)]">
+        <div className="rounded-lg border border-silicon-slate/55 bg-black/10 p-3">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Capability inventory</p>
+          <div className="mt-3 space-y-2">
+            {profiles.map((profile) => (
+              <div key={profile.agent_key} className="rounded-md border border-silicon-slate/45 bg-background/35 p-3">
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="font-medium">{profile.display_name}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{profile.primary_runtime} · {profile.pod}</p>
+                  </div>
+                  <StatusOnlyPill tone={profile.governance_status}>
+                    {profile.spend_authority === 'approval_required' ? 'Spend gated' : profile.review_status}
+                  </StatusOnlyPill>
+                </div>
+                <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                  Tools: {profile.allowed_tools.slice(0, 3).join(', ')}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <Link
+            href={latestDelegation ? `/admin/agents/runs/${latestDelegation.run_id}` : '/admin/agents/runs'}
+            className="block rounded-lg border border-radiant-gold/35 bg-radiant-gold/10 p-3 hover:border-radiant-gold/60"
+          >
+            <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Delegation trace</p>
+            <p className="mt-2 text-sm font-semibold">
+              {latestDelegation ? latestDelegation.selected_agent_name : 'No recent delegation decisions'}
+            </p>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">
+              {latestDelegation
+                ? `${latestDelegation.task_type.replace(/_/g, ' ')} · ${Math.round(latestDelegation.confidence * 100)}% confidence`
+                : 'Shaka will record deterministic delegation events when routed engagements are proposed.'}
+            </p>
+          </Link>
+
+          <Link
+            href={governance.pending_authority_approvals[0]?.run_id ? `/admin/agents/runs/${governance.pending_authority_approvals[0].run_id}` : '/admin/agents/coordination'}
+            className="block rounded-lg border border-silicon-slate/60 bg-background/40 p-3 hover:border-radiant-gold/50"
+          >
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Payment authority</p>
+            <p className="mt-2 text-sm font-semibold">
+              {governance.pending_authority_approvals.length
+                ? `${governance.pending_authority_approvals.length} pending authority checkpoint(s)`
+                : latestPaymentAction?.label ?? 'Payment gates ready'}
+            </p>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">
+              Payment, refund, subscription, vendor spend, paid API, and paid external job actions require trace-linked approval.
+            </p>
+          </Link>
         </div>
       </div>
     </section>

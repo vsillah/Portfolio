@@ -22,10 +22,24 @@ The Agent Ops Mission Control surface at `/admin/agents` is the current referenc
 
 ### Implementation guidance
 
-- Reuse or extract shared styling from the Agent Ops visual layer (`agent-ops-page`, `agent-ops-panel`, `agent-ops-card`, and related token usage) instead of recreating one-off page-specific CSS.
+- Reuse the shared admin console layer (`admin-console-page`, `admin-console-surface-header`, `admin-console-card`, `admin-console-metric`, and `admin-console-button-*`) for admin/dashboard/control-plane pages. The older Agent Ops classes remain valid for Agent Ops-specific surfaces, but new cross-admin styling should use the `admin-console-*` primitives.
 - New admin pages should match Mission Control's density, command hierarchy, palette discipline, and action/status separation unless there is an explicit product reason to diverge.
 - Public, commerce, and client-facing pages may adapt the structure for their audience, but should remain recognizably AmaduTown: navy/gold first, polished operational clarity, and no unrelated gray, purple, cyan, or generic SaaS palette drift.
 - When a page is redesigned, check this audit table for known off-palette areas and update the table if the implementation resolves or changes the design debt.
+
+### Current extraction status
+
+- **Shared admin primitives:** `app/globals.css` now includes `admin-console-*` primitives extracted from the Mission Control visual language for non-Agent-Ops admin surfaces.
+- **First applied slice:** `/admin`, `/admin/cost-revenue`, and `/admin/subscriptions` use the shared page/header/card/metric treatment as the first bounded Phase 6 rollout.
+- **Second applied slice:** `/admin/value-evidence`, `/admin/email-center`, and `/admin/social-content` now use the shared admin page/header/card treatment for their workflow shells while preserving their existing pipeline controls.
+- **Global shell slice:** `AdminSidebar` and the admin mobile drawer now use the same operating-console frame: navy depth, gold active state, restrained hover/focus treatment, and clearer section hierarchy around the page-level work surfaces.
+- **Content Hub slice:** `/admin/content`, `/admin/products`, and `/admin/content/products` now use the shared admin console shell and card language for the content routing and catalog management surfaces.
+- **Outreach/Sales slice:** `/admin/outreach`, `/admin/outreach/dashboard`, `/admin/sales`, `/admin/lead-dashboards`, and `/admin/campaigns` now use the shared admin console shell/header treatment, with the noisiest sales/outreach gradients replaced by restrained command surfaces.
+- **Outreach/Sales workflow polish:** Lead Pipeline rows, Outreach Dashboard metrics/activity, escalation links, and Sales Dashboard table actions now use the shared console palette for their nested workflow controls and status affordances.
+- **Sales subpage slice:** `/admin/sales/products`, `/admin/sales/bundles`, `/admin/sales/scripts`, `/admin/sales/upsell-paths`, and `/admin/sales/implementation-roadmap` now use the shared admin console shell, surface headers, metric cards, muted form controls, and gold command actions.
+- **Auth slice:** Login, signup, forgot-password, and reset-password now use the AmaduTown operating-console language so the entry point no longer feels visually disconnected from admin.
+- **Public commerce catalog slice:** `/store`, `/store/[id]`, `ProductCard`, `ServiceCard`, and `ShoppingCart` now use the Mission Control navy/gold surface language, gold command affordances, and restrained status badges. Checkout remains a separate commerce-flow pass.
+- **Next rollout candidates:** deeper content, checkout, public services, and client-facing detail pages still carry older gray, blue, purple, and cyan styling and should move to the same primitives in smaller follow-up PRs.
 
 ---
 
@@ -44,7 +58,7 @@ The Agent Ops Mission Control surface at `/admin/agents` is the current referenc
 | Lead magnets (public) | Gray text | `app/lead-magnets/page.tsx` (text-gray-400) | Low |
 | Purchases | Blue–purple gradients, green semantic | `app/purchases/page.tsx` (from-blue-600 to-purple-600, green-* semantic) | Medium |
 | Proposal | Green/orange/indigo type badges, green CTAs | `app/proposal/[id]/page.tsx` (green-*, orange-*, indigo-*) | Medium |
-| Admin dashboard | Slate–indigo, sky–blue, violet–purple, cyan–blue, purple–pink gradients | `app/admin/page.tsx` (from-slate-*, from-sky-*, from-violet-*, from-cyan-*, from-purple-*) | High |
+| Admin dashboard | Partially remediated: shared `admin-console-*` page/header/card treatment applied; nested chart and feed details may still need follow-up polish | `app/admin/page.tsx` | Medium |
 | Admin content – products | Gray UI, blue–purple gradients, purple/blue/cyan badges, purple focus | `app/admin/content/products/page.tsx`, `[id]/page.tsx` (gray-*, from-blue-600 to-purple-600, purple-*, blue-*, cyan-*, focus:border-purple-500) | High |
 | Admin content – discount codes | Gray inputs, purple focus, blue–purple gradient CTAs, purple/green badges | `app/admin/content/discount-codes/page.tsx` | High |
 | Admin content – merchandise | Gray inputs, purple focus/gradients, purple–blue card gradient | `app/admin/content/merchandise/page.tsx` | High |
@@ -172,6 +186,11 @@ The Agent Ops Mission Control surface at `/admin/agents` is the current referenc
 - **`app/admin/outreach/page.tsx`** — Title bg-gradient from-blue-400 to-purple-400; orange–purple and purple–blue gradient buttons; gray-500 search.
 - **`app/admin/outreach/dashboard/page.tsx`** — Title gradient orange–green–blue; cold leads from-blue-600 to-cyan-500; orange–purple CTA; blue/purple card gradients.
 - **`app/admin/value-evidence/page.tsx`** — Blue–cyan and purple–pink gradient cards/borders.
+
+### Remediation notes
+
+- **Outreach/Sales L1 slice complete:** `/admin/outreach`, `/admin/outreach/dashboard`, `/admin/sales`, `/admin/lead-dashboards`, and `/admin/campaigns` now use the shared admin console shell/header treatment, with the noisiest sales/outreach gradients replaced by restrained command surfaces.
+- **Outreach/Sales detail slice in progress:** `/admin/campaigns/[id]`, `/admin/campaigns/[id]/enrollments/[enrollmentId]`, `/admin/outreach/escalations/[id]`, `/admin/sales/[auditId]`, and `/admin/sales/conversation/[sessionId]` carry the same console shell, operational headers, command buttons, and muted form/card treatment so the L2/L3 sales workflow no longer falls back to gray SaaS panels.
 
 ### Admin – Client projects, guarantees, analytics, prompts, meeting-tasks, users
 

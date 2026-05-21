@@ -210,12 +210,12 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed right-0 top-0 h-full w-full max-w-md bg-silicon-slate border-l border-silicon-slate z-50 flex flex-col"
+            className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col border-l border-radiant-gold/25 bg-background/95 shadow-2xl backdrop-blur-xl"
           >
             {/* Header */}
-            <div className="p-6 border-b border-silicon-slate flex items-center justify-between">
+            <div className="flex items-center justify-between border-b border-radiant-gold/15 p-6">
               <div className="flex items-center gap-3">
-                <CartIcon size={24} />
+                <CartIcon className="text-radiant-gold" size={24} />
                 <h2 className="text-2xl font-bold">Shopping Cart</h2>
                 {cartItems.length > 0 && (
                   <span className="px-2 py-1 bg-radiant-gold text-imperial-navy text-xs font-semibold rounded">
@@ -225,7 +225,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
               </div>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-silicon-slate/80 rounded-lg transition-colors"
+                className="rounded-lg border border-transparent p-2 text-muted-foreground transition-colors hover:border-radiant-gold/30 hover:text-foreground"
               >
                 <X size={20} />
               </button>
@@ -243,7 +243,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                   <p className="text-muted-foreground mb-4">Your cart is empty</p>
                   <button
                     onClick={onClose}
-                    className="px-4 py-2 bg-silicon-slate border border-silicon-slate rounded-lg btn-ghost transition-colors"
+                    className="agent-ops-button-secondary"
                   >
                     Continue Shopping
                   </button>
@@ -261,11 +261,11 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                           key={`product-${item.productId}`}
                           initial={{ opacity: 0, x: 20 }}
                           animate={{ opacity: 1, x: 0 }}
-                          className="bg-silicon-slate border border-silicon-slate rounded-lg p-4"
+                          className="agent-ops-card rounded-lg border p-4"
                         >
                           <div className="flex gap-4">
                             {/* Product Image */}
-                            <div className="w-20 h-20 bg-gradient-to-br from-bronze/20 to-radiant-gold/20 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden relative">
+                            <div className="relative flex h-20 w-20 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-radiant-gold/10 bg-radiant-gold/10">
                               {product.image_url ? (
                                 <Image
                                   src={product.image_url}
@@ -338,11 +338,11 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                           key={`service-${item.serviceId}`}
                           initial={{ opacity: 0, x: 20 }}
                           animate={{ opacity: 1, x: 0 }}
-                          className="bg-silicon-slate border border-silicon-slate rounded-lg p-4"
+                          className="agent-ops-card rounded-lg border p-4"
                         >
                           <div className="flex gap-4">
                             {/* Service Image */}
-                            <div className="w-20 h-20 bg-gradient-to-br from-bronze/20 to-radiant-gold/20 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden relative">
+                            <div className="relative flex h-20 w-20 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-radiant-gold/10 bg-radiant-gold/10">
                               {service.image_url ? (
                                 <Image
                                   src={service.image_url}
@@ -432,7 +432,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
 
             {/* Footer */}
             {cartItems.length > 0 && (
-              <div className="p-6 border-t border-silicon-slate space-y-4">
+              <div className="space-y-4 border-t border-radiant-gold/15 p-6">
                 {hasQuoteBasedItems && (
                   <div className="p-3 bg-radiant-gold/10 border border-radiant-gold/30 rounded-lg">
                     <p className="text-sm text-radiant-gold">
@@ -454,14 +454,14 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                   {cartItems.length > 0 && (
                     <button
                       onClick={handleClear}
-                      className="flex-1 px-4 py-2 bg-silicon-slate border border-silicon-slate rounded-lg btn-ghost hover:border-red-500 transition-colors"
+                      className="agent-ops-button-muted flex-1 hover:border-red-500"
                     >
                       Clear Cart
                     </button>
                   )}
                   <button
                     onClick={onCheckout}
-                    className="flex-1 px-6 py-2 bg-gradient-to-r btn-gold font-semibold rounded-lg transition-colors"
+                    className="agent-ops-button-primary flex-1 px-6 py-2"
                   >
                     {hasQuoteBasedItems ? 'Request Quote' : 'Proceed to Checkout'}
                   </button>

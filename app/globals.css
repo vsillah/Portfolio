@@ -534,6 +534,227 @@ html.dark .card-brand {
 }
 
 /* ========================================
+   Shared Admin Console Standard
+   ======================================== */
+
+.admin-console-page {
+  position: relative;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(212, 175, 55, 0.04), transparent 28rem),
+    linear-gradient(180deg, #121e31 0%, #0f1a2b 100%);
+}
+
+.admin-console-panel,
+.admin-console-surface-header,
+.admin-console-card,
+.admin-console-metric,
+.admin-console-command-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-console-panel > *,
+.admin-console-surface-header > *,
+.admin-console-card > *,
+.admin-console-metric > *,
+.admin-console-command-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.admin-console-panel,
+.admin-console-surface-header,
+.admin-console-card,
+.admin-console-metric {
+  border-color: rgba(212, 175, 55, 0.16);
+  background: rgba(18, 30, 49, 0.72);
+  box-shadow:
+    inset 0 1px 0 rgba(234, 236, 238, 0.045),
+    0 12px 28px rgba(0, 0, 0, 0.16);
+}
+
+.admin-console-panel::before,
+.admin-console-surface-header::before,
+.admin-console-card::before,
+.admin-console-command-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(212, 175, 55, 0.045), transparent 13rem),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.026), transparent 46%);
+  opacity: 0.5;
+}
+
+.admin-console-surface-header {
+  border-color: rgba(212, 175, 55, 0.24);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(212, 175, 55, 0.06), transparent 18rem),
+    rgba(18, 30, 49, 0.78);
+  box-shadow:
+    0 18px 46px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(234, 236, 238, 0.065);
+}
+
+.admin-console-interactive:hover,
+a.admin-console-card:hover,
+button.admin-console-card:hover,
+a.admin-console-metric:hover,
+button.admin-console-metric:hover {
+  border-color: rgba(245, 208, 96, 0.5);
+  box-shadow:
+    0 0 0 1px rgba(212, 175, 55, 0.08),
+    0 0 30px rgba(212, 175, 55, 0.09),
+    0 16px 42px rgba(0, 0, 0, 0.22);
+}
+
+.admin-console-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--radiant-gold);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.admin-console-button-primary,
+.admin-console-button-secondary,
+.admin-console-button-muted {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease, opacity 160ms ease;
+}
+
+.admin-console-button-primary {
+  border: 1px solid rgba(212, 175, 55, 0.62);
+  background: var(--radiant-gold);
+  color: #121e31;
+  font-weight: 700;
+}
+
+.admin-console-button-primary:hover {
+  background: rgba(245, 208, 96, 0.94);
+}
+
+.admin-console-button-secondary {
+  border: 1px solid rgba(212, 175, 55, 0.5);
+  background: rgba(212, 175, 55, 0.1);
+  color: var(--radiant-gold);
+}
+
+.admin-console-button-secondary:hover {
+  background: rgba(212, 175, 55, 0.15);
+}
+
+.admin-console-button-muted {
+  border: 1px solid rgba(100, 116, 139, 0.7);
+  background: rgba(18, 30, 49, 0.52);
+  color: var(--foreground);
+}
+
+.admin-console-button-muted:hover {
+  border-color: rgba(245, 208, 96, 0.6);
+}
+
+/* ========================================
+   Shared Admin Sidebar Standard
+   ======================================== */
+
+nav[aria-label="Admin navigation"] {
+  position: relative;
+  isolation: isolate;
+  border-right-color: rgba(212, 175, 55, 0.16) !important;
+  background:
+    radial-gradient(circle at 22% 0%, rgba(212, 175, 55, 0.07), transparent 18rem),
+    linear-gradient(180deg, rgba(18, 30, 49, 0.98) 0%, rgba(12, 22, 37, 0.99) 100%) !important;
+  box-shadow:
+    1px 0 0 rgba(234, 236, 238, 0.04) inset,
+    14px 0 38px rgba(0, 0, 0, 0.22) !important;
+}
+
+nav[aria-label="Admin navigation"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(234, 236, 238, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(234, 236, 238, 0.014) 1px, transparent 1px);
+  background-size: 38px 38px;
+  opacity: 0.28;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.52), transparent 76%);
+}
+
+nav[aria-label="Admin navigation"] > div:first-of-type:not(:last-child) {
+  border-bottom-color: rgba(212, 175, 55, 0.16) !important;
+  background:
+    linear-gradient(135deg, rgba(212, 175, 55, 0.055), transparent 48%),
+    rgba(18, 30, 49, 0.72);
+}
+
+nav[aria-label="Admin navigation"] > div:last-child {
+  scrollbar-color: rgba(212, 175, 55, 0.38) rgba(18, 30, 49, 0.42);
+  scrollbar-width: thin;
+}
+
+nav[aria-label="Admin navigation"] > div:last-child::-webkit-scrollbar {
+  width: 0.55rem;
+}
+
+nav[aria-label="Admin navigation"] > div:last-child::-webkit-scrollbar-track {
+  background: rgba(18, 30, 49, 0.45);
+}
+
+nav[aria-label="Admin navigation"] > div:last-child::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.36);
+  border-radius: 999px;
+}
+
+nav[aria-label="Admin navigation"] > div:last-child > div > div:first-child {
+  color: rgba(234, 236, 238, 0.58) !important;
+  letter-spacing: 0.2em !important;
+}
+
+nav[aria-label="Admin navigation"] a[href]:not([href="#admin-main"]),
+nav[aria-label="Admin navigation"] button[aria-controls] {
+  min-height: 2.35rem;
+  border-color: transparent !important;
+  background: transparent;
+}
+
+nav[aria-label="Admin navigation"] a[href]:not([href="#admin-main"]):hover,
+nav[aria-label="Admin navigation"] button[aria-controls]:hover {
+  border-color: rgba(212, 175, 55, 0.2) !important;
+  background: rgba(212, 175, 55, 0.085) !important;
+}
+
+nav[aria-label="Admin navigation"] a[aria-current="page"],
+nav[aria-label="Admin navigation"] button[aria-current="page"] {
+  border-color: rgba(212, 175, 55, 0.42) !important;
+  background:
+    linear-gradient(90deg, rgba(212, 175, 55, 0.16), rgba(212, 175, 55, 0.06)),
+    rgba(44, 62, 80, 0.62) !important;
+  color: var(--radiant-gold) !important;
+  box-shadow:
+    inset 3px 0 0 rgba(245, 208, 96, 0.92),
+    0 0 24px rgba(212, 175, 55, 0.1) !important;
+}
+
+nav[aria-label="Admin navigation"] a[aria-current="page"] svg,
+nav[aria-label="Admin navigation"] button[aria-current="page"] svg {
+  color: var(--radiant-gold) !important;
+}
+
+/* ========================================
    Circuit Mesh Animation Classes
    ======================================== */
 

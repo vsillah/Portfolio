@@ -56,7 +56,7 @@ function ImplementationRoadmapBuilder() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-6 lg:p-8">
+    <div className="admin-console-page min-h-screen p-6 text-foreground lg:p-8">
       <div className="max-w-5xl mx-auto">
         <Breadcrumbs
           items={[
@@ -66,29 +66,30 @@ function ImplementationRoadmapBuilder() {
           ]}
         />
 
-        <div className="mb-8">
-          <div className="flex items-center gap-2 mb-2">
-            <ClipboardList className="text-emerald-400" />
-            <h1 className="text-3xl font-bold">Implementation Roadmap & Startup Costs</h1>
+        <header className="admin-console-surface-header mb-6 mt-5 rounded-xl border p-5">
+          <div className="admin-console-eyebrow mb-2">
+            <ClipboardList className="h-4 w-4" />
+            Sales Operations
           </div>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-3xl font-bold">Implementation Roadmap & Startup Costs</h1>
+          <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
             Attach a client-owned AI Ops roadmap snapshot to a proposal before sending it.
           </p>
-        </div>
+        </header>
 
-        <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/25 p-5 mb-6">
+        <div className="admin-console-card mb-6 rounded-lg border p-5">
           <label className="block text-sm font-medium mb-2">Proposal ID</label>
           <div className="flex flex-col sm:flex-row gap-3">
             <input
               value={proposalId}
               onChange={(e) => setProposalId(e.target.value)}
               placeholder="Paste proposal UUID"
-              className="flex-1 rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm"
+              className="flex-1 rounded-lg border border-silicon-slate/70 bg-imperial-navy/70 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-radiant-gold/70 focus:outline-none"
             />
             <button
               onClick={generateSnapshot}
               disabled={loading || proposalId.trim().length < 8}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+              className="admin-console-button-primary disabled:opacity-60"
             >
               {loading ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
               Generate Snapshot
@@ -98,7 +99,7 @@ function ImplementationRoadmapBuilder() {
         </div>
 
         {snapshot && (
-          <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
+          <div className="admin-console-card rounded-lg border p-5">
             <h2 className="text-xl font-semibold mb-4">{snapshot.title}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
               <Metric label="Startup" value={`$${snapshot.costSummary.oneTimeClientOwned}`} />
@@ -107,7 +108,7 @@ function ImplementationRoadmapBuilder() {
             </div>
             <div className="space-y-3">
               {snapshot.phases.map((phase, index) => (
-                <div key={`${phase.title}-${index}`} className="rounded-lg border border-silicon-slate/60 bg-background/35 p-4">
+                <div key={`${phase.title}-${index}`} className="rounded-lg border border-silicon-slate/60 bg-imperial-navy/45 p-4">
                   <p className="text-xs text-muted-foreground uppercase tracking-wide">Phase {index + 1}</p>
                   <p className="font-medium">{phase.title}</p>
                   <p className="text-sm text-muted-foreground mt-1">{phase.objective}</p>
@@ -123,7 +124,7 @@ function ImplementationRoadmapBuilder() {
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-silicon-slate/60 bg-background/35 p-4">
+    <div className="admin-console-metric rounded-lg border p-4">
       <p className="text-xs text-muted-foreground uppercase tracking-wide">{label}</p>
       <p className="text-xl font-semibold mt-1">{value}</p>
     </div>

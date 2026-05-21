@@ -325,8 +325,8 @@ export default function SalesDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="admin-console-page min-h-screen px-4 py-6 text-foreground sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
         <Breadcrumbs 
           items={[
             { label: 'Admin', href: '/admin' },
@@ -335,42 +335,43 @@ export default function SalesDashboardPage() {
         />
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="admin-console-surface-header mb-6 flex flex-col gap-4 rounded-xl border p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
           <div>
-            <h1 className="text-2xl font-bold text-foreground flex items-center gap-3">
-              <TrendingUp className="w-7 h-7 text-emerald-500" />
+            <div className="admin-console-eyebrow mb-2">Sales Operations</div>
+            <h1 className="flex items-center gap-3 text-3xl font-bold text-foreground">
+              <TrendingUp className="h-7 w-7 text-radiant-gold" />
               Sales Dashboard
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
               Manage leads from diagnostic audits and conversations; track steps and progress
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <Link
               href="/admin/sales/products"
-              className="flex items-center gap-2 px-4 py-2 btn-ghost rounded-lg transition-colors"
+              className="admin-console-button-muted"
             >
               <Package className="w-4 h-4" />
               Content
             </Link>
             <Link
               href="/admin/sales/bundles"
-              className="flex items-center gap-2 px-4 py-2 btn-ghost rounded-lg transition-colors"
+              className="admin-console-button-muted"
             >
               <Layers className="w-4 h-4" />
               Bundles
             </Link>
             <Link
               href="/admin/sales/scripts"
-              className="flex items-center gap-2 px-4 py-2 btn-ghost rounded-lg transition-colors"
+              className="admin-console-button-muted"
             >
               <FileText className="w-4 h-4" />
               Scripts
             </Link>
             <Link
               href="/admin/sales/upsell-paths"
-              className="flex items-center gap-2 px-4 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-foreground hover:border-radiant-gold/50 transition-colors"
+              className="admin-console-button-secondary"
             >
               <ArrowUpRight className="w-4 h-4" />
               Upsell Paths
@@ -378,7 +379,7 @@ export default function SalesDashboardPage() {
             <button
               onClick={fetchData}
               disabled={isLoading}
-              className="flex items-center gap-2 px-4 py-2 btn-gold text-imperial-navy rounded-lg"
+              className="admin-console-button-primary disabled:cursor-not-allowed disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
               Refresh
@@ -389,32 +390,32 @@ export default function SalesDashboardPage() {
         {/* Stats */}
         {stats && (
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-            <div className="bg-silicon-slate/50 rounded-lg border border-silicon-slate p-4">
+            <div className="admin-console-metric rounded-lg border p-4">
               <div className="text-sm text-muted-foreground">Total Leads</div>
               <div className="text-2xl font-bold text-foreground">{stats.total_leads}</div>
             </div>
-            <div className="bg-radiant-gold/20 rounded-lg border border-radiant-gold/50 p-4">
+            <div className="admin-console-metric rounded-lg border border-radiant-gold/40 p-4">
               <div className="text-sm text-muted-foreground flex items-center gap-1">
                 <Clock className="w-4 h-4 text-radiant-gold" />
                 Pending
               </div>
               <div className="text-2xl font-bold text-radiant-gold">{stats.pending_follow_up}</div>
             </div>
-            <div className="bg-emerald-500/20 rounded-lg border border-emerald-500/50 p-4">
+            <div className="admin-console-metric rounded-lg border border-emerald-500/35 p-4">
               <div className="text-sm text-muted-foreground flex items-center gap-1">
                 <CheckCircle className="w-4 h-4 text-emerald-400" />
                 Converted
               </div>
               <div className="text-2xl font-bold text-emerald-400">{stats.converted}</div>
             </div>
-            <div className="bg-red-500/20 rounded-lg border border-red-500/50 p-4">
+            <div className="admin-console-metric rounded-lg border border-red-500/35 p-4">
               <div className="text-sm text-muted-foreground flex items-center gap-1">
                 <AlertCircle className="w-4 h-4 text-red-500" />
                 High Urgency
               </div>
               <div className="text-2xl font-bold text-red-400">{stats.high_urgency}</div>
             </div>
-            <div className="bg-amber-500/20 rounded-lg border border-amber-500/50 p-4">
+            <div className="admin-console-metric rounded-lg border border-amber-500/35 p-4">
               <div className="text-sm text-muted-foreground flex items-center gap-1">
                 <Star className="w-4 h-4 text-amber-400" />
                 High Opportunity
@@ -425,7 +426,7 @@ export default function SalesDashboardPage() {
         )}
 
         {/* Filters */}
-        <div className="bg-silicon-slate/50 rounded-lg border border-silicon-slate p-4 mb-6">
+        <div className="admin-console-card rounded-lg border p-4 mb-6">
           <div className="flex flex-col md:flex-row gap-4">
             {/* Search */}
             <div className="flex-1 relative">
@@ -435,7 +436,7 @@ export default function SalesDashboardPage() {
                 placeholder="Search by name, email, or company..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-silicon-slate border border-silicon-slate rounded-lg text-foreground placeholder-muted-foreground/60"
+                className="w-full pl-10 pr-4 py-2 bg-silicon-slate/50 border border-white/10 rounded-lg text-foreground placeholder-muted-foreground/60 focus:border-radiant-gold/50 focus:outline-none"
               />
             </div>
 
@@ -445,7 +446,7 @@ export default function SalesDashboardPage() {
               <select
                 value={minUrgency}
                 onChange={(e) => setMinUrgency(parseInt(e.target.value))}
-                className="px-3 py-2 bg-silicon-slate border border-silicon-slate rounded-lg text-foreground"
+                className="px-3 py-2 bg-silicon-slate/50 border border-white/10 rounded-lg text-foreground focus:border-radiant-gold/50 focus:outline-none"
               >
                 <option value={0}>All Urgency Levels</option>
                 <option value={7}>High Urgency (7+)</option>
@@ -458,7 +459,7 @@ export default function SalesDashboardPage() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'date' | 'urgency' | 'opportunity')}
-              className="px-3 py-2 bg-silicon-slate border border-silicon-slate rounded-lg text-foreground"
+              className="px-3 py-2 bg-silicon-slate/50 border border-white/10 rounded-lg text-foreground focus:border-radiant-gold/50 focus:outline-none"
             >
               <option value="date">Sort by Date</option>
               <option value="urgency">Sort by Urgency</option>
@@ -481,7 +482,7 @@ export default function SalesDashboardPage() {
             <p className="text-muted-foreground">Loading leads...</p>
           </div>
         ) : filteredLeads.length === 0 ? (
-          <div className="text-center py-12 bg-silicon-slate/50 rounded-lg border border-silicon-slate">
+          <div className="admin-console-card text-center py-12 rounded-lg border">
             <Users className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
             <h3 className="text-lg font-medium text-foreground mb-1">No leads found</h3>
             <p className="text-muted-foreground">
@@ -491,9 +492,9 @@ export default function SalesDashboardPage() {
             </p>
           </div>
         ) : (
-          <div className="bg-silicon-slate/50 rounded-lg border border-silicon-slate overflow-hidden">
+          <div className="admin-console-card rounded-lg border overflow-hidden">
             <table className="w-full">
-              <thead className="bg-silicon-slate border-b border-silicon-slate">
+              <thead className="border-b border-white/10 bg-background/50">
                 <tr>
                   <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Contact</th>
                   <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Steps completed</th>
@@ -504,7 +505,7 @@ export default function SalesDashboardPage() {
                   <th className="text-right px-4 py-3 text-sm font-medium text-muted-foreground">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-800">
+              <tbody className="divide-y divide-white/10">
                 {filteredLeads.map((lead) => {
                   const primaryDate = lead.audit?.created_at ?? lead.session?.created_at ?? '';
                   return (
@@ -514,7 +515,7 @@ export default function SalesDashboardPage() {
                           <div className="font-medium text-foreground flex items-center gap-2">
                             <Link
                               href={buildLinkWithReturn(`/admin/contacts/${lead.contact_id}`, '/admin/sales')}
-                              className="inline-flex items-center gap-1.5 text-white hover:text-teal-300 transition-colors underline decoration-dotted decoration-teal-400/70 underline-offset-4 hover:decoration-teal-300"
+                              className="inline-flex items-center gap-1.5 text-foreground hover:text-teal-300 transition-colors underline decoration-dotted decoration-teal-400/70 underline-offset-4 hover:decoration-teal-300"
                               title="Open contact record"
                             >
                               <span>{lead.name || 'Unknown'}</span>
@@ -527,7 +528,7 @@ export default function SalesDashboardPage() {
                                 <span className="inline-flex items-center gap-1">
                                   <span className="w-2 h-2 rounded-full bg-emerald-400" title="Value report generated" />
                                   {status.gammaUrl && (
-                                    <span className="w-2 h-2 rounded-full bg-purple-400" title="Gamma deck ready" />
+                                    <span className="w-2 h-2 rounded-full bg-radiant-gold" title="Gamma deck ready" />
                                   )}
                                 </span>
                               );
@@ -610,7 +611,7 @@ export default function SalesDashboardPage() {
                       <td className="px-4 py-4 text-sm text-muted-foreground">
                         {primaryDate ? formatDate(primaryDate) : '—'}
                         {lead.session?.next_follow_up && (
-                          <div className="text-xs text-blue-400 mt-1 flex items-center gap-1">
+                          <div className="mt-1 flex items-center gap-1 text-xs text-sky-300">
                             <Calendar className="w-3 h-3" />
                             Follow-up: {formatDate(lead.session.next_follow_up)}
                           </div>
@@ -657,7 +658,7 @@ export default function SalesDashboardPage() {
                           })()}
                           <Link
                             href={buildLinkWithReturn(`/admin/outreach?tab=leads&id=${lead.contact_id}`, '/admin/sales')}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-900/30 hover:bg-purple-800/50 text-purple-400 rounded-lg text-sm transition-colors"
+                            className="inline-flex items-center gap-1 rounded-lg border border-radiant-gold/30 bg-radiant-gold/10 px-3 py-1.5 text-sm text-radiant-gold transition-colors hover:bg-radiant-gold/20"
                           >
                             <Users className="w-4 h-4" />
                             View Lead
@@ -693,7 +694,7 @@ export default function SalesDashboardPage() {
         {conversationSessions.length > 0 && (
           <div className="mt-8">
             <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-              <Phone className="w-5 h-5 text-purple-500" />
+              <Phone className="w-5 h-5 text-radiant-gold" />
               Active Conversations
               <span className="text-sm font-normal text-muted-foreground">({filteredConversationSessions.length})</span>
             </h2>
@@ -708,7 +709,7 @@ export default function SalesDashboardPage() {
                     <th className="text-right px-4 py-3 text-sm font-medium text-muted-foreground">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-800">
+                <tbody className="divide-y divide-white/10">
                   {filteredConversationSessions.map(s => (
                     <tr key={s.id} className="hover:bg-silicon-slate/50">
                       <td className="px-4 py-4">
@@ -728,7 +729,7 @@ export default function SalesDashboardPage() {
                       <td className="px-4 py-4 text-sm text-muted-foreground">
                         {formatDate(s.created_at)}
                         {s.next_follow_up && (
-                          <div className="text-xs text-blue-400 mt-1 flex items-center gap-1">
+                          <div className="mt-1 flex items-center gap-1 text-xs text-sky-300">
                             <Calendar className="w-3 h-3" />
                             Follow-up: {formatDate(s.next_follow_up)}
                           </div>

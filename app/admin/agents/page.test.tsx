@@ -120,6 +120,81 @@ const missionSnapshot = {
   },
   operating_signals: [],
   knowledge_governance: null,
+  governance: {
+    generated_at: '2026-05-13T12:00:00.000Z',
+    summary: {
+      total_agents: 3,
+      reviewed_agents: 2,
+      planned_agents: 1,
+      least_privilege_attention: 1,
+      pending_authority_approvals: 1,
+      payment_authority_actions: 6,
+    },
+    capability_profiles: [
+      {
+        agent_key: 'chief-of-staff',
+        display_name: 'Shaka (Zulu) - Chief of Staff',
+        pod: 'Chief of Staff',
+        status: 'partial',
+        primary_runtime: 'mixed',
+        allowed_tools: ['Agent Ops traces', 'Mission Control context', 'Shaka routing catalog'],
+        allowed_data_classes: ['agent_ops_traces', 'cross_agent_status'],
+        allowed_write_classes: ['agent_run_events', 'agent_work_items'],
+        outbound_authority: 'draft_only',
+        spend_authority: 'none',
+        approval_required_for: ['production_config_change'],
+        sensitive_boundaries: ['Read-only status by default; production config changes require approval.'],
+        last_reviewed_at: '2026-05-21',
+        review_status: 'reviewed',
+        governance_status: 'green',
+      },
+      {
+        agent_key: 'automation-systems',
+        display_name: 'Yaa Asantewaa (Ashanti) - Automation Systems',
+        pod: 'Product & Automation Pod',
+        status: 'active',
+        primary_runtime: 'n8n',
+        allowed_tools: ['Agent Ops traces', 'Mission Control context', 'n8n workflow hooks'],
+        allowed_data_classes: ['agent_ops_traces', 'workflow_config'],
+        allowed_write_classes: ['agent_run_events', 'agent_work_items', 'known_workflow_records'],
+        outbound_authority: 'known_workflow',
+        spend_authority: 'approval_required',
+        approval_required_for: ['create_checkout_session', 'create_refund'],
+        sensitive_boundaries: ['Known workflow writes allowed; config and unknown production writes require approval.'],
+        last_reviewed_at: '2026-05-21',
+        review_status: 'reviewed',
+        governance_status: 'yellow',
+      },
+    ],
+    payment_authority_actions: [
+      {
+        action: 'create_checkout_session',
+        approval_type: 'payment_create_checkout_session',
+        label: 'Create checkout session',
+        description: 'Creating a payment checkout session that could collect funds from a client or customer.',
+      },
+    ],
+    pending_authority_approvals: [
+      {
+        run_id: 'payment-run',
+        approval_type: 'payment_create_refund',
+        status: 'pending',
+        requested_at: '2026-05-13T11:30:00.000Z',
+      },
+    ],
+    recent_delegation_decisions: [
+      {
+        run_id: 'delegation-run',
+        selected_agent_key: 'automation-systems',
+        selected_agent_name: 'Yaa Asantewaa (Ashanti) - Automation Systems',
+        task_type: 'payment',
+        risk_class: 'payment_spend',
+        confidence: 0.9,
+        occurred_at: '2026-05-13T11:40:00.000Z',
+        reason: 'Yaa Asantewaa matches payment work.',
+      },
+    ],
+  },
   agent_inbox: [
     {
       id: 'chief-of-staff:standup',
@@ -215,6 +290,27 @@ const automationGoals = [
       },
     },
   },
+  {
+    id: 'subscription-revenue-monitoring',
+    tier: 2,
+    title: 'Automate subscription and revenue monitoring',
+    objective: 'Monitor subscription and revenue signals.',
+    workflowFamily: 'revenue_operations',
+    automationLevel: 'approval_gated',
+    ownerAgentKey: 'risk-compliance-intelligence',
+    collaboratorAgentKeys: ['chief-of-staff'],
+    sourceRoutes: ['/admin/cost-revenue'],
+    sourceDocs: ['docs/subscription-cancellation-audit.md'],
+    n8nWorkflows: [],
+    approvalGate: 'Cancellation and payment changes require approval.',
+    nextAction: 'Route subscription anomalies into controller packets.',
+    requiresNewWorkflow: true,
+    seeded: false,
+    seeded_child_count: 0,
+    seeded_parent_work_item: null,
+    n8n_proposal_count: 0,
+    latest_n8n_proposal: null,
+  },
 ]
 
 function formatExpectedPageTime(value: string) {
@@ -236,7 +332,7 @@ describe('AgentOperationsPage mission control landing', () => {
       if (url === '/api/admin/agents/risk-compliance/monitor?review=latest') {
         return { ok: true, json: async () => ({ review: moremiReview }) }
       }
-      if (url === '/api/admin/agents/automation-goals?tier=1') {
+      if (url === '/api/admin/agents/automation-goals') {
         return { ok: true, json: async () => ({ goals: automationGoals }) }
       }
       if (url === '/api/admin/agents/automation-goals/seed' && init?.method === 'POST') {
@@ -339,9 +435,11 @@ describe('AgentOperationsPage mission control landing', () => {
     expect(screen.getByText('Scheduled manual triggers with duplicate-run guards.')).toBeInTheDocument()
     const automationPanel = screen.getByLabelText('Automation to-do')
     expect(automationPanel).toBeInTheDocument()
+    expect(within(automationPanel).getByText('Tier 1 seeds create work items; Tier 2 stays as the governed backlog.')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Seed Tier 1/i })).toBeInTheDocument()
     expect(screen.getByText('Automate meeting intake to follow-up drafts')).toBeInTheDocument()
-    expect(screen.getByText('1/2 seeded')).toBeInTheDocument()
+    expect(within(automationPanel).getAllByText(/Approval gate:/i).length).toBeGreaterThan(0)
+    expect(screen.getByText('1/2 Tier 1 seeded')).toBeInTheDocument()
     expect(within(automationPanel).getAllByRole('link', { name: /Standup/i })[0]).toHaveAttribute('href', '/admin/agents/standup?goal=automation%3Ameeting-intake-follow-up-drafts')
     expect(within(automationPanel).getAllByRole('link', { name: /Kanban/i })[0]).toHaveAttribute('href', '/admin/agents/swarm-board?goal=automation%3Ameeting-intake-follow-up-drafts')
     expect(within(automationPanel).getByText('n8n proposal in controller')).toBeInTheDocument()
@@ -366,6 +464,14 @@ describe('AgentOperationsPage mission control landing', () => {
     expect(within(dailyBrief).queryByText('Recommended next actions')).not.toBeInTheDocument()
     expect(within(dailyBrief).queryByText('Open brief trace')).not.toBeInTheDocument()
     expect(within(dailyBrief).getAllByText(/Current traces/i).length).toBeGreaterThan(0)
+    const governancePanel = screen.getByLabelText('Agent Governance')
+    expect(governancePanel).toBeInTheDocument()
+    expect(within(governancePanel).getByText('Scope, delegation, spend authority, and audit state for the agentic operating system.')).toBeInTheDocument()
+    expect(within(governancePanel).getByText('2/3')).toBeInTheDocument()
+    expect(within(governancePanel).getAllByText('Yaa Asantewaa (Ashanti) - Automation Systems').length).toBeGreaterThan(0)
+    expect(within(governancePanel).getByText('Spend gated')).toBeInTheDocument()
+    expect(within(governancePanel).getByText(/payment · 90% confidence/i)).toBeInTheDocument()
+    expect(within(governancePanel).getByText(/1 pending authority checkpoint/i)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Active runs/i })).toHaveAttribute('href', '/admin/agents/runs?active=true')
     expect(screen.getByRole('link', { name: /Failed or stale runs/i })).toHaveAttribute('href', '/admin/agents/runs?status=needs_review')
     expect(screen.getByRole('link', { name: /Pending approvals/i })).toHaveAttribute('href', '/admin/agents/coordination')
@@ -438,11 +544,28 @@ describe('AgentOperationsPage mission control landing', () => {
     })
   })
 
+  it('keeps the seed control tied to Tier 1 even when Tier 2 backlog remains', async () => {
+    const originalSeeded = automationGoals[0]?.seeded
+    if (automationGoals[0]) automationGoals[0].seeded = true
+
+    try {
+      render(<AgentOperationsPage />)
+
+      const automationPanel = await screen.findByLabelText('Automation to-do')
+      expect(within(automationPanel).getByText('2/2 Tier 1 seeded')).toBeInTheDocument()
+      expect(within(automationPanel).getByRole('button', { name: /Seed Tier 1/i })).toBeDisabled()
+      expect(within(automationPanel).getByText('Automate subscription and revenue monitoring')).toBeInTheDocument()
+      expect(within(automationPanel).getByText('Tier 2')).toBeInTheDocument()
+    } finally {
+      if (automationGoals[0]) automationGoals[0].seeded = originalSeeded ?? false
+    }
+  })
+
   it('creates a governed n8n proposal from an automation goal row', async () => {
     render(<AgentOperationsPage />)
 
     const automationPanel = await screen.findByLabelText('Automation to-do')
-    fireEvent.click(within(automationPanel).getByRole('button', { name: /Draft proposal/i }))
+    fireEvent.click(within(automationPanel).getAllByRole('button', { name: /Draft proposal/i })[0])
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith('/api/admin/agents/n8n-workflow-proposals', expect.objectContaining({

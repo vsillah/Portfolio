@@ -12,6 +12,7 @@ import {
   GitPullRequest,
   LayoutDashboard,
   MessageSquare,
+  Network,
   RefreshCw,
   ShieldCheck,
   Sparkles,
@@ -40,6 +41,7 @@ type BoardSnapshot = AgentSwarmBoardSnapshot & {
 
 type BoardMode = 'kanban' | 'hive' | 'agents' | 'war-room' | 'client-builder'
 type AttentionFilter = 'all' | 'blocked' | 'review' | 'unassigned'
+type DependencyFilter = 'all' | 'waiting' | 'blocking' | 'handoffs'
 type BoardAction = {
   task: AgentOrgBoardTask
   lane: Pick<AgentOrgBoardLane, 'key' | 'label' | 'tasks'>
@@ -106,6 +108,13 @@ const ATTENTION_FILTERS: Array<{ key: AttentionFilter; label: string }> = [
   { key: 'unassigned', label: 'Unassigned' },
 ]
 
+const DEPENDENCY_FILTERS: Array<{ key: DependencyFilter; label: string }> = [
+  { key: 'all', label: 'All dependencies' },
+  { key: 'waiting', label: 'Waiting on upstream' },
+  { key: 'blocking', label: 'Blocking downstream' },
+  { key: 'handoffs', label: 'Handoffs pending' },
+]
+
 export default function AgentSwarmBoardPage() {
   return (
     <ProtectedRoute requireAdmin>
@@ -124,6 +133,7 @@ function AgentSwarmBoardContent() {
   const [ownerFilter, setOwnerFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState<'all' | AgentOrgBoardTask['status']>('all')
   const [attentionFilter, setAttentionFilter] = useState<AttentionFilter>('all')
+  const [dependencyFilter, setDependencyFilter] = useState<DependencyFilter>('all')
 
   const fetchBoard = useCallback(async () => {
     setLoading(true)
@@ -248,15 +258,18 @@ function AgentSwarmBoardContent() {
                   ownerFilter={ownerFilter}
                   statusFilter={statusFilter}
                   attentionFilter={attentionFilter}
+                  dependencyFilter={dependencyFilter}
                   onGoalChange={setSelectedGoalId}
                   onOwnerChange={setOwnerFilter}
                   onStatusChange={setStatusFilter}
                   onAttentionChange={setAttentionFilter}
+                  onDependencyChange={setDependencyFilter}
                   onClearFilters={() => {
                     setSelectedGoalId('all')
                     setOwnerFilter('all')
                     setStatusFilter('all')
                     setAttentionFilter('all')
+                    setDependencyFilter('all')
                   }}
                 />
               )}
@@ -285,10 +298,12 @@ function KanbanBoard({
   ownerFilter,
   statusFilter,
   attentionFilter,
+  dependencyFilter,
   onGoalChange,
   onOwnerChange,
   onStatusChange,
   onAttentionChange,
+  onDependencyChange,
   onClearFilters,
 }: {
   organization: AgentOrgBoardSnapshot
@@ -296,13 +311,23 @@ function KanbanBoard({
   ownerFilter: string
   statusFilter: 'all' | AgentOrgBoardTask['status']
   attentionFilter: AttentionFilter
+  dependencyFilter: DependencyFilter
   onGoalChange: (value: string) => void
   onOwnerChange: (value: string) => void
   onStatusChange: (value: 'all' | AgentOrgBoardTask['status']) => void
   onAttentionChange: (value: AttentionFilter) => void
+  onDependencyChange: (value: DependencyFilter) => void
   onClearFilters: () => void
 }) {
+  const [dependencyDrawerTaskId, setDependencyDrawerTaskId] = useState<string | null>(null)
   const allTasks = useMemo(() => organization.lanes.flatMap((lane) => lane.tasks), [organization.lanes])
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const workItemId = params.get('work_item')
+    if (workItemId && allTasks.some((task) => task.id === workItemId)) {
+      setDependencyDrawerTaskId(workItemId)
+    }
+  }, [allTasks])
   const ownerOptions = useMemo(() => {
     const options = new Map<string, string>()
     for (const task of allTasks) {
@@ -324,9 +349,12 @@ function KanbanBoard({
         if (attentionFilter === 'blocked' && task.status !== 'blocked') return false
         if (attentionFilter === 'review' && task.status !== 'ready_for_review' && task.status !== 'ready_for_merge') return false
         if (attentionFilter === 'unassigned' && task.ownerAgentKey) return false
+        if (dependencyFilter === 'waiting' && !((task.dependencyIds ?? []).length || (task.dependencies ?? []).length)) return false
+        if (dependencyFilter === 'blocking' && !(task.dependents ?? []).some((dependent) => dependent.blocking)) return false
+        if (dependencyFilter === 'handoffs' && !(task.handoffs ?? []).some((handoff) => handoff.status === 'pending')) return false
         return true
     })
-  }, [allTasks, attentionFilter, ownerFilter, selectedGoalId, statusFilter])
+  }, [allTasks, attentionFilter, dependencyFilter, ownerFilter, selectedGoalId, statusFilter])
   const statusLanes = useMemo(() => {
     return STATUS_SWIMLANES.map((lane) => ({
       ...lane,
@@ -337,13 +365,21 @@ function KanbanBoard({
   }, [visibleTasks])
   const filteredTasks = visibleTasks
   const boardActions = useMemo(() => buildBoardActions(statusLanes), [statusLanes])
+  const dependencyDrawerTask = allTasks.find((task) => task.id === dependencyDrawerTaskId) ?? null
   const selectedGoal = organization.summary.goals.find((goal) => goal.id === selectedGoalId) ?? null
-  const filtersActive = selectedGoalId !== 'all' || ownerFilter !== 'all' || statusFilter !== 'all' || attentionFilter !== 'all'
+  const filtersActive = selectedGoalId !== 'all' || ownerFilter !== 'all' || statusFilter !== 'all' || attentionFilter !== 'all' || dependencyFilter !== 'all'
 
   return (
     <div className="space-y-4" role="tabpanel" aria-label="Kanban lanes">
       <SummaryStrip organization={organization} />
       <BoardActionQueue actions={boardActions} filtersActive={filtersActive} totalCount={filteredTasks.length} />
+      <DependencyRadiators organization={organization} onOpenFirst={() => {
+        const firstDependencyTask = allTasks.find((task) => (task.dependencyIds ?? []).length || (task.dependents ?? []).length || (task.handoffs ?? []).length)
+        if (firstDependencyTask) setDependencyDrawerTaskId(firstDependencyTask.id)
+      }} />
+      {dependencyDrawerTask ? (
+        <DependencyDrawer task={dependencyDrawerTask} onClose={() => setDependencyDrawerTaskId(null)} />
+      ) : null}
       <GoalRadiators
         organization={organization}
         selectedGoalId={selectedGoalId}
@@ -356,12 +392,14 @@ function KanbanBoard({
         ownerFilter={ownerFilter}
         statusFilter={statusFilter}
         attentionFilter={attentionFilter}
+        dependencyFilter={dependencyFilter}
         filteredCount={filteredTasks.length}
         totalCount={allTasks.length}
         onGoalChange={onGoalChange}
         onOwnerChange={onOwnerChange}
         onStatusChange={onStatusChange}
         onAttentionChange={onAttentionChange}
+        onDependencyChange={onDependencyChange}
         onClearFilters={onClearFilters}
       />
       {selectedGoal ? <SelectedGoalPanel goal={selectedGoal} tasks={filteredTasks} /> : null}
@@ -381,7 +419,7 @@ function KanbanBoard({
       </section>
       <div className="grid items-start gap-3 xl:grid-cols-4">
         {statusLanes.map((lane) => (
-          <TaskLane key={lane.key} lane={lane} />
+          <TaskLane key={lane.key} lane={lane} onOpenDependencies={setDependencyDrawerTaskId} />
         ))}
       </div>
     </div>
@@ -466,6 +504,153 @@ function BoardActionQueue({
   )
 }
 
+function DependencyRadiators({
+  organization,
+  onOpenFirst,
+}: {
+  organization: AgentOrgBoardSnapshot
+  onOpenFirst: () => void
+}) {
+  const metrics = organization.summary.dependencies ?? {
+    waiting_on: 0,
+    blocking_downstream: 0,
+    pending_handoffs: 0,
+    blocked_by_dependency: 0,
+  }
+  const totalSignals = metrics.waiting_on + metrics.blocking_downstream + metrics.pending_handoffs
+  return (
+    <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-4" aria-label="Dependency tracing">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <div className="flex items-center gap-2">
+            <Network size={16} className="text-radiant-gold" />
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-radiant-gold">Dependency tracing</h2>
+          </div>
+          <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+            Shows work waiting on upstream cards, cards blocking downstream work, and open handoffs between agents.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onOpenFirst}
+          disabled={!totalSignals}
+          className="inline-flex items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:border-silicon-slate/60 disabled:text-muted-foreground disabled:opacity-60"
+        >
+          Inspect dependency
+        </button>
+      </div>
+      <div className="mt-3 grid gap-2 sm:grid-cols-4">
+        <MetricCard label="Waiting on" value={metrics.waiting_on} tone={metrics.waiting_on ? 'yellow' : 'slate'} />
+        <MetricCard label="Blocking" value={metrics.blocking_downstream} tone={metrics.blocking_downstream ? 'yellow' : 'slate'} />
+        <MetricCard label="Handoffs" value={metrics.pending_handoffs} tone={metrics.pending_handoffs ? 'yellow' : 'slate'} />
+        <MetricCard label="Blocked by dependency" value={metrics.blocked_by_dependency} tone={metrics.blocked_by_dependency ? 'red' : 'slate'} />
+      </div>
+    </section>
+  )
+}
+
+function DependencyDrawer({ task, onClose }: { task: AgentOrgBoardTask; onClose: () => void }) {
+  const dependencies = task.dependencies ?? []
+  const dependents = task.dependents ?? []
+  const handoffs = task.handoffs ?? []
+  const unresolvedIds = (task.dependencyIds ?? []).filter((id) => !dependencies.some((dependency) => dependency.id === id))
+  return (
+    <section className="rounded-lg border border-radiant-gold/45 bg-radiant-gold/10 p-4" aria-label="Dependency detail drawer">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-radiant-gold">Dependency detail</p>
+          <h2 className="mt-1 text-lg font-semibold">{task.title}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {task.ownerAgentName} · {task.status.replace(/_/g, ' ')}
+          </p>
+        </div>
+        <button type="button" onClick={onClose} className="rounded-lg border border-silicon-slate/70 px-3 py-2 text-sm hover:border-radiant-gold/60">
+          Close
+        </button>
+      </div>
+      <div className="mt-4 grid gap-3 lg:grid-cols-3">
+        <DependencyColumn
+          title="Waiting on"
+          empty="No resolved upstream dependencies."
+          items={dependencies.map((dependency) => ({
+            id: dependency.id,
+            title: dependency.title,
+            detail: `${dependency.ownerAgentName} · ${dependency.status.replace(/_/g, ' ')}`,
+            href: dependency.href,
+            tone: dependency.blocking ? 'yellow' : 'slate',
+          }))}
+        />
+        <DependencyColumn
+          title="Blocking downstream"
+          empty="No downstream cards depend on this work."
+          items={dependents.map((dependent) => ({
+            id: dependent.id,
+            title: dependent.title,
+            detail: `${dependent.ownerAgentName} · ${dependent.status.replace(/_/g, ' ')}`,
+            href: dependent.href,
+            tone: dependent.blocking ? 'yellow' : 'slate',
+          }))}
+        />
+        <DependencyColumn
+          title="Agent handoffs"
+          empty="No handoffs recorded for this card."
+          items={handoffs.map((handoff) => ({
+            id: handoff.id,
+            title: `${handoff.fromAgentName} to ${handoff.toAgentName}`,
+            detail: `${handoff.status}${handoff.summary ? ` · ${handoff.summary}` : ''}`,
+            href: handoff.runId ? `/admin/agents/runs/${handoff.runId}` : null,
+            tone: handoff.status === 'pending' ? 'yellow' : 'slate',
+          }))}
+        />
+      </div>
+      {unresolvedIds.length ? (
+        <div className="mt-3 rounded-lg border border-silicon-slate/60 bg-background/55 p-3 text-xs text-muted-foreground">
+          <span className="font-semibold text-radiant-gold">Unresolved dependency IDs: </span>
+          {unresolvedIds.join(', ')}
+        </div>
+      ) : null}
+    </section>
+  )
+}
+
+function DependencyColumn({
+  title,
+  empty,
+  items,
+}: {
+  title: string
+  empty: string
+  items: Array<{ id: string; title: string; detail: string; href: string | null; tone: 'yellow' | 'slate' }>
+}) {
+  return (
+    <div className="rounded-lg border border-silicon-slate/60 bg-background/55 p-3">
+      <h3 className="text-xs font-semibold uppercase tracking-wide text-radiant-gold">{title}</h3>
+      <div className="mt-3 space-y-2">
+        {items.length ? items.map((item) => {
+          const className = `block rounded-lg border p-2 text-sm ${
+            item.tone === 'yellow'
+              ? 'border-yellow-500/35 bg-yellow-500/10 text-yellow-100'
+              : 'border-silicon-slate/60 bg-silicon-slate/10 text-foreground'
+          }`
+          const content = (
+            <>
+              <p className="font-semibold">{item.title}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{item.detail}</p>
+            </>
+          )
+          return item.href ? (
+            <Link key={item.id} href={item.href} className={className}>
+              {content}
+            </Link>
+          ) : (
+            <div key={item.id} className={className}>{content}</div>
+          )
+        }) : <p className="text-sm text-muted-foreground">{empty}</p>}
+      </div>
+    </div>
+  )
+}
+
 function GoalRadiators({
   organization,
   selectedGoalId,
@@ -538,12 +723,14 @@ function KanbanFilterPanel({
   ownerFilter,
   statusFilter,
   attentionFilter,
+  dependencyFilter,
   filteredCount,
   totalCount,
   onGoalChange,
   onOwnerChange,
   onStatusChange,
   onAttentionChange,
+  onDependencyChange,
   onClearFilters,
 }: {
   goals: AgentOrgBoardSnapshot['summary']['goals']
@@ -552,12 +739,14 @@ function KanbanFilterPanel({
   ownerFilter: string
   statusFilter: 'all' | AgentOrgBoardTask['status']
   attentionFilter: AttentionFilter
+  dependencyFilter: DependencyFilter
   filteredCount: number
   totalCount: number
   onGoalChange: (value: string) => void
   onOwnerChange: (value: string) => void
   onStatusChange: (value: 'all' | AgentOrgBoardTask['status']) => void
   onAttentionChange: (value: AttentionFilter) => void
+  onDependencyChange: (value: DependencyFilter) => void
   onClearFilters: () => void
 }) {
   return (
@@ -567,7 +756,7 @@ function KanbanFilterPanel({
           <Filter size={16} className="text-radiant-gold" />
           <div>
             <h2 className="text-sm font-semibold uppercase tracking-wide text-radiant-gold">Board scope</h2>
-            <p className="text-sm text-muted-foreground">Filter by goal, owner, status, or attention state without leaving the Kanban surface.</p>
+            <p className="text-sm text-muted-foreground">Filter by goal, owner, status, attention state, or dependency relationship without leaving the Kanban surface.</p>
           </div>
         </div>
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
@@ -577,7 +766,7 @@ function KanbanFilterPanel({
           </button>
         </div>
       </div>
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
         <label className="text-xs uppercase tracking-wide text-muted-foreground">
           Goal
           <select
@@ -625,6 +814,18 @@ function KanbanFilterPanel({
             className="mt-1 w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm normal-case tracking-normal text-foreground outline-none focus:border-radiant-gold/70"
           >
             {ATTENTION_FILTERS.map((filter) => (
+              <option key={filter.key} value={filter.key}>{filter.label}</option>
+            ))}
+          </select>
+        </label>
+        <label className="text-xs uppercase tracking-wide text-muted-foreground">
+          Dependencies
+          <select
+            value={dependencyFilter}
+            onChange={(event) => onDependencyChange(event.target.value as DependencyFilter)}
+            className="mt-1 w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm normal-case tracking-normal text-foreground outline-none focus:border-radiant-gold/70"
+          >
+            {DEPENDENCY_FILTERS.map((filter) => (
               <option key={filter.key} value={filter.key}>{filter.label}</option>
             ))}
           </select>
@@ -764,7 +965,7 @@ function SummaryStrip({ organization }: { organization: AgentOrgBoardSnapshot })
   )
 }
 
-function TaskLane({ lane }: { lane: StatusSwimlane }) {
+function TaskLane({ lane, onOpenDependencies }: { lane: StatusSwimlane; onOpenDependencies: (taskId: string) => void }) {
   const isEmpty = lane.tasks.length === 0
   const blocked = lane.tasks.filter((task) => task.status === 'blocked').length
   const review = lane.tasks.filter((task) => task.status === 'ready_for_review' || task.status === 'ready_for_merge').length
@@ -791,7 +992,7 @@ function TaskLane({ lane }: { lane: StatusSwimlane }) {
       </div>
       {!isEmpty ? (
         <div className="space-y-3 p-3">
-          {lane.tasks.map((task) => <WorkItemCard key={task.id} task={task} />)}
+          {lane.tasks.map((task) => <WorkItemCard key={task.id} task={task} onOpenDependencies={onOpenDependencies} />)}
         </div>
       ) : null}
     </section>
@@ -809,6 +1010,8 @@ function buildBoardActions(lanes: Array<Pick<AgentOrgBoardLane, 'key' | 'label' 
     .filter(({ task }) => {
       if (task.status === 'blocked' || task.status === 'ready_for_review' || task.status === 'ready_for_merge') return true
       if (!task.ownerAgentKey) return true
+      if ((task.dependencies ?? []).some((dependency) => dependency.blocking)) return true
+      if ((task.handoffs ?? []).some((handoff) => handoff.status === 'pending')) return true
       if (!task.validationSummary && (task.status === 'in_progress' || task.status === 'assigned')) return true
       return false
     })
@@ -820,15 +1023,20 @@ function actionRank(task: AgentOrgBoardTask) {
   if (task.status === 'blocked') return 0
   if (task.status === 'ready_for_merge') return 1
   if (task.status === 'ready_for_review') return 2
-  if (!task.ownerAgentKey) return 3
-  if (!task.validationSummary) return 4
-  return 5
+  if ((task.dependencies ?? []).some((dependency) => dependency.blocking)) return 3
+  if ((task.handoffs ?? []).some((handoff) => handoff.status === 'pending')) return 4
+  if (!task.ownerAgentKey) return 5
+  if (!task.validationSummary) return 6
+  return 7
 }
 
-function WorkItemCard({ task }: { task: AgentOrgBoardTask }) {
+function WorkItemCard({ task, onOpenDependencies }: { task: AgentOrgBoardTask; onOpenDependencies: (taskId: string) => void }) {
   const nextAction = nextActionForTask(task)
   const n8nProposal = task.goal?.n8nProposal ?? null
   const dependencyIds = task.dependencyIds ?? []
+  const resolvedDependencies = task.dependencies ?? []
+  const dependents = task.dependents ?? []
+  const pendingHandoffs = (task.handoffs ?? []).filter((handoff) => handoff.status === 'pending')
   const expectedFiles = task.expectedFiles ?? []
   const acceptanceCriteria = task.acceptanceCriteria ?? []
   return (
@@ -880,11 +1088,19 @@ function WorkItemCard({ task }: { task: AgentOrgBoardTask }) {
           </Link>
         </div>
       ) : null}
-      {dependencyIds.length ? (
-        <div className="mt-1.5 flex items-center gap-1.5 rounded-md border border-silicon-slate/60 bg-silicon-slate/15 px-1.5 py-1 text-[11px] text-muted-foreground">
+      {dependencyIds.length || dependents.length || pendingHandoffs.length ? (
+        <button
+          type="button"
+          onClick={() => onOpenDependencies(task.id)}
+          className="mt-1.5 flex w-full items-center gap-1.5 rounded-md border border-silicon-slate/60 bg-silicon-slate/15 px-1.5 py-1 text-left text-[11px] text-muted-foreground hover:border-radiant-gold/45 hover:text-foreground"
+          aria-label={`Open dependency details for ${task.title}`}
+        >
+          <Network size={12} className="shrink-0 text-radiant-gold" />
           <span className="font-semibold text-radiant-gold">Dependencies</span>
-          <span>{dependencyIds.length} upstream</span>
-        </div>
+          {dependencyIds.length ? <span>{dependencyIds.length} upstream</span> : null}
+          {dependents.length ? <span>{dependents.length} downstream</span> : null}
+          {pendingHandoffs.length ? <span>{pendingHandoffs.length} handoff</span> : null}
+        </button>
       ) : null}
 
       <div className="mt-1.5 flex items-center gap-1.5 text-[11px]">
@@ -934,7 +1150,9 @@ function WorkItemCard({ task }: { task: AgentOrgBoardTask }) {
             {task.ownerRuntime && <CardDetail label="Runtime" value={task.ownerRuntime} />}
             {task.branchName && <CardDetail label="Branch" value={task.branchName} />}
             {task.overlapGroup && <CardDetail label="Overlap" value={task.overlapGroup} />}
-            {dependencyIds.length ? <CardDetail label="Waiting on" value={dependencyIds.join(', ')} /> : null}
+            {dependencyIds.length ? <CardDetail label="Waiting on" value={resolvedDependencies.length ? resolvedDependencies.map((dependency) => dependency.title).join(', ') : dependencyIds.join(', ')} /> : null}
+            {dependents.length ? <CardDetail label="Blocking" value={dependents.map((dependent) => dependent.title).join(', ')} /> : null}
+            {pendingHandoffs.length ? <CardDetail label="Handoffs" value={pendingHandoffs.map((handoff) => `${handoff.fromAgentName} to ${handoff.toAgentName}`).join(', ')} /> : null}
             {expectedFiles.length ? <CardDetail label="Expected files" value={expectedFiles.slice(0, 4).join(', ')} /> : null}
           </dl>
           {acceptanceCriteria.length ? (
@@ -965,10 +1183,26 @@ function WorkItemCard({ task }: { task: AgentOrgBoardTask }) {
 
 function nextActionForTask(task: AgentOrgBoardTask) {
   const dependencyIds = task.dependencyIds ?? []
-  if (dependencyIds.length && !['merged', 'deployed', 'cancelled'].includes(task.status)) {
+  const blockingDependencies = (task.dependencies ?? []).filter((dependency) => dependency.blocking)
+  const pendingHandoffs = (task.handoffs ?? []).filter((handoff) => handoff.status === 'pending')
+  if (blockingDependencies.length && !['merged', 'deployed', 'cancelled'].includes(task.status)) {
     return {
       label: 'Check dependencies',
-      detail: `This card is linked to ${dependencyIds.length} upstream dependency${dependencyIds.length === 1 ? '' : 'ies'} before handoff.`,
+      detail: `Waiting on ${blockingDependencies.map((dependency) => dependency.title).slice(0, 2).join(', ')} before handoff.`,
+      tone: 'border-yellow-500/35 bg-yellow-500/10 text-yellow-100',
+    }
+  }
+  if (dependencyIds.length && !['merged', 'deployed', 'cancelled'].includes(task.status)) {
+    return {
+      label: 'Verify dependency',
+      detail: `This card references ${dependencyIds.length} upstream dependency${dependencyIds.length === 1 ? '' : 'ies'}; confirm the dependency link before handoff.`,
+      tone: 'border-yellow-500/35 bg-yellow-500/10 text-yellow-100',
+    }
+  }
+  if (pendingHandoffs.length) {
+    return {
+      label: 'Accept handoff',
+      detail: `${pendingHandoffs[0].fromAgentName} handed this to ${pendingHandoffs[0].toAgentName}. Confirm ownership and next step.`,
       tone: 'border-yellow-500/35 bg-yellow-500/10 text-yellow-100',
     }
   }

@@ -122,26 +122,32 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
   ],
 }
 
+function isPathOrChild(href: string, pathname: string): boolean {
+  return pathname === href || pathname.startsWith(href + '/')
+}
+
 /**
  * Returns whether pathname matches href (exact) or is a child path (e.g. /admin/content/outcome-groups when href is /admin/content).
  */
 export function isNavItemActive(href: string, pathname: string): boolean {
   if (href === '/admin/agents') return pathname === href
-  if (pathname === href) return true
-  if (href !== '/admin' && pathname.startsWith(href + '/')) return true
-  return false
+  if (href === '/admin/products') {
+    return pathname === href || pathname === '/admin/content/products' || pathname.startsWith('/admin/content/products/')
+  }
+  if (href === '/admin') return pathname === href
+  return isPathOrChild(href, pathname)
 }
 
 /**
  * Returns whether the Content Hub section should be expanded (any content route active).
  */
 export function isContentExpanded(pathname: string): boolean {
-  return pathname.startsWith('/admin/content') || pathname.startsWith('/admin/products')
+  return isPathOrChild('/admin/content', pathname) || isPathOrChild('/admin/products', pathname)
 }
 
 /**
  * Returns whether the Chat Eval section should be expanded (any chat-eval route active).
  */
 export function isChatEvalExpanded(pathname: string): boolean {
-  return pathname.startsWith('/admin/chat-eval')
+  return isPathOrChild('/admin/chat-eval', pathname)
 }

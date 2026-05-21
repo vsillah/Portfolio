@@ -164,13 +164,16 @@ function AdminDashboardContent() {
   useEffect(() => { fetchAll() }, [fetchAll])
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-6 lg:p-8">
+    <div className="admin-console-page min-h-screen p-6 text-foreground lg:p-8">
       <div className="max-w-6xl mx-auto">
         <Breadcrumbs items={[{ label: 'Admin Dashboard' }]} />
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-1">Admin Dashboard</h1>
-          <p className="text-muted-foreground text-sm">Snapshot by category — use the sidebar or links below for details.</p>
-        </div>
+        <header className="admin-console-surface-header mb-6 mt-5 rounded-xl border p-5">
+          <div className="admin-console-eyebrow mb-2">Portfolio Operations</div>
+          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+          <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+            Snapshot by category. Use each panel to inspect the operating signal, then move into the owning surface.
+          </p>
+        </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Pipeline: Lead Pipeline */}
@@ -573,7 +576,7 @@ function CategoryCard({
   children: React.ReactNode
 }) {
   return (
-    <div className="p-5 rounded-xl border border-silicon-slate bg-silicon-slate/30 flex flex-col">
+    <div className="admin-console-card admin-console-interactive flex flex-col rounded-xl border p-5">
       <div className="flex items-center gap-3 mb-3">
         <div className="w-10 h-10 rounded-lg bg-radiant-gold/20 flex items-center justify-center text-radiant-gold">
           {icon}
