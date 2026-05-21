@@ -41,6 +41,21 @@ export type GovernanceEventSummary = {
   metadata?: Record<string, unknown> | null
 }
 
+export type GovernanceExportSummary = {
+  id: string
+  export_type: string
+  format: 'json' | 'markdown'
+  classification: string
+  run_id: string | null
+  client_project_id: string | null
+  from_at: string | null
+  to_at: string | null
+  matching_run_count: number | null
+  requested_by_user_id: string | null
+  generated_at: string
+  created_at: string
+}
+
 export type AgentGovernanceSnapshot = {
   generated_at: string
   summary: {
@@ -69,6 +84,7 @@ export type AgentGovernanceSnapshot = {
     occurred_at: string
     reason: string
   }>
+  recent_governance_exports: GovernanceExportSummary[]
 }
 
 const GOVERNANCE_REVIEWED_AT = '2026-05-21'
@@ -214,6 +230,7 @@ function recentDelegationDecisions(events: GovernanceEventSummary[]): AgentGover
 export function buildAgentGovernanceSnapshot(input?: {
   approvals?: GovernanceApprovalSummary[]
   events?: GovernanceEventSummary[]
+  exports?: GovernanceExportSummary[]
 }): AgentGovernanceSnapshot {
   const capabilityProfiles = buildAgentCapabilityProfiles()
   const pendingAuthorityApprovals = (input?.approvals ?? []).filter((approval) =>
@@ -242,5 +259,6 @@ export function buildAgentGovernanceSnapshot(input?: {
     }),
     pending_authority_approvals: pendingAuthorityApprovals.slice(0, 8),
     recent_delegation_decisions: recentDelegationDecisions(input?.events ?? []),
+    recent_governance_exports: (input?.exports ?? []).slice(0, 8),
   }
 }

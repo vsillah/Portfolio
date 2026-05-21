@@ -194,6 +194,22 @@ const missionSnapshot = {
         reason: 'Yaa Asantewaa matches payment work.',
       },
     ],
+    recent_governance_exports: [
+      {
+        id: 'export-1',
+        export_type: 'agent_governance_client_audit',
+        format: 'markdown',
+        classification: 'client_safe',
+        run_id: 'delegation-run',
+        client_project_id: 'client-456',
+        from_at: '2026-05-01T00:00:00.000Z',
+        to_at: '2026-05-21T23:59:59.999Z',
+        matching_run_count: 1,
+        requested_by_user_id: 'admin-user',
+        generated_at: '2026-05-21T00:00:00.000Z',
+        created_at: '2026-05-21T00:01:00.000Z',
+      },
+    ],
   },
   agent_inbox: [
     {
@@ -488,6 +504,11 @@ describe('AgentOperationsPage mission control landing', () => {
     expect(within(exportBuilder).queryByRole('link', { name: /Export scoped audit/i })).not.toBeInTheDocument()
     fireEvent.click(within(exportBuilder).getByRole('button', { name: 'Reset' }))
     expect(within(exportBuilder).getByLabelText('Run ID')).toHaveValue('')
+    const exportLedger = within(governancePanel).getByLabelText('Recent governance exports')
+    expect(within(exportLedger).getByText('Client audit')).toBeInTheDocument()
+    expect(within(exportLedger).getByText(/client_safe/i)).toBeInTheDocument()
+    expect(within(exportLedger).getByText(/Run delegati · Client client-456 · From 2026-05-01 · To 2026-05-21/i)).toBeInTheDocument()
+    expect(within(exportLedger).getByRole('link', { name: /Open trace/i })).toHaveAttribute('href', '/admin/agents/runs/delegation-run')
     expect(screen.getByRole('link', { name: /Active runs/i })).toHaveAttribute('href', '/admin/agents/runs?active=true')
     expect(screen.getByRole('link', { name: /Failed or stale runs/i })).toHaveAttribute('href', '/admin/agents/runs?status=needs_review')
     expect(screen.getByRole('link', { name: /Pending approvals/i })).toHaveAttribute('href', '/admin/agents/coordination')

@@ -44,6 +44,22 @@ describe('agent governance', () => {
           },
         },
       ],
+      exports: [
+        {
+          id: 'export-1',
+          export_type: 'agent_governance_client_audit',
+          format: 'markdown',
+          classification: 'client_safe',
+          run_id: 'run-shaka',
+          client_project_id: 'client-456',
+          from_at: '2026-05-01T00:00:00.000Z',
+          to_at: '2026-05-21T23:59:59.999Z',
+          matching_run_count: 1,
+          requested_by_user_id: 'admin-user',
+          generated_at: '2026-05-21T00:02:00.000Z',
+          created_at: '2026-05-21T00:02:01.000Z',
+        },
+      ],
     })
 
     expect(snapshot.summary.payment_authority_actions).toBe(6)
@@ -53,6 +69,12 @@ describe('agent governance', () => {
       selected_agent_key: 'automation-systems',
       task_type: 'payment',
       risk_class: 'payment_spend',
+    })
+    expect(snapshot.recent_governance_exports[0]).toMatchObject({
+      id: 'export-1',
+      format: 'markdown',
+      run_id: 'run-shaka',
+      client_project_id: 'client-456',
     })
   })
 })

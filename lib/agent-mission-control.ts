@@ -1,5 +1,5 @@
 import { AGENT_ORGANIZATION, AGENT_PODS } from '@/lib/agent-organization'
-import { buildAgentGovernanceSnapshot } from '@/lib/agent-governance'
+import { buildAgentGovernanceSnapshot, type GovernanceExportSummary } from '@/lib/agent-governance'
 import { getAgentQualitySummary, getEmptyAgentQualitySummary } from '@/lib/agent-evaluations'
 import { KNOWLEDGE_GOVERNANCE_STATUS } from '@/lib/knowledge-source-manifest'
 import { supabaseAdmin } from '@/lib/supabase'
@@ -820,7 +820,7 @@ export async function buildAgentMissionControlSnapshot() {
   const db = assertDatabase()
   const since = sinceHours(24)
 
-  const [runsRes, costsRes, approvalsRes, eventsRes, workItemsRes] = await Promise.all([
+  const [runsRes, costsRes, approvalsRes, eventsRes, workItemsRes, governanceExportsRes] = await Promise.all([
     db
       .from('agent_runs')
       .select('id, agent_key, runtime, kind, title, status, subject_label, current_step, error_message, started_at, completed_at, outcome, metadata')
@@ -847,6 +847,11 @@ export async function buildAgentMissionControlSnapshot() {
       .select('id, title, status, priority, owner_agent_key, dependency_ids, active_run_id, updated_at')
       .order('updated_at', { ascending: false })
       .limit(100),
+    db
+      .from('agent_governance_exports')
+      .select('id, export_type, format, classification, run_id, client_project_id, from_at, to_at, matching_run_count, requested_by_user_id, generated_at, created_at')
+      .order('created_at', { ascending: false })
+      .limit(8),
   ])
 
   for (const result of [runsRes, costsRes, approvalsRes, eventsRes]) {
@@ -858,12 +863,16 @@ export async function buildAgentMissionControlSnapshot() {
   if (workItemsRes.error) {
     console.warn('[agent-mission-control] dependency blocker projection unavailable:', workItemsRes.error.message)
   }
+  if (governanceExportsRes.error) {
+    console.warn('[agent-mission-control] governance export ledger unavailable:', governanceExportsRes.error.message)
+  }
 
   const runs = (runsRes.data ?? []) as AgentRunRow[]
   const costs = (costsRes.data ?? []) as CostEventRow[]
   const approvals = (approvalsRes.data ?? []) as ApprovalRow[]
   const events = (eventsRes.data ?? []) as EventRow[]
   const workItems = workItemsRes.error ? [] : (workItemsRes.data ?? []) as MissionWorkItemRow[]
+  const governanceExports = governanceExportsRes.error ? [] : (governanceExportsRes.data ?? []) as GovernanceExportSummary[]
   const costByRun = new Map<string, number>()
   const runsById = new Map(runs.map((run) => [run.id, run]))
 
@@ -899,7 +908,7 @@ export async function buildAgentMissionControlSnapshot() {
   const dependencyBlockers = buildDependencyBlockers(workItems)
   const costToday = Number(costs.reduce((sum, row) => sum + Number(row.amount ?? 0), 0).toFixed(4))
   const costSummary = buildAgentCostSummary({ costs, runsById, windowHours: 24 })
-  const governance = buildAgentGovernanceSnapshot({ approvals, events })
+  const governance = buildAgentGovernanceSnapshot({ approvals, events, exports: governanceExports })
   const dailyBrief = buildDailyOperatingBrief({
     approvals,
     costToday,

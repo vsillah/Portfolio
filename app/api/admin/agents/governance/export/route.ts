@@ -7,6 +7,7 @@ import {
 } from '@/lib/agent-governance-export'
 import { buildScopedAgentGovernanceSnapshot, parseAgentGovernanceExportScope } from '@/lib/agent-governance-scope'
 import { recordAgentEvent } from '@/lib/agent-run'
+import { recordAgentGovernanceExport } from '@/lib/agent-governance-export-ledger'
 
 export const dynamic = 'force-dynamic'
 
@@ -59,6 +60,14 @@ export async function GET(request: NextRequest) {
       : null
     const governance = scoped?.governance ?? (await buildAgentMissionControlSnapshot()).governance
     const clientExport = buildAgentGovernanceClientExport(governance, scoped?.scope ?? parsedScope.scope)
+
+    await recordAgentGovernanceExport({
+      clientExport,
+      format,
+      userId: auth.user.id,
+    }).catch((error) => {
+      console.warn('[agent-governance-export] ledger insert failed:', error instanceof Error ? error.message : error)
+    })
 
     await recordGovernanceExportEvent({
       runId: scoped?.scope.run_id,
