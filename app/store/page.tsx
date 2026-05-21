@@ -41,7 +41,7 @@ const SERVICE_TYPES = [
 // Loading fallback component
 function StoreLoading() {
   return (
-    <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
+    <div className="dark agent-ops-page min-h-screen text-foreground pt-24 pb-12 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="text-center py-12">
           <div className="text-muted-foreground">Loading store...</div>
@@ -243,7 +243,7 @@ function StoreContent() {
   const totalItems = filteredProducts.length + filteredServices.length
 
   return (
-    <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
+    <div className="dark agent-ops-page min-h-screen text-foreground pt-24 pb-12 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
@@ -254,42 +254,120 @@ function StoreContent() {
           {/* Back to Home Link */}
           <button
             onClick={() => router.push('/')}
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4 transition-colors"
+            className="mb-4 flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft size={20} />
             Back to Home
           </button>
-          
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-4xl font-bold mb-2">Store</h1>
-              <p className="text-muted-foreground">Browse our collection of products, merchandise, and services</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <ThemeToggle />
-              <Link href="/help" className="text-muted-foreground hover:text-foreground transition-colors" aria-label="Help">
-                <HelpCircle size={20} />
-              </Link>
-            {cartCount > 0 && (
-              <motion.button
-                onClick={handleViewCart}
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="relative px-6 py-3 btn-gold font-semibold rounded-lg flex items-center gap-2"
-              >
-                <ShoppingCart size={20} />
-                View Cart
+
+          <section className="agent-ops-surface-header rounded-xl border p-5 sm:p-6">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="min-w-0">
+                <p className="agent-ops-eyebrow">AmaduTown store</p>
+                <h1 className="mt-2 text-3xl font-bold sm:text-4xl">Products and services</h1>
+                <p className="mt-2 max-w-2xl text-muted-foreground">
+                  Browse digital products, implementation resources, merchandise, and advisory services.
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <ThemeToggle />
+                <Link href="/help" className="agent-ops-button-muted" aria-label="Help">
+                  <HelpCircle size={18} />
+                </Link>
                 {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
-                    {cartCount}
-                  </span>
+                  <motion.button
+                    onClick={handleViewCart}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    className="agent-ops-button-primary relative px-4 py-3"
+                  >
+                    <ShoppingCart size={18} />
+                    View Cart
+                    {cartCount > 0 && (
+                      <span className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-platinum-white text-xs font-bold text-imperial-navy">
+                        {cartCount}
+                      </span>
+                    )}
+                  </motion.button>
                 )}
-              </motion.button>
-            )}
+              </div>
             </div>
-          </div>
+
+            <div className="mt-6 grid gap-4">
+              {/* Category Toggle */}
+              <div className="flex flex-wrap gap-2 rounded-lg border border-radiant-gold/15 bg-background/25 p-1">
+                {([
+                  { value: 'all', label: 'All' },
+                  { value: 'products', label: 'Products' },
+                  { value: 'services', label: 'Services' },
+                ] as { value: ItemCategory; label: string }[]).map((cat) => (
+                  <button
+                    key={cat.value}
+                    onClick={() => handleCategoryChange(cat.value)}
+                    className={`rounded-md border px-4 py-2 text-sm font-medium transition-colors ${
+                      itemCategory === cat.value
+                        ? 'border-radiant-gold bg-radiant-gold text-imperial-navy'
+                        : 'border-transparent text-muted-foreground hover:border-radiant-gold/40 hover:text-foreground'
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Search and Filters */}
+              <div className="flex flex-col gap-4 md:flex-row">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+                  <input
+                    type="text"
+                    placeholder="Search store..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 input-brand"
+                  />
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {itemCategory !== 'all' && (
+                    <select
+                      value={selectedType}
+                      onChange={(e) => {
+                        const newType = e.target.value
+                        setSelectedType(newType)
+                        const url = new URL(window.location.href)
+                        if (newType === 'all') {
+                          url.searchParams.delete('type')
+                        } else {
+                          url.searchParams.set('type', newType)
+                        }
+                        router.replace(url.pathname + url.search, { scroll: false })
+                      }}
+                      className="px-4 py-2 input-brand"
+                    >
+                      {activeTypeFilters.map(type => (
+                        <option key={type.value} value={type.value}>{type.label}</option>
+                      ))}
+                    </select>
+                  )}
+                  <motion.button
+                    onClick={() => setShowFeaturedOnly(!showFeaturedOnly)}
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    className={`inline-flex items-center rounded-lg border px-4 py-2 text-sm transition-colors ${
+                      showFeaturedOnly
+                        ? 'border-radiant-gold bg-radiant-gold text-imperial-navy'
+                        : 'border-radiant-gold/25 bg-background/30 text-muted-foreground hover:border-radiant-gold/60 hover:text-foreground'
+                    }`}
+                  >
+                    <Filter size={18} className="mr-2" />
+                    Featured
+                  </motion.button>
+                </div>
+              </div>
+            </div>
+          </section>
 
           {/* Error Banner */}
           {fetchError && (
@@ -304,77 +382,6 @@ function StoreContent() {
               </button>
             </div>
           )}
-
-          {/* Category Toggle */}
-          <div className="flex gap-2 mb-4">
-            {([
-              { value: 'all', label: 'All' },
-              { value: 'products', label: 'Products' },
-              { value: 'services', label: 'Services' },
-            ] as { value: ItemCategory; label: string }[]).map((cat) => (
-              <button
-                key={cat.value}
-                onClick={() => handleCategoryChange(cat.value)}
-                className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
-                  itemCategory === cat.value
-                    ? 'bg-radiant-gold border-radiant-gold text-imperial-navy'
-                    : 'bg-silicon-slate border-silicon-slate text-muted-foreground hover:border-radiant-gold/50 hover:text-foreground'
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Search and Filters */}
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
-              <input
-                type="text"
-                placeholder="Search store..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 input-brand"
-              />
-            </div>
-            <div className="flex gap-2">
-              {itemCategory !== 'all' && (
-                <select
-                  value={selectedType}
-                  onChange={(e) => {
-                    const newType = e.target.value
-                    setSelectedType(newType)
-                    const url = new URL(window.location.href)
-                    if (newType === 'all') {
-                      url.searchParams.delete('type')
-                    } else {
-                      url.searchParams.set('type', newType)
-                    }
-                    router.replace(url.pathname + url.search, { scroll: false })
-                  }}
-                  className="px-4 py-2 input-brand"
-                >
-                  {activeTypeFilters.map(type => (
-                    <option key={type.value} value={type.value}>{type.label}</option>
-                  ))}
-                </select>
-              )}
-              <motion.button
-                onClick={() => setShowFeaturedOnly(!showFeaturedOnly)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={`px-4 py-2 rounded-lg border transition-colors ${
-                  showFeaturedOnly
-                    ? 'bg-radiant-gold border-radiant-gold text-imperial-navy'
-                    : 'bg-silicon-slate border-silicon-slate text-muted-foreground hover:border-radiant-gold/50'
-                }`}
-              >
-                <Filter size={18} className="inline mr-2" />
-                Featured
-              </motion.button>
-            </div>
-          </div>
         </motion.div>
 
         {/* Store Items */}
