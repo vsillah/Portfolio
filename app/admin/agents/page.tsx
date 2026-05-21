@@ -1938,6 +1938,23 @@ function AgentGovernancePanel({ governance }: { governance: MissionSnapshot['gov
         </StatusOnlyPill>
       </div>
 
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Link
+          href="/api/admin/agents/governance/export?format=markdown"
+          className="inline-flex items-center gap-2 rounded-md border border-radiant-gold/45 bg-radiant-gold/10 px-3 py-2 text-sm font-medium text-radiant-gold hover:border-radiant-gold/70"
+        >
+          <ClipboardList size={15} />
+          Export client audit
+        </Link>
+        <Link
+          href="/api/admin/agents/governance/export?format=json"
+          className="inline-flex items-center gap-2 rounded-md border border-silicon-slate/60 bg-background/40 px-3 py-2 text-sm font-medium text-foreground hover:border-radiant-gold/50"
+        >
+          <ShieldCheck size={15} />
+          Export audit JSON
+        </Link>
+      </div>
+
       <div className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-4">
         <MiniMetric label="Profiles" value={`${governance.summary.reviewed_agents}/${governance.summary.total_agents}`} tone="green" />
         <MiniMetric label="Needs review" value={governance.summary.least_privilege_attention} tone={governance.summary.least_privilege_attention ? 'yellow' : 'green'} />
