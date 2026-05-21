@@ -121,7 +121,7 @@ Use these methods when they reduce future merge noise or make parallel work easi
 - Prefer short-lived branches named by owner and purpose, such as `codex/agent-command-room`.
 - Keep one branch to one feature, fix, or docs update.
 - Delete remote branches after their PR is merged and post-merge verification passes.
-- Delete local branches only when they have no commits missing from `origin/main`.
+- Delete local branches only after checking GitHub PR state and local commit state. Because Portfolio normally uses squash merges, a branch can have commits missing from `origin/main` even though GitHub already merged the PR.
 - Leave recovery stashes and unknown local branches in place until their owner or purpose is clear.
 
 Before deleting a local branch with a gone upstream, check:
@@ -130,7 +130,20 @@ Before deleting a local branch with a gone upstream, check:
 git log --oneline <branch> --not origin/main
 ```
 
-If that command returns commits, classify the branch as `watch` or `debt` instead of deleting it.
+If that command returns commits, check the related PR before deleting:
+
+```bash
+gh pr list --state all --search "<branch-or-feature-name>" --json number,title,state,mergedAt,headRefName,url --limit 20
+```
+
+Classify the branch before acting:
+
+- `merged-pr residue`: GitHub PR is merged; remove the clean worktree and delete the branch after post-merge verification.
+- `closed-unmerged`: PR was closed without merge; preserve until the owner decides revive, archive, or delete.
+- `local-only`: no PR found; trace reflog, changed files, and likely owner before cleanup.
+- `dirty-worktree`: classify uncommitted files before removing anything.
+
+Use `docs/postmortems/2026-05-21-branch-worktree-residue-and-traceability.md` and `docs/terminal-command-cheatsheet.md` for the full branch-origin RCA sequence.
 
 ### PR Queue Discipline
 
