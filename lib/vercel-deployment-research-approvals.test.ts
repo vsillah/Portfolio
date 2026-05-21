@@ -98,14 +98,17 @@ function setupNewApproval() {
   })
 }
 
-function setupExistingApproval() {
+function setupExistingApproval(options: {
+  status?: string
+  metadata?: Record<string, unknown>
+} = {}) {
   const maybeSingle = vi.fn().mockResolvedValue({
     data: {
       id: 'approval-1',
       run_id: 'run-1',
-      status: 'pending',
+      status: options.status ?? 'pending',
       requested_at: '2026-05-11T12:00:00.000Z',
-      metadata: {
+      metadata: options.metadata ?? {
         work_item_id: 'work-1',
         proposal_id: proposal.id,
         proposal,
@@ -118,10 +121,12 @@ function setupExistingApproval() {
     if (table === 'agent_approvals') {
       return {
         select: vi.fn(() => ({ eq: vi.fn(() => ({ maybeSingle })) })),
+        update: mocks.approvalUpdate,
       }
     }
     return {}
   })
+  mocks.approvalUpdate.mockReturnValue({ eq: vi.fn().mockResolvedValue({ data: null, error: null }) })
 }
 
 describe('createVercelResearchApproval', () => {
@@ -203,6 +208,42 @@ describe('createVercelResearchApproval', () => {
     })
 
     expect(mocks.notify).not.toHaveBeenCalled()
+  })
+
+  it('does not notify Slack when the duplicate approval is no longer pending', async () => {
+    mocks.createAgentWorkItem.mockResolvedValue({
+      id: 'work-1',
+      active_run_id: 'run-1',
+      approval_id: 'approval-1',
+    })
+    setupExistingApproval({
+      status: 'approved',
+      metadata: {
+        work_item_id: 'work-1',
+        proposal_id: proposal.id,
+        proposal,
+        notification: { reviewed_by: 'admin-user' },
+      },
+    })
+
+    await expect(createVercelResearchApproval({
+      proposal,
+      createdByUserId: 'admin-user',
+    })).resolves.toMatchObject({
+      approvalId: 'approval-1',
+      notification: { sent: false, skipped: true },
+    })
+
+    expect(mocks.notify).not.toHaveBeenCalled()
+    expect(mocks.approvalUpdate).toHaveBeenCalledWith(expect.objectContaining({
+      metadata: expect.objectContaining({
+        notification: expect.objectContaining({
+          reviewed_by: 'admin-user',
+          slack_agent_ops_skipped_at: expect.any(String),
+          slack_agent_ops_skip_reason: 'approval_not_pending',
+        }),
+      }),
+    }))
   })
 
   it('skips Open Brain trace when disabled', async () => {
