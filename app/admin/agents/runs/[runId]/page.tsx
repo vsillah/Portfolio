@@ -275,6 +275,20 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
                   <MessageSquare size={16} />
                   {shakaLoading === `run:${runId}` ? 'Asking...' : 'Ask Shaka'}
                 </button>
+                <Link
+                  href={runGovernanceExportHref('markdown', runId, data.run)}
+                  className="agent-ops-button-secondary"
+                >
+                  <FileText size={16} />
+                  Export run audit
+                </Link>
+                <Link
+                  href={runGovernanceExportHref('json', runId, data.run)}
+                  className="agent-ops-button-muted"
+                >
+                  <ShieldAlert size={16} />
+                  Export JSON
+                </Link>
                 <button
                   onClick={evaluateRun}
                   disabled={evaluating}
@@ -397,6 +411,29 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
       </div>
     </div>
   )
+}
+
+function runGovernanceExportHref(format: 'json' | 'markdown', runId: string, run: AnyRow) {
+  const params = new URLSearchParams({ format, runId })
+  const clientProjectId = clientProjectIdForRun(run)
+  if (clientProjectId) params.set('clientProjectId', clientProjectId)
+  return `/api/admin/agents/governance/export?${params.toString()}`
+}
+
+function clientProjectIdForRun(run: AnyRow) {
+  if (asString(run.subject_type) === 'client_project') {
+    const subjectId = asString(run.subject_id)
+    if (subjectId) return subjectId
+  }
+
+  const metadata = typeof run.metadata === 'object' && run.metadata !== null
+    ? run.metadata as Record<string, unknown>
+    : null
+  return asString(metadata?.clientProjectId)
+    ?? asString(metadata?.client_project_id)
+    ?? asString(metadata?.projectId)
+    ?? asString(metadata?.project_id)
+    ?? null
 }
 
 function Metric({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {

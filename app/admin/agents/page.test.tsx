@@ -474,6 +474,8 @@ describe('AgentOperationsPage mission control landing', () => {
     expect(within(governancePanel).getByText(/1 pending authority checkpoint/i)).toBeInTheDocument()
     expect(within(governancePanel).getByRole('link', { name: /Export client audit/i })).toHaveAttribute('href', '/api/admin/agents/governance/export?format=markdown')
     expect(within(governancePanel).getByRole('link', { name: /Export audit JSON/i })).toHaveAttribute('href', '/api/admin/agents/governance/export?format=json')
+    expect(within(governancePanel).getByRole('link', { name: /Export latest trace/i })).toHaveAttribute('href', '/api/admin/agents/governance/export?format=markdown&runId=delegation-run')
+    expect(within(governancePanel).getByRole('link', { name: /Export authority trace/i })).toHaveAttribute('href', '/api/admin/agents/governance/export?format=markdown&runId=payment-run')
     expect(screen.getByRole('link', { name: /Active runs/i })).toHaveAttribute('href', '/admin/agents/runs?active=true')
     expect(screen.getByRole('link', { name: /Failed or stale runs/i })).toHaveAttribute('href', '/admin/agents/runs?status=needs_review')
     expect(screen.getByRole('link', { name: /Pending approvals/i })).toHaveAttribute('href', '/admin/agents/coordination')
