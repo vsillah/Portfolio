@@ -174,6 +174,7 @@ describe('OpenBrainPage', () => {
     expect(within(metrics).getByText('Producer gates')).toBeInTheDocument()
     expect(within(metrics).getByText('Runtime parity')).toBeInTheDocument()
     expect(within(metrics).getAllByText('1/2')).toHaveLength(2)
+    expect(within(metrics).getByRole('button', { name: 'Open producer gate status' })).toHaveTextContent('1/2')
     expect(within(metrics).queryByText('Approved')).not.toBeInTheDocument()
     expect(within(metrics).queryByText('Rejected')).not.toBeInTheDocument()
     expect(within(metrics).queryByText('RAG docs')).not.toBeInTheDocument()
