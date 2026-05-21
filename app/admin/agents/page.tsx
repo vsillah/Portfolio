@@ -230,6 +230,20 @@ type MissionSnapshot = {
       occurred_at: string
       reason: string
     }>
+    recent_governance_exports: Array<{
+      id: string
+      export_type: string
+      format: 'json' | 'markdown'
+      classification: string
+      run_id: string | null
+      client_project_id: string | null
+      from_at: string | null
+      to_at: string | null
+      matching_run_count: number | null
+      requested_by_user_id: string | null
+      generated_at: string
+      created_at: string
+    }>
   }
   agent_inbox: Array<{
     id: string
@@ -1975,6 +1989,7 @@ function AgentGovernancePanel({ governance }: { governance: MissionSnapshot['gov
       </div>
 
       <GovernanceExportBuilder />
+      <GovernanceExportLedger exports={governance.recent_governance_exports ?? []} />
 
       <div className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-4">
         <MiniMetric label="Profiles" value={`${governance.summary.reviewed_agents}/${governance.summary.total_agents}`} tone="green" />
@@ -2040,6 +2055,55 @@ function AgentGovernancePanel({ governance }: { governance: MissionSnapshot['gov
       </div>
     </section>
   )
+}
+
+function GovernanceExportLedger({ exports }: { exports: NonNullable<MissionSnapshot['governance']>['recent_governance_exports'] }) {
+  if (!exports.length) return null
+
+  return (
+    <div className="mt-4 border-t border-silicon-slate/55 pt-4" aria-label="Recent governance exports">
+      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Recent governance exports</p>
+      <div className="mt-3 grid gap-2 lg:grid-cols-2">
+        {exports.slice(0, 4).map((item) => (
+          <div key={item.id} className="rounded-md border border-silicon-slate/50 bg-background/35 p-3">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <p className="text-sm font-semibold">{item.format === 'markdown' ? 'Client audit' : 'Audit JSON'}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{formatTime(item.created_at)} · {item.classification}</p>
+              </div>
+              <StatusOnlyPill tone={item.matching_run_count ? 'green' : 'blue'}>
+                {typeof item.matching_run_count === 'number' ? `${item.matching_run_count} run(s)` : 'snapshot'}
+              </StatusOnlyPill>
+            </div>
+            <p className="mt-2 text-xs leading-5 text-muted-foreground">
+              {governanceExportScopeLabel(item)}
+            </p>
+            {item.run_id ? (
+              <Link href={`/admin/agents/runs/${item.run_id}`} className="mt-2 inline-flex items-center gap-2 text-xs font-semibold text-radiant-gold hover:underline">
+                Open trace
+                <ArrowRight size={12} />
+              </Link>
+            ) : null}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function governanceExportScopeLabel(item: NonNullable<MissionSnapshot['governance']>['recent_governance_exports'][number]) {
+  const parts = [
+    item.run_id ? `Run ${shortId(item.run_id)}` : null,
+    item.client_project_id ? `Client ${item.client_project_id}` : null,
+    item.from_at ? `From ${item.from_at.slice(0, 10)}` : null,
+    item.to_at ? `To ${item.to_at.slice(0, 10)}` : null,
+  ].filter(Boolean)
+
+  return parts.length ? parts.join(' · ') : 'Current governance snapshot'
+}
+
+function shortId(value: string) {
+  return value.length > 8 ? value.slice(0, 8) : value
 }
 
 function GovernanceExportBuilder() {

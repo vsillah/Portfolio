@@ -76,6 +76,7 @@ const governance = {
       reason: 'Payment work routes to automation systems.',
     },
   ],
+  recent_governance_exports: [],
 } satisfies AgentGovernanceSnapshot
 
 describe('agent governance client export', () => {

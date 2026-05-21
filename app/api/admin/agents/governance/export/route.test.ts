@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   parseAgentGovernanceExportScope: vi.fn(),
   buildScopedAgentGovernanceSnapshot: vi.fn(),
   recordAgentEvent: vi.fn(),
+  recordAgentGovernanceExport: vi.fn(),
 }))
 
 vi.mock('@/lib/auth-server', () => ({
@@ -25,6 +26,10 @@ vi.mock('@/lib/agent-governance-scope', () => ({
 
 vi.mock('@/lib/agent-run', () => ({
   recordAgentEvent: mocks.recordAgentEvent,
+}))
+
+vi.mock('@/lib/agent-governance-export-ledger', () => ({
+  recordAgentGovernanceExport: mocks.recordAgentGovernanceExport,
 }))
 
 import { GET } from './route'
@@ -68,6 +73,7 @@ const governance = {
   ],
   pending_authority_approvals: [],
   recent_delegation_decisions: [],
+  recent_governance_exports: [],
 }
 
 function request(format?: string) {
@@ -93,6 +99,7 @@ describe('GET /api/admin/agents/governance/export', () => {
       governance,
       scope: {},
     })
+    mocks.recordAgentGovernanceExport.mockResolvedValue({ id: 'export-1' })
   })
 
   it('requires admin auth', async () => {
@@ -116,6 +123,14 @@ describe('GET /api/admin/agents/governance/export', () => {
     expect(body.export.classification).toBe('client_safe')
     expect(body.export.capability_inventory[0].agent).toBe('Shaka (Zulu) - Chief of Staff')
     expect(body.export.scope.description).toBe('Current governance snapshot.')
+    expect(mocks.recordAgentGovernanceExport).toHaveBeenCalledWith(expect.objectContaining({
+      format: 'json',
+      userId: 'admin-user',
+      clientExport: expect.objectContaining({
+        export_type: 'agent_governance_client_audit',
+        classification: 'client_safe',
+      }),
+    }))
     expect(mocks.recordAgentEvent).not.toHaveBeenCalled()
   })
 
@@ -128,6 +143,19 @@ describe('GET /api/admin/agents/governance/export', () => {
     expect(response.headers.get('Content-Disposition')).toMatch(/agent-governance-audit-\d{4}-\d{2}-\d{2}\.md/)
     expect(text).toContain('# Agentic Operating System Governance Audit')
     expect(text).toContain('## Audit Boundaries')
+  })
+
+  it('does not fail the export if ledger recording is unavailable', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    mocks.recordAgentGovernanceExport.mockRejectedValueOnce(new Error('ledger missing'))
+
+    const response = await GET(request('markdown') as never)
+    const text = await response.text()
+
+    expect(response.status).toBe(200)
+    expect(text).toContain('# Agentic Operating System Governance Audit')
+    expect(warn).toHaveBeenCalledWith('[agent-governance-export] ledger insert failed:', 'ledger missing')
+    warn.mockRestore()
   })
 
   it('returns a scoped export when filters are provided', async () => {
@@ -186,6 +214,17 @@ describe('GET /api/admin/agents/governance/export', () => {
         }),
       }),
     }))
+    expect(mocks.recordAgentGovernanceExport).toHaveBeenCalledWith(expect.objectContaining({
+      format: 'json',
+      userId: 'admin-user',
+      clientExport: expect.objectContaining({
+        scope: expect.objectContaining({
+          run_id: 'run-123',
+          client_project_id: 'client-456',
+          matching_run_count: 1,
+        }),
+      }),
+    }))
     expect(mocks.buildAgentMissionControlSnapshot).not.toHaveBeenCalled()
   })
 
@@ -208,6 +247,7 @@ describe('GET /api/admin/agents/governance/export', () => {
     const response = await GET(request('markdown') as never)
 
     expect(response.status).toBe(200)
+    expect(mocks.recordAgentGovernanceExport).toHaveBeenCalled()
     expect(mocks.recordAgentEvent).not.toHaveBeenCalled()
   })
 
@@ -224,5 +264,6 @@ describe('GET /api/admin/agents/governance/export', () => {
     expect(await response.json()).toEqual({ error: 'from must be before or equal to to' })
     expect(mocks.buildAgentMissionControlSnapshot).not.toHaveBeenCalled()
     expect(mocks.buildScopedAgentGovernanceSnapshot).not.toHaveBeenCalled()
+    expect(mocks.recordAgentGovernanceExport).not.toHaveBeenCalled()
   })
 })
