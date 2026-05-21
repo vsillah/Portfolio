@@ -63,6 +63,7 @@ Use `credentials:baseline-template` when `credentials:report` shows `needs-basel
 ## Source And Sink Rules
 
 - The inventory owns canonical secret names, owners, source of truth, runtime sinks, cadence, verification, and rollback notes.
+- `docs/infisical-secret-map.md` records the current Infisical project/path/environment map and the production import gate.
 - Stripe Projects may be evaluated as a provisioning adapter for new stacks, but it is not a credential source of truth until it passes `docs/stripe-projects-bakeoff.md`.
 - Each inventory entry has per-environment `baseline` metadata. `pending-provider-confirmation` means the secret is tracked but the last rotation date has not been verified from Infisical, 1Password, a provider dashboard/API, or an approved rotation packet.
 - `.env.local` and `.env.staging` are local runtime sinks only. Do not treat them as primary records.
@@ -85,6 +86,7 @@ Use `credentials:baseline-template` when `credentials:report` shows `needs-basel
 - Create an Infisical `portfolio` project with `dev`, `staging`, and `prod` environments.
 - Create machine identities per environment, not one broad cross-client identity.
 - Populate Infisical secrets using the env var names in `docs/credential-inventory.json`.
+- Keep production imports gated: do not populate `prod:/portfolio` from unprefixed local env values unless a production source/approval packet confirms the value.
 - Replace each `pending-provider-confirmation` baseline with a verified `lastRotatedAt` date and evidence note.
 - Configure runtime sinks from the source of truth: Vercel env vars, n8n Variables/Credentials, and local ignored env files.
 - Run `npm run credentials:smoke -- --env staging` after the first sync.
@@ -95,6 +97,7 @@ Use `credentials:baseline-template` when `credentials:report` shows `needs-basel
 - `docs/credential-rotation-map.md`
 - `docs/credential-rotation-runbook.md`
 - `docs/credential-baseline-evidence.md`
+- `docs/infisical-secret-map.md`
 - `docs/stripe-projects-bakeoff.md`
 - `docs/n8n-secrets-remediation.md`
 - `n8n-exports/environment-variables-reference.md`
