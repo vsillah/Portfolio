@@ -908,7 +908,7 @@ export default function ConversationPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+      <div className="admin-console-page min-h-screen flex items-center justify-center text-foreground">
         <div className="text-center">
           <RefreshCw className="w-8 h-8 text-gray-500 animate-spin mx-auto mb-3" />
           <p className="text-gray-400">Loading conversation...</p>
@@ -919,7 +919,7 @@ export default function ConversationPage() {
 
   if (error || !salesSession) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+      <div className="admin-console-page min-h-screen flex items-center justify-center text-foreground">
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-3" />
           <h2 className="text-lg font-medium text-white mb-2">Error</h2>
@@ -944,8 +944,8 @@ export default function ConversationPage() {
   /* ================================================================ */
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="max-w-7xl mx-auto px-4 py-6">
+    <div className="admin-console-page min-h-screen text-foreground">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Sales', href: '/admin/sales' }, { label: contact?.name || 'Conversation' }]} />
 
         <div className="mb-4">
@@ -958,19 +958,20 @@ export default function ConversationPage() {
         </div>
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="admin-console-surface-header mb-6 flex flex-col gap-4 rounded-xl border p-5 lg:flex-row lg:items-center lg:justify-between lg:p-6">
           <div className="flex items-center gap-4">
-            <button onClick={() => router.push(backUrl)} className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-white">
+            <button onClick={() => router.push(backUrl)} aria-label="Back to sales dashboard" className="admin-console-button-muted p-2">
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="text-xl font-bold text-white">Conversation: {contact?.name}</h1>
-              <p className="text-gray-400">{contact?.company || contact?.email}</p>
+              <div className="admin-console-eyebrow mb-2">Sales Conversation</div>
+              <h1 className="text-2xl font-bold tracking-tight text-foreground">Conversation: {contact?.name}</h1>
+              <p className="text-muted-foreground">{contact?.company || contact?.email}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {isSaving && <span className="text-sm text-gray-400 flex items-center gap-1"><RefreshCw className="w-4 h-4 animate-spin" /> Saving...</span>}
-            <select value={salesSession.outcome || 'in_progress'} onChange={e => handleOutcomeChange(e.target.value as SessionOutcome)} className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white">
+            <select value={salesSession.outcome || 'in_progress'} onChange={e => handleOutcomeChange(e.target.value as SessionOutcome)} className="rounded-lg border border-white/10 bg-silicon-slate/50 px-3 py-2 text-foreground">
               <option value="in_progress">In Progress</option>
               <option value="converted">Converted</option>
               <option value="downsold">Downsold</option>
@@ -981,23 +982,23 @@ export default function ConversationPage() {
         </div>
 
         {/* Funnel Stage */}
-        <div className="bg-gray-900 rounded-lg border border-gray-800 p-4 mb-4">
-          <h3 className="text-sm font-medium text-gray-400 mb-3">Client Stage</h3>
+        <div className="admin-console-card mb-4 rounded-lg border p-4">
+          <h3 className="admin-console-eyebrow mb-3">Client Stage</h3>
           <FunnelStageSelector currentStage={salesSession.funnel_stage || 'prospect'} onChange={handleStageChange} />
         </div>
 
         {/* Context strip: compact contact + expand toggle */}
-        <div className="flex flex-wrap items-center gap-4 py-3 px-4 bg-gray-900 rounded-lg border border-gray-800 mb-4">
+        <div className="admin-console-card mb-4 flex flex-wrap items-center gap-4 rounded-lg border px-4 py-3">
           <div className="flex items-center gap-3 min-w-0 flex-1">
-            <User className="w-4 h-4 text-gray-500 shrink-0" />
-            <span className="text-sm font-medium text-white truncate">{contact?.name || 'Client'}</span>
-            <span className="text-sm text-gray-400 truncate hidden sm:inline">{contact?.email}</span>
-            {contact?.company && <span className="text-xs text-gray-500 truncate hidden md:inline">· {contact.company}</span>}
+            <User className="w-4 h-4 text-radiant-gold shrink-0" />
+            <span className="truncate text-sm font-medium text-foreground">{contact?.name || 'Client'}</span>
+            <span className="hidden truncate text-sm text-muted-foreground sm:inline">{contact?.email}</span>
+            {contact?.company && <span className="hidden truncate text-xs text-muted-foreground md:inline">· {contact.company}</span>}
           </div>
           <button
             type="button"
             onClick={() => setContextExpanded((e) => !e)}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700"
+            className="admin-console-button-muted text-sm"
           >
             {contextExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             Context &amp; tools
@@ -1007,7 +1008,7 @@ export default function ConversationPage() {
         {/* Main row: Timeline | Script + objections | Unified offer panel */}
         <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)_minmax(320px,480px)] gap-4 mb-6">
           {/* ---- Col 1: Conversation Timeline ---- */}
-          <div className="bg-gray-900 rounded-lg border border-gray-800 flex flex-col h-[678px] min-h-[320px] overflow-hidden">
+          <div className="admin-console-card flex h-[678px] min-h-[320px] flex-col overflow-hidden rounded-lg border">
             <div className="flex-1 min-h-0 overflow-y-auto p-4">
               {conversationState.responseHistory.length > 0 ? (
                 <ConversationTimeline responses={conversationState.responseHistory} currentStep={0} compact={false} />
@@ -1023,7 +1024,7 @@ export default function ConversationPage() {
 
           {/* ---- Col 2: Script Guide + objection help ---- */}
           <div className="flex flex-col min-h-[320px] max-h-[min(75vh,720px)] xl:max-h-[calc(100vh-10rem)] overflow-hidden">
-            <div className="flex-1 min-h-0 overflow-y-auto bg-gray-900 rounded-lg border border-gray-800 p-6">
+            <div className="admin-console-card min-h-0 flex-1 overflow-y-auto rounded-lg border p-6">
               <div className="flex items-center justify-between gap-2 mb-4">
                 <div className="flex items-center gap-2 min-w-0">
                   <FileText className="w-5 h-5 text-emerald-400 shrink-0" />

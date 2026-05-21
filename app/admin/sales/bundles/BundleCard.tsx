@@ -32,35 +32,35 @@ export function BundleCard({ bundle, onView, onEdit, onDuplicate, onDelete }: Bu
   const previewItems = bundle.preview_items || [];
   const hasMoreItems = bundle.item_count > previewItems.length;
   const cardClassName =
-    'bg-gray-900 rounded-lg border ' +
-    (bundle.is_active ? 'border-gray-800' : 'border-gray-700 opacity-60') +
-    ' p-4 hover:border-gray-700 transition-colors';
+    'admin-console-card rounded-lg border ' +
+    (bundle.is_active ? '' : 'opacity-60') +
+    ' p-4 transition-colors admin-console-interactive';
 
   return (
     <div className={cardClassName}>
       <div className="flex items-start justify-between mb-3">
         <div>
-          <h3 className="font-semibold text-white">{bundle.name}</h3>
+          <h3 className="font-semibold text-foreground">{bundle.name}</h3>
           {bundle.parent_name && (
-            <p className="text-xs text-purple-400 flex items-center gap-1 mt-1">
+            <p className="text-xs text-radiant-gold flex items-center gap-1 mt-1">
               <GitFork className="w-3 h-3" />
               Forked from {bundle.parent_name}
             </p>
           )}
           {bundle.base_bundle_name && (
-            <p className="text-xs text-blue-400 flex items-center gap-1 mt-1">
+            <p className="text-xs text-sky-200 flex items-center gap-1 mt-1">
               <Layers className="w-3 h-3" />
               Builds on: {bundle.base_bundle_name}
             </p>
           )}
           {bundle.bundle_type !== 'custom' && (
             <>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 Tier: {bundle.pricing_tier_slug
                   ? (TIER_OPTIONS.find((t) => t.value === bundle.pricing_tier_slug)?.label ?? bundle.pricing_tier_slug)
                   : '—'}
               </p>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 Pricing segments: {(() => {
                   const segs = bundle.pricing_page_segments;
                   if (!Array.isArray(segs) || segs.length === 0) return 'Not on pricing page';
@@ -72,7 +72,7 @@ export function BundleCard({ bundle, onView, onEdit, onDuplicate, onDelete }: Bu
             </>
           )}
           {bundle.is_decoy && (
-            <p className="text-xs text-emerald-400 flex items-center gap-1 mt-1">
+            <p className="text-xs text-emerald-200 flex items-center gap-1 mt-1">
               <Heart className="w-3 h-3" />
               Community Impact{bundle.mirrors_tier_id ? ` · mirrors ${bundle.mirrors_tier_id}` : ''}
             </p>
@@ -80,16 +80,16 @@ export function BundleCard({ bundle, onView, onEdit, onDuplicate, onDelete }: Bu
         </div>
         <div className="flex items-center gap-1.5">
           {bundle.has_guarantee && (
-            <div className="px-2 py-1 text-xs font-medium rounded bg-gray-700/50 text-gray-300" title={bundle.guarantee_name ?? 'Has guarantee'}>
+            <div className="px-2 py-1 text-xs font-medium rounded border border-white/10 bg-white/5 text-muted-foreground" title={bundle.guarantee_name ?? 'Has guarantee'}>
               <Shield className="w-3 h-3" />
             </div>
           )}
           <div className={`px-2 py-1 text-xs font-medium rounded ${
             bundle.bundle_type === 'standard'
-              ? 'bg-green-900/50 text-green-300'
+              ? 'bg-emerald-500/10 text-emerald-200 border border-emerald-500/30'
               : bundle.bundle_type === 'decoy'
-              ? 'bg-emerald-900/50 text-emerald-300'
-              : 'bg-purple-900/50 text-purple-300'
+              ? 'bg-radiant-gold/10 text-radiant-gold border border-radiant-gold/35'
+              : 'bg-sky-500/10 text-sky-200 border border-sky-500/30'
           }`}>
             {bundle.bundle_type}
           </div>
@@ -97,11 +97,11 @@ export function BundleCard({ bundle, onView, onEdit, onDuplicate, onDelete }: Bu
       </div>
 
       {bundle.description && (
-        <p className="text-sm text-gray-400 mb-3 line-clamp-2">{bundle.description}</p>
+        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{bundle.description}</p>
       )}
 
       <div className="mb-3">
-        <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
           <Package className="w-3 h-3" />
           <span>Contents ({bundle.item_count} items)</span>
         </div>
@@ -110,7 +110,7 @@ export function BundleCard({ bundle, onView, onEdit, onDuplicate, onDelete }: Bu
             {previewItems.map((item) => (
               <div
                 key={`${item.content_type}:${item.content_id}`}
-                className="flex items-center gap-2 text-sm text-gray-300"
+                className="flex items-center gap-2 text-sm text-muted-foreground"
               >
                 <span className="text-base">{CONTENT_TYPE_ICONS[item.content_type]}</span>
                 <span className="truncate">{item.title}</span>
@@ -119,7 +119,7 @@ export function BundleCard({ bundle, onView, onEdit, onDuplicate, onDelete }: Bu
             {hasMoreItems && (
               <button
                 onClick={onView}
-                className="text-xs text-blue-400 hover:text-blue-300 mt-1 flex items-center gap-1"
+                className="text-xs text-radiant-gold hover:text-gold-light mt-1 flex items-center gap-1"
               >
                 <ChevronRight className="w-3 h-3" />
                 +{bundle.item_count - previewItems.length} more...
@@ -127,47 +127,49 @@ export function BundleCard({ bundle, onView, onEdit, onDuplicate, onDelete }: Bu
             )}
           </div>
         ) : (
-          <p className="text-xs text-gray-500 italic">No items added yet</p>
+          <p className="text-xs text-muted-foreground italic">No items added yet</p>
         )}
       </div>
 
       <div className="flex items-center gap-2 text-sm mb-4">
-        <span className="flex items-center gap-1 text-green-400">
+        <span className="flex items-center gap-1 text-emerald-200">
           <DollarSign className="w-4 h-4" />
           {formatPrice(bundle.bundle_price ?? bundle.total_retail_value ?? 0)}
         </span>
         {bundle.total_perceived_value != null && bundle.total_perceived_value > (bundle.bundle_price ?? bundle.total_retail_value ?? 0) && (
-          <span className="text-gray-500 line-through text-xs">
+          <span className="text-muted-foreground line-through text-xs">
             ${formatPrice(bundle.total_perceived_value)} value
           </span>
         )}
         {bundle.fork_count > 0 && (
-          <span className="flex items-center gap-1 text-gray-400 ml-auto">
+          <span className="flex items-center gap-1 text-muted-foreground ml-auto">
             <GitFork className="w-4 h-4" />
             {bundle.fork_count} forks
           </span>
         )}
       </div>
 
-      <div className="flex items-center gap-2 border-t border-gray-800 pt-3">
+      <div className="flex items-center gap-2 border-t border-white/10 pt-3">
         <button
           onClick={onView}
-          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm transition-colors"
+          className="admin-console-button-muted flex-1"
         >
           <Eye className="w-4 h-4" />
           View
         </button>
         <button
           onClick={onDuplicate}
-          className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+          className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
           title="Duplicate"
+          aria-label={`Duplicate ${bundle.name}`}
         >
           <Copy className="w-4 h-4" />
         </button>
         <button
           onClick={onDelete}
-          className="p-2 text-gray-400 hover:text-red-400 hover:bg-gray-800 rounded-lg transition-colors"
+          className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-300"
           title="Delete"
+          aria-label={`Delete ${bundle.name}`}
         >
           <Trash2 className="w-4 h-4" />
         </button>

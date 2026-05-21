@@ -181,6 +181,56 @@ type MissionSnapshot = {
       publicUnsafeApprovedCount: number
     }
   }
+  governance?: {
+    generated_at: string
+    summary: {
+      total_agents: number
+      reviewed_agents: number
+      planned_agents: number
+      least_privilege_attention: number
+      pending_authority_approvals: number
+      payment_authority_actions: number
+    }
+    capability_profiles: Array<{
+      agent_key: string
+      display_name: string
+      pod: string
+      status: 'active' | 'partial' | 'planned'
+      primary_runtime: string
+      allowed_tools: string[]
+      allowed_data_classes: string[]
+      allowed_write_classes: string[]
+      outbound_authority: 'none' | 'draft_only' | 'known_workflow' | 'approval_required'
+      spend_authority: 'none' | 'approval_required'
+      approval_required_for: string[]
+      sensitive_boundaries: string[]
+      last_reviewed_at: string
+      review_status: 'reviewed' | 'planned'
+      governance_status: 'green' | 'yellow' | 'red'
+    }>
+    payment_authority_actions: Array<{
+      action: string
+      approval_type: string
+      label: string
+      description: string
+    }>
+    pending_authority_approvals: Array<{
+      run_id: string
+      approval_type: string
+      status: string
+      requested_at: string
+    }>
+    recent_delegation_decisions: Array<{
+      run_id: string
+      selected_agent_key: string
+      selected_agent_name: string
+      task_type: string
+      risk_class: string
+      confidence: number
+      occurred_at: string
+      reason: string
+    }>
+  }
   agent_inbox: Array<{
     id: string
     priority: 'high' | 'medium' | 'low'
@@ -933,6 +983,8 @@ export default function AgentOperationsPage() {
                   pendingApprovals={decisionQueueCount}
                   costToday={snapshot?.status_strip.cost_today ?? 0}
                 />
+
+                <AgentGovernancePanel governance={snapshot?.governance ?? null} />
 
                 <div className="agent-ops-command-card mt-5 rounded-lg border p-4">
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -1849,6 +1901,120 @@ function DailyBriefPanel({
           {routeCards.map((card) => (
             <BriefRouteCard key={card.label} {...card} />
           ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function AgentGovernancePanel({ governance }: { governance: MissionSnapshot['governance'] | null }) {
+  if (!governance) return null
+
+  const profiles = governance.capability_profiles.slice(0, 4)
+  const latestDelegation = governance.recent_delegation_decisions[0]
+  const latestPaymentAction = governance.payment_authority_actions[0]
+  const statusTone = governance.summary.pending_authority_approvals > 0
+    ? 'yellow'
+    : governance.summary.least_privilege_attention > 0
+      ? 'blue'
+      : 'green'
+
+  return (
+    <section className="agent-ops-card mt-5 rounded-lg border p-4" aria-label="Agent Governance">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-radiant-gold">
+            <ShieldCheck size={18} />
+            <h2 className="font-semibold">Agent Governance</h2>
+          </div>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            Scope, delegation, spend authority, and audit state for the agentic operating system.
+          </p>
+        </div>
+        <StatusOnlyPill tone={statusTone}>
+          {governance.summary.pending_authority_approvals
+            ? `${governance.summary.pending_authority_approvals} authority approval(s)`
+            : `${governance.summary.reviewed_agents} reviewed`}
+        </StatusOnlyPill>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Link
+          href="/api/admin/agents/governance/export?format=markdown"
+          className="inline-flex items-center gap-2 rounded-md border border-radiant-gold/45 bg-radiant-gold/10 px-3 py-2 text-sm font-medium text-radiant-gold hover:border-radiant-gold/70"
+        >
+          <ClipboardList size={15} />
+          Export client audit
+        </Link>
+        <Link
+          href="/api/admin/agents/governance/export?format=json"
+          className="inline-flex items-center gap-2 rounded-md border border-silicon-slate/60 bg-background/40 px-3 py-2 text-sm font-medium text-foreground hover:border-radiant-gold/50"
+        >
+          <ShieldCheck size={15} />
+          Export audit JSON
+        </Link>
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-4">
+        <MiniMetric label="Profiles" value={`${governance.summary.reviewed_agents}/${governance.summary.total_agents}`} tone="green" />
+        <MiniMetric label="Needs review" value={governance.summary.least_privilege_attention} tone={governance.summary.least_privilege_attention ? 'yellow' : 'green'} />
+        <MiniMetric label="Payment gates" value={governance.summary.payment_authority_actions} />
+        <MiniMetric label="Planned agents" value={governance.summary.planned_agents} />
+      </div>
+
+      <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(240px,0.8fr)]">
+        <div className="rounded-lg border border-silicon-slate/55 bg-black/10 p-3">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Capability inventory</p>
+          <div className="mt-3 space-y-2">
+            {profiles.map((profile) => (
+              <div key={profile.agent_key} className="rounded-md border border-silicon-slate/45 bg-background/35 p-3">
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="font-medium">{profile.display_name}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{profile.primary_runtime} · {profile.pod}</p>
+                  </div>
+                  <StatusOnlyPill tone={profile.governance_status}>
+                    {profile.spend_authority === 'approval_required' ? 'Spend gated' : profile.review_status}
+                  </StatusOnlyPill>
+                </div>
+                <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                  Tools: {profile.allowed_tools.slice(0, 3).join(', ')}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <Link
+            href={latestDelegation ? `/admin/agents/runs/${latestDelegation.run_id}` : '/admin/agents/runs'}
+            className="block rounded-lg border border-radiant-gold/35 bg-radiant-gold/10 p-3 hover:border-radiant-gold/60"
+          >
+            <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Delegation trace</p>
+            <p className="mt-2 text-sm font-semibold">
+              {latestDelegation ? latestDelegation.selected_agent_name : 'No recent delegation decisions'}
+            </p>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">
+              {latestDelegation
+                ? `${latestDelegation.task_type.replace(/_/g, ' ')} · ${Math.round(latestDelegation.confidence * 100)}% confidence`
+                : 'Shaka will record deterministic delegation events when routed engagements are proposed.'}
+            </p>
+          </Link>
+
+          <Link
+            href={governance.pending_authority_approvals[0]?.run_id ? `/admin/agents/runs/${governance.pending_authority_approvals[0].run_id}` : '/admin/agents/coordination'}
+            className="block rounded-lg border border-silicon-slate/60 bg-background/40 p-3 hover:border-radiant-gold/50"
+          >
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Payment authority</p>
+            <p className="mt-2 text-sm font-semibold">
+              {governance.pending_authority_approvals.length
+                ? `${governance.pending_authority_approvals.length} pending authority checkpoint(s)`
+                : latestPaymentAction?.label ?? 'Payment gates ready'}
+            </p>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">
+              Payment, refund, subscription, vendor spend, paid API, and paid external job actions require trace-linked approval.
+            </p>
+          </Link>
         </div>
       </div>
     </section>

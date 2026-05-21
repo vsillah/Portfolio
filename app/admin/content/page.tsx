@@ -13,109 +13,102 @@ export default function ContentManagementPage() {
       href: '/admin/content/outcome-groups',
       icon: <Target size={32} />,
       description: 'Group content by outcome (pricing chart)',
-      color: 'from-teal-500 to-cyan-500',
     },
     {
       name: 'Projects',
       href: '/admin/content/projects',
       icon: <FolderOpen size={32} />,
       description: 'Manage portfolio projects',
-      color: 'from-blue-500 to-cyan-500',
     },
     {
       name: 'Videos',
       href: '/admin/content/videos',
       icon: <Video size={32} />,
       description: 'Manage video content',
-      color: 'from-red-500 to-pink-500',
     },
     {
       name: 'Publications',
       href: '/admin/content/publications',
       icon: <BookOpen size={32} />,
       description: 'Manage publications',
-      color: 'from-green-500 to-emerald-500',
     },
     {
       name: 'Music',
       href: '/admin/content/music',
       icon: <Music size={32} />,
       description: 'Manage music projects',
-      color: 'from-purple-500 to-pink-500',
     },
     {
       name: 'Services',
       href: '/admin/content/services',
       icon: <Briefcase size={32} />,
       description: 'Manage services and offerings',
-      color: 'from-teal-500 to-cyan-500',
     },
     {
       name: 'Products',
       href: '/admin/products',
       icon: <ShoppingBag size={32} />,
       description: 'Products, templates, and lead magnets',
-      color: 'from-emerald-500 to-teal-500',
     },
     {
       name: 'Prototypes',
       href: '/admin/content/prototypes',
       icon: <Sparkles size={32} />,
       description: 'Manage app prototype demos',
-      color: 'from-purple-500 to-pink-500',
     },
     {
       name: 'Merchandise',
       href: '/admin/content/merchandise',
       icon: <Package size={32} />,
       description: 'Manage print-on-demand products',
-      color: 'from-indigo-500 to-purple-500',
     },
     {
       name: 'Discount Codes',
       href: '/admin/content/discount-codes',
       icon: <Tag size={32} />,
       description: 'Manage discount codes and promotions',
-      color: 'from-green-500 to-teal-500',
     },
     {
       name: 'Bundles',
       href: '/admin/sales/bundles',
       icon: <Layers size={32} />,
       description: 'Manage product bundles',
-      color: 'from-amber-500 to-orange-500',
     },
   ]
 
   return (
     <ProtectedRoute requireAdmin>
-      <div className="min-h-screen bg-background text-foreground p-8">
+      <div className="admin-console-page min-h-screen px-4 py-6 text-foreground sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <Breadcrumbs items={[
             { label: 'Admin Dashboard', href: '/admin' },
             { label: 'Content Management' }
           ]} />
           
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-2">Content Management</h1>
-            <p className="text-muted-foreground">Manage your portfolio content</p>
+          <div className="admin-console-surface-header mb-6 rounded-xl border p-5 sm:p-6">
+            <div className="admin-console-eyebrow mb-2">Content Hub</div>
+            <h1 className="text-3xl font-bold text-foreground">Content Management</h1>
+            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+              Route publishing assets, product materials, prototypes, and offer content from one operating surface.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {contentTypes.map((type, index) => (
               <Link key={type.name} href={type.href}>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="p-6 bg-silicon-slate border border-silicon-slate rounded-xl hover:border-radiant-gold/50 transition-all cursor-pointer"
+                  transition={{ delay: index * 0.03 }}
+                  className="admin-console-card admin-console-interactive flex h-full gap-4 rounded-lg border p-5 transition-all"
                 >
-                  <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center text-imperial-navy mb-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-radiant-gold/25 bg-radiant-gold/12 text-radiant-gold">
                     {type.icon}
                   </div>
-                  <h3 className="text-xl font-bold text-foreground mb-2">{type.name}</h3>
-                  <p className="text-muted-foreground text-sm">{type.description}</p>
+                  <div className="min-w-0">
+                    <h3 className="text-lg font-semibold text-foreground">{type.name}</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">{type.description}</p>
+                  </div>
                 </motion.div>
               </Link>
             ))}

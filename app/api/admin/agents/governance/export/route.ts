@@ -1,0 +1,49 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { verifyAdmin, isAuthError } from '@/lib/auth-server'
+import { buildAgentMissionControlSnapshot } from '@/lib/agent-mission-control'
+import {
+  buildAgentGovernanceClientExport,
+  formatAgentGovernanceClientMarkdown,
+} from '@/lib/agent-governance-export'
+
+export const dynamic = 'force-dynamic'
+
+function exportFilename(extension: 'json' | 'md') {
+  return `agent-governance-audit-${new Date().toISOString().slice(0, 10)}.${extension}`
+}
+
+export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request)
+  if (isAuthError(auth)) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status })
+  }
+
+  try {
+    const { searchParams } = new URL(request.url)
+    const format = searchParams.get('format') === 'markdown' ? 'markdown' : 'json'
+    const snapshot = await buildAgentMissionControlSnapshot()
+    const clientExport = buildAgentGovernanceClientExport(snapshot.governance)
+
+    if (format === 'markdown') {
+      return new NextResponse(formatAgentGovernanceClientMarkdown(clientExport), {
+        headers: {
+          'Content-Type': 'text/markdown; charset=utf-8',
+          'Content-Disposition': `attachment; filename="${exportFilename('md')}"`,
+        },
+      })
+    }
+
+    return NextResponse.json(
+      { ok: true, export: clientExport },
+      {
+        headers: {
+          'Content-Disposition': `attachment; filename="${exportFilename('json')}"`,
+        },
+      },
+    )
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to export agent governance audit'
+    console.error('[agent-governance-export] export failed:', error)
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
+}

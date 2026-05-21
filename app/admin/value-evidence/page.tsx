@@ -382,7 +382,7 @@ export default function ValueEvidencePage() {
 
   return (
     <ProtectedRoute requireAdmin>
-      <div className="min-h-screen bg-background text-foreground p-6 pb-24">
+      <div className="admin-console-page min-h-screen p-6 pb-24 text-foreground">
         <Breadcrumbs items={[
           { label: 'Admin', href: '/admin' },
           { label: 'Value Evidence Pipeline', href: '/admin/value-evidence' },
@@ -400,9 +400,10 @@ export default function ValueEvidencePage() {
           className="max-w-7xl mx-auto"
         >
           {/* Header */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="admin-console-surface-header mb-6 mt-5 flex flex-col gap-4 rounded-xl border p-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-3xl font-bold gradient-text">
+              <div className="admin-console-eyebrow mb-2">Pipeline Evidence</div>
+              <h1 className="text-3xl font-bold text-foreground">
                 Value Evidence Pipeline
               </h1>
               <p className="text-muted-foreground mt-1">
@@ -415,7 +416,7 @@ export default function ValueEvidencePage() {
                 whileTap={{ scale: 0.95 }}
                 onClick={handleHeaderRefresh}
                 title="Refresh dashboard and the current tab’s data"
-                className="p-2 bg-silicon-slate border border-silicon-slate rounded-lg hover:bg-silicon-slate/80"
+                className="admin-console-button-muted p-2"
               >
                 <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
               </motion.button>
@@ -423,7 +424,7 @@ export default function ValueEvidencePage() {
           </div>
 
           {/* Tab Navigation with count badges */}
-          <div className="flex gap-1 bg-silicon-slate/50 border border-silicon-slate rounded-xl p-1 mb-2 overflow-x-auto">
+          <div className="admin-console-card mb-2 flex gap-1 overflow-x-auto rounded-xl border p-1">
             {tabs.map(tab => {
               const Icon = tab.icon
               const isActive = activeTab === tab.id
@@ -497,7 +498,7 @@ export default function ValueEvidencePage() {
                 {eitherRunning ? (
                   <button
                     onClick={handleCancelAll}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-500 transition-colors"
+                    className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-500"
                   >
                     <Square className="w-4 h-4" />
                     Cancel Pipeline
@@ -506,7 +507,7 @@ export default function ValueEvidencePage() {
                   <button
                     onClick={handleTriggerAll}
                     disabled={triggerAllLoading}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-lg text-sm font-medium hover:from-amber-500 hover:to-orange-500 disabled:opacity-50 transition-all"
+                    className="admin-console-button-primary disabled:opacity-50"
                   >
                     {triggerAllLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
                     Run Full Pipeline
@@ -593,7 +594,7 @@ export default function ValueEvidencePage() {
                 {/* Left column */}
                 <div className="space-y-6">
                   {/* Top Pain Points — clickable */}
-                  <div className="bg-silicon-slate/50 border border-silicon-slate rounded-xl p-5">
+                  <div className="admin-console-card rounded-xl border p-5">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-lg font-semibold flex items-center gap-2">
                         <Target size={18} className="text-purple-400" />
@@ -611,11 +612,11 @@ export default function ValueEvidencePage() {
                         <button
                           key={pp.id}
                           onClick={() => { setFocusPainPointId(pp.id); setActiveTab('pain-points') }}
-                          className="w-full flex items-center justify-between p-3 bg-silicon-slate/30 rounded-lg cursor-pointer hover:bg-silicon-slate/60 transition-colors group focus-visible:ring-2 focus-visible:ring-radiant-gold/50 focus-visible:outline-none text-left"
+                          className="w-full flex flex-col gap-2 p-3 bg-imperial-navy/45 rounded-lg cursor-pointer hover:bg-imperial-navy/70 transition-colors group focus-visible:ring-2 focus-visible:ring-radiant-gold/50 focus-visible:outline-none text-left sm:flex-row sm:items-center sm:justify-between"
                         >
                           <div className="min-w-0">
                             <span className="font-medium block truncate">{pp.display_name}</span>
-                            <div className="flex gap-2 mt-1">
+                            <div className="flex flex-wrap gap-2 mt-1">
                               {pp.industry_tags.slice(0, 3).map(tag => (
                                 <span
                                   key={tag}
@@ -626,8 +627,8 @@ export default function ValueEvidencePage() {
                               ))}
                             </div>
                           </div>
-                          <div className="flex items-center gap-3 flex-shrink-0 ml-3">
-                            <div className="text-right">
+                          <div className="flex w-full items-center justify-between gap-3 sm:ml-3 sm:w-auto sm:flex-shrink-0">
+                            <div className="text-left sm:text-right">
                               <span className={`text-sm ${pp.evidence_count > 0 ? 'text-green-400 font-medium' : 'text-muted-foreground/90'}`}>{pp.evidence_count} evidence</span>
                               {pp.avg_monetary_impact && (
                                 <div className="text-green-400 text-sm font-medium">
@@ -651,7 +652,7 @@ export default function ValueEvidencePage() {
                 {/* Right column */}
                 <div className="space-y-6">
                   {/* Top Calculations — clickable */}
-                  <div className="bg-silicon-slate/50 border border-silicon-slate rounded-xl p-5">
+                  <div className="admin-console-card rounded-xl border p-5">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-lg font-semibold flex items-center gap-2">
                         <DollarSign size={18} className="text-green-400" />
@@ -675,7 +676,7 @@ export default function ValueEvidencePage() {
                               if (ppName) setFocusCalculationPainPointId(ppName)
                               setActiveTab('calculations')
                             }}
-                            className="w-full flex items-center justify-between p-3 bg-silicon-slate/30 rounded-lg cursor-pointer hover:bg-silicon-slate/60 transition-colors group focus-visible:ring-2 focus-visible:ring-radiant-gold/50 focus-visible:outline-none text-left"
+                            className="w-full flex flex-col gap-2 p-3 bg-imperial-navy/45 rounded-lg cursor-pointer hover:bg-imperial-navy/70 transition-colors group focus-visible:ring-2 focus-visible:ring-radiant-gold/50 focus-visible:outline-none text-left sm:flex-row sm:items-center sm:justify-between"
                           >
                             <div className="flex items-center gap-3 min-w-0">
                               <div className="w-8 h-8 rounded bg-green-600/20 flex items-center justify-center flex-shrink-0">
@@ -688,12 +689,12 @@ export default function ValueEvidencePage() {
                                 </div>
                               </div>
                             </div>
-                            <div className="flex items-center gap-3 flex-shrink-0 ml-3">
-                              <div className="text-right">
+                            <div className="flex w-full items-center justify-between gap-3 sm:ml-3 sm:w-auto sm:flex-shrink-0">
+                              <div className="text-left sm:text-right">
                                 <span className="text-green-400 font-semibold">
                                   {formatCurrency(calc.annual_value)}/yr
                                 </span>
-                                <div className="flex items-center gap-1 justify-end mt-0.5">
+                                <div className="flex items-center gap-1 mt-0.5 sm:justify-end">
                                   <span className={`text-xs px-1.5 py-0.5 rounded ${CONFIDENCE_COLORS[calc.confidence_level] || ''}`}>
                                     {calc.confidence_level}
                                   </span>

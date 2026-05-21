@@ -51,11 +51,11 @@ export default function ProductCard({ product, onAddToCart, campaignBadge }: Pro
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -5 }}
-      className="bg-silicon-slate border border-silicon-slate rounded-xl overflow-hidden hover:border-radiant-gold/50 transition-colors cursor-pointer"
+      className="agent-ops-card group flex h-full cursor-pointer flex-col rounded-xl border transition-colors hover:border-radiant-gold/50"
       onClick={handleCardClick}
     >
       {/* Image */}
-      <div className="relative h-48 bg-gradient-to-br from-bronze/20 to-radiant-gold/20">
+      <div className="relative h-48 overflow-hidden border-b border-radiant-gold/10 bg-[radial-gradient(circle_at_20%_0%,rgba(212,175,55,0.14),transparent_14rem),rgba(18,30,49,0.62)]">
         {product.image_url && !imageError ? (
           <Image
             src={product.image_url}
@@ -76,7 +76,7 @@ export default function ProductCard({ product, onAddToCart, campaignBadge }: Pro
           </div>
         )}
         {campaignBadge && !product.is_featured && (
-          <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold rounded">
+          <div className="absolute top-2 right-2 flex items-center gap-1 rounded border border-radiant-gold/50 bg-radiant-gold/15 px-2 py-1 text-xs font-semibold text-radiant-gold">
             <Sparkles className="w-3 h-3" />
             {campaignBadge}
           </div>
@@ -87,14 +87,14 @@ export default function ProductCard({ product, onAddToCart, campaignBadge }: Pro
       </div>
 
       {/* Content */}
-      <div className="p-4">
+      <div className="flex flex-1 flex-col p-4">
         <h3 className="text-xl font-bold text-white mb-2 line-clamp-2">{product.title}</h3>
         {product.description && (
           <p className="text-muted-foreground text-sm mb-4 line-clamp-3">{product.description}</p>
         )}
 
         {/* Price and Add to Cart */}
-        <div className="flex items-center justify-between">
+        <div className="mt-auto flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             {product.price !== null ? (
               <>
@@ -112,7 +112,7 @@ export default function ProductCard({ product, onAddToCart, campaignBadge }: Pro
             }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="px-4 py-2 bg-gradient-to-r btn-gold font-semibold rounded-lg flex items-center gap-2 transition-colors"
+            className="agent-ops-button-primary shrink-0"
           >
             {showAdded ? <Check size={18} /> : <ShoppingCart size={18} />}
             {showAdded ? 'Added!' : product.type === 'merchandise' ? 'View Details' : 'Add to Cart'}

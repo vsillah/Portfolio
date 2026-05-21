@@ -131,7 +131,7 @@ function EscalationDetailContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background p-6">
+      <div className="admin-console-page min-h-screen p-6 text-foreground">
         <div className="flex items-center justify-center py-12">
           <RefreshCw size={32} className="animate-spin text-muted-foreground" />
         </div>
@@ -141,12 +141,14 @@ function EscalationDetailContent() {
 
   if (!escalation) {
     return (
-      <div className="min-h-screen bg-background p-6">
+      <div className="admin-console-page min-h-screen p-6 text-foreground">
         <div className="max-w-4xl mx-auto">
-          <p className="text-muted-foreground">Escalation not found.</p>
-          <Link href={backUrl} className="mt-4 inline-flex items-center gap-2 text-radiant-gold hover:text-amber-400">
+          <div className="admin-console-card rounded-lg border p-6">
+            <p className="text-muted-foreground">Escalation not found.</p>
+          <Link href={backUrl} className="admin-console-button-secondary mt-4 inline-flex">
             <ArrowLeft size={16} /> Back
           </Link>
+          </div>
         </div>
       </div>
     )
@@ -155,7 +157,7 @@ function EscalationDetailContent() {
   const linkedLead = escalation.contact_submissions
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="admin-console-page min-h-screen px-4 py-6 text-foreground sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         <Breadcrumbs
           items={[
@@ -169,7 +171,7 @@ function EscalationDetailContent() {
         <div className="mt-6 flex items-center justify-between">
           <Link
             href={backUrl}
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+            className="inline-flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
           >
             <ArrowLeft size={18} />
             Back
@@ -177,11 +179,12 @@ function EscalationDetailContent() {
         </div>
 
         <div className="mt-8 space-y-6">
-          <div className="p-4 rounded-lg border border-silicon-slate bg-silicon-slate/30">
-            <h1 className="text-xl font-semibold flex items-center gap-2">
-              <AlertTriangle size={22} className="text-orange-400" />
-              Chat escalation
-            </h1>
+          <div className="admin-console-surface-header rounded-xl border p-5 sm:p-6">
+            <div className="admin-console-eyebrow mb-2 flex items-center gap-2">
+              <AlertTriangle size={16} className="text-radiant-gold" />
+              Outreach Escalation
+            </div>
+            <h1 className="text-2xl font-semibold tracking-tight">Chat escalation #{escalation.id}</h1>
             <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <User size={14} />
@@ -205,7 +208,7 @@ function EscalationDetailContent() {
               </div>
               <div>
                 <span className="text-muted-foreground">Session:</span>{' '}
-                <Link href={`/admin/chat-eval/${escalation.session_id}`} className="text-purple-400 hover:text-purple-300 text-xs">
+                <Link href={`/admin/chat-eval/${escalation.session_id}`} className="text-radiant-gold hover:text-amber-300 text-xs">
                   {escalation.session_id}
                 </Link>
               </div>
@@ -217,13 +220,13 @@ function EscalationDetailContent() {
             </div>
           </div>
 
-          <div className="p-4 rounded-lg border border-silicon-slate bg-silicon-slate/30">
-            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-2">Link to lead</h2>
+          <div className="admin-console-card rounded-lg border p-4">
+            <h2 className="admin-console-eyebrow mb-2">Link to lead</h2>
             <div className="flex flex-wrap items-center gap-3">
               <select
                 value={linkSelect}
                 onChange={(e) => setLinkSelect(e.target.value)}
-                className="bg-silicon-slate border border-silicon-slate rounded-lg px-3 py-2 text-foreground min-w-[200px]"
+                className="min-w-[200px] rounded-lg border border-white/10 bg-silicon-slate/50 px-3 py-2 text-foreground"
                 disabled={leadsLoading}
               >
                 <option value="">Not linked</option>
@@ -236,14 +239,14 @@ function EscalationDetailContent() {
               <button
                 onClick={handleSaveLink}
                 disabled={saving || (linkSelect === '' ? escalation.contact_submission_id === null : String(escalation.contact_submission_id) === linkSelect)}
-                className="px-4 py-2 bg-radiant-gold text-imperial-navy rounded-lg font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="admin-console-button-primary disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {saving ? 'Saving…' : 'Save'}
               </button>
               {linkedLead && (
                 <Link
                   href={`/admin/outreach?tab=leads&id=${escalation.contact_submission_id}`}
-                  className="text-sm text-purple-400 hover:text-purple-300"
+                  className="text-sm text-radiant-gold hover:text-amber-300"
                 >
                   View lead →
                 </Link>
@@ -252,12 +255,12 @@ function EscalationDetailContent() {
             {saveError && <p className="mt-2 text-sm text-red-400">{saveError}</p>}
           </div>
 
-          <div className="p-4 rounded-lg border border-silicon-slate bg-silicon-slate/30">
-            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-2 flex items-center gap-2">
+          <div className="admin-console-card rounded-lg border p-4">
+            <h2 className="admin-console-eyebrow mb-2 flex items-center gap-2">
               <MessageSquare size={14} />
               Transcript
             </h2>
-            <pre className="text-sm text-foreground/90 whitespace-pre-wrap font-sans max-h-[400px] overflow-y-auto p-3 rounded bg-background/50 border border-silicon-slate">
+            <pre className="max-h-[400px] overflow-y-auto whitespace-pre-wrap rounded border border-white/10 bg-background/50 p-3 font-sans text-sm text-foreground/90">
               {escalation.transcript || '(No transcript)'}
             </pre>
           </div>

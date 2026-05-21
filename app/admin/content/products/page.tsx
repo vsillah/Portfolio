@@ -158,7 +158,7 @@ export default function ProductsManagementPage() {
 
   return (
     <ProtectedRoute requireAdmin>
-      <div className="min-h-screen bg-background text-foreground p-8">
+      <div className="admin-console-page min-h-screen px-4 py-6 text-foreground sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <Breadcrumbs items={[
             { label: 'Admin Dashboard', href: '/admin' },
@@ -166,16 +166,18 @@ export default function ProductsManagementPage() {
             { label: 'Products' }
           ]} />
           
-          <div className="mb-8 flex items-center justify-between">
+          <div className="admin-console-surface-header mb-6 flex flex-col gap-4 rounded-xl border p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
             <div>
-              <h1 className="text-4xl font-bold mb-2">Products Management</h1>
-              <p className="text-muted-foreground">Manage lead magnets and products</p>
+              <div className="admin-console-eyebrow mb-2">Catalog Operations</div>
+              <h1 className="text-3xl font-bold text-foreground">Products Management</h1>
+              <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+                Review digital products, templates, pricing, file readiness, and public catalog visibility.
+              </p>
             </div>
             <Link href="/admin/content/products/new">
               <motion.span
-                whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r btn-gold font-semibold rounded-lg inline-flex items-center gap-2"
+                className="admin-console-button-primary"
               >
                 <Plus size={20} />
                 Add Product
@@ -184,17 +186,16 @@ export default function ProductsManagementPage() {
           </div>
 
           {loading ? (
-            <div className="text-center py-12">
+            <div className="admin-console-card rounded-lg border py-12 text-center">
               <div className="text-muted-foreground">Loading products...</div>
             </div>
           ) : products.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <p className="mb-4">No products found. Add your first one!</p>
+            <div className="admin-console-card rounded-lg border py-12 text-center text-muted-foreground">
+              <p className="mb-4">No products found. Add the first catalog item.</p>
               <Link href="/admin/content/products/new">
                 <motion.span
-                  whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="inline-flex items-center gap-2 px-6 py-3 btn-ghost rounded-lg inline-flex items-center gap-2 transition-colors"
+                  className="admin-console-button-secondary"
                 >
                   <Plus size={20} />
                   Add New Product
@@ -208,7 +209,7 @@ export default function ProductsManagementPage() {
                   key={product.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="p-6 bg-silicon-slate border border-silicon-slate/80 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
+                  className="admin-console-card flex flex-col gap-4 rounded-lg border p-5 md:flex-row md:items-center md:justify-between"
                 >
                   <div className="flex-grow">
                     <div className="flex items-center gap-3 mb-2">
@@ -264,7 +265,7 @@ export default function ProductsManagementPage() {
                       {product.type === 'template' && product.instructions_file_path && (
                         <>
                           <span>•</span>
-                          <span className="flex items-center gap-1 text-green-400">Install guide</span>
+                          <span className="flex items-center gap-1 text-radiant-gold">Install guide</span>
                         </>
                       )}
                     </div>
@@ -272,28 +273,28 @@ export default function ProductsManagementPage() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleMoveOrder(product, 'up')}
-                      className="p-2 bg-silicon-slate rounded-lg hover:bg-radiant-gold/20"
+                      className="admin-console-button-muted p-2"
                       title="Move up"
                     >
                       <ArrowUp size={18} />
                     </button>
                     <button
                       onClick={() => handleMoveOrder(product, 'down')}
-                      className="p-2 bg-silicon-slate rounded-lg hover:bg-radiant-gold/20"
+                      className="admin-console-button-muted p-2"
                       title="Move down"
                     >
                       <ArrowDown size={18} />
                     </button>
                     <button
                       onClick={() => handleToggleActive(product)}
-                      className="p-2 bg-silicon-slate rounded-lg hover:bg-radiant-gold/20"
+                      className="admin-console-button-muted p-2"
                       title={product.is_active ? 'Deactivate' : 'Activate'}
                     >
                       {product.is_active ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                     <Link
                       href={buildLinkWithReturn(`/admin/content/products/${product.id}`, '/admin/content/products')}
-                      className="p-2 bg-silicon-slate rounded-lg hover:bg-radiant-gold/20 inline-flex"
+                      className="admin-console-button-secondary p-2"
                       title="Edit"
                     >
                       <Edit size={18} />

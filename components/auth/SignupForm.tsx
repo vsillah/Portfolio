@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Mail, Lock, UserPlus, Github } from 'lucide-react'
+import { Github, Lock, Mail, UserPlus } from 'lucide-react'
 import { signUp, signInWithOAuth } from '@/lib/auth'
 import { useRouter, useSearchParams } from 'next/navigation'
 
@@ -72,12 +72,12 @@ export default function SignupForm() {
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md mx-auto text-center"
+        className="mx-auto w-full max-w-md text-center"
       >
-        <div className="p-8 bg-green-500/20 border border-green-500/50 rounded-lg">
-          <h2 className="text-2xl font-bold text-foreground mb-2">Check your email!</h2>
-          <p className="text-foreground">
-            We&apos;ve sent you a confirmation link. Please check your inbox to verify your account.
+        <div className="admin-console-card rounded-xl border border-green-500/40 p-8">
+          <h2 className="mb-2 text-2xl font-bold text-foreground">Check your email</h2>
+          <p className="text-muted-foreground">
+            We sent a confirmation link. Verify the account, then return to Portfolio.
           </p>
         </div>
       </motion.div>
@@ -85,23 +85,26 @@ export default function SignupForm() {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className="mx-auto w-full max-w-md">
       <motion.form
         onSubmit={handleSubmit}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="space-y-6 bg-silicon-slate border border-silicon-slate rounded-xl p-8"
+        className="admin-console-command-card space-y-6 rounded-xl border p-6 sm:p-8"
       >
         <div>
-          <h2 className="text-3xl font-bold text-foreground mb-2">Create Account</h2>
-          <p className="text-muted-foreground">Sign up to access exclusive content</p>
+          <div className="admin-console-eyebrow mb-3">Account setup</div>
+          <h2 className="text-3xl font-bold text-foreground">Create account</h2>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            Create secure access for Portfolio operations and client workspaces.
+          </p>
         </div>
 
         {error && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="p-4 bg-red-500/20 border border-red-500/50 rounded-lg text-red-400 text-sm"
+            className="rounded-lg border border-red-500/45 bg-red-500/15 p-4 text-sm text-red-200"
           >
             {error}
           </motion.div>
@@ -109,29 +112,30 @@ export default function SignupForm() {
 
         <div className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
+            <label htmlFor="email" className="mb-2 block text-sm font-medium text-foreground">
               Email
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
+              <Mail className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
               <input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full pl-10 pr-4 py-3 input-brand"
+                className="input-brand w-full py-3 pr-4"
+                style={{ paddingLeft: '3.25rem' }}
                 placeholder="you@example.com"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
+            <label htmlFor="password" className="mb-2 block text-sm font-medium text-foreground">
               Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
+              <Lock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
               <input
                 id="password"
                 type="password"
@@ -139,18 +143,19 @@ export default function SignupForm() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
-                className="w-full pl-10 pr-4 py-3 input-brand"
+                className="input-brand w-full py-3 pr-4"
+                style={{ paddingLeft: '3.25rem' }}
                 placeholder="••••••••"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-foreground mb-2">
+            <label htmlFor="confirmPassword" className="mb-2 block text-sm font-medium text-foreground">
               Confirm Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
+              <Lock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
               <input
                 id="confirmPassword"
                 type="password"
@@ -158,7 +163,8 @@ export default function SignupForm() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 minLength={6}
-                className="w-full pl-10 pr-4 py-3 input-brand"
+                className="input-brand w-full py-3 pr-4"
+                style={{ paddingLeft: '3.25rem' }}
                 placeholder="••••••••"
               />
             </div>
@@ -170,7 +176,7 @@ export default function SignupForm() {
           disabled={loading}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="w-full py-3 btn-gold text-imperial-navy font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="admin-console-button-primary h-12 w-full text-base disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading ? (
             'Creating account...'
@@ -184,10 +190,10 @@ export default function SignupForm() {
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-silicon-slate"></div>
+            <div className="w-full border-t border-white/10"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-silicon-slate text-muted-foreground">Or continue with</span>
+            <span className="bg-[#121e31] px-3 text-muted-foreground">Or continue with</span>
           </div>
         </div>
 
@@ -198,7 +204,7 @@ export default function SignupForm() {
             disabled={loading}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="py-3 btn-ghost flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="admin-console-button-secondary h-11 w-full disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Github size={20} />
             GitHub
@@ -210,7 +216,7 @@ export default function SignupForm() {
             disabled={loading}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="py-3 btn-ghost flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="admin-console-button-secondary h-11 w-full disabled:cursor-not-allowed disabled:opacity-50"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
@@ -236,7 +242,7 @@ export default function SignupForm() {
 
         <p className="text-center text-sm text-muted-foreground">
           Already have an account?{' '}
-          <a href={redirectTo ? `/auth/login?redirect=${encodeURIComponent(redirectTo)}` : '/auth/login'} className="text-radiant-gold hover:text-gold-light transition-colors">
+          <a href={redirectTo ? `/auth/login?redirect=${encodeURIComponent(redirectTo)}` : '/auth/login'} className="text-radiant-gold transition-colors hover:text-gold-light">
             Sign in
           </a>
         </p>

@@ -64,19 +64,22 @@ export default function LeadDashboardsPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-background text-foreground">
-        <div className="max-w-6xl mx-auto px-4 py-6">
+      <div className="admin-console-page min-h-screen px-4 py-6 text-foreground sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto">
           <Breadcrumbs
             items={[
               { label: 'Admin', href: '/admin' },
               { label: 'Lead dashboards', href: '/admin/lead-dashboards' },
             ]}
           />
-          <div className="flex items-center gap-3 mt-4 mb-6">
-            <LayoutDashboard className="w-8 h-8 text-radiant-gold" />
+          <div className="admin-console-surface-header mt-4 mb-6 flex items-center gap-3 rounded-xl border p-5 sm:p-6">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-radiant-gold/25 bg-radiant-gold/12 text-radiant-gold">
+              <LayoutDashboard className="w-7 h-7" />
+            </div>
             <div>
-              <h1 className="text-xl font-bold gradient-text">Lead dashboards</h1>
-              <p className="text-sm text-muted-foreground">
+              <div className="admin-console-eyebrow mb-2">Sales Enablement</div>
+              <h1 className="text-3xl font-bold text-foreground">Lead Dashboards</h1>
+              <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
                 Share these links with leads after they complete the diagnostic. Same link works after they convert to clients.
               </p>
             </div>
@@ -95,15 +98,15 @@ export default function LeadDashboardsPage() {
           )}
 
           {!loading && !error && list.length === 0 && (
-            <div className="rounded-xl border border-silicon-slate bg-silicon-slate/50 p-8 text-center text-muted-foreground">
+            <div className="admin-console-card rounded-lg border p-8 text-center text-muted-foreground">
               No lead dashboards yet. Create one from a completed diagnostic (Sales → open audit → Share lead dashboard).
             </div>
           )}
 
           {!loading && !error && list.length > 0 && (
-            <div className="rounded-xl border border-silicon-slate overflow-hidden">
+            <div className="admin-console-card rounded-lg border overflow-hidden">
               <table className="w-full text-left">
-                <thead className="bg-silicon-slate border-b border-silicon-slate">
+                <thead className="border-b border-white/10 bg-background/50">
                   <tr>
                     <th className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Client email</th>
                     <th className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Diagnostic</th>
@@ -112,9 +115,9 @@ export default function LeadDashboardsPage() {
                     <th className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider w-48">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-silicon-slate">
+                <tbody className="divide-y divide-white/10">
                   {list.map((row) => (
-                    <tr key={row.id} className="bg-silicon-slate/30 hover:bg-silicon-slate/50">
+                    <tr key={row.id} className="hover:bg-white/[0.03]">
                       <td className="px-4 py-3 text-sm text-foreground">{row.client_email}</td>
                       <td className="px-4 py-3 text-sm">
                         {row.diagnostic_audit_id ? (
@@ -142,7 +145,7 @@ export default function LeadDashboardsPage() {
                           <button
                             type="button"
                             onClick={() => handleCopy(row.url, row.id)}
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg btn-ghost text-xs"
+                            className="admin-console-button-muted px-2.5 py-1.5 text-xs"
                           >
                             <Copy className="w-3.5 h-3.5" />
                             {copiedId === row.id ? 'Copied' : 'Copy link'}
@@ -151,7 +154,7 @@ export default function LeadDashboardsPage() {
                             href={row.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-radiant-gold/20 border border-radiant-gold/50 text-radiant-gold text-xs hover:bg-radiant-gold/30"
+                            className="admin-console-button-secondary px-2.5 py-1.5 text-xs"
                           >
                             <ExternalLink className="w-3.5 h-3.5" />
                             Open as lead

@@ -18,4 +18,12 @@ describe('agent runtime policies', () => {
     expect(actionRequiresApproval('n8n', 'publish_public_content')).toBe(true)
     expect(actionRequiresApproval('n8n', 'send_email')).toBe(true)
   })
+
+  it('requires payment authority approvals across runtimes', () => {
+    expect(getApprovalGate('create_checkout_session')?.approvalType).toBe('payment_create_checkout_session')
+    expect(getApprovalGate('create_refund')?.approvalType).toBe('payment_create_refund')
+    expect(actionRequiresApproval('codex', 'start_paid_external_job')).toBe(true)
+    expect(actionRequiresApproval('n8n', 'create_subscription')).toBe(true)
+    expect(actionRequiresApproval('manual', 'make_vendor_payment')).toBe(true)
+  })
 })

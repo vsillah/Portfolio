@@ -61,10 +61,10 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -5 }}
-      className="bg-silicon-slate border border-silicon-slate rounded-xl overflow-hidden hover:border-radiant-gold/50 transition-colors"
+      className="agent-ops-card group flex h-full flex-col rounded-xl border transition-colors hover:border-radiant-gold/50"
     >
       {/* Image */}
-      <div className="relative h-48 bg-gradient-to-br from-bronze/20 to-radiant-gold/20">
+      <div className="relative h-48 overflow-hidden border-b border-radiant-gold/10 bg-[radial-gradient(circle_at_20%_0%,rgba(212,175,55,0.14),transparent_14rem),rgba(18,30,49,0.62)]">
         {service.image_url && !imageError ? (
           <Image
             src={service.image_url}
@@ -93,7 +93,7 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
       </div>
 
       {/* Content */}
-      <div className="p-4">
+      <div className="flex flex-1 flex-col p-4">
         <h3 className="text-xl font-bold text-white mb-2 line-clamp-2">{service.title}</h3>
         
         {/* Service Details */}
@@ -154,28 +154,24 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
         )}
 
         {/* Price and Action Button */}
-        <div className="flex items-center justify-between">
+        <div className="mt-auto flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             {service.is_quote_based ? (
-              <span className="text-lg font-semibold text-yellow-400">Contact for Pricing</span>
+              <span className="text-lg font-semibold text-radiant-gold">Contact for Pricing</span>
             ) : service.price !== null ? (
               <>
-                <DollarSign className="text-green-400" size={20} />
+                <DollarSign className="text-radiant-gold" size={20} />
                 <span className="text-2xl font-bold text-white">{formatDollarAmount(service.price)}</span>
               </>
             ) : (
-              <span className="text-lg font-semibold text-green-400">Free</span>
+              <span className="text-lg font-semibold text-radiant-gold">Free</span>
             )}
           </div>
           <motion.button
             onClick={handleAction}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className={`px-4 py-2 font-semibold rounded-lg flex items-center gap-2 transition-colors ${
-              service.is_quote_based
-                ? 'bg-gradient-to-r from-yellow-600 to-orange-600 text-white hover:from-yellow-700 hover:to-orange-700'
-                : 'btn-gold'
-            }`}
+            className="agent-ops-button-primary shrink-0"
           >
             {service.is_quote_based ? (
               <>
