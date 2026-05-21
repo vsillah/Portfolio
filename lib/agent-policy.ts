@@ -1,16 +1,34 @@
 import type { AgentRuntime } from '@/lib/agent-run'
 
-export type AgentAction =
-  | 'read_files'
-  | 'write_files'
-  | 'external_api_call'
-  | 'client_data_access'
-  | 'known_workflow_db_write'
-  | 'unknown_db_write'
-  | 'publish_public_content'
-  | 'send_email'
-  | 'production_config_change'
-  | 'public_content_from_private_material'
+export const AGENT_ACTIONS = [
+  'read_files',
+  'write_files',
+  'external_api_call',
+  'client_data_access',
+  'known_workflow_db_write',
+  'unknown_db_write',
+  'publish_public_content',
+  'send_email',
+  'production_config_change',
+  'public_content_from_private_material',
+  'create_checkout_session',
+  'create_subscription',
+  'create_refund',
+  'make_vendor_payment',
+  'increase_paid_api_budget',
+  'start_paid_external_job',
+] as const
+
+export type AgentAction = (typeof AGENT_ACTIONS)[number]
+
+export const PAYMENT_AUTHORITY_ACTIONS = [
+  'create_checkout_session',
+  'create_subscription',
+  'create_refund',
+  'make_vendor_payment',
+  'increase_paid_api_budget',
+  'start_paid_external_job',
+] as const satisfies readonly AgentAction[]
 
 export type RuntimePolicy = {
   runtime: AgentRuntime
@@ -62,6 +80,42 @@ export const APPROVAL_GATES: ApprovalGate[] = [
     approvalType: 'private_material_public_content',
     description: 'Public content derived from private notes, chats, transcripts, or client material.',
   },
+  {
+    action: 'create_checkout_session',
+    label: 'Create checkout session',
+    approvalType: 'payment_create_checkout_session',
+    description: 'Creating a payment checkout session that could collect funds from a client or customer.',
+  },
+  {
+    action: 'create_subscription',
+    label: 'Create subscription',
+    approvalType: 'payment_create_subscription',
+    description: 'Creating or activating a recurring paid subscription.',
+  },
+  {
+    action: 'create_refund',
+    label: 'Create refund',
+    approvalType: 'payment_create_refund',
+    description: 'Issuing a refund, credit, or payment reversal.',
+  },
+  {
+    action: 'make_vendor_payment',
+    label: 'Make vendor payment',
+    approvalType: 'payment_make_vendor_payment',
+    description: 'Sending money to a vendor, contractor, marketplace, or external payee.',
+  },
+  {
+    action: 'increase_paid_api_budget',
+    label: 'Increase paid API budget',
+    approvalType: 'payment_increase_paid_api_budget',
+    description: 'Increasing paid API, model, scraping, media, or automation spend limits.',
+  },
+  {
+    action: 'start_paid_external_job',
+    label: 'Start paid external job',
+    approvalType: 'payment_start_paid_external_job',
+    description: 'Starting a paid external job such as media generation, scraping, enrichment, or hosted execution.',
+  },
 ]
 
 export const RUNTIME_POLICIES: RuntimePolicy[] = [
@@ -79,6 +133,7 @@ export const RUNTIME_POLICIES: RuntimePolicy[] = [
       'publish_public_content',
       'send_email',
       'public_content_from_private_material',
+      ...PAYMENT_AUTHORITY_ACTIONS,
     ],
     notes: 'Primary engineering runtime. Repo writes are allowed; production side effects need approval.',
   },
@@ -96,6 +151,7 @@ export const RUNTIME_POLICIES: RuntimePolicy[] = [
       'publish_public_content',
       'send_email',
       'public_content_from_private_material',
+      ...PAYMENT_AUTHORITY_ACTIONS,
     ],
     notes: 'Production automation runtime. Known workflow writes are allowed; outbound actions stay gated.',
   },
@@ -117,6 +173,7 @@ export const RUNTIME_POLICIES: RuntimePolicy[] = [
       'publish_public_content',
       'send_email',
       'public_content_from_private_material',
+      ...PAYMENT_AUTHORITY_ACTIONS,
     ],
     notes: 'Read-only in v1. Any mutation or client-data access must create an approval checkpoint first.',
   },
@@ -138,6 +195,7 @@ export const RUNTIME_POLICIES: RuntimePolicy[] = [
       'publish_public_content',
       'send_email',
       'public_content_from_private_material',
+      ...PAYMENT_AUTHORITY_ACTIONS,
     ],
     notes: 'Deferred evaluation runtime. Isolated review only until trace and rollback behavior are proven.',
   },
@@ -149,7 +207,11 @@ export const RUNTIME_POLICIES: RuntimePolicy[] = [
     canCallExternalApis: true,
     canTouchClientData: true,
     canWriteProductionData: 'known_workflows',
-    requiresApprovalFor: ['production_config_change', 'public_content_from_private_material'],
+    requiresApprovalFor: [
+      'production_config_change',
+      'public_content_from_private_material',
+      ...PAYMENT_AUTHORITY_ACTIONS,
+    ],
     notes: 'Human-triggered admin actions. Existing admin auth remains the approval boundary for known workflows.',
   },
 ]
@@ -164,4 +226,8 @@ export function getApprovalGate(action: AgentAction): ApprovalGate | undefined {
 
 export function actionRequiresApproval(runtime: AgentRuntime, action: AgentAction): boolean {
   return getRuntimePolicy(runtime).requiresApprovalFor.includes(action)
+}
+
+export function isPaymentAuthorityAction(action: AgentAction): boolean {
+  return PAYMENT_AUTHORITY_ACTIONS.includes(action as (typeof PAYMENT_AUTHORITY_ACTIONS)[number])
 }

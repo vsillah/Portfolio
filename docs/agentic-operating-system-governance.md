@@ -170,3 +170,14 @@ The client value is not novelty. It is confidence: a nonprofit, small business, 
 5. Create a client-safe audit export and a short sales/advisory explainer.
 
 This sequence is reversible until payment authority is introduced. Payment/spend controls should ship behind explicit approval and test-mode validation before any production use.
+
+## Implementation Status
+
+Phase 1 through Phase 4 have a v1 implementation in Portfolio:
+
+- `lib/agent-governance.ts` derives a read-only agent capability inventory from the current agent organization and policy records.
+- `lib/agent-delegation-policy.ts` applies deterministic Shaka delegation routing and records `delegation_decision_recorded` trace events.
+- `lib/agent-policy.ts` now treats payment and paid-job actions as approval-gated authority events across runtimes.
+- `/admin/agents` includes an Agent Governance section with capability inventory, delegation trace, payment authority, and governance status signals.
+
+Phase 5 remains open: client-safe audit exports and the advisory/sales explainer should be packaged after operators have reviewed the v1 governance surface against real runs.
