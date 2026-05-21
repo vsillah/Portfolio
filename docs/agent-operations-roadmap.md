@@ -382,3 +382,4 @@ These items are explicitly maintenance or operational backlog, not new rollout p
 2. Refine Mission Control recovery wording if real usage shows that stale/expired recovery packets need sharper guidance.
 3. Keep both Vercel contexts checked after future Agent Operations merges: `Vercel – portfolio` and `Vercel – portfolio-staging`.
 4. Preserve the scope guard: no new chat channel, queue table, autonomous remediation loop, runtime mutation, vendor dependency, or merge-authority change without explicit approval.
+5. Use `docs/agentic-operating-system-governance.md` as the governance hardening backlog for agent scope inventory, Shaka delegation transparency, payment/spend authority, and the Mission Control audit view.

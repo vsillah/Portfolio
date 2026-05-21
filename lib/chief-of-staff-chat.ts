@@ -7,10 +7,15 @@ import {
   startAgentRun,
 } from '@/lib/agent-run'
 import {
+  AGENT_ACTIONS,
   actionRequiresApproval,
   getApprovalGate,
   type AgentAction,
 } from '@/lib/agent-policy'
+import {
+  applyDelegationDecisionToEngagements,
+  evaluateAgentDelegationPolicy,
+} from '@/lib/agent-delegation-policy'
 import {
   evaluateAgentBudget,
   type AgentBudgetDecision,
@@ -166,18 +171,7 @@ export type ChiefOfStaffScopedContext = {
 
 const DEFAULT_MODEL = 'gpt-4o-mini'
 const DEFAULT_MAX_TOKENS = 900
-const CHIEF_OF_STAFF_ACTIONS: AgentAction[] = [
-  'read_files',
-  'write_files',
-  'external_api_call',
-  'client_data_access',
-  'known_workflow_db_write',
-  'unknown_db_write',
-  'publish_public_content',
-  'send_email',
-  'production_config_change',
-  'public_content_from_private_material',
-]
+const CHIEF_OF_STAFF_ACTIONS: readonly AgentAction[] = AGENT_ACTIONS
 
 function sinceHours(hours: number) {
   return new Date(Date.now() - hours * 60 * 60 * 1000).toISOString()
@@ -709,6 +703,7 @@ export function buildChiefOfStaffPrompt(context: ChiefOfStaffContext, history: C
       'When proposing an executable next step, include a typed action proposal. The proposal is only a recommendation; it does not execute work.',
       'You are the front-door router for the agent organization. When the user asks who should handle work, choose the best mapped agent from the routing catalog.',
       'When the next step should be handled by one of the mapped agents, include an agent_engagements proposal with the exact agent_key.',
+      'Agent engagement proposals are checked against deterministic governance routing before they are surfaced.',
       'Prefer active or partial agents for immediate read-only engagement. Planned agents can be recommended, but label them as queued for review in your reply.',
       'If several agents could help, pick one primary next agent and at most two supporting agents.',
       'Use only these action ids: read_files, write_files, external_api_call, client_data_access, known_workflow_db_write, unknown_db_write, publish_public_content, send_email, production_config_change, public_content_from_private_material.',
@@ -861,6 +856,36 @@ export async function runChiefOfStaffChat(input: ChiefOfStaffChatRequest): Promi
     })
 
     const parsed = parseChiefOfStaffJson(completion.content)
+    const delegationDecision = parsed.agentEngagements.length
+      ? evaluateAgentDelegationPolicy({
+          message,
+          proposedAgentKeys: parsed.agentEngagements.map((engagement) => engagement.agentKey),
+        })
+      : null
+    const agentEngagements = applyDelegationDecisionToEngagements(parsed.agentEngagements, delegationDecision)
+
+    if (delegationDecision) {
+      await recordAgentEvent({
+        runId: run.id,
+        eventType: 'delegation_decision_recorded',
+        severity: delegationDecision.risk_class === 'payment_spend' || delegationDecision.risk_class === 'production_mutation'
+          ? 'warning'
+          : 'info',
+        message: delegationDecision.reason,
+        metadata: {
+          selected_agent_key: delegationDecision.selected_agent_key,
+          selected_agent_name: delegationDecision.selected_agent_name,
+          alternatives_considered: delegationDecision.alternatives_considered,
+          task_type: delegationDecision.task_type,
+          risk_class: delegationDecision.risk_class,
+          required_evidence: delegationDecision.required_evidence,
+          fallback_agent_key: delegationDecision.fallback_agent_key,
+          approval_gate: delegationDecision.approval_gate,
+          confidence: delegationDecision.confidence,
+        },
+      }).catch(() => {})
+    }
+
     await recordAgentStep({
       runId: run.id,
       stepKey: 'generate_reply',
@@ -878,7 +903,8 @@ export async function runChiefOfStaffChat(input: ChiefOfStaffChatRequest): Promi
         },
         suggested_actions: parsed.suggestedActions,
         action_proposals: parsed.actionProposals,
-        agent_engagements: parsed.agentEngagements,
+        agent_engagements: agentEngagements,
+        delegation_decision: delegationDecision,
         context_ref: contextRef,
       },
     })
@@ -896,7 +922,8 @@ export async function runChiefOfStaffChat(input: ChiefOfStaffChatRequest): Promi
         },
         suggested_actions: parsed.suggestedActions,
         action_proposals: parsed.actionProposals,
-        agent_engagements: parsed.agentEngagements,
+        agent_engagements: agentEngagements,
+        delegation_decision: delegationDecision,
         context_ref: contextRef,
       },
     })
@@ -906,7 +933,7 @@ export async function runChiefOfStaffChat(input: ChiefOfStaffChatRequest): Promi
       reply: parsed.reply,
       suggestedActions: parsed.suggestedActions,
       actionProposals: parsed.actionProposals,
-      agentEngagements: parsed.agentEngagements,
+      agentEngagements,
       model,
       budgetDecision,
     }

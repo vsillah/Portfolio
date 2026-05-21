@@ -132,6 +132,35 @@ describe('POST /api/admin/agents/chief-of-staff/actions', () => {
     }))
   })
 
+  it('creates trace-linked payment authority checkpoints without executing side effects', async () => {
+    const response = await POST(makeRequest({
+      source_run_id: 'chief-run-1',
+      proposal: {
+        label: 'Approve refund',
+        description: 'Create a checkpoint before issuing a client refund.',
+        action: 'create_refund',
+        riskLevel: 'high',
+      },
+    }) as never)
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toMatchObject({
+      approval_type: 'payment_create_refund',
+      approval_required: true,
+    })
+    expect(mocks.insert).toHaveBeenCalledWith(expect.objectContaining({
+      approval_type: 'payment_create_refund',
+      metadata: expect.objectContaining({
+        action_payload: expect.objectContaining({
+          action: 'create_refund',
+          approval_type: 'payment_create_refund',
+          executes_action: false,
+          side_effect_boundary: expect.stringContaining('No refund is issued'),
+        }),
+      }),
+    }))
+  })
+
   it('rejects non-gated proposals', async () => {
     const response = await POST(makeRequest({
       source_run_id: 'chief-run-1',
