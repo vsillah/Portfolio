@@ -5,6 +5,7 @@ import {
   buildAgentGovernanceClientExport,
   formatAgentGovernanceClientMarkdown,
 } from '@/lib/agent-governance-export'
+import { buildScopedAgentGovernanceSnapshot, parseAgentGovernanceExportScope } from '@/lib/agent-governance-scope'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,8 +22,16 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const format = searchParams.get('format') === 'markdown' ? 'markdown' : 'json'
-    const snapshot = await buildAgentMissionControlSnapshot()
-    const clientExport = buildAgentGovernanceClientExport(snapshot.governance)
+    const parsedScope = parseAgentGovernanceExportScope(searchParams)
+    if (parsedScope.errors.length > 0) {
+      return NextResponse.json({ error: parsedScope.errors.join('; ') }, { status: 400 })
+    }
+
+    const scoped = parsedScope.has_scope
+      ? await buildScopedAgentGovernanceSnapshot(parsedScope.scope)
+      : null
+    const governance = scoped?.governance ?? (await buildAgentMissionControlSnapshot()).governance
+    const clientExport = buildAgentGovernanceClientExport(governance, scoped?.scope ?? parsedScope.scope)
 
     if (format === 'markdown') {
       return new NextResponse(formatAgentGovernanceClientMarkdown(clientExport), {

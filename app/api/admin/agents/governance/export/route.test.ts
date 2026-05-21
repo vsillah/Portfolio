@@ -4,6 +4,8 @@ const mocks = vi.hoisted(() => ({
   verifyAdmin: vi.fn(),
   isAuthError: vi.fn(),
   buildAgentMissionControlSnapshot: vi.fn(),
+  parseAgentGovernanceExportScope: vi.fn(),
+  buildScopedAgentGovernanceSnapshot: vi.fn(),
 }))
 
 vi.mock('@/lib/auth-server', () => ({
@@ -13,6 +15,11 @@ vi.mock('@/lib/auth-server', () => ({
 
 vi.mock('@/lib/agent-mission-control', () => ({
   buildAgentMissionControlSnapshot: mocks.buildAgentMissionControlSnapshot,
+}))
+
+vi.mock('@/lib/agent-governance-scope', () => ({
+  parseAgentGovernanceExportScope: mocks.parseAgentGovernanceExportScope,
+  buildScopedAgentGovernanceSnapshot: mocks.buildScopedAgentGovernanceSnapshot,
 }))
 
 import { GET } from './route'
@@ -72,6 +79,15 @@ describe('GET /api/admin/agents/governance/export', () => {
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-user' } })
     mocks.isAuthError.mockReturnValue(false)
     mocks.buildAgentMissionControlSnapshot.mockResolvedValue({ governance })
+    mocks.parseAgentGovernanceExportScope.mockReturnValue({
+      scope: {},
+      has_scope: false,
+      errors: [],
+    })
+    mocks.buildScopedAgentGovernanceSnapshot.mockResolvedValue({
+      governance,
+      scope: {},
+    })
   })
 
   it('requires admin auth', async () => {
@@ -94,6 +110,7 @@ describe('GET /api/admin/agents/governance/export', () => {
     expect(body.ok).toBe(true)
     expect(body.export.classification).toBe('client_safe')
     expect(body.export.capability_inventory[0].agent).toBe('Shaka (Zulu) - Chief of Staff')
+    expect(body.export.scope.description).toBe('Current governance snapshot.')
   })
 
   it('returns markdown when requested', async () => {
@@ -105,5 +122,61 @@ describe('GET /api/admin/agents/governance/export', () => {
     expect(response.headers.get('Content-Disposition')).toMatch(/agent-governance-audit-\d{4}-\d{2}-\d{2}\.md/)
     expect(text).toContain('# Agentic Operating System Governance Audit')
     expect(text).toContain('## Audit Boundaries')
+  })
+
+  it('returns a scoped export when filters are provided', async () => {
+    mocks.parseAgentGovernanceExportScope.mockReturnValue({
+      scope: {
+        run_id: 'run-123',
+        client_project_id: 'client-456',
+        from: '2026-05-01T00:00:00.000Z',
+        to: '2026-05-21T23:59:59.999Z',
+      },
+      has_scope: true,
+      errors: [],
+    })
+    mocks.buildScopedAgentGovernanceSnapshot.mockResolvedValue({
+      governance,
+      scope: {
+        run_id: 'run-123',
+        client_project_id: 'client-456',
+        from: '2026-05-01T00:00:00.000Z',
+        to: '2026-05-21T23:59:59.999Z',
+        matching_run_count: 1,
+      },
+    })
+
+    const response = await GET(request('json') as never)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.export.scope).toMatchObject({
+      description: 'Scoped governance export.',
+      run_id: 'run-123',
+      client_project_id: 'client-456',
+      matching_run_count: 1,
+    })
+    expect(mocks.buildScopedAgentGovernanceSnapshot).toHaveBeenCalledWith({
+      run_id: 'run-123',
+      client_project_id: 'client-456',
+      from: '2026-05-01T00:00:00.000Z',
+      to: '2026-05-21T23:59:59.999Z',
+    })
+    expect(mocks.buildAgentMissionControlSnapshot).not.toHaveBeenCalled()
+  })
+
+  it('returns validation errors for invalid scope filters', async () => {
+    mocks.parseAgentGovernanceExportScope.mockReturnValue({
+      scope: {},
+      has_scope: false,
+      errors: ['from must be before or equal to to'],
+    })
+
+    const response = await GET(request() as never)
+
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({ error: 'from must be before or equal to to' })
+    expect(mocks.buildAgentMissionControlSnapshot).not.toHaveBeenCalled()
+    expect(mocks.buildScopedAgentGovernanceSnapshot).not.toHaveBeenCalled()
   })
 })
