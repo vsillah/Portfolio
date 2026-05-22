@@ -186,6 +186,12 @@ export type AgentOrgBoardTask = {
     n8nWorkflows: string[]
     approvalGate: string | null
     nextAction: string | null
+    goalType: string | null
+    contentPacketId: string | null
+    publishGate: string | null
+    chroniclePacketStatus: string | null
+    socialContentDraftId: string | null
+    socialContentDraftHref: string | null
     n8nProposal: AgentOrgBoardN8nProposalContext | null
   } | null
 }
@@ -213,6 +219,12 @@ export type AgentOrgBoardGoalMetric = {
   n8nWorkflows: string[]
   approvalGate: string | null
   nextAction: string | null
+  goalType: string | null
+  contentPacketId: string | null
+  publishGate: string | null
+  chroniclePacketStatus: string | null
+  socialContentDraftId: string | null
+  socialContentDraftHref: string | null
 }
 
 export type AgentOrgBoardWipMetric = {
@@ -937,6 +949,12 @@ function goalForTask(item: AgentWorkItemRow): AgentOrgBoardTask['goal'] {
     n8nWorkflows: stringArrayValue(metadata.n8n_workflows),
     approvalGate: stringValue(metadata.approval_gate),
     nextAction: stringValue(metadata.next_action),
+    goalType: stringValue(metadata.goal_type),
+    contentPacketId: stringValue(metadata.content_packet_id),
+    publishGate: stringValue(metadata.publish_gate),
+    chroniclePacketStatus: stringValue(metadata.chronicle_packet_status),
+    socialContentDraftId: stringValue(metadata.social_content_draft_id),
+    socialContentDraftHref: stringValue(metadata.social_content_draft_href),
     n8nProposal: isN8nProposal ? {
       action: stringValue(metadata.n8n_proposal_action),
       proposedWorkflowName: stringValue(metadata.proposed_workflow_name),
@@ -1007,6 +1025,12 @@ function buildGoalMetrics(tasks: AgentOrgBoardTask[]): AgentOrgBoardGoalMetric[]
       n8nWorkflows: firstGoal?.n8nWorkflows ?? [],
       approvalGate: firstGoal?.approvalGate ?? null,
       nextAction: firstGoal?.nextAction ?? null,
+      goalType: firstGoal?.goalType ?? null,
+      contentPacketId: firstGoal?.contentPacketId ?? null,
+      publishGate: firstGoal?.publishGate ?? null,
+      chroniclePacketStatus: firstGoal?.chroniclePacketStatus ?? null,
+      socialContentDraftId: firstGoal?.socialContentDraftId ?? null,
+      socialContentDraftHref: firstGoal?.socialContentDraftHref ?? null,
     }
   })
 }

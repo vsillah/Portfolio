@@ -172,6 +172,41 @@ describe('POST /api/admin/agents/war-room', () => {
     }))
   })
 
+  it('passes social outreach goal type to the war room executor', async () => {
+    mocks.runAgentWarRoom.mockResolvedValue({
+      runId: 'goal-run',
+      command: 'draft_goal',
+      synthesis: 'Goal draft ready.',
+      updates: [],
+      messages: [],
+      goalDraft: {
+        goal_id: 'goal-social',
+        goal_type: 'social_outreach_linkedin_post',
+        title: 'Create LinkedIn post',
+        objective: 'Draft only',
+        recommendation: 'Approve draft-only pilot.',
+        risk_notes: 'No publishing.',
+        publish_gate: 'draft_only',
+        tasks: [],
+      },
+    })
+
+    const response = await POST(request({
+      command: 'draft_goal',
+      goal: 'Create LinkedIn post',
+      goal_type: 'social_outreach_linkedin_post',
+    }) as never)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.goal_draft.goal_type).toBe('social_outreach_linkedin_post')
+    expect(mocks.runAgentWarRoom).toHaveBeenCalledWith(expect.objectContaining({
+      command: 'draft_goal',
+      goal: 'Create LinkedIn post',
+      goalType: 'social_outreach_linkedin_post',
+    }))
+  })
+
   it('passes approved goal drafts to the war room executor', async () => {
     const draft = {
       goal_id: 'goal-1',

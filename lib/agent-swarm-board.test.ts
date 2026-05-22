@@ -752,6 +752,56 @@ describe('buildAgentOrgBoardSnapshotFromRows', () => {
     })
   })
 
+  it('projects social outreach packet metadata onto goal-tagged Kanban cards', () => {
+    const snapshot = buildAgentOrgBoardSnapshotFromRows({
+      now: new Date('2026-05-05T16:00:00.000Z'),
+      runs: [],
+      events: [],
+      workItems: [
+        orgWorkItem({
+          id: 'work-social-draft',
+          title: 'Create the Social Content draft handoff',
+          status: 'assigned',
+          priority: 'high',
+          owner_agent_key: 'content-repurposing',
+          metadata: {
+            goal_id: 'goal-social',
+            goal_title: 'Create one LinkedIn post package',
+            goal_type: 'social_outreach_linkedin_post',
+            goal_sequence: 8,
+            goal_status: 'approved',
+            goal_progress_weight: 1,
+            publish_gate: 'draft_only',
+            chronicle_packet_status: 'manual_packet_required',
+            content_packet_id: 'packet-goal-social',
+            social_content_draft_id: 'social-draft-1',
+            social_content_draft_href: '/admin/social-content/social-draft-1',
+          },
+        }),
+      ],
+      approvals: [],
+    })
+
+    const socialTask = snapshot.lanes.flatMap((lane) => lane.tasks).find((task) => task.id === 'work-social-draft')
+
+    expect(socialTask?.goal).toMatchObject({
+      id: 'goal-social',
+      title: 'Create one LinkedIn post package',
+      goalType: 'social_outreach_linkedin_post',
+      publishGate: 'draft_only',
+      chroniclePacketStatus: 'manual_packet_required',
+      contentPacketId: 'packet-goal-social',
+      socialContentDraftId: 'social-draft-1',
+      socialContentDraftHref: '/admin/social-content/social-draft-1',
+    })
+    expect(snapshot.summary.goals[0]).toMatchObject({
+      id: 'goal-social',
+      goalType: 'social_outreach_linkedin_post',
+      publishGate: 'draft_only',
+      socialContentDraftHref: '/admin/social-content/social-draft-1',
+    })
+  })
+
   it('resolves dependency and handoff relationships without a schema migration', () => {
     const snapshot = buildAgentOrgBoardSnapshotFromRows({
       now: new Date('2026-05-05T16:00:00.000Z'),

@@ -9,8 +9,27 @@ import { AGENT_ORGANIZATION, AGENT_PODS, getAgentByKey, type AgentOrganizationNo
 import { buildAgentMissionControlSnapshot } from '@/lib/agent-mission-control'
 import { buildAgentOrgBoardSnapshot, type AgentOrgBoardSnapshot, type AgentOrgBoardTask } from '@/lib/agent-swarm-board'
 import { createAgentWorkItem, type AgentWorkItem, type AgentWorkItemPriority } from '@/lib/agent-work-items'
+import { supabaseAdmin } from '@/lib/supabase'
 
 export type AgentWarRoomCommand = 'standup' | 'discuss' | 'ask_agent' | 'draft_goal' | 'approve_goal'
+export type AgentGoalType = 'general' | 'social_outreach_linkedin_post'
+
+export interface LinkedInContentPacket {
+  id: string
+  goal_statement: string
+  target_audience: string
+  industry_signal_summary: string
+  amadutown_proof_points: string[]
+  open_brain_references: string[]
+  chronicle_evidence_notes: string[]
+  draft_linkedin_post: string
+  visual_concept: string
+  image_prompt: string
+  source_provenance_checklist: string[]
+  approval_checklist: string[]
+  social_content_draft_id?: string | null
+  social_content_draft_href?: string | null
+}
 
 export interface AgentGoalDraftTask {
   id: string
@@ -27,11 +46,17 @@ export interface AgentGoalDraftTask {
 
 export interface AgentGoalDraft {
   goal_id: string
+  goal_type?: AgentGoalType
   title: string
   objective: string
   recommendation: string
   risk_notes: string
   draft_run_id?: string | null
+  publish_gate?: 'draft_only' | 'manual_approval_required'
+  source_requirements?: string[]
+  chronicle_packet_status?: 'manual_packet_required' | 'attached' | 'not_required'
+  content_packet_id?: string | null
+  content_packet?: LinkedInContentPacket | null
   tasks: AgentGoalDraftTask[]
 }
 
@@ -51,6 +76,7 @@ export interface RunAgentWarRoomInput {
   targetAgentKeys?: string[] | null
   goalId?: string | null
   goal?: string | null
+  goalType?: AgentGoalType | null
   draft?: AgentGoalDraft | null
   triggerSource: string
   actor?: {
@@ -241,9 +267,185 @@ function goalIdFromTitle(title: string) {
   return `goal-${slug}-${Date.now().toString(36)}`
 }
 
-function draftGoal(goal: string): AgentGoalDraft {
+function buildLinkedInPacket(goalId: string, title: string): LinkedInContentPacket {
+  const packetId = `packet-${goalId}`
+  return {
+    id: packetId,
+    goal_statement: title,
+    target_audience: 'LinkedIn audience: small business, nonprofit, and product leaders evaluating practical AI and automation adoption.',
+    industry_signal_summary: 'Pending research: capture one current industry signal about operational pressure, AI adoption, or workflow automation before final copy approval.',
+    amadutown_proof_points: [
+      'AmaduTown has built Portfolio Agent Ops as a working control plane for governed AI and automation work.',
+      'Mission Control, Standup Room, Agent Kanban, Open Brain, and Social Content surfaces show the operating model in practice.',
+      'The post should frame the lesson as applied work, not abstract AI commentary.',
+    ],
+    open_brain_references: [
+      'Use approved Open Brain memories or proposal summaries only.',
+      'Do not copy raw private records, source exports, or unapproved inference into public copy.',
+    ],
+    chronicle_evidence_notes: [
+      'Manual Chronicle packet required in V1.',
+      'Attach sanitized screen notes, artifact titles, or workflow observations; do not ingest raw screen history into Portfolio.',
+    ],
+    draft_linkedin_post: [
+      'A small business does not need another AI demo.',
+      '',
+      'It needs a way to see what is stuck, who owns the next step, what evidence supports the decision, and which actions still need a human approval.',
+      '',
+      'That is the real lesson from building AmaduTown Agent Ops: the value is not only in asking an agent for help. The value is in turning the answer into accountable work.',
+      '',
+      'The first draft should be revised after the research, Open Brain, and Chronicle evidence tasks are complete.',
+    ].join('\n'),
+    visual_concept: 'A dark operating-console illustration showing Mission Control routing a goal into research, evidence, draft, visual, QA, and approval lanes.',
+    image_prompt: 'Polished AmaduTown dark operating-console illustration, navy depth, gold command accents, agent swarm turning one LinkedIn outreach goal into tracked Kanban tasks, no logos besides AmaduTown if supplied, executive dashboard composition.',
+    source_provenance_checklist: [
+      'Industry signal is sourced or marked pending.',
+      'Open Brain references are approved/public-safe.',
+      'Chronicle notes are manually sanitized.',
+      'AmaduTown proof points link to Portfolio/Admin evidence where possible.',
+      'No private raw exports, credentials, client data, or unsupported claims are included.',
+    ],
+    approval_checklist: [
+      'Post matches Vambah LinkedIn voice guidance.',
+      'Visual concept supports the argument instead of decorating it.',
+      'CTA invites discussion without overpromising.',
+      'Social Content item remains draft-only until separately approved.',
+    ],
+    social_content_draft_id: null,
+    social_content_draft_href: null,
+  }
+}
+
+function socialOutreachTasks(goalId: string, title: string): AgentGoalDraftTask[] {
+  return [
+    {
+      id: `${goalId}-industry-research`,
+      title: 'Capture the industry signal',
+      objective: `Find the timely market or industry signal that makes "${title}" relevant now, and summarize it without overclaiming.`,
+      owner_agent_key: 'research-source-register',
+      priority: 'high',
+      dependencies: [],
+      expected_files: ['/admin/value-evidence', '/admin/social-content', 'docs/linkedin-voice.md'],
+      acceptance_criteria: ['One source-backed industry signal is attached', 'Unsupported claims are marked pending', 'The packet states why this matters now'],
+      risk_notes: 'Do not infer industry traction without a cited source or approved internal evidence.',
+      goal_progress_weight: 2,
+    },
+    {
+      id: `${goalId}-open-brain-context`,
+      title: 'Pull approved Open Brain context',
+      objective: 'Identify approved public-safe memories, proposals, or wiki overlays that support the post angle.',
+      owner_agent_key: 'private-knowledge-librarian',
+      priority: 'high',
+      dependencies: [],
+      expected_files: ['/admin/agents/open-brain'],
+      acceptance_criteria: ['Only approved or proposal-summary context is used', 'Raw private records stay out of the packet', 'Each reference has a traceable source label'],
+      risk_notes: 'Open Brain remains the memory source of truth; Portfolio only projects approved context.',
+      goal_progress_weight: 2,
+    },
+    {
+      id: `${goalId}-chronicle-packet`,
+      title: 'Attach manual Chronicle evidence packet',
+      objective: 'Capture sanitized Chronicle evidence notes that show how the concept has been applied without importing raw screen history.',
+      owner_agent_key: 'research-source-register',
+      priority: 'medium',
+      dependencies: [],
+      expected_files: ['Manual Chronicle packet', '/admin/agents/standup'],
+      acceptance_criteria: ['Chronicle evidence is manually summarized', 'Sensitive screen details are excluded', 'Packet notes distinguish observed evidence from interpretation'],
+      risk_notes: 'Direct Chronicle ingestion is out of scope for V1.',
+      goal_progress_weight: 1,
+    },
+    {
+      id: `${goalId}-amadutown-proof`,
+      title: 'Select AmaduTown proof points',
+      objective: 'Choose the Portfolio, Agent Ops, Open Brain, or Social Content proof points that demonstrate the applied operating model.',
+      owner_agent_key: 'voice-content-architect',
+      priority: 'high',
+      dependencies: [`${goalId}-industry-research`, `${goalId}-open-brain-context`],
+      expected_files: ['/admin/agents', '/admin/agents/swarm-board', '/admin/social-content'],
+      acceptance_criteria: ['Proof points are specific to AmaduTown work', 'Each proof point has a route or artifact home', 'The post avoids generic AI hype'],
+      risk_notes: 'Public copy should not expose admin-only operational details that are not safe to share.',
+      goal_progress_weight: 2,
+    },
+    {
+      id: `${goalId}-post-draft`,
+      title: 'Draft the LinkedIn post',
+      objective: 'Turn the approved signal and proof points into one Vambah-aligned LinkedIn draft.',
+      owner_agent_key: 'voice-content-architect',
+      priority: 'high',
+      dependencies: [`${goalId}-amadutown-proof`, `${goalId}-chronicle-packet`],
+      expected_files: ['docs/linkedin-voice.md', '/admin/social-content'],
+      acceptance_criteria: ['Draft opens with a concrete tension', 'One idea is developed clearly', 'CTA invites a specific response', '3 to 5 hashtags are suggested'],
+      risk_notes: 'Private-derived voice guidance can shape the draft but raw private material must not be quoted.',
+      goal_progress_weight: 3,
+    },
+    {
+      id: `${goalId}-visual-brief`,
+      title: 'Create the visual brief',
+      objective: 'Write a visual concept and image prompt that illustrates the operating model behind the post.',
+      owner_agent_key: 'content-repurposing',
+      priority: 'medium',
+      dependencies: [`${goalId}-post-draft`],
+      expected_files: ['/admin/social-content'],
+      acceptance_criteria: ['Visual prompt matches the Mission Control aesthetic', 'Visual supports the argument', 'Generated asset remains reviewable before use'],
+      risk_notes: 'Do not imply a generated image is evidence; label it as an illustration.',
+      goal_progress_weight: 1,
+    },
+    {
+      id: `${goalId}-qa-governance`,
+      title: 'Run content QA and governance review',
+      objective: 'Check voice fit, source support, privacy, claims, and draft-only publishing boundary.',
+      owner_agent_key: 'risk-compliance-intelligence',
+      priority: 'high',
+      dependencies: [`${goalId}-post-draft`, `${goalId}-visual-brief`],
+      expected_files: ['/admin/social-content', '/admin/agents/coordination'],
+      acceptance_criteria: ['No private leakage', 'Claims are source-backed or softened', 'Publish remains separately approval-gated'],
+      risk_notes: 'Approval to create a draft is not approval to publish.',
+      goal_progress_weight: 2,
+    },
+    {
+      id: `${goalId}-social-content-draft`,
+      title: 'Create the Social Content draft handoff',
+      objective: 'Create or link the draft-only Social Content item with the packet, visual brief, provenance, and approval notes.',
+      owner_agent_key: 'content-repurposing',
+      priority: 'high',
+      dependencies: [`${goalId}-qa-governance`],
+      expected_files: ['/admin/social-content'],
+      acceptance_criteria: ['Social Content item is draft status', 'Packet id and goal id are traceable', 'No publish, schedule, DM, or external outreach is triggered'],
+      risk_notes: 'Publishing remains manual and separately approved outside this goal approval.',
+      goal_progress_weight: 1,
+    },
+  ]
+}
+
+function draftSocialOutreachGoal(goal: string, title: string, goalId: string): AgentGoalDraft {
+  const packet = buildLinkedInPacket(goalId, title)
+  return {
+    goal_id: goalId,
+    goal_type: 'social_outreach_linkedin_post',
+    title,
+    objective: `Produce one draft-only LinkedIn content packet for: ${goal.trim()}`,
+    recommendation: 'Approve this pilot only if the output should stop at a Social Content draft. Publishing, scheduling, DMs, and outbound engagement remain outside this approval.',
+    risk_notes: 'Manual Chronicle evidence and approved Open Brain context are required before public copy is approved.',
+    publish_gate: 'draft_only',
+    source_requirements: [
+      'One source-backed industry signal',
+      'Approved Open Brain reference or proposal summary',
+      'Manual sanitized Chronicle packet',
+      'AmaduTown proof point with an internal route or artifact home',
+    ],
+    chronicle_packet_status: 'manual_packet_required',
+    content_packet_id: packet.id,
+    content_packet: packet,
+    tasks: socialOutreachTasks(goalId, title),
+  }
+}
+
+function draftGoal(goal: string, goalType: AgentGoalType = 'general'): AgentGoalDraft {
   const title = goal.trim().replace(/\s+/g, ' ').slice(0, 120)
   const goalId = goalIdFromTitle(title)
+  if (goalType === 'social_outreach_linkedin_post') {
+    return draftSocialOutreachGoal(goal, title, goalId)
+  }
   const tasks: AgentGoalDraftTask[] = [
     {
       id: `${goalId}-scope`,
@@ -309,6 +511,7 @@ function draftGoal(goal: string): AgentGoalDraft {
 
   return {
     goal_id: goalId,
+    goal_type: 'general',
     title,
     objective: `Accomplish: ${title}`,
     recommendation: 'Approve the packet if the scope is right, then track each child task on Agent Kanban with the shared goal tag.',
@@ -329,6 +532,16 @@ function assertDraft(value: AgentGoalDraft | null | undefined): AgentGoalDraft {
     task.expected_files = normalizeDraftStringArray(task.expected_files)
     task.acceptance_criteria = normalizeDraftStringArray(task.acceptance_criteria)
     task.risk_notes = typeof task.risk_notes === 'string' ? task.risk_notes : ''
+  }
+  if (value.goal_type && value.goal_type !== 'general' && value.goal_type !== 'social_outreach_linkedin_post') {
+    throw new Error('Invalid goal draft type')
+  }
+  if (value.publish_gate && value.publish_gate !== 'draft_only' && value.publish_gate !== 'manual_approval_required') {
+    throw new Error('Invalid goal draft publish gate')
+  }
+  value.source_requirements = normalizeDraftStringArray(value.source_requirements)
+  if (value.content_packet && typeof value.content_packet.id !== 'string') {
+    throw new Error('Invalid LinkedIn content packet')
   }
   return value
 }
@@ -356,9 +569,99 @@ function goalSessionHref(goalId: string) {
   return `/admin/agents/standup?goal=${encodeURIComponent(goalId)}`
 }
 
+async function createSocialContentDraftForGoal(draft: AgentGoalDraft) {
+  if (draft.goal_type !== 'social_outreach_linkedin_post' || !draft.content_packet) return null
+  if (!supabaseAdmin) throw new Error('Database not available')
+
+  const packet = draft.content_packet
+  const existing = await supabaseAdmin
+    .from('social_content_queue')
+    .select('id')
+    .contains('rag_context', { content_packet_id: packet.id })
+    .maybeSingle()
+
+  if (existing.error) throw new Error(`Failed to read social content draft: ${existing.error.message}`)
+  if (existing.data?.id) {
+    return {
+      id: String(existing.data.id),
+      href: `/admin/social-content/${existing.data.id}`,
+    }
+  }
+
+  const adminNotes = [
+    'Draft-only Agent Ops social outreach pilot.',
+    `Goal: ${draft.title}`,
+    `Packet: ${packet.id}`,
+    'Publish gate: draft_only. Do not publish or schedule from goal approval.',
+    'Chronicle evidence is manual/sanitized in V1.',
+    'Approval checklist:',
+    ...packet.approval_checklist.map((item) => `- ${item}`),
+  ].join('\n')
+
+  const { data, error } = await supabaseAdmin
+    .from('social_content_queue')
+    .insert({
+      platform: 'linkedin',
+      status: 'draft',
+      post_text: packet.draft_linkedin_post,
+      cta_text: 'What part of AI adoption still feels harder than it should for your team?',
+      cta_url: null,
+      hashtags: ['#AIProduct', '#ProductManagement', '#AmadutownAdvisory'],
+      image_prompt: packet.image_prompt,
+      framework_visual_type: 'architecture',
+      topic_extracted: {
+        topic: 'AmaduTown agent swarm social outreach pilot',
+        angle: draft.title,
+        key_insight: packet.industry_signal_summary,
+        personal_tie_in: 'Applied AmaduTown operating-system proof from Agent Ops, Open Brain, and Chronicle evidence.',
+        framework_visual: 'architecture',
+      },
+      hormozi_framework: {
+        framework_type: 'source_backed_operating_proof',
+        hook_type: 'practical_tension',
+        proof_pattern: 'AmaduTown applied workflow evidence',
+        cta_pattern: 'specific operator question',
+      },
+      rag_context: {
+        source: 'agent_ops_social_outreach_goal',
+        goal_id: draft.goal_id,
+        goal_type: draft.goal_type,
+        content_packet_id: packet.id,
+        publish_gate: draft.publish_gate ?? 'draft_only',
+        open_brain_references: packet.open_brain_references,
+        chronicle_packet_status: draft.chronicle_packet_status ?? 'manual_packet_required',
+        chronicle_evidence_notes: packet.chronicle_evidence_notes,
+        source_provenance_checklist: packet.source_provenance_checklist,
+        approval_checklist: packet.approval_checklist,
+      },
+      admin_notes: adminNotes,
+      target_platforms: ['linkedin'],
+      video_generation_method: 'none',
+      content_format: 'single_image',
+      content_pillar: 'technology_as_equalizer',
+      companion_post_text: null,
+    })
+    .select('id')
+    .single()
+
+  if (error || !data?.id) throw new Error(error?.message ?? 'Failed to create Social Content draft')
+  return {
+    id: String(data.id),
+    href: `/admin/social-content/${data.id}`,
+  }
+}
+
 async function approveGoalDraft(runId: string, draft: AgentGoalDraft) {
   const draftRunId = draft.draft_run_id ?? null
   const sessionHref = goalSessionHref(draft.goal_id)
+  const socialContentDraft = await createSocialContentDraftForGoal(draft)
+  const contentPacket = draft.content_packet && socialContentDraft
+    ? {
+      ...draft.content_packet,
+      social_content_draft_id: socialContentDraft.id,
+      social_content_draft_href: socialContentDraft.href,
+    }
+    : draft.content_packet ?? null
   const parent = await createAgentWorkItem({
     title: `Goal: ${draft.title}`,
     objective: draft.objective,
@@ -368,6 +671,7 @@ async function approveGoalDraft(runId: string, draft: AgentGoalDraft) {
     source: { type: 'agent_standup_goal', id: draft.goal_id, label: 'Standup Room goal' },
     sourceRunId: runId,
     metadata: {
+      goal_type: draft.goal_type ?? 'general',
       goal_id: draft.goal_id,
       goal_title: draft.title,
       goal_status: 'approved',
@@ -378,6 +682,13 @@ async function approveGoalDraft(runId: string, draft: AgentGoalDraft) {
       goal_session_href: sessionHref,
       goal_progress_weight: 0,
       recommendation: draft.recommendation,
+      publish_gate: draft.publish_gate ?? null,
+      source_requirements: draft.source_requirements ?? [],
+      chronicle_packet_status: draft.chronicle_packet_status ?? null,
+      content_packet_id: draft.content_packet_id ?? contentPacket?.id ?? null,
+      content_packet: contentPacket,
+      social_content_draft_id: socialContentDraft?.id ?? null,
+      social_content_draft_href: socialContentDraft?.href ?? null,
     },
     idempotencyKey: `agent-goal:${draft.goal_id}:parent`,
   })
@@ -397,6 +708,7 @@ async function approveGoalDraft(runId: string, draft: AgentGoalDraft) {
       expectedFiles: task.expected_files,
       dependencyIds: resolveGoalDependencyIds(task.dependencies, draftTaskIdToWorkItemId),
       metadata: {
+        goal_type: draft.goal_type ?? 'general',
         goal_id: draft.goal_id,
         goal_title: draft.title,
         goal_sequence: index + 1,
@@ -412,6 +724,10 @@ async function approveGoalDraft(runId: string, draft: AgentGoalDraft) {
         goal_dependencies: task.dependencies,
         acceptance_criteria: task.acceptance_criteria,
         risk_notes: task.risk_notes,
+        publish_gate: draft.publish_gate ?? null,
+        content_packet_id: draft.content_packet_id ?? contentPacket?.id ?? null,
+        social_content_draft_id: socialContentDraft?.id ?? null,
+        social_content_draft_href: socialContentDraft?.href ?? null,
       },
       idempotencyKey: `agent-goal:${draft.goal_id}:task:${index + 1}`,
     })
@@ -426,6 +742,7 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
   assertCommand(input.command)
   const message = input.message?.trim().slice(0, 1000) || null
   const goal = input.goal?.trim().slice(0, 1000) || null
+  const goalType = input.goalType === 'social_outreach_linkedin_post' ? input.goalType : 'general'
   const contextGoalId = input.goalId?.trim().slice(0, 160) || null
   if ((input.command === 'discuss' || input.command === 'ask_agent') && !message) {
     throw new Error(`Message is required for ${input.command}`)
@@ -448,7 +765,7 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
     draft_goal: 'Agent Standup Room goal draft',
     approve_goal: 'Agent Standup Room goal approval',
   }
-  const precomputedGoalDraft = input.command === 'draft_goal' ? draftGoal(goal ?? '') : null
+  const precomputedGoalDraft = input.command === 'draft_goal' ? draftGoal(goal ?? '', goalType) : null
   const draftGoalId = input.command === 'approve_goal' ? input.draft?.goal_id ?? null : precomputedGoalDraft?.goal_id ?? null
   const activeGoalId = draftGoalId ?? contextGoalId
   const draftRunId = input.command === 'approve_goal' ? input.draft?.draft_run_id ?? null : null
@@ -471,6 +788,7 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
       target_agent_key: input.targetAgentKey ?? null,
       target_agent_keys: input.targetAgentKeys ?? null,
       goal_preview: goal,
+      goal_type: input.command === 'draft_goal' ? goalType : input.draft?.goal_type ?? null,
       goal_id: activeGoalId,
       goal_session_href: activeGoalId ? goalSessionHref(activeGoalId) : null,
       goal_draft_run_id: draftRunId,
@@ -558,6 +876,7 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
       messages,
       goal_draft: goalDraft,
       created_work_items: createdWorkItems,
+      social_content_draft_id: createdWorkItems?.parent.metadata?.social_content_draft_id ?? null,
       goal_id: finalGoalId,
       goal_session_href: finalGoalSessionHref,
       goal_draft_run_id: goalDraft?.draft_run_id ?? input.draft?.draft_run_id ?? null,
@@ -582,6 +901,7 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
       goal_session_href: finalGoalSessionHref,
       goal_draft_run_id: goalDraft?.draft_run_id ?? input.draft?.draft_run_id ?? null,
       goal_approved_by_run_id: input.command === 'approve_goal' ? run.id : null,
+      social_content_draft_id: createdWorkItems?.parent.metadata?.social_content_draft_id ?? null,
     },
   })
 
@@ -601,6 +921,7 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
       created_parent_work_item_id: createdParentId,
       created_child_work_item_ids: createdChildIds,
       created_child_count: createdWorkItems?.children.length ?? 0,
+      social_content_draft_id: createdWorkItems?.parent.metadata?.social_content_draft_id ?? null,
     },
   })
 

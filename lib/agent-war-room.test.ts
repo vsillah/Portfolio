@@ -20,6 +20,11 @@ const workItemMocks = vi.hoisted(() => ({
   createAgentWorkItem: vi.fn(),
 }))
 
+const supabaseMocks = vi.hoisted(() => ({
+  from: vi.fn(),
+  socialContentDraftId: 'social-draft-1',
+}))
+
 vi.mock('@/lib/agent-run', () => ({
   startAgentRun: agentRunMocks.startAgentRun,
   recordAgentEvent: agentRunMocks.recordAgentEvent,
@@ -38,6 +43,10 @@ vi.mock('@/lib/agent-swarm-board', () => ({
 
 vi.mock('@/lib/agent-work-items', () => ({
   createAgentWorkItem: workItemMocks.createAgentWorkItem,
+}))
+
+vi.mock('@/lib/supabase', () => ({
+  supabaseAdmin: { from: supabaseMocks.from },
 }))
 
 import { runAgentWarRoom } from '@/lib/agent-war-room'
@@ -141,6 +150,27 @@ describe('runAgentWarRoom', () => {
       objective: input.objective,
       metadata: input.metadata ?? {},
     }))
+    supabaseMocks.from.mockImplementation((table: string) => {
+      if (table !== 'social_content_queue') {
+        throw new Error(`Unexpected table ${table}`)
+      }
+      return {
+        select: vi.fn(() => ({
+          contains: vi.fn(() => ({
+            maybeSingle: vi.fn(async () => ({ data: null, error: null })),
+          })),
+        })),
+        insert: vi.fn((payload) => ({
+          select: vi.fn(() => ({
+            single: vi.fn(async () => ({
+              data: { id: supabaseMocks.socialContentDraftId },
+              error: null,
+              payload,
+            })),
+          })),
+        })),
+      }
+    })
   })
 
   it('creates a traced standup run with transcript artifact', async () => {
@@ -315,6 +345,81 @@ describe('runAgentWarRoom', () => {
       }),
     }))
     expect(result.createdWorkItems?.children.length).toBe(draftResult.goalDraft?.tasks.length)
+  })
+
+  it('drafts and approves a draft-only LinkedIn social outreach pilot', async () => {
+    const draftResult = await runAgentWarRoom({
+      command: 'draft_goal',
+      goal: 'Create one LinkedIn post about AmaduTown Agent Ops',
+      goalType: 'social_outreach_linkedin_post',
+      triggerSource: 'test_war_room',
+    })
+
+    expect(draftResult.goalDraft).toMatchObject({
+      goal_type: 'social_outreach_linkedin_post',
+      publish_gate: 'draft_only',
+      chronicle_packet_status: 'manual_packet_required',
+      content_packet: expect.objectContaining({
+        target_audience: expect.stringContaining('LinkedIn audience'),
+        source_provenance_checklist: expect.arrayContaining([
+          'Open Brain references are approved/public-safe.',
+        ]),
+      }),
+    })
+    expect(draftResult.goalDraft?.tasks.map((task) => task.title)).toEqual([
+      'Capture the industry signal',
+      'Pull approved Open Brain context',
+      'Attach manual Chronicle evidence packet',
+      'Select AmaduTown proof points',
+      'Draft the LinkedIn post',
+      'Create the visual brief',
+      'Run content QA and governance review',
+      'Create the Social Content draft handoff',
+    ])
+    expect(workItemMocks.createAgentWorkItem).not.toHaveBeenCalled()
+
+    vi.clearAllMocks()
+    agentRunMocks.startAgentRun.mockResolvedValue({ id: 'approval-run' })
+    agentRunMocks.recordAgentStep.mockResolvedValue({ id: 'step' })
+    agentRunMocks.recordAgentEvent.mockResolvedValue({ id: 'event' })
+    agentRunMocks.attachAgentArtifact.mockResolvedValue({ id: 'artifact' })
+    agentRunMocks.endAgentRun.mockResolvedValue(undefined)
+    supabaseMocks.from.mockClear()
+
+    const result = await runAgentWarRoom({
+      command: 'approve_goal',
+      draft: draftResult.goalDraft,
+      triggerSource: 'test_war_room',
+    })
+
+    expect(supabaseMocks.from).toHaveBeenCalledWith('social_content_queue')
+    expect(workItemMocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
+      title: expect.stringContaining('Goal:'),
+      metadata: expect.objectContaining({
+        goal_type: 'social_outreach_linkedin_post',
+        publish_gate: 'draft_only',
+        chronicle_packet_status: 'manual_packet_required',
+        content_packet_id: draftResult.goalDraft?.content_packet_id,
+        social_content_draft_id: 'social-draft-1',
+        social_content_draft_href: '/admin/social-content/social-draft-1',
+      }),
+    }))
+    expect(workItemMocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
+      source: expect.objectContaining({ id: expect.stringContaining('-social-content-draft') }),
+      metadata: expect.objectContaining({
+        publish_gate: 'draft_only',
+        social_content_draft_id: 'social-draft-1',
+      }),
+    }))
+    expect(agentRunMocks.attachAgentArtifact).toHaveBeenCalledWith(expect.objectContaining({
+      metadata: expect.objectContaining({
+        social_content_draft_id: 'social-draft-1',
+      }),
+    }))
+    expect(result.createdWorkItems?.parent.metadata).toMatchObject({
+      social_content_draft_id: 'social-draft-1',
+      publish_gate: 'draft_only',
+    })
   })
 
   it('records focused goal context on room asks without creating work items', async () => {

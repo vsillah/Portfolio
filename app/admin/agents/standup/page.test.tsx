@@ -155,6 +155,55 @@ describe('AgentStandupRoomPage', () => {
       if (String(url).includes('/api/admin/agents/war-room')) {
         const body = JSON.parse(String((init as RequestInit).body ?? '{}'))
         if (body.command === 'draft_goal') {
+          if (body.goal_type === 'social_outreach_linkedin_post') {
+            return {
+              ok: true,
+              json: async () => ({
+                ok: true,
+                run_id: 'social-goal-run',
+                command: 'draft_goal',
+                goal_draft: {
+                  goal_id: 'goal-social',
+                  goal_type: 'social_outreach_linkedin_post',
+                  title: body.goal,
+                  objective: `Produce one draft-only LinkedIn content packet for: ${body.goal}`,
+                  recommendation: 'Approve this pilot only if the output should stop at a Social Content draft.',
+                  risk_notes: 'Manual Chronicle evidence and approved Open Brain context are required.',
+                  publish_gate: 'draft_only',
+                  source_requirements: ['One source-backed industry signal'],
+                  chronicle_packet_status: 'manual_packet_required',
+                  content_packet_id: 'packet-goal-social',
+                  content_packet: {
+                    id: 'packet-goal-social',
+                    goal_statement: body.goal,
+                    target_audience: 'LinkedIn audience: small business, nonprofit, and product leaders.',
+                    industry_signal_summary: 'Pending research: capture one current industry signal.',
+                    amadutown_proof_points: ['Agent Ops proves the workflow.'],
+                    open_brain_references: ['Approved Open Brain references only.'],
+                    chronicle_evidence_notes: ['Manual Chronicle packet required in V1.'],
+                    draft_linkedin_post: 'A small business does not need another AI demo.',
+                    visual_concept: 'Mission Control routes one social outreach goal into accountable work.',
+                    image_prompt: 'Dark operating-console illustration with gold command accents.',
+                    source_provenance_checklist: ['Open Brain references are approved/public-safe.', 'Chronicle notes are manually sanitized.'],
+                    approval_checklist: ['Social Content item remains draft-only until separately approved.'],
+                  },
+                  tasks: [{
+                    id: 'goal-social-post-draft',
+                    title: 'Draft the LinkedIn post',
+                    objective: 'Turn source evidence into one Vambah-aligned LinkedIn draft.',
+                    owner_agent_key: 'voice-content-architect',
+                    priority: 'high',
+                    dependencies: [],
+                    expected_files: ['docs/linkedin-voice.md'],
+                    acceptance_criteria: ['Draft opens with a concrete tension'],
+                    risk_notes: 'No raw private material.',
+                    goal_progress_weight: 3,
+                  }],
+                },
+                messages: [],
+              }),
+            }
+          }
           return {
             ok: true,
             json: async () => ({
@@ -203,6 +252,9 @@ describe('AgentStandupRoomPage', () => {
               run_id: 'approval-run',
               command: 'approve_goal',
               messages: [],
+              social_content_draft: body.draft?.goal_type === 'social_outreach_linkedin_post'
+                ? { id: 'social-draft-1', href: '/admin/social-content/social-draft-1' }
+                : null,
               created_work_items: {
                 parent: { id: 'parent', title: 'Goal: Improve standup' },
                 children: [{ id: 'child', title: 'Implement room' }],
@@ -359,7 +411,7 @@ describe('AgentStandupRoomPage', () => {
     expect(screen.getAllByRole('link', { name: /Open trace/i }).some((link) => link.getAttribute('href') === '/admin/agents/runs/goal-run')).toBe(true)
     expect(fetch).toHaveBeenCalledWith('/api/admin/agents/war-room', expect.objectContaining({
       method: 'POST',
-      body: JSON.stringify({ command: 'draft_goal', goal: 'Improve standup' }),
+      body: JSON.stringify({ command: 'draft_goal', goal: 'Improve standup', goal_type: 'general' }),
     }))
 
     fireEvent.change(screen.getByDisplayValue('Implement room'), { target: { value: 'Implement reviewed room' } })
@@ -375,6 +427,35 @@ describe('AgentStandupRoomPage', () => {
     const approveBody = JSON.parse(String((approveCall?.[1] as RequestInit).body))
     expect(approveBody.draft.tasks).toHaveLength(1)
     expect(approveBody.draft.tasks[0].title).toBe('Implement reviewed room')
+  })
+
+  it('renders the LinkedIn pilot template and draft-only packet before approval', async () => {
+    render(<AgentStandupRoomPage />)
+
+    fireEvent.click(await screen.findByRole('button', { name: 'LinkedIn pilot' }))
+    expect(screen.getByPlaceholderText('What should the swarm accomplish?')).toHaveValue('Create one LinkedIn post package showing how AmaduTown applies AI and automation to reduce operational burden for small businesses.')
+
+    fireEvent.click(screen.getByRole('button', { name: /Draft plan/i }))
+
+    expect(await screen.findByText('LinkedIn content packet')).toBeInTheDocument()
+    expect(screen.getByText('Publish gate: draft only')).toBeInTheDocument()
+    expect(screen.getByText('Chronicle: manual packet')).toBeInTheDocument()
+    expect(screen.getByText('LinkedIn audience: small business, nonprofit, and product leaders.')).toBeInTheDocument()
+    expect(screen.getByText('Pending research: capture one current industry signal.')).toBeInTheDocument()
+    expect(screen.getByText(/Open Brain references are approved\/public-safe/i)).toBeInTheDocument()
+    expect(screen.getByText('Mission Control routes one social outreach goal into accountable work.')).toBeInTheDocument()
+    expect(fetch).toHaveBeenCalledWith('/api/admin/agents/war-room', expect.objectContaining({
+      method: 'POST',
+      body: JSON.stringify({
+        command: 'draft_goal',
+        goal: 'Create one LinkedIn post package showing how AmaduTown applies AI and automation to reduce operational burden for small businesses.',
+        goal_type: 'social_outreach_linkedin_post',
+      }),
+    }))
+
+    fireEvent.click(screen.getByRole('button', { name: /Approve goal/i }))
+
+    expect(await screen.findByRole('link', { name: /Open linked Social Content draft/i })).toHaveAttribute('href', '/admin/social-content/social-draft-1')
   })
 
   it('opens a linked goal session from the query string', async () => {
