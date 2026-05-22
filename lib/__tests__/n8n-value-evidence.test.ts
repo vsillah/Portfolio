@@ -51,6 +51,23 @@ describe('n8n value-evidence triggers', () => {
       workflow_id: 'WF-VEP-002',
       events_url: 'https://portfolio.example.com/api/admin/agents/runs/agent-run-1/events',
     })
+    expect(body.agent_callback_contract).toMatchObject({
+      version: 1,
+      runtime: 'n8n',
+      events_url: 'https://portfolio.example.com/api/admin/agents/runs/agent-run-1/events',
+      auth_header: 'Authorization: Bearer N8N_INGEST_SECRET',
+      required_fields: ['workflow_id', 'stage', 'status'],
+      final_completion_payload: {
+        workflow_id: 'WF-VEP-002',
+        status: 'completed',
+        final: true,
+      },
+      failure_payload: {
+        workflow_id: 'WF-VEP-002',
+        status: 'failed',
+      },
+    })
+    expect(body.agent_trace.callback_contract).toMatchObject(body.agent_callback_contract)
   })
 
   it('omits maxResults when not provided', async () => {

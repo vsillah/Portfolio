@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const mocks = vi.hoisted(() => ({
   verifyAdmin: vi.fn(),
   isAuthError: vi.fn(),
+  endAgentRun: vi.fn(),
+  markAgentRunFailed: vi.fn(),
   recordAgentEvent: vi.fn(),
   recordAgentStep: vi.fn(),
 }))
@@ -15,6 +17,8 @@ vi.mock('@/lib/auth-server', () => ({
 vi.mock('@/lib/agent-run', () => ({
   AGENT_EVENT_SEVERITIES: ['debug', 'info', 'warning', 'error'],
   AGENT_RUN_STATUSES: ['queued', 'running', 'waiting_for_approval', 'completed', 'failed', 'cancelled', 'stale'],
+  endAgentRun: mocks.endAgentRun,
+  markAgentRunFailed: mocks.markAgentRunFailed,
   recordAgentEvent: mocks.recordAgentEvent,
   recordAgentStep: mocks.recordAgentStep,
 }))
@@ -38,6 +42,8 @@ describe('POST /api/admin/agents/runs/[runId]/events', () => {
     process.env.N8N_INGEST_SECRET = 'test-n8n-secret'
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-user' } })
     mocks.isAuthError.mockReturnValue(false)
+    mocks.endAgentRun.mockResolvedValue(undefined)
+    mocks.markAgentRunFailed.mockResolvedValue(undefined)
     mocks.recordAgentEvent.mockResolvedValue({ id: 'event-1' })
     mocks.recordAgentStep.mockResolvedValue({ id: 'step-1' })
   })
@@ -77,9 +83,11 @@ describe('POST /api/admin/agents/runs/[runId]/events', () => {
       outputSummary: '12 item(s)',
       idempotencyKey: 'n8n-run-1:linkedin:scrape:step',
     }))
+    expect(mocks.markAgentRunFailed).not.toHaveBeenCalled()
+    expect(mocks.endAgentRun).not.toHaveBeenCalled()
   })
 
-  it('normalizes n8n failure callbacks into failed steps and error events', async () => {
+  it('normalizes n8n failure callbacks into failed steps, error events, and failed runs', async () => {
     const response = await POST(makeRequest({
       workflow_id: 'WF-SOC-001',
       stage: 'Generate draft',
@@ -99,6 +107,59 @@ describe('POST /api/admin/agents/runs/[runId]/events', () => {
       status: 'failed',
       outputSummary: 'LLM node timed out',
     }))
+    expect(mocks.markAgentRunFailed).toHaveBeenCalledWith(
+      'run-2',
+      'LLM node timed out',
+      expect.objectContaining({
+        workflow_id: 'WF-SOC-001',
+        stage: 'Generate draft',
+        n8n_status: 'error',
+        error_message: 'LLM node timed out',
+      }),
+    )
+  })
+
+  it('normalizes final n8n completion callbacks into completion events and completed runs', async () => {
+    const response = await POST(makeRequest({
+      workflow_id: 'WF-VEP-002',
+      stage: 'Write summary artifact',
+      status: 'success',
+      items_count: 3,
+      final: true,
+    }) as never, { params: { runId: 'run-3' } })
+
+    expect(response.status).toBe(200)
+    expect(mocks.recordAgentEvent).toHaveBeenCalledWith(expect.objectContaining({
+      runId: 'run-3',
+      eventType: 'n8n_completion',
+      severity: 'info',
+      message: 'Write summary artifact',
+      metadata: expect.objectContaining({
+        workflow_id: 'WF-VEP-002',
+        stage: 'Write summary artifact',
+        n8n_status: 'success',
+        items_count: 3,
+        final: true,
+      }),
+    }))
+    expect(mocks.recordAgentStep).toHaveBeenCalledWith(expect.objectContaining({
+      runId: 'run-3',
+      stepKey: 'n8n_wf_vep_002_write_summary_artifact',
+      name: 'Write summary artifact',
+      status: 'completed',
+      outputSummary: '3 item(s)',
+    }))
+    expect(mocks.endAgentRun).toHaveBeenCalledWith(expect.objectContaining({
+      runId: 'run-3',
+      status: 'completed',
+      currentStep: 'Write summary artifact',
+      outcome: expect.objectContaining({
+        workflow_id: 'WF-VEP-002',
+        stage: 'Write summary artifact',
+        final: true,
+      }),
+    }))
+    expect(mocks.markAgentRunFailed).not.toHaveBeenCalled()
   })
 
   it('rejects invalid n8n bearer tokens when the request is not from an admin', async () => {

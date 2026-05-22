@@ -61,6 +61,25 @@ describe('triggerSocialContentExtraction', () => {
       workflow_id: 'WF-SOC-001',
       events_url: 'https://portfolio.example.com/api/admin/agents/runs/agent-run-1/events',
     })
+    expect(payload.agent_callback_contract).toMatchObject({
+      version: 1,
+      runtime: 'n8n',
+      events_url: 'https://portfolio.example.com/api/admin/agents/runs/agent-run-1/events',
+      auth_header: 'Authorization: Bearer N8N_INGEST_SECRET',
+      required_fields: ['workflow_id', 'stage', 'status'],
+      final_completion_payload: {
+        workflow_id: 'WF-SOC-001',
+        status: 'completed',
+        final: true,
+      },
+      failure_payload: {
+        workflow_id: 'WF-SOC-001',
+        status: 'failed',
+      },
+    })
+    expect(payload.agent_trace).toMatchObject({
+      callback_contract: payload.agent_callback_contract,
+    })
     expect(payload.meeting_record_id).toBe('meeting-123')
     expect(payload.prompts).toEqual({
       topicExtraction: 'topic prompt',
