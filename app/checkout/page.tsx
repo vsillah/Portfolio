@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Lock, HelpCircle, LogIn } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, HelpCircle, LogIn, Lock, PackageCheck, ShieldCheck } from 'lucide-react'
 import Link from 'next/link'
 import { useAuth } from '@/components/AuthProvider'
 import { getCart, clearCart, saveCart, updateCartItemQuantity, updateServiceQuantity, removeFromCart, removeServiceFromCart, isServiceItem, type CartItem } from '@/lib/cart'
@@ -615,8 +615,8 @@ export default function CheckoutPage() {
   // Wait for both cart and auth to be ready before showing sign-in gate or checkout
   if (loading || authLoading) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-        <div className="text-muted-foreground">Loading checkout...</div>
+      <div className="dark agent-ops-page flex min-h-screen items-center justify-center text-foreground">
+        <div className="agent-ops-card rounded-lg border px-6 py-4 text-muted-foreground">Loading checkout...</div>
       </div>
     )
   }
@@ -624,12 +624,12 @@ export default function CheckoutPage() {
   // Require sign-in so we can deliver orders and follow up / upsell
   if (!user) {
     return (
-      <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
+      <div className="dark agent-ops-page min-h-screen px-4 pb-12 pt-24 text-foreground">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <button
               onClick={() => router.push('/store')}
-              className="flex items-center gap-2 text-muted-foreground hover:text-white transition-colors"
+              className="agent-ops-button-muted"
             >
               <ArrowLeft size={20} />
               Back to Store
@@ -638,11 +638,14 @@ export default function CheckoutPage() {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-silicon-slate border border-silicon-slate rounded-xl p-8 max-w-xl"
+            className="agent-ops-command-card max-w-xl rounded-xl border p-6 sm:p-8"
           >
-            <div className="flex items-center gap-3 mb-4">
-              <Lock className="text-radiant-gold flex-shrink-0" size={28} />
-              <h2 className="text-2xl font-bold">Sign in to checkout</h2>
+            <div className="mb-4 flex items-center gap-3">
+              <Lock className="flex-shrink-0 text-radiant-gold" size={28} />
+              <div>
+                <p className="agent-ops-eyebrow">Secure checkout</p>
+                <h2 className="mt-2 text-2xl font-bold">Sign in to continue</h2>
+              </div>
             </div>
             <p className="text-muted-foreground mb-6">
               We require an account so we can deliver your order and follow up with you. Sign in or create an account to continue.
@@ -650,14 +653,14 @@ export default function CheckoutPage() {
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/auth/login?redirect=/checkout"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r btn-gold transition-colors"
+                className="agent-ops-button-primary px-6 py-3"
               >
                 <LogIn size={20} />
                 Sign in
               </Link>
               <Link
                 href="/auth/signup?redirect=/checkout"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg btn-ghost transition-colors"
+                className="agent-ops-button-muted px-6 py-3"
               >
                 Create account
               </Link>
@@ -672,18 +675,18 @@ export default function CheckoutPage() {
   const hasPaidItems = subtotal > 0 || hasQuoteBasedItems
 
   return (
-    <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
+    <div className="dark agent-ops-page min-h-screen px-4 pb-12 pt-24 text-foreground">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="agent-ops-surface-header mb-6 rounded-xl border p-5 sm:p-6"
         >
-          <div className="flex items-center justify-between mb-4">
+          <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <button
               onClick={() => router.push('/store')}
-              className="flex items-center gap-2 text-muted-foreground hover:text-white transition-colors"
+              className="agent-ops-button-muted w-fit"
             >
               <ArrowLeft size={20} />
               Back to Store
@@ -695,8 +698,38 @@ export default function CheckoutPage() {
               </Link>
             </div>
           </div>
-          <h1 className="text-4xl font-bold mb-2">Checkout</h1>
-          <p className="text-muted-foreground">Review your order and complete your purchase</p>
+          <p className="agent-ops-eyebrow">AmaduTown checkout</p>
+          <div className="mt-3 grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+            <div>
+              <h1 className="text-3xl font-bold sm:text-4xl">Review order and payment path</h1>
+              <p className="mt-2 max-w-3xl text-muted-foreground">
+                Confirm delivery details, apply any discount, and choose how this purchase should be paid.
+              </p>
+            </div>
+            <div className="grid gap-2 text-sm sm:grid-cols-3 lg:min-w-[24rem]">
+              <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-3 py-2">
+                <div className="flex items-center gap-2 text-radiant-gold">
+                  <CheckCircle2 size={14} />
+                  <span className="font-semibold">Cart ready</span>
+                </div>
+                <p className="mt-1 text-muted-foreground">{cartItems.length} item{cartItems.length === 1 ? '' : 's'}</p>
+              </div>
+              <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-3 py-2">
+                <div className="flex items-center gap-2 text-radiant-gold">
+                  <ShieldCheck size={14} />
+                  <span className="font-semibold">Account</span>
+                </div>
+                <p className="mt-1 text-muted-foreground">Signed in</p>
+              </div>
+              <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-3 py-2">
+                <div className="flex items-center gap-2 text-radiant-gold">
+                  <PackageCheck size={14} />
+                  <span className="font-semibold">Delivery</span>
+                </div>
+                <p className="mt-1 text-muted-foreground">{hasMerchandise ? 'Address required' : 'Digital/service'}</p>
+              </div>
+            </div>
+          </div>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -715,8 +748,9 @@ export default function CheckoutPage() {
                 />
 
                 {hasMerchandise && (
-                  <div className="bg-silicon-slate border border-silicon-slate rounded-xl p-6">
-                    <h2 className="text-xl font-bold mb-4">Shipping address</h2>
+                  <div className="agent-ops-card rounded-xl border p-5 sm:p-6">
+                    <p className="agent-ops-eyebrow mb-2">Delivery</p>
+                    <h2 className="text-xl font-bold mb-3">Shipping address</h2>
                     <p className="text-muted-foreground text-sm mb-4">
                       Required for physical products. We’ll deliver your order to this address.
                     </p>
@@ -740,7 +774,7 @@ export default function CheckoutPage() {
                             setAddressValidateResult(null)
                           }}
                           placeholder="Start typing your address…"
-                          className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground placeholder:text-muted-foreground/90"
+                          className="w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/25 px-4 py-2 text-foreground placeholder:text-muted-foreground/90 outline-none transition-colors focus:border-radiant-gold/70"
                           countryRestriction={['US', 'CA', 'GB'].includes(shippingAddress.country_code) ? shippingAddress.country_code : undefined}
                         />
                       </div>
@@ -750,7 +784,7 @@ export default function CheckoutPage() {
                           value={shippingAddress.address2}
                           onChange={(e) => setShippingAddress((a) => ({ ...a, address2: e.target.value }))}
                           placeholder="Address line 2 (optional)"
-                          className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground placeholder:text-muted-foreground/90"
+                          className="w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/25 px-4 py-2 text-foreground placeholder:text-muted-foreground/90 outline-none transition-colors focus:border-radiant-gold/70"
                         />
                       </div>
                       <div>
@@ -760,7 +794,7 @@ export default function CheckoutPage() {
                           value={shippingAddress.city}
                           onChange={(e) => setShippingAddress((a) => ({ ...a, city: e.target.value }))}
                           placeholder="City"
-                          className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground placeholder:text-muted-foreground/90"
+                          className="w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/25 px-4 py-2 text-foreground placeholder:text-muted-foreground/90 outline-none transition-colors focus:border-radiant-gold/70"
                         />
                       </div>
                       <div>
@@ -770,7 +804,7 @@ export default function CheckoutPage() {
                           value={shippingAddress.state_code}
                           onChange={(e) => setShippingAddress((a) => ({ ...a, state_code: e.target.value }))}
                           placeholder="e.g. CA"
-                          className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground placeholder:text-muted-foreground/90"
+                          className="w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/25 px-4 py-2 text-foreground placeholder:text-muted-foreground/90 outline-none transition-colors focus:border-radiant-gold/70"
                         />
                       </div>
                       <div>
@@ -780,7 +814,7 @@ export default function CheckoutPage() {
                           value={shippingAddress.zip}
                           onChange={(e) => setShippingAddress((a) => ({ ...a, zip: e.target.value }))}
                           placeholder="ZIP code"
-                          className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground placeholder:text-muted-foreground/90"
+                          className="w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/25 px-4 py-2 text-foreground placeholder:text-muted-foreground/90 outline-none transition-colors focus:border-radiant-gold/70"
                         />
                         {shippingAddress.country_code === 'US' && (
                           <p className="text-xs text-muted-foreground/90 mt-1">City & state suggested when you enter a 5-digit ZIP.</p>
@@ -794,7 +828,7 @@ export default function CheckoutPage() {
                             setShippingAddress((a) => ({ ...a, country_code: e.target.value }))
                             setAddressValidateResult(null)
                           }}
-                          className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground"
+                          className="w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/25 px-4 py-2 text-foreground outline-none transition-colors focus:border-radiant-gold/70"
                         >
                           <option value="US">United States</option>
                           <option value="CA">Canada</option>
@@ -809,7 +843,7 @@ export default function CheckoutPage() {
                           type="button"
                           onClick={handleValidateAddress}
                           disabled={addressValidateLoading || !isShippingAddressComplete()}
-                          className="text-sm px-3 py-1.5 rounded-lg border border-silicon-slate text-foreground/90 hover:bg-silicon-slate/50 disabled:opacity-50 disabled:pointer-events-none"
+                          className="agent-ops-button-secondary text-sm disabled:pointer-events-none disabled:opacity-50"
                         >
                           {addressValidateLoading ? 'Validating…' : 'Validate with USPS'}
                         </button>
@@ -832,7 +866,7 @@ export default function CheckoutPage() {
                             <button
                               type="button"
                               onClick={handleUseValidatedAddress}
-                              className="text-sm px-3 py-1.5 rounded-lg bg-gold text-imperial-navy font-medium hover:opacity-90"
+                              className="agent-ops-button-primary text-sm"
                             >
                               Use this address
                             </button>
@@ -852,8 +886,9 @@ export default function CheckoutPage() {
                 )}
 
                 {/* Discount Code */}
-                <div className="bg-silicon-slate border border-silicon-slate rounded-xl p-6">
-                  <h2 className="text-xl font-bold mb-4">Discount Code</h2>
+                <div className="agent-ops-card rounded-xl border p-5 sm:p-6">
+                  <p className="agent-ops-eyebrow mb-2">Adjustment</p>
+                  <h2 className="text-xl font-bold mb-4">Discount code</h2>
                   <DiscountCodeForm
                     onApply={handleDiscountApply}
                     appliedCode={appliedDiscountCode}
@@ -864,8 +899,9 @@ export default function CheckoutPage() {
 
                 {/* Payment Options */}
                 {hasPaidItems && effectiveFinalTotal > 0 && (
-                  <div className="bg-silicon-slate border border-silicon-slate rounded-xl p-6">
-                    <h2 className="text-xl font-bold mb-4">Payment Options</h2>
+                  <div className="agent-ops-card rounded-xl border p-5 sm:p-6">
+                    <p className="agent-ops-eyebrow mb-2">Payment path</p>
+                    <h2 className="text-xl font-bold mb-4">Payment options</h2>
                     <InstallmentOption
                       baseAmount={effectiveFinalTotal}
                       defaultInstallments={3}
@@ -881,10 +917,10 @@ export default function CheckoutPage() {
                 )}
 
                 {/* Checkout Button */}
-                <div className="bg-silicon-slate border border-silicon-slate rounded-xl p-6">
+                <div className="agent-ops-command-card rounded-xl border p-5 sm:p-6">
                   <button
                     onClick={handleCheckout}
-                    className="w-full px-6 py-4 btn-gold text-imperial-navy font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+                    className="agent-ops-button-primary w-full px-6 py-4 text-base"
                   >
                     {hasPaidItems ? (
                       <>

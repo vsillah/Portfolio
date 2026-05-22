@@ -159,11 +159,12 @@ export default function OrderSummary({
   }
 
   return (
-    <div className="bg-silicon-slate border border-silicon-slate rounded-xl p-6">
-      <h2 className="text-xl font-bold mb-4">Order Summary</h2>
+    <div className="agent-ops-card rounded-xl border p-5 sm:p-6 lg:sticky lg:top-24">
+      <p className="agent-ops-eyebrow mb-2">Order</p>
+      <h2 className="text-xl font-bold mb-4">Order summary</h2>
 
       {/* Items */}
-      <div className="space-y-4 mb-4 max-h-96 overflow-y-auto">
+      <div className="mb-4 max-h-96 space-y-4 overflow-y-auto pr-1">
         {cartItems.map((item) => {
           // Render service item
           if (item.itemType === 'service' && item.serviceId) {
@@ -176,7 +177,7 @@ export default function OrderSummary({
               <motion.div
                 key={getUniqueKey(item)}
                 layout
-                className="bg-silicon-slate/50 rounded-lg p-3"
+                className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-3"
               >
                 <div className="flex items-start gap-3">
                   {/* Service Image */}
@@ -198,7 +199,7 @@ export default function OrderSummary({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <p className="text-white font-medium text-sm line-clamp-1">{service.title}</p>
-                      <span className="px-1.5 py-0.5 text-[10px] bg-radiant-gold/20 text-radiant-gold rounded">
+                      <span className="rounded border border-radiant-gold/35 bg-radiant-gold/10 px-1.5 py-0.5 text-[10px] text-radiant-gold">
                         Service
                       </span>
                     </div>
@@ -224,10 +225,10 @@ export default function OrderSummary({
                     {editable ? (
                       <div className="flex items-center gap-2 mt-2">
                         {/* Quantity Controls */}
-                        <div className="flex items-center gap-1 bg-silicon-slate rounded">
+                        <div className="flex items-center gap-1 rounded border border-silicon-slate/70 bg-silicon-slate/30">
                           <button
                             onClick={() => onServiceQuantityChange?.(item.serviceId!, Math.max(1, item.quantity - 1))}
-                            className="p-1 hover:bg-radiant-gold/30 rounded-l transition-colors"
+                            className="rounded-l p-1 transition-colors hover:bg-radiant-gold/20"
                             title="Decrease quantity"
                           >
                             <Minus size={12} />
@@ -237,7 +238,7 @@ export default function OrderSummary({
                           </span>
                           <button
                             onClick={() => onServiceQuantityChange?.(item.serviceId!, item.quantity + 1)}
-                            className="p-1 hover:bg-radiant-gold/30 rounded-r transition-colors"
+                            className="rounded-r p-1 transition-colors hover:bg-radiant-gold/20"
                             title="Increase quantity"
                           >
                             <Plus size={12} />
@@ -247,7 +248,7 @@ export default function OrderSummary({
                         {/* Delete Button */}
                         <button
                           onClick={() => onRemoveService?.(item.serviceId!)}
-                          className="p-1.5 bg-silicon-slate hover:bg-red-600/20 text-muted-foreground hover:text-red-400 rounded transition-colors ml-auto"
+                          className="ml-auto rounded border border-silicon-slate/70 bg-silicon-slate/20 p-1.5 text-muted-foreground transition-colors hover:border-red-400/40 hover:bg-red-500/10 hover:text-red-300"
                           title="Remove item"
                         >
                           <Trash2 size={12} />
@@ -286,7 +287,7 @@ export default function OrderSummary({
               <motion.div
                 key={getUniqueKey(item)}
                 layout
-                className="bg-silicon-slate/50 rounded-lg p-3"
+                className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-3"
               >
                 <div className="flex items-start gap-3">
                   {/* Product Image */}
@@ -326,10 +327,10 @@ export default function OrderSummary({
                     {editable ? (
                       <div className="flex items-center gap-2 mt-2">
                         {/* Quantity Controls */}
-                        <div className="flex items-center gap-1 bg-silicon-slate rounded">
+                        <div className="flex items-center gap-1 rounded border border-silicon-slate/70 bg-silicon-slate/30">
                           <button
                             onClick={() => onQuantityChange?.(item.productId!, Math.max(1, item.quantity - 1), item.variantId)}
-                            className="p-1 hover:bg-radiant-gold/30 rounded-l transition-colors"
+                            className="rounded-l p-1 transition-colors hover:bg-radiant-gold/20"
                             title="Decrease quantity"
                           >
                             <Minus size={12} />
@@ -339,7 +340,7 @@ export default function OrderSummary({
                           </span>
                           <button
                             onClick={() => onQuantityChange?.(item.productId!, item.quantity + 1, item.variantId)}
-                            className="p-1 hover:bg-radiant-gold/30 rounded-r transition-colors"
+                            className="rounded-r p-1 transition-colors hover:bg-radiant-gold/20"
                             title="Increase quantity"
                           >
                             <Plus size={12} />
@@ -351,7 +352,7 @@ export default function OrderSummary({
                           <button
                             onClick={() => setEditingItem(isEditing ? null : { productId: item.productId!, variantId: item.variantId })}
                             className={`p-1.5 rounded transition-colors ${
-                              isEditing ? 'bg-radiant-gold text-imperial-navy' : 'bg-silicon-slate hover:bg-radiant-gold/30 text-foreground'
+                              isEditing ? 'bg-radiant-gold text-imperial-navy' : 'border border-silicon-slate/70 bg-silicon-slate/20 text-foreground hover:bg-radiant-gold/20'
                             }`}
                             title="Edit size/color"
                           >
@@ -362,7 +363,7 @@ export default function OrderSummary({
                         {/* Delete Button */}
                         <button
                           onClick={() => onRemoveItem?.(item.productId!, item.variantId)}
-                          className="p-1.5 bg-silicon-slate hover:bg-red-600/20 text-muted-foreground hover:text-red-400 rounded transition-colors ml-auto"
+                          className="ml-auto rounded border border-silicon-slate/70 bg-silicon-slate/20 p-1.5 text-muted-foreground transition-colors hover:border-red-400/40 hover:bg-red-500/10 hover:text-red-300"
                           title="Remove item"
                         >
                           <Trash2 size={12} />
@@ -404,9 +405,9 @@ export default function OrderSummary({
       </div>
 
       {/* Totals */}
-      <div className="border-t border-silicon-slate pt-4 space-y-2">
+      <div className="space-y-2 border-t border-silicon-slate/70 pt-4">
         {hasQuoteBasedItems && (
-          <div className="p-2 bg-yellow-600/10 border border-yellow-600/30 rounded text-xs text-yellow-400 mb-2">
+          <div className="mb-2 rounded border border-yellow-500/35 bg-yellow-500/10 p-2 text-xs text-yellow-300">
             Some items require a custom quote
           </div>
         )}
@@ -443,7 +444,7 @@ export default function OrderSummary({
         {activeCampaign && (
           <Link
             href={`/campaigns/${activeCampaign.slug}`}
-            className="mt-3 flex items-center gap-2 p-2 bg-amber-600/10 border border-amber-600/30 rounded text-xs text-amber-400 hover:bg-amber-600/20 transition-colors"
+            className="mt-3 flex items-center gap-2 rounded border border-radiant-gold/35 bg-radiant-gold/10 p-2 text-xs text-radiant-gold transition-colors hover:bg-radiant-gold/15"
           >
             <Sparkles className="w-3.5 h-3.5 flex-shrink-0" />
             <span>Eligible for: <strong>{activeCampaign.name}</strong></span>
@@ -517,13 +518,13 @@ function VariantEditor({
       initial={{ opacity: 0, height: 0 }}
       animate={{ opacity: 1, height: 'auto' }}
       exit={{ opacity: 0, height: 0 }}
-      className="mt-3 pt-3 border-t border-silicon-slate"
+      className="mt-3 border-t border-silicon-slate/70 pt-3"
     >
       <div className="flex items-center justify-between mb-3">
         <span className="text-xs font-medium text-muted-foreground">Edit Options</span>
         <button
           onClick={onClose}
-          className="p-1 hover:bg-silicon-slate rounded transition-colors"
+          className="rounded border border-transparent p-1 transition-colors hover:border-silicon-slate/70 hover:bg-silicon-slate/25"
         >
           <X size={14} className="text-muted-foreground" />
         </button>
@@ -547,8 +548,8 @@ function VariantEditor({
                     isSelected
                       ? 'bg-radiant-gold text-imperial-navy'
                       : isAvailable
-                      ? 'bg-silicon-slate text-foreground hover:bg-radiant-gold/30'
-                      : 'bg-silicon-slate text-muted-foreground cursor-not-allowed'
+                      ? 'border border-silicon-slate/70 bg-silicon-slate/20 text-foreground hover:bg-radiant-gold/20'
+                      : 'border border-silicon-slate/50 bg-silicon-slate/10 text-muted-foreground cursor-not-allowed'
                   }`}
                 >
                   {size}
@@ -577,8 +578,8 @@ function VariantEditor({
                     isSelected
                       ? 'bg-radiant-gold text-imperial-navy'
                       : isAvailable
-                      ? 'bg-silicon-slate text-foreground hover:bg-radiant-gold/30'
-                      : 'bg-silicon-slate text-muted-foreground cursor-not-allowed'
+                      ? 'border border-silicon-slate/70 bg-silicon-slate/20 text-foreground hover:bg-radiant-gold/20'
+                      : 'border border-silicon-slate/50 bg-silicon-slate/10 text-muted-foreground cursor-not-allowed'
                   }`}
                 >
                   {color}
@@ -596,7 +597,7 @@ function VariantEditor({
         className={`w-full py-2 text-xs font-medium rounded transition-colors flex items-center justify-center gap-1.5 ${
           selectedVariant && selectedVariant.id !== currentVariantId
             ? 'btn-gold'
-            : 'bg-silicon-slate text-muted-foreground cursor-not-allowed'
+            : 'border border-silicon-slate/70 bg-silicon-slate/20 text-muted-foreground cursor-not-allowed'
         }`}
       >
         <Check size={14} />

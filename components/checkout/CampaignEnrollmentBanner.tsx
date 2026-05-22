@@ -23,13 +23,13 @@ export default function CampaignEnrollmentBanner({ campaign }: CampaignEnrollmen
   const primary = campaign
 
   return (
-    <div className="bg-gradient-to-r from-amber-600/10 to-orange-600/10 border border-amber-500/30 rounded-xl p-5">
+    <div className="agent-ops-command-card rounded-xl border p-5">
       <div className="flex items-start gap-3">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 flex items-center justify-center flex-shrink-0">
-          <Sparkles className="w-4 h-4 text-white" />
+        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-radiant-gold/45 bg-radiant-gold/15">
+          <Sparkles className="h-4 w-4 text-radiant-gold" />
         </div>
         <div className="flex-1">
-          <h3 className="text-sm font-bold text-amber-300 mb-1">
+          <h3 className="mb-1 text-sm font-bold text-radiant-gold">
             {CAMPAIGN_TYPE_LABELS[primary.campaign_type] || primary.name}
           </h3>
           <p className="text-xs text-muted-foreground mb-2">
@@ -38,13 +38,13 @@ export default function CampaignEnrollmentBanner({ campaign }: CampaignEnrollmen
             Meet the criteria and earn back your investment.
           </p>
           {primary.enrollment_deadline && (
-            <p className="text-xs text-gray-500 mb-2">
+            <p className="mb-2 text-xs text-muted-foreground/80">
               Enrollment deadline: {new Date(primary.enrollment_deadline).toLocaleDateString()}
             </p>
           )}
           <Link
             href={`/campaigns/${primary.slug}`}
-            className="inline-flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 transition-colors"
+            className="inline-flex items-center gap-1 text-xs text-radiant-gold transition-colors hover:text-gold-light"
           >
             Learn more about this campaign
             <ArrowRight className="w-3 h-3" />

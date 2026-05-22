@@ -50,7 +50,7 @@ export default function DiscountCodeForm({
         animate={{ opacity: 1, y: 0 }}
         className="space-y-2"
       >
-        <div className="p-4 bg-green-600/20 border border-green-600/50 rounded-lg">
+        <div className="rounded-lg border border-green-400/40 bg-green-500/10 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Check className="text-green-400" size={20} />
@@ -86,7 +86,7 @@ export default function DiscountCodeForm({
       <label className="block text-sm font-medium">
         Discount Code
       </label>
-      <div className="flex gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row">
         <div className="relative flex-1">
           <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
           <input
@@ -106,7 +106,7 @@ export default function DiscountCodeForm({
         <button
           type="submit"
           disabled={loading || !code.trim()}
-          className="px-6 py-2 btn-ghost font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="agent-ops-button-secondary justify-center px-6 py-2 font-semibold disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading ? 'Applying...' : 'Apply'}
         </button>
