@@ -85,7 +85,7 @@ export default function ContactForm({ onSubmit, initialData }: ContactFormProps)
 
       <button
         type="submit"
-        className="w-full px-6 py-3 btn-gold text-imperial-navy font-semibold rounded-lg transition-colors"
+        className="agent-ops-button-primary w-full px-6 py-3"
       >
         Continue to Checkout
       </button>

@@ -38,8 +38,9 @@ The Agent Ops Mission Control surface at `/admin/agents` is the current referenc
 - **Outreach/Sales workflow polish:** Lead Pipeline rows, Outreach Dashboard metrics/activity, escalation links, and Sales Dashboard table actions now use the shared console palette for their nested workflow controls and status affordances.
 - **Sales subpage slice:** `/admin/sales/products`, `/admin/sales/bundles`, `/admin/sales/scripts`, `/admin/sales/upsell-paths`, and `/admin/sales/implementation-roadmap` now use the shared admin console shell, surface headers, metric cards, muted form controls, and gold command actions.
 - **Auth slice:** Login, signup, forgot-password, and reset-password now use the AmaduTown operating-console language so the entry point no longer feels visually disconnected from admin.
-- **Public commerce catalog slice:** `/store`, `/store/[id]`, `ProductCard`, `ServiceCard`, and `ShoppingCart` now use the Mission Control navy/gold surface language, gold command affordances, and restrained status badges. Checkout remains a separate commerce-flow pass.
-- **Next rollout candidates:** deeper content, checkout, public services, and client-facing detail pages still carry older gray, blue, purple, and cyan styling and should move to the same primitives in smaller follow-up PRs.
+- **Public commerce catalog slice:** `/store`, `/store/[id]`, `ProductCard`, `ServiceCard`, and `ShoppingCart` now use the Mission Control navy/gold surface language, gold command affordances, and restrained status badges.
+- **Checkout/payment slice:** `/checkout`, `/checkout/payment`, and the shared checkout subcomponents now use the same dark operating-console shell, command-card hierarchy, navy/gold payment controls, and restrained semantic states.
+- **Next rollout candidates:** deeper content, public services, purchases, and client-facing detail pages still carry older gray, blue, purple, and cyan styling and should move to the same primitives in smaller follow-up PRs.
 
 ---
 
@@ -49,7 +50,7 @@ The Agent Ops Mission Control surface at `/admin/agents` is the current referenc
 |---------------------------|---------------|----------------------------|----------|
 | Store product detail | Gray-based UI, Cyan/blue accents, Cyan–blue gradient CTA | `app/store/[id]/page.tsx` (gray-*, cyan-*, from-cyan-600 to-blue-600) | High |
 | Store listing | Gray, blue–purple gradient CTA | `app/store/page.tsx` (gray-400, from-blue-600 to-purple-600) | High |
-| Checkout | Gray-based UI, blue–purple gradients, purple hover, amber icon | `app/checkout/page.tsx` (gray-*, from-blue-600 to-purple-600, border-purple-500, amber-400) | High |
+| Checkout | Remediated: Mission Control checkout shell, navy/gold command cards, restrained payment and delivery controls | `app/checkout/page.tsx`, `app/checkout/payment/page.tsx` | Done |
 | Auth (login/signup) | Gray-based UI, purple focus, purple–pink gradient CTAs, purple links | `components/auth/LoginForm.tsx`, `SignupForm.tsx` (gray-*, focus:border-purple-500, from-purple-600 to-pink-600, text-purple-400) | High |
 | Auth pages (suspense) | Gray loading text | `app/auth/login/page.tsx`, `app/auth/signup/page.tsx` (text-gray-400) | Low |
 | Services (public) | Gray search icon, cyan–blue gradients | `app/services/page.tsx`, `app/services/[id]/page.tsx` (gray-400, from-cyan-*, to-blue-*) | Medium |
@@ -83,10 +84,10 @@ The Agent Ops Mission Control surface at `/admin/agents` is the current referenc
 | Product classifier (admin) | Light gray/white UI (full off-palette), blue/purple/emerald accents | `components/admin/sales/ProductClassifier.tsx` (gray-100, white, blue-600, purple-600, emerald-600) | High |
 | Referral program | Gray inputs, purple/blue/green icons | `components/ReferralProgram.tsx` | Low |
 | Proposal modal | Blue accent blocks and CTA | `components/admin/sales/ProposalModal.tsx` | Medium |
-| Discount code form (checkout) | Gray icon, purple focus/hover, green success | `components/checkout/DiscountCodeForm.tsx` | Medium |
-| Contact form (checkout) | Gray icons | `components/checkout/ContactForm.tsx` (text-gray-400) | Low |
-| Order summary | Blue–green/purple–blue item gradients | `components/checkout/OrderSummary.tsx` | Low |
-| Stripe/checkout CTAs | (see Checkout page) | — | — |
+| Discount code form (checkout) | Remediated: responsive navy/gold form controls with semantic success state | `components/checkout/DiscountCodeForm.tsx` | Done |
+| Contact form (checkout) | Remediated: shared command button treatment | `components/checkout/ContactForm.tsx` | Done |
+| Order summary | Remediated: agent-ops summary card, restrained item rows, navy/gold quantity and variant controls | `components/checkout/OrderSummary.tsx` | Done |
+| Stripe/checkout CTAs | Remediated in checkout/payment slice | `app/checkout/payment/page.tsx`, `components/checkout/StripeCheckout.tsx` | Done |
 | Shopping cart | Blue–purple gradient CTA, blue–green/purple–blue item gradients | `components/ShoppingCart.tsx` | Medium |
 | Product card | Purple–blue card gradient, blue–purple CTA, green price | `components/ProductCard.tsx` | Medium |
 | Service card | Cyan–blue gradient, cyan–blue CTA | `components/ServiceCard.tsx` | Medium |
@@ -107,8 +108,8 @@ The Agent Ops Mission Control surface at `/admin/agents` is the current referenc
 
 - **`app/store/[id]/page.tsx`** — Product detail: gray backgrounds/borders/text (gray-400, gray-800, gray-900, etc.), cyan/blue hero gradient (from-cyan-900/20 to-blue-900/20), cyan badges and links (text-cyan-400, bg-cyan-500/90), primary CTA as cyan–blue gradient (from-cyan-600 to-blue-600). Whole page is off-palette.
 - **`app/store/page.tsx`** — Store listing: gray-400 search icon, primary CTA as blue–purple gradient (from-blue-600 to-purple-600).
-- **`app/checkout/page.tsx`** — Checkout: gray containers and text (gray-400, gray-800, gray-900), Lock icon amber-400, primary pay CTA blue–purple gradient, secondary CTA purple hover (hover:border-purple-500).
-- **`app/checkout/payment/page.tsx`** — (Included in files list; same checkout flow.)
+- **`app/checkout/page.tsx`** — Remediated in the checkout/payment slice: dark operating-console shell, command-card sign-in gate, surface header, delivery/payment cards, and navy/gold controls.
+- **`app/checkout/payment/page.tsx`** — Remediated in the checkout/payment slice: secure payment surface, restrained error state, and agent-ops cards around Stripe payment content.
 - **`app/purchases/page.tsx`** — Blue–purple gradient CTAs; green used for success/status (semantic).
 - **`app/lead-magnets/page.tsx`** — Gray loading/empty text (text-gray-400).
 
@@ -133,9 +134,9 @@ The Agent Ops Mission Control surface at `/admin/agents` is the current referenc
 
 ### Shared – Checkout & cart components
 
-- **`components/checkout/DiscountCodeForm.tsx`** — Gray-400 icon, focus:border-purple-500, hover:border-purple-500; green success box (semantic).
-- **`components/checkout/ContactForm.tsx`** — Gray-400 icons.
-- **`components/checkout/OrderSummary.tsx`** — Item thumbnails: from-blue-900/20 to-green-900/20 and from-purple-900/20 to-blue-900/20; green price text.
+- **`components/checkout/DiscountCodeForm.tsx`** — Remediated in checkout/payment slice with responsive navy/gold controls and restrained semantic success/error states.
+- **`components/checkout/ContactForm.tsx`** — Remediated in checkout/payment slice by using the shared command-button treatment.
+- **`components/checkout/OrderSummary.tsx`** — Remediated in checkout/payment slice with agent-ops card treatment, subdued item rows, and gold-focused editable controls.
 - **`components/ShoppingCart.tsx`** — Same thumbnail gradients; primary CTA from-blue-600 to-purple-600.
 - **`components/ProductCard.tsx`** — Card hero from-purple-900/20 to-blue-900/20; CTA from-blue-600 to-purple-600; green for price/Free.
 - **`components/ServiceCard.tsx`** — Card from-cyan-900/20 to-blue-900/20; CTA from-cyan-600 to-blue-600.

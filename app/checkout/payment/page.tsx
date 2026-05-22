@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { ArrowLeft, CheckCircle, Loader } from 'lucide-react'
+import { ArrowLeft, CheckCircle, CreditCard, Loader, ShieldCheck } from 'lucide-react'
 import StripeCheckout from '@/components/checkout/StripeCheckout'
 import { getCurrentSession } from '@/lib/auth'
 import SiteThemeCorner from '@/components/SiteThemeCorner'
@@ -70,8 +70,8 @@ function PaymentContent() {
     return (
       <>
         <SiteThemeCorner />
-        <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-          <div className="text-center">
+        <div className="dark agent-ops-page flex min-h-screen items-center justify-center text-foreground">
+          <div className="agent-ops-card rounded-lg border p-6 text-center">
             <Loader className="animate-spin mx-auto mb-4 text-radiant-gold" size={48} />
             <div className="text-muted-foreground">Initializing payment...</div>
           </div>
@@ -84,13 +84,13 @@ function PaymentContent() {
     return (
       <>
         <SiteThemeCorner />
-        <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
+        <div className="dark agent-ops-page min-h-screen px-4 pb-12 pt-24 text-foreground">
           <div className="max-w-2xl mx-auto">
-            <div className="bg-red-600/20 border border-red-600/50 rounded-xl p-6 text-center">
+            <div className="agent-ops-card rounded-xl border border-red-400/35 bg-red-500/10 p-6 text-center">
               <p className="text-red-400 mb-4">{error}</p>
               <button
                 onClick={() => router.push('/checkout')}
-                className="px-6 py-2 btn-gold text-imperial-navy font-semibold rounded-lg transition-colors"
+                className="agent-ops-button-primary px-6 py-2"
               >
                 Back to Checkout
               </button>
@@ -105,11 +105,11 @@ function PaymentContent() {
     return (
       <>
         <SiteThemeCorner />
-        <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+        <div className="dark agent-ops-page flex min-h-screen items-center justify-center text-foreground">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="text-center"
+            className="agent-ops-command-card rounded-xl border p-8 text-center"
           >
             <CheckCircle className="mx-auto mb-4 text-radiant-gold" size={64} />
             <h2 className="text-3xl font-bold mb-2">Payment Successful!</h2>
@@ -123,7 +123,7 @@ function PaymentContent() {
   return (
     <>
       <SiteThemeCorner />
-    <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
+    <div className="dark agent-ops-page min-h-screen px-4 pb-12 pt-24 text-foreground">
       <div className="max-w-2xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -131,22 +131,36 @@ function PaymentContent() {
         >
           <button
             onClick={() => router.push('/checkout')}
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
+            className="agent-ops-button-muted mb-6"
           >
             <ArrowLeft size={20} />
             Back to Checkout
           </button>
 
-          <h1 className="text-4xl font-bold mb-2">Complete Payment</h1>
-          <p className="text-muted-foreground mb-8">Enter your payment details to complete your purchase</p>
+          <section className="agent-ops-surface-header mb-6 rounded-xl border p-5 sm:p-6">
+            <p className="agent-ops-eyebrow"><CreditCard size={16} /> Secure payment</p>
+            <h1 className="mt-3 text-3xl font-bold sm:text-4xl">Complete payment</h1>
+            <p className="mt-2 text-muted-foreground">Enter your payment details to complete your purchase.</p>
+            <div className="mt-4 flex flex-wrap gap-2 text-sm text-muted-foreground">
+              <span className="inline-flex items-center gap-2 rounded-full border border-silicon-slate/70 bg-silicon-slate/25 px-3 py-1">
+                <ShieldCheck size={14} className="text-radiant-gold" />
+                Secured by Stripe
+              </span>
+              {orderId && (
+                <span className="rounded-full border border-silicon-slate/70 bg-silicon-slate/25 px-3 py-1">
+                  Order #{orderId}
+                </span>
+              )}
+            </div>
+          </section>
 
-          <div className="bg-silicon-slate border border-silicon-slate rounded-xl p-6">
+          <div className="agent-ops-card rounded-xl border p-5 sm:p-6">
             {clientSecret && orderId && (() => {
               const pubKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''
               const pubMode = pubKey.startsWith('pk_live') ? 'live' : pubKey.startsWith('pk_test') ? 'test' : null
               if (keyMode && pubMode && keyMode !== pubMode) {
                 return (
-                  <div className="p-4 bg-amber-600/20 border border-amber-600/50 rounded-lg text-amber-200">
+                  <div className="rounded-lg border border-amber-500/45 bg-amber-500/10 p-4 text-amber-200">
                     <p className="font-semibold">Payment form could not load</p>
                     <p className="mt-2 text-sm">
                       Your Stripe publishable key and secret key must use the same mode. You have a{' '}
@@ -166,14 +180,14 @@ function PaymentContent() {
               )
             })()}
             {error && (
-              <div className="mt-4 p-4 bg-red-600/20 border border-red-600/50 rounded-lg text-red-400">
+              <div className="mt-4 rounded-lg border border-red-400/40 bg-red-500/10 p-4 text-red-400">
                 {error}
               </div>
             )}
           </div>
 
           <div className="mt-6 text-center text-sm text-muted-foreground">
-            <p>Your payment is secured by Stripe</p>
+            <p>Payment details are handled securely by Stripe.</p>
           </div>
         </motion.div>
       </div>
@@ -187,8 +201,8 @@ export default function PaymentPage() {
     <Suspense fallback={
       <>
         <SiteThemeCorner />
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-        <div className="text-center">
+      <div className="dark agent-ops-page flex min-h-screen items-center justify-center text-foreground">
+        <div className="agent-ops-card rounded-lg border p-6 text-center">
           <Loader className="animate-spin mx-auto mb-4 text-radiant-gold" size={48} />
           <div className="text-muted-foreground">Loading...</div>
         </div>
