@@ -210,6 +210,140 @@
         112
       ],
       "type": "n8n-nodes-base.stickyNote"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "slack-agent-event-callback-url-present",
+              "leftValue": "={{ $('Progress Update Webhook').item.json.body.agent_event_callback_url || '' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "Has Slack Agent Event Callback URL",
+      "id": "has-slack-agent-event-callback-url",
+      "typeVersion": 2,
+      "position": [
+        896,
+        208
+      ],
+      "type": "n8n-nodes-base.if"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Progress Update Webhook').item.json.body.agent_event_callback_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.N8N_INGEST_SECRET || $env.N8N_INGEST_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ workflow_id: 'client-progress-update-router', stage: 'slack_delivery_complete', status: 'completed', items_count: 1, metadata: { channel: 'slack', delivery_status: 'sent' }, idempotency_key: ($('Progress Update Webhook').item.json.body.agent_run_id || 'missing-run') + ':client-progress-update-router:slack_delivery_complete' }) }}"
+      },
+      "name": "Slack Agent Trace Event",
+      "waitBetweenTries": 2000,
+      "retryOnFail": true,
+      "id": "slack-agent-trace-event",
+      "typeVersion": 4.2,
+      "maxTries": 3,
+      "position": [
+        1120,
+        208
+      ],
+      "type": "n8n-nodes-base.httpRequest"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "email-agent-event-callback-url-present",
+              "leftValue": "={{ $('Progress Update Webhook').item.json.body.agent_event_callback_url || '' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "Has Email Agent Event Callback URL",
+      "id": "has-email-agent-event-callback-url",
+      "typeVersion": 2,
+      "position": [
+        896,
+        400
+      ],
+      "type": "n8n-nodes-base.if"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Progress Update Webhook').item.json.body.agent_event_callback_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.N8N_INGEST_SECRET || $env.N8N_INGEST_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ workflow_id: 'client-progress-update-router', stage: 'email_delivery_complete', status: 'completed', items_count: 1, metadata: { channel: 'email', delivery_status: 'sent' }, idempotency_key: ($('Progress Update Webhook').item.json.body.agent_run_id || 'missing-run') + ':client-progress-update-router:email_delivery_complete' }) }}"
+      },
+      "name": "Email Agent Trace Event",
+      "waitBetweenTries": 2000,
+      "retryOnFail": true,
+      "id": "email-agent-trace-event",
+      "typeVersion": 4.2,
+      "maxTries": 3,
+      "position": [
+        1120,
+        400
+      ],
+      "type": "n8n-nodes-base.httpRequest"
     }
   ],
   "connections": {
@@ -258,6 +392,50 @@
         [
           {
             "node": "Email Delivery Callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Delivery Callback": {
+      "main": [
+        [
+          {
+            "node": "Has Slack Agent Event Callback URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Slack Agent Event Callback URL": {
+      "main": [
+        [
+          {
+            "node": "Slack Agent Trace Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Delivery Callback": {
+      "main": [
+        [
+          {
+            "node": "Has Email Agent Event Callback URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Email Agent Event Callback URL": {
+      "main": [
+        [
+          {
+            "node": "Email Agent Trace Event",
             "type": "main",
             "index": 0
           }
@@ -511,6 +689,140 @@
           112
         ],
         "type": "n8n-nodes-base.stickyNote"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "version": 2,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "conditions": [
+              {
+                "id": "slack-agent-event-callback-url-present",
+                "leftValue": "={{ $('Progress Update Webhook').item.json.body.agent_event_callback_url || '' }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEmpty",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "name": "Has Slack Agent Event Callback URL",
+        "id": "has-slack-agent-event-callback-url",
+        "typeVersion": 2,
+        "position": [
+          896,
+          208
+        ],
+        "type": "n8n-nodes-base.if"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "={{ $('Progress Update Webhook').item.json.body.agent_event_callback_url }}",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Authorization",
+                "value": "=Bearer {{ $vars.N8N_INGEST_SECRET || $env.N8N_INGEST_SECRET }}"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ JSON.stringify({ workflow_id: 'client-progress-update-router', stage: 'slack_delivery_complete', status: 'completed', items_count: 1, metadata: { channel: 'slack', delivery_status: 'sent' }, idempotency_key: ($('Progress Update Webhook').item.json.body.agent_run_id || 'missing-run') + ':client-progress-update-router:slack_delivery_complete' }) }}"
+        },
+        "name": "Slack Agent Trace Event",
+        "waitBetweenTries": 2000,
+        "retryOnFail": true,
+        "id": "slack-agent-trace-event",
+        "typeVersion": 4.2,
+        "maxTries": 3,
+        "position": [
+          1120,
+          208
+        ],
+        "type": "n8n-nodes-base.httpRequest"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "version": 2,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "conditions": [
+              {
+                "id": "email-agent-event-callback-url-present",
+                "leftValue": "={{ $('Progress Update Webhook').item.json.body.agent_event_callback_url || '' }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEmpty",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "name": "Has Email Agent Event Callback URL",
+        "id": "has-email-agent-event-callback-url",
+        "typeVersion": 2,
+        "position": [
+          896,
+          400
+        ],
+        "type": "n8n-nodes-base.if"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "={{ $('Progress Update Webhook').item.json.body.agent_event_callback_url }}",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Authorization",
+                "value": "=Bearer {{ $vars.N8N_INGEST_SECRET || $env.N8N_INGEST_SECRET }}"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ JSON.stringify({ workflow_id: 'client-progress-update-router', stage: 'email_delivery_complete', status: 'completed', items_count: 1, metadata: { channel: 'email', delivery_status: 'sent' }, idempotency_key: ($('Progress Update Webhook').item.json.body.agent_run_id || 'missing-run') + ':client-progress-update-router:email_delivery_complete' }) }}"
+        },
+        "name": "Email Agent Trace Event",
+        "waitBetweenTries": 2000,
+        "retryOnFail": true,
+        "id": "email-agent-trace-event",
+        "typeVersion": 4.2,
+        "maxTries": 3,
+        "position": [
+          1120,
+          400
+        ],
+        "type": "n8n-nodes-base.httpRequest"
       }
     ],
     "connections": {
@@ -559,6 +871,50 @@
           [
             {
               "node": "Email Delivery Callback",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Slack Delivery Callback": {
+        "main": [
+          [
+            {
+              "node": "Has Slack Agent Event Callback URL",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Has Slack Agent Event Callback URL": {
+        "main": [
+          [
+            {
+              "node": "Slack Agent Trace Event",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Email Delivery Callback": {
+        "main": [
+          [
+            {
+              "node": "Has Email Agent Event Callback URL",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Has Email Agent Event Callback URL": {
+        "main": [
+          [
+            {
+              "node": "Email Agent Trace Event",
               "type": "main",
               "index": 0
             }
