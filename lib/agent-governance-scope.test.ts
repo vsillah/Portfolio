@@ -243,4 +243,50 @@ describe('scoped agent governance snapshot', () => {
     expect(snapshot.governance.pending_authority_approvals[0]?.run_id).toBe('run-window')
     expect(snapshot.governance.recent_delegation_decisions[0]?.run_id).toBe('run-window')
   })
+
+  it('keeps date-only evidence queries active when no run rows match the window', async () => {
+    const runsQuery = queryReturning(success([]))
+    const approvalsQuery = queryReturning(success([
+      {
+        run_id: 'run-approval-in-window',
+        approval_type: 'payment_create_refund',
+        status: 'pending',
+        requested_at: '2026-05-21T12:00:00.000Z',
+      },
+    ]))
+    const eventsQuery = queryReturning(success([
+      {
+        run_id: 'run-event-in-window',
+        event_type: 'delegation_decision_recorded',
+        severity: 'info',
+        message: 'Evidence timestamp matched the date-only export window.',
+        occurred_at: '2026-05-21T12:01:00.000Z',
+        metadata: {
+          selected_agent_key: 'chief-of-staff',
+          selected_agent_name: 'Shaka (Zulu) - Chief of Staff',
+          task_type: 'governance',
+          risk_class: 'read_only',
+          confidence: 0.87,
+        },
+      },
+    ]))
+    mocks.from
+      .mockReturnValueOnce(runsQuery)
+      .mockReturnValueOnce(approvalsQuery)
+      .mockReturnValueOnce(eventsQuery)
+
+    const snapshot = await buildScopedAgentGovernanceSnapshot({
+      from: '2026-05-21T00:00:00.000Z',
+      to: '2026-05-21T23:59:59.999Z',
+    })
+
+    expect(snapshot.scope.matching_run_count).toBe(0)
+    expect(mocks.from).toHaveBeenCalledTimes(3)
+    expect(approvalsQuery.in).not.toHaveBeenCalled()
+    expect(eventsQuery.in).not.toHaveBeenCalled()
+    expect(approvalsQuery.gte).toHaveBeenCalledWith('requested_at', '2026-05-21T00:00:00.000Z')
+    expect(eventsQuery.lte).toHaveBeenCalledWith('occurred_at', '2026-05-21T23:59:59.999Z')
+    expect(snapshot.governance.pending_authority_approvals[0]?.run_id).toBe('run-approval-in-window')
+    expect(snapshot.governance.recent_delegation_decisions[0]?.run_id).toBe('run-event-in-window')
+  })
 })
