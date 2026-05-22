@@ -17,16 +17,38 @@ describe('WRM smoke gate helpers', () => {
       callbackBaseUrl: 'https://amadutown.com/',
     })
 
-    expect(payload).toEqual({
+    expect(payload).toMatchObject({
       mode: 'smoke',
       is_test_data: true,
       callbackBaseUrl: 'https://amadutown.com',
       agent_run_id: 'run-123',
       agent_event_callback_url: 'https://amadutown.com/api/admin/agents/runs/run-123/events',
+      agent_callback_contract: {
+        version: 1,
+        runtime: 'n8n',
+        events_url: 'https://amadutown.com/api/admin/agents/runs/run-123/events',
+        auth_header: 'Authorization: Bearer N8N_INGEST_SECRET',
+        final_completion_payload: {
+          workflow_id: 'WF-WRM-001',
+          status: 'completed',
+          final: true,
+        },
+        failure_payload: {
+          workflow_id: 'WF-WRM-001',
+          status: 'failed',
+        },
+      },
       agent_trace: {
+        version: 1,
+        runtime: 'n8n',
+        agent_run_id: 'run-123',
         mode: 'smoke',
         source: 'facebook',
         workflow_id: 'WF-WRM-001',
+        events_url: 'https://amadutown.com/api/admin/agents/runs/run-123/events',
+        callback_contract: {
+          events_url: 'https://amadutown.com/api/admin/agents/runs/run-123/events',
+        },
       },
     })
   })
