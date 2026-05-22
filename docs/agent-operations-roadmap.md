@@ -160,7 +160,7 @@ Status: Partial.
 
 Goal: Make production automations visible through the shared trace model.
 
-Latest hardening: app-triggered n8n payloads now carry a shared callback contract, and the generic Agent Ops callback route can classify progress, final completion, and failure callbacks for operator visibility.
+Latest hardening: app-triggered n8n payloads now carry a shared callback contract, the generic Agent Ops callback route can classify progress, final completion, and failure callbacks for operator visibility, and the Client Progress Update Router export records Agent Ops trace events after Slack/email delivery callbacks when an `agent_event_callback_url` is present.
 
 Definition of done:
 
