@@ -58,10 +58,23 @@ const governance = {
   ],
   pending_authority_approvals: [
     {
+      id: 'approval-payment',
       run_id: 'run-payment',
       approval_type: 'payment_create_refund',
       status: 'pending',
       requested_at: '2026-05-21T00:01:00.000Z',
+      requested_by_agent_key: 'chief-of-staff',
+      metadata: {
+        authority_packet: {
+          approval_id: 'approval-payment',
+          source_run_id: 'run-source',
+          action: 'create_refund',
+          label: 'Create refund',
+          risk_level: 'high',
+          side_effect_boundary: 'No refund is issued until this payment authority checkpoint is approved and linked to a trace.',
+          executes_action: false,
+        },
+      },
     },
   ],
   recent_delegation_decisions: [
@@ -90,6 +103,14 @@ describe('agent governance client export', () => {
     expect(clientExport.classification).toBe('client_safe')
     expect(clientExport.scope.description).toBe('Current governance snapshot.')
     expect(clientExport.summary.pending_authority_approvals).toBe(1)
+    expect(clientExport.authority_controls.pending_authority_checkpoints[0]).toMatchObject({
+      approval_id: 'approval-payment',
+      label: 'Create refund',
+      action: 'create_refund',
+      risk_level: 'high',
+      source_run_id: 'run-source',
+      executes_action: false,
+    })
     expect(clientExport.capability_inventory[1]).toMatchObject({
       agent: 'Yaa Asantewaa (Ashanti) - Automation Systems',
       spend_authority: 'approval_required',
@@ -114,6 +135,7 @@ describe('agent governance client export', () => {
     expect(markdown).toContain('## Capability Inventory')
     expect(markdown).toContain('| Yaa Asantewaa (Ashanti) - Automation Systems | active | n8n | yellow | approval_required | known_workflow |')
     expect(markdown).toContain('| run-delegation | Yaa Asantewaa (Ashanti) - Automation Systems | payment | payment_spend | 90% | approval_record, payment_object, trace_id | payment_create_refund | chief-of-staff |')
+    expect(markdown).toContain('| approval-payment | run-payment | Create refund | payment_create_refund | high | No | run-source | No refund is issued until this payment authority checkpoint is approved and linked to a trace. |')
     expect(markdown).toContain('Payment and paid-job actions are represented as approval gates')
   })
 

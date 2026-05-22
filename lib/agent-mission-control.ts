@@ -35,6 +35,8 @@ type ApprovalRow = {
   approval_type: string
   status: string
   requested_at: string
+  requested_by_agent_key: string | null
+  metadata: Record<string, unknown> | null
 }
 
 type EventRow = {
@@ -833,7 +835,7 @@ export async function buildAgentMissionControlSnapshot() {
       .limit(500),
     db
       .from('agent_approvals')
-      .select('id, run_id, approval_type, status, requested_at')
+      .select('id, run_id, approval_type, status, requested_at, requested_by_agent_key, metadata')
       .eq('status', 'pending')
       .order('requested_at', { ascending: false })
       .limit(20),

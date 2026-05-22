@@ -176,10 +176,23 @@ const missionSnapshot = {
     ],
     pending_authority_approvals: [
       {
+        id: 'approval-payment',
         run_id: 'payment-run',
         approval_type: 'payment_create_refund',
         status: 'pending',
         requested_at: '2026-05-13T11:30:00.000Z',
+        requested_by_agent_key: 'chief-of-staff',
+        metadata: {
+          authority_packet: {
+            approval_id: 'approval-payment',
+            source_run_id: 'delegation-run',
+            action: 'create_refund',
+            label: 'Create refund',
+            risk_level: 'high',
+            side_effect_boundary: 'No refund is issued until this payment authority checkpoint is approved and linked to a trace.',
+            executes_action: false,
+          },
+        },
       },
     ],
     recent_delegation_decisions: [
@@ -493,7 +506,9 @@ describe('AgentOperationsPage mission control landing', () => {
     expect(within(governancePanel).getByText(/payment · 90% confidence/i)).toBeInTheDocument()
     expect(within(governancePanel).getByText(/Evidence: approval_record, payment_object, trace_id/i)).toBeInTheDocument()
     expect(within(governancePanel).getByText(/Approval: payment_create_refund · Fallback: chief-of-staff/i)).toBeInTheDocument()
-    expect(within(governancePanel).getByText(/1 pending authority checkpoint/i)).toBeInTheDocument()
+    expect(within(governancePanel).getByText('Create refund')).toBeInTheDocument()
+    expect(within(governancePanel).getByText('No refund is issued until this payment authority checkpoint is approved and linked to a trace.')).toBeInTheDocument()
+    expect(within(governancePanel).getByText(/Risk: high · Executes now: no/i)).toBeInTheDocument()
     expect(within(governancePanel).getByRole('link', { name: /Export client audit/i })).toHaveAttribute('href', '/api/admin/agents/governance/export?format=markdown')
     expect(within(governancePanel).getByRole('link', { name: /Export audit JSON/i })).toHaveAttribute('href', '/api/admin/agents/governance/export?format=json')
     expect(within(governancePanel).getByRole('link', { name: /Export latest trace/i })).toHaveAttribute('href', '/api/admin/agents/governance/export?format=markdown&runId=delegation-run')

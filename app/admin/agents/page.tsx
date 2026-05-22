@@ -215,10 +215,13 @@ type MissionSnapshot = {
       description: string
     }>
     pending_authority_approvals: Array<{
+      id?: string
       run_id: string
       approval_type: string
       status: string
       requested_at: string
+      requested_by_agent_key?: string | null
+      metadata?: Record<string, unknown> | null
     }>
     recent_delegation_decisions: Array<{
       run_id: string
@@ -1932,6 +1935,7 @@ function AgentGovernancePanel({ governance }: { governance: MissionSnapshot['gov
   const latestDelegation = governance.recent_delegation_decisions[0]
   const latestPaymentAction = governance.payment_authority_actions[0]
   const pendingAuthority = governance.pending_authority_approvals[0]
+  const pendingAuthorityPacket = authorityPacket(pendingAuthority?.metadata)
   const statusTone = governance.summary.pending_authority_approvals > 0
     ? 'yellow'
     : governance.summary.least_privilege_attention > 0
@@ -2060,17 +2064,37 @@ function AgentGovernancePanel({ governance }: { governance: MissionSnapshot['gov
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Payment authority</p>
             <p className="mt-2 text-sm font-semibold">
               {governance.pending_authority_approvals.length
-                ? `${governance.pending_authority_approvals.length} pending authority checkpoint(s)`
+                ? pendingAuthorityPacket?.label ?? `${governance.pending_authority_approvals.length} pending authority checkpoint(s)`
                 : latestPaymentAction?.label ?? 'Payment gates ready'}
             </p>
             <p className="mt-1 text-xs leading-5 text-muted-foreground">
-              Payment, refund, subscription, vendor spend, paid API, and paid external job actions require trace-linked approval.
+              {pendingAuthorityPacket?.side_effect_boundary ??
+                'Payment, refund, subscription, vendor spend, paid API, and paid external job actions require trace-linked approval.'}
             </p>
+            {pendingAuthority ? (
+              <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                {pendingAuthorityPacket?.risk_level ? `Risk: ${pendingAuthorityPacket.risk_level}` : `Approval: ${pendingAuthority.approval_type}`}
+                {' · '}
+                {pendingAuthorityPacket?.executes_action ? 'Executes now: yes' : 'Executes now: no'}
+              </p>
+            ) : null}
           </Link>
         </div>
       </div>
     </section>
   )
+}
+
+function authorityPacket(metadata: Record<string, unknown> | null | undefined) {
+  const value = metadata?.authority_packet
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+  const record = value as Record<string, unknown>
+  return {
+    label: typeof record.label === 'string' ? record.label : null,
+    risk_level: typeof record.risk_level === 'string' ? record.risk_level : null,
+    side_effect_boundary: typeof record.side_effect_boundary === 'string' ? record.side_effect_boundary : null,
+    executes_action: record.executes_action === true,
+  }
 }
 
 function GovernanceExportLedger({ exports }: { exports: NonNullable<MissionSnapshot['governance']>['recent_governance_exports'] }) {

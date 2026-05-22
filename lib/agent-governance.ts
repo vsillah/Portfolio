@@ -26,10 +26,13 @@ export type AgentCapabilityProfile = {
 }
 
 export type GovernanceApprovalSummary = {
+  id?: string
   run_id: string
   approval_type: string
   status: string
   requested_at: string
+  requested_by_agent_key?: string | null
+  metadata?: Record<string, unknown> | null
 }
 
 export type GovernanceEventSummary = {
@@ -221,6 +224,32 @@ function metadataString(metadata: Record<string, unknown> | null, key: string) {
   return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null
 }
 
+function nestedMetadataRecord(metadata: Record<string, unknown> | null, key: string) {
+  return metadataRecord(metadata?.[key])
+}
+
+function authorityApprovalSummary(approval: GovernanceApprovalSummary): GovernanceApprovalSummary {
+  const metadata = metadataRecord(approval.metadata)
+  const actionPayload = nestedMetadataRecord(metadata, 'action_payload')
+  const proposal = nestedMetadataRecord(metadata, 'proposal')
+
+  return {
+    ...approval,
+    metadata: {
+      ...(metadata ?? {}),
+      authority_packet: {
+        approval_id: approval.id ?? null,
+        source_run_id: metadataString(actionPayload, 'source_run_id') ?? metadataString(metadata, 'source_run_id'),
+        action: metadataString(actionPayload, 'action') ?? metadataString(proposal, 'action'),
+        label: metadataString(actionPayload, 'label') ?? metadataString(proposal, 'label') ?? approval.approval_type.replace(/_/g, ' '),
+        risk_level: metadataString(actionPayload, 'risk_level') ?? metadataString(proposal, 'riskLevel'),
+        side_effect_boundary: metadataString(actionPayload, 'side_effect_boundary'),
+        executes_action: actionPayload?.executes_action === true,
+      },
+    },
+  }
+}
+
 function recentDelegationDecisions(events: GovernanceEventSummary[]): AgentGovernanceSnapshot['recent_delegation_decisions'] {
   return events
     .filter((event) => event.event_type === 'delegation_decision_recorded')
@@ -278,7 +307,7 @@ export function buildAgentGovernanceSnapshot(input?: {
         description: gate?.description ?? 'Payment authority action.',
       }
     }),
-    pending_authority_approvals: pendingAuthorityApprovals.slice(0, 8),
+    pending_authority_approvals: pendingAuthorityApprovals.slice(0, 8).map(authorityApprovalSummary),
     recent_delegation_decisions: recentDelegationDecisions(input?.events ?? []),
     recent_governance_exports: (input?.exports ?? []).slice(0, 8),
   }
