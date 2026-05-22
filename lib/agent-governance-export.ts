@@ -42,6 +42,10 @@ export type AgentGovernanceClientExport = {
     confidence: string
     occurred_at: string
     reason: string
+    required_evidence: string[]
+    approval_gate: string | null
+    fallback_agent: string | null
+    alternatives_considered: string[]
   }>
   authority_controls: {
     payment_gates: Array<{
@@ -51,10 +55,17 @@ export type AgentGovernanceClientExport = {
       description: string
     }>
     pending_authority_checkpoints: Array<{
+      approval_id: string | null
       trace_reference: string
       approval_type: string
+      label: string
+      action: string | null
+      risk_level: string | null
       status: string
       requested_at: string
+      source_run_id: string | null
+      side_effect_boundary: string | null
+      executes_action: boolean
     }>
   }
   audit_boundaries: string[]
@@ -69,6 +80,16 @@ const AUDIT_BOUNDARIES = [
 
 function percent(value: number) {
   return `${Math.round(value * 100)}%`
+}
+
+function recordValue(record: Record<string, unknown> | null | undefined, key: string) {
+  const value = record?.[key]
+  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null
+}
+
+function authorityPacket(metadata: Record<string, unknown> | null | undefined) {
+  const value = metadata?.authority_packet
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : null
 }
 
 export function buildAgentGovernanceClientExport(
@@ -116,6 +137,10 @@ export function buildAgentGovernanceClientExport(
       confidence: percent(decision.confidence),
       occurred_at: decision.occurred_at,
       reason: decision.reason,
+      required_evidence: decision.required_evidence,
+      approval_gate: decision.approval_gate,
+      fallback_agent: decision.fallback_agent_key,
+      alternatives_considered: decision.alternatives_considered,
     })),
     authority_controls: {
       payment_gates: governance.payment_authority_actions.map((gate) => ({
@@ -125,10 +150,17 @@ export function buildAgentGovernanceClientExport(
         description: gate.description,
       })),
       pending_authority_checkpoints: governance.pending_authority_approvals.map((approval) => ({
+        approval_id: approval.id ?? recordValue(authorityPacket(approval.metadata), 'approval_id'),
         trace_reference: approval.run_id,
         approval_type: approval.approval_type,
+        label: recordValue(authorityPacket(approval.metadata), 'label') ?? approval.approval_type.replace(/_/g, ' '),
+        action: recordValue(authorityPacket(approval.metadata), 'action'),
+        risk_level: recordValue(authorityPacket(approval.metadata), 'risk_level'),
         status: approval.status,
         requested_at: approval.requested_at,
+        source_run_id: recordValue(authorityPacket(approval.metadata), 'source_run_id'),
+        side_effect_boundary: recordValue(authorityPacket(approval.metadata), 'side_effect_boundary'),
+        executes_action: authorityPacket(approval.metadata)?.executes_action === true,
       })),
     },
     audit_boundaries: AUDIT_BOUNDARIES,
@@ -147,9 +179,9 @@ export function formatAgentGovernanceClientMarkdown(clientExport: AgentGovernanc
 
   const delegationRows = clientExport.delegation_trace.length
     ? clientExport.delegation_trace.map((decision) =>
-        `| ${decision.trace_reference} | ${decision.selected_agent} | ${decision.task_type} | ${decision.risk_class} | ${decision.confidence} |`,
+        `| ${decision.trace_reference} | ${decision.selected_agent} | ${decision.task_type} | ${decision.risk_class} | ${decision.confidence} | ${decision.required_evidence.length ? decision.required_evidence.join(', ') : 'None recorded'} | ${decision.approval_gate ?? 'None'} | ${decision.fallback_agent ?? 'None'} |`,
       )
-    : ['| No recent delegation decisions recorded. | - | - | - | - |']
+    : ['| No recent delegation decisions recorded. | - | - | - | - | - | - | - |']
 
   const paymentRows = clientExport.authority_controls.payment_gates.map((gate) =>
     `| ${gate.label} | ${gate.approval_type} | ${gate.description} |`,
@@ -157,9 +189,9 @@ export function formatAgentGovernanceClientMarkdown(clientExport: AgentGovernanc
 
   const pendingRows = clientExport.authority_controls.pending_authority_checkpoints.length
     ? clientExport.authority_controls.pending_authority_checkpoints.map((approval) =>
-        `| ${approval.trace_reference} | ${approval.approval_type} | ${approval.status} | ${approval.requested_at} |`,
+        `| ${approval.approval_id ?? 'None'} | ${approval.trace_reference} | ${approval.label} | ${approval.approval_type} | ${approval.risk_level ?? 'Not recorded'} | ${approval.executes_action ? 'Yes' : 'No'} | ${approval.source_run_id ?? 'None'} | ${approval.side_effect_boundary ?? 'Not recorded'} |`,
       )
-    : ['| No pending authority checkpoints. | - | - | - |']
+    : ['| No pending authority checkpoints. | - | - | - | - | - | - | - |']
 
   return [
     `# ${clientExport.title}`,
@@ -198,8 +230,8 @@ export function formatAgentGovernanceClientMarkdown(clientExport: AgentGovernanc
     '',
     '## Delegation Trace',
     '',
-    '| Trace | Selected Agent | Task | Risk | Confidence |',
-    '| --- | --- | --- | --- | --- |',
+    '| Trace | Selected Agent | Task | Risk | Confidence | Required Evidence | Approval Gate | Fallback |',
+    '| --- | --- | --- | --- | --- | --- | --- | --- |',
     ...delegationRows,
     '',
     '## Payment And Spend Authority',
@@ -210,8 +242,8 @@ export function formatAgentGovernanceClientMarkdown(clientExport: AgentGovernanc
     '',
     '## Pending Authority Checkpoints',
     '',
-    '| Trace | Approval Type | Status | Requested At |',
-    '| --- | --- | --- | --- |',
+    '| Approval | Trace | Label | Approval Type | Risk | Executes Now | Source Run | Boundary |',
+    '| --- | --- | --- | --- | --- | --- | --- | --- |',
     ...pendingRows,
     '',
     '## Audit Boundaries',

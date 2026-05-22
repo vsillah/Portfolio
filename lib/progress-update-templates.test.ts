@@ -23,6 +23,7 @@ describe('progress update agent trace payloads', () => {
     expect(buildProgressUpdateAgentTracePayload(null)).toEqual({
       agent_run_id: null,
       agent_event_callback_url: null,
+      agent_callback_contract: null,
       agent_trace: null,
     })
   })
@@ -33,6 +34,22 @@ describe('progress update agent trace payloads', () => {
     expect(buildProgressUpdateAgentTracePayload('agent-run-1')).toMatchObject({
       agent_run_id: 'agent-run-1',
       agent_event_callback_url: 'https://portfolio.example.com/api/admin/agents/runs/agent-run-1/events',
+      agent_callback_contract: {
+        version: 1,
+        runtime: 'n8n',
+        events_url: 'https://portfolio.example.com/api/admin/agents/runs/agent-run-1/events',
+        auth_header: 'Authorization: Bearer N8N_INGEST_SECRET',
+        required_fields: ['workflow_id', 'stage', 'status'],
+        final_completion_payload: {
+          workflow_id: 'client-progress-update-router',
+          status: 'completed',
+          final: true,
+        },
+        failure_payload: {
+          workflow_id: 'client-progress-update-router',
+          status: 'failed',
+        },
+      },
       agent_trace: {
         version: 1,
         runtime: 'n8n',
@@ -40,6 +57,10 @@ describe('progress update agent trace payloads', () => {
         workflow_id: 'client-progress-update-router',
         events_url: 'https://portfolio.example.com/api/admin/agents/runs/agent-run-1/events',
         auth: 'Bearer N8N_INGEST_SECRET',
+        callback_contract: {
+          events_url: 'https://portfolio.example.com/api/admin/agents/runs/agent-run-1/events',
+          auth_header: 'Authorization: Bearer N8N_INGEST_SECRET',
+        },
       },
     })
   })

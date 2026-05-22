@@ -10,6 +10,7 @@ import {
 } from './n8n-runtime-flags'
 import type { AgentReadinessAssessment } from './agent-readiness-assessment'
 import { isLikelyTransientError, withRetry } from './llm/with-retry'
+import { buildN8nAgentCallbackEnvelope } from './n8n-agent-callback'
 
 export { isMockN8nEnabled, isN8nOutboundDisabled }
 
@@ -46,22 +47,19 @@ function n8nAgentTracePayload(agentRunId?: string, workflowId?: string): Record<
 
   const eventsUrl = `${n8nCallbackBaseUrl()}/api/admin/agents/runs/${agentRunId}/events`
   return {
-    agent_run_id: agentRunId,
-    agent_event_callback_url: eventsUrl,
-    agent_trace: {
-      version: 1,
-      runtime: 'n8n',
-      agent_run_id: agentRunId,
-      workflow_id: workflowId ?? null,
-      events_url: eventsUrl,
-      auth: 'Bearer N8N_INGEST_SECRET',
-      progress_payload: {
-        workflow_id: workflowId ?? '<workflow-id>',
-        stage: '<node-or-stage-name>',
-        status: 'running | completed | failed',
-        items_count: '<optional-number>',
+    ...buildN8nAgentCallbackEnvelope({
+      agentRunId,
+      eventsUrl,
+      workflowId,
+      trace: {
+        progress_payload: {
+          workflow_id: workflowId ?? '<workflow-id>',
+          stage: '<node-or-stage-name>',
+          status: 'running | completed | failed',
+          items_count: '<optional-number>',
+        },
       },
-    },
+    }),
   }
 }
 

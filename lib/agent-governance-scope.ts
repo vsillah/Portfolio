@@ -17,10 +17,13 @@ type ScopedRunRow = {
 }
 
 type ScopedApprovalRow = {
+  id: string
   run_id: string
   approval_type: string
   status: string
   requested_at: string
+  requested_by_agent_key: string | null
+  metadata: Record<string, unknown> | null
 }
 
 type ScopedEventRow = {
@@ -145,7 +148,7 @@ export async function buildScopedAgentGovernanceSnapshot(
   if (!shouldQueryScopedRuns || runIds.length > 0) {
     let approvalsQuery = supabaseAdmin
       .from('agent_approvals')
-      .select('run_id, approval_type, status, requested_at')
+      .select('id, run_id, approval_type, status, requested_at, requested_by_agent_key, metadata')
       .eq('status', 'pending')
       .order('requested_at', { ascending: false })
       .limit(50)

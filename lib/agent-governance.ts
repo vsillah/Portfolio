@@ -26,10 +26,13 @@ export type AgentCapabilityProfile = {
 }
 
 export type GovernanceApprovalSummary = {
+  id?: string
   run_id: string
   approval_type: string
   status: string
   requested_at: string
+  requested_by_agent_key?: string | null
+  metadata?: Record<string, unknown> | null
 }
 
 export type GovernanceEventSummary = {
@@ -83,6 +86,10 @@ export type AgentGovernanceSnapshot = {
     confidence: number
     occurred_at: string
     reason: string
+    required_evidence: string[]
+    approval_gate: string | null
+    fallback_agent_key: string | null
+    alternatives_considered: string[]
   }>
   recent_governance_exports: GovernanceExportSummary[]
 }
@@ -204,6 +211,45 @@ function metadataRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : null
 }
 
+function metadataStringArray(metadata: Record<string, unknown> | null, key: string) {
+  const value = metadata?.[key]
+  if (!Array.isArray(value)) return []
+  return value
+    .filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+    .map((item) => item.trim())
+}
+
+function metadataString(metadata: Record<string, unknown> | null, key: string) {
+  const value = metadata?.[key]
+  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null
+}
+
+function nestedMetadataRecord(metadata: Record<string, unknown> | null, key: string) {
+  return metadataRecord(metadata?.[key])
+}
+
+function authorityApprovalSummary(approval: GovernanceApprovalSummary): GovernanceApprovalSummary {
+  const metadata = metadataRecord(approval.metadata)
+  const actionPayload = nestedMetadataRecord(metadata, 'action_payload')
+  const proposal = nestedMetadataRecord(metadata, 'proposal')
+
+  return {
+    ...approval,
+    metadata: {
+      ...(metadata ?? {}),
+      authority_packet: {
+        approval_id: approval.id ?? null,
+        source_run_id: metadataString(actionPayload, 'source_run_id') ?? metadataString(metadata, 'source_run_id'),
+        action: metadataString(actionPayload, 'action') ?? metadataString(proposal, 'action'),
+        label: metadataString(actionPayload, 'label') ?? metadataString(proposal, 'label') ?? approval.approval_type.replace(/_/g, ' '),
+        risk_level: metadataString(actionPayload, 'risk_level') ?? metadataString(proposal, 'riskLevel'),
+        side_effect_boundary: metadataString(actionPayload, 'side_effect_boundary'),
+        executes_action: actionPayload?.executes_action === true,
+      },
+    },
+  }
+}
+
 function recentDelegationDecisions(events: GovernanceEventSummary[]): AgentGovernanceSnapshot['recent_delegation_decisions'] {
   return events
     .filter((event) => event.event_type === 'delegation_decision_recorded')
@@ -222,6 +268,10 @@ function recentDelegationDecisions(events: GovernanceEventSummary[]): AgentGover
         confidence: typeof metadata?.confidence === 'number' ? metadata.confidence : 0,
         occurred_at: event.occurred_at,
         reason: event.message ?? 'Delegation decision recorded.',
+        required_evidence: metadataStringArray(metadata, 'required_evidence'),
+        approval_gate: metadataString(metadata, 'approval_gate'),
+        fallback_agent_key: metadataString(metadata, 'fallback_agent_key'),
+        alternatives_considered: metadataStringArray(metadata, 'alternatives_considered'),
       }]
     })
     .slice(0, 5)
@@ -257,7 +307,7 @@ export function buildAgentGovernanceSnapshot(input?: {
         description: gate?.description ?? 'Payment authority action.',
       }
     }),
-    pending_authority_approvals: pendingAuthorityApprovals.slice(0, 8),
+    pending_authority_approvals: pendingAuthorityApprovals.slice(0, 8).map(authorityApprovalSummary),
     recent_delegation_decisions: recentDelegationDecisions(input?.events ?? []),
     recent_governance_exports: (input?.exports ?? []).slice(0, 8),
   }

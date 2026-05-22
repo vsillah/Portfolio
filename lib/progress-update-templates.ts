@@ -9,6 +9,10 @@
 import { supabaseAdmin } from './supabase'
 import { n8nWebhookUrl } from './n8n'
 import {
+  buildN8nAgentCallbackEnvelope,
+  type N8nAgentCallbackContract,
+} from './n8n-agent-callback'
+import {
   attachAgentArtifact,
   endAgentRun,
   markAgentRunFailed,
@@ -105,6 +109,7 @@ export interface ProgressUpdateWebhookPayload {
   callback_url: string
   agent_run_id?: string | null
   agent_event_callback_url?: string | null
+  agent_callback_contract?: N8nAgentCallbackContract | null
   agent_trace?: Record<string, unknown> | null
 }
 
@@ -136,29 +141,25 @@ function portfolioBaseUrl(): string {
 export function buildProgressUpdateAgentTracePayload(
   agentRunId: string | null,
   workflowId = PROGRESS_UPDATE_WORKFLOW_ID,
-): Pick<ProgressUpdateWebhookPayload, 'agent_run_id' | 'agent_event_callback_url' | 'agent_trace'> {
+): Pick<ProgressUpdateWebhookPayload, 'agent_run_id' | 'agent_event_callback_url' | 'agent_callback_contract' | 'agent_trace'> {
   if (!agentRunId) {
     return {
       agent_run_id: null,
       agent_event_callback_url: null,
+      agent_callback_contract: null,
       agent_trace: null,
     }
   }
 
   const eventsUrl = `${portfolioBaseUrl()}/api/admin/agents/runs/${agentRunId}/events`
-  return {
-    agent_run_id: agentRunId,
-    agent_event_callback_url: eventsUrl,
-    agent_trace: {
-      version: 1,
-      runtime: 'n8n',
-      agent_run_id: agentRunId,
-      workflow_id: workflowId,
-      events_url: eventsUrl,
-      auth: 'Bearer N8N_INGEST_SECRET',
+  return buildN8nAgentCallbackEnvelope({
+    agentRunId,
+    eventsUrl,
+    workflowId,
+    trace: {
       completion_callback: 'n8n should echo agent_run_id to callback_url after delivery.',
     },
-  }
+  })
 }
 
 // ============================================================================

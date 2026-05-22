@@ -1,3 +1,5 @@
+import { buildN8nAgentCallbackEnvelope } from './n8n-agent-callback'
+
 export type WrmSmokeSource = 'facebook' | 'google_contacts' | 'linkedin'
 
 export interface WrmSmokeWorkflow {
@@ -51,17 +53,21 @@ export function agentEventCallbackUrl(callbackBaseUrl: string, runId: string): s
 }
 
 export function buildWrmSmokePayload(input: WrmSmokePayloadInput): Record<string, unknown> {
+  const eventsUrl = agentEventCallbackUrl(input.callbackBaseUrl, input.runId)
+
   return {
     mode: 'smoke',
     is_test_data: true,
     callbackBaseUrl: normalizeBaseUrl(input.callbackBaseUrl),
-    agent_run_id: input.runId,
-    agent_event_callback_url: agentEventCallbackUrl(input.callbackBaseUrl, input.runId),
-    agent_trace: {
-      mode: 'smoke',
-      source: input.workflow.source,
-      workflow_id: input.workflow.workflowId,
-    },
+    ...buildN8nAgentCallbackEnvelope({
+      agentRunId: input.runId,
+      eventsUrl,
+      workflowId: input.workflow.workflowId,
+      trace: {
+        mode: 'smoke',
+        source: input.workflow.source,
+      },
+    }),
   }
 }
 
