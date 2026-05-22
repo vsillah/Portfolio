@@ -320,13 +320,13 @@ function StoreContent() {
               {/* Search and Filters */}
               <div className="flex flex-col gap-4 md:flex-row">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+                  <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
                   <input
                     type="text"
                     placeholder="Search store..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 input-brand"
+                    className="w-full py-2 !pl-12 pr-4 input-brand"
                   />
                 </div>
                 <div className="flex flex-wrap gap-2">
