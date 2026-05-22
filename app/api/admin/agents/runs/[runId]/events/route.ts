@@ -3,6 +3,8 @@ import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import {
   AGENT_EVENT_SEVERITIES,
   AGENT_RUN_STATUSES,
+  endAgentRun,
+  markAgentRunFailed,
   recordAgentEvent,
   recordAgentStep,
   type AgentEventSeverity,
@@ -78,6 +80,7 @@ export async function POST(
     status?: string
     items_count?: number
     error_message?: string
+    final?: boolean
     record_step?: boolean
     step_key?: string
     step_name?: string
@@ -95,7 +98,13 @@ export async function POST(
     const severity =
       (body.severity as AgentEventSeverity | undefined) ??
       (callbackStatus === 'failed' ? 'error' : 'info')
-    const eventType = body.event_type ?? (callbackStatus === 'failed' ? 'n8n_failure' : 'n8n_progress')
+    const eventType =
+      body.event_type ??
+      (callbackStatus === 'failed'
+        ? 'n8n_failure'
+        : callbackStatus === 'completed'
+          ? 'n8n_completion'
+          : 'n8n_progress')
     const metadata = {
       ...(body.metadata ?? {}),
       workflow_id: body.workflow_id ?? null,
@@ -103,6 +112,7 @@ export async function POST(
       n8n_status: body.status ?? null,
       items_count: body.items_count ?? null,
       error_message: body.error_message ?? null,
+      final: body.final === true,
     }
 
     const result = await recordAgentEvent({
@@ -127,6 +137,21 @@ export async function POST(
         idempotencyKey: body.idempotency_key ? `${body.idempotency_key}:step` : null,
       })
       stepId = step?.id ?? null
+    }
+
+    if (callbackStatus === 'failed') {
+      await markAgentRunFailed(
+        params.runId,
+        body.error_message ?? body.message ?? 'n8n workflow failed',
+        metadata,
+      )
+    } else if (body.final === true && callbackStatus === 'completed') {
+      await endAgentRun({
+        runId: params.runId,
+        status: 'completed',
+        outcome: metadata,
+        currentStep: body.stage ?? body.step_name ?? 'n8n completed',
+      })
     }
 
     return NextResponse.json({ ok: true, event_id: result?.id ?? null, step_id: stepId })
