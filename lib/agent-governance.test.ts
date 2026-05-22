@@ -41,6 +41,10 @@ describe('agent governance', () => {
             task_type: 'payment',
             risk_class: 'payment_spend',
             confidence: 0.9,
+            required_evidence: ['approval_record', 'payment_object', 'trace_id'],
+            approval_gate: 'payment_create_refund',
+            fallback_agent_key: 'chief-of-staff',
+            alternatives_considered: ['chief-of-staff'],
           },
         },
       ],
@@ -69,6 +73,10 @@ describe('agent governance', () => {
       selected_agent_key: 'automation-systems',
       task_type: 'payment',
       risk_class: 'payment_spend',
+      required_evidence: ['approval_record', 'payment_object', 'trace_id'],
+      approval_gate: 'payment_create_refund',
+      fallback_agent_key: 'chief-of-staff',
+      alternatives_considered: ['chief-of-staff'],
     })
     expect(snapshot.recent_governance_exports[0]).toMatchObject({
       id: 'export-1',

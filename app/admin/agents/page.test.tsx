@@ -192,6 +192,10 @@ const missionSnapshot = {
         confidence: 0.9,
         occurred_at: '2026-05-13T11:40:00.000Z',
         reason: 'Yaa Asantewaa matches payment work.',
+        required_evidence: ['approval_record', 'payment_object', 'trace_id'],
+        approval_gate: 'payment_create_refund',
+        fallback_agent_key: 'chief-of-staff',
+        alternatives_considered: ['chief-of-staff'],
       },
     ],
     recent_governance_exports: [
@@ -487,6 +491,8 @@ describe('AgentOperationsPage mission control landing', () => {
     expect(within(governancePanel).getAllByText('Yaa Asantewaa (Ashanti) - Automation Systems').length).toBeGreaterThan(0)
     expect(within(governancePanel).getByText('Spend gated')).toBeInTheDocument()
     expect(within(governancePanel).getByText(/payment · 90% confidence/i)).toBeInTheDocument()
+    expect(within(governancePanel).getByText(/Evidence: approval_record, payment_object, trace_id/i)).toBeInTheDocument()
+    expect(within(governancePanel).getByText(/Approval: payment_create_refund · Fallback: chief-of-staff/i)).toBeInTheDocument()
     expect(within(governancePanel).getByText(/1 pending authority checkpoint/i)).toBeInTheDocument()
     expect(within(governancePanel).getByRole('link', { name: /Export client audit/i })).toHaveAttribute('href', '/api/admin/agents/governance/export?format=markdown')
     expect(within(governancePanel).getByRole('link', { name: /Export audit JSON/i })).toHaveAttribute('href', '/api/admin/agents/governance/export?format=json')

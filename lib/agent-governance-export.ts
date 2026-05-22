@@ -42,6 +42,10 @@ export type AgentGovernanceClientExport = {
     confidence: string
     occurred_at: string
     reason: string
+    required_evidence: string[]
+    approval_gate: string | null
+    fallback_agent: string | null
+    alternatives_considered: string[]
   }>
   authority_controls: {
     payment_gates: Array<{
@@ -116,6 +120,10 @@ export function buildAgentGovernanceClientExport(
       confidence: percent(decision.confidence),
       occurred_at: decision.occurred_at,
       reason: decision.reason,
+      required_evidence: decision.required_evidence,
+      approval_gate: decision.approval_gate,
+      fallback_agent: decision.fallback_agent_key,
+      alternatives_considered: decision.alternatives_considered,
     })),
     authority_controls: {
       payment_gates: governance.payment_authority_actions.map((gate) => ({
@@ -147,9 +155,9 @@ export function formatAgentGovernanceClientMarkdown(clientExport: AgentGovernanc
 
   const delegationRows = clientExport.delegation_trace.length
     ? clientExport.delegation_trace.map((decision) =>
-        `| ${decision.trace_reference} | ${decision.selected_agent} | ${decision.task_type} | ${decision.risk_class} | ${decision.confidence} |`,
+        `| ${decision.trace_reference} | ${decision.selected_agent} | ${decision.task_type} | ${decision.risk_class} | ${decision.confidence} | ${decision.required_evidence.length ? decision.required_evidence.join(', ') : 'None recorded'} | ${decision.approval_gate ?? 'None'} | ${decision.fallback_agent ?? 'None'} |`,
       )
-    : ['| No recent delegation decisions recorded. | - | - | - | - |']
+    : ['| No recent delegation decisions recorded. | - | - | - | - | - | - | - |']
 
   const paymentRows = clientExport.authority_controls.payment_gates.map((gate) =>
     `| ${gate.label} | ${gate.approval_type} | ${gate.description} |`,
@@ -198,8 +206,8 @@ export function formatAgentGovernanceClientMarkdown(clientExport: AgentGovernanc
     '',
     '## Delegation Trace',
     '',
-    '| Trace | Selected Agent | Task | Risk | Confidence |',
-    '| --- | --- | --- | --- | --- |',
+    '| Trace | Selected Agent | Task | Risk | Confidence | Required Evidence | Approval Gate | Fallback |',
+    '| --- | --- | --- | --- | --- | --- | --- | --- |',
     ...delegationRows,
     '',
     '## Payment And Spend Authority',

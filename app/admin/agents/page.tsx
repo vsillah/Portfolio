@@ -229,6 +229,10 @@ type MissionSnapshot = {
       confidence: number
       occurred_at: string
       reason: string
+      required_evidence: string[]
+      approval_gate: string | null
+      fallback_agent_key: string | null
+      alternatives_considered: string[]
     }>
     recent_governance_exports: Array<{
       id: string
@@ -2035,6 +2039,18 @@ function AgentGovernancePanel({ governance }: { governance: MissionSnapshot['gov
                 ? `${latestDelegation.task_type.replace(/_/g, ' ')} · ${Math.round(latestDelegation.confidence * 100)}% confidence`
                 : 'Shaka will record deterministic delegation events when routed engagements are proposed.'}
             </p>
+            {latestDelegation?.required_evidence.length ? (
+              <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                Evidence: {latestDelegation.required_evidence.slice(0, 3).join(', ')}
+              </p>
+            ) : null}
+            {latestDelegation?.approval_gate || latestDelegation?.fallback_agent_key ? (
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                {latestDelegation.approval_gate ? `Approval: ${latestDelegation.approval_gate}` : 'Approval: none'}
+                {' · '}
+                {latestDelegation.fallback_agent_key ? `Fallback: ${latestDelegation.fallback_agent_key}` : 'Fallback: none'}
+              </p>
+            ) : null}
           </Link>
 
           <Link

@@ -74,6 +74,10 @@ const governance = {
       confidence: 0.9,
       occurred_at: '2026-05-21T00:02:00.000Z',
       reason: 'Payment work routes to automation systems.',
+      required_evidence: ['approval_record', 'payment_object', 'trace_id'],
+      approval_gate: 'payment_create_refund',
+      fallback_agent_key: 'chief-of-staff',
+      alternatives_considered: ['chief-of-staff'],
     },
   ],
   recent_governance_exports: [],
@@ -93,6 +97,9 @@ describe('agent governance client export', () => {
     expect(clientExport.delegation_trace[0]).toMatchObject({
       trace_reference: 'run-delegation',
       confidence: '90%',
+      required_evidence: ['approval_record', 'payment_object', 'trace_id'],
+      approval_gate: 'payment_create_refund',
+      fallback_agent: 'chief-of-staff',
     })
     expect(JSON.stringify(clientExport)).not.toContain('selected_agent_key')
     expect(clientExport.audit_boundaries.join(' ')).toContain('excludes raw prompts')
@@ -106,7 +113,7 @@ describe('agent governance client export', () => {
     expect(markdown).toContain('- Run ID: All visible governance runs')
     expect(markdown).toContain('## Capability Inventory')
     expect(markdown).toContain('| Yaa Asantewaa (Ashanti) - Automation Systems | active | n8n | yellow | approval_required | known_workflow |')
-    expect(markdown).toContain('| run-delegation | Yaa Asantewaa (Ashanti) - Automation Systems | payment | payment_spend | 90% |')
+    expect(markdown).toContain('| run-delegation | Yaa Asantewaa (Ashanti) - Automation Systems | payment | payment_spend | 90% | approval_record, payment_object, trace_id | payment_create_refund | chief-of-staff |')
     expect(markdown).toContain('Payment and paid-job actions are represented as approval gates')
   })
 

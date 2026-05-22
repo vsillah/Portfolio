@@ -83,6 +83,10 @@ export type AgentGovernanceSnapshot = {
     confidence: number
     occurred_at: string
     reason: string
+    required_evidence: string[]
+    approval_gate: string | null
+    fallback_agent_key: string | null
+    alternatives_considered: string[]
   }>
   recent_governance_exports: GovernanceExportSummary[]
 }
@@ -204,6 +208,19 @@ function metadataRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : null
 }
 
+function metadataStringArray(metadata: Record<string, unknown> | null, key: string) {
+  const value = metadata?.[key]
+  if (!Array.isArray(value)) return []
+  return value
+    .filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+    .map((item) => item.trim())
+}
+
+function metadataString(metadata: Record<string, unknown> | null, key: string) {
+  const value = metadata?.[key]
+  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null
+}
+
 function recentDelegationDecisions(events: GovernanceEventSummary[]): AgentGovernanceSnapshot['recent_delegation_decisions'] {
   return events
     .filter((event) => event.event_type === 'delegation_decision_recorded')
@@ -222,6 +239,10 @@ function recentDelegationDecisions(events: GovernanceEventSummary[]): AgentGover
         confidence: typeof metadata?.confidence === 'number' ? metadata.confidence : 0,
         occurred_at: event.occurred_at,
         reason: event.message ?? 'Delegation decision recorded.',
+        required_evidence: metadataStringArray(metadata, 'required_evidence'),
+        approval_gate: metadataString(metadata, 'approval_gate'),
+        fallback_agent_key: metadataString(metadata, 'fallback_agent_key'),
+        alternatives_considered: metadataStringArray(metadata, 'alternatives_considered'),
       }]
     })
     .slice(0, 5)
