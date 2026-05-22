@@ -45,6 +45,8 @@ function approval(overrides: Partial<ApprovalRow>): ApprovalRow {
     approval_type: 'send_email',
     status: 'pending',
     requested_at: now,
+    requested_by_agent_key: 'chief-of-staff',
+    metadata: null,
     ...overrides,
   }
 }
