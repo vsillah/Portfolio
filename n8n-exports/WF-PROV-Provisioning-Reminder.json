@@ -35,7 +35,9 @@
             {"id": "a3", "name": "project_name", "type": "string", "value": "={{ $json.body.project_name }}"},
             {"id": "a4", "name": "pending_items", "type": "string", "value": "={{ $json.body.pending_items }}"},
             {"id": "a5", "name": "slack_channel", "type": "string", "value": "={{ $json.body.slack_channel || '' }}"},
-            {"id": "a6", "name": "callback_url", "type": "string", "value": "={{ $json.body.callback_url || '' }}"}
+            {"id": "a6", "name": "callback_url", "type": "string", "value": "={{ $json.body.callback_url || '' }}"},
+            {"id": "a7", "name": "agent_run_id", "type": "string", "value": "={{ $json.body.agent_run_id || '' }}"},
+            {"id": "a8", "name": "agent_event_callback_url", "type": "string", "value": "={{ $json.body.agent_event_callback_url || '' }}"}
           ]
         },
         "options": {}
@@ -109,10 +111,59 @@
       "waitBetweenTries": 3000
     },
     {
+      "name": "Has Agent Event Callback URL",
+      "id": "check-agent-event-callback",
+      "typeVersion": 2.3,
+      "position": [1000, 300],
+      "type": "n8n-nodes-base.if",
+      "parameters": {
+        "conditions": {
+          "options": {"version": 2, "leftValue": "", "caseSensitive": true, "typeValidation": "strict"},
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-agent-event-callback",
+              "operator": {"type": "string", "operation": "notEmpty"},
+              "leftValue": "={{ $node[\"Extract Payload\"].json.agent_event_callback_url }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "name": "Report Agent Trace Event",
+      "id": "report-agent-trace-event",
+      "typeVersion": 4.4,
+      "position": [1250, 220],
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $node[\"Extract Payload\"].json.agent_event_callback_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "Content-Type", "value": "application/json"},
+            {"name": "Authorization", "value": "=Bearer {{ $vars.N8N_INGEST_SECRET || $env.N8N_INGEST_SECRET }}"}
+          ]
+        },
+        "specifyBody": "json",
+        "jsonBody": "={\n  workflow_id: 'WF-PROV',\n  stage: 'provisioning_reminder_sent',\n  status: 'completed',\n  final: true,\n  items_count: 1,\n  metadata: {\n    project_name: $node[\"Extract Payload\"].json.project_name || null,\n    client_email: $node[\"Extract Payload\"].json.client_email || null,\n    delivery_channel: $node[\"Extract Payload\"].json.slack_channel ? 'slack' : 'email'\n  },\n  idempotency_key: `${$node[\"Extract Payload\"].json.agent_run_id || 'no-agent-run'}:WF-PROV:provisioning_reminder_sent`\n}",
+        "options": {},
+        "authentication": "none",
+        "contentType": "json"
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000
+    },
+    {
       "name": "Respond OK",
       "id": "respond-ok",
       "typeVersion": 1.5,
-      "position": [1000, 300],
+      "position": [1500, 300],
       "type": "n8n-nodes-base.respondToWebhook",
       "parameters": {
         "respondWith": "json",
@@ -135,9 +186,18 @@
       ]
     },
     "Send Slack Reminder": {
-      "main": [[{"node": "Respond OK", "type": "main", "index": 0}]]
+      "main": [[{"node": "Has Agent Event Callback URL", "type": "main", "index": 0}]]
     },
     "Send Email Reminder": {
+      "main": [[{"node": "Has Agent Event Callback URL", "type": "main", "index": 0}]]
+    },
+    "Has Agent Event Callback URL": {
+      "main": [
+        [{"node": "Report Agent Trace Event", "type": "main", "index": 0}],
+        [{"node": "Respond OK", "type": "main", "index": 0}]
+      ]
+    },
+    "Report Agent Trace Event": {
       "main": [[{"node": "Respond OK", "type": "main", "index": 0}]]
     }
   },
