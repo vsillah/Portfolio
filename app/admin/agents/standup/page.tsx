@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ArrowRight,
   CheckCircle2,
+  ExternalLink,
   GitPullRequest,
   KanbanSquare,
   MessageSquare,
@@ -45,6 +46,7 @@ type WarRoomResponse = {
     parent: { id: string; title: string }
     children: Array<{ id: string; title: string }>
   } | null
+  social_content_draft?: { id: string; href: string } | null
   error?: string
 }
 
@@ -118,6 +120,7 @@ function StandupRoomContent() {
   const [selectionInitialized, setSelectionInitialized] = useState(false)
   const [message, setMessage] = useState('')
   const [goal, setGoal] = useState('')
+  const [goalType, setGoalType] = useState<'general' | 'social_outreach_linkedin_post'>('general')
   const [focusedGoalId, setFocusedGoalId] = useState<string | null>(null)
   const [goalDraft, setGoalDraft] = useState<AgentGoalDraft | null>(null)
   const [createdItems, setCreatedItems] = useState<WarRoomResponse['created_work_items']>(null)
@@ -250,6 +253,16 @@ function StandupRoomContent() {
       if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
       if (body.messages?.length) setTranscript((current) => [...current, ...body.messages!])
       if (body.goal_draft) setGoalDraft(body.goal_draft)
+      if (body.social_content_draft) {
+        setGoalDraft((current) => current?.content_packet ? {
+          ...current,
+          content_packet: {
+            ...current.content_packet,
+            social_content_draft_id: body.social_content_draft?.id ?? null,
+            social_content_draft_href: body.social_content_draft?.href ?? null,
+          },
+        } : current)
+      }
       if (body.run_id) {
         setCommandTraces((current) => {
           const nextTrace = {
@@ -351,7 +364,12 @@ function StandupRoomContent() {
 
   async function draftGoal() {
     if (!goal.trim()) return
-    await postWarRoom({ command: 'draft_goal', goal: goal.trim() }, 'draft-goal')
+    await postWarRoom({ command: 'draft_goal', goal: goal.trim(), goal_type: goalType }, 'draft-goal')
+  }
+
+  function applySocialOutreachTemplate() {
+    setGoalType('social_outreach_linkedin_post')
+    setGoal('Create one LinkedIn post package showing how AmaduTown applies AI and automation to reduce operational burden for small businesses.')
   }
 
   async function approveGoal() {
@@ -517,6 +535,9 @@ function StandupRoomContent() {
                 busy={busy}
                 participants={participants}
                 onGoalChange={setGoal}
+                goalType={goalType}
+                onGoalTypeChange={setGoalType}
+                onApplySocialOutreachTemplate={applySocialOutreachTemplate}
                 onDraftGoal={draftGoal}
                 onApproveGoal={approveGoal}
                 onUpdateTask={updateGoalTask}
@@ -813,22 +834,28 @@ function ChatRoom({
 
 function GoalPlanner({
   goal,
+  goalType,
   goalDraft,
   createdItems,
   busy,
   participants,
   onGoalChange,
+  onGoalTypeChange,
+  onApplySocialOutreachTemplate,
   onDraftGoal,
   onApproveGoal,
   onUpdateTask,
   onRemoveTask,
 }: {
   goal: string
+  goalType: 'general' | 'social_outreach_linkedin_post'
   goalDraft: AgentGoalDraft | null
   createdItems: WarRoomResponse['created_work_items']
   busy: string | null
   participants: AgentOrgBoardAgent[]
   onGoalChange: (value: string) => void
+  onGoalTypeChange: (value: 'general' | 'social_outreach_linkedin_post') => void
+  onApplySocialOutreachTemplate: () => void
   onDraftGoal: () => void
   onApproveGoal: () => void
   onUpdateTask: (taskId: string, patch: Partial<AgentGoalDraft['tasks'][number]>) => void
@@ -839,6 +866,32 @@ function GoalPlanner({
       <div className="mb-3 flex items-center gap-2">
         <Sparkles size={18} className="text-radiant-gold" />
         <h2 className="text-xl font-semibold">Goal planner</h2>
+      </div>
+      <div className="mb-3 rounded-lg border border-silicon-slate/60 bg-background/45 p-3">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-radiant-gold">Pilot template</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Use the LinkedIn social outreach pilot when Shaka should create a draft-only content packet, Kanban tasks, and a Social Content draft.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => onGoalTypeChange('general')}
+              className={`rounded-full border px-3 py-1.5 text-xs ${goalType === 'general' ? 'border-radiant-gold/70 text-radiant-gold' : 'border-silicon-slate/60 text-muted-foreground hover:text-foreground'}`}
+            >
+              General goal
+            </button>
+            <button
+              type="button"
+              onClick={onApplySocialOutreachTemplate}
+              className={`rounded-full border px-3 py-1.5 text-xs ${goalType === 'social_outreach_linkedin_post' ? 'border-radiant-gold/70 bg-radiant-gold/10 text-radiant-gold' : 'border-silicon-slate/60 text-muted-foreground hover:text-foreground'}`}
+            >
+              LinkedIn pilot
+            </button>
+          </div>
+        </div>
       </div>
       <div className="flex flex-col gap-2 lg:flex-row">
         <input
@@ -859,12 +912,42 @@ function GoalPlanner({
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-radiant-gold">Draft packet</p>
               <h3 className="mt-1 text-lg font-semibold">{goalDraft.title}</h3>
               <p className="mt-1 text-sm text-muted-foreground">{goalDraft.recommendation}</p>
+              <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                {goalDraft.goal_type === 'social_outreach_linkedin_post' && (
+                  <>
+                    <span className="rounded-full border border-radiant-gold/35 px-2 py-1 text-radiant-gold">LinkedIn content packet</span>
+                    <span className="rounded-full border border-silicon-slate/60 px-2 py-1 text-muted-foreground">Publish gate: draft only</span>
+                    <span className="rounded-full border border-silicon-slate/60 px-2 py-1 text-muted-foreground">Chronicle: manual packet</span>
+                  </>
+                )}
+              </div>
             </div>
             <button onClick={onApproveGoal} disabled={busy != null || goalDraft.tasks.length === 0} className="inline-flex items-center justify-center gap-2 rounded-lg bg-radiant-gold px-4 py-2 text-sm font-semibold text-obsidian hover:bg-radiant-gold/90 disabled:opacity-50">
               <CheckCircle2 size={16} />
               Approve goal
             </button>
           </div>
+          {goalDraft.content_packet && (
+            <div className="mt-4 grid gap-3 lg:grid-cols-2">
+              <div className="rounded-lg border border-silicon-slate/60 bg-background/60 p-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-radiant-gold">LinkedIn Content Packet</p>
+                <p className="mt-2 text-sm font-medium">{goalDraft.content_packet.target_audience}</p>
+                <p className="mt-2 text-sm text-muted-foreground">{goalDraft.content_packet.industry_signal_summary}</p>
+                <div className="mt-3 grid gap-1 text-xs text-muted-foreground">
+                  {goalDraft.content_packet.source_provenance_checklist.slice(0, 3).map((item) => (
+                    <span key={item}>• {item}</span>
+                  ))}
+                </div>
+              </div>
+              <div className="rounded-lg border border-silicon-slate/60 bg-background/60 p-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-radiant-gold">Visual brief</p>
+                <p className="mt-2 text-sm text-muted-foreground">{goalDraft.content_packet.visual_concept}</p>
+                <p className="mt-3 line-clamp-3 rounded-md border border-silicon-slate/50 bg-black/10 p-2 text-xs text-muted-foreground">
+                  {goalDraft.content_packet.image_prompt}
+                </p>
+              </div>
+            </div>
+          )}
           <div className="mt-4 grid gap-2">
             {goalDraft.tasks.map((task, index) => (
               <div key={task.id} className="rounded-lg border border-silicon-slate/60 bg-background/60 p-3">
@@ -995,6 +1078,12 @@ function GoalPlanner({
               </Link>
             )}
           </div>
+          {goalDraft?.content_packet?.social_content_draft_href && (
+            <Link href={goalDraft.content_packet.social_content_draft_href} className="mt-2 inline-flex items-center gap-2 text-xs text-radiant-gold hover:underline">
+              Open linked Social Content draft
+              <ExternalLink size={13} />
+            </Link>
+          )}
           <div className="mt-2 grid gap-1">
             {createdItems.children.slice(0, 4).map((item, index) => (
               <p key={item.id} className="text-xs text-green-100/80">{index + 1}. {item.title}</p>

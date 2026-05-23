@@ -64,6 +64,18 @@ const PLATFORM_COLORS: Record<string, { active: string; inactive: string }> = {
   facebook: { active: 'bg-blue-600/20 border-blue-500 text-blue-300', inactive: 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600' },
 }
 
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : null
+}
+
+function asString(value: unknown): string {
+  return typeof value === 'string' ? value : ''
+}
+
+function asStringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
+}
+
 function SocialContentDetailPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
@@ -440,6 +452,17 @@ function SocialContentDetailPage() {
   const enabledPlatformLabels = targetPlatforms
     .map(p => PLATFORMS.find(pl => pl.value === p)?.label || p)
     .join(', ')
+  const ragContext = asRecord(item.rag_context)
+  const isAgentSocialPilot = ragContext?.source === 'agent_ops_social_outreach_goal'
+  const agentPilotGoalId = asString(ragContext?.goal_id)
+  const agentPilotPacketId = asString(ragContext?.content_packet_id)
+  const agentPilotPublishGate = asString(ragContext?.publish_gate)
+  const agentPilotChronicleStatus = asString(ragContext?.chronicle_packet_status)
+  const agentPilotVisualBrief = asString(ragContext?.visual_brief)
+  const agentPilotProvenance = asStringArray(ragContext?.source_provenance_checklist)
+  const agentPilotApprovalChecklist = asStringArray(ragContext?.approval_checklist)
+  const agentPilotOpenBrainReferences = asStringArray(ragContext?.open_brain_references)
+  const isDraftOnlyPilot = isAgentSocialPilot && agentPilotPublishGate === 'draft_only'
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -494,6 +517,101 @@ function SocialContentDetailPage() {
       </div>
 
       <div className="p-8 max-w-6xl mx-auto space-y-6">
+        {isAgentSocialPilot && (
+          <section className="rounded-xl border border-amber-500/30 bg-gray-900/80 p-5 shadow-[0_0_28px_rgba(212,175,55,0.08)]">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-300">
+                  Agent Ops LinkedIn Pilot
+                </p>
+                <h2 className="mt-2 text-xl font-semibold text-gray-100">
+                  Draft-only content packet
+                </h2>
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-300">
+                  This post was created from an approved Standup Room goal. Goal approval created the work items and this draft; publishing still requires the separate Social Content approval gate.
+                </p>
+              </div>
+              <div className="flex shrink-0 flex-wrap gap-2 text-xs">
+                <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-amber-200">
+                  {isDraftOnlyPilot ? 'Publish gate: draft only' : `Publish gate: ${agentPilotPublishGate || 'review required'}`}
+                </span>
+                {agentPilotChronicleStatus && (
+                  <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-blue-200">
+                    Chronicle: {agentPilotChronicleStatus.replace(/_/g, ' ')}
+                  </span>
+                )}
+                {agentPilotPacketId && (
+                  <span className="rounded-full border border-gray-700 bg-gray-800 px-3 py-1 text-gray-300">
+                    Packet {agentPilotPacketId}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-3 lg:grid-cols-3">
+              <div className="rounded-lg border border-gray-800 bg-gray-950/40 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Provenance</p>
+                <ul className="mt-3 space-y-2 text-sm text-gray-300">
+                  {agentPilotProvenance.slice(0, 4).map((entry) => (
+                    <li key={entry} className="flex gap-2">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
+                      <span>{entry}</span>
+                    </li>
+                  ))}
+                  {agentPilotProvenance.length === 0 && (
+                    <li className="text-gray-500">No provenance checklist attached.</li>
+                  )}
+                </ul>
+              </div>
+              <div className="rounded-lg border border-gray-800 bg-gray-950/40 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Review Checklist</p>
+                <ul className="mt-3 space-y-2 text-sm text-gray-300">
+                  {agentPilotApprovalChecklist.slice(0, 4).map((entry) => (
+                    <li key={entry} className="flex gap-2">
+                      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
+                      <span>{entry}</span>
+                    </li>
+                  ))}
+                  {agentPilotApprovalChecklist.length === 0 && (
+                    <li className="text-gray-500">No approval checklist attached.</li>
+                  )}
+                </ul>
+              </div>
+              <div className="rounded-lg border border-gray-800 bg-gray-950/40 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Visual Brief</p>
+                <p className="mt-3 text-sm leading-6 text-gray-300">
+                  {agentPilotVisualBrief || 'No visual brief attached.'}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
+              {agentPilotGoalId && (
+                <Link
+                  href={`/admin/agents/standup?goal=${encodeURIComponent(agentPilotGoalId)}`}
+                  className="inline-flex items-center gap-2 rounded-lg border border-amber-500/40 px-3 py-2 text-amber-200 transition-colors hover:bg-amber-500/10"
+                >
+                  Open goal session <ExternalLink className="h-3.5 w-3.5" />
+                </Link>
+              )}
+              <Link
+                href="/admin/agents/swarm-board"
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-700 px-3 py-2 text-gray-300 transition-colors hover:border-gray-600 hover:bg-gray-800"
+              >
+                View Kanban tasks <ExternalLink className="h-3.5 w-3.5" />
+              </Link>
+              {agentPilotOpenBrainReferences.length > 0 && (
+                <Link
+                  href="/admin/agents/open-brain"
+                  className="inline-flex items-center gap-2 rounded-lg border border-gray-700 px-3 py-2 text-gray-300 transition-colors hover:border-gray-600 hover:bg-gray-800"
+                >
+                  Open Brain references <ExternalLink className="h-3.5 w-3.5" />
+                </Link>
+              )}
+            </div>
+          </section>
+        )}
+
         {/* ================================================================ */}
         {/* SECTION 1: Content (two-col on lg: edit fields + preview)        */}
         {/* ================================================================ */}
@@ -1211,6 +1329,11 @@ function SocialContentDetailPage() {
               <h3 className="text-lg font-semibold text-gray-200 mb-4">Confirm Publishing</h3>
 
               <div className="space-y-3 mb-6">
+                {isDraftOnlyPilot && (
+                  <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-100">
+                    This draft came from a draft-only Agent Ops pilot. Goal approval did not publish it; this confirmation is the separate Social Content approval gate.
+                  </div>
+                )}
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-400">Platforms</span>
                   <span className="text-gray-200">{enabledPlatformLabels}</span>

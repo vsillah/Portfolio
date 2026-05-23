@@ -341,6 +341,29 @@ Current progress:
 - Mission Control dead-letter items now show routed recovery status, retry attempt, earliest retry time, and whether the retry packet is still waiting inside the backoff window.
 - The Agent Operations rollout is capped after Phase 12. Remaining improvements move to the maintenance backlog unless Vambah explicitly opens a new roadmap.
 
+## Approved Pilot Overlay: LinkedIn Social Outreach
+
+Status: In implementation.
+
+Target: One prepare-only LinkedIn content packet by Friday, May 29, 2026.
+
+Goal: Pilot the Standup Room goal flow on one AmaduTown social outreach use case without autonomous publishing, scheduling, DMs, or external outreach.
+
+Definition of done:
+
+- Standup Room includes a `social_outreach_linkedin_post` goal template.
+- Shaka drafts the goal plan first; approving the draft creates one parent Agent Ops goal work item and child work items for research, Open Brain context, Chronicle evidence, AmaduTown proof, post drafting, visual brief, governance QA, and Social Content handoff.
+- Goal and child cards appear on Agent Kanban with goal tags, owner, status, blockers, age, and packet links.
+- The linked Social Content item remains `draft` and includes the content packet, visual brief, provenance checklist, Chronicle manual packet status, and approval checklist.
+- Open Brain context projected into the packet is public-safe or proposal-summary level; raw private records are not copied into the content draft.
+
+Out of scope:
+
+- Autonomous publishing, scheduling, DMs, or external outreach.
+- Direct Chronicle ingestion.
+- A campaign batch or recurring social calendar.
+- New database tables or schema migration for the pilot.
+
 ## Cross-Phase Definition Of Done
 
 Every implementation phase must satisfy these gates before it is considered done:

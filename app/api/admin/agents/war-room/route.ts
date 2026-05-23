@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
-import { runAgentWarRoom, type AgentWarRoomCommand } from '@/lib/agent-war-room'
+import { runAgentWarRoom, type AgentGoalType, type AgentWarRoomCommand } from '@/lib/agent-war-room'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 30
@@ -37,6 +37,8 @@ export async function POST(request: NextRequest) {
     goal_id?: unknown
     goalId?: unknown
     goal?: unknown
+    goal_type?: unknown
+    goalType?: unknown
     draft?: unknown
   }
   try {
@@ -82,6 +84,14 @@ export async function POST(request: NextRequest) {
   if (command === 'draft_goal' && !goal) {
     return NextResponse.json({ error: 'Goal is required for draft_goal' }, { status: 400 })
   }
+  const goalTypeRaw = typeof body.goal_type === 'string'
+    ? body.goal_type.trim()
+    : typeof body.goalType === 'string'
+      ? body.goalType.trim()
+      : ''
+  const goalType: AgentGoalType = goalTypeRaw === 'social_outreach_linkedin_post'
+    ? 'social_outreach_linkedin_post'
+    : 'general'
 
   if (command === 'approve_goal' && (!body.draft || typeof body.draft !== 'object')) {
     return NextResponse.json({ error: 'draft is required for approve_goal' }, { status: 400 })
@@ -95,6 +105,7 @@ export async function POST(request: NextRequest) {
       targetAgentKeys,
       goalId,
       goal,
+      goalType,
       draft: command === 'approve_goal' ? body.draft as never : null,
       triggerSource: 'admin_agent_war_room',
       actor: {
@@ -113,6 +124,12 @@ export async function POST(request: NextRequest) {
       messages: result.messages,
       goal_draft: result.goalDraft,
       created_work_items: result.createdWorkItems,
+      social_content_draft: result.createdWorkItems?.parent.metadata?.social_content_draft_id
+        ? {
+          id: result.createdWorkItems.parent.metadata.social_content_draft_id,
+          href: result.createdWorkItems.parent.metadata.social_content_draft_href,
+        }
+        : null,
     })
   } catch (error) {
     console.error('[agent-war-room] command failed:', error)
