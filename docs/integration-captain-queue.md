@@ -101,7 +101,7 @@ Every worker chat should add a handoff here or paste the same structure into the
 - Captain status: defer.
 - Notes: Rebase/update before any future merge consideration.
 
-### Draft PR #337 - Agent Governance Audit Export
+### PR #337 - Agent Governance Audit Export
 
 - Branch: `codex/agent-governance-audit-export`
 - PR: #337
@@ -127,9 +127,44 @@ Every worker chat should add a handoff here or paste the same structure into the
   - `npm run build:knowledge && npx tsc --noEmit`
   - `npm run build`
   - Authenticated local smoke on `http://127.0.0.1:3012/admin/agents` verified the export links and 200 responses for Markdown and JSON.
-- Vercel preview: `Vercel – portfolio` pending at handoff; `Vercel – portfolio-staging` not yet checked by worker lane.
+- Vercel preview: passed during captain processing.
 - Known risks: new export is read-only but client-facing; captain should verify the sanitization boundary and confirm no private raw traces, secrets, or raw delegation internals are exposed.
-- Requires approval before merge: no production/payment approval, but captain review is required because this is an admin governance/export surface.
-- Safe to merge after checks: no while draft; yes only after captain marks ready, preview passes, and captain applies the normal Vercel gates.
-- Captain status: queued for `/captain-sweep`.
-- Notes: PR body includes validation and integration notes. Worker branch is pushed and clean except ignored runtime/generated files.
+- Requires approval before merge: resolved by captain review.
+- Safe to merge after checks: merged.
+- Captain status: complete.
+- Notes: Merged on 2026-05-21. The client-safe export boundary remains the standard for future governance export work.
+
+### PR #345 - Governance Export Ledger
+
+- Branch: `codex/governance-export-ledger`
+- PR: #345
+- Owner/chat: Agentic OS governance ledger refinement lane
+- Purpose: Record client-safe governance export metadata in a ledger and project recent exports into the Agent Governance panel.
+- Impact preflight:
+  - Predicted files: `app/admin/agents/page.tsx`, `/api/admin/agents/governance/export`, governance snapshot helpers, and a new migration.
+  - Shared routes/APIs/tables/helpers: `/admin/agents`, `agent_governance_exports`, `buildAgentMissionControlSnapshot`, `AgentGovernanceSnapshot`.
+  - Active PRs or branches checked: no open PRs at worker branch creation.
+  - Overlap rating: green.
+  - Coordination decision: route through Integration Captain; keep implementation branch scoped and draft until checks pass.
+- Changed files:
+  - `app/admin/agents/page.tsx`
+  - `app/admin/agents/page.test.tsx`
+  - `app/api/admin/agents/governance/export/route.ts`
+  - `app/api/admin/agents/governance/export/route.test.ts`
+  - `lib/agent-governance-export-ledger.ts`
+  - `lib/agent-governance.ts`
+  - `lib/agent-governance.test.ts`
+  - `lib/agent-mission-control.ts`
+  - `lib/agent-governance-export.test.ts`
+  - `migrations/2026_05_21_agent_governance_exports.sql`
+- Validation run:
+  - `npm test -- --run app/api/admin/agents/governance/export/route.test.ts lib/agent-governance.test.ts lib/agent-governance-export.test.ts app/admin/agents/page.test.tsx`
+  - `npm run build:knowledge && npx tsc --noEmit`
+  - `npm run build`
+  - Authenticated read-only local smoke on `/admin/agents`.
+- Vercel preview: `Vercel – portfolio` passed. Post-merge `main` verification on 2026-05-23 passed both `Vercel – portfolio` and `Vercel – portfolio-staging` for `e8f2444`.
+- Known risks: ledger table must exist in each Supabase environment before rows can persist; the export endpoint degrades gracefully if unavailable.
+- Requires approval before merge: resolved by captain review.
+- Safe to merge after checks: merged.
+- Captain status: complete.
+- Notes: Dev and production Supabase checks on 2026-05-23 showed `agent_governance_exports` available with zero rows in both environments.
