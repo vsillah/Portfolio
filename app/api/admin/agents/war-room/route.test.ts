@@ -100,6 +100,14 @@ describe('POST /api/admin/agents/war-room', () => {
     expect(mocks.runAgentWarRoom).not.toHaveBeenCalled()
   })
 
+  it('requires a draft payload for approve_readiness', async () => {
+    const response = await POST(request({ command: 'approve_readiness' }) as never)
+
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({ error: 'draft is required for approve_readiness' })
+    expect(mocks.runAgentWarRoom).not.toHaveBeenCalled()
+  })
+
   it('runs a traced standup', async () => {
     const response = await POST(request({ command: 'standup' }) as never)
     const body = await response.json()
@@ -246,6 +254,44 @@ describe('POST /api/admin/agents/war-room', () => {
     expect(body.created_work_items.children).toHaveLength(1)
     expect(mocks.runAgentWarRoom).toHaveBeenCalledWith(expect.objectContaining({
       command: 'approve_goal',
+      draft,
+      goalId: '',
+    }))
+  })
+
+  it('passes readiness approvals to the war room executor', async () => {
+    const draft = {
+      goal_id: 'goal-1',
+      title: 'Ship standup room',
+      objective: 'Ship the reviewed room',
+      recommendation: 'Approve',
+      risk_notes: 'Low',
+      readiness_status: 'ready_for_delegation',
+      readiness_checklist: [{ key: 'outcome_clear', label: 'Outcome is clear', status: 'ready', required: true }],
+      acceptance_criteria: ['Works'],
+      stage_gates: [{ key: 'ready_to_delegate', label: 'Ready to delegate', owner_agent_key: 'chief-of-staff', required_before: 'work_item_creation', status: 'pending', approval_required: true }],
+      authority_boundary: { publish: 'manual_approval_required', send: 'manual_approval_required', deploy: 'manual_approval_required', merge: 'manual_approval_required', notes: 'Work items only.' },
+      tasks: [],
+    }
+    mocks.runAgentWarRoom.mockResolvedValue({
+      runId: 'approval-run',
+      command: 'approve_readiness',
+      synthesis: 'Goal readiness approved and delegated.',
+      updates: [],
+      messages: [],
+      createdWorkItems: {
+        parent: { id: 'parent', title: 'Goal: Ship standup room', metadata: {} },
+        children: [],
+      },
+    })
+
+    const response = await POST(request({ command: 'approve_readiness', draft }) as never)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.command).toBe('approve_readiness')
+    expect(mocks.runAgentWarRoom).toHaveBeenCalledWith(expect.objectContaining({
+      command: 'approve_readiness',
       draft,
       goalId: '',
     }))

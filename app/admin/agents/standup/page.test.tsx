@@ -46,6 +46,9 @@ const organization = {
       draftTraceHref: '/admin/agents/runs/draft-run',
       approvalTraceHref: '/admin/agents/runs/approval-run',
       latestTraceHref: '/admin/agents/runs/room-run',
+      readinessStatus: 'delegated',
+      stageGates: [{ key: 'review', label: 'Review gate', ownerAgentKey: 'chief-of-staff', requiredBefore: 'handoff', status: 'pending', approvalRequired: true }],
+      nextStageGate: { key: 'review', label: 'Review gate', ownerAgentKey: 'chief-of-staff', requiredBefore: 'handoff', status: 'pending', approvalRequired: true },
     }],
   },
   agents: [
@@ -116,6 +119,9 @@ const organization = {
           draftTraceHref: '/admin/agents/runs/draft-run',
           approvalTraceHref: '/admin/agents/runs/approval-run',
           latestTraceHref: '/admin/agents/runs/room-run',
+          readinessStatus: 'delegated',
+          stageGates: [{ key: 'review', label: 'Review gate', ownerAgentKey: 'chief-of-staff', requiredBefore: 'handoff', status: 'pending', approvalRequired: true }],
+          nextStageGate: { key: 'review', label: 'Review gate', ownerAgentKey: 'chief-of-staff', requiredBefore: 'handoff', status: 'pending', approvalRequired: true },
         },
       }],
     },
@@ -145,6 +151,19 @@ const organization = {
   },
 }
 
+const readinessPacket = {
+  readiness_status: 'ready_for_delegation',
+  readiness_checklist: [
+    { key: 'outcome_clear', label: 'Outcome is clear', status: 'ready', required: true, evidence: 'Goal objective is stated.' },
+    { key: 'stage_gates_named', label: 'Stage gates are named', status: 'ready', required: true, evidence: 'Planning, review, and approval gates are named.' },
+  ],
+  acceptance_criteria: ['Goal scope is clear before delegation.'],
+  stage_gates: [{ key: 'ready_to_delegate', label: 'Ready to delegate', owner_agent_key: 'chief-of-staff', required_before: 'work_item_creation', status: 'pending', approval_required: true }],
+  authority_boundary: { publish: 'manual_approval_required', send: 'manual_approval_required', deploy: 'manual_approval_required', merge: 'manual_approval_required', notes: 'Work creation only; merge and deploy remain approval-gated.' },
+  missing_context: [],
+  planning_participants: ['chief-of-staff', 'engineering-copilot'],
+}
+
 describe('AgentStandupRoomPage', () => {
   beforeEach(() => {
     window.history.pushState({}, '', '/admin/agents/standup')
@@ -169,6 +188,9 @@ describe('AgentStandupRoomPage', () => {
                   objective: `Produce one draft-only LinkedIn content packet for: ${body.goal}`,
                   recommendation: 'Approve this pilot only if the output should stop at a Social Content draft.',
                   risk_notes: 'Manual Chronicle evidence and approved Open Brain context are required.',
+                  ...readinessPacket,
+                  authority_boundary: { ...readinessPacket.authority_boundary, publish: 'not_allowed', send: 'not_allowed' },
+                  missing_context: ['Attach manual Chronicle evidence packet before final content approval.'],
                   publish_gate: 'draft_only',
                   source_requirements: ['One source-backed industry signal'],
                   chronicle_packet_status: 'manual_packet_required',
@@ -216,6 +238,7 @@ describe('AgentStandupRoomPage', () => {
                 objective: `Accomplish: ${body.goal}`,
                 recommendation: 'Approve after review.',
                 risk_notes: 'Review gated.',
+                ...readinessPacket,
                 tasks: [{
                   id: 'task-draft',
                   title: 'Implement room',
@@ -244,13 +267,13 @@ describe('AgentStandupRoomPage', () => {
             }),
           }
         }
-        if (body.command === 'approve_goal') {
+        if (body.command === 'approve_goal' || body.command === 'approve_readiness') {
           return {
             ok: true,
             json: async () => ({
               ok: true,
               run_id: 'approval-run',
-              command: 'approve_goal',
+              command: body.command,
               messages: [],
               social_content_draft: body.draft?.goal_type === 'social_outreach_linkedin_post'
                 ? { id: 'social-draft-1', href: '/admin/social-content/social-draft-1' }
@@ -408,6 +431,9 @@ describe('AgentStandupRoomPage', () => {
     fireEvent.click(screen.getByRole('button', { name: /Draft plan/i }))
 
     expect(await screen.findByText('Approve after review.')).toBeInTheDocument()
+    expect(screen.getByText('Definition of Ready')).toBeInTheDocument()
+    expect(screen.getAllByText('Ready to delegate').length).toBeGreaterThan(0)
+    expect(screen.getByText('Goal acceptance criteria')).toBeInTheDocument()
     expect(screen.getAllByRole('link', { name: /Open trace/i }).some((link) => link.getAttribute('href') === '/admin/agents/runs/goal-run')).toBe(true)
     expect(fetch).toHaveBeenCalledWith('/api/admin/agents/war-room', expect.objectContaining({
       method: 'POST',
@@ -416,13 +442,13 @@ describe('AgentStandupRoomPage', () => {
 
     fireEvent.change(screen.getByDisplayValue('Implement room'), { target: { value: 'Implement reviewed room' } })
     fireEvent.click(screen.getByRole('button', { name: /Remove Validate room/i }))
-    fireEvent.click(screen.getByRole('button', { name: /Approve goal/i }))
+    fireEvent.click(screen.getByRole('button', { name: /Approve readiness & delegate/i }))
 
     await waitFor(() => {
       expect(screen.getByText(/Created 1 child work item/i)).toBeInTheDocument()
     })
     expect(screen.getByRole('link', { name: /Open goal on Kanban/i })).toHaveAttribute('href', '/admin/agents/swarm-board?goal=goal-draft')
-    const approveCall = vi.mocked(fetch).mock.calls.find(([, init]) => String((init as RequestInit)?.body ?? '').includes('"command":"approve_goal"'))
+    const approveCall = vi.mocked(fetch).mock.calls.find(([, init]) => String((init as RequestInit)?.body ?? '').includes('"command":"approve_readiness"'))
     expect(approveCall).toBeTruthy()
     const approveBody = JSON.parse(String((approveCall?.[1] as RequestInit).body))
     expect(approveBody.draft.tasks).toHaveLength(1)
@@ -453,7 +479,7 @@ describe('AgentStandupRoomPage', () => {
       }),
     }))
 
-    fireEvent.click(screen.getByRole('button', { name: /Approve goal/i }))
+    fireEvent.click(screen.getByRole('button', { name: /Approve readiness & delegate/i }))
 
     expect(await screen.findByRole('link', { name: /Open linked Social Content draft/i })).toHaveAttribute('href', '/admin/social-content/social-draft-1')
   })

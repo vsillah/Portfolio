@@ -375,7 +375,7 @@ function StandupRoomContent() {
   async function approveGoal() {
     if (!goalDraft) return
     const approvedGoalId = goalDraft.goal_id
-    const result = await postWarRoom({ command: 'approve_goal', draft: goalDraft }, 'approve-goal')
+    const result = await postWarRoom({ command: 'approve_readiness', draft: goalDraft }, 'approve-goal')
     if (result?.created_work_items) focusGoal(approvedGoalId)
   }
 
@@ -861,6 +861,17 @@ function GoalPlanner({
   onUpdateTask: (taskId: string, patch: Partial<AgentGoalDraft['tasks'][number]>) => void
   onRemoveTask: (taskId: string) => void
 }) {
+  const requiredReadiness = goalDraft?.readiness_checklist?.filter((item) => item.required) ?? []
+  const incompleteReadiness = requiredReadiness.filter((item) => item.status !== 'ready')
+  const readyToDelegate = Boolean(
+    goalDraft &&
+    goalDraft.readiness_status === 'ready_for_delegation' &&
+    incompleteReadiness.length === 0 &&
+    (goalDraft.acceptance_criteria?.length ?? 0) > 0 &&
+    (goalDraft.stage_gates?.length ?? 0) > 0 &&
+    goalDraft.tasks.length > 0,
+  )
+
   return (
     <section className="agent-ops-card rounded-lg border p-4">
       <div className="mb-3 flex items-center gap-2">
@@ -922,11 +933,73 @@ function GoalPlanner({
                 )}
               </div>
             </div>
-            <button onClick={onApproveGoal} disabled={busy != null || goalDraft.tasks.length === 0} className="inline-flex items-center justify-center gap-2 rounded-lg bg-radiant-gold px-4 py-2 text-sm font-semibold text-obsidian hover:bg-radiant-gold/90 disabled:opacity-50">
+            <button onClick={onApproveGoal} disabled={busy != null || !readyToDelegate} className="inline-flex items-center justify-center gap-2 rounded-lg bg-radiant-gold px-4 py-2 text-sm font-semibold text-obsidian hover:bg-radiant-gold/90 disabled:opacity-50" title={readyToDelegate ? 'Create the approved goal and child work items' : 'Complete the required readiness packet before delegation'}>
               <CheckCircle2 size={16} />
-              Approve goal
+              Approve readiness & delegate
             </button>
           </div>
+          <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,1.1fr)_minmax(260px,0.9fr)]">
+            <div className="rounded-lg border border-silicon-slate/60 bg-background/60 p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-radiant-gold">Definition of Ready</p>
+                <span className={`rounded-full border px-2 py-1 text-xs ${readyToDelegate ? 'border-green-500/35 bg-green-500/10 text-green-100' : 'border-yellow-500/40 bg-yellow-500/10 text-yellow-100'}`}>
+                  {readyToDelegate ? 'Ready to delegate' : `${incompleteReadiness.length} required open`}
+                </span>
+              </div>
+              <div className="mt-3 grid gap-2 md:grid-cols-2">
+                {(goalDraft.readiness_checklist ?? []).map((item) => (
+                  <div key={item.key} className={`rounded-md border p-2 text-xs ${item.status === 'ready' ? 'border-green-500/25 bg-green-500/5' : item.status === 'blocked' ? 'border-red-500/35 bg-red-500/10 text-red-100' : 'border-yellow-500/35 bg-yellow-500/10 text-yellow-100'}`}>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 size={13} className={item.status === 'ready' ? 'mt-0.5 shrink-0 text-green-200' : 'mt-0.5 shrink-0 text-muted-foreground'} />
+                      <div>
+                        <p className="font-medium">{item.label}</p>
+                        {item.evidence ? <p className="mt-1 text-muted-foreground">{item.evidence}</p> : null}
+                        {item.blocker ? <p className="mt-1 text-red-100">{item.blocker}</p> : null}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {goalDraft.missing_context?.length ? (
+                <div className="mt-3 rounded-md border border-yellow-500/35 bg-yellow-500/10 p-2 text-xs text-yellow-100">
+                  <p className="font-semibold">Known context still needed before final approval</p>
+                  <ul className="mt-1 space-y-1">
+                    {goalDraft.missing_context.map((item) => <li key={item}>{item}</li>)}
+                  </ul>
+                </div>
+              ) : null}
+            </div>
+            <div className="rounded-lg border border-silicon-slate/60 bg-background/60 p-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-radiant-gold">Stage Gates</p>
+              <div className="mt-3 space-y-2">
+                {(goalDraft.stage_gates ?? []).map((gate) => (
+                  <div key={gate.key} className="rounded-md border border-silicon-slate/55 bg-background/45 p-2 text-xs">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="font-medium">{gate.label}</p>
+                      <span className="rounded-full border border-silicon-slate/50 px-2 py-0.5 text-muted-foreground">{gate.status.replace(/_/g, ' ')}</span>
+                    </div>
+                    <p className="mt-1 text-muted-foreground">
+                      Before {gate.required_before.replace(/_/g, ' ')}{gate.approval_required ? ' · approval required' : ''}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              {goalDraft.authority_boundary ? (
+                <div className="mt-3 rounded-md border border-silicon-slate/55 bg-black/10 p-2 text-xs text-muted-foreground">
+                  <p className="font-semibold uppercase tracking-wide text-radiant-gold">Authority boundary</p>
+                  <p className="mt-1">{goalDraft.authority_boundary.notes}</p>
+                </div>
+              ) : null}
+            </div>
+          </div>
+          {goalDraft.acceptance_criteria?.length ? (
+            <div className="mt-3 rounded-lg border border-silicon-slate/60 bg-background/60 p-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-radiant-gold">Goal acceptance criteria</p>
+              <ul className="mt-2 grid gap-1 text-sm text-muted-foreground md:grid-cols-2">
+                {goalDraft.acceptance_criteria.map((criterion) => <li key={criterion}>{criterion}</li>)}
+              </ul>
+            </div>
+          ) : null}
           {goalDraft.content_packet && (
             <div className="mt-4 grid gap-3 lg:grid-cols-2">
               <div className="rounded-lg border border-silicon-slate/60 bg-background/60 p-3">
@@ -1060,7 +1133,7 @@ function GoalPlanner({
             ))}
             {!goalDraft.tasks.length && (
               <div className="rounded-lg border border-dashed border-silicon-slate/60 p-4 text-sm text-muted-foreground">
-                No tasks are selected for creation. Draft the goal again or keep at least one task before approving.
+                No tasks are selected for creation. Draft the goal again or keep at least one task before readiness can be delegated.
               </div>
             )}
           </div>
@@ -1128,6 +1201,11 @@ function GoalSessionPanel({
           <p className="mt-1 text-sm text-muted-foreground">
             {goal.completed}/{goal.total} complete · {goal.open} open · {goal.blocked} blocked
           </p>
+          {goal.nextStageGate ? (
+            <p className="mt-2 text-sm text-radiant-gold">
+              Next gate: {goal.nextStageGate.label} · before {goal.nextStageGate.requiredBefore.replace(/_/g, ' ')}
+            </p>
+          ) : null}
           <div className="mt-3 flex flex-wrap gap-2 text-xs">
             {goal.draftTraceHref && <AuditLink href={goal.draftTraceHref} label="Draft trace" />}
             {goal.approvalTraceHref && <AuditLink href={goal.approvalTraceHref} label="Approval trace" />}
@@ -1149,6 +1227,21 @@ function GoalSessionPanel({
       <div className="mt-4 h-2 overflow-hidden rounded-full bg-silicon-slate/70">
         <div className="h-full bg-radiant-gold" style={{ width: `${goal.progress}%` }} />
       </div>
+      {(goal.stageGates ?? []).length ? (
+        <div className="mt-4 grid gap-2 md:grid-cols-2">
+          {(goal.stageGates ?? []).slice(0, 4).map((gate) => (
+            <div key={gate.key} className="rounded-lg border border-silicon-slate/60 bg-background/55 p-2 text-xs">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-medium">{gate.label}</span>
+                <span className="text-muted-foreground">{gate.status.replace(/_/g, ' ')}</span>
+              </div>
+              <p className="mt-1 text-muted-foreground">
+                Before {gate.requiredBefore.replace(/_/g, ' ')}{gate.approvalRequired ? ' · approval gate' : ''}
+              </p>
+            </div>
+          ))}
+        </div>
+      ) : null}
       {isAutomationGoal && (
         <div className="mt-4 rounded-lg border border-silicon-slate/60 bg-background/55 p-3" aria-label="Automation workflow proposal">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">

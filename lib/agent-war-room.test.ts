@@ -244,6 +244,18 @@ describe('runAgentWarRoom', () => {
 
     expect(result.goalDraft?.title).toBe('Build a transparent standup room')
     expect(result.goalDraft?.draft_run_id).toBe('war-room-run')
+    expect(result.goalDraft?.readiness_status).toBe('ready_for_delegation')
+    expect(result.goalDraft?.readiness_checklist?.map((item) => item.label)).toEqual(expect.arrayContaining([
+      'Outcome is clear',
+      'Stage gates are named',
+      'Authority boundaries are explicit',
+    ]))
+    expect(result.goalDraft?.acceptance_criteria?.length).toBeGreaterThan(0)
+    expect(result.goalDraft?.stage_gates?.map((gate) => gate.label)).toEqual(expect.arrayContaining([
+      'Ready to delegate',
+      'Merge/deploy approval',
+    ]))
+    expect(result.goalDraft?.authority_boundary?.notes).toContain('approval gates')
     expect(result.goalDraft?.tasks.length).toBeGreaterThan(2)
     expect(workItemMocks.createAgentWorkItem).not.toHaveBeenCalled()
     expect(agentRunMocks.startAgentRun).toHaveBeenCalledWith(expect.objectContaining({
@@ -262,7 +274,7 @@ describe('runAgentWarRoom', () => {
     }))
   })
 
-  it('creates parent and child work items when a goal draft is approved', async () => {
+  it('creates parent and child work items when readiness is approved', async () => {
     const draftResult = await runAgentWarRoom({
       command: 'draft_goal',
       goal: 'Add goal orchestration',
@@ -276,7 +288,7 @@ describe('runAgentWarRoom', () => {
     agentRunMocks.endAgentRun.mockResolvedValue(undefined)
 
     const result = await runAgentWarRoom({
-      command: 'approve_goal',
+      command: 'approve_readiness',
       draft: draftResult.goalDraft,
       triggerSource: 'test_war_room',
     })
@@ -292,6 +304,10 @@ describe('runAgentWarRoom', () => {
         goal_draft_run_id: 'war-room-run',
         goal_approved_by_run_id: 'approval-run',
         goal_session_href: `/admin/agents/standup?goal=${encodeURIComponent(draftResult.goalDraft?.goal_id ?? '')}`,
+        readiness_status: 'delegated',
+        readiness_checklist: expect.any(Array),
+        stage_gates: expect.any(Array),
+        authority_boundary: expect.any(Object),
       }),
     }))
     expect(workItemMocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
@@ -304,6 +320,8 @@ describe('runAgentWarRoom', () => {
         goal_approved_by_run_id: 'approval-run',
         goal_parent_work_item_id: 'parent-goal',
         goal_sequence: expect.any(Number),
+        readiness_status: 'delegated',
+        stage_gates: expect.any(Array),
         acceptance_criteria: expect.any(Array),
         risk_notes: expect.any(String),
       }),
@@ -347,6 +365,50 @@ describe('runAgentWarRoom', () => {
     expect(result.createdWorkItems?.children.length).toBe(draftResult.goalDraft?.tasks.length)
   })
 
+  it('blocks delegation when required readiness is incomplete', async () => {
+    const draftResult = await runAgentWarRoom({
+      command: 'draft_goal',
+      goal: 'Add goal readiness checks',
+      triggerSource: 'test_war_room',
+    })
+    vi.clearAllMocks()
+
+    await expect(runAgentWarRoom({
+      command: 'approve_readiness',
+      draft: {
+        ...draftResult.goalDraft!,
+        readiness_status: 'needs_context',
+        readiness_checklist: [
+          ...(draftResult.goalDraft?.readiness_checklist ?? []).slice(0, 1).map((item) => ({ ...item, status: 'missing' as const })),
+        ],
+      },
+      triggerSource: 'test_war_room',
+    })).rejects.toThrow('Goal readiness must be ready_for_delegation before delegation')
+
+    expect(workItemMocks.createAgentWorkItem).not.toHaveBeenCalled()
+  })
+
+  it('keeps approve_goal as a compatibility alias for readiness approval', async () => {
+    const draftResult = await runAgentWarRoom({
+      command: 'draft_goal',
+      goal: 'Keep old clients working',
+      triggerSource: 'test_war_room',
+    })
+    vi.clearAllMocks()
+    agentRunMocks.startAgentRun.mockResolvedValue({ id: 'approval-run' })
+
+    await runAgentWarRoom({
+      command: 'approve_goal',
+      draft: draftResult.goalDraft,
+      triggerSource: 'test_war_room',
+    })
+
+    expect(workItemMocks.createAgentWorkItem).toHaveBeenCalled()
+    expect(agentRunMocks.endAgentRun).toHaveBeenCalledWith(expect.objectContaining({
+      outcome: expect.objectContaining({ executes_action: true }),
+    }))
+  })
+
   it('drafts and approves a draft-only LinkedIn social outreach pilot', async () => {
     const draftResult = await runAgentWarRoom({
       command: 'draft_goal',
@@ -387,7 +449,7 @@ describe('runAgentWarRoom', () => {
     supabaseMocks.from.mockClear()
 
     const result = await runAgentWarRoom({
-      command: 'approve_goal',
+      command: 'approve_readiness',
       draft: draftResult.goalDraft,
       triggerSource: 'test_war_room',
     })

@@ -346,6 +346,40 @@ const automationGoals = [
   },
 ]
 
+const activeGoalSummary = [{
+  id: 'goal-social',
+  title: 'Create one LinkedIn post package showing how AmaduTown applies AI',
+  total: 3,
+  completed: 1,
+  progress: 33,
+  blocked: 1,
+  open: 2,
+  burndown: [],
+  sessionHref: '/admin/agents/standup?goal=goal-social',
+  draftRunId: 'draft-run',
+  approvalRunId: 'approval-run',
+  latestRunId: 'latest-run',
+  draftTraceHref: '/admin/agents/runs/draft-run',
+  approvalTraceHref: '/admin/agents/runs/approval-run',
+  latestTraceHref: '/admin/agents/runs/latest-run',
+  automationGoalSeedId: null,
+  workflowFamily: null,
+  automationLevel: null,
+  requiresNewWorkflow: false,
+  n8nWorkflows: [],
+  approvalGate: null,
+  nextAction: null,
+  readinessStatus: 'delegated',
+  stageGates: [{ key: 'voice_review', label: 'Voice and visual review', ownerAgentKey: 'voice-content-architect', requiredBefore: 'social_content_handoff', status: 'pending', approvalRequired: false }],
+  nextStageGate: { key: 'voice_review', label: 'Voice and visual review', ownerAgentKey: 'voice-content-architect', requiredBefore: 'social_content_handoff', status: 'pending', approvalRequired: false },
+  goalType: 'social_outreach_linkedin_post',
+  contentPacketId: 'packet-goal-social',
+  publishGate: 'draft_only',
+  chroniclePacketStatus: 'manual_packet_required',
+  socialContentDraftId: 'social-draft-1',
+  socialContentDraftHref: '/admin/social-content/social-draft-1',
+}]
+
 function formatExpectedPageTime(value: string) {
   return new Intl.DateTimeFormat('en', {
     month: 'short',
@@ -367,6 +401,19 @@ describe('AgentOperationsPage mission control landing', () => {
       }
       if (url === '/api/admin/agents/automation-goals') {
         return { ok: true, json: async () => ({ goals: automationGoals }) }
+      }
+      if (url === '/api/admin/agents/swarm-board') {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            organization: {
+              summary: {
+                goals: activeGoalSummary,
+              },
+            },
+          }),
+        }
       }
       if (url === '/api/admin/agents/automation-goals/seed' && init?.method === 'POST') {
         return {
@@ -530,6 +577,14 @@ describe('AgentOperationsPage mission control landing', () => {
     expect(within(exportLedger).getByText(/client_safe/i)).toBeInTheDocument()
     expect(within(exportLedger).getByText(/Run delegati · Client client-456 · From 2026-05-01 · To 2026-05-21/i)).toBeInTheDocument()
     expect(within(exportLedger).getByRole('link', { name: /Open trace/i })).toHaveAttribute('href', '/admin/agents/runs/delegation-run')
+    const activeGoals = screen.getByLabelText('Active Goals')
+    expect(activeGoals).toBeInTheDocument()
+    expect(within(activeGoals).getByText('Create one LinkedIn post package showing how AmaduTown applies AI')).toBeInTheDocument()
+    expect(within(activeGoals).getByText(/33% complete · 2 open · 1 blocked/i)).toBeInTheDocument()
+    expect(within(activeGoals).getByText(/Next gate: Voice and visual review before social content handoff/i)).toBeInTheDocument()
+    expect(within(activeGoals).getByRole('link', { name: 'Standup' })).toHaveAttribute('href', '/admin/agents/standup?goal=goal-social')
+    expect(within(activeGoals).getByRole('link', { name: 'Kanban' })).toHaveAttribute('href', '/admin/agents/swarm-board?goal=goal-social')
+    expect(within(activeGoals).getByRole('link', { name: 'Draft' })).toHaveAttribute('href', '/admin/social-content/social-draft-1')
     expect(screen.getByRole('link', { name: /Active runs/i })).toHaveAttribute('href', '/admin/agents/runs?active=true')
     expect(screen.getByRole('link', { name: /Failed or stale runs/i })).toHaveAttribute('href', '/admin/agents/runs?status=needs_review')
     expect(screen.getByRole('link', { name: /Pending approvals/i })).toHaveAttribute('href', '/admin/agents/coordination')
