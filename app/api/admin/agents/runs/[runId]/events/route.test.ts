@@ -162,6 +162,86 @@ describe('POST /api/admin/agents/runs/[runId]/events', () => {
     expect(mocks.markAgentRunFailed).not.toHaveBeenCalled()
   })
 
+  it('closes provisioning reminder traces when WF-PROV sends its final callback', async () => {
+    const response = await POST(makeRequest({
+      workflow_id: 'WF-PROV',
+      stage: 'provisioning_reminder_sent',
+      status: 'completed',
+      final: true,
+      items_count: 1,
+      metadata: {
+        delivery_channel: 'email',
+        project_name: 'Automation Sprint',
+      },
+      idempotency_key: 'run-4:WF-PROV:provisioning_reminder_sent',
+    }) as never, { params: { runId: 'run-4' } })
+
+    expect(response.status).toBe(200)
+    expect(mocks.recordAgentEvent).toHaveBeenCalledWith(expect.objectContaining({
+      runId: 'run-4',
+      eventType: 'n8n_completion',
+      message: 'provisioning_reminder_sent',
+      metadata: expect.objectContaining({
+        workflow_id: 'WF-PROV',
+        stage: 'provisioning_reminder_sent',
+        n8n_status: 'completed',
+        final: true,
+        delivery_channel: 'email',
+        project_name: 'Automation Sprint',
+      }),
+      idempotencyKey: 'run-4:WF-PROV:provisioning_reminder_sent',
+    }))
+    expect(mocks.recordAgentStep).toHaveBeenCalledWith(expect.objectContaining({
+      runId: 'run-4',
+      stepKey: 'n8n_wf_prov_provisioning_reminder_sent',
+      status: 'completed',
+      outputSummary: '1 item(s)',
+      idempotencyKey: 'run-4:WF-PROV:provisioning_reminder_sent:step',
+    }))
+    expect(mocks.endAgentRun).toHaveBeenCalledWith(expect.objectContaining({
+      runId: 'run-4',
+      status: 'completed',
+      currentStep: 'provisioning_reminder_sent',
+      outcome: expect.objectContaining({
+        workflow_id: 'WF-PROV',
+        stage: 'provisioning_reminder_sent',
+        final: true,
+        delivery_channel: 'email',
+      }),
+    }))
+  })
+
+  it('records progress update delivery trace stages without closing the run early', async () => {
+    const response = await POST(makeRequest({
+      workflow_id: 'client-progress-update-router',
+      stage: 'slack_delivery_complete',
+      status: 'completed',
+      items_count: 1,
+      metadata: {
+        channel: 'slack',
+        delivery_status: 'sent',
+      },
+      idempotency_key: 'run-5:client-progress-update-router:slack_delivery_complete',
+    }) as never, { params: { runId: 'run-5' } })
+
+    expect(response.status).toBe(200)
+    expect(mocks.recordAgentStep).toHaveBeenCalledWith(expect.objectContaining({
+      runId: 'run-5',
+      stepKey: 'n8n_client_progress_update_router_slack_delivery_complete',
+      name: 'slack_delivery_complete',
+      status: 'completed',
+      outputSummary: '1 item(s)',
+      metadata: expect.objectContaining({
+        workflow_id: 'client-progress-update-router',
+        stage: 'slack_delivery_complete',
+        channel: 'slack',
+        delivery_status: 'sent',
+      }),
+    }))
+    expect(mocks.endAgentRun).not.toHaveBeenCalled()
+    expect(mocks.markAgentRunFailed).not.toHaveBeenCalled()
+  })
+
   it('rejects invalid n8n bearer tokens when the request is not from an admin', async () => {
     mocks.verifyAdmin.mockResolvedValue({ error: 'Unauthorized', status: 401 })
     mocks.isAuthError.mockReturnValue(true)
