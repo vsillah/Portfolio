@@ -186,6 +186,23 @@ export type AgentOrgBoardTask = {
     n8nWorkflows: string[]
     approvalGate: string | null
     nextAction: string | null
+    readinessStatus: string | null
+    stageGates: Array<{
+      key: string
+      label: string
+      ownerAgentKey: string | null
+      requiredBefore: string
+      status: string
+      approvalRequired: boolean
+    }>
+    nextStageGate: {
+      key: string
+      label: string
+      ownerAgentKey: string | null
+      requiredBefore: string
+      status: string
+      approvalRequired: boolean
+    } | null
     goalType: string | null
     contentPacketId: string | null
     publishGate: string | null
@@ -219,6 +236,23 @@ export type AgentOrgBoardGoalMetric = {
   n8nWorkflows: string[]
   approvalGate: string | null
   nextAction: string | null
+  readinessStatus: string | null
+  stageGates: Array<{
+    key: string
+    label: string
+    ownerAgentKey: string | null
+    requiredBefore: string
+    status: string
+    approvalRequired: boolean
+  }>
+  nextStageGate: {
+    key: string
+    label: string
+    ownerAgentKey: string | null
+    requiredBefore: string
+    status: string
+    approvalRequired: boolean
+  } | null
   goalType: string | null
   contentPacketId: string | null
   publishGate: string | null
@@ -918,6 +952,30 @@ function stringArrayValue(value: unknown) {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
 }
 
+function stageGateArrayValue(value: unknown): NonNullable<AgentOrgBoardTask['goal']>['stageGates'] {
+  if (!Array.isArray(value)) return []
+  return value
+    .map((item) => {
+      const record = item && typeof item === 'object' ? item as Record<string, unknown> : {}
+      const key = stringValue(record.key)
+      const label = stringValue(record.label)
+      if (!key || !label) return null
+      return {
+        key,
+        label,
+        ownerAgentKey: stringValue(record.owner_agent_key),
+        requiredBefore: stringValue(record.required_before) ?? 'next_gate',
+        status: stringValue(record.status) ?? 'pending',
+        approvalRequired: record.approval_required === true,
+      }
+    })
+    .filter((item): item is NonNullable<AgentOrgBoardTask['goal']>['stageGates'][number] => Boolean(item))
+}
+
+function nextStageGate(stageGates: NonNullable<AgentOrgBoardTask['goal']>['stageGates']) {
+  return stageGates.find((gate) => gate.status !== 'complete') ?? null
+}
+
 function goalForTask(item: AgentWorkItemRow): AgentOrgBoardTask['goal'] {
   const metadata = item.metadata ?? {}
   const goalId = stringValue(metadata.goal_id)
@@ -928,6 +986,7 @@ function goalForTask(item: AgentWorkItemRow): AgentOrgBoardTask['goal'] {
   const latestRunId = item.active_run_id ?? approvalRunId ?? draftRunId
   const sessionHref = stringValue(metadata.goal_session_href) ?? `/admin/agents/standup?goal=${encodeURIComponent(goalId)}`
   const isN8nProposal = item.source_type === 'n8n_workflow_proposal' || metadata.n8n_workflow_proposal === true
+  const stageGates = stageGateArrayValue(metadata.stage_gates)
   return {
     id: goalId,
     title: goalTitle,
@@ -949,6 +1008,9 @@ function goalForTask(item: AgentWorkItemRow): AgentOrgBoardTask['goal'] {
     n8nWorkflows: stringArrayValue(metadata.n8n_workflows),
     approvalGate: stringValue(metadata.approval_gate),
     nextAction: stringValue(metadata.next_action),
+    readinessStatus: stringValue(metadata.readiness_status),
+    stageGates,
+    nextStageGate: nextStageGate(stageGates),
     goalType: stringValue(metadata.goal_type),
     contentPacketId: stringValue(metadata.content_packet_id),
     publishGate: stringValue(metadata.publish_gate),
@@ -1025,6 +1087,9 @@ function buildGoalMetrics(tasks: AgentOrgBoardTask[]): AgentOrgBoardGoalMetric[]
       n8nWorkflows: firstGoal?.n8nWorkflows ?? [],
       approvalGate: firstGoal?.approvalGate ?? null,
       nextAction: firstGoal?.nextAction ?? null,
+      readinessStatus: firstGoal?.readinessStatus ?? null,
+      stageGates: firstGoal?.stageGates ?? [],
+      nextStageGate: firstGoal?.nextStageGate ?? null,
       goalType: firstGoal?.goalType ?? null,
       contentPacketId: firstGoal?.contentPacketId ?? null,
       publishGate: firstGoal?.publishGate ?? null,
@@ -1098,7 +1163,9 @@ export function buildAgentOrgBoardSnapshotFromRows(input: AgentOrgBoardBuildInpu
     dependencies: [],
     dependents: [],
     handoffs: [],
-    acceptanceCriteria: stringArrayValue(item.metadata?.acceptance_criteria),
+    acceptanceCriteria: stringArrayValue(item.metadata?.task_acceptance_criteria).length
+      ? stringArrayValue(item.metadata?.task_acceptance_criteria)
+      : stringArrayValue(item.metadata?.acceptance_criteria),
     createdAt: item.created_at,
     updatedAt: item.updated_at,
     completedAt: item.completed_at ?? null,

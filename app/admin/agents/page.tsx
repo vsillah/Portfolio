@@ -23,6 +23,7 @@ import {
   Send,
   ShieldCheck,
   Sparkles,
+  Target,
   TrendingDown,
   Users,
 } from 'lucide-react'
@@ -30,6 +31,7 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import AgentAvatar from '@/components/admin/AgentAvatar'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
+import type { AgentOrgBoardGoalMetric } from '@/lib/agent-swarm-board'
 
 type MissionRun = {
   id: string
@@ -487,6 +489,7 @@ export default function AgentOperationsPage() {
   const [moremiReviewConfirm, setMoremiReviewConfirm] = useState(false)
   const [inboxPage, setInboxPage] = useState(0)
   const [operatorRuns, setOperatorRuns] = useState<OperatorRun[]>([])
+  const [activeGoals, setActiveGoals] = useState<AgentOrgBoardGoalMetric[]>([])
   const [automationGoals, setAutomationGoals] = useState<AutomationGoalSummary[]>([])
   const [automationGoalsLoading, setAutomationGoalsLoading] = useState(false)
   const [automationSeedLoading, setAutomationSeedLoading] = useState(false)
@@ -546,6 +549,18 @@ export default function AgentOperationsPage() {
     }
   }, [authedFetch])
 
+  const loadActiveGoals = useCallback(async () => {
+    try {
+      const response = await authedFetch('/api/admin/agents/swarm-board')
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      const goals = body.organization?.summary?.goals
+      setActiveGoals(Array.isArray(goals) ? goals : [])
+    } catch {
+      setActiveGoals([])
+    }
+  }, [authedFetch])
+
   const loadAutomationGoals = useCallback(async () => {
     setAutomationGoalsLoading(true)
     try {
@@ -564,11 +579,12 @@ export default function AgentOperationsPage() {
     loadMissionControl()
     loadMoremiReview()
     loadOperatorRuns()
+    loadActiveGoals()
     loadAutomationGoals()
-  }, [loadMissionControl, loadMoremiReview, loadOperatorRuns, loadAutomationGoals])
+  }, [loadMissionControl, loadMoremiReview, loadOperatorRuns, loadActiveGoals, loadAutomationGoals])
 
   async function refreshMissionControl() {
-    await Promise.all([loadMissionControl(), loadMoremiReview(), loadOperatorRuns(), loadAutomationGoals()])
+    await Promise.all([loadMissionControl(), loadMoremiReview(), loadOperatorRuns(), loadActiveGoals(), loadAutomationGoals()])
   }
 
   async function askChiefOfStaff(message: string) {
@@ -1006,6 +1022,8 @@ export default function AgentOperationsPage() {
                 />
 
                 <AgentGovernancePanel governance={snapshot?.governance ?? null} />
+
+                <ActiveGoalsPanel goals={activeGoals} />
 
                 <div className="agent-ops-command-card mt-5 rounded-lg border p-4">
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -2293,6 +2311,81 @@ function BriefRouteCard({
         <ArrowRight size={14} className="mt-1 shrink-0 text-muted-foreground group-hover:text-radiant-gold" />
       </div>
     </Link>
+  )
+}
+
+function ActiveGoalsPanel({ goals }: { goals: AgentOrgBoardGoalMetric[] }) {
+  const visibleGoals = goals.slice(0, 3)
+  return (
+    <section className="agent-ops-card mt-5 rounded-lg border p-4" aria-label="Active Goals">
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-radiant-gold">
+            <Target size={17} />
+            <h2 className="font-semibold">Active Goals</h2>
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Goal status, next gate, blockers, and the right L2 surface for follow-up.
+          </p>
+        </div>
+        <Link href="/admin/agents/standup" className="inline-flex w-fit items-center gap-2 rounded-lg border border-radiant-gold/50 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/10">
+          Plan a goal
+          <ArrowRight size={14} />
+        </Link>
+      </div>
+
+      <div className="mt-3 grid gap-3">
+        {visibleGoals.length ? visibleGoals.map((goal) => (
+          <article key={goal.id} className="rounded-lg border border-silicon-slate/60 bg-background/55 p-3">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <StatusOnlyPill tone={goal.blocked ? 'red' : goal.open ? 'yellow' : 'green'}>
+                    {goal.readinessStatus === 'delegated' ? 'Delegated' : goal.readinessStatus?.replace(/_/g, ' ') ?? 'Active'}
+                  </StatusOnlyPill>
+                  {goal.publishGate ? <StatusOnlyPill tone={goal.publishGate === 'draft_only' ? 'yellow' : 'neutral'}>{goal.publishGate.replace(/_/g, ' ')}</StatusOnlyPill> : null}
+                </div>
+                <h3 className="mt-2 line-clamp-2 font-semibold">{goal.title}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {goal.progress}% complete · {goal.open} open · {goal.blocked} blocked
+                </p>
+                {goal.nextStageGate ? (
+                  <p className="mt-2 text-sm text-radiant-gold">
+                    Next gate: {goal.nextStageGate.label} before {goal.nextStageGate.requiredBefore.replace(/_/g, ' ')}
+                  </p>
+                ) : (
+                  <p className="mt-2 text-sm text-muted-foreground">No open stage gate is recorded.</p>
+                )}
+              </div>
+              <div className="flex shrink-0 flex-wrap gap-2">
+                <Link href={goal.sessionHref} className="rounded-lg border border-radiant-gold/45 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/10">
+                  Standup
+                </Link>
+                <Link href={`/admin/agents/swarm-board?goal=${encodeURIComponent(goal.id)}`} className="rounded-lg border border-silicon-slate/60 px-3 py-2 text-sm hover:border-radiant-gold/50">
+                  Kanban
+                </Link>
+                {goal.socialContentDraftHref ? (
+                  <Link href={goal.socialContentDraftHref} className="rounded-lg border border-silicon-slate/60 px-3 py-2 text-sm hover:border-radiant-gold/50">
+                    Draft
+                  </Link>
+                ) : goal.latestTraceHref ? (
+                  <Link href={goal.latestTraceHref} className="rounded-lg border border-silicon-slate/60 px-3 py-2 text-sm hover:border-radiant-gold/50">
+                    Trace
+                  </Link>
+                ) : null}
+              </div>
+            </div>
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-silicon-slate/70">
+              <div className="h-full bg-radiant-gold" style={{ width: `${goal.progress}%` }} />
+            </div>
+          </article>
+        )) : (
+          <div className="rounded-lg border border-dashed border-silicon-slate/60 p-4 text-sm text-muted-foreground">
+            No active delegated goals yet. Start in the Standup Room when Shaka needs to turn a goal into tracked work.
+          </div>
+        )}
+      </div>
+    </section>
   )
 }
 

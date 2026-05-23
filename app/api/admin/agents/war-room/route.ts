@@ -10,6 +10,7 @@ function parseCommand(value: unknown): AgentWarRoomCommand | null {
     value === 'discuss' ||
     value === 'ask_agent' ||
     value === 'draft_goal' ||
+    value === 'approve_readiness' ||
     value === 'approve_goal'
     ? value
     : null
@@ -93,8 +94,8 @@ export async function POST(request: NextRequest) {
     ? 'social_outreach_linkedin_post'
     : 'general'
 
-  if (command === 'approve_goal' && (!body.draft || typeof body.draft !== 'object')) {
-    return NextResponse.json({ error: 'draft is required for approve_goal' }, { status: 400 })
+  if ((command === 'approve_goal' || command === 'approve_readiness') && (!body.draft || typeof body.draft !== 'object')) {
+    return NextResponse.json({ error: `draft is required for ${command}` }, { status: 400 })
   }
 
   try {
@@ -106,7 +107,7 @@ export async function POST(request: NextRequest) {
       goalId,
       goal,
       goalType,
-      draft: command === 'approve_goal' ? body.draft as never : null,
+      draft: command === 'approve_goal' || command === 'approve_readiness' ? body.draft as never : null,
       triggerSource: 'admin_agent_war_room',
       actor: {
         id: auth.user.id,

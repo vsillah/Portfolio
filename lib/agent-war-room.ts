@@ -11,8 +11,37 @@ import { buildAgentOrgBoardSnapshot, type AgentOrgBoardSnapshot, type AgentOrgBo
 import { createAgentWorkItem, type AgentWorkItem, type AgentWorkItemPriority } from '@/lib/agent-work-items'
 import { supabaseAdmin } from '@/lib/supabase'
 
-export type AgentWarRoomCommand = 'standup' | 'discuss' | 'ask_agent' | 'draft_goal' | 'approve_goal'
+export type AgentWarRoomCommand = 'standup' | 'discuss' | 'ask_agent' | 'draft_goal' | 'approve_readiness' | 'approve_goal'
 export type AgentGoalType = 'general' | 'social_outreach_linkedin_post'
+export type AgentGoalReadinessStatus = 'drafting' | 'needs_context' | 'ready_for_delegation' | 'delegated'
+export type AgentGoalReadinessItemStatus = 'ready' | 'missing' | 'blocked'
+export type AgentGoalStageGateStatus = 'pending' | 'in_progress' | 'complete' | 'blocked'
+
+export interface AgentGoalReadinessItem {
+  key: string
+  label: string
+  status: AgentGoalReadinessItemStatus
+  required: boolean
+  evidence?: string | null
+  blocker?: string | null
+}
+
+export interface AgentGoalStageGate {
+  key: string
+  label: string
+  owner_agent_key?: string | null
+  required_before: string
+  status: AgentGoalStageGateStatus
+  approval_required: boolean
+}
+
+export interface AgentGoalAuthorityBoundary {
+  publish: 'not_allowed' | 'manual_approval_required'
+  send: 'not_allowed' | 'manual_approval_required'
+  deploy: 'not_allowed' | 'manual_approval_required'
+  merge: 'not_allowed' | 'manual_approval_required'
+  notes: string
+}
 
 export interface LinkedInContentPacket {
   id: string
@@ -51,6 +80,13 @@ export interface AgentGoalDraft {
   objective: string
   recommendation: string
   risk_notes: string
+  readiness_status?: AgentGoalReadinessStatus
+  readiness_checklist?: AgentGoalReadinessItem[]
+  acceptance_criteria?: string[]
+  stage_gates?: AgentGoalStageGate[]
+  authority_boundary?: AgentGoalAuthorityBoundary
+  missing_context?: string[]
+  planning_participants?: string[]
   draft_run_id?: string | null
   publish_gate?: 'draft_only' | 'manual_approval_required'
   source_requirements?: string[]
@@ -87,9 +123,13 @@ export interface RunAgentWarRoomInput {
 }
 
 function assertCommand(command: string): asserts command is AgentWarRoomCommand {
-  if (!['standup', 'discuss', 'ask_agent', 'draft_goal', 'approve_goal'].includes(command)) {
+  if (!['standup', 'discuss', 'ask_agent', 'draft_goal', 'approve_readiness', 'approve_goal'].includes(command)) {
     throw new Error('Invalid war room command')
   }
+}
+
+function isApprovalCommand(command: AgentWarRoomCommand) {
+  return command === 'approve_readiness' || command === 'approve_goal'
 }
 
 function podName(podKey: string) {
@@ -128,7 +168,7 @@ function selectAgents(command: AgentWarRoomCommand, message: string | null, targ
 
   const callable = callableAgents()
   if (command === 'standup') return callable.slice(0, 8)
-  if (command === 'draft_goal' || command === 'approve_goal') {
+  if (command === 'draft_goal' || isApprovalCommand(command)) {
     return [
       getAgentByKey('chief-of-staff'),
       getAgentByKey('engineering-copilot'),
@@ -241,10 +281,10 @@ function synthesize(command: AgentWarRoomCommand, updates: ReturnType<typeof age
     return `${updates[0]?.agent_name ?? 'Selected agent'} responded with scoped Agent Ops context.`
   }
   if (command === 'draft_goal') {
-    return 'Goal draft ready for operator review. No work items were created.'
+    return 'Goal readiness packet is ready for operator review. No work items were created.'
   }
-  if (command === 'approve_goal') {
-    return 'Goal approved and converted into traceable Agent Ops work items.'
+  if (isApprovalCommand(command)) {
+    return 'Goal readiness approved and delegated into traceable Agent Ops work items.'
   }
 
   const pods = Array.from(new Set(updates.map((update) => update.pod))).join(', ')
@@ -314,6 +354,81 @@ function buildLinkedInPacket(goalId: string, title: string): LinkedInContentPack
     social_content_draft_id: null,
     social_content_draft_href: null,
   }
+}
+
+function defaultAuthorityBoundary(goalType: AgentGoalType): AgentGoalAuthorityBoundary {
+  return goalType === 'social_outreach_linkedin_post'
+    ? {
+        publish: 'not_allowed',
+        send: 'not_allowed',
+        deploy: 'not_allowed',
+        merge: 'manual_approval_required',
+        notes: 'Approving readiness can create draft work and a Social Content draft only. Publishing, scheduling, DMs, sends, deploys, and production mutation stay outside this approval.',
+      }
+    : {
+        publish: 'manual_approval_required',
+        send: 'manual_approval_required',
+        deploy: 'manual_approval_required',
+        merge: 'manual_approval_required',
+        notes: 'Approving readiness creates Agent Ops work items only. Merge, deploy, publish, send, credential, and production changes require their existing approval gates.',
+      }
+}
+
+function readinessChecklist(goalType: AgentGoalType): AgentGoalReadinessItem[] {
+  const publicBoundary = goalType === 'social_outreach_linkedin_post'
+    ? 'Draft-only content boundary is explicit; no publishing or outbound engagement is authorized.'
+    : 'Merge, deploy, publish, send, credential, and production mutation authority remains explicitly approval-gated.'
+  return [
+    { key: 'outcome_clear', label: 'Outcome is clear', status: 'ready', required: true, evidence: 'The goal objective is stated before delegation.' },
+    { key: 'audience_clear', label: 'Audience or user is clear', status: 'ready', required: true, evidence: goalType === 'social_outreach_linkedin_post' ? 'Audience is LinkedIn readers evaluating practical AI and automation adoption.' : 'Audience is the Agent Ops operator and the owner lanes receiving work.' },
+    { key: 'source_context_identified', label: 'Source and context inputs are identified', status: 'ready', required: true, evidence: goalType === 'social_outreach_linkedin_post' ? 'Industry signal, Open Brain, Chronicle packet, and AmaduTown proof requirements are named.' : 'Agent Ops traces, Kanban, implementation surfaces, and validation notes are named.' },
+    { key: 'safety_boundary_stated', label: 'Privacy and safety boundaries are stated', status: 'ready', required: true, evidence: publicBoundary },
+    { key: 'acceptance_criteria_explicit', label: 'Acceptance criteria are explicit', status: 'ready', required: true, evidence: 'Goal-level and task-level acceptance criteria are attached.' },
+    { key: 'dependencies_known', label: 'Dependencies are known', status: 'ready', required: true, evidence: 'Dependencies are represented on child task drafts before creation.' },
+    { key: 'owners_proposed', label: 'Owner workstreams are proposed', status: 'ready', required: true, evidence: 'Each draft task has a proposed agent owner.' },
+    { key: 'stage_gates_named', label: 'Stage gates are named', status: 'ready', required: true, evidence: 'Planning, delegation, review, and final approval gates are listed.' },
+    { key: 'authority_boundaries_explicit', label: 'Authority boundaries are explicit', status: 'ready', required: true, evidence: 'The authority boundary is attached to the readiness packet.' },
+  ]
+}
+
+function defaultStageGates(goalType: AgentGoalType): AgentGoalStageGate[] {
+  if (goalType === 'social_outreach_linkedin_post') {
+    return [
+      { key: 'ready_to_delegate', label: 'Ready to delegate', owner_agent_key: 'chief-of-staff', required_before: 'work_item_creation', status: 'pending', approval_required: true },
+      { key: 'evidence_packet', label: 'Evidence packet complete', owner_agent_key: 'research-source-register', required_before: 'content_draft_review', status: 'pending', approval_required: false },
+      { key: 'voice_and_visual_review', label: 'Voice and visual review', owner_agent_key: 'voice-content-architect', required_before: 'social_content_handoff', status: 'pending', approval_required: false },
+      { key: 'publish_approval', label: 'Separate publish approval', owner_agent_key: 'risk-compliance-intelligence', required_before: 'publish_or_schedule', status: 'pending', approval_required: true },
+    ]
+  }
+  return [
+    { key: 'ready_to_delegate', label: 'Ready to delegate', owner_agent_key: 'chief-of-staff', required_before: 'work_item_creation', status: 'pending', approval_required: true },
+    { key: 'implementation_review', label: 'Implementation review', owner_agent_key: 'engineering-copilot', required_before: 'handoff', status: 'pending', approval_required: false },
+    { key: 'validation_packet', label: 'Validation packet', owner_agent_key: 'research-source-register', required_before: 'review_or_merge', status: 'pending', approval_required: false },
+    { key: 'merge_deploy_gate', label: 'Merge/deploy approval', owner_agent_key: 'risk-compliance-intelligence', required_before: 'merge_or_deploy', status: 'pending', approval_required: true },
+  ]
+}
+
+function defaultGoalAcceptanceCriteria(goalType: AgentGoalType) {
+  return goalType === 'social_outreach_linkedin_post'
+    ? [
+        'Shaka creates a draft-only LinkedIn content packet before work is delegated.',
+        'Child tasks are owned by named agents and tagged to the parent goal.',
+        'Open Brain and Chronicle evidence boundaries are visible before public copy review.',
+        'Social Content handoff remains draft-only until a separate publish approval.',
+      ]
+    : [
+        'Goal scope, success criteria, and authority boundaries are visible before delegation.',
+        'Child tasks are owned by named agents and tagged to the parent goal.',
+        'Stage gates and validation expectations are traceable from Standup Room and Kanban.',
+        'Merge, deploy, publish, send, credential, and production mutation remain behind existing approval gates.',
+      ]
+}
+
+function planningParticipants(goalType: AgentGoalType) {
+  const keys = goalType === 'social_outreach_linkedin_post'
+    ? ['chief-of-staff', 'research-source-register', 'private-knowledge-librarian', 'voice-content-architect', 'content-repurposing', 'risk-compliance-intelligence']
+    : ['chief-of-staff', 'engineering-copilot', 'automation-systems', 'research-source-register', 'risk-compliance-intelligence']
+  return keys.filter((key) => Boolean(getAgentByKey(key)))
 }
 
 function socialOutreachTasks(goalId: string, title: string): AgentGoalDraftTask[] {
@@ -419,13 +534,24 @@ function socialOutreachTasks(goalId: string, title: string): AgentGoalDraftTask[
 
 function draftSocialOutreachGoal(goal: string, title: string, goalId: string): AgentGoalDraft {
   const packet = buildLinkedInPacket(goalId, title)
+  const goalType: AgentGoalType = 'social_outreach_linkedin_post'
   return {
     goal_id: goalId,
-    goal_type: 'social_outreach_linkedin_post',
+    goal_type: goalType,
     title,
     objective: `Produce one draft-only LinkedIn content packet for: ${goal.trim()}`,
     recommendation: 'Approve this pilot only if the output should stop at a Social Content draft. Publishing, scheduling, DMs, and outbound engagement remain outside this approval.',
     risk_notes: 'Manual Chronicle evidence and approved Open Brain context are required before public copy is approved.',
+    readiness_status: 'ready_for_delegation',
+    readiness_checklist: readinessChecklist(goalType),
+    acceptance_criteria: defaultGoalAcceptanceCriteria(goalType),
+    stage_gates: defaultStageGates(goalType),
+    authority_boundary: defaultAuthorityBoundary(goalType),
+    missing_context: [
+      'Attach the manual Chronicle evidence packet before final content approval.',
+      'Replace the pending industry signal before publishing review.',
+    ],
+    planning_participants: planningParticipants(goalType),
     publish_gate: 'draft_only',
     source_requirements: [
       'One source-backed industry signal',
@@ -511,11 +637,18 @@ function draftGoal(goal: string, goalType: AgentGoalType = 'general'): AgentGoal
 
   return {
     goal_id: goalId,
-    goal_type: 'general',
+    goal_type: goalType,
     title,
     objective: `Accomplish: ${title}`,
     recommendation: 'Approve the packet if the scope is right, then track each child task on Agent Kanban with the shared goal tag.',
     risk_notes: 'V1 creates reviewable work items only after approval; merge and deploy gates remain outside this room.',
+    readiness_status: 'ready_for_delegation',
+    readiness_checklist: readinessChecklist(goalType),
+    acceptance_criteria: defaultGoalAcceptanceCriteria(goalType),
+    stage_gates: defaultStageGates(goalType),
+    authority_boundary: defaultAuthorityBoundary(goalType),
+    missing_context: [],
+    planning_participants: planningParticipants(goalType),
     tasks,
   }
 }
@@ -524,6 +657,7 @@ function assertDraft(value: AgentGoalDraft | null | undefined): AgentGoalDraft {
   if (!value || typeof value.goal_id !== 'string' || typeof value.title !== 'string' || !Array.isArray(value.tasks)) {
     throw new Error('Invalid goal draft')
   }
+  const goalType: AgentGoalType = value.goal_type === 'social_outreach_linkedin_post' ? 'social_outreach_linkedin_post' : 'general'
   for (const task of value.tasks) {
     if (!task.title || !task.owner_agent_key || !getAgentByKey(task.owner_agent_key)) {
       throw new Error('Invalid goal draft task')
@@ -540,10 +674,98 @@ function assertDraft(value: AgentGoalDraft | null | undefined): AgentGoalDraft {
     throw new Error('Invalid goal draft publish gate')
   }
   value.source_requirements = normalizeDraftStringArray(value.source_requirements)
+  value.acceptance_criteria = normalizeDraftStringArray(value.acceptance_criteria)
+  value.missing_context = normalizeDraftStringArray(value.missing_context)
+  value.planning_participants = normalizeDraftStringArray(value.planning_participants)
+  value.readiness_status = normalizeReadinessStatus(value.readiness_status)
+  value.readiness_checklist = normalizeReadinessChecklist(value.readiness_checklist, goalType)
+  value.stage_gates = normalizeStageGates(value.stage_gates, goalType)
+  value.authority_boundary = normalizeAuthorityBoundary(value.authority_boundary, goalType)
   if (value.content_packet && typeof value.content_packet.id !== 'string') {
     throw new Error('Invalid LinkedIn content packet')
   }
   return value
+}
+
+function normalizeReadinessStatus(value: unknown): AgentGoalReadinessStatus {
+  return value === 'drafting' || value === 'needs_context' || value === 'delegated' || value === 'ready_for_delegation'
+    ? value
+    : 'needs_context'
+}
+
+function normalizeReadinessChecklist(value: unknown, goalType: AgentGoalType): AgentGoalReadinessItem[] {
+  const fallback = readinessChecklist(goalType)
+  if (!Array.isArray(value)) return fallback
+  return value.map((item, index) => {
+    const record = item && typeof item === 'object' ? item as Record<string, unknown> : {}
+    const fallbackItem = fallback[index] ?? fallback[0]
+    const status = record.status === 'ready' || record.status === 'missing' || record.status === 'blocked'
+      ? record.status
+      : 'missing'
+    return {
+      key: typeof record.key === 'string' && record.key.trim() ? record.key.trim() : fallbackItem.key,
+      label: typeof record.label === 'string' && record.label.trim() ? record.label.trim() : fallbackItem.label,
+      status,
+      required: typeof record.required === 'boolean' ? record.required : true,
+      evidence: typeof record.evidence === 'string' && record.evidence.trim() ? record.evidence.trim() : null,
+      blocker: typeof record.blocker === 'string' && record.blocker.trim() ? record.blocker.trim() : null,
+    }
+  })
+}
+
+function normalizeStageGates(value: unknown, goalType: AgentGoalType): AgentGoalStageGate[] {
+  const fallback = defaultStageGates(goalType)
+  if (!Array.isArray(value)) return fallback
+  return value.map((item, index) => {
+    const record = item && typeof item === 'object' ? item as Record<string, unknown> : {}
+    const fallbackGate = fallback[index] ?? fallback[0]
+    const status = record.status === 'pending' || record.status === 'in_progress' || record.status === 'complete' || record.status === 'blocked'
+      ? record.status
+      : 'pending'
+    return {
+      key: typeof record.key === 'string' && record.key.trim() ? record.key.trim() : fallbackGate.key,
+      label: typeof record.label === 'string' && record.label.trim() ? record.label.trim() : fallbackGate.label,
+      owner_agent_key: typeof record.owner_agent_key === 'string' && record.owner_agent_key.trim() ? record.owner_agent_key.trim() : fallbackGate.owner_agent_key ?? null,
+      required_before: typeof record.required_before === 'string' && record.required_before.trim() ? record.required_before.trim() : fallbackGate.required_before,
+      status,
+      approval_required: typeof record.approval_required === 'boolean' ? record.approval_required : fallbackGate.approval_required,
+    }
+  })
+}
+
+function normalizeAuthorityBoundary(value: unknown, goalType: AgentGoalType): AgentGoalAuthorityBoundary {
+  const fallback = defaultAuthorityBoundary(goalType)
+  const record = value && typeof value === 'object' ? value as Record<string, unknown> : {}
+  const boundaryValue = (item: unknown, fallbackValue: 'not_allowed' | 'manual_approval_required') => {
+    return item === 'not_allowed' || item === 'manual_approval_required' ? item : fallbackValue
+  }
+  return {
+    publish: boundaryValue(record.publish, fallback.publish),
+    send: boundaryValue(record.send, fallback.send),
+    deploy: boundaryValue(record.deploy, fallback.deploy),
+    merge: boundaryValue(record.merge, fallback.merge),
+    notes: typeof record.notes === 'string' && record.notes.trim() ? record.notes.trim() : fallback.notes,
+  }
+}
+
+function assertDraftReadyForDelegation(draft: AgentGoalDraft) {
+  const requiredItems = draft.readiness_checklist?.filter((item) => item.required) ?? []
+  const incomplete = requiredItems.filter((item) => item.status !== 'ready')
+  if (draft.readiness_status !== 'ready_for_delegation') {
+    throw new Error('Goal readiness must be ready_for_delegation before delegation')
+  }
+  if (incomplete.length) {
+    throw new Error(`Goal readiness is incomplete: ${incomplete.map((item) => item.label).join(', ')}`)
+  }
+  if (!draft.acceptance_criteria?.length) {
+    throw new Error('Goal acceptance criteria are required before delegation')
+  }
+  if (!draft.stage_gates?.length) {
+    throw new Error('Goal stage gates are required before delegation')
+  }
+  if (!draft.authority_boundary?.notes) {
+    throw new Error('Goal authority boundary is required before delegation')
+  }
 }
 
 function normalizeDraftStringArray(value: unknown): string[] {
@@ -652,6 +874,7 @@ async function createSocialContentDraftForGoal(draft: AgentGoalDraft) {
 }
 
 async function approveGoalDraft(runId: string, draft: AgentGoalDraft) {
+  assertDraftReadyForDelegation(draft)
   const draftRunId = draft.draft_run_id ?? null
   const sessionHref = goalSessionHref(draft.goal_id)
   const socialContentDraft = await createSocialContentDraftForGoal(draft)
@@ -675,6 +898,13 @@ async function approveGoalDraft(runId: string, draft: AgentGoalDraft) {
       goal_id: draft.goal_id,
       goal_title: draft.title,
       goal_status: 'approved',
+      readiness_status: 'delegated',
+      readiness_checklist: draft.readiness_checklist ?? [],
+      stage_gates: draft.stage_gates ?? [],
+      acceptance_criteria: draft.acceptance_criteria ?? [],
+      authority_boundary: draft.authority_boundary ?? null,
+      missing_context: draft.missing_context ?? [],
+      planning_participants: draft.planning_participants ?? [],
       goal_role: 'parent',
       goal_created_by_run_id: runId,
       goal_draft_run_id: draftRunId,
@@ -713,6 +943,13 @@ async function approveGoalDraft(runId: string, draft: AgentGoalDraft) {
         goal_title: draft.title,
         goal_sequence: index + 1,
         goal_status: 'approved',
+        readiness_status: 'delegated',
+        readiness_checklist: draft.readiness_checklist ?? [],
+        stage_gates: draft.stage_gates ?? [],
+        acceptance_criteria: draft.acceptance_criteria ?? [],
+        authority_boundary: draft.authority_boundary ?? null,
+        missing_context: draft.missing_context ?? [],
+        planning_participants: draft.planning_participants ?? [],
         goal_role: 'task',
         goal_created_by_run_id: runId,
         goal_draft_run_id: draftRunId,
@@ -722,7 +959,7 @@ async function approveGoalDraft(runId: string, draft: AgentGoalDraft) {
         goal_progress_weight: task.goal_progress_weight,
         goal_task_id: task.id,
         goal_dependencies: task.dependencies,
-        acceptance_criteria: task.acceptance_criteria,
+        task_acceptance_criteria: task.acceptance_criteria,
         risk_notes: task.risk_notes,
         publish_gate: draft.publish_gate ?? null,
         content_packet_id: draft.content_packet_id ?? contentPacket?.id ?? null,
@@ -754,7 +991,7 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
     const agent = getAgentByKey(input.targetAgentKey ?? '')
     if (!agent || agent.status === 'planned') throw new Error('Invalid agent key')
   }
-  if (input.command === 'approve_goal') {
+  if (isApprovalCommand(input.command)) {
     assertDraft(input.draft)
   }
 
@@ -763,12 +1000,13 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
     discuss: 'Agent Standup Room discussion',
     ask_agent: 'Agent Standup Room direct ask',
     draft_goal: 'Agent Standup Room goal draft',
+    approve_readiness: 'Agent Standup Room readiness approval',
     approve_goal: 'Agent Standup Room goal approval',
   }
   const precomputedGoalDraft = input.command === 'draft_goal' ? draftGoal(goal ?? '', goalType) : null
-  const draftGoalId = input.command === 'approve_goal' ? input.draft?.goal_id ?? null : precomputedGoalDraft?.goal_id ?? null
+  const draftGoalId = isApprovalCommand(input.command) ? input.draft?.goal_id ?? null : precomputedGoalDraft?.goal_id ?? null
   const activeGoalId = draftGoalId ?? contextGoalId
-  const draftRunId = input.command === 'approve_goal' ? input.draft?.draft_run_id ?? null : null
+  const draftRunId = isApprovalCommand(input.command) ? input.draft?.draft_run_id ?? null : null
   const run = await startAgentRun({
     agentKey: 'chief-of-staff',
     runtime: 'manual',
@@ -792,8 +1030,8 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
       goal_id: activeGoalId,
       goal_session_href: activeGoalId ? goalSessionHref(activeGoalId) : null,
       goal_draft_run_id: draftRunId,
-      goal_approved_by_run_id: input.command === 'approve_goal' ? null : null,
-      executes_action: input.command === 'approve_goal',
+      goal_approved_by_run_id: isApprovalCommand(input.command) ? null : null,
+      executes_action: isApprovalCommand(input.command),
     },
   })
 
@@ -827,7 +1065,7 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
   if (input.command === 'draft_goal') {
     goalDraft = precomputedGoalDraft ? { ...precomputedGoalDraft, draft_run_id: run.id } : null
   }
-  if (input.command === 'approve_goal') {
+  if (isApprovalCommand(input.command)) {
     const draft = assertDraft(input.draft)
     createdWorkItems = await approveGoalDraft(run.id, draft)
   }
@@ -846,10 +1084,10 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
 
   await recordAgentStep({
     runId: run.id,
-    stepKey: input.command === 'approve_goal' ? 'goal_work_items_created' : 'agent_updates',
-    name: input.command === 'approve_goal' ? 'Created approved goal work items' : 'Collected agent responses',
+    stepKey: isApprovalCommand(input.command) ? 'goal_work_items_created' : 'agent_updates',
+    name: isApprovalCommand(input.command) ? 'Created readiness-approved goal work items' : 'Collected agent responses',
     status: 'completed',
-    outputSummary: input.command === 'approve_goal'
+    outputSummary: isApprovalCommand(input.command)
       ? `${createdWorkItems?.children.length ?? 0} child work item(s)`
       : `${updates.length} agent response(s)`,
     metadata: { updates, goalDraft, createdWorkItems },
@@ -880,11 +1118,11 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
       goal_id: finalGoalId,
       goal_session_href: finalGoalSessionHref,
       goal_draft_run_id: goalDraft?.draft_run_id ?? input.draft?.draft_run_id ?? null,
-      goal_approved_by_run_id: input.command === 'approve_goal' ? run.id : null,
+      goal_approved_by_run_id: isApprovalCommand(input.command) ? run.id : null,
       created_parent_work_item_id: createdParentId,
       created_child_work_item_ids: createdChildIds,
       status_strip: snapshot.status_strip,
-      executes_action: input.command === 'approve_goal',
+      executes_action: isApprovalCommand(input.command),
     },
     idempotencyKey: `${run.id}:war-room-artifact`,
   })
@@ -900,7 +1138,7 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
       goal_id: finalGoalId,
       goal_session_href: finalGoalSessionHref,
       goal_draft_run_id: goalDraft?.draft_run_id ?? input.draft?.draft_run_id ?? null,
-      goal_approved_by_run_id: input.command === 'approve_goal' ? run.id : null,
+      goal_approved_by_run_id: isApprovalCommand(input.command) ? run.id : null,
       social_content_draft_id: createdWorkItems?.parent.metadata?.social_content_draft_id ?? null,
     },
   })
@@ -913,11 +1151,11 @@ export async function runAgentWarRoom(input: RunAgentWarRoomInput) {
       command: input.command,
       update_count: updates.length,
       synthesis,
-      executes_action: input.command === 'approve_goal',
+      executes_action: isApprovalCommand(input.command),
       goal_id: finalGoalId,
       goal_session_href: finalGoalSessionHref,
       goal_draft_run_id: goalDraft?.draft_run_id ?? input.draft?.draft_run_id ?? null,
-      goal_approved_by_run_id: input.command === 'approve_goal' ? run.id : null,
+      goal_approved_by_run_id: isApprovalCommand(input.command) ? run.id : null,
       created_parent_work_item_id: createdParentId,
       created_child_work_item_ids: createdChildIds,
       created_child_count: createdWorkItems?.children.length ?? 0,

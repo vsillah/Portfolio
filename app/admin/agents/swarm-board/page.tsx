@@ -688,6 +688,9 @@ function GoalRadiators({
                   <div className="h-full bg-radiant-gold" style={{ width: `${goal.progress}%` }} />
                 </div>
                 <p className="mt-2 text-xs text-muted-foreground">{goal.progress}% · {goal.open} open · {goal.blocked} blocked</p>
+                {goal.nextStageGate ? (
+                  <p className="mt-1 line-clamp-1 text-xs text-radiant-gold">Next gate: {goal.nextStageGate.label}</p>
+                ) : null}
               </button>
             )) : (
               <p className="rounded-lg border border-dashed border-silicon-slate/60 p-3 text-sm text-muted-foreground md:col-span-3">
@@ -851,6 +854,11 @@ function SelectedGoalPanel({ goal, tasks }: { goal: AgentOrgBoardSnapshot['summa
               <p className="mt-1 text-sm text-muted-foreground">
                 {goal.completed}/{goal.total} complete · {goal.open} open · {goal.blocked} blocked
               </p>
+              {goal.nextStageGate ? (
+                <p className="mt-2 text-sm text-radiant-gold">
+                  Next gate: {goal.nextStageGate.label} · before {goal.nextStageGate.requiredBefore.replace(/_/g, ' ')}
+                </p>
+              ) : null}
             </div>
             <Link href={goal.sessionHref} className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15">
               Open goal session
@@ -936,6 +944,22 @@ function SelectedGoalPanel({ goal, tasks }: { goal: AgentOrgBoardSnapshot['summa
               <p className="text-sm text-muted-foreground">Burndown appears after goal-tagged work starts moving.</p>
             )}
           </div>
+          {(goal.stageGates ?? []).length ? (
+            <div className="mt-4 border-t border-silicon-slate/50 pt-3">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-radiant-gold">Stage gates</h3>
+              <div className="mt-2 space-y-2">
+                {(goal.stageGates ?? []).slice(0, 4).map((gate) => (
+                  <div key={gate.key} className="rounded-md border border-silicon-slate/55 bg-background/45 p-2 text-xs">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-medium">{gate.label}</span>
+                      <span className="text-muted-foreground">{gate.status.replace(/_/g, ' ')}</span>
+                    </div>
+                    <p className="mt-1 text-muted-foreground">Before {gate.requiredBefore.replace(/_/g, ' ')}{gate.approvalRequired ? ' · approval gate' : ''}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
     </section>
@@ -1073,6 +1097,11 @@ function WorkItemCard({ task, onOpenDependencies }: { task: AgentOrgBoardTask; o
           <span className="truncate">Goal: {task.goal.title}</span>
         </Link>
       )}
+      {task.goal?.nextStageGate ? (
+        <div className="mt-1.5 inline-flex max-w-full rounded-full border border-silicon-slate/60 bg-silicon-slate/15 px-1.5 py-0.5 text-[11px] text-muted-foreground">
+          <span className="truncate">Next gate: {task.goal.nextStageGate.label}</span>
+        </div>
+      ) : null}
       {n8nProposal ? (
         <div className="mt-1.5 flex items-center gap-1.5 rounded-md border border-radiant-gold/35 bg-radiant-gold/10 px-1.5 py-1 text-[11px] text-radiant-gold">
           <Workflow size={12} className="shrink-0" />
