@@ -187,11 +187,19 @@ Phase 5 has a v1 implementation:
 - `/admin/agents` links the export actions from the Agent Governance panel.
 - `docs/agentic-os-client-advisory-explainer.md` provides the first advisory/sales framing for client conversations.
 
-The next refinement is to add scoped exports by run, client project, or date range after operators review the v1 report against real governance traces.
-
-Scoped exports are now the next implementation slice:
+Phase 5 refinements have also shipped:
 
 - `runId` or `run_id` should restrict delegation and authority evidence to one trace. The value must be an Agent Ops run UUID.
 - `clientProjectId` or `client_project_id` should restrict evidence to matching Agent Ops runs.
 - `from`/`to` should restrict evidence by ISO timestamp or `YYYY-MM-DD` date.
 - Capability inventory remains visible because it describes the operating system boundary; trace and authority evidence are the scoped parts.
+- `agent_governance_exports` records client-safe export metadata for JSON and Markdown exports without storing raw report payloads.
+- `/admin/agents` shows recent governance exports when ledger rows exist, including scope labels and run trace links.
+- The ledger insert is best-effort so the export endpoint still works if an environment is temporarily missing the ledger table.
+
+As of May 23, 2026, the Agentic OS governance track is in maintenance mode. The next work should be operational validation and client packaging, not another broad runtime expansion:
+
+- Generate one real client-safe export after an operator has a suitable trace and confirm the ledger row appears in `/admin/agents`.
+- Keep the advisory explainer aligned with the live proof surface.
+- Continue checking both Vercel contexts after any future governance changes.
+- Do not add agent payment execution authority until a separate approval-gated payment/spend authority drill is requested.
