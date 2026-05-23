@@ -518,34 +518,36 @@ function SocialContentDetailPage() {
 
       <div className="p-8 max-w-6xl mx-auto space-y-6">
         {isAgentSocialPilot && (
-          <section className="rounded-xl border border-amber-500/30 bg-gray-900/80 p-5 shadow-[0_0_28px_rgba(212,175,55,0.08)]">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-              <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-300">
-                  Agent Ops LinkedIn Pilot
-                </p>
-                <h2 className="mt-2 text-xl font-semibold text-gray-100">
-                  Draft-only content packet
-                </h2>
-                <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-300">
-                  This post was created from an approved Standup Room goal. Goal approval created the work items and this draft; publishing still requires the separate Social Content approval gate.
-                </p>
-              </div>
-              <div className="flex shrink-0 flex-wrap gap-2 text-xs">
-                <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-amber-200">
-                  {isDraftOnlyPilot ? 'Publish gate: draft only' : `Publish gate: ${agentPilotPublishGate || 'review required'}`}
-                </span>
-                {agentPilotChronicleStatus && (
-                  <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-blue-200">
-                    Chronicle: {agentPilotChronicleStatus.replace(/_/g, ' ')}
+          <section className="rounded-xl border border-amber-500/30 bg-gray-900/80 p-4 shadow-[0_0_28px_rgba(212,175,55,0.08)]">
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-300">
+                    Agent Ops LinkedIn Pilot
+                  </p>
+                  <h2 className="mt-1 text-xl font-semibold text-gray-100">
+                    Draft-only content packet
+                  </h2>
+                </div>
+                <div className="flex min-w-0 flex-wrap gap-2 text-xs xl:justify-end">
+                  <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-amber-200">
+                    {isDraftOnlyPilot ? 'Publish gate: draft only' : `Publish gate: ${agentPilotPublishGate || 'review required'}`}
                   </span>
-                )}
-                {agentPilotPacketId && (
-                  <span className="rounded-full border border-gray-700 bg-gray-800 px-3 py-1 text-gray-300">
-                    Packet {agentPilotPacketId}
-                  </span>
-                )}
+                  {agentPilotChronicleStatus && (
+                    <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-blue-200">
+                      Chronicle: {agentPilotChronicleStatus.replace(/_/g, ' ')}
+                    </span>
+                  )}
+                  {agentPilotPacketId && (
+                    <span className="max-w-full truncate rounded-full border border-gray-700 bg-gray-800 px-3 py-1 text-gray-300 xl:max-w-md" title={agentPilotPacketId}>
+                      Packet {agentPilotPacketId}
+                    </span>
+                  )}
+                </div>
               </div>
+              <p className="max-w-none text-sm leading-6 text-gray-300">
+                This post was created from an approved Standup Room goal. Goal approval created the work items and this draft; publishing still requires the separate Social Content approval gate.
+              </p>
             </div>
 
             <div className="mt-4 grid gap-3 lg:grid-cols-3">
