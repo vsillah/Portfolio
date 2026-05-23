@@ -83,6 +83,7 @@ import {
   buildAgentInboxSlackText,
   createAgentEngagementSlackText,
   handoffAgentWorkItemSlackText,
+  handleAgentSlackCommand,
   routeAgentInboxSlackText,
   runWarRoomStandupSlackText,
 } from '@/lib/agent-slack-command'
@@ -425,6 +426,35 @@ describe('agent Slack command parsing', () => {
     expect(text).toContain('Coordinate feature')
     expect(text).toContain('PR 1')
     expect(text).toContain('/admin/agents/coordination')
+  })
+
+  it('returns actionable Block Kit controls for mobile work item commands', async () => {
+    workItemMocks.listAgentWorkItems.mockResolvedValue([
+      {
+        id: 'work-1',
+        title: 'Unblock mobile approval',
+        objective: 'Let Slack unblock the Kanban',
+        status: 'blocked',
+        priority: 'high',
+        owner_agent_key: null,
+        owner_runtime: 'codex',
+        branch_name: null,
+        pr_url: null,
+        pr_number: null,
+        approval_id: null,
+        active_run_id: 'run-1',
+        blocker_summary: 'Needs owner',
+      },
+    ])
+
+    const result = await handleAgentSlackCommand({ text: 'work' })
+
+    expect(result.text).toContain('Agent coordination work')
+    expect(result.blocks).toEqual(expect.arrayContaining([
+      expect.objectContaining({ type: 'actions' }),
+    ]))
+    expect(JSON.stringify(result.blocks)).toContain('work.assign')
+    expect(JSON.stringify(result.blocks)).toContain('Open trace')
   })
 
   it('formats one coordination work item for Slack', async () => {
