@@ -1,0 +1,32 @@
+# Agent Ops Slack Mobile Unblock
+
+Slack is the mobile action surface for Agent Ops. Mission Control remains the full operating console; Slack is for quick, governed unblocks when the packet is safe enough to decide away from Portfolio.
+
+## Slack App Configuration
+
+- Slash command request URL: `/api/slack/agent`
+- Interactivity request URL: `/api/slack/agent/actions`
+- Event subscription URL: `/api/slack/agent/events`
+- Required signing secret: `SLACK_SIGNING_SECRET`
+- Required operator allowlist for non-local environments: `SLACK_AGENT_OPS_ALLOWED_USER_IDS`
+- Existing Shaka/Event replies use the Slack bot token path already configured for Agent Ops.
+
+`SLACK_AGENT_OPS_ALLOWED_USER_IDS` is a comma-separated list of Slack user IDs that may trigger Agent Ops mobile actions. If the allowlist is missing outside local development, the action endpoint rejects mutations.
+
+## Allowed Mobile Actions
+
+Slack can show Agent Ops cards for approvals, work items, blockers, and inbox entries. Safe buttons include:
+
+- approve or decline low-risk approval packets,
+- request revision,
+- assign or hand off a work item,
+- mark a work item ready,
+- route an inbox item,
+- ask Shaka for a context summary,
+- open Portfolio trace, Kanban, Decision Queue, or Run Console links.
+
+## Governance Boundary
+
+Slack must not directly perform production workflow activation, credential changes, outbound sends, customer-data mutation, publishing, payments, or n8n workflow activation. Those actions deep-link back to Portfolio for review.
+
+Every accepted Slack action should write an Agent Ops event so Mission Control, Run Console, and Kanban can reflect the mobile decision trail.

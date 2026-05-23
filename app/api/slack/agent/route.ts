@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { waitUntil } from '@vercel/functions'
 import { verifySlackSignature } from '@/lib/slack-signature'
+import type { AgentSlackCommandResult } from '@/lib/agent-slack-command'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,6 +32,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({
           response_type: result.responseType,
           text: result.text,
+          ...(result.blocks ? { blocks: result.blocks } : {}),
         })
       }
 
@@ -47,6 +49,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       response_type: result.responseType,
       text: result.text,
+      ...(result.blocks ? { blocks: result.blocks } : {}),
     })
   } catch (error) {
     console.error('Error in Slack agent command:', error)
@@ -81,7 +84,7 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T | nul
 
 async function postDelayedAgentResponse(
   responseUrl: string,
-  commandResult: Promise<{ responseType: string; text: string }>,
+  commandResult: Promise<AgentSlackCommandResult>,
 ) {
   try {
     const result = await commandResult
@@ -92,6 +95,7 @@ async function postDelayedAgentResponse(
         response_type: result.responseType,
         replace_original: false,
         text: result.text,
+        ...(result.blocks ? { blocks: result.blocks } : {}),
       }),
     })
   } catch (error) {

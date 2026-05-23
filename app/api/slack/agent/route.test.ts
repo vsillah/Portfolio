@@ -105,6 +105,30 @@ describe('POST /api/slack/agent', () => {
     })
   })
 
+  it('returns Block Kit payloads when the command handler supplies mobile actions', async () => {
+    mocks.handleAgentSlackCommand.mockResolvedValueOnce({
+      responseType: 'ephemeral',
+      text: 'Pending approvals',
+      blocks: [{ type: 'section', text: { type: 'mrkdwn', text: '*Pending approvals*' } }],
+    })
+    const request = signedRequest(
+      new URLSearchParams({
+        text: 'approvals',
+        user_id: 'U123',
+        user_name: 'vambah',
+      }),
+    )
+
+    const response = await POST(request as never)
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({
+      response_type: 'ephemeral',
+      text: 'Pending approvals',
+      blocks: [{ type: 'section', text: { type: 'mrkdwn', text: '*Pending approvals*' } }],
+    })
+  })
+
   it('returns detailed command output directly when it completes inside Slack response window', async () => {
     const request = signedRequest(
       new URLSearchParams({

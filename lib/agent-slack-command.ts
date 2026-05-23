@@ -13,6 +13,12 @@ import {
   type AgentWorkItem,
 } from '@/lib/agent-work-items'
 import {
+  mrkdwn,
+  slackButton,
+  truncateSlack,
+  type SlackBlock,
+} from '@/lib/agent-slack-blocks'
+import {
   createMoremiWarningWorkItems,
   getLatestMoremiMonitorReview,
   MOREMI_WARNING_WORK_ITEMS_CONFIRMATION,
@@ -49,6 +55,7 @@ export type AgentSlackCommandInput = {
 export type AgentSlackCommandResult = {
   responseType: 'ephemeral'
   text: string
+  blocks?: SlackBlock[]
 }
 
 type CountQueryResult = {
@@ -73,6 +80,7 @@ type AgentApprovalRow = {
   approval_type: string
   status: string
   requested_at: string
+  metadata?: Record<string, unknown> | null
 }
 
 function baseUrl() {
@@ -90,6 +98,10 @@ function agentRunsUrl(runId?: string) {
 
 function agentCoordinationUrl() {
   return `${baseUrl()}/admin/agents/coordination`
+}
+
+function agentKanbanUrl() {
+  return `${baseUrl()}/admin/agents/swarm-board`
 }
 
 function since24h() {
@@ -160,6 +172,233 @@ function formatWorkItemLine(item: AgentWorkItem, index?: number) {
   return `${number}*${item.title}* [${item.status}/${owner}]${branch}${pr}${approval}\n   ${item.objective}`
 }
 
+function riskLabelForApproval(approvalType: string) {
+  if (approvalType === 'vercel_deployment_research_proposal') return 'low'
+  if (approvalType === 'n8n_workflow_activation') return 'high'
+  if (
+    approvalType.includes('payment') ||
+    approvalType.includes('production_config') ||
+    approvalType.includes('send_email') ||
+    approvalType.includes('publishing') ||
+    approvalType.includes('private_material') ||
+    approvalType.includes('merge')
+  ) {
+    return 'high'
+  }
+  return 'review'
+}
+
+function canDecideApprovalInSlack(approvalType: string) {
+  return approvalType === 'vercel_deployment_research_proposal'
+}
+
+function approvalBlocks(input: {
+  approvals: AgentApprovalRow[]
+  runsById: Map<string, AgentRunRow>
+}): SlackBlock[] {
+  if (!input.approvals.length) {
+    return [
+      {
+        type: 'section',
+        text: mrkdwn(`*Pending agent approvals*\nNo pending approvals need mobile action.`),
+      },
+      {
+        type: 'actions',
+        elements: [
+          slackButton({ label: 'Open Run Console', actionId: 'agent_open_runs', url: agentRunsUrl() }),
+        ],
+      },
+    ]
+  }
+
+  const blocks: SlackBlock[] = [
+    {
+      type: 'section',
+      text: mrkdwn('*Pending agent approvals*\nReview low-risk decisions here. High-risk changes deep-link back to Portfolio.'),
+    },
+  ]
+
+  input.approvals.slice(0, 5).forEach((approval) => {
+    const run = input.runsById.get(approval.run_id)
+    const title = run?.title ?? approval.run_id
+    const risk = riskLabelForApproval(approval.approval_type)
+    const safe = canDecideApprovalInSlack(approval.approval_type)
+    blocks.push({
+      type: 'section',
+      text: mrkdwn([
+        `*${truncateSlack(title, 120)}*`,
+        `Type: \`${approval.approval_type}\` · Risk: *${risk}*`,
+        run?.current_step ? `Step: ${truncateSlack(run.current_step, 140)}` : null,
+        safe
+          ? 'Slack can record this decision.'
+          : 'Portfolio review required before this action can change production-impacting state.',
+      ].filter(Boolean).join('\n')),
+    })
+    blocks.push({
+      type: 'actions',
+      elements: [
+        ...(safe ? [
+          slackButton({
+            label: 'Approve',
+            actionId: 'agent_approval_approve',
+            style: 'primary',
+            value: { action: 'approval.approve', approvalId: approval.id, runId: approval.run_id },
+            confirmText: `Approve ${title}?`,
+          }),
+          slackButton({
+            label: 'Decline',
+            actionId: 'agent_approval_decline',
+            style: 'danger',
+            value: {
+              action: 'approval.reject',
+              approvalId: approval.id,
+              runId: approval.run_id,
+              note: 'Declined from Slack.',
+            },
+            confirmText: `Decline ${title}?`,
+          }),
+          slackButton({
+            label: 'Request revision',
+            actionId: 'agent_approval_revision',
+            value: {
+              action: 'approval.revision',
+              approvalId: approval.id,
+              runId: approval.run_id,
+              note: 'Revision requested from Slack.',
+            },
+          }),
+        ] : []),
+        slackButton({
+          label: 'Ask Shaka',
+          actionId: 'agent_approval_ask_shaka',
+          value: { action: 'approval.ask_shaka', approvalId: approval.id, runId: approval.run_id },
+        }),
+        slackButton({ label: 'Open trace', actionId: 'agent_open_trace', url: agentRunsUrl(approval.run_id) }),
+      ].slice(0, 5),
+    })
+  })
+
+  return blocks
+}
+
+function workItemBlocks(input: {
+  title: string
+  items: AgentWorkItem[]
+  emptyText: string
+}): SlackBlock[] {
+  if (!input.items.length) {
+    return [
+      { type: 'section', text: mrkdwn(`*${input.title}*\n${input.emptyText}`) },
+      { type: 'actions', elements: [slackButton({ label: 'Open Kanban', actionId: 'agent_open_kanban', url: agentKanbanUrl() })] },
+    ]
+  }
+
+  const blocks: SlackBlock[] = [
+    { type: 'section', text: mrkdwn(`*${input.title}*\nUse these buttons for safe mobile routing. Merge, deploy, activation, outbound, and credential work stays in Portfolio.`) },
+  ]
+
+  input.items.slice(0, 5).forEach((item) => {
+    const owner = item.owner_agent_key ?? 'unassigned'
+    const blocker = item.blocker_summary ? `\nBlocker: ${truncateSlack(item.blocker_summary, 140)}` : ''
+    blocks.push({
+      type: 'section',
+      text: mrkdwn(`*${truncateSlack(item.title, 120)}*\nStatus: \`${item.status}\` · Owner: \`${owner}\` · Priority: \`${item.priority}\`${blocker}`),
+    })
+    blocks.push({
+      type: 'actions',
+      elements: [
+        ...(item.owner_agent_key ? [] : [
+          slackButton({
+            label: 'Assign captain',
+            actionId: 'agent_work_assign_captain',
+            value: { action: 'work.assign', workItemId: item.id, agentKey: 'integration-captain' },
+          }),
+        ]),
+        slackButton({
+          label: 'Handoff captain',
+          actionId: 'agent_work_handoff_captain',
+          value: { action: 'work.handoff', workItemId: item.id, agentKey: 'integration-captain' },
+        }),
+        slackButton({
+          label: 'Mark ready',
+          actionId: 'agent_work_ready',
+          value: {
+            action: 'work.ready',
+            workItemId: item.id,
+            note: 'Marked ready from Slack. Review trace and continue from Kanban.',
+          },
+        }),
+        slackButton({
+          label: 'Ask Shaka',
+          actionId: 'agent_work_ask_shaka',
+          value: { action: 'work.ask_shaka', workItemId: item.id, runId: item.active_run_id ?? undefined },
+        }),
+        slackButton({
+          label: item.active_run_id ? 'Open trace' : 'Open Kanban',
+          actionId: item.active_run_id ? 'agent_open_trace' : 'agent_open_kanban',
+          url: item.active_run_id ? agentRunsUrl(item.active_run_id) : agentKanbanUrl(),
+        }),
+      ].slice(0, 5),
+    })
+  })
+
+  return blocks
+}
+
+function inboxBlocks(items: Array<{
+  id?: string
+  priority: string
+  agent_name: string
+  title: string
+  reason: string
+  source_run_id?: string | null
+}>): SlackBlock[] {
+  if (!items.length) {
+    return [
+      { type: 'section', text: mrkdwn('*Agent Inbox*\nNo inbox items need mobile action.') },
+      { type: 'actions', elements: [slackButton({ label: 'Open Mission Control', actionId: 'agent_open_mission_control', url: `${baseUrl()}/admin/agents` })] },
+    ]
+  }
+
+  const blocks: SlackBlock[] = [
+    { type: 'section', text: mrkdwn('*Agent Inbox*\nRoute failures, stale runs, and attention items without waiting to get back to Mission Control.') },
+  ]
+
+  items.slice(0, 5).forEach((item, index) => {
+    blocks.push({
+      type: 'section',
+      text: mrkdwn(`*${item.priority.toUpperCase()}* ${truncateSlack(item.title, 120)}\n${truncateSlack(item.reason, 180)}\nAgent: ${item.agent_name}`),
+    })
+    blocks.push({
+      type: 'actions',
+      elements: [
+        slackButton({
+          label: 'Route',
+          actionId: 'agent_inbox_route',
+          value: { action: 'inbox.route', workItemId: String(index + 1) },
+          style: 'primary',
+        }),
+        slackButton({
+          label: 'Ask Shaka',
+          actionId: 'agent_inbox_ask_shaka',
+          value: {
+            action: 'inbox.ask_shaka',
+            workItemId: item.id ?? String(index + 1),
+            runId: item.source_run_id ?? undefined,
+          },
+        }),
+        slackButton({
+          label: item.source_run_id ? 'Open trace' : 'Open Mission Control',
+          actionId: item.source_run_id ? 'agent_open_trace' : 'agent_open_mission_control',
+          url: item.source_run_id ? agentRunsUrl(item.source_run_id) : `${baseUrl()}/admin/agents`,
+        }),
+      ],
+    })
+  })
+
+  return blocks
+}
+
 export async function buildAgentWorkItemsSlackText(input: AgentSlackCommandInput) {
   const [itemId] = commandArgs(input.text)
   try {
@@ -184,6 +423,41 @@ export async function buildAgentWorkItemsSlackText(input: AgentSlackCommandInput
     return ['*Agent coordination work*', ...items.map(formatWorkItemLine), `Review: ${agentCoordinationUrl()}`].join('\n')
   } catch (error) {
     return `Agent work lookup failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+  }
+}
+
+export async function buildAgentWorkItemsSlackResult(input: AgentSlackCommandInput): Promise<AgentSlackCommandResult> {
+  const text = await buildAgentWorkItemsSlackText(input)
+  const [itemId] = commandArgs(input.text)
+  try {
+    if (itemId) {
+      const item = await getAgentWorkItem(itemId)
+      return {
+        responseType: 'ephemeral',
+        text,
+        blocks: item
+          ? workItemBlocks({
+              title: 'Agent work item',
+              items: [item],
+              emptyText: `Work item not found: ${itemId}`,
+            })
+          : undefined,
+      }
+    }
+    const items = (await listAgentWorkItems({ limit: 8 }))
+      .filter((item) => !['merged', 'deployed', 'cancelled'].includes(item.status))
+      .slice(0, 5)
+    return {
+      responseType: 'ephemeral',
+      text,
+      blocks: workItemBlocks({
+        title: 'Agent coordination work',
+        items,
+        emptyText: 'No active coordination work needs mobile action.',
+      }),
+    }
+  } catch {
+    return { responseType: 'ephemeral', text }
   }
 }
 
@@ -238,6 +512,24 @@ export async function buildAgentBlockersSlackText() {
     return ['*Blocked agent coordination work*', ...items.map(formatWorkItemLine), `Review: ${agentCoordinationUrl()}`].join('\n')
   } catch (error) {
     return `Agent blocker lookup failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+  }
+}
+
+export async function buildAgentBlockersSlackResult(): Promise<AgentSlackCommandResult> {
+  const text = await buildAgentBlockersSlackText()
+  try {
+    const items = await listAgentWorkItems({ status: 'blocked', limit: 5 })
+    return {
+      responseType: 'ephemeral',
+      text,
+      blocks: workItemBlocks({
+        title: 'Blocked agent coordination work',
+        items,
+        emptyText: 'No blocked coordination work needs mobile action.',
+      }),
+    }
+  } catch {
+    return { responseType: 'ephemeral', text }
   }
 }
 
@@ -317,6 +609,20 @@ export async function buildAgentInboxSlackText(limit = 5) {
     ].join('\n')
   } catch (error) {
     return `Agent Inbox lookup failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+  }
+}
+
+export async function buildAgentInboxSlackResult(limit = 5): Promise<AgentSlackCommandResult> {
+  const text = await buildAgentInboxSlackText(limit)
+  try {
+    const snapshot = await buildAgentMissionControlSnapshot()
+    return {
+      responseType: 'ephemeral',
+      text,
+      blocks: inboxBlocks(snapshot.agent_inbox.slice(0, limit)),
+    }
+  } catch {
+    return { responseType: 'ephemeral', text }
   }
 }
 
@@ -536,7 +842,7 @@ export async function buildApprovalsSlackText(limit = 5) {
 
   const { data: approvals, error } = await supabaseAdmin
     .from('agent_approvals')
-    .select('id, run_id, approval_type, status, requested_at')
+    .select('id, run_id, approval_type, status, requested_at, metadata')
     .eq('status', 'pending')
     .order('requested_at', { ascending: false })
     .limit(limit)
@@ -564,6 +870,41 @@ export async function buildApprovalsSlackText(limit = 5) {
   })
 
   return ['*Pending agent approvals*', ...lines].join('\n')
+}
+
+export async function buildApprovalsSlackResult(limit = 5): Promise<AgentSlackCommandResult> {
+  const text = await buildApprovalsSlackText(limit)
+  if (!supabaseAdmin) return { responseType: 'ephemeral', text }
+
+  try {
+    const { data: approvals, error } = await supabaseAdmin
+      .from('agent_approvals')
+      .select('id, run_id, approval_type, status, requested_at, metadata')
+      .eq('status', 'pending')
+      .order('requested_at', { ascending: false })
+      .limit(limit)
+    if (error) return { responseType: 'ephemeral', text }
+
+    const pending = (approvals || []) as AgentApprovalRow[]
+    const runIds = pending.map((approval) => approval.run_id)
+    const { data: runs } = runIds.length
+      ? await supabaseAdmin
+          .from('agent_runs')
+          .select('id, title, runtime, status, subject_label, current_step, error_message, started_at')
+          .in('id', runIds)
+      : { data: [] }
+    const typedRuns = (runs || []) as AgentRunRow[]
+    return {
+      responseType: 'ephemeral',
+      text,
+      blocks: approvalBlocks({
+        approvals: pending,
+        runsById: new Map(typedRuns.map((run) => [run.id, run])),
+      }),
+    }
+  } catch {
+    return { responseType: 'ephemeral', text }
+  }
 }
 
 export async function runMorningReviewSlackText(input: AgentSlackCommandInput) {
@@ -711,46 +1052,43 @@ export async function runWarRoomDiscussSlackText(input: AgentSlackCommandInput) 
 
 export async function handleAgentSlackCommand(input: AgentSlackCommandInput): Promise<AgentSlackCommandResult> {
   const command = commandFromText(input.text)
+  if (command === 'approvals') return buildApprovalsSlackResult()
+  if (command === 'work-items') return buildAgentWorkItemsSlackResult(input)
+  if (command === 'blockers') return buildAgentBlockersSlackResult()
+  if (command === 'inbox') return buildAgentInboxSlackResult()
+
   const text =
     command === 'status'
       ? await buildAgentStatusSlackText()
       : command === 'failed'
         ? await buildFailedRunsSlackText()
-        : command === 'approvals'
-          ? await buildApprovalsSlackText()
-          : command === 'morning-review'
-            ? await runMorningReviewSlackText(input)
-            : command === 'risk'
-              ? await buildAgentRiskMonitorSlackText(input)
-              : command === 'agents'
-                ? formatAgentListSlackText()
-                : command === 'engagements'
-                  ? await buildAgentEngagementQueueSlackText()
-                  : command === 'work-items'
-                    ? await buildAgentWorkItemsSlackText(input)
-                    : command === 'claim'
-                      ? await claimAgentWorkItemSlackText(input)
-                      : command === 'handoff'
-                        ? await handoffAgentWorkItemSlackText(input)
-                        : command === 'blockers'
-                          ? await buildAgentBlockersSlackText()
-                          : command === 'prs'
-                            ? await buildAgentPrsSlackText()
-                            : command === 'captain'
-                              ? await buildCaptainQueueSlackText()
-                              : command === 'inbox'
-                                ? await buildAgentInboxSlackText()
-                                : command === 'brief'
-                                  ? await buildAgentBriefSlackText()
-                                  : command === 'route'
-                                    ? await routeAgentInboxSlackText(input)
-                                    : command === 'run'
-                                      ? await createAgentEngagementSlackText(input)
-                                      : command === 'standup'
-                                        ? await runWarRoomStandupSlackText(input)
-                                        : command === 'discuss'
-                                          ? await runWarRoomDiscussSlackText(input)
-                                          : formatHelp()
+        : command === 'morning-review'
+          ? await runMorningReviewSlackText(input)
+          : command === 'risk'
+            ? await buildAgentRiskMonitorSlackText(input)
+            : command === 'agents'
+              ? formatAgentListSlackText()
+              : command === 'engagements'
+                ? await buildAgentEngagementQueueSlackText()
+                : command === 'claim'
+                  ? await claimAgentWorkItemSlackText(input)
+                  : command === 'handoff'
+                    ? await handoffAgentWorkItemSlackText(input)
+                    : command === 'prs'
+                      ? await buildAgentPrsSlackText()
+                      : command === 'captain'
+                        ? await buildCaptainQueueSlackText()
+                        : command === 'brief'
+                          ? await buildAgentBriefSlackText()
+                          : command === 'route'
+                            ? await routeAgentInboxSlackText(input)
+                            : command === 'run'
+                              ? await createAgentEngagementSlackText(input)
+                              : command === 'standup'
+                                ? await runWarRoomStandupSlackText(input)
+                                : command === 'discuss'
+                                  ? await runWarRoomDiscussSlackText(input)
+                                  : formatHelp()
 
   return { responseType: 'ephemeral', text }
 }
