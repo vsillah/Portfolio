@@ -221,6 +221,20 @@ interface ProjectDetail {
     costItems: Array<{ id: string; category: string; label: string; payer: string; cost_type: string; amount: number | string | null }>
     clientView: {
       costSummary: { oneTimeClientOwned: number; monthlyClientOwned: number; quoteRequiredCount: number }
+      projectionStatus: {
+        tasksTotal: number
+        tasksComplete: number
+        blockedTasks: number
+        clientActionCount: number
+        amadutownActionCount: number
+        sharedActionCount: number
+        approvalNeededCount: number
+        isolationRequiredCount: number
+        overdueTasks: number
+        staleCostItems: number
+        reportMissing: boolean
+        nextReportingAction: string
+      }
     }
   } | null
 }
@@ -1216,6 +1230,13 @@ function AiOpsRoadmapAdminSection({
   const tasks = roadmap?.tasks ?? []
   const completed = tasks.filter((task) => task.status === 'complete').length
   const progress = tasks.length > 0 ? Math.round((completed / tasks.length) * 100) : 0
+  const projection = roadmap?.clientView?.projectionStatus
+  const monitoringFlags = projection
+    ? projection.overdueTasks + projection.staleCostItems + (projection.reportMissing ? 1 : 0)
+    : 0
+  const openActions = projection
+    ? projection.clientActionCount + projection.amadutownActionCount + projection.sharedActionCount
+    : 0
 
   return (
     <div className="mb-8 p-5 bg-gray-900 border border-gray-800 rounded-xl">
@@ -1261,6 +1282,35 @@ function AiOpsRoadmapAdminSection({
               <p className="text-sm text-gray-200">${costs?.monthlyClientOwned ?? 0}</p>
             </div>
           </div>
+
+          {projection && (
+            <div className="rounded-lg bg-gray-950/50 border border-gray-800 p-4 mb-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide">Projection next action</p>
+                  <p className="text-sm font-medium text-gray-100 mt-1">{projection.nextReportingAction}</p>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 min-w-full lg:min-w-[520px]">
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide">Open actions</p>
+                    <p className="text-sm text-gray-200">{openActions}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide">Approvals</p>
+                    <p className="text-sm text-gray-200">{projection.approvalNeededCount}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide">Isolation</p>
+                    <p className="text-sm text-gray-200">{projection.isolationRequiredCount}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide">Monitor flags</p>
+                    <p className="text-sm text-gray-200">{monitoringFlags}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-2">
             {phases.map((phase) => (
