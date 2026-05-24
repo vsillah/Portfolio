@@ -74,6 +74,22 @@ Monthly reports should separate:
 
 Client-facing summaries should be understandable and avoid exposing private logs, agent traces, credentials, or internal-only notes.
 
+## Roadmap Projection Status
+
+The client roadmap read model exposes a compact projection status for dashboards and admin monitoring. It is derived from existing roadmap tasks, org-board metadata, cost items, and the latest roadmap report.
+
+Projection status may show:
+
+- total and completed client-visible tasks,
+- blocked tasks,
+- open client, AmaduTown, and shared actions,
+- approval-gated and isolation-required work counts,
+- overdue task and stale cost counts from the latest monitor report,
+- whether the first report is missing,
+- the next reporting action.
+
+Keep this projection read-only. It can recommend follow-up, escalation, cost refreshes, or approval review, but it must not create credentials, connect OAuth, activate workflows, send outbound messages, publish client-facing reports, mutate client data, or change production configuration without the normal approval path.
+
 ## Roadmap Rule Checklist
 
 Use this checklist whenever a roadmap feature, monitor, report, or client implementation phase changes:
@@ -84,6 +100,7 @@ Use this checklist whenever a roadmap feature, monitor, report, or client implem
 - Status updates from either projection sync back to the roadmap task.
 - Phase rollups and cost summaries refresh after task or cost changes.
 - The monitor can create a roadmap report and follow-up task when drift, stale pricing, missing reports, or blockers appear.
+- Roadmap projection status is visible from the same source data and remains read-only.
 - Client-facing output excludes private logs, agent traces, credentials, and internal-only notes.
 
 ## Real Client Pilot Checklist

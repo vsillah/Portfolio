@@ -140,6 +140,27 @@ describe('client AI ops roadmap', () => {
           status: 'pending',
           due_date: null,
           client_visible: true,
+          metadata: {
+            org_board: {
+              approval_posture: 'required',
+              isolation_required: false,
+            },
+          },
+        },
+        {
+          phase_id: 'phase-1',
+          title: 'Run synthetic QA',
+          owner_type: 'amadutown',
+          priority: 'high',
+          status: 'blocked',
+          due_date: null,
+          client_visible: true,
+          metadata: {
+            org_board: {
+              approval_posture: 'none',
+              isolation_required: true,
+            },
+          },
         },
       ],
       costItems: [],
@@ -180,6 +201,19 @@ describe('client AI ops roadmap', () => {
       'cloud_runtime',
       'hybrid_local_cloud',
     ])
+    expect(view.projectionStatus).toMatchObject({
+      tasksTotal: 2,
+      tasksComplete: 0,
+      blockedTasks: 1,
+      clientActionCount: 1,
+      amadutownActionCount: 1,
+      approvalNeededCount: 2,
+      isolationRequiredCount: 1,
+      overdueTasks: 1,
+      staleCostItems: 2,
+      reportMissing: false,
+      nextReportingAction: 'Resolve blocked roadmap tasks',
+    })
     expect(JSON.stringify(view.latestReport)).not.toContain('Internal escalation note')
   })
 })
