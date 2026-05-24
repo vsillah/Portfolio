@@ -152,6 +152,21 @@ export interface RoadmapClientReportSummary {
   } | null
 }
 
+export interface RoadmapClientProjectionStatus {
+  tasksTotal: number
+  tasksComplete: number
+  blockedTasks: number
+  clientActionCount: number
+  amadutownActionCount: number
+  sharedActionCount: number
+  approvalNeededCount: number
+  isolationRequiredCount: number
+  overdueTasks: number
+  staleCostItems: number
+  reportMissing: boolean
+  nextReportingAction: string
+}
+
 export interface RoadmapClientView {
   title: string
   status: RoadmapStatus
@@ -159,6 +174,7 @@ export interface RoadmapClientView {
   runtimePlacementOptions: RoadmapRuntimePlacementOption[]
   phases: RoadmapClientPhase[]
   costSummary: RoadmapCostRollup
+  projectionStatus: RoadmapClientProjectionStatus
   nextActions: Array<{ title: string; ownerType: RoadmapTaskOwner; priority: RoadmapPriority; dueDate: string | null }>
   latestReport: RoadmapClientReportSummary | null
 }
@@ -569,7 +585,16 @@ export function buildClientRoadmapView(input: {
     estimated_client_startup_cost?: number | string | null
     estimated_monthly_operating_cost?: number | string | null
   }>
-  tasks: Array<{ phase_id: string; title: string; owner_type: RoadmapTaskOwner; priority: RoadmapPriority; status: RoadmapTaskStatus; due_date: string | null; client_visible: boolean }>
+  tasks: Array<{
+    phase_id: string
+    title: string
+    owner_type: RoadmapTaskOwner
+    priority: RoadmapPriority
+    status: RoadmapTaskStatus
+    due_date: string | null
+    client_visible: boolean
+    metadata?: Record<string, unknown> | null
+  }>
   costItems: Array<Pick<RoadmapCostItemDraft, 'payer' | 'costType' | 'amount' | 'category'>>
   reports?: Array<{
     title: string
@@ -585,6 +610,33 @@ export function buildClientRoadmapView(input: {
 }): RoadmapClientView {
   const visibleTasks = input.tasks.filter((task) => task.client_visible)
   const latestReport = input.reports?.[0]
+  const monitoringSummary = latestReport?.monitoring_summary
+  const overdueTasks = typeof monitoringSummary?.overdue_tasks === 'number' ? monitoringSummary.overdue_tasks : 0
+  const staleCostItems = typeof monitoringSummary?.stale_cost_items === 'number' ? monitoringSummary.stale_cost_items : 0
+  const reportMissing = typeof monitoringSummary?.report_missing === 'boolean' ? monitoringSummary.report_missing : !latestReport
+  const approvalNeededCount = input.tasks.filter(taskRequiresApproval).length
+    + (Array.isArray(latestReport?.approval_needed) ? latestReport.approval_needed.length : 0)
+  const projectionStatus: RoadmapClientProjectionStatus = {
+    tasksTotal: visibleTasks.length,
+    tasksComplete: visibleTasks.filter((task) => task.status === 'complete').length,
+    blockedTasks: visibleTasks.filter((task) => task.status === 'blocked').length,
+    clientActionCount: visibleTasks.filter((task) => task.owner_type === 'client' && task.status !== 'complete' && task.status !== 'cancelled').length,
+    amadutownActionCount: visibleTasks.filter((task) => task.owner_type === 'amadutown' && task.status !== 'complete' && task.status !== 'cancelled').length,
+    sharedActionCount: visibleTasks.filter((task) => task.owner_type === 'shared' && task.status !== 'complete' && task.status !== 'cancelled').length,
+    approvalNeededCount,
+    isolationRequiredCount: input.tasks.filter(taskRequiresIsolation).length,
+    overdueTasks,
+    staleCostItems,
+    reportMissing,
+    nextReportingAction: nextRoadmapReportingAction({
+      blockedTasks: visibleTasks.filter((task) => task.status === 'blocked').length,
+      approvalNeededCount,
+      overdueTasks,
+      staleCostItems,
+      reportMissing,
+      clientActionCount: visibleTasks.filter((task) => task.owner_type === 'client' && task.status !== 'complete' && task.status !== 'cancelled').length,
+    }),
+  }
   const phases = input.phases.map((phase) => {
     const phaseTasks = visibleTasks.filter((task) => task.phase_id === phase.id)
     return {
@@ -610,6 +662,7 @@ export function buildClientRoadmapView(input: {
       : DEFAULT_RUNTIME_PLACEMENT_OPTIONS.map((option) => ({ ...option })),
     phases,
     costSummary: rollUpRoadmapCosts(input.costItems),
+    projectionStatus,
     nextActions: visibleTasks
       .filter((task) => task.status !== 'complete' && task.status !== 'cancelled')
       .slice(0, 5)
@@ -640,4 +693,35 @@ export function buildClientRoadmapView(input: {
         }
       : null,
   }
+}
+
+function taskOrgBoard(task: { metadata?: Record<string, unknown> | null }): Record<string, unknown> | null {
+  const orgBoard = task.metadata?.org_board
+  return orgBoard && typeof orgBoard === 'object' ? orgBoard as Record<string, unknown> : null
+}
+
+function taskRequiresApproval(task: { metadata?: Record<string, unknown> | null }): boolean {
+  const approvalPosture = taskOrgBoard(task)?.approval_posture
+  return approvalPosture === 'required' || approvalPosture === 'pending'
+}
+
+function taskRequiresIsolation(task: { metadata?: Record<string, unknown> | null }): boolean {
+  return taskOrgBoard(task)?.isolation_required === true
+}
+
+function nextRoadmapReportingAction(input: {
+  blockedTasks: number
+  approvalNeededCount: number
+  overdueTasks: number
+  staleCostItems: number
+  reportMissing: boolean
+  clientActionCount: number
+}): string {
+  if (input.reportMissing) return 'Generate first roadmap report'
+  if (input.blockedTasks > 0) return 'Resolve blocked roadmap tasks'
+  if (input.approvalNeededCount > 0) return 'Review approval-gated roadmap work'
+  if (input.overdueTasks > 0) return 'Escalate overdue roadmap tasks'
+  if (input.staleCostItems > 0) return 'Refresh stale roadmap cost assumptions'
+  if (input.clientActionCount > 0) return 'Follow up on client-owned roadmap actions'
+  return 'Continue scheduled roadmap monitoring'
 }

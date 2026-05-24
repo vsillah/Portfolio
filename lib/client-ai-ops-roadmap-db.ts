@@ -129,6 +129,7 @@ export async function getRoadmapBundleForProject(clientProjectId: string): Promi
         status: task.status as never,
         due_date: task.due_date as string | null,
         client_visible: Boolean(task.client_visible),
+        metadata: task.metadata as Record<string, unknown> | null,
       })),
       costItems: costItems.map((item) => ({
         payer: item.payer as never,
