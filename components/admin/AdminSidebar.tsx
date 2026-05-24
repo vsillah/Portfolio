@@ -113,6 +113,7 @@ export const NAV_ITEM_ICONS: Record<string, LucideIcon> = {
   '/admin/agents/runs': TerminalSquare,
   '/admin/agents/automations': RefreshCw,
   '/admin/agents/open-brain': Brain,
+  '/admin/agents/governance': ShieldCheck,
   '/admin/client-experience': UserCheck,
   '/admin/testing': FlaskConical,
   '/admin/content': FolderOpen,
