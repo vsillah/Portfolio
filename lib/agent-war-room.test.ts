@@ -431,7 +431,7 @@ describe('runAgentWarRoom', () => {
       draft: {
         ...draftResult.goalDraft!,
         readiness_status: 'ship_it_now',
-      } as typeof draftResult.goalDraft,
+      } as unknown as typeof draftResult.goalDraft,
       triggerSource: 'test_war_room',
     })).rejects.toThrow('Goal readiness must be ready_for_delegation before delegation')
 
