@@ -8,6 +8,10 @@ not a claim that every globally banned book has been captured.
 
 The registry is staged in `data/source-protocol/banned-books-rights-ready-corpus.json`
 and projected into `/admin/source-protocol` under the `Banned Books` tab.
+The May 24, 2026 batch expands the staged shortlist to 17 records using the
+ALA 2025 challenged-books list and PEN America 2024-2025 school-ban index as
+the primary source spine. These records remain metadata and rights-readiness
+records only; they do not include copyrighted full text.
 
 ```bash
 npm run banned-books:report
@@ -49,6 +53,20 @@ retrievable until all of these are true:
 - verified chain of title,
 - sensitivity review complete,
 - governance approval recorded.
+
+## Outreach Packets
+
+The projection now includes three read-only permission-packet templates:
+
+- author direct RAG permission,
+- publisher permissions RAG license,
+- estate permissions RAG license.
+
+These packets define the subject, purpose, permission ask, guardrails, approval
+gate, and follow-up cadence for each outreach path. They are templates for
+review, not an outbound messaging automation. Human approval is still required
+before first contact, follow-up, license conversion, ingestion, retrieval, or
+payout activation.
 
 ## Review Loop
 

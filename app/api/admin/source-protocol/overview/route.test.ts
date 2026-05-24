@@ -195,9 +195,15 @@ describe('GET /api/admin/source-protocol/overview', () => {
       bannedBooksCorpus: {
         summary: {
           stagedRecords: expect.any(Number),
+          outreachPacketCount: 3,
           rightsReadyRecords: expect.any(Number),
           retrievableRecords: 0,
         },
+        outreachPackets: expect.arrayContaining([
+          expect.objectContaining({ key: 'author_direct_rag_permission' }),
+          expect.objectContaining({ key: 'publisher_permissions_rag_license' }),
+          expect.objectContaining({ key: 'estate_permissions_rag_license' }),
+        ]),
         swarmAgents: expect.arrayContaining([
           expect.objectContaining({ key: 'banned-book-source-registry' }),
           expect.objectContaining({ key: 'rights-governance-review' }),

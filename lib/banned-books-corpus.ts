@@ -79,15 +79,33 @@ export type BannedBookSwarmAgent = {
   approvalGate: string
 }
 
+export type BannedBookOutreachPacketKey =
+  | 'author_direct_rag_permission'
+  | 'publisher_permissions_rag_license'
+  | 'estate_permissions_rag_license'
+
+export type BannedBookOutreachPacket = {
+  key: BannedBookOutreachPacketKey
+  audience: 'author' | 'publisher' | 'estate'
+  subject: string
+  purpose: string
+  permissionAsk: string[]
+  guardrails: string[]
+  approvalGate: string
+  followUpCadenceDays: number[]
+}
+
 export type BannedBooksCorpusProjection = {
   generatedAt: string
   scope: string
   licenseModel: string
   sourceSpine: BannedBookSourceSpineEntry[]
   swarmAgents: BannedBookSwarmAgent[]
+  outreachPackets: BannedBookOutreachPacket[]
   summary: {
     stagedRecords: number
     sourceSpineCount: number
+    outreachPacketCount: number
     rightsReadyRecords: number
     outreachReadyRecords: number
     activeLicenseRecords: number
@@ -204,6 +222,63 @@ export const BANNED_BOOKS_SWARM_AGENTS: BannedBookSwarmAgent[] = [
     output: 'Evidence QA notes and recurring report inputs.',
     boundary: 'No mutation of rights status without governance review.',
     approvalGate: 'All records need source evidence before outreach or ingestion.',
+  },
+]
+
+export const BANNED_BOOKS_OUTREACH_PACKETS: BannedBookOutreachPacket[] = [
+  {
+    key: 'author_direct_rag_permission',
+    audience: 'author',
+    subject: 'Permission request: rights-cleared retrieval for your challenged work',
+    purpose: 'Ask the author for RAG-only participation in a rights-respecting corpus that preserves access, citation, revocation, and payout visibility.',
+    permissionAsk: [
+      'Allow retrieval, citation, summarization, educational use, and approved commercial RAG use.',
+      'Allow limited excerpts up to the approved quote limit with citation labels and answer receipts.',
+      'Participate in monthly payout simulation before any real payout activation.',
+    ],
+    guardrails: [
+      'No fine-tuning in v1.',
+      'No full-text ingestion until a license grant is active and chain of title is verified.',
+      'Author can revoke or dispute use through the creator portal process.',
+    ],
+    approvalGate: 'Human approval is required before sending the first author email or any follow-up.',
+    followUpCadenceDays: [7, 21, 45],
+  },
+  {
+    key: 'publisher_permissions_rag_license',
+    audience: 'publisher',
+    subject: 'Permissions inquiry: RAG-only access license for challenged-title preservation',
+    purpose: 'Ask publisher permissions staff to confirm rights path, blocked uses, quote limits, territory, revocation, reporting, and payout participation.',
+    permissionAsk: [
+      'Confirm whether publisher controls digital excerpt, retrieval, citation, and summarization rights.',
+      'Approve RAG-only use with citation labels, answer receipts, and monthly usage statements.',
+      'Identify co-rightsholders such as illustrators, translators, estates, or agents.',
+    ],
+    guardrails: [
+      'No production retrieval before active grant and governance review.',
+      'No model training rights are requested in v1.',
+      'Ambiguous chain-of-title responses remain blocked from ingestion.',
+    ],
+    approvalGate: 'Governance review is required before any publisher response becomes a license grant.',
+    followUpCadenceDays: [10, 30, 60],
+  },
+  {
+    key: 'estate_permissions_rag_license',
+    audience: 'estate',
+    subject: 'Estate permissions inquiry: preserving access with revocable RAG-only use',
+    purpose: 'Ask the estate or estate-controlled publisher path for cautious permission where the author is deceased or rights ownership needs verification.',
+    permissionAsk: [
+      'Confirm estate or publisher authority for retrieval, citation, summarization, and limited excerpts.',
+      'Approve revocable RAG-only use after chain-of-title and sensitivity review.',
+      'Confirm reporting, attribution, and payout-recipient requirements.',
+    ],
+    guardrails: [
+      'Estate-controlled works cannot enter retrieval on author inference alone.',
+      'Sensitive-history or community-consent issues remain approval-gated.',
+      'Any dispute immediately blocks retrieval and payout attribution.',
+    ],
+    approvalGate: 'Shaka governance review and chain-of-title verification are required before outreach is marked approved.',
+    followUpCadenceDays: [14, 45, 90],
   },
 ]
 
@@ -344,9 +419,11 @@ export function buildBannedBooksCorpusProjection(): BannedBooksCorpusProjection 
     licenseModel: stagedCorpus.licenseModel,
     sourceSpine: stagedCorpus.sourceSpine,
     swarmAgents: BANNED_BOOKS_SWARM_AGENTS,
+    outreachPackets: BANNED_BOOKS_OUTREACH_PACKETS,
     summary: {
       stagedRecords: projectedRecords.length,
       sourceSpineCount: stagedCorpus.sourceSpine.length,
+      outreachPacketCount: BANNED_BOOKS_OUTREACH_PACKETS.length,
       rightsReadyRecords: projectedRecords.filter((record) => record.rightsReady).length,
       outreachReadyRecords: projectedRecords.filter((record) => record.outreachReady).length,
       activeLicenseRecords: projectedRecords.filter((record) => record.licenseStatus === 'active').length,
@@ -385,6 +462,10 @@ export function formatBannedBooksCorpusReport(projection = buildBannedBooksCorpu
     '## Swarm Lanes',
     '',
     ...projection.swarmAgents.map((agent) => `- ${agent.name} (${agent.key}): ${agent.output}`),
+    '',
+    '## Outreach Packets',
+    '',
+    ...projection.outreachPackets.map((packet) => `- ${packet.audience}: ${packet.subject} (${packet.key})`),
     '',
     '## Staged Works',
     '',
