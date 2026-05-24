@@ -1,4 +1,5 @@
 import stagedCorpus from '@/data/source-protocol/banned-books-rights-ready-corpus.json'
+import sourceIngestionQueue from '@/data/source-protocol/banned-books-source-ingestion-queue.json'
 import type {
   CreatorCategory,
   LicenseUse,
@@ -29,6 +30,13 @@ export type BannedBookOutreachStatus = 'not_started' | 'ready' | 'drafted' | 'se
 export type BannedBookLicenseStatus = 'not_requested' | 'pending_review' | 'active' | 'revoked' | 'disputed'
 export type BannedBookIngestionStatus = 'not_started' | 'blocked' | 'staged' | 'indexed_shadow' | 'retrievable'
 export type BannedBookRightsConfidence = 'low' | 'medium' | 'high'
+export type BannedBookSourceIngestionMode = 'metadata_only_dry_run'
+export type BannedBookSourceFetchMode =
+  | 'public_page_or_manual_export'
+  | 'public_index_or_manual_export'
+  | 'public_database_or_manual_export'
+export type BannedBookEvidenceQuality = 'confirmed_source' | 'needs_district_row' | 'needs_cross_check' | 'blocked_missing_source'
+export type BannedBookSourceCandidateStatus = 'existing_record' | 'stageable_candidate' | 'needs_evidence_review'
 
 export type BannedBookSourceSpineEntry = {
   name: string
@@ -95,6 +103,55 @@ export type BannedBookOutreachPacket = {
   followUpCadenceDays: number[]
 }
 
+export type BannedBookSourceIngestionSource = {
+  key: string
+  name: string
+  url: string
+  refreshCadenceDays: number
+  fetchMode: BannedBookSourceFetchMode
+  ownerLane: BannedBookSwarmLaneKey
+}
+
+export type BannedBookSourceIngestionCandidate = {
+  sourceKey: string
+  externalId: string
+  canonicalTitle: string
+  authors: string[]
+  banStatus: BannedBookBanStatus
+  sourceUrl: string
+  evidenceType: BannedBookEvidenceType
+  evidenceNote: string
+  jurisdictionContext: string
+  affectedAudience: string
+  evidenceQuality: BannedBookEvidenceQuality
+  rightsholderHint: 'author_or_publisher' | 'publisher' | 'estate' | 'unknown'
+  editionAliases: string[]
+  sensitivityFlags: string[]
+}
+
+export type BannedBookSourceIngestionProjection = {
+  generatedAt: string
+  mode: BannedBookSourceIngestionMode
+  policy: string
+  sources: BannedBookSourceIngestionSource[]
+  summary: {
+    sourceCount: number
+    candidateCount: number
+    existingRecordMatches: number
+    stageableCandidates: number
+    evidenceReviewRequired: number
+    blockedFullTextActions: number
+  }
+  candidates: Array<BannedBookSourceIngestionCandidate & {
+    normalizedKey: string
+    status: BannedBookSourceCandidateStatus
+    existingRecordId: string | null
+    stagedRecordDraft: BannedBookStagedRecord | null
+    nextAction: string
+  }>
+  blockedActions: string[]
+}
+
 export type BannedBooksCorpusProjection = {
   generatedAt: string
   scope: string
@@ -102,6 +159,7 @@ export type BannedBooksCorpusProjection = {
   sourceSpine: BannedBookSourceSpineEntry[]
   swarmAgents: BannedBookSwarmAgent[]
   outreachPackets: BannedBookOutreachPacket[]
+  sourceIngestionQueue: BannedBookSourceIngestionProjection
   summary: {
     stagedRecords: number
     sourceSpineCount: number
@@ -284,6 +342,14 @@ export const BANNED_BOOKS_OUTREACH_PACKETS: BannedBookOutreachPacket[] = [
 
 const RAG_ONLY_ALLOWED_USES: LicenseUse[] = ['retrieval', 'citation', 'summarization', 'educational', 'commercial']
 
+const BLOCKED_SOURCE_INGESTION_ACTIONS = [
+  'Fetch or store copyrighted full text.',
+  'Run OCR or text extraction against unlicensed files.',
+  'Create embeddings, source chunks, or retrievable records.',
+  'Send creator outreach or convert responses into license grants.',
+  'Activate payout attribution outside simulation mode.',
+]
+
 function normalizeValue(value: string): string {
   return value
     .toLowerCase()
@@ -322,6 +388,116 @@ export function dedupeBannedBookRecords(records: BannedBookStagedRecord[]): Bann
     })
   }
   return [...byKey.values()]
+}
+
+function draftRightsholderCandidate(candidate: BannedBookSourceIngestionCandidate): BannedBookRightsholderCandidate {
+  if (candidate.rightsholderHint === 'estate') {
+    return {
+      name: `${candidate.authors.join(', ')} estate or publisher`,
+      type: 'estate',
+      contactPath: 'Estate/publisher permissions inquiry',
+      confidence: 'low',
+    }
+  }
+
+  if (candidate.rightsholderHint === 'publisher') {
+    return {
+      name: `${candidate.canonicalTitle} publisher permissions contact`,
+      type: 'publisher',
+      contactPath: 'Publisher permissions inquiry',
+      confidence: 'low',
+    }
+  }
+
+  return {
+    name: `${candidate.authors.join(', ')} or publisher/agent`,
+    type: 'author',
+    contactPath: 'Author/publisher permissions inquiry',
+    confidence: candidate.evidenceQuality === 'confirmed_source' ? 'medium' : 'low',
+  }
+}
+
+export function draftStagedRecordFromSourceCandidate(
+  candidate: BannedBookSourceIngestionCandidate
+): BannedBookStagedRecord {
+  return {
+    id: normalizeValue(`${candidate.canonicalTitle}-${candidate.authors.join('-')}`),
+    canonicalTitle: candidate.canonicalTitle,
+    authors: candidate.authors,
+    editionAliases: candidate.editionAliases,
+    isbnCandidates: [],
+    banStatus: candidate.banStatus,
+    jurisdictionContext: candidate.jurisdictionContext,
+    affectedAudience: candidate.affectedAudience,
+    evidence: [
+      {
+        sourceName: sourceIngestionQueue.sources.find((source) => source.key === candidate.sourceKey)?.name ?? candidate.sourceKey,
+        sourceUrl: candidate.sourceUrl,
+        evidenceType: candidate.evidenceType,
+        note: candidate.evidenceNote,
+      },
+    ],
+    rightsholderCandidate: draftRightsholderCandidate(candidate),
+    outreachStatus: 'not_started',
+    licenseStatus: 'not_requested',
+    ingestionStatus: 'not_started',
+    chainOfTitleStatus: 'unknown',
+    sensitivityFlags: candidate.sensitivityFlags,
+    notes: 'Generated by the metadata-only source ingestion dry run; requires evidence QA before registry promotion.',
+  }
+}
+
+function sourceCandidateStatus(
+  candidate: BannedBookSourceIngestionCandidate,
+  existingRecordsByKey: Map<string, BannedBookStagedRecord>
+): BannedBookSourceCandidateStatus {
+  if (existingRecordsByKey.has(normalizeBannedBookKey(candidate))) return 'existing_record'
+  if (candidate.evidenceQuality === 'confirmed_source') return 'stageable_candidate'
+  return 'needs_evidence_review'
+}
+
+function nextSourceCandidateAction(status: BannedBookSourceCandidateStatus): string {
+  if (status === 'existing_record') return 'Attach source evidence to existing staged record if it adds provenance.'
+  if (status === 'stageable_candidate') return 'Promote metadata-only staged record draft after evidence QA approval.'
+  return 'Hold until district rows or cross-source evidence are attached.'
+}
+
+export function buildBannedBooksSourceIngestionProjection(
+  existingRecords = dedupeBannedBookRecords(stagedCorpus.records as BannedBookStagedRecord[])
+): BannedBookSourceIngestionProjection {
+  const existingRecordsByKey = new Map(existingRecords.map((record) => [normalizeBannedBookKey(record), record]))
+  const candidates = (sourceIngestionQueue.candidates as BannedBookSourceIngestionCandidate[]).map((candidate) => {
+    const normalizedKey = normalizeBannedBookKey(candidate)
+    const status = sourceCandidateStatus(candidate, existingRecordsByKey)
+    const existingRecord = existingRecordsByKey.get(normalizedKey) ?? null
+    const stagedRecordDraft = status === 'stageable_candidate' ? draftStagedRecordFromSourceCandidate(candidate) : null
+
+    return {
+      ...candidate,
+      normalizedKey,
+      status,
+      existingRecordId: existingRecord?.id ?? null,
+      stagedRecordDraft,
+      nextAction: nextSourceCandidateAction(status),
+    }
+  })
+
+  return {
+    generatedAt: sourceIngestionQueue.generatedAt,
+    mode: sourceIngestionQueue.mode as BannedBookSourceIngestionMode,
+    policy: sourceIngestionQueue.policy,
+    sources: sourceIngestionQueue.sources as BannedBookSourceIngestionSource[],
+    summary: {
+      sourceCount: sourceIngestionQueue.sources.length,
+      candidateCount: candidates.length,
+      existingRecordMatches: candidates.filter((candidate) => candidate.status === 'existing_record').length,
+      stageableCandidates: candidates.filter((candidate) => candidate.status === 'stageable_candidate').length,
+      evidenceReviewRequired: candidates.filter((candidate) => candidate.status === 'needs_evidence_review').length,
+      blockedFullTextActions: BLOCKED_SOURCE_INGESTION_ACTIONS.length,
+    },
+    candidates,
+    blockedActions: BLOCKED_SOURCE_INGESTION_ACTIONS,
+  }
 }
 
 function uniqueEvidence(evidence: BannedBookEvidence[]): BannedBookEvidence[] {
@@ -420,6 +596,7 @@ export function buildBannedBooksCorpusProjection(): BannedBooksCorpusProjection 
     sourceSpine: stagedCorpus.sourceSpine,
     swarmAgents: BANNED_BOOKS_SWARM_AGENTS,
     outreachPackets: BANNED_BOOKS_OUTREACH_PACKETS,
+    sourceIngestionQueue: buildBannedBooksSourceIngestionProjection(records),
     summary: {
       stagedRecords: projectedRecords.length,
       sourceSpineCount: stagedCorpus.sourceSpine.length,
@@ -466,6 +643,14 @@ export function formatBannedBooksCorpusReport(projection = buildBannedBooksCorpu
     '## Outreach Packets',
     '',
     ...projection.outreachPackets.map((packet) => `- ${packet.audience}: ${packet.subject} (${packet.key})`),
+    '',
+    '## Source Ingestion Queue',
+    '',
+    `- Sources queued: ${projection.sourceIngestionQueue.summary.sourceCount}`,
+    `- Discovery candidates: ${projection.sourceIngestionQueue.summary.candidateCount}`,
+    `- Existing record matches: ${projection.sourceIngestionQueue.summary.existingRecordMatches}`,
+    `- Stageable candidates: ${projection.sourceIngestionQueue.summary.stageableCandidates}`,
+    `- Evidence review required: ${projection.sourceIngestionQueue.summary.evidenceReviewRequired}`,
     '',
     '## Staged Works',
     '',

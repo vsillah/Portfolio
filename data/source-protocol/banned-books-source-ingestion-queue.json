@@ -1,0 +1,113 @@
+{
+  "generatedAt": "2026-05-24T00:00:00.000Z",
+  "mode": "metadata_only_dry_run",
+  "policy": "Source discovery may stage title metadata and evidence only. It must not fetch, store, OCR, embed, retrieve, or summarize copyrighted full text.",
+  "sources": [
+    {
+      "key": "ala-most-challenged-2025",
+      "name": "ALA Most Challenged Books 2025",
+      "url": "https://www.ala.org/bbooks/frequentlychallengedbooks/top10",
+      "refreshCadenceDays": 30,
+      "fetchMode": "public_page_or_manual_export",
+      "ownerLane": "banned-book-source-registry"
+    },
+    {
+      "key": "pen-school-book-bans-2024-2025",
+      "name": "PEN America Index of School Book Bans 2024-2025",
+      "url": "https://pen.org/book-bans/pen-america-index-of-school-book-bans-2024-2025/",
+      "refreshCadenceDays": 30,
+      "fetchMode": "public_index_or_manual_export",
+      "ownerLane": "banned-book-source-registry"
+    },
+    {
+      "key": "everylibrary-banned-book-database",
+      "name": "EveryLibrary Banned Book Database",
+      "url": "https://action.everylibrary.org/everylibrary_s_banned_book_database",
+      "refreshCadenceDays": 60,
+      "fetchMode": "public_database_or_manual_export",
+      "ownerLane": "evidence-qa-audit"
+    }
+  ],
+  "candidates": [
+    {
+      "sourceKey": "ala-most-challenged-2025",
+      "externalId": "ala-2025-gender-queer",
+      "canonicalTitle": "Gender Queer",
+      "authors": ["Maia Kobabe"],
+      "banStatus": "challenged",
+      "sourceUrl": "https://www.ala.org/bbooks/frequentlychallengedbooks/top10",
+      "evidenceType": "challenge_list",
+      "evidenceNote": "Appears in the ALA 2025 Most Challenged Books source page.",
+      "jurisdictionContext": "U.S. libraries and schools; ALA 2025 Most Challenged Books list.",
+      "affectedAudience": "K-12 students and public library patrons",
+      "evidenceQuality": "confirmed_source",
+      "rightsholderHint": "author_or_publisher",
+      "editionAliases": ["Gender Queer: A Memoir"],
+      "sensitivityFlags": ["lgbtqia"]
+    },
+    {
+      "sourceKey": "pen-school-book-bans-2024-2025",
+      "externalId": "pen-2024-2025-push",
+      "canonicalTitle": "Push",
+      "authors": ["Sapphire"],
+      "banStatus": "banned",
+      "sourceUrl": "https://pen.org/book-bans/pen-america-index-of-school-book-bans-2024-2025/",
+      "evidenceType": "school_ban_index",
+      "evidenceNote": "Candidate discovered from the PEN 2024-2025 school-ban index source spine; district rows require attachment before outreach.",
+      "jurisdictionContext": "U.S. school-ban index context; PEN America 2024-2025 title-level discovery.",
+      "affectedAudience": "K-12 students",
+      "evidenceQuality": "needs_district_row",
+      "rightsholderHint": "author_or_publisher",
+      "editionAliases": ["Push: A Novel"],
+      "sensitivityFlags": ["race", "sexual_abuse", "trauma"]
+    },
+    {
+      "sourceKey": "pen-school-book-bans-2024-2025",
+      "externalId": "pen-2024-2025-crank",
+      "canonicalTitle": "Crank",
+      "authors": ["Ellen Hopkins"],
+      "banStatus": "banned",
+      "sourceUrl": "https://pen.org/book-bans/pen-america-index-of-school-book-bans-2024-2025/",
+      "evidenceType": "school_ban_index",
+      "evidenceNote": "Candidate discovered from the PEN 2024-2025 school-ban index source spine; district rows require attachment before outreach.",
+      "jurisdictionContext": "U.S. school-ban index context; PEN America 2024-2025 title-level discovery.",
+      "affectedAudience": "K-12 students",
+      "evidenceQuality": "needs_district_row",
+      "rightsholderHint": "author_or_publisher",
+      "editionAliases": [],
+      "sensitivityFlags": ["substance_use", "young_adult"]
+    },
+    {
+      "sourceKey": "everylibrary-banned-book-database",
+      "externalId": "everylibrary-lawn-boy",
+      "canonicalTitle": "Lawn Boy",
+      "authors": ["Jonathan Evison"],
+      "banStatus": "challenged",
+      "sourceUrl": "https://action.everylibrary.org/everylibrary_s_banned_book_database",
+      "evidenceType": "challenge_context",
+      "evidenceNote": "Candidate queued for cross-check against EveryLibrary and primary district or library evidence.",
+      "jurisdictionContext": "U.S. library and school challenge context pending jurisdiction enrichment.",
+      "affectedAudience": "K-12 students and public library patrons",
+      "evidenceQuality": "needs_cross_check",
+      "rightsholderHint": "author_or_publisher",
+      "editionAliases": [],
+      "sensitivityFlags": ["lgbtqia", "sexual_content"]
+    },
+    {
+      "sourceKey": "everylibrary-banned-book-database",
+      "externalId": "everylibrary-me-and-earl-and-the-dying-girl",
+      "canonicalTitle": "Me and Earl and the Dying Girl",
+      "authors": ["Jesse Andrews"],
+      "banStatus": "challenged",
+      "sourceUrl": "https://action.everylibrary.org/everylibrary_s_banned_book_database",
+      "evidenceType": "challenge_context",
+      "evidenceNote": "Candidate queued for cross-check against EveryLibrary and primary district or library evidence.",
+      "jurisdictionContext": "U.S. library and school challenge context pending jurisdiction enrichment.",
+      "affectedAudience": "K-12 students and public library patrons",
+      "evidenceQuality": "needs_cross_check",
+      "rightsholderHint": "author_or_publisher",
+      "editionAliases": [],
+      "sensitivityFlags": ["illness", "young_adult"]
+    }
+  ]
+}

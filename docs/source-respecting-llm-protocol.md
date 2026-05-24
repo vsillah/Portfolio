@@ -124,9 +124,11 @@ Creator portal foundation:
 Banned-books corpus foundation:
 
 - `data/source-protocol/banned-books-rights-ready-corpus.json` stages the U.S.-first banned/challenged books shortlist, source evidence, rightsholder candidates, outreach status, license status, and ingestion status.
+- `data/source-protocol/banned-books-source-ingestion-queue.json` stages metadata-only source refresh jobs and candidate rows for ALA, PEN America, and EveryLibrary discovery.
 - `lib/banned-books-corpus.ts` projects that staged inventory into Source Protocol draft records and enforces the v1 guardrail: no full text, OCR, embeddings, or retrievable chunks until an active RAG-only license grant and verified chain of title exist.
-- `/admin/source-protocol` includes a `Banned Books` tab for the MECE agent lanes, staged shortlist, source spine, read-only outreach packet templates, and safeguards.
-- `npm run banned-books:report` prints the current staged registry, swarm lanes, outreach packet templates, next actions, and safeguards for recurring review.
+- `/admin/source-protocol` includes a `Banned Books` tab for the MECE agent lanes, source ingestion queue, staged shortlist, source spine, read-only outreach packet templates, and safeguards.
+- `npm run banned-books:report` prints the current staged registry, swarm lanes, source ingestion queue, outreach packet templates, next actions, and safeguards for recurring review.
+- `npm run banned-books:ingestion:report` prints the source refresh queue, candidate classifications, evidence QA holds, and blocked full-text actions.
 
 Smoke test:
 

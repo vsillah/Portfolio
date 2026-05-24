@@ -125,6 +125,47 @@ const overview = {
         followUpCadenceDays: [14, 45, 90],
       },
     ],
+    sourceIngestionQueue: {
+      generatedAt: '2026-05-24T00:00:00.000Z',
+      mode: 'metadata_only_dry_run',
+      policy: 'Source discovery may stage title metadata and evidence only.',
+      sources: [],
+      summary: {
+        sourceCount: 3,
+        candidateCount: 2,
+        existingRecordMatches: 1,
+        stageableCandidates: 0,
+        evidenceReviewRequired: 1,
+        blockedFullTextActions: 5,
+      },
+      candidates: [
+        {
+          sourceKey: 'ala-most-challenged-2025',
+          externalId: 'ala-demo-book',
+          canonicalTitle: 'Demo Challenged Book',
+          authors: ['Demo Author'],
+          status: 'existing_record',
+          evidenceQuality: 'confirmed_source',
+          evidenceType: 'challenge_list',
+          existingRecordId: 'demo-book',
+          stagedRecordDraft: null,
+          nextAction: 'Attach source evidence to existing staged record if it adds provenance.',
+        },
+        {
+          sourceKey: 'pen-school-book-bans-2024-2025',
+          externalId: 'pen-held-book',
+          canonicalTitle: 'Held Candidate Book',
+          authors: ['Held Author'],
+          status: 'needs_evidence_review',
+          evidenceQuality: 'needs_district_row',
+          evidenceType: 'school_ban_index',
+          existingRecordId: null,
+          stagedRecordDraft: null,
+          nextAction: 'Hold until district rows or cross-source evidence are attached.',
+        },
+      ],
+      blockedActions: ['Fetch or store copyrighted full text.'],
+    },
     records: [
       {
         id: 'demo-book',
@@ -165,7 +206,9 @@ describe('SourceProtocolPage', () => {
     expect(screen.getByRole('heading', { name: 'Banned Books Rights-Ready Corpus' })).toBeInTheDocument()
     expect(screen.getByText('Amina, Source Registry Lead')).toBeInTheDocument()
     expect(screen.getByText('Permission request: rights-cleared retrieval for your challenged work')).toBeInTheDocument()
-    expect(screen.getByText('Demo Challenged Book')).toBeInTheDocument()
+    expect(screen.getByText('Source ingestion queue')).toBeInTheDocument()
+    expect(screen.getByText('Held Candidate Book')).toBeInTheDocument()
+    expect(screen.getAllByText('Demo Challenged Book').length).toBeGreaterThanOrEqual(1)
 
     fireEvent.click(screen.getAllByRole('button', { name: /Portal Access/i })[0])
 
