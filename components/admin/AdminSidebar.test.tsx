@@ -26,6 +26,7 @@ describe('AdminSidebar Agent Ops hierarchy', () => {
     expect(within(nav).getByRole('link', { name: 'Run Console' })).toHaveAttribute('href', '/admin/agents/runs')
     expect(within(nav).getByRole('link', { name: 'Automation Context' })).toHaveAttribute('href', '/admin/agents/automations')
     expect(within(nav).getByRole('link', { name: 'Open Brain' })).toHaveAttribute('href', '/admin/agents/open-brain')
+    expect(within(nav).getByRole('link', { name: 'Governance' })).toHaveAttribute('href', '/admin/agents/governance')
   })
 
   it('removes Agent Ops routes from Quality & insights nav config', () => {
@@ -41,6 +42,7 @@ describe('AdminSidebar Agent Ops hierarchy', () => {
       '/admin/agents/runs',
       '/admin/agents/automations',
       '/admin/agents/open-brain',
+      '/admin/agents/governance',
     ])
   })
 

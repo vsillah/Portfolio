@@ -30,6 +30,7 @@ import {
 import ProtectedRoute from '@/components/ProtectedRoute'
 import AgentAvatar from '@/components/admin/AgentAvatar'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
+import type { AgentGovernanceSnapshot } from '@/components/admin/agents/AgentGovernancePanel'
 import { getCurrentSession } from '@/lib/auth'
 import type { AgentOrgBoardGoalMetric } from '@/lib/agent-swarm-board'
 
@@ -183,77 +184,7 @@ type MissionSnapshot = {
       publicUnsafeApprovedCount: number
     }
   }
-  governance?: {
-    generated_at: string
-    summary: {
-      total_agents: number
-      reviewed_agents: number
-      planned_agents: number
-      least_privilege_attention: number
-      pending_authority_approvals: number
-      payment_authority_actions: number
-    }
-    capability_profiles: Array<{
-      agent_key: string
-      display_name: string
-      pod: string
-      status: 'active' | 'partial' | 'planned'
-      primary_runtime: string
-      allowed_tools: string[]
-      allowed_data_classes: string[]
-      allowed_write_classes: string[]
-      outbound_authority: 'none' | 'draft_only' | 'known_workflow' | 'approval_required'
-      spend_authority: 'none' | 'approval_required'
-      approval_required_for: string[]
-      sensitive_boundaries: string[]
-      last_reviewed_at: string
-      review_status: 'reviewed' | 'planned'
-      governance_status: 'green' | 'yellow' | 'red'
-    }>
-    payment_authority_actions: Array<{
-      action: string
-      approval_type: string
-      label: string
-      description: string
-    }>
-    pending_authority_approvals: Array<{
-      id?: string
-      run_id: string
-      approval_type: string
-      status: string
-      requested_at: string
-      requested_by_agent_key?: string | null
-      metadata?: Record<string, unknown> | null
-    }>
-    recent_delegation_decisions: Array<{
-      run_id: string
-      selected_agent_key: string
-      selected_agent_name: string
-      task_type: string
-      risk_class: string
-      confidence: number
-      occurred_at: string
-      reason: string
-      required_evidence: string[]
-      approval_gate: string | null
-      fallback_agent_key: string | null
-      alternatives_considered: string[]
-    }>
-    recent_governance_exports: Array<{
-      id: string
-      export_type: string
-      format: 'json' | 'markdown'
-      classification: string
-      run_id: string | null
-      client_project_id: string | null
-      from_at: string | null
-      to_at: string | null
-      matching_run_count: number | null
-      requested_by_user_id: string | null
-      generated_at: string
-      created_at: string
-    }>
-  }
+  governance?: AgentGovernanceSnapshot
   agent_inbox: Array<{
     id: string
     priority: 'high' | 'medium' | 'low'
@@ -1051,7 +982,12 @@ export default function AgentOperationsPage() {
                   costToday={snapshot?.status_strip.cost_today ?? 0}
                 />
 
-                <AgentGovernancePanel governance={snapshot?.governance ?? null} />
+                <SwarmCommandPanel
+                  roster={snapshot?.roster ?? []}
+                  governance={snapshot?.governance ?? null}
+                  kanbanCount={kanbanSignalCount}
+                  activeGoalCount={activeGoals.length}
+                />
 
                 <ActiveGoalsPanel goals={activeGoals} />
 
@@ -1136,20 +1072,8 @@ export default function AgentOperationsPage() {
 
               <aside className="space-y-4">
                 <div className="agent-ops-card rounded-lg border p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Agent interaction</p>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Operations rail</p>
                   <div className="mt-3 grid gap-3">
-                    <Link href="/admin/agents/swarm-board" className="block rounded-lg border border-radiant-gold/45 bg-radiant-gold/10 p-3 shadow-gold-glow-sm hover:bg-radiant-gold/15">
-                      <p className="font-semibold">Open Agent Kanban</p>
-                      <p className="mt-1 text-sm text-muted-foreground">Review work lanes, roster, blockers, traces, validation, and PRs.</p>
-                    </Link>
-                    <Link href="/admin/agents/standup" className="block rounded-lg border border-radiant-gold/60 bg-radiant-gold p-3 text-left text-silicon-slate hover:bg-radiant-gold/90">
-                      <p className="font-semibold">Open Standup Room</p>
-                      <p className="mt-1 text-sm">Ask agents, start standup, and turn goals into tracked work.</p>
-                    </Link>
-                    <Link href="/admin/agents/runs" className="block rounded-lg border border-silicon-slate/60 bg-background/40 p-3 hover:border-radiant-gold/50">
-                      <p className="font-semibold">Open Run Console</p>
-                      <p className="mt-1 text-sm text-muted-foreground">Inspect traces, evaluations, dead letters, and artifacts.</p>
-                    </Link>
                     <SlackMobileBridgePanel
                       loadingKind={slackNotificationLoading}
                       result={slackNotificationResult}
@@ -2026,6 +1950,134 @@ function DailyBriefPanel({
           ))}
         </div>
       </div>
+    </section>
+  )
+}
+
+function SwarmCommandPanel({
+  roster,
+  governance,
+  kanbanCount,
+  activeGoalCount,
+}: {
+  roster: MissionSnapshot['roster']
+  governance: AgentGovernanceSnapshot | null
+  kanbanCount: number
+  activeGoalCount: number
+}) {
+  const agents = roster.flatMap((pod) => pod.agents)
+  const shaka = agents.find((agent) => agent.key === 'chief-of-staff')
+  const activeAgents = agents.filter((agent) => agent.status === 'active').length
+  const partialAgents = agents.filter((agent) => agent.status === 'partial').length
+  const visibleAgents = [
+    shaka,
+    ...agents.filter((agent) => agent.key !== shaka?.key),
+  ].filter(Boolean).slice(0, 4) as MissionSnapshot['roster'][number]['agents']
+  const reviewedAgents = governance?.summary.reviewed_agents ?? 0
+  const totalAgents = governance?.summary.total_agents ?? agents.length
+  const governanceAttention = (governance?.summary.least_privilege_attention ?? 0) + (governance?.summary.pending_authority_approvals ?? 0)
+
+  return (
+    <section className="agent-ops-card mt-5 rounded-lg border p-4" aria-label="Swarm Command">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-radiant-gold">
+            <Network size={18} />
+            <h2 className="font-semibold">Swarm Command</h2>
+          </div>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
+            Start with Shaka when a goal needs alignment, use Kanban for work state, and keep governance one click down for authority and audit controls.
+          </p>
+        </div>
+        <StatusOnlyPill tone={governanceAttention ? 'yellow' : 'green'}>
+          {activeAgents} active · {partialAgents} partial
+        </StatusOnlyPill>
+      </div>
+
+      <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
+        <div className="rounded-lg border border-radiant-gold/35 bg-radiant-gold/10 p-4 shadow-gold-glow-sm">
+          <div className="flex items-start gap-3">
+            <AgentAvatar agentKey="chief-of-staff" size="md" />
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Shaka · Chief of Staff</p>
+              <h3 className="mt-1 text-lg font-semibold">Plan, question, and delegate through the Standup Room.</h3>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                Use this when the work needs a definition of ready, acceptance criteria, agent assignments, or a goal-level stage gate before execution.
+              </p>
+            </div>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link href="/admin/agents/standup" className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/70 bg-radiant-gold px-3 py-2 text-sm font-semibold text-silicon-slate hover:bg-radiant-gold/90">
+              <Sparkles size={15} />
+              Open Standup Room
+            </Link>
+            <Link href="/admin/agents/chief-of-staff" className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/60 bg-background/45 px-3 py-2 text-sm hover:border-radiant-gold/60">
+              <Maximize2 size={15} />
+              Full Shaka chat
+            </Link>
+          </div>
+        </div>
+
+        <div className="grid gap-3">
+          <Link href="/admin/agents/swarm-board" className="group rounded-lg border border-sky-400/30 bg-sky-500/10 p-3 transition hover:border-radiant-gold/60">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-sky-100">Agent Kanban</p>
+                <p className="mt-2 text-2xl font-semibold">{kanbanCount}</p>
+                <p className="mt-1 text-sm text-muted-foreground">Work items across fixed lanes</p>
+              </div>
+              <ArrowRight size={15} className="mt-1 text-muted-foreground group-hover:text-radiant-gold" />
+            </div>
+          </Link>
+          <Link href="/admin/agents/governance" className="group rounded-lg border border-silicon-slate/60 bg-background/35 p-3 transition hover:border-radiant-gold/60">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Governance</p>
+                <p className="mt-2 text-lg font-semibold">{reviewedAgents}/{totalAgents} reviewed</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {governanceAttention ? `${governanceAttention} authority or scope item(s)` : 'Authority and audit controls'}
+                </p>
+              </div>
+              <ArrowRight size={15} className="mt-1 text-muted-foreground group-hover:text-radiant-gold" />
+            </div>
+          </Link>
+          <Link href="/admin/agents/swarm-board?view=goals" className="group rounded-lg border border-emerald-400/30 bg-emerald-500/10 p-3 transition hover:border-radiant-gold/60">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-emerald-100">Goal work</p>
+                <p className="mt-2 text-lg font-semibold">{activeGoalCount} active</p>
+                <p className="mt-1 text-sm text-muted-foreground">Goal tags, stage gates, and blockers</p>
+              </div>
+              <ArrowRight size={15} className="mt-1 text-muted-foreground group-hover:text-radiant-gold" />
+            </div>
+          </Link>
+        </div>
+      </div>
+
+      {visibleAgents.length ? (
+        <div className="mt-4 border-t border-silicon-slate/55 pt-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Agent roster preview</p>
+            <Link href="/admin/agents/standup" className="text-xs font-semibold text-radiant-gold hover:underline">
+              Manage attendance
+            </Link>
+          </div>
+          <div className="mt-3 grid gap-2 md:grid-cols-2">
+            {visibleAgents.map((agent) => (
+              <div key={agent.key} className="flex items-center gap-3 rounded-lg border border-silicon-slate/50 bg-background/30 p-3">
+                <AgentAvatar agentKey={agent.key} size="sm" />
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold">{agent.name}</p>
+                  <p className="truncate text-xs text-muted-foreground">{agent.responsibility}</p>
+                </div>
+                <StatusOnlyPill tone={agent.status === 'active' ? 'green' : agent.status === 'partial' ? 'blue' : 'neutral'}>
+                  {agent.status}
+                </StatusOnlyPill>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
     </section>
   )
 }

@@ -91,6 +91,7 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
         { label: 'Run Console', href: '/admin/agents/runs' },
         { label: 'Automation Context', href: '/admin/agents/automations' },
         { label: 'Open Brain', href: '/admin/agents/open-brain' },
+        { label: 'Governance', href: '/admin/agents/governance' },
       ],
     },
     {
