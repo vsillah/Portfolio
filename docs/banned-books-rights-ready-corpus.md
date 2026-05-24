@@ -16,6 +16,8 @@ records only; they do not include copyrighted full text.
 ```bash
 npm run banned-books:report
 npm run banned-books:report -- --json
+npm run banned-books:ingestion:report
+npm run banned-books:ingestion:report -- --json
 ```
 
 The projection reuses the existing Source-Respecting LLM Protocol:
@@ -67,6 +69,22 @@ gate, and follow-up cadence for each outreach path. They are templates for
 review, not an outbound messaging automation. Human approval is still required
 before first contact, follow-up, license conversion, ingestion, retrieval, or
 payout activation.
+
+## Source Ingestion Queue
+
+The source ingestion queue is staged in
+`data/source-protocol/banned-books-source-ingestion-queue.json`. It is an
+automation-ready contract for recurring ALA, PEN America, and EveryLibrary
+metadata refreshes. It can classify source candidates as:
+
+- existing staged records,
+- stageable metadata-only candidates,
+- candidates that need evidence QA before promotion.
+
+The queue is deliberately dry-run only. It may propose a staged metadata draft,
+but it cannot write to `licensed_works`, `license_grants`, `source_chunks`,
+retrieval indexes, outreach tools, or payout tables. Promotion still requires
+evidence QA and governance approval.
 
 ## Review Loop
 

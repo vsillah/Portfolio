@@ -204,6 +204,17 @@ describe('GET /api/admin/source-protocol/overview', () => {
           expect.objectContaining({ key: 'publisher_permissions_rag_license' }),
           expect.objectContaining({ key: 'estate_permissions_rag_license' }),
         ]),
+        sourceIngestionQueue: {
+          mode: 'metadata_only_dry_run',
+          summary: {
+            sourceCount: 3,
+            candidateCount: 5,
+            existingRecordMatches: 1,
+            stageableCandidates: 0,
+            evidenceReviewRequired: 4,
+            blockedFullTextActions: 5,
+          },
+        },
         swarmAgents: expect.arrayContaining([
           expect.objectContaining({ key: 'banned-book-source-registry' }),
           expect.objectContaining({ key: 'rights-governance-review' }),

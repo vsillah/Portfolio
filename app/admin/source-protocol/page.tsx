@@ -50,6 +50,22 @@ type SourceProtocolOverview = {
     sourceSpine: any[]
     swarmAgents: any[]
     outreachPackets: any[]
+    sourceIngestionQueue?: {
+      generatedAt: string
+      mode: string
+      policy: string
+      sources: any[]
+      summary: {
+        sourceCount: number
+        candidateCount: number
+        existingRecordMatches: number
+        stageableCandidates: number
+        evidenceReviewRequired: number
+        blockedFullTextActions: number
+      }
+      candidates: any[]
+      blockedActions: string[]
+    }
     summary: {
       stagedRecords: number
       sourceSpineCount: number
@@ -647,6 +663,48 @@ function BannedBooksCorpusPanel({ corpus }: { corpus: SourceProtocolOverview['ba
           ))}
         </Panel>
       </section>
+
+      {corpus.sourceIngestionQueue && (
+        <section className="overflow-hidden rounded-lg border border-silicon-slate">
+          <div className="bg-silicon-slate/60 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Source ingestion queue
+          </div>
+          <div className="grid grid-cols-2 gap-3 border-b border-silicon-slate p-4 lg:grid-cols-6">
+            <Stat icon={<Database size={18} />} label="Sources" value={corpus.sourceIngestionQueue.summary.sourceCount} />
+            <Stat icon={<Search size={18} />} label="Candidates" value={corpus.sourceIngestionQueue.summary.candidateCount} />
+            <Stat icon={<BookOpenCheck size={18} />} label="Matched" value={corpus.sourceIngestionQueue.summary.existingRecordMatches} />
+            <Stat icon={<ShieldCheck size={18} />} label="Stageable" value={corpus.sourceIngestionQueue.summary.stageableCandidates} />
+            <Stat icon={<AlertTriangle size={18} />} label="Needs QA" value={corpus.sourceIngestionQueue.summary.evidenceReviewRequired} />
+            <Stat icon={<AlertTriangle size={18} />} label="Blocked" value={corpus.sourceIngestionQueue.summary.blockedFullTextActions} />
+          </div>
+          <div className="border-b border-silicon-slate px-4 py-3 text-sm text-muted-foreground">
+            {corpus.sourceIngestionQueue.policy}
+          </div>
+          <div className="divide-y divide-silicon-slate">
+            {corpus.sourceIngestionQueue.candidates.map((candidate) => (
+              <div key={candidate.externalId} className="grid grid-cols-1 gap-3 px-4 py-4 text-sm lg:grid-cols-5 lg:gap-4">
+                <div>
+                  <p className="font-medium text-foreground">{candidate.canonicalTitle}</p>
+                  <p className="text-muted-foreground">{list(candidate.authors)}</p>
+                </div>
+                <div className="text-muted-foreground">
+                  <p>{candidate.status}</p>
+                  <p>{candidate.evidenceQuality}</p>
+                </div>
+                <div className="text-muted-foreground">
+                  <p>{candidate.sourceKey}</p>
+                  <p>{candidate.evidenceType}</p>
+                </div>
+                <div className="text-muted-foreground">
+                  <p>Existing: {candidate.existingRecordId ?? 'None'}</p>
+                  <p>Draft: {candidate.stagedRecordDraft ? candidate.stagedRecordDraft.id : 'Held'}</p>
+                </div>
+                <div className="text-muted-foreground">{candidate.nextAction}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="overflow-hidden rounded-lg border border-silicon-slate">
         <div className="bg-silicon-slate/60 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
