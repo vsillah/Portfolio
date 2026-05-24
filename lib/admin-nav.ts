@@ -62,6 +62,7 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
     {
       label: 'Quality & insights',
       items: [
+        { label: 'Model Ops', href: '/admin/model-ops/reply-intent-review' },
         { label: 'Chat Eval', href: '/admin/chat-eval' },
         { label: 'Analytics', href: '/admin/analytics' },
         { label: 'Cost & Revenue', href: '/admin/cost-revenue' },
