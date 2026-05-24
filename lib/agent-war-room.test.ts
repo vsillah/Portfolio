@@ -388,6 +388,130 @@ describe('runAgentWarRoom', () => {
     expect(workItemMocks.createAgentWorkItem).not.toHaveBeenCalled()
   })
 
+  it('blocks delegation when a required checklist item is not ready even if the status is ready', async () => {
+    const draftResult = await runAgentWarRoom({
+      command: 'draft_goal',
+      goal: 'Verify readiness checklist gates',
+      triggerSource: 'test_war_room',
+    })
+    vi.clearAllMocks()
+    const firstChecklistItem = draftResult.goalDraft!.readiness_checklist![0]
+
+    await expect(runAgentWarRoom({
+      command: 'approve_readiness',
+      draft: {
+        ...draftResult.goalDraft!,
+        readiness_status: 'ready_for_delegation',
+        readiness_checklist: [
+          {
+            ...firstChecklistItem,
+            label: 'Operator approval evidence',
+            status: 'blocked',
+            required: true,
+          },
+          ...(draftResult.goalDraft?.readiness_checklist ?? []).slice(1),
+        ],
+      },
+      triggerSource: 'test_war_room',
+    })).rejects.toThrow('Goal readiness is incomplete: Operator approval evidence')
+
+    expect(workItemMocks.createAgentWorkItem).not.toHaveBeenCalled()
+  })
+
+  it('normalizes tampered readiness status before enforcing the delegation gate', async () => {
+    const draftResult = await runAgentWarRoom({
+      command: 'draft_goal',
+      goal: 'Reject tampered readiness status',
+      triggerSource: 'test_war_room',
+    })
+    vi.clearAllMocks()
+
+    await expect(runAgentWarRoom({
+      command: 'approve_readiness',
+      draft: {
+        ...draftResult.goalDraft!,
+        readiness_status: 'ship_it_now',
+      } as typeof draftResult.goalDraft,
+      triggerSource: 'test_war_room',
+    })).rejects.toThrow('Goal readiness must be ready_for_delegation before delegation')
+
+    expect(workItemMocks.createAgentWorkItem).not.toHaveBeenCalled()
+  })
+
+  it('requires acceptance criteria before creating delegated work items', async () => {
+    const draftResult = await runAgentWarRoom({
+      command: 'draft_goal',
+      goal: 'Require acceptance criteria',
+      triggerSource: 'test_war_room',
+    })
+    vi.clearAllMocks()
+
+    await expect(runAgentWarRoom({
+      command: 'approve_readiness',
+      draft: {
+        ...draftResult.goalDraft!,
+        acceptance_criteria: [],
+      },
+      triggerSource: 'test_war_room',
+    })).rejects.toThrow('Goal acceptance criteria are required before delegation')
+
+    expect(workItemMocks.createAgentWorkItem).not.toHaveBeenCalled()
+  })
+
+  it('requires stage gates before creating delegated work items', async () => {
+    const draftResult = await runAgentWarRoom({
+      command: 'draft_goal',
+      goal: 'Require stage gates',
+      triggerSource: 'test_war_room',
+    })
+    vi.clearAllMocks()
+
+    await expect(runAgentWarRoom({
+      command: 'approve_readiness',
+      draft: {
+        ...draftResult.goalDraft!,
+        stage_gates: [],
+      },
+      triggerSource: 'test_war_room',
+    })).rejects.toThrow('Goal stage gates are required before delegation')
+
+    expect(workItemMocks.createAgentWorkItem).not.toHaveBeenCalled()
+  })
+
+  it('allows optional checklist items to remain missing during readiness approval', async () => {
+    const draftResult = await runAgentWarRoom({
+      command: 'draft_goal',
+      goal: 'Allow optional checklist evidence',
+      triggerSource: 'test_war_room',
+    })
+    vi.clearAllMocks()
+    agentRunMocks.startAgentRun.mockResolvedValue({ id: 'approval-run' })
+    const firstChecklistItem = draftResult.goalDraft!.readiness_checklist![0]
+
+    await runAgentWarRoom({
+      command: 'approve_readiness',
+      draft: {
+        ...draftResult.goalDraft!,
+        readiness_checklist: [
+          {
+            ...firstChecklistItem,
+            label: 'Optional rollout screenshot',
+            status: 'missing',
+            required: false,
+          },
+          ...(draftResult.goalDraft?.readiness_checklist ?? []).slice(1),
+        ],
+      },
+      triggerSource: 'test_war_room',
+    })
+
+    expect(workItemMocks.createAgentWorkItem).toHaveBeenCalled()
+    expect(agentRunMocks.endAgentRun).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'completed',
+      outcome: expect.objectContaining({ executes_action: true }),
+    }))
+  })
+
   it('keeps approve_goal as a compatibility alias for readiness approval', async () => {
     const draftResult = await runAgentWarRoom({
       command: 'draft_goal',
