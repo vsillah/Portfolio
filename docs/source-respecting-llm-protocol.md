@@ -129,6 +129,7 @@ Banned-books corpus foundation:
 - `/admin/source-protocol` includes a `Banned Books` tab for the MECE agent lanes, source ingestion queue, staged shortlist, source spine, read-only outreach packet templates, and safeguards.
 - `npm run banned-books:report` prints the current staged registry, swarm lanes, source ingestion queue, outreach packet templates, next actions, and safeguards for recurring review.
 - `npm run banned-books:ingestion:report` prints the source refresh queue, candidate classifications, evidence QA holds, and blocked full-text actions.
+- `npm run banned-books:source:import` consumes manual/public source metadata exports in dry-run mode, rejects full-text-like fields, and emits Evidence QA-gated queue append drafts.
 
 Smoke test:
 

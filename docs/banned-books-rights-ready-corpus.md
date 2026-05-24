@@ -18,6 +18,8 @@ npm run banned-books:report
 npm run banned-books:report -- --json
 npm run banned-books:ingestion:report
 npm run banned-books:ingestion:report -- --json
+npm run banned-books:source:import
+npm run banned-books:source:import -- --input data/source-protocol/banned-books-source-import-sample.json --json
 ```
 
 The projection reuses the existing Source-Respecting LLM Protocol:
@@ -85,6 +87,18 @@ The queue is deliberately dry-run only. It may propose a staged metadata draft,
 but it cannot write to `licensed_works`, `license_grants`, `source_chunks`,
 retrieval indexes, outreach tools, or payout tables. Promotion still requires
 evidence QA and governance approval.
+
+## Source Import Dry Run
+
+`npm run banned-books:source:import` consumes a manual or public metadata export
+and produces an import plan. The importer rejects unknown sources and any row
+that contains full-text-like fields such as `fullText`, `content`, `body`,
+`excerptText`, or `ocrText`.
+
+Rows that are not duplicates and have confirmed source evidence become
+`ready_for_qa` queue append drafts. The importer still performs no writes; the
+append draft must be reviewed by Evidence QA before it is copied into the source
+ingestion queue.
 
 ## Review Loop
 
