@@ -53,9 +53,35 @@ proves the campaign still needs that source.
 
 Source notes for the bakeoff packet:
 
-- Google Maps Platform pricing should be checked from the official pricing page before each run; as of the 2026-05-09 check, Places API Text Search Pro and Nearby Search Pro list 5,000 free monthly calls and then $32 per 1,000 in the first paid tier.
-- Brave Search API pricing should be checked from Brave before each run; as of the 2026-05-09 check, Search is listed at $5 per 1,000 requests with $5 monthly credits.
+- Google Maps Platform pricing should be checked from the official pricing page before each run; as of the 2026-05-24 check, Places API Text Search Pro and Nearby Search Pro list 5,000 free monthly calls and then $32 per 1,000 in the first paid tier.
+- Brave Search API pricing should be checked from Brave before each run; as of the 2026-05-24 check, Search is listed at $5 per 1,000 requests with $5 monthly credits.
 - Reddit source use must be reviewed against Reddit's Data API Wiki and Data API Terms before any commercial workflow uses official Reddit API data. The official wiki lists 100 QPM free-access limits for eligible OAuth clients; the terms say commercial or out-of-scope use may require a separate agreement.
+
+### Executable Test Packet
+
+Use the replacement bakeoff harness to keep this gate repeatable:
+
+```bash
+npm run apify:replacement-bakeoff
+```
+
+Dry-run mode reports which challengers are ready and which are blocked by
+missing read-only credentials. Live API mode is intentionally explicit:
+
+```bash
+npm run apify:replacement-bakeoff -- --run --out=docs/apify-replacement-bakeoff-latest.json
+```
+
+Current credential gate from the 2026-05-24 worktree check:
+
+- `APIFY_TOKEN` and `APIFY_API_TOKEN` exist locally.
+- `BRAVE_SEARCH_API_KEY` is missing, so Reddit/Capterra replacement API tests
+  are blocked.
+- `GOOGLE_MAPS_API_KEY` is missing, so Google Places replacement tests are
+  blocked.
+- LinkedIn post-search replacement remains manual/browser-agent ready because
+  it should be evaluated on accepted leads and account-risk burden, not API
+  result count alone.
 
 ## Configured Apify Call Surfaces
 

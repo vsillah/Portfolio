@@ -1125,7 +1125,32 @@ Raw Findings
 - Evidence source updated: `/docs/apify-call-bakeoff-analysis.md`.
 - Dashboard data updated: `/docs/subscription-status.json`.
 - Pricing/terms checked from Brave Search API, Google Maps Platform pricing,
-  Reddit Data API Wiki, and Reddit Data API Terms on 2026-05-09.
+  Reddit Data API Wiki, and Reddit Data API Terms on 2026-05-24.
+- No shared cost-event schema changes and no production write actions.
+
+## 2026-05-24 Apify Replacement Harness Update
+
+Status: YELLOW
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- Added a repeatable replacement bakeoff harness for the productive Apify
+  categories. The harness can dry-run credential readiness now and run live
+  low-volume Brave Search / Google Places challenger calls once read-only keys
+  are available.
+- Current credential check found local Apify tokens, but no
+  `BRAVE_SEARCH_API_KEY` and no `GOOGLE_MAPS_API_KEY`; live replacement API
+  tests are therefore blocked rather than inferred.
+- LinkedIn post-search replacement remains manual/browser-agent ready because
+  the decision depends on accepted lead quality and account-risk burden.
+
+Raw Findings
+
+- New planner: `/lib/apify-replacement-bakeoff.ts`.
+- New CLI harness: `/scripts/apify-replacement-bakeoff.ts`.
+- New command: `npm run apify:replacement-bakeoff`.
+- New tests: `/lib/apify-replacement-bakeoff.test.ts`.
 - No shared cost-event schema changes and no production write actions.
 
 ## 2026-05-09 Budget Query Readiness Update
