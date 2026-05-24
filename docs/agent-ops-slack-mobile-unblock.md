@@ -30,3 +30,18 @@ Slack can show Agent Ops cards for approvals, work items, blockers, and inbox en
 Slack must not directly perform production workflow activation, credential changes, outbound sends, customer-data mutation, publishing, payments, or n8n workflow activation. Those actions deep-link back to Portfolio for review.
 
 Every accepted Slack action should write an Agent Ops event so Mission Control, Run Console, and Kanban can reflect the mobile decision trail.
+
+## Mobile Notification Bridge
+
+Portfolio can also push a compact unblock packet into Slack from Mission Control or the Standup Room through `POST /api/admin/agents/slack-notifications`.
+
+Supported packet kinds:
+
+- `pending_approvals`
+- `blockers`
+- `review_ready`
+- `goal_decisions`
+- `standup_blockers`
+- `selected_agent_question`
+
+The route requires admin authentication, builds Block Kit payloads with Portfolio deep links, posts through `SLACK_AGENT_OPS_WEBHOOK_URL`, and records a `slack_mobile_notification` run. Packets are deduped within an hourly window by kind, goal, and selected agents unless an explicit force flag is sent.

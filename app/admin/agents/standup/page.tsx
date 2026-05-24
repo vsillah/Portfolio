@@ -136,6 +136,7 @@ function StandupRoomContent() {
     },
   ])
   const [busy, setBusy] = useState<string | null>(null)
+  const [slackNotice, setSlackNotice] = useState<{ text: string; runId?: string } | null>(null)
 
   const fetchBoard = useCallback(async () => {
     setLoading(true)
@@ -429,6 +430,48 @@ function StandupRoomContent() {
     }
   }
 
+  async function sendStandupToSlack(kind: 'standup_blockers' | 'selected_agent_question') {
+    if (kind === 'selected_agent_question' && !message.trim()) {
+      setError('Add a question before sending selected agents to Slack.')
+      return
+    }
+    setBusy(`slack-${kind}`)
+    setSlackNotice(null)
+    setError(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) throw new Error('Missing admin session')
+      const response = await fetch('/api/admin/agents/slack-notifications', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          kind,
+          message: kind === 'selected_agent_question' ? message.trim() : undefined,
+          target_agent_keys: selectedAgents.map((agent) => agent.key),
+          goal_id: focusedGoalId,
+        }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      const prefix = body.sent
+        ? 'Sent to Slack'
+        : body.deduped
+          ? 'Already sent recently'
+          : 'Slack not sent'
+      setSlackNotice({
+        text: `${prefix}: ${body.text || body.reason || 'Standup packet'}`,
+        runId: body.runId,
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to send Standup Room packet to Slack')
+    } finally {
+      setBusy(null)
+    }
+  }
+
   function updateGoalTask(taskId: string, patch: Partial<AgentGoalDraft['tasks'][number]>) {
     setGoalDraft((current) => {
       if (!current) return current
@@ -515,6 +558,9 @@ function StandupRoomContent() {
                 latestTrace={commandTraces[0] ?? null}
                 busy={busy}
                 onStartStandup={startStandup}
+                onSendBlockersToSlack={() => sendStandupToSlack('standup_blockers')}
+                onSendQuestionToSlack={() => sendStandupToSlack('selected_agent_question')}
+                slackNotice={slackNotice}
               />
               <ChatRoom
                 transcript={transcript}
@@ -641,12 +687,18 @@ function StandupControlPanel({
   latestTrace,
   busy,
   onStartStandup,
+  onSendBlockersToSlack,
+  onSendQuestionToSlack,
+  slackNotice,
 }: {
   selectedAgents: AgentOrgBoardAgent[]
   focusedGoal: AgentOrgBoardGoalMetric | null
   latestTrace: WarRoomCommandTrace | null
   busy: string | null
   onStartStandup: () => void
+  onSendBlockersToSlack: () => void
+  onSendQuestionToSlack: () => void
+  slackNotice: { text: string; runId?: string } | null
 }) {
   const hasSelection = selectedAgents.length > 0
   return (
@@ -689,6 +741,42 @@ function StandupControlPanel({
           title="Output"
           value={latestTrace ? `Latest trace is ready: ${latestTrace.synthesis ?? latestTrace.command}.` : 'The next run will appear in Trace History and link back to this room.'}
         />
+      </div>
+
+      <div className="mt-4 rounded-lg border border-silicon-slate/60 bg-background/40 p-3">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Slack handoff</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Send the current standup context to Slack for mobile follow-up. State changes still route through Portfolio controls.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={onSendBlockersToSlack}
+              disabled={busy != null}
+              className="agent-ops-button-secondary disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Send size={16} />
+              {busy === 'slack-standup_blockers' ? 'Sending...' : 'Send blockers'}
+            </button>
+            <button
+              type="button"
+              onClick={onSendQuestionToSlack}
+              disabled={busy != null || !hasSelection}
+              className="agent-ops-button-muted disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Send size={16} />
+              {busy === 'slack-selected_agent_question' ? 'Sending...' : 'Send selected question'}
+            </button>
+          </div>
+        </div>
+        {slackNotice ? (
+          <Link href={slackNotice.runId ? `/admin/agents/runs/${slackNotice.runId}` : '/admin/agents/runs'} className="mt-3 block rounded-lg border border-emerald-400/30 bg-emerald-500/10 p-2 text-sm text-emerald-100 hover:underline">
+            {slackNotice.text}
+          </Link>
+        ) : null}
       </div>
     </section>
   )
