@@ -100,10 +100,11 @@ const AUTH_NEXT_PATH_KEY = 'auth_next_path'
 
 // Sign in with OAuth provider. Pass nextPath to land on that page after OAuth (e.g. /admin, /checkout).
 // Supabase redirect URLs are matched exactly; we never add ?next= so dev/prod callback URLs match the allowlist.
-// Post-login path is stored in sessionStorage and read in the callback page.
+// Post-login path is stored in browser storage and read in the callback page.
 export async function signInWithOAuth(provider: 'google' | 'github', nextPath?: string) {
   if (typeof window !== 'undefined' && nextPath && nextPath !== '/') {
     sessionStorage.setItem(AUTH_NEXT_PATH_KEY, nextPath)
+    localStorage.setItem(AUTH_NEXT_PATH_KEY, nextPath)
   }
   const redirectTo = typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : '/auth/callback'
   const { data, error } = await supabase.auth.signInWithOAuth({
@@ -117,9 +118,10 @@ export async function signInWithOAuth(provider: 'google' | 'github', nextPath?: 
 
 export function getStoredAuthNextPath(): string | null {
   if (typeof window === 'undefined') return null
-  const path = sessionStorage.getItem(AUTH_NEXT_PATH_KEY)
+  const path = sessionStorage.getItem(AUTH_NEXT_PATH_KEY) || localStorage.getItem(AUTH_NEXT_PATH_KEY)
   if (path) {
     sessionStorage.removeItem(AUTH_NEXT_PATH_KEY)
+    localStorage.removeItem(AUTH_NEXT_PATH_KEY)
     return path
   }
   return null

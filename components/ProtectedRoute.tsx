@@ -17,7 +17,8 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
     // Wait for loading to complete AND profile to be fetched (if user exists)
     if (!loading) {
       if (!user) {
-        router.push('/auth/login?redirect=' + encodeURIComponent(window.location.pathname))
+        const redirectPath = `${window.location.pathname}${window.location.search}${window.location.hash}`
+        router.push('/auth/login?redirect=' + encodeURIComponent(redirectPath))
       } else if (requireAdmin) {
         // If we have a user but no profile yet, wait a bit longer (profile might still be loading)
         if (profile === null && user) {
