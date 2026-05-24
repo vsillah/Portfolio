@@ -1,0 +1,65 @@
+{
+  "generatedAt": "2026-05-24T00:00:00.000Z",
+  "sourceKey": "ala-most-challenged-2025",
+  "sourceName": "ALA Most Challenged Books 2025",
+  "sourceUrl": "https://www.ala.org/bbooks/frequentlychallengedbooks/top10",
+  "rows": [
+    {
+      "externalId": "ala-2025-gender-queer",
+      "canonicalTitle": "Gender Queer",
+      "authors": ["Maia Kobabe"],
+      "banStatus": "challenged",
+      "evidenceType": "challenge_list",
+      "evidenceNote": "Appears in the ALA 2025 Most Challenged Books source page.",
+      "jurisdictionContext": "U.S. libraries and schools; ALA 2025 Most Challenged Books list.",
+      "affectedAudience": "K-12 students and public library patrons",
+      "evidenceQuality": "confirmed_source",
+      "rightsholderHint": "author_or_publisher",
+      "editionAliases": ["Gender Queer: A Memoir"],
+      "sensitivityFlags": ["lgbtqia"]
+    },
+    {
+      "externalId": "ala-2025-the-57-bus",
+      "canonicalTitle": "The 57 Bus",
+      "authors": ["Dashka Slater"],
+      "banStatus": "challenged",
+      "evidenceType": "challenge_list",
+      "evidenceNote": "Manual export row from ALA challenged-book source review; source URL retained for QA.",
+      "jurisdictionContext": "U.S. libraries and schools; challenged-book source review.",
+      "affectedAudience": "K-12 students and public library patrons",
+      "evidenceQuality": "confirmed_source",
+      "rightsholderHint": "author_or_publisher",
+      "editionAliases": ["The 57 Bus: A True Story of Two Teenagers and the Crime That Changed Their Lives"],
+      "sensitivityFlags": ["lgbtqia", "race", "juvenile_justice"]
+    },
+    {
+      "externalId": "manual-missing-evidence",
+      "canonicalTitle": "Manual Row Missing Evidence",
+      "authors": ["Example Author"],
+      "banStatus": "unknown",
+      "evidenceType": "challenge_context",
+      "evidenceNote": "",
+      "jurisdictionContext": "Manual import row without enough source evidence.",
+      "affectedAudience": "Unknown",
+      "evidenceQuality": "needs_cross_check",
+      "rightsholderHint": "unknown",
+      "editionAliases": [],
+      "sensitivityFlags": []
+    },
+    {
+      "externalId": "manual-full-text-rejected",
+      "canonicalTitle": "Full Text Should Be Rejected",
+      "authors": ["Example Author"],
+      "banStatus": "challenged",
+      "evidenceType": "challenge_context",
+      "evidenceNote": "This row intentionally contains a forbidden fullText field for importer validation.",
+      "jurisdictionContext": "Manual import validation fixture.",
+      "affectedAudience": "K-12 students",
+      "evidenceQuality": "confirmed_source",
+      "rightsholderHint": "author_or_publisher",
+      "editionAliases": [],
+      "sensitivityFlags": [],
+      "fullText": "This field must not be accepted into the source queue."
+    }
+  ]
+}
