@@ -94,6 +94,7 @@ export const NAV_ITEM_ICONS: Record<string, LucideIcon> = {
   '/admin/continuity-plans': RefreshCw,
   '/admin/onboarding-templates': ClipboardList,
   '/admin/guarantees': ShieldCheck,
+  '/admin/model-ops/reply-intent-review': Brain,
   '/admin/chat-eval': MessageSquare,
   '/admin/chat-eval/queues': LayoutList,
   '/admin/chat-eval/alignment': BarChart3,
