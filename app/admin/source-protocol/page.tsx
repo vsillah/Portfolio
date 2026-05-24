@@ -49,9 +49,11 @@ type SourceProtocolOverview = {
     licenseModel: string
     sourceSpine: any[]
     swarmAgents: any[]
+    outreachPackets: any[]
     summary: {
       stagedRecords: number
       sourceSpineCount: number
+      outreachPacketCount: number
       rightsReadyRecords: number
       outreachReadyRecords: number
       activeLicenseRecords: number
@@ -622,12 +624,13 @@ function BannedBooksCorpusPanel({ corpus }: { corpus: SourceProtocolOverview['ba
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-6">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 xl:grid-cols-7">
           <Stat icon={<FileText size={18} />} label="Staged" value={corpus.summary.stagedRecords} />
           <Stat icon={<Database size={18} />} label="Sources" value={corpus.summary.sourceSpineCount} />
           <Stat icon={<ShieldCheck size={18} />} label="Rights-ready" value={corpus.summary.rightsReadyRecords} />
           <Stat icon={<Users size={18} />} label="Outreach-ready" value={corpus.summary.outreachReadyRecords} />
           <Stat icon={<CircleDollarSign size={18} />} label="Active licenses" value={corpus.summary.activeLicenseRecords} />
+          <Stat icon={<Users size={18} />} label="Packets" value={corpus.summary.outreachPacketCount} />
           <Stat icon={<BookOpenCheck size={18} />} label="Retrievable" value={corpus.summary.retrievableRecords} />
         </div>
       </section>
@@ -660,6 +663,34 @@ function BannedBooksCorpusPanel({ corpus }: { corpus: SourceProtocolOverview['ba
               <div className="text-muted-foreground">{agent.output}</div>
               <div className="text-muted-foreground">{agent.boundary}</div>
               <div className="text-muted-foreground">{agent.approvalGate}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="overflow-hidden rounded-lg border border-silicon-slate">
+        <div className="bg-silicon-slate/60 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Permission packet templates
+        </div>
+        <div className="divide-y divide-silicon-slate">
+          {corpus.outreachPackets.map((packet) => (
+            <div key={packet.key} className="grid grid-cols-1 gap-3 px-4 py-4 text-sm lg:grid-cols-4 lg:gap-4">
+              <div>
+                <p className="font-medium text-foreground">{packet.subject}</p>
+                <p className="font-mono text-xs text-muted-foreground">{packet.key}</p>
+              </div>
+              <div className="text-muted-foreground">
+                <p className="font-medium text-foreground">{packet.audience}</p>
+                <p>{packet.purpose}</p>
+              </div>
+              <div className="text-muted-foreground">
+                <p>Ask: {list(packet.permissionAsk)}</p>
+                <p className="mt-2">Follow-up days: {list(packet.followUpCadenceDays)}</p>
+              </div>
+              <div className="text-muted-foreground">
+                <p>{packet.approvalGate}</p>
+                <p className="mt-2">Guardrails: {list(packet.guardrails)}</p>
+              </div>
             </div>
           ))}
         </div>

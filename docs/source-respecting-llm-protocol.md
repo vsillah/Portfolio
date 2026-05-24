@@ -125,8 +125,8 @@ Banned-books corpus foundation:
 
 - `data/source-protocol/banned-books-rights-ready-corpus.json` stages the U.S.-first banned/challenged books shortlist, source evidence, rightsholder candidates, outreach status, license status, and ingestion status.
 - `lib/banned-books-corpus.ts` projects that staged inventory into Source Protocol draft records and enforces the v1 guardrail: no full text, OCR, embeddings, or retrievable chunks until an active RAG-only license grant and verified chain of title exist.
-- `/admin/source-protocol` includes a `Banned Books` tab for the MECE agent lanes, staged shortlist, source spine, and safeguards.
-- `npm run banned-books:report` prints the current staged registry, swarm lanes, next actions, and safeguards for recurring review.
+- `/admin/source-protocol` includes a `Banned Books` tab for the MECE agent lanes, staged shortlist, source spine, read-only outreach packet templates, and safeguards.
+- `npm run banned-books:report` prints the current staged registry, swarm lanes, outreach packet templates, next actions, and safeguards for recurring review.
 
 Smoke test:
 

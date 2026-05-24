@@ -64,7 +64,7 @@ const overview = {
   disputes: [],
   modelReviews: [],
   bannedBooksCorpus: {
-    generatedAt: '2026-05-12T00:00:00.000Z',
+    generatedAt: '2026-05-24T00:00:00.000Z',
     scope: 'U.S. school and library bans/challenges first.',
     licenseModel: 'RAG only.',
     sourceSpine: [
@@ -86,12 +86,45 @@ const overview = {
     summary: {
       stagedRecords: 1,
       sourceSpineCount: 1,
+      outreachPacketCount: 3,
       rightsReadyRecords: 1,
       outreachReadyRecords: 1,
       activeLicenseRecords: 0,
       retrievableRecords: 0,
       blockedRecords: 0,
     },
+    outreachPackets: [
+      {
+        key: 'author_direct_rag_permission',
+        audience: 'author',
+        subject: 'Permission request: rights-cleared retrieval for your challenged work',
+        purpose: 'Ask the author for RAG-only participation.',
+        permissionAsk: ['Allow retrieval and citation.'],
+        guardrails: ['No fine-tuning in v1.'],
+        approvalGate: 'Human approval required before sending.',
+        followUpCadenceDays: [7, 21, 45],
+      },
+      {
+        key: 'publisher_permissions_rag_license',
+        audience: 'publisher',
+        subject: 'Permissions inquiry: RAG-only access license for challenged-title preservation',
+        purpose: 'Ask publisher permissions staff to confirm rights path.',
+        permissionAsk: ['Confirm digital excerpt rights.'],
+        guardrails: ['No production retrieval before active grant.'],
+        approvalGate: 'Governance review required.',
+        followUpCadenceDays: [10, 30, 60],
+      },
+      {
+        key: 'estate_permissions_rag_license',
+        audience: 'estate',
+        subject: 'Estate permissions inquiry: preserving access with revocable RAG-only use',
+        purpose: 'Ask the estate for cautious permission.',
+        permissionAsk: ['Confirm estate authority.'],
+        guardrails: ['Chain of title required.'],
+        approvalGate: 'Shaka governance review required.',
+        followUpCadenceDays: [14, 45, 90],
+      },
+    ],
     records: [
       {
         id: 'demo-book',
@@ -131,6 +164,7 @@ describe('SourceProtocolPage', () => {
     expect(await screen.findByRole('heading', { name: 'Source Protocol' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Banned Books Rights-Ready Corpus' })).toBeInTheDocument()
     expect(screen.getByText('Amina, Source Registry Lead')).toBeInTheDocument()
+    expect(screen.getByText('Permission request: rights-cleared retrieval for your challenged work')).toBeInTheDocument()
     expect(screen.getByText('Demo Challenged Book')).toBeInTheDocument()
 
     fireEvent.click(screen.getAllByRole('button', { name: /Portal Access/i })[0])

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-12T00:00:00.000Z",
+  "generatedAt": "2026-05-24T00:00:00.000Z",
   "scope": "U.S. school and library bans/challenges first; rights-ready shortlist before maximum title volume.",
   "licenseModel": "RAG only: retrieval, citation, summarization, educational use, optional commercial use, limited excerpt allowance, revocation, payout participation; fine-tuning excluded for v1.",
   "sourceSpine": [
@@ -216,6 +216,360 @@
       "chainOfTitleStatus": "unknown",
       "sensitivityFlags": ["sexual_content", "substance_use"],
       "notes": "Include in outreach sequencing after rights-holder contact verification."
+    },
+    {
+      "id": "the-perks-of-being-a-wallflower-stephen-chbosky",
+      "canonicalTitle": "The Perks of Being a Wallflower",
+      "authors": ["Stephen Chbosky"],
+      "editionAliases": [],
+      "isbnCandidates": [],
+      "banStatus": "challenged",
+      "jurisdictionContext": "U.S. libraries and schools; ALA 2025 Most Challenged Books list.",
+      "affectedAudience": "K-12 students and public library patrons",
+      "evidence": [
+        {
+          "sourceName": "ALA Most Challenged Books",
+          "sourceUrl": "https://www.ala.org/bbooks/frequentlychallengedbooks/top10",
+          "evidenceType": "challenge_list",
+          "note": "Included in ALA's 2025 Most Challenged Books page."
+        }
+      ],
+      "rightsholderCandidate": {
+        "name": "Stephen Chbosky or publisher/agent",
+        "type": "author",
+        "contactPath": "Author/publisher permissions inquiry",
+        "confidence": "medium"
+      },
+      "outreachStatus": "not_started",
+      "licenseStatus": "not_requested",
+      "ingestionStatus": "not_started",
+      "chainOfTitleStatus": "unknown",
+      "sensitivityFlags": ["sexual_content", "substance_use", "mental_health"],
+      "notes": "High-priority rights mapping candidate because it recurs across challenged-book lists."
+    },
+    {
+      "id": "empire-of-storms-sarah-j-maas",
+      "canonicalTitle": "Empire of Storms",
+      "authors": ["Sarah J. Maas"],
+      "editionAliases": ["Throne of Glass: Empire of Storms"],
+      "isbnCandidates": [],
+      "banStatus": "challenged",
+      "jurisdictionContext": "U.S. libraries and schools; ALA 2025 Most Challenged Books list.",
+      "affectedAudience": "K-12 students and public library patrons",
+      "evidence": [
+        {
+          "sourceName": "ALA Most Challenged Books",
+          "sourceUrl": "https://www.ala.org/bbooks/frequentlychallengedbooks/top10",
+          "evidenceType": "challenge_list",
+          "note": "Included in ALA's 2025 Most Challenged Books page."
+        }
+      ],
+      "rightsholderCandidate": {
+        "name": "Sarah J. Maas or publisher/agent",
+        "type": "author",
+        "contactPath": "Author/publisher permissions inquiry",
+        "confidence": "medium"
+      },
+      "outreachStatus": "not_started",
+      "licenseStatus": "not_requested",
+      "ingestionStatus": "not_started",
+      "chainOfTitleStatus": "unknown",
+      "sensitivityFlags": ["sexual_content", "fantasy_violence"],
+      "notes": "Series relationship requires edition and rights-holder normalization before outreach."
+    },
+    {
+      "id": "tricks-ellen-hopkins",
+      "canonicalTitle": "Tricks",
+      "authors": ["Ellen Hopkins"],
+      "editionAliases": [],
+      "isbnCandidates": [],
+      "banStatus": "challenged",
+      "jurisdictionContext": "U.S. libraries and schools; ALA 2025 Most Challenged Books list.",
+      "affectedAudience": "K-12 students and public library patrons",
+      "evidence": [
+        {
+          "sourceName": "ALA Most Challenged Books",
+          "sourceUrl": "https://www.ala.org/bbooks/frequentlychallengedbooks/top10",
+          "evidenceType": "challenge_list",
+          "note": "Included in ALA's 2025 Most Challenged Books page."
+        }
+      ],
+      "rightsholderCandidate": {
+        "name": "Ellen Hopkins or publisher/agent",
+        "type": "author",
+        "contactPath": "Author/publisher permissions inquiry",
+        "confidence": "medium"
+      },
+      "outreachStatus": "not_started",
+      "licenseStatus": "not_requested",
+      "ingestionStatus": "not_started",
+      "chainOfTitleStatus": "unknown",
+      "sensitivityFlags": ["sexual_content", "substance_use", "sexual_exploitation"],
+      "notes": "Sensitive subject matter requires strong excerpt limits and blocked-use language."
+    },
+    {
+      "id": "a-court-of-thorns-and-roses-sarah-j-maas",
+      "canonicalTitle": "A Court of Thorns and Roses",
+      "authors": ["Sarah J. Maas"],
+      "editionAliases": ["ACOTAR"],
+      "isbnCandidates": [],
+      "banStatus": "challenged",
+      "jurisdictionContext": "U.S. libraries and schools; ALA 2025 Most Challenged Books list.",
+      "affectedAudience": "K-12 students and public library patrons",
+      "evidence": [
+        {
+          "sourceName": "ALA Most Challenged Books",
+          "sourceUrl": "https://www.ala.org/bbooks/frequentlychallengedbooks/top10",
+          "evidenceType": "challenge_list",
+          "note": "Included in ALA's 2025 Most Challenged Books page."
+        },
+        {
+          "sourceName": "PEN America Index of School Book Bans",
+          "sourceUrl": "https://pen.org/book-bans/pen-america-index-of-school-book-bans-2024-2025/",
+          "evidenceType": "school_ban_index",
+          "note": "Use PEN index enrichment to confirm district-level evidence before outreach."
+        }
+      ],
+      "rightsholderCandidate": {
+        "name": "Sarah J. Maas or publisher/agent",
+        "type": "author",
+        "contactPath": "Author/publisher permissions inquiry",
+        "confidence": "medium"
+      },
+      "outreachStatus": "not_started",
+      "licenseStatus": "not_requested",
+      "ingestionStatus": "not_started",
+      "chainOfTitleStatus": "unknown",
+      "sensitivityFlags": ["sexual_content", "fantasy_violence"],
+      "notes": "Series-level permissions may need publisher coordination rather than title-by-title author outreach."
+    },
+    {
+      "id": "a-clockwork-orange-anthony-burgess",
+      "canonicalTitle": "A Clockwork Orange",
+      "authors": ["Anthony Burgess"],
+      "editionAliases": [],
+      "isbnCandidates": [],
+      "banStatus": "challenged",
+      "jurisdictionContext": "U.S. libraries and schools; ALA 2025 Most Challenged Books list and PEN 2024-2025 ban-index context.",
+      "affectedAudience": "K-12 students and public library patrons",
+      "evidence": [
+        {
+          "sourceName": "ALA Most Challenged Books",
+          "sourceUrl": "https://www.ala.org/bbooks/frequentlychallengedbooks/top10",
+          "evidenceType": "challenge_list",
+          "note": "Included in ALA's 2025 Most Challenged Books page."
+        },
+        {
+          "sourceName": "PEN America Index of School Book Bans",
+          "sourceUrl": "https://pen.org/book-bans/pen-america-index-of-school-book-bans-2024-2025/",
+          "evidenceType": "school_ban_index",
+          "note": "Use PEN index enrichment to confirm district-level evidence before outreach."
+        }
+      ],
+      "rightsholderCandidate": {
+        "name": "Anthony Burgess estate or publisher",
+        "type": "estate",
+        "contactPath": "Estate/publisher permissions inquiry",
+        "confidence": "medium"
+      },
+      "outreachStatus": "not_started",
+      "licenseStatus": "not_requested",
+      "ingestionStatus": "not_started",
+      "chainOfTitleStatus": "unknown",
+      "sensitivityFlags": ["sexual_violence", "violence"],
+      "notes": "Estate-controlled rights path should be reviewed by governance before any creator-facing packet is sent."
+    },
+    {
+      "id": "identical-ellen-hopkins",
+      "canonicalTitle": "Identical",
+      "authors": ["Ellen Hopkins"],
+      "editionAliases": [],
+      "isbnCandidates": [],
+      "banStatus": "challenged",
+      "jurisdictionContext": "U.S. libraries and schools; ALA 2025 Most Challenged Books list.",
+      "affectedAudience": "K-12 students and public library patrons",
+      "evidence": [
+        {
+          "sourceName": "ALA Most Challenged Books",
+          "sourceUrl": "https://www.ala.org/bbooks/frequentlychallengedbooks/top10",
+          "evidenceType": "challenge_list",
+          "note": "Included in ALA's 2025 Most Challenged Books page."
+        }
+      ],
+      "rightsholderCandidate": {
+        "name": "Ellen Hopkins or publisher/agent",
+        "type": "author",
+        "contactPath": "Author/publisher permissions inquiry",
+        "confidence": "medium"
+      },
+      "outreachStatus": "not_started",
+      "licenseStatus": "not_requested",
+      "ingestionStatus": "not_started",
+      "chainOfTitleStatus": "unknown",
+      "sensitivityFlags": ["sexual_abuse", "minors", "trauma"],
+      "notes": "Hold for sensitivity review language before outreach packet approval."
+    },
+    {
+      "id": "storm-and-fury-jennifer-l-armentrout",
+      "canonicalTitle": "Storm and Fury",
+      "authors": ["Jennifer L. Armentrout"],
+      "editionAliases": ["The Harbinger: Storm and Fury"],
+      "isbnCandidates": [],
+      "banStatus": "challenged",
+      "jurisdictionContext": "U.S. libraries and schools; ALA 2025 Most Challenged Books list.",
+      "affectedAudience": "K-12 students and public library patrons",
+      "evidence": [
+        {
+          "sourceName": "ALA Most Challenged Books",
+          "sourceUrl": "https://www.ala.org/bbooks/frequentlychallengedbooks/top10",
+          "evidenceType": "challenge_list",
+          "note": "Included in ALA's 2025 Most Challenged Books page."
+        }
+      ],
+      "rightsholderCandidate": {
+        "name": "Jennifer L. Armentrout or publisher/agent",
+        "type": "author",
+        "contactPath": "Author/publisher permissions inquiry",
+        "confidence": "medium"
+      },
+      "outreachStatus": "not_started",
+      "licenseStatus": "not_requested",
+      "ingestionStatus": "not_started",
+      "chainOfTitleStatus": "unknown",
+      "sensitivityFlags": ["sexual_content", "fantasy_violence"],
+      "notes": "Series alias should be normalized before any ISBN or edition-level enrichment."
+    },
+    {
+      "id": "breathless-jennifer-niven",
+      "canonicalTitle": "Breathless",
+      "authors": ["Jennifer Niven"],
+      "editionAliases": [],
+      "isbnCandidates": [],
+      "banStatus": "banned",
+      "jurisdictionContext": "U.S. school-ban index context; PEN America 2024-2025 title-level discovery.",
+      "affectedAudience": "K-12 students",
+      "evidence": [
+        {
+          "sourceName": "PEN America Index of School Book Bans",
+          "sourceUrl": "https://pen.org/book-bans/pen-america-index-of-school-book-bans-2024-2025/",
+          "evidenceType": "school_ban_index",
+          "note": "Use PEN index enrichment to confirm district-level evidence before outreach."
+        }
+      ],
+      "rightsholderCandidate": {
+        "name": "Jennifer Niven or publisher/agent",
+        "type": "author",
+        "contactPath": "Author/publisher permissions inquiry",
+        "confidence": "medium"
+      },
+      "outreachStatus": "not_started",
+      "licenseStatus": "not_requested",
+      "ingestionStatus": "not_started",
+      "chainOfTitleStatus": "unknown",
+      "sensitivityFlags": ["sexual_content", "young_adult"],
+      "notes": "PEN-index-first candidate; district-level rows should be attached before prioritizing outreach."
+    },
+    {
+      "id": "a-court-of-mist-and-fury-sarah-j-maas",
+      "canonicalTitle": "A Court of Mist and Fury",
+      "authors": ["Sarah J. Maas"],
+      "editionAliases": ["ACOMAF"],
+      "isbnCandidates": [],
+      "banStatus": "banned",
+      "jurisdictionContext": "U.S. school-ban index context; PEN America 2024-2025 title-level discovery.",
+      "affectedAudience": "K-12 students",
+      "evidence": [
+        {
+          "sourceName": "PEN America Index of School Book Bans",
+          "sourceUrl": "https://pen.org/book-bans/pen-america-index-of-school-book-bans-2024-2025/",
+          "evidenceType": "school_ban_index",
+          "note": "Use PEN index enrichment to confirm district-level evidence before outreach."
+        }
+      ],
+      "rightsholderCandidate": {
+        "name": "Sarah J. Maas or publisher/agent",
+        "type": "author",
+        "contactPath": "Author/publisher permissions inquiry",
+        "confidence": "medium"
+      },
+      "outreachStatus": "not_started",
+      "licenseStatus": "not_requested",
+      "ingestionStatus": "not_started",
+      "chainOfTitleStatus": "unknown",
+      "sensitivityFlags": ["sexual_content", "fantasy_violence"],
+      "notes": "Keep grouped with other Sarah J. Maas records for series-level rights mapping."
+    },
+    {
+      "id": "all-boys-arent-blue-george-m-johnson",
+      "canonicalTitle": "All Boys Aren't Blue",
+      "authors": ["George M. Johnson"],
+      "editionAliases": ["All Boys Aren't Blue: A Memoir-Manifesto"],
+      "isbnCandidates": [],
+      "banStatus": "challenged",
+      "jurisdictionContext": "Recurring U.S. school and library challenge subject; ALA and PEN context.",
+      "affectedAudience": "K-12 students and public library patrons",
+      "evidence": [
+        {
+          "sourceName": "ALA Most Challenged Books",
+          "sourceUrl": "https://www.ala.org/bbooks/frequentlychallengedbooks/top10",
+          "evidenceType": "challenge_context",
+          "note": "Use ALA yearly list enrichment to confirm current challenge-list placement before outreach."
+        },
+        {
+          "sourceName": "PEN America Index of School Book Bans",
+          "sourceUrl": "https://pen.org/book-bans/pen-america-index-of-school-book-bans-2024-2025/",
+          "evidenceType": "school_ban_index",
+          "note": "Use PEN index enrichment to confirm district-level evidence before outreach."
+        }
+      ],
+      "rightsholderCandidate": {
+        "name": "George M. Johnson or publisher/agent",
+        "type": "author",
+        "contactPath": "Author/publisher permissions inquiry",
+        "confidence": "medium"
+      },
+      "outreachStatus": "not_started",
+      "licenseStatus": "not_requested",
+      "ingestionStatus": "not_started",
+      "chainOfTitleStatus": "unknown",
+      "sensitivityFlags": ["lgbtqia", "race", "sexual_content"],
+      "notes": "Mission-aligned but sensitive outreach should make author control, revocation, and attribution clear."
+    },
+    {
+      "id": "flamer-mike-curato",
+      "canonicalTitle": "Flamer",
+      "authors": ["Mike Curato"],
+      "editionAliases": [],
+      "isbnCandidates": [],
+      "banStatus": "challenged",
+      "jurisdictionContext": "Recurring U.S. school and library challenge subject; ALA and PEN context.",
+      "affectedAudience": "K-12 students and public library patrons",
+      "evidence": [
+        {
+          "sourceName": "ALA Most Challenged Books",
+          "sourceUrl": "https://www.ala.org/bbooks/frequentlychallengedbooks/top10",
+          "evidenceType": "challenge_context",
+          "note": "Use ALA yearly list enrichment to confirm current challenge-list placement before outreach."
+        },
+        {
+          "sourceName": "PEN America Index of School Book Bans",
+          "sourceUrl": "https://pen.org/book-bans/pen-america-index-of-school-book-bans-2024-2025/",
+          "evidenceType": "school_ban_index",
+          "note": "Use PEN index enrichment to confirm district-level evidence before outreach."
+        }
+      ],
+      "rightsholderCandidate": {
+        "name": "Mike Curato or publisher/agent",
+        "type": "author",
+        "contactPath": "Author/publisher permissions inquiry",
+        "confidence": "medium"
+      },
+      "outreachStatus": "not_started",
+      "licenseStatus": "not_requested",
+      "ingestionStatus": "not_started",
+      "chainOfTitleStatus": "unknown",
+      "sensitivityFlags": ["lgbtqia", "mental_health", "bullying"],
+      "notes": "Graphic-novel format requires later illustration rights review before any ingestion."
     }
   ]
 }

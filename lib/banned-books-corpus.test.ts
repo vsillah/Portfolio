@@ -47,10 +47,17 @@ describe('banned books corpus projection', () => {
   it('builds a staged rights-ready projection with MECE swarm lanes', () => {
     const projection = buildBannedBooksCorpusProjection()
 
-    expect(projection.summary.stagedRecords).toBeGreaterThan(0)
+    expect(projection.summary.stagedRecords).toBe(17)
     expect(projection.summary.sourceSpineCount).toBeGreaterThanOrEqual(3)
+    expect(projection.summary.outreachPacketCount).toBe(3)
     expect(projection.summary.outreachReadyRecords).toBeGreaterThan(0)
     expect(projection.summary.retrievableRecords).toBe(0)
+    expect(projection.outreachPackets.map((packet) => packet.audience).sort()).toEqual(['author', 'estate', 'publisher'])
+    expect(projection.outreachPackets.map((packet) => packet.key)).toEqual([
+      'author_direct_rag_permission',
+      'publisher_permissions_rag_license',
+      'estate_permissions_rag_license',
+    ])
     expect(projection.swarmAgents.map((agent) => agent.key)).toEqual([
       'banned-book-source-registry',
       'book-normalization',
