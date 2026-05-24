@@ -1,6 +1,6 @@
 'use client'
 
-import { Activity, ClipboardList, DollarSign, ShieldCheck } from 'lucide-react'
+import { Activity, AlertTriangle, CheckCircle2, ClipboardList, DollarSign, ShieldCheck } from 'lucide-react'
 import type { RoadmapClientView } from '@/lib/client-ai-ops-roadmap'
 
 interface Props {
@@ -25,6 +25,13 @@ function formatDate(value: string | null): string {
 }
 
 export default function AiOpsRoadmapSection({ roadmap }: Props) {
+  const projection = roadmap.projectionStatus
+  const monitoringFlags = projection.overdueTasks + projection.staleCostItems + (projection.reportMissing ? 1 : 0)
+  const openActions = projection.clientActionCount + projection.amadutownActionCount + projection.sharedActionCount
+  const projectionTone = projection.blockedTasks > 0 || monitoringFlags > 0 || projection.approvalNeededCount > 0
+    ? 'border-amber-900/60 bg-amber-950/10 text-amber-200'
+    : 'border-emerald-900/60 bg-emerald-950/10 text-emerald-200'
+
   return (
     <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
       <div className="flex items-start justify-between gap-4 mb-5">
@@ -65,6 +72,40 @@ export default function AiOpsRoadmapSection({ roadmap }: Props) {
           <p className="text-lg font-semibold text-gray-100">
             {roadmap.costSummary.quoteRequiredCount}
           </p>
+        </div>
+      </div>
+
+      <div className={`rounded-lg border p-4 mb-5 ${projectionTone}`}>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              {projection.blockedTasks > 0 || monitoringFlags > 0 || projection.approvalNeededCount > 0 ? (
+                <AlertTriangle className="w-4 h-4" />
+              ) : (
+                <CheckCircle2 className="w-4 h-4" />
+              )}
+              <p className="text-xs uppercase tracking-wide text-gray-400">Roadmap projection</p>
+            </div>
+            <p className="mt-1 text-sm font-medium text-gray-100">{projection.nextReportingAction}</p>
+          </div>
+          <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-gray-500">Open actions</p>
+              <p className="font-semibold text-gray-100">{openActions}</p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wide text-gray-500">Approvals</p>
+              <p className="font-semibold text-gray-100">{projection.approvalNeededCount}</p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wide text-gray-500">Isolation checks</p>
+              <p className="font-semibold text-gray-100">{projection.isolationRequiredCount}</p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wide text-gray-500">Monitor flags</p>
+              <p className="font-semibold text-gray-100">{monitoringFlags}</p>
+            </div>
+          </div>
         </div>
       </div>
 
