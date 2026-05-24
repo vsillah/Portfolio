@@ -423,6 +423,7 @@ type AutomationGoalSummary = {
 }
 
 type OperatorActionKind = 'morning-review' | 'hermes' | 'approval-drill' | 'runtime-evaluation'
+type SlackNotificationKind = 'pending_approvals' | 'blockers' | 'review_ready' | 'goal_decisions'
 
 const OPERATOR_ACTIONS: Array<{
   kind: OperatorActionKind
@@ -495,6 +496,8 @@ export default function AgentOperationsPage() {
   const [automationSeedLoading, setAutomationSeedLoading] = useState(false)
   const [automationProposalLoadingId, setAutomationProposalLoadingId] = useState<string | null>(null)
   const [automationGoalPage, setAutomationGoalPage] = useState(0)
+  const [slackNotificationLoading, setSlackNotificationLoading] = useState<SlackNotificationKind | null>(null)
+  const [slackNotificationResult, setSlackNotificationResult] = useState<{ text: string; runId?: string } | null>(null)
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -675,6 +678,33 @@ export default function AgentOperationsPage() {
       setError(err instanceof Error ? err.message : `${kind} failed`)
     } finally {
       setActionLoading(null)
+    }
+  }
+
+  async function sendSlackNotification(kind: SlackNotificationKind) {
+    setSlackNotificationLoading(kind)
+    setSlackNotificationResult(null)
+    setError(null)
+    try {
+      const response = await authedFetch('/api/admin/agents/slack-notifications', {
+        method: 'POST',
+        body: JSON.stringify({ kind }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      const prefix = body.sent
+        ? 'Sent to Slack'
+        : body.deduped
+          ? 'Already sent recently'
+          : 'Slack not sent'
+      setSlackNotificationResult({
+        text: `${prefix}: ${body.text || body.reason || kind.replace(/_/g, ' ')}`,
+        runId: body.runId,
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Slack notification failed')
+    } finally {
+      setSlackNotificationLoading(null)
     }
   }
 
@@ -1120,6 +1150,11 @@ export default function AgentOperationsPage() {
                       <p className="font-semibold">Open Run Console</p>
                       <p className="mt-1 text-sm text-muted-foreground">Inspect traces, evaluations, dead letters, and artifacts.</p>
                     </Link>
+                    <SlackMobileBridgePanel
+                      loadingKind={slackNotificationLoading}
+                      result={slackNotificationResult}
+                      onSend={sendSlackNotification}
+                    />
                     <OperatorChecksPanel
                       actions={OPERATOR_ACTIONS}
                       loadingKind={actionLoading as OperatorActionKind | null}
@@ -1437,6 +1472,55 @@ function OperatorChecksPanel({
           )
         })}
       </div>
+    </div>
+  )
+}
+
+function SlackMobileBridgePanel({
+  loadingKind,
+  result,
+  onSend,
+}: {
+  loadingKind: SlackNotificationKind | null
+  result: { text: string; runId?: string } | null
+  onSend: (kind: SlackNotificationKind) => void
+}) {
+  const actions: Array<{ kind: SlackNotificationKind; label: string; description: string }> = [
+    { kind: 'pending_approvals', label: 'Send approvals', description: 'Mobile approval cards and trace links.' },
+    { kind: 'blockers', label: 'Send blockers', description: 'Blocked work with owner and next step context.' },
+    { kind: 'goal_decisions', label: 'Send goal decisions', description: 'Goal-tagged tasks waiting on a human call.' },
+  ]
+
+  return (
+    <div className="rounded-lg border border-silicon-slate/60 bg-background/40 p-3">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Slack mobile bridge</p>
+          <p className="mt-1 text-sm text-muted-foreground">Push the current unblock packet to Slack without leaving Mission Control.</p>
+        </div>
+        <Send size={16} className="mt-1 text-radiant-gold" aria-hidden="true" />
+      </div>
+      <div className="mt-3 grid gap-2">
+        {actions.map((action) => (
+          <button
+            key={action.kind}
+            type="button"
+            onClick={() => onSend(action.kind)}
+            disabled={loadingKind != null}
+            className="rounded-lg border border-silicon-slate/60 bg-black/10 p-2 text-left transition hover:border-radiant-gold/50 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <span className="block text-sm font-semibold">
+              {loadingKind === action.kind ? 'Sending...' : action.label}
+            </span>
+            <span className="mt-0.5 block text-xs text-muted-foreground">{action.description}</span>
+          </button>
+        ))}
+      </div>
+      {result ? (
+        <Link href={result.runId ? `/admin/agents/runs/${result.runId}` : '/admin/agents/runs'} className="mt-3 block rounded-lg border border-emerald-400/30 bg-emerald-500/10 p-2 text-xs text-emerald-100 hover:underline">
+          {result.text}
+        </Link>
+      ) : null}
     </div>
   )
 }
