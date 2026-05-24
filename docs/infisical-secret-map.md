@@ -29,6 +29,20 @@ As of 2026-05-21:
 - `APIFY_TOKEN` is a legacy/local alias for the canonical `APIFY_API_TOKEN` shape. Normalize new workflows to `APIFY_API_TOKEN`.
 - `LINKEDIN_COOKIE`, `GMAIL_APP_PASSWORD`, and admin E2E login material remain 1Password-side credentials.
 
+## Staging n8n Variable Names
+
+Staging n8n workflows use STAG-prefixed Variables, while the Next.js staging runtime may still expose app-side names such as `N8N_INGEST_SECRET`. Track the STAG-prefixed n8n Variables as separate staging-only inventory entries so rotation packets can update both sides deliberately.
+
+| n8n staging variable | Coupled app/provider secret |
+| --- | --- |
+| `STAG_N8N_INGEST_SECRET` | App-side `N8N_INGEST_SECRET` for staging ingest auth |
+| `STAG_SUPABASE_SERVICE_ROLE_KEY` | Staging Supabase service role key |
+| `STAG_GEMINI_API_KEY` | Gemini key used by STAG social workflows |
+| `STAG_ELEVENLABS_API_KEY` | ElevenLabs key used by STAG voice workflows |
+| `STAG_OPENROUTER_API_KEY` | OpenRouter key used by STAG RAG/query workflows |
+
+Do not rotate only one side of a coupled staging secret. Update Infisical, Vercel/app runtime sinks, and n8n Variables in the same staged packet, then verify with synthetic or test-owned workflow inputs.
+
 ## Operator Checks
 
 Use these commands for key-name and access validation. They must not print values.
