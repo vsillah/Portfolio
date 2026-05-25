@@ -9,6 +9,64 @@ import {
   rollUpRoadmapCosts,
 } from './client-ai-ops-roadmap'
 
+type RoadmapViewInput = Parameters<typeof buildClientRoadmapView>[0]
+type RoadmapViewTask = RoadmapViewInput['tasks'][number]
+type RoadmapViewReport = NonNullable<RoadmapViewInput['reports']>[number]
+
+const baseRoadmapViewInput: RoadmapViewInput = {
+  roadmap: {
+    title: 'Acme AI Ops Roadmap',
+    status: 'active',
+    client_summary: 'Implementation is underway.',
+  },
+  phases: [
+    {
+      id: 'phase-1',
+      title: 'Launch and reporting',
+      objective: 'Start reporting cadence.',
+      status: 'in_progress',
+      phase_order: 1,
+    },
+  ],
+  tasks: [],
+  costItems: [],
+  reports: [],
+}
+
+function roadmapTask(overrides: Partial<RoadmapViewTask> = {}): RoadmapViewTask {
+  return {
+    phase_id: 'phase-1',
+    title: 'Review next roadmap step',
+    owner_type: 'client',
+    priority: 'high',
+    status: 'pending',
+    due_date: null,
+    client_visible: true,
+    metadata: null,
+    ...overrides,
+  }
+}
+
+function roadmapReport(overrides: Partial<RoadmapViewReport> = {}): RoadmapViewReport {
+  return {
+    title: 'Monthly AI Ops report',
+    report_type: 'monthly',
+    status: 'published',
+    generated_at: '2026-05-03T12:00:00.000Z',
+    summary: 'Roadmap is progressing.',
+    client_actions: [],
+    amadutown_actions: [],
+    approval_needed: [],
+    monitoring_summary: {
+      overdue_tasks: 0,
+      stale_cost_items: 0,
+      report_missing: false,
+      checked_at: '2026-05-03T12:00:00.000Z',
+    },
+    ...overrides,
+  }
+}
+
 describe('client AI ops roadmap', () => {
   it('generates a deterministic default roadmap', () => {
     const input = { clientName: 'Acme', stackSignals: ['Mac', 'Google Workspace'] }
@@ -215,5 +273,83 @@ describe('client AI ops roadmap', () => {
       nextReportingAction: 'Resolve blocked roadmap tasks',
     })
     expect(JSON.stringify(view.latestReport)).not.toContain('Internal escalation note')
+  })
+
+  it.each([
+    {
+      label: 'missing report',
+      tasks: [],
+      reports: [],
+      expected: 'Generate first roadmap report',
+    },
+    {
+      label: 'blocked task',
+      tasks: [roadmapTask({ status: 'blocked' })],
+      reports: [roadmapReport()],
+      expected: 'Resolve blocked roadmap tasks',
+    },
+    {
+      label: 'approval-gated work',
+      tasks: [
+        roadmapTask({
+          metadata: {
+            org_board: {
+              approval_posture: 'required',
+              isolation_required: false,
+            },
+          },
+        }),
+      ],
+      reports: [roadmapReport()],
+      expected: 'Review approval-gated roadmap work',
+    },
+    {
+      label: 'overdue monitoring flag',
+      tasks: [],
+      reports: [
+        roadmapReport({
+          monitoring_summary: {
+            overdue_tasks: 2,
+            stale_cost_items: 0,
+            report_missing: false,
+          },
+        }),
+      ],
+      expected: 'Escalate overdue roadmap tasks',
+    },
+    {
+      label: 'stale cost flag',
+      tasks: [],
+      reports: [
+        roadmapReport({
+          monitoring_summary: {
+            overdue_tasks: 0,
+            stale_cost_items: 3,
+            report_missing: false,
+          },
+        }),
+      ],
+      expected: 'Refresh stale roadmap cost assumptions',
+    },
+    {
+      label: 'client-owned pending action',
+      tasks: [roadmapTask({ owner_type: 'client', status: 'pending' })],
+      reports: [roadmapReport()],
+      expected: 'Follow up on client-owned roadmap actions',
+    },
+    {
+      label: 'healthy monitoring default',
+      tasks: [roadmapTask({ owner_type: 'client', status: 'complete' })],
+      reports: [roadmapReport()],
+      expected: 'Continue scheduled roadmap monitoring',
+    },
+  ])('prioritizes the next reporting action for $label', ({ tasks, reports, expected }) => {
+    const view = buildClientRoadmapView({
+      ...baseRoadmapViewInput,
+      tasks,
+      reports,
+    })
+
+    expect(view.projectionStatus.nextReportingAction).toBe(expected)
   })
 })
