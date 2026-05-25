@@ -985,8 +985,6 @@ export default function AgentOperationsPage() {
                 <SwarmCommandPanel
                   roster={snapshot?.roster ?? []}
                   governance={snapshot?.governance ?? null}
-                  kanbanCount={kanbanSignalCount}
-                  activeGoalCount={activeGoals.length}
                 />
 
                 <ActiveGoalsPanel goals={activeGoals} />
@@ -1957,13 +1955,9 @@ function DailyBriefPanel({
 function SwarmCommandPanel({
   roster,
   governance,
-  kanbanCount,
-  activeGoalCount,
 }: {
   roster: MissionSnapshot['roster']
   governance: AgentGovernanceSnapshot | null
-  kanbanCount: number
-  activeGoalCount: number
 }) {
   const agents = roster.flatMap((pod) => pod.agents)
   const shaka = agents.find((agent) => agent.key === 'chief-of-staff')
@@ -1973,8 +1967,6 @@ function SwarmCommandPanel({
     shaka,
     ...agents.filter((agent) => agent.key !== shaka?.key),
   ].filter(Boolean).slice(0, 4) as MissionSnapshot['roster'][number]['agents']
-  const reviewedAgents = governance?.summary.reviewed_agents ?? 0
-  const totalAgents = governance?.summary.total_agents ?? agents.length
   const governanceAttention = (governance?.summary.least_privilege_attention ?? 0) + (governance?.summary.pending_authority_approvals ?? 0)
 
   return (
@@ -1986,7 +1978,7 @@ function SwarmCommandPanel({
             <h2 className="font-semibold">Swarm Command</h2>
           </div>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
-            Start with Shaka when a goal needs alignment, use Kanban for work state, and keep governance one click down for authority and audit controls.
+            Use this as the interaction map: Shaka for planning, Standup for agent alignment, Kanban for execution state, and Governance for authority controls.
           </p>
         </div>
         <StatusOnlyPill tone={governanceAttention ? 'yellow' : 'green'}>
@@ -2019,12 +2011,22 @@ function SwarmCommandPanel({
         </div>
 
         <div className="grid gap-3">
-          <Link href="/admin/agents/swarm-board" className="group rounded-lg border border-sky-400/30 bg-sky-500/10 p-3 transition hover:border-radiant-gold/60">
+          <Link href="/admin/agents/standup" className="group rounded-lg border border-sky-400/30 bg-sky-500/10 p-3 transition hover:border-radiant-gold/60">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-sky-100">Agent Kanban</p>
-                <p className="mt-2 text-2xl font-semibold">{kanbanCount}</p>
-                <p className="mt-1 text-sm text-muted-foreground">Work items across fixed lanes</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-sky-100">Agent attendance</p>
+                <p className="mt-2 text-lg font-semibold">Bring agents into the room</p>
+                <p className="mt-1 text-sm text-muted-foreground">Select participants, ask for updates, and align before delegation.</p>
+              </div>
+              <ArrowRight size={15} className="mt-1 text-muted-foreground group-hover:text-radiant-gold" />
+            </div>
+          </Link>
+          <Link href="/admin/agents/swarm-board" className="group rounded-lg border border-silicon-slate/60 bg-background/35 p-3 transition hover:border-radiant-gold/60">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Agent Kanban</p>
+                <p className="mt-2 text-lg font-semibold">Inspect execution lanes</p>
+                <p className="mt-1 text-sm text-muted-foreground">Review owners, blockers, trace links, PRs, and validation state.</p>
               </div>
               <ArrowRight size={15} className="mt-1 text-muted-foreground group-hover:text-radiant-gold" />
             </div>
@@ -2033,20 +2035,10 @@ function SwarmCommandPanel({
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Governance</p>
-                <p className="mt-2 text-lg font-semibold">{reviewedAgents}/{totalAgents} reviewed</p>
+                <p className="mt-2 text-lg font-semibold">Open authority controls</p>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {governanceAttention ? `${governanceAttention} authority or scope item(s)` : 'Authority and audit controls'}
                 </p>
-              </div>
-              <ArrowRight size={15} className="mt-1 text-muted-foreground group-hover:text-radiant-gold" />
-            </div>
-          </Link>
-          <Link href="/admin/agents/swarm-board?view=goals" className="group rounded-lg border border-emerald-400/30 bg-emerald-500/10 p-3 transition hover:border-radiant-gold/60">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-emerald-100">Goal work</p>
-                <p className="mt-2 text-lg font-semibold">{activeGoalCount} active</p>
-                <p className="mt-1 text-sm text-muted-foreground">Goal tags, stage gates, and blockers</p>
               </div>
               <ArrowRight size={15} className="mt-1 text-muted-foreground group-hover:text-radiant-gold" />
             </div>
