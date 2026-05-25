@@ -117,6 +117,89 @@ const openBrainSnapshot = {
       note: 'Approval required.',
     },
   ],
+  relationshipMap: {
+    overview: {
+      relationships: 3,
+      strongRelationships: 1,
+      weakRelationships: 1,
+      orphanedRecords: 1,
+      staleSources: 1,
+      proposalSuggestions: 2,
+    },
+    nodes: [
+      {
+        id: 'source-1',
+        label: 'Morning review source',
+        type: 'source',
+        kind: 'codex_automation',
+        privacyTier: 'internal_ops',
+        summary: 'Automation context source.',
+        path: '/tmp/source.json',
+        health: 'yellow',
+        x: 20,
+        y: 40,
+      },
+      {
+        id: 'memory-1',
+        label: 'Action-first operating rule',
+        type: 'memory',
+        kind: 'operating_rule',
+        privacyTier: 'internal_ops',
+        summary: 'Next steps name the owner.',
+        path: null,
+        health: 'green',
+        x: 76,
+        y: 36,
+      },
+      {
+        id: 'proposal-node:proposal-1',
+        label: 'Adopt action-first governance reviews',
+        type: 'proposal',
+        kind: 'workflow',
+        privacyTier: 'internal_ops',
+        summary: 'Review pending proposal.',
+        path: null,
+        health: 'yellow',
+        x: 65,
+        y: 76,
+      },
+    ],
+    edges: [
+      {
+        id: 'edge-1',
+        fromId: 'source-1',
+        toId: 'memory-1',
+        relationship: 'supports_memory',
+        strength: 'strong',
+        confidence: 0.9,
+        evidence: 'Memory cites source.',
+        status: 'inferred',
+      },
+      {
+        id: 'edge-2',
+        fromId: 'source-1',
+        toId: 'proposal-node:proposal-1',
+        relationship: 'proposes_context',
+        strength: 'weak',
+        confidence: 0.5,
+        evidence: 'Proposal cites source.',
+        status: 'inferred',
+      },
+    ],
+    insights: [
+      {
+        id: 'insight-1',
+        kind: 'strengthen',
+        severity: 'medium',
+        title: 'Strengthen automation-to-runbook governance',
+        detail: 'Automation source needs an explicit governing runbook link.',
+        recommendation: 'Create a relationship proposal before future agents act on it.',
+        actionLabel: 'Propose link',
+        sourceNodeId: 'source-1',
+        targetNodeId: null,
+      },
+    ],
+  },
   modelOps: {
     available: true,
     generatedAt: '2026-05-15T12:00:00.000Z',
@@ -219,5 +302,24 @@ describe('OpenBrainPage', () => {
       method: 'POST',
       headers: expect.objectContaining({ Authorization: 'Bearer admin-token' }),
     }))
+  })
+
+  it('renders the relationship map as a proposal-only Open Brain view', async () => {
+    render(<OpenBrainPage />)
+
+    const tabs = await screen.findByRole('button', { name: 'Map' })
+    fireEvent.click(tabs)
+
+    const map = await screen.findByRole('region', { name: 'Open Brain relationship map' })
+    expect(within(map).getByText('Relationships')).toBeInTheDocument()
+    expect(within(map).getByText('Weak links')).toBeInTheDocument()
+    expect(within(map).getByText('Orphaned records')).toBeInTheDocument()
+    expect(within(map).getByText('Relationship insights')).toBeInTheDocument()
+    expect(within(map).getByText('Strengthen automation-to-runbook governance')).toBeInTheDocument()
+    expect(within(map).getByText('Morning review source')).toBeInTheDocument()
+
+    fireEvent.click(within(map).getByRole('button', { name: 'Propose link' }))
+
+    expect(screen.getByText('Propose link is proposal-only in v1. No Open Brain link was changed from this map.')).toBeInTheDocument()
   })
 })
