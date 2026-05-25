@@ -6,6 +6,7 @@ import {
   meetingTaskStatusFromRoadmap,
   roadmapStatusFromProjectedTask,
   rollUpRoadmapCosts,
+  type RoadmapContext,
   type RoadmapClientView,
   type RoadmapOrgBoardProjection,
   type RoadmapTaskStatus,
@@ -159,20 +160,23 @@ export async function ensureRoadmapForProject(clientProjectId: string, options?:
   const db = requireDb()
   const { data: project, error: projectError } = await db
     .from('client_projects')
-    .select('id, project_name, client_name, client_company, contact_submission_id, proposal_id')
+    .select('id, project_name, client_name, client_company, client_email, contact_submission_id, proposal_id')
     .eq('id', clientProjectId)
     .single()
 
   if (projectError || !project) throw new Error('Client project not found')
 
-  const draft = buildDefaultClientAiOpsRoadmap({
+  const context = await buildRoadmapContextForProject({
+    id: project.id,
+    projectName: project.project_name,
     clientName: project.client_name,
     clientCompany: project.client_company,
-    projectName: project.project_name,
+    clientEmail: project.client_email,
     clientProjectId,
     proposalId: project.proposal_id,
     contactSubmissionId: project.contact_submission_id,
   })
+  const draft = buildDefaultClientAiOpsRoadmap(context)
 
   const { data: roadmap, error: roadmapError } = await db
     .from('client_ai_ops_roadmaps')
@@ -187,6 +191,7 @@ export async function ensureRoadmapForProject(clientProjectId: string, options?:
       snapshot: {
         input_hash: draft.inputHash,
         runtime_placement_options: draft.runtimePlacementOptions,
+        connector_readiness: draft.connectorReadiness,
       },
       created_by: options?.userId ?? null,
     })
@@ -261,6 +266,81 @@ export async function ensureRoadmapForProject(clientProjectId: string, options?:
 
   await refreshRoadmapPhaseRollups(roadmap.id)
   return (await getRoadmapBundleForProject(clientProjectId)) as RoadmapBundle
+}
+
+async function buildRoadmapContextForProject(project: {
+  id: string
+  projectName: string | null
+  clientName: string | null
+  clientCompany: string | null
+  clientEmail: string | null
+  clientProjectId: string
+  proposalId: string | null
+  contactSubmissionId: number | null
+}): Promise<RoadmapContext> {
+  const db = requireDb()
+  const contactId = project.contactSubmissionId
+  const contactPromise = contactId
+    ? db
+      .from('contact_submissions')
+      .select('id, email, website_tech_stack, client_verified_tech_stack')
+      .eq('id', contactId)
+      .maybeSingle()
+    : Promise.resolve({ data: null, error: null })
+
+  const auditsByContactPromise = contactId
+    ? db
+      .from('diagnostic_audits')
+      .select('id, contact_submission_id, contact_email, audit_type, tech_stack, automation_needs, ai_readiness, budget_timeline, decision_making, enriched_tech_stack, completed_at, updated_at, created_at')
+      .eq('contact_submission_id', contactId)
+      .order('completed_at', { ascending: false, nullsFirst: false })
+      .limit(3)
+    : Promise.resolve({ data: [], error: null })
+
+  const auditsByEmailPromise = project.clientEmail
+    ? db
+      .from('diagnostic_audits')
+      .select('id, contact_submission_id, contact_email, audit_type, tech_stack, automation_needs, ai_readiness, budget_timeline, decision_making, enriched_tech_stack, completed_at, updated_at, created_at')
+      .eq('contact_email', project.clientEmail)
+      .order('completed_at', { ascending: false, nullsFirst: false })
+      .limit(3)
+    : Promise.resolve({ data: [], error: null })
+
+  const [contactRes, auditsByContactRes, auditsByEmailRes] = await Promise.all([
+    contactPromise,
+    auditsByContactPromise,
+    auditsByEmailPromise,
+  ])
+
+  if (contactRes.error) console.warn('[client-ai-ops-roadmap] contact connector context unavailable:', contactRes.error.message)
+  if (auditsByContactRes.error) console.warn('[client-ai-ops-roadmap] contact audit connector context unavailable:', auditsByContactRes.error.message)
+  if (auditsByEmailRes.error) console.warn('[client-ai-ops-roadmap] email audit connector context unavailable:', auditsByEmailRes.error.message)
+
+  const contact = contactRes.data as JsonRecord | null
+  const auditSignals = [...((auditsByContactRes.data ?? []) as JsonRecord[]), ...((auditsByEmailRes.data ?? []) as JsonRecord[])]
+    .filter((audit, index, rows) => rows.findIndex((item) => String(item.id) === String(audit.id)) === index)
+    .map((audit) => ({
+      id: audit.id as string | number | null,
+      audit_type: audit.audit_type as string | null,
+      tech_stack: audit.tech_stack as JsonRecord | null,
+      automation_needs: audit.automation_needs as JsonRecord | null,
+      ai_readiness: audit.ai_readiness as JsonRecord | null,
+      budget_timeline: audit.budget_timeline as JsonRecord | null,
+      decision_making: audit.decision_making as JsonRecord | null,
+      enriched_tech_stack: audit.enriched_tech_stack as JsonRecord | null,
+    }))
+
+  return {
+    clientName: project.clientName,
+    clientCompany: project.clientCompany,
+    projectName: project.projectName,
+    clientProjectId: project.clientProjectId,
+    proposalId: project.proposalId,
+    contactSubmissionId: project.contactSubmissionId,
+    verifiedStack: contact?.client_verified_tech_stack as JsonRecord | null,
+    builtWithStack: contact?.website_tech_stack as JsonRecord | null,
+    auditSignals,
+  }
 }
 
 export async function projectRoadmapTasks(clientProjectId: string): Promise<{ dashboardCreated: number; meetingCreated: number }> {

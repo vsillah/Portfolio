@@ -1,6 +1,12 @@
 import { createHash } from 'node:crypto'
 import type { AgentReadinessAssessment, AgentReadinessLevel } from './agent-readiness-assessment'
 import type { SwarmBoardColumnKey, SwarmHandoffStage } from './agent-swarm-board'
+import {
+  buildClientConnectorReadiness,
+  type BuildClientConnectorReadinessInput,
+  type ClientConnectorAuditSignal,
+  type ClientConnectorReadiness,
+} from './client-connector-readiness'
 
 export const ROADMAP_PHASES = [
   'discovery_ownership',
@@ -39,6 +45,9 @@ export interface RoadmapContext {
   clientProjectId?: string | null
   contactSubmissionId?: number | null
   stackSignals?: string[]
+  verifiedStack?: Record<string, unknown> | null
+  builtWithStack?: Record<string, unknown> | null
+  auditSignals?: ClientConnectorAuditSignal[]
   implementationRequirements?: Record<string, unknown> | null
 }
 
@@ -109,6 +118,7 @@ export interface RoadmapDraft {
   clientSummary: string
   inputHash: string
   runtimePlacementOptions: RoadmapRuntimePlacementOption[]
+  connectorReadiness: ClientConnectorReadiness
   phases: RoadmapPhaseDraft[]
   tasks: RoadmapTaskDraft[]
   costItems: RoadmapCostItemDraft[]
@@ -172,6 +182,7 @@ export interface RoadmapClientView {
   status: RoadmapStatus
   clientSummary: string | null
   runtimePlacementOptions: RoadmapRuntimePlacementOption[]
+  connectorReadiness: ClientConnectorReadiness
   phases: RoadmapClientPhase[]
   costSummary: RoadmapCostRollup
   projectionStatus: RoadmapClientProjectionStatus
@@ -503,6 +514,7 @@ export function buildDefaultClientAiOpsRoadmap(context: RoadmapContext = {}): Ro
   const name = context.clientCompany || context.clientName || 'Client'
   const agentReadiness = getAgentReadinessAssessment(context)
   const adjustments = agentReadiness ? phaseAdjustmentsForReadiness(agentReadiness.overallLevel) : {}
+  const connectorReadiness = buildRoadmapConnectorReadiness(context)
 
   return {
     title: `${name} AI Ops Roadmap`,
@@ -511,6 +523,7 @@ export function buildDefaultClientAiOpsRoadmap(context: RoadmapContext = {}): Ro
       : 'A phased implementation plan for client-owned AI infrastructure, 24/7 data and local LLM repository placement, transparent setup costs, agent deployment, monitoring, and continuity reporting.',
     inputHash: hashContext(context),
     runtimePlacementOptions: DEFAULT_RUNTIME_PLACEMENT_OPTIONS.map((option) => ({ ...option })),
+    connectorReadiness,
     phases: DEFAULT_PHASES.map((phase) => {
       const adjustment = adjustments[phase.phaseKey]
       return {
@@ -571,6 +584,40 @@ export function roadmapStatusFromProjectedTask(status: string): RoadmapTaskStatu
 export function buildProposalRoadmapSnapshot(context: RoadmapContext = {}): RoadmapDraft & { costSummary: RoadmapCostRollup } {
   const draft = buildDefaultClientAiOpsRoadmap(context)
   return { ...draft, costSummary: rollUpRoadmapCosts(draft.costItems) }
+}
+
+function buildRoadmapConnectorReadiness(context: RoadmapContext): ClientConnectorReadiness {
+  const requirements = context.implementationRequirements ?? {}
+  const connectorInput = requirements.connectorReadinessInput && typeof requirements.connectorReadinessInput === 'object'
+    ? requirements.connectorReadinessInput as Partial<BuildClientConnectorReadinessInput>
+    : {}
+  const auditSignals = context.auditSignals
+    ?? (Array.isArray(requirements.auditSignals) ? requirements.auditSignals as ClientConnectorAuditSignal[] : [])
+
+  return buildClientConnectorReadiness({
+    verifiedStack: context.verifiedStack
+      ?? (requirements.verifiedStack && typeof requirements.verifiedStack === 'object' ? requirements.verifiedStack as Record<string, unknown> : null)
+      ?? connectorInput.verifiedStack
+      ?? null,
+    auditSignals: auditSignals.length > 0 ? auditSignals : connectorInput.auditSignals ?? [],
+    builtWithStack: context.builtWithStack
+      ?? (requirements.builtWithStack && typeof requirements.builtWithStack === 'object' ? requirements.builtWithStack as Record<string, unknown> : null)
+      ?? connectorInput.builtWithStack
+      ?? null,
+    roadmapSnapshot: {
+      stackSignals: context.stackSignals ?? [],
+      projectName: context.projectName ?? null,
+      clientName: context.clientName ?? null,
+      ...connectorInput.roadmapSnapshot,
+    },
+    roadmapTasks: connectorInput.roadmapTasks ?? [],
+    projectMetadata: {
+      project_name: context.projectName ?? null,
+      client_name: context.clientName ?? null,
+      client_company: context.clientCompany ?? null,
+      ...connectorInput.projectMetadata,
+    },
+  })
 }
 
 export function buildClientRoadmapView(input: {
@@ -660,6 +707,7 @@ export function buildClientRoadmapView(input: {
     runtimePlacementOptions: Array.isArray(input.roadmap.snapshot?.runtime_placement_options)
       ? input.roadmap.snapshot.runtime_placement_options as RoadmapRuntimePlacementOption[]
       : DEFAULT_RUNTIME_PLACEMENT_OPTIONS.map((option) => ({ ...option })),
+    connectorReadiness: connectorReadinessFromSnapshot(input.roadmap.snapshot),
     phases,
     costSummary: rollUpRoadmapCosts(input.costItems),
     projectionStatus,
@@ -693,6 +741,17 @@ export function buildClientRoadmapView(input: {
         }
       : null,
   }
+}
+
+function connectorReadinessFromSnapshot(snapshot: Record<string, unknown> | null | undefined): ClientConnectorReadiness {
+  const connectorReadiness = snapshot?.connector_readiness
+  if (connectorReadiness && typeof connectorReadiness === 'object') {
+    const readiness = connectorReadiness as Partial<ClientConnectorReadiness>
+    if (Array.isArray(readiness.items) && typeof readiness.requiredConnectorCount === 'number') {
+      return readiness as ClientConnectorReadiness
+    }
+  }
+  return buildClientConnectorReadiness({ roadmapSnapshot: snapshot ?? null })
 }
 
 function taskOrgBoard(task: { metadata?: Record<string, unknown> | null }): Record<string, unknown> | null {

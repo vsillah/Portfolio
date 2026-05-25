@@ -90,6 +90,18 @@ Projection status may show:
 
 Keep this projection read-only. It can recommend follow-up, escalation, cost refreshes, or approval review, but it must not create credentials, connect OAuth, activate workflows, send outbound messages, publish client-facing reports, mutate client data, or change production configuration without the normal approval path.
 
+## Connector Readiness
+
+Connector readiness is part of the roadmap snapshot and client/admin read model. It uses the shared connector catalog and source precedence from Agent Swarm Board work:
+
+1. Admin/client-verified tech stack.
+2. Audit tech stack and audit enrichment.
+3. Meeting-derived audit notes.
+4. BuiltWith/domain lookup.
+5. Roadmap/client project metadata.
+
+Connector readiness may show required connectors, ready connectors, approval-blocked connectors, missing critical connectors, detected providers, and the next setup action. Treat these as planning signals only. OAuth, API keys, service accounts, webhook setup, workflow activation, outbound sends, publishing, production deploys, and client-data mutation remain approval-gated.
+
 ## Roadmap Rule Checklist
 
 Use this checklist whenever a roadmap feature, monitor, report, or client implementation phase changes:
@@ -101,6 +113,7 @@ Use this checklist whenever a roadmap feature, monitor, report, or client implem
 - Phase rollups and cost summaries refresh after task or cost changes.
 - The monitor can create a roadmap report and follow-up task when drift, stale pricing, missing reports, or blockers appear.
 - Roadmap projection status is visible from the same source data and remains read-only.
+- Connector readiness is visible from verified stack, audit, BuiltWith, and roadmap signals without live credential setup.
 - Client-facing output excludes private logs, agent traces, credentials, and internal-only notes.
 
 ## Real Client Pilot Checklist
