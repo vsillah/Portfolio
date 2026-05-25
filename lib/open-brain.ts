@@ -140,6 +140,60 @@ export interface OpenBrainProducerGate {
   note: string
 }
 
+export type OpenBrainRelationshipNodeType = 'source' | 'memory' | 'event' | 'wiki' | 'proposal'
+export type OpenBrainRelationshipEdgeStrength = 'strong' | 'medium' | 'weak'
+export type OpenBrainRelationshipInsightKind = 'strengthen' | 'review' | 'missing_governance' | 'merge_duplicate'
+
+export interface OpenBrainRelationshipNode {
+  id: string
+  label: string
+  type: OpenBrainRelationshipNodeType
+  kind: string
+  privacyTier: OpenBrainPrivacyTier
+  summary: string
+  path: string | null
+  health: 'green' | 'yellow' | 'red'
+  x: number
+  y: number
+}
+
+export interface OpenBrainRelationshipEdge {
+  id: string
+  fromId: string
+  toId: string
+  relationship: string
+  strength: OpenBrainRelationshipEdgeStrength
+  confidence: number
+  evidence: string
+  status: 'persisted' | 'inferred' | 'recommended'
+}
+
+export interface OpenBrainRelationshipInsight {
+  id: string
+  kind: OpenBrainRelationshipInsightKind
+  severity: 'low' | 'medium' | 'high'
+  title: string
+  detail: string
+  recommendation: string
+  actionLabel: string
+  sourceNodeId: string | null
+  targetNodeId: string | null
+}
+
+export interface OpenBrainRelationshipMap {
+  overview: {
+    relationships: number
+    strongRelationships: number
+    weakRelationships: number
+    orphanedRecords: number
+    staleSources: number
+    proposalSuggestions: number
+  }
+  nodes: OpenBrainRelationshipNode[]
+  edges: OpenBrainRelationshipEdge[]
+  insights: OpenBrainRelationshipInsight[]
+}
+
 export interface OpenBrainSnapshot {
   generatedAt: string
   service: {
@@ -189,6 +243,7 @@ export interface OpenBrainSnapshot {
   runtimeParity: OpenBrainRuntimeParity[]
   producerGates: OpenBrainProducerGate[]
   modelOps: ModelOpsProjection
+  relationshipMap: OpenBrainRelationshipMap
   contextPacket: {
     purpose: string
     boundaries: string[]
@@ -331,6 +386,15 @@ export async function getOpenBrainSnapshot(openBrainHome = getOpenBrainHome()): 
   const ragProjection = buildOpenBrainRagProjection(memories)
   const runtimeParity = await buildRuntimeParity(openBrainHome)
   const producerGates = buildProducerGates(modelOps)
+  const relationshipMap = buildOpenBrainRelationshipMap({
+    sources,
+    events,
+    links,
+    memories,
+    proposals,
+    wikiPages,
+    generatedAt,
+  })
   const pendingProposals = proposals.filter((proposal) => proposal.status === 'pending').length
   const approvedProposals = proposals.filter((proposal) => proposal.status === 'approved').length
   const rejectedProposals = proposals.filter((proposal) => proposal.status === 'rejected').length
@@ -375,6 +439,7 @@ export async function getOpenBrainSnapshot(openBrainHome = getOpenBrainHome()): 
     runtimeParity,
     producerGates,
     modelOps,
+    relationshipMap,
     contextPacket: buildContextPacket(sources, memories, proposals, modelOps, producerGates),
   }
 }
@@ -655,6 +720,149 @@ export function compileKarpathyWikiOverlay(
     })
   }
   return pages.sort((a, b) => a.slug.localeCompare(b.slug))
+}
+
+export function buildOpenBrainRelationshipMap({
+  sources,
+  events,
+  links,
+  memories,
+  proposals,
+  wikiPages,
+  generatedAt,
+}: {
+  sources: OpenBrainSourceRecord[]
+  events: OpenBrainEventRecord[]
+  links: OpenBrainLinkRecord[]
+  memories: OpenBrainMemoryRecord[]
+  proposals: OpenBrainProposalRecord[]
+  wikiPages: OpenBrainWikiPage[]
+  generatedAt: string
+}): OpenBrainRelationshipMap {
+  const visibleEvents = events.filter((event) => event.kind !== 'source_observed')
+  const nodes: OpenBrainRelationshipNode[] = [
+    ...sources.map((source, index) => sourceToRelationshipNode(source, index, generatedAt)),
+    ...memories.map((memory, index) => memoryToRelationshipNode(memory, index)),
+    ...visibleEvents.map((event, index) => eventToRelationshipNode(event, index)),
+    ...wikiPages.map((page, index) => wikiToRelationshipNode(page, index)),
+    ...proposals.map((proposal, index) => proposalToRelationshipNode(proposal, index)),
+  ]
+  const nodeIds = new Set(nodes.map((node) => node.id))
+  const edgeMap = new Map<string, OpenBrainRelationshipEdge>()
+
+  for (const link of links) {
+    if (!nodeIds.has(link.fromId) || !nodeIds.has(link.toId)) continue
+    addRelationshipEdge(edgeMap, {
+      id: link.id,
+      fromId: link.fromId,
+      toId: link.toId,
+      relationship: link.relationship,
+      strength: 'strong',
+      confidence: 0.94,
+      evidence: 'Persisted local Open Brain link record.',
+      status: 'persisted',
+    })
+  }
+
+  for (const memory of memories) {
+    for (const sourceId of memory.sourceIds) {
+      if (!nodeIds.has(sourceId)) continue
+      addRelationshipEdge(edgeMap, {
+        id: `edge:memory-source:${fingerprintOpenBrainRecord([memory.id, sourceId]).slice(0, 16)}`,
+        fromId: sourceId,
+        toId: memory.id,
+        relationship: 'supports_memory',
+        strength: memory.confidence >= 0.8 ? 'strong' : 'medium',
+        confidence: memory.confidence,
+        evidence: 'Memory record cites this source id.',
+        status: 'inferred',
+      })
+    }
+  }
+
+  for (const proposal of proposals) {
+    const proposalNodeId = relationshipProposalNodeId(proposal.id)
+    for (const sourceId of proposal.sourceIds) {
+      if (!nodeIds.has(sourceId)) continue
+      addRelationshipEdge(edgeMap, {
+        id: `edge:proposal-source:${fingerprintOpenBrainRecord([proposal.id, sourceId]).slice(0, 16)}`,
+        fromId: sourceId,
+        toId: proposalNodeId,
+        relationship: 'proposes_context',
+        strength: proposal.status === 'pending' ? 'medium' : 'weak',
+        confidence: proposal.proposedMemory.confidence,
+        evidence: 'Memory proposal cites this source id and still requires review.',
+        status: 'inferred',
+      })
+    }
+  }
+
+  for (const page of wikiPages) {
+    const wikiNodeId = relationshipWikiNodeId(page.slug)
+    for (const memoryId of page.sourceMemoryIds) {
+      if (!nodeIds.has(memoryId)) continue
+      addRelationshipEdge(edgeMap, {
+        id: `edge:wiki-memory:${fingerprintOpenBrainRecord([page.slug, memoryId]).slice(0, 16)}`,
+        fromId: memoryId,
+        toId: wikiNodeId,
+        relationship: 'compiled_overlay',
+        strength: 'strong',
+        confidence: 0.86,
+        evidence: 'Wiki overlay is compiled from this approved memory.',
+        status: 'inferred',
+      })
+    }
+  }
+
+  for (const event of visibleEvents) {
+    for (const sourceId of event.sourceIds) {
+      if (!nodeIds.has(sourceId)) continue
+      addRelationshipEdge(edgeMap, {
+        id: `edge:event-source:${fingerprintOpenBrainRecord([event.id, sourceId]).slice(0, 16)}`,
+        fromId: sourceId,
+        toId: event.id,
+        relationship: 'observed_event',
+        strength: event.confidence >= 0.75 ? 'medium' : 'weak',
+        confidence: event.confidence,
+        evidence: 'Event record cites this source id.',
+        status: 'inferred',
+      })
+    }
+  }
+
+  const edges = [...edgeMap.values()]
+  const connectedNodeIds = new Set<string>()
+  for (const edge of edges) {
+    connectedNodeIds.add(edge.fromId)
+    connectedNodeIds.add(edge.toId)
+  }
+
+  const staleSources = sources.filter((source) => isStale(source.lastObservedAt, generatedAt))
+  const orphanedNodes = nodes.filter((node) => !connectedNodeIds.has(node.id))
+  const weakEdges = edges.filter((edge) => edge.strength === 'weak')
+  const insights = buildRelationshipInsights({
+    nodes,
+    edges,
+    orphanedNodes,
+    staleSources,
+    sources,
+    memories,
+    proposals,
+  })
+
+  return {
+    overview: {
+      relationships: edges.length,
+      strongRelationships: edges.filter((edge) => edge.strength === 'strong').length,
+      weakRelationships: weakEdges.length,
+      orphanedRecords: orphanedNodes.length,
+      staleSources: staleSources.length,
+      proposalSuggestions: insights.length,
+    },
+    nodes,
+    edges,
+    insights,
+  }
 }
 
 export function fingerprintOpenBrainRecord(parts: unknown[]) {
@@ -990,6 +1198,281 @@ function buildContextPacket(
       'Unified router decision before local, frontier, hybrid, tool, or approval-gated model execution',
     ],
   }
+}
+
+function sourceToRelationshipNode(source: OpenBrainSourceRecord, index: number, generatedAt: string): OpenBrainRelationshipNode {
+  const point = relationshipPoint('source', source.kind, index)
+  return {
+    id: source.id,
+    label: source.title,
+    type: 'source',
+    kind: source.kind,
+    privacyTier: source.privacyTier,
+    summary: source.summary,
+    path: source.path,
+    health: source.privacyTier === 'private' ? 'red' : isStale(source.lastObservedAt, generatedAt) ? 'yellow' : 'green',
+    x: point.x,
+    y: point.y,
+  }
+}
+
+function memoryToRelationshipNode(memory: OpenBrainMemoryRecord, index: number): OpenBrainRelationshipNode {
+  const point = relationshipPoint('memory', memory.kind, index)
+  return {
+    id: memory.id,
+    label: memory.title,
+    type: 'memory',
+    kind: memory.kind,
+    privacyTier: memory.privacyTier,
+    summary: memory.body,
+    path: null,
+    health: memory.privacyTier === 'private' ? 'red' : memory.confidence >= 0.75 ? 'green' : 'yellow',
+    x: point.x,
+    y: point.y,
+  }
+}
+
+function eventToRelationshipNode(event: OpenBrainEventRecord, index: number): OpenBrainRelationshipNode {
+  const point = relationshipPoint('event', event.kind, index)
+  return {
+    id: event.id,
+    label: event.title,
+    type: 'event',
+    kind: event.kind,
+    privacyTier: event.privacyTier,
+    summary: event.summary,
+    path: typeof event.metadata?.path === 'string' ? event.metadata.path : null,
+    health: event.privacyTier === 'private' ? 'red' : event.confidence >= 0.75 ? 'green' : 'yellow',
+    x: point.x,
+    y: point.y,
+  }
+}
+
+function wikiToRelationshipNode(page: OpenBrainWikiPage, index: number): OpenBrainRelationshipNode {
+  const point = relationshipPoint('wiki', page.slug, index)
+  return {
+    id: relationshipWikiNodeId(page.slug),
+    label: page.title,
+    type: 'wiki',
+    kind: 'wiki_page',
+    privacyTier: page.privacyTier,
+    summary: `Compiled wiki overlay at ${page.path}.`,
+    path: page.path,
+    health: page.privacyTier === 'private' ? 'red' : page.sourceMemoryIds.length > 0 ? 'green' : 'yellow',
+    x: point.x,
+    y: point.y,
+  }
+}
+
+function proposalToRelationshipNode(proposal: OpenBrainProposalRecord, index: number): OpenBrainRelationshipNode {
+  const point = relationshipPoint('proposal', proposal.status, index)
+  return {
+    id: relationshipProposalNodeId(proposal.id),
+    label: proposal.proposedMemory.title,
+    type: 'proposal',
+    kind: proposal.proposedMemory.kind,
+    privacyTier: proposal.proposedMemory.privacyTier,
+    summary: proposal.reason,
+    path: null,
+    health: proposal.status === 'approved' ? 'green' : proposal.status === 'pending' ? 'yellow' : 'red',
+    x: point.x,
+    y: point.y,
+  }
+}
+
+function relationshipPoint(type: OpenBrainRelationshipNodeType, kind: string, index: number) {
+  const sourcePoints = kind === 'workspace_root_report'
+    ? [{ x: 12, y: 48 }]
+    : kind === 'codex_automation'
+      ? [
+          { x: 34, y: 31 },
+          { x: 23, y: 58 },
+          { x: 42, y: 62 },
+        ]
+      : kind === 'runbook'
+        ? [
+            { x: 55, y: 43 },
+            { x: 49, y: 72 },
+            { x: 66, y: 65 },
+          ]
+        : [
+            { x: 20, y: 23 },
+            { x: 29, y: 75 },
+            { x: 43, y: 17 },
+            { x: 58, y: 27 },
+            { x: 62, y: 80 },
+          ]
+  const points: Record<OpenBrainRelationshipNodeType, { x: number; y: number }[]> = {
+    source: sourcePoints,
+    memory: [
+      { x: 78, y: 25 },
+      { x: 82, y: 43 },
+      { x: 72, y: 62 },
+      { x: 88, y: 70 },
+    ],
+    event: [
+      { x: 22, y: 84 },
+      { x: 41, y: 86 },
+      { x: 60, y: 88 },
+      { x: 72, y: 82 },
+    ],
+    wiki: [
+      { x: 84, y: 58 },
+      { x: 90, y: 36 },
+      { x: 73, y: 80 },
+    ],
+    proposal: [
+      { x: 68, y: 88 },
+      { x: 52, y: 86 },
+      { x: 86, y: 86 },
+      { x: 76, y: 76 },
+    ],
+  }
+  const selected = points[type][index % points[type].length]
+  const rowOffset = Math.floor(index / points[type].length) * 4
+  return {
+    x: Math.max(8, Math.min(92, selected.x + rowOffset)),
+    y: Math.max(12, Math.min(92, selected.y - rowOffset)),
+  }
+}
+
+function relationshipWikiNodeId(slug: string) {
+  return `wiki:${slug}`
+}
+
+function relationshipProposalNodeId(id: string) {
+  return `proposal-node:${id}`
+}
+
+function addRelationshipEdge(map: Map<string, OpenBrainRelationshipEdge>, edge: OpenBrainRelationshipEdge) {
+  const existing = map.get(edge.id)
+  if (!existing || relationshipStrengthRank(edge.strength) > relationshipStrengthRank(existing.strength)) {
+    map.set(edge.id, edge)
+  }
+}
+
+function relationshipStrengthRank(strength: OpenBrainRelationshipEdgeStrength) {
+  return strength === 'strong' ? 3 : strength === 'medium' ? 2 : 1
+}
+
+function buildRelationshipInsights({
+  nodes,
+  edges,
+  orphanedNodes,
+  staleSources,
+  sources,
+  memories,
+  proposals,
+}: {
+  nodes: OpenBrainRelationshipNode[]
+  edges: OpenBrainRelationshipEdge[]
+  orphanedNodes: OpenBrainRelationshipNode[]
+  staleSources: OpenBrainSourceRecord[]
+  sources: OpenBrainSourceRecord[]
+  memories: OpenBrainMemoryRecord[]
+  proposals: OpenBrainProposalRecord[]
+}): OpenBrainRelationshipInsight[] {
+  const insights: OpenBrainRelationshipInsight[] = []
+  const runbookNode = nodes.find((node) => node.type === 'source' && node.kind === 'runbook')
+  const automationNode = nodes.find((node) => node.type === 'source' && node.kind === 'codex_automation')
+  const workspaceNode = nodes.find((node) => node.type === 'source' && node.kind === 'workspace_root_report')
+
+  if (automationNode && runbookNode && !edges.some((edge) => edge.fromId === automationNode.id && edge.toId === runbookNode.id)) {
+    insights.push({
+      id: 'insight:strengthen:automation-runbook',
+      kind: 'strengthen',
+      severity: 'medium',
+      title: 'Strengthen automation-to-runbook governance',
+      detail: 'Codex automation sources and Portfolio runbooks appear in the same Open Brain projection but do not have a persisted relationship.',
+      recommendation: 'Create a relationship proposal linking the automation source to the governing runbook before future agents act on it.',
+      actionLabel: 'Propose link',
+      sourceNodeId: automationNode.id,
+      targetNodeId: runbookNode.id,
+    })
+  }
+
+  if (workspaceNode && runbookNode && !edges.some((edge) => edge.fromId === workspaceNode.id && edge.toId === runbookNode.id)) {
+    insights.push({
+      id: 'insight:strengthen:workspace-runbook',
+      kind: 'strengthen',
+      severity: 'medium',
+      title: 'Tie workspace-root state to its governing runbook',
+      detail: 'The workspace-root report is central to current Codex context, but its governing document is not explicitly linked.',
+      recommendation: 'Propose a durable link from workspace-root state to the memory/context organization workflow.',
+      actionLabel: 'Propose link',
+      sourceNodeId: workspaceNode.id,
+      targetNodeId: runbookNode.id,
+    })
+  }
+
+  for (const source of staleSources.slice(0, 2)) {
+    insights.push({
+      id: `insight:review:stale:${source.id}`,
+      kind: 'review',
+      severity: 'medium',
+      title: `Review stale source: ${source.title}`,
+      detail: 'This source is older than the freshness threshold and may make wiki or RAG overlays look more current than they are.',
+      recommendation: 'Refresh the source through its owning producer before promoting related context.',
+      actionLabel: 'Review source',
+      sourceNodeId: source.id,
+      targetNodeId: null,
+    })
+  }
+
+  for (const orphan of orphanedNodes.filter((node) => node.type !== 'wiki').slice(0, 2)) {
+    insights.push({
+      id: `insight:missing-governance:${orphan.id}`,
+      kind: 'missing_governance',
+      severity: orphan.type === 'proposal' ? 'high' : 'medium',
+      title: `Connect orphaned ${orphan.type}: ${orphan.label}`,
+      detail: 'This record has no visible relationship edge in the current projection.',
+      recommendation: 'Add a source, governing document, or explicit persisted link before relying on it as agent context.',
+      actionLabel: 'Open source',
+      sourceNodeId: orphan.id,
+      targetNodeId: runbookNode?.id || null,
+    })
+  }
+
+  const duplicateTitle = findDuplicateMemoryTitle(memories)
+  if (duplicateTitle) {
+    insights.push({
+      id: `insight:merge:${fingerprintOpenBrainRecord([duplicateTitle]).slice(0, 12)}`,
+      kind: 'merge_duplicate',
+      severity: 'low',
+      title: `Review duplicate memory title: ${duplicateTitle}`,
+      detail: 'Multiple durable memories share a normalized title and may describe the same operating rule.',
+      recommendation: 'Review the memories and propose a merge only after confirming they share the same source basis.',
+      actionLabel: 'Review duplicate',
+      sourceNodeId: null,
+      targetNodeId: null,
+    })
+  }
+
+  if (insights.length === 0 && proposals.some((proposal) => proposal.status === 'pending')) {
+    const proposal = proposals.find((candidate) => candidate.status === 'pending')
+    insights.push({
+      id: 'insight:review:pending-proposals',
+      kind: 'review',
+      severity: 'medium',
+      title: 'Review pending memory proposals',
+      detail: 'Pending memory proposals are visible in the relationship map but are not durable memory yet.',
+      recommendation: 'Approve or reject sourced proposals before compiling wiki overlays.',
+      actionLabel: 'Review proposals',
+      sourceNodeId: proposal ? relationshipProposalNodeId(proposal.id) : null,
+      targetNodeId: null,
+    })
+  }
+
+  return insights.slice(0, 6)
+}
+
+function findDuplicateMemoryTitle(memories: OpenBrainMemoryRecord[]) {
+  const titles = new Map<string, number>()
+  for (const memory of memories) {
+    const normalized = memory.title.toLowerCase().replace(/\s+/g, ' ').trim()
+    titles.set(normalized, (titles.get(normalized) || 0) + 1)
+  }
+  return [...titles.entries()].find(([, count]) => count > 1)?.[0] || null
 }
 
 async function readOptionalText(filePath: string) {

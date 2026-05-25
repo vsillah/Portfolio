@@ -3,6 +3,7 @@ import { tmpdir } from 'os'
 import path from 'path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
+  buildOpenBrainRelationshipMap,
   compileKarpathyWikiOverlay,
   createOpenBrainProposal,
   fingerprintOpenBrainRecord,
@@ -103,6 +104,11 @@ describe('Open Brain projection', () => {
       'producer:rag-pinecone',
     ]))
     expect(snapshot.overview.producerGates).toBe(snapshot.producerGates.length)
+    expect(snapshot.relationshipMap.nodes.map((node) => node.type)).toEqual(expect.arrayContaining([
+      'source',
+      'proposal',
+    ]))
+    expect(snapshot.relationshipMap.insights.map((insight) => insight.kind)).toContain('strengthen')
   })
 
   it('keeps AutoResearch producer traces disabled until explicitly configured', async () => {
@@ -269,6 +275,151 @@ describe('Open Brain projection', () => {
     }))
     expect(projection.pineconeWriteStatus).toBe('blocked_pending_approval')
     expect(projection.excludedPrivateCount).toBe(1)
+  })
+
+  it('builds a relationship map from sources, memories, proposals, events, wiki pages, and persisted links', () => {
+    const generatedAt = '2026-05-25T12:00:00.000Z'
+    const sources = [
+      {
+        id: 'source:automation',
+        kind: 'codex_automation' as const,
+        title: 'Portfolio automation',
+        summary: 'Checks Portfolio memory readiness.',
+        path: '/Users/vambahsillah/.codex/automations/portfolio/automation.toml',
+        privacyTier: 'internal_ops' as const,
+        confidence: 0.86,
+        lastObservedAt: generatedAt,
+        fingerprint: fingerprintOpenBrainRecord(['source:automation']),
+      },
+      {
+        id: 'source:runbook',
+        kind: 'runbook' as const,
+        title: 'Memory organization runbook',
+        summary: 'Governs local memory organization.',
+        path: 'docs/agents/memory-organization.md',
+        privacyTier: 'internal_ops' as const,
+        confidence: 0.9,
+        lastObservedAt: generatedAt,
+        fingerprint: fingerprintOpenBrainRecord(['source:runbook']),
+      },
+      {
+        id: 'source:stale',
+        kind: 'workspace_root_report' as const,
+        title: 'Stale workspace-root report',
+        summary: 'Old workspace evidence.',
+        path: '/Users/vambahsillah/.codex/state_5.sqlite',
+        privacyTier: 'internal_ops' as const,
+        confidence: 0.7,
+        lastObservedAt: '2026-04-01T12:00:00.000Z',
+        fingerprint: fingerprintOpenBrainRecord(['source:stale']),
+      },
+    ]
+    const memories = [
+      {
+        id: 'memory:governance',
+        kind: 'operating_rule' as const,
+        title: 'Proposal-gated relationship changes',
+        body: 'The map recommends relationship changes but does not mutate Open Brain directly.',
+        privacyTier: 'internal_ops' as const,
+        confidence: 0.91,
+        sourceIds: ['source:automation'],
+        createdAt: generatedAt,
+        updatedAt: generatedAt,
+        fingerprint: fingerprintOpenBrainRecord(['memory:governance']),
+      },
+    ]
+    const proposals = [
+      {
+        id: 'proposal:link-runbook',
+        status: 'pending' as const,
+        proposedMemory: {
+          kind: 'workflow' as const,
+          title: 'Link automation to governing runbook',
+          body: 'Automation context should name its governing runbook before future agents act.',
+          privacyTier: 'internal_ops' as const,
+          confidence: 0.74,
+          sourceIds: ['source:automation'],
+        },
+        sourceIds: ['source:automation'],
+        reason: 'Context gap surfaced by map.',
+        createdBy: 'test',
+        createdAt: generatedAt,
+        reviewedAt: null,
+        reviewedBy: null,
+        reviewReason: null,
+      },
+    ]
+    const events = [
+      {
+        id: 'event:proposal-created',
+        kind: 'proposal_created' as const,
+        title: 'Proposal created',
+        summary: 'Relationship proposal entered review.',
+        privacyTier: 'internal_ops' as const,
+        confidence: 0.8,
+        sourceIds: ['source:automation'],
+        createdAt: generatedAt,
+        fingerprint: fingerprintOpenBrainRecord(['event:proposal-created']),
+      },
+    ]
+    const wikiPages = [
+      {
+        slug: 'operating-rules',
+        title: 'Operating Rules',
+        path: 'docs/open-brain/wiki/operating-rules.md',
+        markdown: '# Operating Rules',
+        sourceMemoryIds: ['memory:governance'],
+        privacyTier: 'internal_ops' as const,
+      },
+    ]
+
+    const relationshipMap = buildOpenBrainRelationshipMap({
+      sources,
+      events,
+      links: [
+        {
+          id: 'link:automation-runbook',
+          fromId: 'source:automation',
+          toId: 'source:runbook',
+          relationship: 'governed_by',
+          createdAt: generatedAt,
+        },
+      ],
+      memories,
+      proposals,
+      wikiPages,
+      generatedAt,
+    })
+
+    expect(relationshipMap.nodes.map((node) => node.id)).toEqual(expect.arrayContaining([
+      'source:automation',
+      'memory:governance',
+      'proposal-node:proposal:link-runbook',
+      'wiki:operating-rules',
+    ]))
+    expect(relationshipMap.edges).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: 'link:automation-runbook',
+        status: 'persisted',
+        strength: 'strong',
+      }),
+      expect.objectContaining({
+        fromId: 'source:automation',
+        toId: 'memory:governance',
+        relationship: 'supports_memory',
+      }),
+      expect.objectContaining({
+        fromId: 'memory:governance',
+        toId: 'wiki:operating-rules',
+        relationship: 'compiled_overlay',
+      }),
+    ]))
+    expect(relationshipMap.overview.staleSources).toBe(1)
+    expect(relationshipMap.overview.orphanedRecords).toBeGreaterThanOrEqual(1)
+    expect(relationshipMap.insights.map((insight) => insight.kind)).toEqual(expect.arrayContaining([
+      'review',
+      'missing_governance',
+    ]))
   })
 
   it('sanitizes secret-like content', () => {

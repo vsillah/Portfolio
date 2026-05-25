@@ -20,9 +20,9 @@ import {
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
-import type { OpenBrainSnapshot } from '@/lib/open-brain'
+import type { OpenBrainRelationshipNodeType, OpenBrainSnapshot } from '@/lib/open-brain'
 
-type ViewMode = 'router' | 'sources' | 'proposals' | 'wiki' | 'parity' | 'producers'
+type ViewMode = 'router' | 'sources' | 'proposals' | 'wiki' | 'parity' | 'producers' | 'map'
 
 export default function OpenBrainPage() {
   return (
@@ -103,6 +103,10 @@ function OpenBrainContent() {
     } finally {
       setReviewingProposalId(null)
     }
+  }
+
+  function handleRelationshipSuggestion(actionLabel: string) {
+    setActionMessage(`${actionLabel} is proposal-only in v1. No Open Brain link was changed from this map.`)
   }
 
   return (
@@ -203,6 +207,7 @@ function OpenBrainContent() {
                 <ModeButton icon={<FileText size={16} />} active={viewMode === 'wiki'} onClick={() => setViewMode('wiki')}>Wiki Overlay</ModeButton>
                 <ModeButton icon={<Network size={16} />} active={viewMode === 'parity'} onClick={() => setViewMode('parity')}>Runtime Parity</ModeButton>
                 <ModeButton icon={<GitBranch size={16} />} active={viewMode === 'producers'} onClick={() => setViewMode('producers')}>Producers</ModeButton>
+                <ModeButton icon={<Network size={16} />} active={viewMode === 'map'} onClick={() => setViewMode('map')}>Map</ModeButton>
                 </div>
               </div>
               <button
@@ -232,6 +237,7 @@ function OpenBrainContent() {
             {viewMode === 'wiki' ? <WikiView pages={snapshot.wikiPages} /> : null}
             {viewMode === 'parity' ? <ParityView snapshot={snapshot} /> : null}
             {viewMode === 'producers' ? <ProducerView snapshot={snapshot} /> : null}
+            {viewMode === 'map' ? <RelationshipMapView snapshot={snapshot} onSuggestionAction={handleRelationshipSuggestion} /> : null}
 
             <p className="mt-5 text-xs text-muted-foreground">
               Generated {formatDateTime(snapshot.generatedAt)}. {snapshot.service.operationalBoundary}
@@ -560,6 +566,207 @@ function RouterView({ snapshot }: { snapshot: OpenBrainSnapshot }) {
       </section>
     </section>
   )
+}
+
+function RelationshipMapView({
+  snapshot,
+  onSuggestionAction,
+}: {
+  snapshot: OpenBrainSnapshot
+  onSuggestionAction: (actionLabel: string) => void
+}) {
+  const [typeFilter, setTypeFilter] = useState<OpenBrainRelationshipNodeType | 'all'>('all')
+  const map = snapshot.relationshipMap
+  const visibleNodes = typeFilter === 'all' ? map.nodes : map.nodes.filter((node) => node.type === typeFilter)
+  const visibleNodeIds = new Set(visibleNodes.map((node) => node.id))
+  const visibleEdges = map.edges.filter((edge) => visibleNodeIds.has(edge.fromId) && visibleNodeIds.has(edge.toId))
+  const nodeById = new Map(visibleNodes.map((node) => [node.id, node]))
+  const nodeTypes: Array<OpenBrainRelationshipNodeType | 'all'> = ['all', 'source', 'memory', 'event', 'wiki', 'proposal']
+  const selectedPath = visibleEdges.find((edge) => edge.strength === 'strong') || visibleEdges[0]
+  const selectedFrom = selectedPath ? nodeById.get(selectedPath.fromId) : null
+  const selectedTo = selectedPath ? nodeById.get(selectedPath.toId) : null
+
+  return (
+    <section className="space-y-5" aria-label="Open Brain relationship map">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+        <RelationshipMetric label="Relationships" value={map.overview.relationships} detail={`${map.overview.strongRelationships} strong`} />
+        <RelationshipMetric label="Weak links" value={map.overview.weakRelationships} detail="Need more evidence" tone="yellow" />
+        <RelationshipMetric label="Orphaned records" value={map.overview.orphanedRecords} detail="No visible edge" tone="red" />
+        <RelationshipMetric label="Stale sources" value={map.overview.staleSources} detail="Refresh before promotion" tone="yellow" />
+        <RelationshipMetric label="Suggestions" value={map.overview.proposalSuggestions} detail="Proposal-only actions" />
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-[250px_minmax(0,1fr)_340px]">
+        <aside className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <p className="agent-ops-eyebrow"><Network size={14} /> Filters</p>
+            <span className="text-xs text-muted-foreground">{visibleNodes.length}/{map.nodes.length}</span>
+          </div>
+          <div className="space-y-2">
+            {nodeTypes.map((type) => {
+              const count = type === 'all' ? map.nodes.length : map.nodes.filter((node) => node.type === type).length
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setTypeFilter(type)}
+                  className={`flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left text-sm transition ${
+                    typeFilter === type
+                      ? 'border-radiant-gold/55 bg-radiant-gold/10 text-radiant-gold'
+                      : 'border-silicon-slate/60 bg-background/20 text-muted-foreground hover:border-radiant-gold/35 hover:text-foreground'
+                  }`}
+                >
+                  <span className="capitalize">{type === 'all' ? 'All records' : type}</span>
+                  <span className="tabular-nums">{count}</span>
+                </button>
+              )
+            })}
+          </div>
+          <div className="mt-5 space-y-2 border-t border-silicon-slate/60 pt-4 text-xs text-muted-foreground">
+            <RelationshipLegend color="bg-radiant-gold" label="Strong/persisted" />
+            <RelationshipLegend color="bg-platinum-white" label="Inferred medium" />
+            <RelationshipLegend color="bg-red-300" label="Weak or risky" />
+            <RelationshipLegend color="border border-radiant-gold bg-transparent" label="Proposal-only action" />
+          </div>
+        </aside>
+
+        <div className="relative min-h-[620px] overflow-hidden rounded-lg border border-radiant-gold/20 bg-[radial-gradient(circle_at_50%_45%,rgba(212,175,55,0.08),transparent_34%),linear-gradient(180deg,rgba(12,23,39,0.94),rgba(7,14,25,0.98))] shadow-2xl">
+          <div className="absolute left-5 top-5 z-10">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-radiant-gold">Memory Graph</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {selectedFrom && selectedTo
+                ? `Selected path: ${selectedFrom.label} -> ${selectedTo.label}`
+                : 'No visible relationship path for this filter.'}
+            </p>
+          </div>
+          <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            {visibleEdges.map((edge) => {
+              const from = nodeById.get(edge.fromId)
+              const to = nodeById.get(edge.toId)
+              if (!from || !to) return null
+              return (
+                <line
+                  key={edge.id}
+                  x1={from.x}
+                  y1={from.y}
+                  x2={to.x}
+                  y2={to.y}
+                  stroke={relationshipEdgeColor(edge.strength, edge.status)}
+                  strokeWidth={edge.strength === 'strong' ? 0.6 : edge.strength === 'medium' ? 0.38 : 0.28}
+                  strokeDasharray={edge.status === 'inferred' ? '1.4 1.1' : undefined}
+                  strokeLinecap="round"
+                  vectorEffect="non-scaling-stroke"
+                />
+              )
+            })}
+          </svg>
+          {visibleNodes.map((node) => (
+            <div
+              key={node.id}
+              className={`absolute z-10 flex max-w-[150px] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-lg border px-3 py-2 text-center shadow-xl ${relationshipNodeTone(node.type, node.health)}`}
+              style={{ left: `${node.x}%`, top: `${node.y}%` }}
+              title={node.summary}
+            >
+              <span className="text-[10px] font-extrabold uppercase tracking-[0.12em] opacity-75">{node.type}</span>
+              <span className="mt-1 line-clamp-2 text-xs font-semibold leading-4">{node.label}</span>
+              <span className="mt-1 text-[10px] opacity-70">{node.kind.replace(/_/g, ' ')}</span>
+            </div>
+          ))}
+          <div className="absolute bottom-5 left-5 z-10 flex flex-wrap gap-3 rounded-lg border border-silicon-slate/60 bg-black/30 p-3 text-xs text-muted-foreground backdrop-blur">
+            <RelationshipLegend color="bg-radiant-gold" label="Strong" />
+            <RelationshipLegend color="bg-platinum-white" label="Inferred" />
+            <RelationshipLegend color="bg-red-300" label="Weak" />
+          </div>
+        </div>
+
+        <aside className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
+          <p className="agent-ops-eyebrow"><Target size={14} /> Relationship insights</p>
+          <h2 className="mt-2 text-xl font-semibold">What I will review before action</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            These controls do not mutate Open Brain. They identify relationship changes that should become explicit proposals.
+          </p>
+          <div className="mt-4 space-y-3">
+            {map.insights.length > 0 ? map.insights.map((insight) => (
+              <article key={insight.id} className={`rounded-lg border border-l-4 bg-background/20 p-3 ${relationshipInsightTone(insight.severity)}`}>
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="text-sm font-semibold">{insight.title}</h3>
+                  <span className="rounded-full border border-silicon-slate/60 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                    {insight.kind.replace(/_/g, ' ')}
+                  </span>
+                </div>
+                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{insight.detail}</p>
+                <p className="mt-2 text-xs leading-relaxed text-foreground/85">{insight.recommendation}</p>
+                <button
+                  type="button"
+                  onClick={() => onSuggestionAction(insight.actionLabel)}
+                  className="mt-3 inline-flex items-center gap-2 rounded-lg border border-radiant-gold/40 bg-radiant-gold/10 px-3 py-2 text-xs font-medium text-radiant-gold hover:bg-radiant-gold/15"
+                >
+                  {insight.actionLabel}
+                </button>
+              </article>
+            )) : (
+              <EmptyState message="No relationship issues are visible for the current graph." />
+            )}
+          </div>
+        </aside>
+      </div>
+    </section>
+  )
+}
+
+function RelationshipMetric({
+  label,
+  value,
+  detail,
+  tone = 'gold',
+}: {
+  label: string
+  value: number
+  detail: string
+  tone?: 'gold' | 'yellow' | 'red'
+}) {
+  const valueTone = tone === 'red' ? 'text-red-200' : tone === 'yellow' ? 'text-yellow-100' : 'text-foreground'
+  const borderTone = tone === 'red' ? 'border-red-400/35' : tone === 'yellow' ? 'border-yellow-400/40' : 'border-radiant-gold/20'
+  return (
+    <div className={`rounded-lg border bg-silicon-slate/20 p-4 ${borderTone}`}>
+      <p className={`text-3xl font-bold tabular-nums ${valueTone}`}>{value}</p>
+      <p className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-radiant-gold">{label}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{detail}</p>
+    </div>
+  )
+}
+
+function RelationshipLegend({ color, label }: { color: string; label: string }) {
+  return (
+    <span className="inline-flex items-center gap-2">
+      <span className={`h-2.5 w-2.5 rounded-full ${color}`} />
+      {label}
+    </span>
+  )
+}
+
+function relationshipEdgeColor(strength: 'strong' | 'medium' | 'weak', status: string) {
+  if (strength === 'weak') return 'rgba(252,165,165,0.7)'
+  if (status === 'persisted') return 'rgba(212,175,55,0.95)'
+  if (strength === 'strong') return 'rgba(245,208,96,0.82)'
+  return 'rgba(234,236,238,0.5)'
+}
+
+function relationshipNodeTone(type: OpenBrainRelationshipNodeType, health: 'green' | 'yellow' | 'red') {
+  if (health === 'red') return 'border-red-300/70 bg-red-950/80 text-red-100'
+  if (type === 'source') return 'border-radiant-gold/50 bg-radiant-gold text-imperial-navy'
+  if (type === 'memory') return 'border-radiant-gold/45 bg-platinum-white text-imperial-navy'
+  if (type === 'wiki') return 'border-radiant-gold/45 bg-bronze text-platinum-white'
+  if (type === 'proposal') return 'border-yellow-300/60 bg-imperial-navy text-yellow-100'
+  return health === 'yellow'
+    ? 'border-yellow-300/55 bg-yellow-500/15 text-yellow-100'
+    : 'border-silicon-slate/70 bg-silicon-slate text-platinum-white'
+}
+
+function relationshipInsightTone(severity: 'low' | 'medium' | 'high') {
+  if (severity === 'high') return 'border-l-red-300'
+  if (severity === 'medium') return 'border-l-radiant-gold'
+  return 'border-l-platinum-white'
 }
 
 function SourcesView({ snapshot }: { snapshot: OpenBrainSnapshot }) {
