@@ -1239,21 +1239,21 @@ function AiOpsRoadmapAdminSection({
     : 0
 
   return (
-    <div className="mb-8 p-5 bg-gray-900 border border-gray-800 rounded-xl">
+    <div className="mb-8 rounded-lg border border-silicon-slate/70 bg-imperial-navy/85 p-5 shadow-[0_0_32px_rgba(0,0,0,0.18)]">
       <div className="flex items-start justify-between gap-4 mb-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <ClipboardList size={18} className="text-emerald-400" />
-            <h2 className="text-lg font-semibold">AI Ops Roadmap</h2>
+            <ClipboardList size={18} className="text-radiant-gold" />
+            <h2 className="text-lg font-semibold text-foreground">AI Ops Roadmap</h2>
           </div>
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-muted-foreground">
             Sales-to-delivery phases, task projections, client-owned costs, and reporting gates.
           </p>
         </div>
         <button
           onClick={createRoadmap}
           disabled={loading || !accessToken}
-          className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-700 bg-gray-800 hover:border-emerald-500/60 text-sm disabled:opacity-60"
+          className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/45 bg-radiant-gold/10 px-3 py-2 text-sm font-medium text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
         >
           <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
           {roadmap ? 'Sync Tasks' : 'Create Roadmap'}
@@ -1265,47 +1265,47 @@ function AiOpsRoadmapAdminSection({
       {roadmap ? (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
-            <div className="rounded-lg bg-gray-950/50 border border-gray-800 p-3">
-              <p className="text-xs text-gray-500 uppercase tracking-wide">Status</p>
-              <p className="text-sm text-gray-200 capitalize">{roadmap.roadmap?.status}</p>
+            <div className="rounded-lg bg-background/45 border border-silicon-slate/60 p-3">
+              <p className="text-xs font-semibold text-radiant-gold/85 uppercase tracking-[0.14em]">Status</p>
+              <p className="text-sm text-foreground capitalize">{roadmap.roadmap?.status}</p>
             </div>
-            <div className="rounded-lg bg-gray-950/50 border border-gray-800 p-3">
-              <p className="text-xs text-gray-500 uppercase tracking-wide">Progress</p>
-              <p className="text-sm text-gray-200">{completed}/{tasks.length} tasks ({progress}%)</p>
+            <div className="rounded-lg bg-background/45 border border-silicon-slate/60 p-3">
+              <p className="text-xs font-semibold text-radiant-gold/85 uppercase tracking-[0.14em]">Progress</p>
+              <p className="text-sm text-foreground">{completed}/{tasks.length} tasks ({progress}%)</p>
             </div>
-            <div className="rounded-lg bg-gray-950/50 border border-gray-800 p-3">
-              <p className="text-xs text-gray-500 uppercase tracking-wide">Startup</p>
-              <p className="text-sm text-gray-200">${costs?.oneTimeClientOwned ?? 0}</p>
+            <div className="rounded-lg bg-background/45 border border-silicon-slate/60 p-3">
+              <p className="text-xs font-semibold text-radiant-gold/85 uppercase tracking-[0.14em]">Startup</p>
+              <p className="text-sm text-foreground">${costs?.oneTimeClientOwned ?? 0}</p>
             </div>
-            <div className="rounded-lg bg-gray-950/50 border border-gray-800 p-3">
-              <p className="text-xs text-gray-500 uppercase tracking-wide">Monthly</p>
-              <p className="text-sm text-gray-200">${costs?.monthlyClientOwned ?? 0}</p>
+            <div className="rounded-lg bg-background/45 border border-silicon-slate/60 p-3">
+              <p className="text-xs font-semibold text-radiant-gold/85 uppercase tracking-[0.14em]">Monthly</p>
+              <p className="text-sm text-foreground">${costs?.monthlyClientOwned ?? 0}</p>
             </div>
           </div>
 
           {projection && (
-            <div className="rounded-lg bg-gray-950/50 border border-gray-800 p-4 mb-4">
+            <div className="rounded-lg bg-radiant-gold/10 border border-radiant-gold/40 p-4 mb-4 shadow-[0_0_28px_rgba(212,175,55,0.10)]">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wide">Projection next action</p>
-                  <p className="text-sm font-medium text-gray-100 mt-1">{projection.nextReportingAction}</p>
+                  <p className="text-xs font-semibold text-radiant-gold uppercase tracking-[0.14em]">Projection next action</p>
+                  <p className="text-sm font-medium text-foreground mt-1">{projection.nextReportingAction}</p>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 min-w-full lg:min-w-[520px]">
                   <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wide">Open actions</p>
-                    <p className="text-sm text-gray-200">{openActions}</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Open actions</p>
+                    <p className="text-sm text-foreground">{openActions}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wide">Approvals</p>
-                    <p className="text-sm text-gray-200">{projection.approvalNeededCount}</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Approvals</p>
+                    <p className="text-sm text-foreground">{projection.approvalNeededCount}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wide">Isolation</p>
-                    <p className="text-sm text-gray-200">{projection.isolationRequiredCount}</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Isolation</p>
+                    <p className="text-sm text-foreground">{projection.isolationRequiredCount}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wide">Monitor flags</p>
-                    <p className="text-sm text-gray-200">{monitoringFlags}</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Monitor flags</p>
+                    <p className="text-sm text-foreground">{monitoringFlags}</p>
                   </div>
                 </div>
               </div>
@@ -1314,17 +1314,17 @@ function AiOpsRoadmapAdminSection({
 
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-2">
             {phases.map((phase) => (
-              <div key={phase.id} className="rounded-lg border border-gray-800 bg-gray-950/40 p-3">
-                <p className="text-xs text-gray-500 uppercase tracking-wide">Phase {phase.phase_order}</p>
-                <p className="text-sm font-medium text-gray-200">{phase.title}</p>
-                <p className="text-xs text-gray-500 mt-1 capitalize">{phase.status.replace(/_/g, ' ')}</p>
+              <div key={phase.id} className="rounded-lg border border-silicon-slate/60 bg-background/40 p-3">
+                <p className="text-xs font-semibold text-radiant-gold/85 uppercase tracking-[0.14em]">Phase {phase.phase_order}</p>
+                <p className="text-sm font-medium text-foreground">{phase.title}</p>
+                <p className="text-xs text-muted-foreground mt-1 capitalize">{phase.status.replace(/_/g, ' ')}</p>
               </div>
             ))}
           </div>
         </>
       ) : (
-        <div className="rounded-lg border border-dashed border-gray-700 bg-gray-950/30 p-4">
-          <p className="text-sm text-gray-400">
+        <div className="rounded-lg border border-dashed border-radiant-gold/35 bg-background/35 p-4">
+          <p className="text-sm text-muted-foreground">
             No AI Ops roadmap exists yet. Create one to generate phased delivery tasks for the client dashboard and admin meeting task queue.
           </p>
         </div>
