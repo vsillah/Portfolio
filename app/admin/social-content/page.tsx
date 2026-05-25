@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { buildLinkWithReturn } from '@/lib/admin-return-context'
@@ -27,6 +27,10 @@ import {
   Search,
   Calendar,
   CheckSquare,
+  Mic,
+  MicOff,
+  Sparkles,
+  Plus,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -73,6 +77,32 @@ interface MeetingRecord {
   has_transcript: boolean
 }
 
+interface ContentFrameworkOption {
+  id: string
+  display_name: string
+  creator_name: string
+  summary: string
+}
+
+interface VoiceNoteIntake {
+  id: string
+  title: string
+  status: string
+  target_outputs: string[]
+  audio_file_name: string | null
+  created_at: string
+}
+
+const VOICE_NOTE_OUTPUTS = [
+  { value: 'linkedin_post', label: 'LinkedIn' },
+  { value: 'linkedin_carousel', label: 'Carousel' },
+  { value: 'pptx_deck', label: 'PowerPoint' },
+  { value: 'video_script', label: 'Script' },
+  { value: 'heygen_video', label: 'HeyGen' },
+  { value: 'elevenlabs_audio', label: 'Audio' },
+  { value: 'short_caption', label: 'Captions' },
+]
+
 const MEETINGS_PER_PAGE = 5
 
 function SocialContentQueuePage() {
@@ -97,6 +127,24 @@ function SocialContentQueuePage() {
   const [triggerLoading, setTriggerLoading] = useState(false)
   const [triggerResult, setTriggerResult] = useState<{ success: boolean; message: string } | null>(null)
   const [showTriggerPanel, setShowTriggerPanel] = useState(false)
+
+  const [showVoicePanel, setShowVoicePanel] = useState(false)
+  const [voiceIntakes, setVoiceIntakes] = useState<VoiceNoteIntake[]>([])
+  const [contentFrameworks, setContentFrameworks] = useState<ContentFrameworkOption[]>([])
+  const [voiceTitle, setVoiceTitle] = useState('')
+  const [voiceTopic, setVoiceTopic] = useState('')
+  const [voiceAudience, setVoiceAudience] = useState('')
+  const [voiceTranscript, setVoiceTranscript] = useState('')
+  const [voiceOutputs, setVoiceOutputs] = useState<string[]>(['linkedin_post', 'linkedin_carousel', 'pptx_deck', 'video_script', 'heygen_video', 'elevenlabs_audio'])
+  const [voiceFrameworks, setVoiceFrameworks] = useState<string[]>(['alex-hormozi-value-equation', 'nick-saraev-ai-content-engine'])
+  const [voiceAudioFile, setVoiceAudioFile] = useState<File | null>(null)
+  const [voiceLoading, setVoiceLoading] = useState(false)
+  const [voiceSubmitting, setVoiceSubmitting] = useState(false)
+  const [voiceGeneratingId, setVoiceGeneratingId] = useState<string | null>(null)
+  const [voiceResult, setVoiceResult] = useState<{ success: boolean; message: string; href?: string | null } | null>(null)
+  const [isRecording, setIsRecording] = useState(false)
+  const recorderRef = useRef<MediaRecorder | null>(null)
+  const audioChunksRef = useRef<BlobPart[]>([])
 
   const fetchItems = useCallback(async (page = 1) => {
     setLoading(true)
@@ -164,6 +212,30 @@ function SocialContentQueuePage() {
     if (showTriggerPanel) fetchMeetings()
   }, [showTriggerPanel, fetchMeetings])
 
+  const fetchVoiceIntakes = useCallback(async () => {
+    setVoiceLoading(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+      const res = await fetch('/api/admin/social-content/voice-notes?limit=8', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setVoiceIntakes(data.intakes ?? [])
+        setContentFrameworks(data.frameworks ?? [])
+      }
+    } catch (err) {
+      console.error('Failed to fetch voice-note intakes:', err)
+    } finally {
+      setVoiceLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (showVoicePanel) fetchVoiceIntakes()
+  }, [showVoicePanel, fetchVoiceIntakes])
+
   // Debounced meeting search — reset to page 1 on filter change
   useEffect(() => {
     if (!showTriggerPanel) return
@@ -210,6 +282,115 @@ function SocialContentQueuePage() {
       .map(r => r.meeting_record_id!)
     if (failedMeetingIds.length === 0) return
     await handleTriggerExtraction(failedMeetingIds)
+  }
+
+  const toggleVoiceOutput = (output: string) => {
+    setVoiceOutputs((current) =>
+      current.includes(output) ? current.filter((item) => item !== output) : [...current, output]
+    )
+  }
+
+  const toggleVoiceFramework = (frameworkId: string) => {
+    setVoiceFrameworks((current) =>
+      current.includes(frameworkId) ? current.filter((item) => item !== frameworkId) : [...current, frameworkId]
+    )
+  }
+
+  const startVoiceRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const recorder = new MediaRecorder(stream)
+      audioChunksRef.current = []
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) audioChunksRef.current.push(event.data)
+      }
+      recorder.onstop = () => {
+        const blob = new Blob(audioChunksRef.current, { type: recorder.mimeType || 'audio/webm' })
+        const file = new File([blob], `voice-note-${new Date().toISOString().replace(/[:.]/g, '-')}.webm`, { type: blob.type })
+        setVoiceAudioFile(file)
+        stream.getTracks().forEach((track) => track.stop())
+        setIsRecording(false)
+      }
+      recorderRef.current = recorder
+      recorder.start()
+      setIsRecording(true)
+      setVoiceResult(null)
+    } catch (err) {
+      console.error('Recording failed:', err)
+      setVoiceResult({ success: false, message: 'Microphone access failed. Paste rough notes or use the audio fallback.' })
+    }
+  }
+
+  const stopVoiceRecording = () => {
+    recorderRef.current?.stop()
+  }
+
+  const submitVoiceIntake = async () => {
+    setVoiceSubmitting(true)
+    setVoiceResult(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+      if (!voiceAudioFile && voiceTranscript.trim().length < 10) {
+        throw new Error('Record a voice note or add at least a short rough note.')
+      }
+      const formData = new FormData()
+      if (voiceTitle.trim()) formData.append('title', voiceTitle.trim())
+      if (voiceTopic.trim()) formData.append('topic_hint', voiceTopic.trim())
+      if (voiceAudience.trim()) formData.append('target_audience', voiceAudience.trim())
+      if (voiceTranscript.trim()) formData.append('transcript_text', voiceTranscript.trim())
+      for (const output of voiceOutputs) formData.append('target_outputs', output)
+      for (const framework of voiceFrameworks) formData.append('framework_ids', framework)
+      if (voiceAudioFile) formData.append('audio', voiceAudioFile)
+
+      const res = await fetch('/api/admin/social-content/voice-notes', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: formData,
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to create voice-note intake')
+      setVoiceResult({ success: true, message: 'Voice note captured. Generate the package when ready.' })
+      setVoiceTitle('')
+      setVoiceTopic('')
+      setVoiceAudience('')
+      setVoiceTranscript('')
+      setVoiceAudioFile(null)
+      await fetchVoiceIntakes()
+    } catch (err) {
+      setVoiceResult({ success: false, message: err instanceof Error ? err.message : 'Failed to create voice-note intake.' })
+    } finally {
+      setVoiceSubmitting(false)
+    }
+  }
+
+  const generateVoicePackage = async (intakeId: string) => {
+    setVoiceGeneratingId(intakeId)
+    setVoiceResult(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+      const res = await fetch(`/api/admin/social-content/voice-notes/${intakeId}/generate`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ create_downstream_drafts: true }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to generate content package')
+      setVoiceResult({
+        success: true,
+        message: `Package generated with ${data.outputs?.length ?? 0} drafts and ${data.approvals?.length ?? 0} approval gates.`,
+        href: data.downstream?.socialContentId ? `/admin/social-content/${data.downstream.socialContentId}` : null,
+      })
+      await Promise.all([fetchVoiceIntakes(), fetchItems()])
+    } catch (err) {
+      setVoiceResult({ success: false, message: err instanceof Error ? err.message : 'Failed to generate content package.' })
+    } finally {
+      setVoiceGeneratingId(null)
+    }
   }
 
   const handleQuickApprove = async (e: React.MouseEvent, itemId: string) => {
@@ -557,6 +738,202 @@ function SocialContentQueuePage() {
                 {triggerResult.message}
               </div>
             )}
+          </motion.div>
+        )}
+      </div>
+
+      {/* Voice-note Package Intake */}
+      <div className="admin-console-card mb-6 rounded-lg border p-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <div className="flex items-center gap-2 text-sm font-semibold text-gray-200">
+              <Mic className="h-4 w-4 text-radiant-gold" />
+              Voice-note content packages
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Record a brainstorming note and generate LinkedIn, carousel, PowerPoint, script, audio, and HeyGen-ready drafts.
+            </p>
+          </div>
+          <button
+            onClick={() => setShowVoicePanel((p) => !p)}
+            className="admin-console-button-primary"
+          >
+            <Sparkles className="h-4 w-4" />
+            Build Package
+          </button>
+        </div>
+
+        {showVoicePanel && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mt-4 grid gap-4 rounded-lg border border-silicon-slate bg-imperial-navy/55 p-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]"
+          >
+            <div className="space-y-4">
+              <div className="grid gap-3 md:grid-cols-2">
+                <label className="block">
+                  <span className="mb-1 block text-xs text-gray-500">Title</span>
+                  <input
+                    value={voiceTitle}
+                    onChange={(e) => setVoiceTitle(e.target.value)}
+                    placeholder="Optional package title"
+                    className="w-full rounded-lg border border-silicon-slate bg-imperial-navy/70 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-radiant-gold/60"
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-1 block text-xs text-gray-500">Topic</span>
+                  <input
+                    value={voiceTopic}
+                    onChange={(e) => setVoiceTopic(e.target.value)}
+                    placeholder="Main idea or angle"
+                    className="w-full rounded-lg border border-silicon-slate bg-imperial-navy/70 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-radiant-gold/60"
+                  />
+                </label>
+              </div>
+
+              <input
+                value={voiceAudience}
+                onChange={(e) => setVoiceAudience(e.target.value)}
+                placeholder="Audience: founders, operators, nonprofit leaders, product teams..."
+                className="w-full rounded-lg border border-silicon-slate bg-imperial-navy/70 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-radiant-gold/60"
+              />
+
+              <textarea
+                value={voiceTranscript}
+                onChange={(e) => setVoiceTranscript(e.target.value)}
+                rows={6}
+                placeholder="Optional while recording. If left blank, the captured audio is transcribed server-side when OPENAI_API_KEY is configured."
+                className="w-full rounded-lg border border-silicon-slate bg-imperial-navy/70 px-3 py-2 text-sm leading-6 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-radiant-gold/60"
+              />
+
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={isRecording ? stopVoiceRecording : startVoiceRecording}
+                  className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
+                    isRecording
+                      ? 'border-red-500/50 bg-red-500/15 text-red-300'
+                      : 'border-radiant-gold/40 bg-radiant-gold/10 text-radiant-gold hover:bg-radiant-gold/20'
+                  }`}
+                >
+                  {isRecording ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
+                  {isRecording ? 'Stop Recording' : 'Record Natively'}
+                </button>
+                {voiceAudioFile && (
+                  <span className="truncate text-xs text-emerald-400">Captured: {voiceAudioFile.name}</span>
+                )}
+              </div>
+
+              <div>
+                <div className="mb-2 text-xs text-gray-500">Outputs</div>
+                <div className="flex flex-wrap gap-2">
+                  {VOICE_NOTE_OUTPUTS.map((output) => (
+                    <button
+                      key={output.value}
+                      type="button"
+                      onClick={() => toggleVoiceOutput(output.value)}
+                      className={`rounded-full border px-3 py-1 text-xs transition-colors ${
+                        voiceOutputs.includes(output.value)
+                          ? 'border-radiant-gold/60 bg-radiant-gold/15 text-radiant-gold'
+                          : 'border-silicon-slate text-gray-400 hover:border-gray-500'
+                      }`}
+                    >
+                      {output.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-2 text-xs text-gray-500">Frameworks</div>
+                <div className="grid gap-2 md:grid-cols-2">
+                  {contentFrameworks.map((framework) => (
+                    <button
+                      key={framework.id}
+                      type="button"
+                      onClick={() => toggleVoiceFramework(framework.id)}
+                      className={`rounded-lg border p-3 text-left transition-colors ${
+                        voiceFrameworks.includes(framework.id)
+                          ? 'border-radiant-gold/60 bg-radiant-gold/10'
+                          : 'border-silicon-slate hover:border-gray-500'
+                      }`}
+                    >
+                      <div className="text-xs font-semibold text-gray-200">{framework.creator_name}</div>
+                      <div className="mt-1 text-xs text-muted-foreground">{framework.display_name}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                onClick={submitVoiceIntake}
+                disabled={voiceSubmitting || (!voiceAudioFile && voiceTranscript.trim().length < 10) || voiceOutputs.length === 0}
+                className="admin-console-button-primary disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {voiceSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                Create Intake
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {voiceResult && (
+                <div className={`rounded-lg border px-3 py-2 text-sm ${
+                  voiceResult.success
+                    ? 'border-green-500/30 bg-green-500/10 text-green-300'
+                    : 'border-red-500/30 bg-red-500/10 text-red-300'
+                }`}>
+                  <div>{voiceResult.message}</div>
+                  {voiceResult.href && (
+                    <Link href={voiceResult.href} className="mt-2 inline-flex items-center gap-1 text-xs text-radiant-gold hover:underline">
+                      Open generated draft <Eye className="h-3 w-3" />
+                    </Link>
+                  )}
+                </div>
+              )}
+
+              <div className="rounded-lg border border-silicon-slate bg-background/30 p-3">
+                <div className="mb-3 flex items-center justify-between">
+                  <h3 className="text-sm font-semibold text-gray-200">Recent intakes</h3>
+                  <button onClick={fetchVoiceIntakes} className="text-xs text-radiant-gold hover:underline">Refresh</button>
+                </div>
+                {voiceLoading ? (
+                  <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin text-gray-500" /></div>
+                ) : voiceIntakes.length === 0 ? (
+                  <p className="py-6 text-center text-xs text-muted-foreground">No voice-note intakes yet.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {voiceIntakes.map((intake) => (
+                      <div key={intake.id} className="rounded-lg border border-silicon-slate/80 bg-imperial-navy/50 p-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="truncate text-sm font-medium text-gray-200">{intake.title}</div>
+                            <div className="mt-1 flex flex-wrap gap-2 text-[10px] text-gray-500">
+                              <span>{intake.status.replace(/_/g, ' ')}</span>
+                              {intake.audio_file_name && <span>audio captured</span>}
+                              <span>{new Date(intake.created_at).toLocaleDateString()}</span>
+                            </div>
+                            <div className="mt-2 flex flex-wrap gap-1">
+                              {(intake.target_outputs ?? []).slice(0, 5).map((output) => (
+                                <span key={output} className="rounded-full bg-silicon-slate/70 px-2 py-0.5 text-[10px] text-gray-300">{output.replace(/_/g, ' ')}</span>
+                              ))}
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => generateVoicePackage(intake.id)}
+                            disabled={voiceGeneratingId === intake.id}
+                            className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-radiant-gold/40 px-2.5 py-1.5 text-xs text-radiant-gold hover:bg-radiant-gold/10 disabled:opacity-50"
+                          >
+                            {voiceGeneratingId === intake.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                            Generate
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </motion.div>
         )}
       </div>
