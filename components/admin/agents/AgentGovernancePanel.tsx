@@ -61,6 +61,27 @@ export type AgentGovernanceSnapshot = {
     fallback_agent_key: string | null
     alternatives_considered: string[]
   }>
+  recent_decision_trust_frames: Array<{
+    run_id: string
+    decision_id: string
+    agent_key: string
+    decision_type: 'information' | 'tool' | 'vendor' | 'spend' | 'data' | 'action' | 'oauth' | 'app_install'
+    objective: string
+    selected_candidate: string
+    candidates_considered: string[]
+    trust_signals: string[]
+    risk_signals: string[]
+    missing_evidence: string[]
+    scores: {
+      relationshipTrust: number
+      decisionRisk: number
+      evidenceCompleteness: number
+    }
+    recommended_gate: 'allow' | 'sandbox' | 'human_review' | 'block'
+    approval_type: string | null
+    reversibility: string
+    occurred_at: string
+  }>
   recent_governance_exports: Array<{
     id: string
     export_type: string
@@ -147,6 +168,7 @@ export function AgentGovernancePanel({ governance }: { governance: AgentGovernan
 
       <GovernanceExportBuilder />
       <GovernanceExportLedger exports={governance.recent_governance_exports ?? []} />
+      <DecisionTrustPanel frames={governance.recent_decision_trust_frames ?? []} />
 
       <div className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-4">
         <MiniMetric label="Profiles" value={`${governance.summary.reviewed_agents}/${governance.summary.total_agents}`} tone="green" />
@@ -234,6 +256,70 @@ export function AgentGovernancePanel({ governance }: { governance: AgentGovernan
   )
 }
 
+function DecisionTrustPanel({ frames }: { frames: AgentGovernanceSnapshot['recent_decision_trust_frames'] }) {
+  const latest = frames[0]
+
+  return (
+    <div className="mt-4 border-t border-silicon-slate/55 pt-4" aria-label="Decision Trust">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Decision Trust</p>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">
+            Shadow-mode frames explain why an agent trusted a source, tool, vendor, app, or spend path before action.
+          </p>
+        </div>
+        <StatusOnlyPill tone={latest ? gateTone(latest.recommended_gate) : 'neutral'}>
+          {latest ? latest.recommended_gate.replace(/_/g, ' ') : 'shadow mode'}
+        </StatusOnlyPill>
+      </div>
+
+      {latest ? (
+        <Link
+          href={`/admin/agents/runs/${latest.run_id}`}
+          className="mt-3 block rounded-lg border border-silicon-slate/55 bg-background/35 p-3 hover:border-radiant-gold/50"
+        >
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold">{latest.selected_candidate}</p>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                {latest.decision_type.replace(/_/g, ' ')} · {latest.objective}
+              </p>
+            </div>
+            <StatusOnlyPill tone={gateTone(latest.recommended_gate)}>
+              {latest.recommended_gate.replace(/_/g, ' ')}
+            </StatusOnlyPill>
+          </div>
+
+          <div className="mt-3 grid gap-2 sm:grid-cols-3">
+            <MiniMetric label="Trust" value={formatTrustScore(latest.scores.relationshipTrust)} tone={latest.scores.relationshipTrust >= 0.65 ? 'green' : 'yellow'} />
+            <MiniMetric label="Risk" value={formatTrustScore(latest.scores.decisionRisk)} tone={latest.scores.decisionRisk >= 0.55 ? 'yellow' : 'green'} />
+            <MiniMetric label="Evidence" value={formatTrustScore(latest.scores.evidenceCompleteness)} tone={latest.scores.evidenceCompleteness >= 0.65 ? 'green' : 'yellow'} />
+          </div>
+
+          <p className="mt-3 text-xs leading-5 text-muted-foreground">
+            Trust: {latest.trust_signals.slice(0, 2).join(', ') || 'No trust signals recorded.'}
+          </p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">
+            Risk: {latest.risk_signals.slice(0, 2).join(', ') || 'No risk signals recorded.'}
+          </p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">
+            Missing evidence: {latest.missing_evidence.slice(0, 3).join(', ') || 'No missing evidence recorded.'}
+          </p>
+          {latest.approval_type ? (
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">
+              Approval: {latest.approval_type} · Reversibility: {latest.reversibility}
+            </p>
+          ) : null}
+        </Link>
+      ) : (
+        <div className="mt-3 rounded-lg border border-silicon-slate/55 bg-background/35 p-3 text-sm text-muted-foreground">
+          No decision trust frames recorded yet. V1 will log frames as Agent Ops events before any enforcement is added.
+        </div>
+      )}
+    </div>
+  )
+}
+
 function authorityPacket(metadata: Record<string, unknown> | null | undefined) {
   const value = metadata?.authority_packet
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null
@@ -293,6 +379,17 @@ function governanceExportScopeLabel(item: AgentGovernanceSnapshot['recent_govern
 
 function shortId(value: string) {
   return value.length > 8 ? value.slice(0, 8) : value
+}
+
+function gateTone(gate: AgentGovernanceSnapshot['recent_decision_trust_frames'][number]['recommended_gate']): 'green' | 'yellow' | 'red' | 'blue' {
+  if (gate === 'allow') return 'green'
+  if (gate === 'block') return 'red'
+  if (gate === 'human_review') return 'yellow'
+  return 'blue'
+}
+
+function formatTrustScore(value: number) {
+  return `${Math.round(value * 100)}%`
 }
 
 function GovernanceExportBuilder() {

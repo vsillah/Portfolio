@@ -6,6 +6,10 @@ import {
   buildPresentationBakeoffPlan,
   type PresentationBakeoffInput,
 } from './presentation-bakeoff'
+import {
+  buildTechnologyBakeoffDecisionTrustFrame,
+  type AgentDecisionFrame,
+} from './agent-decision-trust'
 
 export const TECHNOLOGY_BAKEOFF_SURFACES = [
   'media_generation',
@@ -85,6 +89,7 @@ export interface TechnologyBakeoffPlan {
   rollbackPlan: string[]
   integrationNotes: string[]
   missingEvidence: string[]
+  decisionTrustFrame: AgentDecisionFrame
   nextImplementationStep: string
   specialistSource?: 'media_generation' | 'presentation' | 'agent_runtime'
 }
@@ -597,6 +602,14 @@ export function buildTechnologyBakeoffPlan(input: TechnologyBakeoffInput): Techn
   const specialist = specialistPlan(input, profile)
   const candidates = specialist.candidates ?? applyCandidateOverrides(profile, input.candidateOverrides)
   const currentDefault = input.currentDefault?.trim() || 'Current Portfolio default'
+  const selectedCandidate = candidates[0] ?? profile.candidates[0]
+  const missingEvidence = profile.missingEvidence
+  const decisionTrustFrame = buildTechnologyBakeoffDecisionTrustFrame({
+    bakeoff: input,
+    selectedCandidate,
+    candidates,
+    missingEvidence,
+  })
 
   return {
     generatedAt: new Date().toISOString(),
@@ -620,7 +633,8 @@ export function buildTechnologyBakeoffPlan(input: TechnologyBakeoffInput): Techn
     promotionGate: specialist.promotionGate ?? profile.promotionGate,
     rollbackPlan: profile.rollbackPlan,
     integrationNotes: specialist.integrationNotes ?? profile.integrationNotes,
-    missingEvidence: profile.missingEvidence,
+    missingEvidence,
+    decisionTrustFrame,
     nextImplementationStep: `Create a small evidence packet for ${profile.label} in ${profile.adminArea}, then compare candidates with the scoring plan.`,
     specialistSource: specialist.specialistSource,
   }

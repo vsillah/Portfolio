@@ -93,6 +93,7 @@ const governance = {
       alternatives_considered: ['chief-of-staff'],
     },
   ],
+  recent_decision_trust_frames: [],
   recent_governance_exports: [],
 } satisfies AgentGovernanceSnapshot
 

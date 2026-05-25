@@ -21,6 +21,8 @@ describe('buildTechnologyBakeoffPlan', () => {
       expect(plan.benchmarkRunbook.join(' ')).toContain('Decision question')
       expect(plan.promotionGate.length).toBeGreaterThan(0)
       expect(plan.rollbackPlan.length).toBeGreaterThan(0)
+      expect(plan.decisionTrustFrame.objective).toBe(`Evaluate ${TECHNOLOGY_BAKEOFF_PROFILES[surface].label}`)
+      expect(plan.decisionTrustFrame.candidates_considered.length).toBeGreaterThan(0)
       expect(plan.nextImplementationStep).toContain(plan.surfaceLabel)
     }
   })
@@ -86,6 +88,7 @@ describe('buildTechnologyBakeoffPlan', () => {
 
     expect(plan.candidates[0].label).toBe('New Analytics Tool')
     expect(plan.candidates[0].role).toBe('User-supplied candidate')
+    expect(plan.decisionTrustFrame.selected_candidate).toBe('new_analytics_tool')
   })
 
   it('uses Apify call evidence for lead enrichment bakeoffs', () => {
@@ -99,5 +102,8 @@ describe('buildTechnologyBakeoffPlan', () => {
     expect(plan.candidates.map((candidate) => candidate.id)).toEqual(expect.arrayContaining(['apify_actors', 'browser_agents']))
     expect(plan.benchmarkRunbook.join(' ')).toContain('docs/apify-call-bakeoff-analysis.md')
     expect(plan.missingEvidence.join(' ')).toContain('Direct Apify run history')
+    expect(plan.decisionTrustFrame.decision_type).toBe('vendor')
+    expect(plan.decisionTrustFrame.missing_evidence).toContain('Direct Apify run history')
+    expect(plan.decisionTrustFrame.recommended_gate).toMatch(/sandbox|human_review/)
   })
 })

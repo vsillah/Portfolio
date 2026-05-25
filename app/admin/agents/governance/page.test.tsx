@@ -102,6 +102,29 @@ const governance = {
       alternatives_considered: [],
     },
   ],
+  recent_decision_trust_frames: [
+    {
+      run_id: 'trust-run',
+      decision_id: 'decision-trust-1',
+      agent_key: 'chief-of-staff',
+      decision_type: 'spend',
+      objective: 'Create approval checkpoint for vendor payment.',
+      selected_candidate: 'make_vendor_payment',
+      candidates_considered: ['make_vendor_payment'],
+      trust_signals: ['Agent Ops source run linked', 'Existing agent approval gate selected'],
+      risk_signals: ['Payment or spend authority requested'],
+      missing_evidence: ['Human approval decision', 'Post-approval execution trace'],
+      scores: {
+        relationshipTrust: 0.57,
+        decisionRisk: 0.62,
+        evidenceCompleteness: 0.6,
+      },
+      recommended_gate: 'human_review',
+      approval_type: 'payment_make_vendor_payment',
+      reversibility: 'hard',
+      occurred_at: '2026-05-13T12:00:00.000Z',
+    },
+  ],
   recent_governance_exports: [
     {
       id: 'export-1',
@@ -151,6 +174,17 @@ describe('AgentGovernancePage', () => {
     expect(within(governancePanel).getByText('Create refund')).toBeInTheDocument()
     expect(within(governancePanel).getByText('No refund is issued until this payment authority checkpoint is approved and linked to a trace.')).toBeInTheDocument()
     expect(within(governancePanel).getByText(/Risk: high · Executes now: no/i)).toBeInTheDocument()
+    const decisionTrust = within(governancePanel).getByLabelText('Decision Trust')
+    expect(within(decisionTrust).getByText('make_vendor_payment')).toBeInTheDocument()
+    expect(within(decisionTrust).getByText(/spend · Create approval checkpoint for vendor payment/i)).toBeInTheDocument()
+    expect(within(decisionTrust).getAllByText('human review').length).toBeGreaterThan(0)
+    expect(within(decisionTrust).getByText('Trust')).toBeInTheDocument()
+    expect(within(decisionTrust).getByText('57%')).toBeInTheDocument()
+    expect(within(decisionTrust).getByText('62%')).toBeInTheDocument()
+    expect(within(decisionTrust).getByText('60%')).toBeInTheDocument()
+    expect(within(decisionTrust).getByText(/Missing evidence: Human approval decision, Post-approval execution trace/i)).toBeInTheDocument()
+    expect(within(decisionTrust).getByText(/Approval: payment_make_vendor_payment · Reversibility: hard/i)).toBeInTheDocument()
+    expect(within(decisionTrust).getByRole('link', { name: /make_vendor_payment/i })).toHaveAttribute('href', '/admin/agents/runs/trust-run')
     expect(within(governancePanel).getByRole('link', { name: /Export client audit/i })).toHaveAttribute('href', '/api/admin/agents/governance/export?format=markdown')
     expect(within(governancePanel).getByRole('link', { name: /Export audit JSON/i })).toHaveAttribute('href', '/api/admin/agents/governance/export?format=json')
     expect(within(governancePanel).getByRole('link', { name: /Export latest trace/i })).toHaveAttribute('href', '/api/admin/agents/governance/export?format=markdown&runId=delegation-run')
@@ -178,5 +212,24 @@ describe('AgentGovernancePage', () => {
     await waitFor(() => expect(fetchMock).toHaveBeenCalledWith('/api/admin/agents/mission-control', {
       headers: { Authorization: 'Bearer admin-token' },
     }))
+  })
+
+  it('renders a decision trust empty state when no frames exist', async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        governance: {
+          ...governance,
+          recent_decision_trust_frames: [],
+        },
+      }),
+    })
+
+    render(<AgentGovernancePage />)
+
+    const governancePanel = await screen.findByLabelText('Agent Governance')
+    const decisionTrust = within(governancePanel).getByLabelText('Decision Trust')
+    expect(within(decisionTrust).getByText('shadow mode')).toBeInTheDocument()
+    expect(within(decisionTrust).getByText(/No decision trust frames recorded yet/i)).toBeInTheDocument()
   })
 })
