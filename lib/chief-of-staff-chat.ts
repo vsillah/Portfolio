@@ -17,6 +17,10 @@ import {
   evaluateAgentDelegationPolicy,
 } from '@/lib/agent-delegation-policy'
 import {
+  AGENT_DECISION_TRUST_EVENT,
+  buildDelegationDecisionTrustFrame,
+} from '@/lib/agent-decision-trust'
+import {
   evaluateAgentBudget,
   type AgentBudgetDecision,
 } from '@/lib/agent-budget-policy'
@@ -865,6 +869,10 @@ export async function runChiefOfStaffChat(input: ChiefOfStaffChatRequest): Promi
     const agentEngagements = applyDelegationDecisionToEngagements(parsed.agentEngagements, delegationDecision)
 
     if (delegationDecision) {
+      const decisionTrustFrame = buildDelegationDecisionTrustFrame({
+        decision: delegationDecision,
+        runId: run.id,
+      })
       await recordAgentEvent({
         runId: run.id,
         eventType: 'delegation_decision_recorded',
@@ -883,6 +891,17 @@ export async function runChiefOfStaffChat(input: ChiefOfStaffChatRequest): Promi
           approval_gate: delegationDecision.approval_gate,
           confidence: delegationDecision.confidence,
         },
+      }).catch(() => {})
+      await recordAgentEvent({
+        runId: run.id,
+        eventType: AGENT_DECISION_TRUST_EVENT,
+        severity: decisionTrustFrame.recommended_gate === 'block'
+          ? 'error'
+          : decisionTrustFrame.recommended_gate === 'human_review'
+            ? 'warning'
+            : 'info',
+        message: `${decisionTrustFrame.selected_candidate}: ${decisionTrustFrame.recommended_gate}`,
+        metadata: decisionTrustFrame,
       }).catch(() => {})
     }
 

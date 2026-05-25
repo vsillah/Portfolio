@@ -59,6 +59,43 @@ describe('agent governance', () => {
             alternatives_considered: ['chief-of-staff'],
           },
         },
+        {
+          run_id: 'run-trust',
+          event_type: 'agent_decision_trust_recorded',
+          severity: 'warning',
+          message: 'payment_make_vendor_payment: human_review',
+          occurred_at: '2026-05-21T00:01:30.000Z',
+          metadata: {
+            decision_id: 'decision-payment',
+            agent_key: 'chief-of-staff',
+            decision_type: 'spend',
+            objective: 'Create a vendor payment checkpoint.',
+            selected_candidate: 'make_vendor_payment',
+            candidates_considered: ['make_vendor_payment'],
+            trust_signals: ['Agent Ops source run linked', 'Existing agent approval gate selected'],
+            risk_signals: ['Payment or spend authority requested'],
+            missing_evidence: ['Human approval decision', 'private chat export abc123'],
+            scores: {
+              relationshipTrust: 0.57,
+              decisionRisk: 0.62,
+              evidenceCompleteness: 0.6,
+            },
+            recommended_gate: 'human_review',
+            approval_type: 'payment_make_vendor_payment',
+            reversibility: 'hard',
+          },
+        },
+        {
+          run_id: 'run-malformed',
+          event_type: 'agent_decision_trust_recorded',
+          severity: 'info',
+          message: 'Malformed frame ignored.',
+          occurred_at: '2026-05-21T00:01:20.000Z',
+          metadata: {
+            decision_id: 'decision-bad',
+            decision_type: 'not_real',
+          },
+        },
       ],
       exports: [
         {
@@ -98,6 +135,18 @@ describe('agent governance', () => {
       fallback_agent_key: 'chief-of-staff',
       alternatives_considered: ['chief-of-staff'],
     })
+    expect(snapshot.recent_decision_trust_frames).toHaveLength(1)
+    expect(snapshot.recent_decision_trust_frames[0]).toMatchObject({
+      run_id: 'run-trust',
+      decision_id: 'decision-payment',
+      agent_key: 'chief-of-staff',
+      decision_type: 'spend',
+      selected_candidate: 'make_vendor_payment',
+      recommended_gate: 'human_review',
+      approval_type: 'payment_make_vendor_payment',
+    })
+    expect(snapshot.recent_decision_trust_frames[0]?.missing_evidence.join(' ')).toContain('private source summary')
+    expect(snapshot.recent_decision_trust_frames[0]?.missing_evidence.join(' ')).not.toContain('private chat export')
     expect(snapshot.recent_governance_exports[0]).toMatchObject({
       id: 'export-1',
       format: 'markdown',

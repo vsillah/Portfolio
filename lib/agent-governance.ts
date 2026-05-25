@@ -6,6 +6,12 @@ import {
   isPaymentAuthorityAction,
   type AgentAction,
 } from '@/lib/agent-policy'
+import {
+  AGENT_DECISION_TRUST_EVENT,
+  type AgentDecisionType,
+  type DecisionTrustGate,
+  type DecisionTrustScore,
+} from '@/lib/agent-decision-trust'
 
 export type AgentCapabilityProfile = {
   agent_key: string
@@ -90,6 +96,23 @@ export type AgentGovernanceSnapshot = {
     approval_gate: string | null
     fallback_agent_key: string | null
     alternatives_considered: string[]
+  }>
+  recent_decision_trust_frames: Array<{
+    run_id: string
+    decision_id: string
+    agent_key: string
+    decision_type: AgentDecisionType
+    objective: string
+    selected_candidate: string
+    candidates_considered: string[]
+    trust_signals: string[]
+    risk_signals: string[]
+    missing_evidence: string[]
+    scores: DecisionTrustScore
+    recommended_gate: DecisionTrustGate
+    approval_type: string | null
+    reversibility: string
+    occurred_at: string
   }>
   recent_governance_exports: GovernanceExportSummary[]
 }
@@ -224,8 +247,29 @@ function metadataString(metadata: Record<string, unknown> | null, key: string) {
   return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null
 }
 
+function safeMetadataString(metadata: Record<string, unknown> | null, key: string) {
+  const value = metadataString(metadata, key)
+  return value ? sanitizeDecisionTrustText(value) : null
+}
+
 function nestedMetadataRecord(metadata: Record<string, unknown> | null, key: string) {
   return metadataRecord(metadata?.[key])
+}
+
+function sanitizeDecisionTrustText(value: string) {
+  return value
+    .replace(/(sk-[A-Za-z0-9_-]{8,}|github_pat_[A-Za-z0-9_]{8,}|[A-Za-z0-9_]*(?:TOKEN|SECRET|KEY|PASSWORD)[A-Za-z0-9_]*\s*[:=]\s*["']?[^"'\s,}]+)/gi, '[redacted]')
+    .replace(/private (chat|message|transcript|export)[^,.]*/gi, 'private source summary')
+    .slice(0, 220)
+}
+
+function metadataSafeStringArray(metadata: Record<string, unknown> | null, key: string) {
+  return metadataStringArray(metadata, key).map(sanitizeDecisionTrustText)
+}
+
+function metadataNumber(record: Record<string, unknown> | null, key: string) {
+  const value = record?.[key]
+  return typeof value === 'number' && Number.isFinite(value) ? value : 0
 }
 
 function authorityApprovalSummary(approval: GovernanceApprovalSummary): GovernanceApprovalSummary {
@@ -277,6 +321,67 @@ function recentDelegationDecisions(events: GovernanceEventSummary[]): AgentGover
     .slice(0, 5)
 }
 
+function decisionTrustScores(value: unknown): DecisionTrustScore | null {
+  const record = metadataRecord(value)
+  if (!record) return null
+  return {
+    relationshipTrust: metadataNumber(record, 'relationshipTrust'),
+    decisionRisk: metadataNumber(record, 'decisionRisk'),
+    evidenceCompleteness: metadataNumber(record, 'evidenceCompleteness'),
+  }
+}
+
+function isDecisionType(value: string | null): value is AgentDecisionType {
+  return value === 'information' ||
+    value === 'tool' ||
+    value === 'vendor' ||
+    value === 'spend' ||
+    value === 'data' ||
+    value === 'action' ||
+    value === 'oauth' ||
+    value === 'app_install'
+}
+
+function isDecisionTrustGate(value: string | null): value is DecisionTrustGate {
+  return value === 'allow' || value === 'sandbox' || value === 'human_review' || value === 'block'
+}
+
+function recentDecisionTrustFrames(events: GovernanceEventSummary[]): AgentGovernanceSnapshot['recent_decision_trust_frames'] {
+  return events
+    .filter((event) => event.event_type === AGENT_DECISION_TRUST_EVENT)
+    .flatMap((event) => {
+      const metadata = metadataRecord(event.metadata)
+      const decisionId = safeMetadataString(metadata, 'decision_id')
+      const agentKey = safeMetadataString(metadata, 'agent_key')
+      const decisionType = safeMetadataString(metadata, 'decision_type')
+      const selectedCandidate = safeMetadataString(metadata, 'selected_candidate')
+      const scores = decisionTrustScores(metadata?.scores)
+      const recommendedGate = safeMetadataString(metadata, 'recommended_gate')
+      if (!decisionId || !agentKey || !isDecisionType(decisionType) || !selectedCandidate || !scores || !isDecisionTrustGate(recommendedGate)) {
+        return []
+      }
+
+      return [{
+        run_id: event.run_id,
+        decision_id: decisionId,
+        agent_key: agentKey,
+        decision_type: decisionType,
+        objective: safeMetadataString(metadata, 'objective') ?? 'Decision trust frame recorded.',
+        selected_candidate: selectedCandidate,
+        candidates_considered: metadataSafeStringArray(metadata, 'candidates_considered'),
+        trust_signals: metadataSafeStringArray(metadata, 'trust_signals'),
+        risk_signals: metadataSafeStringArray(metadata, 'risk_signals'),
+        missing_evidence: metadataSafeStringArray(metadata, 'missing_evidence'),
+        scores,
+        recommended_gate: recommendedGate,
+        approval_type: safeMetadataString(metadata, 'approval_type'),
+        reversibility: safeMetadataString(metadata, 'reversibility') ?? 'unknown',
+        occurred_at: event.occurred_at,
+      }]
+    })
+    .slice(0, 5)
+}
+
 export function buildAgentGovernanceSnapshot(input?: {
   approvals?: GovernanceApprovalSummary[]
   events?: GovernanceEventSummary[]
@@ -309,6 +414,7 @@ export function buildAgentGovernanceSnapshot(input?: {
     }),
     pending_authority_approvals: pendingAuthorityApprovals.slice(0, 8).map(authorityApprovalSummary),
     recent_delegation_decisions: recentDelegationDecisions(input?.events ?? []),
+    recent_decision_trust_frames: recentDecisionTrustFrames(input?.events ?? []),
     recent_governance_exports: (input?.exports ?? []).slice(0, 8),
   }
 }

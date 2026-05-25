@@ -843,7 +843,7 @@ export async function buildAgentMissionControlSnapshot() {
       .from('agent_run_events')
       .select('run_id, event_type, severity, message, occurred_at, metadata')
       .order('occurred_at', { ascending: false })
-      .limit(12),
+      .limit(30),
     db
       .from('agent_work_items')
       .select('id, title, status, priority, owner_agent_key, dependency_ids, active_run_id, updated_at')

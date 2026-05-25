@@ -103,6 +103,11 @@ describe('POST /api/admin/agents/chief-of-staff/actions', () => {
           requested_by_user_id: 'admin-user',
           executes_action: false,
         }),
+        decision_trust_frame: expect.objectContaining({
+          decision_type: 'action',
+          recommended_gate: 'human_review',
+          selected_candidate: 'send_email',
+        }),
       }),
     }))
     expect(mocks.insert).toHaveBeenCalledWith(expect.objectContaining({
@@ -115,6 +120,19 @@ describe('POST /api/admin/agents/chief-of-staff/actions', () => {
           action: 'send_email',
           executes_action: false,
         }),
+        decision_trust_frame: expect.objectContaining({
+          recommended_gate: 'human_review',
+          approval_type: 'send_email',
+        }),
+      }),
+    }))
+    expect(mocks.recordAgentEvent).toHaveBeenCalledWith(expect.objectContaining({
+      runId: 'approval-run-1',
+      eventType: 'agent_decision_trust_recorded',
+      message: 'send_email: human_review',
+      metadata: expect.objectContaining({
+        decision_type: 'action',
+        selected_candidate: 'send_email',
       }),
     }))
     expect(mocks.attachAgentArtifact).toHaveBeenCalledWith(expect.objectContaining({
@@ -127,6 +145,10 @@ describe('POST /api/admin/agents/chief-of-staff/actions', () => {
         action_payload: expect.objectContaining({
           action: 'send_email',
           executes_action: false,
+        }),
+        decision_trust_frame: expect.objectContaining({
+          selected_candidate: 'send_email',
+          recommended_gate: 'human_review',
         }),
       }),
     }))
@@ -156,6 +178,11 @@ describe('POST /api/admin/agents/chief-of-staff/actions', () => {
           approval_type: 'payment_create_refund',
           executes_action: false,
           side_effect_boundary: expect.stringContaining('No refund is issued'),
+        }),
+        decision_trust_frame: expect.objectContaining({
+          decision_type: 'spend',
+          recommended_gate: 'human_review',
+          selected_candidate: 'create_refund',
         }),
       }),
     }))

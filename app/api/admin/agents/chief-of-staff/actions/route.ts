@@ -7,6 +7,10 @@ import {
   getApprovalGate,
   type AgentAction,
 } from '@/lib/agent-policy'
+import {
+  AGENT_DECISION_TRUST_EVENT,
+  buildPaymentAuthorityDecisionTrustFrame,
+} from '@/lib/agent-decision-trust'
 import { supabaseAdmin } from '@/lib/supabase'
 import type { ChiefOfStaffActionProposal } from '@/lib/chief-of-staff-chat'
 
@@ -153,6 +157,12 @@ export async function POST(request: NextRequest) {
       sourceRunId,
       userId: auth.user.id,
     })
+    const decisionTrustFrame = buildPaymentAuthorityDecisionTrustFrame({
+      action: proposal.action,
+      label: proposal.label,
+      sourceRunId,
+      approvalType,
+    })
 
     const run = await startAgentRun({
       agentKey: 'chief-of-staff',
@@ -172,6 +182,7 @@ export async function POST(request: NextRequest) {
         source_run_id: sourceRunId,
         proposal,
         action_payload: actionPayload,
+        decision_trust_frame: decisionTrustFrame,
         executes_action: false,
       },
       idempotencyKey: `chief-of-staff-action:${sourceRunId}:${proposal.action}:${auth.user.id}:${Date.now()}`,
@@ -188,6 +199,7 @@ export async function POST(request: NextRequest) {
           source_run_id: sourceRunId,
           proposal,
           action_payload: actionPayload,
+          decision_trust_frame: decisionTrustFrame,
           executes_action: false,
         },
       })
@@ -200,6 +212,19 @@ export async function POST(request: NextRequest) {
 
     await recordAgentEvent({
       runId: run.id,
+      eventType: AGENT_DECISION_TRUST_EVENT,
+      severity: decisionTrustFrame.recommended_gate === 'block'
+        ? 'error'
+        : decisionTrustFrame.recommended_gate === 'human_review'
+          ? 'warning'
+          : 'info',
+      message: `${proposal.action}: ${decisionTrustFrame.recommended_gate}`,
+      metadata: decisionTrustFrame,
+      idempotencyKey: `${run.id}:decision-trust-recorded`,
+    }).catch(() => {})
+
+    await recordAgentEvent({
+      runId: run.id,
       eventType: 'chief_of_staff_approval_created',
       severity: 'info',
       message: `${approvalType}: ${proposal.label}`,
@@ -208,6 +233,7 @@ export async function POST(request: NextRequest) {
         source_run_id: sourceRunId,
         proposal,
         action_payload: actionPayload,
+        decision_trust_frame: decisionTrustFrame,
       },
       idempotencyKey: `${run.id}:chief-of-staff-approval-created`,
     }).catch(() => {})
@@ -224,6 +250,7 @@ export async function POST(request: NextRequest) {
         approval_type: approvalType,
         source_run_id: sourceRunId,
         action_payload: actionPayload,
+        decision_trust_frame: decisionTrustFrame,
       },
       idempotencyKey: `${run.id}:approval-action-payload`,
     }).catch(() => {})
