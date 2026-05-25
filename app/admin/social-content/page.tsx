@@ -141,7 +141,15 @@ function SocialContentQueuePage() {
   const [voiceLoading, setVoiceLoading] = useState(false)
   const [voiceSubmitting, setVoiceSubmitting] = useState(false)
   const [voiceGeneratingId, setVoiceGeneratingId] = useState<string | null>(null)
-  const [voiceResult, setVoiceResult] = useState<{ success: boolean; message: string; href?: string | null } | null>(null)
+  const [pptxGeneratingPackageId, setPptxGeneratingPackageId] = useState<string | null>(null)
+  const [voiceResult, setVoiceResult] = useState<{
+    success: boolean
+    message: string
+    href?: string | null
+    packageId?: string | null
+    agentRunId?: string | null
+    pptxUrl?: string | null
+  } | null>(null)
   const [isRecording, setIsRecording] = useState(false)
   const recorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<BlobPart[]>([])
@@ -384,12 +392,54 @@ function SocialContentQueuePage() {
         success: true,
         message: `Package generated with ${data.outputs?.length ?? 0} drafts and ${data.approvals?.length ?? 0} approval gates.`,
         href: data.downstream?.socialContentId ? `/admin/social-content/${data.downstream.socialContentId}` : null,
+        packageId: data.package?.id ?? null,
+        agentRunId: data.agentRunId ?? null,
       })
       await Promise.all([fetchVoiceIntakes(), fetchItems()])
     } catch (err) {
       setVoiceResult({ success: false, message: err instanceof Error ? err.message : 'Failed to generate content package.' })
     } finally {
       setVoiceGeneratingId(null)
+    }
+  }
+
+  const generatePptxArtifact = async (packageId: string) => {
+    setPptxGeneratingPackageId(packageId)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+      const res = await fetch(`/api/admin/social-content/content-packages/${packageId}/pptx`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        if (res.status === 403 && data.agentRunId) {
+          throw new Error('Media generation approval is required before creating the PPTX. Review the Agent Ops gate first.')
+        }
+        throw new Error(data.error || 'Failed to generate PPTX artifact')
+      }
+      setVoiceResult((current) => ({
+        success: true,
+        message: `PowerPoint generated: ${data.fileName ?? 'content-package.pptx'}`,
+        href: current?.href ?? null,
+        packageId,
+        agentRunId: current?.agentRunId ?? null,
+        pptxUrl: data.signedUrl ?? null,
+      }))
+    } catch (err) {
+      setVoiceResult((current) => ({
+        success: false,
+        message: err instanceof Error ? err.message : 'Failed to generate PPTX artifact.',
+        href: current?.href ?? null,
+        packageId,
+        agentRunId: current?.agentRunId ?? null,
+      }))
+    } finally {
+      setPptxGeneratingPackageId(null)
     }
   }
 
@@ -884,11 +934,34 @@ function SocialContentQueuePage() {
                     : 'border-red-500/30 bg-red-500/10 text-red-300'
                 }`}>
                   <div>{voiceResult.message}</div>
-                  {voiceResult.href && (
-                    <Link href={voiceResult.href} className="mt-2 inline-flex items-center gap-1 text-xs text-radiant-gold hover:underline">
-                      Open generated draft <Eye className="h-3 w-3" />
-                    </Link>
-                  )}
+                  <div className="mt-2 flex flex-wrap items-center gap-3">
+                    {voiceResult.href && (
+                      <Link href={voiceResult.href} className="inline-flex items-center gap-1 text-xs text-radiant-gold hover:underline">
+                        Open generated draft <Eye className="h-3 w-3" />
+                      </Link>
+                    )}
+                    {voiceResult.agentRunId && (
+                      <Link href={`/admin/agents?run=${voiceResult.agentRunId}`} className="inline-flex items-center gap-1 text-xs text-radiant-gold hover:underline">
+                        Review gates <CheckCircle2 className="h-3 w-3" />
+                      </Link>
+                    )}
+                    {voiceResult.packageId && !voiceResult.pptxUrl && (
+                      <button
+                        type="button"
+                        onClick={() => generatePptxArtifact(voiceResult.packageId!)}
+                        disabled={pptxGeneratingPackageId === voiceResult.packageId}
+                        className="inline-flex items-center gap-1 text-xs text-radiant-gold hover:underline disabled:opacity-50"
+                      >
+                        {pptxGeneratingPackageId === voiceResult.packageId ? <Loader2 className="h-3 w-3 animate-spin" /> : <FileText className="h-3 w-3" />}
+                        Generate PPTX
+                      </button>
+                    )}
+                    {voiceResult.pptxUrl && (
+                      <a href={voiceResult.pptxUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-radiant-gold hover:underline">
+                        Open PowerPoint <FileText className="h-3 w-3" />
+                      </a>
+                    )}
+                  </div>
                 </div>
               )}
 
