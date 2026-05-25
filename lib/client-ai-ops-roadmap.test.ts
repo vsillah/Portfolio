@@ -166,6 +166,37 @@ describe('client AI ops roadmap', () => {
       .toContain('workflow copilots')
   })
 
+  it('maps audit and stack signals into connector readiness without live setup', () => {
+    const snapshot = buildProposalRoadmapSnapshot({
+      clientCompany: 'Acme Co',
+      verifiedStack: { technologies: [{ name: 'Webflow' }] },
+      auditSignals: [
+        {
+          audit_type: 'standalone',
+          tech_stack: {
+            crm: 'hubspot',
+            email: 'gmail',
+            other_tools: ['Slack'],
+          },
+          automation_needs: { priority_areas: ['lead_follow_up'] },
+          ai_readiness: { data_quality: 'integrated' },
+          decision_making: { decision_maker: true, approval_process: 'solo' },
+          enriched_tech_stack: { technologies: [{ name: 'Pinecone' }] },
+        },
+      ],
+    })
+
+    expect(snapshot.connectorReadiness.items.map((item) => item.key)).toEqual(expect.arrayContaining([
+      'webflow',
+      'hubspot',
+      'google_workspace',
+      'slack',
+      'pinecone',
+    ]))
+    expect(snapshot.connectorReadiness.requiredConnectorCount).toBeGreaterThanOrEqual(5)
+    expect(snapshot.connectorReadiness.connectorNextAction).toContain('setup packet')
+  })
+
   it('maps statuses between roadmap and projected task tables', () => {
     expect(dashboardStatusFromRoadmap('blocked')).toBe('in_progress')
     expect(meetingTaskStatusFromRoadmap('cancelled')).toBe('cancelled')
@@ -179,6 +210,35 @@ describe('client AI ops roadmap', () => {
         title: 'Acme AI Ops Roadmap',
         status: 'active',
         client_summary: 'Implementation is underway.',
+        snapshot: {
+          connector_readiness: {
+            summary: '5 required, 0 ready, 4 need auth, 0 approval-blocked',
+            requiredConnectorCount: 5,
+            readyConnectorCount: 0,
+            approvalBlockedConnectorCount: 0,
+            missingCriticalConnectorCount: 0,
+            connectorNextAction: 'Prepare oauth setup packet for HubSpot; do not connect until approved.',
+            conflicts: [],
+            items: [
+              {
+                key: 'hubspot',
+                label: 'HubSpot',
+                category: 'crm',
+                status: 'needs_auth',
+                source: 'audit',
+                authMethod: 'oauth',
+                setupOwner: 'shared',
+                requiredScopes: [],
+                approvalActions: [],
+                healthChecks: [],
+                fallbackPath: 'Use CSV exports until OAuth approval.',
+                critical: true,
+                evidence: 'Audit CRM: hubspot',
+                nextAction: 'Prepare oauth setup packet for HubSpot; do not connect until approved.',
+              },
+            ],
+          },
+        },
       },
       phases: [
         {
@@ -271,6 +331,11 @@ describe('client AI ops roadmap', () => {
       staleCostItems: 2,
       reportMissing: false,
       nextReportingAction: 'Resolve blocked roadmap tasks',
+    })
+    expect(view.connectorReadiness).toMatchObject({
+      requiredConnectorCount: 5,
+      readyConnectorCount: 0,
+      connectorNextAction: 'Prepare oauth setup packet for HubSpot; do not connect until approved.',
     })
     expect(JSON.stringify(view.latestReport)).not.toContain('Internal escalation note')
   })

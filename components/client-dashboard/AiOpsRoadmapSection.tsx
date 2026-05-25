@@ -26,6 +26,7 @@ function formatDate(value: string | null): string {
 
 export default function AiOpsRoadmapSection({ roadmap }: Props) {
   const projection = roadmap.projectionStatus
+  const connectors = roadmap.connectorReadiness
   const monitoringFlags = projection.overdueTasks + projection.staleCostItems + (projection.reportMissing ? 1 : 0)
   const openActions = projection.clientActionCount + projection.amadutownActionCount + projection.sharedActionCount
   const projectionTone = projection.blockedTasks > 0 || monitoringFlags > 0 || projection.approvalNeededCount > 0
@@ -109,6 +110,46 @@ export default function AiOpsRoadmapSection({ roadmap }: Props) {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="mb-5 rounded-lg border border-silicon-slate/60 bg-background/40 p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className={eyebrowClass}>Connector readiness</p>
+            <p className="mt-1 text-sm font-semibold text-foreground">{connectors.connectorNextAction}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{connectors.summary}</p>
+          </div>
+          <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Required</p>
+              <p className="font-semibold text-foreground">{connectors.requiredConnectorCount}</p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Ready</p>
+              <p className="font-semibold text-foreground">{connectors.readyConnectorCount}</p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Approval blocked</p>
+              <p className="font-semibold text-foreground">{connectors.approvalBlockedConnectorCount}</p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Critical missing</p>
+              <p className="font-semibold text-foreground">{connectors.missingCriticalConnectorCount}</p>
+            </div>
+          </div>
+        </div>
+        {connectors.items.length > 0 && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {connectors.items.slice(0, 6).map((connector) => (
+              <span
+                key={connector.key}
+                className="rounded-full border border-radiant-gold/30 bg-radiant-gold/10 px-2.5 py-1 text-xs text-radiant-gold"
+              >
+                {connector.label} · {connector.status.replace(/_/g, ' ')}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="space-y-3">

@@ -221,6 +221,15 @@ interface ProjectDetail {
     costItems: Array<{ id: string; category: string; label: string; payer: string; cost_type: string; amount: number | string | null }>
     clientView: {
       costSummary: { oneTimeClientOwned: number; monthlyClientOwned: number; quoteRequiredCount: number }
+      connectorReadiness: {
+        summary: string
+        requiredConnectorCount: number
+        readyConnectorCount: number
+        approvalBlockedConnectorCount: number
+        missingCriticalConnectorCount: number
+        connectorNextAction: string
+        items: Array<{ key: string; label: string; status: string }>
+      }
       projectionStatus: {
         tasksTotal: number
         tasksComplete: number
@@ -1231,6 +1240,7 @@ function AiOpsRoadmapAdminSection({
   const completed = tasks.filter((task) => task.status === 'complete').length
   const progress = tasks.length > 0 ? Math.round((completed / tasks.length) * 100) : 0
   const projection = roadmap?.clientView?.projectionStatus
+  const connectors = roadmap?.clientView?.connectorReadiness
   const monitoringFlags = projection
     ? projection.overdueTasks + projection.staleCostItems + (projection.reportMissing ? 1 : 0)
     : 0
@@ -1309,6 +1319,48 @@ function AiOpsRoadmapAdminSection({
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {connectors && (
+            <div className="rounded-lg bg-background/40 border border-silicon-slate/60 p-4 mb-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <p className="text-xs font-semibold text-radiant-gold uppercase tracking-[0.14em]">Connector readiness</p>
+                  <p className="text-sm font-medium text-foreground mt-1">{connectors.connectorNextAction}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{connectors.summary}</p>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 min-w-full lg:min-w-[520px]">
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Required</p>
+                    <p className="text-sm text-foreground">{connectors.requiredConnectorCount}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Ready</p>
+                    <p className="text-sm text-foreground">{connectors.readyConnectorCount}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Approval blocked</p>
+                    <p className="text-sm text-foreground">{connectors.approvalBlockedConnectorCount}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Critical missing</p>
+                    <p className="text-sm text-foreground">{connectors.missingCriticalConnectorCount}</p>
+                  </div>
+                </div>
+              </div>
+              {connectors.items.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {connectors.items.slice(0, 6).map((connector) => (
+                    <span
+                      key={connector.key}
+                      className="rounded-full border border-radiant-gold/30 bg-radiant-gold/10 px-2.5 py-1 text-xs text-radiant-gold"
+                    >
+                      {connector.label} · {connector.status.replace(/_/g, ' ')}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 

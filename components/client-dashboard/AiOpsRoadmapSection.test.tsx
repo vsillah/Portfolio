@@ -29,6 +29,33 @@ const roadmap: RoadmapClientView = {
     quoteRequiredCount: 1,
     byCategory: {},
   },
+  connectorReadiness: {
+    summary: '5 required, 0 ready, 4 need auth, 0 approval-blocked',
+    requiredConnectorCount: 5,
+    readyConnectorCount: 0,
+    approvalBlockedConnectorCount: 0,
+    missingCriticalConnectorCount: 0,
+    connectorNextAction: 'Prepare oauth setup packet for HubSpot; do not connect until approved.',
+    conflicts: [],
+    items: [
+      {
+        key: 'hubspot',
+        label: 'HubSpot',
+        category: 'crm',
+        status: 'needs_auth',
+        source: 'audit',
+        authMethod: 'oauth',
+        setupOwner: 'shared',
+        requiredScopes: [],
+        approvalActions: [],
+        healthChecks: [],
+        fallbackPath: 'Use CSV exports until OAuth approval.',
+        critical: true,
+        evidence: 'Audit CRM: hubspot',
+        nextAction: 'Prepare oauth setup packet for HubSpot; do not connect until approved.',
+      },
+    ],
+  },
   projectionStatus: {
     tasksTotal: 2,
     tasksComplete: 1,
@@ -59,6 +86,9 @@ describe('AiOpsRoadmapSection', () => {
     render(<AiOpsRoadmapSection roadmap={roadmap} />)
 
     expect(screen.getByText('Roadmap projection')).toBeInTheDocument()
+    expect(screen.getByText('Connector readiness')).toBeInTheDocument()
+    expect(screen.getByText('Prepare oauth setup packet for HubSpot; do not connect until approved.')).toBeInTheDocument()
+    expect(screen.getByText('HubSpot · needs auth')).toBeInTheDocument()
     expect(screen.getByText('Resolve blocked roadmap tasks')).toBeInTheDocument()
     expect(screen.getByText('Open actions')).toBeInTheDocument()
     expect(screen.getByText('Approvals')).toBeInTheDocument()
