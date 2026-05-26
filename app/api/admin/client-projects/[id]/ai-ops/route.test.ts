@@ -35,6 +35,33 @@ describe('GET /api/admin/client-projects/[id]/ai-ops', () => {
     mocks.getRoadmapBundleForProject.mockResolvedValue({
       clientView: {
         title: 'Acme AI Ops Roadmap',
+        connectorReadiness: {
+          summary: '5 required, 0 ready, 4 need auth, 0 approval-blocked',
+          requiredConnectorCount: 5,
+          readyConnectorCount: 0,
+          approvalBlockedConnectorCount: 0,
+          missingCriticalConnectorCount: 0,
+          connectorNextAction: 'Prepare oauth setup packet for HubSpot; do not connect until approved.',
+          conflicts: [],
+          items: [
+            {
+              key: 'hubspot',
+              label: 'HubSpot',
+              category: 'crm',
+              status: 'needs_auth',
+              source: 'audit',
+              authMethod: 'oauth',
+              setupOwner: 'shared',
+              requiredScopes: [],
+              approvalActions: [],
+              healthChecks: [],
+              fallbackPath: 'Use CSV exports until OAuth approval.',
+              critical: true,
+              evidence: 'Audit CRM: hubspot',
+              nextAction: 'Prepare oauth setup packet for HubSpot; do not connect until approved.',
+            },
+          ],
+        },
         projectionStatus: {
           tasksTotal: 2,
           tasksComplete: 1,
@@ -63,6 +90,10 @@ describe('GET /api/admin/client-projects/[id]/ai-ops', () => {
       approvalNeededCount: 1,
       isolationRequiredCount: 1,
       nextReportingAction: 'Review approval-gated roadmap work',
+    })
+    expect(body.roadmap.clientView.connectorReadiness).toMatchObject({
+      requiredConnectorCount: 5,
+      connectorNextAction: 'Prepare oauth setup packet for HubSpot; do not connect until approved.',
     })
   })
 
