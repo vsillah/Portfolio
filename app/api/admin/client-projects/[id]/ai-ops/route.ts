@@ -5,6 +5,7 @@ import {
   getRoadmapBundleForProject,
   projectRoadmapTasks,
 } from '@/lib/client-ai-ops-roadmap-db'
+import { buildClientAiOpsReadinessContract } from '@/lib/client-ai-ops-readiness-contract'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,7 +20,10 @@ export async function GET(
 
   const { id } = await params
   const bundle = await getRoadmapBundleForProject(id)
-  return NextResponse.json({ roadmap: bundle })
+  return NextResponse.json({
+    roadmap: bundle,
+    readiness: buildClientAiOpsReadinessContract(bundle?.clientView, { clientProjectId: id }),
+  })
 }
 
 export async function POST(
@@ -36,5 +40,9 @@ export async function POST(
   const roadmap = await ensureRoadmapForProject(id, { generatedFrom: 'manual', userId: auth.user.id })
   const projection = body.project_tasks ? await projectRoadmapTasks(id) : { dashboardCreated: 0, meetingCreated: 0 }
 
-  return NextResponse.json({ roadmap, projection })
+  return NextResponse.json({
+    roadmap,
+    projection,
+    readiness: buildClientAiOpsReadinessContract(roadmap.clientView, { clientProjectId: id }),
+  })
 }

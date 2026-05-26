@@ -114,6 +114,12 @@ Use `buildSyntheticClientAiOpsPilot` from `lib/client-ai-ops-synthetic-pilot.ts`
 
 The fixture is not a seed script and must not create client records, credentials, OAuth connections, provider resources, live workflows, outbound messages, or production configuration.
 
+## Readiness Contract
+
+Use `buildClientAiOpsReadinessContract` from `lib/client-ai-ops-readiness-contract.ts` when an admin/API surface needs a compact readiness packet. The contract summarizes connector readiness, roadmap projection status, optional swarm-board health, and fixed approval boundaries while keeping `sideEffectsEnabled` false.
+
+`GET` and `POST` on `/api/admin/client-projects/[id]/ai-ops` return this readiness packet alongside the existing roadmap response. Consumers should treat it as a read-only decision surface. It can tell an admin what needs approval or planning next, but it must not be used as permission to connect OAuth, sync credentials, call providers, send outbound messages, deploy production changes, or mutate client data.
+
 ## Roadmap Rule Checklist
 
 Use this checklist whenever a roadmap feature, monitor, report, or client implementation phase changes:
@@ -127,6 +133,7 @@ Use this checklist whenever a roadmap feature, monitor, report, or client implem
 - Roadmap projection status is visible from the same source data and remains read-only.
 - Connector readiness is visible from verified stack, audit, BuiltWith, and roadmap signals without live credential setup.
 - The synthetic pilot fixture still proves audit-to-roadmap-to-client/admin projection and read-only autonomous handoff boundaries.
+- The admin AI Ops readiness contract stays present and keeps `sideEffectsEnabled` false.
 - Client-facing output excludes private logs, agent traces, credentials, and internal-only notes.
 
 ## Real Client Pilot Checklist
