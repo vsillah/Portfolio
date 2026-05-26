@@ -1,6 +1,6 @@
 {
   "projectName": "Local LLM Model Ops & Hermes Automation",
-  "generatedAt": "2026-05-25T12:19:54.415Z",
+  "generatedAt": "2026-05-26T03:30:17.419Z",
   "recommendations": {
     "replyIntentDefault": "Keep qwen3-4b-instruct-2507 for reply-intent classification. It has the best current accuracy/latency balance.",
     "ragDefault": "Use routed local RAG as the leading local/shadow candidate, with Pinecone/OpenAI fallback until larger answer-level evals pass.",
@@ -159,6 +159,57 @@
           "scored": 200,
           "correct": 200,
           "accuracy": 1
+        }
+      }
+    },
+    {
+      "file": "eval-results/reply-intent-review/lmstudio-review-results-gemma-4-e4b-it-2026-05-25.json",
+      "model": "gemma-4-e4b-it",
+      "observedModel": "gemma-4-e4b-it",
+      "total": 211,
+      "scored": 211,
+      "correct": 205,
+      "accuracy": 0.9715639810426541,
+      "avgLatencyMs": 667.9241706161138,
+      "medianLatencyMs": 658,
+      "estimated200Minutes": 2.226413902053712,
+      "status": "fixture_pipeline_timing_only",
+      "caveat": "Fixture/synthetic examples are useful for runner timing and failure discovery, but do not satisfy the production 200-example significance gate.",
+      "sourceAccuracy": {
+        "n8n_execution": {
+          "scored": 5,
+          "correct": 5,
+          "accuracy": 1
+        },
+        "gmail_backfill": {
+          "scored": 6,
+          "correct": 6,
+          "accuracy": 1
+        },
+        "portfolio_test_fixture": {
+          "scored": 200,
+          "correct": 194,
+          "accuracy": 0.97
+        }
+      }
+    },
+    {
+      "file": "eval-results/reply-intent-review/lmstudio-review-results-qwen3.6-27b-optiq-smoke-2026-05-25.json",
+      "model": "qwen3.6-27b-optiq",
+      "observedModel": "qwen3.6-27b-optiq",
+      "total": 5,
+      "scored": 0,
+      "correct": 0,
+      "avgLatencyMs": 9477.8,
+      "medianLatencyMs": 8898,
+      "estimated200Minutes": 31.592666666666663,
+      "status": "fixture_pipeline_timing_only",
+      "caveat": "Fixture/synthetic examples are useful for runner timing and failure discovery, but do not satisfy the production 200-example significance gate.",
+      "sourceAccuracy": {
+        "n8n_execution": {
+          "scored": 0,
+          "correct": 0,
+          "accuracy": null
         }
       }
     }
