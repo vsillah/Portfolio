@@ -327,9 +327,9 @@ describe('evidence ledger placement + public asset URLs', () => {
     // syntax), so we assert the raw URL form and explicitly reject the
     // wrapped-markdown form that Gamma silently drops.
     expect(inputText).toContain('\nhttps://amadutown.com/Profile_Photo_1.jpg\n')
-    expect(inputText).toContain('\nhttps://amadutown.com/logo_hd.png\n')
+    expect(inputText).toContain('\nhttps://amadutown.com/amadutown-logo-upscaled.png\n')
     expect(inputText).not.toMatch(/!\[[^\]]*\]\(https?:\/\/[^)]*Profile_Photo/)
-    expect(inputText).not.toMatch(/!\[[^\]]*\]\(https?:\/\/[^)]*logo_hd/)
+    expect(inputText).not.toMatch(/!\[[^\]]*\]\(https?:\/\/[^)]*amadutown-logo-upscaled/)
     expect(inputText).not.toContain('http://localhost:3000/Profile_Photo_1.jpg')
   })
 

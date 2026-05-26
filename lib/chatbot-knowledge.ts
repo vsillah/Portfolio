@@ -21,6 +21,9 @@ export interface ChatbotKnowledgeEntry {
 /** Ordered list of docs included in chatbot knowledge (used for runtime fallback and by build script). */
 export const CHATBOT_KNOWLEDGE_SOURCES: ChatbotKnowledgeEntry[] = [
   { path: 'docs/chatbot-products-and-services-overview.md', sectionTitle: 'What AmaduTown Offers (products and services)' },
+  { path: 'docs/pricing-model.md', sectionTitle: 'Pricing Packages, Services, and Continuity Plans' },
+  { path: 'docs/amadou-town-value-and-pricing-logic.md', sectionTitle: 'Value and Pricing Logic' },
+  { path: 'docs/scheduling-consultation-overview.md', sectionTitle: 'Scheduling and Consultation Overview' },
   { path: 'docs/chatbot-campaigns-overview.md', sectionTitle: 'Active Promotions & Attraction Campaigns' },
   { path: 'docs/vambah-personality-public-safe.md', sectionTitle: 'Vambah Personality Corpus (public-safe)' },
   { path: 'docs/user-help-guide.md', sectionTitle: 'User Help Guide' },

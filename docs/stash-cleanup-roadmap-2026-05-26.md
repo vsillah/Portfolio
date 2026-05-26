@@ -154,3 +154,6 @@ Completion gate:
 - Phase 2 complete: committed the `supabase/.temp/` ignore rule and dropped source stash `e34e405dd541682858d84af5fd7ce78f858ae61e`.
 - Phase 3 complete: compared and dropped superseded implementation stashes `9a98cf6f6de55d70aac90a738008ef22a387a376`, `2f7b1ac5c3c8f735080ac2915ff2d9af5444e760`, and `0bd08ce11d408acc70b91a569bdf35bfdf81b388`.
 - Phase 4 in progress: rescued only the missing normalized May 17 subscription monitor section from stash `f8e211ce672485f997deb93c577074fa29e5941d`; current `docs/subscription-status.json` was intentionally left unchanged.
+- Phase 4 complete: committed the May 17 subscription monitor history and dropped source stash `f8e211ce672485f997deb93c577074fa29e5941d`.
+- Phase 5 complete: compared and dropped presentation/Gamma consolidation stash `dc6e093a2132cf469db02b2f0696fa775b52d84c`; `/admin/presentations` remains a separate current admin surface.
+- Phase 6 in progress: decomposed broad WIP stash `77bcce9287c20b49458db284e29e9859294dcf7d`; rejected stale RAG, n8n, Printful, and broad package-lock changes, and rescued only the upscaled AmaduTown logo asset plus scheduling/consultation knowledge slice.
