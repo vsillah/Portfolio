@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
+  MODEL_OPS_REPLY_INTENT_SYNC_COMMAND,
+  buildPendingReviewSeedPayload,
+  buildReplyIntentSourceDiagnostics,
   buildReviewUpsertPayload,
+  hasReviewableReplyContent,
   redactReplyText,
   stableHash,
   suggestReplyIntentLabels,
@@ -82,5 +86,71 @@ describe('model ops reply-intent helpers', () => {
     expect(payload.human_scheduling_intent).toBeNull()
     expect(payload.reviewed_by).toBe('admin-user')
     expect(payload.source_hash).toBe(stableHash('11111111-1111-4111-8111-111111111111'))
+  })
+
+  it('builds pending seed payloads without claiming human review', () => {
+    const payload = buildPendingReviewSeedPayload({
+      id: '11111111-1111-4111-8111-111111111111',
+      channel: 'email',
+      status: 'replied',
+      sequence_step: 3,
+      replied_at: '2026-05-24T10:00:00.000Z',
+      reply_content: 'Jane Carter can meet Friday at jane@example.com.',
+    })
+
+    expect(payload).toMatchObject({
+      source_table: 'outreach_queue',
+      source_id: '11111111-1111-4111-8111-111111111111',
+      review_status: 'pending',
+      human_scheduling_intent: null,
+      reviewed_by: null,
+      reviewed_at: null,
+    })
+    expect(payload.redacted_reply).toContain('[email:')
+    expect(payload.redacted_reply).not.toContain('jane@example.com')
+  })
+
+  it('summarizes source diagnostics and virtual pending rows', () => {
+    const sourceRows = [
+      { id: 'a', reply_content: 'Can we meet?' },
+      { id: 'b', reply_content: 'No thanks.' },
+    ]
+    const diagnostics = buildReplyIntentSourceDiagnostics({
+      sourceRows,
+      reviewRows: [
+        {
+          source_table: 'outreach_queue',
+          source_id: 'a',
+          source_hash: 'source-hash',
+          reply_hash: 'reply-hash',
+          redacted_reply: 'Can we meet?',
+          suggested_labels: {
+            scheduling_intent: true,
+            interested: true,
+            not_interested: false,
+            ooo: false,
+            needs_followup: false,
+          },
+          review_status: 'reviewed',
+          human_scheduling_intent: true,
+        },
+      ],
+      reviewStorageAvailable: true,
+      sourceLimit: 25,
+    })
+
+    expect(diagnostics).toMatchObject({
+      candidate_replies: 2,
+      ledger_rows: 1,
+      virtual_pending: 1,
+      reviewed_real: 1,
+      source_limit: 25,
+      sync_command: MODEL_OPS_REPLY_INTENT_SYNC_COMMAND,
+    })
+  })
+
+  it('detects reviewable reply text by minimum length', () => {
+    expect(hasReviewableReplyContent({ reply_content: 'short' })).toBe(false)
+    expect(hasReviewableReplyContent({ reply_content: 'Can we meet next week?' })).toBe(true)
   })
 })

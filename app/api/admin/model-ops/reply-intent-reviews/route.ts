@@ -5,10 +5,14 @@ import { supabaseAdmin } from '@/lib/supabase'
 import {
   MODEL_OPS_REPLY_INTENT_DEFAULT_EXPORT,
   MODEL_OPS_REPLY_INTENT_EXPORT_COMMAND,
+  MODEL_OPS_REPLY_INTENT_MAX_SOURCE_ROWS,
   MODEL_OPS_REPLY_INTENT_TARGET,
+  buildReplyIntentSourceDiagnostics,
   buildReviewUpsertPayload,
+  hasReviewableReplyContent,
   normalizeReviewStatus,
   type ReplyIntentEvidenceSummary,
+  type ReplyIntentSourceDiagnostics,
   type OutreachReplySourceRow,
   type ReplyIntentQueueItem,
   type ReplyIntentReviewRow,
@@ -16,8 +20,6 @@ import {
 } from '@/lib/model-ops-reply-intent'
 
 export const dynamic = 'force-dynamic'
-
-const MAX_SOURCE_ROWS = 750
 
 type QueueResponse = {
   available: boolean
@@ -41,6 +43,7 @@ type QueueResponse = {
     reviews_table_available: boolean
   }
   evidence: ReplyIntentEvidenceSummary
+  source_diagnostics: ReplyIntentSourceDiagnostics
 }
 
 function intParam(value: string | null, fallback: number, min: number, max: number) {
@@ -192,13 +195,13 @@ export async function GET(request: NextRequest) {
         .select('id,channel,sequence_step,status,replied_at,created_at,reply_content')
         .not('reply_content', 'is', null)
         .order('replied_at', { ascending: false, nullsFirst: false })
-        .limit(MAX_SOURCE_ROWS),
+        .limit(MODEL_OPS_REPLY_INTENT_MAX_SOURCE_ROWS),
       supabaseAdmin
         .from('model_ops_reply_intent_reviews')
         .select('*')
         .eq('source_table', 'outreach_queue')
         .order('reviewed_at', { ascending: false, nullsFirst: false })
-        .limit(MAX_SOURCE_ROWS),
+        .limit(MODEL_OPS_REPLY_INTENT_MAX_SOURCE_ROWS),
     ])
 
     if (sourceError) {
@@ -211,6 +214,12 @@ export async function GET(request: NextRequest) {
           summary: emptySummary,
           pagination: { page, limit, total: 0, totalPages: 0 },
           evidence: await getEvidenceSummary(emptySummary.reviewed_real),
+          source_diagnostics: buildReplyIntentSourceDiagnostics({
+            sourceRows: [],
+            reviewRows: [],
+            reviewStorageAvailable: false,
+            sourceLimit: MODEL_OPS_REPLY_INTENT_MAX_SOURCE_ROWS,
+          }),
         })
       }
       console.error('Error fetching reply-intent source rows:', sourceError)
@@ -223,12 +232,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch reply-intent reviews' }, { status: 500 })
     }
 
-    const allItems = mapQueueItems(
-      (sourceRows || []).filter((row: OutreachReplySourceRow) => String(row.reply_content || '').trim().length >= 8),
-      reviewsTableAvailable ? ((reviewResult.data || []) as ReplyIntentReviewRow[]) : []
+    const candidateSourceRows = ((sourceRows || []) as OutreachReplySourceRow[]).filter((row) =>
+      hasReviewableReplyContent(row)
     )
+    const reviewRows = reviewsTableAvailable ? ((reviewResult.data || []) as ReplyIntentReviewRow[]) : []
+    const allItems = mapQueueItems(candidateSourceRows, reviewRows)
     const queueSummary = summarize(allItems)
     const evidence = await getEvidenceSummary(queueSummary.reviewed_real)
+    const sourceDiagnostics = buildReplyIntentSourceDiagnostics({
+      sourceRows: candidateSourceRows,
+      reviewRows,
+      reviewStorageAvailable: reviewsTableAvailable,
+      sourceLimit: MODEL_OPS_REPLY_INTENT_MAX_SOURCE_ROWS,
+    })
     const filtered = filterItems(allItems, normalizedStatus, search)
     const offset = (page - 1) * limit
     const items = filtered.slice(offset, offset + limit)
@@ -247,6 +263,7 @@ export async function GET(request: NextRequest) {
         reviews_table_available: reviewsTableAvailable,
       },
       evidence,
+      source_diagnostics: sourceDiagnostics,
     }
 
     return NextResponse.json(response)
@@ -300,7 +317,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch outreach reply' }, { status: 500 })
     }
 
-    if (!source || String((source as OutreachReplySourceRow).reply_content || '').trim().length < 8) {
+    if (!source || !hasReviewableReplyContent(source as OutreachReplySourceRow)) {
       return NextResponse.json({ error: 'Outreach reply not found' }, { status: 404 })
     }
 

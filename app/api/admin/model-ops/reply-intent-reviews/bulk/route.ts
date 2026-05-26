@@ -3,6 +3,7 @@ import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
 import {
   buildReviewUpsertPayload,
+  hasReviewableReplyContent,
   suggestReplyIntentLabels,
   type OutreachReplySourceRow,
   type ReplyIntentReviewRow,
@@ -62,9 +63,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch outreach replies' }, { status: 500 })
     }
 
-    const rows = ((sourceRows || []) as OutreachReplySourceRow[]).filter(
-      (row) => String(row.reply_content || '').trim().length >= 8
-    )
+    const rows = ((sourceRows || []) as OutreachReplySourceRow[]).filter((row) => hasReviewableReplyContent(row))
 
     if (rows.length === 0) {
       return NextResponse.json({ error: 'No matching outreach replies found' }, { status: 404 })

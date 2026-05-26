@@ -1,9 +1,11 @@
 import crypto from 'node:crypto'
 
 export const MODEL_OPS_REPLY_INTENT_TARGET = 200
+export const MODEL_OPS_REPLY_INTENT_MAX_SOURCE_ROWS = 750
 export const MODEL_OPS_REPLY_INTENT_DEFAULT_EXPORT =
   '/Users/vambahsillah/Documents/Codex/2026-04-29/hey-can-you-confirm-that-i/eval-data/reply-intent-review/sources/portfolio-model-ops-reviewed-replies.jsonl'
 export const MODEL_OPS_REPLY_INTENT_EXPORT_COMMAND = 'npm run model-ops:reply-intent:export'
+export const MODEL_OPS_REPLY_INTENT_SYNC_COMMAND = 'npm run model-ops:reply-intent:sync'
 
 export type ReplyIntentReviewStatus = 'pending' | 'reviewed' | 'unsure' | 'skipped'
 export type ReplyIntentEvidenceStatus = 'missing' | 'stale' | 'current' | 'gate_met' | 'invalid'
@@ -74,6 +76,17 @@ export type ReplyIntentEvidenceSummary = {
   benchmark_actionable_real: number
   remaining_to_actionable_gate: number
   invalid_lines: number
+}
+
+export type ReplyIntentSourceDiagnostics = {
+  source_table: 'outreach_queue'
+  source_limit: number
+  candidate_replies: number
+  ledger_rows: number
+  virtual_pending: number
+  reviewed_real: number
+  review_storage_available: boolean
+  sync_command: string
 }
 
 const NAME_PATTERN = /\b[A-Z][a-z]+ [A-Z][a-z]+\b/g
@@ -237,6 +250,57 @@ export function buildReviewUpsertPayload(args: {
     notes: typeof args.notes === 'string' ? args.notes.slice(0, 2000) : '',
     reviewed_by: args.reviewedBy,
     reviewed_at: reviewedAt,
+  }
+}
+
+export function buildPendingReviewSeedPayload(source: OutreachReplySourceRow) {
+  const redactedReply = redactReplyText(source.reply_content)
+
+  return {
+    source_table: 'outreach_queue' as const,
+    source_id: source.id,
+    source_hash: stableHash(source.id),
+    reply_hash: stableHash(source.reply_content || redactedReply),
+    channel: source.channel ?? null,
+    replied_at: source.replied_at ?? source.created_at ?? null,
+    outreach_status: source.status ?? null,
+    sequence_step: source.sequence_step ?? null,
+    redacted_reply: redactedReply,
+    suggested_labels: suggestReplyIntentLabels(redactedReply),
+    review_status: 'pending' as const,
+    human_scheduling_intent: null,
+    notes: '',
+    reviewed_by: null,
+    reviewed_at: null,
+  }
+}
+
+export function hasReviewableReplyContent(source: Pick<OutreachReplySourceRow, 'reply_content'>, minLength = 8) {
+  return String(source.reply_content || '').trim().length >= minLength
+}
+
+export function buildReplyIntentSourceDiagnostics(args: {
+  sourceRows: OutreachReplySourceRow[]
+  reviewRows: ReplyIntentReviewRow[]
+  reviewStorageAvailable: boolean
+  sourceLimit?: number
+}): ReplyIntentSourceDiagnostics {
+  const sourceIds = new Set(args.sourceRows.map((row) => row.id))
+  const ledgerRows = args.reviewRows.filter((row) => sourceIds.has(row.source_id))
+  const ledgerSourceIds = new Set(ledgerRows.map((row) => row.source_id))
+  const reviewedReal = ledgerRows.filter(
+    (row) => row.review_status === 'reviewed' && typeof row.human_scheduling_intent === 'boolean'
+  ).length
+
+  return {
+    source_table: 'outreach_queue',
+    source_limit: args.sourceLimit ?? MODEL_OPS_REPLY_INTENT_MAX_SOURCE_ROWS,
+    candidate_replies: args.sourceRows.length,
+    ledger_rows: ledgerRows.length,
+    virtual_pending: args.sourceRows.filter((row) => !ledgerSourceIds.has(row.id)).length,
+    reviewed_real: reviewedReal,
+    review_storage_available: args.reviewStorageAvailable,
+    sync_command: MODEL_OPS_REPLY_INTENT_SYNC_COMMAND,
   }
 }
 

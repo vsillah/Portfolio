@@ -77,6 +77,16 @@ const queueResponse = {
     remaining_to_actionable_gate: 200,
     invalid_lines: 0,
   },
+  source_diagnostics: {
+    source_table: 'outreach_queue',
+    source_limit: 750,
+    candidate_replies: 1,
+    ledger_rows: 0,
+    virtual_pending: 1,
+    reviewed_real: 0,
+    review_storage_available: true,
+    sync_command: 'npm run model-ops:reply-intent:sync',
+  },
 }
 
 describe('ReplyIntentReviewPage', () => {
@@ -116,9 +126,11 @@ describe('ReplyIntentReviewPage', () => {
     expect(screen.getAllByText('Can we schedule a quick call next week?').length).toBeGreaterThan(0)
     expect(screen.getAllByText('0/200').length).toBeGreaterThan(0)
     expect(screen.getByText('Evidence Gate')).toBeInTheDocument()
+    expect(screen.getByText('Source Coverage')).toBeInTheDocument()
     expect(screen.getByText('Export stale')).toBeInTheDocument()
     expect(screen.getByText('Ledger gap')).toBeInTheDocument()
     expect(screen.getByText('npm run model-ops:reply-intent:export')).toBeInTheDocument()
+    expect(screen.getByText('npm run model-ops:reply-intent:sync')).toBeInTheDocument()
 
     await waitFor(() => expect(screen.getByRole('button', { name: 'Yes' })).not.toBeDisabled())
     fireEvent.click(screen.getByRole('button', { name: 'Yes' }))

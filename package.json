@@ -40,6 +40,7 @@
     "model-ops:snapshot": "tsx scripts/sync-model-ops-snapshot.ts",
     "model-ops:snapshot:check": "tsx scripts/sync-model-ops-snapshot.ts --check",
     "model-ops:reply-intent:export": "tsx scripts/export-reply-intent-reviews.ts",
+    "model-ops:reply-intent:sync": "tsx scripts/sync-reply-intent-review-candidates.ts",
     "model-ops:research:plan": "tsx scripts/model-ops-research-plan.ts",
     "open-brain:mcp": "tsx scripts/open-brain-mcp-server.ts",
     "wrm:smoke-gate": "tsx scripts/wrm-production-smoke-gate.ts",
