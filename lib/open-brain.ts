@@ -1281,51 +1281,32 @@ function proposalToRelationshipNode(proposal: OpenBrainProposalRecord, index: nu
 }
 
 function relationshipPoint(type: OpenBrainRelationshipNodeType, kind: string, index: number) {
-  const sourcePoints = kind === 'workspace_root_report'
-    ? [{ x: 12, y: 48 }]
-    : kind === 'codex_automation'
-      ? [
-          { x: 34, y: 31 },
-          { x: 23, y: 58 },
-          { x: 42, y: 62 },
-        ]
-      : kind === 'runbook'
-        ? [
-            { x: 55, y: 43 },
-            { x: 49, y: 72 },
-            { x: 66, y: 65 },
-          ]
-        : [
-            { x: 20, y: 23 },
-            { x: 29, y: 75 },
-            { x: 43, y: 17 },
-            { x: 58, y: 27 },
-            { x: 62, y: 80 },
-          ]
+  if (type === 'source') return sourceRelationshipPoint(kind, index)
+
   const points: Record<OpenBrainRelationshipNodeType, { x: number; y: number }[]> = {
-    source: sourcePoints,
+    source: [{ x: 50, y: 50 }],
     memory: [
-      { x: 78, y: 25 },
-      { x: 82, y: 43 },
-      { x: 72, y: 62 },
-      { x: 88, y: 70 },
+      { x: 36, y: 82 },
+      { x: 52, y: 82 },
+      { x: 68, y: 82 },
+      { x: 84, y: 82 },
     ],
     event: [
-      { x: 22, y: 84 },
-      { x: 41, y: 86 },
-      { x: 60, y: 88 },
-      { x: 72, y: 82 },
+      { x: 12, y: 90 },
+      { x: 28, y: 90 },
+      { x: 44, y: 90 },
+      { x: 60, y: 90 },
     ],
     wiki: [
-      { x: 84, y: 58 },
-      { x: 90, y: 36 },
-      { x: 73, y: 80 },
+      { x: 12, y: 72 },
+      { x: 28, y: 72 },
+      { x: 44, y: 72 },
     ],
     proposal: [
-      { x: 68, y: 88 },
-      { x: 52, y: 86 },
-      { x: 86, y: 86 },
-      { x: 76, y: 76 },
+      { x: 36, y: 90 },
+      { x: 56, y: 90 },
+      { x: 76, y: 90 },
+      { x: 92, y: 82 },
     ],
   }
   const selected = points[type][index % points[type].length]
@@ -1333,6 +1314,18 @@ function relationshipPoint(type: OpenBrainRelationshipNodeType, kind: string, in
   return {
     x: Math.max(8, Math.min(92, selected.x + rowOffset)),
     y: Math.max(12, Math.min(92, selected.y - rowOffset)),
+  }
+}
+
+function sourceRelationshipPoint(kind: string, index: number) {
+  const columns = [12, 31, 50, 69, 88]
+  const row = Math.floor(index / columns.length)
+  const kindNudge = kind === 'runbook' ? 2 : kind === 'repair_packet' ? -2 : 0
+  const x = columns[index % columns.length] + (row % 2 === 1 ? 2 : 0) + kindNudge
+  const y = 12 + row * 10
+  return {
+    x: Math.max(8, Math.min(92, x)),
+    y: Math.max(12, Math.min(92, y)),
   }
 }
 
