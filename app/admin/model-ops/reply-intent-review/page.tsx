@@ -23,6 +23,7 @@ import {
 } from 'lucide-react'
 
 type ReviewStatus = 'pending' | 'reviewed' | 'unsure' | 'skipped'
+type EvidenceStatus = 'missing' | 'stale' | 'current' | 'gate_met' | 'invalid'
 
 type SuggestedLabels = {
   scheduling_intent: boolean
@@ -70,6 +71,16 @@ type QueueResponse = {
   schema?: {
     reviews_table_available: boolean
   }
+  evidence: {
+    artifact_path: string
+    export_command: string
+    exported_real: number
+    exported_at: string | null
+    status: EvidenceStatus
+    benchmark_actionable_real: number
+    remaining_to_actionable_gate: number
+    invalid_lines: number
+  }
   reason?: string
 }
 
@@ -106,6 +117,25 @@ function labelClass(active: boolean) {
     : 'border-radiant-gold/10 bg-silicon-slate/20 text-muted-foreground'
 }
 
+function evidenceStatusLabel(status: EvidenceStatus | undefined) {
+  if (status === 'gate_met') return 'Gate met'
+  if (status === 'current') return 'Current'
+  if (status === 'stale') return 'Export stale'
+  if (status === 'invalid') return 'Invalid export'
+  return 'No export yet'
+}
+
+function evidenceStatusClass(status: EvidenceStatus | undefined) {
+  if (status === 'gate_met' || status === 'current') return 'border-emerald-400/30 bg-emerald-950/25 text-emerald-200'
+  if (status === 'stale' || status === 'missing') return 'border-radiant-gold/30 bg-radiant-gold/10 text-radiant-gold'
+  return 'border-red-400/30 bg-red-950/20 text-red-100'
+}
+
+function artifactName(value: string | undefined) {
+  if (!value) return 'reviewed replies JSONL'
+  return value.split('/').filter(Boolean).pop() || value
+}
+
 export default function ReplyIntentReviewPage() {
   return (
     <ProtectedRoute requireAdmin>
@@ -117,6 +147,7 @@ export default function ReplyIntentReviewPage() {
 function ReplyIntentReviewContent() {
   const [items, setItems] = useState<QueueItem[]>([])
   const [summary, setSummary] = useState<QueueResponse['summary'] | null>(null)
+  const [evidence, setEvidence] = useState<QueueResponse['evidence'] | null>(null)
   const [pagination, setPagination] = useState<QueueResponse['pagination'] | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [status, setStatus] = useState<ReviewStatus | 'all'>('pending')
@@ -163,6 +194,7 @@ function ReplyIntentReviewContent() {
       const queue = data as QueueResponse
       setItems(queue.items)
       setSummary(queue.summary)
+      setEvidence(queue.evidence)
       setPagination(queue.pagination)
       setSchemaReady(Boolean(queue.schema?.reviews_table_available ?? true))
       setSelectedId((current) => (queue.items.some((item) => item.source_id === current) ? current : queue.items[0]?.source_id ?? null))
@@ -309,7 +341,7 @@ function ReplyIntentReviewContent() {
           </div>
           <div className="grid min-w-[300px] gap-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Reviewed real examples</span>
+              <span className="text-muted-foreground">Ledger reviewed</span>
               <span className="font-mono text-radiant-gold">
                 {summary?.reviewed_real ?? 0}/{summary?.target ?? 200}
               </span>
@@ -596,8 +628,37 @@ function ReplyIntentReviewContent() {
                 <span className="font-mono">{summary?.skipped ?? 0}</span>
               </div>
               <div className="flex items-center justify-between border-t border-radiant-gold/10 pt-2">
-                <span className="text-muted-foreground">Gate gap</span>
-                <span className="font-mono text-radiant-gold">{summary?.remaining_to_gate ?? 0}</span>
+                <span className="text-muted-foreground">Ledger gap</span>
+                <span className="font-mono text-radiant-gold">{summary?.remaining_to_gate ?? summary?.target ?? 200}</span>
+              </div>
+            </div>
+
+            <div className="grid gap-2 rounded-lg border border-radiant-gold/10 bg-silicon-slate/15 p-3 text-sm">
+              <div className="flex items-center justify-between gap-3">
+                <span className="font-semibold text-foreground">Evidence Gate</span>
+                <span className={`rounded-full border px-2 py-0.5 text-[11px] ${evidenceStatusClass(evidence?.status)}`}>
+                  {evidenceStatusLabel(evidence?.status)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Exported evidence</span>
+                <span className="font-mono">
+                  {evidence?.benchmark_actionable_real ?? 0}/{summary?.target ?? 200}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Benchmark gap</span>
+                <span className="font-mono text-radiant-gold">{evidence?.remaining_to_actionable_gate ?? summary?.target ?? 200}</span>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-muted-foreground">Artifact</span>
+                <span className="truncate font-mono text-xs text-foreground/80">{artifactName(evidence?.artifact_path)}</span>
+              </div>
+              <div className="grid gap-1 border-t border-radiant-gold/10 pt-2">
+                <span className="text-muted-foreground">Next export</span>
+                <code className="overflow-hidden text-ellipsis rounded border border-radiant-gold/10 bg-background/40 px-2 py-1 text-xs text-foreground/85">
+                  {evidence?.export_command ?? 'npm run model-ops:reply-intent:export'}
+                </code>
               </div>
             </div>
 

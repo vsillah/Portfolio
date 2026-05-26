@@ -4,6 +4,8 @@ const mocks = vi.hoisted(() => ({
   verifyAdmin: vi.fn(),
   isAuthError: vi.fn(),
   from: vi.fn(),
+  readFile: vi.fn(),
+  stat: vi.fn(),
 }))
 
 vi.mock('@/lib/auth-server', () => ({
@@ -15,6 +17,15 @@ vi.mock('@/lib/supabase', () => ({
   supabaseAdmin: {
     from: mocks.from,
   },
+}))
+
+vi.mock('node:fs/promises', () => ({
+  default: {
+    readFile: mocks.readFile,
+    stat: mocks.stat,
+  },
+  readFile: mocks.readFile,
+  stat: mocks.stat,
 }))
 
 import { GET, POST } from './route'
@@ -67,6 +78,9 @@ describe('reply-intent review API', () => {
     vi.clearAllMocks()
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-user' } })
     mocks.isAuthError.mockReturnValue(false)
+    const missingFile = Object.assign(new Error('missing export'), { code: 'ENOENT' })
+    mocks.readFile.mockRejectedValue(missingFile)
+    mocks.stat.mockRejectedValue(missingFile)
   })
 
   it('requires admin auth before listing reviews', async () => {
@@ -96,8 +110,49 @@ describe('reply-intent review API', () => {
       pending: 1,
       target: 200,
     })
+    expect(body.evidence).toMatchObject({
+      exported_real: 0,
+      status: 'missing',
+      remaining_to_actionable_gate: 200,
+    })
     expect(body.items[0].redacted_reply).toContain('[email:')
     expect(body.items[0].redacted_reply).not.toContain('jane@example.com')
+  })
+
+  it('marks the exported benchmark artifact as stale when ledger reviews are ahead', async () => {
+    const reviewedRow = {
+      source_table: 'outreach_queue',
+      source_id: sourceRow.id,
+      source_hash: 'source-hash',
+      reply_hash: 'reply-hash',
+      redacted_reply: 'redacted reply',
+      suggested_labels: {
+        scheduling_intent: true,
+        interested: true,
+        not_interested: false,
+        ooo: false,
+        needs_followup: false,
+      },
+      review_status: 'reviewed',
+      human_scheduling_intent: true,
+    }
+    mocks.readFile.mockResolvedValue('')
+    mocks.stat.mockResolvedValue({ mtime: new Date('2026-05-24T11:00:00.000Z') })
+    mocks.from.mockImplementation((table: string) => {
+      if (table === 'outreach_queue') return listQuery({ data: [sourceRow], error: null })
+      return listQuery({ data: [reviewedRow], error: null })
+    })
+
+    const response = await GET(request() as never)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.summary.reviewed_real).toBe(1)
+    expect(body.evidence).toMatchObject({
+      exported_real: 0,
+      status: 'stale',
+      benchmark_actionable_real: 0,
+    })
   })
 
   it('validates reviewed saves require a boolean scheduling label', async () => {

@@ -3,10 +3,12 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { createClient } from '@supabase/supabase-js'
 import { config as loadDotenv } from 'dotenv'
-import { normalizeSuggestedLabels, stableHash, type ReplyIntentReviewRow } from '../lib/model-ops-reply-intent'
-
-const DEFAULT_OUTPUT =
-  '/Users/vambahsillah/Documents/Codex/2026-04-29/hey-can-you-confirm-that-i/eval-data/reply-intent-review/sources/portfolio-model-ops-reviewed-replies.jsonl'
+import {
+  MODEL_OPS_REPLY_INTENT_DEFAULT_EXPORT,
+  normalizeSuggestedLabels,
+  stableHash,
+  type ReplyIntentReviewRow,
+} from '../lib/model-ops-reply-intent'
 
 type ExportOptions = {
   output: string
@@ -21,7 +23,7 @@ type ReviewedRow = ReplyIntentReviewRow & {
 
 export function parseArgs(argv: string[]): ExportOptions {
   const options: ExportOptions = {
-    output: process.env.MODEL_OPS_REPLY_INTENT_EXPORT || DEFAULT_OUTPUT,
+    output: process.env.MODEL_OPS_REPLY_INTENT_EXPORT || MODEL_OPS_REPLY_INTENT_DEFAULT_EXPORT,
     limit: Number.parseInt(process.env.MODEL_OPS_REPLY_INTENT_EXPORT_LIMIT || '1000', 10),
     envFile: '.env.local',
   }
