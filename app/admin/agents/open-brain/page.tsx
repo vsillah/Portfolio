@@ -98,11 +98,14 @@ function OpenBrainContent() {
     setActionMessage(null)
     setReviewingProposalId(id)
     try {
-      await authedFetch(`/api/admin/agents/open-brain/proposals/${encodeURIComponent(id)}/${action}`, {
+      const body = await authedFetch(`/api/admin/agents/open-brain/proposals/${encodeURIComponent(id)}/${action}`, {
         method: 'POST',
         body: JSON.stringify({ reason: `${action === 'approve' ? 'Approved' : 'Rejected'} from Portfolio Admin.` }),
       })
-      setActionMessage(`Proposal ${action === 'approve' ? 'approved' : 'rejected'}.`)
+      const createdRelationshipLink = action === 'approve' && Boolean(body.proposal?.metadata?.relationship)
+      setActionMessage(createdRelationshipLink
+        ? 'Relationship proposal approved. A durable Open Brain link record was created.'
+        : `Proposal ${action === 'approve' ? 'approved' : 'rejected'}.`)
       await fetchSnapshot()
     } catch (err) {
       setActionMessage(err instanceof Error ? err.message : `Proposal ${action} failed`)
@@ -769,7 +772,9 @@ function buildRelationshipProposalPayload(snapshot: OpenBrainSnapshot, insight: 
     `Recommended change: ${insight.recommendation}`,
     `Relationship path: ${relationshipLabel}`,
     `Insight kind: ${insight.kind.replace(/_/g, ' ')}`,
-    'Authority boundary: this proposal records the recommended relationship context for review; approval does not directly write Open Brain link records.',
+    sourceNode && targetNode
+      ? 'Authority boundary: approval creates one durable Open Brain link record for the relationship path shown here.'
+      : 'Authority boundary: this proposal records the recommended relationship context for review; no link record is created unless a target relationship is explicit.',
   ].join('\n')
 
   return {
@@ -780,7 +785,25 @@ function buildRelationshipProposalPayload(snapshot: OpenBrainSnapshot, insight: 
     confidence: insight.severity === 'high' ? 0.84 : insight.severity === 'medium' ? 0.78 : 0.72,
     sourceIds,
     reason: `Created from Open Brain relationship map insight ${insight.id}. Review before durable memory or link changes.`,
+    metadata: sourceNode && targetNode ? {
+      relationship: {
+        fromId: sourceNode.id,
+        toId: targetNode.id,
+        relationship: relationshipNameForInsight(insight),
+        insightId: insight.id,
+        insightKind: insight.kind,
+        sourceLabel: sourceNode.label,
+        targetLabel: targetNode.label,
+      },
+    } : undefined,
   }
+}
+
+function relationshipNameForInsight(insight: OpenBrainRelationshipInsight) {
+  if (insight.kind === 'strengthen') return 'governed_by'
+  if (insight.kind === 'missing_governance') return 'needs_governing_context'
+  if (insight.kind === 'merge_duplicate') return 'possible_duplicate'
+  return 'needs_review'
 }
 
 function strongestPrivacyTier(tiers: Array<OpenBrainPrivacyTier | undefined>): OpenBrainPrivacyTier {
@@ -892,41 +915,60 @@ function ProposalsView({
   }
   return (
     <section className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-      {proposals.map((proposal) => (
-        <article key={proposal.id} className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <h3 className="font-semibold">{proposal.proposedMemory.title}</h3>
-            <StatusBadge value={proposal.status} />
-          </div>
-          <p className="mb-3 text-sm text-muted-foreground">{proposal.proposedMemory.body}</p>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <Detail label="Kind" value={proposal.proposedMemory.kind} />
-            <Detail label="Privacy" value={proposal.proposedMemory.privacyTier} />
-            <Detail label="Confidence" value={`${Math.round(proposal.proposedMemory.confidence * 100)}%`} />
-            <Detail label="Created" value={formatDateTime(proposal.createdAt)} />
-          </div>
-          <p className="mt-3 text-xs text-muted-foreground">{proposal.reason}</p>
-          {proposal.status === 'pending' ? (
-            <div className="mt-4 flex flex-wrap gap-2">
-              <button
-                onClick={() => onReview(proposal.id, 'approve')}
-                disabled={reviewingProposalId === proposal.id}
-                className="inline-flex items-center gap-2 rounded-lg border border-green-400/40 bg-green-500/10 px-3 py-2 text-sm text-green-200 hover:bg-green-500/15 disabled:opacity-60"
-              >
-                <CheckCircle2 size={16} />
-                Approve
-              </button>
-              <button
-                onClick={() => onReview(proposal.id, 'reject')}
-                disabled={reviewingProposalId === proposal.id}
-                className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background px-3 py-2 text-sm text-muted-foreground hover:border-radiant-gold/60 disabled:opacity-60"
-              >
-                Reject
-              </button>
+      {proposals.map((proposal) => {
+        const relationship = proposal.metadata?.relationship
+        return (
+          <article key={proposal.id} className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <h3 className="font-semibold">{proposal.proposedMemory.title}</h3>
+              <div className="flex flex-wrap gap-2">
+                {relationship ? (
+                  <span className="rounded-full border border-radiant-gold/45 bg-radiant-gold/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-radiant-gold">
+                    Link on approval
+                  </span>
+                ) : null}
+                <StatusBadge value={proposal.status} />
+              </div>
             </div>
-          ) : null}
-        </article>
-      ))}
+            <p className="mb-3 text-sm text-muted-foreground">{proposal.proposedMemory.body}</p>
+            {relationship ? (
+              <div className="mb-3 rounded-lg border border-radiant-gold/25 bg-radiant-gold/10 p-3 text-xs">
+                <p className="font-semibold uppercase tracking-[0.12em] text-radiant-gold">Relationship link approval</p>
+                <p className="mt-2 text-muted-foreground">
+                  Approving this proposal creates a durable link: {relationship.sourceLabel} {'->'} {relationship.targetLabel}
+                </p>
+                <p className="mt-1 text-muted-foreground">Relationship: {relationship.relationship}</p>
+              </div>
+            ) : null}
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <Detail label="Kind" value={proposal.proposedMemory.kind} />
+              <Detail label="Privacy" value={proposal.proposedMemory.privacyTier} />
+              <Detail label="Confidence" value={`${Math.round(proposal.proposedMemory.confidence * 100)}%`} />
+              <Detail label="Created" value={formatDateTime(proposal.createdAt)} />
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">{proposal.reason}</p>
+            {proposal.status === 'pending' ? (
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  onClick={() => onReview(proposal.id, 'approve')}
+                  disabled={reviewingProposalId === proposal.id}
+                  className="inline-flex items-center gap-2 rounded-lg border border-green-400/40 bg-green-500/10 px-3 py-2 text-sm text-green-200 hover:bg-green-500/15 disabled:opacity-60"
+                >
+                  <CheckCircle2 size={16} />
+                  Approve
+                </button>
+                <button
+                  onClick={() => onReview(proposal.id, 'reject')}
+                  disabled={reviewingProposalId === proposal.id}
+                  className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background px-3 py-2 text-sm text-muted-foreground hover:border-radiant-gold/60 disabled:opacity-60"
+                >
+                  Reject
+                </button>
+              </div>
+            ) : null}
+          </article>
+        )
+      })}
     </section>
   )
 }

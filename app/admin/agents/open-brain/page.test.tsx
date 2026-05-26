@@ -80,6 +80,17 @@ const openBrainSnapshot = {
     reviewedAt: null,
     reviewedBy: null,
     reviewReason: null,
+    metadata: {
+      relationship: {
+        fromId: 'source-1',
+        toId: 'memory-1',
+        relationship: 'governed_by',
+        insightId: 'insight-1',
+        insightKind: 'strengthen',
+        sourceLabel: 'Morning review source',
+        targetLabel: 'Action-first operating rule',
+      },
+    },
   }],
   wikiPages: [],
   ragProjection: {
@@ -196,7 +207,7 @@ const openBrainSnapshot = {
         recommendation: 'Create a relationship proposal before future agents act on it.',
         actionLabel: 'Propose link',
         sourceNodeId: 'source-1',
-        targetNodeId: null,
+        targetNodeId: 'memory-1',
       },
     ],
   },
@@ -237,6 +248,24 @@ describe('OpenBrainPage', () => {
       const url = String(input)
       if (url.includes('/wiki/compile')) {
         return { ok: true, json: async () => ({ pages: [{ slug: 'one' }] }) }
+      }
+      if (url.includes('/approve')) {
+        return {
+          ok: true,
+          json: async () => ({
+            proposal: {
+              id: 'proposal-1',
+              status: 'approved',
+              metadata: {
+                relationship: {
+                  fromId: 'source-1',
+                  toId: 'memory-1',
+                  relationship: 'governed_by',
+                },
+              },
+            },
+          }),
+        }
       }
       if (url.endsWith('/api/admin/agents/open-brain/proposals') && init?.method === 'POST') {
         return {
@@ -350,7 +379,29 @@ describe('OpenBrainPage', () => {
       title: 'Relationship proposal: Strengthen automation-to-runbook governance',
       privacyTier: 'internal_ops',
       sourceIds: ['source-1'],
+      metadata: {
+        relationship: expect.objectContaining({
+          fromId: 'source-1',
+          toId: 'memory-1',
+          relationship: 'governed_by',
+          insightId: 'insight-1',
+        }),
+      },
       reason: expect.stringContaining('insight-1'),
     }))
+  })
+
+  it('shows relationship-link impact and reports durable link creation after approval', async () => {
+    render(<OpenBrainPage />)
+
+    const nextActions = await screen.findByRole('region', { name: 'Open Brain next actions' })
+    fireEvent.click(within(nextActions).getByRole('button', { name: /Review proposals/i }))
+
+    expect(await screen.findByText('Link on approval')).toBeInTheDocument()
+    expect(screen.getByText(/Approving this proposal creates a durable link/i)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Approve' }))
+
+    expect(await screen.findByText('Relationship proposal approved. A durable Open Brain link record was created.')).toBeInTheDocument()
   })
 })

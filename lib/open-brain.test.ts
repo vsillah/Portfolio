@@ -167,6 +167,93 @@ describe('Open Brain projection', () => {
     expect(snapshot.wikiPages[0].markdown).toContain('Portfolio owns projection only')
   })
 
+  it('creates a durable link only after approving a relationship proposal', async () => {
+    const root = await makeTempRoot()
+    const proposal = await createOpenBrainProposal({
+      kind: 'workflow',
+      title: 'Connect automation to runbook',
+      body: 'The Portfolio automation should be explicitly governed by the memory organization runbook.',
+      privacyTier: 'internal_ops',
+      confidence: 0.86,
+      sourceIds: ['automation:portfolio-operations-manager', 'runbook:docs/memory-context-organization-workflow.md'],
+      reason: 'Relationship insight needs approval.',
+      metadata: {
+        relationship: {
+          fromId: 'automation:portfolio-operations-manager',
+          toId: 'runbook:docs/memory-context-organization-workflow.md',
+          relationship: 'governed_by',
+          insightId: 'insight:strengthen:automation-runbook',
+          insightKind: 'strengthen',
+          sourceLabel: 'Portfolio Operations Manager',
+          targetLabel: 'Memory context organization workflow',
+        },
+      },
+    }, root)
+
+    let snapshot = await getOpenBrainSnapshot(root)
+    expect(snapshot.links).toHaveLength(0)
+
+    const approved = await reviewOpenBrainProposal(proposal.id, 'approved', 'Relationship accepted', 'admin', root)
+    snapshot = await getOpenBrainSnapshot(root)
+
+    expect(approved.metadata?.relationship).toEqual(expect.objectContaining({
+      fromId: 'automation:portfolio-operations-manager',
+      toId: 'runbook:docs/memory-context-organization-workflow.md',
+      relationship: 'governed_by',
+    }))
+    expect(snapshot.links).toEqual([
+      expect.objectContaining({
+        fromId: 'automation:portfolio-operations-manager',
+        toId: 'runbook:docs/memory-context-organization-workflow.md',
+        relationship: 'governed_by',
+      }),
+    ])
+    expect(snapshot.events).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: 'proposal_approved',
+        metadata: expect.objectContaining({
+          relationshipLinkId: expect.stringMatching(/^link:/),
+        }),
+      }),
+    ]))
+  })
+
+  it('does not create a durable link when a relationship proposal is rejected', async () => {
+    const root = await makeTempRoot()
+    const proposal = await createOpenBrainProposal({
+      kind: 'workflow',
+      title: 'Reject automation relationship',
+      body: 'This proposed relationship should stay audit-only when rejected.',
+      privacyTier: 'internal_ops',
+      sourceIds: ['automation:portfolio-operations-manager'],
+      reason: 'test',
+      metadata: {
+        relationship: {
+          fromId: 'automation:portfolio-operations-manager',
+          toId: 'runbook:docs/memory-context-organization-workflow.md',
+          relationship: 'governed_by',
+          insightId: 'insight:test',
+          insightKind: 'strengthen',
+          sourceLabel: 'Portfolio Operations Manager',
+          targetLabel: 'Memory context organization workflow',
+        },
+      },
+    }, root)
+
+    await reviewOpenBrainProposal(proposal.id, 'rejected', 'Not the right runbook.', 'admin', root)
+    const snapshot = await getOpenBrainSnapshot(root)
+
+    expect(snapshot.links).toHaveLength(0)
+    expect(snapshot.events).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: 'proposal_rejected',
+        metadata: expect.objectContaining({
+          relationship: expect.objectContaining({ relationship: 'governed_by' }),
+        }),
+      }),
+    ]))
+  })
+
   it('can approve a generated repair proposal after persisting it locally', async () => {
     const root = await makeTempRoot()
 
