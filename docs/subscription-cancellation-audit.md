@@ -1358,6 +1358,32 @@ Raw Findings
 - New tests: `/lib/apify-replacement-bakeoff.test.ts`.
 - No shared cost-event schema changes and no production write actions.
 
+## 2026-05-25 LinkedIn Manual Replacement Packet
+
+Status: YELLOW
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- Added a LinkedIn post-search replacement packet for the one Apify LinkedIn
+  surface that currently has the strongest value signal.
+- Current LinkedIn guidance was checked before writing the packet. The packet
+  keeps the replacement test manual and source-register based; it does not
+  authorize scraping, auto-viewing, auto-messaging, profile copying, or
+  automated browser activity against LinkedIn.
+- The acceptance gate requires at least 15 accepted evidence items or leads in
+  a 30-minute sprint, fit-score average of 3.5 or higher, reviewable source
+  URLs, and less than 2 minutes of review time per accepted item.
+
+Raw Findings
+
+- New packet: `/docs/apify-linkedin-manual-replacement-packet.md`.
+- Updated source map: `/docs/apify-call-bakeoff-analysis.md`.
+- LinkedIn references checked on 2026-05-25: Prohibited software and
+  extensions, Automated activity on LinkedIn, and Professional Community
+  Policies.
+- No shared cost-event schema changes and no production write actions.
+
 ## 2026-05-09 Budget Query Readiness Update
 
 Status: YELLOW

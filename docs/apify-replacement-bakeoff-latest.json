@@ -1,0 +1,86 @@
+{
+  "generatedAt": "2026-05-26T18:32:53.819Z",
+  "readyCount": 3,
+  "blockedCount": 0,
+  "manualReadyCount": 1,
+  "tests": [
+    {
+      "category": "Reddit listening",
+      "currentApifySignal": "72 items / $0.47360 sampled actor cost",
+      "challenger": "Brave Search API with Reddit/source filters",
+      "requiredEnv": [
+        "BRAVE_SEARCH_API_KEY"
+      ],
+      "sampleQuery": "site:reddit.com nonprofit website migration pain points",
+      "acceptanceGate": "Capture comparable conversations with source URLs, lower review burden, and acceptable attribution.",
+      "missingEnv": [],
+      "status": "ready"
+    },
+    {
+      "category": "Google Maps",
+      "currentApifySignal": "68 items / $0.58600 sampled actor cost",
+      "challenger": "Google Places API Text Search with field masks and strict quotas",
+      "requiredEnv": [
+        "GOOGLE_MAPS_API_KEY"
+      ],
+      "sampleQuery": "nonprofit organizations near Omaha NE",
+      "acceptanceGate": "Return enough qualified businesses with required fields while staying inside free or low-tier quota.",
+      "missingEnv": [],
+      "status": "ready"
+    },
+    {
+      "category": "LinkedIn post search",
+      "currentApifySignal": "135 items / $0.27220 sampled actor cost",
+      "challenger": "Browser-agent sampling plus manual review packet",
+      "requiredEnv": [],
+      "sampleQuery": "LinkedIn posts about nonprofit website migration",
+      "acceptanceGate": "Return comparable accepted leads without increasing account risk or manual review time.",
+      "missingEnv": [],
+      "status": "manual_ready"
+    },
+    {
+      "category": "Capterra reviews",
+      "currentApifySignal": "40 items / $0.62400 sampled actor cost",
+      "challenger": "Brave Search or browser capture into a source register",
+      "requiredEnv": [
+        "BRAVE_SEARCH_API_KEY"
+      ],
+      "sampleQuery": "site:capterra.com nonprofit CRM reviews implementation",
+      "acceptanceGate": "Match accepted evidence quality while preserving reviewable source URLs and snippets.",
+      "missingEnv": [],
+      "status": "ready"
+    }
+  ],
+  "nextAction": "Run scripts/apify-replacement-bakeoff.ts --run and compare accepted-result rate against the Apify baseline.",
+  "mode": "run",
+  "liveResults": [
+    {
+      "category": "Reddit listening",
+      "challenger": "Brave Search API with Reddit/source filters",
+      "status": "ok",
+      "resultCount": 5,
+      "note": "HTTP 200"
+    },
+    {
+      "category": "Google Maps",
+      "challenger": "Google Places API Text Search with field masks and strict quotas",
+      "status": "ok",
+      "resultCount": 5,
+      "note": "HTTP 200"
+    },
+    {
+      "category": "LinkedIn post search",
+      "challenger": "Browser-agent sampling plus manual review packet",
+      "status": "ready",
+      "resultCount": 0,
+      "note": "Manual/browser-agent packet; no API call made by this script."
+    },
+    {
+      "category": "Capterra reviews",
+      "challenger": "Brave Search or browser capture into a source register",
+      "status": "ok",
+      "resultCount": 5,
+      "note": "HTTP 200"
+    }
+  ]
+}

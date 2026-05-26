@@ -48,7 +48,7 @@ proves the campaign still needs that source.
 | --- | ---: | --- | --- | --- |
 | Reddit listening | 72 items / $0.47360 | Brave Search API with Reddit/source filters, then official Reddit Data API only if terms fit | Brave is $5 per 1,000 search requests with $5 monthly credits, which is enough for a low-volume evidence monitor. Reddit's official free API has rate limits and commercial use can require a separate agreement. | Promote replacement only if it captures the same conversations with lower review burden and acceptable source attribution. |
 | Google Maps | 68 items / $0.58600 | Google Places API Text Search/Nearby Search with field masks and strict quotas | Google Places pricing is transparent; Text Search/Nearby Search Pro list 5,000 free monthly calls, then $32 per 1,000 for the first paid tier. This can beat Apify if the workflow needs verified place data instead of broad scraping. | Promote only if Places returns enough qualified businesses with required fields while staying inside the free/low-tier quota. |
-| LinkedIn post search | 135 items / $0.27220 | Browser-agent sampling plus manual review packet | This is the strongest current Apify value signal, but LinkedIn-style extraction has account and compliance risk. A browser/manual packet should test whether smaller sampled searches produce enough accepted leads. | Keep Apify unless the replacement returns comparable accepted leads without increasing account risk or manual time. |
+| LinkedIn post search | 135 items / $0.27220 | Manual review packet, not automated scraping | This is the strongest current Apify value signal, but LinkedIn's current help guidance prohibits scraping and automated activity. The replacement packet must test human review and source registration, not a bot. | Keep Apify unless the replacement returns comparable accepted leads without increasing account risk or manual time. |
 | Capterra reviews | 40 items / $0.62400 | Brave Search or browser capture into a source register | Review-site evidence is usually sparse and source-sensitive. A search/browser capture may be cheaper if it preserves URLs, snippets, and review context without needing a dedicated actor. | Promote only if accepted evidence quality matches Apify and source URLs remain reviewable. |
 
 Source notes for the bakeoff packet:
@@ -72,16 +72,49 @@ missing read-only credentials. Live API mode is intentionally explicit:
 npm run apify:replacement-bakeoff -- --run --out=docs/apify-replacement-bakeoff-latest.json
 ```
 
-Current credential gate from the 2026-05-24 worktree check:
+Credential gate history:
 
 - `APIFY_TOKEN` and `APIFY_API_TOKEN` exist locally.
-- `BRAVE_SEARCH_API_KEY` is missing, so Reddit/Capterra replacement API tests
-  are blocked.
-- `GOOGLE_MAPS_API_KEY` is missing, so Google Places replacement tests are
-  blocked.
+- 2026-05-24: `BRAVE_SEARCH_API_KEY` was missing, so Reddit/Capterra
+  replacement API tests were blocked.
+- 2026-05-24: `GOOGLE_MAPS_API_KEY` was missing, so Google Places replacement
+  tests were blocked.
+- 2026-05-25: `BRAVE_SEARCH_API_KEY` and `GOOGLE_MAPS_API_KEY` were present in
+  local runtime sinks. The live replacement bakeoff wrote sanitized evidence to
+  `docs/apify-replacement-bakeoff-latest.json`.
 - LinkedIn post-search replacement remains manual/browser-agent ready because
   it should be evaluated on accepted leads and account-risk burden, not API
   result count alone.
+
+Credential slots for `BRAVE_SEARCH_API_KEY` and `GOOGLE_MAPS_API_KEY` are now
+tracked in `.env.example`, `docs/credential-inventory.json`, and the credential
+rotation docs. The real values should be added only to local/Vercel/secret
+manager sinks, never to git.
+
+### Google Places Production Restriction Gate
+
+The current Google Places key is API-restricted to Places API (New), which is
+acceptable for the short bakeoff window because the local/Codex execution path
+does not have a stable outbound IP. Do not promote this key as the durable
+production credential until the execution host and outbound egress path are
+confirmed.
+
+Follow-up task:
+
+- Create or promote a separate `portfolio-apify-replacement-google-places-prod`
+  key after the production execution host is confirmed.
+- Apply API restrictions to Places API (New) before use.
+- Apply IP address restrictions if the production runner has stable outbound
+  egress. If it does not, keep this as a temporary API-only key with strict
+  quota limits, billing alerts, and a rotation review date.
+- Sync only the approved production key to Vercel/Infisical runtime sinks.
+- Rerun `npm run apify:replacement-bakeoff -- --run` from the production-like
+  runner before replacing any Apify Google Maps workflow.
+
+The LinkedIn-specific replacement packet lives at
+`docs/apify-linkedin-manual-replacement-packet.md`. Use it for a 30-minute
+manual review sprint before deciding whether the LinkedIn post-search actor can
+be paused, kept, or replaced.
 
 ## Configured Apify Call Surfaces
 
