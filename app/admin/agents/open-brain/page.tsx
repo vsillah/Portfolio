@@ -22,6 +22,7 @@ import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
 import type {
   OpenBrainPrivacyTier,
+  OpenBrainRelationshipAuditRecord,
   OpenBrainRelationshipInsight,
   OpenBrainRelationshipNodeType,
   OpenBrainSnapshot,
@@ -255,6 +256,7 @@ function OpenBrainContent() {
             {viewMode === 'proposals' ? (
               <ProposalsView
                 proposals={pendingProposals.length ? pendingProposals : snapshot.proposals}
+                relationshipAudit={snapshot.relationshipMap.audit}
                 reviewingProposalId={reviewingProposalId}
                 onReview={reviewProposal}
               />
@@ -746,6 +748,18 @@ function RelationshipMapView({
               <EmptyState message="No relationship issues are visible for the current graph." />
             )}
           </div>
+          <div className="mt-5 border-t border-silicon-slate/60 pt-4">
+            <p className="agent-ops-eyebrow"><ShieldCheck size={14} /> Persisted link audit</p>
+            <div className="mt-3 space-y-3">
+              {map.audit.length > 0 ? map.audit.slice(0, 4).map((record) => (
+                <RelationshipAuditCard key={record.linkId} record={record} compact />
+              )) : (
+                <p className="rounded-lg border border-silicon-slate/60 bg-background/20 p-3 text-xs text-muted-foreground">
+                  No approved relationship links are persisted yet.
+                </p>
+              )}
+            </div>
+          </div>
         </aside>
       </div>
     </section>
@@ -903,26 +917,57 @@ function SourcesView({ snapshot }: { snapshot: OpenBrainSnapshot }) {
 
 function ProposalsView({
   proposals,
+  relationshipAudit,
   reviewingProposalId,
   onReview,
 }: {
   proposals: OpenBrainSnapshot['proposals']
+  relationshipAudit: OpenBrainRelationshipAuditRecord[]
   reviewingProposalId: string | null
   onReview: (id: string, action: 'approve' | 'reject') => void
 }) {
-  if (proposals.length === 0) {
+  if (proposals.length === 0 && relationshipAudit.length === 0) {
     return <EmptyState message="No Open Brain memory proposals are pending or stored locally." />
   }
   return (
-    <section className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-      {proposals.map((proposal) => {
+    <section className="space-y-5">
+      {relationshipAudit.length > 0 ? (
+        <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
+          <div className="mb-3 flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="agent-ops-eyebrow"><ShieldCheck size={14} /> Persisted relationship audit</p>
+              <h2 className="mt-2 text-xl font-semibold">Approved links now in Open Brain</h2>
+            </div>
+            <span className="rounded-full border border-radiant-gold/35 bg-radiant-gold/10 px-2 py-1 text-xs text-radiant-gold">
+              {relationshipAudit.length} durable link(s)
+            </span>
+          </div>
+          <div className="grid gap-3 xl:grid-cols-2">
+            {relationshipAudit.slice(0, 4).map((record) => (
+              <RelationshipAuditCard key={record.linkId} record={record} />
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {proposals.length === 0 ? (
+        <EmptyState message="No Open Brain memory proposals are pending or stored locally." />
+      ) : null}
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        {proposals.map((proposal) => {
         const relationship = proposal.metadata?.relationship
+        const auditRecord = relationship ? findRelationshipAuditForProposal(relationshipAudit, proposal) : null
         return (
           <article key={proposal.id} className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
               <h3 className="font-semibold">{proposal.proposedMemory.title}</h3>
               <div className="flex flex-wrap gap-2">
-                {relationship ? (
+                {auditRecord ? (
+                  <span className="rounded-full border border-green-400/35 bg-green-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-green-200">
+                    Durable link recorded
+                  </span>
+                ) : relationship ? (
                   <span className="rounded-full border border-radiant-gold/45 bg-radiant-gold/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-radiant-gold">
                     Link on approval
                   </span>
@@ -938,6 +983,11 @@ function ProposalsView({
                   Approving this proposal creates a durable link: {relationship.sourceLabel} {'->'} {relationship.targetLabel}
                 </p>
                 <p className="mt-1 text-muted-foreground">Relationship: {relationship.relationship}</p>
+                {auditRecord ? (
+                  <p className="mt-1 text-green-200">
+                    Durable link recorded as {auditRecord.linkId} from {auditRecord.eventId || 'local link store'}.
+                  </p>
+                ) : null}
               </div>
             ) : null}
             <div className="grid grid-cols-2 gap-2 text-xs">
@@ -968,9 +1018,60 @@ function ProposalsView({
             ) : null}
           </article>
         )
-      })}
+        })}
+      </div>
     </section>
   )
+}
+
+function RelationshipAuditCard({
+  record,
+  compact = false,
+}: {
+  record: OpenBrainRelationshipAuditRecord
+  compact?: boolean
+}) {
+  return (
+    <article className="rounded-lg border border-green-400/25 bg-green-500/10 p-3 text-xs">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <p className="font-semibold text-green-100">{record.sourceLabel} {'->'} {record.targetLabel}</p>
+        <span className="rounded-full border border-green-400/30 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-green-200">
+          {record.relationship}
+        </span>
+      </div>
+      <p className="mt-2 break-all text-muted-foreground">{record.linkId}</p>
+      {!compact ? (
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          <Detail label="Approved by" value={record.reviewedBy || 'unknown'} />
+          <Detail label="Approved" value={record.reviewedAt ? formatDateTime(record.reviewedAt) : 'unknown'} />
+          <Detail label="Proposal" value={record.sourceProposalId || 'not linked'} />
+          <Detail label="Event" value={record.eventId || 'not linked'} />
+        </div>
+      ) : (
+        <p className="mt-2 text-muted-foreground">
+          {record.reviewedAt ? formatDateTime(record.reviewedAt) : 'Approval time unknown'} · {record.sourceProposalId || 'proposal not linked'}
+        </p>
+      )}
+      <p className="mt-2 text-muted-foreground">{record.evidence}</p>
+    </article>
+  )
+}
+
+function findRelationshipAuditForProposal(
+  relationshipAudit: OpenBrainRelationshipAuditRecord[],
+  proposal: OpenBrainSnapshot['proposals'][number],
+) {
+  const relationship = proposal.metadata?.relationship
+  if (!relationship) return null
+  return relationshipAudit.find((record) =>
+    (proposal.status === 'approved' && record.sourceProposalId === proposal.id) ||
+    (
+      proposal.status === 'approved' &&
+      record.fromId === relationship.fromId &&
+      record.toId === relationship.toId &&
+      record.relationship === relationship.relationship
+    )
+  ) || null
 }
 
 function WikiView({ pages }: { pages: OpenBrainSnapshot['wikiPages'] }) {

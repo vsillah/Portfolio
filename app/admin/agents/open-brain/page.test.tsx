@@ -210,6 +210,22 @@ const openBrainSnapshot = {
         targetNodeId: 'memory-1',
       },
     ],
+    audit: [
+      {
+        linkId: 'link:source-memory',
+        fromId: 'source-1',
+        toId: 'memory-1',
+        relationship: 'governed_by',
+        sourceLabel: 'Morning review source',
+        targetLabel: 'Action-first operating rule',
+        sourceProposalId: 'proposal-1',
+        reviewedBy: 'admin-user',
+        reviewedAt: '2026-05-15T11:30:00.000Z',
+        eventId: 'event:proposal-approved',
+        createdAt: '2026-05-15T11:30:00.000Z',
+        evidence: 'Approval event recorded the relationship link id.',
+      },
+    ],
   },
   modelOps: {
     available: true,
@@ -358,6 +374,8 @@ describe('OpenBrainPage', () => {
     expect(within(map).getByText('Weak links')).toBeInTheDocument()
     expect(within(map).getByText('Orphaned records')).toBeInTheDocument()
     expect(within(map).getByText('Relationship insights')).toBeInTheDocument()
+    expect(within(map).getByText('Persisted link audit')).toBeInTheDocument()
+    expect(within(map).getByText('link:source-memory')).toBeInTheDocument()
     expect(within(map).getByText('Strengthen automation-to-runbook governance')).toBeInTheDocument()
     expect(within(map).getByText('Morning review source')).toBeInTheDocument()
 
@@ -398,6 +416,9 @@ describe('OpenBrainPage', () => {
     fireEvent.click(within(nextActions).getByRole('button', { name: /Review proposals/i }))
 
     expect(await screen.findByText('Link on approval')).toBeInTheDocument()
+    expect(screen.getByText('Persisted relationship audit')).toBeInTheDocument()
+    expect(screen.getByText('Approved links now in Open Brain')).toBeInTheDocument()
+    expect(screen.getAllByText('link:source-memory').length).toBeGreaterThan(0)
     expect(screen.getByText(/Approving this proposal creates a durable link/i)).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Approve' }))
