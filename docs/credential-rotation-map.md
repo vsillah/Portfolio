@@ -190,6 +190,17 @@ Credentials in n8n are either hardcoded in nodes or in n8n Credentials. When rot
 
 ---
 
+### Apify Replacement Bakeoff Challenger Keys
+
+| Credential | Usage |
+|------------|-------|
+| `BRAVE_SEARCH_API_KEY` | `npm run apify:replacement-bakeoff -- --run` Reddit and Capterra challenger tests |
+| `GOOGLE_MAPS_API_KEY` | `npm run apify:replacement-bakeoff -- --run` Google Places challenger test |
+
+**Rotate:** Update local/Vercel secret source, rerun `npm run apify:replacement-bakeoff`, then run the live replacement packet with `-- --run`. These keys are for read-only comparison tests; they do not replace Apify until accepted-result quality is reviewed.
+
+---
+
 ### Supabase Service Role Key
 
 | Workflow | Usage |

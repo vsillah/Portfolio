@@ -83,6 +83,11 @@ Current credential gate from the 2026-05-24 worktree check:
   it should be evaluated on accepted leads and account-risk burden, not API
   result count alone.
 
+Credential slots for `BRAVE_SEARCH_API_KEY` and `GOOGLE_MAPS_API_KEY` are now
+tracked in `.env.example`, `docs/credential-inventory.json`, and the credential
+rotation docs. The real values should be added only to local/Vercel/secret
+manager sinks, never to git.
+
 The LinkedIn-specific replacement packet lives at
 `docs/apify-linkedin-manual-replacement-packet.md`. Use it for a 30-minute
 manual review sprint before deciding whether the LinkedIn post-search actor can
