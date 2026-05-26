@@ -941,7 +941,7 @@ function SocialContentQueuePage() {
                       </Link>
                     )}
                     {voiceResult.agentRunId && (
-                      <Link href={`/admin/agents?run=${voiceResult.agentRunId}`} className="inline-flex items-center gap-1 text-xs text-radiant-gold hover:underline">
+                      <Link href={`/admin/agents/runs/${voiceResult.agentRunId}`} className="inline-flex items-center gap-1 text-xs text-radiant-gold hover:underline">
                         Review gates <CheckCircle2 className="h-3 w-3" />
                       </Link>
                     )}
