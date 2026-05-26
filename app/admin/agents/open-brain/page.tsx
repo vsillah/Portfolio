@@ -585,6 +585,7 @@ function RelationshipMapView({
   const selectedPath = visibleEdges.find((edge) => edge.strength === 'strong') || visibleEdges[0]
   const selectedFrom = selectedPath ? nodeById.get(selectedPath.fromId) : null
   const selectedTo = selectedPath ? nodeById.get(selectedPath.toId) : null
+  const graphMinHeight = Math.max(620, Math.ceil(visibleNodes.length / 4) * 132)
 
   return (
     <section className="space-y-5" aria-label="Open Brain relationship map">
@@ -596,7 +597,7 @@ function RelationshipMapView({
         <RelationshipMetric label="Suggestions" value={map.overview.proposalSuggestions} detail="Proposal-only actions" />
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[250px_minmax(0,1fr)_340px]">
+      <div className="grid gap-4 2xl:grid-cols-[250px_minmax(0,1fr)_340px]">
         <aside className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
           <div className="mb-4 flex items-center justify-between gap-3">
             <p className="agent-ops-eyebrow"><Network size={14} /> Filters</p>
@@ -630,7 +631,10 @@ function RelationshipMapView({
           </div>
         </aside>
 
-        <div className="relative min-h-[620px] overflow-hidden rounded-lg border border-radiant-gold/20 bg-[radial-gradient(circle_at_50%_45%,rgba(212,175,55,0.08),transparent_34%),linear-gradient(180deg,rgba(12,23,39,0.94),rgba(7,14,25,0.98))] shadow-2xl">
+        <div
+          className="relative overflow-hidden rounded-lg border border-radiant-gold/20 bg-[radial-gradient(circle_at_50%_45%,rgba(212,175,55,0.08),transparent_34%),linear-gradient(180deg,rgba(12,23,39,0.94),rgba(7,14,25,0.98))] shadow-2xl"
+          style={{ minHeight: `${graphMinHeight}px` }}
+        >
           <div className="absolute left-5 top-5 z-10">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-radiant-gold">Memory Graph</p>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -663,7 +667,7 @@ function RelationshipMapView({
           {visibleNodes.map((node) => (
             <div
               key={node.id}
-              className={`absolute z-10 flex max-w-[150px] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-lg border px-3 py-2 text-center shadow-xl ${relationshipNodeTone(node.type, node.health)}`}
+              className={`absolute z-10 flex max-w-[132px] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-lg border px-2.5 py-2 text-center shadow-xl ${relationshipNodeTone(node.type, node.health)}`}
               style={{ left: `${node.x}%`, top: `${node.y}%` }}
               title={node.summary}
             >
