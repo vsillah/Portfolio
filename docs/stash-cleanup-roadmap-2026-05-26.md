@@ -145,3 +145,9 @@ Completion gate:
 - Both Vercel contexts are verified for merged Portfolio changes:
   - `Vercel - portfolio`
   - `Vercel - portfolio-staging`
+
+## Execution Log
+
+- Phase 0 complete: audit roadmap created on `codex/stash-cleanup-roadmap`.
+- Phase 1 complete: dropped generated-artifact stashes `4de54187b525385fcb2e79023f70108b115f2fb6` and `859266a14f82e5ef13e185ba7e392c27282ce5bd`.
+- Phase 2 in progress: rescued the durable `supabase/.temp/` ignore rule from stash `e34e405dd541682858d84af5fd7ce78f858ae61e`.

@@ -64,3 +64,6 @@ scripts/prod-schema-components/
 .database-baseline-dev.json
 # staging env files
 .env.staging
+
+# Supabase CLI local link/cache state
+supabase/.temp/
