@@ -95,6 +95,21 @@ export interface OpenBrainProposalRecord {
   reviewedAt: string | null
   reviewedBy: string | null
   reviewReason: string | null
+  metadata?: OpenBrainProposalMetadata
+}
+
+export interface OpenBrainProposalMetadata {
+  relationship?: OpenBrainRelationshipProposalMetadata
+}
+
+export interface OpenBrainRelationshipProposalMetadata {
+  fromId: string
+  toId: string
+  relationship: string
+  insightId: string
+  insightKind: OpenBrainRelationshipInsightKind
+  sourceLabel: string
+  targetLabel: string
 }
 
 export interface OpenBrainWikiPage {
@@ -262,6 +277,7 @@ export interface OpenBrainProposalInput {
   sourceIds?: string[]
   reason: string
   createdBy?: string
+  metadata?: OpenBrainProposalMetadata
 }
 
 const DEFAULT_OPEN_BRAIN_HOME = path.join(homedir(), '.open-brain')
@@ -484,6 +500,7 @@ export async function createOpenBrainProposal(
     reviewedAt: null,
     reviewedBy: null,
     reviewReason: null,
+    metadata: normalizeOpenBrainProposalMetadata(input.metadata),
   }
   await writeJsonArray(proposalsPath, [...proposals, proposal])
   await recordOpenBrainEvent({
@@ -497,6 +514,7 @@ export async function createOpenBrainProposal(
       proposalId: proposal.id,
       createdBy: proposal.createdBy,
       memoryKind: proposal.proposedMemory.kind,
+      relationship: proposal.metadata?.relationship,
     },
   }, openBrainHome)
   return proposal
@@ -527,10 +545,15 @@ export async function reviewOpenBrainProposal(
   }
   proposals[index] = reviewed
   await writeJsonArray(proposalsPath, proposals)
+  let approvedRelationshipLink: OpenBrainLinkRecord | null = null
   if (status === 'approved') {
     const memoriesPath = path.join(openBrainHome, MEMORIES_FILE)
     const memories = await readJsonArray<OpenBrainMemoryRecord>(memoriesPath)
     await writeJsonArray(memoriesPath, dedupeMemories([...memories, proposalToMemory(reviewed)]))
+    const relationshipLinkInput = relationshipLinkFromProposal(reviewed)
+    if (relationshipLinkInput) {
+      approvedRelationshipLink = await linkOpenBrainRecords(relationshipLinkInput, openBrainHome)
+    }
   }
   await recordOpenBrainEvent({
     kind: status === 'approved' ? 'proposal_approved' : 'proposal_rejected',
@@ -543,6 +566,8 @@ export async function reviewOpenBrainProposal(
       proposalId: reviewed.id,
       reviewedBy: reviewed.reviewedBy,
       memoryKind: reviewed.proposedMemory.kind,
+      relationship: reviewed.metadata?.relationship,
+      relationshipLinkId: approvedRelationshipLink?.id,
     },
   }, openBrainHome)
   return reviewed
@@ -1503,6 +1528,36 @@ function proposalToMemory(proposal: OpenBrainProposalRecord): OpenBrainMemoryRec
       proposal.proposedMemory.body,
       proposal.proposedMemory.privacyTier,
     ]),
+  }
+}
+
+function normalizeOpenBrainProposalMetadata(metadata: OpenBrainProposalMetadata | undefined): OpenBrainProposalMetadata | undefined {
+  if (!metadata?.relationship) return undefined
+  const relationship = metadata.relationship
+  if (!relationship.fromId?.trim() || !relationship.toId?.trim() || !relationship.relationship?.trim()) return undefined
+  if (!['strengthen', 'review', 'missing_governance', 'merge_duplicate'].includes(relationship.insightKind)) return undefined
+  return {
+    relationship: {
+      fromId: sanitizeOpenBrainText(relationship.fromId, 220),
+      toId: sanitizeOpenBrainText(relationship.toId, 220),
+      relationship: sanitizeOpenBrainText(relationship.relationship, 160),
+      insightId: sanitizeOpenBrainText(relationship.insightId || 'relationship-map-insight', 220),
+      insightKind: relationship.insightKind,
+      sourceLabel: sanitizeOpenBrainText(relationship.sourceLabel || relationship.fromId, 180),
+      targetLabel: sanitizeOpenBrainText(relationship.targetLabel || relationship.toId, 180),
+    },
+  }
+}
+
+function relationshipLinkFromProposal(proposal: OpenBrainProposalRecord) {
+  const relationship = proposal.metadata?.relationship
+  if (!relationship?.fromId || !relationship.toId || !relationship.relationship) return null
+  if (proposal.proposedMemory.privacyTier === 'private') return null
+  return {
+    id: `link:${fingerprintOpenBrainRecord([relationship.fromId, relationship.toId, relationship.relationship]).slice(0, 16)}`,
+    fromId: relationship.fromId,
+    toId: relationship.toId,
+    relationship: relationship.relationship,
   }
 }
 
