@@ -102,6 +102,18 @@ Connector readiness is part of the roadmap snapshot and client/admin read model.
 
 Connector readiness may show required connectors, ready connectors, approval-blocked connectors, missing critical connectors, detected providers, and the next setup action. Treat these as planning signals only. OAuth, API keys, service accounts, webhook setup, workflow activation, outbound sends, publishing, production deploys, and client-data mutation remain approval-gated.
 
+## Synthetic Pilot Fixture
+
+Use `buildSyntheticClientAiOpsPilot` from `lib/client-ai-ops-synthetic-pilot.ts` as the no-side-effect regression path for new roadmap, connector, and swarm-board changes. It proves the current MVP flow with synthetic data only:
+
+1. Audit and verified stack signals produce connector readiness.
+2. The roadmap snapshot carries connector readiness into the client/admin read model.
+3. The swarm board can project the same synthetic client into the correct operational column.
+4. Discovery, technology decision, provisioning planning, and QA handoffs stay autonomous only for read-only work.
+5. Credential sync, live OAuth/API setup, outbound sends, provider writes, deploys, publishing, and client-data mutation route to approval boundaries.
+
+The fixture is not a seed script and must not create client records, credentials, OAuth connections, provider resources, live workflows, outbound messages, or production configuration.
+
 ## Roadmap Rule Checklist
 
 Use this checklist whenever a roadmap feature, monitor, report, or client implementation phase changes:
@@ -114,6 +126,7 @@ Use this checklist whenever a roadmap feature, monitor, report, or client implem
 - The monitor can create a roadmap report and follow-up task when drift, stale pricing, missing reports, or blockers appear.
 - Roadmap projection status is visible from the same source data and remains read-only.
 - Connector readiness is visible from verified stack, audit, BuiltWith, and roadmap signals without live credential setup.
+- The synthetic pilot fixture still proves audit-to-roadmap-to-client/admin projection and read-only autonomous handoff boundaries.
 - Client-facing output excludes private logs, agent traces, credentials, and internal-only notes.
 
 ## Real Client Pilot Checklist
