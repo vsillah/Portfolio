@@ -115,25 +115,35 @@ export async function syncReplyIntentReviewCandidates(options: SyncOptions) {
     },
   })
 
-  const [{ data: sourceRows, error: sourceError }, { data: reviewRows, error: reviewError }] = await Promise.all([
-    supabase
-      .from('outreach_queue')
-      .select('id,channel,sequence_step,status,replied_at,created_at,reply_content')
-      .not('reply_content', 'is', null)
-      .order('replied_at', { ascending: false, nullsFirst: false })
-      .limit(options.limit),
-    supabase
-      .from('model_ops_reply_intent_reviews')
-      .select('source_id,source_table,source_hash,reply_hash,redacted_reply,suggested_labels,review_status,human_scheduling_intent')
-      .eq('source_table', 'outreach_queue')
-      .limit(options.limit),
-  ])
+  const { data: sourceRows, error: sourceError } = await supabase
+    .from('outreach_queue')
+    .select('id,channel,sequence_step,status,replied_at,created_at,reply_content')
+    .not('reply_content', 'is', null)
+    .order('replied_at', { ascending: false, nullsFirst: false })
+    .limit(options.limit)
 
   if (sourceError) throw new Error(`Failed to fetch outreach replies: ${sourceError.message}`)
+
+  const sourceList = (sourceRows || []) as OutreachReplySourceRow[]
+  const candidateSourceIds = sourceList
+    .filter((row) => hasReviewableReplyContent(row, options.minLength))
+    .map((row) => row.id)
+
+  const { data: reviewRows, error: reviewError } =
+    candidateSourceIds.length > 0
+      ? await supabase
+          .from('model_ops_reply_intent_reviews')
+          .select(
+            'source_id,source_table,source_hash,reply_hash,redacted_reply,suggested_labels,review_status,human_scheduling_intent'
+          )
+          .eq('source_table', 'outreach_queue')
+          .in('source_id', candidateSourceIds)
+      : { data: [], error: null }
+
   if (reviewError) throw new Error(`Failed to fetch existing reply-intent reviews: ${reviewError.message}`)
 
   const plan = planReplyIntentReviewSync(
-    (sourceRows || []) as OutreachReplySourceRow[],
+    sourceList,
     (reviewRows || []) as ReplyIntentReviewRow[],
     options.minLength
   )
@@ -157,7 +167,7 @@ export async function syncReplyIntentReviewCandidates(options: SyncOptions) {
   const payloads = plan.pendingToSeed.map(buildPendingReviewSeedPayload)
   const { error: upsertError } = await supabase
     .from('model_ops_reply_intent_reviews')
-    .upsert(payloads, { onConflict: 'source_table,source_id' })
+    .upsert(payloads, { onConflict: 'source_table,source_id', ignoreDuplicates: true })
 
   if (upsertError) throw new Error(`Failed to seed reply-intent review candidates: ${upsertError.message}`)
 
