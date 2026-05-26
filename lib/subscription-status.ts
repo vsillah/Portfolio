@@ -55,7 +55,18 @@ export interface SubscriptionApifyCallAnalysis {
   pauseOrReplaceActorSurfaces?: number
   analysisDocument: string
   nextAction: string
+  googlePlacesPromotionGate?: SubscriptionGooglePlacesPromotionGate
   actorRunHistory?: SubscriptionApifyActorRunHistory[]
+}
+
+export interface SubscriptionGooglePlacesPromotionGate {
+  status: 'gated' | 'ready' | 'blocked' | string
+  localKeyStatus: string
+  productionRequirement: string
+  recommendedProductionKeyName: string
+  requiredControls: string[]
+  decisionOwner: string
+  decisionRequired: boolean
 }
 
 export interface SubscriptionApifyActorRunHistory {
@@ -187,6 +198,20 @@ export function answerSubscriptionBudgetQuery(query: string): SubscriptionQueryR
         answer = `${answer} Direct Apify run-history sampled ${analysis.sampledRuns ?? 0} runs across ${analysis.configuredActorSurfaces} actor surfaces: ${analysis.productiveActorSurfaces ?? 0} look productive, ${analysis.pauseOrReplaceActorSurfaces ?? 0} should be paused/replaced, ${analysis.datasetItems ?? 0} dataset items cost $${(analysis.sampledActorCostUsd ?? 0).toFixed(2)} in actor usage. ${analysis.nextAction}`
       } else {
         answer = `${answer} Apify has ${analysis.configuredActorSurfaces} configured actor surfaces in the current analysis; ${analysis.nextAction}`
+      }
+      if (
+        analysis.googlePlacesPromotionGate
+        && (
+          normalized.includes('google places')
+          || normalized.includes('google maps')
+          || normalized.includes('production')
+          || normalized.includes('promote')
+          || normalized.includes('restriction')
+          || normalized.includes('egress')
+        )
+      ) {
+        const gate = analysis.googlePlacesPromotionGate
+        answer = `${answer} Google Places production gate: ${gate.productionRequirement} Recommended key: ${gate.recommendedProductionKeyName}. Required controls: ${gate.requiredControls.join(' ')}`
       }
     }
   }
