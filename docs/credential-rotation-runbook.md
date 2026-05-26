@@ -76,6 +76,23 @@ For credentials used by n8n workflows (OpenAI, Anthropic, Apify, Hunter, Pinecon
 | `STRIPE_WEBHOOK_SECRET` | WF-001 (payment intake) |
 | `SUPABASE_SERVICE_ROLE_KEY` | WF-SOC-001, WF-SOC-002, WF-CLG-004, all ingest routes |
 
+## Google Places Promotion Gate
+
+The Apify replacement bakeoff may use a local `GOOGLE_MAPS_API_KEY` while the
+execution host is still undecided. Before promoting Google Places into a
+production replacement workflow:
+
+1. Confirm the production runner and whether it has stable outbound IP egress.
+2. Create or promote a separate production key named
+   `portfolio-apify-replacement-google-places-prod`.
+3. Restrict the key to Places API (New).
+4. Add IP address restrictions if the runner has stable outbound egress. If the
+   runner does not have stable egress yet, keep the key API-only temporarily and
+   pair it with strict quota limits, billing alerts, and a rotation review date.
+5. Sync the approved key to Infisical and the relevant runtime sink.
+6. Rerun `npm run apify:replacement-bakeoff -- --run` from the production-like
+   runner before replacing the Apify Google Maps actor.
+
 ## After Rotation Checklist
 
 - [ ] Updated credential in source (n8n / .env.local / Vercel)

@@ -72,13 +72,16 @@ missing read-only credentials. Live API mode is intentionally explicit:
 npm run apify:replacement-bakeoff -- --run --out=docs/apify-replacement-bakeoff-latest.json
 ```
 
-Current credential gate from the 2026-05-24 worktree check:
+Credential gate history:
 
 - `APIFY_TOKEN` and `APIFY_API_TOKEN` exist locally.
-- `BRAVE_SEARCH_API_KEY` is missing, so Reddit/Capterra replacement API tests
-  are blocked.
-- `GOOGLE_MAPS_API_KEY` is missing, so Google Places replacement tests are
-  blocked.
+- 2026-05-24: `BRAVE_SEARCH_API_KEY` was missing, so Reddit/Capterra
+  replacement API tests were blocked.
+- 2026-05-24: `GOOGLE_MAPS_API_KEY` was missing, so Google Places replacement
+  tests were blocked.
+- 2026-05-25: `BRAVE_SEARCH_API_KEY` and `GOOGLE_MAPS_API_KEY` were present in
+  local runtime sinks. The live replacement bakeoff wrote sanitized evidence to
+  `docs/apify-replacement-bakeoff-latest.json`.
 - LinkedIn post-search replacement remains manual/browser-agent ready because
   it should be evaluated on accepted leads and account-risk burden, not API
   result count alone.
@@ -87,6 +90,26 @@ Credential slots for `BRAVE_SEARCH_API_KEY` and `GOOGLE_MAPS_API_KEY` are now
 tracked in `.env.example`, `docs/credential-inventory.json`, and the credential
 rotation docs. The real values should be added only to local/Vercel/secret
 manager sinks, never to git.
+
+### Google Places Production Restriction Gate
+
+The current Google Places key is API-restricted to Places API (New), which is
+acceptable for the short bakeoff window because the local/Codex execution path
+does not have a stable outbound IP. Do not promote this key as the durable
+production credential until the execution host and outbound egress path are
+confirmed.
+
+Follow-up task:
+
+- Create or promote a separate `portfolio-apify-replacement-google-places-prod`
+  key after the production execution host is confirmed.
+- Apply API restrictions to Places API (New) before use.
+- Apply IP address restrictions if the production runner has stable outbound
+  egress. If it does not, keep this as a temporary API-only key with strict
+  quota limits, billing alerts, and a rotation review date.
+- Sync only the approved production key to Vercel/Infisical runtime sinks.
+- Rerun `npm run apify:replacement-bakeoff -- --run` from the production-like
+  runner before replacing any Apify Google Maps workflow.
 
 The LinkedIn-specific replacement packet lives at
 `docs/apify-linkedin-manual-replacement-packet.md`. Use it for a 30-minute
