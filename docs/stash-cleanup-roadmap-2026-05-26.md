@@ -151,3 +151,6 @@ Completion gate:
 - Phase 0 complete: audit roadmap created on `codex/stash-cleanup-roadmap`.
 - Phase 1 complete: dropped generated-artifact stashes `4de54187b525385fcb2e79023f70108b115f2fb6` and `859266a14f82e5ef13e185ba7e392c27282ce5bd`.
 - Phase 2 in progress: rescued the durable `supabase/.temp/` ignore rule from stash `e34e405dd541682858d84af5fd7ce78f858ae61e`.
+- Phase 2 complete: committed the `supabase/.temp/` ignore rule and dropped source stash `e34e405dd541682858d84af5fd7ce78f858ae61e`.
+- Phase 3 complete: compared and dropped superseded implementation stashes `9a98cf6f6de55d70aac90a738008ef22a387a376`, `2f7b1ac5c3c8f735080ac2915ff2d9af5444e760`, and `0bd08ce11d408acc70b91a569bdf35bfdf81b388`.
+- Phase 4 in progress: rescued only the missing normalized May 17 subscription monitor section from stash `f8e211ce672485f997deb93c577074fa29e5941d`; current `docs/subscription-status.json` was intentionally left unchanged.
