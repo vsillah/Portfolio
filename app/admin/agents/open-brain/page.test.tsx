@@ -233,10 +233,24 @@ const openBrainSnapshot = {
 
 describe('OpenBrainPage', () => {
   beforeEach(() => {
-    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input)
       if (url.includes('/wiki/compile')) {
         return { ok: true, json: async () => ({ pages: [{ slug: 'one' }] }) }
+      }
+      if (url.endsWith('/api/admin/agents/open-brain/proposals') && init?.method === 'POST') {
+        return {
+          ok: true,
+          json: async () => ({
+            proposal: {
+              id: 'proposal:relationship-1',
+              status: 'pending',
+              proposedMemory: {
+                title: 'Relationship proposal: Strengthen automation-to-runbook governance',
+              },
+            },
+          }),
+        }
       }
       return { ok: true, json: async () => openBrainSnapshot }
     }))
@@ -304,7 +318,7 @@ describe('OpenBrainPage', () => {
     }))
   })
 
-  it('renders the relationship map as a proposal-only Open Brain view', async () => {
+  it('creates an approval-gated relationship proposal from a map insight', async () => {
     render(<OpenBrainPage />)
 
     const tabs = await screen.findByRole('button', { name: 'Map' })
@@ -320,6 +334,23 @@ describe('OpenBrainPage', () => {
 
     fireEvent.click(within(map).getByRole('button', { name: 'Propose link' }))
 
-    expect(screen.getByText('Propose link is proposal-only in v1. No Open Brain link was changed from this map.')).toBeInTheDocument()
+    expect(await screen.findByText('Relationship proposal created for review: Relationship proposal: Strengthen automation-to-runbook governance. No Open Brain link was changed.')).toBeInTheDocument()
+    expect(fetch).toHaveBeenCalledWith('/api/admin/agents/open-brain/proposals', expect.objectContaining({
+      method: 'POST',
+      headers: expect.objectContaining({ Authorization: 'Bearer admin-token' }),
+      body: expect.any(String),
+    }))
+
+    const proposalCall = vi.mocked(fetch).mock.calls.find(([url, init]) => (
+      String(url).endsWith('/api/admin/agents/open-brain/proposals') && init?.method === 'POST'
+    ))
+    expect(proposalCall).toBeTruthy()
+    expect(JSON.parse(String(proposalCall?.[1]?.body))).toEqual(expect.objectContaining({
+      kind: 'workflow',
+      title: 'Relationship proposal: Strengthen automation-to-runbook governance',
+      privacyTier: 'internal_ops',
+      sourceIds: ['source-1'],
+      reason: expect.stringContaining('insight-1'),
+    }))
   })
 })

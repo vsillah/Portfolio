@@ -20,7 +20,12 @@ import {
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
-import type { OpenBrainRelationshipNodeType, OpenBrainSnapshot } from '@/lib/open-brain'
+import type {
+  OpenBrainPrivacyTier,
+  OpenBrainRelationshipInsight,
+  OpenBrainRelationshipNodeType,
+  OpenBrainSnapshot,
+} from '@/lib/open-brain'
 
 type ViewMode = 'router' | 'sources' | 'proposals' | 'wiki' | 'parity' | 'producers' | 'map'
 
@@ -39,6 +44,7 @@ function OpenBrainContent() {
   const [viewMode, setViewMode] = useState<ViewMode>('router')
   const [actionMessage, setActionMessage] = useState<string | null>(null)
   const [reviewingProposalId, setReviewingProposalId] = useState<string | null>(null)
+  const [proposingInsightId, setProposingInsightId] = useState<string | null>(null)
 
   const authedFetch = useCallback(async (url: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -105,8 +111,24 @@ function OpenBrainContent() {
     }
   }
 
-  function handleRelationshipSuggestion(actionLabel: string) {
-    setActionMessage(`${actionLabel} is proposal-only in v1. No Open Brain link was changed from this map.`)
+  async function handleRelationshipSuggestion(insight: OpenBrainRelationshipInsight) {
+    if (!snapshot) return
+    setActionMessage(null)
+    setProposingInsightId(insight.id)
+    try {
+      const payload = buildRelationshipProposalPayload(snapshot, insight)
+      const body = await authedFetch('/api/admin/agents/open-brain/proposals', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      })
+      setActionMessage(`Relationship proposal created for review: ${body.proposal?.proposedMemory?.title || insight.title}. No Open Brain link was changed.`)
+      setViewMode('proposals')
+      await fetchSnapshot()
+    } catch (err) {
+      setActionMessage(err instanceof Error ? err.message : 'Relationship proposal creation failed')
+    } finally {
+      setProposingInsightId(null)
+    }
   }
 
   return (
@@ -237,7 +259,13 @@ function OpenBrainContent() {
             {viewMode === 'wiki' ? <WikiView pages={snapshot.wikiPages} /> : null}
             {viewMode === 'parity' ? <ParityView snapshot={snapshot} /> : null}
             {viewMode === 'producers' ? <ProducerView snapshot={snapshot} /> : null}
-            {viewMode === 'map' ? <RelationshipMapView snapshot={snapshot} onSuggestionAction={handleRelationshipSuggestion} /> : null}
+            {viewMode === 'map' ? (
+              <RelationshipMapView
+                snapshot={snapshot}
+                proposingInsightId={proposingInsightId}
+                onSuggestionAction={handleRelationshipSuggestion}
+              />
+            ) : null}
 
             <p className="mt-5 text-xs text-muted-foreground">
               Generated {formatDateTime(snapshot.generatedAt)}. {snapshot.service.operationalBoundary}
@@ -570,10 +598,12 @@ function RouterView({ snapshot }: { snapshot: OpenBrainSnapshot }) {
 
 function RelationshipMapView({
   snapshot,
+  proposingInsightId,
   onSuggestionAction,
 }: {
   snapshot: OpenBrainSnapshot
-  onSuggestionAction: (actionLabel: string) => void
+  proposingInsightId: string | null
+  onSuggestionAction: (insight: OpenBrainRelationshipInsight) => void
 }) {
   const [typeFilter, setTypeFilter] = useState<OpenBrainRelationshipNodeType | 'all'>('all')
   const map = snapshot.relationshipMap
@@ -702,10 +732,11 @@ function RelationshipMapView({
                 <p className="mt-2 text-xs leading-relaxed text-foreground/85">{insight.recommendation}</p>
                 <button
                   type="button"
-                  onClick={() => onSuggestionAction(insight.actionLabel)}
-                  className="mt-3 inline-flex items-center gap-2 rounded-lg border border-radiant-gold/40 bg-radiant-gold/10 px-3 py-2 text-xs font-medium text-radiant-gold hover:bg-radiant-gold/15"
+                  onClick={() => onSuggestionAction(insight)}
+                  disabled={proposingInsightId === insight.id}
+                  className="mt-3 inline-flex items-center gap-2 rounded-lg border border-radiant-gold/40 bg-radiant-gold/10 px-3 py-2 text-xs font-medium text-radiant-gold hover:bg-radiant-gold/15 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {insight.actionLabel}
+                  {proposingInsightId === insight.id ? 'Creating proposal...' : insight.actionLabel}
                 </button>
               </article>
             )) : (
@@ -716,6 +747,47 @@ function RelationshipMapView({
       </div>
     </section>
   )
+}
+
+function buildRelationshipProposalPayload(snapshot: OpenBrainSnapshot, insight: OpenBrainRelationshipInsight) {
+  const nodes = snapshot.relationshipMap.nodes
+  const sourceNode = insight.sourceNodeId ? nodes.find((node) => node.id === insight.sourceNodeId) : null
+  const targetNode = insight.targetNodeId ? nodes.find((node) => node.id === insight.targetNodeId) : null
+  const sourceIds = [sourceNode, targetNode]
+    .filter((node): node is NonNullable<typeof node> => Boolean(node && node.type === 'source'))
+    .map((node) => node.id)
+  const relationshipLabel = sourceNode && targetNode
+    ? `${sourceNode.label} -> ${targetNode.label}`
+    : sourceNode
+      ? sourceNode.label
+      : targetNode
+        ? targetNode.label
+        : 'Unscoped relationship insight'
+  const title = `Relationship proposal: ${insight.title}`
+  const body = [
+    `Relationship insight: ${insight.detail}`,
+    `Recommended change: ${insight.recommendation}`,
+    `Relationship path: ${relationshipLabel}`,
+    `Insight kind: ${insight.kind.replace(/_/g, ' ')}`,
+    'Authority boundary: this proposal records the recommended relationship context for review; approval does not directly write Open Brain link records.',
+  ].join('\n')
+
+  return {
+    kind: 'workflow',
+    title,
+    body,
+    privacyTier: strongestPrivacyTier([sourceNode?.privacyTier, targetNode?.privacyTier]),
+    confidence: insight.severity === 'high' ? 0.84 : insight.severity === 'medium' ? 0.78 : 0.72,
+    sourceIds,
+    reason: `Created from Open Brain relationship map insight ${insight.id}. Review before durable memory or link changes.`,
+  }
+}
+
+function strongestPrivacyTier(tiers: Array<OpenBrainPrivacyTier | undefined>): OpenBrainPrivacyTier {
+  if (tiers.includes('private')) return 'private'
+  if (tiers.includes('internal_ops')) return 'internal_ops'
+  if (tiers.includes('client_safe')) return 'client_safe'
+  return 'public_safe'
 }
 
 function RelationshipMetric({
