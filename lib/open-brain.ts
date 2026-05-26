@@ -195,6 +195,21 @@ export interface OpenBrainRelationshipInsight {
   targetNodeId: string | null
 }
 
+export interface OpenBrainRelationshipAuditRecord {
+  linkId: string
+  fromId: string
+  toId: string
+  relationship: string
+  sourceLabel: string
+  targetLabel: string
+  sourceProposalId: string | null
+  reviewedBy: string | null
+  reviewedAt: string | null
+  eventId: string | null
+  createdAt: string
+  evidence: string
+}
+
 export interface OpenBrainRelationshipMap {
   overview: {
     relationships: number
@@ -207,6 +222,7 @@ export interface OpenBrainRelationshipMap {
   nodes: OpenBrainRelationshipNode[]
   edges: OpenBrainRelationshipEdge[]
   insights: OpenBrainRelationshipInsight[]
+  audit: OpenBrainRelationshipAuditRecord[]
 }
 
 export interface OpenBrainSnapshot {
@@ -874,6 +890,7 @@ export function buildOpenBrainRelationshipMap({
     memories,
     proposals,
   })
+  const audit = buildRelationshipAudit({ links, proposals, events, nodes })
 
   return {
     overview: {
@@ -887,7 +904,100 @@ export function buildOpenBrainRelationshipMap({
     nodes,
     edges,
     insights,
+    audit,
   }
+}
+
+function buildRelationshipAudit({
+  links,
+  proposals,
+  events,
+  nodes,
+}: {
+  links: OpenBrainLinkRecord[]
+  proposals: OpenBrainProposalRecord[]
+  events: OpenBrainEventRecord[]
+  nodes: OpenBrainRelationshipNode[]
+}): OpenBrainRelationshipAuditRecord[] {
+  const nodeLabels = new Map(nodes.map((node) => [node.id, node.label]))
+  const approvalEvents = events.filter((event) => event.kind === 'proposal_approved')
+
+  return links
+    .map((link): OpenBrainRelationshipAuditRecord => {
+      const approvalEvent = approvalEvents.find((event) => eventApprovesLink(event, link))
+      const sourceProposalId = stringFromMetadata(approvalEvent?.metadata?.proposalId)
+      const proposal = sourceProposalId
+        ? proposals.find((candidate) => candidate.id === sourceProposalId)
+        : proposals.find((candidate) => proposalMatchesLink(candidate, link))
+      const relationship = proposal?.metadata?.relationship
+
+      return {
+        linkId: link.id,
+        fromId: link.fromId,
+        toId: link.toId,
+        relationship: link.relationship,
+        sourceLabel: relationship?.sourceLabel || nodeLabels.get(link.fromId) || link.fromId,
+        targetLabel: relationship?.targetLabel || nodeLabels.get(link.toId) || link.toId,
+        sourceProposalId: proposal?.id || sourceProposalId || null,
+        reviewedBy: proposal?.reviewedBy || stringFromMetadata(approvalEvent?.metadata?.reviewedBy),
+        reviewedAt: proposal?.reviewedAt || approvalEvent?.createdAt || null,
+        eventId: approvalEvent?.id || null,
+        createdAt: link.createdAt,
+        evidence: approvalEvent
+          ? 'Approval event recorded the relationship link id.'
+          : proposal
+            ? 'Approved relationship proposal matches this persisted link.'
+            : 'Persisted local Open Brain link record.',
+      }
+    })
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+}
+
+function eventApprovesLink(event: OpenBrainEventRecord, link: OpenBrainLinkRecord) {
+  const metadata = event.metadata || {}
+  if (stringFromMetadata(metadata.relationshipLinkId) === link.id) return true
+  const relationship = relationshipMetadataFromUnknown(metadata.relationship)
+  return Boolean(
+    relationship &&
+    relationship.fromId === link.fromId &&
+    relationship.toId === link.toId &&
+    relationship.relationship === link.relationship,
+  )
+}
+
+function proposalMatchesLink(proposal: OpenBrainProposalRecord, link: OpenBrainLinkRecord) {
+  const relationship = proposal.metadata?.relationship
+  return Boolean(
+    proposal.status === 'approved' &&
+    relationship &&
+    relationship.fromId === link.fromId &&
+    relationship.toId === link.toId &&
+    relationship.relationship === link.relationship,
+  )
+}
+
+function relationshipMetadataFromUnknown(value: unknown): OpenBrainRelationshipProposalMetadata | null {
+  if (!value || typeof value !== 'object') return null
+  const candidate = value as Record<string, unknown>
+  const insightKind = stringFromMetadata(candidate.insightKind)
+  if (!['strengthen', 'review', 'missing_governance', 'merge_duplicate'].includes(insightKind || '')) return null
+  const fromId = stringFromMetadata(candidate.fromId)
+  const toId = stringFromMetadata(candidate.toId)
+  const relationship = stringFromMetadata(candidate.relationship)
+  if (!fromId || !toId || !relationship) return null
+  return {
+    fromId,
+    toId,
+    relationship,
+    insightId: stringFromMetadata(candidate.insightId) || 'relationship-map-insight',
+    insightKind: insightKind as OpenBrainRelationshipInsightKind,
+    sourceLabel: stringFromMetadata(candidate.sourceLabel) || fromId,
+    targetLabel: stringFromMetadata(candidate.targetLabel) || toId,
+  }
+}
+
+function stringFromMetadata(value: unknown) {
+  return typeof value === 'string' && value.trim() ? value : null
 }
 
 export function fingerprintOpenBrainRecord(parts: unknown[]) {

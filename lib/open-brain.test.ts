@@ -216,6 +216,19 @@ describe('Open Brain projection', () => {
         }),
       }),
     ]))
+    expect(snapshot.relationshipMap.audit).toEqual([
+      expect.objectContaining({
+        linkId: expect.stringMatching(/^link:/),
+        fromId: 'automation:portfolio-operations-manager',
+        toId: 'runbook:docs/memory-context-organization-workflow.md',
+        relationship: 'governed_by',
+        sourceLabel: 'Portfolio Operations Manager',
+        targetLabel: 'Memory context organization workflow',
+        sourceProposalId: proposal.id,
+        reviewedBy: 'admin',
+        eventId: expect.stringMatching(/^event:/),
+      }),
+    ])
   })
 
   it('does not create a durable link when a relationship proposal is rejected', async () => {
@@ -507,6 +520,14 @@ describe('Open Brain projection', () => {
       'review',
       'missing_governance',
     ]))
+    expect(relationshipMap.audit).toEqual([
+      expect.objectContaining({
+        linkId: 'link:automation-runbook',
+        sourceLabel: 'Portfolio automation',
+        targetLabel: 'Memory organization runbook',
+        evidence: 'Persisted local Open Brain link record.',
+      }),
+    ])
   })
 
   it('sanitizes secret-like content', () => {
