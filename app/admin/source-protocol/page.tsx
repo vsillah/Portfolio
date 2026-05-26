@@ -79,6 +79,24 @@ type SourceProtocolOverview = {
     records: any[]
     safeguards: string[]
   }
+  bannedBooksEvidenceQa?: {
+    generatedAt: string
+    reviewer: string
+    sourceImportPath: string
+    dryRun: boolean
+    summary: {
+      importRows: number
+      decisions: number
+      approvedQueueAppends: number
+      needsMoreEvidence: number
+      rejected: number
+      blocked: number
+      alreadyQueued: number
+    }
+    rows: any[]
+    queueAppendDrafts: any[]
+    blockedActions: string[]
+  }
 }
 
 type AdminUserOption = {
@@ -363,7 +381,12 @@ function SourceProtocolContent() {
                   onUpdate={updatePortalAccount}
                 />
               )}
-              {tab === 'bannedBooks' && <BannedBooksCorpusPanel corpus={overview.bannedBooksCorpus} />}
+              {tab === 'bannedBooks' && (
+                <BannedBooksCorpusPanel
+                  corpus={overview.bannedBooksCorpus}
+                  evidenceQa={overview.bannedBooksEvidenceQa}
+                />
+              )}
               {tab === 'creators' && <CreatorsTable rows={overview.creators ?? []} />}
               {tab === 'works' && <WorksTable rows={overview.works ?? []} />}
               {tab === 'grants' && <GrantsTable rows={overview.licenseGrants ?? []} />}
@@ -614,7 +637,13 @@ function PortalAccountsPanel({
   )
 }
 
-function BannedBooksCorpusPanel({ corpus }: { corpus: SourceProtocolOverview['bannedBooksCorpus'] }) {
+function BannedBooksCorpusPanel({
+  corpus,
+  evidenceQa,
+}: {
+  corpus: SourceProtocolOverview['bannedBooksCorpus']
+  evidenceQa?: SourceProtocolOverview['bannedBooksEvidenceQa']
+}) {
   if (!corpus) {
     return (
       <div className="rounded-lg border border-silicon-slate px-4 py-8 text-center text-sm text-muted-foreground">
@@ -700,6 +729,48 @@ function BannedBooksCorpusPanel({ corpus }: { corpus: SourceProtocolOverview['ba
                   <p>Draft: {candidate.stagedRecordDraft ? candidate.stagedRecordDraft.id : 'Held'}</p>
                 </div>
                 <div className="text-muted-foreground">{candidate.nextAction}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {evidenceQa && (
+        <section className="overflow-hidden rounded-lg border border-silicon-slate">
+          <div className="bg-silicon-slate/60 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Evidence QA approval queue
+          </div>
+          <div className="grid grid-cols-2 gap-3 border-b border-silicon-slate p-4 lg:grid-cols-7">
+            <Stat icon={<FileText size={18} />} label="Import rows" value={evidenceQa.summary.importRows} />
+            <Stat icon={<ShieldCheck size={18} />} label="Decisions" value={evidenceQa.summary.decisions} />
+            <Stat icon={<BookOpenCheck size={18} />} label="Approved" value={evidenceQa.summary.approvedQueueAppends} />
+            <Stat icon={<AlertTriangle size={18} />} label="Needs evidence" value={evidenceQa.summary.needsMoreEvidence} />
+            <Stat icon={<AlertTriangle size={18} />} label="Rejected" value={evidenceQa.summary.rejected} />
+            <Stat icon={<AlertTriangle size={18} />} label="Blocked" value={evidenceQa.summary.blocked} />
+            <Stat icon={<Database size={18} />} label="Already queued" value={evidenceQa.summary.alreadyQueued} />
+          </div>
+          <div className="border-b border-silicon-slate px-4 py-3 text-sm text-muted-foreground">
+            Reviewer: {evidenceQa.reviewer}. Dry run: {String(evidenceQa.dryRun)}. Source import: {evidenceQa.sourceImportPath}.
+          </div>
+          <div className="divide-y divide-silicon-slate">
+            {evidenceQa.rows.map((row) => (
+              <div key={row.externalId} className="grid grid-cols-1 gap-3 px-4 py-4 text-sm lg:grid-cols-5 lg:gap-4">
+                <div>
+                  <p className="font-medium text-foreground">{row.canonicalTitle}</p>
+                  <p className="font-mono text-xs text-muted-foreground">{row.externalId}</p>
+                </div>
+                <div className="text-muted-foreground">
+                  <p>{row.importStatus}</p>
+                  <p>{row.decision}</p>
+                </div>
+                <div className="text-muted-foreground">
+                  <p>Approved: {String(row.approved)}</p>
+                  <p>Blocked: {String(row.blocked)}</p>
+                </div>
+                <div className="text-muted-foreground">
+                  <p>Draft: {row.queueAppendDraft ? row.queueAppendDraft.externalId : 'None'}</p>
+                </div>
+                <div className="text-muted-foreground">{row.reason}</div>
               </div>
             ))}
           </div>

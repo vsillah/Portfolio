@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { buildBannedBooksCorpusProjection } from '@/lib/banned-books-corpus'
+import { buildEvidenceQaApprovalPlanFromFiles } from '@/lib/banned-books-evidence-qa'
 
 export const dynamic = 'force-dynamic'
 
@@ -193,6 +194,10 @@ export async function GET(request: NextRequest) {
       disputes: disputeRows,
       modelReviews: modelReviewRows,
       bannedBooksCorpus: buildBannedBooksCorpusProjection(),
+      bannedBooksEvidenceQa: buildEvidenceQaApprovalPlanFromFiles(
+        'data/source-protocol/banned-books-source-import-sample.json',
+        'data/source-protocol/banned-books-evidence-qa-approvals.sample.json'
+      ),
     })
   } catch (error: any) {
     if (isMissingSourceProtocolSchema(error)) {

@@ -220,6 +220,19 @@ describe('GET /api/admin/source-protocol/overview', () => {
           expect.objectContaining({ key: 'rights-governance-review' }),
         ]),
       },
+      bannedBooksEvidenceQa: {
+        reviewer: 'Timbuktu Scribe',
+        dryRun: true,
+        summary: {
+          importRows: 4,
+          decisions: 3,
+          approvedQueueAppends: 1,
+          needsMoreEvidence: 1,
+          rejected: 1,
+          blocked: 3,
+          alreadyQueued: 0,
+        },
+      },
     })
     expect(mocks.from).toHaveBeenCalledWith('source_creators')
     expect(mocks.from).toHaveBeenCalledWith('answer_receipt_chunks')
