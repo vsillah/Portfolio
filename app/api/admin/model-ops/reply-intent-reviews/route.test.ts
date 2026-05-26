@@ -115,6 +115,13 @@ describe('reply-intent review API', () => {
       status: 'missing',
       remaining_to_actionable_gate: 200,
     })
+    expect(body.source_diagnostics).toMatchObject({
+      source_table: 'outreach_queue',
+      candidate_replies: 1,
+      ledger_rows: 0,
+      virtual_pending: 1,
+      sync_command: 'npm run model-ops:reply-intent:sync',
+    })
     expect(body.items[0].redacted_reply).toContain('[email:')
     expect(body.items[0].redacted_reply).not.toContain('jane@example.com')
   })
@@ -148,6 +155,12 @@ describe('reply-intent review API', () => {
 
     expect(response.status).toBe(200)
     expect(body.summary.reviewed_real).toBe(1)
+    expect(body.source_diagnostics).toMatchObject({
+      candidate_replies: 1,
+      ledger_rows: 1,
+      virtual_pending: 0,
+      reviewed_real: 1,
+    })
     expect(body.evidence).toMatchObject({
       exported_real: 0,
       status: 'stale',

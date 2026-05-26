@@ -81,6 +81,16 @@ type QueueResponse = {
     remaining_to_actionable_gate: number
     invalid_lines: number
   }
+  source_diagnostics: {
+    source_table: 'outreach_queue'
+    source_limit: number
+    candidate_replies: number
+    ledger_rows: number
+    virtual_pending: number
+    reviewed_real: number
+    review_storage_available: boolean
+    sync_command: string
+  }
   reason?: string
 }
 
@@ -148,6 +158,7 @@ function ReplyIntentReviewContent() {
   const [items, setItems] = useState<QueueItem[]>([])
   const [summary, setSummary] = useState<QueueResponse['summary'] | null>(null)
   const [evidence, setEvidence] = useState<QueueResponse['evidence'] | null>(null)
+  const [sourceDiagnostics, setSourceDiagnostics] = useState<QueueResponse['source_diagnostics'] | null>(null)
   const [pagination, setPagination] = useState<QueueResponse['pagination'] | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [status, setStatus] = useState<ReviewStatus | 'all'>('pending')
@@ -195,6 +206,7 @@ function ReplyIntentReviewContent() {
       setItems(queue.items)
       setSummary(queue.summary)
       setEvidence(queue.evidence)
+      setSourceDiagnostics(queue.source_diagnostics)
       setPagination(queue.pagination)
       setSchemaReady(Boolean(queue.schema?.reviews_table_available ?? true))
       setSelectedId((current) => (queue.items.some((item) => item.source_id === current) ? current : queue.items[0]?.source_id ?? null))
@@ -612,6 +624,33 @@ function ReplyIntentReviewContent() {
                 <SkipForward size={16} />
                 Skip
               </button>
+            </div>
+
+            <div className="grid gap-2 rounded-lg border border-radiant-gold/10 bg-silicon-slate/15 p-3 text-sm">
+              <div className="flex items-center justify-between gap-3">
+                <span className="font-semibold text-foreground">Source Coverage</span>
+                <span className="rounded-full border border-radiant-gold/20 bg-radiant-gold/10 px-2 py-0.5 text-[11px] text-radiant-gold">
+                  {sourceDiagnostics?.source_table ?? 'outreach_queue'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Candidate replies</span>
+                <span className="font-mono">{sourceDiagnostics?.candidate_replies ?? summary?.total_real_replies ?? 0}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Ledger rows</span>
+                <span className="font-mono">{sourceDiagnostics?.ledger_rows ?? 0}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Virtual pending</span>
+                <span className="font-mono text-radiant-gold">{sourceDiagnostics?.virtual_pending ?? 0}</span>
+              </div>
+              <div className="grid gap-1 border-t border-radiant-gold/10 pt-2">
+                <span className="text-muted-foreground">Seed missing ledger rows</span>
+                <code className="overflow-hidden text-ellipsis rounded border border-radiant-gold/10 bg-background/40 px-2 py-1 text-xs text-foreground/85">
+                  {sourceDiagnostics?.sync_command ?? 'npm run model-ops:reply-intent:sync'}
+                </code>
+              </div>
             </div>
 
             <div className="grid gap-2 rounded-lg border border-radiant-gold/10 bg-silicon-slate/15 p-3 text-sm">
