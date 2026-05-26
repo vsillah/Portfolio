@@ -168,6 +168,59 @@ describe('reply-intent review API', () => {
     })
   })
 
+  it('marks the evidence gate met when the exported artifact has enough reviewed examples', async () => {
+    const reviewedLines = Array.from({ length: 200 }, (_, index) =>
+      JSON.stringify({
+        id: `reply-${index}`,
+        review: { scheduling_intent: index % 2 === 0 },
+      })
+    ).join('\n')
+    mocks.readFile.mockResolvedValue(reviewedLines)
+    mocks.stat.mockResolvedValue({ mtime: new Date('2026-05-24T11:00:00.000Z') })
+    mocks.from.mockImplementation((table: string) => {
+      if (table === 'outreach_queue') return listQuery({ data: [sourceRow], error: null })
+      return listQuery({ data: [], error: null })
+    })
+
+    const response = await GET(request() as never)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.evidence).toMatchObject({
+      exported_real: 200,
+      status: 'gate_met',
+      benchmark_actionable_real: 200,
+      remaining_to_actionable_gate: 0,
+      invalid_lines: 0,
+    })
+  })
+
+  it('marks malformed benchmark artifacts invalid and blocks actionable evidence', async () => {
+    mocks.readFile.mockResolvedValue(
+      [
+        JSON.stringify({ id: 'reply-1', review: { scheduling_intent: true } }),
+        '{not-valid-json',
+      ].join('\n')
+    )
+    mocks.stat.mockResolvedValue({ mtime: new Date('2026-05-24T11:00:00.000Z') })
+    mocks.from.mockImplementation((table: string) => {
+      if (table === 'outreach_queue') return listQuery({ data: [sourceRow], error: null })
+      return listQuery({ data: [], error: null })
+    })
+
+    const response = await GET(request() as never)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.evidence).toMatchObject({
+      exported_real: 1,
+      status: 'invalid',
+      benchmark_actionable_real: 0,
+      remaining_to_actionable_gate: 200,
+      invalid_lines: 1,
+    })
+  })
+
   it('validates reviewed saves require a boolean scheduling label', async () => {
     const response = await POST(
       new Request('http://localhost/api/admin/model-ops/reply-intent-reviews', {
