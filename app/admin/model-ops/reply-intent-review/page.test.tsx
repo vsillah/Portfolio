@@ -66,6 +66,17 @@ const queueResponse = {
   schema: {
     reviews_table_available: true,
   },
+  evidence: {
+    artifact_path:
+      '/Users/vambahsillah/Documents/Codex/2026-04-29/hey-can-you-confirm-that-i/eval-data/reply-intent-review/sources/portfolio-model-ops-reviewed-replies.jsonl',
+    export_command: 'npm run model-ops:reply-intent:export',
+    exported_real: 0,
+    exported_at: null,
+    status: 'stale',
+    benchmark_actionable_real: 0,
+    remaining_to_actionable_gate: 200,
+    invalid_lines: 0,
+  },
 }
 
 describe('ReplyIntentReviewPage', () => {
@@ -103,7 +114,11 @@ describe('ReplyIntentReviewPage', () => {
 
     expect(await screen.findByRole('heading', { name: 'Reply Intent Review' })).toBeInTheDocument()
     expect(screen.getAllByText('Can we schedule a quick call next week?').length).toBeGreaterThan(0)
-    expect(screen.getByText('0/200')).toBeInTheDocument()
+    expect(screen.getAllByText('0/200').length).toBeGreaterThan(0)
+    expect(screen.getByText('Evidence Gate')).toBeInTheDocument()
+    expect(screen.getByText('Export stale')).toBeInTheDocument()
+    expect(screen.getByText('Ledger gap')).toBeInTheDocument()
+    expect(screen.getByText('npm run model-ops:reply-intent:export')).toBeInTheDocument()
 
     await waitFor(() => expect(screen.getByRole('button', { name: 'Yes' })).not.toBeDisabled())
     fireEvent.click(screen.getByRole('button', { name: 'Yes' }))

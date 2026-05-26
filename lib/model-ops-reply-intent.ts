@@ -1,8 +1,12 @@
 import crypto from 'node:crypto'
 
 export const MODEL_OPS_REPLY_INTENT_TARGET = 200
+export const MODEL_OPS_REPLY_INTENT_DEFAULT_EXPORT =
+  '/Users/vambahsillah/Documents/Codex/2026-04-29/hey-can-you-confirm-that-i/eval-data/reply-intent-review/sources/portfolio-model-ops-reviewed-replies.jsonl'
+export const MODEL_OPS_REPLY_INTENT_EXPORT_COMMAND = 'npm run model-ops:reply-intent:export'
 
 export type ReplyIntentReviewStatus = 'pending' | 'reviewed' | 'unsure' | 'skipped'
+export type ReplyIntentEvidenceStatus = 'missing' | 'stale' | 'current' | 'gate_met' | 'invalid'
 
 export type ReplyIntentSuggestedLabels = {
   scheduling_intent: boolean
@@ -59,6 +63,17 @@ export type ReplyIntentQueueItem = {
   notes: string
   reviewed_at: string | null
   existing_review_id: string | null
+}
+
+export type ReplyIntentEvidenceSummary = {
+  artifact_path: string
+  export_command: string
+  exported_real: number
+  exported_at: string | null
+  status: ReplyIntentEvidenceStatus
+  benchmark_actionable_real: number
+  remaining_to_actionable_gate: number
+  invalid_lines: number
 }
 
 const NAME_PATTERN = /\b[A-Z][a-z]+ [A-Z][a-z]+\b/g

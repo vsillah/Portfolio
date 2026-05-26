@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { readFile, stat } from 'node:fs/promises'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
 import {
+  MODEL_OPS_REPLY_INTENT_DEFAULT_EXPORT,
+  MODEL_OPS_REPLY_INTENT_EXPORT_COMMAND,
   MODEL_OPS_REPLY_INTENT_TARGET,
   buildReviewUpsertPayload,
   normalizeReviewStatus,
+  type ReplyIntentEvidenceSummary,
   type OutreachReplySourceRow,
   type ReplyIntentQueueItem,
   type ReplyIntentReviewRow,
@@ -36,6 +40,7 @@ type QueueResponse = {
   schema?: {
     reviews_table_available: boolean
   }
+  evidence: ReplyIntentEvidenceSummary
 }
 
 function intParam(value: string | null, fallback: number, min: number, max: number) {
@@ -100,6 +105,69 @@ function mapQueueItems(sourceRows: OutreachReplySourceRow[], reviewRows: ReplyIn
   return sourceRows.map((source) => toReplyIntentQueueItem(source, reviewsBySourceId.get(source.id)))
 }
 
+function countExportedReviewedExamples(raw: string) {
+  let exportedReal = 0
+  let invalidLines = 0
+
+  for (const line of raw.split('\n')) {
+    const trimmed = line.trim()
+    if (!trimmed) continue
+
+    try {
+      const parsed = JSON.parse(trimmed) as { review?: { scheduling_intent?: unknown } }
+      if (typeof parsed.review?.scheduling_intent === 'boolean') exportedReal += 1
+    } catch {
+      invalidLines += 1
+    }
+  }
+
+  return { exportedReal, invalidLines }
+}
+
+async function getEvidenceSummary(reviewedReal: number): Promise<ReplyIntentEvidenceSummary> {
+  const artifactPath = process.env.MODEL_OPS_REPLY_INTENT_EXPORT || MODEL_OPS_REPLY_INTENT_DEFAULT_EXPORT
+  const base = {
+    artifact_path: artifactPath,
+    export_command: MODEL_OPS_REPLY_INTENT_EXPORT_COMMAND,
+    exported_real: 0,
+    exported_at: null,
+    benchmark_actionable_real: 0,
+    remaining_to_actionable_gate: MODEL_OPS_REPLY_INTENT_TARGET,
+    invalid_lines: 0,
+  }
+
+  try {
+    const [raw, artifactStat] = await Promise.all([readFile(artifactPath, 'utf8'), stat(artifactPath)])
+    const { exportedReal, invalidLines } = countExportedReviewedExamples(raw)
+    const status =
+      invalidLines > 0
+        ? 'invalid'
+        : exportedReal >= MODEL_OPS_REPLY_INTENT_TARGET
+          ? 'gate_met'
+          : exportedReal < reviewedReal
+            ? 'stale'
+            : 'current'
+
+    return {
+      ...base,
+      exported_real: exportedReal,
+      exported_at: artifactStat.mtime.toISOString(),
+      status,
+      benchmark_actionable_real: invalidLines > 0 ? 0 : exportedReal,
+      remaining_to_actionable_gate:
+        invalidLines > 0 ? MODEL_OPS_REPLY_INTENT_TARGET : Math.max(0, MODEL_OPS_REPLY_INTENT_TARGET - exportedReal),
+      invalid_lines: invalidLines,
+    }
+  } catch (error) {
+    if (error && typeof error === 'object' && 'code' in error && (error as { code?: string }).code === 'ENOENT') {
+      return { ...base, status: 'missing' }
+    }
+
+    console.error('Error reading reply-intent benchmark export:', error)
+    return { ...base, status: 'invalid' }
+  }
+}
+
 export async function GET(request: NextRequest) {
   const authResult = await verifyAdmin(request)
   if (isAuthError(authResult)) {
@@ -135,12 +203,14 @@ export async function GET(request: NextRequest) {
 
     if (sourceError) {
       if (isMissingTableError(sourceError)) {
+        const emptySummary = summarize([])
         return NextResponse.json({
           available: false,
           reason: 'Outreach queue schema has not been applied in this environment.',
           items: [],
-          summary: summarize([]),
+          summary: emptySummary,
           pagination: { page, limit, total: 0, totalPages: 0 },
+          evidence: await getEvidenceSummary(emptySummary.reviewed_real),
         })
       }
       console.error('Error fetching reply-intent source rows:', sourceError)
@@ -157,6 +227,8 @@ export async function GET(request: NextRequest) {
       (sourceRows || []).filter((row: OutreachReplySourceRow) => String(row.reply_content || '').trim().length >= 8),
       reviewsTableAvailable ? ((reviewResult.data || []) as ReplyIntentReviewRow[]) : []
     )
+    const queueSummary = summarize(allItems)
+    const evidence = await getEvidenceSummary(queueSummary.reviewed_real)
     const filtered = filterItems(allItems, normalizedStatus, search)
     const offset = (page - 1) * limit
     const items = filtered.slice(offset, offset + limit)
@@ -164,7 +236,7 @@ export async function GET(request: NextRequest) {
     const response: QueueResponse = {
       available: true,
       items,
-      summary: summarize(allItems),
+      summary: queueSummary,
       pagination: {
         page,
         limit,
@@ -174,6 +246,7 @@ export async function GET(request: NextRequest) {
       schema: {
         reviews_table_available: reviewsTableAvailable,
       },
+      evidence,
     }
 
     return NextResponse.json(response)
