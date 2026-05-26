@@ -93,6 +93,9 @@ CREATE INDEX IF NOT EXISTS idx_content_packages_status
   ON public.content_packages(status, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_content_packages_intake
   ON public.content_packages(intake_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_content_packages_intake_unique
+  ON public.content_packages(intake_id)
+  WHERE intake_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_content_package_outputs_package
   ON public.content_package_outputs(package_id, output_type);
 

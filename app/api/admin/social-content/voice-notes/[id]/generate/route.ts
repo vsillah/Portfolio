@@ -39,6 +39,31 @@ export async function POST(
       return NextResponse.json({ error: 'Voice-note intake not found' }, { status: 404 })
     }
 
+    const { data: existingPackage, error: existingPackageError } = await supabaseAdmin
+      .from('content_packages')
+      .select('id, title, status, social_content_id, video_idea_id, agent_run_id, created_at')
+      .eq('intake_id', intake.id)
+      .maybeSingle()
+
+    if (existingPackageError) {
+      console.error('[voice-notes] package lookup failed:', existingPackageError)
+      return NextResponse.json({ error: 'Failed to check existing content package' }, { status: 500 })
+    }
+
+    if (existingPackage?.id) {
+      return NextResponse.json({
+        package: existingPackage,
+        agentRunId: existingPackage.agent_run_id ?? null,
+        alreadyGenerated: true,
+        approvals: [],
+        downstream: {
+          socialContentId: existingPackage.social_content_id ?? undefined,
+          videoIdeaId: existingPackage.video_idea_id ?? undefined,
+        },
+        outputs: [],
+      })
+    }
+
     const run = await startAgentRun({
       agentKey: 'voice-content-architect',
       runtime: 'manual',

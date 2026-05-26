@@ -390,7 +390,9 @@ function SocialContentQueuePage() {
       if (!res.ok) throw new Error(data.error || 'Failed to generate content package')
       setVoiceResult({
         success: true,
-        message: `Package generated with ${data.outputs?.length ?? 0} drafts and ${data.approvals?.length ?? 0} approval gates.`,
+        message: data.alreadyGenerated
+          ? 'Package already generated for this intake. Review the existing gates or artifact.'
+          : `Package generated with ${data.outputs?.length ?? 0} drafts and ${data.approvals?.length ?? 0} approval gates.`,
         href: data.downstream?.socialContentId ? `/admin/social-content/${data.downstream.socialContentId}` : null,
         packageId: data.package?.id ?? null,
         agentRunId: data.agentRunId ?? null,
@@ -992,6 +994,11 @@ function SocialContentQueuePage() {
                               ))}
                             </div>
                           </div>
+                          {intake.status === 'packet_generated' ? (
+                            <span className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1.5 text-xs text-emerald-300">
+                              Generated
+                            </span>
+                          ) : (
                           <button
                             onClick={() => generateVoicePackage(intake.id)}
                             disabled={voiceGeneratingId === intake.id}
@@ -1000,6 +1007,7 @@ function SocialContentQueuePage() {
                             {voiceGeneratingId === intake.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
                             Generate
                           </button>
+                          )}
                         </div>
                       </div>
                     ))}
