@@ -185,6 +185,51 @@ const overview = {
     ],
     safeguards: ['Do not ingest full text before license approval.'],
   },
+  bannedBooksEvidenceQa: {
+    generatedAt: '2026-05-25T00:00:00.000Z',
+    reviewer: 'Timbuktu Scribe',
+    sourceImportPath: 'data/source-protocol/banned-books-source-import-sample.json',
+    dryRun: true,
+    summary: {
+      importRows: 3,
+      decisions: 3,
+      approvedQueueAppends: 1,
+      needsMoreEvidence: 1,
+      rejected: 1,
+      blocked: 2,
+      alreadyQueued: 0,
+    },
+    rows: [
+      {
+        externalId: 'ala-2025-the-57-bus',
+        canonicalTitle: 'The 57 Bus',
+        importStatus: 'ready_for_qa',
+        decision: 'approved',
+        approved: true,
+        blocked: false,
+        reason: 'Metadata-only source evidence approved.',
+        queueAppendDraft: {
+          externalId: 'ala-2025-the-57-bus',
+        },
+      },
+      {
+        externalId: 'manual-missing-evidence',
+        canonicalTitle: 'Manual Row Missing Evidence',
+        importStatus: 'needs_evidence_review',
+        decision: 'needs_more_evidence',
+        approved: false,
+        blocked: true,
+        reason: 'Hold for evidence.',
+        queueAppendDraft: null,
+      },
+    ],
+    queueAppendDrafts: [
+      {
+        externalId: 'ala-2025-the-57-bus',
+      },
+    ],
+    blockedActions: ['It does not write licensed works.'],
+  },
 }
 
 describe('SourceProtocolPage', () => {
@@ -207,6 +252,8 @@ describe('SourceProtocolPage', () => {
     expect(screen.getByText('Amina, Source Registry Lead')).toBeInTheDocument()
     expect(screen.getByText('Permission request: rights-cleared retrieval for your challenged work')).toBeInTheDocument()
     expect(screen.getByText('Source ingestion queue')).toBeInTheDocument()
+    expect(screen.getByText('Evidence QA approval queue')).toBeInTheDocument()
+    expect(screen.getByText('The 57 Bus')).toBeInTheDocument()
     expect(screen.getByText('Held Candidate Book')).toBeInTheDocument()
     expect(screen.getAllByText('Demo Challenged Book').length).toBeGreaterThanOrEqual(1)
 

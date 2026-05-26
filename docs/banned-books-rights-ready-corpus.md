@@ -20,6 +20,8 @@ npm run banned-books:ingestion:report
 npm run banned-books:ingestion:report -- --json
 npm run banned-books:source:import
 npm run banned-books:source:import -- --input data/source-protocol/banned-books-source-import-sample.json --json
+npx tsx scripts/approve-banned-books-source-candidates.ts
+npx tsx scripts/approve-banned-books-source-candidates.ts --json
 ```
 
 The projection reuses the existing Source-Respecting LLM Protocol:
@@ -99,6 +101,21 @@ Rows that are not duplicates and have confirmed source evidence become
 `ready_for_qa` queue append drafts. The importer still performs no writes; the
 append draft must be reviewed by Evidence QA before it is copied into the source
 ingestion queue.
+
+## Evidence QA Approval
+
+`npx tsx scripts/approve-banned-books-source-candidates.ts` reads a source
+import file and an Evidence QA approval packet. By default it is dry-run only.
+It approves only rows that the importer classified as `ready_for_qa`, have an
+`approved` Evidence QA decision, include `approvedAt`, and produce a metadata
+queue append draft.
+
+The approval packet cannot override importer rejections. Rows with full-text
+fields, unknown source keys, duplicates, or missing evidence remain blocked.
+`--apply` is intentionally explicit and only appends approved metadata-only
+candidates to `data/source-protocol/banned-books-source-ingestion-queue.json`.
+It does not write licensed works, license grants, source chunks, embeddings,
+retrieval flags, outreach messages, or payout records.
 
 ## Review Loop
 

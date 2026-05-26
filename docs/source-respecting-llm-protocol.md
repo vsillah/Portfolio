@@ -130,6 +130,7 @@ Banned-books corpus foundation:
 - `npm run banned-books:report` prints the current staged registry, swarm lanes, source ingestion queue, outreach packet templates, next actions, and safeguards for recurring review.
 - `npm run banned-books:ingestion:report` prints the source refresh queue, candidate classifications, evidence QA holds, and blocked full-text actions.
 - `npm run banned-books:source:import` consumes manual/public source metadata exports in dry-run mode, rejects full-text-like fields, and emits Evidence QA-gated queue append drafts.
+- `npx tsx scripts/approve-banned-books-source-candidates.ts` reads an Evidence QA approval packet and can dry-run approved metadata-only queue appends; `--apply` is explicit and still limited to the source ingestion queue JSON.
 
 Smoke test:
 

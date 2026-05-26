@@ -1,0 +1,26 @@
+{
+  "generatedAt": "2026-05-25T00:00:00.000Z",
+  "reviewer": "Timbuktu Scribe",
+  "approvalType": "evidence_qa_queue_append",
+  "sourceImportPath": "data/source-protocol/banned-books-source-import-sample.json",
+  "decisions": [
+    {
+      "externalId": "ala-2025-the-57-bus",
+      "decision": "approved",
+      "approvedAt": "2026-05-25T00:00:00.000Z",
+      "notes": "Metadata-only candidate has source URL, challenge-list evidence, author, title, affected audience, and no full-text fields."
+    },
+    {
+      "externalId": "manual-missing-evidence",
+      "decision": "needs_more_evidence",
+      "approvedAt": null,
+      "notes": "Hold until source evidence note and cross-source confirmation are attached."
+    },
+    {
+      "externalId": "manual-full-text-rejected",
+      "decision": "rejected",
+      "approvedAt": null,
+      "notes": "Rejected because importer detected a forbidden fullText field."
+    }
+  ]
+}
