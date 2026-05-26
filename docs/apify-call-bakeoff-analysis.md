@@ -48,7 +48,7 @@ proves the campaign still needs that source.
 | --- | ---: | --- | --- | --- |
 | Reddit listening | 72 items / $0.47360 | Brave Search API with Reddit/source filters, then official Reddit Data API only if terms fit | Brave is $5 per 1,000 search requests with $5 monthly credits, which is enough for a low-volume evidence monitor. Reddit's official free API has rate limits and commercial use can require a separate agreement. | Promote replacement only if it captures the same conversations with lower review burden and acceptable source attribution. |
 | Google Maps | 68 items / $0.58600 | Google Places API Text Search/Nearby Search with field masks and strict quotas | Google Places pricing is transparent; Text Search/Nearby Search Pro list 5,000 free monthly calls, then $32 per 1,000 for the first paid tier. This can beat Apify if the workflow needs verified place data instead of broad scraping. | Promote only if Places returns enough qualified businesses with required fields while staying inside the free/low-tier quota. |
-| LinkedIn post search | 135 items / $0.27220 | Browser-agent sampling plus manual review packet | This is the strongest current Apify value signal, but LinkedIn-style extraction has account and compliance risk. A browser/manual packet should test whether smaller sampled searches produce enough accepted leads. | Keep Apify unless the replacement returns comparable accepted leads without increasing account risk or manual time. |
+| LinkedIn post search | 135 items / $0.27220 | Manual review packet, not automated scraping | This is the strongest current Apify value signal, but LinkedIn's current help guidance prohibits scraping and automated activity. The replacement packet must test human review and source registration, not a bot. | Keep Apify unless the replacement returns comparable accepted leads without increasing account risk or manual time. |
 | Capterra reviews | 40 items / $0.62400 | Brave Search or browser capture into a source register | Review-site evidence is usually sparse and source-sensitive. A search/browser capture may be cheaper if it preserves URLs, snippets, and review context without needing a dedicated actor. | Promote only if accepted evidence quality matches Apify and source URLs remain reviewable. |
 
 Source notes for the bakeoff packet:
@@ -82,6 +82,11 @@ Current credential gate from the 2026-05-24 worktree check:
 - LinkedIn post-search replacement remains manual/browser-agent ready because
   it should be evaluated on accepted leads and account-risk burden, not API
   result count alone.
+
+The LinkedIn-specific replacement packet lives at
+`docs/apify-linkedin-manual-replacement-packet.md`. Use it for a 30-minute
+manual review sprint before deciding whether the LinkedIn post-search actor can
+be paused, kept, or replaced.
 
 ## Configured Apify Call Surfaces
 
