@@ -66,6 +66,48 @@ describe('POST /api/slack/agent', () => {
     expect(mocks.handleAgentSlackCommand).not.toHaveBeenCalled()
   })
 
+  it('logs safe Slack app diagnostics for invalid signatures', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const request = signedRequest(
+      new URLSearchParams({
+        api_app_id: 'A_TEST_APP',
+        channel_id: 'C_TEST_CHANNEL',
+        command: '/agent',
+        response_url: 'https://hooks.slack.com/commands/test-response',
+        team_domain: 'amadutown',
+        team_id: 'T_TEST_TEAM',
+        text: 'help',
+        token: 'legacy-token',
+        user_id: 'U_TEST_USER',
+        user_name: 'vambah',
+      }),
+      'wrong-secret',
+    )
+
+    const response = await POST(request as never)
+
+    expect(response.status).toBe(401)
+    expect(warnSpy).toHaveBeenCalledWith(
+      'Invalid Slack agent command signature',
+      expect.objectContaining({
+        api_app_id: 'A_TEST_APP',
+        channel_id: 'C_TEST_CHANNEL',
+        command: '/agent',
+        team_domain: 'amadutown',
+        team_id: 'T_TEST_TEAM',
+        user_id: 'U_TEST_USER',
+        has_signature: true,
+        has_timestamp: true,
+        body_length: expect.any(Number),
+      }),
+    )
+    expect(JSON.stringify(warnSpy.mock.calls)).not.toContain('legacy-token')
+    expect(JSON.stringify(warnSpy.mock.calls)).not.toContain('test-response')
+    expect(JSON.stringify(warnSpy.mock.calls)).not.toContain('help')
+    expect(JSON.stringify(warnSpy.mock.calls)).not.toContain('vambah')
+    expect(mocks.handleAgentSlackCommand).not.toHaveBeenCalled()
+  })
+
   it('rejects unsigned production requests when the signing secret is missing', async () => {
     process.env = { ...ORIGINAL_ENV, NODE_ENV: 'production', VERCEL: '1', SLACK_SIGNING_SECRET: '' }
 

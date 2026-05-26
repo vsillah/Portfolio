@@ -14,6 +14,7 @@ export async function POST(request: NextRequest) {
     const rawBody = await request.text()
     const isValid = verifySlackSignature(request, rawBody)
     if (!isValid) {
+      logInvalidSlackCommandSignature(request, rawBody)
       return NextResponse.json({ error: 'Invalid Slack signature' }, { status: 401 })
     }
 
@@ -58,6 +59,29 @@ export async function POST(request: NextRequest) {
       text: 'An error occurred processing the Agent Ops command. Check the Portfolio logs and try again.',
     })
   }
+}
+
+function logInvalidSlackCommandSignature(request: NextRequest, rawBody: string) {
+  const formData = new URLSearchParams(rawBody)
+  const timestamp = request.headers.get('x-slack-request-timestamp')
+  const timestampSeconds = timestamp ? Number(timestamp) : null
+  const timestampSkewSeconds =
+    timestampSeconds !== null && Number.isFinite(timestampSeconds)
+      ? Math.floor(Date.now() / 1000) - timestampSeconds
+      : null
+
+  console.warn('Invalid Slack agent command signature', {
+    api_app_id: formData.get('api_app_id') || null,
+    team_id: formData.get('team_id') || null,
+    team_domain: formData.get('team_domain') || null,
+    command: formData.get('command') || null,
+    channel_id: formData.get('channel_id') || null,
+    user_id: formData.get('user_id') || null,
+    has_signature: Boolean(request.headers.get('x-slack-signature')),
+    has_timestamp: Boolean(timestamp),
+    timestamp_skew_seconds: timestampSkewSeconds,
+    body_length: rawBody.length,
+  })
 }
 
 async function runAgentCommand(
