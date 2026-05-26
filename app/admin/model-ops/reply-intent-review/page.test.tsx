@@ -134,6 +134,7 @@ describe('ReplyIntentReviewPage', () => {
 
     await waitFor(() => expect(screen.getByRole('button', { name: 'Yes' })).not.toBeDisabled())
     fireEvent.click(screen.getByRole('button', { name: 'Yes' }))
+    expect(screen.getByRole('button', { name: 'Yes' })).toHaveClass('text-emerald-200')
     await waitFor(() => expect(screen.getByRole('button', { name: 'Save' })).not.toBeDisabled())
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
@@ -146,6 +147,16 @@ describe('ReplyIntentReviewPage', () => {
         })
       )
     })
+  })
+
+  it('uses distinct subtle decision colors for yes and no selections', async () => {
+    render(<ReplyIntentReviewPage />)
+
+    await waitFor(() => expect(screen.getByRole('button', { name: 'No' })).not.toBeDisabled())
+    fireEvent.click(screen.getByRole('button', { name: 'No' }))
+
+    expect(screen.getByRole('button', { name: 'No' })).toHaveClass('text-red-200')
+    expect(screen.getByRole('button', { name: 'Yes' })).toHaveClass('bg-emerald-950/10')
   })
 
   it('is linked from Quality & insights admin navigation', () => {

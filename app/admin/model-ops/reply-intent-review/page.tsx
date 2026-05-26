@@ -103,8 +103,22 @@ const STATUS_OPTIONS: Array<{ label: string; value: ReviewStatus | 'all' }> = [
 ]
 
 const DECISION_OPTIONS = [
-  { label: 'Yes', value: true, icon: Check },
-  { label: 'No', value: false, icon: X },
+  {
+    label: 'Yes',
+    value: true,
+    icon: Check,
+    activeClass: 'border-emerald-400/35 bg-emerald-950/25 text-emerald-200',
+    inactiveClass:
+      'border-emerald-400/20 bg-emerald-950/10 text-emerald-100/90 hover:border-emerald-400/30 hover:bg-emerald-950/15',
+  },
+  {
+    label: 'No',
+    value: false,
+    icon: X,
+    activeClass: 'border-red-400/35 bg-red-950/20 text-red-200',
+    inactiveClass:
+      'border-red-400/20 bg-red-950/10 text-red-100/90 hover:border-red-400/30 hover:bg-red-950/15',
+  },
 ] as const
 
 function formatDate(value: string | null) {
@@ -560,7 +574,7 @@ function ReplyIntentReviewContent() {
             </div>
 
             <div className="grid grid-cols-2 gap-2">
-              {DECISION_OPTIONS.map(({ label, value, icon: Icon }) => (
+              {DECISION_OPTIONS.map(({ label, value, icon: Icon, activeClass, inactiveClass }) => (
                 <button
                   key={label}
                   type="button"
@@ -570,9 +584,7 @@ function ReplyIntentReviewContent() {
                     setDraftUnsure(false)
                   }}
                   className={`flex min-h-14 items-center justify-center gap-2 rounded-lg border text-sm font-semibold transition-colors ${
-                    draftIntent === value && !draftUnsure
-                      ? 'border-radiant-gold/45 bg-radiant-gold/15 text-radiant-gold'
-                      : 'border-radiant-gold/10 bg-silicon-slate/20 text-foreground/85 hover:border-radiant-gold/30'
+                    draftIntent === value && !draftUnsure ? activeClass : inactiveClass
                   } disabled:cursor-not-allowed disabled:opacity-50`}
                 >
                   <Icon size={18} />
