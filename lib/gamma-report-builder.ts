@@ -2029,7 +2029,7 @@ function buildCoverSlide(title: string, orgName: string, subtitle?: string): str
     `# ${title}`,
     `## Prepared for ${orgName}`,
     '',
-    `${siteUrl}/logo_hd.png`,
+    `${siteUrl}/amadutown-logo-upscaled.png`,
     '',
   ]
   if (subtitle) lines.push(subtitle, '')

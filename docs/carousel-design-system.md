@@ -73,7 +73,8 @@ For high-res export, double all pixel values or set Playwright viewport to 1080x
 - Position: `bottom: 14px; right: 16px`
 - Size: 44px × 44px
 - Opacity: 0.85
-- Use the Amadutown shield logo (ATlogo_Transparent.png)
+- Use the AmaduTown shield logo at `/public/amadutown-logo-upscaled.png`.
+- Preserve its natural portrait aspect ratio. Do not force it into a square frame.
 - Embed as base64 in HTML for self-contained files
 
 ### Corner accent
@@ -285,13 +286,13 @@ function prevSlide() { goTo(current - 1); }
 
 | Asset | File | Usage |
 |-------|------|-------|
-| AT Shield Logo | `ATlogo_Transparent.png` | Bottom-right every slide, 44px, opacity 0.85 |
+| AT Shield Logo | `public/amadutown-logo-upscaled.png` | Bottom-right every slide, natural aspect ratio, opacity 0.85 |
 | Profile Photo | `Profile_Photo.jpg` | Closing slide avatar, circle crop, top-center |
 
 Embed both as base64 in the HTML file for portability:
 ```python
 import base64
-with open("ATlogo_Transparent.png", "rb") as f:
+with open("public/amadutown-logo-upscaled.png", "rb") as f:
     logo_b64 = base64.b64encode(f.read()).decode()
 # Use as: src="data:image/png;base64,{logo_b64}"
 ```
