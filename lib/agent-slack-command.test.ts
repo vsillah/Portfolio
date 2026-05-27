@@ -454,6 +454,10 @@ describe('agent Slack command parsing', () => {
       expect.objectContaining({ type: 'actions' }),
     ]))
     expect(JSON.stringify(result.blocks)).toContain('work.assign')
+    expect(JSON.stringify(result.blocks)).toContain('work.acknowledge')
+    expect(JSON.stringify(result.blocks)).toContain('work.revision')
+    expect(JSON.stringify(result.blocks)).toContain('Recommendation:')
+    expect(JSON.stringify(result.blocks)).toContain('Next safe action:')
     expect(JSON.stringify(result.blocks)).toContain('Open trace')
   })
 
