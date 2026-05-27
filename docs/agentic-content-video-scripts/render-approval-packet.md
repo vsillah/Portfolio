@@ -138,6 +138,15 @@ Render can proceed only when all are true:
 - The script is still under 5000 characters.
 - B-roll assets, if attached, are public-safe.
 
+## Execution Gate
+
+The Admin Video Generation render path now requires the operator to confirm this Shaka approval packet before HeyGen starts:
+
+- The single-draft Generate Video button stays disabled until the render gate checkbox is checked.
+- The selected-draft batch Generate Videos button stays disabled until the batch render gate checkbox is checked.
+- The single-draft and batch API routes reject requests without the render approval payload before reading draft queue records or calling HeyGen.
+- The approval payload is scoped to one internal review render and explicitly excludes publishing approval.
+
 ## Stop Criteria
 
 Stop before render if any are true:

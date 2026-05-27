@@ -18,6 +18,7 @@ import ProgressPanel, { type ProgressStep } from '@/components/admin/ProgressPan
 import { readSSEStream } from '@/lib/sse-reader'
 import { getCurrentSession } from '@/lib/auth'
 import { VIDEO_CHANNEL_CONFIGS, type VideoChannel } from '@/lib/constants/video-channel'
+import { buildVideoRenderApproval, VIDEO_RENDER_APPROVAL_PACKET_PATH } from '@/lib/video-render-approval'
 
 /* ───────────── Types ───────────── */
 
@@ -233,6 +234,8 @@ export default function VideoGenerationPage() {
   const [savingDraftId, setSavingDraftId] = useState<string | null>(null)
   const [draftEditForms, setDraftEditForms] = useState<Record<string, DraftEditForm>>({})
   const [draftEditError, setDraftEditError] = useState<string | null>(null)
+  const [renderApprovalDrafts, setRenderApprovalDrafts] = useState<Record<string, boolean>>({})
+  const [batchRenderApprovalConfirmed, setBatchRenderApprovalConfirmed] = useState(false)
 
   /* --- Progress panels --- */
   const [scratchProgress, setScratchProgress] = useState<ProgressStep[] | null>(null)
@@ -1070,14 +1073,15 @@ export default function VideoGenerationPage() {
       const res = await fetch(`/api/admin/video-generation/ideas-queue/${draftId}/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          channel, aspectRatio, useTemplate,
-          templateId: useTemplate ? selectedTemplateId || undefined : undefined,
-          brandVoiceId: useTemplate ? selectedBrandVoiceId || undefined : undefined,
-          avatarId: !useTemplate ? selectedAvatarId || undefined : undefined,
-          brollAssetIds: brollIds && brollIds.length > 0 ? brollIds : undefined,
-        }),
-      })
+	        body: JSON.stringify({
+	          channel, aspectRatio, useTemplate,
+	          templateId: useTemplate ? selectedTemplateId || undefined : undefined,
+	          brandVoiceId: useTemplate ? selectedBrandVoiceId || undefined : undefined,
+	          avatarId: !useTemplate ? selectedAvatarId || undefined : undefined,
+	          brollAssetIds: brollIds && brollIds.length > 0 ? brollIds : undefined,
+	          renderApproval: buildVideoRenderApproval(Boolean(renderApprovalDrafts[draftId])),
+	        }),
+	      })
       const data = await res.json().catch(() => ({}))
       timers.forEach(clearTimeout)
       if (!res.ok) {
@@ -1300,10 +1304,11 @@ export default function VideoGenerationPage() {
   const selectAll = () => setSelectedDraftIds(new Set(filteredDrafts.map(d => d.id)))
   const deselectAll = () => setSelectedDraftIds(new Set())
 
-  const exitSelectionMode = () => {
-    setSelectionMode(false)
-    setSelectedDraftIds(new Set())
-  }
+	  const exitSelectionMode = () => {
+	    setSelectionMode(false)
+	    setSelectedDraftIds(new Set())
+	    setBatchRenderApprovalConfirmed(false)
+	  }
 
   const changeDraftsPage = (p: number) => {
     setDraftsPage(p)
@@ -1474,14 +1479,15 @@ export default function VideoGenerationPage() {
       const res = await fetch('/api/admin/video-generation/ideas-queue/batch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          items,
-          channel, aspectRatio, useTemplate,
-          templateId: useTemplate ? selectedTemplateId || undefined : undefined,
-          brandVoiceId: useTemplate ? selectedBrandVoiceId || undefined : undefined,
-          avatarId: !useTemplate ? selectedAvatarId || undefined : undefined,
-        }),
-      })
+	        body: JSON.stringify({
+	          items,
+	          channel, aspectRatio, useTemplate,
+	          templateId: useTemplate ? selectedTemplateId || undefined : undefined,
+	          brandVoiceId: useTemplate ? selectedBrandVoiceId || undefined : undefined,
+	          avatarId: !useTemplate ? selectedAvatarId || undefined : undefined,
+	          renderApproval: buildVideoRenderApproval(batchRenderApprovalConfirmed),
+	        }),
+	      })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
         setBatchMessage(data?.error || 'Batch failed')
@@ -1494,7 +1500,8 @@ export default function VideoGenerationPage() {
         ? { ...s, status: 'done' as const, detail: `${started} video(s) started` }
         : { ...s, status: 'done' as const }
       ) : null)
-      exitSelectionMode()
+	      setBatchRenderApprovalConfirmed(false)
+	      exitSelectionMode()
       fetchDrafts()
       fetchJobs()
     } catch (err) {
@@ -2131,22 +2138,31 @@ export default function VideoGenerationPage() {
                   {selectedCount === filteredDrafts.length ? 'Deselect All' : 'Select All'}
                 </button>
                 <div className="flex-1" />
-                <button
-                  onClick={batchGenerateVideos}
-                  disabled={selectedEligibleCount === 0 || generatingBatch}
-                  className={btnSmall + ' bg-radiant-gold text-imperial-navy hover:bg-gold-light disabled:bg-gray-600 disabled:text-gray-400'}
-                >
-                  {generatingBatch ? <Loader2 className="w-3 h-3 animate-spin" /> : <Play className="w-3 h-3" />}
-                  Generate Videos ({selectedEligibleCount})
-                </button>
+	                <button
+	                  onClick={batchGenerateVideos}
+	                  disabled={selectedEligibleCount === 0 || generatingBatch || !batchRenderApprovalConfirmed}
+	                  className={btnSmall + ' bg-radiant-gold text-imperial-navy hover:bg-gold-light disabled:bg-gray-600 disabled:text-gray-400'}
+	                >
+	                  {generatingBatch ? <Loader2 className="w-3 h-3 animate-spin" /> : <Play className="w-3 h-3" />}
+	                  {batchRenderApprovalConfirmed ? `Generate Videos (${selectedEligibleCount})` : 'Confirm render gate'}
+	                </button>
                 <button
                   onClick={batchCreatePresentations}
                   disabled={selectedCount === 0 || generatingGamma}
                   className={btnSmall + ' bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 disabled:opacity-50'}
                 >
-                  {generatingGamma ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileText className="w-3 h-3" />}
-                  Create Presentations ({selectedCount})
-                </button>
+	                  {generatingGamma ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileText className="w-3 h-3" />}
+	                  Create Presentations ({selectedCount})
+	                </button>
+	                <label className="flex max-w-md items-start gap-2 text-[10px] leading-4 text-gray-400">
+	                  <input
+	                    type="checkbox"
+	                    checked={batchRenderApprovalConfirmed}
+	                    onChange={e => setBatchRenderApprovalConfirmed(e.target.checked)}
+	                    className="mt-0.5"
+	                  />
+	                  <span>Shaka render approval confirmed for selected drafts. One internal review render each; publishing stays separate.</span>
+	                </label>
               </div>
             )}
 
@@ -2174,9 +2190,10 @@ export default function VideoGenerationPage() {
                     const draftBrollIds = getDraftBroll(draft)
                     const isSelected = selectedDraftIds.has(draft.id)
                     const isExpanded = expandedDraftId === draft.id
-                    const sceneCount = draft.storyboard_json?.scenes?.length ?? 0
-                    const isEditing = editingDraftId === draft.id
-                    const editForm = draftEditForms[draft.id] ?? {
+	                    const sceneCount = draft.storyboard_json?.scenes?.length ?? 0
+	                    const isEditing = editingDraftId === draft.id
+	                    const renderApprovalConfirmed = Boolean(renderApprovalDrafts[draft.id])
+	                    const editForm = draftEditForms[draft.id] ?? {
                       title: draft.title,
                       scriptText: draft.script_text,
                       storyboardText: formatStoryboardForEdit(draft),
@@ -2442,12 +2459,23 @@ export default function VideoGenerationPage() {
                                                   <option value="9:16">9:16</option>
                                                 </select>
                                               </div>
-                                            </div>
-                                          </details>
-                                          <button onClick={() => generateFromDraft(draft.id)} disabled={overLimit || isEditing || !!generatingDraftId || !!generatingBatch || generatingGamma} className={btnPrimary + ' text-xs' + (overLimit || isEditing ? ' opacity-50 cursor-not-allowed' : '')}>
-                                            {generatingDraftId === draft.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
-                                            {isEditing ? 'Save review first' : generatingDraftId && generatingDraftId !== draft.id ? 'Busy...' : 'Generate Video'}
-                                          </button>
+	                                            </div>
+	                                          </details>
+	                                          <label className="flex items-start gap-2 rounded-lg border border-silicon-slate bg-background/50 p-2 text-[10px] leading-4 text-gray-400">
+	                                            <input
+	                                              type="checkbox"
+	                                              checked={renderApprovalConfirmed}
+	                                              onChange={e => setRenderApprovalDrafts(prev => ({ ...prev, [draft.id]: e.target.checked }))}
+	                                              className="mt-0.5"
+	                                            />
+	                                            <span>
+	                                              Shaka render approval confirmed from <code className="text-radiant-gold">{VIDEO_RENDER_APPROVAL_PACKET_PATH}</code>. One internal HeyGen review render only; publishing, ElevenLabs, n8n audio, and social queues remain separate approvals.
+	                                            </span>
+	                                          </label>
+	                                          <button onClick={() => generateFromDraft(draft.id)} disabled={overLimit || isEditing || !renderApprovalConfirmed || !!generatingDraftId || !!generatingBatch || generatingGamma} className={btnPrimary + ' text-xs' + (overLimit || isEditing || !renderApprovalConfirmed ? ' opacity-50 cursor-not-allowed' : '')}>
+	                                            {generatingDraftId === draft.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
+	                                            {isEditing ? 'Save review first' : !renderApprovalConfirmed ? 'Confirm render gate' : generatingDraftId && generatingDraftId !== draft.id ? 'Busy...' : 'Generate Video'}
+	                                          </button>
                                           {heygenProgress && heygenProgress.draftId === draft.id && (
                                             <ProgressPanel title="Generating Video" steps={heygenProgress.steps} variant="inline" onCancel={() => setHeygenProgress(null)} />
                                           )}
