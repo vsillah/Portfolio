@@ -6,6 +6,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 export type AgentSlackNotificationKind =
   | 'pending_approvals'
   | 'blockers'
+  | 'stale_runs'
   | 'review_ready'
   | 'goal_decisions'
   | 'standup_blockers'
@@ -45,6 +46,9 @@ type AgentRunSummaryRow = {
   title: string | null
   current_step: string | null
   status: string | null
+  runtime?: string | null
+  error_message?: string | null
+  started_at?: string | null
 }
 
 function baseUrl() {
@@ -131,7 +135,55 @@ function itemSummary(item: AgentWorkItem) {
   return `*${truncateSlack(item.title, 110)}*\nOwner: \`${owner}\` - Status: \`${item.status}\` - Priority: \`${item.priority}\`${blocker}${next}`
 }
 
-function workItemBlocks(title: string, intro: string, items: AgentWorkItem[]) {
+function workItemPrimaryButton(item: AgentWorkItem, kind: AgentSlackNotificationKind) {
+  if (!item.owner_agent_key) {
+    return slackButton({
+      label: 'Assign owner',
+      actionId: 'agent_work_assign_captain',
+      value: { action: 'work.assign', workItemId: item.id, agentKey: 'integration-captain' },
+      style: 'primary',
+    })
+  }
+  if (kind === 'review_ready' || item.status === 'ready_for_review' || item.status === 'ready_for_merge') {
+    return slackButton({
+      label: 'Request revision',
+      actionId: 'agent_work_revision',
+      value: {
+        action: 'work.revision',
+        workItemId: item.id,
+        runId: item.active_run_id ?? undefined,
+        note: 'Revision requested from Slack notification.',
+      },
+    })
+  }
+  if (item.status === 'blocked' || item.blocker_summary) {
+    return slackButton({
+      label: 'Acknowledge',
+      actionId: 'agent_work_acknowledge_blocker',
+      value: {
+        action: 'work.acknowledge',
+        workItemId: item.id,
+        runId: item.active_run_id ?? undefined,
+        note: 'Blocker acknowledged from Slack notification.',
+      },
+    })
+  }
+  return slackButton({
+    label: 'Ask Shaka',
+    actionId: 'agent_work_ask_shaka',
+    value: { action: 'work.ask_shaka', workItemId: item.id, runId: item.active_run_id ?? undefined },
+  })
+}
+
+function workItemContextButton(item: AgentWorkItem) {
+  return slackButton({
+    label: item.active_run_id || item.source_run_id ? 'Open trace' : 'Open Kanban',
+    actionId: item.active_run_id || item.source_run_id ? 'open_trace' : 'open_kanban',
+    url: workItemHref(item),
+  })
+}
+
+function workItemBlocks(title: string, intro: string, items: AgentWorkItem[], kind: AgentSlackNotificationKind) {
   const blocks: SlackBlock[] = [
     { type: 'section', text: mrkdwn(`*${title}*\n${intro}`) },
   ]
@@ -148,12 +200,8 @@ function workItemBlocks(title: string, intro: string, items: AgentWorkItem[]) {
     blocks.push({
       type: 'actions',
       elements: [
-        slackButton({ label: 'Open trace', actionId: 'open_trace', url: workItemHref(item) }),
-        slackButton({
-          label: 'Ask Shaka',
-          actionId: 'agent_work_ask_shaka',
-          value: { action: 'work.ask_shaka', workItemId: item.id, runId: item.active_run_id ?? undefined },
-        }),
+        workItemPrimaryButton(item, kind),
+        workItemContextButton(item),
       ],
     })
   }
@@ -175,24 +223,39 @@ async function buildPendingApprovalPayload() {
   }
   for (const approval of approvals) {
     const run = runs.get(approval.run_id)
+    const canDecideInSlack = approval.approval_type === 'vercel_deployment_research_proposal'
     blocks.push({
       type: 'section',
       text: mrkdwn([
         `*${truncateSlack(run?.title ?? approval.run_id, 120)}*`,
         `Type: \`${approval.approval_type}\` - Status: \`${approval.status}\``,
         run?.current_step ? `Step: ${truncateSlack(run.current_step, 140)}` : null,
+        canDecideInSlack
+          ? 'Primary action: approve only after the trace evidence matches the packet.'
+          : 'Primary action: open Portfolio because this approval crosses a protected boundary.',
       ].filter(Boolean).join('\n')),
     })
     blocks.push({
       type: 'actions',
       elements: [
+        canDecideInSlack
+          ? slackButton({
+              label: 'Approve',
+              actionId: 'agent_approval_approve',
+              style: 'primary',
+              value: { action: 'approval.approve', approvalId: approval.id, runId: approval.run_id },
+              confirmText: `Approve ${run?.title ?? approval.run_id}?`,
+            })
+          : slackButton({
+              label: 'Open decision',
+              actionId: 'open_decision',
+              url: agentUrl(`/admin/agents/coordination?approvalRunId=${approval.run_id}`),
+            }),
         slackButton({
           label: 'Ask Shaka',
           actionId: 'agent_approval_ask_shaka',
           value: { action: 'approval.ask_shaka', approvalId: approval.id, runId: approval.run_id },
         }),
-        slackButton({ label: 'Open decision', actionId: 'open_decision', url: agentUrl(`/admin/agents/coordination?approvalRunId=${approval.run_id}`) }),
-        slackButton({ label: 'Open trace', actionId: 'open_trace', url: agentUrl(`/admin/agents/runs/${approval.run_id}`) }),
       ],
     })
   }
@@ -200,6 +263,59 @@ async function buildPendingApprovalPayload() {
     text: `${approvals.length} pending Agent Ops approval(s) need review.`,
     blocks,
     itemCount: approvals.length,
+  }
+}
+
+async function staleRuns(limit = 5) {
+  if (!supabaseAdmin) throw new Error('Database not available')
+  const { data, error } = await supabaseAdmin
+    .from('agent_runs')
+    .select('id, title, runtime, status, current_step, error_message, started_at')
+    .in('status', ['failed', 'stale'])
+    .order('started_at', { ascending: false })
+    .limit(limit)
+  if (error) throw new Error(`Failed to read stale runs: ${error.message}`)
+  return (data ?? []) as AgentRunSummaryRow[]
+}
+
+async function buildStaleRunsPayload() {
+  const runs = await staleRuns()
+  const blocks: SlackBlock[] = [
+    { type: 'section', text: mrkdwn('*Stale or failed Agent Ops runs*\nUse this when a trace needs mobile recovery triage. Slack can summarize the next step; recovery mutations stay in Portfolio.') },
+  ]
+  if (!runs.length) {
+    blocks.push({ type: 'section', text: mrkdwn('No stale or failed runs need mobile action.') })
+    blocks.push({
+      type: 'actions',
+      elements: [slackButton({ label: 'Open Run Console', actionId: 'open_run_console', url: agentUrl('/admin/agents/runs') })],
+    })
+  }
+  for (const run of runs) {
+    blocks.push({
+      type: 'section',
+      text: mrkdwn([
+        `*${truncateSlack(run.title ?? run.id, 120)}*`,
+        `Status: \`${run.status ?? 'unknown'}\` - Runtime: \`${run.runtime ?? 'unknown'}\``,
+        run.current_step ? `Step: ${truncateSlack(run.current_step, 140)}` : null,
+        run.error_message ? `Problem: ${truncateSlack(run.error_message, 160)}` : null,
+      ].filter(Boolean).join('\n')),
+    })
+    blocks.push({
+      type: 'actions',
+      elements: [
+        slackButton({
+          label: 'Ask Shaka',
+          actionId: 'agent_run_ask_shaka',
+          value: { action: 'run.ask_shaka', runId: run.id },
+        }),
+        slackButton({ label: 'Open trace', actionId: 'open_trace', url: agentUrl(`/admin/agents/runs/${run.id}`) }),
+      ],
+    })
+  }
+  return {
+    text: `${runs.length} stale or failed Agent Ops run(s) need mobile triage.`,
+    blocks,
+    itemCount: runs.length,
   }
 }
 
@@ -237,13 +353,14 @@ async function buildWorkItemPayload(input: AgentSlackNotificationInput) {
   items = filterTargetAgents(items, targetAgentKeys).sort(prioritySort).slice(0, 5)
   return {
     text: `${title}: ${items.length} item(s).`,
-    blocks: workItemBlocks(title, intro, items),
+    blocks: workItemBlocks(title, intro, items, input.kind),
     itemCount: items.length,
   }
 }
 
 export async function buildAgentSlackNotificationPayload(input: AgentSlackNotificationInput) {
   if (input.kind === 'pending_approvals') return buildPendingApprovalPayload()
+  if (input.kind === 'stale_runs') return buildStaleRunsPayload()
   return buildWorkItemPayload(input)
 }
 

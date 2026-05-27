@@ -10,6 +10,7 @@ export const dynamic = 'force-dynamic'
 const VALID_KINDS = new Set<AgentSlackNotificationKind>([
   'pending_approvals',
   'blockers',
+  'stale_runs',
   'review_ready',
   'goal_decisions',
   'standup_blockers',

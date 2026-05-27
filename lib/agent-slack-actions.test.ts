@@ -207,4 +207,24 @@ describe('Agent Ops Slack actions', () => {
     expect(mocks.recordAgentWorkItemBlocker).not.toHaveBeenCalled()
     expect(result.text).toContain('Blocker acknowledged')
   })
+
+  it('asks Shaka for stale-run mobile recovery context', async () => {
+    mocks.from.mockReturnValueOnce(queryResult({ data: null, error: null }))
+    mocks.runChiefOfStaffChat.mockResolvedValue({
+      reply: 'The run is stale because the heartbeat stopped. Open Portfolio before mutating recovery state.',
+      runId: 'shaka-run',
+    })
+
+    const result = await handleSlackAgentAction(payload({
+      action: 'run.ask_shaka',
+      runId: 'run-stale',
+    }))
+
+    expect(mocks.runChiefOfStaffChat).toHaveBeenCalledWith(expect.objectContaining({
+      triggerSource: 'slack_agent_action',
+      contextRef: { type: 'run', id: 'run-stale' },
+    }))
+    expect(result.text).toContain('heartbeat stopped')
+    expect(result.text).toContain('/admin/agents/runs/shaka-run')
+  })
 })
