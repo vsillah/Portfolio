@@ -59,6 +59,22 @@
       "pauseOrReplaceActorSurfaces": 8,
       "analysisDocument": "/docs/apify-call-bakeoff-analysis.md",
       "nextAction": "Keep productive evidence actors under watch, pause or replace no-run/failing/empty-output actors, and compare the remaining productive categories against cheaper alternatives before renewal.",
+      "googlePlacesPromotionGate": {
+        "status": "gated",
+        "localKeyStatus": "API-restricted to Places API (New); acceptable for the short local/Codex bakeoff window.",
+        "productionRequirement": "Do not promote Google Places as the durable Apify Google Maps replacement until the production runner and outbound egress path are confirmed.",
+        "recommendedProductionKeyName": "portfolio-apify-replacement-google-places-prod",
+        "requiredControls": [
+          "Separate production key from the local bakeoff key.",
+          "API restriction to Places API (New).",
+          "IP address restriction if the production runner has stable outbound egress.",
+          "Strict quota limits, billing alerts, and a rotation review date if stable egress is not available yet.",
+          "Infisical/Vercel runtime sink sync only after the production key is approved.",
+          "Production-like rerun of npm run apify:replacement-bakeoff -- --run before replacing the Apify Google Maps actor."
+        ],
+        "decisionOwner": "subscription-watch / integration captain",
+        "decisionRequired": true
+      },
       "actorRunHistory": [
         {
           "actor": "alien_force~facebook-scraper-pro",

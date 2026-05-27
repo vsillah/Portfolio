@@ -32,6 +32,14 @@ describe('subscription status budget queries', () => {
     expect(result.answer).toContain('315 dataset items')
   })
 
+  it('surfaces the Google Places production promotion gate', () => {
+    const result = answerSubscriptionBudgetQuery('Can we promote Google Places to production as the Apify Google Maps replacement?')
+
+    expect(result.answer).toContain('Google Places production gate')
+    expect(result.answer).toContain('portfolio-apify-replacement-google-places-prod')
+    expect(result.apifyCallAnalysis?.googlePlacesPromotionGate?.decisionRequired).toBe(true)
+  })
+
   it('handles transition spend from the Anthropic to ChatGPT switch', () => {
     const result = answerSubscriptionBudgetQuery('Will spend go down next month after switching from Anthropic to ChatGPT?')
 
