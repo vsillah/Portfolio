@@ -84,6 +84,23 @@ describe('Agent Ops Slack actions', () => {
     expect(mocks.from).not.toHaveBeenCalled()
   })
 
+  it('dedupes repeated Slack actions before applying work-item mutations', async () => {
+    mocks.from.mockReturnValueOnce(queryResult({
+      data: { id: 'event-1' },
+      error: null,
+    }))
+
+    const result = await handleSlackAgentAction(payload({
+      action: 'work.assign',
+      workItemId: 'work-1',
+      agentKey: 'integration-captain',
+    }))
+
+    expect(result.text).toContain('Already handled this Slack action')
+    expect(mocks.claimAgentWorkItem).not.toHaveBeenCalled()
+    expect(mocks.recordAgentEvent).not.toHaveBeenCalled()
+  })
+
   it('requires Portfolio review for high-risk approvals', async () => {
     mocks.from
       .mockReturnValueOnce(queryResult({ data: null, error: null }))
