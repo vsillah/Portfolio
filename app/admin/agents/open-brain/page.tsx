@@ -29,6 +29,10 @@ import type {
 } from '@/lib/open-brain'
 
 type ViewMode = 'router' | 'sources' | 'proposals' | 'wiki' | 'parity' | 'producers' | 'map'
+type RelationshipFilterValue = 'all'
+type RelationshipHealthFilter = RelationshipFilterValue | 'green' | 'yellow' | 'red'
+type RelationshipStrengthFilter = RelationshipFilterValue | 'strong' | 'medium' | 'weak'
+type RelationshipStatusFilter = RelationshipFilterValue | 'persisted' | 'inferred' | 'recommended'
 
 export default function OpenBrainPage() {
   return (
@@ -611,16 +615,42 @@ function RelationshipMapView({
   onSuggestionAction: (insight: OpenBrainRelationshipInsight) => void
 }) {
   const [typeFilter, setTypeFilter] = useState<OpenBrainRelationshipNodeType | 'all'>('all')
+  const [privacyFilter, setPrivacyFilter] = useState<OpenBrainPrivacyTier | 'all'>('all')
+  const [healthFilter, setHealthFilter] = useState<RelationshipHealthFilter>('all')
+  const [strengthFilter, setStrengthFilter] = useState<RelationshipStrengthFilter>('all')
+  const [statusFilter, setStatusFilter] = useState<RelationshipStatusFilter>('all')
   const map = snapshot.relationshipMap
-  const visibleNodes = typeFilter === 'all' ? map.nodes : map.nodes.filter((node) => node.type === typeFilter)
+  const visibleNodes = map.nodes.filter((node) => (
+    (typeFilter === 'all' || node.type === typeFilter) &&
+    (privacyFilter === 'all' || node.privacyTier === privacyFilter) &&
+    (healthFilter === 'all' || node.health === healthFilter)
+  ))
   const visibleNodeIds = new Set(visibleNodes.map((node) => node.id))
-  const visibleEdges = map.edges.filter((edge) => visibleNodeIds.has(edge.fromId) && visibleNodeIds.has(edge.toId))
+  const visibleEdges = map.edges.filter((edge) => (
+    visibleNodeIds.has(edge.fromId) &&
+    visibleNodeIds.has(edge.toId) &&
+    (strengthFilter === 'all' || edge.strength === strengthFilter) &&
+    (statusFilter === 'all' || edge.status === statusFilter)
+  ))
   const nodeById = new Map(visibleNodes.map((node) => [node.id, node]))
   const nodeTypes: Array<OpenBrainRelationshipNodeType | 'all'> = ['all', 'source', 'memory', 'event', 'wiki', 'proposal']
+  const privacyTiers: Array<OpenBrainPrivacyTier | 'all'> = ['all', 'public_safe', 'client_safe', 'internal_ops', 'private']
+  const healthValues: RelationshipHealthFilter[] = ['all', 'green', 'yellow', 'red']
+  const strengthValues: RelationshipStrengthFilter[] = ['all', 'strong', 'medium', 'weak']
+  const statusValues: RelationshipStatusFilter[] = ['all', 'persisted', 'inferred', 'recommended']
   const selectedPath = visibleEdges.find((edge) => edge.strength === 'strong') || visibleEdges[0]
   const selectedFrom = selectedPath ? nodeById.get(selectedPath.fromId) : null
   const selectedTo = selectedPath ? nodeById.get(selectedPath.toId) : null
   const graphMinHeight = Math.max(620, Math.ceil(visibleNodes.length / 4) * 132)
+  const activeFilterCount = [typeFilter, privacyFilter, healthFilter, strengthFilter, statusFilter].filter((value) => value !== 'all').length
+
+  function resetFilters() {
+    setTypeFilter('all')
+    setPrivacyFilter('all')
+    setHealthFilter('all')
+    setStrengthFilter('all')
+    setStatusFilter('all')
+  }
 
   return (
     <section className="space-y-5" aria-label="Open Brain relationship map">
@@ -636,27 +666,85 @@ function RelationshipMapView({
         <aside className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
           <div className="mb-4 flex items-center justify-between gap-3">
             <p className="agent-ops-eyebrow"><Network size={14} /> Filters</p>
-            <span className="text-xs text-muted-foreground">{visibleNodes.length}/{map.nodes.length}</span>
+            <span className="text-xs text-muted-foreground">{visibleNodes.length}/{map.nodes.length} nodes · {visibleEdges.length}/{map.edges.length} edges</span>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-5">
+            <RelationshipFilterGroup label="Record type">
             {nodeTypes.map((type) => {
               const count = type === 'all' ? map.nodes.length : map.nodes.filter((node) => node.type === type).length
               return (
-                <button
+                <RelationshipFilterButton
                   key={type}
-                  type="button"
+                  active={typeFilter === type}
+                  count={count}
                   onClick={() => setTypeFilter(type)}
-                  className={`flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left text-sm transition ${
-                    typeFilter === type
-                      ? 'border-radiant-gold/55 bg-radiant-gold/10 text-radiant-gold'
-                      : 'border-silicon-slate/60 bg-background/20 text-muted-foreground hover:border-radiant-gold/35 hover:text-foreground'
-                  }`}
-                >
-                  <span className="capitalize">{type === 'all' ? 'All records' : type}</span>
-                  <span className="tabular-nums">{count}</span>
-                </button>
+                  label={type === 'all' ? 'All records' : type}
+                />
               )
             })}
+            </RelationshipFilterGroup>
+
+            <RelationshipFilterGroup label="Privacy tier">
+            {privacyTiers.map((tier) => (
+              <RelationshipFilterButton
+                key={tier}
+                active={privacyFilter === tier}
+                count={tier === 'all' ? map.nodes.length : map.nodes.filter((node) => node.privacyTier === tier).length}
+                onClick={() => setPrivacyFilter(tier)}
+                label={tier === 'all' ? 'All tiers' : tier.replace(/_/g, ' ')}
+              />
+            ))}
+            </RelationshipFilterGroup>
+
+            <RelationshipFilterGroup label="Context health">
+            {healthValues.map((health) => (
+              <RelationshipFilterButton
+                key={health}
+                active={healthFilter === health}
+                count={health === 'all' ? map.nodes.length : map.nodes.filter((node) => node.health === health).length}
+                onClick={() => setHealthFilter(health)}
+                label={health === 'all' ? 'All health' : health}
+              />
+            ))}
+            </RelationshipFilterGroup>
+
+            <RelationshipFilterGroup label="Relationship strength">
+            {strengthValues.map((strength) => (
+              <RelationshipFilterButton
+                key={strength}
+                active={strengthFilter === strength}
+                count={strength === 'all' ? map.edges.length : map.edges.filter((edge) => edge.strength === strength).length}
+                onClick={() => setStrengthFilter(strength)}
+                label={strength === 'all' ? 'All strengths' : strength}
+              />
+            ))}
+            </RelationshipFilterGroup>
+
+            <RelationshipFilterGroup label="Edge status">
+            {statusValues.map((status) => (
+              <RelationshipFilterButton
+                key={status}
+                active={statusFilter === status}
+                count={status === 'all' ? map.edges.length : map.edges.filter((edge) => edge.status === status).length}
+                onClick={() => setStatusFilter(status)}
+                label={status === 'all' ? 'All statuses' : status}
+              />
+            ))}
+            </RelationshipFilterGroup>
+          </div>
+          <div className="mt-5 rounded-lg border border-silicon-slate/60 bg-background/20 p-3 text-xs text-muted-foreground">
+            <div className="flex items-center justify-between gap-3">
+              <span>{activeFilterCount} active filter(s)</span>
+              <button
+                type="button"
+                onClick={resetFilters}
+                disabled={activeFilterCount === 0}
+                className="rounded-md border border-silicon-slate/60 px-2 py-1 text-foreground hover:border-radiant-gold/45 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Reset filters
+              </button>
+            </div>
+            <p className="mt-2">Showing {visibleNodes.length} node(s) and {visibleEdges.length} relationship(s).</p>
           </div>
           <div className="mt-5 space-y-2 border-t border-silicon-slate/60 pt-4 text-xs text-muted-foreground">
             <RelationshipLegend color="bg-radiant-gold" label="Strong/persisted" />
@@ -670,12 +758,15 @@ function RelationshipMapView({
           className="relative overflow-hidden rounded-lg border border-radiant-gold/20 bg-[radial-gradient(circle_at_50%_45%,rgba(212,175,55,0.08),transparent_34%),linear-gradient(180deg,rgba(12,23,39,0.94),rgba(7,14,25,0.98))] shadow-2xl"
           style={{ minHeight: `${graphMinHeight}px` }}
         >
-          <div className="absolute left-5 top-5 z-10">
+          <div className="absolute left-5 top-5 z-10 max-w-[calc(100%-2.5rem)]">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-radiant-gold">Memory Graph</p>
             <p className="mt-1 text-sm text-muted-foreground">
               {selectedFrom && selectedTo
                 ? `Selected path: ${selectedFrom.label} -> ${selectedTo.label}`
                 : 'No visible relationship path for this filter.'}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Filtered view: {visibleNodes.length} node(s), {visibleEdges.length} edge(s)
             </p>
           </div>
           <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
@@ -846,6 +937,43 @@ function RelationshipMetric({
       <p className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-radiant-gold">{label}</p>
       <p className="mt-1 text-xs text-muted-foreground">{detail}</p>
     </div>
+  )
+}
+
+function RelationshipFilterGroup({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div>
+      <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{label}</p>
+      <div className="space-y-2">{children}</div>
+    </div>
+  )
+}
+
+function RelationshipFilterButton({
+  active,
+  count,
+  label,
+  onClick,
+}: {
+  active: boolean
+  count: number
+  label: string
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={`${label} ${count}`}
+      onClick={onClick}
+      className={`flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left text-sm capitalize transition ${
+        active
+          ? 'border-radiant-gold/55 bg-radiant-gold/10 text-radiant-gold'
+          : 'border-silicon-slate/60 bg-background/20 text-muted-foreground hover:border-radiant-gold/35 hover:text-foreground'
+      }`}
+    >
+      <span>{label}</span>
+      <span className="tabular-nums">{count}</span>
+    </button>
   )
 }
 
