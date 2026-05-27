@@ -184,6 +184,7 @@ describe('AgentGovernancePage', () => {
     expect(within(decisionTrust).getByText('60%')).toBeInTheDocument()
     expect(within(decisionTrust).getByText(/Missing evidence: Human approval decision, Post-approval execution trace/i)).toBeInTheDocument()
     expect(within(decisionTrust).getByText(/Approval: payment_make_vendor_payment · Reversibility: hard/i)).toBeInTheDocument()
+    expect(within(decisionTrust).getByRole('link', { name: /Inspect in Open Brain/i })).toHaveAttribute('href', '/admin/agents/open-brain')
     expect(within(decisionTrust).getByRole('link', { name: /make_vendor_payment/i })).toHaveAttribute('href', '/admin/agents/runs/trust-run')
     expect(within(governancePanel).getByRole('link', { name: /Export client audit/i })).toHaveAttribute('href', '/api/admin/agents/governance/export?format=markdown')
     expect(within(governancePanel).getByRole('link', { name: /Export audit JSON/i })).toHaveAttribute('href', '/api/admin/agents/governance/export?format=json')

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildAgentCapabilityProfiles, buildAgentGovernanceSnapshot } from './agent-governance'
+import { buildAgentCapabilityProfiles, buildAgentGovernanceSnapshot, parseDecisionTrustFrames } from './agent-governance'
 
 describe('agent governance', () => {
   it('derives least-privilege capability profiles from the agent organization', () => {
@@ -153,5 +153,46 @@ describe('agent governance', () => {
       run_id: 'run-shaka',
       client_project_id: 'client-456',
     })
+  })
+
+  it('exports a safe decision trust parser with configurable limits', () => {
+    const events = Array.from({ length: 7 }, (_, index) => ({
+      run_id: `run-${index}`,
+      event_type: 'agent_decision_trust_recorded',
+      severity: 'info',
+      message: 'Decision trust recorded.',
+      occurred_at: `2026-05-21T00:0${index}:00.000Z`,
+      metadata: {
+        decision_id: `decision-${index}`,
+        agent_key: 'chief-of-staff',
+        decision_type: 'tool',
+        objective: 'Choose a tool.',
+        selected_candidate: `tool-${index}`,
+        candidates_considered: [`tool-${index}`],
+        trust_signals: ['Official source match'],
+        risk_signals: ['Read-only use'],
+        missing_evidence: [],
+        scores: {
+          relationshipTrust: 0.75,
+          decisionRisk: 0.2,
+          evidenceCompleteness: 0.88,
+        },
+        recommended_gate: 'allow',
+        approval_type: null,
+        reversibility: 'easy',
+      },
+    }))
+
+    expect(parseDecisionTrustFrames(events, 3)).toHaveLength(3)
+    expect(parseDecisionTrustFrames([
+      {
+        run_id: 'run-bad',
+        event_type: 'agent_decision_trust_recorded',
+        severity: 'info',
+        message: 'Malformed frame ignored.',
+        occurred_at: '2026-05-21T00:00:00.000Z',
+        metadata: { decision_id: 'bad', recommended_gate: 'allow' },
+      },
+    ])).toEqual([])
   })
 })

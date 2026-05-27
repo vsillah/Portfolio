@@ -5,6 +5,12 @@ import { homedir } from 'os'
 import path from 'path'
 import { listCodexAutomationInventory } from './codex-automation-inventory'
 import { getCodexWorkspaceRootReport } from './codex-workspace-roots'
+import {
+  buildDecisionTrustOpenBrainProjection,
+  buildDecisionTrustRelationshipEdges,
+  buildDecisionTrustRelationshipInsights,
+  type DecisionTrustOpenBrainFrame,
+} from './decision-trust-open-brain'
 import { getModelOpsProjection, type ModelOpsProjection } from './model-ops-open-brain'
 
 export type OpenBrainPrivacyTier = 'public_safe' | 'client_safe' | 'internal_ops' | 'private'
@@ -37,6 +43,7 @@ export type OpenBrainEventKind =
   | 'projection_compiled'
   | 'autoresearch_proposal_created'
   | 'rag_projection_staged'
+  | 'agent_decision_trust_observed'
 
 export interface OpenBrainSourceRecord {
   id: string
@@ -100,6 +107,7 @@ export interface OpenBrainProposalRecord {
 
 export interface OpenBrainProposalMetadata {
   relationship?: OpenBrainRelationshipProposalMetadata
+  decisionTrust?: OpenBrainDecisionTrustProposalMetadata
 }
 
 export interface OpenBrainRelationshipProposalMetadata {
@@ -110,6 +118,19 @@ export interface OpenBrainRelationshipProposalMetadata {
   insightKind: OpenBrainRelationshipInsightKind
   sourceLabel: string
   targetLabel: string
+}
+
+export interface OpenBrainDecisionTrustProposalMetadata {
+  decisionId: string
+  linkedRunId: string | null
+  selectedCandidate: string
+  recommendedGate: string
+  scores: {
+    relationshipTrust: number
+    decisionRisk: number
+    evidenceCompleteness: number
+  }
+  evidenceSummary: string
 }
 
 export interface OpenBrainWikiPage {
@@ -157,7 +178,7 @@ export interface OpenBrainProducerGate {
 
 export type OpenBrainRelationshipNodeType = 'source' | 'memory' | 'event' | 'wiki' | 'proposal'
 export type OpenBrainRelationshipEdgeStrength = 'strong' | 'medium' | 'weak'
-export type OpenBrainRelationshipInsightKind = 'strengthen' | 'review' | 'missing_governance' | 'merge_duplicate'
+export type OpenBrainRelationshipInsightKind = 'strengthen' | 'review' | 'missing_governance' | 'merge_duplicate' | 'decision_trust_review'
 
 export interface OpenBrainRelationshipNode {
   id: string
@@ -168,6 +189,7 @@ export interface OpenBrainRelationshipNode {
   summary: string
   path: string | null
   health: 'green' | 'yellow' | 'red'
+  decisionTrustGate?: string | null
   x: number
   y: number
 }
@@ -193,6 +215,7 @@ export interface OpenBrainRelationshipInsight {
   actionLabel: string
   sourceNodeId: string | null
   targetNodeId: string | null
+  decisionTrust?: OpenBrainDecisionTrustProposalMetadata
 }
 
 export interface OpenBrainRelationshipAuditRecord {
@@ -296,6 +319,10 @@ export interface OpenBrainProposalInput {
   metadata?: OpenBrainProposalMetadata
 }
 
+export interface OpenBrainSnapshotOptions {
+  decisionTrustFrames?: DecisionTrustOpenBrainFrame[]
+}
+
 const DEFAULT_OPEN_BRAIN_HOME = path.join(homedir(), '.open-brain')
 const PORTFOLIO_ROOT = path.resolve(process.env.OPEN_BRAIN_PORTFOLIO_ROOT || process.cwd())
 const PROPOSALS_FILE = 'proposals.json'
@@ -311,7 +338,10 @@ export function getOpenBrainHome() {
   return process.env.OPEN_BRAIN_HOME || DEFAULT_OPEN_BRAIN_HOME
 }
 
-export async function getOpenBrainSnapshot(openBrainHome = getOpenBrainHome()): Promise<OpenBrainSnapshot> {
+export async function getOpenBrainSnapshot(
+  openBrainHome = getOpenBrainHome(),
+  options: OpenBrainSnapshotOptions = {},
+): Promise<OpenBrainSnapshot> {
   const generatedAt = new Date().toISOString()
   const [
     inventory,
@@ -332,6 +362,10 @@ export async function getOpenBrainSnapshot(openBrainHome = getOpenBrainHome()): 
     readJsonArray<OpenBrainLinkRecord>(path.join(openBrainHome, LINKS_FILE)),
     getModelOpsProjection(),
   ])
+  const decisionTrustProjection = buildDecisionTrustOpenBrainProjection(options.decisionTrustFrames ?? [], {
+    generatedAt,
+    maxFrames: 25,
+  })
 
   const sources = dedupeSources([
     ...inventory.automations.map((automation): OpenBrainSourceRecord => ({
@@ -372,6 +406,7 @@ export async function getOpenBrainSnapshot(openBrainHome = getOpenBrainHome()): 
     ...buildRunbookSources(generatedAt),
     ...buildModelOpsSources(modelOps),
     ...(await buildKnowledgeProjectionSources(generatedAt)),
+    ...decisionTrustProjection.sources,
     ...persistedSources,
   ])
 
@@ -411,6 +446,7 @@ export async function getOpenBrainSnapshot(openBrainHome = getOpenBrainHome()): 
   ])
   const events = dedupeEvents([
     ...buildObservedSourceEvents(sources, generatedAt),
+    ...decisionTrustProjection.events,
     ...persistedEvents,
   ])
   const links = dedupeLinks(persistedLinks)
@@ -871,6 +907,11 @@ export function buildOpenBrainRelationshipMap({
     }
   }
 
+  for (const edge of buildDecisionTrustRelationshipEdges(visibleEvents, nodes)) {
+    if (!nodeIds.has(edge.fromId) || !nodeIds.has(edge.toId)) continue
+    addRelationshipEdge(edgeMap, edge)
+  }
+
   const edges = [...edgeMap.values()]
   const connectedNodeIds = new Set<string>()
   for (const edge of edges) {
@@ -881,15 +922,18 @@ export function buildOpenBrainRelationshipMap({
   const staleSources = sources.filter((source) => isStale(source.lastObservedAt, generatedAt))
   const orphanedNodes = nodes.filter((node) => !connectedNodeIds.has(node.id))
   const weakEdges = edges.filter((edge) => edge.strength === 'weak')
-  const insights = buildRelationshipInsights({
-    nodes,
-    edges,
-    orphanedNodes,
-    staleSources,
-    sources,
-    memories,
-    proposals,
-  })
+  const insights = [
+    ...buildDecisionTrustRelationshipInsights(visibleEvents, nodes),
+    ...buildRelationshipInsights({
+      nodes,
+      edges,
+      orphanedNodes,
+      staleSources,
+      sources,
+      memories,
+      proposals,
+    }),
+  ].slice(0, 10)
   const audit = buildRelationshipAudit({ links, proposals, events, nodes })
 
   return {
@@ -980,7 +1024,7 @@ function relationshipMetadataFromUnknown(value: unknown): OpenBrainRelationshipP
   if (!value || typeof value !== 'object') return null
   const candidate = value as Record<string, unknown>
   const insightKind = stringFromMetadata(candidate.insightKind)
-  if (!['strengthen', 'review', 'missing_governance', 'merge_duplicate'].includes(insightKind || '')) return null
+  if (!isRelationshipInsightKind(insightKind)) return null
   const fromId = stringFromMetadata(candidate.fromId)
   const toId = stringFromMetadata(candidate.toId)
   const relationship = stringFromMetadata(candidate.relationship)
@@ -994,6 +1038,43 @@ function relationshipMetadataFromUnknown(value: unknown): OpenBrainRelationshipP
     sourceLabel: stringFromMetadata(candidate.sourceLabel) || fromId,
     targetLabel: stringFromMetadata(candidate.targetLabel) || toId,
   }
+}
+
+function decisionTrustMetadataFromUnknown(value: unknown): OpenBrainDecisionTrustProposalMetadata | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+  const candidate = value as Record<string, unknown>
+  const scores = scoreMetadataFromUnknown(candidate.scores)
+  const decisionId = stringFromMetadata(candidate.decisionId)
+  const selectedCandidate = stringFromMetadata(candidate.selectedCandidate)
+  const recommendedGate = stringFromMetadata(candidate.recommendedGate)
+  const evidenceSummary = stringFromMetadata(candidate.evidenceSummary)
+  if (!decisionId || !selectedCandidate || !recommendedGate || !scores || !evidenceSummary) return null
+  return {
+    decisionId,
+    linkedRunId: stringFromMetadata(candidate.linkedRunId),
+    selectedCandidate,
+    recommendedGate,
+    scores,
+    evidenceSummary,
+  }
+}
+
+function scoreMetadataFromUnknown(value: unknown): OpenBrainDecisionTrustProposalMetadata['scores'] | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+  const record = value as Record<string, unknown>
+  const relationshipTrust = Number(record.relationshipTrust)
+  const decisionRisk = Number(record.decisionRisk)
+  const evidenceCompleteness = Number(record.evidenceCompleteness)
+  if (![relationshipTrust, decisionRisk, evidenceCompleteness].every(Number.isFinite)) return null
+  return { relationshipTrust, decisionRisk, evidenceCompleteness }
+}
+
+function isRelationshipInsightKind(value: string | null): value is OpenBrainRelationshipInsightKind {
+  return value === 'strengthen' ||
+    value === 'review' ||
+    value === 'missing_governance' ||
+    value === 'merge_duplicate' ||
+    value === 'decision_trust_review'
 }
 
 function stringFromMetadata(value: unknown) {
@@ -1295,6 +1376,17 @@ function buildProducerGates(modelOps: ModelOpsProjection): OpenBrainProducerGate
       configuredValue: null,
       note: 'RAG staging can use approved public-safe projections. Pinecone writes remain blocked until a separate approval step.',
     },
+    {
+      id: 'producer:decision-trust',
+      label: 'Decision Trust frames',
+      status: 'shadow_only',
+      sourceKind: 'agent_run',
+      eventKind: 'agent_decision_trust_observed',
+      privacyTier: 'internal_ops',
+      envVar: null,
+      configuredValue: null,
+      note: 'Agent decision trust frames may be projected into the relationship map as read-only evidence. Enforcement remains off.',
+    },
   ]
 }
 
@@ -1369,6 +1461,7 @@ function memoryToRelationshipNode(memory: OpenBrainMemoryRecord, index: number):
 
 function eventToRelationshipNode(event: OpenBrainEventRecord, index: number): OpenBrainRelationshipNode {
   const point = relationshipPoint('event', event.kind, index)
+  const decisionTrust = decisionTrustMetadataFromEvent(event)
   return {
     id: event.id,
     label: event.title,
@@ -1377,10 +1470,26 @@ function eventToRelationshipNode(event: OpenBrainEventRecord, index: number): Op
     privacyTier: event.privacyTier,
     summary: event.summary,
     path: typeof event.metadata?.path === 'string' ? event.metadata.path : null,
-    health: event.privacyTier === 'private' ? 'red' : event.confidence >= 0.75 ? 'green' : 'yellow',
+    health: event.privacyTier === 'private'
+      ? 'red'
+      : decisionTrust?.recommendedGate === 'block'
+        ? 'red'
+        : decisionTrust?.recommendedGate === 'human_review'
+          ? 'yellow'
+          : event.confidence >= 0.75 ? 'green' : 'yellow',
+    decisionTrustGate: decisionTrust?.recommendedGate ?? null,
     x: point.x,
     y: point.y,
   }
+}
+
+function decisionTrustMetadataFromEvent(event: OpenBrainEventRecord) {
+  const value = event.metadata?.decisionTrust
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+  const record = value as Record<string, unknown>
+  const recommendedGate = stringFromMetadata(record.recommended_gate)
+  if (!recommendedGate) return null
+  return { recommendedGate }
 }
 
 function wikiToRelationshipNode(page: OpenBrainWikiPage, index: number): OpenBrainRelationshipNode {
@@ -1642,12 +1751,14 @@ function proposalToMemory(proposal: OpenBrainProposalRecord): OpenBrainMemoryRec
 }
 
 function normalizeOpenBrainProposalMetadata(metadata: OpenBrainProposalMetadata | undefined): OpenBrainProposalMetadata | undefined {
-  if (!metadata?.relationship) return undefined
+  if (!metadata?.relationship && !metadata?.decisionTrust) return undefined
   const relationship = metadata.relationship
-  if (!relationship.fromId?.trim() || !relationship.toId?.trim() || !relationship.relationship?.trim()) return undefined
-  if (!['strengthen', 'review', 'missing_governance', 'merge_duplicate'].includes(relationship.insightKind)) return undefined
-  return {
-    relationship: {
+  const decisionTrust = metadata.decisionTrust
+  const normalizedRelationship = relationship?.fromId?.trim() &&
+    relationship.toId?.trim() &&
+    relationship.relationship?.trim() &&
+    isRelationshipInsightKind(relationship.insightKind)
+    ? {
       fromId: sanitizeOpenBrainText(relationship.fromId, 220),
       toId: sanitizeOpenBrainText(relationship.toId, 220),
       relationship: sanitizeOpenBrainText(relationship.relationship, 160),
@@ -1655,7 +1766,22 @@ function normalizeOpenBrainProposalMetadata(metadata: OpenBrainProposalMetadata 
       insightKind: relationship.insightKind,
       sourceLabel: sanitizeOpenBrainText(relationship.sourceLabel || relationship.fromId, 180),
       targetLabel: sanitizeOpenBrainText(relationship.targetLabel || relationship.toId, 180),
-    },
+    }
+    : undefined
+  const normalizedDecisionTrust = decisionTrustMetadataFromUnknown(decisionTrust)
+  if (!normalizedRelationship && !normalizedDecisionTrust) return undefined
+  return {
+    ...(normalizedRelationship ? { relationship: normalizedRelationship } : {}),
+    ...(normalizedDecisionTrust ? {
+      decisionTrust: {
+        decisionId: sanitizeOpenBrainText(normalizedDecisionTrust.decisionId, 220),
+        linkedRunId: normalizedDecisionTrust.linkedRunId ? sanitizeOpenBrainText(normalizedDecisionTrust.linkedRunId, 220) : null,
+        selectedCandidate: sanitizeOpenBrainText(normalizedDecisionTrust.selectedCandidate, 180),
+        recommendedGate: sanitizeOpenBrainText(normalizedDecisionTrust.recommendedGate, 80),
+        scores: normalizedDecisionTrust.scores,
+        evidenceSummary: sanitizeOpenBrainText(normalizedDecisionTrust.evidenceSummary, 360),
+      },
+    } : {}),
   }
 }
 

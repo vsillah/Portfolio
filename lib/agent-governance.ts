@@ -346,7 +346,10 @@ function isDecisionTrustGate(value: string | null): value is DecisionTrustGate {
   return value === 'allow' || value === 'sandbox' || value === 'human_review' || value === 'block'
 }
 
-function recentDecisionTrustFrames(events: GovernanceEventSummary[]): AgentGovernanceSnapshot['recent_decision_trust_frames'] {
+export function parseDecisionTrustFrames(
+  events: GovernanceEventSummary[],
+  limit = 5,
+): AgentGovernanceSnapshot['recent_decision_trust_frames'] {
   return events
     .filter((event) => event.event_type === AGENT_DECISION_TRUST_EVENT)
     .flatMap((event) => {
@@ -379,7 +382,7 @@ function recentDecisionTrustFrames(events: GovernanceEventSummary[]): AgentGover
         occurred_at: event.occurred_at,
       }]
     })
-    .slice(0, 5)
+    .slice(0, limit)
 }
 
 export function buildAgentGovernanceSnapshot(input?: {
@@ -414,7 +417,7 @@ export function buildAgentGovernanceSnapshot(input?: {
     }),
     pending_authority_approvals: pendingAuthorityApprovals.slice(0, 8).map(authorityApprovalSummary),
     recent_delegation_decisions: recentDelegationDecisions(input?.events ?? []),
-    recent_decision_trust_frames: recentDecisionTrustFrames(input?.events ?? []),
+    recent_decision_trust_frames: parseDecisionTrustFrames(input?.events ?? []),
     recent_governance_exports: (input?.exports ?? []).slice(0, 8),
   }
 }

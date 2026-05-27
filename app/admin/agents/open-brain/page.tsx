@@ -33,6 +33,7 @@ type RelationshipFilterValue = 'all'
 type RelationshipHealthFilter = RelationshipFilterValue | 'green' | 'yellow' | 'red'
 type RelationshipStrengthFilter = RelationshipFilterValue | 'strong' | 'medium' | 'weak'
 type RelationshipStatusFilter = RelationshipFilterValue | 'persisted' | 'inferred' | 'recommended'
+type DecisionTrustFilter = RelationshipFilterValue | 'decision_trust' | 'high_risk_gate'
 
 export default function OpenBrainPage() {
   return (
@@ -619,11 +620,15 @@ function RelationshipMapView({
   const [healthFilter, setHealthFilter] = useState<RelationshipHealthFilter>('all')
   const [strengthFilter, setStrengthFilter] = useState<RelationshipStrengthFilter>('all')
   const [statusFilter, setStatusFilter] = useState<RelationshipStatusFilter>('all')
+  const [decisionTrustFilter, setDecisionTrustFilter] = useState<DecisionTrustFilter>('all')
   const map = snapshot.relationshipMap
   const visibleNodes = map.nodes.filter((node) => (
     (typeFilter === 'all' || node.type === typeFilter) &&
     (privacyFilter === 'all' || node.privacyTier === privacyFilter) &&
-    (healthFilter === 'all' || node.health === healthFilter)
+    (healthFilter === 'all' || node.health === healthFilter) &&
+    (decisionTrustFilter === 'all' ||
+      (decisionTrustFilter === 'decision_trust' && node.kind === 'agent_decision_trust_observed') ||
+      (decisionTrustFilter === 'high_risk_gate' && (node.decisionTrustGate === 'human_review' || node.decisionTrustGate === 'block')))
   ))
   const visibleNodeIds = new Set(visibleNodes.map((node) => node.id))
   const visibleEdges = map.edges.filter((edge) => (
@@ -638,11 +643,12 @@ function RelationshipMapView({
   const healthValues: RelationshipHealthFilter[] = ['all', 'green', 'yellow', 'red']
   const strengthValues: RelationshipStrengthFilter[] = ['all', 'strong', 'medium', 'weak']
   const statusValues: RelationshipStatusFilter[] = ['all', 'persisted', 'inferred', 'recommended']
+  const decisionTrustValues: DecisionTrustFilter[] = ['all', 'decision_trust', 'high_risk_gate']
   const selectedPath = visibleEdges.find((edge) => edge.strength === 'strong') || visibleEdges[0]
   const selectedFrom = selectedPath ? nodeById.get(selectedPath.fromId) : null
   const selectedTo = selectedPath ? nodeById.get(selectedPath.toId) : null
   const graphMinHeight = Math.max(620, Math.ceil(visibleNodes.length / 4) * 132)
-  const activeFilterCount = [typeFilter, privacyFilter, healthFilter, strengthFilter, statusFilter].filter((value) => value !== 'all').length
+  const activeFilterCount = [typeFilter, privacyFilter, healthFilter, strengthFilter, statusFilter, decisionTrustFilter].filter((value) => value !== 'all').length
 
   function resetFilters() {
     setTypeFilter('all')
@@ -650,6 +656,7 @@ function RelationshipMapView({
     setHealthFilter('all')
     setStrengthFilter('all')
     setStatusFilter('all')
+    setDecisionTrustFilter('all')
   }
 
   return (
@@ -731,6 +738,18 @@ function RelationshipMapView({
               />
             ))}
             </RelationshipFilterGroup>
+
+            <RelationshipFilterGroup label="Decision Trust">
+            {decisionTrustValues.map((value) => (
+              <RelationshipFilterButton
+                key={value}
+                active={decisionTrustFilter === value}
+                count={decisionTrustCount(map.nodes, value)}
+                onClick={() => setDecisionTrustFilter(value)}
+                label={decisionTrustLabel(value)}
+              />
+            ))}
+            </RelationshipFilterGroup>
           </div>
           <div className="mt-5 rounded-lg border border-silicon-slate/60 bg-background/20 p-3 text-xs text-muted-foreground">
             <div className="flex items-center justify-between gap-3">
@@ -800,6 +819,11 @@ function RelationshipMapView({
               <span className="text-[10px] font-extrabold uppercase tracking-[0.12em] opacity-75">{node.type}</span>
               <span className="mt-1 line-clamp-2 text-xs font-semibold leading-4">{node.label}</span>
               <span className="mt-1 text-[10px] opacity-70">{node.kind.replace(/_/g, ' ')}</span>
+              {node.decisionTrustGate ? (
+                <span className="mt-1 text-[10px] font-semibold uppercase tracking-[0.08em] opacity-80">
+                  {node.decisionTrustGate.replace(/_/g, ' ')}
+                </span>
+              ) : null}
             </div>
           ))}
           <div className="absolute bottom-5 left-5 z-10 flex flex-wrap gap-3 rounded-lg border border-silicon-slate/60 bg-black/30 p-3 text-xs text-muted-foreground backdrop-blur">
@@ -882,15 +906,8 @@ function buildRelationshipProposalPayload(snapshot: OpenBrainSnapshot, insight: 
       : 'Authority boundary: this proposal records the recommended relationship context for review; no link record is created unless a target relationship is explicit.',
   ].join('\n')
 
-  return {
-    kind: 'workflow',
-    title,
-    body,
-    privacyTier: strongestPrivacyTier([sourceNode?.privacyTier, targetNode?.privacyTier]),
-    confidence: insight.severity === 'high' ? 0.84 : insight.severity === 'medium' ? 0.78 : 0.72,
-    sourceIds,
-    reason: `Created from Open Brain relationship map insight ${insight.id}. Review before durable memory or link changes.`,
-    metadata: sourceNode && targetNode ? {
+  const metadata = {
+    ...(sourceNode && targetNode ? {
       relationship: {
         fromId: sourceNode.id,
         toId: targetNode.id,
@@ -900,7 +917,19 @@ function buildRelationshipProposalPayload(snapshot: OpenBrainSnapshot, insight: 
         sourceLabel: sourceNode.label,
         targetLabel: targetNode.label,
       },
-    } : undefined,
+    } : {}),
+    ...(insight.decisionTrust ? { decisionTrust: insight.decisionTrust } : {}),
+  }
+
+  return {
+    kind: 'workflow',
+    title,
+    body,
+    privacyTier: insight.decisionTrust ? 'internal_ops' : strongestPrivacyTier([sourceNode?.privacyTier, targetNode?.privacyTier]),
+    confidence: insight.severity === 'high' ? 0.84 : insight.severity === 'medium' ? 0.78 : 0.72,
+    sourceIds,
+    reason: `Created from Open Brain relationship map insight ${insight.id}. Review before durable memory or link changes.`,
+    metadata: Object.keys(metadata).length ? metadata : undefined,
   }
 }
 
@@ -908,7 +937,20 @@ function relationshipNameForInsight(insight: OpenBrainRelationshipInsight) {
   if (insight.kind === 'strengthen') return 'governed_by'
   if (insight.kind === 'missing_governance') return 'needs_governing_context'
   if (insight.kind === 'merge_duplicate') return 'possible_duplicate'
+  if (insight.kind === 'decision_trust_review') return 'requires_trust_review'
   return 'needs_review'
+}
+
+function decisionTrustLabel(value: DecisionTrustFilter) {
+  if (value === 'decision_trust') return 'Decision Trust'
+  if (value === 'high_risk_gate') return 'Human/block gate'
+  return 'All decisions'
+}
+
+function decisionTrustCount(nodes: OpenBrainSnapshot['relationshipMap']['nodes'], value: DecisionTrustFilter) {
+  if (value === 'decision_trust') return nodes.filter((node) => node.kind === 'agent_decision_trust_observed').length
+  if (value === 'high_risk_gate') return nodes.filter((node) => node.decisionTrustGate === 'human_review' || node.decisionTrustGate === 'block').length
+  return nodes.length
 }
 
 function strongestPrivacyTier(tiers: Array<OpenBrainPrivacyTier | undefined>): OpenBrainPrivacyTier {

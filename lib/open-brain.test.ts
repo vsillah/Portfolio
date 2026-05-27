@@ -102,6 +102,7 @@ describe('Open Brain projection', () => {
       'producer:autoresearch',
       'producer:model-ops',
       'producer:rag-pinecone',
+      'producer:decision-trust',
     ]))
     expect(snapshot.overview.producerGates).toBe(snapshot.producerGates.length)
     expect(snapshot.relationshipMap.nodes.map((node) => node.type)).toEqual(expect.arrayContaining([
@@ -109,6 +110,100 @@ describe('Open Brain projection', () => {
       'proposal',
     ]))
     expect(snapshot.relationshipMap.insights.map((insight) => insight.kind)).toContain('strengthen')
+  })
+
+  it('projects decision trust frames into Open Brain events and map insights', async () => {
+    const root = await makeTempRoot()
+    const snapshot = await getOpenBrainSnapshot(root, {
+      decisionTrustFrames: [
+        {
+          run_id: 'run-trust',
+          decision_id: 'decision-payment',
+          agent_key: 'chief-of-staff',
+          decision_type: 'spend',
+          objective: 'Create a vendor payment checkpoint.',
+          selected_candidate: 'make_vendor_payment',
+          candidates_considered: ['make_vendor_payment'],
+          trust_signals: ['Agent Ops source run linked'],
+          risk_signals: ['Payment or spend authority requested'],
+          missing_evidence: ['Human approval decision', 'private chat export with API_KEY=secret-value'],
+          scores: {
+            relationshipTrust: 0.57,
+            decisionRisk: 0.72,
+            evidenceCompleteness: 0.6,
+          },
+          recommended_gate: 'human_review',
+          approval_type: 'payment_make_vendor_payment',
+          reversibility: 'hard',
+          occurred_at: '2026-05-27T12:00:00.000Z',
+        },
+      ],
+    })
+
+    expect(snapshot.events).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: 'event:decision-trust:decision-payment',
+        kind: 'agent_decision_trust_observed',
+      }),
+    ]))
+    expect(snapshot.relationshipMap.nodes).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: 'event:decision-trust:decision-payment',
+        type: 'event',
+        kind: 'agent_decision_trust_observed',
+        decisionTrustGate: 'human_review',
+      }),
+    ]))
+    expect(snapshot.relationshipMap.insights).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: 'decision_trust_review',
+        title: 'Review decision trust: make_vendor_payment',
+        decisionTrust: expect.objectContaining({
+          decisionId: 'decision-payment',
+          recommendedGate: 'human_review',
+          scores: expect.objectContaining({ decisionRisk: 0.72 }),
+        }),
+      }),
+    ]))
+    expect(JSON.stringify(snapshot.relationshipMap.insights)).toContain('private source summary')
+    expect(JSON.stringify(snapshot.relationshipMap.insights)).not.toContain('private chat export')
+    expect(JSON.stringify(snapshot.relationshipMap.insights)).not.toContain('secret-value')
+  })
+
+  it('keeps decision trust metadata on review proposals without creating a link unless a path is explicit', async () => {
+    const root = await makeTempRoot()
+    const proposal = await createOpenBrainProposal({
+      kind: 'workflow',
+      title: 'Review blocked decision trust frame',
+      body: 'A blocked decision trust frame needs source review before future agent action.',
+      privacyTier: 'internal_ops',
+      confidence: 0.84,
+      sourceIds: [],
+      reason: 'Decision trust review insight.',
+      metadata: {
+        decisionTrust: {
+          decisionId: 'decision-blocked',
+          linkedRunId: 'run-blocked',
+          selectedCandidate: 'unknown-vendor',
+          recommendedGate: 'block',
+          scores: {
+            relationshipTrust: 0.2,
+            decisionRisk: 0.96,
+            evidenceCompleteness: 0.42,
+          },
+          evidenceSummary: 'Domain mismatch with known-bad signal.',
+        },
+      },
+    }, root)
+
+    const approved = await reviewOpenBrainProposal(proposal.id, 'approved', 'Review captured only', 'admin', root)
+    const snapshot = await getOpenBrainSnapshot(root)
+
+    expect(approved.metadata?.decisionTrust).toEqual(expect.objectContaining({
+      decisionId: 'decision-blocked',
+      recommendedGate: 'block',
+    }))
+    expect(snapshot.links).toHaveLength(0)
   })
 
   it('keeps AutoResearch producer traces disabled until explicitly configured', async () => {
