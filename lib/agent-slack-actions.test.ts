@@ -85,10 +85,11 @@ describe('Agent Ops Slack actions', () => {
   })
 
   it('dedupes repeated Slack actions before applying work-item mutations', async () => {
-    mocks.from.mockReturnValueOnce(queryResult({
+    const recordedActionQuery = queryResult({
       data: { id: 'event-1' },
       error: null,
-    }))
+    })
+    mocks.from.mockReturnValueOnce(recordedActionQuery)
 
     const result = await handleSlackAgentAction(payload({
       action: 'work.assign',
@@ -97,6 +98,13 @@ describe('Agent Ops Slack actions', () => {
     }))
 
     expect(result.text).toContain('Already handled this Slack action')
+    expect(mocks.from).toHaveBeenCalledWith('agent_run_events')
+    expect(recordedActionQuery.select).toHaveBeenCalledWith('id')
+    expect(recordedActionQuery.eq).toHaveBeenCalledWith(
+      'idempotency_key',
+      'slack-agent-action:U123:1716400000.000:work.assign:work-1',
+    )
+    expect(recordedActionQuery.maybeSingle).toHaveBeenCalled()
     expect(mocks.claimAgentWorkItem).not.toHaveBeenCalled()
     expect(mocks.recordAgentEvent).not.toHaveBeenCalled()
   })

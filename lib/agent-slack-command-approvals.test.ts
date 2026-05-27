@@ -54,6 +54,11 @@ vi.mock('@/lib/moremi-monitor-review', () => ({
 
 import { buildApprovalsSlackResult } from '@/lib/agent-slack-command'
 
+type SlackActionPayload = {
+  action?: string
+  approvalId?: string
+}
+
 function queryResult(result: unknown) {
   const query: Record<string, unknown> = {
     select: vi.fn(() => query),
@@ -122,6 +127,15 @@ function mockApprovalQueries() {
     .mockReturnValueOnce(queryResult(runsResult))
 }
 
+function approvalActionPayloads(result: Awaited<ReturnType<typeof buildApprovalsSlackResult>>) {
+  return (result.blocks ?? []).flatMap((block) => {
+    if (block.type !== 'actions') return []
+    return block.elements.flatMap((element) =>
+      element.value ? [JSON.parse(element.value) as SlackActionPayload] : [],
+    )
+  })
+}
+
 describe('Agent Ops Slack approval command blocks', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -137,13 +151,21 @@ describe('Agent Ops Slack approval command blocks', () => {
     expect(result.blocks).toBeDefined()
 
     const serializedBlocks = JSON.stringify(result.blocks)
-    expect(serializedBlocks).toContain('approval.approve')
-    expect(serializedBlocks).toContain('approval.reject')
-    expect(serializedBlocks).toContain('approval.revision')
     expect(serializedBlocks).toContain('approval-low')
-    expect(serializedBlocks).not.toContain('"approvalId":"approval-high"')
     expect(serializedBlocks).toContain('/admin/agents/runs/run-high')
     expect(serializedBlocks).toContain('Slack will not perform this action directly')
+
+    const directDecisionPayloads = approvalActionPayloads(result).filter((payload) =>
+      ['approval.approve', 'approval.reject', 'approval.revision'].includes(payload.action ?? ''),
+    )
+    expect(directDecisionPayloads).toEqual([
+      expect.objectContaining({ action: 'approval.approve', approvalId: 'approval-low' }),
+      expect.objectContaining({ action: 'approval.reject', approvalId: 'approval-low' }),
+      expect.objectContaining({ action: 'approval.revision', approvalId: 'approval-low' }),
+    ])
+    expect(directDecisionPayloads).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ approvalId: 'approval-high' }),
+    ]))
   })
 
   it('keeps high-risk approval action blocks to Ask Shaka and Open trace', async () => {
