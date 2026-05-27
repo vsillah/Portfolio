@@ -91,11 +91,8 @@ describe('POST /api/slack/agent', () => {
       'Invalid Slack agent command signature',
       expect.objectContaining({
         api_app_id: 'A_TEST_APP',
-        channel_id: 'C_TEST_CHANNEL',
         command: '/agent',
-        team_domain: 'amadutown',
         team_id: 'T_TEST_TEAM',
-        user_id: 'U_TEST_USER',
         has_signature: true,
         has_timestamp: true,
         body_length: expect.any(Number),
@@ -105,6 +102,8 @@ describe('POST /api/slack/agent', () => {
     expect(JSON.stringify(warnSpy.mock.calls)).not.toContain('test-response')
     expect(JSON.stringify(warnSpy.mock.calls)).not.toContain('help')
     expect(JSON.stringify(warnSpy.mock.calls)).not.toContain('vambah')
+    expect(JSON.stringify(warnSpy.mock.calls)).not.toContain('C_TEST_CHANNEL')
+    expect(JSON.stringify(warnSpy.mock.calls)).not.toContain('U_TEST_USER')
     expect(mocks.handleAgentSlackCommand).not.toHaveBeenCalled()
   })
 
