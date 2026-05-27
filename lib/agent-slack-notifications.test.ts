@@ -30,6 +30,9 @@ function queryResult(result: unknown) {
   const query: Record<string, unknown> = {
     select: vi.fn(() => query),
     eq: vi.fn(() => query),
+    in: vi.fn(() => query),
+    order: vi.fn(() => query),
+    limit: vi.fn(() => Promise.resolve(result)),
     maybeSingle: vi.fn(() => Promise.resolve(result)),
   }
   return query
@@ -126,5 +129,49 @@ describe('Agent Ops Slack notifications', () => {
     expect(mocks.endAgentRun).toHaveBeenCalledWith(expect.objectContaining({
       status: 'completed',
     }))
+  })
+
+  it('limits work item notification cards to one primary action and one context action', async () => {
+    process.env.SLACK_AGENT_OPS_WEBHOOK_URL = 'https://hooks.slack.test/agent'
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true })
+    vi.stubGlobal('fetch', fetchMock)
+
+    await sendAgentSlackNotification({ kind: 'blockers' })
+
+    const payload = JSON.parse(fetchMock.mock.calls[0][1].body)
+    const actionBlock = payload.blocks.find((block: { type?: string; elements?: unknown[] }) => block.type === 'actions')
+    expect(actionBlock.elements).toHaveLength(2)
+    expect(JSON.stringify(actionBlock)).toContain('work.assign')
+    expect(JSON.stringify(actionBlock)).toContain('Open trace')
+  })
+
+  it('builds stale-run Slack cards with mobile triage and trace links', async () => {
+    process.env.SLACK_AGENT_OPS_WEBHOOK_URL = 'https://hooks.slack.test/agent'
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true })
+    vi.stubGlobal('fetch', fetchMock)
+    mocks.from
+      .mockReturnValueOnce(queryResult({ data: null, error: null }))
+      .mockReturnValueOnce(queryResult({
+        data: [
+          {
+            id: 'run-stale',
+            title: 'Production smoke stale',
+            runtime: 'codex',
+            status: 'stale',
+            current_step: 'Waiting on recovery',
+            error_message: 'No heartbeat',
+            started_at: '2026-05-25T10:00:00.000Z',
+          },
+        ],
+        error: null,
+      }))
+
+    const result = await sendAgentSlackNotification({ kind: 'stale_runs', actorLabel: 'admin' })
+
+    expect(result).toMatchObject({ sent: true, itemCount: 1 })
+    const body = fetchMock.mock.calls[0][1].body as string
+    expect(body).toContain('Stale or failed Agent Ops runs')
+    expect(body).toContain('run.ask_shaka')
+    expect(body).toContain('/admin/agents/runs/run-stale')
   })
 })

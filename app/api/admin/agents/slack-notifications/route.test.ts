@@ -86,4 +86,15 @@ describe('POST /api/admin/agents/slack-notifications', () => {
       triggerSource: 'admin_agent_slack_notification',
     }))
   })
+
+  it('accepts stale-run mobile packets', async () => {
+    const response = await POST(request({ kind: 'stale_runs' }) as never)
+
+    expect(response.status).toBe(200)
+    expect(mocks.sendAgentSlackNotification).toHaveBeenCalledWith(expect.objectContaining({
+      kind: 'stale_runs',
+      actorLabel: 'admin@example.com',
+      triggerSource: 'admin_agent_slack_notification',
+    }))
+  })
 })

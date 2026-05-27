@@ -354,7 +354,7 @@ type AutomationGoalSummary = {
 }
 
 type OperatorActionKind = 'morning-review' | 'hermes' | 'approval-drill' | 'runtime-evaluation'
-type SlackNotificationKind = 'pending_approvals' | 'blockers' | 'review_ready' | 'goal_decisions'
+type SlackNotificationKind = 'pending_approvals' | 'blockers' | 'stale_runs' | 'review_ready' | 'goal_decisions'
 
 const OPERATOR_ACTIONS: Array<{
   kind: OperatorActionKind
@@ -1410,6 +1410,7 @@ function SlackMobileBridgePanel({
   const actions: Array<{ kind: SlackNotificationKind; label: string; description: string }> = [
     { kind: 'pending_approvals', label: 'Send approvals', description: 'Mobile approval cards and trace links.' },
     { kind: 'blockers', label: 'Send blockers', description: 'Blocked work with owner and next step context.' },
+    { kind: 'stale_runs', label: 'Send stale runs', description: 'Failed or stale traces with recovery triage.' },
     { kind: 'goal_decisions', label: 'Send goal decisions', description: 'Goal-tagged tasks waiting on a human call.' },
   ]
 

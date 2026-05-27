@@ -405,6 +405,17 @@ export async function handleSlackAgentAction(payload: SlackInteractivePayload): 
     return { responseType: 'ephemeral', text: `${result.reply}\n\nTrace: ${agentRunsUrl(result.runId)}` }
   }
 
+  if (value.action === 'run.ask_shaka') {
+    if (!value.runId) return { responseType: 'ephemeral', text: 'Missing run id.' }
+    const result = await runChiefOfStaffChat({
+      message: 'Summarize this run for mobile recovery. Include why it is stale or failed, the safest next action, and what must stay in Portfolio.',
+      userId: `slack:${authorization.userId}`,
+      triggerSource: 'slack_agent_action',
+      contextRef: { type: 'run', id: value.runId },
+    })
+    return { responseType: 'ephemeral', text: `${result.reply}\n\nTrace: ${agentRunsUrl(result.runId)}` }
+  }
+
   if (value.action === 'inbox.route') {
     const itemRef = value.workItemId
     if (!itemRef) return { responseType: 'ephemeral', text: 'Missing inbox item reference.' }
