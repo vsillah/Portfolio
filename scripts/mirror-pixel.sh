@@ -30,6 +30,8 @@ for command in adb scrcpy; do
   fi
 done
 
+scrcpy_bin="$(command -v scrcpy)"
+
 adb start-server >/dev/null
 
 if [[ -n "${PIXEL_ADB_ENDPOINT:-}" ]]; then
@@ -83,5 +85,4 @@ ERROR
 fi
 
 echo "Starting Pixel mirror with ADB target: $target"
-exec scrcpy -s "$target" "$@"
-
+exec "$scrcpy_bin" -s "$target" "$@"

@@ -123,9 +123,9 @@ Use this rule in project or global agent instructions:
 ```text
 When Vambah asks to mirror, open, cast, or control his Google Pixel from this Mac, run:
 
-  bash /Users/vambahsillah/Projects/Portfolio/scripts/mirror-pixel.sh
+  osascript -e 'tell application "Terminal" to do script "bash /Users/vambahsillah/Projects/Portfolio/scripts/mirror-pixel.sh"'
 
-Do not walk through the full setup unless the script fails. If ADB cannot see the Pixel, ask Vambah to turn on Pixel Wireless debugging and provide the current IP address & Port from Settings -> System -> Developer options -> Wireless debugging. If pairing fails or the IP starts with 100.x.x.x, have Vambah disable Tailscale/VPN and use the normal Wi-Fi IP.
+This hands the long-running scrcpy process to Terminal so the agent session can finish cleanly. Do not walk through the full setup unless the script fails. If ADB cannot see the Pixel, ask Vambah to turn on Pixel Wireless debugging and provide the current IP address & Port from Settings -> System -> Developer options -> Wireless debugging. If pairing fails or the IP starts with 100.x.x.x, have Vambah disable Tailscale/VPN and use the normal Wi-Fi IP.
 ```
 
 ## Scripted Agent Flow
@@ -142,16 +142,21 @@ Default command:
 bash /Users/vambahsillah/Projects/Portfolio/scripts/mirror-pixel.sh
 ```
 
+Agent-safe Terminal handoff:
+
+```bash
+osascript -e 'tell application "Terminal" to do script "bash /Users/vambahsillah/Projects/Portfolio/scripts/mirror-pixel.sh"'
+```
+
 If the wireless debugging port changes, reconnect first:
 
 ```bash
 adb connect PHONE_IP:CONNECT_PORT
-bash /Users/vambahsillah/Projects/Portfolio/scripts/mirror-pixel.sh
+osascript -e 'tell application "Terminal" to do script "bash /Users/vambahsillah/Projects/Portfolio/scripts/mirror-pixel.sh"'
 ```
 
 To pin a known endpoint for a single run:
 
 ```bash
-PIXEL_ADB_ENDPOINT=192.168.4.26:43343 \
-  bash /Users/vambahsillah/Projects/Portfolio/scripts/mirror-pixel.sh
+osascript -e 'tell application "Terminal" to do script "PIXEL_ADB_ENDPOINT=192.168.4.26:43343 bash /Users/vambahsillah/Projects/Portfolio/scripts/mirror-pixel.sh"'
 ```
