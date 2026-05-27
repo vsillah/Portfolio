@@ -158,6 +158,7 @@ async function runBroker(args: string[], env: Record<string, string>): Promise<B
       cwd: ROOT,
       env: {
         NODE_ENV: 'test',
+        CREDENTIAL_BROKER_SKIP_DOTENV: '1',
         ...env,
       },
       stdio: ['ignore', 'pipe', 'pipe'],
