@@ -179,4 +179,32 @@ describe('Agent Ops Slack actions', () => {
     }))
     expect(result.text).toContain('Assigned to integration-captain')
   })
+
+  it('records blocker acknowledgement without mutating the work item', async () => {
+    mocks.from.mockReturnValueOnce(queryResult({ data: null, error: null }))
+    mocks.getAgentWorkItem.mockResolvedValue({
+      id: 'work-1',
+      title: 'Blocked mobile action',
+      active_run_id: 'run-1',
+      source_run_id: null,
+    })
+    mocks.recordAgentEvent.mockResolvedValue({ id: 'event-1' })
+
+    const result = await handleSlackAgentAction(payload({
+      action: 'work.acknowledge',
+      workItemId: 'work-1',
+      note: 'Seen on mobile.',
+    }))
+
+    expect(mocks.recordAgentEvent).toHaveBeenCalledWith(expect.objectContaining({
+      runId: 'run-1',
+      eventType: 'slack_work_item_blocker_acknowledged',
+      metadata: expect.objectContaining({
+        work_item_id: 'work-1',
+        note: 'Seen on mobile.',
+      }),
+    }))
+    expect(mocks.recordAgentWorkItemBlocker).not.toHaveBeenCalled()
+    expect(result.text).toContain('Blocker acknowledged')
+  })
 })

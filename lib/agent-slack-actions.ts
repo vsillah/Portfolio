@@ -374,6 +374,26 @@ export async function handleSlackAgentAction(payload: SlackInteractivePayload): 
     return { responseType: 'ephemeral', text: `Revision requested. Kanban: ${baseUrl()}/admin/agents/swarm-board` }
   }
 
+  if (value.action === 'work.acknowledge') {
+    if (!value.workItemId) return { responseType: 'ephemeral', text: 'Missing work item id.' }
+    const runId = await runIdForWorkItem(value.workItemId)
+    await recordSlackActionEvent({
+      key,
+      runId,
+      eventType: 'slack_work_item_blocker_acknowledged',
+      message: `${authorization.actorLabel} acknowledged a blocker from Slack`,
+      metadata: {
+        work_item_id: value.workItemId,
+        slack_user_id: authorization.userId,
+        note: value.note ?? 'Blocker acknowledged from Slack.',
+      },
+    })
+    return {
+      responseType: 'ephemeral',
+      text: `Blocker acknowledged. Ask Shaka for a next-step recommendation or open Kanban: ${baseUrl()}/admin/agents/swarm-board`,
+    }
+  }
+
   if (value.action === 'work.ask_shaka') {
     if (!value.workItemId) return { responseType: 'ephemeral', text: 'Missing work item id.' }
     const result = await runChiefOfStaffChat({

@@ -16,6 +16,7 @@ import {
   mrkdwn,
   slackButton,
   truncateSlack,
+  type SlackButtonElement,
   type SlackBlock,
 } from '@/lib/agent-slack-blocks'
 import {
@@ -188,6 +189,34 @@ function riskLabelForApproval(approvalType: string) {
   return 'review'
 }
 
+function metadataString(metadata: Record<string, unknown> | null | undefined, keys: string[]) {
+  if (!metadata || typeof metadata !== 'object') return null
+  for (const key of keys) {
+    const value = metadata[key]
+    if (typeof value === 'string' && value.trim()) return value.trim()
+  }
+  return null
+}
+
+function approvalRecommendation(approval: AgentApprovalRow) {
+  const metadata = approval.metadata ?? null
+  const actionPayload = metadata && typeof metadata.action_payload === 'object' && metadata.action_payload
+    ? metadata.action_payload as Record<string, unknown>
+    : null
+  return metadataString(metadata, ['recommendation', 'recommended_action', 'review_summary', 'result_summary'])
+    ?? metadataString(actionPayload, ['recommendation', 'recommendedAction', 'summary'])
+    ?? (canDecideApprovalInSlack(approval.approval_type)
+      ? 'Safe mobile decision is available after reviewing the trace evidence.'
+      : 'Open Portfolio for the final decision because this crosses a protected boundary.')
+}
+
+function approvalNextSafeAction(approval: AgentApprovalRow) {
+  if (canDecideApprovalInSlack(approval.approval_type)) {
+    return 'Approve, decline, request revision, or ask Shaka for a risk summary.'
+  }
+  return 'Open the trace in Portfolio; Slack will not perform this action directly.'
+}
+
 function canDecideApprovalInSlack(approvalType: string) {
   return approvalType === 'vercel_deployment_research_proposal'
 }
@@ -229,9 +258,8 @@ function approvalBlocks(input: {
         `*${truncateSlack(title, 120)}*`,
         `Type: \`${approval.approval_type}\` · Risk: *${risk}*`,
         run?.current_step ? `Step: ${truncateSlack(run.current_step, 140)}` : null,
-        safe
-          ? 'Slack can record this decision.'
-          : 'Portfolio review required before this action can change production-impacting state.',
+        `Recommendation: ${truncateSlack(approvalRecommendation(approval), 180)}`,
+        `Next safe action: ${approvalNextSafeAction(approval)}`,
       ].filter(Boolean).join('\n')),
     })
     blocks.push({
@@ -281,6 +309,94 @@ function approvalBlocks(input: {
   return blocks
 }
 
+function workItemRisk(item: AgentWorkItem) {
+  if (item.approval_id || item.status === 'ready_for_merge' || item.status === 'deployed') return 'portfolio review'
+  if (item.priority === 'urgent' || item.status === 'blocked') return 'high attention'
+  if (item.priority === 'high' || item.pr_url) return 'review'
+  return 'routine'
+}
+
+function workItemRecommendation(item: AgentWorkItem) {
+  return metadataString(item.metadata, ['recommendation', 'recommended_action', 'next_recommendation'])
+    ?? item.validation_summary
+    ?? item.blocker_summary
+    ?? (item.owner_agent_key
+      ? 'Ask Shaka for the next step or mark ready after trace evidence is complete.'
+      : 'Assign an owner before more work moves.')
+}
+
+function workItemNextSafeAction(item: AgentWorkItem) {
+  if (!item.owner_agent_key) return 'Assign owner'
+  if (item.status === 'blocked') return 'Ask Shaka or acknowledge the blocker before routing follow-up.'
+  if (item.status === 'ready_for_review' || item.status === 'ready_for_merge') return 'Open trace or request revision.'
+  return 'Mark ready when the work has enough trace evidence.'
+}
+
+function workItemActionButtons(item: AgentWorkItem) {
+  const elements: SlackButtonElement[] = []
+  if (!item.owner_agent_key) {
+    elements.push(slackButton({
+      label: 'Assign owner',
+      actionId: 'agent_work_assign_captain',
+      value: { action: 'work.assign', workItemId: item.id, agentKey: 'integration-captain' },
+    }))
+  } else {
+    elements.push(slackButton({
+      label: 'Handoff',
+      actionId: 'agent_work_handoff_captain',
+      value: { action: 'work.handoff', workItemId: item.id, agentKey: 'integration-captain' },
+    }))
+  }
+
+  if (item.status === 'blocked' && item.blocker_summary) {
+    elements.push(slackButton({
+      label: 'Acknowledge',
+      actionId: 'agent_work_acknowledge_blocker',
+      value: {
+        action: 'work.acknowledge',
+        workItemId: item.id,
+        runId: item.active_run_id ?? undefined,
+        note: 'Blocker acknowledged from Slack.',
+      },
+    }))
+  } else if (item.status !== 'ready_for_review' && item.status !== 'ready_for_merge') {
+    elements.push(slackButton({
+      label: 'Mark ready',
+      actionId: 'agent_work_ready',
+      value: {
+        action: 'work.ready',
+        workItemId: item.id,
+        note: 'Marked ready from Slack. Review trace and continue from Kanban.',
+      },
+    }))
+  }
+
+  elements.push(
+    slackButton({
+      label: 'Ask Shaka',
+      actionId: 'agent_work_ask_shaka',
+      value: { action: 'work.ask_shaka', workItemId: item.id, runId: item.active_run_id ?? undefined },
+    }),
+    slackButton({
+      label: 'Request revision',
+      actionId: 'agent_work_revision',
+      value: {
+        action: 'work.revision',
+        workItemId: item.id,
+        runId: item.active_run_id ?? undefined,
+        note: 'Revision requested from Slack.',
+      },
+    }),
+    slackButton({
+      label: item.active_run_id ? 'Open trace' : 'Open Kanban',
+      actionId: item.active_run_id ? 'agent_open_trace' : 'agent_open_kanban',
+      url: item.active_run_id ? agentRunsUrl(item.active_run_id) : agentKanbanUrl(),
+    }),
+  )
+
+  return elements.slice(0, 5)
+}
+
 function workItemBlocks(input: {
   title: string
   items: AgentWorkItem[]
@@ -302,43 +418,17 @@ function workItemBlocks(input: {
     const blocker = item.blocker_summary ? `\nBlocker: ${truncateSlack(item.blocker_summary, 140)}` : ''
     blocks.push({
       type: 'section',
-      text: mrkdwn(`*${truncateSlack(item.title, 120)}*\nStatus: \`${item.status}\` · Owner: \`${owner}\` · Priority: \`${item.priority}\`${blocker}`),
+      text: mrkdwn([
+        `*${truncateSlack(item.title, 120)}*`,
+        `Status: \`${item.status}\` · Owner: \`${owner}\` · Priority: \`${item.priority}\` · Risk: *${workItemRisk(item)}*`,
+        `Recommendation: ${truncateSlack(workItemRecommendation(item), 180)}`,
+        `Next safe action: ${workItemNextSafeAction(item)}`,
+        blocker.trim() || null,
+      ].filter(Boolean).join('\n')),
     })
     blocks.push({
       type: 'actions',
-      elements: [
-        ...(item.owner_agent_key ? [] : [
-          slackButton({
-            label: 'Assign captain',
-            actionId: 'agent_work_assign_captain',
-            value: { action: 'work.assign', workItemId: item.id, agentKey: 'integration-captain' },
-          }),
-        ]),
-        slackButton({
-          label: 'Handoff captain',
-          actionId: 'agent_work_handoff_captain',
-          value: { action: 'work.handoff', workItemId: item.id, agentKey: 'integration-captain' },
-        }),
-        slackButton({
-          label: 'Mark ready',
-          actionId: 'agent_work_ready',
-          value: {
-            action: 'work.ready',
-            workItemId: item.id,
-            note: 'Marked ready from Slack. Review trace and continue from Kanban.',
-          },
-        }),
-        slackButton({
-          label: 'Ask Shaka',
-          actionId: 'agent_work_ask_shaka',
-          value: { action: 'work.ask_shaka', workItemId: item.id, runId: item.active_run_id ?? undefined },
-        }),
-        slackButton({
-          label: item.active_run_id ? 'Open trace' : 'Open Kanban',
-          actionId: item.active_run_id ? 'agent_open_trace' : 'agent_open_kanban',
-          url: item.active_run_id ? agentRunsUrl(item.active_run_id) : agentKanbanUrl(),
-        }),
-      ].slice(0, 5),
+      elements: workItemActionButtons(item),
     })
   })
 
