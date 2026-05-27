@@ -78,9 +78,24 @@ jobs:
         run: |
           cd "$ISOLATED_DIR"
           MISSING=0
-          for f in package.json tsconfig.json next.config.js tailwind.config.ts postcss.config.js app/layout.tsx app/page.tsx app/globals.css; do
+          for f in package.json tsconfig.json next.config.js tailwind.config.ts postcss.config.js; do
             if [ ! -f "$f" ]; then
               echo "::error::Missing required file: $f"
+              MISSING=1
+            fi
+          done
+          if [ -d app ]; then
+            APP_DIR="app"
+          elif [ -d src/app ]; then
+            APP_DIR="src/app"
+          else
+            echo "::error::Missing required app directory: app or src/app"
+            MISSING=1
+            APP_DIR="app"
+          fi
+          for f in layout.tsx page.tsx globals.css; do
+            if [ ! -f "$APP_DIR/$f" ]; then
+              echo "::error::Missing required file: $APP_DIR/$f"
               MISSING=1
             fi
           done
@@ -88,7 +103,7 @@ jobs:
             echo "::error::Template is not standalone-ready — missing required files."
             exit 1
           fi
-          echo "All required files present."
+          echo "All required files present in $APP_DIR."
 
       - name: Create placeholder .env.local
         run: |
