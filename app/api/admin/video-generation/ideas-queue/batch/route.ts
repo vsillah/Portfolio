@@ -11,6 +11,7 @@ import { createVideo } from '@/lib/heygen'
 import { isOverVideoGenerationLimit } from '@/lib/video-generation-rate-limit'
 import { channelToAspectRatio } from '@/lib/constants/video-channel'
 import type { VideoChannel, VideoAspectRatio } from '@/lib/constants/video-channel'
+import { videoRenderApprovalError } from '@/lib/video-render-approval'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300
@@ -44,6 +45,10 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json().catch(() => ({}))
+    const approvalError = videoRenderApprovalError(body.renderApproval)
+    if (approvalError) {
+      return NextResponse.json({ error: approvalError }, { status: 400 })
+    }
 
     // Accept either { items: [...] } (new) or { limit } (legacy)
     const itemsPayload = Array.isArray(body.items) ? body.items as Array<{ id: string; brollAssetIds?: string[] }> : null

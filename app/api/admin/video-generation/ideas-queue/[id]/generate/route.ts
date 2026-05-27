@@ -10,6 +10,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { createVideo } from '@/lib/heygen'
 import { channelToAspectRatio } from '@/lib/constants/video-channel'
 import type { VideoChannel, VideoAspectRatio } from '@/lib/constants/video-channel'
+import { videoRenderApprovalError } from '@/lib/video-render-approval'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,6 +32,11 @@ export async function POST(
 
     const queueId = params.id
     const body = await request.json().catch(() => ({}))
+    const approvalError = videoRenderApprovalError(body.renderApproval)
+    if (approvalError) {
+      return NextResponse.json({ error: approvalError }, { status: 400 })
+    }
+
     const channel = (body.channel as VideoChannel) ?? 'youtube'
     const aspectRatio =
       (body.aspectRatio as VideoAspectRatio) ?? channelToAspectRatio(channel)
