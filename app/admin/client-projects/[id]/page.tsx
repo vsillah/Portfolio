@@ -219,6 +219,33 @@ interface ProjectDetail {
     phases: Array<{ id: string; title: string; objective: string; status: string; phase_order: number }>
     tasks: Array<{ id: string; title: string; status: string; owner_type: string; priority: string; client_visible: boolean; meeting_task_visible: boolean }>
     costItems: Array<{ id: string; category: string; label: string; payer: string; cost_type: string; amount: number | string | null }>
+    readiness: {
+      status: string
+      nextAction: string
+      sideEffectsEnabled: false
+      connector: {
+        summary: string
+        required: number
+        ready: number
+        approvalBlocked: number
+        missingCritical: number
+        nextAction: string
+      }
+      projection: {
+        openActions: number
+        approvals: number
+        isolationChecks: number
+        monitorFlags: number
+        nextAction: string
+      }
+      swarm: {
+        column: string | null
+        moduleHealth: string | null
+        approvalState: string | null
+        autonomousReady: boolean
+      }
+      approvalBoundaries: Record<string, 'waiting_approval'>
+    }
     clientView: {
       costSummary: { oneTimeClientOwned: number; monthlyClientOwned: number; quoteRequiredCount: number }
       connectorReadiness: {
@@ -1239,6 +1266,7 @@ function AiOpsRoadmapAdminSection({
   const tasks = roadmap?.tasks ?? []
   const completed = tasks.filter((task) => task.status === 'complete').length
   const progress = tasks.length > 0 ? Math.round((completed / tasks.length) * 100) : 0
+  const readiness = roadmap?.readiness
   const projection = roadmap?.clientView?.projectionStatus
   const connectors = roadmap?.clientView?.connectorReadiness
   const monitoringFlags = projection
@@ -1292,6 +1320,58 @@ function AiOpsRoadmapAdminSection({
               <p className="text-sm text-foreground">${costs?.monthlyClientOwned ?? 0}</p>
             </div>
           </div>
+
+          {readiness && (
+            <div className="rounded-lg bg-background/45 border border-silicon-slate/60 p-4 mb-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <p className="text-xs font-semibold text-radiant-gold uppercase tracking-[0.14em]">Readiness contract</p>
+                  <p className="text-sm font-medium text-foreground mt-1">{readiness.nextAction}</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <span className="rounded-full border border-radiant-gold/30 bg-radiant-gold/10 px-2.5 py-1 text-xs text-radiant-gold capitalize">
+                      {readiness.status.replace(/_/g, ' ')}
+                    </span>
+                    <span className="rounded-full border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-xs text-red-200">
+                      Live setup locked
+                    </span>
+                    {readiness.swarm.moduleHealth && (
+                      <span className="rounded-full border border-silicon-slate/60 bg-background/60 px-2.5 py-1 text-xs text-muted-foreground capitalize">
+                        Swarm {readiness.swarm.moduleHealth}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 min-w-full lg:min-w-[520px]">
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Connectors</p>
+                    <p className="text-sm text-foreground">{readiness.connector.ready}/{readiness.connector.required} ready</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Approvals</p>
+                    <p className="text-sm text-foreground">{readiness.projection.approvals + readiness.connector.approvalBlocked}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Isolation</p>
+                    <p className="text-sm text-foreground">{readiness.projection.isolationChecks}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Side effects</p>
+                    <p className="text-sm text-foreground">{readiness.sideEffectsEnabled ? 'Enabled' : 'Disabled'}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {Object.entries(readiness.approvalBoundaries).map(([key, value]) => (
+                  <span
+                    key={key}
+                    className="rounded-full border border-silicon-slate/60 bg-background/55 px-2.5 py-1 text-xs text-muted-foreground capitalize"
+                  >
+                    {key.replace(/([A-Z])/g, ' $1').toLowerCase()} · {value.replace(/_/g, ' ')}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           {projection && (
             <div className="rounded-lg bg-radiant-gold/10 border border-radiant-gold/40 p-4 mb-4 shadow-[0_0_28px_rgba(212,175,55,0.10)]">
