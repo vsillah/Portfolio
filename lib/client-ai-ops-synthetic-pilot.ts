@@ -13,6 +13,10 @@ import {
   type RoadmapDraft,
   type RoadmapTaskDraft,
 } from './client-ai-ops-roadmap'
+import {
+  buildClientAiOpsReadinessContract,
+  type ClientAiOpsReadinessContract,
+} from './client-ai-ops-readiness-contract'
 
 type SwarmRows = Parameters<typeof buildAgentSwarmBoardSnapshotFromRows>[0]
 
@@ -25,6 +29,7 @@ export type SyntheticClientAiOpsPilot = {
   context: RoadmapContext
   draft: RoadmapDraft
   clientView: RoadmapClientView
+  readinessContract: ClientAiOpsReadinessContract
   swarmRows: SwarmRows
   swarmSnapshot: AgentSwarmBoardSnapshot
   autonomousHandoffPath: Array<{
@@ -97,13 +102,18 @@ export function buildSyntheticClientAiOpsPilot(): SyntheticClientAiOpsPilot {
     ],
   })
   const swarmRows = syntheticSwarmRows(draft)
+  const swarmSnapshot = buildAgentSwarmBoardSnapshotFromRows(swarmRows)
 
   return {
     context,
     draft,
     clientView,
+    readinessContract: buildClientAiOpsReadinessContract(clientView, {
+      swarmSnapshot,
+      clientProjectId: PROJECT_ID,
+    }),
     swarmRows,
-    swarmSnapshot: buildAgentSwarmBoardSnapshotFromRows(swarmRows),
+    swarmSnapshot,
     autonomousHandoffPath: [
       policyStep('discovery'),
       policyStep('technology_decision'),

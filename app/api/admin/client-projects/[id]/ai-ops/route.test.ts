@@ -19,11 +19,13 @@ vi.mock('@/lib/client-ai-ops-roadmap-db', () => ({
   projectRoadmapTasks: mocks.projectRoadmapTasks,
 }))
 
-import { GET } from './route'
+import { GET, POST } from './route'
 
-function request() {
+function request(method = 'GET', body?: Record<string, unknown>) {
   return new Request('http://localhost/api/admin/client-projects/project-1/ai-ops', {
+    method,
     headers: { authorization: 'Bearer token' },
+    body: body ? JSON.stringify(body) : undefined,
   })
 }
 
@@ -95,6 +97,22 @@ describe('GET /api/admin/client-projects/[id]/ai-ops', () => {
       requiredConnectorCount: 5,
       connectorNextAction: 'Prepare oauth setup packet for HubSpot; do not connect until approved.',
     })
+    expect(body.readiness).toMatchObject({
+      status: 'waiting_approval',
+      sideEffectsEnabled: false,
+      connector: {
+        required: 5,
+      },
+      projection: {
+        approvals: 1,
+        isolationChecks: 1,
+      },
+      approvalBoundaries: {
+        credentialSync: 'waiting_approval',
+        outboundSend: 'waiting_approval',
+        productionDeploy: 'waiting_approval',
+      },
+    })
   })
 
   it('requires admin auth before reading the roadmap bundle', async () => {
@@ -106,5 +124,57 @@ describe('GET /api/admin/client-projects/[id]/ai-ops', () => {
     expect(response.status).toBe(401)
     expect(await response.json()).toEqual({ error: 'Unauthorized' })
     expect(mocks.getRoadmapBundleForProject).not.toHaveBeenCalled()
+  })
+
+  it('returns a readiness contract after creating and projecting roadmap tasks', async () => {
+    const roadmap = {
+      clientView: {
+        title: 'Acme AI Ops Roadmap',
+        connectorReadiness: {
+          summary: '1 required, 0 ready, 1 need auth, 0 approval-blocked',
+          requiredConnectorCount: 1,
+          readyConnectorCount: 0,
+          approvalBlockedConnectorCount: 0,
+          missingCriticalConnectorCount: 0,
+          connectorNextAction: 'Prepare oauth setup packet for HubSpot; do not connect until approved.',
+          conflicts: [],
+          items: [],
+        },
+        projectionStatus: {
+          tasksTotal: 1,
+          tasksComplete: 0,
+          blockedTasks: 0,
+          clientActionCount: 0,
+          amadutownActionCount: 1,
+          sharedActionCount: 0,
+          approvalNeededCount: 0,
+          isolationRequiredCount: 0,
+          overdueTasks: 0,
+          staleCostItems: 0,
+          reportMissing: false,
+          nextReportingAction: 'Continue scheduled roadmap monitoring',
+        },
+      },
+    }
+    mocks.ensureRoadmapForProject.mockResolvedValue(roadmap)
+    mocks.projectRoadmapTasks.mockResolvedValue({ dashboardCreated: 1, meetingCreated: 1 })
+
+    const response = await POST(request('POST', { project_tasks: true }) as never, { params: Promise.resolve({ id: 'project-1' }) })
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(mocks.ensureRoadmapForProject).toHaveBeenCalledWith('project-1', {
+      generatedFrom: 'manual',
+      userId: 'admin-user',
+    })
+    expect(mocks.projectRoadmapTasks).toHaveBeenCalledWith('project-1')
+    expect(body.projection).toEqual({ dashboardCreated: 1, meetingCreated: 1 })
+    expect(body.readiness).toMatchObject({
+      status: 'ready_for_planning',
+      sideEffectsEnabled: false,
+      projection: {
+        openActions: 1,
+      },
+    })
   })
 })
