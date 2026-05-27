@@ -53,6 +53,14 @@ type AgentRunSummaryRow = {
   started_at?: string | null
 }
 
+type SlackDeliveryResult = {
+  sent: boolean
+  reason: string | null
+  mode: 'bot' | 'webhook' | 'none'
+  channel?: string | null
+  ts?: string | null
+}
+
 function baseUrl() {
   return (
     process.env.NEXT_PUBLIC_BASE_URL ||
@@ -368,10 +376,48 @@ export async function buildAgentSlackNotificationPayload(input: AgentSlackNotifi
   return buildWorkItemPayload(input)
 }
 
-async function postToSlack(text: string, blocks: SlackBlock[]) {
+async function postWithBotToken(text: string, blocks: SlackBlock[]): Promise<SlackDeliveryResult | null> {
+  const token = process.env.SLACK_BOT_TOKEN
+  const channel = process.env.SLACK_AGENT_OPS_CHANNEL_ID || process.env.SLACK_AGENT_OPS_CHANNEL
+  if (!token || !channel) return null
+
+  const response = await fetch('https://slack.com/api/chat.postMessage', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json; charset=utf-8',
+    },
+    body: JSON.stringify({
+      channel,
+      text,
+      blocks,
+      unfurl_links: false,
+      unfurl_media: false,
+    }),
+  })
+  const body = await response.json().catch(() => null) as { ok?: boolean; error?: string; channel?: string; ts?: string } | null
+  if (!response.ok || body?.ok === false) {
+    return {
+      sent: false,
+      reason: `Slack bot delivery returned ${body?.error ?? `HTTP ${response.status}`}.`,
+      mode: 'bot',
+      channel,
+      ts: null,
+    }
+  }
+  return {
+    sent: true,
+    reason: null,
+    mode: 'bot',
+    channel: body?.channel ?? channel,
+    ts: body?.ts ?? null,
+  }
+}
+
+async function postWithWebhook(text: string, blocks: SlackBlock[]): Promise<SlackDeliveryResult> {
   const webhookUrl = process.env.SLACK_AGENT_OPS_WEBHOOK_URL
   if (!webhookUrl || !webhookUrl.startsWith('https://')) {
-    return { sent: false, reason: 'SLACK_AGENT_OPS_WEBHOOK_URL is not configured.' }
+    return { sent: false, reason: 'Slack bot channel and webhook are not configured.', mode: 'none' }
   }
   const response = await fetch(webhookUrl, {
     method: 'POST',
@@ -379,9 +425,22 @@ async function postToSlack(text: string, blocks: SlackBlock[]) {
     body: JSON.stringify({ text, blocks }),
   })
   if (!response.ok) {
-    return { sent: false, reason: `Slack webhook returned HTTP ${response.status}.` }
+    return { sent: false, reason: `Slack webhook returned HTTP ${response.status}.`, mode: 'webhook' }
   }
-  return { sent: true, reason: null }
+  return { sent: true, reason: null, mode: 'webhook' }
+}
+
+async function postToSlack(text: string, blocks: SlackBlock[]): Promise<SlackDeliveryResult> {
+  const botDelivery = await postWithBotToken(text, blocks)
+  if (botDelivery?.sent) return botDelivery
+
+  const webhookDelivery = await postWithWebhook(text, blocks)
+  if (webhookDelivery.sent || !botDelivery) return webhookDelivery
+
+  return {
+    ...botDelivery,
+    reason: `${botDelivery.reason} Webhook fallback also failed: ${webhookDelivery.reason}`,
+  }
 }
 
 export async function sendAgentSlackNotification(input: AgentSlackNotificationInput): Promise<AgentSlackNotificationResult> {
@@ -432,6 +491,10 @@ export async function sendAgentSlackNotification(input: AgentSlackNotificationIn
       notification_kind: input.kind,
       item_count: payload.itemCount,
       reason: delivery.reason,
+      delivery_mode: delivery.mode,
+      slack_channel: delivery.channel ?? null,
+      slack_message_ts: delivery.ts ?? null,
+      slack_thread_ts: delivery.ts ?? null,
       blocks: payload.blocks,
     },
     idempotencyKey: `${idempotencyKey}:delivery`,
@@ -445,6 +508,10 @@ export async function sendAgentSlackNotification(input: AgentSlackNotificationIn
       skipped: !delivery.sent,
       reason: delivery.reason,
       item_count: payload.itemCount,
+      delivery_mode: delivery.mode,
+      slack_channel: delivery.channel ?? null,
+      slack_message_ts: delivery.ts ?? null,
+      slack_thread_ts: delivery.ts ?? null,
     },
   })
 

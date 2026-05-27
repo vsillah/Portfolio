@@ -2,10 +2,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({
   runChiefOfStaffChat: vi.fn(),
+  from: vi.fn(),
 }))
 
 vi.mock('@/lib/chief-of-staff-chat', () => ({
   runChiefOfStaffChat: mocks.runChiefOfStaffChat,
+}))
+
+vi.mock('@/lib/supabase', () => ({
+  supabaseAdmin: { from: mocks.from },
 }))
 
 import {
@@ -16,6 +21,18 @@ import {
 } from './agent-slack-events'
 
 const ORIGINAL_ENV = process.env
+
+function queryResult(result: unknown) {
+  const query: Record<string, unknown> = {
+    select: vi.fn(() => query),
+    eq: vi.fn(() => query),
+    filter: vi.fn(() => query),
+    order: vi.fn(() => query),
+    limit: vi.fn(() => query),
+    maybeSingle: vi.fn(() => Promise.resolve(result)),
+  }
+  return query
+}
 
 describe('agent Slack events', () => {
   beforeEach(() => {
@@ -32,6 +49,7 @@ describe('agent Slack events', () => {
       NEXT_PUBLIC_APP_URL: 'https://amadutown.test',
       SLACK_BOT_TOKEN: 'xoxb-test',
     }
+    mocks.from.mockReturnValue(queryResult({ data: null, error: null }))
     mocks.runChiefOfStaffChat.mockResolvedValue({
       runId: 'run-123',
       reply: 'Two items need attention.',
@@ -130,6 +148,31 @@ describe('agent Slack events', () => {
       }),
     )
     expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls[0]?.[1]?.body).toContain('"thread_ts":"1700000000.000000"')
+  })
+
+  it('uses matching Slack notification thread context for Shaka replies', async () => {
+    mocks.from.mockReturnValueOnce(queryResult({ data: { id: 'notification-run' }, error: null }))
+
+    const result = await handleSlackAgentEvent({
+      type: 'event_callback',
+      event_id: 'Ev456',
+      event: {
+        type: 'app_mention',
+        user: 'U123',
+        channel: 'C123',
+        text: '<@UAGENT> summarize this blocker',
+        ts: '1700000000.000002',
+        thread_ts: '1700000000.000001',
+      },
+    })
+
+    expect(result).toEqual({ handled: true, runId: 'run-123' })
+    expect(mocks.runChiefOfStaffChat).toHaveBeenCalledWith({
+      message: 'summarize this blocker',
+      userId: 'slack:U123',
+      triggerSource: 'slack_agent_thread_reply',
+      contextRef: { type: 'run', id: 'notification-run' },
+    })
   })
 
   it('formats Chief of Staff replies with trace links', () => {

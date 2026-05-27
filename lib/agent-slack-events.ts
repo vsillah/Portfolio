@@ -1,4 +1,5 @@
 import { runChiefOfStaffChat } from '@/lib/chief-of-staff-chat'
+import { supabaseAdmin } from '@/lib/supabase'
 
 export type SlackAgentEvent = {
   type?: string
@@ -62,6 +63,23 @@ export function formatChiefOfStaffSlackReply(result: Awaited<ReturnType<typeof r
   return parts.filter(Boolean).join('\n\n')
 }
 
+async function findSlackThreadContextRef(channel: string, threadTs: string) {
+  if (!supabaseAdmin) return null
+
+  const { data, error } = await supabaseAdmin
+    .from('agent_runs')
+    .select('id')
+    .eq('kind', 'slack_mobile_notification')
+    .filter('outcome->>slack_channel', 'eq', channel)
+    .filter('outcome->>slack_thread_ts', 'eq', threadTs)
+    .order('completed_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (error || !data?.id) return null
+  return { type: 'run' as const, id: data.id as string }
+}
+
 export async function handleSlackAgentEvent(payload: SlackAgentEventPayload) {
   const event = payload.event
   if (!shouldHandleSlackAgentEvent(event)) {
@@ -80,10 +98,14 @@ export async function handleSlackAgentEvent(payload: SlackAgentEventPayload) {
     return { handled: true as const, reason: 'empty_message' }
   }
 
+  const contextRef = event.thread_ts
+    ? await findSlackThreadContextRef(channel, event.thread_ts)
+    : null
   const result = await runChiefOfStaffChat({
     message,
     userId: `slack:${user}`,
-    triggerSource: 'slack_agent_chat',
+    triggerSource: contextRef ? 'slack_agent_thread_reply' : 'slack_agent_chat',
+    ...(contextRef ? { contextRef } : {}),
   })
 
   await postSlackAgentMessage({

@@ -131,6 +131,44 @@ describe('Agent Ops Slack notifications', () => {
     }))
   })
 
+  it('prefers bot-token delivery so Slack threads can be traced back to Portfolio', async () => {
+    process.env.SLACK_BOT_TOKEN = 'xoxb-test'
+    process.env.SLACK_AGENT_OPS_CHANNEL_ID = 'CAGENTOPS'
+    process.env.SLACK_AGENT_OPS_WEBHOOK_URL = 'https://hooks.slack.test/agent'
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ ok: true, channel: 'CAGENTOPS', ts: '1770000000.000001' }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await sendAgentSlackNotification({ kind: 'blockers', actorLabel: 'admin' })
+
+    expect(result.sent).toBe(true)
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://slack.com/api/chat.postMessage',
+      expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({ Authorization: 'Bearer xoxb-test' }),
+        body: expect.stringContaining('"channel":"CAGENTOPS"'),
+      }),
+    )
+    expect(mocks.recordAgentEvent).toHaveBeenCalledWith(expect.objectContaining({
+      metadata: expect.objectContaining({
+        delivery_mode: 'bot',
+        slack_channel: 'CAGENTOPS',
+        slack_message_ts: '1770000000.000001',
+        slack_thread_ts: '1770000000.000001',
+      }),
+    }))
+    expect(mocks.endAgentRun).toHaveBeenCalledWith(expect.objectContaining({
+      outcome: expect.objectContaining({
+        delivery_mode: 'bot',
+        slack_channel: 'CAGENTOPS',
+        slack_thread_ts: '1770000000.000001',
+      }),
+    }))
+  })
+
   it('limits work item notification cards to one primary action and one context action', async () => {
     process.env.SLACK_AGENT_OPS_WEBHOOK_URL = 'https://hooks.slack.test/agent'
     const fetchMock = vi.fn().mockResolvedValue({ ok: true })
