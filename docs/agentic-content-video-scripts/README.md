@@ -25,6 +25,7 @@ These are production packets and queue evidence only. Do not start HeyGen jobs, 
 
 - `wave-1-youtube-scripts.md`: five script packets, with the receipt episode marked as the recommended pilot.
 - `operator-review.md`: Phase 5 review evidence for the queued pilot and the human-in-the-loop edit control.
+- `render-approval-packet.md`: Phase 6 Shaka approval packet for a controlled internal HeyGen pilot render.
 
 ## Pilot Queue Evidence
 
@@ -48,3 +49,7 @@ No HeyGen generation, ElevenLabs generation, n8n audio regeneration, or publishi
 ## Review Gate
 
 Nefertiti should review voice and script rhythm inside the queued draft before generation. The UI route polished the title and script, so the pending draft should be edited back toward the Episode 1 voice before any render. Shaka should approve generation. A human operator should confirm the storyboard and B-roll hints before any HeyGen, ElevenLabs, or B-roll job starts.
+
+## Render Gate
+
+`render-approval-packet.md` defines the next allowed decision. It permits only one internal HeyGen review render after Shaka approval, presenter settings confirmation, and public-safe B-roll review. Publishing, ElevenLabs generation, n8n audio regeneration, and social queue insertion remain separate approvals.
