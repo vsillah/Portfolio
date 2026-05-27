@@ -2,11 +2,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({
   runChiefOfStaffChat: vi.fn(),
+  handleSlackAgentAction: vi.fn(),
   from: vi.fn(),
 }))
 
 vi.mock('@/lib/chief-of-staff-chat', () => ({
   runChiefOfStaffChat: mocks.runChiefOfStaffChat,
+}))
+
+vi.mock('@/lib/agent-slack-actions', () => ({
+  handleSlackAgentAction: mocks.handleSlackAgentAction,
 }))
 
 vi.mock('@/lib/supabase', () => ({
@@ -50,6 +55,10 @@ describe('agent Slack events', () => {
       SLACK_BOT_TOKEN: 'xoxb-test',
     }
     mocks.from.mockReturnValue(queryResult({ data: null, error: null }))
+    mocks.handleSlackAgentAction.mockResolvedValue({
+      responseType: 'ephemeral',
+      text: 'Blocker acknowledged. Ask Shaka for a next-step recommendation.',
+    })
     mocks.runChiefOfStaffChat.mockResolvedValue({
       runId: 'run-123',
       reply: 'Two items need attention.',
@@ -173,6 +182,65 @@ describe('agent Slack events', () => {
       triggerSource: 'slack_agent_thread_reply',
       contextRef: { type: 'run', id: 'notification-run' },
     })
+  })
+
+  it('turns simple thread replies into governed Slack work-item actions', async () => {
+    mocks.from
+      .mockReturnValueOnce(queryResult({ data: { id: 'notification-run' }, error: null }))
+      .mockReturnValueOnce(queryResult({
+        data: {
+          metadata: {
+            blocks: [
+              {
+                type: 'actions',
+                elements: [
+                  {
+                    type: 'button',
+                    value: JSON.stringify({
+                      action: 'work.acknowledge',
+                      workItemId: 'work-1',
+                      runId: 'run-1',
+                    }),
+                  },
+                ],
+              },
+            ],
+          },
+        },
+        error: null,
+      }))
+
+    const result = await handleSlackAgentEvent({
+      type: 'event_callback',
+      event_id: 'Ev789',
+      event: {
+        type: 'app_mention',
+        user: 'U123',
+        channel: 'C123',
+        text: '<@UAGENT> acknowledge: I saw this blocker',
+        ts: '1700000000.000003',
+        thread_ts: '1700000000.000001',
+      },
+    })
+
+    expect(result).toEqual({ handled: true, reason: 'thread_reply_action' })
+    expect(mocks.handleSlackAgentAction).toHaveBeenCalledWith({
+      type: 'block_actions',
+      user: { id: 'U123' },
+      action_ts: '1700000000.000003',
+      container: { message_ts: '1700000000.000001' },
+      actions: [
+        {
+          value: JSON.stringify({
+            action: 'work.acknowledge',
+            workItemId: 'work-1',
+            note: 'I saw this blocker',
+          }),
+        },
+      ],
+    })
+    expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
+    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1]?.body).toContain('Blocker acknowledged')
   })
 
   it('formats Chief of Staff replies with trace links', () => {

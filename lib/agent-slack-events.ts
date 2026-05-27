@@ -1,4 +1,6 @@
 import { runChiefOfStaffChat } from '@/lib/chief-of-staff-chat'
+import { handleSlackAgentAction } from '@/lib/agent-slack-actions'
+import { decodeSlackActionValue, type SlackAgentActionValue } from '@/lib/agent-slack-blocks'
 import { supabaseAdmin } from '@/lib/supabase'
 
 export type SlackAgentEvent = {
@@ -29,6 +31,11 @@ type SlackPostMessageInput = {
 type HandleableSlackAgentEvent = SlackAgentEvent & {
   channel: string
   user: string
+}
+
+type SlackThreadContext = {
+  runId: string
+  actions: SlackAgentActionValue[]
 }
 
 export function shouldHandleSlackAgentEvent(event: SlackAgentEvent | undefined): event is HandleableSlackAgentEvent {
@@ -63,10 +70,33 @@ export function formatChiefOfStaffSlackReply(result: Awaited<ReturnType<typeof r
   return parts.filter(Boolean).join('\n\n')
 }
 
-async function findSlackThreadContextRef(channel: string, threadTs: string) {
+function uniqueActionKey(value: SlackAgentActionValue) {
+  return [value.action, value.approvalId, value.workItemId, value.runId, value.agentKey].filter(Boolean).join(':')
+}
+
+function extractSlackActionValues(blocks: unknown) {
+  if (!Array.isArray(blocks)) return []
+  const values: SlackAgentActionValue[] = []
+  const seen = new Set<string>()
+  for (const block of blocks) {
+    if (!block || typeof block !== 'object' || !('elements' in block) || !Array.isArray(block.elements)) continue
+    for (const element of block.elements) {
+      if (!element || typeof element !== 'object' || !('value' in element) || typeof element.value !== 'string') continue
+      const decoded = decodeSlackActionValue(element.value)
+      if (!decoded) continue
+      const key = uniqueActionKey(decoded)
+      if (seen.has(key)) continue
+      seen.add(key)
+      values.push(decoded)
+    }
+  }
+  return values
+}
+
+async function findSlackThreadContext(channel: string, threadTs: string): Promise<SlackThreadContext | null> {
   if (!supabaseAdmin) return null
 
-  const { data, error } = await supabaseAdmin
+  const { data: run, error } = await supabaseAdmin
     .from('agent_runs')
     .select('id')
     .eq('kind', 'slack_mobile_notification')
@@ -76,8 +106,104 @@ async function findSlackThreadContextRef(channel: string, threadTs: string) {
     .limit(1)
     .maybeSingle()
 
-  if (error || !data?.id) return null
-  return { type: 'run' as const, id: data.id as string }
+  if (error || !run?.id) return null
+
+  const { data: event } = await supabaseAdmin
+    .from('agent_run_events')
+    .select('metadata')
+    .eq('run_id', run.id)
+    .eq('event_type', 'slack_mobile_notification_sent')
+    .order('occurred_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  const metadata = event?.metadata && typeof event.metadata === 'object'
+    ? event.metadata as { blocks?: unknown }
+    : null
+
+  return {
+    runId: run.id as string,
+    actions: extractSlackActionValues(metadata?.blocks),
+  }
+}
+
+function noteFromReply(message: string, fallback: string) {
+  const colonIndex = message.indexOf(':')
+  if (colonIndex >= 0) {
+    const note = message.slice(colonIndex + 1).trim()
+    if (note) return note
+  }
+  return message.trim() || fallback
+}
+
+function singleTargetAction(actions: SlackAgentActionValue[], predicate: (value: SlackAgentActionValue) => boolean) {
+  const candidates = actions.filter(predicate)
+  const targetKeys = new Set(candidates.map((value) => value.approvalId || value.workItemId || value.runId).filter(Boolean))
+  return targetKeys.size === 1 ? candidates[0] : null
+}
+
+function singleWorkItemId(actions: SlackAgentActionValue[]) {
+  const workItemIds = new Set(actions.map((value) => value.workItemId).filter((value): value is string => Boolean(value)))
+  return workItemIds.size === 1 ? [...workItemIds][0] : null
+}
+
+function replyActionFromMessage(message: string, context: SlackThreadContext): SlackAgentActionValue | null {
+  const normalized = message.trim().toLowerCase()
+  const assignMatch = normalized.match(/^assign\s+([a-z0-9_-]+)/)
+  if (assignMatch) {
+    const workItemId = singleWorkItemId(context.actions)
+    return workItemId ? { action: 'work.assign', workItemId, agentKey: assignMatch[1] } : null
+  }
+
+  const handoffMatch = normalized.match(/^handoff(?:\s+to)?\s+([a-z0-9_-]+)/)
+  if (handoffMatch) {
+    const workItemId = singleWorkItemId(context.actions)
+    return workItemId
+      ? {
+          action: 'work.handoff',
+          workItemId,
+          agentKey: handoffMatch[1],
+          note: noteFromReply(message, 'Handoff requested from Slack thread reply.'),
+        }
+      : null
+  }
+
+  if (/^(ack|acknowledge|seen|got it)\b/.test(normalized)) {
+    const target = singleTargetAction(context.actions, (value) => value.action === 'work.acknowledge' || Boolean(value.workItemId))
+    return target?.workItemId
+      ? { action: 'work.acknowledge', workItemId: target.workItemId, note: noteFromReply(message, 'Blocker acknowledged from Slack thread reply.') }
+      : null
+  }
+
+  if (/^(ready|mark ready|mark it ready|ready for review)\b/.test(normalized)) {
+    const target = singleTargetAction(context.actions, (value) => value.action === 'work.ready' || Boolean(value.workItemId))
+    return target?.workItemId
+      ? { action: 'work.ready', workItemId: target.workItemId, note: noteFromReply(message, 'Marked ready from Slack thread reply.') }
+      : null
+  }
+
+  if (/^(request revision|revise|needs revision|changes requested)\b/.test(normalized)) {
+    const target = singleTargetAction(context.actions, (value) => value.action === 'work.revision' || Boolean(value.workItemId))
+    return target?.workItemId
+      ? { action: 'work.revision', workItemId: target.workItemId, note: noteFromReply(message, 'Revision requested from Slack thread reply.') }
+      : null
+  }
+
+  if (/^approve\b/.test(normalized)) {
+    const target = singleTargetAction(context.actions, (value) => value.action === 'approval.approve')
+    return target?.approvalId
+      ? { action: 'approval.approve', approvalId: target.approvalId, runId: target.runId, note: noteFromReply(message, 'Approved from Slack thread reply.') }
+      : null
+  }
+
+  if (/^(reject|decline)\b/.test(normalized)) {
+    const target = singleTargetAction(context.actions, (value) => Boolean(value.approvalId))
+    return target?.approvalId
+      ? { action: 'approval.reject', approvalId: target.approvalId, runId: target.runId, note: noteFromReply(message, 'Rejected from Slack thread reply.') }
+      : null
+  }
+
+  return null
 }
 
 export async function handleSlackAgentEvent(payload: SlackAgentEventPayload) {
@@ -98,9 +224,29 @@ export async function handleSlackAgentEvent(payload: SlackAgentEventPayload) {
     return { handled: true as const, reason: 'empty_message' }
   }
 
-  const contextRef = event.thread_ts
-    ? await findSlackThreadContextRef(channel, event.thread_ts)
+  const threadContext = event.thread_ts
+    ? await findSlackThreadContext(channel, event.thread_ts)
     : null
+  const replyAction = threadContext ? replyActionFromMessage(message, threadContext) : null
+  if (replyAction) {
+    const actionResult = await handleSlackAgentAction({
+      type: 'block_actions',
+      user: { id: user },
+      action_ts: event.ts,
+      container: { message_ts: event.thread_ts },
+      actions: [{ value: JSON.stringify(replyAction) }],
+    })
+
+    await postSlackAgentMessage({
+      channel,
+      threadTs: event.thread_ts || event.ts,
+      text: actionResult.text,
+    })
+
+    return { handled: true as const, reason: 'thread_reply_action' }
+  }
+
+  const contextRef = threadContext ? { type: 'run' as const, id: threadContext.runId } : null
   const result = await runChiefOfStaffChat({
     message,
     userId: `slack:${user}`,
