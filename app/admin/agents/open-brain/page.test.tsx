@@ -382,6 +382,7 @@ describe('OpenBrainPage', () => {
     expect(within(map).getByText('Context health')).toBeInTheDocument()
     expect(within(map).getByText('Relationship strength')).toBeInTheDocument()
     expect(within(map).getByText('Edge status')).toBeInTheDocument()
+    expect(within(map).getAllByText('Decision Trust').length).toBeGreaterThan(0)
 
     fireEvent.click(within(map).getByRole('button', { name: 'weak 1' }))
 
@@ -422,6 +423,91 @@ describe('OpenBrainPage', () => {
         }),
       },
       reason: expect.stringContaining('insight-1'),
+    }))
+  })
+
+  it('renders decision trust graph insights and keeps review proposals approval-gated', async () => {
+    const snapshot = JSON.parse(JSON.stringify(openBrainSnapshot))
+    snapshot.relationshipMap.nodes.push({
+      id: 'event:decision-trust:decision-payment',
+      label: 'Decision trust: make_vendor_payment',
+      type: 'event',
+      kind: 'agent_decision_trust_observed',
+      privacyTier: 'internal_ops',
+      summary: 'Spend decision recommended human review.',
+      path: '/admin/agents/runs/run-trust',
+      health: 'yellow',
+      decisionTrustGate: 'human_review',
+      x: 28,
+      y: 82,
+    })
+    snapshot.relationshipMap.insights.unshift({
+      id: 'insight:decision-trust:decision-payment',
+      kind: 'decision_trust_review',
+      severity: 'medium',
+      title: 'Review decision trust: make_vendor_payment',
+      detail: 'Decision decision-payment recommended human_review for spend.',
+      recommendation: 'Resolve the candidate before relying on this decision as trust evidence.',
+      actionLabel: 'Record review proposal',
+      sourceNodeId: 'event:decision-trust:decision-payment',
+      targetNodeId: null,
+      decisionTrust: {
+        decisionId: 'decision-payment',
+        linkedRunId: 'run-trust',
+        selectedCandidate: 'make_vendor_payment',
+        recommendedGate: 'human_review',
+        scores: {
+          relationshipTrust: 0.57,
+          decisionRisk: 0.72,
+          evidenceCompleteness: 0.6,
+        },
+        evidenceSummary: 'Trust 57%. Risk 72%. Evidence 60%.',
+      },
+    })
+
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.endsWith('/api/admin/agents/open-brain/proposals') && init?.method === 'POST') {
+        return {
+          ok: true,
+          json: async () => ({
+            proposal: {
+              id: 'proposal:decision-trust-review',
+              status: 'pending',
+              proposedMemory: {
+                title: 'Relationship proposal: Review decision trust: make_vendor_payment',
+              },
+            },
+          }),
+        }
+      }
+      return { ok: true, json: async () => snapshot }
+    }))
+
+    render(<OpenBrainPage />)
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Map' }))
+    const map = await screen.findByRole('region', { name: 'Open Brain relationship map' })
+    expect(within(map).getByText('Review decision trust: make_vendor_payment')).toBeInTheDocument()
+    expect(within(map).getByText('human review')).toBeInTheDocument()
+
+    fireEvent.click(within(map).getByRole('button', { name: 'Human/block gate 1' }))
+    expect(within(map).getByText('1 active filter(s)')).toBeInTheDocument()
+    expect(within(map).getByText('Showing 1 node(s) and 0 relationship(s).')).toBeInTheDocument()
+
+    fireEvent.click(within(map).getByRole('button', { name: 'Record review proposal' }))
+    expect(await screen.findByText('Relationship proposal created for review: Relationship proposal: Review decision trust: make_vendor_payment. No Open Brain link was changed.')).toBeInTheDocument()
+
+    const proposalCall = vi.mocked(fetch).mock.calls.find(([url, init]) => (
+      String(url).endsWith('/api/admin/agents/open-brain/proposals') && init?.method === 'POST'
+    ))
+    expect(JSON.parse(String(proposalCall?.[1]?.body))).toEqual(expect.objectContaining({
+      metadata: {
+        decisionTrust: expect.objectContaining({
+          decisionId: 'decision-payment',
+          recommendedGate: 'human_review',
+        }),
+      },
     }))
   })
 

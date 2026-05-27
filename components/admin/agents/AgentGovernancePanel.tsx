@@ -272,6 +272,15 @@ function DecisionTrustPanel({ frames }: { frames: AgentGovernanceSnapshot['recen
           {latest ? latest.recommended_gate.replace(/_/g, ' ') : 'shadow mode'}
         </StatusOnlyPill>
       </div>
+      {latest ? (
+        <Link
+          href="/admin/agents/open-brain"
+          className="mt-3 inline-flex items-center gap-2 rounded-md border border-radiant-gold/35 bg-radiant-gold/10 px-3 py-2 text-xs font-medium text-radiant-gold hover:border-radiant-gold/60"
+        >
+          <ArrowRight size={14} />
+          Inspect in Open Brain
+        </Link>
+      ) : null}
 
       {latest ? (
         <Link
