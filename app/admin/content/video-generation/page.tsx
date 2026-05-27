@@ -37,6 +37,12 @@ interface DraftItem {
   created_at: string
 }
 
+interface DraftEditForm {
+  title: string
+  scriptText: string
+  storyboardText: string
+}
+
 interface DriveQueueItem {
   id: string
   drive_file_id: string
@@ -121,6 +127,10 @@ function timeAgo(dateStr: string) {
   if (hours < 24) return `${hours}h ago`
   const days = Math.floor(hours / 24)
   return `${days}d ago`
+}
+
+function formatStoryboardForEdit(draft: DraftItem) {
+  return JSON.stringify(draft.storyboard_json ?? { scenes: [] }, null, 2)
 }
 
 function brollStaleness(capturedAt: string): 'fresh' | 'stale' | 'old' {
@@ -219,6 +229,10 @@ export default function VideoGenerationPage() {
   const [draftOutputTab, setDraftOutputTab] = useState<Record<string, 'heygen' | 'gamma'>>({})
   const [draftBroll, setDraftBroll] = useState<Record<string, string[]>>({})
   const [brollDropdownDraft, setBrollDropdownDraft] = useState<string | null>(null)
+  const [editingDraftId, setEditingDraftId] = useState<string | null>(null)
+  const [savingDraftId, setSavingDraftId] = useState<string | null>(null)
+  const [draftEditForms, setDraftEditForms] = useState<Record<string, DraftEditForm>>({})
+  const [draftEditError, setDraftEditError] = useState<string | null>(null)
 
   /* --- Progress panels --- */
   const [scratchProgress, setScratchProgress] = useState<ProgressStep[] | null>(null)
@@ -1095,6 +1109,83 @@ export default function VideoGenerationPage() {
       if (res.ok) fetchDrafts()
       else { const d = await res.json().catch(() => ({})); alert(d?.error || 'Failed to dismiss') }
     } catch { alert('Failed to dismiss') }
+  }
+
+  const beginEditDraft = (draft: DraftItem) => {
+    setDraftEditError(null)
+    setEditingDraftId(draft.id)
+    setDraftEditForms(prev => ({
+      ...prev,
+      [draft.id]: {
+        title: draft.title,
+        scriptText: draft.script_text,
+        storyboardText: formatStoryboardForEdit(draft),
+      },
+    }))
+  }
+
+  const updateDraftEditForm = (draftId: string, patch: Partial<DraftEditForm>) => {
+    setDraftEditForms(prev => ({
+      ...prev,
+      [draftId]: {
+        ...(prev[draftId] ?? {
+          title: '',
+          scriptText: '',
+          storyboardText: '{\n  "scenes": []\n}',
+        }),
+        ...patch,
+      },
+    }))
+  }
+
+  const cancelEditDraft = (draftId: string) => {
+    setDraftEditError(null)
+    setEditingDraftId(null)
+    setDraftEditForms(prev => {
+      const next = { ...prev }
+      delete next[draftId]
+      return next
+    })
+  }
+
+  const saveDraftEdits = async (draftId: string) => {
+    const form = draftEditForms[draftId]
+    if (!form) return
+
+    let storyboardJson: unknown
+    try {
+      storyboardJson = JSON.parse(form.storyboardText)
+    } catch {
+      setDraftEditError('Storyboard must be valid JSON.')
+      return
+    }
+
+    setSavingDraftId(draftId)
+    setDraftEditError(null)
+    try {
+      const token = await getToken()
+      if (!token) return
+      const res = await fetch(`/api/admin/video-generation/ideas-queue/${draftId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          title: form.title,
+          scriptText: form.scriptText,
+          storyboardJson,
+        }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setDraftEditError(data?.error || 'Failed to save draft edits.')
+        return
+      }
+      setDrafts(prev => prev.map(draft => draft.id === draftId ? data.item : draft))
+      cancelEditDraft(draftId)
+    } catch {
+      setDraftEditError('Failed to save draft edits.')
+    } finally {
+      setSavingDraftId(null)
+    }
   }
 
   const createGammaFromScript = async (scriptText: string, title?: string, draftId?: string) => {
@@ -2084,6 +2175,13 @@ export default function VideoGenerationPage() {
                     const isSelected = selectedDraftIds.has(draft.id)
                     const isExpanded = expandedDraftId === draft.id
                     const sceneCount = draft.storyboard_json?.scenes?.length ?? 0
+                    const isEditing = editingDraftId === draft.id
+                    const editForm = draftEditForms[draft.id] ?? {
+                      title: draft.title,
+                      scriptText: draft.script_text,
+                      storyboardText: formatStoryboardForEdit(draft),
+                    }
+                    const editOverLimit = editForm.scriptText.length > HEYGEN_SCRIPT_MAX
 
                     return (
                       <div key={draft.id} className={`bg-silicon-slate/50 rounded-lg border ${isSelected ? 'border-radiant-gold/50' : isExpanded ? 'border-radiant-gold/30' : 'border-silicon-slate'} transition-colors`}>
@@ -2129,8 +2227,76 @@ export default function VideoGenerationPage() {
                               className="overflow-hidden"
                             >
                               <div className="px-4 pb-4 pt-2 border-t border-silicon-slate/50">
+                                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                                  <div>
+                                    <div className="text-xs font-medium text-foreground">Human review</div>
+                                    <div className="text-[10px] text-gray-500">Edit title, script, and storyboard before generation.</div>
+                                  </div>
+                                  {isEditing ? (
+                                    <div className="flex items-center gap-2">
+                                      <button onClick={() => cancelEditDraft(draft.id)} disabled={savingDraftId === draft.id} className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-400 hover:text-foreground border border-silicon-slate rounded-lg disabled:opacity-50">
+                                        <X className="w-3 h-3" /> Cancel
+                                      </button>
+                                      <button onClick={() => saveDraftEdits(draft.id)} disabled={savingDraftId === draft.id || editOverLimit} className={btnPrimary + ' text-xs' + (editOverLimit ? ' opacity-50 cursor-not-allowed' : '')}>
+                                        {savingDraftId === draft.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
+                                        Save Review
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <button onClick={() => beginEditDraft(draft)} disabled={!!generatingDraftId || generatingBatch || generatingGamma} className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-radiant-gold border border-radiant-gold/30 rounded-lg hover:bg-radiant-gold/10 disabled:opacity-50">
+                                      <PenLine className="w-3 h-3" /> Review/Edit
+                                    </button>
+                                  )}
+                                </div>
+
+                                {isEditing ? (
+                                  <div className="mb-3 space-y-3 rounded-lg border border-radiant-gold/20 bg-radiant-gold/5 p-3">
+                                    <div>
+                                      <label className="mb-1 block text-[10px] text-gray-400">Title</label>
+                                      <input
+                                        value={editForm.title}
+                                        onChange={e => updateDraftEditForm(draft.id, { title: e.target.value })}
+                                        className={inputCls + ' text-sm'}
+                                      />
+                                    </div>
+                                    <div>
+                                      <div className="mb-1 flex items-center justify-between">
+                                        <label className="block text-[10px] text-gray-400">Script</label>
+                                        <span className={`text-[10px] font-mono ${editOverLimit ? 'text-red-400' : 'text-gray-500'}`}>
+                                          {editForm.scriptText.length.toLocaleString()} / {HEYGEN_SCRIPT_MAX.toLocaleString()}
+                                        </span>
+                                      </div>
+                                      <textarea
+                                        value={editForm.scriptText}
+                                        onChange={e => updateDraftEditForm(draft.id, { scriptText: e.target.value })}
+                                        rows={10}
+                                        className={inputCls + ' font-mono text-xs'}
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="mb-1 block text-[10px] text-gray-400">Storyboard JSON</label>
+                                      <textarea
+                                        value={editForm.storyboardText}
+                                        onChange={e => updateDraftEditForm(draft.id, { storyboardText: e.target.value })}
+                                        rows={7}
+                                        className={inputCls + ' font-mono text-xs'}
+                                      />
+                                    </div>
+                                    {editOverLimit && (
+                                      <div className="text-[10px] text-red-400 bg-red-400/10 border border-red-400/20 rounded px-2 py-1">
+                                        Shorten the script before saving. HeyGen rejects scripts over {HEYGEN_SCRIPT_MAX.toLocaleString()} characters.
+                                      </div>
+                                    )}
+                                    {draftEditError && (
+                                      <div className="text-[10px] text-red-400 bg-red-400/10 border border-red-400/20 rounded px-2 py-1">
+                                        {draftEditError}
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : null}
+
                                 {/* Script preview + storyboard */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                                {!isEditing && <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                                   <div>
                                     <div className="flex items-center justify-between mb-1">
                                       <span className="text-xs text-gray-400">Script</span>
@@ -2151,7 +2317,7 @@ export default function VideoGenerationPage() {
                                       )) ?? 'No storyboard'}
                                     </div>
                                   </div>
-                                </div>
+                                </div>}
 
                                 {/* Output tabs */}
                                 {(() => {
@@ -2278,9 +2444,9 @@ export default function VideoGenerationPage() {
                                               </div>
                                             </div>
                                           </details>
-                                          <button onClick={() => generateFromDraft(draft.id)} disabled={overLimit || !!generatingDraftId || !!generatingBatch || generatingGamma} className={btnPrimary + ' text-xs' + (overLimit ? ' opacity-50 cursor-not-allowed' : '')}>
+                                          <button onClick={() => generateFromDraft(draft.id)} disabled={overLimit || isEditing || !!generatingDraftId || !!generatingBatch || generatingGamma} className={btnPrimary + ' text-xs' + (overLimit || isEditing ? ' opacity-50 cursor-not-allowed' : '')}>
                                             {generatingDraftId === draft.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
-                                            {generatingDraftId && generatingDraftId !== draft.id ? 'Busy...' : 'Generate Video'}
+                                            {isEditing ? 'Save review first' : generatingDraftId && generatingDraftId !== draft.id ? 'Busy...' : 'Generate Video'}
                                           </button>
                                           {heygenProgress && heygenProgress.draftId === draft.id && (
                                             <ProgressPanel title="Generating Video" steps={heygenProgress.steps} variant="inline" onCancel={() => setHeygenProgress(null)} />
