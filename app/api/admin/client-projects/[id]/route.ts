@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { getRoadmapBundleForProject } from '@/lib/client-ai-ops-roadmap-db'
+import { buildClientAiOpsReadinessContract } from '@/lib/client-ai-ops-readiness-contract'
 
 export const dynamic = 'force-dynamic'
 
@@ -109,7 +110,13 @@ export async function GET(
       .eq('client_project_id', id)
       .maybeSingle()
 
-    const aiOpsRoadmap = await getRoadmapBundleForProject(id).catch(() => null)
+    const aiOpsBundle = await getRoadmapBundleForProject(id).catch(() => null)
+    const aiOpsRoadmap = aiOpsBundle
+      ? {
+          ...aiOpsBundle,
+          readiness: buildClientAiOpsReadinessContract(aiOpsBundle.clientView, { clientProjectId: id }),
+        }
+      : null
 
     return NextResponse.json({
       project,
