@@ -18,6 +18,8 @@ export type AgentSlackNotificationInput = {
   targetAgentKeys?: string[]
   goalId?: string | null
   force?: boolean
+  dedupeKey?: string | null
+  dedupeWindowHours?: number | null
   actorLabel?: string | null
   triggerSource?: string | null
 }
@@ -64,9 +66,10 @@ function agentUrl(path: string) {
   return `${baseUrl()}${path}`
 }
 
-function dedupeWindowKey() {
-  const now = new Date()
-  return now.toISOString().slice(0, 13)
+function dedupeWindowKey(windowHours = 1) {
+  const hours = Number.isFinite(windowHours) && windowHours > 0 ? windowHours : 1
+  const windowMs = hours * 60 * 60 * 1000
+  return new Date(Math.floor(Date.now() / windowMs) * windowMs).toISOString()
 }
 
 function normalizeTargetAgentKeys(keys?: string[]) {
@@ -76,7 +79,8 @@ function normalizeTargetAgentKeys(keys?: string[]) {
 function notificationIdempotencyKey(input: AgentSlackNotificationInput) {
   const targetKey = normalizeTargetAgentKeys(input.targetAgentKeys).join(',') || 'all'
   const goalKey = input.goalId || 'no-goal'
-  return `slack-mobile-notification:${input.kind}:${goalKey}:${targetKey}:${dedupeWindowKey()}`
+  const contentKey = input.dedupeKey?.trim() || 'default'
+  return `slack-mobile-notification:${input.kind}:${goalKey}:${targetKey}:${contentKey}:${dedupeWindowKey(input.dedupeWindowHours ?? 1)}`
 }
 
 async function existingNotificationRun(idempotencyKey: string) {
@@ -410,6 +414,8 @@ export async function sendAgentSlackNotification(input: AgentSlackNotificationIn
       target_agent_keys: normalizeTargetAgentKeys(input.targetAgentKeys),
       goal_id: input.goalId ?? null,
       actor_label: input.actorLabel ?? null,
+      notification_dedupe_key: input.dedupeKey ?? null,
+      dedupe_window_hours: input.dedupeWindowHours ?? 1,
       item_count: payload.itemCount,
       text: payload.text,
     },
