@@ -1,7 +1,7 @@
 # Agentic AI Video Scripts: Wave 1
 
 Date: 2026-05-27
-Status: Draft for video review
+Status: Draft for video review, with Episode 1 staged as a pending UI draft
 Source LinkedIn wave: `docs/agentic-content-linkedin-drafts/wave-1-drafts.md`
 Recommended pilot: Episode 1, "The Receipt Every Agent Needs"
 
@@ -9,7 +9,7 @@ Recommended pilot: Episode 1, "The Receipt Every Agent Needs"
 
 - No video generation job has been started.
 - No ElevenLabs audio job has been started.
-- No script has been inserted into `video_ideas_queue`.
+- Episode 1 has been staged once through the Admin Video Generation UI as pending queue item `9f9dd8f1-9d19-48ff-bedf-2a5779a44be8`.
 - Every script is designed to stay under the HeyGen 5,000-character limit.
 - Every storyboard uses 3-6 scenes and B-roll hints that fit the existing admin video-generation matching model.
 - Public claims stay inside the accepted research boundary: Portfolio is a live operating discipline and proof surface, not a finished autonomous enterprise platform.
@@ -117,6 +117,20 @@ Suggested custom prompt for Admin Video Generation from_direction mode:
 ```text
 Polish this script only for spoken rhythm. Preserve the argument, first-person voice, public-safe claim boundaries, and proof references. Keep it under 5,000 characters. Create a 5-scene storyboard with brollHint values: home, admin, admin, tools, resources.
 ```
+
+### Phase 4 UI Staging Result
+
+Queued title: `The Essential Receipt for Every Agent`
+
+Queue item id: `9f9dd8f1-9d19-48ff-bedf-2a5779a44be8`
+
+Queue status: `pending`
+
+Script characters: `2360`
+
+Storyboard scenes: `5`
+
+Review note: the UI route generated a more polished version of the title and script. Before any HeyGen run, review the pending draft in Admin Video Generation and pull the language back toward the original Episode 1 rhythm where needed.
 
 ## Episode 2: The Swarm Needs A Handoff
 
