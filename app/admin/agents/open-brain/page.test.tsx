@@ -376,13 +376,22 @@ describe('OpenBrainPage', () => {
     expect(within(map).getByText('Relationship insights')).toBeInTheDocument()
     expect(within(map).getByText('Persisted link audit')).toBeInTheDocument()
     expect(within(map).getByText('link:source-memory')).toBeInTheDocument()
-    expect(within(map).getByText('Strengthen automation-to-runbook governance')).toBeInTheDocument()
-    expect(within(map).getByText('Morning review source')).toBeInTheDocument()
+    expect(within(map).getByRole('heading', { name: 'Strengthen automation-to-runbook governance' })).toBeInTheDocument()
+    expect(within(map).getByRole('button', { name: 'Select Morning review source' })).toBeInTheDocument()
     expect(within(map).getByText('Privacy tier')).toBeInTheDocument()
     expect(within(map).getByText('Context health')).toBeInTheDocument()
     expect(within(map).getByText('Relationship strength')).toBeInTheDocument()
     expect(within(map).getByText('Edge status')).toBeInTheDocument()
     expect(within(map).getAllByText('Decision Trust').length).toBeGreaterThan(0)
+    expect(within(map).getByText('Selected record')).toBeInTheDocument()
+    expect(within(map).getByText('Connected relationships')).toBeInTheDocument()
+
+    fireEvent.click(within(map).getByRole('button', { name: 'Select Action-first operating rule' }))
+
+    expect(within(map).getByText('Next steps name the owner.')).toBeInTheDocument()
+    expect(within(map).getByText('supports memory · inbound')).toBeInTheDocument()
+    expect(within(map).getByText('Memory cites source.')).toBeInTheDocument()
+    expect(within(map).getByText('Automation source needs an explicit governing runbook link.')).toBeInTheDocument()
 
     fireEvent.click(within(map).getByRole('button', { name: 'weak 1' }))
 

@@ -621,6 +621,7 @@ function RelationshipMapView({
   const [strengthFilter, setStrengthFilter] = useState<RelationshipStrengthFilter>('all')
   const [statusFilter, setStatusFilter] = useState<RelationshipStatusFilter>('all')
   const [decisionTrustFilter, setDecisionTrustFilter] = useState<DecisionTrustFilter>('all')
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
   const map = snapshot.relationshipMap
   const visibleNodes = map.nodes.filter((node) => (
     (typeFilter === 'all' || node.type === typeFilter) &&
@@ -644,7 +645,11 @@ function RelationshipMapView({
   const strengthValues: RelationshipStrengthFilter[] = ['all', 'strong', 'medium', 'weak']
   const statusValues: RelationshipStatusFilter[] = ['all', 'persisted', 'inferred', 'recommended']
   const decisionTrustValues: DecisionTrustFilter[] = ['all', 'decision_trust', 'high_risk_gate']
-  const selectedPath = visibleEdges.find((edge) => edge.strength === 'strong') || visibleEdges[0]
+  const selectedNode = (selectedNodeId ? nodeById.get(selectedNodeId) : null) || visibleNodes[0] || null
+  const selectedNodeEdges = selectedNode
+    ? visibleEdges.filter((edge) => edge.fromId === selectedNode.id || edge.toId === selectedNode.id)
+    : []
+  const selectedPath = selectedNodeEdges.find((edge) => edge.strength === 'strong') || selectedNodeEdges[0] || visibleEdges.find((edge) => edge.strength === 'strong') || visibleEdges[0]
   const selectedFrom = selectedPath ? nodeById.get(selectedPath.fromId) : null
   const selectedTo = selectedPath ? nodeById.get(selectedPath.toId) : null
   const graphMinHeight = Math.max(620, Math.ceil(visibleNodes.length / 4) * 132)
@@ -810,9 +815,14 @@ function RelationshipMapView({
             })}
           </svg>
           {visibleNodes.map((node) => (
-            <div
+            <button
+              type="button"
               key={node.id}
-              className={`absolute z-10 flex max-w-[132px] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-lg border px-2.5 py-2 text-center shadow-xl ${relationshipNodeTone(node.type, node.health)}`}
+              onClick={() => setSelectedNodeId(node.id)}
+              aria-label={`Select ${node.label}`}
+              className={`absolute z-10 flex max-w-[132px] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-lg border px-2.5 py-2 text-center shadow-xl transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold/70 ${
+                selectedNode?.id === node.id ? 'ring-2 ring-radiant-gold/80' : ''
+              } ${relationshipNodeTone(node.type, node.health)}`}
               style={{ left: `${node.x}%`, top: `${node.y}%` }}
               title={node.summary}
             >
@@ -824,7 +834,7 @@ function RelationshipMapView({
                   {node.decisionTrustGate.replace(/_/g, ' ')}
                 </span>
               ) : null}
-            </div>
+            </button>
           ))}
           <div className="absolute bottom-5 left-5 z-10 flex flex-wrap gap-3 rounded-lg border border-silicon-slate/60 bg-black/30 p-3 text-xs text-muted-foreground backdrop-blur">
             <RelationshipLegend color="bg-radiant-gold" label="Strong" />
@@ -834,6 +844,14 @@ function RelationshipMapView({
         </div>
 
         <aside className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
+          <SelectedRelationshipRecordPanel
+            node={selectedNode}
+            nodes={nodeById}
+            edges={selectedNodeEdges}
+            insights={map.insights}
+            audit={map.audit}
+          />
+          <div className="my-5 border-t border-silicon-slate/60" />
           <p className="agent-ops-eyebrow"><Target size={14} /> Relationship insights</p>
           <h2 className="mt-2 text-xl font-semibold">What I will review before action</h2>
           <p className="mt-2 text-sm text-muted-foreground">
@@ -931,6 +949,117 @@ function buildRelationshipProposalPayload(snapshot: OpenBrainSnapshot, insight: 
     reason: `Created from Open Brain relationship map insight ${insight.id}. Review before durable memory or link changes.`,
     metadata: Object.keys(metadata).length ? metadata : undefined,
   }
+}
+
+function SelectedRelationshipRecordPanel({
+  node,
+  nodes,
+  edges,
+  insights,
+  audit,
+}: {
+  node: OpenBrainSnapshot['relationshipMap']['nodes'][number] | null
+  nodes: Map<string, OpenBrainSnapshot['relationshipMap']['nodes'][number]>
+  edges: OpenBrainSnapshot['relationshipMap']['edges']
+  insights: OpenBrainSnapshot['relationshipMap']['insights']
+  audit: OpenBrainRelationshipAuditRecord[]
+}) {
+  if (!node) {
+    return (
+      <div>
+        <p className="agent-ops-eyebrow"><Network size={14} /> Selected record</p>
+        <p className="mt-3 rounded-lg border border-silicon-slate/60 bg-background/20 p-3 text-sm text-muted-foreground">
+          No record is visible for the current filters.
+        </p>
+      </div>
+    )
+  }
+
+  const relatedInsights = insights.filter((insight) => insight.sourceNodeId === node.id || insight.targetNodeId === node.id)
+  const relatedAudit = audit.filter((record) => record.fromId === node.id || record.toId === node.id)
+
+  return (
+    <div>
+      <p className="agent-ops-eyebrow"><Network size={14} /> Selected record</p>
+      <h2 className="mt-2 text-xl font-semibold">{node.label}</h2>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{node.summary}</p>
+      <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
+        <Detail label="Type" value={node.type} />
+        <Detail label="Kind" value={node.kind.replace(/_/g, ' ')} />
+        <Detail label="Privacy" value={node.privacyTier} />
+        <Detail label="Health" value={node.health} />
+      </div>
+      {node.path ? (
+        <p className="mt-3 break-all rounded-lg border border-silicon-slate/60 bg-background/20 p-3 text-xs text-muted-foreground">
+          Source path: {node.path}
+        </p>
+      ) : null}
+      {node.decisionTrustGate ? (
+        <p className="mt-3 rounded-lg border border-yellow-400/30 bg-yellow-500/10 p-3 text-xs text-yellow-100">
+          Decision trust gate: {node.decisionTrustGate.replace(/_/g, ' ')}
+        </p>
+      ) : null}
+
+      <div className="mt-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Connected relationships</p>
+        <div className="mt-2 space-y-2">
+          {edges.length > 0 ? edges.map((edge) => {
+            const otherId = edge.fromId === node.id ? edge.toId : edge.fromId
+            const otherNode = nodes.get(otherId)
+            const direction = edge.fromId === node.id ? 'outbound' : 'inbound'
+            return (
+              <div key={edge.id} className="rounded-lg border border-silicon-slate/60 bg-background/20 p-3 text-xs">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="font-medium">{formatRelationshipLabel(edge.relationship)} · {direction}</p>
+                  <span className="rounded-full border border-silicon-slate/60 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                    {edge.strength} / {edge.status}
+                  </span>
+                </div>
+                <p className="mt-2 text-muted-foreground">{otherNode?.label || otherId}</p>
+                <p className="mt-1 text-muted-foreground">{edge.evidence}</p>
+              </div>
+            )
+          }) : (
+            <p className="rounded-lg border border-silicon-slate/60 bg-background/20 p-3 text-xs text-muted-foreground">
+              No visible relationships match the current filters.
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Recommendation context</p>
+        <div className="mt-2 space-y-2">
+          {relatedInsights.length > 0 ? relatedInsights.map((insight) => (
+            <p key={insight.id} className="rounded-lg border border-radiant-gold/25 bg-radiant-gold/10 p-3 text-xs text-muted-foreground">
+              <span className="font-semibold text-radiant-gold">{insight.kind.replace(/_/g, ' ')}:</span> {insight.title}
+            </p>
+          )) : (
+            <p className="rounded-lg border border-silicon-slate/60 bg-background/20 p-3 text-xs text-muted-foreground">
+              No relationship recommendation currently targets this record.
+            </p>
+          )}
+        </div>
+      </div>
+
+      {relatedAudit.length > 0 ? (
+        <div className="mt-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Approval provenance</p>
+          <div className="mt-2 space-y-2">
+            {relatedAudit.map((record) => (
+              <p key={record.linkId} className="rounded-lg border border-green-400/25 bg-green-500/10 p-3 text-xs text-muted-foreground">
+                {record.linkId} · {record.reviewedBy || 'unknown reviewer'} · {record.evidence}
+              </p>
+            ))}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+function formatRelationshipLabel(value: string) {
+  return value.replace(/_/g, ' ')
 }
 
 function relationshipNameForInsight(insight: OpenBrainRelationshipInsight) {
