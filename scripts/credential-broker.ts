@@ -4,6 +4,7 @@ import { createHash, randomBytes } from 'node:crypto'
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import * as path from 'node:path'
+import { config as loadDotenv } from 'dotenv'
 import {
   buildCredentialBaselineTemplate,
   buildCredentialReport,
@@ -170,6 +171,23 @@ function getEnv(args: ParsedArgs): EnvironmentName {
   return raw as EnvironmentName
 }
 
+function loadRuntimeEnv(env: EnvironmentName) {
+  if (process.env.CREDENTIAL_BROKER_SKIP_DOTENV === '1') return
+
+  const candidates = [
+    '.env.local',
+    `.env.${env}`,
+    env === 'dev' ? null : `.env.${env}.local`,
+  ].filter((file): file is string => Boolean(file))
+
+  for (const file of candidates) {
+    const resolved = path.join(ROOT, file)
+    if (existsSync(resolved)) {
+      loadDotenv({ path: resolved, override: false, quiet: true })
+    }
+  }
+}
+
 function findSecret(inventory: CredentialInventory, idOrEnvVar: string): CredentialSecret {
   const secret = inventory.secrets.find((item) => item.id === idOrEnvVar || item.envVar === idOrEnvVar)
   if (!secret) fail(`Secret not found in inventory: ${idOrEnvVar}`)
@@ -182,6 +200,7 @@ function envSecrets(inventory: CredentialInventory, env: EnvironmentName): Crede
 
 function listDue(inventory: CredentialInventory, args: ParsedArgs) {
   const env = getEnv(args)
+  loadRuntimeEnv(env)
   const asOf = new Date(String(args.options['as-of'] || new Date().toISOString()))
   if (Number.isNaN(asOf.getTime())) fail(`Invalid --as-of value: ${String(args.options['as-of'])}`)
 
@@ -220,6 +239,7 @@ function listDue(inventory: CredentialInventory, args: ParsedArgs) {
 
 function report(inventory: CredentialInventory, args: ParsedArgs) {
   const env = getEnv(args)
+  loadRuntimeEnv(env)
   const asOf = String(args.options['as-of'] || new Date().toISOString())
   const sinkPresence = args.options['check-sinks'] ? collectRuntimeSinkPresence(inventory, env) : []
   const credentialReport = buildCredentialReport(inventory, env, asOf, readRotationPackets(), sinkPresence)
@@ -234,6 +254,7 @@ function report(inventory: CredentialInventory, args: ParsedArgs) {
 
 function baselineTemplate(inventory: CredentialInventory, args: ParsedArgs) {
   const env = getEnv(args)
+  loadRuntimeEnv(env)
   const updatedAt = String(args.options['updated-at'] || new Date().toISOString())
   const entries = buildCredentialBaselineTemplate(inventory, env, updatedAt)
 
@@ -247,6 +268,7 @@ function baselineTemplate(inventory: CredentialInventory, args: ParsedArgs) {
 
 function bootstrapInfisical(inventory: CredentialInventory, args: ParsedArgs) {
   const env = getEnv(args)
+  loadRuntimeEnv(env)
   const sourceFile = String(args.options.source || '.env.local')
   const apply = Boolean(args.options.apply)
   const localValues = readLocalEnvValues(sourceFile)
@@ -296,6 +318,7 @@ function bootstrapInfisical(inventory: CredentialInventory, args: ParsedArgs) {
 
 function inject(inventory: CredentialInventory, args: ParsedArgs) {
   const env = getEnv(args)
+  loadRuntimeEnv(env)
   if (args.passthrough.length === 0) fail('credentials:inject requires a command after --')
   const selected = selectSecrets(inventory, args, env)
   const injectedEnv: Record<string, string> = {}
@@ -314,6 +337,7 @@ function inject(inventory: CredentialInventory, args: ParsedArgs) {
 
 function rotate(inventory: CredentialInventory, args: ParsedArgs) {
   const env = getEnv(args)
+  loadRuntimeEnv(env)
   const secretName = String(args.options.secret || '')
   if (!secretName) fail('credentials:rotate requires --secret <id-or-env-var>')
   const secret = findSecret(inventory, secretName)
@@ -349,6 +373,7 @@ function rotate(inventory: CredentialInventory, args: ParsedArgs) {
 
 function syncRuntime(inventory: CredentialInventory, args: ParsedArgs) {
   const env = getEnv(args)
+  loadRuntimeEnv(env)
   const secretName = String(args.options.secret || '')
   if (!secretName) fail('credentials:sync-runtime requires --secret <id-or-env-var>')
   const secret = findSecret(inventory, secretName)
@@ -375,6 +400,7 @@ function syncRuntime(inventory: CredentialInventory, args: ParsedArgs) {
 
 function smoke(inventory: CredentialInventory, args: ParsedArgs) {
   const env = getEnv(args)
+  loadRuntimeEnv(env)
   const requireProviderAccess = Boolean(args.options['require-provider-access'])
   const checks: Array<{ label: string; command: string[]; required: boolean }> = [
     { label: 'Inventory loads', command: ['node', '-e', `JSON.parse(require('fs').readFileSync(${JSON.stringify(INVENTORY_PATH)}, 'utf8'));`], required: true },
