@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   isAuthError: vi.fn(),
   startAgentRun: vi.fn(),
   recordAgentEvent: vi.fn(),
+  runAgentSlackNotificationSweep: vi.fn(),
   from: vi.fn(),
   insert: vi.fn(),
 }))
@@ -17,6 +18,10 @@ vi.mock('@/lib/auth-server', () => ({
 vi.mock('@/lib/agent-run', () => ({
   startAgentRun: mocks.startAgentRun,
   recordAgentEvent: mocks.recordAgentEvent,
+}))
+
+vi.mock('@/lib/agent-slack-notification-sweep', () => ({
+  runAgentSlackNotificationSweep: mocks.runAgentSlackNotificationSweep,
 }))
 
 vi.mock('@/lib/supabase', () => ({
@@ -49,6 +54,7 @@ describe('POST /api/admin/agents/approval-drill', () => {
     mocks.isAuthError.mockReturnValue(false)
     mocks.startAgentRun.mockResolvedValue({ id: 'run-1' })
     mocks.recordAgentEvent.mockResolvedValue({ id: 'event-1' })
+    mocks.runAgentSlackNotificationSweep.mockResolvedValue({ ok: true, sentCount: 1 })
     approvalInsertChain()
   })
 
@@ -84,6 +90,12 @@ describe('POST /api/admin/agents/approval-drill', () => {
       approval_type: 'send_email',
       status: 'pending',
     }))
+    expect(mocks.runAgentSlackNotificationSweep).toHaveBeenCalledWith({
+      mode: 'immediate',
+      kinds: ['pending_approvals'],
+      actorLabel: 'Agent approval drill',
+      triggerSource: 'approval_drill_created',
+    })
   })
 
   it('rejects unknown approval types', async () => {

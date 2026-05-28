@@ -3,11 +3,16 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const mocks = vi.hoisted(() => ({
   createAgentWorkItem: vi.fn(),
   listAgentWorkItems: vi.fn(),
+  runAgentSlackNotificationSweep: vi.fn(),
 }))
 
 vi.mock('@/lib/agent-work-items', () => ({
   createAgentWorkItem: mocks.createAgentWorkItem,
   listAgentWorkItems: mocks.listAgentWorkItems,
+}))
+
+vi.mock('@/lib/agent-slack-notification-sweep', () => ({
+  runAgentSlackNotificationSweep: mocks.runAgentSlackNotificationSweep,
 }))
 
 import { listAutomationGoalSeedStates, seedAutomationGoals } from './agent-automation-goal-seeding'
@@ -34,6 +39,7 @@ describe('agent automation goal seeding', () => {
       idempotency_key: input.idempotencyKey,
     }))
     mocks.listAgentWorkItems.mockResolvedValue([])
+    mocks.runAgentSlackNotificationSweep.mockResolvedValue({ ok: true, sentCount: 1 })
   })
 
   it('creates a parent goal and child tasks with automation metadata', async () => {
@@ -66,6 +72,13 @@ describe('agent automation goal seeding', () => {
         goal_parent_work_item_id: 'automation-goal:meeting-intake-follow-up-drafts:parent',
       }),
     }))
+    expect(mocks.runAgentSlackNotificationSweep).toHaveBeenCalledWith({
+      mode: 'immediate',
+      kinds: ['goal_decisions'],
+      goalId: 'automation:meeting-intake-follow-up-drafts',
+      actorLabel: 'Automation goal seeding',
+      triggerSource: 'automation_goal_seeded',
+    })
   })
 
   it('defaults to Tier 1 seeds and rejects unknown selected seeds', async () => {

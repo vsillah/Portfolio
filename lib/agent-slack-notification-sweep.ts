@@ -26,6 +26,7 @@ export type ProactiveSlackNotificationRule = {
 export type AgentSlackNotificationSweepInput = {
   kinds?: ProactiveSlackNotificationKind[]
   mode?: ProactiveSlackNotificationMode
+  goalId?: string | null
   dryRun?: boolean
   force?: boolean
   actorLabel?: string | null
@@ -143,7 +144,10 @@ export async function runAgentSlackNotificationSweep(input: AgentSlackNotificati
 
   for (const rule of selectedRules(input.kinds, mode)) {
     try {
-      const payload = await buildAgentSlackNotificationPayload({ kind: rule.kind })
+      const payload = await buildAgentSlackNotificationPayload({
+        kind: rule.kind,
+        goalId: input.goalId ?? null,
+      })
 
       if (payload.itemCount < rule.minimumItemCount) {
         results.push({
@@ -184,6 +188,7 @@ export async function runAgentSlackNotificationSweep(input: AgentSlackNotificati
 
       const notification = await sendAgentSlackNotification({
         kind: rule.kind,
+        goalId: input.goalId ?? null,
         force: input.force,
         actorLabel: input.actorLabel ?? 'Agent Ops notification sweep',
         triggerSource: input.triggerSource ?? 'cron_agent_ops_slack_notifications',

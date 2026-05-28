@@ -116,6 +116,23 @@ function formatActionPayloadSummary(payload: ReturnType<typeof buildActionPayloa
   ].join('\n')
 }
 
+async function notifyImmediatePendingApprovals() {
+  try {
+    const { runAgentSlackNotificationSweep } = await import('@/lib/agent-slack-notification-sweep')
+    await runAgentSlackNotificationSweep({
+      mode: 'immediate',
+      kinds: ['pending_approvals'],
+      actorLabel: 'Chief of Staff action approval',
+      triggerSource: 'chief_of_staff_approval_created',
+    })
+  } catch (error) {
+    console.warn(
+      '[chief-of-staff-actions] immediate Slack approval notification skipped:',
+      error instanceof Error ? error.message : error,
+    )
+  }
+}
+
 /**
  * POST /api/admin/agents/chief-of-staff/actions
  *
@@ -237,6 +254,8 @@ export async function POST(request: NextRequest) {
       },
       idempotencyKey: `${run.id}:chief-of-staff-approval-created`,
     }).catch(() => {})
+
+    await notifyImmediatePendingApprovals()
 
     await attachAgentArtifact({
       runId: run.id,

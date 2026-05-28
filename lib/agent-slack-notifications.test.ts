@@ -131,6 +131,63 @@ describe('Agent Ops Slack notifications', () => {
     }))
   })
 
+  it('includes goal tasks that require approval even when they are assigned', async () => {
+    mocks.listAgentWorkItems.mockResolvedValue([
+      {
+        id: 'goal-task-1',
+        title: 'Draft n8n workflow proposal',
+        objective: 'Create the workflow proposal packet',
+        status: 'assigned',
+        priority: 'high',
+        owner_agent_key: 'automation-systems',
+        active_run_id: 'trace-goal-1',
+        source_run_id: null,
+        blocker_summary: null,
+        validation_summary: 'Needs operator approval before activation',
+        metadata: {
+          goal_id: 'automation:meeting-intake-follow-up-drafts',
+          goal_title: 'Automate meeting intake to follow-up drafts',
+          requires_approval: true,
+        },
+        updated_at: '2026-05-23T10:00:00.000Z',
+      },
+      {
+        id: 'goal-task-2',
+        title: 'Unrelated goal task',
+        objective: 'No decision needed',
+        status: 'assigned',
+        priority: 'medium',
+        owner_agent_key: 'chief-of-staff',
+        active_run_id: null,
+        source_run_id: null,
+        blocker_summary: null,
+        validation_summary: null,
+        metadata: {
+          goal_id: 'automation:other-goal',
+          requires_approval: true,
+        },
+        updated_at: '2026-05-23T10:00:00.000Z',
+      },
+    ])
+
+    const payload = await sendAgentSlackNotification({
+      kind: 'goal_decisions',
+      goalId: 'automation:meeting-intake-follow-up-drafts',
+    })
+
+    expect(payload).toMatchObject({
+      itemCount: 1,
+      text: 'Goal tasks needing a decision: 1 item(s).',
+    })
+    expect(mocks.startAgentRun).toHaveBeenCalledWith(expect.objectContaining({
+      metadata: expect.objectContaining({
+        notification_kind: 'goal_decisions',
+        goal_id: 'automation:meeting-intake-follow-up-drafts',
+        item_count: 1,
+      }),
+    }))
+  })
+
   it('prefers bot-token delivery so Slack threads can be traced back to Portfolio', async () => {
     process.env.SLACK_BOT_TOKEN = 'xoxb-test'
     process.env.SLACK_AGENT_OPS_CHANNEL_ID = 'CAGENTOPS'
