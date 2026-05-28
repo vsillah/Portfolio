@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({
   from: vi.fn(),
+  getRoadmapBundleForProject: vi.fn(),
   refreshRoadmapPhaseRollups: vi.fn(),
   projectRoadmapTaskToMeetingTask: vi.fn(),
 }))
@@ -13,6 +14,7 @@ vi.mock('@/lib/supabase', () => ({
 }))
 
 vi.mock('@/lib/client-ai-ops-roadmap-db', () => ({
+  getRoadmapBundleForProject: mocks.getRoadmapBundleForProject,
   refreshRoadmapPhaseRollups: mocks.refreshRoadmapPhaseRollups,
   projectRoadmapTaskToMeetingTask: mocks.projectRoadmapTaskToMeetingTask,
 }))
@@ -71,6 +73,7 @@ describe('client AI Ops monitor cron route', () => {
     process.env.N8N_INGEST_SECRET = 'n8n-secret'
     process.env.CRON_SECRET = 'cron-secret'
     mocks.from.mockReturnValue(roadmapQuery([]))
+    mocks.getRoadmapBundleForProject.mockResolvedValue(null)
   })
 
   afterEach(() => {
@@ -111,6 +114,34 @@ describe('client AI Ops monitor cron route', () => {
 
     const reportInsert = supabaseQueryResult({ data: { id: 'report-1' }, error: null })
     const followupInsert = supabaseQueryResult({ data: { id: 'followup-task-1', title: 'Review AI Ops monitoring findings' }, error: null })
+    mocks.getRoadmapBundleForProject.mockResolvedValue({
+      clientView: {
+        connectorReadiness: {
+          summary: '1 required, 0 ready, 1 need auth, 0 approval-blocked',
+          requiredConnectorCount: 1,
+          readyConnectorCount: 0,
+          approvalBlockedConnectorCount: 0,
+          missingCriticalConnectorCount: 0,
+          connectorNextAction: 'Prepare oauth setup packet for HubSpot; do not connect until approved.',
+          conflicts: [],
+          items: [],
+        },
+        projectionStatus: {
+          tasksTotal: 2,
+          tasksComplete: 1,
+          blockedTasks: 0,
+          clientActionCount: 1,
+          amadutownActionCount: 0,
+          sharedActionCount: 0,
+          approvalNeededCount: 1,
+          isolationRequiredCount: 1,
+          overdueTasks: 0,
+          staleCostItems: 0,
+          reportMissing: false,
+          nextReportingAction: 'Review approval-gated roadmap work',
+        },
+      },
+    })
 
     mockTableResponses({
       client_ai_ops_roadmaps: [
@@ -167,11 +198,19 @@ describe('client AI Ops monitor cron route', () => {
         'Review overdue roadmap task: Finish client vault',
         'Refresh pricing/source for: Network switch',
         'Generate monthly AI Ops report',
+        'Review AI Ops readiness: Review approval-gated AI Ops work before any live setup or outbound action.',
       ],
       monitoring_summary: {
         overdue_tasks: 1,
         stale_cost_items: 1,
         report_missing: true,
+        readiness_status: 'waiting_approval',
+        readiness_next_action: 'Review approval-gated AI Ops work before any live setup or outbound action.',
+        readiness_side_effects_enabled: false,
+        connector_required: 1,
+        connector_ready: 0,
+        connector_approval_blocked: 0,
+        connector_missing_critical: 0,
         checked_at: '2026-05-02T10:00:00.000Z',
       },
     }))
@@ -185,6 +224,13 @@ describe('client AI Ops monitor cron route', () => {
           overdue_tasks: 1,
           stale_cost_items: 1,
           report_missing: true,
+          readiness_status: 'waiting_approval',
+          readiness_next_action: 'Review approval-gated AI Ops work before any live setup or outbound action.',
+          readiness_side_effects_enabled: false,
+          connector_required: 1,
+          connector_ready: 0,
+          connector_approval_blocked: 0,
+          connector_missing_critical: 0,
           checked_at: '2026-05-02T10:00:00.000Z',
         },
       },
@@ -232,6 +278,89 @@ describe('client AI Ops monitor cron route', () => {
       owner_type: 'amadutown',
       priority: 'high',
       meeting_task_visible: true,
+    }))
+  })
+
+  it('creates a monitoring review when readiness needs approval even without task or cost drift', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-05-02T10:00:00Z'))
+
+    const reportInsert = supabaseQueryResult({ data: { id: 'report-readiness' }, error: null })
+    const followupInsert = supabaseQueryResult({ data: { id: 'followup-readiness', title: 'Review AI Ops monitoring findings' }, error: null })
+    mocks.getRoadmapBundleForProject.mockResolvedValue({
+      clientView: {
+        connectorReadiness: {
+          summary: '1 required, 0 ready, 0 need auth, 1 approval-blocked',
+          requiredConnectorCount: 1,
+          readyConnectorCount: 0,
+          approvalBlockedConnectorCount: 1,
+          missingCriticalConnectorCount: 0,
+          connectorNextAction: 'Create approval checkpoint before connecting HubSpot.',
+          conflicts: [],
+          items: [],
+        },
+        projectionStatus: {
+          tasksTotal: 1,
+          tasksComplete: 0,
+          blockedTasks: 0,
+          clientActionCount: 0,
+          amadutownActionCount: 1,
+          sharedActionCount: 0,
+          approvalNeededCount: 0,
+          isolationRequiredCount: 0,
+          overdueTasks: 0,
+          staleCostItems: 0,
+          reportMissing: false,
+          nextReportingAction: 'Continue scheduled roadmap monitoring',
+        },
+      },
+    })
+
+    mockTableResponses({
+      client_ai_ops_roadmaps: [
+        roadmapQuery([
+          {
+            id: 'roadmap-1',
+            client_project_id: 'project-1',
+            title: 'Acme AI Ops',
+            status: 'active',
+          },
+        ]),
+      ],
+      client_ai_ops_roadmap_tasks: [
+        supabaseQueryResult({ data: [], error: null }),
+        supabaseQueryResult({ data: null, error: null }),
+        followupInsert,
+      ],
+      client_ai_ops_roadmap_cost_items: [
+        supabaseQueryResult({ data: [], error: null }),
+      ],
+      client_ai_ops_roadmap_reports: [
+        supabaseQueryResult({ data: [{ id: 'recent-report', generated_at: '2026-05-01T10:00:00Z' }], error: null }),
+        reportInsert,
+      ],
+      client_ai_ops_roadmap_phases: [
+        supabaseQueryResult({ data: { id: 'phase-1' }, error: null }),
+      ],
+    })
+
+    const response = await POST(request('POST', 'cron-secret') as never)
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toMatchObject({ reports_created: 1, followup_tasks_created: 1 })
+    expect(reportInsert.insert).toHaveBeenCalledWith(expect.objectContaining({
+      amadutown_actions: [
+        'Review AI Ops readiness: Review approval-gated AI Ops work before any live setup or outbound action.',
+      ],
+      monitoring_summary: expect.objectContaining({
+        overdue_tasks: 0,
+        stale_cost_items: 0,
+        report_missing: false,
+        readiness_status: 'waiting_approval',
+        readiness_side_effects_enabled: false,
+        connector_required: 1,
+        connector_approval_blocked: 1,
+      }),
     }))
   })
 })

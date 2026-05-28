@@ -40,6 +40,7 @@ The daily monitor runs through `/api/cron/client-ai-ops-monitor`.
 - n8n/manual triggers can still use `POST` with `Authorization: Bearer <N8N_INGEST_SECRET>`.
 - The monitor checks active and approved roadmaps for overdue tasks, stale pricing, missing reports, and open monitoring findings.
 - When findings exist, the monitor creates a roadmap report and an internal follow-up roadmap task.
+- The monitor also records the AI Ops readiness contract status in the monitoring summary. If readiness needs approval or connector decisions, it can create the same internal monitoring review without attempting live setup.
 - Monitoring follow-up tasks are also projected into Meeting Tasks so the admin work queue shows the issue immediately.
 
 ## Technology Registry
@@ -132,6 +133,7 @@ Use this checklist whenever a roadmap feature, monitor, report, or client implem
 - Status updates from either projection sync back to the roadmap task.
 - Phase rollups and cost summaries refresh after task or cost changes.
 - The monitor can create a roadmap report and follow-up task when drift, stale pricing, missing reports, or blockers appear.
+- The monitor records readiness status, next action, connector counts, and side-effect lock state in monitoring summaries.
 - Roadmap projection status is visible from the same source data and remains read-only.
 - Connector readiness is visible from verified stack, audit, BuiltWith, and roadmap signals without live credential setup.
 - The synthetic pilot fixture still proves audit-to-roadmap-to-client/admin projection and read-only autonomous handoff boundaries.
