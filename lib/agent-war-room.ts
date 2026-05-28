@@ -58,6 +58,14 @@ export interface LinkedInContentCalibration {
   revision_questions: string[]
   missing_context_prompts: string[]
   comparison_prompt: string
+  operator_feedback?: {
+    prior_post_excerpt?: string
+    engagement_signal?: string
+    audience_context?: string
+    revision_request?: string
+    claim_boundaries?: string
+    updated_at?: string
+  }
 }
 
 export interface LinkedInContentPacket {
