@@ -116,47 +116,87 @@ adb connect 192.168.4.26:43343
 scrcpy -s 192.168.4.26:43343
 ```
 
+Or use the Portfolio command helper, which caches the current endpoint in `~/.codex/pixel-adb-endpoint`:
+
+```bash
+bash /Users/vambahsillah/Projects/Portfolio/scripts/pixel-control.sh connect 192.168.4.26:43343
+bash /Users/vambahsillah/Projects/Portfolio/scripts/pixel-control.sh mirror
+```
+
+## Official Agent Command
+
+The official command spec lives at:
+
+```bash
+/Users/vambahsillah/Projects/Portfolio/commands/pixelmirror.md
+```
+
+Use `/pixelmirror` when Vambah asks to mirror the Pixel, inspect mobile Slack, or validate a mobile-only flow. The command starts with a status check:
+
+```bash
+bash /Users/vambahsillah/Projects/Portfolio/scripts/pixel-control.sh status
+```
+
+If the Pixel is connected, use ADB for validation actions and screenshots:
+
+```bash
+bash /Users/vambahsillah/Projects/Portfolio/scripts/pixel-control.sh open-slack
+bash /Users/vambahsillah/Projects/Portfolio/scripts/pixel-control.sh screenshot /tmp/pixel-screen.png
+```
+
+Use `scrcpy` primarily as a visible mirror for Vambah, not as the control surface for the agent.
+
 ## Agent Activation Rule
 
 Use this rule in project or global agent instructions:
 
 ```text
-When Vambah asks to mirror, open, cast, or control his Google Pixel from this Mac, run:
+When Vambah asks to mirror, open, cast, inspect, or validate his Google Pixel from this Mac, treat it as `/pixelmirror` and run:
 
-  osascript -e 'tell application "Terminal" to do script "bash /Users/vambahsillah/Projects/Portfolio/scripts/mirror-pixel.sh"'
+  bash /Users/vambahsillah/Projects/Portfolio/scripts/pixel-control.sh status
 
-This hands the long-running scrcpy process to Terminal so the agent session can finish cleanly. Do not walk through the full setup unless the script fails. If ADB cannot see the Pixel, ask Vambah to turn on Pixel Wireless debugging and provide the current IP address & Port from Settings -> System -> Developer options -> Wireless debugging. If pairing fails or the IP starts with 100.x.x.x, have Vambah disable Tailscale/VPN and use the normal Wi-Fi IP.
+If a visible mirror is needed, hand the long-running scrcpy process to Terminal:
+
+  osascript -e 'tell application "Terminal" to do script "bash /Users/vambahsillah/Projects/Portfolio/scripts/pixel-control.sh mirror"'
+
+For functional validation, use ADB commands and screenshots through `scripts/pixel-control.sh` instead of trying to control the scrcpy window with Computer Use. Do not walk through the full setup unless the script fails. If ADB cannot see the Pixel, ask Vambah to turn on Pixel Wireless debugging and provide the current IP address & Port from Settings -> System -> Developer options -> Wireless debugging. If pairing fails or the IP starts with 100.x.x.x, have Vambah disable Tailscale/VPN and use the normal Wi-Fi IP.
 ```
 
 ## Scripted Agent Flow
 
-The helper script lives at:
+The mirror helper lives at:
 
 ```bash
 /Users/vambahsillah/Projects/Portfolio/scripts/mirror-pixel.sh
 ```
 
+The control helper lives at:
+
+```bash
+/Users/vambahsillah/Projects/Portfolio/scripts/pixel-control.sh
+```
+
 Default command:
 
 ```bash
-bash /Users/vambahsillah/Projects/Portfolio/scripts/mirror-pixel.sh
+bash /Users/vambahsillah/Projects/Portfolio/scripts/pixel-control.sh mirror
 ```
 
 Agent-safe Terminal handoff:
 
 ```bash
-osascript -e 'tell application "Terminal" to do script "bash /Users/vambahsillah/Projects/Portfolio/scripts/mirror-pixel.sh"'
+osascript -e 'tell application "Terminal" to do script "bash /Users/vambahsillah/Projects/Portfolio/scripts/pixel-control.sh mirror"'
 ```
 
 If the wireless debugging port changes, reconnect first:
 
 ```bash
-adb connect PHONE_IP:CONNECT_PORT
-osascript -e 'tell application "Terminal" to do script "bash /Users/vambahsillah/Projects/Portfolio/scripts/mirror-pixel.sh"'
+bash /Users/vambahsillah/Projects/Portfolio/scripts/pixel-control.sh connect PHONE_IP:CONNECT_PORT
+osascript -e 'tell application "Terminal" to do script "bash /Users/vambahsillah/Projects/Portfolio/scripts/pixel-control.sh mirror"'
 ```
 
 To pin a known endpoint for a single run:
 
 ```bash
-osascript -e 'tell application "Terminal" to do script "PIXEL_ADB_ENDPOINT=192.168.4.26:43343 bash /Users/vambahsillah/Projects/Portfolio/scripts/mirror-pixel.sh"'
+osascript -e 'tell application "Terminal" to do script "PIXEL_ADB_ENDPOINT=192.168.4.26:43343 bash /Users/vambahsillah/Projects/Portfolio/scripts/pixel-control.sh mirror"'
 ```
