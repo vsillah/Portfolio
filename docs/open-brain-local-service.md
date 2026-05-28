@@ -100,6 +100,31 @@ The first production MCP registration is an operational-state step. It should be
 
 The repo-owned MCP server prototype is `scripts/open-brain-mcp-server.ts`. It exposes the tool names above and stores local JSON records under `OPEN_BRAIN_HOME`, but registering it with Codex, Hermes, OpenCode, Claude, Cursor, or ChatGPT remains a separate local-state change.
 
+## Runtime Registration Packet
+
+Phase 2 uses a dry-run registration packet before any agent config is edited:
+
+```bash
+npm run open-brain:runtime-registration
+```
+
+The packet reports:
+
+- the resolved `OPEN_BRAIN_HOME`,
+- the Portfolio root used by the MCP server,
+- the exact stdio MCP command,
+- runtime-specific config snippets for Codex, Hermes, OpenCode/OpenClaw-style agents, Claude Desktop, and Cursor,
+- per-runtime registration status,
+- and verification commands for each runtime.
+
+To save a reviewable packet without changing agent configs:
+
+```bash
+npm run open-brain:runtime-registration -- --write tmp/open-brain-runtime-registration.md
+```
+
+The planner is intentionally non-mutating. It does not create or edit `~/.codex/config.toml`, `~/.hermes/config.yaml`, Cursor/Claude/OpenCode config files, or durable Open Brain memory records. Actual runtime registration remains a local-state approval step and should be performed one runtime at a time, followed by that runtime's own doctor/list/manual MCP verification.
+
 ## Karpathy Wiki Overlay
 
 Karpathy Wiki pages are compiled views from approved, non-private Open Brain records. Initial pages:
