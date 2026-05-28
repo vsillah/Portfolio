@@ -241,15 +241,37 @@ function report(inventory: CredentialInventory, args: ParsedArgs) {
   const env = getEnv(args)
   loadRuntimeEnv(env)
   const asOf = String(args.options['as-of'] || new Date().toISOString())
-  const sinkPresence = args.options['check-sinks'] ? collectRuntimeSinkPresence(inventory, env) : []
+  const strictSinkStatuses = strictSinkGapStatuses(args)
+  const sinkPresence = args.options['check-sinks'] || strictSinkStatuses.size > 0 ? collectRuntimeSinkPresence(inventory, env) : []
   const credentialReport = buildCredentialReport(inventory, env, asOf, readRotationPackets(), sinkPresence)
 
   if (args.options.json) {
     console.log(JSON.stringify(credentialReport, null, 2))
-    return
+  } else {
+    console.log(renderCredentialReportMarkdown(credentialReport))
   }
 
-  console.log(renderCredentialReportMarkdown(credentialReport))
+  if (strictSinkStatuses.size > 0) {
+    const strictGaps = credentialReport.sinkGapActions.filter((gap) => strictSinkStatuses.has(gap.status))
+    if (strictGaps.length > 0) {
+      fail(`Strict runtime sink gate failed: ${strictGaps.length} ${env} sink gap(s) matched ${Array.from(strictSinkStatuses).join(', ')}.`)
+    }
+  }
+}
+
+function strictSinkGapStatuses(args: ParsedArgs): Set<'missing' | 'unknown' | 'unavailable'> {
+  const raw = args.options['strict-sinks']
+  if (!raw) return new Set()
+  if (raw === true) return new Set(['missing', 'unknown', 'unavailable'])
+
+  const statuses = String(raw).split(',').map((item) => item.trim()).filter(Boolean)
+  const allowed = new Set(['missing', 'unknown', 'unavailable'])
+  for (const status of statuses) {
+    if (!allowed.has(status)) {
+      fail(`Invalid --strict-sinks status: ${status}. Expected missing, unknown, unavailable, or a comma-separated subset.`)
+    }
+  }
+  return new Set(statuses as Array<'missing' | 'unknown' | 'unavailable'>)
 }
 
 function baselineTemplate(inventory: CredentialInventory, args: ParsedArgs) {
@@ -1124,7 +1146,7 @@ function printHelp() {
 
 Commands:
   list-due      --env <dev|staging|prod> [--as-of YYYY-MM-DD] [--json]
-  report        --env <dev|staging|prod> [--as-of YYYY-MM-DD] [--check-sinks] [--json]
+  report        --env <dev|staging|prod> [--as-of YYYY-MM-DD] [--check-sinks] [--strict-sinks [missing,unknown,unavailable]] [--json]
   baseline-template --env <dev|staging|prod> [--updated-at YYYY-MM-DD] [--json]
   bootstrap-infisical --env <dev|staging|prod> [--source .env.local] [--secret id-or-envVar[,..]] [--apply]
   inject        --env <dev|staging|prod> [--secret id-or-envVar[,..]] -- <command>

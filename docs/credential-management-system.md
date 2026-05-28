@@ -27,6 +27,8 @@ All commands read `docs/credential-inventory.json`.
 npm run credentials:list-due -- --env staging
 npm run credentials:report -- --env staging
 npm run credentials:report -- --env staging --check-sinks
+npm run credentials:report:strict-sinks -- --env staging
+npm run credentials:report -- --env staging --strict-sinks missing,unavailable
 npm run credentials:report -- --env staging --json
 npm run credentials:baseline-template -- --env staging
 npm run credentials:baseline-template -- --env staging --json
@@ -44,6 +46,8 @@ Use plain `credentials:smoke` for local registry checks. Use `--require-provider
 Use `credentials:report` for rotation visibility. It is read-only and summarizes the inventory by status, source of truth, risk, runtime sink, approval boundary, and next action. It does not fetch or print secret values. The same report is exposed to admins at `/admin/credentials` through `/api/admin/credentials/report`.
 
 Use `credentials:report -- --check-sinks` when the operator needs runtime sink presence visibility. This mode inspects local env files, Vercel environment metadata, n8n credential names/types, and n8n Variable keys by metadata only. n8n Variable values are reduced away before the broker records evidence, so values are not printed or stored. If `N8N_API_KEY` lacks read access to `/api/v1/variables`, n8n Variable sinks are reported as `unavailable` with the missing scope action instead of remaining `unknown`. Unknown/unavailable sink states should be treated as visibility gaps, not proof that a credential is absent.
+
+Use `credentials:report:strict-sinks` for monitor gates. It performs the same value-free sink checks and exits nonzero when any `missing`, `unknown`, or `unavailable` sink gaps remain. To gate on only specific statuses, use `credentials:report -- --env staging --strict-sinks missing,unavailable`; this implies sink checks even when `--check-sinks` is omitted.
 
 The report includes runtime sink gap actions for `missing`, `unknown`, and `unavailable` sink states. These are operator tasks, not automatic mutations: sync missing sinks from the source of truth, restore read-only metadata access when checks are unavailable, or add a key-only adapter before treating unknown states as verified.
 
