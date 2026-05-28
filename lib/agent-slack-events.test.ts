@@ -39,6 +39,25 @@ function queryResult(result: unknown) {
   return query
 }
 
+function slackNotificationEvent(actions: Array<Record<string, unknown>>) {
+  return queryResult({
+    data: {
+      metadata: {
+        blocks: [
+          {
+            type: 'actions',
+            elements: actions.map((action) => ({
+              type: 'button',
+              value: JSON.stringify(action),
+            })),
+          },
+        ],
+      },
+    },
+    error: null,
+  })
+}
+
 describe('agent Slack events', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -187,28 +206,13 @@ describe('agent Slack events', () => {
   it('turns simple thread replies into governed Slack work-item actions', async () => {
     mocks.from
       .mockReturnValueOnce(queryResult({ data: { id: 'notification-run' }, error: null }))
-      .mockReturnValueOnce(queryResult({
-        data: {
-          metadata: {
-            blocks: [
-              {
-                type: 'actions',
-                elements: [
-                  {
-                    type: 'button',
-                    value: JSON.stringify({
-                      action: 'work.acknowledge',
-                      workItemId: 'work-1',
-                      runId: 'run-1',
-                    }),
-                  },
-                ],
-              },
-            ],
-          },
+      .mockReturnValueOnce(slackNotificationEvent([
+        {
+          action: 'work.acknowledge',
+          workItemId: 'work-1',
+          runId: 'run-1',
         },
-        error: null,
-      }))
+      ]))
 
     const result = await handleSlackAgentEvent({
       type: 'event_callback',
@@ -241,6 +245,191 @@ describe('agent Slack events', () => {
     })
     expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
     expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1]?.body).toContain('Blocker acknowledged')
+  })
+
+  it('turns approval thread replies into governed approve actions with notes', async () => {
+    mocks.from
+      .mockReturnValueOnce(queryResult({ data: { id: 'notification-run' }, error: null }))
+      .mockReturnValueOnce(slackNotificationEvent([
+        {
+          action: 'approval.approve',
+          approvalId: 'approval-1',
+          runId: 'run-1',
+        },
+        {
+          action: 'approval.reject',
+          approvalId: 'approval-1',
+          runId: 'run-1',
+        },
+      ]))
+
+    const result = await handleSlackAgentEvent({
+      type: 'event_callback',
+      event_id: 'EvApprove',
+      event: {
+        type: 'app_mention',
+        user: 'U123',
+        channel: 'C123',
+        text: '<@UAGENT> approve: looks good',
+        ts: '1700000000.000004',
+        thread_ts: '1700000000.000001',
+      },
+    })
+
+    expect(result).toEqual({ handled: true, reason: 'thread_reply_action' })
+    expect(mocks.handleSlackAgentAction).toHaveBeenCalledWith({
+      type: 'block_actions',
+      user: { id: 'U123' },
+      action_ts: '1700000000.000004',
+      container: { message_ts: '1700000000.000001' },
+      actions: [
+        {
+          value: JSON.stringify({
+            action: 'approval.approve',
+            approvalId: 'approval-1',
+            runId: 'run-1',
+            note: 'looks good',
+          }),
+        },
+      ],
+    })
+    expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
+  })
+
+  it('turns rejection thread replies into governed approval rejection actions', async () => {
+    mocks.from
+      .mockReturnValueOnce(queryResult({ data: { id: 'notification-run' }, error: null }))
+      .mockReturnValueOnce(slackNotificationEvent([
+        {
+          action: 'approval.approve',
+          approvalId: 'approval-1',
+          runId: 'run-1',
+        },
+        {
+          action: 'approval.reject',
+          approvalId: 'approval-1',
+          runId: 'run-1',
+        },
+      ]))
+
+    const result = await handleSlackAgentEvent({
+      type: 'event_callback',
+      event_id: 'EvReject',
+      event: {
+        type: 'app_mention',
+        user: 'U123',
+        channel: 'C123',
+        text: '<@UAGENT> reject: needs changes',
+        ts: '1700000000.000005',
+        thread_ts: '1700000000.000001',
+      },
+    })
+
+    expect(result).toEqual({ handled: true, reason: 'thread_reply_action' })
+    expect(mocks.handleSlackAgentAction).toHaveBeenCalledWith({
+      type: 'block_actions',
+      user: { id: 'U123' },
+      action_ts: '1700000000.000005',
+      container: { message_ts: '1700000000.000001' },
+      actions: [
+        {
+          value: JSON.stringify({
+            action: 'approval.reject',
+            approvalId: 'approval-1',
+            runId: 'run-1',
+            note: 'needs changes',
+          }),
+        },
+      ],
+    })
+    expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
+  })
+
+  it('turns assignment thread replies into governed work assignment actions', async () => {
+    mocks.from
+      .mockReturnValueOnce(queryResult({ data: { id: 'notification-run' }, error: null }))
+      .mockReturnValueOnce(slackNotificationEvent([
+        {
+          action: 'work.acknowledge',
+          workItemId: 'work-1',
+          runId: 'run-1',
+        },
+        {
+          action: 'work.ready',
+          workItemId: 'work-1',
+          runId: 'run-1',
+        },
+      ]))
+
+    const result = await handleSlackAgentEvent({
+      type: 'event_callback',
+      event_id: 'EvAssign',
+      event: {
+        type: 'app_mention',
+        user: 'U123',
+        channel: 'C123',
+        text: '<@UAGENT> assign shaka',
+        ts: '1700000000.000005',
+        thread_ts: '1700000000.000001',
+      },
+    })
+
+    expect(result).toEqual({ handled: true, reason: 'thread_reply_action' })
+    expect(mocks.handleSlackAgentAction).toHaveBeenCalledWith({
+      type: 'block_actions',
+      user: { id: 'U123' },
+      action_ts: '1700000000.000005',
+      container: { message_ts: '1700000000.000001' },
+      actions: [
+        {
+          value: JSON.stringify({
+            action: 'work.assign',
+            workItemId: 'work-1',
+            agentKey: 'shaka',
+          }),
+        },
+      ],
+    })
+    expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
+  })
+
+  it('falls back to Chief of Staff chat when a thread reply targets multiple work items', async () => {
+    mocks.from
+      .mockReturnValueOnce(queryResult({ data: { id: 'notification-run' }, error: null }))
+      .mockReturnValueOnce(slackNotificationEvent([
+        {
+          action: 'work.acknowledge',
+          workItemId: 'work-1',
+          runId: 'run-1',
+        },
+        {
+          action: 'work.acknowledge',
+          workItemId: 'work-2',
+          runId: 'run-1',
+        },
+      ]))
+
+    const result = await handleSlackAgentEvent({
+      type: 'event_callback',
+      event_id: 'EvAmbiguous',
+      event: {
+        type: 'app_mention',
+        user: 'U123',
+        channel: 'C123',
+        text: '<@UAGENT> acknowledge',
+        ts: '1700000000.000006',
+        thread_ts: '1700000000.000001',
+      },
+    })
+
+    expect(result).toEqual({ handled: true, runId: 'run-123' })
+    expect(mocks.handleSlackAgentAction).not.toHaveBeenCalled()
+    expect(mocks.runChiefOfStaffChat).toHaveBeenCalledWith({
+      message: 'acknowledge',
+      userId: 'slack:U123',
+      triggerSource: 'slack_agent_thread_reply',
+      contextRef: { type: 'run', id: 'notification-run' },
+    })
   })
 
   it('formats Chief of Staff replies with trace links', () => {
