@@ -622,6 +622,7 @@ function RelationshipMapView({
   const [statusFilter, setStatusFilter] = useState<RelationshipStatusFilter>('all')
   const [decisionTrustFilter, setDecisionTrustFilter] = useState<DecisionTrustFilter>('all')
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
+  const [selectedInsightId, setSelectedInsightId] = useState<string | null>(null)
   const map = snapshot.relationshipMap
   const visibleNodes = map.nodes.filter((node) => (
     (typeFilter === 'all' || node.type === typeFilter) &&
@@ -639,6 +640,7 @@ function RelationshipMapView({
     (statusFilter === 'all' || edge.status === statusFilter)
   ))
   const nodeById = new Map(visibleNodes.map((node) => [node.id, node]))
+  const allNodeById = new Map(map.nodes.map((node) => [node.id, node]))
   const nodeTypes: Array<OpenBrainRelationshipNodeType | 'all'> = ['all', 'source', 'memory', 'event', 'wiki', 'proposal']
   const privacyTiers: Array<OpenBrainPrivacyTier | 'all'> = ['all', 'public_safe', 'client_safe', 'internal_ops', 'private']
   const healthValues: RelationshipHealthFilter[] = ['all', 'green', 'yellow', 'red']
@@ -652,8 +654,18 @@ function RelationshipMapView({
   const selectedPath = selectedNodeEdges.find((edge) => edge.strength === 'strong') || selectedNodeEdges[0] || visibleEdges.find((edge) => edge.strength === 'strong') || visibleEdges[0]
   const selectedFrom = selectedPath ? nodeById.get(selectedPath.fromId) : null
   const selectedTo = selectedPath ? nodeById.get(selectedPath.toId) : null
+  const selectedInsight = (selectedInsightId ? map.insights.find((insight) => insight.id === selectedInsightId) : null) || map.insights[0] || null
+  const selectedInsightSource = selectedInsight?.sourceNodeId ? allNodeById.get(selectedInsight.sourceNodeId) || null : null
+  const selectedInsightTarget = selectedInsight?.targetNodeId ? allNodeById.get(selectedInsight.targetNodeId) || null : null
+  const visibleInsightSource = selectedInsight?.sourceNodeId ? nodeById.get(selectedInsight.sourceNodeId) || null : null
+  const visibleInsightTarget = selectedInsight?.targetNodeId ? nodeById.get(selectedInsight.targetNodeId) || null : null
   const graphMinHeight = Math.max(620, Math.ceil(visibleNodes.length / 4) * 132)
   const activeFilterCount = [typeFilter, privacyFilter, healthFilter, strengthFilter, statusFilter, decisionTrustFilter].filter((value) => value !== 'all').length
+  const selectedRouteLabel = visibleInsightSource && visibleInsightTarget
+    ? `Selected proposed route: ${visibleInsightSource.label} -> ${visibleInsightTarget.label}`
+    : selectedFrom && selectedTo
+      ? `Selected path: ${selectedFrom.label} -> ${selectedTo.label}`
+      : 'No visible relationship path for this filter.'
 
   function resetFilters() {
     setTypeFilter('all')
@@ -784,11 +796,7 @@ function RelationshipMapView({
         >
           <div className="absolute left-5 top-5 z-10 max-w-[calc(100%-2.5rem)]">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-radiant-gold">Memory Graph</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {selectedFrom && selectedTo
-                ? `Selected path: ${selectedFrom.label} -> ${selectedTo.label}`
-                : 'No visible relationship path for this filter.'}
-            </p>
+            <p className="mt-1 text-sm text-muted-foreground">{selectedRouteLabel}</p>
             <p className="mt-1 text-xs text-muted-foreground">
               Filtered view: {visibleNodes.length} node(s), {visibleEdges.length} edge(s)
             </p>
@@ -813,6 +821,19 @@ function RelationshipMapView({
                 />
               )
             })}
+            {visibleInsightSource && visibleInsightTarget ? (
+              <line
+                x1={visibleInsightSource.x}
+                y1={visibleInsightSource.y}
+                x2={visibleInsightTarget.x}
+                y2={visibleInsightTarget.y}
+                stroke="rgba(212,175,55,0.98)"
+                strokeWidth={0.9}
+                strokeDasharray="2 1"
+                strokeLinecap="round"
+                vectorEffect="non-scaling-stroke"
+              />
+            ) : null}
           </svg>
           {visibleNodes.map((node) => (
             <button
@@ -852,14 +873,24 @@ function RelationshipMapView({
             audit={map.audit}
           />
           <div className="my-5 border-t border-silicon-slate/60" />
+          <RelationshipInsightRoutePreview
+            insight={selectedInsight}
+            sourceNode={selectedInsightSource}
+            targetNode={selectedInsightTarget}
+            proposingInsightId={proposingInsightId}
+            onSuggestionAction={onSuggestionAction}
+          />
+          <div className="my-5 border-t border-silicon-slate/60" />
           <p className="agent-ops-eyebrow"><Target size={14} /> Relationship insights</p>
           <h2 className="mt-2 text-xl font-semibold">What I will review before action</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             These controls do not mutate Open Brain. They identify relationship changes that should become explicit proposals.
           </p>
           <div className="mt-4 space-y-3">
-            {map.insights.length > 0 ? map.insights.map((insight) => (
-              <article key={insight.id} className={`rounded-lg border border-l-4 bg-background/20 p-3 ${relationshipInsightTone(insight.severity)}`}>
+            {map.insights.length > 0 ? map.insights.map((insight) => {
+              const isSelectedInsight = selectedInsight?.id === insight.id
+              return (
+              <article key={insight.id} className={`rounded-lg border border-l-4 bg-background/20 p-3 ${relationshipInsightTone(insight.severity)} ${isSelectedInsight ? 'ring-1 ring-radiant-gold/70' : ''}`}>
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="text-sm font-semibold">{insight.title}</h3>
                   <span className="rounded-full border border-silicon-slate/60 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
@@ -868,16 +899,31 @@ function RelationshipMapView({
                 </div>
                 <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{insight.detail}</p>
                 <p className="mt-2 text-xs leading-relaxed text-foreground/85">{insight.recommendation}</p>
-                <button
-                  type="button"
-                  onClick={() => onSuggestionAction(insight)}
-                  disabled={proposingInsightId === insight.id}
-                  className="mt-3 inline-flex items-center gap-2 rounded-lg border border-radiant-gold/40 bg-radiant-gold/10 px-3 py-2 text-xs font-medium text-radiant-gold hover:bg-radiant-gold/15 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {proposingInsightId === insight.id ? 'Creating proposal...' : insight.actionLabel}
-                </button>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedInsightId(insight.id)
+                      if (insight.sourceNodeId && visibleNodeIds.has(insight.sourceNodeId)) {
+                        setSelectedNodeId(insight.sourceNodeId)
+                      }
+                    }}
+                    className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/60 px-3 py-2 text-xs font-medium text-foreground hover:border-radiant-gold/45"
+                  >
+                    Preview route
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onSuggestionAction(insight)}
+                    disabled={proposingInsightId === insight.id}
+                    className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/40 bg-radiant-gold/10 px-3 py-2 text-xs font-medium text-radiant-gold hover:bg-radiant-gold/15 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {proposingInsightId === insight.id ? 'Creating proposal...' : insight.actionLabel}
+                  </button>
+                </div>
               </article>
-            )) : (
+              )
+            }) : (
               <EmptyState message="No relationship issues are visible for the current graph." />
             )}
           </div>
@@ -1054,6 +1100,72 @@ function SelectedRelationshipRecordPanel({
           </div>
         </div>
       ) : null}
+    </div>
+  )
+}
+
+function RelationshipInsightRoutePreview({
+  insight,
+  sourceNode,
+  targetNode,
+  proposingInsightId,
+  onSuggestionAction,
+}: {
+  insight: OpenBrainRelationshipInsight | null
+  sourceNode: OpenBrainSnapshot['relationshipMap']['nodes'][number] | null
+  targetNode: OpenBrainSnapshot['relationshipMap']['nodes'][number] | null
+  proposingInsightId: string | null
+  onSuggestionAction: (insight: OpenBrainRelationshipInsight) => void
+}) {
+  if (!insight) {
+    return (
+      <div>
+        <p className="agent-ops-eyebrow"><Route size={14} /> Proposed route</p>
+        <p className="mt-3 rounded-lg border border-silicon-slate/60 bg-background/20 p-3 text-sm text-muted-foreground">
+          No relationship insight is available for this map.
+        </p>
+      </div>
+    )
+  }
+
+  const relationshipName = relationshipNameForInsight(insight)
+  const sourceLabel = sourceNode?.label || insight.sourceNodeId || 'Unscoped source'
+  const targetLabel = targetNode?.label || insight.targetNodeId || 'Review target not yet explicit'
+  const createsDurableLink = Boolean(sourceNode && targetNode)
+
+  return (
+    <div>
+      <p className="agent-ops-eyebrow"><Route size={14} /> Proposed route</p>
+      <h2 className="mt-2 text-xl font-semibold">{insight.title}</h2>
+      <div className="mt-4 rounded-lg border border-radiant-gold/25 bg-radiant-gold/10 p-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-radiant-gold">Route preview</p>
+        <div className="mt-3 grid gap-2 text-xs">
+          <Detail label="From" value={sourceLabel} />
+          <Detail label="To" value={targetLabel} />
+          <Detail label="Relationship" value={formatRelationshipLabel(relationshipName)} />
+          <Detail label="Severity" value={insight.severity} />
+        </div>
+      </div>
+      <p className="mt-3 rounded-lg border border-silicon-slate/60 bg-background/20 p-3 text-xs leading-relaxed text-muted-foreground">
+        Next step I will create an approval-gated relationship proposal when this action is selected. Approval is required before Open Brain creates or changes a durable link.
+      </p>
+      <p className={`mt-3 rounded-lg border p-3 text-xs leading-relaxed ${
+        createsDurableLink
+          ? 'border-green-400/25 bg-green-500/10 text-green-100'
+          : 'border-yellow-400/30 bg-yellow-500/10 text-yellow-100'
+      }`}>
+        {createsDurableLink
+          ? 'Approval impact: this proposal can become one durable Open Brain link record for the route shown above.'
+          : 'Approval impact: this proposal records review context only until both sides of the route are explicit.'}
+      </p>
+      <button
+        type="button"
+        onClick={() => onSuggestionAction(insight)}
+        disabled={proposingInsightId === insight.id}
+        className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-radiant-gold/40 bg-radiant-gold/10 px-3 py-2 text-xs font-medium text-radiant-gold hover:bg-radiant-gold/15 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {proposingInsightId === insight.id ? 'Creating proposal...' : insight.actionLabel}
+      </button>
     </div>
   )
 }
