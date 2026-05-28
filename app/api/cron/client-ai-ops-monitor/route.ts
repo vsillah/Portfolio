@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import {
+  getRoadmapBundleForProject,
   projectRoadmapTaskToMeetingTask,
   refreshRoadmapPhaseRollups,
 } from '@/lib/client-ai-ops-roadmap-db'
+import { buildClientAiOpsReadinessContract } from '@/lib/client-ai-ops-readiness-contract'
 
 export const dynamic = 'force-dynamic'
 
@@ -63,15 +65,26 @@ async function runMonitor(request: NextRequest) {
     const staleCostItems = ((costsRes.data || []) as MonitorCostRow[]).filter((item) => item.pricing_state !== 'fresh')
     const lastReportAt = reportsRes.data?.[0]?.generated_at ? new Date(reportsRes.data[0].generated_at).getTime() : 0
     const reportMissing = !lastReportAt || Date.now() - lastReportAt > 32 * 24 * 60 * 60 * 1000
+    const readiness = await getRoadmapBundleForProject(roadmap.client_project_id)
+      .then((bundle) => buildClientAiOpsReadinessContract(bundle?.clientView, { clientProjectId: roadmap.client_project_id }))
+      .catch(() => null)
+    const readinessNeedsReview = Boolean(readiness && readiness.status !== 'ready_for_planning')
 
     const monitoringSummary = {
       overdue_tasks: overdueTasks.length,
       stale_cost_items: staleCostItems.length,
       report_missing: reportMissing,
+      readiness_status: readiness?.status ?? 'unavailable',
+      readiness_next_action: readiness?.nextAction ?? null,
+      readiness_side_effects_enabled: readiness?.sideEffectsEnabled ?? false,
+      connector_required: readiness?.connector.required ?? 0,
+      connector_ready: readiness?.connector.ready ?? 0,
+      connector_approval_blocked: readiness?.connector.approvalBlocked ?? 0,
+      connector_missing_critical: readiness?.connector.missingCritical ?? 0,
       checked_at: nowIso,
     }
 
-    if (overdueTasks.length > 0 || staleCostItems.length > 0 || reportMissing) {
+    if (overdueTasks.length > 0 || staleCostItems.length > 0 || reportMissing || readinessNeedsReview) {
       const { data: report } = await supabaseAdmin
         .from('client_ai_ops_roadmap_reports')
         .insert({
@@ -86,6 +99,7 @@ async function runMonitor(request: NextRequest) {
             ...overdueTasks.map((task) => `Review overdue roadmap task: ${task.title}`),
             ...staleCostItems.map((item) => `Refresh pricing/source for: ${item.label}`),
             ...(reportMissing ? ['Generate monthly AI Ops report'] : []),
+            ...(readinessNeedsReview && readiness?.nextAction ? [`Review AI Ops readiness: ${readiness.nextAction}`] : []),
           ],
           approval_needed: [],
           monitoring_summary: monitoringSummary,
