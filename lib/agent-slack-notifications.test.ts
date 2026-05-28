@@ -212,4 +212,29 @@ describe('Agent Ops Slack notifications', () => {
     expect(body).toContain('run.ask_shaka')
     expect(body).toContain('/admin/agents/runs/run-stale')
   })
+
+  it('sends selected-agent standup questions even when no work cards match', async () => {
+    process.env.SLACK_AGENT_OPS_WEBHOOK_URL = 'https://hooks.slack.test/agent'
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true })
+    vi.stubGlobal('fetch', fetchMock)
+    mocks.listAgentWorkItems.mockResolvedValue([])
+
+    const result = await sendAgentSlackNotification({
+      kind: 'selected_agent_question',
+      message: 'What changed since the last standup?',
+      targetAgentKeys: ['chief-of-staff', 'research-source-register'],
+    })
+
+    expect(result).toMatchObject({
+      sent: true,
+      itemCount: 0,
+      text: 'Standup question for selected agents: 2 agent(s) asked.',
+    })
+    const payload = JSON.parse(fetchMock.mock.calls[0][1].body)
+    expect(JSON.stringify(payload.blocks)).toContain('What changed since the last standup?')
+    expect(JSON.stringify(payload.blocks)).toContain('Shaka (Zulu) - Chief of Staff')
+    expect(JSON.stringify(payload.blocks)).toContain('Askia Muhammad (Songhai) - Research Source Register')
+    expect(JSON.stringify(payload.blocks)).toContain('No active Kanban cards are currently assigned')
+    expect(JSON.stringify(payload.blocks)).toContain('/admin/agents/standup')
+  })
 })
