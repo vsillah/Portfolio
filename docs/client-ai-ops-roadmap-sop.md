@@ -120,6 +120,8 @@ Use `buildClientAiOpsReadinessContract` from `lib/client-ai-ops-readiness-contra
 
 `GET` and `POST` on `/api/admin/client-projects/[id]/ai-ops` return this readiness packet alongside the existing roadmap response. Consumers should treat it as a read-only decision surface. It can tell an admin what needs approval or planning next, but it must not be used as permission to connect OAuth, sync credentials, call providers, send outbound messages, deploy production changes, or mutate client data.
 
+The Client Dashboard should only show a client-safe setup readiness summary derived from the roadmap and connector read model. It may show readiness status, next action, connector counts, approval counts, isolation checks, and that live setup remains locked until approved. It should not expose internal swarm columns, agent traces, private approval packets, credential details, or provider implementation internals.
+
 ## Roadmap Rule Checklist
 
 Use this checklist whenever a roadmap feature, monitor, report, or client implementation phase changes:
@@ -134,6 +136,7 @@ Use this checklist whenever a roadmap feature, monitor, report, or client implem
 - Connector readiness is visible from verified stack, audit, BuiltWith, and roadmap signals without live credential setup.
 - The synthetic pilot fixture still proves audit-to-roadmap-to-client/admin projection and read-only autonomous handoff boundaries.
 - The admin AI Ops readiness contract stays present and keeps `sideEffectsEnabled` false.
+- The client dashboard shows setup readiness without exposing internal swarm traces or credential/provider details.
 - Client-facing output excludes private logs, agent traces, credentials, and internal-only notes.
 
 ## Real Client Pilot Checklist

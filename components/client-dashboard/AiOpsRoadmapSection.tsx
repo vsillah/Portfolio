@@ -24,9 +24,57 @@ function formatDate(value: string | null): string {
   }).format(new Date(value))
 }
 
+function clientSetupReadiness(roadmap: RoadmapClientView) {
+  const projection = roadmap.projectionStatus
+  const connectors = roadmap.connectorReadiness
+  const monitorFlags = projection.overdueTasks + projection.staleCostItems + (projection.reportMissing ? 1 : 0)
+  const approvals = projection.approvalNeededCount + connectors.approvalBlockedConnectorCount
+
+  if (projection.blockedTasks > 0 || monitorFlags > 0) {
+    return {
+      label: 'Needs attention',
+      nextAction: projection.nextReportingAction,
+      tone: 'border-radiant-gold/45 bg-radiant-gold/10',
+      icon: AlertTriangle,
+      approvals,
+      monitorFlags,
+    }
+  }
+  if (approvals > 0) {
+    return {
+      label: 'Waiting approval',
+      nextAction: 'Review approvals before any live setup or connector access.',
+      tone: 'border-radiant-gold/45 bg-radiant-gold/10',
+      icon: ShieldCheck,
+      approvals,
+      monitorFlags,
+    }
+  }
+  if (connectors.missingCriticalConnectorCount > 0) {
+    return {
+      label: 'Connector decision needed',
+      nextAction: connectors.connectorNextAction,
+      tone: 'border-silicon-slate/60 bg-background/40',
+      icon: ShieldCheck,
+      approvals,
+      monitorFlags,
+    }
+  }
+  return {
+    label: 'Ready for planning',
+    nextAction: projection.nextReportingAction,
+    tone: 'border-silicon-slate/60 bg-background/40',
+    icon: CheckCircle2,
+    approvals,
+    monitorFlags,
+  }
+}
+
 export default function AiOpsRoadmapSection({ roadmap }: Props) {
   const projection = roadmap.projectionStatus
   const connectors = roadmap.connectorReadiness
+  const readiness = clientSetupReadiness(roadmap)
+  const ReadinessIcon = readiness.icon
   const monitoringFlags = projection.overdueTasks + projection.staleCostItems + (projection.reportMissing ? 1 : 0)
   const openActions = projection.clientActionCount + projection.amadutownActionCount + projection.sharedActionCount
   const projectionTone = projection.blockedTasks > 0 || monitoringFlags > 0 || projection.approvalNeededCount > 0
@@ -75,6 +123,44 @@ export default function AiOpsRoadmapSection({ roadmap }: Props) {
           <p className="text-lg font-semibold text-foreground">
             {roadmap.costSummary.quoteRequiredCount}
           </p>
+        </div>
+      </div>
+
+      <div className={`mb-5 rounded-lg border p-4 ${readiness.tone}`}>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <ReadinessIcon className="w-4 h-4 text-radiant-gold" />
+              <p className={eyebrowClass}>Setup readiness</p>
+            </div>
+            <p className="mt-1 text-sm font-semibold text-foreground">{readiness.nextAction}</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <span className="rounded-full border border-radiant-gold/30 bg-radiant-gold/10 px-2.5 py-1 text-xs text-radiant-gold">
+                {readiness.label}
+              </span>
+              <span className="rounded-full border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-xs text-red-200">
+                Live setup locked until approved
+              </span>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Connectors ready</p>
+              <p className="font-semibold text-foreground">{connectors.readyConnectorCount}/{connectors.requiredConnectorCount}</p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Approvals</p>
+              <p className="font-semibold text-foreground">{readiness.approvals}</p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Isolation checks</p>
+              <p className="font-semibold text-foreground">{projection.isolationRequiredCount}</p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Side effects</p>
+              <p className="font-semibold text-foreground">Disabled</p>
+            </div>
+          </div>
         </div>
       </div>
 
