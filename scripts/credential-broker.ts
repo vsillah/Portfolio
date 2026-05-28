@@ -93,7 +93,7 @@ const ROOT = path.resolve(__dirname, '..')
 const INVENTORY_PATH = path.join(ROOT, 'docs', 'credential-inventory.json')
 const AUDIT_DIR = path.join(ROOT, '.credential-rotation-audits')
 const VALID_ENVS: EnvironmentName[] = ['dev', 'staging', 'prod']
-const PROVIDER_READ_TIMEOUT_MS = 10_000
+const PROVIDER_READ_TIMEOUT_MS = 30_000
 const PROVIDER_WRITE_TIMEOUT_MS = 60_000
 const VERCEL_METADATA_TIMEOUT_MS = 15_000
 const N8N_METADATA_TIMEOUT_MS = 15_000
@@ -668,6 +668,7 @@ function collectRuntimeSinkPresence(
   const localEnvKeys = readLocalEnvKeys(env)
   const vercelEnvKeys = readVercelEnvKeys(env)
   const n8nCredentialMetadata = readN8nCredentialMetadata()
+  const n8nVariableMetadata = readN8nVariableMetadata()
 
   return envSecrets(inventory, env).flatMap((secret) => secret.runtimeSinks.map((sink) => {
     if (sink === 'local-env') {
@@ -677,7 +678,7 @@ function collectRuntimeSinkPresence(
       return vercelPresenceObservation(secret, sink, checkedAt, vercelEnvKeys)
     }
     if (sink === 'n8n Variables') {
-      return n8nVariablePresenceObservation(secret, sink, checkedAt)
+      return n8nVariablePresenceObservation(secret, sink, checkedAt, n8nVariableMetadata)
     }
     if (sink === 'n8n Credentials') {
       return n8nCredentialPresenceObservation(secret, sink, checkedAt, n8nCredentialMetadata)
@@ -697,6 +698,11 @@ function collectRuntimeSinkPresence(
 type N8nCredentialMetadata = {
   unavailableReason: string | null
   credentials: Array<{ name: string; type: string }>
+}
+
+type N8nVariableMetadata = {
+  unavailableReason: string | null
+  keys: Set<string>
 }
 
 function readN8nCredentialMetadata(): N8nCredentialMetadata {
@@ -759,15 +765,102 @@ const apiKey = process.env.N8N_API_KEY;
 function n8nVariablePresenceObservation(
   secret: CredentialSecret,
   sink: string,
-  checkedAt: string
+  checkedAt: string,
+  metadata: N8nVariableMetadata
 ): CredentialSinkPresenceObservation {
+  if (metadata.unavailableReason) {
+    return {
+      secretId: secret.id,
+      envVar: secret.envVar,
+      sink,
+      status: 'unavailable',
+      evidence: metadata.unavailableReason,
+      checkedAt,
+    }
+  }
+
+  if (metadata.keys.has(secret.envVar.toLowerCase())) {
+    return {
+      secretId: secret.id,
+      envVar: secret.envVar,
+      sink,
+      status: 'present',
+      evidence: `Found n8n variable key metadata for ${secret.envVar}; values were not printed or stored.`,
+      checkedAt,
+    }
+  }
+
   return {
     secretId: secret.id,
     envVar: secret.envVar,
     sink,
-    status: 'unknown',
-    evidence: 'n8n variable metadata was not checked because the variables API may include secret values. Use a future key-only adapter or approved sanitized export.',
+    status: 'missing',
+    evidence: `No n8n variable key metadata matched ${secret.envVar}.`,
     checkedAt,
+  }
+}
+
+function readN8nVariableMetadata(): N8nVariableMetadata {
+  const apiKey = process.env.N8N_API_KEY
+  const baseUrl = (process.env.N8N_BASE_URL || 'https://amadutown.app.n8n.cloud').replace(/\/$/, '')
+
+  if (!apiKey) {
+    return {
+      unavailableReason: 'n8n variable metadata unavailable because N8N_API_KEY is not set.',
+      keys: new Set(),
+    }
+  }
+
+  const script = `
+const baseUrl = process.env.N8N_BASE_URL || 'https://amadutown.app.n8n.cloud';
+const apiKey = process.env.N8N_API_KEY;
+(async () => {
+  const response = await fetch(baseUrl.replace(/\\/$/, '') + '/api/v1/variables', {
+    headers: { 'X-N8N-API-KEY': apiKey, Accept: 'application/json' },
+  });
+  if (response.status === 403) {
+    console.log(JSON.stringify({ forbidden: true, keys: [] }));
+    return;
+  }
+  if (!response.ok) process.exit(1);
+  const body = await response.json();
+  const items = Array.isArray(body) ? body : Array.isArray(body.data) ? body.data : [];
+  const keys = items.map((item) => String(item.key || item.name || item.variableKey || '')).filter(Boolean);
+  console.log(JSON.stringify({ keys }));
+})().catch(() => process.exit(1));
+`
+  const result = spawnSync(process.execPath, ['-e', script], {
+    cwd: ROOT,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    env: { ...process.env, N8N_BASE_URL: baseUrl, N8N_API_KEY: apiKey },
+    timeout: N8N_METADATA_TIMEOUT_MS,
+  })
+
+  if (result.status !== 0) {
+    return {
+      unavailableReason: 'n8n variable metadata unavailable. Authenticate N8N_API_KEY and confirm read access to /api/v1/variables.',
+      keys: new Set(),
+    }
+  }
+
+  try {
+    const parsed = JSON.parse(result.stdout) as { forbidden?: boolean; keys?: string[] }
+    if (parsed.forbidden) {
+      return {
+        unavailableReason: 'n8n variable metadata unavailable. N8N_API_KEY needs variable:list scope for /api/v1/variables.',
+        keys: new Set(),
+      }
+    }
+    return {
+      unavailableReason: null,
+      keys: new Set((parsed.keys ?? []).map((key) => key.toLowerCase())),
+    }
+  } catch {
+    return {
+      unavailableReason: 'n8n variable metadata returned invalid JSON after key-only reduction.',
+      keys: new Set(),
+    }
   }
 }
 

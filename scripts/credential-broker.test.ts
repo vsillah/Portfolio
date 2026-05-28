@@ -48,18 +48,26 @@ describe('credential broker CLI runtime sink checks', () => {
       envs: [{ key: 'OPENAI_API_KEY' }, { key: 'STRIPE_SECRET_KEY' }],
     })
     const n8n = await startN8nMetadataServer({
-      data: [
-        {
-          name: 'OpenAI Staging Account',
-          type: 'openAiApi',
-          data: { apiKey: 'must-not-leak-provider-secret' },
-        },
-        {
-          name: 'Anthropic Staging Account',
-          type: 'anthropicApi',
-          data: { apiKey: 'also-must-not-leak' },
-        },
-      ],
+      credentials: {
+        data: [
+          {
+            name: 'OpenAI Staging Account',
+            type: 'openAiApi',
+            data: { apiKey: 'must-not-leak-provider-secret' },
+          },
+          {
+            name: 'Anthropic Staging Account',
+            type: 'anthropicApi',
+            data: { apiKey: 'also-must-not-leak' },
+          },
+        ],
+      },
+      variables: {
+        data: [
+          { key: 'OPENROUTER_API_KEY', value: 'must-not-leak-variable-secret' },
+          { key: 'LINKEDIN_COOKIE', value: 'also-must-not-leak-variable-secret' },
+        ],
+      },
     })
 
     try {
@@ -92,10 +100,17 @@ describe('credential broker CLI runtime sink checks', () => {
       })
       expect(presenceFor(openAi, 'n8n Credentials').evidence).toContain('OpenAI Staging Account:openAiApi')
 
+      expect(presenceFor(rowFor(report, 'OPENROUTER_API_KEY'), 'n8n Variables')).toMatchObject({
+        status: 'present',
+        evidence: 'Found n8n variable key metadata for OPENROUTER_API_KEY; values were not printed or stored.',
+      })
+
       const serialized = JSON.stringify(report)
       expect(serialized).not.toContain('test-n8n-api-key')
       expect(serialized).not.toContain('must-not-leak-provider-secret')
       expect(serialized).not.toContain('also-must-not-leak')
+      expect(serialized).not.toContain('must-not-leak-variable-secret')
+      expect(serialized).not.toContain('also-must-not-leak-variable-secret')
     } finally {
       await n8n.close()
     }
@@ -126,6 +141,10 @@ describe('credential broker CLI runtime sink checks', () => {
     expect(presenceFor(openAi, 'n8n Credentials')).toMatchObject({
       status: 'unavailable',
       evidence: 'n8n credential metadata unavailable because N8N_API_KEY is not set.',
+    })
+    expect(presenceFor(rowFor(report, 'OPENROUTER_API_KEY'), 'n8n Variables')).toMatchObject({
+      status: 'unavailable',
+      evidence: 'n8n variable metadata unavailable because N8N_API_KEY is not set.',
     })
     expect(report.sinkGapActions).toEqual(expect.arrayContaining([
       expect.objectContaining({
@@ -180,12 +199,21 @@ async function runBroker(args: string[], env: Record<string, string>): Promise<B
   })
 }
 
-async function startN8nMetadataServer(payload: unknown): Promise<{ baseUrl: string; close: () => Promise<void> }> {
+async function startN8nMetadataServer(payload: { credentials: unknown; variables?: unknown }): Promise<{ baseUrl: string; close: () => Promise<void> }> {
   const server = http.createServer((request, response) => {
-    expect(request.url).toBe('/api/v1/credentials')
     expect(request.headers['x-n8n-api-key']).toBe('test-n8n-api-key')
-    response.writeHead(200, { 'Content-Type': 'application/json' })
-    response.end(JSON.stringify(payload))
+    if (request.url === '/api/v1/credentials') {
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.end(JSON.stringify(payload.credentials))
+      return
+    }
+    if (request.url === '/api/v1/variables') {
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.end(JSON.stringify(payload.variables ?? { data: [] }))
+      return
+    }
+    response.writeHead(404, { 'Content-Type': 'application/json' })
+    response.end(JSON.stringify({ message: 'not found' }))
   })
 
   await new Promise<void>((resolve) => {
