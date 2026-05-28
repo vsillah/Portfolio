@@ -11,16 +11,21 @@ export type ProactiveSlackNotificationKind = Extract<
   'pending_approvals' | 'blockers' | 'stale_runs' | 'review_ready' | 'goal_decisions'
 >
 
+export type ProactiveSlackNotificationMode = 'scheduled' | 'immediate' | 'all'
+
 export type ProactiveSlackNotificationRule = {
   kind: ProactiveSlackNotificationKind
   label: string
   description: string
+  triggerModes: Exclude<ProactiveSlackNotificationMode, 'all'>[]
+  priority: 'normal' | 'high' | 'urgent'
   minimumItemCount: number
   dedupeWindowHours: number
 }
 
 export type AgentSlackNotificationSweepInput = {
   kinds?: ProactiveSlackNotificationKind[]
+  mode?: ProactiveSlackNotificationMode
   dryRun?: boolean
   force?: boolean
   actorLabel?: string | null
@@ -35,6 +40,9 @@ export type AgentSlackNotificationSweepRuleResult = {
   skipped: boolean
   deduped: boolean
   dryRun: boolean
+  mode: ProactiveSlackNotificationMode
+  priority: ProactiveSlackNotificationRule['priority']
+  triggerModes: ProactiveSlackNotificationRule['triggerModes']
   runId?: string
   text: string
   reason?: string
@@ -46,13 +54,17 @@ export const PROACTIVE_SLACK_NOTIFICATION_RULES: ProactiveSlackNotificationRule[
     kind: 'pending_approvals',
     label: 'Pending approvals',
     description: 'Human approval packets that can be reviewed from mobile or opened in Portfolio.',
+    triggerModes: ['immediate', 'scheduled'],
+    priority: 'urgent',
     minimumItemCount: 1,
     dedupeWindowHours: 1,
   },
   {
     kind: 'blockers',
     label: 'Blocked work',
-    description: 'Blocked Kanban work that needs acknowledgement, owner assignment, or Shaka guidance.',
+    description: 'Blocked Kanban work that needs acknowledgement, owner assignment, or Shaka guidance. Routine blocker packets stay in the scheduled sweep; urgent blockers should be sent from Mission Control or Standup Room with context.',
+    triggerModes: ['scheduled'],
+    priority: 'high',
     minimumItemCount: 1,
     dedupeWindowHours: 4,
   },
@@ -60,6 +72,8 @@ export const PROACTIVE_SLACK_NOTIFICATION_RULES: ProactiveSlackNotificationRule[
     kind: 'stale_runs',
     label: 'Stale or failed runs',
     description: 'Failed or stale traces that need recovery triage.',
+    triggerModes: ['scheduled'],
+    priority: 'high',
     minimumItemCount: 1,
     dedupeWindowHours: 4,
   },
@@ -67,6 +81,8 @@ export const PROACTIVE_SLACK_NOTIFICATION_RULES: ProactiveSlackNotificationRule[
     kind: 'review_ready',
     label: 'Review-ready work',
     description: 'Cards waiting for review, revision request, or trace inspection.',
+    triggerModes: ['scheduled'],
+    priority: 'normal',
     minimumItemCount: 1,
     dedupeWindowHours: 4,
   },
@@ -74,15 +90,20 @@ export const PROACTIVE_SLACK_NOTIFICATION_RULES: ProactiveSlackNotificationRule[
     kind: 'goal_decisions',
     label: 'Goal decisions',
     description: 'Goal-tagged tasks waiting on a human decision.',
+    triggerModes: ['immediate', 'scheduled'],
+    priority: 'urgent',
     minimumItemCount: 1,
     dedupeWindowHours: 4,
   },
 ]
 
-function selectedRules(kinds?: ProactiveSlackNotificationKind[]) {
-  if (!kinds?.length) return PROACTIVE_SLACK_NOTIFICATION_RULES
+function selectedRules(kinds?: ProactiveSlackNotificationKind[], mode: ProactiveSlackNotificationMode = 'scheduled') {
+  const modeFilteredRules = mode === 'all'
+    ? PROACTIVE_SLACK_NOTIFICATION_RULES
+    : PROACTIVE_SLACK_NOTIFICATION_RULES.filter((rule) => rule.triggerModes.includes(mode))
+  if (!kinds?.length) return modeFilteredRules
   const allowed = new Set(kinds)
-  return PROACTIVE_SLACK_NOTIFICATION_RULES.filter((rule) => allowed.has(rule.kind))
+  return modeFilteredRules.filter((rule) => allowed.has(rule.kind))
 }
 
 function payloadDedupeKey(kind: ProactiveSlackNotificationKind, payload: Awaited<ReturnType<typeof buildAgentSlackNotificationPayload>>) {
@@ -97,6 +118,7 @@ function payloadDedupeKey(kind: ProactiveSlackNotificationKind, payload: Awaited
 function sweepResultFromNotification(
   rule: ProactiveSlackNotificationRule,
   notification: AgentSlackNotificationResult,
+  mode: ProactiveSlackNotificationMode,
 ): AgentSlackNotificationSweepRuleResult {
   return {
     kind: rule.kind,
@@ -106,6 +128,9 @@ function sweepResultFromNotification(
     skipped: notification.skipped,
     deduped: notification.deduped,
     dryRun: false,
+    mode,
+    priority: rule.priority,
+    triggerModes: rule.triggerModes,
     runId: notification.runId,
     text: notification.text,
     reason: notification.reason,
@@ -114,8 +139,9 @@ function sweepResultFromNotification(
 
 export async function runAgentSlackNotificationSweep(input: AgentSlackNotificationSweepInput = {}) {
   const results: AgentSlackNotificationSweepRuleResult[] = []
+  const mode = input.mode ?? 'scheduled'
 
-  for (const rule of selectedRules(input.kinds)) {
+  for (const rule of selectedRules(input.kinds, mode)) {
     try {
       const payload = await buildAgentSlackNotificationPayload({ kind: rule.kind })
 
@@ -128,6 +154,9 @@ export async function runAgentSlackNotificationSweep(input: AgentSlackNotificati
           skipped: true,
           deduped: false,
           dryRun: Boolean(input.dryRun),
+          mode,
+          priority: rule.priority,
+          triggerModes: rule.triggerModes,
           text: payload.text,
           reason: 'No matching Agent Ops work needs mobile attention.',
         })
@@ -144,6 +173,9 @@ export async function runAgentSlackNotificationSweep(input: AgentSlackNotificati
           skipped: true,
           deduped: false,
           dryRun: true,
+          mode,
+          priority: rule.priority,
+          triggerModes: rule.triggerModes,
           text: payload.text,
           reason: 'Dry run only.',
         })
@@ -158,7 +190,7 @@ export async function runAgentSlackNotificationSweep(input: AgentSlackNotificati
         dedupeKey,
         dedupeWindowHours: rule.dedupeWindowHours,
       })
-      results.push(sweepResultFromNotification(rule, notification))
+      results.push(sweepResultFromNotification(rule, notification, mode))
     } catch (error) {
       results.push({
         kind: rule.kind,
@@ -168,6 +200,9 @@ export async function runAgentSlackNotificationSweep(input: AgentSlackNotificati
         skipped: false,
         deduped: false,
         dryRun: Boolean(input.dryRun),
+        mode,
+        priority: rule.priority,
+        triggerModes: rule.triggerModes,
         text: `${rule.label} failed.`,
         error: error instanceof Error ? error.message : 'Unknown Slack notification sweep error',
       })
@@ -182,6 +217,7 @@ export async function runAgentSlackNotificationSweep(input: AgentSlackNotificati
   return {
     ok: errorCount === 0,
     dryRun: Boolean(input.dryRun),
+    mode,
     totalRules: results.length,
     sentCount,
     dedupedCount,

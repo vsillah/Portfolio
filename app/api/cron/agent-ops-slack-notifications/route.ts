@@ -10,6 +10,7 @@ import {
   PROACTIVE_SLACK_NOTIFICATION_RULES,
   runAgentSlackNotificationSweep,
   type ProactiveSlackNotificationKind,
+  type ProactiveSlackNotificationMode,
 } from '@/lib/agent-slack-notification-sweep'
 
 export const dynamic = 'force-dynamic'
@@ -17,6 +18,7 @@ export const dynamic = 'force-dynamic'
 const VALID_KINDS = new Set<ProactiveSlackNotificationKind>(
   PROACTIVE_SLACK_NOTIFICATION_RULES.map((rule) => rule.kind),
 )
+const VALID_MODES = new Set<ProactiveSlackNotificationMode>(['scheduled', 'immediate', 'all'])
 
 function isAuthorizedCronRequest(request: NextRequest): boolean {
   const token = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '')
@@ -30,6 +32,12 @@ function parseKinds(value: unknown): ProactiveSlackNotificationKind[] | undefine
     .filter((item): item is string => typeof item === 'string')
     .filter((item): item is ProactiveSlackNotificationKind => VALID_KINDS.has(item as ProactiveSlackNotificationKind))
   return kinds.length ? [...new Set(kinds)] : undefined
+}
+
+function parseMode(value: unknown): ProactiveSlackNotificationMode | undefined {
+  return typeof value === 'string' && VALID_MODES.has(value as ProactiveSlackNotificationMode)
+    ? value as ProactiveSlackNotificationMode
+    : undefined
 }
 
 async function parsePostBody(request: NextRequest) {
@@ -49,9 +57,11 @@ async function runSweep(request: NextRequest, body: Record<string, unknown> = {}
   const dryRun = body.dry_run === true || body.dryRun === true || searchParams.get('dry_run') === '1'
   const force = body.force === true || searchParams.get('force') === '1'
   const kinds = parseKinds(body.kinds)
+  const mode = parseMode(body.mode) ?? parseMode(searchParams.get('mode')) ?? 'scheduled'
 
   const result = await runAgentSlackNotificationSweep({
     kinds,
+    mode,
     dryRun,
     force,
     actorLabel: request.method === 'GET' ? 'Vercel cron' : 'Manual cron trigger',

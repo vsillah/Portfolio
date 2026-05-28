@@ -45,6 +45,8 @@ describe('Agent Ops proactive Slack notification sweep', () => {
     expect(result.results[0]).toMatchObject({
       kind: 'blockers',
       skipped: true,
+      mode: 'scheduled',
+      priority: 'high',
       reason: 'No matching Agent Ops work needs mobile attention.',
     })
   })
@@ -67,6 +69,34 @@ describe('Agent Ops proactive Slack notification sweep', () => {
     })
     expect(mocks.sendAgentSlackNotification).not.toHaveBeenCalled()
     expect(result.results[0].reason).toBe('Dry run only.')
+  })
+
+  it('runs only immediate-push candidates when requested', async () => {
+    mocks.buildAgentSlackNotificationPayload.mockResolvedValue({
+      text: 'Mobile decision needed',
+      blocks: [{ type: 'section', text: { type: 'mrkdwn', text: 'Decision' } }],
+      itemCount: 1,
+    })
+
+    const result = await runAgentSlackNotificationSweep({ mode: 'immediate' })
+
+    expect(result).toMatchObject({
+      ok: true,
+      mode: 'immediate',
+      totalRules: 2,
+      sentCount: 2,
+      itemCount: 4,
+    })
+    expect(mocks.sendAgentSlackNotification).toHaveBeenCalledTimes(2)
+    expect(mocks.sendAgentSlackNotification).toHaveBeenNthCalledWith(1, expect.objectContaining({
+      kind: 'pending_approvals',
+      dedupeWindowHours: 1,
+    }))
+    expect(mocks.sendAgentSlackNotification).toHaveBeenNthCalledWith(2, expect.objectContaining({
+      kind: 'goal_decisions',
+      dedupeWindowHours: 4,
+    }))
+    expect(result.results.every((item) => item.triggerModes.includes('immediate'))).toBe(true)
   })
 
   it('sends non-empty packets with content-aware dedupe metadata', async () => {
