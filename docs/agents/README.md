@@ -20,6 +20,8 @@ The goal is simple: workers can keep moving, but only one integration captain me
 
 Use `captain sweep` when Vambah wants the integration captain to inspect repo state, process ready PRs, verify GitHub/Vercel gates, and clean up conservatively. The command spec lives at `commands/captain-sweep.md`.
 
+Use `/pixelmirror` when Vambah wants the Google Pixel mirrored or used for mobile validation. The command spec lives at `commands/pixelmirror.md` and the helper script is `scripts/pixel-control.sh`.
+
 For non-docs PRs, `captain sweep` now uses a repeatable multi-agent review gate before merge consideration. The Integration Captain keeps merge authority, but parallel read-only reviewers split scope/risk review, validation planning, and Agent Coordination audit so PRs are not merged from a single-thread judgment call.
 
 ## Roles

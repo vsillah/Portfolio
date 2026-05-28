@@ -10,10 +10,12 @@ Usage:
 
 Optional environment:
   PIXEL_ADB_ENDPOINT=192.168.4.26:43343
+  PIXEL_ADB_ENDPOINT_FILE=/Users/vambahsillah/.codex/pixel-adb-endpoint
   PIXEL_ADB_SERIAL=adb-..._adb-tls-connect._tcp
 
 If no endpoint or serial is provided, the script selects a connected ADB device,
-preferring a normal IP:port serial when duplicate mDNS entries exist.
+preferring a normal IP:port serial when duplicate mDNS entries exist. If a
+cached endpoint exists, the script reconnects it before selecting a device.
 USAGE
 }
 
@@ -31,8 +33,13 @@ for command in adb scrcpy; do
 done
 
 scrcpy_bin="$(command -v scrcpy)"
+endpoint_file="${PIXEL_ADB_ENDPOINT_FILE:-$HOME/.codex/pixel-adb-endpoint}"
 
 adb start-server >/dev/null
+
+if [[ -z "${PIXEL_ADB_ENDPOINT:-}" && -f "$endpoint_file" ]]; then
+  PIXEL_ADB_ENDPOINT="$(tr -d '[:space:]' < "$endpoint_file")"
+fi
 
 if [[ -n "${PIXEL_ADB_ENDPOINT:-}" ]]; then
   adb connect "$PIXEL_ADB_ENDPOINT" >/dev/null || true
@@ -82,6 +89,11 @@ Then run:
 Avoid Tailscale/VPN 100.x.x.x addresses for pairing. Use the normal Wi-Fi IP.
 ERROR
   exit 1
+fi
+
+if [[ "$target" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+$ ]]; then
+  mkdir -p "$(dirname "$endpoint_file")"
+  printf '%s\n' "$target" > "$endpoint_file"
 fi
 
 echo "Starting Pixel mirror with ADB target: $target"
