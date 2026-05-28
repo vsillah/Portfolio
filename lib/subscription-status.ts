@@ -64,9 +64,18 @@ export interface SubscriptionGooglePlacesPromotionGate {
   localKeyStatus: string
   productionRequirement: string
   recommendedProductionKeyName: string
+  productionRunnerDecision?: SubscriptionGooglePlacesRunnerDecision
   requiredControls: string[]
   decisionOwner: string
   decisionRequired: boolean
+}
+
+export interface SubscriptionGooglePlacesRunnerDecision {
+  selectedRunner: string
+  egressPosture: string
+  ctORecommendation: string
+  validationGate: string
+  decisionPacket: string
 }
 
 export interface SubscriptionApifyActorRunHistory {
@@ -211,7 +220,10 @@ export function answerSubscriptionBudgetQuery(query: string): SubscriptionQueryR
         )
       ) {
         const gate = analysis.googlePlacesPromotionGate
-        answer = `${answer} Google Places production gate: ${gate.productionRequirement} Recommended key: ${gate.recommendedProductionKeyName}. Required controls: ${gate.requiredControls.join(' ')}`
+        const runnerDecision = gate.productionRunnerDecision
+          ? ` Runner decision: ${gate.productionRunnerDecision.selectedRunner} ${gate.productionRunnerDecision.egressPosture} ${gate.productionRunnerDecision.ctORecommendation}`
+          : ''
+        answer = `${answer} Google Places production gate: ${gate.productionRequirement}${runnerDecision} Recommended key: ${gate.recommendedProductionKeyName}. Required controls: ${gate.requiredControls.join(' ')}`
       }
     }
   }
