@@ -28,7 +28,7 @@ Portfolio now demonstrates that operating layer. It is not a loose set of automa
 | Human approval | Where does autonomy stop? | Approval checkpoints, Mission Control, Slack mobile unblocks | Lets people approve side effects without losing traceability. |
 | Compliance | What needs review before it moves? | Moremi risk monitor, policy gates, governance export | Converts risk into reviewable work instead of silent exposure. |
 | Transaction authority | Can the agent spend, refund, publish, or send? | Payment and paid-job approval gates | Separates recommendation from authority to act. |
-| QA loop | How do we know the output is good? | Agent evaluations, rubrics, quality summaries, coaching signals | Makes quality measurable and improvable over time. |
+| QA loop | How do we know the output is good before a person is asked to approve it? | Agent evaluations, rubrics, quality summaries, coaching signals, challenger review packets | Makes quality measurable and keeps first-pass work out of human approval. |
 | Client-safe proof | What can we show without exposing private material? | Governance export and advisory explainer | Makes the system explainable to clients without leaking raw logs. |
 
 ## The Frame For Open CLAW-Style Enterprise Launches
@@ -52,6 +52,7 @@ The better questions are:
 - What did it hand off?
 - What did the human approve?
 - What evidence can we show later?
+- Did the work pass an agentic challenger before a person was asked to approve it?
 - How does the system learn from the quality of the result?
 
 That is the difference between an agent demo and an agent operating model.
@@ -66,15 +67,16 @@ flowchart LR
   B --> C["Scope<br/>Tools, data, write authority, spend boundary"]
   C --> D["Execution<br/>Agent run, steps, artifacts, cost events"]
   D --> E["Evaluation<br/>Rubric score, pass/fail, coaching signal"]
-  E --> F["Handoff<br/>Next owner, summary, acceptance criteria"]
-  F --> G["Approval<br/>Human decision for side effects"]
-  G --> H["Audit<br/>Client-safe receipt and governance export"]
-  H --> B
+  E --> F["Challenge<br/>Unsupported claims, drift, privacy, source gaps"]
+  F --> G["Handoff<br/>Next owner, summary, acceptance criteria"]
+  G --> H["Approval<br/>Human decision for side effects"]
+  H --> I["Audit<br/>Client-safe receipt and governance export"]
+  I --> B
 ```
 
 Narrative:
 
-An enterprise agent is not one run. It is a loop. Intent enters the system, Shaka routes it, the agent acts inside scope, the work is evaluated, a handoff is recorded, a human approves side effects, and the audit trail becomes the memory for the next decision.
+An enterprise agent is not one run. It is a loop. Intent enters the system, Shaka routes it, the agent acts inside scope, the work is evaluated, a challenger tests whether the work is ready for a person, a handoff is recorded, a human approves side effects, and the audit trail becomes the memory for the next decision.
 
 ## Visual 2: Agent-To-Agent Handoff
 
@@ -166,6 +168,26 @@ flowchart LR
 What this explains:
 
 Human-in-the-loop is not a person hovering over every action. It is a designed checkpoint. The operator sees the decision, the evidence, the risk boundary, and the next action. Slack can unblock low-risk items, but production-impacting work goes back to Portfolio.
+
+## Visual 6: Ralph Loop / Agentic Challenger Gate
+
+```mermaid
+flowchart LR
+  Source["Source packet"] --> Spec["Channel spec"]
+  Spec --> Draft["Constrained draft"]
+  Draft --> Challenger["Amina<br/>Agentic Challenger"]
+  Challenger --> Findings["Issue list<br/>No fixes"]
+  Findings --> Repair["Repair pass"]
+  Repair --> Recheck["Challenger re-check"]
+  Recheck -->|needs_revision| Repair
+  Recheck -->|blocked| Hold["Hold or exception packet"]
+  Recheck -->|passed| Human["Human review packet"]
+  Human --> Approval["Approve, revise, hold, or publish gate"]
+```
+
+What this explains:
+
+The human should not be the first quality filter. The challenger tests the draft for unsupported claims, implementation drift, source gaps, privacy risk, duplicated work, and channel mismatch. Only challenger-cleared work becomes a human approval packet.
 
 ## Component Narratives
 
@@ -437,9 +459,9 @@ The hard work starts after the first demo. Who decides which agent gets the task
 
 This is what we have been building into Portfolio.
 
-Not just agents.
+Agents are only the visible layer.
 
-The operating system around the agents.
+The operating system around them is where the value compounds.
 
 Agent runs leave traces. Handoffs carry summaries and acceptance criteria. Runtime policies define scope. Approval gates stop side effects. Mission Control gives the operator a full view. Slack supports mobile unblocks without turning convenience into uncontrolled authority. Evaluations turn quality into a loop instead of a feeling.
 

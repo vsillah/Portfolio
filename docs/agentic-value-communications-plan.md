@@ -24,6 +24,7 @@ What this plan adds:
 - A component library that lets one concept become multiple channel-native assets without changing the source claim.
 - A sequencing recommendation so the public language can be tested before the client-facing packet is locked.
 - A measurement loop for deciding which assets to expand, clip, revise, or retire.
+- A challenger gate that keeps first-pass drafts away from human approval until a skeptical agent review has tested the claims, source map, privacy boundary, and channel fit.
 
 Rule for future work: if a deliverable already exists, create a revision brief, channel adaptation, or packaging layer. Do not duplicate the source backlog.
 
@@ -31,7 +32,9 @@ Rule for future work: if a deliverable already exists, create a revision brief, 
 
 Source inspiration: [I Built a Deck With AI, Then Made a Second AI Attack It.](https://youtu.be/MFzxIT88zfg) by Nate B. Jones.
 
-The useful takeaway is the workflow shape: serious AI-assisted knowledge work should move through a source packet, a specification, constrained artifact creation, and hostile review before it is treated as ready.
+The useful takeaway is the workflow shape: serious AI-assisted knowledge work should move through a source packet, a specification, constrained artifact creation, and a Ralph Loop-style challenger pass before it is treated as ready.
+
+This mirrors the Portfolio AutoResearch pattern: create a bounded proposal, test it against evidence, record the iteration, and only then ask for human approval. The human should see a decision packet, not the first draft.
 
 Apply that pattern to the agentic content backlog:
 
@@ -40,11 +43,61 @@ Apply that pattern to the agentic content backlog:
 | 1. Source inventory | Know what the model is allowed to use. | Index existing PRDs, briefs, drafts, scripts, governance docs, implementation files, and transcript-derived references. | Source register with IDs, dates, owners, status, and privacy boundary. |
 | 2. Artifact specification | Define what the asset must become before drafting. | For each LinkedIn post, carousel, video, one-pager, or appendix, write the audience, claim, proof, channel, length, and source IDs. | Channel spec or creative brief. |
 | 3. Constrained creation | Generate only against the approved source packet and spec. | Adapt existing drafts/scripts instead of asking the model to invent a new strategy. | Draft asset with source IDs attached. |
-| 4. Hostile review | Attack the artifact before polishing it. | Use a separate reviewer pass to find unsupported claims, missing attribution, weak logic, duplicated material, privacy leaks, and channel mismatch. | Issue list only, not fixes. |
-| 5. Revision loop | Repair the draft against the issue list. | Update the asset and preserve what changed. | Revised draft with resolved issues. |
-| 6. Human editorial gate | Make the final judgment. | Vambah reviews the voice, moral clarity, business value, and publication risk. | Approved, revise, hold, or split. |
+| 4. Agentic Challenger Loop | Attack the artifact before polishing it. | Amina, the Agentic Challenger role, enumerates unsupported claims, implementation drift, source gaps, privacy risk, channel mismatch, weak logic, and duplicated material. | Issue list only, not fixes. |
+| 5. Repair pass | Repair only the challenger issue list. | The creator updates the asset, records fixes, and preserves unresolved questions. | Revised draft with resolved issues. |
+| 6. Challenger re-check | Decide whether the draft is ready for a human. | Amina verifies fixes and sets `pass_to_human`. | `passed`, `needs_revision`, or `blocked`. |
+| 7. Human editorial gate | Make the final judgment only after challenger clearance. | Vambah reviews voice, moral clarity, business value, and publication risk from a compact packet. | Approved, revise, hold, or split. |
 
 This turns the existing content backlog into a governed content production system.
+
+Default gate: a draft does not route to Vambah for human-in-the-loop approval unless `pass_to_human=true`. The only exception is an explicit human-decision packet for an unresolved risk the challenger cannot resolve, such as a source conflict, privacy judgment, or strategic positioning choice.
+
+## Ralph Loop / Agentic Challenger Standard
+
+The loop is creator -> challenger -> repair -> challenger re-check -> human review.
+
+The challenger does not fix the artifact. It only produces findings. This keeps critique and repair separate, which makes the review trace easier to trust.
+
+Required challenger questions:
+
+- Which claims are unsupported by the attached source IDs?
+- Where does the artifact imply Portfolio has built something that is only planned?
+- Does the artifact expose private logs, client information, raw chat exports, secrets, or internal-only traces?
+- Is this duplicating an existing PRD, brief, LinkedIn draft, or script instead of adapting it?
+- Does the format fit the intended channel and audience?
+- What must be fixed before a human should spend time reviewing it?
+
+Review packet statuses:
+
+| Status | Meaning | Next step |
+| --- | --- | --- |
+| `needs_revision` | The draft has fixable issues. | Repair the issue list and re-run the challenger. |
+| `blocked` | The draft has a source, privacy, or implementation conflict that cannot be safely repaired by the agent. | Create an exception packet for Vambah or hold the asset. |
+| `passed` | The challenger found no blocking issues and verified required fixes. | Route a compact HITL packet for human approval. |
+
+Review packet fields:
+
+- `asset_id`
+- `channel`
+- `source_ids`
+- `draft_version`
+- `loop_round`
+- `creator_agent`
+- `challenger_agent`
+- `challenger_prompt_version`
+- `challenge_findings`
+- `unsupported_claims`
+- `source_conflicts`
+- `privacy_flags`
+- `implementation_drift`
+- `required_fixes`
+- `fixes_applied`
+- `residual_risks_for_human`
+- `challenger_status`
+- `pass_to_human`
+- `approval_status`
+
+`pass_to_human=true` only when unsupported claims, source conflicts, critical privacy flags, and implementation drift are resolved or explicitly marked as residual human decisions.
 
 ## Meta-Agent Review Roles
 
@@ -52,6 +105,7 @@ These roles should evaluate the content before it becomes public or client-facin
 
 | Review role | Job | Questions it must answer |
 | --- | --- | --- |
+| Amina / Agentic Challenger | Performs the mandatory pre-HITL attack pass. | Should this asset be routed to a human yet, or does it need repair, source work, privacy cleanup, or a hold? |
 | Source Librarian | Checks whether the draft maps back to approved sources. | Which source IDs support each claim? Are any claims unsupported? |
 | Fact Auditor | Looks for factual, numerical, architectural, or implementation drift. | Does the draft claim something Portfolio has not actually built? |
 | Privacy Reviewer | Checks whether private material could leak into public content. | Does this expose clients, raw logs, secrets, private chats, or internal-only traces? |
@@ -61,11 +115,11 @@ These roles should evaluate the content before it becomes public or client-facin
 
 Minimum review rule:
 
-- Public LinkedIn post: Source Librarian, Fact Auditor, Voice Editor.
-- Carousel: Source Librarian, Channel Editor, Voice Editor.
-- YouTube long-form: Source Librarian, Fact Auditor, Privacy Reviewer, Voice Editor.
-- Client one-pager: Source Librarian, Fact Auditor, Privacy Reviewer, Conversion Strategist.
-- Technical appendix: Source Librarian, Fact Auditor, Privacy Reviewer.
+- Public LinkedIn post: Amina / Agentic Challenger, Source Librarian, Fact Auditor, Voice Editor.
+- Carousel: Amina / Agentic Challenger, Source Librarian, Channel Editor, Voice Editor.
+- YouTube long-form: Amina / Agentic Challenger, Source Librarian, Fact Auditor, Privacy Reviewer, Voice Editor.
+- Client one-pager: Amina / Agentic Challenger, Source Librarian, Fact Auditor, Privacy Reviewer, Conversion Strategist.
+- Technical appendix: Amina / Agentic Challenger, Source Librarian, Fact Auditor, Privacy Reviewer.
 
 ## Claim-Level Attribution Standard
 
@@ -82,6 +136,9 @@ Recommended fields:
 - `privacy_classification`
 - `review_roles_completed`
 - `open_issues`
+- `challenger_status`
+- `pass_to_human`
+- `residual_risks_for_human`
 - `approval_status`
 
 Example:
@@ -91,6 +148,25 @@ Example:
 | Agent runs need a receipt. | `agent-operations-roadmap`, `agentic-patterns`, `run-detail-route` | Docs and route implementation | Yes |
 | Handoffs need ownership and acceptance criteria. | `agent-work-items`, `agentic-patterns`, `agent-swarms-prd` | Helper implementation and PRD | Yes |
 | Payment and paid external jobs need approval gates. | `agent-policy`, `agentic-operating-system-governance` | Policy implementation | Yes, if no transaction data is shown |
+
+## Channel Adaptation Matrix
+
+Use this matrix to convert the existing backlog into channel-native assets without creating duplicate work. Every row starts with `approval_status=not_ready` until the challenger loop sets `pass_to_human=true`.
+
+| Asset | Reuse source | Channel | Challenger requirement | Human packet |
+| --- | --- | --- | --- | --- |
+| Flagship post: "Anyone can launch an agent now" | `wave-1-drafts.md`, value map core message | LinkedIn | Check for hype, unsupported autonomy claims, and duplicated wording. | Final post, source IDs, challenger findings, residual risks. |
+| Carousel: "7 things your enterprise agent needs after the demo" | PRDs 02-09, component library | LinkedIn carousel | Check each slide has one source-backed idea and no private UI detail. | Slide outline, visual notes, source map, privacy notes. |
+| YouTube script: "The Part of Agentic AI Most Teams Skip" | `wave-1-youtube-scripts.md`, value map lifecycle | YouTube | Check implementation claims, story logic, and proof-screen safety. | Script, storyboard, source map, blur/avoid list. |
+| Short: "The agent needs a receipt" | Observability component, PRD 02 | Shorts/TikTok/Reels | Check the hook is accurate and does not overclaim live autonomy. | 45-second script and proof note. |
+| Short: "A handoff is a work packet" | Handoff component, PRD 06 | Shorts/TikTok/Reels | Check handoff language matches existing work-item and trace behavior. | 45-second script and source note. |
+| Post: "Scope is the safety model" | PRD 07, `agent-policy` evidence | LinkedIn | Check permission examples do not imply broad production authority. | Final post and claim map. |
+| Post: "Agent QA needs scorecards" | PRD 05, evaluation route evidence | LinkedIn | Check the difference between implemented scoring and planned reflection loops. | Final post, built/planned distinction, source IDs. |
+| Client one-pager | advisory explainer, value stack | PDF/web | Check client-safe language and remove internal swarm/provider detail. | One-pager draft, buyer-risk framing, privacy notes. |
+| Technical appendix | value map, PRD evidence, implementation paths | PDF/Markdown | Check source paths and proof statements for drift. | Appendix draft, proof register, unresolved evidence gaps. |
+| Website proof page | value map, channel plan | Portfolio page | Check public-safe screenshots, privacy boundary, and call-to-action fit. | Page brief, section map, proof-safe asset list. |
+
+Phase 2 video rule: HeyGen, ElevenLabs, Remotion, HyperFrames, or other provider/render work cannot begin until the script has challenger clearance and the existing render approval packet is approved. Challenger clearance is a precondition for render-readiness, not the render approval itself.
 
 ## Why This Needs Multiple Deliverables
 
@@ -386,18 +462,32 @@ The public channels will tell us which language lands. The client packet should 
 
 ## First Production Backlog
 
-| Priority | Deliverable | Channel | Source component | Output |
-| --- | --- | --- | --- | --- |
-| P0 | Flagship post: "Anyone can launch an agent now" | LinkedIn | Core message | Text post |
-| P0 | Carousel: "7 things your enterprise agent needs after the demo" | LinkedIn | Component library | Slide outline |
-| P0 | YouTube script: "The Part of Agentic AI Most Teams Skip" | YouTube | Full lifecycle | 6-10 minute script |
-| P1 | Short: "The agent needs a receipt" | TikTok/Reels/Shorts | Observability | 45-second script |
-| P1 | Short: "A handoff is a work packet" | TikTok/Reels/Shorts | Handoff | 45-second script |
-| P1 | Post: "Scope is the safety model" | LinkedIn | Scope | Text post |
-| P1 | Post: "Agent QA needs scorecards" | LinkedIn | QA loop | Text post |
-| P2 | Client one-pager | PDF/web | Value stack | Advisory asset |
-| P2 | Technical appendix | PDF/Markdown | Source map | Due diligence asset |
-| P2 | Website proof page | Portfolio | Full system | Webpage |
+| Priority | Deliverable | Channel | Source component | Output | Approval status | Human review |
+| --- | --- | --- | --- | --- | --- | --- |
+| P0 | Flagship post: "Anyone can launch an agent now" | LinkedIn | Core message | Text post | `not_ready` until Ralph Loop pass | Blocked until `pass_to_human=true` |
+| P0 | Carousel: "7 things your enterprise agent needs after the demo" | LinkedIn | Component library | Slide outline | `not_ready` until Ralph Loop pass | Blocked until `pass_to_human=true` |
+| P0 | YouTube script: "The Part of Agentic AI Most Teams Skip" | YouTube | Full lifecycle | 6-10 minute script | `not_ready` until Ralph Loop pass | Blocked until `pass_to_human=true` |
+| P1 | Short: "The agent needs a receipt" | TikTok/Reels/Shorts | Observability | 45-second script | `not_ready` until Ralph Loop pass | Blocked until `pass_to_human=true` |
+| P1 | Short: "A handoff is a work packet" | TikTok/Reels/Shorts | Handoff | 45-second script | `not_ready` until Ralph Loop pass | Blocked until `pass_to_human=true` |
+| P1 | Post: "Scope is the safety model" | LinkedIn | Scope | Text post | `not_ready` until Ralph Loop pass | Blocked until `pass_to_human=true` |
+| P1 | Post: "Agent QA needs scorecards" | LinkedIn | QA loop | Text post | `not_ready` until Ralph Loop pass | Blocked until `pass_to_human=true` |
+| P2 | Client one-pager | PDF/web | Value stack | Advisory asset | `not_ready` until Ralph Loop pass | Blocked until `pass_to_human=true` |
+| P2 | Technical appendix | PDF/Markdown | Source map | Due diligence asset | `not_ready` until Ralph Loop pass | Blocked until `pass_to_human=true` |
+| P2 | Website proof page | Portfolio | Full system | Webpage | `not_ready` until Ralph Loop pass | Blocked until `pass_to_human=true` |
+
+## Challenger Test Scenarios
+
+Use these scenarios when validating the first challenger prompts or future Agent Ops implementation:
+
+| Scenario | Challenger finding | Expected routing |
+| --- | --- | --- |
+| Unsupported claim | Draft says Portfolio has autonomous production mutation without proof. | `blocked` until claim is removed or a source proves it. |
+| Duplicate work | Draft repeats an existing LinkedIn script without a new channel purpose. | `needs_revision`; route to adaptation, not new creation. |
+| Privacy risk | Draft references private run logs, raw chat exports, client records, or secrets. | `blocked` until removed or escalated as a human decision. |
+| Source conflict | Two sources disagree on whether a capability is built or planned. | `needs_revision` with residual-risk note if unresolved. |
+| Channel mismatch | Long technical explainer is marked as short-form-ready. | `needs_revision`; rewrite to channel constraints. |
+| Valid pass | Draft is sourced, public-safe, channel-fit, and all fixes are verified. | `passed`; compact HITL packet can route to Vambah. |
+| Provider gate | YouTube or avatar script asks for HeyGen/ElevenLabs work before review. | `blocked`; script must pass challenger and render approval first. |
 
 ## Measurement
 
