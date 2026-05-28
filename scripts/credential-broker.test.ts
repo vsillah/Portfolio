@@ -277,6 +277,29 @@ describe('credential broker CLI runtime sink checks', () => {
       await n8n.close()
     }
   })
+
+  it('fails strict sink reports when selected runtime sink gaps remain', async () => {
+    const emptyPathDir = makeTempDir()
+    const result = await runBroker([
+      'report',
+      '--env',
+      'staging',
+      '--as-of',
+      '2026-05-14',
+      '--strict-sinks',
+      'unavailable',
+      '--json',
+    ], {
+      PATH: emptyPathDir,
+    })
+
+    expect(result.status).toBe(1)
+    expect(result.stderr).toContain('Strict runtime sink gate failed:')
+    expect(result.stdout).toContain('"sinkGapActions"')
+    expect(result.stdout).toContain('"envVar": "OPENAI_API_KEY"')
+    expect(result.stdout).toContain('"sink": "n8n Credentials"')
+    expect(result.stdout).toContain('"status": "unavailable"')
+  })
 })
 
 function makeTempDir(): string {
