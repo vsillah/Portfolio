@@ -1108,6 +1108,7 @@ function getServiceStatus(openBrainHome: string, runtimeMcpConfigured = false): 
 
 function buildRunbookSources(generatedAt: string): OpenBrainSourceRecord[] {
   const runbooks = [
+    'docs/open-brain-local-service.md',
     'docs/memory-context-organization-workflow.md',
     'docs/automations/README.md',
     'docs/automations/organization-runbook.md',
