@@ -77,9 +77,13 @@ export function buildDecisionTrustRelationshipEdges(
 export function buildDecisionTrustRelationshipInsights(
   events: OpenBrainEventRecord[],
   nodes: OpenBrainRelationshipNode[],
+  options: { now?: string } = {},
 ): OpenBrainRelationshipInsight[] {
-  return decisionTrustEvents(events)
-    .flatMap((event) => {
+  const trustEvents = decisionTrustEvents(events)
+  const now = options.now ?? new Date().toISOString()
+  return [
+    ...buildDecisionTrustAccumulationInsights(trustEvents, nodes, now),
+    ...trustEvents.flatMap((event) => {
       const metadata = decisionTrustMetadata(event)
       if (!metadata) return []
       const candidateNode = findCandidateNode(nodes, metadata.selected_candidate)
@@ -123,8 +127,96 @@ export function buildDecisionTrustRelationshipInsights(
           evidenceSummary: metadata.evidence_summary,
         },
       } satisfies OpenBrainRelationshipInsight]
-    })
+    }),
+  ]
     .slice(0, 10)
+}
+
+function buildDecisionTrustAccumulationInsights(
+  events: OpenBrainEventRecord[],
+  nodes: OpenBrainRelationshipNode[],
+  now: string,
+): OpenBrainRelationshipInsight[] {
+  const records = events
+    .map((event) => {
+      const metadata = decisionTrustMetadata(event)
+      return metadata ? { event, metadata, candidateNode: findCandidateNode(nodes, metadata.selected_candidate) } : null
+    })
+    .filter((record): record is NonNullable<typeof record> => Boolean(record))
+
+  const insights: OpenBrainRelationshipInsight[] = []
+  const unresolvedGroups = groupRecords(records.filter((record) => !record.candidateNode), (record) => record.metadata.selected_candidate)
+  const repeatedUnresolved = firstRepeatedGroup(unresolvedGroups, 2)
+  if (repeatedUnresolved) {
+    const latest = newestRecord(repeatedUnresolved)
+    insights.push({
+      id: `insight:decision-trust:unresolved:${fingerprint([latest.metadata.selected_candidate]).slice(0, 12)}`,
+      kind: 'decision_trust_review',
+      severity: repeatedUnresolved.some((record) => record.metadata.recommended_gate === 'block') ? 'high' : 'medium',
+      title: `Repeated unresolved Decision Trust candidate: ${latest.metadata.selected_candidate}`,
+      detail: sanitizeDecisionTrustText(`${repeatedUnresolved.length} recent decision trust frame(s) selected ${latest.metadata.selected_candidate} without a resolvable Open Brain source, vendor, tool, or approval node.`),
+      recommendation: 'Create or link a durable Open Brain source before treating this candidate as trusted relationship evidence.',
+      actionLabel: 'Record review proposal',
+      sourceNodeId: latest.event.id,
+      targetNodeId: null,
+      decisionTrust: proposalDecisionTrustMetadata(latest.metadata),
+    })
+  }
+
+  const humanReviewGroups = groupRecords(records.filter((record) => record.metadata.recommended_gate === 'human_review'), (record) => record.metadata.selected_candidate)
+  const repeatedHumanReview = firstRepeatedGroup(humanReviewGroups, 2)
+  if (repeatedHumanReview) {
+    const latest = newestRecord(repeatedHumanReview)
+    insights.push({
+      id: `insight:decision-trust:repeated-human-review:${fingerprint([latest.metadata.selected_candidate]).slice(0, 12)}`,
+      kind: 'decision_trust_review',
+      severity: repeatedHumanReview.some((record) => record.metadata.scores.decisionRisk >= 0.7) ? 'high' : 'medium',
+      title: `Repeated human review gate: ${latest.metadata.selected_candidate}`,
+      detail: sanitizeDecisionTrustText(`${repeatedHumanReview.length} recent frame(s) routed ${latest.metadata.selected_candidate} to human review. This is a pattern, not a one-off uncertainty.`),
+      recommendation: 'Review the linked runs and either add missing evidence to lower uncertainty or keep this candidate explicitly review-gated.',
+      actionLabel: 'Record review proposal',
+      sourceNodeId: latest.event.id,
+      targetNodeId: latest.candidateNode?.id ?? null,
+      decisionTrust: proposalDecisionTrustMetadata(latest.metadata),
+    })
+  }
+
+  const staleOrWeakEvidence = records.find((record) => hasStaleEvidence(record, now))
+  if (staleOrWeakEvidence) {
+    insights.push({
+      id: `insight:decision-trust:stale-evidence:${staleOrWeakEvidence.metadata.decision_id}`,
+      kind: 'decision_trust_review',
+      severity: staleOrWeakEvidence.metadata.scores.evidenceCompleteness < 0.45 ? 'high' : 'medium',
+      title: `Refresh stale Decision Trust evidence: ${staleOrWeakEvidence.metadata.selected_candidate}`,
+      detail: sanitizeDecisionTrustText(`Decision ${staleOrWeakEvidence.metadata.decision_id} has stale, weak, or missing source evidence. ${staleOrWeakEvidence.metadata.evidence_summary}`),
+      recommendation: 'Refresh official docs, source freshness, and contradiction checks before this frame strengthens any durable trust relationship.',
+      actionLabel: 'Record review proposal',
+      sourceNodeId: staleOrWeakEvidence.event.id,
+      targetNodeId: staleOrWeakEvidence.candidateNode?.id ?? null,
+      decisionTrust: proposalDecisionTrustMetadata(staleOrWeakEvidence.metadata),
+    })
+  }
+
+  const scamOrBlocked = records.find((record) => (
+    record.metadata.recommended_gate === 'block' ||
+    record.metadata.risk_signals.some((signal) => /(scam|known.?bad|impersonat|typosquat|domain mismatch|contradict)/i.test(signal))
+  ))
+  if (scamOrBlocked) {
+    insights.push({
+      id: `insight:decision-trust:block-marker:${scamOrBlocked.metadata.decision_id}`,
+      kind: 'decision_trust_review',
+      severity: 'high',
+      title: `Blocked or scam-marked decision: ${scamOrBlocked.metadata.selected_candidate}`,
+      detail: sanitizeDecisionTrustText(`Decision ${scamOrBlocked.metadata.decision_id} includes a block, scam, contradiction, or domain-mismatch marker. ${scamOrBlocked.metadata.risk_signals.slice(0, 3).join(', ')}`),
+      recommendation: 'Keep this candidate out of positive trust links until the risk signal is resolved by explicit human review.',
+      actionLabel: 'Record review proposal',
+      sourceNodeId: scamOrBlocked.event.id,
+      targetNodeId: null,
+      decisionTrust: proposalDecisionTrustMetadata(scamOrBlocked.metadata),
+    })
+  }
+
+  return dedupeInsights(insights)
 }
 
 function decisionTrustSource(frame: DecisionTrustOpenBrainFrame, generatedAt: string): OpenBrainSourceRecord {
@@ -217,6 +309,60 @@ function findCandidateNode(nodes: OpenBrainRelationshipNode[], candidate: string
     normalizeIdentifier(node.label) === normalizedCandidate ||
     normalizeIdentifier(node.id.split(':').at(-1) || '') === normalizedCandidate
   )) ?? null
+}
+
+function groupRecords<T>(records: T[], keyForRecord: (record: T) => string) {
+  const groups = new Map<string, T[]>()
+  for (const record of records) {
+    const key = normalizeIdentifier(keyForRecord(record))
+    if (!key) continue
+    groups.set(key, [...(groups.get(key) ?? []), record])
+  }
+  return groups
+}
+
+function firstRepeatedGroup<T extends { event: OpenBrainEventRecord }>(groups: Map<string, T[]>, minimumSize: number) {
+  return [...groups.values()]
+    .filter((group) => group.length >= minimumSize)
+    .sort((a, b) => b.length - a.length || newestRecord(b).event.createdAt.localeCompare(newestRecord(a).event.createdAt))[0] ?? null
+}
+
+function newestRecord<T extends { event: OpenBrainEventRecord }>(records: T[]) {
+  return [...records].sort((a, b) => b.event.createdAt.localeCompare(a.event.createdAt))[0]
+}
+
+function hasStaleEvidence(
+  record: { event: OpenBrainEventRecord; metadata: NonNullable<ReturnType<typeof decisionTrustMetadata>> },
+  now: string,
+) {
+  const missingText = record.metadata.missing_evidence.join(' ')
+  const evidenceText = `${missingText} ${record.metadata.trust_signals.join(' ')} ${record.metadata.evidence_summary}`
+  const eventAgeDays = ageInDays(record.event.createdAt, now)
+  return record.metadata.scores.evidenceCompleteness < 0.45 ||
+    eventAgeDays >= 14 ||
+    /(stale|outdated|source freshness|freshness|official docs not found|docs not found|missing source|contradiction check)/i.test(evidenceText)
+}
+
+function ageInDays(then: string, now: string) {
+  const thenMs = Date.parse(then)
+  const nowMs = Date.parse(now)
+  if (!Number.isFinite(thenMs) || !Number.isFinite(nowMs)) return 0
+  return Math.max(0, Math.floor((nowMs - thenMs) / 86_400_000))
+}
+
+function proposalDecisionTrustMetadata(metadata: NonNullable<ReturnType<typeof decisionTrustMetadata>>) {
+  return {
+    decisionId: metadata.decision_id,
+    linkedRunId: metadata.linked_run_id,
+    selectedCandidate: metadata.selected_candidate,
+    recommendedGate: metadata.recommended_gate,
+    scores: metadata.scores,
+    evidenceSummary: metadata.evidence_summary,
+  }
+}
+
+function dedupeInsights(insights: OpenBrainRelationshipInsight[]) {
+  return [...new Map(insights.map((insight) => [insight.id, insight])).values()]
 }
 
 function evidenceSummary(frame: DecisionTrustOpenBrainFrame) {
