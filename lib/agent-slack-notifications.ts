@@ -410,7 +410,10 @@ async function buildWorkItemPayload(input: AgentSlackNotificationInput) {
     items = allItems.filter((item) => {
       const metadata = item.metadata ?? {}
       const goalId = typeof metadata.goal_id === 'string' ? metadata.goal_id : null
-      const needsDecision = Boolean(item.blocker_summary) || item.status === 'blocked' || item.status === 'proposed'
+      const needsDecision = Boolean(item.blocker_summary) ||
+        item.status === 'blocked' ||
+        item.status === 'proposed' ||
+        metadata.requires_approval === true
       return Boolean(goalId) && (!input.goalId || goalId === input.goalId) && needsDecision
     })
     title = 'Goal tasks needing a decision'

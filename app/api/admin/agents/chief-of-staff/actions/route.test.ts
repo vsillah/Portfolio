@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   startAgentRun: vi.fn(),
   recordAgentEvent: vi.fn(),
   attachAgentArtifact: vi.fn(),
+  runAgentSlackNotificationSweep: vi.fn(),
   from: vi.fn(),
   insert: vi.fn(),
 }))
@@ -19,6 +20,10 @@ vi.mock('@/lib/agent-run', () => ({
   startAgentRun: mocks.startAgentRun,
   recordAgentEvent: mocks.recordAgentEvent,
   attachAgentArtifact: mocks.attachAgentArtifact,
+}))
+
+vi.mock('@/lib/agent-slack-notification-sweep', () => ({
+  runAgentSlackNotificationSweep: mocks.runAgentSlackNotificationSweep,
 }))
 
 vi.mock('@/lib/supabase', () => ({
@@ -61,6 +66,7 @@ describe('POST /api/admin/agents/chief-of-staff/actions', () => {
     mocks.startAgentRun.mockResolvedValue({ id: 'approval-run-1' })
     mocks.recordAgentEvent.mockResolvedValue({ id: 'event-1' })
     mocks.attachAgentArtifact.mockResolvedValue({ id: 'artifact-1' })
+    mocks.runAgentSlackNotificationSweep.mockResolvedValue({ ok: true, sentCount: 1 })
     approvalInsertChain()
   })
 
@@ -135,6 +141,12 @@ describe('POST /api/admin/agents/chief-of-staff/actions', () => {
         selected_candidate: 'send_email',
       }),
     }))
+    expect(mocks.runAgentSlackNotificationSweep).toHaveBeenCalledWith({
+      mode: 'immediate',
+      kinds: ['pending_approvals'],
+      actorLabel: 'Chief of Staff action approval',
+      triggerSource: 'chief_of_staff_approval_created',
+    })
     expect(mocks.attachAgentArtifact).toHaveBeenCalledWith(expect.objectContaining({
       runId: 'approval-run-1',
       artifactType: 'approval_action_payload',

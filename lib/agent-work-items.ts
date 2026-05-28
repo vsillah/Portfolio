@@ -141,6 +141,26 @@ function db() {
   return supabaseAdmin
 }
 
+async function notifyImmediatePendingApprovals(input: {
+  actorLabel: string
+  triggerSource: string
+}) {
+  try {
+    const { runAgentSlackNotificationSweep } = await import('@/lib/agent-slack-notification-sweep')
+    await runAgentSlackNotificationSweep({
+      mode: 'immediate',
+      kinds: ['pending_approvals'],
+      actorLabel: input.actorLabel,
+      triggerSource: input.triggerSource,
+    })
+  } catch (error) {
+    console.warn(
+      '[agent-work-items] immediate Slack approval notification skipped:',
+      error instanceof Error ? error.message : error,
+    )
+  }
+}
+
 function assertRuntime(value: string): asserts value is AgentRuntime {
   if (!AGENT_RUNTIMES.includes(value as AgentRuntime)) {
     throw new Error(`Invalid owner_runtime: ${value}`)
@@ -275,6 +295,11 @@ async function createApprovalCheckpoint(item: AgentWorkItem, status: AgentWorkIt
     .eq('id', item.active_run_id)
     .in('status', ['queued', 'running'])
 
+  await notifyImmediatePendingApprovals({
+    actorLabel: 'Agent Ops approval checkpoint',
+    triggerSource: 'agent_work_item_approval_created',
+  })
+
   return data.id as string
 }
 
@@ -335,6 +360,11 @@ async function createN8nActivationApprovalCheckpoint(input: {
     })
     .eq('id', input.item.active_run_id)
     .in('status', ['queued', 'running'])
+
+  await notifyImmediatePendingApprovals({
+    actorLabel: input.actorLabel,
+    triggerSource: 'agent_work_item_n8n_activation_approval_created',
+  })
 
   return data.id as string
 }

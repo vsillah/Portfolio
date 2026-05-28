@@ -72,6 +72,28 @@ function baseMetadata(seed: AutomationGoalSeed, triggeredByUserId?: string | nul
   }
 }
 
+async function notifyImmediateGoalDecisions(input: {
+  goalId: string
+  actorLabel: string
+  triggerSource: string
+}) {
+  try {
+    const { runAgentSlackNotificationSweep } = await import('@/lib/agent-slack-notification-sweep')
+    await runAgentSlackNotificationSweep({
+      mode: 'immediate',
+      kinds: ['goal_decisions'],
+      goalId: input.goalId,
+      actorLabel: input.actorLabel,
+      triggerSource: input.triggerSource,
+    })
+  } catch (error) {
+    console.warn(
+      '[automation-goals] immediate Slack goal notification skipped:',
+      error instanceof Error ? error.message : error,
+    )
+  }
+}
+
 export async function listAutomationGoalSeedStates(limit = 250): Promise<AutomationGoalSeedState[]> {
   const items = await listAgentWorkItems({ limit })
   const seededItems = items.filter((item) => item.metadata?.automation_seed === true)
@@ -143,6 +165,14 @@ export async function seedAutomationGoals(input: SeedAutomationGoalsInput = {}):
     }
 
     seeded.push({ seed, parent, children })
+
+    if (children.some((child) => child.metadata?.requires_approval === true)) {
+      await notifyImmediateGoalDecisions({
+        goalId: goalIdForSeed(seed),
+        actorLabel: 'Automation goal seeding',
+        triggerSource: 'automation_goal_seeded',
+      })
+    }
   }
 
   return seeded

@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   listQueue: [] as Array<{ data: unknown; error: unknown }>,
   startAgentRun: vi.fn(),
   recordAgentEvent: vi.fn(),
+  runAgentSlackNotificationSweep: vi.fn(),
 }))
 
 vi.mock('@/lib/supabase', () => ({
@@ -21,6 +22,10 @@ vi.mock('@/lib/agent-run', () => ({
   AGENT_RUNTIMES: ['codex', 'n8n', 'hermes', 'opencode', 'manual'],
   startAgentRun: mocks.startAgentRun,
   recordAgentEvent: mocks.recordAgentEvent,
+}))
+
+vi.mock('@/lib/agent-slack-notification-sweep', () => ({
+  runAgentSlackNotificationSweep: mocks.runAgentSlackNotificationSweep,
 }))
 
 import {
@@ -98,6 +103,7 @@ describe('agent work item helpers', () => {
     mocks.fromMock.mockImplementation(() => chain())
     mocks.startAgentRun.mockResolvedValue({ id: 'run-1' })
     mocks.recordAgentEvent.mockResolvedValue({ id: 'event-1' })
+    mocks.runAgentSlackNotificationSweep.mockResolvedValue({ ok: true, sentCount: 1 })
   })
 
   it('creates a trace-linked work item', async () => {
@@ -187,6 +193,12 @@ describe('agent work item helpers', () => {
     expect(mocks.updateMock).toHaveBeenCalledWith(expect.objectContaining({
       status: 'waiting_for_approval',
     }))
+    expect(mocks.runAgentSlackNotificationSweep).toHaveBeenCalledWith({
+      mode: 'immediate',
+      kinds: ['pending_approvals'],
+      actorLabel: 'Agent Ops approval checkpoint',
+      triggerSource: 'agent_work_item_approval_created',
+    })
   })
 
   it('records MCP build requests without activating external workflows', async () => {
@@ -418,6 +430,12 @@ describe('agent work item helpers', () => {
       status: 'waiting_for_approval',
       current_step: 'Approval required: n8n workflow activation',
     }))
+    expect(mocks.runAgentSlackNotificationSweep).toHaveBeenCalledWith({
+      mode: 'immediate',
+      kinds: ['pending_approvals'],
+      actorLabel: 'admin@example.com',
+      triggerSource: 'agent_work_item_n8n_activation_approval_created',
+    })
     expect(mocks.updateMock).toHaveBeenCalledWith(expect.objectContaining({
       status: 'ready_for_review',
       blocker_summary: null,

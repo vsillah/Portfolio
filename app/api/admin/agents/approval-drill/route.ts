@@ -10,6 +10,23 @@ function isKnownApprovalType(value: string) {
   return APPROVAL_GATES.some((gate) => gate.approvalType === value)
 }
 
+async function notifyImmediatePendingApprovals() {
+  try {
+    const { runAgentSlackNotificationSweep } = await import('@/lib/agent-slack-notification-sweep')
+    await runAgentSlackNotificationSweep({
+      mode: 'immediate',
+      kinds: ['pending_approvals'],
+      actorLabel: 'Agent approval drill',
+      triggerSource: 'approval_drill_created',
+    })
+  } catch (error) {
+    console.warn(
+      '[approval-drill] immediate Slack approval notification skipped:',
+      error instanceof Error ? error.message : error,
+    )
+  }
+}
+
 /**
  * POST /api/admin/agents/approval-drill
  *
@@ -81,6 +98,8 @@ export async function POST(request: NextRequest) {
       metadata: { approval_id: data.id, approval_type: approvalType },
       idempotencyKey: `${run.id}:approval-drill-created`,
     }).catch(() => {})
+
+    await notifyImmediatePendingApprovals()
 
     return NextResponse.json({
       ok: true,

@@ -99,6 +99,35 @@ describe('Agent Ops proactive Slack notification sweep', () => {
     expect(result.results.every((item) => item.triggerModes.includes('immediate'))).toBe(true)
   })
 
+  it('scopes immediate goal-decision packets to a goal id', async () => {
+    mocks.buildAgentSlackNotificationPayload.mockResolvedValue({
+      text: 'Goal decision needed',
+      blocks: [{ type: 'section', text: { type: 'mrkdwn', text: 'Goal decision' } }],
+      itemCount: 1,
+    })
+
+    const result = await runAgentSlackNotificationSweep({
+      mode: 'immediate',
+      kinds: ['goal_decisions'],
+      goalId: 'goal-1',
+    })
+
+    expect(result).toMatchObject({
+      ok: true,
+      mode: 'immediate',
+      totalRules: 1,
+      sentCount: 1,
+    })
+    expect(mocks.buildAgentSlackNotificationPayload).toHaveBeenCalledWith({
+      kind: 'goal_decisions',
+      goalId: 'goal-1',
+    })
+    expect(mocks.sendAgentSlackNotification).toHaveBeenCalledWith(expect.objectContaining({
+      kind: 'goal_decisions',
+      goalId: 'goal-1',
+    }))
+  })
+
   it('sends non-empty packets with content-aware dedupe metadata', async () => {
     mocks.buildAgentSlackNotificationPayload.mockResolvedValue({
       text: '2 stale runs',
