@@ -376,7 +376,7 @@ describe('OpenBrainPage', () => {
     expect(within(map).getByText('Relationship insights')).toBeInTheDocument()
     expect(within(map).getByText('Persisted link audit')).toBeInTheDocument()
     expect(within(map).getByText('link:source-memory')).toBeInTheDocument()
-    expect(within(map).getByRole('heading', { name: 'Strengthen automation-to-runbook governance' })).toBeInTheDocument()
+    expect(within(map).getAllByRole('heading', { name: 'Strengthen automation-to-runbook governance' }).length).toBeGreaterThan(0)
     expect(within(map).getByRole('button', { name: 'Select Morning review source' })).toBeInTheDocument()
     expect(within(map).getByText('Privacy tier')).toBeInTheDocument()
     expect(within(map).getByText('Context health')).toBeInTheDocument()
@@ -385,6 +385,12 @@ describe('OpenBrainPage', () => {
     expect(within(map).getAllByText('Decision Trust').length).toBeGreaterThan(0)
     expect(within(map).getByText('Selected record')).toBeInTheDocument()
     expect(within(map).getByText('Connected relationships')).toBeInTheDocument()
+    expect(within(map).getByText('Proposed route')).toBeInTheDocument()
+    expect(within(map).getByText('Route preview')).toBeInTheDocument()
+    expect(within(map).getByText('From')).toBeInTheDocument()
+    expect(within(map).getByText('To')).toBeInTheDocument()
+    expect(within(map).getByText('governed by')).toBeInTheDocument()
+    expect(within(map).getByText(/Next step I will create an approval-gated relationship proposal/i)).toBeInTheDocument()
 
     fireEvent.click(within(map).getByRole('button', { name: 'Select Action-first operating rule' }))
 
@@ -398,14 +404,14 @@ describe('OpenBrainPage', () => {
     expect(within(map).getByText('1 active filter(s)')).toBeInTheDocument()
     expect(within(map).getByText('Showing 3 node(s) and 1 relationship(s).')).toBeInTheDocument()
     expect(within(map).getByText('Filtered view: 3 node(s), 1 edge(s)')).toBeInTheDocument()
-    expect(within(map).getByText('Selected path: Morning review source -> Adopt action-first governance reviews')).toBeInTheDocument()
+    expect(within(map).getByText('Selected proposed route: Morning review source -> Action-first operating rule')).toBeInTheDocument()
 
     fireEvent.click(within(map).getByRole('button', { name: 'Reset filters' }))
 
     expect(within(map).getByText('0 active filter(s)')).toBeInTheDocument()
     expect(within(map).getByText('Showing 3 node(s) and 2 relationship(s).')).toBeInTheDocument()
 
-    fireEvent.click(within(map).getByRole('button', { name: 'Propose link' }))
+    fireEvent.click(within(map).getAllByRole('button', { name: 'Propose link' })[1])
 
     expect(await screen.findByText('Relationship proposal created for review: Relationship proposal: Strengthen automation-to-runbook governance. No Open Brain link was changed.')).toBeInTheDocument()
     expect(fetch).toHaveBeenCalledWith('/api/admin/agents/open-brain/proposals', expect.objectContaining({
@@ -497,14 +503,14 @@ describe('OpenBrainPage', () => {
 
     fireEvent.click(await screen.findByRole('button', { name: 'Map' }))
     const map = await screen.findByRole('region', { name: 'Open Brain relationship map' })
-    expect(within(map).getByText('Review decision trust: make_vendor_payment')).toBeInTheDocument()
+    expect(within(map).getAllByText('Review decision trust: make_vendor_payment').length).toBeGreaterThan(0)
     expect(within(map).getByText('human review')).toBeInTheDocument()
 
     fireEvent.click(within(map).getByRole('button', { name: 'Human/block gate 1' }))
     expect(within(map).getByText('1 active filter(s)')).toBeInTheDocument()
     expect(within(map).getByText('Showing 1 node(s) and 0 relationship(s).')).toBeInTheDocument()
 
-    fireEvent.click(within(map).getByRole('button', { name: 'Record review proposal' }))
+    fireEvent.click(within(map).getAllByRole('button', { name: 'Record review proposal' })[0])
     expect(await screen.findByText('Relationship proposal created for review: Relationship proposal: Review decision trust: make_vendor_payment. No Open Brain link was changed.')).toBeInTheDocument()
 
     const proposalCall = vi.mocked(fetch).mock.calls.find(([url, init]) => (
