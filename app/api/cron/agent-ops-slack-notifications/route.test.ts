@@ -7,11 +7,11 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('@/lib/agent-slack-notification-sweep', () => ({
   PROACTIVE_SLACK_NOTIFICATION_RULES: [
-    { kind: 'pending_approvals' },
-    { kind: 'blockers' },
-    { kind: 'stale_runs' },
-    { kind: 'review_ready' },
-    { kind: 'goal_decisions' },
+    { kind: 'pending_approvals', triggerModes: ['immediate', 'scheduled'] },
+    { kind: 'blockers', triggerModes: ['scheduled'] },
+    { kind: 'stale_runs', triggerModes: ['scheduled'] },
+    { kind: 'review_ready', triggerModes: ['scheduled'] },
+    { kind: 'goal_decisions', triggerModes: ['immediate', 'scheduled'] },
   ],
   runAgentSlackNotificationSweep: mocks.runAgentSlackNotificationSweep,
 }))
@@ -42,6 +42,7 @@ describe('/api/cron/agent-ops-slack-notifications', () => {
     mocks.runAgentSlackNotificationSweep.mockResolvedValue({
       ok: true,
       dryRun: false,
+      mode: 'scheduled',
       totalRules: 5,
       sentCount: 1,
       dedupedCount: 1,
@@ -78,6 +79,7 @@ describe('/api/cron/agent-ops-slack-notifications', () => {
       },
     })
     expect(mocks.runAgentSlackNotificationSweep).toHaveBeenCalledWith(expect.objectContaining({
+      mode: 'scheduled',
       actorLabel: 'Vercel cron',
       triggerSource: 'vercel_cron_agent_ops_slack_notifications',
     }))
@@ -87,6 +89,7 @@ describe('/api/cron/agent-ops-slack-notifications', () => {
     const response = await POST(request('POST', 'n8n-secret', {
       dry_run: true,
       force: true,
+      mode: 'immediate',
       kinds: ['stale_runs', 'blockers', 'publish_everything'],
     }) as never)
 
@@ -94,6 +97,7 @@ describe('/api/cron/agent-ops-slack-notifications', () => {
     expect(mocks.runAgentSlackNotificationSweep).toHaveBeenCalledWith(expect.objectContaining({
       dryRun: true,
       force: true,
+      mode: 'immediate',
       kinds: ['stale_runs', 'blockers'],
       actorLabel: 'Manual cron trigger',
       triggerSource: 'manual_cron_agent_ops_slack_notifications',
