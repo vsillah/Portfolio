@@ -1,5 +1,6 @@
 import { endAgentRun, recordAgentEvent, startAgentRun } from '@/lib/agent-run'
 import { listAgentWorkItems, type AgentWorkItem } from '@/lib/agent-work-items'
+import { AGENT_ORGANIZATION } from '@/lib/agent-organization'
 import { mrkdwn, slackButton, truncateSlack, type SlackBlock } from '@/lib/agent-slack-blocks'
 import { supabaseAdmin } from '@/lib/supabase'
 
@@ -72,6 +73,10 @@ function baseUrl() {
 
 function agentUrl(path: string) {
   return `${baseUrl()}${path}`
+}
+
+function agentDisplayName(agentKey: string) {
+  return AGENT_ORGANIZATION.find((agent) => agent.key === agentKey)?.name ?? agentKey
 }
 
 function dedupeWindowKey(windowHours = 1) {
@@ -224,6 +229,61 @@ function workItemBlocks(title: string, intro: string, items: AgentWorkItem[], ki
   return blocks
 }
 
+function selectedAgentQuestionBlocks(input: AgentSlackNotificationInput, items: AgentWorkItem[]) {
+  const targetAgentKeys = normalizeTargetAgentKeys(input.targetAgentKeys)
+  const selectedAgentText = targetAgentKeys.length
+    ? targetAgentKeys.map((key) => `• ${agentDisplayName(key)} (\`${key}\`)`).join('\n')
+    : '• No specific agents selected. Shaka can route this from the thread.'
+  const question = truncateSlack(input.message?.trim() || 'No question provided.', 900)
+  const blocks: SlackBlock[] = [
+    {
+      type: 'section',
+      text: mrkdwn([
+        '*Standup question for selected agents*',
+        `*Question:* ${question}`,
+        '*Participants:*',
+        selectedAgentText,
+      ].join('\n')),
+    },
+    {
+      type: 'context',
+      elements: [
+        mrkdwn('Reply in this thread to continue with Shaka. Use `acknowledge`, `ready`, `request revision`, `assign <agent>`, or `handoff to <agent>` when the thread includes one clear work card.'),
+      ],
+    },
+  ]
+
+  if (items.length) {
+    blocks.push({ type: 'divider' })
+    blocks.push({ type: 'section', text: mrkdwn('*Current work context*') })
+    for (const item of items.slice(0, 5)) {
+      blocks.push({ type: 'section', text: mrkdwn(itemSummary(item)) })
+      blocks.push({
+        type: 'actions',
+        elements: [
+          workItemPrimaryButton(item, 'selected_agent_question'),
+          workItemContextButton(item),
+        ],
+      })
+    }
+  } else {
+    blocks.push({
+      type: 'section',
+      text: mrkdwn('No active Kanban cards are currently assigned to the selected agents. The question is still posted as a standup thread so Shaka can capture the mobile follow-up.'),
+    })
+  }
+
+  blocks.push({
+    type: 'actions',
+    elements: [
+      slackButton({ label: 'Open Standup Room', actionId: 'open_standup_room', url: agentUrl('/admin/agents/standup') }),
+      slackButton({ label: 'Open Kanban', actionId: 'open_kanban', url: agentUrl('/admin/agents/swarm-board') }),
+    ],
+  })
+
+  return blocks
+}
+
 async function buildPendingApprovalPayload() {
   const approvals = await pendingApprovals()
   const runs = await runsById(approvals.map((approval) => approval.run_id))
@@ -363,6 +423,14 @@ async function buildWorkItemPayload(input: AgentSlackNotificationInput) {
   }
 
   items = filterTargetAgents(items, targetAgentKeys).sort(prioritySort).slice(0, 5)
+  if (input.kind === 'selected_agent_question') {
+    return {
+      text: `${title}: ${targetAgentKeys.length || 'all'} agent(s) asked.`,
+      blocks: selectedAgentQuestionBlocks(input, items),
+      itemCount: items.length,
+    }
+  }
+
   return {
     text: `${title}: ${items.length} item(s).`,
     blocks: workItemBlocks(title, intro, items, input.kind),
