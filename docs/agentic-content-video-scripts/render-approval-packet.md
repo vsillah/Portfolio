@@ -84,7 +84,8 @@ Recommended capture order:
 2. Re-open the pending draft in Admin Video Generation.
 3. Confirm the draft still shows `2386 / 5000` characters and 5 scenes.
 4. Confirm B-roll assets are linked only to approved hints.
-5. Then request Shaka approval to render.
+5. Run the read-only Render readiness check.
+6. Then request Shaka approval to render.
 
 ## Risk Review
 
@@ -142,6 +143,8 @@ Render can proceed only when all are true:
 
 The Admin Video Generation render path now requires the operator to confirm this Shaka approval packet before HeyGen starts:
 
+- Each expanded draft includes a read-only Render readiness check for draft status, script length, HeyGen config, storyboard count, and B-roll matches.
+- The readiness check does not create a job, update the queue, call HeyGen, approve publishing, or replace Shaka approval.
 - The single-draft Generate Video button stays disabled until the render gate checkbox is checked.
 - The selected-draft batch Generate Videos button stays disabled until the batch render gate checkbox is checked.
 - The single-draft and batch API routes reject requests without the render approval payload before reading draft queue records or calling HeyGen.
@@ -160,4 +163,4 @@ Stop before render if any are true:
 
 ## Roadmap Position
 
-This packet closes the gap between a reviewed script and a renderable pilot. The next phase after approval is a controlled HeyGen render, followed by final MP4 review and a separate publishing packet.
+This packet now closes the gap between a reviewed script and a render-ready pilot. The next phase after Shaka approval is a controlled HeyGen render, followed by final MP4 review and a separate publishing packet.

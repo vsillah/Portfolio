@@ -44,6 +44,19 @@ interface DraftEditForm {
   storyboardText: string
 }
 
+interface RenderReadinessReport {
+  ready: boolean
+  blockingIssues: string[]
+  warnings: string[]
+  details: {
+    scriptCharacters: number
+    storyboardScenes: number
+    brollAssetIds: string[]
+    heygenMode: 'template' | 'avatar_voice' | 'missing'
+    approvalBoundary: string
+  }
+}
+
 interface DriveQueueItem {
   id: string
   drive_file_id: string
@@ -236,6 +249,8 @@ export default function VideoGenerationPage() {
   const [draftEditError, setDraftEditError] = useState<string | null>(null)
   const [renderApprovalDrafts, setRenderApprovalDrafts] = useState<Record<string, boolean>>({})
   const [batchRenderApprovalConfirmed, setBatchRenderApprovalConfirmed] = useState(false)
+  const [renderReadinessDrafts, setRenderReadinessDrafts] = useState<Record<string, RenderReadinessReport>>({})
+  const [checkingReadinessDraftId, setCheckingReadinessDraftId] = useState<string | null>(null)
 
   /* --- Progress panels --- */
   const [scratchProgress, setScratchProgress] = useState<ProgressStep[] | null>(null)
@@ -1041,6 +1056,53 @@ export default function VideoGenerationPage() {
     { id: 'sending', label: 'Sending to HeyGen', status: 'pending' },
     { id: 'saving', label: 'Creating job record', status: 'pending' },
   ]
+
+  const checkRenderReadiness = async (draftId: string) => {
+    setCheckingReadinessDraftId(draftId)
+    try {
+      const token = await getToken()
+      if (!token) return
+      const draft = drafts.find(d => d.id === draftId)
+      const brollIds = draft ? getDraftBroll(draft) : undefined
+      const res = await fetch(`/api/admin/video-generation/ideas-queue/${draftId}/render-readiness`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          channel,
+          aspectRatio,
+          useTemplate,
+          templateId: useTemplate ? selectedTemplateId || undefined : undefined,
+          brandVoiceId: useTemplate ? selectedBrandVoiceId || undefined : undefined,
+          avatarId: !useTemplate ? selectedAvatarId || undefined : undefined,
+          brollAssetIds: brollIds && brollIds.length > 0 ? brollIds : undefined,
+        }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setRenderReadinessDrafts(prev => ({
+          ...prev,
+          [draftId]: {
+            ready: false,
+            blockingIssues: [data?.error ?? 'Readiness check failed.'],
+            warnings: [],
+            details: {
+              scriptCharacters: draft?.script_text.length ?? 0,
+              storyboardScenes: draft?.storyboard_json?.scenes?.length ?? 0,
+              brollAssetIds: brollIds ?? [],
+              heygenMode: 'missing',
+              approvalBoundary: 'Readiness failed before approval could be evaluated.',
+            },
+          },
+        }))
+        return
+      }
+      if (data?.report) {
+        setRenderReadinessDrafts(prev => ({ ...prev, [draftId]: data.report as RenderReadinessReport }))
+      }
+    } finally {
+      setCheckingReadinessDraftId(null)
+    }
+  }
 
   const generateFromDraft = async (draftId: string) => {
     setGeneratingDraftId(draftId)
@@ -2191,9 +2253,11 @@ export default function VideoGenerationPage() {
                     const isSelected = selectedDraftIds.has(draft.id)
                     const isExpanded = expandedDraftId === draft.id
 	                    const sceneCount = draft.storyboard_json?.scenes?.length ?? 0
-	                    const isEditing = editingDraftId === draft.id
-	                    const renderApprovalConfirmed = Boolean(renderApprovalDrafts[draft.id])
-	                    const editForm = draftEditForms[draft.id] ?? {
+                    const isEditing = editingDraftId === draft.id
+                    const renderApprovalConfirmed = Boolean(renderApprovalDrafts[draft.id])
+                    const renderReadiness = renderReadinessDrafts[draft.id]
+                    const checkingReadiness = checkingReadinessDraftId === draft.id
+                    const editForm = draftEditForms[draft.id] ?? {
                       title: draft.title,
                       scriptText: draft.script_text,
                       storyboardText: formatStoryboardForEdit(draft),
@@ -2461,6 +2525,46 @@ export default function VideoGenerationPage() {
                                               </div>
 	                                            </div>
 	                                          </details>
+                                          <div className="rounded-lg border border-silicon-slate bg-background/50 p-2">
+                                            <div className="flex flex-wrap items-center justify-between gap-2">
+                                              <div>
+                                                <div className="text-[10px] font-medium text-foreground">Render readiness</div>
+                                                <div className="text-[10px] text-gray-500">Read-only check for draft status, HeyGen config, script length, and B-roll matches.</div>
+                                              </div>
+                                              <button
+                                                onClick={() => checkRenderReadiness(draft.id)}
+                                                disabled={checkingReadiness || isEditing || !!generatingDraftId || !!generatingBatch || generatingGamma}
+                                                className="flex items-center gap-1.5 rounded-lg border border-silicon-slate px-2.5 py-1.5 text-[10px] text-gray-300 hover:border-radiant-gold/50 hover:text-radiant-gold disabled:opacity-50"
+                                              >
+                                                {checkingReadiness ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle className="h-3 w-3" />}
+                                                Check readiness
+                                              </button>
+                                            </div>
+                                            {renderReadiness && (
+                                              <div className="mt-2 space-y-1 text-[10px]">
+                                                <div className={renderReadiness.ready ? 'text-emerald-400' : 'text-amber-400'}>
+                                                  {renderReadiness.ready ? 'Ready for approval-gated internal render.' : 'Resolve blocking issues before render.'}
+                                                </div>
+                                                <div className="flex flex-wrap gap-2 text-gray-500">
+                                                  <span>{renderReadiness.details.scriptCharacters.toLocaleString()} chars</span>
+                                                  <span>{renderReadiness.details.storyboardScenes} scenes</span>
+                                                  <span>{renderReadiness.details.brollAssetIds.length} B-roll</span>
+                                                  <span>{renderReadiness.details.heygenMode === 'template' ? 'Template' : renderReadiness.details.heygenMode === 'avatar_voice' ? 'Avatar + voice' : 'Missing HeyGen config'}</span>
+                                                </div>
+                                                {renderReadiness.blockingIssues.length > 0 && (
+                                                  <ul className="space-y-0.5 text-amber-300">
+                                                    {renderReadiness.blockingIssues.map((issue, index) => <li key={index}>{issue}</li>)}
+                                                  </ul>
+                                                )}
+                                                {renderReadiness.warnings.length > 0 && (
+                                                  <ul className="space-y-0.5 text-gray-400">
+                                                    {renderReadiness.warnings.map((warning, index) => <li key={index}>{warning}</li>)}
+                                                  </ul>
+                                                )}
+                                                <div className="text-gray-500">{renderReadiness.details.approvalBoundary}</div>
+                                              </div>
+                                            )}
+                                          </div>
 	                                          <label className="flex items-start gap-2 rounded-lg border border-silicon-slate bg-background/50 p-2 text-[10px] leading-4 text-gray-400">
 	                                            <input
 	                                              type="checkbox"
