@@ -76,6 +76,12 @@ function asStringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
 }
 
+function asRecordArray(value: unknown): Record<string, unknown>[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is Record<string, unknown> => Boolean(asRecord(item)))
+    : []
+}
+
 function SocialContentDetailPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
@@ -462,6 +468,12 @@ function SocialContentDetailPage() {
   const agentPilotProvenance = asStringArray(ragContext?.source_provenance_checklist)
   const agentPilotApprovalChecklist = asStringArray(ragContext?.approval_checklist)
   const agentPilotOpenBrainReferences = asStringArray(ragContext?.open_brain_references)
+  const agentPilotCalibration = asRecord(ragContext?.content_calibration)
+  const agentPilotCalibrationStatus = asString(agentPilotCalibration?.status)
+  const agentPilotPriorPatterns = asRecordArray(agentPilotCalibration?.prior_success_patterns)
+  const agentPilotVoicePrinciples = asStringArray(agentPilotCalibration?.voice_principles)
+  const agentPilotMissingContextPrompts = asStringArray(agentPilotCalibration?.missing_context_prompts)
+  const agentPilotComparisonPrompt = asString(agentPilotCalibration?.comparison_prompt)
   const isDraftOnlyPilot = isAgentSocialPilot && agentPilotPublishGate === 'draft_only'
 
   return (
@@ -586,6 +598,58 @@ function SocialContentDetailPage() {
                 </p>
               </div>
             </div>
+
+            {agentPilotCalibration && (
+              <div className="mt-4 rounded-lg border border-gray-800 bg-gray-950/35 p-4">
+                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-300">Content Calibration</p>
+                    <p className="mt-1 text-sm leading-6 text-gray-300">
+                      Use this section to revise the draft against prior successful post patterns before it reaches publish review.
+                    </p>
+                  </div>
+                  {agentPilotCalibrationStatus && (
+                    <span className="w-fit rounded-full border border-amber-500/35 bg-amber-500/10 px-3 py-1 text-xs text-amber-200">
+                      {agentPilotCalibrationStatus.replace(/_/g, ' ')}
+                    </span>
+                  )}
+                </div>
+                <div className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
+                  <div className="grid gap-2">
+                    {agentPilotPriorPatterns.slice(0, 3).map((pattern) => {
+                      const label = asString(pattern.label)
+                      return (
+                        <div key={label || asString(pattern.pattern)} className="rounded-md border border-gray-800 bg-gray-900/55 p-3">
+                          <p className="text-sm font-semibold text-gray-100">{label || 'Prior success pattern'}</p>
+                          <p className="mt-1 text-sm leading-6 text-gray-300">{asString(pattern.pattern)}</p>
+                          <p className="mt-2 text-xs leading-5 text-gray-400"><span className="text-amber-300">Why it worked:</span> {asString(pattern.why_it_worked)}</p>
+                          <p className="mt-1 text-xs leading-5 text-gray-400"><span className="text-amber-300">Use now:</span> {asString(pattern.reuse_guidance)}</p>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <div className="grid gap-3">
+                    <div className="rounded-md border border-gray-800 bg-gray-900/55 p-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Voice Checks</p>
+                      <ul className="mt-2 space-y-1 text-sm text-gray-300">
+                        {agentPilotVoicePrinciples.slice(0, 5).map((entry) => <li key={entry}>• {entry}</li>)}
+                      </ul>
+                    </div>
+                    <div className="rounded-md border border-amber-500/25 bg-amber-500/10 p-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">Context to Add</p>
+                      <ul className="mt-2 space-y-1 text-sm text-amber-50/90">
+                        {agentPilotMissingContextPrompts.slice(0, 4).map((entry) => <li key={entry}>• {entry}</li>)}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                {agentPilotComparisonPrompt && (
+                  <div className="mt-3 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-sm leading-6 text-amber-100">
+                    {agentPilotComparisonPrompt}
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
               {agentPilotGoalId && (

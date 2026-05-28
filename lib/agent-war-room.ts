@@ -43,6 +43,23 @@ export interface AgentGoalAuthorityBoundary {
   notes: string
 }
 
+export interface LinkedInContentCalibrationExample {
+  label: string
+  pattern: string
+  why_it_worked: string
+  reuse_guidance: string
+}
+
+export interface LinkedInContentCalibration {
+  status: 'needs_operator_context' | 'ready_for_draft_review'
+  prior_success_patterns: LinkedInContentCalibrationExample[]
+  voice_principles: string[]
+  audience_notes: string[]
+  revision_questions: string[]
+  missing_context_prompts: string[]
+  comparison_prompt: string
+}
+
 export interface LinkedInContentPacket {
   id: string
   goal_statement: string
@@ -56,6 +73,7 @@ export interface LinkedInContentPacket {
   image_prompt: string
   source_provenance_checklist: string[]
   approval_checklist: string[]
+  content_calibration: LinkedInContentCalibration
   social_content_draft_id?: string | null
   social_content_draft_href?: string | null
 }
@@ -307,6 +325,60 @@ function goalIdFromTitle(title: string) {
   return `goal-${slug}-${Date.now().toString(36)}`
 }
 
+function buildLinkedInContentCalibration(): LinkedInContentCalibration {
+  return {
+    status: 'needs_operator_context',
+    prior_success_patterns: [
+      {
+        label: 'Builder proof post',
+        pattern: 'Open with a concrete build observation, then name the operational gap between a fast prototype and something safe to hand to another person.',
+        why_it_worked: 'It sounded earned because the post referenced actual builder work, named the risk, and ended with a question other builders could answer.',
+        reuse_guidance: 'Use when the draft needs more practical evidence from Portfolio, Agent Ops, Open Brain, or Social Content.',
+      },
+      {
+        label: 'Access and burden post',
+        pattern: 'Start from a lived or operator-level burden, then connect the point to access, systems, and the work required to make technology useful.',
+        why_it_worked: 'It made the technology argument human without turning the story into abstract inspiration.',
+        reuse_guidance: 'Use when the post should speak to small businesses, nonprofits, or communities carrying too much operational load.',
+      },
+      {
+        label: 'Dogfooding AmaduTown post',
+        pattern: 'Name the system being built, show what changed in the workflow, and explain why the operating model matters more than the tool demo.',
+        why_it_worked: 'It gave readers proof that the idea had been tested in AmaduTown work instead of only described.',
+        reuse_guidance: 'Use when the draft needs to compare the current claim against work Vambah has already been willing to publish.',
+      },
+    ],
+    voice_principles: [
+      'Open with a concrete scene, tension, or practical problem.',
+      'Develop one idea instead of stacking several AI claims.',
+      'Name the tool, workflow, audience, or artifact when it is safe to do so.',
+      'Pair critique with a practical path forward.',
+      'Avoid generic AI hype, corporate filler, and formulaic signposting.',
+      'End with a specific question that invites a real operator response.',
+    ],
+    audience_notes: [
+      'Speak to leaders trying to reduce burden, not people shopping for another AI demo.',
+      'Make the post legible to small business and nonprofit operators who care about proof, governance, and time saved.',
+      'Keep the AmaduTown claim grounded in applied operating-system work.',
+    ],
+    revision_questions: [
+      'Does the draft sound like a point Vambah would stand behind publicly?',
+      'Which successful-post pattern is this draft borrowing from, and is the borrowing intentional?',
+      'Where is the strongest proof point, and is it safe to reference?',
+      'What context from a prior post, Chronicle packet, or Open Brain record would make this sharper?',
+      'What should be softened because the evidence is still pending?',
+    ],
+    missing_context_prompts: [
+      'Paste or link one high-performing LinkedIn post that felt representative of Vambah voice.',
+      'Add any engagement signal that matters, such as views, likes, comments, or the reason the post felt worth publishing.',
+      'Name the specific audience for this post and the reaction you want from them.',
+      'Attach sanitized Chronicle notes showing the workflow or artifact that inspired the point.',
+      'Flag any claims, client details, or personal references that should stay out of the draft.',
+    ],
+    comparison_prompt: 'Compare this draft against Vambah LinkedIn voice guidance and the prior successful-post patterns. Identify what already sounds authentic, what feels generic, what evidence is missing, and the next revision to make before public review.',
+  }
+}
+
 function buildLinkedInPacket(goalId: string, title: string): LinkedInContentPacket {
   const packetId = `packet-${goalId}`
   return {
@@ -351,6 +423,7 @@ function buildLinkedInPacket(goalId: string, title: string): LinkedInContentPack
       'CTA invites discussion without overpromising.',
       'Social Content item remains draft-only until separately approved.',
     ],
+    content_calibration: buildLinkedInContentCalibration(),
     social_content_draft_id: null,
     social_content_draft_href: null,
   }
@@ -816,6 +889,10 @@ async function createSocialContentDraftForGoal(draft: AgentGoalDraft) {
     `Packet: ${packet.id}`,
     'Publish gate: draft_only. Do not publish or schedule from goal approval.',
     'Chronicle evidence is manual/sanitized in V1.',
+    'Content calibration:',
+    ...packet.content_calibration.voice_principles.map((item) => `- ${item}`),
+    'Operator context prompts:',
+    ...packet.content_calibration.missing_context_prompts.slice(0, 3).map((item) => `- ${item}`),
     'Approval checklist:',
     ...packet.approval_checklist.map((item) => `- ${item}`),
   ].join('\n')
@@ -855,6 +932,8 @@ async function createSocialContentDraftForGoal(draft: AgentGoalDraft) {
         chronicle_evidence_notes: packet.chronicle_evidence_notes,
         source_provenance_checklist: packet.source_provenance_checklist,
         approval_checklist: packet.approval_checklist,
+        visual_brief: packet.visual_concept,
+        content_calibration: packet.content_calibration,
       },
       admin_notes: adminNotes,
       target_platforms: ['linkedin'],
