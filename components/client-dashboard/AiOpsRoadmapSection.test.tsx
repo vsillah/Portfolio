@@ -81,6 +81,26 @@ const roadmap: RoadmapClientView = {
   latestReport: null,
 }
 
+type RoadmapOverrides = Omit<Partial<RoadmapClientView>, 'connectorReadiness' | 'projectionStatus'> & {
+  connectorReadiness?: Partial<RoadmapClientView['connectorReadiness']>
+  projectionStatus?: Partial<RoadmapClientView['projectionStatus']>
+}
+
+function roadmapWith(overrides: RoadmapOverrides): RoadmapClientView {
+  return {
+    ...roadmap,
+    ...overrides,
+    connectorReadiness: {
+      ...roadmap.connectorReadiness,
+      ...overrides.connectorReadiness,
+    },
+    projectionStatus: {
+      ...roadmap.projectionStatus,
+      ...overrides.projectionStatus,
+    },
+  }
+}
+
 describe('AiOpsRoadmapSection', () => {
   it('surfaces the read-only roadmap projection status', () => {
     render(<AiOpsRoadmapSection roadmap={roadmap} />)
@@ -100,5 +120,72 @@ describe('AiOpsRoadmapSection', () => {
     expect(screen.getAllByText('Isolation checks')).toHaveLength(2)
     expect(screen.getByText('Monitor flags')).toBeInTheDocument()
     expect(screen.getByText('Approve secure access plan')).toBeInTheDocument()
+  })
+
+  it('prioritizes approval-safe setup readiness when live setup is waiting on approvals', () => {
+    render(<AiOpsRoadmapSection roadmap={roadmapWith({
+      connectorReadiness: {
+        approvalBlockedConnectorCount: 0,
+        missingCriticalConnectorCount: 0,
+      },
+      projectionStatus: {
+        blockedTasks: 0,
+        approvalNeededCount: 2,
+        overdueTasks: 0,
+        staleCostItems: 0,
+        reportMissing: false,
+      },
+    })} />)
+
+    expect(screen.getByText('Waiting approval')).toBeInTheDocument()
+    expect(screen.getByText('Review approvals before any live setup or connector access.')).toBeInTheDocument()
+    expect(screen.getByText('Live setup locked until approved')).toBeInTheDocument()
+    expect(screen.getByText('Disabled')).toBeInTheDocument()
+  })
+
+  it('surfaces connector decisions only after blockers, monitor flags, and approvals clear', () => {
+    const connectorNextAction = 'Choose whether HubSpot access should use OAuth or CSV fallback.'
+
+    render(<AiOpsRoadmapSection roadmap={roadmapWith({
+      connectorReadiness: {
+        approvalBlockedConnectorCount: 0,
+        missingCriticalConnectorCount: 1,
+        connectorNextAction,
+      },
+      projectionStatus: {
+        blockedTasks: 0,
+        approvalNeededCount: 0,
+        overdueTasks: 0,
+        staleCostItems: 0,
+        reportMissing: false,
+      },
+    })} />)
+
+    expect(screen.getByText('Connector decision needed')).toBeInTheDocument()
+    expect(screen.getAllByText(connectorNextAction)).toHaveLength(2)
+    expect(screen.getByText('Live setup locked until approved')).toBeInTheDocument()
+    expect(screen.getByText('Disabled')).toBeInTheDocument()
+  })
+
+  it('marks setup ready for planning when no blockers, approvals, or connector decisions remain', () => {
+    render(<AiOpsRoadmapSection roadmap={roadmapWith({
+      connectorReadiness: {
+        approvalBlockedConnectorCount: 0,
+        missingCriticalConnectorCount: 0,
+      },
+      projectionStatus: {
+        blockedTasks: 0,
+        approvalNeededCount: 0,
+        overdueTasks: 0,
+        staleCostItems: 0,
+        reportMissing: false,
+        nextReportingAction: 'Begin implementation planning.',
+      },
+    })} />)
+
+    expect(screen.getByText('Ready for planning')).toBeInTheDocument()
+    expect(screen.getAllByText('Begin implementation planning.')).toHaveLength(2)
+    expect(screen.getByText('Live setup locked until approved')).toBeInTheDocument()
+    expect(screen.getByText('Disabled')).toBeInTheDocument()
   })
 })

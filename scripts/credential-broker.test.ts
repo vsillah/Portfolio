@@ -154,6 +154,129 @@ describe('credential broker CLI runtime sink checks', () => {
       }),
     ]))
   })
+
+  it('reports n8n Variables as unavailable when the API key lacks variable list scope', async () => {
+    const n8n = await startN8nMetadataServer({
+      credentials: { data: [] },
+      variables: {
+        status: 403,
+        body: { message: 'forbidden' },
+      },
+    })
+
+    try {
+      const result = await runBroker([
+        'report',
+        '--env',
+        'staging',
+        '--as-of',
+        '2026-05-14',
+        '--check-sinks',
+        '--json',
+      ], {
+        PATH: makeTempDir(),
+        N8N_API_KEY: 'test-n8n-api-key',
+        N8N_BASE_URL: n8n.baseUrl,
+      })
+
+      expect(result.status, result.stderr).toBe(0)
+      const report = JSON.parse(result.stdout) as CredentialReportJson
+      const openRouterVariables = presenceFor(rowFor(report, 'OPENROUTER_API_KEY'), 'n8n Variables')
+
+      expect(openRouterVariables).toMatchObject({
+        status: 'unavailable',
+      })
+      expect(openRouterVariables.evidence).toContain('variable:list scope')
+      expect(report.sinkGapActions).toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          envVar: 'OPENROUTER_API_KEY',
+          sink: 'n8n Variables',
+          status: 'unavailable',
+        }),
+      ]))
+    } finally {
+      await n8n.close()
+    }
+  })
+
+  it('reports absent n8n Variables metadata as missing instead of unknown', async () => {
+    const n8n = await startN8nMetadataServer({
+      credentials: { data: [] },
+      variables: { data: [{ key: 'SOME_OTHER_KEY' }] },
+    })
+
+    try {
+      const result = await runBroker([
+        'report',
+        '--env',
+        'staging',
+        '--as-of',
+        '2026-05-14',
+        '--check-sinks',
+        '--json',
+      ], {
+        PATH: makeTempDir(),
+        N8N_API_KEY: 'test-n8n-api-key',
+        N8N_BASE_URL: n8n.baseUrl,
+      })
+
+      expect(result.status, result.stderr).toBe(0)
+      const report = JSON.parse(result.stdout) as CredentialReportJson
+      const openRouterVariables = presenceFor(rowFor(report, 'OPENROUTER_API_KEY'), 'n8n Variables')
+
+      expect(openRouterVariables).toMatchObject({
+        status: 'missing',
+        evidence: 'No n8n variable key metadata matched OPENROUTER_API_KEY.',
+      })
+      expect(report.sinkGapActions).toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          envVar: 'OPENROUTER_API_KEY',
+          sink: 'n8n Variables',
+          status: 'missing',
+        }),
+      ]))
+    } finally {
+      await n8n.close()
+    }
+  })
+
+  it('matches n8n Variables metadata case-insensitively without exposing values', async () => {
+    const n8n = await startN8nMetadataServer({
+      credentials: { data: [] },
+      variables: {
+        data: [
+          { key: 'openrouter_api_key', value: 'must-not-leak-variable-secret' },
+        ],
+      },
+    })
+
+    try {
+      const result = await runBroker([
+        'report',
+        '--env',
+        'staging',
+        '--as-of',
+        '2026-05-14',
+        '--check-sinks',
+        '--json',
+      ], {
+        PATH: makeTempDir(),
+        N8N_API_KEY: 'test-n8n-api-key',
+        N8N_BASE_URL: n8n.baseUrl,
+      })
+
+      expect(result.status, result.stderr).toBe(0)
+      const report = JSON.parse(result.stdout) as CredentialReportJson
+
+      expect(presenceFor(rowFor(report, 'OPENROUTER_API_KEY'), 'n8n Variables')).toMatchObject({
+        status: 'present',
+        evidence: 'Found n8n variable key metadata for OPENROUTER_API_KEY; values were not printed or stored.',
+      })
+      expect(JSON.stringify(report)).not.toContain('must-not-leak-variable-secret')
+    } finally {
+      await n8n.close()
+    }
+  })
 })
 
 function makeTempDir(): string {
@@ -199,7 +322,12 @@ async function runBroker(args: string[], env: Record<string, string>): Promise<B
   })
 }
 
-async function startN8nMetadataServer(payload: { credentials: unknown; variables?: unknown }): Promise<{ baseUrl: string; close: () => Promise<void> }> {
+type N8nVariablesResponse = unknown | {
+  status: number
+  body: unknown
+}
+
+async function startN8nMetadataServer(payload: { credentials: unknown; variables?: N8nVariablesResponse }): Promise<{ baseUrl: string; close: () => Promise<void> }> {
   const server = http.createServer((request, response) => {
     expect(request.headers['x-n8n-api-key']).toBe('test-n8n-api-key')
     if (request.url === '/api/v1/credentials') {
@@ -208,6 +336,11 @@ async function startN8nMetadataServer(payload: { credentials: unknown; variables
       return
     }
     if (request.url === '/api/v1/variables') {
+      if (isStatusResponse(payload.variables)) {
+        response.writeHead(payload.variables.status, { 'Content-Type': 'application/json' })
+        response.end(JSON.stringify(payload.variables.body))
+        return
+      }
       response.writeHead(200, { 'Content-Type': 'application/json' })
       response.end(JSON.stringify(payload.variables ?? { data: [] }))
       return
@@ -231,6 +364,10 @@ async function startN8nMetadataServer(payload: { credentials: unknown; variables
       })
     }),
   }
+}
+
+function isStatusResponse(value: N8nVariablesResponse | undefined): value is { status: number; body: unknown } {
+  return Boolean(value && typeof value === 'object' && 'status' in value && typeof value.status === 'number')
 }
 
 function rowFor(report: CredentialReportJson, envVar: string): { sinkPresence: SinkPresence[] } {
