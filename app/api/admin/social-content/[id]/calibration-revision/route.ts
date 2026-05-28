@@ -1,0 +1,302 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { verifyAdmin, isAuthError } from '@/lib/auth-server'
+import { generateJsonCompletion } from '@/lib/llm-dispatch'
+import { supabaseAdmin } from '@/lib/supabase'
+import { getSocialCopywritingPrompt } from '@/lib/system-prompts'
+
+export const dynamic = 'force-dynamic'
+export const maxDuration = 60
+
+type SocialContentRow = {
+  id: string
+  status: string
+  post_text: string | null
+  cta_text: string | null
+  hashtags: string[] | null
+  image_prompt: string | null
+  topic_extracted: unknown
+  hormozi_framework: unknown
+  rag_context: Record<string, unknown> | null
+  admin_notes: string | null
+}
+
+type CalibrationRevision = {
+  post_text?: unknown
+  cta_text?: unknown
+  hashtags?: unknown
+  image_prompt?: unknown
+  revision_notes?: unknown
+}
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : null
+}
+
+function asString(value: unknown): string {
+  return typeof value === 'string' ? value : ''
+}
+
+function asStringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
+}
+
+function hasOperatorFeedback(feedback: Record<string, unknown> | null): boolean {
+  if (!feedback) return false
+  return [
+    'prior_post_excerpt',
+    'engagement_signal',
+    'audience_context',
+    'revision_request',
+    'claim_boundaries',
+  ].some((key) => Boolean(asString(feedback[key]).trim()))
+}
+
+function buildRevisionPrompt(row: SocialContentRow) {
+  const ragContext = asRecord(row.rag_context) ?? {}
+  const calibration = asRecord(ragContext.content_calibration) ?? {}
+  const feedback = asRecord(calibration.operator_feedback) ?? {}
+  const priorPatterns = Array.isArray(calibration.prior_success_patterns)
+    ? calibration.prior_success_patterns
+    : []
+  const voicePrinciples = asStringArray(calibration.voice_principles)
+  const missingContextPrompts = asStringArray(calibration.missing_context_prompts)
+
+  return `Revise this LinkedIn draft as Shaka, Vambah's Chief of Staff.
+
+Keep the output draft-only. Do not publish, schedule, DM, or create external outreach.
+
+Return JSON only:
+{
+  "post_text": "revised LinkedIn post text",
+  "cta_text": "specific closing question",
+  "hashtags": ["#AIProduct", "#ProductManagement"],
+  "image_prompt": "optional revised visual brief",
+  "revision_notes": ["what changed and why"]
+}
+
+Current draft:
+${row.post_text ?? ''}
+
+Current CTA:
+${row.cta_text ?? ''}
+
+Current hashtags:
+${(row.hashtags ?? []).join(', ')}
+
+Topic metadata:
+${JSON.stringify(row.topic_extracted ?? {}, null, 2)}
+
+Framework metadata:
+${JSON.stringify(row.hormozi_framework ?? {}, null, 2)}
+
+Content packet context:
+${JSON.stringify({
+    goal_id: ragContext.goal_id,
+    goal_type: ragContext.goal_type,
+    content_packet_id: ragContext.content_packet_id,
+    publish_gate: ragContext.publish_gate,
+    open_brain_references: ragContext.open_brain_references,
+    chronicle_packet_status: ragContext.chronicle_packet_status,
+    chronicle_evidence_notes: ragContext.chronicle_evidence_notes,
+    source_provenance_checklist: ragContext.source_provenance_checklist,
+    visual_brief: ragContext.visual_brief,
+  }, null, 2)}
+
+Prior success patterns to compare against:
+${JSON.stringify(priorPatterns, null, 2)}
+
+Voice principles:
+${voicePrinciples.map((item) => `- ${item}`).join('\n')}
+
+Operator feedback:
+Prior post/sample excerpt:
+${asString(feedback.prior_post_excerpt)}
+
+Engagement signal:
+${asString(feedback.engagement_signal)}
+
+Audience and desired reaction:
+${asString(feedback.audience_context)}
+
+Revision request:
+${asString(feedback.revision_request)}
+
+Claim boundaries:
+${asString(feedback.claim_boundaries)}
+
+If context is still missing, make the best draft from the available packet and mention the missing input in revision_notes, not in the post.
+
+Context prompts Shaka wanted answered:
+${missingContextPrompts.map((item) => `- ${item}`).join('\n')}`
+}
+
+function normalizeRevision(parsed: CalibrationRevision) {
+  const postText = asString(parsed.post_text).trim()
+  if (!postText) {
+    throw new Error('Revision response did not include post_text')
+  }
+
+  const ctaText = asString(parsed.cta_text).trim()
+  const imagePrompt = asString(parsed.image_prompt).trim()
+  const revisionNotes = asStringArray(parsed.revision_notes).map((item) => item.trim()).filter(Boolean)
+  const hashtags = asStringArray(parsed.hashtags)
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .map((item) => item.startsWith('#') ? item : `#${item}`)
+
+  return {
+    post_text: postText,
+    cta_text: ctaText || null,
+    image_prompt: imagePrompt || null,
+    hashtags,
+    revision_notes: revisionNotes,
+  }
+}
+
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { id: string } },
+) {
+  try {
+    const authResult = await verifyAdmin(request)
+    if (isAuthError(authResult)) {
+      return NextResponse.json({ error: authResult.error }, { status: authResult.status })
+    }
+
+    const body = await request.json().catch(() => ({})) as {
+      operator_feedback?: Record<string, unknown>
+    }
+
+    const { data: row, error: fetchError } = await supabaseAdmin
+      .from('social_content_queue')
+      .select('id, status, post_text, cta_text, hashtags, image_prompt, topic_extracted, hormozi_framework, rag_context, admin_notes')
+      .eq('id', params.id)
+      .single()
+
+    if (fetchError || !row) {
+      return NextResponse.json({ error: 'Content not found' }, { status: 404 })
+    }
+
+    const content = row as SocialContentRow
+    if (content.status !== 'draft' && content.status !== 'rejected') {
+      return NextResponse.json({ error: 'Calibration revision is only available for draft or rejected content' }, { status: 409 })
+    }
+
+    const ragContext = asRecord(content.rag_context) ?? {}
+    if (ragContext.source !== 'agent_ops_social_outreach_goal') {
+      return NextResponse.json({ error: 'Calibration revision is only available for Agent Ops social pilot drafts' }, { status: 400 })
+    }
+
+    const calibration = asRecord(ragContext.content_calibration) ?? {}
+    const requestedFeedback = asRecord(body.operator_feedback)
+    const operatorFeedback = hasOperatorFeedback(requestedFeedback)
+      ? {
+        prior_post_excerpt: asString(requestedFeedback?.prior_post_excerpt).trim(),
+        engagement_signal: asString(requestedFeedback?.engagement_signal).trim(),
+        audience_context: asString(requestedFeedback?.audience_context).trim(),
+        revision_request: asString(requestedFeedback?.revision_request).trim(),
+        claim_boundaries: asString(requestedFeedback?.claim_boundaries).trim(),
+        updated_at: new Date().toISOString(),
+      }
+      : asRecord(calibration.operator_feedback)
+    if (!hasOperatorFeedback(operatorFeedback)) {
+      return NextResponse.json({ error: 'Save operator feedback before generating a calibrated revision' }, { status: 400 })
+    }
+
+    const promptRagContext: Record<string, unknown> = {
+      ...ragContext,
+      content_calibration: {
+        ...calibration,
+        operator_feedback: operatorFeedback,
+      },
+    }
+
+    const basePrompt = await getSocialCopywritingPrompt()
+    const model = process.env.SOCIAL_CALIBRATION_REVISION_MODEL || 'gpt-4o-mini'
+    const promptContent = { ...content, rag_context: promptRagContext }
+    const aiResponse = await generateJsonCompletion({
+      model,
+      systemPrompt: `${basePrompt}
+
+Additional role: You are Shaka, the Agent Ops Chief of Staff. Use the operator feedback and calibration packet to revise the draft in Vambah's voice. Stay source-backed, concrete, and draft-only.`,
+      userPrompt: buildRevisionPrompt(promptContent),
+      temperature: 0.55,
+      maxTokens: 1400,
+      costContext: {
+        reference: { type: 'social_content_queue', id: params.id },
+        metadata: {
+          operation: 'social_content_calibration_revision',
+          goal_id: asString(promptRagContext.goal_id) || null,
+          content_packet_id: asString(promptRagContext.content_packet_id) || null,
+        },
+      },
+    })
+
+    let parsed: CalibrationRevision
+    try {
+      parsed = JSON.parse(aiResponse.content) as CalibrationRevision
+    } catch {
+      return NextResponse.json({ error: 'Calibration revision returned invalid JSON' }, { status: 502 })
+    }
+
+    const revision = normalizeRevision(parsed)
+    const createdAt = new Date().toISOString()
+    const revisionEntry = {
+      created_at: createdAt,
+      created_by: authResult.user.id,
+      model: aiResponse.model,
+      provider: aiResponse.provider,
+      revision_notes: revision.revision_notes,
+      operator_feedback_updated_at: asString(operatorFeedback?.updated_at) || null,
+    }
+    const revisionHistory = Array.isArray(calibration.revision_history)
+      ? calibration.revision_history
+      : []
+    const nextRagContext = {
+      ...promptRagContext,
+      content_calibration: {
+        ...calibration,
+        status: 'revision_generated',
+        operator_feedback: operatorFeedback,
+        latest_revision: revisionEntry,
+        revision_history: [...revisionHistory, revisionEntry].slice(-10),
+      },
+    }
+
+    const notesBlock = [
+      `Calibration revision generated by Shaka on ${createdAt}.`,
+      ...revision.revision_notes.map((note) => `- ${note}`),
+    ].join('\n')
+
+    const { data: updated, error: updateError } = await supabaseAdmin
+      .from('social_content_queue')
+      .update({
+        post_text: revision.post_text,
+        cta_text: revision.cta_text,
+        hashtags: revision.hashtags.length ? revision.hashtags : content.hashtags ?? [],
+        image_prompt: revision.image_prompt ?? content.image_prompt,
+        status: 'draft',
+        rag_context: nextRagContext,
+        admin_notes: [content.admin_notes, notesBlock].filter(Boolean).join('\n\n'),
+      })
+      .eq('id', params.id)
+      .select('*')
+      .single()
+
+    if (updateError || !updated) {
+      console.error('[calibration-revision] update failed:', updateError)
+      return NextResponse.json({ error: 'Failed to save calibrated revision' }, { status: 500 })
+    }
+
+    return NextResponse.json({
+      item: updated,
+      revision: revisionEntry,
+    })
+  } catch (error) {
+    console.error('[calibration-revision] error:', error)
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Internal server error' },
+      { status: 500 },
+    )
+  }
+}

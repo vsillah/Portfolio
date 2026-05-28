@@ -113,6 +113,7 @@ function SocialContentDetailPage() {
   const [selectedSlide, setSelectedSlide] = useState(0)
   const [publishing, setPublishing] = useState(false)
   const [savingCalibration, setSavingCalibration] = useState(false)
+  const [revisingCalibration, setRevisingCalibration] = useState(false)
   const [showSource, setShowSource] = useState(false)
   const [expandedSection, setExpandedSection] = useState<'rag' | 'transcript' | null>(null)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
@@ -280,6 +281,49 @@ function SocialContentDetailPage() {
       showMsg('error', 'Failed to save calibration feedback')
     } finally {
       setSavingCalibration(false)
+    }
+  }
+
+  const handleGenerateCalibrationRevision = async () => {
+    if (!item) return
+    setRevisingCalibration(true)
+    try {
+      const saved = await saveForm()
+      if (!saved) {
+        showMsg('error', 'Save the current draft before generating a calibrated revision')
+        return
+      }
+
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const res = await fetch(`/api/admin/social-content/${id}/calibration-revision`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ operator_feedback: calibrationFeedback }),
+      })
+
+      const data = await res.json()
+      if (!res.ok) {
+        showMsg('error', data.error || 'Failed to generate calibrated revision')
+        return
+      }
+
+      const updated = data.item as SocialContentItem
+      setItem(updated)
+      setPostText(updated.post_text || '')
+      setCtaText(updated.cta_text || '')
+      setHashtags(updated.hashtags?.join(', ') || '')
+      setImagePrompt(updated.image_prompt || '')
+      setAdminNotes(updated.admin_notes || '')
+      showMsg('success', 'Calibrated revision generated')
+    } catch {
+      showMsg('error', 'Failed to generate calibrated revision')
+    } finally {
+      setRevisingCalibration(false)
     }
   }
 
@@ -810,15 +854,26 @@ function SocialContentDetailPage() {
                     <p className="text-xs leading-5 text-gray-500">
                       Saved feedback stays inside this draft packet and does not publish, schedule, DM, or send anything externally.
                     </p>
-                    <button
-                      type="button"
-                      onClick={handleSaveCalibrationFeedback}
-                      disabled={!isEditable || savingCalibration}
-                      className="inline-flex items-center gap-2 rounded-lg border border-amber-500/40 px-3 py-2 text-sm text-amber-200 transition-colors hover:bg-amber-500/10 disabled:opacity-50"
-                    >
-                      {savingCalibration ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-                      Save feedback to packet
-                    </button>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handleSaveCalibrationFeedback}
+                        disabled={!isEditable || savingCalibration}
+                        className="inline-flex items-center gap-2 rounded-lg border border-amber-500/40 px-3 py-2 text-sm text-amber-200 transition-colors hover:bg-amber-500/10 disabled:opacity-50"
+                      >
+                        {savingCalibration ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                        Save feedback
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleGenerateCalibrationRevision}
+                        disabled={!isEditable || savingCalibration || revisingCalibration}
+                        className="inline-flex items-center gap-2 rounded-lg bg-amber-400 px-3 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-amber-300 disabled:opacity-50"
+                      >
+                        {revisingCalibration ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                        Revise with feedback
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
