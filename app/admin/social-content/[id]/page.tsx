@@ -76,6 +76,28 @@ function asStringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
 }
 
+function asRecordArray(value: unknown): Record<string, unknown>[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is Record<string, unknown> => Boolean(asRecord(item)))
+    : []
+}
+
+type CalibrationFeedback = {
+  prior_post_excerpt: string
+  engagement_signal: string
+  audience_context: string
+  revision_request: string
+  claim_boundaries: string
+}
+
+const EMPTY_CALIBRATION_FEEDBACK: CalibrationFeedback = {
+  prior_post_excerpt: '',
+  engagement_signal: '',
+  audience_context: '',
+  revision_request: '',
+  claim_boundaries: '',
+}
+
 function SocialContentDetailPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
@@ -90,11 +112,14 @@ function SocialContentDetailPage() {
   const [convertingFormat, setConvertingFormat] = useState(false)
   const [selectedSlide, setSelectedSlide] = useState(0)
   const [publishing, setPublishing] = useState(false)
+  const [savingCalibration, setSavingCalibration] = useState(false)
+  const [revisingCalibration, setRevisingCalibration] = useState(false)
   const [showSource, setShowSource] = useState(false)
   const [expandedSection, setExpandedSection] = useState<'rag' | 'transcript' | null>(null)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [targetPlatforms, setTargetPlatforms] = useState<SocialPlatform[]>(['linkedin'])
+  const [calibrationFeedback, setCalibrationFeedback] = useState<CalibrationFeedback>(EMPTY_CALIBRATION_FEEDBACK)
 
   const [postText, setPostText] = useState('')
   const [ctaText, setCtaText] = useState('')
@@ -130,6 +155,16 @@ function SocialContentDetailPage() {
         setScheduledFor(i.scheduled_for ? new Date(i.scheduled_for).toISOString().slice(0, 16) : '')
         setAdminNotes(i.admin_notes || '')
         setTargetPlatforms(i.target_platforms?.length ? i.target_platforms : ['linkedin'])
+        const rag = asRecord(i.rag_context)
+        const calibration = asRecord(rag?.content_calibration)
+        const operatorFeedback = asRecord(calibration?.operator_feedback)
+        setCalibrationFeedback({
+          prior_post_excerpt: asString(operatorFeedback?.prior_post_excerpt),
+          engagement_signal: asString(operatorFeedback?.engagement_signal),
+          audience_context: asString(operatorFeedback?.audience_context),
+          revision_request: asString(operatorFeedback?.revision_request),
+          claim_boundaries: asString(operatorFeedback?.claim_boundaries),
+        })
       }
     } catch (err) {
       console.error('Failed to fetch item:', err)
@@ -190,6 +225,106 @@ function SocialContentDetailPage() {
     const saved = await saveForm()
     showMsg(saved ? 'success' : 'error', saved ? 'Saved successfully' : 'Failed to save')
     setSaving(false)
+  }
+
+  const updateCalibrationFeedback = (key: keyof CalibrationFeedback, value: string) => {
+    setCalibrationFeedback((current) => ({ ...current, [key]: value }))
+  }
+
+  const handleSaveCalibrationFeedback = async () => {
+    if (!item) return
+    setSavingCalibration(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const existingRag = asRecord(item.rag_context) ?? {}
+      const existingCalibration = asRecord(existingRag.content_calibration) ?? {}
+      const feedback = {
+        prior_post_excerpt: calibrationFeedback.prior_post_excerpt.trim(),
+        engagement_signal: calibrationFeedback.engagement_signal.trim(),
+        audience_context: calibrationFeedback.audience_context.trim(),
+        revision_request: calibrationFeedback.revision_request.trim(),
+        claim_boundaries: calibrationFeedback.claim_boundaries.trim(),
+        updated_at: new Date().toISOString(),
+      }
+      const hasFeedback = Object.entries(feedback)
+        .filter(([key]) => key !== 'updated_at')
+        .some(([, value]) => Boolean(value))
+      const rag_context = {
+        ...existingRag,
+        content_calibration: {
+          ...existingCalibration,
+          status: hasFeedback ? 'ready_for_draft_review' : asString(existingCalibration.status) || 'needs_operator_context',
+          operator_feedback: feedback,
+        },
+      }
+
+      const res = await fetch(`/api/admin/social-content/${id}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ rag_context }),
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        setItem(prev => prev ? { ...prev, ...data.item } : prev)
+        showMsg('success', 'Calibration feedback saved')
+      } else {
+        const data = await res.json()
+        showMsg('error', data.error || 'Failed to save calibration feedback')
+      }
+    } catch {
+      showMsg('error', 'Failed to save calibration feedback')
+    } finally {
+      setSavingCalibration(false)
+    }
+  }
+
+  const handleGenerateCalibrationRevision = async () => {
+    if (!item) return
+    setRevisingCalibration(true)
+    try {
+      const saved = await saveForm()
+      if (!saved) {
+        showMsg('error', 'Save the current draft before generating a calibrated revision')
+        return
+      }
+
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const res = await fetch(`/api/admin/social-content/${id}/calibration-revision`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ operator_feedback: calibrationFeedback }),
+      })
+
+      const data = await res.json()
+      if (!res.ok) {
+        showMsg('error', data.error || 'Failed to generate calibrated revision')
+        return
+      }
+
+      const updated = data.item as SocialContentItem
+      setItem(updated)
+      setPostText(updated.post_text || '')
+      setCtaText(updated.cta_text || '')
+      setHashtags(updated.hashtags?.join(', ') || '')
+      setImagePrompt(updated.image_prompt || '')
+      setAdminNotes(updated.admin_notes || '')
+      showMsg('success', 'Calibrated revision generated')
+    } catch {
+      showMsg('error', 'Failed to generate calibrated revision')
+    } finally {
+      setRevisingCalibration(false)
+    }
   }
 
   const handleApprove = async () => {
@@ -462,6 +597,14 @@ function SocialContentDetailPage() {
   const agentPilotProvenance = asStringArray(ragContext?.source_provenance_checklist)
   const agentPilotApprovalChecklist = asStringArray(ragContext?.approval_checklist)
   const agentPilotOpenBrainReferences = asStringArray(ragContext?.open_brain_references)
+  const agentPilotCalibration = asRecord(ragContext?.content_calibration)
+  const agentPilotCalibrationStatus = asString(agentPilotCalibration?.status)
+  const agentPilotPriorPatterns = asRecordArray(agentPilotCalibration?.prior_success_patterns)
+  const agentPilotVoicePrinciples = asStringArray(agentPilotCalibration?.voice_principles)
+  const agentPilotMissingContextPrompts = asStringArray(agentPilotCalibration?.missing_context_prompts)
+  const agentPilotComparisonPrompt = asString(agentPilotCalibration?.comparison_prompt)
+  const agentPilotOperatorFeedback = asRecord(agentPilotCalibration?.operator_feedback)
+  const agentPilotFeedbackUpdatedAt = asString(agentPilotOperatorFeedback?.updated_at)
   const isDraftOnlyPilot = isAgentSocialPilot && agentPilotPublishGate === 'draft_only'
 
   return (
@@ -586,6 +729,155 @@ function SocialContentDetailPage() {
                 </p>
               </div>
             </div>
+
+            {agentPilotCalibration && (
+              <div className="mt-4 rounded-lg border border-gray-800 bg-gray-950/35 p-4">
+                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-300">Content Calibration</p>
+                    <p className="mt-1 text-sm leading-6 text-gray-300">
+                      Use this section to revise the draft against prior successful post patterns before it reaches publish review.
+                    </p>
+                  </div>
+                  {agentPilotCalibrationStatus && (
+                    <span className="w-fit rounded-full border border-amber-500/35 bg-amber-500/10 px-3 py-1 text-xs text-amber-200">
+                      {agentPilotCalibrationStatus.replace(/_/g, ' ')}
+                    </span>
+                  )}
+                </div>
+                <div className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
+                  <div className="grid gap-2">
+                    {agentPilotPriorPatterns.slice(0, 3).map((pattern) => {
+                      const label = asString(pattern.label)
+                      return (
+                        <div key={label || asString(pattern.pattern)} className="rounded-md border border-gray-800 bg-gray-900/55 p-3">
+                          <p className="text-sm font-semibold text-gray-100">{label || 'Prior success pattern'}</p>
+                          <p className="mt-1 text-sm leading-6 text-gray-300">{asString(pattern.pattern)}</p>
+                          <p className="mt-2 text-xs leading-5 text-gray-400"><span className="text-amber-300">Why it worked:</span> {asString(pattern.why_it_worked)}</p>
+                          <p className="mt-1 text-xs leading-5 text-gray-400"><span className="text-amber-300">Use now:</span> {asString(pattern.reuse_guidance)}</p>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <div className="grid gap-3">
+                    <div className="rounded-md border border-gray-800 bg-gray-900/55 p-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Voice Checks</p>
+                      <ul className="mt-2 space-y-1 text-sm text-gray-300">
+                        {agentPilotVoicePrinciples.slice(0, 5).map((entry) => <li key={entry}>• {entry}</li>)}
+                      </ul>
+                    </div>
+                    <div className="rounded-md border border-amber-500/25 bg-amber-500/10 p-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">Context to Add</p>
+                      <ul className="mt-2 space-y-1 text-sm text-amber-50/90">
+                        {agentPilotMissingContextPrompts.slice(0, 4).map((entry) => <li key={entry}>• {entry}</li>)}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                {agentPilotComparisonPrompt && (
+                  <div className="mt-3 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-sm leading-6 text-amber-100">
+                    {agentPilotComparisonPrompt}
+                  </div>
+                )}
+                <div className="mt-4 rounded-lg border border-gray-800 bg-gray-900/55 p-4">
+                  <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-300">Operator Feedback Loop</p>
+                      <p className="mt-1 text-sm leading-6 text-gray-300">
+                        Add the context Shaka should use to compare this draft against posts that already sounded right and performed well.
+                      </p>
+                    </div>
+                    {agentPilotFeedbackUpdatedAt && (
+                      <span className="w-fit rounded-full border border-gray-700 px-3 py-1 text-xs text-gray-400">
+                        Saved {new Date(agentPilotFeedbackUpdatedAt).toLocaleString()}
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-3 grid gap-3 lg:grid-cols-2">
+                    <label className="block text-xs font-medium uppercase tracking-[0.12em] text-gray-500">
+                      Prior post or sample excerpt
+                      <textarea
+                        value={calibrationFeedback.prior_post_excerpt}
+                        onChange={(event) => updateCalibrationFeedback('prior_post_excerpt', event.target.value)}
+                        disabled={!isEditable}
+                        rows={4}
+                        className="mt-2 w-full rounded-lg border border-gray-700 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-200 disabled:opacity-60"
+                        placeholder="Paste the post, excerpt, or link that this draft should learn from."
+                      />
+                    </label>
+                    <label className="block text-xs font-medium uppercase tracking-[0.12em] text-gray-500">
+                      Engagement signal
+                      <textarea
+                        value={calibrationFeedback.engagement_signal}
+                        onChange={(event) => updateCalibrationFeedback('engagement_signal', event.target.value)}
+                        disabled={!isEditable}
+                        rows={4}
+                        className="mt-2 w-full rounded-lg border border-gray-700 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-200 disabled:opacity-60"
+                        placeholder="Views, likes, comments, or why the post felt strong enough to publish."
+                      />
+                    </label>
+                    <label className="block text-xs font-medium uppercase tracking-[0.12em] text-gray-500">
+                      Audience and desired reaction
+                      <textarea
+                        value={calibrationFeedback.audience_context}
+                        onChange={(event) => updateCalibrationFeedback('audience_context', event.target.value)}
+                        disabled={!isEditable}
+                        rows={3}
+                        className="mt-2 w-full rounded-lg border border-gray-700 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-200 disabled:opacity-60"
+                        placeholder="Who should this speak to, and what should they feel or do after reading?"
+                      />
+                    </label>
+                    <label className="block text-xs font-medium uppercase tracking-[0.12em] text-gray-500">
+                      Revision request
+                      <textarea
+                        value={calibrationFeedback.revision_request}
+                        onChange={(event) => updateCalibrationFeedback('revision_request', event.target.value)}
+                        disabled={!isEditable}
+                        rows={3}
+                        className="mt-2 w-full rounded-lg border border-gray-700 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-200 disabled:opacity-60"
+                        placeholder="What should Shaka change in the next draft?"
+                      />
+                    </label>
+                    <label className="block text-xs font-medium uppercase tracking-[0.12em] text-gray-500 lg:col-span-2">
+                      Claims or boundaries to avoid
+                      <textarea
+                        value={calibrationFeedback.claim_boundaries}
+                        onChange={(event) => updateCalibrationFeedback('claim_boundaries', event.target.value)}
+                        disabled={!isEditable}
+                        rows={3}
+                        className="mt-2 w-full rounded-lg border border-gray-700 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-200 disabled:opacity-60"
+                        placeholder="Private details, unsupported claims, client references, or angles that should stay out."
+                      />
+                    </label>
+                  </div>
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                    <p className="text-xs leading-5 text-gray-500">
+                      Saved feedback stays inside this draft packet and does not publish, schedule, DM, or send anything externally.
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handleSaveCalibrationFeedback}
+                        disabled={!isEditable || savingCalibration}
+                        className="inline-flex items-center gap-2 rounded-lg border border-amber-500/40 px-3 py-2 text-sm text-amber-200 transition-colors hover:bg-amber-500/10 disabled:opacity-50"
+                      >
+                        {savingCalibration ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                        Save feedback
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleGenerateCalibrationRevision}
+                        disabled={!isEditable || savingCalibration || revisingCalibration}
+                        className="inline-flex items-center gap-2 rounded-lg bg-amber-400 px-3 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-amber-300 disabled:opacity-50"
+                      >
+                        {revisingCalibration ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                        Revise with feedback
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
               {agentPilotGoalId && (

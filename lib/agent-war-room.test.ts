@@ -550,6 +550,16 @@ describe('runAgentWarRoom', () => {
         source_provenance_checklist: expect.arrayContaining([
           'Open Brain references are approved/public-safe.',
         ]),
+        content_calibration: expect.objectContaining({
+          status: 'needs_operator_context',
+          prior_success_patterns: expect.arrayContaining([
+            expect.objectContaining({ label: 'Builder proof post' }),
+          ]),
+          missing_context_prompts: expect.arrayContaining([
+            'Paste or link one high-performing LinkedIn post that felt representative of Vambah voice.',
+          ]),
+          comparison_prompt: expect.stringContaining('Compare this draft against Vambah LinkedIn voice guidance'),
+        }),
       }),
     })
     expect(draftResult.goalDraft?.tasks.map((task) => task.title)).toEqual([
@@ -588,6 +598,11 @@ describe('runAgentWarRoom', () => {
         content_packet_id: draftResult.goalDraft?.content_packet_id,
         social_content_draft_id: 'social-draft-1',
         social_content_draft_href: '/admin/social-content/social-draft-1',
+        content_packet: expect.objectContaining({
+          content_calibration: expect.objectContaining({
+            status: 'needs_operator_context',
+          }),
+        }),
       }),
     }))
     expect(workItemMocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({

@@ -85,6 +85,7 @@ export async function PUT(
       'post_text', 'cta_text', 'cta_url', 'hashtags',
       'image_prompt', 'voiceover_text', 'platform',
       'status', 'scheduled_for', 'admin_notes',
+      'rag_context',
       'framework_visual_type', 'target_platforms',
       'video_generation_method', 'youtube_title', 'youtube_description',
     ]

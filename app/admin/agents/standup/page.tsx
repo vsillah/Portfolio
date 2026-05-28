@@ -1089,23 +1089,67 @@ function GoalPlanner({
             </div>
           ) : null}
           {goalDraft.content_packet && (
-            <div className="mt-4 grid gap-3 lg:grid-cols-2">
-              <div className="rounded-lg border border-silicon-slate/60 bg-background/60 p-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-radiant-gold">LinkedIn Content Packet</p>
-                <p className="mt-2 text-sm font-medium">{goalDraft.content_packet.target_audience}</p>
-                <p className="mt-2 text-sm text-muted-foreground">{goalDraft.content_packet.industry_signal_summary}</p>
-                <div className="mt-3 grid gap-1 text-xs text-muted-foreground">
-                  {goalDraft.content_packet.source_provenance_checklist.slice(0, 3).map((item) => (
-                    <span key={item}>• {item}</span>
-                  ))}
+            <div className="mt-4 space-y-3">
+              <div className="grid gap-3 lg:grid-cols-2">
+                <div className="rounded-lg border border-silicon-slate/60 bg-background/60 p-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-radiant-gold">LinkedIn Content Packet</p>
+                  <p className="mt-2 text-sm font-medium">{goalDraft.content_packet.target_audience}</p>
+                  <p className="mt-2 text-sm text-muted-foreground">{goalDraft.content_packet.industry_signal_summary}</p>
+                  <div className="mt-3 grid gap-1 text-xs text-muted-foreground">
+                    {goalDraft.content_packet.source_provenance_checklist.slice(0, 3).map((item) => (
+                      <span key={item}>• {item}</span>
+                    ))}
+                  </div>
+                </div>
+                <div className="rounded-lg border border-silicon-slate/60 bg-background/60 p-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-radiant-gold">Visual brief</p>
+                  <p className="mt-2 text-sm text-muted-foreground">{goalDraft.content_packet.visual_concept}</p>
+                  <p className="mt-3 line-clamp-3 rounded-md border border-silicon-slate/50 bg-black/10 p-2 text-xs text-muted-foreground">
+                    {goalDraft.content_packet.image_prompt}
+                  </p>
                 </div>
               </div>
               <div className="rounded-lg border border-silicon-slate/60 bg-background/60 p-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-radiant-gold">Visual brief</p>
-                <p className="mt-2 text-sm text-muted-foreground">{goalDraft.content_packet.visual_concept}</p>
-                <p className="mt-3 line-clamp-3 rounded-md border border-silicon-slate/50 bg-black/10 p-2 text-xs text-muted-foreground">
-                  {goalDraft.content_packet.image_prompt}
-                </p>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-radiant-gold">Content calibration</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Use this before delegation to compare the draft against prior strong posts, voice guardrails, and the extra context Shaka still needs.
+                    </p>
+                  </div>
+                  <span className="w-fit rounded-full border border-yellow-500/35 bg-yellow-500/10 px-2 py-1 text-xs text-yellow-100">
+                    {goalDraft.content_packet.content_calibration.status.replace(/_/g, ' ')}
+                  </span>
+                </div>
+                <div className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,1.15fr)_minmax(260px,0.85fr)]">
+                  <div className="grid gap-2">
+                    {goalDraft.content_packet.content_calibration.prior_success_patterns.map((pattern) => (
+                      <div key={pattern.label} className="rounded-md border border-silicon-slate/55 bg-background/45 p-2 text-xs">
+                        <p className="font-semibold text-foreground">{pattern.label}</p>
+                        <p className="mt-1 text-muted-foreground">{pattern.pattern}</p>
+                        <p className="mt-1 text-muted-foreground"><span className="text-radiant-gold">Why it worked:</span> {pattern.why_it_worked}</p>
+                        <p className="mt-1 text-muted-foreground"><span className="text-radiant-gold">Use now:</span> {pattern.reuse_guidance}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="grid gap-2">
+                    <div className="rounded-md border border-silicon-slate/55 bg-background/45 p-2">
+                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-radiant-gold">Voice checks</p>
+                      <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+                        {goalDraft.content_packet.content_calibration.voice_principles.slice(0, 4).map((item) => <li key={item}>• {item}</li>)}
+                      </ul>
+                    </div>
+                    <div className="rounded-md border border-yellow-500/30 bg-yellow-500/10 p-2">
+                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-yellow-100">Context to add</p>
+                      <ul className="mt-2 space-y-1 text-xs text-yellow-50/90">
+                        {goalDraft.content_packet.content_calibration.missing_context_prompts.slice(0, 4).map((item) => <li key={item}>• {item}</li>)}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-3 rounded-md border border-radiant-gold/30 bg-radiant-gold/10 p-2 text-xs text-radiant-gold">
+                  {goalDraft.content_packet.content_calibration.comparison_prompt}
+                </div>
               </div>
             </div>
           )}

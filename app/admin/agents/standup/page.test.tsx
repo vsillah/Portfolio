@@ -208,6 +208,20 @@ describe('AgentStandupRoomPage', () => {
                     image_prompt: 'Dark operating-console illustration with gold command accents.',
                     source_provenance_checklist: ['Open Brain references are approved/public-safe.', 'Chronicle notes are manually sanitized.'],
                     approval_checklist: ['Social Content item remains draft-only until separately approved.'],
+                    content_calibration: {
+                      status: 'needs_operator_context',
+                      prior_success_patterns: [{
+                        label: 'Builder proof post',
+                        pattern: 'Open with a concrete build observation.',
+                        why_it_worked: 'It referenced actual builder work and named the risk.',
+                        reuse_guidance: 'Use when the draft needs more practical proof.',
+                      }],
+                      voice_principles: ['Open with a concrete scene, tension, or practical problem.'],
+                      audience_notes: ['Speak to leaders trying to reduce burden.'],
+                      revision_questions: ['Does the draft sound like a point Vambah would stand behind publicly?'],
+                      missing_context_prompts: ['Paste or link one high-performing LinkedIn post.'],
+                      comparison_prompt: 'Compare this draft against Vambah LinkedIn voice guidance.',
+                    },
                   },
                   tasks: [{
                     id: 'goal-social-post-draft',
@@ -470,6 +484,10 @@ describe('AgentStandupRoomPage', () => {
     expect(screen.getByText('Pending research: capture one current industry signal.')).toBeInTheDocument()
     expect(screen.getByText(/Open Brain references are approved\/public-safe/i)).toBeInTheDocument()
     expect(screen.getByText('Mission Control routes one social outreach goal into accountable work.')).toBeInTheDocument()
+    expect(screen.getByText('Content calibration')).toBeInTheDocument()
+    expect(screen.getByText('Builder proof post')).toBeInTheDocument()
+    expect(screen.getByText(/Paste or link one high-performing LinkedIn post/i)).toBeInTheDocument()
+    expect(screen.getByText(/Compare this draft against Vambah LinkedIn voice guidance/i)).toBeInTheDocument()
     expect(fetch).toHaveBeenCalledWith('/api/admin/agents/war-room', expect.objectContaining({
       method: 'POST',
       body: JSON.stringify({
