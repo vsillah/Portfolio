@@ -60,14 +60,21 @@
       "analysisDocument": "/docs/apify-call-bakeoff-analysis.md",
       "nextAction": "Keep productive evidence actors under watch, pause or replace no-run/failing/empty-output actors, and compare the remaining productive categories against cheaper alternatives before renewal.",
       "googlePlacesPromotionGate": {
-        "status": "gated",
+        "status": "runner_selected_api_only_until_static_egress",
         "localKeyStatus": "API-restricted to Places API (New); acceptable for the short local/Codex bakeoff window.",
-        "productionRequirement": "Do not promote Google Places as the durable Apify Google Maps replacement until the production runner and outbound egress path are confirmed.",
+        "productionRequirement": "Use the production-like n8n social-listening runner for replacement validation, but do not add IP address application restrictions until static outbound egress is confirmed.",
         "recommendedProductionKeyName": "portfolio-apify-replacement-google-places-prod",
+        "productionRunnerDecision": {
+          "selectedRunner": "WF-VEP-002 n8n Social Listening Pipeline, with Portfolio/Vercel remaining the admin trigger and reporting surface.",
+          "egressPosture": "Static outbound egress is not confirmed for the current runner; Vercel also uses dynamic outbound IPs unless Static IPs or Secure Compute are enabled.",
+          "ctORecommendation": "Create a separate production Google Places key only when ready to wire the replacement workflow, restrict it to Places API (New), keep application restrictions API-only until static egress is available, and control spend with quotas, alerts, and rotation review.",
+          "validationGate": "Rerun the bakeoff from the production-like runner and compare accepted-result rate before replacing the Apify Google Maps actor.",
+          "decisionPacket": "/docs/google-places-production-runner-decision.md"
+        },
         "requiredControls": [
           "Separate production key from the local bakeoff key.",
           "API restriction to Places API (New).",
-          "IP address restriction if the production runner has stable outbound egress.",
+          "IP address restriction only if the production runner has stable outbound egress.",
           "Strict quota limits, billing alerts, and a rotation review date if stable egress is not available yet.",
           "Infisical/Vercel runtime sink sync only after the production key is approved.",
           "Production-like rerun of npm run apify:replacement-bakeoff -- --run before replacing the Apify Google Maps actor."

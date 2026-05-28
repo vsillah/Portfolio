@@ -36,8 +36,11 @@ describe('subscription status budget queries', () => {
     const result = answerSubscriptionBudgetQuery('Can we promote Google Places to production as the Apify Google Maps replacement?')
 
     expect(result.answer).toContain('Google Places production gate')
+    expect(result.answer).toContain('WF-VEP-002 n8n Social Listening Pipeline')
+    expect(result.answer).toContain('Static outbound egress is not confirmed')
     expect(result.answer).toContain('portfolio-apify-replacement-google-places-prod')
     expect(result.apifyCallAnalysis?.googlePlacesPromotionGate?.decisionRequired).toBe(true)
+    expect(result.apifyCallAnalysis?.googlePlacesPromotionGate?.productionRunnerDecision?.decisionPacket).toBe('/docs/google-places-production-runner-decision.md')
   })
 
   it('handles transition spend from the Anthropic to ChatGPT switch', () => {
