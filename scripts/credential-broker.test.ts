@@ -300,6 +300,96 @@ describe('credential broker CLI runtime sink checks', () => {
     expect(result.stdout).toContain('"sink": "n8n Credentials"')
     expect(result.stdout).toContain('"status": "unavailable"')
   })
+
+  it('fails bare strict sink reports for any runtime sink gap status', async () => {
+    const binDir = makeTempDir()
+    writeFakeVercel(binDir, {
+      envs: [],
+    })
+    const n8n = await startN8nMetadataServer({
+      credentials: { data: [] },
+      variables: { data: [] },
+    })
+
+    try {
+      const result = await runBroker([
+        'report',
+        '--env',
+        'staging',
+        '--as-of',
+        '2026-05-14',
+        '--strict-sinks',
+        '--json',
+      ], {
+        PATH: binDir,
+        N8N_API_KEY: 'test-n8n-api-key',
+        N8N_BASE_URL: n8n.baseUrl,
+      })
+
+      expect(result.status).toBe(1)
+      expect(result.stderr).toContain('Strict runtime sink gate failed:')
+      expect(result.stderr).toContain('missing, unknown, unavailable')
+      expect(result.stdout).toContain('"sinkGapActions"')
+      expect(result.stdout).toContain('"status": "missing"')
+    } finally {
+      await n8n.close()
+    }
+  })
+
+  it('allows selected strict sink gates when only other gap statuses are present', async () => {
+    const binDir = makeTempDir()
+    writeFakeVercel(binDir, {
+      envs: [],
+    })
+    const n8n = await startN8nMetadataServer({
+      credentials: { data: [] },
+      variables: { data: [] },
+    })
+
+    try {
+      const result = await runBroker([
+        'report',
+        '--env',
+        'staging',
+        '--as-of',
+        '2026-05-14',
+        '--strict-sinks',
+        'unknown',
+        '--json',
+      ], {
+        PATH: binDir,
+        N8N_API_KEY: 'test-n8n-api-key',
+        N8N_BASE_URL: n8n.baseUrl,
+      })
+
+      expect(result.status, result.stderr).toBe(0)
+      expect(result.stderr).toBe('')
+      expect(result.stdout).toContain('"sinkGapActions"')
+      expect(result.stdout).toContain('"status": "missing"')
+    } finally {
+      await n8n.close()
+    }
+  })
+
+  it('rejects invalid strict sink status filters before running the gate', async () => {
+    const result = await runBroker([
+      'report',
+      '--env',
+      'staging',
+      '--as-of',
+      '2026-05-14',
+      '--strict-sinks',
+      'missing,broken',
+      '--json',
+    ], {
+      PATH: makeTempDir(),
+    })
+
+    expect(result.status).toBe(1)
+    expect(result.stdout).toBe('')
+    expect(result.stderr).toContain('Invalid --strict-sinks status: broken.')
+    expect(result.stderr).toContain('Expected missing, unknown, unavailable')
+  })
 })
 
 function makeTempDir(): string {
