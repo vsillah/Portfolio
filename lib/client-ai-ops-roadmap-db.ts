@@ -160,7 +160,7 @@ export async function ensureRoadmapForProject(clientProjectId: string, options?:
   const db = requireDb()
   const { data: project, error: projectError } = await db
     .from('client_projects')
-    .select('id, project_name, client_name, client_company, client_email, contact_submission_id, proposal_id')
+    .select('id, project_name, client_name, client_company, client_email, contact_submission_id, proposal_id, product_purchased')
     .eq('id', clientProjectId)
     .single()
 
@@ -172,6 +172,7 @@ export async function ensureRoadmapForProject(clientProjectId: string, options?:
     clientName: project.client_name,
     clientCompany: project.client_company,
     clientEmail: project.client_email,
+    productPurchased: project.product_purchased,
     clientProjectId,
     proposalId: project.proposal_id,
     contactSubmissionId: project.contact_submission_id,
@@ -190,6 +191,7 @@ export async function ensureRoadmapForProject(clientProjectId: string, options?:
       client_summary: draft.clientSummary,
       snapshot: {
         input_hash: draft.inputHash,
+        service_profile: draft.serviceProfile,
         runtime_placement_options: draft.runtimePlacementOptions,
         connector_readiness: draft.connectorReadiness,
       },
@@ -274,6 +276,7 @@ async function buildRoadmapContextForProject(project: {
   clientName: string | null
   clientCompany: string | null
   clientEmail: string | null
+  productPurchased?: string | null
   clientProjectId: string
   proposalId: string | null
   contactSubmissionId: number | null
@@ -334,6 +337,7 @@ async function buildRoadmapContextForProject(project: {
     clientName: project.clientName,
     clientCompany: project.clientCompany,
     projectName: project.projectName,
+    productPurchased: project.productPurchased,
     clientProjectId: project.clientProjectId,
     proposalId: project.proposalId,
     contactSubmissionId: project.contactSubmissionId,

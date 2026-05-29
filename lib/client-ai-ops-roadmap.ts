@@ -41,6 +41,7 @@ export interface RoadmapContext {
   clientName?: string | null
   clientCompany?: string | null
   projectName?: string | null
+  productPurchased?: string | null
   proposalId?: string | null
   clientProjectId?: string | null
   contactSubmissionId?: number | null
@@ -49,6 +50,22 @@ export interface RoadmapContext {
   builtWithStack?: Record<string, unknown> | null
   auditSignals?: ClientConnectorAuditSignal[]
   implementationRequirements?: Record<string, unknown> | null
+}
+
+export type RoadmapServiceProfileKey = 'open_brain_companion_app'
+
+export interface RoadmapServiceProfile {
+  key: RoadmapServiceProfileKey
+  label: string
+  componentLabel: string
+  clientOwner: string | null
+  deliveryModel: 'white_label_client_ai_ops'
+  canonicalSource: string
+  portfolioRole: string
+  reusablePattern: string
+  status: 'staging_ready' | 'needs_client_setup' | 'active'
+  connectorSignals: string[]
+  approvalGates: string[]
 }
 
 export type RoadmapRuntimePlacementKey = 'client_local_node' | 'cloud_runtime' | 'hybrid_local_cloud'
@@ -117,6 +134,7 @@ export interface RoadmapDraft {
   title: string
   clientSummary: string
   inputHash: string
+  serviceProfile: RoadmapServiceProfile | null
   runtimePlacementOptions: RoadmapRuntimePlacementOption[]
   connectorReadiness: ClientConnectorReadiness
   phases: RoadmapPhaseDraft[]
@@ -181,6 +199,7 @@ export interface RoadmapClientView {
   title: string
   status: RoadmapStatus
   clientSummary: string | null
+  serviceProfile: RoadmapServiceProfile | null
   runtimePlacementOptions: RoadmapRuntimePlacementOption[]
   connectorReadiness: ClientConnectorReadiness
   phases: RoadmapClientPhase[]
@@ -371,6 +390,46 @@ const ORG_BOARD_PROJECTIONS: Record<string, RoadmapOrgBoardProjection> = {
     clientVisibleLabel: 'Start health reporting',
     internalHandoffLabel: 'Generate first monitored roadmap report.',
   },
+  'open-brain-source-crosswalk': {
+    column: 'discovery',
+    stage: 'discovery',
+    ownerAgentKey: 'research-source-register',
+    ownerAgentLabel: 'Askia Muhammad (Songhai) - Research Source Register',
+    approvalPosture: 'none',
+    isolationRequired: false,
+    clientVisibleLabel: 'Map Open Brain sources',
+    internalHandoffLabel: 'Create source/event crosswalk from staging records into client-owned Open Brain records.',
+  },
+  'protected-companion-app': {
+    column: 'provisioning_plan',
+    stage: 'provisioning_plan',
+    ownerAgentKey: 'engineering-copilot',
+    ownerAgentLabel: 'Piye (Kush) - Engineering Copilot',
+    approvalPosture: 'required',
+    isolationRequired: true,
+    clientVisibleLabel: 'Prepare protected app',
+    internalHandoffLabel: 'Keep deployment protected until SSO, DNS, emergency disable, and data ownership are approved.',
+  },
+  'crm-readonly-context': {
+    column: 'decision_packet',
+    stage: 'technology_decision',
+    ownerAgentKey: 'technology-evaluator',
+    ownerAgentLabel: 'Imhotep (Kemet) - Technology Evaluator',
+    approvalPosture: 'required',
+    isolationRequired: true,
+    clientVisibleLabel: 'Review CRM context path',
+    internalHandoffLabel: 'Confirm CRM access method and keep writeback disabled until field mapping and approval gates pass.',
+  },
+  'portfolio-client-projection': {
+    column: 'active_monitoring',
+    stage: 'reporting',
+    ownerAgentKey: 'chief-of-staff',
+    ownerAgentLabel: 'Shaka (Zulu) - Chief of Staff',
+    approvalPosture: 'none',
+    isolationRequired: false,
+    clientVisibleLabel: 'Show Portfolio status',
+    internalHandoffLabel: 'Project approved, client-safe status into Portfolio while the client Open Brain remains canonical.',
+  },
 }
 
 const DEFAULT_TASKS: RoadmapTaskDraft[] = [
@@ -387,6 +446,13 @@ const DEFAULT_TASKS: RoadmapTaskDraft[] = [
   task('monthly-reporting', 'launch_reporting_continuity', 'Start monthly health reporting', 'Generate the first roadmap report with progress, costs, blockers, monitoring, and recommendations.', 'amadutown', 'medium', true, true, 'monitoring', 0, 'First report is generated and linked to project.'),
 ]
 
+const OPEN_BRAIN_TASKS: RoadmapTaskDraft[] = [
+  task('open-brain-source-crosswalk', 'data_ai_foundation', 'Create client-owned Open Brain source crosswalk', 'Map staging source IDs into the client-owned Open Brain so Gmail, Drive, CRM, automation, and derived summaries stay separated.', 'shared', 'high', true, true, 'other', 0, 'Source, event, memory, proposal, approval, workflow, and audit records have client-owned IDs and privacy classes.'),
+  task('protected-companion-app', 'infrastructure_access', 'Stand up protected Open Brain companion app', 'Prepare the private app surface, protected deployment posture, and client-owned data-plane decision before any public or staff-facing launch.', 'amadutown', 'high', true, true, 'access_security', 0, 'Private repo, protected preview, auth plan, data-plane decision, and emergency disable owner are recorded.'),
+  task('crm-readonly-context', 'data_ai_foundation', 'Add CRM context as read-only relationship signals', 'Bring supporter, donor, campaign, activity, and note context into review packets without allowing CRM mutation in v1.', 'shared', 'high', true, true, 'saas', 0, 'CRM context is represented as source-backed relationship signals with writeback blocked.'),
+  task('portfolio-client-projection', 'launch_reporting_continuity', 'Project approved status into Portfolio client dashboard', 'Show the client-safe roadmap, approvals, connector readiness, and next actions in Portfolio while the client Open Brain remains the source of truth.', 'amadutown', 'high', true, true, 'monitoring', 0, 'Portfolio dashboard displays the linked service profile and open action counts without exposing raw client material.'),
+]
+
 const DEFAULT_COST_ITEMS: RoadmapCostItemDraft[] = [
   cost('local-node', 'infrastructure_access', 'hardware', 'Client-owned local runtime node', 'Mac mini, mini PC, or equivalent always-on device for local data, local LLM repository, or automation workers.', 'client', 'one_time', 1200, 'needs_review'),
   cost('cloud-runtime-host', 'infrastructure_access', 'ai_runtime', 'Cloud runtime host or fallback', 'Cloud host for 24/7 access when client-owned hardware is not practical or when hybrid failover is needed.', 'client', 'monthly', 75, 'needs_review'),
@@ -395,6 +461,12 @@ const DEFAULT_COST_ITEMS: RoadmapCostItemDraft[] = [
   cost('backup', 'infrastructure_access', 'backup', 'Runtime and repository backup', 'Encrypted backup drive, NAS allocation, or cloud backup path for the selected data/local LLM repository placement.', 'client', 'one_time', 150, 'needs_review'),
   cost('ai-runtime', 'data_ai_foundation', 'ai_runtime', 'AI/runtime usage', 'Model, API, local runtime, or embedded AI subscription costs.', 'client', 'monthly', 50, 'needs_review'),
   cost('automation', 'agent_automation_deployment', 'automation', 'Workflow automation tooling', 'n8n, workflow runtime, connectors, or equivalent automation layer.', 'client', 'monthly', 30, 'needs_review'),
+]
+
+const OPEN_BRAIN_COST_ITEMS: RoadmapCostItemDraft[] = [
+  cost('protected-app-hosting', 'infrastructure_access', 'ai_runtime', 'Protected companion app hosting', 'Vercel, Cloudflare, or equivalent protected hosting for the private client app surface after access controls are approved.', 'client', 'monthly', 20, 'quote_required'),
+  cost('open-brain-data-plane', 'data_ai_foundation', 'saas', 'Open Brain data plane', 'Supabase, Postgres, or approved client-owned database for source, event, relationship, proposal, approval, workflow, and audit records.', 'client', 'monthly', 25, 'quote_required'),
+  cost('crm-context-intake', 'data_ai_foundation', 'implementation_labor', 'CRM read-only context intake', 'Field mapping, export/API review, and read-only relationship-signal normalization for the client CRM.', 'amadutown', 'one_time', null, 'quote_required'),
 ]
 
 function task(
@@ -510,18 +582,100 @@ function phaseAdjustmentsForReadiness(level: AgentReadinessLevel): Partial<Recor
   }
 }
 
+function contextText(context: RoadmapContext): string {
+  return [
+    context.clientName,
+    context.clientCompany,
+    context.projectName,
+    context.productPurchased,
+    ...(context.stackSignals ?? []),
+  ].filter(Boolean).join(' ').toLowerCase()
+}
+
+function explicitServiceProfile(context: RoadmapContext): RoadmapServiceProfile | null {
+  const maybeProfile = context.implementationRequirements?.serviceProfile
+    ?? context.implementationRequirements?.service_profile
+  if (!maybeProfile || typeof maybeProfile !== 'object') return null
+
+  const profile = maybeProfile as Partial<RoadmapServiceProfile>
+  if (
+    profile.key === 'open_brain_companion_app' &&
+    profile.label &&
+    profile.componentLabel &&
+    profile.canonicalSource &&
+    profile.portfolioRole &&
+    profile.reusablePattern
+  ) {
+    return {
+      key: profile.key,
+      label: profile.label,
+      componentLabel: profile.componentLabel,
+      clientOwner: profile.clientOwner ?? context.clientName ?? null,
+      deliveryModel: 'white_label_client_ai_ops',
+      canonicalSource: profile.canonicalSource,
+      portfolioRole: profile.portfolioRole,
+      reusablePattern: profile.reusablePattern,
+      status: profile.status ?? 'needs_client_setup',
+      connectorSignals: Array.isArray(profile.connectorSignals) ? profile.connectorSignals : [],
+      approvalGates: Array.isArray(profile.approvalGates) ? profile.approvalGates : [],
+    }
+  }
+
+  return null
+}
+
+function inferClientAiOpsServiceProfile(context: RoadmapContext): RoadmapServiceProfile | null {
+  const explicit = explicitServiceProfile(context)
+  if (explicit) return explicit
+
+  const text = contextText(context)
+  const isMentorRi = text.includes('mentorri') || text.includes('mentor ri') || text.includes('mentor rhode island') || text.includes('janine achen')
+  const needsOpenBrain = isMentorRi || text.includes('open brain') || text.includes('client ai ops') || text.includes('white label') || text.includes('companion app')
+  if (!needsOpenBrain) return null
+
+  const clientCompany = context.clientCompany || (isMentorRi ? 'MentorRI' : 'Client')
+  return {
+    key: 'open_brain_companion_app',
+    label: isMentorRi ? 'MentorRI Open Brain Console' : `${clientCompany} Open Brain Console`,
+    componentLabel: 'Client AI Ops / white-label Open Brain',
+    clientOwner: context.clientName ?? (isMentorRi ? 'Janine Achen' : null),
+    deliveryModel: 'white_label_client_ai_ops',
+    canonicalSource: isMentorRi
+      ? 'MentorRI local Open Brain remains the source of truth.'
+      : 'Client-owned Open Brain remains the source of truth.',
+    portfolioRole: 'Portfolio projects approved status, connector readiness, and client-safe next actions into the client dashboard.',
+    reusablePattern: 'Repeatable client AI Ops component for private Open Brain companion apps, protected app surfaces, review packets, and approval-gated connector setup.',
+    status: isMentorRi ? 'staging_ready' : 'needs_client_setup',
+    connectorSignals: isMentorRi
+      ? ['WordPress', 'Google Workspace', 'Gmail', 'Google Drive', 'Bonterra Network for Good', 'n8n', 'Vercel', 'Supabase Vector']
+      : ['Google Workspace', 'n8n', 'Vercel', 'Supabase Vector'],
+    approvalGates: [
+      'Client-owned account and admin owner confirmed',
+      'Google Workspace SSO and role mapping approved',
+      'CRM read-only context path approved',
+      'No CRM, email, Drive, or automation writeback until per-action approval',
+    ],
+  }
+}
+
 export function buildDefaultClientAiOpsRoadmap(context: RoadmapContext = {}): RoadmapDraft {
   const name = context.clientCompany || context.clientName || 'Client'
   const agentReadiness = getAgentReadinessAssessment(context)
   const adjustments = agentReadiness ? phaseAdjustmentsForReadiness(agentReadiness.overallLevel) : {}
-  const connectorReadiness = buildRoadmapConnectorReadiness(context)
+  const serviceProfile = inferClientAiOpsServiceProfile(context)
+  const connectorReadiness = buildRoadmapConnectorReadiness(context, serviceProfile)
+  const serviceTasks = serviceProfile ? OPEN_BRAIN_TASKS.map((t) => ({ ...t })) : []
+  const serviceCosts = serviceProfile ? OPEN_BRAIN_COST_ITEMS.map((item) => ({ ...item })) : []
 
   return {
     title: `${name} AI Ops Roadmap`,
     clientSummary: agentReadiness
       ? `${agentReadiness.clientSummary} ${agentReadiness.roadmapRecommendation}`
-      : 'A phased implementation plan for client-owned AI infrastructure, 24/7 data and local LLM repository placement, transparent setup costs, agent deployment, monitoring, and continuity reporting.',
+      : serviceProfile
+        ? `${serviceProfile.label} is tracked as a ${serviceProfile.componentLabel}. The client Open Brain remains canonical while Portfolio shows the client-safe roadmap, connector readiness, approvals, and next actions.`
+        : 'A phased implementation plan for client-owned AI infrastructure, 24/7 data and local LLM repository placement, transparent setup costs, agent deployment, monitoring, and continuity reporting.',
     inputHash: hashContext(context),
+    serviceProfile,
     runtimePlacementOptions: DEFAULT_RUNTIME_PLACEMENT_OPTIONS.map((option) => ({ ...option })),
     connectorReadiness,
     phases: DEFAULT_PHASES.map((phase) => {
@@ -534,8 +688,8 @@ export function buildDefaultClientAiOpsRoadmap(context: RoadmapContext = {}): Ro
           : [...phase.acceptanceCriteria],
       }
     }),
-    tasks: DEFAULT_TASKS.map((t) => ({ ...t })),
-    costItems: DEFAULT_COST_ITEMS.map((item) => ({ ...item })),
+    tasks: [...DEFAULT_TASKS.map((t) => ({ ...t })), ...serviceTasks],
+    costItems: [...DEFAULT_COST_ITEMS.map((item) => ({ ...item })), ...serviceCosts],
   }
 }
 
@@ -586,7 +740,7 @@ export function buildProposalRoadmapSnapshot(context: RoadmapContext = {}): Road
   return { ...draft, costSummary: rollUpRoadmapCosts(draft.costItems) }
 }
 
-function buildRoadmapConnectorReadiness(context: RoadmapContext): ClientConnectorReadiness {
+function buildRoadmapConnectorReadiness(context: RoadmapContext, serviceProfile: RoadmapServiceProfile | null = null): ClientConnectorReadiness {
   const requirements = context.implementationRequirements ?? {}
   const connectorInput = requirements.connectorReadinessInput && typeof requirements.connectorReadinessInput === 'object'
     ? requirements.connectorReadinessInput as Partial<BuildClientConnectorReadinessInput>
@@ -605,9 +759,16 @@ function buildRoadmapConnectorReadiness(context: RoadmapContext): ClientConnecto
       ?? connectorInput.builtWithStack
       ?? null,
     roadmapSnapshot: {
-      stackSignals: context.stackSignals ?? [],
+      stackSignals: [...(context.stackSignals ?? []), ...(serviceProfile?.connectorSignals ?? [])],
       projectName: context.projectName ?? null,
       clientName: context.clientName ?? null,
+      serviceProfile: serviceProfile
+        ? {
+            key: serviceProfile.key,
+            label: serviceProfile.label,
+            componentLabel: serviceProfile.componentLabel,
+          }
+        : null,
       ...connectorInput.roadmapSnapshot,
     },
     roadmapTasks: connectorInput.roadmapTasks ?? [],
@@ -615,6 +776,9 @@ function buildRoadmapConnectorReadiness(context: RoadmapContext): ClientConnecto
       project_name: context.projectName ?? null,
       client_name: context.clientName ?? null,
       client_company: context.clientCompany ?? null,
+      product_purchased: context.productPurchased ?? null,
+      service_profile_key: serviceProfile?.key ?? null,
+      service_profile_label: serviceProfile?.label ?? null,
       ...connectorInput.projectMetadata,
     },
   })
@@ -704,6 +868,7 @@ export function buildClientRoadmapView(input: {
     title: input.roadmap.title,
     status: input.roadmap.status,
     clientSummary: input.roadmap.client_summary,
+    serviceProfile: serviceProfileFromSnapshot(input.roadmap.snapshot),
     runtimePlacementOptions: Array.isArray(input.roadmap.snapshot?.runtime_placement_options)
       ? input.roadmap.snapshot.runtime_placement_options as RoadmapRuntimePlacementOption[]
       : DEFAULT_RUNTIME_PLACEMENT_OPTIONS.map((option) => ({ ...option })),
@@ -740,6 +905,26 @@ export function buildClientRoadmapView(input: {
             : null,
         }
       : null,
+  }
+}
+
+function serviceProfileFromSnapshot(snapshot: Record<string, unknown> | null | undefined): RoadmapServiceProfile | null {
+  const serviceProfile = snapshot?.service_profile
+  if (!serviceProfile || typeof serviceProfile !== 'object') return null
+  const profile = serviceProfile as Partial<RoadmapServiceProfile>
+  if (profile.key !== 'open_brain_companion_app' || !profile.label || !profile.componentLabel) return null
+  return {
+    key: profile.key,
+    label: profile.label,
+    componentLabel: profile.componentLabel,
+    clientOwner: profile.clientOwner ?? null,
+    deliveryModel: 'white_label_client_ai_ops',
+    canonicalSource: profile.canonicalSource ?? 'Client-owned Open Brain remains the source of truth.',
+    portfolioRole: profile.portfolioRole ?? 'Portfolio projects approved status and client-safe next actions.',
+    reusablePattern: profile.reusablePattern ?? 'Repeatable client AI Ops component for private Open Brain companion apps.',
+    status: profile.status ?? 'needs_client_setup',
+    connectorSignals: Array.isArray(profile.connectorSignals) ? profile.connectorSignals : [],
+    approvalGates: Array.isArray(profile.approvalGates) ? profile.approvalGates : [],
   }
 }
 

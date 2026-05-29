@@ -7,6 +7,7 @@ const roadmap: RoadmapClientView = {
   title: 'Acme AI Ops Roadmap',
   status: 'active',
   clientSummary: 'Implementation is underway.',
+  serviceProfile: null,
   runtimePlacementOptions: [],
   phases: [
     {
@@ -120,6 +121,30 @@ describe('AiOpsRoadmapSection', () => {
     expect(screen.getAllByText('Isolation checks')).toHaveLength(2)
     expect(screen.getByText('Monitor flags')).toBeInTheDocument()
     expect(screen.getByText('Approve secure access plan')).toBeInTheDocument()
+  })
+
+  it('surfaces a linked Open Brain service profile when the roadmap has one', () => {
+    render(<AiOpsRoadmapSection roadmap={roadmapWith({
+      serviceProfile: {
+        key: 'open_brain_companion_app',
+        label: 'MentorRI Open Brain Console',
+        componentLabel: 'Client AI Ops / white-label Open Brain',
+        clientOwner: 'Janine Achen',
+        deliveryModel: 'white_label_client_ai_ops',
+        canonicalSource: 'MentorRI local Open Brain remains the source of truth.',
+        portfolioRole: 'Portfolio projects approved status into the client dashboard.',
+        reusablePattern: 'Repeatable client AI Ops component for private Open Brain companion apps.',
+        status: 'staging_ready',
+        connectorSignals: ['Bonterra Network for Good'],
+        approvalGates: ['CRM read-only context path approved'],
+      },
+    })} />)
+
+    expect(screen.getByText('Linked service component')).toBeInTheDocument()
+    expect(screen.getByText('MentorRI Open Brain Console')).toBeInTheDocument()
+    expect(screen.getByText('Client AI Ops / white-label Open Brain')).toBeInTheDocument()
+    expect(screen.getByText('MentorRI local Open Brain remains the source of truth.')).toBeInTheDocument()
+    expect(screen.getByText('staging ready')).toBeInTheDocument()
   })
 
   it('prioritizes approval-safe setup readiness when live setup is waiting on approvals', () => {

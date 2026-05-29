@@ -197,6 +197,72 @@ describe('client AI ops roadmap', () => {
     expect(snapshot.connectorReadiness.connectorNextAction).toContain('setup packet')
   })
 
+  it('projects MentorRI into the reusable Open Brain companion app profile', () => {
+    const snapshot = buildProposalRoadmapSnapshot({
+      clientName: 'Janine Achen',
+      clientCompany: 'Mentor Rhode Island',
+      projectName: 'MentorRI Open Brain Console',
+    })
+
+    expect(snapshot.serviceProfile).toMatchObject({
+      key: 'open_brain_companion_app',
+      label: 'MentorRI Open Brain Console',
+      componentLabel: 'Client AI Ops / white-label Open Brain',
+      clientOwner: 'Janine Achen',
+      status: 'staging_ready',
+    })
+    expect(snapshot.clientSummary).toContain('Portfolio shows the client-safe roadmap')
+    expect(snapshot.tasks.map((task) => task.taskKey)).toEqual(expect.arrayContaining([
+      'open-brain-source-crosswalk',
+      'protected-companion-app',
+      'crm-readonly-context',
+      'portfolio-client-projection',
+    ]))
+    expect(snapshot.connectorReadiness.items.map((item) => item.key)).toEqual(expect.arrayContaining([
+      'wordpress',
+      'google_workspace',
+      'bonterra_network_for_good',
+      'n8n',
+      'cloud_runtime',
+      'supabase_vector',
+    ]))
+  })
+
+  it('keeps the linked service profile visible in the client-safe roadmap view', () => {
+    const view = buildClientRoadmapView({
+      roadmap: {
+        title: 'Mentor Rhode Island AI Ops Roadmap',
+        status: 'active',
+        client_summary: 'MentorRI Open Brain Console is tracked as a client AI Ops component.',
+        snapshot: {
+          service_profile: {
+            key: 'open_brain_companion_app',
+            label: 'MentorRI Open Brain Console',
+            componentLabel: 'Client AI Ops / white-label Open Brain',
+            clientOwner: 'Janine Achen',
+            deliveryModel: 'white_label_client_ai_ops',
+            canonicalSource: 'MentorRI local Open Brain remains the source of truth.',
+            portfolioRole: 'Portfolio projects approved status into the client dashboard.',
+            reusablePattern: 'Repeatable client AI Ops component for private Open Brain companion apps.',
+            status: 'staging_ready',
+            connectorSignals: ['Bonterra Network for Good'],
+            approvalGates: ['CRM read-only context path approved'],
+          },
+        },
+      },
+      phases: [],
+      tasks: [],
+      costItems: [],
+      reports: [],
+    })
+
+    expect(view.serviceProfile).toMatchObject({
+      label: 'MentorRI Open Brain Console',
+      canonicalSource: 'MentorRI local Open Brain remains the source of truth.',
+      portfolioRole: 'Portfolio projects approved status into the client dashboard.',
+    })
+  })
+
   it('maps statuses between roadmap and projected task tables', () => {
     expect(dashboardStatusFromRoadmap('blocked')).toBe('in_progress')
     expect(meetingTaskStatusFromRoadmap('cancelled')).toBe('cancelled')
