@@ -1,9 +1,20 @@
-import { describe, expect, it } from 'vitest'
+import { mkdirSync, mkdtempSync, rmSync } from 'fs'
+import { tmpdir } from 'os'
+import path from 'path'
+import { afterEach, describe, expect, it } from 'vitest'
 import {
   buildOpenBrainRuntimeRegistrationPlan,
   renderOpenBrainRuntimeRegistrationMarkdown,
   resolveDefaultPortfolioRoot,
 } from './open-brain-runtime-registration'
+
+const tempDirs: string[] = []
+
+afterEach(() => {
+  for (const dir of tempDirs.splice(0)) {
+    rmSync(dir, { recursive: true, force: true })
+  }
+})
 
 describe('Open Brain runtime registration planner', () => {
   it('builds approval-gated registration snippets for each runtime', () => {
@@ -63,8 +74,15 @@ describe('Open Brain runtime registration planner', () => {
   })
 
   it('resolves known Portfolio worktree paths back to the canonical checkout when present', () => {
-    const resolved = resolveDefaultPortfolioRoot('/Users/vambahsillah/Projects/Portfolio.worktrees/open-brain-runtime-registration')
+    const projectsRoot = mkdtempSync(path.join(tmpdir(), 'open-brain-projects-'))
+    tempDirs.push(projectsRoot)
+    const canonicalRoot = path.join(projectsRoot, 'Portfolio')
+    const worktreeRoot = path.join(projectsRoot, 'Portfolio.worktrees', 'open-brain-runtime-registration')
+    mkdirSync(canonicalRoot, { recursive: true })
+    mkdirSync(worktreeRoot, { recursive: true })
 
-    expect(resolved).toBe('/Users/vambahsillah/Projects/Portfolio')
+    const resolved = resolveDefaultPortfolioRoot(worktreeRoot)
+
+    expect(resolved).toBe(canonicalRoot)
   })
 })
