@@ -102,6 +102,32 @@ export default function AiOpsRoadmapSection({ roadmap }: Props) {
         </span>
       </div>
 
+      {roadmap.serviceProfile && (
+        <div className="mb-5 rounded-lg border border-radiant-gold/35 bg-radiant-gold/10 p-4">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className={eyebrowClass}>Linked service component</p>
+              <h4 className="mt-1 text-sm font-semibold text-foreground">{roadmap.serviceProfile.label}</h4>
+              <p className="mt-1 text-xs text-muted-foreground">{roadmap.serviceProfile.componentLabel}</p>
+            </div>
+            <span className="w-fit rounded-full border border-radiant-gold/35 bg-background/50 px-2.5 py-1 text-xs font-medium text-radiant-gold capitalize">
+              {roadmap.serviceProfile.status.replace(/_/g, ' ')}
+            </span>
+          </div>
+          <div className="mt-3 grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
+            <div className="rounded-lg border border-silicon-slate/60 bg-background/45 p-3">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Source of truth</p>
+              <p className="mt-1 text-foreground">{roadmap.serviceProfile.canonicalSource}</p>
+            </div>
+            <div className="rounded-lg border border-silicon-slate/60 bg-background/45 p-3">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Portfolio role</p>
+              <p className="mt-1 text-foreground">{roadmap.serviceProfile.portfolioRole}</p>
+            </div>
+          </div>
+          <p className="mt-3 text-xs text-muted-foreground">{roadmap.serviceProfile.reusablePattern}</p>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
         <div className={metricCardClass}>
           <DollarSign className="w-4 h-4 text-radiant-gold mb-2" />

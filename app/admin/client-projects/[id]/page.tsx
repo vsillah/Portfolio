@@ -247,6 +247,19 @@ interface ProjectDetail {
       approvalBoundaries: Record<string, 'waiting_approval'>
     }
     clientView: {
+      serviceProfile: {
+        key: 'open_brain_companion_app'
+        label: string
+        componentLabel: string
+        clientOwner: string | null
+        deliveryModel: 'white_label_client_ai_ops'
+        canonicalSource: string
+        portfolioRole: string
+        reusablePattern: string
+        status: 'staging_ready' | 'needs_client_setup' | 'active'
+        connectorSignals: string[]
+        approvalGates: string[]
+      } | null
       costSummary: { oneTimeClientOwned: number; monthlyClientOwned: number; quoteRequiredCount: number }
       connectorReadiness: {
         summary: string
@@ -1320,6 +1333,31 @@ function AiOpsRoadmapAdminSection({
               <p className="text-sm text-foreground">${costs?.monthlyClientOwned ?? 0}</p>
             </div>
           </div>
+
+          {roadmap.clientView?.serviceProfile && (
+            <div className="rounded-lg bg-radiant-gold/10 border border-radiant-gold/35 p-4 mb-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <p className="text-xs font-semibold text-radiant-gold uppercase tracking-[0.14em]">Linked service component</p>
+                  <p className="text-sm font-semibold text-foreground mt-1">{roadmap.clientView.serviceProfile.label}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{roadmap.clientView.serviceProfile.componentLabel}</p>
+                </div>
+                <span className="w-fit rounded-full border border-radiant-gold/35 bg-background/55 px-2.5 py-1 text-xs text-radiant-gold capitalize">
+                  {roadmap.clientView.serviceProfile.status.replace(/_/g, ' ')}
+                </span>
+              </div>
+              <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+                <div className="rounded-lg border border-silicon-slate/60 bg-background/45 p-3">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Source of truth</p>
+                  <p className="text-sm text-foreground mt-1">{roadmap.clientView.serviceProfile.canonicalSource}</p>
+                </div>
+                <div className="rounded-lg border border-silicon-slate/60 bg-background/45 p-3">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Portfolio role</p>
+                  <p className="text-sm text-foreground mt-1">{roadmap.clientView.serviceProfile.portfolioRole}</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {readiness && (
             <div className="rounded-lg bg-background/45 border border-silicon-slate/60 p-4 mb-4">
