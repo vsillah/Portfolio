@@ -336,7 +336,7 @@ describe('credential broker CLI runtime sink checks', () => {
     }
   })
 
-  it('allows selected strict sink gates when gaps exist outside the selected statuses', async () => {
+  it('allows selected strict sink gates when only other gap statuses are present', async () => {
     const binDir = makeTempDir()
     writeFakeVercel(binDir, {
       envs: [],
@@ -354,7 +354,7 @@ describe('credential broker CLI runtime sink checks', () => {
         '--as-of',
         '2026-05-14',
         '--strict-sinks',
-        'unavailable',
+        'unknown',
         '--json',
       ], {
         PATH: binDir,
