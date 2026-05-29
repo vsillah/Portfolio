@@ -34,6 +34,8 @@ type RelationshipHealthFilter = RelationshipFilterValue | 'green' | 'yellow' | '
 type RelationshipStrengthFilter = RelationshipFilterValue | 'strong' | 'medium' | 'weak'
 type RelationshipStatusFilter = RelationshipFilterValue | 'persisted' | 'inferred' | 'recommended'
 type DecisionTrustFilter = RelationshipFilterValue | 'decision_trust' | 'high_risk_gate'
+type RelationshipGraphNode = OpenBrainSnapshot['relationshipMap']['nodes'][number]
+type DisplayRelationshipGraphNode = RelationshipGraphNode & { x: number; y: number }
 
 export default function OpenBrainPage() {
   return (
@@ -632,6 +634,10 @@ function RelationshipMapView({
       (decisionTrustFilter === 'decision_trust' && node.kind === 'agent_decision_trust_observed') ||
       (decisionTrustFilter === 'high_risk_gate' && (node.decisionTrustGate === 'human_review' || node.decisionTrustGate === 'block')))
   ))
+  const displayNodes = visibleNodes.map((node, index) => ({
+    ...node,
+    ...relationshipNodePosition(index, visibleNodes.length),
+  }))
   const visibleNodeIds = new Set(visibleNodes.map((node) => node.id))
   const visibleEdges = map.edges.filter((edge) => (
     visibleNodeIds.has(edge.fromId) &&
@@ -639,7 +645,7 @@ function RelationshipMapView({
     (strengthFilter === 'all' || edge.strength === strengthFilter) &&
     (statusFilter === 'all' || edge.status === statusFilter)
   ))
-  const nodeById = new Map(visibleNodes.map((node) => [node.id, node]))
+  const nodeById = new Map(displayNodes.map((node) => [node.id, node]))
   const allNodeById = new Map(map.nodes.map((node) => [node.id, node]))
   const nodeTypes: Array<OpenBrainRelationshipNodeType | 'all'> = ['all', 'source', 'memory', 'event', 'wiki', 'proposal']
   const privacyTiers: Array<OpenBrainPrivacyTier | 'all'> = ['all', 'public_safe', 'client_safe', 'internal_ops', 'private']
@@ -659,12 +665,19 @@ function RelationshipMapView({
   const selectedInsightTarget = selectedInsight?.targetNodeId ? allNodeById.get(selectedInsight.targetNodeId) || null : null
   const visibleInsightSource = selectedInsight?.sourceNodeId ? nodeById.get(selectedInsight.sourceNodeId) || null : null
   const visibleInsightTarget = selectedInsight?.targetNodeId ? nodeById.get(selectedInsight.targetNodeId) || null : null
-  const graphMinHeight = Math.max(620, Math.ceil(visibleNodes.length / 4) * 132)
+  const visibleProposalRoutes = map.insights
+    .map((insight) => ({
+      insight,
+      source: insight.sourceNodeId ? nodeById.get(insight.sourceNodeId) || null : null,
+      target: insight.targetNodeId ? nodeById.get(insight.targetNodeId) || null : null,
+    }))
+    .filter((route): route is { insight: OpenBrainRelationshipInsight; source: DisplayRelationshipGraphNode; target: DisplayRelationshipGraphNode } => Boolean(route.source && route.target))
+  const graphMinHeight = Math.max(680, Math.ceil(visibleNodes.length / 3) * 150 + 210)
   const activeFilterCount = [typeFilter, privacyFilter, healthFilter, strengthFilter, statusFilter, decisionTrustFilter].filter((value) => value !== 'all').length
   const selectedRouteLabel = visibleInsightSource && visibleInsightTarget
-    ? `Selected proposed route: ${visibleInsightSource.label} -> ${visibleInsightTarget.label}`
+    ? relationshipRouteLabel(visibleInsightSource, visibleInsightTarget)
     : selectedFrom && selectedTo
-      ? `Selected path: ${selectedFrom.label} -> ${selectedTo.label}`
+      ? `Selected path: ${formatRouteNodeLabel(selectedFrom)} -> ${formatRouteNodeLabel(selectedTo)}`
       : 'No visible relationship path for this filter.'
 
   function resetFilters() {
@@ -690,7 +703,7 @@ function RelationshipMapView({
         <aside className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
           <div className="mb-4 flex items-center justify-between gap-3">
             <p className="agent-ops-eyebrow"><Network size={14} /> Filters</p>
-            <span className="text-xs text-muted-foreground">{visibleNodes.length}/{map.nodes.length} nodes · {visibleEdges.length}/{map.edges.length} edges</span>
+            <span className="text-xs text-muted-foreground">{visibleNodes.length}/{map.nodes.length} nodes · {visibleEdges.length}/{map.edges.length} edges · {visibleProposalRoutes.length} routes</span>
           </div>
           <div className="space-y-5">
             <RelationshipFilterGroup label="Record type">
@@ -798,10 +811,18 @@ function RelationshipMapView({
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-radiant-gold">Memory Graph</p>
             <p className="mt-1 text-sm text-muted-foreground">{selectedRouteLabel}</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Filtered view: {visibleNodes.length} node(s), {visibleEdges.length} edge(s)
+              Filtered view: {visibleNodes.length} node(s), {visibleEdges.length} edge(s), {visibleProposalRoutes.length} proposal route(s)
             </p>
           </div>
           <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <marker id="relationship-arrow" markerHeight="4" markerWidth="5" orient="auto" refX="4.5" refY="2">
+                <path d="M0,0 L5,2 L0,4 Z" fill="rgba(245,208,96,0.88)" />
+              </marker>
+              <marker id="relationship-muted-arrow" markerHeight="4" markerWidth="5" orient="auto" refX="4.5" refY="2">
+                <path d="M0,0 L5,2 L0,4 Z" fill="rgba(234,236,238,0.62)" />
+              </marker>
+            </defs>
             {visibleEdges.map((edge) => {
               const from = nodeById.get(edge.fromId)
               const to = nodeById.get(edge.toId)
@@ -814,28 +835,32 @@ function RelationshipMapView({
                   x2={to.x}
                   y2={to.y}
                   stroke={relationshipEdgeColor(edge.strength, edge.status)}
-                  strokeWidth={edge.strength === 'strong' ? 0.6 : edge.strength === 'medium' ? 0.38 : 0.28}
+                  strokeWidth={edge.strength === 'strong' ? 1.2 : edge.strength === 'medium' ? 0.9 : 0.7}
                   strokeDasharray={edge.status === 'inferred' ? '1.4 1.1' : undefined}
                   strokeLinecap="round"
+                  markerEnd={edge.strength === 'weak' ? 'url(#relationship-muted-arrow)' : 'url(#relationship-arrow)'}
                   vectorEffect="non-scaling-stroke"
                 />
               )
             })}
-            {visibleInsightSource && visibleInsightTarget ? (
-              <line
-                x1={visibleInsightSource.x}
-                y1={visibleInsightSource.y}
-                x2={visibleInsightTarget.x}
-                y2={visibleInsightTarget.y}
-                stroke="rgba(212,175,55,0.98)"
-                strokeWidth={0.9}
-                strokeDasharray="2 1"
-                strokeLinecap="round"
-                vectorEffect="non-scaling-stroke"
-              />
-            ) : null}
+            {visibleProposalRoutes.map(({ insight, source, target }, index) => {
+              const isSelectedRoute = selectedInsight?.id === insight.id
+              return (
+                <path
+                  key={`route:${insight.id}`}
+                  d={relationshipRoutePath(source, target, index)}
+                  fill="none"
+                  stroke={isSelectedRoute ? 'rgba(245,208,96,0.98)' : 'rgba(125,211,252,0.64)'}
+                  strokeWidth={isSelectedRoute ? 1.8 : 1}
+                  strokeDasharray={isSelectedRoute ? '2.4 1.2' : '1.2 1.4'}
+                  strokeLinecap="round"
+                  markerEnd={isSelectedRoute ? 'url(#relationship-arrow)' : 'url(#relationship-muted-arrow)'}
+                  vectorEffect="non-scaling-stroke"
+                />
+              )
+            })}
           </svg>
-          {visibleNodes.map((node) => (
+          {displayNodes.map((node) => (
             <button
               type="button"
               key={node.id}
@@ -843,7 +868,7 @@ function RelationshipMapView({
               aria-label={`Select ${node.label}`}
               className={`absolute z-10 flex max-w-[132px] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-lg border px-2.5 py-2 text-center shadow-xl transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold/70 ${
                 selectedNode?.id === node.id ? 'ring-2 ring-radiant-gold/80' : ''
-              } ${relationshipNodeTone(node.type, node.health)}`}
+              } ${relationshipNodeTone(node.type, node.health, node.kind)}`}
               style={{ left: `${node.x}%`, top: `${node.y}%` }}
               title={node.summary}
             >
@@ -861,6 +886,7 @@ function RelationshipMapView({
             <RelationshipLegend color="bg-radiant-gold" label="Strong" />
             <RelationshipLegend color="bg-platinum-white" label="Inferred" />
             <RelationshipLegend color="bg-red-300" label="Weak" />
+            <RelationshipLegend color="bg-sky-300" label="Proposed route" />
           </div>
         </div>
 
@@ -1276,15 +1302,67 @@ function relationshipEdgeColor(strength: 'strong' | 'medium' | 'weak', status: s
   return 'rgba(234,236,238,0.5)'
 }
 
-function relationshipNodeTone(type: OpenBrainRelationshipNodeType, health: 'green' | 'yellow' | 'red') {
+function relationshipNodeTone(type: OpenBrainRelationshipNodeType, health: 'green' | 'yellow' | 'red', kind: string) {
   if (health === 'red') return 'border-red-300/70 bg-red-950/80 text-red-100'
-  if (type === 'source') return 'border-radiant-gold/50 bg-radiant-gold text-imperial-navy'
+  if (type === 'source') {
+    if (kind === 'workspace_root_report') return 'border-sky-300/70 bg-sky-500/25 text-sky-50'
+    if (kind === 'codex_automation') return 'border-radiant-gold/70 bg-radiant-gold text-imperial-navy'
+    if (kind === 'runbook') return 'border-emerald-300/70 bg-emerald-500/25 text-emerald-50'
+    if (kind.includes('credential')) return 'border-red-300/70 bg-red-500/20 text-red-50'
+    if (kind.includes('model')) return 'border-violet-300/70 bg-violet-500/25 text-violet-50'
+    if (kind.includes('content') || kind.includes('voice')) return 'border-pink-300/70 bg-pink-500/20 text-pink-50'
+    return 'border-cyan-300/70 bg-cyan-500/20 text-cyan-50'
+  }
   if (type === 'memory') return 'border-radiant-gold/45 bg-platinum-white text-imperial-navy'
   if (type === 'wiki') return 'border-radiant-gold/45 bg-bronze text-platinum-white'
   if (type === 'proposal') return 'border-yellow-300/60 bg-imperial-navy text-yellow-100'
   return health === 'yellow'
     ? 'border-yellow-300/55 bg-yellow-500/15 text-yellow-100'
     : 'border-silicon-slate/70 bg-silicon-slate text-platinum-white'
+}
+
+function relationshipNodePosition(index: number, total: number) {
+  if (total <= 1) return { x: 50, y: 52 }
+
+  const columns = total <= 4 ? 2 : total <= 9 ? 3 : 4
+  const rows = Math.ceil(total / columns)
+  const row = Math.floor(index / columns)
+  const col = index % columns
+  const itemsInRow = Math.min(columns, total - row * columns)
+  const rowColumns = Math.max(1, itemsInRow)
+  const xSpacing = rowColumns === 1 ? 0 : 62 / (rowColumns - 1)
+  const xOffset = rowColumns === 1 ? 0 : (columns - rowColumns) * (62 / Math.max(1, columns - 1)) / 2
+  const ySpacing = rows === 1 ? 0 : 56 / (rows - 1)
+
+  return {
+    x: 19 + xOffset + col * xSpacing,
+    y: 31 + row * ySpacing,
+  }
+}
+
+function relationshipRoutePath(source: DisplayRelationshipGraphNode, target: DisplayRelationshipGraphNode, index: number) {
+  if (source.id === target.id) {
+    const loopWidth = 8 + (index % 3) * 2
+    const loopHeight = 10 + (index % 3) * 2
+    return `M ${source.x} ${source.y - 4} C ${source.x + loopWidth} ${source.y - loopHeight}, ${source.x + loopWidth} ${source.y + loopHeight}, ${source.x + 1.5} ${source.y + 4}`
+  }
+
+  const dx = target.x - source.x
+  const dy = target.y - source.y
+  const distance = Math.max(1, Math.hypot(dx, dy))
+  const curve = index % 2 === 0 ? 7 : -7
+  const controlX = (source.x + target.x) / 2 - (dy / distance) * curve
+  const controlY = (source.y + target.y) / 2 + (dx / distance) * curve
+  return `M ${source.x} ${source.y} Q ${controlX} ${controlY} ${target.x} ${target.y}`
+}
+
+function relationshipRouteLabel(source: RelationshipGraphNode, target: RelationshipGraphNode) {
+  if (source.id === target.id) return `Selected review target: ${formatRouteNodeLabel(source)}`
+  return `Selected proposed route: ${formatRouteNodeLabel(source)} -> ${formatRouteNodeLabel(target)}`
+}
+
+function formatRouteNodeLabel(node: RelationshipGraphNode) {
+  return `${node.label} (${node.kind.replace(/_/g, ' ')})`
 }
 
 function relationshipInsightTone(severity: 'low' | 'medium' | 'high') {

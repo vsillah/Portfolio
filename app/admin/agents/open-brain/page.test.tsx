@@ -385,7 +385,7 @@ describe('OpenBrainPage', () => {
     expect(within(map).getAllByText('Decision Trust').length).toBeGreaterThan(0)
     expect(within(map).getByText('Selected record')).toBeInTheDocument()
     expect(within(map).getByText('Connected relationships')).toBeInTheDocument()
-    expect(within(map).getByText('Proposed route')).toBeInTheDocument()
+    expect(within(map).getAllByText('Proposed route').length).toBeGreaterThan(0)
     expect(within(map).getByText('Route preview')).toBeInTheDocument()
     expect(within(map).getByText('From')).toBeInTheDocument()
     expect(within(map).getByText('To')).toBeInTheDocument()
@@ -403,8 +403,8 @@ describe('OpenBrainPage', () => {
 
     expect(within(map).getByText('1 active filter(s)')).toBeInTheDocument()
     expect(within(map).getByText('Showing 3 node(s) and 1 relationship(s).')).toBeInTheDocument()
-    expect(within(map).getByText('Filtered view: 3 node(s), 1 edge(s)')).toBeInTheDocument()
-    expect(within(map).getByText('Selected proposed route: Morning review source -> Action-first operating rule')).toBeInTheDocument()
+    expect(within(map).getByText('Filtered view: 3 node(s), 1 edge(s), 1 proposal route(s)')).toBeInTheDocument()
+    expect(within(map).getByText('Selected proposed route: Morning review source (codex automation) -> Action-first operating rule (operating rule)')).toBeInTheDocument()
 
     fireEvent.click(within(map).getByRole('button', { name: 'Reset filters' }))
 
