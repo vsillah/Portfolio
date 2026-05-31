@@ -399,6 +399,12 @@ No known Agent Operations implementation PRs are required before moving this rol
 
 Integration Captain still owns merge sequencing and post-merge deployment verification for any future Agent Operations changes.
 
+The Monday execution loop is now tracked separately in
+`docs/agent-swarm-monday-execution-roadmap.md`. Use that roadmap for backlog
+intake, Standup Room goal formation, Slack mobile unblock validation, and
+day-to-day swarm execution instead of adding another Agent Operations rollout
+phase.
+
 ## Maintenance Backlog
 
 These items are explicitly maintenance or operational backlog, not new rollout phases:
