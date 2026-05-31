@@ -16,6 +16,7 @@ type JsonRecord = Record<string, any>
 
 const tableRows: Record<string, JsonRecord[]> = {
   client_projects: [],
+  diagnostic_audits: [],
   client_ai_ops_roadmaps: [],
   client_ai_ops_roadmap_phases: [],
   client_ai_ops_roadmap_tasks: [],
