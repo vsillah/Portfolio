@@ -13,6 +13,7 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
+    "automation:digest-actions": "tsx scripts/automation-digest-actions.ts",
     "n8n:drift-check": "tsx scripts/n8n-workflow-drift-check.ts",
     "n8n:drift-check:warn": "tsx scripts/n8n-workflow-drift-check.ts -- --warn",
     "credentials:list-due": "tsx scripts/credential-broker.ts list-due",

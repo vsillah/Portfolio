@@ -1,0 +1,15 @@
+{
+  "automation_id": "personality-corpus-report-monitor",
+  "automation_name": "Personality Corpus Report Monitor",
+  "ran_at_utc": "2026-05-28T13:10:00Z",
+  "status": "no_change",
+  "headline": "Personality corpus reports unchanged",
+  "summary": "The corpus snapshot still has no diffs, errors, or active alerts.",
+  "material_findings": [],
+  "changed_files_or_links": [],
+  "blockers_or_approvals": [],
+  "next_run_focus": [
+    "Watch for a new refresh snapshot."
+  ],
+  "codex_thread_hint": "No Agent Ops work item should be created unless the next digest shows material movement."
+}

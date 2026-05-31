@@ -1,0 +1,44 @@
+{
+  "digest_date": "2026-05-28",
+  "channel": {
+    "name": "#agent-ops",
+    "id": "C0B1MM4LQKB"
+  },
+  "expected_actions": [
+    {
+      "title": "Prepare n8n drift access repair preflight",
+      "category": "blocked_until_access",
+      "owner_agent_key": "automation-systems",
+      "priority": "high",
+      "creates_work_item": true
+    },
+    {
+      "title": "Prepare authenticated Portfolio admin QA checklist",
+      "category": "blocked_until_access",
+      "owner_agent_key": "chief-of-staff",
+      "priority": "high",
+      "creates_work_item": true
+    },
+    {
+      "title": "Draft Codex thread-root repair decision packet",
+      "category": "needs_vambah_approval",
+      "owner_agent_key": "chief-of-staff",
+      "priority": "medium",
+      "creates_work_item": true
+    },
+    {
+      "title": "Prepare quiet-provider billing verification packet",
+      "category": "agent_can_prepare",
+      "owner_agent_key": "automation-systems",
+      "priority": "medium",
+      "creates_work_item": true
+    },
+    {
+      "title": "Personality corpus reports unchanged",
+      "category": "watch_only",
+      "owner_agent_key": null,
+      "priority": "low",
+      "creates_work_item": false
+    }
+  ]
+}
