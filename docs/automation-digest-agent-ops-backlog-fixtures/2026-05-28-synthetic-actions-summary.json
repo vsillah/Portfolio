@@ -1,0 +1,30 @@
+{
+  "automation_id": "portfolio-operations-manager",
+  "automation_name": "Portfolio Operations Manager",
+  "ran_at_utc": "2026-05-28T13:05:00Z",
+  "status": "yellow",
+  "headline": "Portfolio health green except operations follow-up",
+  "summary": "Checks passed, but n8n drift visibility still returns 403 and several safe follow-up packets need preparation.",
+  "material_findings": [
+    "n8n drift check still returns 403 for all tracked workflow pairs.",
+    "Authenticated admin context is needed for /api/admin/rag-health, Playwright smoke, and the unevaluated production chat review.",
+    "Thread-root state repair remains approval-gated and must start with a backup-first decision packet.",
+    "Quiet providers and auth-blocked vendors still need dashboard billing verification before any cancellation decision."
+  ],
+  "changed_files_or_links": [
+    "docs/subscription-cancellation-audit.md",
+    "docs/subscription-status.json"
+  ],
+  "blockers_or_approvals": [
+    "Approval needed to refresh or re-scope n8n API credentials for drift visibility.",
+    "Authenticated admin context is required before protected admin checks.",
+    "No subscription cancellation approval phrase was present."
+  ],
+  "next_run_focus": [
+    "Prepare the n8n drift access preflight.",
+    "Prepare the authenticated admin QA checklist.",
+    "Draft the Codex thread-root repair decision packet.",
+    "Prepare quiet-provider dashboard billing verification."
+  ],
+  "codex_thread_hint": "Use Integration Captain if the follow-up becomes a PR, merge, or deployment task."
+}
