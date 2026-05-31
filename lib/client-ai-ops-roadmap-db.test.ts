@@ -25,12 +25,14 @@ const tableRows: Record<string, JsonRecord[]> = {
 }
 
 const tableCounters: Record<string, number> = {}
+const selectCalls: Array<{ table: string; columns?: string }> = []
 
 function resetTables() {
   for (const key of Object.keys(tableRows)) {
     tableRows[key] = []
     tableCounters[key] = 0
   }
+  selectCalls.length = 0
 }
 
 function nextId(table: string, row: JsonRecord): string {
@@ -51,8 +53,9 @@ class SupabaseQueryStub {
 
   constructor(private readonly table: string) {}
 
-  select() {
+  select(columns?: string) {
     this.operation = this.operation === 'insert' ? 'insert' : 'select'
+    selectCalls.push({ table: this.table, columns })
     return this
   }
 
@@ -170,6 +173,11 @@ describe('client AI ops roadmap persistence', () => {
       generatedFrom: 'proposal_acceptance',
       userId: 'admin-1',
     })
+
+    expect(selectCalls).toContainEqual(expect.objectContaining({
+      table: 'client_projects',
+      columns: expect.stringContaining('product_purchased'),
+    }))
 
     const roadmap = tableRows.client_ai_ops_roadmaps[0]
     expect(roadmap).toMatchObject({
