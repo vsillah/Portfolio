@@ -183,6 +183,7 @@ function readinessView(overrides: Partial<RoadmapClientView> = {}): RoadmapClien
     title: 'Client AI Ops roadmap',
     status: 'active',
     clientSummary: 'Client is preparing AI Ops setup.',
+    serviceProfile: null,
     runtimePlacementOptions: [],
     connectorReadiness: connectorReadiness(),
     phases: [],
