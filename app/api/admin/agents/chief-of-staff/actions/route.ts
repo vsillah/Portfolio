@@ -11,6 +11,7 @@ import {
   AGENT_DECISION_TRUST_EVENT,
   buildPaymentAuthorityDecisionTrustFrame,
 } from '@/lib/agent-decision-trust'
+import { recommendDecisionTrustEnforcement } from '@/lib/agent-decision-trust-enforcement'
 import { supabaseAdmin } from '@/lib/supabase'
 import type { ChiefOfStaffActionProposal } from '@/lib/chief-of-staff-chat'
 
@@ -180,6 +181,12 @@ export async function POST(request: NextRequest) {
       sourceRunId,
       approvalType,
     })
+    const decisionTrustEnforcement = recommendDecisionTrustEnforcement({
+      frame: decisionTrustFrame,
+      mode: 'soft_gate',
+      action: proposal.action,
+      runtime: 'codex',
+    })
 
     const run = await startAgentRun({
       agentKey: 'chief-of-staff',
@@ -200,6 +207,7 @@ export async function POST(request: NextRequest) {
         proposal,
         action_payload: actionPayload,
         decision_trust_frame: decisionTrustFrame,
+        decision_trust_enforcement: decisionTrustEnforcement,
         executes_action: false,
       },
       idempotencyKey: `chief-of-staff-action:${sourceRunId}:${proposal.action}:${auth.user.id}:${Date.now()}`,
@@ -217,6 +225,7 @@ export async function POST(request: NextRequest) {
           proposal,
           action_payload: actionPayload,
           decision_trust_frame: decisionTrustFrame,
+          decision_trust_enforcement: decisionTrustEnforcement,
           executes_action: false,
         },
       })
@@ -251,6 +260,7 @@ export async function POST(request: NextRequest) {
         proposal,
         action_payload: actionPayload,
         decision_trust_frame: decisionTrustFrame,
+        decision_trust_enforcement: decisionTrustEnforcement,
       },
       idempotencyKey: `${run.id}:chief-of-staff-approval-created`,
     }).catch(() => {})
@@ -270,6 +280,7 @@ export async function POST(request: NextRequest) {
         source_run_id: sourceRunId,
         action_payload: actionPayload,
         decision_trust_frame: decisionTrustFrame,
+        decision_trust_enforcement: decisionTrustEnforcement,
       },
       idempotencyKey: `${run.id}:approval-action-payload`,
     }).catch(() => {})

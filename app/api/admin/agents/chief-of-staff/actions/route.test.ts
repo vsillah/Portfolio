@@ -114,6 +114,12 @@ describe('POST /api/admin/agents/chief-of-staff/actions', () => {
           recommended_gate: 'human_review',
           selected_candidate: 'send_email',
         }),
+        decision_trust_enforcement: expect.objectContaining({
+          mode: 'soft_gate',
+          gate: 'human_review',
+          requiresApproval: true,
+          shouldBlock: false,
+        }),
       }),
     }))
     expect(mocks.insert).toHaveBeenCalledWith(expect.objectContaining({
@@ -129,6 +135,11 @@ describe('POST /api/admin/agents/chief-of-staff/actions', () => {
         decision_trust_frame: expect.objectContaining({
           recommended_gate: 'human_review',
           approval_type: 'send_email',
+        }),
+        decision_trust_enforcement: expect.objectContaining({
+          mode: 'soft_gate',
+          approvalType: 'send_email',
+          requiresApproval: true,
         }),
       }),
     }))
@@ -161,6 +172,11 @@ describe('POST /api/admin/agents/chief-of-staff/actions', () => {
         decision_trust_frame: expect.objectContaining({
           selected_candidate: 'send_email',
           recommended_gate: 'human_review',
+        }),
+        decision_trust_enforcement: expect.objectContaining({
+          mode: 'soft_gate',
+          gate: 'human_review',
+          requiresApproval: true,
         }),
       }),
     }))
@@ -195,6 +211,12 @@ describe('POST /api/admin/agents/chief-of-staff/actions', () => {
           decision_type: 'spend',
           recommended_gate: 'human_review',
           selected_candidate: 'create_refund',
+        }),
+        decision_trust_enforcement: expect.objectContaining({
+          mode: 'soft_gate',
+          approvalType: 'payment_create_refund',
+          requiresApproval: true,
+          shouldBlock: false,
         }),
       }),
     }))
