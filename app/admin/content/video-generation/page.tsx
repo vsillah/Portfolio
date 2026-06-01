@@ -19,6 +19,7 @@ import { readSSEStream } from '@/lib/sse-reader'
 import { getCurrentSession } from '@/lib/auth'
 import { VIDEO_CHANNEL_CONFIGS, type VideoChannel } from '@/lib/constants/video-channel'
 import { buildVideoRenderApproval, VIDEO_RENDER_APPROVAL_PACKET_PATH } from '@/lib/video-render-approval'
+import { getAgenticContentReviewPacketsForSurface } from '@/lib/agentic-content-review-packets'
 
 /* ───────────── Types ───────────── */
 
@@ -165,6 +166,7 @@ function lastRunLabel(date: Date | null): string | null {
 }
 
 const HEYGEN_SCRIPT_MAX = 5000
+const AGENTIC_VIDEO_REVIEW_PACKETS = getAgenticContentReviewPacketsForSurface('video')
 
 /* ───────────── Component ───────────── */
 
@@ -1767,6 +1769,40 @@ export default function VideoGenerationPage() {
                   {label}
                   {count && <span className="text-[10px] text-gray-500 font-normal">{count}</span>}
                 </button>
+              ))}
+            </div>
+          </div>
+
+          <div className={cardCls + ' mb-6'}>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-radiant-gold">Agentic challenger loop</div>
+                <h2 className="mt-1 text-base font-semibold text-foreground">Human script review packets</h2>
+                <p className="mt-1 max-w-3xl text-xs leading-5 text-gray-400">
+                  These scripts cleared Amina challenger review and can be edited here before render-readiness, HeyGen, ElevenLabs, Remotion, HyperFrames, or publishing gates.
+                </p>
+              </div>
+              <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
+                {AGENTIC_VIDEO_REVIEW_PACKETS.length} ready
+              </span>
+            </div>
+
+            <div className="mt-4 grid gap-3 lg:grid-cols-3">
+              {AGENTIC_VIDEO_REVIEW_PACKETS.map((packet) => (
+                <div key={packet.assetId} className="rounded-lg border border-silicon-slate bg-background/35 p-3">
+                  <div className="flex flex-wrap items-center gap-2 text-[10px] font-medium uppercase tracking-[0.14em] text-gray-500">
+                    <span className="rounded-full border border-radiant-gold/30 px-2 py-0.5 text-radiant-gold">{packet.priority}</span>
+                    <span>{packet.channel}</span>
+                  </div>
+                  <h3 className="mt-3 text-sm font-semibold text-gray-100">{packet.title}</h3>
+                  <p className="mt-2 text-[11px] leading-5 text-gray-400">{packet.humanReview}</p>
+                  <div className="mt-3 rounded-md border border-silicon-slate/70 bg-imperial-navy/45 p-2 text-[10px] leading-5 text-gray-400">
+                    <div><span className="text-gray-500">Challenger:</span> <span className="text-emerald-300">{packet.challengerAgent} - {packet.challengerStatus}</span></div>
+                    <div><span className="text-gray-500">Approval:</span> <span className="text-emerald-300">{packet.approvalStatus}</span></div>
+                    <div><span className="text-gray-500">Source:</span> <code className="text-radiant-gold">{packet.packetPath}</code></div>
+                    <div><span className="text-gray-500">Next gate:</span> {packet.nextGate}</div>
+                  </div>
+                </div>
               ))}
             </div>
           </div>

@@ -37,6 +37,7 @@ import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { ExtractionStatusChip } from '@/components/admin/ExtractionStatusChip'
 import { useExtractionStatus } from '@/lib/hooks/useExtractionStatus'
 import { getCurrentSession } from '@/lib/auth'
+import { getAgenticContentReviewPacketsForSurface } from '@/lib/agentic-content-review-packets'
 import {
   STATUS_CONFIG,
   CONTENT_STATUSES,
@@ -104,6 +105,7 @@ const VOICE_NOTE_OUTPUTS = [
 ]
 
 const MEETINGS_PER_PAGE = 5
+const AGENTIC_SOCIAL_REVIEW_PACKETS = getAgenticContentReviewPacketsForSurface('social')
 
 function SocialContentQueuePage() {
   const [items, setItems] = useState<SocialContentItem[]>([])
@@ -509,6 +511,49 @@ function SocialContentQueuePage() {
           <div className="admin-console-eyebrow mb-2">Content Operations</div>
           <h1 className="text-2xl font-bold text-foreground">Social Content Queue</h1>
           <p className="text-muted-foreground text-sm">AI-generated posts from meeting transcripts, ready for review, edit, and publish.</p>
+        </div>
+      </div>
+
+      <div className="admin-console-card mb-6 rounded-lg border p-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="admin-console-eyebrow mb-2">Agentic challenger loop</div>
+            <h2 className="text-lg font-semibold text-foreground">Human editorial review packets</h2>
+            <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
+              These assets have passed Amina challenger review and can be reviewed by Vambah here before any scheduling, publishing, visual build, or provider step.
+            </p>
+          </div>
+          <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
+            {AGENTIC_SOCIAL_REVIEW_PACKETS.length} ready
+          </span>
+        </div>
+
+        <div className="mt-4 grid gap-3 lg:grid-cols-2">
+          {AGENTIC_SOCIAL_REVIEW_PACKETS.map((packet) => (
+            <div key={packet.assetId} className="rounded-lg border border-silicon-slate bg-imperial-navy/45 p-4">
+              <div className="flex flex-wrap items-center gap-2 text-[10px] font-medium uppercase tracking-[0.14em] text-gray-500">
+                <span className="rounded-full border border-radiant-gold/30 px-2 py-0.5 text-radiant-gold">{packet.priority}</span>
+                <span>{packet.channel}</span>
+                <span>{packet.output}</span>
+              </div>
+              <h3 className="mt-3 text-sm font-semibold text-gray-100">{packet.title}</h3>
+              <p className="mt-2 text-xs leading-5 text-gray-400">{packet.humanReview}</p>
+              <div className="mt-3 grid gap-2 text-[11px] text-gray-500 sm:grid-cols-2">
+                <div>
+                  <span className="text-gray-400">Challenger</span>
+                  <div className="mt-0.5 text-emerald-300">{packet.challengerAgent} - {packet.challengerStatus}</div>
+                </div>
+                <div>
+                  <span className="text-gray-400">Approval</span>
+                  <div className="mt-0.5 text-emerald-300">{packet.approvalStatus}</div>
+                </div>
+              </div>
+              <div className="mt-3 rounded-md border border-silicon-slate/70 bg-background/40 p-2 text-[11px] leading-5 text-gray-400">
+                <div><span className="text-gray-500">Source packet:</span> <code className="text-radiant-gold">{packet.packetPath}</code></div>
+                <div><span className="text-gray-500">Next gate:</span> {packet.nextGate}</div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
