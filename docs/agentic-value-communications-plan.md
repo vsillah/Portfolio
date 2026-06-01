@@ -471,9 +471,9 @@ The public channels will tell us which language lands. The client packet should 
 | P1 | Short: "A handoff is a work packet" | TikTok/Reels/Shorts | Handoff | 45-second script | `human_review_ready` in `docs/agentic-content-review-packets/p1-challenger-review-packets.md` | Ready for editorial approval; render/provider still gated |
 | P1 | Post: "Scope is the safety model" | LinkedIn | Scope | Text post | `human_review_ready` in `docs/agentic-content-review-packets/p1-challenger-review-packets.md` | Ready for editorial approval; publishing still gated |
 | P1 | Post: "Agent QA needs scorecards" | LinkedIn | QA loop | Text post | `human_review_ready` in `docs/agentic-content-review-packets/p1-challenger-review-packets.md` | Ready for editorial approval; publishing still gated |
-| P2 | Client one-pager | PDF/web | Value stack | Advisory asset | `not_ready` until Ralph Loop pass | Blocked until `pass_to_human=true` |
-| P2 | Technical appendix | PDF/Markdown | Source map | Due diligence asset | `not_ready` until Ralph Loop pass | Blocked until `pass_to_human=true` |
-| P2 | Website proof page | Portfolio | Full system | Webpage | `not_ready` until Ralph Loop pass | Blocked until `pass_to_human=true` |
+| P2 | Client one-pager | PDF/web | Value stack | Advisory asset | `human_review_ready` in `docs/agentic-content-review-packets/p2-challenger-review-packets.md` | Ready for editorial approval; PDF/web production still gated |
+| P2 | Technical appendix | PDF/Markdown | Source map | Due diligence asset | `human_review_ready` in `docs/agentic-content-review-packets/p2-challenger-review-packets.md` | Ready for editorial approval; appendix production still gated |
+| P2 | Website proof page | Portfolio | Full system | Webpage | `human_review_ready` in `docs/agentic-content-review-packets/p2-challenger-review-packets.md` | Ready for editorial approval; website implementation still gated |
 
 ## Challenger Test Scenarios
 
