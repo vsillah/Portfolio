@@ -18,6 +18,33 @@ Agent Ops is no longer a design rollout by default. Mission Control, Slack, Stan
 - Slack `/agent` and `/agent-staging` are the mobile command surfaces for fast unblock checks.
 - Automation digest routing can convert sanitized digest findings into proposed Agent Ops work items.
 
+### Existing backlog sources
+
+The Monday execution loop should reference the backlog that already exists. Do
+not create a parallel backlog unless a new roadmap is explicitly opened.
+
+Use these sources in this order:
+
+1. `docs/automation-digest-agent-ops-backlog.md` for already-seeded proposed Agent Ops work items from the Codex automation digest.
+2. `docs/agent-operations-task-list.md` for remaining Agent Ops operational checks and maintenance watch items.
+3. `docs/agent-operations-roadmap.md#maintenance-backlog` for capped rollout maintenance work.
+4. `docs/agentic-operating-system-governance.md` for governance hardening, audit exports, delegation transparency, and payment/spend authority boundaries.
+5. `docs/agent-decision-trust-v3-enforcement.md` for staged Decision Trust enforcement planning.
+
+The currently seeded digest backlog is:
+
+| Existing item | Category | Owner | Priority | Current use |
+| --- | --- | --- | --- | --- |
+| Prepare n8n drift access repair preflight | `blocked_until_access` | `automation-systems` | High | Prepare-only packet for n8n visibility/access drift. |
+| Prepare authenticated Portfolio admin QA checklist | `blocked_until_access` | `chief-of-staff` | High | Authenticated QA checklist for admin surfaces. |
+| Draft Codex thread-root repair decision packet | `needs_vambah_approval` | `chief-of-staff` | Medium | Human decision packet before changing Codex root behavior. |
+| Prepare quiet-provider billing verification packet | `agent_can_prepare` | `automation-systems` | Medium | Prepare a billing verification packet without mutation. |
+| Personality corpus reports unchanged | `watch_only` | None | Low | Keep out of the work queue unless the signal changes. |
+
+The live simulation recorded the proposed work-item IDs in
+`docs/automation-digest-agent-ops-backlog.md`; those IDs should be reused rather
+than reseeded.
+
 ### Current snap line
 
 The implementation roadmap is capped. New work should enter as:
@@ -65,6 +92,7 @@ Goal: turn inbound signals into a triaged Agent Ops backlog.
 
 Inputs:
 
+- existing proposed work items from `docs/automation-digest-agent-ops-backlog.md`,
 - automation digest summaries,
 - Slack `/agent inbox`, `/agent blockers`, and `/agent approvals`,
 - Mission Control attention routes,
@@ -74,6 +102,7 @@ Inputs:
 
 Work:
 
+- Start with the existing proposed work items before creating new ones.
 - Run the digest action router in dry-run mode first.
 - Promote only sanitized, actionable findings into proposed work items.
 - Use Shaka to group related proposed work into goals where the work has a shared outcome.
@@ -104,6 +133,7 @@ Work:
 
 Recommended initial goal categories:
 
+- existing automation digest proposed work items,
 - Slack mobile unblock hardening.
 - n8n drift and workflow proposal readiness.
 - authenticated Portfolio admin QA.
@@ -219,6 +249,8 @@ The Monday swarm is working if:
 
 ## Known Decision Gates
 
+- Whether to work the existing digest backlog in its current proposed state or
+  convert one or more proposed items into a Standup Room goal.
 - Whether to seed the next automation digest in apply mode or keep dry-run until Monday morning.
 - Whether to make Slack production commands the default mobile surface or keep using `/agent-staging` for the next validation cycle.
 - Whether the first Monday goal should be automation-health, sales/outreach, content production, or client roadmap projection.
@@ -226,24 +258,27 @@ The Monday swarm is working if:
 
 ## Recommended Monday First Move
 
-Start with a low-risk, high-visibility goal:
+Start with the existing digest backlog, then choose the first execution goal.
+The recommended first goal is:
 
 > Prepare and validate the mobile unblock loop for Agent Ops backlog execution.
 
 Why:
 
 - It uses the shipped Slack surface.
+- It can be tested against the already-seeded proposed work items instead of inventing new backlog.
 - It exercises Mission Control, Standup Room, Kanban, Decision Queue, and Run Console together.
 - It improves Vambah's ability to unblock work away from the laptop.
 - It does not require external sends, customer-data mutation, credential changes, or production n8n activation.
 
 Suggested first tasks:
 
-1. Run `/agent inbox`, `/agent blockers`, and `/agent approvals` in production Slack.
-2. Confirm deep links preserve destination after auth.
-3. Create or reuse one synthetic approval/blocker packet.
-4. Route the packet through Slack and verify Mission Control/Kanban reflect the event.
-5. Record gaps as proposed work items with owners.
+1. Review the four existing proposed digest work items in Mission Control or Agent Kanban.
+2. Run `/agent inbox`, `/agent blockers`, and `/agent approvals` in production Slack.
+3. Confirm the existing digest work items are reachable from Slack or have a clear Portfolio deep link.
+4. Route one existing prepare-only item, preferably `Prepare authenticated Portfolio admin QA checklist`, through the mobile unblock loop.
+5. Verify Mission Control/Kanban reflect the route or action event.
+6. Record any Slack or deep-link gaps as follow-up work items with owners.
 
 ## Integration Captain Packet Template
 
