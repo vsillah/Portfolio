@@ -22,18 +22,18 @@ vi.mock('@/lib/agent-run', () => ({
   endAgentRun: mocks.endAgentRun,
 }))
 
-import { sendAgentSlackNotification } from '@/lib/agent-slack-notifications'
+import { buildAgentSlackNotificationPayload, sendAgentSlackNotification } from '@/lib/agent-slack-notifications'
 
 const ORIGINAL_ENV = process.env
 
-function queryResult(result: unknown) {
+function queryResult(result: unknown, promiseMethods: Array<'in' | 'limit' | 'maybeSingle'> = ['limit', 'maybeSingle']) {
   const query: Record<string, unknown> = {
     select: vi.fn(() => query),
     eq: vi.fn(() => query),
-    in: vi.fn(() => query),
+    in: vi.fn(() => (promiseMethods.includes('in') ? Promise.resolve(result) : query)),
     order: vi.fn(() => query),
-    limit: vi.fn(() => Promise.resolve(result)),
-    maybeSingle: vi.fn(() => Promise.resolve(result)),
+    limit: vi.fn(() => (promiseMethods.includes('limit') ? Promise.resolve(result) : query)),
+    maybeSingle: vi.fn(() => (promiseMethods.includes('maybeSingle') ? Promise.resolve(result) : query)),
   }
   return query
 }
@@ -268,6 +268,145 @@ describe('Agent Ops Slack notifications', () => {
     expect(body).toContain('Stale or failed Agent Ops runs')
     expect(body).toContain('run.ask_shaka')
     expect(body).toContain('/admin/agents/runs/run-stale')
+  })
+
+  it('allows Slack approval only for low-risk deployment research proposals', async () => {
+    mocks.from
+      .mockReturnValueOnce(queryResult({
+        data: [
+          {
+            id: 'approval-low-risk',
+            run_id: 'run-low-risk',
+            approval_type: 'vercel_deployment_research_proposal',
+            status: 'pending',
+            metadata: {},
+          },
+        ],
+        error: null,
+      }))
+      .mockReturnValueOnce(queryResult({
+        data: [
+          {
+            id: 'run-low-risk',
+            title: 'Research Vercel deployment risk',
+            current_step: 'Review packet evidence',
+            status: 'waiting_for_approval',
+          },
+        ],
+        error: null,
+      }, ['in']))
+
+    const payload = await buildAgentSlackNotificationPayload({ kind: 'pending_approvals' })
+
+    expect(payload).toMatchObject({
+      itemCount: 1,
+      text: '1 pending Agent Ops approval(s) need review.',
+    })
+    const blocks = JSON.stringify(payload.blocks)
+    expect(blocks).toContain('agent_approval_approve')
+    expect(blocks).toContain('approval.approve')
+    expect(blocks).toContain('Approve Research Vercel deployment risk?')
+    expect(blocks).not.toContain('open_decision')
+  })
+
+  it('routes protected approval types to Portfolio instead of one-tap Slack approval', async () => {
+    mocks.from
+      .mockReturnValueOnce(queryResult({
+        data: [
+          {
+            id: 'approval-protected',
+            run_id: 'run-protected',
+            approval_type: 'n8n_workflow_activation',
+            status: 'pending',
+            metadata: {},
+          },
+        ],
+        error: null,
+      }))
+      .mockReturnValueOnce(queryResult({
+        data: [
+          {
+            id: 'run-protected',
+            title: 'Activate production workflow',
+            current_step: 'Waiting for human approval',
+            status: 'waiting_for_approval',
+          },
+        ],
+        error: null,
+      }, ['in']))
+
+    const payload = await buildAgentSlackNotificationPayload({ kind: 'pending_approvals' })
+
+    const blocks = JSON.stringify(payload.blocks)
+    expect(blocks).toContain('Primary action: open Portfolio because this approval crosses a protected boundary.')
+    expect(blocks).toContain('open_decision')
+    expect(blocks).toContain('/admin/agents/coordination?approvalRunId=run-protected')
+    expect(blocks).toContain('approval.ask_shaka')
+    expect(blocks).not.toContain('agent_approval_approve')
+    expect(blocks).not.toContain('approval.approve')
+  })
+
+  it('uses review-ready work item actions for owned cards waiting on inspection', async () => {
+    mocks.listAgentWorkItems.mockResolvedValue([
+      {
+        id: 'work-review',
+        title: 'Review deployment trace',
+        objective: 'Inspect the trace before merge',
+        status: 'ready_for_review',
+        priority: 'high',
+        owner_agent_key: 'chief-of-staff',
+        active_run_id: 'run-review',
+        source_run_id: null,
+        blocker_summary: null,
+        validation_summary: 'Tests passed',
+        metadata: {},
+        updated_at: '2026-05-23T11:00:00.000Z',
+      },
+      {
+        id: 'work-merge',
+        title: 'Merge approved automation branch',
+        objective: 'Confirm branch can be merged',
+        status: 'ready_for_merge',
+        priority: 'medium',
+        owner_agent_key: 'automation-systems',
+        active_run_id: null,
+        source_run_id: 'run-merge',
+        blocker_summary: null,
+        validation_summary: 'Approval checkpoint created',
+        metadata: {},
+        updated_at: '2026-05-23T10:00:00.000Z',
+      },
+      {
+        id: 'work-blocked',
+        title: 'Blocked card should not appear',
+        objective: 'This is not ready for review',
+        status: 'blocked',
+        priority: 'urgent',
+        owner_agent_key: 'integration-captain',
+        active_run_id: 'run-blocked',
+        source_run_id: null,
+        blocker_summary: 'Waiting on env',
+        validation_summary: null,
+        metadata: {},
+        updated_at: '2026-05-23T12:00:00.000Z',
+      },
+    ])
+
+    const payload = await buildAgentSlackNotificationPayload({ kind: 'review_ready' })
+
+    expect(payload).toMatchObject({
+      itemCount: 2,
+      text: 'Review-ready Agent Ops work: 2 item(s).',
+    })
+    const blocks = JSON.stringify(payload.blocks)
+    expect(blocks).toContain('Review-ready Agent Ops work')
+    expect(blocks).toContain('work.revision')
+    expect(blocks).toContain('agent_work_revision')
+    expect(blocks).toContain('/admin/agents/runs/run-review')
+    expect(blocks).toContain('/admin/agents/runs/run-merge')
+    expect(blocks).not.toContain('work.acknowledge')
+    expect(blocks).not.toContain('work.assign')
+    expect(blocks).not.toContain('Blocked card should not appear')
   })
 
   it('sends selected-agent standup questions even when no work cards match', async () => {
