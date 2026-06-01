@@ -76,6 +76,13 @@
           "Infisical/Vercel runtime sink sync only after the production key is approved.",
           "Production-like rerun of npm run apify:replacement-bakeoff -- --run before replacing the Apify Google Maps actor."
         ],
+        "productionRunnerDecision": {
+          "selectedRunner": "WF-VEP-002 n8n Social Listening Pipeline",
+          "egressPosture": "Static outbound egress is not confirmed for the current n8n runner.",
+          "ctORecommendation": "Keep application restrictions API-only until the runner has stable outbound egress.",
+          "validationGate": "Run the live bakeoff from the production-like runner before replacing the Apify Google Maps actor.",
+          "decisionPacket": "/docs/google-places-production-runner-decision.md"
+        },
         "decisionOwner": "subscription-watch / integration captain",
         "decisionRequired": true
       },
