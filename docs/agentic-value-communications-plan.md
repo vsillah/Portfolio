@@ -467,10 +467,10 @@ The public channels will tell us which language lands. The client packet should 
 | P0 | Flagship post: "Anyone can launch an agent now" | LinkedIn | Core message | Text post | `human_review_ready` in `docs/agentic-content-review-packets/p0-challenger-review-packets.md` | Ready for editorial approval; publishing still gated |
 | P0 | Carousel: "7 things your enterprise agent needs after the demo" | LinkedIn | Component library | Slide outline | `human_review_ready` in `docs/agentic-content-review-packets/p0-challenger-review-packets.md` | Ready for editorial approval; visual build/publishing still gated |
 | P0 | YouTube script: "The Part of Agentic AI Most Teams Skip" | YouTube | Full lifecycle | 6-10 minute script | `human_review_ready` in `docs/agentic-content-review-packets/p0-challenger-review-packets.md` | Ready for editorial approval; render/provider still gated |
-| P1 | Short: "The agent needs a receipt" | TikTok/Reels/Shorts | Observability | 45-second script | `not_ready` until Ralph Loop pass | Blocked until `pass_to_human=true` |
-| P1 | Short: "A handoff is a work packet" | TikTok/Reels/Shorts | Handoff | 45-second script | `not_ready` until Ralph Loop pass | Blocked until `pass_to_human=true` |
-| P1 | Post: "Scope is the safety model" | LinkedIn | Scope | Text post | `not_ready` until Ralph Loop pass | Blocked until `pass_to_human=true` |
-| P1 | Post: "Agent QA needs scorecards" | LinkedIn | QA loop | Text post | `not_ready` until Ralph Loop pass | Blocked until `pass_to_human=true` |
+| P1 | Short: "The agent needs a receipt" | TikTok/Reels/Shorts | Observability | 45-second script | `human_review_ready` in `docs/agentic-content-review-packets/p1-challenger-review-packets.md` | Ready for editorial approval; render/provider still gated |
+| P1 | Short: "A handoff is a work packet" | TikTok/Reels/Shorts | Handoff | 45-second script | `human_review_ready` in `docs/agentic-content-review-packets/p1-challenger-review-packets.md` | Ready for editorial approval; render/provider still gated |
+| P1 | Post: "Scope is the safety model" | LinkedIn | Scope | Text post | `human_review_ready` in `docs/agentic-content-review-packets/p1-challenger-review-packets.md` | Ready for editorial approval; publishing still gated |
+| P1 | Post: "Agent QA needs scorecards" | LinkedIn | QA loop | Text post | `human_review_ready` in `docs/agentic-content-review-packets/p1-challenger-review-packets.md` | Ready for editorial approval; publishing still gated |
 | P2 | Client one-pager | PDF/web | Value stack | Advisory asset | `not_ready` until Ralph Loop pass | Blocked until `pass_to_human=true` |
 | P2 | Technical appendix | PDF/Markdown | Source map | Due diligence asset | `not_ready` until Ralph Loop pass | Blocked until `pass_to_human=true` |
 | P2 | Website proof page | Portfolio | Full system | Webpage | `not_ready` until Ralph Loop pass | Blocked until `pass_to_human=true` |
