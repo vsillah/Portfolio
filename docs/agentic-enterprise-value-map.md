@@ -316,8 +316,6 @@ But I keep coming back to the same tension.
 
 The same capability that makes agents powerful also makes them risky. They answer questions, then they move work. They can touch systems. They can create records. They can spend money. They can publish. They can make a mistake while looking confident.
 
-So the enterprise problem is governed execution.
-
 The enterprise problem is governed execution.
 
 ### Section 2: The Agent Needs A Receipt
