@@ -125,6 +125,20 @@ npm run open-brain:runtime-registration -- --write tmp/open-brain-runtime-regist
 
 The planner is intentionally non-mutating. It does not create or edit `~/.codex/config.toml`, `~/.hermes/config.yaml`, Cursor/Claude/OpenCode config files, or durable Open Brain memory records. Actual runtime registration remains a local-state approval step and should be performed one runtime at a time, followed by that runtime's own doctor/list/manual MCP verification.
 
+### OpenClaw Evaluation Gate
+
+OpenClaw is not required for Phase 2 parity unless it proves value beyond the already connected runtimes. Treat it as an evaluation candidate, not an install-by-default dependency.
+
+Before installing or registering OpenClaw, confirm:
+
+- it supports the local Open Brain MCP stdio server without copying secrets or weakening approval gates,
+- it can consume generated personality-pack exports without drifting from the canonical corpus,
+- durable memory writes remain proposal-gated, auditable, reversible, and local-first,
+- it provides coding, planning, long-running execution, or interoperability value Hermes does not already cover,
+- and setup, auth, config backups, doctor/list verification, and rollback are maintainable across future parity checks.
+
+If those criteria are not met, keep OpenClaw on the migration watch list and defer installation.
+
 ## Karpathy Wiki Overlay
 
 Karpathy Wiki pages are compiled views from approved, non-private Open Brain records. Initial pages:

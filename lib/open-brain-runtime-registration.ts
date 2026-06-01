@@ -27,6 +27,7 @@ export interface OpenBrainRuntimeRegistrationPlan {
   }
   safetyBoundary: string[]
   setupCommands: string[]
+  evaluationGates: string[]
   targets: OpenBrainRuntimeRegistrationTarget[]
   nextAction: string
 }
@@ -127,12 +128,20 @@ export function buildOpenBrainRuntimeRegistrationPlan(
       'Dry-run packet only; no agent config files are edited by this planner.',
       'Create OPEN_BRAIN_HOME before registration, but do not promote durable memories without approval.',
       'Register each runtime in its own native config surface; Codex config is not inherited by Hermes, Claude, Cursor, OpenCode, or OpenClaw.',
+      'OpenClaw is an evaluation candidate until installed and approved; do not add it only for parity if Hermes already covers the required workflow.',
       'After registration, verify each runtime with its own list, doctor, or manual MCP tool call before marking it connected.',
     ],
     setupCommands: [
       `mkdir -p ${shellQuote(openBrainHome)}`,
       `OPEN_BRAIN_HOME=${shellQuote(openBrainHome)} OPEN_BRAIN_PORTFOLIO_ROOT=${shellQuote(portfolioRoot)} npm --prefix ${shellQuote(portfolioRoot)} test -- --run scripts/open-brain-mcp-server.test.ts lib/open-brain.test.ts`,
       `OPEN_BRAIN_HOME=${shellQuote(openBrainHome)} OPEN_BRAIN_PORTFOLIO_ROOT=${shellQuote(portfolioRoot)} npm --prefix ${shellQuote(portfolioRoot)} run open-brain:runtime-registration`,
+    ],
+    evaluationGates: [
+      'Open Brain MCP support: the runtime can register the local Open Brain stdio server without copying secrets or weakening approval gates.',
+      'Personality pack ingestion: the runtime can consume generated public-safe/personality-pack exports without drifting from the canonical corpus.',
+      'Governance fit: durable memory writes remain proposal-gated, auditable, reversible, and local-first.',
+      'Differentiated value: the runtime provides coding, planning, long-running execution, or interoperability capabilities that Hermes does not already cover.',
+      'Operational cost: setup, auth, config backups, doctor/list verification, and rollback are simple enough to maintain across future parity checks.',
     ],
     targets,
     nextAction: 'Review the target snippets, approve one runtime registration at a time, then run the matching verify command.',
@@ -158,6 +167,10 @@ export function renderOpenBrainRuntimeRegistrationMarkdown(plan: OpenBrainRuntim
     '## Setup Checks',
     '',
     ...plan.setupCommands.map((command) => `- \`${command}\``),
+    '',
+    '## Evaluation Gates',
+    '',
+    ...plan.evaluationGates.map((item) => `- ${item}`),
     '',
     '## Targets',
     '',
