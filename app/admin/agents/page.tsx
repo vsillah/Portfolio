@@ -254,6 +254,29 @@ type MissionSnapshot = {
     href: string
     updated_at: string
   }>
+  high_signal_ai_insights?: Array<{
+    contentId: string
+    title: string
+    theme: string
+    score: number
+    recommendation: 'promote' | 'expand' | 'format_bakeoff' | 'hold' | 'retire'
+    recommendationLabel: string
+    ownerAgentKey: string
+    bestContentHref: string
+    bestContentUrl: string | null
+    sourcePrdHref: string | null
+    capturedAt: string
+    metrics: {
+      impressions: number | null
+      views: number | null
+      reactions: number
+      likes: number
+      comments: number
+      shares: number
+      reposts: number
+      engagementRate: number | null
+    }
+  }>
 }
 
 type WarRoomResult = {
@@ -981,6 +1004,8 @@ export default function AgentOperationsPage() {
                   pendingApprovals={decisionQueueCount}
                   costToday={snapshot?.status_strip.cost_today ?? 0}
                 />
+
+                <HighSignalInsightsPanel insights={snapshot?.high_signal_ai_insights ?? []} loading={loading} />
 
                 <SwarmCommandPanel
                   roster={snapshot?.roster ?? []}
@@ -1948,6 +1973,71 @@ function DailyBriefPanel({
             <BriefRouteCard key={card.label} {...card} />
           ))}
         </div>
+      </div>
+    </section>
+  )
+}
+
+function HighSignalInsightsPanel({
+  insights,
+  loading,
+}: {
+  insights: NonNullable<MissionSnapshot['high_signal_ai_insights']>
+  loading: boolean
+}) {
+  if (!loading && insights.length === 0) {
+    return null
+  }
+
+  return (
+    <section className="agent-ops-card mt-5 rounded-lg border p-4" aria-label="High-signal AI insights">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-radiant-gold">
+            <Target size={18} />
+            <h2 className="font-semibold">High-signal AI insights</h2>
+          </div>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
+            Automated engagement refresh ranks published AI insight themes. Recommendations create research or bakeoff work only after review.
+          </p>
+        </div>
+        <Link href="/admin/social-content?status=published&platform=linkedin" className="inline-flex w-fit items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/55 px-3 py-2 text-sm hover:border-radiant-gold/55">
+          Social Content
+          <ArrowRight size={14} />
+        </Link>
+      </div>
+
+      <div className="mt-4 grid gap-3 lg:grid-cols-3">
+        {loading ? (
+          Array.from({ length: 3 }).map((_, index) => (
+            <div key={index} className="h-36 animate-pulse rounded-lg border border-silicon-slate/50 bg-silicon-slate/20" />
+          ))
+        ) : insights.map((insight) => (
+          <Link
+            key={insight.contentId}
+            href={insight.bestContentHref}
+            className="group rounded-lg border border-silicon-slate/60 bg-background/35 p-3 transition hover:border-radiant-gold/60"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">{insight.theme}</p>
+                <p className="mt-2 line-clamp-2 text-sm font-semibold text-foreground">{insight.title}</p>
+              </div>
+              <span className="rounded-full border border-radiant-gold/45 bg-radiant-gold/10 px-2 py-1 text-xs font-semibold text-radiant-gold">
+                {insight.score}
+              </span>
+            </div>
+            <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-muted-foreground">
+              <span>{insight.metrics.comments} comments</span>
+              <span>{insight.metrics.shares + insight.metrics.reposts} shares</span>
+              <span>{insight.metrics.reactions || insight.metrics.likes} reactions</span>
+            </div>
+            <div className="mt-3 flex items-center justify-between gap-2">
+              <span className="text-xs font-semibold text-radiant-gold">{insight.recommendationLabel}</span>
+              <ArrowRight size={14} className="text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-radiant-gold" />
+            </div>
+          </Link>
+        ))}
       </div>
     </section>
   )

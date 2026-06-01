@@ -592,6 +592,7 @@ function StandupRoomContent() {
             </main>
             <aside className="space-y-5">
               <MetricsPanel organization={organization} />
+              <StandupInsightPanel insights={organization.highSignalInsights ?? []} />
               <TraceHistory runs={organization.warRoom.recentRuns} commandTraces={commandTraces} />
               <MiniKanban lanes={organization.lanes} focusedGoalId={focusedGoalId} />
             </aside>
@@ -1435,6 +1436,33 @@ function GoalSessionPanel({
             This goal has no visible Kanban cards yet. Refresh after approval or open the full Kanban board.
           </p>
         )}
+      </div>
+    </section>
+  )
+}
+
+function StandupInsightPanel({ insights }: { insights: AgentOrgBoardSnapshot['highSignalInsights'] }) {
+  if (!insights.length) return null
+  return (
+    <section className="agent-ops-card rounded-lg border p-4" aria-label="High-signal AI insights">
+      <div className="flex items-center gap-2 text-radiant-gold">
+        <Target size={16} />
+        <h2 className="text-sm font-semibold uppercase tracking-[0.16em]">High-signal insights</h2>
+      </div>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">
+        Use these engagement-ranked themes when Shaka drafts the next goal or asks the swarm what to expand.
+      </p>
+      <div className="mt-3 space-y-2">
+        {insights.slice(0, 3).map((insight) => (
+          <Link key={insight.contentId} href={insight.bestContentHref} className="block rounded-lg border border-silicon-slate/60 bg-background/45 p-3 transition hover:border-radiant-gold/60">
+            <div className="flex items-start justify-between gap-2">
+              <p className="line-clamp-2 text-sm font-semibold">{insight.theme}</p>
+              <span className="rounded-full border border-radiant-gold/45 px-2 py-1 text-xs text-radiant-gold">{insight.score}</span>
+            </div>
+            <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">{insight.title}</p>
+            <p className="mt-2 text-xs font-semibold text-radiant-gold">{insight.recommendationLabel}</p>
+          </Link>
+        ))}
       </div>
     </section>
   )

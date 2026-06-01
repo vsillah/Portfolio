@@ -16,6 +16,7 @@ import {
   RefreshCw,
   ShieldCheck,
   Sparkles,
+  Target,
   Timer,
   Users,
   Workflow,
@@ -385,6 +386,7 @@ function KanbanBoard({
         selectedGoalId={selectedGoalId}
         onGoalChange={onGoalChange}
       />
+      <HighSignalInsightsRail insights={organization.highSignalInsights ?? []} />
       <KanbanFilterPanel
         goals={organization.summary.goals}
         ownerOptions={ownerOptions}
@@ -714,6 +716,40 @@ function GoalRadiators({
             ))}
           </div>
         </div>
+      </div>
+    </section>
+  )
+}
+
+function HighSignalInsightsRail({ insights }: { insights: AgentOrgBoardSnapshot['highSignalInsights'] }) {
+  if (!insights.length) return null
+  return (
+    <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-4" aria-label="High-signal AI insights">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-radiant-gold">
+            <Target size={16} />
+            <h2 className="text-sm font-semibold uppercase tracking-wide">High-signal AI insights</h2>
+          </div>
+          <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
+            Engagement-ranked themes from published AI insight content. Use these as inputs for goal selection and content-format bakeoffs.
+          </p>
+        </div>
+        <Link href="/admin/social-content?status=published&platform=linkedin" className="text-sm text-radiant-gold hover:underline">
+          Open Social Content
+        </Link>
+      </div>
+      <div className="mt-3 grid gap-2 lg:grid-cols-3">
+        {insights.slice(0, 3).map((insight) => (
+          <Link key={insight.contentId} href={insight.bestContentHref} className="rounded-lg border border-silicon-slate/60 bg-background/45 p-3 transition hover:border-radiant-gold/60">
+            <div className="flex items-start justify-between gap-3">
+              <p className="line-clamp-2 text-sm font-semibold">{insight.theme}</p>
+              <span className="rounded-full border border-radiant-gold/45 bg-radiant-gold/10 px-2 py-1 text-xs font-semibold text-radiant-gold">{insight.score}</span>
+            </div>
+            <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">{insight.title}</p>
+            <p className="mt-3 text-xs font-semibold text-radiant-gold">{insight.recommendationLabel}</p>
+          </Link>
+        ))}
       </div>
     </section>
   )
