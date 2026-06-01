@@ -42,6 +42,9 @@ describe('Open Brain runtime registration planner', () => {
       },
     })
     expect(plan.safetyBoundary.join(' ')).toContain('no agent config files are edited')
+    expect(plan.safetyBoundary.join(' ')).toContain('OpenClaw is an evaluation candidate')
+    expect(plan.evaluationGates.join(' ')).toContain('Differentiated value')
+    expect(plan.evaluationGates.join(' ')).toContain('Hermes does not already cover')
     expect(plan.targets.map((target) => target.runtime)).toEqual([
       'codex',
       'hermes',
@@ -67,6 +70,8 @@ describe('Open Brain runtime registration planner', () => {
 
     expect(markdown).toContain('# Open Brain Runtime Registration Packet')
     expect(markdown).toContain('## Safety Boundary')
+    expect(markdown).toContain('## Evaluation Gates')
+    expect(markdown).toContain('Open Brain MCP support')
     expect(markdown).toContain('### Codex')
     expect(markdown).toContain('OPEN_BRAIN_HOME')
     expect(markdown).not.toMatch(/sk-[A-Za-z0-9]/)
