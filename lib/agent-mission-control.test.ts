@@ -8,6 +8,7 @@ import {
   buildAgentDeadLetterQueue,
   buildAgentCostSummary,
   buildAgentEngagementQueue,
+  buildHighSignalAIInsights,
   buildAgentInbox,
   buildAgentOperatingSignals,
   buildDailyOperatingBrief,
@@ -395,5 +396,74 @@ describe('Agent Mission Control helpers', () => {
         'Read-only; remediation approval-gated',
       ],
     })
+  })
+
+  it('projects automated engagement snapshots into high-signal AI insights', () => {
+    const insights = buildHighSignalAIInsights([
+      {
+        id: 'content-low',
+        post_text: 'Low engagement AI workflow note',
+        topic_extracted: { topic: 'Automation' },
+        rag_context: {
+          engagement: {
+            latest: {
+              platform: 'linkedin',
+              contentUrl: 'https://linkedin.com/posts/low',
+              platformPostId: 'low',
+              capturedAt: now,
+              impressions: 50,
+              views: null,
+              likes: 1,
+              reactions: 1,
+              comments: 0,
+              shares: 0,
+              reposts: 0,
+              engagementRate: null,
+              notableCommenters: [],
+              source: { provider: 'apify', actorId: 'actor', runId: 'run-low', datasetId: null, confidence: 'exact' },
+            },
+            backlog_theme: 'Automation',
+            source_prd_href: '/docs/low.md',
+          },
+        },
+      },
+      {
+        id: 'content-high',
+        post_text: 'Agentic operating system post',
+        topic_extracted: { topic: 'Agentic Operating System' },
+        rag_context: {
+          engagement: {
+            latest: {
+              platform: 'linkedin',
+              contentUrl: 'https://linkedin.com/posts/high',
+              platformPostId: 'high',
+              capturedAt: now,
+              impressions: 1200,
+              views: null,
+              likes: 0,
+              reactions: 18,
+              comments: 8,
+              shares: 1,
+              reposts: 1,
+              engagementRate: null,
+              notableCommenters: ['Operator One'],
+              source: { provider: 'apify', actorId: 'actor', runId: 'run-high', datasetId: null, confidence: 'exact' },
+            },
+            backlog_theme: 'Agentic operating system',
+            source_prd_href: '/docs/agentic.md',
+          },
+        },
+      },
+    ])
+
+    expect(insights).toHaveLength(2)
+    expect(insights[0]).toMatchObject({
+      contentId: 'content-high',
+      theme: 'Agentic Operating System',
+      recommendation: 'promote',
+      bestContentHref: '/admin/social-content/content-high',
+      ownerAgentKey: 'research-source-register',
+    })
+    expect(insights[0].score).toBeGreaterThan(insights[1].score)
   })
 })

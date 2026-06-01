@@ -3,6 +3,11 @@ import { buildAgentGovernanceSnapshot, type GovernanceExportSummary } from '@/li
 import { getAgentQualitySummary, getEmptyAgentQualitySummary } from '@/lib/agent-evaluations'
 import { KNOWLEDGE_GOVERNANCE_STATUS } from '@/lib/knowledge-source-manifest'
 import { supabaseAdmin } from '@/lib/supabase'
+import {
+  buildHighSignalInsightsFromRows,
+  type EngagementSignalRow,
+  type HighSignalInsight,
+} from '@/lib/social-engagement'
 
 type AgentRunRow = {
   id: string
@@ -58,6 +63,8 @@ type MissionWorkItemRow = {
   active_run_id: string | null
   updated_at: string
 }
+
+type SocialContentSignalRow = EngagementSignalRow
 
 export type AgentMissionControlSnapshot = Awaited<ReturnType<typeof buildAgentMissionControlSnapshot>>
 
@@ -215,6 +222,10 @@ function summarizeRun(run: AgentRunRow, costByRun: Map<string, number>) {
 
 function findAgent(agentKey: string | null | undefined) {
   return AGENT_ORGANIZATION.find((agent) => agent.key === agentKey) ?? AGENT_ORGANIZATION.find((agent) => agent.key === 'chief-of-staff')
+}
+
+export function buildHighSignalAIInsights(rows: SocialContentSignalRow[]): HighSignalInsight[] {
+  return buildHighSignalInsightsFromRows(rows, 3)
 }
 
 function requestedAgentKey(run: AgentRunRow) {
@@ -822,7 +833,7 @@ export async function buildAgentMissionControlSnapshot() {
   const db = assertDatabase()
   const since = sinceHours(24)
 
-  const [runsRes, costsRes, approvalsRes, eventsRes, workItemsRes, governanceExportsRes] = await Promise.all([
+  const [runsRes, costsRes, approvalsRes, eventsRes, workItemsRes, governanceExportsRes, socialSignalsRes] = await Promise.all([
     db
       .from('agent_runs')
       .select('id, agent_key, runtime, kind, title, status, subject_label, current_step, error_message, started_at, completed_at, outcome, metadata')
@@ -854,6 +865,12 @@ export async function buildAgentMissionControlSnapshot() {
       .select('id, export_type, format, classification, run_id, client_project_id, from_at, to_at, matching_run_count, requested_by_user_id, generated_at, created_at')
       .order('created_at', { ascending: false })
       .limit(8),
+    db
+      .from('social_content_queue')
+      .select('id, post_text, topic_extracted, rag_context')
+      .eq('status', 'published')
+      .order('published_at', { ascending: false })
+      .limit(20),
   ])
 
   for (const result of [runsRes, costsRes, approvalsRes, eventsRes]) {
@@ -868,6 +885,9 @@ export async function buildAgentMissionControlSnapshot() {
   if (governanceExportsRes.error) {
     console.warn('[agent-mission-control] governance export ledger unavailable:', governanceExportsRes.error.message)
   }
+  if (socialSignalsRes.error) {
+    console.warn('[agent-mission-control] social engagement projection unavailable:', socialSignalsRes.error.message)
+  }
 
   const runs = (runsRes.data ?? []) as AgentRunRow[]
   const costs = (costsRes.data ?? []) as CostEventRow[]
@@ -875,6 +895,7 @@ export async function buildAgentMissionControlSnapshot() {
   const events = (eventsRes.data ?? []) as EventRow[]
   const workItems = workItemsRes.error ? [] : (workItemsRes.data ?? []) as MissionWorkItemRow[]
   const governanceExports = governanceExportsRes.error ? [] : (governanceExportsRes.data ?? []) as GovernanceExportSummary[]
+  const socialSignals = socialSignalsRes.error ? [] : (socialSignalsRes.data ?? []) as SocialContentSignalRow[]
   const costByRun = new Map<string, number>()
   const runsById = new Map(runs.map((run) => [run.id, run]))
 
@@ -969,6 +990,7 @@ export async function buildAgentMissionControlSnapshot() {
     cost_summary: costSummary,
     quality_summary: qualitySummary,
     governance,
+    high_signal_ai_insights: buildHighSignalAIInsights(socialSignals),
     operating_signals: operatingSignals,
     dependency_blockers: dependencyBlockers,
     knowledge_governance: KNOWLEDGE_GOVERNANCE_STATUS,

@@ -30,6 +30,7 @@ import {
   ArrowRightLeft,
   Maximize2,
   X,
+  BarChart3,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -112,6 +113,7 @@ function SocialContentDetailPage() {
   const [convertingFormat, setConvertingFormat] = useState(false)
   const [selectedSlide, setSelectedSlide] = useState(0)
   const [publishing, setPublishing] = useState(false)
+  const [refreshingEngagement, setRefreshingEngagement] = useState(false)
   const [savingCalibration, setSavingCalibration] = useState(false)
   const [revisingCalibration, setRevisingCalibration] = useState(false)
   const [showSource, setShowSource] = useState(false)
@@ -429,6 +431,34 @@ function SocialContentDetailPage() {
     }
   }
 
+  const handleRefreshEngagement = async () => {
+    setRefreshingEngagement(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const res = await fetch('/api/admin/social-content/engagement/refresh', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ platform: 'linkedin', content_id: id, force: true }),
+      })
+      const data = await res.json()
+      if (!res.ok || data.errors?.length) {
+        showMsg('error', data.error || data.errors?.[0]?.message || 'Engagement refresh failed')
+        return
+      }
+      await fetchItem()
+      showMsg('success', data.refreshed ? 'Engagement metrics refreshed' : 'No published LinkedIn post found to refresh')
+    } catch {
+      showMsg('error', 'Engagement refresh failed')
+    } finally {
+      setRefreshingEngagement(false)
+    }
+  }
+
   const handleRegenerateImage = async () => {
     setRegeneratingImage(true)
     try {
@@ -605,6 +635,19 @@ function SocialContentDetailPage() {
   const agentPilotComparisonPrompt = asString(agentPilotCalibration?.comparison_prompt)
   const agentPilotOperatorFeedback = asRecord(agentPilotCalibration?.operator_feedback)
   const agentPilotFeedbackUpdatedAt = asString(agentPilotOperatorFeedback?.updated_at)
+  const engagement = asRecord(ragContext?.engagement)
+  const engagementLatest = asRecord(engagement?.latest)
+  const engagementScore = typeof engagement?.latest_score === 'number' ? engagement.latest_score : null
+  const engagementRecommendationLabel = asString(engagement?.recommendation_label)
+  const engagementTheme = asString(engagement?.mapped_theme)
+  const engagementCapturedAt = asString(engagementLatest?.capturedAt)
+  const engagementComments = typeof engagementLatest?.comments === 'number' ? engagementLatest.comments : 0
+  const engagementShares = (typeof engagementLatest?.shares === 'number' ? engagementLatest.shares : 0) + (typeof engagementLatest?.reposts === 'number' ? engagementLatest.reposts : 0)
+  const engagementReactions = typeof engagementLatest?.reactions === 'number'
+    ? engagementLatest.reactions
+    : typeof engagementLatest?.likes === 'number'
+      ? engagementLatest.likes
+      : 0
   const isDraftOnlyPilot = isAgentSocialPilot && agentPilotPublishGate === 'draft_only'
 
   return (
@@ -1516,6 +1559,73 @@ function SocialContentDetailPage() {
             </div>
           )}
         </div>
+
+        {/* ================================================================ */}
+        {/* SECTION 2B: Engagement Metrics                                   */}
+        {/* ================================================================ */}
+        {(item.status === 'published' || engagementLatest) && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-xl border border-gray-800 bg-gray-900 p-5"
+          >
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-200">
+                  <BarChart3 className="h-5 w-5 text-amber-300" />
+                  Automated engagement signal
+                </h2>
+                <p className="mt-1 text-sm leading-6 text-gray-400">
+                  Metrics are refreshed from the configured read-only LinkedIn/Apify path and saved into this draft packet. This does not publish, schedule, DM, or trigger outbound work.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleRefreshEngagement}
+                disabled={refreshingEngagement}
+                className="inline-flex w-fit items-center gap-2 rounded-lg border border-amber-500/40 px-3 py-2 text-sm text-amber-200 transition-colors hover:bg-amber-500/10 disabled:opacity-50"
+              >
+                {refreshingEngagement ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                Refresh metrics
+              </button>
+            </div>
+
+            {engagementLatest ? (
+              <div className="mt-4 grid gap-3 lg:grid-cols-[repeat(4,minmax(0,1fr))]">
+                <div className="rounded-lg border border-gray-800 bg-gray-950/45 p-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Score</p>
+                  <p className="mt-1 text-2xl font-semibold text-amber-200">{engagementScore ?? 0}</p>
+                  <p className="mt-1 text-xs text-gray-500">{engagementRecommendationLabel || 'Keep watching'}</p>
+                </div>
+                <div className="rounded-lg border border-gray-800 bg-gray-950/45 p-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Comments</p>
+                  <p className="mt-1 text-2xl font-semibold text-gray-100">{engagementComments}</p>
+                  <p className="mt-1 text-xs text-gray-500">High weight signal</p>
+                </div>
+                <div className="rounded-lg border border-gray-800 bg-gray-950/45 p-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Shares</p>
+                  <p className="mt-1 text-2xl font-semibold text-gray-100">{engagementShares}</p>
+                  <p className="mt-1 text-xs text-gray-500">Reposts included</p>
+                </div>
+                <div className="rounded-lg border border-gray-800 bg-gray-950/45 p-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Reactions</p>
+                  <p className="mt-1 text-2xl font-semibold text-gray-100">{engagementReactions}</p>
+                  <p className="mt-1 text-xs text-gray-500">{engagementCapturedAt ? `Captured ${new Date(engagementCapturedAt).toLocaleString()}` : 'Latest snapshot'}</p>
+                </div>
+                <div className="rounded-lg border border-amber-500/25 bg-amber-500/10 p-3 lg:col-span-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">Mapped backlog theme</p>
+                  <p className="mt-1 text-sm leading-6 text-amber-50/90">
+                    {engagementTheme || 'No backlog theme mapped yet.'}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-4 rounded-lg border border-gray-800 bg-gray-950/45 p-4 text-sm leading-6 text-gray-400">
+                No engagement snapshot has been captured yet. Refresh metrics after the LinkedIn post is published and visible to the configured Apify source.
+              </div>
+            )}
+          </motion.div>
+        )}
 
         {/* ================================================================ */}
         {/* SECTION 3: Publish Status                                         */}

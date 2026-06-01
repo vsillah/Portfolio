@@ -6,6 +6,11 @@ import {
   type ClientConnectorReadiness,
 } from '@/lib/client-connector-readiness'
 import { supabaseAdmin } from '@/lib/supabase'
+import {
+  buildHighSignalInsightsFromRows,
+  type EngagementSignalRow,
+  type HighSignalInsight,
+} from '@/lib/social-engagement'
 
 type JsonRecord = Record<string, unknown>
 
@@ -349,6 +354,7 @@ export type AgentOrgBoardSnapshot = {
   agents: AgentOrgBoardAgent[]
   lanes: AgentOrgBoardLane[]
   activity: AgentOrgBoardActivity[]
+  highSignalInsights: HighSignalInsight[]
   warRoom: {
     roster: AgentOrgBoardWarRoomAgent[]
     recentRuns: AgentOrgBoardWarRoomRun[]
@@ -1353,6 +1359,7 @@ export function buildAgentOrgBoardSnapshotFromRows(input: AgentOrgBoardBuildInpu
     agents,
     lanes,
     activity,
+    highSignalInsights: [],
     warRoom: {
       roster,
       recentRuns: recentWarRoomRuns,
@@ -1469,7 +1476,7 @@ export async function buildAgentOrgBoardSnapshot(): Promise<AgentOrgBoardSnapsho
   if (!supabaseAdmin) throw new Error('Database not available')
   const db = supabaseAdmin
 
-  const [runsRes, eventsRes, workItemsRes, approvalsRes] = await Promise.all([
+  const [runsRes, eventsRes, workItemsRes, approvalsRes, socialSignalsRes] = await Promise.all([
     db
       .from('agent_runs')
       .select('id, agent_key, runtime, kind, title, status, subject_type, subject_id, subject_label, current_step, error_message, started_at, completed_at, metadata')
@@ -1491,10 +1498,19 @@ export async function buildAgentOrgBoardSnapshot(): Promise<AgentOrgBoardSnapsho
       .eq('status', 'pending')
       .order('requested_at', { ascending: false })
       .limit(75),
+    db
+      .from('social_content_queue')
+      .select('id, post_text, topic_extracted, rag_context')
+      .eq('status', 'published')
+      .order('published_at', { ascending: false })
+      .limit(20),
   ])
 
   for (const result of [runsRes, eventsRes, workItemsRes, approvalsRes]) {
     if (result.error) throw new Error(result.error.message)
+  }
+  if (socialSignalsRes.error) {
+    console.warn('[agent-swarm-board] high-signal insight projection unavailable:', socialSignalsRes.error.message)
   }
 
   const workItemIds = ((workItemsRes.data ?? []) as AgentWorkItemRow[]).map((item) => item.id)
@@ -1511,11 +1527,17 @@ export async function buildAgentOrgBoardSnapshot(): Promise<AgentOrgBoardSnapsho
     console.warn('[agent-swarm-board] handoff projection unavailable:', handoffsRes.error.message)
   }
 
-  return buildAgentOrgBoardSnapshotFromRows({
+  const snapshot = buildAgentOrgBoardSnapshotFromRows({
     runs: (runsRes.data ?? []) as AgentRunRow[],
     events: (eventsRes.data ?? []) as AgentRunEventRow[],
     workItems: (workItemsRes.data ?? []) as AgentWorkItemRow[],
     handoffs: handoffsRes.error ? [] : (handoffsRes.data ?? []) as AgentHandoffRow[],
     approvals: (approvalsRes.data ?? []) as ApprovalRow[],
   })
+  return {
+    ...snapshot,
+    highSignalInsights: socialSignalsRes.error
+      ? []
+      : buildHighSignalInsightsFromRows((socialSignalsRes.data ?? []) as EngagementSignalRow[], 3),
+  }
 }
