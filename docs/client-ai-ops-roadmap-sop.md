@@ -133,6 +133,16 @@ Use `buildClientAiOpsRealPilotQaPlan` from `lib/client-ai-ops-real-pilot-qa.ts` 
 
 Authenticated UI smoke should use a synthetic or explicitly test-owned client project and dashboard token. If the tester cannot prove the record is synthetic or test-owned, stop before running the smoke.
 
+For captain handoff or local readiness checks, print the same plan without touching live client systems:
+
+```bash
+npx tsx scripts/client-ai-ops-real-pilot-qa.ts
+npx tsx scripts/client-ai-ops-real-pilot-qa.ts --summary
+npx tsx scripts/client-ai-ops-real-pilot-qa.ts --json
+```
+
+The runner exits non-zero only when the synthetic QA plan has blocked checks. Waiting approvals and manual smoke targets remain visible but do not trigger live setup.
+
 ## Roadmap Rule Checklist
 
 Use this checklist whenever a roadmap feature, monitor, report, or client implementation phase changes:

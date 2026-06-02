@@ -33,6 +33,10 @@ export type ClientAiOpsPilotQaPlan = {
   forbiddenActions: string[]
 }
 
+export type ClientAiOpsPilotQaPlanFormatOptions = {
+  includeDetails?: boolean
+}
+
 const GENERATED_AT = '2026-06-02T12:00:00.000Z'
 const SYNTHETIC_PROJECT_ID = 'synthetic-client-ai-ops-project'
 
@@ -195,4 +199,43 @@ function authenticatedUiSmokeCheck(): ClientAiOpsPilotQaCheck {
     clientSafe: true,
     sideEffectFree: true,
   }
+}
+
+export function formatClientAiOpsRealPilotQaPlan(
+  plan: ClientAiOpsPilotQaPlan = buildClientAiOpsRealPilotQaPlan(),
+  options: ClientAiOpsPilotQaPlanFormatOptions = {},
+): string {
+  const includeDetails = options.includeDetails ?? true
+  const lines = [
+    'Client AI Ops Real-Pilot QA Plan',
+    `Generated: ${plan.generatedAt}`,
+    `Fixture: ${plan.fixture}`,
+    `Project: ${plan.projectId}`,
+    `Summary: ${plan.summary.passed} passed; ${plan.summary.waitingApproval} waiting approval; ${plan.summary.manualSmoke} manual smoke; ${plan.summary.blocked} blocked.`,
+  ]
+
+  if (includeDetails) {
+    lines.push('', 'Checks:')
+    for (const check of plan.checks) {
+      lines.push(`- [${check.status}] ${check.label}`)
+      lines.push(`  Evidence: ${check.evidence}`)
+      lines.push(`  Next: ${check.nextAction}`)
+      lines.push(`  Client safe: ${String(check.clientSafe)}; side-effect free: ${String(check.sideEffectFree)}`)
+    }
+
+    lines.push('', 'Manual Smoke Targets:')
+    for (const target of plan.manualSmokeTargets) {
+      lines.push(`- ${target.surface}: ${target.path}`)
+      for (const evidence of target.expectedEvidence) {
+        lines.push(`  - ${evidence}`)
+      }
+    }
+
+    lines.push('', 'Forbidden Live Actions:')
+    for (const action of plan.forbiddenActions) {
+      lines.push(`- ${action}`)
+    }
+  }
+
+  return lines.join('\n')
 }
