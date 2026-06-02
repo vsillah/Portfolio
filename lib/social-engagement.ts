@@ -88,11 +88,17 @@ function numberFrom(value: unknown): number | null {
 }
 
 function firstNumber(row: Record<string, unknown>, keys: string[], fallback = 0): number {
+  const value = firstNumberValue(row, keys)
+  return value ?? fallback
+}
+
+function firstNumberValue(row: Record<string, unknown> | null | undefined, keys: string[]): number | null {
+  if (!row) return null
   for (const key of keys) {
     const value = numberFrom(row[key])
     if (value !== null) return value
   }
-  return fallback
+  return null
 }
 
 function firstString(row: Record<string, unknown>, keys: string[]): string | null {
@@ -115,6 +121,23 @@ function normalizeUrl(value: string | null | undefined) {
   }
 }
 
+function recordFrom(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : null
+}
+
+function arrayLength(value: unknown): number | null {
+  return Array.isArray(value) ? value.length : null
+}
+
+function reactionBreakdownTotal(value: unknown): number | null {
+  if (!Array.isArray(value)) return null
+  const total = value.reduce((sum, item) => {
+    const record = recordFrom(item)
+    return sum + (numberFrom(record?.count) ?? 0)
+  }, 0)
+  return total > 0 ? total : null
+}
+
 export function normalizeEngagementRow(input: {
   platform: SocialPlatform
   row: Record<string, unknown>
@@ -127,11 +150,25 @@ export function normalizeEngagementRow(input: {
   confidence?: NormalizedEngagementMetrics['source']['confidence']
 }): NormalizedEngagementMetrics {
   const row = input.row
-  const reactions = firstNumber(row, ['reactions', 'reactionCount', 'numReactions', 'likesCount', 'likeCount', 'likes'])
-  const likes = firstNumber(row, ['likes', 'likesCount', 'likeCount'], reactions)
-  const comments = firstNumber(row, ['comments', 'commentCount', 'numComments', 'commentsCount'])
-  const shares = firstNumber(row, ['shares', 'shareCount', 'numShares', 'sharesCount'])
-  const reposts = firstNumber(row, ['reposts', 'repostCount', 'numReposts'], shares)
+  const engagement = recordFrom(row.engagement)
+  const reactions = firstNumberValue(row, ['reactions', 'reactionCount', 'numReactions', 'likesCount', 'likeCount', 'likes'])
+    ?? firstNumberValue(engagement, ['reactionCount', 'numReactions'])
+    ?? reactionBreakdownTotal(row.reactions)
+    ?? reactionBreakdownTotal(engagement?.reactions)
+    ?? 0
+  const likes = firstNumberValue(row, ['likes', 'likesCount', 'likeCount'])
+    ?? firstNumberValue(engagement, ['likes', 'likesCount', 'likeCount'])
+    ?? reactions
+  const comments = firstNumberValue(row, ['comments', 'commentCount', 'numComments', 'commentsCount'])
+    ?? firstNumberValue(engagement, ['comments', 'commentCount', 'numComments', 'commentsCount'])
+    ?? arrayLength(row.comments)
+    ?? 0
+  const shares = firstNumberValue(row, ['shares', 'shareCount', 'numShares', 'sharesCount'])
+    ?? firstNumberValue(engagement, ['shares', 'shareCount', 'numShares', 'sharesCount'])
+    ?? 0
+  const reposts = firstNumberValue(row, ['reposts', 'repostCount', 'numReposts'])
+    ?? firstNumberValue(engagement, ['reposts', 'repostCount', 'numReposts'])
+    ?? shares
   const impressions = numberFrom(row.impressions ?? row.impressionCount ?? row.totalImpressions)
   const views = numberFrom(row.views ?? row.viewCount ?? row.videoViews ?? row.numViews)
   const denominator = impressions ?? views
@@ -147,7 +184,7 @@ export function normalizeEngagementRow(input: {
 
   return {
     platform: input.platform,
-    contentUrl: normalizeUrl(input.contentUrl ?? firstString(row, ['url', 'postUrl', 'post_url', 'shareUrl', 'link'])),
+    contentUrl: normalizeUrl(input.contentUrl ?? firstString(row, ['url', 'postUrl', 'post_url', 'shareUrl', 'shareLinkedinUrl', 'linkedinUrl', 'link'])),
     platformPostId: input.platformPostId ?? firstString(row, ['id', 'postId', 'urn', 'activityUrn', 'shareUrn']),
     capturedAt: input.capturedAt ?? new Date().toISOString(),
     impressions,
