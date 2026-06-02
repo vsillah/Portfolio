@@ -702,18 +702,21 @@ function SocialContentDetailPage() {
         </div>
       </div>
 
-      <div className="p-8 max-w-6xl mx-auto space-y-6">
+      <div className="mx-auto w-full max-w-[90rem] space-y-6 px-4 py-6 sm:px-6 lg:px-8">
         {isAgentSocialPilot && (
-          <section className="rounded-xl border border-amber-500/30 bg-gray-900/80 p-4 shadow-[0_0_28px_rgba(212,175,55,0.08)]">
-            <div className="flex flex-col gap-3">
-              <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+          <section className="admin-console-card rounded-xl border border-radiant-gold/25 p-5 sm:p-6">
+            <div className="grid gap-4">
+              <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,auto)] xl:items-start">
                 <div className="min-w-0">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-300">
+                  <p className="admin-console-eyebrow">
                     Agent Ops LinkedIn Pilot
                   </p>
-                  <h2 className="mt-1 text-xl font-semibold text-gray-100">
+                  <h2 className="mt-2 text-2xl font-semibold text-gray-100">
                     Draft-only content packet
                   </h2>
+                  <p className="mt-2 max-w-5xl text-sm leading-6 text-gray-300">
+                    This post was created from an approved Standup Room goal. Goal approval created the work items and this draft; publishing still requires the separate Social Content approval gate.
+                  </p>
                 </div>
                 <div className="flex min-w-0 flex-wrap gap-2 text-xs xl:justify-end">
                   <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-amber-200">
@@ -731,13 +734,10 @@ function SocialContentDetailPage() {
                   )}
                 </div>
               </div>
-              <p className="max-w-none text-sm leading-6 text-gray-300">
-                This post was created from an approved Standup Room goal. Goal approval created the work items and this draft; publishing still requires the separate Social Content approval gate.
-              </p>
             </div>
 
-            <div className="mt-4 grid gap-3 lg:grid-cols-3">
-              <div className="rounded-lg border border-gray-800 bg-gray-950/40 p-4">
+            <div className="mt-5 grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(18rem,0.8fr)]">
+              <div className="rounded-lg border border-silicon-slate/80 bg-background/35 p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Provenance</p>
                 <ul className="mt-3 space-y-2 text-sm text-gray-300">
                   {agentPilotProvenance.slice(0, 4).map((entry) => (
@@ -751,7 +751,7 @@ function SocialContentDetailPage() {
                   )}
                 </ul>
               </div>
-              <div className="rounded-lg border border-gray-800 bg-gray-950/40 p-4">
+              <div className="rounded-lg border border-silicon-slate/80 bg-background/35 p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Review Checklist</p>
                 <ul className="mt-3 space-y-2 text-sm text-gray-300">
                   {agentPilotApprovalChecklist.slice(0, 4).map((entry) => (
@@ -765,7 +765,7 @@ function SocialContentDetailPage() {
                   )}
                 </ul>
               </div>
-              <div className="rounded-lg border border-gray-800 bg-gray-950/40 p-4">
+              <div className="rounded-lg border border-silicon-slate/80 bg-background/35 p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Visual Brief</p>
                 <p className="mt-3 text-sm leading-6 text-gray-300">
                   {agentPilotVisualBrief || 'No visual brief attached.'}
@@ -774,7 +774,7 @@ function SocialContentDetailPage() {
             </div>
 
             {agentPilotCalibration && (
-              <div className="mt-4 rounded-lg border border-gray-800 bg-gray-950/35 p-4">
+              <div className="mt-4 rounded-lg border border-silicon-slate/80 bg-background/35 p-4">
                 <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-300">Content Calibration</p>
@@ -793,7 +793,7 @@ function SocialContentDetailPage() {
                     {agentPilotPriorPatterns.slice(0, 3).map((pattern) => {
                       const label = asString(pattern.label)
                       return (
-                        <div key={label || asString(pattern.pattern)} className="rounded-md border border-gray-800 bg-gray-900/55 p-3">
+                        <div key={label || asString(pattern.pattern)} className="rounded-md border border-silicon-slate/80 bg-imperial-navy/45 p-3">
                           <p className="text-sm font-semibold text-gray-100">{label || 'Prior success pattern'}</p>
                           <p className="mt-1 text-sm leading-6 text-gray-300">{asString(pattern.pattern)}</p>
                           <p className="mt-2 text-xs leading-5 text-gray-400"><span className="text-amber-300">Why it worked:</span> {asString(pattern.why_it_worked)}</p>
@@ -803,7 +803,7 @@ function SocialContentDetailPage() {
                     })}
                   </div>
                   <div className="grid gap-3">
-                    <div className="rounded-md border border-gray-800 bg-gray-900/55 p-3">
+                    <div className="rounded-md border border-silicon-slate/80 bg-imperial-navy/45 p-3">
                       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Voice Checks</p>
                       <ul className="mt-2 space-y-1 text-sm text-gray-300">
                         {agentPilotVoicePrinciples.slice(0, 5).map((entry) => <li key={entry}>• {entry}</li>)}
@@ -822,7 +822,7 @@ function SocialContentDetailPage() {
                     {agentPilotComparisonPrompt}
                   </div>
                 )}
-                <div className="mt-4 rounded-lg border border-gray-800 bg-gray-900/55 p-4">
+                <div className="mt-4 rounded-lg border border-silicon-slate/80 bg-imperial-navy/45 p-4">
                   <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-300">Operator Feedback Loop</p>
@@ -952,8 +952,8 @@ function SocialContentDetailPage() {
         {/* ================================================================ */}
         {/* SECTION 1: Content (two-col on lg: edit fields + preview)        */}
         {/* ================================================================ */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-4">
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,0.45fr)]">
+          <div className="min-w-0 space-y-4">
             {/* Post text */}
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
               <label className="block text-sm font-medium text-gray-400 mb-2">Post Text</label>
