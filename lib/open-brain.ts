@@ -3,7 +3,7 @@ import { existsSync } from 'fs'
 import { mkdir, readFile, writeFile } from 'fs/promises'
 import { homedir } from 'os'
 import path from 'path'
-import { listCodexAutomationInventory } from './codex-automation-inventory'
+import { listCodexAutomationInventory, type CodexAutomationInventory } from './codex-automation-inventory'
 import { getCodexWorkspaceRootReport } from './codex-workspace-roots'
 import {
   buildDecisionTrustOpenBrainProjection,
@@ -326,6 +326,18 @@ export interface OpenBrainPersonalityCorpusProducerTrace {
   reason: string | null
 }
 
+export interface OpenBrainAutomationProducerTrace {
+  status: 'recorded' | 'missing'
+  sources: OpenBrainSourceRecord[]
+  events: OpenBrainEventRecord[]
+  reason: string | null
+  overview: {
+    sourcesRecorded: number
+    eventsRecorded: number
+    rawPromptsIncluded: false
+  }
+}
+
 export interface OpenBrainSnapshotOptions {
   decisionTrustFrames?: DecisionTrustOpenBrainFrame[]
 }
@@ -375,28 +387,7 @@ export async function getOpenBrainSnapshot(
   })
 
   const sources = dedupeSources([
-    ...inventory.automations.map((automation): OpenBrainSourceRecord => ({
-      id: `automation:${automation.id}`,
-      kind: 'codex_automation',
-      title: automation.name,
-      summary: sanitizeOpenBrainText(`${automation.category} automation. Risk ${automation.riskLevel}. Context ${automation.contextHealth}.`),
-      path: automation.sourceFile,
-      privacyTier: 'internal_ops',
-      confidence: 0.9,
-      lastObservedAt: inventory.generatedAt,
-      fingerprint: fingerprintOpenBrainRecord(['codex_automation', automation.id, automation.sourceFile, automation.updatedAt || '']),
-    })),
-    ...inventory.repairPackets.map((packet): OpenBrainSourceRecord => ({
-      id: `repair:${packet.automationId}`,
-      kind: 'repair_packet',
-      title: `${packet.automationName} repair packet`,
-      summary: sanitizeOpenBrainText(packet.summary),
-      path: packet.sourceFile,
-      privacyTier: 'internal_ops',
-      confidence: 0.86,
-      lastObservedAt: inventory.generatedAt,
-      fingerprint: fingerprintOpenBrainRecord(['repair_packet', packet.automationId, packet.summary]),
-    })),
+    ...buildCodexAutomationInventorySources(inventory),
     {
       id: 'workspace-root-report:codex',
       kind: 'workspace_root_report',
@@ -733,6 +724,66 @@ export async function recordPersonalityCorpusProducerTrace(
     source,
     event,
     reason: null,
+  }
+}
+
+export async function recordCodexAutomationProducerTraces(
+  openBrainHome = getOpenBrainHome(),
+  generatedAt = new Date().toISOString(),
+): Promise<OpenBrainAutomationProducerTrace> {
+  const inventory = await listCodexAutomationInventory()
+  if (!inventory.available) {
+    return {
+      status: 'missing',
+      sources: [],
+      events: [],
+      reason: inventory.reason || 'Codex automation inventory is not available.',
+      overview: {
+        sourcesRecorded: 0,
+        eventsRecorded: 0,
+        rawPromptsIncluded: false,
+      },
+    }
+  }
+
+  const sources = buildCodexAutomationInventorySources(inventory)
+  const recordedSources: OpenBrainSourceRecord[] = []
+  const recordedEvents: OpenBrainEventRecord[] = []
+
+  for (const sourceInput of sources) {
+    const source = await recordOpenBrainSource(sourceInput, openBrainHome)
+    const event = await recordOpenBrainEvent({
+      id: `event:source-observed:${source.id}`,
+      kind: 'source_observed',
+      title: `Observed source: ${source.title}`,
+      summary: `${source.kind} observed from Codex automation inventory. Raw automation prompts are excluded.`,
+      privacyTier: source.privacyTier,
+      confidence: source.confidence,
+      sourceIds: [source.id],
+      createdAt: generatedAt,
+      fingerprint: fingerprintOpenBrainRecord(['source_observed', source.id, source.fingerprint]),
+      metadata: {
+        producerId: 'producer:codex-automation-inventory',
+        sourceKind: source.kind,
+        path: source.path,
+        sourceFingerprint: source.fingerprint,
+        rawPromptsIncluded: false,
+      },
+    }, openBrainHome)
+    recordedSources.push(source)
+    recordedEvents.push(event)
+  }
+
+  return {
+    status: 'recorded',
+    sources: recordedSources,
+    events: recordedEvents,
+    reason: null,
+    overview: {
+      sourcesRecorded: recordedSources.length,
+      eventsRecorded: recordedEvents.length,
+      rawPromptsIncluded: false,
+    },
   }
 }
 
@@ -1155,6 +1206,34 @@ function getServiceStatus(openBrainHome: string, runtimeMcpConfigured = false): 
     reason: available ? null : 'Local Open Brain storage is not configured yet. Set OPEN_BRAIN_DATABASE_URL or initialize OPEN_BRAIN_HOME.',
     operationalBoundary: 'Portfolio is a projection and approval surface. The local Open Brain service remains the source of truth; direct writes to Codex operational state require a separate approved repair step.',
   }
+}
+
+function buildCodexAutomationInventorySources(inventory: CodexAutomationInventory): OpenBrainSourceRecord[] {
+  if (!inventory.available) return []
+  return [
+    ...inventory.automations.map((automation): OpenBrainSourceRecord => ({
+      id: `automation:${automation.id}`,
+      kind: 'codex_automation',
+      title: automation.name,
+      summary: sanitizeOpenBrainText(`${automation.category} automation. Risk ${automation.riskLevel}. Context ${automation.contextHealth}.`),
+      path: automation.sourceFile,
+      privacyTier: 'internal_ops',
+      confidence: 0.9,
+      lastObservedAt: inventory.generatedAt,
+      fingerprint: fingerprintOpenBrainRecord(['codex_automation', automation.id, automation.sourceFile, automation.updatedAt || '']),
+    })),
+    ...inventory.repairPackets.map((packet): OpenBrainSourceRecord => ({
+      id: `repair:${packet.automationId}`,
+      kind: 'repair_packet',
+      title: `${packet.automationName} repair packet`,
+      summary: sanitizeOpenBrainText(packet.summary),
+      path: packet.sourceFile,
+      privacyTier: 'internal_ops',
+      confidence: 0.86,
+      lastObservedAt: inventory.generatedAt,
+      fingerprint: fingerprintOpenBrainRecord(['repair_packet', packet.automationId, packet.summary]),
+    })),
+  ]
 }
 
 function buildRunbookSources(generatedAt: string): OpenBrainSourceRecord[] {
