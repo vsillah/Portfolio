@@ -7,6 +7,10 @@ import { AGENT_AVATARS, getMissingAgentAvatarKeys, resolveAgentAvatarImageSrc } 
 const ORIGINAL_ASSET_BASE_URL = process.env.NEXT_PUBLIC_AGENT_AVATAR_ASSET_BASE_URL
 const ORIGINAL_NODE_ENV = process.env.NODE_ENV
 
+function setNodeEnv(value: typeof process.env.NODE_ENV) {
+  process.env = { ...process.env, NODE_ENV: value }
+}
+
 describe('agent avatar manifest', () => {
   afterEach(() => {
     if (ORIGINAL_ASSET_BASE_URL === undefined) {
@@ -14,7 +18,7 @@ describe('agent avatar manifest', () => {
     } else {
       process.env.NEXT_PUBLIC_AGENT_AVATAR_ASSET_BASE_URL = ORIGINAL_ASSET_BASE_URL
     }
-    process.env.NODE_ENV = ORIGINAL_NODE_ENV
+    setNodeEnv(ORIGINAL_NODE_ENV)
   })
 
   it('covers every stable agent organization key', () => {
@@ -48,7 +52,7 @@ describe('agent avatar manifest', () => {
 
   it('uses the public site origin for production previews when no asset base URL is configured', () => {
     delete process.env.NEXT_PUBLIC_AGENT_AVATAR_ASSET_BASE_URL
-    process.env.NODE_ENV = 'production'
+    setNodeEnv('production')
 
     expect(resolveAgentAvatarImageSrc('/agent-avatars/baroque/chief-of-staff.png')).toBe(
       'https://amadutown.com/agent-avatars/baroque/chief-of-staff.png',
@@ -57,7 +61,7 @@ describe('agent avatar manifest', () => {
 
   it('keeps relative asset paths outside production when no asset base URL is configured', () => {
     delete process.env.NEXT_PUBLIC_AGENT_AVATAR_ASSET_BASE_URL
-    process.env.NODE_ENV = 'test'
+    setNodeEnv('test')
 
     expect(resolveAgentAvatarImageSrc('/agent-avatars/baroque/chief-of-staff.png')).toBe(
       '/agent-avatars/baroque/chief-of-staff.png',
