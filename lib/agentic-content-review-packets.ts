@@ -1,8 +1,8 @@
-export type AgenticContentReviewSurface = 'social' | 'video'
+export type AgenticContentReviewSurface = 'social' | 'video' | 'content'
 
 export type AgenticContentReviewPacket = {
   assetId: string
-  priority: 'P0' | 'P1'
+  priority: 'P0' | 'P1' | 'P2'
   title: string
   channel: string
   output: string
@@ -161,6 +161,66 @@ export const AGENTIC_CONTENT_REVIEW_PACKETS: AgenticContentReviewPacket[] = [
     approveMeaning: 'Open the video review surface and approve only the next render-readiness step; provider work remains gated.',
     sendBackMeaning: 'Route a repair task if the handoff framing, claim, evidence, or short-form pacing needs revision.',
     targetSurface: 'video',
+  },
+  {
+    assetId: 'p2-client-one-pager-governed-agentic-operations',
+    priority: 'P2',
+    title: 'Client one-pager: Governed Agentic Operations',
+    channel: 'Client one-pager',
+    output: 'PDF/web proof asset',
+    sourceComponent: 'Value stack',
+    packetPath: 'docs/agentic-content-review-packets/p2-challenger-review-packets.md',
+    draftSource: 'docs/agentic-content-review-packets/p2-challenger-review-packets.md',
+    challengerAgent: 'Amina',
+    challengerStatus: 'passed',
+    passToHuman: true,
+    approvalStatus: 'human_review_ready',
+    humanReview: 'Ready for editorial approval; PDF or webpage production still gated.',
+    nextGate: 'PDF/web production approval before export, implementation, or client sharing.',
+    decisionPrompt: 'Decide whether this one-pager is ready for PDF or webpage production review.',
+    approveMeaning: 'Open the Content Hub production path only after approving the editorial packet; PDF export and client sharing remain separate gates.',
+    sendBackMeaning: 'Route a repair task if the buyer language, CTA, source support, or AmaduTown branding decision needs revision.',
+    targetSurface: 'content',
+  },
+  {
+    assetId: 'p2-technical-appendix-agentic-proof-map',
+    priority: 'P2',
+    title: 'Technical appendix: Agentic Operating Proof Map',
+    channel: 'Technical appendix',
+    output: 'PDF/Markdown due diligence asset',
+    sourceComponent: 'Source map',
+    packetPath: 'docs/agentic-content-review-packets/p2-challenger-review-packets.md',
+    draftSource: 'docs/agentic-content-review-packets/p2-challenger-review-packets.md',
+    challengerAgent: 'Amina',
+    challengerStatus: 'passed',
+    passToHuman: true,
+    approvalStatus: 'human_review_ready',
+    humanReview: 'Ready for editorial approval; appendix production still gated.',
+    nextGate: 'Appendix production approval before PDF export, public release, or client sharing.',
+    decisionPrompt: 'Decide whether this appendix is ready for Markdown or PDF production review.',
+    approveMeaning: 'Open the Content Hub production path only after approving the proof map; public release and client sharing remain separate gates.',
+    sendBackMeaning: 'Route a repair task if the implementation paths, proof questions, or public-safe boundaries need revision.',
+    targetSurface: 'content',
+  },
+  {
+    assetId: 'p2-website-proof-page-governed-agents',
+    priority: 'P2',
+    title: 'Website proof page: Governed Agents, Not Unchecked Automation',
+    channel: 'Portfolio website',
+    output: 'Proof page brief',
+    sourceComponent: 'Full system',
+    packetPath: 'docs/agentic-content-review-packets/p2-challenger-review-packets.md',
+    draftSource: 'docs/agentic-content-review-packets/p2-challenger-review-packets.md',
+    challengerAgent: 'Amina',
+    challengerStatus: 'passed',
+    passToHuman: true,
+    approvalStatus: 'human_review_ready',
+    humanReview: 'Ready for editorial approval; website implementation still gated.',
+    nextGate: 'Website implementation approval before building or publishing a proof page.',
+    decisionPrompt: 'Decide whether this proof-page brief is ready for implementation planning.',
+    approveMeaning: 'Open the Content Hub or implementation planning path only after approving the editorial packet; deployment remains a separate gate.',
+    sendBackMeaning: 'Route a repair task if the page purpose, privacy boundary, visual direction, or CTA needs revision.',
+    targetSurface: 'content',
   },
 ]
 
