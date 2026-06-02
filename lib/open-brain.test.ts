@@ -14,12 +14,14 @@ import {
   recordAgentOpsWorkItemProducerTraces,
   recordCodexAutomationProducerTraces,
   recordPersonalityCorpusProducerTrace,
+  recordVercelAutoResearchProducerTraces,
   reviewOpenBrainProposal,
   sanitizeOpenBrainText,
   validateMemoryProposal,
   buildOpenBrainRagProjection,
   type OpenBrainMemoryRecord,
 } from './open-brain'
+import type { VercelResearchPlan } from './vercel-deployment-research'
 
 vi.mock('./codex-automation-inventory', () => ({
   listCodexAutomationInventory: vi.fn(async () => ({
@@ -636,6 +638,88 @@ describe('Open Brain projection', () => {
     expect(snapshot.sources.filter((source) => source.id === 'work-item:work-1')).toHaveLength(1)
     expect(snapshot.events.filter((event) => event.id === 'event:source-observed:work-item:work-1')).toHaveLength(1)
     expect(snapshot.proposals.filter((proposal) => proposal.id === 'proposal:agent-ops-work-item-review:work-1')).toHaveLength(1)
+  })
+
+  it('records Vercel AutoResearch proposals without executing experiments', async () => {
+    const root = await makeTempRoot()
+    const plan: VercelResearchPlan = {
+      generatedAt: '2026-06-02T14:00:00.000Z',
+      approvalType: 'vercel_deployment_research_proposal',
+      thresholds: {
+        queueWatchSeconds: 60,
+        queueBlockedSeconds: 300,
+        buildWatchSeconds: 600,
+        buildBlockedSeconds: 900,
+      },
+      summaries: [],
+      findings: [],
+      operatingRules: ['Do not mutate hosted settings without approval.'],
+      proposals: [
+        {
+          id: 'settings-review',
+          title: 'Review preview deployment settings',
+          hypothesis: 'Queue pressure may be reduced by a reviewed settings packet.',
+          expectedImpact: 'Reduce integration waiting time without changing settings automatically.',
+          scorecardBaseline: {
+            project: 'portfolio',
+            target: 'preview',
+            queueSeconds: 90,
+            buildSeconds: 300,
+            totalSeconds: 390,
+          },
+          touchedFiles: ['docs/vercel-deployment-runbook.md'],
+          touchedSettings: ['Vercel preview deployment setting'],
+          riskLevel: 'high',
+          approvalState: 'approval_required',
+          approvalQuestion: 'Approve preparing the settings packet only?',
+          rollbackPath: 'Close the packet and keep current Vercel settings.',
+          evidence: ['queue 90s'],
+        },
+      ],
+    }
+
+    const first = await recordVercelAutoResearchProducerTraces(plan, root, plan.generatedAt)
+    const second = await recordVercelAutoResearchProducerTraces(plan, root, plan.generatedAt)
+    const snapshot = await getOpenBrainSnapshot(root)
+
+    expect(first.status).toBe('recorded')
+    expect(second.status).toBe('recorded')
+    expect(first.overview).toEqual({
+      proposalsObserved: 1,
+      approvalRequired: 1,
+      memoryProposalsRecorded: 1,
+      experimentsExecuted: false,
+      hostedConfigMutated: false,
+    })
+    expect(first.sources).toEqual([
+      expect.objectContaining({
+        id: 'autoresearch:vercel:settings-review',
+        kind: 'autoresearch_proposal',
+      }),
+    ])
+    expect(first.events).toEqual([
+      expect.objectContaining({
+        id: 'event:autoresearch-proposal-created:settings-review',
+        kind: 'autoresearch_proposal_created',
+        metadata: expect.objectContaining({
+          producerId: 'producer:autoresearch',
+          experimentsExecuted: false,
+          hostedConfigMutated: false,
+        }),
+      }),
+    ])
+    expect(first.proposals).toEqual([
+      expect.objectContaining({
+        id: 'proposal:autoresearch:settings-review',
+        proposedMemory: expect.objectContaining({
+          kind: 'risk',
+          sourceIds: ['autoresearch:vercel:settings-review'],
+        }),
+      }),
+    ])
+    expect(snapshot.sources.filter((source) => source.id === 'autoresearch:vercel:settings-review')).toHaveLength(1)
+    expect(snapshot.events.filter((event) => event.id === 'event:autoresearch-proposal-created:settings-review')).toHaveLength(1)
+    expect(snapshot.proposals.filter((proposal) => proposal.id === 'proposal:autoresearch:settings-review')).toHaveLength(1)
   })
 
   it('projects only approved public-safe memories into RAG documents', () => {
