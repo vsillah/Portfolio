@@ -319,6 +319,13 @@ export interface OpenBrainProposalInput {
   metadata?: OpenBrainProposalMetadata
 }
 
+export interface OpenBrainPersonalityCorpusProducerTrace {
+  status: 'recorded' | 'missing'
+  source: OpenBrainSourceRecord | null
+  event: OpenBrainEventRecord | null
+  reason: string | null
+}
+
 export interface OpenBrainSnapshotOptions {
   decisionTrustFrames?: DecisionTrustOpenBrainFrame[]
 }
@@ -683,6 +690,50 @@ export async function recordOpenBrainEvent(
   const events = await readJsonArray<OpenBrainEventRecord>(filePath)
   await writeJsonArray(filePath, dedupeEvents([...events, record]))
   return record
+}
+
+export async function recordPersonalityCorpusProducerTrace(
+  openBrainHome = getOpenBrainHome(),
+  generatedAt = new Date().toISOString(),
+): Promise<OpenBrainPersonalityCorpusProducerTrace> {
+  const personalitySource = (await buildKnowledgeProjectionSources(generatedAt))
+    .find((source) => source.kind === 'personality_corpus')
+
+  if (!personalitySource) {
+    return {
+      status: 'missing',
+      source: null,
+      event: null,
+      reason: 'Public-safe personality corpus pack was not found in the Portfolio knowledge projection.',
+    }
+  }
+
+  const source = await recordOpenBrainSource(personalitySource, openBrainHome)
+  const event = await recordOpenBrainEvent({
+    id: `event:source-observed:${source.id}`,
+    kind: 'source_observed',
+    title: `Observed source: ${source.title}`,
+    summary: 'Public-safe derived personality corpus pack observed as an Open Brain source. Raw private exports remain excluded.',
+    privacyTier: source.privacyTier,
+    confidence: source.confidence,
+    sourceIds: [source.id],
+    createdAt: generatedAt,
+    fingerprint: fingerprintOpenBrainRecord(['source_observed', source.id, source.fingerprint]),
+    metadata: {
+      producerId: 'producer:personality-corpus',
+      sourceKind: source.kind,
+      path: source.path,
+      sourceFingerprint: source.fingerprint,
+      rawPrivateExportsIncluded: false,
+    },
+  }, openBrainHome)
+
+  return {
+    status: 'recorded',
+    source,
+    event,
+    reason: null,
+  }
 }
 
 export async function linkOpenBrainRecords(

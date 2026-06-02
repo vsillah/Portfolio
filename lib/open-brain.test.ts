@@ -11,6 +11,7 @@ import {
   linkOpenBrainRecords,
   recordOpenBrainEvent,
   recordOpenBrainSource,
+  recordPersonalityCorpusProducerTrace,
   reviewOpenBrainProposal,
   sanitizeOpenBrainText,
   validateMemoryProposal,
@@ -436,6 +437,34 @@ describe('Open Brain projection', () => {
     expect(snapshot.events).toEqual(expect.arrayContaining([expect.objectContaining({ kind: 'autoresearch_proposal_created' })]))
     expect(snapshot.links).toEqual([expect.objectContaining({ id: link.id, relationship: 'derived_from' })])
     expect(snapshot.wikiPages.map((page) => page.slug)).toContain('autoresearch-experiment-ledger')
+  })
+
+  it('records the personality corpus producer trace without raw private content', async () => {
+    const root = await makeTempRoot()
+    const first = await recordPersonalityCorpusProducerTrace(root, '2026-06-02T12:00:00.000Z')
+    const second = await recordPersonalityCorpusProducerTrace(root, '2026-06-02T12:00:00.000Z')
+    const snapshot = await getOpenBrainSnapshot(root)
+
+    expect(first.status).toBe('recorded')
+    expect(second.status).toBe('recorded')
+    expect(first.source).toEqual(expect.objectContaining({
+      id: 'personality-corpus:public-safe',
+      kind: 'personality_corpus',
+      privacyTier: 'public_safe',
+    }))
+    expect(first.event).toEqual(expect.objectContaining({
+      id: 'event:source-observed:personality-corpus:public-safe',
+      kind: 'source_observed',
+      sourceIds: ['personality-corpus:public-safe'],
+      metadata: expect.objectContaining({
+        producerId: 'producer:personality-corpus',
+        rawPrivateExportsIncluded: false,
+      }),
+    }))
+    expect(first.event?.summary).not.toContain('Anthropic_chat_data')
+    expect(first.event?.summary).not.toContain('ChatGPT')
+    expect(snapshot.sources.filter((source) => source.id === 'personality-corpus:public-safe')).toHaveLength(1)
+    expect(snapshot.events.filter((event) => event.id === 'event:source-observed:personality-corpus:public-safe')).toHaveLength(1)
   })
 
   it('projects only approved public-safe memories into RAG documents', () => {
