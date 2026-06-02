@@ -123,6 +123,16 @@ Use `buildClientAiOpsReadinessContract` from `lib/client-ai-ops-readiness-contra
 
 The Client Dashboard should only show a client-safe setup readiness summary derived from the roadmap and connector read model. It may show readiness status, next action, connector counts, approval counts, isolation checks, and that live setup remains locked until approved. It should not expose internal swarm columns, agent traces, private approval packets, credential details, or provider implementation internals.
 
+## Real-Pilot QA Plan
+
+Use `buildClientAiOpsRealPilotQaPlan` from `lib/client-ai-ops-real-pilot-qa.ts` before any real-pilot rollout. The QA plan is generated from synthetic/test-owned data and separates three things:
+
+- automated proof that audit, connector readiness, admin readiness, client setup readiness, monitor summaries, and Meeting Task projection still line up,
+- manual authenticated smoke targets for the admin project page, client dashboard, and monitor follow-up path,
+- forbidden actions that must remain approval-gated, including OAuth, credential sync, provider writes, workflow activation, outbound sends, publishing, production deploy mutation, and client-data mutation.
+
+Authenticated UI smoke should use a synthetic or explicitly test-owned client project and dashboard token. If the tester cannot prove the record is synthetic or test-owned, stop before running the smoke.
+
 ## Roadmap Rule Checklist
 
 Use this checklist whenever a roadmap feature, monitor, report, or client implementation phase changes:
@@ -139,6 +149,7 @@ Use this checklist whenever a roadmap feature, monitor, report, or client implem
 - The synthetic pilot fixture still proves audit-to-roadmap-to-client/admin projection and read-only autonomous handoff boundaries.
 - The admin AI Ops readiness contract stays present and keeps `sideEffectsEnabled` false.
 - The client dashboard shows setup readiness without exposing internal swarm traces or credential/provider details.
+- The real-pilot QA plan separates automated synthetic proof from authenticated manual smoke and forbidden live actions.
 - Client-facing output excludes private logs, agent traces, credentials, and internal-only notes.
 
 ## Real Client Pilot Checklist
