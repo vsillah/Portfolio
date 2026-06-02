@@ -1006,7 +1006,7 @@ export default function ConversationPage() {
         </div>
 
         {/* Main row: Timeline | Script + objections | Unified offer panel */}
-        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)_minmax(320px,480px)] gap-4 mb-6">
+        <div className="grid grid-cols-1 gap-4 mb-6 xl:grid-cols-[minmax(260px,0.8fr)_minmax(360px,1fr)_minmax(420px,1fr)]">
           {/* ---- Col 1: Conversation Timeline ---- */}
           <div className="admin-console-card flex h-[678px] min-h-[320px] flex-col overflow-hidden rounded-lg border">
             <div className="flex-1 min-h-0 overflow-y-auto p-4">
@@ -1086,7 +1086,7 @@ export default function ConversationPage() {
           </div>
 
           {/* ---- Col 3: Offer panel (Suggested/All + bundles, catalog, stack) ---- */}
-          <div className="min-h-[280px] flex flex-col xl:min-h-0">
+          <div className="min-h-[280px] min-w-0 flex flex-col xl:min-h-0">
             <StreamlinedProductSelection
               products={selectedAsProducts}
               totalPrice={grandSlamOffer.offerPrice}
