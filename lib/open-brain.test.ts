@@ -11,6 +11,7 @@ import {
   linkOpenBrainRecords,
   recordOpenBrainEvent,
   recordOpenBrainSource,
+  recordAgentOpsWorkItemProducerTraces,
   recordCodexAutomationProducerTraces,
   recordPersonalityCorpusProducerTrace,
   reviewOpenBrainProposal,
@@ -62,6 +63,93 @@ vi.mock('./codex-workspace-roots', () => ({
   })),
 }))
 
+vi.mock('./agent-work-items', () => ({
+  listAgentWorkItems: vi.fn(async () => [
+    {
+      id: 'work-1',
+      title: 'Review Open Brain handoff path',
+      objective: 'Sensitive objective should stay out of producer output.',
+      status: 'blocked',
+      priority: 'high',
+      owner_agent_key: 'integration-captain',
+      owner_runtime: 'codex',
+      source_type: 'agent_run',
+      source_id: 'run-1',
+      source_label: 'Agent run',
+      source_run_id: 'run-1',
+      active_run_id: null,
+      parent_work_item_id: null,
+      branch_name: null,
+      worktree_path: null,
+      pr_number: null,
+      pr_url: null,
+      expected_files: [],
+      touched_files: [],
+      overlap_group: null,
+      dependency_ids: [],
+      blocker_summary: 'Sensitive blocker should stay out of producer output.',
+      validation_summary: null,
+      approval_id: null,
+      metadata: {},
+      idempotency_key: 'work-1',
+      created_at: '2026-06-01T12:00:00.000Z',
+      updated_at: '2026-06-02T12:00:00.000Z',
+      completed_at: null,
+    },
+    {
+      id: 'work-2',
+      title: 'Queued low-risk worker',
+      objective: 'Queued objective.',
+      status: 'queued',
+      priority: 'medium',
+      owner_agent_key: null,
+      owner_runtime: 'manual',
+      source_type: null,
+      source_id: null,
+      source_label: null,
+      source_run_id: null,
+      active_run_id: null,
+      parent_work_item_id: null,
+      branch_name: null,
+      worktree_path: null,
+      pr_number: null,
+      pr_url: null,
+      expected_files: [],
+      touched_files: [],
+      overlap_group: null,
+      dependency_ids: [],
+      blocker_summary: null,
+      validation_summary: null,
+      approval_id: null,
+      metadata: {},
+      idempotency_key: 'work-2',
+      created_at: '2026-06-01T12:00:00.000Z',
+      updated_at: '2026-06-02T12:00:00.000Z',
+      completed_at: null,
+    },
+  ]),
+  getAgentWorkItem: vi.fn(async (id: string) => id === 'work-1'
+    ? {
+      id: 'work-1',
+      latest_handoff: {
+        id: 'handoff-1',
+        run_id: 'run-1',
+        work_item_id: 'work-1',
+        from_agent_key: 'chief-of-staff',
+        to_agent_key: 'integration-captain',
+        handoff_type: 'agent_work_item_handoff',
+        summary: 'Sensitive handoff summary should stay out of producer output.',
+        acceptance_criteria: 'Sensitive acceptance criteria should stay out.',
+        status: 'pending',
+        created_at: '2026-06-02T12:30:00.000Z',
+        accepted_at: null,
+        completed_at: null,
+        metadata: {},
+      },
+    }
+    : { id, latest_handoff: null }),
+}))
+
 let tempRoot: string | null = null
 
 async function makeTempRoot() {
@@ -105,6 +193,7 @@ describe('Open Brain projection', () => {
       'producer:model-ops',
       'producer:rag-pinecone',
       'producer:decision-trust',
+      'producer:agent-ops-work-items',
     ]))
     expect(snapshot.overview.producerGates).toBe(snapshot.producerGates.length)
     expect(snapshot.relationshipMap.nodes.map((node) => node.type)).toEqual(expect.arrayContaining([
@@ -497,6 +586,56 @@ describe('Open Brain projection', () => {
     expect(first.events.map((event) => event.summary).join(' ')).not.toContain('Add an authority boundary.')
     expect(snapshot.sources.filter((source) => source.id === 'automation:portfolio-operations-manager')).toHaveLength(1)
     expect(snapshot.events.filter((event) => event.id === 'event:source-observed:automation:portfolio-operations-manager')).toHaveLength(1)
+  })
+
+  it('records Agent Ops work item and handoff traces with review proposals', async () => {
+    const root = await makeTempRoot()
+    const first = await recordAgentOpsWorkItemProducerTraces(root, '2026-06-02T13:00:00.000Z')
+    const second = await recordAgentOpsWorkItemProducerTraces(root, '2026-06-02T13:00:00.000Z')
+    const snapshot = await getOpenBrainSnapshot(root)
+
+    expect(first.status).toBe('recorded')
+    expect(second.status).toBe('recorded')
+    expect(first.overview).toEqual({
+      workItemsObserved: 2,
+      handoffsObserved: 1,
+      proposalsRecorded: 1,
+      rawWorkItemBodyIncluded: false,
+      rawHandoffBodyIncluded: false,
+    })
+    expect(first.sources.map((source) => source.id)).toEqual(expect.arrayContaining([
+      'work-item:work-1',
+      'work-item:work-2',
+      'handoff:handoff-1',
+    ]))
+    expect(first.events).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: 'event:source-observed:work-item:work-1',
+        metadata: expect.objectContaining({
+          producerId: 'producer:agent-ops-work-items',
+          rawWorkItemBodyIncluded: false,
+          rawHandoffBodyIncluded: false,
+        }),
+      }),
+    ]))
+    expect(first.proposals).toEqual([
+      expect.objectContaining({
+        id: 'proposal:agent-ops-work-item-review:work-1',
+        status: 'pending',
+        proposedMemory: expect.objectContaining({
+          kind: 'risk',
+          sourceIds: ['work-item:work-1'],
+        }),
+      }),
+    ])
+    const serialized = JSON.stringify(first)
+    expect(serialized).not.toContain('Sensitive objective')
+    expect(serialized).not.toContain('Sensitive blocker')
+    expect(serialized).not.toContain('Sensitive handoff summary')
+    expect(serialized).not.toContain('Sensitive acceptance criteria')
+    expect(snapshot.sources.filter((source) => source.id === 'work-item:work-1')).toHaveLength(1)
+    expect(snapshot.events.filter((event) => event.id === 'event:source-observed:work-item:work-1')).toHaveLength(1)
+    expect(snapshot.proposals.filter((proposal) => proposal.id === 'proposal:agent-ops-work-item-review:work-1')).toHaveLength(1)
   })
 
   it('projects only approved public-safe memories into RAG documents', () => {

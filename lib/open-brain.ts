@@ -3,6 +3,7 @@ import { existsSync } from 'fs'
 import { mkdir, readFile, writeFile } from 'fs/promises'
 import { homedir } from 'os'
 import path from 'path'
+import { getAgentWorkItem, listAgentWorkItems, type AgentWorkItem, type AgentWorkItemHandoff } from './agent-work-items'
 import { listCodexAutomationInventory, type CodexAutomationInventory } from './codex-automation-inventory'
 import { getCodexWorkspaceRootReport } from './codex-workspace-roots'
 import {
@@ -336,6 +337,25 @@ export interface OpenBrainAutomationProducerTrace {
     eventsRecorded: number
     rawPromptsIncluded: false
   }
+}
+
+export interface OpenBrainAgentOpsProducerTrace {
+  status: 'recorded' | 'missing'
+  sources: OpenBrainSourceRecord[]
+  events: OpenBrainEventRecord[]
+  proposals: OpenBrainProposalRecord[]
+  reason: string | null
+  overview: {
+    workItemsObserved: number
+    handoffsObserved: number
+    proposalsRecorded: number
+    rawWorkItemBodyIncluded: false
+    rawHandoffBodyIncluded: false
+  }
+}
+
+export interface OpenBrainAgentOpsProducerOptions {
+  limit?: number
 }
 
 export interface OpenBrainSnapshotOptions {
@@ -783,6 +803,88 @@ export async function recordCodexAutomationProducerTraces(
       sourcesRecorded: recordedSources.length,
       eventsRecorded: recordedEvents.length,
       rawPromptsIncluded: false,
+    },
+  }
+}
+
+export async function recordAgentOpsWorkItemProducerTraces(
+  openBrainHome = getOpenBrainHome(),
+  generatedAt = new Date().toISOString(),
+  options: OpenBrainAgentOpsProducerOptions = {},
+): Promise<OpenBrainAgentOpsProducerTrace> {
+  let workItems: AgentWorkItem[] = []
+  try {
+    workItems = await listAgentWorkItems({ limit: options.limit ?? 25 })
+  } catch (error) {
+    return {
+      status: 'missing',
+      sources: [],
+      events: [],
+      proposals: [],
+      reason: error instanceof Error ? error.message : 'Agent Ops work item inventory is not available.',
+      overview: {
+        workItemsObserved: 0,
+        handoffsObserved: 0,
+        proposalsRecorded: 0,
+        rawWorkItemBodyIncluded: false,
+        rawHandoffBodyIncluded: false,
+      },
+    }
+  }
+
+  const sources: OpenBrainSourceRecord[] = []
+  const handoffs: AgentWorkItemHandoff[] = []
+  for (const item of workItems) {
+    sources.push(agentWorkItemToOpenBrainSource(item, generatedAt))
+    const detail = await getAgentWorkItem(item.id).catch(() => null)
+    if (detail?.latest_handoff) {
+      handoffs.push(detail.latest_handoff)
+      sources.push(agentHandoffToOpenBrainSource(detail.latest_handoff, item, generatedAt))
+    }
+  }
+
+  const recordedSources: OpenBrainSourceRecord[] = []
+  const recordedEvents: OpenBrainEventRecord[] = []
+  for (const sourceInput of sources) {
+    const source = await recordOpenBrainSource(sourceInput, openBrainHome)
+    const event = await recordOpenBrainEvent({
+      id: `event:source-observed:${source.id}`,
+      kind: 'source_observed',
+      title: `Observed source: ${source.title}`,
+      summary: `${source.kind} observed from Agent Ops work queue. Raw work item and handoff bodies are excluded.`,
+      privacyTier: source.privacyTier,
+      confidence: source.confidence,
+      sourceIds: [source.id],
+      createdAt: generatedAt,
+      fingerprint: fingerprintOpenBrainRecord(['source_observed', source.id, source.fingerprint]),
+      metadata: {
+        producerId: 'producer:agent-ops-work-items',
+        sourceKind: source.kind,
+        path: source.path,
+        sourceFingerprint: source.fingerprint,
+        rawWorkItemBodyIncluded: false,
+        rawHandoffBodyIncluded: false,
+      },
+    }, openBrainHome)
+    recordedSources.push(source)
+    recordedEvents.push(event)
+  }
+
+  const reviewProposals = buildAgentOpsReviewProposals(workItems, generatedAt)
+  const proposals = await persistGeneratedOpenBrainProposals(reviewProposals, openBrainHome)
+
+  return {
+    status: 'recorded',
+    sources: recordedSources,
+    events: recordedEvents,
+    proposals,
+    reason: null,
+    overview: {
+      workItemsObserved: workItems.length,
+      handoffsObserved: handoffs.length,
+      proposalsRecorded: proposals.length,
+      rawWorkItemBodyIncluded: false,
+      rawHandoffBodyIncluded: false,
     },
   }
 }
@@ -1236,6 +1338,70 @@ function buildCodexAutomationInventorySources(inventory: CodexAutomationInventor
   ]
 }
 
+function agentWorkItemToOpenBrainSource(item: AgentWorkItem, generatedAt: string): OpenBrainSourceRecord {
+  return {
+    id: `work-item:${item.id}`,
+    kind: 'work_item',
+    title: item.title,
+    summary: sanitizeOpenBrainText([
+      `Agent Ops work item status ${item.status}; priority ${item.priority}.`,
+      item.owner_agent_key ? `Owner ${item.owner_agent_key}; runtime ${item.owner_runtime}.` : `Runtime ${item.owner_runtime}.`,
+      item.source_label ? `Source ${item.source_label}.` : null,
+      item.pr_url ? 'PR link is attached.' : null,
+      item.blocker_summary ? 'Blocker summary is present and should be reviewed in Agent Ops.' : null,
+      item.validation_summary ? 'Validation summary is present.' : null,
+    ].filter(Boolean).join(' ')),
+    path: `/admin/agents/work-items/${item.id}`,
+    privacyTier: 'internal_ops',
+    confidence: 0.86,
+    lastObservedAt: item.updated_at || generatedAt,
+    fingerprint: fingerprintOpenBrainRecord([
+      'work_item',
+      item.id,
+      item.status,
+      item.priority,
+      item.owner_agent_key || '',
+      item.owner_runtime,
+      item.source_run_id || '',
+      item.pr_url || '',
+      item.updated_at || generatedAt,
+    ]),
+  }
+}
+
+function agentHandoffToOpenBrainSource(
+  handoff: AgentWorkItemHandoff,
+  item: AgentWorkItem,
+  generatedAt: string,
+): OpenBrainSourceRecord {
+  return {
+    id: `handoff:${handoff.id}`,
+    kind: 'handoff',
+    title: `Agent handoff: ${handoff.from_agent_key || 'unknown'} to ${handoff.to_agent_key || 'unknown'}`,
+    summary: sanitizeOpenBrainText([
+      `Handoff status ${handoff.status}; type ${handoff.handoff_type || 'unknown'}.`,
+      `Linked work item ${item.title}.`,
+      handoff.run_id ? 'Linked source run is present.' : null,
+      handoff.accepted_at ? 'Handoff has been accepted.' : null,
+      handoff.completed_at ? 'Handoff has been completed.' : null,
+    ].filter(Boolean).join(' ')),
+    path: `/admin/agents/work-items/${item.id}`,
+    privacyTier: 'internal_ops',
+    confidence: 0.84,
+    lastObservedAt: handoff.completed_at || handoff.accepted_at || handoff.created_at || generatedAt,
+    fingerprint: fingerprintOpenBrainRecord([
+      'handoff',
+      handoff.id,
+      handoff.work_item_id || '',
+      handoff.run_id || '',
+      handoff.from_agent_key || '',
+      handoff.to_agent_key || '',
+      handoff.status,
+      handoff.created_at || generatedAt,
+    ]),
+  }
+}
+
 function buildRunbookSources(generatedAt: string): OpenBrainSourceRecord[] {
   const runbooks = [
     'docs/open-brain-local-service.md',
@@ -1517,6 +1683,17 @@ function buildProducerGates(modelOps: ModelOpsProjection): OpenBrainProducerGate
       envVar: null,
       configuredValue: null,
       note: 'Agent decision trust frames may be projected into the relationship map as read-only evidence. Enforcement remains off.',
+    },
+    {
+      id: 'producer:agent-ops-work-items',
+      label: 'Agent Ops work items and handoffs',
+      status: 'enabled',
+      sourceKind: 'work_item',
+      eventKind: 'source_observed',
+      privacyTier: 'internal_ops',
+      envVar: null,
+      configuredValue: null,
+      note: 'Agent Ops work items and latest handoffs can emit source/event traces; review-needed items create approval-gated memory proposals.',
     },
   ]
 }
@@ -1862,6 +2039,51 @@ function mergeProposals(persisted: OpenBrainProposalRecord[], generated: OpenBra
   for (const proposal of generated) byId.set(proposal.id, proposal)
   for (const proposal of persisted) byId.set(proposal.id, proposal)
   return [...byId.values()].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+}
+
+function buildAgentOpsReviewProposals(items: AgentWorkItem[], generatedAt: string): OpenBrainProposalRecord[] {
+  return items
+    .filter((item) => ['blocked', 'ready_for_review', 'ready_for_merge'].includes(item.status))
+    .map((item): OpenBrainProposalRecord => {
+      const sourceId = `work-item:${item.id}`
+      const riskLike = item.status === 'blocked' || item.status === 'ready_for_merge'
+      return {
+        id: `proposal:agent-ops-work-item-review:${item.id}`,
+        status: 'pending',
+        proposedMemory: {
+          kind: riskLike ? 'risk' : 'workflow',
+          title: `Review Agent Ops work item: ${item.title}`,
+          body: sanitizeOpenBrainText([
+            `Agent Ops work item ${item.id} is ${item.status} with ${item.priority} priority.`,
+            item.owner_agent_key ? `Owner is ${item.owner_agent_key} on ${item.owner_runtime}.` : `Runtime is ${item.owner_runtime}.`,
+            item.status === 'ready_for_merge'
+              ? 'Merge/deploy-adjacent work must remain approval-gated before durable operating assumptions are accepted.'
+              : 'Review the Agent Ops source record before promoting any durable memory or operational rule.',
+          ].join(' ')),
+          privacyTier: 'internal_ops',
+          confidence: item.status === 'blocked' ? 0.82 : 0.76,
+          sourceIds: [sourceId],
+        },
+        sourceIds: [sourceId],
+        reason: 'Generated from Agent Ops work item status. Requires human review before becoming durable Open Brain memory.',
+        createdBy: 'open-brain-agent-ops-producer',
+        createdAt: generatedAt,
+        reviewedAt: null,
+        reviewedBy: null,
+        reviewReason: null,
+      }
+    })
+}
+
+async function persistGeneratedOpenBrainProposals(
+  generated: OpenBrainProposalRecord[],
+  openBrainHome: string,
+): Promise<OpenBrainProposalRecord[]> {
+  if (generated.length === 0) return []
+  const proposalsPath = path.join(openBrainHome, PROPOSALS_FILE)
+  const persisted = await readJsonArray<OpenBrainProposalRecord>(proposalsPath)
+  await writeJsonArray(proposalsPath, mergeProposals(persisted, generated))
+  return generated
 }
 
 function proposalToMemory(proposal: OpenBrainProposalRecord): OpenBrainMemoryRecord {
