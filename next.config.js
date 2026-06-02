@@ -8,6 +8,8 @@ const nextConfig = {
       { protocol: 'https', hostname: '*.supabase.co' },
       { protocol: 'https', hostname: '*.supabase.in' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
+      // Agent portrait assets stay public so protected previews do not break avatar UI.
+      { protocol: 'https', hostname: 'amadutown.com' },
       // Printful sync thumbnails + catalog assets (merchandise store)
       { protocol: 'https', hostname: 'files.cdn.printful.com' },
       // Mockup generator output (temporary URLs on S3 accelerate)
@@ -24,4 +26,3 @@ const nextConfig = {
 }
 
 module.exports = nextConfig
-

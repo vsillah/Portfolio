@@ -194,6 +194,22 @@ export const AGENT_AVATARS: Record<string, AgentAvatarDefinition> = Object.fromE
   ]),
 ) as Record<string, AgentAvatarDefinition>
 
+const DEFAULT_PUBLIC_AVATAR_BASE_URL = 'https://amadutown.com'
+
+function normalizeBaseUrl(baseUrl: string) {
+  return baseUrl.replace(/\/+$/, '')
+}
+
+export function resolveAgentAvatarImageSrc(imagePath: string) {
+  const configuredBaseUrl = process.env.NEXT_PUBLIC_AGENT_AVATAR_ASSET_BASE_URL?.trim()
+  const baseUrl =
+    configuredBaseUrl ||
+    (process.env.NODE_ENV === 'production' ? DEFAULT_PUBLIC_AVATAR_BASE_URL : '')
+
+  if (!baseUrl) return imagePath
+  return `${normalizeBaseUrl(baseUrl)}${imagePath}`
+}
+
 export function getAgentAvatar(agentKey: string | null | undefined): AgentAvatarDefinition {
   if (agentKey && AGENT_AVATARS[agentKey]) return AGENT_AVATARS[agentKey]
   return {
