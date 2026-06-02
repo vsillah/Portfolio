@@ -176,6 +176,7 @@ export async function POST(request: NextRequest) {
     scope_type,
     scope_id,
     phases,
+    is_test_data,
   } = body
 
   const validWorkflows = ['internal_extraction', 'social_listening', 'social_listening_lead']
@@ -226,6 +227,7 @@ export async function POST(request: NextRequest) {
     const scope: Record<string, unknown> = {}
     if (validMaxResults) scope.maxResults = validMaxResults
     if (validSources) scope.sources = validSources
+    if (is_test_data === true) scope.is_test_data = true
     if (isSingleLead) {
       scope.mode = 'single_lead'
       if (contact_submission_id) scope.contact_submission_id = contact_submission_id
@@ -330,6 +332,7 @@ export async function POST(request: NextRequest) {
         agentRunId,
         maxResults: validMaxResults,
         sources: validSources,
+        isTestData: is_test_data === true,
         contactSubmissionId: scopeContext.contactSubmissionId,
         leadContext,
       })
@@ -339,6 +342,7 @@ export async function POST(request: NextRequest) {
         agentRunId,
         maxResults: validMaxResults,
         sources: validSources,
+        isTestData: is_test_data === true,
         contactSubmissionId: isSingleLead ? contact_submission_id : scopeContext?.contactSubmissionId,
         leadContext,
       })

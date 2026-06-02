@@ -17,6 +17,7 @@ type N8nNode = {
     headerParameters?: {
       parameters?: Array<{ name?: string; value?: string }>
     }
+    jsonBody?: string
   }
 }
 
@@ -59,9 +60,15 @@ describe('WF-VEP-002 export regression guards', () => {
       "={{ $json.body?.callbackBaseUrl || 'https://amadutown.com' }}",
     )
     expect(getAssignment(setParamsNode, 'ingestSecret').value).toBe("={{ $vars.N8N_INGEST_SECRET }}")
+    expect(getAssignment(setParamsNode, 'is_test_data').value).toBe(
+      "={{ $json.body?.is_test_data === true || $json.body?.is_test_data === 'true' }}",
+    )
 
     // activeVersion can lag behind editor exports, but the node should still exist there.
-    getNodeByName(workflow.activeVersion?.nodes ?? [], 'Set Search Parameters')
+    const activeSetParamsNode = getNodeByName(workflow.activeVersion?.nodes ?? [], 'Set Search Parameters')
+    expect(getAssignment(activeSetParamsNode, 'is_test_data').value).toBe(
+      "={{ $json.body?.is_test_data === true || $json.body?.is_test_data === 'true' }}",
+    )
   })
 
   it('uses AMADUTOWN_PUBLIC_BASE_URL + Bearer N8N_INGEST_SECRET for ingest endpoints', () => {
@@ -79,6 +86,8 @@ describe('WF-VEP-002 export regression guards', () => {
         )
 
         expect(authHeader?.value).toBe('=Bearer {{ $vars.N8N_INGEST_SECRET }}')
+        expect(ingestNode.parameters?.jsonBody).toContain('is_test_data')
+        expect(ingestNode.parameters?.jsonBody).toContain("$('Set Search Parameters').first().json.is_test_data === true")
       }
     }
   })

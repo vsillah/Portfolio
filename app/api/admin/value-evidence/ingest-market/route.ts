@@ -25,6 +25,10 @@ interface MarketIntelligenceItem {
   relevance_score?: number
 }
 
+function isExplicitTestRun(value: unknown): boolean {
+  return value === true || value === 'true'
+}
+
 export async function POST(request: NextRequest) {
   const authHeader = request.headers.get('authorization')
   const token = authHeader?.replace('Bearer ', '')
@@ -38,6 +42,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const items: MarketIntelligenceItem[] = body.items || []
     const contactSubmissionId: number | undefined = body.contact_submission_id
+    const isTestData = isExplicitTestRun(body.is_test_data)
 
     if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
@@ -52,6 +57,7 @@ export async function POST(request: NextRequest) {
       duplicates: 0,
       errors: [] as string[],
     }
+    const insertedIds: string[] = []
 
     const VALID_PLATFORMS = ['linkedin', 'reddit', 'g2', 'capterra', 'trustradius', 'facebook', 'twitter', 'google_maps']
     const VALID_CONTENT_TYPES = ['post', 'comment', 'review', 'question', 'article', 'other']
@@ -92,6 +98,7 @@ export async function POST(request: NextRequest) {
           sentiment_score: item.sentiment_score ?? null,
           relevance_score: relevanceScore,
           is_processed: false,
+          is_test_data: isTestData,
         }
         if (contactSubmissionId) {
           row.contact_submission_id = contactSubmissionId
@@ -100,9 +107,10 @@ export async function POST(request: NextRequest) {
         if (item.source_url) {
           // DB has a partial unique index on source_url (WHERE source_url IS NOT NULL AND != '').
           // upsert with ignoreDuplicates skips rows that conflict — no race condition.
-          const { error: upsertError, count } = await supabaseAdmin
+          const { data: inserted, error: upsertError, count } = await supabaseAdmin
             .from('market_intelligence')
             .upsert(row, { onConflict: 'source_url', ignoreDuplicates: true, count: 'exact' })
+            .select('id')
 
           if (upsertError) {
             results.errors.push(`Upsert failed: ${upsertError.message}`)
@@ -112,18 +120,26 @@ export async function POST(request: NextRequest) {
             results.duplicates++
           } else {
             results.inserted++
+            if (Array.isArray(inserted)) {
+              insertedIds.push(...inserted.map(entry => String(entry.id)).filter(Boolean))
+            }
           }
         } else {
           // No source_url — no dedup possible, just insert
-          const { error: insertError } = await supabaseAdmin
+          const { data: inserted, error: insertError } = await supabaseAdmin
             .from('market_intelligence')
             .insert(row)
+            .select('id')
+            .single()
 
           if (insertError) {
             results.errors.push(`Insert failed: ${insertError.message}`)
             continue
           }
           results.inserted++
+          if (inserted?.id) {
+            insertedIds.push(String(inserted.id))
+          }
         }
       } catch (itemError: any) {
         results.errors.push(`Unexpected error: ${itemError.message}`)
@@ -132,9 +148,9 @@ export async function POST(request: NextRequest) {
 
     // Auto-classify newly inserted records into pain point evidence
     let classification: { evidenceCreated: number; irrelevant: number } | null = null
-    if (results.inserted > 0) {
+    if (insertedIds.length > 0) {
       try {
-        const classifyResult = await classifyMarketIntel(results.inserted)
+        const classifyResult = await classifyMarketIntel(insertedIds.length, insertedIds)
         classification = {
           evidenceCreated: classifyResult.evidenceCreated,
           irrelevant: classifyResult.irrelevant,

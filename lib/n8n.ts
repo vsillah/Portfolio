@@ -1424,6 +1424,8 @@ export interface SocialListeningOptions {
   contactSubmissionId?: number
   /** Lead context for single-lead mode: company name, industry, domain, pain points. */
   leadContext?: Record<string, unknown>
+  /** Marks downstream rows as cleanup-safe test data for production-like drills. */
+  isTestData?: boolean
 }
 
 export async function triggerSocialListening(options?: SocialListeningOptions): Promise<{ triggered: boolean; message: string }> {
@@ -1458,6 +1460,9 @@ export async function triggerSocialListening(options?: SocialListeningOptions): 
     }
     if (options?.sources && options.sources.length > 0) {
       body.sources = options.sources
+    }
+    if (options?.isTestData === true) {
+      body.is_test_data = true
     }
     if (options?.contactSubmissionId) {
       body.contact_submission_id = options.contactSubmissionId

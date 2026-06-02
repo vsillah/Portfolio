@@ -156,6 +156,12 @@
               "value": "={{ $json.body?.contact_submission_id || '' }}"
             },
             {
+              "id": "is_test_data",
+              "name": "is_test_data",
+              "type": "boolean",
+              "value": "={{ $json.body?.is_test_data === true || $json.body?.is_test_data === 'true' }}"
+            },
+            {
               "id": "baseUrl",
               "name": "baseUrl",
               "type": "string",
@@ -290,7 +296,7 @@
         "specifyBody": "json",
         "sendBody": true,
         "sendHeaders": true,
-        "jsonBody": "={{ JSON.stringify({ items: [{ source_platform: $json.platform, content_text: ($json.title || '') + (($json.title && $json.body) ? '\\n\\n' : '') + ($json.body || ''), content_type: $json.content_type === 'social_post' ? 'post' : ($json.content_type === 'review' ? 'review' : 'other'), source_url: $json.url || '', source_author: $json.author || '' }] }) }}",
+        "jsonBody": "={{ JSON.stringify({ is_test_data: $('Set Search Parameters').first().json.is_test_data === true, items: [{ source_platform: $json.platform, content_text: ($json.title || '') + (($json.title && $json.body) ? '\\n\\n' : '') + ($json.body || ''), content_type: $json.content_type === 'social_post' ? 'post' : ($json.content_type === 'review' ? 'review' : 'other'), source_url: $json.url || '', source_author: $json.author || '' }] }) }}",
         "options": {},
         "headerParameters": {
           "parameters": [
@@ -420,7 +426,7 @@
         "specifyBody": "json",
         "sendBody": true,
         "sendHeaders": true,
-        "jsonBody": "={{ JSON.stringify({ evidence: [{ pain_point_category_name: $json.pain_point_category_name, source_type: $json.source_type, source_id: $json.source_id, source_excerpt: $json.source_excerpt, confidence_score: $json.confidence_score, monetary_indicator: $json.monetary_indicator, monetary_context: $json.monetary_context, industry: $json.industry }] }) }}",
+        "jsonBody": "={{ JSON.stringify({ is_test_data: $('Set Search Parameters').first().json.is_test_data === true, evidence: [{ pain_point_category_name: $json.pain_point_category_name, source_type: $json.source_type, source_id: $json.source_id, source_excerpt: $json.source_excerpt, confidence_score: $json.confidence_score, monetary_indicator: $json.monetary_indicator, monetary_context: $json.monetary_context, industry: $json.industry }] }) }}",
         "options": {},
         "headerParameters": {
           "parameters": [
@@ -952,6 +958,12 @@
                 "name": "capterraProductUrls",
                 "type": "string",
                 "value": "={{ JSON.stringify($json.body && $json.body.capterraProductUrls ? $json.body.capterraProductUrls : ['https://www.capterra.com/p/140827/HubSpot/', 'https://www.capterra.com/p/233073/monday-com/', 'https://www.capterra.com/p/140127/Mailchimp/', 'https://www.capterra.com/p/205656/Bloomerang/', 'https://www.capterra.com/p/16666/QuickBooks/']) }}"
+              },
+              {
+                "id": "is_test_data",
+                "name": "is_test_data",
+                "type": "boolean",
+                "value": "={{ $json.body?.is_test_data === true || $json.body?.is_test_data === 'true' }}"
               }
             ]
           },
@@ -1076,7 +1088,7 @@
           "specifyBody": "json",
           "sendBody": true,
           "sendHeaders": true,
-          "jsonBody": "={{ JSON.stringify({ items: [{ source_platform: $json.platform, content_text: ($json.title || '') + (($json.title && $json.body) ? '\\n\\n' : '') + ($json.body || ''), content_type: $json.content_type === 'social_post' ? 'post' : ($json.content_type === 'review' ? 'review' : 'other'), source_url: $json.url || '', source_author: $json.author || '' }] }) }}",
+          "jsonBody": "={{ JSON.stringify({ is_test_data: $('Set Search Parameters').first().json.is_test_data === true, items: [{ source_platform: $json.platform, content_text: ($json.title || '') + (($json.title && $json.body) ? '\\n\\n' : '') + ($json.body || ''), content_type: $json.content_type === 'social_post' ? 'post' : ($json.content_type === 'review' ? 'review' : 'other'), source_url: $json.url || '', source_author: $json.author || '' }] }) }}",
           "options": {},
           "headerParameters": {
             "parameters": [
@@ -1206,7 +1218,7 @@
           "specifyBody": "json",
           "sendBody": true,
           "sendHeaders": true,
-          "jsonBody": "={{ JSON.stringify({ evidence: [{ pain_point_category_name: $json.pain_point_category_name, source_type: $json.source_type, source_id: $json.source_id, source_excerpt: $json.source_excerpt, confidence_score: $json.confidence_score, monetary_indicator: $json.monetary_indicator, monetary_context: $json.monetary_context, industry: $json.industry }] }) }}",
+          "jsonBody": "={{ JSON.stringify({ is_test_data: $('Set Search Parameters').first().json.is_test_data === true, evidence: [{ pain_point_category_name: $json.pain_point_category_name, source_type: $json.source_type, source_id: $json.source_id, source_excerpt: $json.source_excerpt, confidence_score: $json.confidence_score, monetary_indicator: $json.monetary_indicator, monetary_context: $json.monetary_context, industry: $json.industry }] }) }}",
           "options": {},
           "headerParameters": {
             "parameters": [
