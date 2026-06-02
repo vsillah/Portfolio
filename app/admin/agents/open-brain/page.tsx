@@ -34,6 +34,7 @@ type RelationshipHealthFilter = RelationshipFilterValue | 'green' | 'yellow' | '
 type RelationshipStrengthFilter = RelationshipFilterValue | 'strong' | 'medium' | 'weak'
 type RelationshipStatusFilter = RelationshipFilterValue | 'persisted' | 'inferred' | 'recommended'
 type DecisionTrustFilter = RelationshipFilterValue | 'decision_trust' | 'high_risk_gate'
+type RelationshipLens = 'all' | 'edges' | 'routes'
 type RelationshipGraphNode = OpenBrainSnapshot['relationshipMap']['nodes'][number]
 type DisplayRelationshipGraphNode = RelationshipGraphNode & { x: number; y: number }
 
@@ -623,6 +624,7 @@ function RelationshipMapView({
   const [strengthFilter, setStrengthFilter] = useState<RelationshipStrengthFilter>('all')
   const [statusFilter, setStatusFilter] = useState<RelationshipStatusFilter>('all')
   const [decisionTrustFilter, setDecisionTrustFilter] = useState<DecisionTrustFilter>('all')
+  const [relationshipLens, setRelationshipLens] = useState<RelationshipLens>('all')
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
   const [selectedInsightId, setSelectedInsightId] = useState<string | null>(null)
   const map = snapshot.relationshipMap
@@ -672,8 +674,10 @@ function RelationshipMapView({
       target: insight.targetNodeId ? nodeById.get(insight.targetNodeId) || null : null,
     }))
     .filter((route): route is { insight: OpenBrainRelationshipInsight; source: DisplayRelationshipGraphNode; target: DisplayRelationshipGraphNode } => Boolean(route.source && route.target))
+  const renderedEdges = relationshipLens === 'routes' ? [] : visibleEdges
+  const renderedProposalRoutes = relationshipLens === 'edges' ? [] : visibleProposalRoutes
   const graphMinHeight = Math.max(680, Math.ceil(visibleNodes.length / 3) * 150 + 210)
-  const activeFilterCount = [typeFilter, privacyFilter, healthFilter, strengthFilter, statusFilter, decisionTrustFilter].filter((value) => value !== 'all').length
+  const activeFilterCount = [typeFilter, privacyFilter, healthFilter, strengthFilter, statusFilter, decisionTrustFilter, relationshipLens].filter((value) => value !== 'all').length
   const selectedRouteLabel = visibleInsightSource && visibleInsightTarget
     ? relationshipRouteLabel(visibleInsightSource, visibleInsightTarget)
     : selectedFrom && selectedTo
@@ -687,6 +691,7 @@ function RelationshipMapView({
     setStrengthFilter('all')
     setStatusFilter('all')
     setDecisionTrustFilter('all')
+    setRelationshipLens('all')
   }
 
   return (
@@ -811,8 +816,32 @@ function RelationshipMapView({
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-radiant-gold">Memory Graph</p>
             <p className="mt-1 text-sm text-muted-foreground">{selectedRouteLabel}</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Filtered view: {visibleNodes.length} node(s), {visibleEdges.length} edge(s), {visibleProposalRoutes.length} proposal route(s)
+              Filtered view: {visibleNodes.length} node(s), {renderedEdges.length} rendered edge(s), {renderedProposalRoutes.length} rendered proposal route(s)
             </p>
+            <div className="mt-3 flex flex-wrap gap-2 rounded-lg border border-silicon-slate/60 bg-black/25 p-2 backdrop-blur">
+              <span className="px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Relationship lens</span>
+              <button
+                type="button"
+                onClick={() => setRelationshipLens('all')}
+                className={relationshipLensButtonClass(relationshipLens === 'all')}
+              >
+                All relationships
+              </button>
+              <button
+                type="button"
+                onClick={() => setRelationshipLens('edges')}
+                className={relationshipLensButtonClass(relationshipLens === 'edges')}
+              >
+                Persisted edges
+              </button>
+              <button
+                type="button"
+                onClick={() => setRelationshipLens('routes')}
+                className={relationshipLensButtonClass(relationshipLens === 'routes')}
+              >
+                Proposal routes
+              </button>
+            </div>
           </div>
           <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
             <defs>
@@ -823,7 +852,7 @@ function RelationshipMapView({
                 <path d="M0,0 L5,2 L0,4 Z" fill="rgba(234,236,238,0.62)" />
               </marker>
             </defs>
-            {visibleEdges.map((edge) => {
+            {renderedEdges.map((edge) => {
               const from = nodeById.get(edge.fromId)
               const to = nodeById.get(edge.toId)
               if (!from || !to) return null
@@ -843,7 +872,7 @@ function RelationshipMapView({
                 />
               )
             })}
-            {visibleProposalRoutes.map(({ insight, source, target }, index) => {
+            {renderedProposalRoutes.map(({ insight, source, target }, index) => {
               const isSelectedRoute = selectedInsight?.id === insight.id
               return (
                 <path
@@ -1293,6 +1322,14 @@ function RelationshipLegend({ color, label }: { color: string; label: string }) 
       {label}
     </span>
   )
+}
+
+function relationshipLensButtonClass(active: boolean) {
+  return `rounded-md border px-2.5 py-1 text-[11px] font-medium transition ${
+    active
+      ? 'border-radiant-gold/60 bg-radiant-gold/15 text-radiant-gold'
+      : 'border-silicon-slate/60 text-muted-foreground hover:border-radiant-gold/40 hover:text-foreground'
+  }`
 }
 
 function relationshipEdgeColor(strength: 'strong' | 'medium' | 'weak', status: string) {
