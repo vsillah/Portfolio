@@ -483,7 +483,7 @@ export function OutreachEmailGenerateRow({
   if (showN8nBarSuccess) {
     outreachBar = (
       <div
-        className="inline-flex h-9 min-h-11 w-full min-w-0 max-w-sm items-stretch justify-between gap-0 overflow-hidden rounded-lg bg-emerald-600/90 text-sm font-medium text-white"
+        className="inline-flex h-9 min-h-11 w-full min-w-0 items-stretch justify-between gap-0 overflow-hidden rounded-lg bg-emerald-600/90 text-sm font-medium text-white"
         role="status"
       >
         <button
@@ -530,7 +530,7 @@ export function OutreachEmailGenerateRow({
     )
   } else if (state === 'cancelled') {
     outreachBar = (
-      <div className="inline-flex h-9 min-h-11 w-full min-w-0 max-w-sm items-center gap-2 rounded-lg border border-silicon-slate bg-silicon-slate/40 px-3 text-sm text-muted-foreground">
+      <div className="inline-flex h-9 min-h-11 w-full min-w-0 items-center gap-2 rounded-lg border border-silicon-slate bg-silicon-slate/40 px-3 text-sm text-muted-foreground">
         <X size={14} className="shrink-0" />
         <span>Stopped</span>
         {queueCountLabel && <span className="truncate text-xs">· {queueCountLabel}</span>}
@@ -541,7 +541,7 @@ export function OutreachEmailGenerateRow({
     (serverN8nFailed && !n8nActive && !inAppRunning)
   ) {
     outreachBar = (
-      <div className="flex w-full min-w-0 max-w-sm flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
+      <div className="flex w-full min-w-0 flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
         <button
           type="button"
           onClick={() => {
@@ -571,7 +571,7 @@ export function OutreachEmailGenerateRow({
       : `${runningHeadline} — ${phase} · open for details`
     outreachBar = (
       <div
-        className="flex w-full min-w-0 max-w-sm overflow-hidden rounded-lg border border-amber-500/50 min-h-11"
+        className="flex w-full min-w-0 overflow-hidden rounded-lg border border-amber-500/50 min-h-11"
         role="group"
         aria-label={`${runningHeadline} for ${lead.name}`}
       >
@@ -629,7 +629,7 @@ export function OutreachEmailGenerateRow({
         onMouseEnter={() => {
           void fetchSuggested()
         }}
-        className="inline-flex h-9 min-h-11 w-full min-w-0 max-w-sm items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 px-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:from-emerald-600 hover:to-teal-600 focus:outline-none focus:ring-2 focus:ring-emerald-400/50"
+        className="inline-flex h-9 min-h-11 w-full min-w-0 items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 px-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:from-emerald-600 hover:to-teal-600 focus:outline-none focus:ring-2 focus:ring-emerald-400/50"
         title={
           queueCountLabel
             ? `Outreach, templates, and queue for ${lead.name} (${queueCountLabel})`
@@ -663,7 +663,7 @@ export function OutreachEmailGenerateRow({
   }
 
   return (
-    <div className="relative w-full min-w-0 max-w-md" ref={panelRef}>
+    <div className="relative w-full min-w-0" ref={panelRef}>
       <div className="flex min-w-0 flex-wrap items-center gap-1.5">{outreachBar}</div>
 
       {showProgressCard && (
@@ -697,7 +697,7 @@ export function OutreachEmailGenerateRow({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.12 }}
-            className="absolute right-0 top-full z-40 mt-1.5 w-[min(100vw-1.5rem,22rem)] overflow-hidden rounded-lg border border-silicon-slate bg-imperial-navy text-foreground shadow-2xl"
+            className="absolute right-0 top-full z-40 mt-1.5 w-[min(100vw-1.5rem,28rem)] overflow-hidden rounded-lg border border-silicon-slate bg-imperial-navy text-foreground shadow-2xl"
             role="dialog"
             aria-label="Outreach options"
           >

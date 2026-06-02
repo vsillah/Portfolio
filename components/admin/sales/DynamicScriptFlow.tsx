@@ -65,24 +65,24 @@ export function DynamicScriptFlow({
   // Not started state
   if (!isCallActive) {
     return (
-      <div className="text-center py-12">
-        <div className="w-20 h-20 mx-auto mb-4 bg-emerald-500/20 rounded-full flex items-center justify-center">
+      <div className="rounded-lg border border-silicon-slate/60 bg-background/35 p-6 text-left">
+        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/20">
           <Play className="w-10 h-10 text-emerald-400" />
         </div>
         <h3 className="text-xl font-semibold text-white mb-2">Ready to Start Call</h3>
-        <p className="text-gray-400 mb-6 max-w-md mx-auto">
+        <p className="text-gray-400 mb-6 max-w-2xl">
           Click below to generate your personalized opening based on the client&apos;s diagnostic data.
           The script will adapt to their responses throughout the conversation.
         </p>
         {generationError && (
-          <div className="max-w-md mx-auto mb-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+          <div className="mb-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
             {generationError}
           </div>
         )}
         <button
           onClick={onStartCall}
           disabled={isLoadingNextStep}
-          className="px-6 py-3 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors flex items-center gap-2 mx-auto disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-6 py-3 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoadingNextStep ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5" />}
           {generationError ? 'Retry Dynamic Script' : 'Start Dynamic Script'}

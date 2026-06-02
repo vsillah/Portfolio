@@ -1069,7 +1069,8 @@ function OutreachContent() {
                         }`}
                       >
                         {/* Lead Card Header */}
-                        <div className="p-4 flex items-start gap-3">
+                        <div className="grid gap-4 p-4 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,auto)] xl:items-start">
+                          <div className="flex min-w-0 items-start gap-3">
                           <label className="flex-shrink-0 pt-0.5 cursor-pointer">
                             <input
                               type="checkbox"
@@ -1135,7 +1136,7 @@ function OutreachContent() {
                                 <span className="px-2 py-0.5 bg-red-900/50 text-red-300 rounded text-xs">Removed</span>
                               )}
                             </div>
-                            <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
+                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-sm text-muted-foreground">
                               {lead.job_title && (
                                 <span className="flex items-center gap-1">
                                   <User size={12} />
@@ -1272,9 +1273,10 @@ function OutreachContent() {
                               })()}
                             </div>
                           </div>
+                          </div>
 
                           {/* Actions — primary CTA + progressive fallback + More + expand */}
-                          <div className="flex items-center gap-2 shrink-0">
+                          <div className="flex w-full min-w-0 items-start justify-end gap-2 xl:w-[min(36rem,42vw)]">
                             {/* Primary CTA: pipeline-style pill (idle / running / succeeded / failed / cancelled / link). */}
                             <OutreachEmailGenerateRow
                               lead={lead}

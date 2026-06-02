@@ -117,7 +117,7 @@ export function StreamlinedProductSelection({
   const useCustomAllCatalog = typeof allCatalogContent === 'function';
 
   return (
-    <div className="bg-gray-900 rounded-lg border border-gray-800 flex flex-col min-h-0 h-full max-h-[min(75vh,720px)] xl:max-h-[calc(100vh-10rem)] min-w-0 w-full sm:min-w-[300px] sm:max-w-[480px] flex-1">
+    <div className="bg-gray-900 rounded-lg border border-gray-800 flex flex-col min-h-0 h-full max-h-[min(75vh,720px)] xl:max-h-[calc(100vh-10rem)] min-w-0 w-full flex-1">
       <div className="p-3 sm:p-4 border-b border-gray-800 shrink-0 space-y-3">
         <div className="flex rounded-lg bg-gray-800 border border-gray-700 p-0.5">
           <button
@@ -125,7 +125,7 @@ export function StreamlinedProductSelection({
             onClick={() => setViewMode('suggested')}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium rounded-md transition-colors ${
               viewMode === 'suggested'
-                ? 'bg-purple-600 text-white'
+                ? 'bg-radiant-gold text-silicon-slate'
                 : 'text-gray-400 hover:text-gray-300'
             }`}
           >
@@ -137,7 +137,7 @@ export function StreamlinedProductSelection({
             onClick={() => setViewMode('all')}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium rounded-md transition-colors ${
               viewMode === 'all'
-                ? 'bg-purple-600 text-white'
+                ? 'bg-radiant-gold text-silicon-slate'
                 : 'text-gray-400 hover:text-gray-300'
             }`}
           >
@@ -152,7 +152,7 @@ export function StreamlinedProductSelection({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search products and content…"
-              className="w-full pl-8 pr-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full pl-8 pr-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-radiant-gold/60 focus:border-transparent"
               aria-label="Search products and content"
             />
           </div>
