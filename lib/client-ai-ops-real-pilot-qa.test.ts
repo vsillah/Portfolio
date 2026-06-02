@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/lib/supabase', () => ({ supabaseAdmin: null }))
 
-import { buildClientAiOpsRealPilotQaPlan } from './client-ai-ops-real-pilot-qa'
+import { buildClientAiOpsRealPilotQaPlan, formatClientAiOpsRealPilotQaPlan } from './client-ai-ops-real-pilot-qa'
 
 describe('buildClientAiOpsRealPilotQaPlan', () => {
   it('builds a real-pilot QA plan from synthetic/test-owned data only', () => {
@@ -77,5 +77,29 @@ describe('buildClientAiOpsRealPilotQaPlan', () => {
       status: 'needs_manual_smoke',
       sideEffectFree: true,
     })
+  })
+
+  it('formats a captain-ready QA packet without hiding approval gates', () => {
+    const plan = buildClientAiOpsRealPilotQaPlan()
+    const output = formatClientAiOpsRealPilotQaPlan(plan)
+
+    expect(output).toContain('Client AI Ops Real-Pilot QA Plan')
+    expect(output).toContain('Summary: 5 passed; 1 waiting approval; 1 manual smoke; 0 blocked.')
+    expect(output).toContain('[waiting_approval] Risky setup actions stay behind approvals')
+    expect(output).toContain('Manual Smoke Targets:')
+    expect(output).toContain('Forbidden Live Actions:')
+    expect(output).toContain('OAuth connection')
+    expect(output).toContain('client-data mutation')
+  })
+
+  it('formats a compact summary for quick captain checks', () => {
+    const output = formatClientAiOpsRealPilotQaPlan(buildClientAiOpsRealPilotQaPlan(), {
+      includeDetails: false,
+    })
+
+    expect(output).toContain('Client AI Ops Real-Pilot QA Plan')
+    expect(output).toContain('Summary:')
+    expect(output).not.toContain('Checks:')
+    expect(output).not.toContain('Forbidden Live Actions:')
   })
 })
