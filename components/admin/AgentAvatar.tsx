@@ -1,5 +1,8 @@
+'use client'
+
 import Image from 'next/image'
-import { getAgentAvatar, getAvatarToneStyles } from '@/lib/agent-avatars'
+import { useEffect, useState } from 'react'
+import { getAgentAvatar, getAvatarToneStyles, resolveAgentAvatarImageSrc } from '@/lib/agent-avatars'
 
 export default function AgentAvatar({
   agentKey,
@@ -13,6 +16,12 @@ export default function AgentAvatar({
   const avatar = getAgentAvatar(agentKey)
   const tone = getAvatarToneStyles(avatar.tone)
   const sizeClass = size === 'sm' ? 'h-8 w-8 text-[10px]' : size === 'lg' ? 'h-14 w-14 text-sm' : 'h-11 w-11 text-xs'
+  const imageSrc = resolveAgentAvatarImageSrc(avatar.imagePath)
+  const [imageFailed, setImageFailed] = useState(false)
+
+  useEffect(() => {
+    setImageFailed(false)
+  }, [imageSrc])
 
   return (
     <div
@@ -26,15 +35,22 @@ export default function AgentAvatar({
         color: tone.mark,
       }}
     >
-      <Image
-        src={avatar.imagePath}
-        alt=""
-        aria-hidden="true"
-        fill
-        sizes="56px"
-        unoptimized
-        className="absolute inset-[2px] h-[calc(100%-4px)] w-[calc(100%-4px)] object-contain"
-      />
+      {!imageFailed ? (
+        <Image
+          src={imageSrc}
+          alt=""
+          aria-hidden="true"
+          fill
+          sizes="56px"
+          unoptimized
+          className="absolute inset-[2px] h-[calc(100%-4px)] w-[calc(100%-4px)] object-contain"
+          onError={() => setImageFailed(true)}
+        />
+      ) : (
+        <span aria-hidden="true" className="relative z-10">
+          {avatar.initials}
+        </span>
+      )}
     </div>
   )
 }
