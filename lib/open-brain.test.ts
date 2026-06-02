@@ -11,6 +11,7 @@ import {
   linkOpenBrainRecords,
   recordOpenBrainEvent,
   recordOpenBrainSource,
+  recordCodexAutomationProducerTraces,
   recordPersonalityCorpusProducerTrace,
   reviewOpenBrainProposal,
   sanitizeOpenBrainText,
@@ -465,6 +466,37 @@ describe('Open Brain projection', () => {
     expect(first.event?.summary).not.toContain('ChatGPT')
     expect(snapshot.sources.filter((source) => source.id === 'personality-corpus:public-safe')).toHaveLength(1)
     expect(snapshot.events.filter((event) => event.id === 'event:source-observed:personality-corpus:public-safe')).toHaveLength(1)
+  })
+
+  it('records Codex automation producer traces without raw prompt content', async () => {
+    const root = await makeTempRoot()
+    const first = await recordCodexAutomationProducerTraces(root, '2026-06-02T12:00:00.000Z')
+    const second = await recordCodexAutomationProducerTraces(root, '2026-06-02T12:00:00.000Z')
+    const snapshot = await getOpenBrainSnapshot(root)
+
+    expect(first.status).toBe('recorded')
+    expect(second.status).toBe('recorded')
+    expect(first.overview).toEqual({
+      sourcesRecorded: 2,
+      eventsRecorded: 2,
+      rawPromptsIncluded: false,
+    })
+    expect(first.sources.map((source) => source.id)).toEqual(expect.arrayContaining([
+      'automation:portfolio-operations-manager',
+      'repair:portfolio-operations-manager',
+    ]))
+    expect(first.events).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: 'event:source-observed:automation:portfolio-operations-manager',
+        metadata: expect.objectContaining({
+          producerId: 'producer:codex-automation-inventory',
+          rawPromptsIncluded: false,
+        }),
+      }),
+    ]))
+    expect(first.events.map((event) => event.summary).join(' ')).not.toContain('Add an authority boundary.')
+    expect(snapshot.sources.filter((source) => source.id === 'automation:portfolio-operations-manager')).toHaveLength(1)
+    expect(snapshot.events.filter((event) => event.id === 'event:source-observed:automation:portfolio-operations-manager')).toHaveLength(1)
   })
 
   it('projects only approved public-safe memories into RAG documents', () => {
