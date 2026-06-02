@@ -13,6 +13,7 @@ import {
   type DecisionTrustOpenBrainFrame,
 } from './decision-trust-open-brain'
 import { getModelOpsProjection, type ModelOpsProjection } from './model-ops-open-brain'
+import type { VercelResearchPlan, VercelResearchProposal } from './vercel-deployment-research'
 
 export type OpenBrainPrivacyTier = 'public_safe' | 'client_safe' | 'internal_ops' | 'private'
 export type OpenBrainSourceKind =
@@ -356,6 +357,21 @@ export interface OpenBrainAgentOpsProducerTrace {
 
 export interface OpenBrainAgentOpsProducerOptions {
   limit?: number
+}
+
+export interface OpenBrainAutoResearchProducerTrace {
+  status: 'recorded' | 'missing'
+  sources: OpenBrainSourceRecord[]
+  events: OpenBrainEventRecord[]
+  proposals: OpenBrainProposalRecord[]
+  reason: string | null
+  overview: {
+    proposalsObserved: number
+    approvalRequired: number
+    memoryProposalsRecorded: number
+    experimentsExecuted: false
+    hostedConfigMutated: false
+  }
 }
 
 export interface OpenBrainSnapshotOptions {
@@ -889,6 +905,80 @@ export async function recordAgentOpsWorkItemProducerTraces(
   }
 }
 
+export async function recordVercelAutoResearchProducerTraces(
+  plan: VercelResearchPlan | null,
+  openBrainHome = getOpenBrainHome(),
+  generatedAt = plan?.generatedAt || new Date().toISOString(),
+): Promise<OpenBrainAutoResearchProducerTrace> {
+  if (!plan) {
+    return {
+      status: 'missing',
+      sources: [],
+      events: [],
+      proposals: [],
+      reason: 'Vercel AutoResearch plan is not available.',
+      overview: {
+        proposalsObserved: 0,
+        approvalRequired: 0,
+        memoryProposalsRecorded: 0,
+        experimentsExecuted: false,
+        hostedConfigMutated: false,
+      },
+    }
+  }
+
+  const recordedSources: OpenBrainSourceRecord[] = []
+  const recordedEvents: OpenBrainEventRecord[] = []
+  for (const proposal of plan.proposals) {
+    const source = await recordOpenBrainSource(vercelResearchProposalToSource(proposal, generatedAt), openBrainHome)
+    const event = await recordOpenBrainEvent({
+      id: `event:autoresearch-proposal-created:${proposal.id}`,
+      kind: 'autoresearch_proposal_created',
+      title: `AutoResearch proposal observed: ${proposal.title}`,
+      summary: sanitizeOpenBrainText(`Risk ${proposal.riskLevel}; approval ${proposal.approvalState}. ${proposal.expectedImpact}`),
+      privacyTier: 'internal_ops',
+      confidence: proposal.approvalState === 'approval_required' ? 0.86 : 0.78,
+      sourceIds: [source.id],
+      createdAt: generatedAt,
+      fingerprint: fingerprintOpenBrainRecord(['autoresearch_proposal_created', source.id, source.fingerprint]),
+      metadata: {
+        producerId: 'producer:autoresearch',
+        planner: 'vercel-deployment-research',
+        sourceKind: source.kind,
+        proposalId: proposal.id,
+        riskLevel: proposal.riskLevel,
+        approvalState: proposal.approvalState,
+        touchedFiles: proposal.touchedFiles,
+        touchedSettings: proposal.touchedSettings,
+        experimentsExecuted: false,
+        hostedConfigMutated: false,
+      },
+    }, openBrainHome)
+    recordedSources.push(source)
+    recordedEvents.push(event)
+  }
+
+  const memoryProposals = await persistGeneratedOpenBrainProposals(
+    buildAutoResearchMemoryProposals(plan.proposals, generatedAt),
+    openBrainHome,
+  )
+
+  return {
+    status: 'recorded',
+    sources: recordedSources,
+    events: recordedEvents,
+    proposals: memoryProposals,
+    reason: null,
+    overview: {
+      proposalsObserved: plan.proposals.length,
+      approvalRequired: plan.proposals.filter((proposal) => proposal.approvalState === 'approval_required').length,
+      memoryProposalsRecorded: memoryProposals.length,
+      experimentsExecuted: false,
+      hostedConfigMutated: false,
+    },
+  }
+}
+
 export async function linkOpenBrainRecords(
   input: Omit<OpenBrainLinkRecord, 'id' | 'createdAt'> & { id?: string; createdAt?: string },
   openBrainHome = getOpenBrainHome(),
@@ -1398,6 +1488,38 @@ function agentHandoffToOpenBrainSource(
       handoff.to_agent_key || '',
       handoff.status,
       handoff.created_at || generatedAt,
+    ]),
+  }
+}
+
+function vercelResearchProposalToSource(
+  proposal: VercelResearchProposal,
+  generatedAt: string,
+): OpenBrainSourceRecord {
+  return {
+    id: `autoresearch:vercel:${proposal.id}`,
+    kind: 'autoresearch_proposal',
+    title: proposal.title,
+    summary: sanitizeOpenBrainText([
+      `Hypothesis: ${proposal.hypothesis}`,
+      `Expected impact: ${proposal.expectedImpact}`,
+      `Risk ${proposal.riskLevel}; approval ${proposal.approvalState}.`,
+      `Rollback: ${proposal.rollbackPath}`,
+    ].join(' ')),
+    path: 'docs/vercel-deployment-autoresearch.md',
+    privacyTier: 'internal_ops',
+    confidence: proposal.approvalState === 'approval_required' ? 0.86 : 0.8,
+    lastObservedAt: generatedAt,
+    fingerprint: fingerprintOpenBrainRecord([
+      'autoresearch_proposal',
+      proposal.id,
+      proposal.hypothesis,
+      proposal.expectedImpact,
+      proposal.riskLevel,
+      proposal.approvalState,
+      proposal.touchedFiles.join(','),
+      proposal.touchedSettings.join(','),
+      proposal.rollbackPath,
     ]),
   }
 }
@@ -2073,6 +2195,41 @@ function buildAgentOpsReviewProposals(items: AgentWorkItem[], generatedAt: strin
         reviewReason: null,
       }
     })
+}
+
+function buildAutoResearchMemoryProposals(
+  proposals: VercelResearchProposal[],
+  generatedAt: string,
+): OpenBrainProposalRecord[] {
+  return proposals.map((proposal): OpenBrainProposalRecord => {
+    const sourceId = `autoresearch:vercel:${proposal.id}`
+    const riskLike = proposal.riskLevel === 'high' || proposal.approvalState === 'approval_required'
+    return {
+      id: `proposal:autoresearch:${proposal.id}`,
+      status: 'pending',
+      proposedMemory: {
+        kind: riskLike ? 'risk' : 'workflow',
+        title: `Review AutoResearch proposal: ${proposal.title}`,
+        body: sanitizeOpenBrainText([
+          `Hypothesis: ${proposal.hypothesis}`,
+          `Expected impact: ${proposal.expectedImpact}`,
+          `Approval question: ${proposal.approvalQuestion}`,
+          `Rollback path: ${proposal.rollbackPath}`,
+          'This trace does not authorize experiment execution, hosted config mutation, merge, deploy, or durable memory promotion.',
+        ].join(' ')),
+        privacyTier: 'internal_ops',
+        confidence: riskLike ? 0.84 : 0.78,
+        sourceIds: [sourceId],
+      },
+      sourceIds: [sourceId],
+      reason: 'Generated from Vercel AutoResearch proposal packet. Requires approval before experiment execution or durable memory promotion.',
+      createdBy: 'open-brain-autoresearch-producer',
+      createdAt: generatedAt,
+      reviewedAt: null,
+      reviewedBy: null,
+      reviewReason: null,
+    }
+  })
 }
 
 async function persistGeneratedOpenBrainProposals(
