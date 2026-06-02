@@ -1,10 +1,22 @@
 import { existsSync } from 'node:fs'
 import path from 'node:path'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import { AGENT_ORGANIZATION } from '@/lib/agent-organization'
 import { AGENT_AVATARS, getMissingAgentAvatarKeys, resolveAgentAvatarImageSrc } from '@/lib/agent-avatars'
 
+const ORIGINAL_ASSET_BASE_URL = process.env.NEXT_PUBLIC_AGENT_AVATAR_ASSET_BASE_URL
+const ORIGINAL_NODE_ENV = process.env.NODE_ENV
+
 describe('agent avatar manifest', () => {
+  afterEach(() => {
+    if (ORIGINAL_ASSET_BASE_URL === undefined) {
+      delete process.env.NEXT_PUBLIC_AGENT_AVATAR_ASSET_BASE_URL
+    } else {
+      process.env.NEXT_PUBLIC_AGENT_AVATAR_ASSET_BASE_URL = ORIGINAL_ASSET_BASE_URL
+    }
+    process.env.NODE_ENV = ORIGINAL_NODE_ENV
+  })
+
   it('covers every stable agent organization key', () => {
     expect(getMissingAgentAvatarKeys()).toEqual([])
   })
@@ -27,17 +39,28 @@ describe('agent avatar manifest', () => {
   })
 
   it('can resolve avatar assets through a public base URL for protected deployments', () => {
-    const originalBaseUrl = process.env.NEXT_PUBLIC_AGENT_AVATAR_ASSET_BASE_URL
     process.env.NEXT_PUBLIC_AGENT_AVATAR_ASSET_BASE_URL = 'https://assets.example.com/'
 
     expect(resolveAgentAvatarImageSrc('/agent-avatars/baroque/chief-of-staff.png')).toBe(
       'https://assets.example.com/agent-avatars/baroque/chief-of-staff.png',
     )
+  })
 
-    if (originalBaseUrl === undefined) {
-      delete process.env.NEXT_PUBLIC_AGENT_AVATAR_ASSET_BASE_URL
-    } else {
-      process.env.NEXT_PUBLIC_AGENT_AVATAR_ASSET_BASE_URL = originalBaseUrl
-    }
+  it('uses the public site origin for production previews when no asset base URL is configured', () => {
+    delete process.env.NEXT_PUBLIC_AGENT_AVATAR_ASSET_BASE_URL
+    process.env.NODE_ENV = 'production'
+
+    expect(resolveAgentAvatarImageSrc('/agent-avatars/baroque/chief-of-staff.png')).toBe(
+      'https://amadutown.com/agent-avatars/baroque/chief-of-staff.png',
+    )
+  })
+
+  it('keeps relative asset paths outside production when no asset base URL is configured', () => {
+    delete process.env.NEXT_PUBLIC_AGENT_AVATAR_ASSET_BASE_URL
+    process.env.NODE_ENV = 'test'
+
+    expect(resolveAgentAvatarImageSrc('/agent-avatars/baroque/chief-of-staff.png')).toBe(
+      '/agent-avatars/baroque/chief-of-staff.png',
+    )
   })
 })

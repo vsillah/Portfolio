@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
+  buildHighSignalInsightsFromRows,
   buildHighSignalInsight,
   mapBacklogTheme,
   mergeEngagementIntoRagContext,
@@ -121,5 +122,50 @@ describe('social engagement metrics', () => {
       recommendationLabel: expect.any(String),
     })
     expect(insight.score).toBeGreaterThan(0)
+  })
+
+  it('builds ranked high-signal insights from rows with stored engagement snapshots', () => {
+    const lowSignal = normalizeEngagementRow({
+      platform: 'linkedin',
+      row: { url: 'https://www.linkedin.com/posts/vambah_low', reactions: 4, comments: 0, shares: 0 },
+      capturedAt: '2026-06-01T10:00:00.000Z',
+    })
+    const highSignal = normalizeEngagementRow({
+      platform: 'linkedin',
+      row: { url: 'https://www.linkedin.com/posts/vambah_high', reactions: 30, comments: 8, shares: 3 },
+      capturedAt: '2026-06-01T11:00:00.000Z',
+    })
+
+    const insights = buildHighSignalInsightsFromRows(
+      [
+        {
+          id: 'content-low',
+          post_text: 'Agent Ops control plane update',
+          topic_extracted: { topic: 'Agent Ops' },
+          rag_context: { engagement: { latest: lowSignal } },
+        },
+        {
+          id: 'content-missing-engagement',
+          post_text: 'Draft without a published engagement snapshot',
+          topic_extracted: { topic: 'No signal yet' },
+          rag_context: { source: 'manual' },
+        },
+        {
+          id: 'content-high',
+          post_text: 'Mission Control traceability update',
+          topic_extracted: { topic: 'Mission Control' },
+          rag_context: { engagement: { latest: highSignal } },
+        },
+      ],
+      1,
+    )
+
+    expect(insights).toHaveLength(1)
+    expect(insights[0]).toMatchObject({
+      contentId: 'content-high',
+      bestContentUrl: 'https://www.linkedin.com/posts/vambah_high',
+      recommendation: 'promote',
+    })
+    expect(insights[0].score).toBeGreaterThan(0)
   })
 })
