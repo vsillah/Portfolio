@@ -47,6 +47,35 @@ describe('social engagement metrics', () => {
     expect(metrics.engagementRate).toBeGreaterThan(0)
   })
 
+  it('normalizes nested harvestapi LinkedIn profile post engagement', () => {
+    const metrics = normalizeEngagementRow({
+      platform: 'linkedin',
+      row: {
+        linkedinUrl: 'https://www.linkedin.com/feed/update/urn:li:activity:7460726693763248128/',
+        shareUrn: 'urn:li:share:7460726693763248128',
+        engagement: {
+          likes: 5,
+          comments: 1,
+          shares: 1,
+          reactions: [{ type: 'LIKE', count: 5 }],
+        },
+        comments: [],
+      },
+      actorId: 'harvestapi~linkedin-profile-posts',
+      confidence: 'low',
+    })
+
+    expect(metrics).toMatchObject({
+      contentUrl: 'https://www.linkedin.com/feed/update/urn:li:activity:7460726693763248128',
+      platformPostId: 'urn:li:share:7460726693763248128',
+      reactions: 5,
+      likes: 5,
+      comments: 1,
+      shares: 1,
+      reposts: 1,
+    })
+  })
+
   it('weights comments and shares more heavily than passive views', () => {
     vi.setSystemTime(new Date('2026-06-01T12:00:00.000Z'))
     const highComment = normalizeEngagementRow({

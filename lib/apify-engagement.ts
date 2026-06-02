@@ -58,6 +58,8 @@ function itemUrl(item: ApifyDatasetItem) {
     stringValue(item.postUrl) ??
     stringValue(item.post_url) ??
     stringValue(item.shareUrl) ??
+    stringValue(item.shareLinkedinUrl) ??
+    stringValue(item.linkedinUrl) ??
     stringValue(item.link),
   )
 }
