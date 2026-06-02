@@ -167,7 +167,7 @@ Memory-producing systems should write Open Brain records in this order:
 
 Current producer routes:
 
-- Personality corpus: public-safe derived pack appears as a `personality_corpus` source; raw private exports remain outside public projections.
+- Personality corpus: public-safe derived pack appears as a `personality_corpus` source; raw private exports remain outside public projections. Run `npm run open-brain:personality-corpus` to persist the public-safe source/event trace into `OPEN_BRAIN_HOME` without copying raw private corpus content.
 - Chatbot knowledge: `/api/knowledge` remains a public-safe projection, not canonical memory.
 - RAG/Pinecone: `/api/admin/rag-ingest` records shadow-plan source/event records and blocks writes pending cutover approval.
 - AutoResearch: when `OPEN_BRAIN_AUTORESEARCH_TRACE=true`, proposal creation records `autoresearch_proposal` source/event records; experiments, merges, deploys, hosted config changes, and durable memories remain separately gated. Keep this producer flag off by default until trace volume and privacy behavior are reviewed.

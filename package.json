@@ -46,6 +46,7 @@
     "model-ops:research:plan": "tsx scripts/model-ops-research-plan.ts",
     "open-brain:mcp": "tsx scripts/open-brain-mcp-server.ts",
     "open-brain:runtime-registration": "tsx scripts/open-brain-runtime-registration.ts",
+    "open-brain:personality-corpus": "tsx scripts/open-brain-personality-corpus-producer.ts",
     "wrm:smoke-gate": "tsx scripts/wrm-production-smoke-gate.ts",
     "source-protocol:smoke": "tsx scripts/source-protocol-smoke.ts",
     "staging:publications-parity": "tsx scripts/ensure-publications-experience-parity.ts --env-file .env.staging",
