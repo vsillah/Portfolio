@@ -23,6 +23,7 @@ describe('agentic content review packet registry', () => {
   it('routes social and video packets to their existing Portfolio review surfaces', () => {
     const socialPackets = getAgenticContentReviewPacketsForSurface('social')
     const videoPackets = getAgenticContentReviewPacketsForSurface('video')
+    const contentPackets = getAgenticContentReviewPacketsForSurface('content')
 
     expect(socialPackets.map((packet) => packet.assetId)).toEqual([
       'p0-linkedin-flagship-agentic-operating-system',
@@ -35,6 +36,12 @@ describe('agentic content review packet registry', () => {
       'p0-youtube-agentic-ai-teams-skip',
       'p1-short-agent-needs-receipt',
       'p1-short-handoff-work-packet',
+    ])
+
+    expect(contentPackets.map((packet) => packet.assetId)).toEqual([
+      'p2-client-one-pager-governed-agentic-operations',
+      'p2-technical-appendix-agentic-proof-map',
+      'p2-website-proof-page-governed-agents',
     ])
   })
 })
