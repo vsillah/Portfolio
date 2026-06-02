@@ -27,7 +27,12 @@ describe('n8n value-evidence triggers', () => {
 
     const { triggerSocialListening } = await import('../n8n')
 
-    const result = await triggerSocialListening({ runId: 'run-123', agentRunId: 'agent-run-1', maxResults: 10 })
+    const result = await triggerSocialListening({
+      runId: 'run-123',
+      agentRunId: 'agent-run-1',
+      maxResults: 10,
+      isTestData: true,
+    })
     expect(result.triggered).toBe(true)
 
     expect(mockFetch).toHaveBeenCalledTimes(1)
@@ -44,6 +49,7 @@ describe('n8n value-evidence triggers', () => {
       agent_run_id: 'agent-run-1',
       agent_event_callback_url: 'https://portfolio.example.com/api/admin/agents/runs/agent-run-1/events',
       maxResults: 10,
+      is_test_data: true,
     })
     expect(body.agent_trace).toMatchObject({
       version: 1,
@@ -83,6 +89,7 @@ describe('n8n value-evidence triggers', () => {
     const body = JSON.parse(String(init.body))
     expect(body.run_id).toBe('run-456')
     expect(Object.prototype.hasOwnProperty.call(body, 'maxResults')).toBe(false)
+    expect(Object.prototype.hasOwnProperty.call(body, 'is_test_data')).toBe(false)
   })
 
   it('prefers explicit N8N_VEP002_WEBHOOK_URL over base URL fallback', async () => {

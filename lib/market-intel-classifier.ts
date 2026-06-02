@@ -212,7 +212,7 @@ export async function classifyMarketIntel(
   // Fetch unprocessed market intel
   let query = sb
     .from('market_intelligence')
-    .select('id, content_text, source_platform, source_url, industry_detected, company_size_detected, monetary_mentions')
+    .select('id, content_text, source_platform, source_url, industry_detected, company_size_detected, monetary_mentions, is_test_data')
     .eq('is_processed', false)
     .order('created_at', { ascending: true })
     .limit(limit)
@@ -269,6 +269,7 @@ export async function classifyMarketIntel(
           monetary_context: firstMonetary?.context ?? null,
           confidence_score: match.confidence,
           extracted_by: 'ai_classifier',
+          is_test_data: row.is_test_data === true,
         })
 
       if (insertError) {

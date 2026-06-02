@@ -68,3 +68,46 @@ Before replacing Apify's Google Maps actor:
 5. Run the live bakeoff from the production-like runner.
 6. Compare accepted-result rate, cost, source quality, and operator review burden against the Apify baseline.
 7. Keep Apify as rollback until the replacement meets or beats the baseline.
+
+## 2026-06-02 Production-Like n8n Bakeoff Preflight
+
+Live workflow inspected: `WF-VEP-002: Social Listening Pipeline`
+(`gUyOBZOknpAt41aF`, active version `ddfbae42-7e29-4ccd-8802-4682f026c531`).
+
+Preflight result:
+
+- Google Maps can be isolated through the existing source gate by sending
+  `sources: ["google_maps"]`.
+- The live graph still posts downstream results into Portfolio ingest endpoints
+  after scraping, so this is not a read-only n8n execution.
+- The checked-in Portfolio `ingest-market` route did not preserve
+  `is_test_data` before this change, even though the database migration already
+  provides the column.
+- The live n8n run was therefore not triggered from this preflight. Running it
+  before this test flag is deployed could create unmarked production
+  `market_intelligence` rows.
+
+Safe run payload after deployment and n8n export sync:
+
+```json
+{
+  "workflow": "WF-VEP-002",
+  "action": "google_places_replacement_bakeoff",
+  "sources": ["google_maps"],
+  "searchTerms": ["nonprofit organizations near Omaha NE"],
+  "googleMapsQuery": "nonprofit organizations near Omaha NE",
+  "maxResults": 5,
+  "is_test_data": true
+}
+```
+
+Promotion gate:
+
+1. Deploy the Portfolio ingest test-data propagation change.
+2. Sync the `WF-VEP-002` n8n graph so `Set Search Parameters`, `POST Raw to
+   Market Intel`, and `POST Pain Points` forward `is_test_data`.
+3. Trigger the isolated Google Maps run above.
+4. Confirm inserted `market_intelligence` and `pain_point_evidence` rows, if
+   any, are marked `is_test_data = true`.
+5. Compare result quality and cost against the Apify Google Maps baseline before
+   replacing the actor.
