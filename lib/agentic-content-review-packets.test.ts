@@ -14,6 +14,9 @@ describe('agentic content review packet registry', () => {
       expect(packet.passToHuman).toBe(true)
       expect(packet.approvalStatus).toBe('human_review_ready')
       expect(packet.nextGate).toMatch(/approval|Render-readiness/)
+      expect(packet.decisionPrompt).toMatch(/Decide/)
+      expect(packet.approveMeaning).toMatch(/Open/)
+      expect(packet.sendBackMeaning).toMatch(/Route a repair task/)
     }
   })
 
