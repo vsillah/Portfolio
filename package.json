@@ -55,6 +55,7 @@
     "storyboard:assets:save-auth": "tsx scripts/save-storyboard-auth.ts",
     "storyboard:assets": "npm run storyboard:assets:schematics && npm run storyboard:assets:capture",
     "storyboard:assets:all": "npm run storyboard:assets:schematics && npm run storyboard:assets:capture -- --videos",
+    "agent-avatars:seed-blob": "tsx scripts/seed-agent-avatar-blob.ts",
     "prepare": "husky install"
   },
   "dependencies": {
@@ -105,6 +106,7 @@
     "@types/pg": "^8.18.0",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
+    "@vercel/blob": "^2.4.0",
     "@vitejs/plugin-react": "^5.1.4",
     "autoprefixer": "^10.4.16",
     "dotenv": "^17.2.4",
