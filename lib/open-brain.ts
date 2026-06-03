@@ -13,7 +13,7 @@ import {
   type DecisionTrustOpenBrainFrame,
 } from './decision-trust-open-brain'
 import { getModelOpsProjection, type ModelOpsProjection } from './model-ops-open-brain'
-import type { VercelResearchPlan, VercelResearchProposal } from './vercel-deployment-research'
+import { getVercelResearchExperimentTrace, type VercelResearchPlan, type VercelResearchProposal } from './vercel-deployment-research'
 
 export type OpenBrainPrivacyTier = 'public_safe' | 'client_safe' | 'internal_ops' | 'private'
 export type OpenBrainSourceKind =
@@ -933,6 +933,7 @@ export async function recordVercelAutoResearchProducerTraces(
   const recordedSources: OpenBrainSourceRecord[] = []
   const recordedEvents: OpenBrainEventRecord[] = []
   for (const proposal of plan.proposals) {
+    const experimentTrace = getVercelResearchExperimentTrace(proposal)
     const source = await recordOpenBrainSource(vercelResearchProposalToSource(proposal, generatedAt), openBrainHome)
     const event = await recordOpenBrainEvent({
       id: `event:autoresearch-proposal-created:${proposal.id}`,
@@ -954,9 +955,9 @@ export async function recordVercelAutoResearchProducerTraces(
         hypothesis: proposal.hypothesis,
         expectedImpact: proposal.expectedImpact,
         rollbackPath: proposal.rollbackPath,
-        experimentTrace: proposal.experimentTrace,
-        metricGate: proposal.experimentTrace.metricGate,
-        promotionRecommendation: proposal.experimentTrace.promotionRecommendation,
+        experimentTrace,
+        metricGate: experimentTrace.metricGate,
+        promotionRecommendation: experimentTrace.promotionRecommendation,
         touchedFiles: proposal.touchedFiles,
         touchedSettings: proposal.touchedSettings,
         experimentsExecuted: false,
@@ -2247,6 +2248,7 @@ function buildAutoResearchMemoryProposals(
   return proposals.map((proposal): OpenBrainProposalRecord => {
     const sourceId = `autoresearch:vercel:${proposal.id}`
     const riskLike = proposal.riskLevel === 'high' || proposal.approvalState === 'approval_required'
+    const experimentTrace = getVercelResearchExperimentTrace(proposal)
     return {
       id: `proposal:autoresearch:${proposal.id}`,
       status: 'pending',
@@ -2256,10 +2258,10 @@ function buildAutoResearchMemoryProposals(
         body: sanitizeOpenBrainText([
           `Hypothesis: ${proposal.hypothesis}`,
           `Expected impact: ${proposal.expectedImpact}`,
-          `Experiment mode: ${proposal.experimentTrace.mode}`,
-          `Metric gate: ${proposal.experimentTrace.metricGate.metric}; ${proposal.experimentTrace.metricGate.passCondition}`,
-          `Result summary: ${proposal.experimentTrace.resultSummary.status}; ${proposal.experimentTrace.resultSummary.notes}`,
-          `Promotion recommendation: ${proposal.experimentTrace.promotionRecommendation.recommendation}; ${proposal.experimentTrace.promotionRecommendation.reason}`,
+          `Experiment mode: ${experimentTrace.mode}`,
+          `Metric gate: ${experimentTrace.metricGate.metric}; ${experimentTrace.metricGate.passCondition}`,
+          `Result summary: ${experimentTrace.resultSummary.status}; ${experimentTrace.resultSummary.notes}`,
+          `Promotion recommendation: ${experimentTrace.promotionRecommendation.recommendation}; ${experimentTrace.promotionRecommendation.reason}`,
           `Approval question: ${proposal.approvalQuestion}`,
           `Rollback path: ${proposal.rollbackPath}`,
           'This trace does not authorize experiment execution, hosted config mutation, merge, deploy, or durable memory promotion.',

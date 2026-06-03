@@ -84,7 +84,7 @@ export type VercelResearchProposal = {
   rollbackPath: string
   evidence: string[]
   decisionFrame?: VercelResearchDecisionFrame
-  experimentTrace: VercelResearchExperimentTrace
+  experimentTrace?: VercelResearchExperimentTrace
 }
 
 export type VercelResearchPlan = {
@@ -312,6 +312,10 @@ function buildExperimentTrace(
   }
 }
 
+export function getVercelResearchExperimentTrace(proposal: VercelResearchProposal): VercelResearchExperimentTrace {
+  return proposal.experimentTrace ?? buildExperimentTrace(proposal)
+}
+
 export function buildVercelResearchPlan(input: VercelResearchPlanInput): VercelResearchPlan {
   const thresholds = input.thresholds ?? DEFAULT_DEPLOYMENT_METRIC_THRESHOLDS
   const summaries = summarizeDeploymentMetrics(input.metrics)
@@ -394,31 +398,34 @@ export function formatVercelResearchPlanMarkdown(plan: VercelResearchPlan) {
     '',
     '## Proposals',
     '',
-    ...plan.proposals.flatMap((item) => [
-      `### ${item.title}`,
-      '',
-      `- ID: ${item.id}`,
-      `- Risk: ${item.riskLevel}`,
-      `- Approval: ${item.approvalState}`,
-      `- Hypothesis: ${item.hypothesis}`,
-      `- Expected impact: ${item.expectedImpact}`,
-      ...(item.decisionFrame ? [
-        `- Experiment: ${item.decisionFrame.experiment}`,
-        `- Objective: ${item.decisionFrame.objective}`,
-        `- Goal: ${item.decisionFrame.target}`,
-        `- Current run: ${item.decisionFrame.currentRun}`,
-        `- Distance from goal: ${item.decisionFrame.distanceFromGoal}`,
-        `- Recommendation: ${item.decisionFrame.recommendation}`,
-      ] : []),
-      `- Experiment mode: ${item.experimentTrace.mode}`,
-      `- Metric gate: ${item.experimentTrace.metricGate.metric} — ${item.experimentTrace.metricGate.passCondition}`,
-      `- Result summary: ${item.experimentTrace.resultSummary.status}; ${item.experimentTrace.resultSummary.notes}`,
-      `- Promotion recommendation: ${item.experimentTrace.promotionRecommendation.recommendation}; ${item.experimentTrace.promotionRecommendation.reason}`,
-      `- Approval question: ${item.approvalQuestion}`,
-      `- Rollback: ${item.rollbackPath}`,
-      `- Evidence: ${item.evidence.join('; ')}`,
-      '',
-    ]),
+    ...plan.proposals.flatMap((item) => {
+      const experimentTrace = getVercelResearchExperimentTrace(item)
+      return [
+        `### ${item.title}`,
+        '',
+        `- ID: ${item.id}`,
+        `- Risk: ${item.riskLevel}`,
+        `- Approval: ${item.approvalState}`,
+        `- Hypothesis: ${item.hypothesis}`,
+        `- Expected impact: ${item.expectedImpact}`,
+        ...(item.decisionFrame ? [
+          `- Experiment: ${item.decisionFrame.experiment}`,
+          `- Objective: ${item.decisionFrame.objective}`,
+          `- Goal: ${item.decisionFrame.target}`,
+          `- Current run: ${item.decisionFrame.currentRun}`,
+          `- Distance from goal: ${item.decisionFrame.distanceFromGoal}`,
+          `- Recommendation: ${item.decisionFrame.recommendation}`,
+        ] : []),
+        `- Experiment mode: ${experimentTrace.mode}`,
+        `- Metric gate: ${experimentTrace.metricGate.metric} — ${experimentTrace.metricGate.passCondition}`,
+        `- Result summary: ${experimentTrace.resultSummary.status}; ${experimentTrace.resultSummary.notes}`,
+        `- Promotion recommendation: ${experimentTrace.promotionRecommendation.recommendation}; ${experimentTrace.promotionRecommendation.reason}`,
+        `- Approval question: ${item.approvalQuestion}`,
+        `- Rollback: ${item.rollbackPath}`,
+        `- Evidence: ${item.evidence.join('; ')}`,
+        '',
+      ]
+    }),
     '## Operating Rules',
     '',
     ...plan.operatingRules.map((rule) => `- ${rule}`),
