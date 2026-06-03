@@ -14,6 +14,7 @@ These runbooks do not replace the local Codex automation TOML files under `~/.co
 | `codex-project-organization-monitor` | [`codex-project-organization-monitor.md`](./codex-project-organization-monitor.md) | Organization |
 | `daily-screen-recording-workflow-review` | [`daily-screen-recording-workflow-review.md`](./daily-screen-recording-workflow-review.md) | Operations |
 | `personality-corpus-report-monitor` | [`personality-corpus-report-monitor.md`](./personality-corpus-report-monitor.md) | Content/Voice |
+| `portfolio-subscription-cancellation-monitor` | [`portfolio-subscription-cancellation-monitor.md`](./portfolio-subscription-cancellation-monitor.md) | Operations |
 
 ## Shared Rules
 
