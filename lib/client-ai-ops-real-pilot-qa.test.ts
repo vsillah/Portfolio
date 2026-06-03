@@ -152,6 +152,35 @@ describe('buildClientAiOpsRealPilotQaPlan', () => {
     })
   })
 
+  it('keeps incomplete synthetic captures pending with explicit missing evidence', () => {
+    const plan = buildClientAiOpsRealPilotQaPlan()
+    const target = plan.manualSmokeTargets[0]
+    const packet = buildClientAiOpsSmokeEvidencePacket(plan, [
+      {
+        targetSurface: target.surface,
+        capturedBy: 'Test Operator',
+        observedEvidence: target.expectedEvidence.slice(0, 1),
+        usedSyntheticData: true,
+        containsSecrets: false,
+      },
+    ])
+
+    expect(packet.summary).toMatchObject({
+      pendingCapture: 3,
+      readyForReview: 0,
+      needsRedaction: 0,
+      blocked: 0,
+    })
+    expect(packet.items[0]).toMatchObject({
+      status: 'pending_capture',
+      clientSafe: true,
+      sideEffectFree: true,
+      missingEvidence: target.expectedEvidence.slice(1),
+      nextAction: 'Capture this target with synthetic or explicitly test-owned data only.',
+    })
+    expect(formatClientAiOpsSmokeEvidencePacket(packet)).toContain(`Missing evidence: ${target.expectedEvidence.slice(1).join('; ')}`)
+  })
+
   it('requires redaction when a capture contains secrets', () => {
     const plan = buildClientAiOpsRealPilotQaPlan()
     const target = plan.manualSmokeTargets[1]

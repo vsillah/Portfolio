@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import { CHATBOT_KNOWLEDGE_SOURCES, getChatbotKnowledgeBody, getChatbotKnowledgeBundle } from '../chatbot-knowledge'
+import { getOpenBrainSnapshot } from '../open-brain'
 
 vi.mock('../open-brain', () => ({
   getOpenBrainSnapshot: vi.fn(async () => ({
@@ -72,5 +73,31 @@ describe('chatbot knowledge corpus', () => {
         sourceHash: 'hash-public',
       }),
     ]))
+  })
+
+  it('tracks excluded private Open Brain records when no public-safe projection is available', async () => {
+    vi.mocked(getOpenBrainSnapshot).mockResolvedValueOnce({
+      ragProjection: {
+        version: 'open-brain-rag-projection-v1',
+        documents: [],
+        eligibleMemoryCount: 0,
+        excludedPrivateCount: 3,
+        pineconeWriteStatus: 'blocked_pending_approval',
+      },
+    } as Awaited<ReturnType<typeof getOpenBrainSnapshot>>)
+
+    const result = await getChatbotKnowledgeBundle({ includeOpenBrainRagProjection: true })
+
+    expect(result).toHaveProperty('body')
+    if ('error' in result) return
+
+    expect(result.openBrain).toEqual({
+      included: true,
+      documentCount: 0,
+      excludedPrivateCount: 3,
+      pineconeWriteStatus: 'blocked_pending_approval',
+    })
+    expect(result.body).not.toContain('Open Brain Public-Safe Memory')
+    expect(result.sources.every((source) => source.kind === 'curated_repo_doc')).toBe(true)
   })
 })
