@@ -1,6 +1,8 @@
 {
   "generatedAt": "2026-06-03T12:38:48Z",
   "sourceDocument": "/docs/subscription-cancellation-audit.md",
+  "latestMonitorArtifact": "/docs/subscription-monitor-runs/2026-06-03.md",
+  "monitorRunArtifactPattern": "/docs/subscription-monitor-runs/YYYY-MM-DD.md",
   "weeklyReportAutomationId": "portfolio-subscription-weekly-report",
   "dailyMonitorAutomationId": "portfolio-subscription-cancellation-monitor",
   "approvalPhrasePattern": "Cancel <tool/vendor> for Portfolio",

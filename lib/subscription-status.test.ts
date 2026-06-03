@@ -11,6 +11,8 @@ describe('subscription status budget queries', () => {
     expect(registry.budget?.lineItems.map((item) => item.vendor)).toEqual(
       expect.arrayContaining(['Gamma', 'Apify', 'OpenAI / ChatGPT Pro'])
     )
+    expect(registry.latestMonitorArtifact).toBe('/docs/subscription-monitor-runs/2026-06-03.md')
+    expect(registry.monitorRunArtifactPattern).toBe('/docs/subscription-monitor-runs/YYYY-MM-DD.md')
   })
 
   it('answers under-budget queries with spend and cut candidates', () => {

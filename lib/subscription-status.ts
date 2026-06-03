@@ -111,6 +111,8 @@ export interface SubscriptionBudgetSummary {
 export interface SubscriptionStatusRegistry {
   generatedAt: string
   sourceDocument: string
+  latestMonitorArtifact?: string
+  monitorRunArtifactPattern?: string
   weeklyReportAutomationId: string
   dailyMonitorAutomationId: string
   approvalPhrasePattern: string
