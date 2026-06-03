@@ -141,6 +141,9 @@ export interface OpenBrainWikiPage {
   path: string
   markdown: string
   sourceMemoryIds: string[]
+  sourceIds: string[]
+  sourceEventIds: string[]
+  approvalState: 'approved_memory_only' | 'source_event_preview'
   privacyTier: OpenBrainPrivacyTier
 }
 
@@ -1036,10 +1039,14 @@ export function compileKarpathyWikiOverlay(
   for (const [kind, records] of grouped.entries()) {
     const title = `${titleCase(kind.replace('_', ' '))} Memory`
     const slug = `${kind.replace(/_/g, '-')}-memory`
+    const sourceIds = uniqueOpenBrainIds(records.flatMap((record) => record.sourceIds))
     const markdown = [
       `# ${title}`,
       '',
       'Generated Karpathy Wiki overlay from approved Open Brain records. The local Open Brain remains the source of truth.',
+      '',
+      `- Approval state: \`approved_memory_only\``,
+      `- Source ids: ${sourceIds.map((sourceId) => `\`${sourceId}\``).join(', ') || 'none'}`,
       '',
       ...records.map((record) => [
         `## ${record.title}`,
@@ -1058,6 +1065,9 @@ export function compileKarpathyWikiOverlay(
       path: `docs/open-brain/wiki/${slug}.md`,
       markdown,
       sourceMemoryIds: records.map((record) => record.id),
+      sourceIds,
+      sourceEventIds: [],
+      approvalState: 'approved_memory_only',
       privacyTier: records.some((record) => record.privacyTier === 'internal_ops') ? 'internal_ops' : 'public_safe',
     })
   }
@@ -1066,6 +1076,8 @@ export function compileKarpathyWikiOverlay(
     event.privacyTier !== 'private' && event.kind.startsWith('autoresearch_')
   )
   if (autoresearchEvents.length > 0) {
+    const sourceIds = uniqueOpenBrainIds(autoresearchEvents.flatMap((event) => event.sourceIds))
+    const sourceEventIds = uniqueOpenBrainIds(autoresearchEvents.map((event) => event.id))
     pages.push({
       slug: 'autoresearch-experiment-ledger',
       title: 'AutoResearch Experiment Ledger',
@@ -1074,6 +1086,11 @@ export function compileKarpathyWikiOverlay(
         '# AutoResearch Experiment Ledger',
         '',
         'Generated Karpathy Wiki overlay from Open Brain source/event records. The local Open Brain remains the source of truth.',
+        'This page is preview-only until a human-approved outcome becomes durable Open Brain memory.',
+        '',
+        `- Approval state: \`source_event_preview\``,
+        `- Source ids: ${sourceIds.map((sourceId) => `\`${sourceId}\``).join(', ') || 'none'}`,
+        `- Event ids: ${sourceEventIds.map((eventId) => `\`${eventId}\``).join(', ') || 'none'}`,
         '',
         ...autoresearchEvents.map((event) => [
           `## ${event.title}`,
@@ -1087,10 +1104,17 @@ export function compileKarpathyWikiOverlay(
         ].join('\n')),
       ].join('\n'),
       sourceMemoryIds: [],
+      sourceIds,
+      sourceEventIds,
+      approvalState: 'source_event_preview',
       privacyTier: autoresearchEvents.some((event) => event.privacyTier === 'internal_ops') ? 'internal_ops' : 'public_safe',
     })
   }
   return pages.sort((a, b) => a.slug.localeCompare(b.slug))
+}
+
+function uniqueOpenBrainIds(ids: string[]) {
+  return [...new Set(ids.filter(Boolean))].sort()
 }
 
 export function buildOpenBrainRelationshipMap({
@@ -1180,6 +1204,19 @@ export function buildOpenBrainRelationshipMap({
         strength: 'strong',
         confidence: 0.86,
         evidence: 'Wiki overlay is compiled from this approved memory.',
+        status: 'inferred',
+      })
+    }
+    for (const sourceId of page.sourceIds) {
+      if (!nodeIds.has(sourceId)) continue
+      addRelationshipEdge(edgeMap, {
+        id: `edge:wiki-source:${fingerprintOpenBrainRecord([page.slug, sourceId]).slice(0, 16)}`,
+        fromId: sourceId,
+        toId: wikiNodeId,
+        relationship: 'compiled_from_source',
+        strength: page.approvalState === 'approved_memory_only' ? 'medium' : 'weak',
+        confidence: page.approvalState === 'approved_memory_only' ? 0.78 : 0.68,
+        evidence: 'Wiki overlay cites this source id for projection provenance.',
         status: 'inferred',
       })
     }
@@ -1930,7 +1967,7 @@ function wikiToRelationshipNode(page: OpenBrainWikiPage, index: number): OpenBra
     type: 'wiki',
     kind: 'wiki_page',
     privacyTier: page.privacyTier,
-    summary: `Compiled wiki overlay at ${page.path}.`,
+    summary: `Compiled wiki overlay at ${page.path}. Approval state: ${page.approvalState}. Sources: ${page.sourceIds.length}.`,
     path: page.path,
     health: page.privacyTier === 'private' ? 'red' : page.sourceMemoryIds.length > 0 ? 'green' : 'yellow',
     x: point.x,
