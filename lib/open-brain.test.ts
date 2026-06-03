@@ -725,6 +725,40 @@ describe('Open Brain projection', () => {
           approvalQuestion: 'Approve preparing the settings packet only?',
           rollbackPath: 'Close the packet and keep current Vercel settings.',
           evidence: ['queue 90s'],
+          experimentTrace: {
+            mode: 'hosted_settings_packet',
+            experimentConfig: {
+              scope: 'Prepare a settings proposal packet only; do not mutate hosted Vercel configuration.',
+              commands: ['npm run deploy:metrics', 'npm run deploy:research:plan -- --json'],
+              changedFiles: ['docs/vercel-deployment-runbook.md'],
+              changedSettings: ['Vercel preview deployment setting'],
+              sideEffectsAllowed: false,
+            },
+            metricGate: {
+              metric: 'Deployment queue time',
+              target: 'Stay below queue watch threshold.',
+              current: 'portfolio/preview queued for 90s.',
+              passCondition: 'Human review confirms the proposed next action and required evidence before execution.',
+            },
+            resultSummary: {
+              status: 'not_run',
+              notes: 'No experiment was executed by this AutoResearch planner.',
+              metrics: ['queue 90s'],
+            },
+            rollbackPath: 'Close the packet and keep current Vercel settings.',
+            promotionRecommendation: {
+              recommendation: 'hold_for_approval',
+              reason: 'Approval is required before any hosted setting review proceeds.',
+              nextApprovalRequired: true,
+            },
+            forbiddenActions: [
+              'execute_experiment_without_approval',
+              'merge_branch',
+              'deploy_to_production',
+              'mutate_hosted_config',
+              'write_durable_open_brain_memory',
+            ],
+          },
         },
       ],
     }
@@ -754,6 +788,19 @@ describe('Open Brain projection', () => {
         kind: 'autoresearch_proposal_created',
         metadata: expect.objectContaining({
           producerId: 'producer:autoresearch',
+          hypothesis: 'Queue pressure may be reduced by a reviewed settings packet.',
+          rollbackPath: 'Close the packet and keep current Vercel settings.',
+          metricGate: expect.objectContaining({
+            metric: 'Deployment queue time',
+          }),
+          promotionRecommendation: expect.objectContaining({
+            recommendation: 'hold_for_approval',
+            nextApprovalRequired: true,
+          }),
+          experimentTrace: expect.objectContaining({
+            mode: 'hosted_settings_packet',
+            resultSummary: expect.objectContaining({ status: 'not_run' }),
+          }),
           experimentsExecuted: false,
           hostedConfigMutated: false,
         }),
@@ -765,6 +812,7 @@ describe('Open Brain projection', () => {
         proposedMemory: expect.objectContaining({
           kind: 'risk',
           sourceIds: ['autoresearch:vercel:settings-review'],
+          body: expect.stringContaining('Promotion recommendation: hold_for_approval'),
         }),
       }),
     ])

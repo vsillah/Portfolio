@@ -35,6 +35,35 @@ export type VercelResearchDecisionFrame = {
   decisionOptions: VercelResearchDecisionOption[]
 }
 
+export type VercelResearchExperimentTrace = {
+  mode: 'proposal_only' | 'read_only_local' | 'hosted_settings_packet'
+  experimentConfig: {
+    scope: string
+    commands: string[]
+    changedFiles: string[]
+    changedSettings: string[]
+    sideEffectsAllowed: false
+  }
+  metricGate: {
+    metric: string
+    target: string
+    current: string
+    passCondition: string
+  }
+  resultSummary: {
+    status: 'not_run'
+    notes: string
+    metrics: string[]
+  }
+  rollbackPath: string
+  promotionRecommendation: {
+    recommendation: 'hold_for_approval' | 'collect_more_evidence' | 'close'
+    reason: string
+    nextApprovalRequired: boolean
+  }
+  forbiddenActions: string[]
+}
+
 export type VercelResearchProposal = {
   id: string
   title: string
@@ -55,6 +84,7 @@ export type VercelResearchProposal = {
   rollbackPath: string
   evidence: string[]
   decisionFrame?: VercelResearchDecisionFrame
+  experimentTrace: VercelResearchExperimentTrace
 }
 
 export type VercelResearchPlan = {
@@ -213,12 +243,72 @@ function buildProfileGoalFrame(metric: DeploymentMetric | null, thresholds: Depl
 }
 
 function proposal(
-  input: Omit<VercelResearchProposal, 'approvalState'>,
+  input: Omit<VercelResearchProposal, 'approvalState' | 'experimentTrace'>,
 ): VercelResearchProposal {
   const draft = { ...input, approvalState: 'not_required' as const }
+  const approvalState: VercelResearchApprovalState = requiresVercelProductionConfigApproval(draft)
+    ? 'approval_required'
+    : 'not_required'
+  const proposalWithApproval: Omit<VercelResearchProposal, 'experimentTrace'> = { ...draft, approvalState }
   return {
-    ...draft,
-    approvalState: requiresVercelProductionConfigApproval(draft) ? 'approval_required' : 'not_required',
+    ...proposalWithApproval,
+    experimentTrace: buildExperimentTrace(proposalWithApproval),
+  }
+}
+
+function buildExperimentTrace(
+  proposal: Omit<VercelResearchProposal, 'experimentTrace'>,
+): VercelResearchExperimentTrace {
+  const mode = proposal.approvalState === 'approval_required'
+    ? 'hosted_settings_packet'
+    : proposal.touchedFiles.length > 0
+      ? 'read_only_local'
+      : 'proposal_only'
+  const frame = proposal.decisionFrame
+  const nextApprovalRequired = proposal.approvalState === 'approval_required' || proposal.riskLevel !== 'low'
+  return {
+    mode,
+    experimentConfig: {
+      scope: mode === 'hosted_settings_packet'
+        ? 'Prepare a settings proposal packet only; do not mutate hosted Vercel configuration.'
+        : 'Run local/read-only analysis only; do not merge, deploy, or change production configuration.',
+      commands: mode === 'hosted_settings_packet'
+        ? ['npm run deploy:metrics', 'npm run deploy:research:plan -- --json']
+        : ['npm run build:knowledge', 'npm run deploy:metrics', 'npm run deploy:research:plan -- --json'],
+      changedFiles: proposal.touchedFiles,
+      changedSettings: proposal.touchedSettings,
+      sideEffectsAllowed: false,
+    },
+    metricGate: {
+      metric: frame?.successMetric ?? 'Deployment timing and evidence completeness',
+      target: frame?.target ?? 'Produce a named metric target before any experiment is approved.',
+      current: frame?.currentRun ?? 'No experiment has run yet.',
+      passCondition: frame?.goalStatus === 'on_track'
+        ? 'Close or collect another sample unless the metric regresses.'
+        : 'Human review confirms the proposed next action and required evidence before execution.',
+    },
+    resultSummary: {
+      status: 'not_run',
+      notes: 'No experiment was executed by this AutoResearch planner. Results must be recorded after a separate approved run.',
+      metrics: proposal.evidence,
+    },
+    rollbackPath: proposal.rollbackPath,
+    promotionRecommendation: {
+      recommendation: frame?.recommendedAction === 'close'
+        ? 'close'
+        : frame?.recommendedAction === 'run_another_test'
+          ? 'collect_more_evidence'
+          : 'hold_for_approval',
+      reason: frame?.recommendation ?? 'No promotion is allowed until a human approves the next scoped research action.',
+      nextApprovalRequired,
+    },
+    forbiddenActions: [
+      'execute_experiment_without_approval',
+      'merge_branch',
+      'deploy_to_production',
+      'mutate_hosted_config',
+      'write_durable_open_brain_memory',
+    ],
   }
 }
 
@@ -320,6 +410,10 @@ export function formatVercelResearchPlanMarkdown(plan: VercelResearchPlan) {
         `- Distance from goal: ${item.decisionFrame.distanceFromGoal}`,
         `- Recommendation: ${item.decisionFrame.recommendation}`,
       ] : []),
+      `- Experiment mode: ${item.experimentTrace.mode}`,
+      `- Metric gate: ${item.experimentTrace.metricGate.metric} — ${item.experimentTrace.metricGate.passCondition}`,
+      `- Result summary: ${item.experimentTrace.resultSummary.status}; ${item.experimentTrace.resultSummary.notes}`,
+      `- Promotion recommendation: ${item.experimentTrace.promotionRecommendation.recommendation}; ${item.experimentTrace.promotionRecommendation.reason}`,
       `- Approval question: ${item.approvalQuestion}`,
       `- Rollback: ${item.rollbackPath}`,
       `- Evidence: ${item.evidence.join('; ')}`,

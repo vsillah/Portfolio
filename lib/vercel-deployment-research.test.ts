@@ -33,6 +33,22 @@ describe('buildVercelResearchPlan', () => {
       id: 'next-build-profile',
       riskLevel: 'low',
       approvalState: 'not_required',
+      experimentTrace: {
+        mode: 'read_only_local',
+        experimentConfig: {
+          sideEffectsAllowed: false,
+          changedFiles: ['package.json', 'scripts/build-chatbot-knowledge.ts', 'next.config.js'],
+          changedSettings: [],
+        },
+        resultSummary: {
+          status: 'not_run',
+        },
+        promotionRecommendation: {
+          recommendation: 'collect_more_evidence',
+          nextApprovalRequired: false,
+        },
+        forbiddenActions: expect.arrayContaining(['merge_branch', 'mutate_hosted_config']),
+      },
       decisionFrame: {
         successMetric: 'Build duration and identified bottleneck',
         goalStatus: 'on_track',
@@ -58,6 +74,17 @@ describe('buildVercelResearchPlan', () => {
       riskLevel: 'high',
       approvalState: 'approval_required',
       touchedSettings: expect.arrayContaining(['Vercel project preview deployment setting']),
+      experimentTrace: {
+        mode: 'hosted_settings_packet',
+        experimentConfig: {
+          sideEffectsAllowed: false,
+          changedSettings: expect.arrayContaining(['Vercel project preview deployment setting']),
+        },
+        promotionRecommendation: {
+          recommendation: 'hold_for_approval',
+          nextApprovalRequired: true,
+        },
+      },
       decisionFrame: {
         goalStatus: 'blocked',
         recommendedAction: 'approve',
