@@ -351,8 +351,13 @@ describe('Open Brain projection', () => {
     expect(snapshot.wikiPages[0]).toEqual(expect.objectContaining({
       slug: 'decision-memory',
       path: 'docs/open-brain/wiki/decision-memory.md',
+      sourceMemoryIds: [expect.stringMatching(/^memory:/)],
+      sourceIds: ['runbook:docs/open-brain-local-service.md'],
+      sourceEventIds: [],
+      approvalState: 'approved_memory_only',
     }))
     expect(snapshot.wikiPages[0].markdown).toContain('Portfolio owns projection only')
+    expect(snapshot.wikiPages[0].markdown).toContain('Approval state: `approved_memory_only`')
   })
 
   it('creates a durable link only after approving a relationship proposal', async () => {
@@ -489,6 +494,44 @@ describe('Open Brain projection', () => {
     expect(compileKarpathyWikiOverlay([memory])).toEqual([])
   })
 
+  it('does not compile private AutoResearch events into wiki overlays', () => {
+    const publicEvent = {
+      id: 'event:autoresearch-public',
+      kind: 'autoresearch_proposal_created' as const,
+      title: 'Public-safe AutoResearch proposal',
+      summary: 'Sanitized proposal trace only.',
+      privacyTier: 'internal_ops' as const,
+      confidence: 0.82,
+      sourceIds: ['source:autoresearch-public'],
+      createdAt: '2026-05-10T12:00:00.000Z',
+      fingerprint: fingerprintOpenBrainRecord(['event:autoresearch-public']),
+    }
+    const privateEvent = {
+      id: 'event:autoresearch-private',
+      kind: 'autoresearch_proposal_created' as const,
+      title: 'Private AutoResearch proposal',
+      summary: 'Raw private experiment details.',
+      privacyTier: 'private' as const,
+      confidence: 0.82,
+      sourceIds: ['source:autoresearch-private'],
+      createdAt: '2026-05-10T12:00:00.000Z',
+      fingerprint: fingerprintOpenBrainRecord(['event:autoresearch-private']),
+    }
+
+    const pages = compileKarpathyWikiOverlay([], [publicEvent, privateEvent])
+
+    expect(pages).toHaveLength(1)
+    expect(pages[0]).toEqual(expect.objectContaining({
+      slug: 'autoresearch-experiment-ledger',
+      sourceIds: ['source:autoresearch-public'],
+      sourceEventIds: ['event:autoresearch-public'],
+      approvalState: 'source_event_preview',
+    }))
+    expect(pages[0].markdown).toContain('Sanitized proposal trace only.')
+    expect(pages[0].markdown).not.toContain('Raw private experiment details.')
+    expect(pages[0].markdown).not.toContain('event:autoresearch-private')
+  })
+
   it('persists source, event, and link records in the local Open Brain home', async () => {
     const root = await makeTempRoot()
     const source = await recordOpenBrainSource({
@@ -529,6 +572,14 @@ describe('Open Brain projection', () => {
     expect(snapshot.events).toEqual(expect.arrayContaining([expect.objectContaining({ kind: 'autoresearch_proposal_created' })]))
     expect(snapshot.links).toEqual([expect.objectContaining({ id: link.id, relationship: 'derived_from' })])
     expect(snapshot.wikiPages.map((page) => page.slug)).toContain('autoresearch-experiment-ledger')
+    expect(snapshot.wikiPages).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        slug: 'autoresearch-experiment-ledger',
+        sourceIds: [source.id],
+        sourceEventIds: ['event:autoresearch-proposal-created:test'],
+        approvalState: 'source_event_preview',
+      }),
+    ]))
   })
 
   it('records the personality corpus producer trace without raw private content', async () => {
@@ -848,6 +899,9 @@ describe('Open Brain projection', () => {
         path: 'docs/open-brain/wiki/operating-rules.md',
         markdown: '# Operating Rules',
         sourceMemoryIds: ['memory:governance'],
+        sourceIds: ['source:automation'],
+        sourceEventIds: [],
+        approvalState: 'approved_memory_only' as const,
         privacyTier: 'internal_ops' as const,
       },
     ]
@@ -891,6 +945,11 @@ describe('Open Brain projection', () => {
         fromId: 'memory:governance',
         toId: 'wiki:operating-rules',
         relationship: 'compiled_overlay',
+      }),
+      expect.objectContaining({
+        fromId: 'source:automation',
+        toId: 'wiki:operating-rules',
+        relationship: 'compiled_from_source',
       }),
     ]))
     expect(relationshipMap.overview.staleSources).toBe(1)

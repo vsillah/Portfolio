@@ -1615,6 +1615,11 @@ function WikiView({ pages }: { pages: OpenBrainSnapshot['wikiPages'] }) {
             </div>
             <PrivacyBadge tier={page.privacyTier} />
           </div>
+          <div className="mb-3 grid grid-cols-1 gap-2 text-xs md:grid-cols-3">
+            <Detail label="Approval" value={page.approvalState} />
+            <Detail label="Sources" value={page.sourceIds.length ? page.sourceIds.join(', ') : 'none'} />
+            <Detail label="Events" value={page.sourceEventIds.length ? page.sourceEventIds.join(', ') : 'none'} />
+          </div>
           <pre className="max-h-72 overflow-auto rounded-lg border border-silicon-slate/60 bg-black/20 p-3 text-xs text-muted-foreground whitespace-pre-wrap">
             {page.markdown}
           </pre>
