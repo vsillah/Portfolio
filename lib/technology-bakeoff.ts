@@ -10,6 +10,10 @@ import {
   buildTechnologyBakeoffDecisionTrustFrame,
   type AgentDecisionFrame,
 } from './agent-decision-trust'
+import {
+  recommendDecisionTrustEnforcement,
+  type DecisionTrustEnforcementRecommendation,
+} from './agent-decision-trust-enforcement'
 
 export const TECHNOLOGY_BAKEOFF_SURFACES = [
   'media_generation',
@@ -90,6 +94,7 @@ export interface TechnologyBakeoffPlan {
   integrationNotes: string[]
   missingEvidence: string[]
   decisionTrustFrame: AgentDecisionFrame
+  decisionTrustEnforcement: DecisionTrustEnforcementRecommendation
   nextImplementationStep: string
   specialistSource?: 'media_generation' | 'presentation' | 'agent_runtime'
 }
@@ -610,6 +615,10 @@ export function buildTechnologyBakeoffPlan(input: TechnologyBakeoffInput): Techn
     candidates,
     missingEvidence,
   })
+  const decisionTrustEnforcement = recommendDecisionTrustEnforcement({
+    frame: decisionTrustFrame,
+    mode: 'advisory',
+  })
 
   return {
     generatedAt: new Date().toISOString(),
@@ -635,6 +644,7 @@ export function buildTechnologyBakeoffPlan(input: TechnologyBakeoffInput): Techn
     integrationNotes: specialist.integrationNotes ?? profile.integrationNotes,
     missingEvidence,
     decisionTrustFrame,
+    decisionTrustEnforcement,
     nextImplementationStep: `Create a small evidence packet for ${profile.label} in ${profile.adminArea}, then compare candidates with the scoring plan.`,
     specialistSource: specialist.specialistSource,
   }
