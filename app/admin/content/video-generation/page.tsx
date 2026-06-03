@@ -12,6 +12,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import AssetPicker from '@/components/admin/AssetPicker'
+import AgenticContentReviewPacketCard from '@/components/admin/AgenticContentReviewPacketCard'
 import { ExtractionStatusChip } from '@/components/admin/ExtractionStatusChip'
 import { useWorkflowStatus } from '@/lib/hooks/useWorkflowStatus'
 import ProgressPanel, { type ProgressStep } from '@/components/admin/ProgressPanel'
@@ -1789,20 +1790,12 @@ export default function VideoGenerationPage() {
 
             <div className="mt-4 grid gap-3 lg:grid-cols-3">
               {AGENTIC_VIDEO_REVIEW_PACKETS.map((packet) => (
-                <div key={packet.assetId} className="rounded-lg border border-silicon-slate bg-background/35 p-3">
-                  <div className="flex flex-wrap items-center gap-2 text-[10px] font-medium uppercase tracking-[0.14em] text-gray-500">
-                    <span className="rounded-full border border-radiant-gold/30 px-2 py-0.5 text-radiant-gold">{packet.priority}</span>
-                    <span>{packet.channel}</span>
-                  </div>
-                  <h3 className="mt-3 text-sm font-semibold text-gray-100">{packet.title}</h3>
-                  <p className="mt-2 text-[11px] leading-5 text-gray-400">{packet.humanReview}</p>
-                  <div className="mt-3 rounded-md border border-silicon-slate/70 bg-imperial-navy/45 p-2 text-[10px] leading-5 text-gray-400">
-                    <div><span className="text-gray-500">Challenger:</span> <span className="text-emerald-300">{packet.challengerAgent} - {packet.challengerStatus}</span></div>
-                    <div><span className="text-gray-500">Approval:</span> <span className="text-emerald-300">{packet.approvalStatus}</span></div>
-                    <div><span className="text-gray-500">Source:</span> <code className="text-radiant-gold">{packet.packetPath}</code></div>
-                    <div><span className="text-gray-500">Next gate:</span> {packet.nextGate}</div>
-                  </div>
-                </div>
+                <AgenticContentReviewPacketCard
+                  key={packet.assetId}
+                  packet={packet}
+                  nextGateHref="#decide"
+                  nextGateLabel="Open script queue"
+                />
               ))}
             </div>
           </div>
@@ -2196,7 +2189,7 @@ export default function VideoGenerationPage() {
           </div>
 
           {/* ═══════════ PHASE 2: DECIDE ═══════════ */}
-          <div ref={decideRef} className="mb-10 scroll-mt-16">
+          <div id="decide" ref={decideRef} className="mb-10 scroll-mt-16">
             <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
               <span className="flex items-center justify-center w-6 h-6 rounded-full bg-radiant-gold/20 text-radiant-gold text-xs font-bold">2</span>
               Decide

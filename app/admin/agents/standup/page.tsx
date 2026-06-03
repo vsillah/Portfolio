@@ -21,6 +21,10 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import AgentAvatar from '@/components/admin/AgentAvatar'
 import { getCurrentSession } from '@/lib/auth'
+import {
+  getAgenticContentReviewPacketByAssetId,
+  type AgenticContentReviewDecision,
+} from '@/lib/agentic-content-review-packets'
 import type {
   AgentOrgBoardAgent,
   AgentOrgBoardGoalMetric,
@@ -81,6 +85,58 @@ type N8nProposalState = {
   workItemId: string
   title: string
   createdAt: string
+}
+
+const AGENTIC_CONTENT_REVIEW_DECISIONS: AgenticContentReviewDecision[] = [
+  'approve_next_gate',
+  'send_back_for_repair',
+  'hold_for_human',
+]
+
+function isAgenticContentReviewDecision(value: string | null): value is AgenticContentReviewDecision {
+  return AGENTIC_CONTENT_REVIEW_DECISIONS.includes(value as AgenticContentReviewDecision)
+}
+
+function buildAgenticContentReviewPrefill(
+  assetId: string,
+  decision: AgenticContentReviewDecision,
+) {
+  const packet = getAgenticContentReviewPacketByAssetId(assetId)
+  if (!packet) return null
+
+  const decisionInstruction = {
+    approve_next_gate: `Prepare the next-gate work packet for ${packet.targetSurface} production. Treat challenger clearance as a precondition already satisfied, but do not publish, render, export, share, or deploy anything. Preserve the approval boundary: ${packet.nextGate}`,
+    send_back_for_repair: `Create a repair task for ${packet.challengerAgent}. Focus only on the issue areas implied by the packet and require another challenger pass before this returns to human review. ${packet.sendBackMeaning}`,
+    hold_for_human: `Hold this asset and frame the unresolved risk for Vambah. Do not route it to production planning until the human-only question is answered.`,
+  }[decision]
+
+  const decisionLabel = {
+    approve_next_gate: 'approve next gate',
+    send_back_for_repair: 'send back for repair',
+    hold_for_human: 'hold for human decision',
+  }[decision]
+
+  return {
+    packet,
+    decisionLabel,
+    goal: [
+      `Agentic content review: ${decisionLabel} - ${packet.title}`,
+      '',
+      decisionInstruction,
+      '',
+      `Asset ID: ${packet.assetId}`,
+      `Channel: ${packet.channel}`,
+      `Output: ${packet.output}`,
+      `Source packet: ${packet.packetPath}`,
+      `Draft source: ${packet.draftSource}`,
+      `Challenger: ${packet.challengerAgent} - ${packet.challengerStatus}`,
+      `Approval status: ${packet.approvalStatus}`,
+    ].join('\n'),
+    message: [
+      `Review the agentic content packet for "${packet.title}" and convert this ${decisionLabel} decision into traceable Agent Ops work.`,
+      `Keep this inside the existing Portfolio approval path. No side effects beyond creating the work item or next review plan.`,
+    ].join(' '),
+  }
 }
 
 function agentShortName(name: string) {
@@ -165,6 +221,30 @@ function StandupRoomContent() {
     const params = new URLSearchParams(window.location.search)
     const goalId = params.get('goal')
     if (goalId) setFocusedGoalId(goalId)
+    if (params.get('context') !== 'agentic-content-review') return
+
+    const assetId = params.get('asset')
+    const decision = params.get('decision')
+    if (!assetId || !isAgenticContentReviewDecision(decision)) return
+
+    const prefill = buildAgenticContentReviewPrefill(assetId, decision)
+    if (!prefill) return
+
+    setGoal(prefill.goal)
+    setMessage(prefill.message)
+    setGoalType('general')
+    setTranscript((current) => {
+      if (current.some((entry) => entry.id === `agentic-content-review-${assetId}-${decision}`)) return current
+      return [
+        ...current,
+        {
+          id: `agentic-content-review-${assetId}-${decision}`,
+          role: 'system',
+          content: `Loaded ${prefill.packet.title} for ${prefill.decisionLabel}. Review the prefilled goal, then draft or delegate it from this room.`,
+          created_at: new Date().toISOString(),
+        },
+      ]
+    })
   }, [])
 
   const participants = useMemo(() => {

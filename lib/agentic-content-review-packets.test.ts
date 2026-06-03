@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
   AGENTIC_CONTENT_REVIEW_PACKETS,
+  buildAgenticContentReviewActionHref,
+  getAgenticContentReviewPacketByAssetId,
   getAgenticContentReviewPacketsForSurface,
 } from './agentic-content-review-packets'
 
@@ -43,5 +45,16 @@ describe('agentic content review packet registry', () => {
       'p2-technical-appendix-agentic-proof-map',
       'p2-website-proof-page-governed-agents',
     ])
+  })
+
+  it('builds traceable Standup actions without changing content state directly', () => {
+    const packet = getAgenticContentReviewPacketByAssetId('p0-youtube-agentic-ai-teams-skip')
+
+    expect(packet).not.toBeNull()
+    expect(buildAgenticContentReviewActionHref(packet!, 'approve_next_gate')).toBe(
+      '/admin/agents/standup?context=agentic-content-review&asset=p0-youtube-agentic-ai-teams-skip&decision=approve_next_gate',
+    )
+    expect(buildAgenticContentReviewActionHref(packet!, 'send_back_for_repair')).toContain('decision=send_back_for_repair')
+    expect(buildAgenticContentReviewActionHref(packet!, 'hold_for_human')).toContain('decision=hold_for_human')
   })
 })

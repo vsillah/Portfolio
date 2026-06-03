@@ -1,10 +1,11 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { FolderOpen, Video, BookOpen, Music, Sparkles, Package, Tag, Briefcase, Layers, ShoppingBag, Target, CheckCircle2 } from 'lucide-react'
+import { FolderOpen, Video, BookOpen, Music, Sparkles, Package, Tag, Briefcase, Layers, ShoppingBag, Target } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Link from 'next/link'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
+import AgenticContentReviewPacketCard from '@/components/admin/AgenticContentReviewPacketCard'
 import { getAgenticContentReviewPacketsForSurface } from '@/lib/agentic-content-review-packets'
 
 export default function ContentManagementPage() {
@@ -111,27 +112,7 @@ export default function ContentManagementPage() {
 
             <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-3">
               {proofReviewPackets.map((packet) => (
-                <div key={packet.assetId} className="rounded-lg border border-silicon-slate bg-imperial-navy/45 p-4">
-                  <div className="flex flex-wrap items-center gap-2 text-[10px] font-medium uppercase tracking-[0.14em] text-gray-500">
-                    <span className="rounded-full border border-radiant-gold/30 px-2 py-0.5 text-radiant-gold">{packet.priority}</span>
-                    <span>{packet.channel}</span>
-                  </div>
-                  <h3 className="mt-3 text-sm font-semibold text-gray-100">{packet.title}</h3>
-                  <p className="mt-2 text-xs leading-5 text-gray-400">{packet.humanReview}</p>
-                  <div className="mt-3 grid gap-2 text-[11px] text-gray-500">
-                    <div className="flex items-center gap-2 text-emerald-300">
-                      <CheckCircle2 className="h-3.5 w-3.5" />
-                      <span>{packet.challengerAgent} - {packet.challengerStatus}; {packet.approvalStatus}</span>
-                    </div>
-                    <div className="rounded-md border border-silicon-slate/70 bg-background/40 p-2 leading-5 text-gray-400">
-                      <div><span className="text-gray-500">Source packet:</span> <code className="text-radiant-gold">{packet.packetPath}</code></div>
-                      <div><span className="text-gray-500">Next gate:</span> {packet.nextGate}</div>
-                    </div>
-                    <Link href={`/admin/agents/standup?context=agentic-content-review&asset=${encodeURIComponent(packet.assetId)}`} className="inline-flex items-center gap-1 text-xs text-radiant-gold hover:underline">
-                      Create repair or production planning task
-                    </Link>
-                  </div>
-                </div>
+                <AgenticContentReviewPacketCard key={packet.assetId} packet={packet} />
               ))}
             </div>
           </div>
