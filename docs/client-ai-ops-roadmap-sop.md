@@ -146,6 +146,8 @@ The runner exits non-zero only when the synthetic QA plan has blocked checks. Wa
 
 Use the evidence template while performing authenticated manual smoke. A capture is captain-reviewable only when it uses synthetic or explicitly test-owned data, includes the expected evidence, contains no secrets or raw client records, and does not attempt any forbidden live setup action. Captures that include credentials, tokens, personal account data, or private client records must be redacted before review. Captures that use real client data without approval or attempt a forbidden action should stop the pilot path and open an approval/safety review.
 
+Admins can fetch the same read-only template from `GET /api/admin/client-projects/[id]/ai-ops/smoke-evidence`. V1 does not persist captures from this endpoint; it is a review surface for the manual smoke packet only.
+
 ## Roadmap Rule Checklist
 
 Use this checklist whenever a roadmap feature, monitor, report, or client implementation phase changes:
