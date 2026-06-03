@@ -189,6 +189,8 @@ Open Brain-approved `public_safe` memories can be compiled into RAG projection d
 
 Pinecone remains a downstream projection. It must be rebuildable from approved Open Brain records and must not contain private records, unapproved inferences, or raw private exports.
 
+`GET /api/knowledge` and `GET /api/knowledge/chatbot` remain backwards-compatible plain-text public-safe chatbot bundles by default. Operators can request `?format=json&include_open_brain=true` to preview the same curated bundle with optional Open Brain public-safe RAG projection documents and provenance metadata. This JSON mode does not write Pinecone, does not promote memories, and does not include non-`public_safe` Open Brain records.
+
 ## V1 Scope
 
 V1 is intentionally narrow:

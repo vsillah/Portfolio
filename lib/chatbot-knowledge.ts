@@ -18,6 +18,25 @@ export interface ChatbotKnowledgeEntry {
   sectionTitle?: string
 }
 
+export interface ChatbotKnowledgeBundle {
+  body: string
+  sources: Array<{
+    id: string
+    title: string
+    kind: 'curated_repo_doc' | 'open_brain_rag_projection'
+    path: string | null
+    privacyTier: 'public_safe'
+    sourceHash: string | null
+    projectionVersion: string | null
+  }>
+  openBrain: {
+    included: boolean
+    documentCount: number
+    excludedPrivateCount: number
+    pineconeWriteStatus: 'blocked_pending_approval'
+  }
+}
+
 /** Ordered list of docs included in chatbot knowledge (used for runtime fallback and by build script). */
 export const CHATBOT_KNOWLEDGE_SOURCES: ChatbotKnowledgeEntry[] = [
   { path: 'docs/chatbot-products-and-services-overview.md', sectionTitle: 'What AmaduTown Offers (products and services)' },
@@ -35,12 +54,26 @@ export const CHATBOT_KNOWLEDGE_SOURCES: ChatbotKnowledgeEntry[] = [
  * Build concatenated markdown for the chatbot.
  * Uses embedded content from build script when available (production/Vercel); otherwise reads from filesystem (local dev).
  */
-export async function getChatbotKnowledgeBody(): Promise<{ body: string } | { error: string; status: 404 | 500 }> {
+export async function getChatbotKnowledgeBody(
+  options: { includeOpenBrainRagProjection?: boolean } = {},
+): Promise<{ body: string } | { error: string; status: 404 | 500 }> {
+  const bundle = await getChatbotKnowledgeBundle(options)
+  if ('error' in bundle) return bundle
+  return { body: bundle.body }
+}
+
+export async function getChatbotKnowledgeBundle(
+  options: { includeOpenBrainRagProjection?: boolean } = {},
+): Promise<ChatbotKnowledgeBundle | { error: string; status: 404 | 500 }> {
   try {
     const mod = await import('./chatbot-knowledge-content.generated')
     const body = mod.CHATBOT_KNOWLEDGE_BODY
     if (body && typeof body === 'string') {
-      return { body }
+      return appendOpenBrainProjection({
+        body,
+        sources: repoDocKnowledgeSources(),
+        openBrain: emptyOpenBrainBundleMetadata(false),
+      }, options)
     }
   } catch {
     // Generated file missing (e.g. dev without running build:knowledge) — fall back to fs
@@ -66,5 +99,87 @@ export async function getChatbotKnowledgeBody(): Promise<{ body: string } | { er
     return { error: 'No knowledge sources could be read', status: 404 }
   }
 
-  return { body: parts.join('\n\n---\n\n') }
+  return appendOpenBrainProjection({
+    body: parts.join('\n\n---\n\n'),
+    sources: repoDocKnowledgeSources(),
+    openBrain: emptyOpenBrainBundleMetadata(false),
+  }, options)
+}
+
+function repoDocKnowledgeSources(): ChatbotKnowledgeBundle['sources'] {
+  return CHATBOT_KNOWLEDGE_SOURCES.map((entry) => ({
+    id: entry.path,
+    title: entry.sectionTitle || entry.path,
+    kind: 'curated_repo_doc',
+    path: entry.path,
+    privacyTier: 'public_safe',
+    sourceHash: null,
+    projectionVersion: null,
+  }))
+}
+
+function emptyOpenBrainBundleMetadata(included: boolean): ChatbotKnowledgeBundle['openBrain'] {
+  return {
+    included,
+    documentCount: 0,
+    excludedPrivateCount: 0,
+    pineconeWriteStatus: 'blocked_pending_approval',
+  }
+}
+
+async function appendOpenBrainProjection(
+  bundle: ChatbotKnowledgeBundle,
+  options: { includeOpenBrainRagProjection?: boolean },
+): Promise<ChatbotKnowledgeBundle> {
+  if (!options.includeOpenBrainRagProjection) return bundle
+
+  const { getOpenBrainSnapshot } = await import('./open-brain')
+  const snapshot = await getOpenBrainSnapshot()
+  const projection = snapshot.ragProjection
+  if (projection.documents.length === 0) {
+    return {
+      ...bundle,
+      openBrain: {
+        included: true,
+        documentCount: 0,
+        excludedPrivateCount: projection.excludedPrivateCount,
+        pineconeWriteStatus: projection.pineconeWriteStatus,
+      },
+    }
+  }
+
+  const openBrainSections = projection.documents.map((document) => [
+    `## Source: Open Brain Public-Safe Memory - ${document.title}`,
+    '',
+    document.text.trim(),
+    '',
+    `- Open Brain memory id: \`${document.metadata.openBrainMemoryId}\``,
+    `- Open Brain source ids: ${document.metadata.openBrainSourceIds.map((sourceId) => `\`${sourceId}\``).join(', ') || 'none'}`,
+    `- Privacy tier: \`${document.metadata.privacyTier}\``,
+    `- Source hash: \`${document.metadata.sourceHash}\``,
+    `- Projection version: \`${document.metadata.projectionVersion}\``,
+    `- Pinecone write status: \`${projection.pineconeWriteStatus}\``,
+  ].join('\n'))
+
+  return {
+    body: [bundle.body, ...openBrainSections].join('\n\n---\n\n'),
+    sources: [
+      ...bundle.sources,
+      ...projection.documents.map((document) => ({
+        id: document.id,
+        title: document.title,
+        kind: 'open_brain_rag_projection' as const,
+        path: null,
+        privacyTier: document.metadata.privacyTier,
+        sourceHash: document.metadata.sourceHash,
+        projectionVersion: document.metadata.projectionVersion,
+      })),
+    ],
+    openBrain: {
+      included: true,
+      documentCount: projection.documents.length,
+      excludedPrivateCount: projection.excludedPrivateCount,
+      pineconeWriteStatus: projection.pineconeWriteStatus,
+    },
+  }
 }
