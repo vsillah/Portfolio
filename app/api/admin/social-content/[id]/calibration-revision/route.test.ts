@@ -185,6 +185,51 @@ describe('POST /api/admin/social-content/[id]/calibration-revision', () => {
     }))
   })
 
+  it('creates calibration metadata from operator feedback when the draft has none', async () => {
+    mocks.single.mockResolvedValueOnce({
+      data: {
+        id: 'social-1',
+        status: 'draft',
+        post_text: 'Original draft',
+        cta_text: null,
+        hashtags: [],
+        image_prompt: null,
+        topic_extracted: { topic: 'AI adoption' },
+        hormozi_framework: {},
+        rag_context: {
+          source: 'agent_ops_social_outreach_goal',
+          goal_id: 'goal-1',
+          publish_gate: 'draft_only',
+        },
+        admin_notes: null,
+      },
+      error: null,
+    })
+
+    const response = await POST(request({
+      operator_feedback: {
+        prior_post_excerpt: 'A post that already sounded like Vambah.',
+        engagement_signal: 'It had stronger comments than usual.',
+        revision_request: 'Make the new draft feel less generic.',
+      },
+    }), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(200)
+    expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({
+      rag_context: expect.objectContaining({
+        content_calibration: expect.objectContaining({
+          status: 'revision_generated',
+          operator_feedback: expect.objectContaining({
+            prior_post_excerpt: 'A post that already sounded like Vambah.',
+            engagement_signal: 'It had stronger comments than usual.',
+            revision_request: 'Make the new draft feel less generic.',
+          }),
+          revision_history: expect.any(Array),
+        }),
+      }),
+    }))
+  })
+
   it('blocks revision when no operator feedback exists', async () => {
     mocks.single.mockResolvedValueOnce({
       data: {
