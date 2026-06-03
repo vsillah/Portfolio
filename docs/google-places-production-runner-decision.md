@@ -111,3 +111,43 @@ Promotion gate:
    any, are marked `is_test_data = true`.
 5. Compare result quality and cost against the Apify Google Maps baseline before
    replacing the actor.
+
+## 2026-06-03 Production Callback Run
+
+After PR #475 merged and both Vercel contexts were green, WF-VEP-002 was
+triggered against `https://amadutown.com` with the same isolated payload:
+
+```json
+{
+  "sources": ["google_maps"],
+  "searchTerms": ["nonprofit organizations near Omaha NE"],
+  "googleMapsQuery": "nonprofit organizations near Omaha NE",
+  "maxResults": 5,
+  "is_test_data": true
+}
+```
+
+Execution evidence:
+
+- n8n execution `16026` completed successfully.
+- `IF GMaps Enabled` evaluated true while Reddit, LinkedIn, G2, and Capterra
+  stayed disabled.
+- `Scrape Google Maps` returned 2 places.
+- `Extract GMaps Results` produced 20 Google Maps review/listing items.
+- Portfolio completion callbacks succeeded.
+
+Ingestion blocker found:
+
+- `POST Raw to Market Intel` inserted 0 rows.
+- The route returned repeated errors:
+  `there is no unique or exclusion constraint matching the ON CONFLICT specification`.
+- Root cause: the deployed database does not expose the `source_url` uniqueness
+  expected by the route's `upsert(... onConflict: "source_url")` path.
+
+Recommendation:
+
+Use an application-level fallback before considering a production schema
+mutation. If the `source_url` upsert fails because the constraint is missing,
+the route should query for an existing `source_url`; if none exists, perform a
+plain insert and preserve `is_test_data`. This keeps the bakeoff moving without
+changing shared production schema under pressure.
