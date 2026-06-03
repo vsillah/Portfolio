@@ -1,4 +1,5 @@
 export type AgenticContentReviewSurface = 'social' | 'video' | 'content'
+export type AgenticContentReviewDecision = 'approve_next_gate' | 'send_back_for_repair' | 'hold_for_human'
 
 export type AgenticContentReviewPacket = {
   assetId: string
@@ -226,4 +227,21 @@ export const AGENTIC_CONTENT_REVIEW_PACKETS: AgenticContentReviewPacket[] = [
 
 export function getAgenticContentReviewPacketsForSurface(surface: AgenticContentReviewSurface) {
   return AGENTIC_CONTENT_REVIEW_PACKETS.filter((packet) => packet.targetSurface === surface)
+}
+
+export function getAgenticContentReviewPacketByAssetId(assetId: string) {
+  return AGENTIC_CONTENT_REVIEW_PACKETS.find((packet) => packet.assetId === assetId) ?? null
+}
+
+export function buildAgenticContentReviewActionHref(
+  packet: AgenticContentReviewPacket,
+  decision: AgenticContentReviewDecision,
+) {
+  const params = new URLSearchParams({
+    context: 'agentic-content-review',
+    asset: packet.assetId,
+    decision,
+  })
+
+  return `/admin/agents/standup?${params.toString()}`
 }
