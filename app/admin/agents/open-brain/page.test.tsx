@@ -363,6 +363,37 @@ describe('OpenBrainPage', () => {
     }))
   })
 
+  it('renders wiki overlay approval provenance for source-event previews', async () => {
+    const snapshot = JSON.parse(JSON.stringify(openBrainSnapshot))
+    snapshot.overview.wikiPages = 1
+    snapshot.wikiPages = [{
+      slug: 'autoresearch-experiment-ledger',
+      title: 'AutoResearch Experiment Ledger',
+      path: 'docs/open-brain/wiki/autoresearch-experiment-ledger.md',
+      markdown: [
+        '# AutoResearch Experiment Ledger',
+        '',
+        'This page is preview-only until a human-approved outcome becomes durable Open Brain memory.',
+      ].join('\n'),
+      sourceMemoryIds: [],
+      sourceIds: ['source:autoresearch-public'],
+      sourceEventIds: ['event:autoresearch-public'],
+      approvalState: 'source_event_preview',
+      privacyTier: 'internal_ops',
+    }]
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => snapshot })))
+
+    render(<OpenBrainPage />)
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Wiki Overlay' }))
+
+    expect(screen.getByText('AutoResearch Experiment Ledger')).toBeInTheDocument()
+    expect(screen.getByText('source_event_preview')).toBeInTheDocument()
+    expect(screen.getByText('source:autoresearch-public')).toBeInTheDocument()
+    expect(screen.getByText('event:autoresearch-public')).toBeInTheDocument()
+    expect(screen.getByText(/preview-only until a human-approved outcome becomes durable Open Brain memory/i)).toBeInTheDocument()
+  })
+
   it('creates an approval-gated relationship proposal from a map insight', async () => {
     render(<OpenBrainPage />)
 
