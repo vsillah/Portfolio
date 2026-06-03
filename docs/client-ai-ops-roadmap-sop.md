@@ -139,9 +139,12 @@ For captain handoff or local readiness checks, print the same plan without touch
 npx tsx scripts/client-ai-ops-real-pilot-qa.ts
 npx tsx scripts/client-ai-ops-real-pilot-qa.ts --summary
 npx tsx scripts/client-ai-ops-real-pilot-qa.ts --json
+npx tsx scripts/client-ai-ops-real-pilot-qa.ts --evidence-template
 ```
 
 The runner exits non-zero only when the synthetic QA plan has blocked checks. Waiting approvals and manual smoke targets remain visible but do not trigger live setup.
+
+Use the evidence template while performing authenticated manual smoke. A capture is captain-reviewable only when it uses synthetic or explicitly test-owned data, includes the expected evidence, contains no secrets or raw client records, and does not attempt any forbidden live setup action. Captures that include credentials, tokens, personal account data, or private client records must be redacted before review. Captures that use real client data without approval or attempt a forbidden action should stop the pilot path and open an approval/safety review.
 
 ## Roadmap Rule Checklist
 
@@ -160,6 +163,7 @@ Use this checklist whenever a roadmap feature, monitor, report, or client implem
 - The admin AI Ops readiness contract stays present and keeps `sideEffectsEnabled` false.
 - The client dashboard shows setup readiness without exposing internal swarm traces or credential/provider details.
 - The real-pilot QA plan separates automated synthetic proof from authenticated manual smoke and forbidden live actions.
+- The smoke evidence template captures screenshots and notes without secrets, raw client records, or live setup attempts.
 - Client-facing output excludes private logs, agent traces, credentials, and internal-only notes.
 
 ## Real Client Pilot Checklist

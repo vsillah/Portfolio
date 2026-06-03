@@ -5,14 +5,19 @@ process.env.SUPABASE_SERVICE_ROLE_KEY ??= 'synthetic-client-ai-ops-qa-runner'
 
 async function main() {
   const {
+    buildClientAiOpsSmokeEvidencePacket,
     buildClientAiOpsRealPilotQaPlan,
+    formatClientAiOpsSmokeEvidencePacket,
     formatClientAiOpsRealPilotQaPlan,
   } = await import('../lib/client-ai-ops-real-pilot-qa')
 
   const args = new Set(process.argv.slice(2))
   const plan = buildClientAiOpsRealPilotQaPlan()
 
-  if (args.has('--json')) {
+  if (args.has('--evidence-template')) {
+    const packet = buildClientAiOpsSmokeEvidencePacket(plan)
+    console.log(formatClientAiOpsSmokeEvidencePacket(packet))
+  } else if (args.has('--json')) {
     console.log(JSON.stringify(plan, null, 2))
   } else {
     console.log(formatClientAiOpsRealPilotQaPlan(plan, {
