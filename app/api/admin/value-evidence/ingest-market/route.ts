@@ -29,6 +29,10 @@ function isExplicitTestRun(value: unknown): boolean {
   return value === true || value === 'true'
 }
 
+function isMissingSourceUrlConflictConstraint(errorMessage: string): boolean {
+  return errorMessage.includes('no unique or exclusion constraint matching the ON CONFLICT specification')
+}
+
 export async function POST(request: NextRequest) {
   const authHeader = request.headers.get('authorization')
   const token = authHeader?.replace('Bearer ', '')
@@ -113,7 +117,40 @@ export async function POST(request: NextRequest) {
             .select('id')
 
           if (upsertError) {
-            results.errors.push(`Upsert failed: ${upsertError.message}`)
+            if (!isMissingSourceUrlConflictConstraint(upsertError.message)) {
+              results.errors.push(`Upsert failed: ${upsertError.message}`)
+              continue
+            }
+
+            const { data: existing, error: lookupError } = await supabaseAdmin
+              .from('market_intelligence')
+              .select('id')
+              .eq('source_url', item.source_url)
+              .maybeSingle()
+
+            if (lookupError) {
+              results.errors.push(`Duplicate lookup failed: ${lookupError.message}`)
+              continue
+            }
+            if (existing?.id) {
+              results.duplicates++
+              continue
+            }
+
+            const { data: fallbackInserted, error: fallbackInsertError } = await supabaseAdmin
+              .from('market_intelligence')
+              .insert(row)
+              .select('id')
+              .single()
+
+            if (fallbackInsertError) {
+              results.errors.push(`Fallback insert failed: ${fallbackInsertError.message}`)
+              continue
+            }
+            results.inserted++
+            if (fallbackInserted?.id) {
+              insertedIds.push(String(fallbackInserted.id))
+            }
             continue
           }
           if (count === 0) {
