@@ -635,6 +635,12 @@ function SocialContentDetailPage() {
   const agentPilotComparisonPrompt = asString(agentPilotCalibration?.comparison_prompt)
   const agentPilotOperatorFeedback = asRecord(agentPilotCalibration?.operator_feedback)
   const agentPilotFeedbackUpdatedAt = asString(agentPilotOperatorFeedback?.updated_at)
+  const hasCalibrationFeedbackInput = Object.values(calibrationFeedback)
+    .some((value) => value.trim().length > 0)
+  const hasAgentPilotCalibrationGuidance = agentPilotPriorPatterns.length > 0
+    || agentPilotVoicePrinciples.length > 0
+    || agentPilotMissingContextPrompts.length > 0
+    || Boolean(agentPilotComparisonPrompt)
   const engagement = asRecord(ragContext?.engagement)
   const engagementLatest = asRecord(engagement?.latest)
   const engagementScore = typeof engagement?.latest_score === 'number' ? engagement.latest_score : null
@@ -773,55 +779,74 @@ function SocialContentDetailPage() {
               </div>
             </div>
 
-            {agentPilotCalibration && (
+            {isAgentSocialPilot && (
               <div className="mt-4 rounded-lg border border-silicon-slate/80 bg-background/35 p-4">
                 <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-300">Content Calibration</p>
                     <p className="mt-1 text-sm leading-6 text-gray-300">
-                      Use this section to revise the draft against prior successful post patterns before it reaches publish review.
+                      {agentPilotCalibration
+                        ? 'Use this section to revise the draft against prior successful post patterns before it reaches publish review.'
+                        : 'No calibration packet was seeded for this draft yet. Add a prior post, engagement signal, audience context, and revision request so Shaka can revise it in context.'}
                     </p>
                   </div>
-                  {agentPilotCalibrationStatus && (
-                    <span className="w-fit rounded-full border border-amber-500/35 bg-amber-500/10 px-3 py-1 text-xs text-amber-200">
-                      {agentPilotCalibrationStatus.replace(/_/g, ' ')}
-                    </span>
-                  )}
+                  <span className="w-fit rounded-full border border-amber-500/35 bg-amber-500/10 px-3 py-1 text-xs text-amber-200">
+                    {(agentPilotCalibrationStatus || 'needs operator context').replace(/_/g, ' ')}
+                  </span>
                 </div>
-                <div className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
-                  <div className="grid gap-2">
-                    {agentPilotPriorPatterns.slice(0, 3).map((pattern) => {
-                      const label = asString(pattern.label)
-                      return (
-                        <div key={label || asString(pattern.pattern)} className="rounded-md border border-silicon-slate/80 bg-imperial-navy/45 p-3">
-                          <p className="text-sm font-semibold text-gray-100">{label || 'Prior success pattern'}</p>
-                          <p className="mt-1 text-sm leading-6 text-gray-300">{asString(pattern.pattern)}</p>
-                          <p className="mt-2 text-xs leading-5 text-gray-400"><span className="text-amber-300">Why it worked:</span> {asString(pattern.why_it_worked)}</p>
-                          <p className="mt-1 text-xs leading-5 text-gray-400"><span className="text-amber-300">Use now:</span> {asString(pattern.reuse_guidance)}</p>
-                        </div>
-                      )
-                    })}
-                  </div>
-                  <div className="grid gap-3">
-                    <div className="rounded-md border border-silicon-slate/80 bg-imperial-navy/45 p-3">
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Voice Checks</p>
-                      <ul className="mt-2 space-y-1 text-sm text-gray-300">
-                        {agentPilotVoicePrinciples.slice(0, 5).map((entry) => <li key={entry}>• {entry}</li>)}
-                      </ul>
+
+                {hasAgentPilotCalibrationGuidance ? (
+                  <>
+                    <div className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
+                      <div className="grid gap-2">
+                        {agentPilotPriorPatterns.slice(0, 3).map((pattern) => {
+                          const label = asString(pattern.label)
+                          return (
+                            <div key={label || asString(pattern.pattern)} className="rounded-md border border-silicon-slate/80 bg-imperial-navy/45 p-3">
+                              <p className="text-sm font-semibold text-gray-100">{label || 'Prior success pattern'}</p>
+                              <p className="mt-1 text-sm leading-6 text-gray-300">{asString(pattern.pattern)}</p>
+                              <p className="mt-2 text-xs leading-5 text-gray-400"><span className="text-amber-300">Why it worked:</span> {asString(pattern.why_it_worked)}</p>
+                              <p className="mt-1 text-xs leading-5 text-gray-400"><span className="text-amber-300">Use now:</span> {asString(pattern.reuse_guidance)}</p>
+                            </div>
+                          )
+                        })}
+                        {agentPilotPriorPatterns.length === 0 && (
+                          <div className="rounded-md border border-silicon-slate/80 bg-imperial-navy/45 p-3 text-sm leading-6 text-gray-300">
+                            No prior success patterns are attached yet.
+                          </div>
+                        )}
+                      </div>
+                      <div className="grid gap-3">
+                        {agentPilotVoicePrinciples.length > 0 && (
+                          <div className="rounded-md border border-silicon-slate/80 bg-imperial-navy/45 p-3">
+                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Voice Checks</p>
+                            <ul className="mt-2 space-y-1 text-sm text-gray-300">
+                              {agentPilotVoicePrinciples.slice(0, 5).map((entry) => <li key={entry}>• {entry}</li>)}
+                            </ul>
+                          </div>
+                        )}
+                        {agentPilotMissingContextPrompts.length > 0 && (
+                          <div className="rounded-md border border-amber-500/25 bg-amber-500/10 p-3">
+                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">Context to Add</p>
+                            <ul className="mt-2 space-y-1 text-sm text-amber-50/90">
+                              {agentPilotMissingContextPrompts.slice(0, 4).map((entry) => <li key={entry}>• {entry}</li>)}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div className="rounded-md border border-amber-500/25 bg-amber-500/10 p-3">
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">Context to Add</p>
-                      <ul className="mt-2 space-y-1 text-sm text-amber-50/90">
-                        {agentPilotMissingContextPrompts.slice(0, 4).map((entry) => <li key={entry}>• {entry}</li>)}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-                {agentPilotComparisonPrompt && (
-                  <div className="mt-3 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-sm leading-6 text-amber-100">
-                    {agentPilotComparisonPrompt}
+                    {agentPilotComparisonPrompt && (
+                      <div className="mt-3 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-sm leading-6 text-amber-100">
+                        {agentPilotComparisonPrompt}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="mt-3 rounded-md border border-silicon-slate/80 bg-imperial-navy/45 p-3 text-sm leading-6 text-gray-300">
+                    No calibration notes are attached yet. Start by adding a prior successful post, what made it work, and what should change in this draft.
                   </div>
                 )}
+
                 <div className="mt-4 rounded-lg border border-silicon-slate/80 bg-imperial-navy/45 p-4">
                   <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                     <div>
@@ -901,7 +926,7 @@ function SocialContentDetailPage() {
                       <button
                         type="button"
                         onClick={handleSaveCalibrationFeedback}
-                        disabled={!isEditable || savingCalibration}
+                        disabled={!isEditable || savingCalibration || !hasCalibrationFeedbackInput}
                         className="inline-flex items-center gap-2 rounded-lg border border-amber-500/40 px-3 py-2 text-sm text-amber-200 transition-colors hover:bg-amber-500/10 disabled:opacity-50"
                       >
                         {savingCalibration ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
@@ -910,7 +935,7 @@ function SocialContentDetailPage() {
                       <button
                         type="button"
                         onClick={handleGenerateCalibrationRevision}
-                        disabled={!isEditable || savingCalibration || revisingCalibration}
+                        disabled={!isEditable || savingCalibration || revisingCalibration || !hasCalibrationFeedbackInput}
                         className="inline-flex items-center gap-2 rounded-lg bg-amber-400 px-3 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-amber-300 disabled:opacity-50"
                       >
                         {revisingCalibration ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
