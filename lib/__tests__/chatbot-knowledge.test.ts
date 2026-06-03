@@ -84,7 +84,7 @@ describe('chatbot knowledge corpus', () => {
         excludedPrivateCount: 3,
         pineconeWriteStatus: 'blocked_pending_approval',
       },
-    } as Awaited<ReturnType<typeof getOpenBrainSnapshot>>)
+    } as unknown as Awaited<ReturnType<typeof getOpenBrainSnapshot>>)
 
     const result = await getChatbotKnowledgeBundle({ includeOpenBrainRagProjection: true })
 
