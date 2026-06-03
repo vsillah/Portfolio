@@ -101,6 +101,8 @@ interface BudgetQueryResult {
 interface SubscriptionStatusRegistry {
   generatedAt: string
   sourceDocument: string
+  latestMonitorArtifact?: string
+  monitorRunArtifactPattern?: string
   weeklyReportAutomationId: string
   dailyMonitorAutomationId: string
   approvalPhrasePattern: string
@@ -448,6 +450,12 @@ function AdminSubscriptionsPageContent() {
                   <KeyValue label="Daily monitor" value={data.dailyMonitorAutomationId} />
                   <KeyValue label="Weekly report" value={data.weeklyReportAutomationId} />
                   <KeyValue label="Source" value={data.sourceDocument} />
+                  {data.latestMonitorArtifact && (
+                    <KeyValue label="Latest artifact" value={data.latestMonitorArtifact} />
+                  )}
+                  {data.monitorRunArtifactPattern && (
+                    <KeyValue label="Artifact pattern" value={data.monitorRunArtifactPattern} />
+                  )}
                   <KeyValue label="Last generated" value={data.generatedAt} />
                 </dl>
               </div>
