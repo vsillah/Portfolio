@@ -19,7 +19,12 @@ import {
 import {
   AGENT_DECISION_TRUST_EVENT,
   buildDelegationDecisionTrustFrame,
+  type AgentDecisionFrame,
 } from '@/lib/agent-decision-trust'
+import {
+  recommendDecisionTrustEnforcement,
+  type DecisionTrustEnforcementRecommendation,
+} from '@/lib/agent-decision-trust-enforcement'
 import {
   evaluateAgentBudget,
   type AgentBudgetDecision,
@@ -867,11 +872,17 @@ export async function runChiefOfStaffChat(input: ChiefOfStaffChatRequest): Promi
         })
       : null
     const agentEngagements = applyDelegationDecisionToEngagements(parsed.agentEngagements, delegationDecision)
+    let delegationDecisionTrustFrame: AgentDecisionFrame | null = null
+    let delegationDecisionTrustEnforcement: DecisionTrustEnforcementRecommendation | null = null
 
     if (delegationDecision) {
-      const decisionTrustFrame = buildDelegationDecisionTrustFrame({
+      delegationDecisionTrustFrame = buildDelegationDecisionTrustFrame({
         decision: delegationDecision,
         runId: run.id,
+      })
+      delegationDecisionTrustEnforcement = recommendDecisionTrustEnforcement({
+        frame: delegationDecisionTrustFrame,
+        mode: 'advisory',
       })
       await recordAgentEvent({
         runId: run.id,
@@ -890,18 +901,19 @@ export async function runChiefOfStaffChat(input: ChiefOfStaffChatRequest): Promi
           fallback_agent_key: delegationDecision.fallback_agent_key,
           approval_gate: delegationDecision.approval_gate,
           confidence: delegationDecision.confidence,
+          decision_trust_enforcement: delegationDecisionTrustEnforcement,
         },
       }).catch(() => {})
       await recordAgentEvent({
         runId: run.id,
         eventType: AGENT_DECISION_TRUST_EVENT,
-        severity: decisionTrustFrame.recommended_gate === 'block'
+        severity: delegationDecisionTrustFrame.recommended_gate === 'block'
           ? 'error'
-          : decisionTrustFrame.recommended_gate === 'human_review'
+          : delegationDecisionTrustFrame.recommended_gate === 'human_review'
             ? 'warning'
             : 'info',
-        message: `${decisionTrustFrame.selected_candidate}: ${decisionTrustFrame.recommended_gate}`,
-        metadata: decisionTrustFrame,
+        message: `${delegationDecisionTrustFrame.selected_candidate}: ${delegationDecisionTrustFrame.recommended_gate}`,
+        metadata: delegationDecisionTrustFrame,
       }).catch(() => {})
     }
 
@@ -924,6 +936,7 @@ export async function runChiefOfStaffChat(input: ChiefOfStaffChatRequest): Promi
         action_proposals: parsed.actionProposals,
         agent_engagements: agentEngagements,
         delegation_decision: delegationDecision,
+        decision_trust_enforcement: delegationDecisionTrustEnforcement,
         context_ref: contextRef,
       },
     })
@@ -943,6 +956,7 @@ export async function runChiefOfStaffChat(input: ChiefOfStaffChatRequest): Promi
         action_proposals: parsed.actionProposals,
         agent_engagements: agentEngagements,
         delegation_decision: delegationDecision,
+        decision_trust_enforcement: delegationDecisionTrustEnforcement,
         context_ref: contextRef,
       },
     })

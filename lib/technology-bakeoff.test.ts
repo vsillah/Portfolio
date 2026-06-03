@@ -23,6 +23,9 @@ describe('buildTechnologyBakeoffPlan', () => {
       expect(plan.rollbackPlan.length).toBeGreaterThan(0)
       expect(plan.decisionTrustFrame.objective).toBe(`Evaluate ${TECHNOLOGY_BAKEOFF_PROFILES[surface].label}`)
       expect(plan.decisionTrustFrame.candidates_considered.length).toBeGreaterThan(0)
+      expect(plan.decisionTrustEnforcement.mode).toBe('advisory')
+      expect(plan.decisionTrustEnforcement.gate).toBe(plan.decisionTrustFrame.recommended_gate)
+      expect(plan.decisionTrustEnforcement.mayProceed).toBe(true)
       expect(plan.nextImplementationStep).toContain(plan.surfaceLabel)
     }
   })
@@ -105,5 +108,6 @@ describe('buildTechnologyBakeoffPlan', () => {
     expect(plan.decisionTrustFrame.decision_type).toBe('vendor')
     expect(plan.decisionTrustFrame.missing_evidence).toContain('Direct Apify run history')
     expect(plan.decisionTrustFrame.recommended_gate).toMatch(/sandbox|human_review/)
+    expect(plan.decisionTrustEnforcement.reason).toMatch(/advisory mode/i)
   })
 })
