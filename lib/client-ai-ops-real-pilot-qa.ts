@@ -37,6 +37,53 @@ export type ClientAiOpsPilotQaPlanFormatOptions = {
   includeDetails?: boolean
 }
 
+export type ClientAiOpsSmokeEvidenceStatus = 'pending_capture' | 'ready_for_review' | 'needs_redaction' | 'blocked'
+
+export type ClientAiOpsSmokeEvidenceCaptureInput = {
+  targetSurface: string
+  capturedBy?: string
+  capturedAt?: string
+  screenshotPath?: string
+  observedEvidence?: string[]
+  notes?: string
+  usedSyntheticData?: boolean
+  containsSecrets?: boolean
+  attemptedForbiddenActions?: string[]
+}
+
+export type ClientAiOpsSmokeEvidenceItem = {
+  surface: string
+  path: string
+  status: ClientAiOpsSmokeEvidenceStatus
+  expectedEvidence: string[]
+  observedEvidence: string[]
+  missingEvidence: string[]
+  screenshotPath: string | null
+  capturedBy: string | null
+  capturedAt: string | null
+  notes: string | null
+  clientSafe: boolean
+  sideEffectFree: boolean
+  nextAction: string
+}
+
+export type ClientAiOpsSmokeEvidencePacket = {
+  generatedAt: string
+  fixture: 'synthetic_client_ai_ops_pilot'
+  projectId: string
+  sourcePlanGeneratedAt: string
+  summary: {
+    totalTargets: number
+    pendingCapture: number
+    readyForReview: number
+    needsRedaction: number
+    blocked: number
+  }
+  items: ClientAiOpsSmokeEvidenceItem[]
+  reviewerChecklist: string[]
+  forbiddenActions: string[]
+}
+
 const GENERATED_AT = '2026-06-02T12:00:00.000Z'
 const SYNTHETIC_PROJECT_ID = 'synthetic-client-ai-ops-project'
 
@@ -238,4 +285,129 @@ export function formatClientAiOpsRealPilotQaPlan(
   }
 
   return lines.join('\n')
+}
+
+export function buildClientAiOpsSmokeEvidencePacket(
+  plan: ClientAiOpsPilotQaPlan = buildClientAiOpsRealPilotQaPlan(),
+  captures: ClientAiOpsSmokeEvidenceCaptureInput[] = [],
+): ClientAiOpsSmokeEvidencePacket {
+  const items = plan.manualSmokeTargets.map((target) => {
+    const capture = captures.find((item) => item.targetSurface === target.surface)
+    return buildSmokeEvidenceItem(target, plan.forbiddenActions, capture)
+  })
+  const summary = {
+    totalTargets: items.length,
+    pendingCapture: items.filter((item) => item.status === 'pending_capture').length,
+    readyForReview: items.filter((item) => item.status === 'ready_for_review').length,
+    needsRedaction: items.filter((item) => item.status === 'needs_redaction').length,
+    blocked: items.filter((item) => item.status === 'blocked').length,
+  }
+
+  return {
+    generatedAt: GENERATED_AT,
+    fixture: plan.fixture,
+    projectId: plan.projectId,
+    sourcePlanGeneratedAt: plan.generatedAt,
+    summary,
+    items,
+    reviewerChecklist: [
+      'Confirm every capture uses synthetic or explicitly test-owned client data.',
+      'Confirm screenshots and notes contain no secrets, tokens, credentials, personal account data, or raw client records.',
+      'Confirm no OAuth, credential sync, provider write, workflow activation, outbound send, publishing, deploy mutation, or client-data mutation was attempted.',
+      'Confirm observed evidence matches the expected evidence for each smoke target before marking the pilot ready for captain review.',
+    ],
+    forbiddenActions: plan.forbiddenActions,
+  }
+}
+
+export function formatClientAiOpsSmokeEvidencePacket(packet: ClientAiOpsSmokeEvidencePacket): string {
+  const lines = [
+    'Client AI Ops Smoke Evidence Packet',
+    `Generated: ${packet.generatedAt}`,
+    `Fixture: ${packet.fixture}`,
+    `Project: ${packet.projectId}`,
+    `Summary: ${packet.summary.readyForReview} ready; ${packet.summary.pendingCapture} pending; ${packet.summary.needsRedaction} needs redaction; ${packet.summary.blocked} blocked.`,
+    '',
+    'Smoke Targets:',
+  ]
+
+  for (const item of packet.items) {
+    lines.push(`- [${item.status}] ${item.surface}: ${item.path}`)
+    lines.push(`  Screenshot: ${item.screenshotPath ?? '[capture screenshot path]'}`)
+    lines.push(`  Captured by: ${item.capturedBy ?? '[operator name]'}`)
+    lines.push(`  Captured at: ${item.capturedAt ?? '[ISO timestamp]'}`)
+    lines.push(`  Next: ${item.nextAction}`)
+    if (item.missingEvidence.length > 0) {
+      lines.push(`  Missing evidence: ${item.missingEvidence.join('; ')}`)
+    }
+  }
+
+  lines.push('', 'Reviewer Checklist:')
+  for (const item of packet.reviewerChecklist) {
+    lines.push(`- ${item}`)
+  }
+
+  lines.push('', 'Forbidden Live Actions:')
+  for (const action of packet.forbiddenActions) {
+    lines.push(`- ${action}`)
+  }
+
+  return lines.join('\n')
+}
+
+function buildSmokeEvidenceItem(
+  target: ClientAiOpsPilotQaPlan['manualSmokeTargets'][number],
+  forbiddenActions: string[],
+  capture?: ClientAiOpsSmokeEvidenceCaptureInput,
+): ClientAiOpsSmokeEvidenceItem {
+  const observedEvidence = capture?.observedEvidence ?? []
+  const missingEvidence = target.expectedEvidence.filter((expected) => !observedEvidence.includes(expected))
+  const attemptedForbiddenActions = capture?.attemptedForbiddenActions ?? []
+  const matchedForbiddenActions = attemptedForbiddenActions.filter((action) => forbiddenActions.includes(action))
+  const usedSyntheticData = capture?.usedSyntheticData === true
+  const containsSecrets = capture?.containsSecrets === true
+  const status = smokeEvidenceStatus({
+    hasCapture: Boolean(capture),
+    usedSyntheticData,
+    containsSecrets,
+    matchedForbiddenActions,
+    missingEvidence,
+  })
+
+  return {
+    surface: target.surface,
+    path: target.path,
+    status,
+    expectedEvidence: target.expectedEvidence,
+    observedEvidence,
+    missingEvidence,
+    screenshotPath: capture?.screenshotPath ?? null,
+    capturedBy: capture?.capturedBy ?? null,
+    capturedAt: capture?.capturedAt ?? null,
+    notes: capture?.notes ?? null,
+    clientSafe: usedSyntheticData && !containsSecrets,
+    sideEffectFree: matchedForbiddenActions.length === 0,
+    nextAction: smokeEvidenceNextAction(status),
+  }
+}
+
+function smokeEvidenceStatus(input: {
+  hasCapture: boolean
+  usedSyntheticData: boolean
+  containsSecrets: boolean
+  matchedForbiddenActions: string[]
+  missingEvidence: string[]
+}): ClientAiOpsSmokeEvidenceStatus {
+  if (!input.hasCapture) return 'pending_capture'
+  if (!input.usedSyntheticData || input.matchedForbiddenActions.length > 0) return 'blocked'
+  if (input.containsSecrets) return 'needs_redaction'
+  if (input.missingEvidence.length > 0) return 'pending_capture'
+  return 'ready_for_review'
+}
+
+function smokeEvidenceNextAction(status: ClientAiOpsSmokeEvidenceStatus): string {
+  if (status === 'ready_for_review') return 'Attach the capture to the captain handoff for review.'
+  if (status === 'needs_redaction') return 'Redact secrets or private data before captain review.'
+  if (status === 'blocked') return 'Stop the pilot path and open an approval or safety review.'
+  return 'Capture this target with synthetic or explicitly test-owned data only.'
 }

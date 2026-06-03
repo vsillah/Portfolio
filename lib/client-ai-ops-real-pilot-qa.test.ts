@@ -2,7 +2,12 @@ import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/lib/supabase', () => ({ supabaseAdmin: null }))
 
-import { buildClientAiOpsRealPilotQaPlan, formatClientAiOpsRealPilotQaPlan } from './client-ai-ops-real-pilot-qa'
+import {
+  buildClientAiOpsRealPilotQaPlan,
+  buildClientAiOpsSmokeEvidencePacket,
+  formatClientAiOpsRealPilotQaPlan,
+  formatClientAiOpsSmokeEvidencePacket,
+} from './client-ai-ops-real-pilot-qa'
 
 describe('buildClientAiOpsRealPilotQaPlan', () => {
   it('builds a real-pilot QA plan from synthetic/test-owned data only', () => {
@@ -101,5 +106,98 @@ describe('buildClientAiOpsRealPilotQaPlan', () => {
     expect(output).toContain('Summary:')
     expect(output).not.toContain('Checks:')
     expect(output).not.toContain('Forbidden Live Actions:')
+  })
+
+  it('builds a pending smoke evidence template from manual smoke targets', () => {
+    const packet = buildClientAiOpsSmokeEvidencePacket()
+
+    expect(packet.summary).toEqual({
+      totalTargets: 3,
+      pendingCapture: 3,
+      readyForReview: 0,
+      needsRedaction: 0,
+      blocked: 0,
+    })
+    expect(packet.items.map((item) => item.surface)).toEqual([
+      'Admin project detail',
+      'Client dashboard',
+      'Monitor report and meeting task projection',
+    ])
+    expect(packet.items.every((item) => item.status === 'pending_capture')).toBe(true)
+    expect(packet.forbiddenActions).toContain('credential sync')
+  })
+
+  it('marks complete synthetic captures ready for review', () => {
+    const plan = buildClientAiOpsRealPilotQaPlan()
+    const target = plan.manualSmokeTargets[0]
+    const packet = buildClientAiOpsSmokeEvidencePacket(plan, [
+      {
+        targetSurface: target.surface,
+        capturedBy: 'Test Operator',
+        capturedAt: '2026-06-03T09:00:00.000Z',
+        screenshotPath: '/tmp/client-ai-ops-admin-smoke.png',
+        observedEvidence: target.expectedEvidence,
+        usedSyntheticData: true,
+        containsSecrets: false,
+      },
+    ])
+
+    expect(packet.summary.readyForReview).toBe(1)
+    expect(packet.summary.pendingCapture).toBe(2)
+    expect(packet.items[0]).toMatchObject({
+      status: 'ready_for_review',
+      clientSafe: true,
+      sideEffectFree: true,
+      missingEvidence: [],
+    })
+  })
+
+  it('requires redaction when a capture contains secrets', () => {
+    const plan = buildClientAiOpsRealPilotQaPlan()
+    const target = plan.manualSmokeTargets[1]
+    const packet = buildClientAiOpsSmokeEvidencePacket(plan, [
+      {
+        targetSurface: target.surface,
+        observedEvidence: target.expectedEvidence,
+        usedSyntheticData: true,
+        containsSecrets: true,
+      },
+    ])
+
+    expect(packet.items[1]).toMatchObject({
+      status: 'needs_redaction',
+      clientSafe: false,
+      sideEffectFree: true,
+    })
+  })
+
+  it('blocks evidence that uses real client data or attempts forbidden actions', () => {
+    const plan = buildClientAiOpsRealPilotQaPlan()
+    const target = plan.manualSmokeTargets[2]
+    const packet = buildClientAiOpsSmokeEvidencePacket(plan, [
+      {
+        targetSurface: target.surface,
+        observedEvidence: target.expectedEvidence,
+        usedSyntheticData: false,
+        containsSecrets: false,
+        attemptedForbiddenActions: ['provider write'],
+      },
+    ])
+
+    expect(packet.items[2]).toMatchObject({
+      status: 'blocked',
+      clientSafe: false,
+      sideEffectFree: false,
+    })
+  })
+
+  it('formats a smoke evidence packet for manual captain handoff', () => {
+    const output = formatClientAiOpsSmokeEvidencePacket(buildClientAiOpsSmokeEvidencePacket())
+
+    expect(output).toContain('Client AI Ops Smoke Evidence Packet')
+    expect(output).toContain('[pending_capture] Admin project detail')
+    expect(output).toContain('[capture screenshot path]')
+    expect(output).toContain('Reviewer Checklist:')
+    expect(output).toContain('Forbidden Live Actions:')
   })
 })
