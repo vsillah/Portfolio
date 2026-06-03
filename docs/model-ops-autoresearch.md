@@ -32,10 +32,14 @@ Every proposal includes:
 
 - proposal title,
 - hypothesis,
+- experiment config,
 - expected impact,
 - scorecard baseline,
 - touched files or settings,
+- metric gate,
+- result summary,
 - risk level,
+- promotion recommendation,
 - rollback path,
 - explicit approval question,
 - next metric gate.
@@ -48,6 +52,10 @@ approval-gated.
 Approving a proposal authorizes only the next scoped research action. It does
 not authorize merge, deployment, model installation, production default changes,
 or durable Open Brain memory writes.
+
+AutoResearch plans must mark generated proposals as `not_run` until a separate
+approved experiment records metrics. The result summary is a placeholder and
+must not be treated as evidence that an experiment has already happened.
 
 ## Benchmark Monitor Integration
 
