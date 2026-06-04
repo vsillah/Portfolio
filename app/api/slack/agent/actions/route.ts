@@ -45,16 +45,49 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await handleSlackAgentAction(payload)
-    return NextResponse.json({
-      response_type: result.responseType,
-      text: result.text,
-      replace_original: result.replaceOriginal ?? false,
-    })
+    if (payload.response_url) {
+      await postSlackActionResponse(payload.response_url, result)
+      return new NextResponse(null, { status: 200 })
+    }
+
+    return slackActionJsonResponse(result)
   } catch (error) {
     console.error('Error in Slack agent action handler:', error)
-    return NextResponse.json({
+    return slackActionJsonResponse({
       response_type: 'ephemeral',
       text: 'Agent Ops could not complete that Slack action. Check Portfolio logs and try again.',
     })
+  }
+}
+
+function slackActionJsonResponse(result: {
+  responseType?: 'ephemeral' | 'in_channel'
+  response_type?: 'ephemeral' | 'in_channel'
+  text: string
+  replaceOriginal?: boolean
+}) {
+  return NextResponse.json({
+    response_type: result.responseType ?? result.response_type ?? 'ephemeral',
+    text: result.text,
+    replace_original: result.replaceOriginal ?? false,
+  })
+}
+
+async function postSlackActionResponse(
+  responseUrl: string,
+  result: Awaited<ReturnType<typeof handleSlackAgentAction>>,
+) {
+  try {
+    await fetch(responseUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        response_type: result.responseType,
+        replace_original: result.replaceOriginal ?? false,
+        text: result.text,
+      }),
+    })
+  } catch (error) {
+    console.error('Error posting Slack agent action response:', error)
   }
 }

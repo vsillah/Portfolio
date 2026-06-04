@@ -31,9 +31,12 @@ function signedRequest(payload: unknown, secret = 'test-slack-secret', extraHead
 }
 
 describe('POST /api/slack/agent/actions', () => {
+  const originalFetch = global.fetch
+
   beforeEach(() => {
     vi.clearAllMocks()
     process.env = { ...ORIGINAL_ENV, SLACK_SIGNING_SECRET: 'test-slack-secret' }
+    global.fetch = vi.fn().mockResolvedValue(new Response(null, { status: 200 }))
     mocks.handleSlackAgentAction.mockResolvedValue({
       responseType: 'ephemeral',
       text: 'Approved from Slack.',
@@ -42,6 +45,7 @@ describe('POST /api/slack/agent/actions', () => {
 
   afterEach(() => {
     process.env = ORIGINAL_ENV
+    global.fetch = originalFetch
   })
 
   it('rejects invalid Slack signatures', async () => {
@@ -103,5 +107,29 @@ describe('POST /api/slack/agent/actions', () => {
       replace_original: false,
     })
     expect(mocks.handleSlackAgentAction).toHaveBeenCalledWith(payload)
+  })
+
+  it('posts visible button feedback through the Slack response URL', async () => {
+    const payload = {
+      type: 'block_actions',
+      user: { id: 'U123', username: 'vambah' },
+      response_url: 'https://hooks.slack.com/actions/test-response',
+      actions: [{ action_id: 'agent_approval_approve', value: '{"action":"approval.approve","approvalId":"approval-1"}' }],
+    }
+
+    const response = await POST(signedRequest(payload) as never)
+
+    expect(response.status).toBe(200)
+    expect(await response.text()).toBe('')
+    expect(mocks.handleSlackAgentAction).toHaveBeenCalledWith(payload)
+    expect(global.fetch).toHaveBeenCalledWith('https://hooks.slack.com/actions/test-response', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        response_type: 'ephemeral',
+        replace_original: false,
+        text: 'Approved from Slack.',
+      }),
+    })
   })
 })
