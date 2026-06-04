@@ -167,17 +167,32 @@ describe('POST /api/admin/social-content/[id]/calibration-revision', () => {
   it('accepts unsaved operator feedback in the request body', async () => {
     const response = await POST(request({
       operator_feedback: {
-        prior_post_excerpt: 'A stronger sample post.',
+        success_examples: [
+          {
+            source_label: 'LinkedIn post with strong operator response',
+            post_excerpt: 'A stronger sample post.',
+            engagement_signal: 'Many operators replied with their own examples.',
+            why_it_worked: 'It started from a real workload tension.',
+          },
+        ],
         revision_request: 'Add more lived operator detail.',
       },
     }), { params: { id: 'social-1' } })
 
     expect(response.status).toBe(200)
+    expect(mocks.generateJsonCompletion).toHaveBeenCalledWith(expect.objectContaining({
+      userPrompt: expect.stringContaining('LinkedIn post with strong operator response'),
+    }))
     expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({
       rag_context: expect.objectContaining({
         content_calibration: expect.objectContaining({
           operator_feedback: expect.objectContaining({
-            prior_post_excerpt: 'A stronger sample post.',
+            success_examples: [
+              expect.objectContaining({
+                post_excerpt: 'A stronger sample post.',
+                why_it_worked: 'It started from a real workload tension.',
+              }),
+            ],
             revision_request: 'Add more lived operator detail.',
           }),
         }),

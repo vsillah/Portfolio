@@ -31,6 +31,8 @@ import {
   Maximize2,
   X,
   BarChart3,
+  Plus,
+  Trash2,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -85,18 +87,86 @@ function asRecordArray(value: unknown): Record<string, unknown>[] {
 
 type CalibrationFeedback = {
   prior_post_excerpt: string
+  success_examples: CalibrationSuccessExample[]
   engagement_signal: string
   audience_context: string
   revision_request: string
   claim_boundaries: string
 }
 
+type CalibrationSuccessExample = {
+  source_label: string
+  post_excerpt: string
+  engagement_signal: string
+  why_it_worked: string
+}
+
+const EMPTY_SUCCESS_EXAMPLE: CalibrationSuccessExample = {
+  source_label: '',
+  post_excerpt: '',
+  engagement_signal: '',
+  why_it_worked: '',
+}
+
 const EMPTY_CALIBRATION_FEEDBACK: CalibrationFeedback = {
   prior_post_excerpt: '',
+  success_examples: [{ ...EMPTY_SUCCESS_EXAMPLE }],
   engagement_signal: '',
   audience_context: '',
   revision_request: '',
   claim_boundaries: '',
+}
+
+function normalizeSuccessExamples(value: unknown, fallbackExcerpt = '', fallbackEngagement = ''): CalibrationSuccessExample[] {
+  const examples = Array.isArray(value)
+    ? value
+        .map((item) => {
+          const record = asRecord(item)
+          if (!record) return null
+          return {
+            source_label: asString(record.source_label),
+            post_excerpt: asString(record.post_excerpt),
+            engagement_signal: asString(record.engagement_signal),
+            why_it_worked: asString(record.why_it_worked),
+          }
+        })
+        .filter((item): item is CalibrationSuccessExample => Boolean(item))
+    : []
+
+  const hasStructuredExample = examples.some((example) => (
+    example.source_label.trim()
+    || example.post_excerpt.trim()
+    || example.engagement_signal.trim()
+    || example.why_it_worked.trim()
+  ))
+
+  if (hasStructuredExample) return examples
+  if (fallbackExcerpt.trim() || fallbackEngagement.trim()) {
+    return [{
+      source_label: '',
+      post_excerpt: fallbackExcerpt,
+      engagement_signal: fallbackEngagement,
+      why_it_worked: '',
+    }]
+  }
+  return [{ ...EMPTY_SUCCESS_EXAMPLE }]
+}
+
+function formatSuccessExamplesForPrompt(examples: CalibrationSuccessExample[]): string {
+  return examples
+    .filter((example) => (
+      example.source_label.trim()
+      || example.post_excerpt.trim()
+      || example.engagement_signal.trim()
+      || example.why_it_worked.trim()
+    ))
+    .map((example, index) => [
+      `Example ${index + 1}${example.source_label.trim() ? `: ${example.source_label.trim()}` : ''}`,
+      example.post_excerpt.trim(),
+      example.engagement_signal.trim() ? `Engagement: ${example.engagement_signal.trim()}` : '',
+      example.why_it_worked.trim() ? `Why it worked: ${example.why_it_worked.trim()}` : '',
+    ].filter(Boolean).join('\n'))
+    .join('\n\n')
 }
 
 function SocialContentDetailPage() {
@@ -160,9 +230,12 @@ function SocialContentDetailPage() {
         const rag = asRecord(i.rag_context)
         const calibration = asRecord(rag?.content_calibration)
         const operatorFeedback = asRecord(calibration?.operator_feedback)
+        const priorPostExcerpt = asString(operatorFeedback?.prior_post_excerpt)
+        const engagementSignal = asString(operatorFeedback?.engagement_signal)
         setCalibrationFeedback({
-          prior_post_excerpt: asString(operatorFeedback?.prior_post_excerpt),
-          engagement_signal: asString(operatorFeedback?.engagement_signal),
+          prior_post_excerpt: priorPostExcerpt,
+          success_examples: normalizeSuccessExamples(operatorFeedback?.success_examples, priorPostExcerpt, engagementSignal),
+          engagement_signal: engagementSignal,
           audience_context: asString(operatorFeedback?.audience_context),
           revision_request: asString(operatorFeedback?.revision_request),
           claim_boundaries: asString(operatorFeedback?.claim_boundaries),
@@ -229,8 +302,38 @@ function SocialContentDetailPage() {
     setSaving(false)
   }
 
-  const updateCalibrationFeedback = (key: keyof CalibrationFeedback, value: string) => {
+  const updateCalibrationFeedback = (key: Exclude<keyof CalibrationFeedback, 'success_examples'>, value: string) => {
     setCalibrationFeedback((current) => ({ ...current, [key]: value }))
+  }
+
+  const updateCalibrationSuccessExample = (
+    index: number,
+    key: keyof CalibrationSuccessExample,
+    value: string,
+  ) => {
+    setCalibrationFeedback((current) => ({
+      ...current,
+      success_examples: current.success_examples.map((example, exampleIndex) => (
+        exampleIndex === index ? { ...example, [key]: value } : example
+      )),
+    }))
+  }
+
+  const addCalibrationSuccessExample = () => {
+    setCalibrationFeedback((current) => ({
+      ...current,
+      success_examples: [...current.success_examples, { ...EMPTY_SUCCESS_EXAMPLE }],
+    }))
+  }
+
+  const removeCalibrationSuccessExample = (index: number) => {
+    setCalibrationFeedback((current) => {
+      const nextExamples = current.success_examples.filter((_, exampleIndex) => exampleIndex !== index)
+      return {
+        ...current,
+        success_examples: nextExamples.length ? nextExamples : [{ ...EMPTY_SUCCESS_EXAMPLE }],
+      }
+    })
   }
 
   const handleSaveCalibrationFeedback = async () => {
@@ -242,8 +345,23 @@ function SocialContentDetailPage() {
 
       const existingRag = asRecord(item.rag_context) ?? {}
       const existingCalibration = asRecord(existingRag.content_calibration) ?? {}
+      const successExamples = calibrationFeedback.success_examples
+        .map((example) => ({
+          source_label: example.source_label.trim(),
+          post_excerpt: example.post_excerpt.trim(),
+          engagement_signal: example.engagement_signal.trim(),
+          why_it_worked: example.why_it_worked.trim(),
+        }))
+        .filter((example) => (
+          example.source_label
+          || example.post_excerpt
+          || example.engagement_signal
+          || example.why_it_worked
+        ))
+      const structuredPriorPostExcerpt = formatSuccessExamplesForPrompt(successExamples)
       const feedback = {
-        prior_post_excerpt: calibrationFeedback.prior_post_excerpt.trim(),
+        prior_post_excerpt: structuredPriorPostExcerpt || calibrationFeedback.prior_post_excerpt.trim(),
+        success_examples: successExamples,
         engagement_signal: calibrationFeedback.engagement_signal.trim(),
         audience_context: calibrationFeedback.audience_context.trim(),
         revision_request: calibrationFeedback.revision_request.trim(),
@@ -252,7 +370,7 @@ function SocialContentDetailPage() {
       }
       const hasFeedback = Object.entries(feedback)
         .filter(([key]) => key !== 'updated_at')
-        .some(([, value]) => Boolean(value))
+        .some(([, value]) => Array.isArray(value) ? value.length > 0 : Boolean(value))
       const rag_context = {
         ...existingRag,
         content_calibration: {
@@ -635,8 +753,19 @@ function SocialContentDetailPage() {
   const agentPilotComparisonPrompt = asString(agentPilotCalibration?.comparison_prompt)
   const agentPilotOperatorFeedback = asRecord(agentPilotCalibration?.operator_feedback)
   const agentPilotFeedbackUpdatedAt = asString(agentPilotOperatorFeedback?.updated_at)
-  const hasCalibrationFeedbackInput = Object.values(calibrationFeedback)
-    .some((value) => value.trim().length > 0)
+  const hasCalibrationSuccessExampleInput = calibrationFeedback.success_examples
+    .some((example) => (
+      example.source_label.trim()
+      || example.post_excerpt.trim()
+      || example.engagement_signal.trim()
+      || example.why_it_worked.trim()
+    ))
+  const hasCalibrationFeedbackInput = hasCalibrationSuccessExampleInput
+    || calibrationFeedback.prior_post_excerpt.trim().length > 0
+    || calibrationFeedback.engagement_signal.trim().length > 0
+    || calibrationFeedback.audience_context.trim().length > 0
+    || calibrationFeedback.revision_request.trim().length > 0
+    || calibrationFeedback.claim_boundaries.trim().length > 0
   const hasAgentPilotCalibrationGuidance = agentPilotPriorPatterns.length > 0
     || agentPilotVoicePrinciples.length > 0
     || agentPilotMissingContextPrompts.length > 0
@@ -861,27 +990,100 @@ function SocialContentDetailPage() {
                       </span>
                     )}
                   </div>
+                  <div className="mt-3 rounded-lg border border-silicon-slate/80 bg-background/35 p-3">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Successful Post References</p>
+                        <p className="mt-1 text-sm leading-6 text-gray-300">
+                          Add posts that sounded right, performed well, or captured the perspective this draft should match.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={addCalibrationSuccessExample}
+                        disabled={!isEditable}
+                        className="inline-flex w-fit items-center gap-2 rounded-lg border border-amber-500/40 px-3 py-2 text-sm text-amber-200 transition-colors hover:bg-amber-500/10 disabled:opacity-50"
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                        Add reference
+                      </button>
+                    </div>
+                    <div className="mt-3 grid gap-3">
+                      {calibrationFeedback.success_examples.map((example, index) => (
+                        <div key={index} className="rounded-lg border border-silicon-slate/80 bg-imperial-navy/45 p-3">
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-300">
+                              Reference {index + 1}
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => removeCalibrationSuccessExample(index)}
+                              disabled={!isEditable || calibrationFeedback.success_examples.length === 1}
+                              className="inline-flex items-center gap-1 rounded-md border border-gray-700 px-2 py-1 text-xs text-gray-400 transition-colors hover:border-red-400/60 hover:text-red-200 disabled:opacity-40"
+                              aria-label={`Remove reference ${index + 1}`}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                              Remove
+                            </button>
+                          </div>
+                          <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+                            <label className="block text-xs font-medium uppercase tracking-[0.12em] text-gray-500">
+                              Source or label
+                              <input
+                                value={example.source_label}
+                                onChange={(event) => updateCalibrationSuccessExample(index, 'source_label', event.target.value)}
+                                disabled={!isEditable}
+                                className="mt-2 w-full rounded-lg border border-gray-700 bg-gray-950/70 px-3 py-2 text-sm normal-case tracking-normal text-gray-200 disabled:opacity-60"
+                                placeholder="LinkedIn post, date, topic, or link"
+                              />
+                            </label>
+                            <label className="block text-xs font-medium uppercase tracking-[0.12em] text-gray-500">
+                              Why it worked
+                              <input
+                                value={example.why_it_worked}
+                                onChange={(event) => updateCalibrationSuccessExample(index, 'why_it_worked', event.target.value)}
+                                disabled={!isEditable}
+                                className="mt-2 w-full rounded-lg border border-gray-700 bg-gray-950/70 px-3 py-2 text-sm normal-case tracking-normal text-gray-200 disabled:opacity-60"
+                                placeholder="Strong comments, better hook, clearer point of view..."
+                              />
+                            </label>
+                            <label className="block text-xs font-medium uppercase tracking-[0.12em] text-gray-500">
+                              Engagement signal
+                              <textarea
+                                value={example.engagement_signal}
+                                onChange={(event) => updateCalibrationSuccessExample(index, 'engagement_signal', event.target.value)}
+                                disabled={!isEditable}
+                                rows={3}
+                                className="mt-2 w-full rounded-lg border border-gray-700 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-200 disabled:opacity-60"
+                                placeholder="Views, likes, comments, saves, or why you felt comfortable posting it."
+                              />
+                            </label>
+                            <label className="block text-xs font-medium uppercase tracking-[0.12em] text-gray-500">
+                              Post excerpt
+                              <textarea
+                                value={example.post_excerpt}
+                                onChange={(event) => updateCalibrationSuccessExample(index, 'post_excerpt', event.target.value)}
+                                disabled={!isEditable}
+                                rows={3}
+                                className="mt-2 w-full rounded-lg border border-gray-700 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-200 disabled:opacity-60"
+                                placeholder="Paste the passage Shaka should compare against."
+                              />
+                            </label>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                   <div className="mt-3 grid gap-3 lg:grid-cols-2">
                     <label className="block text-xs font-medium uppercase tracking-[0.12em] text-gray-500">
-                      Prior post or sample excerpt
-                      <textarea
-                        value={calibrationFeedback.prior_post_excerpt}
-                        onChange={(event) => updateCalibrationFeedback('prior_post_excerpt', event.target.value)}
-                        disabled={!isEditable}
-                        rows={4}
-                        className="mt-2 w-full rounded-lg border border-gray-700 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-200 disabled:opacity-60"
-                        placeholder="Paste the post, excerpt, or link that this draft should learn from."
-                      />
-                    </label>
-                    <label className="block text-xs font-medium uppercase tracking-[0.12em] text-gray-500">
-                      Engagement signal
+                      Overall engagement context
                       <textarea
                         value={calibrationFeedback.engagement_signal}
                         onChange={(event) => updateCalibrationFeedback('engagement_signal', event.target.value)}
                         disabled={!isEditable}
-                        rows={4}
+                        rows={3}
                         className="mt-2 w-full rounded-lg border border-gray-700 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-200 disabled:opacity-60"
-                        placeholder="Views, likes, comments, or why the post felt strong enough to publish."
+                        placeholder="What performance pattern or audience response should Shaka optimize for?"
                       />
                     </label>
                     <label className="block text-xs font-medium uppercase tracking-[0.12em] text-gray-500">

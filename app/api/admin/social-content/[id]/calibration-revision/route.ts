@@ -40,8 +40,31 @@ function asStringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
 }
 
+function asRecordArray(value: unknown): Record<string, unknown>[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is Record<string, unknown> => Boolean(asRecord(item)))
+    : []
+}
+
+function normalizeSuccessExamples(value: unknown) {
+  return asRecordArray(value)
+    .map((item) => ({
+      source_label: asString(item.source_label).trim(),
+      post_excerpt: asString(item.post_excerpt).trim(),
+      engagement_signal: asString(item.engagement_signal).trim(),
+      why_it_worked: asString(item.why_it_worked).trim(),
+    }))
+    .filter((item) => (
+      item.source_label
+      || item.post_excerpt
+      || item.engagement_signal
+      || item.why_it_worked
+    ))
+}
+
 function hasOperatorFeedback(feedback: Record<string, unknown> | null): boolean {
   if (!feedback) return false
+  if (normalizeSuccessExamples(feedback.success_examples).length > 0) return true
   return [
     'prior_post_excerpt',
     'engagement_signal',
@@ -55,6 +78,7 @@ function buildRevisionPrompt(row: SocialContentRow) {
   const ragContext = asRecord(row.rag_context) ?? {}
   const calibration = asRecord(ragContext.content_calibration) ?? {}
   const feedback = asRecord(calibration.operator_feedback) ?? {}
+  const successExamples = normalizeSuccessExamples(feedback.success_examples)
   const priorPatterns = Array.isArray(calibration.prior_success_patterns)
     ? calibration.prior_success_patterns
     : []
@@ -104,6 +128,9 @@ ${JSON.stringify({
 
 Prior success patterns to compare against:
 ${JSON.stringify(priorPatterns, null, 2)}
+
+Operator-provided successful post references:
+${JSON.stringify(successExamples, null, 2)}
 
 Voice principles:
 ${voicePrinciples.map((item) => `- ${item}`).join('\n')}
@@ -189,9 +216,11 @@ export async function POST(
 
     const calibration = asRecord(ragContext.content_calibration) ?? {}
     const requestedFeedback = asRecord(body.operator_feedback)
+    const requestedSuccessExamples = normalizeSuccessExamples(requestedFeedback?.success_examples)
     const operatorFeedback = hasOperatorFeedback(requestedFeedback)
       ? {
         prior_post_excerpt: asString(requestedFeedback?.prior_post_excerpt).trim(),
+        success_examples: requestedSuccessExamples,
         engagement_signal: asString(requestedFeedback?.engagement_signal).trim(),
         audience_context: asString(requestedFeedback?.audience_context).trim(),
         revision_request: asString(requestedFeedback?.revision_request).trim(),
