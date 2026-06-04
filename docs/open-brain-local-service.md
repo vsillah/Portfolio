@@ -2,6 +2,8 @@
 
 This document defines the Portfolio-facing contract for the local Open Brain. The Open Brain is user-owned local infrastructure; Portfolio Admin is only a dashboard, proposal, and wiki-overlay surface.
 
+Current implementation status is tracked in `docs/open-brain-roadmap-status.md`. Regenerate it with `npm run open-brain:roadmap-status -- --write docs/open-brain-roadmap-status.md` after completing an Open Brain implementation slice.
+
 ## Source Of Truth
 
 - Primary memory owner: local Open Brain service outside the Portfolio repo.
