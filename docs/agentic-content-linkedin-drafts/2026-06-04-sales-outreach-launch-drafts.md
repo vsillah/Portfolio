@@ -74,7 +74,7 @@ What proof would you show later if something went wrong?
 
 That is the layer I have been building into Portfolio.
 
-Not just agents. The operating system around them.
+Agents need the operating system around them.
 
 Trace records. Scope boundaries. Handoffs. Approval gates. Quality checks. Challenger review. Mission Control. Slack surfaces for mobile unblock. A client-safe way to explain what happened without exposing private raw material.
 
@@ -88,9 +88,7 @@ Small businesses do not need AI that adds another invisible mess.
 
 Nonprofits do not need tools that create more work for teams already carrying too much.
 
-The value is not the agent acting once.
-
-The value is knowing when it should act, what it was allowed to touch, how the work was evaluated, and where a person had the authority to say yes, pause, repair, or stop.
+The value starts when the team knows when it should act, what it was allowed to touch, how the work was evaluated, and where a person had the authority to say yes, pause, repair, or stop.
 
 Execution is becoming cheap.
 
@@ -203,7 +201,7 @@ If an agent is going to act on behalf of a business, the operator should be able
 
 That last part matters.
 
-Good scope is not only a list of permissions. It is a path for escalation.
+Good scope goes past a permissions list. It gives the team a path for escalation.
 
 The agent can prepare the work.
 
@@ -275,7 +273,7 @@ Sometimes it should stop and ask a human instead of trying to sound certain.
 
 That is the part I think many teams will underestimate.
 
-Agent quality is not only about the final output. It is about whether the system can explain the path it took to get there.
+Agent quality includes the final output, but the path matters just as much.
 
 In Portfolio, I have been pairing quality checks with challenger review before the work reaches human approval.
 
@@ -307,7 +305,7 @@ Where would your team draw the line between an agent that can draft and an agent
 Asset ID: `p2-client-one-pager-governed-agentic-operations`
 Channel: LinkedIn text post and sales follow-up seed
 Audience: founders, nonprofit executives, small business owners, enterprise AI sponsors
-Primary claim: the portfolio is useful because it shows the operating layer around agentic AI, not only the agent.
+Primary claim: the portfolio is useful because it shows the operating layer around agentic AI alongside the agent.
 Status: `human_review_ready`
 
 ### Post
@@ -318,7 +316,7 @@ What does it take to make AI agents useful in the real world?
 
 The answer keeps getting more practical.
 
-It is not enough to launch the agent.
+Launching the agent is only the opening move.
 
 You need the harness around it.
 
