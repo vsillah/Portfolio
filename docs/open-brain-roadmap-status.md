@@ -143,4 +143,3 @@ Evidence:
 - docs/model-ops-autoresearch.md
 
 Next action: Use approval cards to decide the next scoped experiment, then record outcomes as source/event records.
-
