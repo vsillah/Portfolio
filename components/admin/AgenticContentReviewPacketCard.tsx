@@ -118,6 +118,17 @@ export default function AgenticContentReviewPacketCard({
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
+        {packet.launchDraftPath ? (
+          <a
+            href={sourcePacketUrl(packet.launchDraftPath)}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-md border border-emerald-500/35 bg-emerald-500/10 px-3 py-2 text-xs font-medium text-emerald-100 transition-colors hover:border-emerald-400 hover:text-emerald-50"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+            Review launch draft
+          </a>
+        ) : null}
         <a
           href={sourcePacketUrl(packet.packetPath)}
           target="_blank"

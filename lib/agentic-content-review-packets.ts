@@ -20,7 +20,10 @@ export type AgenticContentReviewPacket = {
   approveMeaning: string
   sendBackMeaning: string
   targetSurface: AgenticContentReviewSurface
+  launchDraftPath?: string
 }
+
+const SALES_OUTREACH_LAUNCH_DRAFT_PATH = 'docs/agentic-content-linkedin-drafts/2026-06-04-sales-outreach-launch-drafts.md'
 
 export const AGENTIC_CONTENT_REVIEW_PACKETS: AgenticContentReviewPacket[] = [
   {
@@ -42,6 +45,7 @@ export const AGENTIC_CONTENT_REVIEW_PACKETS: AgenticContentReviewPacket[] = [
     approveMeaning: 'Open the Social Content approval gate, inspect the draft, then approve or publish only from that governed draft screen.',
     sendBackMeaning: 'Route a repair task if the claim, voice, source support, or channel fit is not ready for public review.',
     targetSurface: 'social',
+    launchDraftPath: SALES_OUTREACH_LAUNCH_DRAFT_PATH,
   },
   {
     assetId: 'p0-carousel-seven-things-after-agent-demo',
@@ -62,6 +66,7 @@ export const AGENTIC_CONTENT_REVIEW_PACKETS: AgenticContentReviewPacket[] = [
     approveMeaning: 'Open the Social Content approval path after reviewing the outline; visual build and publishing remain separate gates.',
     sendBackMeaning: 'Route a repair task if the slide story, evidence, or sequence needs another challenger pass.',
     targetSurface: 'social',
+    launchDraftPath: SALES_OUTREACH_LAUNCH_DRAFT_PATH,
   },
   {
     assetId: 'p1-linkedin-scope-safety-model',
@@ -82,6 +87,7 @@ export const AGENTIC_CONTENT_REVIEW_PACKETS: AgenticContentReviewPacket[] = [
     approveMeaning: 'Open the Social Content approval gate, inspect the draft, then approve or publish only from that governed draft screen.',
     sendBackMeaning: 'Route a repair task if the scope claim, safety framing, source support, or voice needs revision.',
     targetSurface: 'social',
+    launchDraftPath: SALES_OUTREACH_LAUNCH_DRAFT_PATH,
   },
   {
     assetId: 'p1-linkedin-agent-qa-scorecards',
@@ -102,6 +108,7 @@ export const AGENTIC_CONTENT_REVIEW_PACKETS: AgenticContentReviewPacket[] = [
     approveMeaning: 'Open the Social Content approval gate, inspect the draft, then approve or publish only from that governed draft screen.',
     sendBackMeaning: 'Route a repair task if the QA claim, scorecard framing, source support, or voice needs revision.',
     targetSurface: 'social',
+    launchDraftPath: SALES_OUTREACH_LAUNCH_DRAFT_PATH,
   },
   {
     assetId: 'p0-youtube-agentic-ai-teams-skip',
@@ -182,6 +189,7 @@ export const AGENTIC_CONTENT_REVIEW_PACKETS: AgenticContentReviewPacket[] = [
     approveMeaning: 'Open the Content Hub production path only after approving the editorial packet; PDF export and client sharing remain separate gates.',
     sendBackMeaning: 'Route a repair task if the buyer language, CTA, source support, or AmaduTown branding decision needs revision.',
     targetSurface: 'content',
+    launchDraftPath: SALES_OUTREACH_LAUNCH_DRAFT_PATH,
   },
   {
     assetId: 'p2-technical-appendix-agentic-proof-map',
