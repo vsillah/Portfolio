@@ -676,6 +676,16 @@ function RelationshipMapView({
     .filter((route): route is { insight: OpenBrainRelationshipInsight; source: DisplayRelationshipGraphNode; target: DisplayRelationshipGraphNode } => Boolean(route.source && route.target))
   const renderedEdges = relationshipLens === 'routes' ? [] : visibleEdges
   const renderedProposalRoutes = relationshipLens === 'edges' ? [] : visibleProposalRoutes
+  const renderedRelationshipNodeIds = new Set<string>()
+  for (const edge of renderedEdges) {
+    renderedRelationshipNodeIds.add(edge.fromId)
+    renderedRelationshipNodeIds.add(edge.toId)
+  }
+  for (const route of renderedProposalRoutes) {
+    renderedRelationshipNodeIds.add(route.source.id)
+    renderedRelationshipNodeIds.add(route.target.id)
+  }
+  const renderedOrphanedNodes = visibleNodes.filter((node) => !renderedRelationshipNodeIds.has(node.id)).length
   const graphMinHeight = Math.max(680, Math.ceil(visibleNodes.length / 3) * 150 + 210)
   const activeFilterCount = [typeFilter, privacyFilter, healthFilter, strengthFilter, statusFilter, decisionTrustFilter, relationshipLens].filter((value) => value !== 'all').length
   const selectedRouteLabel = visibleInsightSource && visibleInsightTarget
@@ -806,6 +816,15 @@ function RelationshipMapView({
             <RelationshipLegend color="bg-red-300" label="Weak or risky" />
             <RelationshipLegend color="border border-radiant-gold bg-transparent" label="Proposal-only action" />
           </div>
+          <RelationshipMapDiagnostics
+            renderedEdges={renderedEdges.length}
+            renderedProposalRoutes={renderedProposalRoutes.length}
+            visibleEdges={visibleEdges.length}
+            visibleProposalRoutes={visibleProposalRoutes.length}
+            renderedOrphanedNodes={renderedOrphanedNodes}
+            relationshipLens={relationshipLens}
+          />
+          <RelationshipNodeColorLegend nodes={visibleNodes} />
         </aside>
 
         <div
@@ -1324,6 +1343,77 @@ function RelationshipLegend({ color, label }: { color: string; label: string }) 
   )
 }
 
+function RelationshipMapDiagnostics({
+  renderedEdges,
+  renderedProposalRoutes,
+  visibleEdges,
+  visibleProposalRoutes,
+  renderedOrphanedNodes,
+  relationshipLens,
+}: {
+  renderedEdges: number
+  renderedProposalRoutes: number
+  visibleEdges: number
+  visibleProposalRoutes: number
+  renderedOrphanedNodes: number
+  relationshipLens: RelationshipLens
+}) {
+  const hiddenEdges = Math.max(0, visibleEdges - renderedEdges)
+  const hiddenRoutes = Math.max(0, visibleProposalRoutes - renderedProposalRoutes)
+  const diagnostic = renderedEdges === 0 && renderedProposalRoutes > 0
+    ? 'Only proposal routes are visible in this lens. No durable edge is being shown.'
+    : renderedEdges === 0 && renderedProposalRoutes === 0
+      ? 'No relationship is visible under the current filters and lens.'
+      : 'The graph is drawing relationship evidence for the current lens.'
+
+  return (
+    <div className="mt-5 rounded-lg border border-silicon-slate/60 bg-background/20 p-3 text-xs text-muted-foreground">
+      <p className="font-semibold uppercase tracking-[0.14em] text-radiant-gold">Map diagnostics</p>
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        <Detail label="Lens" value={relationshipLens} />
+        <Detail label="Rendered edges" value={renderedEdges} />
+        <Detail label="Proposal routes" value={renderedProposalRoutes} />
+        <Detail label="Unconnected nodes" value={renderedOrphanedNodes} />
+      </div>
+      <p className="mt-3 leading-relaxed">{diagnostic}</p>
+      {(hiddenEdges > 0 || hiddenRoutes > 0) ? (
+        <p className="mt-2 leading-relaxed">
+          Hidden by lens: {hiddenEdges} edge(s), {hiddenRoutes} proposal route(s).
+        </p>
+      ) : null}
+    </div>
+  )
+}
+
+function RelationshipNodeColorLegend({ nodes }: { nodes: RelationshipGraphNode[] }) {
+  const counts = new Map<string, { count: number; node: RelationshipGraphNode }>()
+  for (const node of nodes) {
+    const key = node.type === 'source' ? node.kind : node.type
+    const current = counts.get(key)
+    counts.set(key, { count: (current?.count || 0) + 1, node: current?.node || node })
+  }
+  const entries = [...counts.entries()].sort((a, b) => b[1].count - a[1].count || a[0].localeCompare(b[0]))
+
+  return (
+    <div className="mt-5 rounded-lg border border-silicon-slate/60 bg-background/20 p-3 text-xs text-muted-foreground">
+      <p className="font-semibold uppercase tracking-[0.14em] text-radiant-gold">Node colors</p>
+      <div className="mt-3 space-y-2">
+        {entries.length > 0 ? entries.map(([key, entry]) => (
+          <div key={key} className="flex items-center justify-between gap-3">
+            <span className="inline-flex min-w-0 items-center gap-2">
+              <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${relationshipNodeLegendColor(entry.node.type, entry.node.health, entry.node.kind)}`} />
+              <span className="truncate">{key.replace(/_/g, ' ')}</span>
+            </span>
+            <span className="tabular-nums">{entry.count}</span>
+          </div>
+        )) : (
+          <p>No visible node colors for the current filters.</p>
+        )}
+      </div>
+    </div>
+  )
+}
+
 function relationshipLensButtonClass(active: boolean) {
   return `rounded-md border px-2.5 py-1 text-[11px] font-medium transition ${
     active
@@ -1356,6 +1446,23 @@ function relationshipNodeTone(type: OpenBrainRelationshipNodeType, health: 'gree
   return health === 'yellow'
     ? 'border-yellow-300/55 bg-yellow-500/15 text-yellow-100'
     : 'border-silicon-slate/70 bg-silicon-slate text-platinum-white'
+}
+
+function relationshipNodeLegendColor(type: OpenBrainRelationshipNodeType, health: 'green' | 'yellow' | 'red', kind: string) {
+  if (health === 'red') return 'bg-red-300'
+  if (type === 'source') {
+    if (kind === 'workspace_root_report') return 'bg-sky-300'
+    if (kind === 'codex_automation') return 'bg-radiant-gold'
+    if (kind === 'runbook') return 'bg-emerald-300'
+    if (kind.includes('credential')) return 'bg-red-300'
+    if (kind.includes('model')) return 'bg-violet-300'
+    if (kind.includes('content') || kind.includes('voice')) return 'bg-pink-300'
+    return 'bg-cyan-300'
+  }
+  if (type === 'memory') return 'bg-platinum-white'
+  if (type === 'wiki') return 'bg-bronze'
+  if (type === 'proposal') return 'bg-yellow-300'
+  return health === 'yellow' ? 'bg-yellow-300' : 'bg-silicon-slate'
 }
 
 function relationshipNodePosition(index: number, total: number) {
@@ -1752,7 +1859,7 @@ function PrivacyBadge({ tier }: { tier: string }) {
   return <span className={`rounded-full border px-2 py-1 text-xs ${tone}`}>{tier}</span>
 }
 
-function Detail({ label, value }: { label: string; value: string }) {
+function Detail({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="rounded-lg border border-silicon-slate/60 bg-black/10 p-3">
       <p className="text-xs text-muted-foreground">{label}</p>
