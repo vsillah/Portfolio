@@ -2,6 +2,7 @@ import { runChiefOfStaffChat } from '@/lib/chief-of-staff-chat'
 import { recordAgentEvent } from '@/lib/agent-run'
 import {
   claimAgentWorkItem,
+  createAgentWorkItem,
   getAgentWorkItem,
   handoffAgentWorkItem,
   markAgentWorkItemReadyForKanban,
@@ -66,6 +67,10 @@ function agentRunsUrl(runId?: string | null) {
   return `${baseUrl()}/admin/agents/runs${runId ? `/${runId}` : ''}`
 }
 
+function agentKanbanUrl() {
+  return `${baseUrl()}/admin/agents/swarm-board`
+}
+
 function allowedSlackUserIds() {
   const raw =
     process.env.SLACK_AGENT_OPS_ALLOWED_USER_IDS ||
@@ -112,7 +117,7 @@ function idempotencyKey(payload: SlackInteractivePayload, value: SlackAgentActio
     payload.user?.id ?? 'unknown-user',
     payload.container?.message_ts ?? payload.message?.ts ?? payload.action_ts ?? 'unknown-ts',
     value.action,
-    value.approvalId ?? value.workItemId ?? value.runId ?? 'unknown-target',
+    value.approvalId ?? value.workItemId ?? value.runId ?? value.contentId ?? 'unknown-target',
   ].join(':')
 }
 
@@ -445,6 +450,57 @@ export async function handleSlackAgentAction(payload: SlackInteractivePayload): 
       contextRef,
     })
     return { responseType: 'ephemeral', text: `${result.reply}\n\nTrace: ${agentRunsUrl(result.runId)}` }
+  }
+
+  if (value.action === 'insight.ask_shaka') {
+    const note = value.note?.trim()
+    if (!value.contentId || !note) return { responseType: 'ephemeral', text: 'Missing insight packet.' }
+    const result = await runChiefOfStaffChat({
+      message: [
+        'Use this high-signal social engagement packet to recommend the safest mobile next step.',
+        'Do not publish, schedule, send messages, activate workflows, or mutate customer data.',
+        '',
+        note,
+      ].join('\n'),
+      userId: `slack:${authorization.userId}`,
+      triggerSource: 'slack_agent_insight_action',
+    })
+    return { responseType: 'ephemeral', text: `${result.reply}\n\nTrace: ${agentRunsUrl(result.runId)}` }
+  }
+
+  if (value.action === 'insight.draft_autoresearch') {
+    const note = value.note?.trim()
+    if (!value.contentId || !note) return { responseType: 'ephemeral', text: 'Missing insight packet.' }
+    const item = await createAgentWorkItem({
+      title: `AutoResearch follow-up for high-signal insight`,
+      objective: [
+        'Draft a proposal packet for adjacent research prompted by an engagement-ranked Social Content insight.',
+        'The output should identify the evidence gap, adjacent AI insight angle, recommended source path, acceptance criteria, and publishing boundary.',
+        '',
+        note,
+      ].join('\n'),
+      status: 'proposed',
+      priority: 'high',
+      ownerAgentKey: value.agentKey || 'research-source-register',
+      source: {
+        type: 'social_content_engagement_signal',
+        id: value.contentId,
+        label: 'High-signal AI insight',
+      },
+      metadata: {
+        created_from_slack_action: true,
+        slack_user_id: authorization.userId,
+        actor_label: authorization.actorLabel,
+        social_content_id: value.contentId,
+        insight_packet: note,
+        approval_boundary: 'Proposal only. No publishing, scheduling, outbound sends, workflow activation, credential changes, customer-data mutation, or production action.',
+      },
+      idempotencyKey: `slack-insight-autoresearch:${value.contentId}`,
+    })
+    return {
+      responseType: 'ephemeral',
+      text: `Drafted proposed AutoResearch work item: ${item.title}. Kanban: ${agentKanbanUrl()}?work_item=${encodeURIComponent(item.id)}`,
+    }
   }
 
   if (value.workItemId) {

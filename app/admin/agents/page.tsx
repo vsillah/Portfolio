@@ -377,7 +377,7 @@ type AutomationGoalSummary = {
 }
 
 type OperatorActionKind = 'morning-review' | 'hermes' | 'approval-drill' | 'runtime-evaluation'
-type SlackNotificationKind = 'pending_approvals' | 'blockers' | 'stale_runs' | 'review_ready' | 'goal_decisions'
+type SlackNotificationKind = 'pending_approvals' | 'blockers' | 'stale_runs' | 'review_ready' | 'goal_decisions' | 'high_signal_insights'
 
 const OPERATOR_ACTIONS: Array<{
   kind: OperatorActionKind
@@ -1437,6 +1437,7 @@ function SlackMobileBridgePanel({
     { kind: 'blockers', label: 'Send blockers', description: 'Blocked work with owner and next step context.' },
     { kind: 'stale_runs', label: 'Send stale runs', description: 'Failed or stale traces with recovery triage.' },
     { kind: 'goal_decisions', label: 'Send goal decisions', description: 'Goal-tagged tasks waiting on a human call.' },
+    { kind: 'high_signal_insights', label: 'Send insights', description: 'Engagement-ranked AI themes with safe research actions.' },
   ]
 
   return (

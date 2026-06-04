@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   claimAgentWorkItem: vi.fn(),
   getAgentWorkItem: vi.fn(),
   handoffAgentWorkItem: vi.fn(),
+  createAgentWorkItem: vi.fn(),
   markAgentWorkItemReadyForKanban: vi.fn(),
   recordAgentWorkItemBlocker: vi.fn(),
   routeAgentInboxItem: vi.fn(),
@@ -26,6 +27,7 @@ vi.mock('@/lib/agent-run', () => ({
 
 vi.mock('@/lib/agent-work-items', () => ({
   claimAgentWorkItem: mocks.claimAgentWorkItem,
+  createAgentWorkItem: mocks.createAgentWorkItem,
   getAgentWorkItem: mocks.getAgentWorkItem,
   handoffAgentWorkItem: mocks.handoffAgentWorkItem,
   markAgentWorkItemReadyForKanban: mocks.markAgentWorkItemReadyForKanban,
@@ -107,6 +109,27 @@ describe('Agent Ops Slack actions', () => {
     expect(recordedActionQuery.maybeSingle).toHaveBeenCalled()
     expect(mocks.claimAgentWorkItem).not.toHaveBeenCalled()
     expect(mocks.recordAgentEvent).not.toHaveBeenCalled()
+  })
+
+  it('uses content id in Slack action idempotency keys for insight buttons', async () => {
+    const recordedActionQuery = queryResult({
+      data: { id: 'event-1' },
+      error: null,
+    })
+    mocks.from.mockReturnValueOnce(recordedActionQuery)
+
+    const result = await handleSlackAgentAction(payload({
+      action: 'insight.draft_autoresearch',
+      contentId: 'content-1',
+      note: 'Theme: Agentic Operating System',
+    }))
+
+    expect(result.text).toContain('Already handled this Slack action')
+    expect(recordedActionQuery.eq).toHaveBeenCalledWith(
+      'idempotency_key',
+      'slack-agent-action:U123:1716400000.000:insight.draft_autoresearch:content-1',
+    )
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
   })
 
   it('requires Portfolio review for high-risk approvals', async () => {
@@ -251,5 +274,62 @@ describe('Agent Ops Slack actions', () => {
     }))
     expect(result.text).toContain('heartbeat stopped')
     expect(result.text).toContain('/admin/agents/runs/shaka-run')
+  })
+
+  it('asks Shaka for a high-signal insight next-step recommendation without mutating work', async () => {
+    mocks.from.mockReturnValueOnce(queryResult({ data: null, error: null }))
+    mocks.runChiefOfStaffChat.mockResolvedValue({
+      reply: 'Draft a research proposal first; do not publish from Slack.',
+      runId: 'shaka-insight-run',
+    })
+
+    const result = await handleSlackAgentAction(payload({
+      action: 'insight.ask_shaka',
+      contentId: 'content-1',
+      note: 'Theme: Agentic Operating System\nScore: 87\nRecommendation: Expand with adjacent AutoResearch',
+    }))
+
+    expect(mocks.runChiefOfStaffChat).toHaveBeenCalledWith(expect.objectContaining({
+      triggerSource: 'slack_agent_insight_action',
+      message: expect.stringContaining('Do not publish, schedule, send messages, activate workflows, or mutate customer data.'),
+    }))
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
+    expect(result.text).toContain('Draft a research proposal first')
+    expect(result.text).toContain('/admin/agents/runs/shaka-insight-run')
+  })
+
+  it('drafts a proposed AutoResearch work item from a high-signal insight Slack action', async () => {
+    mocks.from.mockReturnValueOnce(queryResult({ data: null, error: null }))
+    mocks.createAgentWorkItem.mockResolvedValue({
+      id: 'work-insight-1',
+      title: 'AutoResearch follow-up for high-signal insight',
+    })
+
+    const result = await handleSlackAgentAction(payload({
+      action: 'insight.draft_autoresearch',
+      contentId: 'content-1',
+      agentKey: 'research-source-register',
+      note: 'Theme: Agentic Operating System\nScore: 87\nRecommendation: Expand with adjacent AutoResearch',
+    }))
+
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'AutoResearch follow-up for high-signal insight',
+      status: 'proposed',
+      priority: 'high',
+      ownerAgentKey: 'research-source-register',
+      source: expect.objectContaining({
+        type: 'social_content_engagement_signal',
+        id: 'content-1',
+      }),
+      metadata: expect.objectContaining({
+        created_from_slack_action: true,
+        social_content_id: 'content-1',
+        approval_boundary: expect.stringContaining('No publishing, scheduling, outbound sends'),
+      }),
+      idempotencyKey: 'slack-insight-autoresearch:content-1',
+    }))
+    expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
+    expect(result.text).toContain('Drafted proposed AutoResearch work item')
+    expect(result.text).toContain('/admin/agents/swarm-board?work_item=work-insight-1')
   })
 })

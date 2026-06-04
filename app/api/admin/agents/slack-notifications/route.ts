@@ -13,6 +13,7 @@ const VALID_KINDS = new Set<AgentSlackNotificationKind>([
   'stale_runs',
   'review_ready',
   'goal_decisions',
+  'high_signal_insights',
   'standup_blockers',
   'selected_agent_question',
 ])
