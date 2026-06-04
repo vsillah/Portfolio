@@ -418,6 +418,13 @@ describe('OpenBrainPage', () => {
     expect(within(map).getByRole('button', { name: 'All relationships' })).toBeInTheDocument()
     expect(within(map).getByRole('button', { name: 'Persisted edges' })).toBeInTheDocument()
     expect(within(map).getByRole('button', { name: 'Proposal routes' })).toBeInTheDocument()
+    expect(within(map).getByText('Map diagnostics')).toBeInTheDocument()
+    expect(within(map).getByText('Rendered edges')).toBeInTheDocument()
+    expect(within(map).getByText('Unconnected nodes')).toBeInTheDocument()
+    expect(within(map).getByText('The graph is drawing relationship evidence for the current lens.')).toBeInTheDocument()
+    expect(within(map).getByText('Node colors')).toBeInTheDocument()
+    expect(within(map).getAllByText('codex automation').length).toBeGreaterThan(0)
+    expect(within(map).getAllByText('operating rule').length).toBeGreaterThan(0)
     expect(within(map).getByText('Selected record')).toBeInTheDocument()
     expect(within(map).getByText('Connected relationships')).toBeInTheDocument()
     expect(within(map).getAllByText('Proposed route').length).toBeGreaterThan(0)
@@ -445,6 +452,8 @@ describe('OpenBrainPage', () => {
 
     expect(within(map).getByText('2 active filter(s)')).toBeInTheDocument()
     expect(within(map).getByText('Filtered view: 3 node(s), 0 rendered edge(s), 1 rendered proposal route(s)')).toBeInTheDocument()
+    expect(within(map).getByText('Only proposal routes are visible in this lens. No durable edge is being shown.')).toBeInTheDocument()
+    expect(within(map).getByText('Hidden by lens: 1 edge(s), 0 proposal route(s).')).toBeInTheDocument()
 
     fireEvent.click(within(map).getByRole('button', { name: 'Reset filters' }))
 
