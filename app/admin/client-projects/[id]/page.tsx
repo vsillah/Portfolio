@@ -1296,7 +1296,7 @@ function AiOpsRoadmapAdminSection({
     } finally {
       setSmokeEvidenceLoading(false)
     }
-  }, [accessToken, projectId, roadmap])
+  }, [accessToken, projectId])
 
   useEffect(() => {
     if (!accessToken) {
