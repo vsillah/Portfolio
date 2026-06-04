@@ -25,6 +25,10 @@ import {
   getAgenticContentReviewPacketByAssetId,
   type AgenticContentReviewDecision,
 } from '@/lib/agentic-content-review-packets'
+import {
+  getAgenticVideoRenderReadinessPacketByAssetId,
+  type AgenticVideoRenderReadinessDecision,
+} from '@/lib/agentic-video-render-readiness-packets'
 import type {
   AgentOrgBoardAgent,
   AgentOrgBoardGoalMetric,
@@ -92,9 +96,18 @@ const AGENTIC_CONTENT_REVIEW_DECISIONS: AgenticContentReviewDecision[] = [
   'send_back_for_repair',
   'hold_for_human',
 ]
+const AGENTIC_VIDEO_RENDER_READINESS_DECISIONS: AgenticVideoRenderReadinessDecision[] = [
+  'prepare_preflight',
+  'send_back_to_script_repair',
+  'hold_provider_work',
+]
 
 function isAgenticContentReviewDecision(value: string | null): value is AgenticContentReviewDecision {
   return AGENTIC_CONTENT_REVIEW_DECISIONS.includes(value as AgenticContentReviewDecision)
+}
+
+function isAgenticVideoRenderReadinessDecision(value: string | null): value is AgenticVideoRenderReadinessDecision {
+  return AGENTIC_VIDEO_RENDER_READINESS_DECISIONS.includes(value as AgenticVideoRenderReadinessDecision)
 }
 
 function buildAgenticContentReviewPrefill(
@@ -135,6 +148,55 @@ function buildAgenticContentReviewPrefill(
     message: [
       `Review the agentic content packet for "${packet.title}" and convert this ${decisionLabel} decision into traceable Agent Ops work.`,
       `Keep this inside the existing Portfolio approval path. No side effects beyond creating the work item or next review plan.`,
+    ].join(' '),
+  }
+}
+
+function buildAgenticVideoRenderReadinessPrefill(
+  assetId: string,
+  decision: AgenticVideoRenderReadinessDecision,
+) {
+  const packet = getAgenticVideoRenderReadinessPacketByAssetId(assetId)
+  if (!packet) return null
+
+  const decisionInstruction = {
+    prepare_preflight: `Prepare the provider preflight work packet for this video asset. Run only readiness planning and checklist work. Do not start HeyGen, ElevenLabs, Remotion, HyperFrames, publishing, or outbound provider jobs. Preserve the boundary: ${packet.approvalBoundary}`,
+    send_back_to_script_repair: `Send this video back to script repair before provider planning. Focus on script length, channel fit, visual direction, source support, and anything that would prevent a clean render-readiness preflight.`,
+    hold_provider_work: 'Hold all provider work and frame the unresolved render or provider risk for Vambah. Do not request render approval until the human-only question is answered.',
+  }[decision]
+
+  const decisionLabel = {
+    prepare_preflight: 'prepare render preflight',
+    send_back_to_script_repair: 'send back to script repair',
+    hold_provider_work: 'hold provider work',
+  }[decision]
+
+  return {
+    packet,
+    decisionLabel,
+    goal: [
+      `Agentic video render-readiness: ${decisionLabel} - ${packet.title}`,
+      '',
+      decisionInstruction,
+      '',
+      `Asset ID: ${packet.assetId}`,
+      `Source script asset: ${packet.sourceAssetId}`,
+      `Channel: ${packet.channel}`,
+      `Format: ${packet.format}`,
+      `Provider targets: ${packet.providerTargets.join(', ')}`,
+      `Approval packet: ${packet.packetPath}`,
+      `Scope: ${packet.scope}`,
+      `Next gate: ${packet.nextGate}`,
+      '',
+      'Required checks:',
+      ...packet.requiredChecks.map((check) => `- ${check}`),
+      '',
+      'Hard blocks:',
+      ...packet.hardBlocks.map((block) => `- ${block}`),
+    ].join('\n'),
+    message: [
+      `Review the render-readiness packet for "${packet.title}" and convert this ${decisionLabel} decision into traceable Agent Ops work.`,
+      'Keep provider execution blocked unless the next explicit Shaka render approval gate is satisfied.',
     ].join(' '),
   }
 }
@@ -221,30 +283,55 @@ function StandupRoomContent() {
     const params = new URLSearchParams(window.location.search)
     const goalId = params.get('goal')
     if (goalId) setFocusedGoalId(goalId)
-    if (params.get('context') !== 'agentic-content-review') return
+
+    const context = params.get('context')
 
     const assetId = params.get('asset')
     const decision = params.get('decision')
-    if (!assetId || !isAgenticContentReviewDecision(decision)) return
+    if (!assetId || !decision) return
 
-    const prefill = buildAgenticContentReviewPrefill(assetId, decision)
-    if (!prefill) return
+    if (context === 'agentic-content-review' && isAgenticContentReviewDecision(decision)) {
+      const prefill = buildAgenticContentReviewPrefill(assetId, decision)
+      if (!prefill) return
 
-    setGoal(prefill.goal)
-    setMessage(prefill.message)
-    setGoalType('general')
-    setTranscript((current) => {
-      if (current.some((entry) => entry.id === `agentic-content-review-${assetId}-${decision}`)) return current
-      return [
-        ...current,
-        {
-          id: `agentic-content-review-${assetId}-${decision}`,
-          role: 'system',
-          content: `Loaded ${prefill.packet.title} for ${prefill.decisionLabel}. Review the prefilled goal, then draft or delegate it from this room.`,
-          created_at: new Date().toISOString(),
-        },
-      ]
-    })
+      setGoal(prefill.goal)
+      setMessage(prefill.message)
+      setGoalType('general')
+      setTranscript((current) => {
+        if (current.some((entry) => entry.id === `agentic-content-review-${assetId}-${decision}`)) return current
+        return [
+          ...current,
+          {
+            id: `agentic-content-review-${assetId}-${decision}`,
+            role: 'system',
+            content: `Loaded ${prefill.packet.title} for ${prefill.decisionLabel}. Review the prefilled goal, then draft or delegate it from this room.`,
+            created_at: new Date().toISOString(),
+          },
+        ]
+      })
+      return
+    }
+
+    if (context === 'agentic-render-readiness' && isAgenticVideoRenderReadinessDecision(decision)) {
+      const prefill = buildAgenticVideoRenderReadinessPrefill(assetId, decision)
+      if (!prefill) return
+
+      setGoal(prefill.goal)
+      setMessage(prefill.message)
+      setGoalType('general')
+      setTranscript((current) => {
+        if (current.some((entry) => entry.id === `agentic-render-readiness-${assetId}-${decision}`)) return current
+        return [
+          ...current,
+          {
+            id: `agentic-render-readiness-${assetId}-${decision}`,
+            role: 'system',
+            content: `Loaded ${prefill.packet.title} for ${prefill.decisionLabel}. Review the prefilled render-readiness goal, then draft or delegate it from this room.`,
+            created_at: new Date().toISOString(),
+          },
+        ]
+      })
+    }
   }, [])
 
   const participants = useMemo(() => {

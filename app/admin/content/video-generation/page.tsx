@@ -13,6 +13,7 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import AssetPicker from '@/components/admin/AssetPicker'
 import AgenticContentReviewPacketCard from '@/components/admin/AgenticContentReviewPacketCard'
+import AgenticVideoRenderReadinessPanel from '@/components/admin/AgenticVideoRenderReadinessPanel'
 import { ExtractionStatusChip } from '@/components/admin/ExtractionStatusChip'
 import { useWorkflowStatus } from '@/lib/hooks/useWorkflowStatus'
 import ProgressPanel, { type ProgressStep } from '@/components/admin/ProgressPanel'
@@ -21,6 +22,7 @@ import { getCurrentSession } from '@/lib/auth'
 import { VIDEO_CHANNEL_CONFIGS, type VideoChannel } from '@/lib/constants/video-channel'
 import { buildVideoRenderApproval, VIDEO_RENDER_APPROVAL_PACKET_PATH } from '@/lib/video-render-approval'
 import { getAgenticContentReviewPacketsForSurface } from '@/lib/agentic-content-review-packets'
+import { getAgenticVideoRenderReadinessPackets } from '@/lib/agentic-video-render-readiness-packets'
 
 /* ───────────── Types ───────────── */
 
@@ -168,6 +170,7 @@ function lastRunLabel(date: Date | null): string | null {
 
 const HEYGEN_SCRIPT_MAX = 5000
 const AGENTIC_VIDEO_REVIEW_PACKETS = getAgenticContentReviewPacketsForSurface('video')
+const AGENTIC_VIDEO_RENDER_READINESS_PACKETS = getAgenticVideoRenderReadinessPackets()
 
 /* ───────────── Component ───────────── */
 
@@ -1798,6 +1801,10 @@ export default function VideoGenerationPage() {
                 />
               ))}
             </div>
+          </div>
+
+          <div className="mb-6">
+            <AgenticVideoRenderReadinessPanel packets={AGENTIC_VIDEO_RENDER_READINESS_PACKETS} />
           </div>
 
           {/* ═══════════ PHASE 1: PLAN ═══════════ */}
