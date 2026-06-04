@@ -19,6 +19,9 @@ describe('agentic content review packet registry', () => {
       expect(packet.decisionPrompt).toMatch(/Decide/)
       expect(packet.approveMeaning).toMatch(/Open/)
       expect(packet.sendBackMeaning).toMatch(/Route a repair task/)
+      if (packet.launchDraftPath) {
+        expect(packet.launchDraftPath).toBe('docs/agentic-content-linkedin-drafts/2026-06-04-sales-outreach-launch-drafts.md')
+      }
     }
   })
 
@@ -56,5 +59,17 @@ describe('agentic content review packet registry', () => {
     )
     expect(buildAgenticContentReviewActionHref(packet!, 'send_back_for_repair')).toContain('decision=send_back_for_repair')
     expect(buildAgenticContentReviewActionHref(packet!, 'hold_for_human')).toContain('decision=hold_for_human')
+  })
+
+  it('links the sales outreach launch packet to the first Monday review batch', () => {
+    const launchPackets = AGENTIC_CONTENT_REVIEW_PACKETS.filter((packet) => packet.launchDraftPath)
+
+    expect(launchPackets.map((packet) => packet.assetId)).toEqual([
+      'p0-linkedin-flagship-agentic-operating-system',
+      'p0-carousel-seven-things-after-agent-demo',
+      'p1-linkedin-scope-safety-model',
+      'p1-linkedin-agent-qa-scorecards',
+      'p2-client-one-pager-governed-agentic-operations',
+    ])
   })
 })
