@@ -10,6 +10,9 @@ describe('agent automation goal catalog', () => {
     const tierOne = AUTOMATION_GOAL_SEEDS.filter((goal) => goal.tier === 1)
 
     expect(tierOne.map((goal) => goal.id)).toEqual([
+      'client-journey-lifecycle-control-plane',
+      'campaign-experimentation-ab-optimizer',
+      'mobile-chat-command-approval-surface',
       'inbound-lead-triage-to-booking',
       'meeting-intake-follow-up-drafts',
       'warm-lead-review-ready-outreach',
@@ -26,6 +29,9 @@ describe('agent automation goal catalog', () => {
 
     expect([...families]).toEqual(expect.arrayContaining([
       'inbound_sales',
+      'client_journey',
+      'campaign_experimentation',
+      'command_surface',
       'warm_lead_capture',
       'cold_outreach',
       'social_content',
