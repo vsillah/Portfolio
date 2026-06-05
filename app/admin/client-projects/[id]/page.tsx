@@ -40,6 +40,9 @@ import {
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import TimeTracker from '@/components/admin/TimeTracker'
+import ClientAiOpsSmokeEvidencePanel, {
+  type ClientAiOpsSmokeEvidenceReview,
+} from '@/components/admin/ClientAiOpsSmokeEvidencePanel'
 import { useAuth } from '@/components/AuthProvider'
 import { getCurrentSession } from '@/lib/auth'
 import { useParams } from 'next/navigation'
@@ -1250,6 +1253,9 @@ function AiOpsRoadmapAdminSection({
 }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [smokeEvidenceReview, setSmokeEvidenceReview] = useState<ClientAiOpsSmokeEvidenceReview | null>(null)
+  const [smokeEvidenceLoading, setSmokeEvidenceLoading] = useState(false)
+  const [smokeEvidenceError, setSmokeEvidenceError] = useState<string | null>(null)
 
   const createRoadmap = async () => {
     if (!accessToken) return
@@ -1273,6 +1279,32 @@ function AiOpsRoadmapAdminSection({
       setLoading(false)
     }
   }
+
+  const loadSmokeEvidenceReview = useCallback(async () => {
+    if (!accessToken) return
+    setSmokeEvidenceLoading(true)
+    setSmokeEvidenceError(null)
+    try {
+      const res = await fetch(`/api/admin/client-projects/${projectId}/ai-ops/smoke-evidence`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
+      setSmokeEvidenceReview(body as ClientAiOpsSmokeEvidenceReview)
+    } catch (err) {
+      setSmokeEvidenceError(err instanceof Error ? err.message : 'Failed to load smoke evidence')
+    } finally {
+      setSmokeEvidenceLoading(false)
+    }
+  }, [accessToken, projectId])
+
+  useEffect(() => {
+    if (!accessToken) {
+      setSmokeEvidenceReview(null)
+      return
+    }
+    loadSmokeEvidenceReview()
+  }, [accessToken, loadSmokeEvidenceReview, roadmap])
 
   const costs = roadmap?.clientView?.costSummary
   const phases = roadmap?.phases ?? []
@@ -1499,6 +1531,13 @@ function AiOpsRoadmapAdminSection({
           </p>
         </div>
       )}
+
+      <ClientAiOpsSmokeEvidencePanel
+        review={smokeEvidenceReview}
+        loading={smokeEvidenceLoading}
+        error={smokeEvidenceError}
+        onRefresh={loadSmokeEvidenceReview}
+      />
     </div>
   )
 }
