@@ -54,6 +54,14 @@ describe('PUT /api/admin/social-content/[id]', () => {
         status: 'ready_for_draft_review',
         operator_feedback: {
           prior_post_excerpt: 'A prior post about practical AI adoption.',
+          success_examples: [
+            {
+              source_label: 'LinkedIn post about practical AI adoption',
+              post_excerpt: 'A small business owner does not need another dashboard.',
+              engagement_signal: 'Strong comments from operators.',
+              why_it_worked: 'It opened with a concrete operating burden.',
+            },
+          ],
           engagement_signal: 'Strong comments from operators.',
           audience_context: 'Small business owners carrying operational load.',
           revision_request: 'Make the hook more concrete.',
