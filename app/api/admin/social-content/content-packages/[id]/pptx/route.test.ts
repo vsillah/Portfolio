@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 
 const mocks = vi.hoisted(() => ({
@@ -158,6 +158,10 @@ describe('POST /api/admin/social-content/content-packages/[id]/pptx', () => {
     mocks.contentPackagePptxFileName.mockReturnValue('ai-ops-field-guide.pptx')
     mocks.buildContentPackagePptxBuffer.mockResolvedValue(Buffer.from('pptx-buffer'))
     setupSupabase(state)
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
   it('requires approved media generation before building or uploading a deck', async () => {
