@@ -99,5 +99,7 @@ describe('ModelUsagePage', () => {
     expect(screen.getByText('Token burn calendar')).toBeInTheDocument()
     expect(screen.getByText('Slim repeated context before the next run')).toBeInTheDocument()
     expect(screen.getByText('Research transaction')).toBeInTheDocument()
+    expect(screen.getByText('Reviewed usage import packet')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Dry run/i })).toBeInTheDocument()
   })
 })
