@@ -1,8 +1,9 @@
 'use client'
 
+import Link from 'next/link'
 import { useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { DollarSign, TrendingUp, TrendingDown, Percent } from 'lucide-react'
+import { BrainCircuit, DollarSign, TrendingUp, TrendingDown, Percent } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import AdminPieChart from '@/components/admin/AdminPieChart'
@@ -134,7 +135,14 @@ function CostRevenuePageContent() {
             </p>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/admin/agents/model-usage"
+              className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/60 bg-background/45 px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-radiant-gold/45 hover:text-foreground"
+            >
+              <BrainCircuit size={16} />
+              Model usage
+            </Link>
             {(['mtd', 'qtd', 'ytd'] as const).map((p) => (
               <button
                 key={p}
