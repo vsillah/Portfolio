@@ -49,6 +49,19 @@ export interface CostEventInput {
   metadata?: Record<string, unknown>
 }
 
+function usageMetadata(usage: Usage): Record<string, number> {
+  return {
+    prompt_tokens: usage.prompt_tokens ?? usage.input_tokens ?? 0,
+    completion_tokens: usage.completion_tokens ?? usage.output_tokens ?? 0,
+    input_tokens: usage.input_tokens ?? usage.prompt_tokens ?? 0,
+    output_tokens: usage.output_tokens ?? usage.completion_tokens ?? 0,
+    total_tokens:
+      usage.total_tokens ??
+      (usage.prompt_tokens ?? usage.input_tokens ?? 0) +
+        (usage.completion_tokens ?? usage.output_tokens ?? 0),
+  }
+}
+
 /**
  * Compute OpenAI cost from token usage.
  */
@@ -126,6 +139,62 @@ export async function recordCostEvent(event: CostEventInput): Promise<{ ok: bool
   }
 }
 
+async function recordModelUsageLedgerEvent(input: {
+  usage: Usage
+  model: string
+  provider: 'openai' | 'anthropic'
+  amount: number
+  reference?: { type: string; id: string }
+  metadata?: Record<string, unknown>
+  agentRunId?: string
+}): Promise<void> {
+  try {
+    const { supabaseAdmin } = await import('@/lib/supabase')
+    if (!supabaseAdmin) return
+    const usage = usageMetadata(input.usage)
+    const metadata = input.metadata ?? {}
+    const taskCategory = typeof metadata.task_category === 'string' ? metadata.task_category : 'other'
+    const runtime = typeof metadata.runtime === 'string' ? metadata.runtime : 'api'
+    const clientProjectId = typeof metadata.client_project_id === 'string' ? metadata.client_project_id : null
+    const agentKey = typeof metadata.agent_key === 'string' ? metadata.agent_key : null
+    const actionLabel = typeof metadata.operation === 'string'
+      ? metadata.operation.replace(/_/g, ' ')
+      : input.reference?.type?.replace(/_/g, ' ') ?? 'Model usage transaction'
+
+    await supabaseAdmin.from('model_usage_events').insert({
+      occurred_at: new Date().toISOString(),
+      provider: input.provider,
+      runtime,
+      model: input.model,
+      task_category: taskCategory,
+      agent_key: agentKey,
+      client_project_id: clientProjectId,
+      client_label: typeof metadata.client_label === 'string' ? metadata.client_label : 'Portfolio',
+      action_label: actionLabel,
+      input_tokens: usage.input_tokens,
+      output_tokens: usage.output_tokens,
+      cached_tokens: typeof metadata.cached_tokens === 'number' ? metadata.cached_tokens : 0,
+      reasoning_tokens: typeof metadata.reasoning_tokens === 'number' ? metadata.reasoning_tokens : 0,
+      total_tokens: usage.total_tokens,
+      accepted_output_count: typeof metadata.accepted_output_count === 'number' ? metadata.accepted_output_count : 1,
+      resolved_work_item_count: typeof metadata.resolved_work_item_count === 'number' ? metadata.resolved_work_item_count : 0,
+      retry_count: typeof metadata.retry_count === 'number' ? metadata.retry_count : 0,
+      cost_usd: Math.round(input.amount * 10000) / 10000,
+      cost_basis: 'metered',
+      confidence: 'high',
+      source_type: input.reference?.type ?? 'llm_call',
+      source_id: input.reference?.id ?? input.agentRunId ?? null,
+      source_href: input.agentRunId ? `/admin/agents/runs/${input.agentRunId}` : null,
+      pricing_snapshot: { provider: input.provider, model: input.model, cost_event_source: `llm_${input.provider}` },
+      raw_metadata: metadata,
+      scrubbed: false,
+    })
+  } catch {
+    // Ledger writes are best-effort so older environments without the migration
+    // do not block the existing P&L cost event path.
+  }
+}
+
 /**
  * Record LLM cost after an OpenAI call.
  */
@@ -138,6 +207,7 @@ export async function recordOpenAICost(
 ): Promise<void> {
   const amount = computeOpenAICost(usage, model)
   if (amount <= 0) return
+  const usageFields = usageMetadata(usage)
   await recordCostEvent({
     occurred_at: new Date().toISOString(),
     source: 'llm_openai',
@@ -145,8 +215,9 @@ export async function recordOpenAICost(
     reference_type: reference?.type,
     reference_id: reference?.id,
     agent_run_id: agentRunId,
-    metadata: { model, ...metadata },
+    metadata: { model, ...usageFields, ...metadata },
   })
+  await recordModelUsageLedgerEvent({ usage, model, provider: 'openai', amount, reference, metadata, agentRunId })
 }
 
 /**
@@ -161,6 +232,7 @@ export async function recordAnthropicCost(
 ): Promise<void> {
   const amount = computeAnthropicCost(usage, model)
   if (amount <= 0) return
+  const usageFields = usageMetadata(usage)
   await recordCostEvent({
     occurred_at: new Date().toISOString(),
     source: 'llm_anthropic',
@@ -168,6 +240,7 @@ export async function recordAnthropicCost(
     reference_type: reference?.type,
     reference_id: reference?.id,
     agent_run_id: agentRunId,
-    metadata: { model, ...metadata },
+    metadata: { model, ...usageFields, ...metadata },
   })
+  await recordModelUsageLedgerEvent({ usage, model, provider: 'anthropic', amount, reference, metadata, agentRunId })
 }

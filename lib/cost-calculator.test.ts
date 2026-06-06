@@ -144,8 +144,11 @@ describe('recordOpenAICost / recordAnthropicCost', () => {
       { operation: 'generate_insights' }
     )
 
-    expect(mocks.insertMock).toHaveBeenCalledTimes(1)
-    expect(mocks.insertMock).toHaveBeenCalledWith(
+    expect(mocks.insertMock).toHaveBeenCalledTimes(2)
+    expect(mocks.fromMock).toHaveBeenCalledWith('cost_events')
+    expect(mocks.fromMock).toHaveBeenCalledWith('model_usage_events')
+    expect(mocks.insertMock).toHaveBeenNthCalledWith(
+      1,
       expect.objectContaining({
         source: 'llm_openai',
         amount: 0.15,
@@ -153,8 +156,29 @@ describe('recordOpenAICost / recordAnthropicCost', () => {
         reference_type: 'diagnostic_audit',
         reference_id: 'audit-123',
         agent_run_id: null,
-        metadata: { model: 'gpt-4o-mini', operation: 'generate_insights' },
+        metadata: {
+          model: 'gpt-4o-mini',
+          prompt_tokens: 1_000_000,
+          completion_tokens: 0,
+          input_tokens: 1_000_000,
+          output_tokens: 0,
+          total_tokens: 1_000_000,
+          operation: 'generate_insights',
+        },
       })
+    )
+    expect(mocks.insertMock).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        provider: 'openai',
+        model: 'gpt-4o-mini',
+        input_tokens: 1_000_000,
+        output_tokens: 0,
+        total_tokens: 1_000_000,
+        cost_usd: 0.15,
+        cost_basis: 'metered',
+        confidence: 'high',
+      }),
     )
   })
 
