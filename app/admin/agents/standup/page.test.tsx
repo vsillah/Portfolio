@@ -598,7 +598,7 @@ describe('AgentStandupRoomPage', () => {
 
     render(<AgentStandupRoomPage />)
 
-    expect(await screen.findByText('Agent Standup Room')).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Standup Room' })).toBeInTheDocument()
     expect(screen.getByPlaceholderText('What should the swarm accomplish?')).toHaveValue('')
     expect(screen.getByPlaceholderText(/Ask about blockers/i)).toHaveValue('')
     expect(screen.queryByText(/Loaded .* for .*Review the prefilled/i)).not.toBeInTheDocument()
