@@ -24,6 +24,39 @@ type Snapshot = ModelUsageSnapshot & { ok?: boolean }
 
 type DatePreset = '30d' | 'mtd' | 'qtd'
 
+const DEFAULT_IMPORT_PACKET = JSON.stringify({
+  events: [
+    {
+      occurredAt: '2026-06-06T12:00:00.000Z',
+      provider: 'codex',
+      runtime: 'codex',
+      model: 'gpt-5-codex',
+      taskCategory: 'coding',
+      clientLabel: 'Portfolio',
+      actionLabel: 'Reviewed Codex session import',
+      inputTokens: 12000,
+      outputTokens: 1800,
+      costBasis: 'subscription_prorated',
+      confidence: 'medium',
+      sourceTrace: { type: 'codex_session_import', id: 'replace-with-session-id' },
+      sourceMetadata: { source: 'manual-reviewed-import', category: 'implementation' },
+    },
+  ],
+  subscriptionAllocations: [
+    {
+      provider: 'codex',
+      runtime: 'any',
+      accountLabel: 'Codex subscription',
+      monthlyCostUsd: 20,
+      periodStart: '2026-06-01T00:00:00.000Z',
+      periodEnd: '2026-06-30T23:59:59.999Z',
+      allocationBasis: 'token_share',
+      confidence: 'medium',
+      notes: 'Reviewed flat-rate allocation; no provider account connection.',
+    },
+  ],
+}, null, 2)
+
 function dateRange(preset: DatePreset) {
   const now = new Date()
   const to = now.toISOString().slice(0, 10)
@@ -65,6 +98,9 @@ function ModelUsageContent() {
   const [modelFilter, setModelFilter] = useState('all')
   const [runtimeFilter, setRuntimeFilter] = useState('all')
   const [confidenceFilter, setConfidenceFilter] = useState('all')
+  const [importText, setImportText] = useState(DEFAULT_IMPORT_PACKET)
+  const [importing, setImporting] = useState(false)
+  const [importResult, setImportResult] = useState<string | null>(null)
 
   const fetchSnapshot = useCallback(async () => {
     setLoading(true)
@@ -112,6 +148,36 @@ function ModelUsageContent() {
       confidences: uniqueOptions(events.map((event) => ({ key: event.confidence, label: event.confidence }))),
     }
   }, [snapshot?.events])
+
+  const submitImportPacket = useCallback(async (dryRun: boolean) => {
+    setImporting(true)
+    setImportResult(null)
+    try {
+      const parsed = JSON.parse(importText)
+      const session = await getCurrentSession()
+      if (!session?.access_token) throw new Error('Missing admin session')
+      const res = await fetch('/api/admin/model-usage/import', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...parsed, dryRun }),
+      })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
+      if (dryRun) {
+        setImportResult(`Dry run passed: ${body.eventCount ?? 0} event(s), ${body.subscriptionAllocationCount ?? 0} allocation row(s). ${(body.warnings ?? []).join(' ')}`)
+      } else {
+        setImportResult(`Imported ${body.insertedEvents ?? 0} event(s) and ${body.insertedSubscriptionAllocations ?? 0} allocation row(s). ${(body.warnings ?? []).join(' ')}`)
+        fetchSnapshot()
+      }
+    } catch (err) {
+      setImportResult(err instanceof Error ? err.message : 'Import failed')
+    } finally {
+      setImporting(false)
+    }
+  }, [fetchSnapshot, importText])
 
   return (
     <div className="agent-ops-page min-h-screen p-5 text-foreground lg:p-7">
@@ -234,6 +300,52 @@ function ModelUsageContent() {
                   )}
                 </div>
               </div>
+            </section>
+
+            <section className="agent-ops-card rounded-lg border p-4">
+              <div className="mb-4 flex flex-col gap-2 xl:flex-row xl:items-start xl:justify-between">
+                <div>
+                  <div className="flex items-center gap-2 text-sm font-semibold">
+                    <BrainCircuit size={16} className="text-radiant-gold" />
+                    Reviewed usage import packet
+                  </div>
+                  <p className="mt-1 max-w-3xl text-xs text-muted-foreground">
+                    Import audited usage rows or subscription allocation rules from Codex, Claude Code, Gemini, or local model records. Raw prompts, transcripts, secrets, credentials, and provider account actions are blocked from this path.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => submitImportPacket(true)}
+                    disabled={importing}
+                    className="agent-ops-button-muted disabled:opacity-60"
+                  >
+                    <ShieldCheck size={16} />
+                    Dry run
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => submitImportPacket(false)}
+                    disabled={importing}
+                    className="agent-ops-button-secondary disabled:opacity-60"
+                  >
+                    <Activity size={16} />
+                    Import reviewed packet
+                  </button>
+                </div>
+              </div>
+              <textarea
+                value={importText}
+                onChange={(event) => setImportText(event.target.value)}
+                spellCheck={false}
+                className="min-h-[220px] w-full rounded-lg border border-silicon-slate/60 bg-background/80 p-3 font-mono text-xs text-foreground outline-none focus:border-radiant-gold/60"
+                aria-label="Model usage import packet JSON"
+              />
+              {importResult ? (
+                <p className="mt-3 rounded-lg border border-silicon-slate/60 bg-background/45 p-3 text-sm text-muted-foreground">
+                  {importResult}
+                </p>
+              ) : null}
             </section>
 
             <section className="agent-ops-card rounded-lg border p-4">

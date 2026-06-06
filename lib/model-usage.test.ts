@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   buildModelUsageSnapshotFromEvents,
+  buildModelUsageImportPlan,
   computeModelUsageCost,
   inferModelUsageProvider,
   inferTaskCategory,
@@ -60,6 +61,72 @@ describe('model usage cost and categorization', () => {
     expect(inferTaskCategory({ workflow_key: 'video_generation_prompt_format' })).toBe('video')
     expect(inferTaskCategory({ artifact_type: 'linkedin_post' })).toBe('social')
     expect(inferTaskCategory({ operation: 'gmail_outreach_draft' })).toBe('outreach')
+  })
+})
+
+describe('buildModelUsageImportPlan', () => {
+  it('normalizes reviewed usage events and subscription allocations', () => {
+    const plan = buildModelUsageImportPlan({
+      dryRun: true,
+      events: [{
+        occurredAt: '2026-06-06T12:00:00.000Z',
+        provider: 'google',
+        runtime: 'api',
+        model: 'gemini-2.5-flash',
+        taskCategory: 'research',
+        clientLabel: 'Acme',
+        actionLabel: 'Gemini research import',
+        inputTokens: 1000,
+        outputTokens: 200,
+        sourceTrace: { type: 'gemini_usage_export', id: 'gemini-row-1' },
+        sourceMetadata: { exportBatch: 'batch-1' },
+      }],
+      subscriptionAllocations: [{
+        provider: 'codex',
+        runtime: 'any',
+        accountLabel: 'Codex subscription',
+        monthlyCostUsd: 20,
+        periodStart: '2026-06-01T00:00:00.000Z',
+        periodEnd: '2026-06-30T23:59:59.999Z',
+      }],
+    }, '2026-06-06T13:00:00.000Z')
+
+    expect(plan.dryRun).toBe(true)
+    expect(plan.eventRows[0]).toMatchObject({
+      provider: 'google',
+      runtime: 'api',
+      task_category: 'research',
+      client_label: 'Acme',
+      total_tokens: 1200,
+      source_type: 'gemini_usage_export',
+      source_id: 'gemini-row-1',
+      scrubbed: true,
+    })
+    expect(plan.subscriptionAllocationRows[0]).toMatchObject({
+      provider: 'codex',
+      runtime: 'any',
+      account_label: 'Codex subscription',
+      monthly_cost_usd: 20,
+      allocation_basis: 'token_share',
+    })
+  })
+
+  it('rejects raw prompts, messages, transcripts, and secret-like metadata keys', () => {
+    expect(() => buildModelUsageImportPlan({
+      events: [{
+        provider: 'codex',
+        model: 'gpt-5-codex',
+        sourceMetadata: { rawPrompt: 'do not store this' },
+      }],
+    })).toThrow(/not allowed/)
+
+    expect(() => buildModelUsageImportPlan({
+      events: [{
+        provider: 'codex',
+        model: 'gpt-5-codex',
+        pricingSnapshot: { apiKey: 'secret' },
+      }],
+    })).toThrow(/not allowed/)
   })
 })
 

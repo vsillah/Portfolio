@@ -121,6 +121,103 @@ export type ModelUsageSnapshot = {
   clientSafeEvents: ModelUsageLedgerEvent[]
 }
 
+export type ModelUsageImportEventInput = {
+  occurredAt?: string
+  provider: ModelUsageProvider
+  runtime?: ModelUsageRuntime
+  model: string
+  taskCategory?: ModelUsageTaskCategory
+  agentKey?: string | null
+  clientProjectId?: string | null
+  clientLabel?: string | null
+  actionLabel?: string | null
+  inputTokens?: number
+  outputTokens?: number
+  cachedTokens?: number
+  reasoningTokens?: number
+  totalTokens?: number
+  acceptedOutputCount?: number
+  resolvedWorkItemCount?: number
+  retryCount?: number
+  costUsd?: number
+  costBasis?: ModelUsageCostBasis
+  confidence?: ModelUsageConfidence
+  sourceTrace?: {
+    type?: string
+    id?: string | null
+    href?: string | null
+  }
+  pricingSnapshot?: Record<string, unknown>
+  sourceMetadata?: Record<string, unknown>
+}
+
+export type ModelUsageSubscriptionAllocationInput = {
+  provider: ModelUsageProvider
+  runtime?: ModelUsageRuntime | 'any'
+  accountLabel: string
+  monthlyCostUsd: number
+  periodStart: string
+  periodEnd: string
+  allocationBasis?: 'token_share' | 'event_share' | 'manual_weight'
+  confidence?: ModelUsageConfidence
+  notes?: string | null
+}
+
+export type ModelUsageImportPacket = {
+  dryRun?: boolean
+  events?: ModelUsageImportEventInput[]
+  subscriptionAllocations?: ModelUsageSubscriptionAllocationInput[]
+}
+
+export type ModelUsageImportPlan = {
+  dryRun: boolean
+  eventRows: ModelUsageEventInsertRow[]
+  subscriptionAllocationRows: ModelUsageSubscriptionAllocationInsertRow[]
+  warnings: string[]
+}
+
+export type ModelUsageEventInsertRow = {
+  occurred_at: string
+  provider: ModelUsageProvider
+  runtime: ModelUsageRuntime
+  model: string
+  task_category: ModelUsageTaskCategory
+  agent_key: string | null
+  client_project_id: string | null
+  client_label: string
+  action_label: string
+  input_tokens: number
+  output_tokens: number
+  cached_tokens: number
+  reasoning_tokens: number
+  total_tokens: number
+  accepted_output_count: number
+  resolved_work_item_count: number
+  retry_count: number
+  cost_usd: number
+  cost_basis: ModelUsageCostBasis
+  confidence: ModelUsageConfidence
+  source_type: string
+  source_id: string | null
+  source_href: string | null
+  pricing_snapshot: Record<string, unknown>
+  raw_metadata: Record<string, unknown>
+  scrubbed: boolean
+}
+
+export type ModelUsageSubscriptionAllocationInsertRow = {
+  provider: ModelUsageProvider
+  runtime: ModelUsageRuntime | 'any'
+  account_label: string
+  monthly_cost_usd: number
+  period_start: string
+  period_end: string
+  allocation_basis: 'token_share' | 'event_share' | 'manual_weight'
+  confidence: ModelUsageConfidence
+  notes: string | null
+  active: boolean
+}
+
 export type ModelPricingSnapshot = {
   provider: ModelUsageProvider
   model: string
@@ -140,6 +237,8 @@ export const MODEL_PRICING_CATALOG: ModelPricingSnapshot[] = [
   { provider: 'google', model: 'gemini-2.5-pro', inputUsdPer1MTokens: 1.25, outputUsdPer1MTokens: 10, sourceUrl: 'https://ai.google.dev/gemini-api/docs/pricing', effectiveFrom: '2025-01-01', pricingState: 'needs_review' },
   { provider: 'google', model: 'gemini-2.5-flash', inputUsdPer1MTokens: 0.3, outputUsdPer1MTokens: 2.5, sourceUrl: 'https://ai.google.dev/gemini-api/docs/pricing', effectiveFrom: '2025-01-01', pricingState: 'needs_review' },
 ]
+
+const FORBIDDEN_IMPORT_KEY_PATTERN = /(api[_-]?key|secret|token|password|credential|raw[_-]?prompt|prompt|messages|transcript|content)/i
 
 function roundUsd(value: number) {
   return Math.round(value * 10_000) / 10_000
@@ -186,6 +285,62 @@ export function inferTaskCategory(metadata: Record<string, unknown> | null | und
   if (/automation|n8n|workflow/.test(joined)) return 'automation'
   if (/code|coding|implementation/.test(joined)) return 'coding'
   return 'other'
+}
+
+export function buildModelUsageImportPlan(packet: ModelUsageImportPacket, now = new Date().toISOString()): ModelUsageImportPlan {
+  const eventInputs = packet.events ?? []
+  const allocationInputs = packet.subscriptionAllocations ?? []
+  if (eventInputs.length === 0 && allocationInputs.length === 0) {
+    throw new Error('Import packet must include at least one event or subscription allocation.')
+  }
+  if (eventInputs.length > 100) throw new Error('Import packet cannot include more than 100 usage events.')
+  if (allocationInputs.length > 25) throw new Error('Import packet cannot include more than 25 subscription allocations.')
+
+  const warnings: string[] = []
+  return {
+    dryRun: packet.dryRun === true,
+    eventRows: eventInputs.map((event, index) => normalizeImportEvent(event, index, now, warnings)),
+    subscriptionAllocationRows: allocationInputs.map((allocation, index) => normalizeSubscriptionAllocation(allocation, index)),
+    warnings,
+  }
+}
+
+export async function importModelUsagePacket(packet: ModelUsageImportPacket): Promise<{
+  ok: true
+  dryRun: boolean
+  insertedEvents: number
+  insertedSubscriptionAllocations: number
+  warnings: string[]
+}> {
+  const plan = buildModelUsageImportPlan(packet)
+  if (plan.dryRun) {
+    return {
+      ok: true,
+      dryRun: true,
+      insertedEvents: 0,
+      insertedSubscriptionAllocations: 0,
+      warnings: plan.warnings,
+    }
+  }
+
+  const { supabaseAdmin } = await import('@/lib/supabase')
+  if (!supabaseAdmin) throw new Error('Database not available')
+  if (plan.eventRows.length > 0) {
+    const { error } = await supabaseAdmin.from('model_usage_events').insert(plan.eventRows)
+    if (error) throw new Error(error.message)
+  }
+  if (plan.subscriptionAllocationRows.length > 0) {
+    const { error } = await supabaseAdmin.from('model_usage_subscription_allocations').insert(plan.subscriptionAllocationRows)
+    if (error) throw new Error(error.message)
+  }
+
+  return {
+    ok: true,
+    dryRun: false,
+    insertedEvents: plan.eventRows.length,
+    insertedSubscriptionAllocations: plan.subscriptionAllocationRows.length,
+    warnings: plan.warnings,
+  }
 }
 
 export function computeModelUsageCost(
@@ -370,6 +525,129 @@ function efficiencyScore(tokens: number, costUsd: number, acceptedOutputs: numbe
 
 function labelForKey(value: string) {
   return value.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())
+}
+
+function normalizeImportEvent(
+  event: ModelUsageImportEventInput,
+  index: number,
+  now: string,
+  warnings: string[],
+): ModelUsageEventInsertRow {
+  assertSafeImportObject(event.sourceMetadata, `events[${index}].sourceMetadata`)
+  assertSafeImportObject(event.pricingSnapshot, `events[${index}].pricingSnapshot`)
+  const provider = normalizeProvider(event.provider)
+  const runtime = normalizeRuntime(event.runtime)
+  const taskCategory = normalizeTaskCategory(event.taskCategory)
+  const inputTokens = nonNegativeInteger(event.inputTokens, `events[${index}].inputTokens`)
+  const outputTokens = nonNegativeInteger(event.outputTokens, `events[${index}].outputTokens`)
+  const cachedTokens = nonNegativeInteger(event.cachedTokens, `events[${index}].cachedTokens`)
+  const reasoningTokens = nonNegativeInteger(event.reasoningTokens, `events[${index}].reasoningTokens`)
+  const totalTokens = nonNegativeInteger(event.totalTokens, `events[${index}].totalTokens`) || inputTokens + outputTokens + cachedTokens + reasoningTokens
+  const sourceType = cleanLabel(event.sourceTrace?.type, 'manual_model_usage_import')
+  const sourceId = cleanNullableString(event.sourceTrace?.id)
+  if (!sourceId) warnings.push(`events[${index}] has no sourceTrace.id; duplicate detection will be weaker.`)
+  const model = cleanRequiredString(event.model, `events[${index}].model`)
+  const computedCost = computeModelUsageCost({ input_tokens: inputTokens, output_tokens: outputTokens, total_tokens: totalTokens }, provider, model)
+  const explicitCost = typeof event.costUsd === 'number' && Number.isFinite(event.costUsd)
+    ? roundUsd(Math.max(0, event.costUsd))
+    : null
+  const costUsd = explicitCost ?? computedCost.costUsd
+  const costBasis = normalizeCostBasis(event.costBasis ?? (costUsd > 0 ? computedCost.costBasis : provider === 'local' || provider === 'open_source' ? 'local_estimated' : 'inferred'))
+  const confidence = normalizeConfidence(event.confidence ?? (explicitCost != null || computedCost.pricingSnapshot ? 'medium' : 'low'))
+
+  return {
+    occurred_at: event.occurredAt ? normalizeIso(event.occurredAt, `events[${index}].occurredAt`) : now,
+    provider,
+    runtime,
+    model,
+    task_category: taskCategory,
+    agent_key: cleanNullableString(event.agentKey),
+    client_project_id: cleanNullableString(event.clientProjectId),
+    client_label: cleanLabel(event.clientLabel, 'Portfolio'),
+    action_label: cleanLabel(event.actionLabel, `${labelForKey(taskCategory)} import`),
+    input_tokens: inputTokens,
+    output_tokens: outputTokens,
+    cached_tokens: cachedTokens,
+    reasoning_tokens: reasoningTokens,
+    total_tokens: totalTokens,
+    accepted_output_count: nonNegativeInteger(event.acceptedOutputCount, `events[${index}].acceptedOutputCount`),
+    resolved_work_item_count: nonNegativeInteger(event.resolvedWorkItemCount, `events[${index}].resolvedWorkItemCount`),
+    retry_count: nonNegativeInteger(event.retryCount, `events[${index}].retryCount`),
+    cost_usd: costUsd,
+    cost_basis: costBasis,
+    confidence,
+    source_type: sourceType,
+    source_id: sourceId,
+    source_href: cleanNullableString(event.sourceTrace?.href),
+    pricing_snapshot: {
+      ...(computedCost.pricingSnapshot ?? {}),
+      ...(event.pricingSnapshot ?? {}),
+      importPacket: true,
+    },
+    raw_metadata: event.sourceMetadata ?? {},
+    scrubbed: true,
+  }
+}
+
+function normalizeSubscriptionAllocation(
+  allocation: ModelUsageSubscriptionAllocationInput,
+  index: number,
+): ModelUsageSubscriptionAllocationInsertRow {
+  const monthlyCostUsd = typeof allocation.monthlyCostUsd === 'number' && Number.isFinite(allocation.monthlyCostUsd)
+    ? Math.max(0, allocation.monthlyCostUsd)
+    : NaN
+  if (!Number.isFinite(monthlyCostUsd)) throw new Error(`subscriptionAllocations[${index}].monthlyCostUsd must be a non-negative number.`)
+  const periodStart = normalizeIso(allocation.periodStart, `subscriptionAllocations[${index}].periodStart`)
+  const periodEnd = normalizeIso(allocation.periodEnd, `subscriptionAllocations[${index}].periodEnd`)
+  if (periodEnd <= periodStart) throw new Error(`subscriptionAllocations[${index}].periodEnd must be after periodStart.`)
+  return {
+    provider: normalizeProvider(allocation.provider),
+    runtime: allocation.runtime === 'any' ? 'any' : normalizeRuntime(allocation.runtime),
+    account_label: cleanRequiredString(allocation.accountLabel, `subscriptionAllocations[${index}].accountLabel`),
+    monthly_cost_usd: roundUsd(monthlyCostUsd),
+    period_start: periodStart,
+    period_end: periodEnd,
+    allocation_basis: allocation.allocationBasis === 'event_share' || allocation.allocationBasis === 'manual_weight' ? allocation.allocationBasis : 'token_share',
+    confidence: normalizeConfidence(allocation.confidence),
+    notes: cleanNullableString(allocation.notes),
+    active: true,
+  }
+}
+
+function assertSafeImportObject(value: Record<string, unknown> | null | undefined, path: string) {
+  if (!value) return
+  for (const key of Object.keys(value)) {
+    if (FORBIDDEN_IMPORT_KEY_PATTERN.test(key)) {
+      throw new Error(`${path}.${key} is not allowed in model usage import packets.`)
+    }
+  }
+}
+
+function cleanRequiredString(value: unknown, path: string) {
+  if (typeof value !== 'string' || !value.trim()) throw new Error(`${path} is required.`)
+  return value.trim()
+}
+
+function cleanNullableString(value: unknown) {
+  return typeof value === 'string' && value.trim() ? value.trim() : null
+}
+
+function cleanLabel(value: unknown, fallback: string) {
+  return typeof value === 'string' && value.trim() ? value.trim() : fallback
+}
+
+function nonNegativeInteger(value: unknown, path: string) {
+  if (value == null) return 0
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) {
+    throw new Error(`${path} must be a non-negative number.`)
+  }
+  return Math.round(value)
+}
+
+function normalizeIso(value: string, path: string) {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) throw new Error(`${path} must be a valid ISO date.`)
+  return date.toISOString()
 }
 
 function buildModelUsageRecommendations(events: ModelUsageLedgerEvent[]): ModelUsageRecommendation[] {
