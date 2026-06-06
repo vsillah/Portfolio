@@ -533,6 +533,77 @@ describe('AgentStandupRoomPage', () => {
     expect(window.location.search).toBe('')
   })
 
+  it('prefills traceable work from an agentic content review decision link', async () => {
+    window.history.pushState(
+      {},
+      '',
+      '/admin/agents/standup?context=agentic-content-review&asset=p0-linkedin-flagship-agentic-operating-system&decision=approve_next_gate',
+    )
+
+    render(<AgentStandupRoomPage />)
+
+    const goalInput = await screen.findByPlaceholderText('What should the swarm accomplish?') as HTMLTextAreaElement
+    expect(goalInput.value).toContain('Agentic content review: approve next gate - Flagship post: Anyone can launch an agent now')
+    expect(goalInput.value).toContain('Preserve the approval boundary: Social Content approval before scheduling or publishing.')
+    expect(goalInput.value).toContain('Asset ID: p0-linkedin-flagship-agentic-operating-system')
+    expect(goalInput.value).toContain('Approval status: human_review_ready')
+    expect((screen.getByPlaceholderText(/Ask about blockers/i) as HTMLTextAreaElement).value).toContain('Keep this inside the existing Portfolio approval path.')
+    expect(screen.getByText(/Loaded Flagship post: Anyone can launch an agent now for approve next gate/i)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /Draft plan/i }))
+
+    await waitFor(() => {
+      const draftCall = vi.mocked(fetch).mock.calls.find(([, init]) => String((init as RequestInit)?.body ?? '').includes('"command":"draft_goal"'))
+      expect(draftCall).toBeTruthy()
+      const draftBody = JSON.parse(String((draftCall?.[1] as RequestInit).body))
+      expect(draftBody.goal_type).toBe('general')
+      expect(draftBody.goal).toContain('Agentic content review: approve next gate')
+    })
+  })
+
+  it('prefills provider-blocked render readiness work from a decision link', async () => {
+    window.history.pushState(
+      {},
+      '',
+      '/admin/agents/standup?context=agentic-render-readiness&asset=render-p0-youtube-agentic-ai-teams-skip&decision=prepare_preflight',
+    )
+
+    render(<AgentStandupRoomPage />)
+
+    const goalInput = await screen.findByPlaceholderText('What should the swarm accomplish?') as HTMLTextAreaElement
+    expect(goalInput.value).toContain('Agentic video render-readiness: prepare render preflight - YouTube script: The Part of Agentic AI Most Teams Skip')
+    expect(goalInput.value).toContain('Provider targets: HeyGen, ElevenLabs, Remotion, HyperFrames')
+    expect(goalInput.value).toContain('Hard blocks:')
+    expect(goalInput.value).toContain('No HeyGen, ElevenLabs, Remotion, HyperFrames, publishing, or outbound provider job is approved by this packet.')
+    expect((screen.getByPlaceholderText(/Ask about blockers/i) as HTMLTextAreaElement).value).toContain('Keep provider execution blocked')
+    expect(screen.getByText(/Loaded YouTube script: The Part of Agentic AI Most Teams Skip for prepare render preflight/i)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /Draft plan/i }))
+
+    await waitFor(() => {
+      const draftCall = vi.mocked(fetch).mock.calls.find(([, init]) => String((init as RequestInit)?.body ?? '').includes('"command":"draft_goal"'))
+      expect(draftCall).toBeTruthy()
+      const draftBody = JSON.parse(String((draftCall?.[1] as RequestInit).body))
+      expect(draftBody.goal_type).toBe('general')
+      expect(draftBody.goal).toContain('Agentic video render-readiness: prepare render preflight')
+    })
+  })
+
+  it('ignores invalid agentic decision links without changing the default standup form', async () => {
+    window.history.pushState(
+      {},
+      '',
+      '/admin/agents/standup?context=agentic-content-review&asset=unknown&decision=not-a-decision',
+    )
+
+    render(<AgentStandupRoomPage />)
+
+    expect(await screen.findByText('Agent Standup Room')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('What should the swarm accomplish?')).toHaveValue('')
+    expect(screen.getByPlaceholderText(/Ask about blockers/i)).toHaveValue('')
+    expect(screen.queryByText(/Loaded .* for .*Review the prefilled/i)).not.toBeInTheDocument()
+  })
+
   it('creates governed n8n workflow proposals from automation goal sessions', async () => {
     const automationGoal = {
       ...organization.summary.goals[0],
