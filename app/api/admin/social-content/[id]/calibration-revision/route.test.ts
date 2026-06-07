@@ -245,6 +245,79 @@ describe('POST /api/admin/social-content/[id]/calibration-revision', () => {
     }))
   })
 
+  it('blocks calibration revisions for content that is no longer draft-gated', async () => {
+    mocks.single.mockResolvedValueOnce({
+      data: {
+        id: 'social-1',
+        status: 'approved',
+        post_text: 'Approved draft',
+        cta_text: null,
+        hashtags: [],
+        image_prompt: null,
+        topic_extracted: {},
+        hormozi_framework: {},
+        rag_context: agentOpsRagContext,
+        admin_notes: null,
+      },
+      error: null,
+    })
+
+    const response = await POST(request(), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(409)
+    expect(await response.json()).toEqual({
+      error: 'Calibration revision is only available for draft or rejected content',
+    })
+    expect(mocks.generateJsonCompletion).not.toHaveBeenCalled()
+    expect(mocks.update).not.toHaveBeenCalled()
+  })
+
+  it('rejects calibration revisions for non-Agent-Ops social drafts', async () => {
+    mocks.single.mockResolvedValueOnce({
+      data: {
+        id: 'social-1',
+        status: 'draft',
+        post_text: 'Meeting-sourced draft',
+        cta_text: null,
+        hashtags: [],
+        image_prompt: null,
+        topic_extracted: {},
+        hormozi_framework: {},
+        rag_context: {
+          source: 'meeting_summary',
+          content_calibration: agentOpsRagContext.content_calibration,
+        },
+        admin_notes: null,
+      },
+      error: null,
+    })
+
+    const response = await POST(request(), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({
+      error: 'Calibration revision is only available for Agent Ops social pilot drafts',
+    })
+    expect(mocks.generateJsonCompletion).not.toHaveBeenCalled()
+    expect(mocks.update).not.toHaveBeenCalled()
+  })
+
+  it('returns a safe upstream error when the revision model emits invalid JSON', async () => {
+    mocks.generateJsonCompletion.mockResolvedValueOnce({
+      provider: 'openai',
+      model: 'gpt-4o-mini',
+      content: 'This is not JSON.',
+    })
+
+    const response = await POST(request(), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(502)
+    expect(await response.json()).toEqual({
+      error: 'Calibration revision returned invalid JSON',
+    })
+    expect(mocks.update).not.toHaveBeenCalled()
+  })
+
   it('blocks revision when no operator feedback exists', async () => {
     mocks.single.mockResolvedValueOnce({
       data: {
