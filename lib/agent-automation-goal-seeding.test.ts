@@ -84,7 +84,10 @@ describe('agent automation goal seeding', () => {
   it('defaults to Tier 1 seeds and rejects unknown selected seeds', async () => {
     const seeded = await seedAutomationGoals({ triggeredByUserId: 'admin-user' })
 
-    expect(seeded).toHaveLength(6)
+    expect(seeded).toHaveLength(9)
+    expect(seeded.map((item) => item.seed.id)).toContain('client-journey-lifecycle-control-plane')
+    expect(seeded.map((item) => item.seed.id)).toContain('campaign-experimentation-ab-optimizer')
+    expect(seeded.map((item) => item.seed.id)).toContain('mobile-chat-command-approval-surface')
     expect(seeded.map((item) => item.seed.id)).toContain('inbound-lead-triage-to-booking')
     expect(mocks.createAgentWorkItem).toHaveBeenCalled()
 
