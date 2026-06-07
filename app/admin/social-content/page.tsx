@@ -95,6 +95,19 @@ interface VoiceNoteIntake {
   created_at: string
 }
 
+interface LaunchDraftSeedLink {
+  id: string
+  assetId: string | null
+  href: string
+}
+
+interface LaunchDraftSeedResult {
+  success: boolean
+  message: string
+  inserted: LaunchDraftSeedLink[]
+  existing: LaunchDraftSeedLink[]
+}
+
 const VOICE_NOTE_OUTPUTS = [
   { value: 'linkedin_post', label: 'LinkedIn' },
   { value: 'linkedin_carousel', label: 'Carousel' },
@@ -117,6 +130,8 @@ function SocialContentQueuePage() {
   const [platformFilter, setPlatformFilter] = useState<SocialPlatform | 'all'>('all')
   const [search, setSearch] = useState('')
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const [launchDraftSeeding, setLaunchDraftSeeding] = useState(false)
+  const [launchDraftResult, setLaunchDraftResult] = useState<LaunchDraftSeedResult | null>(null)
 
   // Extraction trigger state
   const [meetings, setMeetings] = useState<MeetingRecord[]>([])
@@ -448,6 +463,43 @@ function SocialContentQueuePage() {
     }
   }
 
+  const seedLaunchDrafts = async () => {
+    setLaunchDraftSeeding(true)
+    setLaunchDraftResult(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+      const res = await fetch('/api/admin/social-content/launch-drafts', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to seed launch drafts')
+      setLaunchDraftResult({
+        success: true,
+        message: `${data.summary?.inserted ?? 0} launch draft${data.summary?.inserted === 1 ? '' : 's'} created. ${data.summary?.existing ?? 0} already existed.`,
+        inserted: data.inserted ?? [],
+        existing: data.existing ?? [],
+      })
+      setStatusFilter('draft')
+      setPlatformFilter('linkedin')
+      await fetchItems(1)
+    } catch (err) {
+      setLaunchDraftResult({
+        success: false,
+        message: err instanceof Error ? err.message : 'Failed to seed launch drafts.',
+        inserted: [],
+        existing: [],
+      })
+    } finally {
+      setLaunchDraftSeeding(false)
+    }
+  }
+
   const handleQuickApprove = async (e: React.MouseEvent, itemId: string) => {
     e.preventDefault()
     e.stopPropagation()
@@ -528,6 +580,50 @@ function SocialContentQueuePage() {
             {AGENTIC_SOCIAL_REVIEW_PACKETS.length} ready
           </span>
         </div>
+
+        <div className="mt-4 flex flex-col gap-3 rounded-lg border border-silicon-slate/80 bg-background/35 p-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-gray-200">Seed launch-week drafts</h3>
+            <p className="mt-1 max-w-2xl text-xs leading-5 text-muted-foreground">
+              Create draft-only Social Content rows from the challenger-cleared launch packet. This does not schedule, publish, send outreach, generate visuals, or call providers.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={seedLaunchDrafts}
+            disabled={launchDraftSeeding}
+            className="admin-console-button-primary shrink-0 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {launchDraftSeeding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+            {launchDraftSeeding ? 'Seeding...' : 'Seed Drafts'}
+          </button>
+        </div>
+
+        {launchDraftResult && (
+          <div className={`mt-3 rounded-lg border px-4 py-3 text-sm ${
+            launchDraftResult.success
+              ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+              : 'border-red-500/30 bg-red-500/10 text-red-300'
+          }`}>
+            <div className="flex items-center gap-2">
+              {launchDraftResult.success ? <CheckCircle2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
+              <span>{launchDraftResult.message}</span>
+            </div>
+            {launchDraftResult.success && (launchDraftResult.inserted.length > 0 || launchDraftResult.existing.length > 0) && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {[...launchDraftResult.inserted, ...launchDraftResult.existing].map((draft) => (
+                  <Link
+                    key={`${draft.assetId ?? draft.id}:${draft.id}`}
+                    href={draft.href}
+                    className="inline-flex items-center gap-1 rounded-full border border-radiant-gold/30 px-2.5 py-1 text-xs text-radiant-gold hover:bg-radiant-gold/10"
+                  >
+                    Open draft <Eye className="h-3 w-3" />
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="mt-4 grid gap-3 lg:grid-cols-2">
           {AGENTIC_SOCIAL_REVIEW_PACKETS.map((packet) => (
