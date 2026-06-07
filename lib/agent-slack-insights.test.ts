@@ -101,15 +101,17 @@ describe('high-signal insight Slack formatting', () => {
         score: 92,
         contentId: 'content-boundary',
         ownerAgentKey: 'chief-of-staff',
+        bestContentUrl: 'raw-not-for-slack',
         sourcePrdHref: null,
-        ...({ rawPostText: 'raw-not-for-slack' } as unknown as Partial<HighSignalInsight>),
       })],
       baseUrl: 'https://portfolio.test',
     })
     const serialized = JSON.stringify(blocks)
     const firstActions = actionBlocks(blocks)[0]
-    const draftAction = decodeSlackActionValue(firstActions.elements[0].value)
-    const askAction = decodeSlackActionValue(firstActions.elements[1].value)
+    const draftButton = firstActions.elements.find((element) => element.action_id === 'agent_insight_draft_autoresearch')
+    const askButton = firstActions.elements.find((element) => element.action_id === 'agent_insight_ask_shaka')
+    const draftAction = decodeSlackActionValue(draftButton?.value)
+    const askAction = decodeSlackActionValue(askButton?.value)
 
     expect(serialized).toContain('No publishing, scheduling, outbound sends')
     expect(draftAction).toMatchObject({
