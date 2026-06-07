@@ -2,6 +2,11 @@ import { endAgentRun, recordAgentEvent, startAgentRun } from '@/lib/agent-run'
 import { listAgentWorkItems, type AgentWorkItem } from '@/lib/agent-work-items'
 import { AGENT_ORGANIZATION } from '@/lib/agent-organization'
 import { mrkdwn, slackButton, truncateSlack, type SlackBlock } from '@/lib/agent-slack-blocks'
+import { buildAgentMissionControlSnapshot } from '@/lib/agent-mission-control'
+import {
+  highSignalInsightsSlackBlocks,
+  highSignalInsightsSlackText,
+} from '@/lib/agent-slack-insights'
 import { supabaseAdmin } from '@/lib/supabase'
 
 export type AgentSlackNotificationKind =
@@ -10,6 +15,7 @@ export type AgentSlackNotificationKind =
   | 'stale_runs'
   | 'review_ready'
   | 'goal_decisions'
+  | 'high_signal_insights'
   | 'standup_blockers'
   | 'selected_agent_question'
 
@@ -391,6 +397,16 @@ async function buildStaleRunsPayload() {
   }
 }
 
+async function buildHighSignalInsightsPayload() {
+  const snapshot = await buildAgentMissionControlSnapshot()
+  const insights = snapshot.high_signal_ai_insights ?? []
+  return {
+    text: highSignalInsightsSlackText(insights),
+    blocks: highSignalInsightsSlackBlocks({ insights, baseUrl: baseUrl() }),
+    itemCount: insights.length,
+  }
+}
+
 async function buildWorkItemPayload(input: AgentSlackNotificationInput) {
   const targetAgentKeys = normalizeTargetAgentKeys(input.targetAgentKeys)
   const allItems = await listAgentWorkItems({ limit: 75 })
@@ -444,6 +460,7 @@ async function buildWorkItemPayload(input: AgentSlackNotificationInput) {
 export async function buildAgentSlackNotificationPayload(input: AgentSlackNotificationInput) {
   if (input.kind === 'pending_approvals') return buildPendingApprovalPayload()
   if (input.kind === 'stale_runs') return buildStaleRunsPayload()
+  if (input.kind === 'high_signal_insights') return buildHighSignalInsightsPayload()
   return buildWorkItemPayload(input)
 }
 

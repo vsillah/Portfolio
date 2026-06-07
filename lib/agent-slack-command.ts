@@ -4,6 +4,10 @@ import { routeAgentInboxItem } from '@/lib/agent-inbox-routing'
 import { buildAgentMissionControlSnapshot } from '@/lib/agent-mission-control'
 import { runAgentWarRoom } from '@/lib/agent-war-room'
 import { AGENT_ORGANIZATION, getAgentByKey } from '@/lib/agent-organization'
+import {
+  highSignalInsightsSlackBlocks,
+  highSignalInsightsSlackText,
+} from '@/lib/agent-slack-insights'
 import { supabaseAdmin } from '@/lib/supabase'
 import {
   claimAgentWorkItem,
@@ -34,6 +38,7 @@ type SlackCommandName =
   | 'risk'
   | 'agents'
   | 'engagements'
+  | 'insights'
   | 'work-items'
   | 'claim'
   | 'handoff'
@@ -119,6 +124,7 @@ function commandFromText(text: string): SlackCommandName {
   if (command === 'risk' || command === 'moremi') return 'risk'
   if (command === 'agents' || command === 'list') return 'agents'
   if (command === 'engagements' || command === 'queue') return 'engagements'
+  if (command === 'insights' || command === 'signals') return 'insights'
   if (command === 'work') return 'work-items'
   if (command === 'claim') return 'claim'
   if (command === 'handoff') return 'handoff'
@@ -149,6 +155,7 @@ function formatHelp() {
     '`/agent risk review create_moremi_warning_work_items` - create or reuse proposed work items from latest Moremi warnings.',
     '`/agent agents` - list currently mapped agents and engagement keys.',
     '`/agent engagements` - show the latest routed engagement work queue.',
+    '`/agent insights` - show high-signal AI insight themes and mobile-safe research actions.',
     '`/agent work [id]` - show coordination work items or one work packet.',
     '`/agent claim <id> [agent-key]` - claim a coordination work item.',
     '`/agent handoff <id> <agent-key>` - request an agent-to-agent handoff.',
@@ -678,6 +685,23 @@ export async function buildAgentEngagementQueueSlackText(limit = 5) {
   }
 }
 
+export async function buildHighSignalInsightsSlackResult(): Promise<AgentSlackCommandResult> {
+  try {
+    const snapshot = await buildAgentMissionControlSnapshot()
+    const insights = snapshot.high_signal_ai_insights ?? []
+    return {
+      responseType: 'ephemeral',
+      text: highSignalInsightsSlackText(insights),
+      blocks: highSignalInsightsSlackBlocks({ insights, baseUrl: baseUrl() }),
+    }
+  } catch (error) {
+    return {
+      responseType: 'ephemeral',
+      text: `High-signal insight lookup failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    }
+  }
+}
+
 export async function buildAgentInboxSlackText(limit = 5) {
   try {
     const snapshot = await buildAgentMissionControlSnapshot()
@@ -1146,6 +1170,7 @@ export async function handleAgentSlackCommand(input: AgentSlackCommandInput): Pr
   if (command === 'work-items') return buildAgentWorkItemsSlackResult(input)
   if (command === 'blockers') return buildAgentBlockersSlackResult()
   if (command === 'inbox') return buildAgentInboxSlackResult()
+  if (command === 'insights') return buildHighSignalInsightsSlackResult()
 
   const text =
     command === 'status'

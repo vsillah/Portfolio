@@ -50,6 +50,7 @@ export type SlackAgentActionValue = {
   runId?: string
   workItemId?: string
   agentKey?: string
+  contentId?: string
   note?: string
 }
 

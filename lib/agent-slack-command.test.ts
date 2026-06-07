@@ -145,6 +145,8 @@ describe('agent Slack command parsing', () => {
     expect(agentSlackCommandInternals.commandFromText('captain')).toBe('captain')
     expect(agentSlackCommandInternals.commandFromText('inbox')).toBe('inbox')
     expect(agentSlackCommandInternals.commandFromText('brief')).toBe('brief')
+    expect(agentSlackCommandInternals.commandFromText('insights')).toBe('insights')
+    expect(agentSlackCommandInternals.commandFromText('signals')).toBe('insights')
     expect(agentSlackCommandInternals.commandFromText('route 1')).toBe('route')
     expect(agentSlackCommandInternals.commandFromText('run chief-of-staff')).toBe('run')
     expect(agentSlackCommandInternals.commandFromText('standup')).toBe('standup')
@@ -163,6 +165,7 @@ describe('agent Slack command parsing', () => {
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent inbox')
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent route <number-or-id>')
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent standup')
+    expect(agentSlackCommandInternals.formatHelp()).toContain('/agent insights')
   })
 
   it('formats the mapped agent list for Slack', () => {
@@ -321,6 +324,48 @@ describe('agent Slack command parsing', () => {
     expect(text).toContain('Daily Operating Brief')
     expect(text).toContain('Chief of Staff recommends')
     expect(text).toContain('/admin/agents/runs/standup-run')
+  })
+
+  it('returns actionable high-signal insight cards for Slack', async () => {
+    inboxMocks.buildAgentMissionControlSnapshot.mockResolvedValue({
+      high_signal_ai_insights: [
+        {
+          contentId: 'content-1',
+          title: 'Anyone can launch an agent now',
+          theme: 'Agentic Operating System',
+          score: 87,
+          recommendation: 'expand',
+          recommendationLabel: 'Expand with adjacent AutoResearch',
+          ownerAgentKey: 'research-source-register',
+          bestContentHref: '/admin/social-content/content-1',
+          bestContentUrl: 'https://linkedin.com/posts/example',
+          sourcePrdHref: '/docs/agentic-content-research-prds/01-agentic-operating-system-overview.md',
+          capturedAt: '2026-06-04T10:00:00.000Z',
+          metrics: {
+            impressions: 1200,
+            views: null,
+            reactions: 42,
+            likes: 40,
+            comments: 9,
+            shares: 3,
+            reposts: 2,
+            engagementRate: 0.0467,
+          },
+        },
+      ],
+    })
+
+    const result = await handleAgentSlackCommand({ text: 'insights' })
+    const blocks = JSON.stringify(result.blocks)
+
+    expect(result.text).toContain('High-signal AI insights')
+    expect(result.text).toContain('Agentic Operating System')
+    expect(blocks).toContain('Draft AutoResearch')
+    expect(blocks).toContain('insight.draft_autoresearch')
+    expect(blocks).toContain('Ask Shaka')
+    expect(blocks).toContain('Open detail')
+    expect(blocks).toContain('/admin/social-content/content-1')
+    expect(blocks).toContain('No publishing, scheduling, outbound sends')
   })
 
   it('formats Moremi risk monitor status for Slack', async () => {

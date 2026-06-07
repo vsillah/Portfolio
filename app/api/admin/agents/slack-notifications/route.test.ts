@@ -97,4 +97,15 @@ describe('POST /api/admin/agents/slack-notifications', () => {
       triggerSource: 'admin_agent_slack_notification',
     }))
   })
+
+  it('accepts high-signal insight mobile packets', async () => {
+    const response = await POST(request({ kind: 'high_signal_insights' }) as never)
+
+    expect(response.status).toBe(200)
+    expect(mocks.sendAgentSlackNotification).toHaveBeenCalledWith(expect.objectContaining({
+      kind: 'high_signal_insights',
+      actorLabel: 'admin@example.com',
+      triggerSource: 'admin_agent_slack_notification',
+    }))
+  })
 })

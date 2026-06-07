@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 const mocks = vi.hoisted(() => ({
   from: vi.fn(),
   listAgentWorkItems: vi.fn(),
+  buildAgentMissionControlSnapshot: vi.fn(),
   startAgentRun: vi.fn(),
   recordAgentEvent: vi.fn(),
   endAgentRun: vi.fn(),
@@ -14,6 +15,10 @@ vi.mock('@/lib/supabase', () => ({
 
 vi.mock('@/lib/agent-work-items', () => ({
   listAgentWorkItems: mocks.listAgentWorkItems,
+}))
+
+vi.mock('@/lib/agent-mission-control', () => ({
+  buildAgentMissionControlSnapshot: mocks.buildAgentMissionControlSnapshot,
 }))
 
 vi.mock('@/lib/agent-run', () => ({
@@ -46,6 +51,9 @@ describe('Agent Ops Slack notifications', () => {
     mocks.startAgentRun.mockResolvedValue({ id: 'run-1' })
     mocks.recordAgentEvent.mockResolvedValue({ id: 'event-1' })
     mocks.endAgentRun.mockResolvedValue(undefined)
+    mocks.buildAgentMissionControlSnapshot.mockResolvedValue({
+      high_signal_ai_insights: [],
+    })
     mocks.listAgentWorkItems.mockResolvedValue([
       {
         id: 'work-1',
@@ -432,5 +440,52 @@ describe('Agent Ops Slack notifications', () => {
     expect(JSON.stringify(payload.blocks)).toContain('Askia Muhammad (Songhai) - Research Source Register')
     expect(JSON.stringify(payload.blocks)).toContain('No active Kanban cards are currently assigned')
     expect(JSON.stringify(payload.blocks)).toContain('/admin/agents/standup')
+  })
+
+  it('sends high-signal insight packets with mobile-safe research actions', async () => {
+    process.env.SLACK_AGENT_OPS_WEBHOOK_URL = 'https://hooks.slack.test/agent'
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true })
+    vi.stubGlobal('fetch', fetchMock)
+    mocks.buildAgentMissionControlSnapshot.mockResolvedValueOnce({
+      high_signal_ai_insights: [
+        {
+          contentId: 'content-1',
+          title: 'Anyone can launch an agent now',
+          theme: 'Agentic Operating System',
+          score: 87,
+          recommendation: 'expand',
+          recommendationLabel: 'Expand with adjacent AutoResearch',
+          ownerAgentKey: 'research-source-register',
+          bestContentHref: '/admin/social-content/content-1',
+          bestContentUrl: 'https://linkedin.com/posts/example',
+          sourcePrdHref: '/docs/agentic-content-research-prds/01-agentic-operating-system-overview.md',
+          capturedAt: '2026-06-04T10:00:00.000Z',
+          metrics: {
+            impressions: 1200,
+            views: null,
+            reactions: 42,
+            likes: 40,
+            comments: 9,
+            shares: 3,
+            reposts: 2,
+            engagementRate: 0.0467,
+          },
+        },
+      ],
+    })
+
+    const result = await sendAgentSlackNotification({ kind: 'high_signal_insights' })
+
+    expect(result).toMatchObject({
+      sent: true,
+      itemCount: 1,
+      text: expect.stringContaining('High-signal AI insights'),
+    })
+    const payload = JSON.parse(fetchMock.mock.calls[0][1].body)
+    const blocks = JSON.stringify(payload.blocks)
+    expect(blocks).toContain('Draft AutoResearch')
+    expect(blocks).toContain('insight.draft_autoresearch')
+    expect(blocks).toContain('Ask Shaka')
+    expect(blocks).toContain('/admin/social-content/content-1')
   })
 })
