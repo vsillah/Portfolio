@@ -54,6 +54,7 @@ describe('high-signal insight Slack payloads', () => {
     const serializedBlocks = JSON.stringify(blocks)
 
     expect(text).toContain('Refresh LinkedIn engagement metrics')
+    expect(serializedBlocks).toContain('No high-signal insight packets are ready yet')
     expect(serializedBlocks).toContain('Refresh engagement metrics from a published LinkedIn Social Content item first')
     expect(serializedBlocks).toContain('Open Social Content')
     expect(serializedBlocks).toContain('https://portfolio.test/admin/social-content?status=published&platform=linkedin')
@@ -93,6 +94,40 @@ describe('high-signal insight Slack payloads', () => {
       contentId: 'content-1',
     })
     expect(askPayload?.agentKey).toBeUndefined()
+  })
+
+  it('keeps approval-boundary action payloads free of raw source URLs', () => {
+    const blocks = highSignalInsightsSlackBlocks({
+      insights: [
+        highSignalInsight({
+          title: 'Public title for Slack',
+          theme: 'Permission Scopes and Risk Boundaries',
+          score: 92,
+          contentId: 'content-boundary',
+          ownerAgentKey: 'chief-of-staff',
+          bestContentUrl: 'raw-not-for-slack',
+          sourcePrdHref: null,
+        }),
+      ],
+      baseUrl: 'https://portfolio.test',
+    })
+    const serializedBlocks = JSON.stringify(blocks)
+    const draftPayload = decodeSlackActionValue(buttonByActionId(blocks, 'agent_insight_draft_autoresearch').value)
+    const askPayload = decodeSlackActionValue(buttonByActionId(blocks, 'agent_insight_ask_shaka').value)
+
+    expect(serializedBlocks).toContain('No publishing, scheduling, outbound sends')
+    expect(draftPayload).toMatchObject({
+      action: 'insight.draft_autoresearch',
+      contentId: 'content-boundary',
+      agentKey: 'chief-of-staff',
+    })
+    expect(draftPayload?.note).toContain('Theme: Permission Scopes and Risk Boundaries')
+    expect(draftPayload?.note).toContain('Score: 92')
+    expect(draftPayload?.note).not.toContain('raw-not-for-slack')
+    expect(askPayload).toMatchObject({
+      action: 'insight.ask_shaka',
+      contentId: 'content-boundary',
+    })
   })
 
   it('uses absolute detail links as-is and falls back from zero reactions to likes', () => {
