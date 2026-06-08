@@ -111,6 +111,45 @@ describe('buildModelUsageImportPlan', () => {
     })
   })
 
+  it('rejects empty packets, oversized event batches, and invalid allocation windows', () => {
+    expect(() => buildModelUsageImportPlan({})).toThrow(/at least one event or subscription allocation/)
+
+    expect(() => buildModelUsageImportPlan({
+      events: Array.from({ length: 101 }, (_, index) => ({
+        provider: 'codex',
+        model: `gpt-5-codex-${index}`,
+      })),
+    })).toThrow(/more than 100 usage events/)
+
+    expect(() => buildModelUsageImportPlan({
+      subscriptionAllocations: [{
+        provider: 'codex',
+        runtime: 'any',
+        accountLabel: 'Codex subscription',
+        monthlyCostUsd: 20,
+        periodStart: '2026-06-30T00:00:00.000Z',
+        periodEnd: '2026-06-01T00:00:00.000Z',
+      }],
+    })).toThrow(/periodEnd must be after periodStart/)
+  })
+
+  it('warns when imported events omit source trace ids used for duplicate detection', () => {
+    const plan = buildModelUsageImportPlan({
+      events: [{
+        provider: 'google',
+        runtime: 'api',
+        model: 'gemini-2.5-flash',
+        sourceTrace: { type: 'gemini_usage_export' },
+      }],
+    }, '2026-06-06T13:00:00.000Z')
+
+    expect(plan.eventRows[0]).toMatchObject({
+      source_type: 'gemini_usage_export',
+      source_id: null,
+    })
+    expect(plan.warnings).toContain('events[0] has no sourceTrace.id; duplicate detection will be weaker.')
+  })
+
   it('rejects raw prompts, messages, transcripts, and secret-like metadata keys', () => {
     expect(() => buildModelUsageImportPlan({
       events: [{
@@ -200,6 +239,73 @@ describe('buildModelUsageSnapshotFromEvents', () => {
 
     expect(snapshot.recommendations.find((item) => item.id === 'context-slimming')).toMatchObject({
       approvalRequired: false,
+    })
+  })
+
+  it('scrubs client-safe events without mutating the internal ledger view', () => {
+    const snapshot = buildModelUsageSnapshotFromEvents({
+      from: '2026-06-01T00:00:00.000Z',
+      to: '2026-06-30T23:59:59.999Z',
+      events: [event({
+        id: 'private-research-run',
+        actionLabel: 'Private Codex session for client launch memo',
+        taskCategory: 'research',
+        confidence: 'medium',
+        costBasis: 'catalog_priced',
+        pricingSnapshot: {
+          sourceUrl: 'https://provider.example/pricing',
+          inputUsdPer1MTokens: 3,
+          outputUsdPer1MTokens: 15,
+        },
+        sourceTrace: {
+          type: 'agent_run',
+          id: 'run-private-1',
+          href: '/admin/agents/runs/run-private-1',
+        },
+      })],
+    })
+
+    expect(snapshot.events[0]).toMatchObject({
+      actionLabel: 'Private Codex session for client launch memo',
+      scrubbed: false,
+      sourceTrace: {
+        id: 'run-private-1',
+        href: '/admin/agents/runs/run-private-1',
+      },
+      pricingSnapshot: expect.objectContaining({
+        sourceUrl: 'https://provider.example/pricing',
+      }),
+    })
+    expect(snapshot.clientSafeEvents[0]).toMatchObject({
+      actionLabel: 'Research transaction',
+      scrubbed: true,
+      sourceTrace: {
+        type: 'agent_run',
+        id: 'redacted',
+        href: null,
+      },
+      pricingSnapshot: {
+        confidence: 'medium',
+        costBasis: 'catalog_priced',
+      },
+    })
+  })
+
+  it('requires approval before rerouting expensive research transactions', () => {
+    const snapshot = buildModelUsageSnapshotFromEvents({
+      from: '2026-06-01T00:00:00.000Z',
+      to: '2026-06-30T23:59:59.999Z',
+      events: [event({
+        id: 'expensive-research',
+        taskCategory: 'research',
+        costUsd: 2.5,
+      })],
+    })
+
+    expect(snapshot.recommendations.find((item) => item.id === 'research-model-bakeoff')).toMatchObject({
+      severity: 'warning',
+      approvalRequired: true,
+      affectedEventIds: ['expensive-research'],
     })
   })
 })
