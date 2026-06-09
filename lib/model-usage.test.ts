@@ -111,6 +111,66 @@ describe('buildModelUsageImportPlan', () => {
     })
   })
 
+  it('preserves explicit metered costs while deriving token totals', () => {
+    const plan = buildModelUsageImportPlan({
+      events: [{
+        occurredAt: '2026-06-06T12:00:00.000Z',
+        provider: 'openai',
+        runtime: 'api',
+        model: 'gpt-4o-mini',
+        taskCategory: 'automation',
+        inputTokens: 1000,
+        outputTokens: 200,
+        cachedTokens: 50,
+        reasoningTokens: 25,
+        costUsd: 0.42,
+        sourceTrace: { type: 'openai_usage_export', id: 'usage-row-1' },
+      }],
+    }, '2026-06-06T13:00:00.000Z')
+
+    expect(plan.eventRows[0]).toMatchObject({
+      provider: 'openai',
+      model: 'gpt-4o-mini',
+      input_tokens: 1000,
+      output_tokens: 200,
+      cached_tokens: 50,
+      reasoning_tokens: 25,
+      total_tokens: 1275,
+      cost_usd: 0.42,
+      cost_basis: 'metered',
+      confidence: 'medium',
+      source_type: 'openai_usage_export',
+      source_id: 'usage-row-1',
+    })
+    expect(plan.eventRows[0].pricing_snapshot).toMatchObject({
+      provider: 'openai',
+      model: 'gpt-4o-mini',
+      importPacket: true,
+    })
+    expect(plan.warnings).toEqual([])
+  })
+
+  it('accepts allocation-only import packets', () => {
+    const plan = buildModelUsageImportPlan({
+      subscriptionAllocations: [{
+        provider: 'codex',
+        runtime: 'any',
+        accountLabel: 'Codex subscription',
+        monthlyCostUsd: 20,
+        periodStart: '2026-06-01T00:00:00.000Z',
+        periodEnd: '2026-06-30T23:59:59.999Z',
+      }],
+    })
+
+    expect(plan.eventRows).toEqual([])
+    expect(plan.subscriptionAllocationRows).toHaveLength(1)
+    expect(plan.subscriptionAllocationRows[0]).toMatchObject({
+      provider: 'codex',
+      account_label: 'Codex subscription',
+      active: true,
+    })
+  })
+
   it('rejects empty packets, oversized event batches, and invalid allocation windows', () => {
     expect(() => buildModelUsageImportPlan({})).toThrow(/at least one event or subscription allocation/)
 
@@ -131,6 +191,25 @@ describe('buildModelUsageImportPlan', () => {
         periodEnd: '2026-06-01T00:00:00.000Z',
       }],
     })).toThrow(/periodEnd must be after periodStart/)
+  })
+
+  it('rejects invalid event numerics and dates before building insert rows', () => {
+    expect(() => buildModelUsageImportPlan({
+      events: [{
+        occurredAt: '2026-06-06T12:00:00.000Z',
+        provider: 'openai',
+        model: 'gpt-4o-mini',
+        inputTokens: -1,
+      }],
+    })).toThrow(/events\[0\]\.inputTokens must be a non-negative number/)
+
+    expect(() => buildModelUsageImportPlan({
+      events: [{
+        occurredAt: 'not-a-date',
+        provider: 'openai',
+        model: 'gpt-4o-mini',
+      }],
+    })).toThrow(/events\[0\]\.occurredAt must be a valid ISO date/)
   })
 
   it('warns when imported events omit source trace ids used for duplicate detection', () => {
