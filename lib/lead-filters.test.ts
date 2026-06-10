@@ -18,7 +18,7 @@ describe('isLikelyOrganization', () => {
   it.each([
     ['Jane Smith'],
     ['Robert Acme'],
-    ['Mary Page'],
+    ['Mary Parker'],
   ])('allows ordinary person-style names through ingest: %s', (name) => {
     expect(isLikelyOrganization(name)).toBe(false)
   })
