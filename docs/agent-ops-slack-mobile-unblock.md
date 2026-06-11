@@ -25,6 +25,19 @@ Slack can show Agent Ops cards for approvals, work items, blockers, and inbox en
 - ask Shaka for a context summary,
 - open Portfolio trace, Kanban, Decision Queue, or Run Console links.
 
+## Mobile Unblock Packet
+
+`/agent unblock` is the first-stop mobile triage command for the Monday execution loop. It returns one compact packet across:
+
+- pending approval checkpoints,
+- blocked work items,
+- review or merge candidates,
+- proposed work items,
+- Agent Inbox count and routing reminder,
+- Mission Control, Kanban, and Run Console deep links.
+
+The command is read-first. Its buttons reuse the same governed work-item and approval actions listed above. It can assign, hand off, mark ready, acknowledge blockers, ask Shaka, or route to Portfolio, but it does not merge, deploy, activate n8n, publish, send, change credentials, mutate customer data, touch payments, or change production config.
+
 ## Governance Boundary
 
 Slack must not directly perform production workflow activation, credential changes, outbound sends, customer-data mutation, publishing, payments, or n8n workflow activation. Those actions deep-link back to Portfolio for review.
