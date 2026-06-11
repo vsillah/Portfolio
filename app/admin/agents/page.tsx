@@ -29,6 +29,7 @@ import {
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import AgentAvatar from '@/components/admin/AgentAvatar'
+import AgentActivityRadar from '@/components/admin/AgentActivityRadar'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import type { AgentGovernanceSnapshot } from '@/components/admin/agents/AgentGovernancePanel'
 import { getCurrentSession } from '@/lib/auth'
@@ -994,6 +995,10 @@ export default function AgentOperationsPage() {
                       tone={healthLabel === 'Read-only healthy' ? 'green' : 'red'}
                     />
                   </div>
+                </div>
+
+                <div className="mt-5">
+                  <AgentActivityRadar variant="full" />
                 </div>
 
                 <DailyBriefPanel

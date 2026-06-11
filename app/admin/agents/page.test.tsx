@@ -393,6 +393,77 @@ describe('AgentOperationsPage mission control landing', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input)
+      if (url === '/api/admin/agents/activity-radar') {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            generated_at: '2026-05-13T12:00:00.000Z',
+            refresh_interval_seconds: 15,
+            summary: {
+              active: 1,
+              idle: 1,
+              queued: 0,
+              waiting_for_approval: 0,
+              blocked: 1,
+              stale: 0,
+              failed: 0,
+            },
+            agents: [
+              {
+                key: 'chief-of-staff',
+                name: 'Shaka (Zulu) - Chief of Staff',
+                pod_key: 'chief_of_staff',
+                pod_name: 'Chief of Staff',
+                runtime: 'mixed',
+                organization_status: 'partial',
+                live_state: 'active',
+                idle_reason: null,
+                current_work_item: {
+                  id: 'work-radar',
+                  title: 'Review Agent Activity Radar',
+                  status: 'in_progress',
+                  priority: 'high',
+                  href: '/admin/agents/swarm-board?work_item=work-radar',
+                },
+                active_run: {
+                  id: 'run-radar',
+                  title: 'Radar run',
+                  status: 'running',
+                  href: '/admin/agents/runs/run-radar',
+                },
+                current_step: 'Checking live work map',
+                latest_event: null,
+                linked_goal: null,
+                backlog_lane: {
+                  key: 'in_progress',
+                  label: 'In Progress',
+                  href: '/admin/agents/swarm-board?work_item=work-radar',
+                },
+                age_seconds: 30,
+                trace_href: '/admin/agents/runs/run-radar',
+                steer_actions: [
+                  { kind: 'open_trace', label: 'Open trace', href: '/admin/agents/runs/run-radar' },
+                  { kind: 'open_kanban', label: 'Open Kanban', href: '/admin/agents/swarm-board?work_item=work-radar' },
+                ],
+              },
+            ],
+            attention: [
+              {
+                id: 'blocked-agent',
+                severity: 'warning',
+                title: 'Resolve blocked item',
+                detail: 'Needs operator eyes.',
+                agent_key: 'automation-systems',
+                agent_name: 'Amina',
+                state: 'blocked',
+                href: '/admin/agents/swarm-board?work_item=blocked-agent',
+                age_seconds: 600,
+              },
+            ],
+          }),
+        }
+      }
       if (url === '/api/admin/agents/mission-control') {
         return { ok: true, json: async () => missionSnapshot }
       }
@@ -505,6 +576,9 @@ describe('AgentOperationsPage mission control landing', () => {
     expect(screen.getByLabelText('Ask Shaka quick prompts')).toBeInTheDocument()
     expect(screen.getAllByRole('img', { name: /Illustrated avatar for Shaka/i }).length).toBeGreaterThan(0)
     expect(screen.queryByText('Active work')).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Agent Activity Radar')).toBeInTheDocument()
+    expect(screen.getByText('Live agent work map')).toBeInTheDocument()
+    expect(await screen.findByText('Review Agent Activity Radar')).toBeInTheDocument()
     expect(screen.getByText('Operations rail')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Expand Shaka chat/i })).toHaveAttribute('href', '/admin/agents/chief-of-staff')
     expect(screen.queryByRole('link', { name: /Open Shaka chat/i })).not.toBeInTheDocument()

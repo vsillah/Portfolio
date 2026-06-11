@@ -6,6 +6,7 @@ import { ArrowRight, Send, DollarSign, TrendingUp, FolderKanban, BarChart3, Sett
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { getCurrentSession } from '@/lib/auth'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
+import AgentActivityRadar from '@/components/admin/AgentActivityRadar'
 import dynamic from 'next/dynamic'
 
 const AdminPieChart = dynamic(() => import('@/components/admin/AdminPieChart'), { ssr: false })
@@ -174,6 +175,10 @@ function AdminDashboardContent() {
             Snapshot by category. Use each panel to inspect the operating signal, then move into the owning surface.
           </p>
         </header>
+
+        <div className="mb-6">
+          <AgentActivityRadar variant="compact" />
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Pipeline: Lead Pipeline */}
