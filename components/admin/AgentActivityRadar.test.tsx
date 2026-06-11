@@ -107,6 +107,35 @@ const radarSnapshot = {
         },
       ],
     },
+    ...Array.from({ length: 6 }, (_, index) => ({
+      key: `content-agent-${index + 1}`,
+      name: `Content Agent ${index + 1}`,
+      pod_key: 'content_production',
+      pod_name: 'Content Production Pod',
+      runtime: 'portfolio',
+      organization_status: 'partial',
+      live_state: 'queued',
+      idle_reason: null,
+      current_work_item: {
+        id: `content-work-${index + 1}`,
+        title: `Create content asset ${index + 1}`,
+        status: 'queued',
+        priority: 'medium',
+        href: `/admin/agents/swarm-board?work_item=content-work-${index + 1}`,
+      },
+      active_run: null,
+      current_step: 'Queued for content drafting',
+      latest_event: null,
+      linked_goal: null,
+      backlog_lane: {
+        key: 'queued',
+        label: 'Queued',
+        href: `/admin/agents/swarm-board?work_item=content-work-${index + 1}`,
+      },
+      age_seconds: 120 + index,
+      trace_href: null,
+      steer_actions: [],
+    })),
   ],
   attention: [
     {
@@ -166,6 +195,11 @@ describe('AgentActivityRadar', () => {
     expect(screen.queryByLabelText('Selected agent detail')).not.toBeInTheDocument()
     fireEvent.mouseLeave(shakaLifecycleButton)
     expect(screen.queryByRole('dialog', { name: 'Shaka (Zulu) - Chief of Staff lifecycle detail' })).not.toBeInTheDocument()
+    expect(within(lifecycle).getByText('1-4/6')).toBeInTheDocument()
+    fireEvent.click(within(lifecycle).getByRole('button', { name: 'Next Attract agents' }))
+    expect(within(lifecycle).getByText('5-6/6')).toBeInTheDocument()
+    fireEvent.click(within(lifecycle).getByRole('button', { name: 'Previous Attract agents' }))
+    expect(within(lifecycle).getByText('1-4/6')).toBeInTheDocument()
     fireEvent.click(shakaLifecycleButton)
     expect(screen.getByLabelText('Selected agent detail')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Clear Shaka (Zulu) - Chief of Staff lifecycle detail' })).toHaveAttribute('aria-pressed', 'true')

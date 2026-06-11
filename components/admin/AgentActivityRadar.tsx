@@ -1,12 +1,14 @@
 'use client'
 
 import Link from 'next/link'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   AlertTriangle,
   ArrowRight,
   Bot,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   Clock3,
   Loader2,
   MessageSquare,
@@ -75,6 +77,10 @@ type ActiveLifecycleTooltip = {
   top: number
   placement: 'above' | 'below'
 }
+
+const LIFECYCLE_AVATAR_CELL_PX = 42
+const LIFECYCLE_AVATAR_GAP_PX = 8
+const LIFECYCLE_AVATAR_FALLBACK_PAGE_SIZE = 4
 
 const CLIENT_LIFECYCLE_STAGES: ClientLifecycleStage[] = [
   {
@@ -515,25 +521,14 @@ function ClientLifecycleMap({
               <div className="mt-3 h-1.5 rounded-full bg-background/55" aria-label={`${stage.label} average progress ${averageProgress}%`}>
                 <div className="h-full rounded-full bg-radiant-gold/80" style={{ width: `${averageProgress}%` }} />
               </div>
-              <div
-                className="mt-4 grid max-h-[2.625rem] min-h-[2.625rem] grid-cols-[repeat(auto-fill,minmax(2.625rem,2.625rem))] content-start justify-start gap-2 overflow-y-auto overflow-x-hidden pr-1 [scrollbar-width:thin]"
-                aria-label={`${stage.label} assigned agents`}
-              >
-                {roomAgents.length ? roomAgents.map((agent) => (
-                  <LifecycleAgentPin
-                    key={agent.key}
-                    agent={agent}
-                    selected={selectedAgentKey === agent.key}
-                    onShowTooltip={showTooltip}
-                    onHideTooltip={() => setActiveTooltip(null)}
-                    onToggleSelected={toggleSelectedAgent}
-                  />
-                )) : (
-                  <span className="col-span-full rounded-lg border border-dashed border-silicon-slate/55 bg-background/30 px-2 py-1.5 text-[11px] text-muted-foreground">
-                    No assigned agents
-                  </span>
-                )}
-              </div>
+              <LifecycleStageAgentPager
+                stage={stage}
+                agents={roomAgents}
+                selectedAgentKey={selectedAgentKey}
+                onShowTooltip={showTooltip}
+                onHideTooltip={() => setActiveTooltip(null)}
+                onToggleSelected={toggleSelectedAgent}
+              />
             </section>
           )
         })}
@@ -550,6 +545,115 @@ function ClientLifecycleMap({
         <p className="mt-3 text-xs text-muted-foreground">
           Full Mission Control shows the complete ten-stage lifecycle.
         </p>
+      ) : null}
+    </div>
+  )
+}
+
+function LifecycleStageAgentPager({
+  stage,
+  agents,
+  selectedAgentKey,
+  onShowTooltip,
+  onHideTooltip,
+  onToggleSelected,
+}: {
+  stage: ClientLifecycleStage
+  agents: AgentActivityRadarAgent[]
+  selectedAgentKey: string | null
+  onShowTooltip: (agent: AgentActivityRadarAgent, target: HTMLElement) => void
+  onHideTooltip: () => void
+  onToggleSelected: (agent: AgentActivityRadarAgent, target: HTMLElement) => void
+}) {
+  const rowRef = useRef<HTMLDivElement | null>(null)
+  const [pageSize, setPageSize] = useState(LIFECYCLE_AVATAR_FALLBACK_PAGE_SIZE)
+  const [pageIndex, setPageIndex] = useState(0)
+  const pageCount = Math.max(1, Math.ceil(agents.length / pageSize))
+  const hasMultiplePages = agents.length > pageSize
+  const pageStart = pageIndex * pageSize
+  const visibleAgents = agents.slice(pageStart, pageStart + pageSize)
+  const pageEnd = pageStart + visibleAgents.length
+
+  useEffect(() => {
+    const row = rowRef.current
+    if (!row) return
+
+    function updatePageSize(width: number) {
+      if (width <= 0) return
+      const nextPageSize = Math.max(
+        1,
+        Math.floor((width + LIFECYCLE_AVATAR_GAP_PX) / (LIFECYCLE_AVATAR_CELL_PX + LIFECYCLE_AVATAR_GAP_PX))
+      )
+      setPageSize(nextPageSize)
+    }
+
+    updatePageSize(row.getBoundingClientRect().width)
+    if (typeof ResizeObserver === 'undefined') return
+
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0]
+      if (entry) updatePageSize(entry.contentRect.width)
+    })
+    observer.observe(row)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    setPageIndex((currentPage) => Math.min(currentPage, Math.max(0, pageCount - 1)))
+  }, [pageCount])
+
+  if (!agents.length) {
+    return (
+      <div className="mt-4 min-h-[2.625rem]" aria-label={`${stage.label} assigned agents`}>
+        <span className="block rounded-lg border border-dashed border-silicon-slate/55 bg-background/30 px-2 py-1.5 text-[11px] text-muted-foreground">
+          No assigned agents
+        </span>
+      </div>
+    )
+  }
+
+  return (
+    <div className="mt-4 min-h-[2.625rem]" aria-label={`${stage.label} assigned agents`}>
+      <div
+        ref={rowRef}
+        className="grid min-h-[2.625rem] min-w-0 content-start justify-start gap-2 overflow-hidden"
+        style={{ gridTemplateColumns: `repeat(${Math.max(1, pageSize)}, ${LIFECYCLE_AVATAR_CELL_PX}px)` }}
+      >
+        {visibleAgents.map((agent) => (
+          <LifecycleAgentPin
+            key={agent.key}
+            agent={agent}
+            selected={selectedAgentKey === agent.key}
+            onShowTooltip={onShowTooltip}
+            onHideTooltip={onHideTooltip}
+            onToggleSelected={onToggleSelected}
+          />
+        ))}
+      </div>
+      {hasMultiplePages ? (
+        <div className="mt-2 flex items-center justify-end gap-1">
+          <button
+            type="button"
+            onClick={() => setPageIndex((currentPage) => Math.max(0, currentPage - 1))}
+            disabled={pageIndex === 0}
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-silicon-slate/60 bg-background/45 text-muted-foreground transition hover:border-radiant-gold/60 hover:text-radiant-gold disabled:cursor-not-allowed disabled:opacity-35"
+            aria-label={`Previous ${stage.label} agents`}
+          >
+            <ChevronLeft size={14} />
+          </button>
+          <span className="rounded-full border border-silicon-slate/60 bg-background/45 px-2 py-1 text-[11px] leading-none text-muted-foreground tabular-nums">
+            {pageStart + 1}-{pageEnd}/{agents.length}
+          </span>
+          <button
+            type="button"
+            onClick={() => setPageIndex((currentPage) => Math.min(pageCount - 1, currentPage + 1))}
+            disabled={pageIndex >= pageCount - 1}
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-silicon-slate/60 bg-background/45 text-muted-foreground transition hover:border-radiant-gold/60 hover:text-radiant-gold disabled:cursor-not-allowed disabled:opacity-35"
+            aria-label={`Next ${stage.label} agents`}
+          >
+            <ChevronRight size={14} />
+          </button>
+        </div>
       ) : null}
     </div>
   )
