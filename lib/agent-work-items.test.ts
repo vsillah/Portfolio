@@ -175,6 +175,60 @@ describe('agent work item helpers', () => {
     await expect(cancelAgentWorkItem({ id: 'work-1', reason: 'duplicate' })).resolves.toMatchObject({ status: 'cancelled' })
   })
 
+  it('refreshes shared goal orchestration metadata when a child work item changes', async () => {
+    const parent = {
+      ...baseItem,
+      id: 'goal-parent',
+      metadata: {
+        goal_id: 'goal-v2',
+        goal_type: 'general',
+        goal_role: 'parent',
+        approval_boundary: 'Human approval remains final.',
+      },
+    }
+    const child = {
+      ...baseItem,
+      id: 'goal-child',
+      parent_work_item_id: 'goal-parent',
+      metadata: {
+        goal_id: 'goal-v2',
+        goal_type: 'general',
+        goal_role: 'task',
+        goal_parent_work_item_id: 'goal-parent',
+        orchestration_gate: 'draft_build',
+      },
+    }
+    const blockedChild = {
+      ...child,
+      status: 'blocked',
+      blocker_summary: 'Implementation evidence is missing.',
+    }
+
+    mocks.maybeSingleQueue.push(
+      { data: child, error: null },
+      { data: parent, error: null },
+    )
+    mocks.listQueue.push(
+      { data: [], error: null },
+      { data: [blockedChild], error: null },
+    )
+    mocks.singleQueue.push({ data: blockedChild, error: null })
+
+    await expect(recordAgentWorkItemBlocker({
+      id: 'goal-child',
+      blockerSummary: 'Implementation evidence is missing.',
+    })).resolves.toMatchObject({ status: 'blocked' })
+
+    expect(mocks.updateMock).toHaveBeenCalledWith(expect.objectContaining({
+      metadata: expect.objectContaining({
+        current_gate: 'draft_build',
+        gate_status: 'blocked',
+        pass_to_human: false,
+        residual_risks_for_human: ['Implementation evidence is missing.'],
+      }),
+    }))
+  })
+
   it('creates an approval checkpoint when validation marks work ready for merge', async () => {
     queueExistingItem()
     mocks.singleQueue.push(

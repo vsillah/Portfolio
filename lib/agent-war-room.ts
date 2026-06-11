@@ -12,6 +12,7 @@ import { createAgentWorkItem, type AgentWorkItem, type AgentWorkItemPriority } f
 import {
   buildGoalOrchestrationPacket,
   initialContentOrchestrationReview,
+  inferWorkItemOrchestrationGate,
   type GoalOrchestrationPacket,
 } from '@/lib/goal-orchestration'
 import { supabaseAdmin } from '@/lib/supabase'
@@ -1099,6 +1100,11 @@ async function approveGoalDraft(runId: string, draft: AgentGoalDraft) {
         goal_dependencies: task.dependencies,
         task_acceptance_criteria: task.acceptance_criteria,
         risk_notes: task.risk_notes,
+        orchestration_gate: inferWorkItemOrchestrationGate({
+          title: task.title,
+          status: 'assigned',
+          metadata: { goal_task_id: task.id },
+        }),
         orchestration_packet: orchestrationPacket,
         orchestration_version: orchestrationPacket.orchestration_version,
         current_gate: orchestrationPacket.current_gate,
