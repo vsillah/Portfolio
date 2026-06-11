@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import type { SocialPlatform } from '@/lib/social-content'
+import { createAgentWorkItem } from '@/lib/agent-work-items'
 
 export const dynamic = 'force-dynamic'
 
@@ -46,9 +47,10 @@ export async function POST(
     }
 
     const ragContext = recordValue(item.rag_context)
+    const isAgentOpsDraftOnly = ragContext?.source === 'agent_ops_social_outreach_goal' &&
+      ragContext.publish_gate === 'draft_only'
     if (
-      ragContext?.source === 'agent_ops_social_outreach_goal' &&
-      ragContext.publish_gate === 'draft_only' &&
+      isAgentOpsDraftOnly &&
       ragContext.pass_to_human !== true
     ) {
       return NextResponse.json({
@@ -72,6 +74,55 @@ export async function POST(
     if (updateError) {
       console.error('Error approving content:', updateError)
       return NextResponse.json({ error: 'Failed to approve content' }, { status: 500 })
+    }
+
+    if (isAgentOpsDraftOnly) {
+      const referenceWorkItem = await createAgentWorkItem({
+        title: 'Attach approved Social Content references',
+        objective: [
+          'Add the approved draft references and source links to the Social Content packet after human editorial approval.',
+          'Confirm public references are safe to cite, source URLs are traceable, and framework illustration/carousel needs are recorded as separate draft asset actions.',
+          'Do not publish, schedule, send, call providers, or mutate production systems.',
+        ].join(' '),
+        priority: 'high',
+        status: 'assigned',
+        ownerAgentKey: 'research-source-register',
+        source: {
+          type: 'social_content_approval',
+          id,
+          label: 'Social Content draft approval',
+        },
+        expectedFiles: [],
+        metadata: {
+          source: 'social_content_reference_handoff',
+          social_content_id: id,
+          social_content_href: `/admin/social-content/${id}`,
+          goal_id: typeof ragContext?.goal_id === 'string' ? ragContext.goal_id : null,
+          goal_type: typeof ragContext?.goal_type === 'string' ? ragContext.goal_type : null,
+          content_packet_id: typeof ragContext?.content_packet_id === 'string' ? ragContext.content_packet_id : null,
+          publish_gate: 'draft_only',
+          approval_boundary: 'reference_handoff_only',
+          approval_result: 'human_editorial_approved',
+          required_actions: [
+            'Attach public source/reference links to the approved draft packet.',
+            'Record whether framework illustration or carousel work is needed as separate draft asset actions.',
+            'Keep publishing and provider generation behind separate approval.',
+          ],
+        },
+        idempotencyKey: `social-content-reference-handoff:${id}`,
+      })
+
+      return NextResponse.json({
+        item: updated,
+        publish_triggered: false,
+        publishes: [],
+        reference_work_item: {
+          id: referenceWorkItem.id,
+          title: referenceWorkItem.title,
+          status: referenceWorkItem.status,
+          owner_agent_key: referenceWorkItem.owner_agent_key,
+        },
+      })
     }
 
     // Create social_content_publishes rows — one per target platform
