@@ -578,7 +578,7 @@ describe('AgentOperationsPage mission control landing', () => {
     expect(screen.queryByText('Active work')).not.toBeInTheDocument()
     expect(screen.getByLabelText('Agent Activity Radar')).toBeInTheDocument()
     expect(screen.getByText('Live agent work map')).toBeInTheDocument()
-    expect(await screen.findByText('Review Agent Activity Radar')).toBeInTheDocument()
+    expect((await screen.findAllByText('Review Agent Activity Radar')).length).toBeGreaterThan(0)
     expect(screen.getByText('Operations rail')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Expand Shaka chat/i })).toHaveAttribute('href', '/admin/agents/chief-of-staff')
     expect(screen.queryByRole('link', { name: /Open Shaka chat/i })).not.toBeInTheDocument()

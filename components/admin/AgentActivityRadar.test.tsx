@@ -155,10 +155,16 @@ describe('AgentActivityRadar', () => {
     render(<AgentActivityRadar variant="full" />)
 
     expect(await screen.findByRole('heading', { name: 'Live agent work map' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Agent office map' })).toBeInTheDocument()
+    const lifecycle = screen.getByLabelText('Client engagement lifecycle')
+    expect(within(lifecycle).getByText('Attract')).toBeInTheDocument()
+    expect(within(lifecycle).getByText('Deliver')).toBeInTheDocument()
+    expect(within(lifecycle).getByRole('button', { name: 'Open Shaka (Zulu) - Chief of Staff lifecycle detail' })).toBeInTheDocument()
+    expect(within(lifecycle).getByLabelText('Shaka (Zulu) - Chief of Staff progress 64%')).toBeInTheDocument()
     const summary = screen.getByLabelText('Agent Activity Radar summary')
     expect(within(summary).getByText('Active')).toBeInTheDocument()
     expect(within(summary).getByText('Blocked')).toBeInTheDocument()
-    expect(screen.getByText('Review live work')).toBeInTheDocument()
+    expect(screen.getAllByText('Review live work').length).toBeGreaterThan(1)
     expect(screen.getAllByText('Resolve workflow blocker').length).toBeGreaterThan(1)
     expect(screen.getByText('Needs operator eyes')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Open trace' })).toHaveAttribute('href', '/admin/agents/runs/run-active')
@@ -168,7 +174,7 @@ describe('AgentActivityRadar', () => {
     vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] })
     render(<AgentActivityRadar variant="compact" />)
 
-    await screen.findByText('Review live work')
+    await screen.findAllByText('Review live work')
     expect(fetch).toHaveBeenCalledTimes(1)
 
     await act(async () => {
@@ -184,7 +190,7 @@ describe('AgentActivityRadar', () => {
   it('executes soft steering actions through existing governed endpoints', async () => {
     render(<AgentActivityRadar variant="full" />)
 
-    await screen.findByText('Review live work')
+    await screen.findAllByText('Review live work')
     fireEvent.click(screen.getByRole('button', { name: 'Ask Shaka' }))
 
     expect(await screen.findByText('Ask Shaka queued. Trace: shaka-run')).toBeInTheDocument()
@@ -202,7 +208,7 @@ describe('AgentActivityRadar', () => {
 
     render(<AgentActivityRadar variant="compact" />)
 
-    await screen.findByText('Review live work')
+    await screen.findAllByText('Review live work')
     fireEvent.click(screen.getByRole('button', { name: 'Refresh' }))
 
     expect(await screen.findByText(/Database not available/i)).toBeInTheDocument()
