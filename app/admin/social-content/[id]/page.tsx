@@ -448,6 +448,10 @@ function SocialContentDetailPage() {
   }
 
   const handleApprove = async () => {
+    if (!canApproveAgentPilot) {
+      showMsg('error', 'Agent Ops content must clear challenger QA before approval')
+      return
+    }
     setApproving(true)
     setShowConfirmModal(false)
     try {
@@ -745,6 +749,11 @@ function SocialContentDetailPage() {
   const agentPilotProvenance = asStringArray(ragContext?.source_provenance_checklist)
   const agentPilotApprovalChecklist = asStringArray(ragContext?.approval_checklist)
   const agentPilotOpenBrainReferences = asStringArray(ragContext?.open_brain_references)
+  const agentPilotCurrentGate = asString(ragContext?.current_gate)
+  const agentPilotGateStatus = asString(ragContext?.gate_status)
+  const agentPilotChallengerStatus = asString(ragContext?.challenger_status)
+  const agentPilotPassToHuman = ragContext?.pass_to_human === true
+  const agentPilotRequiredFixes = asStringArray(ragContext?.required_fixes)
   const agentPilotCalibration = asRecord(ragContext?.content_calibration)
   const agentPilotCalibrationStatus = asString(agentPilotCalibration?.status)
   const agentPilotPriorPatterns = asRecordArray(agentPilotCalibration?.prior_success_patterns)
@@ -784,6 +793,7 @@ function SocialContentDetailPage() {
       ? engagementLatest.likes
       : 0
   const isDraftOnlyPilot = isAgentSocialPilot && agentPilotPublishGate === 'draft_only'
+  const canApproveAgentPilot = !isAgentSocialPilot || agentPilotPassToHuman
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -867,9 +877,36 @@ function SocialContentDetailPage() {
                       Packet {agentPilotPacketId}
                     </span>
                   )}
+                  {agentPilotCurrentGate && (
+                    <span className="rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-purple-100">
+                      Gate: {agentPilotCurrentGate.replace(/_/g, ' ')}
+                    </span>
+                  )}
+                  {agentPilotChallengerStatus && (
+                    <span className="rounded-full border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-1 text-gray-200">
+                      Challenger: {agentPilotChallengerStatus.replace(/_/g, ' ')}
+                    </span>
+                  )}
+                  <span className={`rounded-full border px-3 py-1 ${agentPilotPassToHuman ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200' : 'border-amber-500/35 bg-amber-500/10 text-amber-100'}`}>
+                    {agentPilotPassToHuman ? 'Human review ready' : 'Before human review'}
+                  </span>
                 </div>
               </div>
             </div>
+
+            {!agentPilotPassToHuman && (
+              <div className="mt-5 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm leading-6 text-amber-50">
+                <p className="font-semibold">This draft is not ready for human approval yet.</p>
+                <p className="mt-1 text-amber-100/85">
+                  Current status: {(agentPilotGateStatus || 'research pending').replace(/_/g, ' ')}. Research/context evidence and challenger QA must clear before this can move to the Social Content approval gate.
+                </p>
+                {agentPilotRequiredFixes.length > 0 && (
+                  <ul className="mt-3 space-y-1">
+                    {agentPilotRequiredFixes.slice(0, 4).map((fix) => <li key={fix}>- {fix}</li>)}
+                  </ul>
+                )}
+              </div>
+            )}
 
             <div className="mt-5 grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(18rem,0.8fr)]">
               <div className="rounded-lg border border-silicon-slate/80 bg-background/35 p-4">
@@ -1763,8 +1800,9 @@ function SocialContentDetailPage() {
                   }
                   setShowConfirmModal(true)
                 }}
-                disabled={approving}
-                className="flex items-center gap-1.5 px-5 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                disabled={approving || !canApproveAgentPilot}
+                title={canApproveAgentPilot ? undefined : 'Research/context evidence and challenger QA must pass before approval'}
+                className="flex items-center gap-1.5 px-5 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {approving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 Approve & Publish
@@ -1961,8 +1999,10 @@ function SocialContentDetailPage() {
 
               <div className="space-y-3 mb-6">
                 {isDraftOnlyPilot && (
-                  <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-100">
-                    This draft came from a draft-only Agent Ops pilot. Goal approval did not publish it; this confirmation is the separate Social Content approval gate.
+                  <div className={`rounded-lg border p-3 text-sm ${agentPilotPassToHuman ? 'border-amber-500/30 bg-amber-500/10 text-amber-100' : 'border-red-500/30 bg-red-500/10 text-red-100'}`}>
+                    {agentPilotPassToHuman
+                      ? 'This draft came from a draft-only Agent Ops pilot. Goal approval did not publish it; this confirmation is the separate Social Content approval gate.'
+                      : 'This Agent Ops draft has not cleared challenger QA. Close this modal and finish the upstream gate before approving.'}
                   </div>
                 )}
                 <div className="flex items-center justify-between text-sm">
@@ -1992,8 +2032,8 @@ function SocialContentDetailPage() {
                 </button>
                 <button
                   onClick={handleApprove}
-                  disabled={approving}
-                  className="flex items-center gap-2 px-5 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                  disabled={approving || !canApproveAgentPilot}
+                  className="flex items-center gap-2 px-5 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {approving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                   {scheduledFor ? 'Approve & Schedule' : 'Approve & Publish'}

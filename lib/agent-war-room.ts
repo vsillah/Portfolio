@@ -9,6 +9,11 @@ import { AGENT_ORGANIZATION, AGENT_PODS, getAgentByKey, type AgentOrganizationNo
 import { buildAgentMissionControlSnapshot } from '@/lib/agent-mission-control'
 import { buildAgentOrgBoardSnapshot, type AgentOrgBoardSnapshot, type AgentOrgBoardTask } from '@/lib/agent-swarm-board'
 import { createAgentWorkItem, type AgentWorkItem, type AgentWorkItemPriority } from '@/lib/agent-work-items'
+import {
+  buildGoalOrchestrationPacket,
+  initialContentOrchestrationReview,
+  type GoalOrchestrationPacket,
+} from '@/lib/goal-orchestration'
 import { supabaseAdmin } from '@/lib/supabase'
 
 export type AgentWarRoomCommand = 'standup' | 'discuss' | 'ask_agent' | 'draft_goal' | 'approve_readiness' | 'approve_goal'
@@ -119,6 +124,7 @@ export interface AgentGoalDraft {
   chronicle_packet_status?: 'manual_packet_required' | 'attached' | 'not_required'
   content_packet_id?: string | null
   content_packet?: LinkedInContentPacket | null
+  orchestration_packet?: GoalOrchestrationPacket | null
   tasks: AgentGoalDraftTask[]
 }
 
@@ -616,6 +622,7 @@ function socialOutreachTasks(goalId: string, title: string): AgentGoalDraftTask[
 function draftSocialOutreachGoal(goal: string, title: string, goalId: string): AgentGoalDraft {
   const packet = buildLinkedInPacket(goalId, title)
   const goalType: AgentGoalType = 'social_outreach_linkedin_post'
+  const authorityBoundary = defaultAuthorityBoundary(goalType)
   return {
     goal_id: goalId,
     goal_type: goalType,
@@ -627,7 +634,7 @@ function draftSocialOutreachGoal(goal: string, title: string, goalId: string): A
     readiness_checklist: readinessChecklist(goalType),
     acceptance_criteria: defaultGoalAcceptanceCriteria(goalType),
     stage_gates: defaultStageGates(goalType),
-    authority_boundary: defaultAuthorityBoundary(goalType),
+    authority_boundary: authorityBoundary,
     missing_context: [
       'Attach the manual Chronicle evidence packet before final content approval.',
       'Replace the pending industry signal before publishing review.',
@@ -643,6 +650,12 @@ function draftSocialOutreachGoal(goal: string, title: string, goalId: string): A
     chronicle_packet_status: 'manual_packet_required',
     content_packet_id: packet.id,
     content_packet: packet,
+    orchestration_packet: buildGoalOrchestrationPacket({
+      goalType,
+      currentGate: 'readiness_packet',
+      gateStatus: 'ready',
+      approvalBoundary: authorityBoundary.notes,
+    }),
     tasks: socialOutreachTasks(goalId, title),
   }
 }
@@ -715,6 +728,7 @@ function draftGoal(goal: string, goalType: AgentGoalType = 'general'): AgentGoal
       goal_progress_weight: 1,
     },
   ]
+  const authorityBoundary = defaultAuthorityBoundary(goalType)
 
   return {
     goal_id: goalId,
@@ -727,9 +741,15 @@ function draftGoal(goal: string, goalType: AgentGoalType = 'general'): AgentGoal
     readiness_checklist: readinessChecklist(goalType),
     acceptance_criteria: defaultGoalAcceptanceCriteria(goalType),
     stage_gates: defaultStageGates(goalType),
-    authority_boundary: defaultAuthorityBoundary(goalType),
+    authority_boundary: authorityBoundary,
     missing_context: [],
     planning_participants: planningParticipants(goalType),
+    orchestration_packet: buildGoalOrchestrationPacket({
+      goalType,
+      currentGate: 'readiness_packet',
+      gateStatus: 'ready',
+      approvalBoundary: authorityBoundary.notes,
+    }),
     tasks,
   }
 }
@@ -765,6 +785,14 @@ function assertDraft(value: AgentGoalDraft | null | undefined): AgentGoalDraft {
   if (value.content_packet && typeof value.content_packet.id !== 'string') {
     throw new Error('Invalid LinkedIn content packet')
   }
+  value.orchestration_packet = value.orchestration_packet && typeof value.orchestration_packet === 'object'
+    ? value.orchestration_packet
+    : buildGoalOrchestrationPacket({
+      goalType,
+      currentGate: 'readiness_packet',
+      gateStatus: 'ready',
+      approvalBoundary: value.authority_boundary.notes,
+    })
   return value
 }
 
@@ -932,9 +960,17 @@ async function createSocialContentDraftForGoal(draft: AgentGoalDraft) {
       rag_context: {
         source: 'agent_ops_social_outreach_goal',
         goal_id: draft.goal_id,
-        goal_type: draft.goal_type,
         content_packet_id: packet.id,
         publish_gate: draft.publish_gate ?? 'draft_only',
+        ...initialContentOrchestrationReview({
+          goalType: draft.goal_type ?? 'social_outreach_linkedin_post',
+          sourceIds: [
+            packet.id,
+            ...packet.open_brain_references,
+            ...packet.chronicle_evidence_notes,
+          ],
+          approvalBoundary: draft.authority_boundary?.notes ?? 'Human review and publishing remain separately approval-gated.',
+        }),
         open_brain_references: packet.open_brain_references,
         chronicle_packet_status: draft.chronicle_packet_status ?? 'manual_packet_required',
         chronicle_evidence_notes: packet.chronicle_evidence_notes,
@@ -965,6 +1001,13 @@ async function approveGoalDraft(runId: string, draft: AgentGoalDraft) {
   const draftRunId = draft.draft_run_id ?? null
   const sessionHref = goalSessionHref(draft.goal_id)
   const socialContentDraft = await createSocialContentDraftForGoal(draft)
+  const goalType = draft.goal_type ?? 'general'
+  const orchestrationPacket = buildGoalOrchestrationPacket({
+    goalType,
+    currentGate: goalType === 'social_outreach_linkedin_post' ? 'research_context_evidence' : 'delegated_work_graph',
+    gateStatus: goalType === 'social_outreach_linkedin_post' ? 'research_pending' : 'delegated',
+    approvalBoundary: draft.authority_boundary?.notes ?? 'Human review remains the final approval boundary.',
+  })
   const contentPacket = draft.content_packet && socialContentDraft
     ? {
       ...draft.content_packet,
@@ -999,6 +1042,14 @@ async function approveGoalDraft(runId: string, draft: AgentGoalDraft) {
       goal_session_href: sessionHref,
       goal_progress_weight: 0,
       recommendation: draft.recommendation,
+      orchestration_packet: orchestrationPacket,
+      orchestration_version: orchestrationPacket.orchestration_version,
+      current_gate: orchestrationPacket.current_gate,
+      gate_status: orchestrationPacket.gate_status,
+      pass_to_human: orchestrationPacket.pass_to_human,
+      challenger_status: orchestrationPacket.challenger_status,
+      residual_risks_for_human: orchestrationPacket.residual_risks_for_human,
+      approval_boundary: orchestrationPacket.approval_boundary,
       publish_gate: draft.publish_gate ?? null,
       source_requirements: draft.source_requirements ?? [],
       chronicle_packet_status: draft.chronicle_packet_status ?? null,
@@ -1048,6 +1099,14 @@ async function approveGoalDraft(runId: string, draft: AgentGoalDraft) {
         goal_dependencies: task.dependencies,
         task_acceptance_criteria: task.acceptance_criteria,
         risk_notes: task.risk_notes,
+        orchestration_packet: orchestrationPacket,
+        orchestration_version: orchestrationPacket.orchestration_version,
+        current_gate: orchestrationPacket.current_gate,
+        gate_status: orchestrationPacket.gate_status,
+        pass_to_human: orchestrationPacket.pass_to_human,
+        challenger_status: orchestrationPacket.challenger_status,
+        residual_risks_for_human: orchestrationPacket.residual_risks_for_human,
+        approval_boundary: orchestrationPacket.approval_boundary,
         publish_gate: draft.publish_gate ?? null,
         content_packet_id: draft.content_packet_id ?? contentPacket?.id ?? null,
         social_content_draft_id: socialContentDraft?.id ?? null,

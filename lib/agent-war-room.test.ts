@@ -545,6 +545,11 @@ describe('runAgentWarRoom', () => {
       goal_type: 'social_outreach_linkedin_post',
       publish_gate: 'draft_only',
       chronicle_packet_status: 'manual_packet_required',
+      orchestration_packet: expect.objectContaining({
+        current_gate: 'readiness_packet',
+        pass_to_human: false,
+        challenger_status: 'pending',
+      }),
       content_packet: expect.objectContaining({
         target_audience: expect.stringContaining('LinkedIn audience'),
         source_provenance_checklist: expect.arrayContaining([
@@ -595,6 +600,10 @@ describe('runAgentWarRoom', () => {
         goal_type: 'social_outreach_linkedin_post',
         publish_gate: 'draft_only',
         chronicle_packet_status: 'manual_packet_required',
+        current_gate: 'research_context_evidence',
+        gate_status: 'research_pending',
+        pass_to_human: false,
+        challenger_status: 'pending',
         content_packet_id: draftResult.goalDraft?.content_packet_id,
         social_content_draft_id: 'social-draft-1',
         social_content_draft_href: '/admin/social-content/social-draft-1',
@@ -609,6 +618,10 @@ describe('runAgentWarRoom', () => {
       source: expect.objectContaining({ id: expect.stringContaining('-social-content-draft') }),
       metadata: expect.objectContaining({
         publish_gate: 'draft_only',
+        current_gate: 'research_context_evidence',
+        gate_status: 'research_pending',
+        pass_to_human: false,
+        challenger_status: 'pending',
         social_content_draft_id: 'social-draft-1',
       }),
     }))
@@ -620,6 +633,11 @@ describe('runAgentWarRoom', () => {
     expect(result.createdWorkItems?.parent.metadata).toMatchObject({
       social_content_draft_id: 'social-draft-1',
       publish_gate: 'draft_only',
+      orchestration_version: 'v1_content_v2_ready',
+      current_gate: 'research_context_evidence',
+      gate_status: 'research_pending',
+      pass_to_human: false,
+      challenger_status: 'pending',
     })
   })
 

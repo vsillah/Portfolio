@@ -214,6 +214,13 @@ export type AgentOrgBoardTask = {
     chroniclePacketStatus: string | null
     socialContentDraftId: string | null
     socialContentDraftHref: string | null
+    orchestrationVersion: string | null
+    currentGate: string | null
+    gateStatus: string | null
+    passToHuman: boolean
+    challengerStatus: string | null
+    residualRisksForHuman: string[]
+    approvalBoundary: string | null
     n8nProposal: AgentOrgBoardN8nProposalContext | null
   } | null
 }
@@ -264,6 +271,13 @@ export type AgentOrgBoardGoalMetric = {
   chroniclePacketStatus: string | null
   socialContentDraftId: string | null
   socialContentDraftHref: string | null
+  orchestrationVersion: string | null
+  currentGate: string | null
+  gateStatus: string | null
+  passToHuman: boolean
+  challengerStatus: string | null
+  residualRisksForHuman: string[]
+  approvalBoundary: string | null
 }
 
 export type AgentOrgBoardWipMetric = {
@@ -1023,6 +1037,13 @@ function goalForTask(item: AgentWorkItemRow): AgentOrgBoardTask['goal'] {
     chroniclePacketStatus: stringValue(metadata.chronicle_packet_status),
     socialContentDraftId: stringValue(metadata.social_content_draft_id),
     socialContentDraftHref: stringValue(metadata.social_content_draft_href),
+    orchestrationVersion: stringValue(metadata.orchestration_version),
+    currentGate: stringValue(metadata.current_gate),
+    gateStatus: stringValue(metadata.gate_status),
+    passToHuman: metadata.pass_to_human === true,
+    challengerStatus: stringValue(metadata.challenger_status),
+    residualRisksForHuman: stringArrayValue(metadata.residual_risks_for_human),
+    approvalBoundary: stringValue(metadata.approval_boundary),
     n8nProposal: isN8nProposal ? {
       action: stringValue(metadata.n8n_proposal_action),
       proposedWorkflowName: stringValue(metadata.proposed_workflow_name),
@@ -1102,6 +1123,13 @@ function buildGoalMetrics(tasks: AgentOrgBoardTask[]): AgentOrgBoardGoalMetric[]
       chroniclePacketStatus: firstGoal?.chroniclePacketStatus ?? null,
       socialContentDraftId: firstGoal?.socialContentDraftId ?? null,
       socialContentDraftHref: firstGoal?.socialContentDraftHref ?? null,
+      orchestrationVersion: firstGoal?.orchestrationVersion ?? null,
+      currentGate: firstGoal?.currentGate ?? null,
+      gateStatus: firstGoal?.gateStatus ?? null,
+      passToHuman: firstGoal?.passToHuman ?? false,
+      challengerStatus: firstGoal?.challengerStatus ?? null,
+      residualRisksForHuman: firstGoal?.residualRisksForHuman ?? [],
+      approvalBoundary: firstGoal?.approvalBoundary ?? null,
     }
   })
 }

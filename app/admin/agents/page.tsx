@@ -29,6 +29,7 @@ import {
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import AgentAvatar from '@/components/admin/AgentAvatar'
+import AgentActivityRadar from '@/components/admin/AgentActivityRadar'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import type { AgentGovernanceSnapshot } from '@/components/admin/agents/AgentGovernancePanel'
 import { getCurrentSession } from '@/lib/auth'
@@ -994,6 +995,10 @@ export default function AgentOperationsPage() {
                       tone={healthLabel === 'Read-only healthy' ? 'green' : 'red'}
                     />
                   </div>
+                </div>
+
+                <div className="mt-5">
+                  <AgentActivityRadar variant="full" />
                 </div>
 
                 <DailyBriefPanel
@@ -2051,15 +2056,23 @@ function SwarmCommandPanel({
   roster: MissionSnapshot['roster']
   governance: AgentGovernanceSnapshot | null
 }) {
+  const rosterPageSize = 4
+  const [rosterPage, setRosterPage] = useState(0)
   const agents = roster.flatMap((pod) => pod.agents)
   const shaka = agents.find((agent) => agent.key === 'chief-of-staff')
   const activeAgents = agents.filter((agent) => agent.status === 'active').length
   const partialAgents = agents.filter((agent) => agent.status === 'partial').length
-  const visibleAgents = [
+  const orderedAgents = [
     shaka,
     ...agents.filter((agent) => agent.key !== shaka?.key),
-  ].filter(Boolean).slice(0, 4) as MissionSnapshot['roster'][number]['agents']
+  ].filter(Boolean) as MissionSnapshot['roster'][number]['agents']
+  const rosterPageCount = Math.max(1, Math.ceil(orderedAgents.length / rosterPageSize))
+  const visibleAgents = orderedAgents.slice(rosterPage * rosterPageSize, rosterPage * rosterPageSize + rosterPageSize)
   const governanceAttention = (governance?.summary.least_privilege_attention ?? 0) + (governance?.summary.pending_authority_approvals ?? 0)
+
+  useEffect(() => {
+    setRosterPage((currentPage) => Math.min(currentPage, Math.max(rosterPageCount - 1, 0)))
+  }, [rosterPageCount])
 
   return (
     <section className="agent-ops-card mt-5 rounded-lg border p-4" aria-label="Swarm Command">
@@ -2139,12 +2152,23 @@ function SwarmCommandPanel({
       </div>
 
       {visibleAgents.length ? (
-        <div className="mt-4 border-t border-silicon-slate/55 pt-4">
+        <div className="mt-4 border-t border-silicon-slate/55 pt-4" aria-label="Agent roster preview">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Agent roster preview</p>
-            <Link href="/admin/agents/standup" className="text-xs font-semibold text-radiant-gold hover:underline">
-              Manage attendance
-            </Link>
+            <div className="flex flex-wrap items-center gap-3 sm:justify-end">
+              <PagerControls
+                label="Agent roster preview"
+                page={rosterPage}
+                pageCount={rosterPageCount}
+                itemCount={orderedAgents.length}
+                pageSize={rosterPageSize}
+                onPrevious={() => setRosterPage((page) => Math.max(page - 1, 0))}
+                onNext={() => setRosterPage((page) => Math.min(page + 1, rosterPageCount - 1))}
+              />
+              <Link href="/admin/agents/standup" className="text-xs font-semibold text-radiant-gold hover:underline">
+                Manage attendance
+              </Link>
+            </div>
           </div>
           <div className="mt-3 grid gap-2 md:grid-cols-2">
             {visibleAgents.map((agent) => (
