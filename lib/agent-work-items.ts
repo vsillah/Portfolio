@@ -5,6 +5,7 @@ import {
   startAgentRun,
   type AgentRuntime,
 } from '@/lib/agent-run'
+import { evaluateGoalOrchestration, type GoalOrchestrationWorkItem } from '@/lib/goal-orchestration'
 import { supabaseAdmin } from '@/lib/supabase'
 
 export const AGENT_WORK_ITEM_STATUSES = [
@@ -413,7 +414,10 @@ async function updateWorkItem(
     }).catch(() => {})
   }
 
-  return data as AgentWorkItem
+  const updatedItem = data as AgentWorkItem
+  await refreshGoalOrchestrationForWorkItem(updatedItem)
+
+  return updatedItem
 }
 
 export async function createAgentWorkItem(input: CreateAgentWorkItemInput): Promise<AgentWorkItem> {
@@ -852,6 +856,88 @@ function recordValue(value: unknown): Record<string, unknown> | null {
 
 function metadataString(value: unknown): string | null {
   return typeof value === 'string' && value.trim() ? value.trim() : null
+}
+
+function mergeOrchestrationMetadata(metadata: Record<string, unknown>, packet: ReturnType<typeof evaluateGoalOrchestration>) {
+  return {
+    ...metadata,
+    orchestration_packet: packet,
+    orchestration_version: packet.orchestration_version,
+    current_gate: packet.current_gate,
+    gate_status: packet.gate_status,
+    pass_to_human: packet.pass_to_human,
+    challenger_status: packet.challenger_status,
+    residual_risks_for_human: packet.residual_risks_for_human,
+    approval_boundary: packet.approval_boundary,
+  }
+}
+
+function workItemForOrchestration(item: AgentWorkItem): GoalOrchestrationWorkItem {
+  return {
+    title: item.title,
+    status: item.status,
+    blocker_summary: item.blocker_summary,
+    validation_summary: item.validation_summary,
+    metadata: item.metadata ?? {},
+  }
+}
+
+async function refreshGoalOrchestrationForWorkItem(item: AgentWorkItem) {
+  const metadata = item.metadata ?? {}
+  const goalId = metadataString(metadata.goal_id)
+  if (!goalId) return
+
+  const parentId = item.parent_work_item_id
+    ?? metadataString(metadata.goal_parent_work_item_id)
+    ?? (metadata.goal_role === 'parent' ? item.id : null)
+  if (!parentId) return
+
+  try {
+    const { data: parentData } = item.id === parentId
+      ? { data: item }
+      : await db()
+        .from('agent_work_items')
+        .select('*')
+        .eq('id', parentId)
+        .maybeSingle()
+
+    const parent = (parentData as AgentWorkItem | null) ?? null
+    const { data: childData } = await db()
+      .from('agent_work_items')
+      .select('*')
+      .eq('parent_work_item_id', parentId)
+      .order('created_at', { ascending: true })
+      .limit(100)
+
+    const children = ((childData ?? []) as AgentWorkItem[])
+      .filter((child) => metadataString(child.metadata?.goal_id) === goalId)
+    const sourceMetadata = parent?.metadata ?? metadata
+    const authorityBoundary = recordValue(sourceMetadata.authority_boundary)
+    const packet = evaluateGoalOrchestration({
+      goalType: metadataString(sourceMetadata.goal_type) ?? metadataString(metadata.goal_type) ?? 'general',
+      items: children.map(workItemForOrchestration),
+      approvalBoundary: metadataString(sourceMetadata.approval_boundary)
+        ?? metadataString(authorityBoundary?.notes)
+        ?? 'Human review remains the final approval boundary.',
+    })
+    const rows = [
+      ...(parent ? [parent] : []),
+      ...children,
+    ]
+    for (const row of rows) {
+      await db()
+        .from('agent_work_items')
+        .update({
+          metadata: mergeOrchestrationMetadata(row.metadata ?? {}, packet),
+        })
+        .eq('id', row.id)
+    }
+  } catch (error) {
+    console.warn(
+      '[agent-work-items] goal orchestration refresh skipped:',
+      error instanceof Error ? error.message : error,
+    )
+  }
 }
 
 export async function requestAgentWorkItemN8nActivationReview(input: {

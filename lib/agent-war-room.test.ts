@@ -618,6 +618,7 @@ describe('runAgentWarRoom', () => {
       source: expect.objectContaining({ id: expect.stringContaining('-social-content-draft') }),
       metadata: expect.objectContaining({
         publish_gate: 'draft_only',
+        orchestration_gate: 'draft_build',
         current_gate: 'research_context_evidence',
         gate_status: 'research_pending',
         pass_to_human: false,

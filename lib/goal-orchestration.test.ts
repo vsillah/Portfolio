@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  evaluateGoalOrchestration,
   evaluateContentGoalOrchestration,
+  inferWorkItemOrchestrationGate,
   initialContentOrchestrationReview,
 } from './goal-orchestration'
 
@@ -75,6 +77,79 @@ describe('goal orchestration', () => {
         metadata: { challenger_status: 'passed' },
       },
     ])
+
+    expect(packet).toMatchObject({
+      current_gate: 'human_review',
+      gate_status: 'human_review_ready',
+      challenger_status: 'passed',
+      pass_to_human: true,
+    })
+  })
+
+  it('infers generic task gates from work item metadata and title', () => {
+    expect(inferWorkItemOrchestrationGate({
+      title: 'Review risk, governance, and rollout path',
+      status: 'assigned',
+    })).toBe('challenger_qa')
+    expect(inferWorkItemOrchestrationGate({
+      title: 'Custom task',
+      status: 'assigned',
+      metadata: { orchestration_gate: 'draft_build' },
+    })).toBe('draft_build')
+  })
+
+  it('evaluates non-content goals with the shared gate model', () => {
+    const packet = evaluateGoalOrchestration({
+      goalType: 'general',
+      approvalBoundary: 'Human approval remains the final authority boundary.',
+      items: [
+        { title: 'Frame the goal and acceptance gate', ...done, metadata: { orchestration_gate: 'readiness_packet' } },
+        { title: 'Implement the primary change set', status: 'in_progress', metadata: { orchestration_gate: 'draft_build' } },
+        { title: 'Review risk, governance, and rollout path', status: 'assigned', metadata: { orchestration_gate: 'challenger_qa' } },
+      ],
+    })
+
+    expect(packet).toMatchObject({
+      goal_type: 'general',
+      current_gate: 'draft_build',
+      gate_status: 'drafting',
+      pass_to_human: false,
+    })
+  })
+
+  it('routes generic blockers to the active gate', () => {
+    const packet = evaluateGoalOrchestration({
+      goalType: 'general',
+      approvalBoundary: 'Human approval remains the final authority boundary.',
+      items: [
+        {
+          title: 'Review risk, governance, and rollout path',
+          status: 'blocked',
+          blocker_summary: 'Rollback path is missing.',
+          metadata: { orchestration_gate: 'challenger_qa' },
+        },
+      ],
+    })
+
+    expect(packet).toMatchObject({
+      current_gate: 'challenger_qa',
+      gate_status: 'blocked',
+      challenger_status: 'blocked',
+      pass_to_human: false,
+      residual_risks_for_human: ['Rollback path is missing.'],
+    })
+  })
+
+  it('passes completed generic goals to human review', () => {
+    const packet = evaluateGoalOrchestration({
+      goalType: 'general',
+      approvalBoundary: 'Human approval remains the final authority boundary.',
+      items: [
+        { title: 'Frame the goal and acceptance gate', ...done, metadata: { orchestration_gate: 'readiness_packet' } },
+        { title: 'Implement the primary change set', ...done, metadata: { orchestration_gate: 'draft_build' } },
+        { title: 'Review risk, governance, and rollout path', ...done, metadata: { orchestration_gate: 'challenger_qa', challenger_status: 'passed' } },
+      ],
+    })
 
     expect(packet).toMatchObject({
       current_gate: 'human_review',
