@@ -66,6 +66,46 @@ const missionSnapshot = {
           active_workflow_count: 1,
           latest_run: null,
         },
+        {
+          key: 'proposal-scripts',
+          name: 'Mansa Musa',
+          pod: 'Strategy',
+          status: 'planned',
+          runtime: 'portfolio',
+          responsibility: 'Assemble offers, pricing logic, proposals, and sales scripts.',
+          active_workflow_count: 0,
+          latest_run: null,
+        },
+        {
+          key: 'legacy-intelligence',
+          name: 'Sundiata Keita',
+          pod: 'Knowledge',
+          status: 'planned',
+          runtime: 'portfolio',
+          responsibility: 'Translate long-horizon institution-building into reusable memory.',
+          active_workflow_count: 0,
+          latest_run: null,
+        },
+        {
+          key: 'content-repurpose',
+          name: 'Hannibal',
+          pod: 'Content',
+          status: 'active',
+          runtime: 'portfolio',
+          responsibility: 'Repurpose approved content into channel-ready packages.',
+          active_workflow_count: 1,
+          latest_run: null,
+        },
+        {
+          key: 'research-source-register',
+          name: 'Askia Muhammad',
+          pod: 'Research',
+          status: 'partial',
+          runtime: 'portfolio',
+          responsibility: 'Maintain source maps and research packets for review.',
+          active_workflow_count: 1,
+          latest_run: null,
+        },
       ],
     },
   ],
@@ -630,7 +670,17 @@ describe('AgentOperationsPage mission control landing', () => {
     expect(within(swarmCommand).getByText('Open authority controls')).toBeInTheDocument()
     expect(within(swarmCommand).queryByText(/Goal work/i)).not.toBeInTheDocument()
     expect(within(swarmCommand).queryByText(/Goal tags, stage gates, and blockers/i)).not.toBeInTheDocument()
-    expect(within(swarmCommand).getByText('Amina')).toBeInTheDocument()
+    const rosterPreview = within(swarmCommand).getByLabelText('Agent roster preview')
+    expect(within(rosterPreview).getByLabelText('Agent roster preview pagination')).toHaveTextContent('Showing 1-4 of 6 · 1/2')
+    expect(within(rosterPreview).getByText('Shaka')).toBeInTheDocument()
+    expect(within(rosterPreview).getByText('Amina')).toBeInTheDocument()
+    expect(within(rosterPreview).queryByText('Hannibal')).not.toBeInTheDocument()
+    fireEvent.click(within(rosterPreview).getByRole('button', { name: 'Next Agent roster preview page' }))
+    expect(within(rosterPreview).getByLabelText('Agent roster preview pagination')).toHaveTextContent('Showing 5-6 of 6 · 2/2')
+    expect(within(rosterPreview).getByText('Hannibal')).toBeInTheDocument()
+    expect(within(rosterPreview).queryByText('Shaka')).not.toBeInTheDocument()
+    fireEvent.click(within(rosterPreview).getByRole('button', { name: 'Previous Agent roster preview page' }))
+    expect(within(rosterPreview).getByLabelText('Agent roster preview pagination')).toHaveTextContent('Showing 1-4 of 6 · 1/2')
     expect(screen.queryByLabelText('Agent Governance')).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Scoped governance export builder')).not.toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /Export client audit/i })).not.toBeInTheDocument()
