@@ -552,7 +552,7 @@ function normalizeImportEvent(
     ? roundUsd(Math.max(0, event.costUsd))
     : null
   const costUsd = explicitCost ?? computedCost.costUsd
-  const costBasis = normalizeCostBasis(event.costBasis ?? (costUsd > 0 ? computedCost.costBasis : provider === 'local' || provider === 'open_source' ? 'local_estimated' : 'inferred'))
+  const costBasis = normalizeCostBasis(event.costBasis ?? (explicitCost != null ? 'metered' : costUsd > 0 ? computedCost.costBasis : provider === 'local' || provider === 'open_source' ? 'local_estimated' : 'inferred'))
   const confidence = normalizeConfidence(event.confidence ?? (explicitCost != null || computedCost.pricingSnapshot ? 'medium' : 'low'))
 
   return {
