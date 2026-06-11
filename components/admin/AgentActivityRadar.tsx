@@ -516,7 +516,7 @@ function ClientLifecycleMap({
                 <div className="h-full rounded-full bg-radiant-gold/80" style={{ width: `${averageProgress}%` }} />
               </div>
               <div
-                className="mt-4 grid max-h-[46px] min-h-[44px] grid-cols-4 content-start gap-2 overflow-y-auto overflow-x-hidden pr-1 [scrollbar-width:thin]"
+                className="mt-4 grid max-h-[2.625rem] min-h-[2.625rem] grid-cols-[repeat(auto-fill,minmax(2.625rem,2.625rem))] content-start justify-start gap-2 overflow-y-auto overflow-x-hidden pr-1 [scrollbar-width:thin]"
                 aria-label={`${stage.label} assigned agents`}
               >
                 {roomAgents.length ? roomAgents.map((agent) => (
@@ -529,7 +529,7 @@ function ClientLifecycleMap({
                     onToggleSelected={toggleSelectedAgent}
                   />
                 )) : (
-                  <span className="col-span-4 rounded-lg border border-dashed border-silicon-slate/55 bg-background/30 px-2 py-1.5 text-[11px] text-muted-foreground">
+                  <span className="col-span-full rounded-lg border border-dashed border-silicon-slate/55 bg-background/30 px-2 py-1.5 text-[11px] text-muted-foreground">
                     No assigned agents
                   </span>
                 )}
