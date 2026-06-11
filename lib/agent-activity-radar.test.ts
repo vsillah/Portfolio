@@ -48,6 +48,10 @@ function workItem(overrides: Record<string, unknown>) {
     metadata: {
       goal_id: 'AGENT-OPS-LIVE-RADAR-001',
       goal_title: 'Agent Activity Radar',
+      current_gate: 'challenger_qa',
+      gate_status: 'challenger_pending',
+      challenger_status: 'pending',
+      pass_to_human: false,
     },
     created_at: '2026-06-11T13:00:00.000Z',
     updated_at: '2026-06-11T13:58:00.000Z',
@@ -87,6 +91,10 @@ describe('buildAgentActivityRadarSnapshotFromRows', () => {
       linked_goal: {
         id: 'AGENT-OPS-LIVE-RADAR-001',
         title: 'Agent Activity Radar',
+        current_gate: 'challenger_qa',
+        gate_status: 'challenger_pending',
+        challenger_status: 'pending',
+        pass_to_human: false,
       },
     })
     expect(shaka?.steer_actions.map((action) => action.kind)).toEqual(expect.arrayContaining(['open_trace', 'open_kanban', 'ask_shaka', 'engage_agent']))

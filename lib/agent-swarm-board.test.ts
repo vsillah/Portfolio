@@ -776,6 +776,13 @@ describe('buildAgentOrgBoardSnapshotFromRows', () => {
             content_packet_id: 'packet-goal-social',
             social_content_draft_id: 'social-draft-1',
             social_content_draft_href: '/admin/social-content/social-draft-1',
+            orchestration_version: 'v1_content_v2_ready',
+            current_gate: 'research_context_evidence',
+            gate_status: 'research_pending',
+            pass_to_human: false,
+            challenger_status: 'pending',
+            residual_risks_for_human: ['Research/context evidence is incomplete.'],
+            approval_boundary: 'Human review remains gated.',
           },
         }),
       ],
@@ -793,12 +800,24 @@ describe('buildAgentOrgBoardSnapshotFromRows', () => {
       contentPacketId: 'packet-goal-social',
       socialContentDraftId: 'social-draft-1',
       socialContentDraftHref: '/admin/social-content/social-draft-1',
+      orchestrationVersion: 'v1_content_v2_ready',
+      currentGate: 'research_context_evidence',
+      gateStatus: 'research_pending',
+      passToHuman: false,
+      challengerStatus: 'pending',
+      residualRisksForHuman: ['Research/context evidence is incomplete.'],
+      approvalBoundary: 'Human review remains gated.',
     })
     expect(snapshot.summary.goals[0]).toMatchObject({
       id: 'goal-social',
       goalType: 'social_outreach_linkedin_post',
       publishGate: 'draft_only',
       socialContentDraftHref: '/admin/social-content/social-draft-1',
+      orchestrationVersion: 'v1_content_v2_ready',
+      currentGate: 'research_context_evidence',
+      gateStatus: 'research_pending',
+      passToHuman: false,
+      challengerStatus: 'pending',
     })
   })
 

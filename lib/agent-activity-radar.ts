@@ -56,6 +56,10 @@ export type AgentActivityRadarAgent = {
     id: string
     title: string
     href: string
+    current_gate: string | null
+    gate_status: string | null
+    challenger_status: string | null
+    pass_to_human: boolean
   } | null
   backlog_lane: {
     key: string
@@ -257,6 +261,10 @@ function goalForWorkItem(item: AgentWorkItemRow | null) {
     id: goalId,
     title: title ?? goalId,
     href: stringValue(metadata?.goal_session_href) ?? `/admin/agents/standup?goal=${encodeURIComponent(goalId)}`,
+    current_gate: stringValue(metadata?.current_gate),
+    gate_status: stringValue(metadata?.gate_status),
+    challenger_status: stringValue(metadata?.challenger_status),
+    pass_to_human: metadata?.pass_to_human === true,
   }
 }
 

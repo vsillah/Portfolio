@@ -49,6 +49,10 @@ const radarSnapshot = {
         id: 'AGENT-OPS-LIVE-RADAR-001',
         title: 'Agent Activity Radar',
         href: '/admin/agents/standup?goal=AGENT-OPS-LIVE-RADAR-001',
+        current_gate: 'challenger_qa',
+        gate_status: 'challenger_pending',
+        challenger_status: 'pending',
+        pass_to_human: false,
       },
       backlog_lane: {
         key: 'in_progress',

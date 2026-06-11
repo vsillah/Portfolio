@@ -5,6 +5,10 @@ import type { SocialPlatform } from '@/lib/social-content'
 
 export const dynamic = 'force-dynamic'
 
+function recordValue(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : null
+}
+
 /**
  * POST /api/admin/social-content/[id]/approve
  * Approve content, create per-platform publish records, and trigger immediate publishing
@@ -39,6 +43,19 @@ export async function POST(
 
     if (item.status === 'published') {
       return NextResponse.json({ error: 'Content is already published' }, { status: 400 })
+    }
+
+    const ragContext = recordValue(item.rag_context)
+    if (
+      ragContext?.source === 'agent_ops_social_outreach_goal' &&
+      ragContext.publish_gate === 'draft_only' &&
+      ragContext.pass_to_human !== true
+    ) {
+      return NextResponse.json({
+        error: 'Agent Ops content has not cleared challenger QA for human approval',
+        current_gate: typeof ragContext.current_gate === 'string' ? ragContext.current_gate : null,
+        challenger_status: typeof ragContext.challenger_status === 'string' ? ragContext.challenger_status : null,
+      }, { status: 409 })
     }
 
     // Update status to approved

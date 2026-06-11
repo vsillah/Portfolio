@@ -862,9 +862,26 @@ function AgentRadarCard({
       </div>
 
       {!compact && agent.linked_goal ? (
-        <Link href={agent.linked_goal.href} className="mt-3 line-clamp-1 text-xs text-radiant-gold hover:underline">
-          {agent.linked_goal.title}
-        </Link>
+        <div className="mt-3 rounded-lg border border-radiant-gold/25 bg-radiant-gold/5 p-3">
+          <Link href={agent.linked_goal.href} className="line-clamp-1 text-xs text-radiant-gold hover:underline">
+            {agent.linked_goal.title}
+          </Link>
+          <div className="mt-2 flex flex-wrap gap-1.5 text-[11px] leading-tight">
+            {agent.linked_goal.current_gate ? (
+              <span className="rounded-full border border-silicon-slate/60 px-2 py-1 text-muted-foreground">
+                Gate: {agent.linked_goal.current_gate.replace(/_/g, ' ')}
+              </span>
+            ) : null}
+            {agent.linked_goal.challenger_status ? (
+              <span className="rounded-full border border-silicon-slate/60 px-2 py-1 text-muted-foreground">
+                Challenger: {agent.linked_goal.challenger_status.replace(/_/g, ' ')}
+              </span>
+            ) : null}
+            <span className={`rounded-full border px-2 py-1 ${agent.linked_goal.pass_to_human ? 'border-emerald-500/40 text-emerald-200' : 'border-amber-500/35 text-amber-200'}`}>
+              {agent.linked_goal.pass_to_human ? 'Human review ready' : 'Before human review'}
+            </span>
+          </div>
+        </div>
       ) : null}
 
       <div className="mt-4 flex flex-wrap gap-2">
