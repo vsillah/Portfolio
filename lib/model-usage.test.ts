@@ -309,6 +309,32 @@ describe('buildModelUsageSnapshotFromEvents', () => {
     expect(snapshot.events.find((item) => item.id === 'codex-b')?.costUsd).toBe(30)
   })
 
+  it('keeps runtime-scoped subscription allocations out of unrelated provider usage', () => {
+    const snapshot = buildModelUsageSnapshotFromEvents({
+      from: '2026-06-01T00:00:00.000Z',
+      to: '2026-06-30T23:59:59.999Z',
+      events: [
+        event({ id: 'codex-session', provider: 'codex', runtime: 'codex', totalTokens: 1000, costUsd: 0, costBasis: 'inferred' }),
+        event({ id: 'codex-api-import', provider: 'codex', runtime: 'api', totalTokens: 9000, costUsd: 0, costBasis: 'inferred' }),
+      ],
+      allocations: [{
+        id: 'alloc-codex-runtime',
+        provider: 'codex',
+        runtime: 'codex',
+        accountLabel: 'Codex Pro',
+        monthlyCostUsd: 20,
+        periodStart: '2026-06-01T00:00:00.000Z',
+        periodEnd: '2026-06-30T23:59:59.999Z',
+        allocationBasis: 'token_share',
+        confidence: 'medium',
+      }],
+    })
+
+    expect(snapshot.totals.costUsd).toBe(20)
+    expect(snapshot.events.find((item) => item.id === 'codex-session')?.costUsd).toBe(20)
+    expect(snapshot.events.find((item) => item.id === 'codex-api-import')?.costUsd).toBe(0)
+  })
+
   it('recommends context slimming for high input-output imbalance', () => {
     const snapshot = buildModelUsageSnapshotFromEvents({
       from: '2026-06-01T00:00:00.000Z',
