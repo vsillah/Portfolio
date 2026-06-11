@@ -383,10 +383,15 @@ export function applySubscriptionAllocations(
         event.occurredAt <= allocation.periodEnd
       ))
       if (matching.length === 0) return event
-      const totalTokenBasis = events
-        .filter((candidate) => candidate.provider === event.provider && candidate.occurredAt >= matching[0].periodStart && candidate.occurredAt <= matching[0].periodEnd)
-        .reduce((sum, candidate) => sum + Math.max(candidate.totalTokens, 1), 0)
       const allocated = matching.reduce((sum, allocation) => {
+        const totalTokenBasis = events
+          .filter((candidate) => (
+            candidate.provider === event.provider &&
+            (allocation.runtime === 'any' || allocation.runtime === candidate.runtime) &&
+            candidate.occurredAt >= allocation.periodStart &&
+            candidate.occurredAt <= allocation.periodEnd
+          ))
+          .reduce((basis, candidate) => basis + Math.max(candidate.totalTokens, 1), 0)
         const share = Math.max(event.totalTokens, 1) / Math.max(totalTokenBasis, 1)
         return sum + allocation.monthlyCostUsd * share
       }, 0)
