@@ -129,10 +129,13 @@ describe('decision trust Open Brain projection', () => {
     ], { generatedAt })
 
     expect(buildDecisionTrustRelationshipEdges(projection.events, nodes())).toEqual([])
-    expect(buildDecisionTrustRelationshipInsights(projection.events, nodes())[0]).toEqual(expect.objectContaining({
-      kind: 'decision_trust_review',
-      severity: 'high',
-    }))
+    expect(buildDecisionTrustRelationshipInsights(projection.events, nodes())).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: 'decision_trust_review',
+        severity: 'high',
+        title: 'Blocked or scam-marked decision: source:official-docs',
+      }),
+    ]))
   })
 
   it('creates an insight instead of a fake node for an unresolved candidate', () => {
