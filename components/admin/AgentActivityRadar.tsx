@@ -249,6 +249,7 @@ export default function AgentActivityRadar({ variant = 'full' }: AgentActivityRa
   const [error, setError] = useState<string | null>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [actionResult, setActionResult] = useState<string | null>(null)
+  const [selectedAgentKey, setSelectedAgentKey] = useState<string | null>(null)
 
   const loadRadar = useCallback(async ({ quiet = false }: { quiet?: boolean } = {}) => {
     if (quiet) setRefreshing(true)
@@ -331,6 +332,10 @@ export default function AgentActivityRadar({ variant = 'full' }: AgentActivityRa
   const compact = variant === 'compact'
   const attention = snapshot?.attention ?? []
   const agents = compact ? visibleAgents.slice(0, 5) : visibleAgents
+  const selectedAgent = useMemo(
+    () => agents.find((agent) => agent.key === selectedAgentKey) ?? null,
+    [agents, selectedAgentKey]
+  )
 
   return (
     <section className="agent-ops-panel rounded-xl border p-5" aria-label="Agent Activity Radar">
@@ -388,24 +393,23 @@ export default function AgentActivityRadar({ variant = 'full' }: AgentActivityRa
         <>
           <SummaryStrip snapshot={snapshot} />
           <ClientLifecycleMap
-            agents={visibleAgents}
+            agents={agents}
             compact={compact}
             actionLoading={actionLoading}
+            selectedAgentKey={selectedAgentKey}
+            onSelectAgent={setSelectedAgentKey}
             onExecuteAction={executeAction}
           />
 
-          <div className={`mt-5 grid gap-4 ${compact ? 'xl:grid-cols-[minmax(0,1fr)_320px]' : 'min-[1900px]:grid-cols-[minmax(0,1fr)_360px]'}`}>
-            <div className={`grid gap-3 ${compact ? 'md:grid-cols-2' : '[grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr))]'}`}>
-              {agents.map((agent) => (
-                <AgentRadarCard
-                  key={agent.key}
-                  agent={agent}
-                  compact={compact}
-                  actionLoading={actionLoading}
-                  onExecuteAction={executeAction}
-                />
-              ))}
-            </div>
+          <div className={`mt-5 grid gap-4 ${selectedAgent ? (compact ? 'xl:grid-cols-[minmax(0,1fr)_320px]' : 'min-[1900px]:grid-cols-[minmax(0,1fr)_360px]') : ''}`}>
+            {selectedAgent ? (
+              <SelectedAgentPanel
+                agent={selectedAgent}
+                compact={compact}
+                actionLoading={actionLoading}
+                onExecuteAction={executeAction}
+              />
+            ) : null}
             <AttentionList attention={attention} compact={compact} />
           </div>
 
@@ -427,11 +431,15 @@ function ClientLifecycleMap({
   agents,
   compact,
   actionLoading,
+  selectedAgentKey,
+  onSelectAgent,
   onExecuteAction,
 }: {
   agents: AgentActivityRadarAgent[]
   compact: boolean
   actionLoading: string | null
+  selectedAgentKey: string | null
+  onSelectAgent: (agentKey: string | null) => void
   onExecuteAction: (agent: AgentActivityRadarAgent, action: AgentActivitySteerAction) => void
 }) {
   const stages = compact ? CLIENT_LIFECYCLE_STAGES.slice(0, 6) : CLIENT_LIFECYCLE_STAGES
@@ -461,6 +469,16 @@ function ClientLifecycleMap({
     })
   }
 
+  function toggleSelectedAgent(agent: AgentActivityRadarAgent, target: HTMLElement) {
+    const isSelected = selectedAgentKey === agent.key
+    onSelectAgent(isSelected ? null : agent.key)
+    if (isSelected) {
+      setActiveTooltip(null)
+    } else {
+      showTooltip(agent, target)
+    }
+  }
+
   return (
     <div className="relative z-20 mt-5 rounded-xl border border-silicon-slate/70 bg-background/35 p-4" aria-label="Client engagement lifecycle">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -469,7 +487,7 @@ function ClientLifecycleMap({
           <h3 className="mt-1 text-lg font-semibold leading-tight">Agent office map</h3>
         </div>
         <p className="max-w-xl text-xs leading-relaxed text-muted-foreground">
-          Avatars show the current lifecycle room for each agent. Hover or focus an avatar for the goal, progress, trace, and governed engagement options.
+          Avatars show each agent&apos;s lifecycle room. Hover for a quick pulse, then click to pin or clear the detail panel below.
         </p>
       </div>
       <div className={`mt-4 grid gap-3 ${compact ? 'md:grid-cols-2 xl:grid-cols-3' : 'md:grid-cols-2 2xl:grid-cols-5'}`}>
@@ -505,7 +523,10 @@ function ClientLifecycleMap({
                   <LifecycleAgentPin
                     key={agent.key}
                     agent={agent}
+                    selected={selectedAgentKey === agent.key}
                     onShowTooltip={showTooltip}
+                    onHideTooltip={() => setActiveTooltip(null)}
+                    onToggleSelected={toggleSelectedAgent}
                   />
                 )) : (
                   <span className="col-span-4 rounded-lg border border-dashed border-silicon-slate/55 bg-background/30 px-2 py-1.5 text-[11px] text-muted-foreground">
@@ -536,20 +557,29 @@ function ClientLifecycleMap({
 
 function LifecycleAgentPin({
   agent,
+  selected,
   onShowTooltip,
+  onHideTooltip,
+  onToggleSelected,
 }: {
   agent: AgentActivityRadarAgent
+  selected: boolean
   onShowTooltip: (agent: AgentActivityRadarAgent, target: HTMLElement) => void
+  onHideTooltip: () => void
+  onToggleSelected: (agent: AgentActivityRadarAgent, target: HTMLElement) => void
 }) {
   return (
     <div className="relative">
       <button
         type="button"
         onMouseEnter={(event) => onShowTooltip(agent, event.currentTarget)}
+        onMouseLeave={onHideTooltip}
         onFocus={(event) => onShowTooltip(agent, event.currentTarget)}
-        onClick={(event) => onShowTooltip(agent, event.currentTarget)}
-        className={`rounded-xl border bg-background/60 p-1 transition hover:-translate-y-0.5 hover:border-radiant-gold/70 focus:outline-none focus:ring-2 focus:ring-radiant-gold/70 ${STATE_STYLES[agent.live_state]}`}
-        aria-label={`Open ${agent.name} lifecycle detail`}
+        onBlur={onHideTooltip}
+        onClick={(event) => onToggleSelected(agent, event.currentTarget)}
+        className={`rounded-xl border bg-background/60 p-1 transition hover:-translate-y-0.5 hover:border-radiant-gold/70 focus:outline-none focus:ring-2 focus:ring-radiant-gold/70 ${selected ? 'ring-2 ring-radiant-gold/80' : ''} ${STATE_STYLES[agent.live_state]}`}
+        aria-label={`${selected ? 'Clear' : 'Open'} ${agent.name} lifecycle detail`}
+        aria-pressed={selected}
       >
         <AgentAvatar agentKey={agent.key} size="sm" />
       </button>
@@ -632,6 +662,38 @@ function LifecycleAgentTooltip({
       </div>
       <p className="mt-3 text-[11px] leading-tight text-muted-foreground">Last signal {formatAge(agent.age_seconds)}</p>
     </div>
+  )
+}
+
+function SelectedAgentPanel({
+  agent,
+  compact,
+  actionLoading,
+  onExecuteAction,
+}: {
+  agent: AgentActivityRadarAgent
+  compact: boolean
+  actionLoading: string | null
+  onExecuteAction: (agent: AgentActivityRadarAgent, action: AgentActivitySteerAction) => void
+}) {
+  return (
+    <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/10 p-3" aria-label="Selected agent detail">
+      <div className="mb-3 flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Selected agent</p>
+          <h3 className="mt-1 truncate text-lg font-semibold leading-tight" title={agent.name}>{agent.name}</h3>
+        </div>
+        <span className="w-fit rounded-full border border-silicon-slate/60 px-2 py-1 text-xs text-muted-foreground">
+          From lifecycle map
+        </span>
+      </div>
+      <AgentRadarCard
+        agent={agent}
+        compact={compact}
+        actionLoading={actionLoading}
+        onExecuteAction={onExecuteAction}
+      />
+    </section>
   )
 }
 

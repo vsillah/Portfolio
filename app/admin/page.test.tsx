@@ -142,7 +142,8 @@ describe('AdminDashboard Agent Activity Radar', () => {
 
     expect(await screen.findByLabelText('Agent Activity Radar')).toBeInTheDocument()
     expect(screen.getByText('Live agent work map')).toBeInTheDocument()
-    expect(screen.getByText('Main dashboard radar check')).toBeInTheDocument()
+    expect(screen.getByLabelText('Client engagement lifecycle')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Selected agent detail')).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Open full Mission Control radar/i })).toHaveAttribute('href', '/admin/agents')
   })
 })

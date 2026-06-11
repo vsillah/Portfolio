@@ -163,20 +163,31 @@ describe('AgentActivityRadar', () => {
     fireEvent.mouseEnter(shakaLifecycleButton)
     expect(screen.getByRole('dialog', { name: 'Shaka (Zulu) - Chief of Staff lifecycle detail' })).toBeInTheDocument()
     expect(screen.getByLabelText('Shaka (Zulu) - Chief of Staff progress 64%')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Selected agent detail')).not.toBeInTheDocument()
+    fireEvent.mouseLeave(shakaLifecycleButton)
+    expect(screen.queryByRole('dialog', { name: 'Shaka (Zulu) - Chief of Staff lifecycle detail' })).not.toBeInTheDocument()
+    fireEvent.click(shakaLifecycleButton)
+    expect(screen.getByLabelText('Selected agent detail')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Clear Shaka (Zulu) - Chief of Staff lifecycle detail' })).toHaveAttribute('aria-pressed', 'true')
+    fireEvent.click(screen.getByRole('button', { name: 'Clear Shaka (Zulu) - Chief of Staff lifecycle detail' }))
+    expect(screen.queryByLabelText('Selected agent detail')).not.toBeInTheDocument()
     const summary = screen.getByLabelText('Agent Activity Radar summary')
     expect(within(summary).getByText('Active')).toBeInTheDocument()
     expect(within(summary).getByText('Blocked')).toBeInTheDocument()
-    expect(screen.getAllByText('Review live work').length).toBeGreaterThan(1)
-    expect(screen.getAllByText('Resolve workflow blocker').length).toBeGreaterThan(1)
+    expect(screen.queryByText('Review live work')).not.toBeInTheDocument()
+    expect(screen.getAllByText('Resolve workflow blocker').length).toBeGreaterThan(0)
     expect(screen.getByText('Needs operator eyes')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Open trace' })).toHaveAttribute('href', '/admin/agents/runs/run-active')
+    fireEvent.click(shakaLifecycleButton)
+    const selectedPanel = screen.getByLabelText('Selected agent detail')
+    expect(within(selectedPanel).getByRole('link', { name: 'Open trace' })).toHaveAttribute('href', '/admin/agents/runs/run-active')
   })
 
   it('polls every 15 seconds while visible', async () => {
     vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] })
     render(<AgentActivityRadar variant="compact" />)
 
-    await screen.findAllByText('Review live work')
+    await screen.findByRole('heading', { name: 'Agent office map' })
+    expect(screen.queryByLabelText('Selected agent detail')).not.toBeInTheDocument()
     expect(fetch).toHaveBeenCalledTimes(1)
 
     await act(async () => {
@@ -192,8 +203,10 @@ describe('AgentActivityRadar', () => {
   it('executes soft steering actions through existing governed endpoints', async () => {
     render(<AgentActivityRadar variant="full" />)
 
-    await screen.findAllByText('Review live work')
-    fireEvent.click(screen.getByRole('button', { name: 'Ask Shaka' }))
+    await screen.findByRole('heading', { name: 'Agent office map' })
+    fireEvent.click(screen.getByRole('button', { name: 'Open Shaka (Zulu) - Chief of Staff lifecycle detail' }))
+    const selectedPanel = screen.getByLabelText('Selected agent detail')
+    fireEvent.click(within(selectedPanel).getByRole('button', { name: 'Ask Shaka' }))
 
     expect(await screen.findByText('Ask Shaka queued. Trace: shaka-run')).toBeInTheDocument()
     expect(fetch).toHaveBeenCalledWith('/api/admin/agents/chief-of-staff/chat', expect.objectContaining({
@@ -210,11 +223,11 @@ describe('AgentActivityRadar', () => {
 
     render(<AgentActivityRadar variant="compact" />)
 
-    await screen.findAllByText('Review live work')
+    await screen.findByRole('heading', { name: 'Agent office map' })
     fireEvent.click(screen.getByRole('button', { name: 'Refresh' }))
 
     expect(await screen.findByText(/Database not available/i)).toBeInTheDocument()
     expect(screen.getByText(/Showing the last loaded radar/i)).toBeInTheDocument()
-    expect(screen.getByText('Review live work')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Selected agent detail')).not.toBeInTheDocument()
   })
 })
