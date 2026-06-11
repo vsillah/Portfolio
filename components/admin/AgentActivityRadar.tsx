@@ -69,6 +69,13 @@ type ClientLifecycleStage = {
   className: string
 }
 
+type ActiveLifecycleTooltip = {
+  agent: AgentActivityRadarAgent
+  left: number
+  top: number
+  placement: 'above' | 'below'
+}
+
 const CLIENT_LIFECYCLE_STAGES: ClientLifecycleStage[] = [
   {
     key: 'attract',
@@ -387,8 +394,8 @@ export default function AgentActivityRadar({ variant = 'full' }: AgentActivityRa
             onExecuteAction={executeAction}
           />
 
-          <div className={`mt-5 grid gap-4 ${compact ? 'xl:grid-cols-[minmax(0,1fr)_320px]' : '2xl:grid-cols-[minmax(0,1fr)_360px]'}`}>
-            <div className={`grid gap-3 ${compact ? 'md:grid-cols-2' : 'lg:grid-cols-2 2xl:grid-cols-3'}`}>
+          <div className={`mt-5 grid gap-4 ${compact ? 'xl:grid-cols-[minmax(0,1fr)_320px]' : 'min-[1900px]:grid-cols-[minmax(0,1fr)_360px]'}`}>
+            <div className={`grid gap-3 ${compact ? 'md:grid-cols-2' : '[grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr))]'}`}>
               {agents.map((agent) => (
                 <AgentRadarCard
                   key={agent.key}
@@ -428,6 +435,7 @@ function ClientLifecycleMap({
   onExecuteAction: (agent: AgentActivityRadarAgent, action: AgentActivitySteerAction) => void
 }) {
   const stages = compact ? CLIENT_LIFECYCLE_STAGES.slice(0, 6) : CLIENT_LIFECYCLE_STAGES
+  const [activeTooltip, setActiveTooltip] = useState<ActiveLifecycleTooltip | null>(null)
   const stageAgents = useMemo(() => {
     const map = new Map<ClientLifecycleStageKey, AgentActivityRadarAgent[]>()
     CLIENT_LIFECYCLE_STAGES.forEach((stage) => map.set(stage.key, []))
@@ -438,18 +446,33 @@ function ClientLifecycleMap({
     return map
   }, [agents])
 
+  function showTooltip(agent: AgentActivityRadarAgent, target: HTMLElement) {
+    const rect = target.getBoundingClientRect()
+    const tooltipWidth = Math.min(320, window.innerWidth - 24)
+    const left = Math.min(Math.max(12, rect.left), Math.max(12, window.innerWidth - tooltipWidth - 12))
+    const belowTop = rect.bottom + 10
+    const estimatedHeight = 310
+    const useAbove = belowTop + estimatedHeight > window.innerHeight && rect.top > estimatedHeight
+    setActiveTooltip({
+      agent,
+      left,
+      top: useAbove ? Math.max(12, rect.top - estimatedHeight - 10) : belowTop,
+      placement: useAbove ? 'above' : 'below',
+    })
+  }
+
   return (
-    <div className="mt-5 rounded-xl border border-silicon-slate/70 bg-background/35 p-4" aria-label="Client engagement lifecycle">
+    <div className="relative z-20 mt-5 rounded-xl border border-silicon-slate/70 bg-background/35 p-4" aria-label="Client engagement lifecycle">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div>
+        <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Client lifecycle</p>
-          <h3 className="mt-1 text-lg font-semibold">Agent office map</h3>
+          <h3 className="mt-1 text-lg font-semibold leading-tight">Agent office map</h3>
         </div>
-        <p className="max-w-xl text-xs text-muted-foreground">
+        <p className="max-w-xl text-xs leading-relaxed text-muted-foreground">
           Avatars show the current lifecycle room for each agent. Hover or focus an avatar for the goal, progress, trace, and governed engagement options.
         </p>
       </div>
-      <div className={`mt-4 grid gap-3 ${compact ? 'md:grid-cols-2 xl:grid-cols-3' : 'md:grid-cols-2 xl:grid-cols-5'}`}>
+      <div className={`mt-4 grid gap-3 ${compact ? 'md:grid-cols-2 xl:grid-cols-3' : 'md:grid-cols-2 2xl:grid-cols-5'}`}>
         {stages.map((stage) => {
           const roomAgents = stageAgents.get(stage.key) ?? []
           const averageProgress = roomAgents.length
@@ -458,32 +481,34 @@ function ClientLifecycleMap({
           return (
             <section
               key={stage.key}
-              className={`relative min-h-[158px] overflow-visible rounded-lg border p-3 ${stage.className}`}
+              className={`relative min-h-[168px] overflow-visible rounded-lg border p-3 ${stage.className}`}
               aria-label={`${stage.label} lifecycle stage`}
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{stage.eyebrow}</p>
-                  <h4 className="mt-1 text-sm font-semibold">{stage.label}</h4>
+                  <p className="line-clamp-2 text-[11px] font-semibold uppercase leading-snug tracking-wide text-muted-foreground">{stage.eyebrow}</p>
+                  <h4 className="mt-1 text-sm font-semibold leading-tight">{stage.label}</h4>
                 </div>
-                <span className="rounded-full border border-silicon-slate/60 bg-background/55 px-2 py-1 text-[11px] tabular-nums">
+                <span className="shrink-0 rounded-full border border-silicon-slate/60 bg-background/55 px-2 py-1 text-[11px] tabular-nums">
                   {roomAgents.length}
                 </span>
               </div>
-              <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{stage.description}</p>
+              <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-muted-foreground">{stage.description}</p>
               <div className="mt-3 h-1.5 rounded-full bg-background/55" aria-label={`${stage.label} average progress ${averageProgress}%`}>
                 <div className="h-full rounded-full bg-radiant-gold/80" style={{ width: `${averageProgress}%` }} />
               </div>
-              <div className="mt-4 flex min-h-[44px] flex-wrap items-center gap-2">
+              <div
+                className="mt-4 grid max-h-[46px] min-h-[44px] grid-cols-4 content-start gap-2 overflow-y-auto overflow-x-hidden pr-1 [scrollbar-width:thin]"
+                aria-label={`${stage.label} assigned agents`}
+              >
                 {roomAgents.length ? roomAgents.map((agent) => (
                   <LifecycleAgentPin
                     key={agent.key}
                     agent={agent}
-                    actionLoading={actionLoading}
-                    onExecuteAction={onExecuteAction}
+                    onShowTooltip={showTooltip}
                   />
                 )) : (
-                  <span className="rounded-lg border border-dashed border-silicon-slate/55 bg-background/30 px-2 py-1.5 text-[11px] text-muted-foreground">
+                  <span className="col-span-4 rounded-lg border border-dashed border-silicon-slate/55 bg-background/30 px-2 py-1.5 text-[11px] text-muted-foreground">
                     No assigned agents
                   </span>
                 )}
@@ -492,6 +517,14 @@ function ClientLifecycleMap({
           )
         })}
       </div>
+      {activeTooltip ? (
+        <LifecycleAgentTooltip
+          tooltip={activeTooltip}
+          actionLoading={actionLoading}
+          onExecuteAction={onExecuteAction}
+          onClose={() => setActiveTooltip(null)}
+        />
+      ) : null}
       {compact ? (
         <p className="mt-3 text-xs text-muted-foreground">
           Full Mission Control shows the complete ten-stage lifecycle.
@@ -503,77 +536,101 @@ function ClientLifecycleMap({
 
 function LifecycleAgentPin({
   agent,
-  actionLoading,
-  onExecuteAction,
+  onShowTooltip,
 }: {
   agent: AgentActivityRadarAgent
-  actionLoading: string | null
-  onExecuteAction: (agent: AgentActivityRadarAgent, action: AgentActivitySteerAction) => void
+  onShowTooltip: (agent: AgentActivityRadarAgent, target: HTMLElement) => void
 }) {
-  const progress = progressForAgent(agent)
-  const actions = agent.steer_actions.filter((action) => ['open_trace', 'open_kanban', 'open_approval', 'ask_shaka', 'engage_agent'].includes(action.kind)).slice(0, 4)
-
   return (
-    <div className="group relative z-10">
+    <div className="relative">
       <button
         type="button"
+        onMouseEnter={(event) => onShowTooltip(agent, event.currentTarget)}
+        onFocus={(event) => onShowTooltip(agent, event.currentTarget)}
+        onClick={(event) => onShowTooltip(agent, event.currentTarget)}
         className={`rounded-xl border bg-background/60 p-1 transition hover:-translate-y-0.5 hover:border-radiant-gold/70 focus:outline-none focus:ring-2 focus:ring-radiant-gold/70 ${STATE_STYLES[agent.live_state]}`}
         aria-label={`Open ${agent.name} lifecycle detail`}
       >
         <AgentAvatar agentKey={agent.key} size="sm" />
       </button>
-      <div className="pointer-events-none absolute left-0 top-12 z-30 w-72 rounded-lg border border-silicon-slate/70 bg-background p-3 text-left opacity-0 shadow-2xl shadow-black/30 transition group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold" title={agent.name}>{agent.name}</p>
-            <p className="mt-1 text-[11px] uppercase tracking-wide text-muted-foreground">{agent.pod_name}</p>
-          </div>
-          <span className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-1 text-[11px] ${STATE_STYLES[agent.live_state]}`}>
-            {stateIcon(agent.live_state)}
-            {STATE_LABELS[agent.live_state]}
-          </span>
+    </div>
+  )
+}
+
+function LifecycleAgentTooltip({
+  tooltip,
+  actionLoading,
+  onExecuteAction,
+  onClose,
+}: {
+  tooltip: ActiveLifecycleTooltip
+  actionLoading: string | null
+  onExecuteAction: (agent: AgentActivityRadarAgent, action: AgentActivitySteerAction) => void
+  onClose: () => void
+}) {
+  const { agent, left, top, placement } = tooltip
+  const progress = progressForAgent(agent)
+  const actions = agent.steer_actions.filter((action) => ['open_trace', 'open_kanban', 'open_approval', 'ask_shaka', 'engage_agent'].includes(action.kind)).slice(0, 4)
+
+  return (
+    <div
+      className="fixed z-[9999] w-[min(20rem,calc(100vw-1.5rem))] rounded-lg border border-silicon-slate/70 bg-background/95 p-3 text-left shadow-2xl shadow-black/40 backdrop-blur-md"
+      style={{ left, top }}
+      onMouseLeave={onClose}
+      data-placement={placement}
+      role="dialog"
+      aria-label={`${agent.name} lifecycle detail`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold leading-tight" title={agent.name}>{agent.name}</p>
+          <p className="mt-1 line-clamp-2 text-[11px] uppercase leading-snug tracking-wide text-muted-foreground">{agent.pod_name}</p>
         </div>
-        <div className="mt-3 rounded-lg border border-silicon-slate/55 bg-silicon-slate/15 p-2">
-          <p className="line-clamp-2 text-xs font-medium">{currentWorkLabel(agent)}</p>
-          <p className="mt-1 line-clamp-2 text-[11px] text-muted-foreground">
-            {agent.current_step ?? agent.latest_event?.message ?? 'No current step recorded.'}
-          </p>
-        </div>
-        <div className="mt-3">
-          <div className="mb-1 flex items-center justify-between text-[11px] text-muted-foreground">
-            <span>Progress</span>
-            <span>{progress}%</span>
-          </div>
-          <div className="h-1.5 rounded-full bg-silicon-slate/45" aria-label={`${agent.name} progress ${progress}%`}>
-            <div className="h-full rounded-full bg-radiant-gold" style={{ width: `${progress}%` }} />
-          </div>
-        </div>
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {actions.map((action) => action.href ? (
-            <Link
-              key={action.kind}
-              href={action.href}
-              aria-label={`${action.label} for ${agent.name}`}
-              className="inline-flex items-center gap-1 rounded-md border border-silicon-slate/65 px-2 py-1 text-[11px] hover:border-radiant-gold/55"
-            >
-              {action.label}
-            </Link>
-          ) : (
-            <button
-              key={action.kind}
-              type="button"
-              aria-label={`${action.label} for ${agent.name}`}
-              onClick={() => onExecuteAction(agent, action)}
-              disabled={actionLoading === `${agent.key}:${action.kind}`}
-              className="inline-flex items-center gap-1 rounded-md border border-silicon-slate/65 px-2 py-1 text-[11px] hover:border-radiant-gold/55 disabled:opacity-60"
-            >
-              {action.kind === 'ask_shaka' ? <MessageSquare size={12} /> : <Send size={12} />}
-              {actionLoading === `${agent.key}:${action.kind}` ? 'Sending...' : action.label}
-            </button>
-          ))}
-        </div>
-        <p className="mt-3 text-[11px] text-muted-foreground">Last signal {formatAge(agent.age_seconds)}</p>
+        <span className={`inline-flex max-w-[9rem] shrink-0 items-center gap-1 rounded-full border px-2 py-1 text-[11px] leading-none ${STATE_STYLES[agent.live_state]}`}>
+          {stateIcon(agent.live_state)}
+          <span className="truncate">{STATE_LABELS[agent.live_state]}</span>
+        </span>
       </div>
+      <div className="mt-3 rounded-lg border border-silicon-slate/55 bg-silicon-slate/15 p-2">
+        <p className="line-clamp-2 text-xs font-medium leading-snug">{currentWorkLabel(agent)}</p>
+        <p className="mt-1 line-clamp-2 text-[11px] leading-snug text-muted-foreground">
+          {agent.current_step ?? agent.latest_event?.message ?? 'No current step recorded.'}
+        </p>
+      </div>
+      <div className="mt-3">
+        <div className="mb-1 flex items-center justify-between text-[11px] text-muted-foreground">
+          <span>Progress</span>
+          <span>{progress}%</span>
+        </div>
+        <div className="h-1.5 rounded-full bg-silicon-slate/45" aria-label={`${agent.name} progress ${progress}%`}>
+          <div className="h-full rounded-full bg-radiant-gold" style={{ width: `${progress}%` }} />
+        </div>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        {actions.map((action) => action.href ? (
+          <Link
+            key={action.kind}
+            href={action.href}
+            aria-label={`${action.label} for ${agent.name}`}
+            className="inline-flex min-w-0 items-center gap-1 rounded-md border border-silicon-slate/65 px-2 py-1 text-[11px] leading-tight hover:border-radiant-gold/55"
+          >
+            <span className="truncate">{action.label}</span>
+          </Link>
+        ) : (
+          <button
+            key={action.kind}
+            type="button"
+            aria-label={`${action.label} for ${agent.name}`}
+            onClick={() => onExecuteAction(agent, action)}
+            disabled={actionLoading === `${agent.key}:${action.kind}`}
+            className="inline-flex min-w-0 items-center gap-1 rounded-md border border-silicon-slate/65 px-2 py-1 text-[11px] leading-tight hover:border-radiant-gold/55 disabled:opacity-60"
+          >
+            {action.kind === 'ask_shaka' ? <MessageSquare size={12} /> : <Send size={12} />}
+            <span className="truncate">{actionLoading === `${agent.key}:${action.kind}` ? 'Sending...' : action.label}</span>
+          </button>
+        ))}
+      </div>
+      <p className="mt-3 text-[11px] leading-tight text-muted-foreground">Last signal {formatAge(agent.age_seconds)}</p>
     </div>
   )
 }
@@ -583,10 +640,10 @@ function SummaryStrip({ snapshot }: { snapshot: AgentActivityRadarSnapshot }) {
   return (
     <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7" aria-label="Agent Activity Radar summary">
       {keys.map((key) => (
-        <div key={key} className={`rounded-lg border px-3 py-2 ${STATE_STYLES[key]}`}>
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide">
+        <div key={key} className={`min-w-0 rounded-lg border px-3 py-2 ${STATE_STYLES[key]}`}>
+          <div className="flex min-w-0 items-center gap-2 text-xs font-semibold uppercase leading-tight tracking-wide">
             {stateIcon(key)}
-            {STATE_LABELS[key]}
+            <span className="truncate">{STATE_LABELS[key]}</span>
           </div>
           <p className="mt-1 text-2xl font-semibold tabular-nums">{snapshot.summary[key] ?? 0}</p>
         </div>
@@ -610,32 +667,32 @@ function AgentRadarCard({
     ? agent.steer_actions.filter((action) => ['open_trace', 'open_kanban', 'open_approval', 'ask_shaka'].includes(action.kind)).slice(0, 3)
     : agent.steer_actions
   return (
-    <article className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-4">
-      <div className="flex items-start justify-between gap-3">
+    <article className="min-w-0 rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-4">
+      <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <p className="truncate font-semibold" title={agent.name}>{agent.name}</p>
-          <p className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">{agent.pod_name} · {agent.runtime}</p>
+          <p className="mt-1 line-clamp-3 text-xs uppercase leading-snug tracking-wide text-muted-foreground">{agent.pod_name} · {agent.runtime}</p>
         </div>
-        <span className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-1 text-xs ${STATE_STYLES[agent.live_state]}`}>
+        <span className={`inline-flex w-fit max-w-full shrink-0 items-center gap-1 rounded-full border px-2 py-1 text-xs leading-tight ${STATE_STYLES[agent.live_state]}`}>
           {stateIcon(agent.live_state)}
-          {STATE_LABELS[agent.live_state]}
+          <span className="truncate">{STATE_LABELS[agent.live_state]}</span>
         </span>
       </div>
 
       <div className="mt-4 rounded-lg border border-silicon-slate/55 bg-background/45 p-3">
-        <p className="text-xs uppercase tracking-wide text-muted-foreground">Current work</p>
-        <p className="mt-1 line-clamp-2 text-sm font-medium">
+        <p className="text-xs uppercase leading-tight tracking-wide text-muted-foreground">Current work</p>
+        <p className="mt-1 line-clamp-2 text-sm font-medium leading-snug">
           {agent.current_work_item?.title ?? agent.active_run?.title ?? agent.idle_reason ?? 'No active assignment'}
         </p>
-        <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">
+        <p className="mt-2 line-clamp-2 text-xs leading-snug text-muted-foreground">
           {agent.current_step ?? agent.latest_event?.message ?? 'No current step recorded.'}
         </p>
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
-        <span className="rounded-full border border-silicon-slate/60 px-2 py-1">Last signal {formatAge(agent.age_seconds)}</span>
-        {agent.backlog_lane ? <span className="rounded-full border border-silicon-slate/60 px-2 py-1">{agent.backlog_lane.label}</span> : null}
-        {agent.linked_goal ? <span className="rounded-full border border-silicon-slate/60 px-2 py-1">Goal linked</span> : null}
+      <div className="mt-3 flex flex-wrap gap-2 text-xs leading-tight text-muted-foreground">
+        <span className="min-w-0 max-w-full rounded-full border border-silicon-slate/60 px-2 py-1">Last signal {formatAge(agent.age_seconds)}</span>
+        {agent.backlog_lane ? <span className="min-w-0 max-w-full rounded-full border border-silicon-slate/60 px-2 py-1">{agent.backlog_lane.label}</span> : null}
+        {agent.linked_goal ? <span className="min-w-0 max-w-full rounded-full border border-silicon-slate/60 px-2 py-1">Goal linked</span> : null}
       </div>
 
       {!compact && agent.linked_goal ? (
@@ -646,8 +703,8 @@ function AgentRadarCard({
 
       <div className="mt-4 flex flex-wrap gap-2">
         {actions.map((action) => action.href ? (
-          <Link key={action.kind} href={action.href} className="inline-flex items-center gap-1 rounded-lg border border-silicon-slate/65 px-2 py-1.5 text-xs hover:border-radiant-gold/55">
-            {action.label}
+          <Link key={action.kind} href={action.href} className="inline-flex min-w-0 max-w-full items-center gap-1 rounded-lg border border-silicon-slate/65 px-2 py-1.5 text-xs leading-tight hover:border-radiant-gold/55">
+            <span className="truncate">{action.label}</span>
           </Link>
         ) : (
           <button
@@ -655,10 +712,10 @@ function AgentRadarCard({
             type="button"
             onClick={() => onExecuteAction(agent, action)}
             disabled={actionLoading === `${agent.key}:${action.kind}`}
-            className="inline-flex items-center gap-1 rounded-lg border border-silicon-slate/65 px-2 py-1.5 text-xs hover:border-radiant-gold/55 disabled:opacity-60"
+            className="inline-flex min-w-0 max-w-full items-center gap-1 rounded-lg border border-silicon-slate/65 px-2 py-1.5 text-xs leading-tight hover:border-radiant-gold/55 disabled:opacity-60"
           >
             {action.kind === 'ask_shaka' ? <MessageSquare size={13} /> : <Send size={13} />}
-            {actionLoading === `${agent.key}:${action.kind}` ? 'Sending...' : action.label}
+            <span className="truncate">{actionLoading === `${agent.key}:${action.kind}` ? 'Sending...' : action.label}</span>
           </button>
         ))}
       </div>
