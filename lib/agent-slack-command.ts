@@ -39,6 +39,7 @@ type SlackCommandName =
   | 'agents'
   | 'engagements'
   | 'insights'
+  | 'unblock'
   | 'work-items'
   | 'claim'
   | 'handoff'
@@ -125,6 +126,7 @@ function commandFromText(text: string): SlackCommandName {
   if (command === 'agents' || command === 'list') return 'agents'
   if (command === 'engagements' || command === 'queue') return 'engagements'
   if (command === 'insights' || command === 'signals') return 'insights'
+  if (command === 'unblock' || command === 'mobile') return 'unblock'
   if (command === 'work') return 'work-items'
   if (command === 'claim') return 'claim'
   if (command === 'handoff') return 'handoff'
@@ -156,6 +158,7 @@ function formatHelp() {
     '`/agent agents` - list currently mapped agents and engagement keys.',
     '`/agent engagements` - show the latest routed engagement work queue.',
     '`/agent insights` - show high-signal AI insight themes and mobile-safe research actions.',
+    '`/agent unblock` - show the mobile unblock packet across approvals, blockers, inbox, and work items.',
     '`/agent work [id]` - show coordination work items or one work packet.',
     '`/agent claim <id> [agent-key]` - claim a coordination work item.',
     '`/agent handoff <id> <agent-key>` - request an agent-to-agent handoff.',
@@ -339,6 +342,38 @@ function workItemNextSafeAction(item: AgentWorkItem) {
   return 'Mark ready when the work has enough trace evidence.'
 }
 
+function priorityWeight(priority: AgentWorkItem['priority']) {
+  if (priority === 'urgent') return 0
+  if (priority === 'high') return 1
+  if (priority === 'medium') return 2
+  return 3
+}
+
+function statusWeight(status: AgentWorkItem['status']) {
+  if (status === 'blocked') return 0
+  if (status === 'ready_for_merge') return 1
+  if (status === 'ready_for_review') return 2
+  if (status === 'proposed') return 3
+  if (status === 'queued') return 4
+  if (status === 'assigned') return 5
+  if (status === 'in_progress') return 6
+  return 7
+}
+
+function activeWorkItems(items: AgentWorkItem[]) {
+  return items.filter((item) => !['merged', 'deployed', 'cancelled'].includes(item.status))
+}
+
+function pickMobileUnblockWorkItems(items: AgentWorkItem[], limit: number) {
+  return [...activeWorkItems(items)]
+    .sort((a, b) => {
+      const statusDelta = statusWeight(a.status) - statusWeight(b.status)
+      if (statusDelta !== 0) return statusDelta
+      return priorityWeight(a.priority) - priorityWeight(b.priority)
+    })
+    .slice(0, limit)
+}
+
 function workItemActionButtons(item: AgentWorkItem) {
   const elements: SlackButtonElement[] = []
   if (!item.owner_agent_key) {
@@ -404,6 +439,35 @@ function workItemActionButtons(item: AgentWorkItem) {
   return elements.slice(0, 5)
 }
 
+async function pendingApprovalRows(limit = 5) {
+  if (!supabaseAdmin) return { approvals: [] as AgentApprovalRow[], runsById: new Map<string, AgentRunRow>() }
+
+  const { data: approvals, error } = await supabaseAdmin
+    .from('agent_approvals')
+    .select('id, run_id, approval_type, status, requested_at, metadata')
+    .eq('status', 'pending')
+    .order('requested_at', { ascending: false })
+    .limit(limit)
+
+  if (error) throw new Error(error.message)
+
+  const pending = (approvals || []) as AgentApprovalRow[]
+  const runIds = pending.map((approval) => approval.run_id)
+  const { data: runs, error: runsError } = runIds.length
+    ? await supabaseAdmin
+        .from('agent_runs')
+        .select('id, title, runtime, status, subject_label, current_step, error_message, started_at')
+        .in('id', runIds)
+    : { data: [] as AgentRunRow[], error: null }
+
+  if (runsError) throw new Error(runsError.message)
+
+  return {
+    approvals: pending,
+    runsById: new Map(((runs || []) as AgentRunRow[]).map((run) => [run.id, run])),
+  }
+}
+
 function workItemBlocks(input: {
   title: string
   items: AgentWorkItem[]
@@ -440,6 +504,51 @@ function workItemBlocks(input: {
   })
 
   return blocks
+}
+
+function mobileUnblockBlocks(input: {
+  workItems: AgentWorkItem[]
+  approvals: AgentApprovalRow[]
+  runsById: Map<string, AgentRunRow>
+  inboxCount: number
+}): SlackBlock[] {
+  const blocks: SlackBlock[] = [
+    {
+      type: 'section',
+      text: mrkdwn([
+        '*Agent Ops mobile unblock*',
+        'Use this packet for quick routing. Merge, deploy, external sends, credentials, production config, payments, and n8n activation stay in Portfolio.',
+        `Approvals: ${input.approvals.length} · Inbox: ${input.inboxCount} · Work items: ${input.workItems.length}`,
+      ].join('\n')),
+    },
+    {
+      type: 'actions',
+      elements: [
+        slackButton({ label: 'Mission Control', actionId: 'agent_open_mission_control', url: `${baseUrl()}/admin/agents` }),
+        slackButton({ label: 'Kanban', actionId: 'agent_open_kanban', url: agentKanbanUrl() }),
+        slackButton({ label: 'Run Console', actionId: 'agent_open_runs', url: agentRunsUrl() }),
+      ],
+    },
+  ]
+
+  if (input.approvals.length) {
+    blocks.push(...approvalBlocks({ approvals: input.approvals.slice(0, 2), runsById: input.runsById }))
+  }
+
+  blocks.push(...workItemBlocks({
+    title: 'Highest-priority mobile work items',
+    items: input.workItems.slice(0, input.approvals.length ? 3 : 5),
+    emptyText: 'No active work items need mobile action.',
+  }))
+
+  if (input.inboxCount > 0) {
+    blocks.push({
+      type: 'context',
+      elements: [mrkdwn(`Inbox also has ${input.inboxCount} item(s). Use \`/agent inbox\` or \`/agent route <number>\` for inbox-specific routing.`)],
+    })
+  }
+
+  return blocks.slice(0, 20)
 }
 
 function inboxBlocks(items: Array<{
@@ -555,6 +664,72 @@ export async function buildAgentWorkItemsSlackResult(input: AgentSlackCommandInp
     }
   } catch {
     return { responseType: 'ephemeral', text }
+  }
+}
+
+export async function buildAgentUnblockSlackResult(limit = 5): Promise<AgentSlackCommandResult> {
+  let items: AgentWorkItem[] = []
+  let approvals: AgentApprovalRow[] = []
+  let runsById = new Map<string, AgentRunRow>()
+  let inboxCount = 0
+  const warnings: string[] = []
+
+  try {
+    items = await listAgentWorkItems({ limit: 50 })
+  } catch (error) {
+    warnings.push(`Work items unavailable: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
+
+  try {
+    const pending = await pendingApprovalRows(limit)
+    approvals = pending.approvals
+    runsById = pending.runsById
+  } catch (error) {
+    warnings.push(`Approvals unavailable: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
+
+  try {
+    const snapshot = await buildAgentMissionControlSnapshot()
+    inboxCount = snapshot.agent_inbox.length
+  } catch (error) {
+    warnings.push(`Inbox unavailable: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
+
+  const activeItems = activeWorkItems(items)
+  const blocked = activeItems.filter((item) => item.status === 'blocked')
+  const review = activeItems.filter((item) => item.status === 'ready_for_review' || item.status === 'ready_for_merge')
+  const proposed = activeItems.filter((item) => item.status === 'proposed')
+  const topItems = pickMobileUnblockWorkItems(activeItems, limit)
+
+  const nextSafeAction = approvals.length
+    ? 'Review pending approvals first; Slack only decides low-risk approval packets.'
+    : blocked.length
+      ? 'Start with blockers and ask Shaka for the smallest safe unblock.'
+      : review.length
+        ? 'Open PR-ready work in Kanban and leave merge authority with the Integration Captain.'
+        : proposed.length
+          ? 'Claim or hand off one proposed item after confirming the owner and boundary.'
+          : inboxCount > 0
+            ? 'Open `/agent inbox` and route the highest-priority inbox item.'
+            : 'No immediate mobile unblock is visible.'
+
+  const lines = [
+    '*Agent Ops mobile unblock*',
+    `Pending approvals: ${approvals.length}`,
+    `Blocked work items: ${blocked.length}`,
+    `Review/merge candidates: ${review.length}`,
+    `Proposed work items: ${proposed.length}`,
+    `Inbox items: ${inboxCount}`,
+    `Next safe action: ${nextSafeAction}`,
+    warnings.length ? `Warnings: ${warnings.join('; ')}` : null,
+    `Mission Control: ${baseUrl()}/admin/agents`,
+    `Kanban: ${agentKanbanUrl()}`,
+  ].filter(Boolean)
+
+  return {
+    responseType: 'ephemeral',
+    text: lines.join('\n'),
+    blocks: mobileUnblockBlocks({ workItems: topItems, approvals, runsById, inboxCount }),
   }
 }
 
@@ -991,30 +1166,11 @@ export async function buildApprovalsSlackResult(limit = 5): Promise<AgentSlackCo
   if (!supabaseAdmin) return { responseType: 'ephemeral', text }
 
   try {
-    const { data: approvals, error } = await supabaseAdmin
-      .from('agent_approvals')
-      .select('id, run_id, approval_type, status, requested_at, metadata')
-      .eq('status', 'pending')
-      .order('requested_at', { ascending: false })
-      .limit(limit)
-    if (error) return { responseType: 'ephemeral', text }
-
-    const pending = (approvals || []) as AgentApprovalRow[]
-    const runIds = pending.map((approval) => approval.run_id)
-    const { data: runs } = runIds.length
-      ? await supabaseAdmin
-          .from('agent_runs')
-          .select('id, title, runtime, status, subject_label, current_step, error_message, started_at')
-          .in('id', runIds)
-      : { data: [] }
-    const typedRuns = (runs || []) as AgentRunRow[]
+    const { approvals, runsById } = await pendingApprovalRows(limit)
     return {
       responseType: 'ephemeral',
       text,
-      blocks: approvalBlocks({
-        approvals: pending,
-        runsById: new Map(typedRuns.map((run) => [run.id, run])),
-      }),
+      blocks: approvalBlocks({ approvals, runsById }),
     }
   } catch {
     return { responseType: 'ephemeral', text }
@@ -1171,6 +1327,7 @@ export async function handleAgentSlackCommand(input: AgentSlackCommandInput): Pr
   if (command === 'blockers') return buildAgentBlockersSlackResult()
   if (command === 'inbox') return buildAgentInboxSlackResult()
   if (command === 'insights') return buildHighSignalInsightsSlackResult()
+  if (command === 'unblock') return buildAgentUnblockSlackResult()
 
   const text =
     command === 'status'

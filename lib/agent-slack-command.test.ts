@@ -77,6 +77,7 @@ import {
   buildAgentEngagementQueueSlackText,
   buildAgentPrsSlackText,
   buildAgentRiskMonitorSlackText,
+  buildAgentUnblockSlackResult,
   buildAgentWorkItemsSlackText,
   buildCaptainQueueSlackText,
   claimAgentWorkItemSlackText,
@@ -138,6 +139,8 @@ describe('agent Slack command parsing', () => {
     expect(agentSlackCommandInternals.commandFromText('engagements')).toBe('engagements')
     expect(agentSlackCommandInternals.commandFromText('work')).toBe('work-items')
     expect(agentSlackCommandInternals.commandFromText('queue')).toBe('engagements')
+    expect(agentSlackCommandInternals.commandFromText('unblock')).toBe('unblock')
+    expect(agentSlackCommandInternals.commandFromText('mobile')).toBe('unblock')
     expect(agentSlackCommandInternals.commandFromText('claim work-1')).toBe('claim')
     expect(agentSlackCommandInternals.commandFromText('handoff work-1 automation-systems')).toBe('handoff')
     expect(agentSlackCommandInternals.commandFromText('blockers')).toBe('blockers')
@@ -166,6 +169,7 @@ describe('agent Slack command parsing', () => {
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent route <number-or-id>')
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent standup')
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent insights')
+    expect(agentSlackCommandInternals.formatHelp()).toContain('/agent unblock')
   })
 
   it('formats the mapped agent list for Slack', () => {
@@ -504,6 +508,73 @@ describe('agent Slack command parsing', () => {
     expect(JSON.stringify(result.blocks)).toContain('Recommendation:')
     expect(JSON.stringify(result.blocks)).toContain('Next safe action:')
     expect(JSON.stringify(result.blocks)).toContain('Open trace')
+  })
+
+  it('builds a combined mobile unblock packet from work items and inbox state', async () => {
+    workItemMocks.listAgentWorkItems.mockResolvedValue([
+      {
+        id: 'work-blocked',
+        title: 'Prepare authenticated Portfolio admin QA checklist',
+        objective: 'Prepare a QA checklist without mutating production data.',
+        status: 'blocked',
+        priority: 'high',
+        owner_agent_key: 'chief-of-staff',
+        owner_runtime: 'codex',
+        branch_name: null,
+        pr_url: null,
+        pr_number: null,
+        approval_id: null,
+        active_run_id: 'run-blocked',
+        blocker_summary: 'Needs admin session confirmation.',
+        validation_summary: null,
+        metadata: {
+          recommendation: 'Ask Shaka for the smallest safe mobile unblock.',
+        },
+      },
+      {
+        id: 'work-proposed',
+        title: 'Prepare quiet-provider billing verification packet',
+        objective: 'Prepare a billing verification packet without cancellation.',
+        status: 'proposed',
+        priority: 'medium',
+        owner_agent_key: 'automation-systems',
+        owner_runtime: 'codex',
+        branch_name: null,
+        pr_url: null,
+        pr_number: null,
+        approval_id: null,
+        active_run_id: null,
+        blocker_summary: null,
+        validation_summary: null,
+        metadata: {},
+      },
+    ])
+    inboxMocks.buildAgentMissionControlSnapshot.mockResolvedValue({
+      agent_inbox: [
+        {
+          id: 'failed-run:failed',
+          priority: 'high',
+          agent_name: 'Yaa Asantewaa (Ashanti) - Automation Systems',
+          title: 'Failure needs triage: Workflow dispatch',
+          reason: 'Webhook returned 500.',
+          source_run_id: 'failed-run',
+        },
+      ],
+    })
+
+    const result = await buildAgentUnblockSlackResult()
+    const blocks = JSON.stringify(result.blocks)
+
+    expect(result.text).toContain('Agent Ops mobile unblock')
+    expect(result.text).toContain('Blocked work items: 1')
+    expect(result.text).toContain('Proposed work items: 1')
+    expect(result.text).toContain('Inbox items: 1')
+    expect(result.text).toContain('Start with blockers')
+    expect(blocks).toContain('Prepare authenticated Portfolio admin QA checklist')
+    expect(blocks).toContain('work.acknowledge')
+    expect(blocks).toContain('work.ask_shaka')
+    expect(blocks).toContain('/admin/agents/runs/run-blocked')
+    expect(blocks).toContain('/agent inbox')
   })
 
   it('formats one coordination work item for Slack', async () => {
