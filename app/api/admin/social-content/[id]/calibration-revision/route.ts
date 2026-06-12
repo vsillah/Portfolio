@@ -74,6 +74,71 @@ function hasOperatorFeedback(feedback: Record<string, unknown> | null): boolean 
   ].some((key) => Boolean(asString(feedback[key]).trim()))
 }
 
+function includesAny(value: string, words: string[]) {
+  const lower = value.toLowerCase()
+  return words.some((word) => lower.includes(word))
+}
+
+function buildRevisionUnderstanding(feedback: Record<string, unknown> | null) {
+  const revisionRequest = asString(feedback?.revision_request).trim()
+  const claimBoundaries = asString(feedback?.claim_boundaries).trim()
+  const audienceContext = asString(feedback?.audience_context).trim()
+  const engagementSignal = asString(feedback?.engagement_signal).trim()
+  const priorPostExcerpt = asString(feedback?.prior_post_excerpt).trim()
+  const successExamples = normalizeSuccessExamples(feedback?.success_examples)
+  const combined = [
+    revisionRequest,
+    claimBoundaries,
+    audienceContext,
+    engagementSignal,
+    priorPostExcerpt,
+    successExamples.map((example) => [
+      example.source_label,
+      example.post_excerpt,
+      example.engagement_signal,
+      example.why_it_worked,
+    ].filter(Boolean).join(' ')).join(' '),
+  ].join(' ')
+
+  const plannedChanges: string[] = []
+  if (revisionRequest) plannedChanges.push(`Address revision request: ${revisionRequest}`)
+  if (audienceContext) plannedChanges.push(`Tune audience and desired reaction: ${audienceContext}`)
+  if (engagementSignal || successExamples.length > 0 || priorPostExcerpt) {
+    plannedChanges.push('Compare the draft against the saved successful-post references and engagement signals.')
+  }
+  if (includesAny(combined, ['anecdote', 'story', 'scene', 'example'])) {
+    plannedChanges.push('Add or strengthen a concrete anecdote before the broader point.')
+  }
+  if (includesAny(combined, ['ai-ism', 'ai ism', 'not just', 'not only', "it's not", 'generic'])) {
+    plannedChanges.push('Remove formulaic AI phrasing and negative antithesis constructions.')
+  }
+
+  const separateActions: string[] = []
+  if (includesAny(combined, ['illustration', 'image', 'visual', 'framework'])) {
+    separateActions.push('Framework illustration or visual generation is a separate asset action after copy revision.')
+  }
+  if (includesAny(combined, ['carousel', 'slides', 'slide'])) {
+    separateActions.push('Carousel creation is a separate asset action after copy revision.')
+  }
+  if (includesAny(combined, ['reference', 'source', 'citation'])) {
+    separateActions.push('Reference/source attachment should become an Agent Ops follow-up after draft approval.')
+  }
+
+  return {
+    what_i_heard: revisionRequest || 'Use the saved calibration feedback to improve this draft.',
+    planned_changes: plannedChanges.length ? plannedChanges : ['Revise the draft against the saved calibration feedback and voice guidance.'],
+    not_changing: [
+      'Draft-only status remains in place.',
+      'Publishing, scheduling, provider generation, DMs, sends, deploys, and production mutations remain outside this revision.',
+      ...(claimBoundaries ? [`Respect claim boundary: ${claimBoundaries}`] : []),
+    ],
+    separate_actions: separateActions,
+    questions_or_ambiguity: separateActions.length
+      ? ['Some feedback asks for non-copy assets. Those are tracked separately so Shaka does not hide them inside a text revision.']
+      : [],
+  }
+}
+
 function buildRevisionPrompt(row: SocialContentRow) {
   const ragContext = asRecord(row.rag_context) ?? {}
   const calibration = asRecord(ragContext.content_calibration) ?? {}
@@ -231,6 +296,7 @@ export async function POST(
     if (!hasOperatorFeedback(operatorFeedback)) {
       return NextResponse.json({ error: 'Save operator feedback before generating a calibrated revision' }, { status: 400 })
     }
+    const revisionUnderstanding = buildRevisionUnderstanding(operatorFeedback)
 
     const promptRagContext: Record<string, unknown> = {
       ...ragContext,
@@ -276,6 +342,8 @@ Additional role: You are Shaka, the Agent Ops Chief of Staff. Use the operator f
       model: aiResponse.model,
       provider: aiResponse.provider,
       revision_notes: revision.revision_notes,
+      operator_request: asString(operatorFeedback?.revision_request) || null,
+      shaka_understanding: revisionUnderstanding,
       operator_feedback_updated_at: asString(operatorFeedback?.updated_at) || null,
     }
     const revisionHistory = Array.isArray(calibration.revision_history)
@@ -320,6 +388,7 @@ Additional role: You are Shaka, the Agent Ops Chief of Staff. Use the operator f
     return NextResponse.json({
       item: updated,
       revision: revisionEntry,
+      shaka_understanding: revisionUnderstanding,
     })
   } catch (error) {
     console.error('[calibration-revision] error:', error)

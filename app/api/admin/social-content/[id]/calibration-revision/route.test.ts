@@ -158,6 +158,18 @@ describe('POST /api/admin/social-content/[id]/calibration-revision', () => {
       rag_context: expect.objectContaining({
         content_calibration: expect.objectContaining({
           status: 'revision_generated',
+          latest_revision: expect.objectContaining({
+            operator_request: 'Make the hook more concrete.',
+            shaka_understanding: expect.objectContaining({
+              what_i_heard: 'Make the hook more concrete.',
+              planned_changes: expect.arrayContaining([
+                'Address revision request: Make the hook more concrete.',
+              ]),
+              not_changing: expect.arrayContaining([
+                'Draft-only status remains in place.',
+              ]),
+            }),
+          }),
           revision_history: expect.any(Array),
         }),
       }),

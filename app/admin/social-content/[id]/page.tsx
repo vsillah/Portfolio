@@ -475,7 +475,9 @@ function SocialContentDetailPage() {
         const data = await res.json()
         setItem(prev => prev ? { ...prev, ...data.item, publishes: data.publishes } : prev)
 
-        if (scheduledFor) {
+        if (data.reference_work_item) {
+          showMsg('success', 'Draft approved and reference handoff queued.')
+        } else if (scheduledFor) {
           showMsg('success', 'Approved and scheduled!')
         } else {
           showMsg('success', data.publish_triggered
@@ -756,6 +758,17 @@ function SocialContentDetailPage() {
   const agentPilotRequiredFixes = asStringArray(ragContext?.required_fixes)
   const agentPilotCalibration = asRecord(ragContext?.content_calibration)
   const agentPilotCalibrationStatus = asString(agentPilotCalibration?.status)
+  const agentPilotLatestRevision = asRecord(agentPilotCalibration?.latest_revision)
+  const agentPilotLatestRevisionCreatedAt = asString(agentPilotLatestRevision?.created_at)
+  const agentPilotRevisionUnderstanding = asRecord(agentPilotLatestRevision?.shaka_understanding)
+  const agentPilotRevisionNotes = asStringArray(agentPilotLatestRevision?.revision_notes)
+  const agentPilotRevisionRequest = asString(agentPilotLatestRevision?.operator_request)
+  const agentPilotWhatHeard = asString(agentPilotRevisionUnderstanding?.what_i_heard)
+  const agentPilotPlannedChanges = asStringArray(agentPilotRevisionUnderstanding?.planned_changes)
+  const agentPilotNotChanging = asStringArray(agentPilotRevisionUnderstanding?.not_changing)
+  const agentPilotSeparateActions = asStringArray(agentPilotRevisionUnderstanding?.separate_actions)
+  const agentPilotQuestionsOrAmbiguity = asStringArray(agentPilotRevisionUnderstanding?.questions_or_ambiguity)
+  const hasAgentPilotRevisionReceipt = Boolean(agentPilotLatestRevision)
   const agentPilotPriorPatterns = asRecordArray(agentPilotCalibration?.prior_success_patterns)
   const agentPilotVoicePrinciples = asStringArray(agentPilotCalibration?.voice_principles)
   const agentPilotMissingContextPrompts = asStringArray(agentPilotCalibration?.missing_context_prompts)
@@ -794,6 +807,11 @@ function SocialContentDetailPage() {
       : 0
   const isDraftOnlyPilot = isAgentSocialPilot && agentPilotPublishGate === 'draft_only'
   const canApproveAgentPilot = !isAgentSocialPilot || agentPilotPassToHuman
+  const approveActionLabel = isDraftOnlyPilot
+    ? 'Approve Draft'
+    : scheduledFor
+      ? 'Approve & Schedule'
+      : 'Approve & Publish'
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -1010,6 +1028,78 @@ function SocialContentDetailPage() {
                 ) : (
                   <div className="mt-3 rounded-md border border-silicon-slate/80 bg-imperial-navy/45 p-3 text-sm leading-6 text-gray-300">
                     No calibration notes are attached yet. Start by adding a prior successful post, what made it work, and what should change in this draft.
+                  </div>
+                )}
+
+                {hasAgentPilotRevisionReceipt && (
+                  <div className="mt-4 rounded-lg border border-emerald-500/25 bg-emerald-500/5 p-4">
+                    <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-200">Shaka Revision Receipt</p>
+                        <p className="mt-1 text-sm leading-6 text-gray-300">
+                          Shaka records what he understood before the revised draft replaces the text.
+                        </p>
+                      </div>
+                      {agentPilotLatestRevisionCreatedAt && (
+                        <span className="w-fit rounded-full border border-emerald-500/30 px-3 py-1 text-xs text-emerald-100">
+                          {new Date(agentPilotLatestRevisionCreatedAt).toLocaleString()}
+                        </span>
+                      )}
+                    </div>
+                    {agentPilotRevisionRequest && (
+                      <div className="mt-3 rounded-lg border border-emerald-500/20 bg-background/35 p-3">
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-200">Your request</p>
+                        <p className="mt-2 text-sm leading-6 text-gray-200">{agentPilotRevisionRequest}</p>
+                      </div>
+                    )}
+                    {agentPilotWhatHeard && (
+                      <div className="mt-3 rounded-lg border border-emerald-500/20 bg-background/35 p-3">
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-200">What I heard</p>
+                        <p className="mt-2 text-sm leading-6 text-gray-200">{agentPilotWhatHeard}</p>
+                      </div>
+                    )}
+                    <div className="mt-3 grid gap-3 lg:grid-cols-2">
+                      {agentPilotPlannedChanges.length > 0 && (
+                        <div className="rounded-lg border border-emerald-500/20 bg-background/35 p-3">
+                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-200">Planned changes</p>
+                          <ul className="mt-2 space-y-1 text-sm leading-6 text-gray-200">
+                            {agentPilotPlannedChanges.map((change) => <li key={change}>• {change}</li>)}
+                          </ul>
+                        </div>
+                      )}
+                      {agentPilotRevisionNotes.length > 0 && (
+                        <div className="rounded-lg border border-emerald-500/20 bg-background/35 p-3">
+                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-200">What changed</p>
+                          <ul className="mt-2 space-y-1 text-sm leading-6 text-gray-200">
+                            {agentPilotRevisionNotes.map((note) => <li key={note}>• {note}</li>)}
+                          </ul>
+                        </div>
+                      )}
+                      {agentPilotSeparateActions.length > 0 && (
+                        <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3">
+                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">Separate actions</p>
+                          <ul className="mt-2 space-y-1 text-sm leading-6 text-amber-50/90">
+                            {agentPilotSeparateActions.map((action) => <li key={action}>• {action}</li>)}
+                          </ul>
+                        </div>
+                      )}
+                      {agentPilotNotChanging.length > 0 && (
+                        <div className="rounded-lg border border-silicon-slate/80 bg-background/35 p-3">
+                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Not changing</p>
+                          <ul className="mt-2 space-y-1 text-sm leading-6 text-gray-300">
+                            {agentPilotNotChanging.map((item) => <li key={item}>• {item}</li>)}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                    {agentPilotQuestionsOrAmbiguity.length > 0 && (
+                      <div className="mt-3 rounded-lg border border-amber-500/20 bg-amber-500/5 p-3">
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">Questions or ambiguity</p>
+                        <ul className="mt-2 space-y-1 text-sm leading-6 text-amber-50/90">
+                          {agentPilotQuestionsOrAmbiguity.map((question) => <li key={question}>• {question}</li>)}
+                        </ul>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -1794,7 +1884,7 @@ function SocialContentDetailPage() {
               </button>
               <button
                 onClick={() => {
-                  if (targetPlatforms.length === 0) {
+                  if (!isDraftOnlyPilot && targetPlatforms.length === 0) {
                     showMsg('error', 'Select at least one platform')
                     return
                   }
@@ -1805,7 +1895,7 @@ function SocialContentDetailPage() {
                 className="flex items-center gap-1.5 px-5 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {approving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                Approve & Publish
+                {approveActionLabel}
               </button>
             </div>
           )}
@@ -1995,32 +2085,40 @@ function SocialContentDetailPage() {
               onClick={(e) => e.stopPropagation()}
               className="bg-gray-900 border border-gray-700 rounded-xl p-6 max-w-md w-full shadow-2xl"
             >
-              <h3 className="text-lg font-semibold text-gray-200 mb-4">Confirm Publishing</h3>
+              <h3 className="text-lg font-semibold text-gray-200 mb-4">
+                {isDraftOnlyPilot ? 'Confirm Draft Approval' : 'Confirm Publishing'}
+              </h3>
 
               <div className="space-y-3 mb-6">
                 {isDraftOnlyPilot && (
                   <div className={`rounded-lg border p-3 text-sm ${agentPilotPassToHuman ? 'border-amber-500/30 bg-amber-500/10 text-amber-100' : 'border-red-500/30 bg-red-500/10 text-red-100'}`}>
                     {agentPilotPassToHuman
-                      ? 'This draft came from a draft-only Agent Ops pilot. Goal approval did not publish it; this confirmation is the separate Social Content approval gate.'
+                      ? 'This draft came from a draft-only Agent Ops pilot. Approving it queues the reference/source handoff and keeps publishing behind a separate action.'
                       : 'This Agent Ops draft has not cleared challenger QA. Close this modal and finish the upstream gate before approving.'}
                   </div>
                 )}
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-400">Platforms</span>
-                  <span className="text-gray-200">{enabledPlatformLabels}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-400">Schedule</span>
-                  <span className="text-gray-200">
-                    {scheduledFor
-                      ? new Date(scheduledFor).toLocaleString()
-                      : 'Immediately (now)'}
-                  </span>
-                </div>
+                {!isDraftOnlyPilot && (
+                  <>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-400">Platforms</span>
+                      <span className="text-gray-200">{enabledPlatformLabels}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-400">Schedule</span>
+                      <span className="text-gray-200">
+                        {scheduledFor
+                          ? new Date(scheduledFor).toLocaleString()
+                          : 'Immediately (now)'}
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
 
               <p className="text-xs text-gray-500 mb-6">
-                Any unsaved changes will be saved before publishing.
+                {isDraftOnlyPilot
+                  ? 'Any unsaved changes will be saved before approval. Publishing, scheduling, provider generation, and external sends remain blocked.'
+                  : 'Any unsaved changes will be saved before publishing.'}
               </p>
 
               <div className="flex items-center justify-end gap-3">
@@ -2036,7 +2134,7 @@ function SocialContentDetailPage() {
                   className="flex items-center gap-2 px-5 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {approving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                  {scheduledFor ? 'Approve & Schedule' : 'Approve & Publish'}
+                  {approveActionLabel}
                 </button>
               </div>
             </motion.div>

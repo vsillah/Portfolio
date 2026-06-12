@@ -1,121 +1,173 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { NextRequest } from 'next/server'
 
-const authMocks = vi.hoisted(() => ({
+const mocks = vi.hoisted(() => ({
   verifyAdmin: vi.fn(),
-}))
-
-const dbMocks = vi.hoisted(() => ({
+  isAuthError: vi.fn(),
+  createAgentWorkItem: vi.fn(),
+  queueSingle: vi.fn(),
+  queueUpdateSingle: vi.fn(),
+  queueSelect: vi.fn(),
+  queueEq: vi.fn(),
+  queueUpdate: vi.fn(),
+  queueUpdateEq: vi.fn(),
+  queueUpdateSelect: vi.fn(),
+  publishesSelect: vi.fn(),
+  publishesEq: vi.fn(),
+  publishesUpsert: vi.fn(),
   from: vi.fn(),
-  item: {
-    id: 'social-1',
-    status: 'draft',
-    target_platforms: ['linkedin'],
-    scheduled_for: '2026-06-12T14:00:00.000Z',
-    rag_context: null as Record<string, unknown> | null,
-  },
-  updated: null as Record<string, unknown> | null,
-  upsert: vi.fn(async () => ({ error: null })),
 }))
 
 vi.mock('@/lib/auth-server', () => ({
-  verifyAdmin: authMocks.verifyAdmin,
-  isAuthError: (value: unknown) => Boolean(value && typeof value === 'object' && 'error' in value),
+  verifyAdmin: mocks.verifyAdmin,
+  isAuthError: mocks.isAuthError,
+}))
+
+vi.mock('@/lib/agent-work-items', () => ({
+  createAgentWorkItem: mocks.createAgentWorkItem,
 }))
 
 vi.mock('@/lib/supabase', () => ({
-  supabaseAdmin: { from: dbMocks.from },
+  supabaseAdmin: {
+    from: mocks.from,
+  },
 }))
 
 import { POST } from './route'
 
 function request() {
-  return new Request('http://localhost/api/admin/social-content/social-1/approve', {
+  return new NextRequest('http://localhost/api/admin/social-content/social-1/approve', {
     method: 'POST',
-    headers: { Authorization: 'Bearer token' },
+    headers: { authorization: 'Bearer admin-token' },
   })
+}
+
+const agentOpsRagContext = {
+  source: 'agent_ops_social_outreach_goal',
+  goal_id: 'goal-1',
+  goal_type: 'social_outreach_linkedin_post',
+  content_packet_id: 'packet-1',
+  publish_gate: 'draft_only',
+  pass_to_human: true,
+  challenger_status: 'passed',
 }
 
 describe('POST /api/admin/social-content/[id]/approve', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    dbMocks.item = {
-      id: 'social-1',
-      status: 'draft',
-      target_platforms: ['linkedin'],
-      scheduled_for: '2026-06-12T14:00:00.000Z',
-      rag_context: null,
-    }
-    dbMocks.updated = null
-    authMocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-user' }, isAdmin: true })
-    dbMocks.from.mockImplementation((table: string) => {
+    mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-1' }, isAdmin: true })
+    mocks.isAuthError.mockReturnValue(false)
+    mocks.createAgentWorkItem.mockResolvedValue({
+      id: 'work-reference-1',
+      title: 'Attach approved Social Content references',
+      status: 'assigned',
+      owner_agent_key: 'research-source-register',
+    })
+    mocks.queueSingle.mockResolvedValue({
+      data: {
+        id: 'social-1',
+        status: 'draft',
+        scheduled_for: null,
+        target_platforms: ['linkedin'],
+        rag_context: agentOpsRagContext,
+      },
+      error: null,
+    })
+    mocks.queueUpdateSingle.mockResolvedValue({
+      data: {
+        id: 'social-1',
+        status: 'approved',
+        scheduled_for: null,
+        target_platforms: ['linkedin'],
+        rag_context: agentOpsRagContext,
+      },
+      error: null,
+    })
+    mocks.queueEq.mockReturnValue({ single: mocks.queueSingle })
+    mocks.queueSelect.mockReturnValue({ eq: mocks.queueEq })
+    mocks.queueUpdateSelect.mockReturnValue({ single: mocks.queueUpdateSingle })
+    mocks.queueUpdateEq.mockReturnValue({ select: mocks.queueUpdateSelect })
+    mocks.queueUpdate.mockReturnValue({ eq: mocks.queueUpdateEq })
+    mocks.publishesEq.mockResolvedValue({ data: [], error: null })
+    mocks.publishesSelect.mockReturnValue({ eq: mocks.publishesEq })
+    mocks.publishesUpsert.mockResolvedValue({ error: null })
+    mocks.from.mockImplementation((table: string) => {
       if (table === 'social_content_queue') {
         return {
-          select: vi.fn(() => ({
-            eq: vi.fn(() => ({
-              single: vi.fn(async () => ({ data: dbMocks.item, error: null })),
-            })),
-          })),
-          update: vi.fn((payload) => {
-            dbMocks.updated = { ...dbMocks.item, ...payload }
-            return {
-              eq: vi.fn(() => ({
-                select: vi.fn(() => ({
-                  single: vi.fn(async () => ({ data: dbMocks.updated, error: null })),
-                })),
-              })),
-            }
-          }),
+          select: mocks.queueSelect,
+          update: mocks.queueUpdate,
         }
       }
       if (table === 'social_content_publishes') {
         return {
-          upsert: dbMocks.upsert,
-          select: vi.fn(() => ({
-            eq: vi.fn(async () => ({ data: [], error: null })),
-          })),
+          select: mocks.publishesSelect,
+          upsert: mocks.publishesUpsert,
         }
       }
       throw new Error(`Unexpected table ${table}`)
     })
   })
 
-  it('blocks Agent Ops draft-only content before challenger clearance', async () => {
-    dbMocks.item.rag_context = {
-      source: 'agent_ops_social_outreach_goal',
-      publish_gate: 'draft_only',
-      current_gate: 'research_context_evidence',
-      challenger_status: 'pending',
-      pass_to_human: false,
-    }
+  it('blocks draft-only Agent Ops content until challenger clearance passes', async () => {
+    mocks.queueSingle.mockResolvedValueOnce({
+      data: {
+        id: 'social-1',
+        status: 'draft',
+        rag_context: {
+          ...agentOpsRagContext,
+          pass_to_human: false,
+          current_gate: 'challenger_qa',
+          challenger_status: 'pending',
+        },
+      },
+      error: null,
+    })
 
-    const response = await POST(request() as never, { params: { id: 'social-1' } })
-    const body = await response.json()
+    const response = await POST(request(), { params: { id: 'social-1' } })
 
     expect(response.status).toBe(409)
-    expect(body).toMatchObject({
+    expect(await response.json()).toEqual({
       error: 'Agent Ops content has not cleared challenger QA for human approval',
-      current_gate: 'research_context_evidence',
+      current_gate: 'challenger_qa',
       challenger_status: 'pending',
     })
-    expect(dbMocks.upsert).not.toHaveBeenCalled()
+    expect(mocks.queueUpdate).not.toHaveBeenCalled()
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
+    expect(mocks.publishesUpsert).not.toHaveBeenCalled()
   })
 
-  it('allows challenger-cleared Agent Ops content to use the existing approval flow', async () => {
-    dbMocks.item.rag_context = {
-      source: 'agent_ops_social_outreach_goal',
-      publish_gate: 'draft_only',
-      current_gate: 'human_review',
-      challenger_status: 'passed',
-      pass_to_human: true,
-    }
+  it('approves cleared draft-only Agent Ops content by queuing a reference handoff without publishing', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
 
-    const response = await POST(request() as never, { params: { id: 'social-1' } })
-    const body = await response.json()
+    const response = await POST(request(), { params: { id: 'social-1' } })
 
     expect(response.status).toBe(200)
-    expect(body.item).toMatchObject({ status: 'approved', reviewed_by: 'admin-user' })
-    expect(dbMocks.upsert).toHaveBeenCalledWith([
-      { content_id: 'social-1', platform: 'linkedin', status: 'pending' },
-    ], { onConflict: 'content_id,platform' })
+    const json = await response.json()
+    expect(json.publish_triggered).toBe(false)
+    expect(json.publishes).toEqual([])
+    expect(json.reference_work_item).toEqual({
+      id: 'work-reference-1',
+      title: 'Attach approved Social Content references',
+      status: 'assigned',
+      owner_agent_key: 'research-source-register',
+    })
+    expect(mocks.queueUpdate).toHaveBeenCalledWith({
+      status: 'approved',
+      reviewed_by: 'admin-1',
+    })
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'Attach approved Social Content references',
+      ownerAgentKey: 'research-source-register',
+      status: 'assigned',
+      idempotencyKey: 'social-content-reference-handoff:social-1',
+      metadata: expect.objectContaining({
+        social_content_id: 'social-1',
+        publish_gate: 'draft_only',
+        approval_boundary: 'reference_handoff_only',
+      }),
+    }))
+    expect(mocks.publishesUpsert).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
+    fetchSpy.mockRestore()
   })
 })
