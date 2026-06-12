@@ -86,6 +86,65 @@ describe('goal orchestration', () => {
     })
   })
 
+  it('blocks human review while production packet work is incomplete', () => {
+    const packet = evaluateContentGoalOrchestration([
+      { title: 'Capture the industry signal', ...done },
+      { title: 'Pull approved Open Brain context', ...done },
+      { title: 'Attach manual Chronicle evidence packet', ...done },
+      { title: 'Select AmaduTown proof points', ...done },
+      { title: 'Draft the LinkedIn post', ...done },
+      { title: 'Create the visual brief', ...done },
+      { title: 'Plan reference and citation annotations', status: 'in_progress' },
+      { title: 'Prepare the carousel and illustration production packet', status: 'assigned' },
+      { title: 'Package the human editorial review bundle', status: 'assigned' },
+      { title: 'Create the Social Content draft handoff', status: 'assigned' },
+      {
+        title: 'Run content QA and governance review',
+        status: 'ready_for_review',
+        validation_summary: 'Amina challenger pass recorded.',
+        metadata: { challenger_status: 'passed' },
+      },
+    ])
+
+    expect(packet).toMatchObject({
+      current_gate: 'draft_build',
+      gate_status: 'drafting',
+      challenger_status: 'pending',
+      pass_to_human: false,
+      residual_risks_for_human: ['Production packet work is incomplete.'],
+    })
+  })
+
+  it('holds challenger clearance until visual QA completes when visual QA tasks exist', () => {
+    const packet = evaluateContentGoalOrchestration([
+      { title: 'Capture the industry signal', ...done },
+      { title: 'Pull approved Open Brain context', ...done },
+      { title: 'Attach manual Chronicle evidence packet', ...done },
+      { title: 'Select AmaduTown proof points', ...done },
+      { title: 'Draft the LinkedIn post', ...done },
+      { title: 'Create the visual brief', ...done },
+      { title: 'Plan reference and citation annotations', ...done },
+      { title: 'Prepare the carousel and illustration production packet', ...done },
+      { title: 'Package the human editorial review bundle', ...done },
+      { title: 'Create the Social Content draft handoff', ...done },
+      { title: 'Run visual QA and accessibility review', status: 'assigned' },
+      {
+        title: 'Run content QA and governance review',
+        status: 'ready_for_review',
+        validation_summary: 'Amina challenger pass recorded.',
+        metadata: { challenger_status: 'passed' },
+      },
+    ])
+
+    expect(packet).toMatchObject({
+      current_gate: 'challenger_qa',
+      gate_status: 'challenger_pending',
+      challenger_status: 'pending',
+      pass_to_human: false,
+      residual_risks_for_human: ['Visual QA and accessibility review are incomplete.'],
+    })
+  })
+
   it('infers generic task gates from work item metadata and title', () => {
     expect(inferWorkItemOrchestrationGate({
       title: 'Review risk, governance, and rollout path',
