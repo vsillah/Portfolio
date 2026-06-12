@@ -266,8 +266,21 @@ export function evaluateGoalOrchestration(input: {
 
 export function evaluateContentGoalOrchestration(items: GoalOrchestrationWorkItem[]) {
   const researchPatterns = [/industry signal/i, /Open Brain context/i, /Chronicle evidence/i]
-  const draftPatterns = [/proof points/i, /LinkedIn post/i, /visual brief/i]
-  const challenger = items.find((item) => /QA|governance|challenger/i.test(item.title)) ?? null
+  const draftPatterns = [
+    /proof points/i,
+    /LinkedIn post/i,
+    /visual brief|framework illustration/i,
+  ]
+  const productionPatterns = [
+    /reference and citation/i,
+    /carousel and illustration production/i,
+    /human editorial review bundle/i,
+    /Social Content draft handoff/i,
+  ]
+  const visualQaPatterns = [/visual QA/i]
+  const hasProductionPacketTasks = hasTask(items, /reference and citation|carousel and illustration production|human editorial review bundle/i)
+  const hasVisualQaTasks = hasTask(items, /visual QA/i)
+  const challenger = items.find((item) => /content QA|governance|challenger/i.test(item.title)) ?? null
 
   if (!taskGroupDone(items, researchPatterns)) {
     return buildGoalOrchestrationPacket({
@@ -286,6 +299,26 @@ export function evaluateContentGoalOrchestration(items: GoalOrchestrationWorkIte
       gateStatus: 'drafting',
       approvalBoundary: 'Human review is blocked until draft/build work is complete.',
       residualRisksForHuman: ['Draft/build work is incomplete.'],
+    })
+  }
+
+  if (hasProductionPacketTasks && !taskGroupDone(items, productionPatterns)) {
+    return buildGoalOrchestrationPacket({
+      goalType: 'social_outreach_linkedin_post',
+      currentGate: 'draft_build',
+      gateStatus: 'drafting',
+      approvalBoundary: 'Human review is blocked until references, illustration, carousel, and review packaging are complete.',
+      residualRisksForHuman: ['Production packet work is incomplete.'],
+    })
+  }
+
+  if (hasVisualQaTasks && !taskGroupDone(items, visualQaPatterns)) {
+    return buildGoalOrchestrationPacket({
+      goalType: 'social_outreach_linkedin_post',
+      currentGate: 'challenger_qa',
+      gateStatus: 'challenger_pending',
+      approvalBoundary: 'Human review is blocked until visual QA and accessibility review are complete.',
+      residualRisksForHuman: ['Visual QA and accessibility review are incomplete.'],
     })
   }
 

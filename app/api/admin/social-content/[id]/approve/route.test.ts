@@ -57,12 +57,12 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
     vi.clearAllMocks()
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-1' }, isAdmin: true })
     mocks.isAuthError.mockReturnValue(false)
-    mocks.createAgentWorkItem.mockResolvedValue({
-      id: 'work-reference-1',
-      title: 'Attach approved Social Content references',
-      status: 'assigned',
-      owner_agent_key: 'research-source-register',
-    })
+    mocks.createAgentWorkItem.mockImplementation(async (input) => ({
+      id: `work-${input.metadata.production_lane}-1`,
+      title: input.title,
+      status: input.status,
+      owner_agent_key: input.ownerAgentKey,
+    }))
     mocks.queueSingle.mockResolvedValue({
       data: {
         id: 'social-1',
@@ -136,7 +136,7 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
     expect(mocks.publishesUpsert).not.toHaveBeenCalled()
   })
 
-  it('approves cleared draft-only Agent Ops content by queuing a reference handoff without publishing', async () => {
+  it('approves cleared draft-only Agent Ops content by queuing production handoffs without publishing', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch')
 
     const response = await POST(request(), { params: { id: 'social-1' } })
@@ -146,15 +146,39 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
     expect(json.publish_triggered).toBe(false)
     expect(json.publishes).toEqual([])
     expect(json.reference_work_item).toEqual({
-      id: 'work-reference-1',
+      id: 'work-references-1',
       title: 'Attach approved Social Content references',
       status: 'assigned',
       owner_agent_key: 'research-source-register',
+      production_lane: 'references',
     })
+    expect(json.production_work_items).toEqual([
+      expect.objectContaining({
+        title: 'Attach approved Social Content references',
+        owner_agent_key: 'research-source-register',
+        production_lane: 'references',
+      }),
+      expect.objectContaining({
+        title: 'Prepare approved Social Content illustration brief',
+        owner_agent_key: 'amadutown-brand',
+        production_lane: 'illustration',
+      }),
+      expect.objectContaining({
+        title: 'Prepare Social Content carousel production packet',
+        owner_agent_key: 'content-repurposing',
+        production_lane: 'carousel',
+      }),
+      expect.objectContaining({
+        title: 'Run post-approval visual QA',
+        owner_agent_key: 'risk-compliance-intelligence',
+        production_lane: 'visual_qa',
+      }),
+    ])
     expect(mocks.queueUpdate).toHaveBeenCalledWith({
       status: 'approved',
       reviewed_by: 'admin-1',
     })
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledTimes(4)
     expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
       title: 'Attach approved Social Content references',
       ownerAgentKey: 'research-source-register',
@@ -163,7 +187,19 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
       metadata: expect.objectContaining({
         social_content_id: 'social-1',
         publish_gate: 'draft_only',
-        approval_boundary: 'reference_handoff_only',
+        approval_boundary: 'post_approval_production_handoff_only',
+        production_lane: 'references',
+      }),
+    }))
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'Prepare approved Social Content illustration brief',
+      ownerAgentKey: 'amadutown-brand',
+      status: 'assigned',
+      idempotencyKey: 'social-content-production-handoff:social-1:illustration',
+      metadata: expect.objectContaining({
+        social_content_id: 'social-1',
+        publish_gate: 'draft_only',
+        production_lane: 'illustration',
       }),
     }))
     expect(mocks.publishesUpsert).not.toHaveBeenCalled()
