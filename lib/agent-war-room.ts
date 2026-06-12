@@ -74,6 +74,33 @@ export interface LinkedInContentCalibration {
   }
 }
 
+export type SocialContentProductionLaneKey =
+  | 'copy'
+  | 'references'
+  | 'illustration'
+  | 'carousel'
+  | 'visual_qa'
+  | 'human_review_packet'
+  | 'post_approval_handoff'
+
+export interface SocialContentProductionLane {
+  key: SocialContentProductionLaneKey
+  label: string
+  owner_agent_key: string
+  objective: string
+  approval_boundary: string
+  outputs: string[]
+}
+
+export interface SocialContentProductionOrchestration {
+  version: 'social_content_production_v1'
+  enabled: boolean
+  asset_actions_require_approval: boolean
+  illustration_required: boolean
+  carousel_candidate: boolean
+  lanes: SocialContentProductionLane[]
+}
+
 export interface LinkedInContentPacket {
   id: string
   goal_statement: string
@@ -88,6 +115,7 @@ export interface LinkedInContentPacket {
   source_provenance_checklist: string[]
   approval_checklist: string[]
   content_calibration: LinkedInContentCalibration
+  production_orchestration: SocialContentProductionOrchestration
   social_content_draft_id?: string | null
   social_content_draft_href?: string | null
 }
@@ -202,13 +230,26 @@ function selectAgents(command: AgentWarRoomCommand, message: string | null, targ
   const callable = callableAgents()
   if (command === 'standup') return callable.slice(0, 8)
   if (command === 'draft_goal' || isApprovalCommand(command)) {
-    return [
-      getAgentByKey('chief-of-staff'),
-      getAgentByKey('engineering-copilot'),
-      getAgentByKey('automation-systems'),
-      getAgentByKey('research-source-register'),
-      getAgentByKey('risk-compliance-intelligence'),
-    ].filter(Boolean) as AgentOrganizationNode[]
+    const isSocialContent = /social|linkedin|content|post|carousel|illustration|visual/i.test(message ?? '')
+    const keys = isSocialContent
+      ? [
+        'chief-of-staff',
+        'research-source-register',
+        'private-knowledge-librarian',
+        'voice-content-architect',
+        'content-repurposing',
+        'amadutown-brand',
+        'website-product-copy',
+        'risk-compliance-intelligence',
+      ]
+      : [
+        'chief-of-staff',
+        'engineering-copilot',
+        'automation-systems',
+        'research-source-register',
+        'risk-compliance-intelligence',
+      ]
+    return keys.map((key) => getAgentByKey(key)).filter(Boolean) as AgentOrganizationNode[]
   }
 
   const text = (message ?? '').toLowerCase()
@@ -394,6 +435,74 @@ function buildLinkedInContentCalibration(): LinkedInContentCalibration {
   }
 }
 
+function buildSocialContentProductionOrchestration(): SocialContentProductionOrchestration {
+  return {
+    version: 'social_content_production_v1',
+    enabled: true,
+    asset_actions_require_approval: true,
+    illustration_required: true,
+    carousel_candidate: true,
+    lanes: [
+      {
+        key: 'copy',
+        label: 'Copy draft and revision loop',
+        owner_agent_key: 'voice-content-architect',
+        objective: 'Turn the approved signal, evidence, and operator feedback into a Vambah-aligned LinkedIn draft.',
+        approval_boundary: 'Human editorial review is required before publishing or scheduling.',
+        outputs: ['LinkedIn post draft', 'revision receipt', 'operator feedback summary'],
+      },
+      {
+        key: 'references',
+        label: 'Reference and citation packet',
+        owner_agent_key: 'research-source-register',
+        objective: 'Attach public-safe source links, internal proof labels, and claim boundaries to the draft packet.',
+        approval_boundary: 'References may be prepared after draft approval; public claims still require publish approval.',
+        outputs: ['source link list', 'claim support notes', 'reference placement guidance'],
+      },
+      {
+        key: 'illustration',
+        label: 'Framework illustration spec',
+        owner_agent_key: 'amadutown-brand',
+        objective: 'Translate the content argument into an AmaduTown visual system, image prompt, and reviewable illustration brief.',
+        approval_boundary: 'Provider image generation is not authorized by goal approval.',
+        outputs: ['illustration brief', 'image prompt', 'brand fit notes'],
+      },
+      {
+        key: 'carousel',
+        label: 'Carousel and asset production packet',
+        owner_agent_key: 'content-repurposing',
+        objective: 'Prepare the slide-by-slide carousel structure and production notes needed for optional visual asset generation.',
+        approval_boundary: 'Rendering, upload, scheduling, and provider calls require a separate approval.',
+        outputs: ['carousel outline', 'asset checklist', 'render readiness notes'],
+      },
+      {
+        key: 'visual_qa',
+        label: 'Visual QA and accessibility',
+        owner_agent_key: 'risk-compliance-intelligence',
+        objective: 'Check illustration/carousel work for accessibility, claim accuracy, privacy, and misrepresentation risk.',
+        approval_boundary: 'QA may recommend human review; it cannot publish or generate provider assets.',
+        outputs: ['visual QA notes', 'accessibility flags', 'risk findings'],
+      },
+      {
+        key: 'human_review_packet',
+        label: 'Human editorial review packet',
+        owner_agent_key: 'content-repurposing',
+        objective: 'Package copy, references, illustration brief, carousel notes, QA, and revision receipt into one reviewable Social Content item.',
+        approval_boundary: 'Approval advances the draft to post-approval production handoffs only, not public publishing.',
+        outputs: ['review packet', 'Social Content draft link', 'remaining decisions'],
+      },
+      {
+        key: 'post_approval_handoff',
+        label: 'Post-approval production handoffs',
+        owner_agent_key: 'chief-of-staff',
+        objective: 'After human draft approval, route reference, illustration, carousel, and visual QA tasks without triggering external production.',
+        approval_boundary: 'Publishing and provider generation remain behind separate governed actions.',
+        outputs: ['assigned handoff tasks', 'approval boundary notes', 'next production gate'],
+      },
+    ],
+  }
+}
+
 function buildLinkedInPacket(goalId: string, title: string): LinkedInContentPacket {
   const packetId = `packet-${goalId}`
   return {
@@ -435,10 +544,12 @@ function buildLinkedInPacket(goalId: string, title: string): LinkedInContentPack
     approval_checklist: [
       'Post matches Vambah LinkedIn voice guidance.',
       'Visual concept supports the argument instead of decorating it.',
+      'Reference, illustration, carousel, and visual QA lanes are represented in the swarm before final human review.',
       'CTA invites discussion without overpromising.',
       'Social Content item remains draft-only until separately approved.',
     ],
     content_calibration: buildLinkedInContentCalibration(),
+    production_orchestration: buildSocialContentProductionOrchestration(),
     social_content_draft_id: null,
     social_content_draft_href: null,
   }
@@ -582,16 +693,40 @@ function socialOutreachTasks(goalId: string, title: string): AgentGoalDraftTask[
       goal_progress_weight: 3,
     },
     {
-      id: `${goalId}-visual-brief`,
-      title: 'Create the visual brief',
-      objective: 'Write a visual concept and image prompt that illustrates the operating model behind the post.',
+      id: `${goalId}-reference-plan`,
+      title: 'Plan reference and citation annotations',
+      objective: 'Map the draft claims to public-safe source links, internal proof labels, and reference placement notes.',
+      owner_agent_key: 'research-source-register',
+      priority: 'high',
+      dependencies: [`${goalId}-post-draft`, `${goalId}-industry-research`, `${goalId}-open-brain-context`],
+      expected_files: ['/admin/social-content', '/admin/value-evidence', '/admin/agents/open-brain'],
+      acceptance_criteria: ['Each public claim has source support or a softening note', 'Internal proof is labeled without exposing private material', 'Reference placement is ready for post-approval attachment'],
+      risk_notes: 'Do not add unsupported URLs or imply private evidence can be cited publicly.',
+      goal_progress_weight: 2,
+    },
+    {
+      id: `${goalId}-illustration-system`,
+      title: 'Design the framework illustration system',
+      objective: 'Create the AmaduTown visual concept, image prompt, and design constraints for the post illustration.',
+      owner_agent_key: 'amadutown-brand',
+      priority: 'medium',
+      dependencies: [`${goalId}-post-draft`, `${goalId}-amadutown-proof`],
+      expected_files: ['/admin/social-content', 'public/amadutown-logo-upscaled.png', 'docs/carousel-design-system.md'],
+      acceptance_criteria: ['Visual prompt matches the Mission Control aesthetic', 'Illustration supports the argument instead of acting as proof', 'Brand and accessibility constraints are documented'],
+      risk_notes: 'Provider image generation is a separate approval-gated action; this task only prepares the spec.',
+      goal_progress_weight: 2,
+    },
+    {
+      id: `${goalId}-asset-production-packet`,
+      title: 'Prepare the carousel and illustration production packet',
+      objective: 'Translate the post, reference plan, and illustration system into a reviewable asset packet for optional carousel or single-image production.',
       owner_agent_key: 'content-repurposing',
       priority: 'medium',
-      dependencies: [`${goalId}-post-draft`],
-      expected_files: ['/admin/social-content'],
-      acceptance_criteria: ['Visual prompt matches the Mission Control aesthetic', 'Visual supports the argument', 'Generated asset remains reviewable before use'],
-      risk_notes: 'Do not imply a generated image is evidence; label it as an illustration.',
-      goal_progress_weight: 1,
+      dependencies: [`${goalId}-reference-plan`, `${goalId}-illustration-system`],
+      expected_files: ['/admin/social-content', 'docs/carousel-design-system.md'],
+      acceptance_criteria: ['Carousel outline or single-image decision is documented', 'Slide/image copy stays source-backed', 'Provider/render/upload steps remain explicitly approval-gated'],
+      risk_notes: 'Do not render, upload, call image providers, or schedule assets from goal approval.',
+      goal_progress_weight: 2,
     },
     {
       id: `${goalId}-qa-governance`,
@@ -599,11 +734,35 @@ function socialOutreachTasks(goalId: string, title: string): AgentGoalDraftTask[
       objective: 'Check voice fit, source support, privacy, claims, and draft-only publishing boundary.',
       owner_agent_key: 'risk-compliance-intelligence',
       priority: 'high',
-      dependencies: [`${goalId}-post-draft`, `${goalId}-visual-brief`],
+      dependencies: [`${goalId}-post-draft`, `${goalId}-reference-plan`, `${goalId}-asset-production-packet`],
       expected_files: ['/admin/social-content', '/admin/agents/coordination'],
-      acceptance_criteria: ['No private leakage', 'Claims are source-backed or softened', 'Publish remains separately approval-gated'],
+      acceptance_criteria: ['No private leakage', 'Claims are source-backed or softened', 'Asset production and publish remain separately approval-gated'],
       risk_notes: 'Approval to create a draft is not approval to publish.',
       goal_progress_weight: 2,
+    },
+    {
+      id: `${goalId}-visual-qa`,
+      title: 'Run visual QA and accessibility review',
+      objective: 'Check the illustration/carousel packet for brand fit, accessibility, claim accuracy, and misrepresentation risk.',
+      owner_agent_key: 'risk-compliance-intelligence',
+      priority: 'medium',
+      dependencies: [`${goalId}-asset-production-packet`],
+      expected_files: ['/admin/social-content', 'docs/carousel-design-system.md'],
+      acceptance_criteria: ['Visual is clearly labeled as an illustration when applicable', 'Accessibility and mobile readability risks are noted', 'No visual claim implies unsupported evidence'],
+      risk_notes: 'Visual QA can recommend review or revision; it cannot authorize publishing or provider generation.',
+      goal_progress_weight: 1,
+    },
+    {
+      id: `${goalId}-review-bundle`,
+      title: 'Package the human editorial review bundle',
+      objective: 'Assemble copy, references, illustration brief, carousel notes, QA findings, and revision receipt into one Social Content review packet.',
+      owner_agent_key: 'content-repurposing',
+      priority: 'high',
+      dependencies: [`${goalId}-qa-governance`, `${goalId}-visual-qa`],
+      expected_files: ['/admin/social-content', '/admin/agents/swarm-board'],
+      acceptance_criteria: ['Reviewer can see what Shaka understood and what changed', 'Reference and visual next actions are explicit', 'Remaining approval gates are visible'],
+      risk_notes: 'The review bundle is for human approval; it must not imply public publishing is authorized.',
+      goal_progress_weight: 1,
     },
     {
       id: `${goalId}-social-content-draft`,
@@ -611,13 +770,24 @@ function socialOutreachTasks(goalId: string, title: string): AgentGoalDraftTask[
       objective: 'Create or link the draft-only Social Content item with the packet, visual brief, provenance, and approval notes.',
       owner_agent_key: 'content-repurposing',
       priority: 'high',
-      dependencies: [`${goalId}-qa-governance`],
+      dependencies: [`${goalId}-review-bundle`],
       expected_files: ['/admin/social-content'],
       acceptance_criteria: ['Social Content item is draft status', 'Packet id and goal id are traceable', 'No publish, schedule, DM, or external outreach is triggered'],
       risk_notes: 'Publishing remains manual and separately approved outside this goal approval.',
       goal_progress_weight: 1,
     },
   ]
+}
+
+function socialProductionLaneForTask(taskId: string): SocialContentProductionLaneKey | null {
+  if (taskId.endsWith('-industry-research') || taskId.endsWith('-open-brain-context') || taskId.endsWith('-chronicle-packet')) return 'references'
+  if (taskId.endsWith('-amadutown-proof') || taskId.endsWith('-post-draft')) return 'copy'
+  if (taskId.endsWith('-reference-plan')) return 'references'
+  if (taskId.endsWith('-illustration-system')) return 'illustration'
+  if (taskId.endsWith('-asset-production-packet')) return 'carousel'
+  if (taskId.endsWith('-visual-qa')) return 'visual_qa'
+  if (taskId.endsWith('-qa-governance') || taskId.endsWith('-review-bundle') || taskId.endsWith('-social-content-draft')) return 'human_review_packet'
+  return null
 }
 
 function draftSocialOutreachGoal(goal: string, title: string, goalId: string): AgentGoalDraft {
@@ -932,6 +1102,8 @@ async function createSocialContentDraftForGoal(draft: AgentGoalDraft) {
     ...packet.content_calibration.missing_context_prompts.slice(0, 3).map((item) => `- ${item}`),
     'Approval checklist:',
     ...packet.approval_checklist.map((item) => `- ${item}`),
+    'Production orchestration:',
+    ...packet.production_orchestration.lanes.map((lane) => `- ${lane.label}: ${lane.owner_agent_key}; ${lane.approval_boundary}`),
   ].join('\n')
 
   const { data, error } = await supabaseAdmin
@@ -979,6 +1151,7 @@ async function createSocialContentDraftForGoal(draft: AgentGoalDraft) {
         approval_checklist: packet.approval_checklist,
         visual_brief: packet.visual_concept,
         content_calibration: packet.content_calibration,
+        production_orchestration: packet.production_orchestration,
       },
       admin_notes: adminNotes,
       target_platforms: ['linkedin'],
@@ -1056,6 +1229,7 @@ async function approveGoalDraft(runId: string, draft: AgentGoalDraft) {
       chronicle_packet_status: draft.chronicle_packet_status ?? null,
       content_packet_id: draft.content_packet_id ?? contentPacket?.id ?? null,
       content_packet: contentPacket,
+      production_orchestration: contentPacket?.production_orchestration ?? null,
       social_content_draft_id: socialContentDraft?.id ?? null,
       social_content_draft_href: socialContentDraft?.href ?? null,
     },
@@ -1100,6 +1274,12 @@ async function approveGoalDraft(runId: string, draft: AgentGoalDraft) {
         goal_dependencies: task.dependencies,
         task_acceptance_criteria: task.acceptance_criteria,
         risk_notes: task.risk_notes,
+        production_lane: draft.goal_type === 'social_outreach_linkedin_post'
+          ? socialProductionLaneForTask(task.id)
+          : null,
+        production_orchestration: draft.goal_type === 'social_outreach_linkedin_post'
+          ? contentPacket?.production_orchestration ?? null
+          : null,
         orchestration_gate: inferWorkItemOrchestrationGate({
           title: task.title,
           status: 'assigned',

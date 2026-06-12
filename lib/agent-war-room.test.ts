@@ -565,6 +565,22 @@ describe('runAgentWarRoom', () => {
           ]),
           comparison_prompt: expect.stringContaining('Compare this draft against Vambah LinkedIn voice guidance'),
         }),
+        production_orchestration: expect.objectContaining({
+          version: 'social_content_production_v1',
+          asset_actions_require_approval: true,
+          illustration_required: true,
+          carousel_candidate: true,
+          lanes: expect.arrayContaining([
+            expect.objectContaining({
+              key: 'illustration',
+              owner_agent_key: 'amadutown-brand',
+            }),
+            expect.objectContaining({
+              key: 'carousel',
+              owner_agent_key: 'content-repurposing',
+            }),
+          ]),
+        }),
       }),
     })
     expect(draftResult.goalDraft?.tasks.map((task) => task.title)).toEqual([
@@ -573,8 +589,12 @@ describe('runAgentWarRoom', () => {
       'Attach manual Chronicle evidence packet',
       'Select AmaduTown proof points',
       'Draft the LinkedIn post',
-      'Create the visual brief',
+      'Plan reference and citation annotations',
+      'Design the framework illustration system',
+      'Prepare the carousel and illustration production packet',
       'Run content QA and governance review',
+      'Run visual QA and accessibility review',
+      'Package the human editorial review bundle',
       'Create the Social Content draft handoff',
     ])
     expect(workItemMocks.createAgentWorkItem).not.toHaveBeenCalled()
@@ -611,6 +631,12 @@ describe('runAgentWarRoom', () => {
           content_calibration: expect.objectContaining({
             status: 'needs_operator_context',
           }),
+          production_orchestration: expect.objectContaining({
+            version: 'social_content_production_v1',
+          }),
+        }),
+        production_orchestration: expect.objectContaining({
+          version: 'social_content_production_v1',
         }),
       }),
     }))
@@ -624,6 +650,14 @@ describe('runAgentWarRoom', () => {
         pass_to_human: false,
         challenger_status: 'pending',
         social_content_draft_id: 'social-draft-1',
+        production_lane: 'human_review_packet',
+      }),
+    }))
+    expect(workItemMocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
+      source: expect.objectContaining({ id: expect.stringContaining('-illustration-system') }),
+      ownerAgentKey: 'amadutown-brand',
+      metadata: expect.objectContaining({
+        production_lane: 'illustration',
       }),
     }))
     expect(agentRunMocks.attachAgentArtifact).toHaveBeenCalledWith(expect.objectContaining({
