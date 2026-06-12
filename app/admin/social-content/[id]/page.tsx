@@ -27,7 +27,6 @@ import {
   AlertCircle,
   LayoutGrid,
   Download,
-  ArrowRightLeft,
   Maximize2,
   X,
   BarChart3,
@@ -181,6 +180,7 @@ function SocialContentDetailPage() {
   const [regeneratingImage, setRegeneratingImage] = useState(false)
   const [regeneratingAudio, setRegeneratingAudio] = useState(false)
   const [convertingFormat, setConvertingFormat] = useState(false)
+  const [capturingAppCarousel, setCapturingAppCarousel] = useState(false)
   const [selectedSlide, setSelectedSlide] = useState(0)
   const [publishing, setPublishing] = useState(false)
   const [refreshingEngagement, setRefreshingEngagement] = useState(false)
@@ -637,16 +637,20 @@ function SocialContentDetailPage() {
     }
   }
 
-  const handleConvertToCarousel = async () => {
-    if (!confirm('Convert this post to a carousel? This will generate slides from the post content and replace the current image.')) return
-    setConvertingFormat(true)
+  const handleBuildAppScreenshotCarousel = async () => {
+    if (!confirm('Build a carousel from Portfolio app screenshots? This captures admin review surfaces, uploads the screenshots, and replaces the current visual asset with a carousel. It will not publish this post.')) return
+    setCapturingAppCarousel(true)
     try {
       const session = await getCurrentSession()
       if (!session) return
 
-      const res = await fetch(`/api/admin/social-content/${id}/convert-to-carousel`, {
+      const res = await fetch(`/api/admin/social-content/${id}/capture-app-carousel`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${session.access_token}` },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
       })
 
       const data = await res.json()
@@ -657,16 +661,17 @@ function SocialContentDetailPage() {
           carousel_slides: data.carousel_slides,
           carousel_slide_urls: data.carousel_slide_urls,
           carousel_pdf_url: data.carousel_pdf_url,
+          rag_context: data.rag_context || prev.rag_context,
         } : prev)
         setSelectedSlide(0)
-        showMsg('success', `Carousel generated with ${data.slide_count} slides`)
+        showMsg('success', `App screenshot carousel built with ${data.slide_count} slides`)
       } else {
-        showMsg('error', data.error || 'Failed to convert to carousel')
+        showMsg('error', data.error || 'Failed to build app screenshot carousel')
       }
     } catch {
-      showMsg('error', 'Failed to convert to carousel')
+      showMsg('error', 'Failed to build app screenshot carousel')
     } finally {
-      setConvertingFormat(false)
+      setCapturingAppCarousel(false)
     }
   }
 
@@ -807,6 +812,11 @@ function SocialContentDetailPage() {
       : 0
   const isDraftOnlyPilot = isAgentSocialPilot && agentPilotPublishGate === 'draft_only'
   const canApproveAgentPilot = !isAgentSocialPilot || agentPilotPassToHuman
+  const canEditVisualProduction = isEditable || (isDraftOnlyPilot && item.status === 'approved')
+  const visualProductionUnlocked = canEditVisualProduction && isDraftOnlyPilot
+  const frameworkIllustrationLabel = item.image_url
+    ? 'Regenerate Framework Illustration'
+    : 'Generate Framework Illustration'
   const approveActionLabel = isDraftOnlyPilot
     ? 'Approve Draft'
     : scheduledFor
@@ -1365,6 +1375,40 @@ function SocialContentDetailPage() {
 
             {/* Visual Media section (single image or carousel) */}
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+              {canEditVisualProduction && (
+                <div className="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
+                  <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">Visual Production</p>
+                      <p className="mt-1 text-sm leading-6 text-amber-50/90">
+                        {visualProductionUnlocked
+                          ? 'Copy is approved and locked. Choose the next visual asset manually; neither action publishes, schedules, or sends provider work until you click it.'
+                          : 'Choose the visual asset path for this draft. These actions stay separate from copy approval and publishing.'}
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-2 sm:flex-row xl:justify-end">
+                      <button
+                        type="button"
+                        onClick={item.content_format === 'carousel' ? handleConvertToSingleImage : handleRegenerateImage}
+                        disabled={regeneratingImage || !imagePrompt}
+                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-amber-400 px-3 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-amber-300 disabled:opacity-50"
+                      >
+                        {regeneratingImage ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImageIcon className="h-3.5 w-3.5" />}
+                        {frameworkIllustrationLabel}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleBuildAppScreenshotCarousel}
+                        disabled={capturingAppCarousel}
+                        className="inline-flex items-center justify-center gap-2 rounded-lg border border-amber-500/45 px-3 py-2 text-sm font-semibold text-amber-100 transition-colors hover:bg-amber-500/10 disabled:opacity-50"
+                      >
+                        {capturingAppCarousel ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <LayoutGrid className="h-3.5 w-3.5" />}
+                        Build Carousel from App Screenshots
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
               {item.content_format === 'carousel' ? (
                 <>
                   <div className="flex items-center justify-between mb-3">
@@ -1382,7 +1426,7 @@ function SocialContentDetailPage() {
                           <Download className="w-3 h-3" /> PDF
                         </a>
                       )}
-                      {isEditable && (
+                      {canEditVisualProduction && (
                         <>
                           <button
                             onClick={handleRegenerateCarousel}
@@ -1391,13 +1435,6 @@ function SocialContentDetailPage() {
                           >
                             {convertingFormat ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
                             Re-render
-                          </button>
-                          <button
-                            onClick={handleConvertToSingleImage}
-                            disabled={convertingFormat || regeneratingImage}
-                            className="flex items-center gap-1 px-2 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg text-xs transition-colors disabled:opacity-50"
-                          >
-                            <ArrowRightLeft className="w-3 h-3" /> Single Image
                           </button>
                         </>
                       )}
@@ -1433,7 +1470,7 @@ function SocialContentDetailPage() {
                       <div className="text-center text-gray-500">
                         <LayoutGrid className="w-8 h-8 mx-auto mb-2 opacity-50" />
                         <p className="text-xs">Slides not yet rendered</p>
-                        {isEditable && (
+                        {canEditVisualProduction && (
                           <button
                             onClick={handleRegenerateCarousel}
                             disabled={convertingFormat}
@@ -1452,28 +1489,6 @@ function SocialContentDetailPage() {
                     <h3 className="text-sm font-medium text-gray-400 flex items-center gap-2">
                       <ImageIcon className="w-4 h-4" /> Framework Illustration
                     </h3>
-                    <div className="flex items-center gap-2">
-                      {isEditable && (
-                        <>
-                          <button
-                            onClick={handleRegenerateImage}
-                            disabled={regeneratingImage || !imagePrompt}
-                            className="flex items-center gap-1 px-2 py-1 bg-purple-900/50 hover:bg-purple-900/70 text-purple-300 rounded-lg text-xs transition-colors disabled:opacity-50"
-                          >
-                            {regeneratingImage ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
-                            Regenerate
-                          </button>
-                          <button
-                            onClick={handleConvertToCarousel}
-                            disabled={convertingFormat}
-                            className="flex items-center gap-1 px-2 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg text-xs transition-colors disabled:opacity-50"
-                          >
-                            {convertingFormat ? <Loader2 className="w-3 h-3 animate-spin" /> : <ArrowRightLeft className="w-3 h-3" />}
-                            Carousel
-                          </button>
-                        </>
-                      )}
-                    </div>
                   </div>
                   {item.image_url ? (
                     <div className="rounded-lg overflow-hidden mb-3 bg-gray-800 relative w-full h-[400px]">
@@ -1495,7 +1510,7 @@ function SocialContentDetailPage() {
                   <select
                     value={frameworkVisualType}
                     onChange={(e) => setFrameworkVisualType(e.target.value as FrameworkVisualType | '')}
-                    disabled={!isEditable}
+                    disabled={!canEditVisualProduction}
                     className="w-full bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm disabled:opacity-60"
                   >
                     <option value="">Auto-detect</option>
@@ -1509,7 +1524,7 @@ function SocialContentDetailPage() {
                   <textarea
                     value={imagePrompt}
                     onChange={(e) => setImagePrompt(e.target.value)}
-                    disabled={!isEditable}
+                    disabled={!canEditVisualProduction}
                     rows={3}
                     className="w-full bg-gray-800 text-gray-200 border border-gray-700 rounded-lg px-3 py-2 text-xs resize-y disabled:opacity-60"
                   />
@@ -1774,90 +1789,103 @@ function SocialContentDetailPage() {
         <div className="bg-gray-900 border-2 border-gray-700 rounded-xl p-6 space-y-6">
           <h2 className="text-lg font-semibold text-gray-200 flex items-center gap-2">
             <Send className="w-5 h-5 text-green-400" />
-            Where & When
+            {isDraftOnlyPilot ? 'Draft Approval Gate' : 'Where & When'}
           </h2>
 
-          {/* Platform pills */}
-          <div>
-            <label className="block text-sm font-medium text-gray-400 mb-3">Publish to</label>
-            <div className="flex flex-wrap gap-2">
-              {PLATFORMS.map((p) => {
-                const isActive = targetPlatforms.includes(p.value)
-                const colors = PLATFORM_COLORS[p.value] || PLATFORM_COLORS.linkedin
-                return (
-                  <button
-                    key={p.value}
-                    type="button"
-                    onClick={() => p.enabled && isEditable && togglePlatform(p.value)}
-                    disabled={!isEditable || !p.enabled}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-all disabled:cursor-not-allowed ${
-                      !p.enabled
-                        ? 'opacity-40 bg-gray-800 border-gray-700 text-gray-500'
-                        : isActive
-                          ? colors.active
-                          : colors.inactive
-                    }`}
-                  >
-                    {PLATFORM_ICONS[p.value]}
-                    {p.label}
-                    {!p.enabled && <span className="text-xs">(coming soon)</span>}
-                  </button>
-                )
-              })}
+          {isDraftOnlyPilot && (
+            <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm leading-6 text-amber-50/90">
+              <p className="font-semibold text-amber-100">Publishing locked</p>
+              <p className="mt-1">
+                This Agent Ops post is draft-only. Approval locks the copy and queues the reference handoff, but publishing, scheduling, screenshot capture, carousel rendering, image generation, and provider sends each require a separate explicit action.
+              </p>
             </div>
-          </div>
+          )}
+
+          {/* Platform pills */}
+          {!isDraftOnlyPilot && (
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-3">Publish to</label>
+              <div className="flex flex-wrap gap-2">
+                {PLATFORMS.map((p) => {
+                  const isActive = targetPlatforms.includes(p.value)
+                  const colors = PLATFORM_COLORS[p.value] || PLATFORM_COLORS.linkedin
+                  return (
+                    <button
+                      key={p.value}
+                      type="button"
+                      onClick={() => p.enabled && isEditable && togglePlatform(p.value)}
+                      disabled={!isEditable || !p.enabled}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-all disabled:cursor-not-allowed ${
+                        !p.enabled
+                          ? 'opacity-40 bg-gray-800 border-gray-700 text-gray-500'
+                          : isActive
+                            ? colors.active
+                            : colors.inactive
+                      }`}
+                    >
+                      {PLATFORM_ICONS[p.value]}
+                      {p.label}
+                      {!p.enabled && <span className="text-xs">(coming soon)</span>}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Schedule radio */}
-          <div>
-            <label className="block text-sm font-medium text-gray-400 mb-3">When</label>
-            <div className="space-y-3">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="radio"
-                  name="schedule"
-                  checked={!scheduledFor}
-                  onChange={() => setScheduledFor('')}
-                  disabled={!isEditable}
-                  className="text-green-500 focus:ring-green-500 bg-gray-800 border-gray-600"
-                />
-                <span className="text-sm text-gray-300">Publish immediately after approval</span>
-              </label>
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="radio"
-                  name="schedule"
-                  checked={!!scheduledFor}
-                  onChange={() => {
-                    const tomorrow = new Date()
-                    tomorrow.setDate(tomorrow.getDate() + 1)
-                    tomorrow.setHours(9, 0, 0, 0)
-                    setScheduledFor(tomorrow.toISOString().slice(0, 16))
-                  }}
-                  disabled={!isEditable}
-                  className="text-amber-500 focus:ring-amber-500 bg-gray-800 border-gray-600"
-                />
-                <span className="text-sm text-gray-300">Schedule for later</span>
-              </label>
-              <AnimatePresence>
-                {scheduledFor && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="overflow-hidden"
-                  >
-                    <input
-                      type="datetime-local"
-                      value={scheduledFor}
-                      onChange={(e) => setScheduledFor(e.target.value)}
-                      disabled={!isEditable}
-                      className="ml-7 bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-2 text-sm disabled:opacity-60"
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
+          {!isDraftOnlyPilot && (
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-3">When</label>
+              <div className="space-y-3">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="schedule"
+                    checked={!scheduledFor}
+                    onChange={() => setScheduledFor('')}
+                    disabled={!isEditable}
+                    className="text-green-500 focus:ring-green-500 bg-gray-800 border-gray-600"
+                  />
+                  <span className="text-sm text-gray-300">Publish immediately after approval</span>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="schedule"
+                    checked={!!scheduledFor}
+                    onChange={() => {
+                      const tomorrow = new Date()
+                      tomorrow.setDate(tomorrow.getDate() + 1)
+                      tomorrow.setHours(9, 0, 0, 0)
+                      setScheduledFor(tomorrow.toISOString().slice(0, 16))
+                    }}
+                    disabled={!isEditable}
+                    className="text-amber-500 focus:ring-amber-500 bg-gray-800 border-gray-600"
+                  />
+                  <span className="text-sm text-gray-300">Schedule for later</span>
+                </label>
+                <AnimatePresence>
+                  {scheduledFor && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <input
+                        type="datetime-local"
+                        value={scheduledFor}
+                        onChange={(e) => setScheduledFor(e.target.value)}
+                        disabled={!isEditable}
+                        className="ml-7 bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-2 text-sm disabled:opacity-60"
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Admin Notes */}
           <div>

@@ -126,6 +126,27 @@ function renderCta(slide: CarouselSlide, index: number, total: number, logoB64: 
   `
 }
 
+function renderScreenshot(slide: CarouselSlide, index: number, total: number, logoB64: string): string {
+  return `
+    <div style="position:relative;width:1080px;height:1080px;background:${COLORS.black};overflow:hidden;font-family:'Inter',sans-serif;">
+      ${commonElements(logoB64)}
+      ${slideCounter(index, total)}
+      <div style="position:absolute;top:62px;left:60px;right:60px;">
+        <div style="font-size:13px;font-weight:800;letter-spacing:3px;color:${COLORS.purple};text-transform:uppercase;margin-bottom:12px;">${slide.eyebrow || 'Portfolio Screenshot'}</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:54px;color:${COLORS.white};line-height:1.0;max-width:760px;">${slide.headline || slide.route_label || 'App screenshot'}</div>
+        ${slide.route_label ? `<div style="margin-top:10px;font-size:14px;font-weight:700;letter-spacing:1.5px;color:${COLORS.gray};text-transform:uppercase;">${slide.route_label}</div>` : ''}
+      </div>
+      <div style="position:absolute;top:230px;left:58px;right:58px;height:610px;border:1px solid #262626;border-radius:18px;background:#111;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.45);">
+        ${slide.screenshot_url ? `<img src="${slide.screenshot_url}" style="width:100%;height:100%;object-fit:cover;object-position:top center;" />` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:${COLORS.gray};font-size:24px;">Screenshot pending</div>`}
+      </div>
+      <div style="position:absolute;left:60px;right:140px;bottom:78px;">
+        ${slide.caption ? `<div style="font-size:19px;color:${COLORS.darkText};line-height:1.55;max-width:760px;">${slide.caption}</div>` : ''}
+        ${slide.route ? `<div style="margin-top:14px;font-size:12px;font-weight:700;letter-spacing:1.5px;color:#555;text-transform:uppercase;">${slide.route}</div>` : ''}
+      </div>
+    </div>
+  `
+}
+
 export function generateCarouselHTML(slides: CarouselSlide[]): string {
   const logoB64 = getLogoBase64()
   const photoB64 = getProfilePhotoBase64()
@@ -137,6 +158,7 @@ export function generateCarouselHTML(slides: CarouselSlide[]): string {
     principle: (s, i) => renderPrinciple(s, i, total, logoB64),
     quote: (s, i) => renderQuote(s, i, total, logoB64),
     cta: (s, i) => renderCta(s, i, total, logoB64, photoB64),
+    screenshot: (s, i) => renderScreenshot(s, i, total, logoB64),
   }
 
   const slidesHtml = slides.map((slide, i) => {
