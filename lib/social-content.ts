@@ -331,7 +331,7 @@ Return a valid JSON array of slide objects. Each object must have a "type" field
 // Carousel Types
 // ============================================================================
 
-export type CarouselSlideType = 'cover' | 'hook' | 'principle' | 'quote' | 'cta'
+export type CarouselSlideType = 'cover' | 'hook' | 'principle' | 'quote' | 'cta' | 'screenshot'
 
 export type ContentFormat = 'single_image' | 'carousel'
 
@@ -352,6 +352,10 @@ export interface CarouselSlide {
   attribution?: string
   cta_label?: string
   hashtags?: string[]
+  screenshot_url?: string
+  caption?: string
+  route_label?: string
+  route?: string
 }
 
 export type ContentPillar =
