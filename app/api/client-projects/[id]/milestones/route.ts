@@ -3,9 +3,109 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { triggerProgressUpdate } from '@/lib/progress-update-templates'
 import { getUpsellPathsForOffer, scheduleUpsellFollowUp } from '@/lib/upsell-paths'
-import type { Milestone } from '@/lib/onboarding-templates'
+import type { Milestone, MilestoneEvidence } from '@/lib/onboarding-templates'
+import { randomUUID } from 'crypto'
 
 export const dynamic = 'force-dynamic'
+
+const VALID_STATUSES = ['pending', 'in_progress', 'complete', 'skipped'] as const
+type MilestoneStatus = (typeof VALID_STATUSES)[number]
+
+function isValidStatus(value: unknown): value is MilestoneStatus {
+  return typeof value === 'string' && VALID_STATUSES.includes(value as MilestoneStatus)
+}
+
+function validateMilestoneIndex(index: unknown, milestones: Milestone[]) {
+  if (typeof index !== 'number' || !Number.isInteger(index)) {
+    return 'milestone_index is required'
+  }
+
+  if (index < 0 || index >= milestones.length) {
+    return `milestone_index out of range (0-${milestones.length - 1})`
+  }
+
+  return null
+}
+
+function sanitizeMilestoneInput(value: unknown): Partial<Milestone> {
+  if (!value || typeof value !== 'object') return {}
+  const input = value as Partial<Milestone>
+
+  return {
+    id: typeof input.id === 'string' && input.id.trim() ? input.id.trim() : undefined,
+    week: typeof input.week === 'number' || typeof input.week === 'string' ? input.week : undefined,
+    title: typeof input.title === 'string' ? input.title.trim() : undefined,
+    description: typeof input.description === 'string' ? input.description.trim() : undefined,
+    deliverables: Array.isArray(input.deliverables)
+      ? input.deliverables.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+      : undefined,
+    phase: typeof input.phase === 'number' ? input.phase : undefined,
+    target_date: typeof input.target_date === 'string' ? input.target_date : undefined,
+    status: isValidStatus(input.status) ? input.status : undefined,
+    completed_at: typeof input.completed_at === 'string' ? input.completed_at : undefined,
+    evidence: Array.isArray(input.evidence) ? input.evidence : undefined,
+    automation: input.automation && typeof input.automation === 'object' ? input.automation : undefined,
+  }
+}
+
+function createManualEvidence({
+  note,
+  attachments,
+  senderName,
+}: {
+  note?: string
+  attachments?: Array<{ url?: string; filename?: string; content_type?: string }>
+  senderName?: string
+}): MilestoneEvidence[] {
+  const evidence: MilestoneEvidence[] = []
+  const now = new Date().toISOString()
+  const safeNote = note?.trim()
+
+  if (safeNote || attachments?.length) {
+    evidence.push({
+      id: `manual-completion-${randomUUID()}`,
+      source_type: 'manual',
+      source_label: 'Project lead completion evidence',
+      summary: safeNote
+        ? safeNote.slice(0, 240)
+        : `${attachments?.length ?? 0} completion attachment${attachments?.length === 1 ? '' : 's'} recorded.`,
+      confidence: 'medium',
+      status: 'manual_review',
+      source_url: attachments?.find((attachment) => attachment.url)?.url,
+      source_ref: senderName ? `recorded_by:${senderName}` : 'recorded_by:project_lead',
+      captured_at: now,
+      is_client_visible: true,
+    })
+  }
+
+  return evidence
+}
+
+async function readOnboardingPlan(clientProjectId: string) {
+  const { data: plan, error: planError } = await supabaseAdmin
+    .from('onboarding_plans')
+    .select('id, milestones')
+    .eq('client_project_id', clientProjectId)
+    .single()
+
+  if (planError || !plan) {
+    return { error: 'No onboarding plan found for this project' as const }
+  }
+
+  return {
+    plan: plan as { id: string; milestones: Milestone[] | null },
+    milestones: (plan.milestones || []) as Milestone[],
+  }
+}
+
+async function persistMilestones(planId: string, milestones: Milestone[]) {
+  const { error: updateError } = await supabaseAdmin
+    .from('onboarding_plans')
+    .update({ milestones })
+    .eq('id', planId)
+
+  return updateError
+}
 
 /**
  * PATCH /api/client-projects/[id]/milestones
@@ -43,62 +143,69 @@ export async function PATCH(
     const {
       milestone_index,
       new_status,
+      milestone,
+      updates,
       attachments,
       note,
       sender_name,
       triggered_by,
     } = body
 
-    // Validate inputs
-    if (milestone_index === undefined || milestone_index === null) {
-      return NextResponse.json(
-        { error: 'milestone_index is required' },
-        { status: 400 }
-      )
-    }
-
-    const validStatuses = ['pending', 'in_progress', 'complete', 'skipped']
-    if (!new_status || !validStatuses.includes(new_status)) {
-      return NextResponse.json(
-        { error: `new_status must be one of: ${validStatuses.join(', ')}` },
-        { status: 400 }
-      )
-    }
-
     // Fetch the onboarding plan for this project
-    const { data: plan, error: planError } = await supabaseAdmin
-      .from('onboarding_plans')
-      .select('id, milestones')
-      .eq('client_project_id', clientProjectId)
-      .single()
-
-    if (planError || !plan) {
+    const planResult = await readOnboardingPlan(clientProjectId)
+    if ('error' in planResult) {
       return NextResponse.json(
-        { error: 'No onboarding plan found for this project' },
+        { error: planResult.error },
         { status: 404 }
       )
     }
 
-    const milestones = (plan.milestones || []) as Milestone[]
+    const { plan, milestones } = planResult
+    const indexError = validateMilestoneIndex(milestone_index, milestones)
+    if (indexError) {
+      return NextResponse.json({ error: indexError }, { status: 400 })
+    }
 
-    if (milestone_index < 0 || milestone_index >= milestones.length) {
+    const incoming = sanitizeMilestoneInput(milestone ?? updates)
+    const requestedStatus = new_status ?? incoming.status
+    if (requestedStatus !== undefined && !isValidStatus(requestedStatus)) {
       return NextResponse.json(
-        {
-          error: `milestone_index out of range (0-${milestones.length - 1})`,
-        },
+        { error: `new_status must be one of: ${VALID_STATUSES.join(', ')}` },
+        { status: 400 }
+      )
+    }
+    if (!requestedStatus && Object.keys(incoming).length === 0) {
+      return NextResponse.json(
+        { error: 'Provide new_status, milestone, or updates' },
         { status: 400 }
       )
     }
 
     // Update the milestone status
     const oldStatus = milestones[milestone_index].status
-    milestones[milestone_index].status = new_status
+    const nextStatus = requestedStatus || oldStatus
+    const completionEvidence = createManualEvidence({
+      note,
+      attachments,
+      senderName: sender_name,
+    })
+    milestones[milestone_index] = {
+      ...milestones[milestone_index],
+      ...incoming,
+      id: incoming.id || milestones[milestone_index].id || `milestone-${randomUUID()}`,
+      status: nextStatus,
+      completed_at:
+        nextStatus === 'complete'
+          ? milestones[milestone_index].completed_at || new Date().toISOString()
+          : undefined,
+      evidence:
+        completionEvidence.length > 0
+          ? [...(milestones[milestone_index].evidence || []), ...completionEvidence]
+          : incoming.evidence ?? milestones[milestone_index].evidence,
+    }
 
     // Persist the updated milestones
-    const { error: updateError } = await supabaseAdmin
-      .from('onboarding_plans')
-      .update({ milestones })
-      .eq('id', plan.id)
+    const updateError = await persistMilestones(plan.id, milestones)
 
     if (updateError) {
       console.error('Error updating milestones:', updateError)
@@ -120,7 +227,7 @@ export async function PATCH(
         .from('client_projects')
         .update({ project_status: 'delivering', current_phase: 4 })
         .eq('id', clientProjectId)
-    } else if (new_status === 'complete' || new_status === 'in_progress') {
+    } else if (nextStatus === 'complete' || nextStatus === 'in_progress') {
       // Update phase based on the milestone's phase value
       const milestonePhase = milestones[milestone_index].phase
       await supabaseAdmin
@@ -134,11 +241,11 @@ export async function PATCH(
 
     // Trigger progress update message if milestone was marked complete
     let progressResult = null
-    if (new_status === 'complete' && oldStatus !== 'complete') {
+    if (nextStatus === 'complete' && oldStatus !== 'complete') {
       progressResult = await triggerProgressUpdate({
         clientProjectId,
         milestoneIndex: milestone_index,
-        newStatus: new_status,
+        newStatus: nextStatus,
         senderName: sender_name || 'Your Project Lead',
         customNote: note,
         attachments: attachments || [],
@@ -245,7 +352,7 @@ export async function PATCH(
       milestone: milestones[milestone_index],
       milestone_index,
       old_status: oldStatus,
-      new_status,
+      new_status: nextStatus,
       milestones_completed: completedCount,
       milestones_total: totalCount,
       progress_update: progressResult
@@ -266,5 +373,131 @@ export async function PATCH(
       { error: 'Internal server error' },
       { status: 500 }
     )
+  }
+}
+
+/**
+ * POST /api/client-projects/[id]/milestones
+ * Add a milestone to the onboarding plan.
+ */
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const authResult = await verifyAdmin(request)
+    if (isAuthError(authResult)) {
+      return NextResponse.json(
+        { error: authResult.error },
+        { status: authResult.status }
+      )
+    }
+
+    const { id: clientProjectId } = await params
+    const body = await request.json()
+    const input = sanitizeMilestoneInput(body.milestone ?? body)
+
+    if (!input.title) {
+      return NextResponse.json({ error: 'title is required' }, { status: 400 })
+    }
+    if (input.week === undefined) {
+      return NextResponse.json({ error: 'week is required' }, { status: 400 })
+    }
+    if (input.phase === undefined) {
+      return NextResponse.json({ error: 'phase is required' }, { status: 400 })
+    }
+
+    const planResult = await readOnboardingPlan(clientProjectId)
+    if ('error' in planResult) {
+      return NextResponse.json({ error: planResult.error }, { status: 404 })
+    }
+
+    const newMilestone: Milestone = {
+      id: input.id || `milestone-${randomUUID()}`,
+      week: input.week,
+      title: input.title,
+      description: input.description || '',
+      deliverables: input.deliverables || [],
+      phase: input.phase,
+      target_date: input.target_date,
+      status: input.status || 'pending',
+      evidence: input.evidence,
+      automation: input.automation,
+    }
+
+    const position =
+      typeof body.position === 'number' && Number.isInteger(body.position)
+        ? Math.max(0, Math.min(body.position, planResult.milestones.length))
+        : planResult.milestones.length
+    const milestones = [...planResult.milestones]
+    milestones.splice(position, 0, newMilestone)
+
+    const updateError = await persistMilestones(planResult.plan.id, milestones)
+    if (updateError) {
+      console.error('Error creating milestone:', updateError)
+      return NextResponse.json({ error: 'Failed to create milestone' }, { status: 500 })
+    }
+
+    return NextResponse.json({
+      success: true,
+      milestone: newMilestone,
+      milestone_index: position,
+      milestones_total: milestones.length,
+    })
+  } catch (error) {
+    console.error('Error in POST /api/client-projects/[id]/milestones:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
+/**
+ * DELETE /api/client-projects/[id]/milestones
+ * Remove a milestone from the onboarding plan.
+ */
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const authResult = await verifyAdmin(request)
+    if (isAuthError(authResult)) {
+      return NextResponse.json(
+        { error: authResult.error },
+        { status: authResult.status }
+      )
+    }
+
+    const { id: clientProjectId } = await params
+    const body = await request.json()
+    const milestoneIndex = body.milestone_index
+
+    const planResult = await readOnboardingPlan(clientProjectId)
+    if ('error' in planResult) {
+      return NextResponse.json({ error: planResult.error }, { status: 404 })
+    }
+
+    const indexError = validateMilestoneIndex(milestoneIndex, planResult.milestones)
+    if (indexError) {
+      return NextResponse.json({ error: indexError }, { status: 400 })
+    }
+
+    const milestones = [...planResult.milestones]
+    const [removed] = milestones.splice(milestoneIndex, 1)
+
+    const updateError = await persistMilestones(planResult.plan.id, milestones)
+    if (updateError) {
+      console.error('Error deleting milestone:', updateError)
+      return NextResponse.json({ error: 'Failed to delete milestone' }, { status: 500 })
+    }
+
+    return NextResponse.json({
+      success: true,
+      removed_milestone: removed,
+      milestone_index: milestoneIndex,
+      milestones_total: milestones.length,
+    })
+  } catch (error) {
+    console.error('Error in DELETE /api/client-projects/[id]/milestones:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

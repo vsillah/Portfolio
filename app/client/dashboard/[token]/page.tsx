@@ -20,6 +20,7 @@ import ReportsSection from '@/components/client-dashboard/ReportsSection'
 import TimeTrackingSection from '@/components/client-dashboard/TimeTrackingSection'
 import MeetingHistory from '@/components/client-dashboard/MeetingHistory'
 import AiOpsRoadmapSection from '@/components/client-dashboard/AiOpsRoadmapSection'
+import BuildEvidenceInvestmentSection from '@/components/client-dashboard/BuildEvidenceInvestmentSection'
 import type { DashboardData, LeadDashboardData, DashboardTask } from '@/lib/client-dashboard'
 import type { AccelerationRecommendation } from '@/lib/acceleration-engine'
 import SiteThemeCorner from '@/components/SiteThemeCorner'
@@ -105,10 +106,10 @@ export default function ClientDashboardPage() {
     return (
       <>
         <SiteThemeCorner />
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+      <div className="min-h-screen bg-imperial-navy flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-500 mx-auto mb-4" />
-          <p className="text-gray-400 text-sm">Loading your dashboard...</p>
+          <Loader2 className="w-8 h-8 animate-spin text-radiant-gold mx-auto mb-4" />
+          <p className="text-platinum-white/70 text-sm">Loading your dashboard...</p>
         </div>
       </div>
       </>
@@ -120,10 +121,10 @@ export default function ClientDashboardPage() {
     return (
       <>
         <SiteThemeCorner />
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+      <div className="min-h-screen bg-imperial-navy flex items-center justify-center">
         <div className="text-center max-w-md px-4">
-          <h1 className="text-2xl font-bold text-white mb-2">Dashboard Not Found</h1>
-          <p className="text-gray-400">
+          <h1 className="text-2xl font-bold text-platinum-white mb-2">Dashboard Not Found</h1>
+          <p className="text-platinum-white/65">
             {error || 'This dashboard link may be invalid or expired. Please contact your consultant for a new link.'}
           </p>
         </div>
@@ -139,31 +140,41 @@ export default function ClientDashboardPage() {
     return (
       <>
         <SiteThemeCorner />
-      <div className="min-h-screen bg-gray-950">
-        <header className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-sm sticky top-0 z-10">
+      <div className="min-h-screen bg-imperial-navy text-platinum-white">
+        <header className="sticky top-0 z-10 border-b border-radiant-gold/20 bg-imperial-navy/90 backdrop-blur-md">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-            <div>
-              <h1 className="text-lg font-bold text-white">Your Assessment Dashboard</h1>
-              <p className="text-xs text-gray-500">Lead view — complete your engagement to unlock full dashboard</p>
+            <div className="flex items-center gap-3">
+              <img
+                src="/amadutown-logo-upscaled.png"
+                alt="AmaduTown Advisory Solutions"
+                className="h-11 w-auto"
+              />
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-radiant-gold">
+                  AmaduTown Client Portal
+                </p>
+                <h1 className="text-lg font-bold text-platinum-white">Your Assessment Dashboard</h1>
+                <p className="text-xs text-platinum-white/55">Lead view - complete your engagement to unlock full dashboard</p>
+              </div>
             </div>
             <div className="text-right">
-              <p className="text-sm font-medium text-gray-300">{project.client_name}</p>
+              <p className="text-sm font-medium text-platinum-white">{project.client_name}</p>
               {project.client_company && (
-                <p className="text-xs text-gray-500">{project.client_company}</p>
+                <p className="text-xs text-radiant-gold/75">{project.client_company}</p>
               )}
             </div>
           </div>
         </header>
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-          <p className="text-sm text-gray-400 italic">{industryBenchmarksMessage}</p>
+          <p className="text-sm text-platinum-white/65 italic">{industryBenchmarksMessage}</p>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <ScoreRadarChart scores={scores.categoryScores} />
             <div className="lg:col-span-2">
               {assessment ? (
                 <AssessmentDetails assessment={assessment} valueReport={null} />
               ) : (
-                <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
-                  <p className="text-gray-500 text-sm">No assessment data available yet.</p>
+                <div className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
+                  <p className="text-platinum-white/55 text-sm">No assessment data available yet.</p>
                 </div>
               )}
             </div>
@@ -176,14 +187,14 @@ export default function ClientDashboardPage() {
               engagementSteps={engagementSteps}
             />
           </div>
-          <div className="bg-gray-900/50 rounded-xl border border-gray-800 border-dashed p-6 text-center">
-            <p className="text-gray-500 text-sm">
+          <div className="rounded-lg border border-dashed border-radiant-gold/25 bg-silicon-slate/25 p-6 text-center">
+            <p className="text-platinum-white/55 text-sm">
               Tasks, milestones, and trajectory will appear here once you start your engagement.
             </p>
           </div>
         </main>
-        <footer className="border-t border-gray-800 mt-12 py-6">
-          <p className="text-center text-xs text-gray-600">
+        <footer className="border-t border-radiant-gold/15 mt-12 py-6">
+          <p className="text-center text-xs text-platinum-white/40">
             Questions? Contact your consultant for assistance.
           </p>
         </footer>
@@ -208,6 +219,7 @@ export default function ClientDashboardPage() {
     valueReports,
     gammaReports,
     aiOpsRoadmap,
+    buildEvidence,
   } = dashboard as DashboardData
 
   const tasksCompleted = tasks.filter((t: DashboardTask) => t.status === 'complete').length
@@ -219,25 +231,35 @@ export default function ClientDashboardPage() {
   return (
     <>
       <SiteThemeCorner />
-    <div className="min-h-screen bg-gray-950">
+    <div className="min-h-screen bg-imperial-navy text-platinum-white">
       {/* Header */}
-      <header className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-sm sticky top-0 z-10">
+      <header className="sticky top-0 z-10 border-b border-radiant-gold/20 bg-imperial-navy/90 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-lg font-bold text-white">Client Dashboard</h1>
-            <p className="text-xs text-gray-500">{project.project_name}</p>
+          <div className="flex items-center gap-3 min-w-0">
+            <img
+              src="/amadutown-logo-upscaled.png"
+              alt="AmaduTown Advisory Solutions"
+              className="h-11 w-auto shrink-0"
+            />
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-radiant-gold">
+                AmaduTown Client Portal
+              </p>
+              <h1 className="text-lg font-bold text-platinum-white">Client Dashboard</h1>
+              <p className="truncate text-xs text-platinum-white/55">{project.project_name}</p>
+            </div>
           </div>
-          <div className="text-right">
-            <p className="text-sm font-medium text-gray-300">{project.client_name}</p>
+          <div className="shrink-0 text-right">
+            <p className="text-sm font-medium text-platinum-white">{project.client_name}</p>
             {project.client_company && (
-              <p className="text-xs text-gray-500">{project.client_company}</p>
+              <p className="text-xs text-radiant-gold/75">{project.client_company}</p>
             )}
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <main className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         {/* Row 1: Stat Cards */}
         <DashboardStatCards
           overallScore={scores.overallScore}
@@ -256,11 +278,11 @@ export default function ClientDashboardPage() {
             {assessment ? (
               <AssessmentDetails assessment={assessment} valueReport={valueReport} />
             ) : (
-              <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
-                <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-2">
+              <div className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
+                <h3 className="text-sm font-medium text-radiant-gold uppercase tracking-wider mb-2">
                   Assessment
                 </h3>
-                <p className="text-gray-500 text-sm">
+                <p className="text-platinum-white/55 text-sm">
                   No assessment data available yet.
                 </p>
               </div>
@@ -295,6 +317,10 @@ export default function ClientDashboardPage() {
             milestones={(milestones || []) as Array<{ title?: string }>}
           />
         </div>
+
+        {buildEvidence && (
+          <BuildEvidenceInvestmentSection buildEvidence={buildEvidence} />
+        )}
 
         {/* Row 5: Gap Analysis */}
         <GapAnalysisPanel gaps={gapAnalysis} />
@@ -331,8 +357,8 @@ export default function ClientDashboardPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-gray-800 mt-12 py-6">
-        <p className="text-center text-xs text-gray-600">
+      <footer className="border-t border-radiant-gold/15 mt-12 py-6">
+        <p className="text-center text-xs text-platinum-white/40">
           Questions about your dashboard? Contact your consultant for assistance.
         </p>
       </footer>

@@ -34,21 +34,21 @@ export default function TimeTrackingSection({
   const totalTaskTime = taskEntries.reduce((s, t) => s + t.total_seconds, 0)
 
   return (
-    <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
+    <div className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider flex items-center gap-2">
+        <h3 className="text-sm font-medium text-radiant-gold uppercase tracking-wider flex items-center gap-2">
           <TrendingUp className="w-4 h-4" />
           Time Investment
         </h3>
-        <div className="flex items-center gap-1.5 text-sm font-semibold text-white">
-          <Clock className="w-4 h-4 text-blue-400" />
+        <div className="flex items-center gap-1.5 text-sm font-semibold text-platinum-white">
+          <Clock className="w-4 h-4 text-radiant-gold" />
           {formatHours(timeTracking.total_seconds)} total
         </div>
       </div>
 
       {milestoneEntries.length > 0 && (
         <div className="space-y-2 mb-4">
-          <p className="text-xs text-gray-500 font-medium uppercase">By Milestone</p>
+          <p className="text-xs text-platinum-white/50 font-medium uppercase">By Milestone</p>
           {milestoneEntries.map((entry) => {
             const idx = Number(entry.target_id)
             const title = milestones[idx]?.title || `Milestone ${idx + 1}`
@@ -59,16 +59,16 @@ export default function TimeTrackingSection({
               <div key={entry.target_id} className="flex items-center gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-gray-300 truncate">
+                    <span className="text-xs text-platinum-white/75 truncate">
                       {title}
                     </span>
-                    <span className="text-xs text-gray-500 shrink-0 ml-2">
+                    <span className="text-xs text-platinum-white/50 shrink-0 ml-2">
                       {formatHours(entry.total_seconds)}
                     </span>
                   </div>
-                  <div className="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                  <div className="w-full h-1.5 bg-imperial-navy/70 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-blue-500/60 rounded-full"
+                      className="h-full bg-radiant-gold/75 rounded-full"
                       style={{ width: `${pct}%` }}
                     />
                   </div>
@@ -80,12 +80,12 @@ export default function TimeTrackingSection({
       )}
 
       {totalTaskTime > 0 && (
-        <div className="pt-3 border-t border-gray-800">
+        <div className="pt-3 border-t border-radiant-gold/15">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-platinum-white/50">
               Task work ({taskEntries.length} task{taskEntries.length !== 1 ? 's' : ''})
             </span>
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-platinum-white/65">
               {formatHours(totalTaskTime)}
             </span>
           </div>

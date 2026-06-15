@@ -38,6 +38,7 @@ export interface SetupRequirement {
 }
 
 export interface MilestoneTemplate {
+  id?: string
   week: number | string
   title: string
   description: string
@@ -45,9 +46,54 @@ export interface MilestoneTemplate {
   phase: number
 }
 
+export type MilestoneEvidenceStatus =
+  | 'verified'
+  | 'pending'
+  | 'access_needed'
+  | 'manual_review'
+
+export type MilestoneEvidenceConfidence = 'high' | 'medium' | 'low'
+
+export interface MilestoneEvidence {
+  id?: string
+  source_type:
+    | 'github'
+    | 'google_play'
+    | 'app_store_connect'
+    | 'stripe'
+    | 'manual'
+    | 'artifact'
+    | 'runtime_smoke'
+    | 'release_gate'
+  source_label: string
+  summary: string
+  confidence: MilestoneEvidenceConfidence
+  status: MilestoneEvidenceStatus
+  source_url?: string
+  source_ref?: string
+  captured_at?: string
+  is_client_visible?: boolean
+}
+
+export interface MilestoneAutomation {
+  source:
+    | 'github'
+    | 'google_play'
+    | 'app_store_connect'
+    | 'stripe'
+    | 'manual'
+    | 'hybrid'
+  status: 'active' | 'access_needed' | 'manual_review' | 'planned'
+  summary: string
+  next_check?: string
+}
+
 export interface Milestone extends MilestoneTemplate {
   target_date?: string
   status: 'pending' | 'in_progress' | 'complete' | 'skipped'
+  completed_at?: string
+  evidence?: MilestoneEvidence[]
+  automation?: MilestoneAutomation
 }
 
 export interface CommunicationPlan {

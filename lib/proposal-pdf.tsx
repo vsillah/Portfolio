@@ -786,13 +786,13 @@ export const ProposalDocument: React.FC<{ data: ProposalData }> = ({ data }) => 
             <Text style={styles.totalLabel}>Subtotal:</Text>
             <Text style={styles.totalValue}>{formatCurrency(data.subtotal)}</Text>
           </View>
-          {data.discount_amount && data.discount_amount > 0 && (
+          {Number(data.discount_amount) > 0 && (
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>
                 Discount{data.discount_description ? ` (${data.discount_description})` : ''}:
               </Text>
               <Text style={[styles.totalValue, { color: '#10b981' }]}>
-                -{formatCurrency(data.discount_amount)}
+                -{formatCurrency(data.discount_amount ?? 0)}
               </Text>
             </View>
           )}
@@ -851,17 +851,27 @@ export const ProposalDocument: React.FC<{ data: ProposalData }> = ({ data }) => 
 export async function generateProposalPDF(data: ProposalData): Promise<Buffer> {
   const pdfDoc = <ProposalDocument data={data} />;
   const pdfBuffer = await pdf(pdfDoc).toBuffer();
-  // Handle both Buffer and ReadableStream return types
+  // Handle Buffer, Web ReadableStream, and Node Readable stream return types.
   if (Buffer.isBuffer(pdfBuffer)) {
     return pdfBuffer;
   }
-  // Convert ReadableStream to Buffer
+  if (
+    pdfBuffer &&
+    typeof (pdfBuffer as unknown as ReadableStream<Uint8Array>).getReader === 'function'
+  ) {
+    const chunks: Uint8Array[] = [];
+    const reader = (pdfBuffer as unknown as ReadableStream<Uint8Array>).getReader();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (value) chunks.push(value);
+    }
+    return Buffer.concat(chunks);
+  }
+
   const chunks: Uint8Array[] = [];
-  const reader = (pdfBuffer as unknown as ReadableStream<Uint8Array>).getReader();
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    if (value) chunks.push(value);
+  for await (const chunk of pdfBuffer as AsyncIterable<Uint8Array | Buffer | string>) {
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
   }
   return Buffer.concat(chunks);
 }
