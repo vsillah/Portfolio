@@ -161,7 +161,7 @@ describe('goal orchestration', () => {
       gate_status: 'challenger_pending',
       challenger_status: 'pending',
       pass_to_human: false,
-      residual_risks_for_human: ['Content QA/governance review has not passed.'],
+      residual_risks_for_human: ['Challenger QA has not passed.'],
     })
   })
 
