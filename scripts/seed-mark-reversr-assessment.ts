@@ -265,7 +265,7 @@ const roadmapMilestones = [
       'Generated output package',
       'Review notes on quality, manufacturability, and next-step effort',
     ],
-    phase: 2,
+    phase: 1,
     status: 'in_progress',
     evidence: [
       {
@@ -346,7 +346,7 @@ const roadmapMilestones = [
       'Local server prototype or implementation plan',
       'Validation criteria for AI quality, latency, hardware, and security',
     ],
-    phase: 3,
+    phase: 2,
     status: 'in_progress',
     evidence: [
       {
@@ -392,7 +392,7 @@ const roadmapMilestones = [
       'Offer/pricing structure',
       'Continuity or support model for post-purchase delivery',
     ],
-    phase: 3,
+    phase: 2,
     status: 'in_progress',
     evidence: [
       {
