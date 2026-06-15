@@ -20,6 +20,7 @@ import ReportsSection from '@/components/client-dashboard/ReportsSection'
 import TimeTrackingSection from '@/components/client-dashboard/TimeTrackingSection'
 import MeetingHistory from '@/components/client-dashboard/MeetingHistory'
 import AiOpsRoadmapSection from '@/components/client-dashboard/AiOpsRoadmapSection'
+import BuildEvidenceInvestmentSection from '@/components/client-dashboard/BuildEvidenceInvestmentSection'
 import type { DashboardData, LeadDashboardData, DashboardTask } from '@/lib/client-dashboard'
 import type { AccelerationRecommendation } from '@/lib/acceleration-engine'
 import SiteThemeCorner from '@/components/SiteThemeCorner'
@@ -208,6 +209,7 @@ export default function ClientDashboardPage() {
     valueReports,
     gammaReports,
     aiOpsRoadmap,
+    buildEvidence,
   } = dashboard as DashboardData
 
   const tasksCompleted = tasks.filter((t: DashboardTask) => t.status === 'complete').length
@@ -285,6 +287,10 @@ export default function ClientDashboardPage() {
 
         {aiOpsRoadmap && (
           <AiOpsRoadmapSection roadmap={aiOpsRoadmap} />
+        )}
+
+        {buildEvidence && (
+          <BuildEvidenceInvestmentSection buildEvidence={buildEvidence} />
         )}
 
         {/* Row 4: Documents & Time Investment */}

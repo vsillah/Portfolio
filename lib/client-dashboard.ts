@@ -8,6 +8,7 @@
 import { supabaseAdmin } from './supabase'
 import { getRoadmapBundleForProject, syncRoadmapTaskFromProjection } from './client-ai-ops-roadmap-db'
 import type { RoadmapClientView } from './client-ai-ops-roadmap'
+import { getBuildEvidenceForClientProject, type ClientBuildEvidence } from './client-build-evidence'
 import { getSignedUrl } from './storage'
 import type { CategoryScores, ScoreSnapshot } from './assessment-scoring'
 import type { AssessmentCategory } from './assessment-scoring'
@@ -207,6 +208,7 @@ export interface DashboardData {
   valueReports: ClientValueReport[]
   gammaReports: ClientGammaReport[]
   aiOpsRoadmap: RoadmapClientView | null
+  buildEvidence: ClientBuildEvidence | null
 }
 
 // ============================================================================
@@ -469,6 +471,7 @@ export async function getDashboardByToken(
     timeEntriesResult,
     allValueReportsResult,
     allGammaReportsResult,
+    buildEvidenceResult,
   ] = await Promise.all([
     // Diagnostic audit via contact_submission -> diagnostic_audits
     project.contact_submission_id
@@ -597,6 +600,8 @@ export async function getDashboardByToken(
           .in('status', ['generating', 'completed', 'failed'])
           .order('created_at', { ascending: false })
       : Promise.resolve({ data: null, error: null }),
+
+    getBuildEvidenceForClientProject(projectId),
   ])
 
   const audit = auditResult.data
@@ -781,6 +786,7 @@ export async function getDashboardByToken(
   const valueReports = (allValueReportsResult.data || []) as ClientValueReport[]
   const gammaReports = (allGammaReportsResult.data || []) as ClientGammaReport[]
   const aiOpsRoadmap = await getRoadmapBundleForProject(projectId).then((bundle) => bundle?.clientView ?? null).catch(() => null)
+  const buildEvidence = buildEvidenceResult ?? null
 
   return {
     data: {
@@ -811,6 +817,7 @@ export async function getDashboardByToken(
       valueReports,
       gammaReports,
       aiOpsRoadmap,
+      buildEvidence,
     },
     stage: 'client',
   }
