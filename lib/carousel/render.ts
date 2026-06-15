@@ -4,7 +4,8 @@
  * 2. Render each slide to PNG via Playwright (headless Chromium)
  * 3. Combine PNGs into a single PDF via pdf-lib
  *
- * Uses @sparticuz/chromium for Vercel/Lambda compatibility.
+ * Uses @sparticuz/chromium for Vercel/Lambda compatibility and Playwright's
+ * installed browser for local development.
  */
 
 import { PDFDocument, PDFImage } from 'pdf-lib'
@@ -12,6 +13,31 @@ import type { CarouselSlide } from '@/lib/social-content'
 import { generateCarouselHTML } from './templates'
 
 const SLIDE_SIZE = 1080
+
+function shouldUseServerlessChromium(): boolean {
+  return Boolean(
+    process.env.VERCEL
+    || process.env.AWS_LAMBDA_FUNCTION_NAME
+    || process.env.AWS_EXECUTION_ENV
+  )
+}
+
+async function launchCarouselBrowser() {
+  if (shouldUseServerlessChromium()) {
+    const chromium = await import('@sparticuz/chromium')
+    const { chromium: playwrightChromium } = await import('playwright-core')
+    const executablePath = await chromium.default.executablePath()
+
+    return playwrightChromium.launch({
+      args: chromium.default.args,
+      executablePath,
+      headless: true,
+    })
+  }
+
+  const { chromium: playwrightChromium } = await import('playwright')
+  return playwrightChromium.launch({ headless: true })
+}
 
 /**
  * Render carousel slides to PNG buffers using Playwright.
@@ -23,17 +49,7 @@ export async function renderCarouselSlides(
   const html = generateCarouselHTML(slides)
   const total = slides.length
 
-  // Dynamic import to avoid bundling Chromium at module load time
-  const chromium = await import('@sparticuz/chromium')
-  const { chromium: playwrightChromium } = await import('playwright-core')
-
-  const executablePath = await chromium.default.executablePath()
-
-  const browser = await playwrightChromium.launch({
-    args: chromium.default.args,
-    executablePath,
-    headless: true,
-  })
+  const browser = await launchCarouselBrowser()
 
   try {
     const page = await browser.newPage({
@@ -55,15 +71,13 @@ export async function renderCarouselSlides(
       const wrapper = await page.$('.carousel-wrapper')
       if (!wrapper) throw new Error('Carousel wrapper element not found')
 
-      const clip = {
-        x: i * SLIDE_SIZE,
-        y: 0,
-        width: SLIDE_SIZE,
-        height: SLIDE_SIZE,
-      }
-
       const screenshot = await page.screenshot({
-        clip,
+        clip: {
+          x: 0,
+          y: 0,
+          width: SLIDE_SIZE,
+          height: SLIDE_SIZE,
+        },
         type: 'png',
       })
 
