@@ -174,7 +174,7 @@ const roadmapMilestones = [
       'Issue list prioritized for 1.0 release readiness',
     ],
     phase: 1,
-    status: 'pending',
+    status: 'in_progress',
     evidence: [
       {
         id: 'm1-go-log',
@@ -219,7 +219,7 @@ const roadmapMilestones = [
       'Client-safe release evidence and app-store links',
     ],
     phase: 1,
-    status: 'pending',
+    status: 'in_progress',
     evidence: [
       {
         id: 'm2-release-gates',
@@ -266,7 +266,7 @@ const roadmapMilestones = [
       'Review notes on quality, manufacturability, and next-step effort',
     ],
     phase: 2,
-    status: 'pending',
+    status: 'in_progress',
     evidence: [
       {
         id: 'm3-output-package',
@@ -300,7 +300,7 @@ const roadmapMilestones = [
       'Fulfillment handoff requirements for Vanguard review',
     ],
     phase: 2,
-    status: 'pending',
+    status: 'in_progress',
     evidence: [
       {
         id: 'm4-website-workflow',
@@ -347,7 +347,7 @@ const roadmapMilestones = [
       'Validation criteria for AI quality, latency, hardware, and security',
     ],
     phase: 3,
-    status: 'pending',
+    status: 'in_progress',
     evidence: [
       {
         id: 'm5-architecture-proof',
@@ -393,7 +393,7 @@ const roadmapMilestones = [
       'Continuity or support model for post-purchase delivery',
     ],
     phase: 3,
-    status: 'pending',
+    status: 'in_progress',
     evidence: [
       {
         id: 'm6-purchase-records',
