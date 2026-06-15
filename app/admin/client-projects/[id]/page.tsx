@@ -36,6 +36,12 @@ import {
   ChevronDown,
   ChevronUp,
   ClipboardList,
+  Plus,
+  Pencil,
+  Trash2,
+  GitBranch,
+  KeyRound,
+  ShieldCheck,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -52,6 +58,7 @@ import { useParams } from 'next/navigation'
 // ============================================================================
 
 interface Milestone {
+  id?: string
   week: number | string
   title: string
   description: string
@@ -59,6 +66,29 @@ interface Milestone {
   phase: number
   target_date?: string
   status: 'pending' | 'in_progress' | 'complete' | 'skipped'
+  completed_at?: string
+  evidence?: MilestoneEvidence[]
+  automation?: MilestoneAutomation
+}
+
+interface MilestoneEvidence {
+  id?: string
+  source_type: string
+  source_label: string
+  summary: string
+  confidence: 'high' | 'medium' | 'low'
+  status: 'verified' | 'pending' | 'access_needed' | 'manual_review'
+  source_url?: string
+  source_ref?: string
+  captured_at?: string
+  is_client_visible?: boolean
+}
+
+interface MilestoneAutomation {
+  source: string
+  status: 'active' | 'access_needed' | 'manual_review' | 'planned'
+  summary: string
+  next_check?: string
 }
 
 interface CommunicationPlan {
@@ -325,6 +355,35 @@ const MILESTONE_STATUS_CONFIG: Record<
   },
 }
 
+const EVIDENCE_STATUS_CONFIG: Record<
+  MilestoneEvidence['status'],
+  { label: string; className: string }
+> = {
+  verified: {
+    label: 'Verified',
+    className: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300',
+  },
+  pending: {
+    label: 'Pending',
+    className: 'border-gray-700 bg-gray-800 text-gray-300',
+  },
+  access_needed: {
+    label: 'Access Needed',
+    className: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
+  },
+  manual_review: {
+    label: 'Manual Review',
+    className: 'border-blue-500/30 bg-blue-500/10 text-blue-300',
+  },
+}
+
+function parseMilestoneWeek(value: string): number | string {
+  const trimmed = value.trim()
+  if (!trimmed) return ''
+  const numeric = Number(trimmed)
+  return Number.isFinite(numeric) && String(numeric) === trimmed ? numeric : trimmed
+}
+
 // ============================================================================
 // Main Page
 // ============================================================================
@@ -349,6 +408,12 @@ function ProjectDetailContent() {
     milestoneIndex: number
     milestone: Milestone
   } | null>(null)
+  const [milestoneEditor, setMilestoneEditor] = useState<{
+    mode: 'create' | 'edit'
+    milestone?: Milestone
+    milestoneIndex?: number
+  } | null>(null)
+  const [deletingMilestoneIndex, setDeletingMilestoneIndex] = useState<number | null>(null)
 
   const fetchProject = useCallback(async () => {
     if (!user || !projectId) return
@@ -377,6 +442,36 @@ function ProjectDetailContent() {
   useEffect(() => {
     fetchProject()
   }, [fetchProject])
+
+  const deleteMilestone = async (milestoneIndex: number) => {
+    if (!accessToken) return
+    const milestone = data?.onboarding_plan?.milestones?.[milestoneIndex]
+    const confirmed = window.confirm(
+      `Delete milestone "${milestone?.title || milestoneIndex + 1}"? This removes it from the project roadmap.`
+    )
+    if (!confirmed) return
+
+    setDeletingMilestoneIndex(milestoneIndex)
+    try {
+      const response = await fetch(`/api/client-projects/${projectId}/milestones`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ milestone_index: milestoneIndex }),
+      })
+      if (!response.ok) {
+        const err = await response.json()
+        throw new Error(err.error || 'Failed to delete milestone')
+      }
+      await fetchProject()
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : 'Failed to delete milestone')
+    } finally {
+      setDeletingMilestoneIndex(null)
+    }
+  }
 
   if (loading) {
     return (
@@ -504,7 +599,16 @@ function ProjectDetailContent() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main: Milestone Timeline */}
           <div className="lg:col-span-2">
-            <h2 className="text-xl font-bold mb-4">Milestone Timeline</h2>
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <h2 className="text-xl font-bold">Milestone Timeline</h2>
+              <button
+                onClick={() => setMilestoneEditor({ mode: 'create' })}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-blue-500/40 bg-blue-500/10 px-3 py-1.5 text-xs font-medium text-blue-300 hover:bg-blue-500/20"
+              >
+                <Plus size={14} />
+                Add Milestone
+              </button>
+            </div>
             {milestones.length === 0 ? (
               <p className="text-gray-500">
                 No milestones defined. Create an onboarding plan first.
@@ -523,6 +627,15 @@ function ProjectDetailContent() {
                     onMarkComplete={() =>
                       setConfirmModal({ milestoneIndex: index, milestone })
                     }
+                    onEdit={() =>
+                      setMilestoneEditor({
+                        mode: 'edit',
+                        milestone,
+                        milestoneIndex: index,
+                      })
+                    }
+                    onDelete={() => deleteMilestone(index)}
+                    deleting={deletingMilestoneIndex === index}
                     onTimeEntryChange={fetchProject}
                   />
                 ))}
@@ -748,6 +861,20 @@ function ProjectDetailContent() {
               }}
             />
           )}
+          {milestoneEditor && (
+            <MilestoneEditorModal
+              projectId={projectId}
+              accessToken={accessToken || ''}
+              mode={milestoneEditor.mode}
+              milestone={milestoneEditor.milestone}
+              milestoneIndex={milestoneEditor.milestoneIndex}
+              onClose={() => setMilestoneEditor(null)}
+              onSuccess={() => {
+                setMilestoneEditor(null)
+                fetchProject()
+              }}
+            />
+          )}
         </AnimatePresence>
       </div>
     </div>
@@ -766,6 +893,9 @@ function MilestoneCard({
   accessToken,
   timeEntries,
   onMarkComplete,
+  onEdit,
+  onDelete,
+  deleting,
   onTimeEntryChange,
 }: {
   milestone: Milestone
@@ -775,10 +905,16 @@ function MilestoneCard({
   accessToken: string
   timeEntries: TimeEntry[]
   onMarkComplete: () => void
+  onEdit: () => void
+  onDelete: () => void
+  deleting: boolean
   onTimeEntryChange: () => void
 }) {
   const config = MILESTONE_STATUS_CONFIG[milestone.status] || MILESTONE_STATUS_CONFIG.pending
   const Icon = config.icon
+  const visibleEvidence = (milestone.evidence || []).filter(
+    (item) => item.is_client_visible !== false
+  )
 
   return (
     <div className="flex gap-4">
@@ -819,6 +955,21 @@ function MilestoneCard({
             </div>
 
             <div className="flex items-center gap-2">
+              <button
+                onClick={onEdit}
+                className="inline-flex items-center gap-1 rounded-lg border border-gray-700 px-2 py-1 text-xs text-gray-300 hover:border-gray-600 hover:bg-gray-800"
+              >
+                <Pencil size={13} />
+                Edit
+              </button>
+              <button
+                onClick={onDelete}
+                disabled={deleting}
+                className="inline-flex items-center gap-1 rounded-lg border border-red-500/30 px-2 py-1 text-xs text-red-300 hover:bg-red-500/10 disabled:opacity-50"
+              >
+                {deleting ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
+                Delete
+              </button>
               <TimeTracker
                 projectId={projectId}
                 targetType="milestone"
@@ -869,9 +1020,323 @@ function MilestoneCard({
               ))}
             </div>
           )}
+
+          {visibleEvidence.length > 0 && (
+            <div className="mt-3 border-t border-gray-800 pt-3">
+              <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-gray-500">
+                <ShieldCheck size={13} />
+                Evidence Trace
+              </div>
+              <div className="space-y-2">
+                {visibleEvidence.map((item, evidenceIndex) => {
+                  const evidenceConfig =
+                    EVIDENCE_STATUS_CONFIG[item.status] || EVIDENCE_STATUS_CONFIG.pending
+                  return (
+                    <div
+                      key={item.id || evidenceIndex}
+                      className={`rounded-lg border p-2 ${evidenceConfig.className}`}
+                    >
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-xs font-medium">{item.source_label}</span>
+                        <span className="text-[10px] opacity-80">{evidenceConfig.label}</span>
+                        <span className="text-[10px] opacity-70">
+                          {item.confidence} confidence
+                        </span>
+                        {item.source_url && (
+                          <a
+                            href={item.source_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 text-[10px] underline-offset-2 hover:underline"
+                          >
+                            Source
+                            <ExternalLink size={10} />
+                          </a>
+                        )}
+                      </div>
+                      <p className="mt-1 text-xs leading-relaxed opacity-85">
+                        {item.summary}
+                      </p>
+                      {item.source_ref && !item.source_ref.includes('/Users/') && (
+                        <p className="mt-1 text-[10px] opacity-60">
+                          Ref: {item.source_ref}
+                        </p>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {milestone.automation && (
+            <div className="mt-3 flex items-start gap-2 rounded-lg border border-gray-800 bg-gray-950 p-2">
+              {milestone.automation.status === 'access_needed' ? (
+                <KeyRound size={14} className="mt-0.5 shrink-0 text-amber-300" />
+              ) : (
+                <GitBranch size={14} className="mt-0.5 shrink-0 text-blue-300" />
+              )}
+              <div>
+                <p className="text-xs text-gray-300">
+                  <span className="font-medium">Automation source:</span>{' '}
+                  {milestone.automation.source} / {milestone.automation.status}
+                </p>
+                <p className="mt-1 text-xs leading-relaxed text-gray-500">
+                  {milestone.automation.summary}
+                </p>
+                {milestone.automation.next_check && (
+                  <p className="mt-1 text-[10px] text-gray-600">
+                    Next check: {milestone.automation.next_check}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
+  )
+}
+
+// ============================================================================
+// Milestone Editor Modal
+// ============================================================================
+
+function MilestoneEditorModal({
+  projectId,
+  accessToken,
+  mode,
+  milestone,
+  milestoneIndex,
+  onClose,
+  onSuccess,
+}: {
+  projectId: string
+  accessToken: string
+  mode: 'create' | 'edit'
+  milestone?: Milestone
+  milestoneIndex?: number
+  onClose: () => void
+  onSuccess: () => void
+}) {
+  const [title, setTitle] = useState(milestone?.title || '')
+  const [week, setWeek] = useState(String(milestone?.week ?? ''))
+  const [phase, setPhase] = useState(String(milestone?.phase ?? 1))
+  const [status, setStatus] = useState<Milestone['status']>(milestone?.status || 'pending')
+  const [description, setDescription] = useState(milestone?.description || '')
+  const [targetDate, setTargetDate] = useState(
+    milestone?.target_date ? milestone.target_date.slice(0, 10) : ''
+  )
+  const [deliverables, setDeliverables] = useState(
+    (milestone?.deliverables || []).join('\n')
+  )
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleSubmit = async () => {
+    setSubmitting(true)
+    setError(null)
+
+    const parsedPhase = Number(phase)
+    if (!title.trim()) {
+      setError('Title is required')
+      setSubmitting(false)
+      return
+    }
+    if (!week.trim()) {
+      setError('Week is required')
+      setSubmitting(false)
+      return
+    }
+    if (!Number.isFinite(parsedPhase)) {
+      setError('Phase must be a number')
+      setSubmitting(false)
+      return
+    }
+
+    const payload: Milestone = {
+      id: milestone?.id,
+      week: parseMilestoneWeek(week),
+      title: title.trim(),
+      description: description.trim(),
+      deliverables: deliverables
+        .split('\n')
+        .map((item) => item.trim())
+        .filter(Boolean),
+      phase: parsedPhase,
+      target_date: targetDate || undefined,
+      status,
+      completed_at: milestone?.completed_at,
+      evidence: milestone?.evidence,
+      automation: milestone?.automation,
+    }
+
+    try {
+      const response = await fetch(`/api/client-projects/${projectId}/milestones`, {
+        method: mode === 'create' ? 'POST' : 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(
+          mode === 'create'
+            ? { milestone: payload }
+            : { milestone_index: milestoneIndex, milestone: payload }
+        ),
+      })
+
+      if (!response.ok) {
+        const err = await response.json()
+        throw new Error(err.error || 'Failed to save milestone')
+      }
+
+      onSuccess()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save milestone')
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        className="bg-gray-900 border border-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="p-5 border-b border-gray-800 flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold">
+              {mode === 'create' ? 'Add Milestone' : 'Edit Milestone'}
+            </h3>
+            <p className="text-xs text-gray-500 mt-1">
+              Evidence and automation metadata stay attached to the milestone.
+            </p>
+          </div>
+          <button onClick={onClose} className="p-1 text-gray-500 hover:text-gray-300">
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="p-5 space-y-4">
+          <label className="block">
+            <span className="text-xs font-medium text-gray-400">Title</span>
+            <input
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none"
+            />
+          </label>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <label className="block">
+              <span className="text-xs font-medium text-gray-400">Week</span>
+              <input
+                value={week}
+                onChange={(event) => setWeek(event.target.value)}
+                className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none"
+              />
+            </label>
+            <label className="block">
+              <span className="text-xs font-medium text-gray-400">Phase</span>
+              <input
+                value={phase}
+                onChange={(event) => setPhase(event.target.value)}
+                inputMode="numeric"
+                className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none"
+              />
+            </label>
+            <label className="block">
+              <span className="text-xs font-medium text-gray-400">Status</span>
+              <select
+                value={status}
+                onChange={(event) => setStatus(event.target.value as Milestone['status'])}
+                className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none"
+              >
+                <option value="pending">Pending</option>
+                <option value="in_progress">In Progress</option>
+                <option value="complete">Complete</option>
+                <option value="skipped">Skipped</option>
+              </select>
+            </label>
+          </div>
+
+          <label className="block">
+            <span className="text-xs font-medium text-gray-400">Target date</span>
+            <input
+              type="date"
+              value={targetDate}
+              onChange={(event) => setTargetDate(event.target.value)}
+              className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none"
+            />
+          </label>
+
+          <label className="block">
+            <span className="text-xs font-medium text-gray-400">Description</span>
+            <textarea
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              rows={3}
+              className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none"
+            />
+          </label>
+
+          <label className="block">
+            <span className="text-xs font-medium text-gray-400">Deliverables</span>
+            <textarea
+              value={deliverables}
+              onChange={(event) => setDeliverables(event.target.value)}
+              rows={5}
+              className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none"
+              placeholder="One deliverable per line"
+            />
+          </label>
+
+          {milestone?.evidence && milestone.evidence.length > 0 && (
+            <div className="rounded-lg border border-gray-800 bg-gray-950 p-3">
+              <p className="text-xs font-medium text-gray-400">
+                {milestone.evidence.length} evidence item
+                {milestone.evidence.length === 1 ? '' : 's'} attached
+              </p>
+              <p className="mt-1 text-xs text-gray-600">
+                Evidence is preserved here and shown in the milestone card.
+              </p>
+            </div>
+          )}
+
+          {error && (
+            <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">
+              {error}
+            </div>
+          )}
+        </div>
+
+        <div className="p-5 border-t border-gray-800 flex justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg border border-gray-700 text-gray-300 hover:bg-gray-800"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 font-medium text-white hover:bg-blue-600 disabled:opacity-50"
+          >
+            {submitting && <Loader2 size={16} className="animate-spin" />}
+            {mode === 'create' ? 'Add Milestone' : 'Save Changes'}
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
   )
 }
 

@@ -8,6 +8,8 @@ const args = new Set(process.argv.slice(2))
 const CLIENT_EMAIL = process.env.MARK_MEADOWS_EMAIL || 'mark.meadows@offline.local'
 const ASSESSMENT_KEY = 'mark-reversr-client-safe-assessment-v1'
 const ROADMAP_KEY = 'mark-reversr-client-roadmap-v1'
+const REVERSR_REPO_URL = 'https://github.com/vsillah/ReversR-Rebuild'
+const EVIDENCE_CAPTURED_AT = '2026-06-15T12:00:00.000Z'
 
 const categoryScores: CategoryScores = {
   business_challenges: 68,
@@ -113,6 +115,7 @@ const assessmentPayload = {
 
 const roadmapMilestones = [
   {
+    id: 'reversr-m0-internal-test-distribution',
     week: 0,
     title: 'Distribute the test app to internal testers',
     description:
@@ -124,8 +127,43 @@ const roadmapMilestones = [
     ],
     phase: 1,
     status: 'in_progress',
+    evidence: [
+      {
+        id: 'm0-build-depth',
+        source_type: 'github',
+        source_label: 'GitHub repository evidence',
+        summary:
+          'ReversR-Rebuild repository evidence shows 149 all-branch commits, 36,775 tracked code/doc/config lines, and 38 passed release gates supporting test-build readiness.',
+        confidence: 'high',
+        status: 'verified',
+        source_url: REVERSR_REPO_URL,
+        source_ref: 'client_project_build_evidence.repo_metrics',
+        captured_at: EVIDENCE_CAPTURED_AT,
+        is_client_visible: true,
+      },
+      {
+        id: 'm0-store-testers',
+        source_type: 'release_gate',
+        source_label: 'Tester distribution records',
+        summary:
+          'Store-console tester distribution needs App Store Connect and Google Play evidence before this can be marked fully verified.',
+        confidence: 'medium',
+        status: 'access_needed',
+        source_ref: 'app_store_connect/google_play tester groups',
+        captured_at: EVIDENCE_CAPTURED_AT,
+        is_client_visible: true,
+      },
+    ],
+    automation: {
+      source: 'hybrid',
+      status: 'access_needed',
+      summary:
+        'GitHub can support build and release-gate evidence; App Store Connect and Google Play access are required to automate tester distribution verification.',
+      next_check: 'Connect store-console exports or API access.',
+    },
   },
   {
+    id: 'reversr-m1-twelve-tester-go',
     week: 1,
     title: 'Secure 12 internal tester GO decisions',
     description:
@@ -137,8 +175,40 @@ const roadmapMilestones = [
     ],
     phase: 1,
     status: 'pending',
+    evidence: [
+      {
+        id: 'm1-go-log',
+        source_type: 'manual',
+        source_label: 'Tester GO decision log',
+        summary:
+          'The 12-tester GO threshold should be verified from tester responses, survey records, or store beta feedback once testers are active.',
+        confidence: 'medium',
+        status: 'pending',
+        captured_at: EVIDENCE_CAPTURED_AT,
+        is_client_visible: true,
+      },
+      {
+        id: 'm1-store-feedback',
+        source_type: 'google_play',
+        source_label: 'Google Play / App Store beta feedback',
+        summary:
+          'Store beta feedback requires connected Google Play and App Store Connect access before it can become automated evidence.',
+        confidence: 'medium',
+        status: 'access_needed',
+        captured_at: EVIDENCE_CAPTURED_AT,
+        is_client_visible: true,
+      },
+    ],
+    automation: {
+      source: 'hybrid',
+      status: 'planned',
+      summary:
+        'Automate from a tester response sheet first, then replace or enrich with store beta feedback when platform access is available.',
+      next_check: 'Define the tester GO response source.',
+    },
   },
   {
+    id: 'reversr-m2-ios-android-1-0-release',
     week: 2,
     title: 'Release ReversR 1.0 to iOS and Android',
     description:
@@ -150,8 +220,42 @@ const roadmapMilestones = [
     ],
     phase: 1,
     status: 'pending',
+    evidence: [
+      {
+        id: 'm2-release-gates',
+        source_type: 'github',
+        source_label: 'Release readiness gates',
+        summary:
+          'Current build evidence shows 38 release gates passed and 1 pending store-console gate before full release evidence can be claimed.',
+        confidence: 'high',
+        status: 'manual_review',
+        source_url: REVERSR_REPO_URL,
+        source_ref: 'client_project_build_evidence.repo_metrics.release_gates',
+        captured_at: EVIDENCE_CAPTURED_AT,
+        is_client_visible: true,
+      },
+      {
+        id: 'm2-store-links',
+        source_type: 'app_store_connect',
+        source_label: 'iOS and Android store records',
+        summary:
+          'Public release should be verified with App Store and Google Play listing URLs or store-console release records.',
+        confidence: 'high',
+        status: 'access_needed',
+        captured_at: EVIDENCE_CAPTURED_AT,
+        is_client_visible: true,
+      },
+    ],
+    automation: {
+      source: 'hybrid',
+      status: 'access_needed',
+      summary:
+        'GitHub can track release prep, tags, builds, and workflows; store release truth requires Apple and Google account access.',
+      next_check: 'Connect App Store Connect and Google Play evidence sources.',
+    },
   },
   {
+    id: 'reversr-m3-generate-product-proof',
     week: 3,
     title: 'Generate a product with the app',
     description:
@@ -163,8 +267,29 @@ const roadmapMilestones = [
     ],
     phase: 2,
     status: 'pending',
+    evidence: [
+      {
+        id: 'm3-output-package',
+        source_type: 'artifact',
+        source_label: 'Generated product proof package',
+        summary:
+          'Completion should be backed by an exported app output, screenshots, review notes, and manufacturability assessment.',
+        confidence: 'medium',
+        status: 'pending',
+        captured_at: EVIDENCE_CAPTURED_AT,
+        is_client_visible: true,
+      },
+    ],
+    automation: {
+      source: 'manual',
+      status: 'planned',
+      summary:
+        'This milestone needs artifact capture from the app workflow; GitHub can store/review the proof package but cannot prove product quality alone.',
+      next_check: 'Choose the test product and evidence packet format.',
+    },
   },
   {
+    id: 'reversr-m4-website-order-fulfillment',
     week: 4,
     title: 'Embed the app into the website and connect order fulfillment',
     description:
@@ -176,8 +301,42 @@ const roadmapMilestones = [
     ],
     phase: 2,
     status: 'pending',
+    evidence: [
+      {
+        id: 'm4-website-workflow',
+        source_type: 'runtime_smoke',
+        source_label: 'Website/order-flow smoke test',
+        summary:
+          'Completion should be verified by a working website path from app interaction to order or machine-build request submission.',
+        confidence: 'medium',
+        status: 'pending',
+        source_url: 'http://vanguardenterprises.com/',
+        captured_at: EVIDENCE_CAPTURED_AT,
+        is_client_visible: true,
+      },
+      {
+        id: 'm4-repo-integration',
+        source_type: 'github',
+        source_label: 'Integration code evidence',
+        summary:
+          'GitHub can verify implementation changes once the website embed and order-flow code are committed.',
+        confidence: 'medium',
+        status: 'pending',
+        source_url: REVERSR_REPO_URL,
+        captured_at: EVIDENCE_CAPTURED_AT,
+        is_client_visible: true,
+      },
+    ],
+    automation: {
+      source: 'github',
+      status: 'planned',
+      summary:
+        'Automate verification with GitHub deployment checks plus a smoke test that submits a non-production order request.',
+      next_check: 'Define the website integration target and test-safe order path.',
+    },
   },
   {
+    id: 'reversr-m5-local-llm-server',
     week: 5,
     title: 'Integrate a local LLM through a local server',
     description:
@@ -189,8 +348,41 @@ const roadmapMilestones = [
     ],
     phase: 3,
     status: 'pending',
+    evidence: [
+      {
+        id: 'm5-architecture-proof',
+        source_type: 'runtime_smoke',
+        source_label: 'Local AI runtime evidence',
+        summary:
+          'Completion should be verified by local server run evidence, model configuration, output quality checks, and latency/security notes.',
+        confidence: 'medium',
+        status: 'pending',
+        captured_at: EVIDENCE_CAPTURED_AT,
+        is_client_visible: true,
+      },
+      {
+        id: 'm5-github-implementation',
+        source_type: 'github',
+        source_label: 'Local AI implementation commits',
+        summary:
+          'GitHub can verify local-server implementation changes, configuration, and tests after the architecture is selected.',
+        confidence: 'medium',
+        status: 'pending',
+        source_url: REVERSR_REPO_URL,
+        captured_at: EVIDENCE_CAPTURED_AT,
+        is_client_visible: true,
+      },
+    ],
+    automation: {
+      source: 'github',
+      status: 'planned',
+      summary:
+        'Automate from local runtime smoke-test artifacts and GitHub commits; hardware/security acceptance remains a decision gate.',
+      next_check: 'Decide local, cloud, or hybrid architecture for Phase 2/3.',
+    },
   },
   {
+    id: 'reversr-m6-client-purchase-path',
     week: 6,
     title: 'Convert clients into app purchasers',
     description:
@@ -202,6 +394,37 @@ const roadmapMilestones = [
     ],
     phase: 3,
     status: 'pending',
+    evidence: [
+      {
+        id: 'm6-purchase-records',
+        source_type: 'stripe',
+        source_label: 'Purchase/payment records',
+        summary:
+          'Client purchase evidence should come from the agreed checkout, invoice, or contract system after the commercial offer is finalized.',
+        confidence: 'high',
+        status: 'pending',
+        captured_at: EVIDENCE_CAPTURED_AT,
+        is_client_visible: true,
+      },
+      {
+        id: 'm6-offer-path',
+        source_type: 'manual',
+        source_label: 'Offer and continuity model',
+        summary:
+          'The offer should preserve fixed-fee/value pricing while using hourly translation only as a comparison lens.',
+        confidence: 'medium',
+        status: 'manual_review',
+        captured_at: EVIDENCE_CAPTURED_AT,
+        is_client_visible: true,
+      },
+    ],
+    automation: {
+      source: 'hybrid',
+      status: 'planned',
+      summary:
+        'Automate purchase verification from Stripe or signed-order records once the client purchase path is chosen.',
+      next_check: 'Choose the commercial system of record.',
+    },
   },
 ] as const
 
