@@ -7,6 +7,7 @@ const args = new Set(process.argv.slice(2))
 
 const CLIENT_EMAIL = process.env.MARK_MEADOWS_EMAIL || 'mark.meadows@offline.local'
 const ASSESSMENT_KEY = 'mark-reversr-client-safe-assessment-v1'
+const ROADMAP_KEY = 'mark-reversr-client-roadmap-v1'
 
 const categoryScores: CategoryScores = {
   business_challenges: 68,
@@ -108,6 +109,106 @@ const assessmentPayload = {
   opportunity_score: 8,
   sales_notes:
     'Client-safe assessment seed. Do not expose raw private conversation, prompt logs, or local file paths in client surfaces.',
+}
+
+const roadmapMilestones = [
+  {
+    week: 0,
+    title: 'Distribute the test app to internal testers',
+    description:
+      'Package and distribute the current ReversR test build so internal testers can install it and begin hands-on validation.',
+    deliverables: [
+      'iOS and Android tester access path',
+      'Install instructions and build/version reference',
+      'Known release gates and tester feedback channel',
+    ],
+    phase: 1,
+    status: 'in_progress',
+  },
+  {
+    week: 1,
+    title: 'Secure 12 internal tester GO decisions',
+    description:
+      'Confirm whether at least 12 internal testers can install, use, and approve the app as directionally ready for release.',
+    deliverables: [
+      '12 tester acceptances or documented blockers',
+      'GO / no-GO summary',
+      'Issue list prioritized for 1.0 release readiness',
+    ],
+    phase: 1,
+    status: 'pending',
+  },
+  {
+    week: 2,
+    title: 'Release ReversR 1.0 to iOS and Android',
+    description:
+      'Move from tester validation to public 1.0 release once store-console, review, and release-readiness gates are complete.',
+    deliverables: [
+      'iOS 1.0 release',
+      'Android 1.0 release',
+      'Client-safe release evidence and app-store links',
+    ],
+    phase: 1,
+    status: 'pending',
+  },
+  {
+    week: 3,
+    title: 'Generate a product with the app',
+    description:
+      'Use ReversR to generate a concrete product output that can be reviewed as proof of practical utility, not just app functionality.',
+    deliverables: [
+      'Selected test product/use case',
+      'Generated output package',
+      'Review notes on quality, manufacturability, and next-step effort',
+    ],
+    phase: 2,
+    status: 'pending',
+  },
+  {
+    week: 4,
+    title: 'Embed the app into the website and connect order fulfillment',
+    description:
+      'Connect the app experience to Vanguard’s web presence so users can move from app interaction into a structured order or machine-build request.',
+    deliverables: [
+      'Website embed or launch path',
+      'Order intake workflow',
+      'Fulfillment handoff requirements for Vanguard review',
+    ],
+    phase: 2,
+    status: 'pending',
+  },
+  {
+    week: 5,
+    title: 'Integrate a local LLM through a local server',
+    description:
+      'Evaluate and implement the architecture required to run AI generation locally when security, offline operation, or cost control justifies it.',
+    deliverables: [
+      'Local-vs-cloud architecture decision',
+      'Local server prototype or implementation plan',
+      'Validation criteria for AI quality, latency, hardware, and security',
+    ],
+    phase: 3,
+    status: 'pending',
+  },
+  {
+    week: 6,
+    title: 'Convert clients into app purchasers',
+    description:
+      'Turn release, proof-of-product, website/order flow, and AI reliability into a commercial offer that customers can buy.',
+    deliverables: [
+      'Client purchase path',
+      'Offer/pricing structure',
+      'Continuity or support model for post-purchase delivery',
+    ],
+    phase: 3,
+    status: 'pending',
+  },
+] as const
+
+function hasSameCategoryScores(value: unknown): boolean {
+  if (!value || typeof value !== 'object') return false
+  const rowScores = value as Partial<Record<keyof CategoryScores, unknown>>
+  return Object.entries(categoryScores).every(([key, score]) => rowScores[key as keyof CategoryScores] === score)
 }
 
 async function findOrCreateContact(apply: boolean) {
@@ -219,10 +320,132 @@ async function upsertProjectLink(projectId: string, contactSubmissionId: number,
   if (error) throw new Error(`Failed to link project to Mark contact: ${error.message}`)
 }
 
+async function upsertRoadmapMilestones(projectId: string, apply: boolean) {
+  const planPayload = {
+    client_project_id: projectId,
+    milestones: roadmapMilestones,
+    status: 'in_progress',
+    is_customized: true,
+    admin_notes: `${ROADMAP_KEY}: Client-safe ReversR product roadmap milestones seeded from consultant-provided phase gates.`,
+    setup_requirements: [
+      {
+        title: 'Tester access and store-console readiness',
+        status: 'in_progress',
+      },
+      {
+        title: 'Website/order-flow scope decision',
+        status: 'pending',
+      },
+      {
+        title: 'Local AI infrastructure decision',
+        status: 'pending',
+      },
+    ],
+    communication_plan: {
+      cadence: 'Gate-based updates at each milestone',
+      decision_gates: [
+        '12 internal tester GO threshold',
+        '1.0 release approval',
+        'website/order-flow scope approval',
+        'local LLM architecture approval',
+        'commercial purchase-path approval',
+      ],
+    },
+    win_conditions: [
+      'Internal testers can install and validate the app.',
+      '1.0 is released on iOS and Android.',
+      'A product can be generated and reviewed from the app workflow.',
+      'A website-connected order path exists.',
+      'The AI architecture supports the agreed security and reliability posture.',
+      'Clients can purchase the app or app-enabled service.',
+    ],
+    artifacts_handoff: [
+      'App-store/tester release evidence',
+      'Generated product proof package',
+      'Website embed/order-flow documentation',
+      'Local AI architecture notes',
+      'Commercial offer/purchase path',
+    ],
+  }
+
+  const { data: project, error: projectError } = await supabaseAdmin
+    .from('client_projects')
+    .select('onboarding_plan_id')
+    .eq('id', projectId)
+    .single()
+
+  if (projectError) throw new Error(`Failed to read project onboarding link: ${projectError.message}`)
+  if (!apply) return project?.onboarding_plan_id ?? 'dry-run-onboarding-plan-id'
+
+  let planId = project?.onboarding_plan_id as string | null
+  if (!planId) {
+    const { data: existing, error: existingError } = await supabaseAdmin
+      .from('onboarding_plans')
+      .select('id')
+      .eq('client_project_id', projectId)
+      .ilike('admin_notes', `%${ROADMAP_KEY}%`)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (existingError) throw new Error(`Failed to read existing roadmap plan: ${existingError.message}`)
+    planId = (existing?.id as string | undefined) ?? null
+  }
+
+  if (planId) {
+    const { error } = await supabaseAdmin
+      .from('onboarding_plans')
+      .update(planPayload)
+      .eq('id', planId)
+
+    if (error) throw new Error(`Failed to update roadmap milestones: ${error.message}`)
+  } else {
+    const { data, error } = await supabaseAdmin
+      .from('onboarding_plans')
+      .insert(planPayload)
+      .select('id')
+      .single()
+
+    if (error || !data?.id) {
+      throw new Error(`Failed to create roadmap milestones: ${error?.message ?? 'missing id'}`)
+    }
+    planId = data.id as string
+  }
+
+  const { error: linkError } = await supabaseAdmin
+    .from('client_projects')
+    .update({ onboarding_plan_id: planId })
+    .eq('id', projectId)
+
+  if (linkError) throw new Error(`Failed to link roadmap milestones to project: ${linkError.message}`)
+  return planId
+}
+
 async function createScoreSnapshot(projectId: string, apply: boolean) {
   const overallScore = calculateOverallScore(categoryScores)
   const dreamOutcomeGap = calculateDreamOutcomeGap(categoryScores)
   if (!apply) return { overallScore, dreamOutcomeGap, snapshotId: 'dry-run-score-snapshot-id' }
+
+  const { data: latest, error: latestError } = await supabaseAdmin
+    .from('score_snapshots')
+    .select('id, category_scores, overall_score, dream_outcome_gap')
+    .eq('client_project_id', projectId)
+    .order('snapshot_date', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (latestError) {
+    throw new Error(`Failed to read latest Mark score snapshot: ${latestError.message}`)
+  }
+
+  if (
+    latest &&
+    hasSameCategoryScores(latest.category_scores) &&
+    latest.overall_score === overallScore &&
+    Number(latest.dream_outcome_gap) === dreamOutcomeGap
+  ) {
+    return { overallScore, dreamOutcomeGap, snapshotId: latest.id as string }
+  }
 
   const { data, error } = await supabaseAdmin
     .from('score_snapshots')
@@ -251,6 +474,7 @@ async function main() {
   if (contactSubmissionId) {
     await upsertProjectLink(project.id, contactSubmissionId, apply)
   }
+  const onboardingPlanId = await upsertRoadmapMilestones(project.id, apply)
   const scoreSnapshot = await createScoreSnapshot(project.id, apply)
 
   console.log(JSON.stringify({
@@ -258,6 +482,8 @@ async function main() {
     clientProjectId: project.id,
     contactSubmissionId,
     diagnosticAuditId: auditId,
+    onboardingPlanId,
+    milestoneCount: roadmapMilestones.length,
     scoreSnapshot,
     scores: categoryScores,
     source: assessmentPayload.website_url,
