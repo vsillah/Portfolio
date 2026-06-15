@@ -289,10 +289,6 @@ export default function ClientDashboardPage() {
           <AiOpsRoadmapSection roadmap={aiOpsRoadmap} />
         )}
 
-        {buildEvidence && (
-          <BuildEvidenceInvestmentSection buildEvidence={buildEvidence} />
-        )}
-
         {/* Row 4: Documents & Time Investment */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <DocumentsSection documents={documents || []} />
@@ -301,6 +297,10 @@ export default function ClientDashboardPage() {
             milestones={(milestones || []) as Array<{ title?: string }>}
           />
         </div>
+
+        {buildEvidence && (
+          <BuildEvidenceInvestmentSection buildEvidence={buildEvidence} />
+        )}
 
         {/* Row 5: Gap Analysis */}
         <GapAnalysisPanel gaps={gapAnalysis} />
