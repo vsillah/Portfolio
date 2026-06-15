@@ -20,7 +20,7 @@ describe('MilestoneTimeline', () => {
             source_type: 'github',
             source_label: 'GitHub repository evidence',
             summary:
-              'Verified from /Users/example/private/ReversR logs and repository metrics.',
+              'Verified from /Users/example/private/ReversR logs with 149 all-branch commits, 36,775 tracked code/doc/config lines, and 38 passed release gates.',
             confidence: 'high',
             status: 'verified',
             source_url: 'https://github.com/vsillah/ReversR-Rebuild',
@@ -60,9 +60,16 @@ describe('MilestoneTimeline', () => {
     expect(screen.getByText('GitHub repository evidence')).toBeInTheDocument()
     expect(screen.getByText('Store-console records')).toBeInTheDocument()
     expect(screen.getByText('Access Needed')).toBeInTheDocument()
-    expect(screen.getByText(/High confidence/i)).toBeInTheDocument()
+    expect(screen.getByText('149')).toBeInTheDocument()
+    expect(screen.getByText('all-branch commits')).toBeInTheDocument()
+    expect(screen.getByText('36,775')).toBeInTheDocument()
+    expect(screen.getByText('tracked code/doc/config lines')).toBeInTheDocument()
+    expect(screen.getByText('38')).toBeInTheDocument()
+    expect(screen.getByText('passed release gates')).toBeInTheDocument()
+    expect(screen.getByText('Connection needed: App Store Connect + Google Play')).toBeInTheDocument()
     expect(screen.queryByText('Private note')).not.toBeInTheDocument()
     expect(screen.queryByText(/\/Users\/example/)).not.toBeInTheDocument()
-    expect(screen.getAllByText(/\[private path\]/)).toHaveLength(2)
+    expect(screen.queryByText(/\[private path\]/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Verified from/)).not.toBeInTheDocument()
   })
 })

@@ -57,11 +57,13 @@ const EVIDENCE_STATUS_STYLES = {
   manual_review: 'border-radiant-gold/25 bg-silicon-slate/70 text-radiant-gold',
 }
 
-const CONFIDENCE_LABELS = {
-  high: 'High confidence',
-  medium: 'Medium confidence',
-  low: 'Low confidence',
-}
+const METRIC_PATTERNS: Array<{ pattern: RegExp; label: string }> = [
+  { pattern: /(\d[\d,]*)\s+all-branch commits/i, label: 'all-branch commits' },
+  { pattern: /(\d[\d,]*)\s+tracked code\/doc\/config lines/i, label: 'tracked code/doc/config lines' },
+  { pattern: /(\d[\d,]*)\s+passed release gates/i, label: 'passed release gates' },
+  { pattern: /(\d[\d,]*)\s+pending store-console gate/i, label: 'pending store-console gate' },
+  { pattern: /(\d[\d,]*)[-\s]+tester GO threshold/i, label: 'tester GO threshold' },
+]
 
 function clientVisibleEvidence(milestone: Milestone): MilestoneEvidence[] {
   return (milestone.evidence || []).filter((item) => item.is_client_visible !== false)
@@ -78,10 +80,55 @@ function sanitizeClientText(value: string) {
   return value.replace(/\/Users\/[^\s)]+/g, '[private path]')
 }
 
+function knownEvidenceMetrics(item: MilestoneEvidence) {
+  const text = `${item.source_label} ${item.summary}`
+  return METRIC_PATTERNS.flatMap(({ pattern, label }) => {
+    const match = text.match(pattern)
+    return match?.[1] ? [{ value: match[1], label }] : []
+  })
+}
+
+function connectionNeededLabel(item: Pick<MilestoneEvidence, 'source_label' | 'summary'>) {
+  const text = `${item.source_label} ${item.summary}`.toLowerCase()
+  const connections: string[] = []
+
+  if (text.includes('app store') || text.includes('apple')) {
+    connections.push('App Store Connect')
+  }
+  if (text.includes('google play') || text.includes('google')) {
+    connections.push('Google Play')
+  }
+  if (text.includes('stripe')) {
+    connections.push('Stripe')
+  }
+  if (text.includes('website') || text.includes('vanguardenterprises.com')) {
+    connections.push('Website')
+  }
+
+  if (connections.length > 0) return connections.join(' + ')
+  if (text.includes('store') || text.includes('platform')) return 'Store platform access'
+  return item.source_label
+}
+
+function conciseEvidenceStatement(item: MilestoneEvidence) {
+  if (item.status === 'access_needed') {
+    return `Connection needed: ${connectionNeededLabel(item)}`
+  }
+  if (item.status === 'pending') return 'Pending evidence'
+  if (item.status === 'manual_review') return 'Manual review needed'
+  return null
+}
+
 function AutomationHint({ automation }: { automation?: MilestoneAutomation }) {
   if (!automation) return null
 
   const needsAccess = automation.status === 'access_needed'
+  const text = needsAccess
+    ? `Connection needed: ${connectionNeededLabel({
+        source_label: automation.source,
+        summary: automation.summary,
+      })}`
+    : automation.next_check || automation.summary
 
   return (
     <div className="mt-2 flex items-start gap-2 rounded border border-radiant-gold/10 bg-imperial-navy/50 p-2">
@@ -92,7 +139,7 @@ function AutomationHint({ automation }: { automation?: MilestoneAutomation }) {
       )}
       <p className="text-[11px] leading-relaxed text-platinum-white/60">
         <span className="font-medium text-platinum-white/80">Automation: </span>
-        {sanitizeClientText(automation.summary)}
+        {sanitizeClientText(text)}
       </p>
     </div>
   )
@@ -146,16 +193,6 @@ export default function MilestoneTimeline({ milestones }: MilestoneTimelineProps
                     Week {milestone.week}
                   </span>
                 </div>
-                <p className="text-xs text-platinum-white/55 mb-1">{milestone.description}</p>
-                {milestone.deliverables && milestone.deliverables.length > 0 && (
-                  <ul className="text-xs text-platinum-white/40 space-y-0.5">
-                    {milestone.deliverables.map((d, di) => (
-                      <li key={di} className="flex items-center gap-1">
-                        <span className="text-radiant-gold/50">•</span> {d}
-                      </li>
-                    ))}
-                  </ul>
-                )}
                 {milestone.target_date && (
                   <p className="text-[10px] text-platinum-white/40 mt-1">
                     Target: {new Date(milestone.target_date).toLocaleDateString()}
@@ -171,6 +208,8 @@ export default function MilestoneTimeline({ milestones }: MilestoneTimelineProps
                       {evidence.map((item, evidenceIndex) => {
                         const statusClass =
                           EVIDENCE_STATUS_STYLES[item.status] || EVIDENCE_STATUS_STYLES.pending
+                        const metrics = knownEvidenceMetrics(item)
+                        const statement = conciseEvidenceStatement(item)
                         return (
                           <div
                             key={item.id || evidenceIndex}
@@ -182,9 +221,6 @@ export default function MilestoneTimeline({ milestones }: MilestoneTimelineProps
                               </span>
                               <span className="text-[10px] opacity-80">
                                 {evidenceStatusLabel(item.status)}
-                              </span>
-                              <span className="text-[10px] opacity-70">
-                                {CONFIDENCE_LABELS[item.confidence]}
                               </span>
                               {item.source_url && (
                                 <a
@@ -198,9 +234,24 @@ export default function MilestoneTimeline({ milestones }: MilestoneTimelineProps
                                 </a>
                               )}
                             </div>
-                            <p className="mt-1 text-[11px] leading-relaxed opacity-85">
-                              {sanitizeClientText(item.summary)}
-                            </p>
+                            {metrics.length > 0 && (
+                              <div className="mt-2 flex flex-wrap gap-1.5">
+                                {metrics.map((metric) => (
+                                  <span
+                                    key={`${item.id || evidenceIndex}-${metric.label}`}
+                                    className="rounded border border-radiant-gold/20 bg-imperial-navy/45 px-2 py-1 text-[10px] font-medium text-platinum-white/80"
+                                  >
+                                    <span className="text-gold-light">{metric.value}</span>{' '}
+                                    {metric.label}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                            {statement && (
+                              <p className="mt-1 text-[11px] leading-relaxed opacity-85">
+                                {statement}
+                              </p>
+                            )}
                           </div>
                         )
                       })}
