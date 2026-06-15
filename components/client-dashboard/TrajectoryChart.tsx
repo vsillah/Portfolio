@@ -44,9 +44,14 @@ export default function TrajectoryChart({ token, initialData }: TrajectoryChartP
   }
 
   const chartData = data.map((point) => ({
-    date: new Date(point.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    date: new Date(point.date).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      timeZone: 'UTC',
+    }),
     score: point.overallScore,
     isProjected: point.isProjected,
+    label: point.label,
   }))
 
   // Split into actual and projected for different line styles
@@ -58,7 +63,7 @@ export default function TrajectoryChart({ token, initialData }: TrajectoryChartP
         Score Trajectory
       </h3>
       <p className="text-xs text-gray-500 mb-4">
-        Solid = actual progress, dashed = projected based on remaining tasks
+        Timeline runs from project inception to projected completion based on milestones.
       </p>
       <div className="h-[240px] w-full">
         <ResponsiveContainer width="100%" height="100%">

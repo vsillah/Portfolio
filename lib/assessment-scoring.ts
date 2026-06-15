@@ -62,6 +62,7 @@ export interface TrajectoryPoint {
   date: string
   overallScore: number
   isProjected: boolean
+  label?: string
 }
 
 export interface ScoreSnapshot {
@@ -73,6 +74,66 @@ export interface ScoreSnapshot {
   dream_outcome_gap: number | null
   trigger: 'initial' | 'task_completed' | 'milestone_achieved' | 'manual'
   trigger_ref: string | null
+}
+
+interface TimelineMilestone {
+  week?: number | string
+  target_date?: string
+  status?: string
+}
+
+const MS_PER_DAY = 1000 * 60 * 60 * 24
+
+function startOfDay(date: Date): Date {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()))
+}
+
+function addDays(date: Date, days: number): Date {
+  const next = new Date(date)
+  next.setUTCDate(next.getUTCDate() + days)
+  return next
+}
+
+function validDate(value: string | null | undefined): Date | null {
+  if (!value) return null
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
+function dateKey(value: string): string {
+  return validDate(value)?.toISOString().slice(0, 10) || value.slice(0, 10)
+}
+
+function milestoneWeekToNumber(week: number | string | undefined): number | null {
+  if (typeof week === 'number' && Number.isFinite(week)) return week
+  if (typeof week !== 'string') return null
+  const match = week.match(/-?\d+(\.\d+)?/)
+  if (!match) return null
+  const value = Number(match[0])
+  return Number.isFinite(value) ? value : null
+}
+
+function getProjectedCompletionDate(
+  projectStartDate: Date,
+  milestones: TimelineMilestone[]
+): Date | null {
+  const targetDates = milestones
+    .map((milestone) => validDate(milestone.target_date))
+    .filter((date): date is Date => Boolean(date))
+
+  if (targetDates.length > 0) {
+    return new Date(Math.max(...targetDates.map((date) => date.getTime())))
+  }
+
+  const maxWeek = milestones.reduce((latest, milestone) => {
+    const week = milestoneWeekToNumber(milestone.week)
+    return week === null ? latest : Math.max(latest, week)
+  }, -Infinity)
+
+  if (!Number.isFinite(maxWeek)) return null
+
+  // Week numbers in onboarding plans are milestone markers, so include the final week.
+  return addDays(projectStartDate, Math.max(1, maxWeek + 1) * 7)
 }
 
 // ============================================================================
@@ -327,6 +388,12 @@ export async function recalculateScores(
 export async function projectTrajectory(
   clientProjectId: string
 ): Promise<TrajectoryPoint[]> {
+  const { data: project } = await supabaseAdmin
+    .from('client_projects')
+    .select('project_start_date, created_at, onboarding_plan_id')
+    .eq('id', clientProjectId)
+    .single()
+
   // Fetch actual snapshots
   const { data: snapshots } = await supabaseAdmin
     .from('score_snapshots')
@@ -336,12 +403,66 @@ export async function projectTrajectory(
 
   if (!snapshots || snapshots.length === 0) return []
 
-  // Actual data points
-  const actual: TrajectoryPoint[] = snapshots.map((s: { snapshot_date: string; overall_score: number }) => ({
-    date: s.snapshot_date,
-    overallScore: s.overall_score,
+  const snapshotsByDay = new Map<string, { snapshot_date: string; overall_score: number }>()
+  snapshots.forEach((snapshot: { snapshot_date: string; overall_score: number }) => {
+    snapshotsByDay.set(dateKey(snapshot.snapshot_date), snapshot)
+  })
+  const normalizedSnapshots = Array.from(snapshotsByDay.values())
+
+  const projectStartDate =
+    validDate(project?.project_start_date) ||
+    validDate(project?.created_at) ||
+    validDate(normalizedSnapshots[0].snapshot_date) ||
+    new Date()
+
+  let milestones: TimelineMilestone[] = []
+  if (project?.onboarding_plan_id) {
+    const { data: onboardingPlan } = await supabaseAdmin
+      .from('onboarding_plans')
+      .select('milestones')
+      .eq('id', project.onboarding_plan_id)
+      .single()
+    milestones = Array.isArray(onboardingPlan?.milestones)
+      ? (onboardingPlan.milestones as TimelineMilestone[])
+      : []
+  }
+
+  const projectedCompletionDate =
+    getProjectedCompletionDate(projectStartDate, milestones) ||
+    validDate(normalizedSnapshots[normalizedSnapshots.length - 1].snapshot_date) ||
+    addDays(projectStartDate, 42)
+
+  const firstSnapshot = normalizedSnapshots[0] as { snapshot_date: string; overall_score: number }
+  const firstSnapshotDate = validDate(firstSnapshot.snapshot_date) || projectStartDate
+
+  // Actual data points, anchored at project inception even if the first score
+  // snapshot was recorded later.
+  const actual: TrajectoryPoint[] = []
+  actual.push({
+    date: startOfDay(projectStartDate).toISOString(),
+    overallScore: firstSnapshot.overall_score,
     isProjected: false,
-  }))
+    label: 'Project start',
+  })
+
+  normalizedSnapshots.forEach((s: { snapshot_date: string; overall_score: number }, index: number) => {
+    const snapshotDate = validDate(s.snapshot_date)
+    if (
+      index === 0 &&
+      snapshotDate &&
+      Math.abs(snapshotDate.getTime() - firstSnapshotDate.getTime()) < MS_PER_DAY &&
+      Math.abs(snapshotDate.getTime() - projectStartDate.getTime()) < MS_PER_DAY
+    ) {
+      return
+    }
+
+    actual.push({
+      date: s.snapshot_date,
+      overallScore: s.overall_score,
+      isProjected: false,
+      label: index === normalizedSnapshots.length - 1 ? 'Current score' : undefined,
+    })
+  })
 
   // Fetch remaining tasks for projection
   const { data: remainingTasks } = await supabaseAdmin
@@ -351,7 +472,29 @@ export async function projectTrajectory(
     .in('status', ['pending', 'in_progress'])
     .order('display_order', { ascending: true })
 
-  if (!remainingTasks || remainingTasks.length === 0) return actual
+  const latestActual = actual[actual.length - 1]
+  const latestActualDate = validDate(latestActual.date) || projectStartDate
+  const completionDate =
+    projectedCompletionDate.getTime() > latestActualDate.getTime()
+      ? projectedCompletionDate
+      : addDays(latestActualDate, Math.max(7, milestones.length * 7))
+
+  if (!remainingTasks || remainingTasks.length === 0) {
+    const latestMilestoneScore = milestones.length > 0
+      ? Math.min(100, latestActual.overallScore + Math.max(5, milestones.length * 3))
+      : latestActual.overallScore
+
+    if (completionDate.getTime() > latestActualDate.getTime()) {
+      actual.push({
+        date: completionDate.toISOString(),
+        overallScore: latestMilestoneScore,
+        isProjected: true,
+        label: 'Projected completion',
+      })
+    }
+
+    return actual
+  }
 
   // Calculate average completion cadence from completed tasks
   const { data: completedTasks } = await supabaseAdmin
@@ -371,21 +514,44 @@ export async function projectTrajectory(
     avgDaysBetweenCompletions = Math.max(1, totalDays / (completedTasks.length - 1))
   }
 
-  // Project future scores
-  const latestScore = actual[actual.length - 1].overallScore
-  const latestDate = new Date(actual[actual.length - 1].date)
+  const latestScore = latestActual.overallScore
   let runningScore = latestScore
+  const projectionSpanDays = Math.max(
+    1,
+    (completionDate.getTime() - latestActualDate.getTime()) / MS_PER_DAY
+  )
 
   for (let i = 0; i < remainingTasks.length; i++) {
-    const projectedDate = new Date(latestDate)
-    projectedDate.setDate(projectedDate.getDate() + avgDaysBetweenCompletions * (i + 1))
+    const cadenceDate = addDays(latestActualDate, avgDaysBetweenCompletions * (i + 1))
+    const milestoneDate = addDays(
+      latestActualDate,
+      (projectionSpanDays / remainingTasks.length) * (i + 1)
+    )
+    const projectedDate =
+      completedTasks && completedTasks.length >= 2
+        ? new Date(Math.min(cadenceDate.getTime(), completionDate.getTime()))
+        : milestoneDate
     runningScore = Math.min(100, runningScore + (remainingTasks[i].impact_score || 0))
 
     actual.push({
       date: projectedDate.toISOString(),
       overallScore: runningScore,
       isProjected: true,
+      label: i === remainingTasks.length - 1 ? 'Projected completion' : undefined,
     })
+  }
+
+  const finalPoint = actual[actual.length - 1]
+  const finalDate = validDate(finalPoint.date)
+  if (finalDate && Math.abs(finalDate.getTime() - completionDate.getTime()) > MS_PER_DAY) {
+    actual.push({
+      date: completionDate.toISOString(),
+      overallScore: runningScore,
+      isProjected: true,
+      label: 'Projected completion',
+    })
+  } else {
+    finalPoint.label = finalPoint.label || 'Projected completion'
   }
 
   return actual
