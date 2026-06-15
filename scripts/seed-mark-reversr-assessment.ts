@@ -2,12 +2,20 @@
 
 import { supabaseAdmin } from '@/lib/supabase'
 import { calculateDreamOutcomeGap, calculateOverallScore, type CategoryScores } from '@/lib/assessment-scoring'
+import {
+  generateProposalPDF,
+  type ProposalData,
+  type ProposalLineItem,
+  type ProposalValueAssessment,
+} from '@/lib/proposal-pdf'
 
 const args = new Set(process.argv.slice(2))
 
 const CLIENT_EMAIL = process.env.MARK_MEADOWS_EMAIL || 'mark.meadows@offline.local'
 const ASSESSMENT_KEY = 'mark-reversr-client-safe-assessment-v1'
 const ROADMAP_KEY = 'mark-reversr-client-roadmap-v1'
+const PROPOSAL_KEY = 'mark-reversr-fixed-fee-proposal-v1'
+const PROPOSAL_BUNDLE_NAME = 'ReversR Rebuild Product Asset Proposal'
 const REVERSR_REPO_URL = 'https://github.com/vsillah/ReversR-Rebuild'
 const EVIDENCE_CAPTURED_AT = '2026-06-15T12:00:00.000Z'
 
@@ -18,6 +26,91 @@ const categoryScores: CategoryScores = {
   ai_readiness: 48,
   budget_timeline: 45,
   decision_making: 38,
+}
+
+const proposalLineItems: ProposalLineItem[] = [
+  {
+    content_type: 'service',
+    content_id: 'reversr-phase-1',
+    offer_role: 'core_offer',
+    title: 'Phase 1: ReversR 1.0 Product Asset Completion',
+    description:
+      'Complete the current app build, distribute to internal testers, support the 12-tester GO threshold, and prepare the 1.0 iOS/Android release path.',
+    price: 30000,
+    perceived_value: 83125,
+  },
+  {
+    content_type: 'service',
+    content_id: 'reversr-phase-2-website',
+    offer_role: 'upsell',
+    title: 'Phase 2 Option: Website Embed and Order Flow',
+    description:
+      'Optional expansion after Phase 1 validation: embed the app in Vanguard’s web presence and connect output to order or machine-build intake.',
+    price: 0,
+    perceived_value: 25000,
+  },
+  {
+    content_type: 'service',
+    content_id: 'reversr-phase-2-local-ai',
+    offer_role: 'upsell',
+    title: 'Phase 2 Option: Local AI Architecture',
+    description:
+      'Optional architecture track for local or hybrid AI generation, including local server, hardware, latency, quality, and security tradeoff review.',
+    price: 0,
+    perceived_value: 35000,
+  },
+  {
+    content_type: 'service',
+    content_id: 'reversr-continuity',
+    offer_role: 'continuity',
+    title: 'Optional Continuity: Technology Stewardship',
+    description:
+      'Optional post-launch advisory, maintenance, release support, evidence tracking, and roadmap governance under a separate monthly continuity agreement.',
+    price: 0,
+    perceived_value: 5000,
+  },
+]
+
+const proposalTerms = [
+  'Pricing posture: fixed-fee product-asset consulting. Repository metrics, token usage, and hourly translation are evidence lenses only; they are not the billing unit.',
+  'Phase 1 scope: complete and stabilize the ReversR rebuild, distribute the test app internally, validate the 12-tester GO threshold, prepare iOS/Android 1.0 release evidence, and produce a client-safe build evidence record.',
+  'Current investment: $30,000 fixed fee for Phase 1. The dashboard support evidence includes 149 all-branch commits, 36,775 tracked code/doc/config lines, 38 passed release gates, and strict ReversR Codex usage attribution.',
+  'Phase 2 options are intentionally not included in the Phase 1 fixed fee. Website embedding, order fulfillment, local AI, cloud/local/hybrid infrastructure, and long-term website/app stewardship require a separate scope and decision gate after Phase 1 validation.',
+  'Ownership, equity participation, payment credits, device purchases, and long-term maintenance are separate business terms. They should be documented explicitly before any continuation beyond Phase 1.',
+  'Client-safe evidence only: proposal and dashboard surfaces exclude raw prompts, private strategy notes, local filesystem paths, full Codex session logs, and private chat material.',
+].join('\n\n')
+
+const proposalValueAssessment: ProposalValueAssessment = {
+  industry: 'Engineering Services',
+  companySizeRange: '1-10',
+  totalAnnualValue: 83125,
+  valueStatements: [
+    {
+      painPoint: 'Product asset rebuild and release readiness',
+      annualValue: 83125,
+      confidence: 'medium',
+      calculationMethod: 'replacement_cost',
+      formulaReadable: '300-475 focused-hour scenario x $175 benchmark rate',
+      evidenceSummary:
+        'Scenario range from 300-475 focused hours at a $175 benchmark rate, plus repository and token-attribution evidence.',
+    },
+    {
+      painPoint: 'Website-connected order flow',
+      annualValue: 25000,
+      confidence: 'low',
+      calculationMethod: 'revenue_acceleration',
+      formulaReadable: 'Phase 2 option value placeholder pending validated order flow',
+      evidenceSummary: 'Phase 2 option pending validation and website/order-flow scope.',
+    },
+    {
+      painPoint: 'Local AI architecture and secure generation',
+      annualValue: 35000,
+      confidence: 'low',
+      calculationMethod: 'replacement_cost',
+      formulaReadable: 'Phase 2 option value placeholder pending architecture decision',
+      evidenceSummary: 'Phase 2 option pending local/cloud/hybrid architecture decision.',
+    },
+  ],
 }
 
 const assessmentPayload = {
@@ -496,7 +589,7 @@ async function findOrCreateContact(apply: boolean) {
 async function findProject() {
   const { data, error } = await supabaseAdmin
     .from('client_projects')
-    .select('id, contact_submission_id')
+    .select('id, contact_submission_id, proposal_id')
     .or('project_name.ilike.%ReversR Rebuild%,client_name.ilike.%Mark Meadows%,client_company.ilike.%Vanguard%')
     .order('created_at', { ascending: false })
     .limit(1)
@@ -506,7 +599,7 @@ async function findProject() {
     throw new Error(`Failed to find Mark/ReversR project: ${error?.message ?? 'not found'}`)
   }
 
-  return data as { id: string; contact_submission_id: number | null }
+  return data as { id: string; contact_submission_id: number | null; proposal_id: string | null }
 }
 
 async function upsertAudit(contactSubmissionId: number, apply: boolean) {
@@ -556,6 +649,164 @@ async function upsertProjectLink(projectId: string, contactSubmissionId: number,
     .eq('id', projectId)
 
   if (error) throw new Error(`Failed to link project to Mark contact: ${error.message}`)
+}
+
+async function findOrCreateProposal(projectId: string, apply: boolean) {
+  const validUntil = new Date()
+  validUntil.setDate(validUntil.getDate() + 30)
+
+  const proposalPayload = {
+    client_name: 'Mark Meadows',
+    client_email: CLIENT_EMAIL,
+    client_company: 'Vanguard Enterprises',
+    bundle_name: PROPOSAL_BUNDLE_NAME,
+    line_items: proposalLineItems,
+    subtotal: 30000,
+    discount_amount: 0,
+    discount_description: null,
+    total_amount: 30000,
+    terms_text: proposalTerms,
+    valid_until: validUntil.toISOString(),
+    status: 'sent',
+    service_term_months: null,
+  }
+
+  const { data: existing, error: readError } = await supabaseAdmin
+    .from('proposals')
+    .select('id, created_at')
+    .eq('client_email', CLIENT_EMAIL)
+    .eq('bundle_name', PROPOSAL_BUNDLE_NAME)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (readError) throw new Error(`Failed to read Mark proposal: ${readError.message}`)
+  if (!apply) return existing?.id ?? 'dry-run-proposal-id'
+
+  let proposalId = existing?.id as string | undefined
+  let createdAt = (existing?.created_at as string | undefined) ?? new Date().toISOString()
+
+  if (proposalId) {
+    const { error } = await supabaseAdmin
+      .from('proposals')
+      .update(proposalPayload)
+      .eq('id', proposalId)
+
+    if (error) throw new Error(`Failed to update Mark proposal: ${error.message}`)
+  } else {
+    const { data, error } = await supabaseAdmin
+      .from('proposals')
+      .insert(proposalPayload)
+      .select('id, created_at')
+      .single()
+
+    if (error || !data?.id) {
+      throw new Error(`Failed to create Mark proposal: ${error?.message ?? 'missing id'}`)
+    }
+    proposalId = data.id as string
+    createdAt = data.created_at as string
+  }
+
+  const pdfData: ProposalData = {
+    id: proposalId,
+    proposalNumber: PROPOSAL_KEY,
+    client_name: proposalPayload.client_name,
+    client_email: proposalPayload.client_email,
+    client_company: proposalPayload.client_company,
+    bundle_name: proposalPayload.bundle_name,
+    bundle_description:
+      'A phased, fixed-fee proposal for the ReversR rebuild product asset, with Phase 2 expansion and continuity options preserved as separate decision gates.',
+    line_items: proposalLineItems,
+    subtotal: proposalPayload.subtotal,
+    discount_amount: proposalPayload.discount_amount,
+    discount_description: undefined,
+    total_amount: proposalPayload.total_amount,
+    terms_text: proposalPayload.terms_text,
+    valid_until: proposalPayload.valid_until,
+    created_at: createdAt,
+    company_name: 'AmaduTown Advisory Solutions',
+    value_assessment: proposalValueAssessment,
+  }
+  const pdfBuffer = await generateProposalPDF(pdfData)
+
+  const proposalFilePath = `proposals/${proposalId}.pdf`
+  const { error: proposalUploadError } = await supabaseAdmin.storage
+    .from('documents')
+    .upload(proposalFilePath, pdfBuffer, {
+      contentType: 'application/pdf',
+      upsert: true,
+    })
+
+  if (proposalUploadError) {
+    throw new Error(`Failed to upload Mark proposal PDF: ${proposalUploadError.message}`)
+  }
+
+  const { data: proposalUrl } = supabaseAdmin.storage
+    .from('documents')
+    .getPublicUrl(proposalFilePath)
+
+  const proposalPackagePath = `proposal-docs/${proposalId}/${PROPOSAL_KEY}.pdf`
+  const { error: packageUploadError } = await supabaseAdmin.storage
+    .from('documents')
+    .upload(proposalPackagePath, pdfBuffer, {
+      contentType: 'application/pdf',
+      upsert: true,
+    })
+
+  if (packageUploadError) {
+    throw new Error(`Failed to upload Mark proposal package PDF: ${packageUploadError.message}`)
+  }
+
+  const { error: proposalUpdateError } = await supabaseAdmin
+    .from('proposals')
+    .update({ pdf_url: proposalUrl.publicUrl })
+    .eq('id', proposalId)
+
+  if (proposalUpdateError) {
+    throw new Error(`Failed to attach proposal PDF URL: ${proposalUpdateError.message}`)
+  }
+
+  const { data: existingDoc, error: docReadError } = await supabaseAdmin
+    .from('proposal_documents')
+    .select('id')
+    .eq('proposal_id', proposalId)
+    .eq('title', 'ReversR Proposal Package: Evidence, Options & Phase Gates')
+    .maybeSingle()
+
+  if (docReadError) {
+    throw new Error(`Failed to read Mark proposal package document: ${docReadError.message}`)
+  }
+
+  const docPayload = {
+    proposal_id: proposalId,
+    document_type: 'proposal_package',
+    title: 'ReversR Proposal Package: Evidence, Options & Phase Gates',
+    file_path: proposalPackagePath,
+    display_order: 0,
+    source: 'generated',
+  }
+
+  if (existingDoc?.id) {
+    const { error } = await supabaseAdmin
+      .from('proposal_documents')
+      .update(docPayload)
+      .eq('id', existingDoc.id)
+    if (error) throw new Error(`Failed to update Mark proposal package document: ${error.message}`)
+  } else {
+    const { error } = await supabaseAdmin
+      .from('proposal_documents')
+      .insert(docPayload)
+    if (error) throw new Error(`Failed to create Mark proposal package document: ${error.message}`)
+  }
+
+  const { error: linkError } = await supabaseAdmin
+    .from('client_projects')
+    .update({ proposal_id: proposalId })
+    .eq('id', projectId)
+
+  if (linkError) throw new Error(`Failed to link Mark proposal to project: ${linkError.message}`)
+
+  return proposalId
 }
 
 async function upsertRoadmapMilestones(projectId: string, apply: boolean) {
@@ -712,6 +963,7 @@ async function main() {
   if (contactSubmissionId) {
     await upsertProjectLink(project.id, contactSubmissionId, apply)
   }
+  const proposalId = await findOrCreateProposal(project.id, apply)
   const onboardingPlanId = await upsertRoadmapMilestones(project.id, apply)
   const scoreSnapshot = await createScoreSnapshot(project.id, apply)
 
@@ -720,6 +972,7 @@ async function main() {
     clientProjectId: project.id,
     contactSubmissionId,
     diagnosticAuditId: auditId,
+    proposalId,
     onboardingPlanId,
     milestoneCount: roadmapMilestones.length,
     scoreSnapshot,
