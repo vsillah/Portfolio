@@ -85,8 +85,8 @@ export default function AssessmentDetails({ assessment, valueReport }: Assessmen
   }
 
   return (
-    <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
-      <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">
+    <div className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
+      <h3 className="text-sm font-medium text-radiant-gold uppercase tracking-wider mb-4">
         Your Assessment Details
       </h3>
       <div className="space-y-2">
@@ -95,24 +95,24 @@ export default function AssessmentDetails({ assessment, valueReport }: Assessmen
           const Icon = section.icon
 
           return (
-            <div key={section.key} className="border border-gray-800 rounded-lg overflow-hidden">
+            <div key={section.key} className="border border-radiant-gold/10 rounded-lg overflow-hidden bg-imperial-navy/35">
               <button
                 onClick={() => setExpandedSection(isExpanded ? null : section.key)}
-                className="w-full flex items-center gap-3 p-3 hover:bg-gray-800/50 transition-colors text-left"
+                className="w-full flex items-center gap-3 p-3 hover:bg-radiant-gold/10 transition-colors text-left"
               >
-                <Icon className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                <span className="text-sm font-medium text-gray-300 flex-1">
+                <Icon className="w-4 h-4 text-radiant-gold/75 flex-shrink-0" />
+                <span className="text-sm font-medium text-platinum-white/85 flex-1">
                   {section.title}
                 </span>
                 {isExpanded ? (
-                  <ChevronDown className="w-4 h-4 text-gray-500" />
+                  <ChevronDown className="w-4 h-4 text-radiant-gold/65" />
                 ) : (
-                  <ChevronRight className="w-4 h-4 text-gray-500" />
+                  <ChevronRight className="w-4 h-4 text-radiant-gold/65" />
                 )}
               </button>
               {isExpanded && section.content && (
                 <div className="px-3 pb-3">
-                  <p className="text-sm text-gray-400 leading-relaxed whitespace-pre-wrap">
+                  <p className="text-sm text-platinum-white/65 leading-relaxed whitespace-pre-wrap">
                     {section.content}
                   </p>
                 </div>
@@ -123,12 +123,12 @@ export default function AssessmentDetails({ assessment, valueReport }: Assessmen
 
         {/* Key Insights */}
         {assessment.key_insights && assessment.key_insights.length > 0 && (
-          <div className="mt-3 p-3 bg-blue-900/20 border border-blue-800/50 rounded-lg">
-            <h4 className="text-xs font-medium text-blue-400 uppercase mb-2">Key Insights</h4>
+          <div className="mt-3 p-3 bg-radiant-gold/10 border border-radiant-gold/25 rounded-lg">
+            <h4 className="text-xs font-medium text-radiant-gold uppercase mb-2">Key Insights</h4>
             <ul className="space-y-1">
               {assessment.key_insights.map((insight, i) => (
-                <li key={i} className="text-xs text-blue-300/80 flex items-start gap-2">
-                  <span className="text-blue-500 mt-0.5">•</span>
+                <li key={i} className="text-xs text-platinum-white/75 flex items-start gap-2">
+                  <span className="text-radiant-gold mt-0.5">•</span>
                   {insight}
                 </li>
               ))}

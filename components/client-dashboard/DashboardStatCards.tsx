@@ -26,8 +26,8 @@ export default function DashboardStatCards({
       icon: BarChart3,
       delta: scoreDelta.percentage !== 0 ? `${scoreDelta.percentage > 0 ? '+' : ''}${scoreDelta.percentage}%` : null,
       deltaPositive: scoreDelta.percentage > 0,
-      color: 'from-blue-600/20 to-indigo-600/20 border-blue-500/50',
-      iconColor: 'text-blue-400',
+      color: 'from-radiant-gold/20 to-bronze/15 border-radiant-gold/45',
+      iconColor: 'text-radiant-gold',
     },
     {
       label: 'Tasks Completed',
@@ -35,8 +35,8 @@ export default function DashboardStatCards({
       icon: CheckSquare,
       delta: null,
       deltaPositive: false,
-      color: 'from-emerald-600/20 to-green-600/20 border-emerald-500/50',
-      iconColor: 'text-emerald-400',
+      color: 'from-silicon-slate/75 to-imperial-navy/70 border-radiant-gold/25',
+      iconColor: 'text-gold-light',
     },
     {
       label: 'Completion Rate',
@@ -44,8 +44,8 @@ export default function DashboardStatCards({
       icon: Target,
       delta: null,
       deltaPositive: false,
-      color: 'from-purple-600/20 to-violet-600/20 border-purple-500/50',
-      iconColor: 'text-purple-400',
+      color: 'from-silicon-slate/65 to-bronze/15 border-bronze/45',
+      iconColor: 'text-radiant-gold',
     },
     {
       label: 'High Priority',
@@ -53,8 +53,8 @@ export default function DashboardStatCards({
       icon: AlertTriangle,
       delta: null,
       deltaPositive: false,
-      color: 'from-rose-600/20 to-red-600/20 border-rose-500/50',
-      iconColor: 'text-rose-400',
+      color: 'from-bronze/20 to-imperial-navy/70 border-bronze/50',
+      iconColor: 'text-gold-light',
     },
   ]
 
@@ -63,22 +63,22 @@ export default function DashboardStatCards({
       {cards.map((card) => (
         <div
           key={card.label}
-          className={`bg-gradient-to-r ${card.color} border rounded-xl p-4 md:p-5`}
+          className={`bg-gradient-to-r ${card.color} border rounded-lg p-4 md:p-5 shadow-[0_18px_60px_rgba(0,0,0,0.22)]`}
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-gray-400 uppercase tracking-wider">
+            <span className="text-xs text-platinum-white/60 uppercase tracking-wider">
               {card.label}
             </span>
             <card.icon className={`w-5 h-5 ${card.iconColor}`} />
           </div>
           <div className="flex items-end gap-2">
-            <span className="text-2xl md:text-3xl font-bold text-white font-heading">
+            <span className="text-2xl md:text-3xl font-bold text-platinum-white font-heading">
               {card.value}
             </span>
             {card.delta && (
               <span
                 className={`text-xs font-medium mb-1 ${
-                  card.deltaPositive ? 'text-green-400' : 'text-red-400'
+                  card.deltaPositive ? 'text-gold-light' : 'text-bronze'
                 }`}
               >
                 {card.delta}

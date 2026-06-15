@@ -32,11 +32,11 @@ export default function TrajectoryChart({ token, initialData }: TrajectoryChartP
 
   if (data.length === 0) {
     return (
-      <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
-        <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">
+      <div className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
+        <h3 className="text-sm font-medium text-radiant-gold uppercase tracking-wider mb-4">
           Score Trajectory
         </h3>
-        <p className="text-gray-500 text-sm">
+        <p className="text-platinum-white/55 text-sm">
           Complete tasks to see your progress trajectory.
         </p>
       </div>
@@ -58,33 +58,33 @@ export default function TrajectoryChart({ token, initialData }: TrajectoryChartP
   const splitIndex = chartData.findIndex((d) => d.isProjected)
 
   return (
-    <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
-      <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-1">
+    <div className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
+      <h3 className="text-sm font-medium text-radiant-gold uppercase tracking-wider mb-1">
         Score Trajectory
       </h3>
-      <p className="text-xs text-gray-500 mb-4">
+      <p className="text-xs text-platinum-white/50 mb-4">
         Timeline runs from project inception to projected completion based on milestones.
       </p>
       <div className="h-[240px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-            <CartesianGrid stroke="#1F2937" strokeDasharray="3 3" />
-            <XAxis dataKey="date" tick={{ fill: '#6B7280', fontSize: 11 }} />
-            <YAxis domain={[0, 100]} tick={{ fill: '#6B7280', fontSize: 11 }} />
+            <CartesianGrid stroke="rgba(212, 175, 55, 0.16)" strokeDasharray="3 3" />
+            <XAxis dataKey="date" tick={{ fill: '#EAECEE', fillOpacity: 0.55, fontSize: 11 }} />
+            <YAxis domain={[0, 100]} tick={{ fill: '#EAECEE', fillOpacity: 0.55, fontSize: 11 }} />
             <Tooltip
               contentStyle={{
-                backgroundColor: '#1F2937',
-                border: '1px solid #374151',
+                backgroundColor: '#121E31',
+                border: '1px solid rgba(212, 175, 55, 0.3)',
                 borderRadius: '8px',
                 color: '#E5E7EB',
                 fontSize: 12,
               }}
             />
-            <ReferenceLine y={90} stroke="#6366F1" strokeDasharray="4 4" label={{ value: 'Target', fill: '#6366F1', fontSize: 11 }} />
+            <ReferenceLine y={90} stroke="#F5D060" strokeDasharray="4 4" label={{ value: 'Target', fill: '#F5D060', fontSize: 11 }} />
             <Line
               type="monotone"
               dataKey="score"
-              stroke="#3B82F6"
+              stroke="#D4AF37"
               strokeWidth={2}
               dot={(props: Record<string, unknown>) => {
                 const { cx, cy, index } = props as { cx: number; cy: number; index: number }
@@ -97,13 +97,13 @@ export default function TrajectoryChart({ token, initialData }: TrajectoryChartP
                       cy={cy}
                       r={3}
                       fill="transparent"
-                      stroke="#3B82F6"
+                      stroke="#D4AF37"
                       strokeWidth={1}
                       strokeDasharray="2 2"
                     />
                   )
                 }
-                return <circle key={`dot-${index}`} cx={cx} cy={cy} r={4} fill="#3B82F6" />
+                return <circle key={`dot-${index}`} cx={cx} cy={cy} r={4} fill="#D4AF37" />
               }}
               strokeDasharray={splitIndex >= 0 ? undefined : undefined}
             />

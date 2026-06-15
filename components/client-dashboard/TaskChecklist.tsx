@@ -24,9 +24,9 @@ interface TaskChecklistProps {
 }
 
 const PRIORITY_STYLES = {
-  high: 'bg-red-900/40 text-red-300 border-red-700/50',
-  medium: 'bg-yellow-900/40 text-yellow-300 border-yellow-700/50',
-  low: 'bg-gray-800 text-gray-400 border-gray-700',
+  high: 'bg-bronze/20 text-gold-light border-bronze/50',
+  medium: 'bg-radiant-gold/15 text-radiant-gold border-radiant-gold/35',
+  low: 'bg-silicon-slate/60 text-platinum-white/55 border-platinum-white/10',
 }
 
 const RESOURCE_ICONS: Record<DiyResource['type'], typeof Play> = {
@@ -71,14 +71,14 @@ export default function TaskChecklist({ tasks, token, onTaskUpdate }: TaskCheckl
   }
 
   return (
-    <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
-      <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">
+    <div className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
+      <h3 className="text-sm font-medium text-radiant-gold uppercase tracking-wider mb-4">
         Task Checklist
       </h3>
       <div className="space-y-6">
         {Object.entries(grouped).map(([category, categoryTasks]) => (
           <div key={category}>
-            <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">
+            <h4 className="text-xs font-medium text-platinum-white/50 uppercase tracking-wider mb-3">
               {category.replace(/_/g, ' ')}
             </h4>
             <div className="space-y-2">
@@ -93,8 +93,8 @@ export default function TaskChecklist({ tasks, token, onTaskUpdate }: TaskCheckl
                     key={task.id}
                     className={`border rounded-lg overflow-hidden transition-colors ${
                       isComplete
-                        ? 'border-green-800/50 bg-green-900/10'
-                        : 'border-gray-800 bg-gray-800/30'
+                        ? 'border-radiant-gold/35 bg-radiant-gold/10'
+                        : 'border-radiant-gold/10 bg-imperial-navy/40'
                     }`}
                   >
                     {/* Task Header */}
@@ -105,16 +105,16 @@ export default function TaskChecklist({ tasks, token, onTaskUpdate }: TaskCheckl
                         className="flex-shrink-0 transition-colors"
                       >
                         {isComplete ? (
-                          <CheckCircle2 className="w-5 h-5 text-green-400" />
+                          <CheckCircle2 className="w-5 h-5 text-gold-light" />
                         ) : (
-                          <Circle className={`w-5 h-5 ${isUpdating ? 'text-gray-600 animate-pulse' : 'text-gray-600 hover:text-blue-400'}`} />
+                          <Circle className={`w-5 h-5 ${isUpdating ? 'text-platinum-white/30 animate-pulse' : 'text-platinum-white/35 hover:text-radiant-gold'}`} />
                         )}
                       </button>
 
                       <div className="flex-1 min-w-0">
                         <span
                           className={`text-sm ${
-                            isComplete ? 'text-gray-500 line-through' : 'text-gray-200'
+                            isComplete ? 'text-platinum-white/45 line-through' : 'text-platinum-white/85'
                           }`}
                         >
                           {task.title}
@@ -123,7 +123,7 @@ export default function TaskChecklist({ tasks, token, onTaskUpdate }: TaskCheckl
 
                       <div className="flex items-center gap-2 flex-shrink-0">
                         {task.impact_score > 0 && (
-                          <span className="text-xs text-blue-400 font-medium">
+                          <span className="text-xs text-radiant-gold font-medium">
                             +{task.impact_score} pts
                           </span>
                         )}
@@ -135,7 +135,7 @@ export default function TaskChecklist({ tasks, token, onTaskUpdate }: TaskCheckl
                         {hasPaths && (
                           <button
                             onClick={() => setExpandedTask(isExpanded ? null : task.id)}
-                            className="text-gray-500 hover:text-gray-300"
+                            className="text-platinum-white/45 hover:text-radiant-gold"
                           >
                             {isExpanded ? (
                               <ChevronDown className="w-4 h-4" />
@@ -149,13 +149,13 @@ export default function TaskChecklist({ tasks, token, onTaskUpdate }: TaskCheckl
 
                     {/* Expanded: DIY + Fast Track Paths */}
                     {isExpanded && hasPaths && (
-                      <div className="border-t border-gray-800 p-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="border-t border-radiant-gold/10 p-3 grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* DIY Path */}
                         {task.diy_resources && task.diy_resources.length > 0 && (
                           <div>
                             <div className="flex items-center gap-2 mb-2">
-                              <Clock className="w-3.5 h-3.5 text-gray-400" />
-                              <span className="text-xs font-medium text-gray-400 uppercase">
+                              <Clock className="w-3.5 h-3.5 text-radiant-gold/75" />
+                              <span className="text-xs font-medium text-platinum-white/55 uppercase">
                                 Do It Yourself
                               </span>
                             </div>
@@ -169,15 +169,15 @@ export default function TaskChecklist({ tasks, token, onTaskUpdate }: TaskCheckl
                                     href={href}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center gap-2 p-2 rounded-lg bg-gray-800/50 hover:bg-gray-800 transition-colors group"
+                                    className="flex items-center gap-2 p-2 rounded-lg bg-silicon-slate/50 hover:bg-radiant-gold/10 transition-colors group"
                                   >
-                                    <Icon className="w-4 h-4 text-gray-500 group-hover:text-blue-400 flex-shrink-0" />
+                                    <Icon className="w-4 h-4 text-platinum-white/45 group-hover:text-radiant-gold flex-shrink-0" />
                                     <div className="flex-1 min-w-0">
-                                      <p className="text-xs text-gray-300 truncate">
+                                      <p className="text-xs text-platinum-white/75 truncate">
                                         {resource.title}
                                       </p>
                                       {resource.estimated_time && (
-                                        <p className="text-[10px] text-gray-600">
+                                        <p className="text-[10px] text-platinum-white/40">
                                           {resource.estimated_time}
                                         </p>
                                       )}
@@ -193,22 +193,22 @@ export default function TaskChecklist({ tasks, token, onTaskUpdate }: TaskCheckl
                         {task.accelerated_bundle_id && (
                           <div>
                             <div className="flex items-center gap-2 mb-2">
-                              <Zap className="w-3.5 h-3.5 text-yellow-400" />
-                              <span className="text-xs font-medium text-yellow-400 uppercase">
+                              <Zap className="w-3.5 h-3.5 text-radiant-gold" />
+                              <span className="text-xs font-medium text-radiant-gold uppercase">
                                 Fast Track
                               </span>
                             </div>
-                            <div className="p-3 rounded-lg bg-gradient-to-r from-yellow-900/20 to-amber-900/20 border border-yellow-800/50">
-                              <p className="text-sm text-yellow-200 font-medium mb-1">
+                            <div className="p-3 rounded-lg bg-gradient-to-r from-radiant-gold/15 to-bronze/15 border border-radiant-gold/30">
+                              <p className="text-sm text-gold-light font-medium mb-1">
                                 {task.accelerated_bundle?.name || 'Professional Service'}
                               </p>
                               {task.accelerated_headline && (
-                                <p className="text-xs text-yellow-300/70 mb-2">
+                                <p className="text-xs text-platinum-white/65 mb-2">
                                   {task.accelerated_headline}
                                 </p>
                               )}
                               {task.accelerated_savings && (
-                                <p className="text-[10px] text-gray-500 mb-2">
+                                <p className="text-[10px] text-platinum-white/45 mb-2">
                                   {task.accelerated_savings}
                                 </p>
                               )}
@@ -216,7 +216,7 @@ export default function TaskChecklist({ tasks, token, onTaskUpdate }: TaskCheckl
                                 href={task.accelerated_bundle?.pricing_tier_slug
                                   ? `/pricing`
                                   : `/services`}
-                                className="inline-flex items-center gap-1 text-xs text-yellow-400 hover:text-yellow-300 font-medium"
+                                className="inline-flex items-center gap-1 text-xs text-radiant-gold hover:text-gold-light font-medium"
                               >
                                 Learn More <ArrowRight className="w-3 h-3" />
                               </a>

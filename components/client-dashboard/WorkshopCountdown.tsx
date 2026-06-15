@@ -24,25 +24,25 @@ export default function WorkshopCountdown({ meetingDate, meetingType }: Workshop
   }
 
   return (
-    <div className="bg-gradient-to-r from-indigo-900/30 to-purple-900/30 border border-indigo-800/50 rounded-xl p-4">
+    <div className="bg-gradient-to-r from-radiant-gold/15 to-bronze/15 border border-radiant-gold/25 rounded-lg p-4">
       <div className="flex items-center gap-2 mb-2">
-        <Calendar className="w-4 h-4 text-indigo-400" />
-        <span className="text-xs font-medium text-indigo-300 uppercase tracking-wider">
+        <Calendar className="w-4 h-4 text-radiant-gold" />
+        <span className="text-xs font-medium text-radiant-gold uppercase tracking-wider">
           Next {meetingType || 'Workshop'}
         </span>
       </div>
       <div className="flex items-center gap-4">
         <div className="text-center">
-          <span className="text-2xl font-bold text-white">{timeLeft.days}</span>
-          <p className="text-[10px] text-indigo-400 uppercase">Days</p>
+          <span className="text-2xl font-bold text-platinum-white">{timeLeft.days}</span>
+          <p className="text-[10px] text-radiant-gold uppercase">Days</p>
         </div>
-        <span className="text-indigo-600">:</span>
+        <span className="text-radiant-gold/50">:</span>
         <div className="text-center">
-          <span className="text-2xl font-bold text-white">{timeLeft.hours}</span>
-          <p className="text-[10px] text-indigo-400 uppercase">Hours</p>
+          <span className="text-2xl font-bold text-platinum-white">{timeLeft.hours}</span>
+          <p className="text-[10px] text-radiant-gold uppercase">Hours</p>
         </div>
       </div>
-      <p className="text-[10px] text-gray-500 mt-2">
+      <p className="text-[10px] text-platinum-white/50 mt-2">
         {new Date(meetingDate).toLocaleDateString('en-US', {
           weekday: 'long',
           month: 'long',
@@ -52,7 +52,7 @@ export default function WorkshopCountdown({ meetingDate, meetingType }: Workshop
         })}
       </p>
       {timeLeft.days <= 1 && (
-        <div className="mt-2 flex items-center gap-1 text-yellow-400">
+        <div className="mt-2 flex items-center gap-1 text-gold-light">
           <Clock className="w-3 h-3" />
           <span className="text-[10px] font-medium">Coming up soon!</span>
         </div>

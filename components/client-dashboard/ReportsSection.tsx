@@ -40,8 +40,8 @@ export default function ReportsSection({ valueReports, gammaReports }: ReportsSe
   if (valueReports.length === 0 && gammaReports.length === 0) return null
 
   return (
-    <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
-      <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">
+    <div className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
+      <h3 className="text-sm font-medium text-radiant-gold uppercase tracking-wider mb-4">
         Your Reports
       </h3>
 
@@ -56,21 +56,21 @@ export default function ReportsSection({ valueReports, gammaReports }: ReportsSe
           return (
             <div
               key={report.id}
-              className="rounded-lg bg-gray-800/50 border border-gray-700/50 overflow-hidden"
+              className="rounded-lg bg-imperial-navy/45 border border-radiant-gold/10 overflow-hidden"
             >
               <button
                 onClick={() => setExpandedReportId(isExpanded ? null : report.id)}
-                className="w-full flex items-center justify-between p-3 text-left hover:bg-gray-800/80 transition-colors"
+                className="w-full flex items-center justify-between p-3 text-left hover:bg-radiant-gold/10 transition-colors"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="p-2 rounded-lg bg-emerald-500/10">
-                    <BarChart3 className="w-4 h-4 text-emerald-400" />
+                  <div className="p-2 rounded-lg bg-radiant-gold/10 border border-radiant-gold/20">
+                    <BarChart3 className="w-4 h-4 text-radiant-gold" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-gray-200 truncate">
+                    <p className="text-sm font-medium text-platinum-white truncate">
                       {report.title}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-platinum-white/45">
                       {REPORT_TYPE_LABELS[report.report_type] || report.report_type}
                       {' \u00B7 '}
                       {formatDate(report.created_at)}
@@ -79,14 +79,14 @@ export default function ReportsSection({ valueReports, gammaReports }: ReportsSe
                 </div>
                 <div className="flex items-center gap-3 flex-shrink-0">
                   {totalValue > 0 && (
-                    <span className="text-sm font-semibold text-emerald-400">
+                    <span className="text-sm font-semibold text-gold-light">
                       {formatCurrency(totalValue)}/yr
                     </span>
                   )}
                   {isExpanded ? (
-                    <ChevronUp className="w-4 h-4 text-gray-500" />
+                    <ChevronUp className="w-4 h-4 text-radiant-gold/60" />
                   ) : (
-                    <ChevronDown className="w-4 h-4 text-gray-500" />
+                    <ChevronDown className="w-4 h-4 text-radiant-gold/60" />
                   )}
                 </div>
               </button>
@@ -96,7 +96,7 @@ export default function ReportsSection({ valueReports, gammaReports }: ReportsSe
                   {/* Value statements */}
                   {Array.isArray(report.value_statements) && report.value_statements.length > 0 && (
                     <div className="space-y-1.5">
-                      <p className="text-xs font-medium text-gray-400 uppercase tracking-wider px-1">
+                      <p className="text-xs font-medium text-platinum-white/50 uppercase tracking-wider px-1">
                         Opportunity Areas
                       </p>
                       {(report.value_statements as Array<{ painPoint?: string; pain_point?: string; annualValue?: number; annual_value?: number }>).map((vs, i) => {
@@ -105,14 +105,14 @@ export default function ReportsSection({ valueReports, gammaReports }: ReportsSe
                         return (
                           <div
                             key={i}
-                            className="flex items-center justify-between px-3 py-2 bg-gray-900/50 rounded-lg"
+                            className="flex items-center justify-between px-3 py-2 bg-silicon-slate/45 rounded-lg"
                           >
                             <div className="flex items-center gap-2 min-w-0">
-                              <DollarSign className="w-3.5 h-3.5 text-emerald-400/60 flex-shrink-0" />
-                              <span className="text-sm text-gray-300 truncate">{name}</span>
+                              <DollarSign className="w-3.5 h-3.5 text-radiant-gold/70 flex-shrink-0" />
+                              <span className="text-sm text-platinum-white/75 truncate">{name}</span>
                             </div>
                             {value > 0 && (
-                              <span className="text-xs font-medium text-emerald-400/80 flex-shrink-0">
+                              <span className="text-xs font-medium text-gold-light flex-shrink-0">
                                 {formatCurrency(value)}/yr
                               </span>
                             )}
@@ -123,9 +123,9 @@ export default function ReportsSection({ valueReports, gammaReports }: ReportsSe
                   )}
 
                   {totalValue > 0 && (
-                    <div className="flex items-center justify-between px-3 py-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-                      <span className="text-sm font-medium text-gray-300">Total Annual Impact</span>
-                      <span className="text-sm font-bold text-emerald-400">
+                    <div className="flex items-center justify-between px-3 py-2 bg-radiant-gold/10 rounded-lg border border-radiant-gold/25">
+                      <span className="text-sm font-medium text-platinum-white/75">Total Annual Impact</span>
+                      <span className="text-sm font-bold text-gold-light">
                         {formatCurrency(totalValue)}/yr
                       </span>
                     </div>
@@ -144,28 +144,28 @@ export default function ReportsSection({ valueReports, gammaReports }: ReportsSe
           return (
             <div
               key={gamma.id}
-              className="flex items-center justify-between p-3 rounded-lg bg-gray-800/50 border border-gray-700/50 gap-3"
+              className="flex items-center justify-between p-3 rounded-lg bg-imperial-navy/45 border border-radiant-gold/10 gap-3"
             >
               <div className="flex items-center gap-3 min-w-0">
-                <div className="p-2 rounded-lg bg-purple-500/10">
-                  <Presentation className="w-4 h-4 text-purple-400" />
+                <div className="p-2 rounded-lg bg-radiant-gold/10 border border-radiant-gold/20">
+                  <Presentation className="w-4 h-4 text-radiant-gold" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-gray-200 truncate">
+                  <p className="text-sm font-medium text-platinum-white truncate">
                     {gamma.title || 'Presentation Deck'}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-platinum-white/45">
                     {REPORT_TYPE_LABELS[gamma.report_type] || 'Presentation'}
                     {' \u00B7 '}
                     {formatDate(gamma.created_at)}
                   </p>
                   {isGenerating && (
-                    <p className="text-xs text-amber-400/90 mt-1">
+                    <p className="text-xs text-gold-light mt-1">
                       Your deck is being prepared. Check back shortly.
                     </p>
                   )}
                   {isFailed && (
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="text-xs text-platinum-white/60 mt-1">
                       We couldn&apos;t finish this deck automatically. Your consultant can share an updated link.
                     </p>
                   )}
@@ -176,7 +176,7 @@ export default function ReportsSection({ valueReports, gammaReports }: ReportsSe
                   href={gamma.gamma_url!}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 rounded-lg transition-colors shrink-0"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-imperial-navy bg-radiant-gold hover:bg-gold-light rounded-lg transition-colors shrink-0"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
                   View Deck
