@@ -67,6 +67,7 @@ describe('MilestoneTimeline', () => {
     expect(screen.getByText('38')).toBeInTheDocument()
     expect(screen.getByText('passed release gates')).toBeInTheDocument()
     expect(screen.getByText('Connection needed: App Store Connect + Google Play')).toBeInTheDocument()
+    expect(screen.queryByText(/Automation:/)).not.toBeInTheDocument()
     expect(screen.queryByText('Private note')).not.toBeInTheDocument()
     expect(screen.queryByText(/\/Users\/example/)).not.toBeInTheDocument()
     expect(screen.queryByText(/\[private path\]/)).not.toBeInTheDocument()

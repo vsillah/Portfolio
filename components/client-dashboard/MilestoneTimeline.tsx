@@ -119,26 +119,42 @@ function conciseEvidenceStatement(item: MilestoneEvidence) {
   return null
 }
 
-function AutomationHint({ automation }: { automation?: MilestoneAutomation }) {
+function AutomationHint({
+  automation,
+  evidence,
+}: {
+  automation?: MilestoneAutomation
+  evidence: MilestoneEvidence[]
+}) {
   if (!automation) return null
 
   const needsAccess = automation.status === 'access_needed'
-  const text = needsAccess
-    ? `Connection needed: ${connectionNeededLabel({
+  const accessTarget = needsAccess
+    ? connectionNeededLabel({
         source_label: automation.source,
         summary: automation.summary,
-      })}`
-    : automation.next_check || automation.summary
+      })
+    : null
+  const text = accessTarget || automation.next_check || automation.summary
+  const duplicateAccess = needsAccess && evidence.some((item) => {
+    if (item.status !== 'access_needed') return false
+    return connectionNeededLabel(item) === accessTarget
+  })
+
+  if (duplicateAccess) return null
+
+  const LabelIcon = needsAccess ? KeyRound : GitBranch
+  const label = needsAccess ? 'Connection needed: ' : 'Next check: '
 
   return (
     <div className="mt-2 flex items-start gap-2 rounded border border-radiant-gold/10 bg-imperial-navy/50 p-2">
-      {needsAccess ? (
-        <KeyRound className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold-light" />
-      ) : (
-        <GitBranch className="mt-0.5 h-3.5 w-3.5 shrink-0 text-radiant-gold" />
-      )}
+      <LabelIcon
+        className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${
+          needsAccess ? 'text-gold-light' : 'text-radiant-gold'
+        }`}
+      />
       <p className="text-[11px] leading-relaxed text-platinum-white/60">
-        <span className="font-medium text-platinum-white/80">Automation: </span>
+        <span className="font-medium text-platinum-white/80">{label}</span>
         {sanitizeClientText(text)}
       </p>
     </div>
@@ -258,7 +274,7 @@ export default function MilestoneTimeline({ milestones }: MilestoneTimelineProps
                     </div>
                   </div>
                 )}
-                <AutomationHint automation={milestone.automation} />
+                <AutomationHint automation={milestone.automation} evidence={evidence} />
               </div>
             </div>
           )
