@@ -126,7 +126,7 @@ const roadmapMilestones = [
       'Known release gates and tester feedback channel',
     ],
     phase: 1,
-    status: 'in_progress',
+    status: 'pending',
     evidence: [
       {
         id: 'm0-build-depth',
@@ -174,7 +174,7 @@ const roadmapMilestones = [
       'Issue list prioritized for 1.0 release readiness',
     ],
     phase: 1,
-    status: 'in_progress',
+    status: 'pending',
     evidence: [
       {
         id: 'm1-go-log',
@@ -219,7 +219,7 @@ const roadmapMilestones = [
       'Client-safe release evidence and app-store links',
     ],
     phase: 1,
-    status: 'in_progress',
+    status: 'pending',
     evidence: [
       {
         id: 'm2-release-gates',
@@ -266,7 +266,7 @@ const roadmapMilestones = [
       'Review notes on quality, manufacturability, and next-step effort',
     ],
     phase: 1,
-    status: 'in_progress',
+    status: 'pending',
     evidence: [
       {
         id: 'm3-output-package',
@@ -300,7 +300,7 @@ const roadmapMilestones = [
       'Fulfillment handoff requirements for Vanguard review',
     ],
     phase: 2,
-    status: 'in_progress',
+    status: 'pending',
     evidence: [
       {
         id: 'm4-website-workflow',
@@ -347,7 +347,7 @@ const roadmapMilestones = [
       'Validation criteria for AI quality, latency, hardware, and security',
     ],
     phase: 2,
-    status: 'in_progress',
+    status: 'pending',
     evidence: [
       {
         id: 'm5-architecture-proof',
@@ -393,7 +393,7 @@ const roadmapMilestones = [
       'Continuity or support model for post-purchase delivery',
     ],
     phase: 2,
-    status: 'in_progress',
+    status: 'pending',
     evidence: [
       {
         id: 'm6-purchase-records',
@@ -427,6 +427,21 @@ const roadmapMilestones = [
     },
   },
 ] as const
+
+type RoadmapMilestoneSeed = (typeof roadmapMilestones)[number]
+
+function milestoneHasProgressEvidence(milestone: RoadmapMilestoneSeed): boolean {
+  return milestone.evidence.some((item) => item.status === 'verified')
+}
+
+function applyMilestoneProgressStatus(milestone: RoadmapMilestoneSeed) {
+  return {
+    ...milestone,
+    status: milestoneHasProgressEvidence(milestone) ? 'in_progress' : 'pending',
+  }
+}
+
+const roadmapMilestonesWithProgress = roadmapMilestones.map(applyMilestoneProgressStatus)
 
 function hasSameCategoryScores(value: unknown): boolean {
   if (!value || typeof value !== 'object') return false
@@ -546,7 +561,7 @@ async function upsertProjectLink(projectId: string, contactSubmissionId: number,
 async function upsertRoadmapMilestones(projectId: string, apply: boolean) {
   const planPayload = {
     client_project_id: projectId,
-    milestones: roadmapMilestones,
+    milestones: roadmapMilestonesWithProgress,
     status: 'in_progress',
     is_customized: true,
     admin_notes: `${ROADMAP_KEY}: Client-safe ReversR product roadmap milestones seeded from consultant-provided phase gates.`,
