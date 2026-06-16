@@ -51,4 +51,23 @@ describe('sanitizeBuildEvidenceRow', () => {
     expect(output).not.toHaveProperty('privateSourceRefs')
     expect(output).not.toHaveProperty('private_source_refs')
   })
+
+  it('falls back to template-safe source confidence copy', () => {
+    const output = sanitizeBuildEvidenceRow({
+      id: 'evidence-2',
+      project_label: 'Client Dashboard Build',
+      captured_at: '2026-06-16T12:00:00.000Z',
+      repo_metrics: null,
+      token_usage: null,
+      cost_summary: null,
+      hourly_translation: null,
+      source_confidence: null,
+      client_safe_notes: [],
+    } as any)
+
+    expect(output.sourceConfidence.label).toBe('Direct workspace evidence')
+    expect(output.sourceConfidence.sourceSummary).toBe(
+      'Strict attribution uses Codex sessions started from the tracked workspace.'
+    )
+  })
 })

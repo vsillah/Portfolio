@@ -141,6 +141,9 @@ export default function BuildEvidenceInvestmentSection({ buildEvidence }: Props)
     },
   ]
 
+  const sectionSummary =
+    'This section treats the work as build evidence. The numbers support replacement-cost and fixed-fee evaluation; they are not a time sheet.'
+
   return (
     <section className="rounded-lg border border-radiant-gold/20 bg-silicon-slate/35 p-5 shadow-[0_20px_70px_rgba(0,0,0,0.24)]">
       <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -151,9 +154,7 @@ export default function BuildEvidenceInvestmentSection({ buildEvidence }: Props)
               Build Evidence & Investment
             </h3>
           </div>
-          <p className="max-w-3xl text-sm text-platinum-white/65">
-            ReversR Rebuild is measured here as product-asset evidence. The numbers support replacement-cost and fixed-fee evaluation; they are not a time sheet.
-          </p>
+          <p className="max-w-3xl text-sm text-platinum-white/65">{sectionSummary}</p>
         </div>
         <div className="rounded-lg border border-radiant-gold/30 bg-radiant-gold/10 px-3 py-2 text-xs text-gold-light">
           <p className="font-semibold">{sourceConfidence.label}</p>

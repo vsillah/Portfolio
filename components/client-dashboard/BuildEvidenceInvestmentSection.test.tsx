@@ -72,6 +72,7 @@ describe('BuildEvidenceInvestmentSection', () => {
     render(<BuildEvidenceInvestmentSection buildEvidence={evidence} />)
 
     expect(screen.getByText('Build Evidence & Investment')).toBeInTheDocument()
+    expect(screen.getByText(/this section treats the work as build evidence/i)).toBeInTheDocument()
     expect(screen.getByText('Direct ReversR workspace evidence')).toBeInTheDocument()
     expect(screen.getByText('149')).toBeInTheDocument()
     expect(screen.getByText('283.7M total attributed tokens')).toBeInTheDocument()
