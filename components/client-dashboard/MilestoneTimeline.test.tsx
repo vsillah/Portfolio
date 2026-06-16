@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import MilestoneTimeline from './MilestoneTimeline'
 import type { Milestone } from '@/lib/onboarding-templates'
@@ -55,6 +55,12 @@ describe('MilestoneTimeline', () => {
     ]
 
     render(<MilestoneTimeline milestones={milestones} />)
+
+    expect(screen.getByText('Phase 1')).toBeInTheDocument()
+    expect(screen.getByText('Expand all')).toBeInTheDocument()
+    expect(screen.queryByText('Evidence Trace')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /Distribute the test app/i }))
 
     expect(screen.getByText('Evidence Trace')).toBeInTheDocument()
     expect(screen.getByText('GitHub repository evidence')).toBeInTheDocument()
