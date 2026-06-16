@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams } from 'next/navigation'
-import { Loader2 } from 'lucide-react'
+import { Check, Copy, Loader2 } from 'lucide-react'
 import DashboardStatCards from '@/components/client-dashboard/DashboardStatCards'
 import ScoreRadarChart from '@/components/client-dashboard/ScoreRadarChart'
 import ConfidenceRadar from '@/components/client-dashboard/ConfidenceRadar'
@@ -12,7 +12,6 @@ import GapAnalysisPanel from '@/components/client-dashboard/GapAnalysisPanel'
 import TaskChecklist from '@/components/client-dashboard/TaskChecklist'
 import MilestoneTimeline from '@/components/client-dashboard/MilestoneTimeline'
 import AssessmentDetails from '@/components/client-dashboard/AssessmentDetails'
-import QuickOverview from '@/components/client-dashboard/QuickOverview'
 import AccelerationCards from '@/components/client-dashboard/AccelerationCards'
 import CampaignProgressSection from '@/components/client-dashboard/CampaignProgressSection'
 import DocumentsSection from '@/components/client-dashboard/DocumentsSection'
@@ -36,6 +35,8 @@ export default function ClientDashboardPage() {
   const [recommendations, setRecommendations] = useState<AccelerationRecommendation[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [copiedDashboardUrl, setCopiedDashboardUrl] = useState(false)
+  const copyResetTimeoutRef = useRef<number | null>(null)
 
   // Fetch dashboard data
   useEffect(() => {
@@ -99,6 +100,34 @@ export default function ClientDashboardPage() {
   // Recommendation dismiss handler
   const handleDismissRec = useCallback((recId: string) => {
     setRecommendations((prev) => prev.filter((r) => r.id !== recId))
+  }, [])
+
+  const handleCopyDashboardUrl = useCallback(async () => {
+    if (typeof window === 'undefined') return
+
+    try {
+      await navigator.clipboard.writeText(window.location.href)
+      setCopiedDashboardUrl(true)
+
+      if (copyResetTimeoutRef.current) {
+        window.clearTimeout(copyResetTimeoutRef.current)
+      }
+
+      copyResetTimeoutRef.current = window.setTimeout(() => {
+        setCopiedDashboardUrl(false)
+        copyResetTimeoutRef.current = null
+      }, 2000)
+    } catch (copyError) {
+      console.error('Failed to copy dashboard URL', copyError)
+    }
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (copyResetTimeoutRef.current) {
+        window.clearTimeout(copyResetTimeoutRef.current)
+      }
+    }
   }, [])
 
   // Loading state
@@ -171,7 +200,10 @@ export default function ClientDashboardPage() {
             <ScoreRadarChart scores={scores.categoryScores} />
             <div className="lg:col-span-2">
               {assessment ? (
-                <AssessmentDetails assessment={assessment} valueReport={null} />
+              <AssessmentDetails
+                assessment={assessment}
+                valueReport={null}
+              />
               ) : (
                 <div className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
                   <p className="text-platinum-white/55 text-sm">No assessment data available yet.</p>
@@ -249,11 +281,24 @@ export default function ClientDashboardPage() {
               <p className="truncate text-xs text-platinum-white/55">{project.project_name}</p>
             </div>
           </div>
-          <div className="shrink-0 text-right">
-            <p className="text-sm font-medium text-platinum-white">{project.client_name}</p>
-            {project.client_company && (
-              <p className="text-xs text-radiant-gold/75">{project.client_company}</p>
-            )}
+          <div className="shrink-0">
+            <div className="mb-2 flex justify-end">
+              <button
+                type="button"
+                onClick={handleCopyDashboardUrl}
+                className="inline-flex items-center gap-2 rounded-md border border-radiant-gold/25 bg-silicon-slate/45 px-3 py-1.5 text-xs font-medium text-radiant-gold transition hover:border-radiant-gold/50 hover:bg-silicon-slate/60"
+                aria-label="Copy dashboard URL"
+              >
+                {copiedDashboardUrl ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                <span>{copiedDashboardUrl ? 'Copied' : 'Copy URL'}</span>
+              </button>
+            </div>
+            <div className="text-right">
+              <p className="text-sm font-medium text-platinum-white">{project.client_name}</p>
+              {project.client_company && (
+                <p className="text-xs text-radiant-gold/75">{project.client_company}</p>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -269,14 +314,32 @@ export default function ClientDashboardPage() {
           highPriorityRemaining={highPriorityRemaining}
         />
 
-        {/* Row 2: Radar + Assessment + Quick Overview */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1">
-            <ScoreRadarChart scores={scores.categoryScores} />
-          </div>
-          <div className="lg:col-span-1">
+        {/* Row 2: Radar + Trajectory */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ScoreRadarChart scores={scores.categoryScores} />
+          {snapshots.length > 0 ? (
+            <TrajectoryChart token={token} />
+          ) : (
+            <div className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
+              <h3 className="mb-2 text-sm font-medium uppercase tracking-wider text-radiant-gold">
+                Score Trajectory
+              </h3>
+              <p className="text-sm text-platinum-white/55">
+                Score trajectory will appear once milestone-based projections are available.
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Row 3: Assessment */}
+        <div className="grid grid-cols-1 gap-6">
+          <div>
             {assessment ? (
-              <AssessmentDetails assessment={assessment} valueReport={valueReport} />
+              <AssessmentDetails
+                assessment={assessment}
+                valueReport={valueReport}
+                assessmentDate={project.project_start_date}
+              />
             ) : (
               <div className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
                 <h3 className="text-sm font-medium text-radiant-gold uppercase tracking-wider mb-2">
@@ -288,16 +351,9 @@ export default function ClientDashboardPage() {
               </div>
             )}
           </div>
-          <div className="lg:col-span-1">
-            <QuickOverview
-              assessmentDate={project.project_start_date}
-              activeTasks={activeTasks}
-              nextMeeting={nextMeeting}
-            />
-          </div>
         </div>
 
-        {/* Row 3: Reports & Presentations (only when reports exist) */}
+        {/* Row 4: Reports & Presentations (only when reports exist) */}
         {((valueReports && valueReports.length > 0) || (gammaReports && gammaReports.length > 0)) && (
           <ReportsSection
             valueReports={valueReports || []}
@@ -309,7 +365,7 @@ export default function ClientDashboardPage() {
           <AiOpsRoadmapSection roadmap={aiOpsRoadmap} />
         )}
 
-        {/* Row 4: Documents & Time Investment */}
+        {/* Row 5: Documents & Time Investment */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <DocumentsSection documents={documents || []} />
           <TimeTrackingSection
@@ -322,10 +378,10 @@ export default function ClientDashboardPage() {
           <BuildEvidenceInvestmentSection buildEvidence={buildEvidence} />
         )}
 
-        {/* Row 5: Gap Analysis */}
+        {/* Row 6: Gap Analysis */}
         <GapAnalysisPanel gaps={gapAnalysis} />
 
-        {/* Row 4: Acceleration Opportunities */}
+        {/* Row 7: Acceleration Opportunities */}
         <AccelerationCards
           recommendations={recommendations}
           token={token}
@@ -335,7 +391,7 @@ export default function ClientDashboardPage() {
         {/* Campaign Progress */}
         <CampaignProgressSection clientEmail={project.client_email} />
 
-        {/* Row 5: Task Checklist */}
+        {/* Row 8: Task Checklist */}
         {tasks.length > 0 && (
           <TaskChecklist
             tasks={tasks}
@@ -344,16 +400,11 @@ export default function ClientDashboardPage() {
           />
         )}
 
-        {/* Row 6: Milestones */}
+        {/* Row 9: Milestones */}
         <MilestoneTimeline milestones={milestones as []} />
 
-        {/* Row 7: Meeting History */}
+        {/* Row 10: Meeting History */}
         <MeetingHistory token={token} />
-
-        {/* Row 8: Trajectory */}
-        {snapshots.length > 0 && (
-          <TrajectoryChart token={token} />
-        )}
       </main>
 
       {/* Footer */}
