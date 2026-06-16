@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
@@ -27,11 +28,13 @@ interface CampaignWithCounts extends AttractionCampaign {
 }
 
 export default function CampaignsAdminPage() {
+  const searchParams = useSearchParams();
   const [campaigns, setCampaigns] = useState<CampaignWithCounts[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [saving, setSaving] = useState(false);
   const [statusFilter, setStatusFilter] = useState<CampaignStatus | ''>('');
+  const [contextApplied, setContextApplied] = useState(false);
 
   const [form, setForm] = useState<CreateCampaignInput>({
     name: '',
@@ -43,6 +46,30 @@ export default function CampaignsAdminPage() {
     payout_type: 'refund',
     payout_amount_type: 'full',
   });
+
+  useEffect(() => {
+    if (contextApplied || searchParams.get('source') !== 'offer-architecture') return;
+
+    const campaignName = searchParams.get('campaignName');
+    const campaignSlug = searchParams.get('campaignSlug');
+    if (!campaignName || !campaignSlug) return;
+
+    setShowCreate(true);
+    setContextApplied(true);
+    setForm((current) => ({
+      ...current,
+      name: campaignName,
+      slug: campaignSlug,
+      description:
+        'Creditable readiness assessment generated from the ReversR product-asset offer architecture.',
+      campaign_type: (searchParams.get('campaignType') as CampaignType | null) || 'bonus_credit',
+      completion_window_days: Number(searchParams.get('completionWindowDays')) || 30,
+      min_purchase_amount: Number(searchParams.get('minPurchaseAmount')) || 7500,
+      payout_type: (searchParams.get('payoutType') as GuaranteePayoutType | null) || 'rollover_upsell',
+      payout_amount_type: (searchParams.get('payoutAmountType') as PayoutAmountType | null) || 'fixed',
+      payout_amount_value: Number(searchParams.get('payoutAmountValue')) || 7500,
+    }));
+  }, [contextApplied, searchParams]);
 
   const fetchCampaigns = useCallback(async () => {
     setLoading(true);
@@ -124,6 +151,13 @@ export default function CampaignsAdminPage() {
           {showCreate ? 'Cancel' : 'New Campaign'}
         </button>
       </div>
+
+      {contextApplied && (
+        <div className="admin-console-card mb-6 rounded-lg border border-radiant-gold/30 bg-radiant-gold/10 p-4 text-sm text-radiant-gold">
+          Offer architecture context applied. Review the prefilled campaign, then add eligible bundles
+          and criteria templates after creation.
+        </div>
+      )}
 
       {/* Create Form */}
       {showCreate && (

@@ -41,6 +41,7 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
         { label: 'Attraction Campaigns', href: '/admin/campaigns' },
         { label: 'Products', href: '/admin/sales/products' },
         { label: 'Bundles', href: '/admin/sales/bundles' },
+        { label: 'Offer Architecture', href: '/admin/sales/offer-architecture' },
         { label: 'Scripts', href: '/admin/sales/scripts' },
         { label: 'Upsell Paths', href: '/admin/sales/upsell-paths' },
         { label: 'Presentation Generator', href: '/admin/presentations' },
