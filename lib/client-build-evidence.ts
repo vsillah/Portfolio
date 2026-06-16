@@ -138,9 +138,9 @@ const DEFAULT_HOURLY_TRANSLATION: BuildEvidenceHourlyTranslation = {
 }
 
 const DEFAULT_SOURCE_CONFIDENCE: BuildEvidenceSourceConfidence = {
-  label: 'Direct ReversR workspace evidence',
+  label: 'Direct workspace evidence',
   confidence: 'high',
-  sourceSummary: 'Strict attribution uses Codex sessions started from the ReversR workspace.',
+  sourceSummary: 'Strict attribution uses Codex sessions started from the tracked workspace.',
   excludedSources: [],
 }
 
