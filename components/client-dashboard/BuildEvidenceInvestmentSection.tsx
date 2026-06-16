@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Calculator, Code2, Cpu, DollarSign, Gauge, GitCommit, ShieldCheck } from 'lucide-react'
+import { Calculator, Code2, Cpu, DollarSign, Gauge, GitCommit, Info, ShieldCheck } from 'lucide-react'
 import type { ClientBuildEvidence } from '@/lib/client-build-evidence'
 
 interface Props {
@@ -9,6 +9,7 @@ interface Props {
 }
 
 type CalculatorMode = 'rate' | 'hours' | 'proposal'
+type TokenMode = 'usage' | 'api' | 'subscription'
 
 function formatNumber(value: number): string {
   return new Intl.NumberFormat('en-US').format(Math.round(value))
@@ -33,9 +34,31 @@ function safeNumber(value: number): number {
   return Number.isFinite(value) && value >= 0 ? value : 0
 }
 
+function getClientNoteLabel(note: string, index: number): string {
+  if (/supporting evidence/i.test(note)) return 'Evidence scope'
+  if (/comparison lens/i.test(note)) return 'Hourly lens'
+  if (/store-console\/review gate/i.test(note)) return 'Release gate note'
+  return `Note ${index + 1}`
+}
+
+function NoteTooltip({ label, body }: { label: string; body: string }) {
+  return (
+    <button
+      type="button"
+      title={body}
+      className="group relative inline-flex items-center gap-2 rounded-md border border-radiant-gold/15 bg-imperial-navy/50 px-3 py-2 text-xs text-platinum-white/65 transition hover:border-radiant-gold/35 hover:text-platinum-white focus:outline-none focus:ring-2 focus:ring-radiant-gold/45"
+      aria-label={`${label}: ${body}`}
+    >
+      <Info className="h-3.5 w-3.5 text-radiant-gold" />
+      <span>{label}</span>
+    </button>
+  )
+}
+
 export default function BuildEvidenceInvestmentSection({ buildEvidence }: Props) {
   const { repoMetrics, tokenUsage, costSummary, hourlyTranslation, sourceConfidence } = buildEvidence
   const [mode, setMode] = useState<CalculatorMode>('rate')
+  const [tokenMode, setTokenMode] = useState<TokenMode>('usage')
   const [hourlyRate, setHourlyRate] = useState(hourlyTranslation.defaultBenchmarkHourlyRate)
   const [proposalAmount, setProposalAmount] = useState(hourlyTranslation.defaultProposalAmount)
   const [focusedHoursLow, setFocusedHoursLow] = useState(hourlyTranslation.focusedHoursLow)
@@ -79,6 +102,13 @@ export default function BuildEvidenceInvestmentSection({ buildEvidence }: Props)
       : mode === 'hours'
         ? `${formatCurrency(calculated.effectiveHourlyLow)}-${formatCurrency(calculated.effectiveHourlyHigh)} effective hourly lens`
         : `${formatNumber(calculated.impliedHours)} implied benchmark hours`
+
+  const tokenSummary =
+    tokenMode === 'usage'
+      ? `${formatCompact(tokenUsage.totalTokens)} total attributed tokens`
+      : tokenMode === 'api'
+        ? (costSummary.apiEquivalentCostUsd == null ? 'Rate needed' : formatCurrency(costSummary.apiEquivalentCostUsd))
+        : `${formatCurrency(calculated.subscriptionAllocation)} allocated by usage share`
 
   const metricCards = [
     {
@@ -145,50 +175,70 @@ export default function BuildEvidenceInvestmentSection({ buildEvidence }: Props)
       </div>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-        <div className="rounded-lg border border-radiant-gold/15 bg-imperial-navy/55 p-4 lg:col-span-1">
-          <div className="mb-3 flex items-center gap-2">
-            <Cpu className="h-4 w-4 text-radiant-gold" />
-            <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Token attribution</p>
-          </div>
-          <dl className="space-y-2 text-sm">
-            <div className="flex justify-between gap-3">
-              <dt className="text-platinum-white/45">Sessions</dt>
-              <dd className="font-medium text-platinum-white">{formatNumber(tokenUsage.sessionCount)}</dd>
-            </div>
-            <div className="flex justify-between gap-3">
-              <dt className="text-platinum-white/45">Input tokens</dt>
-              <dd className="font-medium text-platinum-white">{formatCompact(tokenUsage.inputTokens)}</dd>
-            </div>
-            <div className="flex justify-between gap-3">
-              <dt className="text-platinum-white/45">Cached input</dt>
-              <dd className="font-medium text-platinum-white">{formatCompact(tokenUsage.cachedInputTokens)}</dd>
-            </div>
-            <div className="flex justify-between gap-3">
-              <dt className="text-platinum-white/45">Output + reasoning</dt>
-              <dd className="font-medium text-platinum-white">
-                {formatCompact(tokenUsage.outputTokens + tokenUsage.reasoningTokens)}
-              </dd>
-            </div>
-          </dl>
-          <p className="mt-4 rounded-lg border border-radiant-gold/20 bg-radiant-gold/10 p-3 text-xs text-platinum-white/75">
-            {sourceConfidence.sourceSummary}
-          </p>
-        </div>
-
-        <div className="rounded-lg border border-radiant-gold/15 bg-imperial-navy/55 p-4 lg:col-span-1">
+        <div className="rounded-lg border border-radiant-gold/15 bg-imperial-navy/55 p-4 lg:col-span-2">
           <div className="mb-3 flex items-center gap-2">
             <DollarSign className="h-4 w-4 text-radiant-gold" />
-            <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Token cost lens</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Token lens</p>
           </div>
-          <div className="space-y-3">
-            <div className="rounded-lg bg-silicon-slate/45 p-3">
+          <div className="mb-3 grid grid-cols-3 gap-2">
+            {(['usage', 'api', 'subscription'] as TokenMode[]).map((nextMode) => (
+              <button
+                key={nextMode}
+                type="button"
+                onClick={() => setTokenMode(nextMode)}
+                className={`rounded-lg border px-2 py-2 text-xs font-medium capitalize transition-colors ${
+                  tokenMode === nextMode
+                    ? 'border-radiant-gold bg-radiant-gold/20 text-gold-light'
+                    : 'border-radiant-gold/15 bg-silicon-slate/45 text-platinum-white/55 hover:text-platinum-white'
+                }`}
+              >
+                {nextMode}
+              </button>
+            ))}
+          </div>
+          <div className="rounded-lg border border-radiant-gold/18 bg-silicon-slate/45 p-3">
+            <p className="text-lg font-semibold text-platinum-white">{tokenSummary}</p>
+            <p className="mt-1 text-xs text-platinum-white/50">
+              {tokenMode === 'usage'
+                ? sourceConfidence.sourceSummary
+                : tokenMode === 'api'
+                  ? costSummary.pricingSourceLabel
+                  : `${tokenUsage.shareOfComparisonWindowPct.toFixed(2)}% of ${tokenUsage.comparisonWindowLabel}`}
+            </p>
+          </div>
+          {tokenMode === 'usage' && (
+            <dl className="mt-4 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+              <div className="rounded-lg bg-imperial-navy/50 p-3">
+                <dt className="text-platinum-white/45">Sessions</dt>
+                <dd className="mt-1 font-medium text-platinum-white">{formatNumber(tokenUsage.sessionCount)}</dd>
+              </div>
+              <div className="rounded-lg bg-imperial-navy/50 p-3">
+                <dt className="text-platinum-white/45">Input tokens</dt>
+                <dd className="mt-1 font-medium text-platinum-white">{formatCompact(tokenUsage.inputTokens)}</dd>
+              </div>
+              <div className="rounded-lg bg-imperial-navy/50 p-3">
+                <dt className="text-platinum-white/45">Cached input</dt>
+                <dd className="mt-1 font-medium text-platinum-white">{formatCompact(tokenUsage.cachedInputTokens)}</dd>
+              </div>
+              <div className="rounded-lg bg-imperial-navy/50 p-3">
+                <dt className="text-platinum-white/45">Output + reasoning</dt>
+                <dd className="mt-1 font-medium text-platinum-white">
+                  {formatCompact(tokenUsage.outputTokens + tokenUsage.reasoningTokens)}
+                </dd>
+              </div>
+            </dl>
+          )}
+          {tokenMode === 'api' && (
+            <div className="mt-4 rounded-lg bg-imperial-navy/50 p-3">
               <p className="text-xs uppercase tracking-wider text-platinum-white/45">API-equivalent estimate</p>
               <p className="mt-1 text-lg font-semibold text-platinum-white">
                 {costSummary.apiEquivalentCostUsd == null ? 'Rate needed' : formatCurrency(costSummary.apiEquivalentCostUsd)}
               </p>
-              <p className="mt-1 text-xs text-platinum-white/45">{costSummary.pricingSourceLabel}</p>
+              <p className="mt-2 text-xs text-platinum-white/45">{costSummary.pricingAssumption}</p>
             </div>
-            <div className="rounded-lg bg-silicon-slate/45 p-3">
+          )}
+          {tokenMode === 'subscription' && (
+            <div className="mt-4 rounded-lg bg-imperial-navy/50 p-3">
               <label className="text-xs uppercase tracking-wider text-platinum-white/45" htmlFor="ai-monthly-spend">
                 Monthly AI spend
               </label>
@@ -207,7 +257,7 @@ export default function BuildEvidenceInvestmentSection({ buildEvidence }: Props)
                 {formatCurrency(calculated.subscriptionAllocation)} allocated by usage share
               </p>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="rounded-lg border border-radiant-gold/15 bg-imperial-navy/55 p-4 lg:col-span-1">
@@ -281,11 +331,9 @@ export default function BuildEvidenceInvestmentSection({ buildEvidence }: Props)
       </div>
 
       {buildEvidence.clientSafeNotes.length > 0 && (
-        <div className="mt-5 grid grid-cols-1 gap-2 md:grid-cols-3">
-          {buildEvidence.clientSafeNotes.map((note) => (
-            <p key={note} className="rounded-lg border border-radiant-gold/15 bg-imperial-navy/50 p-3 text-xs text-platinum-white/60">
-              {note}
-            </p>
+        <div className="mt-5 flex flex-wrap gap-2">
+          {buildEvidence.clientSafeNotes.map((note, index) => (
+            <NoteTooltip key={note} label={getClientNoteLabel(note, index)} body={note} />
           ))}
         </div>
       )}

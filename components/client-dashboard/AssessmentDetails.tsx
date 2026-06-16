@@ -19,6 +19,7 @@ interface AssessmentDetailsProps {
     total_annual_value: number | null
     value_statements: unknown[]
   } | null
+  assessmentDate?: string | null
 }
 
 interface Section {
@@ -28,8 +29,22 @@ interface Section {
   content: string | null
 }
 
-export default function AssessmentDetails({ assessment, valueReport }: AssessmentDetailsProps) {
+function formatAssessmentDate(value: string | null | undefined): string | null {
+  if (!value) return null
+
+  const parsed = new Date(value)
+  if (Number.isNaN(parsed.getTime())) return null
+
+  return parsed.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  })
+}
+
+export default function AssessmentDetails({ assessment, valueReport, assessmentDate }: AssessmentDetailsProps) {
   const [expandedSection, setExpandedSection] = useState<string | null>('summary')
+  const formattedAssessmentDate = formatAssessmentDate(assessmentDate)
 
   // Build sections from assessment data
   const sections: Section[] = []
@@ -86,9 +101,19 @@ export default function AssessmentDetails({ assessment, valueReport }: Assessmen
 
   return (
     <div className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
-      <h3 className="text-sm font-medium text-radiant-gold uppercase tracking-wider mb-4">
-        Your Assessment Details
-      </h3>
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <h3 className="text-sm font-medium text-radiant-gold uppercase tracking-wider">
+          Your Assessment Details
+        </h3>
+        {formattedAssessmentDate && (
+          <div className="text-left sm:text-right">
+            <p className="text-[10px] uppercase tracking-[0.16em] text-platinum-white/40">
+              Assessment Date
+            </p>
+            <p className="text-xs text-platinum-white/72">{formattedAssessmentDate}</p>
+          </div>
+        )}
+      </div>
       <div className="space-y-2">
         {sections.map((section) => {
           const isExpanded = expandedSection === section.key

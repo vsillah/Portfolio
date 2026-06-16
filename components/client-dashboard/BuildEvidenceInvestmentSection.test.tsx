@@ -74,18 +74,24 @@ describe('BuildEvidenceInvestmentSection', () => {
     expect(screen.getByText('Build Evidence & Investment')).toBeInTheDocument()
     expect(screen.getByText('Direct ReversR workspace evidence')).toBeInTheDocument()
     expect(screen.getByText('149')).toBeInTheDocument()
-    expect(screen.getByText('Rate needed')).toBeInTheDocument()
+    expect(screen.getByText('283.7M total attributed tokens')).toBeInTheDocument()
     expect(screen.getByText('$52,500-$83,125 replacement-cost range')).toBeInTheDocument()
     expect(screen.getAllByText(/not a time sheet/i)).toHaveLength(2)
+    expect(screen.getByRole('button', { name: /evidence scope:/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /hourly lens:/i })).toBeInTheDocument()
   })
 
   it('updates subscription allocation and proposal translation locally', () => {
     render(<BuildEvidenceInvestmentSection buildEvidence={evidence} />)
 
+    fireEvent.click(screen.getByRole('button', { name: /subscription/i }))
     fireEvent.change(screen.getByLabelText('Monthly AI spend'), {
       target: { value: '200' },
     })
-    expect(screen.getByText('$35 allocated by usage share')).toBeInTheDocument()
+    expect(screen.getAllByText('$35 allocated by usage share')).toHaveLength(2)
+
+    fireEvent.click(screen.getByRole('button', { name: /^api$/i }))
+    expect(screen.getAllByText('Rate needed')).toHaveLength(2)
 
     fireEvent.click(screen.getByRole('button', { name: /proposal/i }))
     expect(screen.getByText('171 implied benchmark hours')).toBeInTheDocument()

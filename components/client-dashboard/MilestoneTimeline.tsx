@@ -1,7 +1,10 @@
 'use client'
 
+import { useMemo, useState } from 'react'
 import {
   Check,
+  ChevronDown,
+  ChevronRight,
   Clock,
   Circle,
   ExternalLink,
@@ -16,6 +19,12 @@ import type {
 } from '@/lib/onboarding-templates'
 
 interface MilestoneTimelineProps {
+  milestones: Milestone[]
+}
+
+interface PhaseGroup {
+  phase: number
+  title: string
   milestones: Milestone[]
 }
 
@@ -76,6 +85,13 @@ function evidenceStatusLabel(status: MilestoneEvidence['status']) {
     .join(' ')
 }
 
+function milestoneStatusLabel(status: Milestone['status']) {
+  return status
+    .split('_')
+    .map((word) => word[0]?.toUpperCase() + word.slice(1))
+    .join(' ')
+}
+
 function sanitizeClientText(value: string) {
   return value.replace(/\/Users\/[^\s)]+/g, '[private path]')
 }
@@ -117,6 +133,25 @@ function conciseEvidenceStatement(item: MilestoneEvidence) {
   if (item.status === 'pending') return 'Pending evidence'
   if (item.status === 'manual_review') return 'Manual review needed'
   return null
+}
+
+function groupMilestonesByPhase(milestones: Milestone[]): PhaseGroup[] {
+  const groups = new Map<number, Milestone[]>()
+
+  milestones.forEach((milestone) => {
+    const phase = milestone.phase || 1
+    const existing = groups.get(phase) || []
+    existing.push(milestone)
+    groups.set(phase, existing)
+  })
+
+  return Array.from(groups.entries())
+    .sort(([a], [b]) => a - b)
+    .map(([phase, phaseMilestones]) => ({
+      phase,
+      title: `Phase ${phase}`,
+      milestones: phaseMilestones,
+    }))
 }
 
 function AutomationHint({
@@ -162,6 +197,9 @@ function AutomationHint({
 }
 
 export default function MilestoneTimeline({ milestones }: MilestoneTimelineProps) {
+  const [expandedMilestones, setExpandedMilestones] = useState<Set<string>>(new Set())
+  const phaseGroups = useMemo(() => groupMilestonesByPhase(milestones || []), [milestones])
+
   if (!milestones || milestones.length === 0) {
     return (
       <div className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
@@ -173,112 +211,181 @@ export default function MilestoneTimeline({ milestones }: MilestoneTimelineProps
     )
   }
 
+  const milestoneIds = milestones.map((milestone, index) => milestone.id || `milestone-${index}`)
+  const allExpanded = milestoneIds.length > 0 && milestoneIds.every((id) => expandedMilestones.has(id))
+
+  function toggleMilestone(id: string) {
+    setExpandedMilestones((current) => {
+      const next = new Set(current)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
+      return next
+    })
+  }
+
+  function toggleAllMilestones() {
+    setExpandedMilestones(allExpanded ? new Set() : new Set(milestoneIds))
+  }
+
   return (
     <div className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
-      <h3 className="text-sm font-medium text-radiant-gold uppercase tracking-wider mb-4">
-        Milestones
-      </h3>
-      <div className="relative">
-        {milestones.map((milestone, index) => {
-          const styles = STATUS_STYLES[milestone.status] || STATUS_STYLES.pending
-          const Icon = styles.icon
-          const isLast = index === milestones.length - 1
-          const evidence = clientVisibleEvidence(milestone)
-
-          return (
-            <div key={milestone.id || index} className="flex gap-4 pb-6 last:pb-0">
-              {/* Timeline dot + line */}
-              <div className="flex flex-col items-center">
-                <div
-                  className={`w-8 h-8 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${styles.dotClass}`}
-                >
-                  <Icon className="w-4 h-4 text-platinum-white" />
-                </div>
-                {!isLast && (
-                  <div className={`w-0.5 flex-1 mt-1 ${styles.lineClass}`} />
-                )}
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <h3 className="text-sm font-medium text-radiant-gold uppercase tracking-wider">
+          Milestones
+        </h3>
+        <button
+          type="button"
+          onClick={toggleAllMilestones}
+          className="rounded border border-radiant-gold/25 bg-imperial-navy/45 px-2.5 py-1.5 text-[11px] font-medium text-radiant-gold transition-colors hover:bg-radiant-gold/10"
+        >
+          {allExpanded ? 'Collapse all' : 'Expand all'}
+        </button>
+      </div>
+      <div className="space-y-7">
+        {phaseGroups.map((group) => (
+          <section key={group.phase}>
+            <div className="mb-4 flex items-center gap-3">
+              <div className="rounded border border-radiant-gold/30 bg-radiant-gold/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-radiant-gold">
+                {group.title}
               </div>
+              <div className="h-px flex-1 bg-radiant-gold/15" />
+              <p className="text-[11px] text-platinum-white/45">
+                {group.milestones.length} milestone{group.milestones.length === 1 ? '' : 's'}
+              </p>
+            </div>
+            <div className="relative">
+              {group.milestones.map((milestone, index) => {
+                const globalIndex = milestones.indexOf(milestone)
+                const milestoneId = milestone.id || `milestone-${globalIndex}`
+                const isExpanded = expandedMilestones.has(milestoneId)
+                const styles = STATUS_STYLES[milestone.status] || STATUS_STYLES.pending
+                const Icon = styles.icon
+                const isLast = index === group.milestones.length - 1
+                const evidence = clientVisibleEvidence(milestone)
+                const visibleEvidenceCount = evidence.length
+                const accessCount = evidence.filter((item) => item.status === 'access_needed').length
 
-              {/* Content */}
-              <div className="flex-1 min-w-0 pb-2">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className={`text-sm font-medium ${styles.textClass}`}>
-                    {milestone.title}
-                  </span>
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded ${styles.badgeClass}`}>
-                    Week {milestone.week}
-                  </span>
-                </div>
-                {milestone.target_date && (
-                  <p className="text-[10px] text-platinum-white/40 mt-1">
-                    Target: {new Date(milestone.target_date).toLocaleDateString()}
-                  </p>
-                )}
-                {evidence.length > 0 && (
-                  <div className="mt-3">
-                    <div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wider text-radiant-gold/70">
-                      <ShieldCheck className="h-3 w-3" />
-                      Evidence Trace
+                return (
+                  <div key={milestoneId} className="flex gap-4 pb-5 last:pb-0">
+                    <div className="flex flex-col items-center">
+                      <div
+                        className={`w-8 h-8 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${styles.dotClass}`}
+                      >
+                        <Icon className="w-4 h-4 text-platinum-white" />
+                      </div>
+                      {!isLast && (
+                        <div className={`w-0.5 flex-1 mt-1 ${styles.lineClass}`} />
+                      )}
                     </div>
-                    <div className="space-y-1.5">
-                      {evidence.map((item, evidenceIndex) => {
-                        const statusClass =
-                          EVIDENCE_STATUS_STYLES[item.status] || EVIDENCE_STATUS_STYLES.pending
-                        const metrics = knownEvidenceMetrics(item)
-                        const statement = conciseEvidenceStatement(item)
-                        return (
-                          <div
-                            key={item.id || evidenceIndex}
-                            className={`rounded border px-2 py-1.5 ${statusClass}`}
-                          >
-                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                              <span className="text-[11px] font-medium">
-                                {item.source_label}
-                              </span>
-                              <span className="text-[10px] opacity-80">
-                                {evidenceStatusLabel(item.status)}
-                              </span>
-                              {item.source_url && (
-                                <a
-                                  href={item.source_url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="inline-flex items-center gap-1 text-[10px] underline-offset-2 hover:underline"
-                                >
-                                  Source
-                                  <ExternalLink className="h-2.5 w-2.5" />
-                                </a>
-                              )}
-                            </div>
-                            {metrics.length > 0 && (
-                              <div className="mt-2 flex flex-wrap gap-1.5">
-                                {metrics.map((metric) => (
-                                  <span
-                                    key={`${item.id || evidenceIndex}-${metric.label}`}
-                                    className="rounded border border-radiant-gold/20 bg-imperial-navy/45 px-2 py-1 text-[10px] font-medium text-platinum-white/80"
-                                  >
-                                    <span className="text-gold-light">{metric.value}</span>{' '}
-                                    {metric.label}
-                                  </span>
-                                ))}
-                              </div>
+
+                    <div className="flex-1 min-w-0 pb-2">
+                      <button
+                        type="button"
+                        onClick={() => toggleMilestone(milestoneId)}
+                        aria-expanded={isExpanded}
+                        className="flex w-full items-start justify-between gap-3 rounded-lg border border-radiant-gold/10 bg-imperial-navy/35 px-3 py-2 text-left transition-colors hover:bg-radiant-gold/10"
+                      >
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className={`text-sm font-medium ${styles.textClass}`}>
+                              {milestone.title}
+                            </span>
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded ${styles.badgeClass}`}>
+                              Week {milestone.week}
+                            </span>
+                          </div>
+                          <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-platinum-white/45">
+                            <span>{milestoneStatusLabel(milestone.status)}</span>
+                            {visibleEvidenceCount > 0 && (
+                              <span>{visibleEvidenceCount} evidence source{visibleEvidenceCount === 1 ? '' : 's'}</span>
                             )}
-                            {statement && (
-                              <p className="mt-1 text-[11px] leading-relaxed opacity-85">
-                                {statement}
-                              </p>
+                            {accessCount > 0 && (
+                              <span className="text-gold-light">{accessCount} connection needed</span>
+                            )}
+                            {milestone.target_date && (
+                              <span>Target: {new Date(milestone.target_date).toLocaleDateString()}</span>
                             )}
                           </div>
-                        )
-                      })}
+                        </div>
+                        {isExpanded ? (
+                          <ChevronDown className="mt-0.5 h-4 w-4 shrink-0 text-radiant-gold" />
+                        ) : (
+                          <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-radiant-gold" />
+                        )}
+                      </button>
+                      {isExpanded && evidence.length > 0 && (
+                        <div className="mt-3">
+                          <div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wider text-radiant-gold/70">
+                            <ShieldCheck className="h-3 w-3" />
+                            Evidence Trace
+                          </div>
+                          <div className="space-y-1.5">
+                            {evidence.map((item, evidenceIndex) => {
+                              const statusClass =
+                                EVIDENCE_STATUS_STYLES[item.status] || EVIDENCE_STATUS_STYLES.pending
+                              const metrics = knownEvidenceMetrics(item)
+                              const statement = conciseEvidenceStatement(item)
+                              return (
+                                <div
+                                  key={item.id || evidenceIndex}
+                                  className={`rounded border px-2 py-1.5 ${statusClass}`}
+                                >
+                                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                                    <span className="text-[11px] font-medium">
+                                      {item.source_label}
+                                    </span>
+                                    <span className="text-[10px] opacity-80">
+                                      {evidenceStatusLabel(item.status)}
+                                    </span>
+                                    {item.source_url && (
+                                      <a
+                                        href={item.source_url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="inline-flex items-center gap-1 text-[10px] underline-offset-2 hover:underline"
+                                      >
+                                        Source
+                                        <ExternalLink className="h-2.5 w-2.5" />
+                                      </a>
+                                    )}
+                                  </div>
+                                  {metrics.length > 0 && (
+                                    <div className="mt-2 flex flex-wrap gap-1.5">
+                                      {metrics.map((metric) => (
+                                        <span
+                                          key={`${item.id || evidenceIndex}-${metric.label}`}
+                                          className="rounded border border-radiant-gold/20 bg-imperial-navy/45 px-2 py-1 text-[10px] font-medium text-platinum-white/80"
+                                        >
+                                          <span className="text-gold-light">{metric.value}</span>{' '}
+                                          {metric.label}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  )}
+                                  {statement && (
+                                    <p className="mt-1 text-[11px] leading-relaxed opacity-85">
+                                      {statement}
+                                    </p>
+                                  )}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )}
+                      {isExpanded && (
+                        <AutomationHint automation={milestone.automation} evidence={evidence} />
+                      )}
                     </div>
                   </div>
-                )}
-                <AutomationHint automation={milestone.automation} evidence={evidence} />
-              </div>
+                )
+              })}
             </div>
-          )
-        })}
+          </section>
+        ))}
       </div>
     </div>
   )
