@@ -4,7 +4,7 @@
 
 The Codex automation digest has three outputs:
 
-1. Private executive digest to `vsillah@gmail.com` and the private Slack DM.
+1. Private executive digest to `vambah@amadutown.com` and the private Slack DM.
 2. Sanitized action summary to `#agent-ops` (`C0B1MM4LQKB`).
 3. Proposed Agent Ops work items for actionable decisions and follow-up work.
 

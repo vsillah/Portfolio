@@ -35,13 +35,23 @@ Set these before or immediately after merging PR #81:
 | Variable | Target Value | Notes |
 | --- | --- | --- |
 | `BUSINESS_FROM_EMAIL` | `vambah@amadutown.com` | Client-facing sender identity |
-| `BUSINESS_REPLY_TO_EMAIL` | `clients@amadutown.com` | Client replies and active-project routing |
+| `BUSINESS_REPLY_TO_EMAIL` | `vambah@amadutown.com` | Customer-facing reply path |
 | `ADMIN_NOTIFICATION_EMAIL` | current preferred admin inbox | Keep personal Gmail if it remains the recovery inbox |
 | `AUTOMATION_INBOUND_EMAIL` | `automation@amadutown.com` | Machine-triggered routing and filters |
 | `BUSINESS_FROM_NAME` | `AmaduTown` | Optional; `EMAIL_FROM_NAME` remains supported |
-| `GMAIL_USER` | transport mailbox | Credential only, not the public identity |
+| `GMAIL_USER` | `vambah@amadutown.com` | Required for customer-facing Gmail SMTP sends |
 | `GMAIL_APP_PASSWORD` | transport app password | Rotate after Workspace cutover |
 | `RESEND_FROM_EMAIL` | verified sender if using Resend | Should align with the branded domain once DNS is ready |
+
+Current repo-side status on 2026-06-06:
+
+- Public contact surfaces should display `vambah@amadutown.com`.
+- `lib/business-email-config.ts` already defaults customer-facing From and Reply-To to `vambah@amadutown.com`, and automation inbound to `automation@amadutown.com`.
+- Transactional Gmail SMTP sends refuse to use a Gmail transport account that does not match `vambah@amadutown.com`.
+- `business_owner_email` is now forward-migrated to `vambah@amadutown.com` for n8n/business-owner lookups.
+- The per-admin Gmail draft route now requires the connected Gmail account to be `vambah@amadutown.com` before creating customer-facing drafts.
+- Local and hosted runtime credentials still need provider-side review before changing `GMAIL_USER`, Gmail OAuth, n8n Gmail credentials, or SaaS login owners.
+- A small number of repo docs still reference local Google Drive paths mounted under the personal Google account. Treat those as Drive ownership/workspace migration gates, not text-only replacements.
 
 ## n8n Gmail Workflow Migration List
 
@@ -68,6 +78,20 @@ Migrate in this order so client-facing communication moves first and reply autom
 | 4 | `HeyGen Cold Email - Sub Agent - Jono Catliff` | follow-up messaging nodes | Confirm whether this is still active before migrating |
 
 Keep Google Drive and Google Contacts credentials unchanged unless a workflow explicitly needs Workspace-owned Drive/Contacts data.
+
+Repo export scan on 2026-06-06 still found archived/exported n8n credentials and owner references labeled with the personal Gmail account. Treat those JSON exports as evidence of workflows that must be reconnected in n8n Cloud, not as code-only fixes. Do not bulk edit exported credential labels until the live n8n credential is reconnected and a fresh export is saved.
+
+## Google Drive And Workspace Ownership
+
+Portfolio-related Drive materials should move toward Workspace-owned storage, but this requires a controlled file-owner migration rather than changing local path strings.
+
+Recommended sequence:
+
+1. Create or confirm the AmaduTown Workspace Drive/Shared Drive destination.
+2. Move or copy Portfolio-owned business folders from the personal Google Drive into Workspace-owned storage.
+3. Preserve source paths in source registers until every dependent artifact is updated.
+4. Update repo docs and source maps only after the Workspace path exists and access is verified.
+5. Keep personal Google Drive as recovery/source-of-record until checks confirm no active automation depends on the old path.
 
 ## SaaS Login Classification
 

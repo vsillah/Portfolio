@@ -10,7 +10,7 @@ import { Chat } from './chat'
 
 const socialLinks = [
   { icon: Linkedin, href: 'https://www.linkedin.com/in/vambah-sillah-08989b8/', label: 'LinkedIn' },
-  { icon: Mail, href: 'mailto:vsillah@gmail.com', label: 'Email' },
+  { icon: Mail, href: 'mailto:vambah@amadutown.com', label: 'Email' },
   { icon: Music, href: 'https://open.spotify.com/artist/1B5vy5knIGXOxClIzkkVHR?si=frSOxcxXSPCi6S04691zkg', label: 'Spotify' },
   { icon: Github, href: 'https://github.com/vsillah', label: 'GitHub' },
   { icon: BookOpen, href: 'https://medium.com/@vsillah', label: 'Medium' },
@@ -112,7 +112,7 @@ export default function Contact() {
       setStatusMessage(
         error instanceof Error 
           ? error.message 
-          : 'Failed to send message. Please try again or email me directly at vsillah@gmail.com'
+          : 'Failed to send message. Please try again or email me directly at vambah@amadutown.com'
       )
       
       setTimeout(() => {
@@ -173,8 +173,8 @@ export default function Contact() {
             <div>
               <h3 className="text-[10px] font-heading tracking-[0.2em] text-radiant-gold uppercase mb-6">Contact Info</h3>
               <div className="space-y-4">
-                <a href="mailto:vsillah@gmail.com" className="block font-premium text-2xl text-foreground hover:text-radiant-gold transition-colors">
-                  vsillah@gmail.com
+                <a href="mailto:vambah@amadutown.com" className="block font-premium text-2xl text-foreground hover:text-radiant-gold transition-colors">
+                  vambah@amadutown.com
                 </a>
                 <p className="font-body text-muted-foreground/90 text-lg">
                   617-967-7448 <br />

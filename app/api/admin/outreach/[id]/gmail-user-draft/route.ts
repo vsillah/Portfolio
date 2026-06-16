@@ -8,6 +8,7 @@ import {
 } from '@/lib/gmail-user-api'
 import { isGmailUserOauthSecretConfigured } from '@/lib/gmail-user-oauth-secret'
 import { logCommunication } from '@/lib/communications'
+import { resolveBusinessEmailConfig } from '@/lib/business-email-config'
 
 export const dynamic = 'force-dynamic'
 
@@ -74,6 +75,17 @@ export async function POST(
         {
           error:
             'Connect your Gmail account first (admin: Google sign-in for Gmail drafts).',
+        },
+        { status: 400 }
+      )
+    }
+
+    const requiredSender = resolveBusinessEmailConfig().fromEmail.toLowerCase()
+    const connectedEmail = String(creds.google_email ?? '').trim().toLowerCase()
+    if (connectedEmail !== requiredSender) {
+      return NextResponse.json(
+        {
+          error: `Customer-facing Gmail drafts must be created from ${requiredSender}. Reconnect Gmail with that account before saving this draft.`,
         },
         { status: 400 }
       )

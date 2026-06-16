@@ -1,5 +1,5 @@
 const DEFAULT_BUSINESS_FROM_EMAIL = 'vambah@amadutown.com'
-const DEFAULT_BUSINESS_REPLY_TO_EMAIL = 'clients@amadutown.com'
+const DEFAULT_BUSINESS_REPLY_TO_EMAIL = 'vambah@amadutown.com'
 const DEFAULT_AUTOMATION_INBOUND_EMAIL = 'automation@amadutown.com'
 const DEFAULT_EMAIL_FROM_NAME = 'AmaduTown'
 
@@ -33,7 +33,6 @@ export function getEmailFromName(): string {
 export function resolveBusinessEmailConfig(): BusinessEmailConfig {
   const fromEmail =
     extractEmailAddress(process.env.BUSINESS_FROM_EMAIL) ||
-    extractEmailAddress(process.env.RESEND_FROM_EMAIL) ||
     DEFAULT_BUSINESS_FROM_EMAIL
 
   const replyToEmail =
