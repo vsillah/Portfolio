@@ -36,6 +36,13 @@ const transporter =
       })
     : null
 
+function gmailMatchesCustomerSender(): boolean {
+  return Boolean(
+    gmailUser &&
+      gmailUser.trim().toLowerCase() === businessEmail.fromEmail.trim().toLowerCase()
+  )
+}
+
 function resolveResendFrom(): string | null {
   const fromEmail = businessEmail.fromEmail || resendFromRaw
   if (!fromEmail) return null
@@ -43,7 +50,7 @@ function resolveResendFrom(): string | null {
 }
 
 export function isTransactionalMailConfigured(): boolean {
-  return Boolean((resendKey && resolveResendFrom()) || (gmailUser && gmailPass))
+  return Boolean((resendKey && resolveResendFrom()) || (gmailUser && gmailPass && gmailMatchesCustomerSender()))
 }
 
 async function sendViaResend(
@@ -79,6 +86,10 @@ async function sendViaResend(
 
 async function sendViaGmail(payload: TransactionalEmailPayload): Promise<boolean> {
   if (!transporter || !gmailUser) return false
+  if (!gmailMatchesCustomerSender()) {
+    console.warn('[Transactional email] Gmail transport does not match customer-facing sender; refusing send')
+    return false
+  }
   try {
     await transporter.sendMail({
       from: formatMailboxAddress(businessEmail.fromName, businessEmail.fromEmail),

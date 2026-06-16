@@ -27,7 +27,7 @@ const pages = [
                 </div>
                 <div className="flex items-center gap-2">
                     <Mail className="w-4 h-4" />
-                    <span>vsillah@gmail.com</span>
+                    <span>vambah@amadutown.com</span>
                 </div>
                 <div className="flex items-center gap-2">
                     <Phone className="w-4 h-4" />

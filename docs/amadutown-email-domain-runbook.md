@@ -15,7 +15,7 @@ AmaduTown uses a phased hybrid email migration:
 | --- | --- |
 | `vambah@amadutown.com` | Primary sender and named business mailbox |
 | `hello@amadutown.com` | Public intake and general inquiries |
-| `clients@amadutown.com` | Active client communication and reply-to |
+| `clients@amadutown.com` | Optional active-client alias; not the default customer-facing sender |
 | `billing@amadutown.com` | Billing, receipts, and payment issues |
 | `automation@amadutown.com` | Machine-triggered routing, filters, and workflow tests |
 
@@ -69,7 +69,7 @@ Set these variables in local and deployed environments:
 
 ```bash
 BUSINESS_FROM_EMAIL=vambah@amadutown.com
-BUSINESS_REPLY_TO_EMAIL=clients@amadutown.com
+BUSINESS_REPLY_TO_EMAIL=vambah@amadutown.com
 ADMIN_NOTIFICATION_EMAIL=<current preferred admin inbox>
 AUTOMATION_INBOUND_EMAIL=automation@amadutown.com
 BUSINESS_FROM_NAME=AmaduTown
@@ -78,13 +78,20 @@ BUSINESS_FROM_NAME=AmaduTown
 Keep delivery credentials provider-specific:
 
 ```bash
-GMAIL_USER=<transport mailbox>
+GMAIL_USER=vambah@amadutown.com
 GMAIL_APP_PASSWORD=<app password>
 RESEND_API_KEY=<optional>
 RESEND_FROM_EMAIL=<optional verified sender>
 ```
 
-`BUSINESS_FROM_EMAIL` is the address clients should see. `GMAIL_USER` is only a transport credential during the hybrid migration.
+`BUSINESS_FROM_EMAIL` and `BUSINESS_REPLY_TO_EMAIL` are the addresses customers should see. For customer-facing communication, both should be `vambah@amadutown.com`. If Gmail SMTP is used for customer-facing sends, `GMAIL_USER` must also be `vambah@amadutown.com`; otherwise Portfolio should refuse to send through that transport.
+
+Repo-side status on 2026-06-06:
+
+- Public contact components point to `vambah@amadutown.com`.
+- `business_owner_email` has a forward migration to `vambah@amadutown.com`.
+- Customer-facing app sends should use `vambah@amadutown.com` for both From and Reply-To.
+- Gmail OAuth credentials, n8n Gmail credentials, Read AI, Google Drive, Calendly, and SaaS account ownership remain provider-side migration gates. Change them only after confirming Workspace access, MFA, app passwords/OAuth consent, and rollback.
 
 ## Phase 3: n8n Migration
 

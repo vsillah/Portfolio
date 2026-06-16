@@ -40,17 +40,35 @@ describe('business email config', () => {
 
     expect(resolveBusinessEmailConfig()).toEqual({
       fromEmail: 'vambah@amadutown.com',
-      replyToEmail: 'clients@amadutown.com',
+      replyToEmail: 'vambah@amadutown.com',
       adminNotificationEmail: 'vambah@amadutown.com',
       automationInboundEmail: 'automation@amadutown.com',
       fromName: 'AmaduTown',
     })
   })
 
+  it('does not use Resend transport identity as the customer-facing sender', () => {
+    setEnv({
+      BUSINESS_FROM_EMAIL: undefined,
+      RESEND_FROM_EMAIL: 'notifications@example.com',
+      BUSINESS_REPLY_TO_EMAIL: undefined,
+      ADMIN_NOTIFICATION_EMAIL: undefined,
+      AUTOMATION_INBOUND_EMAIL: undefined,
+      EMAIL_FROM_NAME: undefined,
+      BUSINESS_FROM_NAME: undefined,
+      GMAIL_USER: undefined,
+    })
+
+    expect(resolveBusinessEmailConfig()).toMatchObject({
+      fromEmail: 'vambah@amadutown.com',
+      replyToEmail: 'vambah@amadutown.com',
+    })
+  })
+
   it('separates client-facing sender, reply-to, admin, and automation inboxes', () => {
     setEnv({
       BUSINESS_FROM_EMAIL: 'vambah@amadutown.com',
-      BUSINESS_REPLY_TO_EMAIL: 'clients@amadutown.com',
+      BUSINESS_REPLY_TO_EMAIL: 'vambah@amadutown.com',
       ADMIN_NOTIFICATION_EMAIL: 'admin@example.com',
       AUTOMATION_INBOUND_EMAIL: 'automation@amadutown.com',
       EMAIL_FROM_NAME: 'AmaduTown Advisory',
@@ -59,7 +77,7 @@ describe('business email config', () => {
 
     expect(resolveBusinessEmailConfig()).toEqual({
       fromEmail: 'vambah@amadutown.com',
-      replyToEmail: 'clients@amadutown.com',
+      replyToEmail: 'vambah@amadutown.com',
       adminNotificationEmail: 'admin@example.com',
       automationInboundEmail: 'automation@amadutown.com',
       fromName: 'AmaduTown Advisory',
