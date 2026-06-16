@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-06-03T12:38:48Z",
+  "generatedAt": "2026-06-15T13:04:15Z",
   "sourceDocument": "/docs/subscription-cancellation-audit.md",
-  "latestMonitorArtifact": "/docs/subscription-monitor-runs/2026-06-03.md",
+  "latestMonitorArtifact": "/docs/subscription-monitor-runs/2026-06-15.md",
   "monitorRunArtifactPattern": "/docs/subscription-monitor-runs/YYYY-MM-DD.md",
   "weeklyReportAutomationId": "portfolio-subscription-weekly-report",
   "dailyMonitorAutomationId": "portfolio-subscription-cancellation-monitor",
@@ -44,7 +44,18 @@
       "2026-05-30 daily refresh kept the budget status yellow: production and local Supabase analytics/agent_runs moved, n8n returned 85 workflows with 72 active and successful executions around 2026-05-30T12:00Z, Vercel portfolio and portfolio-staging had ready deployments on 2026-05-29/30, Read AI had May 29 meeting evidence, Gamma themes were readable, HeyGen avatar and voice listings were readable, and OpenAI/Slack/Pinecone/Hunter/Printful APIs were readable; OpenRouter stayed zero-usage, Vapi returned no sampled calls, Resend local key was absent, Calendly returned 401, Gemini/Google AI returned 403, Anthropic model listing returned 401 after prior readable checks, ElevenLabs current cycle still showed 0 of 246,034 characters used, and no vendor crossed the approval-ready cancellation threshold.",
       "2026-05-31 daily refresh kept the budget status yellow: production Supabase analytics and local agent_runs moved, n8n returned 85 workflows with 72 active and successful executions around 2026-05-31T12:00Z, Vercel portfolio had ready preview deployments about 2 hours old, Read AI had six May meetings through 2026-05-29, Gamma v1.0 themes and HeyGen avatars/voices were readable, Anthropic model listing recovered, and OpenAI/Slack/Pinecone/Hunter/Printful/Apify APIs were readable; OpenRouter stayed zero-usage, Vapi returned no sampled calls, Resend local key was absent, Calendly returned 401, Gemini/Google AI returned 403, ElevenLabs current cycle still showed 0 of 246,034 characters used, and no vendor crossed the approval-ready cancellation threshold.",
       "2026-06-02 daily refresh kept the budget status yellow: production Supabase analytics moved to 5184/latest 2026-06-02T12:34:01Z and production agent_runs moved to 79/latest 2026-06-01T13:00:03Z; n8n returned 85 workflows with 72 active and successful executions 15931-15935 around 2026-06-02T12:00Z; Vercel CLI remained authenticated and listed portfolio plus portfolio-staging deployments; Read AI connector returned six meetings in the May 1-June 2 window with latest on 2026-06-01; OpenAI/Anthropic/Slack/Pinecone/Hunter/Printful/Gamma/HeyGen voices APIs were readable; HeyGen avatars timed out once; OpenRouter stayed zero-usage, Vapi returned zero sampled calls, Resend local key was absent, Calendly returned 401, Gemini returned 403, ElevenLabs current cycle still showed 0 of 246,034 characters used, and no vendor crossed the approval-ready cancellation threshold.",
-      "2026-06-03 daily refresh kept the budget status yellow: production Supabase analytics moved to 5199/latest 2026-06-02T22:04:18Z and production agent_runs moved to 80/latest 2026-06-02T13:00:02Z; n8n returned 85 workflows with 72 active and successful executions 16036-16040 around 2026-06-03T12:00Z; Vercel CLI remained authenticated and listed READY portfolio plus portfolio-staging deployments; Read AI connector returned six meetings in the May 1-June 3 window with latest returned meeting 2026-05-29; Apify returned same-day successful actor runs on 2026-06-03; OpenAI/Anthropic/Slack/Pinecone/Hunter/Printful/HeyGen voices APIs were readable; Gamma returned 401 invalid/expired token; OpenRouter stayed zero-usage, Vapi returned zero sampled calls, Resend local key was absent, Calendly returned 401, Gemini returned 403, ElevenLabs current cycle still showed 0 of 246,034 characters used, and no vendor crossed the approval-ready cancellation threshold."
+      "2026-06-03 daily refresh kept the budget status yellow: production Supabase analytics moved to 5199/latest 2026-06-02T22:04:18Z and production agent_runs moved to 80/latest 2026-06-02T13:00:02Z; n8n returned 85 workflows with 72 active and successful executions 16036-16040 around 2026-06-03T12:00Z; Vercel CLI remained authenticated and listed READY portfolio plus portfolio-staging deployments; Read AI connector returned six meetings in the May 1-June 3 window with latest returned meeting 2026-05-29; Apify returned same-day successful actor runs on 2026-06-03; OpenAI/Anthropic/Slack/Pinecone/Hunter/Printful/HeyGen voices APIs were readable; Gamma returned 401 invalid/expired token; OpenRouter stayed zero-usage, Vapi returned zero sampled calls, Resend local key was absent, Calendly returned 401, Gemini returned 403, ElevenLabs current cycle still showed 0 of 246,034 characters used, and no vendor crossed the approval-ready cancellation threshold.",
+      "2026-06-05 daily refresh kept the budget status yellow: Supabase production and local samples moved on 2026-06-04, n8n returned 85 workflows with 72 active and successful executions around 2026-06-05T12:00Z, Vercel CLI listed portfolio plus portfolio-staging, Read AI returned six meetings since 2026-05-01 with latest 2026-05-29, OpenAI/Anthropic/Slack/Pinecone/Hunter/Printful/HeyGen/ElevenLabs/Apify were readable; Gamma returned 401, Calendly returned 401, Gemini returned 403, Resend local key was absent, OpenRouter stayed zero-usage, Vapi returned zero sampled calls, and no vendor crossed the approval-ready cancellation threshold.",
+      "2026-06-06 daily refresh kept the budget status yellow: production Supabase agent_runs moved to 84/latest 2026-06-05T13:00:03Z; n8n returned 85 workflows with 72 active and successful executions 16342-16346 around 2026-06-06T12:00Z; Vercel CLI listed ready portfolio and portfolio-staging deployments; Stripe/OpenAI/Anthropic/Slack/Pinecone/Hunter/Printful/ElevenLabs/Gamma/HeyGen/Apify/Read AI were readable or dependency-backed; Gamma recovered through the current /v1.0/themes endpoint; OpenRouter stayed zero-usage, Vapi returned zero sampled calls, Resend local key was absent, Calendly returned 401, Gemini returned 403, ElevenLabs current cycle still showed 0 of 246034 characters used, and no vendor crossed the approval-ready cancellation threshold.",
+      "2026-06-07 daily refresh kept the budget status yellow: production Supabase analytics moved to 5236/latest 2026-06-07T03:57:33Z; n8n returned 85 workflows with 72 active and successful executions 16445-16449 around 2026-06-07T12:00Z; Vercel CLI listed portfolio and portfolio-staging deployments; Stripe/OpenAI/Anthropic/Slack/Pinecone/Hunter/Printful/ElevenLabs/Gamma/HeyGen/Apify/OpenRouter/Vapi/Read AI were readable or dependency-backed; OpenRouter stayed zero-usage, Vapi returned zero sampled calls, Resend local key was absent, Calendly returned 401, Gemini returned 403, ElevenLabs current cycle still showed 0 of 246034 characters used, and no vendor crossed the approval-ready cancellation threshold.",
+      "2026-06-08 daily refresh kept the budget status yellow: production Supabase analytics moved to 5239/latest 2026-06-07T14:55:04Z and configured-local agent_runs moved to 131/latest 2026-06-08T00:27:15Z; n8n returned 85 workflows with 72 active and successful executions 16550-16554 around 2026-06-08T12:00Z; Vercel CLI listed ready portfolio and portfolio-staging deployments; Stripe/OpenAI/Anthropic/Slack/Pinecone/Hunter/Printful/ElevenLabs/HeyGen/Apify/OpenRouter/Vapi/Gemini/Read AI were readable or dependency-backed; Gemini recovered to 50 readable models, Gamma returned 401, OpenRouter stayed zero-usage, Vapi returned zero sampled calls, Resend local key was absent, Calendly returned 401, ElevenLabs current cycle still showed 0 of 246034 characters used, and no vendor crossed the approval-ready cancellation threshold.",
+      "2026-06-08 weekly refresh kept the budget status yellow: BuiltWith stayed protected during the outreach ramp, Fireflies stayed resolved/canceled, Gemini moved from access-blocked to readable model evidence, Gamma regressed to 401 access drift, and quiet or unresolved providers still require dashboard/login evidence before any cancellation packet.",
+      "2026-06-11 daily refresh kept the budget status yellow: production Supabase analytics, agent_runs, cost_events, and social_content_queue moved through 2026-06-10/08; n8n returned 85 workflows with 72 active and successful executions 16878-16882 around 2026-06-11T12:00Z; Vercel CLI listed ready portfolio and portfolio-staging deployments; Stripe/OpenAI/Anthropic/Slack/Pinecone/Hunter/Gamma/HeyGen/Printful/ElevenLabs/Apify/OpenRouter/Vapi/Gemini/Read AI were readable or dependency-backed; Gamma recovered to 50 readable themes, Gemini stayed at 50 readable models, ElevenLabs current cycle showed 802 of 246034 characters used, OpenRouter stayed zero-usage, Vapi returned zero sampled calls, Resend local key was absent, Calendly returned 401, and no vendor crossed the approval-ready cancellation threshold.",
+      "2026-06-12 daily refresh kept the budget status yellow: production Supabase analytics and agent_runs moved through 2026-06-11, configured-local agent_runs moved through 2026-06-12, n8n returned 85 workflows with 72 active and successful executions 16985-16989 around 2026-06-12T12:00Z; Vercel CLI listed ready portfolio and portfolio-staging deployments; Stripe/OpenAI/Anthropic/Slack/Pinecone/Hunter/Printful/ElevenLabs/HeyGen/Apify/OpenRouter/Vapi/Gemini/Read AI were readable or dependency-backed; Read AI had seven May 1-June 12 meeting metadata records with latest June 11 activity; Gamma regressed to 401 after the June 11 recovery; OpenRouter stayed zero-usage, Vapi returned zero sampled calls, Resend local key was absent, Calendly returned 401, and no vendor crossed the approval-ready cancellation threshold.",
+      "2026-06-13 daily refresh kept the budget status yellow: production Supabase analytics and agent_runs moved through 2026-06-12, n8n returned 85 workflows with 72 active and successful executions 17092-17096 around 2026-06-13T12:00Z; Vercel CLI listed ready portfolio and portfolio-staging deployments; Stripe/OpenAI/Anthropic/Slack/Pinecone/Hunter/Gamma/HeyGen/Printful/ElevenLabs/Apify/OpenRouter/Vapi/Gemini/Read AI were readable or dependency-backed; Gamma recovered to 50 readable themes, Gemini stayed at 50 readable models, ElevenLabs current cycle stayed at 802 of 246034 characters used, OpenRouter stayed zero-usage, Vapi returned zero sampled calls, Resend local key was absent, Calendly returned 401, and no vendor crossed the approval-ready cancellation threshold.",
+      "2026-06-14 daily refresh kept the budget status yellow: production Supabase analytics moved through 2026-06-13, n8n returned 85 workflows with 72 active and successful executions 17197-17201 around 2026-06-14T12:00Z; Vercel CLI listed portfolio and portfolio-staging deployment URLs; Stripe/OpenAI/Anthropic/Slack/Pinecone/Hunter/HeyGen/Printful/ElevenLabs/Apify/OpenRouter/Vapi/Gemini/Read AI were readable or dependency-backed; Gamma regressed to 401 after the June 13 recovery; OpenRouter stayed zero-usage, Vapi returned zero sampled calls, Resend local key was absent, Calendly returned 401, and no vendor crossed the approval-ready cancellation threshold.",
+      "2026-06-15 weekly refresh kept the budget status yellow: Supabase, n8n, Vercel, Read AI, HeyGen, Gemini, Anthropic API, and core providers stayed active/readable; ElevenLabs moved from zero-use to low-use at 802 characters before the 2026-06-19 reset; Gamma recovered then regressed to 401 access drift; OpenRouter and Vapi stayed quiet; BuiltWith stayed protected during the outreach ramp; Fireflies stayed resolved/canceled; no vendor crossed the approval-ready cancellation threshold.",
+      "2026-06-15 daily refresh kept the budget status yellow: production Supabase analytics and agent_runs moved through 2026-06-15, n8n returned 85 workflows with 72 active and successful executions 17309-17313 around 2026-06-15T13:00Z; Vercel CLI listed ready portfolio and portfolio-staging deployments; Stripe/OpenAI/Anthropic/Slack/Pinecone/Hunter/Gamma/HeyGen/Printful/ElevenLabs/Apify/OpenRouter/Vapi/Gemini were readable or dependency-backed; Gamma recovered to 50 themes after the June 14 401; Read AI connector failed to start so prior June 11 meeting evidence was carried forward; OpenRouter stayed zero-usage, Vapi returned zero sampled calls, Resend local key was absent, Calendly returned 401, and no vendor crossed the approval-ready cancellation threshold."
     ],
     "transitionAdjustments": [
       {
@@ -56,7 +67,7 @@
     ],
     "apifyCallAnalysis": {
       "configuredActorSurfaces": 12,
-      "lastMonitorExecution": "Direct provider refresh on 2026-06-03 was readable; sampled account-level Apify runs included same-day successful runs on 2026-06-03 and 2026-06-02. Actor-level bakeoff evidence remains the active replacement-analysis base.",
+      "lastMonitorExecution": "Direct provider refresh on 2026-06-14 was readable; sampled account-level Apify runs still included 2026-06-10 succeeded/failed runs with low sampled usage. Actor-level bakeoff evidence remains the active replacement-analysis base.",
       "sampledRuns": 59,
       "succeededRuns": 40,
       "failedRuns": 19,
@@ -373,23 +384,22 @@
   },
   "summary": {
     "status": "yellow",
-    "headline": "Daily refresh: Supabase, n8n, Vercel, Apify, OpenAI, Anthropic, Slack, Pinecone, Hunter, Printful, HeyGen voices, and Read AI remain readable or active; Gamma auth regressed; OpenRouter and Vapi stayed quiet; no vendor reached the approval-ready cancellation threshold.",
+    "headline": "Weekly refresh: core Portfolio subscriptions remain active/readable; Read AI and ElevenLabs have fresher usage signals; Gamma regressed to access drift; no vendor reached the approval-ready cancellation threshold.",
     "nextReviewFocus": [
-      "Restore or rotate Gamma API access and verify dashboard credits before renewal.",
-      "Review ElevenLabs current-cycle zero usage against the next planned campaign before the 2026-06-19 reset.",
-      "Confirm OpenRouter role in the next media/model bakeoff before preparing any deprecation packet.",
-      "Verify Vapi dashboard billing and whether production voice UX should stay enabled.",
-      "Check Printful dashboard order history and decide whether the 2026-04-06 API-visible draft order plus quiet sync log justifies keeping native store paths.",
+      "Restore or rotate Gamma API access and verify dashboard credits/recent report need.",
+      "Verify Vapi dashboard billing and decide whether production voice UX should stay enabled.",
+      "Check Printful dashboard order history and merchandise strategy before changing store paths.",
       "Verify whether production uses Resend or Gmail/n8n as the real outbound channel.",
       "Check Pinecone billing/API traffic against Supabase/local RAG usage.",
       "Restore or replace Calendly API access and rerun event-type usage checks.",
-      "Resolve Gemini/Google AI project/key status before relying on image/social workflows.",
-      "Check HeyGen dashboard quota/billing because voice catalog access does not prove active paid usage.",
-      "Verify Read AI recency because the connector was readable but returned no June 1-3 meetings.",
-      "Verify Anthropic billing and Claude/API transition state now that API model listing remains readable.",
-      "Continue the Apify actor-level replacement bakeoff by pausing weak surfaces before account-level changes.",
+      "Verify Gemini/Google AI billing/project status while model access remains readable.",
+      "Check HeyGen dashboard quota/billing because catalog access does not prove active paid usage.",
+      "Verify Anthropic billing and Claude/API transition state now that API listing remains readable.",
+      "Review ElevenLabs 802-character usage before the 2026-06-19 reset.",
+      "Continue tracking OpenRouter zero-usage evidence and confirm whether it still has a bakeoff or n8n role.",
+      "Continue the Apify actor-level replacement bakeoff before any account-level decision.",
       "Keep BuiltWith active during the outreach ramp and judge it only against lead-prep and conversion evidence.",
-      "For Fireflies, verify billing only if dashboard or receipt evidence suggests the canceled plan was restarted."
+      "Keep Fireflies out of the active queue unless new paid-plan evidence appears."
     ]
   },
   "buckets": {
@@ -399,16 +409,15 @@
       "Vercel",
       "Stripe",
       "OpenAI",
-      "Gamma",
       "HeyGen",
       "Read.ai",
       "Slack",
       "Gmail/n8n email",
       "Apify",
-      "Calendly",
       "Anthropic",
       "Google Cloud",
-      "Hunter.io"
+      "Hunter.io",
+      "Gemini / Google AI"
     ],
     "watch": [
       "BuiltWith",
@@ -417,19 +426,27 @@
       "Anthropic",
       "Vapi",
       "Apify",
+      "HeyGen",
       "Gamma",
-      "HeyGen"
+      "Pinecone",
+      "Read.ai",
+      "Printful",
+      "Resend",
+      "Calendly",
+      "HeyGen quota/billing",
+      "Anthropic billing transition"
     ],
     "unresolved": [
       "Printful",
       "Resend",
       "Pinecone",
       "Calendly auth",
-      "Gemini auth",
       "Figma/Paper/Excalidraw/Canva billing",
       "HeyGen dashboard quota/billing",
+      "Anthropic subscription transition",
       "Gamma dashboard credits/usage",
-      "Anthropic subscription transition"
+      "Gemini / Google AI billing",
+      "Gamma API access"
     ],
     "resolvedCanceled": [
       "Fireflies.ai"
@@ -454,7 +471,7 @@
       "name": "Vapi",
       "status": "watch",
       "statusColor": "yellow",
-      "billingSignal": "Dashboard billing still needs verification; VAPI_PRIVATE_KEY was present and the 2026-06-03 default call sample returned HTTP 200 with zero calls again.",
+      "billingSignal": "Dashboard billing still needs verification; VAPI_PRIVATE_KEY was present and the 2026-06-14 default calls sample returned HTTP 200 with zero calls.",
       "usageSignal": "No meaningful current Vapi usage appeared again; local references remain, including optional website voice paths.",
       "portfolioDependency": "Voice/audit experience risk if production voice UX is enabled.",
       "recommendation": "Investigate billing and intended voice UX; prepare a deprecation packet only if dashboard spend exists and voice UX is not needed.",
@@ -471,11 +488,11 @@
       "name": "BuiltWith",
       "status": "watch",
       "statusColor": "yellow",
-      "billingSignal": "Receipt-backed spend remains the largest watch item, but Vambah confirmed BuiltWith should stay active during the outreach/client-volume ramp.",
-      "usageSignal": "Portfolio still stores website tech-stack enrichment fields in outreach/admin flows; usefulness depends on lead-prep, implementation-strategy, proposal, and conversion evidence.",
+      "billingSignal": "Standing decision keeps BuiltWith active/watch during the outreach/client-volume ramp; historical receipts made it the largest known monthly line item.",
+      "usageSignal": "No fresh usage probe in this run; judge against lead-prep, implementation strategy, proposal quality, and conversion evidence when the ramp has enough volume.",
       "portfolioDependency": "Outreach and client-preparation enrichment may depend on stack data during ramp.",
       "recommendation": "Keep active during outreach ramp; reassess only after enough sales evidence exists.",
-      "nextAction": "Keep collecting sales-prep and proposal-quality evidence before judging BuiltWith.",
+      "nextAction": "Keep active during outreach ramp and collect outcome evidence.",
       "decisionRequired": false,
       "links": [
         {
@@ -488,11 +505,11 @@
       "name": "Fireflies.ai",
       "status": "resolved_canceled",
       "statusColor": "green",
-      "billingSignal": "No new paid-plan evidence found on 2026-06-03; standing decision remains canceled per Vambah confirmation on 2026-05-01.",
-      "usageSignal": "Any old transcript/Slack residue is historical only unless new billing or dashboard evidence appears.",
+      "billingSignal": "Fireflies remains resolved canceled per Vambah confirmation on 2026-05-01; no new paid-plan evidence found in this run.",
+      "usageSignal": "Historical only; keep out of active cancellation queue unless restarted.",
       "portfolioDependency": "No active Portfolio dependency identified.",
       "recommendation": "Keep out of active cancellation queue unless new billing or dashboard evidence shows the paid plan restarted.",
-      "nextAction": "Do not reopen Fireflies unless new paid-plan evidence appears.",
+      "nextAction": "Verify only if new receipt or dashboard evidence appears.",
       "decisionRequired": false,
       "links": [
         {
@@ -505,11 +522,11 @@
       "name": "Vercel",
       "status": "keep",
       "statusColor": "green",
-      "billingSignal": "Vercel CLI remained authenticated as vsillah on 2026-06-03; subscription cost remains receipt-backed from prior budget snapshot.",
-      "usageSignal": "CLI JSON listings returned READY same-day deployments for both portfolio and portfolio-staging on 2026-06-03.",
+      "billingSignal": "Vercel CLI remained authenticated as vsillah and listed portfolio plus portfolio-staging deployment URLs on 2026-06-14.",
+      "usageSignal": "Active hosting/deployment surface with current Portfolio and staging deployment URLs.",
       "portfolioDependency": "Core hosting, previews, production, and staging verification.",
       "recommendation": "Keep; hosting is active and high-risk to change.",
-      "nextAction": "Keep hosting; continue deployment health checks through the normal Portfolio release workflow.",
+      "nextAction": "Keep; verify both deployment contexts during integration captain work.",
       "decisionRequired": false,
       "links": [
         {
@@ -522,11 +539,11 @@
       "name": "Printful",
       "status": "unresolved",
       "statusColor": "yellow",
-      "billingSignal": "Printful API remained readable on 2026-06-03 and returned one sampled draft order from 2026-04-06; dashboard billing/store status still needs verification.",
-      "usageSignal": "Both sampled Supabase printful_sync_log tables remain empty; native store code references remain.",
+      "billingSignal": "Printful API remained readable on 2026-06-14 and returned one sampled draft order from 2026-04-06; dashboard billing/order status still needs review.",
+      "usageSignal": "Supabase printful_sync_log remains empty in sampled projects.",
       "portfolioDependency": "Merchandise/order fulfillment if the store strategy is active.",
       "recommendation": "Investigate dashboard order history and merchandise strategy before any deprecation decision.",
-      "nextAction": "Check Printful dashboard order/store status and decide whether merchandise paths should remain first-class.",
+      "nextAction": "Check Printful dashboard order history and store strategy before any deprecation packet.",
       "decisionRequired": true,
       "links": [
         {
@@ -539,11 +556,11 @@
       "name": "Resend",
       "status": "unresolved",
       "statusColor": "yellow",
-      "billingSignal": "RESEND_API_KEY remained absent locally on 2026-06-03; package/env/webhook references remain.",
-      "usageSignal": "Production usage remains unresolved because local absence does not prove Vercel/runtime absence.",
+      "billingSignal": "RESEND_API_KEY remains absent locally on 2026-06-14; production env and billing are not verified.",
+      "usageSignal": "Resend package, env template, and webhook route remain in repo.",
       "portfolioDependency": "Transactional email deliverability if Resend is enabled in production.",
       "recommendation": "Verify production env and billing before removing Resend paths.",
-      "nextAction": "Check Vercel production env and Resend dashboard billing/usage.",
+      "nextAction": "Verify production env/billing and whether Gmail/n8n is the real outbound channel.",
       "decisionRequired": true,
       "links": [
         {
@@ -556,11 +573,11 @@
       "name": "Pinecone",
       "status": "unresolved",
       "statusColor": "yellow",
-      "billingSignal": "Pinecone API was readable on 2026-06-03 and listed one ready serverless publications index in aws/us-east-1.",
-      "usageSignal": "Index existence is confirmed; query traffic and billing remain unresolved.",
+      "billingSignal": "Pinecone listed one ready serverless publications index on 2026-06-14; billing/traffic remains unresolved.",
+      "usageSignal": "Vector/RAG references remain configured in repo and n8n exports.",
       "portfolioDependency": "Publication/RAG search path if Pinecone remains the live vector store.",
       "recommendation": "Investigate billing/API traffic before any replacement with Supabase or local RAG.",
-      "nextAction": "Compare Pinecone dashboard traffic with Supabase/local RAG usage.",
+      "nextAction": "Check dashboard/API traffic before replacing with Supabase/local RAG.",
       "decisionRequired": true,
       "links": [
         {
@@ -573,11 +590,11 @@
       "name": "Apify",
       "status": "keep",
       "statusColor": "green",
-      "billingSignal": "Apify API was readable on 2026-06-03 and latest sampled actor runs included same-day successful runs with small sampled usage costs.",
-      "usageSignal": "Account-level activity is fresh; actor-level replacement work should target weak/no-output surfaces instead of account cancellation.",
+      "billingSignal": "Apify API returned sampled actor runs through 2026-06-10, with low sampled usage and mixed succeeded/failed outcomes.",
+      "usageSignal": "Account active; actor-level bakeoff remains the right optimization path.",
       "portfolioDependency": "Lead, social listening, and evidence scraping workflows remain wired through n8n and repo scripts.",
       "recommendation": "Keep the account active; continue the actor-level bakeoff and pause or replace weak actor surfaces.",
-      "nextAction": "Use the bakeoff to decide actor-by-actor replacements before any account-level change.",
+      "nextAction": "Continue actor-level replacement bakeoff before account-level changes.",
       "decisionRequired": false,
       "links": [
         {
@@ -590,11 +607,11 @@
       "name": "Hunter.io",
       "status": "keep",
       "statusColor": "green",
-      "billingSignal": "Hunter API remained readable on 2026-06-02 and reported Free plan with 50 used calls and 75 available.",
-      "usageSignal": "Lead enrichment references remain; no paid-plan cancellation target was found.",
+      "billingSignal": "Hunter account remained readable on 2026-06-13 on Free with 0 sampled used calls and 75 available.",
+      "usageSignal": "Not a paid cancellation target in sampled evidence.",
       "portfolioDependency": "Optional lead/contact enrichment only.",
       "recommendation": "Keep/watch; not a paid cancellation target unless paid-plan evidence appears.",
-      "nextAction": "Keep as free/watch; revisit only if paid receipts or active replacement work appear.",
+      "nextAction": "Keep/free-watch.",
       "decisionRequired": false,
       "links": [
         {
@@ -607,11 +624,11 @@
       "name": "OpenRouter",
       "status": "watch",
       "statusColor": "yellow",
-      "billingSignal": "OpenRouter key was readable on 2026-06-03 and still reports usage 0.",
-      "usageSignal": "No meaningful current OpenRouter usage appeared again; model-routing references remain optional/bakeoff-oriented.",
+      "billingSignal": "OpenRouter key endpoint remained readable with current-key usage 0 on 2026-06-14.",
+      "usageSignal": "Consecutive zero-usage evidence; active spend and remaining bakeoff role are not confirmed.",
       "portfolioDependency": "Potential model-router or bakeoff fallback; no current usage signal from the sampled key.",
       "recommendation": "Watch; prepare deprecation only after spend, dependency, and bakeoff role are confirmed.",
-      "nextAction": "Confirm whether OpenRouter has a remaining role in media/model bakeoffs.",
+      "nextAction": "Confirm spend and bakeoff role before deprecation.",
       "decisionRequired": true,
       "links": [
         {
@@ -624,11 +641,11 @@
       "name": "ElevenLabs",
       "status": "watch",
       "statusColor": "yellow",
-      "billingSignal": "Creator subscription remained readable on 2026-06-03 with 0 of 246,034 characters used before the 2026-06-19 reset.",
-      "usageSignal": "Current reset cycle remains quiet while audio/social workflow references remain.",
+      "billingSignal": "ElevenLabs Creator subscription remained readable on 2026-06-14 with 802 of 246,034 characters used before the 2026-06-19 reset.",
+      "usageSignal": "Low current-cycle usage; no longer zero-use.",
       "portfolioDependency": "Voiceover/audio generation for social content and media campaigns.",
       "recommendation": "Watch through the next campaign decision; cancellation needs dashboard spend and replacement-path confirmation.",
-      "nextAction": "Compare upcoming audio needs against renewal timing before the 2026-06-19 reset.",
+      "nextAction": "Review planned voice/audio campaign need before reset.",
       "decisionRequired": true,
       "links": [
         {
@@ -646,12 +663,12 @@
         }
       ],
       "status": "watch",
-      "statusColor": "yellow",
-      "billingSignal": "Read AI remains receipt-backed and connector-readable; the connector returned six meetings in the 2026-05-01 through 2026-06-03 window.",
-      "usageSignal": "Latest returned meeting was 2026-05-29 and no June 1-3 meetings were returned in this run; keep but verify recency before renewal.",
+      "statusColor": "green",
+      "billingSignal": "Read AI connector remained readable on 2026-06-14 with seven meeting metadata records in the May 1-June 14 window; paid plan status still needs dashboard/receipt verification.",
+      "usageSignal": "Latest meeting metadata remained 2026-06-11; no raw meeting content is stored in the tracker.",
       "portfolioDependency": "Meeting intelligence and transcript workflows remain useful for client/project work when meetings are active.",
-      "recommendation": "Keep/watch; verify dashboard recency and whether upcoming meeting workflows still need Read AI.",
-      "nextAction": "Check Read AI dashboard recency and keep only if meeting-capture workflow remains active.",
+      "recommendation": "Keep/watch; meeting memory value remains active enough, but plan fit should be checked against actual meeting volume.",
+      "nextAction": "Check plan fit only if meeting volume drops or receipt pressure increases.",
       "decisionRequired": true
     },
     {
@@ -664,11 +681,11 @@
       ],
       "status": "keep",
       "statusColor": "yellow",
-      "billingSignal": "Calendly API still returned 401 on 2026-06-03; receipt-backed Standard plan remains in the budget snapshot.",
-      "usageSignal": "Scheduling links, tests, and n8n booking workflows remain configured, but API usage could not be verified.",
+      "billingSignal": "Calendly API still returned HTTP 401 unauthenticated on 2026-06-14; billing status unknown.",
+      "usageSignal": "Scheduling links and n8n Calendly workflows remain configured.",
       "portfolioDependency": "Discovery, onboarding, kickoff, progress, renewal, and delivery scheduling links.",
       "recommendation": "Refresh token or verify dashboard usage; keep until scheduling replacement is decided.",
-      "nextAction": "Restore Calendly API access and rerun event-type usage checks.",
+      "nextAction": "Restore token or verify dashboard usage before any provider decision.",
       "decisionRequired": true
     },
     {
@@ -679,13 +696,13 @@
           "href": "https://github.com/vsillah/Portfolio/blob/main/docs/subscription-cancellation-audit.md"
         }
       ],
-      "status": "unresolved",
-      "statusColor": "yellow",
-      "billingSignal": "Gemini/Google AI model-list check still returned 403 on 2026-06-03; Google Cloud spend remains low and separate in the budget snapshot.",
-      "usageSignal": "Image/social workflow references remain, but project/key readiness is unresolved.",
+      "status": "watch",
+      "statusColor": "green",
+      "billingSignal": "Gemini model listing remained readable on 2026-06-14 with HTTP 200 and 50 models; billing/project status still needs verification.",
+      "usageSignal": "Google AI/Gemini workflow references remain in repo and n8n exports.",
       "portfolioDependency": "Gemini/image generation and RAG chatbot experiments if still active.",
-      "recommendation": "Resolve key/project status before relying on or deprecating Gemini workflows.",
-      "nextAction": "Check Google AI Studio/Cloud project permissions and billing association.",
+      "recommendation": "Verify billing/project status and workflow usage before relying on or deprecating Gemini workflows.",
+      "nextAction": "Verify billing/project status while model access remains readable.",
       "decisionRequired": true
     },
     {
@@ -697,19 +714,19 @@
         }
       ],
       "status": "watch",
-      "statusColor": "yellow",
-      "billingSignal": "Anthropic API model listing remained readable on 2026-06-03 with 10 models; Claude Max billing transition still needs receipt/dashboard confirmation.",
-      "usageSignal": "Anthropic remains wired into model dispatch and n8n/model workflows.",
+      "statusColor": "green",
+      "billingSignal": "Anthropic model listing remained readable with 11 models on 2026-06-14; billing transition still needs receipt/dashboard verification.",
+      "usageSignal": "Model provider path remains configured in app/n8n context.",
       "portfolioDependency": "LLM fallback/evaluation paths and any Claude Max workflow still in use.",
       "recommendation": "Watch billing transition; keep API path until replacement and spend are confirmed.",
-      "nextAction": "Verify whether Claude Max subscription spend actually drops next cycle and whether API spend is separate.",
+      "nextAction": "Verify billing and Claude/API transition state.",
       "decisionRequired": true
     },
     {
       "name": "Figma / Paper / Excalidraw / Canva",
       "status": "unresolved",
       "statusColor": "yellow",
-      "billingSignal": "No fresh billing evidence was found on 2026-05-31; repo/workflow-adjacent references remain only.",
+      "billingSignal": "No fresh billing evidence was found on 2026-06-14; repo/workflow-adjacent references remain only.",
       "usageSignal": "Design and diagram assets exist locally, but no current paid dashboard signal was gathered in this run.",
       "portfolioDependency": "Design artifacts, diagrams, and visual content workflows if active outside repo code.",
       "recommendation": "Investigate only if receipts, dashboard evidence, or active design-production needs appear.",
@@ -730,13 +747,13 @@
           "href": "https://github.com/vsillah/Portfolio/blob/main/docs/subscription-cancellation-audit.md"
         }
       ],
-      "status": "unresolved",
+      "status": "watch",
       "statusColor": "yellow",
-      "billingSignal": "Gamma Pro remains receipt-backed, but the 2026-06-03 API check returned HTTP 401 invalid/expired token after prior readable checks.",
-      "usageSignal": "DB report rows remain quiet since 2026-05-02; report/deck code paths remain wired.",
+      "billingSignal": "Gamma /v1.0/themes regressed to HTTP 401 on 2026-06-14 after the June 13 recovery; dashboard credits/billing still need verification.",
+      "usageSignal": "Gamma report rows remain quiet since 2026-05-02, and routes/docs still reference Gamma.",
       "portfolioDependency": "Deck/report generation workflows may still depend on Gamma while Codex/PPTX alternatives are compared.",
-      "recommendation": "Investigate key, dashboard billing, and credit usage before renewal; do not cancel from API auth failure alone.",
-      "nextAction": "Restore/rotate Gamma API access and verify dashboard credits plus recent report usage.",
+      "recommendation": "Investigate dashboard credits/key status plus recent report need before renewal.",
+      "nextAction": "Restore or rotate API access and verify dashboard credits/recent report need.",
       "decisionRequired": true
     },
     {
@@ -748,12 +765,12 @@
         }
       ],
       "status": "keep",
-      "statusColor": "yellow",
-      "billingSignal": "HeyGen receipt remains active from prior budget snapshot; voice catalog was readable on 2026-06-03 with 2348 voices.",
-      "usageSignal": "Voice catalog access proves API readability, while campaign usage and avatar quota still need dashboard verification.",
+      "statusColor": "green",
+      "billingSignal": "HeyGen voices and avatars were both readable on 2026-06-14: 2347 voices and 1289 avatars; quota/billing still needs dashboard verification.",
+      "usageSignal": "Video/avatar campaign surfaces remain configured.",
       "portfolioDependency": "Avatar video generation and media campaign workflows.",
       "recommendation": "Keep/watch; verify quota and active video campaign need before renewal.",
-      "nextAction": "Check HeyGen dashboard quota/billing and retry avatar/template evidence.",
+      "nextAction": "Verify quota and active video campaign need before renewal.",
       "decisionRequired": true
     }
   ]
