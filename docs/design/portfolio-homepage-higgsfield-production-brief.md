@@ -2,9 +2,11 @@
 
 ## Objective
 
-Create a cinematic homepage hero video/still system for AmaduTown that builds on the current Canva concept asset:
+Create a cinematic homepage hero video/still system for AmaduTown that builds on the current storefront pipeline concept assets:
 
-- Static reference: `/public/prototypes/portfolio-pipeline-hero/canva-hero-pipeline-candidate-02.png`
+- Desktop still reference: `/public/prototypes/portfolio-pipeline-hero/amadutown-storefront-pipeline-hero-v2.png`
+- Mobile still reference: `/public/prototypes/portfolio-pipeline-hero/amadutown-storefront-pipeline-hero-mobile-v2.png`
+- Earlier Canva reference: `/public/prototypes/portfolio-pipeline-hero/canva-hero-pipeline-candidate-02.png`
 - Prototype route: `/prototypes/portfolio-pipeline-hero`
 - Working idea: a small local business storefront opens into many separated operating rooms, then a polished gold pipeline connects the rooms into one coordinated operating system.
 
@@ -12,15 +14,16 @@ The output should feel like a top-tier web design firm created a premium hero sy
 
 ## Higgsfield Workflow Recommendation
 
-Use image-to-video from the Canva reference image first. Higgsfield's own guide says image-to-video gives more control because the model inherits the composition, lighting, and subject identity from the reference image.
+Use image-to-video from the storefront pipeline reference image first. Higgsfield's own guide says image-to-video gives more control because the model inherits the composition, lighting, and subject identity from the reference image.
 
 Recommended production path:
 
-1. Upload the Canva hero image as the primary reference.
-2. Use Cinema Studio if available for camera/lens control and consistent scene treatment.
-3. Keep the first pass to one clean camera move.
-4. Change one variable per retry: camera move, department count/spacing, pipeline glow behavior, or room activation timing.
-5. Keep the operating-floor schematic full-width behind the website copy. The copy will be native HTML over the image, not a blank reserved zone.
+1. Upload the desktop storefront pipeline image as the primary reference.
+2. Upload the portrait mobile image as the mobile composition reference.
+3. Use Cinema Studio if available for camera/lens control and consistent scene treatment.
+4. Keep the first pass to one clean camera move.
+5. Change one variable per retry: camera move, department count/spacing, pipeline glow behavior, or room activation timing.
+6. Keep the operating-floor schematic full-width behind the website copy. The copy will be native HTML over the image, not a blank reserved zone.
 
 ## Model Direction
 
@@ -40,10 +43,11 @@ Avoid:
 
 ## Output Targets
 
-- Desktop hero loop: 8-10 seconds, 16:9, no audio.
-- Still poster frame: same composition, no visible motion blur.
-- Mobile crop candidate: 9:16 or 4:5, with the gold pipeline and 2-3 room sections still readable.
-- Optional production still: 2400px+ width for static fallback.
+- Desktop hero loop: 8-10 seconds, 16:9, no audio, production target 3840 x 2160 or higher.
+- Desktop still poster frame: same composition, no visible motion blur, production target 3840px+ width.
+- Mobile hero loop/still: 9:16, production target 2160 x 3840 or higher.
+- Mobile still must be a dedicated portrait composition, not a hard crop from the desktop image.
+- Static fallback exports: WebP/AVIF plus source PNG/TIFF masters.
 
 ## Required Composition
 
@@ -60,6 +64,7 @@ Full frame:
 - No single room or pipe segment should dominate so much that the business looks like only a few departments.
 - No object should create a hard visual collision with the H1 placement.
 - The awning should be recognizable as a small-business storefront detail, but it should not contain readable text or a logo.
+- Mobile composition should preserve dark negative space in the upper portion for native website copy, with the storefront and connected rooms visible in the lower portion without zooming into a low-resolution desktop crop.
 - Distinct room functions suggested visually:
   - client intake / CRM
   - scheduling

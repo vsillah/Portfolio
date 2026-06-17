@@ -2,7 +2,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowDown, ArrowRight, Gauge, Network, Workflow } from 'lucide-react'
 
-const HERO_IMAGE = '/prototypes/portfolio-pipeline-hero/canva-hero-pipeline-candidate-02.png'
+const HERO_IMAGE_DESKTOP = '/prototypes/portfolio-pipeline-hero/amadutown-storefront-pipeline-hero-v2.png'
+const HERO_IMAGE_MOBILE = '/prototypes/portfolio-pipeline-hero/amadutown-storefront-pipeline-hero-mobile-v2.png'
 
 const operatingSignals = [
   {
@@ -42,12 +43,20 @@ export default function PortfolioPipelineHeroPrototypePage() {
     <main className="min-h-screen bg-[#05090f] text-platinum-white">
       <section className="relative min-h-[100svh] overflow-hidden">
         <Image
-          src={HERO_IMAGE}
+          src={HERO_IMAGE_DESKTOP}
           alt="Exploded business operating floor connected by a polished gold infrastructure pipeline."
           fill
           priority
           sizes="100vw"
-          className="object-cover object-center"
+          className="hidden object-cover object-center sm:block"
+        />
+        <Image
+          src={HERO_IMAGE_MOBILE}
+          alt="Small local business storefront and operating rooms connected by a polished gold infrastructure pipeline."
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center sm:hidden"
         />
 
         <div className="absolute inset-0 bg-[#05090f]/24" />
@@ -57,71 +66,10 @@ export default function PortfolioPipelineHeroPrototypePage() {
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#05090f] to-transparent" />
 
         <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-          <svg
-            className="absolute left-[35%] top-[47%] hidden w-[48rem] max-w-[56vw] -translate-y-1/2 opacity-[0.92] lg:block"
-            viewBox="0 0 720 390"
-            fill="none"
-          >
-            <defs>
-              <linearGradient id="storefrontGold" x1="72" y1="35" x2="644" y2="314" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#FBE78A" stopOpacity="0.98" />
-                <stop offset="0.55" stopColor="#D4AF37" stopOpacity="0.78" />
-                <stop offset="1" stopColor="#8B6914" stopOpacity="0.42" />
-              </linearGradient>
-              <linearGradient id="storefrontGlass" x1="96" y1="120" x2="610" y2="335" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#EAECEE" stopOpacity="0.24" />
-                <stop offset="0.48" stopColor="#1A2430" stopOpacity="0.2" />
-                <stop offset="1" stopColor="#EAECEE" stopOpacity="0.05" />
-              </linearGradient>
-              <linearGradient id="storefrontShadow" x1="101" y1="333" x2="648" y2="369" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#D4AF37" stopOpacity="0.28" />
-                <stop offset="1" stopColor="#D4AF37" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            <path d="M55 345H682L640 370H22L55 345Z" fill="url(#storefrontShadow)" />
-            <path
-              d="M91 121H626V333H91V121Z"
-              fill="url(#storefrontGlass)"
-              stroke="url(#storefrontGold)"
-              strokeWidth="2.2"
-            />
-            <path d="M119 158H291V333H119V158Z" fill="#05090f" fillOpacity="0.18" stroke="url(#storefrontGold)" strokeWidth="1.6" />
-            <path d="M331 158H598V333H331V158Z" fill="#05090f" fillOpacity="0.14" stroke="url(#storefrontGold)" strokeWidth="1.6" />
-            <path d="M288 158H335V333H288V158Z" fill="#05090f" fillOpacity="0.24" stroke="url(#storefrontGold)" strokeWidth="1.6" />
-            <path d="M309 246V333" stroke="#FBE78A" strokeOpacity="0.54" strokeWidth="1.2" />
-            <circle cx="319" cy="256" r="3" fill="#FBE78A" fillOpacity="0.82" />
-            <path d="M91 121L142 66H678L626 121H91Z" fill="#D4AF37" fillOpacity="0.24" stroke="url(#storefrontGold)" strokeWidth="2" />
-            <path d="M142 66H678L646 101H111L142 66Z" fill="#05090f" fillOpacity="0.42" />
-            {Array.from({ length: 8 }).map((_, index) => {
-              const x = 143 + index * 67
-              return (
-                <path
-                  key={x}
-                  d={`M${x} 66L${x - 31} 101H${x + 36}L${x + 67} 66H${x}Z`}
-                  fill={index % 2 === 0 ? '#D4AF37' : '#EAECEE'}
-                  fillOpacity={index % 2 === 0 ? 0.78 : 0.44}
-                />
-              )
-            })}
-            <path d="M111 101H646V121H91L111 101Z" fill="#D4AF37" fillOpacity="0.32" />
-            <path d="M91 121H626" stroke="#FBE78A" strokeOpacity="0.94" strokeWidth="2" />
-            <path d="M205 158V333" stroke="#EAECEE" strokeOpacity="0.26" strokeWidth="1" />
-            <path d="M464 158V333" stroke="#EAECEE" strokeOpacity="0.26" strokeWidth="1" />
-            <path d="M142 210H267" stroke="#EAECEE" strokeOpacity="0.22" strokeWidth="1" />
-            <path d="M352 212H577" stroke="#EAECEE" strokeOpacity="0.2" strokeWidth="1" />
-            <path d="M152 246H244" stroke="#D4AF37" strokeOpacity="0.5" strokeWidth="1.4" />
-            <path d="M370 246H562" stroke="#D4AF37" strokeOpacity="0.44" strokeWidth="1.4" />
-            <path d="M134 305H271" stroke="#FBE78A" strokeOpacity="0.24" strokeWidth="1" />
-            <path d="M351 304H581" stroke="#FBE78A" strokeOpacity="0.22" strokeWidth="1" />
-            <path d="M115 333H636" stroke="#D4AF37" strokeOpacity="0.7" strokeWidth="2.4" />
-            <path d="M60 350H672" stroke="#EAECEE" strokeOpacity="0.2" strokeWidth="1.2" />
-            <path d="M267 216C304 210 332 221 367 215C406 209 425 190 461 188C498 186 526 204 556 197" stroke="#D4AF37" strokeOpacity="0.78" strokeWidth="3" strokeLinecap="round" />
-            <path d="M272 218C306 217 329 229 366 224C407 219 422 201 460 199C497 197 525 211 558 205" stroke="#FBE78A" strokeOpacity="0.36" strokeWidth="1.2" strokeLinecap="round" />
-          </svg>
-          <div className="absolute left-[47%] top-[55%] h-px w-[34rem] rotate-[-24deg] bg-gradient-to-r from-transparent via-radiant-gold/90 to-transparent opacity-70 shadow-gold-glow-lg motion-safe:animate-[pipelineSweep_4.8s_ease-in-out_infinite]" />
-          <div className="absolute right-[10%] top-[32%] h-24 w-24 rounded-full border border-radiant-gold/20 bg-radiant-gold/10 blur-xl motion-safe:animate-glow-pulse" />
-          <div className="absolute right-[24%] top-[52%] h-20 w-20 rounded-full border border-radiant-gold/20 bg-radiant-gold/10 blur-xl motion-safe:animate-glow-pulse [animation-delay:1.2s]" />
-          <div className="absolute right-[5%] top-[62%] h-24 w-24 rounded-full border border-radiant-gold/20 bg-radiant-gold/10 blur-xl motion-safe:animate-glow-pulse [animation-delay:2s]" />
+          <div className="absolute left-[47%] top-[55%] hidden h-px w-[34rem] rotate-[-24deg] bg-gradient-to-r from-transparent via-radiant-gold/90 to-transparent opacity-60 shadow-gold-glow-lg motion-safe:animate-[pipelineSweep_4.8s_ease-in-out_infinite] sm:block" />
+          <div className="absolute right-[10%] top-[32%] hidden h-24 w-24 rounded-full border border-radiant-gold/20 bg-radiant-gold/10 blur-xl motion-safe:animate-glow-pulse sm:block" />
+          <div className="absolute right-[24%] top-[52%] hidden h-20 w-20 rounded-full border border-radiant-gold/20 bg-radiant-gold/10 blur-xl motion-safe:animate-glow-pulse [animation-delay:1.2s] sm:block" />
+          <div className="absolute right-[5%] top-[62%] hidden h-24 w-24 rounded-full border border-radiant-gold/20 bg-radiant-gold/10 blur-xl motion-safe:animate-glow-pulse [animation-delay:2s] sm:block" />
         </div>
 
         <header className="relative z-10 flex items-center justify-between px-5 py-5 sm:px-8 lg:px-12">
