@@ -102,4 +102,30 @@ describe('BuildEvidenceInvestmentSection', () => {
     })
     expect(screen.getByText('150 implied benchmark hours')).toBeInTheDocument()
   })
+
+  it('clamps negative calculator inputs and normalizes reversed hour ranges', () => {
+    render(<BuildEvidenceInvestmentSection buildEvidence={evidence} />)
+
+    fireEvent.change(screen.getByLabelText('Low hours'), {
+      target: { value: '500' },
+    })
+    fireEvent.change(screen.getByLabelText('High hours'), {
+      target: { value: '300' },
+    })
+
+    expect(screen.getByText('$52,500-$87,500 replacement-cost range')).toBeInTheDocument()
+
+    fireEvent.change(screen.getByLabelText('Rate'), {
+      target: { value: '-200' },
+    })
+
+    expect(screen.getByText('$0-$0 replacement-cost range')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /subscription/i }))
+    fireEvent.change(screen.getByLabelText('Monthly AI spend'), {
+      target: { value: '-200' },
+    })
+
+    expect(screen.getAllByText('$0 allocated by usage share')).toHaveLength(2)
+  })
 })
