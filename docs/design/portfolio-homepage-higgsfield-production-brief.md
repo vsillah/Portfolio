@@ -4,13 +4,17 @@
 
 Create a cinematic homepage hero video/still system for AmaduTown that builds on the current storefront pipeline concept assets:
 
-- Desktop still reference: `/public/prototypes/portfolio-pipeline-hero/amadutown-storefront-pipeline-hero-v2.png`
-- Mobile still reference: `/public/prototypes/portfolio-pipeline-hero/amadutown-storefront-pipeline-hero-mobile-v2.png`
+- Desktop still reference: `/public/prototypes/portfolio-pipeline-hero/amadutown-storefront-pipeline-hero-approved-20260617.png`
+- Mobile still reference: `/public/prototypes/portfolio-pipeline-hero/amadutown-storefront-pipeline-hero-mobile-approved-20260617.png`
 - Earlier Canva reference: `/public/prototypes/portfolio-pipeline-hero/canva-hero-pipeline-candidate-02.png`
 - Prototype route: `/prototypes/portfolio-pipeline-hero`
 - Working idea: a small local business storefront opens into many separated operating rooms, then a polished gold pipeline connects the rooms into one coordinated operating system.
 
 The output should feel like a top-tier web design firm created a premium hero system, not an explainer video.
+
+## Approved Direction
+
+The approved visual direction is the storefront pipeline asset pair. The final production pass should improve resolution, polish, and motion while preserving the core composition: a recognizable neighborhood storefront, many separated business departments, and a physical gold pipeline connecting the business into one operating system.
 
 ## Higgsfield Workflow Recommendation
 

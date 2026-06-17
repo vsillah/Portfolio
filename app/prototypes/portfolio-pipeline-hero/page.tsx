@@ -2,23 +2,10 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowDown, ArrowRight, Gauge, Network, Workflow } from 'lucide-react'
 
-const HERO_IMAGE_DESKTOP = '/prototypes/portfolio-pipeline-hero/amadutown-storefront-pipeline-hero-v2.png'
-const HERO_IMAGE_MOBILE = '/prototypes/portfolio-pipeline-hero/amadutown-storefront-pipeline-hero-mobile-v2.png'
-
-const operatingSignals = [
-  {
-    label: 'Intake',
-    value: 'Lead context captured before the first handoff.',
-  },
-  {
-    label: 'Delivery',
-    value: 'Work moves through one visible operating layer.',
-  },
-  {
-    label: 'Reporting',
-    value: 'Every room feeds the same decision system.',
-  },
-]
+const HERO_IMAGE_DESKTOP =
+  '/prototypes/portfolio-pipeline-hero/amadutown-storefront-pipeline-hero-approved-20260617.png'
+const HERO_IMAGE_MOBILE =
+  '/prototypes/portfolio-pipeline-hero/amadutown-storefront-pipeline-hero-mobile-approved-20260617.png'
 
 const proofPoints = [
   {
@@ -47,7 +34,7 @@ export default function PortfolioPipelineHeroPrototypePage() {
           alt="Exploded business operating floor connected by a polished gold infrastructure pipeline."
           fill
           priority
-          sizes="100vw"
+          sizes="(min-width: 640px) 100vw, 0px"
           className="hidden object-cover object-center sm:block"
         />
         <Image
@@ -55,13 +42,13 @@ export default function PortfolioPipelineHeroPrototypePage() {
           alt="Small local business storefront and operating rooms connected by a polished gold infrastructure pipeline."
           fill
           priority
-          sizes="100vw"
-          className="object-cover object-center sm:hidden"
+          sizes="(max-width: 639px) 100vw, 0px"
+          className="object-cover object-[center_bottom] sm:hidden"
         />
 
         <div className="absolute inset-0 bg-[#05090f]/24" />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,#05090f_0%,rgba(5,9,15,0.88)_22%,rgba(5,9,15,0.58)_47%,rgba(5,9,15,0.18)_75%,rgba(5,9,15,0.04)_100%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,9,15,0.96)_0%,rgba(5,9,15,0.78)_44%,rgba(5,9,15,0.52)_100%)] sm:hidden" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,#05090f_0%,rgba(5,9,15,0.9)_20%,rgba(5,9,15,0.56)_44%,rgba(5,9,15,0.16)_72%,rgba(5,9,15,0.03)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,9,15,0.98)_0%,rgba(5,9,15,0.9)_34%,rgba(5,9,15,0.58)_64%,rgba(5,9,15,0.42)_100%)] sm:hidden" />
         <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-[#05090f]/90 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#05090f] to-transparent" />
 
@@ -90,14 +77,14 @@ export default function PortfolioPipelineHeroPrototypePage() {
         </header>
 
         <div className="relative z-10 flex min-h-[calc(100svh-5rem)] items-center px-5 pb-24 pt-12 sm:px-8 lg:px-12">
-          <div className="max-w-[44rem]">
+          <div className="max-w-[43rem]">
             <p className="mb-6 font-heading text-[0.68rem] uppercase tracking-[0.32em] text-radiant-gold/90">
               AI Operations Infrastructure
             </p>
-            <h1 className="font-premium text-[clamp(3.8rem,8vw,8.2rem)] font-medium leading-[0.9] text-platinum-white">
+            <h1 className="font-premium text-[clamp(3.35rem,7.6vw,8rem)] font-medium leading-[0.9] text-platinum-white sm:text-[clamp(4.2rem,7.6vw,8rem)]">
               Turn disconnected work into one operating system.
             </h1>
-            <p className="mt-8 max-w-[34rem] font-body text-base leading-8 text-platinum-white/72 sm:text-lg">
+            <p className="mt-8 max-w-[32rem] font-body text-base leading-8 text-platinum-white/72 sm:text-lg">
               AmaduTown designs the automation layer that connects intake, scheduling, communications,
               service delivery, billing, reporting, and knowledge management.
             </p>
@@ -116,20 +103,6 @@ export default function PortfolioPipelineHeroPrototypePage() {
               >
                 See the Work
               </Link>
-            </div>
-
-            <div className="mt-14 grid max-w-[38rem] gap-3 sm:grid-cols-3">
-              {operatingSignals.map((signal) => (
-                <div
-                  key={signal.label}
-                  className="border-l border-radiant-gold/34 bg-[#05090f]/22 py-2 pl-4 backdrop-blur-[2px]"
-                >
-                  <p className="font-heading text-[0.62rem] uppercase tracking-[0.24em] text-radiant-gold">
-                    {signal.label}
-                  </p>
-                  <p className="mt-2 text-sm leading-5 text-platinum-white/62">{signal.value}</p>
-                </div>
-              ))}
             </div>
           </div>
         </div>
