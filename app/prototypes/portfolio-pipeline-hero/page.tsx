@@ -6,6 +6,8 @@ const HERO_IMAGE_DESKTOP =
   '/prototypes/portfolio-pipeline-hero/amadutown-storefront-pipeline-hero-approved-20260617.png'
 const HERO_IMAGE_MOBILE =
   '/prototypes/portfolio-pipeline-hero/amadutown-storefront-pipeline-hero-mobile-approved-20260617.png'
+const HERO_VIDEO_DESKTOP =
+  '/prototypes/portfolio-pipeline-hero/higgsfield-gold-pipeline-loop-desktop-only-360-starburst-web-20260617.mp4'
 
 const proofPoints = [
   {
@@ -45,18 +47,28 @@ export default function PortfolioPipelineHeroPrototypePage() {
           sizes="(max-width: 639px) 100vw, 0px"
           className="object-cover object-[center_bottom] sm:hidden"
         />
+        <video
+          className="absolute inset-0 h-full w-full object-cover object-[center_bottom] sm:object-center"
+          poster={HERO_IMAGE_DESKTOP}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          aria-hidden="true"
+        >
+          <source src={HERO_VIDEO_DESKTOP} type="video/mp4" />
+        </video>
 
-        <div className="absolute inset-0 bg-[#05090f]/24" />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,#05090f_0%,rgba(5,9,15,0.9)_20%,rgba(5,9,15,0.56)_44%,rgba(5,9,15,0.16)_72%,rgba(5,9,15,0.03)_100%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,9,15,0.98)_0%,rgba(5,9,15,0.9)_34%,rgba(5,9,15,0.58)_64%,rgba(5,9,15,0.42)_100%)] sm:hidden" />
+        <div className="absolute inset-0 bg-[#05090f]/18" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,9,15,0.72)_0%,rgba(5,9,15,0.52)_22%,rgba(5,9,15,0.22)_48%,rgba(5,9,15,0.04)_74%,rgba(5,9,15,0)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,9,15,0.86)_0%,rgba(5,9,15,0.68)_34%,rgba(5,9,15,0.36)_64%,rgba(5,9,15,0.42)_100%)] sm:hidden" />
         <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-[#05090f]/90 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#05090f] to-transparent" />
 
         <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-          <div className="absolute left-[47%] top-[55%] hidden h-px w-[34rem] rotate-[-24deg] bg-gradient-to-r from-transparent via-radiant-gold/90 to-transparent opacity-60 shadow-gold-glow-lg motion-safe:animate-[pipelineSweep_4.8s_ease-in-out_infinite] sm:block" />
-          <div className="absolute right-[10%] top-[32%] hidden h-24 w-24 rounded-full border border-radiant-gold/20 bg-radiant-gold/10 blur-xl motion-safe:animate-glow-pulse sm:block" />
-          <div className="absolute right-[24%] top-[52%] hidden h-20 w-20 rounded-full border border-radiant-gold/20 bg-radiant-gold/10 blur-xl motion-safe:animate-glow-pulse [animation-delay:1.2s] sm:block" />
-          <div className="absolute right-[5%] top-[62%] hidden h-24 w-24 rounded-full border border-radiant-gold/20 bg-radiant-gold/10 blur-xl motion-safe:animate-glow-pulse [animation-delay:2s] sm:block" />
+          <div className="absolute right-[10%] top-[32%] hidden h-24 w-24 rounded-full border border-radiant-gold/15 bg-radiant-gold/10 blur-xl motion-safe:animate-glow-pulse sm:block" />
+          <div className="absolute right-[5%] top-[62%] hidden h-24 w-24 rounded-full border border-radiant-gold/15 bg-radiant-gold/10 blur-xl motion-safe:animate-glow-pulse [animation-delay:2s] sm:block" />
         </div>
 
         <header className="relative z-10 flex items-center justify-between px-5 py-5 sm:px-8 lg:px-12">
@@ -139,26 +151,6 @@ export default function PortfolioPipelineHeroPrototypePage() {
           </div>
         </div>
       </section>
-
-      <style>{`
-        @keyframes pipelineSweep {
-          0% {
-            opacity: 0;
-            transform: translateX(-14%) rotate(-24deg) scaleX(0.72);
-          }
-          28% {
-            opacity: 0.9;
-          }
-          62% {
-            opacity: 0.72;
-            transform: translateX(18%) rotate(-24deg) scaleX(1);
-          }
-          100% {
-            opacity: 0;
-            transform: translateX(34%) rotate(-24deg) scaleX(0.72);
-          }
-        }
-      `}</style>
     </main>
   )
 }
