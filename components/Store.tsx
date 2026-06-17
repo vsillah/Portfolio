@@ -18,8 +18,9 @@ const TYPE_LABELS: Record<string, string> = {
   template: 'Template',
 }
 
-const SECTION_BG = 'py-32 px-6 sm:px-10 lg:px-12 relative overflow-hidden'
-const PRODUCTS_BG = 'bg-silicon-slate/10'
+const SECTION_BG = 'px-6 sm:px-10 lg:px-12 relative overflow-hidden'
+const PRODUCTS_SECTION_BG =
+  'pt-40 pb-32 bg-[linear-gradient(180deg,#121E31_0%,rgba(18,30,49,0.98)_28%,rgba(44,62,80,0.10)_100%)]'
 const MERCHANDISE_BG = 'bg-background/20'
 
 function ProductCard({
@@ -147,14 +148,14 @@ export default function Store({ section = 'all' }: { section?: StoreSection }) {
     return (
       <>
         {showProducts && (
-          <section id="products" className={`${SECTION_BG} ${PRODUCTS_BG}`}>
+          <section id="products" className={`${SECTION_BG} ${PRODUCTS_SECTION_BG}`}>
             <div className="max-w-7xl mx-auto text-center">
               <div className="h-10 w-48 bg-silicon-slate/20 mx-auto rounded-full animate-pulse" />
             </div>
           </section>
         )}
         {showMerchandise && (
-          <section id="merchandise" className={`${SECTION_BG} ${MERCHANDISE_BG}`}>
+          <section id="merchandise" className={`${SECTION_BG} ${MERCHANDISE_BG} py-32`}>
             <div className="max-w-7xl mx-auto text-center">
               <div className="h-10 w-48 bg-silicon-slate/20 mx-auto rounded-full animate-pulse" />
             </div>
@@ -168,7 +169,15 @@ export default function Store({ section = 'all' }: { section?: StoreSection }) {
     <>
       {showProducts && (
       /* Products (digital) */
-      <section id="products" className={`${SECTION_BG} ${PRODUCTS_BG}`}>
+      <section id="products" className={`${SECTION_BG} ${PRODUCTS_SECTION_BG}`}>
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-[radial-gradient(ellipse_at_78%_0%,rgba(212,175,55,0.12),transparent_58%)]"
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-[linear-gradient(180deg,rgba(5,9,15,0.16)_0%,rgba(18,30,49,0)_100%)]"
+          aria-hidden="true"
+        />
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center mb-20 animate-fade-in-up">
             <div className="pill-badge bg-silicon-slate/30 border-radiant-gold/20 mb-6 mx-auto">
@@ -220,7 +229,7 @@ export default function Store({ section = 'all' }: { section?: StoreSection }) {
       )}
 
       {showMerchandise && (
-      <section id="merchandise" className={`${SECTION_BG} ${MERCHANDISE_BG}`}>
+      <section id="merchandise" className={`${SECTION_BG} ${MERCHANDISE_BG} py-32`}>
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center mb-20 animate-fade-in-up">
             <div className="pill-badge bg-background/50 border-radiant-gold/20 mb-6 mx-auto">
