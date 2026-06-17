@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, ClipboardList, Gauge, Network, type LucideIcon } from 'lucide-react'
+import { ArrowRight, Route, ScanSearch, Workflow, type LucideIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 const SYSTEM_STORY_ASSET_PATH = '/prototypes/portfolio-pipeline-hero'
@@ -12,7 +12,8 @@ type SystemStoryFrame = {
   copy: string
   image: string
   icon: LucideIcon
-  cue: string
+  calloutTitle: string
+  detail: string
 }
 
 const frames: SystemStoryFrame[] = [
@@ -21,24 +22,30 @@ const frames: SystemStoryFrame[] = [
     copy:
       'Small businesses can have the right people, tools, and intentions while intake, scheduling, communications, delivery, billing, reporting, and knowledge still move in separate rooms.',
     image: `${SYSTEM_STORY_ASSET_PATH}/system-story-fragmented-rooms-20260617.webp`,
-    icon: ClipboardList,
-    cue: 'Find the separated rooms',
+    icon: ScanSearch,
+    calloutTitle: 'Intake Drift Detected',
+    detail:
+      'Diagnostic read: requests enter through one channel, scheduling lives somewhere else, delivery updates depend on memory, and billing or reporting only appears after the work has already moved.',
   },
   {
     title: 'We map the operating system.',
     copy:
       'AmaduTown traces how work enters, where decisions wait, and which handoffs create repeat effort. The map turns scattered activity into a buildable blueprint.',
     image: `${SYSTEM_STORY_ASSET_PATH}/system-story-blueprint-map-20260617.webp`,
-    icon: Network,
-    cue: 'Trace the handoffs',
+    icon: Route,
+    calloutTitle: 'Handoffs Under Review',
+    detail:
+      'Mapping follows the path from first inquiry to completed service, marking where ownership changes, where decisions pause, and where the same information gets retyped across tools.',
   },
   {
     title: 'Then we connect the work.',
     copy:
       'Automations, agents, dashboards, and reusable playbooks become the piping between departments, so the business operates with less chasing and clearer follow-through.',
     image: `${SYSTEM_STORY_ASSET_PATH}/system-story-connected-pipeline-20260617.webp`,
-    icon: Gauge,
-    cue: 'Connect the system',
+    icon: Workflow,
+    calloutTitle: 'Operating Layer Engaged',
+    detail:
+      'The connection layer turns those mapped handoffs into triggers, dashboards, reminders, and reusable playbooks so the business can move as one system instead of separate rooms.',
   },
 ]
 
@@ -227,11 +234,10 @@ export default function SystemStory() {
                   <ActiveIcon size={20} />
                 </div>
                 <p className="system-type-line font-heading text-[0.62rem] uppercase tracking-[0.24em] text-radiant-gold/90">
-                  {frames[activeFrame].cue}
+                  {frames[activeFrame].calloutTitle}
                 </p>
                 <p className="system-focus-copy mt-4 font-body text-sm leading-7 text-platinum-white/66">
-                  The visual language stays connected to the storefront schematic: rooms,
-                  paths, and pipework becoming one coordinated operating layer.
+                  {frames[activeFrame].detail}
                 </p>
               </div>
             </div>
