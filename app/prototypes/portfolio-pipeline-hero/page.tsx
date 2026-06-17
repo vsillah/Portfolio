@@ -47,7 +47,7 @@ export default function PortfolioPipelineHeroPrototypePage() {
           fill
           priority
           sizes="100vw"
-          className="object-cover object-[72%_center] scale-[1.34] sm:object-right sm:scale-[1.28]"
+          className="object-cover object-center"
         />
 
         <div className="absolute inset-0 bg-[#05090f]/24" />
