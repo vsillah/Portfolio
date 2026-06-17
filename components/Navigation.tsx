@@ -13,6 +13,7 @@ import { ThemePreferenceList } from '@/components/ThemeToggle'
 
 const navItems = [
   { name: 'Home', href: '#home' },
+  { name: 'System', href: '#system' },
   { name: 'Products', href: '#products' },
   { name: 'Services', href: '#services' },
   { name: 'Merchandise', href: '#merchandise' },
