@@ -6,7 +6,7 @@ Create a cinematic homepage hero video/still system for AmaduTown that builds on
 
 - Static reference: `/public/prototypes/portfolio-pipeline-hero/canva-hero-pipeline-candidate-02.png`
 - Prototype route: `/prototypes/portfolio-pipeline-hero`
-- Working idea: a client business appears as many separated operating rooms, then a polished gold pipeline connects the rooms into one coordinated operating system.
+- Working idea: a small local business storefront opens into many separated operating rooms, then a polished gold pipeline connects the rooms into one coordinated operating system.
 
 The output should feel like a top-tier web design firm created a premium hero system, not an explainer video.
 
@@ -49,6 +49,9 @@ Avoid:
 
 Full frame:
 
+- The first/foreground portion of the scene should include a transparent local storefront facade with a signature striped awning, glass display windows, and a street-facing threshold.
+- The storefront should feel integrated into the exploded operating floor, as if the viewer can see through the front of a neighborhood business into the rooms behind it.
+- The storefront cue should make the business feel local and approachable, not like a corporate office tower.
 - Exploded isometric business operating floor is centered and spans the full hero width.
 - Show enough separated departments to articulate dysfunction: ideally 7 distinct business functions, not only 3-4 rooms.
 - Rooms separated with visible gaps while still aligned to one invisible building grid.
@@ -56,6 +59,7 @@ Full frame:
 - The left/center-left area may be darker and lower contrast for legibility, but it should still contain the schematic environment, floor grid, room edges, pipework, or connected infrastructure.
 - No single room or pipe segment should dominate so much that the business looks like only a few departments.
 - No object should create a hard visual collision with the H1 placement.
+- The awning should be recognizable as a small-business storefront detail, but it should not contain readable text or a logo.
 - Distinct room functions suggested visually:
   - client intake / CRM
   - scheduling
@@ -104,7 +108,7 @@ Use the uploaded reference image as the composition and style anchor.
 ```
 Create an 8-10 second cinematic website hero loop from the reference image.
 
-The scene is a premium isometric exploded business operating floor on a dark navy architectural background. The operating-floor schematic must be centered and span the full width of the hero behind the eventual website text overlay. Do not create a blank left-side panel. Show enough separated departments to communicate operational dysfunction: client intake, scheduling, communications, operations, billing, reporting, and knowledge base should read as distinct spaces, not just 3-4 rooms. The left and center-left area can be darker and quieter for readability, but it should still show the schematic environment, floor grid, room edges, pipework, or connected infrastructure. Separated business rooms align to one invisible building grid. The rooms imply each function without any readable labels or text.
+The scene is a premium isometric exploded small local business operating floor on a dark navy architectural background. The first/foreground portion includes a transparent storefront facade with a recognizable striped awning, glass display windows, and a street-facing threshold, like the viewer can see through a neighborhood shop into the operating rooms behind it. The operating-floor schematic must be centered and span the full width of the hero behind the eventual website text overlay. Do not create a blank left-side panel. Show enough separated departments to communicate operational dysfunction: client intake, scheduling, communications, operations, billing, reporting, and knowledge base should read as distinct spaces, not just 3-4 rooms. The left and center-left area can be darker and quieter for readability, but it should still show the storefront transparency, schematic environment, floor grid, room edges, pipework, or connected infrastructure. Separated business rooms align to one invisible building grid. The rooms imply each function without any readable labels or text.
 
 A polished gold plumbing pipeline is the hero object. It has real thickness, elbow joints, couplers, valves, branch lines, and warm metallic reflections. The pipeline represents AmaduTown as the infrastructure connecting the business.
 
@@ -112,13 +116,13 @@ Motion: begin with many rooms separated and the pipeline dim. A warm gold pulse 
 
 Style: luxury SaaS strategy firm, premium editorial 3D/isometric render, dark navy and charcoal, glass architecture, refined materials, warm gold highlights, precise and spacious composition.
 
-Avoid: words, labels, fake UI text, logos, watermarks, cartoon style, flat infographic style, random neon particles, clutter, people as the focal point, dramatic camera spin, fast zoom, shaky camera, rainbow color effects.
+Avoid: words, labels, fake UI text, logos, watermarks, corporate office tower, mall storefront, cartoon style, flat infographic style, random neon particles, clutter, people as the focal point, dramatic camera spin, fast zoom, shaky camera, rainbow color effects.
 ```
 
 ## Negative Prompt
 
 ```
-readable text, labels, fake interface words, logos, watermarks, people as focal point, cartoon, flat vector, infographic, low-poly, blocky cubes, cluttered dashboard, random icons, rainbow glow, purple neon, camera shake, fast rotation, excessive particles, stock office photo, overexposed gold, unreadable miniature details
+readable text, labels, fake interface words, logos, watermarks, corporate tower, shopping mall, people as focal point, cartoon, flat vector, infographic, low-poly, blocky cubes, cluttered dashboard, random icons, rainbow glow, purple neon, camera shake, fast rotation, excessive particles, stock office photo, overexposed gold, unreadable miniature details
 ```
 
 ## Shot Variants To Generate
@@ -144,6 +148,7 @@ readable text, labels, fake interface words, logos, watermarks, people as focal 
 The output is usable only if:
 
 - The schematic fills the full hero width and can sit behind native text.
+- A transparent small-business storefront with a striped awning is visible at the beginning/foreground of the room sequence.
 - At least 7 distinct operating departments are visible enough to communicate fragmentation.
 - The overlay area has enough contrast for white/off-white text after a light code-side gradient.
 - No generated text appears anywhere in the image.

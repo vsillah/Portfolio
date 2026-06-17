@@ -57,6 +57,51 @@ export default function PortfolioPipelineHeroPrototypePage() {
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#05090f] to-transparent" />
 
         <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+          <svg
+            className="absolute bottom-[2%] left-[6%] hidden w-[43rem] max-w-[52vw] opacity-[0.36] mix-blend-screen lg:block"
+            viewBox="0 0 720 390"
+            fill="none"
+          >
+            <defs>
+              <linearGradient id="storefrontGold" x1="72" y1="35" x2="644" y2="314" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#F5D060" stopOpacity="0.92" />
+                <stop offset="0.55" stopColor="#D4AF37" stopOpacity="0.56" />
+                <stop offset="1" stopColor="#8B6914" stopOpacity="0.2" />
+              </linearGradient>
+              <linearGradient id="storefrontGlass" x1="96" y1="120" x2="610" y2="335" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#EAECEE" stopOpacity="0.2" />
+                <stop offset="1" stopColor="#EAECEE" stopOpacity="0.02" />
+              </linearGradient>
+            </defs>
+            <path
+              d="M91 121H626V333H91V121Z"
+              fill="url(#storefrontGlass)"
+              stroke="url(#storefrontGold)"
+              strokeWidth="1.4"
+            />
+            <path d="M119 156H292V333H119V156Z" stroke="url(#storefrontGold)" strokeWidth="1.2" />
+            <path d="M331 156H598V333H331V156Z" stroke="url(#storefrontGold)" strokeWidth="1.2" />
+            <path d="M91 121L142 66H678L626 121H91Z" fill="#D4AF37" fillOpacity="0.08" stroke="url(#storefrontGold)" strokeWidth="1.4" />
+            <path d="M142 66H678L646 101H111L142 66Z" fill="#05090f" fillOpacity="0.34" />
+            {Array.from({ length: 8 }).map((_, index) => {
+              const x = 143 + index * 67
+              return (
+                <path
+                  key={x}
+                  d={`M${x} 66L${x - 31} 101H${x + 36}L${x + 67} 66H${x}Z`}
+                  fill={index % 2 === 0 ? '#D4AF37' : '#EAECEE'}
+                  fillOpacity={index % 2 === 0 ? 0.26 : 0.12}
+                />
+              )
+            })}
+            <path d="M111 101H646V121H91L111 101Z" fill="#D4AF37" fillOpacity="0.1" />
+            <path d="M91 121H626" stroke="#F5D060" strokeOpacity="0.54" strokeWidth="1.2" />
+            <path d="M205 156V333" stroke="#EAECEE" strokeOpacity="0.18" strokeWidth="1" />
+            <path d="M464 156V333" stroke="#EAECEE" strokeOpacity="0.18" strokeWidth="1" />
+            <path d="M115 333H636" stroke="#D4AF37" strokeOpacity="0.38" strokeWidth="1.6" />
+            <path d="M60 350H672" stroke="#EAECEE" strokeOpacity="0.1" strokeWidth="1" />
+            <path d="M267 216C304 210 332 221 367 215C406 209 425 190 461 188C498 186 526 204 556 197" stroke="#D4AF37" strokeOpacity="0.5" strokeWidth="2" strokeLinecap="round" />
+          </svg>
           <div className="absolute left-[47%] top-[55%] h-px w-[34rem] rotate-[-24deg] bg-gradient-to-r from-transparent via-radiant-gold/90 to-transparent opacity-70 shadow-gold-glow-lg motion-safe:animate-[pipelineSweep_4.8s_ease-in-out_infinite]" />
           <div className="absolute right-[10%] top-[32%] h-24 w-24 rounded-full border border-radiant-gold/20 bg-radiant-gold/10 blur-xl motion-safe:animate-glow-pulse" />
           <div className="absolute right-[24%] top-[52%] h-20 w-20 rounded-full border border-radiant-gold/20 bg-radiant-gold/10 blur-xl motion-safe:animate-glow-pulse [animation-delay:1.2s]" />
