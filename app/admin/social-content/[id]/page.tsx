@@ -1265,8 +1265,10 @@ function SocialContentDetailPage() {
   const visualAssetsRejected = visualAssetsGateState === 'rejected'
   const assetPacketBaseGateState: GateState = productionAssets ? 'in_review' : 'pending'
   const assetPacketGateState: GateState = getExplicitSectionGateState('asset_packet', assetPacketBaseGateState)
+  const assetPacketRejected = assetPacketGateState === 'rejected'
   const privacyBaseGateState: GateState = productionAssets ? (redactionGate.ready ? 'in_review' : 'blocked') : 'pending'
   const privacyGateState: GateState = getExplicitSectionGateState('privacy', privacyBaseGateState)
+  const privacyRejected = privacyGateState === 'rejected'
   const linkedinDraftHandoff = asRecord(ragContext?.linkedin_draft_handoff)
   const linkedinDraftWorkItem = asRecord(linkedinDraftHandoff?.work_item) ?? {}
   const linkedinDraftBlockers = [
@@ -1380,7 +1382,7 @@ function SocialContentDetailPage() {
               <div>
                 <p className="text-sm font-semibold text-red-100">{label} revision in progress</p>
                 <p className="mt-1 text-xs leading-5 text-red-50/75">
-                  Controls are locked until the revised {label.toLowerCase()} are returned for review.
+                  Controls are locked until the revised section is returned for review.
                 </p>
               </div>
               <span className="w-fit rounded-full border border-red-400/40 px-2 py-0.5 text-[10px] font-semibold text-red-100">
@@ -2197,7 +2199,7 @@ function SocialContentDetailPage() {
                         <button
                           type="button"
                           onClick={handlePrepareAssetPacket}
-                          disabled={preparingAssetPacket || item.status !== 'approved'}
+                          disabled={preparingAssetPacket || item.status !== 'approved' || assetPacketRejected}
                           className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-amber-400/45 px-3 py-2 text-sm font-semibold text-amber-100 transition-colors hover:bg-amber-500/10 disabled:opacity-50"
                         >
                           {preparingAssetPacket ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
@@ -2274,7 +2276,7 @@ function SocialContentDetailPage() {
                                       key={decision}
                                       type="button"
                                       onClick={() => handleReviewRedaction(redactionItem.id, decision)}
-                                      disabled={reviewingRedactionId === redactionItem.id}
+                                      disabled={privacyRejected || reviewingRedactionId === redactionItem.id}
                                       className="rounded-lg border border-gray-700 px-2 py-1 text-xs font-medium text-gray-200 transition-colors hover:bg-gray-800 disabled:opacity-50"
                                     >
                                       {reviewingRedactionId === redactionItem.id ? 'Saving...' : label}

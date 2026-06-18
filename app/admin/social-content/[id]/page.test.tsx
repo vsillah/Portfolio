@@ -313,11 +313,43 @@ describe('SocialContentDetailRoute visual production review', () => {
       expect(screen.getAllByText('Visual assets: Rejected').length).toBeGreaterThan(1)
     })
     expect(screen.getByText('Visual assets revision in progress')).toBeInTheDocument()
-    expect(screen.getByText('Controls are locked until the revised visual assets are returned for review.')).toBeInTheDocument()
+    expect(screen.getByText('Controls are locked until the revised section is returned for review.')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Rejected' })).toBeDisabled()
     expect(screen.getByRole('button', { name: /Approve Visuals/i })).toBeDisabled()
     expect(screen.getByRole('button', { name: /Regenerate Framework Illustration/i })).toBeDisabled()
     expect(screen.getByRole('button', { name: /Switch to App Screenshot Carousel/i })).toBeDisabled()
+  })
+
+  it('locks asset packet actions while a rejected section is awaiting repair', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        item: {
+          ...baseItem,
+          rag_context: {
+            ...baseItem.rag_context,
+            section_gate_reviews: {
+              asset_packet: {
+                status: 'rejected',
+                decided_at: '2026-06-18T14:00:00.000Z',
+                note: 'Add the missing b-roll evidence before review.',
+                repair_status: 'requested',
+                repair_requested_at: '2026-06-18T14:00:00.000Z',
+              },
+            },
+          },
+        },
+      }),
+    })))
+
+    render(<SocialContentDetailRoute />)
+
+    expect(await screen.findByText('Asset packet revision in progress')).toBeInTheDocument()
+    expect(screen.getAllByText('Asset packet: Rejected').length).toBeGreaterThan(1)
+    expect(screen.getByText('Controls are locked until the revised section is returned for review.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Prepare Asset Packet/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Rejected' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Approve Asset Packet/i })).toBeDisabled()
   })
 
   it('reverts approval with revision feedback before generating the next draft', async () => {
