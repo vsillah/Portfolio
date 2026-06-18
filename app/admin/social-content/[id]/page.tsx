@@ -1909,6 +1909,41 @@ function SocialContentDetailPage() {
                 <span className="text-xs text-gray-500">{postText.length} characters</span>
                 <span className="text-xs text-gray-500">LinkedIn optimal: 150-300 words</span>
               </div>
+              <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">CTA Text</label>
+                  <input
+                    type="text"
+                    value={ctaText}
+                    onChange={(e) => setCtaText(e.target.value)}
+                    disabled={!isEditable}
+                    placeholder="e.g. DM me 'AUDIT' for the free framework"
+                    className="w-full bg-gray-800 text-gray-200 border border-gray-700 rounded-lg px-3 py-2 text-sm disabled:opacity-60"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">CTA URL</label>
+                  <input
+                    type="url"
+                    value={ctaUrl}
+                    onChange={(e) => setCtaUrl(e.target.value)}
+                    disabled={!isEditable}
+                    placeholder="https://amadutown.com/..."
+                    className="w-full bg-gray-800 text-gray-200 border border-gray-700 rounded-lg px-3 py-2 text-sm disabled:opacity-60"
+                  />
+                </div>
+              </div>
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-400 mb-1">Hashtags (comma-separated)</label>
+                <input
+                  type="text"
+                  value={hashtags}
+                  onChange={(e) => setHashtags(e.target.value)}
+                  disabled={!isEditable}
+                  placeholder="automation, business, AI"
+                  className="w-full bg-gray-800 text-gray-200 border border-gray-700 rounded-lg px-3 py-2 text-sm disabled:opacity-60"
+                />
+              </div>
               {canRequestCopyRevision && (
                 <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -1965,45 +2000,6 @@ function SocialContentDetailPage() {
                   </div>
                 </div>
               )}
-            </div>
-
-            {/* CTA */}
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">CTA Text</label>
-                <input
-                  type="text"
-                  value={ctaText}
-                  onChange={(e) => setCtaText(e.target.value)}
-                  disabled={!isEditable}
-                  placeholder="e.g. DM me 'AUDIT' for the free framework"
-                  className="w-full bg-gray-800 text-gray-200 border border-gray-700 rounded-lg px-3 py-2 text-sm disabled:opacity-60"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">CTA URL</label>
-                <input
-                  type="url"
-                  value={ctaUrl}
-                  onChange={(e) => setCtaUrl(e.target.value)}
-                  disabled={!isEditable}
-                  placeholder="https://amadutown.com/..."
-                  className="w-full bg-gray-800 text-gray-200 border border-gray-700 rounded-lg px-3 py-2 text-sm disabled:opacity-60"
-                />
-              </div>
-            </div>
-
-            {/* Hashtags */}
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-              <label className="block text-sm font-medium text-gray-400 mb-1">Hashtags (comma-separated)</label>
-              <input
-                type="text"
-                value={hashtags}
-                onChange={(e) => setHashtags(e.target.value)}
-                disabled={!isEditable}
-                placeholder="automation, business, AI"
-                className="w-full bg-gray-800 text-gray-200 border border-gray-700 rounded-lg px-3 py-2 text-sm disabled:opacity-60"
-              />
             </div>
 
             {/* Visual Media section (single image or carousel) */}

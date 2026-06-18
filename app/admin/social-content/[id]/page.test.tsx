@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import SocialContentDetailRoute from './page'
@@ -130,6 +130,11 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.queryByText('Publish immediately after approval')).not.toBeInTheDocument()
 
     expect(screen.getByDisplayValue('The draft copy is approved and should stay locked.')).toBeDisabled()
+    const copyGate = screen.getByText('Post Text').closest('#social-copy-gate')
+    expect(copyGate).toBeTruthy()
+    expect(within(copyGate as HTMLElement).getByText('CTA Text')).toBeInTheDocument()
+    expect(within(copyGate as HTMLElement).getByText('CTA URL')).toBeInTheDocument()
+    expect(within(copyGate as HTMLElement).getByText('Hashtags (comma-separated)')).toBeInTheDocument()
     expect(screen.getByDisplayValue(/Architecture/i)).not.toBeDisabled()
     expect(screen.getByDisplayValue('Create a framework visual about review gates.')).not.toBeDisabled()
   })
