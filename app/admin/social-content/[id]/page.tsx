@@ -1189,6 +1189,18 @@ function SocialContentDetailPage() {
   const humanReviewGateState: GateState = agentPilotPassToHuman ? 'approved' : 'pending'
   const challengerGateState: GateState = gateStateFromRawStatus(agentPilotChallengerStatus)
   const chronicleGateState: GateState = gateStateFromRawStatus(agentPilotChronicleStatus)
+  const supportingContextDetails: Array<{ label: string; state: GateState }> = [
+    { label: 'Human review', state: humanReviewGateState },
+    { label: 'Challenger', state: challengerGateState },
+    { label: 'Chronicle', state: chronicleGateState },
+  ]
+  const supportingContextGateState: GateState = supportingContextDetails.some((gate) => gate.state === 'blocked')
+    ? 'blocked'
+    : supportingContextDetails.every((gate) => gate.state === 'approved')
+      ? 'approved'
+      : supportingContextDetails.some((gate) => gate.state === 'in_review')
+        ? 'in_review'
+        : 'pending'
   const visualAssetReady = isCarouselFormat
     ? Boolean(item.carousel_slide_urls?.length)
     : Boolean(item.image_url)
@@ -1225,18 +1237,8 @@ function SocialContentDetailPage() {
       href: '#social-copy-gate',
     },
     {
-      label: 'Human review',
-      state: humanReviewGateState,
-      href: '#social-supporting-context-gate',
-    },
-    {
-      label: 'Challenger',
-      state: challengerGateState,
-      href: '#social-supporting-context-gate',
-    },
-    {
-      label: 'Chronicle',
-      state: chronicleGateState,
+      label: 'Supporting context',
+      state: supportingContextGateState,
       href: '#social-supporting-context-gate',
     },
     {
@@ -1490,16 +1492,13 @@ function SocialContentDetailPage() {
               <summary className="cursor-pointer list-none px-4 py-3">
                 <span className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <span className="text-sm font-semibold text-gray-200">Supporting context and checklists</span>
-                  <span className="flex flex-wrap gap-2">
-                    {([
-                      ['Human review', humanReviewGateState],
-                      ['Challenger', challengerGateState],
-                      ['Chronicle', chronicleGateState],
-                    ] as Array<[string, GateState]>).map(([label, state]) => (
-                      <span key={label} className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[state].className}`}>
-                        {label}: {GATE_STATE_CONFIG[state].label}
-                      </span>
-                    ))}
+                  <span className="flex flex-col gap-1 text-left sm:text-right">
+                    <span className={`w-fit rounded-full border px-2 py-0.5 text-[10px] font-semibold sm:ml-auto ${GATE_STATE_CONFIG[supportingContextGateState].className}`}>
+                      Supporting context: {GATE_STATE_CONFIG[supportingContextGateState].label}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {supportingContextDetails.map((gate) => `${gate.label} ${GATE_STATE_CONFIG[gate.state].label.toLowerCase()}`).join(' · ')}
+                    </span>
                   </span>
                 </span>
               </summary>
