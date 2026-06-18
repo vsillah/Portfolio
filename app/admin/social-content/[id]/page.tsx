@@ -1698,29 +1698,31 @@ function SocialContentDetailPage() {
                       </div>
                     </div>
                     <div className="mt-4 border-t border-amber-500/25 pt-4">
-                      <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-                        <div className="flex min-w-0 items-start gap-3">
-                          <FileText className="mt-0.5 h-4 w-4 shrink-0 text-amber-200" />
-                          <div>
-                            <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex flex-col gap-3">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                          <div className="flex min-w-0 items-start gap-3">
+                            <FileText className="mt-0.5 h-4 w-4 shrink-0 text-amber-200" />
+                            <div>
                               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-100/70">Asset packet</p>
-                              <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[assetPacketGateState].className}`}>
-                                Asset packet: {GATE_STATE_CONFIG[assetPacketGateState].label}
-                              </span>
-                              <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[privacyGateState].className}`}>
-                                Privacy: {GATE_STATE_CONFIG[privacyGateState].label}
-                              </span>
+                              <p className="mt-1 text-xs leading-5 text-amber-50/70">
+                                Required for repeatable b-roll, video, and privacy QA.
+                              </p>
                             </div>
-                            <p className="mt-1 text-xs leading-5 text-amber-50/70">
-                              Required for repeatable b-roll, video, and privacy QA.
-                            </p>
+                          </div>
+                          <div className="flex shrink-0 flex-wrap gap-2 sm:justify-end">
+                            <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[assetPacketGateState].className}`}>
+                              Asset packet: {GATE_STATE_CONFIG[assetPacketGateState].label}
+                            </span>
+                            <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[privacyGateState].className}`}>
+                              Privacy: {GATE_STATE_CONFIG[privacyGateState].label}
+                            </span>
                           </div>
                         </div>
                         <button
                           type="button"
                           onClick={handlePrepareAssetPacket}
                           disabled={preparingAssetPacket || item.status !== 'approved'}
-                          className="inline-flex items-center justify-center gap-2 rounded-lg border border-amber-400/45 px-3 py-2 text-sm font-semibold text-amber-100 transition-colors hover:bg-amber-500/10 disabled:opacity-50"
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-amber-400/45 px-3 py-2 text-sm font-semibold text-amber-100 transition-colors hover:bg-amber-500/10 disabled:opacity-50"
                         >
                           {preparingAssetPacket ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
                           Prepare Asset Packet
