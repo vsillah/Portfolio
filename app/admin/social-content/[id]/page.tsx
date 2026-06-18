@@ -92,10 +92,6 @@ const GATE_STATE_CONFIG: Record<GateState, { label: string; className: string }>
   },
 }
 
-function formatGateDetail(value: string, fallback = 'not started'): string {
-  return (value || fallback).replace(/_/g, ' ')
-}
-
 function gateStateFromRawStatus(value: string): GateState {
   const status = value.toLowerCase()
   if (!status) return 'pending'
@@ -989,43 +985,52 @@ function SocialContentDetailPage() {
     : scheduledFor
       ? 'Approve & Schedule'
       : 'Approve & Publish'
-  const reviewGateSummary: Array<{ label: string; state: GateState; detail: string }> = [
+  const copyGateState: GateState = item.status === 'approved'
+    ? 'approved'
+    : isEditable
+      ? 'in_review'
+      : gateStateFromRawStatus(item.status)
+  const humanReviewGateState: GateState = agentPilotPassToHuman ? 'approved' : 'pending'
+  const challengerGateState: GateState = gateStateFromRawStatus(agentPilotChallengerStatus)
+  const chronicleGateState: GateState = gateStateFromRawStatus(agentPilotChronicleStatus)
+  const visualAssetReady = isCarouselFormat
+    ? Boolean(item.carousel_slide_urls?.length)
+    : Boolean(item.image_url)
+  const visualAssetsGateState: GateState = visualAssetReady ? 'approved' : 'pending'
+  const assetPacketGateState: GateState = productionAssets ? 'approved' : 'pending'
+  const privacyGateState: GateState = productionAssets ? (redactionGate.ready ? 'approved' : 'blocked') : 'pending'
+  const linkedinDraftHandoff = asRecord(ragContext?.linkedin_draft_handoff)
+  const linkedinDraftWorkItem = asRecord(linkedinDraftHandoff?.work_item) ?? {}
+  const reviewGateSummary: Array<{ label: string; state: GateState }> = [
     {
       label: 'Copy',
-      state: item.status === 'approved' ? 'approved' : isEditable ? 'in_review' : gateStateFromRawStatus(item.status),
-      detail: item.status === 'approved' ? 'approved and locked' : statusCfg.label.toLowerCase(),
+      state: copyGateState,
     },
     {
       label: 'Human review',
-      state: agentPilotPassToHuman ? 'approved' : 'pending',
-      detail: agentPilotPassToHuman ? 'ready for operator' : formatGateDetail(agentPilotGateStatus, 'research pending'),
+      state: humanReviewGateState,
     },
     {
       label: 'Challenger',
-      state: gateStateFromRawStatus(agentPilotChallengerStatus),
-      detail: formatGateDetail(agentPilotChallengerStatus, 'not started'),
+      state: challengerGateState,
     },
     {
       label: 'Chronicle',
-      state: gateStateFromRawStatus(agentPilotChronicleStatus),
-      detail: formatGateDetail(agentPilotChronicleStatus, 'not started'),
+      state: chronicleGateState,
     },
     {
       label: 'Visual assets',
-      state: productionAssets ? 'in_review' : 'pending',
-      detail: productionAssets ? 'asset packet prepared' : 'awaiting asset packet',
+      state: visualAssetsGateState,
     },
     {
       label: 'Privacy',
-      state: productionAssets ? (redactionGate.ready ? 'approved' : 'blocked') : 'pending',
-      detail: productionAssets
-        ? (redactionGate.ready ? 'redaction clear' : `${redactionGate.unresolvedItems.length} unresolved`)
-        : 'not started',
+      state: privacyGateState,
     },
     {
       label: 'Publish',
-      state: isDraftOnlyPilot ? 'pending' : gateStateFromRawStatus(agentPilotPublishGate),
-      detail: isDraftOnlyPilot ? 'draft-only gate' : formatGateDetail(agentPilotPublishGate, 'review required'),
+      state: isDraftOnlyPilot
+        ? (linkedinDraftHandoff ? 'approved' : 'pending')
+        : gateStateFromRawStatus(agentPilotPublishGate),
     },
   ]
   const overallGateState: GateState = reviewGateSummary.some((gate) => gate.state === 'blocked')
@@ -1035,11 +1040,6 @@ function SocialContentDetailPage() {
       : reviewGateSummary.every((gate) => gate.state === 'pending')
         ? 'pending'
         : 'in_review'
-  const linkedinDraftHandoff = asRecord(ragContext?.linkedin_draft_handoff)
-  const linkedinDraftWorkItem = asRecord(linkedinDraftHandoff?.work_item) ?? {}
-  const visualAssetReady = isCarouselFormat
-    ? Boolean(item.carousel_slide_urls?.length)
-    : Boolean(item.image_url)
   const linkedinDraftBlockers = [
     item.status !== 'approved' ? 'Copy must be approved first.' : '',
     !visualAssetReady ? 'Choose and generate a visual asset first.' : '',
@@ -1047,6 +1047,14 @@ function SocialContentDetailPage() {
     productionAssets && !redactionGate.ready ? redactionGate.message || 'Resolve video privacy review first.' : '',
   ].filter(Boolean)
   const canCreateLinkedInDraft = isDraftOnlyPilot && linkedinDraftBlockers.length === 0
+  const linkedinDraftGateState: GateState = linkedinDraftHandoff
+    ? 'approved'
+    : videoPrivacyBlocked
+      ? 'blocked'
+      : canCreateLinkedInDraft
+        ? 'in_review'
+        : 'pending'
+  const nextReviewGate = reviewGateSummary.find((gate) => gate.state !== 'approved')
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -1116,6 +1124,11 @@ function SocialContentDetailPage() {
                 <span className={`mt-2 inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${GATE_STATE_CONFIG[overallGateState].className}`}>
                   {GATE_STATE_CONFIG[overallGateState].label}
                 </span>
+                {nextReviewGate && (
+                  <p className="mt-2 text-xs text-gray-500">
+                    Next: {nextReviewGate.label}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -1133,31 +1146,22 @@ function SocialContentDetailPage() {
               </div>
             )}
 
-            <div className="mt-4 rounded-lg border border-silicon-slate/80 bg-background/35 p-3">
-              <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Review gates</p>
-                  <p className="mt-1 text-sm text-gray-400">Every gate uses the same state language; the detail line preserves each system status.</p>
-                </div>
-              </div>
-              <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-                {reviewGateSummary.map((gate) => (
-                  <div key={gate.label} className="rounded-lg border border-silicon-slate/80 bg-imperial-navy/35 p-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">{gate.label}</p>
-                      <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[gate.state].className}`}>
-                        {GATE_STATE_CONFIG[gate.state].label}
-                      </span>
-                    </div>
-                    <p className="mt-2 text-sm leading-5 text-gray-200">{gate.detail}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
             <details className="mt-4 rounded-lg border border-silicon-slate/80 bg-background/35">
-              <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-gray-200">
-                Supporting context and checklists
+              <summary className="cursor-pointer list-none px-4 py-3">
+                <span className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <span className="text-sm font-semibold text-gray-200">Supporting context and checklists</span>
+                  <span className="flex flex-wrap gap-2">
+                    {([
+                      ['Human review', humanReviewGateState],
+                      ['Challenger', challengerGateState],
+                      ['Chronicle', chronicleGateState],
+                    ] as Array<[string, GateState]>).map(([label, state]) => (
+                      <span key={label} className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[state].className}`}>
+                        {label}: {GATE_STATE_CONFIG[state].label}
+                      </span>
+                    ))}
+                  </span>
+                </span>
               </summary>
               <div className="grid gap-3 border-t border-silicon-slate/70 p-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(18rem,0.8fr)]">
                 <div className="rounded-lg border border-silicon-slate/80 bg-imperial-navy/35 p-4">
@@ -1549,7 +1553,12 @@ function SocialContentDetailPage() {
           <div className="min-w-0 space-y-4">
             {/* Post text */}
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-              <label className="block text-sm font-medium text-gray-400 mb-2">Post Text</label>
+              <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <label className="text-sm font-medium text-gray-400">Post Text</label>
+                <span className={`inline-flex w-fit rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[copyGateState].className}`}>
+                  Copy: {GATE_STATE_CONFIG[copyGateState].label}
+                </span>
+              </div>
               <textarea
                 value={postText}
                 onChange={(e) => setPostText(e.target.value)}
@@ -1607,13 +1616,21 @@ function SocialContentDetailPage() {
               {canEditVisualProduction && (
                 <div className="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
                   <div className="flex flex-col gap-2">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">Visual Production</p>
-                      <p className="mt-1 text-sm leading-6 text-amber-50/90">
-                        {visualProductionUnlocked
-                          ? 'Copy is approved and locked. Choose one visual format; selecting either path replaces the other draft visual and does not publish, schedule, or send provider work.'
-                          : 'Choose one visual format for this draft. These actions stay separate from copy approval and publishing.'}
-                      </p>
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">Visual Production</p>
+                        <p className="mt-1 text-sm leading-6 text-amber-50/90">
+                          {visualProductionUnlocked
+                            ? 'Copy approved. Choose one visual format; either path replaces the current draft visual.'
+                            : 'Choose one visual format for this draft. These actions stay separate from copy approval and publishing.'}
+                        </p>
+                      </div>
+                      <span className={`inline-flex w-fit shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[visualAssetsGateState].className}`}>
+                        Visual assets: {GATE_STATE_CONFIG[visualAssetsGateState].label}
+                      </span>
+                    </div>
+                    <div className="rounded-lg border border-amber-500/20 bg-background/25 px-3 py-2 text-xs leading-5 text-amber-50/75">
+                      Clicking a visual action may generate or replace assets; it does not publish or schedule.
                     </div>
                     <div className="mt-3">
                       <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-100/70">Choose one visual format</p>
@@ -1687,17 +1704,15 @@ function SocialContentDetailPage() {
                           <div>
                             <div className="flex flex-wrap items-center gap-2">
                               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-100/70">Asset packet</p>
-                              <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
-                                productionAssets
-                                  ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200'
-                                  : 'border-amber-500/35 bg-amber-500/10 text-amber-100'
-                              }`}
-                              >
-                                {productionAssets ? 'Prepared' : 'Not prepared'}
+                              <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[assetPacketGateState].className}`}>
+                                Asset packet: {GATE_STATE_CONFIG[assetPacketGateState].label}
+                              </span>
+                              <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[privacyGateState].className}`}>
+                                Privacy: {GATE_STATE_CONFIG[privacyGateState].label}
                               </span>
                             </div>
                             <p className="mt-1 text-xs leading-5 text-amber-50/70">
-                              Required for repeatable b-roll, video, and privacy QA; not needed for a one-off visual.
+                              Required for repeatable b-roll, video, and privacy QA.
                             </p>
                           </div>
                         </div>
@@ -2165,10 +2180,17 @@ function SocialContentDetailPage() {
         {/* SECTION 2: "Where & When" Publish Panel                          */}
         {/* ================================================================ */}
         <div className="bg-gray-900 border-2 border-gray-700 rounded-xl p-6 space-y-6">
-          <h2 className="text-lg font-semibold text-gray-200 flex items-center gap-2">
-            <Send className="w-5 h-5 text-green-400" />
-            {isDraftOnlyPilot ? 'Draft Approval Gate' : 'Where & When'}
-          </h2>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-lg font-semibold text-gray-200 flex items-center gap-2">
+              <Send className="w-5 h-5 text-green-400" />
+              {isDraftOnlyPilot ? 'Draft Approval Gate' : 'Where & When'}
+            </h2>
+            {isDraftOnlyPilot && (
+              <span className={`inline-flex w-fit rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[linkedinDraftGateState].className}`}>
+                LinkedIn draft: {GATE_STATE_CONFIG[linkedinDraftGateState].label}
+              </span>
+            )}
+          </div>
 
           {isDraftOnlyPilot && (
             <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">

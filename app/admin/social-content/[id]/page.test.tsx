@@ -88,6 +88,14 @@ describe('SocialContentDetailRoute visual production review', () => {
     render(<SocialContentDetailRoute />)
 
     expect(await screen.findByText('Visual Production')).toBeInTheDocument()
+    expect(screen.queryByText('Review gates')).not.toBeInTheDocument()
+    expect(screen.queryByText('Every gate uses the same state language; the detail line preserves each system status.')).not.toBeInTheDocument()
+    expect(screen.queryByText(/Copy is approved and locked/i)).not.toBeInTheDocument()
+    expect(screen.getByText('Copy: Approved')).toBeInTheDocument()
+    expect(screen.getByText('Visual assets: Pending')).toBeInTheDocument()
+    expect(screen.getByText('Asset packet: Pending')).toBeInTheDocument()
+    expect(screen.getByText('Privacy: Pending')).toBeInTheDocument()
+    expect(screen.getByText('LinkedIn draft: Pending')).toBeInTheDocument()
     expect(screen.getByText('Choose one visual format')).toBeInTheDocument()
     expect(screen.getByText('Selected format')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Generate Framework Illustration/i })).toBeInTheDocument()
@@ -153,6 +161,8 @@ describe('SocialContentDetailRoute visual production review', () => {
     render(<SocialContentDetailRoute />)
 
     expect(await screen.findByText('Asset packet')).toBeInTheDocument()
+    expect(screen.getByText('Asset packet: Approved')).toBeInTheDocument()
+    expect(screen.getAllByText('Privacy: Blocked').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Video privacy review required').length).toBeGreaterThan(0)
     expect(screen.getByText('Approve Blur')).toBeInTheDocument()
     expect(screen.getByText('Reject Clip')).toBeInTheDocument()
