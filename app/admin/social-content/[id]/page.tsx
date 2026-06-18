@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { getBackUrl } from '@/lib/admin-return-context'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -72,7 +72,7 @@ const PLATFORM_COLORS: Record<string, { active: string; inactive: string }> = {
   facebook: { active: 'bg-blue-600/20 border-blue-500 text-blue-300', inactive: 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600' },
 }
 
-type GateState = 'approved' | 'in_review' | 'pending' | 'blocked'
+type GateState = 'approved' | 'in_review' | 'pending' | 'blocked' | 'rejected'
 type SectionGateKey = 'visual_assets' | 'asset_packet' | 'privacy' | 'linkedin_draft'
 type SectionGateDecision = 'approved' | 'rejected'
 
@@ -93,6 +93,26 @@ const GATE_STATE_CONFIG: Record<GateState, { label: string; className: string }>
     label: 'Blocked',
     className: 'border-red-500/35 bg-red-500/10 text-red-200',
   },
+  rejected: {
+    label: 'Rejected',
+    className: 'border-red-500/40 bg-red-500/10 text-red-200',
+  },
+}
+
+const SECTION_GATE_KEYS: SectionGateKey[] = ['visual_assets', 'asset_packet', 'privacy', 'linkedin_draft']
+
+const SECTION_GATE_HREFS: Record<SectionGateKey, string> = {
+  visual_assets: '#social-visual-assets-gate',
+  asset_packet: '#social-asset-packet-gate',
+  privacy: '#social-asset-packet-gate',
+  linkedin_draft: '#social-draft-approval-gate',
+}
+
+const SECTION_GATE_LABELS: Record<SectionGateKey, string> = {
+  visual_assets: 'Visual assets',
+  asset_packet: 'Asset packet',
+  privacy: 'Privacy',
+  linkedin_draft: 'LinkedIn draft',
 }
 
 function gateStateFromRawStatus(value: string): GateState {
@@ -260,9 +280,10 @@ function SocialContentDetailPage() {
     privacy: false,
     linkedin_draft: false,
   })
+  const rejectedGateKeysRef = useRef<SectionGateKey[]>([])
 
-  const fetchItem = useCallback(async () => {
-    setLoading(true)
+  const fetchItem = useCallback(async (options: { silent?: boolean } = {}) => {
+    if (!options.silent) setLoading(true)
     try {
       const session = await getCurrentSession()
       if (!session) return
@@ -303,7 +324,7 @@ function SocialContentDetailPage() {
     } catch (err) {
       console.error('Failed to fetch item:', err)
     } finally {
-      setLoading(false)
+      if (!options.silent) setLoading(false)
     }
   }, [id])
 
@@ -315,6 +336,37 @@ function SocialContentDetailPage() {
     setMessage({ type, text })
     setTimeout(() => setMessage(null), 4000)
   }
+
+  const getRejectedSectionGateKeys = useCallback((contentItem: SocialContentItem | null) => {
+    const rag = asRecord(contentItem?.rag_context)
+    const reviews = asRecord(rag?.section_gate_reviews) ?? {}
+    return SECTION_GATE_KEYS.filter((gateKey) => asString(asRecord(reviews[gateKey])?.status) === 'rejected')
+  }, [])
+
+  useEffect(() => {
+    if (!item) return
+    const rejectedGateKeys = getRejectedSectionGateKeys(item)
+    const previousRejectedGateKeys = rejectedGateKeysRef.current
+    const returnedGateKey = previousRejectedGateKeys.find((gateKey) => !rejectedGateKeys.includes(gateKey))
+    rejectedGateKeysRef.current = rejectedGateKeys
+
+    if (returnedGateKey) {
+      const href = SECTION_GATE_HREFS[returnedGateKey]
+      window.requestAnimationFrame(() => {
+        document.querySelector(href)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        window.history.replaceState(null, '', href)
+      })
+      showMsg('success', `${SECTION_GATE_LABELS[returnedGateKey]} revision returned for review`)
+    }
+  }, [getRejectedSectionGateKeys, item])
+
+  useEffect(() => {
+    if (!item || getRejectedSectionGateKeys(item).length === 0) return
+    const poll = window.setInterval(() => {
+      void fetchItem({ silent: true })
+    }, 10000)
+    return () => window.clearInterval(poll)
+  }, [fetchItem, getRejectedSectionGateKeys, item])
 
   const getFormPayload = () => ({
     post_text: postText,
@@ -592,13 +644,17 @@ function SocialContentDetailPage() {
       const existingRag = asRecord(item.rag_context) ?? {}
       const existingReviews = asRecord(existingRag.section_gate_reviews) ?? {}
       const decidedAt = new Date().toISOString()
+      const existingReview = asRecord(existingReviews[gateKey]) ?? {}
       const section_gate_reviews = {
         ...existingReviews,
         [gateKey]: {
+          ...existingReview,
           status: decision,
           decided_at: decidedAt,
           decided_by: (session as { user?: { id?: string } }).user?.id ?? null,
           note: note || null,
+          repair_status: decision === 'rejected' ? 'requested' : null,
+          repair_requested_at: decision === 'rejected' ? decidedAt : null,
         },
       }
       const rag_context = {
@@ -1116,7 +1172,7 @@ function SocialContentDetailPage() {
   const getExplicitSectionGateState = (gateKey: SectionGateKey, fallback: GateState): GateState => {
     const status = asString(getSectionGateReview(gateKey)?.status)
     if (status === 'approved') return 'approved'
-    if (status === 'rejected') return 'blocked'
+    if (status === 'rejected') return 'rejected'
     return fallback
   }
   const productionAssetSteps = productionAssets ? [
@@ -1206,6 +1262,7 @@ function SocialContentDetailPage() {
     : Boolean(item.image_url)
   const visualAssetsBaseGateState: GateState = visualAssetReady ? 'in_review' : 'pending'
   const visualAssetsGateState: GateState = getExplicitSectionGateState('visual_assets', visualAssetsBaseGateState)
+  const visualAssetsRejected = visualAssetsGateState === 'rejected'
   const assetPacketBaseGateState: GateState = productionAssets ? 'in_review' : 'pending'
   const assetPacketGateState: GateState = getExplicitSectionGateState('asset_packet', assetPacketBaseGateState)
   const privacyBaseGateState: GateState = productionAssets ? (redactionGate.ready ? 'in_review' : 'blocked') : 'pending'
@@ -1262,7 +1319,7 @@ function SocialContentDetailPage() {
       href: '#social-draft-approval-gate',
     },
   ]
-  const overallGateState: GateState = reviewGateSummary.some((gate) => gate.state === 'blocked')
+  const overallGateState: GateState = reviewGateSummary.some((gate) => gate.state === 'blocked' || gate.state === 'rejected')
     ? 'blocked'
     : reviewGateSummary.every((gate) => gate.state === 'approved')
       ? 'approved'
@@ -1292,10 +1349,13 @@ function SocialContentDetailPage() {
     const review = getSectionGateReview(gateKey)
     const decidedAt = asString(review?.decided_at)
     const note = asString(review?.note)
+    const repairStatus = asString(review?.repair_status)
     const isSaving = savingSectionGate === gateKey
     const noteValue = sectionGateNotes[gateKey] || ''
     const isRejecting = sectionGateRejecting[gateKey]
-    const rejectActionDisabled = isSaving || options.disabled || options.rejectDisabled
+    const isRejected = asString(review?.status) === 'rejected'
+    const isRepairPending = isRejected && !isRejecting
+    const rejectActionDisabled = isSaving || options.disabled || options.rejectDisabled || isRepairPending
     const rejectSubmitDisabled = rejectActionDisabled || !noteValue.trim()
 
     return (
@@ -1314,6 +1374,24 @@ function SocialContentDetailPage() {
             {label}: {GATE_STATE_CONFIG[state].label}
           </span>
         </div>
+        {isRepairPending && (
+          <div className="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 p-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-red-100">{label} revision in progress</p>
+                <p className="mt-1 text-xs leading-5 text-red-50/75">
+                  Controls are locked until the revised {label.toLowerCase()} are returned for review.
+                </p>
+              </div>
+              <span className="w-fit rounded-full border border-red-400/40 px-2 py-0.5 text-[10px] font-semibold text-red-100">
+                {repairStatus || 'requested'}
+              </span>
+            </div>
+            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-red-950/60">
+              <div className="h-full w-2/3 animate-pulse rounded-full bg-red-300" />
+            </div>
+          </div>
+        )}
         {isRejecting && (
           <label className="mt-3 block text-xs font-medium uppercase tracking-[0.12em] text-gray-500">
             Rejection note
@@ -1353,12 +1431,12 @@ function SocialContentDetailPage() {
             className="inline-flex items-center gap-2 rounded-lg border border-red-500/40 px-3 py-2 text-sm font-semibold text-red-200 transition-colors hover:bg-red-500/10 disabled:opacity-50"
           >
             {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
-            {isRejecting ? 'Submit Rejection' : (options.rejectLabel ?? `Reject ${label}`)}
+            {isRepairPending ? 'Rejected' : isRejecting ? 'Submit Rejection' : (options.rejectLabel ?? `Reject ${label}`)}
           </button>
           <button
             type="button"
             onClick={() => handleSectionGateDecision(gateKey, 'approved')}
-            disabled={isSaving || options.disabled || options.approveDisabled}
+            disabled={isSaving || options.disabled || options.approveDisabled || isRepairPending}
             className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/40 px-3 py-2 text-sm font-semibold text-emerald-200 transition-colors hover:bg-emerald-500/10 disabled:opacity-50"
           >
             {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
@@ -2045,7 +2123,7 @@ function SocialContentDetailPage() {
                           <button
                             type="button"
                             onClick={isCarouselFormat ? handleConvertToSingleImage : handleRegenerateImage}
-                            disabled={regeneratingImage || !imagePrompt}
+                            disabled={regeneratingImage || !imagePrompt || visualAssetsRejected}
                             className={`mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors disabled:opacity-50 ${
                               isSingleImageFormat
                                 ? 'bg-amber-400 text-slate-950 hover:bg-amber-300'
@@ -2075,7 +2153,7 @@ function SocialContentDetailPage() {
                           <button
                             type="button"
                             onClick={handleBuildAppScreenshotCarousel}
-                            disabled={capturingAppCarousel}
+                            disabled={capturingAppCarousel || visualAssetsRejected}
                             className={`mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors disabled:opacity-50 ${
                               isCarouselFormat
                                 ? 'bg-blue-400 text-slate-950 hover:bg-blue-300'

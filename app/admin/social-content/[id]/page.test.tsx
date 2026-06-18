@@ -307,6 +307,17 @@ describe('SocialContentDetailRoute visual production review', () => {
     const putBody = JSON.parse(String(putCall?.[1]?.body))
     expect(putBody.rag_context.section_gate_reviews.visual_assets.status).toBe('rejected')
     expect(putBody.rag_context.section_gate_reviews.visual_assets.note).toBe('Move Proof out of the headline area.')
+    expect(putBody.rag_context.section_gate_reviews.visual_assets.repair_status).toBe('requested')
+    expect(putBody.rag_context.section_gate_reviews.visual_assets.repair_requested_at).toBeTruthy()
+    await waitFor(() => {
+      expect(screen.getAllByText('Visual assets: Rejected').length).toBeGreaterThan(1)
+    })
+    expect(screen.getByText('Visual assets revision in progress')).toBeInTheDocument()
+    expect(screen.getByText('Controls are locked until the revised visual assets are returned for review.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Rejected' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Approve Visuals/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Regenerate Framework Illustration/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Switch to App Screenshot Carousel/i })).toBeDisabled()
   })
 
   it('reverts approval with revision feedback before generating the next draft', async () => {
