@@ -71,6 +71,42 @@ const PLATFORM_COLORS: Record<string, { active: string; inactive: string }> = {
   facebook: { active: 'bg-blue-600/20 border-blue-500 text-blue-300', inactive: 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600' },
 }
 
+type GateState = 'approved' | 'in_review' | 'pending' | 'blocked'
+
+const GATE_STATE_CONFIG: Record<GateState, { label: string; className: string }> = {
+  approved: {
+    label: 'Approved',
+    className: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200',
+  },
+  in_review: {
+    label: 'In review',
+    className: 'border-blue-500/30 bg-blue-500/10 text-blue-200',
+  },
+  pending: {
+    label: 'Pending',
+    className: 'border-amber-500/40 bg-amber-500/10 text-amber-200',
+  },
+  blocked: {
+    label: 'Blocked',
+    className: 'border-red-500/35 bg-red-500/10 text-red-200',
+  },
+}
+
+function formatGateDetail(value: string, fallback = 'not started'): string {
+  return (value || fallback).replace(/_/g, ' ')
+}
+
+function gateStateFromRawStatus(value: string): GateState {
+  const status = value.toLowerCase()
+  if (!status) return 'pending'
+  if (['passed', 'approved', 'complete', 'completed', 'ready', 'summarized', 'manual_packet_summarized'].includes(status)) {
+    return 'approved'
+  }
+  if (['failed', 'blocked', 'rejected', 'error'].includes(status)) return 'blocked'
+  if (status.includes('review') || status.includes('running') || status.includes('progress')) return 'in_review'
+  return 'pending'
+}
+
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : null
 }
@@ -915,6 +951,52 @@ function SocialContentDetailPage() {
     : scheduledFor
       ? 'Approve & Schedule'
       : 'Approve & Publish'
+  const reviewGateSummary: Array<{ label: string; state: GateState; detail: string }> = [
+    {
+      label: 'Copy',
+      state: item.status === 'approved' ? 'approved' : isEditable ? 'in_review' : gateStateFromRawStatus(item.status),
+      detail: item.status === 'approved' ? 'approved and locked' : statusCfg.label.toLowerCase(),
+    },
+    {
+      label: 'Human review',
+      state: agentPilotPassToHuman ? 'approved' : 'pending',
+      detail: agentPilotPassToHuman ? 'ready for operator' : formatGateDetail(agentPilotGateStatus, 'research pending'),
+    },
+    {
+      label: 'Challenger',
+      state: gateStateFromRawStatus(agentPilotChallengerStatus),
+      detail: formatGateDetail(agentPilotChallengerStatus, 'not started'),
+    },
+    {
+      label: 'Chronicle',
+      state: gateStateFromRawStatus(agentPilotChronicleStatus),
+      detail: formatGateDetail(agentPilotChronicleStatus, 'not started'),
+    },
+    {
+      label: 'Visual assets',
+      state: productionAssets ? 'in_review' : 'pending',
+      detail: productionAssets ? 'asset packet prepared' : 'awaiting asset packet',
+    },
+    {
+      label: 'Privacy',
+      state: productionAssets ? (redactionGate.ready ? 'approved' : 'blocked') : 'pending',
+      detail: productionAssets
+        ? (redactionGate.ready ? 'redaction clear' : `${redactionGate.unresolvedItems.length} unresolved`)
+        : 'not started',
+    },
+    {
+      label: 'Publish',
+      state: isDraftOnlyPilot ? 'pending' : gateStateFromRawStatus(agentPilotPublishGate),
+      detail: isDraftOnlyPilot ? 'draft-only gate' : formatGateDetail(agentPilotPublishGate, 'review required'),
+    },
+  ]
+  const overallGateState: GateState = reviewGateSummary.some((gate) => gate.state === 'blocked')
+    ? 'blocked'
+    : reviewGateSummary.every((gate) => gate.state === 'approved')
+      ? 'approved'
+      : reviewGateSummary.every((gate) => gate.state === 'pending')
+        ? 'pending'
+        : 'in_review'
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -979,23 +1061,11 @@ function SocialContentDetailPage() {
                   Current state for this draft. Supporting evidence and checklists are collapsed below.
                 </p>
               </div>
-              <div className="flex min-w-0 flex-wrap gap-2 text-xs xl:justify-end">
-                <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-amber-200">
-                  {isDraftOnlyPilot ? 'Publish locked' : `Publish: ${agentPilotPublishGate || 'review required'}`}
+              <div className="min-w-0 xl:text-right">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Overall</p>
+                <span className={`mt-2 inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${GATE_STATE_CONFIG[overallGateState].className}`}>
+                  {GATE_STATE_CONFIG[overallGateState].label}
                 </span>
-                <span className={`rounded-full border px-3 py-1 ${agentPilotPassToHuman ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200' : 'border-amber-500/35 bg-amber-500/10 text-amber-100'}`}>
-                  {agentPilotPassToHuman ? 'Human review ready' : 'Before human review'}
-                </span>
-                {agentPilotChallengerStatus && (
-                  <span className="rounded-full border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-1 text-gray-200">
-                    Challenger: {agentPilotChallengerStatus.replace(/_/g, ' ')}
-                  </span>
-                )}
-                {agentPilotChronicleStatus && (
-                  <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-blue-200">
-                    Chronicle: {agentPilotChronicleStatus.replace(/_/g, ' ')}
-                  </span>
-                )}
               </div>
             </div>
 
@@ -1013,20 +1083,25 @@ function SocialContentDetailPage() {
               </div>
             )}
 
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
-              <div className="rounded-lg border border-silicon-slate/80 bg-background/35 p-3">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Copy</p>
-                <p className="mt-1 text-sm text-gray-100">{item.status === 'approved' ? 'Approved and locked' : statusCfg.label}</p>
+            <div className="mt-4 rounded-lg border border-silicon-slate/80 bg-background/35 p-3">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Review gates</p>
+                  <p className="mt-1 text-sm text-gray-400">Every gate uses the same state language; the detail line preserves each system status.</p>
+                </div>
               </div>
-              <div className="rounded-lg border border-silicon-slate/80 bg-background/35 p-3">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Visuals</p>
-                <p className="mt-1 text-sm text-gray-100">{productionAssets ? 'Asset packet ready' : 'Awaiting asset packet'}</p>
-              </div>
-              <div className="rounded-lg border border-silicon-slate/80 bg-background/35 p-3">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Privacy</p>
-                <p className={`mt-1 text-sm ${videoPrivacyBlocked ? 'text-red-200' : 'text-gray-100'}`}>
-                  {productionAssets ? (redactionGate.ready ? 'Redaction clear' : `${redactionGate.unresolvedItems.length} redaction item${redactionGate.unresolvedItems.length === 1 ? '' : 's'}`) : 'Not started'}
-                </p>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                {reviewGateSummary.map((gate) => (
+                  <div key={gate.label} className="rounded-lg border border-silicon-slate/80 bg-imperial-navy/35 p-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">{gate.label}</p>
+                      <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[gate.state].className}`}>
+                        {GATE_STATE_CONFIG[gate.state].label}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm leading-5 text-gray-200">{gate.detail}</p>
+                  </div>
+                ))}
               </div>
             </div>
 
