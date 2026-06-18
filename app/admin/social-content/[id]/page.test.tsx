@@ -151,7 +151,7 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     render(<SocialContentDetailRoute />)
 
-    expect(await screen.findByText('Production Assets')).toBeInTheDocument()
+    expect(await screen.findByText('Asset packet')).toBeInTheDocument()
     expect(screen.getAllByText('Video privacy review required').length).toBeGreaterThan(0)
     expect(screen.getByText('Approve Blur')).toBeInTheDocument()
     expect(screen.getByText('Reject Clip')).toBeInTheDocument()

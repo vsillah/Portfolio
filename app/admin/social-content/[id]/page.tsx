@@ -1638,26 +1638,22 @@ function SocialContentDetailPage() {
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              )}
-              {canEditVisualProduction && (
-                <div className="mb-4 rounded-lg border border-blue-500/25 bg-blue-500/10 p-4">
+                    <div className="mt-4 border-t border-amber-500/25 pt-4">
                   <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-200">Production Assets</p>
-                      <p className="mt-1 text-sm leading-6 text-blue-50/90">
-                        Prepare the repeatable asset packet for references, direct Chronicle evidence, screenshots, b-roll, video script, redaction review, and visual QA. This is review-only until each later gate is approved.
+                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-100/70">Asset packet</p>
+                          <p className="mt-1 text-sm leading-6 text-amber-50/80">
+                            Prepares the evidence and production inputs behind the chosen format: references, Chronicle notes, screenshots, b-roll, script, redaction review, and visual QA. It does not choose the format or publish anything.
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={handlePrepareAssetPacket}
                       disabled={preparingAssetPacket || item.status !== 'approved'}
-                      className="inline-flex items-center justify-center gap-2 rounded-lg border border-blue-400/50 px-3 py-2 text-sm font-semibold text-blue-100 transition-colors hover:bg-blue-500/10 disabled:opacity-50"
+                          className="inline-flex items-center justify-center gap-2 rounded-lg border border-amber-400/45 px-3 py-2 text-sm font-semibold text-amber-100 transition-colors hover:bg-amber-500/10 disabled:opacity-50"
                     >
                       {preparingAssetPacket ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
-                      Prepare Production Asset Packet
+                          Prepare Supporting Asset Packet
                     </button>
                   </div>
 
@@ -1730,10 +1726,12 @@ function SocialContentDetailPage() {
                       )}
                     </div>
                   ) : (
-                    <p className="mt-3 text-xs text-blue-100/70">
+                        <p className="mt-3 text-xs text-amber-50/70">
                       No production asset packet has been prepared yet.
                     </p>
                   )}
+                    </div>
+                  </div>
                 </div>
               )}
               {item.content_format === 'carousel' ? (
