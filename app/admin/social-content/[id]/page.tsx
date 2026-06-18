@@ -43,6 +43,11 @@ import {
   FRAMEWORK_VISUAL_TYPES,
   getFullPostText,
 } from '@/lib/social-content'
+import {
+  getProductionAssets,
+  getVideoRedactionGate,
+  type RedactionReviewDecision,
+} from '@/lib/social-production-assets'
 import type {
   SocialContentItem,
   SocialContentPublish,
@@ -181,6 +186,8 @@ function SocialContentDetailPage() {
   const [regeneratingAudio, setRegeneratingAudio] = useState(false)
   const [convertingFormat, setConvertingFormat] = useState(false)
   const [capturingAppCarousel, setCapturingAppCarousel] = useState(false)
+  const [preparingAssetPacket, setPreparingAssetPacket] = useState(false)
+  const [reviewingRedactionId, setReviewingRedactionId] = useState<string | null>(null)
   const [selectedSlide, setSelectedSlide] = useState(0)
   const [publishing, setPublishing] = useState(false)
   const [refreshingEngagement, setRefreshingEngagement] = useState(false)
@@ -452,6 +459,10 @@ function SocialContentDetailPage() {
       showMsg('error', 'Agent Ops content must clear challenger QA before approval')
       return
     }
+    if (videoPrivacyBlocked) {
+      showMsg('error', redactionGate.message || 'Video privacy review required before publish readiness')
+      return
+    }
     setApproving(true)
     setShowConfirmModal(false)
     try {
@@ -523,6 +534,10 @@ function SocialContentDetailPage() {
   }
 
   const handleRetryPublish = async (platforms?: SocialPlatform[]) => {
+    if (videoPrivacyBlocked) {
+      showMsg('error', redactionGate.message || 'Video privacy review required before publishing')
+      return
+    }
     setPublishing(true)
     try {
       const session = await getCurrentSession()
@@ -675,6 +690,71 @@ function SocialContentDetailPage() {
     }
   }
 
+  const handlePrepareAssetPacket = async () => {
+    if (!confirm('Prepare the production asset packet with direct Chronicle ingestion? This creates review-only references, Chronicle evidence, b-roll hints, video script, and redaction checks. It will not call providers, publish, schedule, or upload a final video.')) return
+    setPreparingAssetPacket(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const res = await fetch(`/api/admin/social-content/${id}/prepare-asset-packet`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          chronicle_scope: {
+            approved: true,
+            source: 'social_content_detail',
+            window_label: 'operator-approved current Social Content production review',
+          },
+        }),
+      })
+
+      const data = await res.json()
+      if (data.success) {
+        setItem(prev => prev ? { ...prev, rag_context: data.rag_context || prev.rag_context } : prev)
+        showMsg('success', 'Production asset packet prepared for review')
+      } else {
+        showMsg('error', data.error || 'Failed to prepare production asset packet')
+      }
+    } catch {
+      showMsg('error', 'Failed to prepare production asset packet')
+    } finally {
+      setPreparingAssetPacket(false)
+    }
+  }
+
+  const handleReviewRedaction = async (itemId: string, decision: RedactionReviewDecision) => {
+    setReviewingRedactionId(itemId)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const res = await fetch(`/api/admin/social-content/${id}/review-video-redaction`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ item_id: itemId, decision }),
+      })
+
+      const data = await res.json()
+      if (data.success) {
+        setItem(prev => prev ? { ...prev, rag_context: data.rag_context || prev.rag_context } : prev)
+        showMsg('success', 'Redaction review updated')
+      } else {
+        showMsg('error', data.error || 'Failed to update redaction review')
+      }
+    } catch {
+      showMsg('error', 'Failed to update redaction review')
+    } finally {
+      setReviewingRedactionId(null)
+    }
+  }
+
   const handleConvertToSingleImage = async () => {
     if (!confirm('Convert this post to a single image? This will clear all carousel data and regenerate the framework illustration.')) return
     await handleRegenerateImage()
@@ -780,6 +860,18 @@ function SocialContentDetailPage() {
   const agentPilotComparisonPrompt = asString(agentPilotCalibration?.comparison_prompt)
   const agentPilotOperatorFeedback = asRecord(agentPilotCalibration?.operator_feedback)
   const agentPilotFeedbackUpdatedAt = asString(agentPilotOperatorFeedback?.updated_at)
+  const productionAssets = getProductionAssets(ragContext)
+  const redactionGate = getVideoRedactionGate(productionAssets)
+  const productionAssetSteps = productionAssets ? [
+    { label: 'References', value: `${productionAssets.references.open_brain.length + productionAssets.references.public_sources.length} refs` },
+    { label: 'Chronicle evidence', value: `${productionAssets.chronicle_evidence.proposals.length} proposals` },
+    { label: 'Framework illustration', value: productionAssets.illustration.status.replace(/_/g, ' ') },
+    { label: 'App screenshot carousel', value: `${productionAssets.app_screenshot_carousel.routes.length} routes` },
+    { label: 'B-roll', value: `${productionAssets.broll.assets.length} assets` },
+    { label: 'Video script', value: productionAssets.video_script.status.replace(/_/g, ' ') },
+    { label: 'Privacy/redaction review', value: redactionGate.ready ? 'ready' : `${redactionGate.unresolvedItems.length} unresolved` },
+    { label: 'Visual QA', value: productionAssets.visual_qa.status.replace(/_/g, ' ') },
+  ] : []
   const hasCalibrationSuccessExampleInput = calibrationFeedback.success_examples
     .some((example) => (
       example.source_label.trim()
@@ -812,6 +904,7 @@ function SocialContentDetailPage() {
       : 0
   const isDraftOnlyPilot = isAgentSocialPilot && agentPilotPublishGate === 'draft_only'
   const canApproveAgentPilot = !isAgentSocialPilot || agentPilotPassToHuman
+  const videoPrivacyBlocked = Boolean(productionAssets && !redactionGate.ready)
   const canEditVisualProduction = isEditable || (isDraftOnlyPilot && item.status === 'approved')
   const visualProductionUnlocked = canEditVisualProduction && isDraftOnlyPilot
   const frameworkIllustrationLabel = item.image_url
@@ -1409,6 +1502,101 @@ function SocialContentDetailPage() {
                   </div>
                 </div>
               )}
+              {canEditVisualProduction && (
+                <div className="mb-4 rounded-lg border border-blue-500/25 bg-blue-500/10 p-4">
+                  <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-200">Production Assets</p>
+                      <p className="mt-1 text-sm leading-6 text-blue-50/90">
+                        Prepare the repeatable asset packet for references, direct Chronicle evidence, screenshots, b-roll, video script, redaction review, and visual QA. This is review-only until each later gate is approved.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handlePrepareAssetPacket}
+                      disabled={preparingAssetPacket || item.status !== 'approved'}
+                      className="inline-flex items-center justify-center gap-2 rounded-lg border border-blue-400/50 px-3 py-2 text-sm font-semibold text-blue-100 transition-colors hover:bg-blue-500/10 disabled:opacity-50"
+                    >
+                      {preparingAssetPacket ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
+                      Prepare Production Asset Packet
+                    </button>
+                  </div>
+
+                  {productionAssets ? (
+                    <div className="mt-4 space-y-4">
+                      <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                        {productionAssetSteps.map((step) => (
+                          <div key={step.label} className="rounded-lg border border-gray-700/80 bg-gray-950/50 p-3">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">{step.label}</p>
+                            <p className="mt-1 text-sm text-gray-100">{step.value}</p>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className={`rounded-lg border p-3 text-sm leading-6 ${redactionGate.ready ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-50' : 'border-red-500/30 bg-red-500/10 text-red-50'}`}>
+                        <div className="flex items-start gap-2">
+                          <AlertCircle className={`mt-0.5 h-4 w-4 ${redactionGate.ready ? 'text-emerald-300' : 'text-red-300'}`} />
+                          <div>
+                            <p className="font-semibold">{redactionGate.ready ? 'Video privacy review ready' : 'Video privacy review required'}</p>
+                            <p className="mt-1">
+                              {redactionGate.ready
+                                ? 'All redaction items have a reviewed decision. Final publish approval remains separate.'
+                                : redactionGate.message}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {productionAssets.video_redaction_manifest.items.length > 0 && (
+                        <div className="space-y-2">
+                          {productionAssets.video_redaction_manifest.items.map((redactionItem) => (
+                            <div key={redactionItem.id} className="rounded-lg border border-gray-700 bg-gray-950/60 p-3">
+                              <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+                                <div>
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <span className="rounded-full bg-red-500/15 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-red-200">
+                                      {redactionItem.issue_type.replace(/_/g, ' ')}
+                                    </span>
+                                    <span className="text-xs text-gray-500">{redactionItem.source.replace(/_/g, ' ')}</span>
+                                    <span className="text-xs text-gray-500">{Math.round(redactionItem.confidence * 100)}% confidence</span>
+                                  </div>
+                                  <p className="mt-2 text-sm text-gray-100">{redactionItem.original_asset.label}</p>
+                                  <p className="mt-1 text-xs text-gray-400">{redactionItem.evidence}</p>
+                                  <p className="mt-1 text-xs text-gray-500">
+                                    Decision: {redactionItem.reviewer_decision ? redactionItem.reviewer_decision.replace(/_/g, ' ') : 'pending'} · Status: {redactionItem.status}
+                                  </p>
+                                </div>
+                                <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-end">
+                                  {([
+                                    ['approve_redaction', 'Approve Blur'],
+                                    ['adjust_redaction', 'Adjust'],
+                                    ['safe_exception', 'Safe Exception'],
+                                    ['reject_clip', 'Reject Clip'],
+                                  ] as Array<[RedactionReviewDecision, string]>).map(([decision, label]) => (
+                                    <button
+                                      key={decision}
+                                      type="button"
+                                      onClick={() => handleReviewRedaction(redactionItem.id, decision)}
+                                      disabled={reviewingRedactionId === redactionItem.id}
+                                      className="rounded-lg border border-gray-700 px-2 py-1 text-xs font-medium text-gray-200 transition-colors hover:bg-gray-800 disabled:opacity-50"
+                                    >
+                                      {reviewingRedactionId === redactionItem.id ? 'Saving...' : label}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="mt-3 text-xs text-blue-100/70">
+                      No production asset packet has been prepared yet.
+                    </p>
+                  )}
+                </div>
+              )}
               {item.content_format === 'carousel' ? (
                 <>
                   <div className="flex items-center justify-between mb-3">
@@ -1801,6 +1989,15 @@ function SocialContentDetailPage() {
             </div>
           )}
 
+          {videoPrivacyBlocked && (
+            <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-sm leading-6 text-red-50/90">
+              <p className="font-semibold text-red-100">Video privacy review required</p>
+              <p className="mt-1">
+                {redactionGate.message} Approve redactions, mark safe exceptions, or reject risky clips before this content can become publish-ready.
+              </p>
+            </div>
+          )}
+
           {/* Platform pills */}
           {!isDraftOnlyPilot && (
             <div>
@@ -1918,8 +2115,8 @@ function SocialContentDetailPage() {
                   }
                   setShowConfirmModal(true)
                 }}
-                disabled={approving || !canApproveAgentPilot}
-                title={canApproveAgentPilot ? undefined : 'Research/context evidence and challenger QA must pass before approval'}
+                disabled={approving || !canApproveAgentPilot || videoPrivacyBlocked}
+                title={videoPrivacyBlocked ? 'Video privacy review required before publish readiness' : canApproveAgentPilot ? undefined : 'Research/context evidence and challenger QA must pass before approval'}
                 className="flex items-center gap-1.5 px-5 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {approving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
@@ -2067,10 +2264,10 @@ function SocialContentDetailPage() {
                         View post <ExternalLink className="w-3 h-3" />
                       </a>
                     )}
-                    {pub.status === 'failed' && (
-                      <button
-                        onClick={() => handleRetryPublish([pub.platform as SocialPlatform])}
-                        disabled={publishing}
+                      {pub.status === 'failed' && (
+                        <button
+                          onClick={() => handleRetryPublish([pub.platform as SocialPlatform])}
+                          disabled={publishing || videoPrivacyBlocked}
                         className="flex items-center gap-1 px-3 py-1 bg-red-900/50 hover:bg-red-900/70 text-red-300 rounded-lg text-xs transition-colors disabled:opacity-50"
                       >
                         {publishing ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
@@ -2141,6 +2338,11 @@ function SocialContentDetailPage() {
                     </div>
                   </>
                 )}
+                {videoPrivacyBlocked && (
+                  <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-100">
+                    Video privacy review is blocking publish approval. Resolve the redaction manifest before continuing.
+                  </div>
+                )}
               </div>
 
               <p className="text-xs text-gray-500 mb-6">
@@ -2158,7 +2360,7 @@ function SocialContentDetailPage() {
                 </button>
                 <button
                   onClick={handleApprove}
-                  disabled={approving || !canApproveAgentPilot}
+                  disabled={approving || !canApproveAgentPilot || videoPrivacyBlocked}
                   className="flex items-center gap-2 px-5 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {approving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
