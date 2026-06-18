@@ -73,6 +73,8 @@ const PLATFORM_COLORS: Record<string, { active: string; inactive: string }> = {
 }
 
 type GateState = 'approved' | 'in_review' | 'pending' | 'blocked'
+type SectionGateKey = 'visual_assets' | 'asset_packet' | 'privacy' | 'linkedin_draft'
+type SectionGateDecision = 'approved' | 'rejected'
 
 const GATE_STATE_CONFIG: Record<GateState, { label: string; className: string }> = {
   approved: {
@@ -228,6 +230,7 @@ function SocialContentDetailPage() {
   const [savingCalibration, setSavingCalibration] = useState(false)
   const [revisingCalibration, setRevisingCalibration] = useState(false)
   const [requestingCopyRevision, setRequestingCopyRevision] = useState(false)
+  const [savingSectionGate, setSavingSectionGate] = useState<SectionGateKey | null>(null)
   const [showSource, setShowSource] = useState(false)
   const [expandedSection, setExpandedSection] = useState<'rag' | 'transcript' | null>(null)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
@@ -245,6 +248,12 @@ function SocialContentDetailPage() {
   const [scheduledFor, setScheduledFor] = useState('')
   const [adminNotes, setAdminNotes] = useState('')
   const [copyRevisionRequest, setCopyRevisionRequest] = useState('')
+  const [sectionGateNotes, setSectionGateNotes] = useState<Record<SectionGateKey, string>>({
+    visual_assets: '',
+    asset_packet: '',
+    privacy: '',
+    linkedin_draft: '',
+  })
 
   const fetchItem = useCallback(async () => {
     setLoading(true)
@@ -556,6 +565,62 @@ function SocialContentDetailPage() {
       showMsg('error', 'Failed to request copy revision')
     } finally {
       setRequestingCopyRevision(false)
+    }
+  }
+
+  const handleSectionGateDecision = async (
+    gateKey: SectionGateKey,
+    decision: SectionGateDecision,
+  ) => {
+    if (!item) return
+    const note = sectionGateNotes[gateKey]?.trim() || ''
+    if (decision === 'rejected' && !note) {
+      showMsg('error', 'Add a rejection note before rejecting this section')
+      return
+    }
+    setSavingSectionGate(gateKey)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const existingRag = asRecord(item.rag_context) ?? {}
+      const existingReviews = asRecord(existingRag.section_gate_reviews) ?? {}
+      const decidedAt = new Date().toISOString()
+      const section_gate_reviews = {
+        ...existingReviews,
+        [gateKey]: {
+          status: decision,
+          decided_at: decidedAt,
+          decided_by: (session as { user?: { id?: string } }).user?.id ?? null,
+          note: note || null,
+        },
+      }
+      const rag_context = {
+        ...existingRag,
+        section_gate_reviews,
+      }
+
+      const res = await fetch(`/api/admin/social-content/${id}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ rag_context }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        showMsg('error', data.error || 'Failed to save section decision')
+        return
+      }
+
+      setItem(prev => prev ? { ...prev, ...data.item } : data.item)
+      setSectionGateNotes((current) => ({ ...current, [gateKey]: '' }))
+      showMsg('success', decision === 'approved' ? 'Section approved' : 'Section rejected')
+    } catch {
+      showMsg('error', 'Failed to save section decision')
+    } finally {
+      setSavingSectionGate(null)
     }
   }
 
@@ -1039,6 +1104,14 @@ function SocialContentDetailPage() {
   const agentPilotFeedbackUpdatedAt = asString(agentPilotOperatorFeedback?.updated_at)
   const productionAssets = getProductionAssets(ragContext)
   const redactionGate = getVideoRedactionGate(productionAssets)
+  const sectionGateReviews = asRecord(ragContext?.section_gate_reviews) ?? {}
+  const getSectionGateReview = (gateKey: SectionGateKey) => asRecord(sectionGateReviews[gateKey])
+  const getExplicitSectionGateState = (gateKey: SectionGateKey, fallback: GateState): GateState => {
+    const status = asString(getSectionGateReview(gateKey)?.status)
+    if (status === 'approved') return 'approved'
+    if (status === 'rejected') return 'blocked'
+    return fallback
+  }
   const productionAssetSteps = productionAssets ? [
     { label: 'References', value: `${productionAssets.references.open_brain.length + productionAssets.references.public_sources.length} refs` },
     { label: 'Chronicle evidence', value: `${productionAssets.chronicle_evidence.proposals.length} proposals` },
@@ -1112,25 +1185,32 @@ function SocialContentDetailPage() {
   const visualAssetReady = isCarouselFormat
     ? Boolean(item.carousel_slide_urls?.length)
     : Boolean(item.image_url)
-  const visualAssetsGateState: GateState = visualAssetReady ? 'approved' : 'pending'
-  const assetPacketGateState: GateState = productionAssets ? 'approved' : 'pending'
-  const privacyGateState: GateState = productionAssets ? (redactionGate.ready ? 'approved' : 'blocked') : 'pending'
+  const visualAssetsBaseGateState: GateState = visualAssetReady ? 'in_review' : 'pending'
+  const visualAssetsGateState: GateState = getExplicitSectionGateState('visual_assets', visualAssetsBaseGateState)
+  const assetPacketBaseGateState: GateState = productionAssets ? 'in_review' : 'pending'
+  const assetPacketGateState: GateState = getExplicitSectionGateState('asset_packet', assetPacketBaseGateState)
+  const privacyBaseGateState: GateState = productionAssets ? (redactionGate.ready ? 'in_review' : 'blocked') : 'pending'
+  const privacyGateState: GateState = getExplicitSectionGateState('privacy', privacyBaseGateState)
   const linkedinDraftHandoff = asRecord(ragContext?.linkedin_draft_handoff)
   const linkedinDraftWorkItem = asRecord(linkedinDraftHandoff?.work_item) ?? {}
   const linkedinDraftBlockers = [
     item.status !== 'approved' ? 'Copy must be approved first.' : '',
     !visualAssetReady ? 'Choose and generate a visual asset first.' : '',
+    visualAssetsGateState !== 'approved' ? 'Approve the visual assets section first.' : '',
     !productionAssets ? 'Prepare the asset packet first.' : '',
+    productionAssets && assetPacketGateState !== 'approved' ? 'Approve the asset packet section first.' : '',
     productionAssets && !redactionGate.ready ? redactionGate.message || 'Resolve video privacy review first.' : '',
+    productionAssets && redactionGate.ready && privacyGateState !== 'approved' ? 'Approve the privacy review section first.' : '',
   ].filter(Boolean)
-  const canCreateLinkedInDraft = isDraftOnlyPilot && linkedinDraftBlockers.length === 0
-  const linkedinDraftGateState: GateState = linkedinDraftHandoff
+  const linkedinDraftBaseGateState: GateState = linkedinDraftHandoff
     ? 'approved'
     : videoPrivacyBlocked
       ? 'blocked'
-      : canCreateLinkedInDraft
+      : linkedinDraftBlockers.length === 0
         ? 'in_review'
         : 'pending'
+  const linkedinDraftGateState: GateState = getExplicitSectionGateState('linkedin_draft', linkedinDraftBaseGateState)
+  const canCreateLinkedInDraft = isDraftOnlyPilot && linkedinDraftBlockers.length === 0 && linkedinDraftGateState === 'approved'
   const reviewGateSummary: Array<{ label: string; state: GateState; href: string }> = [
     {
       label: 'Copy',
@@ -1186,6 +1266,74 @@ function SocialContentDetailPage() {
     if (!target) return
     target.scrollIntoView({ behavior: 'smooth', block: 'start' })
     window.history.replaceState(null, '', href)
+  }
+  const renderSectionGateControls = (
+    gateKey: SectionGateKey,
+    label: string,
+    state: GateState,
+    options: {
+      approveLabel?: string
+      rejectLabel?: string
+      disabled?: boolean
+      approveDisabled?: boolean
+      rejectDisabled?: boolean
+      notePlaceholder?: string
+    } = {},
+  ) => {
+    const review = getSectionGateReview(gateKey)
+    const decidedAt = asString(review?.decided_at)
+    const note = asString(review?.note)
+    const isSaving = savingSectionGate === gateKey
+    const noteValue = sectionGateNotes[gateKey] || ''
+
+    return (
+      <div className="mt-3 rounded-lg border border-silicon-slate/70 bg-background/30 p-3">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">{label} decision</p>
+            {decidedAt && (
+              <p className="mt-1 text-xs text-gray-500">
+                Last decision: {new Date(decidedAt).toLocaleString()}
+              </p>
+            )}
+            {note && <p className="mt-1 text-xs leading-5 text-gray-300">Note: {note}</p>}
+          </div>
+          <span className={`w-fit rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[state].className}`}>
+            {label}: {GATE_STATE_CONFIG[state].label}
+          </span>
+        </div>
+        <label className="mt-3 block text-xs font-medium uppercase tracking-[0.12em] text-gray-500">
+          Decision note
+          <textarea
+            value={noteValue}
+            onChange={(event) => setSectionGateNotes((current) => ({ ...current, [gateKey]: event.target.value }))}
+            rows={2}
+            className="mt-2 w-full rounded-lg border border-gray-700 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-200 placeholder:text-gray-500"
+            placeholder={options.notePlaceholder ?? 'Required when rejecting; optional when approving.'}
+          />
+        </label>
+        <div className="mt-3 flex flex-wrap justify-end gap-2">
+          <button
+            type="button"
+            onClick={() => handleSectionGateDecision(gateKey, 'rejected')}
+            disabled={isSaving || options.disabled || options.rejectDisabled || !noteValue.trim()}
+            className="inline-flex items-center gap-2 rounded-lg border border-red-500/40 px-3 py-2 text-sm font-semibold text-red-200 transition-colors hover:bg-red-500/10 disabled:opacity-50"
+          >
+            {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
+            {options.rejectLabel ?? `Reject ${label}`}
+          </button>
+          <button
+            type="button"
+            onClick={() => handleSectionGateDecision(gateKey, 'approved')}
+            disabled={isSaving || options.disabled || options.approveDisabled}
+            className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/40 px-3 py-2 text-sm font-semibold text-emerald-200 transition-colors hover:bg-emerald-500/10 disabled:opacity-50"
+          >
+            {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+            {options.approveLabel ?? `Approve ${label}`}
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -1914,6 +2062,12 @@ function SocialContentDetailPage() {
                         </div>
                       </div>
                     </div>
+                    {renderSectionGateControls('visual_assets', 'Visual assets', visualAssetsGateState, {
+                      approveLabel: 'Approve Visuals',
+                      rejectLabel: 'Reject Visuals',
+                      approveDisabled: !visualAssetReady,
+                      notePlaceholder: 'What must change before the visual assets are approved?',
+                    })}
                     <div id="social-asset-packet-gate" className="mt-4 scroll-mt-28 border-t border-amber-500/25 pt-4">
                       <div className="flex flex-col gap-3">
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -1944,6 +2098,20 @@ function SocialContentDetailPage() {
                           {preparingAssetPacket ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
                           Prepare Asset Packet
                         </button>
+                        {renderSectionGateControls('asset_packet', 'Asset packet', assetPacketGateState, {
+                          approveLabel: 'Approve Asset Packet',
+                          rejectLabel: 'Reject Asset Packet',
+                          approveDisabled: !productionAssets,
+                          rejectDisabled: !productionAssets,
+                          notePlaceholder: 'What is missing from the asset packet?',
+                        })}
+                        {renderSectionGateControls('privacy', 'Privacy', privacyGateState, {
+                          approveLabel: 'Approve Privacy Review',
+                          rejectLabel: 'Reject Privacy Review',
+                          approveDisabled: !productionAssets || !redactionGate.ready,
+                          rejectDisabled: !productionAssets,
+                          notePlaceholder: 'What privacy issue still needs redaction or review?',
+                        })}
                       </div>
 
                   {productionAssets ? (
@@ -2435,6 +2603,12 @@ function SocialContentDetailPage() {
                       </ul>
                     </div>
                   ) : null}
+                  {renderSectionGateControls('linkedin_draft', 'LinkedIn draft', linkedinDraftGateState, {
+                    approveLabel: 'Approve LinkedIn Draft Handoff',
+                    rejectLabel: 'Reject LinkedIn Draft Handoff',
+                    approveDisabled: linkedinDraftBlockers.length > 0 && !linkedinDraftHandoff,
+                    notePlaceholder: 'What must be resolved before LinkedIn draft handoff?',
+                  })}
                 </div>
                 <button
                   type="button"

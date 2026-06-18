@@ -113,7 +113,15 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByText('Selected format')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Generate Framework Illustration/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Switch to App Screenshot Carousel/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Approve Visuals/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Reject Visuals/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Approve Asset Packet/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Reject Asset Packet/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Approve Privacy Review/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Reject Privacy Review/i })).toBeDisabled()
     expect(screen.getByText('LinkedIn Draft Handoff')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Approve LinkedIn Draft Handoff/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Reject LinkedIn Draft Handoff/i })).toBeDisabled()
     expect(screen.getByRole('button', { name: /Create LinkedIn Draft/i })).toBeDisabled()
     expect(screen.queryByText('Publish immediately after approval')).not.toBeInTheDocument()
 
@@ -174,12 +182,67 @@ describe('SocialContentDetailRoute visual production review', () => {
     render(<SocialContentDetailRoute />)
 
     expect(await screen.findByText('Asset packet')).toBeInTheDocument()
-    expect(screen.getAllByText('Asset packet: Approved').length).toBeGreaterThan(1)
+    expect(screen.getAllByText('Asset packet: In review').length).toBeGreaterThan(1)
     expect(screen.getAllByText('Privacy: Blocked').length).toBeGreaterThan(0)
+    expect(screen.getByRole('button', { name: /Approve Asset Packet/i })).not.toBeDisabled()
+    expect(screen.getByRole('button', { name: /Reject Asset Packet/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Approve Privacy Review/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Reject Privacy Review/i })).toBeDisabled()
+    fireEvent.change(screen.getByPlaceholderText('What privacy issue still needs redaction or review?'), {
+      target: { value: 'The Chronicle clip still exposes private notes.' },
+    })
+    expect(screen.getByRole('button', { name: /Reject Privacy Review/i })).not.toBeDisabled()
     expect(screen.getAllByText('Video privacy review required').length).toBeGreaterThan(0)
     expect(screen.getByText('Approve Blur')).toBeInTheDocument()
     expect(screen.getByText('Reject Clip')).toBeInTheDocument()
     expect(screen.queryByText('Publish immediately after approval')).not.toBeInTheDocument()
+  })
+
+  it('stores explicit section gate decisions in rag_context', async () => {
+    const itemWithVisual = {
+      ...baseItem,
+      image_url: 'https://example.com/framework.png',
+    }
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === 'PUT') {
+        const body = JSON.parse(String(init.body))
+        return {
+          ok: true,
+          json: async () => ({
+            item: {
+              ...itemWithVisual,
+              ...body,
+            },
+          }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: itemWithVisual }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<SocialContentDetailRoute />)
+
+    expect(await screen.findByText('Visual Production')).toBeInTheDocument()
+    expect(screen.getAllByText('Visual assets: In review').length).toBeGreaterThan(0)
+    fireEvent.click(screen.getByRole('button', { name: /Approve Visuals/i }))
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining('/api/admin/social-content/social-1'),
+        expect.objectContaining({ method: 'PUT' }),
+      )
+    })
+    const putCall = fetchMock.mock.calls.find(([, init]) => init?.method === 'PUT')
+    expect(putCall).toBeTruthy()
+    const putBody = JSON.parse(String(putCall?.[1]?.body))
+    expect(putBody.rag_context.section_gate_reviews.visual_assets.status).toBe('approved')
+    expect(putBody.rag_context.section_gate_reviews.visual_assets.note).toBeNull()
+    await waitFor(() => {
+      expect(screen.getAllByText('Visual assets: Approved').length).toBeGreaterThan(1)
+    })
   })
 
   it('reverts approval with revision feedback before generating the next draft', async () => {
