@@ -254,6 +254,12 @@ function SocialContentDetailPage() {
     privacy: '',
     linkedin_draft: '',
   })
+  const [sectionGateRejecting, setSectionGateRejecting] = useState<Record<SectionGateKey, boolean>>({
+    visual_assets: false,
+    asset_packet: false,
+    privacy: false,
+    linkedin_draft: false,
+  })
 
   const fetchItem = useCallback(async () => {
     setLoading(true)
@@ -616,6 +622,7 @@ function SocialContentDetailPage() {
 
       setItem(prev => prev ? { ...prev, ...data.item } : data.item)
       setSectionGateNotes((current) => ({ ...current, [gateKey]: '' }))
+      setSectionGateRejecting((current) => ({ ...current, [gateKey]: false }))
       showMsg('success', decision === 'approved' ? 'Section approved' : 'Section rejected')
     } catch {
       showMsg('error', 'Failed to save section decision')
@@ -1285,6 +1292,9 @@ function SocialContentDetailPage() {
     const note = asString(review?.note)
     const isSaving = savingSectionGate === gateKey
     const noteValue = sectionGateNotes[gateKey] || ''
+    const isRejecting = sectionGateRejecting[gateKey]
+    const rejectActionDisabled = isSaving || options.disabled || options.rejectDisabled
+    const rejectSubmitDisabled = rejectActionDisabled || !noteValue.trim()
 
     return (
       <div className="mt-3 rounded-lg border border-silicon-slate/70 bg-background/30 p-3">
@@ -1302,25 +1312,46 @@ function SocialContentDetailPage() {
             {label}: {GATE_STATE_CONFIG[state].label}
           </span>
         </div>
-        <label className="mt-3 block text-xs font-medium uppercase tracking-[0.12em] text-gray-500">
-          Decision note
-          <textarea
-            value={noteValue}
-            onChange={(event) => setSectionGateNotes((current) => ({ ...current, [gateKey]: event.target.value }))}
-            rows={2}
-            className="mt-2 w-full rounded-lg border border-gray-700 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-200 placeholder:text-gray-500"
-            placeholder={options.notePlaceholder ?? 'Required when rejecting; optional when approving.'}
-          />
-        </label>
+        {isRejecting && (
+          <label className="mt-3 block text-xs font-medium uppercase tracking-[0.12em] text-gray-500">
+            Rejection note
+            <textarea
+              value={noteValue}
+              onChange={(event) => setSectionGateNotes((current) => ({ ...current, [gateKey]: event.target.value }))}
+              rows={2}
+              className="mt-2 w-full rounded-lg border border-gray-700 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-200 placeholder:text-gray-500"
+              placeholder={options.notePlaceholder ?? 'What needs to change before this section can be approved?'}
+            />
+          </label>
+        )}
         <div className="mt-3 flex flex-wrap justify-end gap-2">
+          {isRejecting && (
+            <button
+              type="button"
+              onClick={() => {
+                setSectionGateRejecting((current) => ({ ...current, [gateKey]: false }))
+                setSectionGateNotes((current) => ({ ...current, [gateKey]: '' }))
+              }}
+              disabled={isSaving}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-600 px-3 py-2 text-sm font-semibold text-gray-300 transition-colors hover:bg-gray-800 disabled:opacity-50"
+            >
+              Cancel
+            </button>
+          )}
           <button
             type="button"
-            onClick={() => handleSectionGateDecision(gateKey, 'rejected')}
-            disabled={isSaving || options.disabled || options.rejectDisabled || !noteValue.trim()}
+            onClick={() => {
+              if (!isRejecting) {
+                setSectionGateRejecting((current) => ({ ...current, [gateKey]: true }))
+                return
+              }
+              handleSectionGateDecision(gateKey, 'rejected')
+            }}
+            disabled={isRejecting ? rejectSubmitDisabled : rejectActionDisabled}
             className="inline-flex items-center gap-2 rounded-lg border border-red-500/40 px-3 py-2 text-sm font-semibold text-red-200 transition-colors hover:bg-red-500/10 disabled:opacity-50"
           >
             {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
-            {options.rejectLabel ?? `Reject ${label}`}
+            {isRejecting ? 'Submit Rejection' : (options.rejectLabel ?? `Reject ${label}`)}
           </button>
           <button
             type="button"
@@ -2066,6 +2097,7 @@ function SocialContentDetailPage() {
                       approveLabel: 'Approve Visuals',
                       rejectLabel: 'Reject Visuals',
                       approveDisabled: !visualAssetReady,
+                      rejectDisabled: !visualAssetReady,
                       notePlaceholder: 'What must change before the visual assets are approved?',
                     })}
                     <div id="social-asset-packet-gate" className="mt-4 scroll-mt-28 border-t border-amber-500/25 pt-4">
@@ -2607,6 +2639,7 @@ function SocialContentDetailPage() {
                     approveLabel: 'Approve LinkedIn Draft Handoff',
                     rejectLabel: 'Reject LinkedIn Draft Handoff',
                     approveDisabled: linkedinDraftBlockers.length > 0 && !linkedinDraftHandoff,
+                    rejectDisabled: linkedinDraftBlockers.length > 0 && !linkedinDraftHandoff,
                     notePlaceholder: 'What must be resolved before LinkedIn draft handoff?',
                   })}
                 </div>
