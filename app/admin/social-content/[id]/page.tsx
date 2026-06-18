@@ -223,6 +223,7 @@ function SocialContentDetailPage() {
   const [convertingFormat, setConvertingFormat] = useState(false)
   const [capturingAppCarousel, setCapturingAppCarousel] = useState(false)
   const [preparingAssetPacket, setPreparingAssetPacket] = useState(false)
+  const [creatingLinkedInDraft, setCreatingLinkedInDraft] = useState(false)
   const [reviewingRedactionId, setReviewingRedactionId] = useState<string | null>(null)
   const [selectedSlide, setSelectedSlide] = useState(0)
   const [publishing, setPublishing] = useState(false)
@@ -762,6 +763,35 @@ function SocialContentDetailPage() {
     }
   }
 
+  const handleCreateLinkedInDraft = async () => {
+    if (!confirm('Create a LinkedIn-ready draft packet? This queues an internal draft handoff only. It will not publish, schedule, send to LinkedIn, or create a public post.')) return
+    setCreatingLinkedInDraft(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const res = await fetch(`/api/admin/social-content/${id}/create-linkedin-draft`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        showMsg('error', data.blockers?.length ? data.blockers[0] : data.error || 'Failed to create LinkedIn draft')
+        return
+      }
+
+      setItem(prev => data.item ? { ...prev, ...data.item } : prev)
+      showMsg('success', 'LinkedIn draft handoff created')
+    } catch {
+      showMsg('error', 'Failed to create LinkedIn draft')
+    } finally {
+      setCreatingLinkedInDraft(false)
+    }
+  }
+
   const handleReviewRedaction = async (itemId: string, decision: RedactionReviewDecision) => {
     setReviewingRedactionId(itemId)
     try {
@@ -1005,6 +1035,18 @@ function SocialContentDetailPage() {
       : reviewGateSummary.every((gate) => gate.state === 'pending')
         ? 'pending'
         : 'in_review'
+  const linkedinDraftHandoff = asRecord(ragContext?.linkedin_draft_handoff)
+  const linkedinDraftWorkItem = asRecord(linkedinDraftHandoff?.work_item) ?? {}
+  const visualAssetReady = isCarouselFormat
+    ? Boolean(item.carousel_slide_urls?.length)
+    : Boolean(item.image_url)
+  const linkedinDraftBlockers = [
+    item.status !== 'approved' ? 'Copy must be approved first.' : '',
+    !visualAssetReady ? 'Choose and generate a visual asset first.' : '',
+    !productionAssets ? 'Prepare the asset packet first.' : '',
+    productionAssets && !redactionGate.ready ? redactionGate.message || 'Resolve video privacy review first.' : '',
+  ].filter(Boolean)
+  const canCreateLinkedInDraft = isDraftOnlyPilot && linkedinDraftBlockers.length === 0
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -2129,11 +2171,44 @@ function SocialContentDetailPage() {
           </h2>
 
           {isDraftOnlyPilot && (
-            <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm leading-6 text-amber-50/90">
-              <p className="font-semibold text-amber-100">Publishing locked</p>
-              <p className="mt-1">
-                This Agent Ops post is draft-only. Approval locks the copy and queues the reference handoff, but publishing, scheduling, screenshot capture, carousel rendering, image generation, and provider sends each require a separate explicit action.
-              </p>
+            <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
+              <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">LinkedIn Draft Handoff</p>
+                  <p className="mt-2 text-sm leading-6 text-amber-50/90">
+                    Create the LinkedIn-ready draft packet after copy, visual assets, asset packet, and privacy gates are ready. Public publishing remains locked behind a later approval.
+                  </p>
+                  {linkedinDraftHandoff ? (
+                    <div className="mt-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm leading-6 text-emerald-50">
+                      <p className="font-semibold">Draft packet ready</p>
+                      <p className="mt-1 text-emerald-50/80">
+                        Created {asString(linkedinDraftHandoff.created_at) ? new Date(asString(linkedinDraftHandoff.created_at)).toLocaleString() : 'for LinkedIn handoff'}.
+                        {asString(linkedinDraftWorkItem.id) ? ` Work item ${asString(linkedinDraftWorkItem.id)} is ${asString(linkedinDraftWorkItem.status) || 'assigned'}.` : ''}
+                      </p>
+                    </div>
+                  ) : linkedinDraftBlockers.length > 0 ? (
+                    <div className="mt-3 rounded-lg border border-amber-500/25 bg-background/35 p-3 text-sm leading-6 text-amber-50/90">
+                      <p className="font-semibold">Still needed</p>
+                      <ul className="mt-1 space-y-1">
+                        {linkedinDraftBlockers.map((blocker) => <li key={blocker}>- {blocker}</li>)}
+                      </ul>
+                    </div>
+                  ) : null}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCreateLinkedInDraft}
+                  disabled={!canCreateLinkedInDraft || creatingLinkedInDraft}
+                  className={`inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed xl:w-auto ${
+                    canCreateLinkedInDraft
+                      ? 'bg-amber-400 text-slate-950 hover:bg-amber-300'
+                      : 'border border-amber-500/25 bg-gray-950/40 text-amber-100/50'
+                  }`}
+                >
+                  {creatingLinkedInDraft ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+                  {linkedinDraftHandoff ? 'Refresh LinkedIn Draft' : 'Create LinkedIn Draft'}
+                </button>
+              </div>
             </div>
           )}
 

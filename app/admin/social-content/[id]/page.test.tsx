@@ -92,7 +92,8 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByText('Selected format')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Generate Framework Illustration/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Switch to App Screenshot Carousel/i })).toBeInTheDocument()
-    expect(screen.getByText('Publishing locked')).toBeInTheDocument()
+    expect(screen.getByText('LinkedIn Draft Handoff')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Create LinkedIn Draft/i })).toBeDisabled()
     expect(screen.queryByText('Publish immediately after approval')).not.toBeInTheDocument()
 
     expect(screen.getByDisplayValue('The draft copy is approved and should stay locked.')).toBeDisabled()
