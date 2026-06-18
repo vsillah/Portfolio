@@ -215,7 +215,9 @@ describe('SocialContentDetailRoute visual production review', () => {
   it('stores explicit section gate decisions in rag_context', async () => {
     const itemWithVisual = {
       ...baseItem,
-      image_url: 'https://example.com/framework.png',
+      content_format: 'carousel',
+      carousel_slide_urls: ['https://example.com/slide-1.png'],
+      carousel_pdf_url: 'https://example.com/carousel.pdf',
     }
     const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
       if (init?.method === 'PUT') {
@@ -258,6 +260,8 @@ describe('SocialContentDetailRoute visual production review', () => {
     await waitFor(() => {
       expect(screen.getAllByText('Visual assets: Approved').length).toBeGreaterThan(1)
     })
+    expect(screen.getByRole('button', { name: /Retry export/i })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Re-render/i })).not.toBeInTheDocument()
   })
 
   it('reveals a rejection note only after reject is selected', async () => {

@@ -2317,11 +2317,12 @@ function SocialContentDetailPage() {
                         <>
                           <button
                             onClick={handleRegenerateCarousel}
-                            disabled={convertingFormat}
+                            disabled={convertingFormat || visualAssetsRejected}
+                            title="Retry exporting the current carousel PDF and slide images"
                             className="flex items-center gap-1 px-2 py-1 bg-purple-900/50 hover:bg-purple-900/70 text-purple-300 rounded-lg text-xs transition-colors disabled:opacity-50"
                           >
                             {convertingFormat ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
-                            Re-render
+                            Retry export
                           </button>
                         </>
                       )}
@@ -2360,10 +2361,11 @@ function SocialContentDetailPage() {
                         {canEditVisualProduction && (
                           <button
                             onClick={handleRegenerateCarousel}
-                            disabled={convertingFormat}
+                            disabled={convertingFormat || visualAssetsRejected}
+                            title="Retry exporting the current carousel PDF and slide images"
                             className="mt-2 text-xs text-purple-400 hover:text-purple-300"
                           >
-                            {convertingFormat ? 'Rendering...' : 'Render now'}
+                            {convertingFormat ? 'Exporting...' : 'Retry export'}
                           </button>
                         )}
                       </div>
