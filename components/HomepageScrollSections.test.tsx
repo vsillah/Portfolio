@@ -139,6 +139,7 @@ describe('homepage scroll sections', () => {
   })
 
   it('scrubs the hero video by scroll progress and keeps it paused', () => {
+    let duration = Number.NaN
     let currentTime = 4
     let paused = false
     const pause = vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => {
@@ -147,7 +148,7 @@ describe('homepage scroll sections', () => {
 
     defineRestorableProperty(HTMLMediaElement.prototype, 'duration', {
       get() {
-        return 10
+        return duration
       },
     })
     defineRestorableProperty(HTMLMediaElement.prototype, 'currentTime', {
@@ -164,13 +165,25 @@ describe('homepage scroll sections', () => {
       },
     })
 
-    sectionGeometry.set('hero', { height: 2400, top: 0 })
+    sectionGeometry.set('hero', { height: 2400, top: -525 })
 
     render(<Hero />)
     flushAnimationFrames()
 
+    const video = document.querySelector('video')
+
+    expect(video).toBeInstanceOf(HTMLVideoElement)
     expect(currentTime).toBe(0)
     expect(pause).toHaveBeenCalled()
+
+    duration = 10
+    paused = false
+
+    fireEvent.loadedMetadata(video as HTMLVideoElement)
+    flushAnimationFrames()
+
+    expect(currentTime).toBeCloseTo(5, 2)
+    expect(paused).toBe(true)
 
     paused = false
     sectionGeometry.set('hero', { height: 2400, top: -1400 })
@@ -195,12 +208,37 @@ describe('homepage scroll sections', () => {
     ).toBeInTheDocument()
     expect(screen.getByText('01 / 03')).toBeInTheDocument()
 
-    sectionGeometry.set('system-story', { height: 3200, top: -1100 })
+    sectionGeometry.set('system-story', { height: 3200, top: -704 })
+    fireEvent.scroll(window)
+    flushAnimationFrames()
+
+    expect(
+      screen.getByRole('heading', {
+        name: "The work is already there. It just isn't connected.",
+      }),
+    ).toBeInTheDocument()
+    expect(screen.getByText('01 / 03')).toBeInTheDocument()
+
+    sectionGeometry.set('system-story', { height: 3200, top: -748 })
     fireEvent.scroll(window)
     flushAnimationFrames()
 
     expect(screen.getByRole('heading', { name: 'We map the operating system.' })).toBeInTheDocument()
     expect(screen.getByText('02 / 03')).toBeInTheDocument()
+
+    sectionGeometry.set('system-story', { height: 3200, top: -1430 })
+    fireEvent.scroll(window)
+    flushAnimationFrames()
+
+    expect(screen.getByRole('heading', { name: 'We map the operating system.' })).toBeInTheDocument()
+    expect(screen.getByText('02 / 03')).toBeInTheDocument()
+
+    sectionGeometry.set('system-story', { height: 3200, top: -1485 })
+    fireEvent.scroll(window)
+    flushAnimationFrames()
+
+    expect(screen.getByRole('heading', { name: 'Then we connect the work.' })).toBeInTheDocument()
+    expect(screen.getByText('03 / 03')).toBeInTheDocument()
 
     sectionGeometry.set('system-story', { height: 3200, top: -5000 })
     fireEvent.scroll(window)
