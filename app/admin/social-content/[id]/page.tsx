@@ -2566,7 +2566,7 @@ function SocialContentDetailPage() {
                     AT
                   </div>
                   <div>
-                    <div className="font-semibold text-sm">Amadou Town</div>
+                    <div className="font-semibold text-sm">AmaduTown</div>
                     <div className="text-xs text-gray-500">Just now</div>
                   </div>
                 </div>

@@ -130,6 +130,8 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.queryByText('Publish immediately after approval')).not.toBeInTheDocument()
 
     expect(screen.getByDisplayValue('The draft copy is approved and should stay locked.')).toBeDisabled()
+    expect(screen.getByText('AmaduTown')).toBeInTheDocument()
+    expect(screen.queryByText('Amadou Town')).not.toBeInTheDocument()
     const copyGate = screen.getByText('Post Text').closest('#social-copy-gate')
     expect(copyGate).toBeTruthy()
     expect(within(copyGate as HTMLElement).getByText('CTA Text')).toBeInTheDocument()
