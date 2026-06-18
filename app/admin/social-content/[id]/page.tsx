@@ -32,6 +32,7 @@ import {
   BarChart3,
   Plus,
   Trash2,
+  MessageSquare,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -226,6 +227,7 @@ function SocialContentDetailPage() {
   const [refreshingEngagement, setRefreshingEngagement] = useState(false)
   const [savingCalibration, setSavingCalibration] = useState(false)
   const [revisingCalibration, setRevisingCalibration] = useState(false)
+  const [requestingCopyRevision, setRequestingCopyRevision] = useState(false)
   const [showSource, setShowSource] = useState(false)
   const [expandedSection, setExpandedSection] = useState<'rag' | 'transcript' | null>(null)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
@@ -242,6 +244,7 @@ function SocialContentDetailPage() {
   const [frameworkVisualType, setFrameworkVisualType] = useState<FrameworkVisualType | ''>('')
   const [scheduledFor, setScheduledFor] = useState('')
   const [adminNotes, setAdminNotes] = useState('')
+  const [copyRevisionRequest, setCopyRevisionRequest] = useState('')
 
   const fetchItem = useCallback(async () => {
     setLoading(true)
@@ -280,6 +283,7 @@ function SocialContentDetailPage() {
           revision_request: asString(operatorFeedback?.revision_request),
           claim_boundaries: asString(operatorFeedback?.claim_boundaries),
         })
+        setCopyRevisionRequest(asString(operatorFeedback?.revision_request))
       }
     } catch (err) {
       console.error('Failed to fetch item:', err)
@@ -376,6 +380,32 @@ function SocialContentDetailPage() {
     })
   }
 
+  const buildOperatorFeedback = (revisionRequestOverride = calibrationFeedback.revision_request) => {
+    const successExamples = calibrationFeedback.success_examples
+      .map((example) => ({
+        source_label: example.source_label.trim(),
+        post_excerpt: example.post_excerpt.trim(),
+        engagement_signal: example.engagement_signal.trim(),
+        why_it_worked: example.why_it_worked.trim(),
+      }))
+      .filter((example) => (
+        example.source_label
+        || example.post_excerpt
+        || example.engagement_signal
+        || example.why_it_worked
+      ))
+    const structuredPriorPostExcerpt = formatSuccessExamplesForPrompt(successExamples)
+    return {
+      prior_post_excerpt: structuredPriorPostExcerpt || calibrationFeedback.prior_post_excerpt.trim(),
+      success_examples: successExamples,
+      engagement_signal: calibrationFeedback.engagement_signal.trim(),
+      audience_context: calibrationFeedback.audience_context.trim(),
+      revision_request: revisionRequestOverride.trim(),
+      claim_boundaries: calibrationFeedback.claim_boundaries.trim(),
+      updated_at: new Date().toISOString(),
+    }
+  }
+
   const handleSaveCalibrationFeedback = async () => {
     if (!item) return
     setSavingCalibration(true)
@@ -385,29 +415,7 @@ function SocialContentDetailPage() {
 
       const existingRag = asRecord(item.rag_context) ?? {}
       const existingCalibration = asRecord(existingRag.content_calibration) ?? {}
-      const successExamples = calibrationFeedback.success_examples
-        .map((example) => ({
-          source_label: example.source_label.trim(),
-          post_excerpt: example.post_excerpt.trim(),
-          engagement_signal: example.engagement_signal.trim(),
-          why_it_worked: example.why_it_worked.trim(),
-        }))
-        .filter((example) => (
-          example.source_label
-          || example.post_excerpt
-          || example.engagement_signal
-          || example.why_it_worked
-        ))
-      const structuredPriorPostExcerpt = formatSuccessExamplesForPrompt(successExamples)
-      const feedback = {
-        prior_post_excerpt: structuredPriorPostExcerpt || calibrationFeedback.prior_post_excerpt.trim(),
-        success_examples: successExamples,
-        engagement_signal: calibrationFeedback.engagement_signal.trim(),
-        audience_context: calibrationFeedback.audience_context.trim(),
-        revision_request: calibrationFeedback.revision_request.trim(),
-        claim_boundaries: calibrationFeedback.claim_boundaries.trim(),
-        updated_at: new Date().toISOString(),
-      }
+      const feedback = buildOperatorFeedback()
       const hasFeedback = Object.entries(feedback)
         .filter(([key]) => key !== 'updated_at')
         .some(([, value]) => Array.isArray(value) ? value.length > 0 : Boolean(value))
@@ -441,6 +449,113 @@ function SocialContentDetailPage() {
       showMsg('error', 'Failed to save calibration feedback')
     } finally {
       setSavingCalibration(false)
+    }
+  }
+
+  const handleRequestCopyRevision = async (generateRevision: boolean) => {
+    if (!item) return
+    const revisionRequest = copyRevisionRequest.trim()
+    if (!revisionRequest) {
+      showMsg('error', 'Add revision feedback before reopening approval')
+      return
+    }
+    setRequestingCopyRevision(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const existingRag = asRecord(item.rag_context) ?? {}
+      const existingCalibration = asRecord(existingRag.content_calibration) ?? {}
+      const feedback = buildOperatorFeedback(revisionRequest)
+      const requestedAt = new Date().toISOString()
+      const revisionRequests = Array.isArray(existingCalibration.revision_requests)
+        ? existingCalibration.revision_requests
+        : []
+      const rag_context = {
+        ...existingRag,
+        content_calibration: {
+          ...existingCalibration,
+          status: generateRevision ? 'revision_generation_requested' : 'revision_requested',
+          operator_feedback: feedback,
+          approval_reversal: {
+            reverted_at: requestedAt,
+            previous_status: item.status,
+            reason: revisionRequest,
+          },
+          revision_requests: [
+            ...revisionRequests,
+            {
+              created_at: requestedAt,
+              previous_status: item.status,
+              request: revisionRequest,
+              action: generateRevision ? 'reject_and_generate_revision' : 'reopen_for_revision',
+            },
+          ].slice(-10),
+        },
+      }
+      const nextAdminNotes = [
+        adminNotes,
+        `Copy revision requested on ${requestedAt}.\n${revisionRequest}`,
+      ].filter(Boolean).join('\n\n')
+
+      const res = await fetch(`/api/admin/social-content/${id}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: 'rejected',
+          rag_context,
+          admin_notes: nextAdminNotes,
+        }),
+      })
+
+      const data = await res.json()
+      if (!res.ok) {
+        showMsg('error', data.error || 'Failed to reopen approval')
+        return
+      }
+
+      const reopened = data.item as SocialContentItem
+      setItem(prev => prev ? { ...prev, ...reopened } : reopened)
+      setAdminNotes(reopened.admin_notes || nextAdminNotes)
+      setCalibrationFeedback((current) => ({
+        ...current,
+        revision_request: revisionRequest,
+      }))
+
+      if (!generateRevision) {
+        showMsg('success', 'Approval reverted. Revision feedback saved.')
+        return
+      }
+
+      const revisionRes = await fetch(`/api/admin/social-content/${id}/calibration-revision`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ operator_feedback: feedback }),
+      })
+      const revisionData = await revisionRes.json()
+      if (!revisionRes.ok) {
+        showMsg('error', revisionData.error || 'Approval reverted, but revision generation failed')
+        return
+      }
+
+      const updated = revisionData.item as SocialContentItem
+      setItem(updated)
+      setPostText(updated.post_text || '')
+      setCtaText(updated.cta_text || '')
+      setHashtags(updated.hashtags?.join(', ') || '')
+      setImagePrompt(updated.image_prompt || '')
+      setAdminNotes(updated.admin_notes || '')
+      showMsg('success', 'Approval reverted and revised draft generated.')
+    } catch {
+      showMsg('error', 'Failed to request copy revision')
+    } finally {
+      setRequestingCopyRevision(false)
     }
   }
 
@@ -967,6 +1082,7 @@ function SocialContentDetailPage() {
   const isDraftOnlyPilot = isAgentSocialPilot && agentPilotPublishGate === 'draft_only'
   const canApproveAgentPilot = !isAgentSocialPilot || agentPilotPassToHuman
   const videoPrivacyBlocked = Boolean(productionAssets && !redactionGate.ready)
+  const canRequestCopyRevision = isAgentSocialPilot && item.status === 'approved'
   const canEditVisualProduction = isEditable || (isDraftOnlyPilot && item.status === 'approved')
   const visualProductionUnlocked = canEditVisualProduction && isDraftOnlyPilot
   const frameworkIllustrationLabel = item.image_url
@@ -1615,6 +1731,62 @@ function SocialContentDetailPage() {
                 <span className="text-xs text-gray-500">{postText.length} characters</span>
                 <span className="text-xs text-gray-500">LinkedIn optimal: 150-300 words</span>
               </div>
+              {canRequestCopyRevision && (
+                <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="min-w-0">
+                      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">
+                        <MessageSquare className="h-3.5 w-3.5" />
+                        Request copy revision
+                      </p>
+                      <p className="mt-1 text-sm leading-6 text-amber-50/85">
+                        Revert approval with a note Shaka can use for the next draft.
+                      </p>
+                    </div>
+                    <span className="w-fit rounded-full border border-amber-500/35 px-2 py-0.5 text-[10px] font-semibold text-amber-100">
+                      Approval rollback
+                    </span>
+                  </div>
+                  <label className="mt-3 block text-xs font-medium uppercase tracking-[0.12em] text-amber-100/80">
+                    Revision feedback for Shaka
+                    <textarea
+                      value={copyRevisionRequest}
+                      onChange={(event) => {
+                        setCopyRevisionRequest(event.target.value)
+                        updateCalibrationFeedback('revision_request', event.target.value)
+                      }}
+                      rows={3}
+                      className="mt-2 w-full rounded-lg border border-amber-500/25 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-100 placeholder:text-gray-500"
+                      placeholder="What should change before this can be approved?"
+                    />
+                  </label>
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                    <p className="text-xs leading-5 text-amber-50/70">
+                      Reopening keeps publishing, scheduling, and provider actions locked.
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleRequestCopyRevision(false)}
+                        disabled={requestingCopyRevision || !copyRevisionRequest.trim()}
+                        className="inline-flex items-center gap-2 rounded-lg border border-amber-400/45 px-3 py-2 text-sm font-semibold text-amber-100 transition-colors hover:bg-amber-500/10 disabled:opacity-50"
+                      >
+                        {requestingCopyRevision ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
+                        Reopen for Revision
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRequestCopyRevision(true)}
+                        disabled={requestingCopyRevision || !copyRevisionRequest.trim()}
+                        className="inline-flex items-center gap-2 rounded-lg bg-amber-400 px-3 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-amber-300 disabled:opacity-50"
+                      >
+                        {requestingCopyRevision ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                        Reject and Generate Revision
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* CTA */}

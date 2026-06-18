@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import SocialContentDetailRoute from './page'
@@ -105,6 +105,10 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getAllByText('Asset packet: Pending').length).toBeGreaterThan(1)
     expect(screen.getAllByText('Privacy: Pending').length).toBeGreaterThan(1)
     expect(screen.getAllByText('LinkedIn draft: Pending').length).toBeGreaterThan(1)
+    expect(screen.getByText('Request copy revision')).toBeInTheDocument()
+    expect(screen.getByLabelText('Revision feedback for Shaka')).not.toBeDisabled()
+    expect(screen.getByRole('button', { name: /Reopen for Revision/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Reject and Generate Revision/i })).toBeDisabled()
     expect(screen.getByText('Choose one visual format')).toBeInTheDocument()
     expect(screen.getByText('Selected format')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Generate Framework Illustration/i })).toBeInTheDocument()
@@ -176,5 +180,71 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByText('Approve Blur')).toBeInTheDocument()
     expect(screen.getByText('Reject Clip')).toBeInTheDocument()
     expect(screen.queryByText('Publish immediately after approval')).not.toBeInTheDocument()
+  })
+
+  it('reverts approval with revision feedback before generating the next draft', async () => {
+    const feedback = 'Make the opening less abstract and show a clearer operational example.'
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (init?.method === 'PUT') {
+        const body = JSON.parse(String(init.body))
+        return {
+          ok: true,
+          json: async () => ({
+            item: {
+              ...baseItem,
+              ...body,
+              status: 'rejected',
+            },
+          }),
+        } as Response
+      }
+      if (url.includes('/calibration-revision')) {
+        return {
+          ok: true,
+          json: async () => ({
+            item: {
+              ...baseItem,
+              status: 'draft',
+              post_text: 'Revised draft from Shaka.',
+              cta_text: 'What would make this clearer?',
+              hashtags: ['#AgentOps'],
+              image_prompt: 'Updated visual prompt.',
+              admin_notes: 'Calibration revision generated.',
+            },
+          }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: baseItem }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<SocialContentDetailRoute />)
+
+    fireEvent.change(await screen.findByLabelText('Revision feedback for Shaka'), {
+      target: { value: feedback },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /Reject and Generate Revision/i }))
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining('/api/admin/social-content/social-1/calibration-revision'),
+        expect.objectContaining({ method: 'POST' }),
+      )
+    })
+    const putCall = fetchMock.mock.calls.find(([, init]) => init?.method === 'PUT')
+    expect(putCall).toBeTruthy()
+    const putBody = JSON.parse(String(putCall?.[1]?.body))
+    expect(putBody.status).toBe('rejected')
+    expect(putBody.rag_context.content_calibration.operator_feedback.revision_request).toBe(feedback)
+    expect(putBody.rag_context.content_calibration.approval_reversal.reason).toBe(feedback)
+
+    const revisionCall = fetchMock.mock.calls.find(([url]) => String(url).includes('/calibration-revision'))
+    const revisionBody = JSON.parse(String(revisionCall?.[1]?.body))
+    expect(revisionBody.operator_feedback.revision_request).toBe(feedback)
+    expect(await screen.findByDisplayValue('Revised draft from Shaka.')).toBeInTheDocument()
   })
 })
