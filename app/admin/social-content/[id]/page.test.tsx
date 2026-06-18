@@ -88,8 +88,10 @@ describe('SocialContentDetailRoute visual production review', () => {
     render(<SocialContentDetailRoute />)
 
     expect(await screen.findByText('Visual Production')).toBeInTheDocument()
+    expect(screen.getByText('Choose one visual format')).toBeInTheDocument()
+    expect(screen.getByText('Selected format')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Generate Framework Illustration/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Build Carousel from App Screenshots/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Switch to App Screenshot Carousel/i })).toBeInTheDocument()
     expect(screen.getByText('Publishing locked')).toBeInTheDocument()
     expect(screen.queryByText('Publish immediately after approval')).not.toBeInTheDocument()
 

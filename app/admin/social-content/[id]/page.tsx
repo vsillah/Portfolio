@@ -946,6 +946,14 @@ function SocialContentDetailPage() {
   const frameworkIllustrationLabel = item.image_url
     ? 'Regenerate Framework Illustration'
     : 'Generate Framework Illustration'
+  const isCarouselFormat = item.content_format === 'carousel'
+  const isSingleImageFormat = !isCarouselFormat
+  const frameworkActionLabel = isCarouselFormat
+    ? 'Switch to Framework Illustration'
+    : frameworkIllustrationLabel
+  const carouselActionLabel = isCarouselFormat
+    ? 'Rebuild App Screenshot Carousel'
+    : 'Switch to App Screenshot Carousel'
   const approveActionLabel = isDraftOnlyPilot
     ? 'Approve Draft'
     : scheduledFor
@@ -1556,34 +1564,79 @@ function SocialContentDetailPage() {
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
               {canEditVisualProduction && (
                 <div className="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
-                  <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+                  <div className="flex flex-col gap-2">
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">Visual Production</p>
                       <p className="mt-1 text-sm leading-6 text-amber-50/90">
                         {visualProductionUnlocked
-                          ? 'Copy is approved and locked. Choose the next visual asset manually; neither action publishes, schedules, or sends provider work until you click it.'
-                          : 'Choose the visual asset path for this draft. These actions stay separate from copy approval and publishing.'}
+                          ? 'Copy is approved and locked. Choose one visual format; selecting either path replaces the other draft visual and does not publish, schedule, or send provider work.'
+                          : 'Choose one visual format for this draft. These actions stay separate from copy approval and publishing.'}
                       </p>
                     </div>
-                    <div className="flex flex-col gap-2 sm:flex-row xl:justify-end">
-                      <button
-                        type="button"
-                        onClick={item.content_format === 'carousel' ? handleConvertToSingleImage : handleRegenerateImage}
-                        disabled={regeneratingImage || !imagePrompt}
-                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-amber-400 px-3 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-amber-300 disabled:opacity-50"
-                      >
-                        {regeneratingImage ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImageIcon className="h-3.5 w-3.5" />}
-                        {frameworkIllustrationLabel}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleBuildAppScreenshotCarousel}
-                        disabled={capturingAppCarousel}
-                        className="inline-flex items-center justify-center gap-2 rounded-lg border border-amber-500/45 px-3 py-2 text-sm font-semibold text-amber-100 transition-colors hover:bg-amber-500/10 disabled:opacity-50"
-                      >
-                        {capturingAppCarousel ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <LayoutGrid className="h-3.5 w-3.5" />}
-                        Build Carousel from App Screenshots
-                      </button>
+                    <div className="mt-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-100/70">Choose one visual format</p>
+                      <div className="mt-2 grid gap-3 lg:grid-cols-2">
+                        <div className={`rounded-lg border p-3 ${isSingleImageFormat ? 'border-amber-400/70 bg-amber-400/10' : 'border-amber-500/25 bg-gray-950/30'}`}>
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-center gap-2">
+                              <ImageIcon className="h-4 w-4 text-amber-200" />
+                              <p className="text-sm font-semibold text-amber-50">Framework illustration</p>
+                            </div>
+                            {isSingleImageFormat && (
+                              <span className="inline-flex items-center gap-1 rounded-full border border-amber-300/50 bg-amber-300/10 px-2 py-0.5 text-[10px] font-semibold text-amber-100">
+                                <CheckCircle2 className="h-3 w-3" />
+                                Selected format
+                              </span>
+                            )}
+                          </div>
+                          <p className="mt-2 text-sm leading-6 text-amber-50/80">
+                            Best when the post needs a clean concept visual for the argument. Switching here clears carousel data and uses a single image.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={isCarouselFormat ? handleConvertToSingleImage : handleRegenerateImage}
+                            disabled={regeneratingImage || !imagePrompt}
+                            className={`mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors disabled:opacity-50 ${
+                              isSingleImageFormat
+                                ? 'bg-amber-400 text-slate-950 hover:bg-amber-300'
+                                : 'border border-amber-500/45 text-amber-100 hover:bg-amber-500/10'
+                            }`}
+                          >
+                            {regeneratingImage ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImageIcon className="h-3.5 w-3.5" />}
+                            {frameworkActionLabel}
+                          </button>
+                        </div>
+                        <div className={`rounded-lg border p-3 ${isCarouselFormat ? 'border-blue-400/70 bg-blue-400/10' : 'border-amber-500/25 bg-gray-950/30'}`}>
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-center gap-2">
+                              <LayoutGrid className="h-4 w-4 text-blue-100" />
+                              <p className="text-sm font-semibold text-amber-50">App screenshot carousel</p>
+                            </div>
+                            {isCarouselFormat && (
+                              <span className="inline-flex items-center gap-1 rounded-full border border-blue-300/50 bg-blue-300/10 px-2 py-0.5 text-[10px] font-semibold text-blue-100">
+                                <CheckCircle2 className="h-3 w-3" />
+                                Selected format
+                              </span>
+                            )}
+                          </div>
+                          <p className="mt-2 text-sm leading-6 text-amber-50/80">
+                            Best when the post needs proof from real Portfolio screens. Switching here replaces the single-image draft with a screenshot carousel.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={handleBuildAppScreenshotCarousel}
+                            disabled={capturingAppCarousel}
+                            className={`mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors disabled:opacity-50 ${
+                              isCarouselFormat
+                                ? 'bg-blue-400 text-slate-950 hover:bg-blue-300'
+                                : 'border border-blue-400/45 text-blue-100 hover:bg-blue-500/10'
+                            }`}
+                          >
+                            {capturingAppCarousel ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <LayoutGrid className="h-3.5 w-3.5" />}
+                            {carouselActionLabel}
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
