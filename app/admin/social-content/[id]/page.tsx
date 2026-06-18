@@ -970,169 +970,179 @@ function SocialContentDetailPage() {
 
       <div className="mx-auto w-full max-w-[90rem] space-y-6 px-4 py-6 sm:px-6 lg:px-8">
         {isAgentSocialPilot && (
-          <section className="admin-console-card rounded-xl border border-radiant-gold/25 p-5 sm:p-6">
-            <div className="grid gap-4">
-              <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,auto)] xl:items-start">
-                <div className="min-w-0">
-                  <p className="admin-console-eyebrow">
-                    Agent Ops LinkedIn Pilot
-                  </p>
-                  <h2 className="mt-2 text-2xl font-semibold text-gray-100">
-                    Draft-only content packet
-                  </h2>
-                  <p className="mt-2 max-w-5xl text-sm leading-6 text-gray-300">
-                    This post was created from an approved Standup Room goal. Goal approval created the work items and this draft; publishing still requires the separate Social Content approval gate.
-                  </p>
-                </div>
-                <div className="flex min-w-0 flex-wrap gap-2 text-xs xl:justify-end">
-                  <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-amber-200">
-                    {isDraftOnlyPilot ? 'Publish gate: draft only' : `Publish gate: ${agentPilotPublishGate || 'review required'}`}
+          <section className="admin-console-card rounded-xl border border-radiant-gold/25 p-4 sm:p-5">
+            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,auto)] xl:items-start">
+              <div className="min-w-0">
+                <p className="admin-console-eyebrow">Agent Ops LinkedIn Pilot</p>
+                <h2 className="mt-2 text-xl font-semibold text-gray-100">Draft-only content packet</h2>
+                <p className="mt-1 max-w-4xl text-sm leading-6 text-gray-400">
+                  Current state for this draft. Supporting evidence and checklists are collapsed below.
+                </p>
+              </div>
+              <div className="flex min-w-0 flex-wrap gap-2 text-xs xl:justify-end">
+                <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-amber-200">
+                  {isDraftOnlyPilot ? 'Publish locked' : `Publish: ${agentPilotPublishGate || 'review required'}`}
+                </span>
+                <span className={`rounded-full border px-3 py-1 ${agentPilotPassToHuman ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200' : 'border-amber-500/35 bg-amber-500/10 text-amber-100'}`}>
+                  {agentPilotPassToHuman ? 'Human review ready' : 'Before human review'}
+                </span>
+                {agentPilotChallengerStatus && (
+                  <span className="rounded-full border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-1 text-gray-200">
+                    Challenger: {agentPilotChallengerStatus.replace(/_/g, ' ')}
                   </span>
-                  {agentPilotChronicleStatus && (
-                    <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-blue-200">
-                      Chronicle: {agentPilotChronicleStatus.replace(/_/g, ' ')}
-                    </span>
-                  )}
-                  {agentPilotPacketId && (
-                    <span className="max-w-full truncate rounded-full border border-gray-700 bg-gray-800 px-3 py-1 text-gray-300 xl:max-w-md" title={agentPilotPacketId}>
-                      Packet {agentPilotPacketId}
-                    </span>
-                  )}
-                  {agentPilotCurrentGate && (
-                    <span className="rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-purple-100">
-                      Gate: {agentPilotCurrentGate.replace(/_/g, ' ')}
-                    </span>
-                  )}
-                  {agentPilotChallengerStatus && (
-                    <span className="rounded-full border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-1 text-gray-200">
-                      Challenger: {agentPilotChallengerStatus.replace(/_/g, ' ')}
-                    </span>
-                  )}
-                  <span className={`rounded-full border px-3 py-1 ${agentPilotPassToHuman ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200' : 'border-amber-500/35 bg-amber-500/10 text-amber-100'}`}>
-                    {agentPilotPassToHuman ? 'Human review ready' : 'Before human review'}
+                )}
+                {agentPilotChronicleStatus && (
+                  <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-blue-200">
+                    Chronicle: {agentPilotChronicleStatus.replace(/_/g, ' ')}
                   </span>
-                </div>
+                )}
               </div>
             </div>
 
             {!agentPilotPassToHuman && (
-              <div className="mt-5 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm leading-6 text-amber-50">
+              <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm leading-6 text-amber-50">
                 <p className="font-semibold">This draft is not ready for human approval yet.</p>
                 <p className="mt-1 text-amber-100/85">
-                  Current status: {(agentPilotGateStatus || 'research pending').replace(/_/g, ' ')}. Research/context evidence and challenger QA must clear before this can move to the Social Content approval gate.
+                  Current status: {(agentPilotGateStatus || 'research pending').replace(/_/g, ' ')}.
                 </p>
                 {agentPilotRequiredFixes.length > 0 && (
-                  <ul className="mt-3 space-y-1">
+                  <ul className="mt-2 space-y-1">
                     {agentPilotRequiredFixes.slice(0, 4).map((fix) => <li key={fix}>- {fix}</li>)}
                   </ul>
                 )}
               </div>
             )}
 
-            <div className="mt-5 grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(18rem,0.8fr)]">
-              <div className="rounded-lg border border-silicon-slate/80 bg-background/35 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Provenance</p>
-                <ul className="mt-3 space-y-2 text-sm text-gray-300">
-                  {agentPilotProvenance.slice(0, 4).map((entry) => (
-                    <li key={entry} className="flex gap-2">
-                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
-                      <span>{entry}</span>
-                    </li>
-                  ))}
-                  {agentPilotProvenance.length === 0 && (
-                    <li className="text-gray-500">No provenance checklist attached.</li>
-                  )}
-                </ul>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              <div className="rounded-lg border border-silicon-slate/80 bg-background/35 p-3">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Copy</p>
+                <p className="mt-1 text-sm text-gray-100">{item.status === 'approved' ? 'Approved and locked' : statusCfg.label}</p>
               </div>
-              <div className="rounded-lg border border-silicon-slate/80 bg-background/35 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Review Checklist</p>
-                <ul className="mt-3 space-y-2 text-sm text-gray-300">
-                  {agentPilotApprovalChecklist.slice(0, 4).map((entry) => (
-                    <li key={entry} className="flex gap-2">
-                      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
-                      <span>{entry}</span>
-                    </li>
-                  ))}
-                  {agentPilotApprovalChecklist.length === 0 && (
-                    <li className="text-gray-500">No approval checklist attached.</li>
-                  )}
-                </ul>
+              <div className="rounded-lg border border-silicon-slate/80 bg-background/35 p-3">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Visuals</p>
+                <p className="mt-1 text-sm text-gray-100">{productionAssets ? 'Asset packet ready' : 'Awaiting asset packet'}</p>
               </div>
-              <div className="rounded-lg border border-silicon-slate/80 bg-background/35 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Visual Brief</p>
-                <p className="mt-3 text-sm leading-6 text-gray-300">
-                  {agentPilotVisualBrief || 'No visual brief attached.'}
+              <div className="rounded-lg border border-silicon-slate/80 bg-background/35 p-3">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Privacy</p>
+                <p className={`mt-1 text-sm ${videoPrivacyBlocked ? 'text-red-200' : 'text-gray-100'}`}>
+                  {productionAssets ? (redactionGate.ready ? 'Redaction clear' : `${redactionGate.unresolvedItems.length} redaction item${redactionGate.unresolvedItems.length === 1 ? '' : 's'}`) : 'Not started'}
                 </p>
               </div>
             </div>
 
-            {isAgentSocialPilot && (
-              <div className="mt-4 rounded-lg border border-silicon-slate/80 bg-background/35 p-4">
-                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-300">Content Calibration</p>
-                    <p className="mt-1 text-sm leading-6 text-gray-300">
-                      {agentPilotCalibration
-                        ? 'Use this section to revise the draft against prior successful post patterns before it reaches publish review.'
-                        : 'No calibration packet was seeded for this draft yet. Add a prior post, engagement signal, audience context, and revision request so Shaka can revise it in context.'}
+            <details className="mt-4 rounded-lg border border-silicon-slate/80 bg-background/35">
+              <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-gray-200">
+                Supporting context and checklists
+              </summary>
+              <div className="grid gap-3 border-t border-silicon-slate/70 p-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(18rem,0.8fr)]">
+                <div className="rounded-lg border border-silicon-slate/80 bg-imperial-navy/35 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Provenance</p>
+                  <ul className="mt-3 space-y-2 text-sm text-gray-300">
+                    {agentPilotProvenance.slice(0, 4).map((entry) => (
+                      <li key={entry} className="flex gap-2">
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
+                        <span>{entry}</span>
+                      </li>
+                    ))}
+                    {agentPilotProvenance.length === 0 && (
+                      <li className="text-gray-500">No provenance checklist attached.</li>
+                    )}
+                  </ul>
+                </div>
+                <div className="rounded-lg border border-silicon-slate/80 bg-imperial-navy/35 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Review Checklist</p>
+                  <ul className="mt-3 space-y-2 text-sm text-gray-300">
+                    {agentPilotApprovalChecklist.slice(0, 4).map((entry) => (
+                      <li key={entry} className="flex gap-2">
+                        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
+                        <span>{entry}</span>
+                      </li>
+                    ))}
+                    {agentPilotApprovalChecklist.length === 0 && (
+                      <li className="text-gray-500">No approval checklist attached.</li>
+                    )}
+                  </ul>
+                </div>
+                <div className="rounded-lg border border-silicon-slate/80 bg-imperial-navy/35 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Visual Brief</p>
+                  <p className="mt-3 text-sm leading-6 text-gray-300">
+                    {agentPilotVisualBrief || 'No visual brief attached.'}
+                  </p>
+                  {agentPilotPacketId && (
+                    <p className="mt-3 truncate text-xs text-gray-500" title={agentPilotPacketId}>
+                      Packet {agentPilotPacketId}
                     </p>
-                  </div>
-                  <span className="w-fit rounded-full border border-amber-500/35 bg-amber-500/10 px-3 py-1 text-xs text-amber-200">
+                  )}
+                </div>
+              </div>
+            </details>
+
+            {isAgentSocialPilot && (
+              <details className="mt-3 rounded-lg border border-silicon-slate/80 bg-background/35">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3">
+                  <span className="text-sm font-semibold text-gray-200">Content calibration</span>
+                  <span className="rounded-full border border-amber-500/35 bg-amber-500/10 px-3 py-1 text-xs text-amber-200">
                     {(agentPilotCalibrationStatus || 'needs operator context').replace(/_/g, ' ')}
                   </span>
-                </div>
+                </summary>
+                <div className="border-t border-silicon-slate/70 p-4">
+                  <p className="text-sm leading-6 text-gray-300">
+                    {agentPilotCalibration
+                      ? 'Use this section to revise the draft against prior successful post patterns before it reaches publish review.'
+                      : 'No calibration packet was seeded for this draft yet. Add a prior post, engagement signal, audience context, and revision request so Shaka can revise it in context.'}
+                  </p>
 
-                {hasAgentPilotCalibrationGuidance ? (
-                  <>
-                    <div className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
-                      <div className="grid gap-2">
-                        {agentPilotPriorPatterns.slice(0, 3).map((pattern) => {
-                          const label = asString(pattern.label)
-                          return (
-                            <div key={label || asString(pattern.pattern)} className="rounded-md border border-silicon-slate/80 bg-imperial-navy/45 p-3">
-                              <p className="text-sm font-semibold text-gray-100">{label || 'Prior success pattern'}</p>
-                              <p className="mt-1 text-sm leading-6 text-gray-300">{asString(pattern.pattern)}</p>
-                              <p className="mt-2 text-xs leading-5 text-gray-400"><span className="text-amber-300">Why it worked:</span> {asString(pattern.why_it_worked)}</p>
-                              <p className="mt-1 text-xs leading-5 text-gray-400"><span className="text-amber-300">Use now:</span> {asString(pattern.reuse_guidance)}</p>
+                  {hasAgentPilotCalibrationGuidance ? (
+                    <>
+                      <div className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
+                        <div className="grid gap-2">
+                          {agentPilotPriorPatterns.slice(0, 3).map((pattern) => {
+                            const label = asString(pattern.label)
+                            return (
+                              <div key={label || asString(pattern.pattern)} className="rounded-md border border-silicon-slate/80 bg-imperial-navy/45 p-3">
+                                <p className="text-sm font-semibold text-gray-100">{label || 'Prior success pattern'}</p>
+                                <p className="mt-1 text-sm leading-6 text-gray-300">{asString(pattern.pattern)}</p>
+                                <p className="mt-2 text-xs leading-5 text-gray-400"><span className="text-amber-300">Why it worked:</span> {asString(pattern.why_it_worked)}</p>
+                                <p className="mt-1 text-xs leading-5 text-gray-400"><span className="text-amber-300">Use now:</span> {asString(pattern.reuse_guidance)}</p>
+                              </div>
+                            )
+                          })}
+                          {agentPilotPriorPatterns.length === 0 && (
+                            <div className="rounded-md border border-silicon-slate/80 bg-imperial-navy/45 p-3 text-sm leading-6 text-gray-300">
+                              No prior success patterns are attached yet.
                             </div>
-                          )
-                        })}
-                        {agentPilotPriorPatterns.length === 0 && (
-                          <div className="rounded-md border border-silicon-slate/80 bg-imperial-navy/45 p-3 text-sm leading-6 text-gray-300">
-                            No prior success patterns are attached yet.
-                          </div>
-                        )}
+                          )}
+                        </div>
+                        <div className="grid gap-3">
+                          {agentPilotVoicePrinciples.length > 0 && (
+                            <div className="rounded-md border border-silicon-slate/80 bg-imperial-navy/45 p-3">
+                              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Voice Checks</p>
+                              <ul className="mt-2 space-y-1 text-sm text-gray-300">
+                                {agentPilotVoicePrinciples.slice(0, 5).map((entry) => <li key={entry}>• {entry}</li>)}
+                              </ul>
+                            </div>
+                          )}
+                          {agentPilotMissingContextPrompts.length > 0 && (
+                            <div className="rounded-md border border-amber-500/25 bg-amber-500/10 p-3">
+                              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">Context to Add</p>
+                              <ul className="mt-2 space-y-1 text-sm text-amber-50/90">
+                                {agentPilotMissingContextPrompts.slice(0, 4).map((entry) => <li key={entry}>• {entry}</li>)}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <div className="grid gap-3">
-                        {agentPilotVoicePrinciples.length > 0 && (
-                          <div className="rounded-md border border-silicon-slate/80 bg-imperial-navy/45 p-3">
-                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Voice Checks</p>
-                            <ul className="mt-2 space-y-1 text-sm text-gray-300">
-                              {agentPilotVoicePrinciples.slice(0, 5).map((entry) => <li key={entry}>• {entry}</li>)}
-                            </ul>
-                          </div>
-                        )}
-                        {agentPilotMissingContextPrompts.length > 0 && (
-                          <div className="rounded-md border border-amber-500/25 bg-amber-500/10 p-3">
-                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">Context to Add</p>
-                            <ul className="mt-2 space-y-1 text-sm text-amber-50/90">
-                              {agentPilotMissingContextPrompts.slice(0, 4).map((entry) => <li key={entry}>• {entry}</li>)}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
+                      {agentPilotComparisonPrompt && (
+                        <div className="mt-3 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-sm leading-6 text-amber-100">
+                          {agentPilotComparisonPrompt}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="mt-3 rounded-md border border-silicon-slate/80 bg-imperial-navy/45 p-3 text-sm leading-6 text-gray-300">
+                      No calibration notes are attached yet. Start by adding a prior successful post, what made it work, and what should change in this draft.
                     </div>
-                    {agentPilotComparisonPrompt && (
-                      <div className="mt-3 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-sm leading-6 text-amber-100">
-                        {agentPilotComparisonPrompt}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div className="mt-3 rounded-md border border-silicon-slate/80 bg-imperial-navy/45 p-3 text-sm leading-6 text-gray-300">
-                    No calibration notes are attached yet. Start by adding a prior successful post, what made it work, and what should change in this draft.
-                  </div>
-                )}
+                  )}
 
                 {hasAgentPilotRevisionReceipt && (
                   <div className="mt-4 rounded-lg border border-emerald-500/25 bg-emerald-500/5 p-4">
@@ -1377,6 +1387,7 @@ function SocialContentDetailPage() {
                   </div>
                 </div>
               </div>
+              </details>
             )}
 
             <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
