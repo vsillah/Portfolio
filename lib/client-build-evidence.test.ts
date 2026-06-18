@@ -70,4 +70,59 @@ describe('sanitizeBuildEvidenceRow', () => {
       'Strict attribution uses Codex sessions started from the tracked workspace.'
     )
   })
+
+  it('normalizes malformed evidence payloads and strips unsafe note references', () => {
+    const output = sanitizeBuildEvidenceRow({
+      id: 'evidence-3',
+      project_label: 'Generalized Client Dashboard Build',
+      captured_at: '2026-06-17T12:00:00.000Z',
+      repo_metrics: {
+        allBranchCommitCount: '149',
+        trackedTextLines: Number.NaN,
+        workflow: ['client-visible workflow', 42, null],
+      },
+      token_usage: {
+        confidenceLabel: 'Direct workspace evidence',
+        totalTokens: Number.POSITIVE_INFINITY,
+        shareOfComparisonWindowPct: '17.38',
+      },
+      cost_summary: {
+        apiEquivalentCostUsd: 'unknown',
+        subscriptionMonthlyCostUsd: 200,
+      },
+      hourly_translation: {
+        defaultBenchmarkHourlyRate: -175,
+        focusedHoursLow: 125,
+      },
+      source_confidence: {
+        label: 'Direct workspace evidence',
+        confidence: 'unverified',
+        excludedSources: [
+          'client-visible summary',
+          '/Users/vambahsillah/.codex/sessions/private.jsonl',
+          'local-private-store-console-record',
+        ],
+      },
+      client_safe_notes: [
+        'Repository and token metrics are supporting evidence.',
+        'local-private source bundle was excluded.',
+        '/Users/vambahsillah/.codex/sessions/private.jsonl',
+      ],
+    } as any)
+
+    expect(output.repoMetrics.allBranchCommitCount).toBe(0)
+    expect(output.repoMetrics.trackedTextLines).toBe(0)
+    expect(output.repoMetrics.workflow).toEqual(['client-visible workflow'])
+    expect(output.tokenUsage.totalTokens).toBe(0)
+    expect(output.tokenUsage.shareOfComparisonWindowPct).toBe(0)
+    expect(output.costSummary.apiEquivalentCostUsd).toBeNull()
+    expect(output.costSummary.subscriptionMonthlyCostUsd).toBe(200)
+    expect(output.hourlyTranslation.defaultBenchmarkHourlyRate).toBe(-175)
+    expect(output.hourlyTranslation.focusedHoursLow).toBe(125)
+    expect(output.sourceConfidence.confidence).toBe('high')
+    expect(output.sourceConfidence.excludedSources).toEqual(['client-visible summary'])
+    expect(output.clientSafeNotes).toEqual(['Repository and token metrics are supporting evidence.'])
+    expect(JSON.stringify(output)).not.toContain('/Users/')
+    expect(JSON.stringify(output)).not.toContain('local-private')
+  })
 })

@@ -79,4 +79,78 @@ describe('MilestoneTimeline', () => {
     expect(screen.queryByText(/\[private path\]/)).not.toBeInTheDocument()
     expect(screen.queryByText(/Verified from/)).not.toBeInTheDocument()
   })
+
+  it('shows sanitized automation access hints when no visible evidence duplicates the same connection', () => {
+    const milestones: Milestone[] = [
+      {
+        id: 'm1',
+        week: 2,
+        title: 'Confirm payment readiness',
+        description: 'Validate payment collection access before launch.',
+        deliverables: ['Stripe access'],
+        phase: 2,
+        status: 'pending',
+        evidence: [
+          {
+            id: 'hidden-stripe',
+            source_type: 'stripe',
+            source_label: 'Stripe private note',
+            summary: 'Private access detail',
+            confidence: 'low',
+            status: 'access_needed',
+            is_client_visible: false,
+          },
+        ],
+        automation: {
+          source: 'stripe',
+          status: 'access_needed',
+          summary: 'Stripe evidence requires /Users/example/private/stripe-export.csv access.',
+        },
+      },
+    ]
+
+    render(<MilestoneTimeline milestones={milestones} />)
+
+    fireEvent.click(screen.getByRole('button', { name: /Confirm payment readiness/i }))
+
+    expect(screen.getByText(/Connection needed:/)).toBeInTheDocument()
+    expect(screen.getByText(/Stripe$/)).toBeInTheDocument()
+    expect(screen.queryByText('Stripe private note')).not.toBeInTheDocument()
+    expect(screen.queryByText(/\/Users\/example/)).not.toBeInTheDocument()
+  })
+
+  it('falls back to a platform access label and extracts release-gate edge metrics', () => {
+    const milestones: Milestone[] = [
+      {
+        id: 'm2',
+        week: 3,
+        title: 'Finalize store release',
+        description: 'Verify remaining release gates.',
+        deliverables: ['Release review'],
+        phase: 3,
+        status: 'in_progress',
+        evidence: [
+          {
+            id: 'release-gates',
+            source_type: 'release_gate',
+            source_label: 'Store platform release gates',
+            summary: '1 pending store-console gate remains before the 2-tester GO threshold is satisfied.',
+            confidence: 'medium',
+            status: 'access_needed',
+            is_client_visible: true,
+          },
+        ],
+      },
+    ]
+
+    render(<MilestoneTimeline milestones={milestones} />)
+
+    fireEvent.click(screen.getByRole('button', { name: /Finalize store release/i }))
+
+    expect(screen.getByText('1')).toBeInTheDocument()
+    expect(screen.getByText('pending store-console gate')).toBeInTheDocument()
+    expect(screen.getByText('2')).toBeInTheDocument()
+    expect(screen.getByText('tester GO threshold')).toBeInTheDocument()
+    expect(screen.getByText('Connection needed: Store platform access')).toBeInTheDocument()
+  })
 })
