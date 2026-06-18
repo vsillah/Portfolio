@@ -1001,45 +1001,6 @@ function SocialContentDetailPage() {
   const privacyGateState: GateState = productionAssets ? (redactionGate.ready ? 'approved' : 'blocked') : 'pending'
   const linkedinDraftHandoff = asRecord(ragContext?.linkedin_draft_handoff)
   const linkedinDraftWorkItem = asRecord(linkedinDraftHandoff?.work_item) ?? {}
-  const reviewGateSummary: Array<{ label: string; state: GateState }> = [
-    {
-      label: 'Copy',
-      state: copyGateState,
-    },
-    {
-      label: 'Human review',
-      state: humanReviewGateState,
-    },
-    {
-      label: 'Challenger',
-      state: challengerGateState,
-    },
-    {
-      label: 'Chronicle',
-      state: chronicleGateState,
-    },
-    {
-      label: 'Visual assets',
-      state: visualAssetsGateState,
-    },
-    {
-      label: 'Privacy',
-      state: privacyGateState,
-    },
-    {
-      label: 'Publish',
-      state: isDraftOnlyPilot
-        ? (linkedinDraftHandoff ? 'approved' : 'pending')
-        : gateStateFromRawStatus(agentPilotPublishGate),
-    },
-  ]
-  const overallGateState: GateState = reviewGateSummary.some((gate) => gate.state === 'blocked')
-    ? 'blocked'
-    : reviewGateSummary.every((gate) => gate.state === 'approved')
-      ? 'approved'
-      : reviewGateSummary.every((gate) => gate.state === 'pending')
-        ? 'pending'
-        : 'in_review'
   const linkedinDraftBlockers = [
     item.status !== 'approved' ? 'Copy must be approved first.' : '',
     !visualAssetReady ? 'Choose and generate a visual asset first.' : '',
@@ -1054,7 +1015,62 @@ function SocialContentDetailPage() {
       : canCreateLinkedInDraft
         ? 'in_review'
         : 'pending'
+  const reviewGateSummary: Array<{ label: string; state: GateState; href: string }> = [
+    {
+      label: 'Copy',
+      state: copyGateState,
+      href: '#social-copy-gate',
+    },
+    {
+      label: 'Human review',
+      state: humanReviewGateState,
+      href: '#social-supporting-context-gate',
+    },
+    {
+      label: 'Challenger',
+      state: challengerGateState,
+      href: '#social-supporting-context-gate',
+    },
+    {
+      label: 'Chronicle',
+      state: chronicleGateState,
+      href: '#social-supporting-context-gate',
+    },
+    {
+      label: 'Visual assets',
+      state: visualAssetsGateState,
+      href: '#social-visual-assets-gate',
+    },
+    {
+      label: 'Asset packet',
+      state: assetPacketGateState,
+      href: '#social-asset-packet-gate',
+    },
+    {
+      label: 'Privacy',
+      state: privacyGateState,
+      href: '#social-asset-packet-gate',
+    },
+    {
+      label: isDraftOnlyPilot ? 'LinkedIn draft' : 'Publish',
+      state: isDraftOnlyPilot ? linkedinDraftGateState : gateStateFromRawStatus(agentPilotPublishGate),
+      href: '#social-draft-approval-gate',
+    },
+  ]
+  const overallGateState: GateState = reviewGateSummary.some((gate) => gate.state === 'blocked')
+    ? 'blocked'
+    : reviewGateSummary.every((gate) => gate.state === 'approved')
+      ? 'approved'
+      : reviewGateSummary.every((gate) => gate.state === 'pending')
+        ? 'pending'
+        : 'in_review'
   const nextReviewGate = reviewGateSummary.find((gate) => gate.state !== 'approved')
+  const handleReviewGateJump = (href: string) => {
+    const target = document.querySelector(href)
+    if (!target) return
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    window.history.replaceState(null, '', href)
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -1125,9 +1141,15 @@ function SocialContentDetailPage() {
                   {GATE_STATE_CONFIG[overallGateState].label}
                 </span>
                 {nextReviewGate && (
-                  <p className="mt-2 text-xs text-gray-500">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleReviewGateJump(nextReviewGate.href)
+                    }}
+                    className="mt-2 inline-flex text-xs text-blue-300 transition-colors hover:text-blue-200"
+                  >
                     Next: {nextReviewGate.label}
-                  </p>
+                  </button>
                 )}
               </div>
             </div>
@@ -1146,7 +1168,30 @@ function SocialContentDetailPage() {
               </div>
             )}
 
-            <details className="mt-4 rounded-lg border border-silicon-slate/80 bg-background/35">
+            <div className="mt-4 rounded-lg border border-silicon-slate/80 bg-background/35 p-3">
+              <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Review path</p>
+                  <p className="mt-1 text-sm text-gray-400">Click a gate to jump to its decision section.</p>
+                </div>
+                <nav aria-label="Social content review gates" className="flex flex-wrap gap-2 xl:max-w-4xl xl:justify-end">
+                  {reviewGateSummary.map((gate) => (
+                    <button
+                      key={`${gate.label}-${gate.href}`}
+                      type="button"
+                      onClick={() => {
+                        handleReviewGateJump(gate.href)
+                      }}
+                      className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold transition-transform hover:-translate-y-0.5 ${GATE_STATE_CONFIG[gate.state].className}`}
+                    >
+                      {gate.label}: {GATE_STATE_CONFIG[gate.state].label}
+                    </button>
+                  ))}
+                </nav>
+              </div>
+            </div>
+
+            <details id="social-supporting-context-gate" className="mt-4 scroll-mt-28 rounded-lg border border-silicon-slate/80 bg-background/35">
               <summary className="cursor-pointer list-none px-4 py-3">
                 <span className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <span className="text-sm font-semibold text-gray-200">Supporting context and checklists</span>
@@ -1552,7 +1597,7 @@ function SocialContentDetailPage() {
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,0.45fr)]">
           <div className="min-w-0 space-y-4">
             {/* Post text */}
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+            <div id="social-copy-gate" className="scroll-mt-28 rounded-xl border border-gray-800 bg-gray-900 p-4">
               <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <label className="text-sm font-medium text-gray-400">Post Text</label>
                 <span className={`inline-flex w-fit rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[copyGateState].className}`}>
@@ -1612,7 +1657,7 @@ function SocialContentDetailPage() {
             </div>
 
             {/* Visual Media section (single image or carousel) */}
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+            <div id="social-visual-assets-gate" className="scroll-mt-28 rounded-xl border border-gray-800 bg-gray-900 p-4">
               {canEditVisualProduction && (
                 <div className="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
                   <div className="flex flex-col gap-2">
@@ -1697,7 +1742,7 @@ function SocialContentDetailPage() {
                         </div>
                       </div>
                     </div>
-                    <div className="mt-4 border-t border-amber-500/25 pt-4">
+                    <div id="social-asset-packet-gate" className="mt-4 scroll-mt-28 border-t border-amber-500/25 pt-4">
                       <div className="flex flex-col gap-3">
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                           <div className="flex min-w-0 items-start gap-3">
@@ -2181,7 +2226,7 @@ function SocialContentDetailPage() {
         {/* ================================================================ */}
         {/* SECTION 2: "Where & When" Publish Panel                          */}
         {/* ================================================================ */}
-        <div className="bg-gray-900 border-2 border-gray-700 rounded-xl p-6 space-y-6">
+        <div id="social-draft-approval-gate" className="scroll-mt-28 space-y-6 rounded-xl border-2 border-gray-700 bg-gray-900 p-6">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-lg font-semibold text-gray-200 flex items-center gap-2">
               <Send className="w-5 h-5 text-green-400" />
