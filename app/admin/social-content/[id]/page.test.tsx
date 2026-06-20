@@ -109,6 +109,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getAllByText('Privacy: Pending').length).toBeGreaterThan(1)
     expect(screen.getAllByText('LinkedIn draft: Pending').length).toBeGreaterThan(1)
     expect(screen.getByText('Request copy revision')).toBeInTheDocument()
+    expect(screen.getAllByLabelText('Triggering event or recent proof').length).toBeGreaterThan(0)
     expect(screen.getByLabelText('Revision feedback for Shaka')).not.toBeDisabled()
     expect(screen.getByRole('button', { name: /Reopen for Revision/i })).toBeDisabled()
     expect(screen.getByRole('button', { name: /Reject and Generate Revision/i })).toBeDisabled()
@@ -358,6 +359,7 @@ describe('SocialContentDetailRoute visual production review', () => {
 
   it('reverts approval with revision feedback before generating the next draft', async () => {
     const feedback = 'Make the opening less abstract and show a clearer operational example.'
+    const triggeringEvent = 'I just finished reviewing the Social Content approval workflow after the carousel handoff broke down.'
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input)
       if (init?.method === 'PUT') {
@@ -398,6 +400,12 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     render(<SocialContentDetailRoute />)
 
+    const triggeringEventInput = (await screen.findAllByLabelText('Triggering event or recent proof'))
+      .find((element) => !(element as HTMLTextAreaElement).disabled)
+    expect(triggeringEventInput).toBeTruthy()
+    fireEvent.change(triggeringEventInput as HTMLTextAreaElement, {
+      target: { value: triggeringEvent },
+    })
     fireEvent.change(await screen.findByLabelText('Revision feedback for Shaka'), {
       target: { value: feedback },
     })
@@ -413,11 +421,13 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(putCall).toBeTruthy()
     const putBody = JSON.parse(String(putCall?.[1]?.body))
     expect(putBody.status).toBe('rejected')
+    expect(putBody.rag_context.content_calibration.operator_feedback.triggering_event).toBe(triggeringEvent)
     expect(putBody.rag_context.content_calibration.operator_feedback.revision_request).toBe(feedback)
     expect(putBody.rag_context.content_calibration.approval_reversal.reason).toBe(feedback)
 
     const revisionCall = fetchMock.mock.calls.find(([url]) => String(url).includes('/calibration-revision'))
     const revisionBody = JSON.parse(String(revisionCall?.[1]?.body))
+    expect(revisionBody.operator_feedback.triggering_event).toBe(triggeringEvent)
     expect(revisionBody.operator_feedback.revision_request).toBe(feedback)
     expect(await screen.findByDisplayValue('Revised draft from Shaka.')).toBeInTheDocument()
   })

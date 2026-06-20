@@ -53,6 +53,7 @@ describe('PUT /api/admin/social-content/[id]', () => {
       content_calibration: {
         status: 'ready_for_draft_review',
         operator_feedback: {
+          triggering_event: 'A recent operator review showed the hook needed clearer authority.',
           prior_post_excerpt: 'A prior post about practical AI adoption.',
           success_examples: [
             {

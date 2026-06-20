@@ -66,6 +66,7 @@ function hasOperatorFeedback(feedback: Record<string, unknown> | null): boolean 
   if (!feedback) return false
   if (normalizeSuccessExamples(feedback.success_examples).length > 0) return true
   return [
+    'triggering_event',
     'prior_post_excerpt',
     'engagement_signal',
     'audience_context',
@@ -81,6 +82,7 @@ function includesAny(value: string, words: string[]) {
 
 function buildRevisionUnderstanding(feedback: Record<string, unknown> | null) {
   const revisionRequest = asString(feedback?.revision_request).trim()
+  const triggeringEvent = asString(feedback?.triggering_event).trim()
   const claimBoundaries = asString(feedback?.claim_boundaries).trim()
   const audienceContext = asString(feedback?.audience_context).trim()
   const engagementSignal = asString(feedback?.engagement_signal).trim()
@@ -88,6 +90,7 @@ function buildRevisionUnderstanding(feedback: Record<string, unknown> | null) {
   const successExamples = normalizeSuccessExamples(feedback?.success_examples)
   const combined = [
     revisionRequest,
+    triggeringEvent,
     claimBoundaries,
     audienceContext,
     engagementSignal,
@@ -102,6 +105,7 @@ function buildRevisionUnderstanding(feedback: Record<string, unknown> | null) {
 
   const plannedChanges: string[] = []
   if (revisionRequest) plannedChanges.push(`Address revision request: ${revisionRequest}`)
+  if (triggeringEvent) plannedChanges.push(`Anchor the post in the triggering event: ${triggeringEvent}`)
   if (audienceContext) plannedChanges.push(`Tune audience and desired reaction: ${audienceContext}`)
   if (engagementSignal || successExamples.length > 0 || priorPostExcerpt) {
     plannedChanges.push('Compare the draft against the saved successful-post references and engagement signals.')
@@ -125,7 +129,7 @@ function buildRevisionUnderstanding(feedback: Record<string, unknown> | null) {
   }
 
   return {
-    what_i_heard: revisionRequest || 'Use the saved calibration feedback to improve this draft.',
+    what_i_heard: revisionRequest || (triggeringEvent ? `Use the triggering event as the reason this post exists now: ${triggeringEvent}` : 'Use the saved calibration feedback to improve this draft.'),
     planned_changes: plannedChanges.length ? plannedChanges : ['Revise the draft against the saved calibration feedback and voice guidance.'],
     not_changing: [
       'Draft-only status remains in place.',
@@ -201,6 +205,9 @@ Voice principles:
 ${voicePrinciples.map((item) => `- ${item}`).join('\n')}
 
 Operator feedback:
+Triggering event / authority to speak:
+${asString(feedback.triggering_event)}
+
 Prior post/sample excerpt:
 ${asString(feedback.prior_post_excerpt)}
 
@@ -284,6 +291,7 @@ export async function POST(
     const requestedSuccessExamples = normalizeSuccessExamples(requestedFeedback?.success_examples)
     const operatorFeedback = hasOperatorFeedback(requestedFeedback)
       ? {
+        triggering_event: asString(requestedFeedback?.triggering_event).trim(),
         prior_post_excerpt: asString(requestedFeedback?.prior_post_excerpt).trim(),
         success_examples: requestedSuccessExamples,
         engagement_signal: asString(requestedFeedback?.engagement_signal).trim(),
@@ -343,6 +351,7 @@ Additional role: You are Shaka, the Agent Ops Chief of Staff. Use the operator f
       provider: aiResponse.provider,
       revision_notes: revision.revision_notes,
       operator_request: asString(operatorFeedback?.revision_request) || null,
+      operator_triggering_event: asString(operatorFeedback?.triggering_event) || null,
       shaka_understanding: revisionUnderstanding,
       operator_feedback_updated_at: asString(operatorFeedback?.updated_at) || null,
     }

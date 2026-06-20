@@ -145,6 +145,7 @@ function asRecordArray(value: unknown): Record<string, unknown>[] {
 }
 
 type CalibrationFeedback = {
+  triggering_event: string
   prior_post_excerpt: string
   success_examples: CalibrationSuccessExample[]
   engagement_signal: string
@@ -168,6 +169,7 @@ const EMPTY_SUCCESS_EXAMPLE: CalibrationSuccessExample = {
 }
 
 const EMPTY_CALIBRATION_FEEDBACK: CalibrationFeedback = {
+  triggering_event: '',
   prior_post_excerpt: '',
   success_examples: [{ ...EMPTY_SUCCESS_EXAMPLE }],
   engagement_signal: '',
@@ -312,6 +314,7 @@ function SocialContentDetailPage() {
         const priorPostExcerpt = asString(operatorFeedback?.prior_post_excerpt)
         const engagementSignal = asString(operatorFeedback?.engagement_signal)
         setCalibrationFeedback({
+          triggering_event: asString(operatorFeedback?.triggering_event),
           prior_post_excerpt: priorPostExcerpt,
           success_examples: normalizeSuccessExamples(operatorFeedback?.success_examples, priorPostExcerpt, engagementSignal),
           engagement_signal: engagementSignal,
@@ -463,6 +466,7 @@ function SocialContentDetailPage() {
       ))
     const structuredPriorPostExcerpt = formatSuccessExamplesForPrompt(successExamples)
     return {
+      triggering_event: calibrationFeedback.triggering_event.trim(),
       prior_post_excerpt: structuredPriorPostExcerpt || calibrationFeedback.prior_post_excerpt.trim(),
       success_examples: successExamples,
       engagement_signal: calibrationFeedback.engagement_signal.trim(),
@@ -521,9 +525,11 @@ function SocialContentDetailPage() {
 
   const handleRequestCopyRevision = async (generateRevision: boolean) => {
     if (!item) return
+    const triggeringEvent = calibrationFeedback.triggering_event.trim()
     const revisionRequest = copyRevisionRequest.trim()
-    if (!revisionRequest) {
-      showMsg('error', 'Add revision feedback before reopening approval')
+      || (triggeringEvent ? 'Anchor this draft in the triggering event and make why I am qualified to speak on this explicit.' : '')
+    if (!revisionRequest && !triggeringEvent) {
+      showMsg('error', 'Add a triggering event or revision feedback before reopening approval')
       return
     }
     setRequestingCopyRevision(true)
@@ -1193,6 +1199,7 @@ function SocialContentDetailPage() {
       || example.why_it_worked.trim()
     ))
   const hasCalibrationFeedbackInput = hasCalibrationSuccessExampleInput
+    || calibrationFeedback.triggering_event.trim().length > 0
     || calibrationFeedback.prior_post_excerpt.trim().length > 0
     || calibrationFeedback.engagement_signal.trim().length > 0
     || calibrationFeedback.audience_context.trim().length > 0
@@ -1779,6 +1786,17 @@ function SocialContentDetailPage() {
                     )}
                   </div>
                   <div className="mt-3 rounded-lg border border-silicon-slate/80 bg-background/35 p-3">
+                    <label className="mb-3 block text-xs font-medium uppercase tracking-[0.12em] text-gray-500">
+                      Triggering event or recent proof
+                      <textarea
+                        value={calibrationFeedback.triggering_event}
+                        onChange={(event) => updateCalibrationFeedback('triggering_event', event.target.value)}
+                        disabled={!isEditable}
+                        rows={3}
+                        className="mt-2 w-full rounded-lg border border-gray-700 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-200 disabled:opacity-60"
+                        placeholder="Recent meeting, shipped feature, client-safe project, Chronicle observation, or build that explains why this post exists now."
+                      />
+                    </label>
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                       <div>
                         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Successful Post References</p>
@@ -2041,6 +2059,16 @@ function SocialContentDetailPage() {
                     </span>
                   </div>
                   <label className="mt-3 block text-xs font-medium uppercase tracking-[0.12em] text-amber-100/80">
+                    Triggering event or recent proof
+                    <textarea
+                      value={calibrationFeedback.triggering_event}
+                      onChange={(event) => updateCalibrationFeedback('triggering_event', event.target.value)}
+                      rows={3}
+                      className="mt-2 w-full rounded-lg border border-amber-500/25 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-100 placeholder:text-gray-500"
+                      placeholder="Recent meeting, shipped feature, client-safe project, or completed build that gives this post a reason to exist."
+                    />
+                  </label>
+                  <label className="mt-3 block text-xs font-medium uppercase tracking-[0.12em] text-amber-100/80">
                     Revision feedback for Shaka
                     <textarea
                       value={copyRevisionRequest}
@@ -2061,7 +2089,7 @@ function SocialContentDetailPage() {
                       <button
                         type="button"
                         onClick={() => handleRequestCopyRevision(false)}
-                        disabled={requestingCopyRevision || !copyRevisionRequest.trim()}
+                        disabled={requestingCopyRevision || (!copyRevisionRequest.trim() && !calibrationFeedback.triggering_event.trim())}
                         className="inline-flex items-center gap-2 rounded-lg border border-amber-400/45 px-3 py-2 text-sm font-semibold text-amber-100 transition-colors hover:bg-amber-500/10 disabled:opacity-50"
                       >
                         {requestingCopyRevision ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
@@ -2070,7 +2098,7 @@ function SocialContentDetailPage() {
                       <button
                         type="button"
                         onClick={() => handleRequestCopyRevision(true)}
-                        disabled={requestingCopyRevision || !copyRevisionRequest.trim()}
+                        disabled={requestingCopyRevision || (!copyRevisionRequest.trim() && !calibrationFeedback.triggering_event.trim())}
                         className="inline-flex items-center gap-2 rounded-lg bg-amber-400 px-3 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-amber-300 disabled:opacity-50"
                       >
                         {requestingCopyRevision ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
