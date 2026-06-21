@@ -562,6 +562,7 @@ describe('runAgentWarRoom', () => {
           ]),
           missing_context_prompts: expect.arrayContaining([
             'Paste or link one high-performing LinkedIn post that felt representative of Vambah voice.',
+            'Name the triggering event: a recent meeting, completed project, shipped feature, or client-safe observation that explains why Vambah is qualified to speak on this now.',
           ]),
           comparison_prompt: expect.stringContaining('Compare this draft against Vambah LinkedIn voice guidance'),
         }),

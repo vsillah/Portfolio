@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { publishToLinkedIn } from '@/lib/publishing/linkedin'
 import type { SocialPlatform } from '@/lib/social-content'
+import { getProductionAssets, getVideoRedactionGate } from '@/lib/social-production-assets'
 
 export const dynamic = 'force-dynamic'
 
@@ -55,6 +56,17 @@ export async function POST(
       return NextResponse.json(
         { error: 'Content must be approved before publishing' },
         { status: 400 }
+      )
+    }
+
+    const redactionGate = getVideoRedactionGate(getProductionAssets(item.rag_context))
+    if (!redactionGate.ready) {
+      return NextResponse.json(
+        {
+          error: redactionGate.message || 'Video privacy review required before publishing',
+          unresolved_redaction_items: redactionGate.unresolvedItems.length,
+        },
+        { status: 409 }
       )
     }
 

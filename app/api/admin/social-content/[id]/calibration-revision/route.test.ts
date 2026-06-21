@@ -62,6 +62,7 @@ const agentOpsRagContext = {
       },
     ],
     operator_feedback: {
+      triggering_event: 'Vambah just completed a Portfolio Social Content review pass where missing approval gates created extra work.',
       prior_post_excerpt: 'A previous post about practical AI adoption.',
       engagement_signal: 'Strong comments from operators.',
       audience_context: 'Small business owners carrying operational load.',
@@ -146,6 +147,7 @@ describe('POST /api/admin/social-content/[id]/calibration-revision', () => {
     expect(json.item.id).toBe('social-1')
     expect(mocks.generateJsonCompletion).toHaveBeenCalledWith(expect.objectContaining({
       model: 'gpt-4o-mini',
+      userPrompt: expect.stringContaining('Vambah just completed a Portfolio Social Content review pass'),
       costContext: expect.objectContaining({
         reference: { type: 'social_content_queue', id: 'social-1' },
       }),
@@ -160,10 +162,12 @@ describe('POST /api/admin/social-content/[id]/calibration-revision', () => {
           status: 'revision_generated',
           latest_revision: expect.objectContaining({
             operator_request: 'Make the hook more concrete.',
+            operator_triggering_event: 'Vambah just completed a Portfolio Social Content review pass where missing approval gates created extra work.',
             shaka_understanding: expect.objectContaining({
               what_i_heard: 'Make the hook more concrete.',
               planned_changes: expect.arrayContaining([
                 'Address revision request: Make the hook more concrete.',
+                'Anchor the post in the triggering event: Vambah just completed a Portfolio Social Content review pass where missing approval gates created extra work.',
               ]),
               not_changing: expect.arrayContaining([
                 'Draft-only status remains in place.',
@@ -179,6 +183,7 @@ describe('POST /api/admin/social-content/[id]/calibration-revision', () => {
   it('accepts unsaved operator feedback in the request body', async () => {
     const response = await POST(request({
       operator_feedback: {
+        triggering_event: 'A meeting this morning exposed where teams misunderstand agent approval gates.',
         success_examples: [
           {
             source_label: 'LinkedIn post with strong operator response',
@@ -193,6 +198,9 @@ describe('POST /api/admin/social-content/[id]/calibration-revision', () => {
 
     expect(response.status).toBe(200)
     expect(mocks.generateJsonCompletion).toHaveBeenCalledWith(expect.objectContaining({
+      userPrompt: expect.stringContaining('A meeting this morning exposed where teams misunderstand agent approval gates.'),
+    }))
+    expect(mocks.generateJsonCompletion).toHaveBeenCalledWith(expect.objectContaining({
       userPrompt: expect.stringContaining('LinkedIn post with strong operator response'),
     }))
     expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({
@@ -205,6 +213,7 @@ describe('POST /api/admin/social-content/[id]/calibration-revision', () => {
                 why_it_worked: 'It started from a real workload tension.',
               }),
             ],
+            triggering_event: 'A meeting this morning exposed where teams misunderstand agent approval gates.',
             revision_request: 'Add more lived operator detail.',
           }),
         }),
@@ -235,6 +244,7 @@ describe('POST /api/admin/social-content/[id]/calibration-revision', () => {
 
     const response = await POST(request({
       operator_feedback: {
+        triggering_event: 'A product review made the generic AI angle feel unearned.',
         prior_post_excerpt: 'A post that already sounded like Vambah.',
         engagement_signal: 'It had stronger comments than usual.',
         revision_request: 'Make the new draft feel less generic.',
@@ -248,6 +258,7 @@ describe('POST /api/admin/social-content/[id]/calibration-revision', () => {
           status: 'revision_generated',
           operator_feedback: expect.objectContaining({
             prior_post_excerpt: 'A post that already sounded like Vambah.',
+            triggering_event: 'A product review made the generic AI angle feel unearned.',
             engagement_signal: 'It had stronger comments than usual.',
             revision_request: 'Make the new draft feel less generic.',
           }),

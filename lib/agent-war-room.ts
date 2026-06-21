@@ -65,6 +65,7 @@ export interface LinkedInContentCalibration {
   missing_context_prompts: string[]
   comparison_prompt: string
   operator_feedback?: {
+    triggering_event?: string
     prior_post_excerpt?: string
     engagement_signal?: string
     audience_context?: string
@@ -428,6 +429,7 @@ function buildLinkedInContentCalibration(): LinkedInContentCalibration {
       'Paste or link one high-performing LinkedIn post that felt representative of Vambah voice.',
       'Add any engagement signal that matters, such as views, likes, comments, or the reason the post felt worth publishing.',
       'Name the specific audience for this post and the reaction you want from them.',
+      'Name the triggering event: a recent meeting, completed project, shipped feature, or client-safe observation that explains why Vambah is qualified to speak on this now.',
       'Attach sanitized Chronicle notes showing the workflow or artifact that inspired the point.',
       'Flag any claims, client details, or personal references that should stay out of the draft.',
     ],

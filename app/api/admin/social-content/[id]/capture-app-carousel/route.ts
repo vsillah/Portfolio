@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { renderCarousel } from '@/lib/carousel'
 import { captureBroll, type RouteConfig } from '@/lib/playtest-broll'
+import { getProductionAssets } from '@/lib/social-production-assets'
 import { supabaseAdmin } from '@/lib/supabase'
 import type { CarouselSlide } from '@/lib/social-content'
 
@@ -283,6 +284,21 @@ export async function POST(
       contentType: 'application/pdf',
     })
 
+    const productionAssets = getProductionAssets(ragContext)
+    const nextProductionAssets = productionAssets
+      ? {
+          ...productionAssets,
+          app_screenshot_carousel: {
+            ...productionAssets.app_screenshot_carousel,
+            status: 'ready',
+            routes,
+            existing_asset_count: assets.length,
+            carousel_pdf_url: pdfUrl,
+            carousel_slide_urls: slideUrls,
+          },
+        }
+      : null
+
     const nextRagContext = {
       ...ragContext,
       app_screenshot_assets: assets,
@@ -292,6 +308,7 @@ export async function POST(
         slide_count: slides.length,
         updated_at: capturedAt,
       },
+      ...(nextProductionAssets ? { production_assets: nextProductionAssets } : {}),
     }
 
     const { error: updateErr } = await supabaseAdmin

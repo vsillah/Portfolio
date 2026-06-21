@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { getBackUrl } from '@/lib/admin-return-context'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -32,6 +32,7 @@ import {
   BarChart3,
   Plus,
   Trash2,
+  MessageSquare,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -43,6 +44,11 @@ import {
   FRAMEWORK_VISUAL_TYPES,
   getFullPostText,
 } from '@/lib/social-content'
+import {
+  getProductionAssets,
+  getVideoRedactionGate,
+  type RedactionReviewDecision,
+} from '@/lib/social-production-assets'
 import type {
   SocialContentItem,
   SocialContentPublish,
@@ -66,6 +72,60 @@ const PLATFORM_COLORS: Record<string, { active: string; inactive: string }> = {
   facebook: { active: 'bg-blue-600/20 border-blue-500 text-blue-300', inactive: 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600' },
 }
 
+type GateState = 'approved' | 'in_review' | 'pending' | 'blocked' | 'rejected'
+type SectionGateKey = 'visual_assets' | 'asset_packet' | 'privacy' | 'linkedin_draft'
+type SectionGateDecision = 'approved' | 'rejected'
+
+const GATE_STATE_CONFIG: Record<GateState, { label: string; className: string }> = {
+  approved: {
+    label: 'Approved',
+    className: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200',
+  },
+  in_review: {
+    label: 'In review',
+    className: 'border-blue-500/30 bg-blue-500/10 text-blue-200',
+  },
+  pending: {
+    label: 'Pending',
+    className: 'border-amber-500/40 bg-amber-500/10 text-amber-200',
+  },
+  blocked: {
+    label: 'Blocked',
+    className: 'border-red-500/35 bg-red-500/10 text-red-200',
+  },
+  rejected: {
+    label: 'Rejected',
+    className: 'border-red-500/40 bg-red-500/10 text-red-200',
+  },
+}
+
+const SECTION_GATE_KEYS: SectionGateKey[] = ['visual_assets', 'asset_packet', 'privacy', 'linkedin_draft']
+
+const SECTION_GATE_HREFS: Record<SectionGateKey, string> = {
+  visual_assets: '#social-visual-assets-gate',
+  asset_packet: '#social-asset-packet-gate',
+  privacy: '#social-asset-packet-gate',
+  linkedin_draft: '#social-draft-approval-gate',
+}
+
+const SECTION_GATE_LABELS: Record<SectionGateKey, string> = {
+  visual_assets: 'Visual assets',
+  asset_packet: 'Asset packet',
+  privacy: 'Privacy',
+  linkedin_draft: 'LinkedIn draft',
+}
+
+function gateStateFromRawStatus(value: string): GateState {
+  const status = value.toLowerCase()
+  if (!status) return 'pending'
+  if (['passed', 'approved', 'complete', 'completed', 'ready', 'summarized', 'manual_packet_summarized'].includes(status)) {
+    return 'approved'
+  }
+  if (['failed', 'blocked', 'rejected', 'error'].includes(status)) return 'blocked'
+  if (status.includes('review') || status.includes('running') || status.includes('progress')) return 'in_review'
+  return 'pending'
+}
+
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : null
 }
@@ -85,6 +145,7 @@ function asRecordArray(value: unknown): Record<string, unknown>[] {
 }
 
 type CalibrationFeedback = {
+  triggering_event: string
   prior_post_excerpt: string
   success_examples: CalibrationSuccessExample[]
   engagement_signal: string
@@ -108,6 +169,7 @@ const EMPTY_SUCCESS_EXAMPLE: CalibrationSuccessExample = {
 }
 
 const EMPTY_CALIBRATION_FEEDBACK: CalibrationFeedback = {
+  triggering_event: '',
   prior_post_excerpt: '',
   success_examples: [{ ...EMPTY_SUCCESS_EXAMPLE }],
   engagement_signal: '',
@@ -181,11 +243,16 @@ function SocialContentDetailPage() {
   const [regeneratingAudio, setRegeneratingAudio] = useState(false)
   const [convertingFormat, setConvertingFormat] = useState(false)
   const [capturingAppCarousel, setCapturingAppCarousel] = useState(false)
+  const [preparingAssetPacket, setPreparingAssetPacket] = useState(false)
+  const [creatingLinkedInDraft, setCreatingLinkedInDraft] = useState(false)
+  const [reviewingRedactionId, setReviewingRedactionId] = useState<string | null>(null)
   const [selectedSlide, setSelectedSlide] = useState(0)
   const [publishing, setPublishing] = useState(false)
   const [refreshingEngagement, setRefreshingEngagement] = useState(false)
   const [savingCalibration, setSavingCalibration] = useState(false)
   const [revisingCalibration, setRevisingCalibration] = useState(false)
+  const [requestingCopyRevision, setRequestingCopyRevision] = useState(false)
+  const [savingSectionGate, setSavingSectionGate] = useState<SectionGateKey | null>(null)
   const [showSource, setShowSource] = useState(false)
   const [expandedSection, setExpandedSection] = useState<'rag' | 'transcript' | null>(null)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
@@ -202,9 +269,23 @@ function SocialContentDetailPage() {
   const [frameworkVisualType, setFrameworkVisualType] = useState<FrameworkVisualType | ''>('')
   const [scheduledFor, setScheduledFor] = useState('')
   const [adminNotes, setAdminNotes] = useState('')
+  const [copyRevisionRequest, setCopyRevisionRequest] = useState('')
+  const [sectionGateNotes, setSectionGateNotes] = useState<Record<SectionGateKey, string>>({
+    visual_assets: '',
+    asset_packet: '',
+    privacy: '',
+    linkedin_draft: '',
+  })
+  const [sectionGateRejecting, setSectionGateRejecting] = useState<Record<SectionGateKey, boolean>>({
+    visual_assets: false,
+    asset_packet: false,
+    privacy: false,
+    linkedin_draft: false,
+  })
+  const rejectedGateKeysRef = useRef<SectionGateKey[]>([])
 
-  const fetchItem = useCallback(async () => {
-    setLoading(true)
+  const fetchItem = useCallback(async (options: { silent?: boolean } = {}) => {
+    if (!options.silent) setLoading(true)
     try {
       const session = await getCurrentSession()
       if (!session) return
@@ -233,6 +314,7 @@ function SocialContentDetailPage() {
         const priorPostExcerpt = asString(operatorFeedback?.prior_post_excerpt)
         const engagementSignal = asString(operatorFeedback?.engagement_signal)
         setCalibrationFeedback({
+          triggering_event: asString(operatorFeedback?.triggering_event),
           prior_post_excerpt: priorPostExcerpt,
           success_examples: normalizeSuccessExamples(operatorFeedback?.success_examples, priorPostExcerpt, engagementSignal),
           engagement_signal: engagementSignal,
@@ -240,11 +322,12 @@ function SocialContentDetailPage() {
           revision_request: asString(operatorFeedback?.revision_request),
           claim_boundaries: asString(operatorFeedback?.claim_boundaries),
         })
+        setCopyRevisionRequest(asString(operatorFeedback?.revision_request))
       }
     } catch (err) {
       console.error('Failed to fetch item:', err)
     } finally {
-      setLoading(false)
+      if (!options.silent) setLoading(false)
     }
   }, [id])
 
@@ -256,6 +339,37 @@ function SocialContentDetailPage() {
     setMessage({ type, text })
     setTimeout(() => setMessage(null), 4000)
   }
+
+  const getRejectedSectionGateKeys = useCallback((contentItem: SocialContentItem | null) => {
+    const rag = asRecord(contentItem?.rag_context)
+    const reviews = asRecord(rag?.section_gate_reviews) ?? {}
+    return SECTION_GATE_KEYS.filter((gateKey) => asString(asRecord(reviews[gateKey])?.status) === 'rejected')
+  }, [])
+
+  useEffect(() => {
+    if (!item) return
+    const rejectedGateKeys = getRejectedSectionGateKeys(item)
+    const previousRejectedGateKeys = rejectedGateKeysRef.current
+    const returnedGateKey = previousRejectedGateKeys.find((gateKey) => !rejectedGateKeys.includes(gateKey))
+    rejectedGateKeysRef.current = rejectedGateKeys
+
+    if (returnedGateKey) {
+      const href = SECTION_GATE_HREFS[returnedGateKey]
+      window.requestAnimationFrame(() => {
+        document.querySelector(href)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        window.history.replaceState(null, '', href)
+      })
+      showMsg('success', `${SECTION_GATE_LABELS[returnedGateKey]} revision returned for review`)
+    }
+  }, [getRejectedSectionGateKeys, item])
+
+  useEffect(() => {
+    if (!item || getRejectedSectionGateKeys(item).length === 0) return
+    const poll = window.setInterval(() => {
+      void fetchItem({ silent: true })
+    }, 10000)
+    return () => window.clearInterval(poll)
+  }, [fetchItem, getRejectedSectionGateKeys, item])
 
   const getFormPayload = () => ({
     post_text: postText,
@@ -336,6 +450,33 @@ function SocialContentDetailPage() {
     })
   }
 
+  const buildOperatorFeedback = (revisionRequestOverride = calibrationFeedback.revision_request) => {
+    const successExamples = calibrationFeedback.success_examples
+      .map((example) => ({
+        source_label: example.source_label.trim(),
+        post_excerpt: example.post_excerpt.trim(),
+        engagement_signal: example.engagement_signal.trim(),
+        why_it_worked: example.why_it_worked.trim(),
+      }))
+      .filter((example) => (
+        example.source_label
+        || example.post_excerpt
+        || example.engagement_signal
+        || example.why_it_worked
+      ))
+    const structuredPriorPostExcerpt = formatSuccessExamplesForPrompt(successExamples)
+    return {
+      triggering_event: calibrationFeedback.triggering_event.trim(),
+      prior_post_excerpt: structuredPriorPostExcerpt || calibrationFeedback.prior_post_excerpt.trim(),
+      success_examples: successExamples,
+      engagement_signal: calibrationFeedback.engagement_signal.trim(),
+      audience_context: calibrationFeedback.audience_context.trim(),
+      revision_request: revisionRequestOverride.trim(),
+      claim_boundaries: calibrationFeedback.claim_boundaries.trim(),
+      updated_at: new Date().toISOString(),
+    }
+  }
+
   const handleSaveCalibrationFeedback = async () => {
     if (!item) return
     setSavingCalibration(true)
@@ -345,29 +486,7 @@ function SocialContentDetailPage() {
 
       const existingRag = asRecord(item.rag_context) ?? {}
       const existingCalibration = asRecord(existingRag.content_calibration) ?? {}
-      const successExamples = calibrationFeedback.success_examples
-        .map((example) => ({
-          source_label: example.source_label.trim(),
-          post_excerpt: example.post_excerpt.trim(),
-          engagement_signal: example.engagement_signal.trim(),
-          why_it_worked: example.why_it_worked.trim(),
-        }))
-        .filter((example) => (
-          example.source_label
-          || example.post_excerpt
-          || example.engagement_signal
-          || example.why_it_worked
-        ))
-      const structuredPriorPostExcerpt = formatSuccessExamplesForPrompt(successExamples)
-      const feedback = {
-        prior_post_excerpt: structuredPriorPostExcerpt || calibrationFeedback.prior_post_excerpt.trim(),
-        success_examples: successExamples,
-        engagement_signal: calibrationFeedback.engagement_signal.trim(),
-        audience_context: calibrationFeedback.audience_context.trim(),
-        revision_request: calibrationFeedback.revision_request.trim(),
-        claim_boundaries: calibrationFeedback.claim_boundaries.trim(),
-        updated_at: new Date().toISOString(),
-      }
+      const feedback = buildOperatorFeedback()
       const hasFeedback = Object.entries(feedback)
         .filter(([key]) => key !== 'updated_at')
         .some(([, value]) => Array.isArray(value) ? value.length > 0 : Boolean(value))
@@ -401,6 +520,176 @@ function SocialContentDetailPage() {
       showMsg('error', 'Failed to save calibration feedback')
     } finally {
       setSavingCalibration(false)
+    }
+  }
+
+  const handleRequestCopyRevision = async (generateRevision: boolean) => {
+    if (!item) return
+    const triggeringEvent = calibrationFeedback.triggering_event.trim()
+    const revisionRequest = copyRevisionRequest.trim()
+      || (triggeringEvent ? 'Anchor this draft in the triggering event and make why I am qualified to speak on this explicit.' : '')
+    if (!revisionRequest && !triggeringEvent) {
+      showMsg('error', 'Add a triggering event or revision feedback before reopening approval')
+      return
+    }
+    setRequestingCopyRevision(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const existingRag = asRecord(item.rag_context) ?? {}
+      const existingCalibration = asRecord(existingRag.content_calibration) ?? {}
+      const feedback = buildOperatorFeedback(revisionRequest)
+      const requestedAt = new Date().toISOString()
+      const revisionRequests = Array.isArray(existingCalibration.revision_requests)
+        ? existingCalibration.revision_requests
+        : []
+      const rag_context = {
+        ...existingRag,
+        content_calibration: {
+          ...existingCalibration,
+          status: generateRevision ? 'revision_generation_requested' : 'revision_requested',
+          operator_feedback: feedback,
+          approval_reversal: {
+            reverted_at: requestedAt,
+            previous_status: item.status,
+            reason: revisionRequest,
+          },
+          revision_requests: [
+            ...revisionRequests,
+            {
+              created_at: requestedAt,
+              previous_status: item.status,
+              request: revisionRequest,
+              action: generateRevision ? 'reject_and_generate_revision' : 'reopen_for_revision',
+            },
+          ].slice(-10),
+        },
+      }
+      const nextAdminNotes = [
+        adminNotes,
+        `Copy revision requested on ${requestedAt}.\n${revisionRequest}`,
+      ].filter(Boolean).join('\n\n')
+
+      const res = await fetch(`/api/admin/social-content/${id}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: 'rejected',
+          rag_context,
+          admin_notes: nextAdminNotes,
+        }),
+      })
+
+      const data = await res.json()
+      if (!res.ok) {
+        showMsg('error', data.error || 'Failed to reopen approval')
+        return
+      }
+
+      const reopened = data.item as SocialContentItem
+      setItem(prev => prev ? { ...prev, ...reopened } : reopened)
+      setAdminNotes(reopened.admin_notes || nextAdminNotes)
+      setCalibrationFeedback((current) => ({
+        ...current,
+        revision_request: revisionRequest,
+      }))
+
+      if (!generateRevision) {
+        showMsg('success', 'Approval reverted. Revision feedback saved.')
+        return
+      }
+
+      const revisionRes = await fetch(`/api/admin/social-content/${id}/calibration-revision`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ operator_feedback: feedback }),
+      })
+      const revisionData = await revisionRes.json()
+      if (!revisionRes.ok) {
+        showMsg('error', revisionData.error || 'Approval reverted, but revision generation failed')
+        return
+      }
+
+      const updated = revisionData.item as SocialContentItem
+      setItem(updated)
+      setPostText(updated.post_text || '')
+      setCtaText(updated.cta_text || '')
+      setHashtags(updated.hashtags?.join(', ') || '')
+      setImagePrompt(updated.image_prompt || '')
+      setAdminNotes(updated.admin_notes || '')
+      showMsg('success', 'Approval reverted and revised draft generated.')
+    } catch {
+      showMsg('error', 'Failed to request copy revision')
+    } finally {
+      setRequestingCopyRevision(false)
+    }
+  }
+
+  const handleSectionGateDecision = async (
+    gateKey: SectionGateKey,
+    decision: SectionGateDecision,
+  ) => {
+    if (!item) return
+    const note = sectionGateNotes[gateKey]?.trim() || ''
+    if (decision === 'rejected' && !note) {
+      showMsg('error', 'Add a rejection note before rejecting this section')
+      return
+    }
+    setSavingSectionGate(gateKey)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const existingRag = asRecord(item.rag_context) ?? {}
+      const existingReviews = asRecord(existingRag.section_gate_reviews) ?? {}
+      const decidedAt = new Date().toISOString()
+      const existingReview = asRecord(existingReviews[gateKey]) ?? {}
+      const section_gate_reviews = {
+        ...existingReviews,
+        [gateKey]: {
+          ...existingReview,
+          status: decision,
+          decided_at: decidedAt,
+          decided_by: (session as { user?: { id?: string } }).user?.id ?? null,
+          note: note || null,
+          repair_status: decision === 'rejected' ? 'requested' : null,
+          repair_requested_at: decision === 'rejected' ? decidedAt : null,
+        },
+      }
+      const rag_context = {
+        ...existingRag,
+        section_gate_reviews,
+      }
+
+      const res = await fetch(`/api/admin/social-content/${id}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ rag_context }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        showMsg('error', data.error || 'Failed to save section decision')
+        return
+      }
+
+      setItem(prev => prev ? { ...prev, ...data.item } : data.item)
+      setSectionGateNotes((current) => ({ ...current, [gateKey]: '' }))
+      setSectionGateRejecting((current) => ({ ...current, [gateKey]: false }))
+      showMsg('success', decision === 'approved' ? 'Section approved' : 'Section rejected')
+    } catch {
+      showMsg('error', 'Failed to save section decision')
+    } finally {
+      setSavingSectionGate(null)
     }
   }
 
@@ -450,6 +739,10 @@ function SocialContentDetailPage() {
   const handleApprove = async () => {
     if (!canApproveAgentPilot) {
       showMsg('error', 'Agent Ops content must clear challenger QA before approval')
+      return
+    }
+    if (videoPrivacyBlocked) {
+      showMsg('error', redactionGate.message || 'Video privacy review required before publish readiness')
       return
     }
     setApproving(true)
@@ -523,6 +816,10 @@ function SocialContentDetailPage() {
   }
 
   const handleRetryPublish = async (platforms?: SocialPlatform[]) => {
+    if (videoPrivacyBlocked) {
+      showMsg('error', redactionGate.message || 'Video privacy review required before publishing')
+      return
+    }
     setPublishing(true)
     try {
       const session = await getCurrentSession()
@@ -675,6 +972,100 @@ function SocialContentDetailPage() {
     }
   }
 
+  const handlePrepareAssetPacket = async () => {
+    if (!confirm('Prepare the production asset packet with direct Chronicle ingestion? This creates review-only references, Chronicle evidence, b-roll hints, video script, and redaction checks. It will not call providers, publish, schedule, or upload a final video.')) return
+    setPreparingAssetPacket(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const res = await fetch(`/api/admin/social-content/${id}/prepare-asset-packet`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          chronicle_scope: {
+            approved: true,
+            source: 'social_content_detail',
+            window_label: 'operator-approved current Social Content production review',
+          },
+        }),
+      })
+
+      const data = await res.json()
+      if (data.success) {
+        setItem(prev => prev ? { ...prev, rag_context: data.rag_context || prev.rag_context } : prev)
+        showMsg('success', 'Production asset packet prepared for review')
+      } else {
+        showMsg('error', data.error || 'Failed to prepare production asset packet')
+      }
+    } catch {
+      showMsg('error', 'Failed to prepare production asset packet')
+    } finally {
+      setPreparingAssetPacket(false)
+    }
+  }
+
+  const handleCreateLinkedInDraft = async () => {
+    if (!confirm('Create a LinkedIn-ready draft packet? This queues an internal draft handoff only. It will not publish, schedule, send to LinkedIn, or create a public post.')) return
+    setCreatingLinkedInDraft(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const res = await fetch(`/api/admin/social-content/${id}/create-linkedin-draft`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        showMsg('error', data.blockers?.length ? data.blockers[0] : data.error || 'Failed to create LinkedIn draft')
+        return
+      }
+
+      setItem(prev => data.item ? { ...prev, ...data.item } : prev)
+      showMsg('success', 'LinkedIn draft handoff created')
+    } catch {
+      showMsg('error', 'Failed to create LinkedIn draft')
+    } finally {
+      setCreatingLinkedInDraft(false)
+    }
+  }
+
+  const handleReviewRedaction = async (itemId: string, decision: RedactionReviewDecision) => {
+    setReviewingRedactionId(itemId)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const res = await fetch(`/api/admin/social-content/${id}/review-video-redaction`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ item_id: itemId, decision }),
+      })
+
+      const data = await res.json()
+      if (data.success) {
+        setItem(prev => prev ? { ...prev, rag_context: data.rag_context || prev.rag_context } : prev)
+        showMsg('success', 'Redaction review updated')
+      } else {
+        showMsg('error', data.error || 'Failed to update redaction review')
+      }
+    } catch {
+      showMsg('error', 'Failed to update redaction review')
+    } finally {
+      setReviewingRedactionId(null)
+    }
+  }
+
   const handleConvertToSingleImage = async () => {
     if (!confirm('Convert this post to a single image? This will clear all carousel data and regenerate the framework illustration.')) return
     await handleRegenerateImage()
@@ -780,6 +1171,26 @@ function SocialContentDetailPage() {
   const agentPilotComparisonPrompt = asString(agentPilotCalibration?.comparison_prompt)
   const agentPilotOperatorFeedback = asRecord(agentPilotCalibration?.operator_feedback)
   const agentPilotFeedbackUpdatedAt = asString(agentPilotOperatorFeedback?.updated_at)
+  const productionAssets = getProductionAssets(ragContext)
+  const redactionGate = getVideoRedactionGate(productionAssets)
+  const sectionGateReviews = asRecord(ragContext?.section_gate_reviews) ?? {}
+  const getSectionGateReview = (gateKey: SectionGateKey) => asRecord(sectionGateReviews[gateKey])
+  const getExplicitSectionGateState = (gateKey: SectionGateKey, fallback: GateState): GateState => {
+    const status = asString(getSectionGateReview(gateKey)?.status)
+    if (status === 'approved') return 'approved'
+    if (status === 'rejected') return 'rejected'
+    return fallback
+  }
+  const productionAssetSteps = productionAssets ? [
+    { label: 'References', value: `${productionAssets.references.open_brain.length + productionAssets.references.public_sources.length} refs` },
+    { label: 'Chronicle evidence', value: `${productionAssets.chronicle_evidence.proposals.length} proposals` },
+    { label: 'Framework illustration', value: productionAssets.illustration.status.replace(/_/g, ' ') },
+    { label: 'App screenshot carousel', value: `${productionAssets.app_screenshot_carousel.routes.length} routes` },
+    { label: 'B-roll', value: `${productionAssets.broll.assets.length} assets` },
+    { label: 'Video script', value: productionAssets.video_script.status.replace(/_/g, ' ') },
+    { label: 'Privacy/redaction review', value: redactionGate.ready ? 'ready' : `${redactionGate.unresolvedItems.length} unresolved` },
+    { label: 'Visual QA', value: productionAssets.visual_qa.status.replace(/_/g, ' ') },
+  ] : []
   const hasCalibrationSuccessExampleInput = calibrationFeedback.success_examples
     .some((example) => (
       example.source_label.trim()
@@ -788,6 +1199,7 @@ function SocialContentDetailPage() {
       || example.why_it_worked.trim()
     ))
   const hasCalibrationFeedbackInput = hasCalibrationSuccessExampleInput
+    || calibrationFeedback.triggering_event.trim().length > 0
     || calibrationFeedback.prior_post_excerpt.trim().length > 0
     || calibrationFeedback.engagement_signal.trim().length > 0
     || calibrationFeedback.audience_context.trim().length > 0
@@ -812,16 +1224,237 @@ function SocialContentDetailPage() {
       : 0
   const isDraftOnlyPilot = isAgentSocialPilot && agentPilotPublishGate === 'draft_only'
   const canApproveAgentPilot = !isAgentSocialPilot || agentPilotPassToHuman
+  const videoPrivacyBlocked = Boolean(productionAssets && !redactionGate.ready)
+  const canRequestCopyRevision = isAgentSocialPilot && item.status === 'approved'
   const canEditVisualProduction = isEditable || (isDraftOnlyPilot && item.status === 'approved')
   const visualProductionUnlocked = canEditVisualProduction && isDraftOnlyPilot
   const frameworkIllustrationLabel = item.image_url
     ? 'Regenerate Framework Illustration'
     : 'Generate Framework Illustration'
+  const isCarouselFormat = item.content_format === 'carousel'
+  const isSingleImageFormat = !isCarouselFormat
+  const frameworkActionLabel = isCarouselFormat
+    ? 'Switch to Framework Illustration'
+    : frameworkIllustrationLabel
+  const carouselActionLabel = isCarouselFormat
+    ? 'Rebuild App Screenshot Carousel'
+    : 'Switch to App Screenshot Carousel'
   const approveActionLabel = isDraftOnlyPilot
     ? 'Approve Draft'
     : scheduledFor
       ? 'Approve & Schedule'
       : 'Approve & Publish'
+  const copyGateState: GateState = item.status === 'approved'
+    ? 'approved'
+    : isEditable
+      ? 'in_review'
+      : gateStateFromRawStatus(item.status)
+  const humanReviewGateState: GateState = agentPilotPassToHuman ? 'approved' : 'pending'
+  const challengerGateState: GateState = gateStateFromRawStatus(agentPilotChallengerStatus)
+  const chronicleGateState: GateState = gateStateFromRawStatus(agentPilotChronicleStatus)
+  const supportingContextDetails: Array<{ label: string; state: GateState }> = [
+    { label: 'Human review', state: humanReviewGateState },
+    { label: 'Challenger', state: challengerGateState },
+    { label: 'Chronicle', state: chronicleGateState },
+  ]
+  const supportingContextGateState: GateState = supportingContextDetails.some((gate) => gate.state === 'blocked')
+    ? 'blocked'
+    : supportingContextDetails.every((gate) => gate.state === 'approved')
+      ? 'approved'
+      : supportingContextDetails.some((gate) => gate.state === 'in_review')
+        ? 'in_review'
+        : 'pending'
+  const visualAssetReady = isCarouselFormat
+    ? Boolean(item.carousel_slide_urls?.length)
+    : Boolean(item.image_url)
+  const visualAssetsBaseGateState: GateState = visualAssetReady ? 'in_review' : 'pending'
+  const visualAssetsGateState: GateState = getExplicitSectionGateState('visual_assets', visualAssetsBaseGateState)
+  const visualAssetsRejected = visualAssetsGateState === 'rejected'
+  const assetPacketBaseGateState: GateState = productionAssets ? 'in_review' : 'pending'
+  const assetPacketGateState: GateState = getExplicitSectionGateState('asset_packet', assetPacketBaseGateState)
+  const assetPacketRejected = assetPacketGateState === 'rejected'
+  const privacyBaseGateState: GateState = productionAssets ? (redactionGate.ready ? 'in_review' : 'blocked') : 'pending'
+  const privacyGateState: GateState = getExplicitSectionGateState('privacy', privacyBaseGateState)
+  const privacyRejected = privacyGateState === 'rejected'
+  const linkedinDraftHandoff = asRecord(ragContext?.linkedin_draft_handoff)
+  const linkedinDraftWorkItem = asRecord(linkedinDraftHandoff?.work_item) ?? {}
+  const linkedinDraftBlockers = [
+    item.status !== 'approved' ? 'Copy must be approved first.' : '',
+    !visualAssetReady ? 'Choose and generate a visual asset first.' : '',
+    visualAssetsGateState !== 'approved' ? 'Approve the visual assets section first.' : '',
+    !productionAssets ? 'Prepare the asset packet first.' : '',
+    productionAssets && assetPacketGateState !== 'approved' ? 'Approve the asset packet section first.' : '',
+    productionAssets && !redactionGate.ready ? redactionGate.message || 'Resolve video privacy review first.' : '',
+    productionAssets && redactionGate.ready && privacyGateState !== 'approved' ? 'Approve the privacy review section first.' : '',
+  ].filter(Boolean)
+  const linkedinDraftBaseGateState: GateState = linkedinDraftHandoff
+    ? 'approved'
+    : videoPrivacyBlocked
+      ? 'blocked'
+      : linkedinDraftBlockers.length === 0
+        ? 'in_review'
+        : 'pending'
+  const linkedinDraftGateState: GateState = getExplicitSectionGateState('linkedin_draft', linkedinDraftBaseGateState)
+  const canCreateLinkedInDraft = isDraftOnlyPilot && linkedinDraftBlockers.length === 0 && linkedinDraftGateState === 'approved'
+  const reviewGateSummary: Array<{ label: string; state: GateState; href: string }> = [
+    {
+      label: 'Copy',
+      state: copyGateState,
+      href: '#social-copy-gate',
+    },
+    {
+      label: 'Supporting context',
+      state: supportingContextGateState,
+      href: '#social-supporting-context-gate',
+    },
+    {
+      label: 'Visual assets',
+      state: visualAssetsGateState,
+      href: '#social-visual-assets-gate',
+    },
+    {
+      label: 'Asset packet',
+      state: assetPacketGateState,
+      href: '#social-asset-packet-gate',
+    },
+    {
+      label: 'Privacy',
+      state: privacyGateState,
+      href: '#social-asset-packet-gate',
+    },
+    {
+      label: isDraftOnlyPilot ? 'LinkedIn draft' : 'Publish',
+      state: isDraftOnlyPilot ? linkedinDraftGateState : gateStateFromRawStatus(agentPilotPublishGate),
+      href: '#social-draft-approval-gate',
+    },
+  ]
+  const overallGateState: GateState = reviewGateSummary.some((gate) => gate.state === 'blocked' || gate.state === 'rejected')
+    ? 'blocked'
+    : reviewGateSummary.every((gate) => gate.state === 'approved')
+      ? 'approved'
+      : reviewGateSummary.every((gate) => gate.state === 'pending')
+        ? 'pending'
+        : 'in_review'
+  const nextReviewGate = reviewGateSummary.find((gate) => gate.state !== 'approved')
+  const handleReviewGateJump = (href: string) => {
+    const target = document.querySelector(href)
+    if (!target) return
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    window.history.replaceState(null, '', href)
+  }
+  const renderSectionGateControls = (
+    gateKey: SectionGateKey,
+    label: string,
+    state: GateState,
+    options: {
+      approveLabel?: string
+      rejectLabel?: string
+      disabled?: boolean
+      approveDisabled?: boolean
+      rejectDisabled?: boolean
+      notePlaceholder?: string
+    } = {},
+  ) => {
+    const review = getSectionGateReview(gateKey)
+    const decidedAt = asString(review?.decided_at)
+    const note = asString(review?.note)
+    const repairStatus = asString(review?.repair_status)
+    const isSaving = savingSectionGate === gateKey
+    const noteValue = sectionGateNotes[gateKey] || ''
+    const isRejecting = sectionGateRejecting[gateKey]
+    const isRejected = asString(review?.status) === 'rejected'
+    const isRepairPending = isRejected && !isRejecting
+    const rejectActionDisabled = isSaving || options.disabled || options.rejectDisabled || isRepairPending
+    const rejectSubmitDisabled = rejectActionDisabled || !noteValue.trim()
+
+    return (
+      <div className="mt-3 rounded-lg border border-silicon-slate/70 bg-background/30 p-3">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">{label} decision</p>
+            {decidedAt && (
+              <p className="mt-1 text-xs text-gray-500">
+                Last decision: {new Date(decidedAt).toLocaleString()}
+              </p>
+            )}
+            {note && <p className="mt-1 text-xs leading-5 text-gray-300">Note: {note}</p>}
+          </div>
+          <span className={`w-fit rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[state].className}`}>
+            {label}: {GATE_STATE_CONFIG[state].label}
+          </span>
+        </div>
+        {isRepairPending && (
+          <div className="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 p-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-red-100">{label} revision in progress</p>
+                <p className="mt-1 text-xs leading-5 text-red-50/75">
+                  Controls are locked until the revised section is returned for review.
+                </p>
+              </div>
+              <span className="w-fit rounded-full border border-red-400/40 px-2 py-0.5 text-[10px] font-semibold text-red-100">
+                {repairStatus || 'requested'}
+              </span>
+            </div>
+            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-red-950/60">
+              <div className="h-full w-2/3 animate-pulse rounded-full bg-red-300" />
+            </div>
+          </div>
+        )}
+        {isRejecting && (
+          <label className="mt-3 block text-xs font-medium uppercase tracking-[0.12em] text-gray-500">
+            Rejection note
+            <textarea
+              value={noteValue}
+              onChange={(event) => setSectionGateNotes((current) => ({ ...current, [gateKey]: event.target.value }))}
+              rows={2}
+              className="mt-2 w-full rounded-lg border border-gray-700 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-200 placeholder:text-gray-500"
+              placeholder={options.notePlaceholder ?? 'What needs to change before this section can be approved?'}
+            />
+          </label>
+        )}
+        <div className="mt-3 flex flex-wrap justify-end gap-2">
+          {isRejecting && (
+            <button
+              type="button"
+              onClick={() => {
+                setSectionGateRejecting((current) => ({ ...current, [gateKey]: false }))
+                setSectionGateNotes((current) => ({ ...current, [gateKey]: '' }))
+              }}
+              disabled={isSaving}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-600 px-3 py-2 text-sm font-semibold text-gray-300 transition-colors hover:bg-gray-800 disabled:opacity-50"
+            >
+              Cancel
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              if (!isRejecting) {
+                setSectionGateRejecting((current) => ({ ...current, [gateKey]: true }))
+                return
+              }
+              handleSectionGateDecision(gateKey, 'rejected')
+            }}
+            disabled={isRejecting ? rejectSubmitDisabled : rejectActionDisabled}
+            className="inline-flex items-center gap-2 rounded-lg border border-red-500/40 px-3 py-2 text-sm font-semibold text-red-200 transition-colors hover:bg-red-500/10 disabled:opacity-50"
+          >
+            {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
+            {isRepairPending ? 'Rejected' : isRejecting ? 'Submit Rejection' : (options.rejectLabel ?? `Reject ${label}`)}
+          </button>
+          <button
+            type="button"
+            onClick={() => handleSectionGateDecision(gateKey, 'approved')}
+            disabled={isSaving || options.disabled || options.approveDisabled || isRepairPending}
+            className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/40 px-3 py-2 text-sm font-semibold text-emerald-200 transition-colors hover:bg-emerald-500/10 disabled:opacity-50"
+          >
+            {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+            {options.approveLabel ?? `Approve ${label}`}
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -877,169 +1510,194 @@ function SocialContentDetailPage() {
 
       <div className="mx-auto w-full max-w-[90rem] space-y-6 px-4 py-6 sm:px-6 lg:px-8">
         {isAgentSocialPilot && (
-          <section className="admin-console-card rounded-xl border border-radiant-gold/25 p-5 sm:p-6">
-            <div className="grid gap-4">
-              <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,auto)] xl:items-start">
-                <div className="min-w-0">
-                  <p className="admin-console-eyebrow">
-                    Agent Ops LinkedIn Pilot
-                  </p>
-                  <h2 className="mt-2 text-2xl font-semibold text-gray-100">
-                    Draft-only content packet
-                  </h2>
-                  <p className="mt-2 max-w-5xl text-sm leading-6 text-gray-300">
-                    This post was created from an approved Standup Room goal. Goal approval created the work items and this draft; publishing still requires the separate Social Content approval gate.
-                  </p>
-                </div>
-                <div className="flex min-w-0 flex-wrap gap-2 text-xs xl:justify-end">
-                  <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-amber-200">
-                    {isDraftOnlyPilot ? 'Publish gate: draft only' : `Publish gate: ${agentPilotPublishGate || 'review required'}`}
-                  </span>
-                  {agentPilotChronicleStatus && (
-                    <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-blue-200">
-                      Chronicle: {agentPilotChronicleStatus.replace(/_/g, ' ')}
-                    </span>
-                  )}
-                  {agentPilotPacketId && (
-                    <span className="max-w-full truncate rounded-full border border-gray-700 bg-gray-800 px-3 py-1 text-gray-300 xl:max-w-md" title={agentPilotPacketId}>
-                      Packet {agentPilotPacketId}
-                    </span>
-                  )}
-                  {agentPilotCurrentGate && (
-                    <span className="rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-purple-100">
-                      Gate: {agentPilotCurrentGate.replace(/_/g, ' ')}
-                    </span>
-                  )}
-                  {agentPilotChallengerStatus && (
-                    <span className="rounded-full border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-1 text-gray-200">
-                      Challenger: {agentPilotChallengerStatus.replace(/_/g, ' ')}
-                    </span>
-                  )}
-                  <span className={`rounded-full border px-3 py-1 ${agentPilotPassToHuman ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200' : 'border-amber-500/35 bg-amber-500/10 text-amber-100'}`}>
-                    {agentPilotPassToHuman ? 'Human review ready' : 'Before human review'}
-                  </span>
-                </div>
+          <section className="admin-console-card rounded-xl border border-radiant-gold/25 p-4 sm:p-5">
+            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,auto)] xl:items-start">
+              <div className="min-w-0">
+                <p className="admin-console-eyebrow">Agent Ops LinkedIn Pilot</p>
+                <h2 className="mt-2 text-xl font-semibold text-gray-100">Draft-only content packet</h2>
+                <p className="mt-1 max-w-4xl text-sm leading-6 text-gray-400">
+                  Current state for this draft. Supporting evidence and checklists are collapsed below.
+                </p>
+              </div>
+              <div className="min-w-0 xl:text-right">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Overall</p>
+                <span className={`mt-2 inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${GATE_STATE_CONFIG[overallGateState].className}`}>
+                  {GATE_STATE_CONFIG[overallGateState].label}
+                </span>
+                {nextReviewGate && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleReviewGateJump(nextReviewGate.href)
+                    }}
+                    className="mt-2 inline-flex text-xs text-blue-300 transition-colors hover:text-blue-200"
+                  >
+                    Next: {nextReviewGate.label}
+                  </button>
+                )}
               </div>
             </div>
 
             {!agentPilotPassToHuman && (
-              <div className="mt-5 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm leading-6 text-amber-50">
+              <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm leading-6 text-amber-50">
                 <p className="font-semibold">This draft is not ready for human approval yet.</p>
                 <p className="mt-1 text-amber-100/85">
-                  Current status: {(agentPilotGateStatus || 'research pending').replace(/_/g, ' ')}. Research/context evidence and challenger QA must clear before this can move to the Social Content approval gate.
+                  Current status: {(agentPilotGateStatus || 'research pending').replace(/_/g, ' ')}.
                 </p>
                 {agentPilotRequiredFixes.length > 0 && (
-                  <ul className="mt-3 space-y-1">
+                  <ul className="mt-2 space-y-1">
                     {agentPilotRequiredFixes.slice(0, 4).map((fix) => <li key={fix}>- {fix}</li>)}
                   </ul>
                 )}
               </div>
             )}
 
-            <div className="mt-5 grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(18rem,0.8fr)]">
-              <div className="rounded-lg border border-silicon-slate/80 bg-background/35 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Provenance</p>
-                <ul className="mt-3 space-y-2 text-sm text-gray-300">
-                  {agentPilotProvenance.slice(0, 4).map((entry) => (
-                    <li key={entry} className="flex gap-2">
-                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
-                      <span>{entry}</span>
-                    </li>
+            <div className="mt-4 rounded-lg border border-silicon-slate/80 bg-background/35 p-3">
+              <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Review path</p>
+                  <p className="mt-1 text-sm text-gray-400">Click a gate to jump to its decision section.</p>
+                </div>
+                <nav aria-label="Social content review gates" className="flex flex-wrap gap-2 xl:max-w-4xl xl:justify-end">
+                  {reviewGateSummary.map((gate) => (
+                    <button
+                      key={`${gate.label}-${gate.href}`}
+                      type="button"
+                      onClick={() => {
+                        handleReviewGateJump(gate.href)
+                      }}
+                      className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold transition-transform hover:-translate-y-0.5 ${GATE_STATE_CONFIG[gate.state].className}`}
+                    >
+                      {gate.label}: {GATE_STATE_CONFIG[gate.state].label}
+                    </button>
                   ))}
-                  {agentPilotProvenance.length === 0 && (
-                    <li className="text-gray-500">No provenance checklist attached.</li>
-                  )}
-                </ul>
-              </div>
-              <div className="rounded-lg border border-silicon-slate/80 bg-background/35 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Review Checklist</p>
-                <ul className="mt-3 space-y-2 text-sm text-gray-300">
-                  {agentPilotApprovalChecklist.slice(0, 4).map((entry) => (
-                    <li key={entry} className="flex gap-2">
-                      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
-                      <span>{entry}</span>
-                    </li>
-                  ))}
-                  {agentPilotApprovalChecklist.length === 0 && (
-                    <li className="text-gray-500">No approval checklist attached.</li>
-                  )}
-                </ul>
-              </div>
-              <div className="rounded-lg border border-silicon-slate/80 bg-background/35 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Visual Brief</p>
-                <p className="mt-3 text-sm leading-6 text-gray-300">
-                  {agentPilotVisualBrief || 'No visual brief attached.'}
-                </p>
+                </nav>
               </div>
             </div>
 
-            {isAgentSocialPilot && (
-              <div className="mt-4 rounded-lg border border-silicon-slate/80 bg-background/35 p-4">
-                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-300">Content Calibration</p>
-                    <p className="mt-1 text-sm leading-6 text-gray-300">
-                      {agentPilotCalibration
-                        ? 'Use this section to revise the draft against prior successful post patterns before it reaches publish review.'
-                        : 'No calibration packet was seeded for this draft yet. Add a prior post, engagement signal, audience context, and revision request so Shaka can revise it in context.'}
+            <details id="social-supporting-context-gate" className="mt-4 scroll-mt-28 rounded-lg border border-silicon-slate/80 bg-background/35">
+              <summary className="cursor-pointer list-none px-4 py-3">
+                <span className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <span className="text-sm font-semibold text-gray-200">Supporting context and checklists</span>
+                  <span className="flex flex-col gap-1 text-left sm:text-right">
+                    <span className={`w-fit rounded-full border px-2 py-0.5 text-[10px] font-semibold sm:ml-auto ${GATE_STATE_CONFIG[supportingContextGateState].className}`}>
+                      Supporting context: {GATE_STATE_CONFIG[supportingContextGateState].label}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {supportingContextDetails.map((gate) => `${gate.label} ${GATE_STATE_CONFIG[gate.state].label.toLowerCase()}`).join(' · ')}
+                    </span>
+                  </span>
+                </span>
+              </summary>
+              <div className="grid gap-3 border-t border-silicon-slate/70 p-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(18rem,0.8fr)]">
+                <div className="rounded-lg border border-silicon-slate/80 bg-imperial-navy/35 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Provenance</p>
+                  <ul className="mt-3 space-y-2 text-sm text-gray-300">
+                    {agentPilotProvenance.slice(0, 4).map((entry) => (
+                      <li key={entry} className="flex gap-2">
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
+                        <span>{entry}</span>
+                      </li>
+                    ))}
+                    {agentPilotProvenance.length === 0 && (
+                      <li className="text-gray-500">No provenance checklist attached.</li>
+                    )}
+                  </ul>
+                </div>
+                <div className="rounded-lg border border-silicon-slate/80 bg-imperial-navy/35 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Review Checklist</p>
+                  <ul className="mt-3 space-y-2 text-sm text-gray-300">
+                    {agentPilotApprovalChecklist.slice(0, 4).map((entry) => (
+                      <li key={entry} className="flex gap-2">
+                        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
+                        <span>{entry}</span>
+                      </li>
+                    ))}
+                    {agentPilotApprovalChecklist.length === 0 && (
+                      <li className="text-gray-500">No approval checklist attached.</li>
+                    )}
+                  </ul>
+                </div>
+                <div className="rounded-lg border border-silicon-slate/80 bg-imperial-navy/35 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Visual Brief</p>
+                  <p className="mt-3 text-sm leading-6 text-gray-300">
+                    {agentPilotVisualBrief || 'No visual brief attached.'}
+                  </p>
+                  {agentPilotPacketId && (
+                    <p className="mt-3 truncate text-xs text-gray-500" title={agentPilotPacketId}>
+                      Packet {agentPilotPacketId}
                     </p>
-                  </div>
-                  <span className="w-fit rounded-full border border-amber-500/35 bg-amber-500/10 px-3 py-1 text-xs text-amber-200">
+                  )}
+                </div>
+              </div>
+            </details>
+
+            {isAgentSocialPilot && (
+              <details className="mt-3 rounded-lg border border-silicon-slate/80 bg-background/35">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3">
+                  <span className="text-sm font-semibold text-gray-200">Content calibration</span>
+                  <span className="rounded-full border border-amber-500/35 bg-amber-500/10 px-3 py-1 text-xs text-amber-200">
                     {(agentPilotCalibrationStatus || 'needs operator context').replace(/_/g, ' ')}
                   </span>
-                </div>
+                </summary>
+                <div className="border-t border-silicon-slate/70 p-4">
+                  <p className="text-sm leading-6 text-gray-300">
+                    {agentPilotCalibration
+                      ? 'Use this section to revise the draft against prior successful post patterns before it reaches publish review.'
+                      : 'No calibration packet was seeded for this draft yet. Add a prior post, engagement signal, audience context, and revision request so Shaka can revise it in context.'}
+                  </p>
 
-                {hasAgentPilotCalibrationGuidance ? (
-                  <>
-                    <div className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
-                      <div className="grid gap-2">
-                        {agentPilotPriorPatterns.slice(0, 3).map((pattern) => {
-                          const label = asString(pattern.label)
-                          return (
-                            <div key={label || asString(pattern.pattern)} className="rounded-md border border-silicon-slate/80 bg-imperial-navy/45 p-3">
-                              <p className="text-sm font-semibold text-gray-100">{label || 'Prior success pattern'}</p>
-                              <p className="mt-1 text-sm leading-6 text-gray-300">{asString(pattern.pattern)}</p>
-                              <p className="mt-2 text-xs leading-5 text-gray-400"><span className="text-amber-300">Why it worked:</span> {asString(pattern.why_it_worked)}</p>
-                              <p className="mt-1 text-xs leading-5 text-gray-400"><span className="text-amber-300">Use now:</span> {asString(pattern.reuse_guidance)}</p>
+                  {hasAgentPilotCalibrationGuidance ? (
+                    <>
+                      <div className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
+                        <div className="grid gap-2">
+                          {agentPilotPriorPatterns.slice(0, 3).map((pattern) => {
+                            const label = asString(pattern.label)
+                            return (
+                              <div key={label || asString(pattern.pattern)} className="rounded-md border border-silicon-slate/80 bg-imperial-navy/45 p-3">
+                                <p className="text-sm font-semibold text-gray-100">{label || 'Prior success pattern'}</p>
+                                <p className="mt-1 text-sm leading-6 text-gray-300">{asString(pattern.pattern)}</p>
+                                <p className="mt-2 text-xs leading-5 text-gray-400"><span className="text-amber-300">Why it worked:</span> {asString(pattern.why_it_worked)}</p>
+                                <p className="mt-1 text-xs leading-5 text-gray-400"><span className="text-amber-300">Use now:</span> {asString(pattern.reuse_guidance)}</p>
+                              </div>
+                            )
+                          })}
+                          {agentPilotPriorPatterns.length === 0 && (
+                            <div className="rounded-md border border-silicon-slate/80 bg-imperial-navy/45 p-3 text-sm leading-6 text-gray-300">
+                              No prior success patterns are attached yet.
                             </div>
-                          )
-                        })}
-                        {agentPilotPriorPatterns.length === 0 && (
-                          <div className="rounded-md border border-silicon-slate/80 bg-imperial-navy/45 p-3 text-sm leading-6 text-gray-300">
-                            No prior success patterns are attached yet.
-                          </div>
-                        )}
+                          )}
+                        </div>
+                        <div className="grid gap-3">
+                          {agentPilotVoicePrinciples.length > 0 && (
+                            <div className="rounded-md border border-silicon-slate/80 bg-imperial-navy/45 p-3">
+                              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Voice Checks</p>
+                              <ul className="mt-2 space-y-1 text-sm text-gray-300">
+                                {agentPilotVoicePrinciples.slice(0, 5).map((entry) => <li key={entry}>• {entry}</li>)}
+                              </ul>
+                            </div>
+                          )}
+                          {agentPilotMissingContextPrompts.length > 0 && (
+                            <div className="rounded-md border border-amber-500/25 bg-amber-500/10 p-3">
+                              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">Context to Add</p>
+                              <ul className="mt-2 space-y-1 text-sm text-amber-50/90">
+                                {agentPilotMissingContextPrompts.slice(0, 4).map((entry) => <li key={entry}>• {entry}</li>)}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <div className="grid gap-3">
-                        {agentPilotVoicePrinciples.length > 0 && (
-                          <div className="rounded-md border border-silicon-slate/80 bg-imperial-navy/45 p-3">
-                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Voice Checks</p>
-                            <ul className="mt-2 space-y-1 text-sm text-gray-300">
-                              {agentPilotVoicePrinciples.slice(0, 5).map((entry) => <li key={entry}>• {entry}</li>)}
-                            </ul>
-                          </div>
-                        )}
-                        {agentPilotMissingContextPrompts.length > 0 && (
-                          <div className="rounded-md border border-amber-500/25 bg-amber-500/10 p-3">
-                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">Context to Add</p>
-                            <ul className="mt-2 space-y-1 text-sm text-amber-50/90">
-                              {agentPilotMissingContextPrompts.slice(0, 4).map((entry) => <li key={entry}>• {entry}</li>)}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
+                      {agentPilotComparisonPrompt && (
+                        <div className="mt-3 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-sm leading-6 text-amber-100">
+                          {agentPilotComparisonPrompt}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="mt-3 rounded-md border border-silicon-slate/80 bg-imperial-navy/45 p-3 text-sm leading-6 text-gray-300">
+                      No calibration notes are attached yet. Start by adding a prior successful post, what made it work, and what should change in this draft.
                     </div>
-                    {agentPilotComparisonPrompt && (
-                      <div className="mt-3 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-sm leading-6 text-amber-100">
-                        {agentPilotComparisonPrompt}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div className="mt-3 rounded-md border border-silicon-slate/80 bg-imperial-navy/45 p-3 text-sm leading-6 text-gray-300">
-                    No calibration notes are attached yet. Start by adding a prior successful post, what made it work, and what should change in this draft.
-                  </div>
-                )}
+                  )}
 
                 {hasAgentPilotRevisionReceipt && (
                   <div className="mt-4 rounded-lg border border-emerald-500/25 bg-emerald-500/5 p-4">
@@ -1128,6 +1786,17 @@ function SocialContentDetailPage() {
                     )}
                   </div>
                   <div className="mt-3 rounded-lg border border-silicon-slate/80 bg-background/35 p-3">
+                    <label className="mb-3 block text-xs font-medium uppercase tracking-[0.12em] text-gray-500">
+                      Triggering event or recent proof
+                      <textarea
+                        value={calibrationFeedback.triggering_event}
+                        onChange={(event) => updateCalibrationFeedback('triggering_event', event.target.value)}
+                        disabled={!isEditable}
+                        rows={3}
+                        className="mt-2 w-full rounded-lg border border-gray-700 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-200 disabled:opacity-60"
+                        placeholder="Recent meeting, shipped feature, client-safe project, Chronicle observation, or build that explains why this post exists now."
+                      />
+                    </label>
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                       <div>
                         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Successful Post References</p>
@@ -1284,6 +1953,7 @@ function SocialContentDetailPage() {
                   </div>
                 </div>
               </div>
+              </details>
             )}
 
             <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
@@ -1319,8 +1989,13 @@ function SocialContentDetailPage() {
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,0.45fr)]">
           <div className="min-w-0 space-y-4">
             {/* Post text */}
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-              <label className="block text-sm font-medium text-gray-400 mb-2">Post Text</label>
+            <div id="social-copy-gate" className="scroll-mt-28 rounded-xl border border-gray-800 bg-gray-900 p-4">
+              <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <label className="text-sm font-medium text-gray-400">Post Text</label>
+                <span className={`inline-flex w-fit rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[copyGateState].className}`}>
+                  Copy: {GATE_STATE_CONFIG[copyGateState].label}
+                </span>
+              </div>
               <textarea
                 value={postText}
                 onChange={(e) => setPostText(e.target.value)}
@@ -1332,79 +2007,319 @@ function SocialContentDetailPage() {
                 <span className="text-xs text-gray-500">{postText.length} characters</span>
                 <span className="text-xs text-gray-500">LinkedIn optimal: 150-300 words</span>
               </div>
-            </div>
-
-            {/* CTA */}
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">CTA Text</label>
+              <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">CTA Text</label>
+                  <input
+                    type="text"
+                    value={ctaText}
+                    onChange={(e) => setCtaText(e.target.value)}
+                    disabled={!isEditable}
+                    placeholder="e.g. DM me 'AUDIT' for the free framework"
+                    className="w-full bg-gray-800 text-gray-200 border border-gray-700 rounded-lg px-3 py-2 text-sm disabled:opacity-60"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">CTA URL</label>
+                  <input
+                    type="url"
+                    value={ctaUrl}
+                    onChange={(e) => setCtaUrl(e.target.value)}
+                    disabled={!isEditable}
+                    placeholder="https://amadutown.com/..."
+                    className="w-full bg-gray-800 text-gray-200 border border-gray-700 rounded-lg px-3 py-2 text-sm disabled:opacity-60"
+                  />
+                </div>
+              </div>
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-400 mb-1">Hashtags (comma-separated)</label>
                 <input
                   type="text"
-                  value={ctaText}
-                  onChange={(e) => setCtaText(e.target.value)}
+                  value={hashtags}
+                  onChange={(e) => setHashtags(e.target.value)}
                   disabled={!isEditable}
-                  placeholder="e.g. DM me 'AUDIT' for the free framework"
+                  placeholder="automation, business, AI"
                   className="w-full bg-gray-800 text-gray-200 border border-gray-700 rounded-lg px-3 py-2 text-sm disabled:opacity-60"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">CTA URL</label>
-                <input
-                  type="url"
-                  value={ctaUrl}
-                  onChange={(e) => setCtaUrl(e.target.value)}
-                  disabled={!isEditable}
-                  placeholder="https://amadutown.com/..."
-                  className="w-full bg-gray-800 text-gray-200 border border-gray-700 rounded-lg px-3 py-2 text-sm disabled:opacity-60"
-                />
-              </div>
-            </div>
-
-            {/* Hashtags */}
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-              <label className="block text-sm font-medium text-gray-400 mb-1">Hashtags (comma-separated)</label>
-              <input
-                type="text"
-                value={hashtags}
-                onChange={(e) => setHashtags(e.target.value)}
-                disabled={!isEditable}
-                placeholder="automation, business, AI"
-                className="w-full bg-gray-800 text-gray-200 border border-gray-700 rounded-lg px-3 py-2 text-sm disabled:opacity-60"
-              />
+              {canRequestCopyRevision && (
+                <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="min-w-0">
+                      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">
+                        <MessageSquare className="h-3.5 w-3.5" />
+                        Request copy revision
+                      </p>
+                      <p className="mt-1 text-sm leading-6 text-amber-50/85">
+                        Revert approval with a note Shaka can use for the next draft.
+                      </p>
+                    </div>
+                    <span className="w-fit rounded-full border border-amber-500/35 px-2 py-0.5 text-[10px] font-semibold text-amber-100">
+                      Approval rollback
+                    </span>
+                  </div>
+                  <label className="mt-3 block text-xs font-medium uppercase tracking-[0.12em] text-amber-100/80">
+                    Triggering event or recent proof
+                    <textarea
+                      value={calibrationFeedback.triggering_event}
+                      onChange={(event) => updateCalibrationFeedback('triggering_event', event.target.value)}
+                      rows={3}
+                      className="mt-2 w-full rounded-lg border border-amber-500/25 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-100 placeholder:text-gray-500"
+                      placeholder="Recent meeting, shipped feature, client-safe project, or completed build that gives this post a reason to exist."
+                    />
+                  </label>
+                  <label className="mt-3 block text-xs font-medium uppercase tracking-[0.12em] text-amber-100/80">
+                    Revision feedback for Shaka
+                    <textarea
+                      value={copyRevisionRequest}
+                      onChange={(event) => {
+                        setCopyRevisionRequest(event.target.value)
+                        updateCalibrationFeedback('revision_request', event.target.value)
+                      }}
+                      rows={3}
+                      className="mt-2 w-full rounded-lg border border-amber-500/25 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-100 placeholder:text-gray-500"
+                      placeholder="What should change before this can be approved?"
+                    />
+                  </label>
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                    <p className="text-xs leading-5 text-amber-50/70">
+                      Reopening keeps publishing, scheduling, and provider actions locked.
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleRequestCopyRevision(false)}
+                        disabled={requestingCopyRevision || (!copyRevisionRequest.trim() && !calibrationFeedback.triggering_event.trim())}
+                        className="inline-flex items-center gap-2 rounded-lg border border-amber-400/45 px-3 py-2 text-sm font-semibold text-amber-100 transition-colors hover:bg-amber-500/10 disabled:opacity-50"
+                      >
+                        {requestingCopyRevision ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
+                        Reopen for Revision
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRequestCopyRevision(true)}
+                        disabled={requestingCopyRevision || (!copyRevisionRequest.trim() && !calibrationFeedback.triggering_event.trim())}
+                        className="inline-flex items-center gap-2 rounded-lg bg-amber-400 px-3 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-amber-300 disabled:opacity-50"
+                      >
+                        {requestingCopyRevision ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                        Reject and Generate Revision
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Visual Media section (single image or carousel) */}
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+            <div id="social-visual-assets-gate" className="scroll-mt-28 rounded-xl border border-gray-800 bg-gray-900 p-4">
               {canEditVisualProduction && (
                 <div className="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
-                  <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">Visual Production</p>
-                      <p className="mt-1 text-sm leading-6 text-amber-50/90">
-                        {visualProductionUnlocked
-                          ? 'Copy is approved and locked. Choose the next visual asset manually; neither action publishes, schedules, or sends provider work until you click it.'
-                          : 'Choose the visual asset path for this draft. These actions stay separate from copy approval and publishing.'}
-                      </p>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">Visual Production</p>
+                        <p className="mt-1 text-sm leading-6 text-amber-50/90">
+                          {visualProductionUnlocked
+                            ? 'Copy approved. Choose one visual format; either path replaces the current draft visual.'
+                            : 'Choose one visual format for this draft. These actions stay separate from copy approval and publishing.'}
+                        </p>
+                      </div>
+                      <span className={`inline-flex w-fit shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[visualAssetsGateState].className}`}>
+                        Visual assets: {GATE_STATE_CONFIG[visualAssetsGateState].label}
+                      </span>
                     </div>
-                    <div className="flex flex-col gap-2 sm:flex-row xl:justify-end">
-                      <button
-                        type="button"
-                        onClick={item.content_format === 'carousel' ? handleConvertToSingleImage : handleRegenerateImage}
-                        disabled={regeneratingImage || !imagePrompt}
-                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-amber-400 px-3 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-amber-300 disabled:opacity-50"
-                      >
-                        {regeneratingImage ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImageIcon className="h-3.5 w-3.5" />}
-                        {frameworkIllustrationLabel}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleBuildAppScreenshotCarousel}
-                        disabled={capturingAppCarousel}
-                        className="inline-flex items-center justify-center gap-2 rounded-lg border border-amber-500/45 px-3 py-2 text-sm font-semibold text-amber-100 transition-colors hover:bg-amber-500/10 disabled:opacity-50"
-                      >
-                        {capturingAppCarousel ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <LayoutGrid className="h-3.5 w-3.5" />}
-                        Build Carousel from App Screenshots
-                      </button>
+                    <div className="rounded-lg border border-amber-500/20 bg-background/25 px-3 py-2 text-xs leading-5 text-amber-50/75">
+                      Clicking a visual action may generate or replace assets; it does not publish or schedule.
+                    </div>
+                    <div className="mt-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-100/70">Choose one visual format</p>
+                      <div className="mt-2 grid gap-3 lg:grid-cols-2">
+                        <div className={`rounded-lg border p-3 ${isSingleImageFormat ? 'border-amber-400/70 bg-amber-400/10' : 'border-amber-500/25 bg-gray-950/30'}`}>
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-center gap-2">
+                              <ImageIcon className="h-4 w-4 text-amber-200" />
+                              <p className="text-sm font-semibold text-amber-50">Framework illustration</p>
+                            </div>
+                            {isSingleImageFormat && (
+                              <span className="inline-flex items-center gap-1 rounded-full border border-amber-300/50 bg-amber-300/10 px-2 py-0.5 text-[10px] font-semibold text-amber-100">
+                                <CheckCircle2 className="h-3 w-3" />
+                                Selected format
+                              </span>
+                            )}
+                          </div>
+                          <p className="mt-2 text-sm leading-6 text-amber-50/80">
+                            Best when the post needs a clean concept visual for the argument. Switching here clears carousel data and uses a single image.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={isCarouselFormat ? handleConvertToSingleImage : handleRegenerateImage}
+                            disabled={regeneratingImage || !imagePrompt || visualAssetsRejected}
+                            className={`mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors disabled:opacity-50 ${
+                              isSingleImageFormat
+                                ? 'bg-amber-400 text-slate-950 hover:bg-amber-300'
+                                : 'border border-amber-500/45 text-amber-100 hover:bg-amber-500/10'
+                            }`}
+                          >
+                            {regeneratingImage ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImageIcon className="h-3.5 w-3.5" />}
+                            {frameworkActionLabel}
+                          </button>
+                        </div>
+                        <div className={`rounded-lg border p-3 ${isCarouselFormat ? 'border-blue-400/70 bg-blue-400/10' : 'border-amber-500/25 bg-gray-950/30'}`}>
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-center gap-2">
+                              <LayoutGrid className="h-4 w-4 text-blue-100" />
+                              <p className="text-sm font-semibold text-amber-50">App screenshot carousel</p>
+                            </div>
+                            {isCarouselFormat && (
+                              <span className="inline-flex items-center gap-1 rounded-full border border-blue-300/50 bg-blue-300/10 px-2 py-0.5 text-[10px] font-semibold text-blue-100">
+                                <CheckCircle2 className="h-3 w-3" />
+                                Selected format
+                              </span>
+                            )}
+                          </div>
+                          <p className="mt-2 text-sm leading-6 text-amber-50/80">
+                            Best when the post needs proof from real Portfolio screens. Switching here replaces the single-image draft with a screenshot carousel.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={handleBuildAppScreenshotCarousel}
+                            disabled={capturingAppCarousel || visualAssetsRejected}
+                            className={`mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors disabled:opacity-50 ${
+                              isCarouselFormat
+                                ? 'bg-blue-400 text-slate-950 hover:bg-blue-300'
+                                : 'border border-blue-400/45 text-blue-100 hover:bg-blue-500/10'
+                            }`}
+                          >
+                            {capturingAppCarousel ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <LayoutGrid className="h-3.5 w-3.5" />}
+                            {carouselActionLabel}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    {renderSectionGateControls('visual_assets', 'Visual assets', visualAssetsGateState, {
+                      approveLabel: 'Approve Visuals',
+                      rejectLabel: 'Reject Visuals',
+                      approveDisabled: !visualAssetReady,
+                      rejectDisabled: !visualAssetReady,
+                      notePlaceholder: 'What must change before the visual assets are approved?',
+                    })}
+                    <div id="social-asset-packet-gate" className="mt-4 scroll-mt-28 border-t border-amber-500/25 pt-4">
+                      <div className="flex flex-col gap-3">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                          <div className="flex min-w-0 items-start gap-3">
+                            <FileText className="mt-0.5 h-4 w-4 shrink-0 text-amber-200" />
+                            <div>
+                              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-100/70">Asset packet</p>
+                              <p className="mt-1 text-xs leading-5 text-amber-50/70">
+                                Required for repeatable b-roll, video, and privacy QA.
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex shrink-0 flex-wrap gap-2 sm:justify-end">
+                            <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[assetPacketGateState].className}`}>
+                              Asset packet: {GATE_STATE_CONFIG[assetPacketGateState].label}
+                            </span>
+                            <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[privacyGateState].className}`}>
+                              Privacy: {GATE_STATE_CONFIG[privacyGateState].label}
+                            </span>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handlePrepareAssetPacket}
+                          disabled={preparingAssetPacket || item.status !== 'approved' || assetPacketRejected}
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-amber-400/45 px-3 py-2 text-sm font-semibold text-amber-100 transition-colors hover:bg-amber-500/10 disabled:opacity-50"
+                        >
+                          {preparingAssetPacket ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
+                          Prepare Asset Packet
+                        </button>
+                        {renderSectionGateControls('asset_packet', 'Asset packet', assetPacketGateState, {
+                          approveLabel: 'Approve Asset Packet',
+                          rejectLabel: 'Reject Asset Packet',
+                          approveDisabled: !productionAssets,
+                          rejectDisabled: !productionAssets,
+                          notePlaceholder: 'What is missing from the asset packet?',
+                        })}
+                        {renderSectionGateControls('privacy', 'Privacy', privacyGateState, {
+                          approveLabel: 'Approve Privacy Review',
+                          rejectLabel: 'Reject Privacy Review',
+                          approveDisabled: !productionAssets || !redactionGate.ready,
+                          rejectDisabled: !productionAssets,
+                          notePlaceholder: 'What privacy issue still needs redaction or review?',
+                        })}
+                      </div>
+
+                  {productionAssets ? (
+                    <div className="mt-4 space-y-4">
+                      <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                        {productionAssetSteps.map((step) => (
+                          <div key={step.label} className="rounded-lg border border-gray-700/80 bg-gray-950/50 p-3">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">{step.label}</p>
+                            <p className="mt-1 text-sm text-gray-100">{step.value}</p>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className={`rounded-lg border p-3 text-sm leading-6 ${redactionGate.ready ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-50' : 'border-red-500/30 bg-red-500/10 text-red-50'}`}>
+                        <div className="flex items-start gap-2">
+                          <AlertCircle className={`mt-0.5 h-4 w-4 ${redactionGate.ready ? 'text-emerald-300' : 'text-red-300'}`} />
+                          <div>
+                            <p className="font-semibold">{redactionGate.ready ? 'Video privacy review ready' : 'Video privacy review required'}</p>
+                            <p className="mt-1">
+                              {redactionGate.ready
+                                ? 'All redaction items have a reviewed decision. Final publish approval remains separate.'
+                                : redactionGate.message}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {productionAssets.video_redaction_manifest.items.length > 0 && (
+                        <div className="space-y-2">
+                          {productionAssets.video_redaction_manifest.items.map((redactionItem) => (
+                            <div key={redactionItem.id} className="rounded-lg border border-gray-700 bg-gray-950/60 p-3">
+                              <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+                                <div>
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <span className="rounded-full bg-red-500/15 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-red-200">
+                                      {redactionItem.issue_type.replace(/_/g, ' ')}
+                                    </span>
+                                    <span className="text-xs text-gray-500">{redactionItem.source.replace(/_/g, ' ')}</span>
+                                    <span className="text-xs text-gray-500">{Math.round(redactionItem.confidence * 100)}% confidence</span>
+                                  </div>
+                                  <p className="mt-2 text-sm text-gray-100">{redactionItem.original_asset.label}</p>
+                                  <p className="mt-1 text-xs text-gray-400">{redactionItem.evidence}</p>
+                                  <p className="mt-1 text-xs text-gray-500">
+                                    Decision: {redactionItem.reviewer_decision ? redactionItem.reviewer_decision.replace(/_/g, ' ') : 'pending'} · Status: {redactionItem.status}
+                                  </p>
+                                </div>
+                                <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-end">
+                                  {([
+                                    ['approve_redaction', 'Approve Blur'],
+                                    ['adjust_redaction', 'Adjust'],
+                                    ['safe_exception', 'Safe Exception'],
+                                    ['reject_clip', 'Reject Clip'],
+                                  ] as Array<[RedactionReviewDecision, string]>).map(([decision, label]) => (
+                                    <button
+                                      key={decision}
+                                      type="button"
+                                      onClick={() => handleReviewRedaction(redactionItem.id, decision)}
+                                      disabled={privacyRejected || reviewingRedactionId === redactionItem.id}
+                                      className="rounded-lg border border-gray-700 px-2 py-1 text-xs font-medium text-gray-200 transition-colors hover:bg-gray-800 disabled:opacity-50"
+                                    >
+                                      {reviewingRedactionId === redactionItem.id ? 'Saving...' : label}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                        null
+                  )}
                     </div>
                   </div>
                 </div>
@@ -1430,11 +2345,12 @@ function SocialContentDetailPage() {
                         <>
                           <button
                             onClick={handleRegenerateCarousel}
-                            disabled={convertingFormat}
+                            disabled={convertingFormat || visualAssetsRejected}
+                            title="Retry exporting the current carousel PDF and slide images"
                             className="flex items-center gap-1 px-2 py-1 bg-purple-900/50 hover:bg-purple-900/70 text-purple-300 rounded-lg text-xs transition-colors disabled:opacity-50"
                           >
                             {convertingFormat ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
-                            Re-render
+                            Retry export
                           </button>
                         </>
                       )}
@@ -1473,10 +2389,11 @@ function SocialContentDetailPage() {
                         {canEditVisualProduction && (
                           <button
                             onClick={handleRegenerateCarousel}
-                            disabled={convertingFormat}
+                            disabled={convertingFormat || visualAssetsRejected}
+                            title="Retry exporting the current carousel PDF and slide images"
                             className="mt-2 text-xs text-purple-400 hover:text-purple-300"
                           >
-                            {convertingFormat ? 'Rendering...' : 'Render now'}
+                            {convertingFormat ? 'Exporting...' : 'Retry export'}
                           </button>
                         )}
                       </div>
@@ -1759,7 +2676,7 @@ function SocialContentDetailPage() {
                     AT
                   </div>
                   <div>
-                    <div className="font-semibold text-sm">Amadou Town</div>
+                    <div className="font-semibold text-sm">AmaduTown</div>
                     <div className="text-xs text-gray-500">Just now</div>
                   </div>
                 </div>
@@ -1786,17 +2703,73 @@ function SocialContentDetailPage() {
         {/* ================================================================ */}
         {/* SECTION 2: "Where & When" Publish Panel                          */}
         {/* ================================================================ */}
-        <div className="bg-gray-900 border-2 border-gray-700 rounded-xl p-6 space-y-6">
-          <h2 className="text-lg font-semibold text-gray-200 flex items-center gap-2">
-            <Send className="w-5 h-5 text-green-400" />
-            {isDraftOnlyPilot ? 'Draft Approval Gate' : 'Where & When'}
-          </h2>
+        <div id="social-draft-approval-gate" className="scroll-mt-28 space-y-6 rounded-xl border-2 border-gray-700 bg-gray-900 p-6">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-lg font-semibold text-gray-200 flex items-center gap-2">
+              <Send className="w-5 h-5 text-green-400" />
+              {isDraftOnlyPilot ? 'Draft Approval Gate' : 'Where & When'}
+            </h2>
+            {isDraftOnlyPilot && (
+              <span className={`inline-flex w-fit rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[linkedinDraftGateState].className}`}>
+                LinkedIn draft: {GATE_STATE_CONFIG[linkedinDraftGateState].label}
+              </span>
+            )}
+          </div>
 
           {isDraftOnlyPilot && (
-            <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm leading-6 text-amber-50/90">
-              <p className="font-semibold text-amber-100">Publishing locked</p>
+            <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
+              <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">LinkedIn Draft Handoff</p>
+                  <p className="mt-2 text-sm leading-6 text-amber-50/90">
+                    Create the LinkedIn-ready draft packet after copy, visual assets, asset packet, and privacy gates are ready. Public publishing remains locked behind a later approval.
+                  </p>
+                  {linkedinDraftHandoff ? (
+                    <div className="mt-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm leading-6 text-emerald-50">
+                      <p className="font-semibold">Draft packet ready</p>
+                      <p className="mt-1 text-emerald-50/80">
+                        Created {asString(linkedinDraftHandoff.created_at) ? new Date(asString(linkedinDraftHandoff.created_at)).toLocaleString() : 'for LinkedIn handoff'}.
+                        {asString(linkedinDraftWorkItem.id) ? ` Work item ${asString(linkedinDraftWorkItem.id)} is ${asString(linkedinDraftWorkItem.status) || 'assigned'}.` : ''}
+                      </p>
+                    </div>
+                  ) : linkedinDraftBlockers.length > 0 ? (
+                    <div className="mt-3 rounded-lg border border-amber-500/25 bg-background/35 p-3 text-sm leading-6 text-amber-50/90">
+                      <p className="font-semibold">Still needed</p>
+                      <ul className="mt-1 space-y-1">
+                        {linkedinDraftBlockers.map((blocker) => <li key={blocker}>- {blocker}</li>)}
+                      </ul>
+                    </div>
+                  ) : null}
+                  {renderSectionGateControls('linkedin_draft', 'LinkedIn draft', linkedinDraftGateState, {
+                    approveLabel: 'Approve LinkedIn Draft Handoff',
+                    rejectLabel: 'Reject LinkedIn Draft Handoff',
+                    approveDisabled: linkedinDraftBlockers.length > 0 && !linkedinDraftHandoff,
+                    rejectDisabled: linkedinDraftBlockers.length > 0 && !linkedinDraftHandoff,
+                    notePlaceholder: 'What must be resolved before LinkedIn draft handoff?',
+                  })}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCreateLinkedInDraft}
+                  disabled={!canCreateLinkedInDraft || creatingLinkedInDraft}
+                  className={`inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed xl:w-auto ${
+                    canCreateLinkedInDraft
+                      ? 'bg-amber-400 text-slate-950 hover:bg-amber-300'
+                      : 'border border-amber-500/25 bg-gray-950/40 text-amber-100/50'
+                  }`}
+                >
+                  {creatingLinkedInDraft ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+                  {linkedinDraftHandoff ? 'Refresh LinkedIn Draft' : 'Create LinkedIn Draft'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {videoPrivacyBlocked && (
+            <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-sm leading-6 text-red-50/90">
+              <p className="font-semibold text-red-100">Video privacy review required</p>
               <p className="mt-1">
-                This Agent Ops post is draft-only. Approval locks the copy and queues the reference handoff, but publishing, scheduling, screenshot capture, carousel rendering, image generation, and provider sends each require a separate explicit action.
+                {redactionGate.message} Approve redactions, mark safe exceptions, or reject risky clips before this content can become publish-ready.
               </p>
             </div>
           )}
@@ -1918,8 +2891,8 @@ function SocialContentDetailPage() {
                   }
                   setShowConfirmModal(true)
                 }}
-                disabled={approving || !canApproveAgentPilot}
-                title={canApproveAgentPilot ? undefined : 'Research/context evidence and challenger QA must pass before approval'}
+                disabled={approving || !canApproveAgentPilot || videoPrivacyBlocked}
+                title={videoPrivacyBlocked ? 'Video privacy review required before publish readiness' : canApproveAgentPilot ? undefined : 'Research/context evidence and challenger QA must pass before approval'}
                 className="flex items-center gap-1.5 px-5 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {approving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
@@ -2067,10 +3040,10 @@ function SocialContentDetailPage() {
                         View post <ExternalLink className="w-3 h-3" />
                       </a>
                     )}
-                    {pub.status === 'failed' && (
-                      <button
-                        onClick={() => handleRetryPublish([pub.platform as SocialPlatform])}
-                        disabled={publishing}
+                      {pub.status === 'failed' && (
+                        <button
+                          onClick={() => handleRetryPublish([pub.platform as SocialPlatform])}
+                          disabled={publishing || videoPrivacyBlocked}
                         className="flex items-center gap-1 px-3 py-1 bg-red-900/50 hover:bg-red-900/70 text-red-300 rounded-lg text-xs transition-colors disabled:opacity-50"
                       >
                         {publishing ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
@@ -2141,6 +3114,11 @@ function SocialContentDetailPage() {
                     </div>
                   </>
                 )}
+                {videoPrivacyBlocked && (
+                  <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-100">
+                    Video privacy review is blocking publish approval. Resolve the redaction manifest before continuing.
+                  </div>
+                )}
               </div>
 
               <p className="text-xs text-gray-500 mb-6">
@@ -2158,7 +3136,7 @@ function SocialContentDetailPage() {
                 </button>
                 <button
                   onClick={handleApprove}
-                  disabled={approving || !canApproveAgentPilot}
+                  disabled={approving || !canApproveAgentPilot || videoPrivacyBlocked}
                   className="flex items-center gap-2 px-5 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {approving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
