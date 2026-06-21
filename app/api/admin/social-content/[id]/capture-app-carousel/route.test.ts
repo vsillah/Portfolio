@@ -51,6 +51,39 @@ function request(body?: unknown) {
   })
 }
 
+const productionAssets = {
+  version: 'social_production_assets_v2',
+  status: 'review_ready',
+  generated_at: '2026-06-18T10:00:00.000Z',
+  source: 'social_content_asset_packet',
+  approval_boundary: 'Review only.',
+  references: { open_brain: ['memory-1'], public_sources: [], placement_guidance: [] },
+  chronicle_evidence: {
+    ingestion_mode: 'direct_scoped_review',
+    scope: { approved: true, source: 'test', window_label: 'test' },
+    proposals: [],
+    boundary: 'Review only.',
+  },
+  illustration: { status: 'prompt_ready', image_prompt: 'Prompt', framework_visual_type: 'architecture' },
+  app_screenshot_carousel: {
+    status: 'recommended',
+    routes: [{ route: '/admin/social-content/social-1', label: 'Social Content review' }],
+    existing_asset_count: 0,
+  },
+  broll: { status: 'missing', hints: [], assets: [] },
+  video_script: { status: 'draft_ready', title: 'Video', script_text: 'Script', broll_hints: [] },
+  video_redaction_manifest: {
+    policy: 'hard_gate_auto_blur_first',
+    status: 'ready',
+    items: [],
+    unresolved_count: 0,
+    generated_at: '2026-06-18T10:00:00.000Z',
+    reviewer_required: true,
+    publish_blocker: null,
+  },
+  visual_qa: { status: 'required', checklist: [] },
+}
+
 describe('POST /api/admin/social-content/[id]/capture-app-carousel', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -68,6 +101,7 @@ describe('POST /api/admin/social-content/[id]/capture-app-carousel', () => {
           source: 'agent_ops_social_outreach_goal',
           goal_id: 'goal-123',
           publish_gate: 'draft_only',
+          production_assets: productionAssets,
         },
       },
       error: null,
@@ -123,9 +157,13 @@ describe('POST /api/admin/social-content/[id]/capture-app-carousel', () => {
     expect(mocks.captureBroll).not.toHaveBeenCalled()
   })
 
-  it('rejects non-whitelisted routes before capture', async () => {
+  it('rejects non-whitelisted routes before capture, upload, or database reads', async () => {
     const response = await POST(request({
-      routes: [{ route: '/api/admin/social-content/social-1', label: 'API route' }],
+      routes: [
+        { route: '/admin/social-content/social-1', label: 'Allowed' },
+        { route: 'https://evil.test/admin/agents/swarm-board', label: 'External admin lookalike' },
+        { route: '/api/admin/social-content/social-1', label: 'API route' },
+      ],
     }), { params: { id: 'social-1' } })
 
     expect(response.status).toBe(400)
@@ -134,6 +172,8 @@ describe('POST /api/admin/social-content/[id]/capture-app-carousel', () => {
     })
     expect(mocks.from).not.toHaveBeenCalled()
     expect(mocks.captureBroll).not.toHaveBeenCalled()
+    expect(mocks.upload).not.toHaveBeenCalled()
+    expect(mocks.update).not.toHaveBeenCalled()
   })
 
   it('uses default routes from the content item and goal id', async () => {
@@ -185,6 +225,20 @@ describe('POST /api/admin/social-content/[id]/capture-app-carousel', () => {
           status: 'ready',
           route_count: 4,
           slide_count: 8,
+        }),
+        production_assets: expect.objectContaining({
+          app_screenshot_carousel: expect.objectContaining({
+            status: 'ready',
+            routes: [
+              { route: '/admin/social-content/social-1', label: 'Social Content review' },
+              { route: '/admin/agents/swarm-board', label: 'Agent Swarm Board' },
+              { route: '/admin/agents/standup?goal=goal-123', label: 'Standup Room goal' },
+              { route: '/admin/agents/open-brain', label: 'Open Brain references' },
+            ],
+            existing_asset_count: 4,
+            carousel_pdf_url: 'https://cdn.example.com/carousels/social-1/carousel.pdf',
+            carousel_slide_urls: expect.any(Array),
+          }),
         }),
       }),
     }))
