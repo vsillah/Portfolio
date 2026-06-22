@@ -9,10 +9,14 @@ import {
 
 const done = { status: 'ready_for_review', validation_summary: 'done' }
 
-const contentResearchAndDraftDone = [
+const contentResearchDone = [
   { title: 'Capture the industry signal', ...done },
   { title: 'Pull approved Open Brain context', ...done },
   { title: 'Attach manual Chronicle evidence packet', ...done },
+]
+
+const contentResearchAndDraftDone = [
+  ...contentResearchDone,
   { title: 'Select AmaduTown proof points', ...done },
   { title: 'Draft the LinkedIn post', ...done },
   { title: 'Create the visual brief', ...done },
@@ -54,14 +58,26 @@ describe('goal orchestration', () => {
     })
   })
 
+  it('keeps social content in draft build while draft tasks are incomplete', () => {
+    const packet = evaluateContentGoalOrchestration([
+      ...contentResearchDone,
+      { title: 'Select AmaduTown proof points', ...done },
+      { title: 'Draft the LinkedIn post', status: 'in_progress' },
+      { title: 'Create the visual brief', ...done },
+    ])
+
+    expect(packet).toMatchObject({
+      current_gate: 'draft_build',
+      gate_status: 'drafting',
+      pass_to_human: false,
+      challenger_status: 'pending',
+      residual_risks_for_human: ['Draft/build work is incomplete.'],
+    })
+  })
+
   it('routes challenger findings to repair instead of human review', () => {
     const packet = evaluateContentGoalOrchestration([
-      { title: 'Capture the industry signal', ...done },
-      { title: 'Pull approved Open Brain context', ...done },
-      { title: 'Attach manual Chronicle evidence packet', ...done },
-      { title: 'Select AmaduTown proof points', ...done },
-      { title: 'Draft the LinkedIn post', ...done },
-      { title: 'Create the visual brief', ...done },
+      ...contentResearchAndDraftDone,
       {
         title: 'Run content QA and governance review',
         status: 'ready_for_review',
@@ -80,12 +96,7 @@ describe('goal orchestration', () => {
 
   it('passes clean challenger review to human review', () => {
     const packet = evaluateContentGoalOrchestration([
-      { title: 'Capture the industry signal', ...done },
-      { title: 'Pull approved Open Brain context', ...done },
-      { title: 'Attach manual Chronicle evidence packet', ...done },
-      { title: 'Select AmaduTown proof points', ...done },
-      { title: 'Draft the LinkedIn post', ...done },
-      { title: 'Create the visual brief', ...done },
+      ...contentResearchAndDraftDone,
       {
         title: 'Run content QA and governance review',
         status: 'ready_for_review',
