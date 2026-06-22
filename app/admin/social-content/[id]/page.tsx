@@ -33,6 +33,7 @@ import {
   Plus,
   Trash2,
   MessageSquare,
+  Lightbulb,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -161,6 +162,8 @@ type CalibrationSuccessExample = {
   why_it_worked: string
 }
 
+type TopicTriggerCandidateRecord = Record<string, unknown>
+
 const EMPTY_SUCCESS_EXAMPLE: CalibrationSuccessExample = {
   source_label: '',
   post_excerpt: '',
@@ -252,6 +255,7 @@ function SocialContentDetailPage() {
   const [savingCalibration, setSavingCalibration] = useState(false)
   const [revisingCalibration, setRevisingCalibration] = useState(false)
   const [requestingCopyRevision, setRequestingCopyRevision] = useState(false)
+  const [discoveringTopicTriggers, setDiscoveringTopicTriggers] = useState(false)
   const [savingSectionGate, setSavingSectionGate] = useState<SectionGateKey | null>(null)
   const [showSource, setShowSource] = useState(false)
   const [expandedSection, setExpandedSection] = useState<'rag' | 'transcript' | null>(null)
@@ -521,6 +525,60 @@ function SocialContentDetailPage() {
     } finally {
       setSavingCalibration(false)
     }
+  }
+
+  const handleDiscoverTopicTriggers = async () => {
+    if (!item) return
+    setDiscoveringTopicTriggers(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const res = await fetch(`/api/admin/social-content/${id}/discover-topic-triggers`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      const data = await res.json()
+      if (!res.ok) {
+        showMsg('error', data.error || 'Failed to discover topic triggers')
+        return
+      }
+
+      const updated = data.item as SocialContentItem
+      setItem(updated)
+      showMsg('success', 'Shaka found topic triggers for review')
+    } catch {
+      showMsg('error', 'Failed to discover topic triggers')
+    } finally {
+      setDiscoveringTopicTriggers(false)
+    }
+  }
+
+  const handleUseTopicTrigger = (candidate: TopicTriggerCandidateRecord) => {
+    const title = asString(candidate.title).trim()
+    const triggeringEvent = asString(candidate.triggering_event).trim()
+    const audience = asString(candidate.audience).trim()
+    const brandGoal = asString(candidate.brand_goal).trim()
+    const claimBoundaries = asStringArray(candidate.claim_boundaries).join('\n')
+    const revisionRequest = title
+      ? `Anchor this draft in Shaka's selected topic trigger: ${title}. Make why I am qualified to speak on this explicit.`
+      : "Anchor this draft in Shaka's selected topic trigger and make why I am qualified to speak on this explicit."
+
+    setCalibrationFeedback((current) => ({
+      ...current,
+      triggering_event: triggeringEvent || current.triggering_event,
+      audience_context: [current.audience_context, audience, brandGoal].filter(Boolean).join('\n'),
+      revision_request: current.revision_request || revisionRequest,
+      claim_boundaries: [current.claim_boundaries, claimBoundaries].filter(Boolean).join('\n'),
+    }))
+    if (!copyRevisionRequest.trim()) {
+      setCopyRevisionRequest(revisionRequest)
+    }
+    showMsg('success', 'Topic trigger added to the copy review')
   }
 
   const handleRequestCopyRevision = async (generateRevision: boolean) => {
@@ -1171,6 +1229,11 @@ function SocialContentDetailPage() {
   const agentPilotComparisonPrompt = asString(agentPilotCalibration?.comparison_prompt)
   const agentPilotOperatorFeedback = asRecord(agentPilotCalibration?.operator_feedback)
   const agentPilotFeedbackUpdatedAt = asString(agentPilotOperatorFeedback?.updated_at)
+  const agentPilotTopicTriggerPacket = asRecord(agentPilotCalibration?.topic_trigger_packet)
+  const agentPilotTopicTriggerStatus = asString(agentPilotTopicTriggerPacket?.status)
+  const agentPilotTopicTriggerGeneratedAt = asString(agentPilotTopicTriggerPacket?.generated_at)
+  const agentPilotTopicTriggerCandidates = asRecordArray(agentPilotTopicTriggerPacket?.candidates)
+  const agentPilotTopicTriggerCounts = asRecord(agentPilotTopicTriggerPacket?.source_counts)
   const productionAssets = getProductionAssets(ragContext)
   const redactionGate = getVideoRedactionGate(productionAssets)
   const sectionGateReviews = asRecord(ragContext?.section_gate_reviews) ?? {}
@@ -1996,6 +2059,96 @@ function SocialContentDetailPage() {
                   Copy: {GATE_STATE_CONFIG[copyGateState].label}
                 </span>
               </div>
+              {isAgentSocialPilot && (
+                <div className="mb-4 rounded-lg border border-blue-500/25 bg-blue-500/10 p-3">
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="min-w-0">
+                      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-blue-200">
+                        <Lightbulb className="h-3.5 w-3.5" />
+                        Shaka topic scout
+                      </p>
+                      <p className="mt-1 text-sm leading-6 text-blue-50/85">
+                        Cull recent meetings, shipped work, client-safe projects, and approved memory into trigger options.
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 flex-wrap items-center gap-2 lg:justify-end">
+                      {agentPilotTopicTriggerStatus && (
+                        <span className="rounded-full border border-blue-400/35 px-2 py-0.5 text-[10px] font-semibold text-blue-100">
+                          {agentPilotTopicTriggerStatus.replace(/_/g, ' ')}
+                        </span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={handleDiscoverTopicTriggers}
+                        disabled={discoveringTopicTriggers}
+                        className="inline-flex items-center gap-2 rounded-lg border border-blue-400/45 px-3 py-2 text-sm font-semibold text-blue-100 transition-colors hover:bg-blue-500/10 disabled:opacity-50"
+                      >
+                        {discoveringTopicTriggers ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                        Ask Shaka for Topics
+                      </button>
+                    </div>
+                  </div>
+                  {agentPilotTopicTriggerGeneratedAt && (
+                    <p className="mt-2 text-xs text-blue-50/65">
+                      Generated {new Date(agentPilotTopicTriggerGeneratedAt).toLocaleString()}
+                    </p>
+                  )}
+                  {agentPilotTopicTriggerCounts && (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {Object.entries(agentPilotTopicTriggerCounts)
+                        .filter(([, value]) => Number(value) > 0)
+                        .map(([key, value]) => (
+                          <span key={key} className="rounded-full border border-blue-400/25 px-2 py-0.5 text-[10px] text-blue-50/75">
+                            {key.replace(/_/g, ' ')}: {String(value)}
+                          </span>
+                        ))}
+                    </div>
+                  )}
+                  {agentPilotTopicTriggerCandidates.length > 0 && (
+                    <div className="mt-3 grid gap-2">
+                      {agentPilotTopicTriggerCandidates.map((candidate, index) => {
+                        const title = asString(candidate.title) || `Topic ${index + 1}`
+                        const sensitivity = asString(candidate.sensitivity) || 'needs_review'
+                        return (
+                          <div key={asString(candidate.id) || `${title}-${index}`} className="rounded-lg border border-blue-400/20 bg-background/35 p-3">
+                            <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                              <div className="min-w-0">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <p className="text-sm font-semibold text-blue-50">{title}</p>
+                                  <span className="rounded-full border border-blue-400/25 px-2 py-0.5 text-[10px] text-blue-100">
+                                    {sensitivity.replace(/_/g, ' ')}
+                                  </span>
+                                </div>
+                                <p className="mt-1 text-sm leading-6 text-blue-50/85">
+                                  {asString(candidate.triggering_event)}
+                                </p>
+                                {asString(candidate.why_vambah_can_speak) && (
+                                  <p className="mt-1 text-xs leading-5 text-blue-50/70">
+                                    Why you can speak on it: {asString(candidate.why_vambah_can_speak)}
+                                  </p>
+                                )}
+                                {asString(candidate.suggested_hook) && (
+                                  <p className="mt-1 text-xs leading-5 text-blue-50/70">
+                                    Hook: {asString(candidate.suggested_hook)}
+                                  </p>
+                                )}
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => handleUseTopicTrigger(candidate)}
+                                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-blue-400 px-3 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-blue-300"
+                              >
+                                <CheckCircle2 className="h-3.5 w-3.5" />
+                                Use trigger
+                              </button>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
               <textarea
                 value={postText}
                 onChange={(e) => setPostText(e.target.value)}
