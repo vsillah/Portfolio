@@ -75,4 +75,35 @@ describe('social production assets', () => {
       message: null,
     })
   })
+
+  it('flags private links, account ids, and phone numbers before asset handoff', () => {
+    const packet = buildSocialProductionAssetsPacket({
+      contentId: 'social-2',
+      postText: [
+        'Use the private client review link https://portfolio.test/client/session?token=abc123 before export.',
+        'Account trace 123e4567-e89b-12d3-a456-426614174000 should never appear in the public cut.',
+      ].join('\n'),
+      ctaText: 'Call (415) 555-0100 after the internal review.',
+      hashtags: [],
+      imagePrompt: null,
+      frameworkVisualType: null,
+      ragContext: {},
+      brollAssets: [],
+      chronicleScope: {
+        approved: true,
+        source: 'social_content_detail',
+        window_label: 'current production review',
+      },
+      generatedAt: '2026-06-18T10:00:00.000Z',
+    })
+
+    expect(packet.video_redaction_manifest.status).toBe('requires_review')
+    expect(packet.video_redaction_manifest.items.map((item) => item.issue_type)).toEqual(
+      expect.arrayContaining(['private_url', 'account_id', 'phone']),
+    )
+    expect(packet.video_redaction_manifest.unresolved_count).toBe(
+      packet.video_redaction_manifest.items.length,
+    )
+    expect(getVideoRedactionGate(packet).ready).toBe(false)
+  })
 })
