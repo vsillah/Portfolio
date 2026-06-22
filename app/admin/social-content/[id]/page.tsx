@@ -303,7 +303,7 @@ function SocialContentDetailPage() {
       const session = await getCurrentSession()
       if (!session) return
 
-      const res = await fetch('/api/admin/social-content/topic-backlog?status=available&limit=6', {
+      const res = await fetch('/api/admin/social-content/topic-backlog?status=available&social_channel=linkedin&limit=6', {
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
       const data = await res.json()
@@ -2094,15 +2094,15 @@ function SocialContentDetailPage() {
                     <div className="min-w-0">
                       <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-blue-200">
                         <Lightbulb className="h-3.5 w-3.5" />
-                        Shaka topic backlog
+                        LinkedIn topics from Agentic Backlog
                       </p>
                       <p className="mt-1 text-sm leading-6 text-blue-50/85">
-                        Pulled from Shaka&apos;s recurring scan of sanitized meetings, shipped work, client-safe projects, and approved memory.
+                        Filtered from the central Shaka insight backlog. The same insight can also feed YouTube Shorts, Instagram Reels, and thumbnail production.
                       </p>
                     </div>
                     <div className="flex shrink-0 flex-wrap items-center gap-2 lg:justify-end">
                       <span className="rounded-full border border-blue-400/35 px-2 py-0.5 text-[10px] font-semibold text-blue-100">
-                        {loadingTopicBacklog ? 'Loading backlog' : `${displayedTopicBacklogItems.length} available`}
+                        {loadingTopicBacklog ? 'Loading backlog' : `${displayedTopicBacklogItems.length} LinkedIn-ready`}
                       </span>
                       <span className="rounded-full border border-blue-400/25 px-2 py-0.5 text-[10px] text-blue-50/75">
                         Weekday scan
@@ -2111,12 +2111,12 @@ function SocialContentDetailPage() {
                   </div>
                   {topicBacklogUnavailable && (
                     <p className="mt-2 text-xs text-amber-200">
-                      Backlog migration pending. The scheduled scan will populate this after deployment.
+                      Backlog migration pending. The central Agentic Backlog will populate this after deployment.
                     </p>
                   )}
                   {!topicBacklogUnavailable && displayedTopicBacklogItems.length === 0 && !loadingTopicBacklog && (
                     <p className="mt-2 text-xs text-blue-50/65">
-                      No topics are available yet. Shaka&apos;s scheduled scan will populate this backlog.
+                      No LinkedIn-filtered topics are available yet. Shaka&apos;s scheduled scan will populate the central Agentic Backlog.
                     </p>
                   )}
                   {usingDraftTopicFallback && agentPilotTopicTriggerGeneratedAt && (
@@ -2143,7 +2143,7 @@ function SocialContentDetailPage() {
                   {loadingTopicBacklog && displayedTopicBacklogItems.length === 0 && (
                     <div className="mt-3 flex items-center gap-2 text-sm text-blue-50/70">
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      Loading Shaka&apos;s topic backlog
+                      Loading central Shaka insight backlog
                     </div>
                   )}
                   {displayedTopicBacklogItems.length > 0 && (

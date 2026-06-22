@@ -75,6 +75,50 @@ describe('/api/admin/agents/work-items', () => {
     expect(bad.status).toBe(400)
   })
 
+  it('passes source filters and supports social channel backlog filtering', async () => {
+    mocks.listAgentWorkItems.mockResolvedValue([
+      {
+        id: 'work-social-1',
+        source_type: 'social_topic_trigger',
+        metadata: {
+          social_topic_trigger: true,
+          channel_lanes: {
+            linkedin: { status: 'not_started' },
+          },
+        },
+      },
+      {
+        id: 'work-other-1',
+        source_type: 'agent_run',
+        metadata: {},
+      },
+    ])
+
+    const response = await GET(request('http://localhost/api/admin/agents/work-items?source_type=social_topic_trigger&social_channel=linkedin') as never)
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({
+      work_items: [
+        {
+          id: 'work-social-1',
+          source_type: 'social_topic_trigger',
+          metadata: {
+            social_topic_trigger: true,
+            channel_lanes: {
+              linkedin: { status: 'not_started' },
+            },
+          },
+        },
+      ],
+    })
+    expect(mocks.listAgentWorkItems).toHaveBeenCalledWith(expect.objectContaining({
+      sourceType: 'social_topic_trigger',
+    }))
+
+    const bad = await GET(request('http://localhost/api/admin/agents/work-items?social_channel=threads') as never)
+    expect(bad.status).toBe(400)
+  })
+
   it('creates a work item with scoped fields', async () => {
     const response = await POST(request('http://localhost/api/admin/agents/work-items', {
       title: 'Coordinate feature',

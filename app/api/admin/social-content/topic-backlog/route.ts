@@ -1,5 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
+import {
+  getAgentWorkItem,
+  listAgentWorkItems,
+  updateAgentWorkItemMetadata,
+} from '@/lib/agent-work-items'
+import {
+  normalizeSocialChannelLanes,
+  socialTopicBacklogItemFromWorkItem,
+  SOCIAL_TOPIC_TRIGGER_SOURCE_TYPE,
+} from '@/lib/social-content-intelligence'
 import { runSocialTopicBacklogDiscovery } from '@/lib/social-topic-backlog'
 import { supabaseAdmin } from '@/lib/supabase'
 
@@ -30,6 +40,21 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status') || 'available'
     const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '8', 10), 1), 24)
+
+    const workItems = await listAgentWorkItems({
+      sourceType: SOCIAL_TOPIC_TRIGGER_SOURCE_TYPE,
+      limit,
+    })
+    const mappedItems = workItems
+      .map(socialTopicBacklogItemFromWorkItem)
+      .filter((item) => status === 'all' || item.status === status)
+
+    if (mappedItems.length > 0) {
+      return NextResponse.json({
+        items: mappedItems,
+        source: 'agent_work_items',
+      })
+    }
 
     const { data, error } = await supabaseAdmin
       .from('social_topic_backlog')
@@ -120,6 +145,32 @@ export async function PATCH(request: NextRequest) {
     if (body.content_id) {
       update.selected_for_content_id = body.content_id
       update.selected_at = new Date().toISOString()
+    }
+
+    const workItem = await getAgentWorkItem(body.id)
+    if (workItem?.source_type === SOCIAL_TOPIC_TRIGGER_SOURCE_TYPE || workItem?.metadata?.social_topic_trigger === true) {
+      const lanes = normalizeSocialChannelLanes(workItem.metadata?.channel_lanes)
+      lanes.linkedin = {
+        ...lanes.linkedin,
+        status: nextStatus === 'selected' || nextStatus === 'used' ? 'selected' : 'not_started',
+        selected_for_content_id: body.content_id ?? lanes.linkedin.selected_for_content_id ?? null,
+        updated_at: new Date().toISOString(),
+      }
+      const updated = await updateAgentWorkItemMetadata({
+        id: workItem.id,
+        metadata: {
+          ...(workItem.metadata ?? {}),
+          channel_lanes: lanes,
+          selected_for_social_content_id: body.content_id ?? null,
+          social_topic_backlog_status: nextStatus,
+        },
+        note: `LinkedIn lane marked ${nextStatus} from Social Content topic picker.`,
+      })
+      return NextResponse.json({
+        success: true,
+        item: socialTopicBacklogItemFromWorkItem(updated),
+        source: 'agent_work_items',
+      })
     }
 
     const { data, error } = await supabaseAdmin

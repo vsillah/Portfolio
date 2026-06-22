@@ -9,6 +9,10 @@ import {
   type AgentWorkItemStatus,
 } from '@/lib/agent-work-items'
 import { AGENT_RUNTIMES, type AgentRuntime } from '@/lib/agent-run'
+import {
+  isSocialContentIntelligenceChannel,
+  isSocialTopicTriggerWorkItem,
+} from '@/lib/social-content-intelligence'
 
 export const dynamic = 'force-dynamic'
 
@@ -40,13 +44,21 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
   }
   const statusFilter: AgentWorkItemStatus | null = status ? status as AgentWorkItemStatus : null
+  const socialChannel = searchParams.get('social_channel')
+  if (socialChannel && !isSocialContentIntelligenceChannel(socialChannel)) {
+    return NextResponse.json({ error: 'Invalid social_channel' }, { status: 400 })
+  }
 
   try {
-    const work_items = await listAgentWorkItems({
+    const workItems = await listAgentWorkItems({
       status: statusFilter,
       ownerAgentKey: searchParams.get('owner_agent_key'),
+      sourceType: searchParams.get('source_type'),
       limit: Number(searchParams.get('limit') || 50),
     })
+    const work_items = socialChannel
+      ? workItems.filter((item) => isSocialTopicTriggerWorkItem(item) && Boolean(item.metadata?.channel_lanes))
+      : workItems
     return NextResponse.json({ work_items })
   } catch (error) {
     console.error('[agent-work-items] list failed:', error)

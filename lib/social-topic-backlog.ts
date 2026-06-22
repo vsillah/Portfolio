@@ -1,4 +1,11 @@
 import { generateJsonCompletion } from '@/lib/llm-dispatch'
+import { createAgentWorkItem } from '@/lib/agent-work-items'
+import {
+  defaultSocialChannelLanes,
+  socialInsightMetadataFromCandidate,
+  socialTopicBacklogItemFromWorkItem,
+  SOCIAL_TOPIC_TRIGGER_SOURCE_TYPE,
+} from '@/lib/social-content-intelligence'
 import { supabaseAdmin } from '@/lib/supabase'
 import {
   extractMeetingSummary,
@@ -499,7 +506,7 @@ export async function saveTopicTriggerPacketToSocialContent(
   return updated
 }
 
-function candidateKey(candidate: TopicTriggerCandidate) {
+export function candidateKey(candidate: TopicTriggerCandidate) {
   return [
     candidate.id,
     candidate.source_type,
@@ -514,46 +521,79 @@ function candidateKey(candidate: TopicTriggerCandidate) {
 
 export async function upsertSocialTopicBacklog(packet: TopicTriggerPacket, triggerSource: string) {
   const now = new Date().toISOString()
-  const rows = packet.candidates.map((candidate) => ({
-    candidate_key: candidateKey(candidate),
-    title: candidate.title,
-    triggering_event: candidate.triggering_event,
-    source_type: candidate.source_type,
-    source_label: candidate.source_label || null,
-    source_ids: candidate.source_ids,
-    why_vambah_can_speak: candidate.why_vambah_can_speak,
-    brand_goal: candidate.brand_goal || null,
-    content_angle: candidate.content_angle || null,
-    suggested_hook: candidate.suggested_hook || null,
-    audience: candidate.audience || null,
-    sensitivity: candidate.sensitivity,
-    evidence_summary: candidate.evidence_summary || null,
-    claim_boundaries: candidate.claim_boundaries,
-    status: 'available',
-    source_policy: packet.source_policy,
-    source_counts: packet.source_counts,
-    generated_by: packet.generated_by,
-    generated_at: packet.generated_at,
-    last_seen_at: now,
-    metadata: {
-      trigger_source: triggerSource,
-      model: packet.model,
-      provider: packet.provider,
-      notes: packet.notes,
-      privacy_boundary: packet.privacy_boundary,
-    },
-  }))
+  const workItems = []
+  const projectionRows = []
+
+  for (const candidate of packet.candidates) {
+    const key = candidateKey(candidate)
+    const metadata = socialInsightMetadataFromCandidate({
+      candidate,
+      packet,
+      triggerSource,
+    })
+    const workItem = await createAgentWorkItem({
+      title: candidate.title,
+      objective: candidate.content_angle || candidate.suggested_hook || candidate.triggering_event,
+      priority: candidate.sensitivity === 'public_safe' ? 'medium' : 'high',
+      status: 'proposed',
+      ownerAgentKey: 'chief-of-staff',
+      ownerRuntime: 'codex',
+      source: {
+        type: SOCIAL_TOPIC_TRIGGER_SOURCE_TYPE,
+        id: key,
+        label: candidate.source_label || 'Shaka topic trigger',
+      },
+      overlapGroup: 'social-content-intelligence',
+      metadata,
+      idempotencyKey: `social-topic-trigger:${key}`,
+    })
+
+    workItems.push(workItem)
+    projectionRows.push({
+      agent_work_item_id: workItem.id,
+      candidate_key: key,
+      title: candidate.title,
+      triggering_event: candidate.triggering_event,
+      source_type: candidate.source_type,
+      source_label: candidate.source_label || null,
+      source_ids: candidate.source_ids,
+      why_vambah_can_speak: candidate.why_vambah_can_speak,
+      brand_goal: candidate.brand_goal || null,
+      content_angle: candidate.content_angle || null,
+      suggested_hook: candidate.suggested_hook || null,
+      audience: candidate.audience || null,
+      sensitivity: candidate.sensitivity,
+      evidence_summary: candidate.evidence_summary || null,
+      claim_boundaries: candidate.claim_boundaries,
+      status: 'available',
+      source_policy: packet.source_policy,
+      source_counts: packet.source_counts,
+      generated_by: packet.generated_by,
+      generated_at: packet.generated_at,
+      last_seen_at: now,
+      channel_lanes: defaultSocialChannelLanes(),
+      metadata: {
+        trigger_source: triggerSource,
+        model: packet.model,
+        provider: packet.provider,
+        notes: packet.notes,
+        privacy_boundary: packet.privacy_boundary,
+        canonical_agent_work_item_id: workItem.id,
+      },
+    })
+  }
 
   const { data, error } = await supabaseAdmin
     .from('social_topic_backlog')
-    .upsert(rows, { onConflict: 'candidate_key' })
+    .upsert(projectionRows, { onConflict: 'candidate_key' })
     .select('*')
 
   if (error) {
-    throw new Error(error.message || 'Failed to upsert social topic backlog')
+    console.warn('[social-topic-backlog] projection upsert skipped:', error.message)
+    return workItems.map(socialTopicBacklogItemFromWorkItem)
   }
 
-  return data ?? []
+  return data ?? workItems.map(socialTopicBacklogItemFromWorkItem)
 }
 
 export async function runSocialTopicBacklogDiscovery(options: {
