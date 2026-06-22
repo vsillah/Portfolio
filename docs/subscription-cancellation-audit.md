@@ -10,6 +10,122 @@ no meaningful usage signal, or after clear redundancy plus a lower-risk
 replacement path. Production changes require explicit approval in the form
 `Cancel <tool/vendor> for Portfolio`.
 
+## 2026-06-22 Weekly Subscription Report
+
+Status: YELLOW
+
+Source set:
+
+- Primary tracker/status files: `docs/subscription-cancellation-audit.md` and `docs/subscription-status.json`.
+- Current daily evidence artifact: [`docs/subscription-monitor-runs/2026-06-22.md`](subscription-monitor-runs/2026-06-22.md).
+- Prior weekly comparison point: `2026-06-15 Weekly Subscription Report`.
+- Action tracker feedback: 12 open actions for `portfolio-subscription-weekly-report`, with 0 in progress, 0 blocked, 0 done, and no progress notes.
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- Active keep items remain Supabase, n8n Cloud, Vercel, Stripe, OpenAI, Slack, Apify, Hunter.io, Google Cloud, and the core app-side integration footprint. Anthropic API, Gemini/Google AI, Read AI, Gamma, Printful, Pinecone, and HeyGen also had readable or dependency-backed signals, but still carry billing, quota, traffic, or plan-fit checks.
+- Watch/investigate items remain BuiltWith, ElevenLabs, OpenRouter, Vapi, Resend, Calendly, Gamma dashboard credits/usage, Pinecone traffic/billing, HeyGen avatar/quota health, Anthropic billing transition, Gemini billing/project status, Read AI plan fit, Printful store strategy, and design-tool billing.
+- Resolved/canceled item remains Fireflies.ai. Keep it out of the active queue unless a new receipt or dashboard signal shows the paid plan restarted.
+- BuiltWith remains a protected outreach-ramp watch item, not a current cancellation candidate.
+- No vendor crossed the approval-ready cancellation threshold. Future cancellation still requires the exact approval phrase `Cancel <tool/vendor> for Portfolio`.
+
+Derived movement since the prior weekly report:
+
+- n8n moved from a 2026-06-19 visibility regression into a clearer split-key state: `N8N_CLOUD_API_KEY` is readable with 85 workflows, 72 active workflows, and successful executions through 2026-06-22T12:00Z, while the older `N8N_API_KEY` and drift checker still return HTTP 403.
+- Read AI recovered from the 2026-06-15 connector startup failure and 2026-06-19 direct API 401 into connector-readable evidence: two June meeting metadata records, latest 2026-06-18. Plan fit still needs dashboard billing verification.
+- Printful recovered from weak sync evidence into readable store/sync evidence: 10 synced products with the configured store context. This moves it to store-strategy review, not cancellation posture.
+- ElevenLabs reset into a new Creator cycle and remains at 0 of 300,000 characters before the 2026-07-19 reset. Treat this as a campaign decision gate, not automatic cancellation evidence.
+- Gamma moved from prior access drift to readable API evidence on 2026-06-22 with 50 themes, but dashboard credits and recent report need remain unresolved.
+- HeyGen stayed partially visible: voices were readable with 2,347 voices, while the avatar endpoint timed out again. This is provider-health watch, not inactivity evidence.
+- OpenRouter and Vapi remained quiet with current-key usage 0 and zero sampled calls. They remain dashboard/spend/dependency review items before any deprecation packet.
+
+Candidate cancellations:
+
+- No automatic cancellation.
+- Strongest future deprecation-packet candidates remain OpenRouter, Vapi, Resend, Calendly, Gamma credits/usage, and possibly Pinecone, but only after dashboard billing, usage, and replacement-risk checks.
+- Printful is not cancellation-ready because product sync is readable; review order history and store strategy first.
+- Read AI is not cancellation-ready because connector evidence shows June meeting activity; review plan fit against actual billing.
+- BuiltWith is excluded from cancellation candidacy during the outreach/client-volume ramp.
+- Fireflies.ai is already resolved/canceled and should only be revisited if new paid-plan evidence appears.
+
+Next weekly focus:
+
+- Fix the n8n drift-check key mismatch, or rotate the stale direct key, then rerun workflow drift checks.
+- Verify Read AI dashboard billing/plan fit, Vapi billing and voice UX intent, Printful order history/store strategy, Resend production env/billing, Pinecone billing/API traffic, Calendly token/dashboard usage, Gamma credits/report need, Gemini billing/project status, HeyGen quota/avatar health, Anthropic billing transition, ElevenLabs campaign need, and OpenRouter spend/bakeoff role.
+- Continue the Apify actor-level replacement bakeoff before any account-level change.
+- Keep BuiltWith active while collecting outreach-ramp outcome evidence.
+
+## 2026-06-22 Daily Monitor Run
+
+Status: YELLOW
+
+Detailed run artifact: [`docs/subscription-monitor-runs/2026-06-22.md`](subscription-monitor-runs/2026-06-22.md)
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- Configured-local Supabase analytics moved through 2026-06-22, configured-local agent runs moved through 2026-06-21, production Supabase remained readable, n8n Cloud returned 85 workflows with 72 active and successful executions through 2026-06-22T12:00Z, and Vercel listed ready `portfolio` plus `portfolio-staging` deployments on 2026-06-22.
+- Stripe, OpenAI, Anthropic, Gemini/Google AI, Slack, Pinecone, Hunter, Gamma, Read AI connector, Printful, Apify, OpenRouter, Vapi, and the app-side integration footprint were readable or dependency-backed.
+- n8n visibility remains split: `N8N_CLOUD_API_KEY` works, while the older `N8N_API_KEY` and drift checker still return HTTP 403. Treat this as key/scope drift, not workflow inactivity.
+- Read AI connector stayed readable with two June meeting metadata records, latest 2026-06-18; plan fit still needs dashboard billing verification.
+- Printful store and 10 sync products remain readable with the configured store context; keep it in store-strategy review, not cancellation posture.
+- HeyGen voices were readable but avatar catalog timed out again; ElevenLabs remains zero-use in the current Creator cycle; OpenRouter and Vapi stayed quiet.
+- OpenRouter, Vapi, Resend, Calendly, Gamma dashboard credits/usage, Pinecone traffic/billing, HeyGen quota/avatar health, Anthropic billing transition, Gemini billing, ElevenLabs campaign need, BuiltWith outcome evidence, and design-tool billing remain investigate/watch items.
+- BuiltWith remains active/watch during the outreach ramp; Fireflies remains resolved canceled unless new paid-plan evidence appears.
+
+## 2026-06-21 Daily Monitor Run
+
+Status: YELLOW
+
+Detailed run artifact: [`docs/subscription-monitor-runs/2026-06-21.md`](subscription-monitor-runs/2026-06-21.md)
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- Supabase production analytics moved through 2026-06-20, configured-local agent runs moved through 2026-06-20, n8n Cloud returned 85 workflows with 72 active and successful executions through 2026-06-21T12:32Z, and Vercel listed ready `portfolio` plus `portfolio-staging` deployments on 2026-06-21.
+- Stripe, OpenAI, Anthropic, Gemini/Google AI, Slack, Pinecone, Hunter, Gamma, Read AI connector, Printful, Apify, OpenRouter, Vapi, and the app-side integration footprint were readable or dependency-backed.
+- n8n visibility remains split: `N8N_CLOUD_API_KEY` works, while the older `N8N_API_KEY` and drift checker still return HTTP 403. Treat this as key/scope drift, not workflow inactivity.
+- Read AI connector access recovered with two June meeting metadata records, latest 2026-06-18; local `READ_AI_API_KEY` remains absent, so billing/plan fit still needs dashboard verification.
+- Printful store and 10 sync products are readable with the configured store context; keep it in store-strategy review, not cancellation posture.
+- HeyGen voices were readable but avatar catalog timed out twice; ElevenLabs remains zero-use in the new Creator cycle; OpenRouter and Vapi stayed quiet.
+- OpenRouter, Vapi, Resend, Calendly, Gamma dashboard credits/usage, Pinecone traffic/billing, HeyGen quota/avatar health, Anthropic billing transition, Gemini billing, ElevenLabs campaign need, BuiltWith outcome evidence, and design-tool billing remain investigate/watch items.
+- BuiltWith remains active/watch during the outreach ramp; Fireflies remains resolved canceled unless new paid-plan evidence appears.
+
+## 2026-06-20 Daily Monitor Run
+
+Status: YELLOW
+
+Detailed run artifact: [`docs/subscription-monitor-runs/2026-06-20.md`](subscription-monitor-runs/2026-06-20.md)
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- Supabase production moved through 2026-06-19, configured-local agent runs moved through 2026-06-19, n8n Cloud returned 85 workflows with 72 active and successful executions through 2026-06-20T12:00Z, and Vercel listed ready `portfolio` plus `portfolio-staging` deployments.
+- Stripe, OpenAI, Anthropic, Gemini/Google AI, Slack, Pinecone, Hunter, Gamma, ElevenLabs, Apify, OpenRouter, Vapi, Printful, and the app-side integration footprint were readable or dependency-backed.
+- n8n visibility improved through `N8N_CLOUD_API_KEY`; the older `N8N_API_KEY` and drift checker still returned HTTP 403, so the remaining n8n issue is key/scope drift rather than workflow inactivity.
+- Printful sync products are now readable with 10 products; keep it in store-strategy review, not cancellation posture.
+- ElevenLabs reset to 0/300,000 characters for the new Creator cycle; treat this as a campaign decision gate rather than automatic cancellation evidence.
+- Read AI and Calendly remain HTTP 401 visibility blockers; HeyGen voices were readable but avatar catalog timed out twice.
+- OpenRouter, Vapi, Resend, Calendly, Gamma dashboard credits/usage, Pinecone traffic/billing, Read AI auth, HeyGen quota/avatar health, Anthropic billing transition, Gemini billing, ElevenLabs campaign need, and design-tool billing remain investigate/watch items.
+- BuiltWith remains active/watch during the outreach ramp; Fireflies remains resolved canceled unless new paid-plan evidence appears.
+
+## 2026-06-19 Daily Monitor Run
+
+Status: YELLOW
+
+Detailed run artifact: [`docs/subscription-monitor-runs/2026-06-19.md`](subscription-monitor-runs/2026-06-19.md)
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- Supabase production moved through 2026-06-18, configured-local analytics moved through 2026-06-19, and Vercel listed ready `portfolio` plus `portfolio-staging` deployments.
+- Stripe, OpenAI, Anthropic, Gemini/Google AI, Slack, Pinecone, Hunter, Gamma, HeyGen, ElevenLabs, Apify, OpenRouter, Vapi, and Printful were readable or dependency-backed.
+- n8n visibility regressed to HTTP 403 for workflow/execution reads and drift-check workflow fetches; treat this as access debt, not workflow inactivity.
+- Read AI direct API access returned HTTP 401; prior June 11 meeting metadata is carried forward as context only until OAuth/connector access is refreshed.
+- OpenRouter, Vapi, Printful, Resend, Calendly, Pinecone traffic/billing, Gamma dashboard credits/usage, Read AI auth, n8n API visibility, and design-tool billing remain investigate/watch items.
+- BuiltWith remains active/watch during the outreach ramp; Fireflies remains resolved canceled unless new paid-plan evidence appears.
+
 ## 2026-06-15 Daily Monitor Run
 
 Status: YELLOW

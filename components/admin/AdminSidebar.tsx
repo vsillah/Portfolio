@@ -51,6 +51,7 @@ import {
   Columns,
   TerminalSquare,
   MessagesSquare,
+  Smartphone,
 } from 'lucide-react'
 import {
   ADMIN_NAV,
@@ -79,6 +80,7 @@ export const NAV_ITEM_ICONS: Record<string, LucideIcon> = {
   '/admin/email-center': Inbox,
   '/admin/value-evidence': FileCheck,
   '/admin/social-content': Share2,
+  '/admin/mobile-app-foundry': Smartphone,
   '/admin/sales': BarChart3,
   '/admin/lead-dashboards': LayoutList,
   '/admin/campaigns': Megaphone,
