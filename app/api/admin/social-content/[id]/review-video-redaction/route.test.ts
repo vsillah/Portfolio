@@ -62,6 +62,34 @@ const baseRagContext = {
   },
 }
 
+const multiItemRagContext = {
+  production_assets: {
+    ...baseRagContext.production_assets,
+    video_redaction_manifest: {
+      ...baseRagContext.production_assets.video_redaction_manifest,
+      unresolved_count: 2,
+      publish_blocker: 'Video privacy review required: 2 redaction items unresolved.',
+      items: [
+        ...baseRagContext.production_assets.video_redaction_manifest.items,
+        {
+          id: 'item-2',
+          issue_type: 'admin_record',
+          source: 'broll',
+          original_asset: { label: 'Admin b-roll', url_or_path: '/tmp/admin.webm' },
+          redacted_asset: null,
+          timestamp_ranges: [{ start_ms: 1000, end_ms: 3000 }],
+          bounding_boxes: [{ x: 0, y: 0, width: 1, height: 1, label: 'full_frame_review' }],
+          proposed_action: 'auto_blur',
+          confidence: 0.84,
+          reviewer_decision: null,
+          status: 'pending',
+          evidence: '/admin/agents/swarm-board',
+        },
+      ],
+    },
+  },
+}
+
 describe('POST /api/admin/social-content/[id]/review-video-redaction', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -121,6 +149,57 @@ describe('POST /api/admin/social-content/[id]/review-video-redaction', () => {
     expect(body.production_assets.video_redaction_manifest).toMatchObject({
       status: 'requires_review',
       unresolved_count: 1,
+    })
+  })
+
+  it('records safe exceptions with a redacted asset while preserving other unresolved blockers', async () => {
+    mocks.single.mockResolvedValue({ data: { rag_context: multiItemRagContext }, error: null })
+
+    const response = await POST(request({
+      item_id: 'item-1',
+      decision: 'safe_exception',
+      redacted_asset_url: ' https://cdn.example.com/redacted/chronicle-note.mp4 ',
+    }), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    expect(body.redaction_gate.ready).toBe(false)
+    expect(body.redaction_gate.unresolvedItems).toHaveLength(1)
+    expect(body.production_assets.video_redaction_manifest).toMatchObject({
+      status: 'requires_review',
+      unresolved_count: 1,
+      publish_blocker: 'Video privacy review required: 1 redaction item unresolved.',
+    })
+    expect(body.production_assets.video_redaction_manifest.items).toEqual([
+      expect.objectContaining({
+        id: 'item-1',
+        reviewer_decision: 'safe_exception',
+        status: 'approved',
+        redacted_asset: {
+          label: 'Chronicle note redacted',
+          url_or_path: 'https://cdn.example.com/redacted/chronicle-note.mp4',
+        },
+      }),
+      expect.objectContaining({
+        id: 'item-2',
+        reviewer_decision: null,
+        status: 'pending',
+      }),
+    ])
+  })
+
+  it('treats rejected clips as resolved redaction review outcomes', async () => {
+    const response = await POST(request({
+      item_id: 'item-1',
+      decision: 'reject_clip',
+    }), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    expect(body.redaction_gate.ready).toBe(true)
+    expect(body.production_assets.video_redaction_manifest.items[0]).toMatchObject({
+      reviewer_decision: 'reject_clip',
+      status: 'rejected',
     })
   })
 })
