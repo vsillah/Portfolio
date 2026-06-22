@@ -70,14 +70,42 @@ describe('SocialContentDetailRoute visual production review', () => {
     publishes: [],
   }
 
+  const topicBacklogItem = {
+    id: 'topic-backlog-1',
+    candidate_key: 'approval-gates-review-meeting-1',
+    title: 'Approval gates create trust',
+    triggering_event: 'A recent Agent Ops review exposed where AI-generated work needed clearer ownership before publishing.',
+    source_type: 'meeting',
+    source_label: 'Agent Ops review',
+    source_ids: ['meeting:meeting-1'],
+    why_vambah_can_speak: 'You are building the Portfolio Agent Ops workflow and reviewed the approval path directly.',
+    brand_goal: 'Show AmaduTown builds governed AI systems.',
+    content_angle: 'AI needs accountable operating gates.',
+    suggested_hook: 'AI should reduce burden. That only happens when every risky action has a gate.',
+    audience: 'Product leaders adopting AI',
+    sensitivity: 'needs_review',
+    evidence_summary: 'Sanitized meeting summary.',
+    claim_boundaries: ['Do not name private meeting participants.'],
+    status: 'available',
+    last_seen_at: '2026-06-22T16:00:00.000Z',
+  }
+
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.stubGlobal('fetch', vi.fn(async () => ({
-      ok: true,
-      json: async () => ({
-        item: baseItem,
-      }),
-    })))
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input).includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [topicBacklogItem] }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({
+          item: baseItem,
+        }),
+      } as Response
+    }))
   })
 
   afterEach(() => {
@@ -88,8 +116,10 @@ describe('SocialContentDetailRoute visual production review', () => {
     render(<SocialContentDetailRoute />)
 
     expect(await screen.findByText('Visual Production')).toBeInTheDocument()
-    expect(screen.getByText('Shaka topic scout')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Ask Shaka for Topics/i })).toBeInTheDocument()
+    expect(await screen.findByText('Shaka topic backlog')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Ask Shaka for Topics/i })).not.toBeInTheDocument()
+    expect(screen.getByText('Approval gates create trust')).toBeInTheDocument()
+    expect(screen.getByText('Weekday scan')).toBeInTheDocument()
     expect(screen.queryByText('Review gates')).not.toBeInTheDocument()
     expect(screen.queryByText('Every gate uses the same state language; the detail line preserves each system status.')).not.toBeInTheDocument()
     expect(screen.queryByText(/Copy is approved and locked/i)).not.toBeInTheDocument()
@@ -144,49 +174,21 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByDisplayValue('Create a framework visual about review gates.')).not.toBeDisabled()
   })
 
-  it('lets Shaka discover topic triggers and apply one to copy review', async () => {
-    const packet = {
-      version: 'social_topic_trigger_discovery_v1',
-      status: 'review_ready',
-      generated_at: '2026-06-21T20:00:00.000Z',
-      source_counts: { meeting: 1, client_safe_project: 1, shipped_feature: 1, open_brain: 1 },
-      candidates: [
-        {
-          id: 'approval-gates-review',
-          title: 'Approval gates create trust',
-          triggering_event: 'A recent Agent Ops review exposed where AI-generated work needed clearer ownership before publishing.',
-          source_type: 'meeting',
-          source_label: 'Agent Ops review',
-          source_ids: ['meeting:meeting-1'],
-          why_vambah_can_speak: 'You are building the Portfolio Agent Ops workflow and reviewed the approval path directly.',
-          brand_goal: 'Show AmaduTown builds governed AI systems.',
-          content_angle: 'AI needs accountable operating gates.',
-          suggested_hook: 'AI should reduce burden. That only happens when every risky action has a gate.',
-          audience: 'Product leaders adopting AI',
-          sensitivity: 'needs_review',
-          evidence_summary: 'Sanitized meeting summary.',
-          claim_boundaries: ['Do not name private meeting participants.'],
-        },
-      ],
-    }
+  it('lets the operator pull a topic from Shaka backlog into copy review', async () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-      if (String(input).includes('/discover-topic-triggers') && init?.method === 'POST') {
+      if (String(input).includes('/topic-backlog') && init?.method === 'PATCH') {
         return {
           ok: true,
           json: async () => ({
             success: true,
-            item: {
-              ...baseItem,
-              rag_context: {
-                ...baseItem.rag_context,
-                content_calibration: {
-                  status: 'topic_triggers_ready',
-                  topic_trigger_packet: packet,
-                },
-              },
-            },
-            topic_trigger_packet: packet,
+            item: { ...topicBacklogItem, status: 'selected' },
           }),
+        } as Response
+      }
+      if (String(input).includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [topicBacklogItem] }),
         } as Response
       }
       return {
@@ -198,23 +200,24 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     render(<SocialContentDetailRoute />)
 
-    fireEvent.click(await screen.findByRole('button', { name: /Ask Shaka for Topics/i }))
-
-    await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalledWith(
-        expect.stringContaining('/api/admin/social-content/social-1/discover-topic-triggers'),
-        expect.objectContaining({ method: 'POST' }),
-      )
-    })
     expect(await screen.findByText('Approval gates create trust')).toBeInTheDocument()
     expect(screen.getByText(/Why you can speak on it:/)).toBeInTheDocument()
     expect(screen.getByText(/Hook: AI should reduce burden/)).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: /Use trigger/i }))
+    fireEvent.click(screen.getByRole('button', { name: /Use topic/i }))
 
     expect(screen.getAllByDisplayValue(/recent Agent Ops review exposed/).length).toBeGreaterThan(0)
     expect(screen.getAllByDisplayValue(/Anchor this draft in Shaka's selected topic trigger/).length).toBeGreaterThan(0)
     expect(screen.getByRole('button', { name: /Reject and Generate Revision/i })).not.toBeDisabled()
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining('/api/admin/social-content/topic-backlog'),
+        expect.objectContaining({
+          method: 'PATCH',
+          body: expect.stringContaining('topic-backlog-1'),
+        }),
+      )
+    })
   })
 
   it('shows production assets and blocks publish readiness while redaction is unresolved', async () => {
