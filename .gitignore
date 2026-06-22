@@ -9,6 +9,7 @@
 /coverage
 test-results/
 /tmp/
+/outputs/
 
 # next.js
 /.next/
@@ -31,6 +32,19 @@ yarn-error.log*
 # local env files
 .env*.local
 .credential-rotation-audits/
+
+# local-private client/source artifacts; preserve locally, never commit
+/local-private/
+/docs/client-followups/
+/docs/runbooks/kmb-firespring-neil-meeting-*.md
+/docs/runbooks/kmb-firespring-proof-review-*.pptx
+
+# raw/generated prototype media variants; keep only web-selected assets tracked
+/public/prototypes/portfolio-pipeline-hero/higgsfield-gold-pipeline-loop-20260617.mp4
+/public/prototypes/portfolio-pipeline-hero/higgsfield-gold-pipeline-loop-360-starburst-20260617.mp4
+/public/prototypes/portfolio-pipeline-hero/higgsfield-gold-pipeline-loop-360-starburst-20260617-contact-sheet.jpg
+/public/prototypes/portfolio-pipeline-hero/higgsfield-gold-pipeline-loop-desktop-only-360-starburst-20260617.mp4
+/public/prototypes/portfolio-pipeline-hero/higgsfield-gold-pipeline-loop-desktop-only-360-starburst-20260617-contact-sheet.jpg
 
 # n8n workflow backups (real exports with credentials; never commit)
 n8n-backups/
