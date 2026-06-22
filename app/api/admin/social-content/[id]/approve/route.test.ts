@@ -206,4 +206,96 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
     expect(fetchSpy).not.toHaveBeenCalled()
     fetchSpy.mockRestore()
   })
+
+  it('approves regular unscheduled content by creating publish records and triggering publish with admin auth', async () => {
+    mocks.queueSingle.mockResolvedValueOnce({
+      data: {
+        id: 'social-1',
+        status: 'draft',
+        scheduled_for: null,
+        target_platforms: ['linkedin', 'instagram'],
+        rag_context: { source: 'meeting_summary' },
+      },
+      error: null,
+    })
+    mocks.queueUpdateSingle.mockResolvedValueOnce({
+      data: {
+        id: 'social-1',
+        status: 'approved',
+        scheduled_for: null,
+        target_platforms: ['linkedin', 'instagram'],
+        rag_context: { source: 'meeting_summary' },
+      },
+      error: null,
+    })
+    mocks.publishesEq.mockResolvedValueOnce({
+      data: [
+        { content_id: 'social-1', platform: 'linkedin', status: 'pending' },
+        { content_id: 'social-1', platform: 'instagram', status: 'pending' },
+      ],
+      error: null,
+    })
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(new Response(null, { status: 200 }))
+
+    const response = await POST(request(), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(200)
+    const json = await response.json()
+    expect(json.publish_triggered).toBe(true)
+    expect(json.publishes).toEqual([
+      { content_id: 'social-1', platform: 'linkedin', status: 'pending' },
+      { content_id: 'social-1', platform: 'instagram', status: 'pending' },
+    ])
+    expect(mocks.publishesUpsert).toHaveBeenCalledWith([
+      { content_id: 'social-1', platform: 'linkedin', status: 'pending' },
+      { content_id: 'social-1', platform: 'instagram', status: 'pending' },
+    ], { onConflict: 'content_id,platform' })
+    expect(fetchSpy).toHaveBeenCalledWith(
+      'http://localhost/api/admin/social-content/social-1/publish',
+      expect.objectContaining({
+        method: 'POST',
+        headers: {
+          Authorization: 'Bearer admin-token',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ platforms: ['linkedin', 'instagram'] }),
+      }),
+    )
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
+    fetchSpy.mockRestore()
+  })
+
+  it('uses linkedin as the default publish platform and does not trigger scheduled content immediately', async () => {
+    mocks.queueSingle.mockResolvedValueOnce({
+      data: {
+        id: 'social-1',
+        status: 'draft',
+        scheduled_for: '2026-06-14T15:00:00.000Z',
+        target_platforms: [],
+        rag_context: null,
+      },
+      error: null,
+    })
+    mocks.queueUpdateSingle.mockResolvedValueOnce({
+      data: {
+        id: 'social-1',
+        status: 'approved',
+        scheduled_for: '2026-06-14T15:00:00.000Z',
+        target_platforms: [],
+        rag_context: null,
+      },
+      error: null,
+    })
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+
+    const response = await POST(request(), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(200)
+    expect(mocks.publishesUpsert).toHaveBeenCalledWith([
+      { content_id: 'social-1', platform: 'linkedin', status: 'pending' },
+    ], { onConflict: 'content_id,platform' })
+    expect(fetchSpy).not.toHaveBeenCalled()
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
+    fetchSpy.mockRestore()
+  })
 })
