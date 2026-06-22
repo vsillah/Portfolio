@@ -80,7 +80,49 @@ If WF-SLK never calls the webhook, WF-MCH never runs, so you get no Slack summar
 
 ---
 
-## 4. Follow-Up Meeting Scheduling (WF-FUP)
+## 4. Manual Read.ai Follow-Up Import
+
+When Read.ai has the transcript but the Slack-triggered intake path misses it, use the app import endpoint instead of pasting notes into disconnected docs.
+
+**Endpoint:** `POST /api/admin/read-ai/meetings/:read_ai_meeting_id/follow-up-import`
+
+**Auth:** Admin session or `Authorization: Bearer <N8N_INGEST_SECRET>`.
+
+**What it creates or updates:**
+
+- `contact_submissions`: creates or updates the contact by email, with `lead_source = warm_meeting` for new contacts.
+- `meeting_records`: creates or updates by `read_ai_meeting_id`, preserving transcript, summary, attendees, action items, report URL, and Gmail draft metadata.
+- `meeting_action_tasks`: promotes Read.ai action items into tracked tasks.
+- `client_update_drafts`: stores the follow-up email draft when `draft_subject` and `draft_body` are provided.
+- `contact_communications` and `email_messages`: logs a draft outbound email timeline row and stores Gmail draft/thread/message IDs in metadata.
+
+**Payload example:**
+
+```json
+{
+  "contact_name": "Neil Rhein",
+  "contact_email": "neil@keepmassbeautiful.org",
+  "company": "Keep Massachusetts Beautiful",
+  "project_name": "KMB FireSpring web migration",
+  "draft_subject": "KMB Balance Proof Site - Round 1 Revision Requests",
+  "draft_body": "Hi Andrew,\n\nNeil and I reviewed the proof site...",
+  "gmail_draft_id": "r-3368138120782057946",
+  "gmail_thread_id": "19eefc89d9bc4c6b",
+  "source_email_thread_id": "19ea8770420bcb64"
+}
+```
+
+**Recommended KMB use:**
+
+1. Use `GET /api/admin/read-ai/meetings?email=neil@keepmassbeautiful.org` to find the latest Neil/KMB meeting.
+2. Create or revise the Gmail draft for FireSpring.
+3. Call the follow-up import endpoint with the Read.ai meeting ID and Gmail draft metadata.
+4. Review the imported action tasks in **Admin > Meeting Tasks**.
+5. Review the draft in **Client Update Drafts** and the contact email timeline before sending.
+
+---
+
+## 5. Follow-Up Meeting Scheduling (WF-FUP)
 
 After each meeting is processed by WF-MCH, a follow-up meeting can be automatically scheduled via **WF-FUP: Follow-Up Meeting Scheduler** (n8n workflow ID: `HyVGDTStTaWYL4Do`).
 
@@ -121,7 +163,7 @@ After each meeting is processed by WF-MCH, a follow-up meeting can be automatica
 
 ---
 
-## 5. Client Email Draft Responses (WF-GDR)
+## 6. Client Email Draft Responses (WF-GDR)
 
 When a client sends an email, a draft reply is automatically generated and stored **in the app** (visible in Admin > Meeting Tasks > Client Update Drafts).
 
@@ -162,7 +204,7 @@ The LLM prompt used to generate draft replies is editable at **Admin > System Pr
 
 ---
 
-## 6. Meeting Action Tasks and Client Update Drafts
+## 7. Meeting Action Tasks and Client Update Drafts
 
 Action items from meetings are tracked as tasks and can trigger client update emails. See the **Admin > Meeting Tasks** page for:
 
@@ -171,7 +213,7 @@ Action items from meetings are tracked as tasks and can trigger client update em
 
 ---
 
-## 7. WF-MCH RAG dependency (separate issue)
+## 8. WF-MCH RAG dependency (separate issue)
 
 Some WF-MCH runs fail because the **Fetch RAG (MCH)** node calls `POST https://n8n.amadutown.com/webhook/amadutown-rag-query`, which returns 404 (webhook not registered). So even when WF-MCH is triggered, it can error before reaching "Post Summary to Slack". Fix by either:
 
@@ -180,7 +222,7 @@ Some WF-MCH runs fail because the **Fetch RAG (MCH)** node calls `POST https://n
 
 ---
 
-## 8. Summary
+## 9. Summary
 
 | Your expectation | Actual design |
 |------------------|----------------|
@@ -188,5 +230,6 @@ Some WF-MCH runs fail because the **Fetch RAG (MCH)** node calls `POST https://n
 | Notification when meeting is complete | **Slack message** from WF-MCH with summary, decisions, action items, open questions. |
 | Draft follow-up email | **Gmail draft** created by WF-MCH "Build Follow-Up Email" + "Create Follow-Up Draft" nodes. |
 | Follow-up meeting scheduling | **WF-FUP** creates a Calendly scheduling link and notifies client via Slack or email. |
+| Manual missed Read.ai import | **Read.ai follow-up import endpoint** imports the transcript into Portfolio and links draft metadata when Slack intake misses it. |
 | Draft reply to client emails | **WF-GDR** (id: `7dsXnjup9zi5rf8N`) generates LLM-based draft replies stored in the app (Client Update Drafts) and as Gmail drafts. |
 | Action item tracking | **Meeting Action Tasks** promoted from meeting records, synced to Slack Kanban channels. |
