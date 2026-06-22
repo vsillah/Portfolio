@@ -71,6 +71,21 @@ describe('SystemStory', () => {
     })
   }
 
+  it('renders the navigation target, operating functions, and conversion links', () => {
+    render(<SystemStory />)
+
+    expect(screen.getByText('System Story')).toBeInTheDocument()
+    expect(document.querySelector('section#system')).toHaveAttribute('data-section', 'system-story')
+    expect(screen.getByRole('heading', { name: /the work is already there/i })).toBeInTheDocument()
+
+    for (const label of ['Intake', 'Scheduling', 'Communications', 'Delivery', 'Billing', 'Reporting', 'Knowledge']) {
+      expect(screen.getByText(label)).toBeInTheDocument()
+    }
+
+    expect(screen.getByRole('link', { name: /map my system/i })).toHaveAttribute('href', '#contact')
+    expect(screen.getByRole('link', { name: /see services/i })).toHaveAttribute('href', '#services')
+  })
+
   it('advances the active story frame from clamped scroll progress', () => {
     const { container } = render(<SystemStory />)
     const section = container.querySelector('[data-section="system-story"]') as HTMLElement
