@@ -163,6 +163,12 @@ type CalibrationSuccessExample = {
 }
 
 type TopicTriggerCandidateRecord = Record<string, unknown>
+type TopicBacklogRecord = TopicTriggerCandidateRecord & {
+  id?: string
+  candidate_key?: string
+  last_seen_at?: string
+  generated_at?: string
+}
 
 const EMPTY_SUCCESS_EXAMPLE: CalibrationSuccessExample = {
   source_label: '',
@@ -255,7 +261,10 @@ function SocialContentDetailPage() {
   const [savingCalibration, setSavingCalibration] = useState(false)
   const [revisingCalibration, setRevisingCalibration] = useState(false)
   const [requestingCopyRevision, setRequestingCopyRevision] = useState(false)
-  const [discoveringTopicTriggers, setDiscoveringTopicTriggers] = useState(false)
+  const [loadingTopicBacklog, setLoadingTopicBacklog] = useState(false)
+  const [topicBacklogItems, setTopicBacklogItems] = useState<TopicBacklogRecord[]>([])
+  const [topicBacklogUnavailable, setTopicBacklogUnavailable] = useState(false)
+  const [selectedTopicBacklogId, setSelectedTopicBacklogId] = useState<string | null>(null)
   const [savingSectionGate, setSavingSectionGate] = useState<SectionGateKey | null>(null)
   const [showSource, setShowSource] = useState(false)
   const [expandedSection, setExpandedSection] = useState<'rag' | 'transcript' | null>(null)
@@ -287,6 +296,26 @@ function SocialContentDetailPage() {
     linkedin_draft: false,
   })
   const rejectedGateKeysRef = useRef<SectionGateKey[]>([])
+
+  const fetchTopicBacklog = useCallback(async () => {
+    setLoadingTopicBacklog(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const res = await fetch('/api/admin/social-content/topic-backlog?status=available&limit=6', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const data = await res.json()
+      if (!res.ok) return
+      setTopicBacklogItems(Array.isArray(data.items) ? data.items : [])
+      setTopicBacklogUnavailable(Boolean(data.unavailable))
+    } catch (err) {
+      console.error('Failed to fetch topic backlog:', err)
+    } finally {
+      setLoadingTopicBacklog(false)
+    }
+  }, [])
 
   const fetchItem = useCallback(async (options: { silent?: boolean } = {}) => {
     if (!options.silent) setLoading(true)
@@ -338,6 +367,10 @@ function SocialContentDetailPage() {
   useEffect(() => {
     fetchItem()
   }, [fetchItem])
+
+  useEffect(() => {
+    fetchTopicBacklog()
+  }, [fetchTopicBacklog])
 
   const showMsg = (type: 'success' | 'error', text: string) => {
     setMessage({ type, text })
@@ -527,38 +560,7 @@ function SocialContentDetailPage() {
     }
   }
 
-  const handleDiscoverTopicTriggers = async () => {
-    if (!item) return
-    setDiscoveringTopicTriggers(true)
-    try {
-      const session = await getCurrentSession()
-      if (!session) return
-
-      const res = await fetch(`/api/admin/social-content/${id}/discover-topic-triggers`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-      })
-
-      const data = await res.json()
-      if (!res.ok) {
-        showMsg('error', data.error || 'Failed to discover topic triggers')
-        return
-      }
-
-      const updated = data.item as SocialContentItem
-      setItem(updated)
-      showMsg('success', 'Shaka found topic triggers for review')
-    } catch {
-      showMsg('error', 'Failed to discover topic triggers')
-    } finally {
-      setDiscoveringTopicTriggers(false)
-    }
-  }
-
-  const handleUseTopicTrigger = (candidate: TopicTriggerCandidateRecord) => {
+  const handleUseTopicTrigger = async (candidate: TopicTriggerCandidateRecord) => {
     const title = asString(candidate.title).trim()
     const triggeringEvent = asString(candidate.triggering_event).trim()
     const audience = asString(candidate.audience).trim()
@@ -578,7 +580,30 @@ function SocialContentDetailPage() {
     if (!copyRevisionRequest.trim()) {
       setCopyRevisionRequest(revisionRequest)
     }
-    showMsg('success', 'Topic trigger added to the copy review')
+    const backlogId = asString(candidate.id)
+    if (backlogId && asString(candidate.candidate_key)) {
+      setSelectedTopicBacklogId(backlogId)
+      try {
+        const session = await getCurrentSession()
+        if (session) {
+          await fetch('/api/admin/social-content/topic-backlog', {
+            method: 'PATCH',
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              id: backlogId,
+              content_id: item?.id,
+              status: 'selected',
+            }),
+          })
+        }
+      } catch (err) {
+        console.error('Failed to mark topic backlog item selected:', err)
+      }
+    }
+    showMsg('success', 'Topic from Shaka backlog added to the copy review')
   }
 
   const handleRequestCopyRevision = async (generateRevision: boolean) => {
@@ -1234,6 +1259,10 @@ function SocialContentDetailPage() {
   const agentPilotTopicTriggerGeneratedAt = asString(agentPilotTopicTriggerPacket?.generated_at)
   const agentPilotTopicTriggerCandidates = asRecordArray(agentPilotTopicTriggerPacket?.candidates)
   const agentPilotTopicTriggerCounts = asRecord(agentPilotTopicTriggerPacket?.source_counts)
+  const displayedTopicBacklogItems = topicBacklogItems.length > 0
+    ? topicBacklogItems
+    : agentPilotTopicTriggerCandidates
+  const usingDraftTopicFallback = topicBacklogItems.length === 0 && agentPilotTopicTriggerCandidates.length > 0
   const productionAssets = getProductionAssets(ragContext)
   const redactionGate = getVideoRedactionGate(productionAssets)
   const sectionGateReviews = asRecord(ragContext?.section_gate_reviews) ?? {}
@@ -2065,35 +2094,42 @@ function SocialContentDetailPage() {
                     <div className="min-w-0">
                       <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-blue-200">
                         <Lightbulb className="h-3.5 w-3.5" />
-                        Shaka topic scout
+                        Shaka topic backlog
                       </p>
                       <p className="mt-1 text-sm leading-6 text-blue-50/85">
-                        Cull recent meetings, shipped work, client-safe projects, and approved memory into trigger options.
+                        Pulled from Shaka&apos;s recurring scan of sanitized meetings, shipped work, client-safe projects, and approved memory.
                       </p>
                     </div>
                     <div className="flex shrink-0 flex-wrap items-center gap-2 lg:justify-end">
-                      {agentPilotTopicTriggerStatus && (
-                        <span className="rounded-full border border-blue-400/35 px-2 py-0.5 text-[10px] font-semibold text-blue-100">
-                          {agentPilotTopicTriggerStatus.replace(/_/g, ' ')}
-                        </span>
-                      )}
-                      <button
-                        type="button"
-                        onClick={handleDiscoverTopicTriggers}
-                        disabled={discoveringTopicTriggers}
-                        className="inline-flex items-center gap-2 rounded-lg border border-blue-400/45 px-3 py-2 text-sm font-semibold text-blue-100 transition-colors hover:bg-blue-500/10 disabled:opacity-50"
-                      >
-                        {discoveringTopicTriggers ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
-                        Ask Shaka for Topics
-                      </button>
+                      <span className="rounded-full border border-blue-400/35 px-2 py-0.5 text-[10px] font-semibold text-blue-100">
+                        {loadingTopicBacklog ? 'Loading backlog' : `${displayedTopicBacklogItems.length} available`}
+                      </span>
+                      <span className="rounded-full border border-blue-400/25 px-2 py-0.5 text-[10px] text-blue-50/75">
+                        Weekday scan
+                      </span>
                     </div>
                   </div>
-                  {agentPilotTopicTriggerGeneratedAt && (
-                    <p className="mt-2 text-xs text-blue-50/65">
-                      Generated {new Date(agentPilotTopicTriggerGeneratedAt).toLocaleString()}
+                  {topicBacklogUnavailable && (
+                    <p className="mt-2 text-xs text-amber-200">
+                      Backlog migration pending. The scheduled scan will populate this after deployment.
                     </p>
                   )}
-                  {agentPilotTopicTriggerCounts && (
+                  {!topicBacklogUnavailable && displayedTopicBacklogItems.length === 0 && !loadingTopicBacklog && (
+                    <p className="mt-2 text-xs text-blue-50/65">
+                      No topics are available yet. Shaka&apos;s scheduled scan will populate this backlog.
+                    </p>
+                  )}
+                  {usingDraftTopicFallback && agentPilotTopicTriggerGeneratedAt && (
+                    <p className="mt-2 text-xs text-blue-50/65">
+                      Showing the last draft-local topic packet from {new Date(agentPilotTopicTriggerGeneratedAt).toLocaleString()} until the standing backlog is populated.
+                    </p>
+                  )}
+                  {usingDraftTopicFallback && agentPilotTopicTriggerStatus && (
+                    <p className="mt-1 text-xs text-blue-50/60">
+                      Packet status: {agentPilotTopicTriggerStatus.replace(/_/g, ' ')}
+                    </p>
+                  )}
+                  {usingDraftTopicFallback && agentPilotTopicTriggerCounts && (
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       {Object.entries(agentPilotTopicTriggerCounts)
                         .filter(([, value]) => Number(value) > 0)
@@ -2104,11 +2140,18 @@ function SocialContentDetailPage() {
                         ))}
                     </div>
                   )}
-                  {agentPilotTopicTriggerCandidates.length > 0 && (
+                  {loadingTopicBacklog && displayedTopicBacklogItems.length === 0 && (
+                    <div className="mt-3 flex items-center gap-2 text-sm text-blue-50/70">
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      Loading Shaka&apos;s topic backlog
+                    </div>
+                  )}
+                  {displayedTopicBacklogItems.length > 0 && (
                     <div className="mt-3 grid gap-2">
-                      {agentPilotTopicTriggerCandidates.map((candidate, index) => {
+                      {displayedTopicBacklogItems.map((candidate, index) => {
                         const title = asString(candidate.title) || `Topic ${index + 1}`
                         const sensitivity = asString(candidate.sensitivity) || 'needs_review'
+                        const isSelectedTopic = selectedTopicBacklogId === asString(candidate.id)
                         return (
                           <div key={asString(candidate.id) || `${title}-${index}`} className="rounded-lg border border-blue-400/20 bg-background/35 p-3">
                             <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
@@ -2118,6 +2161,11 @@ function SocialContentDetailPage() {
                                   <span className="rounded-full border border-blue-400/25 px-2 py-0.5 text-[10px] text-blue-100">
                                     {sensitivity.replace(/_/g, ' ')}
                                   </span>
+                                  {isSelectedTopic && (
+                                    <span className="rounded-full border border-emerald-400/35 px-2 py-0.5 text-[10px] text-emerald-100">
+                                      Selected
+                                    </span>
+                                  )}
                                 </div>
                                 <p className="mt-1 text-sm leading-6 text-blue-50/85">
                                   {asString(candidate.triggering_event)}
@@ -2136,10 +2184,11 @@ function SocialContentDetailPage() {
                               <button
                                 type="button"
                                 onClick={() => handleUseTopicTrigger(candidate)}
-                                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-blue-400 px-3 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-blue-300"
+                                disabled={isSelectedTopic}
+                                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-blue-400 px-3 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-blue-300 disabled:opacity-60"
                               >
                                 <CheckCircle2 className="h-3.5 w-3.5" />
-                                Use trigger
+                                {isSelectedTopic ? 'Selected' : 'Use topic'}
                               </button>
                             </div>
                           </div>

@@ -13,6 +13,8 @@ const mocks = vi.hoisted(() => ({
   projectsLimit: vi.fn(),
   runsLimit: vi.fn(),
   update: vi.fn(),
+  backlogUpsert: vi.fn(),
+  backlogSelect: vi.fn(),
 }))
 
 vi.mock('@/lib/auth-server', () => ({
@@ -80,6 +82,12 @@ function limitTable(limitMock: ReturnType<typeof vi.fn>) {
         limit: limitMock,
       })),
     })),
+  }
+}
+
+function socialTopicBacklogTable() {
+  return {
+    upsert: mocks.backlogUpsert,
   }
 }
 
@@ -209,8 +217,22 @@ describe('POST /api/admin/social-content/[id]/discover-topic-triggers', () => {
         })),
       })),
     })
+    mocks.backlogSelect.mockResolvedValue({
+      data: [
+        {
+          id: 'topic-1',
+          candidate_key: 'approval-gates-review-meeting-meeting-1',
+          title: 'Approval gates create trust',
+        },
+      ],
+      error: null,
+    })
+    mocks.backlogUpsert.mockReturnValue({
+      select: mocks.backlogSelect,
+    })
     mocks.from.mockImplementation((table: string) => {
       if (table === 'social_content_queue') return socialContentTable()
+      if (table === 'social_topic_backlog') return socialTopicBacklogTable()
       if (table === 'meeting_records') return limitTable(mocks.meetingsLimit)
       if (table === 'client_projects') return limitTable(mocks.projectsLimit)
       if (table === 'agent_runs') return limitTable(mocks.runsLimit)
@@ -263,6 +285,43 @@ describe('POST /api/admin/social-content/[id]/discover-topic-triggers', () => {
           topic_trigger_packet: expect.objectContaining({
             candidates: expect.any(Array),
           }),
+        }),
+      }),
+    })
+    expect(mocks.backlogUpsert).toHaveBeenCalledWith([
+      expect.objectContaining({
+        candidate_key: expect.stringContaining('approval-gates-review'),
+        title: 'Approval gates create trust',
+        status: 'available',
+        source_policy: 'sanitized_summaries_only',
+      }),
+    ], { onConflict: 'candidate_key' })
+    expect(body.backlog_items).toHaveLength(1)
+  })
+
+  it('still saves the draft-local topic packet when the backlog table is unavailable', async () => {
+    mocks.backlogSelect.mockResolvedValueOnce({
+      data: null,
+      error: {
+        message: "Could not find the table 'public.social_topic_backlog' in the schema cache",
+      },
+    })
+
+    const response = await POST(request(), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    expect(body.topic_trigger_packet).toMatchObject({
+      version: 'social_topic_trigger_discovery_v1',
+      status: 'review_ready',
+    })
+    expect(body.backlog_items).toEqual([])
+    expect(body.backlog_warning).toContain('social_topic_backlog')
+    expect(mocks.update).toHaveBeenCalledWith({
+      rag_context: expect.objectContaining({
+        content_calibration: expect.objectContaining({
+          status: 'topic_triggers_ready',
+          topic_trigger_packet: expect.any(Object),
         }),
       }),
     })
