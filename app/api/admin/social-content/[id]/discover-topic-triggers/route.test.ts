@@ -299,6 +299,34 @@ describe('POST /api/admin/social-content/[id]/discover-topic-triggers', () => {
     expect(body.backlog_items).toHaveLength(1)
   })
 
+  it('still saves the draft-local topic packet when the backlog table is unavailable', async () => {
+    mocks.backlogSelect.mockResolvedValueOnce({
+      data: null,
+      error: {
+        message: "Could not find the table 'public.social_topic_backlog' in the schema cache",
+      },
+    })
+
+    const response = await POST(request(), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    expect(body.topic_trigger_packet).toMatchObject({
+      version: 'social_topic_trigger_discovery_v1',
+      status: 'review_ready',
+    })
+    expect(body.backlog_items).toEqual([])
+    expect(body.backlog_warning).toContain('social_topic_backlog')
+    expect(mocks.update).toHaveBeenCalledWith({
+      rag_context: expect.objectContaining({
+        content_calibration: expect.objectContaining({
+          status: 'topic_triggers_ready',
+          topic_trigger_packet: expect.any(Object),
+        }),
+      }),
+    })
+  })
+
   it('rejects non-Agent-Ops social drafts', async () => {
     mocks.currentSingle.mockResolvedValueOnce({
       data: {

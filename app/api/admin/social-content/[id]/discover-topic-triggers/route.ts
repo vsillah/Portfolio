@@ -39,16 +39,24 @@ export async function POST(
       actorId: authResult.user.id,
       operation: 'social_content_topic_trigger_discovery',
     })
-    const [updated, backlogItems] = await Promise.all([
-      saveTopicTriggerPacketToSocialContent(row, packet),
-      upsertSocialTopicBacklog(packet, 'manual_social_content_detail'),
-    ])
+    const updated = await saveTopicTriggerPacketToSocialContent(row, packet)
+    let backlogItems: unknown[] = []
+    let backlogWarning: string | null = null
+    try {
+      backlogItems = await upsertSocialTopicBacklog(packet, 'manual_social_content_detail')
+    } catch (backlogError) {
+      backlogWarning = backlogError instanceof Error
+        ? backlogError.message
+        : 'Topic backlog write failed'
+      console.warn('[discover-topic-triggers] topic backlog write skipped:', backlogWarning)
+    }
 
     return NextResponse.json({
       success: true,
       item: updated,
       topic_trigger_packet: packet,
       backlog_items: backlogItems,
+      backlog_warning: backlogWarning,
     })
   } catch (error) {
     console.error('[discover-topic-triggers] error:', error)
