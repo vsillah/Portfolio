@@ -62,16 +62,22 @@ ALTER TABLE public.social_topic_backlog ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Enable read for authenticated users" ON public.social_topic_backlog;
 CREATE POLICY "Enable read for authenticated users" ON public.social_topic_backlog
-    FOR SELECT USING (auth.role() = 'authenticated');
+    FOR SELECT
+    TO authenticated
+    USING (true);
 
 DROP POLICY IF EXISTS "Enable insert for service role" ON public.social_topic_backlog;
 CREATE POLICY "Enable insert for service role" ON public.social_topic_backlog
-    FOR INSERT WITH CHECK (auth.role() = 'service_role');
+    FOR INSERT
+    TO service_role
+    WITH CHECK (true);
 
 DROP POLICY IF EXISTS "Enable update for service role" ON public.social_topic_backlog;
 CREATE POLICY "Enable update for service role" ON public.social_topic_backlog
-    FOR UPDATE USING (auth.role() = 'service_role')
-    WITH CHECK (auth.role() = 'service_role');
+    FOR UPDATE
+    TO service_role
+    USING (true)
+    WITH CHECK (true);
 
 GRANT SELECT ON public.social_topic_backlog TO authenticated;
 GRANT ALL ON public.social_topic_backlog TO service_role;
