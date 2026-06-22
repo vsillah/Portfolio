@@ -212,6 +212,8 @@ async function findWorkItemByIdempotencyKey(idempotencyKey?: string | null): Pro
 export async function listAgentWorkItems(input: {
   status?: AgentWorkItemStatus | null
   ownerAgentKey?: string | null
+  sourceType?: string | null
+  metadataContains?: Record<string, unknown> | null
   limit?: number
 } = {}): Promise<AgentWorkItem[]> {
   let query = db()
@@ -224,6 +226,12 @@ export async function listAgentWorkItems(input: {
   }
   if (input.ownerAgentKey) {
     query = query.eq('owner_agent_key', input.ownerAgentKey)
+  }
+  if (input.sourceType) {
+    query = query.eq('source_type', input.sourceType)
+  }
+  if (input.metadataContains && Object.keys(input.metadataContains).length > 0) {
+    query = query.contains('metadata', input.metadataContains)
   }
 
   const { data, error } = await query
@@ -543,6 +551,22 @@ export async function updateAgentWorkItemStatus(input: {
     {
       type: 'agent_work_item_status_updated',
       message: input.note ?? `${item.title}: ${input.status}`,
+    },
+  )
+}
+
+export async function updateAgentWorkItemMetadata(input: {
+  id: string
+  metadata: Record<string, unknown>
+  note?: string | null
+}) {
+  const item = await requireAgentWorkItem(input.id)
+  return updateWorkItem(
+    item,
+    { metadata: input.metadata },
+    {
+      type: 'agent_work_item_metadata_updated',
+      message: input.note ?? `${item.title}: metadata updated`,
     },
   )
 }

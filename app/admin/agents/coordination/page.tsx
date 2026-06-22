@@ -9,6 +9,7 @@ import {
   BellRing,
   Bot,
   CheckCircle2,
+  FileSearch,
   GitPullRequest,
   MessageSquare,
   Network,
@@ -26,6 +27,10 @@ import type { AgentRuntime } from '@/lib/agent-run'
 import type { AgentWorkItem, AgentWorkItemStatus } from '@/lib/agent-work-items'
 import type { VercelResearchProposal } from '@/lib/vercel-deployment-research'
 import { VERCEL_AUTORESEARCH_DEFINITION_OF_READY, VERCEL_AUTORESEARCH_IDEA_SOURCE_TYPE } from '@/lib/vercel-autoresearch-ideas'
+import {
+  isSocialTopicTriggerWorkItem,
+  socialChannelLaneSummary,
+} from '@/lib/social-content-intelligence'
 
 const STATUSES: Array<'all' | AgentWorkItemStatus> = [
   'all',
@@ -271,6 +276,10 @@ function isN8nWorkflowProposal(item: AgentWorkItem) {
   return item.source_type === 'n8n_workflow_proposal' || item.metadata?.n8n_workflow_proposal === true
 }
 
+function isSocialTopicInsight(item: AgentWorkItem) {
+  return isSocialTopicTriggerWorkItem(item)
+}
+
 function textArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0) : []
 }
@@ -494,11 +503,12 @@ function AgentCoordinationContent() {
 
   const summary = useMemo(() => ({
     active: items.filter((item) => !['merged', 'deployed', 'cancelled'].includes(item.status)).length,
-    controllerOpen: items.filter((item) => !isTerminalWorkItem(item) && !isN8nWorkflowProposal(item)).length,
+    controllerOpen: items.filter((item) => !isTerminalWorkItem(item) && !isN8nWorkflowProposal(item) && !isSocialTopicInsight(item)).length,
     blocked: items.filter((item) => item.status === 'blocked').length,
     review: items.filter((item) => item.status === 'ready_for_review' || item.status === 'ready_for_merge').length,
     approvals: items.filter((item) => Boolean(item.approval_id)).length,
     n8nProposals: items.filter((item) => isN8nWorkflowProposal(item) && !isTerminalWorkItem(item)).length,
+    shakaInsights: items.filter((item) => isSocialTopicInsight(item) && !isTerminalWorkItem(item)).length,
   }), [items])
 
   const autoResearchIdeas = useMemo(() => {
@@ -509,7 +519,7 @@ function AgentCoordinationContent() {
 
   const controllerQueueItems = useMemo(() => {
     return items
-      .filter((item) => !isTerminalWorkItem(item) && !isN8nWorkflowProposal(item))
+      .filter((item) => !isTerminalWorkItem(item) && !isN8nWorkflowProposal(item) && !isSocialTopicInsight(item))
       .sort((a, b) => {
         const statusDelta = STATUS_RANK[a.status] - STATUS_RANK[b.status]
         if (statusDelta !== 0) return statusDelta
@@ -528,6 +538,17 @@ function AgentCoordinationContent() {
         if (priorityDelta !== 0) return priorityDelta
         return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
       })
+  }, [items])
+
+  const shakaSocialInsights = useMemo(() => {
+    return items
+      .filter((item) => isSocialTopicInsight(item) && !isTerminalWorkItem(item))
+      .sort((a, b) => {
+        const priorityDelta = PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority]
+        if (priorityDelta !== 0) return priorityDelta
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      })
+      .slice(0, 6)
   }, [items])
 
   const archiveTotalPages = Math.max(1, Math.ceil(items.length / ARCHIVE_PAGE_SIZE))
@@ -802,11 +823,12 @@ function AgentCoordinationContent() {
           </div>
         </header>
 
-        <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+        <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-5">
           <Metric label="Action required" value={summary.active} />
           <Metric label="Blocked" value={summary.blocked} tone={summary.blocked ? 'red' : 'slate'} />
           <Metric label="Review queue" value={summary.review} tone={summary.review ? 'yellow' : 'slate'} />
           <Metric label="n8n proposals" value={summary.n8nProposals} tone={summary.n8nProposals ? 'yellow' : 'slate'} />
+          <Metric label="Shaka insights" value={summary.shakaInsights} tone={summary.shakaInsights ? 'yellow' : 'slate'} />
         </div>
 
         <ControllerDecisionQueuePanel
@@ -831,6 +853,8 @@ function AgentCoordinationContent() {
             { type: 'work_item', id: workItem.id },
           )}
         />
+
+        <ShakaSocialInsightsPanel insights={shakaSocialInsights} />
 
         <VercelResearchApprovalPanel
           approvals={vercelResearchApprovals}
@@ -1252,6 +1276,91 @@ function ControllerDecisionQueuePanel({
                       {model.primaryIcon}
                       {model.primaryLabel}
                     </button>
+                  </div>
+                </div>
+              </article>
+            )
+          })}
+        </div>
+      )}
+    </section>
+  )
+}
+
+function ShakaSocialInsightsPanel({ insights }: { insights: AgentWorkItem[] }) {
+  return (
+    <section className="agent-ops-card mb-6 rounded-lg border border-blue-500/25 bg-blue-500/5 p-4">
+      <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-100">
+            <FileSearch size={16} />
+            Shaka social insights
+          </p>
+          <h2 className="mt-1 text-xl font-semibold">Central backlog for social topics</h2>
+          <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
+            These are channel-agnostic Agentic Dashboard work items. LinkedIn, YouTube Shorts, Instagram Reels, and thumbnail production pull from the same insight.
+          </p>
+        </div>
+        <Link
+          href="/admin/agents/content-intelligence"
+          className="inline-flex items-center justify-center gap-2 rounded-lg border border-blue-400/40 bg-blue-500/10 px-3 py-2 text-sm text-blue-100 hover:bg-blue-500/15"
+        >
+          Open Content Intelligence
+          <ArrowRight size={16} />
+        </Link>
+      </div>
+
+      {insights.length === 0 ? (
+        <div className="rounded-lg border border-silicon-slate/70 bg-background/40 p-4 text-sm text-muted-foreground">
+          No Shaka social insights are waiting in the central backlog.
+        </div>
+      ) : (
+        <div className="grid gap-3 lg:grid-cols-2">
+          {insights.map((item) => {
+            const metadata = recordValue(item.metadata)
+            const insight = recordValue(metadata?.insight)
+            const title = stringValue(insight?.title) ?? item.title
+            const trigger = stringValue(insight?.triggering_event)
+            const whyNow = stringValue(insight?.why_vambah_can_speak)
+            const lanes = socialChannelLaneSummary(item)
+            return (
+              <article key={item.id} className="rounded-lg border border-silicon-slate/70 bg-background/40 p-4">
+                <div className="flex flex-col gap-3">
+                  <div>
+                    <div className="mb-2 flex flex-wrap items-center gap-2">
+                      <StatusBadge status={item.status} />
+                      <span className="rounded-full border border-blue-400/30 bg-blue-500/10 px-2 py-0.5 text-xs text-blue-100">
+                        {item.priority} priority
+                      </span>
+                    </div>
+                    <h3 className="font-semibold">{title}</h3>
+                    {trigger ? (
+                      <p className="mt-1 text-sm leading-6 text-muted-foreground">{trigger}</p>
+                    ) : null}
+                    {whyNow ? (
+                      <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                        Why now: {whyNow}
+                      </p>
+                    ) : null}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {lanes.map((lane) => (
+                      <span
+                        key={lane.channel}
+                        className="rounded-full border border-silicon-slate/70 bg-silicon-slate/20 px-2 py-0.5 text-xs text-muted-foreground"
+                      >
+                        {lane.label}: {lane.status.replace(/_/g, ' ')}
+                      </span>
+                    ))}
+                  </div>
+                  <div>
+                    <Link
+                      href={`/admin/agents/social-insights/${item.id}`}
+                      className="inline-flex items-center gap-2 rounded-lg border border-blue-400/40 bg-blue-500/10 px-3 py-2 text-sm text-blue-100 hover:bg-blue-500/15"
+                    >
+                      Open channel tabs
+                      <ArrowRight size={16} />
+                    </Link>
                   </div>
                 </div>
               </article>

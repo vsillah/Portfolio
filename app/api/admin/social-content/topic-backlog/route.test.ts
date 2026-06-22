@@ -7,6 +7,9 @@ const mocks = vi.hoisted(() => ({
   from: vi.fn(),
   selectLimit: vi.fn(),
   updateSingle: vi.fn(),
+  getAgentWorkItem: vi.fn(),
+  listAgentWorkItems: vi.fn(),
+  updateAgentWorkItemMetadata: vi.fn(),
   runSocialTopicBacklogDiscovery: vi.fn(),
 }))
 
@@ -25,7 +28,59 @@ vi.mock('@/lib/social-topic-backlog', () => ({
   runSocialTopicBacklogDiscovery: mocks.runSocialTopicBacklogDiscovery,
 }))
 
+vi.mock('@/lib/agent-work-items', () => ({
+  getAgentWorkItem: mocks.getAgentWorkItem,
+  listAgentWorkItems: mocks.listAgentWorkItems,
+  updateAgentWorkItemMetadata: mocks.updateAgentWorkItemMetadata,
+}))
+
 import { GET, PATCH, POST } from './route'
+
+const centralWorkItem = {
+  id: 'work-topic-1',
+  title: 'Approval gates create trust',
+  objective: 'Make the case for governed AI work.',
+  status: 'proposed',
+  priority: 'high',
+  owner_agent_key: 'chief-of-staff',
+  owner_runtime: 'codex',
+  source_type: 'social_topic_trigger',
+  source_id: 'approval-gates-create-trust',
+  source_label: 'Shaka topic trigger',
+  source_run_id: null,
+  active_run_id: null,
+  parent_work_item_id: null,
+  branch_name: null,
+  worktree_path: null,
+  pr_number: null,
+  pr_url: null,
+  expected_files: [],
+  touched_files: [],
+  overlap_group: null,
+  dependency_ids: [],
+  blocker_summary: null,
+  validation_summary: null,
+  approval_id: null,
+  metadata: {
+    social_topic_trigger: true,
+    channel_lanes: {
+      linkedin: {
+        status: 'not_started',
+        label: 'LinkedIn',
+        required_inputs: ['post text'],
+      },
+    },
+    insight: {
+      title: 'Approval gates create trust',
+      triggering_event: 'A recent shipped feature made approval visible.',
+      why_vambah_can_speak: 'Vambah shipped the feature.',
+    },
+  },
+  idempotency_key: 'social-topic-trigger:approval-gates-create-trust',
+  created_at: '2026-06-22T12:00:00.000Z',
+  updated_at: '2026-06-22T12:00:00.000Z',
+  completed_at: null,
+}
 
 describe('/api/admin/social-content/topic-backlog', () => {
   beforeEach(() => {
@@ -55,6 +110,22 @@ describe('/api/admin/social-content/topic-backlog', () => {
       sourceCounts: { meeting: 1 },
       packet: { candidates: [{ id: 'topic-1' }] },
     })
+    mocks.listAgentWorkItems.mockResolvedValue([centralWorkItem])
+    mocks.getAgentWorkItem.mockResolvedValue(centralWorkItem)
+    mocks.updateAgentWorkItemMetadata.mockResolvedValue({
+      ...centralWorkItem,
+      metadata: {
+        ...centralWorkItem.metadata,
+        channel_lanes: {
+          linkedin: {
+            status: 'selected',
+            label: 'LinkedIn',
+            selected_for_content_id: 'social-1',
+            required_inputs: ['post text'],
+          },
+        },
+      },
+    })
     mocks.from.mockReturnValue({
       select: vi.fn(() => ({
         eq: vi.fn(() => ({
@@ -77,15 +148,19 @@ describe('/api/admin/social-content/topic-backlog', () => {
     const response = await GET(new NextRequest('http://localhost/api/admin/social-content/topic-backlog'))
 
     expect(response.status).toBe(200)
-    await expect(response.json()).resolves.toEqual({
+    await expect(response.json()).resolves.toMatchObject({
+      source: 'agent_work_items',
       items: [
         {
-          id: 'topic-1',
+          id: 'work-topic-1',
           title: 'Approval gates create trust',
           status: 'available',
         },
       ],
     })
+    expect(mocks.listAgentWorkItems).toHaveBeenCalledWith(expect.objectContaining({
+      sourceType: 'social_topic_trigger',
+    }))
   })
 
   it('requires admin auth before listing entries', async () => {
@@ -95,7 +170,7 @@ describe('/api/admin/social-content/topic-backlog', () => {
     const response = await GET(new NextRequest('http://localhost/api/admin/social-content/topic-backlog'))
 
     expect(response.status).toBe(401)
-    expect(mocks.from).not.toHaveBeenCalled()
+    expect(mocks.listAgentWorkItems).not.toHaveBeenCalled()
   })
 
   it('runs a manual backlog refresh without publish side effects', async () => {
@@ -124,7 +199,7 @@ describe('/api/admin/social-content/topic-backlog', () => {
     const response = await PATCH(new NextRequest('http://localhost/api/admin/social-content/topic-backlog', {
       method: 'PATCH',
       body: JSON.stringify({
-        id: 'topic-1',
+        id: 'work-topic-1',
         content_id: 'social-1',
         status: 'selected',
       }),
@@ -133,11 +208,17 @@ describe('/api/admin/social-content/topic-backlog', () => {
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toMatchObject({
       success: true,
+      source: 'agent_work_items',
       item: {
-        id: 'topic-1',
+        id: 'work-topic-1',
         status: 'selected',
-        selected_for_content_id: 'social-1',
       },
     })
+    expect(mocks.updateAgentWorkItemMetadata).toHaveBeenCalledWith(expect.objectContaining({
+      id: 'work-topic-1',
+      metadata: expect.objectContaining({
+        selected_for_social_content_id: 'social-1',
+      }),
+    }))
   })
 })

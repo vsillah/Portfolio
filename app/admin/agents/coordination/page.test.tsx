@@ -199,6 +199,51 @@ const workItems = [
     completed_at: null,
   },
   {
+    id: 'work-social-topic-1',
+    title: 'Approval gates create trust',
+    objective: 'Use a shipped Agent Ops approval gate to explain why AI needs accountable work paths.',
+    status: 'proposed',
+    priority: 'high',
+    owner_agent_key: 'chief-of-staff',
+    owner_runtime: 'codex',
+    source_type: 'social_topic_trigger',
+    source_id: 'approval-gates-create-trust',
+    source_label: 'Shaka topic trigger',
+    source_run_id: null,
+    active_run_id: null,
+    parent_work_item_id: null,
+    branch_name: null,
+    worktree_path: null,
+    pr_number: null,
+    pr_url: null,
+    expected_files: [],
+    touched_files: [],
+    overlap_group: 'social-content-intelligence',
+    dependency_ids: [],
+    blocker_summary: null,
+    validation_summary: null,
+    approval_id: null,
+    metadata: {
+      social_topic_trigger: true,
+      insight: {
+        title: 'Approval gates create trust',
+        triggering_event: 'The Social Content review flow now shows visible approval gates.',
+        why_vambah_can_speak: 'Vambah is building the operating layer and reviewing the content gates directly.',
+        sensitivity: 'public_safe',
+      },
+      channel_lanes: {
+        linkedin: { status: 'selected', label: 'LinkedIn', required_inputs: ['post text'] },
+        youtube_shorts: { status: 'not_started', label: 'YouTube Shorts', required_inputs: ['hook'] },
+        instagram_reels: { status: 'not_started', label: 'Instagram Reels', required_inputs: ['hook'] },
+        thumbnail: { status: 'not_started', label: 'Thumbnail', required_inputs: ['2-3 variants'] },
+      },
+    },
+    idempotency_key: 'social-topic-trigger:approval-gates-create-trust',
+    created_at: now,
+    updated_at: now,
+    completed_at: null,
+  },
+  {
     id: 'work-queue-3',
     title: 'Route standup room follow-up',
     objective: 'Convert the standup room follow-up into a bounded agent task.',
@@ -433,7 +478,10 @@ describe('AgentCoordinationPage decision queue controller', () => {
     expect(screen.getByRole('button', { name: /Validation handoff/ })).toBeInTheDocument()
     expect(screen.getByText('Objective: Package validation evidence so the captain can make a merge or handoff decision.')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Full work-item archive' })).toBeInTheDocument()
-    expect(screen.getByText('Showing 1-3 of 5')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Central backlog for social topics' })).toBeInTheDocument()
+    expect(screen.getAllByText('Approval gates create trust').length).toBeGreaterThan(0)
+    expect(screen.getByRole('link', { name: /Open channel tabs/ })).toHaveAttribute('href', '/admin/agents/social-insights/work-social-topic-1')
+    expect(screen.getByText('Showing 1-3 of 6')).toBeInTheDocument()
   })
 
   it('runs top controller decision actions with scoped Shaka context', async () => {
@@ -689,13 +737,13 @@ describe('AgentCoordinationPage decision queue controller', () => {
     expect(await screen.findByRole('heading', { name: 'Full work-item archive' })).toBeInTheDocument()
     const archive = screen.getByRole('heading', { name: 'Full work-item archive' }).closest('section')
     expect(archive).not.toBeNull()
-    expect(within(archive as HTMLElement).getByText('Showing 1-3 of 5')).toBeInTheDocument()
+    expect(within(archive as HTMLElement).getByText('Showing 1-3 of 6')).toBeInTheDocument()
     expect(within(archive as HTMLElement).getByLabelText('Status filters')).toBeInTheDocument()
     expect(within(archive as HTMLElement).queryByText('Route standup room follow-up')).not.toBeInTheDocument()
 
     fireEvent.click(within(archive as HTMLElement).getByRole('button', { name: 'Next' }))
 
-    expect(within(archive as HTMLElement).getByText('Showing 4-5 of 5')).toBeInTheDocument()
+    expect(within(archive as HTMLElement).getByText('Showing 4-6 of 6')).toBeInTheDocument()
     expect(within(archive as HTMLElement).getByText('Route standup room follow-up')).toBeInTheDocument()
   })
 
