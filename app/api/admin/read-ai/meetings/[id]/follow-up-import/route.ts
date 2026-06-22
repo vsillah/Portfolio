@@ -51,24 +51,30 @@ export async function POST(
   }
 
   try {
-    const result = await importReadAiFollowUp({
-      readAiMeetingId: params.id,
-      contactName,
-      contactEmail,
-      company: stringField(body.company) || null,
-      projectName: stringField(body.project_name ?? body.projectName) || null,
-      userId: authorized.userId,
-      draft: draftSubject && draftBody
-        ? {
-            subject: draftSubject,
-            body: draftBody,
-            gmailDraftId: stringField(body.gmail_draft_id ?? body.gmailDraftId) || null,
-            gmailThreadId: stringField(body.gmail_thread_id ?? body.gmailThreadId) || null,
-            gmailMessageId: stringField(body.gmail_message_id ?? body.gmailMessageId) || null,
-            sourceEmailThreadId: stringField(body.source_email_thread_id ?? body.sourceEmailThreadId) || null,
-          }
-        : null,
-    })
+    const meeting = body.meeting && typeof body.meeting === 'object'
+      ? body.meeting as Record<string, unknown>
+      : undefined
+    const result = await importReadAiFollowUp(
+      {
+        readAiMeetingId: params.id,
+        contactName,
+        contactEmail,
+        company: stringField(body.company) || null,
+        projectName: stringField(body.project_name ?? body.projectName) || null,
+        userId: authorized.userId,
+        draft: draftSubject && draftBody
+          ? {
+              subject: draftSubject,
+              body: draftBody,
+              gmailDraftId: stringField(body.gmail_draft_id ?? body.gmailDraftId) || null,
+              gmailThreadId: stringField(body.gmail_thread_id ?? body.gmailThreadId) || null,
+              gmailMessageId: stringField(body.gmail_message_id ?? body.gmailMessageId) || null,
+              sourceEmailThreadId: stringField(body.source_email_thread_id ?? body.sourceEmailThreadId) || null,
+            }
+          : null,
+      },
+      meeting ? { meeting } : undefined,
+    )
 
     return NextResponse.json({ success: true, result }, { status: 201 })
   } catch (error) {

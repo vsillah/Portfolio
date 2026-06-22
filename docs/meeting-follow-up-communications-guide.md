@@ -88,6 +88,8 @@ When Read.ai has the transcript but the Slack-triggered intake path misses it, u
 
 **Auth:** Admin session or `Authorization: Bearer <N8N_INGEST_SECRET>`.
 
+By default the app fetches the meeting from Read.ai using its stored integration token. If that app token is stale but another trusted workflow or connector already fetched the meeting, include a `meeting` object in the request body and the endpoint will import that supplied payload instead.
+
 **What it creates or updates:**
 
 - `contact_submissions`: creates or updates the contact by email, with `lead_source = warm_meeting` for new contacts.
@@ -108,7 +110,13 @@ When Read.ai has the transcript but the Slack-triggered intake path misses it, u
   "draft_body": "Hi Andrew,\n\nNeil and I reviewed the proof site...",
   "gmail_draft_id": "r-3368138120782057946",
   "gmail_thread_id": "19eefc89d9bc4c6b",
-  "source_email_thread_id": "19ea8770420bcb64"
+  "source_email_thread_id": "19ea8770420bcb64",
+  "meeting": {
+    "id": "01KVDTBWZYQ48J06DD303PAVGD",
+    "title": "Neil Rhein and Vambah Sillah",
+    "summary": "Optional pre-fetched Read.ai meeting payload when the app token should not be used.",
+    "action_items": ["Send FireSpring Round 1 feedback."]
+  }
 }
 ```
 

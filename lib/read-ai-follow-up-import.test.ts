@@ -48,6 +48,19 @@ describe('read-ai follow-up import helpers', () => {
     expect(text).toBe('Neil: The homepage images feel too boxed in.\nVambah: We can soften that.')
   })
 
+  it('normalizes transcript turns from the Read.ai connector shape', () => {
+    const text = normalizeReadAiTranscript({
+      transcript: {
+        turns: [
+          { speaker: { name: 'Neil Rhein' }, text: 'Can the theme support breadcrumbs?' },
+          { speaker: { name: 'Vambah Sillah' }, text: 'We should confirm that with FireSpring.' },
+        ],
+      },
+    })
+
+    expect(text).toBe('Neil Rhein: Can the theme support breadcrumbs?\nVambah Sillah: We should confirm that with FireSpring.')
+  })
+
   it('normalizes mixed Read.ai action item shapes', () => {
     expect(normalizeReadAiActionItems([
       'Send FireSpring the first revision packet.',
@@ -97,7 +110,7 @@ describe('read-ai follow-up import helpers', () => {
 
     expect(payload).toMatchObject({
       read_ai_meeting_id: '01KVDTBWZYQ48J06DD303PAVGD',
-      meeting_type: 'client_follow_up',
+      meeting_type: 'progress_checkin',
       meeting_date: '2026-06-18T14:00:00.000Z',
       duration_minutes: 45,
       transcript: 'Transcript text',

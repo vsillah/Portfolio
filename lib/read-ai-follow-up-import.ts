@@ -38,7 +38,7 @@ export interface ImportReadAiFollowUpResult {
 
 interface ImportReadAiFollowUpOptions {
   db?: DbClient
-  meeting?: ReadAiMeeting
+  meeting?: ReadAiMeeting | Record<string, unknown>
 }
 
 export function normalizeReadAiTranscript(meeting: ReadAiMeeting | Record<string, unknown>): string {
@@ -50,6 +50,7 @@ export function normalizeReadAiTranscript(meeting: ReadAiMeeting | Record<string
     if (typeof obj.text === 'string') return obj.text.trim()
     if (Array.isArray(obj.speaker_blocks)) return transcriptBlocksToText(obj.speaker_blocks)
     if (Array.isArray(obj.blocks)) return transcriptBlocksToText(obj.blocks)
+    if (Array.isArray(obj.turns)) return transcriptBlocksToText(obj.turns)
   }
   if (Array.isArray(transcript)) return transcriptBlocksToText(transcript)
   return ''
@@ -91,7 +92,7 @@ export function buildReadAiMeetingRecordPayload(
     contact_submission_id: null,
     client_project_id: null,
     read_ai_meeting_id: input.readAiMeetingId,
-    meeting_type: 'client_follow_up',
+    meeting_type: 'progress_checkin',
     meeting_date: meetingDate,
     duration_minutes: durationMinutes,
     transcript: normalizeReadAiTranscript(meeting),
@@ -366,7 +367,10 @@ function transcriptBlocksToText(blocks: unknown[]): string {
     if (!block || typeof block !== 'object') return []
 
     const obj = block as Record<string, unknown>
-    const speaker = stringValue(obj.speaker_name ?? obj.speaker ?? obj.name)
+    const speakerObj = obj.speaker && typeof obj.speaker === 'object'
+      ? obj.speaker as Record<string, unknown>
+      : null
+    const speaker = stringValue(obj.speaker_name ?? speakerObj?.name ?? obj.speaker ?? obj.name)
     const text = stringValue(obj.text ?? obj.transcript)
       || (Array.isArray(obj.words)
         ? obj.words.map((word) => stringValue((word as Record<string, unknown>)?.text ?? word)).filter(Boolean).join(' ')
