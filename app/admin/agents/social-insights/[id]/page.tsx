@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import {
+  AlertCircle,
   CheckCircle2,
   FileText,
   Image as ImageIcon,
@@ -12,6 +13,7 @@ import {
   MessageSquare,
   RefreshCw,
   ShieldAlert,
+  XCircle,
   Youtube,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
@@ -21,6 +23,7 @@ import type { AgentWorkItem } from '@/lib/agent-work-items'
 import {
   SOCIAL_CONTENT_INTELLIGENCE_CHANNELS,
   type SocialContentIntelligenceChannel,
+  type SocialChannelLaneStatus,
 } from '@/lib/social-content-intelligence'
 
 type ChannelLane = {
@@ -56,6 +59,14 @@ function asStringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
 }
 
+function statusLabel(status: string) {
+  return status.replace(/_/g, ' ')
+}
+
+function decisionLabel(status: SocialChannelLaneStatus) {
+  return status === 'blocked' ? 'rejected' : statusLabel(status)
+}
+
 function lanesFor(item: AgentWorkItem | null): Record<SocialContentIntelligenceChannel, ChannelLane> {
   const metadata = item?.metadata ?? {}
   const lanes = asRecord(metadata.channel_lanes)
@@ -85,12 +96,21 @@ function SocialInsightDetailContent() {
   const [activeTab, setActiveTab] = useState<SocialContentIntelligenceChannel>('linkedin')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [decisionNote, setDecisionNote] = useState('')
+  const [savingLane, setSavingLane] = useState<SocialChannelLaneStatus | null>(null)
+  const [laneNotice, setLaneNotice] = useState<string | null>(null)
 
-  const authedFetch = useCallback(async (path: string) => {
+  const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
     if (!session?.access_token) throw new Error('Missing admin session')
+    const headers = new Headers(init.headers)
+    headers.set('Authorization', `Bearer ${session.access_token}`)
+    if (init.body && !headers.has('Content-Type')) {
+      headers.set('Content-Type', 'application/json')
+    }
     return fetch(path, {
-      headers: { Authorization: `Bearer ${session.access_token}` },
+      ...init,
+      headers,
     })
   }, [])
 
@@ -118,6 +138,44 @@ function SocialInsightDetailContent() {
   const insight = asRecord(metadata.insight)
   const lanes = useMemo(() => lanesFor(item), [item])
   const activeLane = lanes[activeTab]
+
+  useEffect(() => {
+    setDecisionNote(activeLane?.decision_note ?? '')
+  }, [activeLane?.decision_note, activeTab])
+
+  useEffect(() => {
+    setLaneNotice(null)
+  }, [activeTab])
+
+  const updateLane = useCallback(async (status: SocialChannelLaneStatus) => {
+    setError(null)
+    setLaneNotice(null)
+
+    const note = decisionNote.trim()
+    if (status === 'blocked' && !note) {
+      setError('Add a decision note before rejecting a channel lane.')
+      return
+    }
+
+    setSavingLane(status)
+    try {
+      const response = await authedFetch(`/api/admin/agents/work-items/${id}/social-channels/${activeTab}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          status,
+          decision_note: note || null,
+        }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `Lane update HTTP ${response.status}`)
+      setItem(body.work_item ?? null)
+      setLaneNotice(`${CHANNEL_LABELS[activeTab]} lane marked ${decisionLabel(status)}.`)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update channel lane')
+    } finally {
+      setSavingLane(null)
+    }
+  }, [activeTab, authedFetch, decisionNote, id])
 
   return (
     <div className="agent-ops-page min-h-screen p-5 text-foreground lg:p-7">
@@ -212,7 +270,7 @@ function SocialInsightDetailContent() {
                     {CHANNEL_ICONS[channel]}
                     {CHANNEL_LABELS[channel]}
                     <span className="rounded-full border border-current/30 px-2 py-0.5 text-[10px]">
-                      {lanes[channel].status.replace(/_/g, ' ')}
+                      {statusLabel(lanes[channel].status)}
                     </span>
                   </button>
                 ))}
@@ -228,18 +286,66 @@ function SocialInsightDetailContent() {
                   </div>
                   <span className="inline-flex w-fit items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-100">
                     <CheckCircle2 className="h-3.5 w-3.5" />
-                    {activeLane.status.replace(/_/g, ' ')}
+                    {statusLabel(activeLane.status)}
                   </span>
                 </div>
 
                 <ChannelInputs channel={activeTab} lane={activeLane} insight={insight} />
 
-                {activeLane.decision_note ? (
-                  <div className="mt-4 rounded-lg border border-silicon-slate/70 bg-background/45 p-3">
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground">Decision note</p>
-                    <p className="mt-1 text-sm leading-6">{activeLane.decision_note}</p>
+                <div className="mt-4 rounded-lg border border-silicon-slate/70 bg-background/45 p-3">
+                  <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Lane decision</p>
+                      <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                        Updates this channel lane only. No draft, render, upload, schedule, or publish action runs here.
+                      </p>
+                    </div>
+                    {laneNotice ? (
+                      <span className="inline-flex w-fit rounded-full border border-emerald-500/35 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-100">
+                        {laneNotice}
+                      </span>
+                    ) : null}
                   </div>
-                ) : null}
+                  <label className="mt-3 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Decision note
+                    <textarea
+                      value={decisionNote}
+                      onChange={(event) => setDecisionNote(event.target.value)}
+                      rows={3}
+                      placeholder="What should Shaka or the production agent change before this lane moves forward?"
+                      className="mt-2 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+                    />
+                  </label>
+                  <div className="mt-3 flex flex-col gap-2 md:flex-row md:justify-end">
+                    <button
+                      type="button"
+                      onClick={() => updateLane('in_review')}
+                      disabled={savingLane !== null}
+                      className="agent-ops-button-secondary disabled:opacity-60"
+                    >
+                      <AlertCircle size={16} />
+                      {savingLane === 'in_review' ? 'Updating...' : 'Return to Review'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updateLane('blocked')}
+                      disabled={savingLane !== null}
+                      className="inline-flex items-center justify-center gap-2 rounded-lg border border-red-500/45 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-100 transition hover:bg-red-500/15 disabled:opacity-60"
+                    >
+                      <XCircle size={16} />
+                      {savingLane === 'blocked' ? 'Rejecting...' : activeLane.status === 'blocked' ? 'Rejected' : 'Reject Lane'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updateLane('approved')}
+                      disabled={savingLane !== null}
+                      className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-500/45 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/15 disabled:opacity-60"
+                    >
+                      <CheckCircle2 size={16} />
+                      {savingLane === 'approved' ? 'Approving...' : activeLane.status === 'approved' ? 'Approved' : 'Approve Lane'}
+                    </button>
+                  </div>
+                </div>
               </div>
             </section>
           </div>
