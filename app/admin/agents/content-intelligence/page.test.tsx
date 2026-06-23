@@ -41,6 +41,86 @@ describe('ContentIntelligencePage', () => {
           }),
         }
       }
+      if (url.startsWith('/api/admin/social-content/intelligence/daily-digest')) {
+        return {
+          ok: true,
+          json: async () => ({
+            digest: {
+              generated_at: '2026-06-23T12:00:00.000Z',
+              lookback_days: 5,
+              summary: {
+                new_research_packets: 1,
+                usable_patterns: 1,
+                shaka_insights: 1,
+                blocked_or_sensitive_items: 1,
+              },
+              strongest_patterns: [
+                {
+                  packet_id: 'packet-1',
+                  title: 'Outlier research process',
+                  source_url: 'https://youtube.com/watch?v=abc',
+                  platform: 'youtube',
+                  creator: 'Creator',
+                  outlier_score: 87,
+                  pattern_status: 'needs_brand_translation',
+                  hook_structure: 'The first 30 seconds make the promise clear.',
+                  promise_value: 'Clear public research process',
+                  thumbnail_pattern: 'High contrast proof frame.',
+                },
+              ],
+              recommended_insights: [
+                {
+                  work_item_id: 'work-social-1',
+                  title: 'Approval gates create trust',
+                  status: 'proposed',
+                  priority: 'high',
+                  triggering_event: 'A shipped review gate changed the work.',
+                  why_vambah_can_speak: 'Vambah built the system.',
+                  sensitivity: 'needs_review',
+                },
+              ],
+              suggested_channel_lanes: [
+                {
+                  work_item_id: 'work-social-1',
+                  insight_title: 'Approval gates create trust',
+                  channel: 'youtube_shorts',
+                  label: 'YouTube Shorts',
+                  status: 'not_started',
+                  required_inputs: ['hook', 'script'],
+                },
+              ],
+              thumbnail_opportunities: [
+                {
+                  packet_id: 'packet-1',
+                  title: 'Outlier research process',
+                  thumbnail_pattern: 'High contrast proof frame.',
+                },
+              ],
+              blocked_or_sensitive_items: [
+                {
+                  type: 'shaka_insight',
+                  id: 'work-social-1',
+                  title: 'Approval gates create trust',
+                  reason: 'needs_review',
+                },
+              ],
+              governance: {
+                schedule_activation: 'approval_required',
+                apify_collection: 'approval_required',
+                publishing: 'approval_required',
+              },
+              side_effects: {
+                provider_generation: false,
+                upload: false,
+                publish: false,
+                schedule: false,
+                external_post: false,
+                apify_run: false,
+              },
+            },
+          }),
+        }
+      }
       if (url.startsWith('/api/admin/social-content/intelligence/research-packets')) {
         return {
           ok: true,
@@ -105,10 +185,15 @@ describe('ContentIntelligencePage', () => {
     expect(screen.getByRole('heading', { name: 'Free-first evidence layer' })).toBeInTheDocument()
     expect(screen.getByText('Recorded public evidence from Codex/browser review. Cost: $0.')).toBeInTheDocument()
     expect(screen.getByText('pintostudio/youtube-transcript-scraper only after cost approval')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'What Shaka should review next' })).toBeInTheDocument()
+    expect(screen.getByText('Schedule: approval required')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Strongest patterns' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Channel lanes' })).toBeInTheDocument()
+    expect(screen.getByText('YouTube Shorts: Approval gates create trust')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Add recorded public evidence' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Link pattern to Shaka insight' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Outlier research process' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Approval gates create trust/ })).toHaveAttribute('href', '/admin/agents/social-insights/work-social-1')
+    expect(screen.getAllByRole('link', { name: /Approval gates create trust/ }).map((link) => link.getAttribute('href'))).toContain('/admin/agents/social-insights/work-social-1')
   })
 
   it('stores recorded evidence without paid scraper fields', async () => {

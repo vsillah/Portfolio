@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { type FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import {
   BarChart3,
+  CalendarDays,
   CheckCircle2,
   Database,
   ExternalLink,
@@ -49,6 +50,59 @@ type EvidenceForm = {
   comments: string
   follower_count: string
   retrieval_notes: string
+}
+
+type DailyDigest = {
+  generated_at: string
+  lookback_days: number
+  summary: {
+    new_research_packets: number
+    usable_patterns: number
+    shaka_insights: number
+    blocked_or_sensitive_items: number
+  }
+  strongest_patterns: Array<{
+    packet_id: string
+    title: string
+    source_url: string
+    platform: string
+    creator: string | null
+    outlier_score: number
+    pattern_status: string
+    hook_structure: string | null
+    promise_value: string | null
+    thumbnail_pattern: string | null
+  }>
+  recommended_insights: Array<{
+    work_item_id: string
+    title: string
+    status: string
+    priority: string
+    triggering_event: string | null
+    why_vambah_can_speak: string | null
+    sensitivity: string
+  }>
+  suggested_channel_lanes: Array<{
+    work_item_id: string
+    insight_title: string
+    channel: string
+    label: string
+    status: string
+    required_inputs: string[]
+  }>
+  thumbnail_opportunities: Array<{
+    packet_id: string
+    title: string
+    thumbnail_pattern: string | null
+  }>
+  blocked_or_sensitive_items: Array<{
+    type: string
+    id: string
+    title: string
+    reason: string
+  }>
+  governance: Record<string, string>
+  side_effects: Record<string, boolean>
 }
 
 const EMPTY_EVIDENCE_FORM: EvidenceForm = {
@@ -120,6 +174,7 @@ function ContentIntelligenceContent() {
   const [linkDecisionNote, setLinkDecisionNote] = useState('')
   const [linkingPattern, setLinkingPattern] = useState(false)
   const [linkNotice, setLinkNotice] = useState<string | null>(null)
+  const [digest, setDigest] = useState<DailyDigest | null>(null)
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -139,20 +194,25 @@ function ContentIntelligenceContent() {
     setLoading(true)
     setError(null)
     try {
-      const [packetResponse, insightResponse] = await Promise.all([
+      const [packetResponse, insightResponse, digestResponse] = await Promise.all([
         authedFetch('/api/admin/social-content/intelligence/research-packets?limit=12'),
         authedFetch('/api/admin/agents/work-items?source_type=social_topic_trigger&limit=12'),
+        authedFetch('/api/admin/social-content/intelligence/daily-digest?lookback_days=5&limit=12'),
       ])
       const packetBody = await packetResponse.json().catch(() => ({}))
       const insightBody = await insightResponse.json().catch(() => ({}))
+      const digestBody = await digestResponse.json().catch(() => ({}))
       if (!packetResponse.ok) throw new Error(packetBody.error || `Research packets HTTP ${packetResponse.status}`)
       if (!insightResponse.ok) throw new Error(insightBody.error || `Insights HTTP ${insightResponse.status}`)
+      if (!digestResponse.ok) throw new Error(digestBody.error || `Digest HTTP ${digestResponse.status}`)
       setPackets(Array.isArray(packetBody.packets) ? packetBody.packets : [])
       setInsights(Array.isArray(insightBody.work_items) ? insightBody.work_items : [])
+      setDigest(digestBody.digest ?? null)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load Content Intelligence')
       setPackets([])
       setInsights([])
+      setDigest(null)
     } finally {
       setLoading(false)
     }
@@ -298,6 +358,90 @@ function ContentIntelligenceContent() {
           <MetricCard label="Top outlier score" value={strongestPacket ? Math.round(Number(strongestPacket.outlier_score)) : 0} />
           <MetricCard label="Paid scraper runs" value={0} tone="amber" />
         </div>
+
+        <section className="agent-ops-card mb-6 rounded-lg border p-4">
+          <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <div className="agent-ops-eyebrow mb-2">
+                <CalendarDays size={16} />
+                Daily review digest
+              </div>
+              <h2 className="text-lg font-semibold">What Shaka should review next</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Read-only digest from public research and central backlog items. Activation, drafting, media generation, upload, schedule, and publish gates stay locked.
+              </p>
+            </div>
+            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-500/35 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-100">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              No side effects
+            </span>
+          </div>
+          {digest ? (
+            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,0.45fr)]">
+              <div className="grid gap-3 md:grid-cols-4">
+                <DigestMetric label="New research" value={digest.summary.new_research_packets} />
+                <DigestMetric label="Usable patterns" value={digest.summary.usable_patterns} />
+                <DigestMetric label="Insights" value={digest.summary.shaka_insights} />
+                <DigestMetric label="Blocked/privacy" value={digest.summary.blocked_or_sensitive_items} tone="amber" />
+              </div>
+              <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-3">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Governance</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <DigestPill label="Schedule" value={digest.governance.schedule_activation} />
+                  <DigestPill label="Apify" value={digest.governance.apify_collection} />
+                  <DigestPill label="Publish" value={digest.governance.publishing} />
+                </div>
+              </div>
+              <DigestList
+                title="Strongest patterns"
+                empty="No usable patterns in the current lookback."
+                items={digest.strongest_patterns.map((pattern) => ({
+                  id: pattern.packet_id,
+                  title: pattern.title,
+                  detail: pattern.hook_structure ?? pattern.promise_value ?? pattern.pattern_status,
+                  href: pattern.source_url,
+                  meta: `Outlier ${Math.round(Number(pattern.outlier_score))}`,
+                }))}
+              />
+              <DigestList
+                title="Recommended insights"
+                empty="No Shaka insight backlog items found."
+                items={digest.recommended_insights.map((insight) => ({
+                  id: insight.work_item_id,
+                  title: insight.title,
+                  detail: insight.why_vambah_can_speak ?? insight.triggering_event ?? insight.sensitivity,
+                  href: `/admin/agents/social-insights/${insight.work_item_id}`,
+                  meta: insight.status.replace(/_/g, ' '),
+                }))}
+              />
+              <DigestList
+                title="Channel lanes"
+                empty="No channel lane suggestions yet."
+                items={digest.suggested_channel_lanes.slice(0, 4).map((lane) => ({
+                  id: `${lane.work_item_id}-${lane.channel}`,
+                  title: `${lane.label}: ${lane.insight_title}`,
+                  detail: lane.required_inputs.join(', '),
+                  href: `/admin/agents/social-insights/${lane.work_item_id}`,
+                  meta: lane.status.replace(/_/g, ' '),
+                }))}
+              />
+              <DigestList
+                title="Thumbnail opportunities"
+                empty="No thumbnail opportunities in the current lookback."
+                items={digest.thumbnail_opportunities.map((item) => ({
+                  id: item.packet_id,
+                  title: item.title,
+                  detail: item.thumbnail_pattern ?? 'Review source thumbnail pattern.',
+                  meta: 'thumbnail',
+                }))}
+              />
+            </div>
+          ) : (
+            <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-4 py-8 text-center text-sm text-muted-foreground">
+              {loading ? 'Loading daily digest...' : 'Daily digest is not available yet.'}
+            </div>
+          )}
+        </section>
 
         <section className="agent-ops-card mb-6 rounded-lg border p-4">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -570,6 +714,67 @@ function MetricCard({ label, value, tone = 'slate' }: { label: string; value: nu
     <div className={`rounded-lg border p-4 ${tone === 'amber' ? 'border-amber-500/30 bg-amber-500/10' : 'border-silicon-slate/70 bg-silicon-slate/20'}`}>
       <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
       <p className="mt-2 text-2xl font-semibold">{value}</p>
+    </div>
+  )
+}
+
+function DigestMetric({ label, value, tone = 'slate' }: { label: string; value: number; tone?: 'slate' | 'amber' }) {
+  return (
+    <div className={`rounded-lg border p-3 ${tone === 'amber' ? 'border-amber-500/30 bg-amber-500/10' : 'border-silicon-slate/70 bg-background/40'}`}>
+      <p className="text-[0.68rem] uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="mt-1 text-xl font-semibold">{value}</p>
+    </div>
+  )
+}
+
+function DigestPill({ label, value }: { label: string; value: string }) {
+  return (
+    <span className="inline-flex rounded-full border border-amber-500/35 bg-amber-500/10 px-2.5 py-1 text-xs text-amber-100">
+      {label}: {value.replace(/_/g, ' ')}
+    </span>
+  )
+}
+
+function DigestList({
+  title,
+  empty,
+  items,
+}: {
+  title: string
+  empty: string
+  items: Array<{ id: string; title: string; detail: string | null; meta?: string; href?: string }>
+}) {
+  return (
+    <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-3">
+      <h3 className="text-sm font-semibold">{title}</h3>
+      <div className="mt-3 space-y-2">
+        {items.length ? items.map((item) => {
+          const body = (
+            <>
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-sm font-medium">{item.title}</p>
+                {item.meta ? (
+                  <span className="shrink-0 rounded-full border border-silicon-slate/70 px-2 py-0.5 text-[0.68rem] text-muted-foreground">
+                    {item.meta}
+                  </span>
+                ) : null}
+              </div>
+              {item.detail ? <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">{item.detail}</p> : null}
+            </>
+          )
+          return item.href ? (
+            <Link key={item.id} href={item.href} className="block rounded-md border border-silicon-slate/60 bg-background/35 p-2 transition hover:border-radiant-gold/45">
+              {body}
+            </Link>
+          ) : (
+            <div key={item.id} className="rounded-md border border-silicon-slate/60 bg-background/35 p-2">
+              {body}
+            </div>
+          )
+        }) : (
+          <p className="rounded-md border border-silicon-slate/60 bg-background/35 p-3 text-xs text-muted-foreground">{empty}</p>
+        )}
+      </div>
     </div>
   )
 }
