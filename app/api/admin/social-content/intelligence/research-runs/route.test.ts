@@ -98,7 +98,6 @@ describe('/api/admin/social-content/intelligence/research-runs', () => {
             platform: 'unsupported-network',
             title: '  Public pattern  ',
             pattern_status: 'copy_source',
-            retrieval_method: 'private_scrape',
             pattern_packet: {
               hook_structure: 'Start with the customer tension.',
             },
