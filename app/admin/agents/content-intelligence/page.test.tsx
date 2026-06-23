@@ -25,6 +25,22 @@ describe('ContentIntelligencePage', () => {
           json: async () => ({ packets: [{ id: 'packet-new' }], run: { mode: 'recorded_evidence' } }),
         }
       }
+      if (url === '/api/admin/agents/work-items/work-social-1/research-packets') {
+        return {
+          ok: true,
+          json: async () => ({
+            success: true,
+            linked_packet_ids: ['packet-1'],
+            side_effects: {
+              provider_generation: false,
+              upload: false,
+              publish: false,
+              schedule: false,
+              external_post: false,
+            },
+          }),
+        }
+      }
       if (url.startsWith('/api/admin/social-content/intelligence/research-packets')) {
         return {
           ok: true,
@@ -90,8 +106,8 @@ describe('ContentIntelligencePage', () => {
     expect(screen.getByText('Recorded public evidence from Codex/browser review. Cost: $0.')).toBeInTheDocument()
     expect(screen.getByText('pintostudio/youtube-transcript-scraper only after cost approval')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Add recorded public evidence' })).toBeInTheDocument()
-    expect(screen.getByText('Outlier research process')).toBeInTheDocument()
-    expect(screen.getByText('Approval gates create trust')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Link pattern to Shaka insight' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Outlier research process' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Approval gates create trust/ })).toHaveAttribute('href', '/admin/agents/social-insights/work-social-1')
   })
 
@@ -135,6 +151,27 @@ describe('ContentIntelligencePage', () => {
 
     await waitFor(() => {
       expect(vi.mocked(fetch).mock.calls.filter(([input]) => String(input).startsWith('/api/admin/social-content/intelligence/research-packets'))).toHaveLength(2)
+    })
+  })
+
+  it('links a research pattern to a central Shaka insight without production side effects', async () => {
+    render(<ContentIntelligencePage />)
+
+    await screen.findByRole('heading', { name: 'Link pattern to Shaka insight' })
+
+    fireEvent.change(screen.getByLabelText('Decision note'), {
+      target: { value: 'Use the structure, not the source wording.' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Link Pattern' }))
+
+    await screen.findByText('Research pattern linked to Shaka insight.')
+
+    const linkCall = vi.mocked(fetch).mock.calls.find(([input]) => String(input) === '/api/admin/agents/work-items/work-social-1/research-packets')
+    expect(linkCall).toBeTruthy()
+    expect(linkCall?.[1]).toMatchObject({ method: 'POST' })
+    expect(JSON.parse(String(linkCall?.[1]?.body))).toEqual({
+      packet_ids: ['packet-1'],
+      decision_note: 'Use the structure, not the source wording.',
     })
   })
 })
