@@ -41,6 +41,29 @@ describe('ContentIntelligencePage', () => {
           }),
         }
       }
+      if (url === '/api/admin/social-content/intelligence/daily-digest/activation-request') {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            work_item: {
+              id: 'work-digest-activation',
+              title: 'Approve daily Social Content Intelligence digest activation',
+            },
+            activation_requested: true,
+            activation_executed: false,
+            side_effects: {
+              cron_activated: false,
+              apify_run: false,
+              provider_generation: false,
+              upload: false,
+              schedule: false,
+              publish: false,
+              external_post: false,
+            },
+          }),
+        }
+      }
       if (url.startsWith('/api/admin/social-content/intelligence/daily-digest')) {
         return {
           ok: true,
@@ -187,6 +210,7 @@ describe('ContentIntelligencePage', () => {
     expect(screen.getByText('pintostudio/youtube-transcript-scraper only after cost approval')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'What Shaka should review next' })).toBeInTheDocument()
     expect(screen.getByText('Schedule: approval required')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Request Daily Activation Review' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Strongest patterns' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Channel lanes' })).toBeInTheDocument()
     expect(screen.getByText('YouTube Shorts: Approval gates create trust')).toBeInTheDocument()
@@ -257,6 +281,28 @@ describe('ContentIntelligencePage', () => {
     expect(JSON.parse(String(linkCall?.[1]?.body))).toEqual({
       packet_ids: ['packet-1'],
       decision_note: 'Use the structure, not the source wording.',
+    })
+  })
+
+  it('requests daily digest activation review without enabling the schedule', async () => {
+    render(<ContentIntelligencePage />)
+
+    await screen.findByRole('heading', { name: 'What Shaka should review next' })
+
+    fireEvent.change(screen.getByLabelText('Activation review note'), {
+      target: { value: 'Start with free public research and Shaka internal triggers.' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Request Daily Activation Review' }))
+
+    await screen.findByText('Daily activation review added to Agentic Dashboard backlog.')
+
+    const activationCall = vi.mocked(fetch).mock.calls.find(([input]) => String(input) === '/api/admin/social-content/intelligence/daily-digest/activation-request')
+    expect(activationCall).toBeTruthy()
+    expect(activationCall?.[1]).toMatchObject({ method: 'POST' })
+    expect(JSON.parse(String(activationCall?.[1]?.body))).toEqual({
+      cadence: 'daily',
+      lookback_days: 5,
+      scope_note: 'Start with free public research and Shaka internal triggers.',
     })
   })
 })

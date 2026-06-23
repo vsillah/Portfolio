@@ -175,6 +175,9 @@ function ContentIntelligenceContent() {
   const [linkingPattern, setLinkingPattern] = useState(false)
   const [linkNotice, setLinkNotice] = useState<string | null>(null)
   const [digest, setDigest] = useState<DailyDigest | null>(null)
+  const [activationScopeNote, setActivationScopeNote] = useState('')
+  const [requestingActivation, setRequestingActivation] = useState(false)
+  const [activationNotice, setActivationNotice] = useState<string | null>(null)
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -315,6 +318,31 @@ function ContentIntelligenceContent() {
     }
   }, [authedFetch, linkDecisionNote, load, selectedInsightId, selectedPacketId])
 
+  const requestDailyActivationReview = useCallback(async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setError(null)
+    setActivationNotice(null)
+    setRequestingActivation(true)
+    try {
+      const response = await authedFetch('/api/admin/social-content/intelligence/daily-digest/activation-request', {
+        method: 'POST',
+        body: JSON.stringify({
+          cadence: 'daily',
+          lookback_days: digest?.lookback_days ?? 5,
+          scope_note: activationScopeNote.trim() || null,
+        }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `Activation request HTTP ${response.status}`)
+      setActivationScopeNote('')
+      setActivationNotice('Daily activation review added to Agentic Dashboard backlog.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to request daily activation review')
+    } finally {
+      setRequestingActivation(false)
+    }
+  }, [activationScopeNote, authedFetch, digest?.lookback_days])
+
   return (
     <div className="agent-ops-page min-h-screen p-5 text-foreground lg:p-7">
       <div className="mx-auto max-w-7xl">
@@ -376,6 +404,36 @@ function ContentIntelligenceContent() {
               No side effects
             </span>
           </div>
+          <form onSubmit={requestDailyActivationReview} className="mb-4 rounded-lg border border-radiant-gold/35 bg-radiant-gold/10 p-3">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
+              <label className="min-w-0 flex-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Activation review note
+                <input
+                  type="text"
+                  value={activationScopeNote}
+                  onChange={(event) => setActivationScopeNote(event.target.value)}
+                  placeholder="Optional scope guidance before Shaka reviews the daily run."
+                  className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+                />
+              </label>
+              <button
+                type="submit"
+                disabled={requestingActivation}
+                className="agent-ops-button-primary shrink-0 disabled:opacity-60"
+              >
+                <CheckCircle2 size={16} />
+                {requestingActivation ? 'Requesting...' : 'Request Daily Activation Review'}
+              </button>
+            </div>
+            <p className="mt-2 text-xs leading-5 text-muted-foreground">
+              Creates a backlog review item only. Cron activation, Apify collection, drafting, media, uploads, scheduling, and publishing remain locked.
+            </p>
+            {activationNotice ? (
+              <p className="mt-2 rounded-md border border-emerald-500/35 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-100">
+                {activationNotice}
+              </p>
+            ) : null}
+          </form>
           {digest ? (
             <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,0.45fr)]">
               <div className="grid gap-3 md:grid-cols-4">
