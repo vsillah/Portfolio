@@ -59,6 +59,10 @@ function asStringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
 }
 
+function asRecordArray(value: unknown): Record<string, unknown>[] {
+  return Array.isArray(value) ? value.map((item) => asRecord(item)).filter((item) => Object.keys(item).length > 0) : []
+}
+
 function statusLabel(status: string) {
   return status.replace(/_/g, ' ')
 }
@@ -136,6 +140,7 @@ function SocialInsightDetailContent() {
 
   const metadata = item?.metadata ?? {}
   const insight = asRecord(metadata.insight)
+  const approvedResearchPatterns = asRecordArray(insight.approved_research_patterns)
   const lanes = useMemo(() => lanesFor(item), [item])
   const activeLane = lanes[activeTab]
 
@@ -250,6 +255,18 @@ function SocialInsightDetailContent() {
                   <p className="text-sm text-muted-foreground">No claim boundaries recorded yet.</p>
                 )}
               </div>
+              <div className="mt-4 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-3">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Approved research patterns</p>
+                {approvedResearchPatterns.length ? (
+                  <div className="mt-3 space-y-3">
+                    {approvedResearchPatterns.map((pattern) => (
+                      <ResearchPatternCard key={asString(pattern.packet_id) || asString(pattern.source_url)} pattern={pattern} />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-2 text-sm text-muted-foreground">No public research patterns linked yet.</p>
+                )}
+              </div>
             </section>
 
             <section className="agent-ops-card rounded-lg border p-4">
@@ -356,6 +373,44 @@ function SocialInsightDetailContent() {
         )}
       </div>
     </div>
+  )
+}
+
+function ResearchPatternCard({ pattern }: { pattern: Record<string, unknown> }) {
+  const patternPacket = asRecord(pattern.pattern_packet)
+  const title = asString(pattern.title) || asString(pattern.source_url) || 'Research pattern'
+  const hook = asString(patternPacket.hook_structure)
+  const promise = asString(patternPacket.promise_value)
+  const thumbnail = asString(patternPacket.thumbnail_pattern)
+  return (
+    <article className="rounded-lg border border-silicon-slate/70 bg-background/45 p-3">
+      <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <p className="text-sm font-semibold">{title}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {asString(pattern.platform).replace(/_/g, ' ')} · {asString(pattern.creator_name) || asString(pattern.creator_handle) || 'Creator unknown'}
+          </p>
+        </div>
+        <span className="inline-flex w-fit rounded-full border border-radiant-gold/35 bg-radiant-gold/10 px-2 py-0.5 text-xs text-radiant-gold">
+          Outlier {Math.round(Number(pattern.outlier_score ?? 0))}
+        </span>
+      </div>
+      <div className="mt-3 space-y-2 text-sm leading-6 text-muted-foreground">
+        {hook ? <p>Hook: {hook}</p> : null}
+        {promise ? <p>Promise: {promise}</p> : null}
+        {thumbnail ? <p>Thumbnail: {thumbnail}</p> : null}
+      </div>
+      {asString(pattern.source_url) ? (
+        <a
+          href={asString(pattern.source_url)}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-3 inline-flex text-xs text-blue-200 hover:text-blue-100"
+        >
+          Open source
+        </a>
+      ) : null}
+    </article>
   )
 }
 

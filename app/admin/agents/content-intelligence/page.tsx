@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { type FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import {
   BarChart3,
+  CheckCircle2,
   Database,
   ExternalLink,
   FileSearch,
@@ -114,6 +115,11 @@ function ContentIntelligenceContent() {
   const [evidenceForm, setEvidenceForm] = useState<EvidenceForm>(EMPTY_EVIDENCE_FORM)
   const [submittingEvidence, setSubmittingEvidence] = useState(false)
   const [evidenceNotice, setEvidenceNotice] = useState<string | null>(null)
+  const [selectedPacketId, setSelectedPacketId] = useState('')
+  const [selectedInsightId, setSelectedInsightId] = useState('')
+  const [linkDecisionNote, setLinkDecisionNote] = useState('')
+  const [linkingPattern, setLinkingPattern] = useState(false)
+  const [linkNotice, setLinkNotice] = useState<string | null>(null)
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -157,6 +163,14 @@ function ContentIntelligenceContent() {
   }, [load])
 
   const strongestPacket = useMemo(() => packets[0] ?? null, [packets])
+
+  useEffect(() => {
+    setSelectedPacketId((current) => current || packets[0]?.id || '')
+  }, [packets])
+
+  useEffect(() => {
+    setSelectedInsightId((current) => current || insights[0]?.id || '')
+  }, [insights])
 
   const submitRecordedEvidence = useCallback(async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -209,6 +223,37 @@ function ContentIntelligenceContent() {
       setSubmittingEvidence(false)
     }
   }, [authedFetch, evidenceForm, load])
+
+  const linkResearchPattern = useCallback(async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setError(null)
+    setLinkNotice(null)
+
+    if (!selectedPacketId || !selectedInsightId) {
+      setError('Choose a research packet and Shaka insight before linking a pattern.')
+      return
+    }
+
+    setLinkingPattern(true)
+    try {
+      const response = await authedFetch(`/api/admin/agents/work-items/${selectedInsightId}/research-packets`, {
+        method: 'POST',
+        body: JSON.stringify({
+          packet_ids: [selectedPacketId],
+          decision_note: linkDecisionNote.trim() || null,
+        }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `Pattern link HTTP ${response.status}`)
+      setLinkDecisionNote('')
+      setLinkNotice('Research pattern linked to Shaka insight.')
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to link research pattern')
+    } finally {
+      setLinkingPattern(false)
+    }
+  }, [authedFetch, linkDecisionNote, load, selectedInsightId, selectedPacketId])
 
   return (
     <div className="agent-ops-page min-h-screen p-5 text-foreground lg:p-7">
@@ -357,6 +402,73 @@ function ContentIntelligenceContent() {
               <div className="py-12 text-center text-sm text-muted-foreground">Loading research packets...</div>
             ) : packets.length ? (
               <div className="space-y-3">
+                {insights.length ? (
+                  <form onSubmit={linkResearchPattern} className="rounded-lg border border-radiant-gold/35 bg-radiant-gold/10 p-3">
+                    <div className="mb-3 flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+                      <div>
+                        <h3 className="text-sm font-semibold text-radiant-gold">Link pattern to Shaka insight</h3>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Adds the reusable pattern to the central backlog item. No draft, media, upload, schedule, or publish action runs.
+                        </p>
+                      </div>
+                      {linkNotice ? (
+                        <span className="inline-flex w-fit rounded-full border border-emerald-500/35 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-100">
+                          {linkNotice}
+                        </span>
+                      ) : null}
+                    </div>
+                    <div className="grid gap-3 lg:grid-cols-2">
+                      <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Research packet
+                        <select
+                          value={selectedPacketId}
+                          onChange={(event) => setSelectedPacketId(event.target.value)}
+                          className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+                        >
+                          {packets.map((packet) => (
+                            <option key={packet.id} value={packet.id}>
+                              {(packet.title ?? packet.creator_name ?? packet.source_url).slice(0, 90)}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Shaka insight
+                        <select
+                          value={selectedInsightId}
+                          onChange={(event) => setSelectedInsightId(event.target.value)}
+                          className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+                        >
+                          {insights.map((item) => (
+                            <option key={item.id} value={item.id}>
+                              {insightFor(item).title.slice(0, 90)}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
+                    <label className="mt-3 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Decision note
+                      <textarea
+                        value={linkDecisionNote}
+                        onChange={(event) => setLinkDecisionNote(event.target.value)}
+                        rows={2}
+                        placeholder="Why this source pattern is safe and useful for this insight."
+                        className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+                      />
+                    </label>
+                    <div className="mt-3 flex justify-end">
+                      <button
+                        type="submit"
+                        disabled={linkingPattern}
+                        className="agent-ops-button-primary disabled:opacity-60"
+                      >
+                        <CheckCircle2 size={16} />
+                        {linkingPattern ? 'Linking...' : 'Link Pattern'}
+                      </button>
+                    </div>
+                  </form>
+                ) : null}
                 {packets.map((packet) => (
                   <article key={packet.id} className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">

@@ -37,6 +37,21 @@ function socialWorkItem(overrides: Record<string, unknown> = {}) {
         content_angle: 'AI should reduce burden, but only when authority and evidence are separated.',
         suggested_hook: 'AI should reduce burden.',
         claim_boundaries: ['Do not imply publishing is automated.'],
+        approved_research_patterns: [
+          {
+            packet_id: 'packet-1',
+            source_url: 'https://youtube.com/watch?v=abc',
+            platform: 'youtube',
+            creator_name: 'Creator',
+            title: 'Useful outlier',
+            outlier_score: 87,
+            pattern_packet: {
+              hook_structure: 'Start with the missed approval gate.',
+              promise_value: 'Show how review gates build trust.',
+              thumbnail_pattern: 'Translate the layout into AmaduTown style.',
+            },
+          },
+        ],
       },
       channel_lanes: {
         linkedin: { status: 'selected', label: 'LinkedIn', required_inputs: ['post text', 'CTA'] },
@@ -108,6 +123,9 @@ describe('SocialInsightDetailPage', () => {
     expect(screen.getByRole('tab', { name: /Instagram Reels/ })).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: /Thumbnail/ })).toBeInTheDocument()
     expect(screen.getByText('post text')).toBeInTheDocument()
+    expect(screen.getByText('Approved research patterns')).toBeInTheDocument()
+    expect(screen.getByText('Useful outlier')).toBeInTheDocument()
+    expect(screen.getByText('Hook: Start with the missed approval gate.')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('tab', { name: /Thumbnail/ }))
 
