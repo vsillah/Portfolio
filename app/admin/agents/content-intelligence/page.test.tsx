@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import ContentIntelligencePage from './page'
@@ -19,6 +19,12 @@ describe('ContentIntelligencePage', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input)
+      if (url === '/api/admin/social-content/intelligence/research-runs') {
+        return {
+          ok: true,
+          json: async () => ({ packets: [{ id: 'packet-new' }], run: { mode: 'recorded_evidence' } }),
+        }
+      }
       if (url.startsWith('/api/admin/social-content/intelligence/research-packets')) {
         return {
           ok: true,
@@ -83,8 +89,52 @@ describe('ContentIntelligencePage', () => {
     expect(screen.getByRole('heading', { name: 'Free-first evidence layer' })).toBeInTheDocument()
     expect(screen.getByText('Recorded public evidence from Codex/browser review. Cost: $0.')).toBeInTheDocument()
     expect(screen.getByText('pintostudio/youtube-transcript-scraper only after cost approval')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Add recorded public evidence' })).toBeInTheDocument()
     expect(screen.getByText('Outlier research process')).toBeInTheDocument()
     expect(screen.getByText('Approval gates create trust')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Approval gates create trust/ })).toHaveAttribute('href', '/admin/agents/social-insights/work-social-1')
+  })
+
+  it('stores recorded evidence without paid scraper fields', async () => {
+    render(<ContentIntelligencePage />)
+
+    await screen.findByRole('heading', { name: 'Research and Shaka insight queue' })
+
+    fireEvent.change(screen.getByLabelText('Source URL'), { target: { value: 'https://youtube.com/watch?v=recorded' } })
+    fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'Recorded hook pattern' } })
+    fireEvent.change(screen.getByLabelText('Creator'), { target: { value: 'Public Creator' } })
+    fireEvent.change(screen.getByLabelText('Hook or first 30 seconds'), { target: { value: 'The hook makes a specific promise first.' } })
+    fireEvent.change(screen.getByLabelText('Views'), { target: { value: '24000' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Store Evidence Packet' }))
+
+    await screen.findByText('Recorded public evidence stored.')
+
+    const postCall = vi.mocked(fetch).mock.calls.find(([input]) => String(input) === '/api/admin/social-content/intelligence/research-runs')
+    expect(postCall).toBeTruthy()
+
+    const [, init] = postCall!
+    const body = JSON.parse(String(init?.body))
+    expect(body).toMatchObject({
+      mode: 'recorded_evidence',
+      evidence_items: [
+        {
+          source_url: 'https://youtube.com/watch?v=recorded',
+          platform: 'youtube',
+          title: 'Recorded hook pattern',
+          creator_name: 'Public Creator',
+          hook_transcript: 'The hook makes a specific promise first.',
+          retrieval_method: 'codex_browser',
+          metrics: {
+            views: 24000,
+          },
+        },
+      ],
+    })
+    expect(body.confirm_apify_cost).toBeUndefined()
+    expect(body.sources).toBeUndefined()
+
+    await waitFor(() => {
+      expect(vi.mocked(fetch).mock.calls.filter(([input]) => String(input).startsWith('/api/admin/social-content/intelligence/research-packets'))).toHaveLength(2)
+    })
   })
 })

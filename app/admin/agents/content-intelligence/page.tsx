@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { type FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import {
   BarChart3,
   Database,
@@ -35,12 +35,48 @@ type ResearchPacket = {
   metrics: Record<string, unknown>
 }
 
+type EvidenceForm = {
+  source_url: string
+  platform: string
+  title: string
+  creator_name: string
+  creator_handle: string
+  thumbnail_url: string
+  hook_transcript: string
+  views: string
+  likes: string
+  comments: string
+  follower_count: string
+  retrieval_notes: string
+}
+
+const EMPTY_EVIDENCE_FORM: EvidenceForm = {
+  source_url: '',
+  platform: 'youtube',
+  title: '',
+  creator_name: '',
+  creator_handle: '',
+  thumbnail_url: '',
+  hook_transcript: '',
+  views: '',
+  likes: '',
+  comments: '',
+  follower_count: '',
+  retrieval_notes: '',
+}
+
 function stringValue(value: unknown) {
   return typeof value === 'string' && value.trim() ? value.trim() : null
 }
 
 function numberValue(value: unknown) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null
+}
+
+function optionalNumber(value: string) {
+  if (!value.trim()) return null
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : null
 }
 
 function insightFor(item: AgentWorkItem) {
@@ -75,12 +111,21 @@ function ContentIntelligenceContent() {
   const [insights, setInsights] = useState<AgentWorkItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [evidenceForm, setEvidenceForm] = useState<EvidenceForm>(EMPTY_EVIDENCE_FORM)
+  const [submittingEvidence, setSubmittingEvidence] = useState(false)
+  const [evidenceNotice, setEvidenceNotice] = useState<string | null>(null)
 
-  const authedFetch = useCallback(async (path: string) => {
+  const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
     if (!session?.access_token) throw new Error('Missing admin session')
+    const headers = new Headers(init.headers)
+    headers.set('Authorization', `Bearer ${session.access_token}`)
+    if (init.body && !headers.has('Content-Type')) {
+      headers.set('Content-Type', 'application/json')
+    }
     return fetch(path, {
-      headers: { Authorization: `Bearer ${session.access_token}` },
+      ...init,
+      headers,
     })
   }, [])
 
@@ -112,6 +157,58 @@ function ContentIntelligenceContent() {
   }, [load])
 
   const strongestPacket = useMemo(() => packets[0] ?? null, [packets])
+
+  const submitRecordedEvidence = useCallback(async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setError(null)
+    setEvidenceNotice(null)
+
+    const sourceUrl = evidenceForm.source_url.trim()
+    if (!sourceUrl) {
+      setError('Source URL is required to store recorded evidence.')
+      return
+    }
+
+    const metrics = {
+      views: optionalNumber(evidenceForm.views),
+      likes: optionalNumber(evidenceForm.likes),
+      comments: optionalNumber(evidenceForm.comments),
+      follower_count: optionalNumber(evidenceForm.follower_count),
+    }
+
+    setSubmittingEvidence(true)
+    try {
+      const response = await authedFetch('/api/admin/social-content/intelligence/research-runs', {
+        method: 'POST',
+        body: JSON.stringify({
+          mode: 'recorded_evidence',
+          evidence_items: [
+            {
+              source_url: sourceUrl,
+              platform: evidenceForm.platform,
+              creator_name: evidenceForm.creator_name.trim() || null,
+              creator_handle: evidenceForm.creator_handle.trim() || null,
+              title: evidenceForm.title.trim() || null,
+              thumbnail_url: evidenceForm.thumbnail_url.trim() || null,
+              hook_transcript: evidenceForm.hook_transcript.trim() || null,
+              metrics,
+              retrieval_method: 'codex_browser',
+              retrieval_notes: evidenceForm.retrieval_notes.trim() || null,
+            },
+          ],
+        }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `Evidence store HTTP ${response.status}`)
+      setEvidenceForm(EMPTY_EVIDENCE_FORM)
+      setEvidenceNotice('Recorded public evidence stored.')
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to store recorded evidence')
+    } finally {
+      setSubmittingEvidence(false)
+    }
+  }, [authedFetch, evidenceForm, load])
 
   return (
     <div className="agent-ops-page min-h-screen p-5 text-foreground lg:p-7">
@@ -176,6 +273,74 @@ function ContentIntelligenceContent() {
             <ActorCard title="YouTube data fallback" actor="streamers/youtube-scraper only after cost approval" />
             <ActorCard title="Instagram/TikTok fallback" actor="apify/instagram-scraper or clockworks/tiktok-scraper only after cost approval" />
           </div>
+          <form onSubmit={submitRecordedEvidence} className="mt-4 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
+            <div className="mb-3 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <h3 className="text-sm font-semibold">Add recorded public evidence</h3>
+                <p className="mt-1 text-xs text-muted-foreground">Free review packet. No scraper, generation, upload, schedule, or publish action.</p>
+              </div>
+              {evidenceNotice ? (
+                <span className="inline-flex w-fit rounded-full border border-emerald-500/35 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-100">
+                  {evidenceNotice}
+                </span>
+              ) : null}
+            </div>
+            <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_12rem]">
+              <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Source URL
+                <input
+                  required
+                  type="url"
+                  value={evidenceForm.source_url}
+                  onChange={(event) => setEvidenceForm((current) => ({ ...current, source_url: event.target.value }))}
+                  placeholder="https://youtube.com/watch?v=..."
+                  className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+                />
+              </label>
+              <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Platform
+                <select
+                  value={evidenceForm.platform}
+                  onChange={(event) => setEvidenceForm((current) => ({ ...current, platform: event.target.value }))}
+                  className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+                >
+                  <option value="youtube">YouTube</option>
+                  <option value="youtube_shorts">YouTube Shorts</option>
+                  <option value="instagram">Instagram</option>
+                  <option value="instagram_reels">Instagram Reels</option>
+                  <option value="tiktok">TikTok</option>
+                  <option value="linkedin">LinkedIn</option>
+                  <option value="other">Other</option>
+                </select>
+              </label>
+            </div>
+            <div className="mt-3 grid gap-3 lg:grid-cols-2">
+              <EvidenceInput label="Title" value={evidenceForm.title} onChange={(value) => setEvidenceForm((current) => ({ ...current, title: value }))} />
+              <EvidenceInput label="Creator" value={evidenceForm.creator_name} onChange={(value) => setEvidenceForm((current) => ({ ...current, creator_name: value }))} />
+              <EvidenceInput label="Handle" value={evidenceForm.creator_handle} onChange={(value) => setEvidenceForm((current) => ({ ...current, creator_handle: value }))} />
+              <EvidenceInput label="Thumbnail URL" value={evidenceForm.thumbnail_url} onChange={(value) => setEvidenceForm((current) => ({ ...current, thumbnail_url: value }))} />
+            </div>
+            <div className="mt-3 grid gap-3 md:grid-cols-4">
+              <EvidenceInput label="Views" type="number" value={evidenceForm.views} onChange={(value) => setEvidenceForm((current) => ({ ...current, views: value }))} />
+              <EvidenceInput label="Likes" type="number" value={evidenceForm.likes} onChange={(value) => setEvidenceForm((current) => ({ ...current, likes: value }))} />
+              <EvidenceInput label="Comments" type="number" value={evidenceForm.comments} onChange={(value) => setEvidenceForm((current) => ({ ...current, comments: value }))} />
+              <EvidenceInput label="Followers" type="number" value={evidenceForm.follower_count} onChange={(value) => setEvidenceForm((current) => ({ ...current, follower_count: value }))} />
+            </div>
+            <div className="mt-3 grid gap-3 lg:grid-cols-2">
+              <EvidenceTextarea label="Hook or first 30 seconds" value={evidenceForm.hook_transcript} onChange={(value) => setEvidenceForm((current) => ({ ...current, hook_transcript: value }))} />
+              <EvidenceTextarea label="Notes" value={evidenceForm.retrieval_notes} onChange={(value) => setEvidenceForm((current) => ({ ...current, retrieval_notes: value }))} />
+            </div>
+            <div className="mt-4 flex justify-end">
+              <button
+                type="submit"
+                disabled={submittingEvidence}
+                className="agent-ops-button-primary disabled:opacity-60"
+              >
+                <FileSearch size={16} />
+                {submittingEvidence ? 'Storing...' : 'Store Evidence Packet'}
+              </button>
+            </div>
+          </form>
         </section>
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,0.45fr)]">
@@ -306,6 +471,53 @@ function ActorCard({ title, actor }: { title: string; actor: string }) {
       </div>
       <p className="break-words text-xs leading-5 text-muted-foreground">{actor}</p>
     </div>
+  )
+}
+
+function EvidenceInput({
+  label,
+  value,
+  onChange,
+  type = 'text',
+}: {
+  label: string
+  value: string
+  onChange: (value: string) => void
+  type?: 'text' | 'number'
+}) {
+  return (
+    <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+      {label}
+      <input
+        type={type}
+        min={type === 'number' ? 0 : undefined}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+      />
+    </label>
+  )
+}
+
+function EvidenceTextarea({
+  label,
+  value,
+  onChange,
+}: {
+  label: string
+  value: string
+  onChange: (value: string) => void
+}) {
+  return (
+    <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+      {label}
+      <textarea
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        rows={3}
+        className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+      />
+    </label>
   )
 }
 
