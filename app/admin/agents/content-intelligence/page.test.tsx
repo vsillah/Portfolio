@@ -80,7 +80,9 @@ describe('ContentIntelligencePage', () => {
     render(<ContentIntelligencePage />)
 
     expect(await screen.findByRole('heading', { name: 'Research and Shaka insight queue' })).toBeInTheDocument()
-    expect(screen.getByText('pintostudio/youtube-transcript-scraper')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Free-first evidence layer' })).toBeInTheDocument()
+    expect(screen.getByText('Recorded public evidence from Codex/browser review. Cost: $0.')).toBeInTheDocument()
+    expect(screen.getByText('pintostudio/youtube-transcript-scraper only after cost approval')).toBeInTheDocument()
     expect(screen.getByText('Outlier research process')).toBeInTheDocument()
     expect(screen.getByText('Approval gates create trust')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Approval gates create trust/ })).toHaveAttribute('href', '/admin/agents/social-insights/work-social-1')
