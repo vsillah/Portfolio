@@ -154,27 +154,27 @@ function ContentIntelligenceContent() {
           <MetricCard label="Research packets" value={packets.length} />
           <MetricCard label="Shaka insights" value={insights.length} />
           <MetricCard label="Top outlier score" value={strongestPacket ? Math.round(Number(strongestPacket.outlier_score)) : 0} />
-          <MetricCard label="Live schedules" value={0} tone="amber" />
+          <MetricCard label="Paid scraper runs" value={0} tone="amber" />
         </div>
 
         <section className="agent-ops-card mb-6 rounded-lg border p-4">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h2 className="text-lg font-semibold">Scoped collection layer</h2>
+              <h2 className="text-lg font-semibold">Free-first evidence layer</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                These actors are configured as approved research sources, but no recurring run is active from this page.
+                Codex/browser review and public manual evidence are the default research path. Paid scrapers are fallback tools only when a scoped source cannot be captured cheaply.
               </p>
             </div>
             <span className="inline-flex w-fit items-center gap-2 rounded-full border border-amber-500/35 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-100">
               <ShieldCheck className="h-3.5 w-3.5" />
-              Activation approval required
+              Paid scraper approval required
             </span>
           </div>
           <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            <ActorCard title="YouTube transcripts" actor="pintostudio/youtube-transcript-scraper" />
-            <ActorCard title="YouTube video/channel data" actor="streamers/youtube-scraper" />
-            <ActorCard title="Instagram posts/reels" actor="apify/instagram-scraper" />
-            <ActorCard title="TikTok research later" actor="clockworks/tiktok-scraper" />
+            <ActorCard title="Default" actor="Recorded public evidence from Codex/browser review. Cost: $0." />
+            <ActorCard title="YouTube fallback" actor="pintostudio/youtube-transcript-scraper only after cost approval" />
+            <ActorCard title="YouTube data fallback" actor="streamers/youtube-scraper only after cost approval" />
+            <ActorCard title="Instagram/TikTok fallback" actor="apify/instagram-scraper or clockworks/tiktok-scraper only after cost approval" />
           </div>
         </section>
 
@@ -238,7 +238,7 @@ function ContentIntelligenceContent() {
               </div>
             ) : (
               <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-4 py-12 text-center text-sm text-muted-foreground">
-                No research packets have been stored yet. Run a scoped research collection only after approval.
+                No research packets have been stored yet. Store free recorded public evidence first; use paid scrapers only after explicit approval.
               </div>
             )}
           </section>
