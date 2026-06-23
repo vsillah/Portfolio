@@ -25,6 +25,15 @@ interface CampaignWithCounts extends AttractionCampaign {
   criteria_count: number;
   enrollment_count: number;
   active_enrollment_count: number;
+  calendar_item_count: number;
+  next_calendar_item: {
+    id: string;
+    title: string;
+    channel: string;
+    campaign_phase: string;
+    scheduled_for: string;
+    authorization_status: string;
+  } | null;
 }
 
 export default function CampaignsAdminPage() {
@@ -333,6 +342,16 @@ export default function CampaignsAdminPage() {
                         <Users size={14} />
                         {c.active_enrollment_count} active / {c.enrollment_count} total
                       </span>
+                    </div>
+                    <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                      <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 text-blue-100">
+                        {c.calendar_item_count || 0} calendar item{c.calendar_item_count === 1 ? '' : 's'}
+                      </span>
+                      {c.next_calendar_item && (
+                        <span className="min-w-0 rounded-full border border-white/10 px-2 py-0.5">
+                          Next: {c.next_calendar_item.campaign_phase.replace(/_/g, ' ')} · {new Date(c.next_calendar_item.scheduled_for).toLocaleDateString()}
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">

@@ -40,7 +40,30 @@ export async function GET(
       throw error;
     }
 
-    return NextResponse.json({ data });
+    const { data: calendarItems, error: calendarError } = await supabaseAdmin
+      .from('social_content_calendar_items')
+      .select('id, title, channel, campaign_phase, planned_angle, scheduled_for, due_status, authorization_status, authorization_due_at, autonomy_eligible, agent_work_item_id, social_content_id, metadata')
+      .eq('campaign_id', params.id)
+      .order('scheduled_for', { ascending: true });
+
+    if (
+      calendarError
+      && calendarError.code !== '42P01'
+      && calendarError.code !== 'PGRST205'
+    ) throw calendarError;
+
+    const calendar = calendarItems || [];
+
+    return NextResponse.json({
+      data: {
+        ...data,
+        social_content_calendar_items: calendar,
+        calendar_item_count: calendar.length,
+        next_calendar_item: calendar.find((item: { due_status: string }) => (
+          item.due_status !== 'completed' && item.due_status !== 'cancelled'
+        )) || null,
+      },
+    });
   } catch (error: unknown) {
     console.error('Error fetching campaign:', error);
     return NextResponse.json(

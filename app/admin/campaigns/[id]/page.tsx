@@ -19,6 +19,20 @@ import type {
   AttractionCampaign, CampaignCriteriaTemplate, CriteriaType, TrackingSource,
 } from '@/lib/campaigns';
 
+type CampaignCalendarItem = {
+  id: string;
+  title: string;
+  channel: 'linkedin' | 'youtube_shorts' | 'instagram_reels' | 'thumbnail';
+  campaign_phase: 'tease' | 'teach' | 'proof' | 'offer';
+  planned_angle: string | null;
+  scheduled_for: string;
+  due_status: string;
+  authorization_status: string;
+  authorization_due_at: string | null;
+  agent_work_item_id: string | null;
+  social_content_id: string | null;
+};
+
 interface CampaignDetail extends AttractionCampaign {
   campaign_eligible_bundles: Array<{
     id: string;
@@ -26,6 +40,9 @@ interface CampaignDetail extends AttractionCampaign {
     offer_bundles: { id: string; name: string; pricing_tier_slug: string; bundle_price: number } | null;
   }>;
   campaign_criteria_templates: CampaignCriteriaTemplate[];
+  social_content_calendar_items?: CampaignCalendarItem[];
+  calendar_item_count?: number;
+  next_calendar_item?: CampaignCalendarItem | null;
 }
 
 interface EnrollmentRow {
@@ -51,7 +68,9 @@ export default function CampaignDetailPage() {
   const [campaign, setCampaign] = useState<CampaignDetail | null>(null);
   const [enrollments, setEnrollments] = useState<EnrollmentRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'criteria' | 'bundles' | 'enrollments'>('criteria');
+  const [activeTab, setActiveTab] = useState<'criteria' | 'bundles' | 'enrollments' | 'content-calendar'>('criteria');
+  const [generatingContentPlan, setGeneratingContentPlan] = useState(false);
+  const [contentPlanNotice, setContentPlanNotice] = useState('');
 
   // Criteria form
   const [showCriteriaForm, setShowCriteriaForm] = useState(false);
@@ -188,6 +207,29 @@ export default function CampaignDetailPage() {
     }
   };
 
+  const handleGenerateContentPlan = async () => {
+    setGeneratingContentPlan(true);
+    setContentPlanNotice('');
+    try {
+      const res = await fetch(`/api/admin/campaigns/${campaignId}/content-plan`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setContentPlanNotice(`Created ${data.created_count || 0} items; skipped ${data.skipped_existing_count || 0} existing phases.`);
+        await fetchCampaign();
+      } else {
+        setContentPlanNotice(data.error || 'Failed to generate content plan.');
+      }
+    } catch (err) {
+      console.error('Failed to generate content plan:', err);
+      setContentPlanNotice('Failed to generate content plan.');
+    } finally {
+      setGeneratingContentPlan(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="admin-console-page min-h-screen flex items-center justify-center text-foreground">
@@ -213,6 +255,15 @@ export default function CampaignDetailPage() {
     { key: 'criteria' as const, label: 'Criteria Templates', icon: Target, count: campaign.campaign_criteria_templates.length },
     { key: 'bundles' as const, label: 'Eligible Bundles', icon: Package, count: campaign.campaign_eligible_bundles.length },
     { key: 'enrollments' as const, label: 'Enrollments', icon: Users, count: enrollments.length },
+    { key: 'content-calendar' as const, label: 'Content Calendar', icon: Calendar, count: campaign.calendar_item_count || 0 },
+  ];
+
+  const campaignCalendarItems = campaign.social_content_calendar_items || [];
+  const calendarPhases: Array<{ key: CampaignCalendarItem['campaign_phase']; label: string }> = [
+    { key: 'tease', label: 'Tease' },
+    { key: 'teach', label: 'Teach' },
+    { key: 'proof', label: 'Proof' },
+    { key: 'offer', label: 'Offer' },
   ];
 
   return (
@@ -483,6 +534,93 @@ export default function CampaignDetailPage() {
                 );
               })
             )}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'content-calendar' && (
+        <div>
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold">Content Calendar</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Campaign-specific projection of the central Social Content calendar.
+              </p>
+            </div>
+            <button
+              onClick={handleGenerateContentPlan}
+              disabled={generatingContentPlan}
+              className="admin-console-button-primary disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {generatingContentPlan ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
+              {generatingContentPlan ? 'Generating...' : 'Generate Whisper-to-Shout Plan'}
+            </button>
+          </div>
+
+          {contentPlanNotice && (
+            <div className="admin-console-card mb-4 rounded-lg border border-radiant-gold/35 bg-radiant-gold/10 p-3 text-sm text-radiant-gold">
+              {contentPlanNotice}
+            </div>
+          )}
+
+          <div className="admin-console-card mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-100">
+            Authorization creates or updates the internal draft handoff only. External publishing, uploads, scheduling, media generation, and autonomous execution remain locked.
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-4">
+            {calendarPhases.map((phase) => {
+              const items = campaignCalendarItems.filter((item) => item.campaign_phase === phase.key);
+              return (
+                <div key={phase.key} className="admin-console-card rounded-lg border p-4">
+                  <div className="mb-3 flex items-center justify-between gap-2">
+                    <h3 className="font-semibold">{phase.label}</h3>
+                    <span className="rounded-full border border-white/10 px-2 py-0.5 text-xs text-muted-foreground">
+                      {items.length}
+                    </span>
+                  </div>
+                  <div className="space-y-3">
+                    {items.length ? items.map((item) => (
+                      <div key={item.id} className="rounded-lg border border-white/10 bg-silicon-slate/40 p-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="break-words text-sm font-semibold">{item.title}</p>
+                            <p className="mt-1 text-xs text-muted-foreground">
+                              {new Date(item.scheduled_for).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                            </p>
+                          </div>
+                          <span className="shrink-0 rounded-full border border-amber-500/35 bg-amber-500/10 px-2 py-0.5 text-[0.68rem] font-semibold text-amber-100">
+                            {item.authorization_status.replace(/_/g, ' ')}
+                          </span>
+                        </div>
+                        {item.planned_angle && (
+                          <p className="mt-2 line-clamp-3 text-xs leading-5 text-muted-foreground">{item.planned_angle}</p>
+                        )}
+                        <div className="mt-3 flex flex-wrap gap-2 text-[0.68rem] text-muted-foreground">
+                          <span className="rounded-full border border-white/10 px-2 py-0.5">{item.channel.replace(/_/g, ' ')}</span>
+                          <span className="rounded-full border border-white/10 px-2 py-0.5">{item.due_status.replace(/_/g, ' ')}</span>
+                        </div>
+                        <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                          {item.agent_work_item_id && (
+                            <Link href={`/admin/agents/social-insights/${item.agent_work_item_id}`} className="text-blue-200 hover:text-blue-100">
+                              Insight
+                            </Link>
+                          )}
+                          {item.social_content_id && (
+                            <Link href={`/admin/social-content/${item.social_content_id}`} className="text-blue-200 hover:text-blue-100">
+                              Draft
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+                    )) : (
+                      <p className="rounded-lg border border-white/10 bg-silicon-slate/40 p-4 text-center text-sm text-muted-foreground">
+                        No planned items.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

@@ -40,6 +40,38 @@ export async function GET(request: NextRequest) {
       throw error;
     }
 
+    const campaignIds = (data || [])
+      .map((campaign: Record<string, unknown>) => String(campaign.id || ''))
+      .filter(Boolean);
+
+    let calendarByCampaign = new Map<string, {
+      count: number;
+      next: Record<string, unknown> | null;
+    }>();
+
+    if (campaignIds.length > 0) {
+      const { data: calendarItems, error: calendarError } = await supabaseAdmin
+        .from('social_content_calendar_items')
+        .select('id, campaign_id, title, channel, campaign_phase, scheduled_for, due_status, authorization_status')
+        .in('campaign_id', campaignIds)
+        .order('scheduled_for', { ascending: true });
+
+      if (
+        calendarError
+        && calendarError.code !== '42P01'
+        && calendarError.code !== 'PGRST205'
+      ) throw calendarError;
+
+      for (const item of calendarItems || []) {
+        const campaignId = String(item.campaign_id || '');
+        if (!campaignId) continue;
+        const current = calendarByCampaign.get(campaignId) || { count: 0, next: null };
+        current.count += 1;
+        if (!current.next) current.next = item as Record<string, unknown>;
+        calendarByCampaign.set(campaignId, current);
+      }
+    }
+
     const campaigns = (data || []).map((c: Record<string, unknown>) => ({
       ...c,
       eligible_bundle_count: Array.isArray(c.campaign_eligible_bundles) ? c.campaign_eligible_bundles.length : 0,
@@ -48,6 +80,8 @@ export async function GET(request: NextRequest) {
       active_enrollment_count: Array.isArray(c.campaign_enrollments)
         ? (c.campaign_enrollments as Array<{ status: string }>).filter((e) => e.status === 'active').length
         : 0,
+      calendar_item_count: calendarByCampaign.get(String(c.id))?.count || 0,
+      next_calendar_item: calendarByCampaign.get(String(c.id))?.next || null,
     }));
 
     return NextResponse.json({ data: campaigns, total: count || 0 });
