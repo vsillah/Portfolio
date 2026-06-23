@@ -87,6 +87,44 @@ describe('/api/admin/social-content/intelligence/research-runs', () => {
     })
   })
 
+  it('normalizes recorded evidence fields before invoking the collector', async () => {
+    const response = await POST(new NextRequest('http://localhost/api/admin/social-content/intelligence/research-runs', {
+      method: 'POST',
+      body: JSON.stringify({
+        mode: 'recorded_evidence',
+        evidence_items: [
+          {
+            source_url: ' https://example.com/public-post ',
+            platform: 'unsupported-network',
+            title: '  Public pattern  ',
+            pattern_status: 'copy_source',
+            retrieval_method: 'private_scrape',
+            pattern_packet: {
+              hook_structure: 'Start with the customer tension.',
+            },
+          },
+        ],
+      }),
+    }))
+
+    expect(response.status).toBe(200)
+    expect(mocks.runSocialContentResearchCollection).toHaveBeenCalledWith(expect.objectContaining({
+      mode: 'recorded_evidence',
+      evidenceItems: [
+        expect.objectContaining({
+          source_url: 'https://example.com/public-post',
+          platform: 'other',
+          title: 'Public pattern',
+          pattern_status: 'needs_brand_translation',
+          retrieval_method: 'codex_browser',
+          pattern_packet: {
+            hook_structure: 'Start with the customer tension.',
+          },
+        }),
+      ],
+    }))
+  })
+
   it('rejects recorded evidence requests without evidence items', async () => {
     const response = await POST(new NextRequest('http://localhost/api/admin/social-content/intelligence/research-runs', {
       method: 'POST',
