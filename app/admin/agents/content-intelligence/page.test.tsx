@@ -64,6 +64,65 @@ describe('ContentIntelligencePage', () => {
           }),
         }
       }
+      if (url === '/api/admin/social-content/calendar') {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            item: { id: 'calendar-new', title: 'Manual calendar item' },
+            side_effects: {
+              provider_generation: false,
+              upload: false,
+              external_schedule: false,
+              publish: false,
+              external_post: false,
+            },
+          }),
+        }
+      }
+      if (url.startsWith('/api/admin/social-content/calendar')) {
+        return {
+          ok: true,
+          json: async () => ({
+            items: [
+              {
+                id: 'calendar-1',
+                campaign_id: 'campaign-1',
+                agent_work_item_id: 'work-social-1',
+                social_content_id: null,
+                channel: 'linkedin',
+                campaign_phase: 'tease',
+                title: 'Tease: Approval gates',
+                planned_angle: 'Open with the moment an approval path created extra work.',
+                scheduled_for: '2026-06-24T14:00:00.000Z',
+                due_status: 'planned',
+                authorization_status: 'pending',
+                authorization_due_at: '2026-06-23T14:00:00.000Z',
+                autonomy_eligible: false,
+                attraction_campaigns: { id: 'campaign-1', name: 'Agent Ops Campaign', slug: 'agent-ops' },
+                agent_work_items: { id: 'work-social-1', title: 'Approval gates create trust', status: 'proposed' },
+                social_content_queue: null,
+              },
+            ],
+          }),
+        }
+      }
+      if (url.startsWith('/api/admin/campaigns')) {
+        return {
+          ok: true,
+          json: async () => ({
+            data: [
+              {
+                id: 'campaign-1',
+                name: 'Agent Ops Campaign',
+                status: 'draft',
+                starts_at: '2026-06-24T00:00:00.000Z',
+                ends_at: '2026-07-01T00:00:00.000Z',
+              },
+            ],
+          }),
+        }
+      }
       if (url.startsWith('/api/admin/social-content/intelligence/daily-digest')) {
         return {
           ok: true,
@@ -209,6 +268,10 @@ describe('ContentIntelligencePage', () => {
     expect(screen.getByText('Recorded public evidence from Codex/browser review. Cost: $0.')).toBeInTheDocument()
     expect(screen.getByText('pintostudio/youtube-transcript-scraper only after cost approval')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'What Shaka should review next' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Campaign arc and due gates' })).toBeInTheDocument()
+    expect(screen.getByText('Tease: Approval gates')).toBeInTheDocument()
+    expect(screen.getAllByText('Agent Ops Campaign').length).toBeGreaterThan(0)
+    expect(screen.getByRole('heading', { name: 'Plan calendar item' })).toBeInTheDocument()
     expect(screen.getByText('Schedule: approval required')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Request Daily Activation Review' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Strongest patterns' })).toBeInTheDocument()
@@ -226,7 +289,7 @@ describe('ContentIntelligencePage', () => {
     await screen.findByRole('heading', { name: 'Research and Shaka insight queue' })
 
     fireEvent.change(screen.getByLabelText('Source URL'), { target: { value: 'https://youtube.com/watch?v=recorded' } })
-    fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'Recorded hook pattern' } })
+    fireEvent.change(screen.getAllByLabelText('Title')[1], { target: { value: 'Recorded hook pattern' } })
     fireEvent.change(screen.getByLabelText('Creator'), { target: { value: 'Public Creator' } })
     fireEvent.change(screen.getByLabelText('Hook or first 30 seconds'), { target: { value: 'The hook makes a specific promise first.' } })
     fireEvent.change(screen.getByLabelText('Views'), { target: { value: '24000' } })
@@ -303,6 +366,40 @@ describe('ContentIntelligencePage', () => {
       cadence: 'daily',
       lookback_days: 5,
       scope_note: 'Start with free public research and Shaka internal triggers.',
+    })
+  })
+
+  it('creates a pending calendar item without publishing side effects', async () => {
+    render(<ContentIntelligencePage />)
+
+    await screen.findByRole('heading', { name: 'Plan calendar item' })
+
+    fireEvent.change(screen.getAllByLabelText('Title')[0], {
+      target: { value: 'Teach: Campaign operating lesson' },
+    })
+    fireEvent.change(screen.getByLabelText('Scheduled for'), {
+      target: { value: '2026-06-25T10:00' },
+    })
+    fireEvent.change(screen.getAllByLabelText('Campaign')[1], {
+      target: { value: 'campaign-1' },
+    })
+    fireEvent.change(screen.getByLabelText('Planned angle'), {
+      target: { value: 'Teach the operating framework behind the campaign.' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Plan Item' }))
+
+    await screen.findByText('Calendar item planned. Human authorization remains pending.')
+
+    const calendarCall = vi.mocked(fetch).mock.calls.find(([input, init]) => (
+      String(input) === '/api/admin/social-content/calendar' && init?.method === 'POST'
+    ))
+    expect(calendarCall).toBeTruthy()
+    expect(JSON.parse(String(calendarCall?.[1]?.body))).toMatchObject({
+      title: 'Teach: Campaign operating lesson',
+      campaign_id: 'campaign-1',
+      channel: 'linkedin',
+      campaign_phase: 'tease',
+      planned_angle: 'Teach the operating framework behind the campaign.',
     })
   })
 })

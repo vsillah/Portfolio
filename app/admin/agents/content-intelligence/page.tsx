@@ -11,6 +11,7 @@ import {
   FileSearch,
   Film,
   Instagram,
+  Plus,
   RefreshCw,
   ShieldCheck,
   Youtube,
@@ -105,6 +106,42 @@ type DailyDigest = {
   side_effects: Record<string, boolean>
 }
 
+type CalendarItem = {
+  id: string
+  campaign_id: string | null
+  agent_work_item_id: string | null
+  social_content_id: string | null
+  channel: 'linkedin' | 'youtube_shorts' | 'instagram_reels' | 'thumbnail'
+  campaign_phase: 'tease' | 'teach' | 'proof' | 'offer'
+  title: string
+  planned_angle: string | null
+  scheduled_for: string
+  due_status: string
+  authorization_status: string
+  authorization_due_at: string | null
+  autonomy_eligible: boolean
+  attraction_campaigns?: { id: string; name: string; slug: string } | null
+  agent_work_items?: { id: string; title: string; status: string } | null
+  social_content_queue?: { id: string; status: string } | null
+}
+
+type CampaignOption = {
+  id: string
+  name: string
+  status: string
+  starts_at: string | null
+  ends_at: string | null
+}
+
+type CalendarForm = {
+  title: string
+  campaign_id: string
+  channel: CalendarItem['channel']
+  campaign_phase: CalendarItem['campaign_phase']
+  scheduled_for: string
+  planned_angle: string
+}
+
 const EMPTY_EVIDENCE_FORM: EvidenceForm = {
   source_url: '',
   platform: 'youtube',
@@ -118,6 +155,29 @@ const EMPTY_EVIDENCE_FORM: EvidenceForm = {
   comments: '',
   follower_count: '',
   retrieval_notes: '',
+}
+
+const EMPTY_CALENDAR_FORM: CalendarForm = {
+  title: '',
+  campaign_id: '',
+  channel: 'linkedin',
+  campaign_phase: 'tease',
+  scheduled_for: '',
+  planned_angle: '',
+}
+
+const CALENDAR_PHASES: Array<{ key: CalendarItem['campaign_phase']; label: string }> = [
+  { key: 'tease', label: 'Tease' },
+  { key: 'teach', label: 'Teach' },
+  { key: 'proof', label: 'Proof' },
+  { key: 'offer', label: 'Offer' },
+]
+
+const CALENDAR_CHANNEL_LABELS: Record<CalendarItem['channel'], string> = {
+  linkedin: 'LinkedIn',
+  youtube_shorts: 'YouTube Shorts',
+  instagram_reels: 'Instagram Reels',
+  thumbnail: 'Thumbnail',
 }
 
 function stringValue(value: unknown) {
@@ -153,6 +213,13 @@ function platformIcon(platform: string) {
   return <Film className="h-4 w-4 text-blue-200" />
 }
 
+function formatCalendarDate(value: string) {
+  const date = new Date(value)
+  return Number.isFinite(date.getTime())
+    ? date.toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+    : 'Unscheduled'
+}
+
 export default function ContentIntelligencePage() {
   return (
     <ProtectedRoute requireAdmin>
@@ -164,6 +231,8 @@ export default function ContentIntelligencePage() {
 function ContentIntelligenceContent() {
   const [packets, setPackets] = useState<ResearchPacket[]>([])
   const [insights, setInsights] = useState<AgentWorkItem[]>([])
+  const [calendarItems, setCalendarItems] = useState<CalendarItem[]>([])
+  const [campaigns, setCampaigns] = useState<CampaignOption[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [evidenceForm, setEvidenceForm] = useState<EvidenceForm>(EMPTY_EVIDENCE_FORM)
@@ -178,6 +247,13 @@ function ContentIntelligenceContent() {
   const [activationScopeNote, setActivationScopeNote] = useState('')
   const [requestingActivation, setRequestingActivation] = useState(false)
   const [activationNotice, setActivationNotice] = useState<string | null>(null)
+  const [calendarForm, setCalendarForm] = useState<CalendarForm>(EMPTY_CALENDAR_FORM)
+  const [calendarNotice, setCalendarNotice] = useState<string | null>(null)
+  const [creatingCalendarItem, setCreatingCalendarItem] = useState(false)
+  const [calendarCampaignFilter, setCalendarCampaignFilter] = useState('')
+  const [calendarChannelFilter, setCalendarChannelFilter] = useState('')
+  const [calendarPhaseFilter, setCalendarPhaseFilter] = useState('')
+  const [calendarAuthorizationFilter, setCalendarAuthorizationFilter] = useState('')
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -197,25 +273,35 @@ function ContentIntelligenceContent() {
     setLoading(true)
     setError(null)
     try {
-      const [packetResponse, insightResponse, digestResponse] = await Promise.all([
+      const [packetResponse, insightResponse, digestResponse, calendarResponse, campaignResponse] = await Promise.all([
         authedFetch('/api/admin/social-content/intelligence/research-packets?limit=12'),
         authedFetch('/api/admin/agents/work-items?source_type=social_topic_trigger&limit=12'),
         authedFetch('/api/admin/social-content/intelligence/daily-digest?lookback_days=5&limit=12'),
+        authedFetch('/api/admin/social-content/calendar?limit=50'),
+        authedFetch('/api/admin/campaigns?limit=50'),
       ])
       const packetBody = await packetResponse.json().catch(() => ({}))
       const insightBody = await insightResponse.json().catch(() => ({}))
       const digestBody = await digestResponse.json().catch(() => ({}))
+      const calendarBody = await calendarResponse.json().catch(() => ({}))
+      const campaignBody = await campaignResponse.json().catch(() => ({}))
       if (!packetResponse.ok) throw new Error(packetBody.error || `Research packets HTTP ${packetResponse.status}`)
       if (!insightResponse.ok) throw new Error(insightBody.error || `Insights HTTP ${insightResponse.status}`)
       if (!digestResponse.ok) throw new Error(digestBody.error || `Digest HTTP ${digestResponse.status}`)
+      if (!calendarResponse.ok) throw new Error(calendarBody.error || `Calendar HTTP ${calendarResponse.status}`)
+      if (!campaignResponse.ok) throw new Error(campaignBody.error || `Campaigns HTTP ${campaignResponse.status}`)
       setPackets(Array.isArray(packetBody.packets) ? packetBody.packets : [])
       setInsights(Array.isArray(insightBody.work_items) ? insightBody.work_items : [])
       setDigest(digestBody.digest ?? null)
+      setCalendarItems(Array.isArray(calendarBody.items) ? calendarBody.items : [])
+      setCampaigns(Array.isArray(campaignBody.data) ? campaignBody.data : [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load Content Intelligence')
       setPackets([])
       setInsights([])
       setDigest(null)
+      setCalendarItems([])
+      setCampaigns([])
     } finally {
       setLoading(false)
     }
@@ -226,6 +312,29 @@ function ContentIntelligenceContent() {
   }, [load])
 
   const strongestPacket = useMemo(() => packets[0] ?? null, [packets])
+
+  const filteredCalendarItems = useMemo(() => {
+    return calendarItems.filter((item) => {
+      if (calendarCampaignFilter && item.campaign_id !== calendarCampaignFilter) return false
+      if (calendarChannelFilter && item.channel !== calendarChannelFilter) return false
+      if (calendarPhaseFilter && item.campaign_phase !== calendarPhaseFilter) return false
+      if (calendarAuthorizationFilter && item.authorization_status !== calendarAuthorizationFilter) return false
+      return true
+    })
+  }, [
+    calendarAuthorizationFilter,
+    calendarCampaignFilter,
+    calendarChannelFilter,
+    calendarItems,
+    calendarPhaseFilter,
+  ])
+
+  const calendarItemsByPhase = useMemo(() => {
+    return CALENDAR_PHASES.reduce((lanes, phase) => {
+      lanes[phase.key] = filteredCalendarItems.filter((item) => item.campaign_phase === phase.key)
+      return lanes
+    }, {} as Record<CalendarItem['campaign_phase'], CalendarItem[]>)
+  }, [filteredCalendarItems])
 
   useEffect(() => {
     setSelectedPacketId((current) => current || packets[0]?.id || '')
@@ -343,6 +452,39 @@ function ContentIntelligenceContent() {
     }
   }, [activationScopeNote, authedFetch, digest?.lookback_days])
 
+  const createCalendarItem = useCallback(async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setError(null)
+    setCalendarNotice(null)
+
+    if (!calendarForm.title.trim() || !calendarForm.scheduled_for) {
+      setError('Calendar item title and due time are required.')
+      return
+    }
+
+    setCreatingCalendarItem(true)
+    try {
+      const response = await authedFetch('/api/admin/social-content/calendar', {
+        method: 'POST',
+        body: JSON.stringify({
+          ...calendarForm,
+          campaign_id: calendarForm.campaign_id || null,
+          planned_angle: calendarForm.planned_angle.trim() || null,
+          scheduled_for: new Date(calendarForm.scheduled_for).toISOString(),
+        }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `Calendar create HTTP ${response.status}`)
+      setCalendarForm(EMPTY_CALENDAR_FORM)
+      setCalendarNotice('Calendar item planned. Human authorization remains pending.')
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create calendar item')
+    } finally {
+      setCreatingCalendarItem(false)
+    }
+  }, [authedFetch, calendarForm, load])
+
   return (
     <div className="agent-ops-page min-h-screen p-5 text-foreground lg:p-7">
       <div className="mx-auto max-w-7xl">
@@ -386,6 +528,198 @@ function ContentIntelligenceContent() {
           <MetricCard label="Top outlier score" value={strongestPacket ? Math.round(Number(strongestPacket.outlier_score)) : 0} />
           <MetricCard label="Paid scraper runs" value={0} tone="amber" />
         </div>
+
+        <section className="agent-ops-card mb-6 rounded-lg border p-4">
+          <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <div className="agent-ops-eyebrow mb-2">
+                <CalendarDays size={16} />
+                Content Calendar
+              </div>
+              <h2 className="text-lg font-semibold">Campaign arc and due gates</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Channel-agnostic plan tied to campaigns and Shaka insights. Authorization prepares internal draft handoffs only.
+              </p>
+            </div>
+            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-amber-500/35 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-100">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              External publishing locked
+            </span>
+          </div>
+
+          <div className="mb-4 grid gap-3 md:grid-cols-4">
+            <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Campaign
+              <select
+                value={calendarCampaignFilter}
+                onChange={(event) => setCalendarCampaignFilter(event.target.value)}
+                className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+              >
+                <option value="">All campaigns</option>
+                {campaigns.map((campaign) => (
+                  <option key={campaign.id} value={campaign.id}>{campaign.name}</option>
+                ))}
+              </select>
+            </label>
+            <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Channel
+              <select
+                value={calendarChannelFilter}
+                onChange={(event) => setCalendarChannelFilter(event.target.value)}
+                className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+              >
+                <option value="">All channels</option>
+                {Object.entries(CALENDAR_CHANNEL_LABELS).map(([value, label]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </select>
+            </label>
+            <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Phase
+              <select
+                value={calendarPhaseFilter}
+                onChange={(event) => setCalendarPhaseFilter(event.target.value)}
+                className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+              >
+                <option value="">All phases</option>
+                {CALENDAR_PHASES.map((phase) => (
+                  <option key={phase.key} value={phase.key}>{phase.label}</option>
+                ))}
+              </select>
+            </label>
+            <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Authorization
+              <select
+                value={calendarAuthorizationFilter}
+                onChange={(event) => setCalendarAuthorizationFilter(event.target.value)}
+                className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+              >
+                <option value="">All states</option>
+                <option value="pending">Pending</option>
+                <option value="authorized">Authorized</option>
+                <option value="rejected">Rejected</option>
+                <option value="expired">Expired</option>
+                <option value="not_required">Not required</option>
+              </select>
+            </label>
+          </div>
+
+          <div className="grid gap-3 xl:grid-cols-4">
+            {CALENDAR_PHASES.map((phase) => (
+              <div key={phase.key} className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-3">
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <h3 className="text-sm font-semibold">{phase.label}</h3>
+                  <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5 text-xs text-muted-foreground">
+                    {calendarItemsByPhase[phase.key].length}
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  {calendarItemsByPhase[phase.key].length ? calendarItemsByPhase[phase.key].map((item) => (
+                    <CalendarItemCard key={item.id} item={item} />
+                  )) : (
+                    <p className="rounded-md border border-silicon-slate/60 bg-background/35 p-3 text-xs text-muted-foreground">
+                      No planned items.
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <form onSubmit={createCalendarItem} className="mt-4 rounded-lg border border-radiant-gold/35 bg-radiant-gold/10 p-3">
+            <div className="mb-3 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <h3 className="text-sm font-semibold text-radiant-gold">Plan calendar item</h3>
+                <p className="mt-1 text-xs text-muted-foreground">Creates a pending calendar gate only. Use campaign detail to generate the default whisper-to-shout arc.</p>
+              </div>
+              {calendarNotice ? (
+                <span className="inline-flex w-fit rounded-full border border-emerald-500/35 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-100">
+                  {calendarNotice}
+                </span>
+              ) : null}
+            </div>
+            <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_14rem_12rem]">
+              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Title
+                <input
+                  required
+                  type="text"
+                  value={calendarForm.title}
+                  onChange={(event) => setCalendarForm((current) => ({ ...current, title: event.target.value }))}
+                  className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+                />
+              </label>
+              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Scheduled for
+                <input
+                  required
+                  type="datetime-local"
+                  value={calendarForm.scheduled_for}
+                  onChange={(event) => setCalendarForm((current) => ({ ...current, scheduled_for: event.target.value }))}
+                  className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+                />
+              </label>
+              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Channel
+                <select
+                  value={calendarForm.channel}
+                  onChange={(event) => setCalendarForm((current) => ({ ...current, channel: event.target.value as CalendarItem['channel'] }))}
+                  className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+                >
+                  {Object.entries(CALENDAR_CHANNEL_LABELS).map(([value, label]) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <div className="mt-3 grid gap-3 lg:grid-cols-[14rem_1fr]">
+              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Phase
+                <select
+                  value={calendarForm.campaign_phase}
+                  onChange={(event) => setCalendarForm((current) => ({ ...current, campaign_phase: event.target.value as CalendarItem['campaign_phase'] }))}
+                  className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+                >
+                  {CALENDAR_PHASES.map((phase) => (
+                    <option key={phase.key} value={phase.key}>{phase.label}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Campaign
+                <select
+                  value={calendarForm.campaign_id}
+                  onChange={(event) => setCalendarForm((current) => ({ ...current, campaign_id: event.target.value }))}
+                  className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+                >
+                  <option value="">No campaign</option>
+                  {campaigns.map((campaign) => (
+                    <option key={campaign.id} value={campaign.id}>{campaign.name}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <label className="mt-3 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Planned angle
+              <textarea
+                value={calendarForm.planned_angle}
+                onChange={(event) => setCalendarForm((current) => ({ ...current, planned_angle: event.target.value }))}
+                rows={2}
+                className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+              />
+            </label>
+            <div className="mt-3 flex justify-end">
+              <button
+                type="submit"
+                disabled={creatingCalendarItem}
+                className="agent-ops-button-primary disabled:opacity-60"
+              >
+                <Plus size={16} />
+                {creatingCalendarItem ? 'Planning...' : 'Plan Item'}
+              </button>
+            </div>
+          </form>
+        </section>
 
         <section className="agent-ops-card mb-6 rounded-lg border p-4">
           <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -832,6 +1166,53 @@ function DigestList({
         }) : (
           <p className="rounded-md border border-silicon-slate/60 bg-background/35 p-3 text-xs text-muted-foreground">{empty}</p>
         )}
+      </div>
+    </div>
+  )
+}
+
+function CalendarItemCard({ item }: { item: CalendarItem }) {
+  const campaignName = item.attraction_campaigns?.name ?? 'No campaign'
+  return (
+    <div className="rounded-md border border-silicon-slate/60 bg-background/35 p-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-sm font-semibold leading-5">{item.title}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{formatCalendarDate(item.scheduled_for)}</p>
+        </div>
+        <span className="shrink-0 rounded-full border border-amber-500/35 bg-amber-500/10 px-2 py-0.5 text-[0.68rem] font-semibold text-amber-100">
+          {item.authorization_status.replace(/_/g, ' ')}
+        </span>
+      </div>
+      {item.planned_angle ? (
+        <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">{item.planned_angle}</p>
+      ) : null}
+      <div className="mt-3 flex flex-wrap gap-2 text-[0.68rem] text-muted-foreground">
+        <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5">
+          {CALENDAR_CHANNEL_LABELS[item.channel]}
+        </span>
+        <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5">
+          {item.due_status.replace(/_/g, ' ')}
+        </span>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2 text-xs">
+        {item.campaign_id ? (
+          <Link href={`/admin/campaigns/${item.campaign_id}`} className="text-blue-200 hover:text-blue-100">
+            {campaignName}
+          </Link>
+        ) : (
+          <span className="text-muted-foreground">{campaignName}</span>
+        )}
+        {item.agent_work_item_id ? (
+          <Link href={`/admin/agents/social-insights/${item.agent_work_item_id}`} className="text-blue-200 hover:text-blue-100">
+            Insight
+          </Link>
+        ) : null}
+        {item.social_content_id ? (
+          <Link href={`/admin/social-content/${item.social_content_id}`} className="text-blue-200 hover:text-blue-100">
+            Draft
+          </Link>
+        ) : null}
       </div>
     </div>
   )
