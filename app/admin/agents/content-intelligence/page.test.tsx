@@ -64,6 +64,47 @@ describe('ContentIntelligencePage', () => {
           }),
         }
       }
+      if (url === '/api/admin/social-content/calendar/calendar-1/authorize') {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            item: { id: 'calendar-1', authorization_status: 'authorized', social_content_id: 'social-1' },
+            handoff: {
+              kind: 'linkedin_social_content_draft',
+              work_item_id: 'work-handoff-1',
+              social_content_id: 'social-1',
+            },
+            side_effects: {
+              provider_generation: false,
+              upload: false,
+              external_schedule: false,
+              publish: false,
+              external_post: false,
+              internal_draft_handoff_created: true,
+              social_content_draft_created: true,
+            },
+          }),
+        }
+      }
+      if (url === '/api/admin/social-content/calendar/calendar-1/reject') {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            item: { id: 'calendar-1', authorization_status: 'rejected' },
+            revision_work_item_id: 'work-revision-1',
+            side_effects: {
+              provider_generation: false,
+              upload: false,
+              external_schedule: false,
+              publish: false,
+              external_post: false,
+              revision_work_item_created: true,
+            },
+          }),
+        }
+      }
       if (url === '/api/admin/social-content/calendar') {
         return {
           ok: true,
@@ -400,6 +441,46 @@ describe('ContentIntelligencePage', () => {
       channel: 'linkedin',
       campaign_phase: 'tease',
       planned_angle: 'Teach the operating framework behind the campaign.',
+    })
+  })
+
+  it('authorizes a calendar item as an internal draft handoff', async () => {
+    render(<ContentIntelligencePage />)
+
+    await screen.findByText('Tease: Approval gates')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Authorize Draft Handoff' }))
+
+    await screen.findByText('Draft handoff authorized and Social Content draft created.')
+
+    const authorizeCall = vi.mocked(fetch).mock.calls.find(([input]) => (
+      String(input) === '/api/admin/social-content/calendar/calendar-1/authorize'
+    ))
+    expect(authorizeCall).toBeTruthy()
+    expect(authorizeCall?.[1]).toMatchObject({ method: 'POST' })
+    expect(JSON.parse(String(authorizeCall?.[1]?.body))).toEqual({})
+  })
+
+  it('requires a decision note before rejecting a calendar item', async () => {
+    render(<ContentIntelligencePage />)
+
+    await screen.findByText('Tease: Approval gates')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reject' }))
+    fireEvent.change(screen.getAllByLabelText('Decision note')[0], {
+      target: { value: 'Needs stronger proof before this is due.' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Submit Rejection' }))
+
+    await screen.findByText('Calendar item rejected and returned to Shaka for revision.')
+
+    const rejectCall = vi.mocked(fetch).mock.calls.find(([input]) => (
+      String(input) === '/api/admin/social-content/calendar/calendar-1/reject'
+    ))
+    expect(rejectCall).toBeTruthy()
+    expect(rejectCall?.[1]).toMatchObject({ method: 'POST' })
+    expect(JSON.parse(String(rejectCall?.[1]?.body))).toEqual({
+      decision_note: 'Needs stronger proof before this is due.',
     })
   })
 })
