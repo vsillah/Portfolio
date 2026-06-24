@@ -9,6 +9,7 @@ import {
   Clock, Loader2, X, ChevronRight, AlertCircle, UserPlus, Calendar,
 } from 'lucide-react';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
+import { getCurrentSession } from '@/lib/auth';
 import { getBackUrl, buildLinkWithReturn } from '@/lib/admin-return-context';
 import {
   CAMPAIGN_STATUS_LABELS, CAMPAIGN_STATUS_COLORS, CRITERIA_TYPE_LABELS,
@@ -31,7 +32,24 @@ type CampaignCalendarItem = {
   authorization_due_at: string | null;
   agent_work_item_id: string | null;
   social_content_id: string | null;
+  metadata?: Record<string, unknown> | null;
 };
+
+function calendarAuthorizationTone(status: string) {
+  if (status === 'authorized') {
+    return 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100';
+  }
+  if (status === 'rejected' || status === 'expired') {
+    return 'border-red-500/35 bg-red-500/10 text-red-100';
+  }
+  return 'border-amber-500/35 bg-amber-500/10 text-amber-100';
+}
+
+function metadataRecord(value: unknown) {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {};
+}
 
 interface CampaignDetail extends AttractionCampaign {
   campaign_eligible_bundles: Array<{
@@ -71,6 +89,9 @@ export default function CampaignDetailPage() {
   const [activeTab, setActiveTab] = useState<'criteria' | 'bundles' | 'enrollments' | 'content-calendar'>('criteria');
   const [generatingContentPlan, setGeneratingContentPlan] = useState(false);
   const [contentPlanNotice, setContentPlanNotice] = useState('');
+  const [calendarActionItemId, setCalendarActionItemId] = useState<string | null>(null);
+  const [rejectingCalendarItemId, setRejectingCalendarItemId] = useState<string | null>(null);
+  const [calendarDecisionNotes, setCalendarDecisionNotes] = useState<Record<string, string>>({});
 
   // Criteria form
   const [showCriteriaForm, setShowCriteriaForm] = useState(false);
@@ -90,9 +111,20 @@ export default function CampaignDetailPage() {
   const [enrollForm, setEnrollForm] = useState({ client_email: '', client_name: '' });
   const [enrollError, setEnrollError] = useState('');
 
+  const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
+    const session = await getCurrentSession();
+    if (!session?.access_token) throw new Error('Missing admin session');
+    const headers = new Headers(init.headers);
+    headers.set('Authorization', `Bearer ${session.access_token}`);
+    if (init.body && !headers.has('Content-Type')) {
+      headers.set('Content-Type', 'application/json');
+    }
+    return fetch(path, { ...init, headers });
+  }, []);
+
   const fetchCampaign = useCallback(async () => {
     try {
-      const res = await fetch(`/api/admin/campaigns/${campaignId}`);
+      const res = await authedFetch(`/api/admin/campaigns/${campaignId}`);
       if (res.ok) {
         const data = await res.json();
         setCampaign(data.data);
@@ -100,11 +132,11 @@ export default function CampaignDetailPage() {
     } catch (err) {
       console.error('Failed to fetch campaign:', err);
     }
-  }, [campaignId]);
+  }, [authedFetch, campaignId]);
 
   const fetchEnrollments = useCallback(async () => {
     try {
-      const res = await fetch(`/api/admin/campaigns/${campaignId}/enrollments`);
+      const res = await authedFetch(`/api/admin/campaigns/${campaignId}/enrollments`);
       if (res.ok) {
         const data = await res.json();
         setEnrollments(data.data || []);
@@ -112,11 +144,11 @@ export default function CampaignDetailPage() {
     } catch (err) {
       console.error('Failed to fetch enrollments:', err);
     }
-  }, [campaignId]);
+  }, [authedFetch, campaignId]);
 
   const fetchBundles = useCallback(async () => {
     try {
-      const res = await fetch('/api/admin/sales/bundles');
+      const res = await authedFetch('/api/admin/sales/bundles');
       if (res.ok) {
         const data = await res.json();
         setAvailableBundles(data.data || []);
@@ -124,7 +156,7 @@ export default function CampaignDetailPage() {
     } catch (err) {
       console.error('Failed to fetch bundles:', err);
     }
-  }, []);
+  }, [authedFetch]);
 
   useEffect(() => {
     Promise.all([fetchCampaign(), fetchEnrollments(), fetchBundles()]).finally(() => setLoading(false));
@@ -133,7 +165,7 @@ export default function CampaignDetailPage() {
   const handleAddCriterion = async () => {
     if (!criteriaForm.label_template.trim()) return;
     try {
-      const res = await fetch(`/api/admin/campaigns/${campaignId}/criteria`, {
+      const res = await authedFetch(`/api/admin/campaigns/${campaignId}/criteria`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(criteriaForm),
@@ -150,7 +182,7 @@ export default function CampaignDetailPage() {
 
   const handleDeleteCriterion = async (criterionId: string) => {
     try {
-      await fetch(`/api/admin/campaigns/${campaignId}/criteria?criterion_id=${criterionId}`, { method: 'DELETE' });
+      await authedFetch(`/api/admin/campaigns/${campaignId}/criteria?criterion_id=${criterionId}`, { method: 'DELETE' });
       fetchCampaign();
     } catch (err) {
       console.error('Failed to delete criterion:', err);
@@ -160,7 +192,7 @@ export default function CampaignDetailPage() {
   const handleAddBundle = async () => {
     if (!selectedBundleId) return;
     try {
-      const res = await fetch(`/api/admin/campaigns/${campaignId}/eligible-bundles`, {
+      const res = await authedFetch(`/api/admin/campaigns/${campaignId}/eligible-bundles`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ bundle_id: selectedBundleId }),
@@ -177,7 +209,7 @@ export default function CampaignDetailPage() {
 
   const handleRemoveBundle = async (bundleId: string) => {
     try {
-      await fetch(`/api/admin/campaigns/${campaignId}/eligible-bundles?bundle_id=${bundleId}`, { method: 'DELETE' });
+      await authedFetch(`/api/admin/campaigns/${campaignId}/eligible-bundles?bundle_id=${bundleId}`, { method: 'DELETE' });
       fetchCampaign();
     } catch (err) {
       console.error('Failed to remove bundle:', err);
@@ -188,7 +220,7 @@ export default function CampaignDetailPage() {
     if (!enrollForm.client_email.trim()) return;
     setEnrollError('');
     try {
-      const res = await fetch(`/api/admin/campaigns/${campaignId}/enrollments`, {
+      const res = await authedFetch(`/api/admin/campaigns/${campaignId}/enrollments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(enrollForm),
@@ -211,7 +243,7 @@ export default function CampaignDetailPage() {
     setGeneratingContentPlan(true);
     setContentPlanNotice('');
     try {
-      const res = await fetch(`/api/admin/campaigns/${campaignId}/content-plan`, {
+      const res = await authedFetch(`/api/admin/campaigns/${campaignId}/content-plan`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -227,6 +259,63 @@ export default function CampaignDetailPage() {
       setContentPlanNotice('Failed to generate content plan.');
     } finally {
       setGeneratingContentPlan(false);
+    }
+  };
+
+  const handleAuthorizeCalendarItem = async (item: CampaignCalendarItem) => {
+    setContentPlanNotice('');
+    setCalendarActionItemId(item.id);
+    try {
+      const res = await authedFetch(`/api/admin/social-content/calendar/${item.id}/authorize`, {
+        method: 'POST',
+        body: JSON.stringify({}),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setContentPlanNotice(data.handoff?.social_content_id
+          ? 'Draft handoff authorized and Social Content draft created.'
+          : 'Draft handoff authorized for channel planning.');
+        await fetchCampaign();
+      } else {
+        setContentPlanNotice(data.error || 'Failed to authorize draft handoff.');
+      }
+    } catch (err) {
+      console.error('Failed to authorize calendar item:', err);
+      setContentPlanNotice('Failed to authorize draft handoff.');
+    } finally {
+      setCalendarActionItemId(null);
+    }
+  };
+
+  const handleRejectCalendarItem = async (item: CampaignCalendarItem) => {
+    const decisionNote = calendarDecisionNotes[item.id]?.trim() || '';
+    if (!decisionNote) {
+      setRejectingCalendarItemId(item.id);
+      setContentPlanNotice('Decision note is required when rejecting a calendar item.');
+      return;
+    }
+
+    setContentPlanNotice('');
+    setCalendarActionItemId(item.id);
+    try {
+      const res = await authedFetch(`/api/admin/social-content/calendar/${item.id}/reject`, {
+        method: 'POST',
+        body: JSON.stringify({ decision_note: decisionNote }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setCalendarDecisionNotes((current) => ({ ...current, [item.id]: '' }));
+        setRejectingCalendarItemId(null);
+        setContentPlanNotice('Calendar item rejected and returned to Shaka for revision.');
+        await fetchCampaign();
+      } else {
+        setContentPlanNotice(data.error || 'Failed to reject calendar item.');
+      }
+    } catch (err) {
+      console.error('Failed to reject calendar item:', err);
+      setContentPlanNotice('Failed to reject calendar item.');
+    } finally {
+      setCalendarActionItemId(null);
     }
   };
 
@@ -588,7 +677,7 @@ export default function CampaignDetailPage() {
                               {new Date(item.scheduled_for).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
                             </p>
                           </div>
-                          <span className="shrink-0 rounded-full border border-amber-500/35 bg-amber-500/10 px-2 py-0.5 text-[0.68rem] font-semibold text-amber-100">
+                          <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[0.68rem] font-semibold ${calendarAuthorizationTone(item.authorization_status)}`}>
                             {item.authorization_status.replace(/_/g, ' ')}
                           </span>
                         </div>
@@ -600,6 +689,28 @@ export default function CampaignDetailPage() {
                           <span className="rounded-full border border-white/10 px-2 py-0.5">{item.due_status.replace(/_/g, ' ')}</span>
                         </div>
                         <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                          {(() => {
+                            const platformDraftHandoff = metadataRecord(metadataRecord(item.metadata).platform_draft_handoff);
+                            const handoffWorkItemId = typeof platformDraftHandoff.work_item_id === 'string'
+                              ? platformDraftHandoff.work_item_id
+                              : null;
+                            const socialContentId = item.social_content_id
+                              || (typeof platformDraftHandoff.social_content_id === 'string' ? platformDraftHandoff.social_content_id : null);
+                            return (
+                              <>
+                                {handoffWorkItemId && (
+                                  <Link href={`/admin/agents/social-insights/${handoffWorkItemId}`} className="text-blue-200 hover:text-blue-100">
+                                    Handoff
+                                  </Link>
+                                )}
+                                {!item.social_content_id && socialContentId && (
+                                  <Link href={`/admin/social-content/${socialContentId}`} className="text-blue-200 hover:text-blue-100">
+                                    Draft
+                                  </Link>
+                                )}
+                              </>
+                            );
+                          })()}
                           {item.agent_work_item_id && (
                             <Link href={`/admin/agents/social-insights/${item.agent_work_item_id}`} className="text-blue-200 hover:text-blue-100">
                               Insight
@@ -611,6 +722,42 @@ export default function CampaignDetailPage() {
                             </Link>
                           )}
                         </div>
+                        {(rejectingCalendarItemId === item.id || item.authorization_status === 'rejected') && (
+                          <label className="mt-3 block text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">
+                            Decision note
+                            <textarea
+                              value={calendarDecisionNotes[item.id] || ''}
+                              onChange={(event) => setCalendarDecisionNotes((current) => ({ ...current, [item.id]: event.target.value }))}
+                              disabled={calendarActionItemId === item.id || item.authorization_status !== 'pending'}
+                              rows={2}
+                              placeholder="What should Shaka revise before this campaign item can be authorized?"
+                              className="mt-1 w-full rounded-lg border border-white/10 bg-silicon-slate/50 px-3 py-2 text-xs normal-case tracking-normal text-foreground disabled:opacity-60"
+                            />
+                          </label>
+                        )}
+                        {(item.authorization_status === 'pending' || item.authorization_status === 'rejected') && (
+                          <div className="mt-3 flex flex-col gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleAuthorizeCalendarItem(item)}
+                              disabled={calendarActionItemId === item.id}
+                              className="inline-flex min-h-9 items-center justify-center gap-2 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-100 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              {calendarActionItemId === item.id ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
+                              {calendarActionItemId === item.id ? 'Authorizing...' : 'Authorize Draft Handoff'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => (rejectingCalendarItemId === item.id || item.authorization_status === 'rejected')
+                                ? handleRejectCalendarItem(item)
+                                : setRejectingCalendarItemId(item.id)}
+                              disabled={calendarActionItemId === item.id || item.authorization_status === 'rejected'}
+                              className="inline-flex min-h-9 items-center justify-center gap-2 rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-100 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              {item.authorization_status === 'rejected' ? 'Rejected' : rejectingCalendarItemId === item.id ? 'Submit Rejection' : 'Reject'}
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )) : (
                       <p className="rounded-lg border border-white/10 bg-silicon-slate/40 p-4 text-center text-sm text-muted-foreground">
