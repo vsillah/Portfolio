@@ -10,6 +10,22 @@ no meaningful usage signal, or after clear redundancy plus a lower-risk
 replacement path. Production changes require explicit approval in the form
 `Cancel <tool/vendor> for Portfolio`.
 
+## 2026-06-24 Daily Monitor Run
+
+Status: YELLOW
+
+Detailed run artifact: [`docs/subscription-monitor-runs/2026-06-24.md`](subscription-monitor-runs/2026-06-24.md)
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- Production Supabase moved today, n8n Cloud returned 85 workflows with 72 active and a successful execution at 2026-06-24T12:32:47Z, and Vercel CLI listed ready `portfolio` plus `portfolio-staging` deployments on 2026-06-24.
+- Stripe, OpenAI, Anthropic, Gemini/Google AI, Read AI connector, Pinecone, Printful, Apify, Hunter, and the app-side integration footprint were readable or dependency-backed.
+- Gamma regressed to HTTP 401 after prior readable evidence; Calendly remains HTTP 401; HeyGen voices are readable but avatar catalog still times out; n8n legacy key/drift checks remain 403 while the cloud key works.
+- OpenRouter and Vapi remain consecutive quiet signals, Resend remains local-key absent, ElevenLabs remains zero-use in the current Creator cycle, and Pinecone traffic/billing remains unresolved. These are investigate/watch items, not automatic cancellation approvals.
+- BuiltWith remains active/watch during the outreach ramp; Fireflies remains resolved canceled unless new paid-plan evidence appears.
+- Repo artifact continuity note: local automation memory recorded a 2026-06-23 run, but this checkout's durable repo files only contained artifacts through 2026-06-22 before this run.
+
 ## 2026-06-22 Weekly Subscription Report
 
 Status: YELLOW
