@@ -415,7 +415,6 @@ export async function createDraftDirect(
     clientEmail,
     clientName,
     meetingRecordId,
-    source,
     userId,
   } = input
 
@@ -433,7 +432,6 @@ export async function createDraftDirect(
       task_ids: [],
       status: 'draft',
       created_by: userId || null,
-      ...(source ? { source } : {}),
     })
     .select('*')
     .single()

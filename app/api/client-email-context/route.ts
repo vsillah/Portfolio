@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
       .eq('client_email', email)
       .order('created_at', { ascending: false })
       .limit(1)
-      .single()
+      .maybeSingle()
 
     if (projErr || !project) {
       // Fallback: check contact_submissions (leads)
@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
       .select('milestones, status')
       .eq('client_project_id', project.id)
       .limit(1)
-      .single()
+      .maybeSingle()
 
     if (plan?.milestones && Array.isArray(plan.milestones)) {
       const ms = plan.milestones as Array<{ title?: string; status?: string; target_date?: string }>
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
       .eq('client_project_id', project.id)
       .order('meeting_date', { ascending: false })
       .limit(1)
-      .single()
+      .maybeSingle()
 
     if (meeting) {
       // Extract a short summary from structured_notes if available
@@ -172,11 +172,11 @@ export async function GET(request: NextRequest) {
 async function getLeadContext(email: string): Promise<NextResponse> {
   const { data: lead, error: leadErr } = await supabaseAdmin
     .from('contact_submissions')
-    .select('id, name, email, company, service_interest, message, created_at')
+    .select('id, name, email, company, interest_areas, interest_summary, message, created_at')
     .eq('email', email)
     .order('created_at', { ascending: false })
     .limit(1)
-    .single()
+    .maybeSingle()
 
   if (leadErr || !lead) {
     return NextResponse.json({
@@ -262,13 +262,22 @@ async function getLeadContext(email: string): Promise<NextResponse> {
       project_start_date: null,
       estimated_end_date: null,
       lead_id: lead.id,
-      service_interest: lead.service_interest,
+      service_interest: lead.interest_summary || formatInterestAreas(lead.interest_areas),
       initial_message: lead.message,
     },
     milestones: null,
     last_meeting: lastMeeting,
     action_items: actionItems,
   })
+}
+
+function formatInterestAreas(value: unknown): string | null {
+  if (Array.isArray(value)) {
+    const labels = value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+    return labels.length > 0 ? labels.join(', ') : null
+  }
+
+  return null
 }
 
 /**
