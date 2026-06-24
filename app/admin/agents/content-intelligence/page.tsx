@@ -23,6 +23,12 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
 import type { AgentWorkItem } from '@/lib/agent-work-items'
+import {
+  CAMPAIGN_PHASE_LABELS,
+  SOCIAL_CONTENT_CALENDAR_SOURCE_LABELS,
+  SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS,
+  SOCIAL_CONTENT_CALENDAR_TEMPLATES,
+} from '@/lib/social-content-calendar'
 
 type ResearchPacket = {
   id: string
@@ -235,6 +241,14 @@ function recordValue(value: unknown) {
   return value && typeof value === 'object' && !Array.isArray(value)
     ? value as Record<string, unknown>
     : {}
+}
+
+function calendarSourceLabel(url: string) {
+  try {
+    return SOCIAL_CONTENT_CALENDAR_SOURCE_LABELS[url] || new URL(url).hostname.replace(/^www\./, '')
+  } catch {
+    return url
+  }
 }
 
 export default function ContentIntelligencePage() {
@@ -684,6 +698,62 @@ function ContentIntelligenceContent() {
               <ShieldCheck className="h-3.5 w-3.5" />
               External publishing locked
             </span>
+          </div>
+
+          <div className="mb-4 rounded-lg border border-blue-500/25 bg-blue-500/10 p-3">
+            <div className="mb-3 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <h3 className="text-sm font-semibold text-blue-50">Template research library</h3>
+                <p className="mt-1 text-xs leading-5 text-blue-100/75">
+                  Source-backed milestone models are available before any campaign plan is generated.
+                </p>
+              </div>
+              <span className="inline-flex w-fit rounded-full border border-blue-300/25 px-2.5 py-1 text-[0.68rem] font-semibold text-blue-100">
+                {SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS.length} templates
+              </span>
+            </div>
+            <div className="grid gap-2 xl:grid-cols-5">
+              {SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS.map((key) => {
+                const template = SOCIAL_CONTENT_CALENDAR_TEMPLATES[key]
+                return (
+                  <div key={key} className="rounded-lg border border-blue-300/20 bg-background/35 p-3">
+                    <p className="text-xs font-semibold text-blue-50">{template.label}</p>
+                    <p className="mt-1 line-clamp-3 text-[0.68rem] leading-5 text-blue-100/75">
+                      {template.description}
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {template.goal_types.slice(0, 2).map((goal) => (
+                        <span key={goal} className="rounded-full border border-blue-300/20 px-2 py-0.5 text-[0.62rem] text-blue-100/70">
+                          {goal.replace(/_/g, ' ')}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="mt-3 space-y-1.5">
+                      {template.milestones.map((milestone) => (
+                        <div key={milestone.key} className="flex items-center justify-between gap-2 text-[0.66rem] text-blue-100/75">
+                          <span>{CAMPAIGN_PHASE_LABELS[milestone.campaign_phase]}</span>
+                          <span>{milestone.recommended_lead_time_days}d lead</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {template.source_urls.map((url) => (
+                        <a
+                          key={url}
+                          href={url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 rounded-full border border-blue-300/20 px-2 py-0.5 text-[0.62rem] font-semibold text-blue-100/80 hover:bg-blue-500/20"
+                        >
+                          {calendarSourceLabel(url)}
+                          <ExternalLink className="h-2.5 w-2.5" />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
           </div>
 
           <div className="mb-4 grid gap-3 md:grid-cols-4">

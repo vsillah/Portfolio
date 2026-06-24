@@ -136,6 +136,15 @@ const SOURCE_URLS = {
   asanaCalendar: 'https://asana.com/templates/social-media-calendar',
 } as const
 
+export const SOCIAL_CONTENT_CALENDAR_SOURCE_LABELS: Record<string, string> = {
+  [SOURCE_URLS.youtubeCreators]: 'YouTube creator optimization guidance',
+  [SOURCE_URLS.youtubePremieres]: 'YouTube premiere launch guidance',
+  [SOURCE_URLS.thinkWithGooglePlaybook]: 'Think with Google Creator Playbook',
+  [SOURCE_URLS.instagramBestPractices]: 'Instagram creator best practices',
+  [SOURCE_URLS.hubspotCalendar]: 'HubSpot social calendar template',
+  [SOURCE_URLS.asanaCalendar]: 'Asana social media calendar template',
+}
+
 export const SOCIAL_CONTENT_CALENDAR_TEMPLATES: Record<
   SocialContentCalendarTemplateKey,
   SocialContentCalendarTemplate
