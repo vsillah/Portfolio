@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   verifyAdmin: vi.fn(),
   isAuthError: vi.fn(),
   generateJsonCompletion: vi.fn(),
+  createAgentWorkItem: vi.fn(),
   from: vi.fn(),
   currentSingle: vi.fn(),
   updateSingle: vi.fn(),
@@ -24,6 +25,10 @@ vi.mock('@/lib/auth-server', () => ({
 
 vi.mock('@/lib/llm-dispatch', () => ({
   generateJsonCompletion: mocks.generateJsonCompletion,
+}))
+
+vi.mock('@/lib/agent-work-items', () => ({
+  createAgentWorkItem: mocks.createAgentWorkItem,
 }))
 
 vi.mock('@/lib/supabase', () => ({
@@ -51,6 +56,46 @@ const agentOpsRagContext = {
   content_calibration: {
     status: 'ready_for_draft_review',
   },
+}
+
+function agentWorkItemFromInput(input: Record<string, unknown>) {
+  const metadata = input.metadata && typeof input.metadata === 'object' && !Array.isArray(input.metadata)
+    ? input.metadata as Record<string, unknown>
+    : {}
+  const source = input.source && typeof input.source === 'object' && !Array.isArray(input.source)
+    ? input.source as Record<string, unknown>
+    : {}
+  return {
+    id: 'work-topic-1',
+    title: String(input.title ?? 'Approval gates create trust'),
+    objective: String(input.objective ?? 'AI needs accountable operating gates.'),
+    status: String(input.status ?? 'proposed'),
+    priority: String(input.priority ?? 'high'),
+    owner_agent_key: String(input.ownerAgentKey ?? 'chief-of-staff'),
+    owner_runtime: String(input.ownerRuntime ?? 'codex'),
+    source_type: typeof source.type === 'string' ? source.type : null,
+    source_id: typeof source.id === 'string' ? source.id : null,
+    source_label: typeof source.label === 'string' ? source.label : null,
+    source_run_id: null,
+    active_run_id: null,
+    parent_work_item_id: null,
+    branch_name: null,
+    worktree_path: null,
+    pr_number: null,
+    pr_url: null,
+    expected_files: [],
+    touched_files: [],
+    overlap_group: typeof input.overlapGroup === 'string' ? input.overlapGroup : null,
+    dependency_ids: [],
+    blocker_summary: null,
+    validation_summary: null,
+    approval_id: null,
+    metadata,
+    idempotency_key: typeof input.idempotencyKey === 'string' ? input.idempotencyKey : null,
+    created_at: '2026-06-24T10:00:00.000Z',
+    updated_at: '2026-06-24T10:00:00.000Z',
+    completed_at: null,
+  }
 }
 
 function socialContentTable() {
@@ -198,6 +243,9 @@ describe('POST /api/admin/social-content/[id]/discover-topic-triggers', () => {
         notes: ['Review-only candidates.'],
       }),
     })
+    mocks.createAgentWorkItem.mockImplementation(async (input: Record<string, unknown>) => (
+      agentWorkItemFromInput(input)
+    ))
     mocks.updateSingle.mockResolvedValue({
       data: {
         id: 'social-1',
@@ -288,8 +336,18 @@ describe('POST /api/admin/social-content/[id]/discover-topic-triggers', () => {
         }),
       }),
     })
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'Approval gates create trust',
+      status: 'proposed',
+      ownerAgentKey: 'chief-of-staff',
+      source: expect.objectContaining({
+        type: 'social_topic_trigger',
+      }),
+      idempotencyKey: expect.stringContaining('social-topic-trigger:approval-gates-review'),
+    }))
     expect(mocks.backlogUpsert).toHaveBeenCalledWith([
       expect.objectContaining({
+        agent_work_item_id: 'work-topic-1',
         candidate_key: expect.stringContaining('approval-gates-review'),
         title: 'Approval gates create trust',
         status: 'available',
@@ -299,7 +357,7 @@ describe('POST /api/admin/social-content/[id]/discover-topic-triggers', () => {
     expect(body.backlog_items).toHaveLength(1)
   })
 
-  it('still saves the draft-local topic packet when the backlog table is unavailable', async () => {
+  it('still saves the draft-local topic packet when the backlog projection table is unavailable', async () => {
     mocks.backlogSelect.mockResolvedValueOnce({
       data: null,
       error: {
@@ -315,8 +373,16 @@ describe('POST /api/admin/social-content/[id]/discover-topic-triggers', () => {
       version: 'social_topic_trigger_discovery_v1',
       status: 'review_ready',
     })
-    expect(body.backlog_items).toEqual([])
-    expect(body.backlog_warning).toContain('social_topic_backlog')
+    expect(body.backlog_items).toEqual([
+      expect.objectContaining({
+        id: 'work-topic-1',
+        agent_work_item_id: 'work-topic-1',
+        candidate_key: expect.stringContaining('approval-gates-review'),
+        title: 'Approval gates create trust',
+        status: 'available',
+      }),
+    ])
+    expect(body.backlog_warning).toBeNull()
     expect(mocks.update).toHaveBeenCalledWith({
       rag_context: expect.objectContaining({
         content_calibration: expect.objectContaining({

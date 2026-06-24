@@ -1,0 +1,85 @@
+import { describe, expect, it, vi } from 'vitest'
+import {
+  campaignContentPlanSlots,
+  defaultAuthorizationDueAt,
+  deriveDueStatus,
+  dueGateWindow,
+  normalizeAuthorizationStatus,
+  normalizeCalendarChannel,
+  normalizeCampaignPhase,
+  normalizeDueStatus,
+} from './social-content-calendar'
+
+describe('social-content-calendar helpers', () => {
+  it('derives due status at reminder and overdue boundaries', () => {
+    const now = new Date('2026-06-24T10:00:00.000Z')
+
+    expect(deriveDueStatus('2026-06-25T10:00:00.001Z', now)).toBe('planned')
+    expect(deriveDueStatus('2026-06-25T10:00:00.000Z', now)).toBe('due_soon')
+    expect(deriveDueStatus('2026-06-24T12:00:00.000Z', now)).toBe('due_now')
+    expect(deriveDueStatus('2026-06-24T08:00:00.000Z', now)).toBe('due_now')
+    expect(deriveDueStatus('2026-06-24T07:59:59.999Z', now)).toBe('past_due')
+    expect(deriveDueStatus('not-a-date', now)).toBe('planned')
+  })
+
+  it('selects due-gate windows only inside the 24h authorization reminder range', () => {
+    const now = new Date('2026-06-24T10:00:00.000Z')
+
+    expect(dueGateWindow('2026-06-25T10:00:00.001Z', now)).toBeNull()
+    expect(dueGateWindow('2026-06-25T10:00:00.000Z', now)).toBe('24h')
+    expect(dueGateWindow('2026-06-24T12:00:00.001Z', now)).toBe('24h')
+    expect(dueGateWindow('2026-06-24T12:00:00.000Z', now)).toBe('2h')
+    expect(dueGateWindow('2026-06-24T08:00:00.000Z', now)).toBe('2h')
+    expect(dueGateWindow('2026-06-24T07:59:59.999Z', now)).toBeNull()
+    expect(dueGateWindow('invalid-date', now)).toBeNull()
+  })
+
+  it('sets authorization due time 24 hours before the scheduled publish intent', () => {
+    expect(defaultAuthorizationDueAt('2026-06-25T15:30:00.000Z')).toBe('2026-06-24T15:30:00.000Z')
+    expect(defaultAuthorizationDueAt('not-a-date')).toBeNull()
+  })
+
+  it('generates four pending campaign slots with safe defaults and fallback spacing', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-06-24T10:00:00.000Z'))
+
+    try {
+      const slots = campaignContentPlanSlots({
+        name: 'Summer AI Readiness',
+        starts_at: '2026-07-01T00:00:00.000Z',
+        ends_at: '2026-07-01T00:00:00.000Z',
+      })
+
+      expect(slots.map((slot) => slot.campaign_phase)).toEqual(['tease', 'teach', 'proof', 'offer'])
+      expect(slots).toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          channel: 'linkedin',
+          title: 'Tease: Summer AI Readiness',
+          authorization_status: 'pending',
+          autonomy_eligible: false,
+          metadata: expect.objectContaining({
+            generated_from: 'campaign_content_plan',
+            external_execution_enabled: false,
+          }),
+        }),
+      ]))
+
+      const scheduledTimes = slots.map((slot) => new Date(slot.scheduled_for).getTime())
+      expect(scheduledTimes[1] - scheduledTimes[0]).toBe(3 * 86_400_000)
+      expect(scheduledTimes[2] - scheduledTimes[1]).toBe(3 * 86_400_000)
+      expect(scheduledTimes[3] - scheduledTimes[2]).toBe(3 * 86_400_000)
+      slots.forEach((slot) => {
+        expect(slot.authorization_due_at).toBe(defaultAuthorizationDueAt(slot.scheduled_for))
+      })
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('normalizes invalid enum-like values to safe defaults', () => {
+    expect(normalizeCalendarChannel('not-a-channel')).toBe('linkedin')
+    expect(normalizeCampaignPhase('launch')).toBe('tease')
+    expect(normalizeDueStatus('late')).toBe('planned')
+    expect(normalizeAuthorizationStatus('approved')).toBe('pending')
+  })
+})

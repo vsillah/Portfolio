@@ -113,6 +113,7 @@ export const NAV_ITEM_ICONS: Record<string, LucideIcon> = {
   '/admin/agents': Bot,
   '/admin/agents/standup': MessagesSquare,
   '/admin/agents/coordination': ClipboardCheck,
+  '/admin/agents/content-intelligence': Sparkles,
   '/admin/agents/swarm-board': Columns,
   '/admin/agents/runs': TerminalSquare,
   '/admin/agents/automations': RefreshCw,
