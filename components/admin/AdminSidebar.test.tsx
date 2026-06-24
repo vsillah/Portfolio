@@ -38,6 +38,7 @@ describe('AdminSidebar Agent Ops hierarchy', () => {
       '/admin/agents',
       '/admin/agents/standup',
       '/admin/agents/coordination',
+      '/admin/agents/content-intelligence',
       '/admin/agents/swarm-board',
       '/admin/agents/runs',
       '/admin/agents/automations',

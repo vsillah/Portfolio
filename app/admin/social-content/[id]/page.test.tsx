@@ -116,7 +116,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     render(<SocialContentDetailRoute />)
 
     expect(await screen.findByText('Visual Production')).toBeInTheDocument()
-    expect(await screen.findByText('Shaka topic backlog')).toBeInTheDocument()
+    expect(await screen.findByText('LinkedIn topics from Agentic Backlog')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Ask Shaka for Topics/i })).not.toBeInTheDocument()
     expect(screen.getByText('Approval gates create trust')).toBeInTheDocument()
     expect(screen.getByText('Weekday scan')).toBeInTheDocument()
