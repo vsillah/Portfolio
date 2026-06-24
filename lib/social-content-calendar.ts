@@ -26,11 +26,20 @@ export const SOCIAL_CONTENT_CALENDAR_AUTHORIZATION_STATUSES = [
   'expired',
 ] as const
 
+export const SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS = [
+  'whisper_to_shout',
+  'youtube_video_release',
+  'short_form_series',
+  'evergreen_authority',
+  'case_study_proof_drop',
+] as const
+
 export type SocialContentCalendarChannel = (typeof SOCIAL_CONTENT_CALENDAR_CHANNELS)[number]
 export type SocialContentCampaignPhase = (typeof SOCIAL_CONTENT_CAMPAIGN_PHASES)[number]
 export type SocialContentCalendarDueStatus = (typeof SOCIAL_CONTENT_CALENDAR_DUE_STATUSES)[number]
 export type SocialContentCalendarAuthorizationStatus =
   (typeof SOCIAL_CONTENT_CALENDAR_AUTHORIZATION_STATUSES)[number]
+export type SocialContentCalendarTemplateKey = (typeof SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS)[number]
 
 export type SocialContentCalendarItem = {
   id: string
@@ -95,6 +104,353 @@ export const CAMPAIGN_PHASE_LABELS: Record<SocialContentCampaignPhase, string> =
   offer: 'Offer',
 }
 
+export type SocialContentCalendarTemplateMilestone = {
+  key: string
+  campaign_phase: SocialContentCampaignPhase
+  channel: SocialContentCalendarChannel
+  title_prefix: string
+  planned_angle: string
+  relative_position: number
+  fallback_day_offset: number
+  recommended_lead_time_days: number
+  required_assets: string[]
+  approval_gates: string[]
+  source_urls: string[]
+}
+
+export type SocialContentCalendarTemplate = {
+  key: SocialContentCalendarTemplateKey
+  label: string
+  description: string
+  goal_types: string[]
+  source_urls: string[]
+  milestones: SocialContentCalendarTemplateMilestone[]
+}
+
+const SOURCE_URLS = {
+  youtubeCreators: 'https://www.youtube.com/creators/grow/optimize-your-content/',
+  youtubePremieres: 'https://support.google.com/youtube/answer/9080341',
+  thinkWithGooglePlaybook: 'https://www.thinkwithgoogle.com/_qs/documents/1601/youtube-playbook.pdf',
+  instagramBestPractices: 'https://about.fb.com/news/2024/10/best-practices-education-hub-creators-instagram/',
+  hubspotCalendar: 'https://offers.hubspot.com/social-media-content-calendar',
+  asanaCalendar: 'https://asana.com/templates/social-media-calendar',
+} as const
+
+export const SOCIAL_CONTENT_CALENDAR_TEMPLATES: Record<
+  SocialContentCalendarTemplateKey,
+  SocialContentCalendarTemplate
+> = {
+  whisper_to_shout: {
+    key: 'whisper_to_shout',
+    label: 'Whisper-to-shout launch',
+    description: 'A campaign arc that starts with a small signal, teaches the frame, shows proof, then makes the offer.',
+    goal_types: ['campaign_launch', 'product_release', 'offer_push'],
+    source_urls: [SOURCE_URLS.hubspotCalendar, SOURCE_URLS.asanaCalendar],
+    milestones: [
+      {
+        key: 'small_tension',
+        campaign_phase: 'tease',
+        channel: 'linkedin',
+        title_prefix: 'Tease',
+        planned_angle: 'Open with a small tension, observation, or question that makes the campaign problem visible.',
+        relative_position: 0.1,
+        fallback_day_offset: 0,
+        recommended_lead_time_days: 14,
+        required_assets: ['triggering_event', 'campaign_problem', 'audience'],
+        approval_gates: ['copy_review'],
+        source_urls: [SOURCE_URLS.hubspotCalendar, SOURCE_URLS.asanaCalendar],
+      },
+      {
+        key: 'teaching_frame',
+        campaign_phase: 'teach',
+        channel: 'linkedin',
+        title_prefix: 'Teach',
+        planned_angle: 'Give the audience a useful framework or operating lesson connected to the campaign promise.',
+        relative_position: 0.35,
+        fallback_day_offset: 3,
+        recommended_lead_time_days: 10,
+        required_assets: ['framework', 'claim_boundaries'],
+        approval_gates: ['copy_review', 'source_review'],
+        source_urls: [SOURCE_URLS.hubspotCalendar],
+      },
+      {
+        key: 'proof_signal',
+        campaign_phase: 'proof',
+        channel: 'linkedin',
+        title_prefix: 'Proof',
+        planned_angle: 'Show evidence, a shipped example, client-safe result, or lived project insight that earns trust.',
+        relative_position: 0.65,
+        fallback_day_offset: 6,
+        recommended_lead_time_days: 7,
+        required_assets: ['proof_asset', 'privacy_review'],
+        approval_gates: ['copy_review', 'privacy_review'],
+        source_urls: [SOURCE_URLS.asanaCalendar],
+      },
+      {
+        key: 'clear_offer',
+        campaign_phase: 'offer',
+        channel: 'linkedin',
+        title_prefix: 'Offer',
+        planned_angle: 'Make the clearest campaign offer, bonus, release, or invitation as the campaign reaches the shout moment.',
+        relative_position: 0.9,
+        fallback_day_offset: 9,
+        recommended_lead_time_days: 3,
+        required_assets: ['offer', 'cta_url', 'publishing_gate'],
+        approval_gates: ['copy_review', 'authorization_gate'],
+        source_urls: [SOURCE_URLS.hubspotCalendar],
+      },
+    ],
+  },
+  youtube_video_release: {
+    key: 'youtube_video_release',
+    label: 'YouTube video release',
+    description: 'A video-led calendar with topic validation, hook/script readiness, thumbnail/title work, launch, and post-publish learning.',
+    goal_types: ['youtube_release', 'video_launch', 'authority_building'],
+    source_urls: [
+      SOURCE_URLS.youtubeCreators,
+      SOURCE_URLS.youtubePremieres,
+      SOURCE_URLS.thinkWithGooglePlaybook,
+    ],
+    milestones: [
+      {
+        key: 'topic_and_promise',
+        campaign_phase: 'tease',
+        channel: 'linkedin',
+        title_prefix: 'Topic promise',
+        planned_angle: 'Validate why this video should exist now: the audience problem, searchable promise, and Vambah-specific reason to speak.',
+        relative_position: 0.12,
+        fallback_day_offset: 0,
+        recommended_lead_time_days: 21,
+        required_assets: ['topic_trigger', 'audience_problem', 'research_pattern'],
+        approval_gates: ['insight_review'],
+        source_urls: [SOURCE_URLS.youtubeCreators, SOURCE_URLS.thinkWithGooglePlaybook],
+      },
+      {
+        key: 'hook_script_and_broll',
+        campaign_phase: 'teach',
+        channel: 'youtube_shorts',
+        title_prefix: 'Hook and script',
+        planned_angle: 'Prepare the first 30 seconds, short-form cutdown, storyboard, b-roll list, and claim boundaries before production.',
+        relative_position: 0.38,
+        fallback_day_offset: 4,
+        recommended_lead_time_days: 14,
+        required_assets: ['hook', 'script', 'storyboard', 'b_roll_hints'],
+        approval_gates: ['script_review', 'privacy_review'],
+        source_urls: [SOURCE_URLS.youtubeCreators],
+      },
+      {
+        key: 'thumbnail_title_package',
+        campaign_phase: 'proof',
+        channel: 'thumbnail',
+        title_prefix: 'Thumbnail and title',
+        planned_angle: 'Develop title and thumbnail variants that translate the source pattern into AmaduTown style without copying the creator reference.',
+        relative_position: 0.68,
+        fallback_day_offset: 8,
+        recommended_lead_time_days: 7,
+        required_assets: ['thumbnail_reference', 'title_variants', 'brand_adaptation'],
+        approval_gates: ['thumbnail_review', 'brand_review'],
+        source_urls: [SOURCE_URLS.youtubeCreators, SOURCE_URLS.thinkWithGooglePlaybook],
+      },
+      {
+        key: 'publish_and_retro',
+        campaign_phase: 'offer',
+        channel: 'youtube_shorts',
+        title_prefix: 'Publish gate and retro',
+        planned_angle: 'Schedule the internal authorization gate, prepare premiere or publish notes, then review first-day and seven-day performance before the next variation.',
+        relative_position: 0.9,
+        fallback_day_offset: 12,
+        recommended_lead_time_days: 2,
+        required_assets: ['publish_copy', 'engagement_plan', 'analytics_retro'],
+        approval_gates: ['authorization_gate', 'post_publish_review'],
+        source_urls: [SOURCE_URLS.youtubePremieres, SOURCE_URLS.youtubeCreators],
+      },
+    ],
+  },
+  short_form_series: {
+    key: 'short_form_series',
+    label: 'Short-form series',
+    description: 'A repeatable Reels/Shorts sequence that tests multiple hooks from one approved insight before scaling the winning angle.',
+    goal_types: ['short_form_series', 'reels_series', 'shorts_series'],
+    source_urls: [SOURCE_URLS.instagramBestPractices, SOURCE_URLS.youtubeCreators],
+    milestones: [
+      {
+        key: 'series_hypothesis',
+        campaign_phase: 'tease',
+        channel: 'linkedin',
+        title_prefix: 'Series hypothesis',
+        planned_angle: 'State the recurring audience tension and the internal insight that makes this a useful short-form series.',
+        relative_position: 0.1,
+        fallback_day_offset: 0,
+        recommended_lead_time_days: 10,
+        required_assets: ['triggering_event', 'series_thesis'],
+        approval_gates: ['insight_review'],
+        source_urls: [SOURCE_URLS.instagramBestPractices],
+      },
+      {
+        key: 'hook_batch',
+        campaign_phase: 'teach',
+        channel: 'instagram_reels',
+        title_prefix: 'Hook batch',
+        planned_angle: 'Draft three hook/script variants with safe-area notes, captions, b-roll hints, and a clear first-frame promise.',
+        relative_position: 0.35,
+        fallback_day_offset: 2,
+        recommended_lead_time_days: 7,
+        required_assets: ['hook_variants', 'script', 'safe_area_notes'],
+        approval_gates: ['script_review', 'visual_review'],
+        source_urls: [SOURCE_URLS.instagramBestPractices],
+      },
+      {
+        key: 'proof_cutdown',
+        campaign_phase: 'proof',
+        channel: 'youtube_shorts',
+        title_prefix: 'Proof cutdown',
+        planned_angle: 'Create the proof-driven cutdown that points to the shipped feature, client-safe project, or Chronicle observation.',
+        relative_position: 0.65,
+        fallback_day_offset: 5,
+        recommended_lead_time_days: 4,
+        required_assets: ['proof_asset', 'b_roll', 'privacy_review'],
+        approval_gates: ['privacy_review', 'visual_qa'],
+        source_urls: [SOURCE_URLS.youtubeCreators],
+      },
+      {
+        key: 'winning_angle_review',
+        campaign_phase: 'offer',
+        channel: 'instagram_reels',
+        title_prefix: 'Winning angle review',
+        planned_angle: 'Review performance and comments, select the next variation, and queue the follow-up authorization gate.',
+        relative_position: 0.9,
+        fallback_day_offset: 8,
+        recommended_lead_time_days: 1,
+        required_assets: ['metrics_snapshot', 'comment_review', 'next_variation'],
+        approval_gates: ['performance_review'],
+        source_urls: [SOURCE_URLS.instagramBestPractices, SOURCE_URLS.asanaCalendar],
+      },
+    ],
+  },
+  evergreen_authority: {
+    key: 'evergreen_authority',
+    label: 'Evergreen authority',
+    description: 'A durable thought-leadership sequence for topics that should keep earning trust after the campaign window ends.',
+    goal_types: ['authority', 'evergreen', 'education'],
+    source_urls: [SOURCE_URLS.youtubeCreators, SOURCE_URLS.hubspotCalendar],
+    milestones: [
+      {
+        key: 'evergreen_problem',
+        campaign_phase: 'tease',
+        channel: 'linkedin',
+        title_prefix: 'Evergreen problem',
+        planned_angle: 'Name the recurring operational problem in plain language and connect it to a current trigger.',
+        relative_position: 0.15,
+        fallback_day_offset: 0,
+        recommended_lead_time_days: 14,
+        required_assets: ['triggering_event', 'audience_problem'],
+        approval_gates: ['copy_review'],
+        source_urls: [SOURCE_URLS.hubspotCalendar],
+      },
+      {
+        key: 'framework_asset',
+        campaign_phase: 'teach',
+        channel: 'linkedin',
+        title_prefix: 'Framework',
+        planned_angle: 'Publish the core framework, mental model, or operating principle that the audience can reuse.',
+        relative_position: 0.42,
+        fallback_day_offset: 4,
+        recommended_lead_time_days: 10,
+        required_assets: ['framework', 'reference_sources'],
+        approval_gates: ['source_review', 'copy_review'],
+        source_urls: [SOURCE_URLS.youtubeCreators],
+      },
+      {
+        key: 'visual_explainer',
+        campaign_phase: 'proof',
+        channel: 'thumbnail',
+        title_prefix: 'Visual explainer',
+        planned_angle: 'Create a reusable visual, carousel, or thumbnail-style asset that makes the framework memorable.',
+        relative_position: 0.7,
+        fallback_day_offset: 7,
+        recommended_lead_time_days: 6,
+        required_assets: ['visual_brief', 'brand_review'],
+        approval_gates: ['visual_review'],
+        source_urls: [SOURCE_URLS.youtubeCreators, SOURCE_URLS.asanaCalendar],
+      },
+      {
+        key: 'evergreen_cta',
+        campaign_phase: 'offer',
+        channel: 'linkedin',
+        title_prefix: 'Evergreen CTA',
+        planned_angle: 'Point the audience toward the durable resource, service, or next conversation without making the post feel like a hard launch.',
+        relative_position: 0.9,
+        fallback_day_offset: 10,
+        recommended_lead_time_days: 2,
+        required_assets: ['resource_link', 'cta'],
+        approval_gates: ['authorization_gate'],
+        source_urls: [SOURCE_URLS.hubspotCalendar],
+      },
+    ],
+  },
+  case_study_proof_drop: {
+    key: 'case_study_proof_drop',
+    label: 'Case study proof drop',
+    description: 'A proof-first sequence for client-safe shipped work, product evidence, or operating results that need privacy review.',
+    goal_types: ['case_study', 'proof_drop', 'client_safe_project'],
+    source_urls: [SOURCE_URLS.asanaCalendar, SOURCE_URLS.hubspotCalendar],
+    milestones: [
+      {
+        key: 'context_without_secrets',
+        campaign_phase: 'tease',
+        channel: 'linkedin',
+        title_prefix: 'Context',
+        planned_angle: 'Set up the before-state and why the work mattered without exposing client, meeting, or Chronicle-sensitive details.',
+        relative_position: 0.12,
+        fallback_day_offset: 0,
+        recommended_lead_time_days: 14,
+        required_assets: ['client_safe_context', 'privacy_boundaries'],
+        approval_gates: ['privacy_review'],
+        source_urls: [SOURCE_URLS.asanaCalendar],
+      },
+      {
+        key: 'operating_lesson',
+        campaign_phase: 'teach',
+        channel: 'linkedin',
+        title_prefix: 'Lesson',
+        planned_angle: 'Extract the operating lesson from the project so the content teaches instead of merely announcing.',
+        relative_position: 0.38,
+        fallback_day_offset: 3,
+        recommended_lead_time_days: 10,
+        required_assets: ['lesson', 'claim_boundaries'],
+        approval_gates: ['copy_review', 'source_review'],
+        source_urls: [SOURCE_URLS.hubspotCalendar],
+      },
+      {
+        key: 'evidence_package',
+        campaign_phase: 'proof',
+        channel: 'linkedin',
+        title_prefix: 'Evidence',
+        planned_angle: 'Prepare screenshots, metrics, before/after notes, or a carousel from approved evidence only.',
+        relative_position: 0.68,
+        fallback_day_offset: 7,
+        recommended_lead_time_days: 7,
+        required_assets: ['screenshots', 'metrics', 'redaction_review'],
+        approval_gates: ['visual_review', 'privacy_review'],
+        source_urls: [SOURCE_URLS.asanaCalendar],
+      },
+      {
+        key: 'objection_and_offer',
+        campaign_phase: 'offer',
+        channel: 'linkedin',
+        title_prefix: 'Objection and offer',
+        planned_angle: 'Address the likely objection, then invite the audience into the relevant offer or conversation.',
+        relative_position: 0.9,
+        fallback_day_offset: 10,
+        recommended_lead_time_days: 2,
+        required_assets: ['objection', 'offer', 'cta'],
+        approval_gates: ['authorization_gate'],
+        source_urls: [SOURCE_URLS.hubspotCalendar],
+      },
+    ],
+  },
+}
+
 export function isCalendarChannel(value: unknown): value is SocialContentCalendarChannel {
   return typeof value === 'string'
     && SOCIAL_CONTENT_CALENDAR_CHANNELS.includes(value as SocialContentCalendarChannel)
@@ -117,6 +473,11 @@ export function isAuthorizationStatus(value: unknown): value is SocialContentCal
     )
 }
 
+export function isCalendarTemplateKey(value: unknown): value is SocialContentCalendarTemplateKey {
+  return typeof value === 'string'
+    && SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS.includes(value as SocialContentCalendarTemplateKey)
+}
+
 export function normalizeCalendarChannel(value: unknown): SocialContentCalendarChannel {
   return isCalendarChannel(value) ? value : 'linkedin'
 }
@@ -131,6 +492,14 @@ export function normalizeDueStatus(value: unknown): SocialContentCalendarDueStat
 
 export function normalizeAuthorizationStatus(value: unknown): SocialContentCalendarAuthorizationStatus {
   return isAuthorizationStatus(value) ? value : 'pending'
+}
+
+export function normalizeCalendarTemplateKey(value: unknown): SocialContentCalendarTemplateKey {
+  return isCalendarTemplateKey(value) ? value : 'whisper_to_shout'
+}
+
+export function getCalendarTemplate(value?: unknown): SocialContentCalendarTemplate {
+  return SOCIAL_CONTENT_CALENDAR_TEMPLATES[normalizeCalendarTemplateKey(value)]
 }
 
 export function defaultAuthorizationDueAt(scheduledFor: string | Date) {
@@ -192,42 +561,45 @@ function campaignDateAt(start: Date, end: Date, ratio: number) {
   return atLocalWorkHour(new Date(time))
 }
 
-export function campaignContentPlanSlots(campaign: Pick<AttractionCampaign, 'name' | 'starts_at' | 'ends_at'>) {
+export function campaignContentPlanSlots(
+  campaign: Pick<AttractionCampaign, 'name' | 'starts_at' | 'ends_at'>,
+  options: { templateKey?: SocialContentCalendarTemplateKey } = {},
+) {
   const start = dateOrNull(campaign.starts_at) ?? addDays(new Date(), 1)
   const end = dateOrNull(campaign.ends_at) ?? addDays(start, 21)
   const hasUsableWindow = end.getTime() > start.getTime()
   const baseStart = atLocalWorkHour(start)
+  const template = getCalendarTemplate(options.templateKey)
 
-  const scheduledDates = hasUsableWindow
-    ? [
-        campaignDateAt(start, end, 0.1),
-        campaignDateAt(start, end, 0.35),
-        campaignDateAt(start, end, 0.65),
-        campaignDateAt(start, end, 0.9),
-      ]
-    : [baseStart, addDays(baseStart, 3), addDays(baseStart, 6), addDays(baseStart, 9)]
+  return template.milestones.map((milestone) => {
+    const scheduledDate = hasUsableWindow
+      ? campaignDateAt(start, end, milestone.relative_position)
+      : addDays(baseStart, milestone.fallback_day_offset)
 
-  const angles: Record<SocialContentCampaignPhase, string> = {
-    tease: 'Open with a small tension, observation, or question that makes the campaign problem visible.',
-    teach: 'Give the audience a useful framework or operating lesson connected to the campaign promise.',
-    proof: 'Show evidence, a shipped example, client-safe result, or lived project insight that earns trust.',
-    offer: 'Make the clearest campaign offer, bonus, release, or invitation as the campaign reaches the shout moment.',
-  }
-
-  return SOCIAL_CONTENT_CAMPAIGN_PHASES.map((phase, index) => ({
-    campaign_phase: phase,
-    channel: 'linkedin' as SocialContentCalendarChannel,
-    title: `${CAMPAIGN_PHASE_LABELS[phase]}: ${campaign.name}`,
-    planned_angle: angles[phase],
-    scheduled_for: scheduledDates[index].toISOString(),
-    authorization_due_at: defaultAuthorizationDueAt(scheduledDates[index]),
-    authorization_status: 'pending' as SocialContentCalendarAuthorizationStatus,
-    due_status: deriveDueStatus(scheduledDates[index]),
-    autonomy_eligible: false,
-    metadata: {
-      generated_from: 'campaign_content_plan',
-      campaign_arc: 'whisper_to_shout',
-      external_execution_enabled: false,
-    },
-  }))
+    return {
+      campaign_phase: milestone.campaign_phase,
+      channel: milestone.channel,
+      title: `${milestone.title_prefix}: ${campaign.name}`,
+      planned_angle: milestone.planned_angle,
+      scheduled_for: scheduledDate.toISOString(),
+      authorization_due_at: defaultAuthorizationDueAt(scheduledDate),
+      authorization_status: 'pending' as SocialContentCalendarAuthorizationStatus,
+      due_status: deriveDueStatus(scheduledDate),
+      autonomy_eligible: false,
+      metadata: {
+        generated_from: 'campaign_content_plan',
+        campaign_arc: template.key,
+        template_key: template.key,
+        template_label: template.label,
+        template_goal_types: template.goal_types,
+        template_source_urls: template.source_urls,
+        milestone_key: milestone.key,
+        recommended_lead_time_days: milestone.recommended_lead_time_days,
+        required_assets: milestone.required_assets,
+        approval_gates: milestone.approval_gates,
+        source_urls: milestone.source_urls,
+        external_execution_enabled: false,
+      },
+    }
+  })
 }

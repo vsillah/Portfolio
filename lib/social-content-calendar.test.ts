@@ -4,9 +4,11 @@ import {
   defaultAuthorizationDueAt,
   deriveDueStatus,
   dueGateWindow,
+  getCalendarTemplate,
   normalizeAuthorizationStatus,
   normalizeCalendarChannel,
   normalizeCampaignPhase,
+  normalizeCalendarTemplateKey,
   normalizeDueStatus,
 } from './social-content-calendar'
 
@@ -59,6 +61,7 @@ describe('social-content-calendar helpers', () => {
           autonomy_eligible: false,
           metadata: expect.objectContaining({
             generated_from: 'campaign_content_plan',
+            template_key: 'whisper_to_shout',
             external_execution_enabled: false,
           }),
         }),
@@ -81,5 +84,41 @@ describe('social-content-calendar helpers', () => {
     expect(normalizeCampaignPhase('launch')).toBe('tease')
     expect(normalizeDueStatus('late')).toBe('planned')
     expect(normalizeAuthorizationStatus('approved')).toBe('pending')
+    expect(normalizeCalendarTemplateKey('random')).toBe('whisper_to_shout')
+  })
+
+  it('generates source-backed milestones for a YouTube video release template', () => {
+    const slots = campaignContentPlanSlots(
+      {
+        name: 'Agent Ops Video Launch',
+        starts_at: '2026-07-01T00:00:00.000Z',
+        ends_at: '2026-07-21T00:00:00.000Z',
+      },
+      { templateKey: 'youtube_video_release' },
+    )
+
+    expect(getCalendarTemplate('youtube_video_release')).toMatchObject({
+      label: 'YouTube video release',
+      goal_types: expect.arrayContaining(['youtube_release']),
+    })
+    expect(slots.map((slot) => slot.channel)).toEqual([
+      'linkedin',
+      'youtube_shorts',
+      'thumbnail',
+      'youtube_shorts',
+    ])
+    expect(slots[2]).toEqual(expect.objectContaining({
+      campaign_phase: 'proof',
+      title: 'Thumbnail and title: Agent Ops Video Launch',
+      metadata: expect.objectContaining({
+        template_key: 'youtube_video_release',
+        milestone_key: 'thumbnail_title_package',
+        required_assets: expect.arrayContaining(['thumbnail_reference', 'title_variants']),
+        approval_gates: expect.arrayContaining(['thumbnail_review']),
+        source_urls: expect.arrayContaining([
+          'https://www.youtube.com/creators/grow/optimize-your-content/',
+        ]),
+      }),
+    }))
   })
 })
