@@ -17,10 +17,11 @@ vi.mock('@/lib/supabase', () => ({
 
 import { POST } from './route'
 
-function request() {
+function request(body?: Record<string, unknown>) {
   return new Request('http://localhost/api/admin/campaigns/campaign-1/content-plan', {
     method: 'POST',
-    headers: { authorization: 'Bearer admin-token' },
+    headers: { authorization: 'Bearer admin-token', 'content-type': 'application/json' },
+    body: body ? JSON.stringify(body) : undefined,
   })
 }
 
@@ -93,9 +94,80 @@ describe('/api/admin/campaigns/[id]/content-plan', () => {
     ]))
     expect(await response.json()).toMatchObject({
       ok: true,
+      template_key: 'whisper_to_shout',
       created_count: 3,
       skipped_existing_count: 1,
       planned_phases: ['tease', 'teach', 'proof', 'offer'],
+      side_effects: {
+        publish: false,
+        external_post: false,
+        social_draft_created: false,
+      },
+    })
+  })
+
+  it('uses the selected calendar template when generating campaign milestones', async () => {
+    const campaignSingle = vi.fn(async () => ({
+      data: {
+        id: 'campaign-1',
+        name: 'Agent Ops Video Launch',
+        starts_at: '2026-07-01T00:00:00.000Z',
+        ends_at: '2026-07-21T00:00:00.000Z',
+      },
+      error: null,
+    }))
+    const campaignSelect = vi.fn(() => ({ eq: vi.fn(() => ({ single: campaignSingle })) }))
+    const existingEq = vi.fn(async () => ({ data: [], error: null }))
+    const insertedRows = [
+      { id: 'topic-item', campaign_phase: 'tease' },
+      { id: 'hook-item', campaign_phase: 'teach' },
+      { id: 'thumbnail-item', campaign_phase: 'proof' },
+      { id: 'retro-item', campaign_phase: 'offer' },
+    ]
+    const insertSelect = vi.fn(async () => ({ data: insertedRows, error: null }))
+    const insert = vi.fn(() => ({ select: insertSelect }))
+
+    mocks.from.mockImplementation((table: string) => {
+      if (table === 'attraction_campaigns') return { select: campaignSelect }
+      if (table === 'social_content_calendar_items') {
+        if (mocks.from.mock.calls.filter(([name]) => name === 'social_content_calendar_items').length === 1) {
+          return { select: vi.fn(() => ({ eq: existingEq })) }
+        }
+        return { insert }
+      }
+      return {}
+    })
+
+    const response = await POST(
+      request({ template_key: 'youtube_video_release' }) as never,
+      { params: { id: 'campaign-1' } },
+    )
+
+    expect(response.status).toBe(200)
+    expect(insert).toHaveBeenCalledWith(expect.arrayContaining([
+      expect.objectContaining({
+        campaign_phase: 'proof',
+        channel: 'thumbnail',
+        metadata: expect.objectContaining({
+          template_key: 'youtube_video_release',
+          milestone_key: 'thumbnail_title_package',
+          required_assets: expect.arrayContaining(['thumbnail_reference']),
+        }),
+      }),
+      expect.objectContaining({
+        campaign_phase: 'offer',
+        channel: 'youtube_shorts',
+        metadata: expect.objectContaining({
+          approval_gates: expect.arrayContaining(['post_publish_review']),
+        }),
+      }),
+    ]))
+    expect(await response.json()).toMatchObject({
+      ok: true,
+      template_key: 'youtube_video_release',
+      template_label: 'YouTube video release',
+      created_count: 4,
+      skipped_existing_count: 0,
       side_effects: {
         publish: false,
         external_post: false,

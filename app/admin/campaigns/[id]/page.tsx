@@ -19,6 +19,11 @@ import {
 import type {
   AttractionCampaign, CampaignCriteriaTemplate, CriteriaType, TrackingSource,
 } from '@/lib/campaigns';
+import {
+  SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS,
+  SOCIAL_CONTENT_CALENDAR_TEMPLATES,
+  type SocialContentCalendarTemplateKey,
+} from '@/lib/social-content-calendar';
 
 type CampaignCalendarItem = {
   id: string;
@@ -89,6 +94,8 @@ export default function CampaignDetailPage() {
   const [activeTab, setActiveTab] = useState<'criteria' | 'bundles' | 'enrollments' | 'content-calendar'>('criteria');
   const [generatingContentPlan, setGeneratingContentPlan] = useState(false);
   const [contentPlanNotice, setContentPlanNotice] = useState('');
+  const [contentPlanTemplateKey, setContentPlanTemplateKey] =
+    useState<SocialContentCalendarTemplateKey>('whisper_to_shout');
   const [calendarActionItemId, setCalendarActionItemId] = useState<string | null>(null);
   const [rejectingCalendarItemId, setRejectingCalendarItemId] = useState<string | null>(null);
   const [calendarDecisionNotes, setCalendarDecisionNotes] = useState<Record<string, string>>({});
@@ -246,10 +253,14 @@ export default function CampaignDetailPage() {
       const res = await authedFetch(`/api/admin/campaigns/${campaignId}/content-plan`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ template_key: contentPlanTemplateKey }),
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
-        setContentPlanNotice(`Created ${data.created_count || 0} items; skipped ${data.skipped_existing_count || 0} existing phases.`);
+        const templateLabel = typeof data.template_label === 'string'
+          ? data.template_label
+          : SOCIAL_CONTENT_CALENDAR_TEMPLATES[contentPlanTemplateKey].label;
+        setContentPlanNotice(`${templateLabel}: created ${data.created_count || 0} items; skipped ${data.skipped_existing_count || 0} existing milestones.`);
         await fetchCampaign();
       } else {
         setContentPlanNotice(data.error || 'Failed to generate content plan.');
@@ -636,14 +647,37 @@ export default function CampaignDetailPage() {
                 Campaign-specific projection of the central Social Content calendar.
               </p>
             </div>
-            <button
-              onClick={handleGenerateContentPlan}
-              disabled={generatingContentPlan}
-              className="admin-console-button-primary disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {generatingContentPlan ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
-              {generatingContentPlan ? 'Generating...' : 'Generate Whisper-to-Shout Plan'}
-            </button>
+            <div className="flex flex-col gap-2 sm:min-w-[20rem]">
+              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Calendar template
+                <select
+                  value={contentPlanTemplateKey}
+                  onChange={(event) => setContentPlanTemplateKey(event.target.value as SocialContentCalendarTemplateKey)}
+                  className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+                >
+                  {SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS.map((key) => (
+                    <option key={key} value={key}>
+                      {SOCIAL_CONTENT_CALENDAR_TEMPLATES[key].label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button
+                onClick={handleGenerateContentPlan}
+                disabled={generatingContentPlan}
+                className="admin-console-button-primary justify-center disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {generatingContentPlan ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
+                {generatingContentPlan ? 'Generating...' : 'Generate Calendar Plan'}
+              </button>
+            </div>
+          </div>
+
+          <div className="admin-console-card mb-4 rounded-lg border border-blue-500/25 bg-blue-500/10 p-3 text-sm text-blue-100">
+            <p className="font-semibold">{SOCIAL_CONTENT_CALENDAR_TEMPLATES[contentPlanTemplateKey].label}</p>
+            <p className="mt-1 text-xs leading-5 text-blue-100/80">
+              {SOCIAL_CONTENT_CALENDAR_TEMPLATES[contentPlanTemplateKey].description}
+            </p>
           </div>
 
           {contentPlanNotice && (
@@ -687,6 +721,11 @@ export default function CampaignDetailPage() {
                         <div className="mt-3 flex flex-wrap gap-2 text-[0.68rem] text-muted-foreground">
                           <span className="rounded-full border border-white/10 px-2 py-0.5">{item.channel.replace(/_/g, ' ')}</span>
                           <span className="rounded-full border border-white/10 px-2 py-0.5">{item.due_status.replace(/_/g, ' ')}</span>
+                          {typeof metadataRecord(item.metadata).template_label === 'string' && (
+                            <span className="rounded-full border border-white/10 px-2 py-0.5">
+                              {String(metadataRecord(item.metadata).template_label)}
+                            </span>
+                          )}
                         </div>
                         <div className="mt-3 flex flex-wrap gap-2 text-xs">
                           {(() => {

@@ -4,6 +4,8 @@ import { supabaseAdmin } from '@/lib/supabase'
 import {
   CALENDAR_SIDE_EFFECTS,
   campaignContentPlanSlots,
+  getCalendarTemplate,
+  normalizeCalendarTemplateKey,
   type SocialContentCampaignPhase,
 } from '@/lib/social-content-calendar'
 import type { AttractionCampaign } from '@/lib/campaigns'
@@ -20,6 +22,14 @@ export async function POST(
       return NextResponse.json({ error: auth.error }, { status: auth.status })
     }
 
+    const body = await request.json().catch(() => ({}))
+    const templateKey = normalizeCalendarTemplateKey(
+      body && typeof body === 'object' && 'template_key' in body
+        ? (body as { template_key?: unknown }).template_key
+        : undefined,
+    )
+    const template = getCalendarTemplate(templateKey)
+
     const { data: campaign, error: campaignError } = await supabaseAdmin
       .from('attraction_campaigns')
       .select('*')
@@ -35,7 +45,7 @@ export async function POST(
 
     const { data: existing, error: existingError } = await supabaseAdmin
       .from('social_content_calendar_items')
-      .select('id, campaign_phase, channel')
+      .select('id, campaign_phase, channel, metadata')
       .eq('campaign_id', params.id)
 
     if (
@@ -45,14 +55,22 @@ export async function POST(
     ) throw existingError
 
     const existingKeys = new Set(
-      (existing ?? []).map((item: { campaign_phase: string; channel: string }) => (
-        `${item.campaign_phase}:${item.channel}`
-      )),
+      (existing ?? []).map((item: { campaign_phase: string; channel: string; metadata?: unknown }) => {
+        const metadata = item.metadata && typeof item.metadata === 'object' && !Array.isArray(item.metadata)
+          ? item.metadata as Record<string, unknown>
+          : {}
+        const existingTemplate = typeof metadata.template_key === 'string'
+          ? metadata.template_key
+          : typeof metadata.campaign_arc === 'string'
+            ? metadata.campaign_arc
+            : 'whisper_to_shout'
+        return `${existingTemplate}:${item.campaign_phase}:${item.channel}`
+      }),
     )
 
-    const slots = campaignContentPlanSlots(campaign as AttractionCampaign)
+    const slots = campaignContentPlanSlots(campaign as AttractionCampaign, { templateKey })
     const inserts = slots
-      .filter((slot) => !existingKeys.has(`${slot.campaign_phase}:${slot.channel}`))
+      .filter((slot) => !existingKeys.has(`${templateKey}:${slot.campaign_phase}:${slot.channel}`))
       .map((slot) => ({
         ...slot,
         campaign_id: params.id,
@@ -82,6 +100,10 @@ export async function POST(
     return NextResponse.json({
       ok: true,
       campaign_id: params.id,
+      template_key: template.key,
+      template_label: template.label,
+      template_goal_types: template.goal_types,
+      template_source_urls: template.source_urls,
       created_count: insertedItems.length,
       skipped_existing_count: slots.length - inserts.length,
       planned_phases: slots.map((slot) => slot.campaign_phase as SocialContentCampaignPhase),
