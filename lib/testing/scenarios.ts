@@ -1174,6 +1174,15 @@ export const seedDiscoverySqlCompatScenario = demoSeedApiScenario(
   ['seed', 'populate-demo', 'discovery']
 )
 
+export const seedSocialContentCalendarFixtureScenario = demoSeedApiScenario(
+  'seed_social_content_calendar_fixture',
+  'Seed: Content Calendar Fixture',
+  'Dev-safe campaign calendar data for Content Intelligence smoke tests',
+  'social_content_calendar_fixture',
+  'lead',
+  ['seed', 'populate-demo', 'content-intelligence', 'calendar']
+)
+
 /** Scenarios that populate demo data via E2E (no SQL). Run with cleanupAfter: false. */
 export const POPULATE_DEMO_SCENARIOS: TestScenario[] = [
   seedWarmLeadsScenario,
@@ -1186,6 +1195,7 @@ export const POPULATE_DEMO_SCENARIOS: TestScenario[] = [
   seedOnboardingProjectScenario,
   seedKickoffProjectScenario,
   seedDiscoverySqlCompatScenario,
+  seedSocialContentCalendarFixtureScenario,
 ]
 
 // ============================================================================
@@ -1324,6 +1334,7 @@ export const SCENARIOS_BY_ID: Record<string, TestScenario> = {
   seed_onboarding_project: seedOnboardingProjectScenario,
   seed_kickoff_project: seedKickoffProjectScenario,
   seed_discovery_sql_compat: seedDiscoverySqlCompatScenario,
+  seed_social_content_calendar_fixture: seedSocialContentCalendarFixtureScenario,
 }
 
 /**
