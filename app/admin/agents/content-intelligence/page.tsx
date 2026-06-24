@@ -11,8 +11,10 @@ import {
   FileSearch,
   Film,
   Instagram,
+  Pencil,
   Plus,
   RefreshCw,
+  Save,
   ShieldCheck,
   XCircle,
   Youtube,
@@ -222,6 +224,13 @@ function formatCalendarDate(value: string) {
     : 'Unscheduled'
 }
 
+function toDatetimeLocalValue(value: string) {
+  const date = new Date(value)
+  if (!Number.isFinite(date.getTime())) return ''
+  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000)
+  return local.toISOString().slice(0, 16)
+}
+
 function recordValue(value: unknown) {
   return value && typeof value === 'object' && !Array.isArray(value)
     ? value as Record<string, unknown>
@@ -265,6 +274,8 @@ function ContentIntelligenceContent() {
   const [calendarActionItemId, setCalendarActionItemId] = useState<string | null>(null)
   const [rejectingCalendarItemId, setRejectingCalendarItemId] = useState<string | null>(null)
   const [calendarDecisionNotes, setCalendarDecisionNotes] = useState<Record<string, string>>({})
+  const [editingCalendarItemId, setEditingCalendarItemId] = useState<string | null>(null)
+  const [calendarEditForms, setCalendarEditForms] = useState<Record<string, CalendarForm>>({})
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -547,6 +558,72 @@ function ContentIntelligenceContent() {
     }
   }, [authedFetch, calendarDecisionNotes, load])
 
+  const beginEditCalendarItem = useCallback((item: CalendarItem) => {
+    setEditingCalendarItemId(item.id)
+    setCalendarEditForms((current) => ({
+      ...current,
+      [item.id]: {
+        title: item.title,
+        campaign_id: item.campaign_id ?? '',
+        channel: item.channel,
+        campaign_phase: item.campaign_phase,
+        scheduled_for: toDatetimeLocalValue(item.scheduled_for),
+        planned_angle: item.planned_angle ?? '',
+      },
+    }))
+  }, [])
+
+  const cancelEditCalendarItem = useCallback((id: string) => {
+    setEditingCalendarItemId((current) => (current === id ? null : current))
+  }, [])
+
+  const updateCalendarEditForm = useCallback((id: string, patch: Partial<CalendarForm>) => {
+    setCalendarEditForms((current) => ({
+      ...current,
+      [id]: {
+        ...(current[id] ?? EMPTY_CALENDAR_FORM),
+        ...patch,
+      },
+    }))
+  }, [])
+
+  const saveCalendarItemEdits = useCallback(async (item: CalendarItem) => {
+    const form = calendarEditForms[item.id]
+    if (!form?.title.trim() || !form.scheduled_for) {
+      setError('Calendar item title and due time are required.')
+      return
+    }
+
+    setError(null)
+    setCalendarNotice(null)
+    setCalendarActionItemId(item.id)
+    try {
+      const response = await authedFetch(`/api/admin/social-content/calendar/${item.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          title: form.title.trim(),
+          campaign_id: form.campaign_id || null,
+          channel: form.channel,
+          campaign_phase: form.campaign_phase,
+          planned_angle: form.planned_angle.trim() || null,
+          scheduled_for: new Date(form.scheduled_for).toISOString(),
+          authorization_status: 'pending',
+        }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `Calendar update HTTP ${response.status}`)
+      setEditingCalendarItemId(null)
+      setCalendarNotice(item.authorization_status === 'rejected'
+        ? 'Calendar item updated and returned to pending review.'
+        : 'Calendar item updated. Human authorization remains pending.')
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update calendar item')
+    } finally {
+      setCalendarActionItemId(null)
+    }
+  }, [authedFetch, calendarEditForms, load])
+
   return (
     <div className="agent-ops-page min-h-screen p-5 text-foreground lg:p-7">
       <div className="mx-auto max-w-7xl">
@@ -683,7 +760,14 @@ function ContentIntelligenceContent() {
                       actionItemId={calendarActionItemId}
                       rejectingItemId={rejectingCalendarItemId}
                       decisionNote={calendarDecisionNotes[item.id] ?? ''}
+                      editForm={calendarEditForms[item.id] ?? null}
+                      isEditing={editingCalendarItemId === item.id}
+                      campaigns={campaigns}
                       onAuthorize={authorizeCalendarItem}
+                      onBeginEdit={beginEditCalendarItem}
+                      onCancelEdit={cancelEditCalendarItem}
+                      onEditFormChange={updateCalendarEditForm}
+                      onSaveEdit={saveCalendarItemEdits}
                       onBeginReject={(id) => setRejectingCalendarItemId(id)}
                       onDecisionNoteChange={(id, value) => setCalendarDecisionNotes((current) => ({
                         ...current,
@@ -1261,7 +1345,14 @@ function CalendarItemCard({
   actionItemId,
   rejectingItemId,
   decisionNote,
+  editForm,
+  isEditing,
+  campaigns,
   onAuthorize,
+  onBeginEdit,
+  onCancelEdit,
+  onEditFormChange,
+  onSaveEdit,
   onBeginReject,
   onDecisionNoteChange,
   onReject,
@@ -1270,7 +1361,14 @@ function CalendarItemCard({
   actionItemId: string | null
   rejectingItemId: string | null
   decisionNote: string
+  editForm: CalendarForm | null
+  isEditing: boolean
+  campaigns: CampaignOption[]
   onAuthorize: (item: CalendarItem) => void
+  onBeginEdit: (item: CalendarItem) => void
+  onCancelEdit: (id: string) => void
+  onEditFormChange: (id: string, patch: Partial<CalendarForm>) => void
+  onSaveEdit: (item: CalendarItem) => void
   onBeginReject: (id: string) => void
   onDecisionNoteChange: (id: string, value: string) => void
   onReject: (item: CalendarItem) => void
@@ -1287,28 +1385,127 @@ function CalendarItemCard({
   const isRejected = item.authorization_status === 'rejected'
   const showRejectNote = rejectingItemId === item.id || isRejected
   const isBusy = actionItemId === item.id
+  const canEdit = isPending || isRejected
   return (
     <div className="rounded-md border border-silicon-slate/60 bg-background/35 p-3">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-sm font-semibold leading-5">{item.title}</p>
-          <p className="mt-1 text-xs text-muted-foreground">{formatCalendarDate(item.scheduled_for)}</p>
+      {isEditing && editForm ? (
+        <div className="space-y-3">
+          <label className="block text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">
+            Title
+            <input
+              type="text"
+              value={editForm.title}
+              onChange={(event) => onEditFormChange(item.id, { title: event.target.value })}
+              disabled={isBusy}
+              className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-xs normal-case tracking-normal text-foreground disabled:opacity-60"
+            />
+          </label>
+          <label className="block text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">
+            Scheduled for
+            <input
+              type="datetime-local"
+              value={editForm.scheduled_for}
+              onChange={(event) => onEditFormChange(item.id, { scheduled_for: event.target.value })}
+              disabled={isBusy}
+              className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-xs normal-case tracking-normal text-foreground disabled:opacity-60"
+            />
+          </label>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <label className="block text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">
+              Channel
+              <select
+                value={editForm.channel}
+                onChange={(event) => onEditFormChange(item.id, { channel: event.target.value as CalendarItem['channel'] })}
+                disabled={isBusy}
+                className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-xs normal-case tracking-normal text-foreground disabled:opacity-60"
+              >
+                {Object.entries(CALENDAR_CHANNEL_LABELS).map(([value, label]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </select>
+            </label>
+            <label className="block text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">
+              Phase
+              <select
+                value={editForm.campaign_phase}
+                onChange={(event) => onEditFormChange(item.id, { campaign_phase: event.target.value as CalendarItem['campaign_phase'] })}
+                disabled={isBusy}
+                className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-xs normal-case tracking-normal text-foreground disabled:opacity-60"
+              >
+                {CALENDAR_PHASES.map((phase) => (
+                  <option key={phase.key} value={phase.key}>{phase.label}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <label className="block text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">
+            Campaign
+            <select
+              value={editForm.campaign_id}
+              onChange={(event) => onEditFormChange(item.id, { campaign_id: event.target.value })}
+              disabled={isBusy}
+              className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-xs normal-case tracking-normal text-foreground disabled:opacity-60"
+            >
+              <option value="">No campaign</option>
+              {campaigns.map((campaign) => (
+                <option key={campaign.id} value={campaign.id}>{campaign.name}</option>
+              ))}
+            </select>
+          </label>
+          <label className="block text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">
+            Planned angle
+            <textarea
+              value={editForm.planned_angle}
+              onChange={(event) => onEditFormChange(item.id, { planned_angle: event.target.value })}
+              rows={2}
+              disabled={isBusy}
+              className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-xs normal-case tracking-normal text-foreground disabled:opacity-60"
+            />
+          </label>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <button
+              type="button"
+              onClick={() => onSaveEdit(item)}
+              disabled={isBusy}
+              className="inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-100 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Save className="h-3.5 w-3.5" />
+              {isBusy ? 'Saving...' : 'Save Changes'}
+            </button>
+            <button
+              type="button"
+              onClick={() => onCancelEdit(item.id)}
+              disabled={isBusy}
+              className="inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-md border border-silicon-slate/70 px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:border-white/30 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              Cancel
+            </button>
+          </div>
         </div>
-        <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[0.68rem] font-semibold ${calendarAuthorizationTone(item.authorization_status)}`}>
-          {item.authorization_status.replace(/_/g, ' ')}
-        </span>
-      </div>
-      {item.planned_angle ? (
-        <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">{item.planned_angle}</p>
-      ) : null}
-      <div className="mt-3 flex flex-wrap gap-2 text-[0.68rem] text-muted-foreground">
-        <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5">
-          {CALENDAR_CHANNEL_LABELS[item.channel]}
-        </span>
-        <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5">
-          {item.due_status.replace(/_/g, ' ')}
-        </span>
-      </div>
+      ) : (
+        <>
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold leading-5">{item.title}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{formatCalendarDate(item.scheduled_for)}</p>
+            </div>
+            <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[0.68rem] font-semibold ${calendarAuthorizationTone(item.authorization_status)}`}>
+              {item.authorization_status.replace(/_/g, ' ')}
+            </span>
+          </div>
+          {item.planned_angle ? (
+            <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">{item.planned_angle}</p>
+          ) : null}
+          <div className="mt-3 flex flex-wrap gap-2 text-[0.68rem] text-muted-foreground">
+            <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5">
+              {CALENDAR_CHANNEL_LABELS[item.channel]}
+            </span>
+            <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5">
+              {item.due_status.replace(/_/g, ' ')}
+            </span>
+          </div>
+        </>
+      )}
       <div className="mt-3 flex flex-wrap gap-2 text-xs">
         {item.campaign_id ? (
           <Link href={`/admin/campaigns/${item.campaign_id}`} className="text-blue-200 hover:text-blue-100">
@@ -1353,10 +1550,21 @@ function CalendarItemCard({
       ) : null}
       {isPending || isRejected ? (
         <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+          {canEdit && !isEditing ? (
+            <button
+              type="button"
+              onClick={() => onBeginEdit(item)}
+              disabled={isBusy}
+              className="inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-md border border-blue-500/40 bg-blue-500/10 px-3 py-2 text-xs font-semibold text-blue-100 transition hover:bg-blue-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+              Edit
+            </button>
+          ) : null}
           <button
             type="button"
             onClick={() => onAuthorize(item)}
-            disabled={isBusy}
+            disabled={isBusy || isEditing}
             className="inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-100 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <CheckCircle2 className="h-3.5 w-3.5" />
@@ -1365,7 +1573,7 @@ function CalendarItemCard({
           <button
             type="button"
             onClick={() => showRejectNote ? onReject(item) : onBeginReject(item.id)}
-            disabled={isBusy}
+            disabled={isBusy || isEditing}
             className="inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-100 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <XCircle className="h-3.5 w-3.5" />

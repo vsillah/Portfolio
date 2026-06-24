@@ -105,6 +105,26 @@ describe('ContentIntelligencePage', () => {
           }),
         }
       }
+      if (url === '/api/admin/social-content/calendar/calendar-1') {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            item: {
+              id: 'calendar-1',
+              title: 'Tease: Edited approval gates',
+              authorization_status: 'pending',
+            },
+            side_effects: {
+              provider_generation: false,
+              upload: false,
+              external_schedule: false,
+              publish: false,
+              external_post: false,
+            },
+          }),
+        }
+      }
       if (url === '/api/admin/social-content/calendar') {
         return {
           ok: true,
@@ -459,6 +479,39 @@ describe('ContentIntelligencePage', () => {
     expect(authorizeCall).toBeTruthy()
     expect(authorizeCall?.[1]).toMatchObject({ method: 'POST' })
     expect(JSON.parse(String(authorizeCall?.[1]?.body))).toEqual({})
+  })
+
+  it('edits a pending calendar item without authorizing or publishing it', async () => {
+    render(<ContentIntelligencePage />)
+
+    await screen.findByText('Tease: Approval gates')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Edit' }))
+    fireEvent.change(screen.getAllByLabelText('Title')[0], {
+      target: { value: 'Tease: Edited approval gates' },
+    })
+    fireEvent.change(screen.getAllByLabelText('Scheduled for')[0], {
+      target: { value: '2026-06-26T09:30' },
+    })
+    fireEvent.change(screen.getAllByLabelText('Planned angle')[0], {
+      target: { value: 'Open with the handoff moment, then show the gate.' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Save Changes' }))
+
+    await screen.findByText('Calendar item updated. Human authorization remains pending.')
+
+    const patchCall = vi.mocked(fetch).mock.calls.find(([input, init]) => (
+      String(input) === '/api/admin/social-content/calendar/calendar-1' && init?.method === 'PATCH'
+    ))
+    expect(patchCall).toBeTruthy()
+    expect(JSON.parse(String(patchCall?.[1]?.body))).toMatchObject({
+      title: 'Tease: Edited approval gates',
+      campaign_id: 'campaign-1',
+      channel: 'linkedin',
+      campaign_phase: 'tease',
+      planned_angle: 'Open with the handoff moment, then show the gate.',
+      authorization_status: 'pending',
+    })
   })
 
   it('requires a decision note before rejecting a calendar item', async () => {
