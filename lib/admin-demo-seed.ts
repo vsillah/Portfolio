@@ -4,6 +4,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { campaignContentPlanSlots } from './social-content-calendar'
 
 export const DEMO_SEED_KEYS = [
   'sarah_mitchell_lead',
@@ -12,6 +13,7 @@ export const DEMO_SEED_KEYS = [
   'onboarding_test_project',
   'kickoff_test_project',
   'discovery_call_test_contact',
+  'social_content_calendar_fixture',
 ] as const
 
 export type DemoSeedKey = (typeof DEMO_SEED_KEYS)[number]
@@ -22,6 +24,8 @@ export function isDemoSeedKey(k: string): k is DemoSeedKey {
 
 const SARAH_SESSION = 'test-lead-session-001'
 const SARAH_EMAIL = 'sarah.mitchell@techflow.io'
+export const SOCIAL_CONTENT_CALENDAR_FIXTURE_SLUG = 'demo-content-calendar-smoke'
+export const SOCIAL_CONTENT_CALENDAR_FIXTURE_KEY = 'social_content_calendar_fixture'
 
 const BUSINESS_CHALLENGES = {
   primary_challenges: [
@@ -106,6 +110,13 @@ function addDaysISO(days: number): string {
   return d.toISOString().slice(0, 10)
 }
 
+function addDaysAtHourISO(days: number, hour: number): string {
+  const d = new Date()
+  d.setDate(d.getDate() + days)
+  d.setHours(hour, 0, 0, 0)
+  return d.toISOString()
+}
+
 async function removeSarahMitchellChain(supabase: SupabaseClient): Promise<void> {
   const { data: contact } = await supabase
     .from('contact_submissions')
@@ -119,6 +130,31 @@ async function removeSarahMitchellChain(supabase: SupabaseClient): Promise<void>
   await supabase.from('diagnostic_audits').delete().eq('session_id', SARAH_SESSION)
   await supabase.from('contact_submissions').delete().eq('email', SARAH_EMAIL)
   await supabase.from('chat_sessions').delete().eq('session_id', SARAH_SESSION)
+}
+
+async function removeSocialContentCalendarFixture(supabase: SupabaseClient): Promise<void> {
+  const { data: campaign } = await supabase
+    .from('attraction_campaigns')
+    .select('id')
+    .eq('slug', SOCIAL_CONTENT_CALENDAR_FIXTURE_SLUG)
+    .maybeSingle()
+
+  await supabase
+    .from('social_content_calendar_items')
+    .delete()
+    .contains('metadata', { demo_seed_key: SOCIAL_CONTENT_CALENDAR_FIXTURE_KEY })
+
+  if (campaign?.id != null) {
+    await supabase
+      .from('social_content_calendar_items')
+      .delete()
+      .eq('campaign_id', campaign.id)
+  }
+
+  await supabase
+    .from('attraction_campaigns')
+    .delete()
+    .eq('slug', SOCIAL_CONTENT_CALENDAR_FIXTURE_SLUG)
 }
 
 export async function runDemoSeed(
@@ -296,6 +332,84 @@ export async function runDemoSeed(
         })
         if (error) return { ok: false, error: `contact_submissions: ${error.message}` }
         return { ok: true, key, detail: 'test-discovery@example.com' }
+      }
+
+      case 'social_content_calendar_fixture': {
+        await removeSocialContentCalendarFixture(supabase)
+
+        const startsAt = addDaysAtHourISO(1, 9)
+        const endsAt = addDaysAtHourISO(21, 17)
+
+        const { data: campaign, error: campaignError } = await supabase
+          .from('attraction_campaigns')
+          .insert({
+            name: 'Demo Content Calendar Smoke Campaign',
+            slug: SOCIAL_CONTENT_CALENDAR_FIXTURE_SLUG,
+            description:
+              'Dev-safe campaign fixture for Content Intelligence calendar smoke tests.',
+            campaign_type: 'free_challenge',
+            status: 'draft',
+            starts_at: startsAt,
+            ends_at: endsAt,
+            completion_window_days: 30,
+            min_purchase_amount: 0,
+            payout_type: 'credit',
+            payout_amount_type: 'fixed',
+            payout_amount_value: 0,
+            rollover_bonus_multiplier: 1,
+            promo_copy:
+              'Seeded only for local/admin calendar review. No external execution is enabled.',
+          })
+          .select('id, name, slug, starts_at, ends_at')
+          .single()
+
+        if (campaignError || !campaign) {
+          return {
+            ok: false,
+            error: `attraction_campaigns: ${campaignError?.message ?? 'no row'}`,
+          }
+        }
+
+        const slots = campaignContentPlanSlots({
+          name: String(campaign.name),
+          starts_at: String(campaign.starts_at),
+          ends_at: String(campaign.ends_at),
+        })
+
+        const channels = ['linkedin', 'youtube_shorts', 'instagram_reels', 'thumbnail'] as const
+        const rows = slots.map((slot, index) => ({
+          ...slot,
+          campaign_id: campaign.id,
+          channel: channels[index],
+          title: `${slot.title} (${channels[index].replace(/_/g, ' ')})`,
+          authorization_status: index === 2 ? 'rejected' : slot.authorization_status,
+          metadata: {
+            ...slot.metadata,
+            demo_seed_key: SOCIAL_CONTENT_CALENDAR_FIXTURE_KEY,
+            fixture_version: 1,
+            fixture_purpose: 'content_intelligence_calendar_smoke',
+            external_execution_enabled: false,
+            provider_generation_enabled: false,
+            publish_enabled: false,
+            decision_note: index === 2
+              ? 'Demo rejected item for the calendar revision path.'
+              : null,
+          },
+        }))
+
+        const { error: calendarError } = await supabase
+          .from('social_content_calendar_items')
+          .insert(rows)
+
+        if (calendarError) {
+          return { ok: false, error: `social_content_calendar_items: ${calendarError.message}` }
+        }
+
+        return {
+          ok: true,
+          key,
+          detail: `Content calendar fixture campaign ${campaign.id} with ${rows.length} items`,
+        }
       }
 
       default: {

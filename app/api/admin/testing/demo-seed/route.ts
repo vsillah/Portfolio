@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { isDemoSeedKey, runDemoSeed } from '@/lib/admin-demo-seed'
+import { DEMO_SEED_KEYS, isDemoSeedKey, runDemoSeed } from '@/lib/admin-demo-seed'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,14 +27,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: 'Invalid or missing key',
-          validKeys: [
-            'sarah_mitchell_lead',
-            'paid_proposal_jordan',
-            'lead_qualification_99999',
-            'onboarding_test_project',
-            'kickoff_test_project',
-            'discovery_call_test_contact',
-          ],
+          validKeys: DEMO_SEED_KEYS,
         },
         { status: 400 }
       )

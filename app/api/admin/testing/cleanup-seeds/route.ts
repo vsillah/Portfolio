@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
+import {
+  SOCIAL_CONTENT_CALENDAR_FIXTURE_KEY,
+  SOCIAL_CONTENT_CALENDAR_FIXTURE_SLUG,
+} from '@/lib/admin-demo-seed'
 
 export const dynamic = 'force-dynamic'
 
@@ -59,6 +63,38 @@ async function countFlaggedTestRows(): Promise<{
   return { counts, total, tablesScanned: TABLES_WITH_TEST_FLAG.length }
 }
 
+async function countContentCalendarFixtureRows(): Promise<{
+  calendarItems: number
+  campaigns: number
+  total: number
+}> {
+  const { count: calendarItems, error: calendarError } = await supabaseAdmin
+    .from('social_content_calendar_items')
+    .select('*', { count: 'exact', head: true })
+    .contains('metadata', { demo_seed_key: SOCIAL_CONTENT_CALENDAR_FIXTURE_KEY })
+
+  if (calendarError && calendarError.code !== '42P01' && calendarError.code !== 'PGRST205') {
+    console.error('Cleanup preview social_content_calendar_items fixture:', calendarError)
+  }
+
+  const { count: campaigns, error: campaignError } = await supabaseAdmin
+    .from('attraction_campaigns')
+    .select('*', { count: 'exact', head: true })
+    .eq('slug', SOCIAL_CONTENT_CALENDAR_FIXTURE_SLUG)
+
+  if (campaignError && campaignError.code !== '42P01' && campaignError.code !== 'PGRST205') {
+    console.error('Cleanup preview attraction_campaigns fixture:', campaignError)
+  }
+
+  const calendarCount = calendarError ? 0 : calendarItems ?? 0
+  const campaignCount = campaignError ? 0 : campaigns ?? 0
+  return {
+    calendarItems: calendarCount,
+    campaigns: campaignCount,
+    total: calendarCount + campaignCount,
+  }
+}
+
 /**
  * GET /api/admin/testing/cleanup-seeds?mode=flag_only | all
  * Preview row counts for the matching POST mode (no deletes).
@@ -76,6 +112,9 @@ export async function GET(request: NextRequest) {
     }
 
     const flagPhase = await countFlaggedTestRows()
+    const calendarFixture = await countContentCalendarFixtureRows()
+    flagPhase.counts.social_content_calendar_fixture = calendarFixture.total
+    flagPhase.total += calendarFixture.total
 
     if (mode === 'flag_only') {
       return NextResponse.json({
@@ -233,6 +272,36 @@ export async function POST(request: NextRequest) {
           results[`${table}_flagged`] = data?.length ?? 0
         }
       }
+
+      const { data: calendarRows, error: calendarDeleteError } = await supabaseAdmin
+        .from('social_content_calendar_items')
+        .delete()
+        .contains('metadata', { demo_seed_key: SOCIAL_CONTENT_CALENDAR_FIXTURE_KEY })
+        .select('id')
+
+      if (
+        calendarDeleteError
+        && calendarDeleteError.code !== '42P01'
+        && calendarDeleteError.code !== 'PGRST205'
+      ) {
+        console.error('Cleanup social_content_calendar_items fixture error:', calendarDeleteError)
+      }
+      results.social_content_calendar_fixture = calendarRows?.length ?? 0
+
+      const { data: campaigns, error: campaignDeleteError } = await supabaseAdmin
+        .from('attraction_campaigns')
+        .delete()
+        .eq('slug', SOCIAL_CONTENT_CALENDAR_FIXTURE_SLUG)
+        .select('id')
+
+      if (
+        campaignDeleteError
+        && campaignDeleteError.code !== '42P01'
+        && campaignDeleteError.code !== 'PGRST205'
+      ) {
+        console.error('Cleanup attraction_campaigns fixture error:', campaignDeleteError)
+      }
+      results.attraction_campaigns_fixture = campaigns?.length ?? 0
     }
 
     // Phase 2: Delete by known test emails (legacy approach)
