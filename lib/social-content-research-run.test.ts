@@ -51,6 +51,28 @@ describe('social-content-research-run', () => {
     expect(plan[0].free_first_steps.join(' ')).toContain('Codex/browser/public page review')
   })
 
+  it('normalizes research sources, filters unsafe URLs, and caps paid-scraper plans', () => {
+    const plan = buildSocialResearchRunPlan([
+      { url: 'javascript:alert(1)' },
+      { url: ' https://www.instagram.com/reel/abc123/ ', label: 'Instagram reel' },
+      ...Array.from({ length: 14 }, (_, index) => ({
+        url: `https://youtube.com/watch?v=video-${index}`,
+      })),
+    ])
+
+    expect(plan).toHaveLength(12)
+    expect(plan[0]).toMatchObject({
+      actor_key: 'instagram_reel',
+      actor_id: 'apify/instagram-scraper',
+      platform: 'instagram_reels',
+      input: {
+        directUrls: ['https://www.instagram.com/reel/abc123/'],
+        startUrls: [{ url: 'https://www.instagram.com/reel/abc123/' }],
+      },
+    })
+    expect(plan.every((step) => step.source.url.startsWith('http'))).toBe(true)
+  })
+
   it('stores recorded public evidence without paid scraper side effects', async () => {
     const result = await runSocialContentResearchCollection({
       mode: 'recorded_evidence',
@@ -81,6 +103,33 @@ describe('social-content-research-run', () => {
     })
     expect(mocks.from).toHaveBeenCalledWith('social_content_research_packets')
     expect(mocks.insertSingle).toHaveBeenCalled()
+
+    const table = mocks.from.mock.results[0]?.value as {
+      insert: { mock: { calls: Array<[Record<string, unknown>]> } }
+    }
+    const insertPayload = table.insert.mock.calls[0][0]
+    expect(insertPayload).toMatchObject({
+      source_url: 'https://youtube.com/watch?v=abc',
+      platform: 'youtube',
+      title: 'Free research packet',
+      hook_transcript: 'The opening hook explains the promise.',
+      actor_metadata: {
+        provider: 'free_recorded_evidence',
+        retrieval_method: 'codex_browser',
+        actor_label: 'admin@example.com',
+        cost_usd: 0,
+      },
+      pattern_status: 'needs_brand_translation',
+      created_by: 'admin-1',
+    })
+    expect(insertPayload.actor_metadata).not.toHaveProperty('actor_id')
+    expect(insertPayload.pattern_packet).toMatchObject({
+      hook_structure: 'The opening hook explains the promise',
+      source_use_boundary: expect.stringContaining('Reusable framework only'),
+    })
+    expect(insertPayload.score_breakdown).toMatchObject({
+      outlier_score: expect.any(Number),
+    })
   })
 
   it('blocks Apify mode without explicit cost confirmation', async () => {
