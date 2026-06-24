@@ -14,6 +14,7 @@ import {
   Plus,
   RefreshCw,
   ShieldCheck,
+  XCircle,
   Youtube,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
@@ -120,6 +121,7 @@ type CalendarItem = {
   authorization_status: string
   authorization_due_at: string | null
   autonomy_eligible: boolean
+  metadata?: Record<string, unknown> | null
   attraction_campaigns?: { id: string; name: string; slug: string } | null
   agent_work_items?: { id: string; title: string; status: string } | null
   social_content_queue?: { id: string; status: string } | null
@@ -220,6 +222,12 @@ function formatCalendarDate(value: string) {
     : 'Unscheduled'
 }
 
+function recordValue(value: unknown) {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {}
+}
+
 export default function ContentIntelligencePage() {
   return (
     <ProtectedRoute requireAdmin>
@@ -254,6 +262,9 @@ function ContentIntelligenceContent() {
   const [calendarChannelFilter, setCalendarChannelFilter] = useState('')
   const [calendarPhaseFilter, setCalendarPhaseFilter] = useState('')
   const [calendarAuthorizationFilter, setCalendarAuthorizationFilter] = useState('')
+  const [calendarActionItemId, setCalendarActionItemId] = useState<string | null>(null)
+  const [rejectingCalendarItemId, setRejectingCalendarItemId] = useState<string | null>(null)
+  const [calendarDecisionNotes, setCalendarDecisionNotes] = useState<Record<string, string>>({})
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -485,6 +496,57 @@ function ContentIntelligenceContent() {
     }
   }, [authedFetch, calendarForm, load])
 
+  const authorizeCalendarItem = useCallback(async (item: CalendarItem) => {
+    setError(null)
+    setCalendarNotice(null)
+    setCalendarActionItemId(item.id)
+    try {
+      const response = await authedFetch(`/api/admin/social-content/calendar/${item.id}/authorize`, {
+        method: 'POST',
+        body: JSON.stringify({}),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `Calendar authorize HTTP ${response.status}`)
+      setCalendarNotice(body.handoff?.social_content_id
+        ? 'Draft handoff authorized and Social Content draft created.'
+        : 'Draft handoff authorized for channel planning.')
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to authorize calendar item')
+    } finally {
+      setCalendarActionItemId(null)
+    }
+  }, [authedFetch, load])
+
+  const rejectCalendarItem = useCallback(async (item: CalendarItem) => {
+    const decisionNote = calendarDecisionNotes[item.id]?.trim() ?? ''
+    if (!decisionNote) {
+      setRejectingCalendarItemId(item.id)
+      setError('Decision note is required when rejecting a calendar item.')
+      return
+    }
+
+    setError(null)
+    setCalendarNotice(null)
+    setCalendarActionItemId(item.id)
+    try {
+      const response = await authedFetch(`/api/admin/social-content/calendar/${item.id}/reject`, {
+        method: 'POST',
+        body: JSON.stringify({ decision_note: decisionNote }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `Calendar reject HTTP ${response.status}`)
+      setCalendarDecisionNotes((current) => ({ ...current, [item.id]: '' }))
+      setRejectingCalendarItemId(null)
+      setCalendarNotice('Calendar item rejected and returned to Shaka for revision.')
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to reject calendar item')
+    } finally {
+      setCalendarActionItemId(null)
+    }
+  }, [authedFetch, calendarDecisionNotes, load])
+
   return (
     <div className="agent-ops-page min-h-screen p-5 text-foreground lg:p-7">
       <div className="mx-auto max-w-7xl">
@@ -615,7 +677,20 @@ function ContentIntelligenceContent() {
                 </div>
                 <div className="space-y-2">
                   {calendarItemsByPhase[phase.key].length ? calendarItemsByPhase[phase.key].map((item) => (
-                    <CalendarItemCard key={item.id} item={item} />
+                    <CalendarItemCard
+                      key={item.id}
+                      item={item}
+                      actionItemId={calendarActionItemId}
+                      rejectingItemId={rejectingCalendarItemId}
+                      decisionNote={calendarDecisionNotes[item.id] ?? ''}
+                      onAuthorize={authorizeCalendarItem}
+                      onBeginReject={(id) => setRejectingCalendarItemId(id)}
+                      onDecisionNoteChange={(id, value) => setCalendarDecisionNotes((current) => ({
+                        ...current,
+                        [id]: value,
+                      }))}
+                      onReject={rejectCalendarItem}
+                    />
                   )) : (
                     <p className="rounded-md border border-silicon-slate/60 bg-background/35 p-3 text-xs text-muted-foreground">
                       No planned items.
@@ -1171,8 +1246,47 @@ function DigestList({
   )
 }
 
-function CalendarItemCard({ item }: { item: CalendarItem }) {
+function calendarAuthorizationTone(status: string) {
+  if (status === 'authorized') {
+    return 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
+  }
+  if (status === 'rejected' || status === 'expired') {
+    return 'border-red-500/35 bg-red-500/10 text-red-100'
+  }
+  return 'border-amber-500/35 bg-amber-500/10 text-amber-100'
+}
+
+function CalendarItemCard({
+  item,
+  actionItemId,
+  rejectingItemId,
+  decisionNote,
+  onAuthorize,
+  onBeginReject,
+  onDecisionNoteChange,
+  onReject,
+}: {
+  item: CalendarItem
+  actionItemId: string | null
+  rejectingItemId: string | null
+  decisionNote: string
+  onAuthorize: (item: CalendarItem) => void
+  onBeginReject: (id: string) => void
+  onDecisionNoteChange: (id: string, value: string) => void
+  onReject: (item: CalendarItem) => void
+}) {
   const campaignName = item.attraction_campaigns?.name ?? 'No campaign'
+  const metadata = recordValue(item.metadata)
+  const platformDraftHandoff = recordValue(metadata.platform_draft_handoff)
+  const handoffWorkItemId = typeof platformDraftHandoff.work_item_id === 'string'
+    ? platformDraftHandoff.work_item_id
+    : null
+  const socialContentId = item.social_content_id
+    ?? (typeof platformDraftHandoff.social_content_id === 'string' ? platformDraftHandoff.social_content_id : null)
+  const isPending = item.authorization_status === 'pending'
+  const isRejected = item.authorization_status === 'rejected'
+  const showRejectNote = rejectingItemId === item.id || isRejected
+  const isBusy = actionItemId === item.id
   return (
     <div className="rounded-md border border-silicon-slate/60 bg-background/35 p-3">
       <div className="flex items-start justify-between gap-3">
@@ -1180,7 +1294,7 @@ function CalendarItemCard({ item }: { item: CalendarItem }) {
           <p className="text-sm font-semibold leading-5">{item.title}</p>
           <p className="mt-1 text-xs text-muted-foreground">{formatCalendarDate(item.scheduled_for)}</p>
         </div>
-        <span className="shrink-0 rounded-full border border-amber-500/35 bg-amber-500/10 px-2 py-0.5 text-[0.68rem] font-semibold text-amber-100">
+        <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[0.68rem] font-semibold ${calendarAuthorizationTone(item.authorization_status)}`}>
           {item.authorization_status.replace(/_/g, ' ')}
         </span>
       </div>
@@ -1213,7 +1327,52 @@ function CalendarItemCard({ item }: { item: CalendarItem }) {
             Draft
           </Link>
         ) : null}
+        {handoffWorkItemId ? (
+          <Link href={`/admin/agents/social-insights/${handoffWorkItemId}`} className="text-blue-200 hover:text-blue-100">
+            Handoff
+          </Link>
+        ) : null}
+        {!item.social_content_id && socialContentId ? (
+          <Link href={`/admin/social-content/${socialContentId}`} className="text-blue-200 hover:text-blue-100">
+            Draft
+          </Link>
+        ) : null}
       </div>
+      {showRejectNote ? (
+        <label className="mt-3 block text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">
+          Decision note
+          <textarea
+            value={decisionNote}
+            onChange={(event) => onDecisionNoteChange(item.id, event.target.value)}
+            rows={2}
+            disabled={isBusy || (!isPending && !isRejected)}
+            placeholder="What should Shaka revise before this can be authorized?"
+            className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-xs normal-case tracking-normal text-foreground disabled:opacity-60"
+          />
+        </label>
+      ) : null}
+      {isPending || isRejected ? (
+        <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+          <button
+            type="button"
+            onClick={() => onAuthorize(item)}
+            disabled={isBusy}
+            className="inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-100 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            {isBusy ? 'Authorizing...' : 'Authorize Draft Handoff'}
+          </button>
+          <button
+            type="button"
+            onClick={() => showRejectNote ? onReject(item) : onBeginReject(item.id)}
+            disabled={isBusy}
+            className="inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-100 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <XCircle className="h-3.5 w-3.5" />
+            {isRejected ? 'Rejected' : showRejectNote ? 'Submit Rejection' : 'Reject'}
+          </button>
+        </div>
+      ) : null}
     </div>
   )
 }
