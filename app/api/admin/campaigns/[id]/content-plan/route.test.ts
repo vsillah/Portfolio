@@ -239,4 +239,64 @@ describe('/api/admin/campaigns/[id]/content-plan', () => {
       planned_phases: ['tease', 'teach', 'proof', 'offer'],
     })
   })
+
+  it('does not let another template with the same phase and channel suppress selected-template inserts', async () => {
+    const campaignSingle = vi.fn(async () => ({
+      data: {
+        id: 'campaign-1',
+        name: 'Agent Ops Video Launch',
+        starts_at: '2026-07-01T00:00:00.000Z',
+        ends_at: '2026-07-21T00:00:00.000Z',
+      },
+      error: null,
+    }))
+    const campaignSelect = vi.fn(() => ({ eq: vi.fn(() => ({ single: campaignSingle })) }))
+    const existingEq = vi.fn(async () => ({
+      data: [
+        {
+          id: 'whisper-tease',
+          campaign_phase: 'tease',
+          channel: 'linkedin',
+          metadata: { template_key: 'whisper_to_shout' },
+        },
+      ],
+      error: null,
+    }))
+    const insertSelect = vi.fn(async () => ({ data: [{ id: 'topic-item' }], error: null }))
+    const insert = vi.fn(() => ({ select: insertSelect }))
+
+    mocks.from.mockImplementation((table: string) => {
+      if (table === 'attraction_campaigns') return { select: campaignSelect }
+      if (table === 'social_content_calendar_items') {
+        if (mocks.from.mock.calls.filter(([name]) => name === 'social_content_calendar_items').length === 1) {
+          return { select: vi.fn(() => ({ eq: existingEq })) }
+        }
+        return { insert }
+      }
+      return {}
+    })
+
+    const response = await POST(
+      request({ template_key: 'youtube_video_release' }) as never,
+      { params: { id: 'campaign-1' } },
+    )
+
+    expect(response.status).toBe(200)
+    expect(insert).toHaveBeenCalledWith(expect.arrayContaining([
+      expect.objectContaining({
+        campaign_phase: 'tease',
+        channel: 'linkedin',
+        metadata: expect.objectContaining({
+          template_key: 'youtube_video_release',
+          milestone_key: 'topic_and_promise',
+        }),
+      }),
+    ]))
+    expect(await response.json()).toMatchObject({
+      ok: true,
+      template_key: 'youtube_video_release',
+      created_count: 1,
+      skipped_existing_count: 0,
+    })
+  })
 })

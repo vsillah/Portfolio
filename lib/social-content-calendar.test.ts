@@ -126,18 +126,27 @@ describe('social-content-calendar helpers', () => {
     const slots = campaignContentPlanSlots(
       {
         name: 'Short Form Sprint',
-        starts_at: '2026-07-01T00:00:00.000Z',
-        ends_at: '2026-07-11T00:00:00.000Z',
+        starts_at: '2026-07-01T00:00:00',
+        ends_at: '2026-07-11T00:00:00',
       },
       { templateKey: 'short_form_series' },
     )
+    const scheduledDates = slots.map((slot) => new Date(slot.scheduled_for))
 
-    expect(slots.map((slot) => slot.scheduled_for)).toEqual([
-      '2026-07-02T10:00:00.000Z',
-      '2026-07-04T10:00:00.000Z',
-      '2026-07-07T10:00:00.000Z',
-      '2026-07-10T10:00:00.000Z',
+    expect(scheduledDates.map((date) => [
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      date.getHours(),
+    ])).toEqual([
+      [2026, 6, 2, 10],
+      [2026, 6, 4, 10],
+      [2026, 6, 7, 10],
+      [2026, 6, 10, 10],
     ])
+    expect(scheduledDates.map((date) => date.getTime())).toEqual(
+      [...scheduledDates].map((date) => date.getTime()).sort((a, b) => a - b),
+    )
     expect(slots.map((slot) => slot.channel)).toEqual([
       'linkedin',
       'instagram_reels',
