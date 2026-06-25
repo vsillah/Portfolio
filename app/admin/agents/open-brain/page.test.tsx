@@ -71,7 +71,18 @@ const openBrainSnapshot = {
   }],
   events: [],
   links: [],
-  memories: [],
+  memories: [{
+    id: 'memory:creative-chapter:creative-source-codex-chronicles-quantum-rebel-book-1:chapter-001',
+    kind: 'fact',
+    title: 'Code Breaker Chronicles: The Quantum Rebel - The Hidden Cache',
+    body: 'Private chapter-level summary for Code Breaker Chronicles: The Quantum Rebel. Position: 1. Working title: The Hidden Cache. Summary: A young builder discovers evidence of a buried system shaping access to code and power.',
+    privacyTier: 'private',
+    confidence: 0.91,
+    sourceIds: ['creative-source:codex-chronicles:quantum-rebel-book-1'],
+    createdAt: '2026-06-25T22:31:44.851Z',
+    updatedAt: '2026-06-25T22:31:44.851Z',
+    fingerprint: 'chapter-memory-fingerprint',
+  }],
   proposals: [{
     id: 'proposal-1',
     status: 'pending',
@@ -361,6 +372,20 @@ describe('OpenBrainPage', () => {
     expect(screen.getByText('Code Chronicles, Book 1: The Quantum Rebel')).toBeInTheDocument()
     expect(screen.getByText('Creative Manuscript')).toBeInTheDocument()
     expect(screen.getAllByText('private').length).toBeGreaterThan(0)
+  })
+
+  it('surfaces durable private manuscript chapter memories in the memories view', async () => {
+    render(<OpenBrainPage />)
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Memories' }))
+
+    expect(screen.getByText('Creative Manuscript Chapter Summaries')).toBeInTheDocument()
+    expect(screen.getByText('Code Breaker Chronicles: The Quantum Rebel - The Hidden Cache')).toBeInTheDocument()
+    expect(screen.getByText(/Private chapter-level summaries are durable Open Brain memory/i)).toBeInTheDocument()
+    expect(screen.getByText('Code Chronicles, Book 1: The Quantum Rebel')).toBeInTheDocument()
+    expect(screen.getByText('91%')).toBeInTheDocument()
+    expect(screen.getAllByText('private').length).toBeGreaterThan(0)
+    expect(screen.getByText(/excluded from public wiki\/RAG projections/i)).toBeInTheDocument()
   })
 
   it('keeps wiki compilation as an explicit gated action', async () => {

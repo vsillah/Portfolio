@@ -7,6 +7,7 @@ import {
   AlertTriangle,
   ArrowRight,
   Brain,
+  BookOpen,
   CheckCircle2,
   Database,
   FileText,
@@ -28,7 +29,7 @@ import type {
   OpenBrainSnapshot,
 } from '@/lib/open-brain'
 
-type ViewMode = 'router' | 'sources' | 'proposals' | 'wiki' | 'parity' | 'producers' | 'map'
+type ViewMode = 'router' | 'sources' | 'memories' | 'proposals' | 'wiki' | 'parity' | 'producers' | 'map'
 type RelationshipFilterValue = 'all'
 type RelationshipHealthFilter = RelationshipFilterValue | 'green' | 'yellow' | 'red'
 type RelationshipStrengthFilter = RelationshipFilterValue | 'strong' | 'medium' | 'weak'
@@ -237,6 +238,7 @@ function OpenBrainContent() {
                 <div className="inline-flex min-w-max">
                 <ModeButton icon={<Route size={16} />} active={viewMode === 'router'} onClick={() => setViewMode('router')}>Router</ModeButton>
                 <ModeButton icon={<Database size={16} />} active={viewMode === 'sources'} onClick={() => setViewMode('sources')}>Sources</ModeButton>
+                <ModeButton icon={<BookOpen size={16} />} active={viewMode === 'memories'} onClick={() => setViewMode('memories')}>Memories</ModeButton>
                 <ModeButton icon={<ShieldCheck size={16} />} active={viewMode === 'proposals'} onClick={() => setViewMode('proposals')}>Proposals</ModeButton>
                 <ModeButton icon={<FileText size={16} />} active={viewMode === 'wiki'} onClick={() => setViewMode('wiki')}>Wiki Overlay</ModeButton>
                 <ModeButton icon={<Network size={16} />} active={viewMode === 'parity'} onClick={() => setViewMode('parity')}>Runtime Parity</ModeButton>
@@ -261,6 +263,7 @@ function OpenBrainContent() {
 
             {viewMode === 'router' ? <RouterView snapshot={snapshot} /> : null}
             {viewMode === 'sources' ? <SourcesView snapshot={snapshot} /> : null}
+            {viewMode === 'memories' ? <MemoriesView snapshot={snapshot} /> : null}
             {viewMode === 'proposals' ? (
               <ProposalsView
                 proposals={pendingProposals.length ? pendingProposals : snapshot.proposals}
@@ -1552,6 +1555,176 @@ function SourcesView({ snapshot }: { snapshot: OpenBrainSnapshot }) {
   )
 }
 
+function MemoriesView({ snapshot }: { snapshot: OpenBrainSnapshot }) {
+  const sourceById = new Map(snapshot.sources.map((source) => [source.id, source]))
+  const creativeChapterMemories = snapshot.memories
+    .filter(isCreativeChapterMemory)
+    .sort(compareCreativeChapterMemories)
+  const otherMemories = snapshot.memories
+    .filter((memory) => !isCreativeChapterMemory(memory))
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+  const privateMemories = snapshot.memories.filter((memory) => memory.privacyTier === 'private').length
+  const ragEligibleMemories = snapshot.memories.filter((memory) => memory.privacyTier === 'public_safe').length
+  const wikiEligibleMemories = snapshot.memories.filter((memory) => memory.privacyTier !== 'private').length
+
+  if (snapshot.memories.length === 0) {
+    return <EmptyState message="No durable Open Brain memories are stored locally yet. Approved proposals and trusted producer lanes will appear here after they write memory records." />
+  }
+
+  return (
+    <section className="space-y-5">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <MemoryMetric label="Durable memories" value={snapshot.memories.length} detail="Approved or trusted local records" />
+        <MemoryMetric label="Private memories" value={privateMemories} detail="Visible here, excluded from public projections" tone={privateMemories ? 'red' : 'default'} />
+        <MemoryMetric label="Chapter summaries" value={creativeChapterMemories.length} detail="Private manuscript-level context" tone={creativeChapterMemories.length ? 'gold' : 'default'} />
+        <MemoryMetric label="Wiki/RAG eligible" value={`${wikiEligibleMemories}/${ragEligibleMemories}`} detail="Non-private / public-safe" />
+      </div>
+
+      {creativeChapterMemories.length > 0 ? (
+        <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
+          <div className="mb-4 flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="agent-ops-eyebrow"><BookOpen size={14} /> Creative memory</p>
+              <h2 className="mt-2 text-xl font-semibold">Creative Manuscript Chapter Summaries</h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Private chapter-level summaries are durable Open Brain memory for local agent context. They are not raw manuscript text, and they remain excluded from public wiki/RAG projections.
+              </p>
+            </div>
+            <PrivacyBadge tier="private" />
+          </div>
+          <div className="overflow-x-auto rounded-lg border border-silicon-slate/70">
+            <table className="min-w-[980px] w-full text-sm">
+              <thead className="bg-silicon-slate/40 text-muted-foreground">
+                <tr>
+                  <th className="px-4 py-3 text-left font-medium">Chapter memory</th>
+                  <th className="px-4 py-3 text-left font-medium">Source</th>
+                  <th className="px-4 py-3 text-left font-medium">Summary excerpt</th>
+                  <th className="px-4 py-3 text-left font-medium">Confidence</th>
+                  <th className="px-4 py-3 text-left font-medium">Updated</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-silicon-slate/60">
+                {creativeChapterMemories.map((memory) => (
+                  <tr key={memory.id}>
+                    <td className="px-4 py-3">
+                      <p className="font-medium">{memory.title}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{memory.id}</p>
+                    </td>
+                    <td className="px-4 py-3">
+                      <MemorySourceList memory={memory} sourceById={sourceById} />
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground">{truncateText(memory.body, 180)}</td>
+                    <td className="px-4 py-3">{Math.round(memory.confidence * 100)}%</td>
+                    <td className="px-4 py-3 text-muted-foreground">{formatDateTime(memory.updatedAt)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : null}
+
+      {otherMemories.length > 0 ? (
+        <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
+          <div className="mb-4">
+            <p className="agent-ops-eyebrow"><Brain size={14} /> Durable memory</p>
+            <h2 className="mt-2 text-xl font-semibold">Other Open Brain Memories</h2>
+          </div>
+          <div className="grid gap-3 xl:grid-cols-2">
+            {otherMemories.map((memory) => (
+              <article key={memory.id} className="rounded-lg border border-silicon-slate/60 bg-background/20 p-4">
+                <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
+                  <div>
+                    <h3 className="font-semibold">{memory.title}</h3>
+                    <p className="mt-1 text-xs text-muted-foreground">{memory.id}</p>
+                  </div>
+                  <PrivacyBadge tier={memory.privacyTier} />
+                </div>
+                <p className="text-sm leading-relaxed text-muted-foreground">{truncateText(memory.body, 240)}</p>
+                <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                  <Detail label="Kind" value={formatMemoryKind(memory.kind)} />
+                  <Detail label="Confidence" value={`${Math.round(memory.confidence * 100)}%`} />
+                  <Detail label="Sources" value={memory.sourceIds.length || 'none'} />
+                  <Detail label="Updated" value={formatDateTime(memory.updatedAt)} />
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
+    </section>
+  )
+}
+
+function MemoryMetric({
+  label,
+  value,
+  detail,
+  tone = 'default',
+}: {
+  label: string
+  value: string | number
+  detail: string
+  tone?: 'default' | 'gold' | 'red'
+}) {
+  const toneClass = tone === 'gold'
+    ? 'border-radiant-gold/45 bg-radiant-gold/10'
+    : tone === 'red'
+      ? 'border-red-400/35 bg-red-500/10'
+      : 'border-silicon-slate/70 bg-silicon-slate/20'
+  return (
+    <div className={`rounded-lg border p-4 ${toneClass}`}>
+      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{label}</p>
+      <p className="mt-3 text-3xl font-bold tabular-nums text-foreground">{value}</p>
+      <p className="mt-1 text-sm text-muted-foreground">{detail}</p>
+    </div>
+  )
+}
+
+function MemorySourceList({
+  memory,
+  sourceById,
+}: {
+  memory: OpenBrainSnapshot['memories'][number]
+  sourceById: Map<string, OpenBrainSnapshot['sources'][number]>
+}) {
+  if (memory.sourceIds.length === 0) {
+    return <span className="text-xs text-muted-foreground">No linked source</span>
+  }
+
+  return (
+    <div className="space-y-2">
+      {memory.sourceIds.map((sourceId) => {
+        const source = sourceById.get(sourceId)
+        return (
+          <div key={sourceId}>
+            <p className="font-medium">{source?.title || sourceId}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{source?.kind ? formatSourceKind(source.kind) : 'source record'}</p>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function isCreativeChapterMemory(memory: OpenBrainSnapshot['memories'][number]) {
+  return memory.id.startsWith('memory:creative-chapter:') || memory.body.startsWith('Private chapter-level summary')
+}
+
+function compareCreativeChapterMemories(
+  a: OpenBrainSnapshot['memories'][number],
+  b: OpenBrainSnapshot['memories'][number],
+) {
+  const sourceCompare = (a.sourceIds[0] || '').localeCompare(b.sourceIds[0] || '')
+  if (sourceCompare !== 0) return sourceCompare
+  return creativeChapterOrdinal(a) - creativeChapterOrdinal(b) || a.title.localeCompare(b.title)
+}
+
+function creativeChapterOrdinal(memory: OpenBrainSnapshot['memories'][number]) {
+  const match = memory.id.match(/chapter-(\d+)/)
+  return match ? Number(match[1]) : Number.MAX_SAFE_INTEGER
+}
+
 function SourceKindBadge({ kind }: { kind: string }) {
   const tone = kind === 'creative_manuscript'
     ? 'border-fuchsia-300/40 bg-fuchsia-500/10 text-fuchsia-100'
@@ -1569,6 +1742,15 @@ function SourceKindBadge({ kind }: { kind: string }) {
 
 function formatSourceKind(kind: string) {
   return kind.split('_').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ')
+}
+
+function formatMemoryKind(kind: string) {
+  return kind.split('_').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ')
+}
+
+function truncateText(value: string, maxLength: number) {
+  if (value.length <= maxLength) return value
+  return `${value.slice(0, Math.max(0, maxLength - 3)).trimEnd()}...`
 }
 
 function ProposalsView({
