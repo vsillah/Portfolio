@@ -102,6 +102,32 @@ The first production MCP registration is an operational-state step. It should be
 
 The repo-owned MCP server prototype is `scripts/open-brain-mcp-server.ts`. It exposes the tool names above and stores local JSON records under `OPEN_BRAIN_HOME`, but registering it with Codex, Hermes, OpenCode, Claude, Cursor, or ChatGPT remains a separate local-state change.
 
+## Private Creative Manuscript Summaries
+
+Codex Chronicles and other private manuscripts can be indexed into Open Brain as chapter-level private memories without copying raw manuscript text into the Portfolio repo, public wiki overlays, chatbot knowledge, Pinecone, or public RAG.
+
+The producer is:
+
+```bash
+npm run open-brain:manuscript-summaries
+```
+
+By default it runs in dry-run mode. It reads private `creative_manuscript` source records from `OPEN_BRAIN_HOME/sources.json`, resolves matching plain-text exports from `OPEN_BRAIN_MANUSCRIPT_EXPORT_DIR` or `~/.open-brain/private-vault/manuscripts`, detects chapter headings, and reports the private memory records it would create.
+
+To write private chapter summaries into the local Open Brain:
+
+```bash
+npm run open-brain:manuscript-summaries -- --write
+```
+
+Source handling rules:
+
+- Google Docs should be exported as `.txt` files into the private manuscript vault before running the producer.
+- The producer writes `private` memory records only.
+- The producer records provenance events with `rawFullTextIncluded: false`.
+- The CLI output is sanitized and does not print chapter bodies or raw manuscript text.
+- Generated chapter summaries are retrieval and orientation aids; they do not replace a human literary summary.
+
 ## Runtime Registration Packet
 
 Phase 2 uses a dry-run registration packet before any agent config is edited:
