@@ -121,4 +121,47 @@ describe('social-content-calendar helpers', () => {
       }),
     }))
   })
+
+  it('uses template relative positions across a valid campaign window', () => {
+    const slots = campaignContentPlanSlots(
+      {
+        name: 'Short Form Sprint',
+        starts_at: '2026-07-01T00:00:00',
+        ends_at: '2026-07-11T00:00:00',
+      },
+      { templateKey: 'short_form_series' },
+    )
+    const scheduledDates = slots.map((slot) => new Date(slot.scheduled_for))
+
+    expect(scheduledDates.map((date) => [
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      date.getHours(),
+    ])).toEqual([
+      [2026, 6, 2, 10],
+      [2026, 6, 4, 10],
+      [2026, 6, 7, 10],
+      [2026, 6, 10, 10],
+    ])
+    expect(scheduledDates.map((date) => date.getTime())).toEqual(
+      [...scheduledDates].map((date) => date.getTime()).sort((a, b) => a - b),
+    )
+    expect(slots.map((slot) => slot.channel)).toEqual([
+      'linkedin',
+      'instagram_reels',
+      'youtube_shorts',
+      'instagram_reels',
+    ])
+    expect(slots[1]).toEqual(expect.objectContaining({
+      title: 'Hook batch: Short Form Sprint',
+      metadata: expect.objectContaining({
+        template_key: 'short_form_series',
+        milestone_key: 'hook_batch',
+        recommended_lead_time_days: 7,
+        required_assets: ['hook_variants', 'script', 'safe_area_notes'],
+        approval_gates: ['script_review', 'visual_review'],
+      }),
+    }))
+  })
 })
