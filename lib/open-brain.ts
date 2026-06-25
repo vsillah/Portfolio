@@ -29,6 +29,8 @@ export type OpenBrainSourceKind =
   | 'model_ops_dashboard'
   | 'model_ops_swap_request'
   | 'personality_corpus'
+  | 'creative_manuscript'
+  | 'creative_project'
   | 'chatbot_knowledge'
   | 'rag_projection'
   | 'pinecone_projection'
@@ -2038,7 +2040,7 @@ function relationshipPoint(type: OpenBrainRelationshipNodeType, kind: string, in
 function sourceRelationshipPoint(kind: string, index: number) {
   const columns = [12, 31, 50, 69, 88]
   const row = Math.floor(index / columns.length)
-  const kindNudge = kind === 'runbook' ? 2 : kind === 'repair_packet' ? -2 : 0
+  const kindNudge = kind === 'runbook' ? 2 : kind === 'repair_packet' ? -2 : kind.includes('creative') ? 1 : 0
   const x = columns[index % columns.length] + (row % 2 === 1 ? 2 : 0) + kindNudge
   const y = 12 + row * 10
   return {
