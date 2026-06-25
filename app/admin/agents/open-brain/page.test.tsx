@@ -38,7 +38,7 @@ const openBrainSnapshot = {
     links: 0,
     ragProjectionDocuments: 1,
     staleSources: 1,
-    privateRecords: 0,
+    privateRecords: 1,
     producerGates: 2,
     enabledProducerGates: 1,
   },
@@ -57,6 +57,16 @@ const openBrainSnapshot = {
     privacyTier: 'internal',
     lastObservedAt: '2026-05-14T12:00:00.000Z',
     confidence: 0.9,
+    metadata: {},
+  }, {
+    id: 'creative-source:codex-chronicles:quantum-rebel-book-1',
+    kind: 'creative_manuscript',
+    title: 'Code Chronicles, Book 1: The Quantum Rebel',
+    summary: 'Private book draft/source document by Vambah Sillah. Raw manuscript text is not copied into Open Brain.',
+    path: '/Users/vambahsillah/Library/CloudStorage/GoogleDrive-vsillah@gmail.com/My Drive/2. AmaduTown Advisory Solutions/Artifacts /Promotional /Code Breaker Chronicles/Book 1: The Quantum Rebel.gdoc',
+    privacyTier: 'private',
+    lastObservedAt: '2026-06-25T22:31:44.851Z',
+    confidence: 0.94,
     metadata: {},
   }],
   events: [],
@@ -348,6 +358,9 @@ describe('OpenBrainPage', () => {
 
     expect(screen.getByText('Morning review source')).toBeInTheDocument()
     expect(screen.getByText('/tmp/source.json')).toBeInTheDocument()
+    expect(screen.getByText('Code Chronicles, Book 1: The Quantum Rebel')).toBeInTheDocument()
+    expect(screen.getByText('Creative Manuscript')).toBeInTheDocument()
+    expect(screen.getAllByText('private').length).toBeGreaterThan(0)
   })
 
   it('keeps wiki compilation as an explicit gated action', async () => {

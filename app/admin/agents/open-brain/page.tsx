@@ -1430,8 +1430,10 @@ function relationshipEdgeColor(strength: 'strong' | 'medium' | 'weak', status: s
 }
 
 function relationshipNodeTone(type: OpenBrainRelationshipNodeType, health: 'green' | 'yellow' | 'red', kind: string) {
-  if (health === 'red') return 'border-red-300/70 bg-red-950/80 text-red-100'
   if (type === 'source') {
+    if (kind === 'creative_manuscript') return 'border-fuchsia-300/70 bg-fuchsia-500/20 text-fuchsia-50'
+    if (kind === 'creative_project') return 'border-amber-300/70 bg-amber-500/20 text-amber-50'
+    if (health === 'red') return 'border-red-300/70 bg-red-950/80 text-red-100'
     if (kind === 'workspace_root_report') return 'border-sky-300/70 bg-sky-500/25 text-sky-50'
     if (kind === 'codex_automation') return 'border-radiant-gold/70 bg-radiant-gold text-imperial-navy'
     if (kind === 'runbook') return 'border-emerald-300/70 bg-emerald-500/25 text-emerald-50'
@@ -1449,8 +1451,10 @@ function relationshipNodeTone(type: OpenBrainRelationshipNodeType, health: 'gree
 }
 
 function relationshipNodeLegendColor(type: OpenBrainRelationshipNodeType, health: 'green' | 'yellow' | 'red', kind: string) {
-  if (health === 'red') return 'bg-red-300'
   if (type === 'source') {
+    if (kind === 'creative_manuscript') return 'bg-fuchsia-300'
+    if (kind === 'creative_project') return 'bg-amber-300'
+    if (health === 'red') return 'bg-red-300'
     if (kind === 'workspace_root_report') return 'bg-sky-300'
     if (kind === 'codex_automation') return 'bg-radiant-gold'
     if (kind === 'runbook') return 'bg-emerald-300'
@@ -1536,7 +1540,7 @@ function SourcesView({ snapshot }: { snapshot: OpenBrainSnapshot }) {
                 <p className="mt-1 text-xs text-muted-foreground">{source.summary}</p>
                 <p className="mt-1 break-all text-xs text-muted-foreground">{source.path || source.id}</p>
               </td>
-              <td className="px-4 py-3">{source.kind}</td>
+              <td className="px-4 py-3"><SourceKindBadge kind={source.kind} /></td>
               <td className="px-4 py-3"><PrivacyBadge tier={source.privacyTier} /></td>
               <td className="px-4 py-3">{Math.round(source.confidence * 100)}%</td>
               <td className="px-4 py-3 text-muted-foreground">{formatDateTime(source.lastObservedAt)}</td>
@@ -1546,6 +1550,25 @@ function SourcesView({ snapshot }: { snapshot: OpenBrainSnapshot }) {
       </table>
     </div>
   )
+}
+
+function SourceKindBadge({ kind }: { kind: string }) {
+  const tone = kind === 'creative_manuscript'
+    ? 'border-fuchsia-300/40 bg-fuchsia-500/10 text-fuchsia-100'
+    : kind === 'creative_project'
+      ? 'border-amber-300/40 bg-amber-500/10 text-amber-100'
+      : kind.includes('creative')
+        ? 'border-fuchsia-300/30 bg-fuchsia-500/10 text-fuchsia-100'
+        : 'border-silicon-slate/70 bg-silicon-slate/30 text-muted-foreground'
+  return (
+    <span className={`inline-flex rounded-full border px-2 py-1 text-xs ${tone}`}>
+      {formatSourceKind(kind)}
+    </span>
+  )
+}
+
+function formatSourceKind(kind: string) {
+  return kind.split('_').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ')
 }
 
 function ProposalsView({
