@@ -20,6 +20,9 @@ import type {
   AttractionCampaign, CampaignCriteriaTemplate, CriteriaType, TrackingSource,
 } from '@/lib/campaigns';
 import {
+  CALENDAR_CHANNEL_LABELS,
+  CAMPAIGN_PHASE_LABELS,
+  SOCIAL_CONTENT_CALENDAR_SOURCE_LABELS,
   SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS,
   SOCIAL_CONTENT_CALENDAR_TEMPLATES,
   type SocialContentCalendarTemplateKey,
@@ -54,6 +57,10 @@ function metadataRecord(value: unknown) {
   return value && typeof value === 'object' && !Array.isArray(value)
     ? value as Record<string, unknown>
     : {};
+}
+
+function sourceLabel(url: string) {
+  return SOCIAL_CONTENT_CALENDAR_SOURCE_LABELS[url] || new URL(url).hostname.replace(/^www\./, '');
 }
 
 interface CampaignDetail extends AttractionCampaign {
@@ -99,6 +106,7 @@ export default function CampaignDetailPage() {
   const [calendarActionItemId, setCalendarActionItemId] = useState<string | null>(null);
   const [rejectingCalendarItemId, setRejectingCalendarItemId] = useState<string | null>(null);
   const [calendarDecisionNotes, setCalendarDecisionNotes] = useState<Record<string, string>>({});
+  const selectedContentPlanTemplate = SOCIAL_CONTENT_CALENDAR_TEMPLATES[contentPlanTemplateKey];
 
   // Criteria form
   const [showCriteriaForm, setShowCriteriaForm] = useState(false);
@@ -674,10 +682,56 @@ export default function CampaignDetailPage() {
           </div>
 
           <div className="admin-console-card mb-4 rounded-lg border border-blue-500/25 bg-blue-500/10 p-3 text-sm text-blue-100">
-            <p className="font-semibold">{SOCIAL_CONTENT_CALENDAR_TEMPLATES[contentPlanTemplateKey].label}</p>
-            <p className="mt-1 text-xs leading-5 text-blue-100/80">
-              {SOCIAL_CONTENT_CALENDAR_TEMPLATES[contentPlanTemplateKey].description}
-            </p>
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <p className="font-semibold">{selectedContentPlanTemplate.label}</p>
+                <p className="mt-1 text-xs leading-5 text-blue-100/80">
+                  {selectedContentPlanTemplate.description}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2 lg:justify-end">
+                {selectedContentPlanTemplate.source_urls.map((url) => (
+                  <a
+                    key={url}
+                    href={url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-full border border-blue-300/30 bg-blue-950/25 px-2.5 py-1 text-[0.68rem] font-semibold text-blue-100 hover:bg-blue-500/20"
+                  >
+                    {sourceLabel(url)}
+                  </a>
+                ))}
+              </div>
+            </div>
+            <div className="mt-3 grid gap-2 lg:grid-cols-4">
+              {selectedContentPlanTemplate.milestones.map((milestone) => (
+                <div key={milestone.key} className="rounded-lg border border-blue-300/20 bg-background/35 p-3">
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <span className="text-xs font-semibold text-blue-50">
+                      {CAMPAIGN_PHASE_LABELS[milestone.campaign_phase]}
+                    </span>
+                    <span className="rounded-full border border-blue-300/20 px-2 py-0.5 text-[0.65rem] text-blue-100/80">
+                      {CALENDAR_CHANNEL_LABELS[milestone.channel]}
+                    </span>
+                  </div>
+                  <p className="text-xs font-semibold text-blue-100">{milestone.title_prefix}</p>
+                  <p className="mt-1 line-clamp-3 text-[0.68rem] leading-5 text-blue-100/75">
+                    {milestone.planned_angle}
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    <span className="rounded-full border border-blue-300/20 px-2 py-0.5 text-[0.62rem] text-blue-100/75">
+                      {milestone.recommended_lead_time_days}d lead
+                    </span>
+                    <span className="rounded-full border border-blue-300/20 px-2 py-0.5 text-[0.62rem] text-blue-100/75">
+                      {milestone.required_assets.length} assets
+                    </span>
+                    <span className="rounded-full border border-blue-300/20 px-2 py-0.5 text-[0.62rem] text-blue-100/75">
+                      {milestone.approval_gates.length} gates
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {contentPlanNotice && (

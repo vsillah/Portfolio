@@ -147,6 +147,13 @@ describe('CampaignDetailPage content calendar gates', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Content Calendar1' }));
 
+    expect(screen.getAllByText('Whisper-to-shout launch').length).toBeGreaterThan(1);
+    expect(screen.getByRole('link', { name: 'HubSpot social calendar template' })).toHaveAttribute(
+      'href',
+      'https://offers.hubspot.com/social-media-content-calendar',
+    );
+    expect(screen.getByText('14d lead')).toBeInTheDocument();
+    expect(screen.getByText('1 gates')).toBeInTheDocument();
     expect(screen.getByText('Tease: Approval gates')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Authorize Draft Handoff' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Reject' })).toBeInTheDocument();
