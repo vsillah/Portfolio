@@ -172,7 +172,7 @@ export async function POST(
       )
     }
 
-    let draft: { id: string; messageId?: string }
+    let draft: { id: string; messageId?: string; threadId?: string }
     try {
       draft = await createUserGmailDraft(refreshToken, {
         to,
@@ -185,6 +185,42 @@ export async function POST(
         {
           error:
             'Gmail could not create the draft. Try reconnecting your Gmail account.',
+        },
+        { status: 502 }
+      )
+    }
+
+    if (!draft.threadId) {
+      console.error('[Gmail user draft] Gmail API returned no thread id:', {
+        outreach_queue_id: item.id,
+        gmail_user_draft_id: draft.id,
+        gmail_user_message_id: draft.messageId,
+      })
+      return NextResponse.json(
+        {
+          error:
+            'Gmail created the draft, but did not return a thread id. Reply tracking is not safe for this draft.',
+        },
+        { status: 502 }
+      )
+    }
+
+    const now = new Date().toISOString()
+    const { error: trackingError } = await supabaseAdmin
+      .from('outreach_queue')
+      .update({
+        thread_id: draft.threadId,
+        message_id: draft.messageId ?? null,
+        updated_at: now,
+      })
+      .eq('id', item.id)
+
+    if (trackingError) {
+      console.error('[Gmail user draft] failed to persist tracking:', trackingError)
+      return NextResponse.json(
+        {
+          error:
+            'Gmail created the draft, but Portfolio could not save thread tracking. Do not send this draft from Gmail until tracking is repaired.',
         },
         { status: 502 }
       )
@@ -206,6 +242,7 @@ export async function POST(
         outreach_queue_id: item.id,
         gmail_user_draft_id: draft.id,
         gmail_user_message_id: draft.messageId,
+        gmail_user_thread_id: draft.threadId,
         gmail_connected_as: creds.google_email,
       },
     })
@@ -213,6 +250,7 @@ export async function POST(
     return NextResponse.json({
       message: 'Draft saved in your Gmail. Open Gmail to review and send.',
       draftId: draft.id,
+      threadId: draft.threadId,
       openGmailUrl: 'https://mail.google.com/mail/#drafts',
     })
   } catch (error) {

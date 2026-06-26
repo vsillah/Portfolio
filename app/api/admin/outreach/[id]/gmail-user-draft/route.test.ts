@@ -91,9 +91,11 @@ function params(id = 'queue-1') {
 function mockSupabase({
   credentials,
   outreachItem,
+  trackingError = null,
 }: {
   credentials: CredentialsRow | null
   outreachItem?: OutreachQueueRow | null
+  trackingError?: { message: string } | null
 }) {
   const credentialsMaybeSingle = vi.fn().mockResolvedValue({
     data: credentials,
@@ -116,6 +118,13 @@ function mockSupabase({
   const outreachSelect = vi.fn().mockReturnValue({
     eq: outreachEq,
   })
+  const outreachUpdateEq = vi.fn().mockResolvedValue({
+    data: null,
+    error: trackingError,
+  })
+  const outreachUpdate = vi.fn().mockReturnValue({
+    eq: outreachUpdateEq,
+  })
 
   mocks.from.mockImplementation((table: string) => {
     if (table === 'admin_gmail_user_credentials') {
@@ -127,6 +136,7 @@ function mockSupabase({
     if (table === 'outreach_queue') {
       return {
         select: outreachSelect,
+        update: outreachUpdate,
       }
     }
 
@@ -136,6 +146,8 @@ function mockSupabase({
   return {
     credentialsSelect,
     outreachSelect,
+    outreachUpdate,
+    outreachUpdateEq,
   }
 }
 
@@ -178,6 +190,7 @@ describe('POST /api/admin/outreach/[id]/gmail-user-draft', () => {
     mocks.createUserGmailDraft.mockResolvedValue({
       id: 'gmail-draft-1',
       messageId: 'gmail-message-1',
+      threadId: 'gmail-thread-1',
     })
     mocks.logCommunication.mockResolvedValue(undefined)
   })
@@ -216,6 +229,7 @@ describe('POST /api/admin/outreach/[id]/gmail-user-draft', () => {
     await expect(response.json()).resolves.toEqual({
       message: 'Draft saved in your Gmail. Open Gmail to review and send.',
       draftId: 'gmail-draft-1',
+      threadId: 'gmail-thread-1',
       openGmailUrl: 'https://mail.google.com/mail/#drafts',
     })
     expect(mocks.decryptRefreshToken).toHaveBeenCalledWith('cipher', 'iv', 'tag')
@@ -236,9 +250,64 @@ describe('POST /api/admin/outreach/[id]/gmail-user-draft', () => {
           outreach_queue_id: 'queue-1',
           gmail_user_draft_id: 'gmail-draft-1',
           gmail_user_message_id: 'gmail-message-1',
+          gmail_user_thread_id: 'gmail-thread-1',
           gmail_connected_as: '  VAMBAH@AMADUTOWN.COM  ',
         }),
       }),
     )
+  })
+
+  it('persists Gmail thread tracking before returning the draft as usable', async () => {
+    const { outreachUpdate, outreachUpdateEq } = mockSupabase({
+      credentials: credentialsRow('vambah@amadutown.com'),
+      outreachItem: outreachRow(),
+    })
+
+    const response = await POST(makeRequest(), params())
+
+    expect(response.status).toBe(200)
+    expect(outreachUpdate).toHaveBeenCalledWith({
+      thread_id: 'gmail-thread-1',
+      message_id: 'gmail-message-1',
+      updated_at: expect.any(String),
+    })
+    expect(outreachUpdateEq).toHaveBeenCalledWith('id', 'queue-1')
+  })
+
+  it('fails closed when Gmail does not return a thread id for reply tracking', async () => {
+    mockSupabase({
+      credentials: credentialsRow('vambah@amadutown.com'),
+      outreachItem: outreachRow(),
+    })
+    mocks.createUserGmailDraft.mockResolvedValue({
+      id: 'gmail-draft-1',
+      messageId: 'gmail-message-1',
+    })
+
+    const response = await POST(makeRequest(), params())
+
+    expect(response.status).toBe(502)
+    await expect(response.json()).resolves.toEqual({
+      error:
+        'Gmail created the draft, but did not return a thread id. Reply tracking is not safe for this draft.',
+    })
+    expect(mocks.logCommunication).not.toHaveBeenCalled()
+  })
+
+  it('fails closed when Portfolio cannot persist Gmail thread tracking', async () => {
+    mockSupabase({
+      credentials: credentialsRow('vambah@amadutown.com'),
+      outreachItem: outreachRow(),
+      trackingError: { message: 'update failed' },
+    })
+
+    const response = await POST(makeRequest(), params())
+
+    expect(response.status).toBe(502)
+    await expect(response.json()).resolves.toEqual({
+      error:
+        'Gmail created the draft, but Portfolio could not save thread tracking. Do not send this draft from Gmail until tracking is repaired.',
+    })
+    expect(mocks.logCommunication).not.toHaveBeenCalled()
   })
 })

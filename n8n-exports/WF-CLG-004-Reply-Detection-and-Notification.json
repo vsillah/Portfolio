@@ -48,7 +48,7 @@
         "tableId": "outreach_queue",
         "limit": 1,
         "filterType": "string",
-        "filterString": "thread_id=eq.{{ $json.thread_id }}&status=eq.sent"
+        "filterString": "thread_id=eq.{{ $json.thread_id }}&status=in.(sent,approved,draft)"
       },
       "id": "match-outreach",
       "name": "Match Against Outreach",
@@ -312,7 +312,7 @@
     },
     {
       "parameters": {
-        "content": "## WF-CLG-004: Reply Detection and Notification\n\nAlways-on workflow that detects replies to cold outreach.\n\n**Email Detection:**\n1. Gmail trigger watches for new emails (every minute)\n2. Extracts sender email and thread ID\n3. Matches against outreach_queue by thread_id\n4. If match found:\n   - Marks outreach as 'replied'\n   - Updates contact outreach_status\n   - Cancels remaining sequence steps\n   - Sends immediate Slack DM with full context\n   - Hot leads: channel post with @here\n   - Warm leads: channel post without mention\n   - Detects scheduling intent -> suggests Calendly\n\n**LinkedIn Detection:**\nHandled by pre-check in WF-000 (Inbound Lead Intake).\nSee plan Phase 6B for details.\n\n**Env vars:**\n- SLACK_DM_CHANNEL_ID (your personal DM channel)\n- SLACK_OUTREACH_CHANNEL_ID\n- CALENDLY_DISCOVERY_LINK\n- ADMIN_URL\n- SUPABASE_URL, SUPABASE_SERVICE_KEY"
+        "content": "## WF-CLG-004: Reply Detection and Notification\n\nAlways-on workflow that detects replies to cold outreach.\n\n**Email Detection:**\n1. Gmail trigger watches for new emails (every minute)\n2. Extracts sender email and thread ID\n3. Matches against outreach_queue by thread_id for sent, approved, or draft rows that already have a Gmail thread ID\n4. If match found:\n   - Marks outreach as 'replied'\n   - Updates contact outreach_status\n   - Cancels remaining sequence steps\n   - Sends immediate Slack DM with full context\n   - Hot leads: channel post with @here\n   - Warm leads: channel post without mention\n   - Detects scheduling intent -> suggests Calendly\n\n**LinkedIn Detection:**\nHandled by pre-check in WF-000 (Inbound Lead Intake).\nSee plan Phase 6B for details.\n\n**Env vars:**\n- SLACK_DM_CHANNEL_ID (your personal DM channel)\n- SLACK_OUTREACH_CHANNEL_ID\n- CALENDLY_DISCOVERY_LINK\n- ADMIN_URL\n- SUPABASE_URL, SUPABASE_SERVICE_KEY"
       },
       "id": "note-workflow",
       "name": "Workflow Note",
