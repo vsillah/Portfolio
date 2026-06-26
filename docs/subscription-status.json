@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-06-25T12:45:00Z",
+  "generatedAt": "2026-06-26T12:45:00Z",
   "sourceDocument": "/docs/subscription-cancellation-audit.md",
-  "latestMonitorArtifact": "/docs/subscription-monitor-runs/2026-06-25.md",
+  "latestMonitorArtifact": "/docs/subscription-monitor-runs/2026-06-26.md",
   "monitorRunArtifactPattern": "/docs/subscription-monitor-runs/YYYY-MM-DD.md",
   "weeklyReportAutomationId": "portfolio-subscription-weekly-report",
   "dailyMonitorAutomationId": "portfolio-subscription-cancellation-monitor",
@@ -62,7 +62,8 @@
       "2026-06-22 daily refresh kept the budget status yellow: configured-local Supabase analytics moved through 2026-06-22 and configured-local agent_runs moved through 2026-06-21; production Supabase remained readable; n8n Cloud returned 85 workflows, 72 active workflows, and successful executions through 2026-06-22T12:00Z while the older N8N_API_KEY/drift check still returned 403; Vercel listed ready portfolio and portfolio-staging deployments; Stripe/OpenAI/Anthropic/Gemini/Slack/Pinecone/Hunter/Gamma/Read AI/Printful/Apify/OpenRouter/Vapi were readable or dependency-backed; Read AI connector returned two June meeting records through 2026-06-18; Printful store and 10 sync products were readable with store context; HeyGen voices were readable but avatars timed out again; OpenRouter and Vapi stayed quiet; no vendor crossed the approval-ready cancellation threshold.",
       "2026-06-22 weekly refresh kept the budget status yellow: n8n Cloud stayed active through the readable cloud key while the older drift-check key remained 403; Read AI recovered to connector-readable June meeting evidence; Printful store/sync visibility recovered to 10 products; ElevenLabs reset to 0/300000 characters in the new cycle; Gamma API access was readable again; HeyGen voices were readable while avatars timed out; OpenRouter and Vapi stayed quiet; BuiltWith stayed protected during the outreach ramp; Fireflies stayed resolved/canceled; no vendor crossed the approval-ready cancellation threshold.",
       "2026-06-24 daily refresh kept the budget status yellow: production Supabase moved on 2026-06-24, n8n Cloud had 85 workflows with 72 active and a successful execution at 2026-06-24T12:32:47Z, Vercel CLI listed ready portfolio and portfolio-staging deployments, Read AI had three June meeting metadata records through 2026-06-22, Printful store/sync products were readable, OpenAI/Anthropic/Gemini/Pinecone/Apify/Hunter were readable, Gamma regressed to 401, Calendly remained 401, HeyGen avatars timed out, OpenRouter and Vapi stayed quiet, Resend local key was absent, and no vendor crossed the approval-ready cancellation threshold.",
-      "2026-06-25 daily refresh kept the budget status yellow: production Supabase analytics moved through 2026-06-24 and agent_runs through 2026-06-24; n8n Cloud had 85 workflows with 72 active and a successful execution at 2026-06-25T12:00:52Z; Vercel deployment watch passed portfolio and portfolio-staging; OpenAI/Anthropic/Gemini/Pinecone/Apify/Hunter/Read AI were readable; Gamma returned 404, Calendly returned 401, HeyGen avatars timed out, Printful stores were readable but sync-products returned 400, OpenRouter usage was negligible, Vapi returned zero sampled calls, Resend local key was absent, ElevenLabs current cycle stayed at 0/300000 characters, and no vendor crossed the approval-ready cancellation threshold."
+      "2026-06-25 daily refresh kept the budget status yellow: production Supabase analytics moved through 2026-06-24 and agent_runs through 2026-06-24; n8n Cloud had 85 workflows with 72 active and a successful execution at 2026-06-25T12:00:52Z; Vercel deployment watch passed portfolio and portfolio-staging; OpenAI/Anthropic/Gemini/Pinecone/Apify/Hunter/Read AI were readable; Gamma returned 404, Calendly returned 401, HeyGen avatars timed out, Printful stores were readable but sync-products returned 400, OpenRouter usage was negligible, Vapi returned zero sampled calls, Resend local key was absent, ElevenLabs current cycle stayed at 0/300000 characters, and no vendor crossed the approval-ready cancellation threshold.",
+      "2026-06-26 daily refresh kept the budget status yellow: production Supabase analytics and agent_runs moved through 2026-06-25; n8n Cloud had 85 workflows with 72 active and a successful execution at 2026-06-26T12:00:52Z; Vercel deployment watch passed portfolio and portfolio-staging; OpenAI/Anthropic/Gemini/Gamma/Printful/Pinecone/Apify/Hunter/Read AI connector were readable or dependency-backed; Gamma and Printful recovered from prior API drift; Calendly and Read AI direct API returned 401, HeyGen avatars timed out, OpenRouter usage stayed negligible, Vapi returned zero sampled calls, Resend local key was absent, ElevenLabs current cycle stayed at 0/300000 characters, and no vendor crossed the approval-ready cancellation threshold."
     ],
     "transitionAdjustments": [
       {
@@ -391,12 +392,12 @@
   },
   "summary": {
     "status": "yellow",
-    "headline": "Daily refresh: core Portfolio subscriptions remain active/readable; Gamma and Printful showed API visibility drift, n8n still has split-key drift, and no vendor reached the approval-ready cancellation threshold.",
+    "headline": "Daily refresh: core Portfolio subscriptions remain active/readable; Gamma and Printful recovered from API drift, n8n still has split-key drift, and no vendor reached the approval-ready cancellation threshold.",
     "nextReviewFocus": [
       "Make n8n drift checks use the readable cloud key or rotate the stale direct API key, then rerun workflow drift checks.",
-      "Restore Gamma API/dashboard visibility and determine whether HTTP 404 is endpoint drift, key scope, or service-side change.",
-      "Recheck Printful sync-products after the HTTP 400 response and compare against dashboard order history.",
-      "Verify Read AI dashboard billing and plan fit now that connector evidence shows June meeting activity.",
+      "Verify Gamma dashboard credits and recent report need now that API visibility recovered.",
+      "Verify Printful dashboard order history and store strategy now that sync-products visibility recovered.",
+      "Verify Read AI dashboard billing and plan fit now that connector evidence shows June meeting activity, and decide whether direct API access should be restored.",
       "Verify Vapi dashboard billing and decide whether production voice UX should stay enabled.",
       "Verify whether production uses Resend or Gmail/n8n as the real outbound channel.",
       "Check Pinecone billing/API traffic against Supabase/local RAG usage.",
