@@ -127,6 +127,14 @@ export type SocialContentCalendarTemplate = {
   milestones: SocialContentCalendarTemplateMilestone[]
 }
 
+export type SocialContentCalendarTemplateRecommendation = {
+  key: SocialContentCalendarTemplateKey
+  label: string
+  score: number
+  reasons: string[]
+  matched_terms: string[]
+}
+
 const SOURCE_URLS = {
   youtubeCreators: 'https://www.youtube.com/creators/grow/optimize-your-content/',
   youtubePremieres: 'https://support.google.com/youtube/answer/9080341',
@@ -509,6 +517,106 @@ export function normalizeCalendarTemplateKey(value: unknown): SocialContentCalen
 
 export function getCalendarTemplate(value?: unknown): SocialContentCalendarTemplate {
   return SOCIAL_CONTENT_CALENDAR_TEMPLATES[normalizeCalendarTemplateKey(value)]
+}
+
+const TEMPLATE_RECOMMENDATION_ORDER: SocialContentCalendarTemplateKey[] = [
+  'whisper_to_shout',
+  'youtube_video_release',
+  'short_form_series',
+  'evergreen_authority',
+  'case_study_proof_drop',
+]
+
+const TEMPLATE_RECOMMENDATION_TERMS: Record<
+  SocialContentCalendarTemplateKey,
+  Array<{ term: string; reason: string; weight: number }>
+> = {
+  whisper_to_shout: [
+    { term: 'launch', reason: 'Campaign language points to a launch arc.', weight: 3 },
+    { term: 'offer', reason: 'Offer language needs tease-to-conversion pacing.', weight: 3 },
+    { term: 'bonus', reason: 'Bonus language fits a whisper-to-shout sequence.', weight: 2 },
+    { term: 'release', reason: 'Release language benefits from staged announcements.', weight: 2 },
+    { term: 'promotion', reason: 'Promotional language maps to campaign pacing.', weight: 2 },
+  ],
+  youtube_video_release: [
+    { term: 'youtube', reason: 'YouTube language calls for video-led milestones.', weight: 4 },
+    { term: 'video', reason: 'Video language needs hook, script, thumbnail, and launch gates.', weight: 3 },
+    { term: 'thumbnail', reason: 'Thumbnail language makes the video release template stronger.', weight: 3 },
+    { term: 'premiere', reason: 'Premiere language maps to YouTube launch planning.', weight: 3 },
+    { term: 'creator', reason: 'Creator language points to public video research patterns.', weight: 2 },
+  ],
+  short_form_series: [
+    { term: 'reel', reason: 'Reels language needs short-form batches and safe-area planning.', weight: 4 },
+    { term: 'short', reason: 'Short-form language benefits from repeatable hook testing.', weight: 3 },
+    { term: 'tiktok', reason: 'TikTok language maps to short-form series planning.', weight: 3 },
+    { term: 'instagram', reason: 'Instagram language fits the Reels planning lane.', weight: 3 },
+    { term: 'series', reason: 'Series language benefits from repeated variations.', weight: 2 },
+  ],
+  evergreen_authority: [
+    { term: 'evergreen', reason: 'Evergreen language calls for durable authority content.', weight: 4 },
+    { term: 'authority', reason: 'Authority language fits a reusable education sequence.', weight: 3 },
+    { term: 'education', reason: 'Education language needs framework and reference milestones.', weight: 3 },
+    { term: 'framework', reason: 'Framework language fits an evergreen teaching asset.', weight: 3 },
+    { term: 'guide', reason: 'Guide language points to durable thought-leadership content.', weight: 2 },
+  ],
+  case_study_proof_drop: [
+    { term: 'case study', reason: 'Case-study language needs proof and privacy review.', weight: 4 },
+    { term: 'proof', reason: 'Proof language calls for evidence packaging.', weight: 3 },
+    { term: 'client', reason: 'Client language needs privacy-safe evidence handling.', weight: 3 },
+    { term: 'shipped', reason: 'Shipped-work language maps to a proof drop.', weight: 3 },
+    { term: 'result', reason: 'Result language benefits from metrics and before/after framing.', weight: 2 },
+    { term: 'evidence', reason: 'Evidence language points to screenshot and source review.', weight: 2 },
+  ],
+}
+
+function recommendationText(campaign: Pick<AttractionCampaign, 'name' | 'description' | 'campaign_type'>) {
+  return `${campaign.name} ${campaign.description ?? ''} ${campaign.campaign_type}`.toLowerCase()
+}
+
+function uniqueValues(values: string[]) {
+  return Array.from(new Set(values))
+}
+
+export function recommendCalendarTemplates(
+  campaign: Pick<AttractionCampaign, 'name' | 'description' | 'campaign_type'>,
+): SocialContentCalendarTemplateRecommendation[] {
+  const text = recommendationText(campaign)
+
+  return TEMPLATE_RECOMMENDATION_ORDER
+    .map((key, orderIndex) => {
+      const template = SOCIAL_CONTENT_CALENDAR_TEMPLATES[key]
+      const termMatches = TEMPLATE_RECOMMENDATION_TERMS[key].filter(({ term }) => text.includes(term))
+      const matchedTerms = termMatches.map(({ term }) => term)
+      const reasons = termMatches.map(({ reason }) => reason)
+      let score = termMatches.reduce((total, match) => total + match.weight, 0)
+
+      if (campaign.campaign_type === 'free_challenge' && key === 'short_form_series') {
+        score += 3
+        reasons.push('Challenge campaigns benefit from repeatable short-form prompts.')
+        matchedTerms.push('free_challenge')
+      }
+      if ((campaign.campaign_type === 'bonus_credit' || campaign.campaign_type === 'win_money_back') && key === 'whisper_to_shout') {
+        score += 3
+        reasons.push('Offer-backed campaigns benefit from staged campaign pacing.')
+        matchedTerms.push(campaign.campaign_type)
+      }
+      if (key === 'whisper_to_shout') {
+        score += 1
+        reasons.push('Safe default for time-bound campaign announcements.')
+      }
+
+      return {
+        key,
+        label: template.label,
+        score,
+        reasons: uniqueValues(reasons).slice(0, 3),
+        matched_terms: uniqueValues(matchedTerms),
+        orderIndex,
+      }
+    })
+    .filter((recommendation) => recommendation.score > 0)
+    .sort((a, b) => b.score - a.score || a.orderIndex - b.orderIndex)
+    .map(({ orderIndex: _orderIndex, ...recommendation }) => recommendation)
 }
 
 export function defaultAuthorizationDueAt(scheduledFor: string | Date) {
