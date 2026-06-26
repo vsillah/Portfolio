@@ -25,6 +25,7 @@ import {
   SOCIAL_CONTENT_CALENDAR_SOURCE_LABELS,
   SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS,
   SOCIAL_CONTENT_CALENDAR_TEMPLATES,
+  recommendCalendarTemplates,
   type SocialContentCalendarTemplateKey,
 } from '@/lib/social-content-calendar';
 
@@ -103,10 +104,12 @@ export default function CampaignDetailPage() {
   const [contentPlanNotice, setContentPlanNotice] = useState('');
   const [contentPlanTemplateKey, setContentPlanTemplateKey] =
     useState<SocialContentCalendarTemplateKey>('whisper_to_shout');
+  const [templateRecommendationAppliedCampaignId, setTemplateRecommendationAppliedCampaignId] = useState<string | null>(null);
   const [calendarActionItemId, setCalendarActionItemId] = useState<string | null>(null);
   const [rejectingCalendarItemId, setRejectingCalendarItemId] = useState<string | null>(null);
   const [calendarDecisionNotes, setCalendarDecisionNotes] = useState<Record<string, string>>({});
   const selectedContentPlanTemplate = SOCIAL_CONTENT_CALENDAR_TEMPLATES[contentPlanTemplateKey];
+  const templateRecommendations = campaign ? recommendCalendarTemplates(campaign).slice(0, 3) : [];
 
   // Criteria form
   const [showCriteriaForm, setShowCriteriaForm] = useState(false);
@@ -176,6 +179,15 @@ export default function CampaignDetailPage() {
   useEffect(() => {
     Promise.all([fetchCampaign(), fetchEnrollments(), fetchBundles()]).finally(() => setLoading(false));
   }, [fetchCampaign, fetchEnrollments, fetchBundles]);
+
+  useEffect(() => {
+    if (!campaign || templateRecommendationAppliedCampaignId === campaign.id) return;
+    const [recommendation] = recommendCalendarTemplates(campaign);
+    if (recommendation) {
+      setContentPlanTemplateKey(recommendation.key);
+    }
+    setTemplateRecommendationAppliedCampaignId(campaign.id);
+  }, [campaign, templateRecommendationAppliedCampaignId]);
 
   const handleAddCriterion = async () => {
     if (!criteriaForm.label_template.trim()) return;
@@ -684,7 +696,14 @@ export default function CampaignDetailPage() {
           <div className="admin-console-card mb-4 rounded-lg border border-blue-500/25 bg-blue-500/10 p-3 text-sm text-blue-100">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div>
-                <p className="font-semibold">{selectedContentPlanTemplate.label}</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-semibold">{selectedContentPlanTemplate.label}</p>
+                  {templateRecommendations[0]?.key === contentPlanTemplateKey && (
+                    <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-0.5 text-[0.65rem] font-semibold text-emerald-100">
+                      Recommended fit
+                    </span>
+                  )}
+                </div>
                 <p className="mt-1 text-xs leading-5 text-blue-100/80">
                   {selectedContentPlanTemplate.description}
                 </p>
@@ -703,6 +722,42 @@ export default function CampaignDetailPage() {
                 ))}
               </div>
             </div>
+            {templateRecommendations.length > 0 && (
+              <div className="mt-3 rounded-lg border border-blue-300/20 bg-background/35 p-3">
+                <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-blue-100/80">
+                    Recommended from campaign signals
+                  </p>
+                  <span className="text-[0.68rem] text-blue-100/65">
+                    Type, name, and description only
+                  </span>
+                </div>
+                <div className="grid gap-2 lg:grid-cols-3">
+                  {templateRecommendations.map((recommendation) => (
+                    <button
+                      key={recommendation.key}
+                      type="button"
+                      onClick={() => setContentPlanTemplateKey(recommendation.key)}
+                      className={`rounded-lg border p-3 text-left transition-colors ${
+                        recommendation.key === contentPlanTemplateKey
+                          ? 'border-emerald-400/45 bg-emerald-500/10 text-emerald-50'
+                          : 'border-blue-300/20 bg-blue-950/20 text-blue-100 hover:bg-blue-500/15'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs font-semibold">{recommendation.label}</span>
+                        <span className="rounded-full border border-current/20 px-2 py-0.5 text-[0.62rem]">
+                          Score {recommendation.score}
+                        </span>
+                      </div>
+                      <p className="mt-2 line-clamp-2 text-[0.68rem] leading-5 opacity-80">
+                        {recommendation.reasons[0] ?? 'Safe fit for this campaign.'}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             <div className="mt-3 grid gap-2 lg:grid-cols-4">
               {selectedContentPlanTemplate.milestones.map((milestone) => (
                 <div key={milestone.key} className="rounded-lg border border-blue-300/20 bg-background/35 p-3">

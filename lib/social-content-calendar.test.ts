@@ -10,6 +10,7 @@ import {
   normalizeCampaignPhase,
   normalizeCalendarTemplateKey,
   normalizeDueStatus,
+  recommendCalendarTemplates,
 } from './social-content-calendar'
 
 describe('social-content-calendar helpers', () => {
@@ -163,5 +164,34 @@ describe('social-content-calendar helpers', () => {
         approval_gates: ['script_review', 'visual_review'],
       }),
     }))
+  })
+
+  it('recommends calendar templates from campaign goal signals', () => {
+    const youtubeRecommendations = recommendCalendarTemplates({
+      name: 'YouTube Authority Video Launch',
+      description: 'Prepare a thumbnail-led creator video release for the Agent Ops framework.',
+      campaign_type: 'bonus_credit',
+    })
+
+    expect(youtubeRecommendations[0]).toEqual(expect.objectContaining({
+      key: 'youtube_video_release',
+      score: expect.any(Number),
+      matched_terms: expect.arrayContaining(['youtube', 'video', 'thumbnail', 'creator']),
+      reasons: expect.arrayContaining([
+        'YouTube language calls for video-led milestones.',
+      ]),
+    }))
+
+    const proofRecommendations = recommendCalendarTemplates({
+      name: 'Client-safe proof drop',
+      description: 'Turn shipped project evidence and results into a case study without exposing private client details.',
+      campaign_type: 'win_money_back',
+    })
+
+    expect(proofRecommendations[0]).toEqual(expect.objectContaining({
+      key: 'case_study_proof_drop',
+      matched_terms: expect.arrayContaining(['case study', 'proof', 'client', 'shipped', 'result', 'evidence']),
+    }))
+    expect(proofRecommendations.map((recommendation) => recommendation.key)).toContain('whisper_to_shout')
   })
 })

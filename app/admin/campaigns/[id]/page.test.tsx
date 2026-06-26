@@ -53,14 +53,17 @@ const campaignDetail = {
 };
 
 describe('CampaignDetailPage content calendar gates', () => {
+  let campaignResponse = campaignDetail;
+
   beforeEach(() => {
+    campaignResponse = campaignDetail;
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
 
       if (url === '/api/admin/campaigns/campaign-1') {
         return {
           ok: true,
-          json: async () => ({ data: campaignDetail }),
+          json: async () => ({ data: campaignResponse }),
         };
       }
 
@@ -154,6 +157,9 @@ describe('CampaignDetailPage content calendar gates', () => {
     );
     expect(screen.getByText('14d lead')).toBeInTheDocument();
     expect(screen.getByText('1 gates')).toBeInTheDocument();
+    expect(screen.getByText('Recommended from campaign signals')).toBeInTheDocument();
+    expect(screen.getByText('Type, name, and description only')).toBeInTheDocument();
+    expect(screen.getByText('Recommended fit')).toBeInTheDocument();
     expect(screen.getByText('Tease: Approval gates')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Authorize Draft Handoff' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Reject' })).toBeInTheDocument();
@@ -196,5 +202,28 @@ describe('CampaignDetailPage content calendar gates', () => {
     expect(JSON.parse(String(rejectCall?.[1]?.body))).toEqual({
       decision_note: 'Needs a stronger proof point before this campaign item is due.',
     });
+  });
+
+  it('auto-selects the recommended template when campaign signals point to video production', async () => {
+    campaignResponse = {
+      ...campaignDetail,
+      name: 'YouTube Authority Video Launch',
+      description: 'Prepare a thumbnail-led creator video release for the Agent Ops framework.',
+      campaign_type: 'bonus_credit',
+    };
+
+    render(<CampaignDetailPage />);
+
+    expect(await screen.findByRole('heading', { name: 'YouTube Authority Video Launch' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Content Calendar1' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('A video-led calendar with topic validation, hook/script readiness, thumbnail/title work, launch, and post-publish learning.')).toBeInTheDocument();
+    });
+
+    expect(screen.getAllByText('YouTube video release').length).toBeGreaterThan(1);
+    expect(screen.getByText('YouTube language calls for video-led milestones.')).toBeInTheDocument();
+    expect(screen.getByText('Score 12')).toBeInTheDocument();
+    expect(screen.getByText('21d lead')).toBeInTheDocument();
   });
 });
