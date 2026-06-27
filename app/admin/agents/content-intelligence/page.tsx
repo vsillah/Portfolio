@@ -287,6 +287,16 @@ function hasLinkedInYoutubeReviewDrafts(item: AgentWorkItem) {
   return hasChannelReviewDraft(item, 'linkedin') && hasChannelReviewDraft(item, 'youtube_shorts')
 }
 
+function suggestedResearchPacketIds(item: AgentWorkItem) {
+  return metadataStringArray(recordValue(item.metadata).suggested_research_packet_ids)
+}
+
+function hasApprovedResearchPatterns(item: AgentWorkItem) {
+  const insight = recordValue(recordValue(item.metadata).insight)
+  const patterns = Array.isArray(insight.approved_research_patterns) ? insight.approved_research_patterns : []
+  return patterns.some((pattern) => Object.keys(recordValue(pattern)).length > 0)
+}
+
 function channelReviewPillClass(status: string) {
   if (status === 'approved') return 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
   if (status === 'in_review' || status === 'draft_ready') return 'border-blue-500/35 bg-blue-500/10 text-blue-100'
@@ -404,6 +414,7 @@ function ContentIntelligenceContent() {
   const [selectedInsightId, setSelectedInsightId] = useState('')
   const [linkDecisionNote, setLinkDecisionNote] = useState('')
   const [linkingPattern, setLinkingPattern] = useState(false)
+  const [linkingSuggestedInsightId, setLinkingSuggestedInsightId] = useState<string | null>(null)
   const [linkNotice, setLinkNotice] = useState<string | null>(null)
   const [preparingReviewInsightId, setPreparingReviewInsightId] = useState<string | null>(null)
   const [reviewDraftNotice, setReviewDraftNotice] = useState<string | null>(null)
@@ -742,6 +753,68 @@ function ContentIntelligenceContent() {
       setLinkingPattern(false)
     }
   }, [authedFetch, linkDecisionNote, load, selectedInsightId, selectedPacketId])
+
+  const linkSuggestedResearchPattern = useCallback(async (item: AgentWorkItem) => {
+    const packetIds = suggestedResearchPacketIds(item)
+    if (!packetIds.length) {
+      setError('No suggested research packets are available for this Shaka insight.')
+      return
+    }
+
+    setError(null)
+    setLinkNotice(null)
+    setLinkingSuggestedInsightId(item.id)
+    try {
+      const response = await authedFetch(`/api/admin/agents/work-items/${item.id}/research-packets`, {
+        method: 'POST',
+        body: JSON.stringify({
+          packet_ids: packetIds,
+          decision_note: 'Linked suggested public research pattern from Content Intelligence backlog.',
+        }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `Suggested pattern link HTTP ${response.status}`)
+      const linkedPatterns = packets
+        .filter((packet) => packetIds.includes(packet.id))
+        .map((packet) => ({
+          packet_id: packet.id,
+          source_url: packet.source_url,
+          platform: packet.platform,
+          creator_name: packet.creator_name,
+          creator_handle: packet.creator_handle,
+          title: packet.title,
+          outlier_score: packet.outlier_score,
+          pattern_status: packet.pattern_status,
+        }))
+      setInsights((current) => current.map((currentItem) => {
+        if (currentItem.id !== item.id) return currentItem
+        const nextItem = (body.work_item ?? currentItem) as AgentWorkItem
+        const metadata = recordValue(nextItem.metadata)
+        const insight = recordValue(metadata.insight)
+        const existingPatterns = Array.isArray(insight.approved_research_patterns)
+          ? insight.approved_research_patterns
+          : []
+        return {
+          ...nextItem,
+          metadata: {
+            ...metadata,
+            insight: {
+              ...insight,
+              approved_research_patterns: [
+                ...existingPatterns.filter((pattern) => !packetIds.includes(String(recordValue(pattern).packet_id ?? ''))),
+                ...linkedPatterns,
+              ],
+            },
+          },
+        }
+      }))
+      setLinkNotice('Suggested research linked to Shaka insight.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to link suggested research')
+    } finally {
+      setLinkingSuggestedInsightId(null)
+    }
+  }, [authedFetch, packets])
 
   const prepareChannelReviewDrafts = useCallback(async (insightId: string) => {
     setError(null)
@@ -1839,6 +1912,11 @@ function ContentIntelligenceContent() {
                   {reviewDraftNotice}
                 </div>
               ) : null}
+              {linkNotice ? (
+                <div className="rounded-lg border border-emerald-500/35 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-100">
+                  {linkNotice}
+                </div>
+              ) : null}
               {insights.length ? (
                 <>
                   <div className="overflow-x-auto rounded-lg border border-silicon-slate/70">
@@ -1880,7 +1958,10 @@ function ContentIntelligenceContent() {
                           const linkedinStatus = channelLaneStatus(item, 'linkedin')
                           const youtubeStatus = channelLaneStatus(item, 'youtube_shorts')
                           const hasReviewDrafts = hasLinkedInYoutubeReviewDrafts(item)
+                          const hasApprovedResearch = hasApprovedResearchPatterns(item)
+                          const suggestedPacketIds = suggestedResearchPacketIds(item)
                           const isPreparingReview = preparingReviewInsightId === item.id
+                          const isLinkingSuggested = linkingSuggestedInsightId === item.id
                           return (
                             <tr key={item.id} className="align-top">
                               <td className="max-w-xl px-3 py-3">
@@ -1921,10 +2002,22 @@ function ContentIntelligenceContent() {
                               </td>
                               <td className="px-3 py-3 text-right">
                                 <div className="flex flex-col items-end gap-2">
+                                  {!hasApprovedResearch && suggestedPacketIds.length ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => linkSuggestedResearchPattern(item)}
+                                      disabled={isLinkingSuggested}
+                                      className="inline-flex items-center justify-center gap-2 rounded-lg border border-radiant-gold/45 bg-radiant-gold/10 px-3 py-1.5 text-xs font-semibold text-radiant-gold transition hover:bg-radiant-gold/15 disabled:opacity-60"
+                                    >
+                                      <CheckCircle2 size={14} />
+                                      {isLinkingSuggested ? 'Linking...' : 'Link Suggested Research'}
+                                    </button>
+                                  ) : null}
                                   <button
                                     type="button"
                                     onClick={() => prepareChannelReviewDrafts(item.id)}
-                                    disabled={isPreparingReview}
+                                    disabled={isPreparingReview || !hasApprovedResearch}
+                                    title={hasApprovedResearch ? undefined : 'Link an approved research pattern before preparing review drafts.'}
                                     className="inline-flex items-center justify-center gap-2 rounded-lg border border-blue-500/45 bg-blue-500/10 px-3 py-1.5 text-xs font-semibold text-blue-100 transition hover:bg-blue-500/15 disabled:opacity-60"
                                   >
                                     <FileText size={14} />
@@ -1934,6 +2027,8 @@ function ContentIntelligenceContent() {
                                     <Link href={`/admin/agents/social-insights/${item.id}`} className="text-xs text-blue-200 hover:text-blue-100">
                                       Open human review
                                     </Link>
+                                  ) : !hasApprovedResearch ? (
+                                    <span className="text-[0.68rem] text-muted-foreground">Research link required</span>
                                   ) : (
                                     <span className="text-[0.68rem] text-muted-foreground">No publish action</span>
                                   )}
