@@ -135,6 +135,15 @@ export type SocialContentCalendarTemplateRecommendation = {
   matched_terms: string[]
 }
 
+export type SocialContentCalendarMilestoneRationale = {
+  summary: string
+  campaign_fit: string
+  timing: string
+  required_inputs: string[]
+  approval_gates: string[]
+  source_labels: string[]
+}
+
 const SOURCE_URLS = {
   youtubeCreators: 'https://www.youtube.com/creators/grow/optimize-your-content/',
   youtubePremieres: 'https://support.google.com/youtube/answer/9080341',
@@ -619,6 +628,48 @@ export function recommendCalendarTemplates(
     .map(({ orderIndex: _orderIndex, ...recommendation }) => recommendation)
 }
 
+export function calendarSourceLabels(sourceUrls: string[]) {
+  return sourceUrls.map((url) => SOCIAL_CONTENT_CALENDAR_SOURCE_LABELS[url] || url)
+}
+
+function campaignFitText(
+  campaign: Pick<AttractionCampaign, 'name'> & Partial<Pick<AttractionCampaign, 'description' | 'campaign_type'>>,
+  template: SocialContentCalendarTemplate,
+) {
+  const description = typeof campaign.description === 'string' && campaign.description.trim()
+    ? campaign.description.trim()
+    : null
+  const type = typeof campaign.campaign_type === 'string' && campaign.campaign_type.trim()
+    ? campaign.campaign_type.replace(/_/g, ' ')
+    : null
+
+  if (description) {
+    return `${template.label} fits "${campaign.name}" because the campaign brief points to: ${description}`
+  }
+  if (type) {
+    return `${template.label} fits "${campaign.name}" because the campaign type is ${type}.`
+  }
+  return `${template.label} is the selected planning arc for "${campaign.name}".`
+}
+
+export function calendarMilestoneRationale(
+  campaign: Pick<AttractionCampaign, 'name'> & Partial<Pick<AttractionCampaign, 'description' | 'campaign_type'>>,
+  template: SocialContentCalendarTemplate,
+  milestone: SocialContentCalendarTemplateMilestone,
+): SocialContentCalendarMilestoneRationale {
+  const phase = CAMPAIGN_PHASE_LABELS[milestone.campaign_phase]
+  const channel = CALENDAR_CHANNEL_LABELS[milestone.channel]
+
+  return {
+    summary: `${phase} milestone for ${channel}: ${milestone.planned_angle}`,
+    campaign_fit: campaignFitText(campaign, template),
+    timing: `${milestone.recommended_lead_time_days} day lead time keeps ${phase.toLowerCase()} work reviewable before the scheduled campaign moment.`,
+    required_inputs: milestone.required_assets,
+    approval_gates: milestone.approval_gates,
+    source_labels: calendarSourceLabels(milestone.source_urls),
+  }
+}
+
 export function defaultAuthorizationDueAt(scheduledFor: string | Date) {
   const scheduled = typeof scheduledFor === 'string' ? new Date(scheduledFor) : scheduledFor
   if (!Number.isFinite(scheduled.getTime())) return null
@@ -679,7 +730,7 @@ function campaignDateAt(start: Date, end: Date, ratio: number) {
 }
 
 export function campaignContentPlanSlots(
-  campaign: Pick<AttractionCampaign, 'name' | 'starts_at' | 'ends_at'>,
+  campaign: Pick<AttractionCampaign, 'name' | 'starts_at' | 'ends_at'> & Partial<Pick<AttractionCampaign, 'description' | 'campaign_type'>>,
   options: { templateKey?: SocialContentCalendarTemplateKey } = {},
 ) {
   const start = dateOrNull(campaign.starts_at) ?? addDays(new Date(), 1)
@@ -692,6 +743,7 @@ export function campaignContentPlanSlots(
     const scheduledDate = hasUsableWindow
       ? campaignDateAt(start, end, milestone.relative_position)
       : addDays(baseStart, milestone.fallback_day_offset)
+    const rationale = calendarMilestoneRationale(campaign, template, milestone)
 
     return {
       campaign_phase: milestone.campaign_phase,
@@ -712,6 +764,9 @@ export function campaignContentPlanSlots(
         template_source_urls: template.source_urls,
         milestone_key: milestone.key,
         recommended_lead_time_days: milestone.recommended_lead_time_days,
+        milestone_rationale: rationale,
+        campaign_fit_summary: rationale.campaign_fit,
+        source_labels: rationale.source_labels,
         required_assets: milestone.required_assets,
         approval_gates: milestone.approval_gates,
         source_urls: milestone.source_urls,

@@ -60,6 +60,12 @@ function metadataRecord(value: unknown) {
     : {};
 }
 
+function metadataStringArray(value: unknown) {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+    : [];
+}
+
 function sourceLabel(url: string) {
   return SOCIAL_CONTENT_CALENDAR_SOURCE_LABELS[url] || new URL(url).hostname.replace(/^www\./, '');
 }
@@ -783,6 +789,11 @@ export default function CampaignDetailPage() {
                     <span className="rounded-full border border-blue-300/20 px-2 py-0.5 text-[0.62rem] text-blue-100/75">
                       {milestone.approval_gates.length} gates
                     </span>
+                    {milestone.source_urls.slice(0, 1).map((url) => (
+                      <span key={url} className="rounded-full border border-blue-300/20 px-2 py-0.5 text-[0.62rem] text-blue-100/75">
+                        {sourceLabel(url)}
+                      </span>
+                    ))}
                   </div>
                 </div>
               ))}
@@ -827,6 +838,38 @@ export default function CampaignDetailPage() {
                         {item.planned_angle && (
                           <p className="mt-2 line-clamp-3 text-xs leading-5 text-muted-foreground">{item.planned_angle}</p>
                         )}
+                        {(() => {
+                          const metadata = metadataRecord(item.metadata);
+                          const rationale = metadataRecord(metadata.milestone_rationale);
+                          const summary = typeof rationale.summary === 'string'
+                            ? rationale.summary
+                            : typeof metadata.campaign_fit_summary === 'string'
+                              ? metadata.campaign_fit_summary
+                              : '';
+                          const sourceLabels = metadataStringArray(metadata.source_labels);
+
+                          if (!summary && sourceLabels.length === 0) return null;
+
+                          return (
+                            <div className="mt-3 rounded-md border border-white/10 bg-background/35 p-2">
+                              {summary && (
+                                <p className="text-[0.68rem] leading-5 text-muted-foreground">
+                                  <span className="font-semibold text-foreground/80">Why this exists: </span>
+                                  {summary}
+                                </p>
+                              )}
+                              {sourceLabels.length > 0 && (
+                                <div className="mt-2 flex flex-wrap gap-1.5">
+                                  {sourceLabels.slice(0, 2).map((label) => (
+                                    <span key={label} className="rounded-full border border-white/10 px-2 py-0.5 text-[0.62rem] text-muted-foreground">
+                                      {label}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
                         <div className="mt-3 flex flex-wrap gap-2 text-[0.68rem] text-muted-foreground">
                           <span className="rounded-full border border-white/10 px-2 py-0.5">{item.channel.replace(/_/g, ' ')}</span>
                           <span className="rounded-full border border-white/10 px-2 py-0.5">{item.due_status.replace(/_/g, ' ')}</span>

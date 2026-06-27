@@ -88,7 +88,17 @@ describe('/api/admin/campaigns/[id]/content-plan', () => {
 
     expect(response.status).toBe(200)
     expect(insert).toHaveBeenCalledWith(expect.arrayContaining([
-      expect.objectContaining({ campaign_phase: 'teach', campaign_id: 'campaign-1', created_by: 'admin-user' }),
+      expect.objectContaining({
+        campaign_phase: 'teach',
+        campaign_id: 'campaign-1',
+        created_by: 'admin-user',
+        metadata: expect.objectContaining({
+          milestone_rationale: expect.objectContaining({
+            summary: expect.stringContaining('Teach milestone for LinkedIn'),
+          }),
+          source_labels: expect.arrayContaining(['HubSpot social calendar template']),
+        }),
+      }),
       expect.objectContaining({ campaign_phase: 'proof' }),
       expect.objectContaining({ campaign_phase: 'offer' }),
     ]))
@@ -98,6 +108,15 @@ describe('/api/admin/campaigns/[id]/content-plan', () => {
       created_count: 3,
       skipped_existing_count: 1,
       planned_phases: ['tease', 'teach', 'proof', 'offer'],
+      planned_milestones: expect.arrayContaining([
+        expect.objectContaining({
+          title: 'Teach: Agent Ops Campaign',
+          rationale: expect.objectContaining({
+            summary: expect.stringContaining('Teach milestone for LinkedIn'),
+          }),
+          source_labels: expect.arrayContaining(['HubSpot social calendar template']),
+        }),
+      ]),
       side_effects: {
         publish: false,
         external_post: false,
@@ -111,6 +130,8 @@ describe('/api/admin/campaigns/[id]/content-plan', () => {
       data: {
         id: 'campaign-1',
         name: 'Agent Ops Video Launch',
+        description: 'Prepare a thumbnail-led creator video release for the Agent Ops framework.',
+        campaign_type: 'bonus_credit',
         starts_at: '2026-07-01T00:00:00.000Z',
         ends_at: '2026-07-21T00:00:00.000Z',
       },
@@ -151,6 +172,11 @@ describe('/api/admin/campaigns/[id]/content-plan', () => {
         metadata: expect.objectContaining({
           template_key: 'youtube_video_release',
           milestone_key: 'thumbnail_title_package',
+          milestone_rationale: expect.objectContaining({
+            summary: expect.stringContaining('Proof milestone for Thumbnail'),
+            source_labels: expect.arrayContaining(['YouTube creator optimization guidance']),
+          }),
+          campaign_fit_summary: expect.stringContaining('YouTube video release fits "Agent Ops Video Launch"'),
           required_assets: expect.arrayContaining(['thumbnail_reference']),
         }),
       }),
@@ -168,6 +194,15 @@ describe('/api/admin/campaigns/[id]/content-plan', () => {
       template_label: 'YouTube video release',
       created_count: 4,
       skipped_existing_count: 0,
+      planned_milestones: expect.arrayContaining([
+        expect.objectContaining({
+          campaign_phase: 'proof',
+          channel: 'thumbnail',
+          rationale: expect.objectContaining({
+            summary: expect.stringContaining('Proof milestone for Thumbnail'),
+          }),
+        }),
+      ]),
       side_effects: {
         publish: false,
         external_post: false,
