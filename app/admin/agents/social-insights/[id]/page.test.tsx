@@ -160,6 +160,36 @@ describe('SocialInsightDetailPage', () => {
           }),
         }
       }
+      if (url === '/api/admin/agents/work-items/work-social-1/social-channels/youtube_shorts') {
+        const body = JSON.parse(String(init?.body ?? '{}'))
+        return {
+          ok: true,
+          json: async () => ({
+            success: true,
+            work_item: socialWorkItem({
+              metadata: {
+                ...socialWorkItem().metadata,
+                channel_lanes: {
+                  ...socialWorkItem().metadata.channel_lanes,
+                  youtube_shorts: {
+                    ...socialWorkItem().metadata.channel_lanes.youtube_shorts,
+                    status: body.status,
+                    decision_note: body.decision_note,
+                    updated_at: '2026-06-23T10:05:00.000Z',
+                  },
+                },
+              },
+            }),
+            side_effects: {
+              provider_generation: false,
+              upload: false,
+              publish: false,
+              schedule: false,
+              external_post: false,
+            },
+          }),
+        }
+      }
       return { ok: false, status: 404, json: async () => ({ error: 'not found' }) }
     }))
   })
@@ -251,5 +281,29 @@ describe('SocialInsightDetailPage', () => {
     const prepareCall = vi.mocked(fetch).mock.calls.find(([input]) => String(input) === '/api/admin/agents/work-items/work-social-1/social-channels/prepare-review-drafts')
     expect(prepareCall).toBeTruthy()
     expect(prepareCall?.[1]).toMatchObject({ method: 'POST' })
+  })
+
+  it('approves the prepared YouTube lane through the human review controls', async () => {
+    render(<SocialInsightDetailPage />)
+
+    await screen.findByRole('heading', { name: 'Approval gates create trust' })
+    fireEvent.click(screen.getByRole('button', { name: 'Prepare LinkedIn + YouTube Review Drafts' }))
+    await screen.findByText('LinkedIn and YouTube Shorts are ready for human review.')
+
+    fireEvent.click(screen.getByRole('tab', { name: /YouTube Shorts/ }))
+    fireEvent.change(screen.getByLabelText('Decision note'), {
+      target: { value: 'Approved for YouTube Shorts review; rendering remains gated.' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Approve Lane' }))
+
+    await screen.findByText('YouTube Shorts lane marked approved.')
+
+    const patchCall = vi.mocked(fetch).mock.calls.find(([input]) => String(input) === '/api/admin/agents/work-items/work-social-1/social-channels/youtube_shorts')
+    expect(patchCall).toBeTruthy()
+    expect(patchCall?.[1]).toMatchObject({ method: 'PATCH' })
+    expect(JSON.parse(String(patchCall?.[1]?.body))).toEqual({
+      status: 'approved',
+      decision_note: 'Approved for YouTube Shorts review; rendering remains gated.',
+    })
   })
 })
