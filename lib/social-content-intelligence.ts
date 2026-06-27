@@ -39,6 +39,12 @@ export type SocialChannelReviewDraftPacket = {
   approval_status: 'in_review' | 'approved' | 'blocked'
   decision_note?: string | null
   decided_at?: string | null
+  shared_source: {
+    insight_title: string
+    triggering_event: string
+    content_angle: string
+    evidence_summary: string
+  }
   source_insight_title: string
   source_use_boundary: string
   fields: Record<string, unknown>
@@ -653,6 +659,12 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
   const patternHook = firstString(...patterns.map((pattern) => pattern.hook_structure))
   const patternPromise = firstString(...patterns.map((pattern) => pattern.promise_value))
   const sourceBoundary = 'Drafts are generated for human review only. Public research patterns are framework inputs, not source copy.'
+  const sharedSource = {
+    insight_title: title,
+    triggering_event: triggeringEvent,
+    content_angle: contentAngle,
+    evidence_summary: evidenceSummary,
+  }
 
   const linkedinPostText = [
     triggeringEvent,
@@ -681,6 +693,7 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
       channel: 'linkedin',
       generated_at: generatedAt,
       approval_status: 'in_review',
+      shared_source: sharedSource,
       source_insight_title: title,
       source_use_boundary: sourceBoundary,
       fields: {
@@ -703,6 +716,7 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
       channel: 'youtube_shorts',
       generated_at: generatedAt,
       approval_status: 'in_review',
+      shared_source: sharedSource,
       source_insight_title: title,
       source_use_boundary: sourceBoundary,
       fields: {

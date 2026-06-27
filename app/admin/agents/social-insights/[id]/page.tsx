@@ -491,6 +491,8 @@ function ChannelInputs({
   const fields = asRecord(draftPacket.fields)
   const hasDraftFields = Object.keys(fields).length > 0
   const draftApprovalStatus = asString(draftPacket.approval_status)
+  const sharedSource = asRecord(draftPacket.shared_source)
+  const sharedSourceTitle = asString(sharedSource.insight_title)
   return (
     <div>
       {hasDraftFields ? (
@@ -518,6 +520,11 @@ function ChannelInputs({
           {asString(draftPacket.source_use_boundary) ? (
             <p className="mt-3 rounded-md border border-blue-400/20 bg-background/35 px-3 py-2 text-xs leading-5 text-blue-100">
               {asString(draftPacket.source_use_boundary)}
+            </p>
+          ) : null}
+          {sharedSourceTitle ? (
+            <p className="mt-2 rounded-md border border-blue-400/20 bg-background/35 px-3 py-2 text-xs leading-5 text-blue-100">
+              Shared source: {sharedSourceTitle}
             </p>
           ) : null}
         </div>

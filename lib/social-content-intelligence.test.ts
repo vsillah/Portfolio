@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  buildLinkedInYoutubeReviewDrafts,
   defaultSocialChannelLanes,
   normalizeSocialChannelLanes,
   scoreCreatorAsset,
@@ -92,5 +93,61 @@ describe('social-content-intelligence', () => {
     expect(mapped.agent_work_item_id).toBe('work-social-1')
     expect(mapped.title).toBe('Approval gates create trust')
     expect(mapped.claim_boundaries).toEqual(['Do not imply every workflow is automated.'])
+  })
+
+  it('builds LinkedIn and YouTube review drafts from the same source while adapting fields by channel', () => {
+    const drafts = buildLinkedInYoutubeReviewDrafts({
+      generatedAt: '2026-06-24T15:00:00.000Z',
+      insight: {
+        title: 'Approval gates create trust',
+        triggering_event: 'The Social Content review flow made the gate visible.',
+        why_vambah_can_speak: 'Vambah built and reviewed the workflow.',
+        evidence_summary: 'The work item links public research, channel drafts, and human decisions.',
+        content_angle: 'AI should reduce burden when receipts and approval gates are visible.',
+        suggested_hook: 'AI should reduce burden.',
+        claim_boundaries: ['Do not claim external publishing is automated.'],
+        approved_research_patterns: [
+          {
+            source_url: 'https://youtube.com/watch?v=abc',
+            platform: 'youtube',
+            creator_name: 'Useful outlier',
+            pattern_status: 'usable_framework',
+            pattern_packet: {
+              hook_structure: 'Start with the missed approval gate.',
+              promise_value: 'Show the operating layer behind the content.',
+            },
+          },
+        ],
+      },
+    })
+
+    expect(drafts.linkedin.shared_source).toEqual(drafts.youtube_shorts.shared_source)
+    expect(drafts.linkedin.shared_source).toEqual({
+      insight_title: 'Approval gates create trust',
+      triggering_event: 'The Social Content review flow made the gate visible.',
+      content_angle: 'AI should reduce burden when receipts and approval gates are visible.',
+      evidence_summary: 'The work item links public research, channel drafts, and human decisions.',
+    })
+    expect(drafts.linkedin.fields).toMatchObject({
+      post_text: expect.stringContaining('The Social Content review flow made the gate visible.'),
+      cta: expect.stringContaining('Where have you seen AI'),
+      visual_mode: 'carousel_or_framework_illustration_review',
+    })
+    expect(drafts.youtube_shorts.fields).toMatchObject({
+      hook: 'AI should reduce burden.',
+      first_30_seconds: expect.stringContaining('I noticed this through the social content review flow'),
+      target_duration_seconds: 45,
+      render_readiness: 'pending_human_approval',
+    })
+    expect(drafts.linkedin.fields).not.toHaveProperty('first_30_seconds')
+    expect(drafts.youtube_shorts.fields).not.toHaveProperty('post_text')
+    expect(drafts.linkedin.side_effects).toEqual({
+      provider_generation: false,
+      upload: false,
+      publish: false,
+      schedule: false,
+      external_post: false,
+    })
+    expect(drafts.youtube_shorts.side_effects).toEqual(drafts.linkedin.side_effects)
   })
 })
