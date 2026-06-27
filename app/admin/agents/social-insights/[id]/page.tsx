@@ -65,6 +65,12 @@ function asRecordArray(value: unknown): Record<string, unknown>[] {
   return Array.isArray(value) ? value.map((item) => asRecord(item)).filter((item) => Object.keys(item).length > 0) : []
 }
 
+function hasReviewDraft(lane: ChannelLane) {
+  const draftPacket = asRecord(lane.draft_packet)
+  const fields = asRecord(draftPacket.fields)
+  return Object.keys(fields).length > 0
+}
+
 function statusLabel(status: string) {
   return status.replace(/_/g, ' ')
 }
@@ -148,6 +154,9 @@ function SocialInsightDetailContent() {
   const approvedResearchPatterns = asRecordArray(insight.approved_research_patterns)
   const lanes = useMemo(() => lanesFor(item), [item])
   const activeLane = lanes[activeTab]
+  const activeLaneHasReviewDraft = hasReviewDraft(activeLane)
+  const activeLaneNeedsReviewDraft = (activeTab === 'linkedin' || activeTab === 'youtube_shorts') && !activeLaneHasReviewDraft
+  const canPrepareReviewDrafts = approvedResearchPatterns.length > 0
 
   useEffect(() => {
     setDecisionNote(activeLane?.decision_note ?? '')
@@ -245,7 +254,8 @@ function SocialInsightDetailContent() {
               <button
                 type="button"
                 onClick={prepareReviewDrafts}
-                disabled={loading || preparingReviewDrafts}
+                disabled={loading || preparingReviewDrafts || !canPrepareReviewDrafts}
+                title={canPrepareReviewDrafts ? undefined : 'Link approved research patterns before preparing channel review drafts.'}
                 className="agent-ops-button-primary disabled:opacity-60"
               >
                 <FileText size={16} />
@@ -267,6 +277,11 @@ function SocialInsightDetailContent() {
           <div className="grid gap-6 xl:grid-cols-[minmax(0,0.45fr)_minmax(0,1fr)]">
             <section className="agent-ops-card rounded-lg border p-4">
               <h2 className="text-lg font-semibold">Shared evidence</h2>
+              {!canPrepareReviewDrafts ? (
+                <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-100">
+                  Link at least one approved research pattern before preparing LinkedIn and YouTube review drafts.
+                </div>
+              ) : null}
               <div className="mt-4 space-y-3">
                 <InsightField label="Triggering event" value={asString(insight.triggering_event)} />
                 <InsightField label="Why Vambah can speak" value={asString(insight.why_vambah_can_speak)} />
@@ -350,6 +365,11 @@ function SocialInsightDetailContent() {
                       <p className="mt-1 text-sm leading-6 text-muted-foreground">
                         Updates this channel lane only. No draft, render, upload, schedule, or publish action runs here.
                       </p>
+                      {activeLaneNeedsReviewDraft ? (
+                        <p className="mt-1 text-sm text-amber-100">
+                          Prepare the LinkedIn + YouTube review drafts before approving this lane.
+                        </p>
+                      ) : null}
                     </div>
                     {laneNotice ? (
                       <span className="inline-flex w-fit rounded-full border border-emerald-500/35 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-100">
@@ -389,7 +409,7 @@ function SocialInsightDetailContent() {
                     <button
                       type="button"
                       onClick={() => updateLane('approved')}
-                      disabled={savingLane !== null}
+                      disabled={savingLane !== null || activeLaneNeedsReviewDraft}
                       className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-500/45 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/15 disabled:opacity-60"
                     >
                       <CheckCircle2 size={16} />

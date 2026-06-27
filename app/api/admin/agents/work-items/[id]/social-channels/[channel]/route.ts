@@ -17,6 +17,12 @@ function asString(value: unknown) {
   return typeof value === 'string' ? value.trim() : ''
 }
 
+function hasReviewDraft(lane: Record<string, unknown>) {
+  const draftPacket = asRecord(lane.draft_packet)
+  const fields = asRecord(draftPacket.fields)
+  return Object.keys(fields).length > 0
+}
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string; channel: string } },
@@ -51,6 +57,16 @@ export async function PATCH(
     }
 
     const lanes = normalizeSocialChannelLanes(workItem.metadata?.channel_lanes)
+    if (nextStatus === 'approved'
+      && (params.channel === 'linkedin' || params.channel === 'youtube_shorts')
+      && !hasReviewDraft(lanes[params.channel])
+    ) {
+      return NextResponse.json(
+        { error: 'Prepare the LinkedIn and YouTube review drafts before approving this channel lane' },
+        { status: 400 },
+      )
+    }
+
     lanes[params.channel] = {
       ...lanes[params.channel],
       ...asRecord(body.patch),

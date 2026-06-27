@@ -35,6 +35,12 @@ const baseWorkItem = {
         status: 'selected',
         label: 'LinkedIn',
         required_inputs: ['post text', 'CTA'],
+        draft_packet: {
+          channel: 'linkedin',
+          fields: {
+            post_text: 'LinkedIn draft',
+          },
+        },
       },
     },
   },
@@ -124,5 +130,33 @@ describe('/api/admin/agents/work-items/[id]/social-channels/[channel]', () => {
         external_post: false,
       },
     })
+  })
+
+  it('requires a prepared review draft before approving LinkedIn or YouTube lanes', async () => {
+    mocks.getAgentWorkItem.mockResolvedValue({
+      ...baseWorkItem,
+      metadata: {
+        channel_lanes: {
+          linkedin: {
+            status: 'selected',
+            label: 'LinkedIn',
+            required_inputs: ['post text', 'CTA'],
+          },
+        },
+      },
+    })
+
+    const response = await PATCH(request({
+      status: 'approved',
+      decision_note: 'Approved for planning.',
+    }) as never, {
+      params: { id: 'work-1', channel: 'linkedin' },
+    })
+
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({
+      error: 'Prepare the LinkedIn and YouTube review drafts before approving this channel lane',
+    })
+    expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
   })
 })

@@ -12,6 +12,11 @@ function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {}
 }
 
+function hasApprovedResearchPatterns(insight: Record<string, unknown>) {
+  return Array.isArray(insight.approved_research_patterns)
+    && insight.approved_research_patterns.some((pattern) => Object.keys(asRecord(pattern)).length > 0)
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } },
@@ -31,6 +36,12 @@ export async function POST(
     const insight = asRecord(metadata.insight)
     if (!Object.keys(insight).length) {
       return NextResponse.json({ error: 'Social insight metadata is required' }, { status: 400 })
+    }
+    if (!hasApprovedResearchPatterns(insight)) {
+      return NextResponse.json(
+        { error: 'Link at least one approved research pattern before preparing LinkedIn and YouTube review drafts' },
+        { status: 400 },
+      )
     }
 
     const now = new Date().toISOString()

@@ -102,6 +102,29 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
     expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
   })
 
+  it('requires approved research patterns before preparing channel drafts', async () => {
+    mocks.getAgentWorkItem.mockResolvedValue({
+      ...baseWorkItem,
+      metadata: {
+        ...baseWorkItem.metadata,
+        insight: {
+          ...baseWorkItem.metadata.insight,
+          approved_research_patterns: [],
+        },
+      },
+    })
+
+    const response = await POST(request() as never, {
+      params: { id: 'work-1' },
+    })
+
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({
+      error: 'Link at least one approved research pattern before preparing LinkedIn and YouTube review drafts',
+    })
+    expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
+  })
+
   it('prepares LinkedIn and YouTube review drafts without external side effects', async () => {
     const response = await POST(request() as never, {
       params: { id: 'work-1' },

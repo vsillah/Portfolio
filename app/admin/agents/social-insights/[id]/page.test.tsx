@@ -233,6 +233,11 @@ describe('SocialInsightDetailPage', () => {
     render(<SocialInsightDetailPage />)
 
     await screen.findByRole('heading', { name: 'Approval gates create trust' })
+    expect(screen.getByRole('button', { name: 'Approve Lane' })).toBeDisabled()
+    expect(screen.getByText('Prepare the LinkedIn + YouTube review drafts before approving this lane.')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Prepare LinkedIn + YouTube Review Drafts' }))
+    await screen.findByText('LinkedIn and YouTube Shorts are ready for human review.')
 
     fireEvent.change(screen.getByLabelText('Decision note'), {
       target: { value: 'Approved for LinkedIn planning; no publishing authorized.' },
