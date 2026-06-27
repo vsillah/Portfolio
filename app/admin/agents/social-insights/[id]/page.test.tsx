@@ -75,6 +75,61 @@ describe('SocialInsightDetailPage', () => {
           json: async () => ({ work_item: socialWorkItem() }),
         }
       }
+      if (url === '/api/admin/agents/work-items/work-social-1/social-channels/prepare-review-drafts') {
+        const base = socialWorkItem()
+        return {
+          ok: true,
+          json: async () => ({
+            success: true,
+            work_item: {
+              ...base,
+              metadata: {
+                ...base.metadata,
+                channel_lanes: {
+                  ...base.metadata.channel_lanes,
+                  linkedin: {
+                    ...base.metadata.channel_lanes.linkedin,
+                    status: 'in_review',
+                    review_requested_at: '2026-06-24T15:00:00.000Z',
+                    draft_packet: {
+                      channel: 'linkedin',
+                      generated_at: '2026-06-24T15:00:00.000Z',
+                      source_use_boundary: 'Drafts are generated for human review only.',
+                      fields: {
+                        post_text: 'The Social Content review flow made the gate visible.\n\nAI should reduce burden.',
+                        cta: 'Where have you seen AI create more work because the approval path was never designed?',
+                        hashtags: ['#AIProduct', '#AmaduTownAdvisory'],
+                      },
+                    },
+                  },
+                  youtube_shorts: {
+                    ...base.metadata.channel_lanes.youtube_shorts,
+                    status: 'in_review',
+                    review_requested_at: '2026-06-24T15:00:00.000Z',
+                    draft_packet: {
+                      channel: 'youtube_shorts',
+                      generated_at: '2026-06-24T15:00:00.000Z',
+                      source_use_boundary: 'Drafts are generated for human review only.',
+                      fields: {
+                        hook: 'AI should reduce burden.',
+                        first_30_seconds: 'I noticed this through the social content review flow.',
+                        script: ['Opening: AI should reduce burden.', 'Trigger: Social Content review flow.'],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            side_effects: {
+              provider_generation: false,
+              upload: false,
+              publish: false,
+              schedule: false,
+              external_post: false,
+            },
+          }),
+        }
+      }
       if (url === '/api/admin/agents/work-items/work-social-1/social-channels/linkedin') {
         const body = JSON.parse(String(init?.body ?? '{}'))
         return {
@@ -173,5 +228,28 @@ describe('SocialInsightDetailPage', () => {
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Approved' })).toBeInTheDocument()
     })
+  })
+
+  it('prepares LinkedIn and YouTube review drafts from the shared insight', async () => {
+    render(<SocialInsightDetailPage />)
+
+    await screen.findByRole('heading', { name: 'Approval gates create trust' })
+    fireEvent.click(screen.getByRole('button', { name: 'Prepare LinkedIn + YouTube Review Drafts' }))
+
+    expect(await screen.findByText('LinkedIn and YouTube Shorts are ready for human review.')).toBeInTheDocument()
+    expect(screen.getByText('Review draft packet')).toBeInTheDocument()
+    expect(screen.getAllByText((content) => content.includes('The Social Content review flow made the gate visible.'))).toHaveLength(2)
+    expect(screen.getByText('#AmaduTownAdvisory')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('tab', { name: /YouTube Shorts/ }))
+
+    expect(screen.getByText('YouTube Shorts production inputs')).toBeInTheDocument()
+    expect(screen.getByText('first 30 seconds')).toBeInTheDocument()
+    expect(screen.getByText('I noticed this through the social content review flow.')).toBeInTheDocument()
+    expect(screen.getByText('Opening: AI should reduce burden.')).toBeInTheDocument()
+
+    const prepareCall = vi.mocked(fetch).mock.calls.find(([input]) => String(input) === '/api/admin/agents/work-items/work-social-1/social-channels/prepare-review-drafts')
+    expect(prepareCall).toBeTruthy()
+    expect(prepareCall?.[1]).toMatchObject({ method: 'POST' })
   })
 })
