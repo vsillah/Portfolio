@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
-import { AlertTriangle, CheckCircle2, Clock3, Database, KeyRound, RefreshCw, ShieldCheck } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, Clock3, Database, ExternalLink, KeyRound, Loader2, Mail, RefreshCw, ShieldCheck, Unplug } from 'lucide-react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
@@ -90,6 +91,13 @@ type CredentialReport = {
   rows: CredentialReportRow[]
 }
 
+type GmailConnectionStatus = {
+  connected: boolean
+  googleEmail: string | null
+  configured: boolean
+  requiredSender: string
+}
+
 const ENVS: CredentialEnv[] = ['dev', 'staging', 'prod']
 
 export default function CredentialAdminPage() {
@@ -101,10 +109,17 @@ export default function CredentialAdminPage() {
 }
 
 function CredentialAdminContent() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [env, setEnv] = useState<CredentialEnv>('staging')
   const [report, setReport] = useState<CredentialReport | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [gmailStatus, setGmailStatus] = useState<GmailConnectionStatus | null>(null)
+  const [gmailLoading, setGmailLoading] = useState(true)
+  const [gmailActionLoading, setGmailActionLoading] = useState(false)
+  const [gmailError, setGmailError] = useState<string | null>(null)
+  const [gmailNotice, setGmailNotice] = useState<string | null>(null)
 
   const loadReport = useCallback(async () => {
     setLoading(true)
@@ -129,6 +144,106 @@ function CredentialAdminContent() {
   useEffect(() => {
     loadReport()
   }, [loadReport])
+
+  const loadGmailStatus = useCallback(async () => {
+    setGmailLoading(true)
+    setGmailError(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) throw new Error('Missing admin session')
+      const response = await fetch('/api/admin/oauth/google-gmail/status', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      setGmailStatus({
+        connected: Boolean(body.connected),
+        googleEmail: typeof body.googleEmail === 'string' ? body.googleEmail : null,
+        configured: Boolean(body.configured),
+        requiredSender: typeof body.requiredSender === 'string' ? body.requiredSender : 'vambah@amadutown.com',
+      })
+    } catch (err) {
+      setGmailStatus(null)
+      setGmailError(err instanceof Error ? err.message : 'Failed to load Gmail connection status')
+    } finally {
+      setGmailLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    loadGmailStatus()
+  }, [loadGmailStatus])
+
+  useEffect(() => {
+    const connected = searchParams?.get('gmail_connected')
+    const oauthError = searchParams?.get('gmail_oauth_error')
+    if (connected !== '1' && oauthError == null) return
+
+    if (connected === '1') {
+      setGmailNotice('Gmail connected. Portfolio can now create approval-held Gmail drafts for outreach replies.')
+      void loadGmailStatus()
+    } else if (oauthError) {
+      const messages: Record<string, string> = {
+        '1': 'Gmail connection did not finish. Try Connect Gmail again.',
+        state: 'That sign-in link expired. Start the Gmail connection again.',
+        config: 'Gmail connection is not set up on the server.',
+        refresh:
+          'Google did not return a refresh token. Remove this app from Google Account third-party access, then connect again.',
+        email: 'Could not read the Google account email. Try reconnecting.',
+        save: 'Could not save the Gmail connection. Try again.',
+      }
+      setGmailError(messages[oauthError] ?? messages['1'])
+    }
+
+    router.replace('/admin/credentials#gmail-profile')
+  }, [loadGmailStatus, router, searchParams])
+
+  const connectGmail = useCallback(async () => {
+    setGmailActionLoading(true)
+    setGmailError(null)
+    setGmailNotice(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) throw new Error('Missing admin session')
+      const response = await fetch('/api/admin/oauth/google-gmail/start', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      if (typeof body.url !== 'string' || body.url.length === 0) {
+        throw new Error('Gmail connection did not return a Google sign-in URL')
+      }
+      window.location.assign(body.url)
+    } catch (err) {
+      setGmailError(err instanceof Error ? err.message : 'Failed to start Gmail connection')
+      setGmailActionLoading(false)
+    }
+  }, [])
+
+  const disconnectGmail = useCallback(async () => {
+    const ok = window.confirm('Disconnect this Gmail profile from Portfolio draft creation?')
+    if (!ok) return
+
+    setGmailActionLoading(true)
+    setGmailError(null)
+    setGmailNotice(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) throw new Error('Missing admin session')
+      const response = await fetch('/api/admin/oauth/google-gmail/disconnect', {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      setGmailNotice('Gmail disconnected from Portfolio draft creation.')
+      await loadGmailStatus()
+    } catch (err) {
+      setGmailError(err instanceof Error ? err.message : 'Failed to disconnect Gmail')
+    } finally {
+      setGmailActionLoading(false)
+    }
+  }, [loadGmailStatus])
 
   const posture = useMemo(() => {
     if (!report) return { label: 'Unknown', tone: 'slate' }
@@ -173,6 +288,17 @@ function CredentialAdminContent() {
             </button>
           </div>
         </div>
+
+        <GmailConnectionPanel
+          status={gmailStatus}
+          loading={gmailLoading}
+          actionLoading={gmailActionLoading}
+          error={gmailError}
+          notice={gmailNotice}
+          onConnect={connectGmail}
+          onDisconnect={disconnectGmail}
+          onRefresh={loadGmailStatus}
+        />
 
         {loading ? (
           <div className="flex items-center justify-center py-16 text-muted-foreground">Loading...</div>
@@ -352,6 +478,117 @@ function CredentialAdminContent() {
           </>
         ) : null}
       </div>
+    </div>
+  )
+}
+
+function GmailConnectionPanel({
+  status,
+  loading,
+  actionLoading,
+  error,
+  notice,
+  onConnect,
+  onDisconnect,
+  onRefresh,
+}: {
+  status: GmailConnectionStatus | null
+  loading: boolean
+  actionLoading: boolean
+  error: string | null
+  notice: string | null
+  onConnect: () => void
+  onDisconnect: () => void
+  onRefresh: () => void
+}) {
+  const connectedEmail = status?.googleEmail?.trim() ?? null
+  const expectedSender = status?.requiredSender ?? 'vambah@amadutown.com'
+  const senderMatches = Boolean(connectedEmail && connectedEmail.toLowerCase() === expectedSender.toLowerCase())
+
+  return (
+    <section id="gmail-profile" className="mb-6 scroll-mt-24 rounded-lg border border-silicon-slate bg-silicon-slate/30 p-5">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="max-w-3xl">
+          <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
+            <Mail size={16} />
+            Customer-facing Gmail profile
+          </div>
+          <h2 className="text-xl font-semibold">Portfolio Gmail drafts</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Connect the Google account Portfolio should use when creating approval-held outreach reply drafts.
+            Customer-facing drafts are allowed only from {expectedSender}.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={onRefresh}
+            disabled={loading || actionLoading}
+            className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate bg-background/40 px-3 py-2 text-sm hover:bg-silicon-slate disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+            Refresh
+          </button>
+          <button
+            type="button"
+            onClick={onConnect}
+            disabled={loading || actionLoading || status?.configured === false}
+            className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-100 hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {actionLoading ? <Loader2 size={16} className="animate-spin" /> : <ExternalLink size={16} />}
+            {connectedEmail ? 'Reconnect Gmail' : 'Connect Gmail'}
+          </button>
+          {connectedEmail && (
+            <button
+              type="button"
+              onClick={onDisconnect}
+              disabled={loading || actionLoading}
+              className="inline-flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-100 hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Unplug size={16} />
+              Disconnect
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-3 md:grid-cols-3">
+        <StatusTile
+          label="Server OAuth setup"
+          value={loading ? 'Checking...' : status?.configured ? 'Configured' : 'Not configured'}
+        />
+        <div className="rounded-lg border border-silicon-slate bg-background/40 px-3 py-2">
+          <div className="text-xs text-muted-foreground">Connected account</div>
+          <div className="mt-1 break-all text-sm font-semibold">{loading ? 'Checking...' : connectedEmail ?? 'Not connected'}</div>
+        </div>
+        <div className={`rounded-lg border px-3 py-2 ${senderMatches ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100' : connectedEmail ? 'border-red-500/30 bg-red-500/10 text-red-100' : 'border-amber-500/30 bg-amber-500/10 text-amber-100'}`}>
+          <div className="text-xs opacity-80">Draft sender gate</div>
+          <div className="mt-1 text-sm font-semibold">
+            {senderMatches ? 'Ready for customer-facing drafts' : connectedEmail ? `Reconnect as ${expectedSender}` : `Needs ${expectedSender}`}
+          </div>
+        </div>
+      </div>
+
+      {status?.configured === false && (
+        <p className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-100">
+          Gmail OAuth is not configured for this site yet. Add the Google Gmail OAuth client env vars and encryption secret before connecting.
+        </p>
+      )}
+      {notice && (
+        <p className="mt-4 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-100">{notice}</p>
+      )}
+      {error && (
+        <p className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-100">{error}</p>
+      )}
+    </section>
+  )
+}
+
+function StatusTile({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-silicon-slate bg-background/40 px-3 py-2">
+      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="mt-1 text-sm font-semibold">{value}</div>
     </div>
   )
 }
