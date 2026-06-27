@@ -36,7 +36,9 @@ export type SocialChannelLanes = Record<SocialContentIntelligenceChannel, Social
 export type SocialChannelReviewDraftPacket = {
   channel: 'linkedin' | 'youtube_shorts'
   generated_at: string
-  approval_status: 'in_review'
+  approval_status: 'in_review' | 'approved' | 'blocked'
+  decision_note?: string | null
+  decided_at?: string | null
   source_insight_title: string
   source_use_boundary: string
   fields: Record<string, unknown>

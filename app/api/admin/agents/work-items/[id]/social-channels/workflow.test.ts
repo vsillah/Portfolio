@@ -225,7 +225,15 @@ describe('social content intelligence research-to-channel-approval workflow', ()
     ])
     expect(lanes.linkedin.status).toBe('approved')
     expect(lanes.youtube_shorts.status).toBe('approved')
-    expect(lanes.linkedin.draft_packet).toEqual(expect.objectContaining({ channel: 'linkedin' }))
-    expect(lanes.youtube_shorts.draft_packet).toEqual(expect.objectContaining({ channel: 'youtube_shorts' }))
+    expect(lanes.linkedin.draft_packet).toEqual(expect.objectContaining({
+      channel: 'linkedin',
+      approval_status: 'approved',
+      decision_note: 'Approved for LinkedIn review; external publishing remains gated.',
+    }))
+    expect(lanes.youtube_shorts.draft_packet).toEqual(expect.objectContaining({
+      channel: 'youtube_shorts',
+      approval_status: 'approved',
+      decision_note: 'Approved for YouTube Shorts review; rendering remains gated.',
+    }))
   })
 })

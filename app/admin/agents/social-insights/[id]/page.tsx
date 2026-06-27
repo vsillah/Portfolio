@@ -490,6 +490,7 @@ function ChannelInputs({
   const draftPacket = asRecord(lane.draft_packet)
   const fields = asRecord(draftPacket.fields)
   const hasDraftFields = Object.keys(fields).length > 0
+  const draftApprovalStatus = asString(draftPacket.approval_status)
   return (
     <div>
       {hasDraftFields ? (
@@ -501,11 +502,18 @@ function ChannelInputs({
                 Generated from the shared insight and approved research patterns for human approval.
               </p>
             </div>
-            {asString(draftPacket.generated_at) ? (
-              <span className="inline-flex w-fit rounded-full border border-blue-400/35 px-2 py-0.5 text-xs text-blue-100">
-                {new Date(asString(draftPacket.generated_at)).toLocaleString()}
-              </span>
-            ) : null}
+            <div className="flex flex-wrap gap-2">
+              {draftApprovalStatus ? (
+                <span className="inline-flex w-fit rounded-full border border-blue-400/35 px-2 py-0.5 text-xs text-blue-100">
+                  Packet: {statusLabel(draftApprovalStatus)}
+                </span>
+              ) : null}
+              {asString(draftPacket.generated_at) ? (
+                <span className="inline-flex w-fit rounded-full border border-blue-400/35 px-2 py-0.5 text-xs text-blue-100">
+                  {new Date(asString(draftPacket.generated_at)).toLocaleString()}
+                </span>
+              ) : null}
+            </div>
           </div>
           {asString(draftPacket.source_use_boundary) ? (
             <p className="mt-3 rounded-md border border-blue-400/20 bg-background/35 px-3 py-2 text-xs leading-5 text-blue-100">

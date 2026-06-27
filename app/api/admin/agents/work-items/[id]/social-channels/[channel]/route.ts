@@ -4,6 +4,7 @@ import { getAgentWorkItem, updateAgentWorkItemMetadata } from '@/lib/agent-work-
 import {
   isSocialContentIntelligenceChannel,
   normalizeSocialChannelLanes,
+  type SocialChannelReviewDraftPacket,
   type SocialChannelLaneStatus,
 } from '@/lib/social-content-intelligence'
 
@@ -21,6 +22,28 @@ function hasReviewDraft(lane: Record<string, unknown>) {
   const draftPacket = asRecord(lane.draft_packet)
   const fields = asRecord(draftPacket.fields)
   return Object.keys(fields).length > 0
+}
+
+function draftApprovalStatus(status: SocialChannelLaneStatus) {
+  if (status === 'approved' || status === 'blocked') return status
+  return 'in_review'
+}
+
+function stampDraftPacketDecision(input: {
+  draftPacket: unknown
+  status: SocialChannelLaneStatus
+  decisionNote: string | null
+  decidedAt: string
+}) {
+  const draftPacket = asRecord(input.draftPacket)
+  if (!Object.keys(draftPacket).length) return input.draftPacket as SocialChannelReviewDraftPacket | null | undefined
+
+  return {
+    ...draftPacket,
+    approval_status: draftApprovalStatus(input.status),
+    decision_note: input.decisionNote,
+    decided_at: input.decidedAt,
+  } as SocialChannelReviewDraftPacket
 }
 
 export async function PATCH(
@@ -67,12 +90,22 @@ export async function PATCH(
       )
     }
 
+    const decidedAt = new Date().toISOString()
+    const nextLaneStatus = nextStatus || lanes[params.channel].status
+    const decisionNote = asString(body.decision_note) || lanes[params.channel].decision_note || null
+
     lanes[params.channel] = {
       ...lanes[params.channel],
       ...asRecord(body.patch),
-      status: nextStatus || lanes[params.channel].status,
-      decision_note: asString(body.decision_note) || lanes[params.channel].decision_note || null,
-      updated_at: new Date().toISOString(),
+      status: nextLaneStatus,
+      decision_note: decisionNote,
+      draft_packet: stampDraftPacketDecision({
+        draftPacket: lanes[params.channel].draft_packet,
+        status: nextLaneStatus,
+        decisionNote,
+        decidedAt,
+      }),
+      updated_at: decidedAt,
     }
 
     const updated = await updateAgentWorkItemMetadata({

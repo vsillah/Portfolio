@@ -112,6 +112,11 @@ describe('/api/admin/agents/work-items/[id]/social-channels/[channel]', () => {
             status: 'approved',
             decision_note: 'Approved for planning.',
             required_inputs: ['post text', 'CTA'],
+            draft_packet: expect.objectContaining({
+              approval_status: 'approved',
+              decision_note: 'Approved for planning.',
+              decided_at: expect.any(String),
+            }),
           }),
           youtube_shorts: expect.objectContaining({
             status: 'not_started',
@@ -129,6 +134,12 @@ describe('/api/admin/agents/work-items/[id]/social-channels/[channel]', () => {
         schedule: false,
         external_post: false,
       },
+      lane: expect.objectContaining({
+        draft_packet: expect.objectContaining({
+          approval_status: 'approved',
+          decision_note: 'Approved for planning.',
+        }),
+      }),
     })
   })
 
