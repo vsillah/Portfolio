@@ -1,33 +1,40 @@
 'use client'
 
 import Link from 'next/link'
-import { type FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
+import { type FormEvent, type ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import {
+  ArrowUpDown,
   BarChart3,
   CalendarDays,
+  ChevronDown,
   CheckCircle2,
   Database,
   ExternalLink,
   FileSearch,
   Film,
+  Info,
   Instagram,
   Pencil,
   Plus,
   RefreshCw,
   Save,
+  Search,
   ShieldCheck,
   XCircle,
   Youtube,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
+import Pagination from '@/components/admin/Pagination'
 import { getCurrentSession } from '@/lib/auth'
 import type { AgentWorkItem } from '@/lib/agent-work-items'
+import type { CampaignType } from '@/lib/campaigns'
 import {
   CAMPAIGN_PHASE_LABELS,
   SOCIAL_CONTENT_CALENDAR_SOURCE_LABELS,
   SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS,
   SOCIAL_CONTENT_CALENDAR_TEMPLATES,
+  calendarMilestoneRationale,
 } from '@/lib/social-content-calendar'
 
 type ResearchPacket = {
@@ -138,6 +145,8 @@ type CalendarItem = {
 type CampaignOption = {
   id: string
   name: string
+  description?: string | null
+  campaign_type?: CampaignType
   status: string
   starts_at: string | null
   ends_at: string | null
@@ -150,7 +159,13 @@ type CalendarForm = {
   campaign_phase: CalendarItem['campaign_phase']
   scheduled_for: string
   planned_angle: string
+  metadata?: Record<string, unknown>
 }
+
+type IntelligenceSection = 'calendar' | 'digest' | 'evidence' | 'research' | 'insights'
+type SortDirection = 'asc' | 'desc'
+type ResearchSortKey = 'score' | 'retrieved' | 'title'
+type InsightSortKey = 'updated' | 'title' | 'priority'
 
 const EMPTY_EVIDENCE_FORM: EvidenceForm = {
   source_url: '',
@@ -174,6 +189,7 @@ const EMPTY_CALENDAR_FORM: CalendarForm = {
   campaign_phase: 'tease',
   scheduled_for: '',
   planned_angle: '',
+  metadata: {},
 }
 
 const CALENDAR_PHASES: Array<{ key: CalendarItem['campaign_phase']; label: string }> = [
@@ -189,6 +205,41 @@ const CALENDAR_CHANNEL_LABELS: Record<CalendarItem['channel'], string> = {
   instagram_reels: 'Instagram Reels',
   thumbnail: 'Thumbnail',
 }
+
+const SECTION_TABS: Array<{
+  key: IntelligenceSection
+  label: string
+  description: string
+}> = [
+  {
+    key: 'calendar',
+    label: 'Calendar',
+    description: 'Campaign arc lanes and due authorization gates.',
+  },
+  {
+    key: 'digest',
+    label: 'Daily Digest',
+    description: 'Read-only summary of what Shaka should review next.',
+  },
+  {
+    key: 'evidence',
+    label: 'Evidence',
+    description: 'Free-first source capture and paid-scraper approval boundaries.',
+  },
+  {
+    key: 'research',
+    label: 'Research',
+    description: 'Creator evidence packets, source transparency, and pattern linking.',
+  },
+  {
+    key: 'insights',
+    label: 'Backlog',
+    description: 'Central Shaka social topic triggers from Agentic Dashboard.',
+  },
+]
+
+const TABLE_PAGE_SIZE = 6
+const TEMPLATE_PAGE_SIZE = 4
 
 function stringValue(value: unknown) {
   return typeof value === 'string' && value.trim() ? value.trim() : null
@@ -251,6 +302,60 @@ function calendarSourceLabel(url: string) {
   }
 }
 
+function metadataStringArray(value: unknown) {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+    : []
+}
+
+function normalizeSearch(value: string | null | undefined) {
+  return (value ?? '').toLowerCase()
+}
+
+function sortableDate(value: string | null | undefined) {
+  const time = value ? new Date(value).getTime() : 0
+  return Number.isFinite(time) ? time : 0
+}
+
+function sortDirectionMultiplier(direction: SortDirection) {
+  return direction === 'asc' ? 1 : -1
+}
+
+function templateMetadataFor(
+  templateKey: keyof typeof SOCIAL_CONTENT_CALENDAR_TEMPLATES,
+  milestoneKey: string,
+  campaign?: CampaignOption | null,
+) {
+  const template = SOCIAL_CONTENT_CALENDAR_TEMPLATES[templateKey]
+  const milestone = template.milestones.find((candidate) => candidate.key === milestoneKey)
+  if (!milestone) return {}
+
+  const campaignContext = {
+    name: campaign?.name || 'Unassigned calendar item',
+    description: campaign?.description ?? null,
+    campaign_type: campaign?.campaign_type ?? undefined,
+  }
+  const rationale = calendarMilestoneRationale(campaignContext, template, milestone)
+
+  return {
+    generated_from: 'content_intelligence_template_milestone',
+    campaign_arc: template.key,
+    template_key: template.key,
+    template_label: template.label,
+    template_goal_types: template.goal_types,
+    template_source_urls: template.source_urls,
+    milestone_key: milestone.key,
+    recommended_lead_time_days: milestone.recommended_lead_time_days,
+    milestone_rationale: rationale,
+    campaign_fit_summary: rationale.campaign_fit,
+    source_labels: rationale.source_labels,
+    required_assets: milestone.required_assets,
+    approval_gates: milestone.approval_gates,
+    source_urls: milestone.source_urls,
+    external_execution_enabled: false,
+  }
+}
+
 export default function ContentIntelligencePage() {
   return (
     <ProtectedRoute requireAdmin>
@@ -290,6 +395,27 @@ function ContentIntelligenceContent() {
   const [calendarDecisionNotes, setCalendarDecisionNotes] = useState<Record<string, string>>({})
   const [editingCalendarItemId, setEditingCalendarItemId] = useState<string | null>(null)
   const [calendarEditForms, setCalendarEditForms] = useState<Record<string, CalendarForm>>({})
+  const [activeSection, setActiveSection] = useState<IntelligenceSection>('calendar')
+  const [expandedPanels, setExpandedPanels] = useState<Record<string, boolean>>({
+    templateLibrary: true,
+    calendarPlanner: true,
+    digestActivation: false,
+    evidenceSources: false,
+    evidenceForm: true,
+    patternLink: false,
+  })
+  const [researchSearch, setResearchSearch] = useState('')
+  const [researchPlatformFilter, setResearchPlatformFilter] = useState('')
+  const [researchPatternFilter, setResearchPatternFilter] = useState('')
+  const [researchSort, setResearchSort] = useState<ResearchSortKey>('score')
+  const [researchSortDirection, setResearchSortDirection] = useState<SortDirection>('desc')
+  const [researchPage, setResearchPage] = useState(1)
+  const [templatePage, setTemplatePage] = useState(1)
+  const [insightSearch, setInsightSearch] = useState('')
+  const [insightStatusFilter, setInsightStatusFilter] = useState('')
+  const [insightSort, setInsightSort] = useState<InsightSortKey>('updated')
+  const [insightSortDirection, setInsightSortDirection] = useState<SortDirection>('desc')
+  const [insightPage, setInsightPage] = useState(1)
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -371,6 +497,132 @@ function ContentIntelligenceContent() {
       return lanes
     }, {} as Record<CalendarItem['campaign_phase'], CalendarItem[]>)
   }, [filteredCalendarItems])
+
+  const templateTotalPages = Math.max(
+    1,
+    Math.ceil(SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS.length / TEMPLATE_PAGE_SIZE),
+  )
+
+  const pagedTemplateKeys = useMemo(() => {
+    const start = (templatePage - 1) * TEMPLATE_PAGE_SIZE
+    return SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS.slice(start, start + TEMPLATE_PAGE_SIZE)
+  }, [templatePage])
+
+  const togglePanel = useCallback((key: string) => {
+    setExpandedPanels((current) => ({ ...current, [key]: !current[key] }))
+  }, [])
+
+  const researchPlatforms = useMemo(() => {
+    return Array.from(new Set(packets.map((packet) => packet.platform).filter(Boolean))).sort()
+  }, [packets])
+
+  const researchPatternStatuses = useMemo(() => {
+    return Array.from(new Set(packets.map((packet) => packet.pattern_status).filter(Boolean))).sort()
+  }, [packets])
+
+  const filteredResearchPackets = useMemo(() => {
+    const search = normalizeSearch(researchSearch)
+    const direction = sortDirectionMultiplier(researchSortDirection)
+    return packets
+      .filter((packet) => {
+        if (researchPlatformFilter && packet.platform !== researchPlatformFilter) return false
+        if (researchPatternFilter && packet.pattern_status !== researchPatternFilter) return false
+        if (!search) return true
+        return [
+          packet.title,
+          packet.caption,
+          packet.creator_name,
+          packet.creator_handle,
+          packet.source_url,
+          packet.hook_transcript,
+        ].some((value) => normalizeSearch(value).includes(search))
+      })
+      .sort((left, right) => {
+        if (researchSort === 'score') {
+          return (Number(left.outlier_score) - Number(right.outlier_score)) * direction
+        }
+        if (researchSort === 'retrieved') {
+          return (sortableDate(left.retrieved_at) - sortableDate(right.retrieved_at)) * direction
+        }
+        return (left.title ?? left.caption ?? left.source_url).localeCompare(right.title ?? right.caption ?? right.source_url) * direction
+      })
+  }, [
+    packets,
+    researchPatternFilter,
+    researchPlatformFilter,
+    researchSearch,
+    researchSort,
+    researchSortDirection,
+  ])
+
+  const pagedResearchPackets = useMemo(() => {
+    const start = (researchPage - 1) * TABLE_PAGE_SIZE
+    return filteredResearchPackets.slice(start, start + TABLE_PAGE_SIZE)
+  }, [filteredResearchPackets, researchPage])
+
+  const researchTotalPages = Math.max(1, Math.ceil(filteredResearchPackets.length / TABLE_PAGE_SIZE))
+
+  const insightStatuses = useMemo(() => {
+    return Array.from(new Set(insights.map((item) => item.status).filter(Boolean))).sort()
+  }, [insights])
+
+  const filteredInsights = useMemo(() => {
+    const search = normalizeSearch(insightSearch)
+    const direction = sortDirectionMultiplier(insightSortDirection)
+    const priorityScore: Record<string, number> = {
+      urgent: 4,
+      high: 3,
+      medium: 2,
+      low: 1,
+    }
+    return insights
+      .filter((item) => {
+        if (insightStatusFilter && item.status !== insightStatusFilter) return false
+        if (!search) return true
+        const insight = insightFor(item)
+        return [
+          insight.title,
+          insight.triggeringEvent,
+          insight.whyVambahCanSpeak,
+          item.status,
+          item.priority,
+        ].some((value) => normalizeSearch(value).includes(search))
+      })
+      .sort((left, right) => {
+        if (insightSort === 'updated') {
+          return (sortableDate(left.updated_at) - sortableDate(right.updated_at)) * direction
+        }
+        if (insightSort === 'priority') {
+          return ((priorityScore[left.priority] ?? 0) - (priorityScore[right.priority] ?? 0)) * direction
+        }
+        return insightFor(left).title.localeCompare(insightFor(right).title) * direction
+      })
+  }, [
+    insightSearch,
+    insightSort,
+    insightSortDirection,
+    insightStatusFilter,
+    insights,
+  ])
+
+  const pagedInsights = useMemo(() => {
+    const start = (insightPage - 1) * TABLE_PAGE_SIZE
+    return filteredInsights.slice(start, start + TABLE_PAGE_SIZE)
+  }, [filteredInsights, insightPage])
+
+  const insightTotalPages = Math.max(1, Math.ceil(filteredInsights.length / TABLE_PAGE_SIZE))
+
+  useEffect(() => {
+    setResearchPage(1)
+  }, [researchPatternFilter, researchPlatformFilter, researchSearch, researchSort, researchSortDirection])
+
+  useEffect(() => {
+    setInsightPage(1)
+  }, [insightSearch, insightSort, insightSortDirection, insightStatusFilter])
+
+  const selectedCalendarCampaign = useMemo(() => {
+    return campaigns.find((campaign) => campaign.id === calendarForm.campaign_id) ?? null
+  }, [calendarForm.campaign_id, campaigns])
 
   useEffect(() => {
     setSelectedPacketId((current) => current || packets[0]?.id || '')
@@ -500,6 +752,17 @@ function ContentIntelligenceContent() {
 
     setCreatingCalendarItem(true)
     try {
+      const formMetadata = recordValue(calendarForm.metadata)
+      const templateKey = typeof formMetadata.template_key === 'string'
+        && formMetadata.template_key in SOCIAL_CONTENT_CALENDAR_TEMPLATES
+        ? formMetadata.template_key as keyof typeof SOCIAL_CONTENT_CALENDAR_TEMPLATES
+        : null
+      const milestoneKey = typeof formMetadata.milestone_key === 'string'
+        ? formMetadata.milestone_key
+        : null
+      const metadata = templateKey && milestoneKey
+        ? templateMetadataFor(templateKey, milestoneKey, selectedCalendarCampaign)
+        : formMetadata
       const response = await authedFetch('/api/admin/social-content/calendar', {
         method: 'POST',
         body: JSON.stringify({
@@ -507,6 +770,7 @@ function ContentIntelligenceContent() {
           campaign_id: calendarForm.campaign_id || null,
           planned_angle: calendarForm.planned_angle.trim() || null,
           scheduled_for: new Date(calendarForm.scheduled_for).toISOString(),
+          metadata,
         }),
       })
       const body = await response.json().catch(() => ({}))
@@ -519,7 +783,29 @@ function ContentIntelligenceContent() {
     } finally {
       setCreatingCalendarItem(false)
     }
-  }, [authedFetch, calendarForm, load])
+  }, [authedFetch, calendarForm, load, selectedCalendarCampaign])
+
+  const applyTemplateMilestone = useCallback((
+    templateKey: keyof typeof SOCIAL_CONTENT_CALENDAR_TEMPLATES,
+    milestoneKey: string,
+  ) => {
+    const template = SOCIAL_CONTENT_CALENDAR_TEMPLATES[templateKey]
+    const milestone = template.milestones.find((candidate) => candidate.key === milestoneKey)
+    if (!milestone) return
+
+    setCalendarForm((current) => {
+      const campaign = campaigns.find((candidate) => candidate.id === current.campaign_id) ?? null
+      return {
+        ...current,
+        title: `${milestone.title_prefix}${campaign?.name ? `: ${campaign.name}` : ''}`,
+        channel: milestone.channel,
+        campaign_phase: milestone.campaign_phase,
+        planned_angle: milestone.planned_angle,
+        metadata: templateMetadataFor(templateKey, milestone.key, campaign),
+      }
+    })
+    setCalendarNotice(`${template.label}: ${milestone.title_prefix} loaded into the planner.`)
+  }, [campaigns])
 
   const authorizeCalendarItem = useCallback(async (item: CalendarItem) => {
     setError(null)
@@ -682,6 +968,19 @@ function ContentIntelligenceContent() {
           <MetricCard label="Paid scraper runs" value={0} tone="amber" />
         </div>
 
+        <SectionTabs
+          activeSection={activeSection}
+          onChange={setActiveSection}
+          counts={{
+            calendar: calendarItems.length,
+            digest: digest ? digest.summary.new_research_packets + digest.summary.shaka_insights : 0,
+            evidence: researchPlatforms.length,
+            research: packets.length,
+            insights: insights.length,
+          }}
+        />
+
+        {activeSection === 'calendar' ? (
         <section className="agent-ops-card mb-6 rounded-lg border p-4">
           <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
             <div>
@@ -700,20 +999,22 @@ function ContentIntelligenceContent() {
             </span>
           </div>
 
-          <div className="mb-4 rounded-lg border border-blue-500/25 bg-blue-500/10 p-3">
-            <div className="mb-3 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
-              <div>
-                <h3 className="text-sm font-semibold text-blue-50">Template research library</h3>
-                <p className="mt-1 text-xs leading-5 text-blue-100/75">
-                  Source-backed milestone models are available before any campaign plan is generated.
-                </p>
-              </div>
+          <CollapsiblePanel
+            title="Template research library"
+            panelKey="templateLibrary"
+            expanded={expandedPanels.templateLibrary}
+            onToggle={togglePanel}
+            className="mb-4 border-blue-500/25 bg-blue-500/10"
+            icon={<Info className="h-4 w-4 text-blue-100" />}
+            tooltip="Source-backed milestone models available before any campaign plan is generated."
+            rightSlot={(
               <span className="inline-flex w-fit rounded-full border border-blue-300/25 px-2.5 py-1 text-[0.68rem] font-semibold text-blue-100">
                 {SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS.length} templates
               </span>
-            </div>
-            <div className="grid gap-2 xl:grid-cols-5">
-              {SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS.map((key) => {
+            )}
+          >
+            <div className="grid gap-2 xl:grid-cols-4">
+              {pagedTemplateKeys.map((key) => {
                 const template = SOCIAL_CONTENT_CALENDAR_TEMPLATES[key]
                 return (
                   <div key={key} className="rounded-lg border border-blue-300/20 bg-background/35 p-3">
@@ -730,9 +1031,23 @@ function ContentIntelligenceContent() {
                     </div>
                     <div className="mt-3 space-y-1.5">
                       {template.milestones.map((milestone) => (
-                        <div key={milestone.key} className="flex items-center justify-between gap-2 text-[0.66rem] text-blue-100/75">
-                          <span>{CAMPAIGN_PHASE_LABELS[milestone.campaign_phase]}</span>
-                          <span>{milestone.recommended_lead_time_days}d lead</span>
+                        <div key={milestone.key} className="flex items-center justify-between gap-2 rounded-md border border-blue-300/10 bg-background/25 px-2 py-1.5 text-[0.66rem] text-blue-100/75">
+                          <div className="min-w-0">
+                            <span className="block font-semibold text-blue-100">
+                              {CAMPAIGN_PHASE_LABELS[milestone.campaign_phase]}
+                            </span>
+                            <span className="block truncate">
+                              {CALENDAR_CHANNEL_LABELS[milestone.channel]} · {milestone.recommended_lead_time_days}d lead
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            aria-label={`Use ${template.label} ${CAMPAIGN_PHASE_LABELS[milestone.campaign_phase]} milestone`}
+                            onClick={() => applyTemplateMilestone(key, milestone.key)}
+                            className="shrink-0 rounded-md border border-blue-300/25 px-2 py-1 text-[0.62rem] font-semibold text-blue-50 transition hover:bg-blue-500/20"
+                          >
+                            Use
+                          </button>
                         </div>
                       ))}
                     </div>
@@ -754,7 +1069,14 @@ function ContentIntelligenceContent() {
                 )
               })}
             </div>
-          </div>
+            <Pagination
+              page={templatePage}
+              totalPages={templateTotalPages}
+              total={SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS.length}
+              pageSize={TEMPLATE_PAGE_SIZE}
+              onPageChange={setTemplatePage}
+            />
+          </CollapsiblePanel>
 
           <div className="mb-4 grid gap-3 md:grid-cols-4">
             <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -855,18 +1177,40 @@ function ContentIntelligenceContent() {
             ))}
           </div>
 
-          <form onSubmit={createCalendarItem} className="mt-4 rounded-lg border border-radiant-gold/35 bg-radiant-gold/10 p-3">
-            <div className="mb-3 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
-              <div>
-                <h3 className="text-sm font-semibold text-radiant-gold">Plan calendar item</h3>
-                <p className="mt-1 text-xs text-muted-foreground">Creates a pending calendar gate only. Use campaign detail to generate the default whisper-to-shout arc.</p>
-              </div>
-              {calendarNotice ? (
-                <span className="inline-flex w-fit rounded-full border border-emerald-500/35 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-100">
-                  {calendarNotice}
-                </span>
-              ) : null}
-            </div>
+          <CollapsiblePanel
+            title="Plan calendar item"
+            panelKey="calendarPlanner"
+            expanded={expandedPanels.calendarPlanner}
+            onToggle={togglePanel}
+            className="mt-4 border-radiant-gold/35 bg-radiant-gold/10"
+            icon={<Plus className="h-4 w-4 text-radiant-gold" />}
+            tooltip="Creates a pending calendar gate only. Use a template milestone above or plan manually."
+            rightSlot={calendarNotice ? (
+              <span className="inline-flex w-fit rounded-full border border-emerald-500/35 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-100">
+                {calendarNotice}
+              </span>
+            ) : null}
+          >
+          <form onSubmit={createCalendarItem}>
+            {(() => {
+              const metadata = recordValue(calendarForm.metadata)
+              const templateLabel = typeof metadata.template_label === 'string' ? metadata.template_label : null
+              const milestoneKey = typeof metadata.milestone_key === 'string' ? metadata.milestone_key : null
+              const sourceLabels = metadataStringArray(metadata.source_labels)
+              if (!templateLabel) return null
+
+              return (
+                <div className="mb-3 rounded-md border border-radiant-gold/30 bg-background/35 p-2 text-xs text-muted-foreground">
+                  <span className="font-semibold text-radiant-gold">Template applied: </span>
+                  {templateLabel}{milestoneKey ? ` · ${milestoneKey.replace(/_/g, ' ')}` : ''}
+                  {sourceLabels.length > 0 ? (
+                    <span className="ml-2 text-muted-foreground">
+                      Source: {sourceLabels.slice(0, 2).join(', ')}
+                    </span>
+                  ) : null}
+                </div>
+              )
+            })()}
             <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_14rem_12rem]">
               <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Title
@@ -948,8 +1292,11 @@ function ContentIntelligenceContent() {
               </button>
             </div>
           </form>
+          </CollapsiblePanel>
         </section>
+        ) : null}
 
+        {activeSection === 'digest' ? (
         <section className="agent-ops-card mb-6 rounded-lg border p-4">
           <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
             <div>
@@ -967,7 +1314,21 @@ function ContentIntelligenceContent() {
               No side effects
             </span>
           </div>
-          <form onSubmit={requestDailyActivationReview} className="mb-4 rounded-lg border border-radiant-gold/35 bg-radiant-gold/10 p-3">
+          <CollapsiblePanel
+            title="Activation review"
+            panelKey="digestActivation"
+            expanded={expandedPanels.digestActivation}
+            onToggle={togglePanel}
+            className="mb-4 border-radiant-gold/35 bg-radiant-gold/10"
+            icon={<CheckCircle2 className="h-4 w-4 text-radiant-gold" />}
+            tooltip="Creates a backlog review item only. Cron activation, Apify collection, drafting, media, uploads, scheduling, and publishing remain locked."
+            rightSlot={activationNotice ? (
+              <span className="inline-flex w-fit rounded-full border border-emerald-500/35 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-100">
+                {activationNotice}
+              </span>
+            ) : null}
+          >
+          <form onSubmit={requestDailyActivationReview}>
             <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
               <label className="min-w-0 flex-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Activation review note
@@ -988,15 +1349,8 @@ function ContentIntelligenceContent() {
                 {requestingActivation ? 'Requesting...' : 'Request Daily Activation Review'}
               </button>
             </div>
-            <p className="mt-2 text-xs leading-5 text-muted-foreground">
-              Creates a backlog review item only. Cron activation, Apify collection, drafting, media, uploads, scheduling, and publishing remain locked.
-            </p>
-            {activationNotice ? (
-              <p className="mt-2 rounded-md border border-emerald-500/35 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-100">
-                {activationNotice}
-              </p>
-            ) : null}
           </form>
+          </CollapsiblePanel>
           {digest ? (
             <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,0.45fr)]">
               <div className="grid gap-3 md:grid-cols-4">
@@ -1063,7 +1417,9 @@ function ContentIntelligenceContent() {
             </div>
           )}
         </section>
+        ) : null}
 
+        {activeSection === 'evidence' ? (
         <section className="agent-ops-card mb-6 rounded-lg border p-4">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
@@ -1077,24 +1433,37 @@ function ContentIntelligenceContent() {
               Paid scraper approval required
             </span>
           </div>
-          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <CollapsiblePanel
+            title="Source options"
+            panelKey="evidenceSources"
+            expanded={expandedPanels.evidenceSources}
+            onToggle={togglePanel}
+            className="mt-4 border-silicon-slate/70 bg-silicon-slate/10"
+            icon={<Database className="h-4 w-4 text-radiant-gold" />}
+            tooltip="Free captured evidence is the default. Paid scrapers stay behind scoped cost approval."
+          >
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             <ActorCard title="Default" actor="Recorded public evidence from Codex/browser review. Cost: $0." />
             <ActorCard title="YouTube fallback" actor="pintostudio/youtube-transcript-scraper only after cost approval" />
             <ActorCard title="YouTube data fallback" actor="streamers/youtube-scraper only after cost approval" />
             <ActorCard title="Instagram/TikTok fallback" actor="apify/instagram-scraper or clockworks/tiktok-scraper only after cost approval" />
           </div>
-          <form onSubmit={submitRecordedEvidence} className="mt-4 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
-            <div className="mb-3 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
-              <div>
-                <h3 className="text-sm font-semibold">Add recorded public evidence</h3>
-                <p className="mt-1 text-xs text-muted-foreground">Free review packet. No scraper, generation, upload, schedule, or publish action.</p>
-              </div>
-              {evidenceNotice ? (
-                <span className="inline-flex w-fit rounded-full border border-emerald-500/35 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-100">
-                  {evidenceNotice}
-                </span>
-              ) : null}
-            </div>
+          </CollapsiblePanel>
+          <CollapsiblePanel
+            title="Add recorded public evidence"
+            panelKey="evidenceForm"
+            expanded={expandedPanels.evidenceForm}
+            onToggle={togglePanel}
+            className="mt-4 border-silicon-slate/70 bg-silicon-slate/20"
+            icon={<FileSearch className="h-4 w-4 text-blue-200" />}
+            tooltip="Free review packet. No scraper, generation, upload, schedule, or publish action."
+            rightSlot={evidenceNotice ? (
+              <span className="inline-flex w-fit rounded-full border border-emerald-500/35 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-100">
+                {evidenceNotice}
+              </span>
+            ) : null}
+          >
+          <form onSubmit={submitRecordedEvidence}>
             <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_12rem]">
               <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Source URL
@@ -1151,37 +1520,43 @@ function ContentIntelligenceContent() {
               </button>
             </div>
           </form>
+          </CollapsiblePanel>
         </section>
+        ) : null}
 
+        {activeSection === 'research' || activeSection === 'insights' ? (
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,0.45fr)]">
+          {activeSection === 'research' ? (
           <section className="agent-ops-card rounded-lg border p-4">
             <div className="mb-4 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <h2 className="text-lg font-semibold">Public creator research</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Evidence packets preserve source transparency and reusable patterns without copying creator scripts, titles, thumbnails, or visual identity.
-                </p>
+                <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+                  <span>Evidence packets and reusable patterns.</span>
+                  <InfoTooltip label="Preserves source transparency without copying creator scripts, titles, thumbnails, or visual identity." />
+                </div>
               </div>
             </div>
             {loading ? (
               <div className="py-12 text-center text-sm text-muted-foreground">Loading research packets...</div>
             ) : packets.length ? (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {insights.length ? (
-                  <form onSubmit={linkResearchPattern} className="rounded-lg border border-radiant-gold/35 bg-radiant-gold/10 p-3">
-                    <div className="mb-3 flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
-                      <div>
-                        <h3 className="text-sm font-semibold text-radiant-gold">Link pattern to Shaka insight</h3>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          Adds the reusable pattern to the central backlog item. No draft, media, upload, schedule, or publish action runs.
-                        </p>
-                      </div>
-                      {linkNotice ? (
-                        <span className="inline-flex w-fit rounded-full border border-emerald-500/35 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-100">
-                          {linkNotice}
-                        </span>
-                      ) : null}
-                    </div>
+                  <CollapsiblePanel
+                    title="Link pattern to Shaka insight"
+                    panelKey="patternLink"
+                    expanded={expandedPanels.patternLink}
+                    onToggle={togglePanel}
+                    className="border-radiant-gold/35 bg-radiant-gold/10"
+                    icon={<CheckCircle2 className="h-4 w-4 text-radiant-gold" />}
+                    tooltip="Adds the reusable pattern to the central backlog item. No draft, media, upload, schedule, or publish action runs."
+                    rightSlot={linkNotice ? (
+                      <span className="inline-flex w-fit rounded-full border border-emerald-500/35 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-100">
+                        {linkNotice}
+                      </span>
+                    ) : null}
+                  >
+                  <form onSubmit={linkResearchPattern}>
                     <div className="grid gap-3 lg:grid-cols-2">
                       <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         Research packet
@@ -1233,50 +1608,132 @@ function ContentIntelligenceContent() {
                       </button>
                     </div>
                   </form>
+                  </CollapsiblePanel>
                 ) : null}
-                {packets.map((packet) => (
-                  <article key={packet.id} className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
-                    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                      <div className="min-w-0">
-                        <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                          <span className="inline-flex items-center gap-1 rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 text-blue-100">
-                            {platformIcon(packet.platform)}
-                            {packet.platform.replace(/_/g, ' ')}
-                          </span>
-                          <span>{packet.creator_name ?? packet.creator_handle ?? 'Creator unknown'}</span>
-                          <span>{new Date(packet.retrieved_at).toLocaleString()}</span>
-                        </div>
-                        <h3 className="font-semibold">{packet.title ?? packet.caption ?? packet.source_url}</h3>
-                        {packet.hook_transcript ? (
-                          <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                            Hook: {packet.hook_transcript}
-                          </p>
-                        ) : null}
-                        <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                          <SourceMetric label="views" value={numberValue(packet.metrics.views)} />
-                          <SourceMetric label="likes" value={numberValue(packet.metrics.likes)} />
-                          <SourceMetric label="comments" value={numberValue(packet.metrics.comments)} />
-                        </div>
-                      </div>
-                      <div className="flex shrink-0 flex-col gap-2 text-right">
-                        <span className="inline-flex justify-center rounded-full border border-radiant-gold/40 bg-radiant-gold/10 px-3 py-1 text-xs font-semibold text-radiant-gold">
-                          Outlier {Math.round(Number(packet.outlier_score))}
-                        </span>
-                        <span className="rounded-full border border-silicon-slate/70 px-3 py-1 text-xs text-muted-foreground">
-                          {packet.pattern_status.replace(/_/g, ' ')}
-                        </span>
-                        <a
-                          href={packet.source_url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center justify-center gap-1 text-xs text-blue-200 hover:text-blue-100"
-                        >
-                          Source <ExternalLink className="h-3 w-3" />
-                        </a>
-                      </div>
-                    </div>
-                  </article>
-                ))}
+                <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_12rem_14rem]">
+                  <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Search
+                    <span className="mt-1 flex items-center gap-2 rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2">
+                      <Search className="h-4 w-4 text-muted-foreground" />
+                      <input
+                        type="search"
+                        value={researchSearch}
+                        onChange={(event) => setResearchSearch(event.target.value)}
+                        placeholder="Title, creator, source, hook..."
+                        className="w-full bg-transparent text-sm normal-case tracking-normal text-foreground outline-none"
+                      />
+                    </span>
+                  </label>
+                  <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Platform
+                    <select
+                      value={researchPlatformFilter}
+                      onChange={(event) => setResearchPlatformFilter(event.target.value)}
+                      className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+                    >
+                      <option value="">All platforms</option>
+                      {researchPlatforms.map((platform) => (
+                        <option key={platform} value={platform}>{platform.replace(/_/g, ' ')}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Pattern
+                    <select
+                      value={researchPatternFilter}
+                      onChange={(event) => setResearchPatternFilter(event.target.value)}
+                      className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+                    >
+                      <option value="">All pattern states</option>
+                      {researchPatternStatuses.map((status) => (
+                        <option key={status} value={status}>{status.replace(/_/g, ' ')}</option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+                <div className="overflow-x-auto rounded-lg border border-silicon-slate/70">
+                  <table className="min-w-full divide-y divide-silicon-slate/70 text-sm">
+                    <thead className="bg-silicon-slate/35 text-xs uppercase tracking-wide text-muted-foreground">
+                      <tr>
+                        <th scope="col" className="px-3 py-2 text-left">
+                          <SortButton active={researchSort === 'title'} direction={researchSortDirection} onClick={() => {
+                            setResearchSort('title')
+                            setResearchSortDirection(researchSort === 'title' && researchSortDirection === 'asc' ? 'desc' : 'asc')
+                          }}>
+                            Source
+                          </SortButton>
+                        </th>
+                        <th scope="col" className="px-3 py-2 text-left">Platform</th>
+                        <th scope="col" className="px-3 py-2 text-right">
+                          <SortButton active={researchSort === 'score'} direction={researchSortDirection} onClick={() => {
+                            setResearchSort('score')
+                            setResearchSortDirection(researchSort === 'score' && researchSortDirection === 'desc' ? 'asc' : 'desc')
+                          }}>
+                            Outlier
+                          </SortButton>
+                        </th>
+                        <th scope="col" className="px-3 py-2 text-left">Pattern</th>
+                        <th scope="col" className="px-3 py-2 text-right">
+                          <SortButton active={researchSort === 'retrieved'} direction={researchSortDirection} onClick={() => {
+                            setResearchSort('retrieved')
+                            setResearchSortDirection(researchSort === 'retrieved' && researchSortDirection === 'desc' ? 'asc' : 'desc')
+                          }}>
+                            Retrieved
+                          </SortButton>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-silicon-slate/60 bg-background/20">
+                      {pagedResearchPackets.map((packet) => (
+                        <tr key={packet.id} className="align-top">
+                          <td className="max-w-md px-3 py-3">
+                            <a href={packet.source_url} target="_blank" rel="noreferrer" className="font-semibold text-blue-100 hover:text-blue-50">
+                              {packet.title ?? packet.caption ?? packet.source_url}
+                            </a>
+                            <p className="mt-1 text-xs text-muted-foreground">
+                              {packet.creator_name ?? packet.creator_handle ?? 'Creator unknown'}
+                            </p>
+                            {packet.hook_transcript ? (
+                              <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground" title={packet.hook_transcript}>
+                                Hook: {packet.hook_transcript}
+                              </p>
+                            ) : null}
+                          </td>
+                          <td className="px-3 py-3">
+                            <span className="inline-flex items-center gap-1 rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 text-xs text-blue-100">
+                              {platformIcon(packet.platform)}
+                              {packet.platform.replace(/_/g, ' ')}
+                            </span>
+                          </td>
+                          <td className="px-3 py-3 text-right font-semibold text-radiant-gold">
+                            {Math.round(Number(packet.outlier_score))}
+                          </td>
+                          <td className="px-3 py-3">
+                            <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5 text-xs text-muted-foreground">
+                              {packet.pattern_status.replace(/_/g, ' ')}
+                            </span>
+                          </td>
+                          <td className="px-3 py-3 text-right text-xs text-muted-foreground">
+                            {new Date(packet.retrieved_at).toLocaleDateString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {filteredResearchPackets.length ? (
+                  <Pagination
+                    page={researchPage}
+                    totalPages={researchTotalPages}
+                    total={filteredResearchPackets.length}
+                    pageSize={TABLE_PAGE_SIZE}
+                    onPageChange={setResearchPage}
+                  />
+                ) : (
+                  <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-4 py-8 text-center text-sm text-muted-foreground">
+                    No research packets match the current filters.
+                  </div>
+                )}
               </div>
             ) : (
               <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-4 py-12 text-center text-sm text-muted-foreground">
@@ -1284,49 +1741,271 @@ function ContentIntelligenceContent() {
               </div>
             )}
           </section>
+          ) : null}
 
+          {activeSection === 'insights' ? (
           <section className="agent-ops-card rounded-lg border p-4">
-            <h2 className="text-lg font-semibold">Shaka insight backlog</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              These are central Agentic Dashboard work items. Social Content pages filter this same backlog.
-            </p>
-            <div className="mt-4 space-y-3">
-              {insights.length ? insights.map((item) => {
-                const insight = insightFor(item)
-                return (
-                  <Link
-                    key={item.id}
-                    href={`/admin/agents/social-insights/${item.id}`}
-                    className="block rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-3 transition hover:border-radiant-gold/45"
+            <div className="mb-4 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <h2 className="text-lg font-semibold">Shaka insight backlog</h2>
+                <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+                  <span>Central Agentic Dashboard work items.</span>
+                  <InfoTooltip label="Social Content pages filter this same backlog instead of creating a separate queue." />
+                </div>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_12rem]">
+                <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Search
+                  <span className="mt-1 flex items-center gap-2 rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2">
+                    <Search className="h-4 w-4 text-muted-foreground" />
+                    <input
+                      type="search"
+                      value={insightSearch}
+                      onChange={(event) => setInsightSearch(event.target.value)}
+                      placeholder="Title, triggering event, why now..."
+                      className="w-full bg-transparent text-sm normal-case tracking-normal text-foreground outline-none"
+                    />
+                  </span>
+                </label>
+                <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Status
+                  <select
+                    value={insightStatusFilter}
+                    onChange={(event) => setInsightStatusFilter(event.target.value)}
+                    className="mt-1 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="font-semibold">{insight.title}</p>
-                        {insight.triggeringEvent ? (
-                          <p className="mt-1 line-clamp-2 text-sm leading-5 text-muted-foreground">{insight.triggeringEvent}</p>
-                        ) : null}
-                      </div>
-                      <span className="shrink-0 rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 text-xs text-blue-100">
-                        {item.status.replace(/_/g, ' ')}
-                      </span>
+                    <option value="">All states</option>
+                    {insightStatuses.map((status) => (
+                      <option key={status} value={status}>{status.replace(/_/g, ' ')}</option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              {insights.length ? (
+                <>
+                  <div className="overflow-x-auto rounded-lg border border-silicon-slate/70">
+                    <table className="min-w-full divide-y divide-silicon-slate/70 text-sm">
+                      <thead className="bg-silicon-slate/35 text-xs uppercase tracking-wide text-muted-foreground">
+                        <tr>
+                          <th scope="col" className="px-3 py-2 text-left">
+                            <SortButton active={insightSort === 'title'} direction={insightSortDirection} onClick={() => {
+                              setInsightSort('title')
+                              setInsightSortDirection(insightSort === 'title' && insightSortDirection === 'asc' ? 'desc' : 'asc')
+                            }}>
+                              Insight
+                            </SortButton>
+                          </th>
+                          <th scope="col" className="px-3 py-2 text-left">Status</th>
+                          <th scope="col" className="px-3 py-2 text-right">
+                            <SortButton active={insightSort === 'priority'} direction={insightSortDirection} onClick={() => {
+                              setInsightSort('priority')
+                              setInsightSortDirection(insightSort === 'priority' && insightSortDirection === 'desc' ? 'asc' : 'desc')
+                            }}>
+                              Priority
+                            </SortButton>
+                          </th>
+                          <th scope="col" className="px-3 py-2 text-right">
+                            <SortButton active={insightSort === 'updated'} direction={insightSortDirection} onClick={() => {
+                              setInsightSort('updated')
+                              setInsightSortDirection(insightSort === 'updated' && insightSortDirection === 'desc' ? 'asc' : 'desc')
+                            }}>
+                              Updated
+                            </SortButton>
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-silicon-slate/60 bg-background/20">
+                        {pagedInsights.map((item) => {
+                          const insight = insightFor(item)
+                          return (
+                            <tr key={item.id} className="align-top">
+                              <td className="max-w-xl px-3 py-3">
+                                <Link href={`/admin/agents/social-insights/${item.id}`} className="font-semibold text-blue-100 hover:text-blue-50">
+                                  {insight.title}
+                                </Link>
+                                {insight.triggeringEvent ? (
+                                  <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                                    {insight.triggeringEvent}
+                                  </p>
+                                ) : null}
+                                {insight.whyVambahCanSpeak ? (
+                                  <p className="mt-1 line-clamp-1 text-xs text-muted-foreground" title={insight.whyVambahCanSpeak}>
+                                    Why now: {insight.whyVambahCanSpeak}
+                                  </p>
+                                ) : null}
+                              </td>
+                              <td className="px-3 py-3">
+                                <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 text-xs text-blue-100">
+                                  {item.status.replace(/_/g, ' ')}
+                                </span>
+                              </td>
+                              <td className="px-3 py-3 text-right text-xs font-semibold text-radiant-gold">
+                                {item.priority.replace(/_/g, ' ')}
+                              </td>
+                              <td className="px-3 py-3 text-right text-xs text-muted-foreground">
+                                {item.updated_at ? new Date(item.updated_at).toLocaleDateString() : 'Unknown'}
+                              </td>
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                  {filteredInsights.length ? (
+                    <Pagination
+                      page={insightPage}
+                      totalPages={insightTotalPages}
+                      total={filteredInsights.length}
+                      pageSize={TABLE_PAGE_SIZE}
+                      onPageChange={setInsightPage}
+                    />
+                  ) : (
+                    <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-4 py-8 text-center text-sm text-muted-foreground">
+                      No Shaka insight items match the current filters.
                     </div>
-                    {insight.whyVambahCanSpeak ? (
-                      <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                        Why now: {insight.whyVambahCanSpeak}
-                      </p>
-                    ) : null}
-                  </Link>
-                )
-              }) : (
+                  )}
+                </>
+              ) : (
                 <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-4 py-10 text-center text-sm text-muted-foreground">
                   No Shaka insight work items found.
                 </div>
               )}
             </div>
           </section>
+          ) : null}
         </div>
+        ) : null}
       </div>
     </div>
+  )
+}
+
+function SectionTabs({
+  activeSection,
+  onChange,
+  counts,
+}: {
+  activeSection: IntelligenceSection
+  onChange: (section: IntelligenceSection) => void
+  counts: Record<IntelligenceSection, number>
+}) {
+  return (
+    <nav aria-label="Content intelligence sections" className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-2">
+      <div className="grid gap-2 md:grid-cols-5">
+        {SECTION_TABS.map((section) => {
+          const isActive = section.key === activeSection
+          return (
+            <button
+              key={section.key}
+              type="button"
+              onClick={() => onChange(section.key)}
+              aria-pressed={isActive}
+              title={section.description}
+              className={`flex min-h-16 items-center justify-between gap-3 rounded-md border px-3 py-2 text-left transition ${
+                isActive
+                  ? 'border-radiant-gold/55 bg-radiant-gold/15 text-radiant-gold'
+                  : 'border-silicon-slate/60 bg-background/30 text-muted-foreground hover:border-white/30 hover:text-foreground'
+              }`}
+            >
+              <span className="min-w-0">
+                <span className="block text-sm font-semibold">{section.label}</span>
+                <span className="mt-0.5 block truncate text-[0.68rem] opacity-80">{section.description}</span>
+              </span>
+              <span className="shrink-0 rounded-full border border-current/30 px-2 py-0.5 text-xs font-semibold">
+                {counts[section.key]}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+    </nav>
+  )
+}
+
+function CollapsiblePanel({
+  title,
+  panelKey,
+  expanded,
+  onToggle,
+  children,
+  className = '',
+  icon,
+  tooltip,
+  rightSlot,
+}: {
+  title: string
+  panelKey: string
+  expanded: boolean
+  onToggle: (key: string) => void
+  children: ReactNode
+  className?: string
+  icon?: ReactNode
+  tooltip?: string
+  rightSlot?: ReactNode
+}) {
+  const contentId = `content-intelligence-${panelKey}`
+  return (
+    <div className={`rounded-lg border p-3 ${className}`}>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <button
+          type="button"
+          onClick={() => onToggle(panelKey)}
+          aria-expanded={expanded}
+          aria-controls={contentId}
+          className="inline-flex min-w-0 items-center gap-2 text-left text-sm font-semibold"
+        >
+          {icon}
+          <span>{title}</span>
+          {tooltip ? <InfoTooltip label={tooltip} /> : null}
+          <ChevronDown className={`h-4 w-4 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+        </button>
+        {rightSlot ? <div className="flex shrink-0 items-center gap-2">{rightSlot}</div> : null}
+      </div>
+      {expanded ? (
+        <div id={contentId} className="mt-3">
+          {children}
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+function InfoTooltip({ label }: { label: string }) {
+  return (
+    <span
+      role="img"
+      aria-label={label}
+      title={label}
+      className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-silicon-slate/70 text-muted-foreground"
+    >
+      <Info className="h-3.5 w-3.5" />
+    </span>
+  )
+}
+
+function SortButton({
+  active,
+  direction,
+  onClick,
+  children,
+}: {
+  active: boolean
+  direction: SortDirection
+  onClick: () => void
+  children: ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex items-center gap-1 font-semibold ${active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+      title={active ? `Sorted ${direction === 'asc' ? 'ascending' : 'descending'}` : 'Sort'}
+    >
+      {children}
+      <ArrowUpDown className="h-3.5 w-3.5" />
+    </button>
   )
 }
 
@@ -1566,6 +2245,37 @@ function CalendarItemCard({
           {item.planned_angle ? (
             <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">{item.planned_angle}</p>
           ) : null}
+          {(() => {
+            const rationale = recordValue(metadata.milestone_rationale)
+            const summary = typeof rationale.summary === 'string'
+              ? rationale.summary
+              : typeof metadata.campaign_fit_summary === 'string'
+                ? metadata.campaign_fit_summary
+                : ''
+            const sourceLabels = metadataStringArray(metadata.source_labels)
+
+            if (!summary && sourceLabels.length === 0) return null
+
+            return (
+              <div className="mt-3 rounded-md border border-silicon-slate/60 bg-background/40 p-2">
+                {summary ? (
+                  <p className="text-[0.68rem] leading-5 text-muted-foreground">
+                    <span className="font-semibold text-foreground/80">Why this exists: </span>
+                    {summary}
+                  </p>
+                ) : null}
+                {sourceLabels.length > 0 ? (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {sourceLabels.slice(0, 2).map((label) => (
+                      <span key={label} className="rounded-full border border-silicon-slate/70 px-2 py-0.5 text-[0.62rem] text-muted-foreground">
+                        {label}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            )
+          })()}
           <div className="mt-3 flex flex-wrap gap-2 text-[0.68rem] text-muted-foreground">
             <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5">
               {CALENDAR_CHANNEL_LABELS[item.channel]}
