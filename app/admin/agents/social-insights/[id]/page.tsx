@@ -493,6 +493,16 @@ function ChannelInputs({
   const draftApprovalStatus = asString(draftPacket.approval_status)
   const sharedSource = asRecord(draftPacket.shared_source)
   const sharedSourceTitle = asString(sharedSource.insight_title)
+  const sideEffects = asRecord(draftPacket.side_effects)
+  const disabledSideEffects = [
+    ['provider_generation', 'provider generation'],
+    ['upload', 'upload'],
+    ['publish', 'publish'],
+    ['schedule', 'schedule'],
+    ['external_post', 'external post'],
+  ]
+    .filter(([key]) => sideEffects[key] === false)
+    .map(([, label]) => label)
   return (
     <div>
       {hasDraftFields ? (
@@ -525,6 +535,11 @@ function ChannelInputs({
           {sharedSourceTitle ? (
             <p className="mt-2 rounded-md border border-blue-400/20 bg-background/35 px-3 py-2 text-xs leading-5 text-blue-100">
               Shared source: {sharedSourceTitle}
+            </p>
+          ) : null}
+          {disabledSideEffects.length ? (
+            <p className="mt-2 rounded-md border border-emerald-400/20 bg-background/35 px-3 py-2 text-xs leading-5 text-emerald-100">
+              No side effects authorized: {disabledSideEffects.join(', ')}.
             </p>
           ) : null}
         </div>
