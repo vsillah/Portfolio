@@ -63,6 +63,11 @@ describe('social-content-calendar helpers', () => {
           metadata: expect.objectContaining({
             generated_from: 'campaign_content_plan',
             template_key: 'whisper_to_shout',
+            campaign_fit_summary: 'Whisper-to-shout launch is the selected planning arc for "Summer AI Readiness".',
+            milestone_rationale: expect.objectContaining({
+              summary: expect.stringContaining('Tease milestone for LinkedIn'),
+              source_labels: expect.arrayContaining(['HubSpot social calendar template']),
+            }),
             external_execution_enabled: false,
           }),
         }),
@@ -114,6 +119,15 @@ describe('social-content-calendar helpers', () => {
       metadata: expect.objectContaining({
         template_key: 'youtube_video_release',
         milestone_key: 'thumbnail_title_package',
+        campaign_fit_summary: 'YouTube video release is the selected planning arc for "Agent Ops Video Launch".',
+        milestone_rationale: expect.objectContaining({
+          summary: expect.stringContaining('Proof milestone for Thumbnail'),
+          timing: expect.stringContaining('7 day lead time'),
+          required_inputs: expect.arrayContaining(['thumbnail_reference', 'title_variants']),
+          approval_gates: expect.arrayContaining(['thumbnail_review']),
+          source_labels: expect.arrayContaining(['YouTube creator optimization guidance']),
+        }),
+        source_labels: expect.arrayContaining(['YouTube creator optimization guidance']),
         required_assets: expect.arrayContaining(['thumbnail_reference', 'title_variants']),
         approval_gates: expect.arrayContaining(['thumbnail_review']),
         source_urls: expect.arrayContaining([

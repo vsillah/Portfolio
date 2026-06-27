@@ -47,7 +47,18 @@ const campaignDetail = {
       authorization_due_at: '2026-06-24T14:00:00.000Z',
       agent_work_item_id: 'work-social-1',
       social_content_id: null,
-      metadata: {},
+      metadata: {
+        template_label: 'Whisper-to-shout launch',
+        source_labels: ['HubSpot social calendar template'],
+        milestone_rationale: {
+          summary: 'Tease milestone for LinkedIn: Open with a small tension before the campaign teaches the larger frame.',
+          campaign_fit: 'Whisper-to-shout launch fits "Agent Ops Campaign" because the campaign brief points to governed AI operating layer content.',
+          timing: '14 day lead time keeps tease work reviewable before the scheduled campaign moment.',
+          required_inputs: ['triggering_event'],
+          approval_gates: ['copy_review'],
+          source_labels: ['HubSpot social calendar template'],
+        },
+      },
     },
   ],
 };
@@ -161,6 +172,9 @@ describe('CampaignDetailPage content calendar gates', () => {
     expect(screen.getByText('Type, name, and description only')).toBeInTheDocument();
     expect(screen.getByText('Recommended fit')).toBeInTheDocument();
     expect(screen.getByText('Tease: Approval gates')).toBeInTheDocument();
+    expect(screen.getByText('Why this exists:')).toBeInTheDocument();
+    expect(screen.getByText(/Tease milestone for LinkedIn/)).toBeInTheDocument();
+    expect(screen.getAllByText('HubSpot social calendar template').length).toBeGreaterThan(1);
     expect(screen.getByRole('button', { name: 'Authorize Draft Handoff' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Reject' })).toBeInTheDocument();
 

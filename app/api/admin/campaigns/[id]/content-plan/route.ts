@@ -107,6 +107,14 @@ export async function POST(
       created_count: insertedItems.length,
       skipped_existing_count: slots.length - inserts.length,
       planned_phases: slots.map((slot) => slot.campaign_phase as SocialContentCampaignPhase),
+      planned_milestones: slots.map((slot) => ({
+        title: slot.title,
+        campaign_phase: slot.campaign_phase,
+        channel: slot.channel,
+        scheduled_for: slot.scheduled_for,
+        rationale: slot.metadata.milestone_rationale,
+        source_labels: slot.metadata.source_labels,
+      })),
       items: insertedItems,
       side_effects: {
         ...CALENDAR_SIDE_EFFECTS,
