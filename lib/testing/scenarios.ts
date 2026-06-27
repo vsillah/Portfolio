@@ -1183,6 +1183,15 @@ export const seedSocialContentCalendarFixtureScenario = demoSeedApiScenario(
   ['seed', 'populate-demo', 'content-intelligence', 'calendar']
 )
 
+export const seedSocialChannelReviewFixtureScenario = demoSeedApiScenario(
+  'seed_social_channel_review_fixture',
+  'Seed: Social Channel Review Fixture',
+  'Dev-safe Shaka insight plus public research packet for LinkedIn and YouTube review workflow',
+  'social_channel_review_fixture',
+  'lead',
+  ['seed', 'populate-demo', 'content-intelligence', 'social-review']
+)
+
 /** Scenarios that populate demo data via E2E (no SQL). Run with cleanupAfter: false. */
 export const POPULATE_DEMO_SCENARIOS: TestScenario[] = [
   seedWarmLeadsScenario,
@@ -1196,6 +1205,7 @@ export const POPULATE_DEMO_SCENARIOS: TestScenario[] = [
   seedKickoffProjectScenario,
   seedDiscoverySqlCompatScenario,
   seedSocialContentCalendarFixtureScenario,
+  seedSocialChannelReviewFixtureScenario,
 ]
 
 // ============================================================================
@@ -1335,6 +1345,7 @@ export const SCENARIOS_BY_ID: Record<string, TestScenario> = {
   seed_kickoff_project: seedKickoffProjectScenario,
   seed_discovery_sql_compat: seedDiscoverySqlCompatScenario,
   seed_social_content_calendar_fixture: seedSocialContentCalendarFixtureScenario,
+  seed_social_channel_review_fixture: seedSocialChannelReviewFixtureScenario,
 }
 
 /**

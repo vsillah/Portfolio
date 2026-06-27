@@ -30,6 +30,8 @@ type ChannelLane = {
   status: string
   label: string
   decision_note?: string | null
+  draft_packet?: Record<string, unknown> | null
+  review_requested_at?: string | null
   required_inputs?: string[]
 }
 
@@ -63,6 +65,12 @@ function asRecordArray(value: unknown): Record<string, unknown>[] {
   return Array.isArray(value) ? value.map((item) => asRecord(item)).filter((item) => Object.keys(item).length > 0) : []
 }
 
+function hasReviewDraft(lane: ChannelLane) {
+  const draftPacket = asRecord(lane.draft_packet)
+  const fields = asRecord(draftPacket.fields)
+  return Object.keys(fields).length > 0
+}
+
 function statusLabel(status: string) {
   return status.replace(/_/g, ' ')
 }
@@ -80,6 +88,8 @@ function lanesFor(item: AgentWorkItem | null): Record<SocialContentIntelligenceC
       status: asString(lane.status) || 'not_started',
       label: asString(lane.label) || CHANNEL_LABELS[channel],
       decision_note: asString(lane.decision_note) || null,
+      draft_packet: asRecord(lane.draft_packet),
+      review_requested_at: asString(lane.review_requested_at) || null,
       required_inputs: asStringArray(lane.required_inputs),
     }
     return result
@@ -102,6 +112,7 @@ function SocialInsightDetailContent() {
   const [error, setError] = useState<string | null>(null)
   const [decisionNote, setDecisionNote] = useState('')
   const [savingLane, setSavingLane] = useState<SocialChannelLaneStatus | null>(null)
+  const [preparingReviewDrafts, setPreparingReviewDrafts] = useState(false)
   const [laneNotice, setLaneNotice] = useState<string | null>(null)
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
@@ -143,6 +154,9 @@ function SocialInsightDetailContent() {
   const approvedResearchPatterns = asRecordArray(insight.approved_research_patterns)
   const lanes = useMemo(() => lanesFor(item), [item])
   const activeLane = lanes[activeTab]
+  const activeLaneHasReviewDraft = hasReviewDraft(activeLane)
+  const activeLaneNeedsReviewDraft = (activeTab === 'linkedin' || activeTab === 'youtube_shorts') && !activeLaneHasReviewDraft
+  const canPrepareReviewDrafts = approvedResearchPatterns.length > 0
 
   useEffect(() => {
     setDecisionNote(activeLane?.decision_note ?? '')
@@ -182,6 +196,26 @@ function SocialInsightDetailContent() {
     }
   }, [activeTab, authedFetch, decisionNote, id])
 
+  const prepareReviewDrafts = useCallback(async () => {
+    setError(null)
+    setLaneNotice(null)
+    setPreparingReviewDrafts(true)
+    try {
+      const response = await authedFetch(`/api/admin/agents/work-items/${id}/social-channels/prepare-review-drafts`, {
+        method: 'POST',
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `Review draft HTTP ${response.status}`)
+      setItem(body.work_item ?? null)
+      setActiveTab('linkedin')
+      setLaneNotice('LinkedIn and YouTube Shorts are ready for human review.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to prepare channel review drafts')
+    } finally {
+      setPreparingReviewDrafts(false)
+    }
+  }, [authedFetch, id])
+
   return (
     <div className="agent-ops-page min-h-screen p-5 text-foreground lg:p-7">
       <div className="mx-auto max-w-7xl">
@@ -217,6 +251,16 @@ function SocialInsightDetailContent() {
                 <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
                 Refresh
               </button>
+              <button
+                type="button"
+                onClick={prepareReviewDrafts}
+                disabled={loading || preparingReviewDrafts || !canPrepareReviewDrafts}
+                title={canPrepareReviewDrafts ? undefined : 'Link approved research patterns before preparing channel review drafts.'}
+                className="agent-ops-button-primary disabled:opacity-60"
+              >
+                <FileText size={16} />
+                {preparingReviewDrafts ? 'Preparing...' : 'Prepare LinkedIn + YouTube Review Drafts'}
+              </button>
             </div>
           </div>
         </header>
@@ -233,6 +277,11 @@ function SocialInsightDetailContent() {
           <div className="grid gap-6 xl:grid-cols-[minmax(0,0.45fr)_minmax(0,1fr)]">
             <section className="agent-ops-card rounded-lg border p-4">
               <h2 className="text-lg font-semibold">Shared evidence</h2>
+              {!canPrepareReviewDrafts ? (
+                <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-100">
+                  Link at least one approved research pattern before preparing LinkedIn and YouTube review drafts.
+                </div>
+              ) : null}
               <div className="mt-4 space-y-3">
                 <InsightField label="Triggering event" value={asString(insight.triggering_event)} />
                 <InsightField label="Why Vambah can speak" value={asString(insight.why_vambah_can_speak)} />
@@ -298,7 +347,7 @@ function SocialInsightDetailContent() {
                   <div>
                     <h2 className="text-lg font-semibold">{CHANNEL_LABELS[activeTab]} production inputs</h2>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      This lane defines what must be reviewed before production. It does not create drafts, render media, upload, schedule, or publish.
+                      Review the channel adaptation before approval. This step does not render media, upload, schedule, or publish.
                     </p>
                   </div>
                   <span className="inline-flex w-fit items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-100">
@@ -316,6 +365,11 @@ function SocialInsightDetailContent() {
                       <p className="mt-1 text-sm leading-6 text-muted-foreground">
                         Updates this channel lane only. No draft, render, upload, schedule, or publish action runs here.
                       </p>
+                      {activeLaneNeedsReviewDraft ? (
+                        <p className="mt-1 text-sm text-amber-100">
+                          Prepare the LinkedIn + YouTube review drafts before approving this lane.
+                        </p>
+                      ) : null}
                     </div>
                     {laneNotice ? (
                       <span className="inline-flex w-fit rounded-full border border-emerald-500/35 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-100">
@@ -355,7 +409,7 @@ function SocialInsightDetailContent() {
                     <button
                       type="button"
                       onClick={() => updateLane('approved')}
-                      disabled={savingLane !== null}
+                      disabled={savingLane !== null || activeLaneNeedsReviewDraft}
                       className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-500/45 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/15 disabled:opacity-60"
                     >
                       <CheckCircle2 size={16} />
@@ -433,20 +487,98 @@ function ChannelInputs({
   insight: Record<string, unknown>
 }) {
   const requiredInputs = lane.required_inputs?.length ? lane.required_inputs : defaultInputs(channel)
+  const draftPacket = asRecord(lane.draft_packet)
+  const fields = asRecord(draftPacket.fields)
+  const hasDraftFields = Object.keys(fields).length > 0
+  const draftApprovalStatus = asString(draftPacket.approval_status)
+  const sharedSource = asRecord(draftPacket.shared_source)
+  const sharedSourceTitle = asString(sharedSource.insight_title)
+  const sideEffects = asRecord(draftPacket.side_effects)
+  const disabledSideEffects = [
+    ['provider_generation', 'provider generation'],
+    ['upload', 'upload'],
+    ['publish', 'publish'],
+    ['schedule', 'schedule'],
+    ['external_post', 'external post'],
+  ]
+    .filter(([key]) => sideEffects[key] === false)
+    .map(([, label]) => label)
   return (
     <div>
-      <div className="grid gap-3 md:grid-cols-2">
-        {requiredInputs.map((input) => (
-          <div key={input} className="rounded-lg border border-silicon-slate/70 bg-background/40 p-3">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">{input}</p>
-            <p className="mt-1 text-sm leading-6 text-muted-foreground">
-              {suggestedValue(input, insight) || 'Pending lane draft'}
-            </p>
+      {hasDraftFields ? (
+        <div className="mb-4 rounded-lg border border-blue-500/30 bg-blue-500/10 p-3">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-blue-100">Review draft packet</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Generated from the shared insight and approved research patterns for human approval.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {draftApprovalStatus ? (
+                <span className="inline-flex w-fit rounded-full border border-blue-400/35 px-2 py-0.5 text-xs text-blue-100">
+                  Packet: {statusLabel(draftApprovalStatus)}
+                </span>
+              ) : null}
+              {asString(draftPacket.generated_at) ? (
+                <span className="inline-flex w-fit rounded-full border border-blue-400/35 px-2 py-0.5 text-xs text-blue-100">
+                  {new Date(asString(draftPacket.generated_at)).toLocaleString()}
+                </span>
+              ) : null}
+            </div>
           </div>
-        ))}
+          {asString(draftPacket.source_use_boundary) ? (
+            <p className="mt-3 rounded-md border border-blue-400/20 bg-background/35 px-3 py-2 text-xs leading-5 text-blue-100">
+              {asString(draftPacket.source_use_boundary)}
+            </p>
+          ) : null}
+          {sharedSourceTitle ? (
+            <p className="mt-2 rounded-md border border-blue-400/20 bg-background/35 px-3 py-2 text-xs leading-5 text-blue-100">
+              Shared source: {sharedSourceTitle}
+            </p>
+          ) : null}
+          {disabledSideEffects.length ? (
+            <p className="mt-2 rounded-md border border-emerald-400/20 bg-background/35 px-3 py-2 text-xs leading-5 text-emerald-100">
+              No side effects authorized: {disabledSideEffects.join(', ')}.
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+
+      <div className="grid gap-3 md:grid-cols-2">
+        {(hasDraftFields ? Object.entries(fields) : requiredInputs.map((input) => [input, suggestedValue(input, insight)] as const))
+          .map(([input, value]) => (
+            <div key={input} className="rounded-lg border border-silicon-slate/70 bg-background/40 p-3">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">{formatInputLabel(input)}</p>
+              <div className="mt-1 text-sm leading-6 text-muted-foreground">
+                <FormattedValue value={hasDraftFields ? value : value || 'Pending lane draft'} />
+              </div>
+            </div>
+          ))}
       </div>
     </div>
   )
+}
+
+function formatInputLabel(input: string) {
+  return input.replace(/_/g, ' ')
+}
+
+function FormattedValue({ value }: { value: unknown }) {
+  if (Array.isArray(value)) {
+    if (!value.length) return <span>Pending</span>
+    return (
+      <ul className="space-y-1">
+        {value.map((item, index) => (
+          <li key={`${String(item)}-${index}`}>{String(item)}</li>
+        ))}
+      </ul>
+    )
+  }
+  if (value && typeof value === 'object') {
+    return <pre className="whitespace-pre-wrap text-xs">{JSON.stringify(value, null, 2)}</pre>
+  }
+  return <span className="whitespace-pre-line">{String(value ?? 'Pending')}</span>
 }
 
 function defaultInputs(channel: SocialContentIntelligenceChannel) {

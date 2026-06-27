@@ -158,6 +158,7 @@ const SCENARIOS: ScenarioMeta[] = [
   { id: 'seed_kickoff_project', name: 'Seed: Kickoff Project', tags: ['seed', 'populate-demo'], journeyStage: 'client' },
   { id: 'seed_discovery_sql_compat', name: 'Seed: Discovery (test-discovery@)', tags: ['seed', 'populate-demo'], journeyStage: 'lead' },
   { id: 'seed_social_content_calendar_fixture', name: 'Seed: Content Calendar Fixture', tags: ['seed', 'populate-demo', 'content-intelligence', 'calendar'], journeyStage: 'lead' },
+  { id: 'seed_social_channel_review_fixture', name: 'Seed: Social Channel Review Fixture', tags: ['seed', 'populate-demo', 'content-intelligence', 'social-review'], journeyStage: 'lead' },
   // Chatbot question bank scenarios
   { id: 'chatbot_question_bank_stratified', name: 'Chatbot Questions (Stratified)', tags: ['chat', 'chatbot-questions'], journeyStage: 'prospect' },
   { id: 'chatbot_question_bank_boundary', name: 'Chatbot Questions (Boundary)', tags: ['chat', 'chatbot-questions'], journeyStage: 'prospect' },
@@ -213,6 +214,7 @@ function scenarioIdsForPreset(presetId: string): string[] {
         'seed_kickoff_project',
         'seed_discovery_sql_compat',
         'seed_social_content_calendar_fixture',
+        'seed_social_channel_review_fixture',
       ]
     case 'all':
       return SCENARIOS.map(s => s.id)

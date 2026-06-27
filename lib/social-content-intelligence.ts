@@ -24,12 +24,44 @@ export type SocialChannelLane = {
   status: SocialChannelLaneStatus
   label: string
   decision_note?: string | null
+  draft_packet?: SocialChannelReviewDraftPacket | null
+  review_requested_at?: string | null
   selected_for_content_id?: string | null
   updated_at?: string | null
   required_inputs: string[]
 }
 
 export type SocialChannelLanes = Record<SocialContentIntelligenceChannel, SocialChannelLane>
+
+export type SocialChannelReviewDraftPacket = {
+  channel: 'linkedin' | 'youtube_shorts'
+  generated_at: string
+  approval_status: 'in_review' | 'approved' | 'blocked'
+  decision_note?: string | null
+  decided_at?: string | null
+  shared_source: {
+    insight_title: string
+    triggering_event: string
+    content_angle: string
+    evidence_summary: string
+  }
+  source_insight_title: string
+  source_use_boundary: string
+  fields: Record<string, unknown>
+  source_research_patterns: Array<Record<string, unknown>>
+  side_effects: {
+    provider_generation: false
+    upload: false
+    publish: false
+    schedule: false
+    external_post: false
+  }
+}
+
+export type LinkedInYoutubeReviewDrafts = {
+  linkedin: SocialChannelReviewDraftPacket
+  youtube_shorts: SocialChannelReviewDraftPacket
+}
 
 export type SocialResearchPatternStatus =
   | 'usable_framework'
@@ -227,6 +259,12 @@ function asStringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
 }
 
+function asRecordArray(value: unknown): Record<string, unknown>[] {
+  return Array.isArray(value)
+    ? value.map((item) => asRecord(item)).filter((item): item is Record<string, unknown> => Boolean(item))
+    : []
+}
+
 function firstString(...values: unknown[]) {
   for (const value of values) {
     const text = asString(value).trim()
@@ -287,6 +325,8 @@ export function normalizeSocialChannelLanes(value: unknown): SocialChannelLanes 
         : defaults[channel].required_inputs,
       decision_note: asString(lane.decision_note) || null,
       selected_for_content_id: asString(lane.selected_for_content_id) || null,
+      draft_packet: asRecord(lane.draft_packet) as SocialChannelReviewDraftPacket | null,
+      review_requested_at: asString(lane.review_requested_at) || null,
       updated_at: asString(lane.updated_at) || null,
     }
   }
@@ -568,6 +608,153 @@ export function researchPacketDraftFromRecordedEvidence(input: {
     pattern_status: normalizePatternStatus(evidence.pattern_status),
     privacy_notes: 'Free public research packet. Use patterns only; do not copy source script, title, thumbnail, or visual identity.',
     retrieved_at: input.retrievedAt,
+  }
+}
+
+function compactResearchPattern(pattern: Record<string, unknown>) {
+  const patternPacket = asRecord(pattern.pattern_packet) ?? {}
+  return {
+    source_url: firstString(pattern.source_url) || null,
+    platform: firstString(pattern.platform) || null,
+    creator: firstString(pattern.creator_name, pattern.creator_handle) || null,
+    pattern_status: firstString(pattern.pattern_status) || null,
+    hook_structure: firstString(patternPacket.hook_structure) || null,
+    promise_value: firstString(patternPacket.promise_value) || null,
+    thumbnail_pattern: firstString(patternPacket.thumbnail_pattern) || null,
+    source_use_boundary: firstString(patternPacket.source_use_boundary)
+      || 'Use reusable frameworks only; do not copy creator scripts, titles, thumbnails, or visual identity.',
+  }
+}
+
+function reviewDraftSideEffects(): SocialChannelReviewDraftPacket['side_effects'] {
+  return {
+    provider_generation: false,
+    upload: false,
+    publish: false,
+    schedule: false,
+    external_post: false,
+  }
+}
+
+export function buildLinkedInYoutubeReviewDrafts(input: {
+  insight: Record<string, unknown>
+  generatedAt?: string
+}): LinkedInYoutubeReviewDrafts {
+  const insight = input.insight
+  const generatedAt = input.generatedAt ?? new Date().toISOString()
+  const title = firstString(insight.title, 'Untitled Shaka insight')
+  const triggeringEvent = firstString(insight.triggering_event, title)
+  const whyVambahCanSpeak = firstString(
+    insight.why_vambah_can_speak,
+    'Vambah is close enough to the work to explain what changed, what remains bounded, and what still needs review.',
+  )
+  const evidenceSummary = firstString(insight.evidence_summary, 'Evidence summary pending.')
+  const contentAngle = firstString(
+    insight.content_angle,
+    'AI should reduce burden only when evidence, ownership, and approval gates are visible.',
+  )
+  const hook = firstString(insight.suggested_hook, contentAngle)
+  const claimBoundaries = asStringArray(insight.claim_boundaries)
+  const patterns = asRecordArray(insight.approved_research_patterns).map(compactResearchPattern)
+  const patternHook = firstString(...patterns.map((pattern) => pattern.hook_structure))
+  const patternPromise = firstString(...patterns.map((pattern) => pattern.promise_value))
+  const sourceBoundary = 'Drafts are generated for human review only. Public research patterns are framework inputs, not source copy.'
+  const sharedSource = {
+    insight_title: title,
+    triggering_event: triggeringEvent,
+    content_angle: contentAngle,
+    evidence_summary: evidenceSummary,
+  }
+
+  const linkedinPostText = [
+    triggeringEvent,
+    '',
+    contentAngle,
+    '',
+    `That matters because ${whyVambahCanSpeak}`,
+    '',
+    evidenceSummary,
+    '',
+    'The practical test is simple: can the system show what the draft is based on, who touched it, and what still needs review before it reaches the public?',
+    '',
+    patternPromise ? `The outside pattern I want to adapt: ${patternPromise}` : '',
+  ].filter((line) => line !== '').join('\n')
+
+  const youtubeHook = hook.length <= 120 ? hook : truncate(hook, 120)
+  const firstThirtySeconds = [
+    youtubeHook,
+    `I noticed this through ${triggeringEvent.toLowerCase()}.`,
+    'The lesson was not that AI can create more content.',
+    'The lesson was that trust gets built when every risky output has evidence, ownership, and a visible approval gate.',
+  ].join(' ')
+
+  return {
+    linkedin: {
+      channel: 'linkedin',
+      generated_at: generatedAt,
+      approval_status: 'in_review',
+      shared_source: sharedSource,
+      source_insight_title: title,
+      source_use_boundary: sourceBoundary,
+      fields: {
+        post_text: linkedinPostText,
+        cta: 'Where have you seen AI create more work because the approval path was never designed?',
+        cta_url: null,
+        hashtags: ['#AIProduct', '#ProductManagement', '#AmaduTownAdvisory', '#TechForGood'],
+        visual_mode: 'carousel_or_framework_illustration_review',
+        screenshot_routes: ['/admin/agents/content-intelligence', '/admin/agents/coordination'],
+        references: [
+          evidenceSummary,
+          ...patterns.map((pattern) => pattern.source_url).filter(Boolean),
+        ],
+        claim_boundaries: claimBoundaries,
+      },
+      source_research_patterns: patterns,
+      side_effects: reviewDraftSideEffects(),
+    },
+    youtube_shorts: {
+      channel: 'youtube_shorts',
+      generated_at: generatedAt,
+      approval_status: 'in_review',
+      shared_source: sharedSource,
+      source_insight_title: title,
+      source_use_boundary: sourceBoundary,
+      fields: {
+        hook: youtubeHook,
+        first_30_seconds: firstThirtySeconds,
+        script: [
+          `Opening: ${youtubeHook}`,
+          `Trigger: ${triggeringEvent}`,
+          `Authority: ${whyVambahCanSpeak}`,
+          `Point: ${contentAngle}`,
+          `Proof: ${evidenceSummary}`,
+          patternHook ? `Pattern to adapt: ${patternHook}` : 'Pattern to adapt: use the approved research packet without copying source language.',
+          'Close: AI earns trust when the handoff is visible before the output goes public.',
+        ],
+        target_duration_seconds: 45,
+        storyboard_scenes: [
+          'Face-to-camera hook with the triggering event.',
+          'Screen capture of the review gate or backlog surface.',
+          'B-roll showing evidence, owner, and approval status.',
+          'Closing frame with the principle and AmaduTown branding.',
+        ],
+        b_roll_hints: [
+          'Content Intelligence dashboard',
+          'Agentic Dashboard Backlog',
+          'Social Content approval gates',
+        ],
+        on_screen_text: [
+          'AI output needs receipts.',
+          'Every risky action needs a gate.',
+          'Trust is an operating layer.',
+        ],
+        caption: contentAngle,
+        render_readiness: 'pending_human_approval',
+        claim_boundaries: claimBoundaries,
+      },
+      source_research_patterns: patterns,
+      side_effects: reviewDraftSideEffects(),
+    },
   }
 }
 

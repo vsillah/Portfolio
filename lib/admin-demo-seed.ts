@@ -14,6 +14,7 @@ export const DEMO_SEED_KEYS = [
   'kickoff_test_project',
   'discovery_call_test_contact',
   'social_content_calendar_fixture',
+  'social_channel_review_fixture',
 ] as const
 
 export type DemoSeedKey = (typeof DEMO_SEED_KEYS)[number]
@@ -26,6 +27,8 @@ const SARAH_SESSION = 'test-lead-session-001'
 const SARAH_EMAIL = 'sarah.mitchell@techflow.io'
 export const SOCIAL_CONTENT_CALENDAR_FIXTURE_SLUG = 'demo-content-calendar-smoke'
 export const SOCIAL_CONTENT_CALENDAR_FIXTURE_KEY = 'social_content_calendar_fixture'
+export const SOCIAL_CHANNEL_REVIEW_FIXTURE_KEY = 'social_channel_review_fixture'
+export const SOCIAL_CHANNEL_REVIEW_FIXTURE_IDEMPOTENCY_KEY = 'demo:social-channel-review-fixture'
 
 const BUSINESS_CHALLENGES = {
   primary_challenges: [
@@ -155,6 +158,18 @@ async function removeSocialContentCalendarFixture(supabase: SupabaseClient): Pro
     .from('attraction_campaigns')
     .delete()
     .eq('slug', SOCIAL_CONTENT_CALENDAR_FIXTURE_SLUG)
+}
+
+async function removeSocialChannelReviewFixture(supabase: SupabaseClient): Promise<void> {
+  await supabase
+    .from('agent_work_items')
+    .delete()
+    .eq('idempotency_key', SOCIAL_CHANNEL_REVIEW_FIXTURE_IDEMPOTENCY_KEY)
+
+  await supabase
+    .from('social_content_research_packets')
+    .delete()
+    .contains('actor_metadata', { demo_seed_key: SOCIAL_CHANNEL_REVIEW_FIXTURE_KEY })
 }
 
 export async function runDemoSeed(
@@ -409,6 +424,181 @@ export async function runDemoSeed(
           ok: true,
           key,
           detail: `Content calendar fixture campaign ${campaign.id} with ${rows.length} items`,
+        }
+      }
+
+      case 'social_channel_review_fixture': {
+        await removeSocialChannelReviewFixture(supabase)
+
+        const retrievedAt = new Date().toISOString()
+        const { data: packet, error: packetError } = await supabase
+          .from('social_content_research_packets')
+          .insert({
+            source_url: 'https://youtube.com/watch?v=demo-social-review',
+            platform: 'youtube',
+            creator_name: 'Public Creator Demo',
+            creator_handle: '@publiccreatordemo',
+            title: 'Demo research pattern for accountable AI content',
+            caption:
+              'Public demo packet for Content Intelligence smoke testing. Use the pattern only.',
+            thumbnail_url: 'https://example.com/demo-social-review-thumbnail.jpg',
+            hook_transcript:
+              'The first thirty seconds frame the tension: AI content only works when the proof and approval path are visible.',
+            metrics: {
+              views: 128000,
+              likes: 8600,
+              comments: 940,
+              shares: 520,
+              follower_count: 22000,
+              retrieved_at: retrievedAt,
+            },
+            actor_metadata: {
+              provider: 'free_recorded_evidence',
+              retrieval_method: 'demo_seed',
+              demo_seed_key: SOCIAL_CHANNEL_REVIEW_FIXTURE_KEY,
+              cost_usd: 0,
+              external_execution_enabled: false,
+            },
+            outlier_score: 87,
+            score_breakdown: {
+              view_to_follower_ratio: 5.82,
+              engagement_rate: 0.0785,
+              comment_density: 0.0073,
+              small_creator_outlier_boost: 15,
+              strategic_fit: 80,
+            },
+            pattern_packet: {
+              hook_structure: 'Open with the missed approval gate before explaining the system.',
+              tension_or_missed_opportunity:
+                'AI output creates risk when evidence and authority are hidden.',
+              promise_value:
+                'Show how visible review gates turn AI content into accountable work.',
+              proof_style: 'Use product-screen proof and decision history, not generic claims.',
+              title_pattern: 'Why [system] needs [visible proof] before [public action]',
+              thumbnail_pattern:
+                'High-contrast proof frame with a clear approval/status artifact; translate into AmaduTown style.',
+              pacing_visual_framing:
+                'Start face-to-camera, cut to the dashboard proof, close on the principle.',
+              cta_style: 'Ask where automation added work because the gate was missing.',
+              source_use_boundary:
+                'Use reusable frameworks only; do not copy creator scripts, titles, thumbnails, or visual identity.',
+            },
+            pattern_status: 'needs_brand_translation',
+            status: 'review_ready',
+            privacy_notes:
+              'Public demo research packet. No private meetings, Chronicle notes, client records, uploads, schedules, or publishes.',
+            retrieved_at: retrievedAt,
+          })
+          .select('id')
+          .single()
+
+        if (packetError || !packet) {
+          return {
+            ok: false,
+            error: `social_content_research_packets: ${packetError?.message ?? 'no row'}`,
+          }
+        }
+
+        const { data: workItem, error: workItemError } = await supabase
+          .from('agent_work_items')
+          .insert({
+            title: 'Demo: turn a Shaka insight into LinkedIn and YouTube review drafts',
+            objective:
+              'Link the demo public research pattern, prepare LinkedIn and YouTube Shorts drafts from the same Shaka insight, then approve or reject each channel lane.',
+            status: 'proposed',
+            priority: 'high',
+            owner_agent_key: 'chief-of-staff',
+            owner_runtime: 'manual',
+            source_type: 'social_topic_trigger',
+            source_id: SOCIAL_CHANNEL_REVIEW_FIXTURE_KEY,
+            source_label: 'Demo Content Intelligence channel review fixture',
+            expected_files: [],
+            touched_files: [],
+            overlap_group: 'social-content-intelligence',
+            dependency_ids: [],
+            idempotency_key: SOCIAL_CHANNEL_REVIEW_FIXTURE_IDEMPOTENCY_KEY,
+            metadata: {
+              social_topic_trigger: true,
+              demo_seed_key: SOCIAL_CHANNEL_REVIEW_FIXTURE_KEY,
+              fixture_version: 1,
+              fixture_purpose: 'content_intelligence_linkedin_youtube_review_smoke',
+              research_packet_ids: [],
+              suggested_research_packet_ids: [packet.id],
+              insight: {
+                title: 'Approval gates turn AI content into accountable work',
+                triggering_event:
+                  'A Portfolio review flow showed that AI-generated social content needs visible proof before public handoff.',
+                why_vambah_can_speak:
+                  'Vambah is building the operating layer directly and can show the difference between AI output and governed work.',
+                evidence_summary:
+                  'The Content Intelligence backlog, research packet, channel lanes, and human approval controls all stay inside Portfolio before any external action.',
+                brand_goal:
+                  'Show AmaduTown as the practical operating layer for governed AI content production.',
+                audience: 'Operators, founders, and product leaders adopting agentic AI workflows.',
+                content_angle:
+                  'AI should reduce burden, but only when the evidence, owner, and approval gate are visible before the output reaches the public.',
+                suggested_hook:
+                  'AI content does not earn trust because it sounds polished. It earns trust when the handoff is visible.',
+                claim_boundaries: [
+                  'Do not imply publishing is automated.',
+                  'Do not claim provider generation, upload, or scheduling has been approved.',
+                  'Use the public research packet as a framework only.',
+                ],
+                approved_research_patterns: [],
+              },
+              channel_lanes: {
+                linkedin: {
+                  status: 'selected',
+                  label: 'LinkedIn',
+                  decision_note: null,
+                  draft_packet: null,
+                  required_inputs: ['post text', 'CTA', 'CTA URL', 'hashtags', 'references'],
+                },
+                youtube_shorts: {
+                  status: 'not_started',
+                  label: 'YouTube Shorts',
+                  decision_note: null,
+                  draft_packet: null,
+                  required_inputs: ['hook', 'first 30 seconds', 'script', 'storyboard scenes', 'b-roll hints'],
+                },
+                instagram_reels: {
+                  status: 'not_started',
+                  label: 'Instagram Reels',
+                  decision_note: null,
+                  draft_packet: null,
+                  required_inputs: ['hook', 'script', 'caption', 'safe-area notes'],
+                },
+                thumbnail: {
+                  status: 'not_started',
+                  label: 'Thumbnail',
+                  decision_note: null,
+                  draft_packet: null,
+                  required_inputs: ['pattern explanation', 'short thumbnail text', '2-3 variants'],
+                },
+              },
+              side_effects: {
+                provider_generation: false,
+                upload: false,
+                publish: false,
+                schedule: false,
+                external_post: false,
+              },
+            },
+          })
+          .select('id')
+          .single()
+
+        if (workItemError || !workItem) {
+          return {
+            ok: false,
+            error: `agent_work_items: ${workItemError?.message ?? 'no row'}`,
+          }
+        }
+
+        return {
+          ok: true,
+          key,
+          detail: `Social channel review fixture work item ${workItem.id} with research packet ${packet.id}`,
         }
       }
 

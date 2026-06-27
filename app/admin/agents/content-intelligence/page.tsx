@@ -11,6 +11,7 @@ import {
   Database,
   ExternalLink,
   FileSearch,
+  FileText,
   Film,
   Info,
   Instagram,
@@ -268,6 +269,41 @@ function insightFor(item: AgentWorkItem) {
   }
 }
 
+function channelLaneFor(item: AgentWorkItem, channel: 'linkedin' | 'youtube_shorts') {
+  const metadata = recordValue(item.metadata)
+  const lanes = recordValue(metadata.channel_lanes)
+  return recordValue(lanes[channel])
+}
+
+function channelLaneStatus(item: AgentWorkItem, channel: 'linkedin' | 'youtube_shorts') {
+  return stringValue(channelLaneFor(item, channel).status) ?? 'not_started'
+}
+
+function hasChannelReviewDraft(item: AgentWorkItem, channel: 'linkedin' | 'youtube_shorts') {
+  return Object.keys(recordValue(channelLaneFor(item, channel).draft_packet)).length > 0
+}
+
+function hasLinkedInYoutubeReviewDrafts(item: AgentWorkItem) {
+  return hasChannelReviewDraft(item, 'linkedin') && hasChannelReviewDraft(item, 'youtube_shorts')
+}
+
+function suggestedResearchPacketIds(item: AgentWorkItem) {
+  return metadataStringArray(recordValue(item.metadata).suggested_research_packet_ids)
+}
+
+function hasApprovedResearchPatterns(item: AgentWorkItem) {
+  const insight = recordValue(recordValue(item.metadata).insight)
+  const patterns = Array.isArray(insight.approved_research_patterns) ? insight.approved_research_patterns : []
+  return patterns.some((pattern) => Object.keys(recordValue(pattern)).length > 0)
+}
+
+function channelReviewPillClass(status: string) {
+  if (status === 'approved') return 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
+  if (status === 'in_review' || status === 'draft_ready') return 'border-blue-500/35 bg-blue-500/10 text-blue-100'
+  if (status === 'blocked') return 'border-red-500/35 bg-red-500/10 text-red-100'
+  return 'border-amber-500/35 bg-amber-500/10 text-amber-100'
+}
+
 function platformIcon(platform: string) {
   if (platform.includes('youtube')) return <Youtube className="h-4 w-4 text-red-200" />
   if (platform.includes('instagram')) return <Instagram className="h-4 w-4 text-pink-200" />
@@ -378,7 +414,10 @@ function ContentIntelligenceContent() {
   const [selectedInsightId, setSelectedInsightId] = useState('')
   const [linkDecisionNote, setLinkDecisionNote] = useState('')
   const [linkingPattern, setLinkingPattern] = useState(false)
+  const [linkingSuggestedInsightId, setLinkingSuggestedInsightId] = useState<string | null>(null)
   const [linkNotice, setLinkNotice] = useState<string | null>(null)
+  const [preparingReviewInsightId, setPreparingReviewInsightId] = useState<string | null>(null)
+  const [reviewDraftNotice, setReviewDraftNotice] = useState<string | null>(null)
   const [digest, setDigest] = useState<DailyDigest | null>(null)
   const [activationScopeNote, setActivationScopeNote] = useState('')
   const [requestingActivation, setRequestingActivation] = useState(false)
@@ -714,6 +753,91 @@ function ContentIntelligenceContent() {
       setLinkingPattern(false)
     }
   }, [authedFetch, linkDecisionNote, load, selectedInsightId, selectedPacketId])
+
+  const linkSuggestedResearchPattern = useCallback(async (item: AgentWorkItem) => {
+    const packetIds = suggestedResearchPacketIds(item)
+    if (!packetIds.length) {
+      setError('No suggested research packets are available for this Shaka insight.')
+      return
+    }
+
+    setError(null)
+    setLinkNotice(null)
+    setLinkingSuggestedInsightId(item.id)
+    try {
+      const response = await authedFetch(`/api/admin/agents/work-items/${item.id}/research-packets`, {
+        method: 'POST',
+        body: JSON.stringify({
+          packet_ids: packetIds,
+          decision_note: 'Linked suggested public research pattern from Content Intelligence backlog.',
+        }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `Suggested pattern link HTTP ${response.status}`)
+      const linkedPatterns = packets
+        .filter((packet) => packetIds.includes(packet.id))
+        .map((packet) => ({
+          packet_id: packet.id,
+          source_url: packet.source_url,
+          platform: packet.platform,
+          creator_name: packet.creator_name,
+          creator_handle: packet.creator_handle,
+          title: packet.title,
+          outlier_score: packet.outlier_score,
+          pattern_status: packet.pattern_status,
+        }))
+      setInsights((current) => current.map((currentItem) => {
+        if (currentItem.id !== item.id) return currentItem
+        const nextItem = (body.work_item ?? currentItem) as AgentWorkItem
+        const metadata = recordValue(nextItem.metadata)
+        const insight = recordValue(metadata.insight)
+        const existingPatterns = Array.isArray(insight.approved_research_patterns)
+          ? insight.approved_research_patterns
+          : []
+        return {
+          ...nextItem,
+          metadata: {
+            ...metadata,
+            insight: {
+              ...insight,
+              approved_research_patterns: [
+                ...existingPatterns.filter((pattern) => !packetIds.includes(String(recordValue(pattern).packet_id ?? ''))),
+                ...linkedPatterns,
+              ],
+            },
+          },
+        }
+      }))
+      setLinkNotice('Suggested research linked to Shaka insight.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to link suggested research')
+    } finally {
+      setLinkingSuggestedInsightId(null)
+    }
+  }, [authedFetch, packets])
+
+  const prepareChannelReviewDrafts = useCallback(async (insightId: string) => {
+    setError(null)
+    setReviewDraftNotice(null)
+    setPreparingReviewInsightId(insightId)
+    try {
+      const response = await authedFetch(`/api/admin/agents/work-items/${insightId}/social-channels/prepare-review-drafts`, {
+        method: 'POST',
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `Review draft HTTP ${response.status}`)
+      if (body.work_item) {
+        setInsights((current) => current.map((item) => (item.id === insightId ? body.work_item : item)))
+      } else {
+        await load()
+      }
+      setReviewDraftNotice('LinkedIn and YouTube Shorts review drafts are ready for human approval.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to prepare channel review drafts')
+    } finally {
+      setPreparingReviewInsightId(null)
+    }
+  }, [authedFetch, load])
 
   const requestDailyActivationReview = useCallback(async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -1783,6 +1907,16 @@ function ContentIntelligenceContent() {
                   </select>
                 </label>
               </div>
+              {reviewDraftNotice ? (
+                <div className="rounded-lg border border-emerald-500/35 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-100">
+                  {reviewDraftNotice}
+                </div>
+              ) : null}
+              {linkNotice ? (
+                <div className="rounded-lg border border-emerald-500/35 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-100">
+                  {linkNotice}
+                </div>
+              ) : null}
               {insights.length ? (
                 <>
                   <div className="overflow-x-auto rounded-lg border border-silicon-slate/70">
@@ -1798,6 +1932,7 @@ function ContentIntelligenceContent() {
                             </SortButton>
                           </th>
                           <th scope="col" className="px-3 py-2 text-left">Status</th>
+                          <th scope="col" className="px-3 py-2 text-left">Channel review</th>
                           <th scope="col" className="px-3 py-2 text-right">
                             <SortButton active={insightSort === 'priority'} direction={insightSortDirection} onClick={() => {
                               setInsightSort('priority')
@@ -1814,11 +1949,19 @@ function ContentIntelligenceContent() {
                               Updated
                             </SortButton>
                           </th>
+                          <th scope="col" className="px-3 py-2 text-right">Next step</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-silicon-slate/60 bg-background/20">
                         {pagedInsights.map((item) => {
                           const insight = insightFor(item)
+                          const linkedinStatus = channelLaneStatus(item, 'linkedin')
+                          const youtubeStatus = channelLaneStatus(item, 'youtube_shorts')
+                          const hasReviewDrafts = hasLinkedInYoutubeReviewDrafts(item)
+                          const hasApprovedResearch = hasApprovedResearchPatterns(item)
+                          const suggestedPacketIds = suggestedResearchPacketIds(item)
+                          const isPreparingReview = preparingReviewInsightId === item.id
+                          const isLinkingSuggested = linkingSuggestedInsightId === item.id
                           return (
                             <tr key={item.id} className="align-top">
                               <td className="max-w-xl px-3 py-3">
@@ -1841,11 +1984,55 @@ function ContentIntelligenceContent() {
                                   {item.status.replace(/_/g, ' ')}
                                 </span>
                               </td>
+                              <td className="px-3 py-3">
+                                <div className="flex flex-col gap-1.5">
+                                  <span className={`inline-flex w-fit rounded-full border px-2 py-0.5 text-xs ${channelReviewPillClass(linkedinStatus)}`}>
+                                    LinkedIn: {linkedinStatus.replace(/_/g, ' ')}
+                                  </span>
+                                  <span className={`inline-flex w-fit rounded-full border px-2 py-0.5 text-xs ${channelReviewPillClass(youtubeStatus)}`}>
+                                    YouTube: {youtubeStatus.replace(/_/g, ' ')}
+                                  </span>
+                                </div>
+                              </td>
                               <td className="px-3 py-3 text-right text-xs font-semibold text-radiant-gold">
                                 {item.priority.replace(/_/g, ' ')}
                               </td>
                               <td className="px-3 py-3 text-right text-xs text-muted-foreground">
                                 {item.updated_at ? new Date(item.updated_at).toLocaleDateString() : 'Unknown'}
+                              </td>
+                              <td className="px-3 py-3 text-right">
+                                <div className="flex flex-col items-end gap-2">
+                                  {!hasApprovedResearch && suggestedPacketIds.length ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => linkSuggestedResearchPattern(item)}
+                                      disabled={isLinkingSuggested}
+                                      className="inline-flex items-center justify-center gap-2 rounded-lg border border-radiant-gold/45 bg-radiant-gold/10 px-3 py-1.5 text-xs font-semibold text-radiant-gold transition hover:bg-radiant-gold/15 disabled:opacity-60"
+                                    >
+                                      <CheckCircle2 size={14} />
+                                      {isLinkingSuggested ? 'Linking...' : 'Link Suggested Research'}
+                                    </button>
+                                  ) : null}
+                                  <button
+                                    type="button"
+                                    onClick={() => prepareChannelReviewDrafts(item.id)}
+                                    disabled={isPreparingReview || !hasApprovedResearch}
+                                    title={hasApprovedResearch ? undefined : 'Link an approved research pattern before preparing review drafts.'}
+                                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-blue-500/45 bg-blue-500/10 px-3 py-1.5 text-xs font-semibold text-blue-100 transition hover:bg-blue-500/15 disabled:opacity-60"
+                                  >
+                                    <FileText size={14} />
+                                    {isPreparingReview ? 'Preparing...' : hasReviewDrafts ? 'Refresh Review Drafts' : 'Prepare Review Drafts'}
+                                  </button>
+                                  {hasReviewDrafts ? (
+                                    <Link href={`/admin/agents/social-insights/${item.id}`} className="text-xs text-blue-200 hover:text-blue-100">
+                                      Open human review
+                                    </Link>
+                                  ) : !hasApprovedResearch ? (
+                                    <span className="text-[0.68rem] text-muted-foreground">Research link required</span>
+                                  ) : (
+                                    <span className="text-[0.68rem] text-muted-foreground">No publish action</span>
+                                  )}
+                                </div>
                               </td>
                             </tr>
                           )

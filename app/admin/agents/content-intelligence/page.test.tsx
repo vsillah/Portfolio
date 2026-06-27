@@ -304,6 +304,101 @@ describe('ContentIntelligencePage', () => {
           }),
         }
       }
+      if (url === '/api/admin/agents/work-items/work-social-1/research-packets') {
+        return {
+          ok: true,
+          json: async () => ({
+            success: true,
+            work_item: {
+              id: 'work-social-1',
+              title: 'Approval gates create trust',
+              status: 'proposed',
+              priority: 'high',
+              source_type: 'social_topic_trigger',
+              metadata: {
+                suggested_research_packet_ids: ['packet-1'],
+                insight: {
+                  title: 'Approval gates create trust',
+                  triggering_event: 'A shipped review gate changed the work.',
+                  why_vambah_can_speak: 'Vambah built the system.',
+                  approved_research_patterns: [
+                    {
+                      packet_id: 'packet-1',
+                      source_url: 'https://youtube.com/watch?v=abc',
+                      pattern_packet: {
+                        hook_structure: 'The first 30 seconds make the promise clear.',
+                      },
+                    },
+                  ],
+                },
+                channel_lanes: {
+                  linkedin: { status: 'selected', label: 'LinkedIn', required_inputs: ['post text', 'CTA'] },
+                  youtube_shorts: { status: 'not_started', label: 'YouTube Shorts', required_inputs: ['hook', 'script'] },
+                },
+              },
+              updated_at: '2026-06-23T12:00:00.000Z',
+            },
+            side_effects: {
+              provider_generation: false,
+              upload: false,
+              publish: false,
+              schedule: false,
+              external_post: false,
+            },
+          }),
+        }
+      }
+      if (url === '/api/admin/agents/work-items/work-social-1/social-channels/prepare-review-drafts') {
+        return {
+          ok: true,
+          json: async () => ({
+            success: true,
+            work_item: {
+              id: 'work-social-1',
+              title: 'Approval gates create trust',
+              status: 'proposed',
+              priority: 'high',
+              source_type: 'social_topic_trigger',
+              metadata: {
+                suggested_research_packet_ids: ['packet-1'],
+                insight: {
+                  title: 'Approval gates create trust',
+                  triggering_event: 'A shipped review gate changed the work.',
+                  why_vambah_can_speak: 'Vambah built the system.',
+                  approved_research_patterns: [
+                    {
+                      packet_id: 'packet-1',
+                      source_url: 'https://youtube.com/watch?v=abc',
+                    },
+                  ],
+                },
+                channel_lanes: {
+                  linkedin: {
+                    status: 'in_review',
+                    label: 'LinkedIn',
+                    draft_packet: { channel: 'linkedin', fields: { post_text: 'LinkedIn draft' } },
+                    required_inputs: ['post text', 'CTA'],
+                  },
+                  youtube_shorts: {
+                    status: 'in_review',
+                    label: 'YouTube Shorts',
+                    draft_packet: { channel: 'youtube_shorts', fields: { script: ['YouTube draft'] } },
+                    required_inputs: ['hook', 'script'],
+                  },
+                },
+              },
+              updated_at: '2026-06-23T12:00:00.000Z',
+            },
+            side_effects: {
+              provider_generation: false,
+              upload: false,
+              publish: false,
+              schedule: false,
+              external_post: false,
+            },
+          }),
+        }
+      }
       if (url.startsWith('/api/admin/agents/work-items')) {
         return {
           ok: true,
@@ -316,10 +411,16 @@ describe('ContentIntelligencePage', () => {
                 priority: 'high',
                 source_type: 'social_topic_trigger',
                 metadata: {
+                  suggested_research_packet_ids: ['packet-1'],
                   insight: {
                     title: 'Approval gates create trust',
                     triggering_event: 'A shipped review gate changed the work.',
                     why_vambah_can_speak: 'Vambah built the system.',
+                    approved_research_patterns: [],
+                  },
+                  channel_lanes: {
+                    linkedin: { status: 'selected', label: 'LinkedIn', required_inputs: ['post text', 'CTA'] },
+                    youtube_shorts: { status: 'not_started', label: 'YouTube Shorts', required_inputs: ['hook', 'script'] },
                   },
                 },
                 updated_at: '2026-06-22T12:00:00.000Z',
@@ -378,6 +479,11 @@ describe('ContentIntelligencePage', () => {
     fireEvent.click(screen.getByRole('button', { name: /Backlog/ }))
     expect(screen.getByRole('heading', { name: 'Shaka insight backlog' })).toBeInTheDocument()
     expect(screen.getAllByRole('link', { name: /Approval gates create trust/ }).map((link) => link.getAttribute('href'))).toContain('/admin/agents/social-insights/work-social-1')
+    expect(screen.getByText('LinkedIn: selected')).toBeInTheDocument()
+    expect(screen.getByText('YouTube: not started')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Link Suggested Research' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Prepare Review Drafts' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Prepare Review Drafts' })).toBeDisabled()
   })
 
   it('stores recorded evidence without paid scraper fields', async () => {
@@ -444,6 +550,38 @@ describe('ContentIntelligencePage', () => {
     expect(JSON.parse(String(linkCall?.[1]?.body))).toEqual({
       packet_ids: ['packet-1'],
       decision_note: 'Use the structure, not the source wording.',
+    })
+  })
+
+  it('prepares LinkedIn and YouTube channel drafts from the backlog without publishing side effects', async () => {
+    render(<ContentIntelligencePage />)
+
+    await screen.findByRole('heading', { name: 'Research and Shaka insight queue' })
+    fireEvent.click(screen.getByRole('button', { name: /Backlog/ }))
+    fireEvent.click(screen.getByRole('button', { name: 'Link Suggested Research' }))
+
+    await screen.findByText('Suggested research linked to Shaka insight.')
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Prepare Review Drafts' })).not.toBeDisabled()
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Prepare Review Drafts' }))
+
+    expect(await screen.findByText('LinkedIn and YouTube Shorts review drafts are ready for human approval.')).toBeInTheDocument()
+    expect(screen.getByText('LinkedIn: in review')).toBeInTheDocument()
+    expect(screen.getByText('YouTube: in review')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Open human review' })).toHaveAttribute('href', '/admin/agents/social-insights/work-social-1')
+
+    const prepareCall = vi.mocked(fetch).mock.calls.find(([input]) => String(input) === '/api/admin/agents/work-items/work-social-1/social-channels/prepare-review-drafts')
+    expect(prepareCall).toBeTruthy()
+    expect(prepareCall?.[1]).toMatchObject({ method: 'POST' })
+    const suggestedLinkCall = vi.mocked(fetch).mock.calls.find(([input, init]) => (
+      String(input) === '/api/admin/agents/work-items/work-social-1/research-packets'
+      && String(init?.body).includes('Linked suggested public research pattern')
+    ))
+    expect(suggestedLinkCall).toBeTruthy()
+    expect(JSON.parse(String(suggestedLinkCall?.[1]?.body))).toEqual({
+      packet_ids: ['packet-1'],
+      decision_note: 'Linked suggested public research pattern from Content Intelligence backlog.',
     })
   })
 
