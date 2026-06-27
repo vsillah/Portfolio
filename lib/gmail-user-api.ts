@@ -89,7 +89,7 @@ export async function fetchGoogleAccountEmail(
 export async function createUserGmailDraft(
   refreshToken: string,
   params: { to: string; subject: string; body: string }
-): Promise<{ id: string; messageId?: string }> {
+): Promise<{ id: string; messageId?: string; threadId?: string }> {
   const oauth2Client = getGmailUserOAuth2Client()
   oauth2Client.setCredentials({ refresh_token: refreshToken })
   const gmail = google.gmail({ version: 'v1', auth: oauth2Client })
@@ -103,8 +103,9 @@ export async function createUserGmailDraft(
   })
   const id = res.data.id
   const messageId = res.data.message?.id ?? undefined
+  const threadId = res.data.message?.threadId ?? undefined
   if (!id) {
     throw new Error('Gmail API returned no draft id')
   }
-  return { id, messageId }
+  return { id, messageId, threadId }
 }
