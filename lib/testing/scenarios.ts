@@ -1192,6 +1192,15 @@ export const seedSocialChannelReviewFixtureScenario = demoSeedApiScenario(
   ['seed', 'populate-demo', 'content-intelligence', 'social-review']
 )
 
+export const seedAcceleratedWorkshopCampaignFixtureScenario = demoSeedApiScenario(
+  'seed_accelerated_workshop_campaign_fixture',
+  'Seed: Accelerated Workshop Campaign Fixture',
+  'Dev-safe 14-day whisper_to_shout campaign with calendar items and review-ready LinkedIn, YouTube Shorts, and Thumbnail lanes',
+  'accelerated_workshop_campaign_fixture',
+  'lead',
+  ['seed', 'populate-demo', 'content-intelligence', 'calendar', 'social-review', 'accelerated']
+)
+
 /** Scenarios that populate demo data via E2E (no SQL). Run with cleanupAfter: false. */
 export const POPULATE_DEMO_SCENARIOS: TestScenario[] = [
   seedWarmLeadsScenario,
@@ -1206,6 +1215,7 @@ export const POPULATE_DEMO_SCENARIOS: TestScenario[] = [
   seedDiscoverySqlCompatScenario,
   seedSocialContentCalendarFixtureScenario,
   seedSocialChannelReviewFixtureScenario,
+  seedAcceleratedWorkshopCampaignFixtureScenario,
 ]
 
 // ============================================================================
@@ -1346,6 +1356,7 @@ export const SCENARIOS_BY_ID: Record<string, TestScenario> = {
   seed_discovery_sql_compat: seedDiscoverySqlCompatScenario,
   seed_social_content_calendar_fixture: seedSocialContentCalendarFixtureScenario,
   seed_social_channel_review_fixture: seedSocialChannelReviewFixtureScenario,
+  seed_accelerated_workshop_campaign_fixture: seedAcceleratedWorkshopCampaignFixtureScenario,
 }
 
 /**
