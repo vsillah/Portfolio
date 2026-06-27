@@ -7,6 +7,7 @@ This directory contains comprehensive documentation for the my-portfolio project
 ### For admins / sales
 
 - **[Admin/Sales Lead Pipeline SOP](./admin-sales-lead-pipeline-sop.md)** - Single source of truth for new admin and sales associates: lead pipeline (trigger, ingest, enrichment, outreach, review, send), inbound leads (contact form, chat, diagnostic, voice/VAPI), sales and proposals, configuring products/bundles/scripts, pricing research, post-sale lifecycle (payment, client projects, onboarding, milestones), follow-up sequences, workflow reference, and other admin tools.
+- **[Admin Page UX Structure](./admin-page-ux-structure.md)** - Page generation rule for compact admin surfaces: tabs for major workflows, collapsible secondary context, tooltip helper text, and searchable/sortable/filterable/paginated results.
 
 ### Agent Coordination
 

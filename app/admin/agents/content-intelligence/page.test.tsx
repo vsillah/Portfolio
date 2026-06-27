@@ -340,12 +340,9 @@ describe('ContentIntelligencePage', () => {
     render(<ContentIntelligencePage />)
 
     expect(await screen.findByRole('heading', { name: 'Research and Shaka insight queue' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Free-first evidence layer' })).toBeInTheDocument()
-    expect(screen.getByText('Recorded public evidence from Codex/browser review. Cost: $0.')).toBeInTheDocument()
-    expect(screen.getByText('pintostudio/youtube-transcript-scraper only after cost approval')).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'What Shaka should review next' })).toBeInTheDocument()
+    expect(screen.getByRole('navigation', { name: 'Content intelligence sections' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Campaign arc and due gates' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Template research library' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Template research library/ })).toBeInTheDocument()
     expect(screen.getByText('YouTube video release')).toBeInTheDocument()
     expect(screen.getByText('Short-form series')).toBeInTheDocument()
     expect(screen.getAllByRole('link', { name: /YouTube creator optimization guidance/ }).length).toBeGreaterThan(0)
@@ -353,15 +350,29 @@ describe('ContentIntelligencePage', () => {
     expect(screen.getByText('Why this exists:')).toBeInTheDocument()
     expect(screen.getByText(/Tease milestone for LinkedIn/)).toBeInTheDocument()
     expect(screen.getAllByText('Agent Ops Campaign').length).toBeGreaterThan(0)
-    expect(screen.getByRole('heading', { name: 'Plan calendar item' })).toBeInTheDocument()
-    expect(screen.getByText('Schedule: approval required')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Plan calendar item/ })).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /Evidence/ }))
+    expect(screen.getByRole('heading', { name: 'Free-first evidence layer' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /Source options/ }))
+    expect(screen.getByText('Recorded public evidence from Codex/browser review. Cost: $0.')).toBeInTheDocument()
+    expect(screen.getByText('pintostudio/youtube-transcript-scraper only after cost approval')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /Daily Digest/ }))
+    expect(screen.getByRole('heading', { name: 'What Shaka should review next' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /Activation review/ }))
     expect(screen.getByRole('button', { name: 'Request Daily Activation Review' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Strongest patterns' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Channel lanes' })).toBeInTheDocument()
     expect(screen.getByText('YouTube Shorts: Approval gates create trust')).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Add recorded public evidence' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Link pattern to Shaka insight' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Outlier research process' })).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /Research/ }))
+    expect(screen.getByRole('heading', { name: 'Public creator research' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Link pattern to Shaka insight/ })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Outlier research process' })).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /Backlog/ }))
+    expect(screen.getByRole('heading', { name: 'Shaka insight backlog' })).toBeInTheDocument()
     expect(screen.getAllByRole('link', { name: /Approval gates create trust/ }).map((link) => link.getAttribute('href'))).toContain('/admin/agents/social-insights/work-social-1')
   })
 
@@ -369,9 +380,10 @@ describe('ContentIntelligencePage', () => {
     render(<ContentIntelligencePage />)
 
     await screen.findByRole('heading', { name: 'Research and Shaka insight queue' })
+    fireEvent.click(screen.getByRole('button', { name: /Evidence/ }))
 
     fireEvent.change(screen.getByLabelText('Source URL'), { target: { value: 'https://youtube.com/watch?v=recorded' } })
-    fireEvent.change(screen.getAllByLabelText('Title')[1], { target: { value: 'Recorded hook pattern' } })
+    fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'Recorded hook pattern' } })
     fireEvent.change(screen.getByLabelText('Creator'), { target: { value: 'Public Creator' } })
     fireEvent.change(screen.getByLabelText('Hook or first 30 seconds'), { target: { value: 'The hook makes a specific promise first.' } })
     fireEvent.change(screen.getByLabelText('Views'), { target: { value: '24000' } })
@@ -411,7 +423,9 @@ describe('ContentIntelligencePage', () => {
   it('links a research pattern to a central Shaka insight without production side effects', async () => {
     render(<ContentIntelligencePage />)
 
-    await screen.findByRole('heading', { name: 'Link pattern to Shaka insight' })
+    await screen.findByRole('heading', { name: 'Research and Shaka insight queue' })
+    fireEvent.click(screen.getByRole('button', { name: /Research/ }))
+    fireEvent.click(screen.getByRole('button', { name: /Link pattern to Shaka insight/ }))
 
     fireEvent.change(screen.getByLabelText('Decision note'), {
       target: { value: 'Use the structure, not the source wording.' },
@@ -432,7 +446,9 @@ describe('ContentIntelligencePage', () => {
   it('requests daily digest activation review without enabling the schedule', async () => {
     render(<ContentIntelligencePage />)
 
-    await screen.findByRole('heading', { name: 'What Shaka should review next' })
+    await screen.findByRole('heading', { name: 'Research and Shaka insight queue' })
+    fireEvent.click(screen.getByRole('button', { name: /Daily Digest/ }))
+    fireEvent.click(screen.getByRole('button', { name: /Activation review/ }))
 
     fireEvent.change(screen.getByLabelText('Activation review note'), {
       target: { value: 'Start with free public research and Shaka internal triggers.' },
@@ -454,7 +470,7 @@ describe('ContentIntelligencePage', () => {
   it('creates a pending calendar item without publishing side effects', async () => {
     render(<ContentIntelligencePage />)
 
-    await screen.findByRole('heading', { name: 'Plan calendar item' })
+    await screen.findByRole('button', { name: /Plan calendar item/ })
 
     fireEvent.change(screen.getAllByLabelText('Title')[0], {
       target: { value: 'Teach: Campaign operating lesson' },
@@ -488,7 +504,7 @@ describe('ContentIntelligencePage', () => {
   it('applies a researched template milestone to the calendar planner metadata', async () => {
     render(<ContentIntelligencePage />)
 
-    await screen.findByRole('heading', { name: 'Template research library' })
+    await screen.findByRole('button', { name: /Template research library/ })
 
     fireEvent.change(screen.getAllByLabelText('Campaign')[1], {
       target: { value: 'campaign-1' },
