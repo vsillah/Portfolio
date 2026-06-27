@@ -23,11 +23,13 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
 import type { AgentWorkItem } from '@/lib/agent-work-items'
+import type { CampaignType } from '@/lib/campaigns'
 import {
   CAMPAIGN_PHASE_LABELS,
   SOCIAL_CONTENT_CALENDAR_SOURCE_LABELS,
   SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS,
   SOCIAL_CONTENT_CALENDAR_TEMPLATES,
+  calendarMilestoneRationale,
 } from '@/lib/social-content-calendar'
 
 type ResearchPacket = {
@@ -138,6 +140,8 @@ type CalendarItem = {
 type CampaignOption = {
   id: string
   name: string
+  description?: string | null
+  campaign_type?: CampaignType
   status: string
   starts_at: string | null
   ends_at: string | null
@@ -150,6 +154,7 @@ type CalendarForm = {
   campaign_phase: CalendarItem['campaign_phase']
   scheduled_for: string
   planned_angle: string
+  metadata?: Record<string, unknown>
 }
 
 const EMPTY_EVIDENCE_FORM: EvidenceForm = {
@@ -174,6 +179,7 @@ const EMPTY_CALENDAR_FORM: CalendarForm = {
   campaign_phase: 'tease',
   scheduled_for: '',
   planned_angle: '',
+  metadata: {},
 }
 
 const CALENDAR_PHASES: Array<{ key: CalendarItem['campaign_phase']; label: string }> = [
@@ -248,6 +254,47 @@ function calendarSourceLabel(url: string) {
     return SOCIAL_CONTENT_CALENDAR_SOURCE_LABELS[url] || new URL(url).hostname.replace(/^www\./, '')
   } catch {
     return url
+  }
+}
+
+function metadataStringArray(value: unknown) {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+    : []
+}
+
+function templateMetadataFor(
+  templateKey: keyof typeof SOCIAL_CONTENT_CALENDAR_TEMPLATES,
+  milestoneKey: string,
+  campaign?: CampaignOption | null,
+) {
+  const template = SOCIAL_CONTENT_CALENDAR_TEMPLATES[templateKey]
+  const milestone = template.milestones.find((candidate) => candidate.key === milestoneKey)
+  if (!milestone) return {}
+
+  const campaignContext = {
+    name: campaign?.name || 'Unassigned calendar item',
+    description: campaign?.description ?? null,
+    campaign_type: campaign?.campaign_type ?? undefined,
+  }
+  const rationale = calendarMilestoneRationale(campaignContext, template, milestone)
+
+  return {
+    generated_from: 'content_intelligence_template_milestone',
+    campaign_arc: template.key,
+    template_key: template.key,
+    template_label: template.label,
+    template_goal_types: template.goal_types,
+    template_source_urls: template.source_urls,
+    milestone_key: milestone.key,
+    recommended_lead_time_days: milestone.recommended_lead_time_days,
+    milestone_rationale: rationale,
+    campaign_fit_summary: rationale.campaign_fit,
+    source_labels: rationale.source_labels,
+    required_assets: milestone.required_assets,
+    approval_gates: milestone.approval_gates,
+    source_urls: milestone.source_urls,
+    external_execution_enabled: false,
   }
 }
 
@@ -371,6 +418,10 @@ function ContentIntelligenceContent() {
       return lanes
     }, {} as Record<CalendarItem['campaign_phase'], CalendarItem[]>)
   }, [filteredCalendarItems])
+
+  const selectedCalendarCampaign = useMemo(() => {
+    return campaigns.find((campaign) => campaign.id === calendarForm.campaign_id) ?? null
+  }, [calendarForm.campaign_id, campaigns])
 
   useEffect(() => {
     setSelectedPacketId((current) => current || packets[0]?.id || '')
@@ -500,6 +551,17 @@ function ContentIntelligenceContent() {
 
     setCreatingCalendarItem(true)
     try {
+      const formMetadata = recordValue(calendarForm.metadata)
+      const templateKey = typeof formMetadata.template_key === 'string'
+        && formMetadata.template_key in SOCIAL_CONTENT_CALENDAR_TEMPLATES
+        ? formMetadata.template_key as keyof typeof SOCIAL_CONTENT_CALENDAR_TEMPLATES
+        : null
+      const milestoneKey = typeof formMetadata.milestone_key === 'string'
+        ? formMetadata.milestone_key
+        : null
+      const metadata = templateKey && milestoneKey
+        ? templateMetadataFor(templateKey, milestoneKey, selectedCalendarCampaign)
+        : formMetadata
       const response = await authedFetch('/api/admin/social-content/calendar', {
         method: 'POST',
         body: JSON.stringify({
@@ -507,6 +569,7 @@ function ContentIntelligenceContent() {
           campaign_id: calendarForm.campaign_id || null,
           planned_angle: calendarForm.planned_angle.trim() || null,
           scheduled_for: new Date(calendarForm.scheduled_for).toISOString(),
+          metadata,
         }),
       })
       const body = await response.json().catch(() => ({}))
@@ -519,7 +582,29 @@ function ContentIntelligenceContent() {
     } finally {
       setCreatingCalendarItem(false)
     }
-  }, [authedFetch, calendarForm, load])
+  }, [authedFetch, calendarForm, load, selectedCalendarCampaign])
+
+  const applyTemplateMilestone = useCallback((
+    templateKey: keyof typeof SOCIAL_CONTENT_CALENDAR_TEMPLATES,
+    milestoneKey: string,
+  ) => {
+    const template = SOCIAL_CONTENT_CALENDAR_TEMPLATES[templateKey]
+    const milestone = template.milestones.find((candidate) => candidate.key === milestoneKey)
+    if (!milestone) return
+
+    setCalendarForm((current) => {
+      const campaign = campaigns.find((candidate) => candidate.id === current.campaign_id) ?? null
+      return {
+        ...current,
+        title: `${milestone.title_prefix}${campaign?.name ? `: ${campaign.name}` : ''}`,
+        channel: milestone.channel,
+        campaign_phase: milestone.campaign_phase,
+        planned_angle: milestone.planned_angle,
+        metadata: templateMetadataFor(templateKey, milestone.key, campaign),
+      }
+    })
+    setCalendarNotice(`${template.label}: ${milestone.title_prefix} loaded into the planner.`)
+  }, [campaigns])
 
   const authorizeCalendarItem = useCallback(async (item: CalendarItem) => {
     setError(null)
@@ -730,9 +815,23 @@ function ContentIntelligenceContent() {
                     </div>
                     <div className="mt-3 space-y-1.5">
                       {template.milestones.map((milestone) => (
-                        <div key={milestone.key} className="flex items-center justify-between gap-2 text-[0.66rem] text-blue-100/75">
-                          <span>{CAMPAIGN_PHASE_LABELS[milestone.campaign_phase]}</span>
-                          <span>{milestone.recommended_lead_time_days}d lead</span>
+                        <div key={milestone.key} className="flex items-center justify-between gap-2 rounded-md border border-blue-300/10 bg-background/25 px-2 py-1.5 text-[0.66rem] text-blue-100/75">
+                          <div className="min-w-0">
+                            <span className="block font-semibold text-blue-100">
+                              {CAMPAIGN_PHASE_LABELS[milestone.campaign_phase]}
+                            </span>
+                            <span className="block truncate">
+                              {CALENDAR_CHANNEL_LABELS[milestone.channel]} · {milestone.recommended_lead_time_days}d lead
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            aria-label={`Use ${template.label} ${CAMPAIGN_PHASE_LABELS[milestone.campaign_phase]} milestone`}
+                            onClick={() => applyTemplateMilestone(key, milestone.key)}
+                            className="shrink-0 rounded-md border border-blue-300/25 px-2 py-1 text-[0.62rem] font-semibold text-blue-50 transition hover:bg-blue-500/20"
+                          >
+                            Use
+                          </button>
                         </div>
                       ))}
                     </div>
@@ -859,7 +958,7 @@ function ContentIntelligenceContent() {
             <div className="mb-3 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <h3 className="text-sm font-semibold text-radiant-gold">Plan calendar item</h3>
-                <p className="mt-1 text-xs text-muted-foreground">Creates a pending calendar gate only. Use campaign detail to generate the default whisper-to-shout arc.</p>
+                <p className="mt-1 text-xs text-muted-foreground">Creates a pending calendar gate only. Use a template milestone above or plan manually.</p>
               </div>
               {calendarNotice ? (
                 <span className="inline-flex w-fit rounded-full border border-emerald-500/35 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-100">
@@ -867,6 +966,25 @@ function ContentIntelligenceContent() {
                 </span>
               ) : null}
             </div>
+            {(() => {
+              const metadata = recordValue(calendarForm.metadata)
+              const templateLabel = typeof metadata.template_label === 'string' ? metadata.template_label : null
+              const milestoneKey = typeof metadata.milestone_key === 'string' ? metadata.milestone_key : null
+              const sourceLabels = metadataStringArray(metadata.source_labels)
+              if (!templateLabel) return null
+
+              return (
+                <div className="mb-3 rounded-md border border-radiant-gold/30 bg-background/35 p-2 text-xs text-muted-foreground">
+                  <span className="font-semibold text-radiant-gold">Template applied: </span>
+                  {templateLabel}{milestoneKey ? ` · ${milestoneKey.replace(/_/g, ' ')}` : ''}
+                  {sourceLabels.length > 0 ? (
+                    <span className="ml-2 text-muted-foreground">
+                      Source: {sourceLabels.slice(0, 2).join(', ')}
+                    </span>
+                  ) : null}
+                </div>
+              )
+            })()}
             <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_14rem_12rem]">
               <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Title
@@ -1566,6 +1684,37 @@ function CalendarItemCard({
           {item.planned_angle ? (
             <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">{item.planned_angle}</p>
           ) : null}
+          {(() => {
+            const rationale = recordValue(metadata.milestone_rationale)
+            const summary = typeof rationale.summary === 'string'
+              ? rationale.summary
+              : typeof metadata.campaign_fit_summary === 'string'
+                ? metadata.campaign_fit_summary
+                : ''
+            const sourceLabels = metadataStringArray(metadata.source_labels)
+
+            if (!summary && sourceLabels.length === 0) return null
+
+            return (
+              <div className="mt-3 rounded-md border border-silicon-slate/60 bg-background/40 p-2">
+                {summary ? (
+                  <p className="text-[0.68rem] leading-5 text-muted-foreground">
+                    <span className="font-semibold text-foreground/80">Why this exists: </span>
+                    {summary}
+                  </p>
+                ) : null}
+                {sourceLabels.length > 0 ? (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {sourceLabels.slice(0, 2).map((label) => (
+                      <span key={label} className="rounded-full border border-silicon-slate/70 px-2 py-0.5 text-[0.62rem] text-muted-foreground">
+                        {label}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            )
+          })()}
           <div className="mt-3 flex flex-wrap gap-2 text-[0.68rem] text-muted-foreground">
             <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5">
               {CALENDAR_CHANNEL_LABELS[item.channel]}

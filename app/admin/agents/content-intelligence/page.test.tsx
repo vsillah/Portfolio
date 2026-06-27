@@ -160,6 +160,19 @@ describe('ContentIntelligencePage', () => {
                 authorization_status: 'pending',
                 authorization_due_at: '2026-06-23T14:00:00.000Z',
                 autonomy_eligible: false,
+                metadata: {
+                  template_label: 'Whisper-to-shout launch',
+                  milestone_key: 'small_tension',
+                  source_labels: ['HubSpot social calendar template'],
+                  milestone_rationale: {
+                    summary: 'Tease milestone for LinkedIn: Open with a small tension before the campaign teaches the larger frame.',
+                    campaign_fit: 'Whisper-to-shout launch fits "Agent Ops Campaign" because the campaign brief points to governed AI operating layer content.',
+                    timing: '14 day lead time keeps tease work reviewable before the scheduled campaign moment.',
+                    required_inputs: ['triggering_event'],
+                    approval_gates: ['copy_review'],
+                    source_labels: ['HubSpot social calendar template'],
+                  },
+                },
                 attraction_campaigns: { id: 'campaign-1', name: 'Agent Ops Campaign', slug: 'agent-ops' },
                 agent_work_items: { id: 'work-social-1', title: 'Approval gates create trust', status: 'proposed' },
                 social_content_queue: null,
@@ -176,6 +189,8 @@ describe('ContentIntelligencePage', () => {
               {
                 id: 'campaign-1',
                 name: 'Agent Ops Campaign',
+                description: 'Campaign for governed AI operating layer content.',
+                campaign_type: 'free_challenge',
                 status: 'draft',
                 starts_at: '2026-06-24T00:00:00.000Z',
                 ends_at: '2026-07-01T00:00:00.000Z',
@@ -335,6 +350,8 @@ describe('ContentIntelligencePage', () => {
     expect(screen.getByText('Short-form series')).toBeInTheDocument()
     expect(screen.getAllByRole('link', { name: /YouTube creator optimization guidance/ }).length).toBeGreaterThan(0)
     expect(screen.getByText('Tease: Approval gates')).toBeInTheDocument()
+    expect(screen.getByText('Why this exists:')).toBeInTheDocument()
+    expect(screen.getByText(/Tease milestone for LinkedIn/)).toBeInTheDocument()
     expect(screen.getAllByText('Agent Ops Campaign').length).toBeGreaterThan(0)
     expect(screen.getByRole('heading', { name: 'Plan calendar item' })).toBeInTheDocument()
     expect(screen.getByText('Schedule: approval required')).toBeInTheDocument()
@@ -465,6 +482,53 @@ describe('ContentIntelligencePage', () => {
       channel: 'linkedin',
       campaign_phase: 'tease',
       planned_angle: 'Teach the operating framework behind the campaign.',
+    })
+  })
+
+  it('applies a researched template milestone to the calendar planner metadata', async () => {
+    render(<ContentIntelligencePage />)
+
+    await screen.findByRole('heading', { name: 'Template research library' })
+
+    fireEvent.change(screen.getAllByLabelText('Campaign')[1], {
+      target: { value: 'campaign-1' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Use YouTube video release Proof milestone' }))
+
+    expect(screen.getAllByLabelText('Title')[0]).toHaveValue('Thumbnail and title: Agent Ops Campaign')
+    expect(screen.getAllByLabelText('Channel')[1]).toHaveValue('thumbnail')
+    expect(screen.getAllByLabelText('Phase')[1]).toHaveValue('proof')
+    expect(screen.getByText('Template applied:')).toBeInTheDocument()
+    expect(screen.getAllByText(/YouTube video release/).length).toBeGreaterThan(0)
+
+    fireEvent.change(screen.getByLabelText('Scheduled for'), {
+      target: { value: '2026-06-25T10:00' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Plan Item' }))
+
+    await screen.findByText('Calendar item planned. Human authorization remains pending.')
+
+    const calendarCall = vi.mocked(fetch).mock.calls.find(([input, init]) => (
+      String(input) === '/api/admin/social-content/calendar' && init?.method === 'POST'
+    ))
+    expect(calendarCall).toBeTruthy()
+    expect(JSON.parse(String(calendarCall?.[1]?.body))).toMatchObject({
+      title: 'Thumbnail and title: Agent Ops Campaign',
+      campaign_id: 'campaign-1',
+      channel: 'thumbnail',
+      campaign_phase: 'proof',
+      planned_angle: expect.stringContaining('Develop title and thumbnail variants'),
+      metadata: {
+        generated_from: 'content_intelligence_template_milestone',
+        template_key: 'youtube_video_release',
+        template_label: 'YouTube video release',
+        milestone_key: 'thumbnail_title_package',
+        campaign_fit_summary: expect.stringContaining('Agent Ops Campaign'),
+        source_labels: expect.arrayContaining(['YouTube creator optimization guidance']),
+        required_assets: expect.arrayContaining(['thumbnail_reference', 'title_variants']),
+        approval_gates: expect.arrayContaining(['thumbnail_review']),
+        external_execution_enabled: false,
+      },
     })
   })
 
