@@ -32,7 +32,7 @@ function maybeSingleQuery<T>(result: QueryResult<T>) {
   const maybeSingle = vi.fn(async () => result)
   const limit = vi.fn(() => ({ maybeSingle }))
   const order = vi.fn(() => ({ limit }))
-  const eq = vi.fn(() => ({ order }))
+  const eq = vi.fn(() => ({ order, limit }))
   const select = vi.fn(() => ({ eq }))
 
   return { select, eq, order, limit, maybeSingle }
