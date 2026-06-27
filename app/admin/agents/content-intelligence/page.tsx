@@ -239,6 +239,7 @@ const SECTION_TABS: Array<{
 ]
 
 const TABLE_PAGE_SIZE = 6
+const TEMPLATE_PAGE_SIZE = 4
 
 function stringValue(value: unknown) {
   return typeof value === 'string' && value.trim() ? value.trim() : null
@@ -409,6 +410,7 @@ function ContentIntelligenceContent() {
   const [researchSort, setResearchSort] = useState<ResearchSortKey>('score')
   const [researchSortDirection, setResearchSortDirection] = useState<SortDirection>('desc')
   const [researchPage, setResearchPage] = useState(1)
+  const [templatePage, setTemplatePage] = useState(1)
   const [insightSearch, setInsightSearch] = useState('')
   const [insightStatusFilter, setInsightStatusFilter] = useState('')
   const [insightSort, setInsightSort] = useState<InsightSortKey>('updated')
@@ -495,6 +497,16 @@ function ContentIntelligenceContent() {
       return lanes
     }, {} as Record<CalendarItem['campaign_phase'], CalendarItem[]>)
   }, [filteredCalendarItems])
+
+  const templateTotalPages = Math.max(
+    1,
+    Math.ceil(SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS.length / TEMPLATE_PAGE_SIZE),
+  )
+
+  const pagedTemplateKeys = useMemo(() => {
+    const start = (templatePage - 1) * TEMPLATE_PAGE_SIZE
+    return SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS.slice(start, start + TEMPLATE_PAGE_SIZE)
+  }, [templatePage])
 
   const togglePanel = useCallback((key: string) => {
     setExpandedPanels((current) => ({ ...current, [key]: !current[key] }))
@@ -1001,8 +1013,8 @@ function ContentIntelligenceContent() {
               </span>
             )}
           >
-            <div className="grid gap-2 xl:grid-cols-5">
-              {SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS.map((key) => {
+            <div className="grid gap-2 xl:grid-cols-4">
+              {pagedTemplateKeys.map((key) => {
                 const template = SOCIAL_CONTENT_CALENDAR_TEMPLATES[key]
                 return (
                   <div key={key} className="rounded-lg border border-blue-300/20 bg-background/35 p-3">
@@ -1057,6 +1069,13 @@ function ContentIntelligenceContent() {
                 )
               })}
             </div>
+            <Pagination
+              page={templatePage}
+              totalPages={templateTotalPages}
+              total={SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS.length}
+              pageSize={TEMPLATE_PAGE_SIZE}
+              onPageChange={setTemplatePage}
+            />
           </CollapsiblePanel>
 
           <div className="mb-4 grid gap-3 md:grid-cols-4">
