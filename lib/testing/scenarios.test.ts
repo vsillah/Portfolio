@@ -35,4 +35,24 @@ describe('scenarioIncludesDiagnosticStep', () => {
       'seed_social_content_calendar_fixture',
     )
   })
+
+  it('registers the Social Channel review fixture seed scenario', () => {
+    const scenario = getScenario('seed_social_channel_review_fixture')
+
+    expect(scenario).toMatchObject({
+      id: 'seed_social_channel_review_fixture',
+      name: 'Seed: Social Channel Review Fixture',
+      tags: expect.arrayContaining(['seed', 'populate-demo', 'content-intelligence', 'social-review']),
+    })
+    expect(scenario?.steps[0]).toMatchObject({
+      type: 'apiCall',
+      endpoint: '/api/admin/testing/demo-seed',
+      method: 'POST',
+      body: { key: 'social_channel_review_fixture' },
+      expectedStatus: 200,
+    })
+    expect(POPULATE_DEMO_SCENARIOS.map((item) => item.id)).toContain(
+      'seed_social_channel_review_fixture',
+    )
+  })
 })
