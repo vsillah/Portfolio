@@ -1,6 +1,6 @@
 # Module 0 Privacy And QA Checklist
 
-Status: approved asset packet; capture review still required before render
+Status: script review required; capture review still required before render
 
 ## Approved Source Types
 
@@ -31,4 +31,4 @@ Before render:
 
 ## Current Decision
 
-The Module 0 content and local assets are approved for render preflight. Provider generation and final rendering are not approved by this packet.
+The Module 0 content has been revised and must pass Script Intelligence review before render-readiness approval. Provider generation and final rendering are not approved by this packet.

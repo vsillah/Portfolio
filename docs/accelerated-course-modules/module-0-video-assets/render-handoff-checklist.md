@@ -1,9 +1,9 @@
 # Module 0 Render Handoff Checklist
 
-Status: approved asset packet; render preflight allowed
+Status: blocked until script-intelligence approval
 Provider execution: locked until explicit approval
 
-This checklist is the bridge from the approved Module 0 asset packet into the existing Portfolio video-generation workflow. It does not authorize HeyGen, ElevenLabs, Remotion, HyperFrames, upload, scheduling, or publishing jobs.
+This checklist is the bridge from the revised Module 0 asset packet into the existing Portfolio video-generation workflow. It does not authorize render-readiness approval, HeyGen, ElevenLabs, Remotion, HyperFrames, upload, scheduling, or publishing jobs.
 
 ## Target Workflow
 
@@ -18,7 +18,7 @@ This checklist is the bridge from the approved Module 0 asset packet into the ex
 
 ## Preflight Steps
 
-1. Open the Module 0 packet and confirm the script, worksheet, Shorts package, thumbnail briefs, and privacy checklist are still approved.
+1. Open the Module 0 packet and confirm the revised script, Shorts package, thumbnail briefs, and privacy checklist have passed Script Intelligence review.
 2. Confirm the selected render mode:
    - default: HeyGen avatar plus Portfolio/AmaduTown b-roll,
    - fallback: ElevenLabs narration plus slide-first visuals.
@@ -44,8 +44,9 @@ Approval for one action does not imply approval for the others.
 
 ## Ready-To-Queue Criteria
 
-Module 0 can move from `ready_for_render_preflight` to queued render work only when:
+Module 0 can move from `ready_for_script_intelligence_review` to render-readiness preflight only when:
 
+- Script Intelligence review is approved,
 - privacy review is passed,
 - b-roll sources are public-safe or redacted,
 - avatar/narration provider choice is confirmed,

@@ -1,6 +1,6 @@
 # Module 0 Storyboard And Render Spec
 
-Status: approved for render preflight
+Status: ready for script-intelligence human review
 Render execution: locked until explicit approval
 
 ## Composition Defaults
@@ -16,15 +16,15 @@ Render execution: locked until explicit approval
 
 | Scene | Duration | Visual | Audio Source | B-roll / Asset |
 | --- | ---: | --- | --- | --- |
-| 1. Title | 0:00-0:12 | Title card: Why Accelerated Exists | Music bed only or cold open | `visual-assets/title-card.svg` |
-| 2. Hook | 0:12-0:55 | HeyGen avatar opening | HeyGen Segment A | Avatar clip pending provider approval |
-| 3. Artifact Speed | 0:55-1:45 | Animated list: roadmap, PRD, persona, launch plan, prototype | Primary script or narration | Local text animation |
-| 4. Judgment Bottleneck | 1:45-2:45 | Split visual: fast artifacts vs. review gates | Primary script | Course framework visual |
-| 5. AmaduTown Proof | 2:45-4:05 | Public AmaduTown/Accelerated product surface | Primary script | Capture public publication/product surface |
-| 6. Operating Layer | 4:05-5:35 | Diagnostic, evidence, approval, and render-readiness screens | HeyGen Segment B | Public-safe/sanitized b-roll only |
-| 7. The Loop | 5:35-7:10 | Four-part loop animation | HeyGen Segment C or narration | Signal -> Decision -> Loop -> Learning |
-| 8. Moral Frame | 7:10-8:20 | Quiet avatar or text-led cards | Primary script | No private b-roll |
-| 9. Closing Question | 8:20-9:00 | Closing card and avatar close | HeyGen Segment D | `visual-assets/closing-card.svg` |
+| 1. Cold Open | 0:00-0:18 | Avatar or text-led cold open: "The video looked ready. The script wasn't." | HeyGen Segment A or narration | Avatar clip pending provider approval |
+| 2. Title | 0:18-0:30 | Title card: Why Accelerated Exists | Music bed | `visual-assets/title-card.svg` |
+| 3. Production Gap | 0:30-1:25 | Three cards: avatar looked real, cadence worked, pain was missing | Primary script or narration | Local text animation |
+| 4. Artifact Speed | 1:25-2:15 | Animated list: roadmap, PRD, persona, launch plan, prototype, video script | Primary script or narration | Local text animation |
+| 5. Judgment Bottleneck | 2:15-3:20 | Split visual: polished artifacts vs. review gates | HeyGen Segment B | Course framework visual |
+| 6. AmaduTown Proof | 3:20-4:50 | Public AmaduTown/Accelerated product surface plus safe Portfolio proof surfaces | Primary script | Capture public/sanitized proof only |
+| 7. Operating Layer | 4:50-6:15 | Diagnostic, evidence, approval, script scorecard, privacy, and render-readiness screens | HeyGen Segment C | Public-safe/sanitized b-roll only |
+| 8. The Loop | 6:15-7:35 | Four-part loop animation | HeyGen Segment C or narration | Signal -> Decision -> Loop -> Learning |
+| 9. CTA Close | 7:35-8:35 | CTA card and avatar close | HeyGen Segment D | `visual-assets/closing-card.svg` |
 
 ## B-Roll Capture Requests
 
@@ -38,6 +38,7 @@ Use existing Portfolio capture tooling only after local screen review:
 ## Render-Readiness Checklist
 
 - Confirm title card and closing card render at 1920x1080.
+- Confirm Script Intelligence review is approved before render-readiness approval.
 - Confirm all avatar clips are optional and can be replaced with narration if HeyGen is unavailable.
 - Confirm b-roll uses public or redacted surfaces only.
 - Confirm captions match the final selected script.

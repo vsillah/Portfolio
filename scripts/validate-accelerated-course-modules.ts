@@ -72,9 +72,9 @@ assert(status.provider_execution_status === 'locked_until_explicit_approval', 'P
 assert(Array.isArray(status.modules) && status.modules.length === 8, 'review-status.json must contain 8 modules')
 for (const moduleStatus of status.modules ?? []) {
   if (moduleStatus.id === 'module-0') {
-    assert(moduleStatus.review_status === 'approved', 'module-0 review_status must be approved')
-    assert(moduleStatus.render_status === 'ready_for_render_preflight', 'module-0 must be ready for render preflight')
-    assert(moduleStatus.primary_video_status === 'approved_asset_packet', 'module-0 primary video packet must be approved')
+    assert(moduleStatus.review_status === 'script_intelligence_review_ready', 'module-0 review_status must be script-intelligence review ready')
+    assert(moduleStatus.render_status === 'blocked_until_script_approval', 'module-0 must block render until script approval')
+    assert(moduleStatus.primary_video_status === 'revised_script_ready_for_review', 'module-0 primary video packet must be ready for revised script review')
     assert(moduleStatus.asset_packet_path === 'docs/accelerated-course-modules/module-0-video-assets', 'module-0 asset packet path is missing')
   } else {
     assert(moduleStatus.review_status === 'draft', `${moduleStatus.id} review_status must be draft`)
@@ -90,6 +90,7 @@ const module0Files = [
   'elevenlabs-narration.md',
   'storyboard-render-spec.md',
   'render-handoff-checklist.md',
+  'script-intelligence-review.md',
   'shorts-package.md',
   'thumbnail-briefs.md',
   'worksheet.md',
@@ -105,12 +106,13 @@ for (const file of module0Files) {
 }
 
 assert(module0Manifest.module_id === 'module-0', 'Module 0 manifest must identify module-0')
-assert(module0Manifest.asset_packet_status === 'approved_for_render_preflight', 'Module 0 manifest must be approved for render preflight')
+assert(module0Manifest.asset_packet_status === 'ready_for_script_intelligence_review', 'Module 0 manifest must be ready for script-intelligence review')
 assert(module0Manifest.provider_execution_status === 'locked_until_explicit_approval', 'Module 0 provider execution must stay locked')
 assert(module0Manifest.target_outputs?.primary_lesson, 'Module 0 manifest missing primary lesson output')
 assert(module0Manifest.target_outputs?.youtube_short, 'Module 0 manifest missing YouTube Shorts output')
 assert(module0Manifest.target_outputs?.thumbnail, 'Module 0 manifest missing thumbnail output')
 assert(module0Manifest.provider_assets?.render_handoff_checklist === 'render-handoff-checklist.md', 'Module 0 manifest missing render handoff checklist')
+assert(module0Manifest.safety?.allowed_now?.includes('script_intelligence_human_review'), 'Module 0 must allow script-intelligence review without execution')
 assert(module0Manifest.safety?.allowed_now?.includes('video_generation_workflow_handoff_planning'), 'Module 0 must allow handoff planning without execution')
 assert(module0Manifest.safety?.privacy_review_required_before_render === true, 'Module 0 must require privacy review before render')
 for (const blocked of ['heygen_generation', 'elevenlabs_generation', 'final_render', 'upload', 'schedule', 'publish']) {
@@ -121,6 +123,11 @@ for (const expected of ['HeyGen', 'ElevenLabs', 'Remotion', 'HyperFrames', 'B-ro
   assert(packet.includes(expected) || source.includes(expected), `Missing production stack reference: ${expected}`)
 }
 
+const module0ScriptReview = read(path.join(module0AssetDir, 'script-intelligence-review.md'))
+for (const expected of ['Pain point', 'Hook', 'CTA', 'Provider execution: locked']) {
+  assert(module0ScriptReview.includes(expected), `Module 0 script-intelligence review missing ${expected}`)
+}
+
 for (const route of ['/tools/audit', '/admin/value-evidence', '/admin/chat-eval', '/admin/module-sync']) {
   assert(broll.includes(route), `B-roll list missing route ${route}`)
 }
@@ -129,4 +136,4 @@ for (const forbidden of ['Provider calls, uploads, rendering, scheduling, and pu
   assert(packet.includes(forbidden), `Missing safety boundary text: ${forbidden}`)
 }
 
-console.log('Accelerated course module package validated: 8 modules plus approved Module 0 video asset packet and safety gates present.')
+console.log('Accelerated course module package validated: 8 modules plus revised Module 0 Script Intelligence review packet and safety gates present.')

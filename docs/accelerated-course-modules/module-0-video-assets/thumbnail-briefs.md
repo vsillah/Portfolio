@@ -1,6 +1,6 @@
 # Module 0 Thumbnail Briefs
 
-Status: approved for render preflight
+Status: review required after script update
 Generation status: local brief only. No image provider call approved.
 
 ## Brand Direction
@@ -25,19 +25,19 @@ Why it fits:
 
 This is the strongest course thesis for Module 0.
 
-## Concept 2 - The Blank Page Is Gone
+## Concept 2 - The Script Wasn't Ready
 
 Text:
 
-`THE BLANK PAGE IS GONE`
+`THE SCRIPT WASN'T READY`
 
 Visual:
 
-A blank document turns into a stack of AI-generated artifacts. A gold warning line separates the stack from a quiet decision loop.
+A clean avatar preview sits beside a script review card with the missing pain point highlighted. A gold line connects the review card to Signal, Decision, Loop, Learning.
 
 Why it fits:
 
-This ties directly to the opening hook and Shorts package.
+This ties directly to the revised opening hook and Shorts package.
 
 ## Concept 3 - Build Faster Without Losing The Plot
 

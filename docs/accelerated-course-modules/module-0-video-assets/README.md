@@ -3,10 +3,10 @@
 Module: `module-0`
 Title: `Why Accelerated Exists`
 Approval scope: course content and local video asset packet only
-Status: approved for render preflight
+Status: ready for script-intelligence human review
 External execution: locked
 
-This packet contains the first approved module video assets for the Accelerated mini-course. It is ready to route into the existing video-generation review workflow, but it does not authorize provider execution.
+This packet contains the revised Module 0 video assets for the Accelerated mini-course. The script now uses the Script Intelligence anatomy before render approval: pain point, hook, loop, proof, CTA, and source-distance safety. It is ready for human content review, but it does not authorize provider execution.
 
 ## Included Assets
 
@@ -15,6 +15,7 @@ This packet contains the first approved module video assets for the Accelerated 
 - `elevenlabs-narration.md` - narration-safe version for audio or slide-first render.
 - `storyboard-render-spec.md` - Remotion/HyperFrames scene plan and b-roll mapping.
 - `render-handoff-checklist.md` - explicit bridge into the existing video-generation workflow.
+- `script-intelligence-review.md` - template, anatomy, scorecard, and review gate for the revised script.
 - `shorts-package.md` - 30-60 second YouTube Shorts asset packet.
 - `thumbnail-briefs.md` - three thumbnail concepts adapted to AmaduTown style.
 - `worksheet.md` - learner worksheet prompt and facilitator review notes.
@@ -29,7 +30,7 @@ This packet contains the first approved module video assets for the Accelerated 
 Allowed by this packet:
 
 - local review,
-- render-readiness preflight,
+- script-intelligence human review,
 - b-roll planning,
 - storyboard planning,
 - video-generation workflow handoff planning,
@@ -39,6 +40,7 @@ Not allowed by this packet:
 
 - HeyGen generation,
 - ElevenLabs generation,
+- render-readiness approval,
 - Remotion/HyperFrames final render,
 - n8n workflow execution,
 - uploads,
