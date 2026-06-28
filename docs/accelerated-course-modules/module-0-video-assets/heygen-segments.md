@@ -1,45 +1,57 @@
 # Module 0 HeyGen Segment Scripts
 
-Status: approved for render preflight
+Status: ready for script-intelligence human review
 Provider execution: locked until explicit approval
 
-Use these as discrete avatar clips that can be composited with b-roll in Remotion or HyperFrames. Keep the avatar framed cleanly with AmaduTown visual treatment. Do not generate these clips until the provider approval gate is granted.
+Use these as discrete avatar clips that can be composited with b-roll in Remotion or HyperFrames after the content review gate is approved. Keep the avatar framed cleanly with AmaduTown visual treatment. Do not generate these clips until the provider approval gate is granted.
 
-## Segment A - Opening Hook
+## Segment A - Opening Pain Point
 
-Target duration: 35-45 seconds
+Target duration: 45-55 seconds
 
-Anyone can ask AI for a roadmap now.
+I watched a generated lesson preview and had the reaction every product leader should pay attention to.
 
-A PRD. A persona. A launch plan. A prototype. In a few minutes, something appears that looks like product work.
+The avatar looked real.
 
-That is useful. I use these tools every day.
+The cadence worked.
 
-But the blank page is not the bottleneck anymore.
+The production quality was finally good enough that I could stop worrying about the tool.
 
-The bottleneck is judgment.
+Then I listened to the content and felt the gap.
 
-That is why *Accelerated* exists. This course is about using AI speed without losing the product discipline that makes the work safe, useful, and worth building.
+It explained the topic, but it did not make the pain unavoidable. It did not make the next action obvious.
+
+That is the exact reason *Accelerated* exists.
+
+AI can now make the first version look finished before the thinking is finished.
 
 ## Segment B - Course Frame
 
-Target duration: 55-70 seconds
+Target duration: 60-75 seconds
 
-AI can help generate options, questions, summaries, risks, and first drafts.
+Anyone can ask AI for a roadmap now. A PRD. A persona. A stakeholder map. A launch plan. A prototype. A video script.
 
-The human still owns context, judgment, consent, and consequence.
+That is useful. I use these tools every day.
 
-Inside AmaduTown, I am building against that exact tension. The public site is one layer. Behind it are diagnostic flows, evidence dashboards, content approval gates, agent workflows, review packets, b-roll plans, and render-readiness checks.
+But speed creates a new kind of burden.
 
-The operating layer matters because the work does not end when the artifact gets created.
+Teams can make more drafts than they can review. More ideas than they can test. More content than they can defend. More workflows than they can govern.
 
-The system has to remember what happened after it moved.
+The blank page used to slow us down.
 
-## Segment C - Operating Loop
+Now the real bottleneck is judgment.
 
-Target duration: 45-60 seconds
+The tool can create the artifact. The team still has to know what the artifact is supposed to change.
 
-The course comes back to one operating loop.
+## Segment C - Proof And Operating Loop
+
+Target duration: 60-75 seconds
+
+Inside AmaduTown, I am building the operating layer around this tension.
+
+The public site is one layer. Behind it are diagnostic flows, evidence dashboards, social content review gates, agent work queues, script scorecards, b-roll capture plans, privacy checks, and render-readiness approvals.
+
+The course comes back to one operating loop:
 
 Find the signal.
 
@@ -49,18 +61,18 @@ Build the loop.
 
 Instrument the learning.
 
-That loop is the difference between moving fast and moving blindly. It gives the team a way to turn AI output into accountable product learning.
+That loop is the difference between moving fast and moving blindly.
 
-## Segment D - Closing Question
+## Segment D - CTA Close
 
-Target duration: 25-35 seconds
+Target duration: 35-45 seconds
 
-Start with one place where your team is already moving fast.
+Start with one workflow where AI is already helping your team create faster than the review process can keep up.
 
-Maybe AI is drafting content. Maybe prototypes are easier to build. Maybe meetings are being summarized. Maybe workflows are getting automated.
+Write down the decision that workflow is supposed to improve.
 
-Then ask the question most teams skip:
+Then identify the signal that would prove the work is actually getting better.
 
-What is the system learning from all of that speed?
+That is your first Accelerated loop.
 
-If the answer is unclear, the work is not done.
+If you want help building that loop with me, join the Accelerated Workshop interest path or book an AI Quick Win discovery call through AmaduTown.

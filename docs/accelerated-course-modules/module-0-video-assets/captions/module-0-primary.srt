@@ -1,59 +1,59 @@
 1
 00:00:00,000 --> 00:00:05,000
-Anyone can ask AI for a roadmap now.
+The video looked ready. The script wasn't.
 
 2
 00:00:05,000 --> 00:00:12,000
-A PRD. A persona. A launch plan. A prototype.
+The avatar looked real. The cadence worked. The tool stopped being the problem.
 
 3
-00:00:12,000 --> 00:00:18,000
-In a few minutes, something shows up that looks like product work.
+00:00:12,000 --> 00:00:20,000
+Then the content exposed the gap. It did not make the pain unavoidable.
 
 4
-00:00:18,000 --> 00:00:25,000
-The blank page is not the bottleneck anymore. The bottleneck is judgment.
+00:00:20,000 --> 00:00:28,000
+That is the reason Accelerated exists.
 
 5
-00:00:25,000 --> 00:00:34,000
-That is why Accelerated exists. AI makes product judgment more important.
+00:00:28,000 --> 00:00:38,000
+AI can make the first version look finished before the thinking is finished.
 
 6
-00:00:34,000 --> 00:00:44,000
-The tool can help draft options, questions, summaries, risks, and patterns.
+00:00:38,000 --> 00:00:48,000
+The blank page used to slow us down. Now the bottleneck is judgment.
 
 7
-00:00:44,000 --> 00:00:53,000
-The human still owns context, judgment, consent, and consequence.
+00:00:48,000 --> 00:00:58,000
+The tool can create the artifact. The team still has to know what the artifact is supposed to change.
 
 8
-00:00:53,000 --> 00:01:04,000
-Inside AmaduTown, the public site is only one layer.
+00:00:58,000 --> 00:01:10,000
+Inside AmaduTown, the public site is one layer. Behind it is the operating layer.
 
 9
-00:01:04,000 --> 00:01:15,000
-Behind it are diagnostic flows, evidence dashboards, approval gates, and render-readiness checks.
+00:01:10,000 --> 00:01:22,000
+Diagnostics, evidence dashboards, review gates, script scorecards, privacy checks, and render-readiness approvals.
 
 10
-00:01:15,000 --> 00:01:25,000
-The system has to remember what happened after it moved.
-
-11
-00:01:25,000 --> 00:01:34,000
+00:01:22,000 --> 00:01:34,000
 Find the signal. Define the decision. Build the loop. Instrument the learning.
 
-12
-00:01:34,000 --> 00:01:45,000
+11
+00:01:34,000 --> 00:01:44,000
 That loop is the difference between moving fast and moving blindly.
 
+12
+00:01:44,000 --> 00:01:54,000
+Start with one workflow where AI is creating faster than your review process can keep up.
+
 13
-00:01:45,000 --> 00:01:55,000
-Technology should reduce burden. It should not create more invisible work.
+00:01:54,000 --> 00:02:05,000
+Write down the decision that workflow is supposed to improve.
 
 14
-00:01:55,000 --> 00:02:05,000
-Move fast to discover. Slow down where the decision carries risk.
+00:02:05,000 --> 00:02:16,000
+Then identify the signal that would prove the work is actually getting better.
 
 15
-00:02:05,000 --> 00:02:16,000
-What is the system learning from all of that speed?
+00:02:16,000 --> 00:02:27,000
+That is your first Accelerated loop.

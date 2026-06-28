@@ -7,12 +7,12 @@
     {
       "id": "module-0",
       "title": "Why Accelerated Exists",
-      "review_status": "approved",
-      "render_status": "ready_for_render_preflight",
-      "primary_video_status": "approved_asset_packet",
-      "shorts_status": "approved_asset_packet",
-      "thumbnail_status": "approved_asset_packet",
-      "privacy_status": "asset_packet_approved_capture_review_required",
+      "review_status": "script_intelligence_review_ready",
+      "render_status": "blocked_until_script_approval",
+      "primary_video_status": "revised_script_ready_for_review",
+      "shorts_status": "revised_script_ready_for_review",
+      "thumbnail_status": "review_required_after_script_update",
+      "privacy_status": "capture_review_required_before_render",
       "asset_packet_path": "docs/accelerated-course-modules/module-0-video-assets"
     },
     {

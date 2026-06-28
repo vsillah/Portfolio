@@ -1,59 +1,64 @@
 # Module 0 YouTube Shorts Packet
 
-Status: approved for render preflight
+Status: ready for script-intelligence human review
 Provider execution: locked until explicit approval
 
 ## Short Title
 
-The Blank Page Is Gone. Judgment Is The Bottleneck.
+The Video Looked Ready. The Script Wasn't.
 
 ## Hook
 
-Anyone can ask AI for a roadmap now.
+The avatar looked real. The cadence worked. The content still missed the pain.
 
 ## 45-Second Script
 
-Anyone can ask AI for a roadmap now.
+The avatar looked real.
 
-A PRD. A persona. A launch plan. A prototype.
+The cadence worked.
 
-In a few minutes, something appears that looks like product work.
+The video finally looked good enough that the tool stopped being the problem.
 
-That is useful. I use these tools every day.
+Then I listened to the script and felt the gap.
 
-But the blank page is not the bottleneck anymore.
+It explained the topic, but it did not make the pain unavoidable. It did not make the next action clear.
+
+That is the AI product trap.
+
+The first version can look finished before the thinking is finished.
+
+So the bottleneck is not the blank page anymore.
 
 The bottleneck is judgment.
 
-AI can help make the first draft. The product leader still has to ask what deserves to exist, what evidence supports it, what risk it creates, and what the system learns after it moves.
+Before you ship the AI-generated artifact, ask one question:
 
-That is why I built *Accelerated* around a simple loop:
+What decision is this supposed to improve?
 
-Find the signal.
+If you cannot answer that, the work is moving faster than the system is learning.
 
-Define the decision.
+That is why I built *Accelerated* around one loop:
 
-Build the loop.
+Signal. Decision. Loop. Learning.
 
-Instrument the learning.
-
-The question is not whether your team can move faster.
-
-The question is whether the system is learning from all that speed.
+Join the Accelerated Workshop interest path if you want help building that loop.
 
 ## Visual Plan
 
-- 0:00-0:04: Direct-to-camera avatar, text: "Anyone can ask AI for a roadmap now."
-- 0:04-0:12: Rapid artifact cards: PRD, persona, launch plan, prototype.
-- 0:12-0:20: Hard pause, text: "The bottleneck is judgment."
-- 0:20-0:34: Four-part loop cards.
-- 0:34-0:45: Closing question over AmaduTown/Accelerated visual.
+- 0:00-0:05: Direct-to-camera avatar, text: "The video looked ready."
+- 0:05-0:12: Split cards: avatar, cadence, production quality.
+- 0:12-0:20: Hard pause, text: "The script missed the pain."
+- 0:20-0:31: Artifact cards: PRD, roadmap, video script, prototype.
+- 0:31-0:41: Four-part loop cards: Signal -> Decision -> Loop -> Learning.
+- 0:41-0:45: CTA card: "Build your first Accelerated loop."
 
 ## Caption
 
-AI made the first draft cheaper. Product judgment became more important.
+AI can make the first version look finished before the thinking is finished.
 
-Module 0 of Accelerated starts here: speed only matters when the system learns from it.
+That is why the bottleneck is judgment now.
+
+Module 0 of Accelerated starts with one question: what decision is this artifact supposed to improve?
 
 ## Hashtags
 

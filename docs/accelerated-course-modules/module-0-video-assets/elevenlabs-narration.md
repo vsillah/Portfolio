@@ -1,52 +1,54 @@
 # Module 0 ElevenLabs Narration Packet
 
-Status: approved for render preflight
+Status: ready for script-intelligence human review
 Provider execution: locked until explicit approval
 
-Use this narration path if Module 0 is produced as a slide-first or audio-first lesson. It is adapted from the primary script with less direct-to-camera phrasing and clearer visual beats.
+Use this narration path if Module 0 is produced as a slide-first or audio-first lesson. It is adapted from the revised primary script with less direct-to-camera phrasing and clearer visual beats.
 
 ## Narration Direction
 
 - Voice: grounded, reflective, practical.
-- Pace: measured, with room between the short operating-loop lines.
-- Avoid overly dramatic trailer delivery.
-- Keep the tone closer to a product leader explaining a hard lesson than a keynote promo.
+- Pace: measured, with real pauses after the opening production-review lines.
+- Avoid trailer delivery.
+- Keep the tone closer to a product leader explaining a hard lesson from a real build than a keynote promo.
 
 ## Narration Script
 
-Anyone can ask AI for a roadmap now.
+A generated lesson preview can look finished before the lesson is actually ready.
 
-The tool can draft a PRD, a persona, a stakeholder map, a launch plan, a prototype, or a set of user stories in minutes.
+The avatar can look real.
 
-That changes the work.
+The cadence can work.
 
-The blank page used to slow teams down. Now the artifact can arrive before the thinking is finished.
+The production quality can be strong enough that the tool stops being the problem.
 
-That speed is useful. It can also create a new burden.
+Then the script exposes the gap.
 
-Teams can make more drafts than they can review, more concepts than they can test, more workflows than they can govern, and more output than the organization can learn from.
+It explains the topic, but it does not make the pain unavoidable. It does not make the next action clear.
 
 That is the reason *Accelerated* exists.
 
-The book does not argue that AI replaces product judgment. It argues that AI makes judgment more important.
+AI can now create the first version before the thinking is finished.
 
-When the first version gets cheap, the expensive work moves to the questions behind the artifact.
+Anyone can ask for a roadmap, a PRD, a persona, a stakeholder map, a launch plan, a prototype, or a video script in minutes.
 
-What problem deserves attention?
+That speed is useful. It can also create a new burden.
 
-What evidence do we trust?
+Teams can make more drafts than they can review, more ideas than they can test, more content than they can defend, and more workflows than they can govern.
 
-What decision are we trying to make?
+The blank page used to slow teams down.
 
-What risk are we introducing?
+Now the bottleneck is judgment.
 
-Who carries the consequence if the system gets it wrong?
+The tool can create the artifact. The team still has to know what the artifact is supposed to change.
 
-Inside AmaduTown, that question is not theoretical. The public site is only one layer. Behind it are diagnostic flows, evidence dashboards, content approval gates, agent workflows, review packets, b-roll capture plans, and render-readiness checks.
+If that answer is unclear, speed becomes expensive.
+
+Inside AmaduTown, this is not theoretical. The public site is one layer. Behind it are diagnostic flows, evidence dashboards, review gates, script scorecards, b-roll plans, privacy checks, and render-readiness approvals.
 
 The operating layer matters because product work does not end when something gets created.
 
-The system has to remember what happened after it moved.
+The system has to learn after the first version moves.
 
 This course is built around a simple loop.
 
@@ -66,22 +68,14 @@ Loop keeps the signal from living only in someone's memory.
 
 Learning gives the team a record of what changed.
 
-That is the difference between moving fast and moving blindly.
+Technology should reduce burden. It should not make teams pretend speed and progress are the same thing.
 
-Technology should reduce burden. It should not create more invisible work for people who were already overloaded. It should not make teams pretend speed and progress are the same thing.
+So start with one workflow where AI is already helping your team create faster than the review process can keep up.
 
-The product leader's job is to keep the work honest.
+Write down the decision that workflow is supposed to improve.
 
-Move fast to discover.
+Then identify the signal that would prove the work is getting better.
 
-Slow down where the decision carries risk.
+That is your first Accelerated loop.
 
-Capture what the system learns.
-
-So start with one place where your team is already moving fast.
-
-Then ask the question most teams skip:
-
-What is the system learning from all of that speed?
-
-If the answer is unclear, the work is not done.
+If you want help building it, join the Accelerated Workshop interest path or book an AI Quick Win discovery call through AmaduTown.
