@@ -51,12 +51,17 @@ export async function POST(
     const { id } = await params
 
     let bodyOverrides: { subject?: string; body?: string } = {}
+    let noSendSmoke = false
     try {
       const raw = await request.json()
       if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
         const o = raw as Record<string, unknown>
         if (typeof o.subject === 'string') bodyOverrides.subject = o.subject
         if (typeof o.body === 'string') bodyOverrides.body = o.body
+        noSendSmoke =
+          o.noSendSmoke === true ||
+          o.dryRun === true ||
+          o.smokeMode === true
       }
     } catch {
       // use DB only
@@ -170,6 +175,21 @@ export async function POST(
         },
         { status: 400 }
       )
+    }
+
+    if (noSendSmoke) {
+      return NextResponse.json({
+        message:
+          'No-send Gmail draft smoke passed. No Gmail draft was created and no email was sent.',
+        noSendSmoke: true,
+        wouldCreateDraft: true,
+        queueId: item.id,
+        to,
+        subject,
+        bodyChars: bodyText.length,
+        requiredSender,
+        connectedAs: creds.google_email,
+      })
     }
 
     let draft: { id: string; messageId?: string; threadId?: string }
