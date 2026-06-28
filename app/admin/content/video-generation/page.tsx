@@ -39,6 +39,10 @@ interface DraftItem {
   status: string
   video_generation_job_id: string | null
   custom_prompt?: string | null
+  script_template_id?: string | null
+  script_outline?: ScriptOutline | null
+  script_scorecard?: ScriptScorecard | null
+  research_packet_ids?: string[] | null
   created_at: string
 }
 
@@ -58,7 +62,46 @@ interface RenderReadinessReport {
     brollAssetIds: string[]
     heygenMode: 'template' | 'avatar_voice' | 'missing'
     approvalBoundary: string
+    scriptScorecard: ScriptScorecard
   }
+}
+
+interface ScriptOutline {
+  pain_point?: string
+  hook?: string
+  open_loop?: string
+  frame?: string
+  proof_demo?: string
+  teaching_beats?: string[]
+  cta?: string
+  closing_question?: string
+  thumbnail_promise?: string
+  source_distance_notes?: string
+}
+
+interface ScriptScorecard {
+  overall_score: number
+  pain_clarity: number
+  hook_strength: number
+  loop_retention: number
+  proof_density: number
+  cta_clarity: number
+  vambah_authority: number
+  source_distance_safety: number
+  blockers: string[]
+  warnings: string[]
+  notes: string[]
+}
+
+interface ScriptTemplate {
+  id: string
+  key: string
+  name: string
+  description: string
+  source_type: 'seeded' | 'creator_pattern' | 'amadutown_performance'
+  source_urls: string[]
+  outline: ScriptOutline
+  status: string
 }
 
 interface DriveQueueItem {
@@ -168,6 +211,28 @@ function lastRunLabel(date: Date | null): string | null {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 
+function emptyScriptScorecard(): ScriptScorecard {
+  return {
+    overall_score: 0,
+    pain_clarity: 0,
+    hook_strength: 0,
+    loop_retention: 0,
+    proof_density: 0,
+    cta_clarity: 0,
+    vambah_authority: 0,
+    source_distance_safety: 0,
+    blockers: [],
+    warnings: [],
+    notes: [],
+  }
+}
+
+function scoreTone(score?: number) {
+  if ((score ?? 0) >= 75) return 'text-emerald-300 border-emerald-500/35 bg-emerald-500/10'
+  if ((score ?? 0) >= 55) return 'text-amber-200 border-amber-500/35 bg-amber-500/10'
+  return 'text-red-200 border-red-500/35 bg-red-500/10'
+}
+
 const HEYGEN_SCRIPT_MAX = 5000
 const AGENTIC_VIDEO_REVIEW_PACKETS = getAgenticContentReviewPacketsForSurface('video')
 const AGENTIC_VIDEO_RENDER_READINESS_PACKETS = getAgenticVideoRenderReadinessPackets()
@@ -200,6 +265,10 @@ export default function VideoGenerationPage() {
   /* --- Plan: From Scratch --- */
   const [scratchLimit, setScratchLimit] = useState(5)
   const [scratchRunning, setScratchRunning] = useState(false)
+  const [scriptTemplates, setScriptTemplates] = useState<ScriptTemplate[]>([])
+  const [scriptTemplatesLoading, setScriptTemplatesLoading] = useState(false)
+  const [selectedScriptTemplateId, setSelectedScriptTemplateId] = useState('')
+  const [scriptIntent, setScriptIntent] = useState('')
 
   /* --- Client context picker --- */
   const [contacts, setContacts] = useState<ContactOption[]>([])
@@ -367,6 +436,24 @@ export default function VideoGenerationPage() {
     finally { setBrollLoading(false) }
   }, [getToken])
 
+  const fetchScriptTemplates = useCallback(async () => {
+    const token = await getToken()
+    if (!token) return
+    setScriptTemplatesLoading(true)
+    try {
+      const res = await fetch('/api/admin/video-generation/script-templates', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        const templatesList = (data.templates ?? []) as ScriptTemplate[]
+        setScriptTemplates(templatesList)
+        setSelectedScriptTemplateId(current => current || templatesList.find(template => template.key === 'killer_script')?.id || templatesList[0]?.id || '')
+      }
+    } catch (err) { console.error('Fetch script templates error:', err) }
+    finally { setScriptTemplatesLoading(false) }
+  }, [getToken])
+
   const effectiveEmail = manualEmailMode ? manualEmail.trim() : (selectedContact?.email ?? '')
 
   const clearContactSelection = () => {
@@ -430,6 +517,7 @@ export default function VideoGenerationPage() {
   useEffect(() => { fetchDrafts() }, [fetchDrafts])
   useEffect(() => { fetchDriveItems() }, [fetchDriveItems])
   useEffect(() => { fetchBrollLibrary() }, [fetchBrollLibrary])
+  useEffect(() => { fetchScriptTemplates() }, [fetchScriptTemplates])
   useEffect(() => { fetchJobs() }, [fetchJobs])
   useEffect(() => { if (planTab === 'meetings') fetchMeetings() }, [fetchMeetings, planTab])
 
@@ -776,6 +864,8 @@ export default function VideoGenerationPage() {
           includeTranscripts: true,
           email: effectiveEmail || undefined,
           meetingIds: selectedMeetingIds.size > 0 ? Array.from(selectedMeetingIds) : undefined,
+          scriptTemplateId: selectedScriptTemplateId || undefined,
+          scriptIntent: scriptIntent || undefined,
         }),
         signal: abort.signal,
         onEvent: (event) => {
@@ -863,6 +953,8 @@ export default function VideoGenerationPage() {
           audience: promptAudience || undefined,
           tone: promptTone || undefined,
           angle: promptAngle || undefined,
+          scriptTemplateId: selectedScriptTemplateId || undefined,
+          scriptIntent: scriptIntent || undefined,
         }),
         signal: abort.signal,
         onEvent: (event) => {
@@ -884,6 +976,7 @@ export default function VideoGenerationPage() {
             setPromptAudience('')
             setPromptTone('')
             setPromptAngle('')
+            setScriptIntent('')
           }
         },
         onError: (err) => {
@@ -1097,6 +1190,7 @@ export default function VideoGenerationPage() {
               brollAssetIds: brollIds ?? [],
               heygenMode: 'missing',
               approvalBoundary: 'Readiness failed before approval could be evaluated.',
+              scriptScorecard: draft?.script_scorecard ?? emptyScriptScorecard(),
             },
           },
         }))
@@ -1624,6 +1718,7 @@ export default function VideoGenerationPage() {
   const btnSmall = 'flex items-center gap-1 text-xs px-2 py-1 rounded disabled:opacity-50'
   const inputCls = 'w-full bg-background border border-silicon-slate rounded-lg px-3 py-2 text-foreground placeholder-gray-500 focus:ring-2 focus:ring-radiant-gold/50'
   const selectCls = inputCls + ' disabled:opacity-60'
+  const selectedScriptTemplate = scriptTemplates.find(template => template.id === selectedScriptTemplateId) ?? null
 
   return (
     <ProtectedRoute requireAdmin>
@@ -1814,6 +1909,66 @@ export default function VideoGenerationPage() {
               Plan
             </h2>
             <p className="text-xs text-gray-400 mb-4 -mt-2">Choose a starting point for new video drafts. All paths create entries in the Decide queue below.</p>
+            <div className="mb-4 rounded-lg border border-radiant-gold/30 bg-radiant-gold/5 p-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.16em] text-radiant-gold">
+                    <FileText className="h-3.5 w-3.5" />
+                    Script intelligence
+                  </div>
+                  <h3 className="mt-1 text-sm font-semibold text-foreground">Choose the script outline before generation</h3>
+                  <p className="mt-1 text-xs leading-5 text-gray-400">
+                    Templates guide pain point, hook, open loop, proof, CTA, and closing question. They do not call HeyGen, ElevenLabs, render, upload, schedule, or publish.
+                  </p>
+                </div>
+                <span className="shrink-0 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-[10px] font-medium text-emerald-300">
+                  Provider gates locked
+                </span>
+              </div>
+              <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+                <label className="block text-xs text-gray-400">
+                  Script template
+                  <select
+                    value={selectedScriptTemplateId}
+                    onChange={e => setSelectedScriptTemplateId(e.target.value)}
+                    disabled={scriptTemplatesLoading || scriptTemplates.length === 0}
+                    className={selectCls + ' mt-1 text-sm'}
+                  >
+                    {scriptTemplatesLoading ? <option>Loading templates...</option> : null}
+                    {scriptTemplates.map(template => (
+                      <option key={template.id} value={template.id}>
+                        {template.name} ({template.source_type.replace(/_/g, ' ')})
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block text-xs text-gray-400">
+                  Script intent
+                  <input
+                    value={scriptIntent}
+                    onChange={e => setScriptIntent(e.target.value)}
+                    placeholder="Example: make Module 0 feel urgent, show the pain, and point to the workshop interest path."
+                    className={inputCls + ' mt-1 text-sm'}
+                  />
+                </label>
+              </div>
+              {selectedScriptTemplate ? (
+                <div className="mt-3 grid gap-2 text-[10px] text-gray-400 md:grid-cols-3">
+                  <div className="rounded-md border border-silicon-slate/70 bg-background/60 p-2">
+                    <span className="text-gray-500">Pain</span>
+                    <p className="mt-1 line-clamp-2 text-gray-300">{selectedScriptTemplate.outline?.pain_point || selectedScriptTemplate.description}</p>
+                  </div>
+                  <div className="rounded-md border border-silicon-slate/70 bg-background/60 p-2">
+                    <span className="text-gray-500">Hook / loop</span>
+                    <p className="mt-1 line-clamp-2 text-gray-300">{selectedScriptTemplate.outline?.hook || selectedScriptTemplate.outline?.open_loop || 'Template hook pending.'}</p>
+                  </div>
+                  <div className="rounded-md border border-silicon-slate/70 bg-background/60 p-2">
+                    <span className="text-gray-500">CTA</span>
+                    <p className="mt-1 line-clamp-2 text-gray-300">{selectedScriptTemplate.outline?.cta || 'CTA required before render.'}</p>
+                  </div>
+                </div>
+              ) : null}
+            </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
               {/* Tabbed card: From Meetings / From Input (spans 2 cols) */}
@@ -2299,6 +2454,9 @@ export default function VideoGenerationPage() {
                       storyboardText: formatStoryboardForEdit(draft),
                     }
                     const editOverLimit = editForm.scriptText.length > HEYGEN_SCRIPT_MAX
+                    const draftScorecard = draft.script_scorecard ?? emptyScriptScorecard()
+                    const draftOutline = draft.script_outline ?? {}
+                    const scriptBlocked = (draftScorecard.blockers?.length ?? 0) > 0
 
                     return (
                       <div key={draft.id} className={`bg-silicon-slate/50 rounded-lg border ${isSelected ? 'border-radiant-gold/50' : isExpanded ? 'border-radiant-gold/30' : 'border-silicon-slate'} transition-colors`}>
@@ -2411,6 +2569,54 @@ export default function VideoGenerationPage() {
                                     )}
                                   </div>
                                 ) : null}
+
+                                {!isEditing && (
+                                  <div className="mb-3 rounded-lg border border-silicon-slate bg-background/50 p-3">
+                                    <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                                      <div>
+                                        <div className="text-xs font-medium text-foreground">Script anatomy</div>
+                                        <div className="text-[10px] text-gray-500">Pain, hook, loop, proof, CTA, and source-distance score before render.</div>
+                                      </div>
+                                      <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${scoreTone(draftScorecard.overall_score)}`}>
+                                        Score {draftScorecard.overall_score || 0}
+                                      </span>
+                                    </div>
+                                    <div className="grid gap-2 text-[10px] md:grid-cols-2">
+                                      <div className="rounded-md border border-silicon-slate/70 p-2">
+                                        <span className="text-gray-500">Pain point</span>
+                                        <p className="mt-1 line-clamp-2 text-gray-300">{draftOutline.pain_point || 'Missing pain point.'}</p>
+                                      </div>
+                                      <div className="rounded-md border border-silicon-slate/70 p-2">
+                                        <span className="text-gray-500">Hook / loop</span>
+                                        <p className="mt-1 line-clamp-2 text-gray-300">{draftOutline.hook || draftOutline.open_loop || 'Missing hook.'}</p>
+                                      </div>
+                                      <div className="rounded-md border border-silicon-slate/70 p-2">
+                                        <span className="text-gray-500">Proof cue</span>
+                                        <p className="mt-1 line-clamp-2 text-gray-300">{draftOutline.proof_demo || 'Proof cue pending.'}</p>
+                                      </div>
+                                      <div className="rounded-md border border-silicon-slate/70 p-2">
+                                        <span className="text-gray-500">CTA / close</span>
+                                        <p className="mt-1 line-clamp-2 text-gray-300">{draftOutline.cta || draftOutline.closing_question || 'CTA required before render.'}</p>
+                                      </div>
+                                    </div>
+                                    <div className="mt-2 flex flex-wrap gap-1.5 text-[10px]">
+                                      <span className={`rounded-full border px-2 py-0.5 ${scoreTone(draftScorecard.pain_clarity)}`}>Pain {draftScorecard.pain_clarity || 0}</span>
+                                      <span className={`rounded-full border px-2 py-0.5 ${scoreTone(draftScorecard.hook_strength)}`}>Hook {draftScorecard.hook_strength || 0}</span>
+                                      <span className={`rounded-full border px-2 py-0.5 ${scoreTone(draftScorecard.cta_clarity)}`}>CTA {draftScorecard.cta_clarity || 0}</span>
+                                      <span className={`rounded-full border px-2 py-0.5 ${scoreTone(draftScorecard.source_distance_safety)}`}>Source distance {draftScorecard.source_distance_safety || 0}</span>
+                                    </div>
+                                    {draftScorecard.blockers?.length ? (
+                                      <ul className="mt-2 space-y-0.5 text-[10px] text-red-200">
+                                        {draftScorecard.blockers.map((blocker, index) => <li key={index}>{blocker}</li>)}
+                                      </ul>
+                                    ) : null}
+                                    {draftScorecard.warnings?.length ? (
+                                      <ul className="mt-2 space-y-0.5 text-[10px] text-amber-200">
+                                        {draftScorecard.warnings.map((warning, index) => <li key={index}>{warning}</li>)}
+                                      </ul>
+                                    ) : null}
+                                  </div>
+                                )}
 
                                 {/* Script preview + storyboard */}
                                 {!isEditing && <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
@@ -2586,7 +2792,15 @@ export default function VideoGenerationPage() {
                                                   <span>{renderReadiness.details.storyboardScenes} scenes</span>
                                                   <span>{renderReadiness.details.brollAssetIds.length} B-roll</span>
                                                   <span>{renderReadiness.details.heygenMode === 'template' ? 'Template' : renderReadiness.details.heygenMode === 'avatar_voice' ? 'Avatar + voice' : 'Missing HeyGen config'}</span>
+                                                  <span>Script score {renderReadiness.details.scriptScorecard?.overall_score ?? 0}</span>
                                                 </div>
+                                                {renderReadiness.details.scriptScorecard ? (
+                                                  <div className="flex flex-wrap gap-1 text-[10px]">
+                                                    <span className={`rounded-full border px-2 py-0.5 ${scoreTone(renderReadiness.details.scriptScorecard.pain_clarity)}`}>Pain {renderReadiness.details.scriptScorecard.pain_clarity}</span>
+                                                    <span className={`rounded-full border px-2 py-0.5 ${scoreTone(renderReadiness.details.scriptScorecard.cta_clarity)}`}>CTA {renderReadiness.details.scriptScorecard.cta_clarity}</span>
+                                                    <span className={`rounded-full border px-2 py-0.5 ${scoreTone(renderReadiness.details.scriptScorecard.source_distance_safety)}`}>Source distance {renderReadiness.details.scriptScorecard.source_distance_safety}</span>
+                                                  </div>
+                                                ) : null}
                                                 {renderReadiness.blockingIssues.length > 0 && (
                                                   <ul className="space-y-0.5 text-amber-300">
                                                     {renderReadiness.blockingIssues.map((issue, index) => <li key={index}>{issue}</li>)}
@@ -2612,9 +2826,9 @@ export default function VideoGenerationPage() {
 	                                              Shaka render approval confirmed from <code className="text-radiant-gold">{VIDEO_RENDER_APPROVAL_PACKET_PATH}</code>. One internal HeyGen review render only; publishing, ElevenLabs, n8n audio, and social queues remain separate approvals.
 	                                            </span>
 	                                          </label>
-	                                          <button onClick={() => generateFromDraft(draft.id)} disabled={overLimit || isEditing || !renderApprovalConfirmed || !!generatingDraftId || !!generatingBatch || generatingGamma} className={btnPrimary + ' text-xs' + (overLimit || isEditing || !renderApprovalConfirmed ? ' opacity-50 cursor-not-allowed' : '')}>
+	                                          <button onClick={() => generateFromDraft(draft.id)} disabled={scriptBlocked || overLimit || isEditing || !renderApprovalConfirmed || !!generatingDraftId || !!generatingBatch || generatingGamma} className={btnPrimary + ' text-xs' + (scriptBlocked || overLimit || isEditing || !renderApprovalConfirmed ? ' opacity-50 cursor-not-allowed' : '')}>
 	                                            {generatingDraftId === draft.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
-	                                            {isEditing ? 'Save review first' : !renderApprovalConfirmed ? 'Confirm render gate' : generatingDraftId && generatingDraftId !== draft.id ? 'Busy...' : 'Generate Video'}
+	                                            {isEditing ? 'Save review first' : scriptBlocked ? 'Resolve script gate' : !renderApprovalConfirmed ? 'Confirm render gate' : generatingDraftId && generatingDraftId !== draft.id ? 'Busy...' : 'Generate Video'}
 	                                          </button>
                                           {heygenProgress && heygenProgress.draftId === draft.id && (
                                             <ProgressPanel title="Generating Video" steps={heygenProgress.steps} variant="inline" onCancel={() => setHeygenProgress(null)} />

@@ -34,6 +34,15 @@ import {
   VideoIdeasGenerationError,
 } from '@/lib/video-ideas-generation'
 import { fetchProviderWithRetry } from '@/lib/llm/provider-fetch'
+import {
+  buildScriptOutlineFromText,
+  evaluateVideoScript,
+  normalizeVideoScriptTemplate,
+  scriptTemplatePromptBlock,
+  SEEDED_VIDEO_SCRIPT_TEMPLATES,
+  type VideoScriptTemplate,
+  type VideoScriptTemplateOutline,
+} from '@/lib/video-script-intelligence'
 
 export const dynamic = 'force-dynamic'
 
@@ -49,6 +58,7 @@ export interface VideoIdeaScene {
 export interface VideoIdea {
   title: string
   script: string
+  scriptOutline?: Partial<VideoScriptTemplateOutline>
   storyboard: {
     scenes: VideoIdeaScene[]
   }
@@ -57,6 +67,18 @@ export interface VideoIdea {
 const IDEA_JSON_SCHEMA = `{
   "title": "string",
   "script": "string (full voice script)",
+  "scriptOutline": {
+    "pain_point": "string",
+    "hook": "string",
+    "open_loop": "string",
+    "frame": "string",
+    "proof_demo": "string",
+    "teaching_beats": ["string"],
+    "cta": "string",
+    "closing_question": "string",
+    "thumbnail_promise": "string",
+    "source_distance_notes": "string"
+  },
   "storyboard": {
     "scenes": [
       {
@@ -101,6 +123,9 @@ interface GenerateParams {
   tone: string
   angle: string
   meetingIds: string[]
+  scriptTemplateId: string
+  researchPacketIds: string[]
+  scriptIntent: string
 }
 
 function parseBody(body: Record<string, unknown>): GenerateParams {
@@ -115,7 +140,39 @@ function parseBody(body: Record<string, unknown>): GenerateParams {
     tone: typeof body.tone === 'string' ? (body.tone as string).trim() : '',
     angle: typeof body.angle === 'string' ? (body.angle as string).trim() : '',
     meetingIds: Array.isArray(body.meetingIds) ? (body.meetingIds as string[]).filter(id => typeof id === 'string').slice(0, 50) : [],
+    scriptTemplateId: typeof body.scriptTemplateId === 'string' ? (body.scriptTemplateId as string).trim() : '',
+    researchPacketIds: Array.isArray(body.researchPacketIds) ? (body.researchPacketIds as string[]).filter(id => typeof id === 'string').slice(0, 5) : [],
+    scriptIntent: typeof body.scriptIntent === 'string' ? (body.scriptIntent as string).trim().slice(0, 1000) : '',
   }
+}
+
+function isUuid(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
+}
+
+async function fetchScriptTemplate(templateId: string): Promise<VideoScriptTemplate | null> {
+  if (!templateId) return null
+  const seeded = SEEDED_VIDEO_SCRIPT_TEMPLATES.find((template) => template.id === templateId || template.key === templateId)
+  if (!isUuid(templateId)) return seeded ?? null
+
+  const { data, error } = await supabaseAdmin
+    .from('video_script_templates')
+    .select('*')
+    .eq('id', templateId)
+    .single()
+
+  if (error || !data) return seeded ?? null
+  return normalizeVideoScriptTemplate(data as Record<string, unknown>)
+}
+
+async function fetchResearchPackets(researchPacketIds: string[]) {
+  if (researchPacketIds.length === 0) return []
+  const { data, error } = await supabaseAdmin
+    .from('social_content_research_packets')
+    .select('id, source_url, platform, title, hook_transcript, pattern_packet, pattern_status, privacy_notes')
+    .in('id', researchPacketIds)
+  if (error) return []
+  return (data ?? []) as Array<Record<string, unknown>>
 }
 
 async function runGeneration(
@@ -124,7 +181,7 @@ async function runGeneration(
   agentRunId?: string | null,
   onStep?: (data: Record<string, unknown>) => void
 ): Promise<{ ideas: VideoIdea[]; addedToQueue: number; mode: string; error?: string }> {
-  const { mode, limit, includeTranscripts, customPrompt, email, audience, tone, angle, meetingIds } = params
+  const { mode, limit, includeTranscripts, customPrompt, email, audience, tone, angle, meetingIds, scriptTemplateId, researchPacketIds, scriptIntent } = params
 
   onStep?.({ step: 'fetching_context', detail: email ? 'Loading client context...' : 'Loading meetings, chats, site content...' })
 
@@ -156,7 +213,17 @@ async function runGeneration(
     contextText = serializeContextForPrompt(ctx)
   }
 
-  const directionDetails = [audience && `Target audience: ${audience}`, tone && `Tone/style: ${tone}`, angle && `Angle/hook: ${angle}`].filter(Boolean).join('\n')
+  const scriptTemplate = await fetchScriptTemplate(scriptTemplateId)
+  const researchPackets = await fetchResearchPackets(researchPacketIds)
+  const scriptTemplateBlock = scriptTemplatePromptBlock(scriptTemplate, researchPackets)
+
+  const directionDetails = [
+    audience && `Target audience: ${audience}`,
+    tone && `Tone/style: ${tone}`,
+    angle && `Angle/hook: ${angle}`,
+    scriptIntent && `Script intent: ${scriptIntent}`,
+    scriptTemplateBlock && `Script intelligence:\n${scriptTemplateBlock}`,
+  ].filter(Boolean).join('\n')
 
   let systemPrompt: string
   let userPrompt: string
@@ -169,7 +236,7 @@ async function runGeneration(
     if (contextText) parts.push(`\nBackground context:\n${contextText}`)
     if (limit > 1) parts.push(`\nGenerate ${limit} variations.`)
     else parts.push('\nReturn 1 polished idea with storyboard.')
-    parts.push('\nReturn a JSON object with key "ideas". No markdown, no code fences.')
+    parts.push('\nReturn a JSON object with key "ideas". Every idea must include scriptOutline with pain_point, hook, open_loop, frame, proof_demo, teaching_beats, cta, closing_question, thumbnail_promise, and source_distance_notes. No markdown, no code fences.')
     userPrompt = parts.join('\n')
   } else {
     systemPrompt = BRAINSTORM_SYSTEM_PROMPT
@@ -178,7 +245,7 @@ async function runGeneration(
     if (directionDetails) parts.push(`\nDirection:\n${directionDetails}`)
     if (emailContext) parts.push(`\nClient context:\n${emailContext}`)
     parts.push(`\nContext:\n${contextText}`)
-    parts.push('\nReturn a JSON object with a single key "ideas" containing an array of ideas. No markdown, no code fences.')
+    parts.push('\nReturn a JSON object with a single key "ideas" containing an array of ideas. Every idea must include scriptOutline with pain_point, hook, open_loop, frame, proof_demo, teaching_beats, cta, closing_question, thumbnail_promise, and source_distance_notes. No markdown, no code fences.')
     userPrompt = parts.join('\n')
   }
 
@@ -281,14 +348,32 @@ async function runGeneration(
   onStep?.({ step: 'inserting', detail: `Adding ${ideas.length} draft(s) to queue...` })
 
   const source = mode === 'from_direction' ? 'manual' : 'llm_generated'
-  const rows = ideas.map((idea) => ({
-    title: idea.title,
-    script_text: idea.script,
-    storyboard_json: idea.storyboard ?? { scenes: [] },
-    source,
-    status: 'pending',
-    custom_prompt: customPrompt || null,
-  }))
+  const templateDbId = scriptTemplate && isUuid(scriptTemplate.id) ? scriptTemplate.id : null
+  const rows = ideas.map((idea) => {
+    const ideaRecord = idea as VideoIdea & { script_outline?: Partial<VideoScriptTemplateOutline> }
+    const providedOutline = ideaRecord.scriptOutline ?? ideaRecord.script_outline
+    const scriptOutline = providedOutline && Object.keys(providedOutline).length > 0
+      ? providedOutline
+      : buildScriptOutlineFromText({ scriptText: idea.script, template: scriptTemplate })
+    const scriptScorecard = evaluateVideoScript({
+      scriptText: idea.script,
+      outline: scriptOutline,
+      template: scriptTemplate,
+      researchPacketCount: researchPackets.length,
+    })
+    return {
+      title: idea.title,
+      script_text: idea.script,
+      storyboard_json: idea.storyboard ?? { scenes: [] },
+      source,
+      status: 'pending',
+      custom_prompt: customPrompt || null,
+      script_template_id: templateDbId,
+      script_outline: scriptOutline,
+      script_scorecard: scriptScorecard,
+      research_packet_ids: researchPackets.map((packet) => packet.id).filter((id): id is string => typeof id === 'string'),
+    }
+  })
   const { data: inserted, error } = await supabaseAdmin
     .from('video_ideas_queue')
     .insert(rows)
@@ -337,6 +422,9 @@ export async function POST(request: NextRequest) {
         has_custom_prompt: !!params.customPrompt,
         has_email_context: !!params.email,
         meeting_ids_count: params.meetingIds.length,
+        script_template_id: params.scriptTemplateId || null,
+        research_packet_ids_count: params.researchPacketIds.length,
+        has_script_intent: !!params.scriptIntent,
       },
     })
     agentRunId = agentRun.id
@@ -353,6 +441,8 @@ export async function POST(request: NextRequest) {
         limit: params.limit,
         include_transcripts: params.includeTranscripts,
         meeting_ids_count: params.meetingIds.length,
+        script_template_id: params.scriptTemplateId || null,
+        research_packet_ids_count: params.researchPacketIds.length,
       },
       idempotencyKey: `${activeAgentRunId}:video_ideas_request_validated`,
     }).catch((err) => console.warn('[generate-ideas] agent validation step failed:', err))

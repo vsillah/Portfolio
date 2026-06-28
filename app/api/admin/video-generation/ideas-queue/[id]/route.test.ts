@@ -69,12 +69,17 @@ describe('PATCH /api/admin/video-generation/ideas-queue/[id]', () => {
       id: 'draft-1',
       status: 'pending',
       video_generation_job_id: null,
+      script_outline: {},
+      research_packet_ids: [],
     })
     const updateBuilder = mockQueueUpdate({
       id: 'draft-1',
       title: 'The Receipt Every Agent Needs',
       script_text: 'The first thing I built around agents was the receipt.',
       storyboard_json: { scenes: [{ sceneNumber: 1, description: 'Opening', brollHint: 'home' }] },
+      script_outline: {},
+      script_scorecard: {},
+      research_packet_ids: [],
       source: 'manual',
       status: 'pending',
       video_generation_job_id: null,
@@ -99,13 +104,19 @@ describe('PATCH /api/admin/video-generation/ideas-queue/[id]', () => {
     const body = await response.json()
 
     expect(response.status).toBe(200)
-    expect(updateBuilder.update).toHaveBeenCalledWith({
+    expect(updateBuilder.update).toHaveBeenCalledWith(expect.objectContaining({
       title: 'The Receipt Every Agent Needs',
       script_text: 'The first thing I built around agents was the receipt.',
       storyboard_json: {
         scenes: [{ sceneNumber: 1, description: 'Opening', brollHint: 'home' }],
       },
-    })
+      script_outline: expect.objectContaining({
+        hook: expect.stringContaining('The first thing'),
+      }),
+      script_scorecard: expect.objectContaining({
+        overall_score: expect.any(Number),
+      }),
+    }))
     expect(body.item.id).toBe('draft-1')
   })
 

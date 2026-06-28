@@ -1,9 +1,14 @@
+import { evaluateVideoScript, type VideoScriptScorecard, type VideoScriptTemplateOutline } from './video-script-intelligence'
+
 export const VIDEO_RENDER_SCRIPT_MAX = 5000
 
 export interface VideoRenderReadinessInput {
   title: string | null
   status: string | null
   scriptText: string | null
+  scriptOutline?: Partial<VideoScriptTemplateOutline> | null
+  scriptScorecard?: VideoScriptScorecard | null
+  researchPacketIds?: string[]
   storyboardScenes: number
   videoGenerationJobId: string | null
   templateId: string | null
@@ -30,6 +35,7 @@ export interface VideoRenderReadinessReport {
     channel: string
     aspectRatio: string
     approvalBoundary: string
+    scriptScorecard: VideoScriptScorecard
   }
 }
 
@@ -58,6 +64,14 @@ export function buildVideoRenderReadinessReport(input: VideoRenderReadinessInput
     blockingIssues.push('HeyGen template or avatar and voice must be configured before render.')
   }
 
+  const scriptScorecard = input.scriptScorecard ?? evaluateVideoScript({
+    scriptText,
+    outline: input.scriptOutline,
+    researchPacketCount: input.researchPacketIds?.length ?? 0,
+  })
+  blockingIssues.push(...scriptScorecard.blockers)
+  warnings.push(...scriptScorecard.warnings)
+
   if (input.storyboardScenes === 0) {
     warnings.push('No storyboard scenes are attached for visual direction.')
   }
@@ -84,6 +98,7 @@ export function buildVideoRenderReadinessReport(input: VideoRenderReadinessInput
       channel: input.channel,
       aspectRatio: input.aspectRatio,
       approvalBoundary: 'Readiness does not start a render. Shaka render approval is still required before HeyGen is called.',
+      scriptScorecard,
     },
   }
 }

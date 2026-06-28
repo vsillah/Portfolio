@@ -38,7 +38,17 @@ function queueFetchBuilder(overrides: Record<string, unknown> = {}) {
     data: {
       id: 'draft-1',
       title: 'The Receipt Every Agent Needs',
-      script_text: 'The first thing I built around agents was the receipt.',
+      script_text: 'The problem is that AI can create faster than teams can govern. I built the Portfolio workflow to show the receipt. Join the workshop interest path if you want the operating loop.',
+      script_outline: {
+        pain_point: 'AI can create faster than teams can govern.',
+        hook: 'AI can create faster than teams can govern.',
+        open_loop: 'Show the operating loop behind the work.',
+        proof_demo: 'I built the Portfolio workflow to show the receipt.',
+        cta: 'Join the workshop interest path.',
+        source_distance_notes: 'AmaduTown original proof.',
+      },
+      script_scorecard: null,
+      research_packet_ids: [],
       storyboard_json: { scenes: [{ brollHint: 'admin' }] },
       status: 'pending',
       video_generation_job_id: null,
