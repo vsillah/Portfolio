@@ -109,3 +109,21 @@ export async function createUserGmailDraft(
   }
   return { id, messageId, threadId }
 }
+
+export async function sendUserGmailDraft(
+  refreshToken: string,
+  draftId: string
+): Promise<{ id?: string; threadId?: string; labelIds?: string[] }> {
+  const oauth2Client = getGmailUserOAuth2Client()
+  oauth2Client.setCredentials({ refresh_token: refreshToken })
+  const gmail = google.gmail({ version: 'v1', auth: oauth2Client })
+  const res = await gmail.users.drafts.send({
+    userId: 'me',
+    requestBody: { id: draftId },
+  })
+  return {
+    id: res.data.id ?? undefined,
+    threadId: res.data.threadId ?? undefined,
+    labelIds: res.data.labelIds ?? undefined,
+  }
+}
