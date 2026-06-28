@@ -3,6 +3,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 const mocks = vi.hoisted(() => ({
   runChiefOfStaffChat: vi.fn(),
   handleSlackAgentAction: vi.fn(),
+  sendUserGmailDraft: vi.fn(),
+  decryptRefreshToken: vi.fn(),
+  resolveBusinessEmailConfig: vi.fn(),
   from: vi.fn(),
 }))
 
@@ -18,10 +21,23 @@ vi.mock('@/lib/supabase', () => ({
   supabaseAdmin: { from: mocks.from },
 }))
 
+vi.mock('@/lib/gmail-user-api', () => ({
+  sendUserGmailDraft: mocks.sendUserGmailDraft,
+}))
+
+vi.mock('@/lib/gmail-user-oauth-crypto', () => ({
+  decryptRefreshToken: mocks.decryptRefreshToken,
+}))
+
+vi.mock('@/lib/business-email-config', () => ({
+  resolveBusinessEmailConfig: mocks.resolveBusinessEmailConfig,
+}))
+
 import {
   formatChiefOfStaffSlackReply,
   handleSlackAgentEvent,
   normalizeSlackAgentMessage,
+  parseRevenueReplyApprovalCommand,
   shouldHandleSlackAgentEvent,
 } from './agent-slack-events'
 
@@ -32,8 +48,11 @@ function queryResult(result: unknown) {
     select: vi.fn(() => query),
     eq: vi.fn(() => query),
     filter: vi.fn(() => query),
+    ilike: vi.fn(() => query),
+    update: vi.fn(() => query),
     order: vi.fn(() => query),
     limit: vi.fn(() => query),
+    single: vi.fn(() => Promise.resolve(result)),
     maybeSingle: vi.fn(() => Promise.resolve(result)),
   }
   return query
@@ -78,6 +97,9 @@ describe('agent Slack events', () => {
       responseType: 'ephemeral',
       text: 'Blocker acknowledged. Ask Shaka for a next-step recommendation.',
     })
+    mocks.decryptRefreshToken.mockReturnValue('refresh-token')
+    mocks.resolveBusinessEmailConfig.mockReturnValue({ fromEmail: 'vambah@amadutown.com' })
+    mocks.sendUserGmailDraft.mockResolvedValue({ id: 'message-1', threadId: 'thread-1' })
     mocks.runChiefOfStaffChat.mockResolvedValue({
       runId: 'run-123',
       reply: 'Two items need attention.',
@@ -132,6 +154,16 @@ describe('agent Slack events', () => {
     })).toBe(false)
 
     expect(shouldHandleSlackAgentEvent({
+      type: 'message',
+      channel_type: 'channel',
+      user: 'U123',
+      channel: 'C123',
+      text: 'safe to send',
+      ts: '1700000000.000002',
+      thread_ts: '1700000000.000001',
+    })).toBe(true)
+
+    expect(shouldHandleSlackAgentEvent({
       type: 'app_mention',
       bot_id: 'B123',
       user: 'U123',
@@ -144,6 +176,17 @@ describe('agent Slack events', () => {
     expect(normalizeSlackAgentMessage({
       text: '<@UAGENT>   what is blocked right now?  <@UOTHER>',
     })).toBe('what is blocked right now?')
+  })
+
+  it('parses revenue reply approval phrases conservatively', () => {
+    expect(parseRevenueReplyApprovalCommand('safe to send')).toEqual({ action: 'safe_to_send' })
+    expect(parseRevenueReplyApprovalCommand('Safe to send.')).toEqual({ action: 'safe_to_send' })
+    expect(parseRevenueReplyApprovalCommand('hold')).toEqual({ action: 'hold', note: 'hold' })
+    expect(parseRevenueReplyApprovalCommand('modify: tighten the opening')).toEqual({
+      action: 'modify',
+      note: 'tighten the opening',
+    })
+    expect(parseRevenueReplyApprovalCommand('send it')).toBeNull()
   })
 
   it('routes a Slack mention into Chief of Staff chat and replies in thread', async () => {
@@ -294,6 +337,127 @@ describe('agent Slack events', () => {
       ],
     })
     expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
+  })
+
+  it('sends a revenue reply Gmail draft from a guarded Slack safe-to-send thread reply', async () => {
+    const appDraftId = '9abee71a-930d-49e9-a2b5-d929021ec9cb'
+    const gmailDraftId = 'r5747226337828186444'
+    mocks.from
+      .mockReturnValueOnce(queryResult({ data: null, error: null }))
+      .mockReturnValueOnce(queryResult({
+        data: {
+          id: appDraftId,
+          status: 'draft',
+          subject: 'Re: controlled smoke',
+          client_email: 'lead@example.com',
+        },
+        error: null,
+      }))
+      .mockReturnValueOnce(queryResult({
+        data: {
+          google_email: 'vambah@amadutown.com',
+          refresh_token_cipher: 'cipher',
+          refresh_token_iv: 'iv',
+          refresh_token_tag: 'tag',
+        },
+        error: null,
+      }))
+      .mockReturnValueOnce(queryResult({ data: { id: appDraftId }, error: null }))
+
+    vi.mocked(fetch)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          ok: true,
+          messages: [
+            {
+              ts: '1700000000.000001',
+              text: [
+                ':incoming_envelope: *Revenue reply ready for approval*',
+                `*App draft ID:* ${appDraftId}`,
+                `*Gmail draft ID:* ${gmailDraftId}`,
+                'Reply in Codex or Slack with: `safe to send`, `modify: ...`, or `hold`.',
+              ].join('\n'),
+            },
+          ],
+        }),
+      } as never)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ ok: true, ts: '1700000000.000010' }),
+      } as never)
+
+    const result = await handleSlackAgentEvent({
+      type: 'event_callback',
+      event_id: 'EvRevenueSend',
+      event: {
+        type: 'message',
+        channel_type: 'channel',
+        user: 'U123',
+        channel: 'C123',
+        text: 'safe to send',
+        ts: '1700000000.000009',
+        thread_ts: '1700000000.000001',
+      },
+    })
+
+    expect(result).toEqual({ handled: true, reason: 'revenue_reply_approval_action' })
+    expect(mocks.decryptRefreshToken).toHaveBeenCalledWith('cipher', 'iv', 'tag')
+    expect(mocks.sendUserGmailDraft).toHaveBeenCalledWith('refresh-token', gmailDraftId)
+    expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
+    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1]?.body).toContain('marked app draft')
+  })
+
+  it('holds revenue reply drafts without sending email', async () => {
+    const appDraftId = '9abee71a-930d-49e9-a2b5-d929021ec9cb'
+    const gmailDraftId = 'r5747226337828186444'
+    mocks.from
+      .mockReturnValueOnce(queryResult({ data: null, error: null }))
+      .mockReturnValueOnce(queryResult({
+        data: {
+          id: appDraftId,
+          status: 'draft',
+          subject: 'Re: controlled smoke',
+          client_email: 'lead@example.com',
+        },
+        error: null,
+      }))
+
+    vi.mocked(fetch)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          ok: true,
+          messages: [
+            {
+              ts: '1700000000.000001',
+              text: `*Revenue reply ready for approval*\n*App draft ID:* ${appDraftId}\n*Gmail draft ID:* ${gmailDraftId}`,
+            },
+          ],
+        }),
+      } as never)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ ok: true, ts: '1700000000.000010' }),
+      } as never)
+
+    const result = await handleSlackAgentEvent({
+      type: 'event_callback',
+      event_id: 'EvRevenueHold',
+      event: {
+        type: 'message',
+        channel_type: 'channel',
+        user: 'U123',
+        channel: 'C123',
+        text: 'hold',
+        ts: '1700000000.000009',
+        thread_ts: '1700000000.000001',
+      },
+    })
+
+    expect(result).toEqual({ handled: true, reason: 'revenue_reply_approval_action' })
+    expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
+    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1]?.body).toContain('remains unsent')
   })
 
   it('turns rejection thread replies into governed approval rejection actions', async () => {

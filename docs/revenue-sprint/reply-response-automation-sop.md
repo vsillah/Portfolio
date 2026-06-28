@@ -24,12 +24,11 @@ No external reply should be sent automatically. The send gate remains the exact 
 
 For revenue outreach replies:
 
-- Detect and alert within 30 minutes.
-- Draft a follow-up within 60 minutes.
+- Detect, draft, and alert on the approved WF-GDR cadence, currently every 4 hours.
 - Escalate scheduling intent, buying intent, or referral names as high priority.
 - If automation fails, produce a daily exception report so the failure is visible.
 
-The workflow can run more frequently than the general inbox sweep because this lane is tied to active sales experiments. General inbox triage can remain slower; revenue replies need faster handling.
+The 4-hour cadence is a deliberate cost/noise tradeoff for this phase. Tighten it only if reply lag becomes the experiment bottleneck.
 
 ## Existing Assets To Reuse
 
@@ -72,7 +71,10 @@ Do not rely on the current checked-in WF-GDR export as production-ready until th
 4. Confirm reply matching uses Gmail `thread_id` from the sent outreach row.
 5. Confirm Slack alert delivery goes to Vambah personally or the configured owner alert channel.
 6. Confirm Gmail draft creation does not send automatically.
-7. Confirm the exact phrase `safe to send` is required before any AI-assisted send action.
+7. Confirm the Slack alert includes both:
+   - `App draft ID`
+   - `Gmail draft ID`
+8. Confirm the exact phrase `safe to send` is required before any AI-assisted send action.
 
 ## Reply Classification
 
@@ -99,9 +101,11 @@ Each alert should include:
 - reply summary,
 - recommended next move,
 - draft follow-up,
+- app draft ID,
+- Gmail draft ID,
 - explicit approval prompt:
 
-`Reply safe to send, or send edits.`
+`Reply in Codex or Slack with: safe to send, modify: ..., or hold.`
 
 Do not include phone numbers, secrets, raw contact exports, or unnecessary private relationship notes in alerts.
 
@@ -148,7 +152,7 @@ Send is allowed only after Vambah gives explicit approval with:
 
 `safe to send`
 
-If Vambah sends edits instead, revise the draft and ask again.
+If Vambah replies `hold`, the draft remains unsent. If Vambah replies `modify: ...`, capture the requested change, keep the draft unsent, revise in Codex or Portfolio, and ask again.
 
 ## Weekly Experiment Protection
 

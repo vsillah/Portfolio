@@ -2,6 +2,9 @@ import { runChiefOfStaffChat } from '@/lib/chief-of-staff-chat'
 import { handleSlackAgentAction } from '@/lib/agent-slack-actions'
 import { decodeSlackActionValue, type SlackAgentActionValue } from '@/lib/agent-slack-blocks'
 import { supabaseAdmin } from '@/lib/supabase'
+import { resolveBusinessEmailConfig } from '@/lib/business-email-config'
+import { sendUserGmailDraft } from '@/lib/gmail-user-api'
+import { decryptRefreshToken } from '@/lib/gmail-user-oauth-crypto'
 
 export type SlackAgentEvent = {
   type?: string
@@ -38,11 +41,24 @@ type SlackThreadContext = {
   actions: SlackAgentActionValue[]
 }
 
+type RevenueReplyApprovalCommand =
+  | { action: 'safe_to_send' }
+  | { action: 'hold'; note?: string }
+  | { action: 'modify'; note: string }
+
+type RevenueReplyApprovalContext = {
+  appDraftId: string
+  gmailDraftId: string
+}
+
 export function shouldHandleSlackAgentEvent(event: SlackAgentEvent | undefined): event is HandleableSlackAgentEvent {
   if (!event) return false
   if (event.bot_id || event.subtype) return false
   if (!event.user || !event.channel) return false
   if (event.type === 'app_mention') return true
+  if (event.type === 'message' && event.thread_ts && parseRevenueReplyApprovalCommand(normalizeSlackAgentMessage(event))) {
+    return true
+  }
   return event.type === 'message' && event.channel_type === 'im'
 }
 
@@ -147,6 +163,121 @@ function singleWorkItemId(actions: SlackAgentActionValue[]) {
   return workItemIds.size === 1 ? [...workItemIds][0] : null
 }
 
+export function parseRevenueReplyApprovalCommand(message: string): RevenueReplyApprovalCommand | null {
+  const trimmed = message.trim()
+  const normalized = trimmed.toLowerCase()
+  if (/^safe\s+to\s+send[.!]?$/.test(normalized)) return { action: 'safe_to_send' }
+  if (/^hold\b/.test(normalized)) return { action: 'hold', note: noteFromReply(trimmed, 'Held from Slack thread reply.') }
+  const modifyMatch = trimmed.match(/^modify\s*:\s*([\s\S]+)/i)
+  if (modifyMatch?.[1]?.trim()) return { action: 'modify', note: modifyMatch[1].trim() }
+  return null
+}
+
+function parseRevenueReplyApprovalContext(text: string): RevenueReplyApprovalContext | null {
+  if (!/Revenue reply ready for approval/i.test(text)) return null
+
+  const appDraftId = text.match(/\*?App draft ID:\*?\s*`?([0-9a-f-]{36})`?/i)?.[1]
+  const gmailDraftId = text.match(/\*?Gmail draft ID:\*?\s*`?([A-Za-z0-9_-]+)`?/i)?.[1]
+  if (!appDraftId || !gmailDraftId) return null
+  return { appDraftId, gmailDraftId }
+}
+
+async function findRevenueReplyApprovalContext(channel: string, threadTs: string): Promise<RevenueReplyApprovalContext | null> {
+  const token = process.env.SLACK_BOT_TOKEN
+  if (!token) return null
+
+  const url = new URL('https://slack.com/api/conversations.replies')
+  url.searchParams.set('channel', channel)
+  url.searchParams.set('ts', threadTs)
+  url.searchParams.set('limit', '20')
+  url.searchParams.set('inclusive', 'true')
+
+  const response = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  const body = await response.json().catch(() => null)
+  if (!response.ok || body?.ok === false || !Array.isArray(body?.messages)) {
+    console.warn('[agent-slack-events] Slack thread fetch failed:', response.status, body)
+    return null
+  }
+
+  const parent = body.messages.find((message: { ts?: string }) => message.ts === threadTs) ?? body.messages[0]
+  const text = typeof parent?.text === 'string' ? parent.text : ''
+  return parseRevenueReplyApprovalContext(text)
+}
+
+async function handleRevenueReplyApprovalCommand(command: RevenueReplyApprovalCommand, context: RevenueReplyApprovalContext) {
+  if (!supabaseAdmin) {
+    return 'Revenue reply approval could not run because the database is not available. No email was sent.'
+  }
+
+  const { data: draft, error: draftError } = await supabaseAdmin
+    .from('client_update_drafts')
+    .select('id, status, subject, client_email')
+    .eq('id', context.appDraftId)
+    .single()
+
+  if (draftError || !draft?.id) {
+    console.warn('[agent-slack-events] Revenue reply draft lookup failed:', draftError)
+    return `I could not find app draft ${context.appDraftId}. No email was sent.`
+  }
+
+  if (command.action === 'hold') {
+    return `Held. App draft ${context.appDraftId} remains unsent.`
+  }
+
+  if (command.action === 'modify') {
+    return [
+      `Modification request captured for app draft ${context.appDraftId}.`,
+      `Requested change: ${command.note}`,
+      'No email was sent. Continue iterating in Codex or update the draft, then reply `safe to send` when approved.',
+    ].join('\n')
+  }
+
+  if (draft.status === 'sent') {
+    return `App draft ${context.appDraftId} is already marked sent. No duplicate email was sent.`
+  }
+
+  const requiredSender = resolveBusinessEmailConfig().fromEmail.toLowerCase()
+  const { data: credential, error: credentialError } = await supabaseAdmin
+    .from('admin_gmail_user_credentials')
+    .select('google_email, refresh_token_cipher, refresh_token_iv, refresh_token_tag')
+    .ilike('google_email', requiredSender)
+    .limit(1)
+    .maybeSingle()
+
+  if (credentialError || !credential?.refresh_token_cipher || !credential?.refresh_token_iv || !credential?.refresh_token_tag) {
+    console.warn('[agent-slack-events] Revenue reply Gmail credential lookup failed:', credentialError)
+    return `No connected Gmail credential was found for ${requiredSender}. No email was sent.`
+  }
+
+  const refreshToken = decryptRefreshToken(
+    credential.refresh_token_cipher as string,
+    credential.refresh_token_iv as string,
+    credential.refresh_token_tag as string,
+  )
+  await sendUserGmailDraft(refreshToken, context.gmailDraftId)
+
+  const { error: updateError } = await supabaseAdmin
+    .from('client_update_drafts')
+    .update({
+      status: 'sent',
+      sent_at: new Date().toISOString(),
+      sent_via: 'email',
+    })
+    .eq('id', context.appDraftId)
+    .eq('status', 'draft')
+    .select('id')
+    .single()
+
+  if (updateError) {
+    console.warn('[agent-slack-events] Revenue reply sent but draft status update failed:', updateError)
+    return `Sent Gmail draft ${context.gmailDraftId}, but Portfolio could not mark app draft ${context.appDraftId} as sent.`
+  }
+
+  return `Sent Gmail draft ${context.gmailDraftId} from ${requiredSender} and marked app draft ${context.appDraftId} as sent.`
+}
+
 function replyActionFromMessage(message: string, context: SlackThreadContext): SlackAgentActionValue | null {
   const normalized = message.trim().toLowerCase()
   const assignMatch = normalized.match(/^assign\s+([a-z0-9_-]+)/)
@@ -227,6 +358,20 @@ export async function handleSlackAgentEvent(payload: SlackAgentEventPayload) {
   const threadContext = event.thread_ts
     ? await findSlackThreadContext(channel, event.thread_ts)
     : null
+  const revenueReplyCommand = event.thread_ts ? parseRevenueReplyApprovalCommand(message) : null
+  if (revenueReplyCommand) {
+    const revenueReplyContext = await findRevenueReplyApprovalContext(channel, event.thread_ts as string)
+    if (revenueReplyContext) {
+      const text = await handleRevenueReplyApprovalCommand(revenueReplyCommand, revenueReplyContext)
+      await postSlackAgentMessage({
+        channel,
+        threadTs: event.thread_ts || event.ts,
+        text,
+      })
+      return { handled: true as const, reason: 'revenue_reply_approval_action' }
+    }
+  }
+
   const replyAction = threadContext ? replyActionFromMessage(message, threadContext) : null
   if (replyAction) {
     const actionResult = await handleSlackAgentAction({
@@ -244,6 +389,10 @@ export async function handleSlackAgentEvent(payload: SlackAgentEventPayload) {
     })
 
     return { handled: true as const, reason: 'thread_reply_action' }
+  }
+
+  if (event.type === 'message' && event.channel_type !== 'im') {
+    return { handled: false as const, reason: 'unsupported_channel_thread_reply' }
   }
 
   const contextRef = threadContext ? { type: 'run' as const, id: threadContext.runId } : null
