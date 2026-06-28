@@ -47,6 +47,7 @@
     "mobile-foundry:analyze": "tsx scripts/mobile-app-foundry-analyze.ts",
     "mobile-foundry:prototype-packet": "tsx scripts/mobile-app-foundry-prototype-packet.ts",
     "mobile-foundry:commercialization-packet": "tsx scripts/mobile-app-foundry-commercialization-packet.ts",
+    "course:accelerated:validate": "tsx scripts/validate-accelerated-course-modules.ts",
     "client:seed-mark-reversr": "tsx scripts/seed-mark-reversr-build-evidence.ts",
     "client:seed-mark-reversr-assessment": "tsx scripts/seed-mark-reversr-assessment.ts",
     "open-brain:mcp": "tsx scripts/open-brain-mcp-server.ts",
