@@ -4,6 +4,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ADMIN_NAV } from '@/lib/admin-nav'
 import CredentialAdminPage from './page'
 
+const replaceMock = vi.fn()
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    replace: replaceMock,
+  }),
+  useSearchParams: () => new URLSearchParams(),
+}))
+
 vi.mock('@/components/ProtectedRoute', () => ({
   default: ({ children }: { children: ReactNode }) => <>{children}</>,
 }))
@@ -132,6 +141,7 @@ const baseReport = {
 
 describe('CredentialAdminPage', () => {
   beforeEach(() => {
+    replaceMock.mockClear()
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input)
       const env = url.includes('env=prod') ? 'prod' : 'staging'
