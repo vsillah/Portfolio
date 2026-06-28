@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { buildClientEmailContextHandoff } from '@/lib/inbound-outreach-handoff'
 
 export const dynamic = 'force-dynamic'
 
@@ -138,25 +139,33 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    const projectPayload = {
+      id: project.id,
+      client_name: project.client_name,
+      client_email: project.client_email,
+      client_company: project.client_company,
+      project_name: project.project_name,
+      project_status: project.project_status,
+      current_phase: project.current_phase,
+      product_purchased: project.product_purchased,
+      slack_channel: project.slack_channel,
+      project_start_date: project.project_start_date,
+      estimated_end_date: project.estimated_end_date,
+    }
+
     return NextResponse.json({
       found: true,
       source_type: 'client_project',
-      project: {
-        id: project.id,
-        client_name: project.client_name,
-        client_email: project.client_email,
-        client_company: project.client_company,
-        project_name: project.project_name,
-        project_status: project.project_status,
-        current_phase: project.current_phase,
-        product_purchased: project.product_purchased,
-        slack_channel: project.slack_channel,
-        project_start_date: project.project_start_date,
-        estimated_end_date: project.estimated_end_date,
-      },
+      project: projectPayload,
       milestones,
       last_meeting: lastMeeting,
       action_items: actionItems,
+      handoff: buildClientEmailContextHandoff({
+        sourceType: 'client_project',
+        project: projectPayload,
+        lastMeeting,
+        actionItems,
+      }),
     })
   } catch (error) {
     console.error('[Client email context] Error:', error)
@@ -246,28 +255,36 @@ async function getLeadContext(email: string): Promise<NextResponse> {
     }
   }
 
+  const projectPayload = {
+    id: null,
+    client_name: lead.name,
+    client_email: lead.email,
+    client_company: lead.company || null,
+    project_name: null,
+    project_status: null,
+    current_phase: null,
+    product_purchased: null,
+    slack_channel: null,
+    project_start_date: null,
+    estimated_end_date: null,
+    lead_id: lead.id,
+    service_interest: lead.interest_summary || formatInterestAreas(lead.interest_areas),
+    initial_message: lead.message,
+  }
+
   return NextResponse.json({
     found: true,
     source_type: 'lead',
-    project: {
-      id: null,
-      client_name: lead.name,
-      client_email: lead.email,
-      client_company: lead.company || null,
-      project_name: null,
-      project_status: null,
-      current_phase: null,
-      product_purchased: null,
-      slack_channel: null,
-      project_start_date: null,
-      estimated_end_date: null,
-      lead_id: lead.id,
-      service_interest: lead.interest_summary || formatInterestAreas(lead.interest_areas),
-      initial_message: lead.message,
-    },
+    project: projectPayload,
     milestones: null,
     last_meeting: lastMeeting,
     action_items: actionItems,
+    handoff: buildClientEmailContextHandoff({
+      sourceType: 'lead',
+      project: projectPayload,
+      lastMeeting,
+      actionItems,
+    }),
   })
 }
 
