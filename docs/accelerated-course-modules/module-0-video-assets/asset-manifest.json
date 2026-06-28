@@ -1,0 +1,59 @@
+{
+  "module_id": "module-0",
+  "module_title": "Why Accelerated Exists",
+  "course": "Accelerated: Build Faster Without Losing the Plot",
+  "asset_packet_status": "approved_for_render_preflight",
+  "approval_scope": "course_content_and_local_video_asset_packet_only",
+  "provider_execution_status": "locked_until_explicit_approval",
+  "target_outputs": {
+    "primary_lesson": {
+      "format": "16:9",
+      "target_duration_minutes": [6, 10],
+      "script": "primary-lesson-script.md",
+      "captions": "captions/module-0-primary.srt",
+      "storyboard": "storyboard-render-spec.md"
+    },
+    "youtube_short": {
+      "format": "9:16",
+      "target_duration_seconds": [30, 60],
+      "packet": "shorts-package.md"
+    },
+    "thumbnail": {
+      "concept_count": 3,
+      "brief": "thumbnail-briefs.md"
+    },
+    "worksheet": {
+      "packet": "worksheet.md"
+    }
+  },
+  "provider_assets": {
+    "heygen_segments": "heygen-segments.md",
+    "elevenlabs_narration": "elevenlabs-narration.md",
+    "remotion_hyperframes_spec": "storyboard-render-spec.md",
+    "render_handoff_checklist": "render-handoff-checklist.md"
+  },
+  "local_visual_assets": [
+    "visual-assets/title-card.svg",
+    "visual-assets/closing-card.svg"
+  ],
+  "safety": {
+    "allowed_now": [
+      "local_review",
+      "render_readiness_preflight",
+      "broll_planning",
+      "storyboard_planning",
+      "video_generation_workflow_handoff_planning"
+    ],
+    "blocked_until_separate_approval": [
+      "heygen_generation",
+      "elevenlabs_generation",
+      "final_render",
+      "n8n_execution",
+      "upload",
+      "schedule",
+      "publish",
+      "external_platform_draft_creation"
+    ],
+    "privacy_review_required_before_render": true
+  }
+}

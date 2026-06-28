@@ -1,0 +1,59 @@
+1
+00:00:00,000 --> 00:00:05,000
+Anyone can ask AI for a roadmap now.
+
+2
+00:00:05,000 --> 00:00:12,000
+A PRD. A persona. A launch plan. A prototype.
+
+3
+00:00:12,000 --> 00:00:18,000
+In a few minutes, something shows up that looks like product work.
+
+4
+00:00:18,000 --> 00:00:25,000
+The blank page is not the bottleneck anymore. The bottleneck is judgment.
+
+5
+00:00:25,000 --> 00:00:34,000
+That is why Accelerated exists. AI makes product judgment more important.
+
+6
+00:00:34,000 --> 00:00:44,000
+The tool can help draft options, questions, summaries, risks, and patterns.
+
+7
+00:00:44,000 --> 00:00:53,000
+The human still owns context, judgment, consent, and consequence.
+
+8
+00:00:53,000 --> 00:01:04,000
+Inside AmaduTown, the public site is only one layer.
+
+9
+00:01:04,000 --> 00:01:15,000
+Behind it are diagnostic flows, evidence dashboards, approval gates, and render-readiness checks.
+
+10
+00:01:15,000 --> 00:01:25,000
+The system has to remember what happened after it moved.
+
+11
+00:01:25,000 --> 00:01:34,000
+Find the signal. Define the decision. Build the loop. Instrument the learning.
+
+12
+00:01:34,000 --> 00:01:45,000
+That loop is the difference between moving fast and moving blindly.
+
+13
+00:01:45,000 --> 00:01:55,000
+Technology should reduce burden. It should not create more invisible work.
+
+14
+00:01:55,000 --> 00:02:05,000
+Move fast to discover. Slow down where the decision carries risk.
+
+15
+00:02:05,000 --> 00:02:16,000
+What is the system learning from all of that speed?
