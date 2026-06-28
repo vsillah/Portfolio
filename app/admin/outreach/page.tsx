@@ -797,6 +797,12 @@ function OutreachContent() {
                 Add lead
               </button>
             )}
+            <Link href="/admin/credentials#gmail-profile">
+              <button className="admin-console-button-secondary">
+                <Mail size={16} />
+                Gmail profile
+              </button>
+            </Link>
             <Link href="/admin/outreach/dashboard">
               <button className="admin-console-button-secondary">
                 <BarChart3 size={16} />

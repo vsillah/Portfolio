@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { isGmailUserOAuthClientConfigured } from '@/lib/gmail-user-api'
 import { isGmailUserOauthSecretConfigured } from '@/lib/gmail-user-oauth-secret'
+import { resolveBusinessEmailConfig } from '@/lib/business-email-config'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,12 +22,14 @@ export async function GET(request: NextRequest) {
 
     const configured =
       isGmailUserOAuthClientConfigured() && isGmailUserOauthSecretConfigured()
+    const requiredSender = resolveBusinessEmailConfig().fromEmail
 
     if (!supabaseAdmin) {
       return NextResponse.json({
         connected: false,
         googleEmail: null,
         configured,
+        requiredSender,
       })
     }
 
@@ -42,6 +45,7 @@ export async function GET(request: NextRequest) {
         connected: false,
         googleEmail: null,
         configured,
+        requiredSender,
       })
     }
 
@@ -49,6 +53,7 @@ export async function GET(request: NextRequest) {
       connected: Boolean(data?.google_email),
       googleEmail: data?.google_email ?? null,
       configured,
+      requiredSender,
     })
   } catch (error) {
     console.error('GET /api/admin/oauth/google-gmail/status:', error)
