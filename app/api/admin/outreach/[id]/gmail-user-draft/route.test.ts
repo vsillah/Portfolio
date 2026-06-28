@@ -73,7 +73,7 @@ function restoreEnv() {
   Object.assign(process.env, BASE_ENV)
 }
 
-function makeRequest(overrides: Record<string, string> = {}) {
+function makeRequest(overrides: Record<string, unknown> = {}) {
   return new NextRequest(
     'http://localhost/api/admin/outreach/queue-1/gmail-user-draft',
     {
@@ -272,6 +272,51 @@ describe('POST /api/admin/outreach/[id]/gmail-user-draft', () => {
       updated_at: expect.any(String),
     })
     expect(outreachUpdateEq).toHaveBeenCalledWith('id', 'queue-1')
+  })
+
+  it('runs a no-send smoke without creating a Gmail draft or writing tracking', async () => {
+    const { outreachUpdate } = mockSupabase({
+      credentials: credentialsRow('vambah@amadutown.com'),
+      outreachItem: outreachRow(),
+    })
+
+    const response = await POST(makeRequest({ noSendSmoke: true }), params())
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toEqual({
+      message:
+        'No-send Gmail draft smoke passed. No Gmail draft was created and no email was sent.',
+      noSendSmoke: true,
+      wouldCreateDraft: true,
+      queueId: 'queue-1',
+      to: 'alice@example.com',
+      subject: 'Queue subject',
+      bodyChars: 'Queue body'.length,
+      requiredSender: 'vambah@amadutown.com',
+      connectedAs: 'vambah@amadutown.com',
+    })
+    expect(mocks.decryptRefreshToken).toHaveBeenCalledWith('cipher', 'iv', 'tag')
+    expect(mocks.createUserGmailDraft).not.toHaveBeenCalled()
+    expect(outreachUpdate).not.toHaveBeenCalled()
+    expect(mocks.logCommunication).not.toHaveBeenCalled()
+  })
+
+  it('keeps sender identity as a no-send smoke gate', async () => {
+    const { outreachSelect } = mockSupabase({
+      credentials: credentialsRow('personal@gmail.com'),
+      outreachItem: outreachRow(),
+    })
+
+    const response = await POST(makeRequest({ noSendSmoke: true }), params())
+
+    expect(response.status).toBe(400)
+    await expect(response.json()).resolves.toEqual({
+      error:
+        'Customer-facing Gmail drafts must be created from vambah@amadutown.com. Reconnect Gmail with that account before saving this draft.',
+    })
+    expect(outreachSelect).not.toHaveBeenCalled()
+    expect(mocks.decryptRefreshToken).not.toHaveBeenCalled()
+    expect(mocks.createUserGmailDraft).not.toHaveBeenCalled()
   })
 
   it('fails closed when Gmail does not return a thread id for reply tracking', async () => {
