@@ -186,3 +186,25 @@ Before the next warm outreach batch is sent:
 8. Confirm sending requires `safe to send`.
 
 Only after that should the outreach experiment scale beyond the first controlled batch.
+
+## 2026-06-28 Approval Handler Status
+
+The Slack approval handler is now configured and proven for non-send commands.
+
+Current production requirements:
+
+- Slack app: `Portfolio Agent Ops` (`A0B5UUPV6LS`)
+- Event request URL: `https://amadutown.com/api/slack/agent/events`
+- Bot event subscriptions: `app_mention`, `message.im`, `message.channels`
+- Required bot scopes: `commands`, `app_mentions:read`, `im:history`, `channels:history`
+- The app must be installed in the approval alert channel, currently `#meeting-actions-todo`.
+
+Validated commands:
+
+- `hold` posts an acknowledgement and leaves the app draft unsent.
+- `modify: ...` captures the requested change and leaves the app draft unsent.
+
+Remaining validation:
+
+- `safe to send` reached the production route in the controlled internal smoke, but the draft remained unsent because the Slack connector appended `Sent using ChatGPT` and the strict parser rejected the suffixed phrase. Deploy the parser fix, then retest only against an internal-only Gmail draft or after Vambah explicitly approves the exact customer-facing send.
+- Until `modify:` is upgraded to rewrite drafts automatically, revision requests remain capture-only and should be completed in Codex or Portfolio before a final `safe to send`.

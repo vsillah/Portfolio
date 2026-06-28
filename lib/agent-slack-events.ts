@@ -158,13 +158,17 @@ function singleTargetAction(actions: SlackAgentActionValue[], predicate: (value:
   return targetKeys.size === 1 ? candidates[0] : null
 }
 
+function stripSlackConnectorProvenance(message: string) {
+  return message.replace(/\s*\*?Sent using\*?\s+ChatGPT\s*$/i, '').trim()
+}
+
 function singleWorkItemId(actions: SlackAgentActionValue[]) {
   const workItemIds = new Set(actions.map((value) => value.workItemId).filter((value): value is string => Boolean(value)))
   return workItemIds.size === 1 ? [...workItemIds][0] : null
 }
 
 export function parseRevenueReplyApprovalCommand(message: string): RevenueReplyApprovalCommand | null {
-  const trimmed = message.trim()
+  const trimmed = stripSlackConnectorProvenance(message.trim())
   const normalized = trimmed.toLowerCase()
   if (/^safe\s+to\s+send[.!]?$/.test(normalized)) return { action: 'safe_to_send' }
   if (/^hold\b/.test(normalized)) return { action: 'hold', note: noteFromReply(trimmed, 'Held from Slack thread reply.') }
