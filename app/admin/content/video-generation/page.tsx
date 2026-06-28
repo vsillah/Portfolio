@@ -1452,6 +1452,7 @@ export default function VideoGenerationPage() {
   })()
 
   const pendingJobCount = jobs.filter(j => ['pending', 'waiting', 'processing'].includes(j.heygen_status ?? '')).length
+  const latestCompletedReviewJob = jobs.find(j => (j.heygen_status === 'completed' || Boolean(j.video_url)) && Boolean(j.video_url))
 
   /* ───────────── Decide: Selection helpers ───────────── */
 
@@ -2956,6 +2957,85 @@ export default function VideoGenerationPage() {
                   {batchDeleting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
                   Delete ({selectedJobIds.size})
                 </button>
+              </div>
+            )}
+
+            {latestCompletedReviewJob && (
+              <div className="mb-4 rounded-xl border border-emerald-500/25 bg-emerald-500/[0.04] p-4">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/35 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
+                        <CheckCircle className="h-3 w-3" />
+                        Finished review artifact
+                      </span>
+                      <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-[10px] font-medium text-amber-200">
+                        Internal render only
+                      </span>
+                    </div>
+                    <h3 className="mt-3 text-base font-semibold text-foreground">
+                      Review the generated video, not just the job row
+                    </h3>
+                    <p className="mt-1 max-w-2xl text-xs leading-5 text-gray-400">
+                      This is the completed HeyGen review render. Your decision should be based on the video itself:
+                      pacing, avatar delivery, script clarity, B-roll fit, and whether the CTA is obvious.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 text-[10px] text-gray-400">
+                    <span>{latestCompletedReviewJob.channel} · {latestCompletedReviewJob.aspect_ratio}</span>
+                    <span>{new Date(latestCompletedReviewJob.created_at).toLocaleString()}</span>
+                    {latestCompletedReviewJob.broll_asset_ids?.length ? (
+                      <span>{latestCompletedReviewJob.broll_asset_ids.length} B-roll</span>
+                    ) : null}
+                  </div>
+                </div>
+
+                <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.25fr)_minmax(280px,0.75fr)]">
+                  <div className="overflow-hidden rounded-lg border border-silicon-slate bg-black">
+                    <video
+                      src={latestCompletedReviewJob.video_url ?? undefined}
+                      controls
+                      preload="metadata"
+                      className="aspect-video w-full bg-black"
+                    >
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="rounded-lg border border-silicon-slate bg-background/60 p-3">
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-500">Review checklist</div>
+                      <ul className="mt-2 space-y-1.5 text-xs leading-5 text-gray-300">
+                        <li className="flex gap-2"><CheckCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" />Pain point is clear in the opening.</li>
+                        <li className="flex gap-2"><CheckCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" />CTA is obvious by the close.</li>
+                        <li className="flex gap-2"><CheckCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" />Avatar cadence feels natural enough for review.</li>
+                        <li className="flex gap-2"><CheckCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" />B-roll/proof moments support the argument.</li>
+                      </ul>
+                    </div>
+                    <div className="rounded-lg border border-amber-500/20 bg-amber-500/[0.04] p-3">
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-300">Still locked</div>
+                      <p className="mt-2 text-xs leading-5 text-gray-400">
+                        This does not approve upload, scheduling, social publishing, ElevenLabs/n8n audio, or any external post.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => setPreviewJob(latestCompletedReviewJob)}
+                        className="flex items-center gap-1 rounded-lg bg-radiant-gold px-3 py-2 text-xs font-semibold text-void-black hover:bg-gold-light"
+                      >
+                        <Play className="h-3.5 w-3.5" />
+                        Open review player
+                      </button>
+                      <button
+                        onClick={() => refreshVideoUrl(latestCompletedReviewJob)}
+                        disabled={refreshingUrl === latestCompletedReviewJob.id}
+                        className="flex items-center gap-1 rounded-lg border border-silicon-slate px-3 py-2 text-xs font-medium text-gray-300 hover:border-radiant-gold/40 disabled:opacity-50"
+                      >
+                        {refreshingUrl === latestCompletedReviewJob.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+                        Refresh URL
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
