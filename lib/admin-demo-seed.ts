@@ -5,6 +5,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { campaignContentPlanSlots } from './social-content-calendar'
+import { buildLinkedInYoutubeReviewDrafts } from './social-content-intelligence'
 
 export const DEMO_SEED_KEYS = [
   'sarah_mitchell_lead',
@@ -15,6 +16,7 @@ export const DEMO_SEED_KEYS = [
   'discovery_call_test_contact',
   'social_content_calendar_fixture',
   'social_channel_review_fixture',
+  'accelerated_workshop_campaign_fixture',
 ] as const
 
 export type DemoSeedKey = (typeof DEMO_SEED_KEYS)[number]
@@ -29,6 +31,9 @@ export const SOCIAL_CONTENT_CALENDAR_FIXTURE_SLUG = 'demo-content-calendar-smoke
 export const SOCIAL_CONTENT_CALENDAR_FIXTURE_KEY = 'social_content_calendar_fixture'
 export const SOCIAL_CHANNEL_REVIEW_FIXTURE_KEY = 'social_channel_review_fixture'
 export const SOCIAL_CHANNEL_REVIEW_FIXTURE_IDEMPOTENCY_KEY = 'demo:social-channel-review-fixture'
+export const ACCELERATED_WORKSHOP_CAMPAIGN_FIXTURE_KEY = 'accelerated_workshop_campaign_fixture'
+export const ACCELERATED_WORKSHOP_CAMPAIGN_FIXTURE_SLUG = 'accelerated-workshop-whisper-to-shout'
+export const ACCELERATED_WORKSHOP_CAMPAIGN_IDEMPOTENCY_PREFIX = 'demo:accelerated-workshop-campaign'
 
 const BUSINESS_CHALLENGES = {
   primary_challenges: [
@@ -170,6 +175,300 @@ async function removeSocialChannelReviewFixture(supabase: SupabaseClient): Promi
     .from('social_content_research_packets')
     .delete()
     .contains('actor_metadata', { demo_seed_key: SOCIAL_CHANNEL_REVIEW_FIXTURE_KEY })
+}
+
+async function removeAcceleratedWorkshopCampaignFixture(supabase: SupabaseClient): Promise<void> {
+  const { data: campaign } = await supabase
+    .from('attraction_campaigns')
+    .select('id')
+    .eq('slug', ACCELERATED_WORKSHOP_CAMPAIGN_FIXTURE_SLUG)
+    .maybeSingle()
+
+  await supabase
+    .from('social_content_calendar_items')
+    .delete()
+    .contains('metadata', { demo_seed_key: ACCELERATED_WORKSHOP_CAMPAIGN_FIXTURE_KEY })
+
+  await supabase
+    .from('agent_work_items')
+    .delete()
+    .like('idempotency_key', `${ACCELERATED_WORKSHOP_CAMPAIGN_IDEMPOTENCY_PREFIX}:%`)
+
+  await supabase
+    .from('social_content_research_packets')
+    .delete()
+    .contains('actor_metadata', { demo_seed_key: ACCELERATED_WORKSHOP_CAMPAIGN_FIXTURE_KEY })
+
+  if (campaign?.id != null) {
+    await supabase
+      .from('social_content_calendar_items')
+      .delete()
+      .eq('campaign_id', campaign.id)
+  }
+
+  await supabase
+    .from('attraction_campaigns')
+    .delete()
+    .eq('slug', ACCELERATED_WORKSHOP_CAMPAIGN_FIXTURE_SLUG)
+}
+
+const ACCELERATED_WORKSHOP_PHASES = [
+  {
+    phase: 'tease',
+    titlePrefix: 'Tease',
+    day: 1,
+    insightTitle: 'AI can create faster than most teams can govern',
+    triggeringEvent:
+      'The Portfolio social-content workflow exposed the real gap: generating a post was easier than knowing whether the evidence, owner, and approval gate were visible.',
+    contentAngle:
+      'AI makes production faster. Teams still need a way to slow down the risky handoff before the work reaches the public.',
+    suggestedHook:
+      'AI can create faster than most teams can govern.',
+    linkedinCta:
+      'Where have you seen AI speed expose a missing approval path?',
+    thumbnailText: 'FAST OUTPUT. SLOW TRUST.',
+  },
+  {
+    phase: 'teach',
+    titlePrefix: 'Teach',
+    day: 4,
+    insightTitle: 'The operating loop behind smarter product work',
+    triggeringEvent:
+      'The Accelerated Workshop turns the book idea into a working loop: sense the signal, assemble the proof, make the decision, then govern the handoff.',
+    contentAngle:
+      'The useful AI lesson is an operating rhythm, not a prompt trick. The loop has to connect raw input, structured judgment, and visible approval.',
+    suggestedHook:
+      'The prompt is rarely the operating system.',
+    linkedinCta:
+      'What part of your AI workflow still depends on memory instead of an operating loop?',
+    thumbnailText: 'THE LOOP BEHIND THE WORK',
+  },
+  {
+    phase: 'proof',
+    titlePrefix: 'Proof',
+    day: 9,
+    insightTitle: 'The Portfolio workflow is the receipt',
+    triggeringEvent:
+      'This campaign can point to the actual Portfolio workflow: Shaka insights, Content Intelligence research, calendar planning, channel drafts, and explicit human approval gates.',
+    contentAngle:
+      'The proof is the system itself. The draft, calendar, research packet, channel lane, and approval decision all stay visible before any external action is allowed.',
+    suggestedHook:
+      'The receipt is the workflow.',
+    linkedinCta:
+      'What would your customers trust more: the AI output, or the visible path that produced it?',
+    thumbnailText: 'SHOW THE RECEIPTS',
+  },
+  {
+    phase: 'offer',
+    titlePrefix: 'Offer',
+    day: 13,
+    insightTitle: 'Join the Accelerated Workshop path',
+    triggeringEvent:
+      'The Accelerated Workshop is the next public bridge from the book into hands-on practice for teams trying to turn AI experimentation into governed product work.',
+    contentAngle:
+      'The offer is simple: learn how to turn messy AI-assisted work into an operating system your team can review, trust, and improve.',
+    suggestedHook:
+      'If AI is already inside the work, the next question is who governs the handoff.',
+    linkedinCta:
+      'If this is the kind of operating layer your team needs, join the Accelerated Workshop interest path or book a discovery call.',
+    thumbnailText: 'BUILD THE OPERATING LAYER',
+  },
+] as const
+
+function acceleratedWorkshopThumbnailPacket(input: {
+  phase: string
+  generatedAt: string
+  insightTitle: string
+  contentAngle: string
+  thumbnailText: string
+}) {
+  return {
+    channel: 'thumbnail',
+    generated_at: input.generatedAt,
+    approval_status: 'in_review',
+    shared_source: {
+      insight_title: input.insightTitle,
+      triggering_event: `Accelerated Workshop ${input.phase} phase`,
+      content_angle: input.contentAngle,
+      evidence_summary: 'Uses the shared Accelerated Workshop campaign proof packet and Portfolio Agent Ops workflow evidence.',
+    },
+    source_insight_title: input.insightTitle,
+    source_use_boundary:
+      'Thumbnail concepts are generated for human review only. Public research patterns are layout inputs, not source artwork.',
+    fields: {
+      source_thumbnail_reference: 'Use approved public creator research patterns as structure only.',
+      pattern_explanation:
+        'High-contrast first-frame promise with one clear tension and a visible operating-system proof cue.',
+      amadutown_adaptation_direction:
+        'Use AmaduTown navy/gold/white styling, proof-surface screenshots, and Vambah as the teacher/operator rather than copying a creator visual identity.',
+      short_thumbnail_text: input.thumbnailText,
+      face_photo_avatar_choice: 'Vambah face/photo or clean AmaduTown proof-screen frame.',
+      brand_colors_style: 'AmaduTown navy, radiant gold, white, restrained proof-console accents.',
+      variants: [
+        `${input.thumbnailText} over a blurred Portfolio approval-gate screenshot.`,
+        `Vambah on one side, proof dashboard on the other, with ${input.phase.toUpperCase()} phase label.`,
+        `Minimal AmaduTown shield plus one screenshot receipt and a short tension line.`,
+      ],
+      approval_state: 'in_review',
+    },
+    source_research_patterns: [],
+    side_effects: {
+      provider_generation: false,
+      upload: false,
+      publish: false,
+      schedule: false,
+      external_post: false,
+    },
+  }
+}
+
+function acceleratedWorkshopInsightMetadata(input: {
+  packetId: string
+  phase: typeof ACCELERATED_WORKSHOP_PHASES[number]
+  generatedAt: string
+}) {
+  const approvedResearchPattern = {
+    packet_id: input.packetId,
+    source_url: 'https://amadutown.com/ebook/accelerated',
+    platform: 'other',
+    creator_name: 'AmaduTown',
+    title: 'Accelerated Workshop proof campaign research packet',
+    outlier_score: 0,
+    pattern_status: 'usable_framework',
+    pattern_packet: {
+      hook_structure:
+        'Open with a specific operating tension, then show the system that makes the work reviewable.',
+      promise_value:
+        'Help operators turn AI-assisted creation into governed product work they can trust.',
+      thumbnail_pattern:
+        'Pair a short tension line with visible proof from the operating surface.',
+      source_use_boundary:
+        'Use AmaduTown-owned proof and public-safe positioning only. Do not expose raw private meetings, Chronicle notes, client material, or provider outputs.',
+    },
+  }
+  const insight = {
+    title: input.phase.insightTitle,
+    triggering_event: input.phase.triggeringEvent,
+    source_type: 'portfolio_work',
+    source_label: 'Accelerated Workshop proof campaign',
+    source_ids: [ACCELERATED_WORKSHOP_CAMPAIGN_FIXTURE_KEY],
+    why_vambah_can_speak:
+      'Vambah wrote the Accelerated product-management frame, is building the Portfolio Agent Ops workflow directly, and can show the difference between AI output and governed work.',
+    brand_goal:
+      'Position the Accelerated Workshop as the practical bridge from AI experimentation to governed product execution.',
+    content_angle: input.phase.contentAngle,
+    suggested_hook: input.phase.suggestedHook,
+    audience:
+      'Product leaders, builders, founders, nonprofit and small-business operators, and AI-curious teams.',
+    sensitivity: 'public_safe',
+    evidence_summary:
+      'Evidence comes from the Accelerated book/workshop path, AmaduTown offer architecture, and the live Portfolio workflow for Shaka insights, research packets, calendar planning, channel drafts, and human approval gates.',
+    claim_boundaries: [
+      'Do not imply the Accelerated Workshop is already open for paid enrollment unless a separate launch gate approves it.',
+      'Do not claim external publishing, uploading, rendering, or provider generation is authorized by this campaign seed.',
+      'Use Portfolio and AmaduTown-owned proof surfaces; do not expose private meetings, Chronicle notes, client records, or raw AI chat exports.',
+      'Treat public creator research as reusable structure only, not copy.',
+    ],
+    approved_research_patterns: [approvedResearchPattern],
+  }
+  const drafts = buildLinkedInYoutubeReviewDrafts({ insight, generatedAt: input.generatedAt })
+
+  drafts.linkedin.fields = {
+    ...drafts.linkedin.fields,
+    cta: input.phase.linkedinCta,
+    cta_url: 'https://amadutown.com/ebook/accelerated',
+    visual_mode: input.phase.phase === 'proof'
+      ? 'app_screenshot_carousel'
+      : 'framework_illustration_or_carousel_review',
+    screenshot_routes: [
+      '/admin/agents/content-intelligence',
+      '/admin/agents/coordination',
+      '/admin/agents/social-insights',
+      '/ebook/accelerated',
+    ],
+  }
+  drafts.youtube_shorts.fields = {
+    ...drafts.youtube_shorts.fields,
+    target_duration_seconds: 45,
+    caption: `${input.phase.contentAngle} Built for the Accelerated Workshop proof campaign.`,
+    b_roll_hints: [
+      'Accelerated ebook page',
+      'Content Intelligence dashboard',
+      'Campaign calendar arc',
+      'Social Insight approval tabs',
+      'AmaduTown proof surface',
+    ],
+    on_screen_text: [
+      input.phase.thumbnailText,
+      'Evidence before output.',
+      'Approval before handoff.',
+    ],
+  }
+
+  return {
+    social_topic_trigger: true,
+    insight_version: 'accelerated_workshop_campaign_v1',
+    demo_seed_key: ACCELERATED_WORKSHOP_CAMPAIGN_FIXTURE_KEY,
+    fixture_version: 1,
+    fixture_purpose: 'accelerated_workshop_whisper_to_shout_review_ready_campaign',
+    campaign_target: 'Accelerated Workshop',
+    campaign_window_days: 14,
+    campaign_template_key: 'whisper_to_shout',
+    campaign_language: 'Tease/Wispr/Shout overlay; stored phases remain tease/teach/proof/offer.',
+    conversion_path: 'Accelerated Workshop interest, then AI Quick Win or discovery call.',
+    research_packet_ids: [input.packetId],
+    suggested_research_packet_ids: [input.packetId],
+    channel_lanes: {
+      linkedin: {
+        status: 'in_review',
+        label: 'LinkedIn',
+        decision_note: null,
+        draft_packet: drafts.linkedin,
+        review_requested_at: input.generatedAt,
+        updated_at: input.generatedAt,
+        required_inputs: ['post text', 'CTA', 'CTA URL', 'hashtags', 'references'],
+      },
+      youtube_shorts: {
+        status: 'in_review',
+        label: 'YouTube Shorts',
+        decision_note: null,
+        draft_packet: drafts.youtube_shorts,
+        review_requested_at: input.generatedAt,
+        updated_at: input.generatedAt,
+        required_inputs: ['hook', 'first 30 seconds', 'script', 'storyboard scenes', 'b-roll hints'],
+      },
+      instagram_reels: {
+        status: 'not_started',
+        label: 'Instagram Reels',
+        decision_note: null,
+        draft_packet: null,
+        required_inputs: ['hook', 'script', 'caption', 'safe-area notes'],
+      },
+      thumbnail: {
+        status: 'in_review',
+        label: 'Thumbnail',
+        decision_note: null,
+        draft_packet: acceleratedWorkshopThumbnailPacket({
+          phase: input.phase.phase,
+          generatedAt: input.generatedAt,
+          insightTitle: input.phase.insightTitle,
+          contentAngle: input.phase.contentAngle,
+          thumbnailText: input.phase.thumbnailText,
+        }),
+        review_requested_at: input.generatedAt,
+        updated_at: input.generatedAt,
+        required_inputs: ['pattern explanation', 'short thumbnail text', '2-3 variants'],
+      },
+    },
+    insight,
+    side_effects: {
+      provider_generation: false,
+      upload: false,
+      publish: false,
+      schedule: false,
+      external_post: false,
+    },
+  }
 }
 
 export async function runDemoSeed(
@@ -599,6 +898,272 @@ export async function runDemoSeed(
           ok: true,
           key,
           detail: `Social channel review fixture work item ${workItem.id} with research packet ${packet.id}`,
+        }
+      }
+
+      case 'accelerated_workshop_campaign_fixture': {
+        await removeAcceleratedWorkshopCampaignFixture(supabase)
+
+        const generatedAt = new Date().toISOString()
+        const startsAt = addDaysAtHourISO(1, 9)
+        const endsAt = addDaysAtHourISO(14, 17)
+
+        const { data: campaign, error: campaignError } = await supabase
+          .from('attraction_campaigns')
+          .insert({
+            name: 'Accelerated Workshop Whisper-to-Shout Campaign',
+            slug: ACCELERATED_WORKSHOP_CAMPAIGN_FIXTURE_SLUG,
+            description:
+              'A 14-day review-ready launch campaign for the Accelerated Workshop, using AmaduTown proof surfaces and Agent Ops human approval gates.',
+            campaign_type: 'free_challenge',
+            status: 'draft',
+            starts_at: startsAt,
+            ends_at: endsAt,
+            completion_window_days: 14,
+            min_purchase_amount: 0,
+            payout_type: 'credit',
+            payout_amount_type: 'fixed',
+            payout_amount_value: 0,
+            rollover_bonus_multiplier: 1,
+            promo_copy:
+              'Move from AI experimentation to governed product work. Join the Accelerated Workshop interest path or book a discovery call.',
+          })
+          .select('id, name, slug, starts_at, ends_at')
+          .single()
+
+        if (campaignError || !campaign) {
+          return {
+            ok: false,
+            error: `attraction_campaigns: ${campaignError?.message ?? 'no row'}`,
+          }
+        }
+
+        const { data: packet, error: packetError } = await supabase
+          .from('social_content_research_packets')
+          .insert({
+            source_url: 'https://amadutown.com/ebook/accelerated',
+            platform: 'other',
+            creator_name: 'AmaduTown',
+            creator_handle: '@amadutown',
+            title: 'Accelerated Workshop proof campaign research packet',
+            caption:
+              'Public-safe campaign evidence packet for the Accelerated Workshop. It uses AmaduTown-owned positioning and Portfolio Agent Ops proof surfaces.',
+            thumbnail_url: null,
+            hook_transcript:
+              'AI can create faster than most teams can govern. The Accelerated Workshop teaches the operating loop behind reviewable AI-assisted product work.',
+            metrics: {
+              views: null,
+              likes: null,
+              comments: null,
+              shares: null,
+              follower_count: null,
+              retrieved_at: generatedAt,
+            },
+            actor_metadata: {
+              provider: 'free_recorded_evidence',
+              retrieval_method: 'demo_seed',
+              demo_seed_key: ACCELERATED_WORKSHOP_CAMPAIGN_FIXTURE_KEY,
+              cost_usd: 0,
+              external_execution_enabled: false,
+              source_policy: 'public_safe_owned_positioning',
+            },
+            outlier_score: 0,
+            score_breakdown: {
+              strategic_fit: 1,
+              source_type: 'owned_campaign_evidence',
+            },
+            pattern_packet: {
+              hook_structure:
+                'Open with the speed-versus-governance tension, then point to a concrete operating layer.',
+              tension_or_missed_opportunity:
+                'Teams are adopting AI faster than they are designing evidence, ownership, and approval paths.',
+              promise_value:
+                'The Accelerated Workshop helps teams turn AI-assisted work into reviewable product execution.',
+              proof_style:
+                'Use AmaduTown-owned proof surfaces: the Accelerated book path, Portfolio Agent Ops, Content Intelligence, and explicit human approval gates.',
+              title_pattern: 'From AI output to governed product work',
+              thumbnail_pattern:
+                'Short tension text plus a visible proof-screen receipt from Portfolio or the Accelerated page.',
+              pacing_visual_framing:
+                'Start with the tension, show the operating loop, cut to the proof surface, close with the workshop invitation.',
+              cta_style:
+                'Invite operators to join the Accelerated Workshop interest path or book a discovery call.',
+              source_use_boundary:
+                'Use AmaduTown-owned proof and public-safe positioning only. Do not expose private meetings, Chronicle notes, client records, or raw AI chats.',
+            },
+            pattern_status: 'usable_framework',
+            status: 'review_ready',
+            privacy_notes:
+              'Owned public-safe campaign packet. No provider calls, uploads, publishing, schedules, private meeting excerpts, Chronicle notes, client records, or raw AI chat exports.',
+            retrieved_at: generatedAt,
+          })
+          .select('id')
+          .single()
+
+        if (packetError || !packet) {
+          return {
+            ok: false,
+            error: `social_content_research_packets: ${packetError?.message ?? 'no row'}`,
+          }
+        }
+
+        const { data: campaignGoal, error: campaignGoalError } = await supabase
+          .from('agent_work_items')
+          .insert({
+            title: 'Launch Accelerated Workshop proof campaign',
+            objective:
+              'Turn the Accelerated book and workshop idea into a complete 14-day whisper_to_shout campaign with shared research, campaign calendar items, and human-review-ready LinkedIn, YouTube Shorts, and Thumbnail drafts.',
+            status: 'proposed',
+            priority: 'high',
+            owner_agent_key: 'chief-of-staff',
+            owner_runtime: 'manual',
+            source_type: 'campaign_goal',
+            source_id: ACCELERATED_WORKSHOP_CAMPAIGN_FIXTURE_KEY,
+            source_label: 'Accelerated Workshop whisper_to_shout campaign goal',
+            expected_files: [],
+            touched_files: [],
+            overlap_group: 'social-content-intelligence',
+            dependency_ids: [],
+            idempotency_key: `${ACCELERATED_WORKSHOP_CAMPAIGN_IDEMPOTENCY_PREFIX}:goal`,
+            metadata: {
+              social_campaign_goal: true,
+              demo_seed_key: ACCELERATED_WORKSHOP_CAMPAIGN_FIXTURE_KEY,
+              campaign_id: campaign.id,
+              campaign_target: 'Accelerated Workshop',
+              campaign_template_key: 'whisper_to_shout',
+              campaign_window_days: 14,
+              conversion_path: 'Accelerated Workshop interest, then AI Quick Win or discovery call.',
+              phase_work_item_count: ACCELERATED_WORKSHOP_PHASES.length,
+              side_effects: {
+                provider_generation: false,
+                upload: false,
+                publish: false,
+                schedule: false,
+                external_post: false,
+              },
+            },
+          })
+          .select('id')
+          .single()
+
+        if (campaignGoalError || !campaignGoal) {
+          return {
+            ok: false,
+            error: `agent_work_items goal: ${campaignGoalError?.message ?? 'no row'}`,
+          }
+        }
+
+        const workItemRows = ACCELERATED_WORKSHOP_PHASES.map((phase) => ({
+          title: `Accelerated Workshop ${phase.titlePrefix}: ${phase.insightTitle}`,
+          objective:
+            'Prepare human-review-ready LinkedIn, YouTube Shorts, and Thumbnail draft packets for one phase of the 14-day Accelerated Workshop whisper_to_shout launch campaign.',
+          status: 'proposed',
+          priority: 'high',
+          owner_agent_key: 'chief-of-staff',
+          owner_runtime: 'manual',
+          source_type: 'social_topic_trigger',
+          source_id: `${ACCELERATED_WORKSHOP_CAMPAIGN_FIXTURE_KEY}:${phase.phase}`,
+          source_label: 'Accelerated Workshop whisper_to_shout campaign',
+          parent_work_item_id: campaignGoal.id,
+          expected_files: [],
+          touched_files: [],
+          overlap_group: 'social-content-intelligence',
+          dependency_ids: [campaignGoal.id],
+          idempotency_key: `${ACCELERATED_WORKSHOP_CAMPAIGN_IDEMPOTENCY_PREFIX}:${phase.phase}`,
+          metadata: acceleratedWorkshopInsightMetadata({
+            packetId: String(packet.id),
+            phase,
+            generatedAt,
+          }),
+        }))
+
+        const { data: workItems, error: workItemError } = await supabase
+          .from('agent_work_items')
+          .insert(workItemRows)
+          .select('id, metadata')
+
+        if (workItemError || !workItems || workItems.length !== ACCELERATED_WORKSHOP_PHASES.length) {
+          return {
+            ok: false,
+            error: `agent_work_items: ${workItemError?.message ?? 'unexpected row count'}`,
+          }
+        }
+
+        const slots = campaignContentPlanSlots({
+          name: String(campaign.name),
+          starts_at: String(campaign.starts_at),
+          ends_at: String(campaign.ends_at),
+        }, { templateKey: 'whisper_to_shout' })
+
+        const calendarRows = slots.flatMap((slot, index) => {
+          const phase = ACCELERATED_WORKSHOP_PHASES[index]
+          const workItem = workItems[index]
+          const scheduledFor = addDaysAtHourISO(phase.day, phase.phase === 'offer' ? 11 : 10)
+          const commonMetadata = {
+            ...slot.metadata,
+            demo_seed_key: ACCELERATED_WORKSHOP_CAMPAIGN_FIXTURE_KEY,
+            fixture_version: 1,
+            campaign_target: 'Accelerated Workshop',
+            campaign_template_key: 'whisper_to_shout',
+            campaign_window_days: 14,
+            campaign_language: 'Tease/Wispr/Shout overlay; stored phase remains canonical.',
+            linked_work_item_id: workItem.id,
+            linked_research_packet_id: packet.id,
+            conversion_path: 'Accelerated Workshop interest, then AI Quick Win or discovery call.',
+            external_execution_enabled: false,
+            provider_generation_enabled: false,
+            upload_enabled: false,
+            publish_enabled: false,
+            schedule_enabled: false,
+          }
+          const primaryRow = {
+            ...slot,
+            campaign_id: campaign.id,
+            agent_work_item_id: workItem.id,
+            channel: 'linkedin',
+            title: `${phase.titlePrefix}: ${phase.insightTitle}`,
+            planned_angle: `${phase.contentAngle} LinkedIn, YouTube Shorts, and Thumbnail drafts are ready for human approval.`,
+            scheduled_for: scheduledFor,
+            authorization_due_at: addDaysAtHourISO(Math.max(0, phase.day - 1), 10),
+            authorization_status: 'pending',
+            metadata: {
+              ...commonMetadata,
+              calendar_item_role: 'primary_phase_item',
+              channel_draft_targets: ['linkedin', 'youtube_shorts', 'thumbnail'],
+            },
+          }
+          const youtubeRow = {
+            ...slot,
+            campaign_id: campaign.id,
+            agent_work_item_id: workItem.id,
+            channel: 'youtube_shorts',
+            title: `${phase.titlePrefix} Short: ${phase.insightTitle}`,
+            planned_angle: `${phase.suggestedHook} Adapt this phase into the review-ready YouTube Shorts lane before any render or upload.`,
+            scheduled_for: addDaysAtHourISO(phase.day, phase.phase === 'offer' ? 14 : 13),
+            authorization_due_at: addDaysAtHourISO(Math.max(0, phase.day - 1), 10),
+            authorization_status: 'pending',
+            metadata: {
+              ...commonMetadata,
+              calendar_item_role: 'companion_channel_item',
+              primary_channel: 'linkedin',
+              channel_draft_targets: ['youtube_shorts', 'thumbnail'],
+            },
+          }
+          return [primaryRow, youtubeRow]
+        })
+
+        const { error: calendarError } = await supabase
+          .from('social_content_calendar_items')
+          .insert(calendarRows)
+
+        if (calendarError) {
+          return { ok: false, error: `social_content_calendar_items: ${calendarError.message}` }
+        }
+
+        return {
+          ok: true,
+          key,
+          detail: `Accelerated Workshop campaign ${campaign.id} with campaign goal ${campaignGoal.id}, ${calendarRows.length} calendar items, ${workItems.length} insight work items, and research packet ${packet.id}`,
         }
       }
 

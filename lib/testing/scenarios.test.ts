@@ -55,4 +55,31 @@ describe('scenarioIncludesDiagnosticStep', () => {
       'seed_social_channel_review_fixture',
     )
   })
+
+  it('registers the Accelerated Workshop campaign fixture seed scenario', () => {
+    const scenario = getScenario('seed_accelerated_workshop_campaign_fixture')
+
+    expect(scenario).toMatchObject({
+      id: 'seed_accelerated_workshop_campaign_fixture',
+      name: 'Seed: Accelerated Workshop Campaign Fixture',
+      tags: expect.arrayContaining([
+        'seed',
+        'populate-demo',
+        'content-intelligence',
+        'calendar',
+        'social-review',
+        'accelerated',
+      ]),
+    })
+    expect(scenario?.steps[0]).toMatchObject({
+      type: 'apiCall',
+      endpoint: '/api/admin/testing/demo-seed',
+      method: 'POST',
+      body: { key: 'accelerated_workshop_campaign_fixture' },
+      expectedStatus: 200,
+    })
+    expect(POPULATE_DEMO_SCENARIOS.map((item) => item.id)).toContain(
+      'seed_accelerated_workshop_campaign_fixture',
+    )
+  })
 })
