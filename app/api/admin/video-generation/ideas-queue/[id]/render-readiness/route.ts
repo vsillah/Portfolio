@@ -39,9 +39,9 @@ export async function POST(
     const templateId =
       (body.templateId as string)?.trim() || process.env.HEYGEN_TEMPLATE_ID || null
     let avatarId =
-      (body.avatarId as string)?.trim() || process.env.HEYGEN_AVATAR_ID || null
+      (body.avatarId as string)?.trim() || null
     let voiceId =
-      (body.voiceId as string)?.trim() || process.env.HEYGEN_VOICE_ID || null
+      (body.voiceId as string)?.trim() || null
 
     const { data: queueItem, error: fetchErr } = await supabaseAdmin
       .from('video_ideas_queue')

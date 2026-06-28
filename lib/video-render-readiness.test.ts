@@ -6,7 +6,15 @@ describe('video render readiness', () => {
     const report = buildVideoRenderReadinessReport({
       title: 'The Receipt Every Agent Needs',
       status: 'pending',
-      scriptText: 'A receipt is the difference between motion and trust.',
+      scriptText:
+        'A receipt is the difference between motion and trust. The problem is that AI can produce polished work before anyone knows what decision it should improve. In the Portfolio workflow, AmaduTown keeps the proof visible through script scorecards, review gates, and render readiness checks. Join the workshop interest path when you want to build that loop in your own work.',
+      scriptOutline: {
+        pain_point: 'AI can produce polished work before the team knows what decision it should improve.',
+        hook: 'The video can look ready while the script is still missing the point.',
+        open_loop: 'By the end, the viewer should know why proof has to come before polish.',
+        proof_demo: 'Portfolio and AmaduTown use script scorecards, review gates, and render readiness checks as the receipt.',
+        cta: 'Join the workshop interest path when you want to build that loop in your own work.',
+      },
       storyboardScenes: 5,
       videoGenerationJobId: null,
       templateId: 'template-1',
@@ -45,7 +53,15 @@ describe('video render readiness', () => {
     const report = buildVideoRenderReadinessReport({
       title: 'Ready draft',
       status: 'pending',
-      scriptText: 'Ready for review.',
+      scriptText:
+        'AI makes the first draft faster, but that speed creates a problem when nobody can explain the decision behind the artifact. The AmaduTown proof is the operating layer around the draft: script anatomy, source distance, storyboard review, and render readiness. Book an AI Quick Win discovery call if you want to turn one messy workflow into a reviewable loop.',
+      scriptOutline: {
+        pain_point: 'AI speed creates a problem when nobody can explain the decision behind the artifact.',
+        hook: 'The first draft is faster now. The judgment still has to be designed.',
+        open_loop: 'The viewer will see how readiness stays separate from approval.',
+        proof_demo: 'The AmaduTown proof is the operating layer around the draft: script anatomy, source distance, storyboard review, and render readiness.',
+        cta: 'Book an AI Quick Win discovery call if you want to turn one messy workflow into a reviewable loop.',
+      },
       storyboardScenes: 0,
       videoGenerationJobId: null,
       templateId: null,

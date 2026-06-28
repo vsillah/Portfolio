@@ -46,9 +46,9 @@ export async function POST(
     const brandVoiceId =
       (body.brandVoiceId as string)?.trim() || process.env.HEYGEN_BRAND_VOICE_ID
     let avatarId =
-      (body.avatarId as string)?.trim() || process.env.HEYGEN_AVATAR_ID
+      (body.avatarId as string)?.trim() || null
     let voiceId =
-      (body.voiceId as string)?.trim() || process.env.HEYGEN_VOICE_ID
+      (body.voiceId as string)?.trim() || null
 
     const { data: queueItem, error: fetchErr } = await supabaseAdmin
       .from('video_ideas_queue')

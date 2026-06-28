@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   isAuthError: vi.fn(),
   from: vi.fn(),
   createVideo: vi.fn(),
+  getHeyGenDefaults: vi.fn(),
 }))
 
 vi.mock('@/lib/auth-server', () => ({
@@ -22,6 +23,10 @@ vi.mock('@/lib/supabase', () => ({
 
 vi.mock('@/lib/heygen', () => ({
   createVideo: mocks.createVideo,
+}))
+
+vi.mock('@/lib/heygen-config', () => ({
+  getHeyGenDefaults: mocks.getHeyGenDefaults,
 }))
 
 import { POST } from './route'
@@ -101,6 +106,7 @@ describe('POST /api/admin/video-generation/ideas-queue/[id]/generate', () => {
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-user-1' }, isAdmin: true })
     mocks.isAuthError.mockReturnValue(false)
     mocks.createVideo.mockResolvedValue({ videoId: 'heygen-1' })
+    mocks.getHeyGenDefaults.mockResolvedValue({ avatarId: null, voiceId: null })
   })
 
   it('requires render approval before reading the queue or calling HeyGen', async () => {
@@ -143,6 +149,32 @@ describe('POST /api/admin/video-generation/ideas-queue/[id]/generate', () => {
       title: 'The Receipt Every Agent Needs',
       channel: 'youtube',
       templateId: 'template-1',
+    }))
+  })
+
+  it('uses synced HeyGen defaults before stale env avatar fallbacks', async () => {
+    vi.stubEnv('HEYGEN_AVATAR_ID', 'stale-env-avatar')
+    vi.stubEnv('HEYGEN_VOICE_ID', 'stale-env-voice')
+    mocks.getHeyGenDefaults.mockResolvedValue({ avatarId: 'db-avatar-1', voiceId: 'db-voice-1' })
+    mocks.from
+      .mockReturnValueOnce(queueFetchBuilder())
+      .mockReturnValueOnce(brollBuilder())
+      .mockReturnValueOnce(jobInsertBuilder())
+      .mockReturnValueOnce(queueUpdateBuilder())
+
+    const response = await POST(
+      makeRequest({
+        channel: 'youtube',
+        aspectRatio: '16:9',
+        renderApproval: buildVideoRenderApproval(true),
+      }),
+      { params: { id: 'draft-1' } }
+    )
+
+    expect(response.status).toBe(200)
+    expect(mocks.createVideo).toHaveBeenCalledWith(expect.objectContaining({
+      avatarId: 'db-avatar-1',
+      voiceId: 'db-voice-1',
     }))
   })
 })
