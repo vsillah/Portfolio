@@ -7,13 +7,15 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import { spawn } from 'child_process'
-import { chromium } from 'playwright'
+import chromiumServerless from '@sparticuz/chromium'
+import { chromium } from 'playwright-core'
 import { generateAuthState } from '@/scripts/save-storyboard-auth'
 
 const VIEWPORT = { width: 1920, height: 1080 }
 const CLIP_DURATION_MS = 4000
 const SERVER_READY_TIMEOUT_MS = 90_000
 const SERVER_POLL_MS = 1500
+const IS_SERVERLESS_CHROMIUM_RUNTIME = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME)
 
 export interface RouteConfig {
   route: string
@@ -189,6 +191,18 @@ export async function resolveAuthState(
   return undefined
 }
 
+async function launchCaptureBrowser() {
+  if (!IS_SERVERLESS_CHROMIUM_RUNTIME) {
+    return chromium.launch({ headless: true })
+  }
+
+  return chromium.launch({
+    args: chromiumServerless.args,
+    executablePath: await chromiumServerless.executablePath(),
+    headless: true,
+  })
+}
+
 /**
  * Capture B-roll (screenshots and optional video clips) for the given routes.
  */
@@ -209,7 +223,7 @@ export async function captureBroll(config: PlaytestConfig): Promise<CaptureResul
   const screenshots: string[] = []
   const clips: string[] = []
 
-  const browser = await chromium.launch({ headless: true })
+  const browser = await launchCaptureBrowser()
 
   const total = config.routes.length
   for (let i = 0; i < config.routes.length; i++) {
