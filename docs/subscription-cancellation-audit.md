@@ -10,6 +10,53 @@ no meaningful usage signal, or after clear redundancy plus a lower-risk
 replacement path. Production changes require explicit approval in the form
 `Cancel <tool/vendor> for Portfolio`.
 
+## 2026-06-26 Daily Monitor Run
+
+Status: YELLOW
+
+Detailed run artifact: [`docs/subscription-monitor-runs/2026-06-26.md`](subscription-monitor-runs/2026-06-26.md)
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- Supabase, n8n Cloud, Vercel, Stripe, OpenAI, Anthropic, Gemini/Google AI, Gamma, Printful, Pinecone, Apify, Hunter, Read AI connector, and core app-side integrations had current readable or dependency-backed signals.
+- n8n Cloud returned 85 workflows with 72 active and a successful execution at 2026-06-26T12:00:52Z; Vercel deployment watch passed both `portfolio` and `portfolio-staging`.
+- Gamma recovered to HTTP 200 with 50 themes and Printful recovered to two stores plus 10 sync products after yesterday's API drift.
+- Calendly remains HTTP 401, Read AI direct API remains HTTP 401 while the connector works, HeyGen avatars timed out, and Resend local key remains absent.
+- Vapi stayed zero-call, ElevenLabs stayed 0/300,000 characters for the current Creator cycle, and OpenRouter stayed negligible-use. These remain investigate/watch items, not automatic cancellation approvals.
+- BuiltWith remains active/watch during the outreach ramp; Fireflies remains resolved canceled unless new paid-plan evidence appears.
+
+## 2026-06-25 Daily Monitor Run
+
+Status: YELLOW
+
+Detailed run artifact: [`docs/subscription-monitor-runs/2026-06-25.md`](subscription-monitor-runs/2026-06-25.md)
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- Supabase, n8n Cloud, Vercel, Stripe, OpenAI, Anthropic, Gemini/Google AI, Read AI connector, Pinecone, Apify, Hunter, and core app-side integrations had current readable or dependency-backed signals.
+- n8n Cloud returned 85 workflows with 72 active and a successful execution at 2026-06-25T12:00:52Z; Vercel deployment watch passed both `portfolio` and `portfolio-staging`.
+- Gamma visibility remains unstable with HTTP 404 on the themes endpoint, Calendly remains HTTP 401, HeyGen avatars timed out, Printful sync-products returned HTTP 400 after prior readable evidence, and Resend local key remains absent.
+- Vapi stayed zero-call, ElevenLabs stayed 0/300,000 characters for the current Creator cycle, and OpenRouter moved from strict zero to negligible sampled usage. These remain investigate/watch items, not automatic cancellation approvals.
+- BuiltWith remains active/watch during the outreach ramp; Fireflies remains resolved canceled unless new paid-plan evidence appears.
+
+## 2026-06-24 Daily Monitor Run
+
+Status: YELLOW
+
+Detailed run artifact: [`docs/subscription-monitor-runs/2026-06-24.md`](subscription-monitor-runs/2026-06-24.md)
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- Production Supabase moved today, n8n Cloud returned 85 workflows with 72 active and a successful execution at 2026-06-24T12:32:47Z, and Vercel CLI listed ready `portfolio` plus `portfolio-staging` deployments on 2026-06-24.
+- Stripe, OpenAI, Anthropic, Gemini/Google AI, Read AI connector, Pinecone, Printful, Apify, Hunter, and the app-side integration footprint were readable or dependency-backed.
+- Gamma regressed to HTTP 401 after prior readable evidence; Calendly remains HTTP 401; HeyGen voices are readable but avatar catalog still times out; n8n legacy key/drift checks remain 403 while the cloud key works.
+- OpenRouter and Vapi remain consecutive quiet signals, Resend remains local-key absent, ElevenLabs remains zero-use in the current Creator cycle, and Pinecone traffic/billing remains unresolved. These are investigate/watch items, not automatic cancellation approvals.
+- BuiltWith remains active/watch during the outreach ramp; Fireflies remains resolved canceled unless new paid-plan evidence appears.
+- Repo artifact continuity note: local automation memory recorded a 2026-06-23 run, but this checkout's durable repo files only contained artifacts through 2026-06-22 before this run.
+
 ## 2026-06-22 Weekly Subscription Report
 
 Status: YELLOW
