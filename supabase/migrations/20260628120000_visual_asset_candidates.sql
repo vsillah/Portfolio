@@ -45,6 +45,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_visual_asset_candidates_open_unique
 CREATE OR REPLACE FUNCTION public.set_visual_asset_candidates_updated_at()
 RETURNS trigger
 LANGUAGE plpgsql
+SET search_path = public
 AS $$
 BEGIN
   NEW.updated_at = now();
