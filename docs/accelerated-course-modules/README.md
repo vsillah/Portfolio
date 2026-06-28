@@ -29,6 +29,7 @@ Provider execution is locked until separately approved. These files prepare revi
 - `broll-capture-list.md` - reusable capture list and privacy rules.
 - `source-register.md` - source, voice, and safety provenance.
 - `review-status.json` - machine-checkable review status per module.
+- `module-0-video-assets/` - the first approved local video asset packet, ready for render preflight.
 
 ## Validation
 

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" role="img" aria-labelledby="title desc">
+  <title id="title">Accelerated Module 0 closing question</title>
+  <desc id="desc">Closing card asking what the system is learning from AI speed.</desc>
+  <rect width="1920" height="1080" fill="#121E31"/>
+  <rect x="120" y="120" width="1680" height="840" rx="32" fill="#172640" stroke="#D4AF37" stroke-width="4"/>
+  <text x="190" y="260" fill="#F5D060" font-family="Inter, Arial, sans-serif" font-size="34" letter-spacing="7">MODULE 0 REFLECTION</text>
+  <text x="190" y="455" fill="#EAECEE" font-family="Inter, Arial, sans-serif" font-size="82" font-weight="700">What is the system learning</text>
+  <text x="190" y="560" fill="#EAECEE" font-family="Inter, Arial, sans-serif" font-size="82" font-weight="700">from all of that speed?</text>
+  <line x1="190" y1="650" x2="1540" y2="650" stroke="#D4AF37" stroke-width="4"/>
+  <text x="190" y="740" fill="#EAECEE" font-family="Inter, Arial, sans-serif" font-size="40">If the answer is unclear, the work is not done.</text>
+  <text x="190" y="880" fill="#F5D060" font-family="Inter, Arial, sans-serif" font-size="32">Find the signal. Define the decision. Build the loop. Instrument the learning.</text>
+</svg>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" role="img" aria-labelledby="title desc">
+  <title id="title">Accelerated Module 0 title card</title>
+  <desc id="desc">Imperial navy course title card with gold accents for Module 0, Why Accelerated Exists.</desc>
+  <rect width="1920" height="1080" fill="#121E31"/>
+  <rect x="96" y="96" width="1728" height="888" rx="28" fill="#172640" stroke="#D4AF37" stroke-width="4"/>
+  <circle cx="1620" cy="252" r="176" fill="#2C3E50" opacity="0.65"/>
+  <path d="M1450 252h340M1620 82v340" stroke="#D4AF37" stroke-width="3" opacity="0.45"/>
+  <text x="150" y="210" fill="#F5D060" font-family="Inter, Arial, sans-serif" font-size="32" letter-spacing="8">ACCELERATED MINI-COURSE</text>
+  <text x="150" y="405" fill="#EAECEE" font-family="Inter, Arial, sans-serif" font-size="104" font-weight="700">Why Accelerated Exists</text>
+  <text x="150" y="515" fill="#EAECEE" font-family="Inter, Arial, sans-serif" font-size="46">AI speed only matters when learning and judgment keep up.</text>
+  <g transform="translate(150 650)">
+    <rect width="340" height="86" rx="18" fill="#2C3E50" stroke="#D4AF37" stroke-width="3"/>
+    <text x="34" y="55" fill="#F5D060" font-family="Inter, Arial, sans-serif" font-size="30">Signal</text>
+    <rect x="390" width="340" height="86" rx="18" fill="#2C3E50" stroke="#D4AF37" stroke-width="3"/>
+    <text x="424" y="55" fill="#F5D060" font-family="Inter, Arial, sans-serif" font-size="30">Decision</text>
+    <rect x="780" width="340" height="86" rx="18" fill="#2C3E50" stroke="#D4AF37" stroke-width="3"/>
+    <text x="814" y="55" fill="#F5D060" font-family="Inter, Arial, sans-serif" font-size="30">Loop</text>
+    <rect x="1170" width="340" height="86" rx="18" fill="#2C3E50" stroke="#D4AF37" stroke-width="3"/>
+    <text x="1204" y="55" fill="#F5D060" font-family="Inter, Arial, sans-serif" font-size="30">Learning</text>
+  </g>
+  <text x="150" y="910" fill="#EAECEE" font-family="Inter, Arial, sans-serif" font-size="30">AmaduTown Advisory Solutions</text>
+</svg>
