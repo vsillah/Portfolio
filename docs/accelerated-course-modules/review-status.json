@@ -1,0 +1,88 @@
+{
+  "course": "Accelerated: Build Faster Without Losing the Plot",
+  "shape": "flagship_mini_course",
+  "default_video_style": "heygen_avatar_plus_broll",
+  "provider_execution_status": "locked_until_explicit_approval",
+  "modules": [
+    {
+      "id": "module-0",
+      "title": "Why Accelerated Exists",
+      "review_status": "draft",
+      "render_status": "not_started",
+      "primary_video_status": "script_ready_for_review",
+      "shorts_status": "draft",
+      "thumbnail_status": "draft",
+      "privacy_status": "needs_screen_review"
+    },
+    {
+      "id": "module-1",
+      "title": "The Speed Trap",
+      "review_status": "draft",
+      "render_status": "not_started",
+      "primary_video_status": "script_ready_for_review",
+      "shorts_status": "draft",
+      "thumbnail_status": "draft",
+      "privacy_status": "needs_screen_review"
+    },
+    {
+      "id": "module-2",
+      "title": "Decision-First Discovery",
+      "review_status": "draft",
+      "render_status": "not_started",
+      "primary_video_status": "script_ready_for_review",
+      "shorts_status": "draft",
+      "thumbnail_status": "draft",
+      "privacy_status": "needs_screen_review"
+    },
+    {
+      "id": "module-3",
+      "title": "Feedback Becomes Signal",
+      "review_status": "draft",
+      "render_status": "not_started",
+      "primary_video_status": "script_ready_for_review",
+      "shorts_status": "draft",
+      "thumbnail_status": "draft",
+      "privacy_status": "needs_screen_review"
+    },
+    {
+      "id": "module-4",
+      "title": "Roadmaps That Learn",
+      "review_status": "draft",
+      "render_status": "not_started",
+      "primary_video_status": "script_ready_for_review",
+      "shorts_status": "draft",
+      "thumbnail_status": "draft",
+      "privacy_status": "needs_screen_review"
+    },
+    {
+      "id": "module-5",
+      "title": "The Decision Theater",
+      "review_status": "draft",
+      "render_status": "not_started",
+      "primary_video_status": "script_ready_for_review",
+      "shorts_status": "draft",
+      "thumbnail_status": "draft",
+      "privacy_status": "needs_screen_review"
+    },
+    {
+      "id": "module-6",
+      "title": "The New Moat",
+      "review_status": "draft",
+      "render_status": "not_started",
+      "primary_video_status": "script_ready_for_review",
+      "shorts_status": "draft",
+      "thumbnail_status": "draft",
+      "privacy_status": "needs_screen_review"
+    },
+    {
+      "id": "module-7",
+      "title": "Build Your Learning Loop",
+      "review_status": "draft",
+      "render_status": "not_started",
+      "primary_video_status": "script_ready_for_review",
+      "shorts_status": "draft",
+      "thumbnail_status": "draft",
+      "privacy_status": "needs_screen_review"
+    }
+  ]
+}
