@@ -29,8 +29,14 @@ vi.mock('@/lib/visual-assets', () => ({
   applyApprovedVisualAssetCandidates: mocks.applyApprovedVisualAssetCandidates,
 }))
 
-function request(path: string, init: RequestInit = {}) {
+type NextRequestInit = NonNullable<ConstructorParameters<typeof NextRequest>[1]>
+
+function request(path: string, init: NextRequestInit = {}) {
   return new NextRequest(new URL(path, 'http://localhost:3000'), init)
+}
+
+function expectResponse(response: Response | undefined): asserts response is Response {
+  expect(response).toBeDefined()
 }
 
 describe('visual asset admin routes', () => {
@@ -44,6 +50,7 @@ describe('visual asset admin routes', () => {
     mocks.listVisualAssetCandidates.mockResolvedValue([{ id: 'candidate-1' }])
 
     const response = await GET(request('/api/admin/visual-assets/candidates?status=proposed&entity_type=product&theme=dark'))
+    expectResponse(response)
     const body = await response.json()
 
     expect(response.status).toBe(200)
@@ -63,6 +70,7 @@ describe('visual asset admin routes', () => {
       method: 'POST',
       body: JSON.stringify({ createWorkItem: true }),
     }))
+    expectResponse(response)
 
     expect(response.status).toBe(200)
     expect(mocks.auditVisualAssets).toHaveBeenCalledWith(expect.objectContaining({ createWorkItem: true }))
@@ -77,6 +85,7 @@ describe('visual asset admin routes', () => {
       method: 'POST',
       body: JSON.stringify({ candidateIds: ['candidate-1'] }),
     }))
+    expectResponse(response)
 
     expect(response.status).toBe(200)
     expect(mocks.captureVisualAssetCandidates).toHaveBeenCalledWith(expect.objectContaining({
@@ -92,6 +101,7 @@ describe('visual asset admin routes', () => {
     const response = await POST(request('/api/admin/visual-assets/candidate-1/approve', {
       method: 'POST',
     }), { params: { id: 'candidate-1' } })
+    expectResponse(response)
 
     expect(response.status).toBe(401)
     expect(mocks.reviewVisualAssetCandidate).not.toHaveBeenCalled()
@@ -105,6 +115,7 @@ describe('visual asset admin routes', () => {
       method: 'POST',
       body: JSON.stringify({ candidateIds: ['candidate-1'] }),
     }))
+    expectResponse(response)
     const body = await response.json()
 
     expect(response.status).toBe(200)
