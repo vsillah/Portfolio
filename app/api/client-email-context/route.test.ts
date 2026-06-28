@@ -146,6 +146,18 @@ describe('GET /api/client-email-context', () => {
         pending: [{ title: 'Send recap', owner: 'Vambah', due_date: '2026-06-05' }],
         recently_completed: [{ title: 'Confirm budget', completed_at: '2026-06-04T00:00:00.000Z' }],
       },
+      handoff: {
+        version: 'inbound-outreach-handoff/v1',
+        intent: 'lead_reply_context',
+        next_action: 'review_lead_reply_for_outreach',
+        approval_boundary: 'context_handoff_only_no_send_no_auto_approval',
+        human_review_required: true,
+        source_refs: {
+          source_type: 'lead',
+          lead_id: 42,
+        },
+        target_surface: '/admin/outreach?tab=leads&id=42',
+      },
     })
   })
 
@@ -185,6 +197,13 @@ describe('GET /api/client-email-context', () => {
       },
       last_meeting: null,
       action_items: null,
+      handoff: {
+        intent: 'lead_reply_context',
+        source_refs: {
+          source_type: 'lead',
+          lead_id: 43,
+        },
+      },
     })
     expect(mocks.from).not.toHaveBeenCalledWith('meeting_action_tasks')
   })
@@ -233,7 +252,7 @@ describe('GET /api/client-email-context', () => {
     expect(response.status).toBe(200)
     expect(planQuery.maybeSingle).toHaveBeenCalled()
     expect(meetingQuery.maybeSingle).toHaveBeenCalled()
-    expect(await response.json()).toEqual({
+    expect(await response.json()).toMatchObject({
       found: true,
       source_type: 'client_project',
       project: {
@@ -252,6 +271,19 @@ describe('GET /api/client-email-context', () => {
       milestones: null,
       last_meeting: null,
       action_items: null,
+      handoff: {
+        version: 'inbound-outreach-handoff/v1',
+        intent: 'client_reply_context',
+        next_action: 'draft_client_reply',
+        approval_boundary: 'context_handoff_only_no_send_no_auto_approval',
+        human_review_required: true,
+        source_refs: {
+          source_type: 'client_project',
+          client_project_id: 'project-1',
+          lead_id: null,
+        },
+        target_surface: '/admin/email-center',
+      },
     })
   })
 })

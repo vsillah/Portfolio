@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { buildMeetingFollowUpHandoff } from '@/lib/inbound-outreach-handoff'
 
 export const dynamic = 'force-dynamic'
 
@@ -82,19 +83,26 @@ export async function GET(
       }
     }
 
+    const meetingPayload = {
+      id: meeting.id,
+      meeting_type: meeting.meeting_type,
+      meeting_date: meeting.meeting_date,
+      duration_minutes: meeting.duration_minutes,
+      attendees: meeting.attendees,
+      next_meeting_type: meeting.next_meeting_type,
+      next_meeting_agenda: meeting.next_meeting_agenda,
+      calendly_event_uri: meeting.calendly_event_uri,
+    }
+
     return NextResponse.json({
-      meeting: {
-        id: meeting.id,
-        meeting_type: meeting.meeting_type,
-        meeting_date: meeting.meeting_date,
-        duration_minutes: meeting.duration_minutes,
-        attendees: meeting.attendees,
-        next_meeting_type: meeting.next_meeting_type,
-        next_meeting_agenda: meeting.next_meeting_agenda,
-        calendly_event_uri: meeting.calendly_event_uri,
-      },
+      meeting: meetingPayload,
       project,
       task_summary: taskSummary,
+      handoff: buildMeetingFollowUpHandoff({
+        meeting: meetingPayload,
+        project,
+        taskSummary,
+      }),
     })
   } catch (error) {
     console.error('[Follow-up context] Error:', error)
