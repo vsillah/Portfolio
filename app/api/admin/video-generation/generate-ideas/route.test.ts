@@ -129,6 +129,18 @@ describe('POST /api/admin/video-generation/generate-ideas', () => {
                   {
                     title: 'Automation That Gives Time Back',
                     script: 'A practical script.',
+                    scriptOutline: {
+                      pain_point: 'Teams move faster than their approvals.',
+                      hook: 'AI can create faster than teams can govern.',
+                      open_loop: 'Show the operating loop that closes the gap.',
+                      frame: 'Receipts create trust.',
+                      proof_demo: 'Portfolio shows the review gate.',
+                      teaching_beats: ['Name the pain', 'Show the loop'],
+                      cta: 'Join the Accelerated Workshop interest path.',
+                      closing_question: 'Where is this showing up in your workflow?',
+                      thumbnail_promise: 'AI speed needs a gate.',
+                      source_distance_notes: 'Use structure only.',
+                    },
                     storyboard: { scenes: [{ sceneNumber: 1, description: 'Open on admin workflow.' }] },
                   },
                 ],
@@ -144,6 +156,8 @@ describe('POST /api/admin/video-generation/generate-ideas', () => {
       mode: 'from_direction',
       customPrompt: 'Turn this note into one practical video.',
       limit: 1,
+      scriptTemplateId: 'killer_script',
+      scriptIntent: 'Make the pain point and CTA explicit.',
     }))
 
     expect(response.status).toBe(200)
@@ -152,6 +166,18 @@ describe('POST /api/admin/video-generation/generate-ideas', () => {
         {
           title: 'Automation That Gives Time Back',
           script: 'A practical script.',
+          scriptOutline: {
+            pain_point: 'Teams move faster than their approvals.',
+            hook: 'AI can create faster than teams can govern.',
+            open_loop: 'Show the operating loop that closes the gap.',
+            frame: 'Receipts create trust.',
+            proof_demo: 'Portfolio shows the review gate.',
+            teaching_beats: ['Name the pain', 'Show the loop'],
+            cta: 'Join the Accelerated Workshop interest path.',
+            closing_question: 'Where is this showing up in your workflow?',
+            thumbnail_promise: 'AI speed needs a gate.',
+            source_distance_notes: 'Use structure only.',
+          },
           storyboard: { scenes: [{ sceneNumber: 1, description: 'Open on admin workflow.' }] },
         },
       ],
@@ -204,6 +230,9 @@ describe('POST /api/admin/video-generation/generate-ideas', () => {
       }),
       'agent-run-1',
     )
+    const openAiBody = JSON.parse(mockFetch.mock.calls[0][1].body as string)
+    expect(openAiBody.messages[1].content).toContain('Selected script template: Killer script')
+    expect(openAiBody.messages[1].content).toContain('Script intent: Make the pain point and CTA explicit.')
     expect(mocks.endAgentRun).toHaveBeenCalledWith(
       expect.objectContaining({
         runId: 'agent-run-1',

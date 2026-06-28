@@ -11,6 +11,7 @@ import { createVideo } from '@/lib/heygen'
 import { channelToAspectRatio } from '@/lib/constants/video-channel'
 import type { VideoChannel, VideoAspectRatio } from '@/lib/constants/video-channel'
 import { videoRenderApprovalError } from '@/lib/video-render-approval'
+import { evaluateVideoScript, SCRIPT_INTELLIGENCE_SIDE_EFFECTS } from '@/lib/video-script-intelligence'
 
 export const dynamic = 'force-dynamic'
 
@@ -51,7 +52,7 @@ export async function POST(
 
     const { data: queueItem, error: fetchErr } = await supabaseAdmin
       .from('video_ideas_queue')
-      .select('id, title, script_text, storyboard_json, status, source')
+      .select('id, title, script_text, storyboard_json, status, source, script_template_id, script_outline, script_scorecard, research_packet_ids')
       .eq('id', queueId)
       .single()
 
@@ -97,6 +98,24 @@ export async function POST(
           error: `Script exceeds HeyGen limit of ${HEYGEN_SCRIPT_MAX} characters (${scriptText.length}). Shorten or split.`,
         },
         { status: 400 }
+      )
+    }
+
+    const scriptScorecard = queueItem.script_scorecard && typeof queueItem.script_scorecard === 'object'
+      ? queueItem.script_scorecard as ReturnType<typeof evaluateVideoScript>
+      : evaluateVideoScript({
+        scriptText,
+        outline: queueItem.script_outline as Record<string, unknown> | null,
+        researchPacketCount: Array.isArray(queueItem.research_packet_ids) ? queueItem.research_packet_ids.length : 0,
+      })
+    if (Array.isArray(scriptScorecard.blockers) && scriptScorecard.blockers.length > 0) {
+      return NextResponse.json(
+        {
+          error: `Script intelligence gate blocked render: ${scriptScorecard.blockers.join(' ')}`,
+          scorecard: scriptScorecard,
+          side_effects: SCRIPT_INTELLIGENCE_SIDE_EFFECTS,
+        },
+        { status: 400 },
       )
     }
 

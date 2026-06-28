@@ -45,7 +45,7 @@ export async function POST(
 
     const { data: queueItem, error: fetchErr } = await supabaseAdmin
       .from('video_ideas_queue')
-      .select('id, title, script_text, storyboard_json, status, video_generation_job_id')
+      .select('id, title, script_text, storyboard_json, status, video_generation_job_id, script_outline, script_scorecard, research_packet_ids')
       .eq('id', queueId)
       .single()
 
@@ -97,6 +97,9 @@ export async function POST(
       title: queueItem.title,
       status: queueItem.status,
       scriptText: queueItem.script_text,
+      scriptOutline: queueItem.script_outline,
+      scriptScorecard: queueItem.script_scorecard,
+      researchPacketIds: Array.isArray(queueItem.research_packet_ids) ? queueItem.research_packet_ids : [],
       storyboardScenes: scenes.length,
       videoGenerationJobId: queueItem.video_generation_job_id,
       templateId,

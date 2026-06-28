@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { buildScriptOutlineFromText, evaluateVideoScript } from '@/lib/video-script-intelligence'
 
 export const dynamic = 'force-dynamic'
 
@@ -98,7 +99,7 @@ export async function PATCH(
     const queueId = params.id
     const { data: queueItem, error: fetchErr } = await supabaseAdmin
       .from('video_ideas_queue')
-      .select('id, status, video_generation_job_id')
+      .select('id, status, video_generation_job_id, script_template_id, script_outline, research_packet_ids')
       .eq('id', queueId)
       .single()
 
@@ -121,15 +122,27 @@ export async function PATCH(
       )
     }
 
+    const scriptOutline = buildScriptOutlineFromText({
+      scriptText,
+      template: null,
+    })
+    const scriptScorecard = evaluateVideoScript({
+      scriptText,
+      outline: scriptOutline,
+      researchPacketCount: Array.isArray(queueItem.research_packet_ids) ? queueItem.research_packet_ids.length : 0,
+    })
+
     const { data: item, error: updateErr } = await supabaseAdmin
       .from('video_ideas_queue')
       .update({
         title,
         script_text: scriptText,
         storyboard_json: storyboardJson,
+        script_outline: scriptOutline,
+        script_scorecard: scriptScorecard,
       })
       .eq('id', queueId)
-      .select('id, title, script_text, storyboard_json, source, status, video_generation_job_id, custom_prompt, created_at')
+      .select('id, title, script_text, storyboard_json, source, status, video_generation_job_id, custom_prompt, script_template_id, script_outline, script_scorecard, research_packet_ids, created_at')
       .single()
 
     if (updateErr || !item) {

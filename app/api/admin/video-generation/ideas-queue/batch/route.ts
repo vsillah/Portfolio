@@ -12,6 +12,7 @@ import { isOverVideoGenerationLimit } from '@/lib/video-generation-rate-limit'
 import { channelToAspectRatio } from '@/lib/constants/video-channel'
 import type { VideoChannel, VideoAspectRatio } from '@/lib/constants/video-channel'
 import { videoRenderApprovalError } from '@/lib/video-render-approval'
+import { evaluateVideoScript } from '@/lib/video-script-intelligence'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300
@@ -78,14 +79,21 @@ export async function POST(request: NextRequest) {
     const aspectRatio: VideoAspectRatio =
       (body.aspectRatio as VideoAspectRatio) ?? channelToAspectRatio(channel)
 
-    let ideas: Array<{ id: string; title: string | null; script_text: string | null }> | null = null
+    let ideas: Array<{
+      id: string
+      title: string | null
+      script_text: string | null
+      script_outline?: Record<string, unknown> | null
+      script_scorecard?: ReturnType<typeof evaluateVideoScript> | null
+      research_packet_ids?: string[] | null
+    }> | null = null
     let brollMap: Record<string, string[]> = {}
 
     if (itemsPayload && itemsPayload.length > 0) {
       const ids = itemsPayload.slice(0, MAX_LIMIT).map(i => i.id)
       const { data, error: fetchErr } = await supabaseAdmin
         .from('video_ideas_queue')
-        .select('id, title, script_text')
+        .select('id, title, script_text, script_outline, script_scorecard, research_packet_ids')
         .in('id', ids)
         .eq('status', 'pending')
 
@@ -107,7 +115,7 @@ export async function POST(request: NextRequest) {
       )
       const { data, error: fetchErr } = await supabaseAdmin
         .from('video_ideas_queue')
-        .select('id, title, script_text')
+        .select('id, title, script_text, script_outline, script_scorecard, research_packet_ids')
         .eq('status', 'pending')
         .order('created_at', { ascending: true })
         .limit(limit)
@@ -134,6 +142,15 @@ export async function POST(request: NextRequest) {
       if (!scriptText) continue
       if (scriptText.length > 5000) {
         console.warn('[Ideas queue batch] Skipping idea (script too long)', idea.id)
+        continue
+      }
+      const scorecard = idea.script_scorecard ?? evaluateVideoScript({
+        scriptText,
+        outline: idea.script_outline,
+        researchPacketCount: Array.isArray(idea.research_packet_ids) ? idea.research_packet_ids.length : 0,
+      })
+      if (scorecard.blockers.length > 0) {
+        console.warn('[Ideas queue batch] Skipping idea (script intelligence blocked)', idea.id, scorecard.blockers)
         continue
       }
 

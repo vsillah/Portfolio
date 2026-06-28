@@ -491,9 +491,16 @@ export function extractReusablePattern(input: {
   const titleWords = title.split(/\s+/).filter(Boolean)
   const hookSentence = hook.split(/[.!?]/).map((part) => part.trim()).find(Boolean) ?? hook
   return {
+    pain_point: caption || title
+      ? truncate(caption || title, 180)
+      : 'Needs analyst review.',
     hook_structure: hookSentence
       ? truncate(hookSentence, 180)
       : 'No first-30-second hook transcript available yet.',
+    open_loop: hookSentence
+      ? 'Review how the opening creates curiosity before the payoff.'
+      : 'Needs hook review.',
+    frame: 'Translate the creator outline into an AmaduTown operating frame before drafting.',
     tension_or_missed_opportunity: caption || title
       ? truncate(caption || title, 220)
       : 'Needs analyst review.',
@@ -501,6 +508,7 @@ export function extractReusablePattern(input: {
       ? truncate(titleWords.slice(0, 10).join(' '), 140)
       : 'Needs title/caption review.',
     proof_style: 'Review source for proof pattern only; do not copy claims or creator identity.',
+    closing_question: 'Needs human review; adapt the closing question to Vambah voice.',
     title_pattern: title
       ? truncate(title.replace(/[A-Za-z0-9]+/g, '[word]'), 180)
       : 'No title pattern available.',
