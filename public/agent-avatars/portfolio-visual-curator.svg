@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Idia Portfolio Visual Curator avatar</title>
+  <desc id="desc">A stylized rose and gold portrait mark with a visual frame motif.</desc>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="36%" r="70%">
+      <stop offset="0%" stop-color="#4a1f2c"/>
+      <stop offset="62%" stop-color="#1b1020"/>
+      <stop offset="100%" stop-color="#09070d"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="18%" y1="12%" x2="82%" y2="88%">
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="48%" stop-color="#d8b42c"/>
+      <stop offset="100%" stop-color="#9f7a16"/>
+    </linearGradient>
+    <linearGradient id="rose" x1="25%" y1="0%" x2="75%" y2="100%">
+      <stop offset="0%" stop-color="#fecdd3"/>
+      <stop offset="100%" stop-color="#fb7185"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <circle cx="256" cy="246" r="168" fill="none" stroke="url(#gold)" stroke-width="14"/>
+  <path d="M150 160h212v44h-32v-14H182v132h148v-14h32v44H150z" fill="url(#gold)" opacity=".9"/>
+  <path d="M212 196c18-33 69-34 88 0 17 30 7 74-44 122-51-48-61-92-44-122z" fill="url(#rose)"/>
+  <path d="M197 356c18-43 99-43 118 0 7 17-7 32-28 38a112 112 0 0 1-62 0c-21-6-35-21-28-38z" fill="#2b1220"/>
+  <path d="M211 150c5-34 22-59 45-73 23 14 40 39 45 73-28-11-62-11-90 0z" fill="url(#gold)"/>
+  <path d="M170 414h172" stroke="url(#gold)" stroke-width="12" stroke-linecap="round"/>
+  <text x="256" y="444" text-anchor="middle" font-family="Arial, sans-serif" font-size="54" font-weight="700" fill="#fde68a">IB</text>
+</svg>

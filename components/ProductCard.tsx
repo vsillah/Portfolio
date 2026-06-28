@@ -5,8 +5,10 @@ import { motion } from 'framer-motion'
 import { ShoppingCart, DollarSign, Download, File, Image as ImageIcon, Check, Sparkles } from 'lucide-react'
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTheme } from 'next-themes'
 import type { Product } from '@/lib/types/store'
 import { formatDollarAmount } from '@/lib/pricing-model'
+import { resolveThemeImageUrl } from '@/lib/visual-asset-variants'
 
 interface ProductCardProps {
   product: Product
@@ -28,6 +30,12 @@ export default function ProductCard({ product, onAddToCart, campaignBadge }: Pro
   const [showAdded, setShowAdded] = useState(false)
   const addedTimerRef = useRef<NodeJS.Timeout | null>(null)
   const router = useRouter()
+  const { resolvedTheme } = useTheme()
+  const imageUrl = resolveThemeImageUrl({
+    imageUrl: product.image_url,
+    imageVariants: product.image_variants,
+    theme: resolvedTheme,
+  })
 
   const handleAddToCart = () => {
     // For merchandise, redirect to product page for variant selection
@@ -56,9 +64,9 @@ export default function ProductCard({ product, onAddToCart, campaignBadge }: Pro
     >
       {/* Image */}
       <div className="relative h-48 overflow-hidden border-b border-radiant-gold/10 bg-[radial-gradient(circle_at_20%_0%,rgba(212,175,55,0.14),transparent_14rem),rgba(18,30,49,0.62)]">
-        {product.image_url && !imageError ? (
+        {imageUrl && !imageError ? (
           <Image
-            src={product.image_url}
+            src={imageUrl}
             alt={product.title}
             fill
             className="object-cover"

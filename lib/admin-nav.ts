@@ -115,6 +115,7 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
         { label: 'Publications', href: '/admin/content/publications' },
         { label: 'Music', href: '/admin/content/music' },
         { label: 'Services', href: '/admin/content/services' },
+        { label: 'Visual Assets', href: '/admin/content/visual-assets' },
         { label: 'Mobile App Foundry', href: '/admin/mobile-app-foundry' },
         { label: 'Products', href: '/admin/products' },
         { label: 'Prototypes', href: '/admin/content/prototypes' },

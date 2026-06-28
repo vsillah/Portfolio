@@ -21,6 +21,14 @@ export interface RouteConfig {
   description?: string
   /** When set, overrides default full-page rules for this route */
   fullPage?: boolean
+  /** Optional per-route viewport for tighter product screenshots */
+  viewport?: { width: number; height: number }
+  /** Optional browser color scheme for theme-specific captures */
+  colorScheme?: 'light' | 'dark' | 'no-preference'
+  /** Optional selector to wait for before screenshot capture */
+  waitForSelector?: string
+  /** Optional selector to screenshot instead of the whole viewport/page */
+  screenshotSelector?: string
 }
 
 export interface BrollProgressEvent {
@@ -205,7 +213,17 @@ export async function captureBroll(config: PlaytestConfig): Promise<CaptureResul
 
   const total = config.routes.length
   for (let i = 0; i < config.routes.length; i++) {
-    const { route, filename, description, fullPage: fullPageOverride } = config.routes[i]
+    const {
+      route,
+      filename,
+      description,
+      fullPage: fullPageOverride,
+      viewport: routeViewport,
+      colorScheme,
+      waitForSelector,
+      screenshotSelector,
+    } = config.routes[i]
+    const viewport = routeViewport ?? VIEWPORT
     const videoDir = config.recordVideos ? path.join(outputDir, `_video-${filename}`) : undefined
     if (videoDir && !fs.existsSync(videoDir)) fs.mkdirSync(videoDir, { recursive: true })
 
@@ -213,13 +231,17 @@ export async function captureBroll(config: PlaytestConfig): Promise<CaptureResul
 
     const contextOptions: {
       viewport: typeof VIEWPORT
+      colorScheme?: 'light' | 'dark' | 'no-preference'
       recordVideo?: { dir: string; size?: { width: number; height: number } }
       storageState?: string
     } = {
-      viewport: VIEWPORT,
+      viewport,
+    }
+    if (colorScheme) {
+      contextOptions.colorScheme = colorScheme
     }
     if (config.recordVideos && videoDir) {
-      contextOptions.recordVideo = { dir: videoDir, size: { width: VIEWPORT.width, height: VIEWPORT.height } }
+      contextOptions.recordVideo = { dir: videoDir, size: { width: viewport.width, height: viewport.height } }
     }
     if (authStatePath) {
       contextOptions.storageState = authStatePath
@@ -233,6 +255,9 @@ export async function captureBroll(config: PlaytestConfig): Promise<CaptureResul
       const label = description ?? filename
       console.log('Capturing', label, '→', filename)
       await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 })
+      if (waitForSelector) {
+        await page.waitForSelector(waitForSelector, { timeout: 15000 })
+      }
       await page.waitForTimeout(800)
 
       config.onProgress?.({ route, filename, step: 'screenshot', index: i, total })
@@ -242,7 +267,12 @@ export async function captureBroll(config: PlaytestConfig): Promise<CaptureResul
         fullPageOverride !== undefined
           ? fullPageOverride
           : route === '/' || route === '/#about'
-      await page.screenshot({ path: screenshotPath, fullPage })
+      if (screenshotSelector) {
+        const locator = page.locator(screenshotSelector).first()
+        await locator.screenshot({ path: screenshotPath })
+      } else {
+        await page.screenshot({ path: screenshotPath, fullPage })
+      }
       screenshots.push(screenshotPath)
 
       if (config.recordVideos) {
