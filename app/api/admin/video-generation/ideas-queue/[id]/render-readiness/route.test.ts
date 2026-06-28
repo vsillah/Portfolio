@@ -122,4 +122,24 @@ describe('POST /api/admin/video-generation/ideas-queue/[id]/render-readiness', (
     expect(body.report.blockingIssues.join(' ')).toContain('HeyGen template or avatar and voice')
     expect(body.report.warnings).toContain('No storyboard scenes are attached for visual direction.')
   })
+
+  it('uses synced HeyGen defaults before stale env avatar fallbacks', async () => {
+    vi.stubEnv('HEYGEN_AVATAR_ID', 'stale-env-avatar')
+    vi.stubEnv('HEYGEN_VOICE_ID', 'stale-env-voice')
+    mocks.getHeyGenDefaults.mockResolvedValue({ avatarId: 'db-avatar-1', voiceId: 'db-voice-1' })
+    mocks.from
+      .mockReturnValueOnce(queueFetchBuilder({ storyboard_json: { scenes: [] } }))
+
+    const response = await POST(
+      makeRequest({ channel: 'youtube', aspectRatio: '16:9' }),
+      { params: { id: 'draft-1' } }
+    )
+
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.report.ready).toBe(true)
+    expect(body.report.details.avatarId).toBe('db-avatar-1')
+    expect(body.report.details.voiceId).toBe('db-voice-1')
+  })
 })
