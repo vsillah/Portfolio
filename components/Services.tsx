@@ -5,7 +5,9 @@ import Image from 'next/image'
 import { Briefcase, ArrowRight, Building, Users, MessageSquare, Play } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useTheme } from 'next-themes'
 import { formatPriceOrFree } from '@/lib/pricing-model'
+import { resolveThemeImageUrl } from '@/lib/visual-asset-variants'
 
 interface Service {
   id: string
@@ -18,6 +20,7 @@ interface Service {
   price: number | null
   is_quote_based: boolean
   image_url: string | null
+  image_variants?: Record<string, string | null> | null
   video_url: string | null
   video_thumbnail_url: string | null
   is_featured: boolean
@@ -77,6 +80,7 @@ function getSubsection(service: Service): 'build' | 'advisory' | 'warranty' {
 
 export default function Services() {
   const router = useRouter()
+  const { resolvedTheme } = useTheme()
   const [services, setServices] = useState<Service[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -146,9 +150,17 @@ export default function Services() {
               style={{ transitionDelay: `${index * 0.08}s` }}
             >
               <div className="relative h-64 overflow-hidden">
-                {service.image_url ? (
+                {resolveThemeImageUrl({
+                  imageUrl: service.image_url,
+                  imageVariants: service.image_variants,
+                  theme: resolvedTheme,
+                }) ? (
                   <Image
-                    src={service.image_url}
+                    src={resolveThemeImageUrl({
+                      imageUrl: service.image_url,
+                      imageVariants: service.image_variants,
+                      theme: resolvedTheme,
+                    })!}
                     alt={service.title}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-110"

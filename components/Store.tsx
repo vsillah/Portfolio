@@ -5,8 +5,10 @@ import { ShoppingBag, ArrowRight, ShoppingCart, Package } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { useTheme } from 'next-themes'
 import type { Product } from '@/lib/types/store'
 import { formatPriceOrFree } from '@/lib/pricing-model'
+import { resolveThemeImageUrl } from '@/lib/visual-asset-variants'
 
 const TYPE_LABELS: Record<string, string> = {
   ebook: 'E-Book',
@@ -34,6 +36,13 @@ function ProductCard({
   onClick: () => void
   ctaLabel?: string
 }) {
+  const { resolvedTheme } = useTheme()
+  const imageUrl = resolveThemeImageUrl({
+    imageUrl: product.image_url,
+    imageVariants: product.image_variants,
+    theme: resolvedTheme,
+  })
+
   return (
     <div
       onClick={onClick}
@@ -41,9 +50,9 @@ function ProductCard({
       style={{ transitionDelay: `${index * 0.1}s` }}
     >
       <div className="relative h-64 overflow-hidden">
-        {product.image_url ? (
+        {imageUrl ? (
           <Image
-            src={product.image_url}
+            src={imageUrl}
             alt={product.title}
             fill
             className="object-cover transition-transform duration-700 group-hover:scale-110"

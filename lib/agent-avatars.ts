@@ -110,6 +110,14 @@ const AGENT_AVATAR_SEEDS: Record<string, Omit<AgentAvatarDefinition, 'imagePath'
     tone: 'gold',
     culturalCue: 'Kush brand cue',
   },
+  'portfolio-visual-curator': {
+    agentKey: 'portfolio-visual-curator',
+    label: 'Illustrated avatar for Idia, Portfolio Visual Curator',
+    initials: 'IB',
+    motif: 'frame',
+    tone: 'rose',
+    culturalCue: 'Benin court arts cue',
+  },
   'course-curriculum-builder': {
     agentKey: 'course-curriculum-builder',
     label: 'Illustrated avatar for Menelik, Course and Curriculum Builder',

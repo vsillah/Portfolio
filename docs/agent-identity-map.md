@@ -21,6 +21,7 @@ The Chief of Staff identity is fixed by rule:
 | `voice-content-architect` | Nefertiti (Kemet) - Voice & Content Architect |
 | `content-repurposing` | Hannibal (Carthage) - Content Repurposing |
 | `amadutown-brand` | Taharqa (Kush) - AmaduTown Brand |
+| `portfolio-visual-curator` | Idia (Benin) - Portfolio Visual Curator |
 | `course-curriculum-builder` | Menelik II (Ethiopia) - Course & Curriculum Builder |
 | `engineering-copilot` | Piye (Kush) - Engineering Copilot |
 | `automation-systems` | Yaa Asantewaa (Ashanti) - Automation Systems |

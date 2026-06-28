@@ -5,8 +5,10 @@ import { motion } from 'framer-motion'
 import { ShoppingCart, DollarSign, Clock, Users, MapPin, Video, Building, MessageSquare, Image as ImageIcon, Check, ArrowRight, Play } from 'lucide-react'
 import { useState, useRef } from 'react'
 import Link from 'next/link'
+import { useTheme } from 'next-themes'
 import type { Service } from '@/lib/types/store'
 import { formatDollarAmount } from '@/lib/pricing-model'
+import { resolveThemeImageUrl } from '@/lib/visual-asset-variants'
 
 interface ServiceCardProps {
   service: Service
@@ -42,6 +44,12 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
   const [imageError, setImageError] = useState(false)
   const [showAdded, setShowAdded] = useState(false)
   const addedTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const { resolvedTheme } = useTheme()
+  const imageUrl = resolveThemeImageUrl({
+    imageUrl: service.image_url,
+    imageVariants: service.image_variants,
+    theme: resolvedTheme,
+  })
 
   const handleAction = () => {
     if (service.is_quote_based && onRequestQuote) {
@@ -65,9 +73,9 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
     >
       {/* Image */}
       <div className="relative h-48 overflow-hidden border-b border-radiant-gold/10 bg-[radial-gradient(circle_at_20%_0%,rgba(212,175,55,0.14),transparent_14rem),rgba(18,30,49,0.62)]">
-        {service.image_url && !imageError ? (
+        {imageUrl && !imageError ? (
           <Image
-            src={service.image_url}
+            src={imageUrl}
             alt={service.title}
             fill
             className="object-cover"

@@ -7,6 +7,7 @@ export interface Product {
   type: string
   price: number | null
   image_url: string | null
+  image_variants?: Record<string, string | null> | null
   is_featured: boolean
 }
 
@@ -23,6 +24,7 @@ export interface Service {
   min_participants: number
   max_participants: number | null
   image_url: string | null
+  image_variants?: Record<string, string | null> | null
   video_url: string | null
   video_thumbnail_url: string | null
   presentation_url: string | null

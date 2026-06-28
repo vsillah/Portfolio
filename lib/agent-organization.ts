@@ -217,6 +217,17 @@ export const AGENT_ORGANIZATION: AgentOrganizationNode[] = [
     n8nWorkflows: [],
   },
   {
+    key: 'portfolio-visual-curator',
+    name: 'Idia (Benin) - Portfolio Visual Curator',
+    podKey: 'content_production',
+    status: 'planned',
+    primaryRuntime: 'codex',
+    responsibility: 'Audit homepage product and service imagery, capture theme-specific screenshot candidates, and route approved assets through human review before public image fields change.',
+    engagementPath: '/admin/content/visual-assets, visual-assets package scripts, and Agent Ops weekly homepage audit work items.',
+    approvalGate: 'Taharqa/AmaduTown Brand partners on visual governance; audit and capture can propose only, while applying public visual changes requires admin approval.',
+    n8nWorkflows: [],
+  },
+  {
     key: 'course-curriculum-builder',
     name: 'Menelik II (Ethiopia) - Course & Curriculum Builder',
     podKey: 'content_production',
