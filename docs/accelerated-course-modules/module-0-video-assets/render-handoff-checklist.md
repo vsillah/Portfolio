@@ -52,4 +52,3 @@ Module 0 can move from `ready_for_render_preflight` to queued render work only w
 - cost/quota risk is accepted,
 - the operator confirms the job is local review only,
 - external upload, scheduling, and publishing remain locked.
-
