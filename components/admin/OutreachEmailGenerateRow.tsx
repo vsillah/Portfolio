@@ -155,6 +155,7 @@ export function OutreachEmailGenerateRow({
   const [inAppElapsedMs, setInAppElapsedMs] = useState(0)
   const [inAppLoading, setInAppLoading] = useState(false)
   const [whyRequest, setWhyRequest] = useState<WhyThisDraftRequest | null>(null)
+  const [gmailDraftSavingId, setGmailDraftSavingId] = useState<string | null>(null)
 
   /** `meeting_records.id` for prompt + dedup; empty = server uses latest meeting for this lead. */
   const [outreachMeetingId, setOutreachMeetingId] = useState('')
@@ -428,6 +429,41 @@ export function OutreachEmailGenerateRow({
   ) => {
     void start(key, targetChannel, meetingIdForRequest)
   }
+
+  const saveToGmailDraft = useCallback(
+    async (draft: RecentEmailDraftItem) => {
+      if (gmailDraftSavingId) return
+      setGmailDraftSavingId(draft.id)
+      try {
+        const session = await getCurrentSession()
+        if (!session?.access_token) {
+          onToast?.('Please sign in to save this Gmail draft.')
+          return
+        }
+        const res = await fetch(`/api/admin/outreach/${draft.id}/gmail-user-draft`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        })
+        const data = (await res.json().catch(() => ({}))) as {
+          error?: string
+          message?: string
+        }
+        if (!res.ok) {
+          onToast?.(data.error ?? 'Could not save this draft to Gmail.')
+          return
+        }
+        onToast?.(data.message ?? 'Draft saved in your Gmail.')
+        onSettled?.()
+      } catch {
+        onToast?.('Could not save this draft to Gmail.')
+      } finally {
+        setGmailDraftSavingId(null)
+      }
+    },
+    [gmailDraftSavingId, onSettled, onToast],
+  )
 
   const pickTemplate = (
     key: EmailTemplateKey | LinkedInTemplateKey,
@@ -1032,6 +1068,25 @@ export function OutreachEmailGenerateRow({
                               >
                                 <HelpCircle size={12} />
                               </button>
+                              {(r.status === 'draft' || r.status === 'approved') && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    void saveToGmailDraft(r)
+                                  }}
+                                  disabled={gmailDraftSavingId != null}
+                                  title="Save this email as a draft in the connected Gmail account. This does not send."
+                                  aria-label={`Save ${r.subject ?? 'this draft'} to connected Gmail drafts`}
+                                  className="mt-1 shrink-0 rounded p-1 text-muted-foreground transition-colors hover:bg-silicon-slate/40 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                  {gmailDraftSavingId === r.id ? (
+                                    <Loader2 size={12} className="animate-spin" aria-hidden />
+                                  ) : (
+                                    <Mail size={12} aria-hidden />
+                                  )}
+                                </button>
+                              )}
                             </div>
                           </li>
                         )
