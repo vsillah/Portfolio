@@ -107,4 +107,3 @@ Patch the durable tracking gap before expanding outreach:
 2. Repair or prove the natural `WF-GDR` 4-hour Gmail trigger with a fresh controlled inbound message.
 3. Tighten the reply prompt/parser so the body does not include a duplicated `Subject:` line.
 4. Run one more controlled live test that starts with the canonical send path and ends with a draft plus Slack approval alert, without temporary webhooks.
-
