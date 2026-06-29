@@ -113,9 +113,11 @@ function isAgenticVideoRenderReadinessDecision(value: string | null): value is A
 function buildAgenticContentReviewPrefill(
   assetId: string,
   decision: AgenticContentReviewDecision,
+  decisionNote?: string | null,
 ) {
   const packet = getAgenticContentReviewPacketByAssetId(assetId)
   if (!packet) return null
+  const cleanDecisionNote = decisionNote?.trim()
 
   const decisionInstruction = {
     approve_next_gate: `Prepare the next-gate work packet for ${packet.targetSurface} production. Treat challenger clearance as a precondition already satisfied, but do not publish, render, export, share, or deploy anything. Preserve the approval boundary: ${packet.nextGate}`,
@@ -144,6 +146,7 @@ function buildAgenticContentReviewPrefill(
       `Draft source: ${packet.draftSource}`,
       `Challenger: ${packet.challengerAgent} - ${packet.challengerStatus}`,
       `Approval status: ${packet.approvalStatus}`,
+      ...(cleanDecisionNote ? ['', `Human decision note: ${cleanDecisionNote}`] : []),
     ].join('\n'),
     message: [
       `Review the agentic content packet for "${packet.title}" and convert this ${decisionLabel} decision into traceable Agent Ops work.`,
@@ -288,10 +291,11 @@ function StandupRoomContent() {
 
     const assetId = params.get('asset')
     const decision = params.get('decision')
+    const decisionNote = params.get('decision_note')
     if (!assetId || !decision) return
 
     if (context === 'agentic-content-review' && isAgenticContentReviewDecision(decision)) {
-      const prefill = buildAgenticContentReviewPrefill(assetId, decision)
+      const prefill = buildAgenticContentReviewPrefill(assetId, decision, decisionNote)
       if (!prefill) return
 
       setGoal(prefill.goal)

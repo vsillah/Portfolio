@@ -244,12 +244,15 @@ export function getAgenticContentReviewPacketByAssetId(assetId: string) {
 export function buildAgenticContentReviewActionHref(
   packet: AgenticContentReviewPacket,
   decision: AgenticContentReviewDecision,
+  decisionNote?: string,
 ) {
   const params = new URLSearchParams({
     context: 'agentic-content-review',
     asset: packet.assetId,
     decision,
   })
+  const cleanNote = decisionNote?.trim()
+  if (cleanNote) params.set('decision_note', cleanNote)
 
   return `/admin/agents/standup?${params.toString()}`
 }

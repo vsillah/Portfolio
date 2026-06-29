@@ -58,6 +58,9 @@ describe('agentic content review packet registry', () => {
       '/admin/agents/standup?context=agentic-content-review&asset=p0-youtube-agentic-ai-teams-skip&decision=approve_next_gate',
     )
     expect(buildAgenticContentReviewActionHref(packet!, 'send_back_for_repair')).toContain('decision=send_back_for_repair')
+    expect(
+      buildAgenticContentReviewActionHref(packet!, 'send_back_for_repair', 'Tighten the pain point before render.'),
+    ).toContain('decision_note=Tighten+the+pain+point+before+render.')
     expect(buildAgenticContentReviewActionHref(packet!, 'hold_for_human')).toContain('decision=hold_for_human')
   })
 
