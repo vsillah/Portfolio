@@ -35,14 +35,17 @@ type AgenticContentReviewPacketCardProps = {
   packet: AgenticContentReviewPacket
   nextGateHref?: string
   nextGateLabel?: string
+  decisionNote?: string
 }
 
 export default function AgenticContentReviewPacketCard({
   packet,
   nextGateHref,
   nextGateLabel = 'Open current queue',
+  decisionNote,
 }: AgenticContentReviewPacketCardProps) {
   const copy = surfaceCopy(packet)
+  const hasDecisionNote = Boolean(decisionNote?.trim())
 
   return (
     <div className="rounded-lg border border-silicon-slate bg-imperial-navy/45 p-4">
@@ -96,17 +99,19 @@ export default function AgenticContentReviewPacketCard({
           <span className="mt-1 block text-emerald-100/80">{copy.approveHelp}</span>
         </Link>
         <Link
-          href={buildAgenticContentReviewActionHref(packet, 'send_back_for_repair')}
+          href={buildAgenticContentReviewActionHref(packet, 'send_back_for_repair', decisionNote)}
           className="rounded-md border border-amber-500/35 bg-amber-500/10 p-2 text-amber-100 transition-colors hover:border-amber-400"
         >
           <span className="flex items-center gap-1.5 font-semibold text-amber-300">
             <RotateCcw className="h-3.5 w-3.5" />
             Send back
           </span>
-          <span className="mt-1 block text-amber-100/80">Opens a repair prompt for Amina before another human pass.</span>
+          <span className="mt-1 block text-amber-100/80">
+            {hasDecisionNote ? 'Sends this revision note to the repair task.' : 'Add a decision note before sending back.'}
+          </span>
         </Link>
         <Link
-          href={buildAgenticContentReviewActionHref(packet, 'hold_for_human')}
+          href={buildAgenticContentReviewActionHref(packet, 'hold_for_human', decisionNote)}
           className="rounded-md border border-rose-500/30 bg-rose-500/10 p-2 text-rose-100 transition-colors hover:border-rose-400"
         >
           <span className="flex items-center gap-1.5 font-semibold text-rose-300">
