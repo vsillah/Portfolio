@@ -11,6 +11,15 @@ function sourcePacketUrl(path: string) {
   return `${GITHUB_DOC_BASE_URL}${path}`
 }
 
+function priorityLabel(priority: AgenticContentReviewPacket['priority']) {
+  switch (priority) {
+    case 'P0': return 'High priority'
+    case 'P1': return 'Medium priority'
+    case 'P2': return 'Low priority'
+    default: return 'Normal priority'
+  }
+}
+
 function surfaceCopy(packet: AgenticContentReviewPacket) {
   switch (packet.targetSurface) {
     case 'social':
@@ -50,7 +59,7 @@ export default function AgenticContentReviewPacketCard({
   return (
     <div className="rounded-lg border border-silicon-slate bg-imperial-navy/45 p-4">
       <div className="flex flex-wrap items-center gap-2 text-[10px] font-medium uppercase tracking-[0.14em] text-gray-500">
-        <span className="rounded-full border border-radiant-gold/30 px-2 py-0.5 text-radiant-gold">{packet.priority}</span>
+        <span className="rounded-full border border-radiant-gold/30 px-2 py-0.5 text-radiant-gold">{priorityLabel(packet.priority)}</span>
         <span>{packet.channel}</span>
         <span>{packet.output}</span>
       </div>
@@ -141,7 +150,7 @@ export default function AgenticContentReviewPacketCard({
           className="inline-flex items-center gap-1.5 rounded-md border border-silicon-slate bg-background/50 px-3 py-2 text-xs font-medium text-gray-200 transition-colors hover:border-radiant-gold/50 hover:text-radiant-gold"
         >
           <ExternalLink className="h-3.5 w-3.5" />
-          Review source packet
+          View Evidence Packet
         </a>
         {nextGateHref ? (
           <a

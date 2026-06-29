@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import {
   Video, Play, RefreshCw, Loader2, ExternalLink, CheckCircle,
   FileText, X, Lightbulb, Image as ImageIcon, Wand2, ChevronDown,
@@ -13,7 +13,6 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import AssetPicker from '@/components/admin/AssetPicker'
 import AgenticContentReviewPacketCard from '@/components/admin/AgenticContentReviewPacketCard'
-import AgenticVideoRenderReadinessPanel from '@/components/admin/AgenticVideoRenderReadinessPanel'
 import { ExtractionStatusChip } from '@/components/admin/ExtractionStatusChip'
 import { useWorkflowStatus } from '@/lib/hooks/useWorkflowStatus'
 import ProgressPanel, { type ProgressStep } from '@/components/admin/ProgressPanel'
@@ -21,8 +20,15 @@ import { readSSEStream } from '@/lib/sse-reader'
 import { getCurrentSession } from '@/lib/auth'
 import { VIDEO_CHANNEL_CONFIGS, type VideoChannel } from '@/lib/constants/video-channel'
 import { buildVideoRenderApproval, VIDEO_RENDER_APPROVAL_PACKET_PATH } from '@/lib/video-render-approval'
-import { getAgenticContentReviewPacketsForSurface } from '@/lib/agentic-content-review-packets'
-import { getAgenticVideoRenderReadinessPackets } from '@/lib/agentic-video-render-readiness-packets'
+import {
+  getAgenticContentReviewPacketsForSurface,
+  type AgenticContentReviewPacket,
+} from '@/lib/agentic-content-review-packets'
+import {
+  buildAgenticVideoRenderReadinessActionHref,
+  getAgenticVideoRenderReadinessPackets,
+  type AgenticVideoRenderReadinessPacket,
+} from '@/lib/agentic-video-render-readiness-packets'
 
 /* ───────────── Types ───────────── */
 
@@ -168,8 +174,67 @@ interface MeetingRecord {
 
 type SourceFilter = 'all' | 'llm_generated' | 'drive_script' | 'manual'
 type JobStatusFilter = 'all' | 'pending' | 'completed' | 'failed'
+type WorkspaceTab = 'script' | 'assets' | 'readiness' | 'generated' | 'source'
+type ReviewWorkspaceKind = 'script_packet' | 'draft' | 'job'
+
+interface EvidencePacketState {
+  content?: string
+  error?: string
+  loading?: boolean
+}
+
+interface ReviewWorkspaceItem {
+  id: string
+  kind: ReviewWorkspaceKind
+  title: string
+  channel: string
+  stage: string
+  nextAction: string
+  statusLabel: string
+  statusTone: 'ready' | 'blocked' | 'pending' | 'done'
+  priorityLabel: string
+  sourcePacketPath?: string
+  draftId?: string
+  jobIds: string[]
+  brollAssetIds: string[]
+  scriptPacket?: AgenticContentReviewPacket
+  readinessPacket?: AgenticVideoRenderReadinessPacket
+  draft?: DraftItem
+  jobs: VideoJob[]
+}
+
+const GITHUB_DOC_BASE_URL = 'https://github.com/vsillah/Portfolio/blob/main/'
 
 /* ───────────── Helpers ───────────── */
+
+function sourcePacketUrl(path: string) {
+  return `${GITHUB_DOC_BASE_URL}${path}`
+}
+
+function priorityLabel(priority?: string | null) {
+  switch (priority) {
+    case 'P0': return 'High priority'
+    case 'P1': return 'Medium priority'
+    case 'P2': return 'Low priority'
+    default: return 'Normal priority'
+  }
+}
+
+function statusToneClass(tone: ReviewWorkspaceItem['statusTone']) {
+  switch (tone) {
+    case 'ready': return 'border-emerald-500/35 bg-emerald-500/10 text-emerald-200'
+    case 'blocked': return 'border-rose-500/35 bg-rose-500/10 text-rose-200'
+    case 'done': return 'border-sky-500/35 bg-sky-500/10 text-sky-200'
+    default: return 'border-radiant-gold/35 bg-radiant-gold/10 text-radiant-gold'
+  }
+}
+
+function safeDateLabel(value?: string | null) {
+  if (!value) return 'No date'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return 'No date'
+  return date.toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+}
 
 function sourceBadge(source: string) {
   switch (source) {
@@ -356,8 +421,11 @@ export default function VideoGenerationPage() {
   const [brollExpanded, setBrollExpanded] = useState(false)
   const [expandedDraftId, setExpandedDraftId] = useState<string | null>(null)
   const [draftsPage, setDraftsPage] = useState(1)
-  const [scriptReviewPacketPage, setScriptReviewPacketPage] = useState(1)
   const [scriptReviewDecisionNotes, setScriptReviewDecisionNotes] = useState<Record<string, string>>({})
+  const [activeWorkspaceItemId, setActiveWorkspaceItemId] = useState<string | null>(null)
+  const [activeWorkspaceTab, setActiveWorkspaceTab] = useState<WorkspaceTab>('script')
+  const [evidencePackets, setEvidencePackets] = useState<Record<string, EvidencePacketState>>({})
+  const [productionToolsOpen, setProductionToolsOpen] = useState(false)
   const [activeSection, setActiveSection] = useState<'plan' | 'decide' | 'review'>('plan')
   const planRef = useRef<HTMLDivElement>(null)
   const decideRef = useRef<HTMLDivElement>(null)
@@ -392,6 +460,45 @@ export default function VideoGenerationPage() {
     const s = await getCurrentSession()
     return s?.access_token ?? null
   }, [])
+
+  const fetchEvidencePacket = useCallback(async (packetPath: string) => {
+    if (!packetPath) return
+    setEvidencePackets(current => ({
+      ...current,
+      [packetPath]: { ...current[packetPath], loading: true, error: undefined },
+    }))
+
+    const token = await getToken()
+    if (!token) {
+      setEvidencePackets(current => ({
+        ...current,
+        [packetPath]: { loading: false, error: 'Admin session required to load the evidence packet.' },
+      }))
+      return
+    }
+
+    try {
+      const res = await fetch(`/api/admin/video-generation/evidence-packet?path=${encodeURIComponent(packetPath)}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        throw new Error(typeof data.error === 'string' ? data.error : 'Failed to load evidence packet')
+      }
+      setEvidencePackets(current => ({
+        ...current,
+        [packetPath]: { loading: false, content: typeof data.content === 'string' ? data.content : '' },
+      }))
+    } catch (error) {
+      setEvidencePackets(current => ({
+        ...current,
+        [packetPath]: {
+          loading: false,
+          error: error instanceof Error ? error.message : 'Failed to load evidence packet',
+        },
+      }))
+    }
+  }, [getToken])
 
   const fetchDrafts = useCallback(async () => {
     const token = await getToken()
@@ -565,11 +672,11 @@ export default function VideoGenerationPage() {
   }, [getToken])
 
   const heygenWorkflow = useWorkflowStatus(
-    { apiBase: '/api/admin/video-generation/workflow-status', workflowId: 'vgen_heygen' },
+    { apiBase: '/api/admin/video-generation/workflow-status', workflowId: 'vgen_heygen', enabled: productionToolsOpen },
     () => { void fetchHeyGenConfig() },
   )
   const driveWorkflow = useWorkflowStatus(
-    { apiBase: '/api/admin/video-generation/workflow-status', workflowId: 'vgen_drive' },
+    { apiBase: '/api/admin/video-generation/workflow-status', workflowId: 'vgen_drive', enabled: productionToolsOpen },
     () => { void fetchDriveItems() },
   )
 
@@ -702,7 +809,10 @@ export default function VideoGenerationPage() {
     } catch { return { name: null, error: 'Network error' } }
   }, [getToken])
 
-  useEffect(() => { fetchHeyGenConfig() }, [fetchHeyGenConfig])
+  useEffect(() => {
+    if (!productionToolsOpen) return
+    fetchHeyGenConfig()
+  }, [fetchHeyGenConfig, productionToolsOpen])
 
   useEffect(() => {
     const load = async () => {
@@ -1455,12 +1565,6 @@ export default function VideoGenerationPage() {
 
   const pendingJobCount = jobs.filter(j => ['pending', 'waiting', 'processing'].includes(j.heygen_status ?? '')).length
   const latestCompletedReviewJob = jobs.find(j => (j.heygen_status === 'completed' || Boolean(j.video_url)) && Boolean(j.video_url))
-  const scriptReviewPacketCount = AGENTIC_VIDEO_REVIEW_PACKETS.length
-  const activeScriptReviewPacketIndex = Math.min(scriptReviewPacketPage - 1, Math.max(0, scriptReviewPacketCount - 1))
-  const activeScriptReviewPacket = AGENTIC_VIDEO_REVIEW_PACKETS[activeScriptReviewPacketIndex]
-  const activeScriptReviewNote = activeScriptReviewPacket
-    ? scriptReviewDecisionNotes[activeScriptReviewPacket.assetId] ?? ''
-    : ''
 
   /* ───────────── Decide: Selection helpers ───────────── */
 
@@ -1510,6 +1614,106 @@ export default function VideoGenerationPage() {
     if (draftBroll[draft.id] !== undefined) return draftBroll[draft.id]
     return autoMatchBroll(draft)
   }, [draftBroll, autoMatchBroll])
+
+  const workspaceItems = useMemo<ReviewWorkspaceItem[]>(() => {
+    const readinessBySource = new Map(
+      AGENTIC_VIDEO_RENDER_READINESS_PACKETS.map(packet => [packet.sourceAssetId, packet]),
+    )
+    const jobsByTarget = new Map<string, VideoJob[]>()
+    for (const job of jobs) {
+      if (!job.target_id) continue
+      const current = jobsByTarget.get(job.target_id) ?? []
+      current.push(job)
+      jobsByTarget.set(job.target_id, current)
+    }
+
+    const packetItems = AGENTIC_VIDEO_REVIEW_PACKETS.map((packet): ReviewWorkspaceItem => {
+      const readinessPacket = readinessBySource.get(packet.assetId)
+      return {
+        id: `packet:${packet.assetId}`,
+        kind: 'script_packet',
+        title: packet.title,
+        channel: packet.channel,
+        stage: 'Script review',
+        nextAction: 'Approve render-readiness or send back with a note',
+        statusLabel: 'Needs approval',
+        statusTone: 'ready',
+        priorityLabel: priorityLabel(packet.priority),
+        sourcePacketPath: packet.packetPath,
+        jobIds: [],
+        brollAssetIds: [],
+        scriptPacket: packet,
+        readinessPacket,
+        jobs: [],
+      }
+    })
+
+    const draftItems = filteredDrafts.map((draft): ReviewWorkspaceItem => {
+      const matchedJobs = [
+        ...(jobsByTarget.get(draft.id) ?? []),
+        ...jobs.filter(job => job.id === draft.video_generation_job_id),
+      ].filter((job, index, all) => all.findIndex(candidate => candidate.id === job.id) === index)
+      const report = renderReadinessDrafts[draft.id]
+      const isBlocked = report ? !report.ready : false
+      return {
+        id: `draft:${draft.id}`,
+        kind: 'draft',
+        title: draft.title || 'Untitled draft',
+        channel: draft.source === 'drive_script' ? 'Drive script' : channel,
+        stage: report ? 'Render readiness' : 'Draft review',
+        nextAction: report
+          ? report.ready ? 'Approve internal render readiness' : 'Resolve render blockers'
+          : 'Review script anatomy, B-roll, and readiness',
+        statusLabel: report ? report.ready ? 'Ready' : 'Blocked' : 'Draft',
+        statusTone: report ? report.ready ? 'ready' : 'blocked' : 'pending',
+        priorityLabel: 'Normal priority',
+        draftId: draft.id,
+        jobIds: matchedJobs.map(job => job.id),
+        brollAssetIds: getDraftBroll(draft),
+        draft,
+        jobs: matchedJobs,
+      }
+    })
+
+    const draftJobIds = new Set(draftItems.flatMap(item => item.jobIds))
+    const looseJobItems = jobs
+      .filter(job => !draftJobIds.has(job.id))
+      .map((job): ReviewWorkspaceItem => ({
+        id: `job:${job.id}`,
+        kind: 'job',
+        title: job.drive_file_name ?? (job.script_text.slice(0, 64) || 'Video generation job'),
+        channel: job.channel,
+        stage: 'Generated review',
+        nextAction: job.video_url ? 'Review the internal render' : 'Track generation status',
+        statusLabel: job.video_url || job.heygen_status === 'completed' ? 'Ready' : job.heygen_status ?? 'Pending',
+        statusTone: job.video_url || job.heygen_status === 'completed' ? 'done' : job.heygen_status === 'failed' ? 'blocked' : 'pending',
+        priorityLabel: 'Normal priority',
+        jobIds: [job.id],
+        brollAssetIds: job.broll_asset_ids ?? [],
+        jobs: [job],
+      }))
+
+    return [...packetItems, ...draftItems, ...looseJobItems]
+  }, [channel, filteredDrafts, getDraftBroll, jobs, renderReadinessDrafts])
+
+  const selectedWorkspaceItem = useMemo(() => {
+    return workspaceItems.find(item => item.id === activeWorkspaceItemId) ?? workspaceItems[0] ?? null
+  }, [activeWorkspaceItemId, workspaceItems])
+
+  useEffect(() => {
+    if (activeWorkspaceItemId && workspaceItems.some(item => item.id === activeWorkspaceItemId)) return
+    const nextItem = workspaceItems.find(item => item.statusTone === 'ready')
+      ?? workspaceItems.find(item => item.statusTone === 'blocked')
+      ?? workspaceItems[0]
+    setActiveWorkspaceItemId(nextItem?.id ?? null)
+  }, [activeWorkspaceItemId, workspaceItems])
+
+  useEffect(() => {
+    if (!selectedWorkspaceItem?.sourcePacketPath || activeWorkspaceTab !== 'source') return
+    const current = evidencePackets[selectedWorkspaceItem.sourcePacketPath]
+    if (current?.loading || current?.content) return
+    void fetchEvidencePacket(selectedWorkspaceItem.sourcePacketPath)
+  }, [activeWorkspaceTab, evidencePackets, fetchEvidencePacket, selectedWorkspaceItem?.sourcePacketPath])
 
   const removeBrollFromDraft = (draftId: string, assetId: string) => {
     setDraftBroll(prev => {
@@ -1728,6 +1932,19 @@ export default function VideoGenerationPage() {
   const inputCls = 'w-full bg-background border border-silicon-slate rounded-lg px-3 py-2 text-foreground placeholder-gray-500 focus:ring-2 focus:ring-radiant-gold/50'
   const selectCls = inputCls + ' disabled:opacity-60'
   const selectedScriptTemplate = scriptTemplates.find(template => template.id === selectedScriptTemplateId) ?? null
+  const workspaceTabs: Array<{ id: WorkspaceTab; label: string }> = [
+    { id: 'script', label: 'Script' },
+    { id: 'assets', label: 'B-roll & Assets' },
+    { id: 'readiness', label: 'Render Readiness' },
+    { id: 'generated', label: 'Generated Review' },
+    { id: 'source', label: 'Source Packet' },
+  ]
+  const selectedBrollAssets = selectedWorkspaceItem
+    ? brollAssets.filter(asset => selectedWorkspaceItem.brollAssetIds.includes(asset.id))
+    : []
+  const selectedEvidenceState = selectedWorkspaceItem?.sourcePacketPath
+    ? evidencePackets[selectedWorkspaceItem.sourcePacketPath]
+    : undefined
 
   return (
     <ProtectedRoute requireAdmin>
@@ -1745,6 +1962,421 @@ export default function VideoGenerationPage() {
             <Video className="w-7 h-7" />
             Video Generation
           </h1>
+
+          <div className={cardCls + ' mb-6'}>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-radiant-gold">Review workspace</div>
+                <h2 className="mt-1 text-lg font-semibold text-foreground">Selected content item</h2>
+                <p className="mt-1 max-w-2xl text-xs leading-5 text-gray-400">
+                  Queue first, item details second. Provider execution, rendering, upload, scheduling, and publishing stay gated.
+                </p>
+              </div>
+              <span className="rounded-full border border-silicon-slate bg-background/50 px-3 py-1 text-xs text-gray-300">
+                {workspaceItems.length} review item{workspaceItems.length === 1 ? '' : 's'}
+              </span>
+            </div>
+
+            <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(16rem,0.85fr)_minmax(0,1.45fr)]">
+              <div className="rounded-lg border border-silicon-slate bg-background/40">
+                <div className="flex items-center justify-between border-b border-silicon-slate px-3 py-2">
+                  <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-300">Review Queue</h3>
+                  <span className="text-[10px] text-gray-500">Needs action first</span>
+                </div>
+                <div className="max-h-[28rem] overflow-auto p-2">
+                  {workspaceItems.length === 0 ? (
+                    <div className="rounded-md border border-dashed border-silicon-slate p-4 text-xs text-gray-500">
+                      No reviewable content is loaded yet.
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {workspaceItems.map(item => {
+                        const selected = selectedWorkspaceItem?.id === item.id
+                        return (
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() => {
+                              setActiveWorkspaceItemId(item.id)
+                              setActiveWorkspaceTab('script')
+                            }}
+                            className={`w-full rounded-lg border p-3 text-left transition-colors ${
+                              selected
+                                ? 'border-radiant-gold/60 bg-radiant-gold/10'
+                                : 'border-silicon-slate bg-imperial-navy/35 hover:border-radiant-gold/35'
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">{item.channel}</div>
+                                <div className="mt-1 truncate text-sm font-semibold text-gray-100">{item.title}</div>
+                              </div>
+                              <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-medium ${statusToneClass(item.statusTone)}`}>
+                                {item.statusLabel}
+                              </span>
+                            </div>
+                            <div className="mt-2 flex flex-wrap items-center gap-2 text-[10px] text-gray-400">
+                              <span>{item.stage}</span>
+                              <span className="text-gray-600">/</span>
+                              <span>{item.priorityLabel}</span>
+                            </div>
+                            <div className="mt-1 line-clamp-2 text-[11px] leading-4 text-gray-500">{item.nextAction}</div>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="min-w-0 rounded-lg border border-silicon-slate bg-background/35">
+                {selectedWorkspaceItem ? (
+                  <>
+                    <div className="border-b border-silicon-slate p-4">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.14em] text-gray-500">
+                            <span>{selectedWorkspaceItem.channel}</span>
+                            <span>{selectedWorkspaceItem.priorityLabel}</span>
+                            <span>{selectedWorkspaceItem.stage}</span>
+                          </div>
+                          <h3 className="mt-1 truncate text-lg font-semibold text-foreground">{selectedWorkspaceItem.title}</h3>
+                          <p className="mt-1 text-xs text-gray-400">{selectedWorkspaceItem.nextAction}</p>
+                        </div>
+                        <span className={`rounded-full border px-3 py-1 text-xs font-medium ${statusToneClass(selectedWorkspaceItem.statusTone)}`}>
+                          {selectedWorkspaceItem.statusLabel}
+                        </span>
+                      </div>
+                      <div className="mt-3 rounded-md border border-emerald-500/25 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-100">
+                        No external provider action will run from these review tabs.
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {workspaceTabs.map(tab => (
+                          <button
+                            key={tab.id}
+                            type="button"
+                            onClick={() => setActiveWorkspaceTab(tab.id)}
+                            className={`rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
+                              activeWorkspaceTab === tab.id
+                                ? 'border-radiant-gold/60 bg-radiant-gold/15 text-radiant-gold'
+                                : 'border-silicon-slate bg-background/50 text-gray-300 hover:border-radiant-gold/35'
+                            }`}
+                          >
+                            {tab.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="p-4">
+                      {activeWorkspaceTab === 'script' && (
+                        <div className="space-y-4">
+                          {selectedWorkspaceItem.scriptPacket ? (
+                            <>
+                              <label className="block rounded-lg border border-amber-500/20 bg-amber-500/[0.04] p-3">
+                                <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-amber-300">Decision note for send-back</div>
+                                <textarea
+                                  value={scriptReviewDecisionNotes[selectedWorkspaceItem.scriptPacket.assetId] ?? ''}
+                                  onChange={(event) => {
+                                    const value = event.target.value
+                                    setScriptReviewDecisionNotes((current) => ({
+                                      ...current,
+                                      [selectedWorkspaceItem.scriptPacket!.assetId]: value,
+                                    }))
+                                  }}
+                                  rows={3}
+                                  placeholder="What should Amina revise before this returns to human review?"
+                                  className="mt-2 w-full rounded-md border border-silicon-slate bg-background/70 px-3 py-2 text-sm text-foreground outline-none transition-colors placeholder:text-gray-500 focus:border-radiant-gold/50"
+                                />
+                              </label>
+                              <AgenticContentReviewPacketCard
+                                key={selectedWorkspaceItem.scriptPacket.assetId}
+                                packet={selectedWorkspaceItem.scriptPacket}
+                                nextGateHref="#production-tools"
+                                nextGateLabel="Open production tools"
+                                decisionNote={scriptReviewDecisionNotes[selectedWorkspaceItem.scriptPacket.assetId] ?? ''}
+                              />
+                            </>
+                          ) : selectedWorkspaceItem.draft ? (
+                            <div className="grid gap-3">
+                              <div className="rounded-lg border border-silicon-slate bg-imperial-navy/40 p-3">
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                  <h4 className="text-sm font-semibold text-foreground">Script anatomy</h4>
+                                  <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${scoreTone(selectedWorkspaceItem.draft.script_scorecard?.overall_score)}`}>
+                                    Score {selectedWorkspaceItem.draft.script_scorecard?.overall_score ?? 0}
+                                  </span>
+                                </div>
+                                <div className="mt-3 grid gap-2 text-xs text-gray-300 md:grid-cols-2">
+                                  <div><span className="text-gray-500">Pain:</span> {selectedWorkspaceItem.draft.script_outline?.pain_point || 'Not captured'}</div>
+                                  <div><span className="text-gray-500">Hook:</span> {selectedWorkspaceItem.draft.script_outline?.hook || 'Not captured'}</div>
+                                  <div><span className="text-gray-500">Loop:</span> {selectedWorkspaceItem.draft.script_outline?.open_loop || 'Not captured'}</div>
+                                  <div><span className="text-gray-500">CTA:</span> {selectedWorkspaceItem.draft.script_outline?.cta || 'Not captured'}</div>
+                                </div>
+                              </div>
+                              <pre className="max-h-80 overflow-auto whitespace-pre-wrap rounded-lg border border-silicon-slate bg-background/60 p-3 text-xs leading-5 text-gray-300">
+                                {selectedWorkspaceItem.draft.script_text}
+                              </pre>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setExpandedDraftId(selectedWorkspaceItem.draftId ?? null)
+                                  scrollTo(decideRef)
+                                }}
+                                className="inline-flex w-fit items-center gap-2 rounded-md border border-silicon-slate bg-background/50 px-3 py-2 text-xs font-medium text-gray-200 hover:border-radiant-gold/40 hover:text-radiant-gold"
+                              >
+                                <PenLine className="h-3.5 w-3.5" />
+                                Open draft controls
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="rounded-lg border border-silicon-slate bg-background/50 p-4 text-xs text-gray-400">
+                              This item has no editable script packet.
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {activeWorkspaceTab === 'assets' && (
+                        <div className="space-y-4">
+                          {selectedWorkspaceItem.draft?.storyboard_json?.scenes?.length ? (
+                            <div className="rounded-lg border border-silicon-slate bg-imperial-navy/35 p-3">
+                              <h4 className="text-sm font-semibold text-foreground">Storyboard B-roll hints</h4>
+                              <div className="mt-3 grid gap-2">
+                                {selectedWorkspaceItem.draft.storyboard_json.scenes.map((scene, index) => (
+                                  <div key={`${scene.sceneNumber ?? index}-${scene.brollHint ?? 'hint'}`} className="rounded-md border border-silicon-slate bg-background/45 p-2 text-xs text-gray-300">
+                                    <span className="font-medium text-gray-100">Scene {scene.sceneNumber ?? index + 1}:</span> {scene.brollHint || scene.description || 'No B-roll hint'}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ) : null}
+
+                          <div className="rounded-lg border border-silicon-slate bg-imperial-navy/35 p-3">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <h4 className="text-sm font-semibold text-foreground">Matched assets</h4>
+                              <span className="text-[10px] text-gray-500">{selectedBrollAssets.length} linked to this item</span>
+                            </div>
+                            {selectedBrollAssets.length === 0 ? (
+                              <p className="mt-3 rounded-md border border-dashed border-silicon-slate p-3 text-xs text-gray-500">
+                                No B-roll assets are linked to this item yet.
+                              </p>
+                            ) : (
+                              <div className="mt-3 grid gap-2 md:grid-cols-2">
+                                {selectedBrollAssets.map(asset => (
+                                  <div key={asset.id} className="rounded-md border border-silicon-slate bg-background/45 p-3 text-xs text-gray-300">
+                                    <div className="font-medium text-gray-100">{asset.route_description || asset.route}</div>
+                                    <div className="mt-1 text-[10px] text-gray-500">{asset.filename} · {safeDateLabel(asset.captured_at)}</div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          <details className="rounded-lg border border-silicon-slate bg-background/40">
+                            <summary className="cursor-pointer px-3 py-2 text-xs font-medium text-gray-300 hover:text-radiant-gold">
+                              Manage global B-roll library
+                            </summary>
+                            <div className="border-t border-silicon-slate p-3">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setBrollExpanded(true)
+                                  scrollTo(planRef)
+                                }}
+                                className="inline-flex items-center gap-2 rounded-md border border-silicon-slate bg-background/50 px-3 py-2 text-xs font-medium text-gray-200 hover:border-radiant-gold/40 hover:text-radiant-gold"
+                              >
+                                <Camera className="h-3.5 w-3.5" />
+                                Open library controls
+                              </button>
+                            </div>
+                          </details>
+                        </div>
+                      )}
+
+                      {activeWorkspaceTab === 'readiness' && (
+                        <div className="space-y-4">
+                          {selectedWorkspaceItem.readinessPacket ? (
+                            <div className="rounded-lg border border-silicon-slate bg-imperial-navy/35 p-3">
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <h4 className="text-sm font-semibold text-foreground">Render-readiness packet</h4>
+                                <span className="rounded-full border border-emerald-500/35 bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-200">
+                                  {selectedWorkspaceItem.readinessPacket.approvalStatus}
+                                </span>
+                              </div>
+                              <div className="mt-3 grid gap-3 md:grid-cols-2">
+                                <div>
+                                  <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Required checks</div>
+                                  <ul className="mt-2 space-y-1 text-xs text-gray-300">
+                                    {selectedWorkspaceItem.readinessPacket.requiredChecks.map(check => <li key={check}>- {check}</li>)}
+                                  </ul>
+                                </div>
+                                <div>
+                                  <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Hard blocks</div>
+                                  <ul className="mt-2 space-y-1 text-xs text-gray-300">
+                                    {selectedWorkspaceItem.readinessPacket.hardBlocks.map(block => <li key={block}>- {block}</li>)}
+                                  </ul>
+                                </div>
+                              </div>
+                              <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                                <a href={buildAgenticVideoRenderReadinessActionHref(selectedWorkspaceItem.readinessPacket, 'prepare_preflight')} className="rounded-md border border-emerald-500/35 bg-emerald-500/10 p-2 text-xs font-medium text-emerald-100 hover:border-emerald-400">
+                                  Prepare preflight
+                                </a>
+                                <a href={buildAgenticVideoRenderReadinessActionHref(selectedWorkspaceItem.readinessPacket, 'send_back_to_script_repair')} className="rounded-md border border-amber-500/35 bg-amber-500/10 p-2 text-xs font-medium text-amber-100 hover:border-amber-400">
+                                  Send back
+                                </a>
+                                <a href={buildAgenticVideoRenderReadinessActionHref(selectedWorkspaceItem.readinessPacket, 'hold_provider_work')} className="rounded-md border border-rose-500/35 bg-rose-500/10 p-2 text-xs font-medium text-rose-100 hover:border-rose-400">
+                                  Hold provider work
+                                </a>
+                              </div>
+                            </div>
+                          ) : null}
+
+                          {selectedWorkspaceItem.draft ? (
+                            <div className="rounded-lg border border-silicon-slate bg-imperial-navy/35 p-3">
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <h4 className="text-sm font-semibold text-foreground">Draft readiness</h4>
+                                <button
+                                  type="button"
+                                  onClick={() => checkRenderReadiness(selectedWorkspaceItem.draft!)}
+                                  disabled={checkingReadinessDraftId === selectedWorkspaceItem.draft.id}
+                                  className="inline-flex items-center gap-2 rounded-md border border-silicon-slate bg-background/50 px-3 py-2 text-xs font-medium text-gray-200 hover:border-radiant-gold/40 hover:text-radiant-gold disabled:opacity-50"
+                                >
+                                  {checkingReadinessDraftId === selectedWorkspaceItem.draft.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckSquare className="h-3.5 w-3.5" />}
+                                  Check readiness
+                                </button>
+                              </div>
+                              {renderReadinessDrafts[selectedWorkspaceItem.draft.id] ? (
+                                <div className="mt-3 grid gap-3 md:grid-cols-2">
+                                  <div className="rounded-md border border-silicon-slate bg-background/45 p-3">
+                                    <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Blockers</div>
+                                    <ul className="mt-2 space-y-1 text-xs text-gray-300">
+                                      {renderReadinessDrafts[selectedWorkspaceItem.draft.id].blockingIssues.length
+                                        ? renderReadinessDrafts[selectedWorkspaceItem.draft.id].blockingIssues.map(issue => <li key={issue}>- {issue}</li>)
+                                        : <li>No blocking issues.</li>}
+                                    </ul>
+                                  </div>
+                                  <div className="rounded-md border border-silicon-slate bg-background/45 p-3">
+                                    <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Warnings</div>
+                                    <ul className="mt-2 space-y-1 text-xs text-gray-300">
+                                      {renderReadinessDrafts[selectedWorkspaceItem.draft.id].warnings.length
+                                        ? renderReadinessDrafts[selectedWorkspaceItem.draft.id].warnings.map(warning => <li key={warning}>- {warning}</li>)
+                                        : <li>No warnings.</li>}
+                                    </ul>
+                                  </div>
+                                </div>
+                              ) : (
+                                <p className="mt-3 text-xs text-gray-500">Run the readiness check before internal render approval.</p>
+                              )}
+                            </div>
+                          ) : null}
+                        </div>
+                      )}
+
+                      {activeWorkspaceTab === 'generated' && (
+                        <div className="space-y-3">
+                          {selectedWorkspaceItem.jobs.length === 0 ? (
+                            <div className="rounded-lg border border-dashed border-silicon-slate p-4 text-xs text-gray-500">
+                              No render jobs are linked to this item yet.
+                            </div>
+                          ) : (
+                            selectedWorkspaceItem.jobs.map(job => (
+                              <div key={job.id} className="rounded-lg border border-silicon-slate bg-imperial-navy/35 p-3">
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                  <div>
+                                    <div className="text-sm font-semibold text-foreground">{job.drive_file_name ?? 'Generated video job'}</div>
+                                    <div className="mt-1 text-[10px] text-gray-500">{job.channel} · {job.aspect_ratio} · {safeDateLabel(job.created_at)}</div>
+                                  </div>
+                                  <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${statusToneClass(job.video_url || job.heygen_status === 'completed' ? 'done' : job.heygen_status === 'failed' ? 'blocked' : 'pending')}`}>
+                                    {job.video_url || job.heygen_status === 'completed' ? 'Ready' : job.heygen_status ?? 'Pending'}
+                                  </span>
+                                </div>
+                                {job.video_url ? (
+                                  <div className="mt-3">
+                                    <video src={job.video_url} controls className="max-h-80 w-full rounded-md border border-silicon-slate bg-black" />
+                                  </div>
+                                ) : job.error_message ? (
+                                  <p className="mt-3 text-xs text-rose-300">{job.error_message}</p>
+                                ) : (
+                                  <p className="mt-3 text-xs text-gray-500">No internal render is ready yet.</p>
+                                )}
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      )}
+
+                      {activeWorkspaceTab === 'source' && (
+                        <div className="space-y-3">
+                          {selectedWorkspaceItem.sourcePacketPath ? (
+                            <>
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <div>
+                                  <h4 className="text-sm font-semibold text-foreground">Evidence packet</h4>
+                                  <p className="mt-1 text-xs text-gray-500">{selectedWorkspaceItem.sourcePacketPath}</p>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => fetchEvidencePacket(selectedWorkspaceItem.sourcePacketPath!)}
+                                    disabled={selectedEvidenceState?.loading}
+                                    className="inline-flex items-center gap-2 rounded-md border border-silicon-slate bg-background/50 px-3 py-2 text-xs font-medium text-gray-200 hover:border-radiant-gold/40 hover:text-radiant-gold disabled:opacity-50"
+                                  >
+                                    {selectedEvidenceState?.loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+                                    Reload
+                                  </button>
+                                  <a
+                                    href={sourcePacketUrl(selectedWorkspaceItem.sourcePacketPath)}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-flex items-center gap-2 rounded-md border border-silicon-slate bg-background/50 px-3 py-2 text-xs font-medium text-gray-200 hover:border-radiant-gold/40 hover:text-radiant-gold"
+                                  >
+                                    <ExternalLink className="h-3.5 w-3.5" />
+                                    GitHub
+                                  </a>
+                                </div>
+                              </div>
+                              {selectedEvidenceState?.error ? (
+                                <div className="rounded-lg border border-rose-500/30 bg-rose-500/10 p-3 text-xs text-rose-200">
+                                  {selectedEvidenceState.error}
+                                </div>
+                              ) : selectedEvidenceState?.content ? (
+                                <pre className="max-h-[30rem] overflow-auto whitespace-pre-wrap rounded-lg border border-silicon-slate bg-background/70 p-4 text-xs leading-5 text-gray-300">
+                                  {selectedEvidenceState.content}
+                                </pre>
+                              ) : (
+                                <div className="rounded-lg border border-dashed border-silicon-slate p-4 text-xs text-gray-500">
+                                  {selectedEvidenceState?.loading ? 'Loading evidence packet...' : 'Open this tab to load the evidence packet inline.'}
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <div className="rounded-lg border border-dashed border-silicon-slate p-4 text-xs text-gray-500">
+                              No source packet is linked to this item.
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <div className="p-6 text-sm text-gray-500">No content item selected.</div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <details
+            id="production-tools"
+            open={productionToolsOpen}
+            onToggle={(event) => setProductionToolsOpen(event.currentTarget.open)}
+            className="mb-6 rounded-xl border border-silicon-slate bg-silicon-slate/35"
+          >
+            <summary className="flex cursor-pointer items-center gap-2 px-4 py-3 text-sm font-semibold text-gray-200 hover:text-radiant-gold">
+              <Settings className="h-4 w-4" />
+              Production Tools
+              <span className="ml-2 text-xs font-normal text-gray-500">Draft creation, Drive import, HeyGen settings, global B-roll library, and job tables</span>
+            </summary>
+            <div className="border-t border-silicon-slate p-4">
 
           {/* Pipeline sync controls (same toolbar pattern as Value Evidence: full run + pills only) */}
           <div className="flex items-center gap-3 flex-wrap mb-6">
@@ -1879,99 +2511,6 @@ export default function VideoGenerationPage() {
                 </button>
               ))}
             </div>
-          </div>
-
-          <div className={cardCls + ' mb-6'}>
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-radiant-gold">Agentic challenger loop</div>
-                <h2 className="mt-1 text-base font-semibold text-foreground">Human script review packets</h2>
-                <p className="mt-1 max-w-3xl text-xs leading-5 text-gray-400">
-                  Pick one packet, review the decision, then approve the next gate or send it back with a note.
-                </p>
-              </div>
-              <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
-                {scriptReviewPacketCount} need approval
-              </span>
-            </div>
-
-            <div className="mt-4 rounded-lg border border-silicon-slate bg-background/40 p-3">
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                <div className="flex flex-wrap gap-2">
-                  {AGENTIC_VIDEO_REVIEW_PACKETS.map((packet, index) => {
-                    const selected = index === activeScriptReviewPacketIndex
-                    const hasNote = Boolean(scriptReviewDecisionNotes[packet.assetId]?.trim())
-                    return (
-                      <button
-                        key={packet.assetId}
-                        onClick={() => setScriptReviewPacketPage(index + 1)}
-                        className={`rounded-lg border px-3 py-2 text-left transition-colors ${
-                          selected
-                            ? 'border-radiant-gold/50 bg-radiant-gold/10 text-radiant-gold'
-                            : 'border-silicon-slate bg-imperial-navy/40 text-gray-300 hover:border-radiant-gold/30'
-                        }`}
-                      >
-                        <span className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em]">
-                          {packet.priority}
-                          <span className="text-gray-500">{packet.channel}</span>
-                          {hasNote ? <span className="rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[9px] text-amber-300">note</span> : null}
-                        </span>
-                        <span className="mt-1 block max-w-[15rem] truncate text-xs font-medium">{packet.title}</span>
-                      </button>
-                    )
-                  })}
-                </div>
-                <div className="flex items-center gap-2 text-[10px] text-gray-400">
-                  <button
-                    onClick={() => setScriptReviewPacketPage(Math.max(1, scriptReviewPacketPage - 1))}
-                    disabled={scriptReviewPacketPage === 1}
-                    className="rounded border border-silicon-slate px-2 py-1 hover:border-radiant-gold/40 disabled:cursor-not-allowed disabled:opacity-40"
-                  >
-                    Prev
-                  </button>
-                  <span>Packet {scriptReviewPacketPage} / {scriptReviewPacketCount}</span>
-                  <button
-                    onClick={() => setScriptReviewPacketPage(Math.min(scriptReviewPacketCount, scriptReviewPacketPage + 1))}
-                    disabled={scriptReviewPacketPage === scriptReviewPacketCount}
-                    className="rounded border border-silicon-slate px-2 py-1 hover:border-radiant-gold/40 disabled:cursor-not-allowed disabled:opacity-40"
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {activeScriptReviewPacket && (
-              <div className="mt-4 space-y-3">
-                <label className="block rounded-lg border border-amber-500/20 bg-amber-500/[0.04] p-3">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-amber-300">Decision note for send-back</div>
-                  <textarea
-                    value={activeScriptReviewNote}
-                    onChange={(event) => {
-                      const value = event.target.value
-                      setScriptReviewDecisionNotes((current) => ({
-                        ...current,
-                        [activeScriptReviewPacket.assetId]: value,
-                      }))
-                    }}
-                    rows={3}
-                    placeholder="What should Amina revise before this returns to human review?"
-                    className="mt-2 w-full rounded-md border border-silicon-slate bg-background/70 px-3 py-2 text-sm text-foreground outline-none transition-colors placeholder:text-gray-500 focus:border-radiant-gold/50"
-                  />
-                </label>
-                <AgenticContentReviewPacketCard
-                  key={activeScriptReviewPacket.assetId}
-                  packet={activeScriptReviewPacket}
-                  nextGateHref="#decide"
-                  nextGateLabel="Open script queue"
-                  decisionNote={activeScriptReviewNote}
-                />
-              </div>
-            )}
-          </div>
-
-          <div className="mb-6">
-            <AgenticVideoRenderReadinessPanel packets={AGENTIC_VIDEO_RENDER_READINESS_PACKETS} />
           </div>
 
           {/* ═══════════ PHASE 1: PLAN ═══════════ */}
@@ -3190,6 +3729,9 @@ export default function VideoGenerationPage() {
               </div>
             )}
           </div>
+
+            </div>
+          </details>
 
         </div>
       </div>

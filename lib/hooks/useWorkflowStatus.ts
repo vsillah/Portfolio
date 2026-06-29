@@ -25,6 +25,7 @@ export type ExtractionState = 'idle' | 'running' | 'success' | 'failed' | 'stale
 export interface WorkflowStatusConfig {
   apiBase: string
   workflowId?: string
+  enabled?: boolean
 }
 
 const POLL_INTERVAL_MS = 5000
@@ -59,6 +60,7 @@ export function useWorkflowStatus(
   const [runningCount, setRunningCount] = useState(0)
 
   const fetchRuns = useCallback(async (activeOnly = false) => {
+    if (config.enabled === false) return
     try {
       const session = await getCurrentSession()
       if (!session) return
@@ -97,11 +99,12 @@ export function useWorkflowStatus(
     } catch {
       // Silent fail — polling will retry
     }
-  }, [buildUrl])
+  }, [buildUrl, config.enabled])
 
   useEffect(() => {
+    if (config.enabled === false) return
     fetchRuns()
-  }, [fetchRuns])
+  }, [config.enabled, fetchRuns])
 
   useEffect(() => {
     const prev = prevStateRef.current
