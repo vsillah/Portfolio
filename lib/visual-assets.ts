@@ -10,10 +10,12 @@ import { supabaseAdmin } from '@/lib/supabase'
 export const VISUAL_ASSET_ENTITY_TYPES = ['product', 'service', 'prototype'] as const
 export const VISUAL_ASSET_STATUSES = ['proposed', 'approved', 'rejected', 'applied', 'failed'] as const
 export const VISUAL_ASSET_THEMES = ['dark', 'light'] as const
+export const VISUAL_ASSET_CANDIDATE_STATES = ['captured', 'needs_capture'] as const
 
 export type VisualAssetEntityType = (typeof VISUAL_ASSET_ENTITY_TYPES)[number]
 export type VisualAssetStatus = (typeof VISUAL_ASSET_STATUSES)[number]
 export type VisualAssetTheme = (typeof VISUAL_ASSET_THEMES)[number]
+export type VisualAssetCandidateState = (typeof VISUAL_ASSET_CANDIDATE_STATES)[number]
 
 export type VisualAssetReasonCode =
   | 'missing_image'
@@ -110,6 +112,10 @@ export function isVisualAssetStatus(value: string): value is VisualAssetStatus {
 
 export function isVisualAssetTheme(value: string): value is VisualAssetTheme {
   return VISUAL_ASSET_THEMES.includes(value as VisualAssetTheme)
+}
+
+export function isVisualAssetCandidateState(value: string): value is VisualAssetCandidateState {
+  return VISUAL_ASSET_CANDIDATE_STATES.includes(value as VisualAssetCandidateState)
 }
 
 export function visualAssetStoragePath(input: {
@@ -413,6 +419,7 @@ export async function listVisualAssetCandidates(input: {
   status?: VisualAssetStatus
   entityType?: VisualAssetEntityType
   theme?: VisualAssetTheme
+  candidateState?: VisualAssetCandidateState
   limit?: number
   client?: SupabaseLike
 } = {}) {
@@ -425,6 +432,8 @@ export async function listVisualAssetCandidates(input: {
   if (input.status) query = query.eq('status', input.status)
   if (input.entityType) query = query.eq('entity_type', input.entityType)
   if (input.theme) query = query.eq('theme', input.theme)
+  if (input.candidateState === 'captured') query = query.not('candidate_url', 'is', null)
+  if (input.candidateState === 'needs_capture') query = query.is('candidate_url', null)
 
   const { data, error } = await query
   if (error) throw new Error(`Failed to list visual asset candidates: ${error.message}`)
