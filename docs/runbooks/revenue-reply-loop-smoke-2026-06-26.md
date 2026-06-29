@@ -107,3 +107,45 @@ Patch the durable tracking gap before expanding outreach:
 2. Repair or prove the natural `WF-GDR` 4-hour Gmail trigger with a fresh controlled inbound message.
 3. Tighten the reply prompt/parser so the body does not include a duplicated `Subject:` line.
 4. Run one more controlled live test that starts with the canonical send path and ends with a draft plus Slack approval alert, without temporary webhooks.
+
+## 2026-06-28 Slack Approval Handler Follow-Up
+
+After PR #593 landed, a controlled internal WF-GDR smoke proved the production Slack approval handler can receive plain thread replies when the Slack app and channel are configured correctly.
+
+Production Slack app configuration:
+
+- App: `Portfolio Agent Ops`
+- App ID: `A0B5UUPV6LS`
+- Workspace: `AmaduTown Advisory Solutions`
+- Event Subscriptions: on
+- Request URL: `https://amadutown.com/api/slack/agent/events`
+- Request URL verification: pass
+- Bot events:
+  - `app_mention`
+  - `message.im`
+  - `message.channels`
+- Reinstalled scopes:
+  - `commands`
+  - `app_mentions:read`
+  - `im:history`
+  - `channels:history`
+- Approval alert channel: `C0AFE8874LR` (`meeting-actions-todo`)
+- Channel membership: `Portfolio Agent Ops` added to `#meeting-actions-todo`
+
+Controlled internal smoke evidence:
+
+- WF-GDR execution: `18739`
+- App draft ID: `46f6aa29-92c0-4b31-be43-e6335d3d3f8b`
+- Gmail draft ID: `r7886723628103744141`
+- Slack alert timestamp: `1782673812.138509`
+- `hold` thread reply: pass. The app replied, `Held. App draft 46f6aa29-92c0-4b31-be43-e6335d3d3f8b remains unsent.`
+- `modify: ...` thread reply: pass. The app captured the modification request and confirmed no email was sent.
+- `safe to send` thread reply: production route returned HTTP 200, but the app draft remained unsent. Root cause was the Slack connector suffixing the message with `Sent using ChatGPT`; the strict parser rejected the suffixed approval phrase before the send branch ran.
+- Production route evidence: `/api/slack/agent/events` returned HTTP 200 for the post-configuration thread replies.
+
+Important behavior note:
+
+- `hold` keeps the draft unsent.
+- `modify: ...` currently captures and acknowledges the requested revision, but does not automatically rewrite the Gmail draft.
+- `safe to send` sends the Gmail draft and should only be used after confirming the draft recipient is internal or the user has explicitly approved the customer-facing send.
+- After the Slack connector suffix parser fix is deployed, rerun `safe to send` against an internal-only draft before enabling this as a normal approval path.

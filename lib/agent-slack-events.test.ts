@@ -158,7 +158,7 @@ describe('agent Slack events', () => {
       channel_type: 'channel',
       user: 'U123',
       channel: 'C123',
-      text: 'safe to send',
+      text: 'safe to send *Sent using* ChatGPT',
       ts: '1700000000.000002',
       thread_ts: '1700000000.000001',
     })).toBe(true)
@@ -181,8 +181,15 @@ describe('agent Slack events', () => {
   it('parses revenue reply approval phrases conservatively', () => {
     expect(parseRevenueReplyApprovalCommand('safe to send')).toEqual({ action: 'safe_to_send' })
     expect(parseRevenueReplyApprovalCommand('Safe to send.')).toEqual({ action: 'safe_to_send' })
+    expect(parseRevenueReplyApprovalCommand('safe to send *Sent using* ChatGPT')).toEqual({ action: 'safe_to_send' })
+    expect(parseRevenueReplyApprovalCommand('Safe to send. *Sent using* ChatGPT')).toEqual({ action: 'safe_to_send' })
     expect(parseRevenueReplyApprovalCommand('hold')).toEqual({ action: 'hold', note: 'hold' })
+    expect(parseRevenueReplyApprovalCommand('hold *Sent using* ChatGPT')).toEqual({ action: 'hold', note: 'hold' })
     expect(parseRevenueReplyApprovalCommand('modify: tighten the opening')).toEqual({
+      action: 'modify',
+      note: 'tighten the opening',
+    })
+    expect(parseRevenueReplyApprovalCommand('modify: tighten the opening *Sent using* ChatGPT')).toEqual({
       action: 'modify',
       note: 'tighten the opening',
     })
@@ -395,7 +402,7 @@ describe('agent Slack events', () => {
         channel_type: 'channel',
         user: 'U123',
         channel: 'C123',
-        text: 'safe to send',
+        text: 'safe to send *Sent using* ChatGPT',
         ts: '1700000000.000009',
         thread_ts: '1700000000.000001',
       },
