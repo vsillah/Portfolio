@@ -2237,7 +2237,7 @@ export default function VideoGenerationPage() {
                                 <h4 className="text-sm font-semibold text-foreground">Draft readiness</h4>
                                 <button
                                   type="button"
-                                  onClick={() => checkRenderReadiness(selectedWorkspaceItem.draft!)}
+                                  onClick={() => checkRenderReadiness(selectedWorkspaceItem.draft!.id)}
                                   disabled={checkingReadinessDraftId === selectedWorkspaceItem.draft.id}
                                   className="inline-flex items-center gap-2 rounded-md border border-silicon-slate bg-background/50 px-3 py-2 text-xs font-medium text-gray-200 hover:border-radiant-gold/40 hover:text-radiant-gold disabled:opacity-50"
                                 >
