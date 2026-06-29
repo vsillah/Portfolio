@@ -2580,7 +2580,7 @@ export default function VideoGenerationPage() {
                 </div>
               ) : null}
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-3">
 
               {/* Tabbed card: From Meetings / From Input (spans 2 cols) */}
               <div className={cardCls + ' lg:col-span-2'}>
@@ -2835,7 +2835,7 @@ export default function VideoGenerationPage() {
               </div>
 
               {/* From Drive sidebar */}
-              <div className={cardCls}>
+              <div className={cardCls + ' flex min-h-0 flex-col'}>
                 <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-1.5">
                   <FolderSync className="w-4 h-4 text-radiant-gold" />
                   From Drive
@@ -2845,7 +2845,7 @@ export default function VideoGenerationPage() {
                 ) : driveItems.length === 0 ? (
                   <p className="text-xs text-gray-500">No pending Drive files. Open the Drive pill above and run sync to check for scripts.</p>
                 ) : (
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                  <div className="min-h-0 flex-1 space-y-2 overflow-y-auto">
                     {driveItems.map(item => (
                       <div key={item.id} className="p-2 bg-background/50 rounded-lg border border-silicon-slate">
                         <div className="flex items-center justify-between gap-2">
