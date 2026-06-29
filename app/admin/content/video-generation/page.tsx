@@ -1978,12 +1978,12 @@ export default function VideoGenerationPage() {
             </div>
 
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(16rem,0.85fr)_minmax(0,1.45fr)]">
-              <div className="rounded-lg border border-silicon-slate bg-background/40">
+              <div className="flex h-full flex-col rounded-lg border border-silicon-slate bg-background/40">
                 <div className="flex items-center justify-between border-b border-silicon-slate px-3 py-2">
                   <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-300">Review Queue</h3>
                   <span className="text-[10px] text-gray-500">Needs action first</span>
                 </div>
-                <div className="max-h-[28rem] overflow-auto p-2">
+                <div className="min-h-0 flex-1 overflow-auto p-2">
                   {workspaceItems.length === 0 ? (
                     <div className="rounded-md border border-dashed border-silicon-slate p-4 text-xs text-gray-500">
                       No reviewable content is loaded yet.
