@@ -299,6 +299,7 @@ function scoreTone(score?: number) {
 }
 
 const HEYGEN_SCRIPT_MAX = 5000
+const REVIEW_QUEUE_PAGE_SIZE = 4
 const AGENTIC_VIDEO_REVIEW_PACKETS = getAgenticContentReviewPacketsForSurface('video')
 const AGENTIC_VIDEO_RENDER_READINESS_PACKETS = getAgenticVideoRenderReadinessPackets()
 
@@ -424,6 +425,7 @@ export default function VideoGenerationPage() {
   const [scriptReviewDecisionNotes, setScriptReviewDecisionNotes] = useState<Record<string, string>>({})
   const [activeWorkspaceItemId, setActiveWorkspaceItemId] = useState<string | null>(null)
   const [activeWorkspaceTab, setActiveWorkspaceTab] = useState<WorkspaceTab>('script')
+  const [reviewQueuePage, setReviewQueuePage] = useState(1)
   const [evidencePackets, setEvidencePackets] = useState<Record<string, EvidencePacketState>>({})
   const [productionToolsOpen, setProductionToolsOpen] = useState(false)
   const [activeSection, setActiveSection] = useState<'plan' | 'decide' | 'review'>('plan')
@@ -1699,6 +1701,22 @@ export default function VideoGenerationPage() {
   const selectedWorkspaceItem = useMemo(() => {
     return workspaceItems.find(item => item.id === activeWorkspaceItemId) ?? workspaceItems[0] ?? null
   }, [activeWorkspaceItemId, workspaceItems])
+  const totalReviewQueuePages = Math.max(1, Math.ceil(workspaceItems.length / REVIEW_QUEUE_PAGE_SIZE))
+  const safeReviewQueuePage = Math.min(reviewQueuePage, totalReviewQueuePages)
+  const pagedWorkspaceItems = workspaceItems.slice(
+    (safeReviewQueuePage - 1) * REVIEW_QUEUE_PAGE_SIZE,
+    safeReviewQueuePage * REVIEW_QUEUE_PAGE_SIZE,
+  )
+
+  const changeReviewQueuePage = (nextPage: number) => {
+    const clampedPage = Math.max(1, Math.min(totalReviewQueuePages, nextPage))
+    setReviewQueuePage(clampedPage)
+    const nextItem = workspaceItems[(clampedPage - 1) * REVIEW_QUEUE_PAGE_SIZE]
+    if (nextItem) {
+      setActiveWorkspaceItemId(nextItem.id)
+      setActiveWorkspaceTab('script')
+    }
+  }
 
   useEffect(() => {
     if (activeWorkspaceItemId && workspaceItems.some(item => item.id === activeWorkspaceItemId)) return
@@ -1707,6 +1725,11 @@ export default function VideoGenerationPage() {
       ?? workspaceItems[0]
     setActiveWorkspaceItemId(nextItem?.id ?? null)
   }, [activeWorkspaceItemId, workspaceItems])
+
+  useEffect(() => {
+    if (reviewQueuePage <= totalReviewQueuePages) return
+    setReviewQueuePage(totalReviewQueuePages)
+  }, [reviewQueuePage, totalReviewQueuePages])
 
   useEffect(() => {
     if (!selectedWorkspaceItem?.sourcePacketPath || activeWorkspaceTab !== 'source') return
@@ -1978,19 +2001,26 @@ export default function VideoGenerationPage() {
             </div>
 
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(16rem,0.85fr)_minmax(0,1.45fr)]">
-              <div className="flex h-full flex-col rounded-lg border border-silicon-slate bg-background/40">
+              <div className="rounded-lg border border-silicon-slate bg-background/40">
                 <div className="flex items-center justify-between border-b border-silicon-slate px-3 py-2">
                   <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-300">Review Queue</h3>
-                  <span className="text-[10px] text-gray-500">Needs action first</span>
+                  <span className="text-[10px] text-gray-500">
+                    {workspaceItems.length === 0
+                      ? 'No items'
+                      : `${(safeReviewQueuePage - 1) * REVIEW_QUEUE_PAGE_SIZE + 1}-${Math.min(
+                          safeReviewQueuePage * REVIEW_QUEUE_PAGE_SIZE,
+                          workspaceItems.length,
+                        )} of ${workspaceItems.length}`}
+                  </span>
                 </div>
-                <div className="min-h-0 flex-1 overflow-auto p-2">
+                <div className="p-2">
                   {workspaceItems.length === 0 ? (
                     <div className="rounded-md border border-dashed border-silicon-slate p-4 text-xs text-gray-500">
                       No reviewable content is loaded yet.
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      {workspaceItems.map(item => {
+                      {pagedWorkspaceItems.map(item => {
                         const selected = selectedWorkspaceItem?.id === item.id
                         return (
                           <button
@@ -2027,6 +2057,31 @@ export default function VideoGenerationPage() {
                     </div>
                   )}
                 </div>
+                {workspaceItems.length > REVIEW_QUEUE_PAGE_SIZE && (
+                  <div className="flex items-center justify-between border-t border-silicon-slate px-3 py-2 text-[10px] text-gray-400">
+                    <button
+                      type="button"
+                      onClick={() => changeReviewQueuePage(safeReviewQueuePage - 1)}
+                      disabled={safeReviewQueuePage === 1}
+                      className="inline-flex items-center gap-1 rounded-md border border-silicon-slate px-2 py-1 transition-colors hover:border-radiant-gold/40 disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      <ChevronLeft className="h-3 w-3" />
+                      Prev
+                    </button>
+                    <span>
+                      Page {safeReviewQueuePage} / {totalReviewQueuePages}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => changeReviewQueuePage(safeReviewQueuePage + 1)}
+                      disabled={safeReviewQueuePage === totalReviewQueuePages}
+                      className="inline-flex items-center gap-1 rounded-md border border-silicon-slate px-2 py-1 transition-colors hover:border-radiant-gold/40 disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      Next
+                      <ChevronRight className="h-3 w-3" />
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="min-w-0 rounded-lg border border-silicon-slate bg-background/35">
