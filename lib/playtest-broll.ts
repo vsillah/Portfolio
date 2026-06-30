@@ -9,6 +9,7 @@ import * as path from 'path'
 import { spawn } from 'child_process'
 import chromiumServerless from '@sparticuz/chromium'
 import { chromium } from 'playwright-core'
+import type { Page } from 'playwright-core'
 import { generateAuthState } from '@/scripts/save-storyboard-auth'
 
 const VIEWPORT = { width: 1920, height: 1080 }
@@ -203,6 +204,51 @@ async function launchCaptureBrowser() {
   })
 }
 
+async function forceCaptureTheme(page: Page, colorScheme?: RouteConfig['colorScheme']) {
+  if (colorScheme !== 'light' && colorScheme !== 'dark') return
+  await page.evaluate((theme) => {
+    try {
+      window.localStorage.setItem('theme', theme)
+    } catch {
+      // Capture should still continue when storage is unavailable.
+    }
+
+    const isDark = theme === 'dark'
+    document.documentElement.classList.toggle('dark', isDark)
+    document.documentElement.style.colorScheme = theme
+    document.body?.classList.toggle('dark', isDark)
+
+    for (const element of Array.from(document.querySelectorAll<HTMLElement>('.agent-ops-page.dark, .dark.agent-ops-page'))) {
+      element.classList.toggle('dark', isDark)
+    }
+
+    if (theme !== 'light') return
+
+    for (const element of Array.from(document.querySelectorAll<HTMLElement>('*'))) {
+      if (element.classList.contains('bg-black')) {
+        element.classList.remove('bg-black')
+        element.classList.add('bg-background')
+      }
+      if (element.classList.contains('text-white')) {
+        element.classList.remove('text-white')
+        element.classList.add('text-foreground')
+      }
+      if (element.classList.contains('bg-gray-900')) {
+        element.classList.remove('bg-gray-900')
+        element.classList.add('bg-card')
+      }
+      if (element.classList.contains('border-gray-800')) {
+        element.classList.remove('border-gray-800')
+        element.classList.add('border-border')
+      }
+      if (element.classList.contains('text-gray-400')) {
+        element.classList.remove('text-gray-400')
+        element.classList.add('text-muted-foreground')
+      }
+    }
+  }, colorScheme).catch(() => undefined)
+}
+
 /**
  * Capture B-roll (screenshots and optional video clips) for the given routes.
  */
@@ -262,6 +308,17 @@ export async function captureBroll(config: PlaytestConfig): Promise<CaptureResul
     }
 
     const context = await browser.newContext(contextOptions)
+    if (colorScheme === 'light' || colorScheme === 'dark') {
+      await context.addInitScript((theme) => {
+        try {
+          window.localStorage.setItem('theme', theme)
+        } catch {
+          // Ignore storage errors during isolated screenshot capture.
+        }
+        document.documentElement.classList.toggle('dark', theme === 'dark')
+        document.documentElement.style.colorScheme = theme
+      }, colorScheme)
+    }
     const page = await context.newPage()
 
     try {
@@ -272,6 +329,7 @@ export async function captureBroll(config: PlaytestConfig): Promise<CaptureResul
       if (waitForSelector) {
         await page.waitForSelector(waitForSelector, { timeout: 15000 })
       }
+      await forceCaptureTheme(page, colorScheme)
       await page.waitForTimeout(800)
 
       config.onProgress?.({ route, filename, step: 'screenshot', index: i, total })

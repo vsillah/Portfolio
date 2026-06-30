@@ -24,8 +24,10 @@ export type VisualAssetReasonCode =
   | 'wrong_aspect_ratio'
   | 'high_blank_space_ratio'
   | 'light_mode_mismatch'
+  | 'dark_mode_mismatch'
   | 'weak_feature_signal'
   | 'stale_generated_capture'
+  | 'candidate_below_quality_bar'
 
 export interface VisualAssetEntity {
   entityType: VisualAssetEntityType
@@ -68,8 +70,26 @@ export interface VisualAssetScore {
     aspectRatio: number
     blankSpaceRatio: number
     lightPixelRatio: number
+    darkPixelRatio: number
     edgeDensity: number
   }
+}
+
+export interface VisualAssetAgentReview {
+  reviewer: 'portfolio-visual-curator'
+  reviewer_name: 'Idia (Benin) - Portfolio Visual Curator'
+  decision: 'passed' | 'blocked'
+  reviewed_at: string
+  score: number
+  reason_codes: VisualAssetReasonCode[]
+  summary: string
+  requirements: {
+    minimum_score: number
+    expected_theme: VisualAssetTheme
+    maximum_blank_space_ratio: number
+    minimum_edge_density: number
+  }
+  metrics: VisualAssetScore['metadata']
 }
 
 type SupabaseLike = typeof supabaseAdmin
@@ -80,7 +100,9 @@ const MIN_ASPECT = 1.15
 const MAX_ASPECT = 2.4
 const MAX_BLANK_SPACE_RATIO = 0.42
 const MAX_LIGHT_PIXEL_RATIO = 0.72
+const MAX_DARK_PIXEL_RATIO_FOR_LIGHT = 0.58
 const MIN_EDGE_DENSITY = 0.035
+const MIN_AGENT_REVIEW_SCORE = 70
 const STALE_CAPTURE_DAYS = 45
 
 function db(client: SupabaseLike = supabaseAdmin) {
@@ -186,6 +208,7 @@ export async function scoreImageBuffer(buffer: Buffer): Promise<VisualAssetScore
     .toBuffer()
 
   let lightPixels = 0
+  let darkPixels = 0
   let blankPixels = 0
   let edgePixels = 0
   const luminance: number[] = []
@@ -193,6 +216,7 @@ export async function scoreImageBuffer(buffer: Buffer): Promise<VisualAssetScore
     const l = (0.2126 * raw[i] + 0.7152 * raw[i + 1] + 0.0722 * raw[i + 2]) / 255
     luminance.push(l)
     if (l > 0.82) lightPixels += 1
+    if (l < 0.18) darkPixels += 1
     if (l > 0.92 || l < 0.06) blankPixels += 1
   }
 
@@ -210,6 +234,7 @@ export async function scoreImageBuffer(buffer: Buffer): Promise<VisualAssetScore
   const pixelCount = sampleWidth * sampleHeight
   const blankSpaceRatio = blankPixels / pixelCount
   const lightPixelRatio = lightPixels / pixelCount
+  const darkPixelRatio = darkPixels / pixelCount
   const edgeDensity = edgePixels / pixelCount
   const reasonCodes: VisualAssetReasonCode[] = []
 
@@ -229,29 +254,93 @@ export async function scoreImageBuffer(buffer: Buffer): Promise<VisualAssetScore
       aspectRatio,
       blankSpaceRatio,
       lightPixelRatio,
+      darkPixelRatio,
       edgeDensity,
     },
   }
 }
 
+function emptyScore(reasonCode: VisualAssetReasonCode): VisualAssetScore {
+  return {
+    score: 0,
+    reasonCodes: [reasonCode],
+    metadata: {
+      width: 0,
+      height: 0,
+      aspectRatio: 0,
+      blankSpaceRatio: 1,
+      lightPixelRatio: 0,
+      darkPixelRatio: reasonCode === 'missing_image' || reasonCode === 'image_load_failure' ? 0 : 1,
+      edgeDensity: 0,
+    },
+  }
+}
+
+export function reviewVisualAssetCandidateQuality(
+  candidate: Pick<VisualAssetCandidate, 'theme' | 'title'>,
+  score: VisualAssetScore,
+  reviewedAt = new Date().toISOString(),
+): VisualAssetAgentReview {
+  const candidateReasons = score.reasonCodes.filter((reason) => {
+    if (candidate.theme === 'light' && reason === 'light_mode_mismatch') return false
+    return true
+  })
+  const reasonCodes = new Set<VisualAssetReasonCode>(candidateReasons)
+
+  if (candidate.theme === 'light' && score.metadata.darkPixelRatio > MAX_DARK_PIXEL_RATIO_FOR_LIGHT) {
+    reasonCodes.add('dark_mode_mismatch')
+  }
+  if (candidate.theme === 'dark' && score.metadata.lightPixelRatio > MAX_LIGHT_PIXEL_RATIO) {
+    reasonCodes.add('light_mode_mismatch')
+  }
+  if (score.score < MIN_AGENT_REVIEW_SCORE) {
+    reasonCodes.add('candidate_below_quality_bar')
+  }
+
+  const blockingReasons: VisualAssetReasonCode[] = [
+    'missing_image',
+    'image_load_failure',
+    'low_resolution',
+    'wrong_aspect_ratio',
+    'high_blank_space_ratio',
+    'light_mode_mismatch',
+    'dark_mode_mismatch',
+    'weak_feature_signal',
+    'candidate_below_quality_bar',
+  ]
+  const blockedCodes = Array.from(reasonCodes).filter((reason) => blockingReasons.includes(reason))
+  const decision: VisualAssetAgentReview['decision'] = blockedCodes.length > 0 ? 'blocked' : 'passed'
+
+  return {
+    reviewer: 'portfolio-visual-curator',
+    reviewer_name: 'Idia (Benin) - Portfolio Visual Curator',
+    decision,
+    reviewed_at: reviewedAt,
+    score: score.score,
+    reason_codes: Array.from(reasonCodes),
+    summary: decision === 'passed'
+      ? `Passed automated quality review for ${candidate.theme} human approval.`
+      : `Blocked before human review: ${blockedCodes.map((reason) => reason.replace(/_/g, ' ')).join(', ')}.`,
+    requirements: {
+      minimum_score: MIN_AGENT_REVIEW_SCORE,
+      expected_theme: candidate.theme,
+      maximum_blank_space_ratio: MAX_BLANK_SPACE_RATIO,
+      minimum_edge_density: MIN_EDGE_DENSITY,
+    },
+    metrics: score.metadata,
+  }
+}
+
 async function scoreImageUrl(url: string | null): Promise<VisualAssetScore> {
   if (!url || !url.trim()) {
-    return {
-      score: 0,
-      reasonCodes: ['missing_image'],
-      metadata: { width: 0, height: 0, aspectRatio: 0, blankSpaceRatio: 1, lightPixelRatio: 0, edgeDensity: 0 },
-    }
+    return emptyScore('missing_image')
   }
   try {
     const response = await fetch(url, { signal: AbortSignal.timeout(8000) })
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
     return scoreImageBuffer(Buffer.from(await response.arrayBuffer()))
   } catch {
-    return {
-      score: 0,
-      reasonCodes: ['image_load_failure'],
-      metadata: { width: 0, height: 0, aspectRatio: 0, blankSpaceRatio: 1, lightPixelRatio: 0, edgeDensity: 0 },
-    }
+    return emptyScore('image_load_failure')
   }
 }
 
@@ -550,7 +639,9 @@ export async function captureVisualAssetCandidates(input: {
   const { data, error } = await query
   if (error) throw new Error(`Failed to list capture candidates: ${error.message}`)
   const candidates = (data ?? []) as VisualAssetCandidate[]
-  if (candidates.length === 0) return { captured: 0, candidates: [] as VisualAssetCandidate[] }
+  if (candidates.length === 0) {
+    return { captured: 0, passed: 0, blocked: 0, candidates: [] as VisualAssetCandidate[] }
+  }
 
   const outputDir = path.join(os.tmpdir(), 'portfolio-visual-asset-candidates', String(Date.now()))
   const result = await captureBroll({
@@ -562,14 +653,44 @@ export async function captureVisualAssetCandidates(input: {
   })
 
   const updated: VisualAssetCandidate[] = []
+  let passed = 0
+  let blocked = 0
   for (const candidate of candidates) {
     const screenshotPath = result.screenshots.find((screenshot) => path.basename(screenshot, '.png') === `visual-candidate-${candidate.id}`)
-    if (!screenshotPath) continue
+    if (!screenshotPath) {
+      const failureScore = emptyScore('image_load_failure')
+      const agentReview = reviewVisualAssetCandidateQuality(candidate, failureScore)
+      const reasonCodes = Array.from(new Set([...candidate.reason_codes, ...agentReview.reason_codes]))
+      const { data: row, error: updateError } = await db(client)
+        .from('visual_asset_candidates')
+        .update({
+          status: 'failed',
+          score: failureScore.score,
+          reason_codes: reasonCodes,
+          metadata: {
+            ...asMetadata(candidate.metadata),
+            agent_review: agentReview,
+            capture_error: 'No screenshot was produced for this candidate.',
+            captured_at: new Date().toISOString(),
+          },
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', candidate.id)
+        .select('*')
+        .single()
+      if (updateError) throw new Error(`Failed to mark missing screenshot candidate: ${updateError.message}`)
+      blocked += 1
+      updated.push(row as VisualAssetCandidate)
+      continue
+    }
     const upload = await uploadCandidateImage({ candidate, filePath: screenshotPath, client })
-    const reasonCodes = Array.from(new Set([...candidate.reason_codes, ...upload.score.reasonCodes]))
+    const agentReview = reviewVisualAssetCandidateQuality(candidate, upload.score)
+    const reasonCodes = Array.from(new Set([...candidate.reason_codes, ...agentReview.reason_codes]))
+    const status: VisualAssetStatus = agentReview.decision === 'passed' ? 'proposed' : 'failed'
     const { data: row, error: updateError } = await db(client)
       .from('visual_asset_candidates')
       .update({
+        status,
         candidate_url: upload.publicUrl,
         candidate_storage_path: upload.storagePath,
         score: upload.score.score,
@@ -577,6 +698,7 @@ export async function captureVisualAssetCandidates(input: {
         metadata: {
           ...asMetadata(candidate.metadata),
           candidate_image_score: upload.score.metadata,
+          agent_review: agentReview,
           captured_at: new Date().toISOString(),
         },
         updated_at: new Date().toISOString(),
@@ -585,10 +707,12 @@ export async function captureVisualAssetCandidates(input: {
       .select('*')
       .single()
     if (updateError) throw new Error(`Failed to update captured candidate: ${updateError.message}`)
+    if (status === 'proposed') passed += 1
+    else blocked += 1
     updated.push(row as VisualAssetCandidate)
   }
 
-  return { captured: updated.length, candidates: updated }
+  return { captured: updated.length, passed, blocked, candidates: updated }
 }
 
 export async function reviewVisualAssetCandidate(input: {

@@ -10,6 +10,7 @@ import {
   listVisualAssetCandidates,
   resolveVisualAssetRoute,
   reviewVisualAssetCandidate,
+  reviewVisualAssetCandidateQuality,
   scoreImageBuffer,
   visualAssetStoragePath,
 } from './visual-assets'
@@ -164,6 +165,57 @@ describe('visual asset helpers', () => {
       'light_mode_mismatch',
       'weak_feature_signal',
     ]))
+    expect(score.metadata.darkPixelRatio).toBe(0)
+  })
+
+  it('blocks dark-looking captures for light theme review before human approval', () => {
+    const review = reviewVisualAssetCandidateQuality({
+      title: 'Light candidate',
+      theme: 'light',
+    }, {
+      score: 82,
+      reasonCodes: [],
+      metadata: {
+        width: 1440,
+        height: 900,
+        aspectRatio: 1.6,
+        blankSpaceRatio: 0.2,
+        lightPixelRatio: 0.04,
+        darkPixelRatio: 0.82,
+        edgeDensity: 0.12,
+      },
+    }, '2026-06-30T12:00:00.000Z')
+
+    expect(review).toMatchObject({
+      reviewer: 'portfolio-visual-curator',
+      decision: 'blocked',
+      reason_codes: expect.arrayContaining(['dark_mode_mismatch']),
+    })
+  })
+
+  it('passes a strong theme-matched capture to the human approval queue', () => {
+    const review = reviewVisualAssetCandidateQuality({
+      title: 'Dark candidate',
+      theme: 'dark',
+    }, {
+      score: 88,
+      reasonCodes: [],
+      metadata: {
+        width: 1440,
+        height: 900,
+        aspectRatio: 1.6,
+        blankSpaceRatio: 0.18,
+        lightPixelRatio: 0.18,
+        darkPixelRatio: 0.42,
+        edgeDensity: 0.14,
+      },
+    }, '2026-06-30T12:00:00.000Z')
+
+    expect(review).toMatchObject({
+      decision: 'passed',
+      reason_codes: [],
+      requirements: { minimum_score: 70, expected_theme: 'dark' },
+    })
   })
 
   it('preserves metadata while approving and rejecting candidates', async () => {

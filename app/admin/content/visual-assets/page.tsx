@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
-import { Check, CheckCheck, ChevronLeft, ChevronRight, ImageIcon, Loader2, RefreshCw, Search, Sparkles, X } from 'lucide-react'
+import { Check, CheckCheck, ChevronLeft, ChevronRight, ImageIcon, Loader2, RefreshCw, Search, ShieldAlert, ShieldCheck, Sparkles, X } from 'lucide-react'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { getCurrentSession } from '@/lib/auth'
@@ -60,8 +60,38 @@ function CandidateImage({ url, label }: { url: string | null; label: string }) {
   )
 }
 
+function agentReview(candidate: VisualAssetCandidate): { decision?: string; summary?: string } | null {
+  const review = candidate.metadata?.agent_review
+  if (!review || typeof review !== 'object' || Array.isArray(review)) return null
+  const data = review as Record<string, unknown>
+  return {
+    decision: typeof data.decision === 'string' ? data.decision : undefined,
+    summary: typeof data.summary === 'string' ? data.summary : undefined,
+  }
+}
+
+function AgentReviewBadge({ candidate }: { candidate: VisualAssetCandidate }) {
+  const review = agentReview(candidate)
+  if (!review?.decision) return null
+  const blocked = review.decision === 'blocked'
+  const Icon = blocked ? ShieldAlert : ShieldCheck
+  return (
+    <span
+      title={review.summary}
+      className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs uppercase ${
+        blocked
+          ? 'border-rose-400/25 text-rose-200'
+          : 'border-emerald-400/25 text-emerald-200'
+      }`}
+    >
+      <Icon className="h-3.5 w-3.5" />
+      Idia {blocked ? 'blocked' : 'passed'}
+    </span>
+  )
+}
+
 function canApprove(candidate: VisualAssetCandidate) {
-  return Boolean(candidate.candidate_url) && !['approved', 'applied'].includes(candidate.status)
+  return Boolean(candidate.candidate_url) && candidate.status === 'proposed' && agentReview(candidate)?.decision !== 'blocked'
 }
 
 export default function VisualAssetsReviewPage() {
@@ -180,7 +210,9 @@ export default function VisualAssetsReviewPage() {
       if (data.applied != null) {
         setMessage(`Applied ${data.applied}; failed ${data.failed}.`)
       } else if (data.captured != null) {
-        setMessage(`Captured ${data.captured} candidate${data.captured === 1 ? '' : 's'}.`)
+        const passed = typeof data.passed === 'number' ? data.passed : data.captured
+        const blocked = typeof data.blocked === 'number' ? data.blocked : 0
+        setMessage(`Captured ${data.captured}; Idia passed ${passed} and blocked ${blocked}.`)
       } else if (data.candidatesCreated != null) {
         setMessage(`Audit queued ${data.candidatesCreated} candidate${data.candidatesCreated === 1 ? '' : 's'}.`)
       } else {
@@ -401,6 +433,7 @@ export default function VisualAssetsReviewPage() {
                         <div className="flex flex-wrap gap-2">
                           <span className="rounded-full border border-cyan-400/20 px-2.5 py-1 text-xs uppercase text-cyan-200">{candidate.theme}</span>
                           <span className="rounded-full border border-muted-foreground/20 px-2.5 py-1 text-xs uppercase text-muted-foreground">{candidate.status}</span>
+                          <AgentReviewBadge candidate={candidate} />
                           {!candidate.candidate_url && (
                             <span className="rounded-full border border-amber-400/20 px-2.5 py-1 text-xs uppercase text-amber-200">needs capture</span>
                           )}
@@ -426,6 +459,11 @@ export default function VisualAssetsReviewPage() {
                           </span>
                         ))}
                       </div>
+                      {agentReview(candidate)?.summary && (
+                        <p className="mt-3 rounded-lg border border-radiant-gold/10 bg-background/60 px-3 py-2 text-xs text-muted-foreground">
+                          {agentReview(candidate)?.summary}
+                        </p>
+                      )}
 
                       <div className="mt-4 flex flex-wrap justify-end gap-2">
                         <button

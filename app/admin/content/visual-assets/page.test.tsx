@@ -150,4 +150,53 @@ describe("VisualAssetsReviewPage", () => {
         ),
     ).toBe(false);
   });
+
+  it("does not approve candidates blocked by Idia automated review", async () => {
+    vi.mocked(fetch).mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/approve")) {
+        return {
+          ok: true,
+          json: async () => ({ candidate: { id: url.split("/").at(-2) } }),
+        } as Response;
+      }
+      return {
+        ok: true,
+        json: async () => ({
+          candidates: [
+            candidate(1, {
+              metadata: {
+                agent_review: {
+                  decision: "passed",
+                  summary: "Passed automated quality review for dark human approval.",
+                },
+              },
+            }),
+            candidate(2, {
+              id: "blocked-candidate",
+              metadata: {
+                agent_review: {
+                  decision: "blocked",
+                  summary: "Blocked before human review: dark mode mismatch.",
+                },
+              },
+            }),
+          ],
+        }),
+      } as Response;
+    });
+
+    render(<VisualAssetsReviewPage />);
+
+    expect(await screen.findByText("Idia blocked")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Approve Visible" }));
+
+    await waitFor(() => {
+      const approvalCalls = vi
+        .mocked(fetch)
+        .mock.calls.filter(([input]) => String(input).includes("/approve"));
+      expect(approvalCalls).toHaveLength(1);
+      expect(String(approvalCalls[0][0])).toContain("candidate-1");
+    });
+  });
 });
