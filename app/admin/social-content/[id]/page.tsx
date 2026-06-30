@@ -21,6 +21,7 @@ import {
   Youtube,
   Instagram,
   Facebook,
+  Hash,
   FileText,
   Sparkles,
   ExternalLink,
@@ -50,9 +51,11 @@ import {
   getVideoRedactionGate,
   type RedactionReviewDecision,
 } from '@/lib/social-production-assets'
+import { buildPlatformOrchestrationPlan, type PlatformOrchestrationStageState } from '@/lib/social-platform-orchestration'
 import type {
   SocialContentItem,
   SocialContentPublish,
+  SocialContentConfig,
   ContentStatus,
   FrameworkVisualType,
   SocialPlatform,
@@ -64,6 +67,7 @@ const PLATFORM_ICONS: Record<string, React.ReactNode> = {
   youtube: <Youtube className="w-4 h-4" />,
   instagram: <Instagram className="w-4 h-4" />,
   facebook: <Facebook className="w-4 h-4" />,
+  tiktok: <Hash className="w-4 h-4" />,
 }
 
 const PLATFORM_COLORS: Record<string, { active: string; inactive: string }> = {
@@ -71,6 +75,7 @@ const PLATFORM_COLORS: Record<string, { active: string; inactive: string }> = {
   youtube: { active: 'bg-red-600/20 border-red-500 text-red-300', inactive: 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600' },
   instagram: { active: 'bg-pink-600/20 border-pink-500 text-pink-300', inactive: 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600' },
   facebook: { active: 'bg-blue-600/20 border-blue-500 text-blue-300', inactive: 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600' },
+  tiktok: { active: 'bg-cyan-600/20 border-cyan-500 text-cyan-200', inactive: 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600' },
 }
 
 type GateState = 'approved' | 'in_review' | 'pending' | 'blocked' | 'rejected'
@@ -125,6 +130,20 @@ function gateStateFromRawStatus(value: string): GateState {
   if (['failed', 'blocked', 'rejected', 'error'].includes(status)) return 'blocked'
   if (status.includes('review') || status.includes('running') || status.includes('progress')) return 'in_review'
   return 'pending'
+}
+
+function platformStageClass(state: PlatformOrchestrationStageState) {
+  if (state === 'complete') return 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
+  if (state === 'available') return 'border-blue-500/35 bg-blue-500/10 text-blue-100'
+  if (state === 'blocked') return 'border-red-500/35 bg-red-500/10 text-red-100'
+  return 'border-amber-500/35 bg-amber-500/10 text-amber-100'
+}
+
+function platformStageDotClass(state: PlatformOrchestrationStageState) {
+  if (state === 'complete') return 'bg-emerald-300'
+  if (state === 'available') return 'bg-blue-300'
+  if (state === 'blocked') return 'bg-red-300'
+  return 'bg-amber-300'
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -265,6 +284,7 @@ function SocialContentDetailPage() {
   const [topicBacklogItems, setTopicBacklogItems] = useState<TopicBacklogRecord[]>([])
   const [topicBacklogUnavailable, setTopicBacklogUnavailable] = useState(false)
   const [selectedTopicBacklogId, setSelectedTopicBacklogId] = useState<string | null>(null)
+  const [platformConfigs, setPlatformConfigs] = useState<SocialContentConfig[]>([])
   const [savingSectionGate, setSavingSectionGate] = useState<SectionGateKey | null>(null)
   const [showSource, setShowSource] = useState(false)
   const [expandedSection, setExpandedSection] = useState<'rag' | 'transcript' | null>(null)
@@ -314,6 +334,23 @@ function SocialContentDetailPage() {
       console.error('Failed to fetch topic backlog:', err)
     } finally {
       setLoadingTopicBacklog(false)
+    }
+  }, [])
+
+  const fetchPlatformConfigs = useCallback(async () => {
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const res = await fetch('/api/admin/social-content/config', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (!res.ok) return
+
+      const data = await res.json()
+      setPlatformConfigs(Array.isArray(data.configs) ? data.configs : [])
+    } catch (err) {
+      console.error('Failed to fetch social platform config:', err)
     }
   }, [])
 
@@ -367,6 +404,10 @@ function SocialContentDetailPage() {
   useEffect(() => {
     fetchItem()
   }, [fetchItem])
+
+  useEffect(() => {
+    fetchPlatformConfigs()
+  }, [fetchPlatformConfigs])
 
   useEffect(() => {
     fetchTopicBacklog()
@@ -1388,6 +1429,28 @@ function SocialContentDetailPage() {
         : 'pending'
   const linkedinDraftGateState: GateState = getExplicitSectionGateState('linkedin_draft', linkedinDraftBaseGateState)
   const canCreateLinkedInDraft = isDraftOnlyPilot && linkedinDraftBlockers.length === 0 && linkedinDraftGateState === 'approved'
+  const platformSubmissionPlan = buildPlatformOrchestrationPlan({
+    item,
+    targetPlatforms: isDraftOnlyPilot ? ['linkedin'] : targetPlatforms,
+    publishRecords: item.publishes ?? [],
+    platformConfigs,
+    copyApproved: item.status === 'approved' || item.status === 'scheduled' || item.status === 'published',
+    productionReady: isDraftOnlyPilot
+      ? visualAssetsGateState === 'approved' && assetPacketGateState === 'approved' && privacyGateState === 'approved'
+      : !videoPrivacyBlocked,
+    redactionReady: !videoPrivacyBlocked,
+    draftHandoffReady: isDraftOnlyPilot ? Boolean(linkedinDraftHandoff) : Boolean(item.publishes?.length),
+  })
+  const platformNextStages = platformSubmissionPlan.platforms
+    .map((platformPlan) => platformPlan.stages.find((stage) => stage.state !== 'complete'))
+    .filter((stage): stage is NonNullable<typeof stage> => Boolean(stage))
+  const platformSubmissionGateState: GateState = platformSubmissionPlan.allAutomaticSubmissionComplete
+    ? 'approved'
+    : platformNextStages.some((stage) => stage.state === 'blocked')
+      ? 'blocked'
+      : platformNextStages.some((stage) => stage.state === 'available')
+        ? 'in_review'
+        : 'pending'
   const reviewGateSummary: Array<{ label: string; state: GateState; href: string }> = [
     {
       label: 'Copy',
@@ -1418,6 +1481,11 @@ function SocialContentDetailPage() {
       label: isDraftOnlyPilot ? 'LinkedIn draft' : 'Publish',
       state: isDraftOnlyPilot ? linkedinDraftGateState : gateStateFromRawStatus(agentPilotPublishGate),
       href: '#social-draft-approval-gate',
+    },
+    {
+      label: 'Platform submit',
+      state: platformSubmissionGateState,
+      href: '#social-platform-submission-gate',
     },
   ]
   const overallGateState: GateState = reviewGateSummary.some((gate) => gate.state === 'blocked' || gate.state === 'rejected')
@@ -3116,6 +3184,101 @@ function SocialContentDetailPage() {
               Scheduled for {new Date(item.scheduled_for).toLocaleString()}
             </div>
           )}
+        </div>
+
+        {/* ================================================================ */}
+        {/* SECTION 2A: Platform Submission Path                              */}
+        {/* ================================================================ */}
+        <div id="social-platform-submission-gate" className="scroll-mt-28 rounded-xl border-2 border-gray-700 bg-gray-900 p-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-200">
+                <Send className="h-5 w-5 text-blue-300" />
+                Platform Submission Path
+              </h2>
+              <p className="mt-1 text-sm leading-6 text-gray-400">
+                Human approval moves the item through draft handoff, final submission gate, then automatic platform submission only where an integration is connected.
+              </p>
+            </div>
+            <span className={`inline-flex w-fit rounded-full border px-2.5 py-1 text-xs font-semibold ${GATE_STATE_CONFIG[platformSubmissionGateState].className}`}>
+              Platform submit: {GATE_STATE_CONFIG[platformSubmissionGateState].label}
+            </span>
+          </div>
+
+          <div className="mt-4 rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-3 py-2 text-xs leading-5 text-emerald-50/90">
+            Until the final submission gate is approved, this path does not generate media, upload files, schedule externally, publish, or create public posts.
+          </div>
+
+          <div className="mt-4 grid gap-3 lg:grid-cols-2">
+            {platformSubmissionPlan.platforms.map((platformPlan) => {
+              const automaticStage = platformPlan.stages.find((stage) => stage.key === 'automatic_submission')
+              const canSubmitPlatform = automaticStage?.state === 'available'
+              return (
+                <div key={platformPlan.platform} className="rounded-lg border border-gray-800 bg-gray-950/45 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-700 bg-gray-900 text-gray-300">
+                        {PLATFORM_ICONS[platformPlan.platform] ?? <Send className="h-4 w-4" />}
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-100">{platformPlan.label}</p>
+                        <p className="text-xs text-gray-500">
+                          {platformPlan.automaticSubmissionSupported ? 'Automatic submit connected' : 'Automatic submit not connected'}
+                        </p>
+                      </div>
+                    </div>
+                    {platformPlan.publishStatus ? (
+                      <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5 text-[0.68rem] font-semibold text-gray-300">
+                        {platformPlan.publishStatus}
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <div className="mt-3 space-y-2">
+                    {platformPlan.stages.map((stage) => (
+                      <div key={stage.key} className={`rounded-md border px-3 py-2 ${platformStageClass(stage.state)}`}>
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex min-w-0 items-center gap-2">
+                            <span className={`h-2 w-2 shrink-0 rounded-full ${platformStageDotClass(stage.state)}`} />
+                            <span className="truncate text-xs font-semibold">{stage.label}</span>
+                          </div>
+                          <span className="shrink-0 text-[0.62rem] uppercase tracking-[0.12em] opacity-75">
+                            {stage.state}
+                          </span>
+                        </div>
+                        <p className="mt-1 text-[0.68rem] leading-5 opacity-80">{stage.detail}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="text-xs leading-5 text-gray-400">{platformPlan.nextAction}</p>
+                    {canSubmitPlatform ? (
+                      <button
+                        type="button"
+                        onClick={() => handleRetryPublish([platformPlan.platform])}
+                        disabled={publishing}
+                        className="inline-flex min-h-9 shrink-0 items-center justify-center gap-2 rounded-lg border border-blue-500/40 bg-blue-500/10 px-3 py-2 text-xs font-semibold text-blue-100 transition-colors hover:bg-blue-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {publishing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                        Submit to {platformPlan.label}
+                      </button>
+                    ) : platformPlan.platformPostUrl ? (
+                      <a
+                        href={platformPlan.platformPostUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex min-h-9 shrink-0 items-center justify-center gap-2 rounded-lg border border-emerald-500/35 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-100 transition-colors hover:bg-emerald-500/20"
+                      >
+                        View Post
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                    ) : null}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
         </div>
 
         {/* ================================================================ */}

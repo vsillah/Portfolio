@@ -6,6 +6,11 @@ import {
   parseMetadata,
   type SocialContentCalendarItem,
 } from '@/lib/social-content-calendar'
+import {
+  buildPlatformOrchestrationPlan,
+  type PlatformOrchestrationPlan,
+} from '@/lib/social-platform-orchestration'
+import type { SocialPlatform } from '@/lib/social-content'
 
 type CalendarActionAuth = {
   user: {
@@ -37,6 +42,32 @@ function campaignName(item: SocialContentCalendarItem) {
   return item.attraction_campaigns?.name ?? 'Unassigned campaign'
 }
 
+function calendarPlatformTargets(item: SocialContentCalendarItem): SocialPlatform[] {
+  switch (item.channel) {
+    case 'linkedin':
+      return ['linkedin']
+    case 'youtube_shorts':
+      return ['youtube']
+    case 'instagram_reels':
+      return ['instagram']
+    case 'thumbnail':
+      return []
+    default:
+      return ['linkedin']
+  }
+}
+
+function platformOrchestrationForCalendarItem(item: SocialContentCalendarItem): PlatformOrchestrationPlan {
+  return buildPlatformOrchestrationPlan({
+    targetPlatforms: calendarPlatformTargets(item),
+    copyApproved: true,
+    productionReady: false,
+    redactionReady: true,
+    draftHandoffReady: item.channel === 'linkedin' && Boolean(item.social_content_id),
+    finalSubmissionGateReady: false,
+  })
+}
+
 function buildDraftSeed(item: SocialContentCalendarItem) {
   const plannedAngle = cleanText(item.planned_angle)
   return [
@@ -65,6 +96,7 @@ function buildDraftRagContext(item: SocialContentCalendarItem, auth: CalendarAct
     publish_gate: 'draft_only',
     external_execution_enabled: false,
     approval_boundary: 'Internal draft handoff only. This does not publish, schedule externally, upload, call media providers, or create public content.',
+    platform_submission_orchestration: platformOrchestrationForCalendarItem(item),
     linked_agent_work_item_id: item.agent_work_item_id,
     calendar_metadata: metadata,
   }
@@ -196,6 +228,7 @@ async function createDraftHandoffWorkItem(input: {
       draft_handoff_only: true,
       external_execution_enabled: false,
       approval_boundary: 'internal_platform_draft_handoff_only',
+      platform_submission_orchestration: platformOrchestrationForCalendarItem(item),
       side_effects: {
         ...CALENDAR_SIDE_EFFECTS,
         social_content_draft_created: Boolean(socialContentId),
@@ -234,6 +267,10 @@ export async function authorizeCalendarDraftHandoff(
       social_content_id: socialContentId,
       created_at: new Date().toISOString(),
     },
+    platform_submission_orchestration: platformOrchestrationForCalendarItem({
+      ...item,
+      social_content_id: socialContentId,
+    }),
   }
 
   const { data, error } = await supabaseAdmin
