@@ -19,9 +19,11 @@ vi.mock('@/lib/visual-assets', () => ({
   VISUAL_ASSET_ENTITY_TYPES: ['product', 'service', 'prototype'],
   VISUAL_ASSET_STATUSES: ['proposed', 'approved', 'rejected', 'applied', 'failed'],
   VISUAL_ASSET_THEMES: ['dark', 'light'],
+  VISUAL_ASSET_CANDIDATE_STATES: ['captured', 'needs_capture'],
   isVisualAssetEntityType: (value: string) => ['product', 'service', 'prototype'].includes(value),
   isVisualAssetStatus: (value: string) => ['proposed', 'approved', 'rejected', 'applied', 'failed'].includes(value),
   isVisualAssetTheme: (value: string) => ['dark', 'light'].includes(value),
+  isVisualAssetCandidateState: (value: string) => ['captured', 'needs_capture'].includes(value),
   auditVisualAssets: mocks.auditVisualAssets,
   captureVisualAssetCandidates: mocks.captureVisualAssetCandidates,
   listVisualAssetCandidates: mocks.listVisualAssetCandidates,
@@ -45,11 +47,11 @@ describe('visual asset admin routes', () => {
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-1' } })
   })
 
-  it('lists candidates with status, entity, and theme filters', async () => {
+  it('lists candidates with status, entity, theme, and candidate-state filters', async () => {
     const { GET } = await import('./candidates/route')
     mocks.listVisualAssetCandidates.mockResolvedValue([{ id: 'candidate-1' }])
 
-    const response = await GET(request('/api/admin/visual-assets/candidates?status=proposed&entity_type=product&theme=dark'))
+    const response = await GET(request('/api/admin/visual-assets/candidates?status=proposed&entity_type=product&theme=dark&candidate_state=captured'))
     expectResponse(response)
     const body = await response.json()
 
@@ -59,6 +61,7 @@ describe('visual asset admin routes', () => {
       status: 'proposed',
       entityType: 'product',
       theme: 'dark',
+      candidateState: 'captured',
     }))
   })
 

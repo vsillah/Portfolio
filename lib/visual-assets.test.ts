@@ -7,8 +7,10 @@ vi.mock('@/lib/playtest-broll', () => ({ captureBroll: vi.fn() }))
 
 import {
   applyApprovedVisualAssetCandidates,
+  listVisualAssetCandidates,
   resolveVisualAssetRoute,
   reviewVisualAssetCandidate,
+  reviewVisualAssetCandidateQuality,
   scoreImageBuffer,
   visualAssetStoragePath,
 } from './visual-assets'
@@ -23,7 +25,8 @@ function createTableClient(tables: Record<string, Record<string, any>[]>) {
       filters: Record<string, unknown>
       inFilters: Record<string, unknown[]>
       notFilters: Record<string, unknown>
-    } = { filters: {}, inFilters: {}, notFilters: {} }
+      isFilters: Record<string, unknown>
+    } = { filters: {}, inFilters: {}, notFilters: {}, isFilters: {} }
 
     const api: any = {
       select(value?: string) {
@@ -46,7 +49,14 @@ function createTableClient(tables: Record<string, Record<string, any>[]>) {
         state.notFilters[key] = value
         return api
       },
+      is(key: string, value: unknown) {
+        state.isFilters[key] = value
+        return api
+      },
       order() {
+        return api
+      },
+      limit() {
         return api
       },
       maybeSingle() {
@@ -85,6 +95,7 @@ function matches(row: Record<string, unknown>, state: {
   filters: Record<string, unknown>
   inFilters: Record<string, unknown[]>
   notFilters: Record<string, unknown>
+  isFilters: Record<string, unknown>
 }) {
   for (const [key, value] of Object.entries(state.filters)) {
     if (row[key] !== value) return false
@@ -94,6 +105,13 @@ function matches(row: Record<string, unknown>, state: {
   }
   for (const [key, value] of Object.entries(state.notFilters)) {
     if (row[key] === value || row[key] == null) return false
+  }
+  for (const [key, value] of Object.entries(state.isFilters)) {
+    if (value === null) {
+      if (row[key] != null) return false
+    } else if (row[key] !== value) {
+      return false
+    }
   }
   return true
 }
@@ -147,6 +165,57 @@ describe('visual asset helpers', () => {
       'light_mode_mismatch',
       'weak_feature_signal',
     ]))
+    expect(score.metadata.darkPixelRatio).toBe(0)
+  })
+
+  it('blocks dark-looking captures for light theme review before human approval', () => {
+    const review = reviewVisualAssetCandidateQuality({
+      title: 'Light candidate',
+      theme: 'light',
+    }, {
+      score: 82,
+      reasonCodes: [],
+      metadata: {
+        width: 1440,
+        height: 900,
+        aspectRatio: 1.6,
+        blankSpaceRatio: 0.2,
+        lightPixelRatio: 0.04,
+        darkPixelRatio: 0.82,
+        edgeDensity: 0.12,
+      },
+    }, '2026-06-30T12:00:00.000Z')
+
+    expect(review).toMatchObject({
+      reviewer: 'portfolio-visual-curator',
+      decision: 'blocked',
+      reason_codes: expect.arrayContaining(['dark_mode_mismatch']),
+    })
+  })
+
+  it('passes a strong theme-matched capture to the human approval queue', () => {
+    const review = reviewVisualAssetCandidateQuality({
+      title: 'Dark candidate',
+      theme: 'dark',
+    }, {
+      score: 88,
+      reasonCodes: [],
+      metadata: {
+        width: 1440,
+        height: 900,
+        aspectRatio: 1.6,
+        blankSpaceRatio: 0.18,
+        lightPixelRatio: 0.18,
+        darkPixelRatio: 0.42,
+        edgeDensity: 0.14,
+      },
+    }, '2026-06-30T12:00:00.000Z')
+
+    expect(review).toMatchObject({
+      decision: 'passed',
+      reason_codes: [],
+      requirements: { minimum_score: 70, expected_theme: 'dark' },
+    })
   })
 
   it('preserves metadata while approving and rejecting candidates', async () => {
@@ -171,6 +240,40 @@ describe('visual asset helpers', () => {
       reviewed_by: 'admin-1',
       metadata: { score: 10, review_reason: 'Strong feature signal' },
     })
+  })
+
+  it('separates captured review candidates from the missing-capture queue', async () => {
+    const client = createTableClient({
+      visual_asset_candidates: [
+        {
+          id: 'captured-1',
+          status: 'proposed',
+          candidate_url: 'https://example.com/captured.png',
+        },
+        {
+          id: 'needs-capture-1',
+          status: 'proposed',
+          candidate_url: null,
+        },
+        {
+          id: 'approved-captured',
+          status: 'approved',
+          candidate_url: 'https://example.com/approved.png',
+        },
+      ],
+    }) as any
+
+    await expect(listVisualAssetCandidates({
+      status: 'proposed',
+      candidateState: 'captured',
+      client,
+    })).resolves.toEqual([expect.objectContaining({ id: 'captured-1' })])
+
+    await expect(listVisualAssetCandidates({
+      status: 'proposed',
+      candidateState: 'needs_capture',
+      client,
+    })).resolves.toEqual([expect.objectContaining({ id: 'needs-capture-1' })])
   })
 
   it('applies approved candidates to theme variants without overwriting light and dark together', async () => {

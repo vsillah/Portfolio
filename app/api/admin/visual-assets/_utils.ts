@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { isAuthError, verifyAdmin } from '@/lib/auth-server'
 import {
+  isVisualAssetCandidateState,
   isVisualAssetEntityType,
   isVisualAssetStatus,
   isVisualAssetTheme,
@@ -29,6 +30,7 @@ export function parseCandidateQuery(url: string) {
   const status = searchParams.get('status')
   const entityType = searchParams.get('entity_type')
   const theme = searchParams.get('theme')
+  const candidateState = searchParams.get('candidate_state')
   const limitParam = searchParams.get('limit')
   const limit = limitParam ? Number(limitParam) : undefined
 
@@ -36,6 +38,7 @@ export function parseCandidateQuery(url: string) {
     status: status && isVisualAssetStatus(status) ? status : undefined,
     entityType: entityType && isVisualAssetEntityType(entityType) ? entityType : undefined,
     theme: theme && isVisualAssetTheme(theme) ? theme as VisualAssetTheme : undefined,
+    candidateState: candidateState && isVisualAssetCandidateState(candidateState) ? candidateState : undefined,
     limit: Number.isFinite(limit) && limit ? Math.min(Math.max(limit, 1), 250) : undefined,
   }
 }
