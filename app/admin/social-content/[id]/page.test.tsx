@@ -5,12 +5,14 @@ import SocialContentDetailRoute from './page'
 
 const mocks = vi.hoisted(() => ({
   push: vi.fn(),
+  replace: vi.fn(),
+  search: '',
 }))
 
 vi.mock('next/navigation', () => ({
   useParams: () => ({ id: 'social-1' }),
-  useRouter: () => ({ push: mocks.push }),
-  useSearchParams: () => new URLSearchParams(),
+  useRouter: () => ({ push: mocks.push, replace: mocks.replace }),
+  useSearchParams: () => new URLSearchParams(mocks.search),
 }))
 
 vi.mock('@/components/ProtectedRoute', () => ({
@@ -92,6 +94,7 @@ describe('SocialContentDetailRoute visual production review', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    mocks.search = ''
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
       if (String(input).includes('/topic-backlog')) {
         return {
@@ -112,10 +115,14 @@ describe('SocialContentDetailRoute visual production review', () => {
     vi.unstubAllGlobals()
   })
 
-  it('keeps approved copy locked while exposing visual production actions', async () => {
-    render(<SocialContentDetailRoute />)
+  const renderAtStep = (step: string) => {
+    mocks.search = `step=${step}`
+    return render(<SocialContentDetailRoute />)
+  }
 
-    expect(await screen.findByText('Visual Production')).toBeInTheDocument()
+  it('keeps approved copy locked while exposing visual production actions', async () => {
+    const view = renderAtStep('copy')
+
     expect(await screen.findByText('LinkedIn topics from Agentic Backlog')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Ask Shaka for Topics/i })).not.toBeInTheDocument()
     expect(screen.getByText('Approval gates create trust')).toBeInTheDocument()
@@ -134,17 +141,25 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByRole('button', { name: 'Privacy: Pending' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'LinkedIn draft: Pending' })).toBeInTheDocument()
     expect(screen.getAllByText('Copy: Approved').length).toBeGreaterThan(1)
-    expect(screen.getAllByText('Supporting context: Pending').length).toBeGreaterThan(1)
-    expect(screen.getByText('Human review approved · Challenger pending · Chronicle pending')).toBeInTheDocument()
-    expect(screen.getAllByText('Visual assets: Pending').length).toBeGreaterThan(1)
-    expect(screen.getAllByText('Asset packet: Pending').length).toBeGreaterThan(1)
-    expect(screen.getAllByText('Privacy: Pending').length).toBeGreaterThan(1)
-    expect(screen.getAllByText('LinkedIn draft: Pending').length).toBeGreaterThan(1)
+    expect(screen.getAllByText('Supporting context: Pending').length).toBeGreaterThan(0)
     expect(screen.getByText('Request copy revision')).toBeInTheDocument()
     expect(screen.getAllByLabelText('Triggering event or recent proof').length).toBeGreaterThan(0)
     expect(screen.getByLabelText('Revision feedback for Shaka')).not.toBeDisabled()
     expect(screen.getByRole('button', { name: /Reopen for Revision/i })).toBeDisabled()
     expect(screen.getByRole('button', { name: /Reject and Generate Revision/i })).toBeDisabled()
+    expect(screen.getByDisplayValue('The draft copy is approved and should stay locked.')).toBeDisabled()
+    expect(screen.getByText('AmaduTown')).toBeInTheDocument()
+    expect(screen.queryByText('Amadou Town')).not.toBeInTheDocument()
+    const copyGate = screen.getByText('Post Text').closest('#social-copy-gate')
+    expect(copyGate).toBeTruthy()
+    expect(within(copyGate as HTMLElement).getByText('CTA Text')).toBeInTheDocument()
+    expect(within(copyGate as HTMLElement).getByText('CTA URL')).toBeInTheDocument()
+    expect(within(copyGate as HTMLElement).getByText('Hashtags (comma-separated)')).toBeInTheDocument()
+
+    mocks.search = 'step=visuals'
+    view.rerender(<SocialContentDetailRoute />)
+
+    expect(await screen.findByText('Visual Production')).toBeInTheDocument()
     expect(screen.getByText('Choose one visual format')).toBeInTheDocument()
     expect(screen.getByText('Selected format')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Generate Framework Illustration/i })).toBeInTheDocument()
@@ -155,23 +170,20 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByRole('button', { name: /Reject Asset Packet/i })).toBeDisabled()
     expect(screen.getByRole('button', { name: /Approve Privacy Review/i })).toBeDisabled()
     expect(screen.getByRole('button', { name: /Reject Privacy Review/i })).toBeDisabled()
+    expect(screen.getAllByText('Visual assets: Pending').length).toBeGreaterThan(1)
+    expect(screen.getAllByText('Asset packet: Pending').length).toBeGreaterThan(1)
+    expect(screen.getAllByText('Privacy: Pending').length).toBeGreaterThan(1)
     expect(screen.queryByPlaceholderText('What must change before the visual assets are approved?')).not.toBeInTheDocument()
+
+    mocks.search = 'step=draft'
+    view.rerender(<SocialContentDetailRoute />)
+
     expect(screen.getByText('LinkedIn Draft Handoff')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Approve LinkedIn Draft Handoff/i })).toBeDisabled()
     expect(screen.getByRole('button', { name: /Reject LinkedIn Draft Handoff/i })).toBeDisabled()
     expect(screen.getByRole('button', { name: /Create LinkedIn Draft/i })).toBeDisabled()
+    expect(screen.getAllByText('LinkedIn draft: Pending').length).toBeGreaterThan(1)
     expect(screen.queryByText('Publish immediately after approval')).not.toBeInTheDocument()
-
-    expect(screen.getByDisplayValue('The draft copy is approved and should stay locked.')).toBeDisabled()
-    expect(screen.getByText('AmaduTown')).toBeInTheDocument()
-    expect(screen.queryByText('Amadou Town')).not.toBeInTheDocument()
-    const copyGate = screen.getByText('Post Text').closest('#social-copy-gate')
-    expect(copyGate).toBeTruthy()
-    expect(within(copyGate as HTMLElement).getByText('CTA Text')).toBeInTheDocument()
-    expect(within(copyGate as HTMLElement).getByText('CTA URL')).toBeInTheDocument()
-    expect(within(copyGate as HTMLElement).getByText('Hashtags (comma-separated)')).toBeInTheDocument()
-    expect(screen.getByDisplayValue(/Architecture/i)).not.toBeDisabled()
-    expect(screen.getByDisplayValue('Create a framework visual about review gates.')).not.toBeDisabled()
   })
 
   it('lets the operator pull a topic from Shaka backlog into copy review', async () => {
@@ -198,7 +210,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     })
     vi.stubGlobal('fetch', fetchMock)
 
-    render(<SocialContentDetailRoute />)
+    renderAtStep('copy')
 
     expect(await screen.findByText('Approval gates create trust')).toBeInTheDocument()
     expect(screen.getByText(/Why you can speak on it:/)).toBeInTheDocument()
@@ -269,7 +281,7 @@ describe('SocialContentDetailRoute visual production review', () => {
       }),
     })))
 
-    render(<SocialContentDetailRoute />)
+    renderAtStep('visuals')
 
     expect(await screen.findByText('Asset packet')).toBeInTheDocument()
     expect(screen.getAllByText('Asset packet: In review').length).toBeGreaterThan(1)
@@ -318,7 +330,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     })
     vi.stubGlobal('fetch', fetchMock)
 
-    render(<SocialContentDetailRoute />)
+    renderAtStep('visuals')
 
     expect(await screen.findByText('Visual Production')).toBeInTheDocument()
     expect(screen.getAllByText('Visual assets: In review').length).toBeGreaterThan(0)
@@ -368,7 +380,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     })
     vi.stubGlobal('fetch', fetchMock)
 
-    render(<SocialContentDetailRoute />)
+    renderAtStep('visuals')
 
     expect(await screen.findByText('Visual Production')).toBeInTheDocument()
     expect(screen.queryByPlaceholderText('What must change before the visual assets are approved?')).not.toBeInTheDocument()
@@ -425,7 +437,7 @@ describe('SocialContentDetailRoute visual production review', () => {
       }),
     })))
 
-    render(<SocialContentDetailRoute />)
+    renderAtStep('visuals')
 
     expect(await screen.findByText('Asset packet revision in progress')).toBeInTheDocument()
     expect(screen.getAllByText('Asset packet: Rejected').length).toBeGreaterThan(1)
@@ -476,7 +488,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     })
     vi.stubGlobal('fetch', fetchMock)
 
-    render(<SocialContentDetailRoute />)
+    renderAtStep('copy')
 
     const triggeringEventInput = (await screen.findAllByLabelText('Triggering event or recent proof'))
       .find((element) => !(element as HTMLTextAreaElement).disabled)
