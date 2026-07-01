@@ -35,6 +35,7 @@ export function parseCandidateQuery(url: string) {
   const limit = limitParam ? Number(limitParam) : undefined
 
   return {
+    // filter === 'all' or an unknown value -> no restriction on that dimension.
     status: status && isVisualAssetStatus(status) ? status : undefined,
     entityType: entityType && isVisualAssetEntityType(entityType) ? entityType : undefined,
     theme: theme && isVisualAssetTheme(theme) ? theme as VisualAssetTheme : undefined,
