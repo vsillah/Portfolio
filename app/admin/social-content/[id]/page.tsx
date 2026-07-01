@@ -81,6 +81,13 @@ const PLATFORM_COLORS: Record<string, { active: string; inactive: string }> = {
 type GateState = 'approved' | 'in_review' | 'pending' | 'blocked' | 'rejected'
 type SectionGateKey = 'visual_assets' | 'asset_packet' | 'privacy' | 'linkedin_draft'
 type SectionGateDecision = 'approved' | 'rejected'
+type ApprovalStep = 'context' | 'copy' | 'visuals' | 'draft' | 'submit' | 'status'
+
+const APPROVAL_STEPS: ApprovalStep[] = ['context', 'copy', 'visuals', 'draft', 'submit', 'status']
+
+function isApprovalStep(value: string | null): value is ApprovalStep {
+  return Boolean(value && APPROVAL_STEPS.includes(value as ApprovalStep))
+}
 
 const GATE_STATE_CONFIG: Record<GateState, { label: string; className: string }> = {
   approved: {
@@ -1451,41 +1458,41 @@ function SocialContentDetailPage() {
       : platformNextStages.some((stage) => stage.state === 'available')
         ? 'in_review'
         : 'pending'
-  const reviewGateSummary: Array<{ label: string; state: GateState; href: string }> = [
+  const reviewGateSummary: Array<{ label: string; state: GateState; step: ApprovalStep }> = [
     {
       label: 'Copy',
       state: copyGateState,
-      href: '#social-copy-gate',
+      step: 'copy',
     },
     {
       label: 'Supporting context',
       state: supportingContextGateState,
-      href: '#social-supporting-context-gate',
+      step: 'context',
     },
     {
       label: 'Visual assets',
       state: visualAssetsGateState,
-      href: '#social-visual-assets-gate',
+      step: 'visuals',
     },
     {
       label: 'Asset packet',
       state: assetPacketGateState,
-      href: '#social-asset-packet-gate',
+      step: 'visuals',
     },
     {
       label: 'Privacy',
       state: privacyGateState,
-      href: '#social-asset-packet-gate',
+      step: 'visuals',
     },
     {
       label: isDraftOnlyPilot ? 'LinkedIn draft' : 'Publish',
       state: isDraftOnlyPilot ? linkedinDraftGateState : gateStateFromRawStatus(agentPilotPublishGate),
-      href: '#social-draft-approval-gate',
+      step: 'draft',
     },
     {
       label: 'Platform submit',
       state: platformSubmissionGateState,
-      href: '#social-platform-submission-gate',
+      step: 'submit',
     },
   ]
   const overallGateState: GateState = reviewGateSummary.some((gate) => gate.state === 'blocked' || gate.state === 'rejected')
@@ -1496,11 +1503,66 @@ function SocialContentDetailPage() {
         ? 'pending'
         : 'in_review'
   const nextReviewGate = reviewGateSummary.find((gate) => gate.state !== 'approved')
-  const handleReviewGateJump = (href: string) => {
-    const target = document.querySelector(href)
-    if (!target) return
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    window.history.replaceState(null, '', href)
+  const rawApprovalStep = searchParams.get('step')
+  const requestedApprovalStep: ApprovalStep | null = isApprovalStep(rawApprovalStep) ? rawApprovalStep : null
+  const activeApprovalStep: ApprovalStep = requestedApprovalStep ?? nextReviewGate?.step ?? 'copy'
+  const approvalStepTabs: Array<{
+    step: ApprovalStep
+    label: string
+    description: string
+    state: GateState
+  }> = [
+    {
+      step: 'context',
+      label: 'Context',
+      description: 'Source and calibration',
+      state: supportingContextGateState,
+    },
+    {
+      step: 'copy',
+      label: 'Copy',
+      description: 'Post, CTA, hashtags',
+      state: copyGateState,
+    },
+    {
+      step: 'visuals',
+      label: 'Visuals',
+      description: 'Assets and privacy',
+      state: visualAssetsGateState === 'approved' && assetPacketGateState === 'approved' && privacyGateState === 'approved'
+        ? 'approved'
+        : [visualAssetsGateState, assetPacketGateState, privacyGateState].some((state) => state === 'blocked' || state === 'rejected')
+          ? 'blocked'
+          : [visualAssetsGateState, assetPacketGateState, privacyGateState].some((state) => state === 'in_review')
+            ? 'in_review'
+            : 'pending',
+    },
+    {
+      step: 'draft',
+      label: isDraftOnlyPilot ? 'Draft' : 'Publish gate',
+      description: isDraftOnlyPilot ? 'Platform draft handoff' : 'Channel and schedule',
+      state: isDraftOnlyPilot ? linkedinDraftGateState : gateStateFromRawStatus(agentPilotPublishGate),
+    },
+    {
+      step: 'submit',
+      label: 'Submit',
+      description: 'Platform automation',
+      state: platformSubmissionGateState,
+    },
+    {
+      step: 'status',
+      label: 'Status',
+      description: 'Signals and metadata',
+      state: item.status === 'published' || item.publishes?.some((publish) => publish.status === 'published') ? 'approved' : 'pending',
+    },
+  ]
+  const setApprovalStep = (step: ApprovalStep) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('step', step)
+    const query = params.toString()
+    router.replace(`/admin/social-content/${id}${query ? `?${query}` : ''}`, { scroll: false })
+  }
+  const handleReviewGateJump = (step: ApprovalStep) => {
+    setApprovalStep(step)
   }
   const renderSectionGateControls = (
     gateKey: SectionGateKey,
@@ -1669,8 +1731,8 @@ function SocialContentDetailPage() {
       </div>
 
       <div className="mx-auto w-full max-w-[90rem] space-y-6 px-4 py-6 sm:px-6 lg:px-8">
-        {isAgentSocialPilot && (
-          <section className="admin-console-card rounded-xl border border-radiant-gold/25 p-4 sm:p-5">
+	        {isAgentSocialPilot && (
+	          <section className="admin-console-card rounded-xl border border-radiant-gold/25 p-4 sm:p-5">
             <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,auto)] xl:items-start">
               <div className="min-w-0">
                 <p className="admin-console-eyebrow">Agent Ops LinkedIn Pilot</p>
@@ -1684,14 +1746,14 @@ function SocialContentDetailPage() {
                 <span className={`mt-2 inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${GATE_STATE_CONFIG[overallGateState].className}`}>
                   {GATE_STATE_CONFIG[overallGateState].label}
                 </span>
-                {nextReviewGate && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      handleReviewGateJump(nextReviewGate.href)
-                    }}
-                    className="mt-2 inline-flex text-xs text-blue-300 transition-colors hover:text-blue-200"
-                  >
+	                {nextReviewGate && (
+	                  <button
+	                    type="button"
+	                    onClick={() => {
+	                      handleReviewGateJump(nextReviewGate.step)
+	                    }}
+	                    className="mt-2 inline-flex text-xs text-blue-300 transition-colors hover:text-blue-200"
+	                  >
                     Next: {nextReviewGate.label}
                   </button>
                 )}
@@ -1716,18 +1778,20 @@ function SocialContentDetailPage() {
               <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
                 <div className="min-w-0">
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Review path</p>
-                  <p className="mt-1 text-sm text-gray-400">Click a gate to jump to its decision section.</p>
-                </div>
-                <nav aria-label="Social content review gates" className="flex flex-wrap gap-2 xl:max-w-4xl xl:justify-end">
-                  {reviewGateSummary.map((gate) => (
-                    <button
-                      key={`${gate.label}-${gate.href}`}
-                      type="button"
-                      onClick={() => {
-                        handleReviewGateJump(gate.href)
-                      }}
-                      className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold transition-transform hover:-translate-y-0.5 ${GATE_STATE_CONFIG[gate.state].className}`}
-                    >
+	                  <p className="mt-1 text-sm text-gray-400">Click a gate to open its review workspace.</p>
+	                </div>
+	                <nav aria-label="Social content review gates" className="flex flex-wrap gap-2 xl:max-w-4xl xl:justify-end">
+	                  {reviewGateSummary.map((gate) => (
+	                    <button
+	                      key={`${gate.label}-${gate.step}`}
+	                      type="button"
+	                      onClick={() => {
+	                        handleReviewGateJump(gate.step)
+	                      }}
+	                      className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold transition-transform hover:-translate-y-0.5 ${GATE_STATE_CONFIG[gate.state].className} ${
+	                        activeApprovalStep === gate.step ? 'ring-1 ring-offset-1 ring-offset-background' : ''
+	                      }`}
+	                    >
                       {gate.label}: {GATE_STATE_CONFIG[gate.state].label}
                     </button>
                   ))}
@@ -1735,7 +1799,9 @@ function SocialContentDetailPage() {
               </div>
             </div>
 
-            <details id="social-supporting-context-gate" className="mt-4 scroll-mt-28 rounded-lg border border-silicon-slate/80 bg-background/35">
+	            {activeApprovalStep === 'context' && (
+	            <>
+	            <details id="social-supporting-context-gate" className="mt-4 scroll-mt-28 rounded-lg border border-silicon-slate/80 bg-background/35">
               <summary className="cursor-pointer list-none px-4 py-3">
                 <span className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <span className="text-sm font-semibold text-gray-200">Supporting context and checklists</span>
@@ -2116,7 +2182,7 @@ function SocialContentDetailPage() {
               </details>
             )}
 
-            <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
+	            <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
               {agentPilotGoalId && (
                 <Link
                   href={`/admin/agents/standup?goal=${encodeURIComponent(agentPilotGoalId)}`}
@@ -2139,17 +2205,47 @@ function SocialContentDetailPage() {
                   Open Brain references <ExternalLink className="h-3.5 w-3.5" />
                 </Link>
               )}
-            </div>
-          </section>
-        )}
+	            </div>
+	            </>
+	            )}
+	          </section>
+	        )}
 
-        {/* ================================================================ */}
+	        <div className="admin-console-card flex gap-1 overflow-x-auto rounded-xl border p-1">
+	          {approvalStepTabs.map((tab) => {
+	            const isActive = activeApprovalStep === tab.step
+	            return (
+	              <button
+	                key={tab.step}
+	                type="button"
+	                onClick={() => setApprovalStep(tab.step)}
+	                className={`flex min-w-[10rem] items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-all ${
+	                  isActive
+	                    ? 'border border-green-500/50 bg-green-600/25 text-green-100'
+	                    : 'text-muted-foreground hover:bg-silicon-slate/50 hover:text-foreground'
+	                }`}
+	              >
+	                <span className="min-w-0">
+	                  <span className="block truncate">{tab.label}</span>
+	                  <span className="mt-0.5 block truncate text-[11px] font-normal opacity-75">{tab.description}</span>
+	                </span>
+	                <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[tab.state].className}`}>
+	                  {GATE_STATE_CONFIG[tab.state].label}
+	                </span>
+	              </button>
+	            )
+	          })}
+	        </div>
+
+	        {/* ================================================================ */}
         {/* SECTION 1: Content (two-col on lg: edit fields + preview)        */}
         {/* ================================================================ */}
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,0.45fr)]">
-          <div className="min-w-0 space-y-4">
-            {/* Post text */}
-            <div id="social-copy-gate" className="scroll-mt-28 rounded-xl border border-gray-800 bg-gray-900 p-4">
+	        {(activeApprovalStep === 'copy' || activeApprovalStep === 'visuals') && (
+	        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,0.45fr)]">
+	          <div className="min-w-0 space-y-4">
+	            {/* Post text */}
+	            {activeApprovalStep === 'copy' && (
+	            <div id="social-copy-gate" className="scroll-mt-28 rounded-xl border border-gray-800 bg-gray-900 p-4">
               <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <label className="text-sm font-medium text-gray-400">Post Text</label>
                 <span className={`inline-flex w-fit rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[copyGateState].className}`}>
@@ -2378,10 +2474,13 @@ function SocialContentDetailPage() {
                   </div>
                 </div>
               )}
-            </div>
+	            </div>
+	            )}
 
-            {/* Visual Media section (single image or carousel) */}
-            <div id="social-visual-assets-gate" className="scroll-mt-28 rounded-xl border border-gray-800 bg-gray-900 p-4">
+	            {/* Visual Media section (single image or carousel) */}
+	            {activeApprovalStep === 'visuals' && (
+	            <>
+	            <div id="social-visual-assets-gate" className="scroll-mt-28 rounded-xl border border-gray-800 bg-gray-900 p-4">
               {canEditVisualProduction && (
                 <div className="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
                   <div className="flex flex-col gap-2">
@@ -2893,8 +2992,8 @@ function SocialContentDetailPage() {
             )}
 
             {/* Expanded content modal */}
-            <AnimatePresence>
-              {expandedSection && item?.meeting_record && (
+	            <AnimatePresence>
+	              {expandedSection && item?.meeting_record && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -2930,9 +3029,11 @@ function SocialContentDetailPage() {
                     </div>
                   </motion.div>
                 </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+	              )}
+	            </AnimatePresence>
+	            </>
+	            )}
+	          </div>
 
           {/* Right column: Preview */}
           <div className="space-y-4">
@@ -2969,11 +3070,13 @@ function SocialContentDetailPage() {
             </div>
           </div>
         </div>
+        )}
 
         {/* ================================================================ */}
         {/* SECTION 2: "Where & When" Publish Panel                          */}
         {/* ================================================================ */}
-        <div id="social-draft-approval-gate" className="scroll-mt-28 space-y-6 rounded-xl border-2 border-gray-700 bg-gray-900 p-6">
+	        {activeApprovalStep === 'draft' && (
+	        <div id="social-draft-approval-gate" className="scroll-mt-28 space-y-6 rounded-xl border-2 border-gray-700 bg-gray-900 p-6">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-lg font-semibold text-gray-200 flex items-center gap-2">
               <Send className="w-5 h-5 text-green-400" />
@@ -3185,11 +3288,13 @@ function SocialContentDetailPage() {
             </div>
           )}
         </div>
+        )}
 
         {/* ================================================================ */}
         {/* SECTION 2A: Platform Submission Path                              */}
         {/* ================================================================ */}
-        <div id="social-platform-submission-gate" className="scroll-mt-28 rounded-xl border-2 border-gray-700 bg-gray-900 p-6">
+	        {activeApprovalStep === 'submit' && (
+	        <div id="social-platform-submission-gate" className="scroll-mt-28 rounded-xl border-2 border-gray-700 bg-gray-900 p-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-200">
@@ -3280,12 +3385,15 @@ function SocialContentDetailPage() {
             })}
           </div>
         </div>
+        )}
 
-        {/* ================================================================ */}
-        {/* SECTION 2B: Engagement Metrics                                   */}
-        {/* ================================================================ */}
-        {(item.status === 'published' || engagementLatest) && (
-          <motion.div
+	        {/* ================================================================ */}
+	        {/* SECTION 2B: Engagement Metrics                                   */}
+	        {/* ================================================================ */}
+	        {activeApprovalStep === 'status' && (
+	        <>
+	        {(item.status === 'published' || engagementLatest) && (
+	          <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             className="rounded-xl border border-gray-800 bg-gray-900 p-5"
@@ -3425,12 +3533,14 @@ function SocialContentDetailPage() {
         {/* ================================================================ */}
         {/* SECTION 4: Metadata                                               */}
         {/* ================================================================ */}
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 text-xs text-gray-500 space-y-1">
-          <div>Created: {new Date(item.created_at).toLocaleString()}</div>
-          <div>Updated: {new Date(item.updated_at).toLocaleString()}</div>
-          <div>ID: <span className="font-mono text-gray-600">{item.id}</span></div>
-        </div>
-      </div>
+	        <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 text-xs text-gray-500 space-y-1">
+	          <div>Created: {new Date(item.created_at).toLocaleString()}</div>
+	          <div>Updated: {new Date(item.updated_at).toLocaleString()}</div>
+	          <div>ID: <span className="font-mono text-gray-600">{item.id}</span></div>
+	        </div>
+	        </>
+	        )}
+	      </div>
 
       {/* ================================================================ */}
       {/* Confirmation Modal                                                */}
