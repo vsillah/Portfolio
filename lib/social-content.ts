@@ -7,7 +7,7 @@
 // Types
 // ============================================================================
 
-export type SocialPlatform = 'linkedin' | 'instagram' | 'facebook' | 'youtube'
+export type SocialPlatform = 'linkedin' | 'instagram' | 'facebook' | 'youtube' | 'tiktok'
 
 export type ContentStatus = 'draft' | 'approved' | 'scheduled' | 'published' | 'rejected'
 
@@ -128,9 +128,10 @@ export interface SocialContentConfig {
 
 export const PLATFORMS: { value: SocialPlatform; label: string; enabled: boolean }[] = [
   { value: 'linkedin', label: 'LinkedIn', enabled: true },
-  { value: 'youtube', label: 'YouTube', enabled: false },
-  { value: 'instagram', label: 'Instagram', enabled: false },
-  { value: 'facebook', label: 'Facebook', enabled: false },
+  { value: 'youtube', label: 'YouTube', enabled: true },
+  { value: 'instagram', label: 'Instagram', enabled: true },
+  { value: 'facebook', label: 'Facebook', enabled: true },
+  { value: 'tiktok', label: 'TikTok', enabled: true },
 ]
 
 export const PUBLISH_STATUS_CONFIG: Record<PublishStatus, {

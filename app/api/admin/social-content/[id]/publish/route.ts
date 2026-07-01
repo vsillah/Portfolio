@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { publishToLinkedIn } from '@/lib/publishing/linkedin'
+import { publishToYouTube } from '@/lib/publishing/youtube'
+import { publishToInstagram } from '@/lib/publishing/instagram'
+import { publishToFacebook } from '@/lib/publishing/facebook'
+import { publishToTikTok } from '@/lib/publishing/tiktok'
 import type { SocialPlatform } from '@/lib/social-content'
 import { getProductionAssets, getVideoRedactionGate } from '@/lib/social-production-assets'
 
@@ -117,6 +121,10 @@ export async function POST(
           ctaUrl: item.cta_url,
           hashtags: item.hashtags,
           imageUrl: item.image_url,
+          videoUrl: item.video_url,
+          carouselSlideUrls: item.carousel_slide_urls,
+          youtubeTitle: item.youtube_title,
+          youtubeDescription: item.youtube_description,
         }
 
         switch (platform) {
@@ -124,8 +132,18 @@ export async function POST(
             return { platform, result: await publishToLinkedIn(payload) }
 
           case 'youtube':
+            return { platform, result: await publishToYouTube(payload) }
+
           case 'instagram':
+            return { platform, result: await publishToInstagram(payload) }
+
           case 'facebook':
+            return { platform, result: await publishToFacebook(payload) }
+
+          case 'tiktok':
+            return { platform, result: await publishToTikTok(payload) }
+
+          default:
             // Mark as skipped until these modules are implemented
             await admin
               .from('social_content_publishes')
@@ -136,9 +154,6 @@ export async function POST(
               platform,
               result: { success: false, error: `${platform} publishing not yet implemented` },
             }
-
-          default:
-            return { platform, result: { success: false, error: `Unknown platform: ${platform}` } }
         }
       })
     )
@@ -149,9 +164,11 @@ export async function POST(
       return { platform: 'unknown', result: { success: false, error: r.reason?.message || 'Unknown error' } }
     })
 
-    const anySuccess = platformResults.some((r) => r.result.success)
+    const anyPublished = platformResults.some((r) => (
+      r.result.success && r.result.status !== 'publishing'
+    ))
 
-    if (anySuccess) {
+    if (anyPublished) {
       await admin
         .from('social_content_queue')
         .update({
@@ -168,7 +185,7 @@ export async function POST(
       .eq('content_id', id)
 
     return NextResponse.json({
-      published: anySuccess,
+      published: anyPublished,
       results: platformResults,
       publishes: updatedPublishes,
     })

@@ -127,6 +127,15 @@ describe('social-content-calendar-handoff', () => {
         authorized_by: 'admin-user',
         publish_gate: 'draft_only',
         external_execution_enabled: false,
+        platform_submission_orchestration: expect.objectContaining({
+          anyAutomaticSubmissionAvailable: false,
+          platforms: expect.arrayContaining([
+            expect.objectContaining({
+              platform: 'linkedin',
+              automaticSubmissionSupported: true,
+            }),
+          ]),
+        }),
       }),
     }))
     expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
@@ -142,6 +151,15 @@ describe('social-content-calendar-handoff', () => {
         social_content_id: 'social-draft-1',
         draft_handoff_only: true,
         external_execution_enabled: false,
+        platform_submission_orchestration: expect.objectContaining({
+          sideEffectsUntilFinalGate: {
+            providerGeneration: false,
+            upload: false,
+            externalSchedule: false,
+            publish: false,
+            externalPost: false,
+          },
+        }),
         side_effects: expect.objectContaining({
           provider_generation: false,
           upload: false,
@@ -166,6 +184,11 @@ describe('social-content-calendar-handoff', () => {
           kind: 'linkedin_social_content_draft',
           work_item_id: 'work-handoff-1',
           social_content_id: 'social-draft-1',
+        }),
+        platform_submission_orchestration: expect.objectContaining({
+          platforms: expect.arrayContaining([
+            expect.objectContaining({ platform: 'linkedin' }),
+          ]),
         }),
       }),
     }))
@@ -206,7 +229,7 @@ describe('social-content-calendar-handoff', () => {
     expect(result.socialContentId).toBe('social-existing-1')
   })
 
-  it('authorizes non-LinkedIn channels as planning-only handoffs without social queue inserts', async () => {
+  it('authorizes YouTube Shorts calendar items as planning-only handoffs without social queue inserts', async () => {
     const item = baseCalendarItem({
       channel: 'youtube_shorts',
       social_content_id: null,
@@ -240,6 +263,14 @@ describe('social-content-calendar-handoff', () => {
         platform_draft_handoff: expect.objectContaining({
           kind: 'channel_planning_handoff',
           social_content_id: null,
+        }),
+        platform_submission_orchestration: expect.objectContaining({
+          platforms: expect.arrayContaining([
+            expect.objectContaining({
+              platform: 'youtube',
+              automaticSubmissionSupported: true,
+            }),
+          ]),
         }),
       }),
     }))
