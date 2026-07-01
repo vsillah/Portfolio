@@ -415,6 +415,74 @@ describe('agent Slack events', () => {
     expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1]?.body).toContain('marked app draft')
   })
 
+  it('keeps the app draft unsent and posts a Slack failure when Gmail rejects send', async () => {
+    const appDraftId = '9abee71a-930d-49e9-a2b5-d929021ec9cb'
+    const gmailDraftId = 'r5747226337828186444'
+    mocks.sendUserGmailDraft.mockRejectedValueOnce(new Error('Recipient address required'))
+    mocks.from
+      .mockReturnValueOnce(queryResult({ data: null, error: null }))
+      .mockReturnValueOnce(queryResult({
+        data: {
+          id: appDraftId,
+          status: 'draft',
+          subject: 'Re: controlled smoke',
+          client_email: 'lead@example.com',
+        },
+        error: null,
+      }))
+      .mockReturnValueOnce(queryResult({
+        data: {
+          google_email: 'vambah@amadutown.com',
+          refresh_token_cipher: 'cipher',
+          refresh_token_iv: 'iv',
+          refresh_token_tag: 'tag',
+        },
+        error: null,
+      }))
+
+    vi.mocked(fetch)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          ok: true,
+          messages: [
+            {
+              ts: '1700000000.000001',
+              text: [
+                ':incoming_envelope: *Revenue reply ready for approval*',
+                `*App draft ID:* ${appDraftId}`,
+                `*Gmail draft ID:* ${gmailDraftId}`,
+              ].join('\n'),
+            },
+          ],
+        }),
+      } as never)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ ok: true, ts: '1700000000.000010' }),
+      } as never)
+
+    const result = await handleSlackAgentEvent({
+      type: 'event_callback',
+      event_id: 'EvRevenueSendFailure',
+      event: {
+        type: 'message',
+        channel_type: 'channel',
+        user: 'U123',
+        channel: 'C123',
+        text: 'safe to send *Sent using* ChatGPT',
+        ts: '1700000000.000009',
+        thread_ts: '1700000000.000001',
+      },
+    })
+
+    expect(result).toEqual({ handled: true, reason: 'revenue_reply_approval_action' })
+    expect(mocks.sendUserGmailDraft).toHaveBeenCalledWith('refresh-token', gmailDraftId)
+    expect(mocks.from).toHaveBeenCalledTimes(3)
+    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1]?.body).toContain('Recipient address required')
+    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1]?.body).toContain('remains unsent')
+  })
+
   it('holds revenue reply drafts without sending email', async () => {
     const appDraftId = '9abee71a-930d-49e9-a2b5-d929021ec9cb'
     const gmailDraftId = 'r5747226337828186444'

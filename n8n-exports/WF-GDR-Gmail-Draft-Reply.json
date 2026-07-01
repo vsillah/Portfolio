@@ -223,6 +223,7 @@
     {
       "parameters": {
         "resource": "draft",
+        "sendTo": "={{ $json.client_email }}",
         "subject": "={{ $json.subject }}",
         "message": "={{ $json.body }}",
         "options": {

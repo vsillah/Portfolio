@@ -149,3 +149,25 @@ Important behavior note:
 - `modify: ...` currently captures and acknowledges the requested revision, but does not automatically rewrite the Gmail draft.
 - `safe to send` sends the Gmail draft and should only be used after confirming the draft recipient is internal or the user has explicitly approved the customer-facing send.
 - After the Slack connector suffix parser fix is deployed, rerun `safe to send` against an internal-only draft before enabling this as a normal approval path.
+
+## 2026-06-30 Safe-To-Send Follow-Up
+
+After PR #597 deployed, the same internal-only Slack thread was used to post a fresh `safe to send` reply.
+
+Observed result:
+
+- Production route `/api/slack/agent/events` received the Slack reply and returned HTTP 200.
+- The parser fix worked: production attempted to send Gmail draft `r7886723628103744141`.
+- Gmail rejected the send with `Recipient address required`.
+- App draft `46f6aa29-92c0-4b31-be43-e6335d3d3f8b` remained `draft` with `sent_at = null`.
+
+Root cause:
+
+- The WF-GDR `Create Gmail Draft` node created the Gmail draft with subject, body, and thread id, but without `sendTo`.
+- The existing Gmail draft is therefore not a valid send candidate and should not be retried as the launch proof.
+
+Required next fix:
+
+- Add `sendTo: {{$json.client_email}}` to the WF-GDR Gmail draft creation node.
+- Keep Slack safe-send failures visible by returning a Slack failure message when Gmail rejects `drafts.send`.
+- Import/publish the updated WF-GDR workflow, then generate a fresh internal-only draft and rerun the `safe to send` proof.

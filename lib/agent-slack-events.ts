@@ -260,7 +260,13 @@ async function handleRevenueReplyApprovalCommand(command: RevenueReplyApprovalCo
     credential.refresh_token_iv as string,
     credential.refresh_token_tag as string,
   )
-  await sendUserGmailDraft(refreshToken, context.gmailDraftId)
+  try {
+    await sendUserGmailDraft(refreshToken, context.gmailDraftId)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown Gmail API error'
+    console.warn('[agent-slack-events] Revenue reply Gmail draft send failed:', error)
+    return `Gmail draft ${context.gmailDraftId} could not be sent: ${message}. App draft ${context.appDraftId} remains unsent.`
+  }
 
   const { error: updateError } = await supabaseAdmin
     .from('client_update_drafts')
