@@ -26,6 +26,12 @@ function flipLastChar(value: string) {
   return `${value.slice(0, -1)}${last === 'A' ? 'B' : 'A'}`
 }
 
+function tamperBase64Bytes(value: string) {
+  const bytes = Buffer.from(value, 'base64')
+  bytes[0] = bytes[0] ^ 0xff
+  return bytes.toString('base64')
+}
+
 function signPayload(payload: string) {
   return createHmac('sha256', deriveStateHmacKey()).update(payload).digest('base64url')
 }
@@ -101,7 +107,7 @@ describe('Gmail user OAuth helpers', () => {
   it('fails closed when encrypted refresh-token material is tampered with', () => {
     const encrypted = encryptRefreshToken('1//refresh-token')
 
-    expect(() => decryptRefreshToken(encrypted.cipher, encrypted.iv, flipLastChar(encrypted.tag))).toThrow()
+    expect(() => decryptRefreshToken(encrypted.cipher, encrypted.iv, tamperBase64Bytes(encrypted.tag))).toThrow()
 
     process.env.GMAIL_USER_OAUTH_SECRET = 'different-gmail-oauth-secret-with-enough-length'
 
