@@ -299,6 +299,70 @@ describe('Open Brain projection', () => {
     expect(snapshot.links).toHaveLength(0)
   })
 
+  it('does not promote blocked decision trust relationship metadata into a durable link', async () => {
+    const root = await makeTempRoot()
+    const proposal = await createOpenBrainProposal({
+      kind: 'workflow',
+      title: 'Blocked vendor trust link',
+      body: 'A blocked vendor decision can be reviewed without creating positive trust evidence.',
+      privacyTier: 'internal_ops',
+      confidence: 0.84,
+      sourceIds: ['event:decision-trust:blocked-vendor'],
+      reason: 'Decision trust block should suppress relationship promotion.',
+      metadata: {
+        relationship: {
+          fromId: 'event:decision-trust:blocked-vendor',
+          toId: 'vendor:unknown-payments',
+          relationship: 'trusted_for_decision',
+          insightId: 'insight:decision-trust:blocked-vendor',
+          insightKind: 'decision_trust_review',
+          sourceLabel: 'Blocked vendor decision',
+          targetLabel: 'Unknown Payments',
+        },
+        decisionTrust: {
+          decisionId: 'decision-blocked-vendor',
+          linkedRunId: 'run-blocked-vendor',
+          selectedCandidate: 'unknown-payments.example',
+          recommendedGate: 'block',
+          scores: {
+            relationshipTrust: 0.12,
+            decisionRisk: 0.94,
+            evidenceCompleteness: 0.38,
+          },
+          evidenceSummary: 'Domain mismatch with excessive unexplained payment permissions.',
+        },
+      },
+    }, root)
+
+    const approved = await reviewOpenBrainProposal(proposal.id, 'approved', 'Review captured; no trust promotion.', 'admin', root)
+    const snapshot = await getOpenBrainSnapshot(root)
+    const approvalEvent = snapshot.events.find((event) => (
+      event.kind === 'proposal_approved' &&
+      event.metadata?.proposalId === proposal.id
+    ))
+
+    expect(approved.metadata?.decisionTrust).toEqual(expect.objectContaining({
+      decisionId: 'decision-blocked-vendor',
+      recommendedGate: 'block',
+    }))
+    expect(snapshot.links).toHaveLength(0)
+    expect(approvalEvent?.metadata).toEqual(expect.objectContaining({
+      relationship: expect.objectContaining({
+        fromId: 'event:decision-trust:blocked-vendor',
+        toId: 'vendor:unknown-payments',
+        relationship: 'trusted_for_decision',
+      }),
+      decisionTrust: expect.objectContaining({
+        decisionId: 'decision-blocked-vendor',
+        linkedRunId: 'run-blocked-vendor',
+        recommendedGate: 'block',
+      }),
+      decisionTrustRelationshipLinkBlocked: true,
+      relationshipLinkBlockedReason: 'decision_trust_block',
+    }))
+    expect(approvalEvent?.metadata).not.toHaveProperty('relationshipLinkId')
+  })
+
   it('keeps AutoResearch producer traces disabled until explicitly configured', async () => {
     const root = await makeTempRoot()
     let snapshot = await getOpenBrainSnapshot(root)
