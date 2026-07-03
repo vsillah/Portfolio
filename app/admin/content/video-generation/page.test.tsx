@@ -304,6 +304,6 @@ describe('VideoGenerationPage review workspace', () => {
     expect(await screen.findByText('1-4 of 5')).toBeInTheDocument()
     expect(screen.getByText('Page 1 / 2')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Packet One/i })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Packet One' })).toBeInTheDocument()
+    expect(screen.getAllByRole('heading', { name: 'Packet One' })).toHaveLength(2)
   })
 })
