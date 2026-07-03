@@ -262,6 +262,7 @@ export function buildPaymentAuthorityDecisionTrustFrame(input: {
   label: string
   sourceRunId: string
   approvalType: string | null
+  riskSignals?: string[]
 }) {
   const paymentAuthority = isPaymentAuthorityAction(input.action)
   return buildAgentDecisionFrame({
@@ -277,6 +278,7 @@ export function buildPaymentAuthorityDecisionTrustFrame(input: {
     riskSignals: [
       paymentAuthority ? 'Payment or spend authority requested' : 'Approval-gated side effect requested',
       'Action does not execute during checkpoint creation',
+      ...(input.riskSignals ?? []),
     ],
     missingEvidence: [
       'Human approval decision',
