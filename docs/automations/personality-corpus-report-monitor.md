@@ -20,6 +20,8 @@ Recurring report review. Confirm the exact schedule from local Codex automation 
 
 - [`content-voice-runbook.md`](./content-voice-runbook.md)
 - [`../memory-context-organization-workflow.md`](../memory-context-organization-workflow.md)
+- Local private corpus home: `/Users/vambahsillah/Projects/Portfolio/.local/personality-corpus`
+- Fallback only: `/Users/vambahsillah/Documents/Codex/2026-04-30/i-have-quite-a-bit-of/personality-corpus`
 - Derived personality corpus reports, read-only.
 - Private source exports only as local source material; do not quote them.
 

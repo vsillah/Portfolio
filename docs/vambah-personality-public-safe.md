@@ -4,7 +4,9 @@ Source pack: `2026.05.03-d2eabc3d4b55`
 
 Source hash: `d2eabc3d4b55ab55f58703b04517dff6b30e1c7f7142a93e7a254e9911ee2f60`
 
-Origin: `/Users/vambahsillah/Documents/Codex/2026-04-30/i-have-quite-a-bit-of/personality-corpus/rag-ready/vambah_personality_public_safe.md`
+Origin: `/Users/vambahsillah/Projects/Portfolio/.local/personality-corpus/rag-ready/vambah_personality_public_safe.md`
+
+Legacy compatibility path: `/Users/vambahsillah/Documents/Codex/2026-04-30/i-have-quite-a-bit-of/personality-corpus/rag-ready/vambah_personality_public_safe.md`
 
 Sensitivity: public-safe, private-derived summary. This document is intentionally staged for chatbot and RAG use. It is not raw source text.
 

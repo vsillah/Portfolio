@@ -17,8 +17,9 @@ This is the bridge from research to public narrative.
 
 - All PRDs in `docs/agentic-content-research-prds/`
 - `docs/linkedin-voice.md`
-- `/Users/vambahsillah/Documents/Codex/2026-04-30/i-have-quite-a-bit-of/personality-corpus/voice_and_style_guide.md`
-- `/Users/vambahsillah/Documents/Codex/2026-04-30/i-have-quite-a-bit-of/personality-corpus/personality_profile.md`
+- `/Users/vambahsillah/Projects/Portfolio/.local/personality-corpus/voice_and_style_guide.md`
+- `/Users/vambahsillah/Projects/Portfolio/.local/personality-corpus/personality_profile.md`
+- Fallback only: `/Users/vambahsillah/Documents/Codex/2026-04-30/i-have-quite-a-bit-of/personality-corpus/`
 - `/Users/vambahsillah/.hermes/hermes-agent/skills/creative/humanizer/SKILL.md`
 - `app/api/admin/video-generation/generate-ideas/route.ts`
 - `docs/heygen-template-brand-setup.md`
