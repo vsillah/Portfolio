@@ -94,6 +94,19 @@ export function recommendDecisionTrustEnforcement(
     }
   }
 
+  if (approvalType && gate !== 'human_review' && gate !== 'block') {
+    return {
+      mode,
+      gate,
+      mayProceed: false,
+      requiresApproval: true,
+      shouldBlock: false,
+      approvalType,
+      reason: 'Runtime policy requires human approval before this action can continue, regardless of the Decision Trust score.',
+      evidence,
+    }
+  }
+
   if (gate === 'human_review' || gate === 'block') {
     return {
       mode,

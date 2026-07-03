@@ -130,6 +130,67 @@ describe('agent decision trust enforcement recommendation', () => {
     })
   })
 
+  it('does not let allow frames bypass approval-required runtime actions in soft-gate mode', () => {
+    const frame = buildAgentDecisionFrame({
+      agentKey: 'chief-of-staff',
+      decisionType: 'information',
+      objective: 'Use official source text in an outbound email draft.',
+      selectedCandidate: 'official-docs',
+      trustSignals: ['Official source verified', 'Domain match confirmed', 'Source evidence linked'],
+      riskSignals: ['Read-only source review'],
+      missingEvidence: [],
+      reversibility: 'easy',
+    })
+
+    const recommendation = recommendDecisionTrustEnforcement({
+      frame,
+      mode: 'soft_gate',
+      action: 'send_email',
+      runtime: 'codex',
+    })
+
+    expect(frame.recommended_gate).toBe('allow')
+    expect(recommendation).toMatchObject({
+      mode: 'soft_gate',
+      gate: 'allow',
+      mayProceed: false,
+      requiresApproval: true,
+      shouldBlock: false,
+      approvalType: 'send_email',
+    })
+    expect(recommendation.reason).toMatch(/runtime policy requires human approval/i)
+  })
+
+  it('keeps approval-required runtime actions gated in hard-block mode when no block signal exists', () => {
+    const frame = buildAgentDecisionFrame({
+      agentKey: 'chief-of-staff',
+      decisionType: 'information',
+      objective: 'Use an official source in a public post.',
+      selectedCandidate: 'official-docs',
+      trustSignals: ['Official source verified', 'Domain match confirmed', 'Source evidence linked'],
+      riskSignals: ['Read-only source review'],
+      missingEvidence: [],
+      reversibility: 'easy',
+    })
+
+    const recommendation = recommendDecisionTrustEnforcement({
+      frame,
+      mode: 'hard_block',
+      action: 'publish_public_content',
+      runtime: 'codex',
+    })
+
+    expect(frame.recommended_gate).toBe('allow')
+    expect(recommendation).toMatchObject({
+      mode: 'hard_block',
+      gate: 'allow',
+      mayProceed: false,
+      requiresApproval: true,
+      shouldBlock: false,
+      approvalType: 'publishing',
+    })
+  })
+
   it('allows strong low-risk frames in soft-gate mode', () => {
     const frame = buildAgentDecisionFrame({
       agentKey: 'research-source-register',
