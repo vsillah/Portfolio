@@ -653,6 +653,9 @@ export async function reviewOpenBrainProposal(
   proposals[index] = reviewed
   await writeJsonArray(proposalsPath, proposals)
   let approvedRelationshipLink: OpenBrainLinkRecord | null = null
+  const relationshipLinkBlockedByDecisionTrust = status === 'approved' &&
+    decisionTrustBlocksRelationshipLink(reviewed) &&
+    Boolean(reviewed.metadata?.relationship)
   if (status === 'approved') {
     const memoriesPath = path.join(openBrainHome, MEMORIES_FILE)
     const memories = await readJsonArray<OpenBrainMemoryRecord>(memoriesPath)
@@ -674,6 +677,9 @@ export async function reviewOpenBrainProposal(
       reviewedBy: reviewed.reviewedBy,
       memoryKind: reviewed.proposedMemory.kind,
       relationship: reviewed.metadata?.relationship,
+      decisionTrust: reviewed.metadata?.decisionTrust,
+      decisionTrustRelationshipLinkBlocked: relationshipLinkBlockedByDecisionTrust,
+      ...(relationshipLinkBlockedByDecisionTrust ? { relationshipLinkBlockedReason: 'decision_trust_block' } : {}),
       relationshipLinkId: approvedRelationshipLink?.id,
     },
   }, openBrainHome)
@@ -2001,7 +2007,7 @@ function decisionTrustMetadataFromEvent(event: OpenBrainEventRecord) {
   const value = event.metadata?.decisionTrust
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null
   const record = value as Record<string, unknown>
-  const recommendedGate = stringFromMetadata(record.recommended_gate)
+  const recommendedGate = stringFromMetadata(record.recommended_gate) || stringFromMetadata(record.recommendedGate)
   if (!recommendedGate) return null
   return { recommendedGate }
 }
@@ -2437,12 +2443,17 @@ function relationshipLinkFromProposal(proposal: OpenBrainProposalRecord) {
   const relationship = proposal.metadata?.relationship
   if (!relationship?.fromId || !relationship.toId || !relationship.relationship) return null
   if (proposal.proposedMemory.privacyTier === 'private') return null
+  if (decisionTrustBlocksRelationshipLink(proposal)) return null
   return {
     id: `link:${fingerprintOpenBrainRecord([relationship.fromId, relationship.toId, relationship.relationship]).slice(0, 16)}`,
     fromId: relationship.fromId,
     toId: relationship.toId,
     relationship: relationship.relationship,
   }
+}
+
+function decisionTrustBlocksRelationshipLink(proposal: OpenBrainProposalRecord) {
+  return proposal.metadata?.decisionTrust?.recommendedGate.trim().toLowerCase() === 'block'
 }
 
 function dedupeSources(sources: OpenBrainSourceRecord[]) {
