@@ -37,6 +37,21 @@ describe('agent governance', () => {
               side_effect_boundary: 'No refund is issued until this payment authority checkpoint is approved and linked to a trace.',
               executes_action: false,
             },
+            decision_trust_enforcement: {
+              mode: 'soft_gate',
+              gate: 'human_review',
+              mayProceed: false,
+              requiresApproval: true,
+              shouldBlock: false,
+              approvalType: 'payment_create_refund',
+              reason: 'Soft-gate mode requires human approval before this Decision Trust frame can produce a side effect.',
+              evidence: {
+                decisionId: 'decision-refund',
+                linkedRunId: 'run-source',
+                selectedCandidate: 'create_refund',
+                missingEvidence: ['Human approval decision', 'private chat export payment notes'],
+              },
+            },
           },
         },
       ],
@@ -57,6 +72,21 @@ describe('agent governance', () => {
             approval_gate: 'payment_create_refund',
             fallback_agent_key: 'chief-of-staff',
             alternatives_considered: ['chief-of-staff'],
+            decision_trust_enforcement: {
+              mode: 'advisory',
+              gate: 'human_review',
+              mayProceed: true,
+              requiresApproval: false,
+              shouldBlock: false,
+              approvalType: 'payment_create_refund',
+              reason: 'Advisory mode warns that this Decision Trust frame needs human review before side effects.',
+              evidence: {
+                decisionId: 'decision-delegation',
+                linkedRunId: 'run-shaka',
+                selectedCandidate: 'automation-systems',
+                missingEvidence: ['private message export routing detail'],
+              },
+            },
           },
         },
         {
@@ -126,6 +156,15 @@ describe('agent governance', () => {
       risk_level: 'high',
       executes_action: false,
     })
+    expect(snapshot.pending_authority_approvals[0]?.metadata?.decision_trust_enforcement).toMatchObject({
+      mode: 'soft_gate',
+      gate: 'human_review',
+      requires_approval: true,
+      approval_type: 'payment_create_refund',
+      evidence: {
+        missing_evidence: ['Human approval decision', 'private source summary'],
+      },
+    })
     expect(snapshot.recent_delegation_decisions[0]).toMatchObject({
       selected_agent_key: 'automation-systems',
       task_type: 'payment',
@@ -134,6 +173,17 @@ describe('agent governance', () => {
       approval_gate: 'payment_create_refund',
       fallback_agent_key: 'chief-of-staff',
       alternatives_considered: ['chief-of-staff'],
+      decision_trust_enforcement: {
+        mode: 'advisory',
+        gate: 'human_review',
+        may_proceed: true,
+        requires_approval: false,
+        should_block: false,
+        approval_type: 'payment_create_refund',
+        evidence: {
+          missing_evidence: ['private source summary'],
+        },
+      },
     })
     expect(snapshot.recent_decision_trust_frames).toHaveLength(1)
     expect(snapshot.recent_decision_trust_frames[0]).toMatchObject({

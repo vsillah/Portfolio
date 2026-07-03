@@ -74,6 +74,15 @@ const governance = {
           side_effect_boundary: 'No refund is issued until this payment authority checkpoint is approved and linked to a trace.',
           executes_action: false,
         },
+        decision_trust_enforcement: {
+          mode: 'soft_gate',
+          gate: 'human_review',
+          may_proceed: false,
+          requires_approval: true,
+          should_block: false,
+          approval_type: 'payment_create_refund',
+          reason: 'Soft-gate mode requires human approval before this Decision Trust frame can produce a side effect.',
+        },
       },
     },
   ],
@@ -91,6 +100,21 @@ const governance = {
       approval_gate: 'payment_create_refund',
       fallback_agent_key: 'chief-of-staff',
       alternatives_considered: ['chief-of-staff'],
+      decision_trust_enforcement: {
+        mode: 'advisory',
+        gate: 'human_review',
+        may_proceed: true,
+        requires_approval: false,
+        should_block: false,
+        approval_type: 'payment_create_refund',
+        reason: 'Advisory mode warns that this Decision Trust frame needs human review before side effects.',
+        evidence: {
+          decision_id: 'decision-delegation',
+          linked_run_id: 'run-delegation',
+          selected_candidate: 'automation-systems',
+          missing_evidence: [],
+        },
+      },
     },
   ],
   recent_decision_trust_frames: [],
@@ -122,6 +146,18 @@ describe('agent governance client export', () => {
       required_evidence: ['approval_record', 'payment_object', 'trace_id'],
       approval_gate: 'payment_create_refund',
       fallback_agent: 'chief-of-staff',
+      decision_trust_enforcement: {
+        mode: 'advisory',
+        gate: 'human_review',
+        may_proceed: true,
+      },
+    })
+    expect(clientExport.authority_controls.pending_authority_checkpoints[0]).toMatchObject({
+      decision_trust_enforcement: {
+        mode: 'soft_gate',
+        gate: 'human_review',
+        requires_approval: true,
+      },
     })
     expect(JSON.stringify(clientExport)).not.toContain('selected_agent_key')
     expect(clientExport.audit_boundaries.join(' ')).toContain('excludes raw prompts')
@@ -135,8 +171,8 @@ describe('agent governance client export', () => {
     expect(markdown).toContain('- Run ID: All visible governance runs')
     expect(markdown).toContain('## Capability Inventory')
     expect(markdown).toContain('| Yaa Asantewaa (Ashanti) - Automation Systems | active | n8n | yellow | approval_required | known_workflow |')
-    expect(markdown).toContain('| run-delegation | Yaa Asantewaa (Ashanti) - Automation Systems | payment | payment_spend | 90% | approval_record, payment_object, trace_id | payment_create_refund | chief-of-staff |')
-    expect(markdown).toContain('| approval-payment | run-payment | Create refund | payment_create_refund | high | No | run-source | No refund is issued until this payment authority checkpoint is approved and linked to a trace. |')
+    expect(markdown).toContain('| run-delegation | Yaa Asantewaa (Ashanti) - Automation Systems | payment | payment_spend | 90% | approval_record, payment_object, trace_id | payment_create_refund | chief-of-staff | advisory / human review / may proceed |')
+    expect(markdown).toContain('| approval-payment | run-payment | Create refund | payment_create_refund | high | No | run-source | No refund is issued until this payment authority checkpoint is approved and linked to a trace. | soft gate / human review / requires review |')
     expect(markdown).toContain('Payment and paid-job actions are represented as approval gates')
   })
 

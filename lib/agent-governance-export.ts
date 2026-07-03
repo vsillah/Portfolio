@@ -1,6 +1,16 @@
 import type { AgentGovernanceSnapshot } from '@/lib/agent-governance'
 import type { AgentGovernanceExportScope } from '@/lib/agent-governance-scope'
 
+type ClientSafeDecisionTrustEnforcement = {
+  mode: string
+  gate: string
+  may_proceed: boolean
+  requires_approval: boolean
+  should_block: boolean
+  approval_type: string | null
+  reason: string
+}
+
 export type AgentGovernanceClientExport = {
   export_type: 'agent_governance_client_audit'
   generated_at: string
@@ -46,6 +56,7 @@ export type AgentGovernanceClientExport = {
     approval_gate: string | null
     fallback_agent: string | null
     alternatives_considered: string[]
+    decision_trust_enforcement: ClientSafeDecisionTrustEnforcement | null
   }>
   authority_controls: {
     payment_gates: Array<{
@@ -66,6 +77,7 @@ export type AgentGovernanceClientExport = {
       source_run_id: string | null
       side_effect_boundary: string | null
       executes_action: boolean
+      decision_trust_enforcement: ClientSafeDecisionTrustEnforcement | null
     }>
   }
   audit_boundaries: string[]
@@ -90,6 +102,42 @@ function recordValue(record: Record<string, unknown> | null | undefined, key: st
 function authorityPacket(metadata: Record<string, unknown> | null | undefined) {
   const value = metadata?.authority_packet
   return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : null
+}
+
+function enforcementPacket(metadata: Record<string, unknown> | null | undefined) {
+  const value = metadata?.decision_trust_enforcement
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : null
+}
+
+function clientSafeEnforcement(value: AgentGovernanceSnapshot['recent_delegation_decisions'][number]['decision_trust_enforcement'] | null | undefined): ClientSafeDecisionTrustEnforcement | null {
+  if (!value) return null
+  return {
+    mode: value.mode,
+    gate: value.gate,
+    may_proceed: value.may_proceed,
+    requires_approval: value.requires_approval,
+    should_block: value.should_block,
+    approval_type: value.approval_type,
+    reason: value.reason,
+  }
+}
+
+function clientSafeMetadataEnforcement(metadata: Record<string, unknown> | null | undefined): ClientSafeDecisionTrustEnforcement | null {
+  const packet = enforcementPacket(metadata)
+  if (!packet) return null
+  const mode = recordValue(packet, 'mode')
+  const gate = recordValue(packet, 'gate')
+  const reason = recordValue(packet, 'reason')
+  if (!mode || !gate || !reason) return null
+  return {
+    mode,
+    gate,
+    may_proceed: packet.may_proceed === true,
+    requires_approval: packet.requires_approval === true,
+    should_block: packet.should_block === true,
+    approval_type: recordValue(packet, 'approval_type'),
+    reason,
+  }
 }
 
 export function buildAgentGovernanceClientExport(
@@ -141,6 +189,7 @@ export function buildAgentGovernanceClientExport(
       approval_gate: decision.approval_gate,
       fallback_agent: decision.fallback_agent_key,
       alternatives_considered: decision.alternatives_considered,
+      decision_trust_enforcement: clientSafeEnforcement(decision.decision_trust_enforcement),
     })),
     authority_controls: {
       payment_gates: governance.payment_authority_actions.map((gate) => ({
@@ -161,6 +210,7 @@ export function buildAgentGovernanceClientExport(
         source_run_id: recordValue(authorityPacket(approval.metadata), 'source_run_id'),
         side_effect_boundary: recordValue(authorityPacket(approval.metadata), 'side_effect_boundary'),
         executes_action: authorityPacket(approval.metadata)?.executes_action === true,
+        decision_trust_enforcement: clientSafeMetadataEnforcement(approval.metadata),
       })),
     },
     audit_boundaries: AUDIT_BOUNDARIES,
@@ -179,9 +229,9 @@ export function formatAgentGovernanceClientMarkdown(clientExport: AgentGovernanc
 
   const delegationRows = clientExport.delegation_trace.length
     ? clientExport.delegation_trace.map((decision) =>
-        `| ${decision.trace_reference} | ${decision.selected_agent} | ${decision.task_type} | ${decision.risk_class} | ${decision.confidence} | ${decision.required_evidence.length ? decision.required_evidence.join(', ') : 'None recorded'} | ${decision.approval_gate ?? 'None'} | ${decision.fallback_agent ?? 'None'} |`,
+        `| ${decision.trace_reference} | ${decision.selected_agent} | ${decision.task_type} | ${decision.risk_class} | ${decision.confidence} | ${decision.required_evidence.length ? decision.required_evidence.join(', ') : 'None recorded'} | ${decision.approval_gate ?? 'None'} | ${decision.fallback_agent ?? 'None'} | ${formatClientSafeEnforcement(decision.decision_trust_enforcement)} |`,
       )
-    : ['| No recent delegation decisions recorded. | - | - | - | - | - | - | - |']
+    : ['| No recent delegation decisions recorded. | - | - | - | - | - | - | - | - |']
 
   const paymentRows = clientExport.authority_controls.payment_gates.map((gate) =>
     `| ${gate.label} | ${gate.approval_type} | ${gate.description} |`,
@@ -189,9 +239,9 @@ export function formatAgentGovernanceClientMarkdown(clientExport: AgentGovernanc
 
   const pendingRows = clientExport.authority_controls.pending_authority_checkpoints.length
     ? clientExport.authority_controls.pending_authority_checkpoints.map((approval) =>
-        `| ${approval.approval_id ?? 'None'} | ${approval.trace_reference} | ${approval.label} | ${approval.approval_type} | ${approval.risk_level ?? 'Not recorded'} | ${approval.executes_action ? 'Yes' : 'No'} | ${approval.source_run_id ?? 'None'} | ${approval.side_effect_boundary ?? 'Not recorded'} |`,
+        `| ${approval.approval_id ?? 'None'} | ${approval.trace_reference} | ${approval.label} | ${approval.approval_type} | ${approval.risk_level ?? 'Not recorded'} | ${approval.executes_action ? 'Yes' : 'No'} | ${approval.source_run_id ?? 'None'} | ${approval.side_effect_boundary ?? 'Not recorded'} | ${formatClientSafeEnforcement(approval.decision_trust_enforcement)} |`,
       )
-    : ['| No pending authority checkpoints. | - | - | - | - | - | - | - |']
+    : ['| No pending authority checkpoints. | - | - | - | - | - | - | - | - |']
 
   return [
     `# ${clientExport.title}`,
@@ -230,8 +280,8 @@ export function formatAgentGovernanceClientMarkdown(clientExport: AgentGovernanc
     '',
     '## Delegation Trace',
     '',
-    '| Trace | Selected Agent | Task | Risk | Confidence | Required Evidence | Approval Gate | Fallback |',
-    '| --- | --- | --- | --- | --- | --- | --- | --- |',
+    '| Trace | Selected Agent | Task | Risk | Confidence | Required Evidence | Approval Gate | Fallback | Decision Trust Enforcement |',
+    '| --- | --- | --- | --- | --- | --- | --- | --- | --- |',
     ...delegationRows,
     '',
     '## Payment And Spend Authority',
@@ -242,8 +292,8 @@ export function formatAgentGovernanceClientMarkdown(clientExport: AgentGovernanc
     '',
     '## Pending Authority Checkpoints',
     '',
-    '| Approval | Trace | Label | Approval Type | Risk | Executes Now | Source Run | Boundary |',
-    '| --- | --- | --- | --- | --- | --- | --- | --- |',
+    '| Approval | Trace | Label | Approval Type | Risk | Executes Now | Source Run | Boundary | Decision Trust Enforcement |',
+    '| --- | --- | --- | --- | --- | --- | --- | --- | --- |',
     ...pendingRows,
     '',
     '## Audit Boundaries',
@@ -251,4 +301,16 @@ export function formatAgentGovernanceClientMarkdown(clientExport: AgentGovernanc
     list(clientExport.audit_boundaries),
     '',
   ].join('\n')
+}
+
+function formatClientSafeEnforcement(enforcement: ClientSafeDecisionTrustEnforcement | null) {
+  if (!enforcement) return 'Not recorded'
+  const decision = enforcement.should_block
+    ? 'blocks'
+    : enforcement.requires_approval
+      ? 'requires review'
+      : enforcement.may_proceed
+        ? 'may proceed'
+        : 'holds'
+  return `${enforcement.mode.replace(/_/g, ' ')} / ${enforcement.gate.replace(/_/g, ' ')} / ${decision}`
 }

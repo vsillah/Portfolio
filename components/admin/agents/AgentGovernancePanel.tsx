@@ -60,6 +60,7 @@ export type AgentGovernanceSnapshot = {
     approval_gate: string | null
     fallback_agent_key: string | null
     alternatives_considered: string[]
+    decision_trust_enforcement: DecisionTrustEnforcementSummary | null
   }>
   recent_decision_trust_frames: Array<{
     run_id: string
@@ -98,6 +99,22 @@ export type AgentGovernanceSnapshot = {
   }>
 }
 
+type DecisionTrustEnforcementSummary = {
+  mode: 'shadow' | 'advisory' | 'soft_gate' | 'hard_block'
+  gate: 'allow' | 'sandbox' | 'human_review' | 'block'
+  may_proceed: boolean
+  requires_approval: boolean
+  should_block: boolean
+  approval_type: string | null
+  reason: string
+  evidence: {
+    decision_id: string | null
+    linked_run_id: string | null
+    selected_candidate: string | null
+    missing_evidence: string[]
+  }
+}
+
 export function AgentGovernancePanel({ governance }: { governance: AgentGovernanceSnapshot | null }) {
   if (!governance) return null
 
@@ -106,6 +123,7 @@ export function AgentGovernancePanel({ governance }: { governance: AgentGovernan
   const latestPaymentAction = governance.payment_authority_actions[0]
   const pendingAuthority = governance.pending_authority_approvals[0]
   const pendingAuthorityPacket = authorityPacket(pendingAuthority?.metadata)
+  const pendingAuthorityEnforcement = decisionTrustEnforcement(pendingAuthority?.metadata)
   const statusTone = governance.summary.pending_authority_approvals > 0
     ? 'yellow'
     : governance.summary.least_privilege_attention > 0
@@ -226,6 +244,11 @@ export function AgentGovernancePanel({ governance }: { governance: AgentGovernan
                 {latestDelegation.fallback_agent_key ? `Fallback: ${latestDelegation.fallback_agent_key}` : 'Fallback: none'}
               </p>
             ) : null}
+            {latestDelegation?.decision_trust_enforcement ? (
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                Enforcement: {formatEnforcementPosture(latestDelegation.decision_trust_enforcement)}
+              </p>
+            ) : null}
           </Link>
 
           <Link
@@ -247,6 +270,11 @@ export function AgentGovernancePanel({ governance }: { governance: AgentGovernan
                 {pendingAuthorityPacket?.risk_level ? `Risk: ${pendingAuthorityPacket.risk_level}` : `Approval: ${pendingAuthority.approval_type}`}
                 {' · '}
                 {pendingAuthorityPacket?.executes_action ? 'Executes now: yes' : 'Executes now: no'}
+              </p>
+            ) : null}
+            {pendingAuthorityEnforcement ? (
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                Enforcement: {formatEnforcementPosture(pendingAuthorityEnforcement)}
               </p>
             ) : null}
           </Link>
@@ -339,6 +367,39 @@ function authorityPacket(metadata: Record<string, unknown> | null | undefined) {
     side_effect_boundary: typeof record.side_effect_boundary === 'string' ? record.side_effect_boundary : null,
     executes_action: record.executes_action === true,
   }
+}
+
+function decisionTrustEnforcement(metadata: Record<string, unknown> | null | undefined): DecisionTrustEnforcementSummary | null {
+  const value = metadata?.decision_trust_enforcement
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+  const record = value as Partial<DecisionTrustEnforcementSummary>
+  if (!record.mode || !record.gate || typeof record.reason !== 'string') return null
+  return {
+    mode: record.mode,
+    gate: record.gate,
+    may_proceed: record.may_proceed === true,
+    requires_approval: record.requires_approval === true,
+    should_block: record.should_block === true,
+    approval_type: typeof record.approval_type === 'string' ? record.approval_type : null,
+    reason: record.reason,
+    evidence: {
+      decision_id: record.evidence?.decision_id ?? null,
+      linked_run_id: record.evidence?.linked_run_id ?? null,
+      selected_candidate: record.evidence?.selected_candidate ?? null,
+      missing_evidence: Array.isArray(record.evidence?.missing_evidence) ? record.evidence.missing_evidence : [],
+    },
+  }
+}
+
+function formatEnforcementPosture(enforcement: DecisionTrustEnforcementSummary) {
+  const decision = enforcement.should_block
+    ? 'blocks'
+    : enforcement.requires_approval
+      ? 'requires review'
+      : enforcement.may_proceed
+        ? 'may proceed'
+        : 'holds'
+  return `${enforcement.mode.replace(/_/g, ' ')} · ${enforcement.gate.replace(/_/g, ' ')} · ${decision}`
 }
 
 function GovernanceExportLedger({ exports }: { exports: AgentGovernanceSnapshot['recent_governance_exports'] }) {
