@@ -41,10 +41,26 @@ export type RecommendDecisionTrustEnforcementInput = {
   action?: AgentAction
 }
 
+export function resolveDecisionTrustEnforcementMode(
+  value: string | null | undefined,
+  fallback: DecisionTrustEnforcementMode = 'shadow',
+): DecisionTrustEnforcementMode {
+  const normalized = value?.trim().toLowerCase()
+  if (
+    normalized === 'shadow' ||
+    normalized === 'advisory' ||
+    normalized === 'soft_gate' ||
+    normalized === 'hard_block'
+  ) {
+    return normalized
+  }
+  return fallback
+}
+
 export function recommendDecisionTrustEnforcement(
   input: RecommendDecisionTrustEnforcementInput,
 ): DecisionTrustEnforcementRecommendation {
-  const mode = input.mode ?? 'shadow'
+  const mode = resolveDecisionTrustEnforcementMode(input.mode)
   const gate = input.frame.recommended_gate
   const approvalType = approvalTypeFor(input)
   const evidence = {

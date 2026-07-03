@@ -1,8 +1,20 @@
 import { describe, expect, it } from 'vitest'
 import { buildAgentDecisionFrame } from './agent-decision-trust'
-import { recommendDecisionTrustEnforcement } from './agent-decision-trust-enforcement'
+import {
+  recommendDecisionTrustEnforcement,
+  resolveDecisionTrustEnforcementMode,
+} from './agent-decision-trust-enforcement'
 
 describe('agent decision trust enforcement recommendation', () => {
+  it('resolves invalid or missing mode config to shadow for rollback safety', () => {
+    expect(resolveDecisionTrustEnforcementMode(undefined)).toBe('shadow')
+    expect(resolveDecisionTrustEnforcementMode(null)).toBe('shadow')
+    expect(resolveDecisionTrustEnforcementMode('')).toBe('shadow')
+    expect(resolveDecisionTrustEnforcementMode('SOFT_GATE')).toBe('soft_gate')
+    expect(resolveDecisionTrustEnforcementMode('panic_disable')).toBe('shadow')
+    expect(resolveDecisionTrustEnforcementMode('panic_disable', 'advisory')).toBe('advisory')
+  })
+
   it('keeps shadow mode non-blocking even for blocked frames', () => {
     const frame = buildAgentDecisionFrame({
       agentKey: 'chief-of-staff',
@@ -24,6 +36,45 @@ describe('agent decision trust enforcement recommendation', () => {
       mayProceed: true,
       requiresApproval: false,
       shouldBlock: false,
+    })
+  })
+
+  it('rolls a hard-block frame back to shadow without deleting decision evidence', () => {
+    const frame = buildAgentDecisionFrame({
+      agentKey: 'chief-of-staff',
+      decisionType: 'vendor',
+      objective: 'Choose a payment destination.',
+      selectedCandidate: 'stripe-support-payments.example',
+      trustSignals: ['Search result appeared high on the page'],
+      riskSignals: ['Domain mismatch', 'Known-bad source marker', 'Payment requested'],
+      missingEvidence: ['Official source confirmation'],
+      reversibility: 'irreversible',
+    })
+    const blocked = recommendDecisionTrustEnforcement({ frame, mode: 'hard_block' })
+    const rolledBack = recommendDecisionTrustEnforcement({
+      frame,
+      mode: resolveDecisionTrustEnforcementMode('shadow'),
+    })
+
+    expect(frame.recommended_gate).toBe('block')
+    expect(blocked).toMatchObject({
+      mode: 'hard_block',
+      mayProceed: false,
+      shouldBlock: true,
+    })
+    expect(rolledBack).toMatchObject({
+      mode: 'shadow',
+      gate: 'block',
+      mayProceed: true,
+      requiresApproval: false,
+      shouldBlock: false,
+      evidence: {
+        decisionId: frame.decision_id,
+        linkedRunId: null,
+        selectedCandidate: 'stripe-support-payments.example',
+        scores: frame.scores,
+        missingEvidence: frame.missing_evidence,
+      },
     })
   })
 
