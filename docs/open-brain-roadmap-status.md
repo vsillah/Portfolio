@@ -57,6 +57,7 @@ Status: `complete`
 Completed:
 - Personality corpus, Codex automation inventory, Agent Ops work items/handoffs, RAG shadow plans, AutoResearch proposals, and Model Ops projections have producer routes.
 - Producer routes record sanitized source/event traces before durable memory proposals.
+- Personality corpus refresh now records a deterministic pending proposal that approves only the public-safe projection rule and source provenance; it does not promote durable memory automatically.
 
 Remaining:
 - Keep adding producers only through sanitized source/event/proposal flows.
@@ -72,7 +73,7 @@ Evidence:
 - app/api/admin/rag-ingest/route.ts
 - lib/model-ops-open-brain.ts
 
-Next action: Use producer traces as audit records and keep durable memories approval-gated.
+Next action: Review the pending personality-corpus proposal in Portfolio Admin/Open Brain before using approved memories as public-safe RAG projection input.
 
 ## phase-4: Karpathy Wiki Overlay
 
