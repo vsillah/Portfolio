@@ -263,6 +263,19 @@ function decisionTrustEvent(frame: DecisionTrustOpenBrainFrame): OpenBrainEventR
         missing_evidence: frame.missing_evidence.map((item) => sanitizeDecisionTrustText(item, 160)).slice(0, 6),
         evidence_summary: evidenceSummary(frame),
       },
+      ...(frame.decision_trust_enforcement ? {
+        decisionTrustEnforcement: {
+          mode: frame.decision_trust_enforcement.mode,
+          gate: frame.decision_trust_enforcement.gate,
+          may_proceed: frame.decision_trust_enforcement.may_proceed,
+          requires_approval: frame.decision_trust_enforcement.requires_approval,
+          should_block: frame.decision_trust_enforcement.should_block,
+          approval_type: frame.decision_trust_enforcement.approval_type
+            ? sanitizeDecisionTrustText(frame.decision_trust_enforcement.approval_type, 140)
+            : null,
+          reason: sanitizeDecisionTrustText(frame.decision_trust_enforcement.reason, 280),
+        },
+      } : {}),
     },
   }
 }

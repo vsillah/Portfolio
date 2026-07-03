@@ -229,6 +229,21 @@ describe('Open Brain projection', () => {
           approval_type: 'payment_make_vendor_payment',
           reversibility: 'hard',
           occurred_at: '2026-05-27T12:00:00.000Z',
+          decision_trust_enforcement: {
+            mode: 'soft_gate',
+            gate: 'human_review',
+            may_proceed: false,
+            requires_approval: true,
+            should_block: false,
+            approval_type: 'payment_make_vendor_payment',
+            reason: 'Soft-gate mode requires human approval before this Decision Trust frame can produce a side effect.',
+            evidence: {
+              decision_id: 'decision-payment',
+              linked_run_id: 'run-trust',
+              selected_candidate: 'make_vendor_payment',
+              missing_evidence: ['Human approval decision'],
+            },
+          },
         },
       ],
     })
@@ -245,6 +260,12 @@ describe('Open Brain projection', () => {
         type: 'event',
         kind: 'agent_decision_trust_observed',
         decisionTrustGate: 'human_review',
+        decisionTrustEnforcement: expect.objectContaining({
+          mode: 'soft_gate',
+          gate: 'human_review',
+          requiresApproval: true,
+          shouldBlock: false,
+        }),
       }),
     ]))
     expect(snapshot.relationshipMap.insights).toEqual(expect.arrayContaining([

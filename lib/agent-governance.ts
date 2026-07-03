@@ -65,6 +65,22 @@ export type GovernanceExportSummary = {
   created_at: string
 }
 
+export type DecisionTrustEnforcementSummary = {
+  mode: 'shadow' | 'advisory' | 'soft_gate' | 'hard_block'
+  gate: DecisionTrustGate
+  may_proceed: boolean
+  requires_approval: boolean
+  should_block: boolean
+  approval_type: string | null
+  reason: string
+  evidence: {
+    decision_id: string | null
+    linked_run_id: string | null
+    selected_candidate: string | null
+    missing_evidence: string[]
+  }
+}
+
 export type AgentGovernanceSnapshot = {
   generated_at: string
   summary: {
@@ -96,6 +112,7 @@ export type AgentGovernanceSnapshot = {
     approval_gate: string | null
     fallback_agent_key: string | null
     alternatives_considered: string[]
+    decision_trust_enforcement: DecisionTrustEnforcementSummary | null
   }>
   recent_decision_trust_frames: Array<{
     run_id: string
@@ -113,6 +130,7 @@ export type AgentGovernanceSnapshot = {
     approval_type: string | null
     reversibility: string
     occurred_at: string
+    decision_trust_enforcement: DecisionTrustEnforcementSummary | null
   }>
   recent_governance_exports: GovernanceExportSummary[]
 }
@@ -290,6 +308,7 @@ function authorityApprovalSummary(approval: GovernanceApprovalSummary): Governan
         side_effect_boundary: metadataString(actionPayload, 'side_effect_boundary'),
         executes_action: actionPayload?.executes_action === true,
       },
+      decision_trust_enforcement: decisionTrustEnforcementSummary(metadata?.decision_trust_enforcement),
     },
   }
 }
@@ -316,6 +335,7 @@ function recentDelegationDecisions(events: GovernanceEventSummary[]): AgentGover
         approval_gate: metadataString(metadata, 'approval_gate'),
         fallback_agent_key: metadataString(metadata, 'fallback_agent_key'),
         alternatives_considered: metadataStringArray(metadata, 'alternatives_considered'),
+        decision_trust_enforcement: decisionTrustEnforcementSummary(metadata?.decision_trust_enforcement),
       }]
     })
     .slice(0, 5)
@@ -344,6 +364,39 @@ function isDecisionType(value: string | null): value is AgentDecisionType {
 
 function isDecisionTrustGate(value: string | null): value is DecisionTrustGate {
   return value === 'allow' || value === 'sandbox' || value === 'human_review' || value === 'block'
+}
+
+function isDecisionTrustEnforcementMode(value: string | null): value is DecisionTrustEnforcementSummary['mode'] {
+  return value === 'shadow' || value === 'advisory' || value === 'soft_gate' || value === 'hard_block'
+}
+
+function metadataBoolean(record: Record<string, unknown> | null, key: string) {
+  return record?.[key] === true
+}
+
+function decisionTrustEnforcementSummary(value: unknown): DecisionTrustEnforcementSummary | null {
+  const record = metadataRecord(value)
+  if (!record) return null
+  const evidence = metadataRecord(record.evidence)
+  const mode = safeMetadataString(record, 'mode')
+  const gate = safeMetadataString(record, 'gate')
+  if (!isDecisionTrustEnforcementMode(mode) || !isDecisionTrustGate(gate)) return null
+
+  return {
+    mode,
+    gate,
+    may_proceed: metadataBoolean(record, 'mayProceed'),
+    requires_approval: metadataBoolean(record, 'requiresApproval'),
+    should_block: metadataBoolean(record, 'shouldBlock'),
+    approval_type: safeMetadataString(record, 'approvalType'),
+    reason: safeMetadataString(record, 'reason') ?? 'Decision Trust enforcement posture recorded.',
+    evidence: {
+      decision_id: safeMetadataString(evidence, 'decisionId'),
+      linked_run_id: safeMetadataString(evidence, 'linkedRunId'),
+      selected_candidate: safeMetadataString(evidence, 'selectedCandidate'),
+      missing_evidence: metadataSafeStringArray(evidence, 'missingEvidence'),
+    },
+  }
 }
 
 export function parseDecisionTrustFrames(
@@ -380,6 +433,7 @@ export function parseDecisionTrustFrames(
         approval_type: safeMetadataString(metadata, 'approval_type'),
         reversibility: safeMetadataString(metadata, 'reversibility') ?? 'unknown',
         occurred_at: event.occurred_at,
+        decision_trust_enforcement: decisionTrustEnforcementSummary(metadata?.decision_trust_enforcement),
       }]
     })
     .slice(0, limit)

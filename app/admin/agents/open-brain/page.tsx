@@ -1122,6 +1122,11 @@ function SelectedRelationshipRecordPanel({
           Decision trust gate: {node.decisionTrustGate.replace(/_/g, ' ')}
         </p>
       ) : null}
+      {node.decisionTrustEnforcement ? (
+        <p className="mt-3 rounded-lg border border-radiant-gold/25 bg-radiant-gold/10 p-3 text-xs text-radiant-gold">
+          Decision trust enforcement: {formatDecisionTrustEnforcement(node.decisionTrustEnforcement)}
+        </p>
+      ) : null}
 
       <div className="mt-4">
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Connected relationships</p>
@@ -1269,6 +1274,19 @@ function decisionTrustCount(nodes: OpenBrainSnapshot['relationshipMap']['nodes']
   if (value === 'decision_trust') return nodes.filter((node) => node.kind === 'agent_decision_trust_observed').length
   if (value === 'high_risk_gate') return nodes.filter((node) => node.decisionTrustGate === 'human_review' || node.decisionTrustGate === 'block').length
   return nodes.length
+}
+
+function formatDecisionTrustEnforcement(
+  enforcement: NonNullable<OpenBrainSnapshot['relationshipMap']['nodes'][number]['decisionTrustEnforcement']>,
+) {
+  const decision = enforcement.shouldBlock
+    ? 'blocks'
+    : enforcement.requiresApproval
+      ? 'requires approval'
+      : enforcement.mayProceed
+        ? 'may proceed'
+        : 'holds'
+  return `${enforcement.mode.replace(/_/g, ' ')} · ${enforcement.gate.replace(/_/g, ' ')} · ${decision}`
 }
 
 function strongestPrivacyTier(tiers: Array<OpenBrainPrivacyTier | undefined>): OpenBrainPrivacyTier {
