@@ -26,24 +26,28 @@ const documentSeeds = [
     fileName: 'Firespring-Template-Comparison-for-KMB.pdf',
     documentType: 'strategy_report',
     displayOrder: 1,
+    alsoAttachAsProposalPdf: false,
   },
   {
     title: 'KMB Website UX Redesign Implementation Strategy',
     fileName: 'KMB-Website-UX-Redesign-Implementation-Strategy (1).pdf',
     documentType: 'strategy_report',
     displayOrder: 2,
+    alsoAttachAsProposalPdf: false,
   },
   {
     title: 'The Cost of Standing Still: KMB Opportunity Quantification',
     fileName: 'The-Cost-of-Standing-Still-KMB-Opportunity-Quantification (2).pdf',
     documentType: 'opportunity_quantification',
     displayOrder: 3,
+    alsoAttachAsProposalPdf: false,
   },
   {
     title: 'Website Redesign Primer',
     fileName: 'My-Website-Needs-a-Redesign-Where-do-I-Start.pdf',
     documentType: 'other',
     displayOrder: 4,
+    alsoAttachAsProposalPdf: false,
   },
 ] as const
 
