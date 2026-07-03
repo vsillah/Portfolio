@@ -65,6 +65,24 @@ describe('visual asset admin routes', () => {
     }))
   })
 
+  it('treats explicit all candidate filters as unrestricted', async () => {
+    const { GET } = await import('./candidates/route')
+    mocks.listVisualAssetCandidates.mockResolvedValue([{ id: 'candidate-1' }])
+    const url = '/api/admin/visual-assets/candidates?status=all&entity_type=all&theme=all&candidate_state=all&limit=5000'
+
+    const response = await GET(request(url))
+    expectResponse(response)
+
+    expect(response.status).toBe(200)
+    expect(mocks.listVisualAssetCandidates).toHaveBeenCalledWith({
+      status: undefined,
+      entityType: undefined,
+      theme: undefined,
+      candidateState: undefined,
+      limit: 250,
+    })
+  })
+
   it('audit creates candidates without applying approved assets', async () => {
     const { POST } = await import('./audit/route')
     mocks.auditVisualAssets.mockResolvedValue({ entitiesScanned: 4, candidatesCreated: 2, candidates: [] })
@@ -108,6 +126,58 @@ describe('visual asset admin routes', () => {
 
     expect(response.status).toBe(401)
     expect(mocks.reviewVisualAssetCandidate).not.toHaveBeenCalled()
+  })
+
+  it('approves a candidate with the authenticated reviewer and review reason', async () => {
+    const { POST } = await import('./[id]/approve/route')
+    mocks.reviewVisualAssetCandidate.mockResolvedValue({
+      id: 'candidate-1',
+      status: 'approved',
+      reviewed_by: 'admin-1',
+      metadata: { review_reason: 'Strong feature signal' },
+    })
+
+    const response = await POST(request('/api/admin/visual-assets/candidate-1/approve', {
+      method: 'POST',
+      body: JSON.stringify({ reason: 'Strong feature signal' }),
+    }), { params: { id: 'candidate-1' } })
+    expectResponse(response)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.candidate).toMatchObject({ id: 'candidate-1', status: 'approved' })
+    expect(mocks.reviewVisualAssetCandidate).toHaveBeenCalledWith({
+      id: 'candidate-1',
+      status: 'approved',
+      reviewedBy: 'admin-1',
+      reason: 'Strong feature signal',
+    })
+  })
+
+  it('rejects a candidate without accepting a non-string review reason', async () => {
+    const { POST } = await import('./[id]/reject/route')
+    mocks.reviewVisualAssetCandidate.mockResolvedValue({
+      id: 'candidate-2',
+      status: 'rejected',
+      reviewed_by: 'admin-1',
+      metadata: {},
+    })
+
+    const response = await POST(request('/api/admin/visual-assets/candidate-2/reject', {
+      method: 'POST',
+      body: JSON.stringify({ reason: { text: 'nope' } }),
+    }), { params: { id: 'candidate-2' } })
+    expectResponse(response)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.candidate).toMatchObject({ id: 'candidate-2', status: 'rejected' })
+    expect(mocks.reviewVisualAssetCandidate).toHaveBeenCalledWith({
+      id: 'candidate-2',
+      status: 'rejected',
+      reviewedBy: 'admin-1',
+      reason: undefined,
+    })
   })
 
   it('apply-approved only calls the approved candidate apply helper', async () => {
