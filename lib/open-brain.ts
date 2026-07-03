@@ -197,6 +197,14 @@ export interface OpenBrainRelationshipNode {
   path: string | null
   health: 'green' | 'yellow' | 'red'
   decisionTrustGate?: string | null
+  decisionTrustEnforcement?: {
+    mode: string
+    gate: string
+    mayProceed: boolean
+    requiresApproval: boolean
+    shouldBlock: boolean
+    reason: string
+  } | null
   x: number
   y: number
 }
@@ -1966,6 +1974,7 @@ function memoryToRelationshipNode(memory: OpenBrainMemoryRecord, index: number):
 function eventToRelationshipNode(event: OpenBrainEventRecord, index: number): OpenBrainRelationshipNode {
   const point = relationshipPoint('event', event.kind, index)
   const decisionTrust = decisionTrustMetadataFromEvent(event)
+  const decisionTrustEnforcement = decisionTrustEnforcementMetadataFromEvent(event)
   return {
     id: event.id,
     label: event.title,
@@ -1982,6 +1991,7 @@ function eventToRelationshipNode(event: OpenBrainEventRecord, index: number): Op
           ? 'yellow'
           : event.confidence >= 0.75 ? 'green' : 'yellow',
     decisionTrustGate: decisionTrust?.recommendedGate ?? null,
+    decisionTrustEnforcement,
     x: point.x,
     y: point.y,
   }
@@ -1994,6 +2004,23 @@ function decisionTrustMetadataFromEvent(event: OpenBrainEventRecord) {
   const recommendedGate = stringFromMetadata(record.recommended_gate)
   if (!recommendedGate) return null
   return { recommendedGate }
+}
+
+function decisionTrustEnforcementMetadataFromEvent(event: OpenBrainEventRecord): OpenBrainRelationshipNode['decisionTrustEnforcement'] {
+  const value = event.metadata?.decisionTrustEnforcement ?? event.metadata?.decision_trust_enforcement
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+  const record = value as Record<string, unknown>
+  const mode = stringFromMetadata(record.mode)
+  const gate = stringFromMetadata(record.gate)
+  if (!mode || !gate) return null
+  return {
+    mode,
+    gate,
+    mayProceed: record.may_proceed === true || record.mayProceed === true,
+    requiresApproval: record.requires_approval === true || record.requiresApproval === true,
+    shouldBlock: record.should_block === true || record.shouldBlock === true,
+    reason: stringFromMetadata(record.reason) ?? 'Decision Trust enforcement posture recorded.',
+  }
 }
 
 function wikiToRelationshipNode(page: OpenBrainWikiPage, index: number): OpenBrainRelationshipNode {

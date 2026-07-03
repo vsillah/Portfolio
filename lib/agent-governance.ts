@@ -130,6 +130,7 @@ export type AgentGovernanceSnapshot = {
     approval_type: string | null
     reversibility: string
     occurred_at: string
+    decision_trust_enforcement: DecisionTrustEnforcementSummary | null
   }>
   recent_governance_exports: GovernanceExportSummary[]
 }
@@ -432,6 +433,7 @@ export function parseDecisionTrustFrames(
         approval_type: safeMetadataString(metadata, 'approval_type'),
         reversibility: safeMetadataString(metadata, 'reversibility') ?? 'unknown',
         occurred_at: event.occurred_at,
+        decision_trust_enforcement: decisionTrustEnforcementSummary(metadata?.decision_trust_enforcement),
       }]
     })
     .slice(0, limit)

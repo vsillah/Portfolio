@@ -82,6 +82,7 @@ export type AgentGovernanceSnapshot = {
     approval_type: string | null
     reversibility: string
     occurred_at: string
+    decision_trust_enforcement: DecisionTrustEnforcementSummary | null
   }>
   recent_governance_exports: Array<{
     id: string
@@ -345,6 +346,11 @@ function DecisionTrustPanel({ frames }: { frames: AgentGovernanceSnapshot['recen
           {latest.approval_type ? (
             <p className="mt-1 text-xs leading-5 text-muted-foreground">
               Approval: {latest.approval_type} · Reversibility: {latest.reversibility}
+            </p>
+          ) : null}
+          {latest.decision_trust_enforcement ? (
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">
+              Enforcement: {formatEnforcementPosture(latest.decision_trust_enforcement)}
             </p>
           ) : null}
         </Link>

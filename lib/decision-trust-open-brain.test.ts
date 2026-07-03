@@ -30,6 +30,7 @@ function frame(overrides: Partial<DecisionTrustOpenBrainFrame> = {}): DecisionTr
     approval_type: null,
     reversibility: 'easy',
     occurred_at: generatedAt,
+    decision_trust_enforcement: null,
     ...overrides,
   }
 }
@@ -85,6 +86,41 @@ describe('decision trust Open Brain projection', () => {
         status: 'inferred',
       }),
     ])
+  })
+
+  it('preserves sanitized enforcement posture on projected decision trust events', () => {
+    const projection = buildDecisionTrustOpenBrainProjection([
+      frame({
+        recommended_gate: 'human_review',
+        decision_trust_enforcement: {
+          mode: 'soft_gate',
+          gate: 'human_review',
+          may_proceed: false,
+          requires_approval: true,
+          should_block: false,
+          approval_type: 'payment_make_vendor_payment',
+          reason: 'Soft-gate mode requires human approval before this Decision Trust frame can produce a side effect.',
+          evidence: {
+            decision_id: 'decision-trust-1',
+            linked_run_id: 'run-trust-1',
+            selected_candidate: 'source:official-docs',
+            missing_evidence: ['Human approval decision'],
+          },
+        },
+      }),
+    ], { generatedAt })
+
+    expect(projection.events[0]?.metadata).toEqual(expect.objectContaining({
+      decisionTrustEnforcement: expect.objectContaining({
+        mode: 'soft_gate',
+        gate: 'human_review',
+        may_proceed: false,
+        requires_approval: true,
+        should_block: false,
+        approval_type: 'payment_make_vendor_payment',
+        reason: expect.stringContaining('Soft-gate mode'),
+      }),
+    }))
   })
 
   it('creates a review insight for a human-review frame', () => {

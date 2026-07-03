@@ -113,6 +113,21 @@ describe('agent governance', () => {
             recommended_gate: 'human_review',
             approval_type: 'payment_make_vendor_payment',
             reversibility: 'hard',
+            decision_trust_enforcement: {
+              mode: 'soft_gate',
+              gate: 'human_review',
+              mayProceed: false,
+              requiresApproval: true,
+              shouldBlock: false,
+              approvalType: 'payment_make_vendor_payment',
+              reason: 'Soft-gate mode requires human approval before this Decision Trust frame can produce a side effect.',
+              evidence: {
+                decisionId: 'decision-payment',
+                linkedRunId: 'run-trust',
+                selectedCandidate: 'make_vendor_payment',
+                missingEvidence: ['Human approval decision', 'private message export detail'],
+              },
+            },
           },
         },
         {
@@ -194,6 +209,17 @@ describe('agent governance', () => {
       selected_candidate: 'make_vendor_payment',
       recommended_gate: 'human_review',
       approval_type: 'payment_make_vendor_payment',
+      decision_trust_enforcement: {
+        mode: 'soft_gate',
+        gate: 'human_review',
+        may_proceed: false,
+        requires_approval: true,
+        should_block: false,
+        approval_type: 'payment_make_vendor_payment',
+        evidence: {
+          missing_evidence: ['Human approval decision', 'private source summary'],
+        },
+      },
     })
     expect(snapshot.recent_decision_trust_frames[0]?.missing_evidence.join(' ')).toContain('private source summary')
     expect(snapshot.recent_decision_trust_frames[0]?.missing_evidence.join(' ')).not.toContain('private chat export')

@@ -540,6 +540,14 @@ describe('OpenBrainPage', () => {
       path: '/admin/agents/runs/run-trust',
       health: 'yellow',
       decisionTrustGate: 'human_review',
+      decisionTrustEnforcement: {
+        mode: 'soft_gate',
+        gate: 'human_review',
+        mayProceed: false,
+        requiresApproval: true,
+        shouldBlock: false,
+        reason: 'Soft-gate mode requires human approval before this Decision Trust frame can produce a side effect.',
+      },
       x: 28,
       y: 82,
     })
@@ -592,6 +600,8 @@ describe('OpenBrainPage', () => {
     const map = await screen.findByRole('region', { name: 'Open Brain relationship map' })
     expect(within(map).getAllByText('Review decision trust: make_vendor_payment').length).toBeGreaterThan(0)
     expect(within(map).getByText('human review')).toBeInTheDocument()
+    fireEvent.click(within(map).getByRole('button', { name: 'Select Decision trust: make_vendor_payment' }))
+    expect(within(map).getByText('Decision trust enforcement: soft gate · human review · requires approval')).toBeInTheDocument()
 
     fireEvent.click(within(map).getByRole('button', { name: 'Human/block gate 1' }))
     expect(within(map).getByText('1 active filter(s)')).toBeInTheDocument()

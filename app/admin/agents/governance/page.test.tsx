@@ -153,6 +153,21 @@ const governance = {
       approval_type: 'payment_make_vendor_payment',
       reversibility: 'hard',
       occurred_at: '2026-05-13T12:00:00.000Z',
+      decision_trust_enforcement: {
+        mode: 'soft_gate',
+        gate: 'human_review',
+        may_proceed: false,
+        requires_approval: true,
+        should_block: false,
+        approval_type: 'payment_make_vendor_payment',
+        reason: 'Soft-gate mode requires human approval before this Decision Trust frame can produce a side effect.',
+        evidence: {
+          decision_id: 'decision-trust-1',
+          linked_run_id: 'trust-run',
+          selected_candidate: 'make_vendor_payment',
+          missing_evidence: ['Human approval decision'],
+        },
+      },
     },
   ],
   recent_governance_exports: [
@@ -205,7 +220,7 @@ describe('AgentGovernancePage', () => {
     expect(within(governancePanel).getByText('Create refund')).toBeInTheDocument()
     expect(within(governancePanel).getByText('No refund is issued until this payment authority checkpoint is approved and linked to a trace.')).toBeInTheDocument()
     expect(within(governancePanel).getByText(/Risk: high · Executes now: no/i)).toBeInTheDocument()
-    expect(within(governancePanel).getByText(/Enforcement: soft gate · human review · requires review/i)).toBeInTheDocument()
+    expect(within(governancePanel).getAllByText(/Enforcement: soft gate · human review · requires review/i).length).toBeGreaterThan(0)
     const decisionTrust = within(governancePanel).getByLabelText('Decision Trust')
     expect(within(decisionTrust).getByText('make_vendor_payment')).toBeInTheDocument()
     expect(within(decisionTrust).getByText(/spend · Create approval checkpoint for vendor payment/i)).toBeInTheDocument()
@@ -216,6 +231,7 @@ describe('AgentGovernancePage', () => {
     expect(within(decisionTrust).getByText('60%')).toBeInTheDocument()
     expect(within(decisionTrust).getByText(/Missing evidence: Human approval decision, Post-approval execution trace/i)).toBeInTheDocument()
     expect(within(decisionTrust).getByText(/Approval: payment_make_vendor_payment · Reversibility: hard/i)).toBeInTheDocument()
+    expect(within(decisionTrust).getByText(/Enforcement: soft gate · human review · requires review/i)).toBeInTheDocument()
     expect(within(decisionTrust).getByRole('link', { name: /Inspect in Open Brain/i })).toHaveAttribute('href', '/admin/agents/open-brain')
     expect(within(decisionTrust).getByRole('link', { name: /make_vendor_payment/i })).toHaveAttribute('href', '/admin/agents/runs/trust-run')
     expect(within(governancePanel).getByRole('link', { name: /Export client audit/i })).toHaveAttribute('href', '/api/admin/agents/governance/export?format=markdown')
