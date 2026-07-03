@@ -14,10 +14,11 @@ This register separates public-facing course material from private-derived voice
 
 Use these for voice, rhythm, and framing. Do not quote private exports.
 
-- `/Users/vambahsillah/Documents/Codex/2026-04-30/i-have-quite-a-bit-of/personality-corpus/agent-exports/core/personality_pack.md`
-- `/Users/vambahsillah/Documents/Codex/2026-04-30/i-have-quite-a-bit-of/personality-corpus/voice_and_style_guide.md`
-- `/Users/vambahsillah/Documents/Codex/2026-04-30/i-have-quite-a-bit-of/personality-corpus/personality_profile.md`
-- `/Users/vambahsillah/Documents/Codex/2026-04-30/i-have-quite-a-bit-of/personality-corpus/corpus_index.jsonl`
+- `/Users/vambahsillah/Projects/Portfolio/.local/personality-corpus/agent-exports/core/personality_pack.md`
+- `/Users/vambahsillah/Projects/Portfolio/.local/personality-corpus/voice_and_style_guide.md`
+- `/Users/vambahsillah/Projects/Portfolio/.local/personality-corpus/personality_profile.md`
+- `/Users/vambahsillah/Projects/Portfolio/.local/personality-corpus/corpus_index.jsonl`
+- Fallback only: `/Users/vambahsillah/Documents/Codex/2026-04-30/i-have-quite-a-bit-of/personality-corpus/`
 - `/Users/vambahsillah/Projects/Portfolio/docs/linkedin-voice.md`
 
 ## Video Production Sources

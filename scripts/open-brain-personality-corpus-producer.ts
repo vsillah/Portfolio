@@ -1,11 +1,22 @@
 #!/usr/bin/env tsx
 import { recordPersonalityCorpusProducerTrace } from '../lib/open-brain'
+import { resolvePersonalityCorpusPaths } from '../lib/personality-corpus-paths'
 
 async function main() {
   const result = await recordPersonalityCorpusProducerTrace()
+  const corpusPaths = resolvePersonalityCorpusPaths()
   const output = {
     status: result.status,
     reason: result.reason,
+    corpusPaths: {
+      activeHome: corpusPaths.activeHome,
+      activeSource: corpusPaths.activeSource,
+      preferredHome: corpusPaths.preferredHome,
+      legacyHome: corpusPaths.legacyHome,
+      publicSafeRagPack: corpusPaths.publicSafeRagPack,
+      exists: corpusPaths.exists,
+      rawPrivateExportsTracked: false,
+    },
     source: result.source ? {
       id: result.source.id,
       kind: result.source.kind,

@@ -195,7 +195,7 @@ Memory-producing systems should write Open Brain records in this order:
 
 Current producer routes:
 
-- Personality corpus: public-safe derived pack appears as a `personality_corpus` source; raw private exports remain outside public projections. Run `npm run open-brain:personality-corpus` to persist the public-safe source/event trace into `OPEN_BRAIN_HOME` without copying raw private corpus content.
+- Personality corpus: public-safe derived pack appears as a `personality_corpus` source; raw private exports remain outside public projections. The local private corpus home is `/Users/vambahsillah/Projects/Portfolio/.local/personality-corpus`; the old generated Codex path is compatibility fallback only. Run `npm run open-brain:personality-corpus` to persist the public-safe source/event trace into `OPEN_BRAIN_HOME` without copying raw private corpus content.
 - Codex automation inventory: Portfolio-related automation and repair-packet summaries appear as `codex_automation` and `repair_packet` sources. Run `npm run open-brain:automation-producer` to persist internal-ops source/event traces without copying raw automation prompts.
 - Agent Ops work items and handoffs: active work items appear as `work_item` sources and latest handoffs appear as `handoff` sources. Run `npm run open-brain:agent-ops-producer` to persist internal-ops source/event traces and deterministic review proposals for blocked or review-ready work without copying full work-item or handoff bodies.
 - Chatbot knowledge: `/api/knowledge` remains a public-safe projection, not canonical memory.
