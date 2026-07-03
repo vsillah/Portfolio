@@ -41,10 +41,26 @@ export type RecommendDecisionTrustEnforcementInput = {
   action?: AgentAction
 }
 
+export function resolveDecisionTrustEnforcementMode(
+  value: string | null | undefined,
+  fallback: DecisionTrustEnforcementMode = 'shadow',
+): DecisionTrustEnforcementMode {
+  const normalized = value?.trim().toLowerCase()
+  if (
+    normalized === 'shadow' ||
+    normalized === 'advisory' ||
+    normalized === 'soft_gate' ||
+    normalized === 'hard_block'
+  ) {
+    return normalized
+  }
+  return fallback
+}
+
 export function recommendDecisionTrustEnforcement(
   input: RecommendDecisionTrustEnforcementInput,
 ): DecisionTrustEnforcementRecommendation {
-  const mode = input.mode ?? 'shadow'
+  const mode = resolveDecisionTrustEnforcementMode(input.mode)
   const gate = input.frame.recommended_gate
   const approvalType = approvalTypeFor(input)
   const evidence = {
@@ -90,6 +106,19 @@ export function recommendDecisionTrustEnforcement(
       shouldBlock: true,
       approvalType,
       reason: 'Hard-block mode prevents blocked Decision Trust frames from executing until the evidence is corrected or explicitly overridden.',
+      evidence,
+    }
+  }
+
+  if (approvalType && gate !== 'human_review' && gate !== 'block') {
+    return {
+      mode,
+      gate,
+      mayProceed: false,
+      requiresApproval: true,
+      shouldBlock: false,
+      approvalType,
+      reason: 'Runtime policy requires human approval before this action can continue, regardless of the Decision Trust score.',
       evidence,
     }
   }

@@ -63,6 +63,11 @@ Mode behavior:
 
 The rollout should allow different surfaces to adopt modes independently. For example, technology bakeoff recommendations can stay `advisory` while spend authority actions move to `soft_gate`.
 
+Mode values should pass through `resolveDecisionTrustEnforcementMode(value, fallback)`.
+Invalid, missing, or emergency-disable values resolve to `shadow` by default so
+rollback is fail-open on execution impact while still preserving recorded
+Decision Trust evidence.
+
 ## Gate Contract
 
 V3 should preserve the current Decision Trust gate meanings:
@@ -184,6 +189,11 @@ Before turning on any non-shadow mode, add focused tests that prove:
 ## Rollback
 
 Rollback should be an environment or config change back to `shadow` or `advisory`.
+Until a central admin policy surface exists, route-level constants and any env
+or config adoption must use `resolveDecisionTrustEnforcementMode`. To roll back
+execution impact, set the affected surface to `shadow`. Use `advisory` only when
+operators still need warnings returned to the caller while side effects continue
+through the pre-existing Agent Ops policy.
 
 Rollback must preserve:
 
@@ -211,4 +221,3 @@ V3 is done when:
 - `block` decisions can be prevented in `hard_block` without mutating Open Brain,
 - Agent Governance and Open Brain make the enforcement posture visible,
 - rollback to `shadow` is documented and tested.
-

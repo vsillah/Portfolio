@@ -101,6 +101,15 @@ function buildActionPayload(input: {
   }
 }
 
+function decisionTrustRiskSignalsForProposal(proposal: ChiefOfStaffActionProposal) {
+  const text = `${proposal.label} ${proposal.description}`.toLowerCase()
+  const signals: string[] = []
+  if (/\b(domain mismatch|typosquat|impersonat|known.?bad|scam|contradict|excessive unexplained permission)\b/i.test(text)) {
+    signals.push('Domain mismatch or scam hard-block canary marker from proposal text')
+  }
+  return signals
+}
+
 function formatActionPayloadSummary(payload: ReturnType<typeof buildActionPayload>) {
   return [
     `# Approval Action Payload: ${payload.label}`,
@@ -180,13 +189,76 @@ export async function POST(request: NextRequest) {
       label: proposal.label,
       sourceRunId,
       approvalType,
+      riskSignals: decisionTrustRiskSignalsForProposal(proposal),
     })
     const decisionTrustEnforcement = recommendDecisionTrustEnforcement({
       frame: decisionTrustFrame,
-      mode: 'soft_gate',
+      mode: decisionTrustFrame.recommended_gate === 'block' ? 'hard_block' : 'soft_gate',
       action: proposal.action,
       runtime: 'codex',
     })
+
+    if (decisionTrustEnforcement.shouldBlock) {
+      const run = await startAgentRun({
+        agentKey: 'chief-of-staff',
+        runtime: 'manual',
+        kind: 'chief_of_staff_action_approval',
+        title: proposal.label,
+        status: 'failed',
+        subject: {
+          type: 'agent_run',
+          id: sourceRunId,
+          label: 'Chief of Staff recommendation',
+        },
+        triggerSource: 'admin_chief_of_staff_action',
+        triggeredByUserId: auth.user.id,
+        currentStep: 'Blocked by Decision Trust',
+        metadata: {
+          source_run_id: sourceRunId,
+          proposal,
+          action_payload: actionPayload,
+          decision_trust_frame: decisionTrustFrame,
+          decision_trust_enforcement: decisionTrustEnforcement,
+          executes_action: false,
+        },
+        idempotencyKey: `chief-of-staff-action-blocked:${sourceRunId}:${proposal.action}:${auth.user.id}:${Date.now()}`,
+      })
+
+      await recordAgentEvent({
+        runId: run.id,
+        eventType: AGENT_DECISION_TRUST_EVENT,
+        severity: 'error',
+        message: `${proposal.action}: ${decisionTrustFrame.recommended_gate}`,
+        metadata: decisionTrustFrame,
+        idempotencyKey: `${run.id}:decision-trust-recorded`,
+      }).catch(() => {})
+
+      await recordAgentEvent({
+        runId: run.id,
+        eventType: 'chief_of_staff_approval_blocked',
+        severity: 'error',
+        message: decisionTrustEnforcement.reason,
+        metadata: {
+          source_run_id: sourceRunId,
+          proposal,
+          action_payload: actionPayload,
+          decision_trust_frame: decisionTrustFrame,
+          decision_trust_enforcement: decisionTrustEnforcement,
+          executes_action: false,
+        },
+        idempotencyKey: `${run.id}:chief-of-staff-approval-blocked`,
+      }).catch(() => {})
+
+      return NextResponse.json({
+        ok: false,
+        run_id: run.id,
+        approval_required: false,
+        blocked: true,
+        recommended_gate: decisionTrustFrame.recommended_gate,
+        enforcement_mode: decisionTrustEnforcement.mode,
+        reason: decisionTrustEnforcement.reason,
+      }, { status: 409 })
+    }
 
     const run = await startAgentRun({
       agentKey: 'chief-of-staff',

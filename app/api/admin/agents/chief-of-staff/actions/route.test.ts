@@ -222,6 +222,64 @@ describe('POST /api/admin/agents/chief-of-staff/actions', () => {
     }))
   })
 
+  it('hard-blocks scam-like authority proposals before creating approval checkpoints', async () => {
+    const response = await POST(makeRequest({
+      source_run_id: 'chief-run-1',
+      proposal: {
+        label: 'Approve refund to suspicious destination',
+        description: 'Domain mismatch and possible impersonation in the payment destination.',
+        action: 'create_refund',
+        riskLevel: 'high',
+      },
+    }) as never)
+
+    expect(response.status).toBe(409)
+    expect(await response.json()).toMatchObject({
+      ok: false,
+      run_id: 'approval-run-1',
+      approval_required: false,
+      blocked: true,
+      recommended_gate: 'block',
+      enforcement_mode: 'hard_block',
+    })
+    expect(mocks.startAgentRun).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'failed',
+      currentStep: 'Blocked by Decision Trust',
+      metadata: expect.objectContaining({
+        decision_trust_frame: expect.objectContaining({
+          recommended_gate: 'block',
+          risk_signals: expect.arrayContaining(['Domain mismatch or scam hard-block canary marker from proposal text']),
+        }),
+        decision_trust_enforcement: expect.objectContaining({
+          mode: 'hard_block',
+          shouldBlock: true,
+        }),
+        executes_action: false,
+      }),
+    }))
+    expect(mocks.recordAgentEvent).toHaveBeenCalledWith(expect.objectContaining({
+      runId: 'approval-run-1',
+      eventType: 'agent_decision_trust_recorded',
+      severity: 'error',
+      message: 'create_refund: block',
+    }))
+    expect(mocks.recordAgentEvent).toHaveBeenCalledWith(expect.objectContaining({
+      runId: 'approval-run-1',
+      eventType: 'chief_of_staff_approval_blocked',
+      severity: 'error',
+      metadata: expect.objectContaining({
+        decision_trust_enforcement: expect.objectContaining({
+          mode: 'hard_block',
+          shouldBlock: true,
+        }),
+        executes_action: false,
+      }),
+    }))
+    expect(mocks.insert).not.toHaveBeenCalled()
+    expect(mocks.runAgentSlackNotificationSweep).not.toHaveBeenCalled()
+    expect(mocks.attachAgentArtifact).not.toHaveBeenCalled()
+  })
+
   it('rejects non-gated proposals', async () => {
     const response = await POST(makeRequest({
       source_run_id: 'chief-run-1',
