@@ -7,6 +7,68 @@ import VideoGenerationPage from './page'
 const mocks = vi.hoisted(() => ({
   getCurrentSession: vi.fn(),
   useWorkflowStatus: vi.fn(),
+  reviewPackets: [
+    {
+      assetId: 'packet-one',
+      priority: 'P0',
+      title: 'Packet One',
+      channel: 'YouTube',
+      output: 'Script',
+      sourceComponent: 'Source',
+      packetPath: 'docs/packet-one.md',
+      draftSource: 'docs/source.md',
+      challengerAgent: 'Amina',
+      challengerStatus: 'passed',
+      passToHuman: true,
+      approvalStatus: 'human_review_ready',
+      humanReview: 'Ready for review.',
+      nextGate: 'Render-readiness',
+      decisionPrompt: 'Review packet one.',
+      approveMeaning: 'Proceed to the next gate.',
+      sendBackMeaning: 'Send back for repair.',
+      targetSurface: 'video',
+    },
+    {
+      assetId: 'packet-two',
+      priority: 'P1',
+      title: 'Packet Two',
+      channel: 'Shorts',
+      output: 'Script',
+      sourceComponent: 'Source',
+      packetPath: 'docs/packet-two.md',
+      draftSource: 'docs/source.md',
+      challengerAgent: 'Amina',
+      challengerStatus: 'passed',
+      passToHuman: true,
+      approvalStatus: 'human_review_ready',
+      humanReview: 'Ready for review.',
+      nextGate: 'Render-readiness',
+      decisionPrompt: 'Review packet two.',
+      approveMeaning: 'Proceed to the next gate.',
+      sendBackMeaning: 'Send back for repair.',
+      targetSurface: 'video',
+    },
+    {
+      assetId: 'packet-three',
+      priority: 'P1',
+      title: 'Packet Three',
+      channel: 'Reels',
+      output: 'Script',
+      sourceComponent: 'Source',
+      packetPath: 'docs/packet-three.md',
+      draftSource: 'docs/source.md',
+      challengerAgent: 'Amina',
+      challengerStatus: 'passed',
+      passToHuman: true,
+      approvalStatus: 'human_review_ready',
+      humanReview: 'Ready for review.',
+      nextGate: 'Render-readiness',
+      decisionPrompt: 'Review packet three.',
+      approveMeaning: 'Proceed to the next gate.',
+      sendBackMeaning: 'Send back for repair.',
+      targetSurface: 'video',
+    },
+  ],
 }))
 
 vi.mock('@/lib/auth', () => ({
@@ -15,6 +77,22 @@ vi.mock('@/lib/auth', () => ({
 
 vi.mock('@/lib/hooks/useWorkflowStatus', () => ({
   useWorkflowStatus: mocks.useWorkflowStatus,
+}))
+
+vi.mock('@/lib/agentic-content-review-packets', () => ({
+  buildAgenticContentReviewActionHref: (packet: { assetId: string }, decision: string) => (
+    `/admin/agents/standup?asset=${packet.assetId}&decision=${decision}`
+  ),
+  getAgenticContentReviewPacketsForSurface: (surface: string) => (
+    surface === 'video' ? mocks.reviewPackets : []
+  ),
+}))
+
+vi.mock('@/lib/agentic-video-render-readiness-packets', () => ({
+  buildAgenticVideoRenderReadinessActionHref: (packet: { assetId: string }, decision: string) => (
+    `/admin/agents/standup?asset=${packet.assetId}&decision=${decision}`
+  ),
+  getAgenticVideoRenderReadinessPackets: () => [],
 }))
 
 vi.mock('@/components/ProtectedRoute', () => ({
@@ -83,6 +161,71 @@ const brollAsset = {
   captured_at: '2026-06-29T10:00:00.000Z',
 }
 
+function draftWith(overrides: Partial<typeof draft>) {
+  return {
+    ...draft,
+    ...overrides,
+  }
+}
+
+function stubVideoGenerationFetch(drafts: Array<typeof draft>) {
+  const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = input.toString()
+
+    if (url === '/api/admin/video-generation/ideas-queue?status=pending') {
+      return jsonResponse({ items: drafts })
+    }
+    if (url === '/api/admin/video-generation/queue?status=pending') {
+      return jsonResponse({ items: [] })
+    }
+    if (url === '/api/admin/video-generation/broll-library') {
+      return jsonResponse({ assets: [brollAsset] })
+    }
+    if (url === '/api/admin/video-generation/script-templates') {
+      return jsonResponse({ templates: [] })
+    }
+    if (url.startsWith('/api/admin/video-generation/jobs?')) {
+      return jsonResponse({ jobs: [], total: 0 })
+    }
+    if (url.startsWith('/api/admin/video-generation/meetings?')) {
+      return jsonResponse({ meetings: [], total: 0 })
+    }
+    if (url === '/api/admin/video-generation/avatars') {
+      return jsonResponse({ avatars: [] })
+    }
+    if (url.startsWith('/api/admin/contacts-search?')) {
+      return jsonResponse({ contacts: [] })
+    }
+    if (url === '/api/admin/video-generation/ideas-queue/draft-actual-123/render-readiness') {
+      expect(init?.method).toBe('POST')
+      expect(JSON.parse(String(init?.body))).toMatchObject({
+        channel: 'youtube',
+        aspectRatio: '16:9',
+        brollAssetIds: ['broll-dashboard'],
+      })
+      return jsonResponse({
+        report: {
+          ready: true,
+          blockingIssues: [],
+          warnings: [],
+          details: {
+            scriptCharacters: draft.script_text.length,
+            storyboardScenes: 1,
+            brollAssetIds: ['broll-dashboard'],
+            heygenMode: 'avatar_voice',
+            approvalBoundary: 'Readiness check passed.',
+            scriptScorecard: draft.script_scorecard,
+          },
+        },
+      })
+    }
+
+    return jsonResponse({})
+  })
+  vi.stubGlobal('fetch', fetchMock)
+  return fetchMock
+}
+
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -111,60 +254,7 @@ describe('VideoGenerationPage review workspace', () => {
   })
 
   it('checks render readiness with the selected draft id', async () => {
-    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-      const url = input.toString()
-
-      if (url === '/api/admin/video-generation/ideas-queue?status=pending') {
-        return jsonResponse({ items: [draft] })
-      }
-      if (url === '/api/admin/video-generation/queue?status=pending') {
-        return jsonResponse({ items: [] })
-      }
-      if (url === '/api/admin/video-generation/broll-library') {
-        return jsonResponse({ assets: [brollAsset] })
-      }
-      if (url === '/api/admin/video-generation/script-templates') {
-        return jsonResponse({ templates: [] })
-      }
-      if (url.startsWith('/api/admin/video-generation/jobs?')) {
-        return jsonResponse({ jobs: [], total: 0 })
-      }
-      if (url.startsWith('/api/admin/video-generation/meetings?')) {
-        return jsonResponse({ meetings: [], total: 0 })
-      }
-      if (url === '/api/admin/video-generation/avatars') {
-        return jsonResponse({ avatars: [] })
-      }
-      if (url.startsWith('/api/admin/contacts-search?')) {
-        return jsonResponse({ contacts: [] })
-      }
-      if (url === '/api/admin/video-generation/ideas-queue/draft-actual-123/render-readiness') {
-        expect(init?.method).toBe('POST')
-        expect(JSON.parse(String(init?.body))).toMatchObject({
-          channel: 'youtube',
-          aspectRatio: '16:9',
-          brollAssetIds: ['broll-dashboard'],
-        })
-        return jsonResponse({
-          report: {
-            ready: true,
-            blockingIssues: [],
-            warnings: [],
-            details: {
-              scriptCharacters: draft.script_text.length,
-              storyboardScenes: 1,
-              brollAssetIds: ['broll-dashboard'],
-              heygenMode: 'avatar_voice',
-              approvalBoundary: 'Readiness check passed.',
-              scriptScorecard: draft.script_scorecard,
-            },
-          },
-        })
-      }
-
-      return jsonResponse({})
-    })
-    vi.stubGlobal('fetch', fetchMock)
+    const fetchMock = stubVideoGenerationFetch([draft])
 
     render(<VideoGenerationPage />)
 
@@ -184,5 +274,36 @@ describe('VideoGenerationPage review workspace', () => {
       expect.stringContaining('[object Object]'),
       expect.anything(),
     )
+  })
+
+  it('paginates the review queue and selects the first item on the next page', async () => {
+    stubVideoGenerationFetch([
+      draftWith({ id: 'draft-one', title: 'Draft One' }),
+      draftWith({ id: 'draft-two', title: 'Draft Two' }),
+    ])
+
+    render(<VideoGenerationPage />)
+
+    expect(await screen.findByText('1-4 of 5')).toBeInTheDocument()
+    expect(screen.getByText('Page 1 / 2')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Packet One/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Draft One/i })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Draft Two/i })).not.toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('button', { name: /Next/i }))
+
+    expect(await screen.findByText('5-5 of 5')).toBeInTheDocument()
+    expect(screen.getByText('Page 2 / 2')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Packet One/i })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Draft Two/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Draft Two' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Next/i })).toBeDisabled()
+
+    await userEvent.click(screen.getByRole('button', { name: /Prev/i }))
+
+    expect(await screen.findByText('1-4 of 5')).toBeInTheDocument()
+    expect(screen.getByText('Page 1 / 2')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Packet One/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Packet One' })).toBeInTheDocument()
   })
 })
