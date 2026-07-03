@@ -2,7 +2,6 @@
 
 import path from 'path'
 import * as dotenv from 'dotenv'
-import { captureVisualAssetCandidates } from '@/lib/visual-assets'
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') })
 
@@ -12,6 +11,7 @@ function candidateIds() {
 }
 
 async function main() {
+  const { captureVisualAssetCandidates } = await import('@/lib/visual-assets')
   const result = await captureVisualAssetCandidates({
     candidateIds: candidateIds(),
     noStartServer: process.argv.includes('--no-start-server'),
@@ -19,6 +19,8 @@ async function main() {
 
   console.log(JSON.stringify({
     captured: result.captured,
+    passed: result.passed,
+    blocked: result.blocked,
     candidateIds: result.candidates.map((candidate) => candidate.id),
   }, null, 2))
 }

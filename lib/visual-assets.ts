@@ -4,7 +4,6 @@ import path from 'path'
 import sharp from 'sharp'
 import { createAgentWorkItem } from '@/lib/agent-work-items'
 import { captureBroll, type RouteConfig } from '@/lib/playtest-broll'
-import { resolveStoreScreenshotRoute } from '@/lib/product-screenshot-routes'
 import { supabaseAdmin } from '@/lib/supabase'
 
 export const VISUAL_ASSET_ENTITY_TYPES = ['product', 'service', 'prototype'] as const
@@ -174,14 +173,15 @@ export function resolveVisualAssetRoute(entity: {
   serviceType?: string | null
 }) {
   if (entity.entityType === 'product') {
-    return resolveStoreScreenshotRoute({
-      title: entity.title,
-      type: entity.type ?? 'template',
-    })
+    return {
+      route: `/store/${encodeURIComponent(entity.entityId)}?visualCapture=1`,
+      requiresAdminAuth: false,
+      fullPage: false,
+    }
   }
   if (entity.entityType === 'service') {
     return {
-      route: `/services/${encodeURIComponent(entity.entityId)}`,
+      route: `/services/${encodeURIComponent(entity.entityId)}?visualCapture=1`,
       requiresAdminAuth: false,
       fullPage: false,
     }
@@ -209,7 +209,7 @@ export async function scoreImageBuffer(buffer: Buffer): Promise<VisualAssetScore
 
   let lightPixels = 0
   let darkPixels = 0
-  let blankPixels = 0
+  let extremePixels = 0
   let edgePixels = 0
   const luminance: number[] = []
   for (let i = 0; i < raw.length; i += 3) {
@@ -217,7 +217,7 @@ export async function scoreImageBuffer(buffer: Buffer): Promise<VisualAssetScore
     luminance.push(l)
     if (l > 0.82) lightPixels += 1
     if (l < 0.18) darkPixels += 1
-    if (l > 0.92 || l < 0.06) blankPixels += 1
+    if (l > 0.92 || l < 0.06) extremePixels += 1
   }
 
   for (let y = 1; y < sampleHeight; y += 1) {
@@ -232,10 +232,11 @@ export async function scoreImageBuffer(buffer: Buffer): Promise<VisualAssetScore
   }
 
   const pixelCount = sampleWidth * sampleHeight
-  const blankSpaceRatio = blankPixels / pixelCount
+  const rawExtremeSpaceRatio = extremePixels / pixelCount
   const lightPixelRatio = lightPixels / pixelCount
   const darkPixelRatio = darkPixels / pixelCount
   const edgeDensity = edgePixels / pixelCount
+  const blankSpaceRatio = Math.max(0, rawExtremeSpaceRatio - edgeDensity * 3)
   const reasonCodes: VisualAssetReasonCode[] = []
 
   if (width < MIN_WIDTH || height < MIN_HEIGHT) reasonCodes.push('low_resolution')
@@ -588,7 +589,8 @@ function toRouteConfig(candidate: VisualAssetCandidate): RouteConfig {
     fullPage: false,
     colorScheme: candidate.theme,
     viewport: { width: 1440, height: 900 },
-    waitForSelector: 'body',
+    waitForSelector: '[data-visual-capture-frame]',
+    screenshotSelector: '[data-visual-capture-frame]',
   }
 }
 
@@ -627,13 +629,12 @@ export async function captureVisualAssetCandidates(input: {
   let query = db(client)
     .from('visual_asset_candidates')
     .select('*')
-    .eq('status', 'proposed')
     .order('created_at', { ascending: true })
 
   if (input.candidateIds?.length) {
-    query = query.in('id', input.candidateIds)
+    query = query.in('id', input.candidateIds).in('status', ['proposed', 'failed'])
   } else {
-    query = query.is('candidate_url', null)
+    query = query.eq('status', 'proposed').is('candidate_url', null)
   }
 
   const { data, error } = await query
@@ -660,15 +661,15 @@ export async function captureVisualAssetCandidates(input: {
     if (!screenshotPath) {
       const failureScore = emptyScore('image_load_failure')
       const agentReview = reviewVisualAssetCandidateQuality(candidate, failureScore)
-      const reasonCodes = Array.from(new Set([...candidate.reason_codes, ...agentReview.reason_codes]))
       const { data: row, error: updateError } = await db(client)
         .from('visual_asset_candidates')
         .update({
           status: 'failed',
           score: failureScore.score,
-          reason_codes: reasonCodes,
+          reason_codes: agentReview.reason_codes,
           metadata: {
             ...asMetadata(candidate.metadata),
+            audit_reason_codes: candidate.reason_codes,
             agent_review: agentReview,
             capture_error: 'No screenshot was produced for this candidate.',
             captured_at: new Date().toISOString(),
@@ -685,7 +686,6 @@ export async function captureVisualAssetCandidates(input: {
     }
     const upload = await uploadCandidateImage({ candidate, filePath: screenshotPath, client })
     const agentReview = reviewVisualAssetCandidateQuality(candidate, upload.score)
-    const reasonCodes = Array.from(new Set([...candidate.reason_codes, ...agentReview.reason_codes]))
     const status: VisualAssetStatus = agentReview.decision === 'passed' ? 'proposed' : 'failed'
     const { data: row, error: updateError } = await db(client)
       .from('visual_asset_candidates')
@@ -694,9 +694,10 @@ export async function captureVisualAssetCandidates(input: {
         candidate_url: upload.publicUrl,
         candidate_storage_path: upload.storagePath,
         score: upload.score.score,
-        reason_codes: reasonCodes,
+        reason_codes: agentReview.reason_codes,
         metadata: {
           ...asMetadata(candidate.metadata),
+          audit_reason_codes: candidate.reason_codes,
           candidate_image_score: upload.score.metadata,
           agent_review: agentReview,
           captured_at: new Date().toISOString(),

@@ -139,13 +139,13 @@ describe('visual asset helpers', () => {
       entityId: '1',
       title: 'Diagnostic Template',
       type: 'template',
-    })).toMatchObject({ route: '/tools/audit' })
+    })).toMatchObject({ route: '/store/1?visualCapture=1' })
 
     expect(resolveVisualAssetRoute({
       entityType: 'service',
       entityId: 'svc-1',
       title: 'AI Advisory',
-    })).toMatchObject({ route: '/services/svc-1' })
+    })).toMatchObject({ route: '/services/svc-1?visualCapture=1' })
   })
 
   it('scores blank light screenshots with deterministic reason codes', async () => {
