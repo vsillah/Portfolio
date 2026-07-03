@@ -330,7 +330,15 @@ export interface OpenBrainPersonalityCorpusProducerTrace {
   status: 'recorded' | 'missing'
   source: OpenBrainSourceRecord | null
   event: OpenBrainEventRecord | null
+  proposals: OpenBrainProposalRecord[]
   reason: string | null
+  overview: {
+    sourcesRecorded: number
+    eventsRecorded: number
+    proposalsRecorded: number
+    rawPrivateExportsIncluded: false
+    durableMemoryPromoted: false
+  }
 }
 
 export interface OpenBrainAutomationProducerTrace {
@@ -736,7 +744,15 @@ export async function recordPersonalityCorpusProducerTrace(
       status: 'missing',
       source: null,
       event: null,
+      proposals: [],
       reason: 'Public-safe personality corpus pack was not found in the Portfolio knowledge projection.',
+      overview: {
+        sourcesRecorded: 0,
+        eventsRecorded: 0,
+        proposalsRecorded: 0,
+        rawPrivateExportsIncluded: false,
+        durableMemoryPromoted: false,
+      },
     }
   }
 
@@ -759,12 +775,24 @@ export async function recordPersonalityCorpusProducerTrace(
       rawPrivateExportsIncluded: false,
     },
   }, openBrainHome)
+  const proposals = await persistGeneratedOpenBrainProposals(
+    buildPersonalityCorpusMemoryProposals(source, generatedAt),
+    openBrainHome,
+  )
 
   return {
     status: 'recorded',
     source,
     event,
+    proposals,
     reason: null,
+    overview: {
+      sourcesRecorded: 1,
+      eventsRecorded: 1,
+      proposalsRecorded: proposals.length,
+      rawPrivateExportsIncluded: false,
+      durableMemoryPromoted: false,
+    },
   }
 }
 
@@ -2241,6 +2269,38 @@ function buildAgentOpsReviewProposals(items: AgentWorkItem[], generatedAt: strin
         reviewReason: null,
       }
     })
+}
+
+function buildPersonalityCorpusMemoryProposals(
+  source: OpenBrainSourceRecord,
+  generatedAt: string,
+): OpenBrainProposalRecord[] {
+  return [
+    {
+      id: `proposal:personality-corpus:${source.id.replace(/[^a-z0-9-]+/gi, '-')}`,
+      status: 'pending',
+      proposedMemory: {
+        kind: 'workflow',
+        title: 'Approve personality corpus as public-safe projection input',
+        body: sanitizeOpenBrainText([
+          'The Portfolio personality corpus public-safe pack is eligible to be used as a downstream projection input for agent context, chatbot knowledge, and future RAG staging.',
+          'It is a derived summary, not raw private export text.',
+          'Approving this proposal promotes only the public-safe projection rule and source provenance into durable Open Brain memory.',
+          'Raw private exports remain local-only and must not be copied into wiki pages, chatbot knowledge, public docs, or Pinecone.',
+        ].join(' ')),
+        privacyTier: 'public_safe',
+        confidence: Math.min(source.confidence, 0.88),
+        sourceIds: [source.id],
+      },
+      sourceIds: [source.id],
+      reason: 'Generated from the public-safe personality corpus source observation. Requires approval before becoming durable Open Brain memory or downstream RAG projection context.',
+      createdBy: 'open-brain-personality-corpus-producer',
+      createdAt: generatedAt,
+      reviewedAt: null,
+      reviewedBy: null,
+      reviewReason: null,
+    },
+  ]
 }
 
 function buildAutoResearchMemoryProposals(

@@ -34,6 +34,17 @@ async function main() {
       fingerprint: result.event.fingerprint,
       metadata: result.event.metadata,
     } : null,
+    proposals: result.proposals.map((proposal) => ({
+      id: proposal.id,
+      status: proposal.status,
+      title: proposal.proposedMemory.title,
+      kind: proposal.proposedMemory.kind,
+      privacyTier: proposal.proposedMemory.privacyTier,
+      sourceIds: proposal.sourceIds,
+      reason: proposal.reason,
+      durableMemoryPromoted: false,
+    })),
+    overview: result.overview,
   }
 
   process.stdout.write(`${JSON.stringify(output, null, 2)}\n`)

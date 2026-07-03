@@ -590,6 +590,13 @@ describe('Open Brain projection', () => {
 
     expect(first.status).toBe('recorded')
     expect(second.status).toBe('recorded')
+    expect(first.overview).toEqual({
+      sourcesRecorded: 1,
+      eventsRecorded: 1,
+      proposalsRecorded: 1,
+      rawPrivateExportsIncluded: false,
+      durableMemoryPromoted: false,
+    })
     expect(first.source).toEqual(expect.objectContaining({
       id: 'personality-corpus:public-safe',
       kind: 'personality_corpus',
@@ -604,10 +611,28 @@ describe('Open Brain projection', () => {
         rawPrivateExportsIncluded: false,
       }),
     }))
+    expect(first.proposals).toEqual([
+      expect.objectContaining({
+        id: 'proposal:personality-corpus:personality-corpus-public-safe',
+        status: 'pending',
+        proposedMemory: expect.objectContaining({
+          kind: 'workflow',
+          title: 'Approve personality corpus as public-safe projection input',
+          privacyTier: 'public_safe',
+          sourceIds: ['personality-corpus:public-safe'],
+        }),
+        sourceIds: ['personality-corpus:public-safe'],
+        createdBy: 'open-brain-personality-corpus-producer',
+      }),
+    ])
     expect(first.event?.summary).not.toContain('Anthropic_chat_data')
     expect(first.event?.summary).not.toContain('ChatGPT')
+    expect(first.proposals[0].proposedMemory.body).not.toContain('Anthropic_chat_data')
+    expect(first.proposals[0].proposedMemory.body).not.toContain('ChatGPT')
     expect(snapshot.sources.filter((source) => source.id === 'personality-corpus:public-safe')).toHaveLength(1)
     expect(snapshot.events.filter((event) => event.id === 'event:source-observed:personality-corpus:public-safe')).toHaveLength(1)
+    expect(snapshot.proposals.filter((proposal) => proposal.id === 'proposal:personality-corpus:personality-corpus-public-safe')).toHaveLength(1)
+    expect(snapshot.memories.filter((memory) => memory.id === 'memory:personality-corpus:personality-corpus-public-safe')).toHaveLength(0)
   })
 
   it('records Codex automation producer traces without raw prompt content', async () => {
