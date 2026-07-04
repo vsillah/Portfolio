@@ -36,6 +36,12 @@ export default function ContentManagementPage() {
       description: 'Manage publications',
     },
     {
+      name: 'Agentified',
+      href: '/admin/content/agentified',
+      icon: <BookOpen size={32} />,
+      description: 'Book workspace, manuscript gates, and Open Brain path',
+    },
+    {
       name: 'Music',
       href: '/admin/content/music',
       icon: <Music size={32} />,

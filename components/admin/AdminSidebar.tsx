@@ -133,6 +133,7 @@ export const NAV_ITEM_ICONS: Record<string, LucideIcon> = {
   '/admin/content/videos': Video,
   '/admin/content/video-generation': Video,
   '/admin/content/publications': BookOpen,
+  '/admin/content/agentified': BookOpen,
   '/admin/content/music': Music,
   '/admin/content/services': Wrench,
   '/admin/content/visual-assets': ImageIcon,

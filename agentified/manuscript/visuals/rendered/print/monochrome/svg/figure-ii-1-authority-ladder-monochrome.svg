@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Authority Ladder</title>
+  <desc id="desc">Authority climbs only when evidence climbs with it.</desc>
+  <defs>
+    <pattern id="hatch" patternUnits="userSpaceOnUse" width="14" height="14" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="14" stroke="#555555" stroke-width="3"/>
+    </pattern>
+    <pattern id="dots" patternUnits="userSpaceOnUse" width="16" height="16">
+      <circle cx="4" cy="4" r="2.2" fill="#555555"/>
+      <circle cx="12" cy="12" r="2.2" fill="#555555"/>
+    </pattern>
+    <pattern id="crosshatch" patternUnits="userSpaceOnUse" width="16" height="16">
+      <path d="M0 0L16 16M16 0L0 16" stroke="#555555" stroke-width="2"/>
+    </pattern>
+    <marker id="arrow" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L12,7 L2,12 Z" fill="#111111"/>
+    </marker>
+    <marker id="arrowLight" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L12,7 L2,12 Z" fill="#555555"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="1000" fill="#FFFFFF"/>
+  <rect x="32" y="32" width="1536" height="936" fill="#FFFFFF" stroke="#111111" stroke-width="5"/>
+  <text x="800" y="88" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="42" font-weight="800" fill="#111111">Authority Ladder</text>
+  <text x="800" y="128" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="22" fill="#2A2A2A">Authority climbs only when evidence climbs with it.</text>
+
+  <g>
+
+  <g>
+    <rect x="120" y="230" width="250" height="155" fill="#FFFFFF" stroke="#111111" stroke-width="4"/>
+    <rect x="120" y="230" width="250" height="16" fill="#2A2A2A" stroke="#2A2A2A" stroke-width="0"/>
+    <text x="245" y="284" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="25" font-weight="850" fill="#111111">Prepare</text>
+    <text x="245" y="320" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="500" fill="#2A2A2A">draft, summarize,</text>
+<text x="245" y="344" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="500" fill="#2A2A2A">classify</text>
+  </g>
+
+  <g>
+    <rect x="410" y="230" width="250" height="155" fill="#FFFFFF" stroke="#111111" stroke-width="4"/>
+    <rect x="410" y="230" width="250" height="16" fill="#2A2A2A" stroke="#2A2A2A" stroke-width="0"/>
+    <text x="535" y="284" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="25" font-weight="850" fill="#111111">Recommend</text>
+    <text x="535" y="320" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="500" fill="#2A2A2A">suggest next action</text>
+<text x="535" y="344" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="500" fill="#2A2A2A">with evidence</text>
+  </g>
+
+  <g>
+    <rect x="700" y="230" width="250" height="155" fill="url(#dots)" stroke="#111111" stroke-width="4"/>
+    <rect x="700" y="230" width="250" height="16" fill="#FFFFFF" stroke="#111111" stroke-width="0"/>
+    <text x="825" y="284" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="25" font-weight="850" fill="#111111">Route</text>
+    <text x="825" y="320" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="500" fill="#2A2A2A">move work to the</text>
+<text x="825" y="344" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="500" fill="#2A2A2A">right human lane</text>
+  </g>
+
+  <g>
+    <rect x="990" y="230" width="250" height="155" fill="url(#hatch)" stroke="#111111" stroke-width="4"/>
+    <rect x="990" y="230" width="250" height="16" fill="#FFFFFF" stroke="#111111" stroke-width="0"/>
+    <text x="1115" y="284" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="25" font-weight="850" fill="#111111">Stage</text>
+    <text x="1115" y="320" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="500" fill="#2A2A2A">prepare external</text>
+<text x="1115" y="344" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="500" fill="#2A2A2A">action for review</text>
+  </g>
+
+  <g>
+    <rect x="1280" y="230" width="250" height="155" fill="url(#hatch)" stroke="#111111" stroke-width="4"/>
+    <rect x="1280" y="230" width="250" height="16" fill="#FFFFFF" stroke="#111111" stroke-width="0"/>
+    <text x="1405" y="284" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="25" font-weight="850" fill="#111111">Execute</text>
+    <text x="1405" y="320" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="500" fill="#2A2A2A">only after</text>
+<text x="1405" y="344" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="500" fill="#2A2A2A">explicit authority</text>
+  </g>
+    <line x1="370" y1="307" x2="410" y2="307" stroke="#111111" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow)"/>
+    <line x1="660" y1="307" x2="700" y2="307" stroke="#111111" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow)"/>
+    <line x1="950" y1="307" x2="990" y2="307" stroke="#111111" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow)"/>
+    <line x1="1240" y1="307" x2="1280" y2="307" stroke="#111111" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow)"/>
+    <rect x="440" y="520" width="230" height="64" rx="32" fill="url(#dots)" stroke="#111111" stroke-width="3"/>
+  <text x="555" y="559" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="800" fill="#111111">Receipt required</text>
+    <rect x="730" y="620" width="230" height="64" rx="32" fill="url(#dots)" stroke="#111111" stroke-width="3"/>
+  <text x="845" y="659" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="800" fill="#111111">Source check</text>
+    <rect x="1020" y="720" width="230" height="64" rx="32" fill="url(#hatch)" stroke="#111111" stroke-width="5"/>
+  <text x="1135" y="759" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="800" fill="#111111">Human gate</text>
+    <rect x="1290" y="820" width="230" height="64" rx="32" fill="url(#crosshatch)" stroke="#111111" stroke-width="5"/>
+  <text x="1405" y="859" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="800" fill="#111111">Rollback path</text>
+    <line x1="535" y1="385" x2="535" y2="520" stroke="#111111" stroke-width="4" stroke-linecap="round" stroke-dasharray="8 8" marker-end="url(#arrowLight)"/>
+    <line x1="825" y1="385" x2="825" y2="620" stroke="#111111" stroke-width="4" stroke-linecap="round" stroke-dasharray="8 8" marker-end="url(#arrowLight)"/>
+    <line x1="1115" y1="385" x2="1115" y2="720" stroke="#111111" stroke-width="4" stroke-linecap="round" stroke-dasharray="8 8" marker-end="url(#arrowLight)"/>
+    <line x1="1405" y1="385" x2="1405" y2="820" stroke="#111111" stroke-width="4" stroke-linecap="round" stroke-dasharray="8 8" marker-end="url(#arrowLight)"/>
+    <rect x="142" y="830" width="820" height="64" fill="#111111"/>
+    <text x="552" y="872" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="28" font-weight="850" fill="#FFFFFF">The higher the side effect, the stronger the gate.</text>
+  </g>
+</svg>

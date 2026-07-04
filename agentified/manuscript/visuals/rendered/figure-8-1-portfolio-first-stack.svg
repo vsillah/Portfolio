@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Portfolio-First Operating Stack</title>
+  <desc id="desc">The owned corpus becomes memory, roles, controls, cockpit, and public-safe proof.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#000000" flood-opacity="0.18"/>
+    </filter>
+    <marker id="arrowGold" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#C79A3B"/>
+    </marker>
+    <marker id="arrowTeal" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#2A8C82"/>
+    </marker>
+    <marker id="arrowInk" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#1F2937"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="1000" fill="#111827"/>
+  <rect x="34" y="34" width="1532" height="932" rx="22" fill="#F8F5EE" stroke="#C79A3B" stroke-width="4"/>
+  <text x="800" y="88" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="42" font-weight="800" fill="#1F2937">Portfolio-First Operating Stack</text>
+  <text x="800" y="130" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="22" fill="#5B6472">The owned corpus becomes memory, roles, controls, cockpit, and public-safe proof.</text>
+
+  <g>
+
+  <g filter="url(#shadow)">
+    <rect x="390" y="172" width="820" height="92" rx="16" fill="#FFFFFF" stroke="#D8C9A8" stroke-width="3"/>
+    <rect x="390" y="172" width="820" height="12" rx="6" fill="#C79A3B"/>
+    <text x="800" y="214" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="24" font-weight="850" fill="#1F2937">Owned portfolio and corpus</text>
+    <text x="800" y="244" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="18" font-weight="500" fill="#5B6472">public, client-safe, internal, private</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="390" y="280" width="820" height="92" rx="16" fill="#FFFFFF" stroke="#D8C9A8" stroke-width="3"/>
+    <rect x="390" y="280" width="820" height="12" rx="6" fill="#2A8C82"/>
+    <text x="800" y="322" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="24" font-weight="850" fill="#1F2937">Open Brain</text>
+    <text x="800" y="352" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="18" font-weight="500" fill="#5B6472">sources, events, proposals, memories</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="390" y="388" width="820" height="92" rx="16" fill="#FFFFFF" stroke="#D8C9A8" stroke-width="3"/>
+    <rect x="390" y="388" width="820" height="12" rx="6" fill="#C79A3B"/>
+    <text x="800" y="430" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="24" font-weight="850" fill="#1F2937">Harness</text>
+    <text x="800" y="460" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="18" font-weight="500" fill="#5B6472">Codex, tools, browser, apps, worktrees</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="390" y="496" width="820" height="92" rx="16" fill="#FFFFFF" stroke="#D8C9A8" stroke-width="3"/>
+    <rect x="390" y="496" width="820" height="12" rx="6" fill="#2A8C82"/>
+    <text x="800" y="538" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="24" font-weight="850" fill="#1F2937">Agent roles</text>
+    <text x="800" y="568" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="18" font-weight="500" fill="#5B6472">Shaka, Amina, specialist lanes</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="390" y="604" width="820" height="92" rx="16" fill="#FFFFFF" stroke="#D8C9A8" stroke-width="3"/>
+    <rect x="390" y="604" width="820" height="12" rx="6" fill="#B65A4A"/>
+    <text x="800" y="646" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="24" font-weight="850" fill="#1F2937">Controls</text>
+    <text x="800" y="676" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="18" font-weight="500" fill="#5B6472">receipts, approvals, evals, drift checks</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="390" y="712" width="820" height="92" rx="16" fill="#FFFFFF" stroke="#D8C9A8" stroke-width="3"/>
+    <rect x="390" y="712" width="820" height="12" rx="6" fill="#2A8C82"/>
+    <text x="800" y="754" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="24" font-weight="850" fill="#1F2937">Mission Control</text>
+    <text x="800" y="784" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="18" font-weight="500" fill="#5B6472">inspect, route, approve, recover</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="390" y="820" width="820" height="92" rx="16" fill="#FFFFFF" stroke="#D8C9A8" stroke-width="3"/>
+    <rect x="390" y="820" width="820" height="12" rx="6" fill="#C79A3B"/>
+    <text x="800" y="862" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="24" font-weight="850" fill="#1F2937">Public-safe proof</text>
+    <text x="800" y="892" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="18" font-weight="500" fill="#5B6472">exports without raw private logs</text>
+  </g>
+    <line x1="1248" y1="210" x2="1248" y2="315" stroke="#2A8C82" stroke-width="5" stroke-linecap="round" marker-end="url(#arrowTeal)"/>
+    <line x1="1248" y1="318" x2="1248" y2="423" stroke="#2A8C82" stroke-width="5" stroke-linecap="round" marker-end="url(#arrowTeal)"/>
+    <line x1="1248" y1="426" x2="1248" y2="531" stroke="#2A8C82" stroke-width="5" stroke-linecap="round" marker-end="url(#arrowTeal)"/>
+    <line x1="1248" y1="534" x2="1248" y2="639" stroke="#2A8C82" stroke-width="5" stroke-linecap="round" marker-end="url(#arrowTeal)"/>
+    <line x1="1248" y1="642" x2="1248" y2="747" stroke="#2A8C82" stroke-width="5" stroke-linecap="round" marker-end="url(#arrowTeal)"/>
+    <line x1="1248" y1="750" x2="1248" y2="855" stroke="#2A8C82" stroke-width="5" stroke-linecap="round" marker-end="url(#arrowTeal)"/>
+    <rect x="96" y="445" width="210" height="120" rx="18" fill="#172033"/>
+    <text x="201" y="492" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="24" font-weight="850" fill="#E2C46F">Portfolio</text>
+<text x="201" y="523" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="24" font-weight="850" fill="#E2C46F">came first</text>
+    <rect x="1294" y="445" width="210" height="120" rx="18" fill="#F4DFDA" stroke="#B65A4A" stroke-width="3"/>
+    <text x="1399" y="486" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="24" font-weight="850" fill="#B65A4A">No raw</text>
+<text x="1399" y="517" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="24" font-weight="850" fill="#B65A4A">private logs</text>
+  </g>
+</svg>
