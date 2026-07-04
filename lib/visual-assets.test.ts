@@ -1,5 +1,8 @@
 import sharp from 'sharp'
-import { describe, expect, it, vi } from 'vitest'
+import { promises as fs } from 'fs'
+import os from 'os'
+import path from 'path'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/lib/supabase', () => ({ supabaseAdmin: null }))
 vi.mock('@/lib/agent-work-items', () => ({ createAgentWorkItem: vi.fn() }))
@@ -7,6 +10,7 @@ vi.mock('@/lib/playtest-broll', () => ({ captureBroll: vi.fn() }))
 
 import {
   applyApprovedVisualAssetCandidates,
+  captureVisualAssetCandidates,
   listVisualAssetCandidates,
   resolveVisualAssetRoute,
   reviewVisualAssetCandidate,
@@ -14,9 +18,11 @@ import {
   scoreImageBuffer,
   visualAssetStoragePath,
 } from './visual-assets'
+import { captureBroll } from '@/lib/playtest-broll'
 
 function createTableClient(tables: Record<string, Record<string, any>[]>) {
   const updates: Array<{ table: string; patch: Record<string, unknown>; filters: Record<string, unknown> }> = []
+  const storageUploads: Array<{ bucket: string; storagePath: string; buffer: Buffer }> = []
 
   function query(table: string) {
     const state: {
@@ -87,7 +93,21 @@ function createTableClient(tables: Record<string, Record<string, any>[]>) {
 
   return {
     updates,
+    storageUploads,
     from: query,
+    storage: {
+      from(bucket: string) {
+        return {
+          upload(storagePath: string, buffer: Buffer) {
+            storageUploads.push({ bucket, storagePath, buffer })
+            return Promise.resolve({ error: null })
+          },
+          getPublicUrl(storagePath: string) {
+            return { data: { publicUrl: `https://cdn.example.com/${bucket}/${storagePath}` } }
+          },
+        }
+      },
+    },
   }
 }
 
@@ -117,6 +137,10 @@ function matches(row: Record<string, unknown>, state: {
 }
 
 describe('visual asset helpers', () => {
+  beforeEach(() => {
+    vi.mocked(captureBroll).mockReset()
+  })
+
   it('resolves theme-scoped storage paths', () => {
     expect(visualAssetStoragePath({
       entityType: 'product',
@@ -274,6 +298,120 @@ describe('visual asset helpers', () => {
       candidateState: 'needs_capture',
       client,
     })).resolves.toEqual([expect.objectContaining({ id: 'needs-capture-1' })])
+  })
+
+  it('captures only uncaptured proposed candidates and keeps blocked captures out of the human review queue', async () => {
+    const screenshotDir = await fs.mkdtemp(path.join(os.tmpdir(), 'visual-assets-test-'))
+    const screenshotPath = path.join(screenshotDir, 'visual-candidate-needs-capture.png')
+    await sharp({
+      create: {
+        width: 1440,
+        height: 900,
+        channels: 3,
+        background: '#050505',
+      },
+    }).png().toFile(screenshotPath)
+
+    vi.mocked(captureBroll).mockResolvedValue({
+      screenshots: [screenshotPath],
+      videos: [],
+      outputDir: screenshotDir,
+    } as any)
+
+    const client = createTableClient({
+      visual_asset_candidates: [
+        {
+          id: 'needs-capture',
+          entity_type: 'product',
+          entity_id: '42',
+          title: 'Light store card',
+          theme: 'light',
+          current_url: null,
+          candidate_url: null,
+          candidate_storage_path: null,
+          capture_route: '/store/42?visualCapture=1',
+          score: null,
+          reason_codes: ['missing_image'],
+          status: 'proposed',
+          metadata: { source_table: 'products' },
+          created_at: '2026-06-30T10:00:00.000Z',
+          updated_at: '2026-06-30T10:00:00.000Z',
+        },
+        {
+          id: 'already-captured',
+          entity_type: 'product',
+          entity_id: '43',
+          title: 'Already captured',
+          theme: 'dark',
+          current_url: null,
+          candidate_url: 'https://example.com/already.png',
+          candidate_storage_path: 'products/visual-candidates/product-43/dark/already-captured.png',
+          capture_route: '/store/43?visualCapture=1',
+          score: 88,
+          reason_codes: [],
+          status: 'proposed',
+          metadata: {},
+          created_at: '2026-06-30T11:00:00.000Z',
+          updated_at: '2026-06-30T11:00:00.000Z',
+        },
+        {
+          id: 'failed-needs-retry',
+          entity_type: 'service',
+          entity_id: 'svc-1',
+          title: 'Failed service',
+          theme: 'dark',
+          current_url: null,
+          candidate_url: null,
+          candidate_storage_path: null,
+          capture_route: '/services/svc-1?visualCapture=1',
+          score: 0,
+          reason_codes: ['image_load_failure'],
+          status: 'failed',
+          metadata: {},
+          created_at: '2026-06-30T12:00:00.000Z',
+          updated_at: '2026-06-30T12:00:00.000Z',
+        },
+      ],
+    }) as any
+
+    const result = await captureVisualAssetCandidates({
+      client,
+      baseUrl: 'https://portfolio.example.com',
+      noStartServer: true,
+    })
+
+    expect(captureBroll).toHaveBeenCalledWith(expect.objectContaining({
+      baseUrl: 'https://portfolio.example.com',
+      noStartServer: true,
+      routes: [expect.objectContaining({
+        route: '/store/42?visualCapture=1',
+        filename: 'visual-candidate-needs-capture',
+        colorScheme: 'light',
+      })],
+    }))
+    expect(client.storageUploads).toEqual([expect.objectContaining({
+      bucket: 'products',
+      storagePath: 'products/visual-candidates/product-42/light/needs-capture.png',
+    })])
+    expect(result).toMatchObject({ captured: 1, passed: 0, blocked: 1 })
+    expect(result.candidates[0]).toMatchObject({
+      id: 'needs-capture',
+      status: 'failed',
+      candidate_url: 'https://cdn.example.com/products/products/visual-candidates/product-42/light/needs-capture.png',
+      metadata: {
+        source_table: 'products',
+        agent_review: expect.objectContaining({
+          decision: 'blocked',
+          reason_codes: expect.arrayContaining(['dark_mode_mismatch']),
+        }),
+      },
+    })
+
+    await expect(listVisualAssetCandidates({
+      status: 'proposed',
+      candidateState: 'captured',
+      client,
+    })).resolves.toEqual([expect.objectContaining({ id: 'already-captured' })])
   })
 
   it('applies approved candidates to theme variants without overwriting light and dark together', async () => {
