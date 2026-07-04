@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import PublicationCardAudio from '@/components/PublicationCardAudio'
 import NativePublicationAudio from '@/components/NativePublicationAudio'
+import { agentifiedPublication } from '@/lib/agentified-publication'
 
 interface Publication {
   id: number
@@ -40,10 +41,34 @@ interface Publication {
   } | null
   /** Playable URL when using self-hosted audio (upload or pasted URL) */
   audio_preview_playable_url?: string | null
+  status_label?: string | null
+  publication_url_label?: string | null
+}
+
+const agentifiedPublicationCard: Publication = {
+  id: -100,
+  title: agentifiedPublication.title,
+  description: agentifiedPublication.description,
+  publication_url: agentifiedPublication.route,
+  publication_url_label: 'Learn More',
+  author: agentifiedPublication.author,
+  publication_date: null,
+  publisher: agentifiedPublication.publisher,
+  file_path: agentifiedPublication.coverImage,
+  file_type: 'image/svg+xml',
+  elevenlabs_project_id: null,
+  elevenlabs_public_user_id: null,
+  elevenlabs_player_url: null,
+  linked_product: null,
+  linked_lead_magnet: null,
+  linked_audiobook_lead_magnet: null,
+  audio_preview_playable_url: null,
+  status_label: agentifiedPublication.statusLabel,
 }
 
 // Fallback data in case database table doesn't exist yet
 const fallbackPublications: Publication[] = [
+  agentifiedPublicationCard,
   {
     id: 1,
     title: 'The Equity Code',
@@ -63,6 +88,30 @@ const fallbackPublications: Publication[] = [
     audio_preview_playable_url: null,
   },
 ]
+
+function mergeLocalPublications(remotePublications: Publication[]) {
+  const enrichedPublications = remotePublications.map((publication) => {
+    if (publication.title.trim().toLowerCase() !== agentifiedPublication.title.toLowerCase()) {
+      return publication
+    }
+
+    return {
+      ...publication,
+      description: publication.description || agentifiedPublication.description,
+      publication_url: publication.publication_url || agentifiedPublication.route,
+      publication_url_label: 'Learn More',
+      author: publication.author || agentifiedPublication.author,
+      publisher: publication.publisher || agentifiedPublication.publisher,
+      file_path: publication.file_path || agentifiedPublication.coverImage,
+      file_type: publication.file_type || 'image/svg+xml',
+      status_label: agentifiedPublication.statusLabel,
+    }
+  })
+  const hasAgentified = remotePublications.some((publication) =>
+    publication.title.trim().toLowerCase() === agentifiedPublication.title.toLowerCase()
+  )
+  return hasAgentified ? enrichedPublications : [agentifiedPublicationCard, ...enrichedPublications]
+}
 
 export default function Publications() {
   const [publications, setPublications] = useState<Publication[]>([])
@@ -176,7 +225,7 @@ export default function Publications() {
       if (response.ok) {
         const data = await response.json()
         if (data && data.length > 0) {
-          setPublications(data)
+          setPublications(mergeLocalPublications(data))
         } else {
           setPublications(fallbackPublications)
           setUsedFallback(true)
@@ -267,7 +316,11 @@ export default function Publications() {
                 </div>
                 
                 {/* Badge */}
-                {publication.linked_lead_magnet ? (
+                {publication.status_label ? (
+                  <span className="absolute top-6 left-6 px-4 py-2 bg-background/90 backdrop-blur-md border border-radiant-gold/20 rounded-full text-radiant-gold text-xs font-heading tracking-widest uppercase font-bold">
+                    {publication.status_label}
+                  </span>
+                ) : publication.linked_lead_magnet ? (
                   <span className="absolute top-6 left-6 px-4 py-2 bg-background/90 backdrop-blur-md border border-radiant-gold/20 rounded-full text-radiant-gold text-xs font-heading tracking-widest uppercase font-bold">
                     Free
                   </span>
@@ -401,15 +454,25 @@ export default function Publications() {
                   )}
 
                   {publication.publication_url && (
-                    <a
-                      href={publication.publication_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full flex items-center justify-center gap-3 py-3 border border-radiant-gold/20 hover:bg-radiant-gold/5 rounded-full text-[10px] font-heading tracking-widest uppercase text-muted-foreground transition-all group/link"
-                    >
-                      <span>View on Amazon</span>
-                      <ExternalLink size={14} className="group-hover/link:translate-x-1 transition-transform" />
-                    </a>
+                    publication.publication_url.startsWith('/') ? (
+                      <Link
+                        href={publication.publication_url}
+                        className="w-full flex items-center justify-center gap-3 py-3 border border-radiant-gold/20 hover:bg-radiant-gold/5 rounded-full text-[10px] font-heading tracking-widest uppercase text-muted-foreground transition-all group/link"
+                      >
+                        <span>{publication.publication_url_label || 'Learn More'}</span>
+                        <ArrowRight size={14} className="group-hover/link:translate-x-1 transition-transform" />
+                      </Link>
+                    ) : (
+                      <a
+                        href={publication.publication_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full flex items-center justify-center gap-3 py-3 border border-radiant-gold/20 hover:bg-radiant-gold/5 rounded-full text-[10px] font-heading tracking-widest uppercase text-muted-foreground transition-all group/link"
+                      >
+                        <span>{publication.publication_url_label || 'View on Amazon'}</span>
+                        <ExternalLink size={14} className="group-hover/link:translate-x-1 transition-transform" />
+                      </a>
+                    )
                   )}
                 </div>
               </div>

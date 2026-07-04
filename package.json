@@ -65,6 +65,7 @@
     "wrm:smoke-gate": "tsx scripts/wrm-production-smoke-gate.ts",
     "source-protocol:smoke": "tsx scripts/source-protocol-smoke.ts",
     "staging:publications-parity": "tsx scripts/ensure-publications-experience-parity.ts --env-file .env.staging",
+    "publications:seed-agentified": "tsx scripts/seed-agentified-publication.ts",
     "printful:webhook": "tsx scripts/printful-setup-webhook.ts",
     "storyboard:assets:schematics": "tsx scripts/generate-storyboard-schematics.ts",
     "storyboard:assets:capture": "tsx scripts/capture-storyboard-assets.ts",

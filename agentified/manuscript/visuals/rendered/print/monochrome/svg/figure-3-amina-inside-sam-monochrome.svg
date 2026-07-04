@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">A.M.I.N.A. Inside SAM</title>
+  <desc id="desc">The workbook habit that keeps acceleration governed.</desc>
+  <defs>
+    <pattern id="hatch" patternUnits="userSpaceOnUse" width="14" height="14" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="14" stroke="#555555" stroke-width="3"/>
+    </pattern>
+    <pattern id="dots" patternUnits="userSpaceOnUse" width="16" height="16">
+      <circle cx="4" cy="4" r="2.2" fill="#555555"/>
+      <circle cx="12" cy="12" r="2.2" fill="#555555"/>
+    </pattern>
+    <pattern id="crosshatch" patternUnits="userSpaceOnUse" width="16" height="16">
+      <path d="M0 0L16 16M16 0L0 16" stroke="#555555" stroke-width="2"/>
+    </pattern>
+    <marker id="arrow" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L12,7 L2,12 Z" fill="#111111"/>
+    </marker>
+    <marker id="arrowLight" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L12,7 L2,12 Z" fill="#555555"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="1000" fill="#FFFFFF"/>
+  <rect x="32" y="32" width="1536" height="936" fill="#FFFFFF" stroke="#111111" stroke-width="5"/>
+  <text x="800" y="88" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="42" font-weight="800" fill="#111111">A.M.I.N.A. Inside SAM</text>
+  <text x="800" y="128" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="22" fill="#2A2A2A">The workbook habit that keeps acceleration governed.</text>
+
+  <g>
+    <circle cx="800" cy="510" r="250" fill="#FFFFFF" stroke="#111111" stroke-width="7"/>
+    <circle cx="800" cy="510" r="112" fill="#111111"/>
+    <text x="800" y="492" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="42" font-weight="900" fill="#FFFFFF">SAM</text>
+    <text x="800" y="528" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="17" font-weight="700" fill="#FFFFFF">Signals</text>
+    <text x="800" y="552" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="17" font-weight="700" fill="#FFFFFF">Alignment  Momentum</text>
+    <rect x="685" y="200" width="230" height="64" rx="32" fill="#FFFFFF" stroke="#111111" stroke-width="3"/>
+  <text x="800" y="239" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="800" fill="#111111">Align the work</text>
+    <rect x="1045" y="390" width="260" height="64" rx="32" fill="#FFFFFF" stroke="#111111" stroke-width="3"/>
+  <text x="1175" y="429" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="800" fill="#111111">Map authority</text>
+    <rect x="960" y="735" width="300" height="64" rx="32" fill="url(#dots)" stroke="#111111" stroke-width="3"/>
+  <text x="1110" y="774" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="800" fill="#111111">Instrument receipt</text>
+    <rect x="345" y="735" width="300" height="64" rx="32" fill="url(#hatch)" stroke="#111111" stroke-width="5"/>
+  <text x="495" y="774" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="800" fill="#111111">Negotiate gate</text>
+    <rect x="295" y="390" width="260" height="64" rx="32" fill="#FFFFFF" stroke="#111111" stroke-width="3"/>
+  <text x="425" y="429" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="800" fill="#111111">Audit outcome</text>
+    <line x1="878" y1="260" x2="1045" y2="405" stroke="#111111" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow)"/>
+    <line x1="1110" y1="460" x2="1035" y2="735" stroke="#111111" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow)"/>
+    <line x1="960" y1="770" x2="645" y2="770" stroke="#111111" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow)"/>
+    <line x1="460" y1="735" x2="400" y2="455" stroke="#111111" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow)"/>
+    <line x1="555" y1="405" x2="685" y2="245" stroke="#111111" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow)"/>
+    <text x="800" y="880" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="30" font-weight="900" fill="#111111">Align. Map. Instrument. Negotiate. Audit.</text>
+  </g>
+</svg>

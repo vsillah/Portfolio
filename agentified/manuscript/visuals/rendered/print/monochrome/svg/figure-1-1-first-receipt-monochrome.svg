@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">The First Receipt</title>
+  <desc id="desc">A visible envelope around an agent action, before authority expands.</desc>
+  <defs>
+    <pattern id="hatch" patternUnits="userSpaceOnUse" width="14" height="14" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="14" stroke="#555555" stroke-width="3"/>
+    </pattern>
+    <pattern id="dots" patternUnits="userSpaceOnUse" width="16" height="16">
+      <circle cx="4" cy="4" r="2.2" fill="#555555"/>
+      <circle cx="12" cy="12" r="2.2" fill="#555555"/>
+    </pattern>
+    <pattern id="crosshatch" patternUnits="userSpaceOnUse" width="16" height="16">
+      <path d="M0 0L16 16M16 0L0 16" stroke="#555555" stroke-width="2"/>
+    </pattern>
+    <marker id="arrow" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L12,7 L2,12 Z" fill="#111111"/>
+    </marker>
+    <marker id="arrowLight" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L12,7 L2,12 Z" fill="#555555"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="1000" fill="#FFFFFF"/>
+  <rect x="32" y="32" width="1536" height="936" fill="#FFFFFF" stroke="#111111" stroke-width="5"/>
+  <text x="800" y="88" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="42" font-weight="800" fill="#111111">The First Receipt</text>
+  <text x="800" y="128" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="22" fill="#2A2A2A">A visible envelope around an agent action, before authority expands.</text>
+
+  <g>
+
+  <g>
+    <rect x="90" y="230" width="300" height="170" fill="#FFFFFF" stroke="#111111" stroke-width="4"/>
+    <rect x="90" y="230" width="300" height="16" fill="#2A2A2A" stroke="#2A2A2A" stroke-width="0"/>
+    <text x="240" y="284" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="25" font-weight="850" fill="#111111">Agent run</text>
+    <text x="240" y="320" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="500" fill="#2A2A2A">Drafts or</text>
+<text x="240" y="344" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="500" fill="#2A2A2A">recommends work</text>
+  </g>
+
+  <g>
+    <rect x="470" y="230" width="300" height="170" fill="url(#dots)" stroke="#111111" stroke-width="4"/>
+    <rect x="470" y="230" width="300" height="16" fill="#FFFFFF" stroke="#111111" stroke-width="0"/>
+    <text x="620" y="284" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="25" font-weight="850" fill="#111111">Receipt</text>
+    <text x="620" y="320" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="500" fill="#2A2A2A">Evidence travels</text>
+<text x="620" y="344" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="500" fill="#2A2A2A">with the output</text>
+  </g>
+
+  <g>
+    <rect x="850" y="230" width="300" height="170" fill="url(#hatch)" stroke="#111111" stroke-width="4"/>
+    <rect x="850" y="230" width="300" height="16" fill="#FFFFFF" stroke="#111111" stroke-width="0"/>
+    <text x="1000" y="284" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="25" font-weight="850" fill="#111111">Human gate</text>
+    <text x="1000" y="320" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="500" fill="#2A2A2A">Approve, hold,</text>
+<text x="1000" y="344" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="500" fill="#2A2A2A">or reject</text>
+  </g>
+
+  <g>
+    <rect x="1230" y="230" width="300" height="170" fill="#FFFFFF" stroke="#111111" stroke-width="4"/>
+    <rect x="1230" y="230" width="300" height="16" fill="#2A2A2A" stroke="#2A2A2A" stroke-width="0"/>
+    <text x="1380" y="284" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="25" font-weight="850" fill="#111111">Outcome</text>
+    <text x="1380" y="320" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="500" fill="#2A2A2A">Ship, revise,</text>
+<text x="1380" y="344" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="500" fill="#2A2A2A">or rollback</text>
+  </g>
+    <line x1="390" y1="315" x2="470" y2="315" stroke="#111111" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow)"/>
+    <line x1="770" y1="315" x2="850" y2="315" stroke="#111111" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow)"/>
+    <line x1="1150" y1="315" x2="1230" y2="315" stroke="#111111" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow)"/>
+    <rect x="192" y="520" width="1216" height="300" fill="#F4F4F4" stroke="#111111" stroke-width="4"/>
+    <text x="800" y="570" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="30" font-weight="850" fill="#111111">Inside the receipt</text>
+    <rect x="245" y="620" width="185" height="58" rx="29" fill="#FFFFFF" stroke="#111111" stroke-width="3"/>
+  <text x="337.5" y="656" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="800" fill="#111111">Intent</text>
+    <rect x="465" y="620" width="185" height="58" rx="29" fill="#FFFFFF" stroke="#111111" stroke-width="3"/>
+  <text x="557.5" y="656" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="800" fill="#111111">Agent</text>
+    <rect x="685" y="620" width="185" height="58" rx="29" fill="#FFFFFF" stroke="#111111" stroke-width="3"/>
+  <text x="777.5" y="656" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="800" fill="#111111">Source</text>
+    <rect x="905" y="620" width="185" height="58" rx="29" fill="#FFFFFF" stroke="#111111" stroke-width="3"/>
+  <text x="997.5" y="656" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="800" fill="#111111">Action</text>
+    <rect x="1125" y="620" width="185" height="58" rx="29" fill="#FFFFFF" stroke="#111111" stroke-width="3"/>
+  <text x="1217.5" y="656" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="800" fill="#111111">Artifact</text>
+    <rect x="245" y="710" width="185" height="58" rx="29" fill="url(#hatch)" stroke="#111111" stroke-width="5"/>
+  <text x="337.5" y="746" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="800" fill="#111111">Approval</text>
+    <rect x="465" y="710" width="185" height="58" rx="29" fill="#FFFFFF" stroke="#111111" stroke-width="3"/>
+  <text x="557.5" y="746" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="800" fill="#111111">Cost</text>
+    <rect x="685" y="710" width="185" height="58" rx="29" fill="#FFFFFF" stroke="#111111" stroke-width="3"/>
+  <text x="777.5" y="746" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="800" fill="#111111">Outcome</text>
+    <rect x="905" y="710" width="185" height="58" rx="29" fill="url(#hatch)" stroke="#111111" stroke-width="5"/>
+  <text x="997.5" y="746" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="800" fill="#111111">Rollback</text>
+    <rect x="1125" y="710" width="185" height="58" rx="29" fill="url(#crosshatch)" stroke="#111111" stroke-width="5"/>
+  <text x="1217.5" y="746" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="19" font-weight="800" fill="#111111">Gaps</text>
+    <rect x="278" y="850" width="1044" height="60" fill="#111111"/>
+    <text x="800" y="889" text-anchor="middle" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="28" font-weight="850" fill="#FFFFFF">Every unknown field is a governance gap.</text>
+  </g>
+</svg>

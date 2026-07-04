@@ -113,6 +113,7 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
         { label: 'Videos', href: '/admin/content/videos' },
         { label: 'Video Generation', href: '/admin/content/video-generation' },
         { label: 'Publications', href: '/admin/content/publications' },
+        { label: 'Agentified', href: '/admin/content/agentified' },
         { label: 'Music', href: '/admin/content/music' },
         { label: 'Services', href: '/admin/content/services' },
         { label: 'Visual Assets', href: '/admin/content/visual-assets' },
