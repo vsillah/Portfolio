@@ -9,11 +9,11 @@
 
 import path from 'path'
 import * as dotenv from 'dotenv'
-import { auditVisualAssets, captureVisualAssetCandidates } from '@/lib/visual-assets'
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') })
 
 async function main() {
+  const { auditVisualAssets, captureVisualAssetCandidates } = await import('@/lib/visual-assets')
   console.warn(
     '[capture-product-store-images] Deprecated direct-update path replaced. ' +
       'Creating visual_asset_candidates and capturing screenshots only.',
@@ -29,6 +29,8 @@ async function main() {
     entitiesScanned: audit.entitiesScanned,
     candidatesCreated: audit.candidatesCreated,
     captured: capture.captured,
+    passed: capture.passed,
+    blocked: capture.blocked,
     workItemId: audit.workItemId,
   }, null, 2))
 }

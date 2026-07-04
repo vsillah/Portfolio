@@ -2,7 +2,6 @@
 
 import path from 'path'
 import * as dotenv from 'dotenv'
-import { auditVisualAssets } from '@/lib/visual-assets'
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') })
 
@@ -12,6 +11,7 @@ function argValue(name: string) {
 }
 
 async function main() {
+  const { auditVisualAssets } = await import('@/lib/visual-assets')
   const result = await auditVisualAssets({
     createWorkItem: !process.argv.includes('--no-work-item'),
     auditDate: argValue('date'),

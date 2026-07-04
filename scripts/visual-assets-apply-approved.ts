@@ -2,7 +2,6 @@
 
 import path from 'path'
 import * as dotenv from 'dotenv'
-import { applyApprovedVisualAssetCandidates } from '@/lib/visual-assets'
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') })
 
@@ -12,6 +11,7 @@ function candidateIds() {
 }
 
 async function main() {
+  const { applyApprovedVisualAssetCandidates } = await import('@/lib/visual-assets')
   const result = await applyApprovedVisualAssetCandidates({
     candidateIds: candidateIds(),
   })

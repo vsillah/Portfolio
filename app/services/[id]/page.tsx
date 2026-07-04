@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import {
   ShoppingCart,
@@ -66,7 +66,9 @@ const DELIVERY_ICONS: Record<string, { icon: React.ReactNode; label: string }> =
 export default function ServiceDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const serviceId = params.id as string
+  const visualCapture = searchParams.get('visualCapture') === '1'
 
   const [service, setService] = useState<Service | null>(null)
   const [bundles, setBundles] = useState<BundleRef[]>([])
@@ -161,6 +163,143 @@ export default function ServiceDetailPage() {
     { label: 'Services', href: '/services' },
     { label: String(service.title) },
   ]
+
+  if (visualCapture) {
+    const typeLabel = TYPE_LABELS[service.service_type] || service.service_type || 'Service'
+    const priceLabel = service.is_quote_based
+      ? 'Custom scope'
+      : service.price !== null
+        ? formatCurrency(service.price)
+        : 'Free'
+    const deliveryLabel = delivery.label
+    const durationLabel = service.duration_description || (
+      service.duration_hours ? `${service.duration_hours} hours` : 'Scoped delivery'
+    )
+    const featuredTopics = topicsList.length > 0
+      ? topicsList.slice(0, 5)
+      : ['Discovery', 'Implementation', 'Operator handoff']
+    const featuredDeliverables = deliverablesList.length > 0
+      ? deliverablesList.slice(0, 4)
+      : ['Working session', 'Action plan', 'Implementation guidance', 'Follow-up notes']
+    const deliveryPath = [
+      'Diagnose the operating constraint',
+      'Build the practical delivery plan',
+      'Leave the team with a usable handoff',
+    ]
+
+    return (
+      <main className="min-h-screen bg-background text-foreground flex items-center justify-center overflow-hidden p-10">
+        <section
+          data-visual-capture-frame
+          className="relative h-[720px] w-[1280px] overflow-hidden rounded-xl border border-border bg-card text-card-foreground shadow-2xl"
+        >
+          <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(18,30,49,0.08),rgba(212,175,55,0.16)_44%,transparent_72%)] dark:bg-[linear-gradient(135deg,rgba(212,175,55,0.22),transparent_44%,rgba(234,236,238,0.08))]" />
+          <div className="absolute left-0 top-0 h-full w-2 bg-radiant-gold" />
+          <div className="relative grid h-full grid-cols-[0.9fr_1.1fr] gap-8 p-12">
+            <div className="flex min-w-0 flex-col gap-5">
+              <div className="relative h-72 overflow-hidden rounded-xl border border-border bg-background">
+                {service.image_url ? (
+                  <Image
+                    src={service.image_url}
+                    alt={service.title}
+                    fill
+                    className="object-cover"
+                    sizes="520px"
+                    priority
+                  />
+                ) : (
+                  <div className="flex h-full flex-col items-center justify-center gap-4 bg-[radial-gradient(circle_at_35%_25%,rgba(212,175,55,0.3),transparent_34%),linear-gradient(135deg,rgba(44,62,80,0.14),rgba(212,175,55,0.2))] dark:bg-[radial-gradient(circle_at_35%_25%,rgba(212,175,55,0.3),transparent_34%),linear-gradient(135deg,rgba(234,236,238,0.1),rgba(212,175,55,0.16))]">
+                    <Building className="h-20 w-20 text-radiant-gold" />
+                    <span className="text-lg font-semibold text-muted-foreground">Service delivery visual</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="rounded-xl border border-border bg-background/80 p-5">
+                  <div className="mb-2 flex items-center gap-2 text-muted-foreground">
+                    {delivery.icon}
+                    <span className="text-sm font-bold uppercase tracking-wider">Delivery</span>
+                  </div>
+                  <p className="text-2xl font-bold">{deliveryLabel}</p>
+                </div>
+                <div className="rounded-xl border border-border bg-background/80 p-5">
+                  <div className="mb-2 flex items-center gap-2 text-muted-foreground">
+                    <Clock className="h-4 w-4" />
+                    <span className="text-sm font-bold uppercase tracking-wider">Timeline</span>
+                  </div>
+                  <p className="text-2xl font-bold">{durationLabel}</p>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-radiant-gold/40 bg-radiant-gold/10 p-5">
+                <span className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Investment</span>
+                <p className="mt-2 text-4xl font-bold text-radiant-gold">{priceLabel}</p>
+              </div>
+            </div>
+
+            <div className="flex min-w-0 flex-col justify-between">
+              <div>
+                <div className="mb-7 flex flex-wrap items-center gap-3">
+                  <span className="rounded-full bg-radiant-gold px-4 py-2 text-sm font-bold uppercase tracking-wide text-imperial-navy">
+                    {typeLabel}
+                  </span>
+                  {service.is_featured && (
+                    <span className="rounded-full border border-radiant-gold/50 bg-radiant-gold/10 px-4 py-2 text-sm font-bold uppercase tracking-wide text-radiant-gold">
+                      Featured
+                    </span>
+                  )}
+                </div>
+                <h1 className="font-premium text-[60px] leading-[0.98] text-foreground">
+                  {service.title}
+                </h1>
+                {service.description && (
+                  <p className="mt-6 max-h-32 overflow-hidden text-2xl leading-snug text-muted-foreground">
+                    {service.description}
+                  </p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-[1fr_1fr] gap-5">
+                <div className="rounded-xl border border-border bg-background/80 p-5">
+                  <span className="mb-4 block text-sm font-bold uppercase tracking-wider text-muted-foreground">Delivery path</span>
+                  <div className="space-y-3">
+                    {deliveryPath.map((item, index) => (
+                      <div key={item} className="flex items-start gap-3">
+                        <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-silicon-slate text-xs font-bold text-platinum-white dark:bg-radiant-gold dark:text-imperial-navy">
+                          {index + 1}
+                        </span>
+                        <span className="text-lg font-semibold leading-tight">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="rounded-xl border border-border bg-background/80 p-5">
+                  <span className="mb-4 block text-sm font-bold uppercase tracking-wider text-muted-foreground">Deliverables</span>
+                  <div className="space-y-3">
+                    {featuredDeliverables.map((item) => (
+                      <div key={item} className="flex items-start gap-3">
+                        <Check className="mt-1 h-5 w-5 flex-none text-radiant-gold" />
+                        <span className="text-lg font-semibold leading-tight">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {featuredTopics.map((topic) => (
+                  <span key={topic} className="rounded-full border border-border bg-background/80 px-4 py-2 text-sm font-bold text-muted-foreground">
+                    {topic}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-black text-white">

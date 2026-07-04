@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ShoppingCart,
@@ -57,7 +57,9 @@ const CATEGORY_LABELS: Record<string, string> = {
 export default function ProductDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const productId = params.id as string
+  const visualCapture = searchParams.get('visualCapture') === '1'
   const { getCampaignForBundle } = useCampaignEligibility()
 
   const [product, setProduct] = useState<Product | null>(null)
@@ -195,6 +197,109 @@ export default function ProductDetailPage() {
     { label: 'Store', href: '/store' },
     { label: String(product.title) },
   ]
+
+  if (visualCapture) {
+    const typeLabel = PRODUCT_TYPE_LABELS[product.type as keyof typeof PRODUCT_TYPE_LABELS] || product.type || 'Product'
+    const categoryLabel = product.category ? CATEGORY_LABELS[product.category] || product.category : 'Digital asset'
+    const priceLabel = product.price !== null ? formatCurrency(product.price) : 'Free'
+    const includedItems = deliverablesList.length > 0
+      ? deliverablesList.slice(0, 4)
+      : ['Ready-to-use asset', 'Implementation notes', 'Designed for operators']
+    const workflowItems = [
+      'Deploy the core asset',
+      'Adapt it to your workflow',
+      'Use the included guidance to move faster',
+    ]
+
+    return (
+      <main className="min-h-screen bg-background text-foreground flex items-center justify-center overflow-hidden p-10">
+        <section
+          data-visual-capture-frame
+          className="relative h-[720px] w-[1280px] overflow-hidden rounded-xl border border-border bg-card text-card-foreground shadow-2xl"
+        >
+          <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(212,175,55,0.18),transparent_38%,rgba(44,62,80,0.16))] dark:bg-[linear-gradient(135deg,rgba(212,175,55,0.24),transparent_42%,rgba(255,255,255,0.08))]" />
+          <div className="absolute inset-x-0 top-0 h-2 bg-radiant-gold" />
+          <div className="relative grid h-full grid-cols-[1.05fr_0.95fr] gap-8 p-12">
+            <div className="flex min-w-0 flex-col justify-between">
+              <div>
+                <div className="mb-8 flex flex-wrap items-center gap-3">
+                  <span className="rounded-full bg-radiant-gold px-4 py-2 text-sm font-bold uppercase tracking-wide text-imperial-navy">
+                    {typeLabel}
+                  </span>
+                  <span className="rounded-full border border-border bg-background/80 px-4 py-2 text-sm font-semibold text-muted-foreground">
+                    {categoryLabel}
+                  </span>
+                </div>
+                <h1 className="font-premium text-[64px] leading-[0.95] text-foreground">
+                  {product.title}
+                </h1>
+                {product.description && (
+                  <p className="mt-8 max-h-36 overflow-hidden text-2xl leading-snug text-muted-foreground">
+                    {product.description}
+                  </p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                {includedItems.map((item) => (
+                  <div key={item} className="flex items-start gap-3 rounded-lg border border-border bg-background/80 p-4">
+                    <Check className="mt-1 h-5 w-5 flex-none text-radiant-gold" />
+                    <span className="text-lg font-medium leading-snug">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex min-w-0 flex-col gap-5">
+              <div className="relative h-64 overflow-hidden rounded-xl border border-border bg-background">
+                {heroSrc ? (
+                  <Image
+                    src={heroSrc}
+                    alt={product.title}
+                    fill
+                    className="object-cover"
+                    sizes="520px"
+                    priority
+                  />
+                ) : (
+                  <div className="flex h-full flex-col items-center justify-center gap-4 bg-[radial-gradient(circle_at_30%_20%,rgba(212,175,55,0.28),transparent_32%),linear-gradient(135deg,rgba(18,30,49,0.12),rgba(212,175,55,0.18))] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(212,175,55,0.28),transparent_32%),linear-gradient(135deg,rgba(234,236,238,0.1),rgba(212,175,55,0.16))]">
+                    <Package className="h-20 w-20 text-radiant-gold" />
+                    <span className="text-lg font-semibold text-muted-foreground">Product visual system</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-xl border border-border bg-background/80 p-6">
+                <div className="mb-5 flex items-center justify-between">
+                  <span className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Operator path</span>
+                  <span className="text-3xl font-bold text-radiant-gold">{priceLabel}</span>
+                </div>
+                <div className="space-y-4">
+                  {workflowItems.map((item, index) => (
+                    <div key={item} className="flex items-center gap-4">
+                      <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-silicon-slate text-sm font-bold text-platinum-white dark:bg-radiant-gold dark:text-imperial-navy">
+                        {index + 1}
+                      </span>
+                      <span className="text-xl font-semibold leading-tight">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-auto grid grid-cols-3 gap-3">
+                {['Reusable', 'Documented', 'Ready'].map((label) => (
+                  <div key={label} className="rounded-lg border border-radiant-gold/40 bg-radiant-gold/10 p-4 text-center">
+                    <Sparkles className="mx-auto mb-2 h-5 w-5 text-radiant-gold" />
+                    <span className="text-sm font-bold uppercase tracking-wide text-foreground">{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    )
+  }
 
   return (
     <div className="dark agent-ops-page min-h-screen text-foreground">
