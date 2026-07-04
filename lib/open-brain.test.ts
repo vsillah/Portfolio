@@ -384,6 +384,70 @@ describe('Open Brain projection', () => {
     expect(approvalEvent?.metadata).not.toHaveProperty('relationshipLinkId')
   })
 
+  it('promotes approved human-review decision trust relationship metadata into a durable link', async () => {
+    const root = await makeTempRoot()
+    const proposal = await createOpenBrainProposal({
+      kind: 'workflow',
+      title: 'Reviewed vendor trust link',
+      body: 'A human-reviewed vendor decision can become trust evidence after approval.',
+      privacyTier: 'internal_ops',
+      confidence: 0.87,
+      sourceIds: ['event:decision-trust:reviewed-vendor'],
+      reason: 'Human review should allow explicit relationship promotion.',
+      metadata: {
+        relationship: {
+          fromId: 'event:decision-trust:reviewed-vendor',
+          toId: 'vendor:approved-payments',
+          relationship: 'trusted_for_decision',
+          insightId: 'insight:decision-trust:reviewed-vendor',
+          insightKind: 'decision_trust_review',
+          sourceLabel: 'Reviewed vendor decision',
+          targetLabel: 'Approved Payments',
+        },
+        decisionTrust: {
+          decisionId: 'decision-reviewed-vendor',
+          linkedRunId: 'run-reviewed-vendor',
+          selectedCandidate: 'approved-payments.example',
+          recommendedGate: 'human_review',
+          scores: {
+            relationshipTrust: 0.68,
+            decisionRisk: 0.74,
+            evidenceCompleteness: 0.71,
+          },
+          evidenceSummary: 'Admin reviewed the payment path and evidence chain.',
+        },
+      },
+    }, root)
+
+    const approved = await reviewOpenBrainProposal(proposal.id, 'approved', 'Human review approved trust promotion.', 'admin', root)
+    const snapshot = await getOpenBrainSnapshot(root)
+    const approvalEvent = snapshot.events.find((event) => (
+      event.kind === 'proposal_approved' &&
+      event.metadata?.proposalId === proposal.id
+    ))
+
+    expect(approved.metadata?.decisionTrust).toEqual(expect.objectContaining({
+      decisionId: 'decision-reviewed-vendor',
+      recommendedGate: 'human_review',
+    }))
+    expect(snapshot.links).toEqual([
+      expect.objectContaining({
+        fromId: 'event:decision-trust:reviewed-vendor',
+        toId: 'vendor:approved-payments',
+        relationship: 'trusted_for_decision',
+      }),
+    ])
+    expect(approvalEvent?.metadata).toEqual(expect.objectContaining({
+      relationshipLinkId: expect.stringMatching(/^link:/),
+      decisionTrustRelationshipLinkBlocked: false,
+      decisionTrust: expect.objectContaining({
+        decisionId: 'decision-reviewed-vendor',
+        recommendedGate: 'human_review',
+      }),
+    }))
+    expect(approvalEvent?.metadata).not.toHaveProperty('relationshipLinkBlockedReason')
+  })
+
   it('keeps AutoResearch producer traces disabled until explicitly configured', async () => {
     const root = await makeTempRoot()
     let snapshot = await getOpenBrainSnapshot(root)
