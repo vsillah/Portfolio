@@ -10,7 +10,7 @@ export type ModelUsageProvider =
   | 'local'
   | 'other'
 
-export type ModelUsageRuntime = 'codex' | 'n8n' | 'hermes' | 'opencode' | 'manual' | 'api' | 'local' | 'other'
+export type ModelUsageRuntime = 'codex' | 'claude_code' | 'n8n' | 'hermes' | 'opencode' | 'manual' | 'api' | 'local' | 'other'
 export type ModelUsageTaskCategory =
   | 'research'
   | 'coding'
@@ -151,6 +151,43 @@ export type ModelUsageImportEventInput = {
   sourceMetadata?: Record<string, unknown>
 }
 
+export type ModelUsageSourcePacketKind =
+  | 'codex_session'
+  | 'claude_code_session'
+  | 'gemini_usage_export'
+  | 'openai_usage_export'
+  | 'anthropic_usage_export'
+  | 'local_model_run'
+  | 'open_weight_model_run'
+
+export type ModelUsageSourcePacket = {
+  kind: ModelUsageSourcePacketKind
+  sourceId: string
+  occurredAt?: string
+  model?: string
+  taskCategory?: ModelUsageTaskCategory
+  agentKey?: string | null
+  clientProjectId?: string | null
+  clientLabel?: string | null
+  actionLabel?: string | null
+  inputTokens?: number
+  outputTokens?: number
+  cachedTokens?: number
+  reasoningTokens?: number
+  totalTokens?: number
+  acceptedOutputCount?: number
+  resolvedWorkItemCount?: number
+  retryCount?: number
+  costUsd?: number
+  confidence?: ModelUsageConfidence
+  href?: string | null
+  accountLabel?: string | null
+  exportBatchId?: string | null
+  executionHost?: string | null
+  deploymentTarget?: 'local_device' | 'private_cloud' | 'managed_cloud' | 'unknown'
+  sourceMetadata?: Record<string, unknown>
+}
+
 export type ModelUsageSubscriptionAllocationInput = {
   provider: ModelUsageProvider
   runtime?: ModelUsageRuntime | 'any'
@@ -166,6 +203,7 @@ export type ModelUsageSubscriptionAllocationInput = {
 export type ModelUsageImportPacket = {
   dryRun?: boolean
   events?: ModelUsageImportEventInput[]
+  sourcePackets?: ModelUsageSourcePacket[]
   subscriptionAllocations?: ModelUsageSubscriptionAllocationInput[]
 }
 
@@ -238,7 +276,7 @@ export const MODEL_PRICING_CATALOG: ModelPricingSnapshot[] = [
   { provider: 'google', model: 'gemini-2.5-flash', inputUsdPer1MTokens: 0.3, outputUsdPer1MTokens: 2.5, sourceUrl: 'https://ai.google.dev/gemini-api/docs/pricing', effectiveFrom: '2025-01-01', pricingState: 'needs_review' },
 ]
 
-const FORBIDDEN_IMPORT_KEY_PATTERN = /(api[_-]?key|secret|token|password|credential|raw[_-]?prompt|prompt|messages|transcript|content)/i
+const FORBIDDEN_IMPORT_KEY_PATTERN = /(api[_-]?key|secret|access[_-]?token|refresh[_-]?token|(?:^|[_-])token(?:$|[_-])|password|credential|raw[_-]?prompt|prompt|messages|transcript|content)/i
 
 function roundUsd(value: number) {
   return Math.round(value * 10_000) / 10_000
@@ -288,7 +326,8 @@ export function inferTaskCategory(metadata: Record<string, unknown> | null | und
 }
 
 export function buildModelUsageImportPlan(packet: ModelUsageImportPacket, now = new Date().toISOString()): ModelUsageImportPlan {
-  const eventInputs = packet.events ?? []
+  const sourceEventInputs = (packet.sourcePackets ?? []).map((sourcePacket, index) => modelUsageEventInputFromSourcePacket(sourcePacket, index))
+  const eventInputs = [...(packet.events ?? []), ...sourceEventInputs]
   const allocationInputs = packet.subscriptionAllocations ?? []
   if (eventInputs.length === 0 && allocationInputs.length === 0) {
     throw new Error('Import packet must include at least one event or subscription allocation.')
@@ -621,11 +660,115 @@ function normalizeSubscriptionAllocation(
 
 function assertSafeImportObject(value: Record<string, unknown> | null | undefined, path: string) {
   if (!value) return
-  for (const key of Object.keys(value)) {
+  for (const [key, child] of Object.entries(value)) {
     if (FORBIDDEN_IMPORT_KEY_PATTERN.test(key)) {
       throw new Error(`${path}.${key} is not allowed in model usage import packets.`)
     }
+    if (Array.isArray(child)) {
+      child.forEach((item, index) => {
+        if (item && typeof item === 'object') assertSafeImportObject(item as Record<string, unknown>, `${path}.${key}[${index}]`)
+      })
+    } else if (child && typeof child === 'object') {
+      assertSafeImportObject(child as Record<string, unknown>, `${path}.${key}`)
+    }
   }
+}
+
+export function modelUsageEventInputFromSourcePacket(
+  packet: ModelUsageSourcePacket,
+  index = 0,
+): ModelUsageImportEventInput {
+  assertSafeImportObject(packet.sourceMetadata, `sourcePackets[${index}].sourceMetadata`)
+  const sourceId = cleanRequiredString(packet.sourceId, `sourcePackets[${index}].sourceId`)
+  const defaults = sourceDefaults(packet.kind, index)
+  const provider = defaults.provider
+  const runtime = defaults.runtime
+  const model = cleanLabel(packet.model, defaults.model)
+  const sourceMetadata = {
+    importSource: packet.kind,
+    accountLabel: cleanNullableString(packet.accountLabel),
+    exportBatchId: cleanNullableString(packet.exportBatchId),
+    executionHost: cleanNullableString(packet.executionHost),
+    deploymentTarget: packet.deploymentTarget ?? undefined,
+    ...(packet.sourceMetadata ?? {}),
+  }
+  const computedCost = computeModelUsageCost(
+    {
+      input_tokens: nonNegativeInteger(packet.inputTokens, `sourcePackets[${index}].inputTokens`),
+      output_tokens: nonNegativeInteger(packet.outputTokens, `sourcePackets[${index}].outputTokens`),
+      total_tokens: nonNegativeInteger(packet.totalTokens, `sourcePackets[${index}].totalTokens`),
+    },
+    provider,
+    model,
+  )
+  const explicitCost = typeof packet.costUsd === 'number' && Number.isFinite(packet.costUsd) ? roundUsd(Math.max(0, packet.costUsd)) : null
+  const hasMeteredExport = packet.kind === 'openai_usage_export' || packet.kind === 'anthropic_usage_export' || packet.kind === 'gemini_usage_export'
+  const localEstimate = packet.kind === 'local_model_run' || packet.kind === 'open_weight_model_run'
+
+  return {
+    occurredAt: packet.occurredAt,
+    provider,
+    runtime,
+    model,
+    taskCategory: packet.taskCategory ?? inferTaskCategory(sourceMetadata),
+    agentKey: packet.agentKey,
+    clientProjectId: packet.clientProjectId,
+    clientLabel: packet.clientLabel,
+    actionLabel: packet.actionLabel ?? defaults.actionLabel,
+    inputTokens: packet.inputTokens,
+    outputTokens: packet.outputTokens,
+    cachedTokens: packet.cachedTokens,
+    reasoningTokens: packet.reasoningTokens,
+    totalTokens: packet.totalTokens,
+    acceptedOutputCount: packet.acceptedOutputCount,
+    resolvedWorkItemCount: packet.resolvedWorkItemCount,
+    retryCount: packet.retryCount,
+    costUsd: explicitCost ?? computedCost.costUsd,
+    costBasis: explicitCost != null || hasMeteredExport ? 'metered' : localEstimate ? 'local_estimated' : 'subscription_prorated',
+    confidence: packet.confidence ?? (explicitCost != null || computedCost.pricingSnapshot ? 'medium' : localEstimate ? 'low' : 'medium'),
+    sourceTrace: {
+      type: defaults.sourceType,
+      id: sourceId,
+      href: packet.href,
+    },
+    pricingSnapshot: {
+      ...(computedCost.pricingSnapshot ?? {}),
+      sourcePacketKind: packet.kind,
+      importPacket: true,
+    },
+    sourceMetadata,
+  }
+}
+
+function sourceDefaults(kind: ModelUsageSourcePacketKind, index: number): {
+  provider: ModelUsageProvider
+  runtime: ModelUsageRuntime
+  model: string
+  sourceType: string
+  actionLabel: string
+} {
+  if (kind === 'codex_session') {
+    return { provider: 'codex', runtime: 'codex', model: 'gpt-5-codex', sourceType: 'codex_session_import', actionLabel: 'Reviewed Codex session import' }
+  }
+  if (kind === 'claude_code_session') {
+    return { provider: 'claude_code', runtime: 'claude_code', model: 'claude-code', sourceType: 'claude_code_session_import', actionLabel: 'Reviewed Claude Code session import' }
+  }
+  if (kind === 'gemini_usage_export') {
+    return { provider: 'google', runtime: 'api', model: 'gemini-2.5-flash', sourceType: 'gemini_usage_export', actionLabel: 'Reviewed Gemini usage export' }
+  }
+  if (kind === 'openai_usage_export') {
+    return { provider: 'openai', runtime: 'api', model: 'gpt-4o-mini', sourceType: 'openai_usage_export', actionLabel: 'Reviewed OpenAI usage export' }
+  }
+  if (kind === 'anthropic_usage_export') {
+    return { provider: 'anthropic', runtime: 'api', model: 'claude-3-5-sonnet-20241022', sourceType: 'anthropic_usage_export', actionLabel: 'Reviewed Anthropic usage export' }
+  }
+  if (kind === 'local_model_run') {
+    return { provider: 'local', runtime: 'local', model: 'local-model', sourceType: 'local_model_usage_import', actionLabel: 'Reviewed local model run import' }
+  }
+  if (kind === 'open_weight_model_run') {
+    return { provider: 'open_source', runtime: 'local', model: 'open-weight-model', sourceType: 'open_weight_model_usage_import', actionLabel: 'Reviewed open-weight model run import' }
+  }
+  throw new Error(`sourcePackets[${index}].kind is not supported.`)
 }
 
 function cleanRequiredString(value: unknown, path: string) {
@@ -893,7 +1036,7 @@ function normalizeProvider(value: string | null | undefined): ModelUsageProvider
 }
 
 function normalizeRuntime(value: string | null | undefined): ModelUsageRuntime {
-  if (value === 'codex' || value === 'n8n' || value === 'hermes' || value === 'opencode' || value === 'manual' || value === 'api' || value === 'local') return value
+  if (value === 'codex' || value === 'claude_code' || value === 'n8n' || value === 'hermes' || value === 'opencode' || value === 'manual' || value === 'api' || value === 'local') return value
   return 'other'
 }
 

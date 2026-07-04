@@ -106,6 +106,31 @@ describe('POST /api/admin/model-usage/import', () => {
     ])
   })
 
+  it('dry-runs source-specific packets without provider side effects', async () => {
+    const response = await POST(request({
+      dryRun: true,
+      sourcePackets: [{
+        kind: 'gemini_usage_export',
+        sourceId: 'gemini-row-1',
+        model: 'gemini-2.5-flash',
+        taskCategory: 'research',
+        inputTokens: 1000,
+        outputTokens: 200,
+        costUsd: 0.01,
+      }],
+    }) as never)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({
+      ok: true,
+      dryRun: true,
+      eventCount: 1,
+      subscriptionAllocationCount: 0,
+    })
+    expect(mocks.fromMock).not.toHaveBeenCalled()
+  })
+
   it('rejects packets that include raw prompt-like metadata', async () => {
     const response = await POST(request({
       events: [{
