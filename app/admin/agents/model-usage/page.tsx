@@ -25,21 +25,30 @@ type Snapshot = ModelUsageSnapshot & { ok?: boolean }
 type DatePreset = '30d' | 'mtd' | 'qtd'
 
 const DEFAULT_IMPORT_PACKET = JSON.stringify({
-  events: [
+  sourcePackets: [
     {
+      kind: 'codex_session',
+      sourceId: 'replace-with-session-id',
       occurredAt: '2026-06-06T12:00:00.000Z',
-      provider: 'codex',
-      runtime: 'codex',
       model: 'gpt-5-codex',
       taskCategory: 'coding',
       clientLabel: 'Portfolio',
       actionLabel: 'Reviewed Codex session import',
       inputTokens: 12000,
       outputTokens: 1800,
-      costBasis: 'subscription_prorated',
       confidence: 'medium',
-      sourceTrace: { type: 'codex_session_import', id: 'replace-with-session-id' },
       sourceMetadata: { source: 'manual-reviewed-import', category: 'implementation' },
+    },
+    {
+      kind: 'local_model_run',
+      sourceId: 'replace-with-local-run-id',
+      model: 'llama-3.1-8b',
+      taskCategory: 'rag',
+      inputTokens: 2400,
+      outputTokens: 500,
+      executionHost: 'mac-mini',
+      deploymentTarget: 'local_device',
+      sourceMetadata: { runner: 'ollama', environment: 'private-local' },
     },
   ],
   subscriptionAllocations: [
@@ -310,7 +319,7 @@ function ModelUsageContent() {
                     Reviewed usage import packet
                   </div>
                   <p className="mt-1 max-w-3xl text-xs text-muted-foreground">
-                    Import audited usage rows or subscription allocation rules from Codex, Claude Code, Gemini, or local model records. Raw prompts, transcripts, secrets, credentials, and provider account actions are blocked from this path.
+                    Import audited source packets, ledger rows, or subscription allocation rules from Codex, Claude Code, Gemini, OpenAI, Anthropic, or local/open-weight model records. Raw prompts, transcripts, secrets, credentials, OAuth, provider writes, and routing changes are blocked from this path.
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">

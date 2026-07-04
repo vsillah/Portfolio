@@ -5,6 +5,7 @@ import {
   computeModelUsageCost,
   inferModelUsageProvider,
   inferTaskCategory,
+  modelUsageEventInputFromSourcePacket,
   modelUsageEventFromCostEvent,
   type ModelUsageLedgerEvent,
 } from './model-usage'
@@ -245,6 +246,128 @@ describe('buildModelUsageImportPlan', () => {
         pricingSnapshot: { apiKey: 'secret' },
       }],
     })).toThrow(/not allowed/)
+
+    expect(() => buildModelUsageImportPlan({
+      events: [{
+        provider: 'codex',
+        model: 'gpt-5-codex',
+        sourceMetadata: { nested: { messages: ['private chat'] } },
+      }],
+    })).toThrow(/not allowed/)
+  })
+
+  it('normalizes source-specific packets for Codex, Claude Code, Gemini, and local models', () => {
+    const plan = buildModelUsageImportPlan({
+      dryRun: true,
+      sourcePackets: [
+        {
+          kind: 'codex_session',
+          sourceId: 'codex-session-1',
+          occurredAt: '2026-06-06T12:00:00.000Z',
+          taskCategory: 'coding',
+          inputTokens: 12_000,
+          outputTokens: 1800,
+          clientLabel: 'Portfolio',
+        },
+        {
+          kind: 'claude_code_session',
+          sourceId: 'claude-code-1',
+          model: 'claude-sonnet-4-20250514',
+          taskCategory: 'qa',
+          inputTokens: 5000,
+          outputTokens: 600,
+          costUsd: 0,
+        },
+        {
+          kind: 'gemini_usage_export',
+          sourceId: 'gemini-row-1',
+          model: 'gemini-2.5-flash',
+          taskCategory: 'research',
+          inputTokens: 1_000_000,
+          outputTokens: 100_000,
+          costUsd: 0.55,
+          exportBatchId: 'batch-1',
+        },
+        {
+          kind: 'local_model_run',
+          sourceId: 'local-run-1',
+          model: 'llama-3.1-8b',
+          taskCategory: 'rag',
+          inputTokens: 2000,
+          outputTokens: 400,
+          executionHost: 'mac-mini',
+          deploymentTarget: 'local_device',
+        },
+      ],
+    }, '2026-06-06T13:00:00.000Z')
+
+    expect(plan.eventRows).toHaveLength(4)
+    expect(plan.eventRows[0]).toMatchObject({
+      provider: 'codex',
+      runtime: 'codex',
+      source_type: 'codex_session_import',
+      source_id: 'codex-session-1',
+      cost_basis: 'subscription_prorated',
+      confidence: 'medium',
+      scrubbed: true,
+    })
+    expect(plan.eventRows[1]).toMatchObject({
+      provider: 'claude_code',
+      runtime: 'claude_code',
+      source_type: 'claude_code_session_import',
+      task_category: 'qa',
+    })
+    expect(plan.eventRows[2]).toMatchObject({
+      provider: 'google',
+      runtime: 'api',
+      source_type: 'gemini_usage_export',
+      source_id: 'gemini-row-1',
+      cost_usd: 0.55,
+      cost_basis: 'metered',
+      raw_metadata: expect.objectContaining({
+        importSource: 'gemini_usage_export',
+        exportBatchId: 'batch-1',
+      }),
+    })
+    expect(plan.eventRows[3]).toMatchObject({
+      provider: 'local',
+      runtime: 'local',
+      cost_basis: 'local_estimated',
+      confidence: 'low',
+      raw_metadata: expect.objectContaining({
+        executionHost: 'mac-mini',
+        deploymentTarget: 'local_device',
+      }),
+    })
+  })
+
+  it('builds a reviewed source packet without carrying raw private content', () => {
+    const event = modelUsageEventInputFromSourcePacket({
+      kind: 'open_weight_model_run',
+      sourceId: 'local-cloud-run-1',
+      model: 'mixtral-open-weight',
+      taskCategory: 'planning',
+      inputTokens: 3000,
+      outputTokens: 500,
+      deploymentTarget: 'private_cloud',
+      sourceMetadata: { runner: 'ollama', quantization: 'q4' },
+    })
+
+    expect(event).toMatchObject({
+      provider: 'open_source',
+      runtime: 'local',
+      model: 'mixtral-open-weight',
+      costBasis: 'local_estimated',
+      sourceTrace: {
+        type: 'open_weight_model_usage_import',
+        id: 'local-cloud-run-1',
+      },
+      sourceMetadata: expect.objectContaining({
+        importSource: 'open_weight_model_run',
+        deploymentTarget: 'private_cloud',
+        runner: 'ollama',
+      }),
+    })
   })
 })
 
