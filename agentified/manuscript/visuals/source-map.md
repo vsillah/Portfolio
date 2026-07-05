@@ -83,6 +83,27 @@ Figure II.1, Authority ladder:
 - Review export path: `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png`
 - Current base candidate source: Codex image generation, saved locally from `/Users/vambahsillah/.codex/generated_images/019f291e-fe65-75d0-8a65-951db0ecc2a7/ig_04bfa56ae03a19ba016a4a4bd8de188194bfd6d182447edd75.png`
 
+## Agentified cover review comps
+
+The current public cover remains `/Users/vambahsillah/Projects/Portfolio/public/agentified-cover.svg` until an author-approved replacement is selected.
+
+Cover review comps use the same textless-base plus exact-overlay lane as the publication plates:
+
+- Prompt set: `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/prompts/agentified-cover-variant-bases.md`
+- Exact-label compositor: `/Users/vambahsillah/Projects/Portfolio/agentified/scripts/composite-agentified-cover-variants.mjs`
+- Cover bases:
+  - `/Users/vambahsillah/Projects/Portfolio/agentified/source-assets/cover-bases/agentified-cover-a-sam-trust-engine-base.png`
+  - `/Users/vambahsillah/Projects/Portfolio/agentified/source-assets/cover-bases/agentified-cover-b-receipt-gate-base.png`
+  - `/Users/vambahsillah/Projects/Portfolio/agentified/source-assets/cover-bases/agentified-cover-c-portfolio-os-base.png`
+- Review exports:
+  - `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/cover-comps/agentified-cover-a-sam-trust-engine.png`
+  - `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/cover-comps/agentified-cover-b-receipt-gate.png`
+  - `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/cover-comps/agentified-cover-c-portfolio-os.png`
+- Current base candidate sources:
+  - Variant A: Codex image generation, saved locally from `/Users/vambahsillah/.codex/generated_images/019f291e-fe65-75d0-8a65-951db0ecc2a7/ig_0de2de9965bbb29f016a4a5decf6448194a9f57ded00ea16aa.png`
+  - Variant B: Codex image generation, saved locally from `/Users/vambahsillah/.codex/generated_images/019f291e-fe65-75d0-8a65-951db0ecc2a7/ig_0de2de9965bbb29f016a4a5e5a52f0819497c35973da9da06b.png`
+  - Variant C: Codex image generation, saved locally from `/Users/vambahsillah/.codex/generated_images/019f291e-fe65-75d0-8a65-951db0ecc2a7/ig_0de2de9965bbb29f016a4a5ec76a908194bac1af3d2a24ba81.png`
+
 Rendered image set:
 
 - Figure 0.1, SAM with the trust layer:
