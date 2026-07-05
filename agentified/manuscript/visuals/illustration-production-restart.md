@@ -73,6 +73,13 @@ The same lane now applies to Figure 0.1, SAM with the trust layer:
 - Overlay/export script: `/Users/vambahsillah/Projects/Portfolio/agentified/scripts/composite-sam-trust-layer-publication-plate.mjs`
 - Review export: `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png`
 
+Figure 1.1, The first receipt, also uses this lane:
+
+- Textless base prompt: `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/prompts/figure-1-1-first-receipt-textless-base.md`
+- Base image destination: `/Users/vambahsillah/Projects/Portfolio/agentified/source-assets/illustration-bases/figure-1-1-first-receipt-base.png`
+- Overlay/export script: `/Users/vambahsillah/Projects/Portfolio/agentified/scripts/composite-first-receipt-publication-plate.mjs`
+- Review export: `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png`
+
 ## Quality bar from "Accelerated"
 
 The original SAM visual works because it is more than a process chart.

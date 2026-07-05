@@ -59,6 +59,14 @@ Figure 0.1, SAM with the trust layer:
 - Review export path: `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png`
 - Current base candidate source: Codex image generation, saved locally from `/Users/vambahsillah/.codex/generated_images/019f291e-fe65-75d0-8a65-951db0ecc2a7/ig_0c6ea64b8f6578ef016a49d5e982c881979675bb1a9adc4f16.png`
 
+Figure 1.1, The first receipt:
+
+- Textless base prompt: `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/prompts/figure-1-1-first-receipt-textless-base.md`
+- Textless base: `/Users/vambahsillah/Projects/Portfolio/agentified/source-assets/illustration-bases/figure-1-1-first-receipt-base.png`
+- Exact-label compositor: `/Users/vambahsillah/Projects/Portfolio/agentified/scripts/composite-first-receipt-publication-plate.mjs`
+- Review export path: `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png`
+- Current base candidate source: Codex image generation, saved locally from `/Users/vambahsillah/.codex/generated_images/019f291e-fe65-75d0-8a65-951db0ecc2a7/ig_0581946ba371e944016a49da90e7f0819381ab95b0cc040e7c.png`
+
 Rendered image set:
 
 - Figure 0.1, SAM with the trust layer:
