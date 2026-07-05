@@ -341,6 +341,73 @@ describe('buildModelUsageImportPlan', () => {
     })
   })
 
+  it('treats OpenAI and Anthropic usage export packets as metered API spend', () => {
+    const plan = buildModelUsageImportPlan({
+      sourcePackets: [
+        {
+          kind: 'openai_usage_export',
+          sourceId: 'openai-row-1',
+          taskCategory: 'automation',
+          inputTokens: 1_000_000,
+          outputTokens: 100_000,
+        },
+        {
+          kind: 'anthropic_usage_export',
+          sourceId: 'anthropic-row-1',
+          taskCategory: 'research',
+          inputTokens: 200_000,
+          outputTokens: 20_000,
+          exportBatchId: 'anthropic-export-june',
+        },
+      ],
+    }, '2026-06-06T13:00:00.000Z')
+
+    expect(plan.eventRows).toHaveLength(2)
+    expect(plan.eventRows[0]).toMatchObject({
+      provider: 'openai',
+      runtime: 'api',
+      model: 'gpt-4o-mini',
+      task_category: 'automation',
+      source_type: 'openai_usage_export',
+      source_id: 'openai-row-1',
+      cost_basis: 'metered',
+      confidence: 'medium',
+      raw_metadata: expect.objectContaining({
+        importSource: 'openai_usage_export',
+      }),
+      pricing_snapshot: expect.objectContaining({
+        provider: 'openai',
+        model: 'gpt-4o-mini',
+        sourcePacketKind: 'openai_usage_export',
+        importPacket: true,
+      }),
+    })
+    expect(plan.eventRows[0].cost_usd).toBeGreaterThan(0)
+
+    expect(plan.eventRows[1]).toMatchObject({
+      provider: 'anthropic',
+      runtime: 'api',
+      model: 'claude-3-5-sonnet-20241022',
+      task_category: 'research',
+      source_type: 'anthropic_usage_export',
+      source_id: 'anthropic-row-1',
+      cost_basis: 'metered',
+      confidence: 'medium',
+      raw_metadata: expect.objectContaining({
+        importSource: 'anthropic_usage_export',
+        exportBatchId: 'anthropic-export-june',
+      }),
+      pricing_snapshot: expect.objectContaining({
+        provider: 'anthropic',
+        model: 'claude-3-5-sonnet-20241022',
+        sourcePacketKind: 'anthropic_usage_export',
+        importPacket: true,
+      }),
+    })
+    expect(plan.eventRows[1].cost_usd).toBeGreaterThan(0)
+    expect(plan.warnings).toEqual([])
+  })
+
   it('builds a reviewed source packet without carrying raw private content', () => {
     const event = modelUsageEventInputFromSourcePacket({
       kind: 'open_weight_model_run',
