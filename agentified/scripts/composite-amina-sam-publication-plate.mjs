@@ -51,11 +51,25 @@ function text({ x, y, value, size, weight = 700, fill = '#f2d36f', anchor = 'mid
   return `<text x="${x}" y="${y}" text-anchor="${anchor}" fill="${fill}" font-family="Avenir Next, Inter, Arial, sans-serif" font-size="${size}" font-weight="${weight}" style="${style}">${escapeXml(value)}</text>`;
 }
 
-function labelBox({ x, y, w, h, title, subtitle, fill = '#fbf7ee' }) {
+function chamferedPath({ x, y, w, h, cut = 36 }) {
+  return [
+    `M ${x + cut} ${y}`,
+    `L ${x + w - cut} ${y}`,
+    `L ${x + w} ${y + h / 2}`,
+    `L ${x + w - cut} ${y + h}`,
+    `L ${x + cut} ${y + h}`,
+    `L ${x} ${y + h / 2}`,
+    'Z',
+  ].join(' ');
+}
+
+function labelBox({ x, y, w, h, title, subtitle }) {
   return `
-    <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="34" fill="${fill}" stroke="#c99c35" stroke-width="9" opacity="0.96"/>
-    ${text({ x: x + w / 2, y: y + 78, value: title, size: 54, weight: 850, fill: '#101827' })}
-    ${text({ x: x + w / 2, y: y + 124, value: subtitle, size: 28, weight: 650, fill: '#53606e' })}
+    <path d="${chamferedPath({ x, y, w, h, cut: 42 })}" fill="url(#darkPlaque)" stroke="#c99c35" stroke-width="7" opacity="0.9"/>
+    <path d="${chamferedPath({ x: x + 18, y: y + 18, w: w - 36, h: h - 36, cut: 26 })}" fill="none" stroke="#f3d77e" stroke-opacity="0.35" stroke-width="3"/>
+    <path d="M ${x + 80} ${y + h - 30} C ${x + w * 0.35} ${y + h - 12}, ${x + w * 0.65} ${y + h - 12}, ${x + w - 80} ${y + h - 30}" fill="none" stroke="#f3d77e" stroke-opacity="0.22" stroke-width="4"/>
+    ${text({ x: x + w / 2, y: y + 78, value: title, size: 52, weight: 850, fill: '#fff7e8' })}
+    ${text({ x: x + w / 2, y: y + 124, value: subtitle, size: 27, weight: 650, fill: '#f2d36f' })}
   `;
 }
 
@@ -70,19 +84,21 @@ function aminaCell({ x, y, letter, title, subtitle, fill = '#fbf7ee', titleSize 
   ].map(([px, py]) => `${px},${py}`).join(' ');
 
   return `
-    <polygon points="${points}" fill="${fill}" stroke="#c99c35" stroke-width="10" opacity="0.96"/>
-    <circle cx="${x + 184}" cy="${y + 110}" r="58" fill="#101827" stroke="#c99c35" stroke-width="9"/>
+    <polygon points="${points}" fill="url(#darkPlaque)" stroke="#c99c35" stroke-width="9" opacity="0.88"/>
+    <polygon points="${points}" fill="none" stroke="#f3d77e" stroke-opacity="0.32" stroke-width="3" transform="translate(0 0) scale(0.94)" transform-origin="${x + 184} ${y + 155}"/>
+    <circle cx="${x + 184}" cy="${y + 110}" r="58" fill="url(#navyMedallion)" stroke="#c99c35" stroke-width="8"/>
     ${text({ x: x + 184, y: y + 130, value: letter, size: 66, weight: 900, fill: '#f2d36f' })}
-    ${text({ x: x + 184, y: y + 215, value: title, size: titleSize, weight: 900, fill: '#101827' })}
-    ${text({ x: x + 184, y: y + 262, value: subtitle, size: 30, weight: 700, fill: '#424d5a', style: 'font-style: italic;' })}
+    ${text({ x: x + 184, y: y + 215, value: title, size: titleSize, weight: 900, fill: '#fff7e8' })}
+    ${text({ x: x + 184, y: y + 262, value: subtitle, size: 30, weight: 700, fill: '#f2d36f', style: 'font-style: italic;' })}
   `;
 }
 
-function receiptCard({ x, y, title, subtitle, fill = '#fbf7ee' }) {
+function receiptCard({ x, y, title, subtitle }) {
   return `
-    <rect x="${x}" y="${y}" width="660" height="210" rx="38" fill="${fill}" stroke="#c99c35" stroke-width="9" opacity="0.97"/>
-    ${text({ x: x + 330, y: y + 92, value: title, size: 74, weight: 900, fill: '#101827' })}
-    ${text({ x: x + 330, y: y + 150, value: subtitle, size: 31, weight: 700, fill: '#424d5a' })}
+    <path d="${chamferedPath({ x, y, w: 660, h: 178, cut: 34 })}" fill="url(#darkPlaque)" stroke="#c99c35" stroke-width="8" opacity="0.9"/>
+    <path d="${chamferedPath({ x: x + 18, y: y + 18, w: 624, h: 142, cut: 23 })}" fill="none" stroke="#f3d77e" stroke-opacity="0.34" stroke-width="3"/>
+    ${text({ x: x + 330, y: y + 78, value: title, size: 70, weight: 900, fill: '#f2d36f' })}
+    ${text({ x: x + 330, y: y + 132, value: subtitle, size: 30, weight: 700, fill: '#fff7e8' })}
   `;
 }
 
@@ -91,8 +107,18 @@ function overlaySvg() {
   <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-        <feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#000000" flood-opacity="0.34"/>
+        <feDropShadow dx="0" dy="14" stdDeviation="12" flood-color="#000000" flood-opacity="0.38"/>
       </filter>
+      <linearGradient id="darkPlaque" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#182338"/>
+        <stop offset="0.48" stop-color="#0c1628"/>
+        <stop offset="1" stop-color="#253143"/>
+      </linearGradient>
+      <radialGradient id="navyMedallion" cx="45%" cy="35%" r="70%">
+        <stop offset="0" stop-color="#27344a"/>
+        <stop offset="0.55" stop-color="#101827"/>
+        <stop offset="1" stop-color="#060b13"/>
+      </radialGradient>
     </defs>
     <rect x="64" y="64" width="${width - 128}" height="${height - 128}" rx="42" fill="none" stroke="#c99c35" stroke-width="18"/>
     <rect x="120" y="120" width="${width - 240}" height="${height - 240}" rx="36" fill="none" stroke="#f4ead4" stroke-opacity="0.22" stroke-width="4"/>
@@ -105,7 +131,7 @@ function overlaySvg() {
     <g filter="url(#shadow)">
       ${labelBox({ x: 1380, y: 710, w: 840, h: 150, title: 'SIGNALS', subtitle: 'source to signal' })}
       ${labelBox({ x: 2420, y: 1690, w: 830, h: 150, title: 'ALIGNMENT', subtitle: 'authority named' })}
-      ${labelBox({ x: 350, y: 1690, w: 830, h: 150, title: 'MOMENTUM', subtitle: 'learning loop', fill: '#e3f5f0' })}
+      ${labelBox({ x: 350, y: 1690, w: 830, h: 150, title: 'MOMENTUM', subtitle: 'learning loop' })}
     </g>
 
     <g filter="url(#shadow)">
@@ -118,14 +144,15 @@ function overlaySvg() {
 
     <g filter="url(#shadow)">
       ${receiptCard({ x: 310, y: 3850, title: 'ASK', subtitle: 'What did the human want?' })}
-      ${receiptCard({ x: 1470, y: 3850, title: 'ACT', subtitle: 'What did the agent do?', fill: '#dff3ee' })}
+      ${receiptCard({ x: 1470, y: 3850, title: 'ACT', subtitle: 'What did the agent do?' })}
       ${receiptCard({ x: 2630, y: 3850, title: 'ATTEST', subtitle: 'What can be verified?' })}
     </g>
 
     <g filter="url(#shadow)">
-      <rect x="270" y="4185" width="3060" height="220" rx="44" fill="#fbf7ee" stroke="#c99c35" stroke-width="9" opacity="0.98"/>
-      ${text({ x: 1800, y: 4274, value: 'A.M.I.N.A. turns SAM into a governed operating loop.', size: 62, weight: 900, fill: '#101827' })}
-      ${text({ x: 1800, y: 4356, value: 'Ask clearly. Act within authority. Attest with receipts a human can review.', size: 46, weight: 760, fill: '#101827' })}
+      <path d="${chamferedPath({ x: 270, y: 4185, w: 3060, h: 220, cut: 46 })}" fill="url(#darkPlaque)" stroke="#c99c35" stroke-width="9" opacity="0.92"/>
+      <path d="${chamferedPath({ x: 300, y: 4215, w: 3000, h: 160, cut: 34 })}" fill="none" stroke="#f3d77e" stroke-opacity="0.28" stroke-width="4"/>
+      ${text({ x: 1800, y: 4274, value: 'A.M.I.N.A. turns SAM into a governed operating loop.', size: 62, weight: 900, fill: '#fff7e8' })}
+      ${text({ x: 1800, y: 4356, value: 'Ask clearly. Act within authority. Attest with receipts a human can review.', size: 46, weight: 760, fill: '#f2d36f' })}
     </g>
   </svg>`;
 }
