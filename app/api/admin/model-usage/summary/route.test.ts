@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({
   verifyAdmin: vi.fn(),
   isAuthError: vi.fn(),
   buildModelUsageSnapshot: vi.fn(),
+  clientSafeModelUsageSnapshot: vi.fn(),
 }))
 
 vi.mock('@/lib/auth-server', () => ({
@@ -13,6 +14,7 @@ vi.mock('@/lib/auth-server', () => ({
 
 vi.mock('@/lib/model-usage', () => ({
   buildModelUsageSnapshot: mocks.buildModelUsageSnapshot,
+  clientSafeModelUsageSnapshot: mocks.clientSafeModelUsageSnapshot,
 }))
 
 import { GET } from './route'
@@ -26,7 +28,7 @@ describe('GET /api/admin/model-usage/summary', () => {
     vi.clearAllMocks()
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-user' } })
     mocks.isAuthError.mockReturnValue(false)
-    mocks.buildModelUsageSnapshot.mockResolvedValue({
+    const snapshot = {
       generatedAt: '2026-06-06T12:00:00.000Z',
       window: { from: '2026-06-01T00:00:00.000Z', to: '2026-06-30T23:59:59.999Z' },
       totals: { eventCount: 1, totalTokens: 1000, inputTokens: 800, outputTokens: 200, costUsd: 0.1 },
@@ -40,9 +42,15 @@ describe('GET /api/admin/model-usage/summary', () => {
       topDays: [],
       topTransactions: [],
       recommendations: [],
-      events: [],
-      clientSafeEvents: [],
-    })
+      events: [{ id: 'private-event', actionLabel: 'Private work' }],
+      clientSafeEvents: [{ id: 'safe-event', actionLabel: 'Research transaction' }],
+    }
+    mocks.buildModelUsageSnapshot.mockResolvedValue(snapshot)
+    mocks.clientSafeModelUsageSnapshot.mockImplementation((value) => ({
+      ...value,
+      events: value.clientSafeEvents,
+      topTransactions: value.clientSafeEvents,
+    }))
   })
 
   it('requires admin auth', async () => {
@@ -68,6 +76,16 @@ describe('GET /api/admin/model-usage/summary', () => {
       to: '2026-06-30',
       clientProjectId: 'client-1',
     })
+  })
+
+  it('returns scrubbed event projection when clientSafe is requested', async () => {
+    const response = await GET(request('http://localhost/api/admin/model-usage/summary?clientSafe=true') as never)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.clientSafe).toBe(true)
+    expect(body.events).toEqual([{ id: 'safe-event', actionLabel: 'Research transaction' }])
+    expect(mocks.clientSafeModelUsageSnapshot).toHaveBeenCalled()
   })
 
   it('returns a server error when the read model fails', async () => {

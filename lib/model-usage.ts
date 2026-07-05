@@ -509,6 +509,16 @@ export function buildModelUsageSnapshotFromEvents(input: {
   }
 }
 
+export function clientSafeModelUsageSnapshot(snapshot: ModelUsageSnapshot): ModelUsageSnapshot {
+  const clientSafeEvents = snapshot.clientSafeEvents
+  return {
+    ...snapshot,
+    topTransactions: clientSafeEvents.slice(0, snapshot.topTransactions.length),
+    events: clientSafeEvents,
+    clientSafeEvents,
+  }
+}
+
 function groupEvents(
   events: ModelUsageLedgerEvent[],
   keyFor: (event: ModelUsageLedgerEvent) => string,

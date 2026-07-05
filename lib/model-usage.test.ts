@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   buildModelUsageSnapshotFromEvents,
   buildModelUsageImportPlan,
+  clientSafeModelUsageSnapshot,
   computeModelUsageCost,
   inferModelUsageProvider,
   inferTaskCategory,
@@ -516,6 +517,15 @@ describe('buildModelUsageSnapshotFromEvents', () => {
         confidence: 'medium',
         costBasis: 'catalog_priced',
       },
+    })
+
+    const clientSafe = clientSafeModelUsageSnapshot(snapshot)
+    expect(clientSafe.events[0]).toMatchObject({
+      actionLabel: 'Research transaction',
+      sourceTrace: { id: 'redacted', href: null },
+    })
+    expect(clientSafe.topTransactions[0]).toMatchObject({
+      actionLabel: 'Research transaction',
     })
   })
 
