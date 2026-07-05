@@ -32,22 +32,23 @@ const variants = [
     key: 'a-sam-trust-engine',
     base: 'agentified-cover-a-sam-trust-engine-base.png',
     out: 'agentified-cover-a-sam-trust-engine.png',
-    titleY: 370,
-    subtitleY: 502,
+    titleY: 354,
+    subtitleY: 538,
+    process: true,
   },
   {
     key: 'b-receipt-gate',
     base: 'agentified-cover-b-receipt-gate-base.png',
     out: 'agentified-cover-b-receipt-gate.png',
-    titleY: 370,
-    subtitleY: 502,
+    titleY: 354,
+    subtitleY: 538,
   },
   {
     key: 'c-portfolio-os',
     base: 'agentified-cover-c-portfolio-os-base.png',
     out: 'agentified-cover-c-portfolio-os.png',
-    titleY: 370,
-    subtitleY: 502,
+    titleY: 354,
+    subtitleY: 538,
   },
 ];
 
@@ -79,12 +80,68 @@ function chamferedPath({ x, y, w, h, cut = 42 }) {
   ].join(' ');
 }
 
+function plate({ x, y, w, h, cut = 42, opacity = 0.92 }) {
+  return `
+    <path d="${chamferedPath({ x, y, w, h, cut })}" fill="url(#enamel)" stroke="url(#goldStroke)" stroke-width="6" stroke-opacity="0.84" opacity="${opacity}"/>
+    <path d="${chamferedPath({ x: x + 24, y: y + 22, w: w - 48, h: h - 44, cut: Math.max(20, cut - 14) })}" fill="none" stroke="#f5e4ae" stroke-width="2" stroke-opacity="0.18"/>
+  `;
+}
+
+function stepBadge({ x, y, w, h, label, detail, align = 'middle' }) {
+  const textX = align === 'start' ? x + 36 : align === 'end' ? x + w - 36 : x + w / 2;
+
+  return `
+    <g filter="url(#badgeShadow)">
+      <path d="${chamferedPath({ x, y, w, h, cut: 24 })}" fill="url(#smallEnamel)" stroke="url(#goldStroke)" stroke-width="4" stroke-opacity="0.82" opacity="0.90"/>
+      <path d="${chamferedPath({ x: x + 14, y: y + 12, w: w - 28, h: h - 24, cut: 16 })}" fill="none" stroke="#f5e4ae" stroke-width="1.5" stroke-opacity="0.18"/>
+      ${text({
+        x: textX,
+        y: y + 42,
+        value: label,
+        size: 30,
+        weight: 760,
+        fill: '#f4d978',
+        anchor: align,
+        family: 'Avenir Next, Inter, Arial, sans-serif',
+        style: 'letter-spacing: 2px;',
+      })}
+      ${text({
+        x: textX,
+        y: y + 76,
+        value: detail,
+        size: 21,
+        weight: 650,
+        fill: '#fff7e8',
+        anchor: align,
+        family: 'Avenir Next, Inter, Arial, sans-serif',
+      })}
+    </g>
+  `;
+}
+
+function processCallouts(variant) {
+  if (!variant.process) return '';
+
+  return `
+    <g>
+      ${stepBadge({ x: 674, y: 982, w: 452, h: 96, label: 'ALIGN', detail: 'Work to intent' })}
+      ${stepBadge({ x: 292, y: 1358, w: 362, h: 96, label: 'MAP', detail: 'Authority and roles' })}
+      ${stepBadge({ x: 90, y: 1698, w: 396, h: 96, label: 'INSTRUMENT', detail: 'Receipts and signals', align: 'start' })}
+      ${stepBadge({ x: 1314, y: 1698, w: 396, h: 96, label: 'NEGOTIATE', detail: 'Gates and approvals', align: 'end' })}
+      ${stepBadge({ x: 692, y: 2148, w: 416, h: 96, label: 'AUDIT', detail: 'Outcomes and drift' })}
+    </g>
+  `;
+}
+
 function overlaySvg(variant) {
   return `
   <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <filter id="titleShadow" x="-20%" y="-20%" width="140%" height="140%">
         <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.72"/>
+      </filter>
+      <filter id="badgeShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000000" flood-opacity="0.58"/>
       </filter>
       <linearGradient id="topFade" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stop-color="#06101c" stop-opacity="0.88"/>
@@ -106,6 +163,11 @@ function overlaySvg(variant) {
         <stop offset="0.52" stop-color="#07111f" stop-opacity="0.90"/>
         <stop offset="1" stop-color="#1b2431" stop-opacity="0.92"/>
       </linearGradient>
+      <linearGradient id="smallEnamel" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#162337" stop-opacity="0.88"/>
+        <stop offset="0.46" stop-color="#07111f" stop-opacity="0.82"/>
+        <stop offset="1" stop-color="#1d2836" stop-opacity="0.88"/>
+      </linearGradient>
     </defs>
 
     <rect x="0" y="0" width="${width}" height="720" fill="url(#topFade)"/>
@@ -114,13 +176,18 @@ function overlaySvg(variant) {
     <rect x="98" y="98" width="${width - 196}" height="${height - 196}" rx="14" fill="none" stroke="#f5e4ae" stroke-width="2" stroke-opacity="0.20"/>
 
     <g filter="url(#titleShadow)">
-      <path d="${chamferedPath({ x: 230, y: 184, w: 1340, h: 560, cut: 54 })}" fill="url(#enamel)" stroke="url(#goldStroke)" stroke-width="6" stroke-opacity="0.84"/>
-      <path d="${chamferedPath({ x: 266, y: 220, w: 1268, h: 488, cut: 40 })}" fill="none" stroke="#f5e4ae" stroke-width="2" stroke-opacity="0.18"/>
+      ${plate({ x: 272, y: 214, w: 1256, h: 230, cut: 48, opacity: 0.92 })}
       ${text({ x: width / 2, y: variant.titleY, value: 'Agentified', size: 154, weight: 700, fill: '#f4d978', style: 'letter-spacing: 1px;' })}
       ${line({ x1: 492, y1: variant.titleY + 48, x2: 1308, y2: variant.titleY + 48, stroke: '#f2d36f', width: 3, opacity: 0.48 })}
+    </g>
+
+    <g filter="url(#titleShadow)">
+      ${plate({ x: 330, y: 482, w: 1140, h: 176, cut: 40, opacity: 0.90 })}
       ${text({ x: width / 2, y: variant.subtitleY, value: "The Product Leader's Guide to", size: 42, weight: 700, fill: '#fff7e8' })}
       ${text({ x: width / 2, y: variant.subtitleY + 62, value: 'Superhuman Acceleration Built on Trust', size: 40, weight: 700, fill: '#fff7e8' })}
     </g>
+
+    ${processCallouts(variant)}
 
     <g filter="url(#titleShadow)">
       <path d="${chamferedPath({ x: 438, y: 2348, w: 924, h: 142, cut: 34 })}" fill="url(#enamel)" stroke="url(#goldStroke)" stroke-width="5" stroke-opacity="0.76"/>
