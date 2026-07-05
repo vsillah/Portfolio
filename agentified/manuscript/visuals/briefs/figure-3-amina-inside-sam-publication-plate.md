@@ -2,6 +2,8 @@
 
 Status: restart brief
 
+First proof status: textless base candidate generated and composited with exact labels for review.
+
 ## Figure role
 
 This is the flagship Agentified figure.
@@ -122,6 +124,20 @@ Produce at least:
 
 The physical book version must be readable at 6x9 trim. If the smallest labels cannot survive print, move those words into the caption or simplify the plate.
 
+## Current review proof
+
+Textless base:
+
+```text
+/Users/vambahsillah/Projects/Portfolio/agentified/source-assets/illustration-bases/figure-3-amina-inside-sam-base.png
+```
+
+Composited review image:
+
+```text
+/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png
+```
+
 ## Review question
 
 When reviewing the first proof, ask one question:
@@ -131,4 +147,3 @@ Can a reader understand why A.M.I.N.A. belongs inside SAM without reading a para
 ```
 
 If the answer is no, the figure is not ready.
-

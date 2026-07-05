@@ -43,6 +43,14 @@ Production note:
 - These files are concept scaffolds and manuscript placeholders. They are not the final art direction for the physical book.
 - Final figures should follow the publication-plate lane in `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/illustration-production-restart.md`.
 
+Publication-plate lane:
+
+- Textless base prompt: `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/prompts/figure-3-amina-inside-sam-textless-base.md`
+- Textless base destination: `/Users/vambahsillah/Projects/Portfolio/agentified/source-assets/illustration-bases/figure-3-amina-inside-sam-base.png`
+- Exact-label compositor: `/Users/vambahsillah/Projects/Portfolio/agentified/scripts/composite-amina-sam-publication-plate.mjs`
+- Review export path: `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png`
+- Current base candidate source: Codex image generation, saved locally from `/Users/vambahsillah/.codex/generated_images/019f291e-fe65-75d0-8a65-951db0ecc2a7/ig_09a3217a7d8aea7f016a49cdfe09a88195a68b7303dafbaa85.png`
+
 Rendered image set:
 
 - Figure 0.1, SAM with the trust layer:

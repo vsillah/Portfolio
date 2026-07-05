@@ -46,6 +46,26 @@ Fallback path:
 
 Do not use Paper as the canonical illustration surface for this book. It can rough out ideas, but the current output is not strong enough for the print interior.
 
+## First production lane
+
+For the A.M.I.N.A. inside SAM figure, use a textless art base plus deterministic typography overlay.
+
+Prompt:
+
+- `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/prompts/figure-3-amina-inside-sam-textless-base.md`
+
+Base image destination:
+
+- `/Users/vambahsillah/Projects/Portfolio/agentified/source-assets/illustration-bases/figure-3-amina-inside-sam-base.png`
+
+Overlay/export script:
+
+- `/Users/vambahsillah/Projects/Portfolio/agentified/scripts/composite-amina-sam-publication-plate.mjs`
+
+Review export:
+
+- `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png`
+
 ## Quality bar from "Accelerated"
 
 The original SAM visual works because it is more than a process chart.
@@ -87,4 +107,3 @@ A clean Figma design file was created for the restart:
 - `https://www.figma.com/design/dp2wGNg3Lwr06r7WGg9CSy`
 
 The Figma MCP connector hit the Starter plan tool limit before the board could be populated. The file is still available as the clean destination for manual or future connector-based art direction.
-
