@@ -368,6 +368,10 @@ describe('buildModelUsageImportPlan', () => {
       runtime: 'api',
       model: 'gpt-4o-mini',
       task_category: 'automation',
+      input_tokens: 1_000_000,
+      output_tokens: 100_000,
+      total_tokens: 1_100_000,
+      cost_usd: 0.21,
       source_type: 'openai_usage_export',
       source_id: 'openai-row-1',
       cost_basis: 'metered',
@@ -382,13 +386,16 @@ describe('buildModelUsageImportPlan', () => {
         importPacket: true,
       }),
     })
-    expect(plan.eventRows[0].cost_usd).toBeGreaterThan(0)
 
     expect(plan.eventRows[1]).toMatchObject({
       provider: 'anthropic',
       runtime: 'api',
       model: 'claude-3-5-sonnet-20241022',
       task_category: 'research',
+      input_tokens: 200_000,
+      output_tokens: 20_000,
+      total_tokens: 220_000,
+      cost_usd: 0.9,
       source_type: 'anthropic_usage_export',
       source_id: 'anthropic-row-1',
       cost_basis: 'metered',
@@ -404,7 +411,6 @@ describe('buildModelUsageImportPlan', () => {
         importPacket: true,
       }),
     })
-    expect(plan.eventRows[1].cost_usd).toBeGreaterThan(0)
     expect(plan.warnings).toEqual([])
   })
 
