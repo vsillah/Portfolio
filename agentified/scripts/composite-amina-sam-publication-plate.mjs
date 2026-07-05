@@ -73,6 +73,22 @@ function labelBox({ x, y, w, h, title, subtitle }) {
   `;
 }
 
+function titlePlate() {
+  const x = 505;
+  const y = 205;
+  const w = 2590;
+  const h = 330;
+
+  return `
+    <path d="${chamferedPath({ x, y, w, h, cut: 70 })}" fill="url(#titlePlaque)" stroke="#c99c35" stroke-width="10" opacity="0.9"/>
+    <path d="${chamferedPath({ x: x + 28, y: y + 28, w: w - 56, h: h - 56, cut: 52 })}" fill="none" stroke="#f3d77e" stroke-opacity="0.38" stroke-width="4"/>
+    <path d="M ${x + 170} ${y + 92} C ${x + w * 0.36} ${y + 32}, ${x + w * 0.64} ${y + 32}, ${x + w - 170} ${y + 92}" fill="none" stroke="#f3d77e" stroke-opacity="0.22" stroke-width="5"/>
+    <path d="M ${x + 190} ${y + h - 62} C ${x + w * 0.38} ${y + h - 28}, ${x + w * 0.62} ${y + h - 28}, ${x + w - 190} ${y + h - 62}" fill="none" stroke="#f3d77e" stroke-opacity="0.24" stroke-width="5"/>
+    ${text({ x: x + w / 2, y: y + 146, value: 'A.M.I.N.A. inside SAM', size: 152, weight: 900, fill: '#f2d36f' })}
+    ${text({ x: x + w / 2, y: y + 235, value: 'The trust-layer engine inside governed acceleration', size: 55, weight: 650, fill: '#fff7e8', style: 'font-style: italic;' })}
+  `;
+}
+
 function aminaCell({ x, y, letter, title, subtitle, fill = '#fbf7ee', titleSize = 54 }) {
   const points = [
     [x + 92, y],
@@ -114,6 +130,11 @@ function overlaySvg() {
         <stop offset="0.48" stop-color="#0c1628"/>
         <stop offset="1" stop-color="#253143"/>
       </linearGradient>
+      <linearGradient id="titlePlaque" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#1d2a3f"/>
+        <stop offset="0.48" stop-color="#0c1628"/>
+        <stop offset="1" stop-color="#2c3547"/>
+      </linearGradient>
       <radialGradient id="navyMedallion" cx="45%" cy="35%" r="70%">
         <stop offset="0" stop-color="#27344a"/>
         <stop offset="0.55" stop-color="#101827"/>
@@ -124,8 +145,7 @@ function overlaySvg() {
     <rect x="120" y="120" width="${width - 240}" height="${height - 240}" rx="36" fill="none" stroke="#f4ead4" stroke-opacity="0.22" stroke-width="4"/>
 
     <g filter="url(#shadow)">
-      ${text({ x: 1800, y: 345, value: 'A.M.I.N.A. inside SAM', size: 178, weight: 900, fill: '#f2d36f' })}
-      ${text({ x: 1800, y: 470, value: 'The trust-layer engine inside governed acceleration', size: 64, weight: 650, fill: '#fff7e8', style: 'font-style: italic;' })}
+      ${titlePlate()}
     </g>
 
     <g filter="url(#shadow)">
