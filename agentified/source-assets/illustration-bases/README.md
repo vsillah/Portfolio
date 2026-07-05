@@ -12,4 +12,4 @@ Rules:
 Expected first base:
 
 - `figure-3-amina-inside-sam-base.png`
-
+- `figure-0-1-sam-trust-layer-base.png`

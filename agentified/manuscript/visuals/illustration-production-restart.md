@@ -66,6 +66,13 @@ Review export:
 
 - `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png`
 
+The same lane now applies to Figure 0.1, SAM with the trust layer:
+
+- Textless base prompt: `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/prompts/figure-0-1-sam-trust-layer-textless-base.md`
+- Base image destination: `/Users/vambahsillah/Projects/Portfolio/agentified/source-assets/illustration-bases/figure-0-1-sam-trust-layer-base.png`
+- Overlay/export script: `/Users/vambahsillah/Projects/Portfolio/agentified/scripts/composite-sam-trust-layer-publication-plate.mjs`
+- Review export: `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png`
+
 ## Quality bar from "Accelerated"
 
 The original SAM visual works because it is more than a process chart.

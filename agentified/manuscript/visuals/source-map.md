@@ -51,6 +51,14 @@ Publication-plate lane:
 - Review export path: `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png`
 - Current base candidate source: Codex image generation, saved locally from `/Users/vambahsillah/.codex/generated_images/019f291e-fe65-75d0-8a65-951db0ecc2a7/ig_09a3217a7d8aea7f016a49cdfe09a88195a68b7303dafbaa85.png`
 
+Figure 0.1, SAM with the trust layer:
+
+- Textless base prompt: `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/prompts/figure-0-1-sam-trust-layer-textless-base.md`
+- Textless base: `/Users/vambahsillah/Projects/Portfolio/agentified/source-assets/illustration-bases/figure-0-1-sam-trust-layer-base.png`
+- Exact-label compositor: `/Users/vambahsillah/Projects/Portfolio/agentified/scripts/composite-sam-trust-layer-publication-plate.mjs`
+- Review export path: `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png`
+- Current base candidate source: Codex image generation, saved locally from `/Users/vambahsillah/.codex/generated_images/019f291e-fe65-75d0-8a65-951db0ecc2a7/ig_0c6ea64b8f6578ef016a49d5e982c881979675bb1a9adc4f16.png`
+
 Rendered image set:
 
 - Figure 0.1, SAM with the trust layer:
