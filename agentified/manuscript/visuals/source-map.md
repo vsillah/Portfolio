@@ -75,6 +75,14 @@ Figure 8.1, Portfolio-first operating stack:
 - Review export path: `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png`
 - Current base candidate source: Codex image generation, saved locally from `/Users/vambahsillah/.codex/generated_images/019f291e-fe65-75d0-8a65-951db0ecc2a7/ig_032a0f1fde68f52e016a4a49f8ad208196b7e12a24a96d9311.png`
 
+Figure II.1, Authority ladder:
+
+- Textless base prompt: `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/prompts/figure-ii-1-authority-ladder-textless-base.md`
+- Textless base: `/Users/vambahsillah/Projects/Portfolio/agentified/source-assets/illustration-bases/figure-ii-1-authority-ladder-base.png`
+- Exact-label compositor: `/Users/vambahsillah/Projects/Portfolio/agentified/scripts/composite-authority-ladder-publication-plate.mjs`
+- Review export path: `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png`
+- Current base candidate source: Codex image generation, saved locally from `/Users/vambahsillah/.codex/generated_images/019f291e-fe65-75d0-8a65-951db0ecc2a7/ig_04bfa56ae03a19ba016a4a4bd8de188194bfd6d182447edd75.png`
+
 Rendered image set:
 
 - Figure 0.1, SAM with the trust layer:

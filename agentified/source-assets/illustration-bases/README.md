@@ -15,3 +15,4 @@ Expected first base:
 - `figure-0-1-sam-trust-layer-base.png`
 - `figure-1-1-first-receipt-base.png`
 - `figure-8-1-portfolio-first-stack-base.png`
+- `figure-ii-1-authority-ladder-base.png`
