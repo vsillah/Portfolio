@@ -33,7 +33,7 @@ const variants = [
     base: 'agentified-cover-a-sam-trust-engine-base.png',
     out: 'agentified-cover-a-sam-trust-engine.png',
     titleY: 470,
-    subtitleY: 628,
+    subtitleY: 648,
     process: true,
   },
   {
@@ -41,14 +41,14 @@ const variants = [
     base: 'agentified-cover-b-receipt-gate-base.png',
     out: 'agentified-cover-b-receipt-gate.png',
     titleY: 470,
-    subtitleY: 628,
+    subtitleY: 648,
   },
   {
     key: 'c-portfolio-os',
     base: 'agentified-cover-c-portfolio-os-base.png',
     out: 'agentified-cover-c-portfolio-os.png',
     titleY: 470,
-    subtitleY: 628,
+    subtitleY: 648,
   },
 ];
 
@@ -181,10 +181,8 @@ function overlaySvg(variant) {
     </g>
 
     <g filter="url(#titleShadow)">
-      ${plate({ x: 374, y: 576, w: 1052, h: 172, cut: 36, opacity: 0.91 })}
-      ${text({ x: width / 2, y: variant.subtitleY, value: "The Product Leader's Guide to", size: 28, weight: 700, fill: '#fff7e8' })}
-      ${text({ x: width / 2, y: variant.subtitleY + 40, value: 'Superhuman Acceleration', size: 28, weight: 700, fill: '#fff7e8' })}
-      ${text({ x: width / 2, y: variant.subtitleY + 80, value: 'Built on Trust', size: 28, weight: 700, fill: '#fff7e8' })}
+      ${plate({ x: 430, y: 604, w: 940, h: 104, cut: 32, opacity: 0.91 })}
+      ${text({ x: width / 2, y: variant.subtitleY, value: 'Achieve agentic scale through trust', size: 36, weight: 700, fill: '#fff7e8' })}
     </g>
 
     ${processCallouts(variant)}
