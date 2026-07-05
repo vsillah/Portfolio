@@ -32,23 +32,23 @@ const variants = [
     key: 'a-sam-trust-engine',
     base: 'agentified-cover-a-sam-trust-engine-base.png',
     out: 'agentified-cover-a-sam-trust-engine.png',
-    titleY: 470,
-    subtitleY: 648,
+    titleY: 502,
+    subtitleY: 704,
     process: true,
   },
   {
     key: 'b-receipt-gate',
     base: 'agentified-cover-b-receipt-gate-base.png',
     out: 'agentified-cover-b-receipt-gate.png',
-    titleY: 470,
-    subtitleY: 648,
+    titleY: 502,
+    subtitleY: 704,
   },
   {
     key: 'c-portfolio-os',
     base: 'agentified-cover-c-portfolio-os-base.png',
     out: 'agentified-cover-c-portfolio-os.png',
-    titleY: 470,
-    subtitleY: 648,
+    titleY: 502,
+    subtitleY: 704,
   },
 ];
 
@@ -60,8 +60,9 @@ function escapeXml(value) {
     .replaceAll('"', '&quot;');
 }
 
-function text({ x, y, value, size, weight = 700, fill = '#f2d36f', anchor = 'middle', family = 'Georgia, Times New Roman, serif', style = '' }) {
-  return `<text x="${x}" y="${y}" text-anchor="${anchor}" fill="${fill}" font-family="${family}" font-size="${size}" font-weight="${weight}" style="${style}">${escapeXml(value)}</text>`;
+function text({ x, y, value, size, weight = 700, fill = '#f2d36f', anchor = 'middle', family = 'Georgia, Times New Roman, serif', style = '', dominantBaseline = '' }) {
+  const baselineAttr = dominantBaseline ? ` dominant-baseline="${dominantBaseline}"` : '';
+  return `<text x="${x}" y="${y}" text-anchor="${anchor}"${baselineAttr} fill="${fill}" font-family="${family}" font-size="${size}" font-weight="${weight}" style="${style}">${escapeXml(value)}</text>`;
 }
 
 function line({ x1, y1, x2, y2, stroke = '#c99c35', width: strokeWidth = 3, opacity = 0.75 }) {
@@ -176,13 +177,13 @@ function overlaySvg(variant) {
     <rect x="98" y="98" width="${width - 196}" height="${height - 196}" rx="14" fill="none" stroke="#f5e4ae" stroke-width="2" stroke-opacity="0.20"/>
 
     <g filter="url(#titleShadow)">
-      ${plate({ x: 326, y: 372, w: 1148, h: 164, cut: 40, opacity: 0.93 })}
-      ${text({ x: width / 2, y: variant.titleY, value: 'Agentified', size: 100, weight: 700, fill: '#f4d978' })}
+      ${plate({ x: 326, y: 420, w: 1148, h: 164, cut: 40, opacity: 0.93 })}
+      ${text({ x: width / 2, y: variant.titleY, value: 'AGENTIFIED', size: 94, weight: 700, fill: '#f4d978', style: 'letter-spacing: 3px;', dominantBaseline: 'middle' })}
     </g>
 
     <g filter="url(#titleShadow)">
-      ${plate({ x: 430, y: 604, w: 940, h: 104, cut: 32, opacity: 0.91 })}
-      ${text({ x: width / 2, y: variant.subtitleY, value: 'Achieve agentic scale through trust', size: 36, weight: 700, fill: '#fff7e8' })}
+      ${plate({ x: 430, y: 652, w: 940, h: 104, cut: 32, opacity: 0.91 })}
+      ${text({ x: width / 2, y: variant.subtitleY, value: 'Achieve agentic scale through trust', size: 44, weight: 700, fill: '#fff7e8', dominantBaseline: 'middle' })}
     </g>
 
     ${processCallouts(variant)}
