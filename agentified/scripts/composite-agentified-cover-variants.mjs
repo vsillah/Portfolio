@@ -32,23 +32,23 @@ const variants = [
     key: 'a-sam-trust-engine',
     base: 'agentified-cover-a-sam-trust-engine-base.png',
     out: 'agentified-cover-a-sam-trust-engine.png',
-    titleY: 402,
-    subtitleY: 560,
+    titleY: 470,
+    subtitleY: 628,
     process: true,
   },
   {
     key: 'b-receipt-gate',
     base: 'agentified-cover-b-receipt-gate-base.png',
     out: 'agentified-cover-b-receipt-gate.png',
-    titleY: 402,
-    subtitleY: 560,
+    titleY: 470,
+    subtitleY: 628,
   },
   {
     key: 'c-portfolio-os',
     base: 'agentified-cover-c-portfolio-os-base.png',
     out: 'agentified-cover-c-portfolio-os.png',
-    titleY: 402,
-    subtitleY: 560,
+    titleY: 470,
+    subtitleY: 628,
   },
 ];
 
@@ -176,15 +176,15 @@ function overlaySvg(variant) {
     <rect x="98" y="98" width="${width - 196}" height="${height - 196}" rx="14" fill="none" stroke="#f5e4ae" stroke-width="2" stroke-opacity="0.20"/>
 
     <g filter="url(#titleShadow)">
-      ${plate({ x: 420, y: 304, w: 960, h: 164, cut: 38, opacity: 0.93 })}
-      ${text({ x: width / 2, y: variant.titleY, value: 'Agentified', size: 92, weight: 700, fill: '#f4d978' })}
+      ${plate({ x: 326, y: 372, w: 1148, h: 164, cut: 40, opacity: 0.93 })}
+      ${text({ x: width / 2, y: variant.titleY, value: 'Agentified', size: 100, weight: 700, fill: '#f4d978' })}
     </g>
 
     <g filter="url(#titleShadow)">
-      ${plate({ x: 470, y: 508, w: 860, h: 172, cut: 34, opacity: 0.91 })}
-      ${text({ x: width / 2, y: variant.subtitleY, value: "The Product Leader's Guide to", size: 26, weight: 700, fill: '#fff7e8' })}
-      ${text({ x: width / 2, y: variant.subtitleY + 40, value: 'Superhuman Acceleration', size: 26, weight: 700, fill: '#fff7e8' })}
-      ${text({ x: width / 2, y: variant.subtitleY + 80, value: 'Built on Trust', size: 26, weight: 700, fill: '#fff7e8' })}
+      ${plate({ x: 374, y: 576, w: 1052, h: 172, cut: 36, opacity: 0.91 })}
+      ${text({ x: width / 2, y: variant.subtitleY, value: "The Product Leader's Guide to", size: 28, weight: 700, fill: '#fff7e8' })}
+      ${text({ x: width / 2, y: variant.subtitleY + 40, value: 'Superhuman Acceleration', size: 28, weight: 700, fill: '#fff7e8' })}
+      ${text({ x: width / 2, y: variant.subtitleY + 80, value: 'Built on Trust', size: 28, weight: 700, fill: '#fff7e8' })}
     </g>
 
     ${processCallouts(variant)}
