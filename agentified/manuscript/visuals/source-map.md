@@ -125,7 +125,7 @@ Dedicated monochrome assets for black-and-white interiors:
 - Monochrome review PNG previews: `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/print/monochrome/review-png/`
 - Monochrome 6x9 proof PDF: `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/print/monochrome/proofs/agentified-monochrome-figure-proof-6x9.pdf`
 
-Current production-draft figure embeds point to the 600 DPI color PNG masters so the physical-book PDF/interior export sees fixed image files, not Mermaid code.
+Current production-draft figure embeds point to the publication-plate PNG masters so the physical-book PDF/interior export sees fixed image files, not Mermaid code.
 
 Claude/Fable 5 print review:
 
