@@ -80,6 +80,13 @@ Figure 1.1, The first receipt, also uses this lane:
 - Overlay/export script: `/Users/vambahsillah/Projects/Portfolio/agentified/scripts/composite-first-receipt-publication-plate.mjs`
 - Review export: `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png`
 
+Figure 8.1, Portfolio-first operating stack, also uses this lane:
+
+- Textless base prompt: `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/prompts/figure-8-1-portfolio-first-stack-textless-base.md`
+- Base image destination: `/Users/vambahsillah/Projects/Portfolio/agentified/source-assets/illustration-bases/figure-8-1-portfolio-first-stack-base.png`
+- Overlay/export script: `/Users/vambahsillah/Projects/Portfolio/agentified/scripts/composite-portfolio-first-stack-publication-plate.mjs`
+- Review export: `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png`
+
 ## Quality bar from "Accelerated"
 
 The original SAM visual works because it is more than a process chart.
