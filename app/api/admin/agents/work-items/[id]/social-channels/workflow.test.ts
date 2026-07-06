@@ -93,6 +93,8 @@ describe('social content intelligence research-to-channel-approval workflow', ()
         channel_lanes: {
           linkedin: { status: 'selected', label: 'LinkedIn', required_inputs: ['post text', 'CTA'] },
           youtube_shorts: { status: 'not_started', label: 'YouTube Shorts', required_inputs: ['hook', 'script'] },
+          instagram_reels: { status: 'not_started', label: 'Instagram Reels', required_inputs: ['hook', 'caption'] },
+          tiktok: { status: 'not_started', label: 'TikTok', required_inputs: ['hook', 'caption', 'audio rights'] },
         },
       },
     }
@@ -120,7 +122,7 @@ describe('social content intelligence research-to-channel-approval workflow', ()
     })
   })
 
-  it('links research, prepares channel drafts, and approves LinkedIn and YouTube without production side effects', async () => {
+  it('links research, prepares channel drafts, and approves selected lanes without production side effects', async () => {
     const linkResponse = await linkResearchPacket(jsonRequest(
       'http://localhost/api/admin/agents/work-items/work-social-1/research-packets',
       {
@@ -174,6 +176,20 @@ describe('social content intelligence research-to-channel-approval workflow', ()
             render_readiness: 'pending_human_approval',
           }),
         }),
+        instagram_reels: expect.objectContaining({
+          channel: 'instagram_reels',
+          approval_status: 'in_review',
+          fields: expect.objectContaining({
+            export_readiness: 'pending_human_approval',
+          }),
+        }),
+        tiktok: expect.objectContaining({
+          channel: 'tiktok',
+          approval_status: 'in_review',
+          fields: expect.objectContaining({
+            audio_rights: expect.stringContaining('platform-safe audio'),
+          }),
+        }),
       },
     }))
 
@@ -225,6 +241,8 @@ describe('social content intelligence research-to-channel-approval workflow', ()
     ])
     expect(lanes.linkedin.status).toBe('approved')
     expect(lanes.youtube_shorts.status).toBe('approved')
+    expect(lanes.instagram_reels.status).toBe('in_review')
+    expect(lanes.tiktok.status).toBe('in_review')
     expect(lanes.linkedin.draft_packet).toEqual(expect.objectContaining({
       channel: 'linkedin',
       approval_status: 'approved',

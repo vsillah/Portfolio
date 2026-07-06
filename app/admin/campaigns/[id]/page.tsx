@@ -32,7 +32,7 @@ import {
 type CampaignCalendarItem = {
   id: string;
   title: string;
-  channel: 'linkedin' | 'youtube_shorts' | 'instagram_reels' | 'thumbnail';
+  channel: 'linkedin' | 'youtube_shorts' | 'instagram_reels' | 'tiktok' | 'thumbnail';
   campaign_phase: 'tease' | 'teach' | 'proof' | 'offer';
   planned_angle: string | null;
   scheduled_for: string;

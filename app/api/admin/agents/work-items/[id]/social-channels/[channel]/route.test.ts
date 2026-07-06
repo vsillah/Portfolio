@@ -143,7 +143,7 @@ describe('/api/admin/agents/work-items/[id]/social-channels/[channel]', () => {
     })
   })
 
-  it('requires a prepared review draft before approving LinkedIn or YouTube lanes', async () => {
+  it('requires a prepared review draft before approving a production channel lane', async () => {
     mocks.getAgentWorkItem.mockResolvedValue({
       ...baseWorkItem,
       metadata: {
@@ -166,7 +166,7 @@ describe('/api/admin/agents/work-items/[id]/social-channels/[channel]', () => {
 
     expect(response.status).toBe(400)
     expect(await response.json()).toEqual({
-      error: 'Prepare the LinkedIn and YouTube review drafts before approving this channel lane',
+      error: 'Prepare the channel review draft before approving this lane',
     })
     expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
   })

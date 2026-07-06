@@ -80,12 +80,9 @@ export async function PATCH(
     }
 
     const lanes = normalizeSocialChannelLanes(workItem.metadata?.channel_lanes)
-    if (nextStatus === 'approved'
-      && (params.channel === 'linkedin' || params.channel === 'youtube_shorts')
-      && !hasReviewDraft(lanes[params.channel])
-    ) {
+    if (nextStatus === 'approved' && !hasReviewDraft(lanes[params.channel])) {
       return NextResponse.json(
-        { error: 'Prepare the LinkedIn and YouTube review drafts before approving this channel lane' },
+        { error: 'Prepare the channel review draft before approving this lane' },
         { status: 400 },
       )
     }

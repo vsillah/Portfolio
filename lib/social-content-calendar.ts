@@ -4,6 +4,7 @@ export const SOCIAL_CONTENT_CALENDAR_CHANNELS = [
   'linkedin',
   'youtube_shorts',
   'instagram_reels',
+  'tiktok',
   'thumbnail',
 ] as const
 
@@ -94,6 +95,7 @@ export const CALENDAR_CHANNEL_LABELS: Record<SocialContentCalendarChannel, strin
   linkedin: 'LinkedIn',
   youtube_shorts: 'YouTube Shorts',
   instagram_reels: 'Instagram Reels',
+  tiktok: 'TikTok',
   thumbnail: 'Thumbnail',
 }
 
@@ -328,14 +330,14 @@ export const SOCIAL_CONTENT_CALENDAR_TEMPLATES: Record<
       {
         key: 'proof_cutdown',
         campaign_phase: 'proof',
-        channel: 'youtube_shorts',
+        channel: 'tiktok',
         title_prefix: 'Proof cutdown',
-        planned_angle: 'Create the proof-driven cutdown that points to the shipped feature, client-safe project, or Chronicle observation.',
+        planned_angle: 'Create the TikTok-ready proof cutdown that points to the shipped feature, client-safe project, or Chronicle observation.',
         relative_position: 0.65,
         fallback_day_offset: 5,
         recommended_lead_time_days: 4,
-        required_assets: ['proof_asset', 'b_roll', 'privacy_review'],
-        approval_gates: ['privacy_review', 'visual_qa'],
+        required_assets: ['proof_asset', 'vertical_video', 'caption', 'cover_frame', 'audio_rights', 'privacy_review'],
+        approval_gates: ['script_review', 'privacy_review', 'export_readiness'],
         source_urls: [SOURCE_URLS.youtubeCreators],
       },
       {

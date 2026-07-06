@@ -165,7 +165,7 @@ describe('social-content-calendar helpers', () => {
     expect(slots.map((slot) => slot.channel)).toEqual([
       'linkedin',
       'instagram_reels',
-      'youtube_shorts',
+      'tiktok',
       'instagram_reels',
     ])
     expect(slots[1]).toEqual(expect.objectContaining({

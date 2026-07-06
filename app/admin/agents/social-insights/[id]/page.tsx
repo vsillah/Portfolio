@@ -8,6 +8,7 @@ import {
   AlertCircle,
   CheckCircle2,
   FileText,
+  Hash,
   Image as ImageIcon,
   Instagram,
   MessageSquare,
@@ -39,6 +40,7 @@ const CHANNEL_LABELS: Record<SocialContentIntelligenceChannel, string> = {
   linkedin: 'LinkedIn',
   youtube_shorts: 'YouTube Shorts',
   instagram_reels: 'Instagram Reels',
+  tiktok: 'TikTok',
   thumbnail: 'Thumbnail',
 }
 
@@ -46,6 +48,7 @@ const CHANNEL_ICONS: Record<SocialContentIntelligenceChannel, ReactNode> = {
   linkedin: <FileText className="h-4 w-4" />,
   youtube_shorts: <Youtube className="h-4 w-4" />,
   instagram_reels: <Instagram className="h-4 w-4" />,
+  tiktok: <Hash className="h-4 w-4" />,
   thumbnail: <ImageIcon className="h-4 w-4" />,
 }
 
@@ -155,7 +158,7 @@ function SocialInsightDetailContent() {
   const lanes = useMemo(() => lanesFor(item), [item])
   const activeLane = lanes[activeTab]
   const activeLaneHasReviewDraft = hasReviewDraft(activeLane)
-  const activeLaneNeedsReviewDraft = (activeTab === 'linkedin' || activeTab === 'youtube_shorts') && !activeLaneHasReviewDraft
+  const activeLaneNeedsReviewDraft = activeTab !== 'thumbnail' && !activeLaneHasReviewDraft
   const canPrepareReviewDrafts = approvedResearchPatterns.length > 0
 
   useEffect(() => {
@@ -208,7 +211,7 @@ function SocialInsightDetailContent() {
       if (!response.ok) throw new Error(body.error || `Review draft HTTP ${response.status}`)
       setItem(body.work_item ?? null)
       setActiveTab('linkedin')
-      setLaneNotice('LinkedIn and YouTube Shorts are ready for human review.')
+      setLaneNotice('LinkedIn, YouTube Shorts, Instagram Reels, and TikTok are ready for human review.')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to prepare channel review drafts')
     } finally {
@@ -259,7 +262,7 @@ function SocialInsightDetailContent() {
                 className="agent-ops-button-primary disabled:opacity-60"
               >
                 <FileText size={16} />
-                {preparingReviewDrafts ? 'Preparing...' : 'Prepare LinkedIn + YouTube Review Drafts'}
+                {preparingReviewDrafts ? 'Preparing...' : 'Prepare Channel Review Drafts'}
               </button>
             </div>
           </div>
@@ -279,7 +282,7 @@ function SocialInsightDetailContent() {
               <h2 className="text-lg font-semibold">Shared evidence</h2>
               {!canPrepareReviewDrafts ? (
                 <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-100">
-                  Link at least one approved research pattern before preparing LinkedIn and YouTube review drafts.
+                  Link at least one approved research pattern before preparing channel review drafts.
                 </div>
               ) : null}
               <div className="mt-4 space-y-3">
@@ -367,7 +370,7 @@ function SocialInsightDetailContent() {
                       </p>
                       {activeLaneNeedsReviewDraft ? (
                         <p className="mt-1 text-sm text-amber-100">
-                          Prepare the LinkedIn + YouTube review drafts before approving this lane.
+                          Prepare channel review drafts before approving this lane.
                         </p>
                       ) : null}
                     </div>
@@ -590,6 +593,9 @@ function defaultInputs(channel: SocialContentIntelligenceChannel) {
   }
   if (channel === 'instagram_reels') {
     return ['hook', 'script', 'target duration', 'storyboard scenes', 'cover text', 'caption', 'hashtags', 'b-roll assets', 'safe-area notes', 'export readiness']
+  }
+  if (channel === 'tiktok') {
+    return ['hook', 'script', 'target duration', 'storyboard scenes', 'cover frame', 'caption', 'hashtags', 'b-roll assets', 'audio rights', 'safe-area notes', 'export readiness']
   }
   return ['source thumbnail reference', 'pattern explanation', 'AmaduTown adaptation direction', 'short thumbnail text', 'face/photo/avatar choice', 'brand colors/style', '2-3 variants', 'approval state']
 }
