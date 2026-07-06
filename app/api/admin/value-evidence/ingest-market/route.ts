@@ -33,6 +33,10 @@ function isMissingSourceUrlConflictConstraint(errorMessage: string): boolean {
   return errorMessage.includes('no unique or exclusion constraint matching the ON CONFLICT specification')
 }
 
+function isDuplicateConstraintError(error: { code?: string; message?: string }): boolean {
+  return error.code === '23505' || Boolean(error.message?.includes('duplicate key value violates unique constraint'))
+}
+
 export async function POST(request: NextRequest) {
   const authHeader = request.headers.get('authorization')
   const token = authHeader?.replace('Bearer ', '')
@@ -144,6 +148,10 @@ export async function POST(request: NextRequest) {
               .single()
 
             if (fallbackInsertError) {
+              if (isDuplicateConstraintError(fallbackInsertError)) {
+                results.duplicates++
+                continue
+              }
               results.errors.push(`Fallback insert failed: ${fallbackInsertError.message}`)
               continue
             }

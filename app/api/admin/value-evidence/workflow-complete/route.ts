@@ -5,6 +5,20 @@ import { attachAgentArtifact, endAgentRun, markAgentRunFailed, recordAgentStep }
 
 export const dynamic = 'force-dynamic'
 
+type ValueEvidenceRun = {
+  id: string
+  stages: Record<string, unknown> | null
+  scope_type: string | null
+  scope_id: string | null
+  scope_label: string | null
+}
+
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
+function isUuid(value: string | undefined): value is string {
+  return Boolean(value && UUID_PATTERN.test(value))
+}
+
 /**
  * POST /api/admin/value-evidence/workflow-complete
  * Called by n8n at the end of a run.
@@ -64,14 +78,32 @@ export async function POST(request: NextRequest) {
     const status = completionStatus === 'failed' ? 'failed' : 'success'
 
     // Find run — fetch full record for auto-chain logic
-    let run: { id: string; stages: Record<string, unknown> | null; scope_type: string | null; scope_id: string | null; scope_label: string | null } | null = null
+    let run: ValueEvidenceRun | null = null
     if (run_id) {
       const { data } = await supabaseAdmin
         .from('value_evidence_workflow_runs')
         .select('id, stages, scope_type, scope_id, scope_label')
         .eq('id', run_id)
-        .single()
+        .maybeSingle()
       run = data
+    }
+    if (!run && isUuid(run_id)) {
+      const { data: created, error: createWithIdError } = await supabaseAdmin
+        .from('value_evidence_workflow_runs')
+        .insert({ id: run_id, workflow_id: wf, status: 'running' })
+        .select('id, stages, scope_type, scope_id, scope_label')
+        .single()
+
+      if (createWithIdError) {
+        const { data: existing } = await supabaseAdmin
+          .from('value_evidence_workflow_runs')
+          .select('id, stages, scope_type, scope_id, scope_label')
+          .eq('id', run_id)
+          .maybeSingle()
+        run = existing
+      } else {
+        run = created
+      }
     }
     if (!run) {
       const { data } = await supabaseAdmin
