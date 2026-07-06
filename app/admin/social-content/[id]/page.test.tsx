@@ -232,6 +232,75 @@ describe('SocialContentDetailRoute visual production review', () => {
     })
   })
 
+  it('lets the operator add a reusable calibration reference to the feedback packet', async () => {
+    const draftItem = {
+      ...baseItem,
+      status: 'draft',
+      reviewed_by: null,
+    }
+    const calibrationReference = {
+      id: 'linkedin-builder-insight-production-readiness',
+      platform: 'linkedin',
+      label: 'Builder insight: production readiness',
+      source_type: 'voice_guide_reference',
+      content_pillar: 'AI and product management',
+      post_excerpt: 'Anyone can build an app right now.\n\nThat speed does not give you production readiness.',
+      engagement_signal: 'Approved voice-guide reference. Measured LinkedIn engagement has not been imported yet.',
+      why_it_worked: 'It starts with a concrete builder reality, names the tools, then moves into operational risk.',
+      claim_boundaries: ['Do not overstate production readiness.'],
+      provenance: 'docs/linkedin-voice.md',
+    }
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/calibration-library')) {
+        return {
+          ok: true,
+          json: async () => ({
+            references: [calibrationReference],
+            source: 'approved_calibration_library',
+            side_effects: {
+              provider_generation: false,
+              publish: false,
+              schedule: false,
+              external_post: false,
+            },
+          }),
+        } as Response
+      }
+      if (url.includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [topicBacklogItem] }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: draftItem }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAtStep('context')
+
+    fireEvent.click(await screen.findByText('Content calibration'))
+    expect(await screen.findByText('Reusable calibration library')).toBeInTheDocument()
+    const referenceCard = screen.getByText('Builder insight: production readiness').closest('.rounded-lg')
+    expect(referenceCard).toBeTruthy()
+    fireEvent.click(within(referenceCard as HTMLElement).getByRole('button', { name: 'Add' }))
+
+    expect(screen.getByDisplayValue('Builder insight: production readiness (docs/linkedin-voice.md)')).toBeInTheDocument()
+    expect(screen.getByDisplayValue(/Anyone can build an app right now/)).toBeInTheDocument()
+    expect(screen.getByDisplayValue(/Approved voice-guide reference/)).toBeInTheDocument()
+    expect(screen.getByDisplayValue('Do not overstate production readiness.')).toBeInTheDocument()
+    expect(within(referenceCard as HTMLElement).getByRole('button', { name: 'Added' })).toBeDisabled()
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining('/api/admin/social-content/calibration-library?platform=linkedin'),
+      expect.objectContaining({
+        headers: { Authorization: 'Bearer admin-token' },
+      }),
+    )
+  })
+
   it('shows production assets and blocks publish readiness while redaction is unresolved', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({
       ok: true,
