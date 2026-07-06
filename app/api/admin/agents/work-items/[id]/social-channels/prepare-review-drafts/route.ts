@@ -39,7 +39,7 @@ export async function POST(
     }
     if (!hasApprovedResearchPatterns(insight)) {
       return NextResponse.json(
-        { error: 'Link at least one approved research pattern before preparing LinkedIn and YouTube review drafts' },
+        { error: 'Link at least one approved research pattern before preparing channel review drafts' },
         { status: 400 },
       )
     }
@@ -64,6 +64,22 @@ export async function POST(
       review_requested_at: now,
       updated_at: now,
     }
+    lanes.instagram_reels = {
+      ...lanes.instagram_reels,
+      status: 'in_review',
+      draft_packet: drafts.instagram_reels,
+      decision_note: null,
+      review_requested_at: now,
+      updated_at: now,
+    }
+    lanes.tiktok = {
+      ...lanes.tiktok,
+      status: 'in_review',
+      draft_packet: drafts.tiktok,
+      decision_note: null,
+      review_requested_at: now,
+      updated_at: now,
+    }
 
     const updated = await updateAgentWorkItemMetadata({
       id: workItem.id,
@@ -72,7 +88,7 @@ export async function POST(
         channel_lanes: lanes,
         channel_review_workflow: {
           status: 'human_review_ready',
-          prepared_channels: ['linkedin', 'youtube_shorts'],
+          prepared_channels: ['linkedin', 'youtube_shorts', 'instagram_reels', 'tiktok'],
           prepared_at: now,
           source_use_boundary: drafts.linkedin.source_use_boundary,
           side_effects: {
@@ -84,7 +100,7 @@ export async function POST(
           },
         },
       },
-      note: `LinkedIn and YouTube Shorts review drafts prepared by ${authResult.user.email ?? authResult.user.id}.`,
+      note: `Social channel review drafts prepared by ${authResult.user.email ?? authResult.user.id}.`,
     })
 
     return NextResponse.json({

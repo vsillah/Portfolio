@@ -246,6 +246,14 @@ describe('ContentIntelligencePage', () => {
                   status: 'not_started',
                   required_inputs: ['hook', 'script'],
                 },
+                {
+                  work_item_id: 'work-social-1',
+                  insight_title: 'Approval gates create trust',
+                  channel: 'tiktok',
+                  label: 'TikTok',
+                  status: 'not_started',
+                  required_inputs: ['hook', 'caption', 'audio rights'],
+                },
               ],
               thumbnail_opportunities: [
                 {
@@ -334,6 +342,8 @@ describe('ContentIntelligencePage', () => {
                 channel_lanes: {
                   linkedin: { status: 'selected', label: 'LinkedIn', required_inputs: ['post text', 'CTA'] },
                   youtube_shorts: { status: 'not_started', label: 'YouTube Shorts', required_inputs: ['hook', 'script'] },
+                  instagram_reels: { status: 'not_started', label: 'Instagram Reels', required_inputs: ['hook', 'caption'] },
+                  tiktok: { status: 'not_started', label: 'TikTok', required_inputs: ['hook', 'caption', 'audio rights'] },
                 },
               },
               updated_at: '2026-06-23T12:00:00.000Z',
@@ -385,6 +395,18 @@ describe('ContentIntelligencePage', () => {
                     draft_packet: { channel: 'youtube_shorts', fields: { script: ['YouTube draft'] } },
                     required_inputs: ['hook', 'script'],
                   },
+                  instagram_reels: {
+                    status: 'in_review',
+                    label: 'Instagram Reels',
+                    draft_packet: { channel: 'instagram_reels', fields: { caption: 'Instagram draft' } },
+                    required_inputs: ['hook', 'caption'],
+                  },
+                  tiktok: {
+                    status: 'in_review',
+                    label: 'TikTok',
+                    draft_packet: { channel: 'tiktok', fields: { caption: 'TikTok draft', audio_rights: 'platform-safe audio' } },
+                    required_inputs: ['hook', 'caption', 'audio rights'],
+                  },
                 },
               },
               updated_at: '2026-06-23T12:00:00.000Z',
@@ -421,6 +443,8 @@ describe('ContentIntelligencePage', () => {
                   channel_lanes: {
                     linkedin: { status: 'selected', label: 'LinkedIn', required_inputs: ['post text', 'CTA'] },
                     youtube_shorts: { status: 'not_started', label: 'YouTube Shorts', required_inputs: ['hook', 'script'] },
+                    instagram_reels: { status: 'not_started', label: 'Instagram Reels', required_inputs: ['hook', 'caption'] },
+                    tiktok: { status: 'not_started', label: 'TikTok', required_inputs: ['hook', 'caption', 'audio rights'] },
                   },
                 },
                 updated_at: '2026-06-22T12:00:00.000Z',
@@ -553,7 +577,7 @@ describe('ContentIntelligencePage', () => {
     })
   })
 
-  it('prepares LinkedIn and YouTube channel drafts from the backlog without publishing side effects', async () => {
+  it('prepares channel drafts from the backlog without publishing side effects', async () => {
     render(<ContentIntelligencePage />)
 
     await screen.findByRole('heading', { name: 'Research and Shaka insight queue' })
@@ -566,9 +590,11 @@ describe('ContentIntelligencePage', () => {
     })
     fireEvent.click(screen.getByRole('button', { name: 'Prepare Review Drafts' }))
 
-    expect(await screen.findByText('LinkedIn and YouTube Shorts review drafts are ready for human approval.')).toBeInTheDocument()
+    expect(await screen.findByText('LinkedIn, YouTube Shorts, Instagram Reels, and TikTok review drafts are ready for human approval.')).toBeInTheDocument()
     expect(screen.getByText('LinkedIn: in review')).toBeInTheDocument()
     expect(screen.getByText('YouTube: in review')).toBeInTheDocument()
+    expect(screen.getByText('Instagram: in review')).toBeInTheDocument()
+    expect(screen.getByText('TikTok: in review')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Open human review' })).toHaveAttribute('href', '/admin/agents/social-insights/work-social-1')
 
     const prepareCall = vi.mocked(fetch).mock.calls.find(([input]) => String(input) === '/api/admin/agents/work-items/work-social-1/social-channels/prepare-review-drafts')

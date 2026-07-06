@@ -404,6 +404,34 @@ function acceleratedWorkshopInsightMetadata(input: {
       'Approval before handoff.',
     ],
   }
+  drafts.instagram_reels.fields = {
+    ...drafts.instagram_reels.fields,
+    caption: `${input.phase.contentAngle} Built for the Accelerated Workshop proof campaign.`,
+    b_roll_assets: [
+      'Accelerated ebook page',
+      'Content Intelligence dashboard',
+      'Campaign calendar arc',
+      'Social Insight approval tabs',
+      'AmaduTown proof surface',
+    ],
+    safe_area_notes: [
+      'Keep captions and CTA clear of top and bottom app chrome.',
+      'Frame Portfolio proof screens in the vertical center.',
+      'Redact private admin, client, Chronicle, or meeting-derived detail before export.',
+    ],
+  }
+  drafts.tiktok.fields = {
+    ...drafts.tiktok.fields,
+    caption: `${input.phase.suggestedHook} Built for the Accelerated Workshop proof campaign.`,
+    b_roll_assets: [
+      'Accelerated ebook page',
+      'Content Intelligence dashboard',
+      'Campaign calendar arc',
+      'Social Insight approval tabs',
+      'AmaduTown proof surface',
+    ],
+    audio_rights: 'Use original narration, approved provider voiceover, or platform-safe audio only.',
+  }
 
   return {
     social_topic_trigger: true,
@@ -438,11 +466,22 @@ function acceleratedWorkshopInsightMetadata(input: {
         required_inputs: ['hook', 'first 30 seconds', 'script', 'storyboard scenes', 'b-roll hints'],
       },
       instagram_reels: {
-        status: 'not_started',
+        status: 'in_review',
         label: 'Instagram Reels',
         decision_note: null,
-        draft_packet: null,
+        draft_packet: drafts.instagram_reels,
+        review_requested_at: input.generatedAt,
+        updated_at: input.generatedAt,
         required_inputs: ['hook', 'script', 'caption', 'safe-area notes'],
+      },
+      tiktok: {
+        status: 'in_review',
+        label: 'TikTok',
+        decision_note: null,
+        draft_packet: drafts.tiktok,
+        review_requested_at: input.generatedAt,
+        updated_at: input.generatedAt,
+        required_inputs: ['hook', 'script', 'caption', 'audio rights', 'safe-area notes'],
       },
       thumbnail: {
         status: 'in_review',
@@ -690,7 +729,7 @@ export async function runDemoSeed(
           ends_at: String(campaign.ends_at),
         })
 
-        const channels = ['linkedin', 'youtube_shorts', 'instagram_reels', 'thumbnail'] as const
+        const channels = ['linkedin', 'youtube_shorts', 'instagram_reels', 'tiktok'] as const
         const rows = slots.map((slot, index) => ({
           ...slot,
           campaign_id: campaign.id,
@@ -801,9 +840,9 @@ export async function runDemoSeed(
         const { data: workItem, error: workItemError } = await supabase
           .from('agent_work_items')
           .insert({
-            title: 'Demo: turn a Shaka insight into LinkedIn and YouTube review drafts',
+            title: 'Demo: turn a Shaka insight into multi-channel review drafts',
             objective:
-              'Link the demo public research pattern, prepare LinkedIn and YouTube Shorts drafts from the same Shaka insight, then approve or reject each channel lane.',
+              'Link the demo public research pattern, prepare LinkedIn, YouTube Shorts, Instagram Reels, and TikTok drafts from the same Shaka insight, then approve or reject each channel lane.',
             status: 'proposed',
             priority: 'high',
             owner_agent_key: 'chief-of-staff',
@@ -820,7 +859,7 @@ export async function runDemoSeed(
               social_topic_trigger: true,
               demo_seed_key: SOCIAL_CHANNEL_REVIEW_FIXTURE_KEY,
               fixture_version: 1,
-              fixture_purpose: 'content_intelligence_linkedin_youtube_review_smoke',
+              fixture_purpose: 'content_intelligence_social_channel_review_smoke',
               research_packet_ids: [],
               suggested_research_packet_ids: [packet.id],
               insight: {
@@ -866,6 +905,13 @@ export async function runDemoSeed(
                   decision_note: null,
                   draft_packet: null,
                   required_inputs: ['hook', 'script', 'caption', 'safe-area notes'],
+                },
+                tiktok: {
+                  status: 'not_started',
+                  label: 'TikTok',
+                  decision_note: null,
+                  draft_packet: null,
+                  required_inputs: ['hook', 'script', 'caption', 'audio rights', 'safe-area notes'],
                 },
                 thumbnail: {
                   status: 'not_started',
@@ -1122,14 +1168,14 @@ export async function runDemoSeed(
             agent_work_item_id: workItem.id,
             channel: 'linkedin',
             title: `${phase.titlePrefix}: ${phase.insightTitle}`,
-            planned_angle: `${phase.contentAngle} LinkedIn, YouTube Shorts, and Thumbnail drafts are ready for human approval.`,
+            planned_angle: `${phase.contentAngle} LinkedIn, YouTube Shorts, Instagram Reels, TikTok, and Thumbnail drafts are ready for human approval.`,
             scheduled_for: scheduledFor,
             authorization_due_at: addDaysAtHourISO(Math.max(0, phase.day - 1), 10),
             authorization_status: 'pending',
             metadata: {
               ...commonMetadata,
               calendar_item_role: 'primary_phase_item',
-              channel_draft_targets: ['linkedin', 'youtube_shorts', 'thumbnail'],
+              channel_draft_targets: ['linkedin', 'youtube_shorts', 'instagram_reels', 'tiktok', 'thumbnail'],
             },
           }
           const youtubeRow = {
@@ -1146,7 +1192,7 @@ export async function runDemoSeed(
               ...commonMetadata,
               calendar_item_role: 'companion_channel_item',
               primary_channel: 'linkedin',
-              channel_draft_targets: ['youtube_shorts', 'thumbnail'],
+              channel_draft_targets: ['youtube_shorts', 'instagram_reels', 'tiktok', 'thumbnail'],
             },
           }
           return [primaryRow, youtubeRow]

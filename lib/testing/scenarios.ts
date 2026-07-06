@@ -1186,7 +1186,7 @@ export const seedSocialContentCalendarFixtureScenario = demoSeedApiScenario(
 export const seedSocialChannelReviewFixtureScenario = demoSeedApiScenario(
   'seed_social_channel_review_fixture',
   'Seed: Social Channel Review Fixture',
-  'Dev-safe Shaka insight plus public research packet for LinkedIn and YouTube review workflow',
+  'Dev-safe Shaka insight plus public research packet for multi-channel review workflow',
   'social_channel_review_fixture',
   'lead',
   ['seed', 'populate-demo', 'content-intelligence', 'social-review']
@@ -1195,7 +1195,7 @@ export const seedSocialChannelReviewFixtureScenario = demoSeedApiScenario(
 export const seedAcceleratedWorkshopCampaignFixtureScenario = demoSeedApiScenario(
   'seed_accelerated_workshop_campaign_fixture',
   'Seed: Accelerated Workshop Campaign Fixture',
-  'Dev-safe 14-day whisper_to_shout campaign with calendar items and review-ready LinkedIn, YouTube Shorts, and Thumbnail lanes',
+  'Dev-safe 14-day whisper_to_shout campaign with calendar items and review-ready LinkedIn, YouTube Shorts, Instagram Reels, TikTok, and Thumbnail lanes',
   'accelerated_workshop_campaign_fixture',
   'lead',
   ['seed', 'populate-demo', 'content-intelligence', 'calendar', 'social-review', 'accelerated']

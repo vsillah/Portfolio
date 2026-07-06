@@ -50,6 +50,8 @@ function calendarPlatformTargets(item: SocialContentCalendarItem): SocialPlatfor
       return ['youtube']
     case 'instagram_reels':
       return ['instagram']
+    case 'tiktok':
+      return ['tiktok']
     case 'thumbnail':
       return []
     default:

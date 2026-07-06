@@ -128,7 +128,7 @@ type CalendarItem = {
   campaign_id: string | null
   agent_work_item_id: string | null
   social_content_id: string | null
-  channel: 'linkedin' | 'youtube_shorts' | 'instagram_reels' | 'thumbnail'
+  channel: 'linkedin' | 'youtube_shorts' | 'instagram_reels' | 'tiktok' | 'thumbnail'
   campaign_phase: 'tease' | 'teach' | 'proof' | 'offer'
   title: string
   planned_angle: string | null
@@ -204,6 +204,7 @@ const CALENDAR_CHANNEL_LABELS: Record<CalendarItem['channel'], string> = {
   linkedin: 'LinkedIn',
   youtube_shorts: 'YouTube Shorts',
   instagram_reels: 'Instagram Reels',
+  tiktok: 'TikTok',
   thumbnail: 'Thumbnail',
 }
 
@@ -269,22 +270,25 @@ function insightFor(item: AgentWorkItem) {
   }
 }
 
-function channelLaneFor(item: AgentWorkItem, channel: 'linkedin' | 'youtube_shorts') {
+function channelLaneFor(item: AgentWorkItem, channel: 'linkedin' | 'youtube_shorts' | 'instagram_reels' | 'tiktok') {
   const metadata = recordValue(item.metadata)
   const lanes = recordValue(metadata.channel_lanes)
   return recordValue(lanes[channel])
 }
 
-function channelLaneStatus(item: AgentWorkItem, channel: 'linkedin' | 'youtube_shorts') {
+function channelLaneStatus(item: AgentWorkItem, channel: 'linkedin' | 'youtube_shorts' | 'instagram_reels' | 'tiktok') {
   return stringValue(channelLaneFor(item, channel).status) ?? 'not_started'
 }
 
-function hasChannelReviewDraft(item: AgentWorkItem, channel: 'linkedin' | 'youtube_shorts') {
+function hasChannelReviewDraft(item: AgentWorkItem, channel: 'linkedin' | 'youtube_shorts' | 'instagram_reels' | 'tiktok') {
   return Object.keys(recordValue(channelLaneFor(item, channel).draft_packet)).length > 0
 }
 
-function hasLinkedInYoutubeReviewDrafts(item: AgentWorkItem) {
-  return hasChannelReviewDraft(item, 'linkedin') && hasChannelReviewDraft(item, 'youtube_shorts')
+function hasPrimaryChannelReviewDrafts(item: AgentWorkItem) {
+  return hasChannelReviewDraft(item, 'linkedin')
+    && hasChannelReviewDraft(item, 'youtube_shorts')
+    && hasChannelReviewDraft(item, 'instagram_reels')
+    && hasChannelReviewDraft(item, 'tiktok')
 }
 
 function suggestedResearchPacketIds(item: AgentWorkItem) {
@@ -831,7 +835,7 @@ function ContentIntelligenceContent() {
       } else {
         await load()
       }
-      setReviewDraftNotice('LinkedIn and YouTube Shorts review drafts are ready for human approval.')
+      setReviewDraftNotice('LinkedIn, YouTube Shorts, Instagram Reels, and TikTok review drafts are ready for human approval.')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to prepare channel review drafts')
     } finally {
@@ -1957,7 +1961,9 @@ function ContentIntelligenceContent() {
                           const insight = insightFor(item)
                           const linkedinStatus = channelLaneStatus(item, 'linkedin')
                           const youtubeStatus = channelLaneStatus(item, 'youtube_shorts')
-                          const hasReviewDrafts = hasLinkedInYoutubeReviewDrafts(item)
+                          const instagramStatus = channelLaneStatus(item, 'instagram_reels')
+                          const tiktokStatus = channelLaneStatus(item, 'tiktok')
+                          const hasReviewDrafts = hasPrimaryChannelReviewDrafts(item)
                           const hasApprovedResearch = hasApprovedResearchPatterns(item)
                           const suggestedPacketIds = suggestedResearchPacketIds(item)
                           const isPreparingReview = preparingReviewInsightId === item.id
@@ -1991,6 +1997,12 @@ function ContentIntelligenceContent() {
                                   </span>
                                   <span className={`inline-flex w-fit rounded-full border px-2 py-0.5 text-xs ${channelReviewPillClass(youtubeStatus)}`}>
                                     YouTube: {youtubeStatus.replace(/_/g, ' ')}
+                                  </span>
+                                  <span className={`inline-flex w-fit rounded-full border px-2 py-0.5 text-xs ${channelReviewPillClass(instagramStatus)}`}>
+                                    Instagram: {instagramStatus.replace(/_/g, ' ')}
+                                  </span>
+                                  <span className={`inline-flex w-fit rounded-full border px-2 py-0.5 text-xs ${channelReviewPillClass(tiktokStatus)}`}>
+                                    TikTok: {tiktokStatus.replace(/_/g, ' ')}
                                   </span>
                                 </div>
                               </td>

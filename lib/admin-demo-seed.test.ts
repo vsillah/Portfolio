@@ -83,7 +83,7 @@ describe('admin demo seed', () => {
       'linkedin',
       'youtube_shorts',
       'instagram_reels',
-      'thumbnail',
+      'tiktok',
     ])
     expect(rows.some((row) => row.authorization_status === 'rejected')).toBe(true)
     rows.forEach((row) => {
@@ -199,6 +199,8 @@ describe('admin demo seed', () => {
     const channelLanes = metadata.channel_lanes as Record<string, Record<string, unknown>>
     expect(channelLanes.linkedin.status).toBe('selected')
     expect(channelLanes.youtube_shorts.status).toBe('not_started')
+    expect(channelLanes.instagram_reels.status).toBe('not_started')
+    expect(channelLanes.tiktok.status).toBe('not_started')
     expect((metadata.insight as Record<string, unknown>).approved_research_patterns).toEqual([])
   })
 
@@ -390,7 +392,8 @@ describe('admin demo seed', () => {
       expect(lanes.linkedin.status).toBe('in_review')
       expect(lanes.youtube_shorts.status).toBe('in_review')
       expect(lanes.thumbnail.status).toBe('in_review')
-      expect(lanes.instagram_reels.status).toBe('not_started')
+      expect(lanes.instagram_reels.status).toBe('in_review')
+      expect(lanes.tiktok.status).toBe('in_review')
       expect((lanes.linkedin.draft_packet as Record<string, unknown>).side_effects).toMatchObject({
         provider_generation: false,
         upload: false,
@@ -400,6 +403,9 @@ describe('admin demo seed', () => {
       })
       expect((lanes.thumbnail.draft_packet as Record<string, unknown>).fields).toMatchObject({
         approval_state: 'in_review',
+      })
+      expect((lanes.tiktok.draft_packet as Record<string, unknown>).fields).toMatchObject({
+        audio_rights: expect.stringContaining('platform-safe audio'),
       })
     })
 
@@ -439,14 +445,14 @@ describe('admin demo seed', () => {
     primaryRows.forEach((row) => {
       expect(row.metadata).toMatchObject({
         calendar_item_role: 'primary_phase_item',
-        channel_draft_targets: ['linkedin', 'youtube_shorts', 'thumbnail'],
+        channel_draft_targets: ['linkedin', 'youtube_shorts', 'instagram_reels', 'tiktok', 'thumbnail'],
       })
     })
     youtubeRows.forEach((row) => {
       expect(row.metadata).toMatchObject({
         calendar_item_role: 'companion_channel_item',
         primary_channel: 'linkedin',
-        channel_draft_targets: ['youtube_shorts', 'thumbnail'],
+        channel_draft_targets: ['youtube_shorts', 'instagram_reels', 'tiktok', 'thumbnail'],
       })
     })
   })

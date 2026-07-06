@@ -55,6 +55,8 @@ const baseWorkItem = {
     channel_lanes: {
       linkedin: { status: 'selected', label: 'LinkedIn', required_inputs: ['post text', 'CTA'] },
       youtube_shorts: { status: 'not_started', label: 'YouTube Shorts', required_inputs: ['hook', 'script'] },
+      instagram_reels: { status: 'not_started', label: 'Instagram Reels', required_inputs: ['hook', 'caption'] },
+      tiktok: { status: 'not_started', label: 'TikTok', required_inputs: ['hook', 'caption', 'audio rights'] },
     },
   },
 }
@@ -120,12 +122,12 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
 
     expect(response.status).toBe(400)
     expect(await response.json()).toEqual({
-      error: 'Link at least one approved research pattern before preparing LinkedIn and YouTube review drafts',
+      error: 'Link at least one approved research pattern before preparing channel review drafts',
     })
     expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
   })
 
-  it('prepares LinkedIn and YouTube review drafts without external side effects', async () => {
+  it('prepares channel review drafts without external side effects', async () => {
     const response = await POST(request() as never, {
       params: { id: 'work-1' },
     })
@@ -133,11 +135,11 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
     expect(response.status).toBe(200)
     expect(mocks.updateAgentWorkItemMetadata).toHaveBeenCalledWith(expect.objectContaining({
       id: 'work-1',
-      note: 'LinkedIn and YouTube Shorts review drafts prepared by admin@example.com.',
+      note: 'Social channel review drafts prepared by admin@example.com.',
       metadata: expect.objectContaining({
         channel_review_workflow: expect.objectContaining({
           status: 'human_review_ready',
-          prepared_channels: ['linkedin', 'youtube_shorts'],
+          prepared_channels: ['linkedin', 'youtube_shorts', 'instagram_reels', 'tiktok'],
           prepared_at: '2026-06-24T15:00:00.000Z',
         }),
         channel_lanes: expect.objectContaining({
@@ -160,6 +162,28 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
               fields: expect.objectContaining({
                 hook: 'AI should reduce burden.',
                 first_30_seconds: expect.stringContaining('I noticed this through the social content review flow'),
+              }),
+            }),
+          }),
+          instagram_reels: expect.objectContaining({
+            status: 'in_review',
+            review_requested_at: '2026-06-24T15:00:00.000Z',
+            draft_packet: expect.objectContaining({
+              channel: 'instagram_reels',
+              fields: expect.objectContaining({
+                cover_text: expect.any(String),
+                export_readiness: 'pending_human_approval',
+              }),
+            }),
+          }),
+          tiktok: expect.objectContaining({
+            status: 'in_review',
+            review_requested_at: '2026-06-24T15:00:00.000Z',
+            draft_packet: expect.objectContaining({
+              channel: 'tiktok',
+              fields: expect.objectContaining({
+                audio_rights: expect.stringContaining('platform-safe audio'),
+                export_readiness: 'pending_human_approval',
               }),
             }),
           }),

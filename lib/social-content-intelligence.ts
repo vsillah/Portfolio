@@ -7,6 +7,7 @@ export const SOCIAL_CONTENT_INTELLIGENCE_CHANNELS = [
   'linkedin',
   'youtube_shorts',
   'instagram_reels',
+  'tiktok',
   'thumbnail',
 ] as const
 
@@ -34,7 +35,7 @@ export type SocialChannelLane = {
 export type SocialChannelLanes = Record<SocialContentIntelligenceChannel, SocialChannelLane>
 
 export type SocialChannelReviewDraftPacket = {
-  channel: 'linkedin' | 'youtube_shorts'
+  channel: SocialContentIntelligenceChannel
   generated_at: string
   approval_status: 'in_review' | 'approved' | 'blocked'
   decision_note?: string | null
@@ -61,6 +62,8 @@ export type SocialChannelReviewDraftPacket = {
 export type LinkedInYoutubeReviewDrafts = {
   linkedin: SocialChannelReviewDraftPacket
   youtube_shorts: SocialChannelReviewDraftPacket
+  instagram_reels: SocialChannelReviewDraftPacket
+  tiktok: SocialChannelReviewDraftPacket
 }
 
 export type SocialResearchPatternStatus =
@@ -161,6 +164,7 @@ const CHANNEL_LABELS: Record<SocialContentIntelligenceChannel, string> = {
   linkedin: 'LinkedIn',
   youtube_shorts: 'YouTube Shorts',
   instagram_reels: 'Instagram Reels',
+  tiktok: 'TikTok',
   thumbnail: 'Thumbnail',
 }
 
@@ -194,6 +198,19 @@ const CHANNEL_INPUTS: Record<SocialContentIntelligenceChannel, string[]> = {
     'caption',
     'hashtags',
     'b-roll assets',
+    'safe-area notes',
+    'export readiness',
+  ],
+  tiktok: [
+    'hook',
+    'script',
+    'target duration',
+    'storyboard scenes',
+    'cover frame',
+    'caption',
+    'hashtags',
+    'b-roll assets',
+    'audio rights',
     'safe-area notes',
     'export readiness',
   ],
@@ -695,6 +712,31 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
     'The lesson was not that AI can create more content.',
     'The lesson was that trust gets built when every risky output has evidence, ownership, and a visible approval gate.',
   ].join(' ')
+  const shortScript = [
+    `Opening: ${youtubeHook}`,
+    `Trigger: ${triggeringEvent}`,
+    `Authority: ${whyVambahCanSpeak}`,
+    `Point: ${contentAngle}`,
+    `Proof: ${evidenceSummary}`,
+    patternHook ? `Pattern to adapt: ${patternHook}` : 'Pattern to adapt: use the approved research packet without copying source language.',
+    'Close: AI earns trust when the handoff is visible before the output goes public.',
+  ]
+  const storyboardScenes = [
+    'Face-to-camera hook with the triggering event.',
+    'Screen capture of the review gate or backlog surface.',
+    'B-roll showing evidence, owner, and approval status.',
+    'Closing frame with the principle and AmaduTown branding.',
+  ]
+  const bRollHints = [
+    'Content Intelligence dashboard',
+    'Agentic Dashboard Backlog',
+    'Social Content approval gates',
+  ]
+  const onScreenText = [
+    'AI output needs receipts.',
+    'Every risky action needs a gate.',
+    'Trust is an operating layer.',
+  ]
 
   return {
     linkedin: {
@@ -730,34 +772,68 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
       fields: {
         hook: youtubeHook,
         first_30_seconds: firstThirtySeconds,
-        script: [
-          `Opening: ${youtubeHook}`,
-          `Trigger: ${triggeringEvent}`,
-          `Authority: ${whyVambahCanSpeak}`,
-          `Point: ${contentAngle}`,
-          `Proof: ${evidenceSummary}`,
-          patternHook ? `Pattern to adapt: ${patternHook}` : 'Pattern to adapt: use the approved research packet without copying source language.',
-          'Close: AI earns trust when the handoff is visible before the output goes public.',
-        ],
+        script: shortScript,
         target_duration_seconds: 45,
-        storyboard_scenes: [
-          'Face-to-camera hook with the triggering event.',
-          'Screen capture of the review gate or backlog surface.',
-          'B-roll showing evidence, owner, and approval status.',
-          'Closing frame with the principle and AmaduTown branding.',
-        ],
-        b_roll_hints: [
-          'Content Intelligence dashboard',
-          'Agentic Dashboard Backlog',
-          'Social Content approval gates',
-        ],
-        on_screen_text: [
-          'AI output needs receipts.',
-          'Every risky action needs a gate.',
-          'Trust is an operating layer.',
-        ],
+        storyboard_scenes: storyboardScenes,
+        b_roll_hints: bRollHints,
+        on_screen_text: onScreenText,
         caption: contentAngle,
         render_readiness: 'pending_human_approval',
+        claim_boundaries: claimBoundaries,
+      },
+      source_research_patterns: patterns,
+      side_effects: reviewDraftSideEffects(),
+    },
+    instagram_reels: {
+      channel: 'instagram_reels',
+      generated_at: generatedAt,
+      approval_status: 'in_review',
+      shared_source: sharedSource,
+      source_insight_title: title,
+      source_use_boundary: sourceBoundary,
+      fields: {
+        hook: youtubeHook,
+        script: shortScript,
+        target_duration_seconds: 45,
+        storyboard_scenes: storyboardScenes,
+        cover_text: patternPromise ? truncate(patternPromise, 52) : truncate(contentAngle, 52),
+        caption: contentAngle,
+        hashtags: ['#AIProduct', '#ProductManagement', '#AmaduTownAdvisory', '#TechForGood'],
+        b_roll_assets: bRollHints,
+        safe_area_notes: [
+          'Keep captions and CTA clear of top and bottom app chrome.',
+          'Use 9:16 vertical framing with the proof screen centered.',
+          'Avoid exposing admin names, client data, private notes, or raw Chronicle material.',
+        ],
+        export_readiness: 'pending_human_approval',
+        claim_boundaries: claimBoundaries,
+      },
+      source_research_patterns: patterns,
+      side_effects: reviewDraftSideEffects(),
+    },
+    tiktok: {
+      channel: 'tiktok',
+      generated_at: generatedAt,
+      approval_status: 'in_review',
+      shared_source: sharedSource,
+      source_insight_title: title,
+      source_use_boundary: sourceBoundary,
+      fields: {
+        hook: youtubeHook,
+        script: shortScript,
+        target_duration_seconds: 45,
+        storyboard_scenes: storyboardScenes,
+        cover_frame: patternPromise ? truncate(patternPromise, 48) : truncate(contentAngle, 48),
+        caption: contentAngle,
+        hashtags: ['#AIProduct', '#ProductOps', '#Automation', '#AmaduTown'],
+        b_roll_assets: bRollHints,
+        audio_rights: 'Use original narration, approved provider voiceover, or platform-safe audio only.',
+        safe_area_notes: [
+          'Keep text inside central 9:16 safe areas for TikTok controls.',
+          'Use a first-frame promise that can stand without sound.',
+          'Redact any private admin, client, Chronicle, or meeting-derived detail before export.',
+        ],
+        export_readiness: 'pending_human_approval',
         claim_boundaries: claimBoundaries,
       },
       source_research_patterns: patterns,

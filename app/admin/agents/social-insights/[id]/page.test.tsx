@@ -57,6 +57,7 @@ function socialWorkItem(overrides: Record<string, unknown> = {}) {
         linkedin: { status: 'selected', label: 'LinkedIn', required_inputs: ['post text', 'CTA'] },
         youtube_shorts: { status: 'not_started', label: 'YouTube Shorts', required_inputs: ['hook', 'script'] },
         instagram_reels: { status: 'not_started', label: 'Instagram Reels', required_inputs: ['hook', 'caption'] },
+        tiktok: { status: 'not_started', label: 'TikTok', required_inputs: ['hook', 'caption', 'audio rights'] },
         thumbnail: { status: 'not_started', label: 'Thumbnail', required_inputs: ['short thumbnail text', '2-3 variants'] },
       },
     },
@@ -133,6 +134,69 @@ describe('SocialInsightDetailPage', () => {
                         hook: 'AI should reduce burden.',
                         first_30_seconds: 'I noticed this through the social content review flow.',
                         script: ['Opening: AI should reduce burden.', 'Trigger: Social Content review flow.'],
+                      },
+                      side_effects: {
+                        provider_generation: false,
+                        upload: false,
+                        publish: false,
+                        schedule: false,
+                        external_post: false,
+                      },
+                    },
+                  },
+                  instagram_reels: {
+                    ...base.metadata.channel_lanes.instagram_reels,
+                    status: 'in_review',
+                    review_requested_at: '2026-06-24T15:00:00.000Z',
+                    draft_packet: {
+                      channel: 'instagram_reels',
+                      generated_at: '2026-06-24T15:00:00.000Z',
+                      source_use_boundary: 'Drafts are generated for human review only.',
+                      shared_source: {
+                        insight_title: 'Approval gates create trust',
+                        triggering_event: 'The Social Content review flow made the gate visible.',
+                        content_angle: 'AI should reduce burden, but only when authority and evidence are separated.',
+                        evidence_summary: 'Review path and visual gate work shipped locally.',
+                      },
+                      fields: {
+                        hook: 'AI should reduce burden.',
+                        script: ['Opening: AI should reduce burden.', 'Trigger: Social Content review flow.'],
+                        cover_text: 'Visible approval gates',
+                        caption: 'AI should reduce burden.',
+                        safe_area_notes: ['Keep captions inside 9:16 safe areas.'],
+                        export_readiness: 'pending_human_approval',
+                      },
+                      side_effects: {
+                        provider_generation: false,
+                        upload: false,
+                        publish: false,
+                        schedule: false,
+                        external_post: false,
+                      },
+                    },
+                  },
+                  tiktok: {
+                    ...base.metadata.channel_lanes.tiktok,
+                    status: 'in_review',
+                    review_requested_at: '2026-06-24T15:00:00.000Z',
+                    draft_packet: {
+                      channel: 'tiktok',
+                      generated_at: '2026-06-24T15:00:00.000Z',
+                      source_use_boundary: 'Drafts are generated for human review only.',
+                      shared_source: {
+                        insight_title: 'Approval gates create trust',
+                        triggering_event: 'The Social Content review flow made the gate visible.',
+                        content_angle: 'AI should reduce burden, but only when authority and evidence are separated.',
+                        evidence_summary: 'Review path and visual gate work shipped locally.',
+                      },
+                      fields: {
+                        hook: 'AI should reduce burden.',
+                        script: ['Opening: AI should reduce burden.', 'Trigger: Social Content review flow.'],
+                        cover_frame: 'Approval gate visible',
+                        caption: 'AI should reduce burden.',
+                        audio_rights: 'Use original narration or platform-safe audio only.',
+                        safe_area_notes: ['Keep text clear of TikTok controls.'],
+                        export_readiness: 'pending_human_approval',
                       },
                       side_effects: {
                         provider_generation: false,
@@ -232,6 +296,7 @@ describe('SocialInsightDetailPage', () => {
     expect(screen.getByRole('tab', { name: /LinkedIn/ })).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: /YouTube Shorts/ })).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: /Instagram Reels/ })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: /TikTok/ })).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: /Thumbnail/ })).toBeInTheDocument()
     expect(screen.getByText('post text')).toBeInTheDocument()
     expect(screen.getByText('Approved research patterns')).toBeInTheDocument()
@@ -260,10 +325,10 @@ describe('SocialInsightDetailPage', () => {
 
     await screen.findByRole('heading', { name: 'Approval gates create trust' })
     expect(screen.getByRole('button', { name: 'Approve Lane' })).toBeDisabled()
-    expect(screen.getByText('Prepare the LinkedIn + YouTube review drafts before approving this lane.')).toBeInTheDocument()
+    expect(screen.getByText('Prepare channel review drafts before approving this lane.')).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Prepare LinkedIn + YouTube Review Drafts' }))
-    await screen.findByText('LinkedIn and YouTube Shorts are ready for human review.')
+    fireEvent.click(screen.getByRole('button', { name: 'Prepare Channel Review Drafts' }))
+    await screen.findByText('LinkedIn, YouTube Shorts, Instagram Reels, and TikTok are ready for human review.')
 
     fireEvent.change(screen.getByLabelText('Decision note'), {
       target: { value: 'Approved for LinkedIn planning; no publishing authorized.' },
@@ -291,13 +356,13 @@ describe('SocialInsightDetailPage', () => {
     })
   })
 
-  it('prepares LinkedIn and YouTube review drafts from the shared insight', async () => {
+  it('prepares channel review drafts from the shared insight', async () => {
     render(<SocialInsightDetailPage />)
 
     await screen.findByRole('heading', { name: 'Approval gates create trust' })
-    fireEvent.click(screen.getByRole('button', { name: 'Prepare LinkedIn + YouTube Review Drafts' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Prepare Channel Review Drafts' }))
 
-    expect(await screen.findByText('LinkedIn and YouTube Shorts are ready for human review.')).toBeInTheDocument()
+    expect(await screen.findByText('LinkedIn, YouTube Shorts, Instagram Reels, and TikTok are ready for human review.')).toBeInTheDocument()
     expect(screen.getByText('Review draft packet')).toBeInTheDocument()
     expect(screen.getByText('Shared source: Approval gates create trust')).toBeInTheDocument()
     expect(screen.getByText('No side effects authorized: provider generation, upload, publish, schedule, external post.')).toBeInTheDocument()
@@ -313,6 +378,12 @@ describe('SocialInsightDetailPage', () => {
     expect(screen.getByText('I noticed this through the social content review flow.')).toBeInTheDocument()
     expect(screen.getByText('Opening: AI should reduce burden.')).toBeInTheDocument()
 
+    fireEvent.click(screen.getByRole('tab', { name: /TikTok/ }))
+
+    expect(screen.getByText('TikTok production inputs')).toBeInTheDocument()
+    expect(screen.getByText('audio rights')).toBeInTheDocument()
+    expect(screen.getByText('Use original narration or platform-safe audio only.')).toBeInTheDocument()
+
     const prepareCall = vi.mocked(fetch).mock.calls.find(([input]) => String(input) === '/api/admin/agents/work-items/work-social-1/social-channels/prepare-review-drafts')
     expect(prepareCall).toBeTruthy()
     expect(prepareCall?.[1]).toMatchObject({ method: 'POST' })
@@ -322,8 +393,8 @@ describe('SocialInsightDetailPage', () => {
     render(<SocialInsightDetailPage />)
 
     await screen.findByRole('heading', { name: 'Approval gates create trust' })
-    fireEvent.click(screen.getByRole('button', { name: 'Prepare LinkedIn + YouTube Review Drafts' }))
-    await screen.findByText('LinkedIn and YouTube Shorts are ready for human review.')
+    fireEvent.click(screen.getByRole('button', { name: 'Prepare Channel Review Drafts' }))
+    await screen.findByText('LinkedIn, YouTube Shorts, Instagram Reels, and TikTok are ready for human review.')
 
     fireEvent.click(screen.getByRole('tab', { name: /YouTube Shorts/ }))
     fireEvent.change(screen.getByLabelText('Decision note'), {

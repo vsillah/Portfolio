@@ -39,9 +39,10 @@ describe('social-content-intelligence', () => {
       linkedin: { status: 'selected', decision_note: 'Use as first channel.' },
     })
 
-    expect(Object.keys(lanes)).toEqual(['linkedin', 'youtube_shorts', 'instagram_reels', 'thumbnail'])
+    expect(Object.keys(lanes)).toEqual(['linkedin', 'youtube_shorts', 'instagram_reels', 'tiktok', 'thumbnail'])
     expect(lanes.linkedin.status).toBe('selected')
     expect(lanes.youtube_shorts.status).toBe('not_started')
+    expect(lanes.tiktok.required_inputs).toContain('audio rights')
     expect(lanes.thumbnail.required_inputs).toContain('2-3 variants')
   })
 
@@ -95,7 +96,7 @@ describe('social-content-intelligence', () => {
     expect(mapped.claim_boundaries).toEqual(['Do not imply every workflow is automated.'])
   })
 
-  it('builds LinkedIn and YouTube review drafts from the same source while adapting fields by channel', () => {
+  it('builds channel review drafts from the same source while adapting fields by channel', () => {
     const drafts = buildLinkedInYoutubeReviewDrafts({
       generatedAt: '2026-06-24T15:00:00.000Z',
       insight: {
@@ -139,6 +140,23 @@ describe('social-content-intelligence', () => {
       target_duration_seconds: 45,
       render_readiness: 'pending_human_approval',
     })
+    expect(drafts.instagram_reels.fields).toMatchObject({
+      hook: 'AI should reduce burden.',
+      cover_text: expect.any(String),
+      safe_area_notes: expect.arrayContaining([
+        expect.stringContaining('9:16 vertical framing'),
+      ]),
+      export_readiness: 'pending_human_approval',
+    })
+    expect(drafts.tiktok.fields).toMatchObject({
+      hook: 'AI should reduce burden.',
+      cover_frame: expect.any(String),
+      audio_rights: expect.stringContaining('platform-safe audio'),
+      safe_area_notes: expect.arrayContaining([
+        expect.stringContaining('TikTok controls'),
+      ]),
+      export_readiness: 'pending_human_approval',
+    })
     expect(drafts.linkedin.fields).not.toHaveProperty('first_30_seconds')
     expect(drafts.youtube_shorts.fields).not.toHaveProperty('post_text')
     expect(drafts.linkedin.side_effects).toEqual({
@@ -149,5 +167,7 @@ describe('social-content-intelligence', () => {
       external_post: false,
     })
     expect(drafts.youtube_shorts.side_effects).toEqual(drafts.linkedin.side_effects)
+    expect(drafts.instagram_reels.side_effects).toEqual(drafts.linkedin.side_effects)
+    expect(drafts.tiktok.side_effects).toEqual(drafts.linkedin.side_effects)
   })
 })
