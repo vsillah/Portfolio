@@ -20,6 +20,32 @@ const AuthContext = createContext<AuthContextType>({
   isAdmin: false,
 })
 
+const AUTH_REQUEST_TIMEOUT_MS = 8000
+const PROFILE_REQUEST_TIMEOUT_MS = 10000
+
+async function resolveWithTimeout<T>(
+  operation: () => Promise<T>,
+  timeoutMs: number,
+  fallback: T,
+  label: string,
+): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<T>((resolve) => {
+    timeoutId = setTimeout(() => {
+      console.warn(`${label} timed out after ${timeoutMs}ms`)
+      resolve(fallback)
+    }, timeoutMs)
+  })
+
+  try {
+    return await Promise.race([operation(), timeout])
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+    }
+  }
+}
+
 export function useAuth() {
   return useContext(AuthContext)
 }
@@ -39,12 +65,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const url = `/api/user/profile${forceRefresh ? '?t=' + Date.now() : ''}`
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        cache: forceRefresh ? 'no-store' : 'default',
-      })
+      const response = await resolveWithTimeout(
+        () =>
+          fetch(url, {
+            headers: {
+              'Authorization': `Bearer ${session.access_token}`,
+            },
+            cache: forceRefresh ? 'no-store' : 'default',
+          }),
+        PROFILE_REQUEST_TIMEOUT_MS,
+        null,
+        'Profile request',
+      )
+
+      if (!response) {
+        return null
+      }
 
       if (!response.ok) {
         if (response.status === 401) {
@@ -66,24 +102,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // while getUser() (server round-trip) is in flight
     const initAuth = async () => {
       try {
-        const session = await getCurrentSession()
-        if (session?.user) {
-          setUser(session.user)
-          setSession(session)
+        const restoredSession = await resolveWithTimeout(
+          getCurrentSession,
+          AUTH_REQUEST_TIMEOUT_MS,
+          null,
+          'Initial session restore',
+        )
+
+        if (restoredSession?.user) {
+          setUser(restoredSession.user)
+          setSession(restoredSession)
           try {
-            const userProfile = await fetchProfileFromAPI(session, true)
+            const userProfile = await fetchProfileFromAPI(restoredSession, true)
             setProfile(userProfile)
           } catch (profileError) {
             console.warn('Profile fetch error:', profileError)
           }
         }
-        const user = await getCurrentUser()
-        setUser(user)
-        if (user) {
-          const currentSession = await getCurrentSession()
+
+        const currentUser = await resolveWithTimeout(
+          getCurrentUser,
+          AUTH_REQUEST_TIMEOUT_MS,
+          null,
+          'Current user request',
+        )
+        setUser(currentUser)
+
+        if (currentUser) {
+          const currentSession = await resolveWithTimeout(
+            getCurrentSession,
+            AUTH_REQUEST_TIMEOUT_MS,
+            null,
+            'Current session refresh',
+          )
           if (currentSession) {
             setSession(currentSession)
-            if (!session?.user) {
+            if (!restoredSession?.user) {
               try {
                 const userProfile = await fetchProfileFromAPI(currentSession, true)
                 setProfile(userProfile)
@@ -94,6 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         } else {
           setSession(null)
+          setProfile(null)
         }
       } catch (error) {
         console.error('Auth init error:', error)
