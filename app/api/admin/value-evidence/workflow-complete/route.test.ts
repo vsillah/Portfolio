@@ -178,4 +178,108 @@ describe('POST /api/admin/value-evidence/workflow-complete', () => {
       chained_social: false,
     })
   })
+
+  it('materializes a supplied UUID run_id so repeated callbacks reuse one row', async () => {
+    const suppliedRunId = '25c30da4-7b69-42d4-9237-8187d691e2ac'
+    requestJsonMock.mockResolvedValue({
+      run_id: suppliedRunId,
+      workflow_id: 'WF-VEP-002',
+      status: 'success',
+      items_inserted: 0,
+    })
+
+    const runTable = {
+      select: vi.fn(() => selectChain),
+      insert: vi.fn(() => insertChain),
+      update: vi.fn(() => updateChain),
+    }
+    fromMock.mockReturnValue(runTable)
+
+    selectChain.maybeSingle.mockResolvedValueOnce({ data: null })
+    insertChain.single.mockResolvedValueOnce({
+      data: {
+        id: suppliedRunId,
+        stages: null,
+        scope_type: null,
+        scope_id: null,
+        scope_label: null,
+      },
+      error: null,
+    })
+
+    const { POST } = await import('./route')
+    const request = {
+      headers: { get: vi.fn().mockReturnValue('Bearer secret-token') },
+      json: requestJsonMock,
+    } as unknown as Request
+
+    await POST(request as never)
+
+    expect(selectChain.eq).toHaveBeenCalledWith('id', suppliedRunId)
+    expect(runTable.insert).toHaveBeenCalledWith({
+      id: suppliedRunId,
+      workflow_id: 'vep002',
+      status: 'running',
+    })
+    expect(updateChain.eq).toHaveBeenCalledWith('id', suppliedRunId)
+    expect(jsonMock).toHaveBeenCalledWith({
+      ok: true,
+      run_id: suppliedRunId,
+      agent_run_id: null,
+      chained_social: false,
+    })
+  })
+
+  it('reselects supplied UUID run_id when concurrent callback already created it', async () => {
+    const suppliedRunId = '25c30da4-7b69-42d4-9237-8187d691e2ac'
+    requestJsonMock.mockResolvedValue({
+      run_id: suppliedRunId,
+      workflow_id: 'vep002',
+      status: 'success',
+    })
+
+    const runTable = {
+      select: vi.fn(() => selectChain),
+      insert: vi.fn(() => insertChain),
+      update: vi.fn(() => updateChain),
+    }
+    fromMock.mockReturnValue(runTable)
+
+    selectChain.maybeSingle
+      .mockResolvedValueOnce({ data: null })
+      .mockResolvedValueOnce({
+        data: {
+          id: suppliedRunId,
+          stages: null,
+          scope_type: null,
+          scope_id: null,
+          scope_label: null,
+        },
+      })
+    insertChain.single.mockResolvedValueOnce({
+      data: null,
+      error: { message: 'duplicate key value violates unique constraint "value_evidence_workflow_runs_pkey"' },
+    })
+
+    const { POST } = await import('./route')
+    const request = {
+      headers: { get: vi.fn().mockReturnValue('Bearer secret-token') },
+      json: requestJsonMock,
+    } as unknown as Request
+
+    await POST(request as never)
+
+    expect(runTable.insert).toHaveBeenCalledWith({
+      id: suppliedRunId,
+      workflow_id: 'vep002',
+      status: 'running',
+    })
+    expect(updateChain.eq).toHaveBeenCalledWith('id', suppliedRunId)
+    expect(jsonMock).toHaveBeenCalledWith({
+      ok: true,
+      run_id: suppliedRunId,
+      agent_run_id: null,
+      chained_social: false,
+    })
+  })
 })

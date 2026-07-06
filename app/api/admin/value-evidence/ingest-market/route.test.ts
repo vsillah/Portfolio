@@ -155,4 +155,59 @@ describe('POST /api/admin/value-evidence/ingest-market', () => {
       classification: null,
     })
   })
+
+  it('counts fallback duplicate insert races as duplicates without failing the request', async () => {
+    const upsert = vi.fn(() => ({
+      select: vi.fn().mockResolvedValue({
+        data: null,
+        count: null,
+        error: {
+          message: 'there is no unique or exclusion constraint matching the ON CONFLICT specification',
+        },
+      }),
+    }))
+    const insert = vi.fn(() => ({
+      select: vi.fn(() => ({
+        single: vi.fn().mockResolvedValue({
+          data: null,
+          error: {
+            code: '23505',
+            message: 'duplicate key value violates unique constraint "idx_market_intelligence_source_url_unique"',
+          },
+        }),
+      })),
+    }))
+
+    fromMock.mockReturnValue({
+      upsert,
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+        })),
+      })),
+      insert,
+    })
+
+    const { POST } = await import('./route')
+    const response = await POST(makeRequest({
+      items: [
+        {
+          source_platform: 'google_maps',
+          source_url: 'https://maps.example/review-race',
+          content_text: 'Manual paperwork took weeks to process.',
+          content_type: 'review',
+        },
+      ],
+    }))
+
+    expect(classifyMarketIntelMock).not.toHaveBeenCalled()
+    expect(jsonMock).toHaveBeenCalledWith({
+      total: 1,
+      inserted: 0,
+      duplicates: 1,
+      errors: [],
+      classification: null,
+    })
+    expect(response.status).toBe(200)
+  })
 })
