@@ -131,6 +131,33 @@ describe('POST /api/admin/model-usage/import', () => {
     expect(mocks.fromMock).not.toHaveBeenCalled()
   })
 
+  it('dry-runs reviewed source files through the import route without provider side effects', async () => {
+    const response = await POST(request({
+      dryRun: true,
+      sourceFiles: [{
+        kind: 'openai_usage_jsonl',
+        clientLabel: 'Portfolio',
+        text: JSON.stringify({
+          id: 'openai-row-1',
+          model: 'gpt-4o-mini',
+          prompt_tokens: 1000,
+          completion_tokens: 200,
+          cost_usd: 0.004,
+        }),
+      }],
+    }) as never)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({
+      ok: true,
+      dryRun: true,
+      eventCount: 1,
+      subscriptionAllocationCount: 0,
+    })
+    expect(mocks.fromMock).not.toHaveBeenCalled()
+  })
+
   it('inserts source-specific packets when reviewed without events arrays', async () => {
     const response = await POST(request({
       sourcePackets: [{

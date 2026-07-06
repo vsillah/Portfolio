@@ -9,10 +9,13 @@ import {
   BrainCircuit,
   CalendarDays,
   CircleDollarSign,
+  Clipboard,
+  FileText,
   Gauge,
   RefreshCw,
   ShieldCheck,
   SlidersHorizontal,
+  Upload,
   Zap,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
@@ -23,6 +26,16 @@ import type { ModelUsageLedgerEvent, ModelUsageSnapshot } from '@/lib/model-usag
 type Snapshot = ModelUsageSnapshot & { ok?: boolean }
 
 type DatePreset = '30d' | 'mtd' | 'qtd'
+type SourceFileKind = 'codex_session_json' | 'claude_code_session_json' | 'gemini_usage_csv' | 'openai_usage_jsonl' | 'anthropic_usage_jsonl' | 'local_model_json'
+
+const SOURCE_FILE_KIND_OPTIONS: Array<{ key: SourceFileKind; label: string }> = [
+  { key: 'codex_session_json', label: 'Codex JSON' },
+  { key: 'claude_code_session_json', label: 'Claude Code JSON' },
+  { key: 'gemini_usage_csv', label: 'Gemini CSV' },
+  { key: 'openai_usage_jsonl', label: 'OpenAI JSONL' },
+  { key: 'anthropic_usage_jsonl', label: 'Anthropic JSONL' },
+  { key: 'local_model_json', label: 'Local/Open-weight JSON' },
+]
 
 const DEFAULT_IMPORT_PACKET = JSON.stringify({
   sourcePackets: [
@@ -64,6 +77,19 @@ const DEFAULT_IMPORT_PACKET = JSON.stringify({
       notes: 'Reviewed flat-rate allocation; no provider account connection.',
     },
   ],
+}, null, 2)
+
+const DEFAULT_SOURCE_FILE_TEXT = JSON.stringify({
+  session_id: 'replace-with-session-id',
+  occurred_at: '2026-06-06T12:00:00.000Z',
+  model: 'gpt-5-codex',
+  task_category: 'coding',
+  usage: {
+    input_tokens: 12000,
+    output_tokens: 1800,
+    cached_tokens: 400,
+  },
+  operation: 'reviewed_session_import',
 }, null, 2)
 
 function dateRange(preset: DatePreset) {
@@ -110,6 +136,12 @@ function ModelUsageContent() {
   const [importText, setImportText] = useState(DEFAULT_IMPORT_PACKET)
   const [importing, setImporting] = useState(false)
   const [importResult, setImportResult] = useState<string | null>(null)
+  const [sourceFileKind, setSourceFileKind] = useState<SourceFileKind>('codex_session_json')
+  const [sourceFileText, setSourceFileText] = useState(DEFAULT_SOURCE_FILE_TEXT)
+  const [sourceFileClientLabel, setSourceFileClientLabel] = useState('Portfolio')
+  const [sourceFileBatchId, setSourceFileBatchId] = useState('')
+  const [sourceFileResult, setSourceFileResult] = useState<string | null>(null)
+  const [clientSafeResult, setClientSafeResult] = useState<string | null>(null)
 
   const fetchSnapshot = useCallback(async () => {
     setLoading(true)
@@ -187,6 +219,61 @@ function ModelUsageContent() {
       setImporting(false)
     }
   }, [fetchSnapshot, importText])
+
+  const appendSourceFileImport = useCallback(() => {
+    setSourceFileResult(null)
+    try {
+      const current = JSON.parse(importText || '{}')
+      const sourceFile = {
+        kind: sourceFileKind,
+        text: sourceFileText,
+        clientLabel: sourceFileClientLabel || undefined,
+        exportBatchId: sourceFileBatchId || undefined,
+      }
+      setImportText(JSON.stringify({
+        ...current,
+        sourceFiles: [...(Array.isArray(current.sourceFiles) ? current.sourceFiles : []), sourceFile],
+      }, null, 2))
+      setSourceFileResult('Source file staged into the reviewed import packet. Run dry run before importing.')
+    } catch (err) {
+      setSourceFileResult(err instanceof Error ? err.message : 'Could not stage source file import.')
+    }
+  }, [importText, sourceFileBatchId, sourceFileClientLabel, sourceFileKind, sourceFileText])
+
+  const loadSourceFile = useCallback(async (file: File | null) => {
+    if (!file) return
+    setSourceFileText(await file.text())
+    setSourceFileResult(`Loaded ${file.name} for review.`)
+  }, [])
+
+  const copyClientSafeExport = useCallback(async () => {
+    if (!snapshot) return
+    const safeExport = {
+      generatedAt: snapshot.generatedAt,
+      window: snapshot.window,
+      totals: snapshot.totals,
+      byProvider: snapshot.byProvider,
+      byModel: snapshot.byModel,
+      byRuntime: snapshot.byRuntime,
+      byTaskCategory: snapshot.byTaskCategory,
+      byClientProject: snapshot.byClientProject,
+      recommendations: snapshot.recommendations.map((recommendation) => ({
+        id: recommendation.id,
+        severity: recommendation.severity,
+        title: recommendation.title,
+        action: recommendation.action,
+        approvalRequired: recommendation.approvalRequired,
+      })),
+      events: snapshot.clientSafeEvents,
+    }
+    const text = JSON.stringify(safeExport, null, 2)
+    try {
+      await navigator.clipboard.writeText(text)
+      setClientSafeResult(`Copied client-safe usage export with ${safeExport.events.length} scrubbed event(s).`)
+    } catch {
+      setClientSafeResult(text)
+    }
+  }, [snapshot])
 
   return (
     <div className="agent-ops-page min-h-screen p-5 text-foreground lg:p-7">
@@ -355,6 +442,95 @@ function ModelUsageContent() {
                   {importResult}
                 </p>
               ) : null}
+              <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+                <div className="rounded-lg border border-silicon-slate/60 bg-background/35 p-3">
+                  <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
+                    <FileText size={16} className="text-radiant-gold" />
+                    Reviewed source file
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <label className="text-xs text-muted-foreground">
+                      Source format
+                      <select
+                        value={sourceFileKind}
+                        onChange={(event) => setSourceFileKind(event.target.value as SourceFileKind)}
+                        className="mt-1 w-full rounded-lg border border-silicon-slate/60 bg-background/80 px-3 py-2 text-xs text-foreground"
+                      >
+                        {SOURCE_FILE_KIND_OPTIONS.map((option) => (
+                          <option key={option.key} value={option.key}>{option.label}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="text-xs text-muted-foreground">
+                      Client label
+                      <input
+                        value={sourceFileClientLabel}
+                        onChange={(event) => setSourceFileClientLabel(event.target.value)}
+                        className="mt-1 w-full rounded-lg border border-silicon-slate/60 bg-background/80 px-3 py-2 text-xs text-foreground"
+                      />
+                    </label>
+                    <label className="text-xs text-muted-foreground sm:col-span-2">
+                      Export batch id
+                      <input
+                        value={sourceFileBatchId}
+                        onChange={(event) => setSourceFileBatchId(event.target.value)}
+                        placeholder="Optional reviewed export batch id"
+                        className="mt-1 w-full rounded-lg border border-silicon-slate/60 bg-background/80 px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground/60"
+                      />
+                    </label>
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <label className="agent-ops-button-muted cursor-pointer">
+                      <Upload size={16} />
+                      Load file
+                      <input
+                        type="file"
+                        accept=".json,.jsonl,.csv,.txt"
+                        className="sr-only"
+                        onChange={(event) => loadSourceFile(event.target.files?.[0] ?? null)}
+                      />
+                    </label>
+                    <button type="button" onClick={appendSourceFileImport} className="agent-ops-button-secondary">
+                      <FileText size={16} />
+                      Stage source file
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <textarea
+                    value={sourceFileText}
+                    onChange={(event) => setSourceFileText(event.target.value)}
+                    spellCheck={false}
+                    className="min-h-[190px] w-full rounded-lg border border-silicon-slate/60 bg-background/80 p-3 font-mono text-xs text-foreground outline-none focus:border-radiant-gold/60"
+                    aria-label="Reviewed source file text"
+                  />
+                  {sourceFileResult ? (
+                    <p className="mt-2 rounded-lg border border-silicon-slate/60 bg-background/45 p-3 text-sm text-muted-foreground">
+                      {sourceFileResult}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+              <div className="mt-4 rounded-lg border border-silicon-slate/60 bg-background/35 p-3">
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 text-sm font-semibold">
+                      <Clipboard size={16} className="text-radiant-gold" />
+                      Client-safe usage export
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">Copies scrubbed transactions, rollups, and advisory recommendations without private trace ids or internal action labels.</p>
+                  </div>
+                  <button type="button" onClick={copyClientSafeExport} className="agent-ops-button-muted">
+                    <Clipboard size={16} />
+                    Copy client-safe JSON
+                  </button>
+                </div>
+                {clientSafeResult ? (
+                  <pre className="mt-3 max-h-40 overflow-auto rounded-lg border border-silicon-slate/60 bg-background/60 p-3 text-xs text-muted-foreground whitespace-pre-wrap">
+                    {clientSafeResult}
+                  </pre>
+                ) : null}
+              </div>
             </section>
 
             <section className="agent-ops-card rounded-lg border p-4">
