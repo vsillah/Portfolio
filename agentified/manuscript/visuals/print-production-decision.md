@@ -10,11 +10,11 @@ The digital workbook can use web-friendly diagrams, interactive rendering, and l
 
 ## Recommendation
 
-Keep both lanes until the interior format is chosen.
+Keep the review lanes, but separate concept scaffolds from final art.
 
 - Digital and website workbook: use color PNG/SVG assets and, later, interactive web components where useful.
-- Physical color interior: use the 600 DPI color PNG print masters.
-- Physical black-and-white interior: use a dedicated monochrome figure set built with line weight, pattern, shape, and labels instead of color.
+- Physical color interior: use fixed publication-plate exports once the figures are redesigned.
+- Physical black-and-white interior: use dedicated monochrome proofs built from the final plates, with line weight, pattern, shape, and labels instead of color.
 
 Do not treat grayscale conversion as the final black-and-white solution. A converted color figure may remain readable, but it can still rely on color distinctions the reader will not see. The monochrome lane should be designed for black-and-white from the start.
 
@@ -42,7 +42,14 @@ Before final book production, decide:
 
 ## Current recommendation
 
-Use the color print masters for author review and early PDF proofing. Keep the monochrome masters as the safer path for a black-and-white print edition.
+Use the existing color print masters only for early author review and placement testing.
+
+For the final physical book, move the key figures into the publication-plate lane described in:
+
+- `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/illustration-production-restart.md`
+- `/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/briefs/figure-3-amina-inside-sam-publication-plate.md`
+
+Keep the monochrome masters as a reminder of the black-and-white requirement, not as final art.
 
 Review these 6x9 proof PDFs at actual size before deciding which lane becomes the final book interior:
 

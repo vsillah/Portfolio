@@ -42,7 +42,7 @@ The pipeline entry that had opened Sam's morning failed on four. Sam rewrote it 
 
 ### Figure 1.1: The first receipt
 
-![The first receipt](/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/print/color-600dpi/figure-1-1-first-receipt-print-600dpi.png)
+![The first receipt](/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png)
 
 A receipt wraps an agent action in evidence. The output is what the reader sees. The receipt is what the organization needs before the work can earn trust.
 

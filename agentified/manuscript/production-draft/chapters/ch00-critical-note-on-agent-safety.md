@@ -62,7 +62,7 @@ In the Signals / Alignment / Momentum framework from "Accelerated," the product 
 
 ### Figure 0.1: SAM with the trust layer
 
-![SAM with the trust layer](/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/print/color-600dpi/figure-0-1-sam-trust-layer-print-600dpi.png)
+![SAM with the trust layer](/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png)
 
 "Accelerated" gave teams the SAM loop: Signals, Alignment, Momentum. "Agentified" adds the trust layer: source, receipt, gate, evaluation, and proof. The work can move faster only when the evidence moves with it. [A2]
 

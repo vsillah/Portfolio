@@ -39,7 +39,7 @@ Use A.M.I.N.A. before you give an agent more power. If you cannot answer one of 
 
 ### A.M.I.N.A. inside SAM
 
-![A.M.I.N.A. inside SAM](/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/figure-3-amina-inside-sam.png)
+![A.M.I.N.A. inside SAM](/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png)
 
 SAM gives the team a way to accelerate learning. A.M.I.N.A. gives the reader a way to keep that acceleration governed while agents prepare work.
 

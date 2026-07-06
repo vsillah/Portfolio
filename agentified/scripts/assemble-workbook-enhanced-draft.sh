@@ -528,7 +528,7 @@ In the workbook, A.M.I.N.A. becomes the process you can carry into your own orga
 
 ### A.M.I.N.A. inside SAM
 
-![A.M.I.N.A. inside SAM](/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/figure-3-amina-inside-sam.png)
+![A.M.I.N.A. inside SAM](/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png)
 
 SAM gives the team a way to accelerate learning. A.M.I.N.A. gives the reader a way to keep that acceleration governed while agents prepare work.
 
@@ -620,7 +620,7 @@ Amina's next discipline is to map authority before expanding it. An agent can pr
 
 ### Figure II.1: Authority ladder
 
-![Authority ladder](/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/figure-ii-1-authority-ladder.png)
+![Authority ladder](/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png)
 
 Authority should climb only when evidence climbs with it. The higher the side effect, the stronger the receipt, gate, and rollback path must be.
 EOF

@@ -42,7 +42,7 @@ The problem was not that he had too few agents. The problem was that the agents 
 
 ### Figure 8.1: Portfolio-first operating stack
 
-![Portfolio-first operating stack](/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/print/color-600dpi/figure-8-1-portfolio-first-stack-print-600dpi.png)
+![Portfolio-first operating stack](/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png)
 
 The agentic operating system did not start with a prompt. It started with a body of work that already had shape. Portfolio gave Open Brain a substrate, and the trust layer gave agents a governed way to use it.
 

@@ -28,7 +28,7 @@ In the workbook, A.M.I.N.A. becomes the process you can carry into your own orga
 
 ### A.M.I.N.A. inside SAM
 
-![A.M.I.N.A. inside SAM](/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/figure-3-amina-inside-sam.png)
+![A.M.I.N.A. inside SAM](/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png)
 
 SAM gives the team a way to accelerate learning. A.M.I.N.A. gives the reader a way to keep that acceleration governed while agents prepare work.
 
@@ -155,7 +155,7 @@ In the Signals / Alignment / Momentum framework from "Accelerated," the product 
 
 ### Figure 0.1: SAM with the trust layer
 
-![SAM with the trust layer](/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/print/color-600dpi/figure-0-1-sam-trust-layer-print-600dpi.png)
+![SAM with the trust layer](/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png)
 
 "Accelerated" gave teams the SAM loop: Signals, Alignment, Momentum. "Agentified" adds the trust layer: source, receipt, gate, evaluation, and proof. The work can move faster only when the evidence moves with it. [A2]
 
@@ -229,7 +229,7 @@ The pipeline entry that had opened Sam's morning failed on four. Sam rewrote it 
 
 ### Figure 1.1: The first receipt
 
-![The first receipt](/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/print/color-600dpi/figure-1-1-first-receipt-print-600dpi.png)
+![The first receipt](/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png)
 
 A receipt wraps an agent action in evidence. The output is what the reader sees. The receipt is what the organization needs before the work can earn trust.
 
@@ -1012,7 +1012,7 @@ The problem was not that he had too few agents. The problem was that the agents 
 
 ### Figure 8.1: Portfolio-first operating stack
 
-![Portfolio-first operating stack](/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/print/color-600dpi/figure-8-1-portfolio-first-stack-print-600dpi.png)
+![Portfolio-first operating stack](/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png)
 
 The agentic operating system did not start with a prompt. It started with a body of work that already had shape. Portfolio gave Open Brain a substrate, and the trust layer gave agents a governed way to use it.
 
@@ -1133,7 +1133,7 @@ Amina's next discipline is to map authority before expanding it. An agent can pr
 
 ### Figure II.1: Authority ladder
 
-![Authority ladder](/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/figure-ii-1-authority-ladder.png)
+![Authority ladder](/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png)
 
 Authority should climb only when evidence climbs with it. The higher the side effect, the stronger the receipt, gate, and rollback path must be.
 

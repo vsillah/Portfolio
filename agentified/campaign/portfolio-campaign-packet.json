@@ -1,0 +1,263 @@
+{
+  "packet_status": "draft_prepare_only",
+  "side_effects": {
+    "creates_campaign": false,
+    "inserts_calendar_items": false,
+    "creates_social_drafts": false,
+    "uploads_media": false,
+    "schedules_external_posts": false,
+    "publishes_external_posts": false,
+    "sends_email": false
+  },
+  "campaign": {
+    "name": "Agentified: Trust Scale Launch",
+    "slug": "agentified-trust-scale-2026-07",
+    "description": "Launch campaign for Agentified, Vambah Sillah's product-leadership book on governing agentic work through memory, roles, routing, approvals, evals, drift checks, receipts, and operating-system design.",
+    "campaign_type": "bonus_credit",
+    "status": "draft",
+    "starts_at": "2026-07-13T13:00:00-04:00",
+    "ends_at": "2026-07-26T18:00:00-04:00",
+    "enrollment_deadline": null,
+    "completion_window_days": 14,
+    "min_purchase_amount": 0,
+    "payout_type": "credit",
+    "payout_amount_type": "fixed",
+    "payout_amount_value": 0,
+    "rollover_bonus_multiplier": 1,
+    "hero_image_url": "/agentified-cover.svg",
+    "promo_copy": "Achieve agentic scale through trust."
+  },
+  "calendar_items": [
+    {
+      "asset_id": "AGT-LI-01",
+      "campaign_slug": "agentified-trust-scale-2026-07",
+      "campaign_phase": "tease",
+      "channel": "linkedin",
+      "title": "The speed problem is becoming a trust problem",
+      "planned_angle": "Open the campaign with the central operating tension: teams can move faster than their review systems can trust.",
+      "scheduled_for": "2026-07-13T09:00:00-04:00",
+      "due_status": "planned",
+      "authorization_status": "pending",
+      "authorization_due_at": "2026-07-12T17:00:00-04:00",
+      "autonomy_eligible": false,
+      "metadata": {
+        "template_key": "whisper_to_shout",
+        "campaign_arc": "agentified_book_launch",
+        "human_gate_required": true,
+        "draft_asset_path": "agentified/campaign/draft-assets.md#agt-li-01"
+      }
+    },
+    {
+      "asset_id": "AGT-LI-02",
+      "campaign_slug": "agentified-trust-scale-2026-07",
+      "campaign_phase": "tease",
+      "channel": "linkedin",
+      "title": "The first agentic failure is usually a handoff failure",
+      "planned_angle": "Make the trust problem concrete through the missing context in agentic handoffs.",
+      "scheduled_for": "2026-07-14T12:00:00-04:00",
+      "due_status": "planned",
+      "authorization_status": "pending",
+      "authorization_due_at": "2026-07-13T17:00:00-04:00",
+      "autonomy_eligible": false,
+      "metadata": {
+        "template_key": "whisper_to_shout",
+        "campaign_arc": "agentified_book_launch",
+        "human_gate_required": true,
+        "draft_asset_path": "agentified/campaign/draft-assets.md#agt-li-02"
+      }
+    },
+    {
+      "asset_id": "AGT-CAR-01",
+      "campaign_slug": "agentified-trust-scale-2026-07",
+      "campaign_phase": "teach",
+      "channel": "linkedin",
+      "title": "AMINA: the operating loop for agentic work",
+      "planned_angle": "Teach Align, Map, Instrument, Negotiate, and Audit as the operating frame for trusted agentic work.",
+      "scheduled_for": "2026-07-15T09:00:00-04:00",
+      "due_status": "planned",
+      "authorization_status": "pending",
+      "authorization_due_at": "2026-07-14T17:00:00-04:00",
+      "autonomy_eligible": false,
+      "metadata": {
+        "template_key": "whisper_to_shout",
+        "campaign_arc": "agentified_book_launch",
+        "human_gate_required": true,
+        "draft_asset_path": "agentified/campaign/draft-assets.md#agt-car-01"
+      }
+    },
+    {
+      "asset_id": "AGT-LI-03",
+      "campaign_slug": "agentified-trust-scale-2026-07",
+      "campaign_phase": "teach",
+      "channel": "linkedin",
+      "title": "What Accelerated taught me about Agentified",
+      "planned_angle": "Connect Agentified to the SAM loop lineage while making the new governance layer clear.",
+      "scheduled_for": "2026-07-16T12:00:00-04:00",
+      "due_status": "planned",
+      "authorization_status": "pending",
+      "authorization_due_at": "2026-07-15T17:00:00-04:00",
+      "autonomy_eligible": false,
+      "metadata": {
+        "template_key": "whisper_to_shout",
+        "campaign_arc": "agentified_book_launch",
+        "human_gate_required": true,
+        "draft_asset_path": "agentified/campaign/draft-assets.md#agt-li-03"
+      }
+    },
+    {
+      "asset_id": "AGT-SHORT-01",
+      "campaign_slug": "agentified-trust-scale-2026-07",
+      "campaign_phase": "teach",
+      "channel": "youtube_shorts",
+      "title": "Agentic work needs an operating system",
+      "planned_angle": "Short spoken frame on permissions, receipts, review, gates, and drift.",
+      "scheduled_for": "2026-07-17T15:00:00-04:00",
+      "due_status": "planned",
+      "authorization_status": "pending",
+      "authorization_due_at": "2026-07-16T17:00:00-04:00",
+      "autonomy_eligible": false,
+      "metadata": {
+        "template_key": "short_form_series",
+        "campaign_arc": "agentified_book_launch",
+        "human_gate_required": true,
+        "draft_asset_path": "agentified/campaign/draft-assets.md#agt-short-01"
+      }
+    },
+    {
+      "asset_id": "AGT-LI-04",
+      "campaign_slug": "agentified-trust-scale-2026-07",
+      "campaign_phase": "proof",
+      "channel": "linkedin",
+      "title": "Cover reveal: Agentified",
+      "planned_angle": "Use the approved cover direction to explain the book promise and AMINA process.",
+      "scheduled_for": "2026-07-20T09:00:00-04:00",
+      "due_status": "planned",
+      "authorization_status": "pending",
+      "authorization_due_at": "2026-07-19T17:00:00-04:00",
+      "autonomy_eligible": false,
+      "metadata": {
+        "template_key": "whisper_to_shout",
+        "campaign_arc": "agentified_book_launch",
+        "human_gate_required": true,
+        "draft_asset_path": "agentified/campaign/draft-assets.md#agt-li-04",
+        "visual_asset": "agentified/manuscript/visuals/rendered/cover-comps/agentified-cover-a-sam-trust-engine.png"
+      }
+    },
+    {
+      "asset_id": "AGT-CAR-02",
+      "campaign_slug": "agentified-trust-scale-2026-07",
+      "campaign_phase": "proof",
+      "channel": "linkedin",
+      "title": "From SAM to AMINA",
+      "planned_angle": "Show the conceptual bridge from Accelerated's SAM loop to Agentified's AMINA trust layer.",
+      "scheduled_for": "2026-07-21T12:00:00-04:00",
+      "due_status": "planned",
+      "authorization_status": "pending",
+      "authorization_due_at": "2026-07-20T17:00:00-04:00",
+      "autonomy_eligible": false,
+      "metadata": {
+        "template_key": "whisper_to_shout",
+        "campaign_arc": "agentified_book_launch",
+        "human_gate_required": true,
+        "draft_asset_path": "agentified/campaign/draft-assets.md#agt-car-02"
+      }
+    },
+    {
+      "asset_id": "AGT-LI-05",
+      "campaign_slug": "agentified-trust-scale-2026-07",
+      "campaign_phase": "proof",
+      "channel": "linkedin",
+      "title": "The workbook is where the book becomes operational",
+      "planned_angle": "Position the workbook as the practical tool that turns Agentified into workflow design.",
+      "scheduled_for": "2026-07-22T09:00:00-04:00",
+      "due_status": "planned",
+      "authorization_status": "pending",
+      "authorization_due_at": "2026-07-21T17:00:00-04:00",
+      "autonomy_eligible": false,
+      "metadata": {
+        "template_key": "whisper_to_shout",
+        "campaign_arc": "agentified_book_launch",
+        "human_gate_required": true,
+        "draft_asset_path": "agentified/campaign/draft-assets.md#agt-li-05"
+      }
+    },
+    {
+      "asset_id": "AGT-SHORT-02",
+      "campaign_slug": "agentified-trust-scale-2026-07",
+      "campaign_phase": "proof",
+      "channel": "youtube_shorts",
+      "title": "What the cover is really showing",
+      "planned_angle": "Explain the cover as inspectable machinery for trusted agentic work.",
+      "scheduled_for": "2026-07-23T15:00:00-04:00",
+      "due_status": "planned",
+      "authorization_status": "pending",
+      "authorization_due_at": "2026-07-22T17:00:00-04:00",
+      "autonomy_eligible": false,
+      "metadata": {
+        "template_key": "short_form_series",
+        "campaign_arc": "agentified_book_launch",
+        "human_gate_required": true,
+        "draft_asset_path": "agentified/campaign/draft-assets.md#agt-short-02"
+      }
+    },
+    {
+      "asset_id": "AGT-LI-06",
+      "campaign_slug": "agentified-trust-scale-2026-07",
+      "campaign_phase": "offer",
+      "channel": "linkedin",
+      "title": "Agentified is for the product leader carrying the risk",
+      "planned_angle": "Make the release path clear for product leaders responsible for trustworthy agentic work.",
+      "scheduled_for": "2026-07-24T09:00:00-04:00",
+      "due_status": "planned",
+      "authorization_status": "pending",
+      "authorization_due_at": "2026-07-23T17:00:00-04:00",
+      "autonomy_eligible": false,
+      "metadata": {
+        "template_key": "whisper_to_shout",
+        "campaign_arc": "agentified_book_launch",
+        "human_gate_required": true,
+        "draft_asset_path": "agentified/campaign/draft-assets.md#agt-li-06"
+      }
+    },
+    {
+      "asset_id": "AGT-EMAIL-01",
+      "campaign_slug": "agentified-trust-scale-2026-07",
+      "campaign_phase": "offer",
+      "channel": "linkedin",
+      "title": "Agentified: achieve agentic scale through trust",
+      "planned_angle": "Owned-channel launch note; held as a calendar placeholder until the email path is selected.",
+      "scheduled_for": "2026-07-25T10:00:00-04:00",
+      "due_status": "planned",
+      "authorization_status": "pending",
+      "authorization_due_at": "2026-07-24T17:00:00-04:00",
+      "autonomy_eligible": false,
+      "metadata": {
+        "template_key": "whisper_to_shout",
+        "campaign_arc": "agentified_book_launch",
+        "human_gate_required": true,
+        "draft_asset_path": "agentified/campaign/draft-assets.md#agt-email-01",
+        "channel_note": "Portfolio social content calendar does not currently include email as a channel."
+      }
+    },
+    {
+      "asset_id": "AGT-PAGE-01",
+      "campaign_slug": "agentified-trust-scale-2026-07",
+      "campaign_phase": "offer",
+      "channel": "thumbnail",
+      "title": "Agentified campaign CTA block",
+      "planned_angle": "Placeholder for Portfolio /agentified page CTA update after author approval.",
+      "scheduled_for": "2026-07-26T12:00:00-04:00",
+      "due_status": "planned",
+      "authorization_status": "pending",
+      "authorization_due_at": "2026-07-25T17:00:00-04:00",
+      "autonomy_eligible": false,
+      "metadata": {
+        "template_key": "whisper_to_shout",
+        "campaign_arc": "agentified_book_launch",
+        "human_gate_required": true,
+        "draft_asset_path": "agentified/campaign/draft-assets.md#agt-page-01",
+        "channel_note": "Portfolio social content calendar uses thumbnail as the closest internal creative placeholder channel for page CTA review."
+      }
+    }
+  ]
+}

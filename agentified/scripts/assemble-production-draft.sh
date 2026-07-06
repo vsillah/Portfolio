@@ -96,7 +96,7 @@ Amina's next discipline is to map authority before expanding it. An agent can pr
 
 ### Figure II.1: Authority ladder
 
-![Authority ladder](/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/print/color-600dpi/figure-ii-1-authority-ladder-print-600dpi.png)
+![Authority ladder](/Users/vambahsillah/Projects/Portfolio/agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png)
 
 Authority should climb only when evidence climbs with it. The higher the side effect, the stronger the receipt, gate, and rollback path must be.
 EOF
