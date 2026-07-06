@@ -131,6 +131,69 @@ describe('POST /api/admin/model-usage/import', () => {
     expect(mocks.fromMock).not.toHaveBeenCalled()
   })
 
+  it('inserts source-specific packets when reviewed without events arrays', async () => {
+    const response = await POST(request({
+      sourcePackets: [{
+        kind: 'openai_usage_export',
+        sourceId: 'openai-row-1',
+        taskCategory: 'automation',
+        inputTokens: 1_000_000,
+        outputTokens: 100_000,
+      }],
+    }) as never)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({
+      ok: true,
+      dryRun: false,
+      insertedEvents: 1,
+      insertedSubscriptionAllocations: 0,
+      warnings: [],
+    })
+    expect(mocks.fromMock).toHaveBeenCalledTimes(1)
+    expect(mocks.fromMock).toHaveBeenCalledWith('model_usage_events')
+    expect(mocks.insertMock).toHaveBeenCalledTimes(1)
+    expect(mocks.insertMock).toHaveBeenCalledWith([
+      expect.objectContaining({
+        provider: 'openai',
+        runtime: 'api',
+        model: 'gpt-4o-mini',
+        task_category: 'automation',
+        input_tokens: 1_000_000,
+        output_tokens: 100_000,
+        total_tokens: 1_100_000,
+        cost_usd: 0.21,
+        source_type: 'openai_usage_export',
+        source_id: 'openai-row-1',
+        cost_basis: 'metered',
+        pricing_snapshot: expect.objectContaining({
+          sourcePacketKind: 'openai_usage_export',
+          importPacket: true,
+        }),
+        scrubbed: true,
+      }),
+    ])
+  })
+
+  it('rejects source-specific packets that include raw prompt-like metadata', async () => {
+    const response = await POST(request({
+      sourcePackets: [{
+        kind: 'openai_usage_export',
+        sourceId: 'openai-row-1',
+        inputTokens: 1000,
+        outputTokens: 100,
+        sourceMetadata: { prompt: 'private instruction text' },
+      }],
+    }) as never)
+
+    expect(response.status).toBe(400)
+    expect(await response.json()).toMatchObject({
+      error: expect.stringContaining('not allowed'),
+    })
+    expect(mocks.fromMock).not.toHaveBeenCalled()
+  })
+
   it('rejects packets that include raw prompt-like metadata', async () => {
     const response = await POST(request({
       events: [{
