@@ -42,4 +42,3 @@ Then run:
 cd /Users/vambahsillah/Projects/Portfolio/agentified
 node scripts/composite-amina-sam-publication-plate.mjs
 ```
-

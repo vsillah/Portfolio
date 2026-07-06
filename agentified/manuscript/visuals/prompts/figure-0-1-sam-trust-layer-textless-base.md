@@ -38,4 +38,3 @@ Then run:
 cd /Users/vambahsillah/Projects/Portfolio/agentified
 node scripts/composite-sam-trust-layer-publication-plate.mjs
 ```
-

@@ -40,4 +40,3 @@ Then run:
 cd /Users/vambahsillah/Projects/Portfolio/agentified
 node scripts/composite-first-receipt-publication-plate.mjs
 ```
-
