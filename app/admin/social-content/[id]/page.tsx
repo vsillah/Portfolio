@@ -60,6 +60,7 @@ import type {
   FrameworkVisualType,
   SocialPlatform,
 } from '@/lib/social-content'
+import type { SocialContentCalibrationReference } from '@/lib/social-content-calibration-library'
 import Link from 'next/link'
 
 const PLATFORM_ICONS: Record<string, React.ReactNode> = {
@@ -322,6 +323,9 @@ function SocialContentDetailPage() {
     privacy: false,
     linkedin_draft: false,
   })
+  const [calibrationLibraryReferences, setCalibrationLibraryReferences] = useState<SocialContentCalibrationReference[]>([])
+  const [loadingCalibrationLibrary, setLoadingCalibrationLibrary] = useState(false)
+  const [calibrationLibraryUnavailable, setCalibrationLibraryUnavailable] = useState(false)
   const rejectedGateKeysRef = useRef<SectionGateKey[]>([])
 
   const fetchTopicBacklog = useCallback(async () => {
@@ -341,6 +345,30 @@ function SocialContentDetailPage() {
       console.error('Failed to fetch topic backlog:', err)
     } finally {
       setLoadingTopicBacklog(false)
+    }
+  }, [])
+
+  const fetchCalibrationLibrary = useCallback(async () => {
+    setLoadingCalibrationLibrary(true)
+    setCalibrationLibraryUnavailable(false)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const res = await fetch('/api/admin/social-content/calibration-library?platform=linkedin', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setCalibrationLibraryUnavailable(true)
+        return
+      }
+      setCalibrationLibraryReferences(Array.isArray(data.references) ? data.references : [])
+    } catch (err) {
+      console.error('Failed to fetch social calibration library:', err)
+      setCalibrationLibraryUnavailable(true)
+    } finally {
+      setLoadingCalibrationLibrary(false)
     }
   }, [])
 
@@ -420,9 +448,56 @@ function SocialContentDetailPage() {
     fetchTopicBacklog()
   }, [fetchTopicBacklog])
 
+  useEffect(() => {
+    const rag = asRecord(item?.rag_context)
+    if (rag?.source !== 'agent_ops_social_outreach_goal') return
+    void fetchCalibrationLibrary()
+  }, [fetchCalibrationLibrary, item?.rag_context])
+
   const showMsg = (type: 'success' | 'error', text: string) => {
     setMessage({ type, text })
     setTimeout(() => setMessage(null), 4000)
+  }
+
+  const addCalibrationLibraryReference = (reference: SocialContentCalibrationReference) => {
+    setCalibrationFeedback((current) => {
+      const sourceLabel = `${reference.label} (${reference.provenance})`
+      const alreadyAdded = current.success_examples.some((example) => (
+        example.source_label.trim() === sourceLabel
+        || example.source_label.trim() === reference.label
+      ))
+      if (alreadyAdded) return current
+
+      const nextExample: CalibrationSuccessExample = {
+        source_label: sourceLabel,
+        post_excerpt: reference.post_excerpt,
+        engagement_signal: reference.engagement_signal,
+        why_it_worked: reference.why_it_worked,
+      }
+      const hasOnlyBlankExample = current.success_examples.length === 1
+        && !current.success_examples[0].source_label.trim()
+        && !current.success_examples[0].post_excerpt.trim()
+        && !current.success_examples[0].engagement_signal.trim()
+        && !current.success_examples[0].why_it_worked.trim()
+      const existingBoundaries = current.claim_boundaries
+        .split('\n')
+        .map((item) => item.trim())
+        .filter(Boolean)
+      const newBoundaries = reference.claim_boundaries
+        .filter((boundary) => !existingBoundaries.includes(boundary))
+
+      return {
+        ...current,
+        success_examples: hasOnlyBlankExample
+          ? [nextExample]
+          : [...current.success_examples, nextExample],
+        claim_boundaries: [
+          current.claim_boundaries.trim(),
+          ...newBoundaries,
+        ].filter(Boolean).join('\n'),
+      }
+    })
+    showMsg('success', 'Calibration reference added to this draft')
   }
 
   const getRejectedSectionGateKeys = useCallback((contentItem: SocialContentItem | null) => {
@@ -2040,6 +2115,72 @@ function SocialContentDetailPage() {
                         Add reference
                       </button>
                     </div>
+                    {isAgentSocialPilot && (
+                      <div className="mt-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3">
+                        <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                          <div>
+                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-200">Reusable calibration library</p>
+                            <p className="mt-1 text-sm leading-6 text-emerald-50/80">
+                              Add approved voice patterns as comparison material. These are draft-only references, not publishing instructions.
+                            </p>
+                          </div>
+                          {loadingCalibrationLibrary && (
+                            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-400/25 px-2 py-0.5 text-xs text-emerald-100">
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                              Loading
+                            </span>
+                          )}
+                        </div>
+                        {calibrationLibraryUnavailable && (
+                          <p className="mt-2 text-xs leading-5 text-amber-200">
+                            Calibration library unavailable. Manual references still work.
+                          </p>
+                        )}
+                        {!loadingCalibrationLibrary && calibrationLibraryReferences.length === 0 && !calibrationLibraryUnavailable && (
+                          <p className="mt-2 text-xs leading-5 text-emerald-50/65">
+                            No reusable references are available for this platform yet.
+                          </p>
+                        )}
+                        {calibrationLibraryReferences.length > 0 && (
+                          <div className="mt-3 grid gap-2 lg:grid-cols-2">
+                            {calibrationLibraryReferences.map((reference) => {
+                              const sourceLabel = `${reference.label} (${reference.provenance})`
+                              const alreadyAdded = calibrationFeedback.success_examples.some((example) => (
+                                example.source_label.trim() === sourceLabel
+                                || example.source_label.trim() === reference.label
+                              ))
+                              return (
+                                <div key={reference.id} className="rounded-lg border border-emerald-400/20 bg-background/35 p-3">
+                                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                                    <div className="min-w-0">
+                                      <p className="text-sm font-semibold text-emerald-50">{reference.label}</p>
+                                      <p className="mt-1 text-xs uppercase tracking-[0.12em] text-emerald-100/70">
+                                        {reference.content_pillar}
+                                      </p>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => addCalibrationLibraryReference(reference)}
+                                      disabled={!isEditable || alreadyAdded}
+                                      className="inline-flex shrink-0 items-center justify-center gap-1 rounded-lg border border-emerald-400/35 px-2.5 py-1.5 text-xs font-semibold text-emerald-100 transition-colors hover:bg-emerald-500/10 disabled:opacity-50"
+                                    >
+                                      {alreadyAdded ? <CheckCircle2 className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
+                                      {alreadyAdded ? 'Added' : 'Add'}
+                                    </button>
+                                  </div>
+                                  <p className="mt-2 line-clamp-3 text-xs leading-5 text-emerald-50/75">
+                                    {reference.why_it_worked}
+                                  </p>
+                                  <p className="mt-2 text-[11px] leading-5 text-emerald-50/55">
+                                    {reference.engagement_signal}
+                                  </p>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    )}
                     <div className="mt-3 grid gap-3">
                       {calibrationFeedback.success_examples.map((example, index) => (
                         <div key={index} className="rounded-lg border border-silicon-slate/80 bg-imperial-navy/45 p-3">
