@@ -1,6 +1,6 @@
 {
   "projectName": "Local LLM Model Ops & Hermes Automation",
-  "generatedAt": "2026-06-22T12:04:20.415Z",
+  "generatedAt": "2026-07-06T12:36:36.577Z",
   "recommendations": {
     "replyIntentDefault": "Keep qwen3-4b-instruct-2507 for reply-intent classification. It has the best current accuracy/latency balance.",
     "ragDefault": "Use routed local RAG as the leading local/shadow candidate, with Pinecone/OpenAI fallback until larger answer-level evals pass.",
@@ -185,6 +185,37 @@
           "scored": 6,
           "correct": 6,
           "accuracy": 1
+        },
+        "portfolio_test_fixture": {
+          "scored": 200,
+          "correct": 194,
+          "accuracy": 0.97
+        }
+      }
+    },
+    {
+      "file": "eval-results/reply-intent-review/lmstudio-review-results-gemma-4-12b-it-mlx-6bit-2026-07-06.json",
+      "model": "gemma-4-12b-it-mlx",
+      "observedModel": "gemma-4-12b-it-mlx",
+      "total": 211,
+      "scored": 211,
+      "correct": 204,
+      "accuracy": 0.966824644549763,
+      "avgLatencyMs": 2159.3981042654027,
+      "medianLatencyMs": 2115,
+      "estimated200Minutes": 7.197993680884675,
+      "status": "fixture_pipeline_timing_only",
+      "caveat": "Fixture/synthetic examples are useful for runner timing and failure discovery, but do not satisfy the production 200-example significance gate.",
+      "sourceAccuracy": {
+        "n8n_execution": {
+          "scored": 5,
+          "correct": 5,
+          "accuracy": 1
+        },
+        "gmail_backfill": {
+          "scored": 6,
+          "correct": 5,
+          "accuracy": 0.8333333333333334
         },
         "portfolio_test_fixture": {
           "scored": 200,
