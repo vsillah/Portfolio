@@ -46,7 +46,14 @@ describe('auth-server', () => {
 
   beforeEach(() => {
     vi.resetModules()
-    vi.clearAllMocks()
+    createClientMock.mockReset()
+    getUserMock.mockReset()
+    fetchMock.mockReset()
+    createClientMock.mockImplementation(() => ({
+      auth: {
+        getUser: getUserMock,
+      },
+    }))
     process.env = {
       ...originalEnv,
       NEXT_PUBLIC_SUPABASE_URL: 'https://example.supabase.co',
