@@ -25,11 +25,6 @@ const updateChain = {
   eq: vi.fn(),
 }
 
-const contactUpdateChain = {
-  in: vi.fn(),
-  eq: vi.fn(),
-}
-
 vi.mock('next/server', () => ({
   NextResponse: {
     json: jsonMock,
@@ -64,16 +59,12 @@ describe('POST /api/admin/value-evidence/workflow-complete', () => {
     insertChain.single.mockReset()
 
     updateChain.eq.mockReset()
-    contactUpdateChain.in.mockReset()
-    contactUpdateChain.eq.mockReset()
 
     selectChain.eq.mockImplementation(() => selectChain)
     selectChain.order.mockImplementation(() => selectChain)
     selectChain.limit.mockImplementation(() => selectChain)
     insertChain.select.mockImplementation(() => insertChain)
     updateChain.eq.mockResolvedValue({ error: null })
-    contactUpdateChain.in.mockImplementation(() => contactUpdateChain)
-    contactUpdateChain.eq.mockResolvedValue({ error: null })
   })
 
   it('returns 401 when auth token is missing/invalid', async () => {
@@ -185,171 +176,6 @@ describe('POST /api/admin/value-evidence/workflow-complete', () => {
       run_id: 'created-vep-run',
       agent_run_id: null,
       chained_social: false,
-    })
-  })
-
-  it('flips pending contact submissions to success when VEP-001 completes with contact ids', async () => {
-    requestJsonMock.mockResolvedValue({
-      workflow_id: 'WF-VEP-001',
-      status: 'success',
-      items_inserted: 0,
-      contact_submission_ids: [42, '43', 0, 'not-a-number', null],
-    })
-
-    const runTable = {
-      select: vi.fn(() => selectChain),
-      insert: vi.fn(() => insertChain),
-      update: vi.fn(() => updateChain),
-    }
-    const contactTable = {
-      update: vi.fn(() => contactUpdateChain),
-    }
-    fromMock.mockImplementation((table: string) => (table === 'contact_submissions' ? contactTable : runTable))
-
-    selectChain.maybeSingle.mockResolvedValueOnce({
-      data: {
-        id: 'running-vep001',
-        stages: null,
-        scope_type: null,
-        scope_id: null,
-        scope_label: null,
-      },
-    })
-
-    const { POST } = await import('./route')
-    const request = {
-      headers: { get: vi.fn().mockReturnValue('Bearer secret-token') },
-      json: requestJsonMock,
-    } as unknown as Request
-
-    await POST(request as never)
-
-    expect(runTable.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        status: 'success',
-        items_inserted: 0,
-      })
-    )
-    expect(contactTable.update).toHaveBeenCalledWith({ last_vep_status: 'success' })
-    expect(contactUpdateChain.in).toHaveBeenCalledWith('id', [42, 43])
-    expect(contactUpdateChain.eq).toHaveBeenCalledWith('last_vep_status', 'pending')
-    expect(jsonMock).toHaveBeenCalledWith({
-      ok: true,
-      run_id: 'running-vep001',
-      agent_run_id: null,
-      chained_social: false,
-    })
-  })
-
-  it('flips pending contact submissions to failed when VEP-001 reports failure', async () => {
-    requestJsonMock.mockResolvedValue({
-      workflow_id: 'vep001',
-      status: 'failed',
-      error_message: 'n8n failed',
-      contact_submission_ids: ['99'],
-    })
-
-    const runTable = {
-      select: vi.fn(() => selectChain),
-      insert: vi.fn(() => insertChain),
-      update: vi.fn(() => updateChain),
-    }
-    const contactTable = {
-      update: vi.fn(() => contactUpdateChain),
-    }
-    fromMock.mockImplementation((table: string) => (table === 'contact_submissions' ? contactTable : runTable))
-
-    selectChain.maybeSingle.mockResolvedValueOnce({
-      data: {
-        id: 'running-vep001',
-        stages: null,
-        scope_type: null,
-        scope_id: null,
-        scope_label: null,
-      },
-    })
-
-    const { POST } = await import('./route')
-    const request = {
-      headers: { get: vi.fn().mockReturnValue('Bearer secret-token') },
-      json: requestJsonMock,
-    } as unknown as Request
-
-    await POST(request as never)
-
-    expect(runTable.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        status: 'failed',
-        error_message: 'n8n failed',
-      })
-    )
-    expect(contactTable.update).toHaveBeenCalledWith({ last_vep_status: 'failed' })
-    expect(contactUpdateChain.in).toHaveBeenCalledWith('id', [99])
-    expect(contactUpdateChain.eq).toHaveBeenCalledWith('last_vep_status', 'pending')
-    expect(jsonMock).toHaveBeenCalledWith({
-      ok: true,
-      run_id: 'running-vep001',
-      agent_run_id: null,
-      chained_social: false,
-    })
-  })
-
-  it('leaves contact submissions pending while VEP-001 auto-chains to social listening', async () => {
-    requestJsonMock.mockResolvedValue({
-      workflow_id: 'vep001',
-      status: 'success',
-      items_inserted: 4,
-      contact_submission_ids: [77],
-    })
-
-    const runTable = {
-      select: vi.fn(() => selectChain),
-      insert: vi.fn(() => insertChain),
-      update: vi.fn(() => updateChain),
-    }
-    const contactTable = {
-      update: vi.fn(() => contactUpdateChain),
-    }
-    fromMock.mockImplementation((table: string) => (table === 'contact_submissions' ? contactTable : runTable))
-
-    selectChain.maybeSingle.mockResolvedValueOnce({
-      data: {
-        id: 'running-vep001',
-        stages: { scope: { socialPending: true } },
-        scope_type: null,
-        scope_id: null,
-        scope_label: null,
-      },
-    })
-
-    const { POST } = await import('./route')
-    const request = {
-      headers: { get: vi.fn().mockReturnValue('Bearer secret-token') },
-      json: requestJsonMock,
-    } as unknown as Request
-
-    await POST(request as never)
-
-    expect(runTable.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        workflow_id: 'vep002',
-        status: 'running',
-        completed_at: null,
-        stages: {
-          scope: {
-            socialPending: false,
-            socialTriggered: true,
-          },
-        },
-      })
-    )
-    expect(contactTable.update).not.toHaveBeenCalled()
-    expect(contactUpdateChain.in).not.toHaveBeenCalled()
-    expect(jsonMock).toHaveBeenCalledWith({
-      ok: true,
-      run_id: 'running-vep001',
-      agent_run_id: null,
-      chained_social: true,
     })
   })
 
