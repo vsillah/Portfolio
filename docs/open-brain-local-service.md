@@ -153,6 +153,86 @@ npm run open-brain:runtime-registration -- --write tmp/open-brain-runtime-regist
 
 The planner is intentionally non-mutating. It does not create or edit `~/.codex/config.toml`, `~/.hermes/config.yaml`, Cursor/Claude/OpenCode config files, or durable Open Brain memory records. Actual runtime registration remains a local-state approval step and should be performed one runtime at a time, followed by that runtime's own doctor/list/manual MCP verification.
 
+## LM Studio Bridge
+
+LM Studio should connect to Open Brain through its MCP integration, not through a separate static `rag-v1` document index. Open Brain remains the governed memory layer; LM Studio is the local model workbench that can call read-only search/context tools, proposal-gated memory tools, and a guarded Portfolio patch lane.
+
+Current local registration shape:
+
+```json
+{
+  "mcpServers": {
+    "open-brain": {
+      "command": "/Users/vambahsillah/.hermes/bin/open-brain-mcp"
+    }
+  }
+}
+```
+
+Operational-state boundary:
+
+- This config lives at `~/.lmstudio/mcp.json`, outside the Portfolio git worktree.
+- Editing it requires an explicit local-state action and should be backed up first.
+- The `mcp/open-brain` integration may lazy-start only when a tool call is requested.
+- A healthy active tool call has an LM Studio-owned `mcpbridgeworker.js` process with an Open Brain MCP server child.
+- Stale MCP server processes from manual smoke tests can be stopped, but do not stop the LM Studio-owned bridge while a tool call is active.
+
+Recommended LM Studio usage:
+
+- Start Open Brain prompts from a fresh chat when testing local models. Old chats can exceed the model context window and make tool behavior look broken.
+- Keep the `open-brain` integration chip attached to the chat.
+- Approve `search_memory` when the model asks for read-only retrieval.
+- Do not grant blanket approval to all Open Brain tools unless a separate trust policy is approved.
+- If a local model repeats the same search request, deny the repeated call with a reason and tell the model to answer from the already returned context.
+- For Portfolio or Open Brain repo updates, start with `get_update_workspace_context`, then `read_update_target`, then `apply_portfolio_patch` with `apply=false`.
+- Only apply a local patch after reviewing the dry-run result. Actual application requires `apply=true`, the approval phrase `APPLY PORTFOLIO PATCH`, and human approval of the LM Studio tool call.
+- The patch lane applies local files only. It does not commit, push, deploy, change hosted settings, or approve durable Open Brain memory.
+- Use explicit prompts for Qwen-style reasoning models:
+
+```text
+Use mcp/open-brain. Call search_memory once with query "<topic>". After the tool result, stop using tools and answer in one paragraph. Do not call search_memory again unless I ask.
+```
+
+For local update work, use this prompt pattern:
+
+```text
+Use mcp/open-brain as the update lane. First call get_update_workspace_context. Then read only the files needed. Prepare a unified diff and call apply_portfolio_patch with apply=false. Stop after the dry run and ask me before applying.
+```
+
+LM Studio update tools:
+
+- `get_update_workspace_context`: reports Portfolio root, branch/status, Open Brain health, allowed scopes, and update boundaries.
+- `read_update_target`: reads a scoped text file from the Portfolio worktree. It blocks secrets, private folders, generated media, binary files, and paths outside the repo.
+- `apply_portfolio_patch`: checks or applies a unified diff. Dry-run is the default. Applying requires `apply=true`, `approvalPhrase="APPLY PORTFOLIO PATCH"`, and LM Studio tool approval.
+
+Allowed patch scopes:
+
+- `open_brain`: `docs/open-brain*`, `scripts/open-brain*`, `lib/open-brain*`, `lib/model-ops-open-brain*`, `/admin/agents/open-brain`, and `/api/admin/agents/open-brain` files.
+- `portfolio`: `docs`, `app`, `components`, `lib`, `scripts`, `package.json`, and `package-lock.json`.
+
+Blocked paths include env files, `local-private`, `.git`, `.next`, `.vercel`, `node_modules`, and generated/binary media.
+
+Validation commands:
+
+```bash
+printf '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"lm-studio-smoke","version":"1.0"}}}\n' | /Users/vambahsillah/.hermes/bin/open-brain-mcp | head -1
+openbrain-ask --model qwen3.6-27b-optiq --limit 1 "In one sentence, name one Open Brain boundary."
+npm test -- --run scripts/open-brain-mcp-server.test.ts
+```
+
+Expected boundary answer:
+
+```text
+Durable Open Brain memory writes require approval before they become part of the verified record.
+```
+
+Troubleshooting:
+
+- If LM Studio shows `mcp/open-brain` disconnected, verify `~/.lmstudio/mcp.json`, toggle the integration off and back on, then retry from a fresh chat.
+- If the chat context indicator is above 100%, create a new chat before testing tools again.
+- If `openbrain-ask` works but LM Studio loops on tool calls, the issue is the model planner or chat context, not the Open Brain server.
+- If direct MCP initialization fails, inspect `.env.local`, `OPEN_BRAIN_HOME`, and the wrapper at `/Users/vambahsillah/.hermes/bin/open-brain-mcp`.
+
 ### OpenClaw Evaluation Gate
 
 OpenClaw is not required for Phase 2 parity unless it proves value beyond the already connected runtimes. Treat it as an evaluation candidate, not an install-by-default dependency.
