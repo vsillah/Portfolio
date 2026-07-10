@@ -66,6 +66,21 @@ describe("VisualAssetsReviewPage", () => {
             json: async () => ({ candidate: { id: url.split("/").at(-2) } }),
           };
         }
+        if (url.includes("/reject")) {
+          return {
+            ok: true,
+            json: async () => ({ candidate: { id: url.split("/").at(-2), status: "rejected" } }),
+          };
+        }
+        if (url.includes("/regenerate")) {
+          return {
+            ok: true,
+            json: async () => ({
+              replacementCandidate: { id: "replacement-1", status: "proposed" },
+              capture: { captured: 1, passed: 1, blocked: 0 },
+            }),
+          };
+        }
         if (url.includes("candidate_state=needs_capture")) {
           return {
             ok: true,
@@ -197,6 +212,47 @@ describe("VisualAssetsReviewPage", () => {
         .mock.calls.filter(([input]) => String(input).includes("/approve"));
       expect(approvalCalls).toHaveLength(1);
       expect(String(approvalCalls[0][0])).toContain("candidate-1");
+    });
+  });
+
+  it("requires rejection feedback before regenerating a candidate", async () => {
+    render(<VisualAssetsReviewPage />);
+
+    const rejectButton = (await screen.findAllByRole("button", { name: "Reject" }))[0];
+    fireEvent.click(rejectButton);
+
+    expect(screen.getByRole("dialog", { name: "Reject candidate" })).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Rejection reason"), {
+      target: { value: "Too much blank space and the product is not clear." },
+    });
+    fireEvent.change(screen.getByLabelText("Regeneration recommendation"), {
+      target: { value: "Tighten the crop and show the feature cards." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Too much blank space" }));
+    fireEvent.click(screen.getByRole("button", { name: "Reject & Regenerate" }));
+
+    await waitFor(() => {
+      const rejectCall = vi
+        .mocked(fetch)
+        .mock.calls.find(([input]) => String(input).includes("/reject"));
+      expect(rejectCall).toBeDefined();
+      expect(JSON.parse(String(rejectCall?.[1]?.body))).toMatchObject({
+        reason: "Too much blank space and the product is not clear.",
+        recommendation: "Tighten the crop and show the feature cards.",
+        reasonCodes: expect.arrayContaining(["high_blank_space_ratio"]),
+      });
+    });
+
+    await waitFor(() => {
+      const regenerateCall = vi
+        .mocked(fetch)
+        .mock.calls.find(([input]) => String(input).includes("/regenerate"));
+      expect(regenerateCall).toBeDefined();
+      expect(JSON.parse(String(regenerateCall?.[1]?.body))).toMatchObject({
+        reason: "Too much blank space and the product is not clear.",
+        recommendation: "Tighten the crop and show the feature cards.",
+        reasonCodes: expect.arrayContaining(["high_blank_space_ratio"]),
+      });
     });
   });
 });

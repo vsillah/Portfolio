@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   captureVisualAssetCandidates: vi.fn(),
   listVisualAssetCandidates: vi.fn(),
   reviewVisualAssetCandidate: vi.fn(),
+  regenerateRejectedVisualAssetCandidate: vi.fn(),
   applyApprovedVisualAssetCandidates: vi.fn(),
 }))
 
@@ -28,6 +29,7 @@ vi.mock('@/lib/visual-assets', () => ({
   captureVisualAssetCandidates: mocks.captureVisualAssetCandidates,
   listVisualAssetCandidates: mocks.listVisualAssetCandidates,
   reviewVisualAssetCandidate: mocks.reviewVisualAssetCandidate,
+  regenerateRejectedVisualAssetCandidate: mocks.regenerateRejectedVisualAssetCandidate,
   applyApprovedVisualAssetCandidates: mocks.applyApprovedVisualAssetCandidates,
 }))
 
@@ -154,18 +156,35 @@ describe('visual asset admin routes', () => {
     })
   })
 
-  it('rejects a candidate without accepting a non-string review reason', async () => {
+  it('requires a rejection reason before rejecting a candidate', async () => {
+    const { POST } = await import('./[id]/reject/route')
+
+    const response = await POST(request('/api/admin/visual-assets/candidate-2/reject', {
+      method: 'POST',
+      body: JSON.stringify({ reason: { text: 'nope' } }),
+    }), { params: { id: 'candidate-2' } })
+    expectResponse(response)
+
+    expect(response.status).toBe(400)
+    expect(mocks.reviewVisualAssetCandidate).not.toHaveBeenCalled()
+  })
+
+  it('rejects a candidate with feedback for regeneration', async () => {
     const { POST } = await import('./[id]/reject/route')
     mocks.reviewVisualAssetCandidate.mockResolvedValue({
       id: 'candidate-2',
       status: 'rejected',
       reviewed_by: 'admin-1',
-      metadata: {},
+      metadata: { review_reason: 'Too blank' },
     })
 
     const response = await POST(request('/api/admin/visual-assets/candidate-2/reject', {
       method: 'POST',
-      body: JSON.stringify({ reason: { text: 'nope' } }),
+      body: JSON.stringify({
+        reason: 'Too much blank space.',
+        recommendation: 'Tighten the crop and show the dashboard.',
+        reasonCodes: ['high_blank_space_ratio', 'weak_feature_signal'],
+      }),
     }), { params: { id: 'candidate-2' } })
     expectResponse(response)
     const body = await response.json()
@@ -176,8 +195,45 @@ describe('visual asset admin routes', () => {
       id: 'candidate-2',
       status: 'rejected',
       reviewedBy: 'admin-1',
-      reason: undefined,
+      reason: 'Too much blank space.',
+      recommendation: 'Tighten the crop and show the dashboard.',
+      reasonCodes: ['high_blank_space_ratio', 'weak_feature_signal'],
     })
+  })
+
+  it('regenerates a rejected candidate and captures only its replacement', async () => {
+    const { POST } = await import('./[id]/regenerate/route')
+    mocks.regenerateRejectedVisualAssetCandidate.mockResolvedValue({
+      id: 'replacement-1',
+      status: 'proposed',
+    })
+    mocks.captureVisualAssetCandidates.mockResolvedValue({ captured: 1, passed: 1, blocked: 0, candidates: [{ id: 'replacement-1' }] })
+
+    const response = await POST(request('/api/admin/visual-assets/candidate-2/regenerate', {
+      method: 'POST',
+      body: JSON.stringify({
+        reason: 'Too dark.',
+        recommendation: 'Use a light-mode frame.',
+        reasonCodes: ['dark_mode_mismatch'],
+      }),
+    }), { params: { id: 'candidate-2' } })
+    expectResponse(response)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.replacementCandidate).toMatchObject({ id: 'replacement-1' })
+    expect(mocks.regenerateRejectedVisualAssetCandidate).toHaveBeenCalledWith({
+      sourceCandidateId: 'candidate-2',
+      requestedBy: 'admin-1',
+      feedback: {
+        reason: 'Too dark.',
+        recommendation: 'Use a light-mode frame.',
+        reasonCodes: ['dark_mode_mismatch'],
+      },
+    })
+    expect(mocks.captureVisualAssetCandidates).toHaveBeenCalledWith(expect.objectContaining({
+      candidateIds: ['replacement-1'],
+    }))
   })
 
   it('apply-approved only calls the approved candidate apply helper', async () => {

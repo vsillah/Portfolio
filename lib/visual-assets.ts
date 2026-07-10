@@ -91,6 +91,12 @@ export interface VisualAssetAgentReview {
   metrics: VisualAssetScore['metadata']
 }
 
+export interface VisualAssetRejectionFeedback {
+  reason?: string
+  recommendation?: string
+  reasonCodes?: VisualAssetReasonCode[]
+}
+
 type SupabaseLike = typeof supabaseAdmin
 
 const MIN_WIDTH = 900
@@ -121,6 +127,35 @@ function asMetadata(value: unknown): Record<string, unknown> {
   return value && typeof value === 'object' && !Array.isArray(value)
     ? value as Record<string, unknown>
     : {}
+}
+
+function normalizeReasonCodes(value: unknown): VisualAssetReasonCode[] {
+  if (!Array.isArray(value)) return []
+  return value.filter((reason): reason is VisualAssetReasonCode => (
+    typeof reason === 'string' &&
+    [
+      'missing_image',
+      'image_load_failure',
+      'low_resolution',
+      'wrong_aspect_ratio',
+      'high_blank_space_ratio',
+      'light_mode_mismatch',
+      'dark_mode_mismatch',
+      'weak_feature_signal',
+      'stale_generated_capture',
+      'candidate_below_quality_bar',
+    ].includes(reason)
+  ))
+}
+
+function appendRegenerationParams(route: string, reasonCodes: VisualAssetReasonCode[]) {
+  const [pathname, query = ''] = route.split('?')
+  const params = new URLSearchParams(query)
+  params.set('visualRevision', '1')
+  if (reasonCodes.length > 0) {
+    params.set('visualFocus', reasonCodes.join(','))
+  }
+  return `${pathname}?${params.toString()}`
 }
 
 export function isVisualAssetEntityType(value: string): value is VisualAssetEntityType {
@@ -721,6 +756,8 @@ export async function reviewVisualAssetCandidate(input: {
   status: Extract<VisualAssetStatus, 'approved' | 'rejected'>
   reviewedBy: string
   reason?: string
+  recommendation?: string
+  reasonCodes?: VisualAssetReasonCode[]
   client?: SupabaseLike
 }) {
   const existing = await db(input.client)
@@ -739,6 +776,16 @@ export async function reviewVisualAssetCandidate(input: {
       metadata: {
         ...asMetadata(existing.data?.metadata),
         ...(input.reason ? { review_reason: input.reason } : {}),
+        ...(input.recommendation ? { review_recommendation: input.recommendation } : {}),
+        ...(input.reasonCodes?.length ? { review_reason_codes: input.reasonCodes } : {}),
+        review_feedback: {
+          status: input.status,
+          reason: input.reason ?? null,
+          recommendation: input.recommendation ?? null,
+          reason_codes: input.reasonCodes ?? [],
+          reviewed_by: input.reviewedBy,
+          reviewed_at: new Date().toISOString(),
+        },
       },
       updated_at: new Date().toISOString(),
     })
@@ -748,6 +795,89 @@ export async function reviewVisualAssetCandidate(input: {
     .single()
   if (error) throw new Error(`Failed to ${input.status} visual asset candidate: ${error.message}`)
   return data as VisualAssetCandidate
+}
+
+export async function regenerateRejectedVisualAssetCandidate(input: {
+  sourceCandidateId: string
+  requestedBy: string
+  feedback?: VisualAssetRejectionFeedback
+  client?: SupabaseLike
+}) {
+  const client = input.client ?? supabaseAdmin
+  const { data: source, error: sourceError } = await db(client)
+    .from('visual_asset_candidates')
+    .select('*')
+    .eq('id', input.sourceCandidateId)
+    .maybeSingle()
+
+  if (sourceError) throw new Error(`Failed to read rejected visual asset candidate: ${sourceError.message}`)
+  if (!source) throw new Error('Visual asset candidate not found')
+  const candidate = source as VisualAssetCandidate
+  if (candidate.status !== 'rejected') {
+    throw new Error('Only rejected visual asset candidates can be regenerated')
+  }
+
+  const existingOpen = await db(client)
+    .from('visual_asset_candidates')
+    .select('id')
+    .eq('entity_type', candidate.entity_type)
+    .eq('entity_id', candidate.entity_id)
+    .eq('theme', candidate.theme)
+    .in('status', ['proposed', 'approved'])
+    .limit(1)
+    .maybeSingle()
+  if (existingOpen.error) throw new Error(`Failed to check open visual asset candidates: ${existingOpen.error.message}`)
+  if (existingOpen.data?.id) {
+    throw new Error('An open replacement candidate already exists for this asset and theme')
+  }
+
+  const metadata = asMetadata(candidate.metadata)
+  const storedFeedback = asMetadata(metadata.review_feedback)
+  const reason = input.feedback?.reason || safeText(storedFeedback.reason) || safeText(metadata.review_reason) || undefined
+  const recommendation = input.feedback?.recommendation || safeText(storedFeedback.recommendation) || safeText(metadata.review_recommendation) || undefined
+  const reasonCodes = normalizeReasonCodes(input.feedback?.reasonCodes?.length ? input.feedback.reasonCodes : (storedFeedback.reason_codes ?? metadata.review_reason_codes))
+  const requestedAt = new Date().toISOString()
+  const captureRoute = appendRegenerationParams(candidate.capture_route, reasonCodes)
+
+  const { data: replacement, error: insertError } = await db(client)
+    .from('visual_asset_candidates')
+    .insert({
+      entity_type: candidate.entity_type,
+      entity_id: candidate.entity_id,
+      title: candidate.title,
+      theme: candidate.theme,
+      current_url: candidate.current_url,
+      candidate_url: null,
+      candidate_storage_path: null,
+      capture_route: captureRoute,
+      score: null,
+      reason_codes: reasonCodes.length > 0 ? reasonCodes : candidate.reason_codes,
+      status: 'proposed',
+      metadata: {
+        source_table: metadata.source_table,
+        source_column: metadata.source_column,
+        variant_column: metadata.variant_column,
+        regenerated_from_candidate_id: candidate.id,
+        previous_candidate_url: candidate.candidate_url,
+        previous_candidate_storage_path: candidate.candidate_storage_path,
+        previous_capture_route: candidate.capture_route,
+        regeneration_feedback: {
+          source_candidate_id: candidate.id,
+          requested_by: input.requestedBy,
+          requested_at: requestedAt,
+          reason: reason ?? null,
+          recommendation: recommendation ?? null,
+          reason_codes: reasonCodes,
+        },
+      },
+      created_at: requestedAt,
+      updated_at: requestedAt,
+    })
+    .select('*')
+    .single()
+
+  if (insertError) throw new Error(`Failed to create regenerated visual asset candidate: ${insertError.message}`)
+  return replacement as VisualAssetCandidate
 }
 
 async function applyCandidate(candidate: VisualAssetCandidate, client: SupabaseLike) {
