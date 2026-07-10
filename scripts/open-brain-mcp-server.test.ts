@@ -2,8 +2,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   asText,
   createProposalToolResult,
+  extractUnifiedDiffPaths,
   proposalSchema,
   registerOpenBrainTools,
+  resolveAllowedUpdatePath,
 } from './open-brain-mcp-server'
 
 type MockMemory = { id: string; title: string; body: string }
@@ -91,7 +93,7 @@ describe('open-brain MCP server tools', () => {
   it('registers the standards-compliant Open Brain tool surface', () => {
     const tools = captureRegisteredTools()
 
-    expect(tools).toHaveLength(7)
+    expect(tools).toHaveLength(10)
     expect(tools.map((tool) => tool.name)).toEqual(expect.arrayContaining([
       'capture_memory',
       'search_memory',
@@ -100,6 +102,9 @@ describe('open-brain MCP server tools', () => {
       'list_pending_memory_proposals',
       'link_memory_to_source',
       'compile_wiki_overlay',
+      'get_update_workspace_context',
+      'read_update_target',
+      'apply_portfolio_patch',
     ]))
 
     const schema = proposalSchema()
@@ -204,5 +209,42 @@ describe('open-brain MCP server tools', () => {
         },
       ],
     })
+  })
+
+  it('extracts changed file paths from unified diffs', () => {
+    expect(extractUnifiedDiffPaths([
+      'diff --git a/docs/open-brain-local-service.md b/docs/open-brain-local-service.md',
+      '--- a/docs/open-brain-local-service.md',
+      '+++ b/docs/open-brain-local-service.md',
+      '@@ -1,2 +1,2 @@',
+      'diff --git a/scripts/open-brain-mcp-server.ts b/scripts/open-brain-mcp-server.ts',
+      '--- a/scripts/open-brain-mcp-server.ts',
+      '+++ b/scripts/open-brain-mcp-server.ts',
+    ].join('\n'))).toEqual([
+      'docs/open-brain-local-service.md',
+      'scripts/open-brain-mcp-server.ts',
+    ])
+  })
+
+  it('enforces scoped update paths for the LM Studio patch lane', () => {
+    expect(resolveAllowedUpdatePath('docs/open-brain-local-service.md', 'open_brain', '/tmp/portfolio')).toEqual({
+      relativePath: 'docs/open-brain-local-service.md',
+      absolutePath: '/tmp/portfolio/docs/open-brain-local-service.md',
+    })
+    expect(() => resolveAllowedUpdatePath('components/Hero.tsx', 'open_brain', '/tmp/portfolio')).toThrow(
+      'outside the open_brain update scope',
+    )
+    expect(resolveAllowedUpdatePath('components/Hero.tsx', 'portfolio', '/tmp/portfolio').relativePath).toBe(
+      'components/Hero.tsx',
+    )
+    expect(() => resolveAllowedUpdatePath('../.env.local', 'portfolio', '/tmp/portfolio')).toThrow(
+      'Path escapes Portfolio root',
+    )
+    expect(() => resolveAllowedUpdatePath('local-private/notes.md', 'portfolio', '/tmp/portfolio')).toThrow(
+      'Blocked path segment',
+    )
+    expect(() => resolveAllowedUpdatePath('public/generated.png', 'portfolio', '/tmp/portfolio')).toThrow(
+      'Blocked generated or binary file',
+    )
   })
 })
