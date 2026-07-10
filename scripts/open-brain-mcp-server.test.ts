@@ -1,5 +1,11 @@
+import { execFile } from 'child_process'
+import { mkdtemp, readFile, rm, writeFile } from 'fs/promises'
+import { tmpdir } from 'os'
+import path from 'path'
+import { promisify } from 'util'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+  applyPortfolioPatchToolResult,
   asText,
   createProposalToolResult,
   extractUnifiedDiffPaths,
@@ -7,6 +13,8 @@ import {
   registerOpenBrainTools,
   resolveAllowedUpdatePath,
 } from './open-brain-mcp-server'
+
+const execFileAsync = promisify(execFile)
 
 type MockMemory = { id: string; title: string; body: string }
 type MockSource = { id: string; title: string; summary: string; path: string | null }
@@ -83,6 +91,37 @@ function parseTextResult<T>(result: unknown): T {
   expect(content).toHaveLength(1)
   expect(content?.[0]).toEqual(expect.objectContaining({ type: 'text' }))
   return JSON.parse(content?.[0].text ?? 'null') as T
+}
+
+function packageJsonPatch(from: string, to: string) {
+  return [
+    'diff --git a/package.json b/package.json',
+    '--- a/package.json',
+    '+++ b/package.json',
+    '@@ -1 +1 @@',
+    `-{"name":"${from}"}`,
+    `+{"name":"${to}"}`,
+    '',
+  ].join('\n')
+}
+
+async function withTempPortfolio(run: (root: string) => Promise<void>) {
+  const root = await mkdtemp(path.join(tmpdir(), 'open-brain-mcp-test-'))
+  const previousRoot = process.env.OPEN_BRAIN_PORTFOLIO_ROOT
+  process.env.OPEN_BRAIN_PORTFOLIO_ROOT = root
+
+  try {
+    await execFileAsync('git', ['init'], { cwd: root })
+    await writeFile(path.join(root, 'package.json'), '{"name":"before"}\n')
+    await run(root)
+  } finally {
+    if (previousRoot === undefined) {
+      delete process.env.OPEN_BRAIN_PORTFOLIO_ROOT
+    } else {
+      process.env.OPEN_BRAIN_PORTFOLIO_ROOT = previousRoot
+    }
+    await rm(root, { recursive: true, force: true })
+  }
 }
 
 describe('open-brain MCP server tools', () => {
@@ -246,5 +285,63 @@ describe('open-brain MCP server tools', () => {
     expect(() => resolveAllowedUpdatePath('public/generated.png', 'portfolio', '/tmp/portfolio')).toThrow(
       'Blocked generated or binary file',
     )
+  })
+
+  it('checks portfolio patches in dry-run mode without mutating files', async () => {
+    await withTempPortfolio(async (root) => {
+      const result = await applyPortfolioPatchToolResult({
+        scope: 'portfolio',
+        unifiedDiff: packageJsonPatch('before', 'after'),
+        reason: 'regression coverage for dry-run safety',
+      })
+
+      const payload = parseTextResult<{
+        mode: string
+        checked: boolean
+        applied: boolean
+        changedPaths: string[]
+      }>(result)
+      expect(payload).toEqual(expect.objectContaining({
+        mode: 'dry_run',
+        checked: true,
+        applied: false,
+        changedPaths: ['package.json'],
+      }))
+      await expect(readFile(path.join(root, 'package.json'), 'utf8')).resolves.toBe('{"name":"before"}\n')
+    })
+  })
+
+  it('requires the explicit approval phrase before applying portfolio patches', async () => {
+    await withTempPortfolio(async (root) => {
+      await expect(applyPortfolioPatchToolResult({
+        scope: 'portfolio',
+        unifiedDiff: packageJsonPatch('before', 'after'),
+        reason: 'regression coverage for apply approval',
+        apply: true,
+      })).rejects.toThrow('Applying requires approvalPhrase="APPLY PORTFOLIO PATCH"')
+      await expect(readFile(path.join(root, 'package.json'), 'utf8')).resolves.toBe('{"name":"before"}\n')
+
+      const result = await applyPortfolioPatchToolResult({
+        scope: 'portfolio',
+        unifiedDiff: packageJsonPatch('before', 'after'),
+        reason: 'regression coverage for approved apply',
+        apply: true,
+        approvalPhrase: 'APPLY PORTFOLIO PATCH',
+      })
+
+      const payload = parseTextResult<{
+        mode: string
+        checked: boolean
+        applied: boolean
+        changedPaths: string[]
+      }>(result)
+      expect(payload).toEqual(expect.objectContaining({
+        mode: 'applied',
+        checked: true,
+        applied: true,
+        changedPaths: ['package.json'],
+      }))
+      await expect(readFile(path.join(root, 'package.json'), 'utf8')).resolves.toBe('{"name":"after"}\n')
+    })
   })
 })
