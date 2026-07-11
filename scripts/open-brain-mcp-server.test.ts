@@ -1,5 +1,5 @@
 import { execFile } from 'child_process'
-import { mkdtemp, readFile, rm, writeFile } from 'fs/promises'
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'fs/promises'
 import { tmpdir } from 'os'
 import path from 'path'
 import { promisify } from 'util'
@@ -9,7 +9,9 @@ import {
   asText,
   createProposalToolResult,
   extractUnifiedDiffPaths,
+  getUpdateWorkspaceContextToolResult,
   proposalSchema,
+  readUpdateTargetToolResult,
   registerOpenBrainTools,
   resolveAllowedUpdatePath,
 } from './open-brain-mcp-server'
@@ -25,6 +27,9 @@ type MockSnapshot = {
   proposals: MockProposal[]
   events: Array<Record<string, unknown>>
   contextPacket: Record<string, unknown>
+  service?: { home: string; available: boolean }
+  overview?: { sources: number; memories: number; pendingProposals: number }
+  health?: Record<string, unknown>
 }
 
 const openBrainMocks = vi.hoisted(() => {
@@ -34,6 +39,9 @@ const openBrainMocks = vi.hoisted(() => {
     proposals: [],
     events: [],
     contextPacket: {},
+    service: { home: '/tmp/open-brain', available: true },
+    overview: { sources: 0, memories: 0, pendingProposals: 0 },
+    health: { ok: true },
   })
 
   return {
@@ -285,6 +293,72 @@ describe('open-brain MCP server tools', () => {
     expect(() => resolveAllowedUpdatePath('public/generated.png', 'portfolio', '/tmp/portfolio')).toThrow(
       'Blocked generated or binary file',
     )
+  })
+
+  it('returns workspace context with LM Studio update guardrails', async () => {
+    await withTempPortfolio(async (root) => {
+      const result = await getUpdateWorkspaceContextToolResult()
+
+      const payload = parseTextResult<{
+        portfolioRoot: string
+        gitStatus: string[]
+        openBrain: { available: boolean; pendingProposals: number; health: Record<string, unknown> }
+        updateLane: {
+          defaultMode: string
+          applyBoundary: string
+          allowedScopes: { open_brain: string[]; portfolio: string[] }
+          blocked: string[]
+        }
+        nextStepForModel: string
+      }>(result)
+      expect(payload.portfolioRoot).toBe(root)
+      expect(payload.gitStatus[0]).toMatch(/^##/)
+      expect(payload.openBrain).toEqual(expect.objectContaining({
+        available: true,
+        pendingProposals: 0,
+        health: { ok: true },
+      }))
+      expect(payload.updateLane.defaultMode).toBe('dry-run patch check')
+      expect(payload.updateLane.applyBoundary).toContain('APPLY PORTFOLIO PATCH')
+      expect(payload.updateLane.allowedScopes.open_brain).toContain('scripts/open-brain*')
+      expect(payload.updateLane.allowedScopes.portfolio).toContain('app/**')
+      expect(payload.updateLane.blocked).toEqual(expect.arrayContaining(['secrets and env files']))
+      expect(payload.nextStepForModel).toContain('apply_portfolio_patch with apply=false')
+    })
+  })
+
+  it('reads scoped update targets with truncation while refusing sensitive files', async () => {
+    await withTempPortfolio(async (root) => {
+      await mkdir(path.join(root, 'docs'), { recursive: true })
+      await writeFile(path.join(root, 'docs/open-brain-notes.md'), 'hello world')
+
+      const result = await readUpdateTargetToolResult({
+        scope: 'open_brain',
+        relativePath: 'docs/open-brain-notes.md',
+        maxBytes: 5,
+      })
+
+      const payload = parseTextResult<{
+        path: string
+        bytesReturned: number
+        truncated: boolean
+        text: string
+        boundary: string
+      }>(result)
+      expect(payload).toEqual({
+        path: 'docs/open-brain-notes.md',
+        bytesReturned: 5,
+        truncated: true,
+        text: 'hello',
+        boundary: 'Read-only. No file was changed.',
+      })
+
+      await writeFile(path.join(root, '.env.local'), 'SECRET=blocked\n')
+      await expect(readUpdateTargetToolResult({
+        scope: 'portfolio',
+        relativePath: '.env.local',
+      })).rejects.toThrow('Blocked sensitive file')
+    })
   })
 
   it('checks portfolio patches in dry-run mode without mutating files', async () => {
