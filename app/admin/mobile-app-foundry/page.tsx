@@ -17,6 +17,7 @@ import {
 } from '@/lib/mobile-app-foundry'
 import { MOBILE_FOUNDRY_WORK_ITEMS_CONFIRMATION } from '@/lib/mobile-app-foundry-work-items'
 import OperatingMatrix, { type MobileFoundryOperationRow } from './OperatingMatrix'
+import PacketPreviewWorkspace from './PacketPreviewWorkspace'
 
 export const metadata = {
   title: 'Mobile App Foundry | Admin',
@@ -299,6 +300,8 @@ export default function AdminMobileAppFoundryPage() {
             </section>
           </div>
         </section>
+
+        <PacketPreviewWorkspace />
 
         <OperatingMatrix rows={operationRows} />
       </div>
