@@ -12,6 +12,7 @@ import {
   applyApprovedVisualAssetCandidates,
   captureVisualAssetCandidates,
   listVisualAssetCandidates,
+  regenerateRejectedVisualAssetCandidate,
   resolveVisualAssetRoute,
   reviewVisualAssetCandidate,
   reviewVisualAssetCandidateQuality,
@@ -28,6 +29,7 @@ function createTableClient(tables: Record<string, Record<string, any>[]>) {
     const state: {
       select?: string
       patch?: Record<string, unknown>
+      insert?: Record<string, unknown>
       filters: Record<string, unknown>
       inFilters: Record<string, unknown[]>
       notFilters: Record<string, unknown>
@@ -41,6 +43,10 @@ function createTableClient(tables: Record<string, Record<string, any>[]>) {
       },
       update(patch: Record<string, unknown>) {
         state.patch = patch
+        return api
+      },
+      insert(patch: Record<string, unknown>) {
+        state.insert = patch
         return api
       },
       eq(key: string, value: unknown) {
@@ -71,6 +77,14 @@ function createTableClient(tables: Record<string, Record<string, any>[]>) {
       },
       single() {
         const list = tables[table] ?? []
+        if (state.insert) {
+          const row = {
+            id: `inserted-${list.length + 1}`,
+            ...state.insert,
+          }
+          list.push(row)
+          return Promise.resolve({ data: row, error: null })
+        }
         const row = list.find((entry) => matches(entry, state))
         if (state.patch && row) {
           Object.assign(row, state.patch)
@@ -242,7 +256,7 @@ describe('visual asset helpers', () => {
     })
   })
 
-  it('preserves metadata while approving and rejecting candidates', async () => {
+  it('preserves structured metadata while reviewing candidates', async () => {
     const client = createTableClient({
       visual_asset_candidates: [{
         id: 'candidate-1',
@@ -256,13 +270,76 @@ describe('visual asset helpers', () => {
       status: 'approved',
       reviewedBy: 'admin-1',
       reason: 'Strong feature signal',
+      recommendation: 'Keep this framing for the homepage.',
+      reasonCodes: ['weak_feature_signal'],
       client,
     })
 
     expect(row).toMatchObject({
       status: 'approved',
       reviewed_by: 'admin-1',
-      metadata: { score: 10, review_reason: 'Strong feature signal' },
+      metadata: {
+        score: 10,
+        review_reason: 'Strong feature signal',
+        review_recommendation: 'Keep this framing for the homepage.',
+        review_reason_codes: ['weak_feature_signal'],
+        review_feedback: expect.objectContaining({
+          status: 'approved',
+          reason: 'Strong feature signal',
+          recommendation: 'Keep this framing for the homepage.',
+          reason_codes: ['weak_feature_signal'],
+        }),
+      },
+    })
+  })
+
+  it('creates a regenerated proposed candidate from rejected feedback', async () => {
+    const client = createTableClient({
+      visual_asset_candidates: [{
+        id: 'rejected-1',
+        entity_type: 'service',
+        entity_id: 'svc-1',
+        title: 'AI Advisory',
+        theme: 'light',
+        current_url: null,
+        candidate_url: 'https://example.com/bad.png',
+        candidate_storage_path: 'products/visual-candidates/service-svc-1/light/rejected-1.png',
+        capture_route: '/services/svc-1?visualCapture=1',
+        score: 54,
+        reason_codes: ['dark_mode_mismatch'],
+        status: 'rejected',
+        metadata: {
+          source_table: 'services',
+          review_feedback: {
+            reason: 'Too dark for light mode.',
+            recommendation: 'Use a brighter service frame with more feature detail.',
+            reason_codes: ['dark_mode_mismatch', 'weak_feature_signal'],
+          },
+        },
+      }],
+    }) as any
+
+    const replacement = await regenerateRejectedVisualAssetCandidate({
+      sourceCandidateId: 'rejected-1',
+      requestedBy: 'admin-1',
+      client,
+    })
+
+    expect(replacement).toMatchObject({
+      id: 'inserted-2',
+      status: 'proposed',
+      candidate_url: null,
+      capture_route: '/services/svc-1?visualCapture=1&visualRevision=1&visualFocus=dark_mode_mismatch%2Cweak_feature_signal',
+      reason_codes: ['dark_mode_mismatch', 'weak_feature_signal'],
+      metadata: {
+        regenerated_from_candidate_id: 'rejected-1',
+        previous_candidate_url: 'https://example.com/bad.png',
+        regeneration_feedback: expect.objectContaining({
+          reason: 'Too dark for light mode.',
+          recommendation: 'Use a brighter service frame with more feature detail.',
+          reason_codes: ['dark_mode_mismatch', 'weak_feature_signal'],
+        }),
+      },
     })
   })
 
@@ -384,7 +461,7 @@ describe('visual asset helpers', () => {
       baseUrl: 'https://portfolio.example.com',
       noStartServer: true,
       routes: [expect.objectContaining({
-        route: '/store/42?visualCapture=1',
+        route: '/store/42?visualCapture=1&visualFocus=missing_image',
         filename: 'visual-candidate-needs-capture',
         colorScheme: 'light',
       })],

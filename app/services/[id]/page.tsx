@@ -22,6 +22,7 @@ import { formatCurrency } from '@/lib/pricing-model'
 import Link from 'next/link'
 import Navigation from '@/components/Navigation'
 import Breadcrumbs from '@/components/Breadcrumbs'
+import PortfolioVisualMockup from '@/components/visual-assets/PortfolioVisualMockup'
 
 interface Service {
   id: string
@@ -69,6 +70,19 @@ export default function ServiceDetailPage() {
   const searchParams = useSearchParams()
   const serviceId = params.id as string
   const visualCapture = searchParams.get('visualCapture') === '1'
+  const visualFocusCodes = (searchParams.get('visualFocus') || '')
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean)
+  const forceGeneratedVisual = searchParams.get('visualRevision') === '1' || visualFocusCodes.some((code) => [
+    'missing_image',
+    'image_load_failure',
+    'high_blank_space_ratio',
+    'weak_feature_signal',
+    'light_mode_mismatch',
+    'dark_mode_mismatch',
+    'candidate_below_quality_bar',
+  ].includes(code))
 
   const [service, setService] = useState<Service | null>(null)
   const [bundles, setBundles] = useState<BundleRef[]>([])
@@ -186,6 +200,7 @@ export default function ServiceDetailPage() {
       'Build the practical delivery plan',
       'Leave the team with a usable handoff',
     ]
+    const useGeneratedVisual = !service.image_url || forceGeneratedVisual
 
     return (
       <main className="min-h-screen bg-background text-foreground flex items-center justify-center overflow-hidden p-10">
@@ -197,45 +212,70 @@ export default function ServiceDetailPage() {
           <div className="absolute left-0 top-0 h-full w-2 bg-radiant-gold" />
           <div className="relative grid h-full grid-cols-[0.9fr_1.1fr] gap-8 p-12">
             <div className="flex min-w-0 flex-col gap-5">
-              <div className="relative h-72 overflow-hidden rounded-xl border border-border bg-background">
-                {service.image_url ? (
-                  <Image
-                    src={service.image_url}
-                    alt={service.title}
-                    fill
-                    className="object-cover"
-                    sizes="520px"
-                    priority
-                  />
-                ) : (
-                  <div className="flex h-full flex-col items-center justify-center gap-4 bg-[radial-gradient(circle_at_35%_25%,rgba(212,175,55,0.3),transparent_34%),linear-gradient(135deg,rgba(44,62,80,0.14),rgba(212,175,55,0.2))] dark:bg-[radial-gradient(circle_at_35%_25%,rgba(212,175,55,0.3),transparent_34%),linear-gradient(135deg,rgba(234,236,238,0.1),rgba(212,175,55,0.16))]">
-                    <Building className="h-20 w-20 text-radiant-gold" />
-                    <span className="text-lg font-semibold text-muted-foreground">Service delivery visual</span>
+              {useGeneratedVisual ? (
+                <>
+                  <div className="relative min-h-0 flex-1 overflow-hidden rounded-xl border border-border bg-background">
+                    <PortfolioVisualMockup
+                      kind="service"
+                      title={service.title}
+                      eyebrow={typeLabel}
+                      primaryLabel={deliveryLabel}
+                      secondaryLabel={durationLabel}
+                      items={[...featuredDeliverables, ...featuredTopics, ...deliveryPath]}
+                      focusCodes={visualFocusCodes}
+                    />
                   </div>
-                )}
-              </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="rounded-xl border border-border bg-background/80 p-5">
-                  <div className="mb-2 flex items-center gap-2 text-muted-foreground">
-                    {delivery.icon}
-                    <span className="text-sm font-bold uppercase tracking-wider">Delivery</span>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="rounded-xl border border-border bg-background/80 p-5">
+                      <div className="mb-2 flex items-center gap-2 text-muted-foreground">
+                        {delivery.icon}
+                        <span className="text-sm font-bold uppercase tracking-wider">Delivery</span>
+                      </div>
+                      <p className="text-2xl font-bold">{deliveryLabel}</p>
+                    </div>
+                    <div className="rounded-xl border border-radiant-gold/40 bg-radiant-gold/10 p-5">
+                      <span className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Investment</span>
+                      <p className="mt-2 text-3xl font-bold text-radiant-gold">{priceLabel}</p>
+                    </div>
                   </div>
-                  <p className="text-2xl font-bold">{deliveryLabel}</p>
-                </div>
-                <div className="rounded-xl border border-border bg-background/80 p-5">
-                  <div className="mb-2 flex items-center gap-2 text-muted-foreground">
-                    <Clock className="h-4 w-4" />
-                    <span className="text-sm font-bold uppercase tracking-wider">Timeline</span>
+                </>
+              ) : (
+                <>
+                  <div className="relative h-72 overflow-hidden rounded-xl border border-border bg-background">
+                    <Image
+                      src={service.image_url || ''}
+                      alt={service.title}
+                      fill
+                      className="object-cover"
+                      sizes="520px"
+                      priority
+                    />
                   </div>
-                  <p className="text-2xl font-bold">{durationLabel}</p>
-                </div>
-              </div>
 
-              <div className="rounded-xl border border-radiant-gold/40 bg-radiant-gold/10 p-5">
-                <span className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Investment</span>
-                <p className="mt-2 text-4xl font-bold text-radiant-gold">{priceLabel}</p>
-              </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="rounded-xl border border-border bg-background/80 p-5">
+                      <div className="mb-2 flex items-center gap-2 text-muted-foreground">
+                        {delivery.icon}
+                        <span className="text-sm font-bold uppercase tracking-wider">Delivery</span>
+                      </div>
+                      <p className="text-2xl font-bold">{deliveryLabel}</p>
+                    </div>
+                    <div className="rounded-xl border border-border bg-background/80 p-5">
+                      <div className="mb-2 flex items-center gap-2 text-muted-foreground">
+                        <Clock className="h-4 w-4" />
+                        <span className="text-sm font-bold uppercase tracking-wider">Timeline</span>
+                      </div>
+                      <p className="text-2xl font-bold">{durationLabel}</p>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-radiant-gold/40 bg-radiant-gold/10 p-5">
+                    <span className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Investment</span>
+                    <p className="mt-2 text-4xl font-bold text-radiant-gold">{priceLabel}</p>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="flex min-w-0 flex-col justify-between">

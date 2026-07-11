@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
-import { Check, CheckCheck, ChevronLeft, ChevronRight, ImageIcon, Loader2, RefreshCw, Search, ShieldAlert, ShieldCheck, Sparkles, X } from 'lucide-react'
+import { Check, CheckCheck, ChevronLeft, ChevronRight, ImageIcon, Loader2, MessageSquare, RefreshCw, Search, ShieldAlert, ShieldCheck, Sparkles, X } from 'lucide-react'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { getCurrentSession } from '@/lib/auth'
@@ -20,6 +20,15 @@ const SORT_OPTIONS = [
   { value: 'score_asc', label: 'Score low-high' },
   { value: 'theme', label: 'Theme' },
 ] as const
+const REJECTION_REASONS: Array<{ value: string; label: string }> = [
+  { value: 'high_blank_space_ratio', label: 'Too much blank space' },
+  { value: 'weak_feature_signal', label: 'Weak product/feature signal' },
+  { value: 'light_mode_mismatch', label: 'Wrong for dark mode' },
+  { value: 'dark_mode_mismatch', label: 'Wrong for light mode' },
+  { value: 'wrong_aspect_ratio', label: 'Bad crop or aspect ratio' },
+  { value: 'low_resolution', label: 'Low resolution' },
+  { value: 'image_load_failure', label: 'Image did not render' },
+]
 
 type EntityTypeFilter = (typeof ENTITY_TYPES)[number]
 type SortKey = (typeof SORT_OPTIONS)[number]['value']
@@ -70,6 +79,32 @@ function agentReview(candidate: VisualAssetCandidate): { decision?: string; summ
   }
 }
 
+function reviewFeedback(candidate: VisualAssetCandidate): { reason?: string; recommendation?: string; reasonCodes: string[] } {
+  const feedback = candidate.metadata?.review_feedback
+  const data = feedback && typeof feedback === 'object' && !Array.isArray(feedback)
+    ? feedback as Record<string, unknown>
+    : {}
+  const reasonCodes = Array.isArray(data.reason_codes)
+    ? data.reason_codes.filter((reason): reason is string => typeof reason === 'string')
+    : Array.isArray(candidate.metadata?.review_reason_codes)
+      ? candidate.metadata.review_reason_codes.filter((reason): reason is string => typeof reason === 'string')
+      : []
+
+  return {
+    reason: typeof data.reason === 'string'
+      ? data.reason
+      : typeof candidate.metadata?.review_reason === 'string'
+        ? candidate.metadata.review_reason
+        : undefined,
+    recommendation: typeof data.recommendation === 'string'
+      ? data.recommendation
+      : typeof candidate.metadata?.review_recommendation === 'string'
+        ? candidate.metadata.review_recommendation
+        : undefined,
+    reasonCodes,
+  }
+}
+
 function AgentReviewBadge({ candidate }: { candidate: VisualAssetCandidate }) {
   const review = agentReview(candidate)
   if (!review?.decision) return null
@@ -107,6 +142,10 @@ export default function VisualAssetsReviewPage() {
   const [page, setPage] = useState(1)
   const [query, setQuery] = useState('')
   const [message, setMessage] = useState<string | null>(null)
+  const [rejectionTarget, setRejectionTarget] = useState<VisualAssetCandidate | null>(null)
+  const [rejectReason, setRejectReason] = useState('')
+  const [rejectRecommendation, setRejectRecommendation] = useState('')
+  const [rejectReasonCodes, setRejectReasonCodes] = useState<string[]>([])
 
   const fetchCandidates = useCallback(async () => {
     setLoading(true)
@@ -245,6 +284,92 @@ export default function VisualAssetsReviewPage() {
       const approved = results.filter((result) => result.status === 'fulfilled').length
       const failed = results.length - approved
       setMessage(failed > 0 ? `Approved ${approved}; failed ${failed}.` : `Approved ${approved} visible candidate${approved === 1 ? '' : 's'}.`)
+      await fetchCandidates()
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : String(error))
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  const openRejectionReview = (candidate: VisualAssetCandidate) => {
+    const feedback = reviewFeedback(candidate)
+    setRejectionTarget(candidate)
+    setRejectReason(feedback.reason ?? '')
+    setRejectRecommendation(feedback.recommendation ?? '')
+    setRejectReasonCodes(feedback.reasonCodes.length > 0 ? feedback.reasonCodes : candidate.reason_codes)
+    setMessage(null)
+  }
+
+  const toggleRejectReasonCode = (reasonCode: string) => {
+    setRejectReasonCodes((current) => (
+      current.includes(reasonCode)
+        ? current.filter((item) => item !== reasonCode)
+        : [...current, reasonCode]
+    ))
+  }
+
+  const closeRejectionReview = () => {
+    setRejectionTarget(null)
+    setRejectReason('')
+    setRejectRecommendation('')
+    setRejectReasonCodes([])
+  }
+
+  const rejectCandidate = async (regenerate = false) => {
+    if (!rejectionTarget) return
+    const reason = rejectReason.trim()
+    if (!reason) {
+      setMessage('Add a rejection reason before rejecting this candidate.')
+      return
+    }
+
+    const session = await getCurrentSession()
+    if (!session) return
+
+    const payload = {
+      reason,
+      recommendation: rejectRecommendation.trim(),
+      reasonCodes: rejectReasonCodes,
+    }
+    setBusy(regenerate ? `regenerate:${rejectionTarget.id}` : `reject:${rejectionTarget.id}`)
+    setMessage(null)
+    try {
+      let sourceId = rejectionTarget.id
+      if (rejectionTarget.status !== 'rejected') {
+        const response = await fetch(`/api/admin/visual-assets/${rejectionTarget.id}/reject`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify(payload),
+        })
+        const data = await response.json().catch(() => ({}))
+        if (!response.ok) throw new Error(data.error || 'Failed to reject candidate')
+        sourceId = typeof data.candidate?.id === 'string' ? data.candidate.id : sourceId
+      }
+
+      if (regenerate) {
+        const response = await fetch(`/api/admin/visual-assets/${sourceId}/regenerate`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify(payload),
+        })
+        const data = await response.json().catch(() => ({}))
+        if (!response.ok) throw new Error(data.error || 'Failed to regenerate candidate')
+        const captured = data.capture?.captured ?? 0
+        const passed = data.capture?.passed ?? 0
+        const blocked = data.capture?.blocked ?? 0
+        setMessage(`Regenerated ${captured}; Idia passed ${passed} and blocked ${blocked}.`)
+      } else {
+        setMessage('Candidate rejected with feedback.')
+      }
+
+      closeRejectionReview()
       await fetchCandidates()
     } catch (error) {
       setMessage(error instanceof Error ? error.message : String(error))
@@ -464,15 +589,24 @@ export default function VisualAssetsReviewPage() {
                           {agentReview(candidate)?.summary}
                         </p>
                       )}
+                      {candidate.status === 'rejected' && reviewFeedback(candidate).reason && (
+                        <div className="mt-3 rounded-lg border border-rose-400/20 bg-rose-500/10 px-3 py-2 text-xs text-rose-100">
+                          <p className="font-semibold uppercase tracking-wide">Rejected feedback</p>
+                          <p className="mt-1 text-rose-100/90">{reviewFeedback(candidate).reason}</p>
+                          {reviewFeedback(candidate).recommendation && (
+                            <p className="mt-2 text-rose-100/75">{reviewFeedback(candidate).recommendation}</p>
+                          )}
+                        </div>
+                      )}
 
                       <div className="mt-4 flex flex-wrap justify-end gap-2">
                         <button
                           className="agent-ops-button-secondary"
-                          disabled={Boolean(busy) || candidate.status === 'rejected'}
-                          onClick={() => postAction(`/api/admin/visual-assets/${candidate.id}/reject`)}
+                          disabled={Boolean(busy) || candidate.status === 'applied'}
+                          onClick={() => openRejectionReview(candidate)}
                         >
-                          <X className="h-4 w-4" />
-                          Reject
+                          <MessageSquare className="h-4 w-4" />
+                          {candidate.status === 'rejected' ? 'Regenerate' : 'Reject'}
                         </button>
                         <button
                           className="agent-ops-button-primary"
@@ -497,8 +631,129 @@ export default function VisualAssetsReviewPage() {
             />
           </div>
         )}
+        {rejectionTarget && (
+          <RejectionDialog
+            candidate={rejectionTarget}
+            reason={rejectReason}
+            recommendation={rejectRecommendation}
+            reasonCodes={rejectReasonCodes}
+            busy={busy}
+            onReasonChange={setRejectReason}
+            onRecommendationChange={setRejectRecommendation}
+            onToggleReasonCode={toggleRejectReasonCode}
+            onCancel={closeRejectionReview}
+            onReject={() => rejectCandidate(false)}
+            onRejectAndRegenerate={() => rejectCandidate(true)}
+          />
+        )}
       </main>
     </ProtectedRoute>
+  )
+}
+
+function RejectionDialog({
+  candidate,
+  reason,
+  recommendation,
+  reasonCodes,
+  busy,
+  onReasonChange,
+  onRecommendationChange,
+  onToggleReasonCode,
+  onCancel,
+  onReject,
+  onRejectAndRegenerate,
+}: {
+  candidate: VisualAssetCandidate
+  reason: string
+  recommendation: string
+  reasonCodes: string[]
+  busy: string | null
+  onReasonChange: (value: string) => void
+  onRecommendationChange: (value: string) => void
+  onToggleReasonCode: (value: string) => void
+  onCancel: () => void
+  onReject: () => void
+  onRejectAndRegenerate: () => void
+}) {
+  const isRejected = candidate.status === 'rejected'
+  const isBusy = Boolean(busy)
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-6">
+      <div role="dialog" aria-modal="true" aria-label={isRejected ? 'Regenerate candidate' : 'Reject candidate'} className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl border border-radiant-gold/20 bg-background p-5 shadow-2xl">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-radiant-gold">
+              {isRejected ? 'Regenerate candidate' : 'Reject candidate'}
+            </p>
+            <h2 id="visual-rejection-title" className="mt-2 text-xl font-semibold text-foreground">{candidate.title}</h2>
+            <p className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">{candidate.theme} / {candidate.entity_type}</p>
+          </div>
+          <button className="rounded-lg border border-radiant-gold/10 p-2 text-muted-foreground hover:text-foreground" onClick={onCancel} aria-label="Close rejection review">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="mt-5 space-y-4">
+          <div>
+            <label htmlFor="visual-rejection-reason" className="text-sm font-semibold text-foreground">Rejection reason</label>
+            <textarea
+              id="visual-rejection-reason"
+              value={reason}
+              onChange={(event) => onReasonChange(event.target.value)}
+              rows={3}
+              className="mt-2 w-full rounded-lg border border-radiant-gold/10 bg-silicon-slate/25 px-3 py-2 text-sm text-foreground outline-none focus:border-radiant-gold/40"
+              placeholder="What is wrong with this candidate?"
+            />
+          </div>
+
+          <div>
+            <p className="text-sm font-semibold text-foreground">Reason codes</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {REJECTION_REASONS.map((item) => (
+                <button
+                  key={item.value}
+                  type="button"
+                  className={pillClass(reasonCodes.includes(item.value))}
+                  onClick={() => onToggleReasonCode(item.value)}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="visual-rejection-recommendation" className="text-sm font-semibold text-foreground">Regeneration recommendation</label>
+            <textarea
+              id="visual-rejection-recommendation"
+              value={recommendation}
+              onChange={(event) => onRecommendationChange(event.target.value)}
+              rows={3}
+              className="mt-2 w-full rounded-lg border border-radiant-gold/10 bg-silicon-slate/25 px-3 py-2 text-sm text-foreground outline-none focus:border-radiant-gold/40"
+              placeholder="What should Idia improve on the next capture?"
+            />
+          </div>
+        </div>
+
+        <div className="mt-6 flex flex-wrap justify-end gap-2">
+          <button className="agent-ops-button-secondary" disabled={isBusy} onClick={onCancel}>
+            Cancel
+          </button>
+          {!isRejected && (
+            <button className="agent-ops-button-secondary" disabled={isBusy || !reason.trim()} onClick={onReject}>
+              {busy?.startsWith('reject:') ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
+              Reject
+            </button>
+          )}
+          <button className="agent-ops-button-primary" disabled={isBusy || !reason.trim()} onClick={onRejectAndRegenerate}>
+            {busy?.startsWith('regenerate:') ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+            {isRejected ? 'Regenerate' : 'Reject & Regenerate'}
+          </button>
+        </div>
+      </div>
+    </div>
   )
 }
 
