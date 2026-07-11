@@ -158,6 +158,16 @@ function appendRegenerationParams(route: string, reasonCodes: VisualAssetReasonC
   return `${pathname}?${params.toString()}`
 }
 
+function appendVisualFocusParams(route: string, reasonCodes: VisualAssetReasonCode[]) {
+  if (reasonCodes.length === 0) return route
+  const [pathname, query = ''] = route.split('?')
+  const params = new URLSearchParams(query)
+  if (!params.has('visualFocus')) {
+    params.set('visualFocus', reasonCodes.join(','))
+  }
+  return `${pathname}?${params.toString()}`
+}
+
 export function isVisualAssetEntityType(value: string): value is VisualAssetEntityType {
   return VISUAL_ASSET_ENTITY_TYPES.includes(value as VisualAssetEntityType)
 }
@@ -618,7 +628,7 @@ export async function auditVisualAssets(input: {
 
 function toRouteConfig(candidate: VisualAssetCandidate): RouteConfig {
   return {
-    route: candidate.capture_route,
+    route: appendVisualFocusParams(candidate.capture_route, candidate.reason_codes),
     filename: `visual-candidate-${candidate.id}`,
     description: `${candidate.title} ${candidate.theme} visual candidate`,
     fullPage: false,

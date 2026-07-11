@@ -22,6 +22,7 @@ import Link from 'next/link'
 import Navigation from '@/components/Navigation'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import { useCampaignEligibility } from '@/hooks/useCampaignEligibility'
+import PortfolioVisualMockup from '@/components/visual-assets/PortfolioVisualMockup'
 
 interface BundleRef {
   bundleId: string
@@ -60,6 +61,19 @@ export default function ProductDetailPage() {
   const searchParams = useSearchParams()
   const productId = params.id as string
   const visualCapture = searchParams.get('visualCapture') === '1'
+  const visualFocusCodes = (searchParams.get('visualFocus') || '')
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean)
+  const forceGeneratedVisual = searchParams.get('visualRevision') === '1' || visualFocusCodes.some((code) => [
+    'missing_image',
+    'image_load_failure',
+    'high_blank_space_ratio',
+    'weak_feature_signal',
+    'light_mode_mismatch',
+    'dark_mode_mismatch',
+    'candidate_below_quality_bar',
+  ].includes(code))
   const { getCampaignForBundle } = useCampaignEligibility()
 
   const [product, setProduct] = useState<Product | null>(null)
@@ -177,6 +191,7 @@ export default function ProductDetailPage() {
     return []
   })()
   const heroSrc = heroImageUrls[0]
+  const useGeneratedVisual = !heroSrc || forceGeneratedVisual
 
   // Deliverables / what's included (aligned with service detail)
   const deliverablesList: string[] = []
@@ -210,6 +225,10 @@ export default function ProductDetailPage() {
       'Adapt it to your workflow',
       'Use the included guidance to move faster',
     ]
+    const captureProofItems = (includedItems.length >= 3
+      ? includedItems
+      : [...includedItems, ...workflowItems]
+    ).slice(0, 4)
 
     return (
       <main className="min-h-screen bg-background text-foreground flex items-center justify-center overflow-hidden p-10">
@@ -241,7 +260,7 @@ export default function ProductDetailPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                {includedItems.map((item) => (
+                {captureProofItems.map((item) => (
                   <div key={item} className="flex items-start gap-3 rounded-lg border border-border bg-background/80 p-4">
                     <Check className="mt-1 h-5 w-5 flex-none text-radiant-gold" />
                     <span className="text-lg font-medium leading-snug">{item}</span>
@@ -251,49 +270,69 @@ export default function ProductDetailPage() {
             </div>
 
             <div className="flex min-w-0 flex-col gap-5">
-              <div className="relative h-64 overflow-hidden rounded-xl border border-border bg-background">
-                {heroSrc ? (
-                  <Image
-                    src={heroSrc}
-                    alt={product.title}
-                    fill
-                    className="object-cover"
-                    sizes="520px"
-                    priority
-                  />
-                ) : (
-                  <div className="flex h-full flex-col items-center justify-center gap-4 bg-[radial-gradient(circle_at_30%_20%,rgba(212,175,55,0.28),transparent_32%),linear-gradient(135deg,rgba(18,30,49,0.12),rgba(212,175,55,0.18))] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(212,175,55,0.28),transparent_32%),linear-gradient(135deg,rgba(234,236,238,0.1),rgba(212,175,55,0.16))]">
-                    <Package className="h-20 w-20 text-radiant-gold" />
-                    <span className="text-lg font-semibold text-muted-foreground">Product visual system</span>
+              {useGeneratedVisual ? (
+                <>
+                  <div className="relative min-h-0 flex-1 overflow-hidden rounded-xl border border-border bg-background">
+                    <PortfolioVisualMockup
+                      kind="product"
+                      title={product.title}
+                      eyebrow={typeLabel}
+                      primaryLabel={categoryLabel}
+                      secondaryLabel={priceLabel}
+                      items={[...captureProofItems, ...workflowItems]}
+                      focusCodes={visualFocusCodes}
+                    />
                   </div>
-                )}
-              </div>
 
-              <div className="rounded-xl border border-border bg-background/80 p-6">
-                <div className="mb-5 flex items-center justify-between">
-                  <span className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Operator path</span>
-                  <span className="text-3xl font-bold text-radiant-gold">{priceLabel}</span>
-                </div>
-                <div className="space-y-4">
-                  {workflowItems.map((item, index) => (
-                    <div key={item} className="flex items-center gap-4">
-                      <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-silicon-slate text-sm font-bold text-platinum-white dark:bg-radiant-gold dark:text-imperial-navy">
-                        {index + 1}
-                      </span>
-                      <span className="text-xl font-semibold leading-tight">{item}</span>
+                  <div className="grid grid-cols-3 gap-3">
+                    {['Reusable', 'Documented', 'Ready'].map((label) => (
+                      <div key={label} className="rounded-lg border border-radiant-gold/40 bg-radiant-gold/10 p-4 text-center">
+                        <Sparkles className="mx-auto mb-2 h-5 w-5 text-radiant-gold" />
+                        <span className="text-sm font-bold uppercase tracking-wide text-foreground">{label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="relative h-64 overflow-hidden rounded-xl border border-border bg-background">
+                    <Image
+                      src={heroSrc}
+                      alt={product.title}
+                      fill
+                      className="object-cover"
+                      sizes="520px"
+                      priority
+                    />
+                  </div>
+
+                  <div className="rounded-xl border border-border bg-background/80 p-6">
+                    <div className="mb-5 flex items-center justify-between">
+                      <span className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Operator path</span>
+                      <span className="text-3xl font-bold text-radiant-gold">{priceLabel}</span>
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-auto grid grid-cols-3 gap-3">
-                {['Reusable', 'Documented', 'Ready'].map((label) => (
-                  <div key={label} className="rounded-lg border border-radiant-gold/40 bg-radiant-gold/10 p-4 text-center">
-                    <Sparkles className="mx-auto mb-2 h-5 w-5 text-radiant-gold" />
-                    <span className="text-sm font-bold uppercase tracking-wide text-foreground">{label}</span>
+                    <div className="space-y-4">
+                      {workflowItems.map((item, index) => (
+                        <div key={item} className="flex items-center gap-4">
+                          <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-silicon-slate text-sm font-bold text-platinum-white dark:bg-radiant-gold dark:text-imperial-navy">
+                            {index + 1}
+                          </span>
+                          <span className="text-xl font-semibold leading-tight">{item}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                ))}
-              </div>
+
+                  <div className="mt-auto grid grid-cols-3 gap-3">
+                    {['Reusable', 'Documented', 'Ready'].map((label) => (
+                      <div key={label} className="rounded-lg border border-radiant-gold/40 bg-radiant-gold/10 p-4 text-center">
+                        <Sparkles className="mx-auto mb-2 h-5 w-5 text-radiant-gold" />
+                        <span className="text-sm font-bold uppercase tracking-wide text-foreground">{label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </section>

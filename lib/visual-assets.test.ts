@@ -461,7 +461,7 @@ describe('visual asset helpers', () => {
       baseUrl: 'https://portfolio.example.com',
       noStartServer: true,
       routes: [expect.objectContaining({
-        route: '/store/42?visualCapture=1',
+        route: '/store/42?visualCapture=1&visualFocus=missing_image',
         filename: 'visual-candidate-needs-capture',
         colorScheme: 'light',
       })],
