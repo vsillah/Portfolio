@@ -147,4 +147,61 @@ describe('GET /api/admin/social-content/calibration-library', () => {
     ]))
     expect(mocks.from).not.toHaveBeenCalled()
   })
+
+  it('prioritizes operator-marked gold-standard history references', async () => {
+    mocks.limit.mockResolvedValueOnce({
+      data: [
+        {
+          id: 'social-history-regular',
+          platform: 'linkedin',
+          status: 'published',
+          post_text: 'A regular approved history reference.',
+          topic_extracted: { topic: 'Regular history' },
+          rag_context: {},
+          content_pillar: 'AI and product management',
+          target_platforms: ['linkedin'],
+          published_at: '2026-07-02T12:00:00.000Z',
+          updated_at: '2026-07-02T12:00:00.000Z',
+          created_at: '2026-07-02T12:00:00.000Z',
+        },
+        {
+          id: 'social-history-gold',
+          platform: 'linkedin',
+          status: 'published',
+          post_text: 'A marked gold-standard post that should guide Shaka revisions.',
+          topic_extracted: { topic: 'Gold standard history' },
+          rag_context: {
+            content_calibration: {
+              reference_curation: {
+                gold_standard: true,
+                reason: 'This sounded like Vambah and had strong conversation quality.',
+              },
+            },
+          },
+          content_pillar: 'AI and product management',
+          target_platforms: ['linkedin'],
+          published_at: '2026-06-20T12:00:00.000Z',
+          updated_at: '2026-06-20T12:00:00.000Z',
+          created_at: '2026-06-20T12:00:00.000Z',
+        },
+      ],
+      error: null,
+    })
+
+    const response = await GET(new NextRequest('http://localhost/api/admin/social-content/calibration-library?platform=linkedin'))
+
+    expect(response.status).toBe(200)
+    const json = await response.json()
+    expect(json.references[0]).toMatchObject({
+      id: 'portfolio-social-social-history-gold',
+      curation_status: 'gold_standard',
+      label: expect.stringContaining('Gold standard'),
+      engagement_signal: expect.stringContaining('Operator marked as a reusable gold-standard post.'),
+      why_it_worked: expect.stringContaining('strong conversation quality'),
+    })
+    expect(json.references[1]).toMatchObject({
+      id: 'portfolio-social-social-history-regular',
+      curation_status: 'portfolio_history',
+    })
+  })
 })

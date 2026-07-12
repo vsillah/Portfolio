@@ -142,7 +142,7 @@ describe('PacketPreviewWorkspace', () => {
   })
 
   it('sends commercialization validation fields to the read-only packet endpoint', async () => {
-    const fetchMock = vi.fn(async () => new Response(JSON.stringify({
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => new Response(JSON.stringify({
       ok: true,
       mode: 'read_only',
       markdown: '# Speech Practice Coach Commercialization Packet',

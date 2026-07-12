@@ -35,6 +35,7 @@ import {
   Trash2,
   MessageSquare,
   Lightbulb,
+  Star,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -286,6 +287,7 @@ function SocialContentDetailPage() {
   const [publishing, setPublishing] = useState(false)
   const [refreshingEngagement, setRefreshingEngagement] = useState(false)
   const [savingCalibration, setSavingCalibration] = useState(false)
+  const [savingGoldStandard, setSavingGoldStandard] = useState(false)
   const [revisingCalibration, setRevisingCalibration] = useState(false)
   const [requestingCopyRevision, setRequestingCopyRevision] = useState(false)
   const [loadingTopicBacklog, setLoadingTopicBacklog] = useState(false)
@@ -680,6 +682,55 @@ function SocialContentDetailPage() {
       showMsg('error', 'Failed to save calibration feedback')
     } finally {
       setSavingCalibration(false)
+    }
+  }
+
+  const handleMarkGoldStandard = async () => {
+    if (!item) return
+    setSavingGoldStandard(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const existingRag = asRecord(item.rag_context) ?? {}
+      const existingCalibration = asRecord(existingRag.content_calibration) ?? {}
+      const existingReferenceCuration = asRecord(existingCalibration.reference_curation) ?? {}
+      const rag_context = {
+        ...existingRag,
+        content_calibration: {
+          ...existingCalibration,
+          status: asString(existingCalibration.status) || 'approved_reference',
+          reference_curation: {
+            ...existingReferenceCuration,
+            gold_standard: true,
+            reason: 'Operator marked this approved Social Content item as a reusable calibration reference.',
+            marked_at: new Date().toISOString(),
+          },
+        },
+      }
+
+      const res = await fetch(`/api/admin/social-content/${id}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ rag_context }),
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        setItem(prev => prev ? { ...prev, ...data.item } : prev)
+        await fetchCalibrationLibrary()
+        showMsg('success', 'Marked as a gold-standard calibration reference')
+      } else {
+        const data = await res.json()
+        showMsg('error', data.error || 'Failed to mark gold standard')
+      }
+    } catch {
+      showMsg('error', 'Failed to mark gold standard')
+    } finally {
+      setSavingGoldStandard(false)
     }
   }
 
@@ -1359,6 +1410,8 @@ function SocialContentDetailPage() {
   const agentPilotPassToHuman = ragContext?.pass_to_human === true
   const agentPilotRequiredFixes = asStringArray(ragContext?.required_fixes)
   const agentPilotCalibration = asRecord(ragContext?.content_calibration)
+  const agentPilotReferenceCuration = asRecord(agentPilotCalibration?.reference_curation)
+  const isGoldStandardCalibrationReference = agentPilotReferenceCuration?.gold_standard === true || agentPilotCalibration?.gold_standard === true
   const agentPilotCalibrationStatus = asString(agentPilotCalibration?.status)
   const agentPilotLatestRevision = asRecord(agentPilotCalibration?.latest_revision)
   const agentPilotLatestRevisionCreatedAt = asString(agentPilotLatestRevision?.created_at)
@@ -1438,6 +1491,10 @@ function SocialContentDetailPage() {
       ? engagementLatest.likes
       : 0
   const isDraftOnlyPilot = isAgentSocialPilot && agentPilotPublishGate === 'draft_only'
+  const canMarkGoldStandardCalibrationReference = isAgentSocialPilot
+    && ['approved', 'published'].includes(item.status)
+    && (item.platform === 'linkedin' || targetPlatforms.includes('linkedin'))
+    && Boolean(item.post_text?.trim())
   const canApproveAgentPilot = !isAgentSocialPilot || agentPilotPassToHuman
   const videoPrivacyBlocked = Boolean(productionAssets && !redactionGate.ready)
   const canRequestCopyRevision = isAgentSocialPilot && item.status === 'approved'
@@ -1948,6 +2005,28 @@ function SocialContentDetailPage() {
                       : 'No calibration packet was seeded for this draft yet. Add a prior post, engagement signal, audience context, and revision request so Shaka can revise it in context.'}
                   </p>
 
+                  {canMarkGoldStandardCalibrationReference && (
+                    <div className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
+                      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">Current post as benchmark</p>
+                          <p className="mt-1 text-sm leading-6 text-amber-50/85">
+                            Mark this approved post as a gold-standard reference when it sounds like you and should guide future Shaka revisions.
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleMarkGoldStandard}
+                          disabled={savingGoldStandard || isGoldStandardCalibrationReference}
+                          className="inline-flex w-fit shrink-0 items-center justify-center gap-2 rounded-lg border border-amber-400/45 px-3 py-2 text-sm font-semibold text-amber-100 transition-colors hover:bg-amber-500/10 disabled:opacity-55"
+                        >
+                          {savingGoldStandard ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Star className="h-3.5 w-3.5" />}
+                          {isGoldStandardCalibrationReference ? 'Gold standard' : 'Mark gold standard'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                   {hasAgentPilotCalibrationGuidance ? (
                     <>
                       <div className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
@@ -2149,12 +2228,24 @@ function SocialContentDetailPage() {
                                 example.source_label.trim() === sourceLabel
                                 || example.source_label.trim() === reference.label
                               ))
+                              const isGoldStandardReference = reference.curation_status === 'gold_standard'
                               return (
-                                <div key={reference.id} className="rounded-lg border border-emerald-400/20 bg-background/35 p-3">
+                                <div
+                                  key={reference.id}
+                                  className={`rounded-lg border p-3 ${isGoldStandardReference ? 'border-amber-400/35 bg-amber-500/10' : 'border-emerald-400/20 bg-background/35'}`}
+                                >
                                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                                     <div className="min-w-0">
-                                      <p className="text-sm font-semibold text-emerald-50">{reference.label}</p>
-                                      <p className="mt-1 text-xs uppercase tracking-[0.12em] text-emerald-100/70">
+                                      <div className="flex flex-wrap items-center gap-2">
+                                        <p className="text-sm font-semibold text-emerald-50">{reference.label}</p>
+                                        {isGoldStandardReference && (
+                                          <span className="inline-flex items-center gap-1 rounded-full border border-amber-300/35 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-100">
+                                            <Star className="h-3 w-3" />
+                                            Gold
+                                          </span>
+                                        )}
+                                      </div>
+                                      <p className={`mt-1 text-xs uppercase tracking-[0.12em] ${isGoldStandardReference ? 'text-amber-100/75' : 'text-emerald-100/70'}`}>
                                         {reference.content_pillar}
                                       </p>
                                     </div>
