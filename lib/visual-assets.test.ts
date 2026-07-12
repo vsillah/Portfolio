@@ -343,6 +343,114 @@ describe('visual asset helpers', () => {
     })
   })
 
+  it('rejects regeneration for candidates that are not in the rejected state', async () => {
+    const tables = {
+      visual_asset_candidates: [{
+        id: 'candidate-1',
+        status: 'proposed',
+      }],
+    }
+    const client = createTableClient(tables) as any
+
+    await expect(regenerateRejectedVisualAssetCandidate({
+      sourceCandidateId: 'candidate-1',
+      requestedBy: 'admin-1',
+      client,
+    })).rejects.toThrow('Only rejected visual asset candidates can be regenerated')
+
+    expect(tables.visual_asset_candidates).toHaveLength(1)
+  })
+
+  it.each(['proposed', 'approved'] as const)(
+    'blocks regeneration when a %s replacement already exists for the same entity and theme',
+    async (openStatus) => {
+      const tables = {
+        visual_asset_candidates: [
+          {
+            id: 'rejected-1',
+            entity_type: 'service',
+            entity_id: 'svc-1',
+            title: 'AI Advisory',
+            theme: 'dark',
+            current_url: null,
+            candidate_url: 'https://example.com/rejected.png',
+            candidate_storage_path: 'services/visual-candidates/service-svc-1/dark/rejected-1.png',
+            capture_route: '/services/svc-1?visualCapture=1',
+            score: 42,
+            reason_codes: ['candidate_below_quality_bar'],
+            status: 'rejected',
+            metadata: {},
+          },
+          {
+            id: 'open-1',
+            entity_type: 'service',
+            entity_id: 'svc-1',
+            title: 'AI Advisory',
+            theme: 'dark',
+            current_url: null,
+            candidate_url: null,
+            candidate_storage_path: null,
+            capture_route: '/services/svc-1?visualCapture=1',
+            score: null,
+            reason_codes: [],
+            status: openStatus,
+            metadata: {},
+          },
+        ],
+      }
+      const client = createTableClient(tables) as any
+
+      await expect(regenerateRejectedVisualAssetCandidate({
+        sourceCandidateId: 'rejected-1',
+        requestedBy: 'admin-1',
+        client,
+      })).rejects.toThrow('An open replacement candidate already exists for this asset and theme')
+
+      expect(tables.visual_asset_candidates).toHaveLength(2)
+    },
+  )
+
+  it('filters invalid feedback reason codes before building the regeneration capture route', async () => {
+    const client = createTableClient({
+      visual_asset_candidates: [{
+        id: 'rejected-1',
+        entity_type: 'product',
+        entity_id: '42',
+        title: 'Diagnostic Template',
+        theme: 'light',
+        current_url: null,
+        candidate_url: 'https://example.com/bad.png',
+        candidate_storage_path: 'products/visual-candidates/product-42/light/rejected-1.png',
+        capture_route: '/store/42?visualCapture=1',
+        score: 54,
+        reason_codes: ['candidate_below_quality_bar'],
+        status: 'rejected',
+        metadata: {},
+      }],
+    }) as any
+
+    const replacement = await regenerateRejectedVisualAssetCandidate({
+      sourceCandidateId: 'rejected-1',
+      requestedBy: 'admin-1',
+      feedback: {
+        reason: 'The capture missed the product UI.',
+        recommendation: 'Focus the regenerated capture on feature detail.',
+        reasonCodes: ['weak_feature_signal', 'not_a_reason_code' as any, 'low_resolution'],
+      },
+      client,
+    })
+
+    expect(replacement).toMatchObject({
+      capture_route: '/store/42?visualCapture=1&visualRevision=1&visualFocus=weak_feature_signal%2Clow_resolution',
+      reason_codes: ['weak_feature_signal', 'low_resolution'],
+      metadata: {
+        regeneration_feedback: expect.objectContaining({
+          reason_codes: ['weak_feature_signal', 'low_resolution'],
+        }),
+      },
+    })
+  })
+
   it('separates captured review candidates from the missing-capture queue', async () => {
     const client = createTableClient({
       visual_asset_candidates: [
