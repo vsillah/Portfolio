@@ -3,6 +3,9 @@ import {
   ACCELERATED_WORKSHOP_CAMPAIGN_FIXTURE_KEY,
   ACCELERATED_WORKSHOP_CAMPAIGN_FIXTURE_SLUG,
   ACCELERATED_WORKSHOP_CAMPAIGN_IDEMPOTENCY_PREFIX,
+  AGENTIC_BOOK_ROLLOUT_CAMPAIGN_FIXTURE_KEY,
+  AGENTIC_BOOK_ROLLOUT_CAMPAIGN_FIXTURE_SLUG,
+  AGENTIC_BOOK_ROLLOUT_CAMPAIGN_IDEMPOTENCY_PREFIX,
   isDemoSeedKey,
   runDemoSeed,
   SOCIAL_CHANNEL_REVIEW_FIXTURE_IDEMPOTENCY_KEY,
@@ -453,6 +456,228 @@ describe('admin demo seed', () => {
         calendar_item_role: 'companion_channel_item',
         primary_channel: 'linkedin',
         channel_draft_targets: ['youtube_shorts', 'instagram_reels', 'tiktok', 'thumbnail'],
+      })
+    })
+  })
+
+  it('creates the Agentic rollout fixture with platform-specific calendar rows and strategy evidence', async () => {
+    const inserts: Record<string, unknown[]> = {}
+    const deletes: Array<{ table: string; matcher: string }> = []
+
+    const supabase = {
+      from: vi.fn((table: string) => {
+        if (table === 'attraction_campaigns') {
+          return {
+            select: vi.fn(() => ({
+              eq: vi.fn(() => ({
+                maybeSingle: vi.fn(async () => ({ data: null, error: null })),
+              })),
+            })),
+            delete: vi.fn(() => ({
+              eq: vi.fn(async (_column: string, matcher: string) => {
+                deletes.push({ table, matcher })
+                return { data: [], error: null }
+              }),
+            })),
+            insert: vi.fn((row: Record<string, unknown>) => {
+              inserts[table] = [row]
+              return {
+                select: vi.fn(() => ({
+                  single: vi.fn(async () => ({
+                    data: {
+                      id: 'campaign-agentic-1',
+                      name: row.name,
+                      slug: row.slug,
+                      starts_at: row.starts_at,
+                      ends_at: row.ends_at,
+                    },
+                    error: null,
+                  })),
+                })),
+              }
+            }),
+          }
+        }
+
+        if (table === 'social_content_research_packets') {
+          return {
+            delete: vi.fn(() => ({
+              contains: vi.fn(async (_column: string, matcher: Record<string, unknown>) => {
+                deletes.push({ table, matcher: String(matcher.demo_seed_key) })
+                return { data: [], error: null }
+              }),
+            })),
+            insert: vi.fn((row: Record<string, unknown>) => {
+              inserts[table] = [row]
+              return {
+                select: vi.fn(() => ({
+                  single: vi.fn(async () => ({
+                    data: { id: 'packet-agentic-1' },
+                    error: null,
+                  })),
+                })),
+              }
+            }),
+          }
+        }
+
+        if (table === 'agent_work_items') {
+          return {
+            delete: vi.fn(() => ({
+              like: vi.fn(async (_column: string, matcher: string) => {
+                deletes.push({ table, matcher })
+                return { data: [], error: null }
+              }),
+            })),
+            insert: vi.fn((payload: unknown[] | Record<string, unknown>) => {
+              const rows = Array.isArray(payload) ? payload : [payload]
+              inserts[table] = [...(inserts[table] ?? []), ...rows]
+              if (!Array.isArray(payload)) {
+                return {
+                  select: vi.fn(() => ({
+                    single: vi.fn(async () => ({
+                      data: { id: 'work-agentic-goal' },
+                      error: null,
+                    })),
+                  })),
+                }
+              }
+              return {
+                select: vi.fn(async () => ({
+                  data: rows.map((row, index) => ({
+                    id: `work-agentic-${index + 1}`,
+                    metadata: (row as Record<string, unknown>).metadata,
+                  })),
+                  error: null,
+                })),
+              }
+            }),
+          }
+        }
+
+        if (table === 'social_content_calendar_items') {
+          return {
+            delete: vi.fn(() => ({
+              contains: vi.fn(async (_column: string, matcher: Record<string, unknown>) => {
+                deletes.push({ table, matcher: String(matcher.demo_seed_key) })
+                return { data: [], error: null }
+              }),
+              eq: vi.fn(async (_column: string, matcher: string) => {
+                deletes.push({ table, matcher })
+                return { data: [], error: null }
+              }),
+            })),
+            insert: vi.fn(async (rows: unknown[]) => {
+              inserts[table] = rows
+              return { error: null }
+            }),
+          }
+        }
+
+        throw new Error(`Unexpected table ${table}`)
+      }),
+    }
+
+    const result = await runDemoSeed('agentic_book_rollout_campaign_fixture', supabase as never)
+
+    expect(result).toMatchObject({
+      ok: true,
+      key: 'agentic_book_rollout_campaign_fixture',
+    })
+    expect(isDemoSeedKey('agentic_book_rollout_campaign_fixture')).toBe(true)
+    expect(deletes).toEqual(expect.arrayContaining([
+      { table: 'agent_work_items', matcher: `${AGENTIC_BOOK_ROLLOUT_CAMPAIGN_IDEMPOTENCY_PREFIX}:%` },
+      { table: 'social_content_research_packets', matcher: AGENTIC_BOOK_ROLLOUT_CAMPAIGN_FIXTURE_KEY },
+    ]))
+
+    expect(inserts.attraction_campaigns[0]).toMatchObject({
+      name: 'Agentic Book Rollout Whisper-to-Shout Campaign',
+      slug: AGENTIC_BOOK_ROLLOUT_CAMPAIGN_FIXTURE_SLUG,
+      status: 'draft',
+    })
+
+    const allWorkItems = inserts.agent_work_items as Array<Record<string, unknown>>
+    expect(allWorkItems).toHaveLength(5)
+    expect(allWorkItems[0]).toMatchObject({
+      title: 'Launch Agentic book rollout campaign',
+      source_type: 'campaign_goal',
+      idempotency_key: `${AGENTIC_BOOK_ROLLOUT_CAMPAIGN_IDEMPOTENCY_PREFIX}:goal`,
+    })
+
+    const workItems = allWorkItems.slice(1)
+    workItems.forEach((item) => {
+      const metadata = item.metadata as Record<string, unknown>
+      const lanes = metadata.channel_lanes as Record<string, Record<string, unknown>>
+      expect(metadata).toMatchObject({
+        demo_seed_key: AGENTIC_BOOK_ROLLOUT_CAMPAIGN_FIXTURE_KEY,
+        campaign_template_key: 'whisper_to_shout',
+        campaign_window_days: 14,
+        side_effects: {
+          provider_generation: false,
+          upload: false,
+          publish: false,
+          schedule: false,
+          external_post: false,
+        },
+      })
+      expect(lanes.linkedin.status).toBe('in_review')
+      expect(lanes.youtube_shorts.status).toBe('in_review')
+      expect(lanes.instagram_reels.status).toBe('in_review')
+      expect(lanes.tiktok.status).toBe('in_review')
+      expect(lanes.thumbnail.status).toBe('in_review')
+      expect((lanes.thumbnail.draft_packet as Record<string, unknown>).orchestration_evidence).toMatchObject({
+        agents: expect.arrayContaining([
+          expect.objectContaining({ name: 'Shaka' }),
+          expect.objectContaining({ name: 'Askia' }),
+          expect.objectContaining({ name: 'Amina' }),
+        ]),
+        visual_reinforcement: expect.objectContaining({
+          recommended_assets: expect.arrayContaining(['Agent Ops proof screenshot', 'AmaduTown shield']),
+        }),
+      })
+    })
+
+    const calendarRows = inserts.social_content_calendar_items as Array<Record<string, unknown>>
+    expect(calendarRows).toHaveLength(20)
+    expect(calendarRows.map((row) => row.channel)).toEqual([
+      'linkedin',
+      'youtube_shorts',
+      'instagram_reels',
+      'tiktok',
+      'thumbnail',
+      'linkedin',
+      'youtube_shorts',
+      'instagram_reels',
+      'tiktok',
+      'thumbnail',
+      'linkedin',
+      'youtube_shorts',
+      'instagram_reels',
+      'tiktok',
+      'thumbnail',
+      'linkedin',
+      'youtube_shorts',
+      'instagram_reels',
+      'tiktok',
+      'thumbnail',
+    ])
+    expect(calendarRows.filter((row) => row.channel === 'instagram_reels')).toHaveLength(4)
+    expect(calendarRows.filter((row) => row.channel === 'tiktok')).toHaveLength(4)
+    expect(calendarRows.filter((row) => row.channel === 'thumbnail')).toHaveLength(4)
+    calendarRows.forEach((row) => {
+      expect(row).toMatchObject({
+        campaign_id: 'campaign-agentic-1',
+        authorization_status: 'pending',
+        autonomy_eligible: false,
+      })
+      expect(row.metadata).toMatchObject({
+        demo_seed_key: AGENTIC_BOOK_ROLLOUT_CAMPAIGN_FIXTURE_KEY,
+        campaign_template_key: 'whisper_to_shout',
+        external_execution_enabled: false,
+        provider_generation_enabled: false,
+        upload_enabled: false,
+        publish_enabled: false,
+        schedule_enabled: false,
       })
     })
   })

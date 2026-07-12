@@ -649,6 +649,77 @@ function agenticBookRolloutThumbnailPacket(input: {
       ],
       approval_state: 'in_review',
     },
+    orchestration_evidence: {
+      agents: [
+        {
+          name: 'Shaka',
+          role: 'Chief of Staff',
+          responsibility: 'Keeps the thumbnail tied to the central Agentic rollout insight and campaign calendar.',
+        },
+        {
+          name: 'Askia',
+          role: 'Research Analyst',
+          responsibility: 'Translates public creator thumbnail patterns into reusable structure without copying artwork.',
+        },
+        {
+          name: 'Amina',
+          role: 'Challenger Reviewer',
+          responsibility: 'Checks source distance, claim boundaries, privacy, and AmaduTown brand fit before approval.',
+        },
+      ],
+      portfolio_surfaces: [
+        {
+          label: 'Content Intelligence',
+          route: '/admin/agents/content-intelligence',
+          purpose: 'Campaign phase, research packet, and channel lane readiness.',
+        },
+        {
+          label: 'Visual Assets',
+          route: '/admin/content/visual-assets',
+          purpose: 'Thumbnail/cover direction, proof screenshots, and brand-safe visual review.',
+        },
+        {
+          label: 'Video Generation',
+          route: '/admin/content/video-generation',
+          purpose: 'YouTube Shorts evidence packet and render-readiness context.',
+        },
+      ],
+      channel_structure: {
+        format: 'Thumbnail and cover concept package for video-led channels.',
+        structure: [
+          'One short accountability phrase.',
+          'One owned Portfolio proof screen or Vambah/avatar still.',
+          'One visible AmaduTown brand cue.',
+        ],
+        success_criteria: [
+          'Reads clearly on mobile before sound or caption context.',
+          'Supports the channel draft without copying public creator thumbnails.',
+          'Keeps all admin proof public-safe and privacy-reviewed.',
+        ],
+      },
+      voice_translation: {
+        source: 'Vambah personality corpus plus Agentic rollout public-safe source packet.',
+        principles: [
+          'Make the pain concrete: agent authority needs receipts.',
+          'Use proof over hype.',
+          'Keep the invitation practical and grounded.',
+        ],
+        avoid: [
+          'Generic AI hype.',
+          'Sensational autonomy claims.',
+          'Copied creator thumbnail text, layout, faces, or visual identity.',
+        ],
+      },
+      visual_reinforcement: {
+        recommended_assets: ['Agent Ops proof screenshot', 'Source packet screenshot', 'Vambah/avatar still', 'AmaduTown shield'],
+        portfolio_snapshots: ['/admin/agents/content-intelligence', '/admin/content/video-generation', '/admin/agents/coordination'],
+        illustration_direction: `Adapt "${input.thumbnailText}" into a mobile-clear proof cover for the ${input.phase} phase.`,
+        privacy_notes: [
+          'Redact private admin, client, Chronicle, meeting, account, and credential detail.',
+          'Provider generation, upload, scheduling, and publishing remain separate approval gates.',
+        ],
+      },
+    },
     source_research_patterns: [],
     side_effects: {
       provider_generation: false,
@@ -1817,7 +1888,58 @@ export async function runDemoSeed(
               channel_draft_targets: ['youtube_shorts', 'instagram_reels', 'tiktok', 'thumbnail'],
             },
           }
-          return [primaryRow, youtubeRow]
+          const instagramRow = {
+            ...slot,
+            campaign_id: campaign.id,
+            agent_work_item_id: workItem.id,
+            channel: 'instagram_reels',
+            title: `${phase.titlePrefix} Reel: ${phase.insightTitle}`,
+            planned_angle: `${phase.suggestedHook} Adapt this phase into the review-ready Instagram Reels lane with safe-area proof b-roll before any export or upload.`,
+            scheduled_for: addDaysAtHourISO(phase.day, phase.phase === 'offer' ? 15 : 14),
+            authorization_due_at: addDaysAtHourISO(Math.max(0, phase.day - 1), 10),
+            authorization_status: 'pending',
+            metadata: {
+              ...commonMetadata,
+              calendar_item_role: 'companion_channel_item',
+              primary_channel: 'linkedin',
+              channel_draft_targets: ['instagram_reels', 'thumbnail'],
+            },
+          }
+          const tiktokRow = {
+            ...slot,
+            campaign_id: campaign.id,
+            agent_work_item_id: workItem.id,
+            channel: 'tiktok',
+            title: `${phase.titlePrefix} TikTok: ${phase.insightTitle}`,
+            planned_angle: `${phase.suggestedHook} Adapt this phase into the review-ready TikTok lane with original narration or platform-safe audio before any export or upload.`,
+            scheduled_for: addDaysAtHourISO(phase.day, phase.phase === 'offer' ? 16 : 15),
+            authorization_due_at: addDaysAtHourISO(Math.max(0, phase.day - 1), 10),
+            authorization_status: 'pending',
+            metadata: {
+              ...commonMetadata,
+              calendar_item_role: 'companion_channel_item',
+              primary_channel: 'linkedin',
+              channel_draft_targets: ['tiktok', 'thumbnail'],
+            },
+          }
+          const thumbnailRow = {
+            ...slot,
+            campaign_id: campaign.id,
+            agent_work_item_id: workItem.id,
+            channel: 'thumbnail',
+            title: `${phase.titlePrefix} Thumbnail: ${phase.thumbnailText}`,
+            planned_angle: `Prepare thumbnail and cover concepts for the ${phase.titlePrefix.toLowerCase()} phase using owned Portfolio proof, AmaduTown styling, and source-safe creator pattern translation.`,
+            scheduled_for: addDaysAtHourISO(Math.max(0, phase.day - 1), 16),
+            authorization_due_at: addDaysAtHourISO(Math.max(0, phase.day - 2), 10),
+            authorization_status: 'pending',
+            metadata: {
+              ...commonMetadata,
+              calendar_item_role: 'companion_asset_item',
+              primary_channel: 'youtube_shorts',
+              channel_draft_targets: ['thumbnail', 'youtube_shorts', 'instagram_reels', 'tiktok'],
+            },
+          }
+          return [primaryRow, youtubeRow, instagramRow, tiktokRow, thumbnailRow]
         })
 
         const { error: calendarError } = await supabase
