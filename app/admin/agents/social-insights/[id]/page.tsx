@@ -471,6 +471,82 @@ function ResearchPatternCard({ pattern }: { pattern: Record<string, unknown> }) 
   )
 }
 
+function StrategyEvidencePanel({ evidence }: { evidence: Record<string, unknown> }) {
+  if (!Object.keys(evidence).length) return null
+
+  const agents = asRecordArray(evidence.agents)
+  const surfaces = asRecordArray(evidence.portfolio_surfaces)
+  const channelStructure = asRecord(evidence.channel_structure)
+  const voiceTranslation = asRecord(evidence.voice_translation)
+  const visualReinforcement = asRecord(evidence.visual_reinforcement)
+
+  return (
+    <details className="mb-4 rounded-lg border border-radiant-gold/35 bg-radiant-gold/10 p-3">
+      <summary className="cursor-pointer text-sm font-semibold text-radiant-gold">
+        Agent + Portfolio strategy
+      </summary>
+      <div className="mt-3 grid gap-3 xl:grid-cols-2">
+        <div className="rounded-md border border-radiant-gold/20 bg-background/35 p-3">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">Agents called</p>
+          <ul className="mt-2 space-y-2 text-xs leading-5 text-muted-foreground">
+            {agents.map((agent) => (
+              <li key={`${asString(agent.name)}-${asString(agent.role)}`}>
+                <span className="font-semibold text-foreground">{asString(agent.name)}</span>
+                {asString(agent.role) ? <span> · {asString(agent.role)}</span> : null}
+                {asString(agent.responsibility) ? <span className="block">{asString(agent.responsibility)}</span> : null}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="rounded-md border border-radiant-gold/20 bg-background/35 p-3">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">Portfolio surfaces</p>
+          <ul className="mt-2 space-y-2 text-xs leading-5 text-muted-foreground">
+            {surfaces.map((surface) => (
+              <li key={`${asString(surface.label)}-${asString(surface.route)}`}>
+                <span className="font-semibold text-foreground">{asString(surface.label)}</span>
+                {asString(surface.route) ? <span> · {asString(surface.route)}</span> : null}
+                {asString(surface.purpose) ? <span className="block">{asString(surface.purpose)}</span> : null}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="rounded-md border border-radiant-gold/20 bg-background/35 p-3">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">Channel structure</p>
+          <p className="mt-2 text-sm font-semibold">{asString(channelStructure.format) || 'Channel-specific structure pending.'}</p>
+          <CompactList values={asStringArray(channelStructure.structure)} />
+          <p className="mt-3 text-xs uppercase tracking-wide text-muted-foreground">Success checks</p>
+          <CompactList values={asStringArray(channelStructure.success_criteria)} />
+        </div>
+        <div className="rounded-md border border-radiant-gold/20 bg-background/35 p-3">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">Vambah voice + visuals</p>
+          <p className="mt-2 text-xs leading-5 text-muted-foreground">
+            Source: {asString(voiceTranslation.source) || 'Voice source pending.'}
+          </p>
+          <CompactList values={asStringArray(voiceTranslation.principles)} />
+          <p className="mt-3 text-xs uppercase tracking-wide text-muted-foreground">Visual reinforcement</p>
+          <CompactList values={asStringArray(visualReinforcement.recommended_assets)} />
+          {asString(visualReinforcement.illustration_direction) ? (
+            <p className="mt-2 rounded border border-radiant-gold/20 bg-background/35 px-2 py-1 text-xs leading-5 text-muted-foreground">
+              {asString(visualReinforcement.illustration_direction)}
+            </p>
+          ) : null}
+        </div>
+      </div>
+    </details>
+  )
+}
+
+function CompactList({ values }: { values: string[] }) {
+  if (!values.length) return null
+  return (
+    <ul className="mt-2 list-disc space-y-1 pl-4 text-xs leading-5 text-muted-foreground">
+      {values.map((value) => (
+        <li key={value}>{value}</li>
+      ))}
+    </ul>
+  )
+}
+
 function InsightField({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-3">
@@ -496,6 +572,7 @@ function ChannelInputs({
   const draftApprovalStatus = asString(draftPacket.approval_status)
   const sharedSource = asRecord(draftPacket.shared_source)
   const sharedSourceTitle = asString(sharedSource.insight_title)
+  const orchestrationEvidence = asRecord(draftPacket.orchestration_evidence)
   const sideEffects = asRecord(draftPacket.side_effects)
   const disabledSideEffects = [
     ['provider_generation', 'provider generation'],
@@ -547,6 +624,8 @@ function ChannelInputs({
           ) : null}
         </div>
       ) : null}
+
+      <StrategyEvidencePanel evidence={orchestrationEvidence} />
 
       <div className="grid gap-3 md:grid-cols-2">
         {(hasDraftFields ? Object.entries(fields) : requiredInputs.map((input) => [input, suggestedValue(input, insight)] as const))

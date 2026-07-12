@@ -66,6 +66,36 @@ function socialWorkItem(overrides: Record<string, unknown> = {}) {
   }
 }
 
+function strategyEvidence(surfaceLabel: string, surfaceRoute: string, assets: string[]) {
+  return {
+    agents: [
+      { name: 'Shaka', role: 'Chief of Staff', responsibility: 'Owns insight and approval routing.' },
+      { name: 'Askia', role: 'Research Analyst', responsibility: 'Summarizes reusable public creator patterns.' },
+      { name: 'Amina', role: 'Challenger Reviewer', responsibility: 'Checks channel fit and Vambah voice.' },
+    ],
+    portfolio_surfaces: [
+      { label: 'Content Intelligence', route: '/admin/agents/content-intelligence', purpose: 'Research packets and channel readiness.' },
+      { label: surfaceLabel, route: surfaceRoute, purpose: 'Channel-specific draft and asset review.' },
+    ],
+    channel_structure: {
+      format: `${surfaceLabel} channel structure`,
+      structure: ['Hook the pain.', 'Show Portfolio proof.', 'Close with a gated next action.'],
+      success_criteria: ['Pain point is visible.', 'Approval remains human-gated.'],
+    },
+    voice_translation: {
+      source: 'Vambah personality corpus plus docs/linkedin-voice.md',
+      principles: ['Open with a concrete tension.', 'Use practical language.'],
+      avoid: ['Generic AI hype.'],
+    },
+    visual_reinforcement: {
+      recommended_assets: assets,
+      portfolio_snapshots: [surfaceRoute],
+      illustration_direction: 'Show the operating path behind the proof.',
+      privacy_notes: ['Redact private admin data.'],
+    },
+  }
+}
+
 describe('SocialInsightDetailPage', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -102,6 +132,7 @@ describe('SocialInsightDetailPage', () => {
                         content_angle: 'AI should reduce burden, but only when authority and evidence are separated.',
                         evidence_summary: 'Review path and visual gate work shipped locally.',
                       },
+                      orchestration_evidence: strategyEvidence('Social Content Review', '/admin/social-content', ['Framework illustration', 'App screenshot carousel']),
                       fields: {
                         post_text: 'The Social Content review flow made the gate visible.\n\nAI should reduce burden.',
                         cta: 'Where have you seen AI create more work because the approval path was never designed?',
@@ -130,6 +161,7 @@ describe('SocialInsightDetailPage', () => {
                         content_angle: 'AI should reduce burden, but only when authority and evidence are separated.',
                         evidence_summary: 'Review path and visual gate work shipped locally.',
                       },
+                      orchestration_evidence: strategyEvidence('Video Generation', '/admin/content/video-generation', ['Portfolio b-roll', 'Thumbnail direction']),
                       fields: {
                         hook: 'AI should reduce burden.',
                         first_30_seconds: 'I noticed this through the social content review flow.',
@@ -158,6 +190,7 @@ describe('SocialInsightDetailPage', () => {
                         content_angle: 'AI should reduce burden, but only when authority and evidence are separated.',
                         evidence_summary: 'Review path and visual gate work shipped locally.',
                       },
+                      orchestration_evidence: strategyEvidence('Visual Assets', '/admin/content/visual-assets', ['Cover frame', 'Vertical proof b-roll']),
                       fields: {
                         hook: 'AI should reduce burden.',
                         script: ['Opening: AI should reduce burden.', 'Trigger: Social Content review flow.'],
@@ -189,6 +222,7 @@ describe('SocialInsightDetailPage', () => {
                         content_angle: 'AI should reduce burden, but only when authority and evidence are separated.',
                         evidence_summary: 'Review path and visual gate work shipped locally.',
                       },
+                      orchestration_evidence: strategyEvidence('Video Generation', '/admin/content/video-generation', ['Original narration', 'Platform-safe b-roll']),
                       fields: {
                         hook: 'AI should reduce burden.',
                         script: ['Opening: AI should reduce burden.', 'Trigger: Social Content review flow.'],
@@ -365,6 +399,10 @@ describe('SocialInsightDetailPage', () => {
     expect(await screen.findByText('LinkedIn, YouTube Shorts, Instagram Reels, and TikTok are ready for human review.')).toBeInTheDocument()
     expect(screen.getByText('Review draft packet')).toBeInTheDocument()
     expect(screen.getByText('Shared source: Approval gates create trust')).toBeInTheDocument()
+    expect(screen.getByText('Agent + Portfolio strategy')).toBeInTheDocument()
+    expect(screen.getByText('Shaka')).toBeInTheDocument()
+    expect(screen.getByText('Social Content Review')).toBeInTheDocument()
+    expect(screen.getByText('Framework illustration')).toBeInTheDocument()
     expect(screen.getByText('No side effects authorized: provider generation, upload, publish, schedule, external post.')).toBeInTheDocument()
     expect(screen.getAllByText((content) => content.includes('The Social Content review flow made the gate visible.'))).toHaveLength(2)
     expect(screen.getByText('#AmaduTownAdvisory')).toBeInTheDocument()
@@ -373,6 +411,8 @@ describe('SocialInsightDetailPage', () => {
 
     expect(screen.getByText('YouTube Shorts production inputs')).toBeInTheDocument()
     expect(screen.getByText('Shared source: Approval gates create trust')).toBeInTheDocument()
+    expect(screen.getByText('Video Generation')).toBeInTheDocument()
+    expect(screen.getByText('Portfolio b-roll')).toBeInTheDocument()
     expect(screen.getByText('No side effects authorized: provider generation, upload, publish, schedule, external post.')).toBeInTheDocument()
     expect(screen.getByText('first 30 seconds')).toBeInTheDocument()
     expect(screen.getByText('I noticed this through the social content review flow.')).toBeInTheDocument()
@@ -381,6 +421,7 @@ describe('SocialInsightDetailPage', () => {
     fireEvent.click(screen.getByRole('tab', { name: /TikTok/ }))
 
     expect(screen.getByText('TikTok production inputs')).toBeInTheDocument()
+    expect(screen.getByText('Platform-safe b-roll')).toBeInTheDocument()
     expect(screen.getByText('audio rights')).toBeInTheDocument()
     expect(screen.getByText('Use original narration or platform-safe audio only.')).toBeInTheDocument()
 
