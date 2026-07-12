@@ -189,6 +189,8 @@ type CalibrationFeedback = {
 }
 
 type CalibrationSuccessExample = {
+  reference_id?: string
+  curation_status?: string
   source_label: string
   post_excerpt: string
   engagement_signal: string
@@ -223,10 +225,12 @@ const EMPTY_CALIBRATION_FEEDBACK: CalibrationFeedback = {
 function normalizeSuccessExamples(value: unknown, fallbackExcerpt = '', fallbackEngagement = ''): CalibrationSuccessExample[] {
   const examples = Array.isArray(value)
     ? value
-        .map((item) => {
+        .map((item): CalibrationSuccessExample | null => {
           const record = asRecord(item)
           if (!record) return null
           return {
+            reference_id: asString(record.reference_id),
+            curation_status: asString(record.curation_status),
             source_label: asString(record.source_label),
             post_excerpt: asString(record.post_excerpt),
             engagement_signal: asString(record.engagement_signal),
@@ -331,6 +335,7 @@ function SocialContentDetailPage() {
     linkedin_draft: false,
   })
   const [calibrationLibraryReferences, setCalibrationLibraryReferences] = useState<SocialContentCalibrationReference[]>([])
+  const [selectedComparisonReferenceIds, setSelectedComparisonReferenceIds] = useState<string[]>([])
   const [loadingCalibrationLibrary, setLoadingCalibrationLibrary] = useState(false)
   const [calibrationLibraryUnavailable, setCalibrationLibraryUnavailable] = useState(false)
   const rejectedGateKeysRef = useRef<SectionGateKey[]>([])
@@ -434,6 +439,7 @@ function SocialContentDetailPage() {
           revision_request: asString(operatorFeedback?.revision_request),
           claim_boundaries: asString(operatorFeedback?.claim_boundaries),
         })
+        setSelectedComparisonReferenceIds(asStringArray(operatorFeedback?.comparison_reference_ids))
         setCopyRevisionRequest(asString(operatorFeedback?.revision_request))
       }
     } catch (err) {
@@ -466,6 +472,14 @@ function SocialContentDetailPage() {
     setTimeout(() => setMessage(null), 4000)
   }
 
+  const toggleCalibrationComparisonReference = (reference: SocialContentCalibrationReference) => {
+    setSelectedComparisonReferenceIds((current) => (
+      current.includes(reference.id)
+        ? current.filter((id) => id !== reference.id)
+        : [...current, reference.id].slice(0, 3)
+    ))
+  }
+
   const addCalibrationLibraryReference = (reference: SocialContentCalibrationReference) => {
     setCalibrationFeedback((current) => {
       const sourceLabel = `${reference.label} (${reference.provenance})`
@@ -476,6 +490,8 @@ function SocialContentDetailPage() {
       if (alreadyAdded) return current
 
       const nextExample: CalibrationSuccessExample = {
+        reference_id: reference.id,
+        curation_status: reference.curation_status,
         source_label: sourceLabel,
         post_excerpt: reference.post_excerpt,
         engagement_signal: reference.engagement_signal,
@@ -618,8 +634,20 @@ function SocialContentDetailPage() {
   }
 
   const buildOperatorFeedback = (revisionRequestOverride = calibrationFeedback.revision_request) => {
+    const selectedReferenceExamples = calibrationLibraryReferences
+      .filter((reference) => selectedComparisonReferenceIds.includes(reference.id))
+      .map((reference) => ({
+        reference_id: reference.id,
+        curation_status: reference.curation_status,
+        source_label: `${reference.label} (${reference.provenance})`,
+        post_excerpt: reference.post_excerpt,
+        engagement_signal: reference.engagement_signal,
+        why_it_worked: reference.why_it_worked,
+      }))
     const successExamples = calibrationFeedback.success_examples
       .map((example) => ({
+        reference_id: example.reference_id?.trim(),
+        curation_status: example.curation_status?.trim(),
         source_label: example.source_label.trim(),
         post_excerpt: example.post_excerpt.trim(),
         engagement_signal: example.engagement_signal.trim(),
@@ -631,11 +659,28 @@ function SocialContentDetailPage() {
         || example.engagement_signal
         || example.why_it_worked
       ))
-    const structuredPriorPostExcerpt = formatSuccessExamplesForPrompt(successExamples)
+    const mergedSuccessExamples = [...successExamples]
+    selectedReferenceExamples.forEach((selectedExample) => {
+      const alreadyIncluded = mergedSuccessExamples.some((example) => (
+        example.reference_id === selectedExample.reference_id
+        || example.source_label === selectedExample.source_label
+      ))
+      if (!alreadyIncluded) mergedSuccessExamples.push(selectedExample)
+    })
+    const comparisonLines = selectedReferenceExamples.map((example, index) => [
+      `Reference ${index + 1}: ${example.source_label}`,
+      example.why_it_worked ? `Why it worked: ${example.why_it_worked}` : '',
+      example.engagement_signal ? `Signal: ${example.engagement_signal}` : '',
+    ].filter(Boolean).join('\n'))
+    const structuredPriorPostExcerpt = formatSuccessExamplesForPrompt(mergedSuccessExamples)
     return {
       triggering_event: calibrationFeedback.triggering_event.trim(),
       prior_post_excerpt: structuredPriorPostExcerpt || calibrationFeedback.prior_post_excerpt.trim(),
-      success_examples: successExamples,
+      success_examples: mergedSuccessExamples,
+      comparison_reference_ids: selectedReferenceExamples
+        .map((example) => example.reference_id)
+        .filter((referenceId): referenceId is string => Boolean(referenceId)),
+      comparison_brief: comparisonLines.join('\n\n'),
       engagement_signal: calibrationFeedback.engagement_signal.trim(),
       audience_context: calibrationFeedback.audience_context.trim(),
       revision_request: revisionRequestOverride.trim(),
@@ -968,13 +1013,14 @@ function SocialContentDetailPage() {
       const session = await getCurrentSession()
       if (!session) return
 
+      const feedback = buildOperatorFeedback()
       const res = await fetch(`/api/admin/social-content/${id}/calibration-revision`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ operator_feedback: calibrationFeedback }),
+        body: JSON.stringify({ operator_feedback: feedback }),
       })
 
       const data = await res.json()
@@ -1501,6 +1547,16 @@ function SocialContentDetailPage() {
     { label: 'Privacy/redaction review', value: redactionGate.ready ? 'ready' : `${redactionGate.unresolvedItems.length} unresolved` },
     { label: 'Visual QA', value: productionAssets.visual_qa.status.replace(/_/g, ' ') },
   ] : []
+  const selectedComparisonReferences = calibrationLibraryReferences
+    .filter((reference) => selectedComparisonReferenceIds.includes(reference.id))
+  const selectedGoldComparisonCount = selectedComparisonReferences
+    .filter((reference) => reference.curation_status === 'gold_standard')
+    .length
+  const currentDraftComparisonExcerpt = (postText || item?.post_text || '')
+    .trim()
+    .split(/\n{2,}/)[0]
+    ?.slice(0, 360)
+    || 'No draft text available yet.'
   const hasCalibrationSuccessExampleInput = calibrationFeedback.success_examples
     .some((example) => (
       example.source_label.trim()
@@ -1509,6 +1565,7 @@ function SocialContentDetailPage() {
       || example.why_it_worked.trim()
     ))
   const hasCalibrationFeedbackInput = hasCalibrationSuccessExampleInput
+    || selectedComparisonReferences.length > 0
     || calibrationFeedback.triggering_event.trim().length > 0
     || calibrationFeedback.prior_post_excerpt.trim().length > 0
     || calibrationFeedback.engagement_signal.trim().length > 0
@@ -2245,7 +2302,7 @@ function SocialContentDetailPage() {
                           <div>
                             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-200">Reusable calibration library</p>
                             <p className="mt-1 text-sm leading-6 text-emerald-50/80">
-                              Add approved voice patterns as comparison material. These are draft-only references, not publishing instructions.
+                              Select up to three approved voice patterns for Shaka to compare against, then add any that need manual editing.
                             </p>
                           </div>
                           {loadingCalibrationLibrary && (
@@ -2272,12 +2329,14 @@ function SocialContentDetailPage() {
                               const alreadyAdded = calibrationFeedback.success_examples.some((example) => (
                                 example.source_label.trim() === sourceLabel
                                 || example.source_label.trim() === reference.label
+                                || example.reference_id === reference.id
                               ))
                               const isGoldStandardReference = reference.curation_status === 'gold_standard'
+                              const selectedForComparison = selectedComparisonReferenceIds.includes(reference.id)
                               return (
                                 <div
                                   key={reference.id}
-                                  className={`rounded-lg border p-3 ${isGoldStandardReference ? 'border-amber-400/35 bg-amber-500/10' : 'border-emerald-400/20 bg-background/35'}`}
+                                  className={`rounded-lg border p-3 ${selectedForComparison ? 'border-amber-300/60 bg-amber-500/10' : isGoldStandardReference ? 'border-amber-400/35 bg-amber-500/10' : 'border-emerald-400/20 bg-background/35'}`}
                                 >
                                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                                     <div className="min-w-0">
@@ -2294,15 +2353,26 @@ function SocialContentDetailPage() {
                                         {reference.content_pillar}
                                       </p>
                                     </div>
-                                    <button
-                                      type="button"
-                                      onClick={() => addCalibrationLibraryReference(reference)}
-                                      disabled={!isEditable || alreadyAdded}
-                                      className="inline-flex shrink-0 items-center justify-center gap-1 rounded-lg border border-emerald-400/35 px-2.5 py-1.5 text-xs font-semibold text-emerald-100 transition-colors hover:bg-emerald-500/10 disabled:opacity-50"
-                                    >
-                                      {alreadyAdded ? <CheckCircle2 className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
-                                      {alreadyAdded ? 'Added' : 'Add'}
-                                    </button>
+                                    <div className="flex shrink-0 flex-wrap gap-2">
+                                      <button
+                                        type="button"
+                                        onClick={() => toggleCalibrationComparisonReference(reference)}
+                                        disabled={!isEditable || (!selectedForComparison && selectedComparisonReferenceIds.length >= 3)}
+                                        className={`inline-flex items-center justify-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50 ${selectedForComparison ? 'border-amber-300/55 bg-amber-400 text-slate-950' : 'border-amber-400/35 text-amber-100 hover:bg-amber-500/10'}`}
+                                      >
+                                        {selectedForComparison ? <CheckCircle2 className="h-3 w-3" /> : <Star className="h-3 w-3" />}
+                                        {selectedForComparison ? 'Comparing' : 'Compare'}
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => addCalibrationLibraryReference(reference)}
+                                        disabled={!isEditable || alreadyAdded}
+                                        className="inline-flex items-center justify-center gap-1 rounded-lg border border-emerald-400/35 px-2.5 py-1.5 text-xs font-semibold text-emerald-100 transition-colors hover:bg-emerald-500/10 disabled:opacity-50"
+                                      >
+                                        {alreadyAdded ? <CheckCircle2 className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
+                                        {alreadyAdded ? 'Added fields' : 'Add fields'}
+                                      </button>
+                                    </div>
                                   </div>
                                   <p className="mt-2 line-clamp-3 text-xs leading-5 text-emerald-50/75">
                                     {reference.why_it_worked}
@@ -2315,6 +2385,45 @@ function SocialContentDetailPage() {
                             })}
                           </div>
                         )}
+                      </div>
+                    )}
+                    {selectedComparisonReferences.length > 0 && (
+                      <div className="mt-3 rounded-lg border border-amber-400/30 bg-amber-500/5 p-3">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                          <div>
+                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">Side-by-side comparison packet</p>
+                            <p className="mt-1 text-sm leading-6 text-amber-50/80">
+                              Shaka will compare this draft against {selectedComparisonReferences.length} selected benchmark{selectedComparisonReferences.length === 1 ? '' : 's'}{selectedGoldComparisonCount ? `, including ${selectedGoldComparisonCount} gold-standard reference${selectedGoldComparisonCount === 1 ? '' : 's'}` : ''}.
+                            </p>
+                          </div>
+                          <span className="w-fit rounded-full border border-amber-300/35 px-3 py-1 text-xs text-amber-100">
+                            Draft-only critique
+                          </span>
+                        </div>
+                        <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+                          <div className="rounded-lg border border-silicon-slate/70 bg-background/35 p-3">
+                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Current draft opening</p>
+                            <p className="mt-2 text-sm leading-6 text-gray-200">{currentDraftComparisonExcerpt}</p>
+                          </div>
+                          <div className="space-y-2">
+                            {selectedComparisonReferences.map((reference) => (
+                              <div key={reference.id} className="rounded-lg border border-amber-300/20 bg-background/35 p-3">
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                  <p className="text-sm font-semibold text-amber-50">{reference.label}</p>
+                                  <button
+                                    type="button"
+                                    onClick={() => toggleCalibrationComparisonReference(reference)}
+                                    className="inline-flex items-center rounded-full border border-amber-300/30 px-2.5 py-1 text-xs font-semibold text-amber-100 transition-colors hover:bg-amber-500/10"
+                                  >
+                                    Remove
+                                  </button>
+                                </div>
+                                <p className="mt-2 text-xs leading-5 text-amber-50/75">{reference.why_it_worked}</p>
+                                <p className="mt-1 text-[11px] leading-5 text-amber-50/55">{reference.engagement_signal}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     )}
                     <div className="mt-3 grid gap-3">
