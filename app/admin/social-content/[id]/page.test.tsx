@@ -301,6 +301,70 @@ describe('SocialContentDetailRoute visual production review', () => {
     )
   })
 
+  it('lets the operator mark an approved post as a gold-standard calibration reference', async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.includes('/calibration-library')) {
+        return {
+          ok: true,
+          json: async () => ({
+            references: [],
+            source: 'approved_calibration_library',
+            side_effects: {
+              provider_generation: false,
+              publish: false,
+              schedule: false,
+              external_post: false,
+            },
+          }),
+        } as Response
+      }
+      if (url.includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [topicBacklogItem] }),
+        } as Response
+      }
+      if (init?.method === 'PUT') {
+        const body = JSON.parse(String(init.body))
+        return {
+          ok: true,
+          json: async () => ({
+            item: {
+              ...baseItem,
+              rag_context: body.rag_context,
+            },
+          }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: baseItem }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAtStep('context')
+
+    fireEvent.click(await screen.findByText('Content calibration'))
+    const markButton = await screen.findByRole('button', { name: /Mark gold standard/i })
+    fireEvent.click(markButton)
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Gold standard/i })).toBeDisabled()
+    })
+    const putCall = fetchMock.mock.calls.find(([url, init]) => (
+      String(url).includes('/api/admin/social-content/social-1') && init?.method === 'PUT'
+    ))
+    expect(putCall).toBeTruthy()
+    const putBody = JSON.parse(String(putCall?.[1]?.body))
+    expect(putBody.rag_context.content_calibration.reference_curation).toMatchObject({
+      gold_standard: true,
+      reason: 'Operator marked this approved Social Content item as a reusable calibration reference.',
+    })
+    expect(putBody.rag_context.content_calibration.reference_curation.marked_at).toBeTruthy()
+  })
+
   it('shows production assets and blocks publish readiness while redaction is unresolved', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({
       ok: true,

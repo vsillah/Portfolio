@@ -5,6 +5,7 @@ export type SocialContentCalibrationReference = {
   platform: SocialContentCalibrationPlatform
   label: string
   source_type: 'voice_guide_reference' | 'operator_approved_pattern' | 'portfolio_content_history'
+  curation_status?: 'gold_standard' | 'portfolio_history' | 'static_reference'
   content_pillar: string
   post_excerpt: string
   engagement_signal: string
@@ -216,8 +217,12 @@ export function socialContentHistoryReferenceFromRow(
   ].filter(Boolean)
 
   const ragContext = asRecord(row.rag_context) ?? {}
+  const contentCalibration = asRecord(ragContext.content_calibration) ?? {}
+  const referenceCuration = asRecord(contentCalibration.reference_curation) ?? {}
+  const isGoldStandard = referenceCuration.gold_standard === true || contentCalibration.gold_standard === true
   const engagement = asRecord(ragContext.engagement) ?? {}
   const mappedTheme = asString(engagement.mapped_theme)
+  const curationReason = asString(referenceCuration.reason)
   const sourceProvenance = Array.isArray(ragContext.source_provenance_checklist)
     ? ragContext.source_provenance_checklist.filter((item): item is string => typeof item === 'string')
     : []
@@ -225,15 +230,23 @@ export function socialContentHistoryReferenceFromRow(
   return {
     id: `portfolio-social-${row.id}`,
     platform: 'linkedin',
-    label: labelParts.join(' · '),
+    label: [
+      isGoldStandard ? 'Gold standard' : labelParts[0],
+      ...labelParts.slice(1),
+    ].filter(Boolean).join(' · '),
     source_type: 'portfolio_content_history',
+    curation_status: isGoldStandard ? 'gold_standard' : 'portfolio_history',
     content_pillar: contentPillar,
     post_excerpt: truncateReferenceText(postText),
-    engagement_signal: buildHistoryEngagementSignal(row),
+    engagement_signal: [
+      isGoldStandard ? 'Operator marked as a reusable gold-standard post.' : '',
+      buildHistoryEngagementSignal(row),
+    ].filter(Boolean).join(' '),
     why_it_worked: [
       'This was already approved in Portfolio Social Content',
       status === 'published' ? 'and moved through the LinkedIn publish path' : '',
       mappedTheme ? `with mapped theme: ${mappedTheme}` : '',
+      curationReason,
     ].filter(Boolean).join(' '),
     claim_boundaries: [
       'Reuse as a voice and structure reference only.',
