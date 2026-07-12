@@ -47,6 +47,19 @@ export type PlatformOrchestrationPlan = {
   }
 }
 
+export type PlatformSubmissionGate = {
+  status?: 'approved' | 'rejected' | 'pending' | 'blocked'
+  approved_at?: string
+  approved_by?: string
+  platforms?: SocialPlatform[]
+  decision_note?: string
+}
+
+export type PlatformAssetReadiness = {
+  ready: boolean
+  detail: string
+}
+
 const PLATFORM_LABELS: Record<SocialPlatform, string> = {
   linkedin: 'LinkedIn',
   youtube: 'YouTube',
@@ -58,18 +71,30 @@ const PLATFORM_LABELS: Record<SocialPlatform, string> = {
 const AUTOMATIC_SUBMISSION_SUPPORTED = new Set<SocialPlatform>(['linkedin', 'youtube', 'instagram', 'facebook', 'tiktok'])
 
 const SUBMITTED_STATUSES = new Set<PublishStatus>(['published'])
-const SUBMITTABLE_STATUSES = new Set<PublishStatus>(['pending', 'failed'])
-
 export type BuildPlatformOrchestrationInput = {
-  item?: Pick<SocialContentItem, 'status' | 'platform' | 'target_platforms' | 'publishes'> | null
+  item?: Pick<SocialContentItem,
+    | 'status'
+    | 'platform'
+    | 'target_platforms'
+    | 'publishes'
+    | 'post_text'
+    | 'image_url'
+    | 'video_url'
+    | 'carousel_slide_urls'
+  > | null
   targetPlatforms?: SocialPlatform[]
   publishRecords?: Pick<SocialContentPublish, 'platform' | 'status' | 'platform_post_url'>[]
   platformConfigs?: Pick<SocialContentConfig, 'platform' | 'credentials' | 'settings' | 'is_active'>[]
+  platformAssetReadiness?: Partial<Record<SocialPlatform, PlatformAssetReadiness>>
   copyApproved?: boolean
   productionReady?: boolean
   redactionReady?: boolean
   draftHandoffReady?: boolean
   finalSubmissionGateReady?: boolean
+}
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : null
 }
 
 function uniquePlatforms(platforms: SocialPlatform[]) {
@@ -81,6 +106,28 @@ function resolveTargetPlatforms(input: BuildPlatformOrchestrationInput) {
   if (input.item?.target_platforms?.length) return uniquePlatforms(input.item.target_platforms)
   if (input.item?.platform) return uniquePlatforms([input.item.platform])
   return ['linkedin'] as SocialPlatform[]
+}
+
+export function getPlatformSubmissionGate(ragContext: unknown): PlatformSubmissionGate | null {
+  const gate = asRecord(asRecord(ragContext)?.platform_submission_gate)
+  if (!gate) return null
+
+  return {
+    status: typeof gate.status === 'string' ? gate.status as PlatformSubmissionGate['status'] : undefined,
+    approved_at: typeof gate.approved_at === 'string' ? gate.approved_at : undefined,
+    approved_by: typeof gate.approved_by === 'string' ? gate.approved_by : undefined,
+    platforms: Array.isArray(gate.platforms)
+      ? uniquePlatforms(gate.platforms.filter((platform): platform is SocialPlatform => typeof platform === 'string' && Boolean(PLATFORM_LABELS[platform as SocialPlatform])) as SocialPlatform[])
+      : undefined,
+    decision_note: typeof gate.decision_note === 'string' ? gate.decision_note : undefined,
+  }
+}
+
+export function isPlatformSubmissionGateApproved(ragContext: unknown, platforms: SocialPlatform[]) {
+  const gate = getPlatformSubmissionGate(ragContext)
+  if (gate?.status !== 'approved') return false
+  const approvedPlatforms = gate.platforms?.length ? gate.platforms : platforms
+  return platforms.every((platform) => approvedPlatforms.includes(platform))
 }
 
 function isCopyApproved(status?: ContentStatus) {
@@ -114,6 +161,74 @@ function configField(config: Pick<SocialContentConfig, 'credentials' | 'settings
 
 function configSettings(config: Pick<SocialContentConfig, 'settings'> | undefined) {
   return config?.settings as Record<string, unknown> | undefined
+}
+
+function hasText(value: unknown) {
+  return typeof value === 'string' && value.trim().length > 0
+}
+
+function hasListItems(value: unknown) {
+  return Array.isArray(value) && value.some((item) => hasText(item))
+}
+
+export function getPlatformAssetReadiness(
+  item: Pick<SocialContentItem, 'post_text' | 'image_url' | 'video_url' | 'carousel_slide_urls'> | null | undefined,
+  platform: SocialPlatform,
+): PlatformAssetReadiness {
+  if (!item) {
+    return {
+      ready: true,
+      detail: `${PLATFORM_LABELS[platform]} asset readiness check was not requested.`,
+    }
+  }
+
+  const hasPostText = hasText(item.post_text)
+  const hasImage = hasText(item.image_url)
+  const hasVideo = hasText(item.video_url)
+  const hasCarousel = hasListItems(item.carousel_slide_urls)
+
+  switch (platform) {
+    case 'linkedin':
+      return {
+        ready: hasPostText,
+        detail: hasPostText
+          ? 'LinkedIn copy is ready for submission.'
+          : 'LinkedIn needs post text before submission.',
+      }
+    case 'youtube':
+      return {
+        ready: hasVideo,
+        detail: hasVideo
+          ? 'YouTube has a final video URL.'
+          : 'YouTube needs a final video URL before submission.',
+      }
+    case 'instagram':
+      return {
+        ready: hasImage || hasVideo || hasCarousel,
+        detail: hasImage || hasVideo || hasCarousel
+          ? 'Instagram has a publishable image, carousel, or Reel video asset.'
+          : 'Instagram needs an image, carousel slide URLs, or final Reel video URL before submission.',
+      }
+    case 'facebook':
+      return {
+        ready: hasPostText || hasImage || hasVideo,
+        detail: hasPostText || hasImage || hasVideo
+          ? 'Facebook has copy or media ready for submission.'
+          : 'Facebook needs post text, an image, or a video before submission.',
+      }
+    case 'tiktok':
+      return {
+        ready: hasVideo,
+        detail: hasVideo
+          ? 'TikTok has a final video URL.'
+          : 'TikTok needs a final video URL before Direct Post submission.',
+      }
+    default:
+      return {
+        ready: false,
+        detail: `${PLATFORM_LABELS[platform]} asset requirements are not configured.`,
+      }
+  }
 }
 
 function hasPlatformConfiguration(
@@ -207,6 +322,7 @@ export function buildPlatformOrchestrationPlan(input: BuildPlatformOrchestration
   const platforms = targetPlatforms.map((platform) => {
     const publishRecord = publishRecords.find((record) => record.platform === platform)
     const platformConfig = input.platformConfigs?.find((config) => config.platform === platform)
+    const assetReadiness = input.platformAssetReadiness?.[platform] ?? getPlatformAssetReadiness(input.item, platform)
     const configuration = input.platformConfigs ? hasPlatformConfiguration(platform, platformConfig) : {
       ready: true,
       detail: `${PLATFORM_LABELS[platform]} configuration check was not requested.`,
@@ -214,17 +330,25 @@ export function buildPlatformOrchestrationPlan(input: BuildPlatformOrchestration
     const publishStatus = publishRecord?.status ?? null
     const automaticSubmissionSupported = AUTOMATIC_SUBMISSION_SUPPORTED.has(platform)
     const submissionComplete = Boolean(publishStatus && SUBMITTED_STATUSES.has(publishStatus))
-    const finalSubmissionGateReady = input.finalSubmissionGateReady
-      ?? Boolean((publishStatus && SUBMITTABLE_STATUSES.has(publishStatus)) || submissionComplete)
+    const finalSubmissionGateReady = input.finalSubmissionGateReady ?? submissionComplete
 
     const humanApprovalState: PlatformOrchestrationStageState = copyReady ? 'complete' : 'pending'
     const assetState: PlatformOrchestrationStageState = !copyReady
       ? 'blocked'
-      : productionReady
-        ? 'complete'
-        : redactionReady
-          ? 'pending'
-          : 'blocked'
+      : !redactionReady
+        ? 'blocked'
+        : !assetReadiness.ready
+          ? 'blocked'
+          : productionReady
+            ? 'complete'
+            : 'pending'
+    const assetDetail = !redactionReady
+      ? 'Resolve privacy/redaction blockers before submission.'
+      : !assetReadiness.ready
+        ? assetReadiness.detail
+        : productionReady
+          ? assetReadiness.detail
+          : 'Finish visual assets, asset packet, and channel-specific readiness.'
     const draftState: PlatformOrchestrationStageState = assetState !== 'complete'
       ? 'blocked'
       : (draftHandoffReady || Boolean(publishRecord))
@@ -259,11 +383,7 @@ export function buildPlatformOrchestrationPlan(input: BuildPlatformOrchestration
         'asset_readiness',
         'Assets and privacy',
         assetState,
-        assetState === 'complete'
-          ? 'Required assets and privacy checks are ready.'
-          : redactionReady
-            ? 'Finish visual assets, asset packet, and channel-specific readiness.'
-            : 'Resolve privacy/redaction blockers before submission.',
+        assetDetail,
       ),
       stage(
         'platform_draft_handoff',

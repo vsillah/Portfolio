@@ -114,9 +114,11 @@ describe('POST /api/admin/social-content/[id]/publish redaction gate', () => {
 function installPublishRouteSupabase({
   item,
   publishes,
+  configs,
 }: {
   item: Record<string, unknown>
   publishes: Array<Record<string, unknown>>
+  configs?: Array<Record<string, unknown>>
 }) {
   const queueSingle = vi.fn().mockResolvedValue({ data: item, error: null })
   const queueSelectEq = vi.fn(() => ({ single: queueSingle }))
@@ -129,14 +131,69 @@ function installPublishRouteSupabase({
   const publishUpdateSecondEq = vi.fn().mockResolvedValue({ data: null, error: null })
   const publishUpdateFirstEq = vi.fn(() => ({ eq: publishUpdateSecondEq }))
   const publishUpdate = vi.fn(() => ({ eq: publishUpdateFirstEq }))
+  const configSelect = vi.fn().mockResolvedValue({ data: configs ?? platformConfigsFor(publishes), error: null })
 
   mocks.from.mockImplementation((table: string) => {
     if (table === 'social_content_queue') return { select: queueSelect, update: queueUpdate }
     if (table === 'social_content_publishes') return { select: publishSelect, update: publishUpdate }
+    if (table === 'social_content_config') return { select: configSelect }
     return {}
   })
 
   return { queueUpdate }
+}
+
+function platformConfigsFor(publishes: Array<Record<string, unknown>>) {
+  return publishes.map((publish) => {
+    const platform = publish.platform
+    if (platform === 'linkedin') {
+      return {
+        platform,
+        is_active: true,
+        credentials: { access_token: 'token', author_urn: 'urn:li:person:123' },
+        settings: {},
+      }
+    }
+    if (platform === 'youtube') {
+      return { platform, is_active: true, credentials: { access_token: 'token' }, settings: {} }
+    }
+    if (platform === 'instagram') {
+      return {
+        platform,
+        is_active: true,
+        credentials: { access_token: 'token', ig_user_id: 'ig-user-1' },
+        settings: {},
+      }
+    }
+    if (platform === 'facebook') {
+      return {
+        platform,
+        is_active: true,
+        credentials: { page_access_token: 'token', page_id: 'page-1' },
+        settings: {},
+      }
+    }
+    if (platform === 'tiktok') {
+      return {
+        platform,
+        is_active: true,
+        credentials: { access_token: 'token' },
+        settings: { creator_info_confirmed: true, source_url_approved: true },
+      }
+    }
+    return { platform, is_active: false, credentials: {}, settings: {} }
+  })
+}
+
+function approvedGate(platforms: string[]) {
+  return {
+    platform_submission_gate: {
+      status: 'approved',
+      approved_at: '2026-07-01T00:00:00.000Z',
+      approved_by: 'admin-1',
+      platforms,
+    },
+  }
 }
 
 describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => {
@@ -151,6 +208,33 @@ describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => 
     vi.restoreAllMocks()
   })
 
+  it('blocks direct publish calls until the final platform-submission gate is approved', async () => {
+    installPublishRouteSupabase({
+      item: {
+        id: 'social-1',
+        status: 'approved',
+        post_text: 'Post text',
+        cta_text: null,
+        cta_url: null,
+        hashtags: [],
+        image_url: 'https://cdn.example.com/image.png',
+        video_url: null,
+        carousel_slide_urls: null,
+        rag_context: null,
+      },
+      publishes: [
+        { platform: 'linkedin', status: 'pending' },
+      ],
+    })
+
+    const response = await POST(request({ platforms: ['linkedin'] }), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(409)
+    const body = await response.json()
+    expect(body.error).toBe('Platform submission requires final approval and connected platform configuration.')
+    expect(mocks.publishToLinkedIn).not.toHaveBeenCalled()
+  })
+
   it('dispatches Instagram and TikTok publish modules from approved content', async () => {
     const { queueUpdate } = installPublishRouteSupabase({
       item: {
@@ -163,7 +247,7 @@ describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => 
         image_url: 'https://cdn.example.com/image.png',
         video_url: 'https://cdn.example.com/video.mp4',
         carousel_slide_urls: null,
-        rag_context: null,
+        rag_context: approvedGate(['instagram', 'tiktok']),
       },
       publishes: [
         { platform: 'instagram', status: 'pending' },
@@ -214,7 +298,7 @@ describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => 
         youtube_title: 'YouTube title',
         youtube_description: 'YouTube description',
         carousel_slide_urls: null,
-        rag_context: null,
+        rag_context: approvedGate(['youtube']),
       },
       publishes: [
         { platform: 'youtube', status: 'pending' },
@@ -243,6 +327,36 @@ describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => 
     }))
   })
 
+  it('blocks final-approved YouTube publish when the final video URL is missing', async () => {
+    installPublishRouteSupabase({
+      item: {
+        id: 'social-1',
+        status: 'approved',
+        post_text: 'Post text',
+        cta_text: 'CTA',
+        cta_url: 'https://example.com',
+        hashtags: ['AI'],
+        image_url: null,
+        video_url: null,
+        youtube_title: 'YouTube title',
+        youtube_description: 'YouTube description',
+        carousel_slide_urls: null,
+        rag_context: approvedGate(['youtube']),
+      },
+      publishes: [
+        { platform: 'youtube', status: 'pending' },
+      ],
+    })
+
+    const response = await POST(request({ platforms: ['youtube'] }), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(409)
+    const body = await response.json()
+    expect(body.error).toBe('Platform submission requires final approval and connected platform configuration.')
+    expect(body.blockers).toEqual(['YouTube: YouTube needs a final video URL before submission.'])
+    expect(mocks.publishToYouTube).not.toHaveBeenCalled()
+  })
+
   it('dispatches Facebook publishing from approved content', async () => {
     const { queueUpdate } = installPublishRouteSupabase({
       item: {
@@ -257,7 +371,7 @@ describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => 
         youtube_title: null,
         youtube_description: null,
         carousel_slide_urls: null,
-        rag_context: null,
+        rag_context: approvedGate(['facebook']),
       },
       publishes: [
         { platform: 'facebook', status: 'pending' },
@@ -296,7 +410,7 @@ describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => 
         image_url: null,
         video_url: 'https://cdn.example.com/video.mp4',
         carousel_slide_urls: null,
-        rag_context: null,
+        rag_context: approvedGate(['tiktok']),
       },
       publishes: [
         { platform: 'tiktok', status: 'pending' },

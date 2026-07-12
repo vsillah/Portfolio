@@ -241,7 +241,7 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
 
     expect(response.status).toBe(200)
     const json = await response.json()
-    expect(json.publish_triggered).toBe(true)
+    expect(json.publish_triggered).toBe(false)
     expect(json.publishes).toEqual([
       { content_id: 'social-1', platform: 'linkedin', status: 'pending' },
       { content_id: 'social-1', platform: 'instagram', status: 'pending' },
@@ -250,17 +250,7 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
       { content_id: 'social-1', platform: 'linkedin', status: 'pending' },
       { content_id: 'social-1', platform: 'instagram', status: 'pending' },
     ], { onConflict: 'content_id,platform' })
-    expect(fetchSpy).toHaveBeenCalledWith(
-      'http://localhost/api/admin/social-content/social-1/publish',
-      expect.objectContaining({
-        method: 'POST',
-        headers: {
-          Authorization: 'Bearer admin-token',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ platforms: ['linkedin', 'instagram'] }),
-      }),
-    )
+    expect(fetchSpy).not.toHaveBeenCalled()
     expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
     fetchSpy.mockRestore()
   })

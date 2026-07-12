@@ -42,6 +42,7 @@ It does not publish, schedule, upload, generate provider media, send external me
 ## Lane artifacts
 
 - `accelerated-whisper-to-shout-campaign-plan.md`: 14-day campaign plan, calendar, topic backlog, source map, and review gates.
+- `agentic-book-rollout-campaign-plan.md`: 14-day Agentic book rollout campaign plan using Portfolio Agent Ops proof and multi-channel approval gates.
 - `social-draft-workflow.md`: draft creation workflow, approval checklist, review packet template, and publishing prep boundary.
 
 ## Current roadmap status
