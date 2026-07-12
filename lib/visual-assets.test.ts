@@ -427,6 +427,14 @@ describe('visual asset helpers', () => {
         theme: 'dark',
       },
     },
+    {
+      label: 'different entity type',
+      openCandidate: {
+        entity_type: 'product',
+        entity_id: 'svc-1',
+        theme: 'dark',
+      },
+    },
   ])('allows regeneration when an open candidate has a $label', async ({ openCandidate }) => {
     const tables = {
       visual_asset_candidates: [
