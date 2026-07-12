@@ -134,11 +134,36 @@ describe('social-content-intelligence', () => {
       cta: expect.stringContaining('Where have you seen AI'),
       visual_mode: 'carousel_or_framework_illustration_review',
     })
+    expect(drafts.linkedin.orchestration_evidence).toMatchObject({
+      agents: expect.arrayContaining([
+        expect.objectContaining({ name: 'Shaka' }),
+        expect.objectContaining({ name: 'Askia' }),
+        expect.objectContaining({ name: 'Amina' }),
+      ]),
+      channel_structure: expect.objectContaining({
+        format: expect.stringContaining('Thought-leadership post'),
+      }),
+      voice_translation: expect.objectContaining({
+        source: expect.stringContaining('Vambah personality corpus'),
+        avoid: expect.arrayContaining(['Generic AI hype.']),
+      }),
+      visual_reinforcement: expect.objectContaining({
+        recommended_assets: expect.arrayContaining(['Framework illustration', 'App screenshot carousel']),
+      }),
+    })
     expect(drafts.youtube_shorts.fields).toMatchObject({
       hook: 'AI should reduce burden.',
       first_30_seconds: expect.stringContaining('I noticed this through the social content review flow'),
       target_duration_seconds: 45,
       render_readiness: 'pending_human_approval',
+    })
+    expect(drafts.youtube_shorts.orchestration_evidence).toMatchObject({
+      portfolio_surfaces: expect.arrayContaining([
+        expect.objectContaining({ route: '/admin/content/video-generation' }),
+      ]),
+      visual_reinforcement: expect.objectContaining({
+        recommended_assets: expect.arrayContaining(['Portfolio b-roll', 'Thumbnail direction']),
+      }),
     })
     expect(drafts.instagram_reels.fields).toMatchObject({
       hook: 'AI should reduce burden.',
@@ -148,6 +173,9 @@ describe('social-content-intelligence', () => {
       ]),
       export_readiness: 'pending_human_approval',
     })
+    expect(drafts.instagram_reels.orchestration_evidence?.visual_reinforcement.recommended_assets).toEqual(
+      expect.arrayContaining(['Cover frame', 'Vertical proof b-roll']),
+    )
     expect(drafts.tiktok.fields).toMatchObject({
       hook: 'AI should reduce burden.',
       cover_frame: expect.any(String),
@@ -157,6 +185,9 @@ describe('social-content-intelligence', () => {
       ]),
       export_readiness: 'pending_human_approval',
     })
+    expect(drafts.tiktok.orchestration_evidence?.channel_structure.structure).toEqual(
+      expect.arrayContaining(['Use fast proof cuts from Portfolio surfaces.']),
+    )
     expect(drafts.linkedin.fields).not.toHaveProperty('first_30_seconds')
     expect(drafts.youtube_shorts.fields).not.toHaveProperty('post_text')
     expect(drafts.linkedin.side_effects).toEqual({

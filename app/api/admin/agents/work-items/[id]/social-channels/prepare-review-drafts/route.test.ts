@@ -148,6 +148,22 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
             review_requested_at: '2026-06-24T15:00:00.000Z',
             draft_packet: expect.objectContaining({
               channel: 'linkedin',
+              orchestration_evidence: expect.objectContaining({
+                agents: expect.arrayContaining([
+                  expect.objectContaining({ name: 'Shaka' }),
+                  expect.objectContaining({ name: 'Askia' }),
+                  expect.objectContaining({ name: 'Amina' }),
+                ]),
+                channel_structure: expect.objectContaining({
+                  format: expect.stringContaining('Thought-leadership post'),
+                }),
+                voice_translation: expect.objectContaining({
+                  source: expect.stringContaining('Vambah personality corpus'),
+                }),
+                visual_reinforcement: expect.objectContaining({
+                  recommended_assets: expect.arrayContaining(['Framework illustration', 'App screenshot carousel']),
+                }),
+              }),
               fields: expect.objectContaining({
                 post_text: expect.stringContaining('The Social Content review flow made the gate visible.'),
                 cta: expect.stringContaining('Where have you seen AI'),
@@ -159,6 +175,14 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
             review_requested_at: '2026-06-24T15:00:00.000Z',
             draft_packet: expect.objectContaining({
               channel: 'youtube_shorts',
+              orchestration_evidence: expect.objectContaining({
+                portfolio_surfaces: expect.arrayContaining([
+                  expect.objectContaining({ route: '/admin/content/video-generation' }),
+                ]),
+                visual_reinforcement: expect.objectContaining({
+                  recommended_assets: expect.arrayContaining(['Portfolio b-roll', 'Thumbnail direction']),
+                }),
+              }),
               fields: expect.objectContaining({
                 hook: 'AI should reduce burden.',
                 first_30_seconds: expect.stringContaining('I noticed this through the social content review flow'),
@@ -170,6 +194,14 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
             review_requested_at: '2026-06-24T15:00:00.000Z',
             draft_packet: expect.objectContaining({
               channel: 'instagram_reels',
+              orchestration_evidence: expect.objectContaining({
+                portfolio_surfaces: expect.arrayContaining([
+                  expect.objectContaining({ route: '/admin/content/visual-assets' }),
+                ]),
+                visual_reinforcement: expect.objectContaining({
+                  recommended_assets: expect.arrayContaining(['Cover frame', 'Vertical proof b-roll']),
+                }),
+              }),
               fields: expect.objectContaining({
                 cover_text: expect.any(String),
                 export_readiness: 'pending_human_approval',
@@ -181,6 +213,16 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
             review_requested_at: '2026-06-24T15:00:00.000Z',
             draft_packet: expect.objectContaining({
               channel: 'tiktok',
+              orchestration_evidence: expect.objectContaining({
+                channel_structure: expect.objectContaining({
+                  success_criteria: expect.arrayContaining([
+                    expect.stringContaining('Audio rights'),
+                  ]),
+                }),
+                voice_translation: expect.objectContaining({
+                  avoid: expect.arrayContaining(['Generic AI hype.']),
+                }),
+              }),
               fields: expect.objectContaining({
                 audio_rights: expect.stringContaining('platform-safe audio'),
                 export_readiness: 'pending_human_approval',

@@ -49,6 +49,34 @@ export type SocialChannelReviewDraftPacket = {
   source_insight_title: string
   source_use_boundary: string
   fields: Record<string, unknown>
+  orchestration_evidence?: {
+    agents: Array<{
+      name: string
+      role: string
+      responsibility: string
+    }>
+    portfolio_surfaces: Array<{
+      label: string
+      route: string
+      purpose: string
+    }>
+    channel_structure: {
+      format: string
+      structure: string[]
+      success_criteria: string[]
+    }
+    voice_translation: {
+      source: string
+      principles: string[]
+      avoid: string[]
+    }
+    visual_reinforcement: {
+      recommended_assets: string[]
+      portfolio_snapshots: string[]
+      illustration_direction: string
+      privacy_notes: string[]
+    }
+  }
   source_research_patterns: Array<Record<string, unknown>>
   side_effects: {
     provider_generation: false
@@ -661,6 +689,190 @@ function reviewDraftSideEffects(): SocialChannelReviewDraftPacket['side_effects'
   }
 }
 
+function channelOrchestrationEvidence(input: {
+  channel: Exclude<SocialContentIntelligenceChannel, 'thumbnail'>
+  contentAngle: string
+  patternPromise: string
+}) {
+  const sharedAgents = [
+    {
+      name: 'Shaka',
+      role: 'Chief of Staff',
+      responsibility: 'Owns the central insight, campaign fit, backlog routing, and human approval path.',
+    },
+    {
+      name: 'Askia',
+      role: 'Research Analyst',
+      responsibility: 'Summarizes public creator/outlier patterns as reusable structures without copying source wording or visual identity.',
+    },
+    {
+      name: 'Amina',
+      role: 'Challenger Reviewer',
+      responsibility: 'Checks source distance, claim boundaries, channel fit, and whether the draft sounds like Vambah.',
+    },
+  ]
+  const sharedSurfaces = [
+    {
+      label: 'Content Intelligence',
+      route: '/admin/agents/content-intelligence',
+      purpose: 'Campaign calendar, research packets, and channel lane readiness.',
+    },
+    {
+      label: 'Agentic Dashboard Backlog',
+      route: '/admin/agents/coordination',
+      purpose: 'Central Shaka work item and approval state.',
+    },
+  ]
+  const voiceTranslation = {
+    source: 'Vambah personality corpus plus docs/linkedin-voice.md',
+    principles: [
+      'Open with a concrete triggering event or tension.',
+      'Make the operating system visible before making the claim.',
+      'Use plain, practical language with moral clarity.',
+      'Connect the personal builder authority to the useful takeaway.',
+      'End with a specific question, invitation, or next action.',
+    ],
+    avoid: [
+      'Generic AI hype.',
+      'Detached consulting jargon.',
+      'Copying creator scripts, titles, thumbnails, or visual identity.',
+      'Private Chronicle notes, raw chats, client records, credentials, or hidden admin data.',
+    ],
+  }
+  const sharedPrivacyNotes = [
+    'Use public-safe Portfolio/admin proof only.',
+    'Redact private names, client data, tokens, raw Chronicle notes, and personal account details.',
+    'Provider generation, upload, scheduling, and publishing remain separate approval gates.',
+  ]
+  const channelDetails: Record<Exclude<SocialContentIntelligenceChannel, 'thumbnail'>, {
+    format: string
+    structure: string[]
+    success_criteria: string[]
+    portfolio_surfaces: Array<{ label: string; route: string; purpose: string }>
+    recommended_assets: string[]
+    portfolio_snapshots: string[]
+    illustration_direction: string
+  }> = {
+    linkedin: {
+      format: 'Thought-leadership post with carousel or framework illustration support.',
+      structure: [
+        'Triggering event or tension in the first 210 characters.',
+        'Plain-language diagnosis of the operating problem.',
+        'Portfolio proof that shows the workflow, gate, or receipt.',
+        'Practical takeaway and specific response-driving CTA.',
+      ],
+      success_criteria: [
+        'Sounds like Vambah, not a generic company account.',
+        'Names the approval path and evidence without overclaiming autonomy.',
+        'Includes a visual mode recommendation tied to the argument.',
+      ],
+      portfolio_surfaces: [
+        ...sharedSurfaces,
+        {
+          label: 'Social Content Review',
+          route: '/admin/social-content',
+          purpose: 'LinkedIn copy, carousel/illustration, visual QA, and final platform submission gate.',
+        },
+      ],
+      recommended_assets: ['Framework illustration', 'App screenshot carousel', 'Source/evidence references'],
+      portfolio_snapshots: ['/admin/social-content', '/admin/agents/content-intelligence', '/admin/agents/coordination'],
+      illustration_direction: `Show the operating path behind the point: ${input.patternPromise || input.contentAngle}`,
+    },
+    youtube_shorts: {
+      format: 'Vertical short-form script with proof b-roll and render-readiness gate.',
+      structure: [
+        'Hook names the pain in the first 3 seconds.',
+        'Frame the missed operating layer.',
+        'Show proof through Portfolio b-roll or screen snapshots.',
+        'Close with a crisp principle or next action.',
+      ],
+      success_criteria: [
+        'The first 30 seconds include pain, authority, and proof.',
+        'B-roll is tied to storyboard beats.',
+        'Render readiness remains pending until human approval.',
+      ],
+      portfolio_surfaces: [
+        ...sharedSurfaces,
+        {
+          label: 'Video Generation',
+          route: '/admin/content/video-generation',
+          purpose: 'Script review, b-roll, render readiness, generated review, and evidence packet.',
+        },
+      ],
+      recommended_assets: ['Portfolio b-roll', 'Proof-screen snapshots', 'Thumbnail direction', 'Caption-safe on-screen text'],
+      portfolio_snapshots: ['/admin/content/video-generation', '/admin/agents/content-intelligence', '/admin/agents/coordination'],
+      illustration_direction: 'Use motion around the receipt path: source, challenger, approval, platform gate.',
+    },
+    instagram_reels: {
+      format: 'Vertical Reel with cover text, proof b-roll, and safe-area-aware captioning.',
+      structure: [
+        'Visual-first hook with cover text.',
+        'Short spoken or captioned setup of the pain.',
+        'One clear proof screen or b-roll moment.',
+        'Caption expands the practical takeaway.',
+      ],
+      success_criteria: [
+        'Cover text can stand without sound.',
+        'Proof is inspectable on mobile.',
+        'Caption preserves Vambah voice and does not read like a recycled LinkedIn post.',
+      ],
+      portfolio_surfaces: [
+        ...sharedSurfaces,
+        {
+          label: 'Visual Assets',
+          route: '/admin/content/visual-assets',
+          purpose: 'Cover image, b-roll, proof snapshots, and export-readiness review.',
+        },
+      ],
+      recommended_assets: ['Cover frame', 'Vertical proof b-roll', 'Caption-safe screenshots', 'Optional framework illustration crop'],
+      portfolio_snapshots: ['/admin/content/visual-assets', '/admin/content/video-generation', '/admin/agents/content-intelligence'],
+      illustration_direction: 'Create a clean cover frame that translates the proof into an AmaduTown visual cue.',
+    },
+    tiktok: {
+      format: 'Vertical short with direct hook, original narration, and platform-safe audio path.',
+      structure: [
+        'Start with the tension in plain language.',
+        'Use fast proof cuts from Portfolio surfaces.',
+        'Keep on-screen text short and central.',
+        'End with a question or principle that fits the platform.',
+      ],
+      success_criteria: [
+        'Audio rights are explicit before export.',
+        'The proof is understandable without exposing private admin data.',
+        'The hook is conversational, direct, and not overproduced.',
+      ],
+      portfolio_surfaces: [
+        ...sharedSurfaces,
+        {
+          label: 'Video Generation',
+          route: '/admin/content/video-generation',
+          purpose: 'Script, b-roll, audio rights, render readiness, and final review.',
+        },
+      ],
+      recommended_assets: ['Original narration', 'Platform-safe b-roll', 'First-frame cover', 'Caption-safe proof cuts'],
+      portfolio_snapshots: ['/admin/content/video-generation', '/admin/agents/content-intelligence', '/admin/agents/coordination'],
+      illustration_direction: 'Use quick proof cuts rather than a dense diagram; keep the operating path visible but simple.',
+    },
+  }
+  const detail = channelDetails[input.channel]
+  return {
+    agents: sharedAgents,
+    portfolio_surfaces: detail.portfolio_surfaces,
+    channel_structure: {
+      format: detail.format,
+      structure: detail.structure,
+      success_criteria: detail.success_criteria,
+    },
+    voice_translation: voiceTranslation,
+    visual_reinforcement: {
+      recommended_assets: detail.recommended_assets,
+      portfolio_snapshots: detail.portfolio_snapshots,
+      illustration_direction: detail.illustration_direction,
+      privacy_notes: sharedPrivacyNotes,
+    },
+  }
+}
+
 export function buildLinkedInYoutubeReviewDrafts(input: {
   insight: Record<string, unknown>
   generatedAt?: string
@@ -759,6 +971,11 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
         ],
         claim_boundaries: claimBoundaries,
       },
+      orchestration_evidence: channelOrchestrationEvidence({
+        channel: 'linkedin',
+        contentAngle,
+        patternPromise,
+      }),
       source_research_patterns: patterns,
       side_effects: reviewDraftSideEffects(),
     },
@@ -781,6 +998,11 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
         render_readiness: 'pending_human_approval',
         claim_boundaries: claimBoundaries,
       },
+      orchestration_evidence: channelOrchestrationEvidence({
+        channel: 'youtube_shorts',
+        contentAngle,
+        patternPromise,
+      }),
       source_research_patterns: patterns,
       side_effects: reviewDraftSideEffects(),
     },
@@ -808,6 +1030,11 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
         export_readiness: 'pending_human_approval',
         claim_boundaries: claimBoundaries,
       },
+      orchestration_evidence: channelOrchestrationEvidence({
+        channel: 'instagram_reels',
+        contentAngle,
+        patternPromise,
+      }),
       source_research_patterns: patterns,
       side_effects: reviewDraftSideEffects(),
     },
@@ -836,6 +1063,11 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
         export_readiness: 'pending_human_approval',
         claim_boundaries: claimBoundaries,
       },
+      orchestration_evidence: channelOrchestrationEvidence({
+        channel: 'tiktok',
+        contentAngle,
+        patternPromise,
+      }),
       source_research_patterns: patterns,
       side_effects: reviewDraftSideEffects(),
     },

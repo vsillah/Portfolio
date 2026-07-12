@@ -161,6 +161,19 @@ describe('social content intelligence research-to-channel-approval workflow', ()
         linkedin: expect.objectContaining({
           channel: 'linkedin',
           approval_status: 'in_review',
+          orchestration_evidence: expect.objectContaining({
+            agents: expect.arrayContaining([
+              expect.objectContaining({ name: 'Shaka' }),
+              expect.objectContaining({ name: 'Askia' }),
+              expect.objectContaining({ name: 'Amina' }),
+            ]),
+            channel_structure: expect.objectContaining({
+              format: expect.stringContaining('Thought-leadership post'),
+            }),
+            visual_reinforcement: expect.objectContaining({
+              recommended_assets: expect.arrayContaining(['Framework illustration']),
+            }),
+          }),
           source_research_patterns: [
             expect.objectContaining({
               source_url: 'https://youtube.com/watch?v=abc',
@@ -171,6 +184,11 @@ describe('social content intelligence research-to-channel-approval workflow', ()
         youtube_shorts: expect.objectContaining({
           channel: 'youtube_shorts',
           approval_status: 'in_review',
+          orchestration_evidence: expect.objectContaining({
+            portfolio_surfaces: expect.arrayContaining([
+              expect.objectContaining({ route: '/admin/content/video-generation' }),
+            ]),
+          }),
           fields: expect.objectContaining({
             hook: 'AI should reduce burden.',
             render_readiness: 'pending_human_approval',
@@ -179,6 +197,11 @@ describe('social content intelligence research-to-channel-approval workflow', ()
         instagram_reels: expect.objectContaining({
           channel: 'instagram_reels',
           approval_status: 'in_review',
+          orchestration_evidence: expect.objectContaining({
+            visual_reinforcement: expect.objectContaining({
+              recommended_assets: expect.arrayContaining(['Cover frame']),
+            }),
+          }),
           fields: expect.objectContaining({
             export_readiness: 'pending_human_approval',
           }),
@@ -186,6 +209,11 @@ describe('social content intelligence research-to-channel-approval workflow', ()
         tiktok: expect.objectContaining({
           channel: 'tiktok',
           approval_status: 'in_review',
+          orchestration_evidence: expect.objectContaining({
+            voice_translation: expect.objectContaining({
+              avoid: expect.arrayContaining(['Generic AI hype.']),
+            }),
+          }),
           fields: expect.objectContaining({
             audio_rights: expect.stringContaining('platform-safe audio'),
           }),
