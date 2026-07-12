@@ -410,6 +410,73 @@ describe('visual asset helpers', () => {
     },
   )
 
+  it.each([
+    {
+      label: 'different theme',
+      openCandidate: {
+        entity_type: 'service',
+        entity_id: 'svc-1',
+        theme: 'light',
+      },
+    },
+    {
+      label: 'different entity',
+      openCandidate: {
+        entity_type: 'service',
+        entity_id: 'svc-2',
+        theme: 'dark',
+      },
+    },
+  ])('allows regeneration when an open candidate has a $label', async ({ openCandidate }) => {
+    const tables = {
+      visual_asset_candidates: [
+        {
+          id: 'rejected-1',
+          entity_type: 'service',
+          entity_id: 'svc-1',
+          title: 'AI Advisory',
+          theme: 'dark',
+          current_url: null,
+          candidate_url: 'https://example.com/rejected.png',
+          candidate_storage_path: 'services/visual-candidates/service-svc-1/dark/rejected-1.png',
+          capture_route: '/services/svc-1?visualCapture=1',
+          score: 42,
+          reason_codes: ['candidate_below_quality_bar'],
+          status: 'rejected',
+          metadata: {},
+        },
+        {
+          id: 'open-1',
+          ...openCandidate,
+          title: 'Another visual candidate',
+          current_url: null,
+          candidate_url: null,
+          candidate_storage_path: null,
+          capture_route: '/services/other?visualCapture=1',
+          score: null,
+          reason_codes: [],
+          status: 'proposed',
+          metadata: {},
+        },
+      ],
+    }
+    const client = createTableClient(tables) as any
+
+    await expect(regenerateRejectedVisualAssetCandidate({
+      sourceCandidateId: 'rejected-1',
+      requestedBy: 'admin-1',
+      client,
+    })).resolves.toMatchObject({
+      id: 'inserted-3',
+      status: 'proposed',
+      entity_type: 'service',
+      entity_id: 'svc-1',
+      theme: 'dark',
+    })
+
+    expect(tables.visual_asset_candidates).toHaveLength(3)
+  })
+
   it('filters invalid feedback reason codes before building the regeneration capture route', async () => {
     const client = createTableClient({
       visual_asset_candidates: [{
