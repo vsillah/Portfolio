@@ -8,6 +8,7 @@ import { publishToFacebook } from '@/lib/publishing/facebook'
 import { publishToTikTok } from '@/lib/publishing/tiktok'
 import type { SocialPlatform } from '@/lib/social-content'
 import { getProductionAssets, getVideoRedactionGate } from '@/lib/social-production-assets'
+import { buildPlatformOrchestrationPlan, isPlatformSubmissionGateApproved } from '@/lib/social-platform-orchestration'
 
 export const dynamic = 'force-dynamic'
 
@@ -108,6 +109,45 @@ export async function POST(
           skipped: true,
         })),
       })
+    }
+
+    const publishPlatforms = pendingPublishes.map((p: { platform: string }) => p.platform as SocialPlatform)
+    const { data: platformConfigs } = await admin
+      .from('social_content_config')
+      .select('*')
+
+    const platformSubmissionPlan = buildPlatformOrchestrationPlan({
+      item,
+      targetPlatforms: publishPlatforms,
+      publishRecords: publishes,
+      platformConfigs: platformConfigs ?? [],
+      copyApproved: true,
+      productionReady: true,
+      redactionReady: true,
+      draftHandoffReady: true,
+      finalSubmissionGateReady: isPlatformSubmissionGateApproved(item.rag_context, publishPlatforms),
+    })
+    const blockedStages = platformSubmissionPlan.platforms
+      .map((platformPlan) => {
+        const blockedStage = platformPlan.stages.find((stage) => stage.state === 'blocked')
+        return blockedStage ? `${platformPlan.label}: ${blockedStage.detail}` : null
+      })
+      .filter((blocker): blocker is string => Boolean(blocker))
+    const unavailablePlatforms = platformSubmissionPlan.platforms.filter((platformPlan) => {
+      const automaticStage = platformPlan.stages.find((stage) => stage.key === 'automatic_submission')
+      return automaticStage?.state !== 'available'
+    })
+    if (blockedStages.length || unavailablePlatforms.length) {
+      return NextResponse.json(
+        {
+          error: 'Platform submission requires final approval and connected platform configuration.',
+          blockers: blockedStages.length
+            ? blockedStages
+            : unavailablePlatforms.map((platformPlan) => `${platformPlan.label}: ${platformPlan.nextAction}`),
+          platform_submission_orchestration: platformSubmissionPlan,
+        },
+        { status: 409 },
+      )
     }
 
     // Dispatch to platform-specific modules

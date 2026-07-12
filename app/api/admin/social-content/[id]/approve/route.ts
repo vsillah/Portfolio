@@ -228,24 +228,9 @@ export async function POST(
       console.error('Error creating publish records:', insertError)
     }
 
-    // If no scheduled_for → trigger immediate publish via internal API
-    let publishTriggered = false
-    if (!updated.scheduled_for) {
-      try {
-        const origin = new URL(request.url).origin
-        const publishRes = await fetch(`${origin}/api/admin/social-content/${id}/publish`, {
-          method: 'POST',
-          headers: {
-            Authorization: request.headers.get('authorization') || '',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ platforms: targetPlatforms }),
-        })
-        publishTriggered = publishRes.ok
-      } catch (err) {
-        console.error('Failed to trigger publish:', err)
-      }
-    }
+    // Content approval prepares internal platform rows only. External submit now
+    // requires the explicit final platform-submission gate.
+    const publishTriggered = false
 
     // Load publish records for the response
     const { data: publishes } = await admin

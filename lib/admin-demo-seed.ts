@@ -17,6 +17,7 @@ export const DEMO_SEED_KEYS = [
   'social_content_calendar_fixture',
   'social_channel_review_fixture',
   'accelerated_workshop_campaign_fixture',
+  'agentic_book_rollout_campaign_fixture',
 ] as const
 
 export type DemoSeedKey = (typeof DEMO_SEED_KEYS)[number]
@@ -34,6 +35,9 @@ export const SOCIAL_CHANNEL_REVIEW_FIXTURE_IDEMPOTENCY_KEY = 'demo:social-channe
 export const ACCELERATED_WORKSHOP_CAMPAIGN_FIXTURE_KEY = 'accelerated_workshop_campaign_fixture'
 export const ACCELERATED_WORKSHOP_CAMPAIGN_FIXTURE_SLUG = 'accelerated-workshop-whisper-to-shout'
 export const ACCELERATED_WORKSHOP_CAMPAIGN_IDEMPOTENCY_PREFIX = 'demo:accelerated-workshop-campaign'
+export const AGENTIC_BOOK_ROLLOUT_CAMPAIGN_FIXTURE_KEY = 'agentic_book_rollout_campaign_fixture'
+export const AGENTIC_BOOK_ROLLOUT_CAMPAIGN_FIXTURE_SLUG = 'agentic-book-rollout-whisper-to-shout'
+export const AGENTIC_BOOK_ROLLOUT_CAMPAIGN_IDEMPOTENCY_PREFIX = 'demo:agentic-book-rollout-campaign'
 
 const BUSINESS_CHALLENGES = {
   primary_challenges: [
@@ -212,6 +216,41 @@ async function removeAcceleratedWorkshopCampaignFixture(supabase: SupabaseClient
     .eq('slug', ACCELERATED_WORKSHOP_CAMPAIGN_FIXTURE_SLUG)
 }
 
+async function removeAgenticBookRolloutCampaignFixture(supabase: SupabaseClient): Promise<void> {
+  const { data: campaign } = await supabase
+    .from('attraction_campaigns')
+    .select('id')
+    .eq('slug', AGENTIC_BOOK_ROLLOUT_CAMPAIGN_FIXTURE_SLUG)
+    .maybeSingle()
+
+  await supabase
+    .from('social_content_calendar_items')
+    .delete()
+    .contains('metadata', { demo_seed_key: AGENTIC_BOOK_ROLLOUT_CAMPAIGN_FIXTURE_KEY })
+
+  await supabase
+    .from('agent_work_items')
+    .delete()
+    .like('idempotency_key', `${AGENTIC_BOOK_ROLLOUT_CAMPAIGN_IDEMPOTENCY_PREFIX}:%`)
+
+  await supabase
+    .from('social_content_research_packets')
+    .delete()
+    .contains('actor_metadata', { demo_seed_key: AGENTIC_BOOK_ROLLOUT_CAMPAIGN_FIXTURE_KEY })
+
+  if (campaign?.id != null) {
+    await supabase
+      .from('social_content_calendar_items')
+      .delete()
+      .eq('campaign_id', campaign.id)
+  }
+
+  await supabase
+    .from('attraction_campaigns')
+    .delete()
+    .eq('slug', AGENTIC_BOOK_ROLLOUT_CAMPAIGN_FIXTURE_SLUG)
+}
+
 const ACCELERATED_WORKSHOP_PHASES = [
   {
     phase: 'tease',
@@ -272,6 +311,69 @@ const ACCELERATED_WORKSHOP_PHASES = [
     linkedinCta:
       'If this is the kind of operating layer your team needs, join the Accelerated Workshop interest path or book a discovery call.',
     thumbnailText: 'BUILD THE OPERATING LAYER',
+  },
+] as const
+
+const AGENTIC_BOOK_ROLLOUT_PHASES = [
+  {
+    phase: 'tease',
+    titlePrefix: 'Tease',
+    day: 1,
+    insightTitle: 'Anyone can launch an agent now',
+    triggeringEvent:
+      'The Agentic rollout work exposed the public-facing tension: agent demos are easy to get excited about, but the operating questions show up the moment an agent needs authority.',
+    contentAngle:
+      'The launch should start with the pain: AI agents are moving into real workflows before teams have receipts, scopes, owners, and approval paths.',
+    suggestedHook:
+      'Anyone can launch an agent now. The harder question is who is responsible when it acts.',
+    linkedinCta:
+      'Where have you seen an AI demo move faster than the operating system around it?',
+    thumbnailText: 'AGENTS NEED RECEIPTS',
+  },
+  {
+    phase: 'teach',
+    titlePrefix: 'Teach',
+    day: 4,
+    insightTitle: 'The harness matters more than the agent',
+    triggeringEvent:
+      'The Agentic source plan frames the production harness as source inventory, artifact specification, constrained creation, challenger review, repair, and human approval.',
+    contentAngle:
+      'The audience needs the core model before the bigger announcement: agents become useful when the work is bounded, sourced, challenged, and reviewed.',
+    suggestedHook:
+      'The agent is not the operating system. The harness is.',
+    linkedinCta:
+      'What would you put in the harness before giving an agent more authority?',
+    thumbnailText: 'BUILD THE HARNESS',
+  },
+  {
+    phase: 'proof',
+    titlePrefix: 'Proof',
+    day: 9,
+    insightTitle: 'The Portfolio workflow is the rollout receipt',
+    triggeringEvent:
+      'Portfolio already has named agents, Agent Ops approvals, work items, platform gates, content intelligence, and review packets that can show the operating layer in motion.',
+    contentAngle:
+      'The proof milestone should show the actual system: review queues, source packets, calendar milestones, challenger packets, and gated platform submission.',
+    suggestedHook:
+      'The receipt is not the content. The receipt is the path the content traveled.',
+    linkedinCta:
+      'What proof would make you trust an agentic workflow before it touched a customer?',
+    thumbnailText: 'SHOW THE PATH',
+  },
+  {
+    phase: 'offer',
+    titlePrefix: 'Offer',
+    day: 13,
+    insightTitle: 'Follow the Agentic book rollout',
+    triggeringEvent:
+      'The Agentic book rollout can become the public container for the system Vambah is building: a practical field guide for governed AI work, not another autonomy hype cycle.',
+    contentAngle:
+      'The shout moment invites people into the Agentic rollout: follow the series, review the proof, and book a discovery path if they need governed Agent Ops in their own organization.',
+    suggestedHook:
+      'The next wave of AI work will be judged by its receipts.',
+    linkedinCta:
+      'If you want the Agentic rollout notes as they become public, follow along or reach out through AmaduTown.',
+    thumbnailText: 'THE AGENTIC ROLLOUT',
   },
 ] as const
 
@@ -488,6 +590,246 @@ function acceleratedWorkshopInsightMetadata(input: {
         label: 'Thumbnail',
         decision_note: null,
         draft_packet: acceleratedWorkshopThumbnailPacket({
+          phase: input.phase.phase,
+          generatedAt: input.generatedAt,
+          insightTitle: input.phase.insightTitle,
+          contentAngle: input.phase.contentAngle,
+          thumbnailText: input.phase.thumbnailText,
+        }),
+        review_requested_at: input.generatedAt,
+        updated_at: input.generatedAt,
+        required_inputs: ['pattern explanation', 'short thumbnail text', '2-3 variants'],
+      },
+    },
+    insight,
+    side_effects: {
+      provider_generation: false,
+      upload: false,
+      publish: false,
+      schedule: false,
+      external_post: false,
+    },
+  }
+}
+
+function agenticBookRolloutThumbnailPacket(input: {
+  phase: string
+  generatedAt: string
+  insightTitle: string
+  contentAngle: string
+  thumbnailText: string
+}) {
+  return {
+    channel: 'thumbnail',
+    generated_at: input.generatedAt,
+    approval_status: 'in_review',
+    shared_source: {
+      insight_title: input.insightTitle,
+      triggering_event: `Agentic book rollout ${input.phase} phase`,
+      content_angle: input.contentAngle,
+      evidence_summary:
+        'Uses the shared Agentic rollout source packet, Portfolio Agent Ops proof, and public-safe communications plan.',
+    },
+    source_insight_title: input.insightTitle,
+    source_use_boundary:
+      'Thumbnail concepts are generated for human review only. Public creator and source patterns are structure only, not artwork to copy.',
+    fields: {
+      source_thumbnail_reference: 'Use approved public creator research patterns and owned Portfolio proof screenshots as structure only.',
+      pattern_explanation:
+        'Short accountability promise, one visible operating-system proof cue, and no exaggerated autonomy claim.',
+      amadutown_adaptation_direction:
+        'Use AmaduTown navy/gold/white styling, Agent Ops proof screens, and Vambah as the practitioner explaining the operating layer.',
+      short_thumbnail_text: input.thumbnailText,
+      face_photo_avatar_choice: 'Vambah face/photo, HeyGen avatar still, or clean Agent Ops proof-screen frame.',
+      brand_colors_style: 'AmaduTown navy, radiant gold, white, restrained proof-console accents.',
+      variants: [
+        `${input.thumbnailText} over an Agent Ops approval-gate screenshot.`,
+        `Vambah beside a visible source packet and review path with ${input.phase.toUpperCase()} phase label.`,
+        `Minimal AmaduTown shield plus one proof-screen receipt and a short agent accountability line.`,
+      ],
+      approval_state: 'in_review',
+    },
+    source_research_patterns: [],
+    side_effects: {
+      provider_generation: false,
+      upload: false,
+      publish: false,
+      schedule: false,
+      external_post: false,
+    },
+  }
+}
+
+function agenticBookRolloutInsightMetadata(input: {
+  packetId: string
+  phase: typeof AGENTIC_BOOK_ROLLOUT_PHASES[number]
+  generatedAt: string
+}) {
+  const approvedResearchPattern = {
+    packet_id: input.packetId,
+    source_url: 'local:docs/agentic-value-communications-plan.md',
+    platform: 'other',
+    creator_name: 'AmaduTown',
+    title: 'Agentic book rollout communications plan',
+    outlier_score: 0,
+    pattern_status: 'usable_framework',
+    pattern_packet: {
+      hook_structure:
+        'Open with the agent accountability tension, then show the operating layer that makes agent work reviewable.',
+      promise_value:
+        'Help operators understand agentic AI as governed work, not model novelty.',
+      thumbnail_pattern:
+        'Pair a short accountability line with visible proof from the review, source, or approval surface.',
+      source_use_boundary:
+        'Use owned Portfolio proof, public-safe research summaries, and approved review packets only. Do not expose raw private chats, Chronicle notes, client material, credentials, or hidden admin data.',
+    },
+  }
+  const insight = {
+    title: input.phase.insightTitle,
+    triggering_event: input.phase.triggeringEvent,
+    source_type: 'portfolio_work',
+    source_label: 'Agentic book rollout campaign',
+    source_ids: [
+      AGENTIC_BOOK_ROLLOUT_CAMPAIGN_FIXTURE_KEY,
+      'docs/agentic-value-communications-plan.md',
+      'docs/agentic-content-research-briefs/phase-2-research-dossier.md',
+    ],
+    why_vambah_can_speak:
+      'Vambah is building the Portfolio Agent Ops operating layer directly: named agents, work items, approvals, source packets, challenger review, cost checks, and platform submission gates.',
+    brand_goal:
+      'Position the Agentic book rollout as a practical field guide for governed AI operations and responsible agent adoption.',
+    content_angle: input.phase.contentAngle,
+    suggested_hook: input.phase.suggestedHook,
+    audience:
+      'Product leaders, founders, operators, advisors, and teams trying to move from agent demos to governed execution.',
+    sensitivity: 'public_safe',
+    evidence_summary:
+      'Evidence comes from the Agentic communications plan, research dossier, Portfolio Agent Ops workflow, review packets, content calendar, and gated multi-channel platform submission path.',
+    claim_boundaries: [
+      'Do not imply the Agentic book is publicly launched or available for purchase unless a separate launch gate approves it.',
+      'Do not imply autonomous publishing, rendering, uploads, scheduling, or provider generation is active from this campaign seed.',
+      'Use Portfolio proof surfaces only after privacy review; redact private admin, Chronicle, meeting, client, account, and credential detail.',
+      'Treat public creator or outlier research as reusable structure only, not copy.',
+    ],
+    approved_research_patterns: [approvedResearchPattern],
+  }
+  const drafts = buildLinkedInYoutubeReviewDrafts({ insight, generatedAt: input.generatedAt })
+
+  drafts.linkedin.fields = {
+    ...drafts.linkedin.fields,
+    cta: input.phase.linkedinCta,
+    cta_url: 'https://amadutown.com',
+    visual_mode: input.phase.phase === 'proof'
+      ? 'app_screenshot_carousel'
+      : 'framework_illustration_or_carousel_review',
+    screenshot_routes: [
+      '/admin/agents/content-intelligence',
+      '/admin/content/video-generation',
+      '/admin/social-content',
+      '/admin/agents/runs',
+    ],
+  }
+  drafts.youtube_shorts.fields = {
+    ...drafts.youtube_shorts.fields,
+    target_duration_seconds: 45,
+    caption: `${input.phase.contentAngle} Built for the Agentic book rollout campaign.`,
+    b_roll_hints: [
+      'Agent Ops review queue',
+      'Content Intelligence campaign calendar',
+      'Video Generation script review workspace',
+      'Social Content platform submission path',
+      'Agentic source packet or research dossier',
+    ],
+    on_screen_text: [
+      input.phase.thumbnailText,
+      'Receipts before authority.',
+      'Approval before action.',
+    ],
+  }
+  drafts.instagram_reels.fields = {
+    ...drafts.instagram_reels.fields,
+    caption: `${input.phase.contentAngle} Built for the Agentic book rollout campaign.`,
+    b_roll_assets: [
+      'Agent Ops review queue',
+      'Content Intelligence campaign calendar',
+      'Video Generation script review workspace',
+      'Social Content platform submission path',
+      'Agentic source packet or research dossier',
+    ],
+    safe_area_notes: [
+      'Keep captions and CTA clear of top and bottom app chrome.',
+      'Frame Portfolio proof screens in the vertical center.',
+      'Redact private admin, client, Chronicle, account, or meeting-derived detail before export.',
+    ],
+  }
+  drafts.tiktok.fields = {
+    ...drafts.tiktok.fields,
+    caption: `${input.phase.suggestedHook} Built for the Agentic book rollout campaign.`,
+    b_roll_assets: [
+      'Agent Ops review queue',
+      'Content Intelligence campaign calendar',
+      'Video Generation script review workspace',
+      'Social Content platform submission path',
+      'Agentic source packet or research dossier',
+    ],
+    audio_rights: 'Use original narration, approved provider voiceover, or platform-safe audio only.',
+  }
+
+  return {
+    social_topic_trigger: true,
+    insight_version: 'agentic_book_rollout_campaign_v1',
+    demo_seed_key: AGENTIC_BOOK_ROLLOUT_CAMPAIGN_FIXTURE_KEY,
+    fixture_version: 1,
+    fixture_purpose: 'agentic_book_rollout_whisper_to_shout_review_ready_campaign',
+    campaign_target: 'Agentic book rollout',
+    campaign_window_days: 14,
+    campaign_template_key: 'whisper_to_shout',
+    campaign_language: 'Tease/Wispr/Shout overlay; stored phases remain tease/teach/proof/offer.',
+    conversion_path: 'Agentic rollout interest, then Agent Ops advisory, AI Quick Win, or discovery call.',
+    research_packet_ids: [input.packetId],
+    suggested_research_packet_ids: [input.packetId],
+    channel_lanes: {
+      linkedin: {
+        status: 'in_review',
+        label: 'LinkedIn',
+        decision_note: null,
+        draft_packet: drafts.linkedin,
+        review_requested_at: input.generatedAt,
+        updated_at: input.generatedAt,
+        required_inputs: ['post text', 'CTA', 'CTA URL', 'hashtags', 'references'],
+      },
+      youtube_shorts: {
+        status: 'in_review',
+        label: 'YouTube Shorts',
+        decision_note: null,
+        draft_packet: drafts.youtube_shorts,
+        review_requested_at: input.generatedAt,
+        updated_at: input.generatedAt,
+        required_inputs: ['hook', 'first 30 seconds', 'script', 'storyboard scenes', 'b-roll hints'],
+      },
+      instagram_reels: {
+        status: 'in_review',
+        label: 'Instagram Reels',
+        decision_note: null,
+        draft_packet: drafts.instagram_reels,
+        review_requested_at: input.generatedAt,
+        updated_at: input.generatedAt,
+        required_inputs: ['hook', 'script', 'caption', 'safe-area notes'],
+      },
+      tiktok: {
+        status: 'in_review',
+        label: 'TikTok',
+        decision_note: null,
+        draft_packet: drafts.tiktok,
+        review_requested_at: input.generatedAt,
+        updated_at: input.generatedAt,
+        required_inputs: ['hook', 'script', 'caption', 'audio rights', 'safe-area notes'],
+      },
+      thumbnail: {
+        status: 'in_review',
+        label: 'Thumbnail',
+        decision_note: null,
+        draft_packet: agenticBookRolloutThumbnailPacket({
           phase: input.phase.phase,
           generatedAt: input.generatedAt,
           insightTitle: input.phase.insightTitle,
@@ -1210,6 +1552,286 @@ export async function runDemoSeed(
           ok: true,
           key,
           detail: `Accelerated Workshop campaign ${campaign.id} with campaign goal ${campaignGoal.id}, ${calendarRows.length} calendar items, ${workItems.length} insight work items, and research packet ${packet.id}`,
+        }
+      }
+
+      case 'agentic_book_rollout_campaign_fixture': {
+        await removeAgenticBookRolloutCampaignFixture(supabase)
+
+        const generatedAt = new Date().toISOString()
+        const startsAt = addDaysAtHourISO(1, 9)
+        const endsAt = addDaysAtHourISO(14, 17)
+
+        const { data: campaign, error: campaignError } = await supabase
+          .from('attraction_campaigns')
+          .insert({
+            name: 'Agentic Book Rollout Whisper-to-Shout Campaign',
+            slug: AGENTIC_BOOK_ROLLOUT_CAMPAIGN_FIXTURE_SLUG,
+            description:
+              'A 14-day review-ready campaign for the Agentic book rollout, using Portfolio Agent Ops proof, source packets, challenger review, and gated platform submission.',
+            campaign_type: 'free_challenge',
+            status: 'draft',
+            starts_at: startsAt,
+            ends_at: endsAt,
+            completion_window_days: 14,
+            min_purchase_amount: 0,
+            payout_type: 'credit',
+            payout_amount_type: 'fixed',
+            payout_amount_value: 0,
+            rollover_bonus_multiplier: 1,
+            promo_copy:
+              'Follow the Agentic rollout: a practical field guide for governed AI operations, built from the Portfolio Agent Ops system.',
+          })
+          .select('id, name, slug, starts_at, ends_at')
+          .single()
+
+        if (campaignError || !campaign) {
+          return {
+            ok: false,
+            error: `attraction_campaigns: ${campaignError?.message ?? 'no row'}`,
+          }
+        }
+
+        const { data: packet, error: packetError } = await supabase
+          .from('social_content_research_packets')
+          .insert({
+            source_url: 'local:docs/agentic-value-communications-plan.md',
+            platform: 'other',
+            creator_name: 'AmaduTown',
+            creator_handle: '@amadutown',
+            title: 'Agentic book rollout communications packet',
+            caption:
+              'Public-safe campaign evidence packet for the Agentic book rollout. It reuses the Agentic communications plan, research dossier, review packets, and Portfolio Agent Ops proof surfaces.',
+            thumbnail_url: null,
+            hook_transcript:
+              'Anyone can launch an agent now. The harder question is whether the team can show the source, scope, owner, challenger pass, and human approval before the agent acts.',
+            metrics: {
+              views: null,
+              likes: null,
+              comments: null,
+              shares: null,
+              follower_count: null,
+              retrieved_at: generatedAt,
+            },
+            actor_metadata: {
+              provider: 'free_recorded_evidence',
+              retrieval_method: 'demo_seed',
+              demo_seed_key: AGENTIC_BOOK_ROLLOUT_CAMPAIGN_FIXTURE_KEY,
+              cost_usd: 0,
+              external_execution_enabled: false,
+              source_policy: 'public_safe_owned_positioning',
+              source_paths: [
+                'docs/agentic-value-communications-plan.md',
+                'docs/agentic-content-research-briefs/phase-2-research-dossier.md',
+                'docs/agentic-content-review-packets/p0-challenger-review-packets.md',
+                'docs/agentic-content-review-packets/p1-challenger-review-packets.md',
+              ],
+            },
+            outlier_score: 0,
+            score_breakdown: {
+              strategic_fit: 1,
+              source_type: 'owned_campaign_evidence',
+            },
+            pattern_packet: {
+              hook_structure:
+                'Open with the agent accountability tension, then point to a concrete operating layer.',
+              tension_or_missed_opportunity:
+                'Teams are excited about agent demos before they can explain source boundaries, review gates, ownership, and authority.',
+              promise_value:
+                'The Agentic rollout shows how AI agent work becomes safer when the operating path is visible.',
+              proof_style:
+                'Use owned proof surfaces: Agent Ops approvals, Content Intelligence calendar, Video Generation review workspace, Social Content platform submission gates, and source packets.',
+              title_pattern: 'From agent demo to governed operating system',
+              thumbnail_pattern:
+                'Short accountability text plus a visible proof-screen receipt from Portfolio.',
+              pacing_visual_framing:
+                'Start with a human risk, show the operating harness, cut to proof screens, close with the rollout invitation.',
+              cta_style:
+                'Invite people to follow the Agentic rollout or talk through how governed Agent Ops would apply to their own team.',
+              source_use_boundary:
+                'Use owned proof and public-safe summaries only. Do not expose private meetings, raw Chronicle notes, client records, secrets, or raw AI chat exports.',
+            },
+            pattern_status: 'usable_framework',
+            status: 'review_ready',
+            privacy_notes:
+              'Owned public-safe campaign packet. No provider calls, uploads, publishing, schedules, private meeting excerpts, Chronicle notes, client records, credentials, or raw AI chat exports.',
+            retrieved_at: generatedAt,
+          })
+          .select('id')
+          .single()
+
+        if (packetError || !packet) {
+          return {
+            ok: false,
+            error: `social_content_research_packets: ${packetError?.message ?? 'no row'}`,
+          }
+        }
+
+        const { data: campaignGoal, error: campaignGoalError } = await supabase
+          .from('agent_work_items')
+          .insert({
+            title: 'Launch Agentic book rollout campaign',
+            objective:
+              'Turn the Agentic book rollout into a complete 14-day whisper_to_shout campaign with shared source evidence, campaign calendar items, and human-review-ready LinkedIn, YouTube Shorts, Instagram Reels, TikTok, and Thumbnail draft packets.',
+            status: 'proposed',
+            priority: 'high',
+            owner_agent_key: 'chief-of-staff',
+            owner_runtime: 'manual',
+            source_type: 'campaign_goal',
+            source_id: AGENTIC_BOOK_ROLLOUT_CAMPAIGN_FIXTURE_KEY,
+            source_label: 'Agentic book rollout whisper_to_shout campaign goal',
+            expected_files: [],
+            touched_files: [],
+            overlap_group: 'social-content-intelligence',
+            dependency_ids: [],
+            idempotency_key: `${AGENTIC_BOOK_ROLLOUT_CAMPAIGN_IDEMPOTENCY_PREFIX}:goal`,
+            metadata: {
+              social_campaign_goal: true,
+              demo_seed_key: AGENTIC_BOOK_ROLLOUT_CAMPAIGN_FIXTURE_KEY,
+              campaign_id: campaign.id,
+              campaign_target: 'Agentic book rollout',
+              campaign_template_key: 'whisper_to_shout',
+              campaign_window_days: 14,
+              conversion_path: 'Agentic rollout interest, then Agent Ops advisory, AI Quick Win, or discovery call.',
+              phase_work_item_count: AGENTIC_BOOK_ROLLOUT_PHASES.length,
+              source_paths: [
+                'docs/agentic-value-communications-plan.md',
+                'docs/agentic-content-research-briefs/phase-2-research-dossier.md',
+              ],
+              side_effects: {
+                provider_generation: false,
+                upload: false,
+                publish: false,
+                schedule: false,
+                external_post: false,
+              },
+            },
+          })
+          .select('id')
+          .single()
+
+        if (campaignGoalError || !campaignGoal) {
+          return {
+            ok: false,
+            error: `agent_work_items goal: ${campaignGoalError?.message ?? 'no row'}`,
+          }
+        }
+
+        const workItemRows = AGENTIC_BOOK_ROLLOUT_PHASES.map((phase) => ({
+          title: `Agentic Rollout ${phase.titlePrefix}: ${phase.insightTitle}`,
+          objective:
+            'Prepare human-review-ready LinkedIn, YouTube Shorts, Instagram Reels, TikTok, and Thumbnail draft packets for one phase of the 14-day Agentic book rollout whisper_to_shout campaign.',
+          status: 'proposed',
+          priority: 'high',
+          owner_agent_key: 'chief-of-staff',
+          owner_runtime: 'manual',
+          source_type: 'social_topic_trigger',
+          source_id: `${AGENTIC_BOOK_ROLLOUT_CAMPAIGN_FIXTURE_KEY}:${phase.phase}`,
+          source_label: 'Agentic book rollout whisper_to_shout campaign',
+          parent_work_item_id: campaignGoal.id,
+          expected_files: [],
+          touched_files: [],
+          overlap_group: 'social-content-intelligence',
+          dependency_ids: [campaignGoal.id],
+          idempotency_key: `${AGENTIC_BOOK_ROLLOUT_CAMPAIGN_IDEMPOTENCY_PREFIX}:${phase.phase}`,
+          metadata: agenticBookRolloutInsightMetadata({
+            packetId: String(packet.id),
+            phase,
+            generatedAt,
+          }),
+        }))
+
+        const { data: workItems, error: workItemError } = await supabase
+          .from('agent_work_items')
+          .insert(workItemRows)
+          .select('id, metadata')
+
+        if (workItemError || !workItems || workItems.length !== AGENTIC_BOOK_ROLLOUT_PHASES.length) {
+          return {
+            ok: false,
+            error: `agent_work_items: ${workItemError?.message ?? 'unexpected row count'}`,
+          }
+        }
+
+        const slots = campaignContentPlanSlots({
+          name: String(campaign.name),
+          starts_at: String(campaign.starts_at),
+          ends_at: String(campaign.ends_at),
+        }, { templateKey: 'whisper_to_shout' })
+
+        const calendarRows = slots.flatMap((slot, index) => {
+          const phase = AGENTIC_BOOK_ROLLOUT_PHASES[index]
+          const workItem = workItems[index]
+          const scheduledFor = addDaysAtHourISO(phase.day, phase.phase === 'offer' ? 11 : 10)
+          const commonMetadata = {
+            ...slot.metadata,
+            demo_seed_key: AGENTIC_BOOK_ROLLOUT_CAMPAIGN_FIXTURE_KEY,
+            fixture_version: 1,
+            campaign_target: 'Agentic book rollout',
+            campaign_template_key: 'whisper_to_shout',
+            campaign_window_days: 14,
+            campaign_language: 'Tease/Wispr/Shout overlay; stored phase remains canonical.',
+            linked_work_item_id: workItem.id,
+            linked_research_packet_id: packet.id,
+            conversion_path: 'Agentic rollout interest, then Agent Ops advisory, AI Quick Win, or discovery call.',
+            source_paths: [
+              'docs/agentic-value-communications-plan.md',
+              'docs/agentic-content-research-briefs/phase-2-research-dossier.md',
+            ],
+            external_execution_enabled: false,
+            provider_generation_enabled: false,
+            upload_enabled: false,
+            publish_enabled: false,
+            schedule_enabled: false,
+          }
+          const primaryRow = {
+            ...slot,
+            campaign_id: campaign.id,
+            agent_work_item_id: workItem.id,
+            channel: 'linkedin',
+            title: `${phase.titlePrefix}: ${phase.insightTitle}`,
+            planned_angle: `${phase.contentAngle} LinkedIn, YouTube Shorts, Instagram Reels, TikTok, and Thumbnail drafts are ready for human approval.`,
+            scheduled_for: scheduledFor,
+            authorization_due_at: addDaysAtHourISO(Math.max(0, phase.day - 1), 10),
+            authorization_status: 'pending',
+            metadata: {
+              ...commonMetadata,
+              calendar_item_role: 'primary_phase_item',
+              channel_draft_targets: ['linkedin', 'youtube_shorts', 'instagram_reels', 'tiktok', 'thumbnail'],
+            },
+          }
+          const youtubeRow = {
+            ...slot,
+            campaign_id: campaign.id,
+            agent_work_item_id: workItem.id,
+            channel: 'youtube_shorts',
+            title: `${phase.titlePrefix} Short: ${phase.insightTitle}`,
+            planned_angle: `${phase.suggestedHook} Adapt this phase into the review-ready YouTube Shorts lane before any render or upload.`,
+            scheduled_for: addDaysAtHourISO(phase.day, phase.phase === 'offer' ? 14 : 13),
+            authorization_due_at: addDaysAtHourISO(Math.max(0, phase.day - 1), 10),
+            authorization_status: 'pending',
+            metadata: {
+              ...commonMetadata,
+              calendar_item_role: 'companion_channel_item',
+              primary_channel: 'linkedin',
+              channel_draft_targets: ['youtube_shorts', 'instagram_reels', 'tiktok', 'thumbnail'],
+            },
+          }
+          return [primaryRow, youtubeRow]
+        })
+
+        const { error: calendarError } = await supabase
+          .from('social_content_calendar_items')
+          .insert(calendarRows)
+
+        if (calendarError) {
+          return { ok: false, error: `social_content_calendar_items: ${calendarError.message}` }
+        }
+
+        return {
+          ok: true,
+          key,
+          detail: `Agentic book rollout campaign ${campaign.id} with campaign goal ${campaignGoal.id}, ${calendarRows.length} calendar items, ${workItems.length} insight work items, and research packet ${packet.id}`,
         }
       }
 

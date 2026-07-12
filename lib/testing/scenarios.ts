@@ -1201,6 +1201,15 @@ export const seedAcceleratedWorkshopCampaignFixtureScenario = demoSeedApiScenari
   ['seed', 'populate-demo', 'content-intelligence', 'calendar', 'social-review', 'accelerated']
 )
 
+export const seedAgenticBookRolloutCampaignFixtureScenario = demoSeedApiScenario(
+  'seed_agentic_book_rollout_campaign_fixture',
+  'Seed: Agentic Book Rollout Campaign Fixture',
+  'Dev-safe 14-day whisper_to_shout campaign with calendar items and review-ready LinkedIn, YouTube Shorts, Instagram Reels, TikTok, and Thumbnail lanes for the Agentic rollout',
+  'agentic_book_rollout_campaign_fixture',
+  'lead',
+  ['seed', 'populate-demo', 'content-intelligence', 'calendar', 'social-review', 'agentic']
+)
+
 /** Scenarios that populate demo data via E2E (no SQL). Run with cleanupAfter: false. */
 export const POPULATE_DEMO_SCENARIOS: TestScenario[] = [
   seedWarmLeadsScenario,
@@ -1216,6 +1225,7 @@ export const POPULATE_DEMO_SCENARIOS: TestScenario[] = [
   seedSocialContentCalendarFixtureScenario,
   seedSocialChannelReviewFixtureScenario,
   seedAcceleratedWorkshopCampaignFixtureScenario,
+  seedAgenticBookRolloutCampaignFixtureScenario,
 ]
 
 // ============================================================================
@@ -1357,6 +1367,7 @@ export const SCENARIOS_BY_ID: Record<string, TestScenario> = {
   seed_social_content_calendar_fixture: seedSocialContentCalendarFixtureScenario,
   seed_social_channel_review_fixture: seedSocialChannelReviewFixtureScenario,
   seed_accelerated_workshop_campaign_fixture: seedAcceleratedWorkshopCampaignFixtureScenario,
+  seed_agentic_book_rollout_campaign_fixture: seedAgenticBookRolloutCampaignFixtureScenario,
 }
 
 /**

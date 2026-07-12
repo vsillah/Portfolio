@@ -10,6 +10,7 @@ describe('buildPlatformOrchestrationPlan', () => {
       productionReady: true,
       redactionReady: true,
       draftHandoffReady: true,
+      finalSubmissionGateReady: true,
       publishRecords: [{
         platform: 'linkedin',
         status: 'pending',
@@ -41,6 +42,31 @@ describe('buildPlatformOrchestrationPlan', () => {
       publish: false,
       externalPost: false,
     })
+  })
+
+  it('does not treat pending publish rows as final human submission approval', () => {
+    const plan = buildPlatformOrchestrationPlan({
+      targetPlatforms: ['linkedin'],
+      copyApproved: true,
+      productionReady: true,
+      redactionReady: true,
+      draftHandoffReady: true,
+      publishRecords: [{
+        platform: 'linkedin',
+        status: 'pending',
+        platform_post_url: null,
+      }],
+    })
+
+    expect(plan.anyAutomaticSubmissionAvailable).toBe(false)
+    expect(plan.platforms[0].stages.map((stage) => [stage.key, stage.state])).toEqual([
+      ['human_approval', 'complete'],
+      ['asset_readiness', 'complete'],
+      ['platform_draft_handoff', 'complete'],
+      ['platform_configuration', 'complete'],
+      ['final_submission_gate', 'pending'],
+      ['automatic_submission', 'blocked'],
+    ])
   })
 
   it('connects Facebook to the same automatic submission gate path', () => {
@@ -107,5 +133,73 @@ describe('buildPlatformOrchestrationPlan', () => {
       ['final_submission_gate', 'blocked'],
       ['automatic_submission', 'blocked'],
     ])
+  })
+
+  it('blocks video platforms before final submission when the final video asset is missing', () => {
+    const plan = buildPlatformOrchestrationPlan({
+      item: {
+        status: 'approved',
+        platform: 'youtube',
+        target_platforms: ['youtube', 'tiktok'],
+        publishes: [],
+        post_text: 'Approved copy',
+        image_url: null,
+        video_url: null,
+        carousel_slide_urls: null,
+      },
+      copyApproved: true,
+      productionReady: true,
+      redactionReady: true,
+      draftHandoffReady: true,
+      finalSubmissionGateReady: true,
+      platformConfigs: [
+        { platform: 'youtube', is_active: true, credentials: { access_token: 'token' }, settings: {} },
+        {
+          platform: 'tiktok',
+          is_active: true,
+          credentials: { access_token: 'token' },
+          settings: { creator_info_confirmed: true, source_url_approved: true } as never,
+        },
+      ],
+    })
+
+    expect(plan.anyAutomaticSubmissionAvailable).toBe(false)
+    expect(plan.platforms.map((platform) => platform.nextAction)).toEqual([
+      'YouTube needs a final video URL before submission.',
+      'TikTok needs a final video URL before Direct Post submission.',
+    ])
+    expect(plan.platforms.map((platform) => (
+      platform.stages.find((stage) => stage.key === 'asset_readiness')?.state
+    ))).toEqual(['blocked', 'blocked'])
+  })
+
+  it('keeps Instagram blocked until an image, carousel, or Reel video exists', () => {
+    const plan = buildPlatformOrchestrationPlan({
+      item: {
+        status: 'approved',
+        platform: 'instagram',
+        target_platforms: ['instagram'],
+        publishes: [],
+        post_text: 'Caption only',
+        image_url: null,
+        video_url: null,
+        carousel_slide_urls: [],
+      },
+      copyApproved: true,
+      productionReady: true,
+      redactionReady: true,
+      draftHandoffReady: true,
+      finalSubmissionGateReady: true,
+      platformConfigs: [{
+        platform: 'instagram',
+        is_active: true,
+        credentials: { access_token: 'token', ig_user_id: 'ig-user-1' },
+        settings: {},
+      }],
+    })
+
+    expect(plan.anyAutomaticSubmissionAvailable).toBe(false)
+    expect(plan.platforms[0].nextAction).toBe('Instagram needs an image, carousel slide URLs, or final Reel video URL before submission.')
+    expect(plan.platforms[0].stages.find((stage) => stage.key === 'asset_readiness')?.state).toBe('blocked')
   })
 })

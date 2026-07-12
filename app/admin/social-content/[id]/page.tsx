@@ -52,7 +52,12 @@ import {
   getVideoRedactionGate,
   type RedactionReviewDecision,
 } from '@/lib/social-production-assets'
-import { buildPlatformOrchestrationPlan, type PlatformOrchestrationStageState } from '@/lib/social-platform-orchestration'
+import {
+  buildPlatformOrchestrationPlan,
+  getPlatformSubmissionGate,
+  isPlatformSubmissionGateApproved,
+  type PlatformOrchestrationStageState,
+} from '@/lib/social-platform-orchestration'
 import type {
   SocialContentItem,
   SocialContentPublish,
@@ -1100,10 +1105,46 @@ function SocialContentDetailPage() {
           data.published ? 'Published successfully!' : 'No platforms published — check status below')
         fetchItem()
       } else {
-        showMsg('error', 'Publish request failed')
+        const data = await res.json().catch(() => null)
+        showMsg('error', data?.error || 'Publish request failed')
       }
     } catch {
       showMsg('error', 'Failed to trigger publish')
+    } finally {
+      setPublishing(false)
+    }
+  }
+
+  const handleApprovePlatformSubmission = async (platforms?: SocialPlatform[]) => {
+    if (videoPrivacyBlocked) {
+      showMsg('error', redactionGate.message || 'Video privacy review required before platform submission')
+      return
+    }
+    setPublishing(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const res = await fetch(`/api/admin/social-content/${id}/platform-submission`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(platforms ? { platforms, submit_after_approval: true } : { submit_after_approval: true }),
+      })
+
+      const data = await res.json()
+      if (res.ok) {
+        if (data.item) setItem(data.item)
+        showMsg(data.submit_triggered ? 'success' : 'error',
+          data.submit_triggered ? 'Final gate approved. Platform submission started.' : 'Final gate approved, but submission did not start.')
+        fetchItem()
+      } else {
+        showMsg('error', data.error || 'Platform submission approval failed')
+      }
+    } catch {
+      showMsg('error', 'Failed to approve platform submission')
     } finally {
       setPublishing(false)
     }
@@ -1441,6 +1482,7 @@ function SocialContentDetailPage() {
   const usingDraftTopicFallback = topicBacklogItems.length === 0 && agentPilotTopicTriggerCandidates.length > 0
   const productionAssets = getProductionAssets(ragContext)
   const redactionGate = getVideoRedactionGate(productionAssets)
+  const platformSubmissionGate = getPlatformSubmissionGate(ragContext)
   const sectionGateReviews = asRecord(ragContext?.section_gate_reviews) ?? {}
   const getSectionGateReview = (gateKey: SectionGateKey) => asRecord(sectionGateReviews[gateKey])
   const getExplicitSectionGateState = (gateKey: SectionGateKey, fallback: GateState): GateState => {
@@ -1568,9 +1610,11 @@ function SocialContentDetailPage() {
         : 'pending'
   const linkedinDraftGateState: GateState = getExplicitSectionGateState('linkedin_draft', linkedinDraftBaseGateState)
   const canCreateLinkedInDraft = isDraftOnlyPilot && linkedinDraftBlockers.length === 0 && linkedinDraftGateState === 'approved'
+  const platformSubmissionTargets = isDraftOnlyPilot ? ['linkedin' as SocialPlatform] : targetPlatforms
+  const finalPlatformSubmissionApproved = isPlatformSubmissionGateApproved(ragContext, platformSubmissionTargets)
   const platformSubmissionPlan = buildPlatformOrchestrationPlan({
     item,
-    targetPlatforms: isDraftOnlyPilot ? ['linkedin'] : targetPlatforms,
+    targetPlatforms: platformSubmissionTargets,
     publishRecords: item.publishes ?? [],
     platformConfigs,
     copyApproved: item.status === 'approved' || item.status === 'scheduled' || item.status === 'published',
@@ -1579,6 +1623,7 @@ function SocialContentDetailPage() {
       : !videoPrivacyBlocked,
     redactionReady: !videoPrivacyBlocked,
     draftHandoffReady: isDraftOnlyPilot ? Boolean(linkedinDraftHandoff) : Boolean(item.publishes?.length),
+    finalSubmissionGateReady: finalPlatformSubmissionApproved,
   })
   const platformNextStages = platformSubmissionPlan.platforms
     .map((platformPlan) => platformPlan.stages.find((stage) => stage.state !== 'complete'))
@@ -3544,12 +3589,19 @@ function SocialContentDetailPage() {
 
           <div className="mt-4 rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-3 py-2 text-xs leading-5 text-emerald-50/90">
             Until the final submission gate is approved, this path does not generate media, upload files, schedule externally, publish, or create public posts.
+            {platformSubmissionGate?.status === 'approved' ? (
+              <span className="mt-1 block text-emerald-100">
+                Final submission approved for {(platformSubmissionGate.platforms ?? platformSubmissionTargets).map((platform) => PLATFORMS.find((candidate) => candidate.value === platform)?.label ?? platform).join(', ')}.
+              </span>
+            ) : null}
           </div>
 
           <div className="mt-4 grid gap-3 lg:grid-cols-2">
             {platformSubmissionPlan.platforms.map((platformPlan) => {
               const automaticStage = platformPlan.stages.find((stage) => stage.key === 'automatic_submission')
+              const finalGateStage = platformPlan.stages.find((stage) => stage.key === 'final_submission_gate')
               const canSubmitPlatform = automaticStage?.state === 'available'
+              const canApproveFinalSubmission = finalGateStage?.state === 'pending'
               return (
                 <div key={platformPlan.platform} className="rounded-lg border border-gray-800 bg-gray-950/45 p-4">
                   <div className="flex items-start justify-between gap-3">
@@ -3590,7 +3642,17 @@ function SocialContentDetailPage() {
 
                   <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <p className="text-xs leading-5 text-gray-400">{platformPlan.nextAction}</p>
-                    {canSubmitPlatform ? (
+                    {canApproveFinalSubmission ? (
+                      <button
+                        type="button"
+                        onClick={() => handleApprovePlatformSubmission([platformPlan.platform])}
+                        disabled={publishing}
+                        className="inline-flex min-h-9 shrink-0 items-center justify-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-100 transition-colors hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {publishing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                        Approve & submit
+                      </button>
+                    ) : canSubmitPlatform ? (
                       <button
                         type="button"
                         onClick={() => handleRetryPublish([platformPlan.platform])}

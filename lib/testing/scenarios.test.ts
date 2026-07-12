@@ -82,4 +82,31 @@ describe('scenarioIncludesDiagnosticStep', () => {
       'seed_accelerated_workshop_campaign_fixture',
     )
   })
+
+  it('registers the Agentic Book Rollout campaign fixture seed scenario', () => {
+    const scenario = getScenario('seed_agentic_book_rollout_campaign_fixture')
+
+    expect(scenario).toMatchObject({
+      id: 'seed_agentic_book_rollout_campaign_fixture',
+      name: 'Seed: Agentic Book Rollout Campaign Fixture',
+      tags: expect.arrayContaining([
+        'seed',
+        'populate-demo',
+        'content-intelligence',
+        'calendar',
+        'social-review',
+        'agentic',
+      ]),
+    })
+    expect(scenario?.steps[0]).toMatchObject({
+      type: 'apiCall',
+      endpoint: '/api/admin/testing/demo-seed',
+      method: 'POST',
+      body: { key: 'agentic_book_rollout_campaign_fixture' },
+      expectedStatus: 200,
+    })
+    expect(POPULATE_DEMO_SCENARIOS.map((item) => item.id)).toContain(
+      'seed_agentic_book_rollout_campaign_fixture',
+    )
+  })
 })
