@@ -1,0 +1,1 @@
+{"id":"synthetic-anthropic-row-20260713-001","occurred_at":"2026-07-13T13:00:00.000Z","model":"claude-3-5-sonnet-20241022","task_category":"planning","client_label":"Portfolio","input_tokens":2200,"output_tokens":500,"cost_usd":0.0141,"operation":"planning_packet_fixture","accepted_output_count":1}

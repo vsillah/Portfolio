@@ -1,0 +1,17 @@
+{
+  "session_id": "synthetic-codex-session-20260713-001",
+  "occurred_at": "2026-07-13T12:00:00.000Z",
+  "model": "gpt-5-codex",
+  "task_category": "coding",
+  "client_label": "Portfolio",
+  "agent_key": "shaka",
+  "operation": "model_usage_import_runbook_fixture",
+  "usage": {
+    "input_tokens": 12000,
+    "output_tokens": 1800,
+    "cached_tokens": 400
+  },
+  "accepted_output_count": 1,
+  "resolved_work_item_count": 1,
+  "retry_count": 0
+}

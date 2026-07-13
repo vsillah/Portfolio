@@ -1,0 +1,16 @@
+[
+  {
+    "id": "synthetic-local-open-weight-run-20260713-001",
+    "occurred_at": "2026-07-13T13:15:00.000Z",
+    "provider": "open-weight",
+    "model": "llama-3.1-8b",
+    "task_category": "rag",
+    "client_label": "Portfolio",
+    "input_tokens": 3000,
+    "output_tokens": 500,
+    "execution_host": "mac-mini",
+    "deployment_target": "local_device",
+    "operation": "local_rag_fixture",
+    "accepted_output_count": 1
+  }
+]

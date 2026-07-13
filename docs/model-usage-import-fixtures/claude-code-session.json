@@ -1,0 +1,16 @@
+{
+  "session_id": "synthetic-claude-code-session-20260713-001",
+  "occurred_at": "2026-07-13T12:15:00.000Z",
+  "model": "claude-sonnet-4-20250514",
+  "task_category": "qa",
+  "client_label": "Portfolio",
+  "agent_key": "amina",
+  "operation": "model_usage_fixture_review",
+  "usage": {
+    "input_tokens": 6400,
+    "output_tokens": 900
+  },
+  "accepted_output_count": 1,
+  "resolved_work_item_count": 1,
+  "retry_count": 0
+}
