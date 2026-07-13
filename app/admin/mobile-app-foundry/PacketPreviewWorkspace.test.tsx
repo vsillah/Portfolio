@@ -106,7 +106,12 @@ describe('PacketPreviewWorkspace', () => {
       confirmation: 'create_mobile_foundry_work_items',
       source_run_id: 'run-123',
     })
-    expect(await screen.findByText(/Proposed Agent Ops work item ready in Decision Queue: work-item-1/i)).toBeInTheDocument()
+    expect(await screen.findByText(/Proposed Agent Ops work item ready in Decision Queue/i)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /work-item-1/i })).toHaveAttribute(
+      'href',
+      '/admin/agents/coordination?proposal=work-item-1',
+    )
+    expect(screen.getByText(/Build execution, repo creation, tester outreach, pricing, and store actions remain outside this workspace/i)).toBeInTheDocument()
   })
 
   it('clears proposal preview state when the backlog record changes', async () => {

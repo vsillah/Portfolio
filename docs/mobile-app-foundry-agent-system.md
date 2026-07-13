@@ -165,6 +165,7 @@ Use existing Agent Ops patterns:
 - Preview mode is the default when `create_work_items` is not set.
 - Creation requires `confirmation: "create_mobile_foundry_work_items"`.
 - The only Phase 3 side effect is a proposed `agent_work_items` record owned by `engineering-copilot` with Imhotep recorded as the Mobile Foundry prototype role. Repos, GitHub accounts, paid APIs, tester outreach, store submissions, price changes, user-data collection, and public/client-facing claims remain separate approval gates.
+- After creation, the Mobile Foundry admin surface should link the proposed work item back to the central Decision Queue instead of adding local approve/reject controls.
 
 ### Phase 4: Prototype build lane
 
