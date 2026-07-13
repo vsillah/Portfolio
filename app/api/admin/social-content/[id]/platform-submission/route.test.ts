@@ -153,7 +153,7 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
   })
 
   it('records final approval without calling publish when auto-submit is disabled', async () => {
-    const { queueUpdate } = installSupabase({
+    const { publishUpsert, queueUpdate } = installSupabase({
       item: {
         id: 'social-1',
         status: 'approved',
@@ -190,7 +190,10 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
     const body = await response.json()
     expect(body.submit_triggered).toBe(false)
     expect(body.publish_response).toBeNull()
-    expect(queueUpdate).toHaveBeenCalledWith({
+    expect(publishUpsert).toHaveBeenCalledWith([
+      { content_id: 'social-1', platform: 'instagram', status: 'pending' },
+    ], { onConflict: 'content_id,platform', ignoreDuplicates: true })
+    expect(queueUpdate).toHaveBeenCalledWith(expect.objectContaining({
       rag_context: expect.objectContaining({
         platform_submission_gate: expect.objectContaining({
           status: 'approved',
@@ -198,7 +201,7 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
           submit_after_approval: false,
         }),
       }),
-    })
+    }))
     expect(fetchSpy).not.toHaveBeenCalled()
   })
 

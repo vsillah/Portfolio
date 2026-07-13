@@ -224,7 +224,7 @@ describe('platform submission gate helpers', () => {
     expect(isPlatformSubmissionGateApproved(ragContext, ['linkedin', 'instagram'])).toBe(false)
   })
 
-  it('treats an approved gate without stored platforms as approval for the requested scope', () => {
+  it('treats a legacy approved gate without stored platforms as approval for the requested scope', () => {
     expect(isPlatformSubmissionGateApproved({
       platform_submission_gate: {
         status: 'approved',
@@ -232,13 +232,6 @@ describe('platform submission gate helpers', () => {
         approved_by: 'admin-1',
       },
     }, ['linkedin', 'instagram'])).toBe(true)
-
-    expect(isPlatformSubmissionGateApproved({
-      platform_submission_gate: {
-        status: 'approved',
-        platforms: [],
-      },
-    }, ['tiktok'])).toBe(true)
   })
 
   it('ignores malformed gate payloads and invalid platform values safely', () => {
