@@ -105,9 +105,10 @@ Completed:
 - Public-safe Open Brain RAG projection documents carry memory/source IDs, privacy tier, source hash, projection version, deletion key, and rollback key.
 - Chatbot knowledge has opt-in JSON mode for public-safe Open Brain projection metadata.
 - RAG ingest endpoint records shadow-plan traces and blocks Pinecone writes pending approval.
+- Local retrieval QA packet exists for approved public-safe Open Brain RAG projection documents.
 
 Remaining:
-- Run retrieval-quality tests before production promotion.
+- Run and review the retrieval QA packet before production promotion.
 - Stage Pinecone ingestion only after explicit cutover approval.
 - Verify deletion and rollback keys in any external vector store staging packet.
 
@@ -117,11 +118,13 @@ Gates:
 
 Evidence:
 - lib/chatbot-knowledge.ts
+- lib/open-brain-rag-retrieval-qa.ts
+- scripts/open-brain-rag-retrieval-qa.ts
 - app/api/knowledge/route.ts
 - app/api/admin/rag-ingest/route.ts
 - docs/open-brain-local-service.md
 
-Next action: Build a retrieval QA packet for the Open Brain public-safe projection before any Pinecone cutover.
+Next action: Run `npm run open-brain:rag-retrieval-qa -- --write docs/open-brain-rag-retrieval-qa.md`, review failures, and only then decide whether Pinecone staging is ready.
 
 ## phase-6: AutoResearch Loop Integration
 

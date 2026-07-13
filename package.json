@@ -61,6 +61,7 @@
     "open-brain:agent-ops-producer": "tsx scripts/open-brain-agent-ops-producer.ts",
     "open-brain:autoresearch-producer": "tsx scripts/open-brain-autoresearch-producer.ts",
     "open-brain:manuscript-summaries": "tsx scripts/open-brain-manuscript-summarizer.ts",
+    "open-brain:rag-retrieval-qa": "tsx scripts/open-brain-rag-retrieval-qa.ts",
     "open-brain:roadmap-status": "tsx scripts/open-brain-roadmap-status.ts",
     "wrm:smoke-gate": "tsx scripts/wrm-production-smoke-gate.ts",
     "source-protocol:smoke": "tsx scripts/source-protocol-smoke.ts",

@@ -110,6 +110,20 @@ Each shadow plan also records sanitized Open Brain source/event records:
 These records are trace metadata only. They do not write Pinecone, promote
 private-derived material, or create durable Open Brain memories.
 
+## Open Brain Retrieval QA
+
+Before any Pinecone cutover, run the Open Brain retrieval QA packet:
+
+```bash
+npm run open-brain:rag-retrieval-qa -- --write docs/open-brain-rag-retrieval-qa.md
+```
+
+The packet evaluates approved `public_safe` Open Brain RAG projection documents
+only. It checks retrieval coverage against known governance queries, verifies
+required projection metadata, scans for private/contact/secret-like leakage, and
+keeps Pinecone writes blocked. A failing packet blocks cutover until approved
+Open Brain memories or summaries are corrected.
+
 ## Approval Gates
 
 The following actions require explicit approval:
