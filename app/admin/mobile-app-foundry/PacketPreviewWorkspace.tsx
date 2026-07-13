@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { AlertTriangle, ClipboardCheck, FileJson, GitPullRequest, Play, ShieldCheck } from 'lucide-react'
+import { AlertTriangle, ArrowRight, ClipboardCheck, FileJson, GitPullRequest, Play, ShieldCheck } from 'lucide-react'
 import { getCurrentSession } from '@/lib/auth'
 
 type PreviewMode = 'prototype' | 'commercialization'
@@ -75,6 +75,12 @@ function previewEndpoint(mode: PreviewMode) {
 
 function workItemsEndpoint() {
   return '/api/admin/mobile-app-foundry/work-items'
+}
+
+function decisionQueueHref(workItemId?: string | null) {
+  return workItemId
+    ? `/admin/agents/coordination?proposal=${encodeURIComponent(workItemId)}`
+    : '/admin/agents/coordination'
 }
 
 export default function PacketPreviewWorkspace() {
@@ -427,8 +433,24 @@ export default function PacketPreviewWorkspace() {
                   </div>
                 )}
                 {workItemResult.work_items?.length ? (
-                  <div className="rounded-lg border border-emerald-400/25 bg-emerald-500/10 p-3 text-sm leading-5 text-emerald-100">
-                    Proposed Agent Ops work item ready in Decision Queue: {workItemResult.work_items.map((item) => item.id).filter(Boolean).join(', ')}
+                  <div className="space-y-2 rounded-lg border border-emerald-400/25 bg-emerald-500/10 p-3 text-sm leading-5 text-emerald-100">
+                    <p className="font-semibold">Proposed Agent Ops work item ready in Decision Queue.</p>
+                    <div className="flex flex-wrap gap-2">
+                      {workItemResult.work_items.map((item) => (
+                        <a
+                          key={item.id ?? item.title}
+                          href={decisionQueueHref(item.id)}
+                          className="inline-flex items-center gap-2 rounded-lg border border-emerald-300/25 bg-emerald-300/10 px-3 py-2 text-xs font-semibold text-emerald-50 transition-colors hover:border-emerald-200/50 hover:bg-emerald-300/15"
+                        >
+                          {item.id || item.title || 'Open work item'}
+                          <ArrowRight size={13} />
+                        </a>
+                      ))}
+                    </div>
+                    <p className="text-xs leading-5 text-emerald-50/80">
+                      Next step for you is to review or route the proposed item from Agent Ops. Build execution, repo
+                      creation, tester outreach, pricing, and store actions remain outside this workspace.
+                    </p>
                   </div>
                 ) : null}
               </div>
