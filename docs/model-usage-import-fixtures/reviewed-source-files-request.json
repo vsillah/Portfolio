@@ -1,0 +1,56 @@
+{
+  "dryRun": true,
+  "sourceFiles": [
+    {
+      "kind": "codex_session_json",
+      "clientLabel": "Portfolio",
+      "agentKey": "shaka",
+      "exportBatchId": "synthetic-model-usage-20260713",
+      "text": "{\"session_id\":\"synthetic-codex-session-20260713-001\",\"occurred_at\":\"2026-07-13T12:00:00.000Z\",\"model\":\"gpt-5-codex\",\"task_category\":\"coding\",\"client_label\":\"Portfolio\",\"agent_key\":\"shaka\",\"operation\":\"model_usage_import_runbook_fixture\",\"usage\":{\"input_tokens\":12000,\"output_tokens\":1800,\"cached_tokens\":400},\"accepted_output_count\":1,\"resolved_work_item_count\":1,\"retry_count\":0}"
+    },
+    {
+      "kind": "claude_code_session_json",
+      "clientLabel": "Portfolio",
+      "agentKey": "amina",
+      "exportBatchId": "synthetic-model-usage-20260713",
+      "text": "{\"session_id\":\"synthetic-claude-code-session-20260713-001\",\"occurred_at\":\"2026-07-13T12:15:00.000Z\",\"model\":\"claude-sonnet-4-20250514\",\"task_category\":\"qa\",\"client_label\":\"Portfolio\",\"agent_key\":\"amina\",\"operation\":\"model_usage_fixture_review\",\"usage\":{\"input_tokens\":6400,\"output_tokens\":900},\"accepted_output_count\":1,\"resolved_work_item_count\":1,\"retry_count\":0}"
+    },
+    {
+      "kind": "gemini_usage_csv",
+      "clientLabel": "Portfolio",
+      "exportBatchId": "synthetic-model-usage-20260713",
+      "text": "id,timestamp,model,task_category,client_label,input_tokens,output_tokens,cost_usd,operation\nsynthetic-gemini-row-20260713-001,2026-07-13T12:30:00.000Z,gemini-2.5-flash,research,Portfolio,\"1,000\",200,0.01,research_summary_fixture"
+    },
+    {
+      "kind": "openai_usage_jsonl",
+      "clientLabel": "Portfolio",
+      "exportBatchId": "synthetic-model-usage-20260713",
+      "text": "{\"id\":\"synthetic-openai-row-20260713-001\",\"occurred_at\":\"2026-07-13T12:45:00.000Z\",\"model\":\"gpt-4o-mini\",\"task_category\":\"social\",\"client_label\":\"Portfolio\",\"prompt_tokens\":1500,\"completion_tokens\":300,\"cost_usd\":0.0024,\"operation\":\"social_draft_fixture\",\"accepted_output_count\":1}"
+    },
+    {
+      "kind": "anthropic_usage_jsonl",
+      "clientLabel": "Portfolio",
+      "exportBatchId": "synthetic-model-usage-20260713",
+      "text": "{\"id\":\"synthetic-anthropic-row-20260713-001\",\"occurred_at\":\"2026-07-13T13:00:00.000Z\",\"model\":\"claude-3-5-sonnet-20241022\",\"task_category\":\"planning\",\"client_label\":\"Portfolio\",\"input_tokens\":2200,\"output_tokens\":500,\"cost_usd\":0.0141,\"operation\":\"planning_packet_fixture\",\"accepted_output_count\":1}"
+    },
+    {
+      "kind": "local_model_json",
+      "clientLabel": "Portfolio",
+      "exportBatchId": "synthetic-model-usage-20260713",
+      "text": "[{\"id\":\"synthetic-local-open-weight-run-20260713-001\",\"occurred_at\":\"2026-07-13T13:15:00.000Z\",\"provider\":\"open-weight\",\"model\":\"llama-3.1-8b\",\"task_category\":\"rag\",\"client_label\":\"Portfolio\",\"input_tokens\":3000,\"output_tokens\":500,\"execution_host\":\"mac-mini\",\"deployment_target\":\"local_device\",\"operation\":\"local_rag_fixture\",\"accepted_output_count\":1}]"
+    }
+  ],
+  "subscriptionAllocations": [
+    {
+      "provider": "codex",
+      "runtime": "any",
+      "accountLabel": "Synthetic Codex subscription allocation",
+      "monthlyCostUsd": 20,
+      "periodStart": "2026-07-01T00:00:00.000Z",
+      "periodEnd": "2026-07-31T23:59:59.999Z",
+      "allocationBasis": "token_share",
+      "confidence": "medium",
+      "notes": "Synthetic fixture only; no provider connection."
+    }
+  ]
+}
