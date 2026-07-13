@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import { buildPlatformOrchestrationPlan } from './social-platform-orchestration'
+import {
+  buildPlatformOrchestrationPlan,
+  getPlatformSubmissionGate,
+  isPlatformSubmissionGateApproved,
+} from './social-platform-orchestration'
 
 describe('buildPlatformOrchestrationPlan', () => {
   it('exposes connected platform automatic submission only after the final submission gate is ready', () => {
@@ -201,5 +205,62 @@ describe('buildPlatformOrchestrationPlan', () => {
     expect(plan.anyAutomaticSubmissionAvailable).toBe(false)
     expect(plan.platforms[0].nextAction).toBe('Instagram needs an image, carousel slide URLs, or final Reel video URL before submission.')
     expect(plan.platforms[0].stages.find((stage) => stage.key === 'asset_readiness')?.state).toBe('blocked')
+  })
+})
+
+describe('platform submission gate helpers', () => {
+  it('requires the approved gate scope to include every requested publish platform', () => {
+    const ragContext = {
+      platform_submission_gate: {
+        status: 'approved',
+        approved_at: '2026-07-01T00:00:00.000Z',
+        approved_by: 'admin-1',
+        platforms: ['linkedin'],
+      },
+    }
+
+    expect(isPlatformSubmissionGateApproved(ragContext, ['linkedin'])).toBe(true)
+    expect(isPlatformSubmissionGateApproved(ragContext, ['instagram'])).toBe(false)
+    expect(isPlatformSubmissionGateApproved(ragContext, ['linkedin', 'instagram'])).toBe(false)
+  })
+
+  it('treats an approved gate without stored platforms as approval for the requested scope', () => {
+    expect(isPlatformSubmissionGateApproved({
+      platform_submission_gate: {
+        status: 'approved',
+        approved_at: '2026-07-01T00:00:00.000Z',
+        approved_by: 'admin-1',
+      },
+    }, ['linkedin', 'instagram'])).toBe(true)
+
+    expect(isPlatformSubmissionGateApproved({
+      platform_submission_gate: {
+        status: 'approved',
+        platforms: [],
+      },
+    }, ['tiktok'])).toBe(true)
+  })
+
+  it('ignores malformed gate payloads and invalid platform values safely', () => {
+    expect(getPlatformSubmissionGate(null)).toBeNull()
+    expect(getPlatformSubmissionGate({ platform_submission_gate: 'approved' })).toBeNull()
+
+    const gate = getPlatformSubmissionGate({
+      platform_submission_gate: {
+        status: 'approved',
+        approved_at: 123,
+        approved_by: false,
+        platforms: ['linkedin', 'mastodon', null, 'linkedin'],
+        decision_note: 456,
+      },
+    })
+
+    expect(gate).toMatchObject({
+      status: 'approved',
+      platforms: ['linkedin'],
+    })
+    expect(gate?.approved_at).toBeUndefined()
+    expect(gate?.approved_by).toBeUndefined()
+    expect(gate?.decision_note).toBeUndefined()
   })
 })

@@ -235,6 +235,46 @@ describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => 
     expect(mocks.publishToLinkedIn).not.toHaveBeenCalled()
   })
 
+  it('blocks publishing a platform outside the approved final submission gate scope', async () => {
+    installPublishRouteSupabase({
+      item: {
+        id: 'social-1',
+        status: 'approved',
+        post_text: 'Post text',
+        cta_text: null,
+        cta_url: null,
+        hashtags: [],
+        image_url: 'https://cdn.example.com/image.png',
+        video_url: null,
+        carousel_slide_urls: null,
+        rag_context: approvedGate(['linkedin']),
+      },
+      publishes: [
+        { platform: 'instagram', status: 'pending' },
+      ],
+    })
+
+    const response = await POST(request({ platforms: ['instagram'] }), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(409)
+    const body = await response.json()
+    expect(body.error).toBe('Platform submission requires final approval and connected platform configuration.')
+    expect(body.platform_submission_orchestration.platforms[0].stages).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          key: 'final_submission_gate',
+          state: 'pending',
+        }),
+        expect.objectContaining({
+          key: 'automatic_submission',
+          state: 'blocked',
+        }),
+      ]),
+    )
+    expect(mocks.publishToInstagram).not.toHaveBeenCalled()
+    expect(mocks.publishToLinkedIn).not.toHaveBeenCalled()
+  })
+
   it('dispatches Instagram and TikTok publish modules from approved content', async () => {
     const { queueUpdate } = installPublishRouteSupabase({
       item: {
