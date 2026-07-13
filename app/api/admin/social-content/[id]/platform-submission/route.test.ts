@@ -152,6 +152,120 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
     )
   })
 
+  it('records final approval without calling publish when auto-submit is disabled', async () => {
+    const { publishUpsert, queueUpdate } = installSupabase({
+      item: {
+        id: 'social-1',
+        status: 'approved',
+        platform: 'instagram',
+        target_platforms: ['instagram'],
+        post_text: 'Post text',
+        image_url: 'https://cdn.example.com/image.png',
+        video_url: null,
+        carousel_slide_urls: null,
+        rag_context: null,
+      },
+      publishes: [
+        { platform: 'instagram', status: 'pending', platform_post_url: null },
+      ],
+      configs: [
+        {
+          platform: 'instagram',
+          is_active: true,
+          credentials: { access_token: 'token', ig_user_id: 'ig-user-1' },
+          settings: {},
+        },
+      ],
+    })
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+      new Response(JSON.stringify({ published: true }), { status: 200 }),
+    )
+
+    const response = await POST(
+      request({ platforms: ['instagram'], submit_after_approval: false }),
+      { params: { id: 'social-1' } },
+    )
+
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    expect(body.submit_triggered).toBe(false)
+    expect(body.publish_response).toBeNull()
+    expect(publishUpsert).toHaveBeenCalledWith([
+      { content_id: 'social-1', platform: 'instagram', status: 'pending' },
+    ], { onConflict: 'content_id,platform', ignoreDuplicates: true })
+    expect(queueUpdate).toHaveBeenCalledWith(expect.objectContaining({
+      rag_context: expect.objectContaining({
+        platform_submission_gate: expect.objectContaining({
+          status: 'approved',
+          platforms: ['instagram'],
+          submit_after_approval: false,
+        }),
+      }),
+    }))
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('does not approve final submission while video redaction items are unresolved', async () => {
+    const { publishUpsert, queueUpdateSingle } = installSupabase({
+      item: {
+        id: 'social-1',
+        status: 'approved',
+        platform: 'linkedin',
+        target_platforms: ['linkedin'],
+        post_text: 'Post text',
+        image_url: null,
+        video_url: 'https://cdn.example.com/video.mp4',
+        carousel_slide_urls: null,
+        rag_context: {
+          production_assets: {
+            version: 'social_production_assets_v2',
+            video_redaction_manifest: {
+              items: [{
+                id: 'item-1',
+                status: 'pending',
+                reviewer_decision: null,
+                issue_type: 'email',
+                source: 'chronicle',
+                original_asset: { label: 'Chronicle', url_or_path: null },
+                redacted_asset: null,
+                timestamp_ranges: [],
+                bounding_boxes: [],
+                proposed_action: 'auto_blur',
+                confidence: 0.98,
+                evidence: 'email@example.com',
+              }],
+            },
+          },
+        },
+      },
+      publishes: [
+        { platform: 'linkedin', status: 'pending', platform_post_url: null },
+      ],
+      configs: [
+        {
+          platform: 'linkedin',
+          is_active: true,
+          credentials: { access_token: 'token', author_urn: 'urn:li:person:123' },
+          settings: {},
+        },
+      ],
+    })
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+      new Response(JSON.stringify({ published: true }), { status: 200 }),
+    )
+
+    const response = await POST(request({ platforms: ['linkedin'] }), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(409)
+    await expect(response.json()).resolves.toEqual({
+      error: 'Video privacy review required: 1 redaction item unresolved.',
+      unresolved_redaction_items: 1,
+    })
+    expect(publishUpsert).not.toHaveBeenCalled()
+    expect(queueUpdateSingle).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
   it('does not approve final submission when platform configuration is blocked', async () => {
     const { queueUpdateSingle } = installSupabase({
       item: {
