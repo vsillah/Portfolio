@@ -286,19 +286,120 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(await screen.findByText('Reusable calibration library')).toBeInTheDocument()
     const referenceCard = screen.getByText('Builder insight: production readiness').closest('.rounded-lg')
     expect(referenceCard).toBeTruthy()
-    fireEvent.click(within(referenceCard as HTMLElement).getByRole('button', { name: 'Add' }))
+    fireEvent.click(within(referenceCard as HTMLElement).getByRole('button', { name: 'Add fields' }))
 
     expect(screen.getByDisplayValue('Builder insight: production readiness (docs/linkedin-voice.md)')).toBeInTheDocument()
     expect(screen.getByDisplayValue(/Anyone can build an app right now/)).toBeInTheDocument()
     expect(screen.getByDisplayValue(/Approved voice-guide reference/)).toBeInTheDocument()
     expect(screen.getByDisplayValue('Do not overstate production readiness.')).toBeInTheDocument()
-    expect(within(referenceCard as HTMLElement).getByRole('button', { name: 'Added' })).toBeDisabled()
+    expect(within(referenceCard as HTMLElement).getByRole('button', { name: 'Added fields' })).toBeDisabled()
     expect(fetchMock).toHaveBeenCalledWith(
       expect.stringContaining('/api/admin/social-content/calibration-library?platform=linkedin'),
       expect.objectContaining({
         headers: { Authorization: 'Bearer admin-token' },
       }),
     )
+  })
+
+  it('lets the operator select a gold reference for Shaka comparison before revision', async () => {
+    const draftItem = {
+      ...baseItem,
+      status: 'draft',
+      reviewed_by: null,
+      post_text: 'This draft starts too generic and needs a stronger point of view.',
+    }
+    const goldReference = {
+      id: 'portfolio-social-gold-1',
+      platform: 'linkedin',
+      label: 'Gold standard · Founder operating lesson',
+      source_type: 'portfolio_content_history',
+      curation_status: 'gold_standard',
+      content_pillar: 'AI and product management',
+      post_excerpt: 'I learned the hard way that software only matters when it lowers the load.',
+      engagement_signal: 'Operator marked as a reusable gold-standard post. Strong comments from builders.',
+      why_it_worked: 'It opened from lived operational pressure before naming the framework.',
+      claim_boundaries: ['Keep the story source-safe.'],
+      provenance: 'Portfolio Social Content history',
+    }
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.includes('/calibration-library')) {
+        return {
+          ok: true,
+          json: async () => ({
+            references: [goldReference],
+            source: 'approved_calibration_library',
+            side_effects: {
+              provider_generation: false,
+              publish: false,
+              schedule: false,
+              external_post: false,
+            },
+          }),
+        } as Response
+      }
+      if (url.includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [topicBacklogItem] }),
+        } as Response
+      }
+      if (url.includes('/calibration-revision')) {
+        return {
+          ok: true,
+          json: async () => ({
+            item: {
+              ...draftItem,
+              post_text: 'Revised draft shaped by the selected benchmark.',
+              rag_context: {
+                ...draftItem.rag_context,
+                content_calibration: {
+                  status: 'revision_generated',
+                },
+              },
+            },
+          }),
+        } as Response
+      }
+      if (init?.method === 'PUT') {
+        return {
+          ok: true,
+          json: async () => ({ item: draftItem }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: draftItem }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAtStep('context')
+
+    fireEvent.click(await screen.findByText('Content calibration'))
+    const referenceCard = await screen.findByText('Gold standard · Founder operating lesson')
+    fireEvent.click(within(referenceCard.closest('.rounded-lg') as HTMLElement).getByRole('button', { name: 'Compare' }))
+
+    expect(await screen.findByText('Side-by-side comparison packet')).toBeInTheDocument()
+    expect(screen.getByText(/including 1 gold-standard reference/)).toBeInTheDocument()
+    expect(screen.getByText(/This draft starts too generic/)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /Revise with feedback/i }))
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining('/api/admin/social-content/social-1/calibration-revision'),
+        expect.objectContaining({ method: 'POST' }),
+      )
+    })
+    const revisionCall = fetchMock.mock.calls.find(([url]) => String(url).includes('/calibration-revision'))
+    const revisionBody = JSON.parse(String(revisionCall?.[1]?.body))
+    expect(revisionBody.operator_feedback.comparison_reference_ids).toEqual(['portfolio-social-gold-1'])
+    expect(revisionBody.operator_feedback.comparison_brief).toContain('Gold standard · Founder operating lesson')
+    expect(revisionBody.operator_feedback.success_examples[0]).toMatchObject({
+      reference_id: 'portfolio-social-gold-1',
+      curation_status: 'gold_standard',
+    })
   })
 
   it('lets the operator mark an approved post as a gold-standard calibration reference', async () => {

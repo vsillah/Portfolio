@@ -49,6 +49,8 @@ function asRecordArray(value: unknown): Record<string, unknown>[] {
 function normalizeSuccessExamples(value: unknown) {
   return asRecordArray(value)
     .map((item) => ({
+      reference_id: asString(item.reference_id).trim(),
+      curation_status: asString(item.curation_status).trim(),
       source_label: asString(item.source_label).trim(),
       post_excerpt: asString(item.post_excerpt).trim(),
       engagement_signal: asString(item.engagement_signal).trim(),
@@ -65,6 +67,7 @@ function normalizeSuccessExamples(value: unknown) {
 function hasOperatorFeedback(feedback: Record<string, unknown> | null): boolean {
   if (!feedback) return false
   if (normalizeSuccessExamples(feedback.success_examples).length > 0) return true
+  if (asStringArray(feedback.comparison_reference_ids).length > 0) return true
   return [
     'triggering_event',
     'prior_post_excerpt',
@@ -72,6 +75,7 @@ function hasOperatorFeedback(feedback: Record<string, unknown> | null): boolean 
     'audience_context',
     'revision_request',
     'claim_boundaries',
+    'comparison_brief',
   ].some((key) => Boolean(asString(feedback[key]).trim()))
 }
 
@@ -87,6 +91,8 @@ function buildRevisionUnderstanding(feedback: Record<string, unknown> | null) {
   const audienceContext = asString(feedback?.audience_context).trim()
   const engagementSignal = asString(feedback?.engagement_signal).trim()
   const priorPostExcerpt = asString(feedback?.prior_post_excerpt).trim()
+  const comparisonBrief = asString(feedback?.comparison_brief).trim()
+  const comparisonReferenceIds = asStringArray(feedback?.comparison_reference_ids)
   const successExamples = normalizeSuccessExamples(feedback?.success_examples)
   const combined = [
     revisionRequest,
@@ -95,6 +101,7 @@ function buildRevisionUnderstanding(feedback: Record<string, unknown> | null) {
     audienceContext,
     engagementSignal,
     priorPostExcerpt,
+    comparisonBrief,
     successExamples.map((example) => [
       example.source_label,
       example.post_excerpt,
@@ -109,6 +116,9 @@ function buildRevisionUnderstanding(feedback: Record<string, unknown> | null) {
   if (audienceContext) plannedChanges.push(`Tune audience and desired reaction: ${audienceContext}`)
   if (engagementSignal || successExamples.length > 0 || priorPostExcerpt) {
     plannedChanges.push('Compare the draft against the saved successful-post references and engagement signals.')
+  }
+  if (comparisonReferenceIds.length > 0 || comparisonBrief) {
+    plannedChanges.push('Use the selected benchmark references as the primary side-by-side comparison before rewriting.')
   }
   if (includesAny(combined, ['anecdote', 'story', 'scene', 'example'])) {
     plannedChanges.push('Add or strengthen a concrete anecdote before the broader point.')
@@ -148,6 +158,8 @@ function buildRevisionPrompt(row: SocialContentRow) {
   const calibration = asRecord(ragContext.content_calibration) ?? {}
   const feedback = asRecord(calibration.operator_feedback) ?? {}
   const successExamples = normalizeSuccessExamples(feedback.success_examples)
+  const comparisonReferenceIds = asStringArray(feedback.comparison_reference_ids)
+  const comparisonBrief = asString(feedback.comparison_brief).trim()
   const priorPatterns = Array.isArray(calibration.prior_success_patterns)
     ? calibration.prior_success_patterns
     : []
@@ -200,6 +212,12 @@ ${JSON.stringify(priorPatterns, null, 2)}
 
 Operator-provided successful post references:
 ${JSON.stringify(successExamples, null, 2)}
+
+Selected benchmark reference ids:
+${comparisonReferenceIds.map((item) => `- ${item}`).join('\n')}
+
+Side-by-side comparison brief:
+${comparisonBrief}
 
 Voice principles:
 ${voicePrinciples.map((item) => `- ${item}`).join('\n')}
@@ -294,6 +312,8 @@ export async function POST(
         triggering_event: asString(requestedFeedback?.triggering_event).trim(),
         prior_post_excerpt: asString(requestedFeedback?.prior_post_excerpt).trim(),
         success_examples: requestedSuccessExamples,
+        comparison_reference_ids: asStringArray(requestedFeedback?.comparison_reference_ids),
+        comparison_brief: asString(requestedFeedback?.comparison_brief).trim(),
         engagement_signal: asString(requestedFeedback?.engagement_signal).trim(),
         audience_context: asString(requestedFeedback?.audience_context).trim(),
         revision_request: asString(requestedFeedback?.revision_request).trim(),
@@ -352,6 +372,8 @@ Additional role: You are Shaka, the Agent Ops Chief of Staff. Use the operator f
       revision_notes: revision.revision_notes,
       operator_request: asString(operatorFeedback?.revision_request) || null,
       operator_triggering_event: asString(operatorFeedback?.triggering_event) || null,
+      comparison_reference_ids: asStringArray(operatorFeedback?.comparison_reference_ids),
+      comparison_brief: asString(operatorFeedback?.comparison_brief) || null,
       shaka_understanding: revisionUnderstanding,
       operator_feedback_updated_at: asString(operatorFeedback?.updated_at) || null,
     }

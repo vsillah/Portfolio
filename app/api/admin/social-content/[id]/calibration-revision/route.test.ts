@@ -221,6 +221,60 @@ describe('POST /api/admin/social-content/[id]/calibration-revision', () => {
     }))
   })
 
+  it('preserves selected comparison references in the revision prompt and receipt', async () => {
+    const response = await POST(request({
+      operator_feedback: {
+        triggering_event: 'A draft review showed the post needed to sound more like prior operator-facing posts.',
+        comparison_reference_ids: ['portfolio-social-gold-1'],
+        comparison_brief: 'Reference 1: Gold standard founder lesson\nWhy it worked: It opened from operational pressure.',
+        success_examples: [
+          {
+            reference_id: 'portfolio-social-gold-1',
+            curation_status: 'gold_standard',
+            source_label: 'Gold standard founder lesson',
+            post_excerpt: 'Software only matters when it lowers the load.',
+            engagement_signal: 'Operator marked as reusable.',
+            why_it_worked: 'It opened from operational pressure.',
+          },
+        ],
+        revision_request: 'Revise against the selected benchmark.',
+      },
+    }), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(200)
+    expect(mocks.generateJsonCompletion).toHaveBeenCalledWith(expect.objectContaining({
+      userPrompt: expect.stringContaining('Selected benchmark reference ids:'),
+    }))
+    expect(mocks.generateJsonCompletion).toHaveBeenCalledWith(expect.objectContaining({
+      userPrompt: expect.stringContaining('portfolio-social-gold-1'),
+    }))
+    expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({
+      rag_context: expect.objectContaining({
+        content_calibration: expect.objectContaining({
+          operator_feedback: expect.objectContaining({
+            comparison_reference_ids: ['portfolio-social-gold-1'],
+            comparison_brief: expect.stringContaining('Gold standard founder lesson'),
+            success_examples: [
+              expect.objectContaining({
+                reference_id: 'portfolio-social-gold-1',
+                curation_status: 'gold_standard',
+              }),
+            ],
+          }),
+          latest_revision: expect.objectContaining({
+            comparison_reference_ids: ['portfolio-social-gold-1'],
+            comparison_brief: expect.stringContaining('Gold standard founder lesson'),
+            shaka_understanding: expect.objectContaining({
+              planned_changes: expect.arrayContaining([
+                'Use the selected benchmark references as the primary side-by-side comparison before rewriting.',
+              ]),
+            }),
+          }),
+        }),
+      }),
+    }))
+  })
+
   it('creates calibration metadata from operator feedback when the draft has none', async () => {
     mocks.single.mockResolvedValueOnce({
       data: {
