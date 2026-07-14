@@ -36,19 +36,20 @@ function installSupabase({
   publishes,
   configs,
 }: {
-  item: Record<string, unknown>
+  item: Record<string, unknown> | null
   publishes: Array<Record<string, unknown>>
   configs: Array<Record<string, unknown>>
 }) {
+  const itemRecord = item ?? {}
   const queueSingle = vi.fn().mockResolvedValue({ data: item, error: null })
   const queueSelectEq = vi.fn(() => ({ single: queueSingle }))
   const queueSelect = vi.fn(() => ({ eq: queueSelectEq }))
 
   const queueUpdateSingle = vi.fn().mockResolvedValue({
     data: {
-      ...item,
+      ...itemRecord,
       rag_context: {
-        ...((item.rag_context as Record<string, unknown> | null) ?? {}),
+        ...((itemRecord.rag_context as Record<string, unknown> | null) ?? {}),
         platform_submission_gate: {
           status: 'approved',
           approved_by: 'admin-1',
@@ -87,6 +88,61 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
 
   afterEach(() => {
     vi.restoreAllMocks()
+  })
+
+  it('fails closed before database access when admin authentication fails', async () => {
+    mocks.verifyAdmin.mockResolvedValueOnce({ error: 'Authentication required', status: 401 })
+    mocks.isAuthError.mockReturnValueOnce(true)
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+
+    const response = await POST(request({ platforms: ['linkedin'] }), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(401)
+    await expect(response.json()).resolves.toEqual({ error: 'Authentication required' })
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('returns not found without preparing or publishing rows when content is missing', async () => {
+    const { publishUpsert, queueUpdate } = installSupabase({
+      item: null,
+      publishes: [],
+      configs: [],
+    })
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+
+    const response = await POST(request({ platforms: ['linkedin'] }), { params: { id: 'missing-content' } })
+
+    expect(response.status).toBe(404)
+    await expect(response.json()).resolves.toEqual({ error: 'Content not found' })
+    expect(publishUpsert).not.toHaveBeenCalled()
+    expect(queueUpdate).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('rejects draft content before recording or triggering platform submission', async () => {
+    const { publishUpsert, queueUpdate } = installSupabase({
+      item: {
+        id: 'social-1',
+        status: 'draft',
+        platform: 'linkedin',
+        target_platforms: ['linkedin'],
+        rag_context: null,
+      },
+      publishes: [],
+      configs: [],
+    })
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+
+    const response = await POST(request({ platforms: ['linkedin'] }), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(400)
+    await expect(response.json()).resolves.toEqual({
+      error: 'Content must be approved before platform submission.',
+    })
+    expect(publishUpsert).not.toHaveBeenCalled()
+    expect(queueUpdate).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
   })
 
   it('records final approval and triggers automatic submission through the publish route', async () => {
