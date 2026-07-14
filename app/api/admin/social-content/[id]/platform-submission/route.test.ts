@@ -35,13 +35,15 @@ function installSupabase({
   item,
   publishes,
   configs,
+  fetchError = null,
 }: {
   item: Record<string, unknown> | null
   publishes: Array<Record<string, unknown>>
   configs: Array<Record<string, unknown>>
+  fetchError?: { code: string; message: string } | null
 }) {
   const itemRecord = item ?? {}
-  const queueSingle = vi.fn().mockResolvedValue({ data: item, error: null })
+  const queueSingle = vi.fn().mockResolvedValue({ data: item, error: fetchError })
   const queueSelectEq = vi.fn(() => ({ single: queueSingle }))
   const queueSelect = vi.fn(() => ({ eq: queueSelectEq }))
 
@@ -90,15 +92,22 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
     vi.restoreAllMocks()
   })
 
-  it('fails closed before database access when admin authentication fails', async () => {
-    mocks.verifyAdmin.mockResolvedValueOnce({ error: 'Authentication required', status: 401 })
+  it.each([
+    { label: 'unauthenticated requests', authResult: { error: 'Authentication required', status: 401 } },
+    { label: 'authenticated non-admin requests', authResult: { error: 'Admin access required', status: 403 } },
+  ])('fails closed for $label before database access', async ({ authResult }) => {
+    mocks.verifyAdmin.mockResolvedValueOnce(authResult)
     mocks.isAuthError.mockReturnValueOnce(true)
-    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ published: true }), { status: 200 }),
+    )
+    const adminRequest = request({ platforms: ['linkedin'] })
 
-    const response = await POST(request({ platforms: ['linkedin'] }), { params: { id: 'social-1' } })
+    const response = await POST(adminRequest, { params: { id: 'social-1' } })
 
-    expect(response.status).toBe(401)
-    await expect(response.json()).resolves.toEqual({ error: 'Authentication required' })
+    expect(response.status).toBe(authResult.status)
+    await expect(response.json()).resolves.toEqual({ error: authResult.error })
+    expect(mocks.verifyAdmin).toHaveBeenCalledWith(adminRequest)
     expect(mocks.from).not.toHaveBeenCalled()
     expect(fetchSpy).not.toHaveBeenCalled()
   })
@@ -108,8 +117,11 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
       item: null,
       publishes: [],
       configs: [],
+      fetchError: { code: 'PGRST116', message: 'The result contains 0 rows' },
     })
-    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ published: true }), { status: 200 }),
+    )
 
     const response = await POST(request({ platforms: ['linkedin'] }), { params: { id: 'missing-content' } })
 
@@ -132,7 +144,9 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
       publishes: [],
       configs: [],
     })
-    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ published: true }), { status: 200 }),
+    )
 
     const response = await POST(request({ platforms: ['linkedin'] }), { params: { id: 'social-1' } })
 
