@@ -32,22 +32,26 @@ describe('Agentified launch campaign import builders', () => {
       campaign_slug: 'agentified-trust-scale-2026-07',
       packet_status: 'draft_prepare_only',
       calendar_item_count: 12,
-      supported_channels: ['linkedin', 'youtube_shorts', 'thumbnail'],
+      supported_channels: expect.arrayContaining(['linkedin', 'youtube_shorts', 'thumbnail']),
       phase_counts: {
         tease: 2,
         teach: 3,
         proof: 4,
         offer: 3,
       },
-      side_effects: expect.objectContaining({
+      side_effects: {
         provider_generation: false,
         upload: false,
         external_schedule: false,
         publish: false,
         external_post: false,
+        campaign_upsert: true,
+        agent_work_items_upsert: true,
+        calendar_items_upsert: true,
         social_drafts_created: false,
-      }),
+      },
     }))
+    expect(agentifiedLaunchSummary().supported_channels).toHaveLength(3)
   })
 
   it('promotes proof and offer assets while leaving earlier launch phases at medium priority', () => {
@@ -84,6 +88,8 @@ describe('Agentified launch campaign import builders', () => {
     for (const item of agentifiedLaunchImportPlan().calendar_items) {
       const input = buildAgentifiedWorkItemInput(item)
 
+      expect(input.status).toBe('queued')
+      expect(input.ownerRuntime).toBe('manual')
       expect(input.idempotencyKey).toBe(`agentified-launch:${item.asset_id}`)
       expect(input.overlapGroup).toBe('agentified-launch-campaign')
       expect(input.metadata).toEqual(expect.objectContaining({
@@ -103,6 +109,32 @@ describe('Agentified launch campaign import builders', () => {
           expect.stringContaining('Do not imply autonomous platform publishing'),
         ]),
       )
+    }
+  })
+
+  it('preserves scheduling and human-gate fields from every packet item', () => {
+    for (const item of agentifiedLaunchImportPlan().calendar_items) {
+      const row = buildAgentifiedCalendarRow({
+        item,
+        campaignId: 'campaign-agentified',
+        workItemId: `work-${item.asset_id}`,
+        createdBy: 'admin-user',
+      })
+
+      expect(row).toEqual(expect.objectContaining({
+        channel: item.channel,
+        campaign_phase: item.campaign_phase,
+        planned_angle: item.planned_angle,
+        scheduled_for: item.scheduled_for,
+        due_status: item.due_status,
+        authorization_status: item.authorization_status,
+        authorization_due_at: item.authorization_due_at,
+        autonomy_eligible: false,
+        metadata: expect.objectContaining({
+          human_gate_required: true,
+          agentified_asset_id: item.asset_id,
+        }),
+      }))
     }
   })
 
