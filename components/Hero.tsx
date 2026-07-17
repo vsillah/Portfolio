@@ -2,34 +2,53 @@
 
 import Link from 'next/link'
 import { ArrowDown, ArrowRight } from 'lucide-react'
-import { useEffect, useRef } from 'react'
+import { useTheme } from 'next-themes'
+import { useEffect, useRef, useState } from 'react'
 
-const HERO_DARK_POSTER =
-  '/prototypes/portfolio-pipeline-hero/amadutown-storefront-pipeline-hero-approved-20260617.png'
-const HERO_DARK_VIDEO =
-  '/prototypes/portfolio-pipeline-hero/higgsfield-gold-pipeline-loop-desktop-only-360-starburst-web-20260617.mp4'
-const HERO_LIGHT_POSTER =
-  '/prototypes/portfolio-pipeline-hero/higgsfield-light-mode-hero-still-20260628.png'
-const HERO_LIGHT_VIDEO =
-  '/prototypes/portfolio-pipeline-hero/higgsfield-light-mode-hero-loop-web-20260628.mp4'
+type HeroTheme = 'light' | 'dark'
+
+const HERO_MEDIA: Record<HeroTheme, { poster: string; video: string }> = {
+  light: {
+    poster:
+      '/prototypes/portfolio-pipeline-hero/higgsfield-light-mode-hero-poster-20260628.webp',
+    video:
+      '/prototypes/portfolio-pipeline-hero/higgsfield-light-mode-hero-loop-web-20260628.mp4',
+  },
+  dark: {
+    poster:
+      '/prototypes/portfolio-pipeline-hero/amadutown-storefront-pipeline-hero-approved-20260617.png',
+    video:
+      '/prototypes/portfolio-pipeline-hero/higgsfield-gold-pipeline-loop-desktop-only-360-starburst-web-20260617.mp4',
+  },
+}
 const ORB_GLOW_SCROLL_POINT = 0.75
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
 }
 
+function getHeroTheme(resolvedTheme: string | undefined): HeroTheme | null {
+  if (resolvedTheme === 'light' || resolvedTheme === 'dark') return resolvedTheme
+  return null
+}
+
 export default function Hero() {
+  const { resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
   const sectionRef = useRef<HTMLElement>(null)
-  const lightVideoRef = useRef<HTMLVideoElement>(null)
-  const darkVideoRef = useRef<HTMLVideoElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const activeTheme = mounted ? getHeroTheme(resolvedTheme) : null
+  const activeMedia = activeTheme ? HERO_MEDIA[activeTheme] : null
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     const section = sectionRef.current
-    const videos = [lightVideoRef.current, darkVideoRef.current].filter(
-      (video): video is HTMLVideoElement => Boolean(video),
-    )
+    const video = videoRef.current
 
-    if (!section || videos.length === 0) return
+    if (!section || !video) return
 
     let animationFrame = 0
 
@@ -41,21 +60,19 @@ export default function Hero() {
       const scrollProgress =
         scrollDistance > 0 ? clamp(-sectionTop / scrollDistance, 0, 1) : 0
       const videoProgress = clamp(scrollProgress / ORB_GLOW_SCROLL_POINT, 0, 1)
-      videos.forEach((video) => {
-        const duration = Number.isFinite(video.duration) ? video.duration : 0
+      const duration = Number.isFinite(video.duration) ? video.duration : 0
 
-        if (duration > 0) {
-          const targetTime = Math.min(duration - 0.05, videoProgress * duration)
+      if (duration > 0) {
+        const targetTime = Math.min(duration - 0.05, videoProgress * duration)
 
-          if (Math.abs(video.currentTime - targetTime) > 0.04) {
-            video.currentTime = targetTime
-          }
+        if (Math.abs(video.currentTime - targetTime) > 0.04) {
+          video.currentTime = targetTime
         }
+      }
 
-        if (!video.paused) {
-          video.pause()
-        }
-      })
+      if (!video.paused) {
+        video.pause()
+      }
     }
 
     const requestUpdate = () => {
@@ -63,23 +80,21 @@ export default function Hero() {
       animationFrame = window.requestAnimationFrame(updateVideoProgress)
     }
 
-    videos.forEach((video) => {
-      video.pause()
-      video.currentTime = 0
-    })
+    video.pause()
+    video.currentTime = 0
     requestUpdate()
 
-    videos.forEach((video) => video.addEventListener('loadedmetadata', requestUpdate))
+    video.addEventListener('loadedmetadata', requestUpdate)
     window.addEventListener('scroll', requestUpdate, { passive: true })
     window.addEventListener('resize', requestUpdate)
 
     return () => {
       if (animationFrame) window.cancelAnimationFrame(animationFrame)
-      videos.forEach((video) => video.removeEventListener('loadedmetadata', requestUpdate))
+      video.removeEventListener('loadedmetadata', requestUpdate)
       window.removeEventListener('scroll', requestUpdate)
       window.removeEventListener('resize', requestUpdate)
     }
-  }, [])
+  }, [activeTheme])
 
   return (
     <section
@@ -89,30 +104,21 @@ export default function Hero() {
       className="relative z-10 h-[240svh] bg-[#fbf7ee] text-[#08101a] dark:bg-[#05090f] dark:text-platinum-white"
     >
       <div className="sticky top-0 min-h-[100svh] overflow-hidden">
-        <video
-          ref={lightVideoRef}
-          data-theme-video="light"
-          className="absolute inset-0 h-full w-full object-cover object-[center_bottom] dark:hidden sm:object-center"
-          poster={HERO_LIGHT_POSTER}
-          muted
-          playsInline
-          preload="auto"
-          aria-hidden="true"
-        >
-          <source src={HERO_LIGHT_VIDEO} type="video/mp4" />
-        </video>
-        <video
-          ref={darkVideoRef}
-          data-theme-video="dark"
-          className="absolute inset-0 hidden h-full w-full object-cover object-[center_bottom] dark:block sm:object-center"
-          poster={HERO_DARK_POSTER}
-          muted
-          playsInline
-          preload="auto"
-          aria-hidden="true"
-        >
-          <source src={HERO_DARK_VIDEO} type="video/mp4" />
-        </video>
+        {activeMedia ? (
+          <video
+            key={activeTheme}
+            ref={videoRef}
+            data-theme-video={activeTheme}
+            className="absolute inset-0 h-full w-full object-cover object-[center_bottom] sm:object-center"
+            poster={activeMedia.poster}
+            muted
+            playsInline
+            preload="auto"
+            aria-hidden="true"
+          >
+            <source src={activeMedia.video} type="video/mp4" />
+          </video>
+        ) : null}
 
         <div className="absolute inset-0 bg-white/[0.08] dark:bg-[#05090f]/18" />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(251,247,238,0.88)_0%,rgba(251,247,238,0.68)_22%,rgba(251,247,238,0.24)_48%,rgba(251,247,238,0.06)_74%,rgba(251,247,238,0)_100%)] dark:bg-[linear-gradient(90deg,rgba(5,9,15,0.74)_0%,rgba(5,9,15,0.52)_22%,rgba(5,9,15,0.22)_48%,rgba(5,9,15,0.04)_74%,rgba(5,9,15,0)_100%)]" />

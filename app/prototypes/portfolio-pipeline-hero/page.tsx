@@ -3,9 +3,9 @@ import Link from 'next/link'
 import { ArrowDown, ArrowRight, Gauge, Network, Workflow } from 'lucide-react'
 
 const HERO_IMAGE_DESKTOP =
-  '/prototypes/portfolio-pipeline-hero/higgsfield-light-mode-hero-still-20260628.png'
+  '/prototypes/portfolio-pipeline-hero/higgsfield-light-mode-hero-poster-20260628.webp'
 const HERO_IMAGE_MOBILE =
-  '/prototypes/portfolio-pipeline-hero/higgsfield-light-mode-hero-still-20260628.png'
+  '/prototypes/portfolio-pipeline-hero/higgsfield-light-mode-hero-poster-20260628.webp'
 const HERO_VIDEO_DESKTOP =
   '/prototypes/portfolio-pipeline-hero/higgsfield-light-mode-hero-loop-web-20260628.mp4'
 
