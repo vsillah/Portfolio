@@ -1,8 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import {
+  SOCIAL_RESEARCH_ACTORS,
+  apifyInputForResearchSource,
   buildLinkedInYoutubeReviewDrafts,
   defaultSocialChannelLanes,
+  normalizeResearchActorKey,
   normalizeSocialChannelLanes,
+  researchPacketDraftFromApifyItem,
+  researchPacketDraftFromRecordedEvidence,
   scoreCreatorAsset,
   socialTopicBacklogItemFromWorkItem,
 } from './social-content-intelligence'
@@ -32,6 +37,119 @@ describe('social-content-intelligence', () => {
       small_creator_outlier_boost: 1,
       strategic_fit: 0.9,
     })
+  })
+
+  it('selects research actors from source URLs and builds their required Apify inputs', () => {
+    expect(normalizeResearchActorKey(null, 'https://youtube.com/watch?v=abc')).toBe('youtube_transcript')
+    expect(normalizeResearchActorKey(null, 'https://instagram.com/reel/abc')).toBe('instagram_reel')
+    expect(normalizeResearchActorKey(null, 'https://instagram.com/p/abc')).toBe('instagram_post')
+    expect(normalizeResearchActorKey(null, 'https://tiktok.com/@creator/video/123')).toBe('tiktok_video')
+
+    expect(apifyInputForResearchSource(
+      { url: 'https://youtube.com/watch?v=abc' },
+      SOCIAL_RESEARCH_ACTORS.youtube_transcript,
+    )).toEqual({
+      videoUrls: ['https://youtube.com/watch?v=abc'],
+      urls: ['https://youtube.com/watch?v=abc'],
+      url: 'https://youtube.com/watch?v=abc',
+    })
+    expect(apifyInputForResearchSource(
+      { url: 'https://instagram.com/reel/abc' },
+      SOCIAL_RESEARCH_ACTORS.instagram_reel,
+    )).toEqual({
+      resultsLimit: 10,
+      directUrls: ['https://instagram.com/reel/abc'],
+      startUrls: [{ url: 'https://instagram.com/reel/abc' }],
+    })
+  })
+
+  it('normalizes alternate Apify result fields into a source-safe research packet', () => {
+    const packet = researchPacketDraftFromApifyItem({
+      source: {
+        url: 'https://instagram.com/reel/fallback',
+        actor_key: 'instagram_reel',
+        label: 'Public reel',
+      },
+      config: SOCIAL_RESEARCH_ACTORS.instagram_reel,
+      item: {
+        videoUrl: 'https://instagram.com/reel/actual',
+        title: 'A practical operating system for trustworthy AI',
+        description: 'Visible approval gates reduce hidden operational risk.',
+        transcript: 'Start with the operating risk. '.repeat(30),
+        displayUrl: 'https://cdn.example.com/thumbnail.jpg',
+        playCount: 4_500,
+        likeCount: 230,
+        commentCount: 31,
+        shareCount: 9,
+        followers: 900,
+        timestamp: '2026-07-15T10:00:00.000Z',
+        username: 'operator',
+      },
+      actorRun: {
+        id: 'run-1',
+        defaultDatasetId: 'dataset-1',
+      },
+      retrievedAt: '2026-07-16T10:00:00.000Z',
+    })
+
+    expect(packet).toMatchObject({
+      source_url: 'https://instagram.com/reel/actual',
+      platform: 'instagram_reels',
+      creator_handle: 'operator',
+      thumbnail_url: 'https://cdn.example.com/thumbnail.jpg',
+      metrics: {
+        views: 4_500,
+        likes: 230,
+        comments: 31,
+        shares: 9,
+        follower_count: 900,
+        published_at: '2026-07-15T10:00:00.000Z',
+        retrieved_at: '2026-07-16T10:00:00.000Z',
+      },
+      actor_metadata: {
+        actor_id: 'apify/instagram-scraper',
+        actor_key: 'instagram_reel',
+        run_id: 'run-1',
+        dataset_id: 'dataset-1',
+        source_label: 'Public reel',
+      },
+      pattern_status: 'needs_brand_translation',
+    })
+    expect(packet.hook_transcript).toHaveLength(500)
+    expect(packet.hook_transcript).toMatch(/\.\.\.$/)
+    expect(packet.pattern_packet.source_use_boundary).toContain('Final content must be rewritten')
+    expect(packet.privacy_notes).toContain('do not copy source script')
+  })
+
+  it('bounds manually recorded evidence and applies safe normalization defaults', () => {
+    const packet = researchPacketDraftFromRecordedEvidence({
+      evidence: {
+        source_url: 'https://example.com/public-post',
+        title: 'Useful public pattern',
+        hook_transcript: 'A long public hook. '.repeat(40),
+        metrics: {
+          views: 80,
+          retrieved_at: '2020-01-01T00:00:00.000Z',
+        },
+      },
+      retrievedAt: '2026-07-16T10:00:00.000Z',
+      actorLabel: 'Manual public review',
+    })
+
+    expect(packet.platform).toBe('other')
+    expect(packet.pattern_status).toBe('needs_brand_translation')
+    expect(packet.hook_transcript).toHaveLength(500)
+    expect(packet.metrics).toEqual({
+      views: 80,
+      retrieved_at: '2026-07-16T10:00:00.000Z',
+    })
+    expect(packet.actor_metadata).toMatchObject({
+      provider: 'free_recorded_evidence',
+      retrieval_method: 'codex_browser',
+      actor_label: 'Manual public review',
+      cost_usd: 0,
+    })
+    expect(packet.pattern_packet.source_use_boundary).toContain('Reusable framework only')
   })
 
   it('normalizes all channel lanes required for social production', () => {
