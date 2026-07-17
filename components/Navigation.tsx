@@ -34,15 +34,24 @@ export default function Navigation() {
   const isHomePage = pathname === '/'
 
   useEffect(() => {
-    const handleScroll = () => {
+    const updateScrollState = () => {
       setIsScrolled(window.scrollY > 20)
+    }
+    const handleScroll = () => {
+      updateScrollState()
       // Close dropdowns when user scrolls
       setIsMenuOpen(false)
       setIsUserMenuOpen(false)
     }
+
+    updateScrollState()
+    const animationFrame = window.requestAnimationFrame(updateScrollState)
     window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+    return () => {
+      window.cancelAnimationFrame(animationFrame)
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [pathname])
 
   // Close menus when clicking outside
   useEffect(() => {
@@ -76,7 +85,7 @@ export default function Navigation() {
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 animate-fade-in-up ${
         isScrolled
-          ? 'py-3 bg-background/90 backdrop-blur-xl border-b border-border'
+          ? 'py-3 bg-background/90 backdrop-blur-xl border-b border-border dark:bg-[#121E31]/90 dark:border-radiant-gold/15'
           : isMenuOpen
             ? 'py-4 bg-card dark:bg-[#121E31]'
             : 'py-4 bg-transparent'
