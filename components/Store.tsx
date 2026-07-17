@@ -22,7 +22,7 @@ const TYPE_LABELS: Record<string, string> = {
 
 const SECTION_BG = 'px-6 sm:px-10 lg:px-12 relative overflow-hidden'
 const PRODUCTS_SECTION_BG =
-  'pt-40 pb-32 bg-[linear-gradient(180deg,#121E31_0%,rgba(18,30,49,0.98)_28%,rgba(44,62,80,0.10)_100%)]'
+  'pt-40 pb-32 bg-[linear-gradient(180deg,#f4f6fa_0%,#eef2f7_42%,rgba(255,255,255,0.92)_100%)] dark:bg-[linear-gradient(180deg,#121E31_0%,rgba(18,30,49,0.98)_28%,rgba(44,62,80,0.10)_100%)]'
 const MERCHANDISE_BG = 'bg-background/20'
 
 function ProductCard({
@@ -46,7 +46,7 @@ function ProductCard({
   return (
     <div
       onClick={onClick}
-      className="group relative bg-silicon-slate/40 backdrop-blur-md rounded-2xl overflow-hidden border border-radiant-gold/5 hover:border-radiant-gold/20 transition-all duration-500 cursor-pointer reveal-on-scroll is-visible"
+      className="group relative cursor-pointer overflow-hidden rounded-2xl border border-[#121E31]/10 bg-white/[0.88] shadow-[0_18px_42px_rgba(18,30,49,0.10)] backdrop-blur-md transition-all duration-500 hover:border-radiant-gold/35 hover:shadow-[0_22px_54px_rgba(18,30,49,0.14)] dark:border-radiant-gold/5 dark:bg-silicon-slate/40 dark:shadow-none dark:hover:border-radiant-gold/20 reveal-on-scroll is-visible"
       style={{ transitionDelay: `${index * 0.1}s` }}
     >
       <div className="relative h-64 overflow-hidden">
@@ -59,34 +59,34 @@ function ProductCard({
             sizes="(max-width: 768px) 100vw, 320px"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-background">
-            <ShoppingBag className="text-radiant-gold/20" size={48} />
+          <div className="flex h-full w-full items-center justify-center bg-muted dark:bg-background">
+            <ShoppingBag className="text-radiant-gold/35 dark:text-radiant-gold/20" size={48} />
           </div>
         )}
         <div className="absolute top-6 left-6 flex flex-col gap-2">
-          <span className="px-3 py-1 bg-background/80 backdrop-blur-md border border-radiant-gold/20 rounded-full text-[10px] font-heading tracking-widest text-radiant-gold uppercase">
+          <span className="rounded-full border border-radiant-gold/25 bg-white/90 px-3 py-1 font-heading text-[10px] uppercase tracking-widest text-radiant-gold backdrop-blur-md dark:bg-background/80 dark:border-radiant-gold/20">
             {TYPE_LABELS[product.type] || product.type}
           </span>
           {product.is_featured && (
-            <span className="px-3 py-1 bg-radiant-gold text-imperial-navy rounded-full text-[10px] font-heading tracking-widest uppercase font-bold">
+            <span className="rounded-full bg-radiant-gold px-3 py-1 font-heading text-[10px] font-bold uppercase tracking-widest text-imperial-navy">
               Featured
             </span>
           )}
         </div>
-        <div className="absolute bottom-6 right-6 px-4 py-2 bg-background/90 backdrop-blur-md border border-radiant-gold/20 rounded-full text-radiant-gold text-sm font-heading tracking-tighter">
+        <div className="absolute bottom-6 right-6 rounded-full border border-radiant-gold/25 bg-white/[0.92] px-4 py-2 font-heading text-sm tracking-tighter text-radiant-gold backdrop-blur-md dark:bg-background/90 dark:border-radiant-gold/20">
           {formatPriceOrFree(product.price ?? 0)}
         </div>
       </div>
       <div className="p-8">
-        <h3 className="font-premium text-2xl text-foreground group-hover:text-radiant-gold transition-colors mb-3">
+        <h3 className="mb-3 font-premium text-2xl text-[#121E31] transition-colors group-hover:text-radiant-gold dark:text-foreground">
           {product.title}
         </h3>
         {product.description && (
-          <p className="font-body text-muted-foreground/90 text-sm line-clamp-2 mb-8">
+          <p className="mb-8 line-clamp-2 font-body text-sm text-[#475569] dark:text-muted-foreground/90">
             {product.description}
           </p>
         )}
-        <div className="w-full flex items-center justify-center gap-3 py-3 border border-radiant-gold/20 group-hover:bg-radiant-gold group-hover:text-imperial-navy rounded-full transition-all duration-300">
+        <div className="flex w-full items-center justify-center gap-3 rounded-full border border-[#121E31]/[0.14] py-3 text-[#121E31]/[0.78] transition-all duration-300 group-hover:border-radiant-gold group-hover:bg-radiant-gold group-hover:text-imperial-navy dark:border-radiant-gold/20 dark:text-foreground">
           <ShoppingCart size={14} />
           <span className="text-[10px] font-heading tracking-widest uppercase">{ctaLabel}</span>
         </div>
@@ -159,7 +159,7 @@ export default function Store({ section = 'all' }: { section?: StoreSection }) {
         {showProducts && (
           <section id="products" className={`${SECTION_BG} ${PRODUCTS_SECTION_BG}`}>
             <div className="max-w-7xl mx-auto text-center">
-              <div className="h-10 w-48 bg-silicon-slate/20 mx-auto rounded-full animate-pulse" />
+              <div className="mx-auto h-10 w-48 animate-pulse rounded-full bg-[#121E31]/10 dark:bg-silicon-slate/20" />
             </div>
           </section>
         )}
@@ -180,16 +180,16 @@ export default function Store({ section = 'all' }: { section?: StoreSection }) {
       /* Products (digital) */
       <section id="products" className={`${SECTION_BG} ${PRODUCTS_SECTION_BG}`}>
         <div
-          className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-[radial-gradient(ellipse_at_78%_0%,rgba(212,175,55,0.12),transparent_58%)]"
+          className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-[radial-gradient(ellipse_at_78%_0%,rgba(212,175,55,0.14),transparent_58%)]"
           aria-hidden="true"
         />
         <div
-          className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-[linear-gradient(180deg,rgba(5,9,15,0.16)_0%,rgba(18,30,49,0)_100%)]"
+          className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-[linear-gradient(180deg,rgba(18,30,49,0.05)_0%,rgba(244,246,250,0)_100%)] dark:bg-[linear-gradient(180deg,rgba(5,9,15,0.16)_0%,rgba(18,30,49,0)_100%)]"
           aria-hidden="true"
         />
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center mb-20 animate-fade-in-up">
-            <div className="pill-badge bg-silicon-slate/30 border-radiant-gold/20 mb-6 mx-auto">
+            <div className="pill-badge mx-auto mb-6 border-radiant-gold/25 bg-white/80 dark:border-radiant-gold/20 dark:bg-silicon-slate/30">
               <ShoppingBag className="w-3 h-3 text-radiant-gold" />
               <span className="text-[10px] uppercase tracking-[0.2em] font-heading text-radiant-gold">
                 Products
@@ -198,7 +198,7 @@ export default function Store({ section = 'all' }: { section?: StoreSection }) {
             <h2 className="font-premium text-4xl md:text-6xl text-foreground mb-6">
               <span className="italic text-radiant-gold">Products</span>
             </h2>
-            <p className="font-body text-muted-foreground/90 text-lg max-w-2xl mx-auto">
+            <p className="mx-auto max-w-2xl font-body text-lg text-[#475569] dark:text-muted-foreground/90">
               Ebooks, templates, calculators, and digital products to elevate your workflow.
             </p>
           </div>
@@ -219,14 +219,14 @@ export default function Store({ section = 'all' }: { section?: StoreSection }) {
             <div className="text-center mt-20 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Link
                 href="/store"
-                className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-muted-foreground hover:text-radiant-gold transition-colors pb-2 border-b border-foreground/10"
+                className="inline-flex items-center gap-4 border-b border-[#121E31]/[0.12] pb-2 font-heading text-[10px] uppercase tracking-[0.3em] text-[#475569] transition-colors hover:text-radiant-gold dark:border-foreground/10 dark:text-muted-foreground"
               >
                 <span>Browse all products</span>
                 <ArrowRight size={14} />
               </Link>
               <Link
                 href="/pricing"
-                className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-muted-foreground hover:text-radiant-gold transition-colors pb-2 border-b border-foreground/10"
+                className="inline-flex items-center gap-4 border-b border-[#121E31]/[0.12] pb-2 font-heading text-[10px] uppercase tracking-[0.3em] text-[#475569] transition-colors hover:text-radiant-gold dark:border-foreground/10 dark:text-muted-foreground"
               >
                 <span>See Pricing &amp; Packages</span>
                 <ArrowRight size={14} />
