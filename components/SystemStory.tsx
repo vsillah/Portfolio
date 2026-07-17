@@ -107,10 +107,10 @@ export default function SystemStory() {
       ref={sectionRef}
       id="system"
       data-section="system-story"
-      className="relative h-[320svh] scroll-mt-24 bg-[#121E31] text-platinum-white"
+      className="relative h-[320svh] scroll-mt-24 bg-[#f4f6fa] text-[#121E31] dark:bg-[#121E31] dark:text-platinum-white"
     >
       <div className="sticky top-0 min-h-[100svh] overflow-hidden">
-        <div className="absolute inset-0 bg-[#121E31]" />
+        <div className="absolute inset-0 bg-[#f4f6fa] dark:bg-[#121E31]" />
 
         {frames.map((frame, index) => (
           <Image
@@ -120,17 +120,17 @@ export default function SystemStory() {
             fill
             sizes="100vw"
             className={`object-cover object-center transition-opacity duration-700 ${
-              activeFrame === index ? 'opacity-[0.44]' : 'opacity-0'
+              activeFrame === index ? 'opacity-[0.18] dark:opacity-[0.44]' : 'opacity-0'
             }`}
             aria-hidden="true"
             priority={index === 0}
           />
         ))}
 
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,#121E31_0%,rgba(18,30,49,0.9)_28%,rgba(18,30,49,0.46)_62%,rgba(18,30,49,0.72)_100%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_74%_44%,rgba(212,175,55,0.12),transparent_42%)]" />
-        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#121E31] to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-[#121E31] to-transparent" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,#f4f6fa_0%,rgba(244,246,250,0.95)_30%,rgba(244,246,250,0.66)_66%,rgba(244,246,250,0.9)_100%)] dark:bg-[linear-gradient(90deg,#121E31_0%,rgba(18,30,49,0.9)_28%,rgba(18,30,49,0.46)_62%,rgba(18,30,49,0.72)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_74%_44%,rgba(212,175,55,0.10),transparent_42%)] dark:bg-[radial-gradient(ellipse_at_74%_44%,rgba(212,175,55,0.12),transparent_42%)]" />
+        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#f4f6fa] to-transparent dark:from-[#121E31]" />
+        <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-[#f4f6fa] to-transparent dark:from-[#121E31]" />
 
         <div className="pointer-events-none absolute inset-0 opacity-50" aria-hidden="true">
           <svg className="h-full w-full" viewBox="0 0 1440 900" preserveAspectRatio="none">
@@ -158,11 +158,11 @@ export default function SystemStory() {
                 <span>{String(activeFrame + 1).padStart(2, '0')} / 03</span>
               </div>
 
-              <h2 className="font-premium text-[clamp(2.85rem,6.6vw,6.8rem)] font-medium leading-[0.92] text-platinum-white">
+              <h2 className="font-premium text-[clamp(2.85rem,6.6vw,6.8rem)] font-medium leading-[0.92] text-[#121E31] dark:text-platinum-white">
                 {frames[activeFrame].title}
               </h2>
 
-              <p className="mt-7 max-w-[37rem] font-body text-base leading-8 text-platinum-white/74 sm:text-lg">
+              <p className="mt-7 max-w-[37rem] font-body text-base leading-8 text-[#2C3E50]/[0.86] dark:text-platinum-white/74 sm:text-lg">
                 {frames[activeFrame].copy}
               </p>
 
@@ -170,7 +170,7 @@ export default function SystemStory() {
                 {systemFunctions.map((item) => (
                   <span
                     key={item}
-                    className="rounded-full border border-platinum-white/10 bg-platinum-white/[0.04] px-3 py-2 font-heading text-[0.57rem] uppercase tracking-[0.16em] text-platinum-white/58 backdrop-blur-sm"
+                    className="rounded-full border border-[#121E31]/10 bg-white/70 px-3 py-2 font-heading text-[0.57rem] uppercase tracking-[0.16em] text-[#121E31]/[0.58] backdrop-blur-sm dark:border-platinum-white/10 dark:bg-platinum-white/[0.04] dark:text-platinum-white/58"
                   >
                     {item}
                   </span>
@@ -187,7 +187,7 @@ export default function SystemStory() {
                 </a>
                 <Link
                   href="#services"
-                  className="inline-flex h-12 items-center justify-center gap-3 rounded-full border border-platinum-white/18 bg-platinum-white/[0.03] px-6 font-heading text-[0.68rem] uppercase tracking-[0.22em] text-platinum-white/82 backdrop-blur-md transition hover:border-radiant-gold/60 hover:text-radiant-gold"
+                  className="inline-flex h-12 items-center justify-center gap-3 rounded-full border border-[#121E31]/[0.18] bg-white/[0.65] px-6 font-heading text-[0.68rem] uppercase tracking-[0.22em] text-[#121E31]/[0.82] backdrop-blur-md transition hover:border-radiant-gold/60 hover:text-radiant-gold dark:border-platinum-white/18 dark:bg-platinum-white/[0.03] dark:text-platinum-white/82"
                 >
                   See Services
                 </Link>
@@ -230,13 +230,13 @@ export default function SystemStory() {
                 className="absolute bottom-0 right-0 w-full max-w-[25rem] pl-8"
               >
                 <span className="system-focus-line absolute bottom-0 left-0 h-full w-px bg-radiant-gold/18" />
-                <div className="system-focus-icon mb-5 flex h-12 w-12 items-center justify-center rounded-full border border-radiant-gold/28 bg-[#121E31]/70 text-radiant-gold backdrop-blur">
+                <div className="system-focus-icon mb-5 flex h-12 w-12 items-center justify-center rounded-full border border-radiant-gold/28 bg-white/72 text-radiant-gold backdrop-blur dark:bg-[#121E31]/70">
                   <ActiveIcon size={20} />
                 </div>
                 <p className="system-type-line font-heading text-[0.62rem] uppercase tracking-[0.24em] text-radiant-gold/90">
                   {frames[activeFrame].calloutTitle}
                 </p>
-                <p className="system-focus-copy mt-4 font-body text-sm leading-7 text-platinum-white/66">
+                <p className="system-focus-copy mt-4 font-body text-sm leading-7 text-[#2C3E50]/[0.78] dark:text-platinum-white/66">
                   {frames[activeFrame].detail}
                 </p>
               </div>
@@ -249,7 +249,7 @@ export default function SystemStory() {
             <span
               key={frame.title}
               className={`h-1.5 rounded-full transition-all duration-500 ${
-                activeFrame === index ? 'w-10 bg-radiant-gold' : 'w-2 bg-platinum-white/24'
+                activeFrame === index ? 'w-10 bg-radiant-gold' : 'w-2 bg-[#121E31]/[0.24] dark:bg-platinum-white/24'
               }`}
             />
           ))}
