@@ -2,21 +2,47 @@
 
 import Link from 'next/link'
 import { ArrowDown, ArrowRight } from 'lucide-react'
-import { useEffect, useRef } from 'react'
+import { useTheme } from 'next-themes'
+import { useEffect, useRef, useState } from 'react'
 
-const HERO_POSTER =
-  '/prototypes/portfolio-pipeline-hero/amadutown-storefront-pipeline-hero-approved-20260617.png'
-const HERO_VIDEO =
-  '/prototypes/portfolio-pipeline-hero/higgsfield-gold-pipeline-loop-desktop-only-360-starburst-web-20260617.mp4'
+type HeroTheme = 'light' | 'dark'
+
+const HERO_MEDIA: Record<HeroTheme, { poster: string; video: string }> = {
+  light: {
+    poster:
+      '/prototypes/portfolio-pipeline-hero/higgsfield-light-mode-hero-poster-20260628.webp',
+    video:
+      '/prototypes/portfolio-pipeline-hero/higgsfield-light-mode-hero-loop-web-20260628.mp4',
+  },
+  dark: {
+    poster:
+      '/prototypes/portfolio-pipeline-hero/amadutown-storefront-pipeline-hero-approved-20260617.png',
+    video:
+      '/prototypes/portfolio-pipeline-hero/higgsfield-gold-pipeline-loop-desktop-only-360-starburst-web-20260617.mp4',
+  },
+}
 const ORB_GLOW_SCROLL_POINT = 0.75
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
 }
 
+function getHeroTheme(resolvedTheme: string | undefined): HeroTheme | null {
+  if (resolvedTheme === 'light' || resolvedTheme === 'dark') return resolvedTheme
+  return null
+}
+
 export default function Hero() {
+  const { resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
   const sectionRef = useRef<HTMLElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const activeTheme = mounted ? getHeroTheme(resolvedTheme) : null
+  const activeMedia = activeTheme ? HERO_MEDIA[activeTheme] : null
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     const section = sectionRef.current
@@ -68,34 +94,38 @@ export default function Hero() {
       window.removeEventListener('scroll', requestUpdate)
       window.removeEventListener('resize', requestUpdate)
     }
-  }, [])
+  }, [activeTheme])
 
   return (
     <section
       ref={sectionRef}
       id="home"
       data-section="hero"
-      className="relative z-10 h-[240svh] bg-[#05090f] text-platinum-white"
+      className="relative z-10 h-[240svh] bg-[#fbf7ee] text-[#08101a] dark:bg-[#05090f] dark:text-platinum-white"
     >
       <div className="sticky top-0 min-h-[100svh] overflow-hidden">
-        <video
-          ref={videoRef}
-          className="absolute inset-0 h-full w-full object-cover object-[center_bottom] sm:object-center"
-          poster={HERO_POSTER}
-          muted
-          playsInline
-          preload="auto"
-          aria-hidden="true"
-        >
-          <source src={HERO_VIDEO} type="video/mp4" />
-        </video>
+        {activeMedia ? (
+          <video
+            key={activeTheme}
+            ref={videoRef}
+            data-theme-video={activeTheme}
+            className="absolute inset-0 h-full w-full object-cover object-[center_bottom] sm:object-center"
+            poster={activeMedia.poster}
+            muted
+            playsInline
+            preload="auto"
+            aria-hidden="true"
+          >
+            <source src={activeMedia.video} type="video/mp4" />
+          </video>
+        ) : null}
 
-        <div className="absolute inset-0 bg-[#05090f]/18" />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,9,15,0.74)_0%,rgba(5,9,15,0.52)_22%,rgba(5,9,15,0.22)_48%,rgba(5,9,15,0.04)_74%,rgba(5,9,15,0)_100%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,9,15,0.86)_0%,rgba(5,9,15,0.68)_34%,rgba(5,9,15,0.36)_64%,rgba(5,9,15,0.42)_100%)] sm:hidden" />
-        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#05090f]/84 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-72 bg-[linear-gradient(0deg,#121E31_0%,rgba(18,30,49,0.92)_24%,rgba(7,16,26,0.64)_58%,rgba(5,9,15,0)_100%)]" />
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-[radial-gradient(ellipse_at_72%_100%,rgba(212,175,55,0.18),transparent_58%)]" />
+        <div className="absolute inset-0 bg-white/[0.08] dark:bg-[#05090f]/18" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(251,247,238,0.88)_0%,rgba(251,247,238,0.68)_22%,rgba(251,247,238,0.24)_48%,rgba(251,247,238,0.06)_74%,rgba(251,247,238,0)_100%)] dark:bg-[linear-gradient(90deg,rgba(5,9,15,0.74)_0%,rgba(5,9,15,0.52)_22%,rgba(5,9,15,0.22)_48%,rgba(5,9,15,0.04)_74%,rgba(5,9,15,0)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(251,247,238,0.9)_0%,rgba(251,247,238,0.72)_34%,rgba(251,247,238,0.44)_64%,rgba(251,247,238,0.5)_100%)] dark:bg-[linear-gradient(180deg,rgba(5,9,15,0.86)_0%,rgba(5,9,15,0.68)_34%,rgba(5,9,15,0.36)_64%,rgba(5,9,15,0.42)_100%)] sm:hidden" />
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#fbf7ee]/70 to-transparent dark:from-[#05090f]/84" />
+        <div className="absolute inset-x-0 bottom-0 h-72 bg-[linear-gradient(0deg,#fbf7ee_0%,rgba(251,247,238,0.86)_24%,rgba(251,247,238,0.48)_58%,rgba(251,247,238,0)_100%)] dark:bg-[linear-gradient(0deg,#121E31_0%,rgba(18,30,49,0.92)_24%,rgba(7,16,26,0.64)_58%,rgba(5,9,15,0)_100%)]" />
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-[radial-gradient(ellipse_at_72%_100%,rgba(212,175,55,0.13),transparent_58%)] dark:bg-[radial-gradient(ellipse_at_72%_100%,rgba(212,175,55,0.18),transparent_58%)]" />
 
         <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
           <div className="absolute right-[10%] top-[32%] hidden h-24 w-24 rounded-full border border-radiant-gold/15 bg-radiant-gold/10 blur-xl motion-safe:animate-glow-pulse sm:block" />
@@ -107,10 +137,10 @@ export default function Hero() {
             <p className="mb-6 font-heading text-[0.68rem] uppercase tracking-[0.32em] text-radiant-gold/90">
               AI Operations Infrastructure
             </p>
-            <h1 className="font-premium text-[clamp(3.35rem,7.6vw,8rem)] font-medium leading-[0.9] text-platinum-white sm:text-[clamp(4.2rem,7.6vw,8rem)]">
+            <h1 className="font-premium text-[clamp(3.35rem,7.6vw,8rem)] font-medium leading-[0.9] text-[#08101a] dark:text-platinum-white sm:text-[clamp(4.2rem,7.6vw,8rem)]">
               Turn disconnected work into one operating system.
             </h1>
-            <p className="mt-8 max-w-[32rem] font-body text-base leading-8 text-platinum-white/76 sm:text-lg">
+            <p className="mt-8 max-w-[32rem] font-body text-base leading-8 text-[#243449]/78 dark:text-platinum-white/76 sm:text-lg">
               AmaduTown designs the automation layer that connects intake, scheduling,
               communications, service delivery, billing, reporting, and knowledge management.
             </p>
@@ -125,7 +155,7 @@ export default function Hero() {
               </a>
               <Link
                 href="/work"
-                className="inline-flex h-12 items-center justify-center gap-3 rounded-full border border-platinum-white/18 bg-platinum-white/[0.03] px-6 font-heading text-[0.68rem] uppercase tracking-[0.22em] text-platinum-white/82 backdrop-blur-md transition hover:border-radiant-gold/60 hover:text-radiant-gold"
+                className="inline-flex h-12 items-center justify-center gap-3 rounded-full border border-[#08101a]/16 bg-white/40 px-6 font-heading text-[0.68rem] uppercase tracking-[0.22em] text-[#08101a]/82 backdrop-blur-md transition hover:border-radiant-gold/70 hover:text-[#6f5600] dark:border-platinum-white/18 dark:bg-platinum-white/[0.03] dark:text-platinum-white/82 dark:hover:border-radiant-gold/60 dark:hover:text-radiant-gold"
               >
                 See the Work
               </Link>
@@ -133,13 +163,13 @@ export default function Hero() {
           </div>
         </div>
 
-        <div className="absolute bottom-16 left-1/2 z-10 hidden -translate-x-1/2 items-center gap-3 font-heading text-[0.62rem] uppercase tracking-[0.28em] text-platinum-white/42 sm:flex">
+        <div className="absolute bottom-16 left-1/2 z-10 hidden -translate-x-1/2 items-center gap-3 font-heading text-[0.62rem] uppercase tracking-[0.28em] text-[#08101a]/46 dark:text-platinum-white/42 sm:flex">
           <span>Scroll</span>
           <ArrowDown size={14} className="text-radiant-gold" />
         </div>
       </div>
       <div
-        className="pointer-events-none absolute inset-x-0 -bottom-20 z-20 h-28 bg-[linear-gradient(180deg,rgba(18,30,49,0.78)_0%,rgba(18,30,49,0.34)_52%,rgba(18,30,49,0)_100%)]"
+        className="pointer-events-none absolute inset-x-0 -bottom-20 z-20 h-28 bg-[linear-gradient(180deg,rgba(251,247,238,0.78)_0%,rgba(251,247,238,0.34)_52%,rgba(251,247,238,0)_100%)] dark:bg-[linear-gradient(180deg,rgba(18,30,49,0.78)_0%,rgba(18,30,49,0.34)_52%,rgba(18,30,49,0)_100%)]"
         aria-hidden="true"
       />
     </section>
