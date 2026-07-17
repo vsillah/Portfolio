@@ -62,47 +62,79 @@ describe('Hero', () => {
   it('scrubs the hero video from scroll progress and never seeks to the exact video end', () => {
     const { container } = render(<Hero />)
     const section = container.querySelector('[data-section="hero"]') as HTMLElement
-    const video = container.querySelector('video') as HTMLVideoElement
-    const source = container.querySelector('source') as HTMLSourceElement
-    const pause = vi.fn()
+    const lightVideo = container.querySelector('video[data-theme-video="light"]') as HTMLVideoElement
+    const darkVideo = container.querySelector('video[data-theme-video="dark"]') as HTMLVideoElement
+    const lightSource = lightVideo.querySelector('source') as HTMLSourceElement
+    const darkSource = darkVideo.querySelector('source') as HTMLSourceElement
+    const lightPause = vi.fn()
+    const darkPause = vi.fn()
 
     setElementLayout(section, 2000, -1000)
-    Object.defineProperty(video, 'duration', {
+    Object.defineProperty(lightVideo, 'duration', {
       configurable: true,
       value: 12,
     })
-    Object.defineProperty(video, 'paused', {
+    Object.defineProperty(darkVideo, 'duration', {
+      configurable: true,
+      value: 12,
+    })
+    Object.defineProperty(lightVideo, 'paused', {
       configurable: true,
       value: false,
     })
-    video.pause = pause
+    Object.defineProperty(darkVideo, 'paused', {
+      configurable: true,
+      value: false,
+    })
+    lightVideo.pause = lightPause
+    darkVideo.pause = darkPause
 
     flushAnimationFrame()
 
     expect(screen.getByRole('heading', {
       name: /turn disconnected work into one operating system/i,
     })).toBeInTheDocument()
-    expect(source).toHaveAttribute(
+    expect(lightVideo).toHaveAttribute(
+      'poster',
+      '/prototypes/portfolio-pipeline-hero/higgsfield-light-mode-hero-still-20260628.png',
+    )
+    expect(darkVideo).toHaveAttribute(
+      'poster',
+      '/prototypes/portfolio-pipeline-hero/amadutown-storefront-pipeline-hero-approved-20260617.png',
+    )
+    expect(lightSource).toHaveAttribute(
+      'src',
+      '/prototypes/portfolio-pipeline-hero/higgsfield-light-mode-hero-loop-web-20260628.mp4',
+    )
+    expect(darkSource).toHaveAttribute(
       'src',
       '/prototypes/portfolio-pipeline-hero/higgsfield-gold-pipeline-loop-desktop-only-360-starburst-web-20260617.mp4',
     )
-    expect(video.currentTime).toBeCloseTo(11.95, 2)
-    expect(pause).toHaveBeenCalled()
+    expect(lightVideo.currentTime).toBeCloseTo(11.95, 2)
+    expect(darkVideo.currentTime).toBeCloseTo(11.95, 2)
+    expect(lightPause).toHaveBeenCalled()
+    expect(darkPause).toHaveBeenCalled()
   })
 
   it('keeps the video at the beginning when the hero has no scroll distance', () => {
     const { container } = render(<Hero />)
     const section = container.querySelector('[data-section="hero"]') as HTMLElement
-    const video = container.querySelector('video') as HTMLVideoElement
+    const lightVideo = container.querySelector('video[data-theme-video="light"]') as HTMLVideoElement
+    const darkVideo = container.querySelector('video[data-theme-video="dark"]') as HTMLVideoElement
 
     setElementLayout(section, 900, -500)
-    Object.defineProperty(video, 'duration', {
+    Object.defineProperty(lightVideo, 'duration', {
+      configurable: true,
+      value: 10,
+    })
+    Object.defineProperty(darkVideo, 'duration', {
       configurable: true,
       value: 10,
     })
 
     flushAnimationFrame()
 
-    expect(video.currentTime).toBe(0)
+    expect(lightVideo.currentTime).toBe(0)
+    expect(darkVideo.currentTime).toBe(0)
   })
 })
