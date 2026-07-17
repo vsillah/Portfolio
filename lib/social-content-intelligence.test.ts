@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
   SOCIAL_RESEARCH_ACTORS,
-  apifyInputForResearchSource,
   buildLinkedInYoutubeReviewDrafts,
   defaultSocialChannelLanes,
   normalizeResearchActorKey,
@@ -39,28 +38,11 @@ describe('social-content-intelligence', () => {
     })
   })
 
-  it('selects research actors from source URLs and builds their required Apify inputs', () => {
+  it('selects research actors from source URLs', () => {
     expect(normalizeResearchActorKey(null, 'https://youtube.com/watch?v=abc')).toBe('youtube_transcript')
     expect(normalizeResearchActorKey(null, 'https://instagram.com/reel/abc')).toBe('instagram_reel')
     expect(normalizeResearchActorKey(null, 'https://instagram.com/p/abc')).toBe('instagram_post')
     expect(normalizeResearchActorKey(null, 'https://tiktok.com/@creator/video/123')).toBe('tiktok_video')
-
-    expect(apifyInputForResearchSource(
-      { url: 'https://youtube.com/watch?v=abc' },
-      SOCIAL_RESEARCH_ACTORS.youtube_transcript,
-    )).toEqual({
-      videoUrls: ['https://youtube.com/watch?v=abc'],
-      urls: ['https://youtube.com/watch?v=abc'],
-      url: 'https://youtube.com/watch?v=abc',
-    })
-    expect(apifyInputForResearchSource(
-      { url: 'https://instagram.com/reel/abc' },
-      SOCIAL_RESEARCH_ACTORS.instagram_reel,
-    )).toEqual({
-      resultsLimit: 10,
-      directUrls: ['https://instagram.com/reel/abc'],
-      startUrls: [{ url: 'https://instagram.com/reel/abc' }],
-    })
   })
 
   it('normalizes alternate Apify result fields into a source-safe research packet', () => {
@@ -84,6 +66,10 @@ describe('social-content-intelligence', () => {
         followers: 900,
         timestamp: '2026-07-15T10:00:00.000Z',
         username: 'operator',
+        rawProviderBlob: 'must-not-leak',
+        privateDebugPayload: {
+          requestHeaders: 'must-not-leak',
+        },
       },
       actorRun: {
         id: 'run-1',
@@ -119,6 +105,9 @@ describe('social-content-intelligence', () => {
     expect(packet.hook_transcript).toMatch(/\.\.\.$/)
     expect(packet.pattern_packet.source_use_boundary).toContain('Final content must be rewritten')
     expect(packet.privacy_notes).toContain('do not copy source script')
+    expect(JSON.stringify(packet)).not.toContain('rawProviderBlob')
+    expect(JSON.stringify(packet)).not.toContain('privateDebugPayload')
+    expect(JSON.stringify(packet)).not.toContain('must-not-leak')
   })
 
   it('bounds manually recorded evidence and applies safe normalization defaults', () => {
@@ -150,6 +139,7 @@ describe('social-content-intelligence', () => {
       cost_usd: 0,
     })
     expect(packet.pattern_packet.source_use_boundary).toContain('Reusable framework only')
+    expect(packet.privacy_notes).toContain('do not copy source script')
   })
 
   it('normalizes all channel lanes required for social production', () => {
