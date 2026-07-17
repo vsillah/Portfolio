@@ -54,6 +54,8 @@
     "client:seed-mark-reversr": "tsx scripts/seed-mark-reversr-build-evidence.ts",
     "client:seed-mark-reversr-assessment": "tsx scripts/seed-mark-reversr-assessment.ts",
     "client:seed-neil-kmb": "tsx scripts/seed-neil-kmb-client-dashboard.ts",
+    "client:seed-neil-kmb:prod:dry-run": "tsx scripts/seed-neil-kmb-client-dashboard.ts --target prod --dry-run",
+    "client:seed-neil-kmb:prod:apply": "tsx scripts/seed-neil-kmb-client-dashboard.ts --target prod --apply",
     "open-brain:mcp": "tsx scripts/open-brain-mcp-server.ts",
     "open-brain:runtime-registration": "tsx scripts/open-brain-runtime-registration.ts",
     "open-brain:personality-corpus": "tsx scripts/open-brain-personality-corpus-producer.ts",

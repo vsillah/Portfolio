@@ -1,11 +1,55 @@
 #!/usr/bin/env tsx
+/**
+ * Seed the Neil/KMB client dashboard packet.
+ *
+ * Defaults to a dry run against dev credentials. Production must be explicit:
+ *
+ *   npm run client:seed-neil-kmb
+ *   npm run client:seed-neil-kmb -- --target dev --apply
+ *   npm run client:seed-neil-kmb:prod:dry-run
+ *   npm run client:seed-neil-kmb:prod:apply
+ *
+ * Env:
+ *   dev:  NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+ *   prod: PROD_SUPABASE_URL, PROD_SUPABASE_SERVICE_ROLE_KEY
+ */
 
 import { createClient } from '@supabase/supabase-js'
+import * as dotenv from 'dotenv'
 import { promises as fs } from 'fs'
 import path from 'path'
 
-const args = new Set(process.argv.slice(2))
+type Target = 'dev' | 'prod'
+
+const argv = process.argv.slice(2)
+const args = new Set(argv)
 const apply = args.has('--apply')
+
+function readFlag(name: string): string | null {
+  const index = argv.indexOf(name)
+  if (index >= 0 && argv[index + 1] && !argv[index + 1].startsWith('--')) {
+    return argv[index + 1]
+  }
+  const inline = argv.find((arg) => arg.startsWith(`${name}=`))
+  return inline ? inline.slice(name.length + 1) : null
+}
+
+function resolveEnvFile() {
+  return path.resolve(process.cwd(), readFlag('--env-file') || '.env.local')
+}
+
+function resolveTarget(): Target {
+  const rawTarget = args.has('--prod') ? 'prod' : readFlag('--target') || 'dev'
+  if (rawTarget !== 'dev' && rawTarget !== 'prod') {
+    console.error(`Unsupported target "${rawTarget}". Use --target dev or --target prod.`)
+    process.exit(1)
+  }
+  return rawTarget
+}
+
+dotenv.config({ path: resolveEnvFile(), quiet: true })
+
+const target = resolveTarget()
 
 const CLIENT_EMAIL = 'neil@keepmassbeautiful.org'
 const CONTACT_ID = 21
@@ -295,10 +339,25 @@ function requiredEnv(name: string) {
   return value
 }
 
+function envName(baseName: 'SUPABASE_URL' | 'SUPABASE_SERVICE_ROLE_KEY') {
+  if (target === 'prod') {
+    return baseName === 'SUPABASE_URL' ? 'PROD_SUPABASE_URL' : 'PROD_SUPABASE_SERVICE_ROLE_KEY'
+  }
+  return baseName === 'SUPABASE_URL' ? 'NEXT_PUBLIC_SUPABASE_URL' : 'SUPABASE_SERVICE_ROLE_KEY'
+}
+
+function supabaseUrl() {
+  return requiredEnv(envName('SUPABASE_URL'))
+}
+
+function serviceRoleKey() {
+  return requiredEnv(envName('SUPABASE_SERVICE_ROLE_KEY'))
+}
+
 function supabase() {
   return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || requiredEnv('SUPABASE_URL'),
-    requiredEnv('SUPABASE_SERVICE_ROLE_KEY'),
+    supabaseUrl(),
+    serviceRoleKey(),
     { auth: { persistSession: false } }
   )
 }
@@ -755,6 +814,12 @@ async function seedTimeEntries(client: ReturnType<typeof supabase>, projectId: s
 }
 
 async function main() {
+  const targetUrl = supabaseUrl()
+  const targetHost = new URL(targetUrl).hostname
+  console.log(`Target: ${target.toUpperCase()} (${targetHost})`)
+  console.log(`Mode: ${apply ? 'APPLY' : 'DRY RUN'}`)
+  console.log(`Env file: ${resolveEnvFile()}`)
+
   const client = supabase()
   const contactSubmissionId = await ensureContact(client)
   const project = await ensureProject(client, contactSubmissionId)
@@ -771,11 +836,13 @@ async function main() {
     JSON.stringify(
       {
         applied: apply,
+        target,
+        targetHost,
         clientProjectId: project.id,
         contactSubmissionId,
         proposalId,
         onboardingPlanId,
-        dashboardUrl: `/client/dashboard/${dashboardToken}`,
+        dashboardAccess: dashboardToken ? 'created-or-reused' : 'not-created',
         documents,
         milestoneCount: milestonePlan.length,
         dashboardTaskCount: taskCount,
@@ -794,6 +861,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error(error)
+  console.error(error instanceof Error ? error.message : error)
   process.exit(1)
 })
