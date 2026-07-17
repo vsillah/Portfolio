@@ -22,7 +22,22 @@ Bring the shared Portfolio checkout, open PR queue, GitHub checks, and Vercel de
 
 ## Start Gate
 
-Before mutating anything:
+Before mutating anything, verify Supabase MCP and repo truth:
+
+```bash
+codex mcp list | rg 'supabase|Name|Url|Command|Status|Auth'
+```
+
+Also prove direct Supabase MCP tool exposure in the current chat by using a read-only tool such as `list_migrations` or `list_tables` from one of:
+
+- `supabase`
+- `supabase-prod`
+- `supabase-stdio`
+- `supabase-prod-stdio`
+
+If CLI MCP state is correct but direct Supabase tools are absent, stop repo, PR, merge, deployment, and migration work. Treat it as a Codex Desktop MCP hydration blocker and report the diagnostic path instead of creating a non-migration exception.
+
+After the Supabase gate passes:
 
 ```bash
 git fetch --prune origin
@@ -108,8 +123,31 @@ Clean conservatively:
 - Classify dirty worktree files as temporary evidence, normalized proposal, approved durable artifact, or stale debris before removing the worktree.
 - Preserve recovery stashes and unknown worktrees unless Vambah explicitly approves cleanup.
 - Leave watch/debt items documented instead of guessing ownership.
+- Archive completed Codex task threads only after their scoped work has merged, been superseded, or is clearly a completed read-only helper.
+- Keep the active integration captain lane visible unless Vambah explicitly asks to close it.
+- Keep implementation lanes visible when Vambah still needs to complete human QA or visible approval.
 
 If a branch or worktree origin is unclear, run the RCA sequence in `docs/terminal-command-cheatsheet.md` and use the postmortem protocol in `docs/postmortems/2026-05-21-branch-worktree-residue-and-traceability.md` before deleting anything.
+
+## Task Thread Cleanup Gate
+
+After code merges or captain sweep merges complete, treat Codex task threads as a separate cleanup surface from Git branches and worktrees.
+
+Before calling cleanup complete:
+
+1. Inventory visible/recent Codex threads plus the local Codex thread registry for active threads whose `cwd` belongs to Portfolio or a Portfolio worktree.
+2. Match active implementation, spec, smoke, and review-helper threads against merged PRs, merged branch names, and removed worktrees.
+3. Archive task threads only when their scoped work has merged, been superseded, or is clearly a completed read-only helper.
+4. Keep the active integration captain lane visible unless Vambah explicitly asks to close it.
+5. Do not archive unrelated project threads.
+6. Back up Codex local state before directly editing the thread registry for records that cannot be archived through the Codex app tool.
+
+The cleanup report must include:
+
+- task threads archived by name or count
+- task threads kept active
+- whether a local Codex state backup was created
+- ambiguous tasks intentionally left alone
 
 ## Agent Coordination Gate
 
