@@ -10,7 +10,7 @@ export default function About() {
   const textRef = useRevealOnScroll()
 
   return (
-    <section id="about" className="py-32 px-6 sm:px-10 lg:px-12 bg-silicon-slate/20 relative overflow-hidden">
+    <section id="about" className="py-32 px-6 sm:px-10 lg:px-12 bg-[linear-gradient(180deg,#f8fafc_0%,#f4f7fb_48%,#fbfcfe_100%)] dark:bg-none dark:bg-silicon-slate/20 relative overflow-hidden">
       {/* Aurora */}
       <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-bronze/5 blur-[120px] rounded-full" />
 
@@ -38,7 +38,7 @@ export default function About() {
               </div>
               
               <div
-                className="absolute -bottom-6 -right-6 glass-card px-6 py-4 border-radiant-gold/20 shadow-2xl hero-float"
+                className="absolute -bottom-6 -right-6 border border-radiant-gold/20 bg-white/[0.84] px-6 py-4 shadow-[0_18px_42px_rgba(18,30,49,0.10)] backdrop-blur-xl dark:bg-silicon-slate/40 dark:shadow-2xl hero-float"
               >
                 <p className="text-[10px] font-heading tracking-[0.2em] text-radiant-gold uppercase mb-1">Experience</p>
                 <p className="text-xl font-premium text-foreground">15+ Years</p>
@@ -52,7 +52,7 @@ export default function About() {
               ref={textRef}
               className="text-center reveal-on-scroll"
             >
-              <div className="pill-badge bg-silicon-slate/30 border-radiant-gold/20 mb-6 mx-auto">
+              <div className="pill-badge bg-white/[0.78] border-radiant-gold/25 mb-6 mx-auto dark:bg-silicon-slate/30 dark:border-radiant-gold/20">
                 <span className="text-[10px] uppercase tracking-[0.2em] font-heading text-radiant-gold">
                   Story
                 </span>
@@ -92,4 +92,3 @@ export default function About() {
     </section>
   )
 }
-
