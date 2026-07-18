@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import type { ImgHTMLAttributes, ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import SystemStory from './SystemStory'
@@ -20,6 +20,16 @@ vi.mock('next/link', () => ({
   default: ({ href, children, ...props }: { href: string; children: ReactNode }) => (
     <a href={href} {...props}>{children}</a>
   ),
+}))
+
+const themeState = vi.hoisted(() => ({
+  resolvedTheme: 'light' as 'light' | 'dark' | undefined,
+}))
+
+vi.mock('next-themes', () => ({
+  useTheme: () => ({
+    resolvedTheme: themeState.resolvedTheme,
+  }),
 }))
 
 type RafCallback = FrameRequestCallback
@@ -46,6 +56,7 @@ describe('SystemStory', () => {
   let rafCallbacks: RafCallback[]
 
   beforeEach(() => {
+    themeState.resolvedTheme = 'light'
     rafCallbacks = []
     Object.defineProperty(window, 'innerHeight', {
       configurable: true,
@@ -122,5 +133,32 @@ describe('SystemStory', () => {
       name: /the work is already there/i,
     })).toBeInTheDocument()
     expect(screen.getByText('Intake Drift Detected')).toBeInTheDocument()
+  })
+
+  it('uses the light hero image for the system story in light mode', async () => {
+    const { container } = render(<SystemStory />)
+
+    await waitFor(() => {
+      expect(container.querySelectorAll('img[data-system-story-theme="light"]')).toHaveLength(3)
+    })
+
+    const images = Array.from(container.querySelectorAll('img[data-system-story-theme="light"]'))
+
+    expect(images.every((image) => image.getAttribute('src') === '/prototypes/portfolio-pipeline-hero/higgsfield-light-mode-hero-poster-20260628.webp')).toBe(true)
+    expect(container.querySelector('img[src*="system-story-fragmented-rooms"]')).not.toBeInTheDocument()
+  })
+
+  it('keeps the dark system story images in dark mode', async () => {
+    themeState.resolvedTheme = 'dark'
+    const { container } = render(<SystemStory />)
+
+    await waitFor(() => {
+      expect(container.querySelectorAll('img[data-system-story-theme="dark"]')).toHaveLength(3)
+    })
+
+    expect(container.querySelector('img[src="/prototypes/portfolio-pipeline-hero/system-story-fragmented-rooms-20260617.webp"]')).toBeInTheDocument()
+    expect(container.querySelector('img[src="/prototypes/portfolio-pipeline-hero/system-story-blueprint-map-20260617.webp"]')).toBeInTheDocument()
+    expect(container.querySelector('img[src="/prototypes/portfolio-pipeline-hero/system-story-connected-pipeline-20260617.webp"]')).toBeInTheDocument()
+    expect(container.querySelector('img[src*="higgsfield-light-mode-hero-poster"]')).not.toBeInTheDocument()
   })
 })

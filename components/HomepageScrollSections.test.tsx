@@ -29,6 +29,12 @@ vi.mock('next/link', () => ({
   ),
 }))
 
+vi.mock('next-themes', () => ({
+  useTheme: () => ({
+    resolvedTheme: 'light',
+  }),
+}))
+
 type SectionGeometry = {
   height: number
   top: number
