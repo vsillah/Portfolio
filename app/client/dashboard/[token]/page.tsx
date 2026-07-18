@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import { Check, Copy, Loader2 } from 'lucide-react'
 import DashboardStatCards from '@/components/client-dashboard/DashboardStatCards'
+import ExecutiveSummary from '@/components/client-dashboard/ExecutiveSummary'
 import ScoreRadarChart from '@/components/client-dashboard/ScoreRadarChart'
 import ConfidenceRadar from '@/components/client-dashboard/ConfidenceRadar'
 import StrengthenConfidenceBlock from '@/components/client-dashboard/StrengthenConfidenceBlock'
@@ -312,6 +313,20 @@ export default function ClientDashboardPage() {
           tasksCompleted={tasksCompleted}
           tasksTotal={tasks.length}
           highPriorityRemaining={highPriorityRemaining}
+        />
+
+        <ExecutiveSummary
+          clientCompany={project.client_company}
+          overallScore={scores.overallScore}
+          categoryScores={scores.categoryScores}
+          scoreDelta={scores.delta}
+          tasksCompleted={tasksCompleted}
+          tasksTotal={tasks.length}
+          highPriorityRemaining={highPriorityRemaining}
+          snapshotsCount={snapshots.length}
+          recommendationsCount={recommendations.length}
+          diagnosticSummary={assessment?.diagnostic_summary || null}
+          recommendedActions={assessment?.recommended_actions || null}
         />
 
         {/* Row 2: Radar + Trajectory */}
