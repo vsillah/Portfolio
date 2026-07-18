@@ -19,9 +19,9 @@ interface AccelerationCardsProps {
 }
 
 const CONFIDENCE_STYLES: Record<string, { bg: string; text: string; label: string }> = {
-  high: { bg: 'bg-green-900/40', text: 'text-green-300', label: 'High Confidence' },
-  medium: { bg: 'bg-yellow-900/40', text: 'text-yellow-300', label: 'Moderate Confidence' },
-  low: { bg: 'bg-gray-800', text: 'text-gray-400', label: 'Estimated' },
+  high: { bg: 'bg-emerald-500/15', text: 'text-emerald-200', label: 'High Confidence' },
+  medium: { bg: 'bg-radiant-gold/15', text: 'text-gold-light', label: 'Moderate Confidence' },
+  low: { bg: 'bg-platinum-white/10', text: 'text-platinum-white/65', label: 'Estimated' },
 }
 
 const DATA_SOURCE_LABELS: Record<string, string> = {
@@ -83,15 +83,15 @@ export default function AccelerationCards({
   }
 
   return (
-    <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
+    <section className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
       <div className="flex items-center gap-2 mb-4">
-        <Zap className="w-4 h-4 text-yellow-400" />
-        <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider">
-          Acceleration Opportunities
+        <Zap className="w-4 h-4 text-radiant-gold" />
+        <h3 className="text-sm font-medium text-radiant-gold uppercase tracking-wider">
+          Package Options
         </h3>
       </div>
-      <p className="text-xs text-gray-500 mb-4">
-        Tailored recommendations to help you achieve your goals faster, backed by data.
+      <p className="text-xs text-platinum-white/55 mb-4">
+        Tailored acceleration paths that connect the assessment gaps, task list, and available AmaduTown packages.
       </p>
 
       <div className="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1 snap-x">
@@ -102,19 +102,19 @@ export default function AccelerationCards({
           return (
             <div
               key={rec.id}
-              className={`flex-shrink-0 w-[280px] md:w-[320px] bg-gray-800/60 border border-gray-700/50 rounded-xl p-4 snap-start transition-opacity ${
+              className={`flex-shrink-0 w-[280px] md:w-[320px] rounded-xl border border-radiant-gold/15 bg-imperial-navy/45 p-4 snap-start transition-opacity ${
                 isDismissing ? 'opacity-50' : ''
               }`}
             >
               {/* Header */}
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600/30 to-indigo-600/30 flex items-center justify-center">
-                    <TrendingUp className="w-4 h-4 text-blue-400" />
+                  <div className="w-8 h-8 rounded-lg bg-radiant-gold/10 border border-radiant-gold/20 flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4 text-radiant-gold" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-200">{rec.service_title}</p>
-                    <p className="text-[10px] text-gray-500">
+                    <p className="text-sm font-medium text-platinum-white/90">{rec.service_title}</p>
+                    <p className="text-[10px] uppercase tracking-[0.14em] text-platinum-white/42">
                       {rec.gap_category.replace(/_/g, ' ')}
                     </p>
                   </div>
@@ -122,7 +122,7 @@ export default function AccelerationCards({
                 <button
                   onClick={() => handleDismiss(rec.id)}
                   disabled={isDismissing}
-                  className="text-gray-600 hover:text-gray-400 p-1"
+                  className="text-platinum-white/35 hover:text-platinum-white/70 p-1"
                   title="Dismiss"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -131,27 +131,27 @@ export default function AccelerationCards({
 
               {/* Impact Headline */}
               {rec.impact_headline && (
-                <p className="text-xs text-gray-300 mb-3 leading-relaxed">
+                <p className="text-xs text-platinum-white/72 mb-3 leading-relaxed">
                   {rec.impact_headline}
                 </p>
               )}
 
               {/* Projected Value */}
               {rec.projected_annual_value && rec.projected_annual_value > 0 && (
-                <div className="bg-gray-900/60 rounded-lg p-2.5 mb-3">
+                <div className="bg-imperial-navy/55 rounded-lg border border-radiant-gold/10 p-2.5 mb-3">
                   <div className="flex items-center gap-2">
-                    <BarChart className="w-4 h-4 text-emerald-400" />
-                    <span className="text-lg font-bold text-emerald-400">
+                    <BarChart className="w-4 h-4 text-gold-light" />
+                    <span className="text-lg font-bold text-gold-light">
                       {new Intl.NumberFormat('en-US', {
                         style: 'currency',
                         currency: 'USD',
                         maximumFractionDigits: 0,
                       }).format(rec.projected_annual_value)}
-                      <span className="text-xs font-normal text-gray-500">/year</span>
+                      <span className="text-xs font-normal text-platinum-white/42"> package</span>
                     </span>
                   </div>
                   {rec.projected_impact_pct && (
-                    <p className="text-[10px] text-gray-500 mt-0.5">
+                    <p className="text-[10px] text-platinum-white/45 mt-0.5">
                       +{rec.projected_impact_pct}% improvement
                     </p>
                   )}
@@ -166,8 +166,8 @@ export default function AccelerationCards({
                 </span>
               </div>
               <div className="flex items-center gap-1 mb-4">
-                <Info className="w-3 h-3 text-gray-600" />
-                <span className="text-[10px] text-gray-600">
+                <Info className="w-3 h-3 text-platinum-white/35" />
+                <span className="text-[10px] text-platinum-white/42">
                   {DATA_SOURCE_LABELS[rec.data_source] || 'Estimated'}
                 </span>
               </div>
@@ -175,7 +175,7 @@ export default function AccelerationCards({
               {/* CTA */}
               <button
                 onClick={() => handleConvert(rec.id)}
-                className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors"
+                className="w-full flex items-center justify-center gap-2 rounded-lg border border-radiant-gold/25 bg-radiant-gold/12 px-3 py-2 text-sm font-medium text-gold-light transition-colors hover:bg-radiant-gold/20"
               >
                 {CTA_LABELS[rec.cta_type] || 'Learn More'}
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -184,6 +184,6 @@ export default function AccelerationCards({
           )
         })}
       </div>
-    </div>
+    </section>
   )
 }

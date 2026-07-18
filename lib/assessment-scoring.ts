@@ -222,9 +222,13 @@ export function buildProjectedTrajectory({
   const latestActual = actual[actual.length - 1]
   const latestActualDate = validDate(latestActual.date) || projectStartDate
   const today = startOfDay(now)
+  const completionDate =
+    projectedCompletionDate.getTime() > latestActualDate.getTime()
+      ? projectedCompletionDate
+      : addDays(latestActualDate, Math.max(7, milestones.length * 7))
   const canCarryForwardCurrent =
     today.getTime() > latestActualDate.getTime() &&
-    today.getTime() < projectedCompletionDate.getTime()
+    today.getTime() < completionDate.getTime()
 
   if (canCarryForwardCurrent) {
     latestActual.label = latestActual.label === 'Current score' ? undefined : latestActual.label
@@ -242,7 +246,7 @@ export function buildProjectedTrajectory({
 
   const currentPoint = actual[actual.length - 1]
   const currentDate = validDate(currentPoint.date) || projectStartDate
-  const completionDate =
+  const effectiveCompletionDate =
     projectedCompletionDate.getTime() > currentDate.getTime()
       ? projectedCompletionDate
       : addDays(currentDate, Math.max(7, milestones.length * 7))
@@ -252,9 +256,9 @@ export function buildProjectedTrajectory({
       ? Math.min(targetScore, currentPoint.overallScore + Math.max(5, milestones.length * 3))
       : currentPoint.overallScore
 
-    if (completionDate.getTime() > currentDate.getTime()) {
+    if (effectiveCompletionDate.getTime() > currentDate.getTime()) {
       actual.push({
-        date: completionDate.toISOString(),
+        date: effectiveCompletionDate.toISOString(),
         overallScore: latestMilestoneScore,
         isProjected: true,
         label: 'Projected completion',
@@ -275,7 +279,7 @@ export function buildProjectedTrajectory({
   let runningScore = currentPoint.overallScore
   const projectionSpanDays = Math.max(
     1,
-    (completionDate.getTime() - currentDate.getTime()) / MS_PER_DAY
+    (effectiveCompletionDate.getTime() - currentDate.getTime()) / MS_PER_DAY
   )
 
   for (let i = 0; i < remainingTasks.length; i++) {
@@ -286,7 +290,7 @@ export function buildProjectedTrajectory({
     )
     const projectedDate =
       completedTasks && completedTasks.length >= 2
-        ? new Date(Math.min(cadenceDate.getTime(), completionDate.getTime()))
+        ? new Date(Math.min(cadenceDate.getTime(), effectiveCompletionDate.getTime()))
         : milestoneDate
     runningScore = Math.min(targetScore, runningScore + (remainingTasks[i].impact_score || 0))
 
@@ -300,9 +304,9 @@ export function buildProjectedTrajectory({
 
   const finalPoint = actual[actual.length - 1]
   const finalDate = validDate(finalPoint.date)
-  if (finalDate && Math.abs(finalDate.getTime() - completionDate.getTime()) > MS_PER_DAY) {
+  if (finalDate && Math.abs(finalDate.getTime() - effectiveCompletionDate.getTime()) > MS_PER_DAY) {
     actual.push({
-      date: completionDate.toISOString(),
+      date: effectiveCompletionDate.toISOString(),
       overallScore: runningScore,
       isProjected: true,
       label: 'Projected completion',

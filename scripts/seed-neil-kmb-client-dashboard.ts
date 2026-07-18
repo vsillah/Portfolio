@@ -261,6 +261,11 @@ const dashboardTasks = [
     status: 'pending',
     due_date: '2026-07-15',
     display_order: 0,
+    acceleratedBundleName: 'Community Impact Accelerator',
+    accelerated_headline:
+      'Use the nonprofit implementation package when KMB wants AmaduTown to turn the FireSpring answer into a ready handoff plan.',
+    accelerated_savings:
+      'Reduces decision drift by connecting vendor feedback, navigation choices, and launch criteria in one path.',
   },
   {
     category: 'firespring_feedback',
@@ -272,6 +277,11 @@ const dashboardTasks = [
     status: 'in_progress',
     due_date: '2026-07-15',
     display_order: 1,
+    acceleratedBundleName: 'Community Impact Accelerator',
+    accelerated_headline:
+      'Fast-track the proof review into a documented implementation brief for FireSpring and the KMB board.',
+    accelerated_savings:
+      'Keeps approved navigation decisions from getting lost between proof revisions and launch handoff.',
   },
   {
     category: 'donation_support',
@@ -283,6 +293,11 @@ const dashboardTasks = [
     status: 'in_progress',
     due_date: '2026-07-16',
     display_order: 2,
+    acceleratedBundleName: 'Community Impact Growth',
+    accelerated_headline:
+      'Use the growth package when KMB wants donor, sponsor, shop, and program CTAs mapped into one support pathway.',
+    accelerated_savings:
+      'Connects content cleanup to campaign-ready donation and supporter flows.',
   },
   {
     category: 'donation_support',
@@ -294,6 +309,11 @@ const dashboardTasks = [
     status: 'pending',
     due_date: '2026-07-17',
     display_order: 3,
+    acceleratedBundleName: 'Community Impact Starter',
+    accelerated_headline:
+      'Use the starter option for a light routing audit and implementation checklist around donation conversion.',
+    accelerated_savings:
+      'Keeps the giving path practical without turning it into a full redesign cycle.',
   },
   {
     category: 'support_navigation',
@@ -305,6 +325,11 @@ const dashboardTasks = [
     status: 'pending',
     due_date: '2026-07-17',
     display_order: 4,
+    acceleratedBundleName: 'Community Impact Growth',
+    accelerated_headline:
+      'Package the sponsor, shop, and donation actions into a cleaner supporter journey.',
+    accelerated_savings:
+      'Turns scattered support actions into a clearer conversion path for KMB visitors.',
   },
   {
     category: 'client_decision',
@@ -316,6 +341,61 @@ const dashboardTasks = [
     status: 'pending',
     due_date: '2026-07-24',
     display_order: 5,
+    acceleratedBundleName: null,
+  },
+] as const
+
+const packageRecommendationSeeds = [
+  {
+    bundleName: 'Community Impact Starter',
+    service_title: 'Community Impact Starter',
+    gap_category: 'budget_timeline',
+    gap_description:
+      'Best fit when KMB wants a focused website-decision audit without expanding scope.',
+    projected_impact_pct: 18,
+    projected_annual_value: 0,
+    impact_headline:
+      'A light advisory path for clarifying the donation, support, and navigation decisions before build work expands.',
+    impact_explanation:
+      'This option keeps the next step compact: confirm the priority decisions, document the handoff, and avoid unnecessary rebuild work.',
+    data_source: 'client_specific',
+    confidence_level: 'medium',
+    cta_type: 'learn_more',
+    display_order: 0,
+  },
+  {
+    bundleName: 'Community Impact Accelerator',
+    service_title: 'Community Impact Accelerator',
+    gap_category: 'tech_stack',
+    gap_description:
+      'Best fit when KMB wants the FireSpring proof feedback, content priorities, and launch handoff converted into an implementation packet.',
+    projected_impact_pct: 28,
+    projected_annual_value: 1997,
+    impact_headline:
+      'A guided implementation path for turning the FireSpring Balance proof into cleaner launch-ready decisions.',
+    impact_explanation:
+      'This option connects vendor feedback, navigation decisions, donor-page routing, and launch readiness into one execution track.',
+    data_source: 'client_specific',
+    confidence_level: 'high',
+    cta_type: 'view_proposal',
+    display_order: 1,
+  },
+  {
+    bundleName: 'Community Impact Growth',
+    service_title: 'Community Impact Growth',
+    gap_category: 'automation_needs',
+    gap_description:
+      'Best fit when KMB wants the website migration to become a stronger support, donor, sponsor, and program engagement system.',
+    projected_impact_pct: 35,
+    projected_annual_value: 4997,
+    impact_headline:
+      'A broader growth path for connecting the website migration to supporter journeys and campaign readiness.',
+    impact_explanation:
+      'This option adds a stronger operating layer around donation, sponsor, shop, and program navigation so the site supports ongoing outreach.',
+    data_source: 'client_specific',
+    confidence_level: 'medium',
+    cta_type: 'book_call',
+    display_order: 2,
   },
 ] as const
 
@@ -332,6 +412,9 @@ const scoreSnapshot = {
   dream_outcome_gap: 43,
   trigger: 'manual',
 }
+
+type DashboardTaskSeed = (typeof dashboardTasks)[number]
+type BundleRef = { id: string; pricingTierSlug: string | null }
 
 function requiredEnv(name: string) {
   const value = process.env[name]
@@ -368,6 +451,49 @@ function slugFile(fileName: string) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
+}
+
+async function resolveBundleIds(client: ReturnType<typeof supabase>, bundleNames: readonly string[]) {
+  const uniqueNames = [...new Set(bundleNames.filter(Boolean))]
+  if (!apply) {
+    return new Map(uniqueNames.map((name) => [name, {
+      id: `dry-run-bundle-${slugFile(name)}`,
+      pricingTierSlug: slugFile(name),
+    } satisfies BundleRef]))
+  }
+
+  const { data, error } = await client
+    .from('offer_bundles')
+    .select('id, name, pricing_tier_slug')
+    .in('name', uniqueNames)
+    .eq('is_active', true)
+
+  if (error) throw new Error(`Failed to read offer bundles for KMB package options: ${error.message}`)
+
+  const bundleIds = new Map<string, BundleRef>()
+  for (const row of data || []) {
+    bundleIds.set(String(row.name), {
+      id: String(row.id),
+      pricingTierSlug: row.pricing_tier_slug ? String(row.pricing_tier_slug) : null,
+    })
+  }
+
+  const missing = uniqueNames.filter((name) => !bundleIds.has(name))
+  if (missing.length > 0) {
+    throw new Error(`Missing active offer bundles for KMB package options: ${missing.join(', ')}`)
+  }
+
+  return bundleIds
+}
+
+function buildDashboardTaskPayload(task: DashboardTaskSeed, bundleIds: Map<string, BundleRef>) {
+  const { acceleratedBundleName, ...taskPayload } = task
+
+  return {
+    ...taskPayload,
+    diy_resources: [],
+    accelerated_bundle_id: acceleratedBundleName ? bundleIds.get(acceleratedBundleName)?.id : null,
+  }
 }
 
 async function ensureContact(client: ReturnType<typeof supabase>) {
@@ -700,7 +826,13 @@ async function upsertOnboardingPlan(client: ReturnType<typeof supabase>, project
 }
 
 async function refreshDashboardTasks(client: ReturnType<typeof supabase>, projectId: string) {
-  if (!apply) return dashboardTasks.length
+  const bundleIds = await resolveBundleIds(
+    client,
+    dashboardTasks.flatMap((task) => task.acceleratedBundleName ? [task.acceleratedBundleName] : [])
+  )
+  const taskPayload = dashboardTasks.map((task) => buildDashboardTaskPayload(task, bundleIds))
+
+  if (!apply) return taskPayload.length
 
   const { error: deleteError } = await client
     .from('dashboard_tasks')
@@ -711,15 +843,61 @@ async function refreshDashboardTasks(client: ReturnType<typeof supabase>, projec
   if (deleteError) throw new Error(`Failed to clear old KMB dashboard tasks: ${deleteError.message}`)
 
   const { error: insertError } = await client.from('dashboard_tasks').insert(
-    dashboardTasks.map((task) => ({
+    taskPayload.map((task) => ({
       client_project_id: projectId,
       ...task,
-      diy_resources: [],
     }))
   )
 
   if (insertError) throw new Error(`Failed to insert KMB dashboard tasks: ${insertError.message}`)
-  return dashboardTasks.length
+  return taskPayload.length
+}
+
+async function refreshAccelerationRecommendations(client: ReturnType<typeof supabase>, projectId: string) {
+  const bundleIds = await resolveBundleIds(
+    client,
+    packageRecommendationSeeds.map((recommendation) => recommendation.bundleName)
+  )
+  const recommendationPayload = packageRecommendationSeeds.map((recommendation) => {
+    const { bundleName, ...payload } = recommendation
+    if (!bundleIds.has(bundleName)) {
+      throw new Error(`Missing active offer bundle for KMB package option: ${bundleName}`)
+    }
+
+    return {
+      client_project_id: projectId,
+      pain_point_category_id: null,
+      content_type: 'bundle',
+      content_id: 0,
+      benchmark_ids: [],
+      value_calculation_id: null,
+      is_active: true,
+      dismissed_at: null,
+      converted_at: null,
+      cta_url: `/pricing#${bundleIds.get(bundleName)?.pricingTierSlug || slugFile(bundleName)}`,
+      ...payload,
+    }
+  })
+
+  if (!apply) return recommendationPayload.length
+
+  const { error: deleteError } = await client
+    .from('acceleration_recommendations')
+    .delete()
+    .eq('client_project_id', projectId)
+    .eq('content_type', 'bundle')
+    .in('service_title', packageRecommendationSeeds.map((recommendation) => recommendation.service_title))
+    .is('dismissed_at', null)
+    .is('converted_at', null)
+
+  if (deleteError) throw new Error(`Failed to clear KMB package options: ${deleteError.message}`)
+
+  const { error: insertError } = await client
+    .from('acceleration_recommendations')
+    .insert(recommendationPayload)
+
+  if (insertError) throw new Error(`Failed to insert KMB package options: ${insertError.message}`)
+  return recommendationPayload.length
 }
 
 async function refreshScoreSnapshot(client: ReturnType<typeof supabase>, projectId: string) {
@@ -828,6 +1006,7 @@ async function main() {
   const documents = await uploadDocuments(client, proposalId)
   const onboardingPlanId = await upsertOnboardingPlan(client, project.id)
   const taskCount = await refreshDashboardTasks(client, project.id)
+  const packageOptionCount = await refreshAccelerationRecommendations(client, project.id)
   const scoreSnapshotId = await refreshScoreSnapshot(client, project.id)
   await linkMeetingsAndActions(client, project.id, contactSubmissionId)
   const timeEntryCount = await seedTimeEntries(client, project.id)
@@ -846,6 +1025,7 @@ async function main() {
         documents,
         milestoneCount: milestonePlan.length,
         dashboardTaskCount: taskCount,
+        packageOptionCount,
         scoreSnapshotId,
         timeEntryCount,
         correspondence: {

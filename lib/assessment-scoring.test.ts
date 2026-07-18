@@ -25,11 +25,11 @@ describe('buildProjectedTrajectory', () => {
         },
       ],
       milestones: [
-        { week: 1, target_date: '2026-07-22T00:00:00.000Z' },
-        { week: 2, target_date: '2026-07-28T00:00:00.000Z' },
-        { week: 3, target_date: '2026-08-03T00:00:00.000Z' },
-        { week: 4, target_date: '2026-08-09T00:00:00.000Z' },
-        { week: 5, target_date: '2026-08-21T00:00:00.000Z' },
+        { week: 1 },
+        { week: 2 },
+        { week: 3 },
+        { week: 4 },
+        { week: 5 },
       ],
       remainingTasks: [
         { impact_score: 18 },
