@@ -55,6 +55,27 @@ describe('AccelerationCards', () => {
     expect(screen.getByRole('button', { name: /view proposal/i })).toBeInTheDocument()
   })
 
+  it('does not render a stray zero for free package options', () => {
+    render(
+      <AccelerationCards
+        recommendations={[{
+          ...recommendation,
+          id: 'rec-free',
+          service_title: 'Community Impact Starter',
+          projected_annual_value: 0,
+          projected_impact_pct: 18,
+          cta_type: 'learn_more',
+        }]}
+        token="dashboard-token"
+        onDismiss={vi.fn()}
+      />
+    )
+
+    expect(screen.getByText('Community Impact Starter')).toBeInTheDocument()
+    expect(screen.queryByText('0')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /learn more/i })).toBeInTheDocument()
+  })
+
   it('opens the recommendation CTA returned by the dashboard API', async () => {
     vi.stubGlobal(
       'fetch',
