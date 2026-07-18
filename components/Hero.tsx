@@ -123,7 +123,8 @@ export default function Hero() {
         <div className="absolute inset-0 bg-white/[0.08] dark:bg-[#05090f]/18" />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(251,247,238,0.88)_0%,rgba(251,247,238,0.68)_22%,rgba(251,247,238,0.24)_48%,rgba(251,247,238,0.06)_74%,rgba(251,247,238,0)_100%)] dark:bg-[linear-gradient(90deg,rgba(5,9,15,0.74)_0%,rgba(5,9,15,0.52)_22%,rgba(5,9,15,0.22)_48%,rgba(5,9,15,0.04)_74%,rgba(5,9,15,0)_100%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(251,247,238,0.9)_0%,rgba(251,247,238,0.72)_34%,rgba(251,247,238,0.44)_64%,rgba(251,247,238,0.5)_100%)] dark:bg-[linear-gradient(180deg,rgba(5,9,15,0.86)_0%,rgba(5,9,15,0.68)_34%,rgba(5,9,15,0.36)_64%,rgba(5,9,15,0.42)_100%)] sm:hidden" />
-        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#fbf7ee]/70 to-transparent dark:from-[#05090f]/84" />
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#fbf7ee]/70 to-transparent dark:hidden" />
+        <div className="absolute inset-x-0 top-0 hidden h-72 bg-[linear-gradient(180deg,rgba(5,9,15,0.98)_0%,rgba(5,9,15,0.82)_36%,rgba(5,9,15,0.42)_68%,rgba(5,9,15,0)_100%)] dark:block" />
         <div className="absolute inset-x-0 bottom-0 h-72 bg-[linear-gradient(0deg,#fbf7ee_0%,rgba(251,247,238,0.86)_24%,rgba(251,247,238,0.48)_58%,rgba(251,247,238,0)_100%)] dark:bg-[linear-gradient(0deg,#121E31_0%,rgba(18,30,49,0.92)_24%,rgba(7,16,26,0.64)_58%,rgba(5,9,15,0)_100%)]" />
         <div className="absolute inset-x-0 bottom-0 h-32 bg-[radial-gradient(ellipse_at_72%_100%,rgba(212,175,55,0.13),transparent_58%)] dark:bg-[radial-gradient(ellipse_at_72%_100%,rgba(212,175,55,0.18),transparent_58%)]" />
 
