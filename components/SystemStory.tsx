@@ -162,7 +162,7 @@ export default function SystemStory() {
                 {frames[activeFrame].title}
               </h2>
 
-              <p className="mt-7 max-w-[37rem] font-body text-base leading-8 text-[#2C3E50]/[0.86] dark:text-platinum-white/74 sm:text-lg">
+              <p className="mt-7 max-w-[37rem] font-body text-base leading-8 text-[#2C3E50]/[0.86] dark:text-platinum-white/80 sm:text-lg">
                 {frames[activeFrame].copy}
               </p>
 
@@ -170,7 +170,7 @@ export default function SystemStory() {
                 {systemFunctions.map((item) => (
                   <span
                     key={item}
-                    className="rounded-full border border-[#121E31]/10 bg-white/70 px-3 py-2 font-heading text-[0.57rem] uppercase tracking-[0.16em] text-[#121E31]/[0.58] backdrop-blur-sm dark:border-platinum-white/10 dark:bg-platinum-white/[0.04] dark:text-platinum-white/58"
+                    className="rounded-full border border-[#121E31]/10 bg-white/70 px-3 py-2 font-heading text-[0.57rem] uppercase tracking-[0.16em] text-[#121E31]/[0.58] backdrop-blur-sm dark:border-platinum-white/25 dark:bg-[#121E31]/55 dark:text-platinum-white/90"
                   >
                     {item}
                   </span>
@@ -187,7 +187,7 @@ export default function SystemStory() {
                 </a>
                 <Link
                   href="#services"
-                  className="inline-flex h-12 items-center justify-center gap-3 rounded-full border border-[#121E31]/[0.18] bg-white/[0.65] px-6 font-heading text-[0.68rem] uppercase tracking-[0.22em] text-[#121E31]/[0.82] backdrop-blur-md transition hover:border-radiant-gold/60 hover:text-radiant-gold dark:border-platinum-white/18 dark:bg-platinum-white/[0.03] dark:text-platinum-white/82"
+                  className="inline-flex h-12 items-center justify-center gap-3 rounded-full border border-[#121E31]/[0.18] bg-white/[0.65] px-6 font-heading text-[0.68rem] uppercase tracking-[0.22em] text-[#121E31]/[0.82] backdrop-blur-md transition hover:border-radiant-gold/60 hover:text-radiant-gold dark:border-platinum-white/25 dark:bg-[#121E31]/45 dark:text-platinum-white/90"
                 >
                   See Services
                 </Link>
@@ -236,7 +236,7 @@ export default function SystemStory() {
                 <p className="system-type-line font-heading text-[0.62rem] uppercase tracking-[0.24em] text-radiant-gold/90">
                   {frames[activeFrame].calloutTitle}
                 </p>
-                <p className="system-focus-copy mt-4 font-body text-sm leading-7 text-[#2C3E50]/[0.78] dark:text-platinum-white/66">
+                <p className="system-focus-copy mt-4 font-body text-sm leading-7 text-[#2C3E50]/[0.78] dark:text-platinum-white/75">
                   {frames[activeFrame].detail}
                 </p>
               </div>
