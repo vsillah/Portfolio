@@ -146,7 +146,7 @@ export default function Services() {
             <div
               key={service.id}
               onClick={() => handleCardClick(service.id)}
-              className={`group relative bg-silicon-slate/40 backdrop-blur-md rounded-2xl overflow-hidden border border-radiant-gold/5 ${accent.border} transition-all duration-500 cursor-pointer reveal-on-scroll is-visible`}
+              className={`group relative overflow-hidden rounded-2xl border border-[#121E31]/10 bg-white/85 shadow-[0_24px_70px_rgba(18,30,49,0.08)] backdrop-blur-md transition-all duration-500 cursor-pointer reveal-on-scroll is-visible dark:border-radiant-gold/5 dark:bg-silicon-slate/40 dark:shadow-none ${accent.border}`}
               style={{ transitionDelay: `${index * 0.08}s` }}
             >
               <div className="relative h-64 overflow-hidden">
@@ -191,7 +191,7 @@ export default function Services() {
                       : 'Free'}
                 </div>
               </div>
-              <div className="p-8">
+              <div className="bg-white/90 p-8 dark:bg-transparent">
                 <div className="flex flex-wrap gap-2 mb-2">
                   <span className="text-[10px] font-heading text-muted-foreground uppercase tracking-wider">
                     {DELIVERY_LABELS[service.delivery_method] || service.delivery_method}
