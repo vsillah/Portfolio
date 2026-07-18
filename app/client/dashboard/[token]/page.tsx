@@ -22,7 +22,6 @@ import AccelerationCards from '@/components/client-dashboard/AccelerationCards'
 import CampaignProgressSection from '@/components/client-dashboard/CampaignProgressSection'
 import DocumentsSection from '@/components/client-dashboard/DocumentsSection'
 import ReportsSection from '@/components/client-dashboard/ReportsSection'
-import TimeTrackingSection from '@/components/client-dashboard/TimeTrackingSection'
 import AccountSummarySection from '@/components/client-dashboard/AccountSummarySection'
 import MeetingHistory from '@/components/client-dashboard/MeetingHistory'
 import AiOpsRoadmapSection from '@/components/client-dashboard/AiOpsRoadmapSection'
@@ -390,18 +389,15 @@ export default function ClientDashboardPage() {
           <AiOpsRoadmapSection roadmap={aiOpsRoadmap} />
         )}
 
-        {/* Row 5: Documents & Time Investment */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Row 5: Documents and account context */}
+        <div className="grid grid-cols-1 gap-6">
           <DocumentsSection documents={documents || []} />
-          <TimeTrackingSection
-            timeTracking={timeTracking || { total_seconds: 0, by_target: [] }}
-            milestones={(milestones || []) as Array<{ title?: string }>}
-          />
         </div>
 
         <AccountSummarySection
           accountSummary={accountSummary}
           timeTracking={timeTracking || { total_seconds: 0, by_target: [] }}
+          milestones={(milestones || []) as Array<{ title?: string }>}
         />
 
         {buildEvidence && (

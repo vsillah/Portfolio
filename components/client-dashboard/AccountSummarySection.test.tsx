@@ -8,6 +8,10 @@ const accountSummary: AccountSummaryData = {
   paid_to_date: 1200,
   balance_due: 0,
   current_packet_value: 0,
+  total_logged_seconds: 23400,
+  services_rendered_value: 1200,
+  remaining_contract_value: 0,
+  effective_hourly_rate: 184.6153846153846,
   service_lines: [
     {
       id: 'proposal-1:Website UX Refresh',
@@ -51,15 +55,20 @@ describe('AccountSummarySection', () => {
       <AccountSummarySection
         accountSummary={accountSummary}
         timeTracking={timeTracking}
+        milestones={[{ title: 'Consolidate Balance proof feedback' }]}
       />
     )
 
     expect(screen.getByRole('heading', { name: /account summary/i })).toBeInTheDocument()
-    expect(screen.getAllByText('$1,200')).toHaveLength(3)
+    expect(screen.getAllByText('$1,200')).toHaveLength(4)
     expect(screen.getByText('No balance due')).toBeInTheDocument()
+    expect(screen.getByText('Contract exhausted')).toBeInTheDocument()
+    expect(screen.getByText('$185/hr')).toBeInTheDocument()
+    expect(screen.getByText(/6h 30m dedicated/i)).toBeInTheDocument()
+    expect(screen.getByText(/2h · \$369/i)).toBeInTheDocument()
     expect(screen.getByText('Included')).toBeInTheDocument()
     expect(screen.getByText('Website UX Refresh')).toBeInTheDocument()
     expect(screen.getByText(/FireSpring proof review/i)).toBeInTheDocument()
-    expect(screen.getByText('6h 30m logged')).toBeInTheDocument()
+    expect(screen.getByText(/contract extension or package option/i)).toBeInTheDocument()
   })
 })

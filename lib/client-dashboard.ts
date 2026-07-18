@@ -159,6 +159,10 @@ export interface AccountSummaryData {
   paid_to_date: number
   balance_due: number
   current_packet_value: number
+  total_logged_seconds: number
+  services_rendered_value: number
+  remaining_contract_value: number
+  effective_hourly_rate: number | null
   service_lines: AccountServiceLine[]
 }
 
@@ -598,7 +602,7 @@ export async function getDashboardByToken(
     // Time entries (completed only — no running timers for client view)
     supabaseAdmin
       .from('time_entries')
-      .select('target_type, target_id, duration_seconds')
+      .select('target_type, target_id, duration_seconds, description')
       .eq('client_project_id', projectId)
       .eq('is_running', false)
       .not('duration_seconds', 'is', null),
@@ -825,7 +829,7 @@ export async function getDashboardByToken(
 
   const valueReports = (allValueReportsResult.data || []) as ClientValueReport[]
   const gammaReports = (allGammaReportsResult.data || []) as ClientGammaReport[]
-  const accountSummary = buildAccountSummary(allClientProposalsResult.data || [])
+  const accountSummary = buildAccountSummary(allClientProposalsResult.data || [], timeTracking)
   const aiOpsRoadmap = await getRoadmapBundleForProject(projectId).then((bundle) => bundle?.clientView ?? null).catch(() => null)
   const buildEvidence = buildEvidenceResult ?? null
 
@@ -903,7 +907,7 @@ function normalizeLineItems(value: unknown): Array<{ label: string; description:
     .filter((item): item is { label: string; description: string | null; amount: number } => Boolean(item))
 }
 
-function buildAccountSummary(rows: unknown[]): AccountSummaryData | null {
+function buildAccountSummary(rows: unknown[], timeTracking: TimeTrackingData): AccountSummaryData | null {
   const proposals = rows as ProposalHistoryRow[]
   if (proposals.length === 0) return null
 
@@ -913,6 +917,12 @@ function buildAccountSummary(rows: unknown[]): AccountSummaryData | null {
   const currentPacketValue = currentPacketRows.reduce((sum, row) => sum + numberFromCurrency(row.total_amount), 0)
   const contractValue = paidToDate + currentPacketValue
   const balanceDue = Math.max(0, contractValue - paidToDate)
+  const totalLoggedHours = timeTracking.total_seconds / 3600
+  const effectiveHourlyRate =
+    contractValue > 0 && totalLoggedHours > 0 ? contractValue / totalLoggedHours : null
+  const servicesRenderedValue =
+    effectiveHourlyRate == null ? 0 : Math.min(contractValue, effectiveHourlyRate * totalLoggedHours)
+  const remainingContractValue = Math.max(0, contractValue - servicesRenderedValue)
 
   const seenServiceKeys = new Set<string>()
   const serviceLines: AccountServiceLine[] = []
@@ -945,6 +955,10 @@ function buildAccountSummary(rows: unknown[]): AccountSummaryData | null {
     paid_to_date: paidToDate,
     balance_due: balanceDue,
     current_packet_value: currentPacketValue,
+    total_logged_seconds: timeTracking.total_seconds,
+    services_rendered_value: servicesRenderedValue,
+    remaining_contract_value: remainingContractValue,
+    effective_hourly_rate: effectiveHourlyRate,
     service_lines: serviceLines,
   }
 }
