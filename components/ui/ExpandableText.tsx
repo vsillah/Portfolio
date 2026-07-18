@@ -65,7 +65,7 @@ export default function ExpandableText({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-gray-900/90 to-transparent pointer-events-none"
+              className="pointer-events-none absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white/95 to-transparent dark:from-gray-900/90"
             />
           )}
         </AnimatePresence>

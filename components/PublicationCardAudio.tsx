@@ -63,7 +63,7 @@ export default function PublicationCardAudio({
 
   return (
     <div
-      className="rounded-xl border border-radiant-gold/10 bg-silicon-slate/30 p-3"
+      className="rounded-xl border border-[#121E31]/10 bg-white/85 p-3 shadow-[0_12px_30px_rgba(18,30,49,0.06)] dark:border-radiant-gold/10 dark:bg-silicon-slate/30 dark:shadow-none"
       aria-label={`Listen to ${publicationTitle}`}
     >
       <div className="text-[10px] font-heading tracking-widest text-muted-foreground uppercase mb-2">

@@ -271,7 +271,7 @@ export default function Publications() {
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center mb-20 animate-fade-in-up"
         >
-          <div className="pill-badge bg-silicon-slate/30 border-radiant-gold/20 mb-6 mx-auto">
+          <div className="pill-badge bg-white/80 border-radiant-gold/20 mb-6 mx-auto dark:bg-silicon-slate/30">
             <BookOpen className="w-3 h-3 text-radiant-gold" />
             <span className="text-[10px] uppercase tracking-[0.2em] font-heading text-radiant-gold">
               Library
@@ -296,7 +296,7 @@ export default function Publications() {
           {publications.map((publication, index) => (
             <div
               key={publication.id}
-              className="group relative bg-silicon-slate/40 backdrop-blur-md rounded-2xl overflow-hidden border border-radiant-gold/5 hover:border-radiant-gold/20 transition-all duration-500 flex flex-col reveal-on-scroll is-visible"
+              className="group relative flex flex-col overflow-hidden rounded-2xl border border-[#121E31]/10 bg-white/85 shadow-[0_24px_70px_rgba(18,30,49,0.08)] backdrop-blur-md transition-all duration-500 hover:border-radiant-gold/35 hover:shadow-[0_28px_80px_rgba(18,30,49,0.12)] dark:border-radiant-gold/5 dark:bg-silicon-slate/40 dark:shadow-none dark:hover:border-radiant-gold/20 reveal-on-scroll is-visible"
               style={{ transitionDelay: `${index * 0.1}s` }}
             >
               {/* Publication Image */}
@@ -308,7 +308,7 @@ export default function Publications() {
                   className="object-contain p-8 transition-transform duration-700 group-hover:scale-105"
                   sizes="(max-width: 768px) 100vw, 400px"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-silicon-slate via-transparent to-transparent opacity-40" />
+                <div className="absolute inset-0 bg-gradient-to-t from-white/85 via-white/20 to-transparent opacity-70 dark:from-silicon-slate dark:via-transparent dark:opacity-40" />
                 
                 {/* Book Icon Overlay */}
                 <div className="absolute top-6 right-6 bg-radiant-gold text-imperial-navy p-3 rounded-full shadow-xl">
@@ -335,7 +335,7 @@ export default function Publications() {
               </div>
 
               {/* Publication Content */}
-              <div className="p-8 flex flex-col flex-grow relative z-10">
+              <div className="relative z-10 flex flex-grow flex-col bg-white/90 p-8 dark:bg-transparent">
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h3 className="font-premium text-2xl text-foreground group-hover:text-radiant-gold transition-colors">
@@ -363,7 +363,7 @@ export default function Publications() {
 
                 <div className="flex-grow" />
 
-                <div className="space-y-3 pt-6 border-t border-radiant-gold/5">
+                <div className="space-y-3 border-t border-[#121E31]/10 pt-6 dark:border-radiant-gold/5">
                   {/* 1. Listen — media player first (right after read more) */}
                   {publication.audio_preview_playable_url ? (
                     <NativePublicationAudio
@@ -511,7 +511,7 @@ export default function Publications() {
                   <button
                     type="button"
                     onClick={handleWorkshopNotify}
-                    className="inline-flex items-center justify-center gap-2 py-2.5 px-5 bg-silicon-slate/40 border border-radiant-gold/30 text-foreground rounded-full text-[10px] font-heading tracking-widest uppercase font-bold hover:bg-silicon-slate/60 transition-all"
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-radiant-gold/30 bg-white/85 px-5 py-2.5 font-heading text-[10px] font-bold uppercase tracking-widest text-foreground shadow-[0_12px_30px_rgba(18,30,49,0.06)] transition-all hover:bg-white dark:bg-silicon-slate/40 dark:shadow-none dark:hover:bg-silicon-slate/60"
                   >
                     <MailCheck size={14} />
                     <span>Notify me when the Accelerated Workshop opens</span>
