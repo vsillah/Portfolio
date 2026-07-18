@@ -11,7 +11,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from 'recharts'
-import type { TrajectoryPoint } from '@/lib/assessment-scoring'
+import { TRAJECTORY_TARGET_SCORE, type TrajectoryPoint } from '@/lib/assessment-scoring'
 
 interface TrajectoryChartProps {
   token: string
@@ -52,10 +52,12 @@ export default function TrajectoryChart({ token, initialData }: TrajectoryChartP
     score: point.overallScore,
     isProjected: point.isProjected,
     label: point.label,
+    isCurrent: point.isCurrent,
   }))
 
   // Split into actual and projected for different line styles
   const splitIndex = chartData.findIndex((d) => d.isProjected)
+  const todayPoint = chartData.find((point) => point.isCurrent)
 
   return (
     <div className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
@@ -80,7 +82,21 @@ export default function TrajectoryChart({ token, initialData }: TrajectoryChartP
                 fontSize: 12,
               }}
             />
-            <ReferenceLine y={90} stroke="#F5D060" strokeDasharray="4 4" label={{ value: 'Target', fill: '#F5D060', fontSize: 11 }} />
+            <ReferenceLine
+              y={TRAJECTORY_TARGET_SCORE}
+              stroke="#F5D060"
+              strokeDasharray="4 4"
+              label={{ value: 'Target', fill: '#F5D060', fontSize: 11 }}
+            />
+            {todayPoint ? (
+              <ReferenceLine
+                x={todayPoint.date}
+                stroke="#EAECEE"
+                strokeOpacity={0.7}
+                strokeDasharray="3 3"
+                label={{ value: 'Today', fill: '#EAECEE', fontSize: 11, position: 'top' }}
+              />
+            ) : null}
             <Line
               type="monotone"
               dataKey="score"
