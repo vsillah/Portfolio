@@ -3,14 +3,18 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, Route, ScanSearch, Workflow, type LucideIcon } from 'lucide-react'
+import { useTheme } from 'next-themes'
 import { useEffect, useRef, useState } from 'react'
 
 const SYSTEM_STORY_ASSET_PATH = '/prototypes/portfolio-pipeline-hero'
+const LIGHT_SYSTEM_STORY_IMAGE = `${SYSTEM_STORY_ASSET_PATH}/higgsfield-light-mode-hero-poster-20260628.webp`
+
+type SystemStoryTheme = 'light' | 'dark'
 
 type SystemStoryFrame = {
   title: string
   copy: string
-  image: string
+  images: Record<SystemStoryTheme, string>
   icon: LucideIcon
   calloutTitle: string
   detail: string
@@ -21,7 +25,10 @@ const frames: SystemStoryFrame[] = [
     title: "The work is already there. It just isn't connected.",
     copy:
       'Small businesses can have the right people, tools, and intentions while intake, scheduling, communications, delivery, billing, reporting, and knowledge still move in separate rooms.',
-    image: `${SYSTEM_STORY_ASSET_PATH}/system-story-fragmented-rooms-20260617.webp`,
+    images: {
+      light: LIGHT_SYSTEM_STORY_IMAGE,
+      dark: `${SYSTEM_STORY_ASSET_PATH}/system-story-fragmented-rooms-20260617.webp`,
+    },
     icon: ScanSearch,
     calloutTitle: 'Intake Drift Detected',
     detail:
@@ -31,7 +38,10 @@ const frames: SystemStoryFrame[] = [
     title: 'We map the operating system.',
     copy:
       'AmaduTown traces how work enters, where decisions wait, and which handoffs create repeat effort. The map turns scattered activity into a buildable blueprint.',
-    image: `${SYSTEM_STORY_ASSET_PATH}/system-story-blueprint-map-20260617.webp`,
+    images: {
+      light: LIGHT_SYSTEM_STORY_IMAGE,
+      dark: `${SYSTEM_STORY_ASSET_PATH}/system-story-blueprint-map-20260617.webp`,
+    },
     icon: Route,
     calloutTitle: 'Handoffs Under Review',
     detail:
@@ -41,7 +51,10 @@ const frames: SystemStoryFrame[] = [
     title: 'Then we connect the work.',
     copy:
       'Automations, agents, dashboards, and reusable playbooks become the piping between departments, so the business operates with less chasing and clearer follow-through.',
-    image: `${SYSTEM_STORY_ASSET_PATH}/system-story-connected-pipeline-20260617.webp`,
+    images: {
+      light: LIGHT_SYSTEM_STORY_IMAGE,
+      dark: `${SYSTEM_STORY_ASSET_PATH}/system-story-connected-pipeline-20260617.webp`,
+    },
     icon: Workflow,
     calloutTitle: 'Operating Layer Engaged',
     detail:
@@ -63,9 +76,20 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
 }
 
+function getSystemStoryTheme(resolvedTheme: string | undefined): SystemStoryTheme | null {
+  if (resolvedTheme === 'light' || resolvedTheme === 'dark') return resolvedTheme
+  return null
+}
+
 export default function SystemStory() {
+  const { resolvedTheme } = useTheme()
   const sectionRef = useRef<HTMLElement>(null)
   const [activeFrame, setActiveFrame] = useState(0)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     const section = sectionRef.current
@@ -101,6 +125,7 @@ export default function SystemStory() {
   }, [])
 
   const ActiveIcon = frames[activeFrame].icon
+  const activeTheme = mounted ? getSystemStoryTheme(resolvedTheme) : null
 
   return (
     <section
@@ -112,20 +137,23 @@ export default function SystemStory() {
       <div className="sticky top-0 min-h-[100svh] overflow-hidden">
         <div className="absolute inset-0 bg-[#f4f6fa] dark:bg-[#121E31]" />
 
-        {frames.map((frame, index) => (
-          <Image
-            key={frame.image}
-            src={frame.image}
-            alt=""
-            fill
-            sizes="100vw"
-            className={`object-cover object-center transition-opacity duration-700 ${
-              activeFrame === index ? 'opacity-[0.44]' : 'opacity-0'
-            }`}
-            aria-hidden="true"
-            priority={index === 0}
-          />
-        ))}
+        {activeTheme
+          ? frames.map((frame, index) => (
+              <Image
+                key={`${activeTheme}-${frame.images[activeTheme]}-${index}`}
+                src={frame.images[activeTheme]}
+                alt=""
+                fill
+                sizes="100vw"
+                className={`object-cover object-center transition-opacity duration-700 ${
+                  activeFrame === index ? 'opacity-[0.78] dark:opacity-[0.44]' : 'opacity-0'
+                }`}
+                aria-hidden="true"
+                priority={index === 0}
+                data-system-story-theme={activeTheme}
+              />
+            ))
+          : null}
 
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(244,246,250,0.76)_0%,rgba(244,246,250,0.58)_30%,rgba(244,246,250,0.18)_66%,rgba(244,246,250,0.34)_100%)] dark:bg-[linear-gradient(90deg,#121E31_0%,rgba(18,30,49,0.9)_28%,rgba(18,30,49,0.46)_62%,rgba(18,30,49,0.72)_100%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_74%_44%,rgba(212,175,55,0.10),transparent_42%)] dark:bg-[radial-gradient(ellipse_at_74%_44%,rgba(212,175,55,0.12),transparent_42%)]" />
