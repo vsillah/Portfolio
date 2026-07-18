@@ -4,7 +4,11 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import { Check, Copy, Loader2 } from 'lucide-react'
 import DashboardStatCards from '@/components/client-dashboard/DashboardStatCards'
-import ExecutiveSummary from '@/components/client-dashboard/ExecutiveSummary'
+import ExecutiveSummary, {
+  ActionFocusCommentary,
+  AssessmentScoresCommentary,
+  TrajectoryCommentary,
+} from '@/components/client-dashboard/ExecutiveSummary'
 import ScoreRadarChart from '@/components/client-dashboard/ScoreRadarChart'
 import ConfidenceRadar from '@/components/client-dashboard/ConfidenceRadar'
 import StrengthenConfidenceBlock from '@/components/client-dashboard/StrengthenConfidenceBlock'
@@ -317,33 +321,35 @@ export default function ClientDashboardPage() {
 
         <ExecutiveSummary
           clientCompany={project.client_company}
-          overallScore={scores.overallScore}
-          categoryScores={scores.categoryScores}
-          scoreDelta={scores.delta}
-          tasksCompleted={tasksCompleted}
-          tasksTotal={tasks.length}
           highPriorityRemaining={highPriorityRemaining}
-          snapshotsCount={snapshots.length}
-          recommendationsCount={recommendations.length}
           diagnosticSummary={assessment?.diagnostic_summary || null}
           recommendedActions={assessment?.recommended_actions || null}
         />
 
         {/* Row 2: Radar + Trajectory */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ScoreRadarChart scores={scores.categoryScores} />
-          {snapshots.length > 0 ? (
-            <TrajectoryChart token={token} />
-          ) : (
-            <div className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
-              <h3 className="mb-2 text-sm font-medium uppercase tracking-wider text-radiant-gold">
-                Score Trajectory
-              </h3>
-              <p className="text-sm text-platinum-white/55">
-                Score trajectory will appear once milestone-based projections are available.
-              </p>
-            </div>
-          )}
+          <div className="space-y-3">
+            <ScoreRadarChart scores={scores.categoryScores} />
+            <AssessmentScoresCommentary categoryScores={scores.categoryScores} />
+          </div>
+          <div className="space-y-3">
+            {snapshots.length > 0 ? (
+              <TrajectoryChart token={token} />
+            ) : (
+              <div className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
+                <h3 className="mb-2 text-sm font-medium uppercase tracking-wider text-radiant-gold">
+                  Score Trajectory
+                </h3>
+                <p className="text-sm text-platinum-white/55">
+                  Score trajectory will appear once milestone-based projections are available.
+                </p>
+              </div>
+            )}
+            <TrajectoryCommentary
+              scoreDelta={scores.delta}
+              snapshotsCount={snapshots.length}
+            />
+          </div>
         </div>
 
         {/* Row 3: Assessment */}
@@ -408,11 +414,19 @@ export default function ClientDashboardPage() {
 
         {/* Row 8: Task Checklist */}
         {tasks.length > 0 && (
-          <TaskChecklist
-            tasks={tasks}
-            token={token}
-            onTaskUpdate={handleTaskUpdate}
-          />
+          <div className="space-y-3">
+            <TaskChecklist
+              tasks={tasks}
+              token={token}
+              onTaskUpdate={handleTaskUpdate}
+            />
+            <ActionFocusCommentary
+              tasksCompleted={tasksCompleted}
+              tasksTotal={tasks.length}
+              highPriorityRemaining={highPriorityRemaining}
+              recommendationsCount={recommendations.length}
+            />
+          </div>
         )}
 
         {/* Row 9: Milestones */}
