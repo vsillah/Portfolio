@@ -106,7 +106,7 @@ export function ChatMessage({ role, content, timestamp, isTyping, isVoice }: Cha
             ? 'bg-gradient-to-br from-bronze via-radiant-gold to-gold-light text-imperial-navy'
             : isSupport
             ? 'bg-gradient-to-br from-emerald-500 to-emerald-700 text-white'
-            : 'bg-silicon-slate/50 border border-radiant-gold/20 text-radiant-gold'
+            : 'border border-radiant-gold/25 bg-white/[0.78] text-radiant-gold shadow-[0_8px_20px_rgba(18,30,49,0.08)] dark:bg-silicon-slate/50 dark:shadow-none'
         }`}
       >
         {getRoleIcon()}
@@ -126,7 +126,7 @@ export function ChatMessage({ role, content, timestamp, isTyping, isVoice }: Cha
               ? 'bg-gradient-to-br from-radiant-gold/20 to-bronze/20 border border-radiant-gold/30 text-foreground'
               : isSupport
               ? 'bg-emerald-500/10 border border-emerald-500/30 text-foreground'
-              : 'bg-silicon-slate/30 border border-foreground/10 text-foreground/90'
+              : 'border border-[#121E31]/[0.10] bg-white/[0.72] text-foreground/90 shadow-[0_8px_22px_rgba(18,30,49,0.06)] dark:border-foreground/10 dark:bg-silicon-slate/30 dark:shadow-none'
           } ${isUser ? 'rounded-tr-sm' : 'rounded-tl-sm'}`}
         >
           {isTyping ? (

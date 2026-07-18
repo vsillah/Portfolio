@@ -573,7 +573,7 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             onClick={() => setIsExpanded(true)}
-            className="w-full flex items-center justify-center gap-3 py-4 px-6 bg-silicon-slate/30 border border-radiant-gold/20 rounded-xl text-foreground hover:bg-silicon-slate/40 hover:border-radiant-gold/40 transition-all duration-300"
+            className="w-full flex items-center justify-center gap-3 py-4 px-6 rounded-xl border border-[#121E31]/[0.12] bg-white/[0.78] text-[#12304B] shadow-[0_12px_32px_rgba(18,30,49,0.08)] transition-all duration-300 hover:border-radiant-gold/45 hover:bg-white dark:border-radiant-gold/20 dark:bg-silicon-slate/30 dark:text-foreground dark:shadow-none dark:hover:border-radiant-gold/40 dark:hover:bg-silicon-slate/40"
           >
             <MessageCircle size={20} className="text-radiant-gold" />
             <span className="font-heading text-sm tracking-wider uppercase">Chat with AI Assistant</span>
@@ -585,10 +585,10 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="glass-card border border-radiant-gold/20 rounded-xl overflow-hidden"
+            className="overflow-hidden rounded-xl border border-[#121E31]/[0.12] bg-white/[0.86] shadow-[0_22px_58px_rgba(18,30,49,0.10)] backdrop-blur-xl dark:border-radiant-gold/20 dark:bg-silicon-slate/30 dark:shadow-none"
           >
             {/* Chat Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-radiant-gold/10 bg-silicon-slate/20">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[#121E31]/[0.08] bg-white/[0.72] dark:border-radiant-gold/10 dark:bg-silicon-slate/20">
               <div className="flex items-center gap-2">
                 <div className={`w-2 h-2 rounded-full ${isVoiceCallActive ? 'bg-radiant-gold' : isDiagnosticMode ? 'bg-radiant-gold' : 'bg-emerald-500'} animate-pulse`} />
                 <span className="text-sm font-heading tracking-wider text-foreground">
@@ -606,7 +606,7 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
               <div className="flex items-center gap-2">
                 {/* Voice/Text Mode Toggle - available even in diagnostic mode */}
                 {voiceEnabled && (
-                  <div className="flex items-center bg-silicon-slate/30 rounded-lg p-0.5 mr-2">
+                  <div className="flex items-center rounded-lg bg-[#121E31]/[0.06] p-0.5 mr-2 dark:bg-silicon-slate/30">
                     <motion.button
                       onClick={() => setChatMode('text')}
                       whileHover={{ scale: 1.05 }}
@@ -752,7 +752,7 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="p-3 bg-silicon-slate/40 border border-radiant-gold/20 rounded-lg"
+                    className="p-3 rounded-lg border border-[#121E31]/[0.10] bg-white/[0.72] dark:border-radiant-gold/20 dark:bg-silicon-slate/40"
                   >
                     <div className="flex justify-between items-start gap-2">
                       <div className="flex-1">
@@ -826,7 +826,7 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
                             onClick={() => handleSuggestionClick(action.message)}
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
-                            className="flex items-start gap-3 p-3 bg-silicon-slate/20 border border-radiant-gold/10 rounded-lg hover:bg-silicon-slate/30 hover:border-radiant-gold/30 transition-all duration-200 text-left group"
+                            className="flex items-start gap-3 p-3 rounded-lg border border-[#121E31]/[0.10] bg-white/[0.72] text-left shadow-[0_8px_22px_rgba(18,30,49,0.06)] transition-all duration-200 hover:border-radiant-gold/35 hover:bg-white dark:border-radiant-gold/10 dark:bg-silicon-slate/20 dark:shadow-none dark:hover:border-radiant-gold/30 dark:hover:bg-silicon-slate/30 group"
                           >
                             <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-radiant-gold/10 border border-radiant-gold/20 flex items-center justify-center group-hover:bg-radiant-gold/20 group-hover:border-radiant-gold/30 transition-colors">
                               <Icon size={16} className="text-radiant-gold" />
@@ -874,7 +874,7 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
             )}
 
             {/* Input Area - Text or Voice */}
-            <div className="p-4 border-t border-radiant-gold/10 bg-silicon-slate/10">
+            <div className="p-4 border-t border-[#121E31]/[0.08] bg-white/[0.66] dark:border-radiant-gold/10 dark:bg-silicon-slate/10">
               <AnimatePresence mode="wait">
                 {chatMode === 'text' ? (
                   <motion.div
