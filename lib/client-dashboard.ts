@@ -136,11 +136,30 @@ export interface TimeEntrySummary {
   target_id: string
   total_seconds: number
   entry_count: number
+  descriptions?: string[]
 }
 
 export interface TimeTrackingData {
   total_seconds: number
   by_target: TimeEntrySummary[]
+}
+
+export interface AccountServiceLine {
+  id: string
+  label: string
+  description: string | null
+  amount: number
+  status: string
+  source: 'contract' | 'current_packet'
+  date: string | null
+}
+
+export interface AccountSummaryData {
+  contract_value: number
+  paid_to_date: number
+  balance_due: number
+  current_packet_value: number
+  service_lines: AccountServiceLine[]
 }
 
 export interface ClientValueReport {
@@ -197,6 +216,7 @@ export interface DashboardData {
   snapshots: ScoreSnapshot[]
   documents: DashboardDocument[]
   timeTracking: TimeTrackingData
+  accountSummary: AccountSummaryData | null
   nextMeeting: {
     meeting_date: string
     meeting_type: string
@@ -472,6 +492,7 @@ export async function getDashboardByToken(
     allValueReportsResult,
     allGammaReportsResult,
     buildEvidenceResult,
+    allClientProposalsResult,
   ] = await Promise.all([
     // Diagnostic audit via contact_submission -> diagnostic_audits
     project.contact_submission_id
@@ -602,6 +623,12 @@ export async function getDashboardByToken(
       : Promise.resolve({ data: null, error: null }),
 
     getBuildEvidenceForClientProject(projectId),
+
+    supabaseAdmin
+      .from('proposals')
+      .select('id, bundle_name, line_items, total_amount, status, paid_at, accepted_at, created_at')
+      .eq('client_email', project.client_email)
+      .order('created_at', { ascending: false }),
   ])
 
   const audit = auditResult.data
@@ -687,7 +714,12 @@ export async function getDashboardByToken(
   }
 
   // Aggregate time tracking data
-  const rawTimeEntries = (timeEntriesResult.data || []) as { target_type: string; target_id: string; duration_seconds: number }[]
+  const rawTimeEntries = (timeEntriesResult.data || []) as {
+    target_type: string
+    target_id: string
+    duration_seconds: number
+    description: string | null
+  }[]
   const targetMap = new Map<string, TimeEntrySummary>()
   let totalTimeSeconds = 0
   for (const te of rawTimeEntries) {
@@ -702,7 +734,15 @@ export async function getDashboardByToken(
         target_id: te.target_id,
         total_seconds: te.duration_seconds,
         entry_count: 1,
+        descriptions: [],
       })
+    }
+    if (typeof te.description === 'string' && te.description.trim().length > 0) {
+      const summary = targetMap.get(key)
+      if (summary) {
+        summary.descriptions = summary.descriptions || []
+        summary.descriptions.push(te.description.trim())
+      }
     }
     totalTimeSeconds += te.duration_seconds
   }
@@ -785,6 +825,7 @@ export async function getDashboardByToken(
 
   const valueReports = (allValueReportsResult.data || []) as ClientValueReport[]
   const gammaReports = (allGammaReportsResult.data || []) as ClientGammaReport[]
+  const accountSummary = buildAccountSummary(allClientProposalsResult.data || [])
   const aiOpsRoadmap = await getRoadmapBundleForProject(projectId).then((bundle) => bundle?.clientView ?? null).catch(() => null)
   const buildEvidence = buildEvidenceResult ?? null
 
@@ -812,6 +853,7 @@ export async function getDashboardByToken(
       snapshots,
       documents,
       timeTracking,
+      accountSummary,
       nextMeeting: meetingResult.data || null,
       valueReport: valueReportResult.data || null,
       valueReports,
@@ -820,6 +862,90 @@ export async function getDashboardByToken(
       buildEvidence,
     },
     stage: 'client',
+  }
+}
+
+type ProposalHistoryRow = {
+  id: string
+  bundle_name: string | null
+  line_items: unknown
+  total_amount: number | string | null
+  status: string | null
+  paid_at: string | null
+  accepted_at: string | null
+  created_at: string | null
+}
+
+function numberFromCurrency(value: number | string | null | undefined): number {
+  const parsed = Number(value ?? 0)
+  return Number.isFinite(parsed) ? parsed : 0
+}
+
+function proposalDate(row: ProposalHistoryRow): string | null {
+  return row.paid_at || row.accepted_at || row.created_at || null
+}
+
+function normalizeLineItems(value: unknown): Array<{ label: string; description: string | null; amount: number }> {
+  if (!Array.isArray(value)) return []
+
+  return value
+    .map((item) => {
+      if (!item || typeof item !== 'object') return null
+      const record = item as Record<string, unknown>
+      const label = String(record.name || record.title || '').trim()
+      if (!label) return null
+      return {
+        label,
+        description: typeof record.description === 'string' ? record.description : null,
+        amount: numberFromCurrency(record.price as number | string | null | undefined),
+      }
+    })
+    .filter((item): item is { label: string; description: string | null; amount: number } => Boolean(item))
+}
+
+function buildAccountSummary(rows: unknown[]): AccountSummaryData | null {
+  const proposals = rows as ProposalHistoryRow[]
+  if (proposals.length === 0) return null
+
+  const paidRows = proposals.filter((row) => row.status === 'paid')
+  const currentPacketRows = proposals.filter((row) => row.bundle_name === 'KMB FireSpring Migration Working Packet')
+  const paidToDate = paidRows.reduce((sum, row) => sum + numberFromCurrency(row.total_amount), 0)
+  const currentPacketValue = currentPacketRows.reduce((sum, row) => sum + numberFromCurrency(row.total_amount), 0)
+  const contractValue = paidToDate + currentPacketValue
+  const balanceDue = Math.max(0, contractValue - paidToDate)
+
+  const seenServiceKeys = new Set<string>()
+  const serviceLines: AccountServiceLine[] = []
+
+  for (const row of proposals) {
+    const source: AccountServiceLine['source'] =
+      row.bundle_name === 'KMB FireSpring Migration Working Packet' ? 'current_packet' : 'contract'
+    const lineItems = normalizeLineItems(row.line_items)
+
+    for (const item of lineItems) {
+      const key = `${item.label}:${item.amount}:${source}`
+      if (seenServiceKeys.has(key)) continue
+      seenServiceKeys.add(key)
+      serviceLines.push({
+        id: `${row.id}:${item.label}`,
+        label: item.label,
+        description: item.description,
+        amount: item.amount,
+        status: row.status || 'recorded',
+        source,
+        date: proposalDate(row),
+      })
+    }
+  }
+
+  if (contractValue === 0 && serviceLines.length === 0) return null
+
+  return {
+    contract_value: contractValue,
+    paid_to_date: paidToDate,
+    balance_due: balanceDue,
+    current_packet_value: currentPacketValue,
+    service_lines: serviceLines,
   }
 }
 

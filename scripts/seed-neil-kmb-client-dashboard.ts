@@ -347,7 +347,27 @@ const dashboardTasks = [
 
 const packageRecommendationSeeds = [
   {
+    bundleName: null,
+    service_title: 'Extend Existing Contract',
+    gap_category: 'budget_timeline',
+    gap_description:
+      'Best fit when KMB wants to keep using the existing Website UX Refresh engagement for focused FireSpring proof feedback and launch-readiness support.',
+    projected_impact_pct: 20,
+    projected_annual_value: 1200,
+    impact_headline:
+      'Continue the current contract path instead of starting a separate package.',
+    impact_explanation:
+      'This option keeps the work tied to the paid Website UX Refresh engagement while documenting the additional proof feedback, services rendered, and next support balance.',
+    data_source: 'client_specific',
+    confidence_level: 'high',
+    cta_type: 'view_proposal',
+    cta_url: '#account-summary',
+    content_type: 'contract_option',
+    display_order: 0,
+  },
+  {
     bundleName: 'Community Impact Starter',
+    content_type: 'bundle',
     service_title: 'Community Impact Starter',
     gap_category: 'budget_timeline',
     gap_description:
@@ -361,10 +381,12 @@ const packageRecommendationSeeds = [
     data_source: 'client_specific',
     confidence_level: 'medium',
     cta_type: 'learn_more',
-    display_order: 0,
+    cta_url: null,
+    display_order: 1,
   },
   {
     bundleName: 'Community Impact Accelerator',
+    content_type: 'bundle',
     service_title: 'Community Impact Accelerator',
     gap_category: 'tech_stack',
     gap_description:
@@ -378,10 +400,12 @@ const packageRecommendationSeeds = [
     data_source: 'client_specific',
     confidence_level: 'high',
     cta_type: 'view_proposal',
-    display_order: 1,
+    cta_url: null,
+    display_order: 2,
   },
   {
     bundleName: 'Community Impact Growth',
+    content_type: 'bundle',
     service_title: 'Community Impact Growth',
     gap_category: 'automation_needs',
     gap_description:
@@ -395,7 +419,8 @@ const packageRecommendationSeeds = [
     data_source: 'client_specific',
     confidence_level: 'medium',
     cta_type: 'book_call',
-    display_order: 2,
+    cta_url: null,
+    display_order: 3,
   },
 ] as const
 
@@ -854,27 +879,30 @@ async function refreshDashboardTasks(client: ReturnType<typeof supabase>, projec
 }
 
 async function refreshAccelerationRecommendations(client: ReturnType<typeof supabase>, projectId: string) {
+  const bundleNames = packageRecommendationSeeds.flatMap((recommendation) =>
+    recommendation.bundleName ? [recommendation.bundleName] : []
+  )
   const bundleIds = await resolveBundleIds(
     client,
-    packageRecommendationSeeds.map((recommendation) => recommendation.bundleName)
+    bundleNames
   )
   const recommendationPayload = packageRecommendationSeeds.map((recommendation) => {
-    const { bundleName, ...payload } = recommendation
-    if (!bundleIds.has(bundleName)) {
+    const { bundleName, cta_url, content_type, ...payload } = recommendation
+    if (bundleName && !bundleIds.has(bundleName)) {
       throw new Error(`Missing active offer bundle for KMB package option: ${bundleName}`)
     }
 
     return {
       client_project_id: projectId,
       pain_point_category_id: null,
-      content_type: 'bundle',
+      content_type: content_type || 'bundle',
       content_id: 0,
       benchmark_ids: [],
       value_calculation_id: null,
       is_active: true,
       dismissed_at: null,
       converted_at: null,
-      cta_url: `/pricing#${bundleIds.get(bundleName)?.pricingTierSlug || slugFile(bundleName)}`,
+      cta_url: cta_url || (bundleName ? `/pricing#${bundleIds.get(bundleName)?.pricingTierSlug || slugFile(bundleName)}` : null),
       ...payload,
     }
   })
@@ -885,7 +913,7 @@ async function refreshAccelerationRecommendations(client: ReturnType<typeof supa
     .from('acceleration_recommendations')
     .delete()
     .eq('client_project_id', projectId)
-    .eq('content_type', 'bundle')
+    .in('content_type', ['bundle', 'contract_option'])
     .in('service_title', packageRecommendationSeeds.map((recommendation) => recommendation.service_title))
     .is('dismissed_at', null)
     .is('converted_at', null)

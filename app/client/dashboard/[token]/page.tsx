@@ -10,6 +10,7 @@ import ExecutiveSummary, {
   TrajectoryCommentary,
 } from '@/components/client-dashboard/ExecutiveSummary'
 import ScoreRadarChart from '@/components/client-dashboard/ScoreRadarChart'
+import AssessmentScoreBreakdown from '@/components/client-dashboard/AssessmentScoreBreakdown'
 import ConfidenceRadar from '@/components/client-dashboard/ConfidenceRadar'
 import StrengthenConfidenceBlock from '@/components/client-dashboard/StrengthenConfidenceBlock'
 import TrajectoryChart from '@/components/client-dashboard/TrajectoryChart'
@@ -22,6 +23,7 @@ import CampaignProgressSection from '@/components/client-dashboard/CampaignProgr
 import DocumentsSection from '@/components/client-dashboard/DocumentsSection'
 import ReportsSection from '@/components/client-dashboard/ReportsSection'
 import TimeTrackingSection from '@/components/client-dashboard/TimeTrackingSection'
+import AccountSummarySection from '@/components/client-dashboard/AccountSummarySection'
 import MeetingHistory from '@/components/client-dashboard/MeetingHistory'
 import AiOpsRoadmapSection from '@/components/client-dashboard/AiOpsRoadmapSection'
 import BuildEvidenceInvestmentSection from '@/components/client-dashboard/BuildEvidenceInvestmentSection'
@@ -257,6 +259,7 @@ export default function ClientDashboardPage() {
     gammaReports,
     aiOpsRoadmap,
     buildEvidence,
+    accountSummary,
   } = dashboard as DashboardData
 
   const tasksCompleted = tasks.filter((t: DashboardTask) => t.status === 'complete').length
@@ -331,6 +334,7 @@ export default function ClientDashboardPage() {
           <div className="space-y-3">
             <ScoreRadarChart scores={scores.categoryScores} />
             <AssessmentScoresCommentary categoryScores={scores.categoryScores} />
+            <AssessmentScoreBreakdown scores={scores.categoryScores} />
           </div>
           <div className="space-y-3">
             {snapshots.length > 0 ? (
@@ -394,6 +398,11 @@ export default function ClientDashboardPage() {
             milestones={(milestones || []) as Array<{ title?: string }>}
           />
         </div>
+
+        <AccountSummarySection
+          accountSummary={accountSummary}
+          timeTracking={timeTracking || { total_seconds: 0, by_target: [] }}
+        />
 
         {buildEvidence && (
           <BuildEvidenceInvestmentSection buildEvidence={buildEvidence} />
