@@ -120,17 +120,17 @@ export default function SystemStory() {
             fill
             sizes="100vw"
             className={`object-cover object-center transition-opacity duration-700 ${
-              activeFrame === index ? 'opacity-[0.34] dark:opacity-[0.44]' : 'opacity-0'
+              activeFrame === index ? 'opacity-[0.44]' : 'opacity-0'
             }`}
             aria-hidden="true"
             priority={index === 0}
           />
         ))}
 
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(244,246,250,0.88)_0%,rgba(244,246,250,0.72)_30%,rgba(244,246,250,0.34)_66%,rgba(244,246,250,0.58)_100%)] dark:bg-[linear-gradient(90deg,#121E31_0%,rgba(18,30,49,0.9)_28%,rgba(18,30,49,0.46)_62%,rgba(18,30,49,0.72)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(244,246,250,0.76)_0%,rgba(244,246,250,0.58)_30%,rgba(244,246,250,0.18)_66%,rgba(244,246,250,0.34)_100%)] dark:bg-[linear-gradient(90deg,#121E31_0%,rgba(18,30,49,0.9)_28%,rgba(18,30,49,0.46)_62%,rgba(18,30,49,0.72)_100%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_74%_44%,rgba(212,175,55,0.10),transparent_42%)] dark:bg-[radial-gradient(ellipse_at_74%_44%,rgba(212,175,55,0.12),transparent_42%)]" />
-        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#f4f6fa]/80 to-transparent dark:from-[#121E31]" />
-        <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-[#f4f6fa]/76 to-transparent dark:from-[#121E31]" />
+        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#f4f6fa]/60 to-transparent dark:from-[#121E31]" />
+        <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-[#f4f6fa]/56 to-transparent dark:from-[#121E31]" />
 
         <div className="pointer-events-none absolute inset-0 opacity-50" aria-hidden="true">
           <svg className="h-full w-full" viewBox="0 0 1440 900" preserveAspectRatio="none">
