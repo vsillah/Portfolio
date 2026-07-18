@@ -28,10 +28,13 @@ interface MeetingHistoryProps {
   token: string
 }
 
+const MEETINGS_PAGE_SIZE = 4
+
 export default function MeetingHistory({ token }: MeetingHistoryProps) {
   const [meetings, setMeetings] = useState<Meeting[]>([])
   const [loading, setLoading] = useState(true)
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
 
   useEffect(() => {
     async function fetchMeetings() {
@@ -40,6 +43,8 @@ export default function MeetingHistory({ token }: MeetingHistoryProps) {
         if (res.ok) {
           const data = await res.json()
           setMeetings(data.meetings || [])
+          setCurrentPage(1)
+          setExpandedId(null)
         }
       } catch {
         // Silently fail
@@ -63,15 +68,33 @@ export default function MeetingHistory({ token }: MeetingHistoryProps) {
 
   if (meetings.length === 0) return null
 
+  const totalPages = Math.ceil(meetings.length / MEETINGS_PAGE_SIZE)
+  const hasPagination = meetings.length > MEETINGS_PAGE_SIZE
+  const pageStartIndex = (currentPage - 1) * MEETINGS_PAGE_SIZE
+  const pageEndIndex = Math.min(pageStartIndex + MEETINGS_PAGE_SIZE, meetings.length)
+  const visibleMeetings = meetings.slice(pageStartIndex, pageEndIndex)
+
+  const goToPage = (page: number) => {
+    setCurrentPage(page)
+    setExpandedId(null)
+  }
+
   return (
     <div className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
-      <h3 className="text-sm font-medium text-radiant-gold uppercase tracking-wider mb-4 flex items-center gap-2">
-        <Video className="w-4 h-4" />
-        Meeting History
-      </h3>
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h3 className="text-sm font-medium text-radiant-gold uppercase tracking-wider flex items-center gap-2">
+          <Video className="w-4 h-4" />
+          Meeting History
+        </h3>
+        {hasPagination && (
+          <p className="text-xs text-platinum-white/45">
+            Showing {pageStartIndex + 1} to {pageEndIndex} of {meetings.length} meetings
+          </p>
+        )}
+      </div>
 
       <div className="space-y-2">
-        {meetings.map((meeting) => {
+        {visibleMeetings.map((meeting) => {
           const isExpanded = expandedId === meeting.id
           const hasDetails =
             (meeting.key_decisions && meeting.key_decisions.length > 0) ||
@@ -103,7 +126,7 @@ export default function MeetingHistory({ token }: MeetingHistoryProps) {
                         day: 'numeric',
                         year: 'numeric',
                       })}
-                      {meeting.duration_minutes && (
+                      {meeting.duration_minutes !== null && meeting.duration_minutes > 0 && (
                         <> &middot; {meeting.duration_minutes}min</>
                       )}
                     </p>
@@ -194,6 +217,32 @@ export default function MeetingHistory({ token }: MeetingHistoryProps) {
           )
         })}
       </div>
+
+      {hasPagination && (
+        <div className="mt-4 flex flex-col gap-3 border-t border-radiant-gold/10 pt-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs text-platinum-white/45">
+            Page {currentPage} of {totalPages}
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => goToPage(Math.max(currentPage - 1, 1))}
+              disabled={currentPage === 1}
+              className="rounded-md border border-radiant-gold/20 px-3 py-1.5 text-xs font-medium text-platinum-white/70 transition hover:border-radiant-gold/45 hover:text-radiant-gold disabled:cursor-not-allowed disabled:border-platinum-white/10 disabled:text-platinum-white/25"
+            >
+              Previous
+            </button>
+            <button
+              type="button"
+              onClick={() => goToPage(Math.min(currentPage + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="rounded-md border border-radiant-gold/20 px-3 py-1.5 text-xs font-medium text-platinum-white/70 transition hover:border-radiant-gold/45 hover:text-radiant-gold disabled:cursor-not-allowed disabled:border-platinum-white/10 disabled:text-platinum-white/25"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
