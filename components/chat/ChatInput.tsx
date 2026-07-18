@@ -54,7 +54,7 @@ export function ChatInput({
 
   return (
     <form onSubmit={handleSubmit} className="relative">
-      <div className="flex items-end gap-2 p-2 bg-silicon-slate/20 rounded-xl border border-radiant-gold/10 focus-within:border-radiant-gold/30 transition-colors">
+      <div className="flex items-end gap-2 p-2 rounded-xl border border-[#121E31]/[0.10] bg-white/[0.72] transition-colors focus-within:border-radiant-gold/35 dark:border-radiant-gold/10 dark:bg-silicon-slate/20 dark:focus-within:border-radiant-gold/30">
         <textarea
           ref={textareaRef}
           value={message}
@@ -73,7 +73,7 @@ export function ChatInput({
           className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${
             message.trim() && !disabled && !isLoading
               ? 'bg-gradient-to-br from-radiant-gold to-bronze text-imperial-navy hover:shadow-lg hover:shadow-radiant-gold/20'
-              : 'bg-silicon-slate/30 text-muted-foreground/70 cursor-not-allowed'
+              : 'bg-[#121E31]/[0.08] text-[#49637E]/80 cursor-not-allowed dark:bg-silicon-slate/30 dark:text-muted-foreground/70'
           }`}
         >
           {isLoading ? (

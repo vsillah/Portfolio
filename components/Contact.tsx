@@ -38,6 +38,14 @@ const interestOptions = [
   { value: 'other', label: 'Other' },
 ]
 
+const contactTabBaseClass =
+  'flex items-center gap-2 px-5 py-3 rounded-full text-[10px] font-heading tracking-[0.15em] uppercase transition-all duration-300'
+
+const contactTabActiveClass = 'bg-gradient-to-r from-radiant-gold to-bronze text-imperial-navy'
+
+const contactTabInactiveClass =
+  'border border-[#121E31]/[0.12] bg-white/[0.78] text-[#2F4A66] shadow-[0_10px_28px_rgba(18,30,49,0.08)] hover:border-radiant-gold/45 hover:bg-white hover:text-[#121E31] dark:border-radiant-gold/20 dark:bg-silicon-slate/30 dark:text-muted-foreground dark:shadow-none dark:hover:border-radiant-gold/40 dark:hover:text-foreground'
+
 // Helper function to normalize URLs - adds https:// if missing
 const normalizeUrl = (url: string): string => {
   if (!url || !url.trim()) return url
@@ -192,7 +200,7 @@ export default function Contact() {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-3 bg-silicon-slate/30 border border-radiant-gold/10 rounded-full text-muted-foreground hover:text-radiant-gold hover:border-radiant-gold/40 transition-all"
+                    className="p-3 rounded-full border border-[#121E31]/[0.12] bg-white/[0.76] text-[#35516E] shadow-[0_10px_24px_rgba(18,30,49,0.08)] transition-all hover:border-radiant-gold/45 hover:bg-white hover:text-[#121E31] dark:border-radiant-gold/10 dark:bg-silicon-slate/30 dark:text-muted-foreground dark:shadow-none dark:hover:border-radiant-gold/40 dark:hover:text-radiant-gold"
                   >
                     <social.icon size={18} />
                   </a>
@@ -210,10 +218,8 @@ export default function Contact() {
             <div className="flex gap-2 mb-6">
               <button
                 onClick={() => setActiveTab('chat')}
-                className={`flex items-center gap-2 px-5 py-3 rounded-full text-[10px] font-heading tracking-[0.15em] uppercase transition-all duration-300 ${
-                  activeTab === 'chat'
-                    ? 'bg-gradient-to-r from-radiant-gold to-bronze text-imperial-navy'
-                    : 'bg-silicon-slate/30 border border-radiant-gold/20 text-muted-foreground hover:border-radiant-gold/40 hover:text-foreground'
+                className={`${contactTabBaseClass} ${
+                  activeTab === 'chat' ? contactTabActiveClass : contactTabInactiveClass
                 }`}
               >
                 <MessageCircle size={14} />
@@ -221,10 +227,8 @@ export default function Contact() {
               </button>
               <button
                 onClick={() => setActiveTab('form')}
-                className={`flex items-center gap-2 px-5 py-3 rounded-full text-[10px] font-heading tracking-[0.15em] uppercase transition-all duration-300 ${
-                  activeTab === 'form'
-                    ? 'bg-gradient-to-r from-radiant-gold to-bronze text-imperial-navy'
-                    : 'bg-silicon-slate/30 border border-radiant-gold/20 text-muted-foreground hover:border-radiant-gold/40 hover:text-foreground'
+                className={`${contactTabBaseClass} ${
+                  activeTab === 'form' ? contactTabActiveClass : contactTabInactiveClass
                 }`}
               >
                 <FileText size={14} />
