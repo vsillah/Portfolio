@@ -98,6 +98,8 @@ export default function AccelerationCards({
         {recommendations.map((rec) => {
           const confidence = CONFIDENCE_STYLES[rec.confidence_level] || CONFIDENCE_STYLES.low
           const isDismissing = dismissing === rec.id
+          const projectedAnnualValue = Number(rec.projected_annual_value || 0)
+          const projectedImpactPct = Number(rec.projected_impact_pct || 0)
 
           return (
             <div
@@ -137,7 +139,7 @@ export default function AccelerationCards({
               )}
 
               {/* Projected Value */}
-              {rec.projected_annual_value && rec.projected_annual_value > 0 && (
+              {projectedAnnualValue > 0 && (
                 <div className="bg-imperial-navy/55 rounded-lg border border-radiant-gold/10 p-2.5 mb-3">
                   <div className="flex items-center gap-2">
                     <BarChart className="w-4 h-4 text-gold-light" />
@@ -146,13 +148,13 @@ export default function AccelerationCards({
                         style: 'currency',
                         currency: 'USD',
                         maximumFractionDigits: 0,
-                      }).format(rec.projected_annual_value)}
+                      }).format(projectedAnnualValue)}
                       <span className="text-xs font-normal text-platinum-white/42"> package</span>
                     </span>
                   </div>
-                  {rec.projected_impact_pct && (
+                  {projectedImpactPct > 0 && (
                     <p className="text-[10px] text-platinum-white/45 mt-0.5">
-                      +{rec.projected_impact_pct}% improvement
+                      +{projectedImpactPct}% improvement
                     </p>
                   )}
                 </div>
