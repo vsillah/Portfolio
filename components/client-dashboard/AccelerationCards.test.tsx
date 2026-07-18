@@ -106,4 +106,38 @@ describe('AccelerationCards', () => {
 
     vi.unstubAllGlobals()
   })
+
+  it('labels contract extension options as account actions', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        json: async () => ({ ctaUrl: '#account-summary' }),
+      })
+    )
+
+    render(
+      <AccelerationCards
+        recommendations={[{
+          ...recommendation,
+          id: 'rec-contract',
+          content_type: 'contract_option',
+          service_title: 'Extend Existing Contract',
+          projected_annual_value: 1200,
+        }]}
+        token="dashboard-token"
+        onDismiss={vi.fn()}
+      />
+    )
+
+    expect(screen.getByText('Extend Existing Contract')).toBeInTheDocument()
+    expect(screen.getByText('contract')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /view account/i }))
+
+    await vi.waitFor(() => {
+      expect(window.location.hash).toBe('#account-summary')
+    })
+
+    vi.unstubAllGlobals()
+  })
 })

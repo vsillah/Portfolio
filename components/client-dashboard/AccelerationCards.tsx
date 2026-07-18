@@ -37,6 +37,11 @@ const CTA_LABELS: Record<string, string> = {
   start_trial: 'Start Trial',
 }
 
+function getCtaLabel(rec: AccelerationRecommendation): string {
+  if (rec.content_type === 'contract_option') return 'View Account'
+  return CTA_LABELS[rec.cta_type] || 'Learn More'
+}
+
 export default function AccelerationCards({
   recommendations,
   token,
@@ -75,7 +80,11 @@ export default function AccelerationCards({
       })
       const data = await res.json()
       if (data.ctaUrl) {
-        window.open(data.ctaUrl, '_blank')
+        if (typeof data.ctaUrl === 'string' && data.ctaUrl.startsWith('#')) {
+          window.location.hash = data.ctaUrl
+        } else {
+          window.open(data.ctaUrl, '_blank')
+        }
       }
     } catch {
       // Silent fail
@@ -100,6 +109,7 @@ export default function AccelerationCards({
           const isDismissing = dismissing === rec.id
           const projectedAnnualValue = Number(rec.projected_annual_value || 0)
           const projectedImpactPct = Number(rec.projected_impact_pct || 0)
+          const isContractOption = rec.content_type === 'contract_option'
 
           return (
             <div
@@ -149,7 +159,9 @@ export default function AccelerationCards({
                         currency: 'USD',
                         maximumFractionDigits: 0,
                       }).format(projectedAnnualValue)}
-                      <span className="text-xs font-normal text-platinum-white/42"> package</span>
+                      <span className="text-xs font-normal text-platinum-white/42">
+                        {' '}{isContractOption ? 'contract' : 'package'}
+                      </span>
                     </span>
                   </div>
                   {projectedImpactPct > 0 && (
@@ -179,7 +191,7 @@ export default function AccelerationCards({
                 onClick={() => handleConvert(rec.id)}
                 className="w-full flex items-center justify-center gap-2 rounded-lg border border-radiant-gold/25 bg-radiant-gold/12 px-3 py-2 text-sm font-medium text-gold-light transition-colors hover:bg-radiant-gold/20"
               >
-                {CTA_LABELS[rec.cta_type] || 'Learn More'}
+                {getCtaLabel(rec)}
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
