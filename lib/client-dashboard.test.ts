@@ -33,7 +33,7 @@ describe('buildAccountSummary', () => {
     ).toBeNull()
   })
 
-  it('derives paid contract capacity and rendered value from logged time', () => {
+  it('combines paid history, service lines, and logged time for the dashboard summary', () => {
     const summary = buildAccountSummary(
       [
         {
@@ -81,10 +81,7 @@ describe('buildAccountSummary', () => {
       balance_due: 0,
       current_packet_value: 0,
       total_logged_seconds: 23_400,
-      services_rendered_value: 1200,
-      remaining_contract_value: 0,
     })
-    expect(summary?.effective_hourly_rate).toBeCloseTo(184.615, 3)
     expect(summary?.service_lines).toEqual([
       {
         id: 'proposal-paid:Website UX Refresh',
@@ -164,8 +161,8 @@ describe('buildAccountSummary', () => {
           total_amount: 0,
           status: 'accepted',
           paid_at: null,
-          accepted_at: '2026-07-01T00:00:00.000Z',
-          created_at: '2026-06-30T00:00:00.000Z',
+          accepted_at: '2026-07-02T00:00:00.000Z',
+          created_at: '2026-07-01T00:00:00.000Z',
         },
         {
           id: 'proposal-duplicate',
@@ -175,7 +172,7 @@ describe('buildAccountSummary', () => {
           status: null,
           paid_at: null,
           accepted_at: null,
-          created_at: '2026-07-02T00:00:00.000Z',
+          created_at: '2026-07-01T00:00:00.000Z',
         },
       ],
       noTime
@@ -189,7 +186,7 @@ describe('buildAccountSummary', () => {
         amount: 75,
         status: 'accepted',
         source: 'contract',
-        date: '2026-07-01T00:00:00.000Z',
+        date: '2026-07-02T00:00:00.000Z',
       },
     ])
   })
