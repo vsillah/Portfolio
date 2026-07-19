@@ -59,7 +59,7 @@ const DRIVE_ROOT =
 
 const documentSeeds = [
   {
-    title: 'KMB Flash Consulting Brief',
+    title: 'KMB Flash Consulting Brief / Original Agreement',
     fileName: 'KMB-FlashConsulting-111425.pdf',
     documentType: 'proposal_package',
     displayOrder: 0,
@@ -95,15 +95,55 @@ const documentSeeds = [
   },
 ] as const
 
+const latestReadAiMeeting = {
+  id: '01KXR7SVNHSXAH801T1Z9MAMJM',
+  title: 'Website Template Evaluation',
+  meetingDate: '2026-07-17T14:31:03.601Z',
+  durationMinutes: 18,
+  reportUrl: 'https://app.read.ai/analytics/meetings/01KXR7SVNHSXAH801T1Z9MAMJM',
+  summary:
+    'Neil and Vambah reassessed the FireSpring Balance template path. Neil said the new template was not showing enough benefit to justify the busy work needed to recreate what the current site already does. The recommended path is to pause the template rollout, ask FireSpring to unlock the existing site, revisit the original agreement and goals, and decide whether the next paid step should be a focused existing-site fundraising improvement, a small FireSpring customization advisory path, or a separately scoped extension.',
+  keyDecisions: [
+    'Pause the FireSpring Balance template rollout until KMB confirms the existing-site option and original agreement scope.',
+    'Ask FireSpring to unlock the existing website so near-term edits can resume on the current template.',
+    'Prioritize the low-friction fundraising improvement path: stronger homepage copy, a clear donation image or band, and direct routing to the donation page.',
+    'Treat additional FireSpring rounds or broader implementation work as new terms once the current paid value is exhausted.',
+  ],
+  actionItems: [
+    {
+      assignee: 'Neil Rhein',
+      text: 'Ask FireSpring to unlock the existing site so edits can resume while the Balance template path is paused.',
+    },
+    {
+      assignee: 'Neil Rhein',
+      text: 'Revisit the original agreement and project goals to decide which fundraising improvements fit the current scope.',
+    },
+    {
+      assignee: 'Vambah Sillah',
+      text: 'Send the original agreement/brief, refreshed client dashboard, and walk-through materials.',
+    },
+    {
+      assignee: 'Vambah Sillah',
+      text: 'Update the dashboard next steps and payment options to reflect the decision pivot.',
+    },
+  ],
+  openQuestions: [
+    'Can FireSpring unlock the existing site quickly enough to make the current-template path practical?',
+    'Which specific fundraising improvement should happen first: homepage donation band, stronger CTA copy, donation image, or direct QGIV routing?',
+    'Would a small paid FireSpring customization solve the highest-value gap more efficiently than continuing a full template migration?',
+    'If KMB eventually leaves FireSpring, who will own future site edits and maintenance?',
+  ],
+}
+
 const milestonePlan = [
   {
     id: 'kmb-m1-proof-feedback-package',
     week: 1,
     phase: 1,
-    title: 'Consolidate Balance proof feedback',
-    status: 'in_progress',
+    title: 'Document Balance proof feedback and work to date',
+    status: 'complete',
     description:
-      'Centralize the FireSpring Balance proof feedback, including typography, border/shadow treatment, navigation depth, donor CTA treatment, and homepage section recommendations.',
+      'Centralize the FireSpring Balance proof feedback, original agreement/brief, visual recommendations, and account summary so KMB can see what has already been delivered.',
     deliverables: [
       'FireSpring follow-up email packet',
       'Visual recommendation examples',
@@ -137,45 +177,45 @@ const milestonePlan = [
     ],
   },
   {
-    id: 'kmb-m2-vendor-navigation-answer',
+    id: 'kmb-m2-decision-pivot-unlock-current-site',
     week: 2,
     phase: 1,
-    title: 'Resolve FireSpring internal navigation pattern',
-    status: 'pending',
+    title: 'Pause Balance rollout and unlock the existing site',
+    status: 'in_progress',
     description:
-      'Get FireSpring to confirm whether Balance supports breadcrumbs, sidebar navigation, sticky subnavigation, or a supported section-depth workaround.',
+      'Use the July 17 decision meeting to pause the Balance template migration and ask FireSpring to unlock the current site so practical fundraising edits can resume.',
     deliverables: [
-      'FireSpring answer on internal navigation support',
-      'Decision on Balance template viability',
-      'Fallback pattern for program interior pages',
+      'FireSpring unlock request',
+      'Decision note on pausing the Balance template path',
+      'Existing-site edit path for near-term fundraising improvements',
     ],
     evidence: [
       {
-        id: 'kmb-m2-question',
-        source_type: 'email',
-        source_label: 'Neil Rhein website statistics thread',
-        source_ref: 'contact_communications: FW: Your Monthly Website Statistics Are Ready! - June 2026',
-        status: 'manual_review',
+        id: 'kmb-m2-read-ai-pivot',
+        source_type: 'read_ai',
+        source_label: 'July 17 Website Template Evaluation',
+        source_ref: `read_ai:${latestReadAiMeeting.id}`,
+        status: 'verified',
         confidence: 'high',
         summary:
-          'Neil flagged that high-traffic program pages need clearer orientation than a top navigation alone.',
-        captured_at: '2026-07-02T00:00:00.000Z',
+          'The latest meeting concluded that the new template is not delivering enough benefit to justify recreating existing-site behavior.',
+        captured_at: latestReadAiMeeting.meetingDate,
         is_client_visible: true,
       },
     ],
   },
   {
-    id: 'kmb-m3-donor-and-support-treatment',
+    id: 'kmb-m3-existing-site-fundraising-treatment',
     week: 2,
     phase: 2,
-    title: 'Tighten giving and support treatment',
+    title: 'Scope the existing-site fundraising improvement',
     status: 'in_progress',
     description:
-      'Draft a stronger first giving band, make donation paths direct, and bring sponsor/shop actions into the main Support pathway without crowding the homepage.',
+      'Define a narrow current-template path for a stronger donation moment: clearer homepage copy, a better image or giving band, and direct routing to the active donation page.',
     deliverables: [
       'Homepage donor language options',
+      'Existing-template implementation notes',
       'Donate link routing recommendation',
-      'Support navigation notes for sponsor and shop actions',
     ],
     evidence: [
       {
@@ -193,17 +233,17 @@ const milestonePlan = [
     ],
   },
   {
-    id: 'kmb-m4-content-inventory-and-section-depth',
+    id: 'kmb-m4-customization-vs-platform-decision',
     week: 3,
     phase: 2,
-    title: 'Map content inventory to section-depth decisions',
+    title: 'Compare FireSpring customization against platform change',
     status: 'pending',
     description:
-      'Use the content inventory and monthly stats to decide which program pages need local section links, cleanup, consolidation, or prominent homepage routing.',
+      'Decide whether a small FireSpring custom feature is enough for the fundraising and navigation goals, or whether the limits point to a future platform move after maintenance ownership is clearer.',
     deliverables: [
-      'Priority page map',
-      'Program section navigation model',
-      'Content cleanup list for KMB team edits',
+      'Small-customization question set for FireSpring',
+      'Platform constraint decision note',
+      'Maintenance ownership risk note',
     ],
     evidence: [
       {
@@ -221,17 +261,17 @@ const milestonePlan = [
     ],
   },
   {
-    id: 'kmb-m5-launch-readiness-handoff',
+    id: 'kmb-m5-agreement-and-next-terms',
     week: 4,
     phase: 3,
-    title: 'Prepare launch-readiness and CMS handoff checklist',
+    title: 'Set agreement review and next-term decision',
     status: 'pending',
     description:
-      'Turn the quality checklist and CMS guide into a practical handoff path for the KMB team after FireSpring confirms the template constraints.',
+      'Use the dashboard, account summary, and original agreement/brief to decide whether the next work should be no-cost handoff, a focused paid extension, or a broader implementation package.',
     deliverables: [
-      'Quality checklist review',
-      'CMS guide handoff',
-      'Launch decision register',
+      'Original agreement/brief resend',
+      'Account summary and services rendered walkthrough',
+      'Next-term recommendation',
     ],
     evidence: [
       {
@@ -252,94 +292,94 @@ const milestonePlan = [
 
 const dashboardTasks = [
   {
-    category: 'firespring_feedback',
-    title: 'Ask FireSpring for their supported internal-navigation pattern',
+    category: 'decision_pivot',
+    title: 'Ask FireSpring to unlock the existing KMB site',
     description:
-      'Confirm whether Balance supports breadcrumbs, sidebar navigation, sticky subnavigation, or another recommended section-depth pattern.',
+      'Request that FireSpring restore edit access to the current site so KMB can make targeted fundraising improvements while the Balance template rollout is paused.',
     priority: 'high',
-    impact_score: 95,
-    status: 'pending',
-    due_date: '2026-07-15',
+    impact_score: 98,
+    status: 'in_progress',
+    due_date: '2026-07-24',
     display_order: 0,
-    acceleratedBundleName: 'Community Impact Accelerator',
+    acceleratedBundleName: null,
     accelerated_headline:
-      'Use the nonprofit implementation package when KMB wants AmaduTown to turn the FireSpring answer into a ready handoff plan.',
+      'Use the decision reset extension if KMB wants AmaduTown to coordinate the unlock request and next-scope recommendation.',
     accelerated_savings:
-      'Reduces decision drift by connecting vendor feedback, navigation choices, and launch criteria in one path.',
+      'Keeps the next step focused on the path with the least rework before more template migration time is spent.',
   },
   {
-    category: 'firespring_feedback',
-    title: 'Call out the Balance proof navigation reorder so it is not reverted',
+    category: 'agreement_review',
+    title: 'Review the original agreement against the new direction',
     description:
-      'Preserve the proof-site navigation adjustment already made during the first feedback pass.',
+      'Compare the original Website UX Refresh scope to the July 17 decision point before committing additional rounds of FireSpring or Balance proof work.',
     priority: 'high',
-    impact_score: 90,
-    status: 'in_progress',
-    due_date: '2026-07-15',
-    display_order: 1,
-    acceleratedBundleName: 'Community Impact Accelerator',
-    accelerated_headline:
-      'Fast-track the proof review into a documented implementation brief for FireSpring and the KMB board.',
-    accelerated_savings:
-      'Keeps approved navigation decisions from getting lost between proof revisions and launch handoff.',
-  },
-  {
-    category: 'donation_support',
-    title: 'Draft the stronger first giving band treatment',
-    description:
-      'Create homepage donor language that makes the reason to give concrete before asking visitors to act.',
-    priority: 'high',
-    impact_score: 88,
-    status: 'in_progress',
-    due_date: '2026-07-16',
-    display_order: 2,
-    acceleratedBundleName: 'Community Impact Growth',
-    accelerated_headline:
-      'Use the growth package when KMB wants donor, sponsor, shop, and program CTAs mapped into one support pathway.',
-    accelerated_savings:
-      'Connects content cleanup to campaign-ready donation and supporter flows.',
-  },
-  {
-    category: 'donation_support',
-    title: 'Route Donate links directly to the QGIV donation page',
-    description:
-      'Avoid extra friction by sending donation CTAs to the active Blue Meringue/QGIV giving flow.',
-    priority: 'medium',
-    impact_score: 78,
+    impact_score: 94,
     status: 'pending',
-    due_date: '2026-07-17',
+    due_date: '2026-07-24',
+    display_order: 1,
+    acceleratedBundleName: null,
+    accelerated_headline:
+      'Use the contract-extension option if the next round goes beyond agreement review and dashboard handoff.',
+    accelerated_savings:
+      'Prevents new implementation work from being absorbed into an exhausted contract value without a clear decision.',
+  },
+  {
+    category: 'fundraising_path',
+    title: 'Draft the existing-site fundraising CTA improvement',
+    description:
+      'Create a compact homepage improvement plan for stronger giving copy, a better donation image or section, and direct donation-page routing.',
+    priority: 'high',
+    impact_score: 92,
+    status: 'in_progress',
+    due_date: '2026-07-25',
+    display_order: 2,
+    acceleratedBundleName: 'Community Impact Starter',
+    accelerated_headline:
+      'Use the focused CTA sprint when KMB wants a low-friction improvement on the existing FireSpring site.',
+    accelerated_savings:
+      'Targets the highest-value fundraising issue without forcing a full template migration decision.',
+  },
+  {
+    category: 'firespring_customization',
+    title: 'Ask FireSpring whether a small custom feature solves the gap',
+    description:
+      'Confirm whether a limited FireSpring custom request can improve the donor CTA, homepage layout, or link treatment more efficiently than continuing the Balance migration.',
+    priority: 'medium',
+    impact_score: 82,
+    status: 'pending',
+    due_date: '2026-07-29',
     display_order: 3,
     acceleratedBundleName: 'Community Impact Starter',
     accelerated_headline:
-      'Use the starter option for a light routing audit and implementation checklist around donation conversion.',
+      'Use customization advisory when a bounded FireSpring vendor request may solve the problem faster than rebuild work.',
     accelerated_savings:
-      'Keeps the giving path practical without turning it into a full redesign cycle.',
+      'Avoids overbuilding if FireSpring can handle one narrow high-value improvement.',
   },
   {
-    category: 'support_navigation',
-    title: 'Add sponsor and shop actions into the Support pathway',
+    category: 'maintenance_decision',
+    title: 'Decide who would maintain a non-FireSpring site later',
     description:
-      'Bring Become a Sponsor and Shop into the Support navigation without making the top-level navigation feel crowded.',
+      'Capture the maintenance risk Neil raised before recommending a future custom/AI-built website outside the FireSpring editing model.',
     priority: 'medium',
-    impact_score: 72,
+    impact_score: 70,
     status: 'pending',
-    due_date: '2026-07-17',
+    due_date: '2026-08-01',
     display_order: 4,
     acceleratedBundleName: 'Community Impact Growth',
     accelerated_headline:
-      'Package the sponsor, shop, and donation actions into a cleaner supporter journey.',
+      'Use growth discovery only if KMB is ready to evaluate a broader supporter-journey and platform path.',
     accelerated_savings:
-      'Turns scattered support actions into a clearer conversion path for KMB visitors.',
+      'Separates long-term platform strategy from the immediate fundraising fix.',
   },
   {
     category: 'client_decision',
-    title: 'Neil to take logo concepts to the KMB board',
+    title: 'Choose the next paid path before another FireSpring work round',
     description:
-      'Keep board feedback tracked separately from the website template feedback so launch decisions do not get tangled.',
+      'Use the account summary, services rendered, and meeting decision record to select a scoped extension, no-cost handoff, or broader package.',
     priority: 'medium',
-    impact_score: 65,
+    impact_score: 76,
     status: 'pending',
-    due_date: '2026-07-24',
+    due_date: '2026-08-01',
     display_order: 5,
     acceleratedBundleName: null,
   },
@@ -348,16 +388,16 @@ const dashboardTasks = [
 const packageRecommendationSeeds = [
   {
     bundleName: null,
-    service_title: 'Extend Existing Contract',
+    service_title: 'Decision Reset Extension',
     gap_category: 'budget_timeline',
     gap_description:
-      'Best fit when KMB wants to keep using the existing Website UX Refresh engagement for focused FireSpring proof feedback and launch-readiness support.',
-    projected_impact_pct: 20,
-    projected_annual_value: 1200,
+      'Highest-confidence next step when KMB wants to pause the Balance rollout, unlock the existing site, review the original agreement, and decide what still fits.',
+    projected_impact_pct: 34,
+    projected_annual_value: 650,
     impact_headline:
-      'Continue the current contract path instead of starting a separate package.',
+      'Recommended next phase: a compact decision reset before more implementation work.',
     impact_explanation:
-      'This option keeps the work tied to the paid Website UX Refresh engagement while documenting the additional proof feedback, services rendered, and next support balance.',
+      'This option keeps the next move small: document the pivot, review the agreement and dashboard, coordinate the FireSpring unlock path, and produce a go/no-go recommendation for any paid extension.',
     data_source: 'client_specific',
     confidence_level: 'high',
     cta_type: 'view_proposal',
@@ -368,56 +408,56 @@ const packageRecommendationSeeds = [
   {
     bundleName: 'Community Impact Starter',
     content_type: 'bundle',
-    service_title: 'Community Impact Starter',
-    gap_category: 'budget_timeline',
+    service_title: 'Existing Site Fundraising CTA Sprint',
+    gap_category: 'automation_needs',
     gap_description:
-      'Best fit when KMB wants a focused website-decision audit without expanding scope.',
-    projected_impact_pct: 18,
-    projected_annual_value: 0,
+      'Best fit if FireSpring unlocks the existing site and KMB wants the strongest low-friction fundraising improvement without continuing the full template migration.',
+    projected_impact_pct: 30,
+    projected_annual_value: 1200,
     impact_headline:
-      'A light advisory path for clarifying the donation, support, and navigation decisions before build work expands.',
+      'A focused current-site sprint for the donation message, visual treatment, and direct giving path.',
     impact_explanation:
-      'This option keeps the next step compact: confirm the priority decisions, document the handoff, and avoid unnecessary rebuild work.',
-    data_source: 'client_specific',
-    confidence_level: 'medium',
-    cta_type: 'learn_more',
-    cta_url: null,
-    display_order: 1,
-  },
-  {
-    bundleName: 'Community Impact Accelerator',
-    content_type: 'bundle',
-    service_title: 'Community Impact Accelerator',
-    gap_category: 'tech_stack',
-    gap_description:
-      'Best fit when KMB wants the FireSpring proof feedback, content priorities, and launch handoff converted into an implementation packet.',
-    projected_impact_pct: 28,
-    projected_annual_value: 1997,
-    impact_headline:
-      'A guided implementation path for turning the FireSpring Balance proof into cleaner launch-ready decisions.',
-    impact_explanation:
-      'This option connects vendor feedback, navigation decisions, donor-page routing, and launch readiness into one execution track.',
+      'This option targets the specific issue Neil raised: the site can likely support a stronger fundraising call to action without recreating the entire website in the Balance template.',
     data_source: 'client_specific',
     confidence_level: 'high',
     cta_type: 'view_proposal',
-    cta_url: null,
+    cta_url: '#account-summary',
+    display_order: 1,
+  },
+  {
+    bundleName: null,
+    content_type: 'contract_option',
+    service_title: 'FireSpring Customization Advisory',
+    gap_category: 'tech_stack',
+    gap_description:
+      'Best fit if KMB wants to test whether a small paid FireSpring customization can solve the homepage or donor-flow gap more efficiently than a larger redesign.',
+    projected_impact_pct: 24,
+    projected_annual_value: 1997,
+    impact_headline:
+      'A vendor-facing advisory path before paying for broader migration or platform work.',
+    impact_explanation:
+      'This option creates a narrow FireSpring question set and evaluation packet so KMB can compare a small custom enhancement against continued Balance-template work.',
+    data_source: 'client_specific',
+    confidence_level: 'medium',
+    cta_type: 'view_proposal',
+    cta_url: '#account-summary',
     display_order: 2,
   },
   {
     bundleName: 'Community Impact Growth',
     content_type: 'bundle',
-    service_title: 'Community Impact Growth',
+    service_title: 'Platform Modernization Discovery',
     gap_category: 'automation_needs',
     gap_description:
-      'Best fit when KMB wants the website migration to become a stronger support, donor, sponsor, and program engagement system.',
-    projected_impact_pct: 35,
+      'Best fit later, if KMB decides FireSpring limits are blocking growth and has a realistic maintenance plan for a site outside the current CMS.',
+    projected_impact_pct: 18,
     projected_annual_value: 4997,
     impact_headline:
-      'A broader growth path for connecting the website migration to supporter journeys and campaign readiness.',
+      'A future-facing platform path, not the first recommendation for this decision point.',
     impact_explanation:
-      'This option adds a stronger operating layer around donation, sponsor, shop, and program navigation so the site supports ongoing outreach.',
+      'This should wait until KMB resolves ownership and editability concerns. It can become the right path if the organization wants supporter journeys, campaign readiness, and future flexibility beyond FireSpring.',
     data_source: 'client_specific',
-    confidence_level: 'medium',
+    confidence_level: 'low',
     cta_type: 'book_call',
     cta_url: null,
     display_order: 3,
@@ -556,9 +596,9 @@ async function ensureContact(client: ReturnType<typeof supabase>) {
 
 async function ensureProject(client: ReturnType<typeof supabase>, contactSubmissionId: number) {
   const projectPayload = {
-    project_name: 'KMB FireSpring Website Template Migration',
+    project_name: 'KMB FireSpring Website Decision Reset',
     description:
-      'Client dashboard for Keep Massachusetts Beautiful FireSpring Balance proof review, correspondence, milestones, and website migration assets.',
+      'Client dashboard for Keep Massachusetts Beautiful FireSpring decision reset, original agreement review, services rendered, and existing-site fundraising next steps.',
     client_name: 'Neil Rhein',
     client_email: CLIENT_EMAIL,
     client_company: 'Keep Massachusetts Beautiful',
@@ -566,10 +606,10 @@ async function ensureProject(client: ReturnType<typeof supabase>, contactSubmiss
     project_start_date: '2026-04-07',
     estimated_end_date: '2026-08-14',
     project_status: 'active',
-    current_phase: 2,
+    current_phase: 3,
     project_value: 0,
     currency: 'USD',
-    notes: `${PROJECT_KEY}: FireSpring Balance template migration, proof-site feedback, and KMB content/navigation cleanup.`,
+    notes: `${PROJECT_KEY}: July 17 Read.ai meeting pivot; pause Balance rollout, unlock the existing site, and scope any additional FireSpring or fundraising work as a separate decision.`,
   }
 
   const { data: existing, error } = await client
@@ -641,12 +681,12 @@ async function ensureProposal(client: ReturnType<typeof supabase>, projectId: st
     client_name: 'Neil Rhein',
     client_email: CLIENT_EMAIL,
     client_company: 'Keep Massachusetts Beautiful',
-    bundle_name: 'KMB FireSpring Migration Working Packet',
+    bundle_name: 'KMB FireSpring Decision Reset Packet',
     line_items: [
       {
-        name: 'FireSpring Balance proof feedback and migration advisory',
+        name: 'FireSpring decision reset and fundraising next-step advisory',
         description:
-          'Template-fit recommendations, navigation-depth decision support, donor CTA treatment, and launch-readiness handoff assets.',
+          'Original agreement review, Balance proof decision record, existing-site fundraising option, FireSpring customization question set, and next-term recommendation.',
         quantity: 1,
         price: 0,
       },
@@ -656,7 +696,7 @@ async function ensureProposal(client: ReturnType<typeof supabase>, projectId: st
     discount_description: null,
     total_amount: 0,
     terms_text:
-      'Internal client record packet for KMB FireSpring website migration support. Not a payment request.',
+      'Internal client record packet for KMB FireSpring decision reset support. Not a payment request; additional implementation work should be separately approved.',
     valid_until: '2026-08-15T00:00:00.000Z',
     status: 'sent',
     service_term_months: null,
@@ -782,30 +822,30 @@ async function upsertOnboardingPlan(client: ReturnType<typeof supabase>, project
     milestones: milestonePlan,
     status: 'in_progress',
     is_customized: true,
-    admin_notes: `${PROJECT_KEY}: KMB FireSpring Balance migration milestone plan seeded from Neil Rhein correspondence, Read.ai meeting notes, and KMB Drive source package.`,
+    admin_notes: `${PROJECT_KEY}: KMB FireSpring decision reset milestone plan seeded from Neil Rhein correspondence, July 17 Read.ai meeting notes, and KMB Drive source package.`,
     setup_requirements: [
-      { title: 'FireSpring support answer for internal navigation depth', status: 'pending' },
-      { title: 'KMB board feedback on logo concepts', status: 'pending' },
-      { title: 'QGIV/Blue Meringue donation URL confirmation', status: 'pending' },
+      { title: 'FireSpring unlocks the existing KMB site for current-template edits', status: 'pending' },
+      { title: 'Neil reviews the original agreement/brief against the new direction', status: 'pending' },
+      { title: 'KMB chooses whether next work is no-cost handoff, focused extension, or broader package', status: 'pending' },
     ],
     communication_plan: {
-      cadence: 'Restart the week of July 13, 2026 after vacation; then gate updates around FireSpring responses and KMB decisions.',
+      cadence: 'Use the July 17 decision reset as the current anchor; gate any next implementation work on FireSpring unlock status and explicit next-term approval.',
       primary_contact: 'Neil Rhein',
       channels: ['Gmail', 'Portfolio client dashboard', 'Read.ai meeting imports'],
     },
     win_conditions: [
-      'FireSpring confirms the supported pattern for section-depth navigation.',
-      'The Balance proof preserves the approved top-navigation reorder.',
-      'Homepage donor/support treatment is strong enough to orient visitors before the ask.',
-      'High-traffic program pages have an agreed way to keep visitors oriented.',
-      'KMB has a launch-readiness checklist and CMS handoff package.',
+      'KMB has a clear record of the work delivered against the original agreement/brief.',
+      'FireSpring unlocks the existing site or gives a clear constraint that shapes the next decision.',
+      'The next fundraising improvement is scoped narrowly enough to execute without unnecessary migration rework.',
+      'Any further FireSpring rounds, customization advisory, or platform discovery are approved under explicit new terms.',
     ],
     artifacts_handoff: [
-      'FireSpring feedback email and vendor question set',
+      'Original agreement/brief',
+      'July 17 Read.ai decision summary and action items',
       'Template comparison and Balance recommendation examples',
-      'Content inventory workbook',
-      'CMS guide and quality checklist',
-      'Launch-readiness decision register',
+      'Account summary with services rendered and source links',
+      'Existing-site fundraising CTA recommendation',
+      'Next-term decision register',
     ],
   }
 
@@ -851,6 +891,15 @@ async function upsertOnboardingPlan(client: ReturnType<typeof supabase>, project
 }
 
 async function refreshDashboardTasks(client: ReturnType<typeof supabase>, projectId: string) {
+  const taskCategoriesToRefresh = [
+    ...new Set([
+      ...dashboardTasks.map((task) => task.category),
+      'firespring_feedback',
+      'donation_support',
+      'support_navigation',
+      'client_decision',
+    ]),
+  ]
   const bundleIds = await resolveBundleIds(
     client,
     dashboardTasks.flatMap((task) => task.acceleratedBundleName ? [task.acceleratedBundleName] : [])
@@ -863,7 +912,7 @@ async function refreshDashboardTasks(client: ReturnType<typeof supabase>, projec
     .from('dashboard_tasks')
     .delete()
     .eq('client_project_id', projectId)
-    .in('category', [...new Set(dashboardTasks.map((task) => task.category))])
+    .in('category', taskCategoriesToRefresh)
 
   if (deleteError) throw new Error(`Failed to clear old KMB dashboard tasks: ${deleteError.message}`)
 
@@ -913,8 +962,6 @@ async function refreshAccelerationRecommendations(client: ReturnType<typeof supa
     .from('acceleration_recommendations')
     .delete()
     .eq('client_project_id', projectId)
-    .in('content_type', ['bundle', 'contract_option'])
-    .in('service_title', packageRecommendationSeeds.map((recommendation) => recommendation.service_title))
     .is('dismissed_at', null)
     .is('converted_at', null)
 
@@ -926,6 +973,21 @@ async function refreshAccelerationRecommendations(client: ReturnType<typeof supa
 
   if (insertError) throw new Error(`Failed to insert KMB package options: ${insertError.message}`)
   return recommendationPayload.length
+}
+
+async function deactivateConvertedRecommendations(client: ReturnType<typeof supabase>, projectId: string) {
+  if (!apply) return 0
+
+  const { data, error } = await client
+    .from('acceleration_recommendations')
+    .update({ is_active: false })
+    .eq('client_project_id', projectId)
+    .eq('is_active', true)
+    .not('converted_at', 'is', null)
+    .select('id')
+
+  if (error) throw new Error(`Failed to deactivate converted KMB package options: ${error.message}`)
+  return data?.length ?? 0
 }
 
 async function refreshScoreSnapshot(client: ReturnType<typeof supabase>, projectId: string) {
@@ -985,14 +1047,119 @@ async function linkMeetingsAndActions(client: ReturnType<typeof supabase>, proje
   if (taskError) throw new Error(`Failed to link KMB meeting action tasks: ${taskError.message}`)
 }
 
-async function seedTimeEntries(client: ReturnType<typeof supabase>, projectId: string) {
-  if (!apply) return 3
+async function upsertLatestMeetingRecord(
+  client: ReturnType<typeof supabase>,
+  projectId: string,
+  contactSubmissionId: number
+) {
+  const payload = {
+    contact_submission_id: contactSubmissionId,
+    client_project_id: projectId,
+    read_ai_meeting_id: latestReadAiMeeting.id,
+    meeting_type: 'progress_checkin',
+    meeting_date: latestReadAiMeeting.meetingDate,
+    duration_minutes: latestReadAiMeeting.durationMinutes,
+    transcript: null,
+    raw_notes: latestReadAiMeeting.summary,
+    structured_notes: {
+      title: latestReadAiMeeting.title,
+      source: 'read_ai',
+      summary: latestReadAiMeeting.summary,
+      report_url: latestReadAiMeeting.reportUrl,
+      client_visible: true,
+      guidance:
+        'Client-safe decision summary only; raw transcript is not displayed on the dashboard.',
+    },
+    key_decisions: latestReadAiMeeting.keyDecisions,
+    action_items: latestReadAiMeeting.actionItems.map((item) => ({
+      owner: item.assignee,
+      task: item.text,
+      status: item.assignee === 'Vambah Sillah' ? 'done' : 'pending',
+    })),
+    open_questions: latestReadAiMeeting.openQuestions,
+    meeting_data: {
+      read_ai_meeting_id: latestReadAiMeeting.id,
+      report_url: latestReadAiMeeting.reportUrl,
+      dashboard_seed: PROJECT_KEY,
+      pivot: 'pause_balance_rollout_unlock_existing_site',
+    },
+    attendees: [
+      { name: 'Neil Rhein', email: CLIENT_EMAIL, attended: true },
+      { name: 'Vambah Sillah', email: 'vsillah@gmail.com', attended: true },
+    ],
+    is_test_data: false,
+  }
 
-  const descriptions = [
-    'FireSpring proof review, vendor recommendation research, and feedback synthesis',
-    'KMB Balance wireframe examples, visual recommendation package, and presentation support',
-    'Neil follow-up email drafting, Gmail send, and Portfolio correspondence reconciliation',
+  if (!apply) return 'dry-run-latest-meeting-record-id'
+
+  const { data: existing, error } = await client
+    .from('meeting_records')
+    .select('id')
+    .eq('read_ai_meeting_id', latestReadAiMeeting.id)
+    .maybeSingle()
+
+  if (error) throw new Error(`Failed to read latest KMB meeting record: ${error.message}`)
+
+  if (existing?.id) {
+    const { data, error: updateError } = await client
+      .from('meeting_records')
+      .update(payload)
+      .eq('id', existing.id)
+      .select('id')
+      .single()
+
+    if (updateError || !data?.id) {
+      throw new Error(`Failed to update latest KMB meeting record: ${updateError?.message ?? 'missing id'}`)
+    }
+    return data.id as string
+  }
+
+  const { data, error: insertError } = await client
+    .from('meeting_records')
+    .insert(payload)
+    .select('id')
+    .single()
+
+  if (insertError || !data?.id) {
+    throw new Error(`Failed to create latest KMB meeting record: ${insertError?.message ?? 'missing id'}`)
+  }
+
+  return data.id as string
+}
+
+async function seedTimeEntries(client: ReturnType<typeof supabase>, projectId: string) {
+  const entries = [
+    {
+      target_id: '0',
+      description: 'FireSpring proof review, vendor recommendation research, and feedback synthesis',
+      duration_seconds: 7200,
+      started_at: '2026-05-06T14:00:00.000Z',
+      stopped_at: '2026-05-06T16:00:00.000Z',
+    },
+    {
+      target_id: '0',
+      description: 'KMB Balance wireframe examples, visual recommendation package, and presentation support',
+      duration_seconds: 10800,
+      started_at: '2026-06-18T18:00:00.000Z',
+      stopped_at: '2026-06-18T21:00:00.000Z',
+    },
+    {
+      target_id: '0',
+      description: 'Neil follow-up email drafting, Gmail send, and Portfolio correspondence reconciliation',
+      duration_seconds: 5400,
+      started_at: '2026-07-02T03:00:00.000Z',
+      stopped_at: '2026-07-02T04:30:00.000Z',
+    },
+    {
+      target_id: '1',
+      description: 'July 17 decision reset meeting review, dashboard pivot update, and next-term recommendation',
+      duration_seconds: 5400,
+      started_at: '2026-07-17T14:31:03.601Z',
+      stopped_at: '2026-07-17T16:01:03.601Z',
+    },
   ]
+
+  if (!apply) return entries.length
 
   const { error: deleteError } = await client
     .from('time_entries')
@@ -1003,20 +1170,20 @@ async function seedTimeEntries(client: ReturnType<typeof supabase>, projectId: s
   if (deleteError) throw new Error(`Failed to clear KMB time entries: ${deleteError.message}`)
 
   const { error: insertError } = await client.from('time_entries').insert(
-    descriptions.map((description, index) => ({
+    entries.map((entry) => ({
       client_project_id: projectId,
       target_type: 'milestone',
-      target_id: String(index),
-      description: `KMB dashboard seed: ${description}`,
-      duration_seconds: [7200, 10800, 5400][index],
-      started_at: ['2026-05-06T14:00:00.000Z', '2026-06-18T18:00:00.000Z', '2026-07-02T03:00:00.000Z'][index],
-      stopped_at: ['2026-05-06T16:00:00.000Z', '2026-06-18T21:00:00.000Z', '2026-07-02T04:30:00.000Z'][index],
+      target_id: entry.target_id,
+      description: `KMB dashboard seed: ${entry.description}`,
+      duration_seconds: entry.duration_seconds,
+      started_at: entry.started_at,
+      stopped_at: entry.stopped_at,
       is_running: false,
     }))
   )
 
   if (insertError) throw new Error(`Failed to seed KMB time entries: ${insertError.message}`)
-  return descriptions.length
+  return entries.length
 }
 
 async function main() {
@@ -1035,8 +1202,10 @@ async function main() {
   const onboardingPlanId = await upsertOnboardingPlan(client, project.id)
   const taskCount = await refreshDashboardTasks(client, project.id)
   const packageOptionCount = await refreshAccelerationRecommendations(client, project.id)
+  const convertedRecommendationDeactivatedCount = await deactivateConvertedRecommendations(client, project.id)
   const scoreSnapshotId = await refreshScoreSnapshot(client, project.id)
   await linkMeetingsAndActions(client, project.id, contactSubmissionId)
+  const latestMeetingRecordId = await upsertLatestMeetingRecord(client, project.id, contactSubmissionId)
   const timeEntryCount = await seedTimeEntries(client, project.id)
 
   console.log(
@@ -1054,7 +1223,9 @@ async function main() {
         milestoneCount: milestonePlan.length,
         dashboardTaskCount: taskCount,
         packageOptionCount,
+        convertedRecommendationDeactivatedCount,
         scoreSnapshotId,
+        latestMeetingRecordId,
         timeEntryCount,
         correspondence: {
           contactCommunications: 'linked through contact_submission_id',
