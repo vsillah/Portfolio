@@ -922,7 +922,7 @@ function normalizeLineItems(value: unknown): Array<{ label: string; description:
     .filter((item): item is { label: string; description: string | null; amount: number } => Boolean(item))
 }
 
-function buildAccountSummary(rows: unknown[], timeTracking: TimeTrackingData): AccountSummaryData | null {
+export function buildAccountSummary(rows: unknown[], timeTracking: TimeTrackingData): AccountSummaryData | null {
   const proposals = rows as ProposalHistoryRow[]
   if (proposals.length === 0) return null
 
