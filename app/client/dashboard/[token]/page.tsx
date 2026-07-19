@@ -331,31 +331,56 @@ export default function ClientDashboardPage() {
         {/* Row 2: Radar + Trajectory */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="space-y-3">
-            <ScoreRadarChart scores={scores.categoryScores} />
-            <AssessmentScoresCommentary categoryScores={scores.categoryScores} />
-            <AssessmentScoreBreakdown scores={scores.categoryScores} />
+            <div className="grid gap-3 xl:grid-cols-[minmax(220px,0.75fr)_minmax(0,1.25fr)] xl:items-stretch">
+              <AssessmentScoresCommentary categoryScores={scores.categoryScores} />
+              <ScoreRadarChart scores={scores.categoryScores} />
+            </div>
+            <AssessmentScoreBreakdown
+              scores={scores.categoryScores}
+              hasFormalAssessment={Boolean(assessment)}
+              formalAssessmentHref="/tools/audit"
+            />
           </div>
           <div className="space-y-3">
-            {snapshots.length > 0 ? (
-              <TrajectoryChart token={token} />
-            ) : (
-              <div className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
-                <h3 className="mb-2 text-sm font-medium uppercase tracking-wider text-radiant-gold">
-                  Score Trajectory
-                </h3>
-                <p className="text-sm text-platinum-white/55">
-                  Score trajectory will appear once milestone-based projections are available.
-                </p>
-              </div>
-            )}
-            <TrajectoryCommentary
-              scoreDelta={scores.delta}
-              snapshotsCount={snapshots.length}
-            />
+            <div className="grid gap-3 xl:grid-cols-[minmax(220px,0.75fr)_minmax(0,1.25fr)] xl:items-stretch">
+              <TrajectoryCommentary
+                scoreDelta={scores.delta}
+                snapshotsCount={snapshots.length}
+              />
+              {snapshots.length > 0 ? (
+                <TrajectoryChart token={token} />
+              ) : (
+                <div className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
+                  <h3 className="mb-2 text-sm font-medium uppercase tracking-wider text-radiant-gold">
+                    Score Trajectory
+                  </h3>
+                  <p className="text-sm text-platinum-white/55">
+                    Score trajectory will appear once milestone-based projections are available.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Row 3: Assessment */}
+        <AccountSummarySection
+          accountSummary={accountSummary}
+          timeTracking={timeTracking || { total_seconds: 0, by_target: [] }}
+          milestones={milestones || []}
+          documents={documents || []}
+        />
+
+        {/* Row 3: Gap Analysis */}
+        <GapAnalysisPanel gaps={gapAnalysis} />
+
+        {/* Row 4: Acceleration Opportunities */}
+        <AccelerationCards
+          recommendations={recommendations}
+          token={token}
+          onDismiss={handleDismissRec}
+        />
+
+        {/* Row 5: Assessment */}
         <div className="grid grid-cols-1 gap-6">
           <div>
             {assessment ? (
@@ -377,7 +402,7 @@ export default function ClientDashboardPage() {
           </div>
         </div>
 
-        {/* Row 4: Reports & Presentations (only when reports exist) */}
+        {/* Row 6: Reports & Presentations (only when reports exist) */}
         {((valueReports && valueReports.length > 0) || (gammaReports && gammaReports.length > 0)) && (
           <ReportsSection
             valueReports={valueReports || []}
@@ -389,30 +414,14 @@ export default function ClientDashboardPage() {
           <AiOpsRoadmapSection roadmap={aiOpsRoadmap} />
         )}
 
-        {/* Row 5: Documents and account context */}
+        {/* Row 7: Documents and resources */}
         <div className="grid grid-cols-1 gap-6">
           <DocumentsSection documents={documents || []} />
         </div>
 
-        <AccountSummarySection
-          accountSummary={accountSummary}
-          timeTracking={timeTracking || { total_seconds: 0, by_target: [] }}
-          milestones={(milestones || []) as Array<{ title?: string }>}
-        />
-
         {buildEvidence && (
           <BuildEvidenceInvestmentSection buildEvidence={buildEvidence} />
         )}
-
-        {/* Row 6: Gap Analysis */}
-        <GapAnalysisPanel gaps={gapAnalysis} />
-
-        {/* Row 7: Acceleration Opportunities */}
-        <AccelerationCards
-          recommendations={recommendations}
-          token={token}
-          onDismiss={handleDismissRec}
-        />
 
         {/* Campaign Progress */}
         <CampaignProgressSection clientEmail={project.client_email} />

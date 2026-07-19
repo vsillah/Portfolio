@@ -89,7 +89,7 @@ interface SectionCommentaryProps {
 
 function SectionCommentary({ icon: Icon, title, children }: SectionCommentaryProps) {
   return (
-    <div className="rounded-lg border border-radiant-gold/15 bg-imperial-navy/35 p-4">
+    <div className="h-full rounded-lg border border-radiant-gold/15 bg-imperial-navy/35 p-4">
       <div className="mb-2 flex items-center gap-2">
         <Icon className="h-4 w-4 text-radiant-gold/85" />
         <h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-radiant-gold/80">

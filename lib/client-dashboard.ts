@@ -131,6 +131,21 @@ export interface DashboardDocument {
   status: string | null
 }
 
+export interface DashboardMilestoneEvidence {
+  id?: string
+  source_label?: string
+  source_type?: string
+  source_ref?: string
+  summary?: string
+  is_client_visible?: boolean
+}
+
+export interface DashboardMilestone {
+  title?: string
+  evidence?: DashboardMilestoneEvidence[]
+  deliverables?: string[]
+}
+
 export interface TimeEntrySummary {
   target_type: 'milestone' | 'task'
   target_id: string
@@ -216,7 +231,7 @@ export interface DashboardData {
   }
   gapAnalysis: ReturnType<typeof calculateGapAnalysis>
   tasks: DashboardTask[]
-  milestones: unknown[]
+  milestones: DashboardMilestone[]
   snapshots: ScoreSnapshot[]
   documents: DashboardDocument[]
   timeTracking: TimeTrackingData

@@ -57,7 +57,7 @@ export default function MeetingHistory({ token }: MeetingHistoryProps) {
 
   if (loading) {
     return (
-      <div className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
+      <div id="meeting-history" className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
         <div className="flex items-center gap-2 text-platinum-white/55 text-sm">
           <Loader2 className="w-4 h-4 animate-spin" />
           Loading meetings...
@@ -80,7 +80,7 @@ export default function MeetingHistory({ token }: MeetingHistoryProps) {
   }
 
   return (
-    <div className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
+    <div id="meeting-history" className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="text-sm font-medium text-radiant-gold uppercase tracking-wider flex items-center gap-2">
           <Video className="w-4 h-4" />

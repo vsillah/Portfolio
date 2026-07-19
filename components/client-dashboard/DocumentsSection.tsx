@@ -65,7 +65,7 @@ export default function DocumentsSection({ documents }: DocumentsSectionProps) {
   if (!documents || documents.length === 0) return null
 
   return (
-    <div className="rounded-lg border border-radiant-gold/20 bg-silicon-slate/35 p-5 shadow-[0_20px_70px_rgba(0,0,0,0.24)]">
+    <div id="documents" className="rounded-lg border border-radiant-gold/20 bg-silicon-slate/35 p-5 shadow-[0_20px_70px_rgba(0,0,0,0.24)]">
       <h3 className="text-sm font-medium text-radiant-gold uppercase tracking-wider mb-4">
         Documents &amp; Proposals
       </h3>

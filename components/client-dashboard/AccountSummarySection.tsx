@@ -1,12 +1,13 @@
 'use client'
 
-import { Briefcase, CheckCircle2, Clock, Receipt, TrendingUp } from 'lucide-react'
-import type { AccountSummaryData, TimeTrackingData } from '@/lib/client-dashboard'
+import { Briefcase, CheckCircle2, Clock, ExternalLink, FileText, Receipt, TrendingUp } from 'lucide-react'
+import type { AccountSummaryData, DashboardDocument, DashboardMilestone, DashboardMilestoneEvidence, TimeTrackingData } from '@/lib/client-dashboard'
 
 interface AccountSummarySectionProps {
   accountSummary: AccountSummaryData | null
   timeTracking: TimeTrackingData
-  milestones?: Array<{ title?: string }>
+  milestones?: DashboardMilestone[]
+  documents?: DashboardDocument[]
 }
 
 function formatCurrency(value: number): string {
@@ -53,10 +54,51 @@ function finiteNumber(value: number | null | undefined): number | null {
   return typeof value === 'number' && Number.isFinite(value) ? value : null
 }
 
+function cleanServiceDescription(description: string): string {
+  return description.replace(/^KMB dashboard seed:\s*/i, '')
+}
+
+function evidenceHref(evidence: DashboardMilestoneEvidence): string | null {
+  const sourceType = (evidence.source_type || '').toLowerCase()
+  if (sourceType.includes('read_ai') || sourceType.includes('meeting')) return '#meeting-history'
+  if (sourceType.includes('google_drive')) return '#documents'
+  return null
+}
+
+function documentUrl(document: DashboardDocument): string | null {
+  return document.signed_url || document.pdf_url || null
+}
+
+function relatedDocuments(title: string, documents: DashboardDocument[]): DashboardDocument[] {
+  const normalized = title.toLowerCase()
+  const matches = documents.filter((document) => {
+    const docTitle = document.title.toLowerCase()
+    if (normalized.includes('balance') || normalized.includes('navigation')) {
+      return (
+        docTitle.includes('template comparison') ||
+        docTitle.includes('implementation strategy') ||
+        docTitle.includes('working packet') ||
+        docTitle.includes('primer')
+      )
+    }
+    if (normalized.includes('giving') || normalized.includes('support')) {
+      return (
+        docTitle.includes('opportunity') ||
+        docTitle.includes('implementation strategy') ||
+        docTitle.includes('working packet')
+      )
+    }
+    return docTitle.includes('working packet')
+  })
+
+  return matches.slice(0, 3)
+}
+
 export default function AccountSummarySection({
   accountSummary,
   timeTracking,
   milestones = [],
+  documents = [],
 }: AccountSummarySectionProps) {
   if (!accountSummary && (!timeTracking || timeTracking.total_seconds === 0)) return null
 
@@ -75,9 +117,6 @@ export default function AccountSummarySection({
   const milestoneEntries = (timeTracking?.by_target || [])
     .filter((entry) => entry.target_type === 'milestone')
     .sort((a, b) => Number(a.target_id) - Number(b.target_id))
-  const serviceDescriptions = (timeTracking?.by_target || [])
-    .flatMap((entry) => entry.descriptions || [])
-    .filter(Boolean)
   const nextGuidance =
     accountSummary && remainingContractValue === 0
       ? 'The paid contract value is fully allocated to work delivered so far. The next gap-closing work should be scoped as a contract extension or package option.'
@@ -168,11 +207,17 @@ export default function AccountSummarySection({
             {milestoneEntries.map((entry) => {
               const idx = Number(entry.target_id)
               const title = milestones[idx]?.title || `Milestone ${idx + 1}`
+              const evidence = (milestones[idx]?.evidence || []).filter((item) => item.is_client_visible !== false)
+              const docs = relatedDocuments(title, documents)
+              const descriptions = (entry.descriptions || []).map(cleanServiceDescription)
               const pct = totalSeconds > 0 ? Math.round((entry.total_seconds / totalSeconds) * 100) : 0
               const dollarValue =
                 effectiveHourlyRate == null ? null : (entry.total_seconds / 3600) * effectiveHourlyRate
               return (
-                <div key={entry.target_id}>
+                <div
+                  key={entry.target_id}
+                  className="rounded-lg border border-radiant-gold/10 bg-silicon-slate/20 p-3"
+                >
                   <div className="mb-1 flex items-center justify-between gap-3">
                     <span className="min-w-0 truncate text-xs text-platinum-white/78">{title}</span>
                     <span className="shrink-0 text-xs text-platinum-white/55">
@@ -183,6 +228,62 @@ export default function AccountSummarySection({
                   <div className="h-1.5 overflow-hidden rounded-full bg-imperial-navy/70">
                     <div className="h-full rounded-full bg-radiant-gold/75" style={{ width: `${pct}%` }} />
                   </div>
+                  {descriptions.length > 0 && (
+                    <div className="mt-3">
+                      <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-platinum-white/42">
+                        Work performed
+                      </p>
+                      <ul className="space-y-1">
+                        {descriptions.map((description) => (
+                          <li key={description} className="flex gap-2 text-xs leading-5 text-platinum-white/68">
+                            <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-radiant-gold/75" />
+                            <span>{description}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {(evidence.length > 0 || docs.length > 0) && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {evidence.map((item) => {
+                        const label = item.source_label || item.source_type || 'Source record'
+                        const href = evidenceHref(item)
+                        const className = "inline-flex max-w-full items-center gap-1.5 rounded-md border border-radiant-gold/15 bg-imperial-navy/45 px-2 py-1 text-[10px] font-medium text-platinum-white/64 transition hover:border-radiant-gold/35 hover:text-platinum-white"
+                        const content = (
+                          <>
+                            <Briefcase className="h-3 w-3 shrink-0 text-radiant-gold/70" />
+                            <span className="truncate">{label}</span>
+                          </>
+                        )
+                        return href ? (
+                          <a key={item.id || label} href={href} className={className}>
+                            {content}
+                          </a>
+                        ) : (
+                          <span key={item.id || label} className={className}>
+                            {content}
+                          </span>
+                        )
+                      })}
+                      {docs.map((document) => {
+                        const href = documentUrl(document)
+                        if (!href) return null
+                        return (
+                          <a
+                            key={`${title}-${document.id}`}
+                            href={href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex max-w-full items-center gap-1.5 rounded-md border border-radiant-gold/15 bg-radiant-gold/10 px-2 py-1 text-[10px] font-medium text-radiant-gold transition hover:border-radiant-gold/40 hover:bg-radiant-gold/15"
+                          >
+                            <FileText className="h-3 w-3 shrink-0" />
+                            <span className="truncate">{document.title}</span>
+                            <ExternalLink className="h-3 w-3 shrink-0" />
+                          </a>
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
               )
             })}
@@ -219,22 +320,6 @@ export default function AccountSummarySection({
         </div>
       ) : null}
 
-      {serviceDescriptions.length > 0 && (
-        <div className="rounded-lg border border-radiant-gold/10 bg-imperial-navy/30 p-3">
-          <p className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.14em] text-platinum-white/50">
-            <Briefcase className="h-3.5 w-3.5 text-radiant-gold/80" />
-            Services rendered
-          </p>
-          <ul className="space-y-2">
-            {serviceDescriptions.map((description) => (
-              <li key={description} className="flex gap-2 text-xs leading-5 text-platinum-white/68">
-                <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-radiant-gold/75" />
-                <span>{description.replace(/^KMB dashboard seed:\s*/i, '')}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </section>
   )
 }
