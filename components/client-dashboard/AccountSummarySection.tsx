@@ -114,13 +114,15 @@ export default function AccountSummarySection({
   const remainingContractValue =
     finiteNumber(accountSummary?.remaining_contract_value) ??
     Math.max(0, contractValue - servicesRenderedValue)
+  const paidToDate = accountSummary?.paid_to_date ?? 0
+  const paidBalanceRemaining = Math.max(0, paidToDate - servicesRenderedValue)
   const milestoneEntries = (timeTracking?.by_target || [])
     .filter((entry) => entry.target_type === 'milestone')
     .sort((a, b) => Number(a.target_id) - Number(b.target_id))
   const nextGuidance =
-    accountSummary && remainingContractValue === 0
-      ? 'The paid contract value is fully allocated to work delivered so far. The next gap-closing work should be scoped as a contract extension or package option.'
-      : 'Use the remaining contract capacity before opening a separate package, then scope any new gap-closing work as an extension.'
+    accountSummary && paidBalanceRemaining === 0
+      ? 'Paid value has been fully allocated to delivered work. The next gap-closing work should be scoped as a contract extension or package option.'
+      : 'Use the remaining paid balance before opening a separate package, then scope any new gap-closing work as an extension.'
 
   return (
     <section id="account-summary" className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
@@ -131,7 +133,7 @@ export default function AccountSummarySection({
             Account Summary
           </h3>
           <p className="mt-1 text-xs text-platinum-white/55">
-            Paid value, dedicated hours, service value, and remaining contract capacity.
+            Paid value, dedicated hours, applied service value, and remaining paid balance.
           </p>
         </div>
         {totalSeconds > 0 && (
@@ -153,30 +155,36 @@ export default function AccountSummarySection({
           <div className="rounded-lg border border-radiant-gold/10 bg-imperial-navy/35 p-3">
             <p className="text-[10px] uppercase tracking-[0.16em] text-platinum-white/42">Paid to date</p>
             <p className="mt-1 text-lg font-semibold text-platinum-white">
-              {formatCurrency(accountSummary.paid_to_date)}
+              {formatCurrency(paidToDate)}
             </p>
           </div>
           <div className="rounded-lg border border-radiant-gold/10 bg-imperial-navy/35 p-3">
-            <p className="text-[10px] uppercase tracking-[0.16em] text-platinum-white/42">Services rendered</p>
+            <p className="text-[10px] uppercase tracking-[0.16em] text-platinum-white/42">Time investment value</p>
             <p className="mt-1 text-lg font-semibold text-platinum-white">
               {formatCurrency(servicesRenderedValue)}
             </p>
           </div>
           <div className="rounded-lg border border-radiant-gold/10 bg-imperial-navy/35 p-3">
-            <p className="text-[10px] uppercase tracking-[0.16em] text-platinum-white/42">Remaining capacity</p>
+            <p className="text-[10px] uppercase tracking-[0.16em] text-platinum-white/42">Paid balance remaining</p>
             <p className="mt-1 text-lg font-semibold text-platinum-white">
-              {formatCapacity(remainingContractValue)}
+              {formatBalance(paidBalanceRemaining)}
             </p>
           </div>
         </div>
       )}
 
       {accountSummary && (
-        <div className="mb-4 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_1fr_1.4fr]">
+        <div className="mb-4 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_1fr_1fr_1.4fr]">
           <div className="rounded-lg border border-radiant-gold/10 bg-imperial-navy/30 p-3">
             <p className="text-[10px] uppercase tracking-[0.16em] text-platinum-white/42">Effective rate</p>
             <p className="mt-1 text-sm font-semibold text-platinum-white">
               {formatHourlyRate(effectiveHourlyRate)}
+            </p>
+          </div>
+          <div className="rounded-lg border border-radiant-gold/10 bg-imperial-navy/30 p-3">
+            <p className="text-[10px] uppercase tracking-[0.16em] text-platinum-white/42">Contract capacity</p>
+            <p className="mt-1 text-sm font-semibold text-platinum-white">
+              {formatCapacity(remainingContractValue)}
             </p>
           </div>
           <div className="rounded-lg border border-radiant-gold/10 bg-imperial-navy/30 p-3">
@@ -287,6 +295,26 @@ export default function AccountSummarySection({
                 </div>
               )
             })}
+          </div>
+          <div className="mt-3 rounded-lg border border-radiant-gold/20 bg-radiant-gold/10 p-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-radiant-gold/85">
+                  Total time investment
+                </p>
+                <p className="mt-1 text-sm text-platinum-white/70">
+                  {formatHours(totalSeconds)} at {formatHourlyRate(effectiveHourlyRate)}
+                </p>
+              </div>
+              <div className="text-left sm:text-right">
+                <p className="text-lg font-semibold text-platinum-white">
+                  {formatCurrency(servicesRenderedValue)}
+                </p>
+                <p className="text-xs text-platinum-white/58">
+                  {formatCurrency(paidToDate)} paid - {formatCurrency(servicesRenderedValue)} applied = {formatBalance(paidBalanceRemaining)}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       )}
