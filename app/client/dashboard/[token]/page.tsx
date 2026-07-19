@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams } from 'next/navigation'
-import { Check, Copy, Loader2 } from 'lucide-react'
+import { ArrowRight, Check, Copy, Loader2 } from 'lucide-react'
 import DashboardStatCards from '@/components/client-dashboard/DashboardStatCards'
 import ExecutiveSummary, {
   ActionFocusCommentary,
@@ -328,39 +328,37 @@ export default function ClientDashboardPage() {
           recommendedActions={assessment?.recommended_actions || null}
         />
 
-        {/* Row 2: Radar + Trajectory */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="space-y-3">
-            <div className="grid gap-3 xl:grid-cols-[minmax(220px,0.75fr)_minmax(0,1.25fr)] xl:items-stretch">
-              <AssessmentScoresCommentary categoryScores={scores.categoryScores} />
-              <ScoreRadarChart scores={scores.categoryScores} />
-            </div>
-            <AssessmentScoreBreakdown
-              scores={scores.categoryScores}
-              hasFormalAssessment={Boolean(assessment)}
-              formalAssessmentHref="/tools/audit"
-            />
+        {/* Row 2: Business Assessment Scores */}
+        <div className="space-y-3">
+          <div className="grid gap-4 lg:grid-cols-[minmax(280px,0.36fr)_minmax(0,1fr)] lg:items-stretch">
+            <AssessmentScoresCommentary categoryScores={scores.categoryScores} />
+            <ScoreRadarChart scores={scores.categoryScores} />
           </div>
-          <div className="space-y-3">
-            <div className="grid gap-3 xl:grid-cols-[minmax(220px,0.75fr)_minmax(0,1.25fr)] xl:items-stretch">
-              <TrajectoryCommentary
-                scoreDelta={scores.delta}
-                snapshotsCount={snapshots.length}
-              />
-              {snapshots.length > 0 ? (
-                <TrajectoryChart token={token} />
-              ) : (
-                <div className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
-                  <h3 className="mb-2 text-sm font-medium uppercase tracking-wider text-radiant-gold">
-                    Score Trajectory
-                  </h3>
-                  <p className="text-sm text-platinum-white/55">
-                    Score trajectory will appear once milestone-based projections are available.
-                  </p>
-                </div>
-              )}
+          <AssessmentScoreBreakdown
+            scores={scores.categoryScores}
+            hasFormalAssessment={Boolean(assessment)}
+            formalAssessmentHref="/tools/audit"
+          />
+        </div>
+
+        {/* Row 3: Score Trajectory */}
+        <div className="grid gap-4 lg:grid-cols-[minmax(280px,0.36fr)_minmax(0,1fr)] lg:items-stretch">
+          <TrajectoryCommentary
+            scoreDelta={scores.delta}
+            snapshotsCount={snapshots.length}
+          />
+          {snapshots.length > 0 ? (
+            <TrajectoryChart token={token} />
+          ) : (
+            <div className="rounded-lg border border-radiant-gold/15 bg-silicon-slate/35 p-5">
+              <h3 className="mb-2 text-sm font-medium uppercase tracking-wider text-radiant-gold">
+                Score Trajectory
+              </h3>
+              <p className="text-sm text-platinum-white/55">
+                Score trajectory will appear once milestone-based projections are available.
+              </p>
             </div>
-          </div>
+          )}
         </div>
 
         <AccountSummarySection
@@ -370,17 +368,17 @@ export default function ClientDashboardPage() {
           documents={documents || []}
         />
 
-        {/* Row 3: Gap Analysis */}
+        {/* Row 4: Gap Analysis */}
         <GapAnalysisPanel gaps={gapAnalysis} />
 
-        {/* Row 4: Acceleration Opportunities */}
+        {/* Row 5: Acceleration Opportunities */}
         <AccelerationCards
           recommendations={recommendations}
           token={token}
           onDismiss={handleDismissRec}
         />
 
-        {/* Row 5: Assessment */}
+        {/* Row 6: Assessment */}
         <div className="grid grid-cols-1 gap-6">
           <div>
             {assessment ? (
@@ -395,14 +393,21 @@ export default function ClientDashboardPage() {
                   Assessment
                 </h3>
                 <p className="text-platinum-white/55 text-sm">
-                  No assessment data available yet.
+                  No formal assessment data is available yet. Use the assessment to replace projected scores with client-entered answers.
                 </p>
+                <a
+                  href="/tools/audit"
+                  className="mt-4 inline-flex items-center justify-center gap-2 rounded-lg border border-radiant-gold/25 bg-radiant-gold/12 px-4 py-2 text-sm font-medium text-gold-light transition-colors hover:bg-radiant-gold/20"
+                >
+                  Complete assessment
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </a>
               </div>
             )}
           </div>
         </div>
 
-        {/* Row 6: Reports & Presentations (only when reports exist) */}
+        {/* Row 7: Reports & Presentations (only when reports exist) */}
         {((valueReports && valueReports.length > 0) || (gammaReports && gammaReports.length > 0)) && (
           <ReportsSection
             valueReports={valueReports || []}
@@ -414,7 +419,7 @@ export default function ClientDashboardPage() {
           <AiOpsRoadmapSection roadmap={aiOpsRoadmap} />
         )}
 
-        {/* Row 7: Documents and resources */}
+        {/* Row 8: Documents and resources */}
         <div className="grid grid-cols-1 gap-6">
           <DocumentsSection documents={documents || []} />
         </div>

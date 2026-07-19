@@ -51,8 +51,41 @@ describe('AccelerationCards', () => {
     expect(screen.getByRole('heading', { name: 'Package Options' })).toBeInTheDocument()
     expect(screen.getByText('Community Impact Accelerator')).toBeInTheDocument()
     expect(screen.getByText(/assessment gaps, task list/i)).toBeInTheDocument()
+    expect(screen.getByText('Recommended next phase')).toBeInTheDocument()
+    expect(screen.getByText('Why this fits')).toBeInTheDocument()
+    expect(screen.getByText('Confidence basis')).toBeInTheDocument()
     expect(screen.getByText('$1,997')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /view proposal/i })).toBeInTheDocument()
+  })
+
+  it('ranks package options by confidence before display order', () => {
+    render(
+      <AccelerationCards
+        recommendations={[
+          {
+            ...recommendation,
+            id: 'rec-medium',
+            service_title: 'Community Impact Growth',
+            confidence_level: 'medium',
+            display_order: 0,
+          },
+          {
+            ...recommendation,
+            id: 'rec-high',
+            service_title: 'Extend Existing Contract',
+            content_type: 'contract_option',
+            confidence_level: 'high',
+            display_order: 2,
+          },
+        ]}
+        token="dashboard-token"
+        onDismiss={vi.fn()}
+      />
+    )
+
+    const recommendedBlock = screen.getByText('Recommended next phase').closest('div')
+    expect(recommendedBlock).toHaveTextContent('Extend Existing Contract')
+    expect(screen.getByText('Other paths, ranked by confidence')).toBeInTheDocument()
   })
 
   it('does not render a stray zero for free package options', () => {

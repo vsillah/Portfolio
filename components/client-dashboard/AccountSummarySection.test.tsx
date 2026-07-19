@@ -62,7 +62,7 @@ const documents: DashboardDocument[] = [
 ]
 
 describe('AccountSummarySection', () => {
-  it('summarizes contract value, paid balance, and services rendered', () => {
+  it('summarizes paid value, time investment, remaining balance, and source detail', () => {
     render(
       <AccountSummarySection
         accountSummary={accountSummary}
@@ -85,12 +85,15 @@ describe('AccountSummarySection', () => {
     )
 
     expect(screen.getByRole('heading', { name: /account summary/i })).toBeInTheDocument()
-    expect(screen.getAllByText('$1,200')).toHaveLength(4)
-    expect(screen.getByText('No balance due')).toBeInTheDocument()
+    expect(screen.getByText('Time investment value')).toBeInTheDocument()
+    expect(screen.getByText('Paid balance remaining')).toBeInTheDocument()
+    expect(screen.getAllByText('No balance due')).toHaveLength(2)
     expect(screen.getByText('Contract exhausted')).toBeInTheDocument()
     expect(screen.getByText('$185/hr')).toBeInTheDocument()
     expect(screen.getByText(/6h 30m dedicated/i)).toBeInTheDocument()
     expect(screen.getByText(/2h · \$369/i)).toBeInTheDocument()
+    expect(screen.getByText('Total time investment')).toBeInTheDocument()
+    expect(screen.getByText(/\$1,200 paid - \$1,200 applied = No balance due/i)).toBeInTheDocument()
     expect(screen.getByText('Work performed')).toBeInTheDocument()
     expect(screen.getByText('KMB Drive package')).toBeInTheDocument()
     expect(screen.getByText('Firespring Template Comparison for KMB')).toBeInTheDocument()
