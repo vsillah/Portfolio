@@ -162,7 +162,7 @@ describe('buildAccountSummary', () => {
           status: 'accepted',
           paid_at: null,
           accepted_at: '2026-07-02T00:00:00.000Z',
-          created_at: '2026-07-01T00:00:00.000Z',
+          created_at: '2026-07-02T00:00:00.000Z',
         },
         {
           id: 'proposal-duplicate',

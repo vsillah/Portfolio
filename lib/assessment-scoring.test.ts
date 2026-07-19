@@ -57,7 +57,7 @@ describe('buildProjectedTrajectory', () => {
     })
   })
 
-  it('moves completion beyond the current day when milestone dates are stale', () => {
+  it('uses the milestone-count fallback when the planned completion date is stale', () => {
     const trajectory = buildProjectedTrajectory({
       projectStartDate: new Date('2026-04-01T00:00:00.000Z'),
       now: new Date('2026-07-11T16:00:00.000Z'),
