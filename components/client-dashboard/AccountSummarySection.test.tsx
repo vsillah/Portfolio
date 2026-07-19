@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import AccountSummarySection from './AccountSummarySection'
-import type { AccountSummaryData, TimeTrackingData } from '@/lib/client-dashboard'
+import type { AccountSummaryData, DashboardDocument, TimeTrackingData } from '@/lib/client-dashboard'
 
 const accountSummary: AccountSummaryData = {
   contract_value: 1200,
@@ -49,13 +49,38 @@ const timeTracking: TimeTrackingData = {
   ],
 }
 
+const documents: DashboardDocument[] = [
+  {
+    id: 'doc-1',
+    type: 'strategy_report',
+    title: 'Firespring Template Comparison for KMB',
+    pdf_url: 'https://example.com/template.pdf',
+    signed_url: null,
+    created_at: '2026-07-17T14:58:41.501064Z',
+    status: null,
+  },
+]
+
 describe('AccountSummarySection', () => {
   it('summarizes contract value, paid balance, and services rendered', () => {
     render(
       <AccountSummarySection
         accountSummary={accountSummary}
         timeTracking={timeTracking}
-        milestones={[{ title: 'Consolidate Balance proof feedback' }]}
+        milestones={[
+          {
+            title: 'Consolidate Balance proof feedback',
+            evidence: [
+              {
+                id: 'source-1',
+                source_label: 'KMB Drive package',
+                source_type: 'google_drive',
+                is_client_visible: true,
+              },
+            ],
+          },
+        ]}
+        documents={documents}
       />
     )
 
@@ -66,6 +91,9 @@ describe('AccountSummarySection', () => {
     expect(screen.getByText('$185/hr')).toBeInTheDocument()
     expect(screen.getByText(/6h 30m dedicated/i)).toBeInTheDocument()
     expect(screen.getByText(/2h · \$369/i)).toBeInTheDocument()
+    expect(screen.getByText('Work performed')).toBeInTheDocument()
+    expect(screen.getByText('KMB Drive package')).toBeInTheDocument()
+    expect(screen.getByText('Firespring Template Comparison for KMB')).toBeInTheDocument()
     expect(screen.getByText('Included')).toBeInTheDocument()
     expect(screen.getByText('Website UX Refresh')).toBeInTheDocument()
     expect(screen.getByText(/FireSpring proof review/i)).toBeInTheDocument()

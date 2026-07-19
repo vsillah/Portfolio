@@ -1,11 +1,13 @@
 'use client'
 
-import { AlertTriangle, CheckCircle2, MinusCircle } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, ExternalLink, MinusCircle } from 'lucide-react'
 import type { AssessmentCategory, CategoryScores } from '@/lib/assessment-scoring'
 
 interface AssessmentScoreBreakdownProps {
   scores: CategoryScores
   dreamScores?: Partial<CategoryScores>
+  hasFormalAssessment?: boolean
+  formalAssessmentHref?: string
 }
 
 const CATEGORY_EXPLANATIONS: Record<AssessmentCategory, string> = {
@@ -21,6 +23,21 @@ const CATEGORY_EXPLANATIONS: Record<AssessmentCategory, string> = {
     'Scope control and vendor timing matter because the current contract should not absorb unlimited rebuild work.',
   decision_making:
     'The main choices are known, but board and vendor feedback still decide final launch readiness.',
+}
+
+const CATEGORY_BASIS: Record<AssessmentCategory, string> = {
+  business_challenges:
+    'Based on migration goals, client correspondence, and the website-template decision context.',
+  tech_stack:
+    'Based on FireSpring Balance constraints, proof-site feedback, and template-comparison artifacts.',
+  automation_needs:
+    'Based on support, donor, sponsor, shop, and program-routing follow-up captured in project evidence.',
+  ai_readiness:
+    'Based on whether launch decisions, knowledge capture, and reusable source records are stable enough for automation.',
+  budget_timeline:
+    'Based on paid contract value, logged delivery time, remaining capacity, and vendor-decision timing.',
+  decision_making:
+    'Based on board/logo follow-up, vendor navigation answers, and open launch-readiness decisions.',
 }
 
 const SHORT_LABELS: Record<AssessmentCategory, string> = {
@@ -53,6 +70,8 @@ function getStatus(score: number, target: number) {
 export default function AssessmentScoreBreakdown({
   scores,
   dreamScores,
+  hasFormalAssessment = false,
+  formalAssessmentHref = '/tools/audit',
 }: AssessmentScoreBreakdownProps) {
   const entries = CATEGORY_ORDER
     .map((category) => {
@@ -75,11 +94,24 @@ export default function AssessmentScoreBreakdown({
             Score breakdown
           </h3>
           <p className="mt-1 text-xs text-platinum-white/52">
-            Category detail behind the radar chart.
+            {hasFormalAssessment
+              ? 'Category detail behind the completed assessment.'
+              : 'Projected category detail from project evidence. Complete the formal assessment to replace estimates.'}
           </p>
         </div>
-        <div className="text-right text-[10px] uppercase tracking-[0.14em] text-platinum-white/42">
-          Target {TARGET_SCORE}
+        <div className="flex shrink-0 flex-col items-end gap-1">
+          <div className="text-right text-[10px] uppercase tracking-[0.14em] text-platinum-white/42">
+            Target {TARGET_SCORE}
+          </div>
+          {!hasFormalAssessment && (
+            <a
+              href={formalAssessmentHref}
+              className="inline-flex items-center gap-1 rounded-md border border-radiant-gold/20 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-radiant-gold transition hover:border-radiant-gold/45 hover:bg-radiant-gold/10"
+            >
+              Formal audit
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          )}
         </div>
       </div>
       <div className="space-y-3">
@@ -97,6 +129,12 @@ export default function AssessmentScoreBreakdown({
                   </p>
                   <p className="mt-1 text-xs leading-5 text-platinum-white/58">
                     {CATEGORY_EXPLANATIONS[category]}
+                  </p>
+                  <p className="mt-2 text-[11px] leading-5 text-platinum-white/45">
+                    <span className="font-semibold uppercase tracking-[0.12em] text-radiant-gold/70">
+                      Basis:
+                    </span>{' '}
+                    {CATEGORY_BASIS[category]}
                   </p>
                 </div>
                 <div className="shrink-0 text-right">
