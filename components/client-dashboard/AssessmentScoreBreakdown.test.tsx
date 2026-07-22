@@ -26,4 +26,24 @@ describe('AssessmentScoreBreakdown', () => {
     expect(screen.getByText(/Based on FireSpring Balance constraints/i)).toBeInTheDocument()
     expect(screen.getByText(/current contract should not absorb unlimited rebuild work/i)).toBeInTheDocument()
   })
+
+  it('does not prompt clients to repeat a completed formal assessment', () => {
+    render(
+      <AssessmentScoreBreakdown
+        scores={{
+          business_challenges: 78,
+          tech_stack: 52,
+          automation_needs: 44,
+          ai_readiness: 36,
+          budget_timeline: 62,
+          decision_making: 68,
+        }}
+        hasFormalAssessment
+      />
+    )
+
+    expect(screen.getByText(/Category detail behind the completed assessment/i)).toBeInTheDocument()
+    expect(screen.queryByText(/Projected category detail from project evidence/i)).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /Formal audit/i })).not.toBeInTheDocument()
+  })
 })
