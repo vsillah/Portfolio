@@ -98,7 +98,7 @@ export default function AgentifiedAdminPage() {
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-foreground">{agentifiedPublication.title}</h1>
-                <p className="mt-2 max-w-3xl text-lg text-radiant-gold">{agentifiedPublication.subtitle}</p>
+                <p className="mt-2 max-w-3xl text-lg text-radiant-gold">{agentifiedPublication.longSubtitle}</p>
                 <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground">
                   {agentifiedPublication.description}
                 </p>

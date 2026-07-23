@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, BookOpen, Brain, CheckCircle2, FileText, ShieldCheck } from 'lucide-react'
+import { ArrowRight, BookOpen, Brain, CheckCircle2, ExternalLink, FileText, ShieldCheck } from 'lucide-react'
 import Navigation from '@/components/Navigation'
 import { agentifiedPublication } from '@/lib/agentified-publication'
 
@@ -49,6 +49,9 @@ export default function AgentifiedPage() {
             <p className="mt-5 max-w-3xl text-xl font-medium leading-relaxed text-radiant-gold sm:text-2xl">
               {agentifiedPublication.subtitle}
             </p>
+            <p className="mt-2 max-w-3xl text-sm font-medium uppercase tracking-[0.18em] text-muted-foreground">
+              {agentifiedPublication.longSubtitle}
+            </p>
             <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
               {agentifiedPublication.description}
             </p>
@@ -56,7 +59,44 @@ export default function AgentifiedPage() {
               {agentifiedPublication.promise}
             </p>
 
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-8 grid gap-3 sm:grid-cols-3">
+              {agentifiedPublication.purchaseLinks.map((link) => {
+                const isPrimary = link.kind === 'primary'
+                return (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={
+                      isPrimary
+                        ? 'group rounded-xl bg-radiant-gold px-5 py-4 text-imperial-navy transition hover:brightness-110'
+                        : 'group rounded-xl border border-radiant-gold/25 bg-background/50 px-5 py-4 text-foreground transition hover:bg-radiant-gold/10'
+                    }
+                  >
+                    <span className="flex items-center justify-between gap-3 text-sm font-bold">
+                      {link.label}
+                      <ExternalLink size={15} className="shrink-0 transition group-hover:translate-x-0.5" />
+                    </span>
+                    <span className={isPrimary ? 'mt-2 block text-xs text-imperial-navy/75' : 'mt-2 block text-xs text-muted-foreground'}>
+                      {link.status}
+                    </span>
+                  </a>
+                )
+              })}
+            </div>
+
+            <div className="mt-4 rounded-xl border border-radiant-gold/10 bg-silicon-slate/20 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-radiant-gold">
+                Wide distribution
+              </p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                Draft2Digital/Books2Read currently routes readers to available ebook retailers, including{' '}
+                {agentifiedPublication.wideRetailers.join(', ')}. Some storefronts can continue propagating after publication.
+              </p>
+            </div>
+
+            <div className="mt-5 flex flex-wrap gap-3">
               <Link
                 href="/#publications"
                 className="inline-flex items-center gap-2 rounded-full bg-radiant-gold px-5 py-3 text-xs font-bold uppercase tracking-[0.2em] text-imperial-navy transition hover:brightness-110"
