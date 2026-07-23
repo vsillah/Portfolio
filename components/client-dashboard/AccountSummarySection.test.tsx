@@ -102,4 +102,97 @@ describe('AccountSummarySection', () => {
     expect(screen.getByText(/FireSpring proof review/i)).toBeInTheDocument()
     expect(screen.getByText(/contract extension or package option/i)).toBeInTheDocument()
   })
+
+  it('derives financial values when a legacy account payload omits calculated fields', () => {
+    const legacyAccountSummary = {
+      ...accountSummary,
+      total_logged_seconds: undefined,
+      effective_hourly_rate: undefined,
+      services_rendered_value: undefined,
+      remaining_contract_value: undefined,
+      service_lines: [],
+    } as unknown as AccountSummaryData
+
+    render(
+      <AccountSummarySection
+        accountSummary={legacyAccountSummary}
+        timeTracking={{ total_seconds: 7200, by_target: [] }}
+      />
+    )
+
+    expect(screen.getByText('$600/hr')).toBeInTheDocument()
+    expect(screen.getByText('Contract capacity').parentElement).toHaveTextContent('Contract exhausted')
+    expect(screen.getByText('Paid balance remaining').parentElement).toHaveTextContent('No balance due')
+    expect(screen.getByText('Client balance due').parentElement).toHaveTextContent('No balance due')
+    expect(screen.getByText(/contract extension or package option/i)).toBeInTheDocument()
+  })
+
+  it('uses remaining paid value before recommending a separate package', () => {
+    render(
+      <AccountSummarySection
+        accountSummary={{
+          ...accountSummary,
+          effective_hourly_rate: 200,
+          services_rendered_value: 400,
+          remaining_contract_value: 800,
+          service_lines: [],
+        }}
+        timeTracking={{
+          total_seconds: 7200,
+          by_target: [
+            {
+              target_type: 'milestone',
+              target_id: '0',
+              total_seconds: 7200,
+              entry_count: 1,
+            },
+          ],
+        }}
+      />
+    )
+
+    expect(screen.getByText('Contract capacity').parentElement).toHaveTextContent('$800')
+    expect(screen.getByText('Paid balance remaining').parentElement).toHaveTextContent('$800')
+    expect(screen.getByText(/\$1,200 paid - \$400 applied = \$800/i)).toBeInTheDocument()
+    expect(screen.getByText(/use the remaining paid balance before opening a separate package/i)).toBeInTheDocument()
+    expect(screen.queryByText(/paid value has been fully allocated/i)).not.toBeInTheDocument()
+  })
+
+  it('hides internal evidence and routes client-visible sources to their dashboard sections', () => {
+    render(
+      <AccountSummarySection
+        accountSummary={accountSummary}
+        timeTracking={timeTracking}
+        milestones={[
+          {
+            title: 'Consolidate Balance proof feedback',
+            evidence: [
+              {
+                id: 'internal-source',
+                source_label: 'Private admin analysis',
+                source_type: 'internal',
+                is_client_visible: false,
+              },
+              {
+                id: 'meeting-source',
+                source_label: 'Kickoff meeting',
+                source_type: 'read_ai',
+                is_client_visible: true,
+              },
+              {
+                id: 'drive-source',
+                source_label: 'KMB Drive package',
+                source_type: 'google_drive',
+                is_client_visible: true,
+              },
+            ],
+          },
+        ]}
+      />
+    )
+
+    expect(screen.queryByText('Private admin analysis')).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Kickoff meeting' })).toHaveAttribute('href', '#meeting-history')
+    expect(screen.getByRole('link', { name: 'KMB Drive package' })).toHaveAttribute('href', '#documents')
+  })
 })
