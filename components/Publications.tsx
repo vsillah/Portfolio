@@ -102,8 +102,8 @@ function mergeLocalPublications(remotePublications: Publication[]) {
       publication_url_label: 'Learn More',
       author: publication.author || agentifiedPublication.author,
       publisher: publication.publisher || agentifiedPublication.publisher,
-      file_path: publication.file_path || agentifiedPublication.coverImage,
-      file_type: publication.file_type || 'image/jpeg',
+      file_path: agentifiedPublication.coverImage,
+      file_type: 'image/jpeg',
       status_label: agentifiedPublication.statusLabel,
     }
   })
