@@ -420,7 +420,7 @@ function formatImpactExplanation(
 // ============================================================================
 
 /**
- * Get active, non-dismissed recommendations for a dashboard
+ * Get active, non-dismissed, non-converted recommendations for a dashboard
  */
 export async function getRecommendationsForDashboard(
   clientProjectId: string
@@ -431,6 +431,7 @@ export async function getRecommendationsForDashboard(
     .eq('client_project_id', clientProjectId)
     .eq('is_active', true)
     .is('dismissed_at', null)
+    .is('converted_at', null)
     .order('projected_annual_value', { ascending: false, nullsFirst: false })
 
   return (data || []) as AccelerationRecommendation[]
