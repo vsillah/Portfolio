@@ -55,7 +55,7 @@ const agentifiedPublicationCard: Publication = {
   publication_date: null,
   publisher: agentifiedPublication.publisher,
   file_path: agentifiedPublication.coverImage,
-  file_type: 'image/svg+xml',
+  file_type: 'image/jpeg',
   elevenlabs_project_id: null,
   elevenlabs_public_user_id: null,
   elevenlabs_player_url: null,
@@ -97,13 +97,13 @@ function mergeLocalPublications(remotePublications: Publication[]) {
 
     return {
       ...publication,
-      description: publication.description || agentifiedPublication.description,
+      description: agentifiedPublication.description,
       publication_url: publication.publication_url || agentifiedPublication.route,
       publication_url_label: 'Learn More',
       author: publication.author || agentifiedPublication.author,
-      publisher: publication.publisher || agentifiedPublication.publisher,
-      file_path: publication.file_path || agentifiedPublication.coverImage,
-      file_type: publication.file_type || 'image/svg+xml',
+      publisher: agentifiedPublication.publisher,
+      file_path: agentifiedPublication.coverImage,
+      file_type: 'image/jpeg',
       status_label: agentifiedPublication.statusLabel,
     }
   })
