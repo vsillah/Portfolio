@@ -105,13 +105,37 @@ describe('GET /api/client/dashboard/[token]/meetings', () => {
     expect(mocks.validateDashboardToken).toHaveBeenCalledWith('valid-dashboard-token')
     expect(mocks.from).toHaveBeenCalledWith('meeting_records')
     const projection = query.select.mock.calls[0]?.[0] as string
-    expect(projection.replace(/\s+/g, ' ').trim()).toBe(
-      'id, meeting_type, meeting_date, duration_minutes, structured_notes, key_decisions, action_items, open_questions, recording_url'
-    )
+    const selectedFields = projection.split(',').map((field) => field.trim()).sort()
+    expect(selectedFields).toEqual([
+      'action_items',
+      'duration_minutes',
+      'id',
+      'key_decisions',
+      'meeting_date',
+      'meeting_type',
+      'open_questions',
+      'recording_url',
+      'structured_notes',
+    ])
     expect(projection).not.toMatch(/transcript|\*/)
     expect(query.eq).toHaveBeenCalledWith('client_project_id', 'project-1')
     expect(query.order).toHaveBeenCalledWith('meeting_date', { ascending: false })
     expect(query.limit).toHaveBeenCalledWith(50)
+  })
+
+  it('normalizes an empty successful query to an empty meeting list', async () => {
+    mocks.validateDashboardToken.mockResolvedValue({
+      projectId: 'project-1',
+      error: null,
+    })
+    installMeetingQuery({ data: null, error: null })
+
+    const response = await GET(request('valid-dashboard-token'), {
+      params: Promise.resolve({ token: 'valid-dashboard-token' }),
+    })
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toEqual({ meetings: [] })
   })
 
   it('returns a generic error when the meeting query fails', async () => {
