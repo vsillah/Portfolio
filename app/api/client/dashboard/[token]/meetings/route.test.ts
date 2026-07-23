@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({
   validateDashboardToken: vi.fn(),
@@ -38,7 +38,11 @@ function installMeetingQuery(result: {
 
 describe('GET /api/client/dashboard/[token]/meetings', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    vi.resetAllMocks()
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
   it('rejects tokens without a client project before querying meeting data', async () => {
@@ -55,6 +59,26 @@ describe('GET /api/client/dashboard/[token]/meetings', () => {
     await expect(response.json()).resolves.toEqual({
       error: 'Invalid dashboard link',
     })
+    expect(mocks.validateDashboardToken).toHaveBeenCalledOnce()
+    expect(mocks.validateDashboardToken).toHaveBeenCalledWith('lead-dashboard-token')
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+
+  it('rejects an expired dashboard token before querying meeting data', async () => {
+    mocks.validateDashboardToken.mockResolvedValue({
+      projectId: null,
+      error: 'Invalid or expired dashboard link',
+    })
+
+    const response = await GET(request('expired-dashboard-token'), {
+      params: Promise.resolve({ token: 'expired-dashboard-token' }),
+    })
+
+    expect(response.status).toBe(401)
+    await expect(response.json()).resolves.toEqual({
+      error: 'Invalid or expired dashboard link',
+    })
+    expect(mocks.validateDashboardToken).toHaveBeenCalledWith('expired-dashboard-token')
     expect(mocks.from).not.toHaveBeenCalled()
   })
 
@@ -78,8 +102,13 @@ describe('GET /api/client/dashboard/[token]/meetings', () => {
 
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toEqual({ meetings })
+    expect(mocks.validateDashboardToken).toHaveBeenCalledWith('valid-dashboard-token')
     expect(mocks.from).toHaveBeenCalledWith('meeting_records')
-    expect(query.select).toHaveBeenCalledWith(expect.stringContaining('structured_notes'))
+    const projection = query.select.mock.calls[0]?.[0] as string
+    expect(projection.replace(/\s+/g, ' ').trim()).toBe(
+      'id, meeting_type, meeting_date, duration_minutes, structured_notes, key_decisions, action_items, open_questions, recording_url'
+    )
+    expect(projection).not.toMatch(/transcript|\*/)
     expect(query.eq).toHaveBeenCalledWith('client_project_id', 'project-1')
     expect(query.order).toHaveBeenCalledWith('meeting_date', { ascending: false })
     expect(query.limit).toHaveBeenCalledWith(50)
