@@ -207,6 +207,58 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
     fetchSpy.mockRestore()
   })
 
+  it('approves calendar-authorized draft-only content without creating publish rows', async () => {
+    const calendarRagContext = {
+      source: 'social_content_calendar_authorization',
+      source_type: 'social_content_calendar_item',
+      calendar_item_id: 'calendar-1',
+      campaign_id: 'campaign-1',
+      campaign_name: 'Agentified launch',
+      publish_gate: 'draft_only',
+      external_execution_enabled: false,
+    }
+    mocks.queueSingle.mockResolvedValueOnce({
+      data: {
+        id: 'social-1',
+        status: 'draft',
+        scheduled_for: null,
+        target_platforms: ['linkedin'],
+        rag_context: calendarRagContext,
+      },
+      error: null,
+    })
+    mocks.queueUpdateSingle.mockResolvedValueOnce({
+      data: {
+        id: 'social-1',
+        status: 'approved',
+        scheduled_for: null,
+        target_platforms: ['linkedin'],
+        rag_context: calendarRagContext,
+      },
+      error: null,
+    })
+
+    const response = await POST(request(), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(200)
+    const json = await response.json()
+    expect(json.publish_triggered).toBe(false)
+    expect(json.publishes).toEqual([])
+    expect(json.reference_work_item).toEqual(expect.objectContaining({
+      title: 'Attach approved Social Content references',
+      production_lane: 'references',
+    }))
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledTimes(4)
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
+      metadata: expect.objectContaining({
+        social_content_id: 'social-1',
+        publish_gate: 'draft_only',
+        approval_boundary: 'post_approval_production_handoff_only',
+      }),
+    }))
+    expect(mocks.publishesUpsert).not.toHaveBeenCalled()
+  })
+
   it('approves regular unscheduled content by creating publish records and triggering publish with admin auth', async () => {
     mocks.queueSingle.mockResolvedValueOnce({
       data: {

@@ -17,6 +17,8 @@ import {
   RefreshCw,
   ChevronDown,
   ChevronUp,
+  ChevronLeft,
+  ChevronRight,
   Linkedin,
   Youtube,
   Instagram,
@@ -178,6 +180,40 @@ function asRecordArray(value: unknown): Record<string, unknown>[] {
     : []
 }
 
+function isDraftOnlyReviewContext(ragContext: Record<string, unknown> | null) {
+  return asString(ragContext?.publish_gate) === 'draft_only'
+}
+
+function getReviewQueueGroupKey(contentItem: Pick<SocialContentItem, 'rag_context'> | null | undefined) {
+  const ragContext = asRecord(contentItem?.rag_context)
+  const campaignId = asString(ragContext?.campaign_id)
+  const packetId = asString(ragContext?.content_packet_id)
+  const goalId = asString(ragContext?.goal_id)
+  const source = asString(ragContext?.source)
+
+  if (campaignId) return `campaign:${campaignId}`
+  if (packetId) return `packet:${packetId}`
+  if (goalId) return `goal:${goalId}`
+  if (source) return `source:${source}`
+  return null
+}
+
+function getReviewQueueTimestamp(contentItem: Pick<SocialContentItem, 'scheduled_for' | 'created_at'>) {
+  return Date.parse(contentItem.scheduled_for || contentItem.created_at || '') || 0
+}
+
+function getReviewQueueLabel(contentItem: Pick<SocialContentItem, 'post_text' | 'cta_text' | 'rag_context'>, fallbackIndex: number) {
+  const ragContext = asRecord(contentItem.rag_context)
+  const plannedAngle = asString(ragContext?.planned_angle)
+  const firstLine = (contentItem.post_text || contentItem.cta_text || '')
+    .split('\n')
+    .map((line) => line.trim())
+    .find(Boolean)
+  return (plannedAngle || firstLine || `Draft ${fallbackIndex + 1}`)
+    .replace(/^Calendar draft seed:\s*/i, '')
+    .slice(0, 90)
+}
+
 type CalibrationFeedback = {
   triggering_event: string
   prior_post_excerpt: string
@@ -303,6 +339,8 @@ function SocialContentDetailPage() {
   const [topicBacklogItems, setTopicBacklogItems] = useState<TopicBacklogRecord[]>([])
   const [topicBacklogUnavailable, setTopicBacklogUnavailable] = useState(false)
   const [selectedTopicBacklogId, setSelectedTopicBacklogId] = useState<string | null>(null)
+  const [reviewQueueItems, setReviewQueueItems] = useState<SocialContentItem[]>([])
+  const [loadingReviewQueue, setLoadingReviewQueue] = useState(false)
   const [platformConfigs, setPlatformConfigs] = useState<SocialContentConfig[]>([])
   const [savingSectionGate, setSavingSectionGate] = useState<SectionGateKey | null>(null)
   const [showSource, setShowSource] = useState(false)
@@ -401,6 +439,42 @@ function SocialContentDetailPage() {
     }
   }, [])
 
+  const fetchReviewQueue = useCallback(async (currentItem: SocialContentItem) => {
+    const currentGroupKey = getReviewQueueGroupKey(currentItem)
+    if (!currentGroupKey) {
+      setReviewQueueItems([currentItem])
+      return
+    }
+
+    setLoadingReviewQueue(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const res = await fetch('/api/admin/social-content?status=all&limit=100', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const data = await res.json()
+      if (!res.ok) return
+
+      const items = Array.isArray(data.items) ? data.items as SocialContentItem[] : []
+      const groupedItems = items
+        .filter((candidate) => getReviewQueueGroupKey(candidate) === currentGroupKey)
+        .sort((a, b) => getReviewQueueTimestamp(a) - getReviewQueueTimestamp(b))
+
+      if (!groupedItems.some((candidate) => candidate.id === currentItem.id)) {
+        groupedItems.push(currentItem)
+      }
+
+      setReviewQueueItems(groupedItems)
+    } catch (err) {
+      console.error('Failed to fetch social content review queue:', err)
+      setReviewQueueItems([currentItem])
+    } finally {
+      setLoadingReviewQueue(false)
+    }
+  }, [])
+
   const fetchItem = useCallback(async (options: { silent?: boolean } = {}) => {
     if (!options.silent) setLoading(true)
     try {
@@ -441,13 +515,14 @@ function SocialContentDetailPage() {
         })
         setSelectedComparisonReferenceIds(asStringArray(operatorFeedback?.comparison_reference_ids))
         setCopyRevisionRequest(asString(operatorFeedback?.revision_request))
+        void fetchReviewQueue(i)
       }
     } catch (err) {
       console.error('Failed to fetch item:', err)
     } finally {
       if (!options.silent) setLoading(false)
     }
-  }, [id])
+  }, [fetchReviewQueue, id])
 
   useEffect(() => {
     fetchItem()
@@ -1044,14 +1119,14 @@ function SocialContentDetailPage() {
     }
   }
 
-  const handleApprove = async () => {
+  const handleApprove = async (): Promise<boolean> => {
     if (!canApproveAgentPilot) {
       showMsg('error', 'Agent Ops content must clear challenger QA before approval')
-      return
+      return false
     }
     if (videoPrivacyBlocked) {
       showMsg('error', redactionGate.message || 'Video privacy review required before publish readiness')
-      return
+      return false
     }
     setApproving(true)
     setShowConfirmModal(false)
@@ -1061,11 +1136,11 @@ function SocialContentDetailPage() {
       if (!saved) {
         showMsg('error', 'Failed to save changes before approving')
         setApproving(false)
-        return
+        return false
       }
 
       const session = await getCurrentSession()
-      if (!session) return
+      if (!session) return false
 
       const res = await fetch(`/api/admin/social-content/${id}/approve`, {
         method: 'POST',
@@ -1087,12 +1162,15 @@ function SocialContentDetailPage() {
         }
         // Re-fetch to get latest publish statuses
         setTimeout(() => fetchItem(), 1500)
+        return true
       } else {
         const data = await res.json()
         showMsg('error', data.error || 'Failed to approve')
+        return false
       }
     } catch {
       showMsg('error', 'Failed to approve')
+      return false
     } finally {
       setApproving(false)
     }
@@ -1589,7 +1667,7 @@ function SocialContentDetailPage() {
     : typeof engagementLatest?.likes === 'number'
       ? engagementLatest.likes
       : 0
-  const isDraftOnlyPilot = isAgentSocialPilot && agentPilotPublishGate === 'draft_only'
+  const isDraftOnlyPilot = isDraftOnlyReviewContext(ragContext)
   const canMarkGoldStandardCalibrationReference = isAgentSocialPilot
     && ['approved', 'published'].includes(item.status)
     && (item.platform === 'linkedin' || targetPlatforms.includes('linkedin'))
@@ -1797,6 +1875,33 @@ function SocialContentDetailPage() {
   }
   const handleReviewGateJump = (step: ApprovalStep) => {
     setApprovalStep(step)
+  }
+  const reviewQueueCurrentIndex = reviewQueueItems.findIndex((queueItem) => queueItem.id === item.id)
+  const normalizedReviewQueueIndex = reviewQueueCurrentIndex >= 0 ? reviewQueueCurrentIndex : 0
+  const previousReviewQueueItem = normalizedReviewQueueIndex > 0 ? reviewQueueItems[normalizedReviewQueueIndex - 1] : null
+  const nextReviewQueueItem = normalizedReviewQueueIndex < reviewQueueItems.length - 1
+    ? reviewQueueItems[normalizedReviewQueueIndex + 1]
+    : null
+  const nextDraftReviewQueueItem = reviewQueueItems
+    .slice(normalizedReviewQueueIndex + 1)
+    .find((queueItem) => queueItem.status === 'draft' || queueItem.status === 'rejected') ?? null
+  const remainingReviewDraftCount = reviewQueueItems
+    .filter((queueItem) => queueItem.status === 'draft' || queueItem.status === 'rejected')
+    .length
+  const reviewQueueLabel = getReviewQueueGroupKey(item)?.replace(':', ' ') || 'current content'
+  const navigateToReviewQueueItem = (nextId: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('step', 'copy')
+    const query = params.toString()
+    router.push(`/admin/social-content/${nextId}${query ? `?${query}` : ''}`)
+  }
+  const handleApproveAndNext = async () => {
+    const nextItem = nextDraftReviewQueueItem ?? nextReviewQueueItem
+    const approved = await handleApprove()
+    if (!approved) return
+    if (nextItem) {
+      navigateToReviewQueueItem(nextItem.id)
+    }
   }
   const renderSectionGateControls = (
     gateKey: SectionGateKey,
@@ -2594,6 +2699,60 @@ function SocialContentDetailPage() {
 	            </div>
 	            </>
 	            )}
+	          </section>
+	        )}
+
+	        {isDraftOnlyPilot && (
+	          <section className="admin-console-card rounded-xl border border-amber-500/25 p-4">
+	            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+	              <div className="min-w-0">
+	                <p className="admin-console-eyebrow">Campaign Copy Review</p>
+	                <div className="mt-2 flex flex-wrap items-center gap-2">
+	                  <h2 className="text-lg font-semibold text-gray-100">
+	                    Draft {reviewQueueItems.length ? normalizedReviewQueueIndex + 1 : 1} of {reviewQueueItems.length || 1}
+	                  </h2>
+	                  <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-100">
+	                    {loadingReviewQueue ? 'Syncing queue' : `${remainingReviewDraftCount} draft${remainingReviewDraftCount === 1 ? '' : 's'} remaining`}
+	                  </span>
+	                </div>
+	                <p className="mt-1 max-w-3xl truncate text-sm text-gray-400">
+	                  {getReviewQueueLabel(item, normalizedReviewQueueIndex)}
+	                </p>
+	                <p className="mt-1 text-xs text-gray-500">
+	                  {asString(ragContext?.campaign_name) || reviewQueueLabel.replace(/^campaign /, 'Campaign ')}
+	                </p>
+	              </div>
+	              <div className="flex flex-wrap items-center gap-2">
+	                <button
+	                  type="button"
+	                  onClick={() => previousReviewQueueItem && navigateToReviewQueueItem(previousReviewQueueItem.id)}
+	                  disabled={!previousReviewQueueItem}
+	                  className="inline-flex items-center gap-2 rounded-lg border border-gray-700 px-3 py-2 text-sm text-gray-300 transition-colors hover:border-gray-600 hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+	                >
+	                  <ChevronLeft className="h-4 w-4" />
+	                  Previous
+	                </button>
+	                <button
+	                  type="button"
+	                  onClick={() => nextReviewQueueItem && navigateToReviewQueueItem(nextReviewQueueItem.id)}
+	                  disabled={!nextReviewQueueItem}
+	                  className="inline-flex items-center gap-2 rounded-lg border border-gray-700 px-3 py-2 text-sm text-gray-300 transition-colors hover:border-gray-600 hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+	                >
+	                  Next
+	                  <ChevronRight className="h-4 w-4" />
+	                </button>
+	                <button
+	                  type="button"
+	                  onClick={handleApproveAndNext}
+	                  disabled={!isEditable || approving || !canApproveAgentPilot || videoPrivacyBlocked}
+	                  title={videoPrivacyBlocked ? 'Video privacy review required before publish readiness' : canApproveAgentPilot ? undefined : 'Research/context evidence and challenger QA must pass before approval'}
+	                  className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-500 disabled:cursor-not-allowed disabled:opacity-50"
+	                >
+	                  {approving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+	                  {nextDraftReviewQueueItem || nextReviewQueueItem ? 'Approve Draft & Next' : 'Approve Draft'}
+	                </button>
+	              </div>
+	            </div>
 	          </section>
 	        )}
 
@@ -3427,28 +3586,31 @@ function SocialContentDetailPage() {
               <h3 className="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
                 <Linkedin className="w-4 h-4 text-blue-400" /> LinkedIn Preview
               </h3>
-              <div className="bg-white rounded-lg p-4 text-gray-900">
+              <div
+                aria-label="LinkedIn post preview"
+                className="rounded-lg border border-silicon-slate/80 bg-gray-950/85 p-4 text-gray-100 shadow-inner shadow-black/30"
+              >
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 flex items-center justify-center text-white font-bold text-sm">
                     AT
                   </div>
                   <div>
-                    <div className="font-semibold text-sm">AmaduTown</div>
+                    <div className="font-semibold text-sm text-gray-100">AmaduTown</div>
                     <div className="text-xs text-gray-500">Just now</div>
                   </div>
                 </div>
-                <div className="text-sm whitespace-pre-wrap leading-relaxed mb-3">
+                <div className="text-sm whitespace-pre-wrap leading-relaxed mb-3 text-gray-200">
                   {getFullPostText({ ...item, post_text: postText, cta_text: ctaText, cta_url: ctaUrl, hashtags: hashtags.split(',').map(t => t.trim()).filter(Boolean) })}
                 </div>
                 {item.content_format === 'carousel' && item.carousel_slide_urls && item.carousel_slide_urls.length > 0 ? (
-                  <div className="rounded-lg overflow-hidden border border-gray-200 relative w-full aspect-square">
+                  <div className="rounded-lg overflow-hidden border border-gray-700 relative w-full aspect-square bg-gray-900">
                     <Image src={item.carousel_slide_urls[0]} alt="Carousel cover" className="object-cover" fill sizes="(max-width: 600px) 100vw, 600px" />
                     <div className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded">
                       1/{item.carousel_slide_urls.length}
                     </div>
                   </div>
                 ) : item.image_url ? (
-                  <div className="rounded-lg overflow-hidden border border-gray-200 relative w-full aspect-video">
+                  <div className="rounded-lg overflow-hidden border border-gray-700 relative w-full aspect-video bg-gray-900">
                     <Image src={item.image_url} alt="Post image" className="object-cover" fill sizes="(max-width: 600px) 100vw, 600px" />
                   </div>
                 ) : null}

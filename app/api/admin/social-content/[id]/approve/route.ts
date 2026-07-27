@@ -142,8 +142,8 @@ export async function POST(
     }
 
     const ragContext = recordValue(item.rag_context)
-    const isAgentOpsDraftOnly = ragContext?.source === 'agent_ops_social_outreach_goal' &&
-      ragContext.publish_gate === 'draft_only'
+    const isDraftOnlyReview = ragContext?.publish_gate === 'draft_only'
+    const isAgentOpsDraftOnly = ragContext?.source === 'agent_ops_social_outreach_goal' && isDraftOnlyReview
     if (
       isAgentOpsDraftOnly &&
       ragContext.pass_to_human !== true
@@ -171,7 +171,7 @@ export async function POST(
       return NextResponse.json({ error: 'Failed to approve content' }, { status: 500 })
     }
 
-    if (isAgentOpsDraftOnly) {
+    if (isDraftOnlyReview) {
       const productionWorkItems = []
       for (const definition of productionHandoffDefinitions(id, ragContext)) {
         const workItem = await createAgentWorkItem({
