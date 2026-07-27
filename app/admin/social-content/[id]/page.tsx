@@ -233,6 +233,57 @@ type CalibrationSuccessExample = {
   why_it_worked: string
 }
 
+type AcronymDefinition = {
+  label: string
+  pattern: RegExp
+  expanded: string
+  firstUse: string
+  context: string
+}
+
+type AcronymClarityIssue = AcronymDefinition & {
+  status: 'ready' | 'needs_expansion'
+}
+
+const SOCIAL_COPY_ACRONYMS: AcronymDefinition[] = [
+  {
+    label: 'SAM',
+    pattern: /\bSAM\b|\bS\.A\.M\./,
+    expanded: 'Signals, Alignment, Momentum',
+    firstUse: 'Signals, Alignment, Momentum (SAM)',
+    context: 'Accelerated product discipline',
+  },
+  {
+    label: 'AMINA',
+    pattern: /\bAMINA\b|\bA\.M\.I\.N\.A\./,
+    expanded: 'Align, Map, Instrument, Negotiate, and Audit',
+    firstUse: 'Align, Map, Instrument, Negotiate, and Audit (AMINA)',
+    context: 'Agentified trust loop',
+  },
+]
+
+function hasExpandedAcronym(text: string, definition: AcronymDefinition) {
+  return text.toLowerCase().includes(definition.expanded.toLowerCase())
+}
+
+function getAcronymClarityIssues(text: string): AcronymClarityIssue[] {
+  return SOCIAL_COPY_ACRONYMS
+    .filter((definition) => definition.pattern.test(text))
+    .map((definition) => ({
+      ...definition,
+      status: hasExpandedAcronym(text, definition) ? 'ready' : 'needs_expansion',
+    }))
+}
+
+function expandKnownAcronyms(text: string) {
+  let nextText = text
+  for (const definition of SOCIAL_COPY_ACRONYMS) {
+    if (!definition.pattern.test(nextText) || hasExpandedAcronym(nextText, definition)) continue
+    nextText = nextText.replace(definition.pattern, definition.firstUse)
+  }
+  return nextText
+}
+
 type TopicTriggerCandidateRecord = Record<string, unknown>
 type TopicBacklogRecord = TopicTriggerCandidateRecord & {
   id?: string
@@ -674,6 +725,14 @@ function SocialContentDetailPage() {
     setSaving(false)
   }
 
+  const handleExpandKnownAcronyms = () => {
+    const expandedPostText = expandKnownAcronyms(postText)
+    const expandedCtaText = expandKnownAcronyms(ctaText)
+    setPostText(expandedPostText)
+    setCtaText(expandedCtaText)
+    showMsg('success', 'Known acronyms written out in this draft')
+  }
+
   const updateCalibrationFeedback = (key: Exclude<keyof CalibrationFeedback, 'success_examples'>, value: string) => {
     setCalibrationFeedback((current) => ({ ...current, [key]: value }))
   }
@@ -943,7 +1002,11 @@ function SocialContentDetailPage() {
               created_at: requestedAt,
               previous_status: item.status,
               request: revisionRequest,
-              action: generateRevision ? 'reject_and_generate_revision' : 'reopen_for_revision',
+              action: generateRevision
+                ? 'reject_and_generate_revision'
+                : copyRevisionIsApprovalRollback
+                  ? 'reopen_for_revision'
+                  : 'reject_with_feedback',
             },
           ].slice(-10),
         },
@@ -981,7 +1044,9 @@ function SocialContentDetailPage() {
       }))
 
       if (!generateRevision) {
-        showMsg('success', 'Approval reverted. Revision feedback saved.')
+        showMsg('success', copyRevisionIsApprovalRollback
+          ? 'Approval reverted. Revision feedback saved.'
+          : 'Draft rejected. Feedback saved for iteration.')
         return
       }
 
@@ -1006,7 +1071,9 @@ function SocialContentDetailPage() {
       setHashtags(updated.hashtags?.join(', ') || '')
       setImagePrompt(updated.image_prompt || '')
       setAdminNotes(updated.admin_notes || '')
-      showMsg('success', 'Approval reverted and revised draft generated.')
+      showMsg('success', copyRevisionIsApprovalRollback
+        ? 'Approval reverted and revised draft generated.'
+        : 'Draft rejected and revised copy generated.')
     } catch {
       showMsg('error', 'Failed to request copy revision')
     } finally {
@@ -1122,6 +1189,10 @@ function SocialContentDetailPage() {
   const handleApprove = async (): Promise<boolean> => {
     if (!canApproveAgentPilot) {
       showMsg('error', 'Agent Ops content must clear challenger QA before approval')
+      return false
+    }
+    if (copyHasBlockingAcronymIssues) {
+      showMsg('error', 'Write out known acronyms before approving this draft')
       return false
     }
     if (videoPrivacyBlocked) {
@@ -1674,7 +1745,18 @@ function SocialContentDetailPage() {
     && Boolean(item.post_text?.trim())
   const canApproveAgentPilot = !isAgentSocialPilot || agentPilotPassToHuman
   const videoPrivacyBlocked = Boolean(productionAssets && !redactionGate.ready)
-  const canRequestCopyRevision = isAgentSocialPilot && item.status === 'approved'
+  const acronymClarityIssues = getAcronymClarityIssues([postText, ctaText].filter(Boolean).join('\n'))
+  const copyHasBlockingAcronymIssues = acronymClarityIssues.some((issue) => issue.status === 'needs_expansion')
+  const canApproveCurrentDraft = canApproveAgentPilot && !copyHasBlockingAcronymIssues
+  const approveBlockedTitle = videoPrivacyBlocked
+    ? 'Video privacy review required before publish readiness'
+    : copyHasBlockingAcronymIssues
+      ? 'Write out known acronyms before approval'
+      : canApproveAgentPilot
+        ? undefined
+        : 'Research/context evidence and challenger QA must pass before approval'
+  const canRequestCopyRevision = (isAgentSocialPilot || isDraftOnlyPilot) && (item.status === 'approved' || isEditable)
+  const copyRevisionIsApprovalRollback = item.status === 'approved'
   const canEditVisualProduction = isEditable || (isDraftOnlyPilot && item.status === 'approved')
   const visualProductionUnlocked = canEditVisualProduction && isDraftOnlyPilot
   const frameworkIllustrationLabel = item.image_url
@@ -2744,8 +2826,8 @@ function SocialContentDetailPage() {
 	                <button
 	                  type="button"
 	                  onClick={handleApproveAndNext}
-	                  disabled={!isEditable || approving || !canApproveAgentPilot || videoPrivacyBlocked}
-	                  title={videoPrivacyBlocked ? 'Video privacy review required before publish readiness' : canApproveAgentPilot ? undefined : 'Research/context evidence and challenger QA must pass before approval'}
+	                  disabled={!isEditable || approving || !canApproveCurrentDraft || videoPrivacyBlocked}
+	                  title={approveBlockedTitle}
 	                  className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-500 disabled:cursor-not-allowed disabled:opacity-50"
 	                >
 	                  {approving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
@@ -2918,6 +3000,66 @@ function SocialContentDetailPage() {
                 <span className="text-xs text-gray-500">{postText.length} characters</span>
                 <span className="text-xs text-gray-500">LinkedIn optimal: 150-300 words</span>
               </div>
+              <div className={`mt-4 rounded-lg border p-4 ${
+                copyHasBlockingAcronymIssues
+                  ? 'border-amber-500/35 bg-amber-500/10'
+                  : 'border-emerald-500/25 bg-emerald-500/10'
+              }`}>
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="min-w-0">
+                    <p className={`flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] ${
+                      copyHasBlockingAcronymIssues ? 'text-amber-200' : 'text-emerald-200'
+                    }`}>
+                      <FileText className="h-3.5 w-3.5" />
+                      Acronym clarity
+                    </p>
+                    <p className={`mt-1 text-sm leading-6 ${
+                      copyHasBlockingAcronymIssues ? 'text-amber-50/85' : 'text-emerald-50/85'
+                    }`}>
+                      Write out known campaign terms on first use so new readers are not forced to decode the shorthand.
+                    </p>
+                  </div>
+                  {copyHasBlockingAcronymIssues && (
+                    <button
+                      type="button"
+                      onClick={handleExpandKnownAcronyms}
+                      disabled={!isEditable}
+                      className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-amber-400 px-3 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Sparkles className="h-3.5 w-3.5" />
+                      Write out known acronyms
+                    </button>
+                  )}
+                </div>
+                {acronymClarityIssues.length > 0 ? (
+                  <div className="mt-3 grid gap-2 md:grid-cols-2">
+                    {acronymClarityIssues.map((issue) => (
+                      <div
+                        key={issue.label}
+                        className={`rounded-lg border px-3 py-2 ${
+                          issue.status === 'ready'
+                            ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-50'
+                            : 'border-amber-500/25 bg-gray-950/35 text-amber-50'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="text-sm font-semibold">{issue.label}</p>
+                          <span className="rounded-full border border-current/25 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em]">
+                            {issue.status === 'ready' ? 'Written out' : 'Needs expansion'}
+                          </span>
+                        </div>
+                        <p className="mt-1 text-xs leading-5 opacity-80">
+                          {issue.firstUse} · {issue.context}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-3 text-xs leading-5 text-emerald-50/70">
+                    No known campaign acronyms were detected in this draft.
+                  </p>
+                )}
+              </div>
               <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1">CTA Text</label>
@@ -2959,14 +3101,16 @@ function SocialContentDetailPage() {
                     <div className="min-w-0">
                       <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">
                         <MessageSquare className="h-3.5 w-3.5" />
-                        Request copy revision
+                        {copyRevisionIsApprovalRollback ? 'Request copy revision' : 'Reject with feedback'}
                       </p>
                       <p className="mt-1 text-sm leading-6 text-amber-50/85">
-                        Revert approval with a note Shaka can use for the next draft.
+                        {copyRevisionIsApprovalRollback
+                          ? 'Revert approval with a note Shaka can use for the next draft.'
+                          : 'Mark this draft rejected and capture what should change before the next review.'}
                       </p>
                     </div>
                     <span className="w-fit rounded-full border border-amber-500/35 px-2 py-0.5 text-[10px] font-semibold text-amber-100">
-                      Approval rollback
+                      {copyRevisionIsApprovalRollback ? 'Approval rollback' : 'Draft iteration'}
                     </span>
                   </div>
                   <label className="mt-3 block text-xs font-medium uppercase tracking-[0.12em] text-amber-100/80">
@@ -3004,7 +3148,7 @@ function SocialContentDetailPage() {
                         className="inline-flex items-center gap-2 rounded-lg border border-amber-400/45 px-3 py-2 text-sm font-semibold text-amber-100 transition-colors hover:bg-amber-500/10 disabled:opacity-50"
                       >
                         {requestingCopyRevision ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
-                        Reopen for Revision
+                        {copyRevisionIsApprovalRollback ? 'Reopen for Revision' : 'Reject with Feedback'}
                       </button>
                       <button
                         type="button"
@@ -3812,8 +3956,8 @@ function SocialContentDetailPage() {
                   }
                   setShowConfirmModal(true)
                 }}
-                disabled={approving || !canApproveAgentPilot || videoPrivacyBlocked}
-                title={videoPrivacyBlocked ? 'Video privacy review required before publish readiness' : canApproveAgentPilot ? undefined : 'Research/context evidence and challenger QA must pass before approval'}
+                disabled={approving || !canApproveCurrentDraft || videoPrivacyBlocked}
+                title={approveBlockedTitle}
                 className="flex items-center gap-1.5 px-5 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {approving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
@@ -4176,7 +4320,7 @@ function SocialContentDetailPage() {
                 </button>
                 <button
                   onClick={handleApprove}
-                  disabled={approving || !canApproveAgentPilot || videoPrivacyBlocked}
+                  disabled={approving || !canApproveCurrentDraft || videoPrivacyBlocked}
                   className="flex items-center gap-2 px-5 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {approving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}

@@ -332,6 +332,83 @@ describe('SocialContentDetailRoute visual production review', () => {
     })
   })
 
+  it('writes out campaign acronyms before approval and captures reject feedback for iteration', async () => {
+    const calendarItem = {
+      ...baseItem,
+      status: 'draft',
+      reviewed_by: null,
+      post_text: 'S.A.M. moves the work. AMINA governs the work.',
+      cta_text: 'Read Agentified.',
+      rag_context: {
+        source: 'social_content_calendar_authorization',
+        source_type: 'social_content_calendar_item',
+        calendar_item_id: 'calendar-1',
+        campaign_id: 'campaign-1',
+        campaign_name: 'Agentified launch',
+        planned_angle: 'From SAM to AMINA',
+        publish_gate: 'draft_only',
+        external_execution_enabled: false,
+      },
+    }
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.includes('/api/admin/social-content?status=all')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [calendarItem] }),
+        } as Response
+      }
+      if (init?.method === 'PUT') {
+        const body = JSON.parse(String(init.body))
+        return {
+          ok: true,
+          json: async () => ({ item: { ...calendarItem, ...body } }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: calendarItem }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAtStep('copy')
+
+    expect(await screen.findByText('Acronym clarity')).toBeInTheDocument()
+    expect(screen.getByText('Signals, Alignment, Momentum (SAM) · Accelerated product discipline')).toBeInTheDocument()
+    expect(screen.getByText('Align, Map, Instrument, Negotiate, and Audit (AMINA) · Agentified trust loop')).toBeInTheDocument()
+    expect(screen.getAllByText('Needs expansion').length).toBe(2)
+    expect(screen.getByRole('button', { name: /Approve Draft/i })).toBeDisabled()
+
+    fireEvent.click(screen.getByRole('button', { name: /Write out known acronyms/i }))
+
+    expect(screen.getByDisplayValue('Signals, Alignment, Momentum (SAM) moves the work. Align, Map, Instrument, Negotiate, and Audit (AMINA) governs the work.')).toBeInTheDocument()
+    expect(screen.getAllByText('Written out').length).toBe(2)
+    expect(screen.getByRole('button', { name: /Approve Draft/i })).not.toBeDisabled()
+
+    fireEvent.change(screen.getByLabelText('Revision feedback for Shaka'), {
+      target: { value: 'The framework reference is clear now, but the opening still needs a more concrete scene.' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /Reject with Feedback/i }))
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining('/api/admin/social-content/social-1'),
+        expect.objectContaining({ method: 'PUT' }),
+      )
+    })
+    const rejectCall = fetchMock.mock.calls.find(([, init]) => init?.method === 'PUT')
+    const body = JSON.parse(String(rejectCall?.[1]?.body))
+    expect(body.status).toBe('rejected')
+    expect(body.rag_context.content_calibration.status).toBe('revision_requested')
+    expect(body.rag_context.content_calibration.operator_feedback.revision_request).toContain('concrete scene')
+    expect(body.rag_context.content_calibration.revision_requests[0]).toMatchObject({
+      previous_status: 'draft',
+      action: 'reject_with_feedback',
+    })
+    expect(body.admin_notes).toContain('Copy revision requested')
+  })
+
   it('lets the operator add a reusable calibration reference to the feedback packet', async () => {
     const draftItem = {
       ...baseItem,
