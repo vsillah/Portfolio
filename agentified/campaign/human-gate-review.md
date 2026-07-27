@@ -3,6 +3,7 @@
 Status: Human approval required
 Campaign slug: `agentified-trust-scale-2026-07`
 Gate owner: Vambah Sillah
+First review packet: `agentified/campaign/launch-review-packet-2026-07-27.md`
 
 ## Gate decision
 
@@ -85,3 +86,4 @@ Open decisions for Vambah:
 - Whether cover comp A is public-approved.
 - Whether short-form videos should be native recording, HeyGen, or text-over-image.
 - Whether email should go to the full list or a smaller warm audience first.
+- Whether `AGT-LI-01` should become the first authorized launch item after review.

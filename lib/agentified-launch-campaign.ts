@@ -12,6 +12,7 @@ import {
 
 const AGENTIFIED_OWNER_AGENT_KEY = 'chief-of-staff'
 const PACKET_PATH = 'agentified/campaign/portfolio-campaign-packet.json'
+const FIRST_REVIEW_PACKET_PATH = 'agentified/campaign/launch-review-packet-2026-07-27.md'
 
 type PacketCampaign = typeof packet.campaign
 type PacketCalendarItem = (typeof packet.calendar_items)[number]
@@ -97,6 +98,7 @@ export function agentifiedLaunchSummary() {
     template_key: 'whisper_to_shout',
     packet_status: plan.packet_status,
     packet_path: plan.packet_path,
+    first_review_packet_path: FIRST_REVIEW_PACKET_PATH,
     starts_at: plan.campaign.starts_at,
     ends_at: plan.campaign.ends_at,
     calendar_item_count: plan.calendar_items.length,
@@ -137,6 +139,7 @@ export function buildAgentifiedWorkItemInput(item: PacketCalendarItem) {
       'agentified/campaign/draft-assets.md',
       'agentified/campaign/release-calendar.md',
       'agentified/campaign/human-gate-review.md',
+      FIRST_REVIEW_PACKET_PATH,
     ],
     overlapGroup: 'agentified-launch-campaign',
     metadata: {
@@ -157,6 +160,7 @@ export function buildAgentifiedWorkItemInput(item: PacketCalendarItem) {
       calendar_channel: item.channel,
       agentified_asset_id: item.asset_id,
       draft_asset_path: item.metadata.draft_asset_path,
+      first_review_packet_path: FIRST_REVIEW_PACKET_PATH,
       channel_lanes: lanes,
       insight: {
         candidate_id: item.asset_id,
@@ -215,6 +219,7 @@ export function buildAgentifiedCalendarRow(input: {
       agentified_asset_id: input.item.asset_id,
       campaign_slug: input.item.campaign_slug,
       source_packet_path: PACKET_PATH,
+      first_review_packet_path: FIRST_REVIEW_PACKET_PATH,
       external_execution_enabled: false,
       imported_from_agentified_packet: true,
       side_effects: {

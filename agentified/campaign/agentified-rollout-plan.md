@@ -1,11 +1,12 @@
 # Agentified content rollout plan
 
 Status: Draft campaign packet
-Date: 2026-07-05
+Date: 2026-07-27
 Portfolio campaign slug: `agentified-trust-scale-2026-07`
 Portfolio template: `whisper_to_shout`
-Window: 2026-07-13 through 2026-07-26
+Window: 2026-07-27 through 2026-08-09
 Human gate: Required before any external scheduling or publishing
+Baseline note: Rebased on 2026-07-27. No asset in this packet has been posted, externally scheduled, sent, uploaded, or published.
 
 ## Campaign intent
 
@@ -25,13 +26,13 @@ Use this as the draft Portfolio campaign definition:
 | `slug` | `agentified-trust-scale-2026-07` |
 | `campaign_type` | `bonus_credit` |
 | `status` | `draft` |
-| `starts_at` | `2026-07-13T13:00:00-04:00` |
-| `ends_at` | `2026-07-26T18:00:00-04:00` |
+| `starts_at` | `2026-07-27T15:00:00-04:00` |
+| `ends_at` | `2026-08-09T18:00:00-04:00` |
 | `promo_copy` | Achieve agentic scale through trust. |
 | `description` | Launch campaign for Agentified, Vambah Sillah's product-leadership book on governing agentic work through memory, roles, routing, approvals, evals, drift checks, receipts, and operating-system design. |
 | `hero_image_url` | `/agentified-cover.svg` until the final cover comp is approved and promoted. |
 
-This packet is prepare-only. It does not create the campaign row, insert calendar items, schedule posts, upload media, or publish externally.
+This packet is prepare-only. It does not create the campaign row, insert calendar items, schedule posts, send email, upload media, or publish externally.
 
 ## Message spine
 
@@ -74,9 +75,10 @@ Before any item moves into Portfolio's Social Content calendar as actionable con
 Completed in this packet:
 
 - Defined the Portfolio campaign binding.
-- Set a two-week release window.
+- Rebased the two-week release window from Monday, July 27, 2026.
 - Drafted the full campaign asset set.
 - Created a calendar and approval model that maps to Portfolio's campaign-aware social content calendar.
+- Prepared `agentified/campaign/launch-review-packet-2026-07-27.md` as the first human-review packet.
 
 Remaining next:
 

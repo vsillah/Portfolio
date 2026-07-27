@@ -119,6 +119,9 @@ describe('/api/admin/content/agentified/campaign/import', () => {
       summary: {
         campaign_slug: 'agentified-trust-scale-2026-07',
         template_key: 'whisper_to_shout',
+        first_review_packet_path: 'agentified/campaign/launch-review-packet-2026-07-27.md',
+        starts_at: '2026-07-27T15:00:00-04:00',
+        ends_at: '2026-08-09T18:00:00-04:00',
         calendar_item_count: 12,
         supported_channels: ['linkedin', 'youtube_shorts', 'thumbnail'],
         side_effects: expect.objectContaining({
@@ -153,6 +156,8 @@ describe('/api/admin/content/agentified/campaign/import', () => {
     expect(response.status).toBe(200)
     expect(campaignCreate.insert).toHaveBeenCalledWith(expect.objectContaining({
       slug: 'agentified-trust-scale-2026-07',
+      starts_at: '2026-07-27T15:00:00-04:00',
+      ends_at: '2026-08-09T18:00:00-04:00',
       status: 'draft',
       created_by: 'admin-user',
     }))
@@ -163,6 +168,7 @@ describe('/api/admin/content/agentified/campaign/import', () => {
         social_topic_trigger: true,
         campaign_slug: 'agentified-trust-scale-2026-07',
         agentified_asset_id: 'AGT-LI-01',
+        first_review_packet_path: 'agentified/campaign/launch-review-packet-2026-07-27.md',
         channel_lanes: expect.objectContaining({
           linkedin: expect.objectContaining({ status: 'selected' }),
         }),
@@ -184,9 +190,12 @@ describe('/api/admin/content/agentified/campaign/import', () => {
       campaign_id: 'campaign-agentified',
       agent_work_item_id: 'work-AGT-LI-01',
       channel: 'linkedin',
+      scheduled_for: '2026-07-27T15:00:00-04:00',
+      authorization_due_at: '2026-07-27T13:00:00-04:00',
       authorization_status: 'pending',
       metadata: expect.objectContaining({
         agentified_asset_id: 'AGT-LI-01',
+        first_review_packet_path: 'agentified/campaign/launch-review-packet-2026-07-27.md',
         external_execution_enabled: false,
         side_effects: expect.objectContaining({
           social_draft_created: false,
