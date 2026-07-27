@@ -142,7 +142,8 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByRole('button', { name: 'LinkedIn draft: Pending' })).toBeInTheDocument()
     expect(screen.getAllByText('Copy: Approved').length).toBeGreaterThan(1)
     expect(screen.getAllByText('Supporting context: Pending').length).toBeGreaterThan(0)
-    expect(screen.getByText('Request copy revision')).toBeInTheDocument()
+    expect(screen.queryByText('Request copy revision')).not.toBeInTheDocument()
+    expect(screen.queryByText(/Mark this draft rejected/i)).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Triggering event or recent proof')).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Revision feedback for Shaka')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Reopen for Revision/i })).not.toBeDisabled()
@@ -906,7 +907,8 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     renderAtStep('copy')
 
-    expect(await screen.findByText('Request copy revision')).toBeInTheDocument()
+    expect(await screen.findByText('Post Text')).toBeInTheDocument()
+    expect(screen.queryByText('Request copy revision')).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Triggering event or recent proof')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: /Reject and Generate Revision/i }))
     const triggeringEventInput = screen.getByLabelText('Triggering event or recent proof')

@@ -35,7 +35,6 @@ import {
   BarChart3,
   Plus,
   Trash2,
-  MessageSquare,
   Lightbulb,
   Star,
 } from 'lucide-react'
@@ -1773,6 +1772,71 @@ function SocialContentDetailPage() {
   const copyRevisionIsApprovalRollback = item.status === 'approved'
   const copyRevisionDetailsOpen = copyRevisionAction !== null
   const copyRevisionHasContext = Boolean(copyRevisionRequest.trim() || calibrationFeedback.triggering_event.trim())
+  const copyRevisionFeedbackButtonLabel = copyRevisionAction === 'feedback' && !copyRevisionHasContext
+    ? 'Add Feedback to Continue'
+    : copyRevisionIsApprovalRollback
+      ? 'Reopen for Revision'
+      : 'Reject with Feedback'
+  const copyRevisionGenerateButtonLabel = copyRevisionAction === 'generate' && !copyRevisionHasContext
+    ? 'Add Feedback to Generate'
+    : 'Reject and Generate Revision'
+  const copyRevisionActionButtons = canRequestCopyRevision ? (
+    <div className="flex flex-wrap items-center gap-2">
+      <button
+        type="button"
+        onClick={() => handleCopyRevisionAction('feedback')}
+        disabled={requestingCopyRevision || (copyRevisionAction === 'feedback' && !copyRevisionHasContext)}
+        className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+          copyRevisionAction === 'feedback'
+            ? 'border-amber-300 bg-amber-500/15 text-amber-50'
+            : 'border-amber-400/45 text-amber-100 hover:bg-amber-500/10'
+        }`}
+      >
+        {requestingCopyRevision ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
+        {copyRevisionFeedbackButtonLabel}
+      </button>
+      <button
+        type="button"
+        onClick={() => handleCopyRevisionAction('generate')}
+        disabled={requestingCopyRevision || (copyRevisionAction === 'generate' && !copyRevisionHasContext)}
+        className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+          copyRevisionAction === 'generate'
+            ? 'bg-amber-300 text-slate-950'
+            : 'bg-amber-400 text-slate-950 hover:bg-amber-300'
+        }`}
+      >
+        {requestingCopyRevision ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+        {copyRevisionGenerateButtonLabel}
+      </button>
+    </div>
+  ) : null
+  const copyRevisionFeedbackFields = copyRevisionDetailsOpen ? (
+    <div className="mt-3 grid gap-3 rounded-lg border border-amber-500/25 bg-gray-950/35 p-3 lg:grid-cols-2">
+      <label className="block text-xs font-medium uppercase tracking-[0.12em] text-amber-100/80">
+        Triggering event or recent proof
+        <textarea
+          value={calibrationFeedback.triggering_event}
+          onChange={(event) => updateCalibrationFeedback('triggering_event', event.target.value)}
+          rows={3}
+          className="mt-2 w-full rounded-lg border border-amber-500/25 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-100 placeholder:text-gray-500"
+          placeholder="Recent meeting, shipped feature, client-safe project, or completed build that gives this post a reason to exist."
+        />
+      </label>
+      <label className="block text-xs font-medium uppercase tracking-[0.12em] text-amber-100/80">
+        Revision feedback for Shaka
+        <textarea
+          value={copyRevisionRequest}
+          onChange={(event) => {
+            setCopyRevisionRequest(event.target.value)
+            updateCalibrationFeedback('revision_request', event.target.value)
+          }}
+          rows={3}
+          className="mt-2 w-full rounded-lg border border-amber-500/25 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-100 placeholder:text-gray-500"
+          placeholder="What should change before this can be approved?"
+        />
+      </label>
+    </div>
+  ) : null
   const canEditVisualProduction = isEditable || (isDraftOnlyPilot && item.status === 'approved')
   const visualProductionUnlocked = canEditVisualProduction && isDraftOnlyPilot
   const frameworkIllustrationLabel = item.image_url
@@ -2849,8 +2913,10 @@ function SocialContentDetailPage() {
 	                  {approving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
 	                  {nextDraftReviewQueueItem || nextReviewQueueItem ? 'Approve Draft & Next' : 'Approve Draft'}
 	                </button>
+	                {activeApprovalStep === 'copy' && copyRevisionActionButtons}
 	              </div>
 	            </div>
+	            {activeApprovalStep === 'copy' && copyRevisionFeedbackFields}
 	          </section>
 	        )}
 
@@ -3097,97 +3163,12 @@ function SocialContentDetailPage() {
                   className="w-full bg-gray-800 text-gray-200 border border-gray-700 rounded-lg px-3 py-2 text-sm disabled:opacity-60"
                 />
               </div>
-              {canRequestCopyRevision && (
-                <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
-                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                    <div className="min-w-0">
-                      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">
-                        <MessageSquare className="h-3.5 w-3.5" />
-                        {copyRevisionIsApprovalRollback ? 'Request copy revision' : 'Reject with feedback'}
-                      </p>
-                      <p className="mt-1 text-sm leading-6 text-amber-50/85">
-                        {copyRevisionIsApprovalRollback
-                          ? 'Revert approval with a note Shaka can use for the next draft.'
-                          : 'Mark this draft rejected and capture what should change before the next review.'}
-                      </p>
-                    </div>
-                    <span className="w-fit rounded-full border border-amber-500/35 px-2 py-0.5 text-[10px] font-semibold text-amber-100">
-                      {copyRevisionIsApprovalRollback ? 'Approval rollback' : 'Draft iteration'}
-                    </span>
-                  </div>
-                  {copyRevisionDetailsOpen && (
-                    <div className="mt-3 rounded-lg border border-amber-500/25 bg-gray-950/35 p-3">
-                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-amber-100">
-                        {copyRevisionAction === 'generate' ? 'Generate revision input' : 'Feedback input'}
-                      </p>
-                      <label className="mt-3 block text-xs font-medium uppercase tracking-[0.12em] text-amber-100/80">
-                        Triggering event or recent proof
-                        <textarea
-                          value={calibrationFeedback.triggering_event}
-                          onChange={(event) => updateCalibrationFeedback('triggering_event', event.target.value)}
-                          rows={3}
-                          className="mt-2 w-full rounded-lg border border-amber-500/25 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-100 placeholder:text-gray-500"
-                          placeholder="Recent meeting, shipped feature, client-safe project, or completed build that gives this post a reason to exist."
-                        />
-                      </label>
-                      <label className="mt-3 block text-xs font-medium uppercase tracking-[0.12em] text-amber-100/80">
-                        Revision feedback for Shaka
-                        <textarea
-                          value={copyRevisionRequest}
-                          onChange={(event) => {
-                            setCopyRevisionRequest(event.target.value)
-                            updateCalibrationFeedback('revision_request', event.target.value)
-                          }}
-                          rows={3}
-                          className="mt-2 w-full rounded-lg border border-amber-500/25 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-100 placeholder:text-gray-500"
-                          placeholder="What should change before this can be approved?"
-                        />
-                      </label>
-                    </div>
-                  )}
-                  <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-                    <p className="text-xs leading-5 text-amber-50/70">
-                      {copyRevisionDetailsOpen
-                        ? 'Reopening keeps publishing, scheduling, and provider actions locked.'
-                        : 'Choose a rejection path to add feedback only when it is needed.'}
-                    </p>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => handleCopyRevisionAction('feedback')}
-                        disabled={requestingCopyRevision || (copyRevisionAction === 'feedback' && !copyRevisionHasContext)}
-                        className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold transition-colors disabled:opacity-50 ${
-                          copyRevisionAction === 'feedback'
-                            ? 'border-amber-300 bg-amber-500/15 text-amber-50'
-                            : 'border-amber-400/45 text-amber-100 hover:bg-amber-500/10'
-                        }`}
-                      >
-                        {requestingCopyRevision ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
-                        {copyRevisionAction === 'feedback' && !copyRevisionHasContext
-                          ? 'Add Feedback to Continue'
-                          : copyRevisionIsApprovalRollback
-                            ? 'Reopen for Revision'
-                            : 'Reject with Feedback'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleCopyRevisionAction('generate')}
-                        disabled={requestingCopyRevision || (copyRevisionAction === 'generate' && !copyRevisionHasContext)}
-                        className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors disabled:opacity-50 ${
-                          copyRevisionAction === 'generate'
-                            ? 'bg-amber-300 text-slate-950'
-                            : 'bg-amber-400 text-slate-950 hover:bg-amber-300'
-                        }`}
-                      >
-                        {requestingCopyRevision ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
-                        {copyRevisionAction === 'generate' && !copyRevisionHasContext
-                          ? 'Add Feedback to Generate'
-                          : 'Reject and Generate Revision'}
-                      </button>
-                    </div>
-                  </div>
+              {canRequestCopyRevision && !isDraftOnlyPilot && (
+                <div className="mt-4 flex flex-col gap-3 rounded-lg border border-amber-500/25 bg-amber-500/10 p-3 lg:flex-row lg:items-center lg:justify-end">
+                  {copyRevisionActionButtons}
                 </div>
               )}
+              {canRequestCopyRevision && !isDraftOnlyPilot && copyRevisionFeedbackFields}
 	            </div>
 	            )}
 
