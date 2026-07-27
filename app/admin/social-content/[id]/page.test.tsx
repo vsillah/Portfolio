@@ -232,6 +232,106 @@ describe('SocialContentDetailRoute visual production review', () => {
     })
   })
 
+  it('shows a campaign copy queue and advances after draft-only approval', async () => {
+    const calendarItem = {
+      ...baseItem,
+      status: 'draft',
+      reviewed_by: null,
+      post_text: 'A stronger first Agentified draft.',
+      cta_text: 'Read Agentified.',
+      rag_context: {
+        source: 'social_content_calendar_authorization',
+        source_type: 'social_content_calendar_item',
+        calendar_item_id: 'calendar-1',
+        campaign_id: 'campaign-1',
+        campaign_name: 'Agentified launch',
+        planned_angle: 'Trust turns agent speed into capacity',
+        publish_gate: 'draft_only',
+        external_execution_enabled: false,
+      },
+    }
+    const secondDraft = {
+      ...calendarItem,
+      id: 'social-2',
+      post_text: 'The second Agentified draft.',
+      rag_context: {
+        ...calendarItem.rag_context,
+        calendar_item_id: 'calendar-2',
+        planned_angle: 'Memory is only useful when teams trust it',
+      },
+      created_at: '2026-06-12T11:00:00.000Z',
+    }
+    const approvedDraft = {
+      ...calendarItem,
+      id: 'social-3',
+      status: 'approved',
+      post_text: 'An approved Agentified draft.',
+      rag_context: {
+        ...calendarItem.rag_context,
+        calendar_item_id: 'calendar-3',
+        planned_angle: 'Approvals make AI operational',
+      },
+      created_at: '2026-06-12T12:00:00.000Z',
+    }
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.includes('/api/admin/social-content?status=all')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [approvedDraft, secondDraft, calendarItem] }),
+        } as Response
+      }
+      if (url.endsWith('/approve')) {
+        return {
+          ok: true,
+          json: async () => ({
+            item: { ...calendarItem, status: 'approved' },
+            publish_triggered: false,
+            publishes: [],
+            reference_work_item: { id: 'work-references-1' },
+          }),
+        } as Response
+      }
+      if (init?.method === 'PUT') {
+        const body = JSON.parse(String(init.body))
+        return {
+          ok: true,
+          json: async () => ({ item: { ...calendarItem, ...body } }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: calendarItem }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAtStep('copy')
+
+    expect(await screen.findByText('Campaign Copy Review')).toBeInTheDocument()
+    expect(screen.getByText('Draft 1 of 3')).toBeInTheDocument()
+    expect(screen.getByText('Trust turns agent speed into capacity')).toBeInTheDocument()
+    expect(screen.getByText('Agentified launch')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Previous/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Approve Draft & Next/i })).not.toBeDisabled()
+
+    const preview = screen.getByLabelText('LinkedIn post preview')
+    expect(preview.className).toContain('bg-gray-950/85')
+    expect(preview.className).toContain('text-gray-100')
+
+    fireEvent.click(screen.getByRole('button', { name: /Approve Draft & Next/i }))
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining('/api/admin/social-content/social-1/approve'),
+        expect.objectContaining({ method: 'POST' }),
+      )
+    })
+    await waitFor(() => {
+      expect(mocks.push).toHaveBeenCalledWith('/admin/social-content/social-2?step=copy')
+    })
+  })
+
   it('lets the operator add a reusable calibration reference to the feedback packet', async () => {
     const draftItem = {
       ...baseItem,
@@ -382,7 +482,7 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     expect(await screen.findByText('Side-by-side comparison packet')).toBeInTheDocument()
     expect(screen.getByText(/including 1 gold-standard reference/)).toBeInTheDocument()
-    expect(screen.getByText(/This draft starts too generic/)).toBeInTheDocument()
+    expect(screen.getAllByText(/This draft starts too generic/).length).toBeGreaterThan(0)
 
     fireEvent.click(screen.getByRole('button', { name: /Revise with feedback/i }))
 
