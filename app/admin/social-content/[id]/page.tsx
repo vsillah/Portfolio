@@ -2903,20 +2903,8 @@ function SocialContentDetailPage() {
 	                  Next
 	                  <ChevronRight className="h-4 w-4" />
 	                </button>
-	                <button
-	                  type="button"
-	                  onClick={handleApproveAndNext}
-	                  disabled={!isEditable || approving || !canApproveCurrentDraft || videoPrivacyBlocked}
-	                  title={approveBlockedTitle}
-	                  className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-500 disabled:cursor-not-allowed disabled:opacity-50"
-	                >
-	                  {approving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-	                  {nextDraftReviewQueueItem || nextReviewQueueItem ? 'Approve Draft & Next' : 'Approve Draft'}
-	                </button>
-	                {activeApprovalStep === 'copy' && copyRevisionActionButtons}
 	              </div>
 	            </div>
-	            {activeApprovalStep === 'copy' && copyRevisionFeedbackFields}
 	          </section>
 	        )}
 
@@ -3767,11 +3755,41 @@ function SocialContentDetailPage() {
               </div>
             </div>
           </div>
-        </div>
-        )}
+	        </div>
+	        )}
 
-        {/* ================================================================ */}
-        {/* SECTION 2: "Where & When" Publish Panel                          */}
+	        {activeApprovalStep === 'copy' && isDraftOnlyPilot && (
+	          <section id="social-copy-decision-gate" className="admin-console-card rounded-xl border border-amber-500/25 p-4">
+	            <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+	              <div className="flex min-w-0 items-center gap-3">
+	                <CheckCircle2 className="h-4 w-4 shrink-0 text-green-300" />
+	                <div className="min-w-0">
+	                  <p className="admin-console-eyebrow">Copy Review Decision</p>
+	                  <p className="mt-1 text-xs text-gray-500">
+	                    Draft {reviewQueueItems.length ? normalizedReviewQueueIndex + 1 : 1} of {reviewQueueItems.length || 1}
+	                  </p>
+	                </div>
+	              </div>
+	              <div className="flex flex-wrap items-center gap-2 xl:justify-end">
+	                <button
+	                  type="button"
+	                  onClick={handleApproveAndNext}
+	                  disabled={!isEditable || approving || !canApproveCurrentDraft || videoPrivacyBlocked}
+	                  title={approveBlockedTitle}
+	                  className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-500 disabled:cursor-not-allowed disabled:opacity-50"
+	                >
+	                  {approving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+	                  {nextDraftReviewQueueItem || nextReviewQueueItem ? 'Approve Draft & Next' : 'Approve Draft'}
+	                </button>
+	                {copyRevisionActionButtons}
+	              </div>
+	            </div>
+	            {copyRevisionFeedbackFields}
+	          </section>
+	        )}
+
+	        {/* ================================================================ */}
+	        {/* SECTION 2: "Where & When" Publish Panel                          */}
         {/* ================================================================ */}
 	        {activeApprovalStep === 'draft' && (
 	        <div id="social-draft-approval-gate" className="scroll-mt-28 space-y-6 rounded-xl border-2 border-gray-700 bg-gray-900 p-6">

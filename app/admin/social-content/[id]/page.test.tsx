@@ -313,15 +313,23 @@ describe('SocialContentDetailRoute visual production review', () => {
     renderAtStep('copy')
 
     expect(await screen.findByText('Campaign Copy Review')).toBeInTheDocument()
-    expect(screen.getByText('Draft 1 of 3')).toBeInTheDocument()
+    const reviewHeader = screen.getByText('Campaign Copy Review').closest('section')
+    expect(reviewHeader).not.toBeNull()
+    expect(within(reviewHeader as HTMLElement).getByText('Draft 1 of 3')).toBeInTheDocument()
     expect(screen.getByText('Trust turns agent speed into capacity')).toBeInTheDocument()
     expect(screen.getByText('Agentified launch')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Previous/i })).toBeDisabled()
-    expect(screen.getByRole('button', { name: /Approve Draft & Next/i })).not.toBeDisabled()
+    expect(within(reviewHeader as HTMLElement).queryByRole('button', { name: /Approve Draft/i })).not.toBeInTheDocument()
+    expect(within(reviewHeader as HTMLElement).queryByRole('button', { name: /Reject/i })).not.toBeInTheDocument()
 
     const preview = screen.getByLabelText('LinkedIn post preview')
     expect(preview.className).toContain('bg-gray-950/85')
     expect(preview.className).toContain('text-gray-100')
+
+    const decisionGate = screen.getByText('Copy Review Decision').closest('section')
+    expect(decisionGate).not.toBeNull()
+    expect(within(decisionGate as HTMLElement).getByRole('button', { name: /Approve Draft & Next/i })).not.toBeDisabled()
+    expect(within(decisionGate as HTMLElement).getByRole('button', { name: /Reject with Feedback/i })).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: /Approve Draft & Next/i }))
 
