@@ -248,10 +248,10 @@ type AcronymClarityIssue = AcronymDefinition & {
 const SOCIAL_COPY_ACRONYMS: AcronymDefinition[] = [
   {
     label: 'SAM',
-    pattern: /\bSAM\b/,
-    expanded: 'Sense, Act, Measure',
-    firstUse: 'Sense, Act, Measure (SAM)',
-    context: 'Accelerated learning loop',
+    pattern: /\bSAM\b|\bS\.A\.M\./,
+    expanded: 'Signals, Alignment, Momentum',
+    firstUse: 'Signals, Alignment, Momentum (SAM)',
+    context: 'Accelerated product discipline',
   },
   {
     label: 'AMINA',

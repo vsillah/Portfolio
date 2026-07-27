@@ -337,7 +337,7 @@ describe('SocialContentDetailRoute visual production review', () => {
       ...baseItem,
       status: 'draft',
       reviewed_by: null,
-      post_text: 'SAM moves the work. AMINA governs the work.',
+      post_text: 'S.A.M. moves the work. AMINA governs the work.',
       cta_text: 'Read Agentified.',
       rag_context: {
         source: 'social_content_calendar_authorization',
@@ -375,14 +375,14 @@ describe('SocialContentDetailRoute visual production review', () => {
     renderAtStep('copy')
 
     expect(await screen.findByText('Acronym clarity')).toBeInTheDocument()
-    expect(screen.getByText('Sense, Act, Measure (SAM) · Accelerated learning loop')).toBeInTheDocument()
+    expect(screen.getByText('Signals, Alignment, Momentum (SAM) · Accelerated product discipline')).toBeInTheDocument()
     expect(screen.getByText('Align, Map, Instrument, Negotiate, and Audit (AMINA) · Agentified trust loop')).toBeInTheDocument()
     expect(screen.getAllByText('Needs expansion').length).toBe(2)
     expect(screen.getByRole('button', { name: /Approve Draft/i })).toBeDisabled()
 
     fireEvent.click(screen.getByRole('button', { name: /Write out known acronyms/i }))
 
-    expect(screen.getByDisplayValue('Sense, Act, Measure (SAM) moves the work. Align, Map, Instrument, Negotiate, and Audit (AMINA) governs the work.')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('Signals, Alignment, Momentum (SAM) moves the work. Align, Map, Instrument, Negotiate, and Audit (AMINA) governs the work.')).toBeInTheDocument()
     expect(screen.getAllByText('Written out').length).toBe(2)
     expect(screen.getByRole('button', { name: /Approve Draft/i })).not.toBeDisabled()
 
