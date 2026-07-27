@@ -400,6 +400,10 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     expect(screen.queryByLabelText('Revision feedback for Shaka')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: /Reject with Feedback/i }))
+    expect(screen.getByRole('button', { name: /Cancel feedback/i })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /Cancel feedback/i }))
+    expect(screen.queryByLabelText('Revision feedback for Shaka')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /Reject with Feedback/i }))
     fireEvent.change(screen.getByLabelText('Revision feedback for Shaka'), {
       target: { value: 'The framework reference is clear now, but the opening still needs a more concrete scene.' },
     })

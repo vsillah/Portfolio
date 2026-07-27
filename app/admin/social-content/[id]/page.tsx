@@ -1094,6 +1094,10 @@ function SocialContentDetailPage() {
     handleRequestCopyRevision(action === 'generate')
   }
 
+  const handleCancelCopyRevision = () => {
+    setCopyRevisionAction(null)
+  }
+
   const handleSectionGateDecision = async (
     gateKey: SectionGateKey,
     decision: SectionGateDecision,
@@ -1811,30 +1815,43 @@ function SocialContentDetailPage() {
     </div>
   ) : null
   const copyRevisionFeedbackFields = copyRevisionDetailsOpen ? (
-    <div className="mt-3 grid gap-3 rounded-lg border border-amber-500/25 bg-gray-950/35 p-3 lg:grid-cols-2">
-      <label className="block text-xs font-medium uppercase tracking-[0.12em] text-amber-100/80">
-        Triggering event or recent proof
-        <textarea
-          value={calibrationFeedback.triggering_event}
-          onChange={(event) => updateCalibrationFeedback('triggering_event', event.target.value)}
-          rows={3}
-          className="mt-2 w-full rounded-lg border border-amber-500/25 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-100 placeholder:text-gray-500"
-          placeholder="Recent meeting, shipped feature, client-safe project, or completed build that gives this post a reason to exist."
-        />
-      </label>
-      <label className="block text-xs font-medium uppercase tracking-[0.12em] text-amber-100/80">
-        Revision feedback for Shaka
-        <textarea
-          value={copyRevisionRequest}
-          onChange={(event) => {
-            setCopyRevisionRequest(event.target.value)
-            updateCalibrationFeedback('revision_request', event.target.value)
-          }}
-          rows={3}
-          className="mt-2 w-full rounded-lg border border-amber-500/25 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-100 placeholder:text-gray-500"
-          placeholder="What should change before this can be approved?"
-        />
-      </label>
+    <div className="mt-3 rounded-lg border border-amber-500/25 bg-gray-950/35 p-3">
+      <div className="flex items-center justify-end">
+        <button
+          type="button"
+          onClick={handleCancelCopyRevision}
+          disabled={requestingCopyRevision}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-gray-700 px-2.5 py-1.5 text-xs font-semibold text-gray-300 transition-colors hover:border-gray-600 hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <X className="h-3.5 w-3.5" />
+          Cancel feedback
+        </button>
+      </div>
+      <div className="mt-3 grid gap-3 lg:grid-cols-2">
+        <label className="block text-xs font-medium uppercase tracking-[0.12em] text-amber-100/80">
+          Triggering event or recent proof
+          <textarea
+            value={calibrationFeedback.triggering_event}
+            onChange={(event) => updateCalibrationFeedback('triggering_event', event.target.value)}
+            rows={3}
+            className="mt-2 w-full rounded-lg border border-amber-500/25 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-100 placeholder:text-gray-500"
+            placeholder="Recent meeting, shipped feature, client-safe project, or completed build that gives this post a reason to exist."
+          />
+        </label>
+        <label className="block text-xs font-medium uppercase tracking-[0.12em] text-amber-100/80">
+          Revision feedback for Shaka
+          <textarea
+            value={copyRevisionRequest}
+            onChange={(event) => {
+              setCopyRevisionRequest(event.target.value)
+              updateCalibrationFeedback('revision_request', event.target.value)
+            }}
+            rows={3}
+            className="mt-2 w-full rounded-lg border border-amber-500/25 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-100 placeholder:text-gray-500"
+            placeholder="What should change before this can be approved?"
+          />
+        </label>
+      </div>
     </div>
   ) : null
   const canEditVisualProduction = isEditable || (isDraftOnlyPilot && item.status === 'approved')
