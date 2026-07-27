@@ -81,3 +81,50 @@ export const agentifiedPublication = {
 } as const
 
 export type AgentifiedPublication = typeof agentifiedPublication
+
+/** Fields the homepage Publications merge overwrites from the shared Agentified source of truth. */
+export type AgentifiedPublicationCardFields = {
+  title: string
+  description: string | null
+  publication_url: string | null
+  publication_url_label?: string | null
+  author: string | null
+  publisher: string | null
+  file_path: string | null
+  file_type: string | null
+  status_label?: string | null
+}
+
+function isAgentifiedTitle(title: string): boolean {
+  return title.trim().toLowerCase() === agentifiedPublication.title.toLowerCase()
+}
+
+/**
+ * Ensure the public publications list always surfaces the published Agentified card
+ * (cover, publisher, copy, Learn More route) even when a stale remote row exists.
+ */
+export function mergeAgentifiedIntoPublications<T extends AgentifiedPublicationCardFields>(
+  remotePublications: T[],
+  localCard: T,
+): T[] {
+  const enrichedPublications = remotePublications.map((publication) => {
+    if (!isAgentifiedTitle(publication.title)) {
+      return publication
+    }
+
+    return {
+      ...publication,
+      description: agentifiedPublication.description,
+      publication_url: publication.publication_url || agentifiedPublication.route,
+      publication_url_label: 'Learn More',
+      author: publication.author || agentifiedPublication.author,
+      publisher: agentifiedPublication.publisher,
+      file_path: agentifiedPublication.coverImage,
+      file_type: 'image/jpeg',
+      status_label: agentifiedPublication.statusLabel,
+    }
+  })
+
+  const hasAgentified = remotePublications.some((publication) => isAgentifiedTitle(publication.title))
+  return hasAgentified ? enrichedPublications : [localCard, ...enrichedPublications]
+}

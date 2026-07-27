@@ -10,7 +10,10 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import PublicationCardAudio from '@/components/PublicationCardAudio'
 import NativePublicationAudio from '@/components/NativePublicationAudio'
-import { agentifiedPublication } from '@/lib/agentified-publication'
+import {
+  agentifiedPublication,
+  mergeAgentifiedIntoPublications,
+} from '@/lib/agentified-publication'
 
 interface Publication {
   id: number
@@ -90,27 +93,7 @@ const fallbackPublications: Publication[] = [
 ]
 
 function mergeLocalPublications(remotePublications: Publication[]) {
-  const enrichedPublications = remotePublications.map((publication) => {
-    if (publication.title.trim().toLowerCase() !== agentifiedPublication.title.toLowerCase()) {
-      return publication
-    }
-
-    return {
-      ...publication,
-      description: agentifiedPublication.description,
-      publication_url: publication.publication_url || agentifiedPublication.route,
-      publication_url_label: 'Learn More',
-      author: publication.author || agentifiedPublication.author,
-      publisher: agentifiedPublication.publisher,
-      file_path: agentifiedPublication.coverImage,
-      file_type: 'image/jpeg',
-      status_label: agentifiedPublication.statusLabel,
-    }
-  })
-  const hasAgentified = remotePublications.some((publication) =>
-    publication.title.trim().toLowerCase() === agentifiedPublication.title.toLowerCase()
-  )
-  return hasAgentified ? enrichedPublications : [agentifiedPublicationCard, ...enrichedPublications]
+  return mergeAgentifiedIntoPublications(remotePublications, agentifiedPublicationCard)
 }
 
 export default function Publications() {
