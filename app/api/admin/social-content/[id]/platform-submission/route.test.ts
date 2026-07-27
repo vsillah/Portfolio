@@ -35,20 +35,23 @@ function installSupabase({
   item,
   publishes,
   configs,
+  fetchError = null,
 }: {
-  item: Record<string, unknown>
+  item: Record<string, unknown> | null
   publishes: Array<Record<string, unknown>>
   configs: Array<Record<string, unknown>>
+  fetchError?: { code: string; message: string } | null
 }) {
-  const queueSingle = vi.fn().mockResolvedValue({ data: item, error: null })
+  const itemRecord = item ?? {}
+  const queueSingle = vi.fn().mockResolvedValue({ data: item, error: fetchError })
   const queueSelectEq = vi.fn(() => ({ single: queueSingle }))
   const queueSelect = vi.fn(() => ({ eq: queueSelectEq }))
 
   const queueUpdateSingle = vi.fn().mockResolvedValue({
     data: {
-      ...item,
+      ...itemRecord,
       rag_context: {
-        ...((item.rag_context as Record<string, unknown> | null) ?? {}),
+        ...((itemRecord.rag_context as Record<string, unknown> | null) ?? {}),
         platform_submission_gate: {
           status: 'approved',
           approved_by: 'admin-1',
@@ -87,6 +90,73 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
 
   afterEach(() => {
     vi.restoreAllMocks()
+  })
+
+  it.each([
+    { label: 'unauthenticated requests', authResult: { error: 'Authentication required', status: 401 } },
+    { label: 'authenticated non-admin requests', authResult: { error: 'Admin access required', status: 403 } },
+  ])('fails closed for $label before database access', async ({ authResult }) => {
+    mocks.verifyAdmin.mockResolvedValueOnce(authResult)
+    mocks.isAuthError.mockReturnValueOnce(true)
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ published: true }), { status: 200 }),
+    )
+    const adminRequest = request({ platforms: ['linkedin'] })
+
+    const response = await POST(adminRequest, { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(authResult.status)
+    await expect(response.json()).resolves.toEqual({ error: authResult.error })
+    expect(mocks.verifyAdmin).toHaveBeenCalledWith(adminRequest)
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('returns not found without preparing or publishing rows when content is missing', async () => {
+    const { publishUpsert, queueUpdate } = installSupabase({
+      item: null,
+      publishes: [],
+      configs: [],
+      fetchError: { code: 'PGRST116', message: 'The result contains 0 rows' },
+    })
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ published: true }), { status: 200 }),
+    )
+
+    const response = await POST(request({ platforms: ['linkedin'] }), { params: { id: 'missing-content' } })
+
+    expect(response.status).toBe(404)
+    await expect(response.json()).resolves.toEqual({ error: 'Content not found' })
+    expect(publishUpsert).not.toHaveBeenCalled()
+    expect(queueUpdate).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('rejects draft content before recording or triggering platform submission', async () => {
+    const { publishUpsert, queueUpdate } = installSupabase({
+      item: {
+        id: 'social-1',
+        status: 'draft',
+        platform: 'linkedin',
+        target_platforms: ['linkedin'],
+        rag_context: null,
+      },
+      publishes: [],
+      configs: [],
+    })
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ published: true }), { status: 200 }),
+    )
+
+    const response = await POST(request({ platforms: ['linkedin'] }), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(400)
+    await expect(response.json()).resolves.toEqual({
+      error: 'Content must be approved before platform submission.',
+    })
+    expect(publishUpsert).not.toHaveBeenCalled()
+    expect(queueUpdate).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
   })
 
   it('records final approval and triggers automatic submission through the publish route', async () => {
