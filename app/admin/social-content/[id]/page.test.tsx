@@ -321,6 +321,10 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByRole('button', { name: /Previous/i })).toBeDisabled()
     expect(within(reviewHeader as HTMLElement).queryByRole('button', { name: /Approve Draft/i })).not.toBeInTheDocument()
     expect(within(reviewHeader as HTMLElement).queryByRole('button', { name: /Reject/i })).not.toBeInTheDocument()
+    const approvalProcess = screen.getByLabelText('Social content approval process')
+    expect(approvalProcess).toBeInTheDocument()
+    expect(within(approvalProcess).getByText('1')).toBeInTheDocument()
+    expect(within(approvalProcess).getByText('2')).toBeInTheDocument()
 
     const preview = screen.getByLabelText('LinkedIn post preview')
     expect(preview.className).toContain('bg-gray-950/85')

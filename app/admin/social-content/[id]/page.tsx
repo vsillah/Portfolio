@@ -2925,31 +2925,39 @@ function SocialContentDetailPage() {
 	          </section>
 	        )}
 
-	        <div className="admin-console-card flex gap-1 overflow-x-auto rounded-xl border p-1">
-	          {approvalStepTabs.map((tab) => {
-	            const isActive = activeApprovalStep === tab.step
-	            return (
-	              <button
-	                key={tab.step}
-	                type="button"
-	                onClick={() => setApprovalStep(tab.step)}
-	                className={`flex min-w-[10rem] items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-all ${
-	                  isActive
-	                    ? 'border border-green-500/50 bg-green-600/25 text-green-100'
-	                    : 'text-muted-foreground hover:bg-silicon-slate/50 hover:text-foreground'
-	                }`}
-	              >
-	                <span className="min-w-0">
-	                  <span className="block truncate">{tab.label}</span>
-	                  <span className="mt-0.5 block truncate text-[11px] font-normal opacity-75">{tab.description}</span>
-	                </span>
-	                <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[tab.state].className}`}>
-	                  {GATE_STATE_CONFIG[tab.state].label}
-	                </span>
-	              </button>
-	            )
-	          })}
-	        </div>
+		        <div aria-label="Social content approval process" className="admin-console-card flex items-stretch gap-1 overflow-x-auto rounded-xl border p-1">
+		          {approvalStepTabs.map((tab, index) => {
+		            const isActive = activeApprovalStep === tab.step
+		            return (
+		              <div key={tab.step} className="flex shrink-0 items-stretch">
+		                <button
+		                  type="button"
+		                  onClick={() => setApprovalStep(tab.step)}
+		                  className={`flex w-[10rem] shrink-0 items-center gap-2 rounded-lg border px-2.5 py-2.5 text-left text-sm font-medium transition-all lg:w-[10.75rem] ${
+		                    isActive
+		                      ? 'border-green-500/55 bg-green-600/25 text-green-100 shadow-inner shadow-green-950/30'
+		                      : 'border-gray-800/80 text-muted-foreground hover:border-gray-700 hover:bg-silicon-slate/50 hover:text-foreground'
+		                  }`}
+		                >
+		                  <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[10px] font-semibold ${
+		                    isActive
+		                      ? 'border-green-300/45 bg-green-400/20 text-green-50'
+		                      : 'border-gray-700 bg-gray-950/35 text-gray-400'
+		                  }`}>
+		                    {index + 1}
+		                  </span>
+		                  <span className="min-w-0 flex-1">
+		                    <span className="block truncate">{tab.label}</span>
+		                    <span className="mt-0.5 block truncate text-[11px] font-normal opacity-75">{tab.description}</span>
+		                  </span>
+		                  <span className={`shrink-0 rounded-full border px-1.5 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[tab.state].className}`}>
+		                    {GATE_STATE_CONFIG[tab.state].label}
+		                  </span>
+		                </button>
+		              </div>
+		            )
+		          })}
+		        </div>
 
 	        {/* ================================================================ */}
         {/* SECTION 1: Content (two-col on lg: edit fields + preview)        */}
