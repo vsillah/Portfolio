@@ -245,6 +245,8 @@ type AcronymClarityIssue = AcronymDefinition & {
   status: 'ready' | 'needs_expansion'
 }
 
+type CopyRevisionAction = 'feedback' | 'generate' | null
+
 const SOCIAL_COPY_ACRONYMS: AcronymDefinition[] = [
   {
     label: 'SAM',
@@ -411,6 +413,7 @@ function SocialContentDetailPage() {
   const [scheduledFor, setScheduledFor] = useState('')
   const [adminNotes, setAdminNotes] = useState('')
   const [copyRevisionRequest, setCopyRevisionRequest] = useState('')
+  const [copyRevisionAction, setCopyRevisionAction] = useState<CopyRevisionAction>(null)
   const [sectionGateNotes, setSectionGateNotes] = useState<Record<SectionGateKey, string>>({
     visual_assets: '',
     asset_packet: '',
@@ -1044,6 +1047,7 @@ function SocialContentDetailPage() {
       }))
 
       if (!generateRevision) {
+        setCopyRevisionAction(null)
         showMsg('success', copyRevisionIsApprovalRollback
           ? 'Approval reverted. Revision feedback saved.'
           : 'Draft rejected. Feedback saved for iteration.')
@@ -1071,6 +1075,7 @@ function SocialContentDetailPage() {
       setHashtags(updated.hashtags?.join(', ') || '')
       setImagePrompt(updated.image_prompt || '')
       setAdminNotes(updated.admin_notes || '')
+      setCopyRevisionAction(null)
       showMsg('success', copyRevisionIsApprovalRollback
         ? 'Approval reverted and revised draft generated.'
         : 'Draft rejected and revised copy generated.')
@@ -1079,6 +1084,15 @@ function SocialContentDetailPage() {
     } finally {
       setRequestingCopyRevision(false)
     }
+  }
+
+  const handleCopyRevisionAction = (action: Exclude<CopyRevisionAction, null>) => {
+    const hasRevisionContext = Boolean(copyRevisionRequest.trim() || calibrationFeedback.triggering_event.trim())
+    if (copyRevisionAction !== action && !hasRevisionContext) {
+      setCopyRevisionAction(action)
+      return
+    }
+    handleRequestCopyRevision(action === 'generate')
   }
 
   const handleSectionGateDecision = async (
@@ -1757,6 +1771,8 @@ function SocialContentDetailPage() {
         : 'Research/context evidence and challenger QA must pass before approval'
   const canRequestCopyRevision = (isAgentSocialPilot || isDraftOnlyPilot) && (item.status === 'approved' || isEditable)
   const copyRevisionIsApprovalRollback = item.status === 'approved'
+  const copyRevisionDetailsOpen = copyRevisionAction !== null
+  const copyRevisionHasContext = Boolean(copyRevisionRequest.trim() || calibrationFeedback.triggering_event.trim())
   const canEditVisualProduction = isEditable || (isDraftOnlyPilot && item.status === 'approved')
   const visualProductionUnlocked = canEditVisualProduction && isDraftOnlyPilot
   const frameworkIllustrationLabel = item.image_url
@@ -3000,26 +3016,18 @@ function SocialContentDetailPage() {
                 <span className="text-xs text-gray-500">{postText.length} characters</span>
                 <span className="text-xs text-gray-500">LinkedIn optimal: 150-300 words</span>
               </div>
-              <div className={`mt-4 rounded-lg border p-4 ${
-                copyHasBlockingAcronymIssues
-                  ? 'border-amber-500/35 bg-amber-500/10'
-                  : 'border-emerald-500/25 bg-emerald-500/10'
-              }`}>
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                  <div className="min-w-0">
-                    <p className={`flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] ${
-                      copyHasBlockingAcronymIssues ? 'text-amber-200' : 'text-emerald-200'
-                    }`}>
-                      <FileText className="h-3.5 w-3.5" />
-                      Acronym clarity
-                    </p>
-                    <p className={`mt-1 text-sm leading-6 ${
-                      copyHasBlockingAcronymIssues ? 'text-amber-50/85' : 'text-emerald-50/85'
-                    }`}>
-                      Write out known campaign terms on first use so new readers are not forced to decode the shorthand.
-                    </p>
-                  </div>
-                  {copyHasBlockingAcronymIssues && (
+              {copyHasBlockingAcronymIssues && (
+                <div className="mt-4 rounded-lg border border-amber-500/35 bg-amber-500/10 p-4">
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="min-w-0">
+                      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">
+                        <FileText className="h-3.5 w-3.5" />
+                        Copy readiness
+                      </p>
+                      <p className="mt-1 text-sm leading-6 text-amber-50/85">
+                        This draft has a content rule that should be corrected before approval.
+                      </p>
+                    </div>
                     <button
                       type="button"
                       onClick={handleExpandKnownAcronyms}
@@ -3029,9 +3037,7 @@ function SocialContentDetailPage() {
                       <Sparkles className="h-3.5 w-3.5" />
                       Write out known acronyms
                     </button>
-                  )}
-                </div>
-                {acronymClarityIssues.length > 0 ? (
+                  </div>
                   <div className="mt-3 grid gap-2 md:grid-cols-2">
                     {acronymClarityIssues.map((issue) => (
                       <div
@@ -3054,12 +3060,8 @@ function SocialContentDetailPage() {
                       </div>
                     ))}
                   </div>
-                ) : (
-                  <p className="mt-3 text-xs leading-5 text-emerald-50/70">
-                    No known campaign acronyms were detected in this draft.
-                  </p>
-                )}
-              </div>
+                </div>
+              )}
               <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1">CTA Text</label>
@@ -3113,51 +3115,74 @@ function SocialContentDetailPage() {
                       {copyRevisionIsApprovalRollback ? 'Approval rollback' : 'Draft iteration'}
                     </span>
                   </div>
-                  <label className="mt-3 block text-xs font-medium uppercase tracking-[0.12em] text-amber-100/80">
-                    Triggering event or recent proof
-                    <textarea
-                      value={calibrationFeedback.triggering_event}
-                      onChange={(event) => updateCalibrationFeedback('triggering_event', event.target.value)}
-                      rows={3}
-                      className="mt-2 w-full rounded-lg border border-amber-500/25 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-100 placeholder:text-gray-500"
-                      placeholder="Recent meeting, shipped feature, client-safe project, or completed build that gives this post a reason to exist."
-                    />
-                  </label>
-                  <label className="mt-3 block text-xs font-medium uppercase tracking-[0.12em] text-amber-100/80">
-                    Revision feedback for Shaka
-                    <textarea
-                      value={copyRevisionRequest}
-                      onChange={(event) => {
-                        setCopyRevisionRequest(event.target.value)
-                        updateCalibrationFeedback('revision_request', event.target.value)
-                      }}
-                      rows={3}
-                      className="mt-2 w-full rounded-lg border border-amber-500/25 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-100 placeholder:text-gray-500"
-                      placeholder="What should change before this can be approved?"
-                    />
-                  </label>
+                  {copyRevisionDetailsOpen && (
+                    <div className="mt-3 rounded-lg border border-amber-500/25 bg-gray-950/35 p-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-amber-100">
+                        {copyRevisionAction === 'generate' ? 'Generate revision input' : 'Feedback input'}
+                      </p>
+                      <label className="mt-3 block text-xs font-medium uppercase tracking-[0.12em] text-amber-100/80">
+                        Triggering event or recent proof
+                        <textarea
+                          value={calibrationFeedback.triggering_event}
+                          onChange={(event) => updateCalibrationFeedback('triggering_event', event.target.value)}
+                          rows={3}
+                          className="mt-2 w-full rounded-lg border border-amber-500/25 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-100 placeholder:text-gray-500"
+                          placeholder="Recent meeting, shipped feature, client-safe project, or completed build that gives this post a reason to exist."
+                        />
+                      </label>
+                      <label className="mt-3 block text-xs font-medium uppercase tracking-[0.12em] text-amber-100/80">
+                        Revision feedback for Shaka
+                        <textarea
+                          value={copyRevisionRequest}
+                          onChange={(event) => {
+                            setCopyRevisionRequest(event.target.value)
+                            updateCalibrationFeedback('revision_request', event.target.value)
+                          }}
+                          rows={3}
+                          className="mt-2 w-full rounded-lg border border-amber-500/25 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-100 placeholder:text-gray-500"
+                          placeholder="What should change before this can be approved?"
+                        />
+                      </label>
+                    </div>
+                  )}
                   <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
                     <p className="text-xs leading-5 text-amber-50/70">
-                      Reopening keeps publishing, scheduling, and provider actions locked.
+                      {copyRevisionDetailsOpen
+                        ? 'Reopening keeps publishing, scheduling, and provider actions locked.'
+                        : 'Choose a rejection path to add feedback only when it is needed.'}
                     </p>
                     <div className="flex flex-wrap items-center gap-2">
                       <button
                         type="button"
-                        onClick={() => handleRequestCopyRevision(false)}
-                        disabled={requestingCopyRevision || (!copyRevisionRequest.trim() && !calibrationFeedback.triggering_event.trim())}
-                        className="inline-flex items-center gap-2 rounded-lg border border-amber-400/45 px-3 py-2 text-sm font-semibold text-amber-100 transition-colors hover:bg-amber-500/10 disabled:opacity-50"
+                        onClick={() => handleCopyRevisionAction('feedback')}
+                        disabled={requestingCopyRevision || (copyRevisionAction === 'feedback' && !copyRevisionHasContext)}
+                        className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold transition-colors disabled:opacity-50 ${
+                          copyRevisionAction === 'feedback'
+                            ? 'border-amber-300 bg-amber-500/15 text-amber-50'
+                            : 'border-amber-400/45 text-amber-100 hover:bg-amber-500/10'
+                        }`}
                       >
                         {requestingCopyRevision ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
-                        {copyRevisionIsApprovalRollback ? 'Reopen for Revision' : 'Reject with Feedback'}
+                        {copyRevisionAction === 'feedback' && !copyRevisionHasContext
+                          ? 'Add Feedback to Continue'
+                          : copyRevisionIsApprovalRollback
+                            ? 'Reopen for Revision'
+                            : 'Reject with Feedback'}
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleRequestCopyRevision(true)}
-                        disabled={requestingCopyRevision || (!copyRevisionRequest.trim() && !calibrationFeedback.triggering_event.trim())}
-                        className="inline-flex items-center gap-2 rounded-lg bg-amber-400 px-3 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-amber-300 disabled:opacity-50"
+                        onClick={() => handleCopyRevisionAction('generate')}
+                        disabled={requestingCopyRevision || (copyRevisionAction === 'generate' && !copyRevisionHasContext)}
+                        className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors disabled:opacity-50 ${
+                          copyRevisionAction === 'generate'
+                            ? 'bg-amber-300 text-slate-950'
+                            : 'bg-amber-400 text-slate-950 hover:bg-amber-300'
+                        }`}
                       >
                         {requestingCopyRevision ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
-                        Reject and Generate Revision
+                        {copyRevisionAction === 'generate' && !copyRevisionHasContext
+                          ? 'Add Feedback to Generate'
+                          : 'Reject and Generate Revision'}
                       </button>
                     </div>
                   </div>
