@@ -20,7 +20,7 @@ function packetItem(assetId: string): PacketCalendarItem {
 describe('Agentified launch campaign import builders', () => {
   beforeEach(() => {
     vi.useFakeTimers()
-    vi.setSystemTime(new Date('2026-07-16T14:00:00.000Z'))
+    vi.setSystemTime(new Date('2026-07-27T13:45:00.000Z'))
   })
 
   afterEach(() => {
@@ -31,6 +31,9 @@ describe('Agentified launch campaign import builders', () => {
     expect(agentifiedLaunchSummary()).toEqual(expect.objectContaining({
       campaign_slug: 'agentified-trust-scale-2026-07',
       packet_status: 'draft_prepare_only',
+      first_review_packet_path: 'agentified/campaign/launch-review-packet-2026-07-27.md',
+      starts_at: '2026-07-27T15:00:00-04:00',
+      ends_at: '2026-08-09T18:00:00-04:00',
       calendar_item_count: 12,
       supported_channels: expect.arrayContaining(['linkedin', 'youtube_shorts', 'thumbnail']),
       phase_counts: {
@@ -54,6 +57,24 @@ describe('Agentified launch campaign import builders', () => {
     expect(agentifiedLaunchSummary().supported_channels).toHaveLength(3)
   })
 
+  it('keeps the re-baselined calendar current or future from July 27 launch intake', () => {
+    const launchBaseline = new Date('2026-07-27T09:45:00-04:00').getTime()
+    const plan = agentifiedLaunchImportPlan()
+
+    expect(plan.campaign.starts_at).toBe('2026-07-27T15:00:00-04:00')
+    expect(plan.campaign.ends_at).toBe('2026-08-09T18:00:00-04:00')
+    expect(plan.calendar_items[0]).toEqual(expect.objectContaining({
+      asset_id: 'AGT-LI-01',
+      scheduled_for: '2026-07-27T15:00:00-04:00',
+      authorization_due_at: '2026-07-27T13:00:00-04:00',
+    }))
+
+    for (const item of plan.calendar_items) {
+      expect(new Date(item.scheduled_for).getTime()).toBeGreaterThanOrEqual(launchBaseline)
+      expect(new Date(item.authorization_due_at).getTime()).toBeGreaterThanOrEqual(launchBaseline)
+    }
+  })
+
   it('promotes proof and offer assets while leaving earlier launch phases at medium priority', () => {
     const expectedPriorityByPhase = {
       tease: 'medium',
@@ -64,7 +85,7 @@ describe('Agentified launch campaign import builders', () => {
 
     for (const item of agentifiedLaunchImportPlan().calendar_items) {
       expect(buildAgentifiedWorkItemInput(item).priority).toBe(
-        expectedPriorityByPhase[item.campaign_phase],
+        expectedPriorityByPhase[item.campaign_phase as keyof typeof expectedPriorityByPhase],
       )
     }
   })
@@ -78,8 +99,11 @@ describe('Agentified launch campaign import builders', () => {
         .map(([channel]) => channel)
 
       expect(selectedLanes).toEqual([item.channel])
-      expect(input.metadata.channel_lanes[item.channel].updated_at).toBe(
-        '2026-07-16T14:00:00.000Z',
+      const selectedLane = input.metadata.channel_lanes[
+        item.channel as keyof typeof input.metadata.channel_lanes
+      ]
+      expect(selectedLane.updated_at).toBe(
+        '2026-07-27T13:45:00.000Z',
       )
     }
   })
@@ -95,6 +119,7 @@ describe('Agentified launch campaign import builders', () => {
       expect(input.metadata).toEqual(expect.objectContaining({
         source_policy: 'public_safe_campaign_packet_only',
         agentified_asset_id: item.asset_id,
+        first_review_packet_path: 'agentified/campaign/launch-review-packet-2026-07-27.md',
         side_effects: {
           provider_generation: false,
           upload: false,
@@ -133,6 +158,7 @@ describe('Agentified launch campaign import builders', () => {
         metadata: expect.objectContaining({
           human_gate_required: true,
           agentified_asset_id: item.asset_id,
+          first_review_packet_path: 'agentified/campaign/launch-review-packet-2026-07-27.md',
         }),
       }))
     }

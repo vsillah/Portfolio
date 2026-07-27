@@ -29,6 +29,7 @@ const draftLinks = [
 ]
 
 const campaignSummary = agentifiedLaunchSummary()
+const releaseWindowLabel = `${campaignSummary.starts_at.slice(0, 10)} to ${campaignSummary.ends_at.slice(0, 10)}`
 
 type ImportResult = {
   ok: boolean
@@ -136,10 +137,14 @@ export default function AgentifiedAdminPage() {
               </button>
             </div>
 
-            <div className="mt-4 grid gap-3 md:grid-cols-4">
+            <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
               <div className="rounded-lg border border-silicon-slate/60 bg-silicon-slate/10 p-3">
                 <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Template</div>
                 <div className="mt-1 text-sm font-semibold text-foreground">{campaignSummary.template_key}</div>
+              </div>
+              <div className="rounded-lg border border-silicon-slate/60 bg-silicon-slate/10 p-3">
+                <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Window</div>
+                <div className="mt-1 text-sm font-semibold text-foreground">{releaseWindowLabel}</div>
               </div>
               <div className="rounded-lg border border-silicon-slate/60 bg-silicon-slate/10 p-3">
                 <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Calendar items</div>
@@ -155,6 +160,13 @@ export default function AgentifiedAdminPage() {
                 <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground">External execution</div>
                 <div className="mt-1 text-sm font-semibold text-foreground">Locked</div>
               </div>
+            </div>
+
+            <div className="mt-3 rounded-lg border border-silicon-slate/60 bg-silicon-slate/10 p-3">
+              <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground">First review packet</div>
+              <code className="mt-1 block break-all text-xs text-muted-foreground">
+                {campaignSummary.first_review_packet_path}
+              </code>
             </div>
 
             {importResult?.ok && (
