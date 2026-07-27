@@ -10,6 +10,66 @@ no meaningful usage signal, or after clear redundancy plus a lower-risk
 replacement path. Production changes require explicit approval in the form
 `Cancel <tool/vendor> for Portfolio`.
 
+## 2026-07-26 Daily Monitor Run
+
+Status: YELLOW
+
+Detailed run artifact: [`docs/subscription-monitor-runs/2026-07-26.md`](subscription-monitor-runs/2026-07-26.md)
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- Repo checkout still had prior monitor-owned dirty work from the July 23 through July 25 runs; today's edits preserved that continuity and stayed scoped to subscription monitor artifacts.
+- Production Supabase analytics remained current, n8n Cloud returned 85 workflows with 72 active and 25/25 sampled executions successful through `2026-07-26T20:00:52Z`, and Vercel local deployment watch passed both `portfolio` and `portfolio-staging`.
+- OpenAI, Anthropic, Gemini/Google AI, Pinecone, Apify, Hunter, Stripe, Slack, BuiltWith, Read AI connector metadata, and core app-side integrations were readable or dependency-backed.
+- Vapi stayed zero-call, Resend had no local key, Calendly remained HTTP 401, Gamma regressed to HTTP 401, Printful sync-products regressed to HTTP 400 while stores remained readable, HeyGen avatars timed out, and n8n drift reads remained 403.
+- BuiltWith remains active/watch during the outreach ramp; Fireflies remains resolved canceled unless new paid-plan evidence appears.
+
+## 2026-07-25 Daily Monitor Run
+
+Status: YELLOW
+
+Detailed run artifact: [`docs/subscription-monitor-runs/2026-07-25.md`](subscription-monitor-runs/2026-07-25.md)
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- Repo checkout still had prior monitor-owned dirty work from the July 23 and July 24 runs; today's edits preserved that continuity and stayed scoped to subscription monitor artifacts.
+- Production Supabase analytics moved on 2026-07-25, n8n Cloud returned 85 workflows with 72 active and 25/25 sampled executions successful through `2026-07-25T16:00:52Z`, and Vercel local deployment watch passed both `portfolio` and `portfolio-staging`.
+- OpenAI, Anthropic, Gemini/Google AI, Gamma, Pinecone, Apify, Hunter, Printful, Stripe, Slack, BuiltWith, Read AI connector metadata, and core app-side integrations were readable or dependency-backed.
+- Vapi stayed zero-call, Calendly remained HTTP 401, Read AI direct API remained HTTP 401, Resend had no local key, HeyGen avatars timed out, n8n drift reads remained 403, and Vercel connector reads remained blocked.
+- BuiltWith remains active/watch during the outreach ramp; Fireflies remains resolved canceled unless new paid-plan evidence appears.
+
+## 2026-07-24 Daily Monitor Run
+
+Status: YELLOW
+
+Detailed run artifact: [`docs/subscription-monitor-runs/2026-07-24.md`](subscription-monitor-runs/2026-07-24.md)
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- Repo checkout had existing monitor-owned dirty work from the 2026-07-23 run; today's edits preserved that continuity and stayed scoped to subscription monitor artifacts.
+- Production Supabase agent runs/events moved today, n8n Cloud returned 85 workflows with 72 active and successful executions through `2026-07-24T13:00:52Z`, and Vercel local deployment watch passed both `portfolio` and `portfolio-staging`.
+- OpenAI, Anthropic, Gemini/Google AI, Gamma, Pinecone, Apify, Hunter, Printful, Stripe, Slack, BuiltWith, and core app-side integrations were readable or dependency-backed.
+- Vapi stayed zero-call, Calendly remained HTTP 401, Read AI direct API returned HTTP 401, Resend had no local key, HeyGen avatars timed out, n8n drift reads remained 403, and Vercel runtime-error MCP reads remained 403.
+- BuiltWith remains active/watch during the outreach ramp; Fireflies remains resolved canceled unless new paid-plan evidence appears.
+
+## 2026-07-23 Daily Monitor Run
+
+Status: YELLOW
+
+Detailed run artifact: [`docs/subscription-monitor-runs/2026-07-23.md`](subscription-monitor-runs/2026-07-23.md)
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- Repo checkout was clean on `codex/agentified-book-links`; durable repo artifacts were stale at `2026-06-26`, while automation memory carried continuity through `2026-07-22`.
+- Supabase production moved today, n8n Cloud returned 85 workflows with 72 active and successful executions through `2026-07-23T12:00:52Z`, and Vercel local deployment watch passed both `portfolio` and `portfolio-staging`.
+- OpenAI, Anthropic, Gemini/Google AI, Gamma, Pinecone, Apify, Hunter, Printful, Stripe, Slack, BuiltWith, Read AI connector metadata, and core app-side integrations were readable or dependency-backed.
+- Vapi stayed zero-call, Calendly remained HTTP 401, Resend had no local key, HeyGen avatars timed out, n8n drift/credential reads remained 403, and Vercel MCP reads remained 403.
+- BuiltWith remains active/watch during the outreach ramp; Fireflies remains resolved canceled unless new paid-plan evidence appears.
+
 ## 2026-06-26 Daily Monitor Run
 
 Status: YELLOW
