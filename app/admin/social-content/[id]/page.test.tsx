@@ -142,11 +142,16 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByRole('button', { name: 'LinkedIn draft: Pending' })).toBeInTheDocument()
     expect(screen.getAllByText('Copy: Approved').length).toBeGreaterThan(1)
     expect(screen.getAllByText('Supporting context: Pending').length).toBeGreaterThan(0)
-    expect(screen.getByText('Request copy revision')).toBeInTheDocument()
-    expect(screen.getAllByLabelText('Triggering event or recent proof').length).toBeGreaterThan(0)
+    expect(screen.queryByText('Request copy revision')).not.toBeInTheDocument()
+    expect(screen.queryByText(/Mark this draft rejected/i)).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Triggering event or recent proof')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Revision feedback for Shaka')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Reopen for Revision/i })).not.toBeDisabled()
+    expect(screen.getByRole('button', { name: /Reject and Generate Revision/i })).not.toBeDisabled()
+    fireEvent.click(screen.getByRole('button', { name: /Reopen for Revision/i }))
+    expect(screen.getByLabelText('Triggering event or recent proof')).not.toBeDisabled()
     expect(screen.getByLabelText('Revision feedback for Shaka')).not.toBeDisabled()
-    expect(screen.getByRole('button', { name: /Reopen for Revision/i })).toBeDisabled()
-    expect(screen.getByRole('button', { name: /Reject and Generate Revision/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Add Feedback to Continue/i })).toBeDisabled()
     expect(screen.getByDisplayValue('The draft copy is approved and should stay locked.')).toBeDisabled()
     expect(screen.getByText('AmaduTown')).toBeInTheDocument()
     expect(screen.queryByText('Amadou Town')).not.toBeInTheDocument()
@@ -218,9 +223,8 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /Use topic/i }))
 
-    expect(screen.getAllByDisplayValue(/recent Agent Ops review exposed/).length).toBeGreaterThan(0)
-    expect(screen.getAllByDisplayValue(/Anchor this draft in Shaka's selected topic trigger/).length).toBeGreaterThan(0)
     expect(screen.getByRole('button', { name: /Reject and Generate Revision/i })).not.toBeDisabled()
+    fireEvent.click(screen.getByRole('button', { name: /Reject and Generate Revision/i }))
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
         expect.stringContaining('/api/admin/social-content/topic-backlog'),
@@ -309,15 +313,27 @@ describe('SocialContentDetailRoute visual production review', () => {
     renderAtStep('copy')
 
     expect(await screen.findByText('Campaign Copy Review')).toBeInTheDocument()
-    expect(screen.getByText('Draft 1 of 3')).toBeInTheDocument()
+    const reviewHeader = screen.getByText('Campaign Copy Review').closest('section')
+    expect(reviewHeader).not.toBeNull()
+    expect(within(reviewHeader as HTMLElement).getByText('Draft 1 of 3')).toBeInTheDocument()
     expect(screen.getByText('Trust turns agent speed into capacity')).toBeInTheDocument()
     expect(screen.getByText('Agentified launch')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Previous/i })).toBeDisabled()
-    expect(screen.getByRole('button', { name: /Approve Draft & Next/i })).not.toBeDisabled()
+    expect(within(reviewHeader as HTMLElement).queryByRole('button', { name: /Approve Draft/i })).not.toBeInTheDocument()
+    expect(within(reviewHeader as HTMLElement).queryByRole('button', { name: /Reject/i })).not.toBeInTheDocument()
+    const approvalProcess = screen.getByLabelText('Social content approval process')
+    expect(approvalProcess).toBeInTheDocument()
+    expect(within(approvalProcess).getByText('1')).toBeInTheDocument()
+    expect(within(approvalProcess).getByText('2')).toBeInTheDocument()
 
     const preview = screen.getByLabelText('LinkedIn post preview')
     expect(preview.className).toContain('bg-gray-950/85')
     expect(preview.className).toContain('text-gray-100')
+
+    const decisionGate = screen.getByText('Copy Review Decision').closest('section')
+    expect(decisionGate).not.toBeNull()
+    expect(within(decisionGate as HTMLElement).getByRole('button', { name: /Approve Draft & Next/i })).not.toBeDisabled()
+    expect(within(decisionGate as HTMLElement).getByRole('button', { name: /Reject with Feedback/i })).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: /Approve Draft & Next/i }))
 
@@ -374,7 +390,7 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     renderAtStep('copy')
 
-    expect(await screen.findByText('Acronym clarity')).toBeInTheDocument()
+    expect(await screen.findByText('Copy readiness')).toBeInTheDocument()
     expect(screen.getByText('Signals, Alignment, Momentum (SAM) · Accelerated product discipline')).toBeInTheDocument()
     expect(screen.getByText('Align, Map, Instrument, Negotiate, and Audit (AMINA) · Agentified trust loop')).toBeInTheDocument()
     expect(screen.getAllByText('Needs expansion').length).toBe(2)
@@ -383,9 +399,15 @@ describe('SocialContentDetailRoute visual production review', () => {
     fireEvent.click(screen.getByRole('button', { name: /Write out known acronyms/i }))
 
     expect(screen.getByDisplayValue('Signals, Alignment, Momentum (SAM) moves the work. Align, Map, Instrument, Negotiate, and Audit (AMINA) governs the work.')).toBeInTheDocument()
-    expect(screen.getAllByText('Written out').length).toBe(2)
+    expect(screen.queryByText('Copy readiness')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Approve Draft/i })).not.toBeDisabled()
 
+    expect(screen.queryByLabelText('Revision feedback for Shaka')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /Reject with Feedback/i }))
+    expect(screen.getByRole('button', { name: /Cancel feedback/i })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /Cancel feedback/i }))
+    expect(screen.queryByLabelText('Revision feedback for Shaka')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /Reject with Feedback/i }))
     fireEvent.change(screen.getByLabelText('Revision feedback for Shaka'), {
       target: { value: 'The framework reference is clear now, but the opening still needs a more concrete scene.' },
     })
@@ -901,13 +923,16 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     renderAtStep('copy')
 
-    const triggeringEventInput = (await screen.findAllByLabelText('Triggering event or recent proof'))
-      .find((element) => !(element as HTMLTextAreaElement).disabled)
+    expect(await screen.findByText('Post Text')).toBeInTheDocument()
+    expect(screen.queryByText('Request copy revision')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Triggering event or recent proof')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /Reject and Generate Revision/i }))
+    const triggeringEventInput = screen.getByLabelText('Triggering event or recent proof')
     expect(triggeringEventInput).toBeTruthy()
     fireEvent.change(triggeringEventInput as HTMLTextAreaElement, {
       target: { value: triggeringEvent },
     })
-    fireEvent.change(await screen.findByLabelText('Revision feedback for Shaka'), {
+    fireEvent.change(screen.getByLabelText('Revision feedback for Shaka'), {
       target: { value: feedback },
     })
     fireEvent.click(screen.getByRole('button', { name: /Reject and Generate Revision/i }))
