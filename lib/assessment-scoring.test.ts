@@ -10,6 +10,83 @@ import {
 } from './assessment-scoring'
 
 describe('buildProjectedTrajectory', () => {
+  it('returns no trajectory when there are no score snapshots', () => {
+    expect(
+      buildProjectedTrajectory({
+        projectStartDate: new Date('2026-07-01T00:00:00.000Z'),
+        now: new Date('2026-07-18T16:00:00.000Z'),
+        snapshots: [],
+      })
+    ).toEqual([])
+  })
+
+  it('uses the latest same-day snapshot as the single current point', () => {
+    const trajectory = buildProjectedTrajectory({
+      projectStartDate: new Date('2026-07-01T00:00:00.000Z'),
+      now: new Date('2026-07-18T16:00:00.000Z'),
+      snapshots: [
+        {
+          snapshot_date: '2026-07-01T00:00:00.000Z',
+          overall_score: 40,
+        },
+        {
+          snapshot_date: '2026-07-18T08:00:00.000Z',
+          overall_score: 48,
+        },
+        {
+          snapshot_date: '2026-07-18T14:00:00.000Z',
+          overall_score: 52,
+        },
+      ],
+      milestones: [{ target_date: '2026-08-01T00:00:00.000Z' }],
+      remainingTasks: [],
+    })
+
+    const currentPoints = trajectory.filter((point) => point.isCurrent)
+    const todayActuals = trajectory.filter(
+      (point) => !point.isProjected && point.date.startsWith('2026-07-18')
+    )
+
+    expect(currentPoints).toHaveLength(1)
+    expect(todayActuals).toHaveLength(1)
+    expect(currentPoints[0]).toMatchObject({
+      date: '2026-07-18T14:00:00.000Z',
+      overallScore: 52,
+      isProjected: false,
+      label: 'Current status check',
+    })
+  })
+
+  it('uses the milestone-count fallback when the planned completion date is stale', () => {
+    const trajectory = buildProjectedTrajectory({
+      projectStartDate: new Date('2026-04-01T00:00:00.000Z'),
+      now: new Date('2026-07-11T16:00:00.000Z'),
+      snapshots: [
+        {
+          snapshot_date: '2026-04-01T00:00:00.000Z',
+          overall_score: 45,
+        },
+        {
+          snapshot_date: '2026-07-10T12:00:00.000Z',
+          overall_score: 60,
+        },
+      ],
+      milestones: [{ week: 'Week 1' }, { week: 2 }],
+      remainingTasks: [],
+    })
+
+    expect(trajectory.find((point) => point.isCurrent)).toMatchObject({
+      date: '2026-07-11T00:00:00.000Z',
+      overallScore: 60,
+    })
+    expect(trajectory.at(-1)).toEqual({
+      date: '2026-07-25T00:00:00.000Z',
+      overallScore: 66,
+      isProjected: true,
+      label: 'Projected completion',
+    })
+  })
+
   it('carries the latest score forward to today and caps projections at the target score', () => {
     const trajectory = buildProjectedTrajectory({
       projectStartDate: new Date('2026-04-07T00:00:00.000Z'),
