@@ -89,6 +89,8 @@ describe('POST /api/admin/social-content/launch-drafts', () => {
         rag_context: expect.objectContaining({
           source: 'agentic_sales_outreach_launch_draft',
           launch_draft_asset_id: 'p0-linkedin-flagship-agentic-operating-system',
+          publish_gate: 'draft_only',
+          external_execution_enabled: false,
           approval_required_for: expect.arrayContaining(['publish', 'outbound_send']),
         }),
       }),

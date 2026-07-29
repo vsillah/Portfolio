@@ -424,6 +424,8 @@ export function buildAgenticSocialLaunchDraftRow(draft: AgenticSocialLaunchDraft
       challenger_status: 'passed',
       approval_status: 'human_review_ready',
       pass_to_human: true,
+      publish_gate: 'draft_only',
+      external_execution_enabled: false,
       launch_date: draft.launchDate,
       audience: draft.audience,
       primary_claim: draft.primaryClaim,
