@@ -724,30 +724,67 @@ function SocialContentQueuePage() {
 
       {activeWorkflowView === 'create' && (
       <>
-      {/* Extraction Trigger */}
       <div className="admin-console-card mb-6 rounded-lg border p-4">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setShowTriggerPanel((p) => !p)}
-            className="admin-console-button-primary"
-          >
-            <Zap className="w-4 h-4" />
-            Create from meetings
-          </button>
-          <ExtractionStatusChip
-            state={extractionStatus.state}
-            currentRun={extractionStatus.currentRun}
-            recentRuns={extractionStatus.recentRuns}
-            runningCount={extractionStatus.runningCount}
-            elapsedMs={extractionStatus.elapsedMs}
-            isDrawerOpen={extractionStatus.isDrawerOpen}
-            isHistoryOpen={extractionStatus.isHistoryOpen}
-            toggleDrawer={extractionStatus.toggleDrawer}
-            toggleHistory={extractionStatus.toggleHistory}
-            markRunFailed={extractionStatus.markRunFailed}
-            onRetry={() => handleTriggerExtraction()}
-            onRetryFailed={handleRetryFailed}
-          />
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <div className="admin-console-eyebrow mb-2">Create content</div>
+            <h2 className="text-lg font-semibold text-foreground">Turn approved source material into draft rows</h2>
+            <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
+              These tools create internal Social Content drafts for review. They do not publish, schedule, send outreach, generate paid-provider assets, or change production settings.
+            </p>
+          </div>
+          <span className="rounded-full border border-radiant-gold/30 bg-radiant-gold/10 px-3 py-1 text-xs font-medium text-radiant-gold">
+            Draft-only
+          </span>
+        </div>
+      </div>
+
+      {/* Meeting Transcript Intake */}
+      <div className="admin-console-card relative z-30 mb-6 rounded-lg border p-4" style={{ overflow: 'visible' }}>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="max-w-3xl">
+            <div className="flex items-center gap-2 text-sm font-semibold text-gray-200">
+              <Zap className="h-4 w-4 text-radiant-gold" />
+              Create from meetings
+            </div>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">
+              Use this when a meeting transcript already contains a concrete proof point, client lesson, or campaign angle. Select the meetings first, then create draft-only content for review.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {[
+                'Source: meeting transcripts',
+                'Output: Social Content drafts',
+                'Gate: human review before publishing',
+              ].map((label) => (
+                <span key={label} className="rounded-full border border-silicon-slate bg-imperial-navy/50 px-2.5 py-1 text-[11px] text-gray-300">
+                  {label}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="relative z-50 flex flex-col items-start gap-3 overflow-visible sm:flex-row sm:items-center lg:justify-end">
+            <button
+              onClick={() => setShowTriggerPanel((p) => !p)}
+              className="admin-console-button-primary"
+            >
+              <Zap className="w-4 h-4" />
+              {showTriggerPanel ? 'Close meeting picker' : 'Open meeting picker'}
+            </button>
+            <ExtractionStatusChip
+              state={extractionStatus.state}
+              currentRun={extractionStatus.currentRun}
+              recentRuns={extractionStatus.recentRuns}
+              runningCount={extractionStatus.runningCount}
+              elapsedMs={extractionStatus.elapsedMs}
+              isDrawerOpen={extractionStatus.isDrawerOpen}
+              isHistoryOpen={extractionStatus.isHistoryOpen}
+              toggleDrawer={extractionStatus.toggleDrawer}
+              toggleHistory={extractionStatus.toggleHistory}
+              markRunFailed={extractionStatus.markRunFailed}
+              onRetry={() => handleTriggerExtraction()}
+              onRetryFailed={handleRetryFailed}
+            />
+          </div>
         </div>
 
         {showTriggerPanel && (
@@ -755,13 +792,13 @@ function SocialContentQueuePage() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="mt-3 rounded-lg border border-silicon-slate bg-imperial-navy/55 p-5 space-y-4"
+            className="mt-4 space-y-4 rounded-lg border border-silicon-slate bg-imperial-navy/55 p-5"
           >
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-semibold text-gray-200">Create content from meeting transcripts</h3>
+              <h3 className="text-sm font-semibold text-gray-200">Meeting transcript picker</h3>
               <span
                 className="text-gray-600 hover:text-gray-400 transition-colors cursor-help"
-                title="Runs WF-SOC-001 to extract social content from meeting transcripts. Select a specific meeting or extract from all recent."
+                title="Runs WF-SOC-001 to create draft-only social content from selected meeting transcripts."
               >
                 <Info className="w-3.5 h-3.5" />
               </span>
@@ -810,7 +847,7 @@ function SocialContentQueuePage() {
               </div>
             ) : meetings.length === 0 ? (
               <div className="text-center py-6 text-sm text-gray-500">
-                No meetings found.{(meetingSearch || meetingDateFrom) && ' Try adjusting your filters.'}
+                No matching meeting transcripts found.{(meetingSearch || meetingDateFrom) ? ' Try clearing filters.' : ' Use the voice-note builder below when the source is still a brainstorm.'}
               </div>
             ) : (
               <>
@@ -839,7 +876,7 @@ function SocialContentQueuePage() {
                         </button>
                       </>
                     ) : (
-                      <span className="text-xs text-gray-500">Select meetings to extract, or extract all recent</span>
+                      <span className="text-xs text-gray-500">Select meetings to turn into draft content, or use all recent transcripts.</span>
                     )}
                   </div>
                   <span className="text-xs text-gray-500">{meetingsTotal} meeting{meetingsTotal !== 1 ? 's' : ''}</span>
@@ -971,8 +1008,8 @@ function SocialContentQueuePage() {
                   {triggerLoading
                     ? 'Triggering...'
                     : selectedMeetings.size > 0
-                      ? `Extract ${selectedMeetings.size} Meeting${selectedMeetings.size > 1 ? 's' : ''}`
-                      : 'Extract All Recent Meetings'
+                      ? `Create Drafts from ${selectedMeetings.size} Meeting${selectedMeetings.size > 1 ? 's' : ''}`
+                      : 'Create Drafts from Recent Meetings'
                   }
                 </button>
               )}
@@ -1015,8 +1052,19 @@ function SocialContentQueuePage() {
               Voice-note package builder
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
-              Record a brainstorming note and generate LinkedIn, carousel, PowerPoint, script, audio, and HeyGen-ready drafts.
+              Use this when the idea is still rough or starts as a brainstorm. It creates a draft package for review before any publishing, scheduling, or provider step.
             </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {[
+                'Source: voice note or typed idea',
+                'Output: multi-format draft package',
+                'Gate: internal review',
+              ].map((label) => (
+                <span key={label} className="rounded-full border border-silicon-slate bg-imperial-navy/50 px-2.5 py-1 text-[11px] text-gray-300">
+                  {label}
+                </span>
+              ))}
+            </div>
           </div>
           <button
             onClick={() => setShowVoicePanel((p) => !p)}
