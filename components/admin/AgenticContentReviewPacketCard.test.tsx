@@ -45,5 +45,8 @@ describe('AgenticContentReviewPacketCard', () => {
     expect(screen.getByRole('link', { name: 'Open source draft' })).toHaveTextContent('Draft')
     expect(screen.getByRole('link', { name: 'Open source packet' })).toHaveTextContent('Packet')
     expect(screen.getByRole('link', { name: 'Open approval queue' })).toHaveTextContent('Queue')
+    expect(screen.queryByText('Human decision')).not.toBeInTheDocument()
+    expect(screen.queryByText(/Approve path:/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Send back:/i)).not.toBeInTheDocument()
   })
 })
