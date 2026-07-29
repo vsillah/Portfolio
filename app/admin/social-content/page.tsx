@@ -132,6 +132,8 @@ function SocialContentQueuePage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [launchDraftSeeding, setLaunchDraftSeeding] = useState(false)
   const [launchDraftResult, setLaunchDraftResult] = useState<LaunchDraftSeedResult | null>(null)
+  const [showPlanningPanel, setShowPlanningPanel] = useState(false)
+  const [showCreationTools, setShowCreationTools] = useState(false)
 
   // Extraction trigger state
   const [meetings, setMeetings] = useState<MeetingRecord[]>([])
@@ -563,10 +565,53 @@ function SocialContentQueuePage() {
         <div className="flex-1">
           <div className="admin-console-eyebrow mb-2">Content Operations</div>
           <h1 className="text-2xl font-bold text-foreground">Social Content Queue</h1>
-          <p className="text-muted-foreground text-sm">AI-generated posts from meeting transcripts, ready for review, edit, and publish.</p>
+          <p className="text-muted-foreground text-sm">Review draft content first. Evidence packets and creation tools stay available without taking over the approval queue.</p>
         </div>
       </div>
 
+      <div className="admin-console-card mb-6 rounded-lg border p-4">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div className="admin-console-eyebrow mb-2">Workflow focus</div>
+            <h2 className="text-lg font-semibold text-foreground">Choose the job you are doing now</h2>
+            <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
+              The queue below is for approving actual drafts. Open the supporting panels only when you need launch evidence or new content intake.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <a
+              href="#social-content-approval-queue"
+              className="admin-console-button-primary"
+            >
+              Review draft queue
+            </a>
+            <button
+              type="button"
+              onClick={() => setShowPlanningPanel((value) => !value)}
+              className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
+                showPlanningPanel
+                  ? 'border-radiant-gold/60 bg-radiant-gold/15 text-radiant-gold'
+                  : 'border-silicon-slate bg-background/40 text-gray-200 hover:border-radiant-gold/40 hover:text-radiant-gold'
+              }`}
+            >
+              {showPlanningPanel ? 'Hide launch evidence' : 'Show launch evidence'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowCreationTools((value) => !value)}
+              className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
+                showCreationTools
+                  ? 'border-radiant-gold/60 bg-radiant-gold/15 text-radiant-gold'
+                  : 'border-silicon-slate bg-background/40 text-gray-200 hover:border-radiant-gold/40 hover:text-radiant-gold'
+              }`}
+            >
+              {showCreationTools ? 'Hide creation tools' : 'Show creation tools'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {showPlanningPanel && (
       <div className="admin-console-card mb-6 rounded-lg border p-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -636,7 +681,10 @@ function SocialContentQueuePage() {
           ))}
         </div>
       </div>
+      )}
 
+      {showCreationTools && (
+      <>
       {/* Extraction Trigger */}
       <div className="admin-console-card mb-6 rounded-lg border p-4">
         <div className="flex items-center gap-3">
@@ -645,7 +693,7 @@ function SocialContentQueuePage() {
             className="admin-console-button-primary"
           >
             <Zap className="w-4 h-4" />
-            Run Extraction
+            Create from meetings
           </button>
           <ExtractionStatusChip
             state={extractionStatus.state}
@@ -671,7 +719,7 @@ function SocialContentQueuePage() {
             className="mt-3 rounded-lg border border-silicon-slate bg-imperial-navy/55 p-5 space-y-4"
           >
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-semibold text-gray-200">Trigger Content Extraction (WF-SOC-001)</h3>
+              <h3 className="text-sm font-semibold text-gray-200">Create content from meeting transcripts</h3>
               <span
                 className="text-gray-600 hover:text-gray-400 transition-colors cursor-help"
                 title="Runs WF-SOC-001 to extract social content from meeting transcripts. Select a specific meeting or extract from all recent."
@@ -925,7 +973,7 @@ function SocialContentQueuePage() {
           <div>
             <div className="flex items-center gap-2 text-sm font-semibold text-gray-200">
               <Mic className="h-4 w-4 text-radiant-gold" />
-              Voice-note content packages
+              Voice-note package builder
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
               Record a brainstorming note and generate LinkedIn, carousel, PowerPoint, script, audio, and HeyGen-ready drafts.
@@ -1143,6 +1191,8 @@ function SocialContentQueuePage() {
           </motion.div>
         )}
       </div>
+      </>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6">
