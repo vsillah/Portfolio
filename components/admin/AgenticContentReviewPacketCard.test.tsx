@@ -24,4 +24,26 @@ describe('AgenticContentReviewPacketCard', () => {
     expect(screen.getByText('Still gated')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Open source packet/i })).toBeInTheDocument()
   })
+
+  it('renders decision controls as compact actions and moves references to the header', () => {
+    const packet = getAgenticContentReviewPacketByAssetId('p0-linkedin-flagship-agentic-operating-system')
+
+    expect(packet).not.toBeNull()
+    render(
+      <AgenticContentReviewPacketCard
+        packet={packet!}
+        nextGateHref="#social-content-approval-queue"
+        nextGateLabel="Open approval queue"
+      />,
+    )
+
+    expect(screen.getByRole('link', { name: 'Approve next gate' })).toHaveAttribute(
+      'title',
+      'Creates a traceable planning step before any scheduling or publishing.',
+    )
+    expect(screen.queryByText('Creates a traceable planning step before any scheduling or publishing.')).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Open source draft' })).toHaveTextContent('Draft')
+    expect(screen.getByRole('link', { name: 'Open source packet' })).toHaveTextContent('Packet')
+    expect(screen.getByRole('link', { name: 'Open approval queue' })).toHaveTextContent('Queue')
+  })
 })

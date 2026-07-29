@@ -55,13 +55,53 @@ export default function AgenticContentReviewPacketCard({
 }: AgenticContentReviewPacketCardProps) {
   const copy = surfaceCopy(packet)
   const hasDecisionNote = Boolean(decisionNote?.trim())
+  const sendBackHelp = hasDecisionNote ? 'Sends this revision note to the repair task.' : 'Add a decision note before sending back.'
 
   return (
     <div className="rounded-lg border border-silicon-slate bg-imperial-navy/45 p-4">
-      <div className="flex flex-wrap items-center gap-2 text-[10px] font-medium uppercase tracking-[0.14em] text-gray-500">
-        <span className="rounded-full border border-radiant-gold/30 px-2 py-0.5 text-radiant-gold">{priorityLabel(packet.priority)}</span>
-        <span>{packet.channel}</span>
-        <span>{packet.output}</span>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex flex-wrap items-center gap-2 text-[10px] font-medium uppercase tracking-[0.14em] text-gray-500">
+          <span className="rounded-full border border-radiant-gold/30 px-2 py-0.5 text-radiant-gold">{priorityLabel(packet.priority)}</span>
+          <span>{packet.channel}</span>
+          <span>{packet.output}</span>
+        </div>
+        <div className="flex flex-wrap gap-1.5 sm:justify-end" aria-label="Reference links">
+          {packet.launchDraftPath ? (
+            <a
+              href={sourcePacketUrl(packet.launchDraftPath)}
+              target="_blank"
+              rel="noreferrer"
+              title="Open source draft"
+              aria-label="Open source draft"
+              className="inline-flex h-8 items-center gap-1.5 rounded-md border border-emerald-500/35 bg-emerald-500/10 px-2.5 text-[11px] font-medium text-emerald-100 transition-colors hover:border-emerald-400 hover:text-emerald-50"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+              Draft
+            </a>
+          ) : null}
+          <a
+            href={sourcePacketUrl(packet.packetPath)}
+            target="_blank"
+            rel="noreferrer"
+            title="Open source packet"
+            aria-label="Open source packet"
+            className="inline-flex h-8 items-center gap-1.5 rounded-md border border-silicon-slate bg-background/50 px-2.5 text-[11px] font-medium text-gray-200 transition-colors hover:border-radiant-gold/50 hover:text-radiant-gold"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+            Packet
+          </a>
+          {nextGateHref ? (
+            <a
+              href={nextGateHref}
+              title={nextGateLabel}
+              aria-label={nextGateLabel}
+              className="inline-flex h-8 items-center gap-1.5 rounded-md border border-silicon-slate bg-background/50 px-2.5 text-[11px] font-medium text-gray-200 transition-colors hover:border-radiant-gold/50 hover:text-radiant-gold"
+            >
+              <AlertTriangle className="h-3.5 w-3.5" />
+              Queue
+            </a>
+          ) : null}
+        </div>
       </div>
 
       <h3 className="mt-3 text-sm font-semibold text-gray-100">{packet.title}</h3>
@@ -140,71 +180,31 @@ export default function AgenticContentReviewPacketCard({
         </div>
       ) : null}
 
-      <div className="mt-3 grid gap-2 text-[11px] leading-5 sm:grid-cols-3">
+      <div className="mt-3 flex flex-wrap gap-2 text-xs">
         <Link
           href={buildAgenticContentReviewActionHref(packet, 'approve_next_gate')}
-          className="rounded-md border border-emerald-500/35 bg-emerald-500/10 p-2 text-emerald-100 transition-colors hover:border-emerald-400"
+          title={copy.approveHelp}
+          className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-md border border-emerald-500/45 bg-emerald-500/15 px-3 py-2 font-semibold text-emerald-100 transition-colors hover:border-emerald-300 hover:bg-emerald-500/25 sm:flex-none"
         >
-          <span className="flex items-center gap-1.5 font-semibold text-emerald-300">
-            <CheckCircle2 className="h-3.5 w-3.5" />
-            {copy.approveLabel}
-          </span>
-          <span className="mt-1 block text-emerald-100/80">{copy.approveHelp}</span>
+          <CheckCircle2 className="h-3.5 w-3.5" />
+          {copy.approveLabel}
         </Link>
         <Link
           href={buildAgenticContentReviewActionHref(packet, 'send_back_for_repair', decisionNote)}
-          className="rounded-md border border-amber-500/35 bg-amber-500/10 p-2 text-amber-100 transition-colors hover:border-amber-400"
+          title={sendBackHelp}
+          className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-md border border-amber-500/45 bg-amber-500/15 px-3 py-2 font-semibold text-amber-100 transition-colors hover:border-amber-300 hover:bg-amber-500/25 sm:flex-none"
         >
-          <span className="flex items-center gap-1.5 font-semibold text-amber-300">
-            <RotateCcw className="h-3.5 w-3.5" />
-            Send back
-          </span>
-          <span className="mt-1 block text-amber-100/80">
-            {hasDecisionNote ? 'Sends this revision note to the repair task.' : 'Add a decision note before sending back.'}
-          </span>
+          <RotateCcw className="h-3.5 w-3.5" />
+          Send back
         </Link>
         <Link
           href={buildAgenticContentReviewActionHref(packet, 'hold_for_human', decisionNote)}
-          className="rounded-md border border-rose-500/30 bg-rose-500/10 p-2 text-rose-100 transition-colors hover:border-rose-400"
+          title="Frames the unresolved risk for a human-only decision."
+          className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-md border border-rose-500/40 bg-rose-500/15 px-3 py-2 font-semibold text-rose-100 transition-colors hover:border-rose-300 hover:bg-rose-500/25 sm:flex-none"
         >
-          <span className="flex items-center gap-1.5 font-semibold text-rose-300">
-            <PauseCircle className="h-3.5 w-3.5" />
-            Hold
-          </span>
-          <span className="mt-1 block text-rose-100/80">Frames the unresolved risk for a human-only decision.</span>
+          <PauseCircle className="h-3.5 w-3.5" />
+          Hold
         </Link>
-      </div>
-
-      <div className="mt-3 flex flex-wrap gap-2">
-        {packet.launchDraftPath ? (
-          <a
-            href={sourcePacketUrl(packet.launchDraftPath)}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-md border border-emerald-500/35 bg-emerald-500/10 px-3 py-2 text-xs font-medium text-emerald-100 transition-colors hover:border-emerald-400 hover:text-emerald-50"
-          >
-            <ExternalLink className="h-3.5 w-3.5" />
-            Open source draft
-          </a>
-        ) : null}
-        <a
-          href={sourcePacketUrl(packet.packetPath)}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-md border border-silicon-slate bg-background/50 px-3 py-2 text-xs font-medium text-gray-200 transition-colors hover:border-radiant-gold/50 hover:text-radiant-gold"
-        >
-          <ExternalLink className="h-3.5 w-3.5" />
-          Open source packet
-        </a>
-        {nextGateHref ? (
-          <a
-            href={nextGateHref}
-            className="inline-flex items-center gap-1.5 rounded-md border border-silicon-slate bg-background/50 px-3 py-2 text-xs font-medium text-gray-200 transition-colors hover:border-radiant-gold/50 hover:text-radiant-gold"
-          >
-            <AlertTriangle className="h-3.5 w-3.5" />
-            {nextGateLabel}
-          </a>
-        ) : null}
       </div>
     </div>
   )
