@@ -4,6 +4,7 @@ Status: Human approval required
 Campaign slug: `agentified-trust-scale-2026-07`
 Gate owner: Vambah Sillah
 First review packet: `agentified/campaign/launch-review-packet-2026-07-27.md`
+Current social-content package: `agentified/campaign/social-content-package-2026-07-28.md`
 
 ## Gate decision
 
