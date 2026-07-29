@@ -826,7 +826,7 @@ export function ExtractionStatusChip({
   )
 
   return (
-    <div className="relative" ref={chipRef}>
+    <div className="relative z-50 overflow-visible" ref={chipRef}>
       {/* Chip */}
       <button
         onClick={toggleDrawer}
@@ -873,7 +873,7 @@ export function ExtractionStatusChip({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.15 }}
-            className="absolute left-0 top-full mt-2 w-[360px] bg-gray-800/95 backdrop-blur-sm border border-gray-700 rounded-lg shadow-xl z-50 overflow-hidden"
+            className="absolute left-0 top-full z-[70] mt-2 w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg border border-gray-700 bg-gray-800/95 shadow-xl backdrop-blur-sm"
           >
             {/* Current run detail */}
             {currentRun && (
