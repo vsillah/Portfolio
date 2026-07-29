@@ -107,19 +107,6 @@ export default function AgenticContentReviewPacketCard({
       <h3 className="mt-3 text-sm font-semibold text-gray-100">{packet.title}</h3>
       <p className="mt-2 text-xs leading-5 text-gray-400">{packet.humanReview}</p>
 
-      <div className="mt-3 rounded-md border border-radiant-gold/25 bg-radiant-gold/10 p-3">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-radiant-gold">Human decision</div>
-        <p className="mt-1 text-xs leading-5 text-gray-200">{packet.decisionPrompt}</p>
-        <div className="mt-3 grid gap-2 text-[11px] leading-5 sm:grid-cols-2">
-          <div className="rounded-md border border-emerald-500/20 bg-emerald-500/10 p-2 text-emerald-100">
-            <span className="font-semibold text-emerald-300">Approve path:</span> {packet.approveMeaning}
-          </div>
-          <div className="rounded-md border border-amber-500/20 bg-amber-500/10 p-2 text-amber-100">
-            <span className="font-semibold text-amber-300">Send back:</span> {packet.sendBackMeaning}
-          </div>
-        </div>
-      </div>
-
       <div className="mt-3 grid gap-2 text-[11px] text-gray-500 sm:grid-cols-2">
         <div>
           <span className="text-gray-400">Challenger</span>
