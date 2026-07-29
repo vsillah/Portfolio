@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { AlertTriangle, CheckCircle2, ExternalLink, PauseCircle, RotateCcw } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, ExternalLink, FileText, PauseCircle, RotateCcw } from 'lucide-react'
 import {
   buildAgenticContentReviewActionHref,
   type AgenticContentReviewPacket,
@@ -96,6 +96,50 @@ export default function AgenticContentReviewPacketCard({
         <div><span className="text-gray-500">Next gate:</span> {packet.nextGate}</div>
       </div>
 
+      {packet.evidencePacket ? (
+        <div className="mt-3 rounded-md border border-blue-400/20 bg-blue-500/10 p-3">
+          <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-blue-200">
+            <FileText className="h-3.5 w-3.5" />
+            Evidence packet
+          </div>
+          <p className="mt-2 text-xs leading-5 text-gray-100">{packet.evidencePacket.draftPreview}</p>
+          <div className="mt-3 grid gap-3 text-[11px] leading-5 lg:grid-cols-2">
+            <div>
+              <div className="font-semibold uppercase tracking-[0.12em] text-radiant-gold/90">Source basis</div>
+              <ul className="mt-1 space-y-1 text-gray-300">
+                {packet.evidencePacket.sourceBasis.map((source) => (
+                  <li key={source}>- {source}</li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <div className="font-semibold uppercase tracking-[0.12em] text-emerald-300">Amina clearance</div>
+              <ul className="mt-1 space-y-1 text-gray-300">
+                {packet.evidencePacket.challengerFindings.map((finding) => (
+                  <li key={finding}>- {finding}</li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <div className="font-semibold uppercase tracking-[0.12em] text-amber-300">Human checks</div>
+              <ul className="mt-1 space-y-1 text-gray-300">
+                {packet.evidencePacket.humanChecks.map((check) => (
+                  <li key={check}>- {check}</li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <div className="font-semibold uppercase tracking-[0.12em] text-rose-300">Still gated</div>
+              <ul className="mt-1 space-y-1 text-gray-300">
+                {packet.evidencePacket.closedGates.map((gate) => (
+                  <li key={gate}>- {gate}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       <div className="mt-3 grid gap-2 text-[11px] leading-5 sm:grid-cols-3">
         <Link
           href={buildAgenticContentReviewActionHref(packet, 'approve_next_gate')}
@@ -140,7 +184,7 @@ export default function AgenticContentReviewPacketCard({
             className="inline-flex items-center gap-1.5 rounded-md border border-emerald-500/35 bg-emerald-500/10 px-3 py-2 text-xs font-medium text-emerald-100 transition-colors hover:border-emerald-400 hover:text-emerald-50"
           >
             <ExternalLink className="h-3.5 w-3.5" />
-            Review launch draft
+            Open source draft
           </a>
         ) : null}
         <a
@@ -150,7 +194,7 @@ export default function AgenticContentReviewPacketCard({
           className="inline-flex items-center gap-1.5 rounded-md border border-silicon-slate bg-background/50 px-3 py-2 text-xs font-medium text-gray-200 transition-colors hover:border-radiant-gold/50 hover:text-radiant-gold"
         >
           <ExternalLink className="h-3.5 w-3.5" />
-          View Evidence Packet
+          Open source packet
         </a>
         {nextGateHref ? (
           <a

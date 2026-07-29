@@ -21,9 +21,93 @@ export type AgenticContentReviewPacket = {
   sendBackMeaning: string
   targetSurface: AgenticContentReviewSurface
   launchDraftPath?: string
+  evidencePacket?: {
+    draftPreview: string
+    sourceBasis: string[]
+    challengerFindings: string[]
+    humanChecks: string[]
+    closedGates: string[]
+  }
 }
 
 const SALES_OUTREACH_LAUNCH_DRAFT_PATH = 'docs/agentic-content-linkedin-drafts/2026-06-04-sales-outreach-launch-drafts.md'
+
+const SHARED_SOCIAL_CLOSED_GATES = [
+  'Publishing and scheduling remain separately approval-gated.',
+  'No provider work, outreach send, visual build, or production settings change is approved by this packet.',
+]
+
+const FLAGSHIP_SOCIAL_EVIDENCE: AgenticContentReviewPacket['evidencePacket'] = {
+  draftPreview: 'Anyone can launch an agent now. The demo is no longer the hard part; governed execution is where the value starts.',
+  sourceBasis: [
+    'Core system frame from docs/agentic-enterprise-value-map.md.',
+    'Launch order and challenger standard from docs/agentic-value-communications-plan.md.',
+    'Public-safe market and Portfolio claims from the research dossier and LinkedIn wave-one drafts.',
+  ],
+  challengerFindings: [
+    'Amina found no unsupported claims, privacy flags, or implementation drift.',
+    'The post frames Portfolio as a governed proof surface, not a finished autonomous enterprise platform.',
+  ],
+  humanChecks: [
+    'Decide whether to keep enterprise language or broaden the audience to business operators.',
+    'Confirm whether the series tagline should stay in the body or move to the close.',
+  ],
+  closedGates: SHARED_SOCIAL_CLOSED_GATES,
+}
+
+const CAROUSEL_SOCIAL_EVIDENCE: AgenticContentReviewPacket['evidencePacket'] = {
+  draftPreview: 'The 7 things your enterprise agent needs after the demo: receipt, scope, handoff, approval, compliance, QA, and Mission Control.',
+  sourceBasis: [
+    'Component model from docs/agentic-value-communications-plan.md.',
+    'Trace and Mission Control claims from the research PRDs.',
+    'Public-safe market framing from the phase-two research dossier.',
+  ],
+  challengerFindings: [
+    'Amina found no unsupported claims in outline form.',
+    'Final visuals must stay structural and avoid saying every path is fully autonomous.',
+  ],
+  humanChecks: [
+    'Choose enterprise agent vs. business agent for the cover.',
+    'Approve the slide sequence before visual build.',
+  ],
+  closedGates: SHARED_SOCIAL_CLOSED_GATES,
+}
+
+const SCOPE_SOCIAL_EVIDENCE: AgenticContentReviewPacket['evidencePacket'] = {
+  draftPreview: 'Agent access should feel less like a blank check and more like a permission slip.',
+  sourceBasis: [
+    'Scope, runtime policy, capability, and approval-boundary claims from the permission-scopes PRD.',
+    'Channel constraints and challenger gate from the communications plan.',
+    'Existing receipt and handoff language from the LinkedIn wave-one source set.',
+  ],
+  challengerFindings: [
+    'Amina found no unsupported claims, privacy flags, or channel-fit blockers.',
+    'The post stays at the operating-boundary level and does not expose private run details.',
+  ],
+  humanChecks: [
+    'Confirm the safety framing is practical enough for non-security readers.',
+    'Approve copy before any schedule or publish action.',
+  ],
+  closedGates: SHARED_SOCIAL_CLOSED_GATES,
+}
+
+const QA_SOCIAL_EVIDENCE: AgenticContentReviewPacket['evidencePacket'] = {
+  draftPreview: 'Agent QA needs scorecards before authority expands, not after a confident first pass reaches approval.',
+  sourceBasis: [
+    'QA, rubric, coaching, and promotion-gate claims from the self-evaluation PRD.',
+    'Channel constraints and challenger gate from the communications plan.',
+    'Existing QA post language from the LinkedIn wave-one source set.',
+  ],
+  challengerFindings: [
+    'Amina cleared the claim when it stays tied to scorecards, rubrics, and review gates.',
+    'The post should avoid implying that automated QA replaces human judgment.',
+  ],
+  humanChecks: [
+    'Confirm the scorecard framing matches Vambah voice and the Agentified release angle.',
+    'Approve copy before any schedule or publish action.',
+  ],
+  closedGates: SHARED_SOCIAL_CLOSED_GATES,
+}
 
 export const AGENTIC_CONTENT_REVIEW_PACKETS: AgenticContentReviewPacket[] = [
   {
@@ -46,6 +130,7 @@ export const AGENTIC_CONTENT_REVIEW_PACKETS: AgenticContentReviewPacket[] = [
     sendBackMeaning: 'Route a repair task if the claim, voice, source support, or channel fit is not ready for public review.',
     targetSurface: 'social',
     launchDraftPath: SALES_OUTREACH_LAUNCH_DRAFT_PATH,
+    evidencePacket: FLAGSHIP_SOCIAL_EVIDENCE,
   },
   {
     assetId: 'p0-carousel-seven-things-after-agent-demo',
@@ -67,6 +152,7 @@ export const AGENTIC_CONTENT_REVIEW_PACKETS: AgenticContentReviewPacket[] = [
     sendBackMeaning: 'Route a repair task if the slide story, evidence, or sequence needs another challenger pass.',
     targetSurface: 'social',
     launchDraftPath: SALES_OUTREACH_LAUNCH_DRAFT_PATH,
+    evidencePacket: CAROUSEL_SOCIAL_EVIDENCE,
   },
   {
     assetId: 'p1-linkedin-scope-safety-model',
@@ -88,6 +174,7 @@ export const AGENTIC_CONTENT_REVIEW_PACKETS: AgenticContentReviewPacket[] = [
     sendBackMeaning: 'Route a repair task if the scope claim, safety framing, source support, or voice needs revision.',
     targetSurface: 'social',
     launchDraftPath: SALES_OUTREACH_LAUNCH_DRAFT_PATH,
+    evidencePacket: SCOPE_SOCIAL_EVIDENCE,
   },
   {
     assetId: 'p1-linkedin-agent-qa-scorecards',
@@ -109,6 +196,7 @@ export const AGENTIC_CONTENT_REVIEW_PACKETS: AgenticContentReviewPacket[] = [
     sendBackMeaning: 'Route a repair task if the QA claim, scorecard framing, source support, or voice needs revision.',
     targetSurface: 'social',
     launchDraftPath: SALES_OUTREACH_LAUNCH_DRAFT_PATH,
+    evidencePacket: QA_SOCIAL_EVIDENCE,
   },
   {
     assetId: 'p0-youtube-agentic-ai-teams-skip',
