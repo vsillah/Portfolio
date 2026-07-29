@@ -34,7 +34,7 @@ import {
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
-import AgenticContentReviewPacketCard from '@/components/admin/AgenticContentReviewPacketCard'
+import AgenticContentReviewPacketPager from '@/components/admin/AgenticContentReviewPacketPager'
 import { ExtractionStatusChip } from '@/components/admin/ExtractionStatusChip'
 import { useExtractionStatus } from '@/lib/hooks/useExtractionStatus'
 import { getCurrentSession } from '@/lib/auth'
@@ -709,16 +709,11 @@ function SocialContentQueuePage() {
           </div>
         )}
 
-        <div className="mt-4 grid gap-3 lg:grid-cols-2">
-          {AGENTIC_SOCIAL_REVIEW_PACKETS.map((packet) => (
-            <AgenticContentReviewPacketCard
-              key={packet.assetId}
-              packet={packet}
-              nextGateHref="#social-content-approval-queue"
-              nextGateLabel="Open approval queue"
-            />
-          ))}
-        </div>
+        <AgenticContentReviewPacketPager
+          packets={AGENTIC_SOCIAL_REVIEW_PACKETS}
+          nextGateHref="#social-content-approval-queue"
+          nextGateLabel="Open approval queue"
+        />
       </div>
       )}
 
