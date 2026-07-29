@@ -101,11 +101,21 @@ interface LaunchDraftSeedLink {
   href: string
 }
 
-interface LaunchDraftSeedResult {
+interface LaunchApprovalLink extends LaunchDraftSeedLink {
+  status?: string
+  productionWorkItemCount?: number
+  publishTriggered?: boolean
+  error?: string
+}
+
+interface LaunchApprovalResult {
   success: boolean
   message: string
   inserted: LaunchDraftSeedLink[]
   existing: LaunchDraftSeedLink[]
+  approved: LaunchApprovalLink[]
+  failed: LaunchApprovalLink[]
+  remainingExternalGates: string[]
 }
 
 type WorkflowView = 'review' | 'evidence' | 'create'
@@ -132,8 +142,8 @@ function SocialContentQueuePage() {
   const [platformFilter, setPlatformFilter] = useState<SocialPlatform | 'all'>('all')
   const [search, setSearch] = useState('')
   const [actionLoading, setActionLoading] = useState<string | null>(null)
-  const [launchDraftSeeding, setLaunchDraftSeeding] = useState(false)
-  const [launchDraftResult, setLaunchDraftResult] = useState<LaunchDraftSeedResult | null>(null)
+  const [launchApprovalRunning, setLaunchApprovalRunning] = useState(false)
+  const [launchApprovalResult, setLaunchApprovalResult] = useState<LaunchApprovalResult | null>(null)
   const [activeWorkflowView, setActiveWorkflowView] = useState<WorkflowView>('review')
 
   // Extraction trigger state
@@ -466,13 +476,13 @@ function SocialContentQueuePage() {
     }
   }
 
-  const seedLaunchDrafts = async () => {
-    setLaunchDraftSeeding(true)
-    setLaunchDraftResult(null)
+  const approveLaunchPackage = async () => {
+    setLaunchApprovalRunning(true)
+    setLaunchApprovalResult(null)
     try {
       const session = await getCurrentSession()
       if (!session) return
-      const res = await fetch('/api/admin/social-content/launch-drafts', {
+      const res = await fetch('/api/admin/social-content/launch-approvals', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -481,25 +491,35 @@ function SocialContentQueuePage() {
         body: JSON.stringify({}),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to seed launch drafts')
-      setLaunchDraftResult({
-        success: true,
-        message: `${data.summary?.inserted ?? 0} launch draft${data.summary?.inserted === 1 ? '' : 's'} created. ${data.summary?.existing ?? 0} already existed.`,
+      if (!res.ok && res.status !== 207) throw new Error(data.error || 'Failed to approve launch package')
+      const approvedCount = data.summary?.approved ?? 0
+      const failedCount = data.summary?.failed ?? 0
+      setLaunchApprovalResult({
+        success: failedCount === 0,
+        message: failedCount === 0
+          ? `${approvedCount} launch draft${approvedCount === 1 ? '' : 's'} internally approved. External execution remains gated.`
+          : `${approvedCount} launch draft${approvedCount === 1 ? '' : 's'} approved; ${failedCount} need manual review.`,
         inserted: data.inserted ?? [],
         existing: data.existing ?? [],
+        approved: data.approved ?? [],
+        failed: data.failed ?? [],
+        remainingExternalGates: data.remainingExternalGates ?? [],
       })
-      setStatusFilter('draft')
+      setStatusFilter('approved')
       setPlatformFilter('linkedin')
       await fetchItems(1)
     } catch (err) {
-      setLaunchDraftResult({
+      setLaunchApprovalResult({
         success: false,
-        message: err instanceof Error ? err.message : 'Failed to seed launch drafts.',
+        message: err instanceof Error ? err.message : 'Failed to approve launch package.',
         inserted: [],
         existing: [],
+        approved: [],
+        failed: [],
+        remainingExternalGates: [],
       })
     } finally {
-      setLaunchDraftSeeding(false)
+      setLaunchApprovalRunning(false)
     }
   }
 
@@ -665,43 +685,72 @@ function SocialContentQueuePage() {
           </span>
         </div>
 
-        <div className="mt-4 flex flex-col gap-3 rounded-lg border border-silicon-slate/80 bg-background/35 p-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="mt-4 flex flex-col gap-3 rounded-lg border border-radiant-gold/40 bg-radiant-gold/10 p-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h3 className="text-sm font-semibold text-gray-200">Seed launch-week drafts</h3>
+            <h3 className="text-sm font-semibold text-gray-200">Approve launch package</h3>
             <p className="mt-1 max-w-2xl text-xs leading-5 text-muted-foreground">
-              Create draft-only Social Content rows from the challenger-cleared launch packet. This does not schedule, publish, send outreach, generate visuals, or call providers.
+              Creates missing draft-only rows, approves the challenger-cleared launch drafts, and opens post-approval handoff work. It still does not schedule, publish, send outreach, build visuals, or call providers.
             </p>
           </div>
           <button
             type="button"
-            onClick={seedLaunchDrafts}
-            disabled={launchDraftSeeding}
+            onClick={approveLaunchPackage}
+            disabled={launchApprovalRunning}
             className="admin-console-button-primary shrink-0 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {launchDraftSeeding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-            {launchDraftSeeding ? 'Seeding...' : 'Seed Drafts'}
+            {launchApprovalRunning ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+            {launchApprovalRunning ? 'Approving...' : 'Approve Launch Package'}
           </button>
         </div>
 
-        {launchDraftResult && (
+        {launchApprovalResult && (
           <div className={`mt-3 rounded-lg border px-4 py-3 text-sm ${
-            launchDraftResult.success
+            launchApprovalResult.success
               ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
               : 'border-red-500/30 bg-red-500/10 text-red-300'
           }`}>
             <div className="flex items-center gap-2">
-              {launchDraftResult.success ? <CheckCircle2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
-              <span>{launchDraftResult.message}</span>
+              {launchApprovalResult.success ? <CheckCircle2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
+              <span>{launchApprovalResult.message}</span>
             </div>
-            {launchDraftResult.success && (launchDraftResult.inserted.length > 0 || launchDraftResult.existing.length > 0) && (
-              <div className="mt-2 flex flex-wrap gap-2">
-                {[...launchDraftResult.inserted, ...launchDraftResult.existing].map((draft) => (
+            <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-3">
+              <span className="rounded-md border border-silicon-slate bg-imperial-navy/40 px-2.5 py-2">
+                {launchApprovalResult.inserted.length} seeded
+              </span>
+              <span className="rounded-md border border-silicon-slate bg-imperial-navy/40 px-2.5 py-2">
+                {launchApprovalResult.existing.length} already existed
+              </span>
+              <span className="rounded-md border border-silicon-slate bg-imperial-navy/40 px-2.5 py-2">
+                {launchApprovalResult.approved.length} internally approved
+              </span>
+            </div>
+            {launchApprovalResult.remainingExternalGates.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {launchApprovalResult.remainingExternalGates.map((gate) => (
+                  <span key={gate} className="rounded-full border border-radiant-gold/30 bg-imperial-navy/50 px-2.5 py-1 text-xs text-radiant-gold">
+                    {gate.replace(/_/g, ' ')} still gated
+                  </span>
+                ))}
+              </div>
+            )}
+            {(launchApprovalResult.approved.length > 0 || launchApprovalResult.failed.length > 0) && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {launchApprovalResult.approved.map((draft) => (
                   <Link
                     key={`${draft.assetId ?? draft.id}:${draft.id}`}
                     href={draft.href}
                     className="inline-flex items-center gap-1 rounded-full border border-radiant-gold/30 px-2.5 py-1 text-xs text-radiant-gold hover:bg-radiant-gold/10"
                   >
-                    Open draft <Eye className="h-3 w-3" />
+                    Open approved draft <Eye className="h-3 w-3" />
+                  </Link>
+                ))}
+                {launchApprovalResult.failed.map((draft) => (
+                  <Link
+                    key={`${draft.assetId ?? draft.id}:${draft.id}:failed`}
+                    href={draft.href}
+                    className="inline-flex items-center gap-1 rounded-full border border-red-500/30 px-2.5 py-1 text-xs text-red-300 hover:bg-red-500/10"
+                  >
+                    Review failed draft <AlertCircle className="h-3 w-3" />
                   </Link>
                 ))}
               </div>
