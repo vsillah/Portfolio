@@ -75,4 +75,16 @@ describe('agentic content review packet registry', () => {
       'p2-client-one-pager-governed-agentic-operations',
     ])
   })
+
+  it('keeps social review packets self-contained enough for inline human review', () => {
+    const socialPackets = getAgenticContentReviewPacketsForSurface('social')
+
+    for (const packet of socialPackets) {
+      expect(packet.evidencePacket?.draftPreview).toMatch(/\w/)
+      expect(packet.evidencePacket?.sourceBasis.length).toBeGreaterThanOrEqual(2)
+      expect(packet.evidencePacket?.challengerFindings.join(' ')).toMatch(/Amina/)
+      expect(packet.evidencePacket?.humanChecks.length).toBeGreaterThan(0)
+      expect(packet.evidencePacket?.closedGates.join(' ')).toMatch(/Publishing|scheduling/)
+    }
+  })
 })
