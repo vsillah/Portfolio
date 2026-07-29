@@ -45,6 +45,7 @@ type AgenticContentReviewPacketCardProps = {
   nextGateHref?: string
   nextGateLabel?: string
   decisionNote?: string
+  showDecisionActions?: boolean
 }
 
 export default function AgenticContentReviewPacketCard({
@@ -52,6 +53,7 @@ export default function AgenticContentReviewPacketCard({
   nextGateHref,
   nextGateLabel = 'Open current queue',
   decisionNote,
+  showDecisionActions = true,
 }: AgenticContentReviewPacketCardProps) {
   const copy = surfaceCopy(packet)
   const hasDecisionNote = Boolean(decisionNote?.trim())
@@ -167,32 +169,34 @@ export default function AgenticContentReviewPacketCard({
         </div>
       ) : null}
 
-      <div className="mt-3 flex flex-wrap gap-2 text-xs">
-        <Link
-          href={buildAgenticContentReviewActionHref(packet, 'approve_next_gate')}
-          title={copy.approveHelp}
-          className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-md border border-emerald-500/45 bg-emerald-500/15 px-3 py-2 font-semibold text-emerald-100 transition-colors hover:border-emerald-300 hover:bg-emerald-500/25 sm:flex-none"
-        >
-          <CheckCircle2 className="h-3.5 w-3.5" />
-          {copy.approveLabel}
-        </Link>
-        <Link
-          href={buildAgenticContentReviewActionHref(packet, 'send_back_for_repair', decisionNote)}
-          title={sendBackHelp}
-          className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-md border border-amber-500/45 bg-amber-500/15 px-3 py-2 font-semibold text-amber-100 transition-colors hover:border-amber-300 hover:bg-amber-500/25 sm:flex-none"
-        >
-          <RotateCcw className="h-3.5 w-3.5" />
-          Send back
-        </Link>
-        <Link
-          href={buildAgenticContentReviewActionHref(packet, 'hold_for_human', decisionNote)}
-          title="Frames the unresolved risk for a human-only decision."
-          className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-md border border-rose-500/40 bg-rose-500/15 px-3 py-2 font-semibold text-rose-100 transition-colors hover:border-rose-300 hover:bg-rose-500/25 sm:flex-none"
-        >
-          <PauseCircle className="h-3.5 w-3.5" />
-          Hold
-        </Link>
-      </div>
+      {showDecisionActions ? (
+        <div className="mt-3 flex flex-wrap gap-2 text-xs">
+          <Link
+            href={buildAgenticContentReviewActionHref(packet, 'approve_next_gate')}
+            title={copy.approveHelp}
+            className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-md border border-emerald-500/45 bg-emerald-500/15 px-3 py-2 font-semibold text-emerald-100 transition-colors hover:border-emerald-300 hover:bg-emerald-500/25 sm:flex-none"
+          >
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            {copy.approveLabel}
+          </Link>
+          <Link
+            href={buildAgenticContentReviewActionHref(packet, 'send_back_for_repair', decisionNote)}
+            title={sendBackHelp}
+            className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-md border border-amber-500/45 bg-amber-500/15 px-3 py-2 font-semibold text-amber-100 transition-colors hover:border-amber-300 hover:bg-amber-500/25 sm:flex-none"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+            Send back
+          </Link>
+          <Link
+            href={buildAgenticContentReviewActionHref(packet, 'hold_for_human', decisionNote)}
+            title="Frames the unresolved risk for a human-only decision."
+            className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-md border border-rose-500/40 bg-rose-500/15 px-3 py-2 font-semibold text-rose-100 transition-colors hover:border-rose-300 hover:bg-rose-500/25 sm:flex-none"
+          >
+            <PauseCircle className="h-3.5 w-3.5" />
+            Hold
+          </Link>
+        </div>
+      ) : null}
     </div>
   )
 }

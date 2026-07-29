@@ -9,12 +9,14 @@ type AgenticContentReviewPacketPagerProps = {
   packets: AgenticContentReviewPacket[]
   nextGateHref?: string
   nextGateLabel?: string
+  showDecisionActions?: boolean
 }
 
 export default function AgenticContentReviewPacketPager({
   packets,
   nextGateHref,
   nextGateLabel,
+  showDecisionActions = true,
 }: AgenticContentReviewPacketPagerProps) {
   const [activePacketIndex, setActivePacketIndex] = useState(0)
   const packetCount = packets.length
@@ -85,6 +87,7 @@ export default function AgenticContentReviewPacketPager({
           packet={activePacket}
           nextGateHref={nextGateHref}
           nextGateLabel={nextGateLabel}
+          showDecisionActions={showDecisionActions}
         />
       </div>
     </section>

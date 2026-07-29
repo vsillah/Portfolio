@@ -762,6 +762,7 @@ function SocialContentQueuePage() {
           packets={AGENTIC_SOCIAL_REVIEW_PACKETS}
           nextGateHref="#social-content-approval-queue"
           nextGateLabel="Open approval queue"
+          showDecisionActions={false}
         />
       </div>
       )}

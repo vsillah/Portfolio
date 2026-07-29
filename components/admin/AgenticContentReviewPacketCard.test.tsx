@@ -49,4 +49,25 @@ describe('AgenticContentReviewPacketCard', () => {
     expect(screen.queryByText(/Approve path:/i)).not.toBeInTheDocument()
     expect(screen.queryByText(/Send back:/i)).not.toBeInTheDocument()
   })
+
+  it('can render as evidence-only when another approval control owns the workflow', () => {
+    const packet = getAgenticContentReviewPacketByAssetId('p0-linkedin-flagship-agentic-operating-system')
+
+    expect(packet).not.toBeNull()
+    render(
+      <AgenticContentReviewPacketCard
+        packet={packet!}
+        nextGateHref="#social-content-approval-queue"
+        nextGateLabel="Open approval queue"
+        showDecisionActions={false}
+      />,
+    )
+
+    expect(screen.getByText('Evidence packet')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Open source draft' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Open approval queue' })).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Approve next gate' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Send back' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Hold' })).not.toBeInTheDocument()
+  })
 })

@@ -1121,6 +1121,9 @@ function GoalPlanner({
   onUpdateTask: (taskId: string, patch: Partial<AgentGoalDraft['tasks'][number]>) => void
   onRemoveTask: (taskId: string) => void
 }) {
+  const fieldClassName =
+    'mt-1 w-full rounded-md border border-silicon-slate/70 bg-[#0b1726]/90 px-2 py-1.5 text-sm text-slate-100 shadow-inner outline-none placeholder:text-slate-500 focus:border-radiant-gold/70 focus:ring-2 focus:ring-radiant-gold/20'
+  const selectFieldClassName = `${fieldClassName} [&>option]:bg-[#0b1726] [&>option]:text-slate-100`
   const requiredReadiness = goalDraft?.readiness_checklist?.filter((item) => item.required) ?? []
   const incompleteReadiness = requiredReadiness.filter((item) => item.status !== 'ready')
   const readyToDelegate = Boolean(
@@ -1337,7 +1340,7 @@ function GoalPlanner({
                         <input
                           value={task.title}
                           onChange={(event) => onUpdateTask(task.id, { title: event.target.value })}
-                          className="mt-1 w-full rounded-md border border-silicon-slate/60 bg-background/70 px-2 py-1.5 text-sm text-foreground outline-none focus:border-radiant-gold/70"
+                          className={fieldClassName}
                         />
                       </label>
                       <label className="text-xs text-muted-foreground">
@@ -1345,7 +1348,7 @@ function GoalPlanner({
                         <select
                           value={task.owner_agent_key}
                           onChange={(event) => onUpdateTask(task.id, { owner_agent_key: event.target.value })}
-                          className="mt-1 w-full rounded-md border border-silicon-slate/60 bg-background/70 px-2 py-1.5 text-sm text-foreground outline-none focus:border-radiant-gold/70"
+                          className={selectFieldClassName}
                         >
                           {participants.map((agent) => (
                             <option key={agent.key} value={agent.key}>{agentShortName(agent.name)}</option>
@@ -1357,7 +1360,7 @@ function GoalPlanner({
                         <select
                           value={task.priority}
                           onChange={(event) => onUpdateTask(task.id, { priority: event.target.value as AgentGoalDraft['tasks'][number]['priority'] })}
-                          className="mt-1 w-full rounded-md border border-silicon-slate/60 bg-background/70 px-2 py-1.5 text-sm text-foreground outline-none focus:border-radiant-gold/70"
+                          className={selectFieldClassName}
                         >
                           {['urgent', 'high', 'medium', 'low'].map((priority) => <option key={priority} value={priority}>{priority}</option>)}
                         </select>
@@ -1370,7 +1373,7 @@ function GoalPlanner({
                           max={5}
                           value={task.goal_progress_weight}
                           onChange={(event) => onUpdateTask(task.id, { goal_progress_weight: Number(event.target.value) || 1 })}
-                          className="mt-1 w-full rounded-md border border-silicon-slate/60 bg-background/70 px-2 py-1.5 text-sm text-foreground outline-none focus:border-radiant-gold/70"
+                          className={fieldClassName}
                         />
                       </label>
                       <button
@@ -1388,7 +1391,7 @@ function GoalPlanner({
                         value={task.objective}
                         onChange={(event) => onUpdateTask(task.id, { objective: event.target.value })}
                         rows={2}
-                        className="mt-1 w-full rounded-md border border-silicon-slate/60 bg-background/70 px-2 py-1.5 text-sm text-foreground outline-none focus:border-radiant-gold/70"
+                        className={fieldClassName}
                       />
                     </label>
                     <div className="mt-2 grid gap-2 lg:grid-cols-3">
@@ -1398,7 +1401,7 @@ function GoalPlanner({
                           value={task.dependencies.join('\n')}
                           onChange={(event) => onUpdateTask(task.id, { dependencies: textareaLines(event.target.value) })}
                           rows={3}
-                          className="mt-1 w-full rounded-md border border-silicon-slate/60 bg-background/70 px-2 py-1.5 text-sm text-foreground outline-none focus:border-radiant-gold/70"
+                          className={fieldClassName}
                           placeholder="One dependency id per line"
                         />
                       </label>
@@ -1408,7 +1411,7 @@ function GoalPlanner({
                           value={task.acceptance_criteria.join('\n')}
                           onChange={(event) => onUpdateTask(task.id, { acceptance_criteria: textareaLines(event.target.value) })}
                           rows={3}
-                          className="mt-1 w-full rounded-md border border-silicon-slate/60 bg-background/70 px-2 py-1.5 text-sm text-foreground outline-none focus:border-radiant-gold/70"
+                          className={fieldClassName}
                           placeholder="One acceptance criterion per line"
                         />
                       </label>
@@ -1418,7 +1421,7 @@ function GoalPlanner({
                           value={task.expected_files.join('\n')}
                           onChange={(event) => onUpdateTask(task.id, { expected_files: textareaLines(event.target.value) })}
                           rows={3}
-                          className="mt-1 w-full rounded-md border border-silicon-slate/60 bg-background/70 px-2 py-1.5 text-sm text-foreground outline-none focus:border-radiant-gold/70"
+                          className={fieldClassName}
                           placeholder="One file or surface per line"
                         />
                       </label>
@@ -1428,7 +1431,7 @@ function GoalPlanner({
                       <input
                         value={task.risk_notes}
                         onChange={(event) => onUpdateTask(task.id, { risk_notes: event.target.value })}
-                        className="mt-1 w-full rounded-md border border-silicon-slate/60 bg-background/70 px-2 py-1.5 text-sm text-foreground outline-none focus:border-radiant-gold/70"
+                        className={fieldClassName}
                       />
                     </label>
                   </div>

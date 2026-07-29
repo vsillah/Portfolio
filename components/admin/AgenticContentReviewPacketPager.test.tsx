@@ -39,4 +39,23 @@ describe('AgenticContentReviewPacketPager', () => {
 
     expect(screen.getByText('No review packets are ready yet.')).toBeInTheDocument()
   })
+
+  it('can page evidence packets without rendering per-packet decision actions', () => {
+    const packets = getAgenticContentReviewPacketsForSurface('social')
+
+    render(
+      <AgenticContentReviewPacketPager
+        packets={packets}
+        nextGateHref="#social-content-approval-queue"
+        nextGateLabel="Open approval queue"
+        showDecisionActions={false}
+      />,
+    )
+
+    expect(screen.getByText(`Packet 1 of ${packets.length}`)).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Approve next gate' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Send back' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Hold' })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Open approval queue' })).toBeInTheDocument()
+  })
 })
