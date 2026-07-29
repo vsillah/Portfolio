@@ -244,7 +244,7 @@ type AcronymClarityIssue = AcronymDefinition & {
   status: 'ready' | 'needs_expansion'
 }
 
-type CopyRevisionAction = 'feedback' | 'generate' | null
+type CopyRevisionAction = 'generate' | null
 
 const SOCIAL_COPY_ACRONYMS: AcronymDefinition[] = [
   {
@@ -966,7 +966,7 @@ function SocialContentDetailPage() {
     showMsg('success', 'Topic from Shaka backlog added to the copy review')
   }
 
-  const handleRequestCopyRevision = async (generateRevision: boolean) => {
+  const handleRequestCopyRevision = async () => {
     if (!item) return
     const triggeringEvent = calibrationFeedback.triggering_event.trim()
     const revisionRequest = copyRevisionRequest.trim()
@@ -991,7 +991,7 @@ function SocialContentDetailPage() {
         ...existingRag,
         content_calibration: {
           ...existingCalibration,
-          status: generateRevision ? 'revision_generation_requested' : 'revision_requested',
+          status: 'revision_generation_requested',
           operator_feedback: feedback,
           approval_reversal: {
             reverted_at: requestedAt,
@@ -1004,11 +1004,7 @@ function SocialContentDetailPage() {
               created_at: requestedAt,
               previous_status: item.status,
               request: revisionRequest,
-              action: generateRevision
-                ? 'reject_and_generate_revision'
-                : copyRevisionIsApprovalRollback
-                  ? 'reopen_for_revision'
-                  : 'reject_with_feedback',
+              action: 'reject_and_generate_revision',
             },
           ].slice(-10),
         },
@@ -1044,14 +1040,6 @@ function SocialContentDetailPage() {
         ...current,
         revision_request: revisionRequest,
       }))
-
-      if (!generateRevision) {
-        setCopyRevisionAction(null)
-        showMsg('success', copyRevisionIsApprovalRollback
-          ? 'Approval reverted. Revision feedback saved.'
-          : 'Draft rejected. Feedback saved for iteration.')
-        return
-      }
 
       const revisionRes = await fetch(`/api/admin/social-content/${id}/calibration-revision`, {
         method: 'POST',
@@ -1091,7 +1079,7 @@ function SocialContentDetailPage() {
       setCopyRevisionAction(action)
       return
     }
-    handleRequestCopyRevision(action === 'generate')
+    handleRequestCopyRevision()
   }
 
   const handleCancelCopyRevision = () => {
@@ -1776,29 +1764,13 @@ function SocialContentDetailPage() {
   const copyRevisionIsApprovalRollback = item.status === 'approved'
   const copyRevisionDetailsOpen = copyRevisionAction !== null
   const copyRevisionHasContext = Boolean(copyRevisionRequest.trim() || calibrationFeedback.triggering_event.trim())
-  const copyRevisionFeedbackButtonLabel = copyRevisionAction === 'feedback' && !copyRevisionHasContext
-    ? 'Add Feedback to Continue'
-    : copyRevisionIsApprovalRollback
-      ? 'Reopen for Revision'
-      : 'Reject with Feedback'
   const copyRevisionGenerateButtonLabel = copyRevisionAction === 'generate' && !copyRevisionHasContext
     ? 'Add Feedback to Generate'
-    : 'Reject and Generate Revision'
+    : copyRevisionIsApprovalRollback
+      ? 'Reopen and Generate Revision'
+      : 'Reject and Generate Revision'
   const copyRevisionActionButtons = canRequestCopyRevision ? (
     <div className="flex flex-wrap items-center gap-2">
-      <button
-        type="button"
-        onClick={() => handleCopyRevisionAction('feedback')}
-        disabled={requestingCopyRevision || (copyRevisionAction === 'feedback' && !copyRevisionHasContext)}
-        className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
-          copyRevisionAction === 'feedback'
-            ? 'border-amber-300 bg-amber-500/15 text-amber-50'
-            : 'border-amber-400/45 text-amber-100 hover:bg-amber-500/10'
-        }`}
-      >
-        {requestingCopyRevision ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
-        {copyRevisionFeedbackButtonLabel}
-      </button>
       <button
         type="button"
         onClick={() => handleCopyRevisionAction('generate')}

@@ -146,12 +146,12 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.queryByText(/Mark this draft rejected/i)).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Triggering event or recent proof')).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Revision feedback for Shaka')).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Reopen for Revision/i })).not.toBeDisabled()
-    expect(screen.getByRole('button', { name: /Reject and Generate Revision/i })).not.toBeDisabled()
-    fireEvent.click(screen.getByRole('button', { name: /Reopen for Revision/i }))
+    expect(screen.queryByRole('button', { name: /Reject with Feedback/i })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Reopen and Generate Revision/i })).not.toBeDisabled()
+    fireEvent.click(screen.getByRole('button', { name: /Reopen and Generate Revision/i }))
     expect(screen.getByLabelText('Triggering event or recent proof')).not.toBeDisabled()
     expect(screen.getByLabelText('Revision feedback for Shaka')).not.toBeDisabled()
-    expect(screen.getByRole('button', { name: /Add Feedback to Continue/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Add Feedback to Generate/i })).toBeDisabled()
     expect(screen.getByDisplayValue('The draft copy is approved and should stay locked.')).toBeDisabled()
     expect(screen.getByText('AmaduTown')).toBeInTheDocument()
     expect(screen.queryByText('Amadou Town')).not.toBeInTheDocument()
@@ -223,8 +223,8 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /Use topic/i }))
 
-    expect(screen.getByRole('button', { name: /Reject and Generate Revision/i })).not.toBeDisabled()
-    fireEvent.click(screen.getByRole('button', { name: /Reject and Generate Revision/i }))
+    expect(screen.getByRole('button', { name: /Reopen and Generate Revision/i })).not.toBeDisabled()
+    fireEvent.click(screen.getByRole('button', { name: /Reopen and Generate Revision/i }))
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
         expect.stringContaining('/api/admin/social-content/topic-backlog'),
@@ -333,7 +333,8 @@ describe('SocialContentDetailRoute visual production review', () => {
     const decisionGate = screen.getByText('Copy Review Decision').closest('section')
     expect(decisionGate).not.toBeNull()
     expect(within(decisionGate as HTMLElement).getByRole('button', { name: /Approve Draft & Next/i })).not.toBeDisabled()
-    expect(within(decisionGate as HTMLElement).getByRole('button', { name: /Reject with Feedback/i })).toBeInTheDocument()
+    expect(within(decisionGate as HTMLElement).queryByRole('button', { name: /Reject with Feedback/i })).not.toBeInTheDocument()
+    expect(within(decisionGate as HTMLElement).getByRole('button', { name: /Reject and Generate Revision/i })).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: /Approve Draft & Next/i }))
 
@@ -403,15 +404,16 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByRole('button', { name: /Approve Draft/i })).not.toBeDisabled()
 
     expect(screen.queryByLabelText('Revision feedback for Shaka')).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /Reject with Feedback/i }))
+    expect(screen.queryByRole('button', { name: /Reject with Feedback/i })).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /Reject and Generate Revision/i }))
     expect(screen.getByRole('button', { name: /Cancel feedback/i })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: /Cancel feedback/i }))
     expect(screen.queryByLabelText('Revision feedback for Shaka')).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /Reject with Feedback/i }))
+    fireEvent.click(screen.getByRole('button', { name: /Reject and Generate Revision/i }))
     fireEvent.change(screen.getByLabelText('Revision feedback for Shaka'), {
       target: { value: 'The framework reference is clear now, but the opening still needs a more concrete scene.' },
     })
-    fireEvent.click(screen.getByRole('button', { name: /Reject with Feedback/i }))
+    fireEvent.click(screen.getByRole('button', { name: /Reject and Generate Revision/i }))
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
@@ -422,11 +424,11 @@ describe('SocialContentDetailRoute visual production review', () => {
     const rejectCall = fetchMock.mock.calls.find(([, init]) => init?.method === 'PUT')
     const body = JSON.parse(String(rejectCall?.[1]?.body))
     expect(body.status).toBe('rejected')
-    expect(body.rag_context.content_calibration.status).toBe('revision_requested')
+    expect(body.rag_context.content_calibration.status).toBe('revision_generation_requested')
     expect(body.rag_context.content_calibration.operator_feedback.revision_request).toContain('concrete scene')
     expect(body.rag_context.content_calibration.revision_requests[0]).toMatchObject({
       previous_status: 'draft',
-      action: 'reject_with_feedback',
+      action: 'reject_and_generate_revision',
     })
     expect(body.admin_notes).toContain('Copy revision requested')
   })
@@ -926,7 +928,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(await screen.findByText('Post Text')).toBeInTheDocument()
     expect(screen.queryByText('Request copy revision')).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Triggering event or recent proof')).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /Reject and Generate Revision/i }))
+    fireEvent.click(screen.getByRole('button', { name: /Reopen and Generate Revision/i }))
     const triggeringEventInput = screen.getByLabelText('Triggering event or recent proof')
     expect(triggeringEventInput).toBeTruthy()
     fireEvent.change(triggeringEventInput as HTMLTextAreaElement, {
@@ -935,7 +937,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     fireEvent.change(screen.getByLabelText('Revision feedback for Shaka'), {
       target: { value: feedback },
     })
-    fireEvent.click(screen.getByRole('button', { name: /Reject and Generate Revision/i }))
+    fireEvent.click(screen.getByRole('button', { name: /Reopen and Generate Revision/i }))
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
