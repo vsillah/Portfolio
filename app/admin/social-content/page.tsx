@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback, useRef, type ReactNode } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { buildLinkWithReturn } from '@/lib/admin-return-context'
@@ -108,6 +108,8 @@ interface LaunchDraftSeedResult {
   existing: LaunchDraftSeedLink[]
 }
 
+type WorkflowView = 'review' | 'evidence' | 'create'
+
 const VOICE_NOTE_OUTPUTS = [
   { value: 'linkedin_post', label: 'LinkedIn' },
   { value: 'linkedin_carousel', label: 'Carousel' },
@@ -132,8 +134,7 @@ function SocialContentQueuePage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [launchDraftSeeding, setLaunchDraftSeeding] = useState(false)
   const [launchDraftResult, setLaunchDraftResult] = useState<LaunchDraftSeedResult | null>(null)
-  const [showPlanningPanel, setShowPlanningPanel] = useState(false)
-  const [showCreationTools, setShowCreationTools] = useState(false)
+  const [activeWorkflowView, setActiveWorkflowView] = useState<WorkflowView>('review')
 
   // Extraction trigger state
   const [meetings, setMeetings] = useState<MeetingRecord[]>([])
@@ -553,6 +554,36 @@ function SocialContentQueuePage() {
     return <Share2 className="w-4 h-4 text-gray-400" />
   }
 
+  const workflowViews: Array<{
+    id: WorkflowView
+    label: string
+    description: string
+    metric: string
+    icon: ReactNode
+  }> = [
+    {
+      id: 'review',
+      label: 'Review draft queue',
+      description: 'Approve, revise, or inspect actual content drafts.',
+      metric: `${stats.draft} drafts`,
+      icon: <CheckCircle2 className="h-4 w-4" />,
+    },
+    {
+      id: 'evidence',
+      label: 'Launch evidence',
+      description: 'Review source packets, challenger results, and seeded draft gates.',
+      metric: `${AGENTIC_SOCIAL_REVIEW_PACKETS.length} packets`,
+      icon: <FileText className="h-4 w-4" />,
+    },
+    {
+      id: 'create',
+      label: 'Create content',
+      description: 'Use meetings or voice notes to create internal draft packages.',
+      metric: 'Intake tools',
+      icon: <Sparkles className="h-4 w-4" />,
+    },
+  ]
+
   return (
     <div className="admin-console-page min-h-screen p-6 text-foreground lg:p-8">
       <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Social Content' }]} />
@@ -575,43 +606,51 @@ function SocialContentQueuePage() {
             <div className="admin-console-eyebrow mb-2">Workflow focus</div>
             <h2 className="text-lg font-semibold text-foreground">Choose the job you are doing now</h2>
             <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-              The queue below is for approving actual drafts. Open the supporting panels only when you need launch evidence or new content intake.
+              Select a work mode to keep review, evidence, and intake from competing in the same scroll.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <a
-              href="#social-content-approval-queue"
-              className="admin-console-button-primary"
-            >
-              Review draft queue
-            </a>
-            <button
-              type="button"
-              onClick={() => setShowPlanningPanel((value) => !value)}
-              className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
-                showPlanningPanel
-                  ? 'border-radiant-gold/60 bg-radiant-gold/15 text-radiant-gold'
-                  : 'border-silicon-slate bg-background/40 text-gray-200 hover:border-radiant-gold/40 hover:text-radiant-gold'
-              }`}
-            >
-              {showPlanningPanel ? 'Hide launch evidence' : 'Show launch evidence'}
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowCreationTools((value) => !value)}
-              className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
-                showCreationTools
-                  ? 'border-radiant-gold/60 bg-radiant-gold/15 text-radiant-gold'
-                  : 'border-silicon-slate bg-background/40 text-gray-200 hover:border-radiant-gold/40 hover:text-radiant-gold'
-              }`}
-            >
-              {showCreationTools ? 'Hide creation tools' : 'Show creation tools'}
-            </button>
-          </div>
+        </div>
+        <div className="mt-4 grid gap-3 lg:grid-cols-3" role="tablist" aria-label="Social content workflow views">
+          {workflowViews.map((view) => {
+            const isActive = activeWorkflowView === view.id
+            return (
+              <button
+                key={view.id}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => setActiveWorkflowView(view.id)}
+                className={`rounded-lg border p-4 text-left transition-colors ${
+                  isActive
+                    ? 'border-radiant-gold/70 bg-radiant-gold/15 text-foreground shadow-[0_0_0_1px_rgba(226,194,93,0.22)]'
+                    : 'border-silicon-slate bg-background/35 text-muted-foreground hover:border-radiant-gold/40 hover:bg-background/55 hover:text-foreground'
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <span className={`inline-flex h-9 w-9 items-center justify-center rounded-lg border ${
+                    isActive
+                      ? 'border-radiant-gold/50 bg-radiant-gold/20 text-radiant-gold'
+                      : 'border-silicon-slate bg-imperial-navy/50 text-gray-400'
+                  }`}>
+                    {view.icon}
+                  </span>
+                  <span className={`rounded-full border px-2.5 py-1 text-xs ${
+                    isActive
+                      ? 'border-radiant-gold/40 bg-radiant-gold/10 text-radiant-gold'
+                      : 'border-silicon-slate bg-imperial-navy/50 text-gray-400'
+                  }`}>
+                    {view.metric}
+                  </span>
+                </div>
+                <div className="mt-3 text-sm font-semibold text-foreground">{view.label}</div>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">{view.description}</p>
+              </button>
+            )
+          })}
         </div>
       </div>
 
-      {showPlanningPanel && (
+      {activeWorkflowView === 'evidence' && (
       <div className="admin-console-card mb-6 rounded-lg border p-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -683,7 +722,7 @@ function SocialContentQueuePage() {
       </div>
       )}
 
-      {showCreationTools && (
+      {activeWorkflowView === 'create' && (
       <>
       {/* Extraction Trigger */}
       <div className="admin-console-card mb-6 rounded-lg border p-4">
@@ -1194,6 +1233,8 @@ function SocialContentQueuePage() {
       </>
       )}
 
+      {activeWorkflowView === 'review' && (
+      <>
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6">
         {[
@@ -1380,6 +1421,8 @@ function SocialContentQueuePage() {
             </button>
           </div>
         </div>
+      )}
+      </>
       )}
     </div>
   )
