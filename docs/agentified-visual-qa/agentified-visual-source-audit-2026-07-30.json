@@ -1,0 +1,727 @@
+{
+  "version": "agentified_visual_source_audit_v1",
+  "date": "2026-07-30",
+  "campaign_slug": "agentified-trust-scale-2026-07",
+  "side_effects": {
+    "publishes_external_posts": false,
+    "schedules_external_posts": false,
+    "uploads_media": false,
+    "creates_provider_drafts": false,
+    "mutates_database": false
+  },
+  "source_counts": {
+    "repo": 151,
+    "drive": 688
+  },
+  "reviews": [
+    {
+      "asset_id": "AGT-LI-01",
+      "title": "The speed problem is becoming a trust problem",
+      "channel": "linkedin",
+      "phase": "tease",
+      "draft_asset_path": "agentified/campaign/draft-assets.md#agt-li-01",
+      "planned_angle": "Open the campaign with the central operating tension: teams can move faster than their review systems can trust.",
+      "selected_candidates": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/cover-comps/agentified-cover-a-sam-trust-engine.png",
+          "source": "repo",
+          "type": "image",
+          "score": 84,
+          "reasons": [
+            "matches sam-trust",
+            "matches cover",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1800,
+          "height": 2700
+        },
+        {
+          "path": "agentified/source-assets/cover-bases/agentified-cover-a-sam-trust-engine-base.png",
+          "source": "repo",
+          "type": "image",
+          "score": 84,
+          "reasons": [
+            "matches sam-trust",
+            "matches cover",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1024,
+          "height": 1536
+        },
+        {
+          "path": "agentified/manuscript/visuals/rendered/cover-comps/agentified-cover-b-receipt-gate.png",
+          "source": "repo",
+          "type": "image",
+          "score": 74,
+          "reasons": [
+            "matches receipt",
+            "matches cover",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1800,
+          "height": 2700
+        },
+        {
+          "path": "agentified/source-assets/cover-bases/agentified-cover-b-receipt-gate-base.png",
+          "source": "repo",
+          "type": "image",
+          "score": 74,
+          "reasons": [
+            "matches receipt",
+            "matches cover",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1024,
+          "height": 1536
+        },
+        {
+          "path": "agentified/manuscript/visuals/rendered/print/grayscale-preview-png/figure-0-1-sam-trust-layer-grayscale-preview.png",
+          "source": "repo",
+          "type": "image",
+          "score": 71,
+          "reasons": [
+            "matches sam-trust",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1600,
+          "height": 1000
+        }
+      ],
+      "criteria": {
+        "brand_fit": "pass",
+        "message_alignment": "pass",
+        "copy_consistency": "pass",
+        "linkedin_dimensions_mobile": "pass",
+        "accessibility_alt_text": "review",
+        "privacy_and_rights": "pass",
+        "visual_quality_artifacts": "pass",
+        "human_review_readiness": "pass"
+      },
+      "alt_text": "The speed problem is becoming a trust problem visual for the Agentified launch, showing the trust and operating-system idea behind the post.",
+      "recommendation": "Candidate can enter internal visual preparation, but human visual/privacy review remains required before provider handoff."
+    },
+    {
+      "asset_id": "AGT-LI-02",
+      "title": "The first agentic failure is usually a handoff failure",
+      "channel": "linkedin",
+      "phase": "tease",
+      "draft_asset_path": "agentified/campaign/draft-assets.md#agt-li-02",
+      "planned_angle": "Make the trust problem concrete through the missing context in agentic handoffs.",
+      "selected_candidates": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/figure-1-1-first-receipt.png",
+          "source": "repo",
+          "type": "image",
+          "score": 61,
+          "reasons": [
+            "matches receipt",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1600,
+          "height": 1000
+        },
+        {
+          "path": "agentified/manuscript/visuals/rendered/figure-1-1-first-receipt.svg",
+          "source": "repo",
+          "type": "svg",
+          "score": 61,
+          "reasons": [
+            "matches receipt",
+            "Agentified source",
+            "approved local visual source"
+          ]
+        },
+        {
+          "path": "agentified/manuscript/visuals/rendered/figure-8-1-portfolio-first-stack.png",
+          "source": "repo",
+          "type": "image",
+          "score": 61,
+          "reasons": [
+            "matches portfolio-first",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1600,
+          "height": 1000
+        },
+        {
+          "path": "agentified/manuscript/visuals/rendered/figure-8-1-portfolio-first-stack.svg",
+          "source": "repo",
+          "type": "svg",
+          "score": 61,
+          "reasons": [
+            "matches portfolio-first",
+            "Agentified source",
+            "approved local visual source"
+          ]
+        },
+        {
+          "path": "agentified/manuscript/visuals/rendered/print/color-600dpi/figure-1-1-first-receipt-print-600dpi.png",
+          "source": "repo",
+          "type": "image",
+          "score": 61,
+          "reasons": [
+            "matches receipt",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 3300,
+          "height": 2063
+        }
+      ],
+      "criteria": {
+        "brand_fit": "pass",
+        "message_alignment": "pass",
+        "copy_consistency": "pass",
+        "linkedin_dimensions_mobile": "review",
+        "accessibility_alt_text": "review",
+        "privacy_and_rights": "pass",
+        "visual_quality_artifacts": "review",
+        "human_review_readiness": "pass"
+      },
+      "alt_text": "The first agentic failure is usually a handoff failure visual for the Agentified launch, showing the trust and operating-system idea behind the post.",
+      "recommendation": "Candidate can enter internal visual preparation, but human visual/privacy review remains required before provider handoff."
+    },
+    {
+      "asset_id": "AGT-CAR-01",
+      "title": "AMINA: the operating loop for agentic work",
+      "channel": "linkedin",
+      "phase": "teach",
+      "draft_asset_path": "agentified/campaign/draft-assets.md#agt-car-01",
+      "planned_angle": "Teach Align, Map, Instrument, Negotiate, and Audit as the operating frame for trusted agentic work.",
+      "selected_candidates": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/figure-3-amina-inside-sam.png",
+          "source": "repo",
+          "type": "image",
+          "score": 79,
+          "reasons": [
+            "matches amina",
+            "matches sam",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1600,
+          "height": 1000
+        },
+        {
+          "path": "agentified/manuscript/visuals/rendered/figure-3-amina-inside-sam.svg",
+          "source": "repo",
+          "type": "svg",
+          "score": 79,
+          "reasons": [
+            "matches amina",
+            "matches sam",
+            "Agentified source",
+            "approved local visual source"
+          ]
+        },
+        {
+          "path": "agentified/manuscript/visuals/rendered/print/color-600dpi/figure-3-amina-inside-sam-print-600dpi.png",
+          "source": "repo",
+          "type": "image",
+          "score": 79,
+          "reasons": [
+            "matches amina",
+            "matches sam",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 3300,
+          "height": 2063
+        },
+        {
+          "path": "agentified/manuscript/visuals/rendered/print/grayscale-preview-png/figure-3-amina-inside-sam-grayscale-preview.png",
+          "source": "repo",
+          "type": "image",
+          "score": 79,
+          "reasons": [
+            "matches amina",
+            "matches sam",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1600,
+          "height": 1000
+        },
+        {
+          "path": "agentified/manuscript/visuals/rendered/print/monochrome/png-600dpi/figure-3-amina-inside-sam-monochrome-600dpi.png",
+          "source": "repo",
+          "type": "image",
+          "score": 79,
+          "reasons": [
+            "matches amina",
+            "matches sam",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 3300,
+          "height": 2063
+        }
+      ],
+      "criteria": {
+        "brand_fit": "pass",
+        "message_alignment": "pass",
+        "copy_consistency": "pass",
+        "linkedin_dimensions_mobile": "review",
+        "accessibility_alt_text": "review",
+        "privacy_and_rights": "pass",
+        "visual_quality_artifacts": "review",
+        "human_review_readiness": "pass"
+      },
+      "alt_text": "AMINA: the operating loop for agentic work carousel explaining Teach Align, Map, Instrument, Negotiate, and Audit as the operating frame for trusted agentic work.",
+      "recommendation": "Candidate can enter internal visual preparation, but human visual/privacy review remains required before provider handoff."
+    },
+    {
+      "asset_id": "AGT-LI-03",
+      "title": "What Accelerated taught me about Agentified",
+      "channel": "linkedin",
+      "phase": "teach",
+      "draft_asset_path": "agentified/campaign/draft-assets.md#agt-li-03",
+      "planned_angle": "Connect Agentified to the SAM loop lineage while making the new governance layer clear.",
+      "selected_candidates": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/print/color-600dpi/figure-0-0-accelerated-sam-loop-print-600dpi.png",
+          "source": "repo",
+          "type": "image",
+          "score": 99,
+          "reasons": [
+            "matches sam",
+            "matches accelerated",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 3300,
+          "height": 2742
+        },
+        {
+          "path": "agentified/manuscript/visuals/rendered/print/grayscale-preview-png/figure-0-0-accelerated-sam-loop-grayscale-preview.png",
+          "source": "repo",
+          "type": "image",
+          "score": 99,
+          "reasons": [
+            "matches sam",
+            "matches accelerated",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1136,
+          "height": 944
+        },
+        {
+          "path": "agentified/source-assets/accelerated/accelerated-sam-infographic.png",
+          "source": "repo",
+          "type": "image",
+          "score": 94,
+          "reasons": [
+            "matches sam",
+            "matches accelerated",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1136,
+          "height": 944
+        },
+        {
+          "path": "agentified/manuscript/visuals/rendered/figure-3-amina-inside-sam.png",
+          "source": "repo",
+          "type": "image",
+          "score": 89,
+          "reasons": [
+            "matches sam",
+            "matches amina",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1600,
+          "height": 1000
+        },
+        {
+          "path": "agentified/manuscript/visuals/rendered/figure-3-amina-inside-sam.svg",
+          "source": "repo",
+          "type": "svg",
+          "score": 89,
+          "reasons": [
+            "matches sam",
+            "matches amina",
+            "Agentified source",
+            "approved local visual source"
+          ]
+        }
+      ],
+      "criteria": {
+        "brand_fit": "pass",
+        "message_alignment": "pass",
+        "copy_consistency": "pass",
+        "linkedin_dimensions_mobile": "pass",
+        "accessibility_alt_text": "review",
+        "privacy_and_rights": "pass",
+        "visual_quality_artifacts": "pass",
+        "human_review_readiness": "pass"
+      },
+      "alt_text": "What Accelerated taught me about Agentified visual for the Agentified launch, showing the trust and operating-system idea behind the post.",
+      "recommendation": "Candidate can enter internal visual preparation, but human visual/privacy review remains required before provider handoff."
+    },
+    {
+      "asset_id": "AGT-LI-04",
+      "title": "Cover reveal: Agentified",
+      "channel": "linkedin",
+      "phase": "proof",
+      "draft_asset_path": "agentified/campaign/draft-assets.md#agt-li-04",
+      "planned_angle": "Use the approved cover direction to explain the book promise and AMINA process.",
+      "selected_candidates": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/cover-comps/agentified-cover-a-sam-trust-engine.png",
+          "source": "repo",
+          "type": "image",
+          "score": 100,
+          "reasons": [
+            "matches cover",
+            "matches agentified-cover",
+            "explicit packet visual asset",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1800,
+          "height": 2700
+        },
+        {
+          "path": "agentified/manuscript/visuals/rendered/cover-comps/agentified-cover-b-receipt-gate.png",
+          "source": "repo",
+          "type": "image",
+          "score": 89,
+          "reasons": [
+            "matches cover",
+            "matches agentified-cover",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1800,
+          "height": 2700
+        },
+        {
+          "path": "agentified/manuscript/visuals/rendered/cover-comps/agentified-cover-c-portfolio-os.png",
+          "source": "repo",
+          "type": "image",
+          "score": 89,
+          "reasons": [
+            "matches cover",
+            "matches agentified-cover",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1800,
+          "height": 2700
+        },
+        {
+          "path": "agentified/source-assets/cover-bases/agentified-cover-a-sam-trust-engine-base.png",
+          "source": "repo",
+          "type": "image",
+          "score": 89,
+          "reasons": [
+            "matches cover",
+            "matches agentified-cover",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1024,
+          "height": 1536
+        },
+        {
+          "path": "agentified/source-assets/cover-bases/agentified-cover-b-receipt-gate-base.png",
+          "source": "repo",
+          "type": "image",
+          "score": 89,
+          "reasons": [
+            "matches cover",
+            "matches agentified-cover",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1024,
+          "height": 1536
+        }
+      ],
+      "criteria": {
+        "brand_fit": "pass",
+        "message_alignment": "pass",
+        "copy_consistency": "pass",
+        "linkedin_dimensions_mobile": "pass",
+        "accessibility_alt_text": "review",
+        "privacy_and_rights": "pass",
+        "visual_quality_artifacts": "pass",
+        "human_review_readiness": "pass"
+      },
+      "alt_text": "Cover reveal: Agentified visual for the Agentified launch, showing the trust and operating-system idea behind the post.",
+      "recommendation": "Candidate can enter internal visual preparation, but human visual/privacy review remains required before provider handoff."
+    },
+    {
+      "asset_id": "AGT-CAR-02",
+      "title": "From SAM to AMINA",
+      "channel": "linkedin",
+      "phase": "proof",
+      "draft_asset_path": "agentified/campaign/draft-assets.md#agt-car-02",
+      "planned_angle": "Show the conceptual bridge from Accelerated's SAM loop to Agentified's AMINA trust layer.",
+      "selected_candidates": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/figure-3-amina-inside-sam.png",
+          "source": "repo",
+          "type": "image",
+          "score": 99,
+          "reasons": [
+            "matches sam",
+            "matches amina",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1600,
+          "height": 1000
+        },
+        {
+          "path": "agentified/manuscript/visuals/rendered/figure-3-amina-inside-sam.svg",
+          "source": "repo",
+          "type": "svg",
+          "score": 99,
+          "reasons": [
+            "matches sam",
+            "matches amina",
+            "Agentified source",
+            "approved local visual source"
+          ]
+        },
+        {
+          "path": "agentified/manuscript/visuals/rendered/print/color-600dpi/figure-0-0-accelerated-sam-loop-print-600dpi.png",
+          "source": "repo",
+          "type": "image",
+          "score": 99,
+          "reasons": [
+            "matches sam",
+            "matches accelerated",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 3300,
+          "height": 2742
+        },
+        {
+          "path": "agentified/manuscript/visuals/rendered/print/color-600dpi/figure-3-amina-inside-sam-print-600dpi.png",
+          "source": "repo",
+          "type": "image",
+          "score": 99,
+          "reasons": [
+            "matches sam",
+            "matches amina",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 3300,
+          "height": 2063
+        },
+        {
+          "path": "agentified/manuscript/visuals/rendered/print/grayscale-preview-png/figure-0-0-accelerated-sam-loop-grayscale-preview.png",
+          "source": "repo",
+          "type": "image",
+          "score": 99,
+          "reasons": [
+            "matches sam",
+            "matches accelerated",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1136,
+          "height": 944
+        }
+      ],
+      "criteria": {
+        "brand_fit": "pass",
+        "message_alignment": "pass",
+        "copy_consistency": "pass",
+        "linkedin_dimensions_mobile": "review",
+        "accessibility_alt_text": "review",
+        "privacy_and_rights": "pass",
+        "visual_quality_artifacts": "review",
+        "human_review_readiness": "pass"
+      },
+      "alt_text": "From SAM to AMINA carousel explaining Show the conceptual bridge from Accelerated's SAM loop to Agentified's AMINA trust layer.",
+      "recommendation": "Candidate can enter internal visual preparation, but human visual/privacy review remains required before provider handoff."
+    },
+    {
+      "asset_id": "AGT-LI-05",
+      "title": "The workbook is where the book becomes operational",
+      "channel": "linkedin",
+      "phase": "proof",
+      "draft_asset_path": "agentified/campaign/draft-assets.md#agt-li-05",
+      "planned_angle": "Position the workbook as the practical tool that turns Agentified into workflow design.",
+      "selected_candidates": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/cover-comps/agentified-cover-b-receipt-gate.png",
+          "source": "repo",
+          "type": "image",
+          "score": 61,
+          "reasons": [
+            "matches receipt",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1800,
+          "height": 2700
+        },
+        {
+          "path": "agentified/manuscript/visuals/rendered/figure-1-1-first-receipt.png",
+          "source": "repo",
+          "type": "image",
+          "score": 61,
+          "reasons": [
+            "matches receipt",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1600,
+          "height": 1000
+        },
+        {
+          "path": "agentified/manuscript/visuals/rendered/figure-1-1-first-receipt.svg",
+          "source": "repo",
+          "type": "svg",
+          "score": 61,
+          "reasons": [
+            "matches receipt",
+            "Agentified source",
+            "approved local visual source"
+          ]
+        },
+        {
+          "path": "agentified/manuscript/visuals/rendered/figure-8-1-portfolio-first-stack.png",
+          "source": "repo",
+          "type": "image",
+          "score": 61,
+          "reasons": [
+            "matches portfolio-first",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1600,
+          "height": 1000
+        },
+        {
+          "path": "agentified/manuscript/visuals/rendered/figure-8-1-portfolio-first-stack.svg",
+          "source": "repo",
+          "type": "svg",
+          "score": 61,
+          "reasons": [
+            "matches portfolio-first",
+            "Agentified source",
+            "approved local visual source"
+          ]
+        }
+      ],
+      "criteria": {
+        "brand_fit": "pass",
+        "message_alignment": "pass",
+        "copy_consistency": "pass",
+        "linkedin_dimensions_mobile": "pass",
+        "accessibility_alt_text": "review",
+        "privacy_and_rights": "pass",
+        "visual_quality_artifacts": "pass",
+        "human_review_readiness": "pass"
+      },
+      "alt_text": "The workbook is where the book becomes operational visual for the Agentified launch, showing the trust and operating-system idea behind the post.",
+      "recommendation": "Candidate can enter internal visual preparation, but human visual/privacy review remains required before provider handoff."
+    },
+    {
+      "asset_id": "AGT-LI-06",
+      "title": "Agentified is for the product leader carrying the risk",
+      "channel": "linkedin",
+      "phase": "offer",
+      "draft_asset_path": "agentified/campaign/draft-assets.md#agt-li-06",
+      "planned_angle": "Make the release path clear for product leaders responsible for trustworthy agentic work.",
+      "selected_candidates": [
+        {
+          "path": "agentified/manuscript/visuals/rendered/cover-comps/agentified-cover-a-sam-trust-engine.png",
+          "source": "repo",
+          "type": "image",
+          "score": 79,
+          "reasons": [
+            "matches cover",
+            "matches trust",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1800,
+          "height": 2700
+        },
+        {
+          "path": "agentified/source-assets/cover-bases/agentified-cover-a-sam-trust-engine-base.png",
+          "source": "repo",
+          "type": "image",
+          "score": 79,
+          "reasons": [
+            "matches cover",
+            "matches trust",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1024,
+          "height": 1536
+        },
+        {
+          "path": "agentified/manuscript/visuals/rendered/cover-comps/agentified-cover-b-receipt-gate.png",
+          "source": "repo",
+          "type": "image",
+          "score": 61,
+          "reasons": [
+            "matches cover",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1800,
+          "height": 2700
+        },
+        {
+          "path": "agentified/manuscript/visuals/rendered/cover-comps/agentified-cover-c-portfolio-os.png",
+          "source": "repo",
+          "type": "image",
+          "score": 61,
+          "reasons": [
+            "matches cover",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1800,
+          "height": 2700
+        },
+        {
+          "path": "agentified/manuscript/visuals/rendered/figure-0-1-sam-trust-layer.png",
+          "source": "repo",
+          "type": "image",
+          "score": 61,
+          "reasons": [
+            "matches trust",
+            "Agentified source",
+            "approved local visual source"
+          ],
+          "width": 1600,
+          "height": 1000
+        }
+      ],
+      "criteria": {
+        "brand_fit": "pass",
+        "message_alignment": "pass",
+        "copy_consistency": "pass",
+        "linkedin_dimensions_mobile": "pass",
+        "accessibility_alt_text": "review",
+        "privacy_and_rights": "pass",
+        "visual_quality_artifacts": "pass",
+        "human_review_readiness": "pass"
+      },
+      "alt_text": "Agentified is for the product leader carrying the risk visual for the Agentified launch, showing the trust and operating-system idea behind the post.",
+      "recommendation": "Candidate can enter internal visual preparation, but human visual/privacy review remains required before provider handoff."
+    }
+  ]
+}
