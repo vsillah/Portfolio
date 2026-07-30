@@ -20,6 +20,7 @@ It does not publish, schedule, send email, create provider drafts, generate paid
 | `agentified/campaign/launch-review-packet-2026-07-27.md` | First human-review packet for the launch sequence. | Review packet only. It does not authorize external publication. |
 | `agentified/campaign/draft-assets.md` | Draft copy, carousel outlines, short-form scripts, offer copy, and review notes. | Public copy source, pending human decisions. |
 | `agentified/campaign/release-calendar.md` | Human-readable release calendar. | Proposed review slots, not external publishing commitments. |
+| `agentified/campaign/visual-asset-autoresearch-loop.md` | Source-first visual replacement loop when existing assets are not suitable. | Review and generation process only. It does not authorize provider generation, publishing, scheduling, uploads, or platform submission. |
 | Production read-only check, 2026-07-28 | Campaign, calendar, queue, and work-item reconciliation. | Read-only evidence. No production writes were made. |
 
 ## Current production state
@@ -147,6 +148,7 @@ The strongest immediate post remains `AGT-LI-01`. It opens from the operating te
 2. Resolve CTA and SAM wording before moving the six remaining LinkedIn queue drafts out of `draft`.
 3. Prepare separate internal draft packets for the two Shorts and the page CTA. Do not call providers or update the public page from this package.
 4. Keep final external publishing approval separate from internal queue approval.
+5. When a draft needs a visual and the current assets are unsuitable, use the visual asset AutoResearch loop before asking for human visual approval.
 
 ## Closed gates
 
