@@ -56,7 +56,9 @@ export function sanitizeModelOpsDashboard(input: JsonRecord): JsonRecord {
     recommendations: pickRecord(input.recommendations),
     replyRuns: arrayValue(input.replyRuns).map((run) => sanitizeReplyRun(recordValue(run))),
     ragRuns: arrayValue(input.ragRuns).map((run) => sanitizeRagRun(recordValue(run))),
-    swapRequests: arrayValue(input.swapRequests).map((request) => sanitizeSwapRequest(recordValue(request))),
+    swapRequests: arrayValue(input.swapRequests)
+      .map((request) => sanitizeSwapRequestValue(request))
+      .filter((request) => Object.keys(request).length > 0),
   }
 }
 
@@ -124,6 +126,20 @@ function sanitizeRagRun(run: JsonRecord): JsonRecord {
   })
 }
 
+function sanitizeSwapRequestValue(request: unknown): JsonRecord {
+  if (typeof request === 'string') {
+    const sourcePath = request.trim()
+    if (!sourcePath) return {}
+    const basename = path.basename(sourcePath).replace(/\.md$/i, '')
+    return {
+      title: humanizeSwapRequestTitle(basename),
+      sourcePath,
+      createdAt: sourcePath.match(/^(\d{4}-\d{2}-\d{2})/)?.[1],
+    }
+  }
+  return sanitizeSwapRequest(recordValue(request))
+}
+
 function sanitizeSwapRequest(request: JsonRecord): JsonRecord {
   return pickDefined({
     title: stringOrUndefined(request.title),
@@ -133,6 +149,17 @@ function sanitizeSwapRequest(request: JsonRecord): JsonRecord {
     sourcePath: stringOrUndefined(request.sourcePath),
     createdAt: stringOrUndefined(request.createdAt),
   })
+}
+
+function humanizeSwapRequestTitle(value: string) {
+  const words = value.replace(/^\d{4}-\d{2}-\d{2}-/, '').split(/[-_]+/).filter(Boolean)
+  return words.map((word, index) => {
+    const lower = word.toLowerCase()
+    if (lower === 'kimi') return 'Kimi'
+    if (lower === 'k3') return 'K3'
+    if (index > 0 && ['and', 'or', 'for', 'to', 'of', 'the'].includes(lower)) return lower
+    return lower.charAt(0).toUpperCase() + lower.slice(1)
+  }).join(' ')
 }
 
 function pickRecord(value: unknown): JsonRecord {

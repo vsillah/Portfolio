@@ -53,14 +53,24 @@ describe('sync model ops snapshot', () => {
           overall: { local_better: 33 },
         },
       ],
-      swapRequests: [{ title: 'Swap request', exactProductionChange: 'do not copy' }],
+      swapRequests: [
+        { title: 'Swap request', exactProductionChange: 'do not copy' },
+        '2026-07-27-kimi-k3-evaluation-and-routing-proposal.md',
+      ],
     })
 
     expect(sanitized).toEqual(expect.objectContaining({
       projectName: 'Local LLM Model Ops & Hermes Automation',
       replyRuns: [expect.objectContaining({ model: 'qwen3-4b-instruct-2507', accuracy: 1 })],
       ragRuns: [expect.objectContaining({ name: 'Routed local', totalQueries: 67 })],
-      swapRequests: [expect.objectContaining({ title: 'Swap request' })],
+      swapRequests: [
+        expect.objectContaining({ title: 'Swap request' }),
+        expect.objectContaining({
+          title: 'Kimi K3 Evaluation and Routing Proposal',
+          sourcePath: '2026-07-27-kimi-k3-evaluation-and-routing-proposal.md',
+          createdAt: '2026-07-27',
+        }),
+      ],
     }))
     expect(JSON.stringify(sanitized)).not.toContain('rawSecret')
     expect(JSON.stringify(sanitized)).not.toContain('exactProductionChange')

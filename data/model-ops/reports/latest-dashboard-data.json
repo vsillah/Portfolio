@@ -1,6 +1,6 @@
 {
   "projectName": "Local LLM Model Ops & Hermes Automation",
-  "generatedAt": "2026-07-20T12:03:23.202Z",
+  "generatedAt": "2026-07-27T13:16:53.748Z",
   "recommendations": {
     "replyIntentDefault": "Keep qwen3-4b-instruct-2507 for reply-intent classification. It has the best current accuracy/latency balance.",
     "ragDefault": "Use routed local RAG as the leading local/shadow candidate, with Pinecone/OpenAI fallback until larger answer-level evals pass.",
@@ -339,5 +339,11 @@
       }
     }
   ],
-  "swapRequests": []
+  "swapRequests": [
+    {
+      "title": "Kimi K3 Evaluation and Routing Proposal",
+      "sourcePath": "2026-07-27-kimi-k3-evaluation-and-routing-proposal.md",
+      "createdAt": "2026-07-27"
+    }
+  ]
 }
