@@ -44,25 +44,31 @@ function makeUploadRequest(fields: {
   document_type?: string | null
   omitFile?: boolean
 }) {
-  const form = new FormData()
+  const values = new Map<string, unknown>()
   if (!fields.omitFile && fields.file !== null) {
-    form.set(
+    values.set(
       'file',
       fields.file ??
-        new File([Buffer.from('%PDF-1.4')], 'packet.pdf', { type: 'application/pdf' }),
+        ({
+          type: 'application/pdf',
+          arrayBuffer: vi.fn(async () => Buffer.from('%PDF-1.4').buffer),
+        } as unknown as File),
     )
   }
   if (fields.title !== null) {
-    form.set('title', fields.title ?? 'Strategy packet')
+    values.set('title', fields.title ?? 'Strategy packet')
   }
   if (fields.document_type !== undefined && fields.document_type !== null) {
-    form.set('document_type', fields.document_type)
+    values.set('document_type', fields.document_type)
   }
 
-  return new NextRequest('http://localhost/api/admin/proposals/proposal-1/documents', {
+  const request = new NextRequest('http://localhost/api/admin/proposals/proposal-1/documents', {
     method: 'POST',
-    body: form,
   })
+  vi.spyOn(request, 'formData').mockResolvedValue({
+    get: vi.fn((key: string) => (values.has(key) ? values.get(key) : null)),
+  } as unknown as FormData)
+  return request
 }
 
 function chain(result: Record<string, unknown>) {
