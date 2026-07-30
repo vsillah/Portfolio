@@ -10,6 +10,22 @@ no meaningful usage signal, or after clear redundancy plus a lower-risk
 replacement path. Production changes require explicit approval in the form
 `Cancel <tool/vendor> for Portfolio`.
 
+## 2026-07-30 Daily Monitor Run
+
+Status: YELLOW
+
+Detailed run artifact: [`docs/subscription-monitor-runs/2026-07-30.md`](subscription-monitor-runs/2026-07-30.md)
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- Repo checkout started clean on `codex/subscription-weekly-2026-07-27`; durable repo artifacts were current through `2026-07-26`, while local automation memory carried continuity through `2026-07-29`.
+- n8n Cloud returned 85 workflows with 72 active and 25/25 sampled executions successful through `2026-07-30T13:00:52Z`; the drift checker still returned 403 for all four tracked workflow reads.
+- `npm run db:health-check` passed, and the Vercel deployment watcher passed both `Vercel - portfolio` and `Vercel - portfolio-staging` after an initial pending sample.
+- OpenAI, Anthropic, Gemini/Google AI, Gamma, Pinecone, Apify, Hunter, Printful, Stripe, Slack, BuiltWith, and core app-side integrations were readable or dependency-backed.
+- Vapi, Resend, Calendly API, and Read AI direct API lacked local safe keys; Calendly still had July calendar metadata, and prior Read AI connector metadata remains the latest Read AI-specific usage signal.
+- BuiltWith remains active/watch during the outreach ramp; Fireflies remains resolved canceled unless new paid-plan evidence appears.
+
 ## 2026-07-29 Daily Monitor Run
 
 Status: YELLOW
