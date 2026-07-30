@@ -340,6 +340,10 @@
     }
   ],
   "swapRequests": [
-    {}
+    {
+      "title": "Kimi K3 Evaluation and Routing Proposal",
+      "sourcePath": "2026-07-27-kimi-k3-evaluation-and-routing-proposal.md",
+      "createdAt": "2026-07-27"
+    }
   ]
 }
