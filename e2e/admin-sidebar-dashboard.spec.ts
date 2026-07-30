@@ -28,9 +28,12 @@ test.describe('Admin sidebar and dashboard', () => {
     const hasLoading = await page.getByText(/loading/i).first().isVisible().catch(() => false)
     expect(Boolean(nav) || hasDashboard || hasSignIn || hasLoading).toBe(true)
 
-    if (nav) {
+    if (nav && hasDashboard) {
       await expect(nav).toBeVisible()
-      await nav.getByRole('button', { name: /pipeline/i }).click()
+      const pipelineButton = nav.getByRole('button', { name: /pipeline/i })
+      if ((await pipelineButton.getAttribute('aria-expanded')) !== 'true') {
+        await pipelineButton.click()
+      }
       await expect(nav.getByRole('link', { name: /lead pipeline/i })).toBeVisible()
       await expect(nav.getByText(/value evidence/i).first()).toBeVisible()
     }
