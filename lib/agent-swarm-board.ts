@@ -157,6 +157,17 @@ export type AgentOrgBoardTask = {
   prNumber: number | null
   prUrl: string | null
   activeRunId: string | null
+  sourceType: string | null
+  sourceId: string | null
+  sourceLabel: string | null
+  socialContent: {
+    id: string | null
+    href: string | null
+    productionLane: string | null
+    launchDraftAssetId: string | null
+    contentPacketId: string | null
+    publishGate: string | null
+  }
   blockerSummary: string | null
   validationSummary: string | null
   overlapGroup: string | null
@@ -483,6 +494,8 @@ type AgentWorkItemRow = {
   expected_files?: string[] | null
   dependency_ids?: string[] | null
   source_type?: string | null
+  source_id?: string | null
+  source_label?: string | null
   metadata?: JsonRecord | null
   completed_at?: string | null
   created_at: string
@@ -1188,6 +1201,17 @@ export function buildAgentOrgBoardSnapshotFromRows(input: AgentOrgBoardBuildInpu
     prNumber: item.pr_number,
     prUrl: item.pr_url,
     activeRunId: item.active_run_id,
+    sourceType: item.source_type ?? null,
+    sourceId: item.source_id ?? null,
+    sourceLabel: item.source_label ?? null,
+    socialContent: {
+      id: stringValue(item.metadata?.social_content_id) ?? (item.source_type === 'social_content_approval' ? item.source_id ?? null : null),
+      href: stringValue(item.metadata?.social_content_href),
+      productionLane: stringValue(item.metadata?.production_lane),
+      launchDraftAssetId: stringValue(item.metadata?.launch_draft_asset_id),
+      contentPacketId: stringValue(item.metadata?.content_packet_id),
+      publishGate: stringValue(item.metadata?.publish_gate),
+    },
     blockerSummary: item.blocker_summary,
     validationSummary: item.validation_summary,
     overlapGroup: item.overlap_group,
@@ -1517,7 +1541,7 @@ export async function buildAgentOrgBoardSnapshot(): Promise<AgentOrgBoardSnapsho
       .limit(120),
     db
       .from('agent_work_items')
-      .select('id, title, objective, status, priority, owner_agent_key, owner_runtime, active_run_id, parent_work_item_id, source_type, branch_name, worktree_path, pr_number, pr_url, overlap_group, blocker_summary, validation_summary, approval_id, expected_files, dependency_ids, metadata, completed_at, created_at, updated_at')
+      .select('id, title, objective, status, priority, owner_agent_key, owner_runtime, active_run_id, parent_work_item_id, source_type, source_id, source_label, branch_name, worktree_path, pr_number, pr_url, overlap_group, blocker_summary, validation_summary, approval_id, expected_files, dependency_ids, metadata, completed_at, created_at, updated_at')
       .order('updated_at', { ascending: false })
       .limit(100),
     db
