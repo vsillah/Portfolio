@@ -408,6 +408,95 @@ describe('AgentSwarmBoardPage', () => {
     expect(screen.getByLabelText('Goal')).toHaveValue('goal-1')
   })
 
+  it('hydrates focused review query parameters into a compact workspace', async () => {
+    const focusedSnapshot = JSON.parse(JSON.stringify(boardSnapshot))
+    focusedSnapshot.organization.lanes[0].tasks = [
+      {
+        ...focusedSnapshot.organization.lanes[0].tasks[1],
+        id: 'work-visual-qa',
+        title: 'Select Agentified visual strategy and run QA',
+        status: 'ready_for_review',
+        ownerAgentKey: 'strategic-narrative',
+        ownerAgentName: 'Amina - Strategic Narrative',
+        sourceType: 'social_content_approval',
+        sourceId: 'social-visual-1',
+        sourceLabel: 'Social Content draft approval',
+        remediationId: 'agentified_visual_strategy_qa_2026_07_31',
+        approvalBoundary: 'post_approval_production_handoff_only',
+        blockedActions: ['Do not publish or schedule.', 'Do not call provider-generation APIs.'],
+        socialContent: {
+          id: 'social-visual-1',
+          href: '/admin/social-content/social-visual-1',
+          productionLane: 'visual_strategy_qa',
+          launchDraftAssetId: 'p0-linkedin-flagship-agentic-operating-system',
+          contentPacketId: 'packet-visual-qa',
+          publishGate: 'draft_only',
+        },
+      },
+      {
+        ...focusedSnapshot.organization.lanes[0].tasks[2],
+        id: 'work-other',
+        title: 'Unrelated automation work outside the scoped review',
+        status: 'in_progress',
+        ownerAgentKey: 'automation-systems',
+        ownerAgentName: 'Amina - Automation Systems',
+        remediationId: null,
+        approvalBoundary: null,
+        blockedActions: [],
+        socialContent: {
+          id: null,
+          href: null,
+          productionLane: null,
+          launchDraftAssetId: null,
+          contentPacketId: null,
+          publishGate: null,
+        },
+      },
+    ]
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => focusedSnapshot,
+    })))
+    window.history.pushState(
+      {},
+      '',
+      '/admin/agents/swarm-board?status=ready_for_review&owner=strategic-narrative&production_lane=visual_strategy_qa&remediation_id=agentified_visual_strategy_qa_2026_07_31&source_type=social_content_approval&source_id=social-visual-1&social_content_id=social-visual-1&attention=review',
+    )
+
+    render(<AgentSwarmBoardPage />)
+
+    expect(await screen.findByRole('region', { name: 'Focused review workspace' })).toBeInTheDocument()
+    expect(screen.getByText('1 of 2 canonical Kanban cards match this scope.')).toBeInTheDocument()
+    expect(screen.getAllByText('Select Agentified visual strategy and run QA').length).toBeGreaterThan(0)
+    expect(screen.queryByText('Unrelated automation work outside the scoped review')).not.toBeInTheDocument()
+    expect(screen.getByText('Production lane visual strategy qa')).toBeInTheDocument()
+    expect(screen.getByText('Remediation agentified_visual_strategy_qa_2026_07_31')).toBeInTheDocument()
+    expect(screen.getByText('post_approval_production_handoff_only')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /social-visual-1/i })).toHaveAttribute('href', '/admin/social-content/social-visual-1')
+    expect(screen.getByLabelText('Status')).toHaveValue('ready_for_review')
+    expect(screen.getByLabelText('Owner')).toHaveValue('strategic-narrative')
+    expect(screen.getByLabelText('Attention')).toHaveValue('review')
+    expect(screen.getByLabelText('Production lane')).toHaveValue('visual_strategy_qa')
+    expect(screen.getByLabelText('Remediation')).toHaveValue('agentified_visual_strategy_qa_2026_07_31')
+    expect(screen.getByText('Board context')).toBeInTheDocument()
+  })
+
+  it('shows a recovery state when a focused review link has no matching cards', async () => {
+    window.history.pushState({}, '', '/admin/agents/swarm-board?production_lane=visual_strategy_qa&remediation_id=missing-remediation')
+
+    render(<AgentSwarmBoardPage />)
+
+    expect(await screen.findByRole('region', { name: 'Focused review workspace' })).toBeInTheDocument()
+    expect(screen.getByText('0 of 3 canonical Kanban cards match this scope.')).toBeInTheDocument()
+    expect(screen.getByText(/No canonical Kanban cards match this scoped link/i)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear scope' }))
+
+    expect(screen.getAllByText(longTaskTitle).length).toBeGreaterThan(0)
+    expect(window.location.pathname).toBe('/admin/agents/swarm-board')
+    expect(window.location.search).toBe('')
+  })
+
   it('opens the dependency drawer from a work item query parameter', async () => {
     window.history.pushState({}, '', '/admin/agents/swarm-board?work_item=work-1')
 
@@ -540,6 +629,54 @@ describe('AgentSwarmBoardPage', () => {
     expect(completeLane).toHaveAttribute('data-collapsed', 'true')
     expect(screen.queryByText('No active tasks in this lane')).not.toBeInTheDocument()
     expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, left: 0 })
+  })
+
+  it('caps long lanes and expands them on request', async () => {
+    const cappedSnapshot = JSON.parse(JSON.stringify(boardSnapshot))
+    cappedSnapshot.organization.lanes = [{
+      ...cappedSnapshot.organization.lanes[0],
+      tasks: Array.from({ length: 10 }, (_, index) => ({
+        ...cappedSnapshot.organization.lanes[0].tasks[0],
+        id: `queued-${index}`,
+        title: `Queued review card ${index + 1}`,
+        status: 'queued',
+        priority: 'medium',
+        ownerAgentKey: null,
+        ownerAgentName: 'Unassigned',
+        activeRunId: null,
+        prUrl: null,
+        prNumber: null,
+        dependencyIds: [],
+        dependencies: [],
+        dependents: [],
+        handoffs: [],
+        remediationId: null,
+        approvalBoundary: null,
+        blockedActions: [],
+        socialContent: {
+          id: null,
+          href: null,
+          productionLane: null,
+          launchDraftAssetId: null,
+          contentPacketId: null,
+          publishGate: null,
+        },
+      })),
+    }]
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => cappedSnapshot,
+    })))
+
+    render(<AgentSwarmBoardPage />)
+
+    expect((await screen.findAllByText('Queued review card 1')).length).toBeGreaterThan(0)
+    expect(screen.queryByText('Queued review card 10')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Show 2 more cards' }))
+
+    expect(screen.getByText('Queued review card 10')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Show fewer cards' })).toBeInTheDocument()
   })
 
   it('keeps long card labels accessible without truncation-only styling', async () => {
