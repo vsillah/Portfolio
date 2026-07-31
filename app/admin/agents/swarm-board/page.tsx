@@ -43,6 +43,11 @@ type BoardSnapshot = AgentSwarmBoardSnapshot & {
 type BoardMode = 'kanban' | 'hive' | 'agents' | 'war-room' | 'client-builder'
 type AttentionFilter = 'all' | 'blocked' | 'review' | 'unassigned'
 type DependencyFilter = 'all' | 'waiting' | 'blocking' | 'handoffs'
+type SourceScope = {
+  sourceType: string | null
+  sourceId: string | null
+  socialContentId: string | null
+}
 type BoardAction = {
   task: AgentOrgBoardTask
   lane: Pick<AgentOrgBoardLane, 'key' | 'label' | 'tasks'>
@@ -135,6 +140,11 @@ function AgentSwarmBoardContent() {
   const [statusFilter, setStatusFilter] = useState<'all' | AgentOrgBoardTask['status']>('all')
   const [attentionFilter, setAttentionFilter] = useState<AttentionFilter>('all')
   const [dependencyFilter, setDependencyFilter] = useState<DependencyFilter>('all')
+  const [sourceScope, setSourceScope] = useState<SourceScope>({
+    sourceType: null,
+    sourceId: null,
+    socialContentId: null,
+  })
 
   const fetchBoard = useCallback(async () => {
     setLoading(true)
@@ -161,6 +171,11 @@ function AgentSwarmBoardContent() {
     const params = new URLSearchParams(window.location.search)
     const goalId = params.get('goal')
     if (goalId) setSelectedGoalId(goalId)
+    setSourceScope({
+      sourceType: params.get('source_type'),
+      sourceId: params.get('source_id'),
+      socialContentId: params.get('social_content_id'),
+    })
     fetchBoard()
   }, [fetchBoard])
 
@@ -260,6 +275,7 @@ function AgentSwarmBoardContent() {
                   statusFilter={statusFilter}
                   attentionFilter={attentionFilter}
                   dependencyFilter={dependencyFilter}
+                  sourceScope={sourceScope}
                   onGoalChange={setSelectedGoalId}
                   onOwnerChange={setOwnerFilter}
                   onStatusChange={setStatusFilter}
@@ -271,6 +287,7 @@ function AgentSwarmBoardContent() {
                     setStatusFilter('all')
                     setAttentionFilter('all')
                     setDependencyFilter('all')
+                    setSourceScope({ sourceType: null, sourceId: null, socialContentId: null })
                   }}
                 />
               )}
@@ -300,6 +317,7 @@ function KanbanBoard({
   statusFilter,
   attentionFilter,
   dependencyFilter,
+  sourceScope,
   onGoalChange,
   onOwnerChange,
   onStatusChange,
@@ -313,6 +331,7 @@ function KanbanBoard({
   statusFilter: 'all' | AgentOrgBoardTask['status']
   attentionFilter: AttentionFilter
   dependencyFilter: DependencyFilter
+  sourceScope: SourceScope
   onGoalChange: (value: string) => void
   onOwnerChange: (value: string) => void
   onStatusChange: (value: 'all' | AgentOrgBoardTask['status']) => void
@@ -338,6 +357,13 @@ function KanbanBoard({
   }, [allTasks])
   const visibleTasks = useMemo(() => {
     return allTasks.filter((task) => {
+        if (sourceScope.sourceType && task.sourceType !== sourceScope.sourceType) return false
+        if (sourceScope.sourceId && task.sourceId !== sourceScope.sourceId) return false
+        if (sourceScope.socialContentId) {
+          const matchesSocialContent = task.socialContent.id === sourceScope.socialContentId
+            || task.sourceId === sourceScope.socialContentId
+          if (!matchesSocialContent) return false
+        }
         if (selectedGoalId !== 'all' && task.goal?.id !== selectedGoalId) return false
         if (ownerFilter !== 'all') {
           if (ownerFilter === 'unassigned') {
@@ -355,7 +381,7 @@ function KanbanBoard({
         if (dependencyFilter === 'handoffs' && !(task.handoffs ?? []).some((handoff) => handoff.status === 'pending')) return false
         return true
     })
-  }, [allTasks, attentionFilter, dependencyFilter, ownerFilter, selectedGoalId, statusFilter])
+  }, [allTasks, attentionFilter, dependencyFilter, ownerFilter, selectedGoalId, sourceScope, statusFilter])
   const statusLanes = useMemo(() => {
     return STATUS_SWIMLANES.map((lane) => ({
       ...lane,
@@ -368,7 +394,8 @@ function KanbanBoard({
   const boardActions = useMemo(() => buildBoardActions(statusLanes), [statusLanes])
   const dependencyDrawerTask = allTasks.find((task) => task.id === dependencyDrawerTaskId) ?? null
   const selectedGoal = organization.summary.goals.find((goal) => goal.id === selectedGoalId) ?? null
-  const filtersActive = selectedGoalId !== 'all' || ownerFilter !== 'all' || statusFilter !== 'all' || attentionFilter !== 'all' || dependencyFilter !== 'all'
+  const sourceScopeActive = Boolean(sourceScope.sourceType || sourceScope.sourceId || sourceScope.socialContentId)
+  const filtersActive = selectedGoalId !== 'all' || ownerFilter !== 'all' || statusFilter !== 'all' || attentionFilter !== 'all' || dependencyFilter !== 'all' || sourceScopeActive
 
   return (
     <div className="space-y-4" role="tabpanel" aria-label="Kanban lanes">
@@ -395,6 +422,7 @@ function KanbanBoard({
         statusFilter={statusFilter}
         attentionFilter={attentionFilter}
         dependencyFilter={dependencyFilter}
+        sourceScope={sourceScope}
         filteredCount={filteredTasks.length}
         totalCount={allTasks.length}
         onGoalChange={onGoalChange}
@@ -763,6 +791,7 @@ function KanbanFilterPanel({
   statusFilter,
   attentionFilter,
   dependencyFilter,
+  sourceScope,
   filteredCount,
   totalCount,
   onGoalChange,
@@ -779,6 +808,7 @@ function KanbanFilterPanel({
   statusFilter: 'all' | AgentOrgBoardTask['status']
   attentionFilter: AttentionFilter
   dependencyFilter: DependencyFilter
+  sourceScope: SourceScope
   filteredCount: number
   totalCount: number
   onGoalChange: (value: string) => void
@@ -795,10 +825,19 @@ function KanbanFilterPanel({
           <Filter size={16} className="text-radiant-gold" />
           <div>
             <h2 className="text-sm font-semibold uppercase tracking-wide text-radiant-gold">Board scope</h2>
-            <p className="text-sm text-muted-foreground">Filter by goal, owner, status, attention state, or dependency relationship without leaving the Kanban surface.</p>
+            <p className="text-sm text-muted-foreground">Filter by source draft, goal, owner, status, attention state, or dependency relationship without leaving the Kanban surface.</p>
           </div>
         </div>
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          {sourceScope.socialContentId ? (
+            <span className="rounded-full border border-radiant-gold/35 bg-radiant-gold/10 px-2 py-1 text-radiant-gold">
+              Social draft {sourceScope.socialContentId.slice(0, 8)}
+            </span>
+          ) : sourceScope.sourceType || sourceScope.sourceId ? (
+            <span className="rounded-full border border-radiant-gold/35 bg-radiant-gold/10 px-2 py-1 text-radiant-gold">
+              Source filtered
+            </span>
+          ) : null}
           <span>{filteredCount}/{totalCount} visible</span>
           <button type="button" onClick={onClearFilters} className="text-radiant-gold hover:underline">
             Clear filters
@@ -1136,6 +1175,21 @@ function WorkItemCard({ task, onOpenDependencies }: { task: AgentOrgBoardTask; o
       {task.goal?.nextStageGate ? (
         <div className="mt-1.5 inline-flex max-w-full rounded-full border border-silicon-slate/60 bg-silicon-slate/15 px-1.5 py-0.5 text-[11px] text-muted-foreground">
           <span className="truncate">Next gate: {task.goal.nextStageGate.label}</span>
+        </div>
+      ) : null}
+      {task.socialContent.id ? (
+        <div className="mt-1.5 flex flex-wrap gap-1.5 text-[11px]">
+          <Link
+            href={task.socialContent.href ?? `/admin/social-content/${task.socialContent.id}`}
+            className="inline-flex max-w-full rounded-full border border-blue-400/35 bg-blue-400/10 px-1.5 py-0.5 text-blue-100 hover:bg-blue-400/15"
+          >
+            <span className="truncate">Social draft {task.socialContent.id.slice(0, 8)}</span>
+          </Link>
+          {task.socialContent.productionLane ? (
+            <span className="rounded-full border border-silicon-slate/60 bg-silicon-slate/15 px-1.5 py-0.5 text-muted-foreground">
+              {task.socialContent.productionLane.replace(/_/g, ' ')}
+            </span>
+          ) : null}
         </div>
       ) : null}
       {n8nProposal ? (

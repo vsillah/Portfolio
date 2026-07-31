@@ -159,26 +159,16 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
         production_lane: 'references',
       }),
       expect.objectContaining({
-        title: 'Prepare approved Social Content illustration brief',
-        owner_agent_key: 'amadutown-brand',
-        production_lane: 'illustration',
-      }),
-      expect.objectContaining({
-        title: 'Prepare Social Content carousel production packet',
-        owner_agent_key: 'content-repurposing',
-        production_lane: 'carousel',
-      }),
-      expect.objectContaining({
-        title: 'Run post-approval visual QA',
-        owner_agent_key: 'risk-compliance-intelligence',
-        production_lane: 'visual_qa',
+        title: 'Select Agentified visual strategy and run QA',
+        owner_agent_key: 'strategic-narrative',
+        production_lane: 'visual_strategy_qa',
       }),
     ])
     expect(mocks.queueUpdate).toHaveBeenCalledWith({
       status: 'approved',
       reviewed_by: 'admin-1',
     })
-    expect(mocks.createAgentWorkItem).toHaveBeenCalledTimes(4)
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledTimes(2)
     expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
       title: 'Attach approved Social Content references',
       ownerAgentKey: 'research-source-register',
@@ -192,14 +182,18 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
       }),
     }))
     expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
-      title: 'Prepare approved Social Content illustration brief',
-      ownerAgentKey: 'amadutown-brand',
+      title: 'Select Agentified visual strategy and run QA',
+      ownerAgentKey: 'strategic-narrative',
       status: 'assigned',
-      idempotencyKey: 'social-content-production-handoff:social-1:illustration',
+      idempotencyKey: 'social-content-production-handoff:social-1:visual_strategy_qa',
       metadata: expect.objectContaining({
         social_content_id: 'social-1',
         publish_gate: 'draft_only',
-        production_lane: 'illustration',
+        production_lane: 'visual_strategy_qa',
+        required_actions: expect.arrayContaining([
+          'Search approved Portfolio, Agentified, AmaduTown, and comparable-pattern sources before creating anything new.',
+          'Run the agent-led QA gate across brand fit, factual consistency, LinkedIn/mobile legibility, alt-text readiness, privacy, rights, quality, and artifacts.',
+        ]),
       }),
     }))
     expect(mocks.publishesUpsert).not.toHaveBeenCalled()
@@ -248,7 +242,7 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
       title: 'Attach approved Social Content references',
       production_lane: 'references',
     }))
-    expect(mocks.createAgentWorkItem).toHaveBeenCalledTimes(4)
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledTimes(2)
     expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
       metadata: expect.objectContaining({
         social_content_id: 'social-1',

@@ -1640,7 +1640,6 @@ function SocialContentDetailPage() {
   const agentPilotGoalId = asString(ragContext?.goal_id)
   const agentPilotPacketId = asString(ragContext?.content_packet_id)
   const agentPilotPublishGate = asString(ragContext?.publish_gate)
-  const agentPilotChronicleStatus = asString(ragContext?.chronicle_packet_status)
   const agentPilotVisualBrief = asString(ragContext?.visual_brief)
   const agentPilotProvenance = asStringArray(ragContext?.source_provenance_checklist)
   const agentPilotApprovalChecklist = asStringArray(ragContext?.approval_checklist)
@@ -1849,13 +1848,53 @@ function SocialContentDetailPage() {
     : isEditable
       ? 'in_review'
       : gateStateFromRawStatus(item.status)
-  const humanReviewGateState: GateState = agentPilotPassToHuman ? 'approved' : 'pending'
+  const contextSourcePacketPath = asString(ragContext?.launch_packet_path)
+    || asString(ragContext?.source_packet_path)
+    || asString(ragContext?.source_packet)
+  const contextSourceRecorded = Boolean(
+    contextSourcePacketPath
+    || agentPilotPacketId
+    || agentPilotGoalId
+    || agentPilotProvenance.length
+    || asString(ragContext?.launch_draft_asset_id)
+    || asString(ragContext?.calendar_item_id)
+  )
+  const contextCalibrationRecorded = Boolean(
+    agentPilotCalibration
+    || asString(ragContext?.campaign_name)
+    || asString(ragContext?.channel)
+    || asString(ragContext?.platform)
+    || targetPlatforms.length
+  )
+  const contextClaimsRecorded = Boolean(
+    agentPilotApprovalChecklist.length
+    || agentPilotRequiredFixes.length
+    || agentPilotChallengerStatus
+    || asString(ragContext?.approval_boundary)
+  )
+  const contextRecorded = contextSourceRecorded && (contextCalibrationRecorded || contextClaimsRecorded || agentPilotPassToHuman)
+  const contextMissingAfterCopyApproval = copyGateState === 'approved' && !contextRecorded
+  const contextSourceState: GateState = contextSourceRecorded
+    ? 'approved'
+    : contextMissingAfterCopyApproval
+      ? 'blocked'
+      : 'pending'
+  const contextCalibrationState: GateState = contextCalibrationRecorded || contextRecorded
+    ? 'approved'
+    : contextMissingAfterCopyApproval
+      ? 'blocked'
+      : 'pending'
+  const contextClaimState: GateState = contextClaimsRecorded || contextRecorded
+    ? 'approved'
+    : contextMissingAfterCopyApproval
+      ? 'blocked'
+      : 'pending'
   const challengerGateState: GateState = gateStateFromRawStatus(agentPilotChallengerStatus)
-  const chronicleGateState: GateState = gateStateFromRawStatus(agentPilotChronicleStatus)
   const supportingContextDetails: Array<{ label: string; state: GateState }> = [
-    { label: 'Human review', state: humanReviewGateState },
-    { label: 'Challenger', state: challengerGateState },
-    { label: 'Chronicle', state: chronicleGateState },
+    { label: 'Source basis', state: contextSourceState },
+    { label: 'Audience and voice', state: contextCalibrationState },
+    { label: 'Claims and constraints', state: contextClaimState },
+    { label: 'Amina challenger', state: challengerGateState },
   ]
   const supportingContextGateState: GateState = supportingContextDetails.some((gate) => gate.state === 'blocked')
     ? 'blocked'
@@ -1921,6 +1960,14 @@ function SocialContentDetailPage() {
       : platformNextStages.some((stage) => stage.state === 'available')
         ? 'in_review'
         : 'pending'
+  const visualWorkflowGateState: GateState = visualAssetsGateState === 'approved' && assetPacketGateState === 'approved' && privacyGateState === 'approved'
+    ? 'approved'
+    : [visualAssetsGateState, assetPacketGateState, privacyGateState].some((state) => state === 'blocked' || state === 'rejected')
+      ? 'blocked'
+      : [visualAssetsGateState, assetPacketGateState, privacyGateState].some((state) => state === 'in_review')
+        ? 'in_review'
+        : 'pending'
+  const canonicalKanbanHref = `/admin/agents/swarm-board?source_type=social_content_approval&source_id=${encodeURIComponent(item.id)}&social_content_id=${encodeURIComponent(item.id)}`
   const reviewGateSummary: Array<{ label: string; state: GateState; step: ApprovalStep }> = [
     {
       label: 'Copy',
@@ -1928,23 +1975,13 @@ function SocialContentDetailPage() {
       step: 'copy',
     },
     {
-      label: 'Supporting context',
+      label: contextRecorded ? 'Context recorded' : 'Context',
       state: supportingContextGateState,
       step: 'context',
     },
     {
-      label: 'Visual assets',
-      state: visualAssetsGateState,
-      step: 'visuals',
-    },
-    {
-      label: 'Asset packet',
-      state: assetPacketGateState,
-      step: 'visuals',
-    },
-    {
-      label: 'Privacy',
-      state: privacyGateState,
+      label: 'Amina visual QA',
+      state: visualWorkflowGateState,
       step: 'visuals',
     },
     {
@@ -1978,7 +2015,7 @@ function SocialContentDetailPage() {
     {
       step: 'context',
       label: 'Context',
-      description: 'Source and calibration',
+      description: contextRecorded ? 'Source basis recorded' : 'Source basis required',
       state: supportingContextGateState,
     },
     {
@@ -1989,15 +2026,9 @@ function SocialContentDetailPage() {
     },
     {
       step: 'visuals',
-      label: 'Visuals',
-      description: 'Assets and privacy',
-      state: visualAssetsGateState === 'approved' && assetPacketGateState === 'approved' && privacyGateState === 'approved'
-        ? 'approved'
-        : [visualAssetsGateState, assetPacketGateState, privacyGateState].some((state) => state === 'blocked' || state === 'rejected')
-          ? 'blocked'
-          : [visualAssetsGateState, assetPacketGateState, privacyGateState].some((state) => state === 'in_review')
-            ? 'in_review'
-            : 'pending',
+      label: 'Amina Visuals',
+      description: visualWorkflowGateState === 'pending' ? 'Strategy not started' : 'Strategy, QA, privacy',
+      state: visualWorkflowGateState,
     },
     {
       step: 'draft',
@@ -2018,6 +2049,80 @@ function SocialContentDetailPage() {
       state: item.status === 'published' || item.publishes?.some((publish) => publish.status === 'published') ? 'approved' : 'pending',
     },
   ]
+  const approvalStepDetails: Record<ApprovalStep, {
+    title: string
+    body: string
+    owner: string
+    lastUpdate: string
+    nextAction: string
+    waitingOnYou: string
+  }> = {
+    context: {
+      title: contextRecorded ? 'Context recorded' : 'Context needs recovery',
+      body: contextRecorded
+        ? 'This draft already carries its source basis, audience and voice calibration, claim constraints, or challenger record. The UI is projecting that evidence instead of backfilling production state.'
+        : 'Context must be completed before copy. Because copy is already approved, this item should be treated as a lifecycle mismatch until the source packet or calibration record is attached.',
+      owner: contextRecorded ? 'Shaka / Amina' : 'Shaka',
+      lastUpdate: item.updated_at ? new Date(item.updated_at).toLocaleString() : 'Not recorded',
+      nextAction: contextRecorded
+        ? 'Continue into Amina visual strategy or inspect the canonical Kanban work items.'
+        : 'Attach the approved source packet, audience/voice calibration, and claim constraints before further execution.',
+      waitingOnYou: contextMissingAfterCopyApproval ? 'Yes - context recovery decision' : 'No',
+    },
+    copy: {
+      title: copyGateState === 'approved' ? 'Copy approved' : 'Copy review',
+      body: copyGateState === 'approved'
+        ? 'The post, CTA, hashtags, and acronym clarity have passed editorial review. This does not authorize visual generation, provider handoff, scheduling, or publication.'
+        : 'Review or revise the public copy before downstream visual and platform work can proceed.',
+      owner: 'Vambah / Shaka',
+      lastUpdate: item.reviewed_by ? new Date(item.updated_at).toLocaleString() : 'Awaiting editorial decision',
+      nextAction: copyGateState === 'approved' ? 'Move to visual strategy and QA.' : 'Approve the copy or reject with revision feedback.',
+      waitingOnYou: copyGateState === 'approved' ? 'No' : 'Yes - editorial decision',
+    },
+    visuals: {
+      title: visualWorkflowGateState === 'approved'
+        ? 'Visuals and privacy approved'
+        : visualWorkflowGateState === 'pending'
+          ? 'Amina visual strategy not started'
+          : 'Amina visual strategy in progress',
+      body: 'Amina owns visual form selection, approved asset reuse, original candidate generation when needed, provenance, agent QA, accessibility, rights, and privacy checks before final human visual/privacy review.',
+      owner: 'Amina',
+      lastUpdate: productionAssets ? new Date(item.updated_at).toLocaleString() : 'No asset packet recorded',
+      nextAction: visualWorkflowGateState === 'approved'
+        ? 'Proceed to governed platform draft handoff.'
+        : 'Use the canonical Kanban view to track source research, candidate creation, QA, blockers, and final review readiness.',
+      waitingOnYou: [visualAssetsGateState, assetPacketGateState, privacyGateState].some((state) => state === 'blocked' || state === 'rejected')
+        ? 'Yes - visual/privacy exception'
+        : 'No',
+    },
+    draft: {
+      title: isDraftOnlyPilot ? 'Platform draft handoff' : 'Publishing gate',
+      body: isDraftOnlyPilot
+        ? 'The platform draft is a separate governed handoff after copy, visuals, asset packet, and privacy are approved.'
+        : 'Publishing remains gated by channel, schedule, and explicit submission controls.',
+      owner: isDraftOnlyPilot ? 'Hannibal / Publishing lane' : 'Publishing lane',
+      lastUpdate: asString(linkedinDraftHandoff?.created_at) ? new Date(asString(linkedinDraftHandoff?.created_at)).toLocaleString() : 'No platform draft handoff yet',
+      nextAction: linkedinDraftBlockers.length ? linkedinDraftBlockers[0] : 'Create or inspect the governed platform draft.',
+      waitingOnYou: linkedinDraftGateState === 'in_review' ? 'Yes - draft handoff approval' : 'No',
+    },
+    submit: {
+      title: 'Explicit submit gate',
+      body: 'Provider submission, scheduling, and publication stay behind their own approval boundary. Internal approval does not create background external execution.',
+      owner: 'Publishing lane',
+      lastUpdate: item.updated_at ? new Date(item.updated_at).toLocaleString() : 'Not recorded',
+      nextAction: platformNextStages[0]?.label ?? 'No provider submission action is currently available.',
+      waitingOnYou: platformSubmissionGateState === 'in_review' ? 'Yes - submit decision' : 'No',
+    },
+    status: {
+      title: 'Publication and signal status',
+      body: 'Signals summarize what happened after provider submission or publication. They should not be confused with copy approval or visual readiness.',
+      owner: 'Publishing / analytics lane',
+      lastUpdate: item.published_at ? new Date(item.published_at).toLocaleString() : 'No publication signal yet',
+      nextAction: item.status === 'published' ? 'Monitor post signals.' : 'Complete upstream gates before status signals are expected.',
+      waitingOnYou: 'No',
+    },
+  }
+  const activeApprovalStepDetail = approvalStepDetails[activeApprovalStep]
   const setApprovalStep = (step: ApprovalStep) => {
     const params = new URLSearchParams(searchParams.toString())
     params.set('step', step)
@@ -2291,13 +2396,15 @@ function SocialContentDetailPage() {
 
 	            {activeApprovalStep === 'context' && (
 	            <>
-	            <details id="social-supporting-context-gate" className="mt-4 scroll-mt-28 rounded-lg border border-silicon-slate/80 bg-background/35">
+	            <details id="social-supporting-context-gate" className="mt-4 scroll-mt-28 rounded-lg border border-silicon-slate/80 bg-background/35" open={contextMissingAfterCopyApproval}>
               <summary className="cursor-pointer list-none px-4 py-3">
                 <span className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <span className="text-sm font-semibold text-gray-200">Supporting context and checklists</span>
+                  <span className="text-sm font-semibold text-gray-200">
+                    {contextRecorded ? 'Recorded context and source basis' : 'Context recovery required'}
+                  </span>
                   <span className="flex flex-col gap-1 text-left sm:text-right">
                     <span className={`w-fit rounded-full border px-2 py-0.5 text-[10px] font-semibold sm:ml-auto ${GATE_STATE_CONFIG[supportingContextGateState].className}`}>
-                      Supporting context: {GATE_STATE_CONFIG[supportingContextGateState].label}
+                      Context: {contextRecorded ? 'Recorded' : GATE_STATE_CONFIG[supportingContextGateState].label}
                     </span>
                     <span className="text-xs text-gray-500">
                       {supportingContextDetails.map((gate) => `${gate.label} ${GATE_STATE_CONFIG[gate.state].label.toLowerCase()}`).join(' · ')}
@@ -2308,6 +2415,11 @@ function SocialContentDetailPage() {
               <div className="grid gap-3 border-t border-silicon-slate/70 p-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(18rem,0.8fr)]">
                 <div className="rounded-lg border border-silicon-slate/80 bg-imperial-navy/35 p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Provenance</p>
+                  {contextSourcePacketPath && (
+                    <p className="mt-2 truncate rounded-md border border-silicon-slate/70 bg-background/35 px-2 py-1 text-xs text-radiant-gold" title={contextSourcePacketPath}>
+                      Source packet: {contextSourcePacketPath}
+                    </p>
+                  )}
                   <ul className="mt-3 space-y-2 text-sm text-gray-300">
                     {agentPilotProvenance.slice(0, 4).map((entry) => (
                       <li key={entry} className="flex gap-2">
@@ -2930,6 +3042,41 @@ function SocialContentDetailPage() {
 		            )
 		          })}
 		        </div>
+            <section className="rounded-xl border border-silicon-slate/80 bg-background/35 p-4" aria-label="Current approval step details">
+              <div className="grid gap-3 xl:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,0.9fr))]">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-radiant-gold">What this means</p>
+                  <h2 className="mt-1 text-lg font-semibold text-gray-100">{activeApprovalStepDetail.title}</h2>
+                  <p className="mt-2 text-sm leading-6 text-gray-300">{activeApprovalStepDetail.body}</p>
+                </div>
+                <div className="rounded-lg border border-silicon-slate/70 bg-imperial-navy/30 p-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Owner</p>
+                  <p className="mt-2 text-sm font-semibold text-gray-100">{activeApprovalStepDetail.owner}</p>
+                </div>
+                <div className="rounded-lg border border-silicon-slate/70 bg-imperial-navy/30 p-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Last update</p>
+                  <p className="mt-2 text-sm text-gray-200">{activeApprovalStepDetail.lastUpdate}</p>
+                </div>
+                <div className="rounded-lg border border-silicon-slate/70 bg-imperial-navy/30 p-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Waiting on you?</p>
+                  <p className="mt-2 text-sm font-semibold text-gray-100">{activeApprovalStepDetail.waitingOnYou}</p>
+                </div>
+                <div className="rounded-lg border border-silicon-slate/70 bg-imperial-navy/30 p-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Canonical work</p>
+                  <Link
+                    href={canonicalKanbanHref}
+                    className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-radiant-gold hover:underline"
+                  >
+                    Filtered Kanban
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
+              </div>
+              <div className="mt-3 rounded-lg border border-silicon-slate/70 bg-imperial-navy/30 p-3">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Next action</p>
+                <p className="mt-1 text-sm leading-6 text-gray-200">{activeApprovalStepDetail.nextAction}</p>
+              </div>
+            </section>
 
 	        {/* ================================================================ */}
         {/* SECTION 1: Content (two-col on lg: edit fields + preview)        */}
