@@ -1,0 +1,290 @@
+{
+  "version": "agentified_visual_strategy_qa_v1",
+  "date": "2026-07-31",
+  "owner_agent_key": "strategic-narrative",
+  "owner_display_name": "Amina",
+  "side_effects": {
+    "publishes_external_posts": false,
+    "schedules_external_posts": false,
+    "uploads_media": false,
+    "creates_provider_drafts": false,
+    "generates_paid_provider_assets": false,
+    "mutates_database": false
+  },
+  "source_inputs": {
+    "approved_launch_packet": "docs/agentic-content-linkedin-drafts/2026-06-04-sales-outreach-launch-drafts.md",
+    "canonical_drafts": "lib/agentic-social-launch-drafts.ts",
+    "visual_loop": "agentified/campaign/visual-asset-autoresearch-loop.md",
+    "visual_source_map": "agentified/manuscript/visuals/source-map.md",
+    "linkedin_research_loop": "docs/content-strategy/linkedin-autoresearch-loop.md",
+    "public_research_source": "agentified/manuscript/references/youtube-ai-source-map.md",
+    "drive_source_root": "/Users/vambahsillah/Library/CloudStorage/GoogleDrive-vsillah@gmail.com/My Drive/2. AmaduTown Advisory Solutions"
+  },
+  "strategies": [
+    {
+      "assetId": "p0-linkedin-flagship-agentic-operating-system",
+      "socialContentId": "0cec63b3-5f8a-49bd-90f8-e3dff6757308",
+      "priority": "P0",
+      "format": "single_image",
+      "recommendation": "Use a single architecture card anchored in the Portfolio-first operating stack.",
+      "selectedForm": "single-image architecture card",
+      "sourceAsset": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+      "supportAssets": [
+        "public/amadutown-logo-upscaled.png",
+        "agentified/manuscript/visuals/source-map.md",
+        "agentified/manuscript/references/youtube-ai-source-map.md",
+        "docs/content-strategy/linkedin-autoresearch-loop.md"
+      ],
+      "researchPattern": "Use the public-safe operator pattern from agent orchestration creators: name the post-demo operating layer, then show the control surface that makes authority inspectable.",
+      "rationale": "The approved copy argues that the demo is no longer the hard part. The Portfolio-first stack gives the claim a visual proof shape without showing private traces or client data.",
+      "altText": "Anyone can launch an agent now visual for the Agentified launch. The image uses an AmaduTown-branded single-image architecture card to explain The demo is no longer the hard part; governed execution is where the value starts.",
+      "candidateSlug": "linkedin-flagship-agentic-operating-system",
+      "candidatePaths": [
+        "public/agentified/social-visuals/2026-07-31/linkedin-flagship-agentic-operating-system.png"
+      ],
+      "qaFindings": [
+        {
+          "gate": "Brand fit and message alignment",
+          "result": "pass",
+          "finding": "Uses approved Agentified manuscript art and AmaduTown logo treatment; supports the approved claim without adding a new promise."
+        },
+        {
+          "gate": "Factual and copy consistency",
+          "result": "pass",
+          "finding": "Visual headline and support copy stay inside the approved draft claim: The demo is no longer the hard part; governed execution is where the value starts."
+        },
+        {
+          "gate": "LinkedIn dimensions and mobile crop",
+          "result": "pass",
+          "finding": "Single-image candidate rendered at 1080x1080 with text inside the safe area."
+        },
+        {
+          "gate": "Accessibility and alt text readiness",
+          "result": "pass",
+          "finding": "Alt text is drafted and attached to the packet for 1 candidate file(s)."
+        },
+        {
+          "gate": "Privacy, rights, and source provenance",
+          "result": "pass",
+          "finding": "Reuses local Portfolio/Agentified assets only. No private logs, client records, raw screenshots, third-party creative assets, or provider-generated new imagery were introduced."
+        },
+        {
+          "gate": "Visual quality and artifacts",
+          "result": "pass",
+          "finding": "Local Sharp composition uses exact text overlays and existing approved image sources; no model-rendered text, warped logos, or low-resolution external media."
+        },
+        {
+          "gate": "Publication boundary",
+          "result": "pass",
+          "finding": "Candidate is safe for human visual/privacy review only. No scheduling, provider handoff, LinkedIn upload, or publication is authorized."
+        },
+        {
+          "gate": "Amina strategy rationale",
+          "result": "pass",
+          "finding": "The approved copy argues that the demo is no longer the hard part. The Portfolio-first stack gives the claim a visual proof shape without showing private traces or client data."
+        }
+      ]
+    },
+    {
+      "assetId": "p0-carousel-seven-things-after-agent-demo",
+      "socialContentId": "b44527a4-2840-4be1-bf10-47ff945425a4",
+      "priority": "P0",
+      "format": "carousel",
+      "recommendation": "Build the carousel as a component model, not a decorative quote sequence.",
+      "selectedForm": "nine-slide LinkedIn carousel",
+      "sourceAsset": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+      "supportAssets": [
+        "public/amadutown-logo-upscaled.png",
+        "agentified/manuscript/visuals/source-map.md",
+        "agentified/source-assets/accelerated/accelerated-sam-infographic.png",
+        "agentified/manuscript/references/youtube-ai-source-map.md",
+        "docs/content-strategy/linkedin-autoresearch-loop.md"
+      ],
+      "researchPattern": "Use high-performing educational-carousel structure: sharp cover promise, one operating component per slide, and a final decision question.",
+      "rationale": "The approved outline already has seven components. A carousel lets Amina preserve the order while using the trust-layer visual system as the campaign anchor.",
+      "altText": "7 things your enterprise agent needs after the demo visual for the Agentified launch. The image uses an AmaduTown-branded nine-slide LinkedIn carousel to explain The demo is only one stage; teams need a component model for operational trust.",
+      "candidateSlug": "carousel-seven-things-after-agent-demo",
+      "candidatePaths": [
+        "public/agentified/social-visuals/2026-07-31/carousel-seven-things-after-agent-demo/slide-01-cover.png",
+        "public/agentified/social-visuals/2026-07-31/carousel-seven-things-after-agent-demo/slide-02.png",
+        "public/agentified/social-visuals/2026-07-31/carousel-seven-things-after-agent-demo/slide-03.png",
+        "public/agentified/social-visuals/2026-07-31/carousel-seven-things-after-agent-demo/slide-04.png",
+        "public/agentified/social-visuals/2026-07-31/carousel-seven-things-after-agent-demo/slide-05.png",
+        "public/agentified/social-visuals/2026-07-31/carousel-seven-things-after-agent-demo/slide-06.png",
+        "public/agentified/social-visuals/2026-07-31/carousel-seven-things-after-agent-demo/slide-07.png",
+        "public/agentified/social-visuals/2026-07-31/carousel-seven-things-after-agent-demo/slide-08.png",
+        "public/agentified/social-visuals/2026-07-31/carousel-seven-things-after-agent-demo/slide-09-close.png"
+      ],
+      "qaFindings": [
+        {
+          "gate": "Brand fit and message alignment",
+          "result": "pass",
+          "finding": "Uses approved Agentified manuscript art and AmaduTown logo treatment; supports the approved claim without adding a new promise."
+        },
+        {
+          "gate": "Factual and copy consistency",
+          "result": "pass",
+          "finding": "Visual headline and support copy stay inside the approved draft claim: The demo is only one stage; teams need a component model for operational trust."
+        },
+        {
+          "gate": "LinkedIn dimensions and mobile crop",
+          "result": "pass",
+          "finding": "Carousel slides rendered at 1080x1080 with text inside the safe area."
+        },
+        {
+          "gate": "Accessibility and alt text readiness",
+          "result": "pass",
+          "finding": "Alt text is drafted and attached to the packet for 9 candidate file(s)."
+        },
+        {
+          "gate": "Privacy, rights, and source provenance",
+          "result": "pass",
+          "finding": "Reuses local Portfolio/Agentified assets only. No private logs, client records, raw screenshots, third-party creative assets, or provider-generated new imagery were introduced."
+        },
+        {
+          "gate": "Visual quality and artifacts",
+          "result": "pass",
+          "finding": "Local Sharp composition uses exact text overlays and existing approved image sources; no model-rendered text, warped logos, or low-resolution external media."
+        },
+        {
+          "gate": "Publication boundary",
+          "result": "pass",
+          "finding": "Candidate is safe for human visual/privacy review only. No scheduling, provider handoff, LinkedIn upload, or publication is authorized."
+        },
+        {
+          "gate": "Amina strategy rationale",
+          "result": "pass",
+          "finding": "The approved outline already has seven components. A carousel lets Amina preserve the order while using the trust-layer visual system as the campaign anchor."
+        }
+      ]
+    },
+    {
+      "assetId": "p1-linkedin-scope-safety-model",
+      "socialContentId": "f6f7c5be-13f1-43e3-9044-7b063cb2cb90",
+      "priority": "P1",
+      "format": "single_image",
+      "recommendation": "Use an authority-ladder card so scope reads as a visible product boundary.",
+      "selectedForm": "single-image boundary card",
+      "sourceAsset": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "supportAssets": [
+        "public/amadutown-logo-upscaled.png",
+        "agentified/manuscript/visuals/source-map.md",
+        "agentified/manuscript/references/youtube-ai-source-map.md",
+        "docs/content-strategy/linkedin-autoresearch-loop.md"
+      ],
+      "researchPattern": "Use the safety-through-boundaries pattern: convert risk language into plain operator permissions and escalation gates.",
+      "rationale": "The approved copy asks whether the team can explain what agents read, write, send, spend, and change. The authority ladder is the cleanest existing source for that claim.",
+      "altText": "Scope is the safety model visual for the Agentified launch. The image uses an AmaduTown-branded single-image boundary card to explain Scope is not a prompt detail; it is the operating boundary that makes agent authority explainable.",
+      "candidateSlug": "linkedin-scope-safety-model",
+      "candidatePaths": [
+        "public/agentified/social-visuals/2026-07-31/linkedin-scope-safety-model.png"
+      ],
+      "qaFindings": [
+        {
+          "gate": "Brand fit and message alignment",
+          "result": "pass",
+          "finding": "Uses approved Agentified manuscript art and AmaduTown logo treatment; supports the approved claim without adding a new promise."
+        },
+        {
+          "gate": "Factual and copy consistency",
+          "result": "pass",
+          "finding": "Visual headline and support copy stay inside the approved draft claim: Scope is not a prompt detail; it is the operating boundary that makes agent authority explainable."
+        },
+        {
+          "gate": "LinkedIn dimensions and mobile crop",
+          "result": "pass",
+          "finding": "Single-image candidate rendered at 1080x1080 with text inside the safe area."
+        },
+        {
+          "gate": "Accessibility and alt text readiness",
+          "result": "pass",
+          "finding": "Alt text is drafted and attached to the packet for 1 candidate file(s)."
+        },
+        {
+          "gate": "Privacy, rights, and source provenance",
+          "result": "pass",
+          "finding": "Reuses local Portfolio/Agentified assets only. No private logs, client records, raw screenshots, third-party creative assets, or provider-generated new imagery were introduced."
+        },
+        {
+          "gate": "Visual quality and artifacts",
+          "result": "pass",
+          "finding": "Local Sharp composition uses exact text overlays and existing approved image sources; no model-rendered text, warped logos, or low-resolution external media."
+        },
+        {
+          "gate": "Publication boundary",
+          "result": "pass",
+          "finding": "Candidate is safe for human visual/privacy review only. No scheduling, provider handoff, LinkedIn upload, or publication is authorized."
+        },
+        {
+          "gate": "Amina strategy rationale",
+          "result": "pass",
+          "finding": "The approved copy asks whether the team can explain what agents read, write, send, spend, and change. The authority ladder is the cleanest existing source for that claim."
+        }
+      ]
+    },
+    {
+      "assetId": "p1-linkedin-agent-qa-scorecards",
+      "socialContentId": "470afc63-81bf-4acd-b2c3-4ec6b9c231fc",
+      "priority": "P1",
+      "format": "single_image",
+      "recommendation": "Use a receipt-led scorecard card so QA feels like earned authority, not a generic checklist.",
+      "selectedForm": "single-image scorecard card",
+      "sourceAsset": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+      "supportAssets": [
+        "public/amadutown-logo-upscaled.png",
+        "agentified/manuscript/visuals/source-map.md",
+        "agentified/manuscript/references/youtube-ai-source-map.md",
+        "docs/content-strategy/linkedin-autoresearch-loop.md"
+      ],
+      "researchPattern": "Use the evals-and-receipts pattern from public agent QA creators: show the path that produced the answer before asking a human to approve the side effect.",
+      "rationale": "The approved copy says the human should receive a decision packet, not a mystery. The first-receipt figure shows that proof path without exposing raw private records.",
+      "altText": "Agent QA needs scorecards visual for the Agentified launch. The image uses an AmaduTown-branded single-image scorecard card to explain Agents should earn authority through evaluation, traces, and challenger loops.",
+      "candidateSlug": "linkedin-agent-qa-scorecards",
+      "candidatePaths": [
+        "public/agentified/social-visuals/2026-07-31/linkedin-agent-qa-scorecards.png"
+      ],
+      "qaFindings": [
+        {
+          "gate": "Brand fit and message alignment",
+          "result": "pass",
+          "finding": "Uses approved Agentified manuscript art and AmaduTown logo treatment; supports the approved claim without adding a new promise."
+        },
+        {
+          "gate": "Factual and copy consistency",
+          "result": "pass",
+          "finding": "Visual headline and support copy stay inside the approved draft claim: Agents should earn authority through evaluation, traces, and challenger loops."
+        },
+        {
+          "gate": "LinkedIn dimensions and mobile crop",
+          "result": "pass",
+          "finding": "Single-image candidate rendered at 1080x1080 with text inside the safe area."
+        },
+        {
+          "gate": "Accessibility and alt text readiness",
+          "result": "pass",
+          "finding": "Alt text is drafted and attached to the packet for 1 candidate file(s)."
+        },
+        {
+          "gate": "Privacy, rights, and source provenance",
+          "result": "pass",
+          "finding": "Reuses local Portfolio/Agentified assets only. No private logs, client records, raw screenshots, third-party creative assets, or provider-generated new imagery were introduced."
+        },
+        {
+          "gate": "Visual quality and artifacts",
+          "result": "pass",
+          "finding": "Local Sharp composition uses exact text overlays and existing approved image sources; no model-rendered text, warped logos, or low-resolution external media."
+        },
+        {
+          "gate": "Publication boundary",
+          "result": "pass",
+          "finding": "Candidate is safe for human visual/privacy review only. No scheduling, provider handoff, LinkedIn upload, or publication is authorized."
+        },
+        {
+          "gate": "Amina strategy rationale",
+          "result": "pass",
+          "finding": "The approved copy says the human should receive a decision packet, not a mystery. The first-receipt figure shows that proof path without exposing raw private records."
+        }
+      ]
+    }
+  ]
+}
