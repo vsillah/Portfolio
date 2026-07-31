@@ -45,6 +45,7 @@
     "model-ops:reply-intent:sync": "tsx scripts/sync-reply-intent-review-candidates.ts",
     "model-ops:research:plan": "tsx scripts/model-ops-research-plan.ts",
     "agentified:visual-source-audit": "tsx scripts/agentified-visual-source-audit.ts",
+    "agentified:visual-strategy-qa": "tsx scripts/generate-agentified-visual-strategy-qa.ts",
     "mobile-foundry:analyze": "tsx scripts/mobile-app-foundry-analyze.ts",
     "mobile-foundry:prototype-packet": "tsx scripts/mobile-app-foundry-prototype-packet.ts",
     "mobile-foundry:commercialization-packet": "tsx scripts/mobile-app-foundry-commercialization-packet.ts",
