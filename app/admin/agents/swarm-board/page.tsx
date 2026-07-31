@@ -579,10 +579,15 @@ function FocusedReviewWorkspace({
   onClearFilters: () => void
 }) {
   const firstTask = tasks[0] ?? null
-  const chips = [
+  const uniqueOwners = optionValues(tasks.map((task) => task.ownerAgentName))
+  const uniqueStatuses = optionValues(tasks.map((task) => task.status))
+  const uniqueProductionLanes = optionValues(tasks.map((task) => task.socialContent?.productionLane ?? null))
+  const uniqueRemediations = optionValues(tasks.map((task) => task.remediationId))
+  const ownerChipLabel = ownerFilter !== 'all' && uniqueOwners.length === 1 ? uniqueOwners[0] : ownerFilter
+  const filterChips = [
     selectedGoalId !== 'all' ? `Goal ${selectedGoalId}` : null,
     focusedScope.workItemId ? `Work item ${focusedScope.workItemId.slice(0, 8)}` : null,
-    ownerFilter !== 'all' ? `Owner ${displayDetailValue('Owner', ownerFilter)}` : null,
+    ownerFilter !== 'all' ? `Owner ${displayDetailValue('Owner', ownerChipLabel)}` : null,
     statusFilter !== 'all' ? `Status ${statusFilter.replace(/_/g, ' ')}` : null,
     attentionFilter !== 'all' ? `Attention ${attentionFilter}` : null,
     dependencyFilter !== 'all' ? `Dependencies ${dependencyFilter}` : null,
@@ -592,10 +597,6 @@ function FocusedReviewWorkspace({
     sourceScope.sourceId ? `Source ${sourceScope.sourceId.slice(0, 12)}` : null,
     sourceScope.socialContentId ? `Social draft ${sourceScope.socialContentId.slice(0, 8)}` : null,
   ].filter((chip): chip is string => Boolean(chip))
-  const uniqueOwners = optionValues(tasks.map((task) => task.ownerAgentName))
-  const uniqueStatuses = optionValues(tasks.map((task) => task.status))
-  const uniqueProductionLanes = optionValues(tasks.map((task) => task.socialContent?.productionLane ?? null))
-  const uniqueRemediations = optionValues(tasks.map((task) => task.remediationId))
   const boundary = firstTask?.approvalBoundary
     ?? firstTask?.goal?.approvalBoundary
     ?? (firstTask?.socialContent?.publishGate ? `Publish gate: ${firstTask.socialContent.publishGate.replace(/_/g, ' ')}` : null)
@@ -622,13 +623,10 @@ function FocusedReviewWorkspace({
           <button type="button" onClick={onClearFilters} className="rounded-lg border border-radiant-gold/50 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15">
             Open full board
           </button>
-          <button type="button" onClick={onClearFilters} className="rounded-lg border border-silicon-slate/70 px-3 py-2 text-sm text-foreground hover:border-radiant-gold/60">
-            Clear scope
-          </button>
         </div>
       </div>
       <div className="mt-3 flex flex-wrap gap-2 text-xs">
-        {chips.map((chip) => (
+        {filterChips.map((chip) => (
           <span key={chip} className="rounded-full border border-radiant-gold/35 bg-background/50 px-2 py-1 text-radiant-gold">
             {chip}
           </span>

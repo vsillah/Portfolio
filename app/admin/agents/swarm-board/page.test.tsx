@@ -490,7 +490,7 @@ describe('AgentSwarmBoardPage', () => {
     expect(screen.getByText('0 of 3 canonical Kanban cards match this scope.')).toBeInTheDocument()
     expect(screen.getByText(/No canonical Kanban cards match this scoped link/i)).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Clear scope' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Open full board' }))
 
     expect(screen.getAllByText(longTaskTitle).length).toBeGreaterThan(0)
     expect(window.location.pathname).toBe('/admin/agents/swarm-board')
