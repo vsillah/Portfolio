@@ -63,6 +63,7 @@ lib/chatbot-knowledge-content.generated.ts
 .env.local
 
 # capture auth state (session tokens; do not commit)
+.auth/
 design-files/about-page-video/.storyboard-auth-state.json
 design-files/product-screenshots-capture/.product-screenshots-auth-state.json
 
