@@ -6,6 +6,7 @@ This runbook separates three concerns:
 
 - **Application auth flow:** Portfolio stores the requested path locally and asks Supabase OAuth to return to the current origin at `/auth/callback`.
 - **Provider allow-list:** Supabase Auth must allow each origin that will receive OAuth callbacks.
+- **Preview protection:** Vercel previews must allow automation through a project bypass secret when rendered QA runs outside the Vercel-hosted app.
 - **Agent validation session:** Playwright and captain QA can reuse a local, gitignored storage-state file generated from an approved admin validation account.
 
 ## Current failure mode
@@ -75,6 +76,18 @@ NEXT_PUBLIC_SUPABASE_URL=...
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 ```
 
+For protected Vercel previews, also load the project automation bypass secret:
+
+```bash
+VERCEL_AUTOMATION_BYPASS_SECRET=...
+```
+
+Portfolio's Playwright config sends this value as the
+`x-vercel-protection-bypass` header and requests the Vercel bypass cookie with
+`x-vercel-set-bypass-cookie: true`. This clears Vercel Preview Protection for
+automation only; it does not replace Portfolio application auth or approve any
+publishing, scheduling, provider handoff, or production-setting change.
+
 Generate a Playwright storage state for local validation:
 
 ```bash
@@ -90,7 +103,7 @@ PLAYWRIGHT_BASE_URL=https://portfolio-git-example-vsillahs-projects.vercel.app n
 Run E2E against a preview without launching localhost:
 
 ```bash
-PLAYWRIGHT_BASE_URL=https://portfolio-git-example-vsillahs-projects.vercel.app npm run test:e2e
+PLAYWRIGHT_BASE_URL=https://portfolio-git-example-vsillahs-projects.vercel.app VERCEL_AUTOMATION_BYPASS_SECRET=... npm run test:e2e
 ```
 
 By default, the session file is written to:

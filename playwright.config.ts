@@ -1,10 +1,18 @@
 import fs from 'node:fs'
 import { defineConfig, devices } from '@playwright/test'
+import { getVercelAutomationBypassSecret } from './scripts/vercel-validation-env'
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000'
 const authStatePath = process.env.PLAYWRIGHT_AUTH_STATE || '.auth/portfolio-admin-storage-state.json'
 const isLocalBaseURL = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?/.test(baseURL)
 const storageState = fs.existsSync(authStatePath) ? authStatePath : undefined
+const vercelBypassSecret = getVercelAutomationBypassSecret()
+const vercelBypassHeaders = vercelBypassSecret
+  ? {
+      'x-vercel-protection-bypass': vercelBypassSecret,
+      'x-vercel-set-bypass-cookie': 'true',
+    }
+  : undefined
 
 export default defineConfig({
   testDir: './e2e',
@@ -15,6 +23,7 @@ export default defineConfig({
   reporter: 'list',
   use: {
     baseURL,
+    extraHTTPHeaders: vercelBypassHeaders,
     storageState,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
