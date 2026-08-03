@@ -8,6 +8,10 @@ This runbook separates three concerns:
 - **Provider allow-list:** Supabase Auth must allow each origin that will receive OAuth callbacks.
 - **Preview protection:** Vercel previews must allow automation through a project bypass secret when rendered QA runs outside the Vercel-hosted app.
 - **Agent validation session:** Playwright and captain QA can reuse a local, gitignored storage-state file generated from an approved admin validation account.
+- **Environment parity:** Storage-state generation must use the Supabase project
+  for the URL being tested. Localhost uses local env vars, `.vercel.app`
+  preview aliases use Vercel Preview env vars, and custom production domains
+  like `https://amadutown.com` use Vercel Production env vars.
 
 ## Current failure mode
 
@@ -98,6 +102,12 @@ Generate one for a Vercel preview:
 
 ```bash
 PLAYWRIGHT_BASE_URL=https://portfolio-git-example-vsillahs-projects.vercel.app npm run admin:auth:save
+```
+
+Generate one for production:
+
+```bash
+PLAYWRIGHT_BASE_URL=https://amadutown.com npm run admin:auth:save
 ```
 
 Run E2E against a preview without launching localhost:

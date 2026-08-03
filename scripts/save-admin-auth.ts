@@ -22,8 +22,8 @@
 import * as path from 'node:path'
 import { generateAuthState } from './save-storyboard-auth'
 import {
+  getVercelEnvTargetForBaseUrl,
   getVercelProjectEnvValues,
-  shouldUseVercelPreviewEnv,
 } from './vercel-validation-env'
 
 function readArg(name: string): string | undefined {
@@ -44,18 +44,22 @@ async function main() {
     process.env.PLAYWRIGHT_AUTH_STATE ||
     path.join(process.cwd(), '.auth', 'portfolio-admin-storage-state.json')
 
-  const vercelPreviewEnv = shouldUseVercelPreviewEnv(baseUrl)
-    ? getVercelProjectEnvValues([
-        'NEXT_PUBLIC_SUPABASE_URL',
-        'NEXT_PUBLIC_SUPABASE_ANON_KEY',
-      ])
+  const vercelEnvTarget = getVercelEnvTargetForBaseUrl(baseUrl)
+  const vercelEnv = vercelEnvTarget
+    ? getVercelProjectEnvValues(
+        [
+          'NEXT_PUBLIC_SUPABASE_URL',
+          'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+        ],
+        vercelEnvTarget,
+      )
     : {}
 
   const result = await generateAuthState({
     baseUrl,
     outPath,
-    supabaseUrl: vercelPreviewEnv.NEXT_PUBLIC_SUPABASE_URL,
-    anonKey: vercelPreviewEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    supabaseUrl: vercelEnv.NEXT_PUBLIC_SUPABASE_URL,
+    anonKey: vercelEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   })
 
   if (!result) {

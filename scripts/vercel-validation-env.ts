@@ -97,6 +97,21 @@ export function getVercelProjectEnvValues(
   }
 }
 
-export function shouldUseVercelPreviewEnv(baseUrl: string): boolean {
-  return /^https:\/\/[^/]+\.vercel\.app(?:\/|$)/.test(baseUrl)
+export function getVercelEnvTargetForBaseUrl(baseUrl: string): 'preview' | 'production' | undefined {
+  let hostname: string
+  try {
+    hostname = new URL(baseUrl).hostname
+  } catch {
+    return undefined
+  }
+
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return undefined
+  }
+
+  if (hostname.endsWith('.vercel.app')) {
+    return 'preview'
+  }
+
+  return 'production'
 }
