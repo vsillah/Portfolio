@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
   publishToInstagram: vi.fn(),
   publishToFacebook: vi.fn(),
   publishToTikTok: vi.fn(),
+  syncCampaignCalendarForSocialContent: vi.fn(),
 }))
 
 vi.mock('@/lib/auth-server', () => ({
@@ -46,6 +47,10 @@ vi.mock('@/lib/publishing/tiktok', () => ({
   publishToTikTok: mocks.publishToTikTok,
 }))
 
+vi.mock('@/lib/social-content-calendar-linkage', () => ({
+  syncCampaignCalendarForSocialContent: mocks.syncCampaignCalendarForSocialContent,
+}))
+
 import { POST } from './route'
 
 function request(body?: unknown) {
@@ -62,6 +67,12 @@ describe('POST /api/admin/social-content/[id]/publish redaction gate', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-1' }, isAdmin: true })
     mocks.isAuthError.mockReturnValue(false)
+    mocks.syncCampaignCalendarForSocialContent.mockResolvedValue({
+      matched: 0,
+      updated: 0,
+      skipped: false,
+      error: null,
+    })
     mocks.single.mockResolvedValue({
       data: {
         id: 'social-1',
@@ -202,6 +213,12 @@ describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => 
     vi.spyOn(console, 'error').mockImplementation(() => {})
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-1' }, isAdmin: true })
     mocks.isAuthError.mockReturnValue(false)
+    mocks.syncCampaignCalendarForSocialContent.mockResolvedValue({
+      matched: 0,
+      updated: 0,
+      skipped: false,
+      error: null,
+    })
   })
 
   afterEach(() => {
@@ -322,6 +339,14 @@ describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => 
     expect(queueUpdate).toHaveBeenCalledWith(expect.objectContaining({
       status: 'published',
     }))
+    expect(mocks.syncCampaignCalendarForSocialContent).toHaveBeenCalledWith({
+      admin: { from: mocks.from },
+      socialContentId: 'social-1',
+      event: expect.objectContaining({
+        type: 'published',
+        platforms: ['instagram'],
+      }),
+    })
   })
 
   it('dispatches YouTube publishing with final video metadata', async () => {

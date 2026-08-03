@@ -4,6 +4,7 @@ import { NextRequest } from 'next/server'
 const mocks = vi.hoisted(() => ({
   verifyAdmin: vi.fn(),
   isAuthError: vi.fn(),
+  syncCampaignCalendarForSocialContent: vi.fn(),
   from: vi.fn(),
 }))
 
@@ -16,6 +17,10 @@ vi.mock('@/lib/supabase', () => ({
   supabaseAdmin: {
     from: mocks.from,
   },
+}))
+
+vi.mock('@/lib/social-content-calendar-linkage', () => ({
+  syncCampaignCalendarForSocialContent: mocks.syncCampaignCalendarForSocialContent,
 }))
 
 import { POST } from './route'
@@ -86,6 +91,12 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-1' }, isAdmin: true })
     mocks.isAuthError.mockReturnValue(false)
+    mocks.syncCampaignCalendarForSocialContent.mockResolvedValue({
+      matched: 0,
+      updated: 0,
+      skipped: false,
+      error: null,
+    })
   })
 
   afterEach(() => {
@@ -211,6 +222,16 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
           approved_by: 'admin-1',
           platforms: ['instagram', 'tiktok'],
         }),
+      }),
+    })
+    expect(mocks.syncCampaignCalendarForSocialContent).toHaveBeenCalledWith({
+      admin: { from: mocks.from },
+      socialContentId: 'social-1',
+      event: expect.objectContaining({
+        type: 'platform_submission_approved',
+        userId: 'admin-1',
+        platforms: ['instagram', 'tiktok'],
+        submitAfterApproval: true,
       }),
     })
     expect(fetchSpy).toHaveBeenCalledWith(

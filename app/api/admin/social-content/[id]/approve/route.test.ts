@@ -15,6 +15,7 @@ const mocks = vi.hoisted(() => ({
   publishesSelect: vi.fn(),
   publishesEq: vi.fn(),
   publishesUpsert: vi.fn(),
+  syncCampaignCalendarForSocialContent: vi.fn(),
   from: vi.fn(),
 }))
 
@@ -31,6 +32,10 @@ vi.mock('@/lib/supabase', () => ({
   supabaseAdmin: {
     from: mocks.from,
   },
+}))
+
+vi.mock('@/lib/social-content-calendar-linkage', () => ({
+  syncCampaignCalendarForSocialContent: mocks.syncCampaignCalendarForSocialContent,
 }))
 
 import { POST } from './route'
@@ -57,6 +62,12 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
     vi.clearAllMocks()
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-1' }, isAdmin: true })
     mocks.isAuthError.mockReturnValue(false)
+    mocks.syncCampaignCalendarForSocialContent.mockResolvedValue({
+      matched: 0,
+      updated: 0,
+      skipped: false,
+      error: null,
+    })
     mocks.createAgentWorkItem.mockImplementation(async (input) => ({
       id: `work-${input.metadata.production_lane}-1`,
       title: input.title,
@@ -167,6 +178,14 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
     expect(mocks.queueUpdate).toHaveBeenCalledWith({
       status: 'approved',
       reviewed_by: 'admin-1',
+    })
+    expect(mocks.syncCampaignCalendarForSocialContent).toHaveBeenCalledWith({
+      admin: { from: mocks.from },
+      socialContentId: 'social-1',
+      event: expect.objectContaining({
+        type: 'copy_approved',
+        userId: 'admin-1',
+      }),
     })
     expect(mocks.createAgentWorkItem).toHaveBeenCalledTimes(2)
     expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({

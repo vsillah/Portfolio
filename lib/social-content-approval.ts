@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { SocialPlatform } from '@/lib/social-content'
 import { createAgentWorkItem } from '@/lib/agent-work-items'
+import { syncCampaignCalendarForSocialContent } from '@/lib/social-content-calendar-linkage'
 
 type SocialContentApprovalPayload = Record<string, unknown>
 
@@ -144,6 +145,16 @@ export async function approveSocialContentItem({
     throw new SocialContentApprovalError(500, { error: 'Failed to approve content' })
   }
 
+  const calendarLinkage = await syncCampaignCalendarForSocialContent({
+    admin,
+    socialContentId: id,
+    event: {
+      type: 'copy_approved',
+      at: new Date().toISOString(),
+      userId: reviewedByUserId,
+    },
+  })
+
   if (isDraftOnlyReview) {
     const productionWorkItems = []
     for (const definition of productionHandoffDefinitions(id, ragContext)) {
@@ -177,6 +188,7 @@ export async function approveSocialContentItem({
       item: updated,
       publish_triggered: false,
       publishes: [],
+      calendar_linkage: calendarLinkage,
       reference_work_item: productionWorkItems.find((workItem) => workItem.production_lane === 'references') ?? null,
       production_work_items: productionWorkItems,
     }
@@ -209,5 +221,6 @@ export async function approveSocialContentItem({
     item: updated,
     publish_triggered: false,
     publishes,
+    calendar_linkage: calendarLinkage,
   }
 }

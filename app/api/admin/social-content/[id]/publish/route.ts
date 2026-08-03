@@ -9,6 +9,7 @@ import { publishToTikTok } from '@/lib/publishing/tiktok'
 import type { SocialPlatform } from '@/lib/social-content'
 import { getProductionAssets, getVideoRedactionGate } from '@/lib/social-production-assets'
 import { buildPlatformOrchestrationPlan, isPlatformSubmissionGateApproved } from '@/lib/social-platform-orchestration'
+import { syncCampaignCalendarForSocialContent } from '@/lib/social-content-calendar-linkage'
 
 export const dynamic = 'force-dynamic'
 
@@ -207,13 +208,14 @@ export async function POST(
     const anyPublished = platformResults.some((r) => (
       r.result.success && r.result.status !== 'publishing'
     ))
+    const publishedAt = new Date().toISOString()
 
     if (anyPublished) {
       await admin
         .from('social_content_queue')
         .update({
           status: 'published',
-          published_at: new Date().toISOString(),
+          published_at: publishedAt,
         })
         .eq('id', id)
     }
@@ -224,10 +226,31 @@ export async function POST(
       .select('*')
       .eq('content_id', id)
 
+    const publishedPlatforms = platformResults
+      .filter((r) => r.result.success && r.result.status !== 'publishing')
+      .map((r) => r.platform as SocialPlatform)
+    const platformPostUrls = ((updatedPublishes ?? []) as Array<{ platform_post_url?: unknown }>)
+      .map((publish) => publish.platform_post_url)
+      .filter((url): url is string => typeof url === 'string' && url.trim().length > 0)
+
+    const calendarLinkage = anyPublished
+      ? await syncCampaignCalendarForSocialContent({
+        admin,
+        socialContentId: id,
+        event: {
+          type: 'published',
+          at: publishedAt,
+          platforms: publishedPlatforms,
+          platformPostUrls,
+        },
+      })
+      : null
+
     return NextResponse.json({
       published: anyPublished,
       results: platformResults,
       publishes: updatedPublishes,
+      calendar_linkage: calendarLinkage,
     })
   } catch (error) {
     console.error('Error in POST /api/admin/social-content/[id]/publish:', error)
