@@ -17,13 +17,52 @@ type VercelProject = {
   protectionBypass?: Record<string, { isEnvVar?: boolean }>
 }
 
-function readProjectLink(cwd = process.cwd()): Required<ProjectLink> | null {
-  const file = path.join(cwd, '.vercel', 'project.json')
-  if (!fs.existsSync(file)) return null
+type VercelDeployment = {
+  projectId?: string
+  target?: string
+}
 
-  const parsed = JSON.parse(fs.readFileSync(file, 'utf8')) as ProjectLink
-  if (!parsed.orgId || !parsed.projectId) return null
-  return { orgId: parsed.orgId, projectId: parsed.projectId }
+type ResolvedVercelProject = Required<ProjectLink> & {
+  target?: 'preview' | 'production'
+}
+
+function readProjectLink(cwd = process.cwd()): Required<ProjectLink> | null {
+  const candidates = projectLinkCandidates(cwd)
+
+  for (const candidate of candidates) {
+    const file = path.join(candidate, '.vercel', 'project.json')
+    if (!fs.existsSync(file)) continue
+
+    const parsed = JSON.parse(fs.readFileSync(file, 'utf8')) as ProjectLink
+    if (parsed.orgId && parsed.projectId) {
+      return { orgId: parsed.orgId, projectId: parsed.projectId }
+    }
+  }
+
+  return null
+}
+
+function projectLinkCandidates(cwd: string): string[] {
+  const candidates: string[] = []
+  const resolved = path.resolve(cwd)
+  let current = resolved
+
+  while (true) {
+    candidates.push(current)
+    const parent = path.dirname(current)
+    if (parent === current) break
+    current = parent
+  }
+
+  const parts = resolved.split(path.sep)
+  const worktreesIndex = parts.findIndex((part) => part.endsWith('.worktrees'))
+  if (worktreesIndex > 0) {
+    const canonicalName = parts[worktreesIndex].replace(/\.worktrees$/, '')
+    const canonicalRoot = path.join(path.sep, ...parts.slice(1, worktreesIndex), canonicalName)
+    candidates.push(canonicalRoot)
+  }
+
+  return [...new Set(candidates)]
 }
 
 function vercelApi<T>(endpoint: string, cwd = process.cwd()): T {
@@ -42,12 +81,18 @@ function targetIncludes(env: VercelEnv, target: string): boolean {
 }
 
 export function getVercelAutomationBypassSecret(cwd = process.cwd()): string | undefined {
+  return getVercelAutomationBypassSecretForProject(cwd, readProjectLink(cwd) ?? undefined)
+}
+
+function getVercelAutomationBypassSecretForProject(
+  cwd: string,
+  link?: Required<ProjectLink>,
+): string | undefined {
   if (process.env.VERCEL_AUTOMATION_BYPASS_SECRET) {
     return process.env.VERCEL_AUTOMATION_BYPASS_SECRET
   }
 
   try {
-    const link = readProjectLink(cwd)
     if (!link) return undefined
 
     const project = vercelApi<VercelProject>(
@@ -63,12 +108,21 @@ export function getVercelAutomationBypassSecret(cwd = process.cwd()): string | u
   }
 }
 
+export function getVercelAutomationBypassSecretForBaseUrl(
+  baseUrl: string,
+  cwd = process.cwd(),
+): string | undefined {
+  const resolved = resolveVercelProjectForBaseUrl(baseUrl, cwd)
+  return getVercelAutomationBypassSecretForProject(cwd, resolved ?? undefined)
+}
+
 export function getVercelProjectEnvValues(
   keys: string[],
   target = 'preview',
   cwd = process.cwd(),
+  projectLink: Required<ProjectLink> | null = readProjectLink(cwd),
 ): Record<string, string> {
-  const link = readProjectLink(cwd)
+  const link = projectLink
   if (!link) return {}
 
   try {
@@ -94,6 +148,53 @@ export function getVercelProjectEnvValues(
     return values
   } catch {
     return {}
+  }
+}
+
+export function getVercelProjectEnvValuesForBaseUrl(
+  keys: string[],
+  baseUrl: string,
+  cwd = process.cwd(),
+): Record<string, string> {
+  const resolved = resolveVercelProjectForBaseUrl(baseUrl, cwd)
+  const target = resolved?.target ?? getVercelEnvTargetForBaseUrl(baseUrl)
+
+  if (!resolved || !target) return {}
+
+  return getVercelProjectEnvValues(keys, target, cwd, resolved)
+}
+
+export function resolveVercelProjectForBaseUrl(
+  baseUrl: string,
+  cwd = process.cwd(),
+): ResolvedVercelProject | null {
+  const link = readProjectLink(cwd)
+  const target = getVercelEnvTargetForBaseUrl(baseUrl)
+  if (!link || !target) return null
+
+  let hostname: string
+  try {
+    hostname = new URL(baseUrl).hostname
+  } catch {
+    return null
+  }
+
+  try {
+    const deployment = vercelApi<VercelDeployment>(
+      `/v13/deployments/${encodeURIComponent(hostname)}?teamId=${link.orgId}`,
+      cwd,
+    )
+
+    return {
+      orgId: link.orgId,
+      projectId: deployment.projectId || link.projectId,
+      target: deployment.target === 'production' ? 'production' : 'preview',
+    }
+  } catch {
+    return {
+      ...link,
+      target,
+    }
   }
 }
 
