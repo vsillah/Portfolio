@@ -190,11 +190,16 @@ describe('/api/admin/content/agentified/campaign/import', () => {
       campaign_id: 'campaign-agentified',
       agent_work_item_id: 'work-AGT-LI-01',
       channel: 'linkedin',
-      scheduled_for: '2026-07-27T15:00:00-04:00',
-      authorization_due_at: '2026-07-27T13:00:00-04:00',
+      scheduled_for: '2026-07-27T19:00:00.000Z',
+      authorization_due_at: '2026-07-27T17:00:00.000Z',
       authorization_status: 'pending',
       metadata: expect.objectContaining({
         agentified_asset_id: 'AGT-LI-01',
+        schedule_mode: 'relative_to_final_shout',
+        schedule_anchor: expect.objectContaining({
+          final_asset_id: 'AGT-PAGE-01',
+          final_release_at: '2026-08-09T16:00:00.000Z',
+        }),
         first_review_packet_path: 'agentified/campaign/launch-review-packet-2026-07-27.md',
         external_execution_enabled: false,
         side_effects: expect.objectContaining({
