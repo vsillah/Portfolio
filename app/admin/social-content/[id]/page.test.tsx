@@ -132,16 +132,14 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.queryByText(/Copy is approved and locked/i)).not.toBeInTheDocument()
     expect(screen.getByText('Review path')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Copy: Approved' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Supporting context: Pending' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Context recorded: Pending' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Human review: Approved' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Challenger: Pending' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Chronicle: Pending' })).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Visual assets: Pending' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Asset packet: Pending' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Privacy: Pending' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Amina visual QA: Pending' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'LinkedIn draft: Pending' })).toBeInTheDocument()
     expect(screen.getAllByText('Copy: Approved').length).toBeGreaterThan(1)
-    expect(screen.getAllByText('Supporting context: Pending').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Context recorded: Pending').length).toBeGreaterThan(0)
     expect(screen.queryByText('Request copy revision')).not.toBeInTheDocument()
     expect(screen.queryByText(/Mark this draft rejected/i)).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Triggering event or recent proof')).not.toBeInTheDocument()
@@ -189,6 +187,48 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByRole('button', { name: /Create LinkedIn Draft/i })).toBeDisabled()
     expect(screen.getAllByText('LinkedIn draft: Pending').length).toBeGreaterThan(1)
     expect(screen.queryByText('Publish immediately after approval')).not.toBeInTheDocument()
+  })
+
+  it('projects the Amina visual QA packet for Agentified drafts', async () => {
+    const agentifiedItem = {
+      ...baseItem,
+      id: 'f6f7c5be-13f1-43e3-9044-7b063cb2cb90',
+      post_text: 'Can the team explain what agents read, write, send, spend, and change?',
+      image_url: null,
+      content_format: 'single_image',
+      rag_context: {
+        ...baseItem.rag_context,
+        source_packet_path: 'docs/agentic-content-review-packets/p0-challenger-review-packets.md',
+        launch_draft_asset_id: 'p1-linkedin-scope-safety-model',
+      },
+    }
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input).includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [] }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: agentifiedItem }),
+      } as Response
+    }))
+
+    renderAtStep('visuals')
+
+    expect(await screen.findByText('Amina visual QA packet')).toBeInTheDocument()
+    expect(screen.getByText('Current Amina candidate')).toBeInTheDocument()
+    expect(screen.getByText('Amina packet attached')).toBeInTheDocument()
+    expect(screen.getAllByText('single-image boundary card').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText(/Use an authority-ladder card/i).length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText(/Scope is not a prompt detail/i).length).toBeGreaterThan(0)
+    expect(screen.getByText(/Privacy, rights, and source provenance/i)).toBeInTheDocument()
+    expect(screen.getAllByAltText(/Scope is the safety model visual/i).length).toBeGreaterThan(0)
+    expect(screen.queryByText('No image generated yet')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Approve Visuals/i })).not.toBeDisabled()
+    expect(screen.getByRole('button', { name: /Approve Asset Packet/i })).not.toBeDisabled()
+    expect(screen.getByRole('button', { name: /Approve Privacy Review/i })).not.toBeDisabled()
   })
 
   it('lets the operator pull a topic from Shaka backlog into copy review', async () => {

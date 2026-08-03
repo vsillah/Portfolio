@@ -53,6 +53,7 @@ import {
   getVideoRedactionGate,
   type RedactionReviewDecision,
 } from '@/lib/social-production-assets'
+import { getAgentifiedVisualStrategyQaBySocialContentId } from '@/lib/agentified-visual-strategy-qa'
 import {
   buildPlatformOrchestrationPlan,
   getPlatformSubmissionGate,
@@ -1681,6 +1682,9 @@ function SocialContentDetailPage() {
   const usingDraftTopicFallback = topicBacklogItems.length === 0 && agentPilotTopicTriggerCandidates.length > 0
   const productionAssets = getProductionAssets(ragContext)
   const redactionGate = getVideoRedactionGate(productionAssets)
+  const agentifiedVisualQaPacket = getAgentifiedVisualStrategyQaBySocialContentId(item.id)
+  const agentifiedVisualQaReady = Boolean(agentifiedVisualQaPacket?.allQaPassed)
+  const agentifiedVisualPrivacyReady = Boolean(agentifiedVisualQaPacket?.privacyRightsFinding?.result === 'pass')
   const platformSubmissionGate = getPlatformSubmissionGate(ragContext)
   const sectionGateReviews = asRecord(ragContext?.section_gate_reviews) ?? {}
   const getSectionGateReview = (gateKey: SectionGateKey) => asRecord(sectionGateReviews[gateKey])
@@ -1699,6 +1703,15 @@ function SocialContentDetailPage() {
     { label: 'Video script', value: productionAssets.video_script.status.replace(/_/g, ' ') },
     { label: 'Privacy/redaction review', value: redactionGate.ready ? 'ready' : `${redactionGate.unresolvedItems.length} unresolved` },
     { label: 'Visual QA', value: productionAssets.visual_qa.status.replace(/_/g, ' ') },
+  ] : agentifiedVisualQaPacket ? [
+    { label: 'Owner', value: agentifiedVisualQaPacket.ownerDisplayName },
+    { label: 'Recommended form', value: agentifiedVisualQaPacket.selectedForm },
+    { label: 'Candidate files', value: `${agentifiedVisualQaPacket.candidatePaths.length} ready` },
+    { label: 'QA gates', value: `${agentifiedVisualQaPacket.qaFindings.length} passed` },
+    { label: 'Privacy/rights', value: agentifiedVisualPrivacyReady ? 'passed' : 'needs review' },
+    { label: 'Alt text', value: agentifiedVisualQaPacket.altText ? 'ready' : 'missing' },
+    { label: 'Packet date', value: agentifiedVisualQaPacket.reportDate },
+    { label: 'Publication boundary', value: 'not authorized' },
   ] : []
   const selectedComparisonReferences = calibrationLibraryReferences
     .filter((reference) => selectedComparisonReferenceIds.includes(reference.id))
@@ -1832,6 +1845,17 @@ function SocialContentDetailPage() {
     : 'Generate Framework Illustration'
   const isCarouselFormat = item.content_format === 'carousel'
   const isSingleImageFormat = !isCarouselFormat
+  const carouselSlideUrls = item.carousel_slide_urls?.length
+    ? item.carousel_slide_urls
+    : isCarouselFormat
+      ? agentifiedVisualQaPacket?.candidateUrls ?? []
+      : []
+  const visualPreviewImageUrl = isSingleImageFormat
+    ? item.image_url || agentifiedVisualQaPacket?.primaryCandidateUrl || ''
+    : ''
+  const visualPreviewAlt = item.image_url
+    ? 'Generated framework illustration'
+    : agentifiedVisualQaPacket?.altText || 'Amina visual QA candidate'
   const frameworkActionLabel = isCarouselFormat
     ? 'Switch to Framework Illustration'
     : frameworkIllustrationLabel
@@ -1904,27 +1928,33 @@ function SocialContentDetailPage() {
         ? 'in_review'
         : 'pending'
   const visualAssetReady = isCarouselFormat
-    ? Boolean(item.carousel_slide_urls?.length)
-    : Boolean(item.image_url)
+    ? Boolean(carouselSlideUrls.length)
+    : Boolean(visualPreviewImageUrl)
   const visualAssetsBaseGateState: GateState = visualAssetReady ? 'in_review' : 'pending'
   const visualAssetsGateState: GateState = getExplicitSectionGateState('visual_assets', visualAssetsBaseGateState)
   const visualAssetsRejected = visualAssetsGateState === 'rejected'
-  const assetPacketBaseGateState: GateState = productionAssets ? 'in_review' : 'pending'
+  const assetPacketBaseGateState: GateState = productionAssets || agentifiedVisualQaPacket ? 'in_review' : 'pending'
   const assetPacketGateState: GateState = getExplicitSectionGateState('asset_packet', assetPacketBaseGateState)
   const assetPacketRejected = assetPacketGateState === 'rejected'
-  const privacyBaseGateState: GateState = productionAssets ? (redactionGate.ready ? 'in_review' : 'blocked') : 'pending'
+  const privacyBaseGateState: GateState = productionAssets
+    ? (redactionGate.ready ? 'in_review' : 'blocked')
+    : agentifiedVisualQaPacket
+      ? (agentifiedVisualPrivacyReady ? 'in_review' : 'blocked')
+      : 'pending'
   const privacyGateState: GateState = getExplicitSectionGateState('privacy', privacyBaseGateState)
   const privacyRejected = privacyGateState === 'rejected'
+  const assetPacketReady = Boolean(productionAssets || agentifiedVisualQaPacket)
+  const visualPrivacyReady = productionAssets ? redactionGate.ready : agentifiedVisualPrivacyReady
   const linkedinDraftHandoff = asRecord(ragContext?.linkedin_draft_handoff)
   const linkedinDraftWorkItem = asRecord(linkedinDraftHandoff?.work_item) ?? {}
   const linkedinDraftBlockers = [
     item.status !== 'approved' ? 'Copy must be approved first.' : '',
     !visualAssetReady ? 'Choose and generate a visual asset first.' : '',
     visualAssetsGateState !== 'approved' ? 'Approve the visual assets section first.' : '',
-    !productionAssets ? 'Prepare the asset packet first.' : '',
-    productionAssets && assetPacketGateState !== 'approved' ? 'Approve the asset packet section first.' : '',
-    productionAssets && !redactionGate.ready ? redactionGate.message || 'Resolve video privacy review first.' : '',
-    productionAssets && redactionGate.ready && privacyGateState !== 'approved' ? 'Approve the privacy review section first.' : '',
+    !assetPacketReady ? 'Prepare the asset packet first.' : '',
+    assetPacketReady && assetPacketGateState !== 'approved' ? 'Approve the asset packet section first.' : '',
+    assetPacketReady && !visualPrivacyReady ? redactionGate.message || 'Resolve privacy and rights review first.' : '',
+    assetPacketReady && visualPrivacyReady && privacyGateState !== 'approved' ? 'Approve the privacy review section first.' : '',
   ].filter(Boolean)
   const linkedinDraftBaseGateState: GateState = linkedinDraftHandoff
     ? 'approved'
@@ -1946,7 +1976,7 @@ function SocialContentDetailPage() {
     productionReady: isDraftOnlyPilot
       ? visualAssetsGateState === 'approved' && assetPacketGateState === 'approved' && privacyGateState === 'approved'
       : !videoPrivacyBlocked,
-    redactionReady: !videoPrivacyBlocked,
+    redactionReady: isDraftOnlyPilot ? visualPrivacyReady : !videoPrivacyBlocked,
     draftHandoffReady: isDraftOnlyPilot ? Boolean(linkedinDraftHandoff) : Boolean(item.publishes?.length),
     finalSubmissionGateReady: finalPlatformSubmissionApproved,
   })
@@ -2084,13 +2114,23 @@ function SocialContentDetailPage() {
         ? 'Visuals and privacy approved'
         : visualWorkflowGateState === 'pending'
           ? 'Amina visual strategy not started'
-          : 'Amina visual strategy in progress',
-      body: 'Amina owns visual form selection, approved asset reuse, original candidate generation when needed, provenance, agent QA, accessibility, rights, and privacy checks before final human visual/privacy review.',
+          : agentifiedVisualQaPacket
+            ? 'Amina visual strategy ready for human review'
+            : 'Amina visual strategy in progress',
+      body: agentifiedVisualQaPacket
+        ? `${agentifiedVisualQaPacket.ownerDisplayName} selected ${agentifiedVisualQaPacket.selectedForm}, attached source provenance, drafted alt text, and passed agent QA for human visual/privacy review.`
+        : 'Amina owns visual form selection, approved asset reuse, original candidate generation when needed, provenance, agent QA, accessibility, rights, and privacy checks before final human visual/privacy review.',
       owner: 'Amina',
-      lastUpdate: productionAssets ? new Date(item.updated_at).toLocaleString() : 'No asset packet recorded',
+      lastUpdate: agentifiedVisualQaPacket
+        ? agentifiedVisualQaPacket.reportDate
+        : productionAssets
+          ? new Date(item.updated_at).toLocaleString()
+          : 'No asset packet recorded',
       nextAction: visualWorkflowGateState === 'approved'
         ? 'Proceed to governed platform draft handoff.'
-        : 'Use the canonical Kanban view to track source research, candidate creation, QA, blockers, and final review readiness.',
+        : agentifiedVisualQaPacket
+          ? 'Review the candidate, rationale, provenance, QA findings, and privacy/rights result below, then approve or reject each visual gate.'
+          : 'Use the canonical Kanban view to track source research, candidate creation, QA, blockers, and final review readiness.',
       waitingOnYou: [visualAssetsGateState, assetPacketGateState, privacyGateState].some((state) => state === 'blocked' || state === 'rejected')
         ? 'Yes - visual/privacy exception'
         : 'No',
@@ -3327,6 +3367,40 @@ function SocialContentDetailPage() {
                     <div className="rounded-lg border border-amber-500/20 bg-background/25 px-3 py-2 text-xs leading-5 text-amber-50/75">
                       Clicking a visual action may generate or replace assets; it does not publish or schedule.
                     </div>
+                    {agentifiedVisualQaPacket?.primaryCandidateUrl && (
+                      <div className="mt-3 overflow-hidden rounded-lg border border-emerald-400/30 bg-emerald-500/10">
+                        <div className="flex flex-col gap-3 p-3 lg:flex-row lg:items-start">
+                          <div className="relative aspect-[1.91/1] min-h-[220px] w-full overflow-hidden rounded-md border border-emerald-300/20 bg-gray-950/70 lg:max-w-[520px]">
+                            <Image
+                              src={agentifiedVisualQaPacket.primaryCandidateUrl}
+                              alt={agentifiedVisualQaPacket.altText || 'Amina visual QA candidate'}
+                              className="object-contain"
+                              fill
+                              sizes="(max-width: 900px) 100vw, 520px"
+                            />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-100/75">Current Amina candidate</p>
+                            <p className="mt-2 text-sm font-semibold text-emerald-50">{agentifiedVisualQaPacket.selectedForm}</p>
+                            <p className="mt-2 text-sm leading-6 text-emerald-50/80">{agentifiedVisualQaPacket.recommendation}</p>
+                            <div className="mt-3 flex flex-wrap gap-2">
+                              <span className="rounded-full border border-emerald-300/35 bg-emerald-300/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-100">
+                                QA {agentifiedVisualQaReady ? 'passed' : 'needs review'}
+                              </span>
+                              <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${agentifiedVisualPrivacyReady ? 'border-emerald-300/35 bg-emerald-300/10 text-emerald-100' : 'border-red-300/35 bg-red-300/10 text-red-100'}`}>
+                                Privacy/rights {agentifiedVisualPrivacyReady ? 'passed' : 'blocked'}
+                              </span>
+                              <span className="rounded-full border border-amber-300/35 bg-amber-300/10 px-2 py-0.5 text-[10px] font-semibold text-amber-100">
+                                Human review required
+                              </span>
+                            </div>
+                            <p className="mt-3 text-xs leading-5 text-emerald-50/65">
+                              Review this candidate, then use the approval controls below. The generate/switch actions are fallback repair paths, not the primary next step.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                     <div className="mt-3">
                       <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-100/70">Choose one visual format</p>
                       <div className="mt-2 grid gap-3 lg:grid-cols-2">
@@ -3420,30 +3494,164 @@ function SocialContentDetailPage() {
                             </span>
                           </div>
                         </div>
-                        <button
-                          type="button"
-                          onClick={handlePrepareAssetPacket}
-                          disabled={preparingAssetPacket || item.status !== 'approved' || assetPacketRejected}
-                          className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-amber-400/45 px-3 py-2 text-sm font-semibold text-amber-100 transition-colors hover:bg-amber-500/10 disabled:opacity-50"
-                        >
-                          {preparingAssetPacket ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
-                          Prepare Asset Packet
-                        </button>
+                        {agentifiedVisualQaPacket ? (
+                          <div className="rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-50">
+                            <div className="flex items-start gap-2">
+                              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
+                              <div>
+                                <p className="font-semibold">Amina packet attached</p>
+                                <p className="mt-1 text-xs leading-5 text-emerald-50/75">
+                                  Candidate, provenance, alt text, QA findings, and privacy/rights result are ready for human review.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={handlePrepareAssetPacket}
+                            disabled={preparingAssetPacket || item.status !== 'approved' || assetPacketRejected}
+                            className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-amber-400/45 px-3 py-2 text-sm font-semibold text-amber-100 transition-colors hover:bg-amber-500/10 disabled:opacity-50"
+                          >
+                            {preparingAssetPacket ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
+                            Prepare Asset Packet
+                          </button>
+                        )}
                         {renderSectionGateControls('asset_packet', 'Asset packet', assetPacketGateState, {
                           approveLabel: 'Approve Asset Packet',
                           rejectLabel: 'Reject Asset Packet',
-                          approveDisabled: !productionAssets,
-                          rejectDisabled: !productionAssets,
+                          approveDisabled: !assetPacketReady,
+                          rejectDisabled: !assetPacketReady,
                           notePlaceholder: 'What is missing from the asset packet?',
                         })}
                         {renderSectionGateControls('privacy', 'Privacy', privacyGateState, {
                           approveLabel: 'Approve Privacy Review',
                           rejectLabel: 'Reject Privacy Review',
-                          approveDisabled: !productionAssets || !redactionGate.ready,
-                          rejectDisabled: !productionAssets,
+                          approveDisabled: !assetPacketReady || !visualPrivacyReady,
+                          rejectDisabled: !assetPacketReady,
                           notePlaceholder: 'What privacy issue still needs redaction or review?',
                         })}
                       </div>
+
+                  {agentifiedVisualQaPacket && (
+                    <div className="mt-4 space-y-4 rounded-lg border border-blue-500/25 bg-blue-500/10 p-4">
+                      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="min-w-0">
+                          <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-blue-100">
+                            <FileText className="h-3.5 w-3.5" />
+                            Amina visual QA packet
+                          </p>
+                          <p className="mt-2 text-sm leading-6 text-blue-50/90">
+                            {agentifiedVisualQaPacket.recommendation}
+                          </p>
+                        </div>
+                        <div className="flex shrink-0 flex-wrap gap-2 lg:justify-end">
+                          <span className="rounded-full border border-blue-300/35 bg-blue-300/10 px-2 py-0.5 text-[10px] font-semibold text-blue-100">
+                            {agentifiedVisualQaPacket.ownerDisplayName}
+                          </span>
+                          <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${agentifiedVisualQaReady ? 'border-emerald-400/35 bg-emerald-400/10 text-emerald-100' : 'border-amber-400/35 bg-amber-400/10 text-amber-100'}`}>
+                            QA {agentifiedVisualQaReady ? 'passed' : 'needs review'}
+                          </span>
+                          <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${agentifiedVisualPrivacyReady ? 'border-emerald-400/35 bg-emerald-400/10 text-emerald-100' : 'border-red-400/35 bg-red-400/10 text-red-100'}`}>
+                            Privacy/rights {agentifiedVisualPrivacyReady ? 'passed' : 'blocked'}
+                          </span>
+                          <span className="rounded-full border border-amber-300/35 bg-amber-300/10 px-2 py-0.5 text-[10px] font-semibold text-amber-100">
+                            Human review only
+                          </span>
+                        </div>
+                      </div>
+
+                      {agentifiedVisualQaPacket.primaryCandidateUrl && (
+                        <div className="overflow-hidden rounded-lg border border-blue-400/20 bg-gray-950/60">
+                          <div className="relative h-[360px] w-full">
+                            <Image
+                              src={agentifiedVisualQaPacket.primaryCandidateUrl}
+                              alt={agentifiedVisualQaPacket.altText || 'Amina visual QA candidate'}
+                              className="object-contain"
+                              fill
+                              sizes="(max-width: 900px) 100vw, 900px"
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                        {productionAssetSteps.map((step) => (
+                          <div key={step.label} className="rounded-lg border border-blue-400/20 bg-gray-950/45 p-3">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-blue-100/55">{step.label}</p>
+                            <p className="mt-1 text-sm text-blue-50">{step.value}</p>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="grid gap-3 lg:grid-cols-2">
+                        <div className="rounded-lg border border-blue-400/20 bg-gray-950/45 p-3">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-blue-100/70">Strategy rationale</p>
+                          <p className="mt-2 text-sm leading-6 text-blue-50/85">{agentifiedVisualQaPacket.rationale}</p>
+                          <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-blue-100/70">Research pattern</p>
+                          <p className="mt-1 text-sm leading-6 text-blue-50/80">{agentifiedVisualQaPacket.researchPattern}</p>
+                        </div>
+                        <div className="rounded-lg border border-blue-400/20 bg-gray-950/45 p-3">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-blue-100/70">Provenance</p>
+                          <p className="mt-2 text-sm leading-6 text-blue-50/85">
+                            Source asset: {agentifiedVisualQaPacket.sourceAsset}
+                          </p>
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {agentifiedVisualQaPacket.candidateUrls.map((url, index) => (
+                              <a
+                                key={url}
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 rounded-lg border border-blue-400/25 px-2 py-1 text-xs font-semibold text-blue-100 transition-colors hover:bg-blue-500/10"
+                              >
+                                Candidate {index + 1}
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            ))}
+                          </div>
+                          {agentifiedVisualQaPacket.supportAssets.length > 0 && (
+                            <div className="mt-3">
+                              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-blue-100/70">Supporting assets</p>
+                              <ul className="mt-1 space-y-1 text-xs leading-5 text-blue-50/70">
+                                {agentifiedVisualQaPacket.supportAssets.map((asset) => (
+                                  <li key={asset} className="break-all">- {asset}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="rounded-lg border border-blue-400/20 bg-gray-950/45 p-3">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-blue-100/70">Alt text</p>
+                        <p className="mt-2 text-sm leading-6 text-blue-50/85">{agentifiedVisualQaPacket.altText}</p>
+                      </div>
+
+                      <div className="grid gap-2 md:grid-cols-2">
+                        {agentifiedVisualQaPacket.qaFindings.map((finding) => (
+                          <div
+                            key={finding.gate}
+                            className={`rounded-lg border p-3 ${
+                              finding.result === 'pass'
+                                ? 'border-emerald-400/25 bg-emerald-400/10'
+                                : 'border-red-400/25 bg-red-400/10'
+                            }`}
+                          >
+                            <div className="flex items-start gap-2">
+                              {finding.result === 'pass'
+                                ? <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
+                                : <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-300" />}
+                              <div>
+                                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-100">{finding.gate}</p>
+                                <p className="mt-1 text-sm leading-6 text-gray-200">{finding.finding}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   {productionAssets ? (
                     <div className="mt-4 space-y-4">
@@ -3524,7 +3732,7 @@ function SocialContentDetailPage() {
                 <>
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-sm font-medium text-gray-400 flex items-center gap-2">
-                      <LayoutGrid className="w-4 h-4" /> Carousel ({item.carousel_slide_urls?.length || 0} slides)
+                      <LayoutGrid className="w-4 h-4" /> Carousel ({carouselSlideUrls.length} slides)
                     </h3>
                     <div className="flex items-center gap-2">
                       {item.carousel_pdf_url && (
@@ -3552,11 +3760,11 @@ function SocialContentDetailPage() {
                       )}
                     </div>
                   </div>
-                  {item.carousel_slide_urls && item.carousel_slide_urls.length > 0 ? (
+                  {carouselSlideUrls.length > 0 ? (
                     <div className="space-y-3">
                       <div className="rounded-lg overflow-hidden bg-gray-800 relative w-full aspect-square">
                         <Image
-                          src={item.carousel_slide_urls[selectedSlide] || item.carousel_slide_urls[0]}
+                          src={carouselSlideUrls[selectedSlide] || carouselSlideUrls[0]}
                           alt={`Slide ${selectedSlide + 1}`}
                           className="object-contain"
                           fill
@@ -3564,7 +3772,7 @@ function SocialContentDetailPage() {
                         />
                       </div>
                       <div className="flex gap-2 overflow-x-auto pb-1">
-                        {item.carousel_slide_urls.map((url, i) => (
+                        {carouselSlideUrls.map((url, i) => (
                           <button
                             key={i}
                             onClick={() => setSelectedSlide(i)}
@@ -3603,9 +3811,9 @@ function SocialContentDetailPage() {
                       <ImageIcon className="w-4 h-4" /> Framework Illustration
                     </h3>
                   </div>
-                  {item.image_url ? (
+                  {visualPreviewImageUrl ? (
                     <div className="rounded-lg overflow-hidden mb-3 bg-gray-800 relative w-full h-[400px]">
-                      <Image src={item.image_url} alt="Generated framework illustration" className="object-contain" fill sizes="(max-width: 800px) 100vw, 800px" />
+                      <Image src={visualPreviewImageUrl} alt={visualPreviewAlt} className="object-contain" fill sizes="(max-width: 800px) 100vw, 800px" />
                     </div>
                   ) : (
                     <div className="rounded-lg bg-gray-800 h-48 flex items-center justify-center mb-3">
@@ -3884,16 +4092,16 @@ function SocialContentDetailPage() {
                 <div className="text-sm whitespace-pre-wrap leading-relaxed mb-3 text-gray-200">
                   {getFullPostText({ ...item, post_text: postText, cta_text: ctaText, cta_url: ctaUrl, hashtags: hashtags.split(',').map(t => t.trim()).filter(Boolean) })}
                 </div>
-                {item.content_format === 'carousel' && item.carousel_slide_urls && item.carousel_slide_urls.length > 0 ? (
+                {item.content_format === 'carousel' && carouselSlideUrls.length > 0 ? (
                   <div className="rounded-lg overflow-hidden border border-gray-700 relative w-full aspect-square bg-gray-900">
-                    <Image src={item.carousel_slide_urls[0]} alt="Carousel cover" className="object-cover" fill sizes="(max-width: 600px) 100vw, 600px" />
+                    <Image src={carouselSlideUrls[0]} alt="Carousel cover" className="object-cover" fill sizes="(max-width: 600px) 100vw, 600px" />
                     <div className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded">
-                      1/{item.carousel_slide_urls.length}
+                      1/{carouselSlideUrls.length}
                     </div>
                   </div>
-                ) : item.image_url ? (
+                ) : visualPreviewImageUrl ? (
                   <div className="rounded-lg overflow-hidden border border-gray-700 relative w-full aspect-video bg-gray-900">
-                    <Image src={item.image_url} alt="Post image" className="object-cover" fill sizes="(max-width: 600px) 100vw, 600px" />
+                    <Image src={visualPreviewImageUrl} alt={visualPreviewAlt} className="object-cover" fill sizes="(max-width: 600px) 100vw, 600px" />
                   </div>
                 ) : null}
               </div>
