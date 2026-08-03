@@ -1,12 +1,12 @@
 import fs from 'node:fs'
 import { defineConfig, devices } from '@playwright/test'
-import { getVercelAutomationBypassSecret } from './scripts/vercel-validation-env'
+import { getVercelAutomationBypassSecretForBaseUrl } from './scripts/vercel-validation-env'
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000'
 const authStatePath = process.env.PLAYWRIGHT_AUTH_STATE || '.auth/portfolio-admin-storage-state.json'
 const isLocalBaseURL = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?/.test(baseURL)
 const storageState = fs.existsSync(authStatePath) ? authStatePath : undefined
-const vercelBypassSecret = getVercelAutomationBypassSecret()
+const vercelBypassSecret = getVercelAutomationBypassSecretForBaseUrl(baseURL)
 const vercelBypassHeaders = vercelBypassSecret
   ? {
       'x-vercel-protection-bypass': vercelBypassSecret,
