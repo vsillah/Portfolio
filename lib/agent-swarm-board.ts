@@ -160,6 +160,9 @@ export type AgentOrgBoardTask = {
   sourceType: string | null
   sourceId: string | null
   sourceLabel: string | null
+  remediationId: string | null
+  approvalBoundary: string | null
+  blockedActions: string[]
   socialContent: {
     id: string | null
     href: string | null
@@ -1204,6 +1207,9 @@ export function buildAgentOrgBoardSnapshotFromRows(input: AgentOrgBoardBuildInpu
     sourceType: item.source_type ?? null,
     sourceId: item.source_id ?? null,
     sourceLabel: item.source_label ?? null,
+    remediationId: stringValue(item.metadata?.remediation_id) ?? stringValue(item.metadata?.remediationId),
+    approvalBoundary: stringValue(item.metadata?.approval_boundary) ?? stringValue(item.metadata?.approvalBoundary),
+    blockedActions: stringArrayValue(item.metadata?.blocked_actions),
     socialContent: {
       id: stringValue(item.metadata?.social_content_id) ?? (item.source_type === 'social_content_approval' ? item.source_id ?? null : null),
       href: stringValue(item.metadata?.social_content_href),

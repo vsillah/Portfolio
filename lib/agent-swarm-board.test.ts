@@ -764,6 +764,9 @@ describe('buildAgentOrgBoardSnapshotFromRows', () => {
           status: 'assigned',
           priority: 'high',
           owner_agent_key: 'content-repurposing',
+          source_type: 'social_content_approval',
+          source_id: 'social-draft-1',
+          source_label: 'Social Content draft approval',
           metadata: {
             goal_id: 'goal-social',
             goal_title: 'Create one LinkedIn post package',
@@ -783,6 +786,11 @@ describe('buildAgentOrgBoardSnapshotFromRows', () => {
             challenger_status: 'pending',
             residual_risks_for_human: ['Research/context evidence is incomplete.'],
             approval_boundary: 'Human review remains gated.',
+            social_content_id: 'social-draft-1',
+            social_content_href: '/admin/social-content/social-draft-1',
+            production_lane: 'visual_strategy_qa',
+            remediation_id: 'agentified_visual_strategy_qa_2026_07_31',
+            blocked_actions: ['Do not publish or schedule.', 'Do not call provider-generation APIs.'],
           },
         }),
       ],
@@ -807,6 +815,20 @@ describe('buildAgentOrgBoardSnapshotFromRows', () => {
       challengerStatus: 'pending',
       residualRisksForHuman: ['Research/context evidence is incomplete.'],
       approvalBoundary: 'Human review remains gated.',
+    })
+    expect(socialTask).toMatchObject({
+      sourceType: 'social_content_approval',
+      sourceId: 'social-draft-1',
+      sourceLabel: 'Social Content draft approval',
+      remediationId: 'agentified_visual_strategy_qa_2026_07_31',
+      approvalBoundary: 'Human review remains gated.',
+      blockedActions: ['Do not publish or schedule.', 'Do not call provider-generation APIs.'],
+      socialContent: {
+        id: 'social-draft-1',
+        href: '/admin/social-content/social-draft-1',
+        productionLane: 'visual_strategy_qa',
+        publishGate: 'draft_only',
+      },
     })
     expect(snapshot.summary.goals[0]).toMatchObject({
       id: 'goal-social',

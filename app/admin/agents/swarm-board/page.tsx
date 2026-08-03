@@ -48,6 +48,11 @@ type SourceScope = {
   sourceId: string | null
   socialContentId: string | null
 }
+type FocusedReviewScope = {
+  workItemId: string | null
+  productionLane: string
+  remediationId: string
+}
 type BoardAction = {
   task: AgentOrgBoardTask
   lane: Pick<AgentOrgBoardLane, 'key' | 'label' | 'tasks'>
@@ -121,6 +126,10 @@ const DEPENDENCY_FILTERS: Array<{ key: DependencyFilter; label: string }> = [
   { key: 'handoffs', label: 'Handoffs pending' },
 ]
 
+const STATUS_FILTER_SET = new Set<string>(STATUS_FILTERS)
+const ATTENTION_FILTER_SET = new Set<string>(ATTENTION_FILTERS.map((filter) => filter.key))
+const DEFAULT_LANE_CARD_LIMIT = 8
+
 export default function AgentSwarmBoardPage() {
   return (
     <ProtectedRoute requireAdmin>
@@ -140,6 +149,11 @@ function AgentSwarmBoardContent() {
   const [statusFilter, setStatusFilter] = useState<'all' | AgentOrgBoardTask['status']>('all')
   const [attentionFilter, setAttentionFilter] = useState<AttentionFilter>('all')
   const [dependencyFilter, setDependencyFilter] = useState<DependencyFilter>('all')
+  const [focusedScope, setFocusedScope] = useState<FocusedReviewScope>({
+    workItemId: null,
+    productionLane: 'all',
+    remediationId: 'all',
+  })
   const [sourceScope, setSourceScope] = useState<SourceScope>({
     sourceType: null,
     sourceId: null,
@@ -171,6 +185,21 @@ function AgentSwarmBoardContent() {
     const params = new URLSearchParams(window.location.search)
     const goalId = params.get('goal')
     if (goalId) setSelectedGoalId(goalId)
+    const owner = params.get('owner_agent_key') ?? params.get('owner')
+    if (owner) setOwnerFilter(owner)
+    const status = params.get('status')
+    if (status && STATUS_FILTER_SET.has(status)) {
+      setStatusFilter(status as 'all' | AgentOrgBoardTask['status'])
+    }
+    const attention = params.get('attention')
+    if (attention && ATTENTION_FILTER_SET.has(attention)) {
+      setAttentionFilter(attention as AttentionFilter)
+    }
+    setFocusedScope({
+      workItemId: params.get('work_item'),
+      productionLane: params.get('production_lane') ?? 'all',
+      remediationId: params.get('remediation_id') ?? 'all',
+    })
     setSourceScope({
       sourceType: params.get('source_type'),
       sourceId: params.get('source_id'),
@@ -178,6 +207,17 @@ function AgentSwarmBoardContent() {
     })
     fetchBoard()
   }, [fetchBoard])
+
+  const clearBoardScope = useCallback(() => {
+    setSelectedGoalId('all')
+    setOwnerFilter('all')
+    setStatusFilter('all')
+    setAttentionFilter('all')
+    setDependencyFilter('all')
+    setFocusedScope({ workItemId: null, productionLane: 'all', remediationId: 'all' })
+    setSourceScope({ sourceType: null, sourceId: null, socialContentId: null })
+    window.history.replaceState({}, '', '/admin/agents/swarm-board')
+  }, [])
 
   const organization = snapshot?.organization
   const filteredActivity = useMemo(() => {
@@ -275,20 +315,16 @@ function AgentSwarmBoardContent() {
                   statusFilter={statusFilter}
                   attentionFilter={attentionFilter}
                   dependencyFilter={dependencyFilter}
+                  focusedScope={focusedScope}
                   sourceScope={sourceScope}
                   onGoalChange={setSelectedGoalId}
                   onOwnerChange={setOwnerFilter}
                   onStatusChange={setStatusFilter}
                   onAttentionChange={setAttentionFilter}
                   onDependencyChange={setDependencyFilter}
-                  onClearFilters={() => {
-                    setSelectedGoalId('all')
-                    setOwnerFilter('all')
-                    setStatusFilter('all')
-                    setAttentionFilter('all')
-                    setDependencyFilter('all')
-                    setSourceScope({ sourceType: null, sourceId: null, socialContentId: null })
-                  }}
+                  onProductionLaneChange={(value) => setFocusedScope((current) => ({ ...current, productionLane: value }))}
+                  onRemediationChange={(value) => setFocusedScope((current) => ({ ...current, remediationId: value }))}
+                  onClearFilters={clearBoardScope}
                 />
               )}
               {mode === 'hive' && (
@@ -317,12 +353,15 @@ function KanbanBoard({
   statusFilter,
   attentionFilter,
   dependencyFilter,
+  focusedScope,
   sourceScope,
   onGoalChange,
   onOwnerChange,
   onStatusChange,
   onAttentionChange,
   onDependencyChange,
+  onProductionLaneChange,
+  onRemediationChange,
   onClearFilters,
 }: {
   organization: AgentOrgBoardSnapshot
@@ -331,12 +370,15 @@ function KanbanBoard({
   statusFilter: 'all' | AgentOrgBoardTask['status']
   attentionFilter: AttentionFilter
   dependencyFilter: DependencyFilter
+  focusedScope: FocusedReviewScope
   sourceScope: SourceScope
   onGoalChange: (value: string) => void
   onOwnerChange: (value: string) => void
   onStatusChange: (value: 'all' | AgentOrgBoardTask['status']) => void
   onAttentionChange: (value: AttentionFilter) => void
   onDependencyChange: (value: DependencyFilter) => void
+  onProductionLaneChange: (value: string) => void
+  onRemediationChange: (value: string) => void
   onClearFilters: () => void
 }) {
   const [dependencyDrawerTaskId, setDependencyDrawerTaskId] = useState<string | null>(null)
@@ -355,12 +397,17 @@ function KanbanBoard({
     }
     return [...options.entries()].sort((a, b) => a[1].localeCompare(b[1]))
   }, [allTasks])
+  const productionLaneOptions = useMemo(() => optionValues(allTasks.map((task) => task.socialContent?.productionLane ?? null)), [allTasks])
+  const remediationOptions = useMemo(() => optionValues(allTasks.map((task) => task.remediationId)), [allTasks])
   const visibleTasks = useMemo(() => {
     return allTasks.filter((task) => {
+        if (focusedScope.workItemId && task.id !== focusedScope.workItemId) return false
+        if (focusedScope.productionLane !== 'all' && task.socialContent?.productionLane !== focusedScope.productionLane) return false
+        if (focusedScope.remediationId !== 'all' && task.remediationId !== focusedScope.remediationId) return false
         if (sourceScope.sourceType && task.sourceType !== sourceScope.sourceType) return false
         if (sourceScope.sourceId && task.sourceId !== sourceScope.sourceId) return false
         if (sourceScope.socialContentId) {
-          const matchesSocialContent = task.socialContent.id === sourceScope.socialContentId
+          const matchesSocialContent = task.socialContent?.id === sourceScope.socialContentId
             || task.sourceId === sourceScope.socialContentId
           if (!matchesSocialContent) return false
         }
@@ -381,7 +428,7 @@ function KanbanBoard({
         if (dependencyFilter === 'handoffs' && !(task.handoffs ?? []).some((handoff) => handoff.status === 'pending')) return false
         return true
     })
-  }, [allTasks, attentionFilter, dependencyFilter, ownerFilter, selectedGoalId, sourceScope, statusFilter])
+  }, [allTasks, attentionFilter, dependencyFilter, focusedScope, ownerFilter, selectedGoalId, sourceScope, statusFilter])
   const statusLanes = useMemo(() => {
     return STATUS_SWIMLANES.map((lane) => ({
       ...lane,
@@ -395,33 +442,74 @@ function KanbanBoard({
   const dependencyDrawerTask = allTasks.find((task) => task.id === dependencyDrawerTaskId) ?? null
   const selectedGoal = organization.summary.goals.find((goal) => goal.id === selectedGoalId) ?? null
   const sourceScopeActive = Boolean(sourceScope.sourceType || sourceScope.sourceId || sourceScope.socialContentId)
-  const filtersActive = selectedGoalId !== 'all' || ownerFilter !== 'all' || statusFilter !== 'all' || attentionFilter !== 'all' || dependencyFilter !== 'all' || sourceScopeActive
+  const focusedScopeActive = Boolean(focusedScope.workItemId || focusedScope.productionLane !== 'all' || focusedScope.remediationId !== 'all')
+  const filtersActive = selectedGoalId !== 'all' || ownerFilter !== 'all' || statusFilter !== 'all' || attentionFilter !== 'all' || dependencyFilter !== 'all' || sourceScopeActive || focusedScopeActive
 
   return (
     <div className="space-y-4" role="tabpanel" aria-label="Kanban lanes">
-      <SummaryStrip organization={organization} />
-      <BoardActionQueue actions={boardActions} filtersActive={filtersActive} totalCount={filteredTasks.length} />
-      <DependencyRadiators organization={organization} onOpenFirst={() => {
-        const firstDependencyTask = allTasks.find((task) => (task.dependencyIds ?? []).length || (task.dependents ?? []).length || (task.handoffs ?? []).length)
-        if (firstDependencyTask) setDependencyDrawerTaskId(firstDependencyTask.id)
-      }} />
+      {filtersActive ? (
+        <FocusedReviewWorkspace
+          tasks={filteredTasks}
+          allTaskCount={allTasks.length}
+          selectedGoalId={selectedGoalId}
+          ownerFilter={ownerFilter}
+          statusFilter={statusFilter}
+          attentionFilter={attentionFilter}
+          dependencyFilter={dependencyFilter}
+          focusedScope={focusedScope}
+          sourceScope={sourceScope}
+          onClearFilters={onClearFilters}
+        />
+      ) : null}
       {dependencyDrawerTask ? (
         <DependencyDrawer task={dependencyDrawerTask} onClose={() => setDependencyDrawerTaskId(null)} />
       ) : null}
-      <GoalRadiators
-        organization={organization}
-        selectedGoalId={selectedGoalId}
-        onGoalChange={onGoalChange}
-      />
-      <HighSignalInsightsRail insights={organization.highSignalInsights ?? []} />
+      {!filtersActive ? (
+        <>
+          <SummaryStrip organization={organization} />
+          <BoardActionQueue actions={boardActions} filtersActive={filtersActive} totalCount={filteredTasks.length} />
+          <DependencyRadiators organization={organization} onOpenFirst={() => {
+            const firstDependencyTask = allTasks.find((task) => (task.dependencyIds ?? []).length || (task.dependents ?? []).length || (task.handoffs ?? []).length)
+            if (firstDependencyTask) setDependencyDrawerTaskId(firstDependencyTask.id)
+          }} />
+          <GoalRadiators
+            organization={organization}
+            selectedGoalId={selectedGoalId}
+            onGoalChange={onGoalChange}
+          />
+          <HighSignalInsightsRail insights={organization.highSignalInsights ?? []} />
+        </>
+      ) : (
+        <details className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-4">
+          <summary className="cursor-pointer text-sm font-semibold text-radiant-gold">Board context</summary>
+          <div className="mt-4 space-y-4">
+            <SummaryStrip organization={organization} />
+            <BoardActionQueue actions={boardActions} filtersActive={filtersActive} totalCount={filteredTasks.length} />
+            <DependencyRadiators organization={organization} onOpenFirst={() => {
+              const firstDependencyTask = filteredTasks.find((task) => (task.dependencyIds ?? []).length || (task.dependents ?? []).length || (task.handoffs ?? []).length)
+                ?? allTasks.find((task) => (task.dependencyIds ?? []).length || (task.dependents ?? []).length || (task.handoffs ?? []).length)
+              if (firstDependencyTask) setDependencyDrawerTaskId(firstDependencyTask.id)
+            }} />
+            <GoalRadiators
+              organization={organization}
+              selectedGoalId={selectedGoalId}
+              onGoalChange={onGoalChange}
+            />
+            <HighSignalInsightsRail insights={organization.highSignalInsights ?? []} />
+          </div>
+        </details>
+      )}
       <KanbanFilterPanel
         goals={organization.summary.goals}
         ownerOptions={ownerOptions}
+        productionLaneOptions={productionLaneOptions}
+        remediationOptions={remediationOptions}
         selectedGoalId={selectedGoalId}
         ownerFilter={ownerFilter}
         statusFilter={statusFilter}
         attentionFilter={attentionFilter}
         dependencyFilter={dependencyFilter}
+        focusedScope={focusedScope}
         sourceScope={sourceScope}
         filteredCount={filteredTasks.length}
         totalCount={allTasks.length}
@@ -430,6 +518,8 @@ function KanbanBoard({
         onStatusChange={onStatusChange}
         onAttentionChange={onAttentionChange}
         onDependencyChange={onDependencyChange}
+        onProductionLaneChange={onProductionLaneChange}
+        onRemediationChange={onRemediationChange}
         onClearFilters={onClearFilters}
       />
       {selectedGoal ? <SelectedGoalPanel goal={selectedGoal} tasks={filteredTasks} /> : null}
@@ -453,6 +543,121 @@ function KanbanBoard({
         ))}
       </div>
     </div>
+  )
+}
+
+function optionValues(values: Array<string | null>) {
+  return Array.from(new Set(values.filter((value): value is string => Boolean(value)))).sort((a, b) => a.localeCompare(b))
+}
+
+function optionValuesWithCurrent(options: string[], current: string) {
+  if (current === 'all' || options.includes(current)) return options
+  return [current, ...options]
+}
+
+function FocusedReviewWorkspace({
+  tasks,
+  allTaskCount,
+  selectedGoalId,
+  ownerFilter,
+  statusFilter,
+  attentionFilter,
+  dependencyFilter,
+  focusedScope,
+  sourceScope,
+  onClearFilters,
+}: {
+  tasks: AgentOrgBoardTask[]
+  allTaskCount: number
+  selectedGoalId: string
+  ownerFilter: string
+  statusFilter: 'all' | AgentOrgBoardTask['status']
+  attentionFilter: AttentionFilter
+  dependencyFilter: DependencyFilter
+  focusedScope: FocusedReviewScope
+  sourceScope: SourceScope
+  onClearFilters: () => void
+}) {
+  const firstTask = tasks[0] ?? null
+  const uniqueOwners = optionValues(tasks.map((task) => task.ownerAgentName))
+  const uniqueStatuses = optionValues(tasks.map((task) => task.status))
+  const uniqueProductionLanes = optionValues(tasks.map((task) => task.socialContent?.productionLane ?? null))
+  const uniqueRemediations = optionValues(tasks.map((task) => task.remediationId))
+  const ownerChipLabel = ownerFilter !== 'all' && uniqueOwners.length === 1 ? uniqueOwners[0] : ownerFilter
+  const filterChips = [
+    selectedGoalId !== 'all' ? `Goal ${selectedGoalId}` : null,
+    focusedScope.workItemId ? `Work item ${focusedScope.workItemId.slice(0, 8)}` : null,
+    ownerFilter !== 'all' ? `Owner ${displayDetailValue('Owner', ownerChipLabel)}` : null,
+    statusFilter !== 'all' ? `Status ${statusFilter.replace(/_/g, ' ')}` : null,
+    attentionFilter !== 'all' ? `Attention ${attentionFilter}` : null,
+    dependencyFilter !== 'all' ? `Dependencies ${dependencyFilter}` : null,
+    focusedScope.productionLane !== 'all' ? `Production lane ${focusedScope.productionLane.replace(/_/g, ' ')}` : null,
+    focusedScope.remediationId !== 'all' ? `Remediation ${focusedScope.remediationId}` : null,
+    sourceScope.sourceType ? `Source type ${sourceScope.sourceType}` : null,
+    sourceScope.sourceId ? `Source ${sourceScope.sourceId.slice(0, 12)}` : null,
+    sourceScope.socialContentId ? `Social draft ${sourceScope.socialContentId.slice(0, 8)}` : null,
+  ].filter((chip): chip is string => Boolean(chip))
+  const boundary = firstTask?.approvalBoundary
+    ?? firstTask?.goal?.approvalBoundary
+    ?? (firstTask?.socialContent?.publishGate ? `Publish gate: ${firstTask.socialContent.publishGate.replace(/_/g, ' ')}` : null)
+  const socialDraft = firstTask?.socialContent?.id
+    ? {
+        id: firstTask.socialContent.id,
+        href: firstTask.socialContent.href ?? `/admin/social-content/${firstTask.socialContent.id}`,
+      }
+    : sourceScope.socialContentId
+      ? { id: sourceScope.socialContentId, href: `/admin/social-content/${sourceScope.socialContentId}` }
+      : null
+
+  return (
+    <section className="rounded-lg border border-radiant-gold/45 bg-radiant-gold/10 p-4" aria-label="Focused review workspace">
+      <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-radiant-gold">Focused review workspace</p>
+          <h2 className="mt-1 text-xl font-semibold">Scoped Agent Kanban review</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {tasks.length} of {allTaskCount} canonical Kanban card{allTaskCount === 1 ? '' : 's'} match this scope.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={onClearFilters} className="rounded-lg border border-radiant-gold/50 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15">
+            Open full board
+          </button>
+        </div>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2 text-xs">
+        {filterChips.map((chip) => (
+          <span key={chip} className="rounded-full border border-radiant-gold/35 bg-background/50 px-2 py-1 text-radiant-gold">
+            {chip}
+          </span>
+        ))}
+      </div>
+      {tasks.length ? (
+        <div className="mt-4 grid gap-3 lg:grid-cols-4">
+          <CardDetail label="Owner" value={uniqueOwners.length === 1 ? uniqueOwners[0] : `${uniqueOwners.length} owners`} />
+          <CardDetail label="Status" value={uniqueStatuses.length === 1 ? uniqueStatuses[0].replace(/_/g, ' ') : `${uniqueStatuses.length} statuses`} />
+          <CardDetail label="Production lane" value={uniqueProductionLanes.length ? uniqueProductionLanes.join(', ').replace(/_/g, ' ') : 'Not tagged'} />
+          <CardDetail label="Remediation" value={uniqueRemediations.length ? uniqueRemediations.join(', ') : 'Not tagged'} />
+          {firstTask?.sourceType || firstTask?.sourceLabel ? (
+            <CardDetail label="Source" value={firstTask.sourceLabel ?? firstTask.sourceType ?? 'Source tagged'} />
+          ) : null}
+          {socialDraft ? (
+            <Link href={socialDraft.href} className="rounded-lg border border-blue-400/35 bg-blue-400/10 px-2.5 py-2 text-xs text-blue-100 hover:bg-blue-400/15">
+              <span className="block text-[10px] font-semibold uppercase tracking-wide text-blue-100/70">Social draft</span>
+              <span className="mt-1 block break-words">{socialDraft.id}</span>
+            </Link>
+          ) : null}
+          {boundary ? <CardDetail label="Approval boundary" value={boundary} /> : null}
+          {firstTask?.blockedActions?.length ? (
+            <CardDetail label="Blocked actions" value={firstTask.blockedActions.slice(0, 2).join(' ')} />
+          ) : null}
+        </div>
+      ) : (
+        <div className="mt-4 rounded-lg border border-dashed border-radiant-gold/45 bg-background/40 p-4 text-sm text-muted-foreground">
+          No canonical Kanban cards match this scoped link. Clear the scope to return to the full board, or adjust the filters below if a production lane, remediation id, owner, source, or social draft tag changed.
+        </div>
+      )}
+    </section>
   )
 }
 
@@ -786,11 +991,14 @@ function HighSignalInsightsRail({ insights }: { insights: AgentOrgBoardSnapshot[
 function KanbanFilterPanel({
   goals,
   ownerOptions,
+  productionLaneOptions,
+  remediationOptions,
   selectedGoalId,
   ownerFilter,
   statusFilter,
   attentionFilter,
   dependencyFilter,
+  focusedScope,
   sourceScope,
   filteredCount,
   totalCount,
@@ -799,15 +1007,20 @@ function KanbanFilterPanel({
   onStatusChange,
   onAttentionChange,
   onDependencyChange,
+  onProductionLaneChange,
+  onRemediationChange,
   onClearFilters,
 }: {
   goals: AgentOrgBoardSnapshot['summary']['goals']
   ownerOptions: Array<[string, string]>
+  productionLaneOptions: string[]
+  remediationOptions: string[]
   selectedGoalId: string
   ownerFilter: string
   statusFilter: 'all' | AgentOrgBoardTask['status']
   attentionFilter: AttentionFilter
   dependencyFilter: DependencyFilter
+  focusedScope: FocusedReviewScope
   sourceScope: SourceScope
   filteredCount: number
   totalCount: number
@@ -816,6 +1029,8 @@ function KanbanFilterPanel({
   onStatusChange: (value: 'all' | AgentOrgBoardTask['status']) => void
   onAttentionChange: (value: AttentionFilter) => void
   onDependencyChange: (value: DependencyFilter) => void
+  onProductionLaneChange: (value: string) => void
+  onRemediationChange: (value: string) => void
   onClearFilters: () => void
 }) {
   return (
@@ -844,7 +1059,7 @@ function KanbanFilterPanel({
           </button>
         </div>
       </div>
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-7">
         <label className="text-xs uppercase tracking-wide text-muted-foreground">
           Goal
           <select
@@ -905,6 +1120,32 @@ function KanbanFilterPanel({
           >
             {DEPENDENCY_FILTERS.map((filter) => (
               <option key={filter.key} value={filter.key}>{filter.label}</option>
+            ))}
+          </select>
+        </label>
+        <label className="text-xs uppercase tracking-wide text-muted-foreground">
+          Production lane
+          <select
+            value={focusedScope.productionLane}
+            onChange={(event) => onProductionLaneChange(event.target.value)}
+            className="mt-1 w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm normal-case tracking-normal text-foreground outline-none focus:border-radiant-gold/70"
+          >
+            <option value="all">All lanes</option>
+            {optionValuesWithCurrent(productionLaneOptions, focusedScope.productionLane).map((lane) => (
+              <option key={lane} value={lane}>{lane.replace(/_/g, ' ')}</option>
+            ))}
+          </select>
+        </label>
+        <label className="text-xs uppercase tracking-wide text-muted-foreground">
+          Remediation
+          <select
+            value={focusedScope.remediationId}
+            onChange={(event) => onRemediationChange(event.target.value)}
+            className="mt-1 w-full rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm normal-case tracking-normal text-foreground outline-none focus:border-radiant-gold/70"
+          >
+            <option value="all">All remediations</option>
+            {optionValuesWithCurrent(remediationOptions, focusedScope.remediationId).map((remediation) => (
+              <option key={remediation} value={remediation}>{remediation}</option>
             ))}
           </select>
         </label>
@@ -1065,11 +1306,15 @@ function SummaryStrip({ organization }: { organization: AgentOrgBoardSnapshot })
 }
 
 function TaskLane({ lane, onOpenDependencies }: { lane: StatusSwimlane; onOpenDependencies: (taskId: string) => void }) {
+  const [showAll, setShowAll] = useState(false)
   const isEmpty = lane.tasks.length === 0
   const blocked = lane.tasks.filter((task) => task.status === 'blocked').length
   const review = lane.tasks.filter((task) => task.status === 'ready_for_review' || task.status === 'ready_for_merge').length
+  const isCapped = lane.tasks.length > DEFAULT_LANE_CARD_LIMIT
+  const visibleTasks = showAll || !isCapped ? lane.tasks : lane.tasks.slice(0, DEFAULT_LANE_CARD_LIMIT)
+  const hiddenCount = lane.tasks.length - visibleTasks.length
   return (
-    <section className={`rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 ${isEmpty ? 'min-h-[132px] opacity-70' : 'min-h-[420px]'}`} aria-label={`${lane.label} lane`} data-collapsed={isEmpty ? 'true' : 'false'}>
+    <section className={`rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 ${isEmpty ? 'min-h-[132px] opacity-70' : 'min-h-[420px]'}`} aria-label={`${lane.label} lane`} data-collapsed={isEmpty ? 'true' : 'false'} data-visible-count={visibleTasks.length}>
       <div className={`${isEmpty ? '' : 'border-b border-silicon-slate/60'} p-3`}>
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
@@ -1091,7 +1336,16 @@ function TaskLane({ lane, onOpenDependencies }: { lane: StatusSwimlane; onOpenDe
       </div>
       {!isEmpty ? (
         <div className="space-y-3 p-3">
-          {lane.tasks.map((task) => <WorkItemCard key={task.id} task={task} onOpenDependencies={onOpenDependencies} />)}
+          {visibleTasks.map((task) => <WorkItemCard key={task.id} task={task} onOpenDependencies={onOpenDependencies} />)}
+          {isCapped ? (
+            <button
+              type="button"
+              onClick={() => setShowAll((value) => !value)}
+              className="w-full rounded-lg border border-silicon-slate/70 bg-background/55 px-3 py-2 text-sm text-radiant-gold hover:border-radiant-gold/55 hover:bg-radiant-gold/10"
+            >
+              {showAll ? 'Show fewer cards' : `Show ${hiddenCount} more card${hiddenCount === 1 ? '' : 's'}`}
+            </button>
+          ) : null}
         </div>
       ) : null}
     </section>
@@ -1177,7 +1431,7 @@ function WorkItemCard({ task, onOpenDependencies }: { task: AgentOrgBoardTask; o
           <span className="truncate">Next gate: {task.goal.nextStageGate.label}</span>
         </div>
       ) : null}
-      {task.socialContent.id ? (
+      {task.socialContent?.id ? (
         <div className="mt-1.5 flex flex-wrap gap-1.5 text-[11px]">
           <Link
             href={task.socialContent.href ?? `/admin/social-content/${task.socialContent.id}`}
