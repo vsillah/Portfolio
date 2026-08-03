@@ -29,7 +29,7 @@ function installMeetingQuery(result: {
   const limit = vi.fn().mockResolvedValue(result)
   const order = vi.fn(() => ({ limit }))
   const eq = vi.fn(() => ({ order }))
-  const select = vi.fn(() => ({ eq }))
+  const select = vi.fn((projection: string) => ({ eq }))
 
   mocks.from.mockReturnValue({ select })
 
