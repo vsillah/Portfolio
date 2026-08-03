@@ -80,3 +80,9 @@ export function getAgentifiedVisualStrategyQaBySocialContentId(
     privacyRightsFinding,
   }
 }
+
+export function getAgentifiedVisualStrategyQaPackets() {
+  return report.strategies
+    .map((strategy) => getAgentifiedVisualStrategyQaBySocialContentId(strategy.socialContentId))
+    .filter((packet): packet is AgentifiedVisualStrategyQaPacket => Boolean(packet))
+}

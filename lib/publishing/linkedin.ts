@@ -5,6 +5,7 @@
  * Reads credentials from social_content_config. Supports:
  * - Text-only posts
  * - Text + image posts (2-step: register upload → binary upload → create post)
+ * - Text + multi-image posts through the current REST Posts API
  * - Token expiry checking and refresh
  */
 
@@ -22,6 +23,7 @@ export interface PublishPayload {
   ctaUrl?: string | null
   hashtags?: string[]
   imageUrl?: string | null
+  carouselSlideUrls?: string[] | null
 }
 
 export interface PublishResult {
@@ -41,6 +43,22 @@ interface LinkedInCredentials {
 interface LinkedInSettings {
   author_urn: string
   post_visibility: string
+}
+
+type LinkedInImageUpload = {
+  uploadUrl: string
+  image: string
+}
+
+function linkedInRestVersion() {
+  return process.env.LINKEDIN_API_VERSION || '202607'
+}
+
+function linkedInPostUrl(platformPostId: string) {
+  const encodedId = platformPostId.startsWith('urn:li:')
+    ? platformPostId
+    : `urn:li:share:${platformPostId}`
+  return `https://www.linkedin.com/feed/update/${encodedId}/`
 }
 
 // ---------------------------------------------------------------------------
@@ -225,6 +243,53 @@ async function uploadImageBinary(uploadUrl: string, imageUrl: string, accessToke
   return true
 }
 
+async function initializeRestImageUpload(
+  accessToken: string,
+  authorUrn: string,
+): Promise<LinkedInImageUpload | null> {
+  const res = await fetch('https://api.linkedin.com/rest/images?action=initializeUpload', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+      'Linkedin-Version': linkedInRestVersion(),
+      'X-Restli-Protocol-Version': '2.0.0',
+    },
+    body: JSON.stringify({
+      initializeUploadRequest: {
+        owner: authorUrn,
+      },
+    }),
+  })
+
+  if (!res.ok) {
+    console.error('[LinkedIn] REST image upload initialization failed:', res.status, await res.text())
+    return null
+  }
+
+  const data = await res.json()
+  const uploadUrl = data.value?.uploadUrl
+  const image = data.value?.image
+  if (!uploadUrl || !image) {
+    console.error('[LinkedIn] REST image upload response missing uploadUrl or image URN')
+    return null
+  }
+
+  return { uploadUrl, image }
+}
+
+async function uploadRestImage(
+  accessToken: string,
+  authorUrn: string,
+  imageUrl: string,
+): Promise<string | null> {
+  const registration = await initializeRestImageUpload(accessToken, authorUrn)
+  if (!registration) return null
+
+  const uploaded = await uploadImageBinary(registration.uploadUrl, imageUrl, accessToken)
+  return uploaded ? registration.image : null
+}
+
 // ---------------------------------------------------------------------------
 // Post creation
 // ---------------------------------------------------------------------------
@@ -261,6 +326,31 @@ function buildUgcPost(
   }
 }
 
+function buildRestPost(
+  authorUrn: string,
+  text: string,
+  visibility: string,
+  imageUrns: string[],
+): Record<string, unknown> {
+  return {
+    author: authorUrn,
+    commentary: text,
+    visibility: visibility || 'PUBLIC',
+    distribution: {
+      feedDistribution: 'MAIN_FEED',
+      targetEntities: [],
+      thirdPartyDistributionChannels: [],
+    },
+    lifecycleState: 'PUBLISHED',
+    isReshareDisabledByAuthor: false,
+    content: {
+      multiImage: {
+        images: imageUrns.map((imageUrn) => ({ id: imageUrn })),
+      },
+    },
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Publish status helper
 // ---------------------------------------------------------------------------
@@ -290,7 +380,7 @@ async function updatePublishStatus(
 // ---------------------------------------------------------------------------
 
 export async function publishToLinkedIn(payload: PublishPayload): Promise<PublishResult> {
-  const { contentId, postText, ctaText, ctaUrl, hashtags, imageUrl } = payload
+  const { contentId, postText, ctaText, ctaUrl, hashtags, imageUrl, carouselSlideUrls } = payload
 
   // 1. Load credentials
   const config = await getLinkedInConfig()
@@ -336,6 +426,56 @@ export async function publishToLinkedIn(payload: PublishPayload): Promise<Publis
     }
     const fullText = parts.join('\n')
 
+    const slideUrls = Array.isArray(carouselSlideUrls)
+      ? carouselSlideUrls.filter((url): url is string => typeof url === 'string' && url.trim().length > 0)
+      : []
+
+    if (slideUrls.length > 1) {
+      const imageUrns: string[] = []
+      for (const [index, slideUrl] of slideUrls.entries()) {
+        const imageUrn = await uploadRestImage(
+          accessToken,
+          authorUrn,
+          slideUrl,
+        )
+        if (!imageUrn) {
+          const error = `LinkedIn multi-image upload failed on slide ${index + 1}`
+          await updatePublishStatus(contentId, 'linkedin', 'failed', { error_message: error })
+          return { success: false, error }
+        }
+        imageUrns.push(imageUrn)
+      }
+
+      const postRes = await fetch('https://api.linkedin.com/rest/posts', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          'Linkedin-Version': linkedInRestVersion(),
+          'X-Restli-Protocol-Version': '2.0.0',
+        },
+        body: JSON.stringify(buildRestPost(authorUrn, fullText, settings.post_visibility, imageUrns)),
+      })
+
+      if (!postRes.ok) {
+        const errBody = await postRes.text()
+        console.error('[LinkedIn] REST multi-image post creation failed:', postRes.status, errBody)
+        const error = `LinkedIn API error (${postRes.status})`
+        await updatePublishStatus(contentId, 'linkedin', 'failed', { error_message: error })
+        return { success: false, error }
+      }
+
+      const platformPostId = postRes.headers.get('x-restli-id') || undefined
+      const platformPostUrl = platformPostId ? linkedInPostUrl(platformPostId) : undefined
+
+      await updatePublishStatus(contentId, 'linkedin', 'published', {
+        platform_post_id: platformPostId,
+        platform_post_url: platformPostUrl,
+      })
+
+      return { success: true, platformPostId, platformPostUrl }
+    }
+
     // 5. Handle image upload if present
     let imageAsset: string | undefined
     if (imageUrl) {
@@ -372,10 +512,7 @@ export async function publishToLinkedIn(payload: PublishPayload): Promise<Publis
 
     const postData = await postRes.json()
     const platformPostId = postData.id
-    const postUrn = platformPostId?.replace('urn:li:share:', '') || ''
-    const platformPostUrl = postUrn
-      ? `https://www.linkedin.com/feed/update/urn:li:share:${postUrn}/`
-      : undefined
+    const platformPostUrl = platformPostId ? linkedInPostUrl(platformPostId) : undefined
 
     // 7. Mark as published
     await updatePublishStatus(contentId, 'linkedin', 'published', {
