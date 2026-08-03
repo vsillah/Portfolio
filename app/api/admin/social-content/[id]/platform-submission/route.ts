@@ -4,6 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 import type { SocialPlatform } from '@/lib/social-content'
 import { getProductionAssets, getVideoRedactionGate } from '@/lib/social-production-assets'
 import { buildPlatformOrchestrationPlan } from '@/lib/social-platform-orchestration'
+import { syncCampaignCalendarForSocialContent } from '@/lib/social-content-calendar-linkage'
 
 export const dynamic = 'force-dynamic'
 
@@ -171,6 +172,18 @@ export async function POST(
       return NextResponse.json({ error: 'Failed to record platform submission gate.' }, { status: 500 })
     }
 
+    const calendarLinkage = await syncCampaignCalendarForSocialContent({
+      admin,
+      socialContentId: id,
+      event: {
+        type: 'platform_submission_approved',
+        at: approvedAt,
+        userId: authResult.user.id,
+        platforms: targetPlatforms,
+        submitAfterApproval,
+      },
+    })
+
     let publishResponse: unknown = null
     let submitTriggered = false
     if (submitAfterApproval) {
@@ -194,6 +207,7 @@ export async function POST(
       publishes: publishes ?? [],
       platform_submission_gate: updatedRagContext.platform_submission_gate,
       platform_submission_orchestration: readinessPlan,
+      calendar_linkage: calendarLinkage,
       publish_response: publishResponse,
     })
   } catch (error) {

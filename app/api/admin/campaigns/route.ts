@@ -67,7 +67,11 @@ export async function GET(request: NextRequest) {
         if (!campaignId) continue;
         const current = calendarByCampaign.get(campaignId) || { count: 0, next: null };
         current.count += 1;
-        if (!current.next) current.next = item as Record<string, unknown>;
+        if (
+          !current.next
+          && item.due_status !== 'completed'
+          && item.due_status !== 'cancelled'
+        ) current.next = item as Record<string, unknown>;
         calendarByCampaign.set(campaignId, current);
       }
     }
