@@ -71,7 +71,7 @@ describe('mergeAgentifiedIntoPublications', () => {
   }
 
   it('prepends the local Agentified card when the remote list omits it', () => {
-    const remote = [
+    const remote: AgentifiedPublicationCardFields[] = [
       {
         title: 'The Equity Code',
         description: 'Remote only',
@@ -91,7 +91,7 @@ describe('mergeAgentifiedIntoPublications', () => {
   })
 
   it('overwrites stale remote Agentified fields with the published source of truth', () => {
-    const remote = [
+    const remote: AgentifiedPublicationCardFields[] = [
       {
         title: '  agentified  ',
         description: 'Stale draft description',
@@ -132,7 +132,7 @@ describe('mergeAgentifiedIntoPublications', () => {
   })
 
   it('preserves an existing remote Agentified publication_url when present', () => {
-    const remote = [
+    const remote: AgentifiedPublicationCardFields[] = [
       {
         title: 'Agentified',
         description: 'ignored',
