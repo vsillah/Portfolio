@@ -218,9 +218,10 @@ describe('SocialContentDetailRoute visual production review', () => {
     renderAtStep('visuals')
 
     expect(await screen.findByText('Amina visual QA packet')).toBeInTheDocument()
+    expect(screen.getByText('Current Amina candidate')).toBeInTheDocument()
     expect(screen.getByText('Amina packet attached')).toBeInTheDocument()
-    expect(screen.getByText('single-image boundary card')).toBeInTheDocument()
-    expect(screen.getByText(/Use an authority-ladder card/i)).toBeInTheDocument()
+    expect(screen.getAllByText('single-image boundary card').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText(/Use an authority-ladder card/i).length).toBeGreaterThanOrEqual(1)
     expect(screen.getAllByText(/Scope is not a prompt detail/i).length).toBeGreaterThan(0)
     expect(screen.getByText(/Privacy, rights, and source provenance/i)).toBeInTheDocument()
     expect(screen.getAllByAltText(/Scope is the safety model visual/i).length).toBeGreaterThan(0)

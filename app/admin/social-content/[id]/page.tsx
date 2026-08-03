@@ -3367,6 +3367,40 @@ function SocialContentDetailPage() {
                     <div className="rounded-lg border border-amber-500/20 bg-background/25 px-3 py-2 text-xs leading-5 text-amber-50/75">
                       Clicking a visual action may generate or replace assets; it does not publish or schedule.
                     </div>
+                    {agentifiedVisualQaPacket?.primaryCandidateUrl && (
+                      <div className="mt-3 overflow-hidden rounded-lg border border-emerald-400/30 bg-emerald-500/10">
+                        <div className="flex flex-col gap-3 p-3 lg:flex-row lg:items-start">
+                          <div className="relative aspect-[1.91/1] min-h-[220px] w-full overflow-hidden rounded-md border border-emerald-300/20 bg-gray-950/70 lg:max-w-[520px]">
+                            <Image
+                              src={agentifiedVisualQaPacket.primaryCandidateUrl}
+                              alt={agentifiedVisualQaPacket.altText || 'Amina visual QA candidate'}
+                              className="object-contain"
+                              fill
+                              sizes="(max-width: 900px) 100vw, 520px"
+                            />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-100/75">Current Amina candidate</p>
+                            <p className="mt-2 text-sm font-semibold text-emerald-50">{agentifiedVisualQaPacket.selectedForm}</p>
+                            <p className="mt-2 text-sm leading-6 text-emerald-50/80">{agentifiedVisualQaPacket.recommendation}</p>
+                            <div className="mt-3 flex flex-wrap gap-2">
+                              <span className="rounded-full border border-emerald-300/35 bg-emerald-300/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-100">
+                                QA {agentifiedVisualQaReady ? 'passed' : 'needs review'}
+                              </span>
+                              <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${agentifiedVisualPrivacyReady ? 'border-emerald-300/35 bg-emerald-300/10 text-emerald-100' : 'border-red-300/35 bg-red-300/10 text-red-100'}`}>
+                                Privacy/rights {agentifiedVisualPrivacyReady ? 'passed' : 'blocked'}
+                              </span>
+                              <span className="rounded-full border border-amber-300/35 bg-amber-300/10 px-2 py-0.5 text-[10px] font-semibold text-amber-100">
+                                Human review required
+                              </span>
+                            </div>
+                            <p className="mt-3 text-xs leading-5 text-emerald-50/65">
+                              Review this candidate, then use the approval controls below. The generate/switch actions are fallback repair paths, not the primary next step.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                     <div className="mt-3">
                       <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-100/70">Choose one visual format</p>
                       <div className="mt-2 grid gap-3 lg:grid-cols-2">
