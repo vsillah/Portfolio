@@ -438,6 +438,53 @@ describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => 
     }))
   })
 
+  it('passes carousel slide URLs into LinkedIn publishing after final submission approval', async () => {
+    const { queueUpdate } = installPublishRouteSupabase({
+      item: {
+        id: 'social-1',
+        status: 'approved',
+        post_text: 'Post text',
+        cta_text: 'CTA',
+        cta_url: 'https://example.com',
+        hashtags: ['AI'],
+        image_url: 'https://cdn.example.com/slide-1.png',
+        video_url: null,
+        youtube_title: null,
+        youtube_description: null,
+        carousel_slide_urls: [
+          'https://cdn.example.com/slide-1.png',
+          'https://cdn.example.com/slide-2.png',
+        ],
+        rag_context: approvedGate(['linkedin']),
+      },
+      publishes: [
+        { platform: 'linkedin', status: 'pending' },
+      ],
+    })
+    mocks.publishToLinkedIn.mockResolvedValue({
+      success: true,
+      platformPostId: 'urn:li:share:linkedin-post-1',
+      platformPostUrl: 'https://www.linkedin.com/feed/update/urn:li:share:linkedin-post-1/',
+    })
+
+    const response = await POST(request({ platforms: ['linkedin'] }), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    expect(body.published).toBe(true)
+    expect(mocks.publishToLinkedIn).toHaveBeenCalledWith(expect.objectContaining({
+      contentId: 'social-1',
+      imageUrl: 'https://cdn.example.com/slide-1.png',
+      carouselSlideUrls: [
+        'https://cdn.example.com/slide-1.png',
+        'https://cdn.example.com/slide-2.png',
+      ],
+    }))
+    expect(queueUpdate).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'published',
+    }))
+  })
+
   it('does not mark the queue published for TikTok async processing alone', async () => {
     const { queueUpdate } = installPublishRouteSupabase({
       item: {
