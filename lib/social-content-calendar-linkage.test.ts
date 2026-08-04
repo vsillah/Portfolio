@@ -5,13 +5,16 @@ function installCalendarAdmin({
   rows,
   readError = null,
   updateError = null,
+  supportsOr = false,
 }: {
   rows?: Array<Record<string, unknown>>
   readError?: { code?: string; message?: string } | null
   updateError?: { code?: string; message?: string } | null
+  supportsOr?: boolean
 }) {
   const updates: Array<{ payload: Record<string, unknown>; id: string }> = []
   const selectEq = vi.fn().mockResolvedValue({ data: rows ?? [], error: readError })
+  const selectOr = vi.fn().mockResolvedValue({ data: rows ?? [], error: readError })
   const updateEq = vi.fn(async (column: string, id: string) => {
     updates[updates.length - 1].id = id
     return { data: null, error: updateError }
@@ -20,7 +23,7 @@ function installCalendarAdmin({
     updates.push({ payload, id: '' })
     return { eq: updateEq }
   })
-  const select = vi.fn(() => ({ eq: selectEq }))
+  const select = vi.fn(() => (supportsOr ? { eq: selectEq, or: selectOr } : { eq: selectEq }))
   const from = vi.fn(() => ({ select, update }))
 
   return {
@@ -28,6 +31,7 @@ function installCalendarAdmin({
     updates,
     from,
     selectEq,
+    selectOr,
     update,
     updateEq,
   }
@@ -164,6 +168,48 @@ describe('syncCampaignCalendarForSocialContent', () => {
 
     expect(result).toEqual({ matched: 0, updated: 0, skipped: false, error: null })
     expect(update).not.toHaveBeenCalled()
+  })
+
+  it('can match imported calendar items by social content metadata', async () => {
+    const { admin, selectEq, selectOr, updates } = installCalendarAdmin({
+      supportsOr: true,
+      rows: [{
+        id: 'calendar-1',
+        metadata: {
+          platform_draft_handoff: {
+            social_content_id: 'social-1',
+          },
+        },
+      }],
+    })
+
+    const result = await syncCampaignCalendarForSocialContent({
+      admin,
+      socialContentId: 'social-1',
+      event: {
+        type: 'published',
+        at: '2026-08-03T14:00:00.000Z',
+        platforms: ['linkedin'],
+        platformPostUrls: ['https://www.linkedin.com/feed/update/urn:li:share:1/'],
+      },
+    })
+
+    expect(result).toEqual({ matched: 1, updated: 1, skipped: false, error: null })
+    expect(selectEq).not.toHaveBeenCalled()
+    expect(selectOr).toHaveBeenCalledWith([
+      'social_content_id.eq.social-1',
+      'metadata->>social_content_id.eq.social-1',
+      'metadata->platform_draft_handoff->>social_content_id.eq.social-1',
+    ].join(','))
+    expect(updates[0].payload).toEqual({
+      due_status: 'completed',
+      metadata: expect.objectContaining({
+        social_content_id: 'social-1',
+        platform_draft_handoff: {
+          social_content_id: 'social-1',
+        },
+      }),
+    })
   })
 
   it('skips safely when the calendar table does not exist in older environments', async () => {

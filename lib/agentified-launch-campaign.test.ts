@@ -65,14 +65,61 @@ describe('Agentified launch campaign import builders', () => {
     expect(plan.campaign.ends_at).toBe('2026-08-09T18:00:00-04:00')
     expect(plan.calendar_items[0]).toEqual(expect.objectContaining({
       asset_id: 'AGT-LI-01',
-      scheduled_for: '2026-07-27T15:00:00-04:00',
-      authorization_due_at: '2026-07-27T13:00:00-04:00',
+      scheduled_for: '2026-07-27T19:00:00.000Z',
+      authorization_due_at: '2026-07-27T17:00:00.000Z',
+    }))
+    expect(plan.calendar_items.at(-1)).toEqual(expect.objectContaining({
+      asset_id: 'AGT-PAGE-01',
+      scheduled_for: '2026-08-09T16:00:00.000Z',
+    }))
+    expect(plan.calendar_items[0].metadata).toEqual(expect.objectContaining({
+      schedule_mode: 'relative_to_final_shout',
+      schedule_anchor: expect.objectContaining({
+        mode: 'relative_to_final_shout',
+        final_asset_id: 'AGT-PAGE-01',
+        final_release_at: '2026-08-09T16:00:00.000Z',
+        source_scheduled_for: '2026-07-27T15:00:00-04:00',
+        offset_from_final_release_days: -12.875,
+      }),
     }))
 
     for (const item of plan.calendar_items) {
       expect(new Date(item.scheduled_for).getTime()).toBeGreaterThanOrEqual(launchBaseline)
       expect(new Date(item.authorization_due_at).getTime()).toBeGreaterThanOrEqual(launchBaseline)
     }
+  })
+
+  it('recalculates the whole sequence backward from a supplied final shout date', () => {
+    const sourcePlan = agentifiedLaunchImportPlan()
+    const shiftedPlan = agentifiedLaunchImportPlan({
+      finalReleaseAt: '2026-08-21T16:00:00.000Z',
+    })
+    const sourceFinal = new Date(sourcePlan.calendar_items.at(-1)?.scheduled_for ?? '').getTime()
+    const shiftedFinal = new Date(shiftedPlan.calendar_items.at(-1)?.scheduled_for ?? '').getTime()
+
+    expect(shiftedPlan.calendar_items.at(-1)).toEqual(expect.objectContaining({
+      asset_id: 'AGT-PAGE-01',
+      scheduled_for: '2026-08-21T16:00:00.000Z',
+    }))
+
+    shiftedPlan.calendar_items.forEach((item, index) => {
+      const sourceItem = sourcePlan.calendar_items[index]
+      const sourceAnchor = sourceItem.metadata.schedule_anchor as { source_scheduled_for: string }
+      const sourceOffset = new Date(sourceItem.scheduled_for).getTime() - sourceFinal
+      const shiftedOffset = new Date(item.scheduled_for).getTime() - shiftedFinal
+      const sourceAuthorizationLead = new Date(sourceItem.authorization_due_at).getTime()
+        - new Date(sourceItem.scheduled_for).getTime()
+      const shiftedAuthorizationLead = new Date(item.authorization_due_at).getTime()
+        - new Date(item.scheduled_for).getTime()
+
+      expect(shiftedOffset).toBe(sourceOffset)
+      expect(shiftedAuthorizationLead).toBe(sourceAuthorizationLead)
+      expect(item.metadata.schedule_anchor).toEqual(expect.objectContaining({
+        final_release_at: '2026-08-21T16:00:00.000Z',
+        final_asset_id: 'AGT-PAGE-01',
+        source_scheduled_for: sourceAnchor.source_scheduled_for,
+      }))
+    })
   })
 
   it('promotes proof and offer assets while leaving earlier launch phases at medium priority', () => {

@@ -42,6 +42,7 @@ function asQuery(value: unknown) {
   return value as {
     select: (columns: string) => {
       eq: (column: string, value: string) => Promise<{ data?: CalendarRow[] | null; error?: { code?: string; message?: string } | null }>
+      or?: (filters: string) => Promise<{ data?: CalendarRow[] | null; error?: { code?: string; message?: string } | null }>
     }
     update: (updates: Record<string, unknown>) => {
       eq: (column: string, value: string) => Promise<{ data?: unknown; error?: { code?: string; message?: string } | null }>
@@ -117,9 +118,14 @@ export async function syncCampaignCalendarForSocialContent(input: {
   event: CalendarLinkageEvent
 }): Promise<SocialContentCalendarLinkageResult> {
   const table = asQuery(input.admin.from('social_content_calendar_items'))
-  const { data, error } = await table
-    .select('id, due_status, metadata')
-    .eq('social_content_id', input.socialContentId)
+  const selectQuery = table.select('id, due_status, metadata')
+  const { data, error } = typeof selectQuery.or === 'function'
+    ? await selectQuery.or([
+        `social_content_id.eq.${input.socialContentId}`,
+        `metadata->>social_content_id.eq.${input.socialContentId}`,
+        `metadata->platform_draft_handoff->>social_content_id.eq.${input.socialContentId}`,
+      ].join(','))
+    : await selectQuery.eq('social_content_id', input.socialContentId)
 
   if (error) {
     return {

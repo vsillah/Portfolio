@@ -2,6 +2,7 @@ import packet from '@/agentified/campaign/portfolio-campaign-packet.json'
 import {
   CALENDAR_CHANNEL_LABELS,
   CALENDAR_SIDE_EFFECTS,
+  deriveDueStatus,
   type SocialContentCalendarChannel,
   type SocialContentCampaignPhase,
 } from '@/lib/social-content-calendar'
@@ -13,15 +14,27 @@ import {
 const AGENTIFIED_OWNER_AGENT_KEY = 'chief-of-staff'
 const PACKET_PATH = 'agentified/campaign/portfolio-campaign-packet.json'
 const FIRST_REVIEW_PACKET_PATH = 'agentified/campaign/launch-review-packet-2026-07-27.md'
+const MS_PER_DAY = 24 * 60 * 60 * 1000
 
 type PacketCampaign = typeof packet.campaign
 type PacketCalendarItem = (typeof packet.calendar_items)[number]
+export type AgentifiedLaunchCalendarItem = Omit<PacketCalendarItem, 'metadata'> & {
+  metadata: Record<string, unknown> & {
+    draft_asset_path?: string
+    schedule_anchor?: Record<string, unknown>
+    schedule_mode?: string
+  }
+}
+
+export type AgentifiedLaunchScheduleOptions = {
+  finalReleaseAt?: string | Date | null
+}
 
 export type AgentifiedLaunchImportPlan = {
   packet_path: string
   packet_status: string
   campaign: PacketCampaign
-  calendar_items: PacketCalendarItem[]
+  calendar_items: AgentifiedLaunchCalendarItem[]
   supported_channels: SocialContentCalendarChannel[]
   side_effects: typeof CALENDAR_SIDE_EFFECTS & {
     campaign_upsert: true
@@ -48,7 +61,7 @@ function phaseLabel(phase: SocialContentCampaignPhase) {
   return `${phase.slice(0, 1).toUpperCase()}${phase.slice(1)}`
 }
 
-function approvedResearchPattern(item: PacketCalendarItem) {
+function approvedResearchPattern(item: AgentifiedLaunchCalendarItem) {
   return {
     source_url: 'agentified/campaign/agentified-rollout-plan.md',
     source_label: 'Agentified rollout plan',
@@ -64,16 +77,85 @@ function approvedResearchPattern(item: PacketCalendarItem) {
   }
 }
 
-export function agentifiedLaunchImportPlan(): AgentifiedLaunchImportPlan {
+function dateOrNull(value: string | Date | null | undefined) {
+  if (!value) return null
+  const date = typeof value === 'string' ? new Date(value) : value
+  return Number.isFinite(date.getTime()) ? date : null
+}
+
+function roundedDays(ms: number) {
+  return Number((ms / MS_PER_DAY).toFixed(3))
+}
+
+function relativeAuthorizationDueAt(
+  item: Pick<AgentifiedLaunchCalendarItem, 'authorization_due_at'>,
+  originalScheduled: Date,
+  scheduled: Date,
+) {
+  const originalAuthorizationDueAt = dateOrNull(item.authorization_due_at)
+  const authorizationOffsetMs = originalAuthorizationDueAt
+    ? originalAuthorizationDueAt.getTime() - originalScheduled.getTime()
+    : -MS_PER_DAY
+
+  return new Date(scheduled.getTime() + authorizationOffsetMs).toISOString()
+}
+
+function resolveBackwardRelativeCalendarItems(
+  items: PacketCalendarItem[],
+  options: AgentifiedLaunchScheduleOptions = {},
+): AgentifiedLaunchCalendarItem[] {
+  const finalItem = items[items.length - 1]
+  const sourceFinalDate = dateOrNull(finalItem?.scheduled_for)
+    ?? dateOrNull(packet.campaign.ends_at)
+    ?? dateOrNull(packet.campaign.starts_at)
+    ?? new Date()
+  const finalReleaseDate = dateOrNull(options.finalReleaseAt) ?? sourceFinalDate
+
+  return items.map((item, index) => {
+    const originalScheduled = dateOrNull(item.scheduled_for) ?? sourceFinalDate
+    const scheduledOffsetMs = originalScheduled.getTime() - sourceFinalDate.getTime()
+    const scheduled = new Date(finalReleaseDate.getTime() + scheduledOffsetMs)
+    const previousItem = index > 0 ? items[index - 1] : null
+    const nextItem = index < items.length - 1 ? items[index + 1] : null
+
+    return {
+      ...item,
+      scheduled_for: scheduled.toISOString(),
+      due_status: deriveDueStatus(scheduled),
+      authorization_due_at: relativeAuthorizationDueAt(item, originalScheduled, scheduled),
+      metadata: {
+        ...item.metadata,
+        schedule_mode: 'relative_to_final_shout',
+        schedule_anchor: {
+          mode: 'relative_to_final_shout',
+          final_asset_id: finalItem?.asset_id ?? null,
+          final_release_at: finalReleaseDate.toISOString(),
+          source_final_scheduled_for: sourceFinalDate.toISOString(),
+          source_scheduled_for: item.scheduled_for,
+          source_authorization_due_at: item.authorization_due_at,
+          offset_from_final_release_ms: scheduledOffsetMs,
+          offset_from_final_release_days: roundedDays(scheduledOffsetMs),
+          previous_asset_id: previousItem?.asset_id ?? null,
+          next_asset_id: nextItem?.asset_id ?? null,
+        },
+      },
+    }
+  })
+}
+
+export function agentifiedLaunchImportPlan(
+  options: AgentifiedLaunchScheduleOptions = {},
+): AgentifiedLaunchImportPlan {
+  const calendarItems = resolveBackwardRelativeCalendarItems(packet.calendar_items, options)
   const supportedChannels = unique(
-    packet.calendar_items.map((item) => item.channel as SocialContentCalendarChannel),
+    calendarItems.map((item) => item.channel as SocialContentCalendarChannel),
   )
 
   return {
     packet_path: PACKET_PATH,
     packet_status: packet.packet_status,
     campaign: packet.campaign,
-    calendar_items: packet.calendar_items,
+    calendar_items: calendarItems,
     supported_channels: supportedChannels,
     side_effects: {
       ...CALENDAR_SIDE_EFFECTS,
@@ -99,6 +181,8 @@ export function agentifiedLaunchSummary() {
     packet_status: plan.packet_status,
     packet_path: plan.packet_path,
     first_review_packet_path: FIRST_REVIEW_PACKET_PATH,
+    schedule_mode: 'relative_to_final_shout',
+    final_release_at: plan.calendar_items[plan.calendar_items.length - 1]?.scheduled_for ?? null,
     starts_at: plan.campaign.starts_at,
     ends_at: plan.campaign.ends_at,
     calendar_item_count: plan.calendar_items.length,
@@ -108,7 +192,7 @@ export function agentifiedLaunchSummary() {
   }
 }
 
-export function buildAgentifiedWorkItemInput(item: PacketCalendarItem) {
+export function buildAgentifiedWorkItemInput(item: AgentifiedLaunchCalendarItem) {
   const channel = item.channel as SocialContentCalendarChannel
   const selectedLane = channelToSelectedLane(channel)
   const now = new Date().toISOString()
@@ -196,7 +280,7 @@ export function buildAgentifiedWorkItemInput(item: PacketCalendarItem) {
 }
 
 export function buildAgentifiedCalendarRow(input: {
-  item: PacketCalendarItem
+  item: AgentifiedLaunchCalendarItem
   campaignId: string
   workItemId: string
   createdBy: string
