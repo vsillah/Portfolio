@@ -51,6 +51,12 @@ function mapJob(row: Record<string, unknown> | null): SocialVideoGenerationJobPr
   }
 }
 
+function sameStringSet(left: string[], right: string[]): boolean {
+  if (left.length !== right.length) return false
+  const rightSet = new Set(right)
+  return left.every((item) => rightSet.has(item))
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } },
@@ -174,6 +180,80 @@ export async function POST(
         scorecard: scriptScorecard,
         side_effects: SCRIPT_INTELLIGENCE_SIDE_EFFECTS,
       }, { status: 409 })
+    }
+
+    const { data: matchingJobs, error: matchingJobsError } = await supabaseAdmin
+      .from('video_generation_jobs')
+      .select('id, heygen_video_id, heygen_status, video_url, video_share_url, thumbnail_url, avatar_id, voice_id, broll_asset_ids, created_at, updated_at')
+      .eq('script_source', 'campaign')
+      .eq('script_text', scriptText)
+      .eq('channel', 'youtube')
+      .eq('avatar_id', avatarId)
+      .eq('voice_id', voiceId)
+      .order('created_at', { ascending: false })
+      .limit(5)
+
+    if (matchingJobsError) {
+      console.error('[social-content avatar video] existing job lookup failed:', matchingJobsError)
+      return NextResponse.json({ error: 'Unable to verify existing HeyGen render jobs before preparation.' }, { status: 500 })
+    }
+
+    const reusableJob = (Array.isArray(matchingJobs) ? matchingJobs : [])
+      .map((row) => mapJob(asRecord(row)))
+      .find((job): job is SocialVideoGenerationJobProjection => {
+        return job !== null && job.id.length > 0 && sameStringSet(job.brollAssetIds, selectedBroll.ids)
+      })
+
+    if (reusableJob) {
+      const storedState = buildSocialVideoProductionStoredState({
+        existing: existingState,
+        jobId: reusableJob.id,
+        avatarId,
+        voiceId,
+        brollCandidates: selectedBroll.assets,
+        selectedBrollAssetIds: selectedBroll.ids,
+        renderApproval: {
+          approvedBy: renderApproval?.approvedBy ?? 'Shaka',
+          scope: renderApproval?.scope ?? '',
+          packetPath: renderApproval?.packetPath ?? '',
+        },
+      })
+      const nextRagContext = {
+        ...ragContext,
+        social_video_production: storedState,
+      }
+
+      const { error: updateError } = await supabaseAdmin
+        .from('social_content_queue')
+        .update({
+          rag_context: nextRagContext,
+          video_generation_method: 'heygen_avatar',
+        })
+        .eq('id', params.id)
+
+      if (updateError) {
+        console.error('[social-content avatar video] existing job relink failed:', updateError)
+        return NextResponse.json({ error: 'Existing HeyGen job found, but Social Content projection failed to update.' }, { status: 500 })
+      }
+
+      const updatedItem = {
+        ...item,
+        rag_context: nextRagContext,
+        video_generation_method: 'heygen_avatar',
+      }
+
+      return NextResponse.json({
+        success: true,
+        reused_existing_job: true,
+        job_id: reusableJob.id,
+        heygen_video_id: reusableJob.heygenVideoId,
+        rag_context: nextRagContext,
+        social_video_production: buildSocialVideoProductionProjection({
+          item: updatedItem,
+          defaults,
+          job: reusableJob,
+        }),
+      })
     }
 
     const result = await createVideo({

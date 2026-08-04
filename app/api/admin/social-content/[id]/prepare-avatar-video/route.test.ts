@@ -140,8 +140,15 @@ function queueFetchBuilder(item: Record<string, unknown>) {
   }
 }
 
-function jobInsertBuilder() {
+function jobInsertBuilder(existingJobs: Record<string, unknown>[] = []) {
+  const lookupChain = {
+    eq: vi.fn(() => lookupChain),
+    order: vi.fn(() => lookupChain),
+    limit: vi.fn().mockResolvedValue({ data: existingJobs, error: null }),
+  }
+
   return {
+    select: vi.fn(() => lookupChain),
     insert: vi.fn(() => ({
       select: vi.fn(() => ({
         single: vi.fn().mockResolvedValue({
@@ -212,6 +219,45 @@ describe('POST /api/admin/social-content/[id]/prepare-avatar-video', () => {
     expect(body.error).toContain('Select or capture B-roll')
     expect(body.social_video_production.broll.status).toBe('missing')
     expect(mocks.createVideo).not.toHaveBeenCalled()
+  })
+
+  it('relinks a matching existing HeyGen job before creating another render', async () => {
+    const queueBuilder = queueFetchBuilder(socialItem())
+    const jobBuilder = jobInsertBuilder([{
+      id: 'job-existing',
+      heygen_video_id: 'heygen-existing',
+      heygen_status: 'pending',
+      video_url: null,
+      video_share_url: null,
+      thumbnail_url: null,
+      avatar_id: 'avatar-1',
+      voice_id: 'voice-1',
+      broll_asset_ids: ['broll-1'],
+      created_at: '2026-08-04T12:04:00.000Z',
+      updated_at: '2026-08-04T12:04:00.000Z',
+    }])
+    mocks.from.mockImplementation((table: string) => {
+      if (table === 'social_content_queue') return queueBuilder
+      if (table === 'video_generation_jobs') return jobBuilder
+      return {}
+    })
+
+    const response = await POST(request({ renderApproval: buildVideoRenderApproval(true) }), { params: { id: 'social-1' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({
+      success: true,
+      reused_existing_job: true,
+      job_id: 'job-existing',
+      heygen_video_id: 'heygen-existing',
+      social_video_production: {
+        status: 'render_requested',
+        job: { id: 'job-existing', heygenStatus: 'pending' },
+      },
+    })
+    expect(mocks.createVideo).not.toHaveBeenCalled()
+    expect(jobBuilder.insert).not.toHaveBeenCalled()
   })
 
   it('creates one HeyGen job and stores a Social Content projection link', async () => {
