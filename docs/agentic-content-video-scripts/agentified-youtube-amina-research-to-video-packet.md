@@ -196,10 +196,14 @@ Each YouTube package should pass this gate before HeyGen or any other provider w
 
 ## Current next step
 
-Amina should convert this packet into reviewable internal YouTube script and asset requirements for:
+Amina has converted this packet into reviewable internal YouTube script and asset requirements in:
+
+`docs/agentic-content-video-scripts/agentified-youtube-review-package.md`
+
+The current review package covers:
 
 1. `AGT-SHORT-01`;
 2. `AGT-SHORT-02`;
 3. Episode 1, "The Receipt Every Agent Needs."
 
-Stop before provider render approval. YouTube upload, schedule, and publish stay behind separate explicit gates. The next package should carry the AmaduTown channel, Agentified playlist target, avatar-selection requirement, and reused Episode 1 queue item as metadata.
+Stop before provider render approval. YouTube upload, schedule, and publish stay behind separate explicit gates. The review package carries the AmaduTown channel, Agentified playlist target, avatar-selection requirement, and reused Episode 1 queue item as metadata.
