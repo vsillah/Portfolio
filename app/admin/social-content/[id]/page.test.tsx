@@ -266,6 +266,85 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByRole('button', { name: /Approve final gate/i })).toBeInTheDocument()
   })
 
+  it('shows YouTube avatar video preparation state on the visuals step', async () => {
+    const youtubeItem = {
+      ...baseItem,
+      platform: 'youtube',
+      target_platforms: ['youtube'],
+      status: 'approved',
+      image_url: 'https://cdn.example.com/youtube-thumbnail.png',
+      youtube_title: 'The AI Operating Layer',
+      youtube_description: 'A reviewed YouTube description.',
+      rag_context: {
+        source: 'social_content_calendar_authorization',
+        calendar_item_id: 'calendar-1',
+        production_assets: {
+          version: 'social_production_assets_v2',
+          references: { open_brain: [], public_sources: [] },
+          chronicle_evidence: { proposals: [] },
+          illustration: { status: 'prompt_ready' },
+          app_screenshot_carousel: { routes: [] },
+          broll: { status: 'missing', hints: ['Portfolio workflow'], assets: [] },
+          video_script: { status: 'draft_ready' },
+          video_redaction_manifest: { items: [] },
+          visual_qa: { status: 'required' },
+        },
+      },
+      social_video_production: {
+        status: 'blocked',
+        isYouTubeTarget: true,
+        selectedAvatarId: null,
+        selectedVoiceId: null,
+        broll: {
+          status: 'missing',
+          selectedAssetIds: [],
+          candidates: [],
+          provenance: [],
+        },
+        readiness: {
+          readyForRenderApproval: false,
+          blockers: ['Default Vambah HeyGen avatar is missing.'],
+          warnings: [],
+          nextAction: 'Default Vambah HeyGen avatar is missing.',
+        },
+        job: null,
+        finalVideoUrl: null,
+        thumbnailUrl: 'https://cdn.example.com/youtube-thumbnail.png',
+        privacyRedactionState: 'ready',
+        approvalBoundary: 'Readiness does not upload, schedule, create a provider draft, or publish.',
+        sideEffectsUntilRenderApproval: {
+          heygenRender: false,
+          youtubeUpload: false,
+          schedule: false,
+          publish: false,
+          providerDraft: false,
+        },
+      },
+    }
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input).includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [] }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: youtubeItem }),
+      } as Response
+    }))
+
+    renderAtStep('visuals')
+
+    expect(await screen.findByText('YouTube avatar video preparation')).toBeInTheDocument()
+    expect(screen.getAllByText('Default missing')).toHaveLength(2)
+    expect(screen.getByText('B-roll missing')).toBeInTheDocument()
+    expect(screen.getByText('Final video pending')).toBeInTheDocument()
+    expect(screen.getAllByText('Default Vambah HeyGen avatar is missing.').length).toBeGreaterThan(0)
+    expect(screen.getByRole('button', { name: /Prepare HeyGen Avatar Video/i })).toBeDisabled()
+    expect(screen.getByText(/does not upload, schedule, create a provider draft, or publish/i)).toBeInTheDocument()
+  })
+
   it('projects the Amina visual QA packet for Agentified drafts', async () => {
     const agentifiedItem = {
       ...baseItem,

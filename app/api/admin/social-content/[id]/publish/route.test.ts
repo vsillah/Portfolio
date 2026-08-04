@@ -427,6 +427,61 @@ describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => 
     expect(mocks.publishToYouTube).not.toHaveBeenCalled()
   })
 
+  it('does not treat a linked HeyGen preparation job as a final YouTube video URL', async () => {
+    installPublishRouteSupabase({
+      item: {
+        id: 'social-1',
+        status: 'approved',
+        post_text: 'Post text',
+        cta_text: 'CTA',
+        cta_url: 'https://example.com',
+        hashtags: ['AI'],
+        image_url: 'https://cdn.example.com/youtube-thumbnail.png',
+        video_url: null,
+        youtube_title: 'YouTube title',
+        youtube_description: 'YouTube description',
+        carousel_slide_urls: null,
+        rag_context: {
+          ...approvedGate(['youtube']),
+          social_video_production: {
+            version: 'social_video_production_v1',
+            source: 'youtube_social_content_heygen_bridge',
+            video_generation_job_id: 'job-1',
+            selected_avatar_id: 'avatar-1',
+            selected_voice_id: 'voice-1',
+            selected_broll_asset_ids: ['broll-1'],
+            broll_candidates: [],
+            render_approval: {
+              approved_by: 'Shaka',
+              scope: 'internal_review_render_only',
+              packet_path: 'docs/agentic-content-video-scripts/render-approval-packet.md',
+              approved_at: '2026-08-04T12:00:00.000Z',
+            },
+            approval_boundary: 'Internal render only.',
+            side_effects: {
+              heygen_render: true,
+              youtube_upload: false,
+              schedule: false,
+              publish: false,
+              provider_draft: false,
+            },
+            updated_at: '2026-08-04T12:00:00.000Z',
+          },
+        },
+      },
+      publishes: [
+        { platform: 'youtube', status: 'pending' },
+      ],
+    })
+
+    const response = await POST(request({ platforms: ['youtube'] }), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(409)
+    const body = await response.json()
+    expect(body.blockers).toEqual(['YouTube: YouTube needs a final video URL before submission.'])
+    expect(mocks.publishToYouTube).not.toHaveBeenCalled()
+  })
+
   it('blocks final-approved YouTube publish when release metadata and thumbnail readiness are missing', async () => {
     installPublishRouteSupabase({
       item: {

@@ -2,8 +2,45 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { extractMeetingTitle, extractMeetingSourceUrl } from '@/lib/social-content'
+import { getHeyGenDefaults } from '@/lib/heygen-config'
+import {
+  buildSocialVideoProductionProjection,
+  getSocialVideoProductionState,
+  type SocialVideoGenerationJobProjection,
+} from '@/lib/social-video-production'
 
 export const dynamic = 'force-dynamic'
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : null
+}
+
+function asString(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : ''
+}
+
+function asStringArray(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+    : []
+}
+
+function mapVideoGenerationJob(row: Record<string, unknown> | null): SocialVideoGenerationJobProjection | null {
+  if (!row) return null
+  return {
+    id: asString(row.id),
+    heygenVideoId: asString(row.heygen_video_id) || null,
+    heygenStatus: asString(row.heygen_status) || null,
+    videoUrl: asString(row.video_url) || null,
+    videoShareUrl: asString(row.video_share_url) || null,
+    thumbnailUrl: asString(row.thumbnail_url) || null,
+    avatarId: asString(row.avatar_id) || null,
+    voiceId: asString(row.voice_id) || null,
+    brollAssetIds: asStringArray(row.broll_asset_ids),
+    createdAt: asString(row.created_at) || null,
+    updatedAt: asString(row.updated_at) || null,
+  }
+}
 
 /**
  * GET /api/admin/social-content/[id]
@@ -55,8 +92,30 @@ export async function GET(
       .eq('content_id', id)
       .order('created_at', { ascending: true })
 
+    const defaults = await getHeyGenDefaults()
+    const socialVideoState = getSocialVideoProductionState(data.rag_context)
+    let socialVideoJob: SocialVideoGenerationJobProjection | null = null
+    if (socialVideoState?.video_generation_job_id) {
+      const { data: job } = await supabaseAdmin
+        .from('video_generation_jobs')
+        .select('id, heygen_video_id, heygen_status, video_url, video_share_url, thumbnail_url, avatar_id, voice_id, broll_asset_ids, created_at, updated_at')
+        .eq('id', socialVideoState.video_generation_job_id)
+        .maybeSingle()
+      socialVideoJob = mapVideoGenerationJob(job)
+    }
+    const socialVideoProduction = buildSocialVideoProductionProjection({
+      item: data,
+      defaults,
+      job: socialVideoJob,
+    })
+
     return NextResponse.json({
-      item: { ...data, meeting_record: meetingRecord, publishes: publishes || [] },
+      item: {
+        ...data,
+        meeting_record: meetingRecord,
+        publishes: publishes || [],
+        social_video_production: socialVideoProduction,
+      },
     })
   } catch (error) {
     console.error('Error in GET /api/admin/social-content/[id]:', error)
