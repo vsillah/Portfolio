@@ -383,6 +383,7 @@ function SocialContentDetailPage() {
   const [reviewingRedactionId, setReviewingRedactionId] = useState<string | null>(null)
   const [selectedSlide, setSelectedSlide] = useState(0)
   const [publishing, setPublishing] = useState(false)
+  const [connectingYouTube, setConnectingYouTube] = useState(false)
   const [refreshingEngagement, setRefreshingEngagement] = useState(false)
   const [savingCalibration, setSavingCalibration] = useState(false)
   const [savingGoldStandard, setSavingGoldStandard] = useState(false)
@@ -1350,6 +1351,34 @@ function SocialContentDetailPage() {
       showMsg('error', 'Failed to approve platform submission')
     } finally {
       setPublishing(false)
+    }
+  }
+
+  const handleConnectYouTube = async () => {
+    setConnectingYouTube(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) {
+        showMsg('error', 'Sign in before connecting YouTube')
+        return
+      }
+
+      const res = await fetch('/api/auth/youtube', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      })
+      const data = await res.json().catch(() => null)
+      if (!res.ok || !data?.auth_url) {
+        showMsg('error', data?.error || 'YouTube connection could not start')
+        return
+      }
+
+      window.location.assign(data.auth_url)
+    } catch {
+      showMsg('error', 'YouTube connection could not start')
+    } finally {
+      setConnectingYouTube(false)
     }
   }
 
@@ -4488,6 +4517,24 @@ function SocialContentDetailPage() {
                           </div>
                         ))}
                       </div>
+                      {platformPlan.youtubeReadiness.checks.some((check) => (
+                        check.key === 'configured_youtube_upload_adapter' && check.state === 'blocked'
+                      )) ? (
+                        <div className="mt-3 flex flex-col gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 sm:flex-row sm:items-center sm:justify-between">
+                          <p className="text-xs leading-5 text-amber-50/85">
+                            Connect the YouTube channel before final upload. This authorizes the adapter only; it does not submit or publish this item.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={handleConnectYouTube}
+                            disabled={connectingYouTube}
+                            className="inline-flex min-h-9 shrink-0 items-center justify-center gap-2 rounded-lg border border-amber-400/50 bg-amber-400/15 px-3 py-2 text-xs font-semibold text-amber-50 transition-colors hover:bg-amber-400/25 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {connectingYouTube ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ExternalLink className="h-3.5 w-3.5" />}
+                            {connectingYouTube ? 'Opening YouTube...' : 'Connect YouTube'}
+                          </button>
+                        </div>
+                      ) : null}
                     </div>
                   ) : null}
 
