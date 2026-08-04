@@ -4,6 +4,7 @@ Date: 2026-05-27
 Status: Draft for video review, with Episode 1 staged as a pending UI draft
 Source LinkedIn wave: `docs/agentic-content-linkedin-drafts/wave-1-drafts.md`
 Recommended pilot: Episode 1, "The Receipt Every Agent Needs"
+Current Amina research-to-video planning packet: `docs/agentic-content-video-scripts/agentified-youtube-amina-research-to-video-packet.md`
 
 ## Production Guardrails
 
