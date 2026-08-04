@@ -20,7 +20,7 @@ These are production packets and queue evidence only. Do not start HeyGen jobs, 
 - Template mode should use the AmaduTown HeyGen template and brand voice when configured.
 - Avatar fallback should use the configured HeyGen avatar and voice IDs.
 - Agentified YouTube packets should target the AmaduTown YouTube channel and Agentified playlist after provider setup confirms the playlist exists.
-- The render workflow should let Vambah choose the HeyGen avatar before any provider render starts.
+- The render workflow should let Vambah approve the usable HeyGen avatar pool from `https://app.heygen.com/avatar/my-avatars`, then rotate across approved avatars so consecutive Agentified publications do not use the same presenter when two or more usable avatars exist.
 - ElevenLabs remains useful for audio-only social cutdowns or voiceover variants through the social-content audio regeneration path, not for this packet's direct generation step.
 
 ## Files
@@ -57,4 +57,4 @@ Nefertiti should review voice and script rhythm inside the queued draft before g
 
 ## Render Gate
 
-`render-approval-packet.md` defines the next allowed decision. It permits only one internal HeyGen review render after Shaka approval, presenter settings confirmation, Vambah avatar selection, destination metadata confirmation, and public-safe B-roll review. Publishing, ElevenLabs generation, n8n audio regeneration, and social queue insertion remain separate approvals.
+`render-approval-packet.md` defines the next allowed decision. It permits only one internal HeyGen review render after Shaka approval, presenter settings confirmation, approved avatar-pool rotation, destination metadata confirmation, and public-safe B-roll review. Publishing, ElevenLabs generation, n8n audio regeneration, and social queue insertion remain separate approvals.

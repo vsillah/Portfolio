@@ -62,7 +62,7 @@ These decisions were confirmed by Vambah on 2026-08-04 and should guide the next
 | Calendar placement | Long-form YouTube videos belong on the same Agentified campaign calendar as the Shorts. |
 | YouTube destination | Publish-ready packets should target the AmaduTown YouTube channel. |
 | Playlist routing | Use the Agentified playlist as the intended destination; verify the playlist exists or prepare a playlist-creation gate before upload. |
-| HeyGen avatar | The workflow must let Vambah choose the HeyGen avatar before any render-ready packet advances. |
+| HeyGen avatar | The workflow must let Vambah approve the usable HeyGen avatar pool, then let Amina rotate across approved avatars so the batch does not repeat the same presenter by default. |
 | Episode 1 queue item | Reuse the existing pending queue item `9f9dd8f1-9d19-48ff-bedf-2a5779a44be8` instead of creating a duplicate queue item. |
 
 ## Public pattern scan
@@ -114,7 +114,7 @@ Use this for 3-5 minute YouTube videos:
 4. operating checklist;
 5. workbook or release CTA.
 
-HeyGen direction: selected Vambah avatar at the front, then intercut with Portfolio B-roll, diagrams, and book/workbook visuals. Keep presenter segments short enough that B-roll carries the proof. Avatar selection is a required pre-render control, not an Amina-only assumption.
+HeyGen direction: approved avatar-pool rotation at the front, then intercut with Portfolio B-roll, diagrams, and book/workbook visuals. Keep presenter segments short enough that B-roll carries the proof. Vambah does not need to pick a different avatar for each release; the pre-render gate should confirm the approved avatar pool, then Amina assigns the next usable avatar in rotation and records the rationale.
 
 ElevenLabs direction: do not start a separate ElevenLabs job from this packet. If HeyGen voice defaults already include the desired voice, keep the voice inside HeyGen. Use ElevenLabs only for separately approved audio-only cutdowns or a deliberate native audio composite.
 
@@ -181,7 +181,7 @@ Each YouTube package should pass this gate before HeyGen or any other provider w
 | Voice and humanizer pass | Script sounds like Vambah explaining the system, not a generic AI explainer. |
 | Script intelligence | Hook, pain clarity, proof density, CTA clarity, and source distance pass the existing script scorecard. |
 | Visual/proof readiness | B-roll exists or has a clear capture task; private data is redacted. |
-| Avatar and voice readiness | Vambah can choose the HeyGen avatar before render approval; selected voice is confirmed inside HeyGen or separately approved for audio composite. |
+| Avatar and voice readiness | The approved HeyGen avatar pool is visible, the selected avatar for the current render is recorded from the rotation, and the selected voice is confirmed inside HeyGen or separately approved for audio composite. |
 | Rights and privacy | Book assets, screenshots, B-roll, captions, and thumbnail candidates are cleared for public use. |
 | Accessibility | Captions, on-screen text, and alt/description notes are prepared. |
 | Approval boundary | Human approval is recorded for script, visuals, asset packet, privacy/rights, provider render, and YouTube submission. |
@@ -191,7 +191,7 @@ Each YouTube package should pass this gate before HeyGen or any other provider w
 1. Long-form videos sit on the same Agentified campaign calendar as the Shorts.
 2. YouTube destination is the AmaduTown channel.
 3. Intended playlist is Agentified; provider setup must verify or create the playlist before upload.
-4. HeyGen avatar must be selectable by Vambah before render approval.
+4. HeyGen avatar pool must be approved by Vambah before render approval; individual releases should rotate across approved avatars unless the pool has only one usable avatar or a human override is recorded.
 5. Episode 1 reuses pending queue item `9f9dd8f1-9d19-48ff-bedf-2a5779a44be8`.
 
 ## Current next step

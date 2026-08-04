@@ -38,9 +38,23 @@ Resolved operator decisions:
 
 - use the AmaduTown YouTube channel;
 - target the Agentified playlist after provider setup verifies the playlist exists;
-- require Vambah to choose the HeyGen avatar before any render;
+- approve a usable HeyGen avatar pool once, then rotate across approved avatars so the batch does not reuse the same presenter by default;
 - keep the Shorts and long-form episode in the Agentified campaign calendar;
 - reuse Episode 1 queue item `9f9dd8f1-9d19-48ff-bedf-2a5779a44be8`.
+
+## Avatar rotation rule
+
+Vambah does not need to choose a unique avatar for each release. The workflow should use `https://app.heygen.com/avatar/my-avatars` to confirm a usable pool of approved HeyGen avatars, then assign avatars by rotation.
+
+Rotation policy:
+
+1. Use only avatars that Vambah has approved for AmaduTown and Agentified content.
+2. Do not use the same avatar on consecutive Agentified YouTube publications when two or more approved avatars are available.
+3. Record the assigned avatar name or stable non-secret identifier in the render packet for each item.
+4. Let Amina choose the next avatar in rotation unless a script, format, or brand-fit issue requires a human override.
+5. If only one avatar is usable, stop at the render gate and ask whether to proceed with a repeat or expand the avatar pool.
+
+The rotation assignment is a production-prep decision only. It does not authorize HeyGen rendering, YouTube provider work, upload, scheduling, or publishing.
 
 ## Source basis
 
@@ -65,7 +79,7 @@ Every item must pass these checks before provider render or upload is considered
 | Humanizer pass | Remove filler hype, empty antithesis, over-polished pacing, and vague AI authority language. |
 | Visual suitability | B-roll or design assets are named, public-safe, and tied to the argument. |
 | Rights and privacy | Screens, cover assets, book assets, captions, and B-roll are cleared before public render. |
-| Avatar readiness | Vambah chooses the HeyGen avatar before render approval. |
+| Avatar readiness | Approved HeyGen avatar pool is confirmed, the current item avoids unnecessary consecutive repetition, and Amina records the rotation-selected avatar before render approval. |
 | Accessibility | Captions and on-screen text are prepared for mobile viewing. |
 | Calendar linkage | The item maps to the Agentified campaign calendar and the next sequence trigger stays explicit. |
 
@@ -118,7 +132,7 @@ Follow the Agentified release at https://amadutown.com/agentified
 
 | Beat | Visual | Notes |
 | --- | --- | --- |
-| 1 | Vambah-selected HeyGen avatar, direct-to-camera | Cold open with the wrong-question framing. |
+| 1 | rotation-selected approved HeyGen avatar, direct-to-camera | Cold open with the wrong-question framing. |
 | 2 | Simple on-screen split: "Can it do it?" vs. "Should it do it?" | Keep text large enough for mobile. |
 | 3 | Portfolio-style receipt flow: source -> change -> reviewer -> gate -> drift check | Use diagram or redacted admin proof, not private data. |
 | 4 | Five caption cards: Source, Change, Review, Gate, Drift | Each card gets one spoken line. |
@@ -128,7 +142,7 @@ Follow the Agentified release at https://amadutown.com/agentified
 
 | Asset | Requirement | Status |
 | --- | --- | --- |
-| Avatar | Vambah-selected HeyGen avatar | Human selection required before render. |
+| Avatar | rotation-selected approved HeyGen avatar | Approved avatar pool and rotation assignment required before render. |
 | Diagram | Source -> change -> review -> gate -> drift | Can be generated internally from brand-safe shapes. |
 | Portfolio proof | Redacted Agent Ops receipt or approval-gate screen | Capture task required if used. |
 | Cover/workbook cue | Approved Agentified cover or workbook visual | Rights/privacy review required. |
@@ -197,7 +211,7 @@ Follow the Agentified release at https://amadutown.com/agentified
 | 2 | Motion overlay around the center: sense, route, act, measure | Keep motion simple and readable. |
 | 3 | Four proof labels: Receipts, Controls, Gates, Audit loops | Labels should appear one at a time. |
 | 4 | AMINA acronym card | Spell out all five words on first use. |
-| 5 | Vambah-selected avatar close or cover/workbook close | CTA to `/agentified`. |
+| 5 | rotation-selected approved avatar close or cover/workbook close | CTA to `/agentified`. |
 
 ### Asset requirements
 
@@ -206,7 +220,7 @@ Follow the Agentified release at https://amadutown.com/agentified
 | Agentified cover | Approved cover comp or current production cover | Rights and final-cover check required. |
 | AMINA card | Align, Map, Instrument, Negotiate, Audit | Must match manuscript terminology. |
 | SAM/AMINA bridge | Optional diagram if legible in portrait | Use only if it does not crowd the Short. |
-| Avatar | Vambah-selected HeyGen avatar | Human selection required before render. |
+| Avatar | rotation-selected approved HeyGen avatar | Approved avatar pool and rotation assignment required before render. |
 | Captions | Mobile captions with acronym expansion | Prepare before render. |
 
 ### QA notes
@@ -257,7 +271,7 @@ Tighten before render:
 
 | Scene | Visual | B-roll requirement |
 | --- | --- | --- |
-| 1 | Vambah-selected HeyGen avatar opens with the receipt line | No B-roll required. |
+| 1 | rotation-selected approved HeyGen avatar opens with the receipt line | No B-roll required. |
 | 2 | Simple animation: prompt -> tool -> output -> receipt | Internal diagram can be generated. |
 | 3 | Redacted Portfolio Agent Ops proof surface | Capture only public-safe structure. |
 | 4 | Receipt checklist: source, tool, handoff, approval, cost, outcome | Large text, high contrast. |
@@ -268,7 +282,7 @@ Tighten before render:
 | Asset | Requirement | Status |
 | --- | --- | --- |
 | Queue item | Reuse `9f9dd8f1-9d19-48ff-bedf-2a5779a44be8` | Existing pending item. |
-| Avatar | Vambah-selected HeyGen avatar | Human selection required before render. |
+| Avatar | rotation-selected approved HeyGen avatar | Approved avatar pool and rotation assignment required before render. |
 | Portfolio B-roll | Redacted Agent Ops, Mission Control, Kanban, or run detail screens | Capture and privacy review required. |
 | Diagram | Prompt -> tool -> trace -> approval -> audit summary | Can be generated internally. |
 | Cover/workbook | Approved Agentified cover or workbook frame | Rights/privacy review required. |
@@ -308,7 +322,7 @@ Audience:
 
 | Decision | Applies to | Required before |
 | --- | --- | --- |
-| Choose HeyGen avatar | All three items | Any HeyGen render. |
+| Approve HeyGen avatar pool and rotation assignment | All three items | Any HeyGen render. |
 | Confirm Agentified playlist exists or authorize setup | All three items | Any YouTube upload. |
 | Approve cover/workbook public use | `AGT-SHORT-02`, Episode 1 | Any public render or upload. |
 | Approve redacted Portfolio B-roll | `AGT-SHORT-01`, Episode 1 | Any public render or upload. |
