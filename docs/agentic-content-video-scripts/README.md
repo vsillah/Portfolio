@@ -26,6 +26,7 @@ These are production packets and queue evidence only. Do not start HeyGen jobs, 
 ## Files
 
 - `wave-1-youtube-scripts.md`: five script packets, with the receipt episode marked as the recommended pilot.
+- `agentified-youtube-review-package.md`: Amina's current internal review package for `AGT-SHORT-01`, `AGT-SHORT-02`, and Episode 1 asset requirements.
 - `operator-review.md`: Phase 5 review evidence for the queued pilot and the human-in-the-loop edit control.
 - `render-approval-packet.md`: Phase 6 Shaka approval packet for a controlled internal HeyGen pilot render.
 
