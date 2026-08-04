@@ -22,7 +22,7 @@ type HandoffResult = {
   calendarItem: SocialContentCalendarItem
   socialContentId: string | null
   handoffWorkItemId: string
-  handoffKind: 'linkedin_social_content_draft' | 'channel_planning_handoff'
+  handoffKind: 'linkedin_social_content_draft' | 'youtube_social_content_draft' | 'channel_planning_handoff'
 }
 
 function calendarSelect() {
@@ -61,14 +61,75 @@ function calendarPlatformTargets(item: SocialContentCalendarItem): SocialPlatfor
 }
 
 function platformOrchestrationForCalendarItem(item: SocialContentCalendarItem): PlatformOrchestrationPlan {
+  const targetPlatforms = calendarPlatformTargets(item)
+  if (targetPlatforms.length === 0) {
+    return {
+      platforms: [],
+      anyAutomaticSubmissionAvailable: false,
+      allAutomaticSubmissionComplete: false,
+      sideEffectsUntilFinalGate: {
+        providerGeneration: false,
+        upload: false,
+        externalSchedule: false,
+        publish: false,
+        externalPost: false,
+      },
+    }
+  }
+
   return buildPlatformOrchestrationPlan({
-    targetPlatforms: calendarPlatformTargets(item),
+    targetPlatforms,
     copyApproved: true,
     productionReady: false,
     redactionReady: true,
-    draftHandoffReady: item.channel === 'linkedin' && Boolean(item.social_content_id),
+    draftHandoffReady: Boolean(item.social_content_id),
     finalSubmissionGateReady: false,
   })
+}
+
+function supportsSocialContentDraft(item: SocialContentCalendarItem) {
+  return item.channel === 'linkedin' || item.channel === 'youtube' || item.channel === 'youtube_shorts'
+}
+
+function socialPlatformForCalendarItem(item: SocialContentCalendarItem): SocialPlatform | null {
+  if (item.channel === 'linkedin') return 'linkedin'
+  if (item.channel === 'youtube' || item.channel === 'youtube_shorts') return 'youtube'
+  return null
+}
+
+function handoffKindFor(item: SocialContentCalendarItem, socialContentId: string | null): HandoffResult['handoffKind'] {
+  if (!socialContentId) return 'channel_planning_handoff'
+  if (item.channel === 'youtube' || item.channel === 'youtube_shorts') return 'youtube_social_content_draft'
+  if (item.channel === 'linkedin') return 'linkedin_social_content_draft'
+  return 'channel_planning_handoff'
+}
+
+function publishGateFor(item: SocialContentCalendarItem) {
+  return item.channel === 'linkedin' ? 'draft_only' : 'platform_review_gated'
+}
+
+function compactLine(value: unknown) {
+  return cleanText(value).replace(/\s+/g, ' ')
+}
+
+function truncateText(value: string, maxLength: number) {
+  return value.length <= maxLength ? value : `${value.slice(0, Math.max(0, maxLength - 1)).trimEnd()}...`
+}
+
+function buildYouTubeTitle(item: SocialContentCalendarItem) {
+  const prefix = item.channel === 'youtube_shorts' ? 'Short: ' : ''
+  return truncateText(`${prefix}${compactLine(item.title) || 'Untitled YouTube draft'}`, 100)
+}
+
+function buildYouTubeDescription(item: SocialContentCalendarItem) {
+  const plannedAngle = compactLine(item.planned_angle)
+  return [
+    compactLine(item.title),
+    plannedAngle ? `Planned angle: ${plannedAngle}` : null,
+    `Campaign phase: ${item.campaign_phase}`,
+    `Source campaign: ${campaignName(item)}`,
+    'Prepared from the Portfolio campaign calendar. Final video, thumbnail, privacy, and platform submission approvals remain required before upload.',
+  ].filter(Boolean).join('\n\n')
 }
 
 function buildDraftSeed(item: SocialContentCalendarItem) {
@@ -83,6 +144,19 @@ function buildDraftSeed(item: SocialContentCalendarItem) {
 
 function buildDraftRagContext(item: SocialContentCalendarItem, auth: CalendarActionAuth) {
   const metadata = parseMetadata(item.metadata)
+  const targetPlatforms = calendarPlatformTargets(item)
+  const isYouTubeDraft = item.channel === 'youtube' || item.channel === 'youtube_shorts'
+  const youtubeRelease = isYouTubeDraft
+    ? {
+        release_type: item.channel === 'youtube_shorts' ? 'short' : 'video',
+        source_calendar_channel: item.channel,
+        intended_visibility: 'private',
+        thumbnail_ready: false,
+        final_video_status: 'not_started',
+        target_platforms: targetPlatforms,
+      }
+    : null
+
   return {
     source: 'social_content_calendar_authorization',
     source_type: 'social_content_calendar_item',
@@ -96,10 +170,13 @@ function buildDraftRagContext(item: SocialContentCalendarItem, auth: CalendarAct
     authorization_status: 'authorized',
     authorized_at: new Date().toISOString(),
     authorized_by: auth.user.id,
-    publish_gate: 'draft_only',
+    publish_gate: publishGateFor(item),
     external_execution_enabled: false,
-    approval_boundary: 'Internal draft handoff only. This does not publish, schedule externally, upload, call media providers, or create public content.',
+    approval_boundary: isYouTubeDraft
+      ? 'Internal YouTube review draft only. This does not upload, schedule externally, publish, call media providers, or create public content. Final video, thumbnail, privacy, and platform submission approvals remain required.'
+      : 'Internal draft handoff only. This does not publish, schedule externally, upload, call media providers, or create public content.',
     platform_submission_orchestration: platformOrchestrationForCalendarItem(item),
+    ...(youtubeRelease ? { youtube_release: youtubeRelease } : {}),
     linked_agent_work_item_id: item.agent_work_item_id,
     calendar_metadata: metadata,
   }
@@ -119,7 +196,7 @@ async function readCalendarItem(id: string): Promise<SocialContentCalendarItem> 
   return data as SocialContentCalendarItem
 }
 
-async function findExistingLinkedInDraft(calendarItemId: string) {
+async function findExistingSocialContentDraft(calendarItemId: string) {
   const { data, error } = await supabaseAdmin
     .from('social_content_queue')
     .select('id')
@@ -133,28 +210,36 @@ async function findExistingLinkedInDraft(calendarItemId: string) {
   return typeof data?.id === 'string' ? data.id : null
 }
 
-async function createLinkedInSocialContentDraft(item: SocialContentCalendarItem, auth: CalendarActionAuth) {
-  const existingId = item.social_content_id ?? (await findExistingLinkedInDraft(item.id))
+async function createSocialContentDraftForCalendarItem(item: SocialContentCalendarItem, auth: CalendarActionAuth) {
+  const platform = socialPlatformForCalendarItem(item)
+  if (!platform) return item.social_content_id
+
+  const existingId = item.social_content_id ?? (await findExistingSocialContentDraft(item.id))
   if (existingId) return existingId
 
   const ragContext = buildDraftRagContext(item, auth)
+  const isYouTubeDraft = platform === 'youtube'
   const { data, error } = await supabaseAdmin
     .from('social_content_queue')
     .insert({
-      platform: 'linkedin',
+      platform,
       status: 'draft',
       post_text: buildDraftSeed(item),
       cta_text: null,
       cta_url: null,
       hashtags: ['#AIProduct', '#ProductManagement', '#AmaduTownAdvisory'],
+      youtube_title: isYouTubeDraft ? buildYouTubeTitle(item) : null,
+      youtube_description: isYouTubeDraft ? buildYouTubeDescription(item) : null,
       image_prompt: null,
       framework_visual_type: null,
       topic_extracted: {
         topic: item.title,
         angle: item.planned_angle ?? item.title,
-        key_insight: 'Calendar-authorized Shaka insight requires governed copy production.',
+        key_insight: isYouTubeDraft
+          ? 'Calendar-authorized YouTube draft requires video, thumbnail, privacy, and platform submission review.'
+          : 'Calendar-authorized Shaka insight requires governed copy production.',
         personal_tie_in: 'Queued from a campaign-aware Content Intelligence calendar gate.',
-        framework_visual: 'architecture',
+        framework_visual: isYouTubeDraft ? 'timeline' : 'architecture',
       },
       hormozi_framework: {
         framework_type: 'campaign_calendar_handoff',
@@ -165,12 +250,14 @@ async function createLinkedInSocialContentDraft(item: SocialContentCalendarItem,
       rag_context: ragContext,
       admin_notes: [
         'Created by Content Intelligence calendar authorization.',
-        'Draft handoff only. Publishing, external scheduling, media generation, uploads, and provider sends remain separately approval-gated.',
+        isYouTubeDraft
+          ? 'YouTube review draft only. Final video, thumbnail, privacy, platform submission, upload, and publishing remain separately approval-gated.'
+          : 'Draft handoff only. Publishing, external scheduling, media generation, uploads, and provider sends remain separately approval-gated.',
         `Calendar item: ${item.id}`,
         `Campaign: ${campaignName(item)}`,
         `Scheduled intent: ${item.scheduled_for}`,
       ].join('\n'),
-      target_platforms: ['linkedin'],
+      target_platforms: [platform],
       video_generation_method: 'none',
       content_format: 'single_image',
       content_pillar: 'technology_as_equalizer',
@@ -194,14 +281,14 @@ async function createDraftHandoffWorkItem(input: {
 }) {
   const { item, socialContentId, auth } = input
   const channelLabel = CALENDAR_CHANNEL_LABELS[item.channel]
-  const isLinkedInDraft = item.channel === 'linkedin' && Boolean(socialContentId)
+  const hasSocialContentDraft = supportsSocialContentDraft(item) && Boolean(socialContentId)
 
   return createAgentWorkItem({
     title: `Prepare ${channelLabel} draft handoff: ${item.title}`,
     objective: [
       `Use the authorized calendar item to prepare the ${channelLabel} draft handoff.`,
       item.planned_angle ? `Planned angle: ${item.planned_angle}` : null,
-      isLinkedInDraft && socialContentId
+      hasSocialContentDraft && socialContentId
         ? `Continue in the Social Content draft at /admin/social-content/${socialContentId}.`
         : 'Prepare planning/export-readiness inputs only; this channel does not have an approved publishing integration in V1.',
       'Do not publish, schedule externally, upload, call media providers, or create public content from this gate.',
@@ -247,8 +334,8 @@ export async function authorizeCalendarDraftHandoff(
 ): Promise<HandoffResult> {
   const item = await readCalendarItem(id)
   const metadata = parseMetadata(item.metadata)
-  const socialContentId = item.channel === 'linkedin'
-    ? await createLinkedInSocialContentDraft(item, auth)
+  const socialContentId = supportsSocialContentDraft(item)
+    ? await createSocialContentDraftForCalendarItem(item, auth)
     : item.social_content_id
 
   const handoffWorkItem = await createDraftHandoffWorkItem({
@@ -264,7 +351,7 @@ export async function authorizeCalendarDraftHandoff(
     draft_handoff_only: true,
     external_execution_enabled: false,
     platform_draft_handoff: {
-      kind: item.channel === 'linkedin' ? 'linkedin_social_content_draft' : 'channel_planning_handoff',
+      kind: handoffKindFor(item, socialContentId),
       status: 'queued',
       work_item_id: handoffWorkItem.id,
       social_content_id: socialContentId,
@@ -295,7 +382,7 @@ export async function authorizeCalendarDraftHandoff(
     calendarItem: data as SocialContentCalendarItem,
     socialContentId,
     handoffWorkItemId: handoffWorkItem.id,
-    handoffKind: item.channel === 'linkedin' ? 'linkedin_social_content_draft' : 'channel_planning_handoff',
+    handoffKind: handoffKindFor(item, socialContentId),
   }
 }
 

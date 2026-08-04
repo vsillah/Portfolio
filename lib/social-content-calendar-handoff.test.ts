@@ -229,9 +229,83 @@ describe('social-content-calendar-handoff', () => {
     expect(result.socialContentId).toBe('social-existing-1')
   })
 
-  it('authorizes YouTube Shorts calendar items as planning-only handoffs without social queue inserts', async () => {
+  it('authorizes YouTube Shorts calendar items by creating a gated YouTube Social Content draft', async () => {
     const item = baseCalendarItem({
       channel: 'youtube_shorts',
+      social_content_id: null,
+    })
+    mockReadCalendarItem(item)
+    mockExistingDraftLookup(null)
+    const draftInsert = mockDraftInsert('youtube-draft-1')
+    const calendarUpdate = mockCalendarUpdate({
+      ...item,
+      authorization_status: 'authorized',
+      social_content_id: 'youtube-draft-1',
+    })
+
+    const result = await authorizeCalendarDraftHandoff('calendar-1', auth)
+
+    expect(draftInsert.insert).toHaveBeenCalledWith(expect.objectContaining({
+      platform: 'youtube',
+      status: 'draft',
+      target_platforms: ['youtube'],
+      youtube_title: 'Short: Explain approval gates',
+      youtube_description: expect.stringContaining('Final video, thumbnail, privacy, and platform submission approvals remain required before upload.'),
+      scheduled_for: null,
+      rag_context: expect.objectContaining({
+        source: 'social_content_calendar_authorization',
+        calendar_item_id: 'calendar-1',
+        publish_gate: 'platform_review_gated',
+        external_execution_enabled: false,
+        youtube_release: expect.objectContaining({
+          release_type: 'short',
+          source_calendar_channel: 'youtube_shorts',
+          thumbnail_ready: false,
+          final_video_status: 'not_started',
+          target_platforms: ['youtube'],
+        }),
+      }),
+    }))
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
+      objective: expect.stringContaining('Continue in the Social Content draft at /admin/social-content/youtube-draft-1.'),
+      metadata: expect.objectContaining({
+        channel: 'youtube_shorts',
+        social_content_id: 'youtube-draft-1',
+        external_execution_enabled: false,
+        side_effects: expect.objectContaining({
+          publish: false,
+          external_post: false,
+          social_content_draft_created: true,
+        }),
+      }),
+    }))
+    expect(calendarUpdate.update).toHaveBeenCalledWith(expect.objectContaining({
+      authorization_status: 'authorized',
+      social_content_id: 'youtube-draft-1',
+      metadata: expect.objectContaining({
+        platform_draft_handoff: expect.objectContaining({
+          kind: 'youtube_social_content_draft',
+          social_content_id: 'youtube-draft-1',
+        }),
+        platform_submission_orchestration: expect.objectContaining({
+          platforms: expect.arrayContaining([
+            expect.objectContaining({
+              platform: 'youtube',
+              automaticSubmissionSupported: true,
+            }),
+          ]),
+        }),
+      }),
+    }))
+    expect(result).toMatchObject({
+      socialContentId: 'youtube-draft-1',
+      handoffKind: 'youtube_social_content_draft',
+    })
+  })
+
+  it('keeps unsupported channels as planning-only handoffs without social queue inserts', async () => {
+    const item = baseCalendarItem({
+      channel: 'thumbnail',
       social_content_id: null,
     })
     mockReadCalendarItem(item)
@@ -246,7 +320,7 @@ describe('social-content-calendar-handoff', () => {
     expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
       objective: expect.stringContaining('planning/export-readiness inputs only'),
       metadata: expect.objectContaining({
-        channel: 'youtube_shorts',
+        channel: 'thumbnail',
         social_content_id: null,
         external_execution_enabled: false,
         side_effects: expect.objectContaining({
@@ -265,12 +339,7 @@ describe('social-content-calendar-handoff', () => {
           social_content_id: null,
         }),
         platform_submission_orchestration: expect.objectContaining({
-          platforms: expect.arrayContaining([
-            expect.objectContaining({
-              platform: 'youtube',
-              automaticSubmissionSupported: true,
-            }),
-          ]),
+          platforms: [],
         }),
       }),
     }))
