@@ -38,6 +38,7 @@ type ChannelLane = {
 
 const CHANNEL_LABELS: Record<SocialContentIntelligenceChannel, string> = {
   linkedin: 'LinkedIn',
+  youtube: 'YouTube',
   youtube_shorts: 'YouTube Shorts',
   instagram_reels: 'Instagram Reels',
   tiktok: 'TikTok',
@@ -46,6 +47,7 @@ const CHANNEL_LABELS: Record<SocialContentIntelligenceChannel, string> = {
 
 const CHANNEL_ICONS: Record<SocialContentIntelligenceChannel, ReactNode> = {
   linkedin: <FileText className="h-4 w-4" />,
+  youtube: <Youtube className="h-4 w-4" />,
   youtube_shorts: <Youtube className="h-4 w-4" />,
   instagram_reels: <Instagram className="h-4 w-4" />,
   tiktok: <Hash className="h-4 w-4" />,
@@ -666,6 +668,9 @@ function FormattedValue({ value }: { value: unknown }) {
 function defaultInputs(channel: SocialContentIntelligenceChannel) {
   if (channel === 'linkedin') {
     return ['post text', 'CTA', 'CTA URL', 'hashtags', 'carousel or illustration mode', 'screenshot routes', 'references']
+  }
+  if (channel === 'youtube') {
+    return ['title', 'description', 'opening hook', 'full-video script', 'storyboard beats', 'b-roll plan', 'thumbnail readiness', 'final video URL', 'visibility setting', 'upload readiness']
   }
   if (channel === 'youtube_shorts') {
     return ['hook', 'first 30 seconds', 'script', 'target duration', 'storyboard scenes', 'b-roll hints/assets', 'on-screen text', 'caption', 'render readiness']

@@ -54,7 +54,6 @@ function channelLabel(channel: string) {
 
 function channelToSelectedLane(channel: SocialContentCalendarChannel): SocialContentIntelligenceChannel {
   if (channel === 'thumbnail') return 'thumbnail'
-  if (channel === 'youtube') return 'youtube_shorts'
   return channel
 }
 

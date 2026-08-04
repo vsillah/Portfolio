@@ -109,9 +109,9 @@ describe('social-content-calendar helpers', () => {
     })
     expect(slots.map((slot) => slot.channel)).toEqual([
       'linkedin',
-      'youtube_shorts',
+      'youtube',
       'thumbnail',
-      'youtube_shorts',
+      'youtube',
     ])
     expect(slots[2]).toEqual(expect.objectContaining({
       campaign_phase: 'proof',

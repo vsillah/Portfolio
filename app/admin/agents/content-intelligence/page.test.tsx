@@ -341,6 +341,7 @@ describe('ContentIntelligencePage', () => {
                 },
                 channel_lanes: {
                   linkedin: { status: 'selected', label: 'LinkedIn', required_inputs: ['post text', 'CTA'] },
+                  youtube: { status: 'not_started', label: 'YouTube', required_inputs: ['title', 'description', 'script'] },
                   youtube_shorts: { status: 'not_started', label: 'YouTube Shorts', required_inputs: ['hook', 'script'] },
                   instagram_reels: { status: 'not_started', label: 'Instagram Reels', required_inputs: ['hook', 'caption'] },
                   tiktok: { status: 'not_started', label: 'TikTok', required_inputs: ['hook', 'caption', 'audio rights'] },
@@ -388,6 +389,12 @@ describe('ContentIntelligencePage', () => {
                     label: 'LinkedIn',
                     draft_packet: { channel: 'linkedin', fields: { post_text: 'LinkedIn draft' } },
                     required_inputs: ['post text', 'CTA'],
+                  },
+                  youtube: {
+                    status: 'in_review',
+                    label: 'YouTube',
+                    draft_packet: { channel: 'youtube', fields: { full_video_script: ['YouTube long-form draft'] } },
+                    required_inputs: ['title', 'description', 'script'],
                   },
                   youtube_shorts: {
                     status: 'in_review',
@@ -442,6 +449,7 @@ describe('ContentIntelligencePage', () => {
                   },
                   channel_lanes: {
                     linkedin: { status: 'selected', label: 'LinkedIn', required_inputs: ['post text', 'CTA'] },
+                    youtube: { status: 'not_started', label: 'YouTube', required_inputs: ['title', 'description', 'script'] },
                     youtube_shorts: { status: 'not_started', label: 'YouTube Shorts', required_inputs: ['hook', 'script'] },
                     instagram_reels: { status: 'not_started', label: 'Instagram Reels', required_inputs: ['hook', 'caption'] },
                     tiktok: { status: 'not_started', label: 'TikTok', required_inputs: ['hook', 'caption', 'audio rights'] },
@@ -590,9 +598,10 @@ describe('ContentIntelligencePage', () => {
     })
     fireEvent.click(screen.getByRole('button', { name: 'Prepare Review Drafts' }))
 
-    expect(await screen.findByText('LinkedIn, YouTube Shorts, Instagram Reels, and TikTok review drafts are ready for human approval.')).toBeInTheDocument()
+    expect(await screen.findByText('LinkedIn, YouTube, YouTube Shorts, Instagram Reels, and TikTok review drafts are ready for human approval.')).toBeInTheDocument()
     expect(screen.getByText('LinkedIn: in review')).toBeInTheDocument()
     expect(screen.getByText('YouTube: in review')).toBeInTheDocument()
+    expect(screen.getByText('Shorts: in review')).toBeInTheDocument()
     expect(screen.getByText('Instagram: in review')).toBeInTheDocument()
     expect(screen.getByText('TikTok: in review')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Open human review' })).toHaveAttribute('href', '/admin/agents/social-insights/work-social-1')

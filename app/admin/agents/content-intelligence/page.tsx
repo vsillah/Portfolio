@@ -271,22 +271,25 @@ function insightFor(item: AgentWorkItem) {
   }
 }
 
-function channelLaneFor(item: AgentWorkItem, channel: 'linkedin' | 'youtube_shorts' | 'instagram_reels' | 'tiktok') {
+type PrimaryReviewChannel = 'linkedin' | 'youtube' | 'youtube_shorts' | 'instagram_reels' | 'tiktok'
+
+function channelLaneFor(item: AgentWorkItem, channel: PrimaryReviewChannel) {
   const metadata = recordValue(item.metadata)
   const lanes = recordValue(metadata.channel_lanes)
   return recordValue(lanes[channel])
 }
 
-function channelLaneStatus(item: AgentWorkItem, channel: 'linkedin' | 'youtube_shorts' | 'instagram_reels' | 'tiktok') {
+function channelLaneStatus(item: AgentWorkItem, channel: PrimaryReviewChannel) {
   return stringValue(channelLaneFor(item, channel).status) ?? 'not_started'
 }
 
-function hasChannelReviewDraft(item: AgentWorkItem, channel: 'linkedin' | 'youtube_shorts' | 'instagram_reels' | 'tiktok') {
+function hasChannelReviewDraft(item: AgentWorkItem, channel: PrimaryReviewChannel) {
   return Object.keys(recordValue(channelLaneFor(item, channel).draft_packet)).length > 0
 }
 
 function hasPrimaryChannelReviewDrafts(item: AgentWorkItem) {
   return hasChannelReviewDraft(item, 'linkedin')
+    && hasChannelReviewDraft(item, 'youtube')
     && hasChannelReviewDraft(item, 'youtube_shorts')
     && hasChannelReviewDraft(item, 'instagram_reels')
     && hasChannelReviewDraft(item, 'tiktok')
@@ -836,7 +839,7 @@ function ContentIntelligenceContent() {
       } else {
         await load()
       }
-      setReviewDraftNotice('LinkedIn, YouTube Shorts, Instagram Reels, and TikTok review drafts are ready for human approval.')
+      setReviewDraftNotice('LinkedIn, YouTube, YouTube Shorts, Instagram Reels, and TikTok review drafts are ready for human approval.')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to prepare channel review drafts')
     } finally {
@@ -1070,7 +1073,7 @@ function ContentIntelligenceContent() {
             </div>
             <h1 className="text-3xl font-bold">Research and Shaka insight queue</h1>
             <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-              Public creator research stays read-only. Shaka insights stay centralized in the Agentic Dashboard backlog, then feed LinkedIn, YouTube Shorts, Instagram Reels, and thumbnail lanes.
+              Public creator research stays read-only. Shaka insights stay centralized in the Agentic Dashboard backlog, then feed LinkedIn, YouTube, YouTube Shorts, Instagram Reels, and thumbnail lanes.
             </p>
           </div>
           <button
@@ -1961,7 +1964,8 @@ function ContentIntelligenceContent() {
                         {pagedInsights.map((item) => {
                           const insight = insightFor(item)
                           const linkedinStatus = channelLaneStatus(item, 'linkedin')
-                          const youtubeStatus = channelLaneStatus(item, 'youtube_shorts')
+                          const youtubeStatus = channelLaneStatus(item, 'youtube')
+                          const youtubeShortsStatus = channelLaneStatus(item, 'youtube_shorts')
                           const instagramStatus = channelLaneStatus(item, 'instagram_reels')
                           const tiktokStatus = channelLaneStatus(item, 'tiktok')
                           const hasReviewDrafts = hasPrimaryChannelReviewDrafts(item)
@@ -1998,6 +2002,9 @@ function ContentIntelligenceContent() {
                                   </span>
                                   <span className={`inline-flex w-fit rounded-full border px-2 py-0.5 text-xs ${channelReviewPillClass(youtubeStatus)}`}>
                                     YouTube: {youtubeStatus.replace(/_/g, ' ')}
+                                  </span>
+                                  <span className={`inline-flex w-fit rounded-full border px-2 py-0.5 text-xs ${channelReviewPillClass(youtubeShortsStatus)}`}>
+                                    Shorts: {youtubeShortsStatus.replace(/_/g, ' ')}
                                   </span>
                                   <span className={`inline-flex w-fit rounded-full border px-2 py-0.5 text-xs ${channelReviewPillClass(instagramStatus)}`}>
                                     Instagram: {instagramStatus.replace(/_/g, ' ')}

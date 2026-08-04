@@ -5,6 +5,7 @@ export const SOCIAL_TOPIC_TRIGGER_SOURCE_TYPE = 'social_topic_trigger'
 
 export const SOCIAL_CONTENT_INTELLIGENCE_CHANNELS = [
   'linkedin',
+  'youtube',
   'youtube_shorts',
   'instagram_reels',
   'tiktok',
@@ -89,6 +90,7 @@ export type SocialChannelReviewDraftPacket = {
 
 export type LinkedInYoutubeReviewDrafts = {
   linkedin: SocialChannelReviewDraftPacket
+  youtube: SocialChannelReviewDraftPacket
   youtube_shorts: SocialChannelReviewDraftPacket
   instagram_reels: SocialChannelReviewDraftPacket
   tiktok: SocialChannelReviewDraftPacket
@@ -190,6 +192,7 @@ export type SocialResearchEvidenceItem = {
 
 const CHANNEL_LABELS: Record<SocialContentIntelligenceChannel, string> = {
   linkedin: 'LinkedIn',
+  youtube: 'YouTube',
   youtube_shorts: 'YouTube Shorts',
   instagram_reels: 'Instagram Reels',
   tiktok: 'TikTok',
@@ -205,6 +208,18 @@ const CHANNEL_INPUTS: Record<SocialContentIntelligenceChannel, string[]> = {
     'carousel or illustration mode',
     'screenshot routes',
     'references',
+  ],
+  youtube: [
+    'title',
+    'description',
+    'opening hook',
+    'full-video script',
+    'storyboard beats',
+    'b-roll plan',
+    'thumbnail readiness',
+    'final video URL',
+    'visibility setting',
+    'upload readiness',
   ],
   youtube_shorts: [
     'hook',
@@ -778,6 +793,36 @@ function channelOrchestrationEvidence(input: {
       portfolio_snapshots: ['/admin/social-content', '/admin/agents/content-intelligence', '/admin/agents/coordination'],
       illustration_direction: `Show the operating path behind the point: ${input.patternPromise || input.contentAngle}`,
     },
+    youtube: {
+      format: 'Long-form YouTube video packet with script, thumbnail/title, final asset, and upload-readiness gates.',
+      structure: [
+        'Opening hook makes the audience problem concrete in the first 30 seconds.',
+        'Source basis names the Portfolio or campaign evidence behind the claim.',
+        'Middle section turns the insight into a usable framework, walkthrough, or proof narrative.',
+        'Final section gives a clear next step and confirms what remains human-gated before upload.',
+      ],
+      success_criteria: [
+        'Title, description, thumbnail, final video URL, and visibility are reviewable before provider handoff.',
+        'Script and b-roll plan match the approved source packet without exposing private admin data.',
+        'Upload readiness remains pending until final human submission approval and provider config are present.',
+      ],
+      portfolio_surfaces: [
+        ...sharedSurfaces,
+        {
+          label: 'Video Generation',
+          route: '/admin/content/video-generation',
+          purpose: 'Long-form script, b-roll plan, render readiness, and final video review.',
+        },
+        {
+          label: 'Social Content Review',
+          route: '/admin/social-content',
+          purpose: 'YouTube title, description, thumbnail readiness, final video URL, privacy/rights, and platform submission gate.',
+        },
+      ],
+      recommended_assets: ['Full-video script', 'Storyboard beats', 'B-roll plan', 'Thumbnail/title variants', 'Final video URL'],
+      portfolio_snapshots: ['/admin/content/video-generation', '/admin/social-content', '/admin/agents/content-intelligence'],
+      illustration_direction: 'Translate the source pattern into an original AmaduTown video narrative with visible evidence and gates.',
+    },
     youtube_shorts: {
       format: 'Vertical short-form script with proof b-roll and render-readiness gate.',
       structure: [
@@ -933,6 +978,16 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
     patternHook ? `Pattern to adapt: ${patternHook}` : 'Pattern to adapt: use the approved research packet without copying source language.',
     'Close: AI earns trust when the handoff is visible before the output goes public.',
   ]
+  const fullVideoScript = [
+    `Opening hook: ${youtubeHook}`,
+    `Context: ${triggeringEvent}`,
+    `Why Vambah can speak to it: ${whyVambahCanSpeak}`,
+    `Core argument: ${contentAngle}`,
+    `Evidence walkthrough: ${evidenceSummary}`,
+    patternHook ? `Transferable pattern: ${patternHook}` : 'Transferable pattern: use the approved research packet without copying source language.',
+    'Operating takeaway: make the source, owner, approval gate, final asset, and provider boundary visible before upload.',
+    'Close: invite the viewer to compare where their own AI or content workflow loses trust between draft and public action.',
+  ]
   const storyboardScenes = [
     'Face-to-camera hook with the triggering event.',
     'Screen capture of the review gate or backlog surface.',
@@ -973,6 +1028,48 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
       },
       orchestration_evidence: channelOrchestrationEvidence({
         channel: 'linkedin',
+        contentAngle,
+        patternPromise,
+      }),
+      source_research_patterns: patterns,
+      side_effects: reviewDraftSideEffects(),
+    },
+    youtube: {
+      channel: 'youtube',
+      generated_at: generatedAt,
+      approval_status: 'in_review',
+      shared_source: sharedSource,
+      source_insight_title: title,
+      source_use_boundary: sourceBoundary,
+      fields: {
+        title_variants: [
+          truncate(`${title}: the operating layer behind AI trust`, 90),
+          truncate(`${youtubeHook} | AmaduTown`, 90),
+        ],
+        description: [
+          contentAngle,
+          '',
+          `Source basis: ${evidenceSummary}`,
+          '',
+          'Provider upload, scheduling, and publication require a separate final human gate.',
+        ].join('\n'),
+        opening_hook: youtubeHook,
+        first_30_seconds: firstThirtySeconds,
+        full_video_script: fullVideoScript,
+        storyboard_beats: storyboardScenes,
+        b_roll_plan: bRollHints,
+        thumbnail_requirements: [
+          'Use AmaduTown-owned or approved source visuals.',
+          'Make the promise readable at mobile thumbnail size.',
+          'Do not copy a creator thumbnail, title, or visual identity.',
+        ],
+        final_video_url: null,
+        visibility_default: 'private',
+        upload_readiness: 'pending_final_human_submission_gate',
+        claim_boundaries: claimBoundaries,
+      },
+      orchestration_evidence: channelOrchestrationEvidence({
+        channel: 'youtube',
         contentAngle,
         patternPromise,
       }),
