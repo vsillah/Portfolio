@@ -42,7 +42,7 @@ Before render, Shaka should approve:
 - final title and script,
 - five-scene storyboard,
 - whether to capture B-roll assets for the five hints,
-- presenter mode, template, Vambah-selected avatar, and voice settings,
+- presenter mode, template, approved avatar-pool rotation, and voice settings,
 - AmaduTown channel and Agentified playlist routing,
 - and whether this pilot should move into a HeyGen render.
 
