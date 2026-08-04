@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   from: vi.fn(),
   createVideo: vi.fn(),
   getHeyGenDefaults: vi.fn(),
+  getHeyGenConfigByType: vi.fn(),
 }))
 
 vi.mock('@/lib/auth-server', () => ({
@@ -27,6 +28,7 @@ vi.mock('@/lib/heygen', () => ({
 
 vi.mock('@/lib/heygen-config', () => ({
   getHeyGenDefaults: mocks.getHeyGenDefaults,
+  getHeyGenConfigByType: mocks.getHeyGenConfigByType,
 }))
 
 import { POST } from './route'
@@ -128,12 +130,23 @@ function socialItem(ragOverrides: Record<string, unknown> = {}) {
 }
 
 function queueFetchBuilder(item: Record<string, unknown>) {
+  const recentQueueLookup = {
+    neq: vi.fn(() => recentQueueLookup),
+    not: vi.fn(() => recentQueueLookup),
+    order: vi.fn(() => recentQueueLookup),
+    limit: vi.fn().mockResolvedValue({ data: [], error: null }),
+  }
+
   return {
-    select: vi.fn(() => ({
-      eq: vi.fn(() => ({
-        single: vi.fn().mockResolvedValue({ data: item, error: null }),
-      })),
-    })),
+    select: vi.fn((columns?: string) => {
+      if (columns?.includes('updated_at')) return recentQueueLookup
+
+      return {
+        eq: vi.fn(() => ({
+          single: vi.fn().mockResolvedValue({ data: item, error: null }),
+        })),
+      }
+    }),
     update: vi.fn(() => ({
       eq: vi.fn().mockResolvedValue({ data: null, error: null }),
     })),
@@ -149,7 +162,7 @@ function jobInsertBuilder(existingJobs: Record<string, unknown>[] = []) {
 
   return {
     select: vi.fn(() => lookupChain),
-    insert: vi.fn(() => ({
+    insert: vi.fn((payload: Record<string, unknown>) => ({
       select: vi.fn(() => ({
         single: vi.fn().mockResolvedValue({
           data: {
@@ -159,9 +172,9 @@ function jobInsertBuilder(existingJobs: Record<string, unknown>[] = []) {
             video_url: null,
             video_share_url: null,
             thumbnail_url: null,
-            avatar_id: 'avatar-1',
-            voice_id: 'voice-1',
-            broll_asset_ids: ['broll-1'],
+            avatar_id: payload.avatar_id ?? 'avatar-1',
+            voice_id: payload.voice_id ?? 'voice-1',
+            broll_asset_ids: payload.broll_asset_ids ?? ['broll-1'],
             created_at: '2026-08-04T12:05:00.000Z',
             updated_at: '2026-08-04T12:05:00.000Z',
           },
@@ -180,6 +193,7 @@ describe('POST /api/admin/social-content/[id]/prepare-avatar-video', () => {
     mocks.isAuthError.mockReturnValue(false)
     mocks.createVideo.mockResolvedValue({ videoId: 'heygen-1', error: null })
     mocks.getHeyGenDefaults.mockResolvedValue({ avatarId: 'avatar-1', voiceId: 'voice-1' })
+    mocks.getHeyGenConfigByType.mockResolvedValue([])
   })
 
   it('requires render approval before calling HeyGen or creating a job', async () => {
@@ -192,16 +206,60 @@ describe('POST /api/admin/social-content/[id]/prepare-avatar-video', () => {
 
   it('surfaces missing HeyGen defaults as a blocked preparation state', async () => {
     mocks.getHeyGenDefaults.mockResolvedValue({ avatarId: null, voiceId: null })
-    mocks.from.mockReturnValueOnce(queueFetchBuilder(socialItem()))
+    const queueBuilder = queueFetchBuilder(socialItem())
+    mocks.from.mockImplementation((table: string) => {
+      if (table === 'social_content_queue') return queueBuilder
+      return {}
+    })
 
     const response = await POST(request({ renderApproval: buildVideoRenderApproval(true) }), { params: { id: 'social-1' } })
     const body = await response.json()
 
     expect(response.status).toBe(409)
-    expect(body.error).toContain('Default Vambah HeyGen avatar and voice')
+    expect(body.error).toContain('Approved HeyGen avatar and voice')
     expect(body.social_video_production.selectedAvatarId).toBeNull()
-    expect(body.social_video_production.readiness.blockers).toContain('Default Vambah HeyGen avatar is missing.')
+    expect(body.social_video_production.readiness.blockers).toContain('No approved HeyGen avatar is available. Pick a default or favorite avatar before render preparation.')
     expect(mocks.createVideo).not.toHaveBeenCalled()
+  })
+
+  it('uses approved favorite HeyGen assets when defaults are not configured', async () => {
+    mocks.getHeyGenDefaults.mockResolvedValue({ avatarId: null, voiceId: null })
+    mocks.getHeyGenConfigByType.mockImplementation(async (assetType: string) => {
+      if (assetType === 'avatar') {
+        return [
+          { asset_id: 'avatar-favorite-1', asset_name: 'Vambah Gray Sweater', is_favorite: true },
+          { asset_id: 'avatar-favorite-2', asset_name: 'Vambah green sweater', is_favorite: true },
+        ]
+      }
+
+      return [
+        { asset_id: 'voice-favorite-1', asset_name: 'Young Black CEO Voice', is_favorite: true },
+      ]
+    })
+    const queueBuilder = queueFetchBuilder(socialItem())
+    const jobBuilder = jobInsertBuilder()
+    mocks.from.mockImplementation((table: string) => {
+      if (table === 'social_content_queue') return queueBuilder
+      if (table === 'video_generation_jobs') return jobBuilder
+      return {}
+    })
+
+    const response = await POST(request({ renderApproval: buildVideoRenderApproval(true) }), { params: { id: 'social-1' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.social_video_production).toMatchObject({
+      status: 'render_requested',
+      selectedAvatarSource: 'job',
+      selectedVoiceSource: 'job',
+      selectedVoiceId: 'voice-favorite-1',
+      avatarPoolSize: 2,
+    })
+    expect(mocks.createVideo).toHaveBeenCalledWith(expect.objectContaining({
+      channel: 'youtube',
+      avatarId: expect.stringMatching(/^avatar-favorite-/),
+      voiceId: 'voice-favorite-1',
+    }))
   })
 
   it('blocks preparation when the production packet has no B-roll candidates', async () => {
@@ -210,7 +268,11 @@ describe('POST /api/admin/social-content/[id]/prepare-avatar-video', () => {
         broll: { status: 'missing', hints: ['Portfolio workflow'], assets: [] },
       }),
     })
-    mocks.from.mockReturnValueOnce(queueFetchBuilder(item))
+    const queueBuilder = queueFetchBuilder(item)
+    mocks.from.mockImplementation((table: string) => {
+      if (table === 'social_content_queue') return queueBuilder
+      return {}
+    })
 
     const response = await POST(request({ renderApproval: buildVideoRenderApproval(true) }), { params: { id: 'social-1' } })
     const body = await response.json()
