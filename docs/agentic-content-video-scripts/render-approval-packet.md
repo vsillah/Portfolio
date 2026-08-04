@@ -31,14 +31,18 @@ This should be treated as a production rehearsal, not a publishing approval. Ren
 | HeyGen limit | `5000` characters |
 | Storyboard scenes | `5` |
 | B-roll hints | `home`, `admin`, `admin`, `tools`, `resources` |
+| Campaign calendar | Agentified campaign calendar |
+| Intended YouTube destination | AmaduTown channel, Agentified playlist |
 
 ## Approved Scope If Shaka Says Yes
 
 - Create one HeyGen review render from the pending draft.
 - Use channel `youtube`.
+- Target the AmaduTown YouTube channel and Agentified playlist metadata for the review packet.
 - Use aspect ratio `16:9`.
 - Use the reviewed title and script already saved in the queue item.
 - Use the five-scene storyboard already saved in the queue item.
+- Let Vambah choose the HeyGen avatar before any render starts.
 - Capture or attach only non-private B-roll that matches the five approved hints.
 - Keep the output as an internal review artifact until a separate publishing approval exists.
 
@@ -58,12 +62,14 @@ Recommended path:
 
 - Presenter mode: HeyGen template mode.
 - Template: AmaduTown template, if available.
+- Avatar: Vambah-selected HeyGen avatar.
 - Voice: configured AmaduTown brand voice, if available.
 - Fallback: configured HeyGen avatar and voice defaults.
 
 Hold render if:
 
 - no presenter default is configured,
+- the workflow cannot show or persist the selected avatar,
 - the selected avatar or voice does not match the AmaduTown brand,
 - the generated preview would expose private admin or client material,
 - or the operator cannot verify which external account will be charged.
@@ -108,7 +114,9 @@ Approved scope:
 - One internal review render only.
 - Queue item: 9f9dd8f1-9d19-48ff-bedf-2a5779a44be8.
 - Channel: youtube.
+- Destination: AmaduTown YouTube channel, Agentified playlist.
 - Aspect ratio: 16:9.
+- Avatar: Vambah-selected HeyGen avatar.
 - Script: reviewed source script, 2386 characters.
 - Storyboard: 5 scenes with hints home, admin, admin, tools, resources.
 - B-roll: public-safe or synthetic only.
@@ -134,6 +142,8 @@ Render can proceed only when all are true:
 
 - Shaka approval is recorded.
 - Presenter/template settings are known.
+- Vambah-selected avatar is recorded.
+- AmaduTown channel and Agentified playlist destination metadata are ready or the playlist setup gate is open.
 - The queue item is still pending.
 - `video_generation_job_id` is still empty.
 - The script is still under 5000 characters.

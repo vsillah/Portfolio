@@ -53,6 +53,18 @@ The transferable public pattern is:
 
 Use patterns only. Do not copy creator scripts, thumbnails, titles, catchphrases, diagrams, or distinctive visual treatments.
 
+## Resolved production-planning decisions
+
+These decisions were confirmed by Vambah on 2026-08-04 and should guide the next internal package.
+
+| Decision | Current direction |
+| --- | --- |
+| Calendar placement | Long-form YouTube videos belong on the same Agentified campaign calendar as the Shorts. |
+| YouTube destination | Publish-ready packets should target the AmaduTown YouTube channel. |
+| Playlist routing | Use the Agentified playlist as the intended destination; verify the playlist exists or prepare a playlist-creation gate before upload. |
+| HeyGen avatar | The workflow must let Vambah choose the HeyGen avatar before any render-ready packet advances. |
+| Episode 1 queue item | Reuse the existing pending queue item `9f9dd8f1-9d19-48ff-bedf-2a5779a44be8` instead of creating a duplicate queue item. |
+
 ## Public pattern scan
 
 The public sidecar sampled creator pages and recent visible videos on 2026-08-04. The scan is directional because YouTube metrics change.
@@ -74,10 +86,10 @@ The public sidecar sampled creator pages and recent visible videos on 2026-08-04
 | --- | --- | --- |
 | Teach | `AGT-SHORT-01`, "Agentic work needs an operating system" | Short-form cutdown from the operating-system thesis. |
 | Proof | `AGT-SHORT-02`, "What the cover is really showing" | Cover and workbook proof cutdown tied to the Agentified visual system. |
-| Phase 2 long form | Episode 1, "The Receipt Every Agent Needs" | Recommended pilot because it explains traceability before autonomy. |
-| Phase 2 long form | Episodes 2-5 from Wave 1 scripts | Use after Episode 1 proves the format, pacing, avatar setup, and B-roll workflow. |
+| Same Agentified calendar, long form | Episode 1, "The Receipt Every Agent Needs" | Recommended pilot because it explains traceability before autonomy. |
+| Same Agentified calendar, long form | Episodes 2-5 from Wave 1 scripts | Use after Episode 1 proves the format, pacing, avatar setup, and B-roll workflow. |
 
-The two Shorts should support the release calendar. The long-form episodes should become the deeper proof layer that the Shorts and LinkedIn posts can point toward.
+The two Shorts and the long-form episodes should share the Agentified release calendar. The long-form episodes become the deeper proof layer that the Shorts and LinkedIn posts can point toward.
 
 ## Recommended YouTube architecture
 
@@ -102,21 +114,23 @@ Use this for 3-5 minute YouTube videos:
 4. operating checklist;
 5. workbook or release CTA.
 
-HeyGen direction: selected Vambah avatar at the front, then intercut with Portfolio B-roll, diagrams, and book/workbook visuals. Keep presenter segments short enough that B-roll carries the proof.
+HeyGen direction: selected Vambah avatar at the front, then intercut with Portfolio B-roll, diagrams, and book/workbook visuals. Keep presenter segments short enough that B-roll carries the proof. Avatar selection is a required pre-render control, not an Amina-only assumption.
 
 ElevenLabs direction: do not start a separate ElevenLabs job from this packet. If HeyGen voice defaults already include the desired voice, keep the voice inside HeyGen. Use ElevenLabs only for separately approved audio-only cutdowns or a deliberate native audio composite.
+
+Destination direction: package metadata should target the AmaduTown YouTube channel and the Agentified playlist. If the playlist is missing or the connected provider account cannot confirm it, stop at a provider setup gate before upload.
 
 ## Draft package map
 
 | Package | Calendar role | Hook | Visual form | Proof/B-roll | Human gate |
 | --- | --- | --- | --- | --- | --- |
-| `AGT-SHORT-01` | Teach short | "Agentic work needs an operating system." | Avatar cold open plus 2-3 proof cuts. | Mission Control, approval gate, trace/receipt labels. | Short script, visual/privacy, caption, YouTube destination. |
-| `AGT-SHORT-02` | Proof short | "The cover is not decoration. It is the machine." | Cover-led motion with avatar intro. | Approved Agentified cover, SAM/AMINA visual source, workbook cue. | Cover rights, visual/privacy, caption, YouTube destination. |
-| Episode 1 | Long-form pilot | "The first thing I built around agents was the receipt." | Avatar explainer with proof-surface walkthrough. | Run, step, event, approval, cost, client-safe audit labels. | Script, B-roll redaction, HeyGen render approval. |
-| Episode 2 | Long-form follow-up | "A swarm is not a room full of agents talking." | Avatar plus org-map diagram. | Shaka routing, owner lanes, handoff contract. | Script, diagram source, visual/privacy. |
-| Episode 3 | Long-form follow-up | "Agent memory should feel more like a governed library than a junk drawer." | Avatar plus Open Brain layers. | Raw source, approved memory, compiled overlay. | Script, private/public boundary review. |
-| Episode 4 | Long-form follow-up | "The agent does not get promoted because it sounded confident." | Avatar plus review-board visual. | Trace evals, QA notes, authority change. | Script, claims/proof review. |
-| Episode 5 | Long-form follow-up | "Human review is the trust layer." | Avatar plus approval flow. | Draft, approval, reject/revise, trace outcome. | Script, approval-boundary review. |
+| `AGT-SHORT-01` | Teach short | "Agentic work needs an operating system." | Avatar cold open plus 2-3 proof cuts. | Mission Control, approval gate, trace/receipt labels. | Short script, visual/privacy, caption, avatar, AmaduTown channel, Agentified playlist. |
+| `AGT-SHORT-02` | Proof short | "The cover is not decoration. It is the machine." | Cover-led motion with avatar intro. | Approved Agentified cover, SAM/AMINA visual source, workbook cue. | Cover rights, visual/privacy, caption, avatar, AmaduTown channel, Agentified playlist. |
+| Episode 1 | Long-form pilot | "The first thing I built around agents was the receipt." | Avatar explainer with proof-surface walkthrough. | Run, step, event, approval, cost, client-safe audit labels. | Script, B-roll redaction, avatar, HeyGen render approval, AmaduTown channel, Agentified playlist. |
+| Episode 2 | Long-form follow-up | "A swarm is not a room full of agents talking." | Avatar plus org-map diagram. | Shaka routing, owner lanes, handoff contract. | Script, diagram source, avatar, visual/privacy. |
+| Episode 3 | Long-form follow-up | "Agent memory should feel more like a governed library than a junk drawer." | Avatar plus Open Brain layers. | Raw source, approved memory, compiled overlay. | Script, avatar, private/public boundary review. |
+| Episode 4 | Long-form follow-up | "The agent does not get promoted because it sounded confident." | Avatar plus review-board visual. | Trace evals, QA notes, authority change. | Script, avatar, claims/proof review. |
+| Episode 5 | Long-form follow-up | "Human review is the trust layer." | Avatar plus approval flow. | Draft, approval, reject/revise, trace outcome. | Script, avatar, approval-boundary review. |
 
 ## Episode 1 pilot packet
 
@@ -167,17 +181,18 @@ Each YouTube package should pass this gate before HeyGen or any other provider w
 | Voice and humanizer pass | Script sounds like Vambah explaining the system, not a generic AI explainer. |
 | Script intelligence | Hook, pain clarity, proof density, CTA clarity, and source distance pass the existing script scorecard. |
 | Visual/proof readiness | B-roll exists or has a clear capture task; private data is redacted. |
-| Avatar and voice readiness | HeyGen avatar and voice defaults are configured before render approval. |
+| Avatar and voice readiness | Vambah can choose the HeyGen avatar before render approval; selected voice is confirmed inside HeyGen or separately approved for audio composite. |
 | Rights and privacy | Book assets, screenshots, B-roll, captions, and thumbnail candidates are cleared for public use. |
 | Accessibility | Captions, on-screen text, and alt/description notes are prepared. |
 | Approval boundary | Human approval is recorded for script, visuals, asset packet, privacy/rights, provider render, and YouTube submission. |
 
-## Open decisions
+## Resolved decisions
 
-1. Confirm whether long-form videos should sit on the same Agentified campaign calendar as the Shorts or become a Phase 2 calendar.
-2. Confirm whether the YouTube destination is Vambah's personal channel, AmaduTown, or a newly prepared Agentified playlist.
-3. Confirm the default HeyGen avatar and voice before any render-ready packet moves forward.
-4. Decide whether Episode 1 should use the existing pending queue item or a new cleaned queue item.
+1. Long-form videos sit on the same Agentified campaign calendar as the Shorts.
+2. YouTube destination is the AmaduTown channel.
+3. Intended playlist is Agentified; provider setup must verify or create the playlist before upload.
+4. HeyGen avatar must be selectable by Vambah before render approval.
+5. Episode 1 reuses pending queue item `9f9dd8f1-9d19-48ff-bedf-2a5779a44be8`.
 
 ## Current next step
 
@@ -187,4 +202,4 @@ Amina should convert this packet into reviewable internal YouTube script and ass
 2. `AGT-SHORT-02`;
 3. Episode 1, "The Receipt Every Agent Needs."
 
-Stop before provider render approval. YouTube upload, schedule, and publish stay behind separate explicit gates.
+Stop before provider render approval. YouTube upload, schedule, and publish stay behind separate explicit gates. The next package should carry the AmaduTown channel, Agentified playlist target, avatar-selection requirement, and reused Episode 1 queue item as metadata.

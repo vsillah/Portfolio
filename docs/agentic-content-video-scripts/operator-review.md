@@ -13,6 +13,8 @@ This phase added the missing human-in-the-loop edit control for pending video dr
 - Queue item id: `9f9dd8f1-9d19-48ff-bedf-2a5779a44be8`
 - Status after review: `pending`
 - Linked generation job: none
+- Campaign calendar: Agentified campaign calendar
+- Intended destination: AmaduTown YouTube channel, Agentified playlist
 - Script length after review: `2386` characters
 - Storyboard scenes: `5`
 - B-roll hints: `home`, `admin`, `admin`, `tools`, `resources`
@@ -40,7 +42,8 @@ Before render, Shaka should approve:
 - final title and script,
 - five-scene storyboard,
 - whether to capture B-roll assets for the five hints,
-- presenter mode, template, avatar, and voice settings,
+- presenter mode, template, Vambah-selected avatar, and voice settings,
+- AmaduTown channel and Agentified playlist routing,
 - and whether this pilot should move into a HeyGen render.
 
 ## Known Runtime Notes

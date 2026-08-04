@@ -5,6 +5,7 @@ Status: Draft for video review, with Episode 1 staged as a pending UI draft
 Source LinkedIn wave: `docs/agentic-content-linkedin-drafts/wave-1-drafts.md`
 Recommended pilot: Episode 1, "The Receipt Every Agent Needs"
 Current Amina research-to-video planning packet: `docs/agentic-content-video-scripts/agentified-youtube-amina-research-to-video-packet.md`
+Current campaign decisions: keep long-form videos on the Agentified campaign calendar, target the AmaduTown YouTube channel and Agentified playlist, let Vambah choose the HeyGen avatar before render approval, and reuse pending queue item `9f9dd8f1-9d19-48ff-bedf-2a5779a44be8` for Episode 1.
 
 ## Production Guardrails
 
