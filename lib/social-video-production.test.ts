@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { buildSocialVideoProductionProjection } from './social-video-production'
+import {
+  buildSocialVideoProductionProjection,
+  selectFavoriteVoice,
+  selectRotatingFavoriteAvatar,
+} from './social-video-production'
 
 function baseItem(overrides: Record<string, unknown> = {}) {
   return {
@@ -34,6 +38,24 @@ function baseItem(overrides: Record<string, unknown> = {}) {
 }
 
 describe('buildSocialVideoProductionProjection', () => {
+  it('uses approved favorite avatar and voice assets when no defaults are configured', () => {
+    const projection = buildSocialVideoProductionProjection({
+      item: baseItem(),
+      defaults: { avatarId: null, voiceId: null },
+      favoriteAvatars: [{ asset_id: 'avatar-favorite-1', asset_name: 'Vambah Gray Sweater', is_favorite: true }],
+      favoriteVoices: [{ asset_id: 'voice-favorite-1', asset_name: 'Young Black CEO Voice', is_favorite: true }],
+      job: null,
+    })
+
+    expect(projection.status).toBe('ready_for_render_approval')
+    expect(projection.selectedAvatarId).toBe('avatar-favorite-1')
+    expect(projection.selectedAvatarSource).toBe('favorite_pool')
+    expect(projection.selectedVoiceId).toBe('voice-favorite-1')
+    expect(projection.selectedVoiceSource).toBe('favorite')
+    expect(projection.avatarPoolSize).toBe(1)
+    expect(projection.readiness.blockers).toEqual([])
+  })
+
   it('projects a completed HeyGen job into final video and thumbnail readiness', () => {
     const projection = buildSocialVideoProductionProjection({
       item: baseItem({
@@ -79,5 +101,51 @@ describe('buildSocialVideoProductionProjection', () => {
     expect(projection.selectedAvatarId).toBe('avatar-1')
     expect(projection.selectedVoiceId).toBe('voice-1')
     expect(projection.readiness.nextAction).toContain('final video')
+  })
+})
+
+describe('selectRotatingFavoriteAvatar', () => {
+  it('avoids repeating the most recently prepared avatar when another favorite is available', () => {
+    const selected = selectRotatingFavoriteAvatar({
+      defaults: { avatarId: null },
+      favoriteAvatars: [
+        { asset_id: 'avatar-a', is_favorite: true },
+        { asset_id: 'avatar-b', is_favorite: true },
+      ],
+      stableKey: 'agentified-episode-1',
+      lastAvatarId: null,
+    })
+
+    const nextSelected = selectRotatingFavoriteAvatar({
+      defaults: { avatarId: null },
+      favoriteAvatars: [
+        { asset_id: 'avatar-a', is_favorite: true },
+        { asset_id: 'avatar-b', is_favorite: true },
+      ],
+      stableKey: 'agentified-episode-1',
+      lastAvatarId: selected,
+    })
+
+    expect(nextSelected).toBeTruthy()
+    expect(nextSelected).not.toBe(selected)
+  })
+
+  it('falls back to the configured default when no favorites exist', () => {
+    expect(selectRotatingFavoriteAvatar({
+      defaults: { avatarId: 'avatar-default' },
+      favoriteAvatars: [],
+      stableKey: 'agentified-episode-1',
+    })).toBe('avatar-default')
+  })
+})
+
+describe('selectFavoriteVoice', () => {
+  it('uses the first favorite voice when no default is configured', () => {
+    expect(selectFavoriteVoice({
+      defaults: { voiceId: null },
+      favoriteVoices: [
+        { asset_id: 'voice-favorite-1', is_favorite: true },
+      ],
+    })).toBe('voice-favorite-1')
   })
 })

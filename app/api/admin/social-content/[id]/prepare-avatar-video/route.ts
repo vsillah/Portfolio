@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { createVideo } from '@/lib/heygen'
-import { getHeyGenDefaults } from '@/lib/heygen-config'
+import { getHeyGenConfigByType, getHeyGenDefaults } from '@/lib/heygen-config'
 import { supabaseAdmin } from '@/lib/supabase'
 import { getProductionAssets, getVideoRedactionGate } from '@/lib/social-production-assets'
 import { videoRenderApprovalError, parseVideoRenderApproval } from '@/lib/video-render-approval'
@@ -10,7 +10,9 @@ import {
   buildSocialVideoProductionStoredState,
   getSocialVideoProductionState,
   isYouTubeSocialTarget,
+  selectFavoriteVoice,
   selectProductionBrollAssets,
+  selectRotatingFavoriteAvatar,
   type SocialVideoGenerationJobProjection,
 } from '@/lib/social-video-production'
 import { evaluateVideoScript, SCRIPT_INTELLIGENCE_SIDE_EFFECTS } from '@/lib/video-script-intelligence'
@@ -57,6 +59,23 @@ function sameStringSet(left: string[], right: string[]): boolean {
   return left.every((item) => rightSet.has(item))
 }
 
+async function getLastPreparedAvatarId(currentContentId: string): Promise<string | null> {
+  const { data } = await supabaseAdmin
+    .from('social_content_queue')
+    .select('id, rag_context, updated_at')
+    .neq('id', currentContentId)
+    .not('rag_context', 'is', null)
+    .order('updated_at', { ascending: false })
+    .limit(25)
+
+  for (const row of data ?? []) {
+    const state = getSocialVideoProductionState(asRecord(row.rag_context))
+    if (state?.selected_avatar_id) return state.selected_avatar_id
+  }
+
+  return null
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } },
@@ -101,12 +120,18 @@ export async function POST(
         .eq('id', existingState.video_generation_job_id)
         .maybeSingle()
       if (existingJob) {
-        const defaults = await getHeyGenDefaults()
+        const [defaults, avatars, voices] = await Promise.all([
+          getHeyGenDefaults(),
+          getHeyGenConfigByType('avatar'),
+          getHeyGenConfigByType('voice'),
+        ])
         return NextResponse.json({
           error: 'This Social Content draft already has a linked HeyGen job.',
           social_video_production: buildSocialVideoProductionProjection({
             item,
             defaults,
+            favoriteAvatars: avatars.filter((asset) => asset.is_favorite),
+            favoriteVoices: voices.filter((asset) => asset.is_favorite),
             job: mapJob(existingJob),
           }),
         }, { status: 409 })
@@ -115,30 +140,68 @@ export async function POST(
 
     const productionAssets = getProductionAssets(ragContext)
     if (!productionAssets) {
-      const defaults = await getHeyGenDefaults()
+      const [defaults, avatars, voices] = await Promise.all([
+        getHeyGenDefaults(),
+        getHeyGenConfigByType('avatar'),
+        getHeyGenConfigByType('voice'),
+      ])
       return NextResponse.json({
         error: 'Prepare the production asset packet before HeyGen avatar video preparation.',
-        social_video_production: buildSocialVideoProductionProjection({ item, defaults, job: null }),
+        social_video_production: buildSocialVideoProductionProjection({
+          item,
+          defaults,
+          favoriteAvatars: avatars.filter((asset) => asset.is_favorite),
+          favoriteVoices: voices.filter((asset) => asset.is_favorite),
+          job: null,
+        }),
       }, { status: 409 })
     }
 
     const redactionGate = getVideoRedactionGate(productionAssets)
     if (!redactionGate.ready) {
-      const defaults = await getHeyGenDefaults()
+      const [defaults, avatars, voices] = await Promise.all([
+        getHeyGenDefaults(),
+        getHeyGenConfigByType('avatar'),
+        getHeyGenConfigByType('voice'),
+      ])
       return NextResponse.json({
         error: redactionGate.message || 'Resolve video privacy and redaction review before HeyGen avatar video preparation.',
         unresolved_redaction_items: redactionGate.unresolvedItems.length,
-        social_video_production: buildSocialVideoProductionProjection({ item, defaults, job: null }),
+        social_video_production: buildSocialVideoProductionProjection({
+          item,
+          defaults,
+          favoriteAvatars: avatars.filter((asset) => asset.is_favorite),
+          favoriteVoices: voices.filter((asset) => asset.is_favorite),
+          job: null,
+        }),
       }, { status: 409 })
     }
 
-    const defaults = await getHeyGenDefaults()
-    const avatarId = defaults.avatarId
-    const voiceId = defaults.voiceId
+    const [defaults, avatars, voices, lastAvatarId] = await Promise.all([
+      getHeyGenDefaults(),
+      getHeyGenConfigByType('avatar'),
+      getHeyGenConfigByType('voice'),
+      getLastPreparedAvatarId(params.id),
+    ])
+    const favoriteAvatars = avatars.filter((asset) => asset.is_favorite)
+    const favoriteVoices = voices.filter((asset) => asset.is_favorite)
+    const avatarId = selectRotatingFavoriteAvatar({
+      defaults,
+      favoriteAvatars,
+      stableKey: `${params.id}:${asString(item.youtube_title) || productionAssets.video_script.title}`,
+      lastAvatarId,
+    })
+    const voiceId = selectFavoriteVoice({ defaults, favoriteVoices })
     if (!avatarId || !voiceId) {
       return NextResponse.json({
-        error: 'Default Vambah HeyGen avatar and voice must be configured before render preparation.',
-        social_video_production: buildSocialVideoProductionProjection({ item, defaults, job: null }),
+        error: 'Approved HeyGen avatar and voice must be configured before render preparation.',
+        social_video_production: buildSocialVideoProductionProjection({
+          item,
+          defaults,
+          favoriteAvatars,
+          favoriteVoices,
+          job: null,
+        }),
       }, { status: 409 })
     }
 
@@ -155,7 +218,13 @@ export async function POST(
     if (selectedBroll.ids.length === 0) {
       return NextResponse.json({
         error: 'Select or capture B-roll from the B-roll library before HeyGen avatar video preparation.',
-        social_video_production: buildSocialVideoProductionProjection({ item, defaults, job: null }),
+        social_video_production: buildSocialVideoProductionProjection({
+          item,
+          defaults,
+          favoriteAvatars,
+          favoriteVoices,
+          job: null,
+        }),
       }, { status: 409 })
     }
 
@@ -251,6 +320,8 @@ export async function POST(
         social_video_production: buildSocialVideoProductionProjection({
           item: updatedItem,
           defaults,
+          favoriteAvatars,
+          favoriteVoices,
           job: reusableJob,
         }),
       })
@@ -339,6 +410,8 @@ export async function POST(
       social_video_production: buildSocialVideoProductionProjection({
         item: updatedItem,
         defaults,
+        favoriteAvatars,
+        favoriteVoices,
         job: mappedJob,
       }),
     })

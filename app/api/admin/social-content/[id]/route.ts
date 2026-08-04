@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { extractMeetingTitle, extractMeetingSourceUrl } from '@/lib/social-content'
-import { getHeyGenDefaults } from '@/lib/heygen-config'
+import { getHeyGenConfigByType, getHeyGenDefaults } from '@/lib/heygen-config'
 import {
   buildSocialVideoProductionProjection,
   getSocialVideoProductionState,
@@ -92,7 +92,11 @@ export async function GET(
       .eq('content_id', id)
       .order('created_at', { ascending: true })
 
-    const defaults = await getHeyGenDefaults()
+    const [defaults, avatars, voices] = await Promise.all([
+      getHeyGenDefaults(),
+      getHeyGenConfigByType('avatar'),
+      getHeyGenConfigByType('voice'),
+    ])
     const socialVideoState = getSocialVideoProductionState(data.rag_context)
     let socialVideoJob: SocialVideoGenerationJobProjection | null = null
     if (socialVideoState?.video_generation_job_id) {
@@ -106,6 +110,8 @@ export async function GET(
     const socialVideoProduction = buildSocialVideoProductionProjection({
       item: data,
       defaults,
+      favoriteAvatars: avatars.filter((asset) => asset.is_favorite),
+      favoriteVoices: voices.filter((asset) => asset.is_favorite),
       job: socialVideoJob,
     })
 

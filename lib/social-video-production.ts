@@ -62,6 +62,9 @@ export interface SocialVideoProductionProjection {
   isYouTubeTarget: boolean
   selectedAvatarId: string | null
   selectedVoiceId: string | null
+  selectedAvatarSource: 'job' | 'stored' | 'default' | 'favorite_pool' | 'missing'
+  selectedVoiceSource: 'job' | 'stored' | 'default' | 'favorite' | 'missing'
+  avatarPoolSize: number
   broll: {
     status: 'ready' | 'missing' | 'not_prepared'
     selectedAssetIds: string[]
@@ -86,6 +89,13 @@ export interface SocialVideoProductionProjection {
     publish: false
     providerDraft: false
   }
+}
+
+export interface SocialVideoConfigAsset {
+  asset_id: string
+  asset_name?: string | null
+  is_default?: boolean
+  is_favorite?: boolean
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -203,6 +213,8 @@ export function isYouTubeSocialTarget(item: Pick<SocialContentItem, 'platform' |
 export function buildSocialVideoProductionProjection(input: {
   item: Pick<SocialContentItem, 'status' | 'platform' | 'target_platforms' | 'video_url' | 'image_url' | 'rag_context'>
   defaults: { avatarId: string | null; voiceId: string | null }
+  favoriteAvatars?: SocialVideoConfigAsset[]
+  favoriteVoices?: SocialVideoConfigAsset[]
   job?: SocialVideoGenerationJobProjection | null
 }): SocialVideoProductionProjection {
   const item = input.item
@@ -210,8 +222,36 @@ export function buildSocialVideoProductionProjection(input: {
   const redactionGate = getVideoRedactionGate(productionAssets)
   const stored = getSocialVideoProductionState(item.rag_context)
   const isYouTubeTarget = isYouTubeSocialTarget(item)
-  const selectedAvatarId = input.job?.avatarId || stored?.selected_avatar_id || input.defaults.avatarId
-  const selectedVoiceId = input.job?.voiceId || stored?.selected_voice_id || input.defaults.voiceId
+  const favoriteAvatars = input.favoriteAvatars?.filter((asset) => asset.asset_id?.trim()) ?? []
+  const favoriteVoices = input.favoriteVoices?.filter((asset) => asset.asset_id?.trim()) ?? []
+  const selectedAvatarId = input.job?.avatarId
+    || stored?.selected_avatar_id
+    || input.defaults.avatarId
+    || favoriteAvatars[0]?.asset_id
+    || null
+  const selectedVoiceId = input.job?.voiceId
+    || stored?.selected_voice_id
+    || input.defaults.voiceId
+    || favoriteVoices[0]?.asset_id
+    || null
+  const selectedAvatarSource = input.job?.avatarId
+    ? 'job'
+    : stored?.selected_avatar_id
+      ? 'stored'
+      : input.defaults.avatarId
+        ? 'default'
+        : favoriteAvatars[0]?.asset_id
+          ? 'favorite_pool'
+          : 'missing'
+  const selectedVoiceSource = input.job?.voiceId
+    ? 'job'
+    : stored?.selected_voice_id
+      ? 'stored'
+      : input.defaults.voiceId
+        ? 'default'
+        : favoriteVoices[0]?.asset_id
+          ? 'favorite'
+          : 'missing'
   const brollCandidates = stored?.broll_candidates?.length
     ? stored.broll_candidates
     : productionAssets?.broll.assets ?? []
@@ -225,8 +265,8 @@ export function buildSocialVideoProductionProjection(input: {
     item.status !== 'approved' ? 'Copy must be approved before HeyGen preparation.' : '',
     !productionAssets ? 'Prepare the production asset packet before avatar video preparation.' : '',
     productionAssets && !redactionGate.ready ? redactionGate.message || 'Resolve video privacy and redaction review before render preparation.' : '',
-    !selectedAvatarId ? 'Default Vambah HeyGen avatar is missing.' : '',
-    !selectedVoiceId ? 'Default Vambah HeyGen voice is missing.' : '',
+    !selectedAvatarId ? 'No approved HeyGen avatar is available. Pick a default or favorite avatar before render preparation.' : '',
+    !selectedVoiceId ? 'No approved HeyGen voice is available. Pick a default or favorite voice before render preparation.' : '',
     productionAssets && selectedBrollIds.length === 0 ? 'Select or capture B-roll from the B-roll library before render preparation.' : '',
   ].filter(Boolean)
   const warnings = [
@@ -261,6 +301,9 @@ export function buildSocialVideoProductionProjection(input: {
     isYouTubeTarget,
     selectedAvatarId,
     selectedVoiceId,
+    selectedAvatarSource,
+    selectedVoiceSource,
+    avatarPoolSize: favoriteAvatars.length,
     broll: {
       status: !productionAssets ? 'not_prepared' : selectedBrollIds.length ? 'ready' : 'missing',
       selectedAssetIds: selectedBrollIds,
@@ -289,6 +332,43 @@ export function buildSocialVideoProductionProjection(input: {
       providerDraft: false,
     },
   }
+}
+
+export function selectRotatingFavoriteAvatar(input: {
+  defaults: { avatarId: string | null }
+  favoriteAvatars: SocialVideoConfigAsset[]
+  stableKey: string
+  lastAvatarId?: string | null
+}): string | null {
+  const favorites = input.favoriteAvatars
+    .map((asset) => asset.asset_id.trim())
+    .filter(Boolean)
+
+  if (favorites.length === 0) return input.defaults.avatarId
+  if (favorites.length === 1) return favorites[0]
+
+  let hash = 0
+  for (const char of input.stableKey) {
+    hash = ((hash << 5) - hash + char.charCodeAt(0)) | 0
+  }
+
+  const ordered = favorites.slice().sort()
+  const start = Math.abs(hash) % ordered.length
+  for (let offset = 0; offset < ordered.length; offset += 1) {
+    const candidate = ordered[(start + offset) % ordered.length]
+    if (candidate !== input.lastAvatarId) return candidate
+  }
+
+  return ordered[start]
+}
+
+export function selectFavoriteVoice(input: {
+  defaults: { voiceId: string | null }
+  favoriteVoices: SocialVideoConfigAsset[]
+}): string | null {
+  return input.defaults.voiceId
+    || input.favoriteVoices.map((asset) => asset.asset_id.trim()).find(Boolean)
+    || null
 }
 
 export function selectProductionBrollAssets(
