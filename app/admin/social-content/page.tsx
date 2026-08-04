@@ -31,6 +31,7 @@ import {
   MicOff,
   Sparkles,
   Plus,
+  Youtube,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -56,6 +57,16 @@ interface Stats {
   published: number
   rejected: number
   total: number
+}
+
+type SafePlatformConfig = {
+  id: string
+  platform: SocialPlatform
+  settings: Record<string, string>
+  is_active: boolean
+  credentials_configured: boolean
+  created_at: string
+  updated_at: string
 }
 
 interface Pagination {
@@ -145,6 +156,13 @@ function SocialContentQueuePage() {
   const [launchApprovalRunning, setLaunchApprovalRunning] = useState(false)
   const [launchApprovalResult, setLaunchApprovalResult] = useState<LaunchApprovalResult | null>(null)
   const [activeWorkflowView, setActiveWorkflowView] = useState<WorkflowView>('review')
+  const [platformConfigs, setPlatformConfigs] = useState<SafePlatformConfig[]>([])
+  const [platformConfigsLoading, setPlatformConfigsLoading] = useState(true)
+  const [youtubeConnecting, setYoutubeConnecting] = useState(false)
+  const [youtubeConnectionNotice, setYoutubeConnectionNotice] = useState<{
+    type: 'success' | 'error'
+    message: string
+  } | null>(null)
 
   // Extraction trigger state
   const [meetings, setMeetings] = useState<MeetingRecord[]>([])
@@ -219,7 +237,96 @@ function SocialContentQueuePage() {
     fetchItems()
   }, [fetchItems])
 
+  const fetchPlatformConfigs = useCallback(async () => {
+    setPlatformConfigsLoading(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const res = await fetch('/api/admin/social-content/config?safe=true&platform=youtube', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (!res.ok) return
+
+      const data = await res.json()
+      setPlatformConfigs(Array.isArray(data.configs) ? data.configs : [])
+    } catch (err) {
+      console.error('Failed to fetch social platform config:', err)
+    } finally {
+      setPlatformConfigsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchPlatformConfigs()
+  }, [fetchPlatformConfigs])
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const youtubeConnected = params.get('youtube_connected')
+    const youtubeError = params.get('youtube_error')
+    const youtubeChannel = params.get('youtube_channel')
+
+    if (youtubeConnected === 'true') {
+      setYoutubeConnectionNotice({
+        type: 'success',
+        message: youtubeChannel
+          ? `YouTube connected to ${youtubeChannel}. Uploads remain gated by final approval.`
+          : 'YouTube connected. Uploads remain gated by final approval.',
+      })
+      fetchPlatformConfigs()
+      return
+    }
+
+    if (youtubeError) {
+      setYoutubeConnectionNotice({
+        type: 'error',
+        message: `YouTube connection did not complete (${youtubeError.replace(/_/g, ' ')}).`,
+      })
+    }
+  }, [fetchPlatformConfigs])
+
   const extractionStatus = useExtractionStatus(() => fetchItems())
+
+  const youtubeConfig = platformConfigs.find((config) => config.platform === 'youtube')
+  const youtubeConnected = Boolean(youtubeConfig?.is_active && youtubeConfig.credentials_configured)
+  const youtubeChannelLabel = typeof youtubeConfig?.settings?.channel_title === 'string'
+    ? youtubeConfig.settings.channel_title
+    : typeof youtubeConfig?.settings?.channel_id === 'string' && youtubeConfig.settings.channel_id
+      ? youtubeConfig.settings.channel_id
+      : null
+
+  const handleConnectYouTube = async () => {
+    setYoutubeConnecting(true)
+    setYoutubeConnectionNotice(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session) {
+        setYoutubeConnectionNotice({ type: 'error', message: 'Sign in before connecting YouTube.' })
+        return
+      }
+
+      const res = await fetch('/api/auth/youtube', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      })
+      const data = await res.json().catch(() => null)
+      if (!res.ok || !data?.auth_url) {
+        setYoutubeConnectionNotice({
+          type: 'error',
+          message: data?.error || 'YouTube connection could not start.',
+        })
+        return
+      }
+
+      window.location.assign(data.auth_url)
+    } catch {
+      setYoutubeConnectionNotice({ type: 'error', message: 'YouTube connection could not start.' })
+    } finally {
+      setYoutubeConnecting(false)
+    }
+  }
 
   const fetchMeetings = useCallback(async (pageOverride?: number) => {
     setMeetingsLoading(true)
@@ -667,6 +774,50 @@ function SocialContentQueuePage() {
               </button>
             )
           })}
+        </div>
+      </div>
+
+      <div className="admin-console-card mb-6 rounded-lg border p-4">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex min-w-0 items-start gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-red-400/30 bg-red-500/10 text-red-200">
+              <Youtube className="h-5 w-5" />
+            </span>
+            <div className="min-w-0">
+              <div className="admin-console-eyebrow mb-1">Provider setup</div>
+              <h2 className="text-base font-semibold text-foreground">YouTube channel connection</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {youtubeConnected
+                  ? `Connected${youtubeChannelLabel ? ` to ${youtubeChannelLabel}` : ''}. Publishing still requires a final YouTube draft, video URL, and explicit submit approval.`
+                  : 'Connect the channel before YouTube uploads. This only authorizes the provider adapter; it does not create, schedule, upload, or publish content.'}
+              </p>
+              {youtubeConnectionNotice && (
+                <p className={`mt-2 text-xs ${youtubeConnectionNotice.type === 'success' ? 'text-emerald-300' : 'text-red-300'}`}>
+                  {youtubeConnectionNotice.message}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="flex shrink-0 flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+            <span className={`rounded-full border px-3 py-1 text-xs font-medium ${
+              platformConfigsLoading
+                ? 'border-silicon-slate bg-imperial-navy/50 text-gray-400'
+                : youtubeConnected
+                  ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+                  : 'border-amber-500/30 bg-amber-500/10 text-amber-300'
+            }`}>
+              {platformConfigsLoading ? 'Checking' : youtubeConnected ? 'Connected' : 'Not connected'}
+            </span>
+            <button
+              type="button"
+              onClick={handleConnectYouTube}
+              disabled={youtubeConnecting}
+              className="admin-console-button-secondary justify-center disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {youtubeConnecting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Youtube className="h-4 w-4" />}
+              {youtubeConnecting ? 'Opening YouTube...' : youtubeConnected ? 'Reconnect YouTube' : 'Connect YouTube'}
+            </button>
+          </div>
         </div>
       </div>
 

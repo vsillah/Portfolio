@@ -4,6 +4,16 @@ import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 
 export const dynamic = 'force-dynamic'
 
+type PlatformConfigRow = {
+  id: string
+  platform: string
+  credentials: unknown
+  settings: Record<string, unknown> | null
+  is_active: boolean | null
+  created_at: string
+  updated_at: string
+}
+
 /**
  * GET /api/admin/social-content/config
  * Get all platform configurations
@@ -15,14 +25,42 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status })
     }
 
-    const { data, error } = await supabaseAdmin
+    const { searchParams } = new URL(request.url)
+    const safeResponse = searchParams.get('safe') === 'true'
+    const platform = searchParams.get('platform')
+
+    let query = supabaseAdmin
       .from('social_content_config')
       .select('*')
       .order('platform')
 
+    if (platform) {
+      query = query.eq('platform', platform)
+    }
+
+    const { data, error } = await query
+
     if (error) {
       console.error('Error fetching social content config:', error)
       return NextResponse.json({ error: 'Failed to fetch config' }, { status: 500 })
+    }
+
+    if (safeResponse) {
+      const safeConfigs = ((data || []) as PlatformConfigRow[]).map((config) => ({
+        id: config.id,
+        platform: config.platform,
+        settings: config.settings || {},
+        is_active: Boolean(config.is_active),
+        credentials_configured: Boolean(
+          config.credentials
+          && typeof config.credentials === 'object'
+          && Object.keys(config.credentials).length > 0,
+        ),
+        created_at: config.created_at,
+        updated_at: config.updated_at,
+      }))
+
+      return NextResponse.json({ configs: safeConfigs })
     }
 
     return NextResponse.json({ configs: data || [] })
