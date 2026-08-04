@@ -166,7 +166,12 @@ function platformConfigsFor(publishes: Array<Record<string, unknown>>) {
       }
     }
     if (platform === 'youtube') {
-      return { platform, is_active: true, credentials: { access_token: 'token' }, settings: {} }
+      return {
+        platform,
+        is_active: true,
+        credentials: { access_token: 'token' },
+        settings: { default_privacy: 'private', channel_title: 'AmaduTown' },
+      }
     }
     if (platform === 'instagram') {
       return {
@@ -358,7 +363,7 @@ describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => 
         cta_text: 'CTA',
         cta_url: 'https://example.com',
         hashtags: ['AI'],
-        image_url: null,
+        image_url: 'https://cdn.example.com/youtube-thumbnail.png',
         video_url: 'https://cdn.example.com/video.mp4',
         youtube_title: 'YouTube title',
         youtube_description: 'YouTube description',
@@ -401,7 +406,7 @@ describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => 
         cta_text: 'CTA',
         cta_url: 'https://example.com',
         hashtags: ['AI'],
-        image_url: null,
+        image_url: 'https://cdn.example.com/youtube-thumbnail.png',
         video_url: null,
         youtube_title: 'YouTube title',
         youtube_description: 'YouTube description',
@@ -419,6 +424,46 @@ describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => 
     const body = await response.json()
     expect(body.error).toBe('Platform submission requires final approval and connected platform configuration.')
     expect(body.blockers).toEqual(['YouTube: YouTube needs a final video URL before submission.'])
+    expect(mocks.publishToYouTube).not.toHaveBeenCalled()
+  })
+
+  it('blocks final-approved YouTube publish when release metadata and thumbnail readiness are missing', async () => {
+    installPublishRouteSupabase({
+      item: {
+        id: 'social-1',
+        status: 'approved',
+        post_text: 'Post text',
+        cta_text: 'CTA',
+        cta_url: 'https://example.com',
+        hashtags: ['AI'],
+        image_url: null,
+        video_url: 'https://cdn.example.com/video.mp4',
+        youtube_title: null,
+        youtube_description: null,
+        carousel_slide_urls: null,
+        rag_context: approvedGate(['youtube']),
+      },
+      publishes: [
+        { platform: 'youtube', status: 'pending' },
+      ],
+    })
+
+    const response = await POST(request({ platforms: ['youtube'] }), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(409)
+    const body = await response.json()
+    expect(body.error).toBe('Platform submission requires final approval and connected platform configuration.')
+    expect(body.blockers).toEqual([
+      'YouTube: Add the final YouTube title and description before submission. YouTube title is required. YouTube description is required. Reviewed thumbnail or thumbnail readiness is required.',
+    ])
+    expect(body.platform_submission_orchestration.platforms[0].youtubeReadiness.reviewValues).toMatchObject({
+      title: null,
+      description: null,
+      thumbnail: null,
+      finalVideoUrl: 'https://cdn.example.com/video.mp4',
+      visibility: 'private',
+      targetChannel: 'AmaduTown',
+    })
     expect(mocks.publishToYouTube).not.toHaveBeenCalled()
   })
 

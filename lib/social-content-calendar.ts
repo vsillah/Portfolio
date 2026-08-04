@@ -2,6 +2,7 @@ import type { AttractionCampaign } from '@/lib/campaigns'
 
 export const SOCIAL_CONTENT_CALENDAR_CHANNELS = [
   'linkedin',
+  'youtube',
   'youtube_shorts',
   'instagram_reels',
   'tiktok',
@@ -93,6 +94,7 @@ export const CALENDAR_SIDE_EFFECTS = {
 
 export const CALENDAR_CHANNEL_LABELS: Record<SocialContentCalendarChannel, string> = {
   linkedin: 'LinkedIn',
+  youtube: 'YouTube',
   youtube_shorts: 'YouTube Shorts',
   instagram_reels: 'Instagram Reels',
   tiktok: 'TikTok',
@@ -256,14 +258,14 @@ export const SOCIAL_CONTENT_CALENDAR_TEMPLATES: Record<
       {
         key: 'hook_script_and_broll',
         campaign_phase: 'teach',
-        channel: 'youtube_shorts',
+        channel: 'youtube',
         title_prefix: 'Hook and script',
-        planned_angle: 'Prepare the first 30 seconds, short-form cutdown, storyboard, b-roll list, and claim boundaries before production.',
+        planned_angle: 'Prepare the first 30 seconds, full-video script, storyboard, b-roll list, source basis, and claim boundaries before production.',
         relative_position: 0.38,
         fallback_day_offset: 4,
         recommended_lead_time_days: 14,
-        required_assets: ['hook', 'script', 'storyboard', 'b_roll_hints'],
-        approval_gates: ['script_review', 'privacy_review'],
+        required_assets: ['context_source_basis', 'hook', 'script', 'storyboard', 'b_roll_hints'],
+        approval_gates: ['script_copy_review', 'privacy_review'],
         source_urls: [SOURCE_URLS.youtubeCreators],
       },
       {
@@ -282,14 +284,14 @@ export const SOCIAL_CONTENT_CALENDAR_TEMPLATES: Record<
       {
         key: 'publish_and_retro',
         campaign_phase: 'offer',
-        channel: 'youtube_shorts',
+        channel: 'youtube',
         title_prefix: 'Publish gate and retro',
-        planned_angle: 'Schedule the internal authorization gate, prepare premiere or publish notes, then review first-day and seven-day performance before the next variation.',
+        planned_angle: 'Prepare the final human submission gate, YouTube title, description, thumbnail readiness, final video URL, visibility, target channel, and post-release learning review.',
         relative_position: 0.9,
         fallback_day_offset: 12,
         recommended_lead_time_days: 2,
-        required_assets: ['publish_copy', 'engagement_plan', 'analytics_retro'],
-        approval_gates: ['authorization_gate', 'post_publish_review'],
+        required_assets: ['youtube_title', 'youtube_description', 'thumbnail_readiness', 'final_video_url', 'visibility_setting', 'target_channel_config', 'analytics_retro'],
+        approval_gates: ['platform_draft_readiness', 'final_human_submission_gate', 'configured_youtube_upload_adapter', 'post_publish_review'],
         source_urls: [SOURCE_URLS.youtubePremieres, SOURCE_URLS.youtubeCreators],
       },
     ],

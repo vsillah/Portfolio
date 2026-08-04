@@ -189,6 +189,83 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.queryByText('Publish immediately after approval')).not.toBeInTheDocument()
   })
 
+  it('shows YouTube release readiness before the final submission gate', async () => {
+    const youtubeItem = {
+      ...baseItem,
+      platform: 'youtube',
+      target_platforms: ['youtube'],
+      post_text: 'Approved video script copy.',
+      image_url: 'https://cdn.example.com/youtube-thumbnail.png',
+      video_url: 'https://cdn.example.com/final-video.mp4',
+      youtube_title: 'The AI Operating Layer',
+      youtube_description: 'A reviewed YouTube description for the final upload.',
+      rag_context: {
+        source: 'youtube_release_packet',
+        source_packet_path: 'docs/youtube/the-ai-operating-layer.md',
+      },
+      publishes: [
+        {
+          id: 'publish-youtube-1',
+          content_id: 'social-1',
+          platform: 'youtube',
+          status: 'pending',
+          platform_post_id: null,
+          platform_post_url: null,
+          error_message: null,
+          published_at: null,
+          created_at: '2026-06-12T10:00:00.000Z',
+          updated_at: '2026-06-12T10:00:00.000Z',
+        },
+      ],
+    }
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/api/admin/social-content/config')) {
+        return {
+          ok: true,
+          json: async () => ({
+            configs: [{
+              id: 'config-youtube',
+              platform: 'youtube',
+              credentials: { access_token: 'token' },
+              settings: { default_privacy: 'unlisted', channel_title: 'AmaduTown' },
+              is_active: true,
+              created_at: '2026-06-12T10:00:00.000Z',
+              updated_at: '2026-06-12T10:00:00.000Z',
+            }],
+          }),
+        } as Response
+      }
+      if (url.includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [] }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: youtubeItem }),
+      } as Response
+    }))
+
+    renderAtStep('submit')
+
+    expect(await screen.findByText('Platform Submission Path')).toBeInTheDocument()
+    expect(screen.getByText('YouTube release readiness')).toBeInTheDocument()
+    expect(screen.getByText('Context/source basis -> script/copy review -> video/asset/privacy QA -> platform draft/readiness -> final human submission gate -> configured YouTube upload adapter.')).toBeInTheDocument()
+    expect(screen.getByText('The AI Operating Layer')).toBeInTheDocument()
+    expect(screen.getByText('A reviewed YouTube description for the final upload.')).toBeInTheDocument()
+    expect(screen.getByText('https://cdn.example.com/youtube-thumbnail.png')).toBeInTheDocument()
+    expect(screen.getByText('https://cdn.example.com/final-video.mp4')).toBeInTheDocument()
+    expect(screen.getByText('Clear for submission')).toBeInTheDocument()
+    expect(screen.getByText('unlisted')).toBeInTheDocument()
+    expect(screen.getByText('AmaduTown')).toBeInTheDocument()
+    expect(screen.getByText('YouTube Data API upload adapter active')).toBeInTheDocument()
+    expect(screen.getByText('Final human submission gate')).toBeInTheDocument()
+    expect(screen.getByText('Approve the YouTube final submission gate as a separate action.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Approve final gate/i })).toBeInTheDocument()
+  })
+
   it('projects the Amina visual QA packet for Agentified drafts', async () => {
     const agentifiedItem = {
       ...baseItem,

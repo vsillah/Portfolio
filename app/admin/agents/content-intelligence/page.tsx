@@ -128,7 +128,7 @@ type CalendarItem = {
   campaign_id: string | null
   agent_work_item_id: string | null
   social_content_id: string | null
-  channel: 'linkedin' | 'youtube_shorts' | 'instagram_reels' | 'tiktok' | 'thumbnail'
+  channel: 'linkedin' | 'youtube' | 'youtube_shorts' | 'instagram_reels' | 'tiktok' | 'thumbnail'
   campaign_phase: 'tease' | 'teach' | 'proof' | 'offer'
   title: string
   planned_angle: string | null
@@ -202,6 +202,7 @@ const CALENDAR_PHASES: Array<{ key: CalendarItem['campaign_phase']; label: strin
 
 const CALENDAR_CHANNEL_LABELS: Record<CalendarItem['channel'], string> = {
   linkedin: 'LinkedIn',
+  youtube: 'YouTube',
   youtube_shorts: 'YouTube Shorts',
   instagram_reels: 'Instagram Reels',
   tiktok: 'TikTok',

@@ -67,7 +67,7 @@ export async function POST(
 
     const body = await request.json().catch(() => ({}))
     const requestedPlatforms = normalizePlatforms(body.platforms)
-    const submitAfterApproval = body.submit_after_approval !== false
+    const requestedSubmitAfterApproval = body.submit_after_approval !== false
     const decisionNote = typeof body.decision_note === 'string' ? body.decision_note.trim() : ''
 
     const { id } = params
@@ -90,6 +90,8 @@ export async function POST(
     }
 
     const targetPlatforms = targetPlatformsFor(itemRecord, requestedPlatforms)
+    const autoSubmitBlockedPlatforms = targetPlatforms.includes('youtube') ? ['youtube' as SocialPlatform] : []
+    const submitAfterApproval = requestedSubmitAfterApproval && autoSubmitBlockedPlatforms.length === 0
     const productionAssets = getProductionAssets(itemRecord.rag_context)
     const redactionGate = getVideoRedactionGate(productionAssets)
     if (!redactionGate.ready) {
@@ -157,7 +159,10 @@ export async function POST(
         platforms: targetPlatforms,
         decision_note: decisionNote || null,
         submit_after_approval: submitAfterApproval,
-        boundary: 'Final human approval for automatic platform submission. Provider generation, rendering, uploads, scheduling, and publishing remain limited to configured platform adapters.',
+        auto_submit_blocked_platforms: autoSubmitBlockedPlatforms,
+        boundary: autoSubmitBlockedPlatforms.length
+          ? 'Final human approval recorded for platform submission readiness. YouTube upload is not auto-triggered from this readiness gate; a separately guarded configured adapter call is required.'
+          : 'Final human approval for automatic platform submission. Provider generation, rendering, uploads, scheduling, and publishing remain limited to configured platform adapters.',
       },
     }
 
@@ -209,6 +214,7 @@ export async function POST(
       platform_submission_orchestration: readinessPlan,
       calendar_linkage: calendarLinkage,
       publish_response: publishResponse,
+      auto_submit_blocked_platforms: autoSubmitBlockedPlatforms,
     })
   } catch (error) {
     console.error('Error in POST /api/admin/social-content/[id]/platform-submission:', error)

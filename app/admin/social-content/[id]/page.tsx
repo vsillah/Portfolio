@@ -1332,14 +1332,16 @@ function SocialContentDetailPage() {
           Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(platforms ? { platforms, submit_after_approval: true } : { submit_after_approval: true }),
+        body: JSON.stringify(platforms
+          ? { platforms, submit_after_approval: !platforms.includes('youtube') }
+          : { submit_after_approval: !platformSubmissionTargets.includes('youtube') }),
       })
 
       const data = await res.json()
       if (res.ok) {
         if (data.item) setItem(data.item)
-        showMsg(data.submit_triggered ? 'success' : 'error',
-          data.submit_triggered ? 'Final gate approved. Platform submission started.' : 'Final gate approved, but submission did not start.')
+        showMsg('success',
+          data.submit_triggered ? 'Final gate approved. Platform submission started.' : 'Final gate approved. YouTube upload remains separately gated.')
         fetchItem()
       } else {
         showMsg('error', data.error || 'Platform submission approval failed')
@@ -4389,11 +4391,12 @@ function SocialContentDetailPage() {
 
           <div className="mt-4 grid gap-3 lg:grid-cols-2">
             {platformSubmissionPlan.platforms.map((platformPlan) => {
-              const automaticStage = platformPlan.stages.find((stage) => stage.key === 'automatic_submission')
-              const finalGateStage = platformPlan.stages.find((stage) => stage.key === 'final_submission_gate')
-              const canSubmitPlatform = automaticStage?.state === 'available'
-              const canApproveFinalSubmission = finalGateStage?.state === 'pending'
-              return (
+                  const automaticStage = platformPlan.stages.find((stage) => stage.key === 'automatic_submission')
+                  const finalGateStage = platformPlan.stages.find((stage) => stage.key === 'final_submission_gate')
+                  const canSubmitPlatform = automaticStage?.state === 'available'
+                  const canApproveFinalSubmission = finalGateStage?.state === 'pending'
+                  const approveSubmissionLabel = platformPlan.platform === 'youtube' ? 'Approve final gate' : 'Approve & submit'
+                  return (
                 <div key={platformPlan.platform} className="rounded-lg border border-gray-800 bg-gray-950/45 p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-2">
@@ -4431,6 +4434,63 @@ function SocialContentDetailPage() {
                     ))}
                   </div>
 
+                  {platformPlan.youtubeReadiness ? (
+                    <div className="mt-3 rounded-lg border border-red-500/25 bg-red-950/20 p-3">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-red-200">
+                            YouTube release readiness
+                          </p>
+                          <p className="mt-1 text-[0.68rem] leading-5 text-red-50/80">
+                            {'Context/source basis -> script/copy review -> video/asset/privacy QA -> platform draft/readiness -> final human submission gate -> configured YouTube upload adapter.'}
+                          </p>
+                        </div>
+                        <span className={`inline-flex w-fit rounded-full border px-2 py-0.5 text-[0.62rem] font-semibold ${
+                          platformPlan.youtubeReadiness.ready
+                            ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
+                            : 'border-amber-500/35 bg-amber-500/10 text-amber-100'
+                        }`}>
+                          {platformPlan.youtubeReadiness.ready ? 'Ready' : 'Needs review'}
+                        </span>
+                      </div>
+                      <dl className="mt-3 grid gap-2 sm:grid-cols-2">
+                        {[
+                          ['Title', platformPlan.youtubeReadiness.reviewValues.title],
+                          ['Description', platformPlan.youtubeReadiness.reviewValues.description],
+                          ['Thumbnail/readiness', platformPlan.youtubeReadiness.reviewValues.thumbnail],
+                          ['Final video URL', platformPlan.youtubeReadiness.reviewValues.finalVideoUrl],
+                          ['Privacy/rights/redaction', platformPlan.youtubeReadiness.reviewValues.privacyRightsRedaction],
+                          ['Visibility', platformPlan.youtubeReadiness.reviewValues.visibility],
+                          ['Target channel', platformPlan.youtubeReadiness.reviewValues.targetChannel],
+                          ['Provider config', platformPlan.youtubeReadiness.reviewValues.providerConfig],
+                        ].map(([label, value]) => (
+                          <div key={label} className="rounded-md border border-gray-800 bg-gray-950/50 px-2.5 py-2">
+                            <dt className="text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-gray-500">{label}</dt>
+                            <dd className="mt-1 line-clamp-2 break-words text-xs leading-5 text-gray-200">
+                              {value || 'Missing'}
+                            </dd>
+                          </div>
+                        ))}
+                      </dl>
+                      <div className="mt-3 space-y-2">
+                        {platformPlan.youtubeReadiness.checks.map((check) => (
+                          <div key={check.key} className={`rounded-md border px-3 py-2 ${platformStageClass(check.state)}`}>
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="flex min-w-0 items-center gap-2">
+                                <span className={`h-2 w-2 shrink-0 rounded-full ${platformStageDotClass(check.state)}`} />
+                                <span className="truncate text-xs font-semibold">{check.label}</span>
+                              </div>
+                              <span className="shrink-0 text-[0.62rem] uppercase tracking-[0.12em] opacity-75">
+                                {check.state}
+                              </span>
+                            </div>
+                            <p className="mt-1 text-[0.68rem] leading-5 opacity-80">{check.detail}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+
                   <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <p className="text-xs leading-5 text-gray-400">{platformPlan.nextAction}</p>
                     {canApproveFinalSubmission ? (
@@ -4441,7 +4501,7 @@ function SocialContentDetailPage() {
                         className="inline-flex min-h-9 shrink-0 items-center justify-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-100 transition-colors hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {publishing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
-                        Approve & submit
+                        {approveSubmissionLabel}
                       </button>
                     ) : canSubmitPlatform ? (
                       <button

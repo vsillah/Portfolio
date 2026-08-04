@@ -46,6 +46,7 @@ function calendarPlatformTargets(item: SocialContentCalendarItem): SocialPlatfor
   switch (item.channel) {
     case 'linkedin':
       return ['linkedin']
+    case 'youtube':
     case 'youtube_shorts':
       return ['youtube']
     case 'instagram_reels':
