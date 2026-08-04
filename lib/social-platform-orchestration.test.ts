@@ -147,9 +147,12 @@ describe('buildPlatformOrchestrationPlan', () => {
         target_platforms: ['youtube', 'tiktok'],
         publishes: [],
         post_text: 'Approved copy',
-        image_url: null,
+        image_url: 'https://cdn.example.com/youtube-thumbnail.png',
         video_url: null,
         carousel_slide_urls: null,
+        youtube_title: 'A YouTube release title',
+        youtube_description: 'A reviewed YouTube release description.',
+        rag_context: { source: 'social_content_calendar_authorization' },
       },
       copyApproved: true,
       productionReady: true,
@@ -175,6 +178,99 @@ describe('buildPlatformOrchestrationPlan', () => {
     expect(plan.platforms.map((platform) => (
       platform.stages.find((stage) => stage.key === 'asset_readiness')?.state
     ))).toEqual(['blocked', 'blocked'])
+  })
+
+  it('exposes the full YouTube review path and blocks missing release metadata before submission', () => {
+    const plan = buildPlatformOrchestrationPlan({
+      item: {
+        status: 'approved',
+        platform: 'youtube',
+        target_platforms: ['youtube'],
+        publishes: [],
+        post_text: 'Approved script copy',
+        image_url: null,
+        video_url: 'https://cdn.example.com/final-video.mp4',
+        carousel_slide_urls: null,
+        youtube_title: null,
+        youtube_description: null,
+        rag_context: { source_packet_path: 'docs/youtube/source-packet.md' },
+      },
+      copyApproved: true,
+      productionReady: true,
+      redactionReady: true,
+      draftHandoffReady: true,
+      finalSubmissionGateReady: true,
+      platformConfigs: [{
+        platform: 'youtube',
+        is_active: true,
+        credentials: { access_token: 'token' },
+        settings: { default_privacy: 'unlisted', channel_title: 'AmaduTown' } as never,
+      }],
+    })
+
+    expect(plan.anyAutomaticSubmissionAvailable).toBe(false)
+    expect(plan.platforms[0].youtubeReadiness).toMatchObject({
+      ready: false,
+      reviewValues: {
+        title: null,
+        description: null,
+        finalVideoUrl: 'https://cdn.example.com/final-video.mp4',
+        visibility: 'unlisted',
+        targetChannel: 'AmaduTown',
+        providerConfig: 'YouTube Data API upload adapter active',
+      },
+    })
+    expect(plan.platforms[0].youtubeReadiness?.checks.map((check) => [check.label, check.state])).toEqual([
+      ['Context/source basis', 'complete'],
+      ['Script/copy review', 'pending'],
+      ['Video/asset/privacy QA', 'blocked'],
+      ['Platform draft/readiness', 'complete'],
+      ['Final human submission gate', 'complete'],
+      ['Configured YouTube upload adapter', 'complete'],
+    ])
+    expect(plan.platforms[0].nextAction).toBe('Add the final YouTube title and description before submission. YouTube title is required. YouTube description is required. Reviewed thumbnail or thumbnail readiness is required.')
+  })
+
+  it('makes a configured YouTube upload adapter available only after release readiness clears', () => {
+    const plan = buildPlatformOrchestrationPlan({
+      item: {
+        status: 'approved',
+        platform: 'youtube',
+        target_platforms: ['youtube'],
+        publishes: [{ platform: 'youtube', status: 'pending', platform_post_url: null } as never],
+        post_text: 'Approved script copy',
+        image_url: 'https://cdn.example.com/youtube-thumbnail.png',
+        video_url: 'https://cdn.example.com/final-video.mp4',
+        carousel_slide_urls: null,
+        youtube_title: 'A reviewed YouTube title',
+        youtube_description: 'A reviewed YouTube description.',
+        rag_context: { source: 'youtube_release_packet' },
+      },
+      copyApproved: true,
+      productionReady: true,
+      redactionReady: true,
+      draftHandoffReady: true,
+      finalSubmissionGateReady: true,
+      platformConfigs: [{
+        platform: 'youtube',
+        is_active: true,
+        credentials: { access_token: 'token' },
+        settings: { default_privacy: 'private', channel_id: 'UC123' } as never,
+      }],
+    })
+
+    expect(plan.anyAutomaticSubmissionAvailable).toBe(true)
+    expect(plan.platforms[0].nextAction).toBe('Submit to YouTube through the configured platform integration.')
+    expect(plan.platforms[0].youtubeReadiness?.ready).toBe(true)
+    expect(plan.platforms[0].youtubeReadiness?.reviewValues).toMatchObject({
+      title: 'A reviewed YouTube title',
+      description: 'A reviewed YouTube description.',
+      thumbnail: 'https://cdn.example.com/youtube-thumbnail.png',
+      finalVideoUrl: 'https://cdn.example.com/final-video.mp4',
+      privacyRightsRedaction: 'Clear for submission',
+      visibility: 'private',
+      targetChannel: 'UC123',
+    })
   })
 
   it('keeps Instagram blocked until an image, carousel, or Reel video exists', () => {

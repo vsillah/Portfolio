@@ -182,9 +182,10 @@ describe('/api/admin/campaigns/[id]/content-plan', () => {
       }),
       expect.objectContaining({
         campaign_phase: 'offer',
-        channel: 'youtube_shorts',
+        channel: 'youtube',
         metadata: expect.objectContaining({
-          approval_gates: expect.arrayContaining(['post_publish_review']),
+          required_assets: expect.arrayContaining(['youtube_title', 'youtube_description', 'final_video_url', 'visibility_setting', 'target_channel_config']),
+          approval_gates: expect.arrayContaining(['final_human_submission_gate', 'configured_youtube_upload_adapter', 'post_publish_review']),
         }),
       }),
     ]))
@@ -233,7 +234,7 @@ describe('/api/admin/campaigns/[id]/content-plan', () => {
         {
           id: 'hook-item',
           campaign_phase: 'teach',
-          channel: 'youtube_shorts',
+          channel: 'youtube',
           metadata: { campaign_arc: 'youtube_video_release' },
         },
         {
@@ -245,7 +246,7 @@ describe('/api/admin/campaigns/[id]/content-plan', () => {
         {
           id: 'retro-item',
           campaign_phase: 'offer',
-          channel: 'youtube_shorts',
+          channel: 'youtube',
           metadata: { template_key: 'youtube_video_release' },
         },
       ],

@@ -147,8 +147,9 @@ describe('social-content-intelligence', () => {
       linkedin: { status: 'selected', decision_note: 'Use as first channel.' },
     })
 
-    expect(Object.keys(lanes)).toEqual(['linkedin', 'youtube_shorts', 'instagram_reels', 'tiktok', 'thumbnail'])
+    expect(Object.keys(lanes)).toEqual(['linkedin', 'youtube', 'youtube_shorts', 'instagram_reels', 'tiktok', 'thumbnail'])
     expect(lanes.linkedin.status).toBe('selected')
+    expect(lanes.youtube.status).toBe('not_started')
     expect(lanes.youtube_shorts.status).toBe('not_started')
     expect(lanes.tiktok.required_inputs).toContain('audio rights')
     expect(lanes.thumbnail.required_inputs).toContain('2-3 variants')
@@ -230,6 +231,7 @@ describe('social-content-intelligence', () => {
       },
     })
 
+    expect(drafts.linkedin.shared_source).toEqual(drafts.youtube.shared_source)
     expect(drafts.linkedin.shared_source).toEqual(drafts.youtube_shorts.shared_source)
     expect(drafts.linkedin.shared_source).toEqual({
       insight_title: 'Approval gates create trust',
@@ -257,6 +259,23 @@ describe('social-content-intelligence', () => {
       }),
       visual_reinforcement: expect.objectContaining({
         recommended_assets: expect.arrayContaining(['Framework illustration', 'App screenshot carousel']),
+      }),
+    })
+    expect(drafts.youtube.fields).toMatchObject({
+      opening_hook: 'AI should reduce burden.',
+      first_30_seconds: expect.stringContaining('I noticed this through the social content review flow'),
+      full_video_script: expect.arrayContaining([
+        expect.stringContaining('Core argument: AI should reduce burden'),
+      ]),
+      upload_readiness: 'pending_final_human_submission_gate',
+      visibility_default: 'private',
+    })
+    expect(drafts.youtube.orchestration_evidence).toMatchObject({
+      channel_structure: expect.objectContaining({
+        format: expect.stringContaining('Long-form YouTube video packet'),
+      }),
+      visual_reinforcement: expect.objectContaining({
+        recommended_assets: expect.arrayContaining(['Full-video script', 'Thumbnail/title variants']),
       }),
     })
     expect(drafts.youtube_shorts.fields).toMatchObject({

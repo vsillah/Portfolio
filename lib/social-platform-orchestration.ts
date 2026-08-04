@@ -32,6 +32,7 @@ export type PlatformOrchestrationPlatformPlan = {
   platformPostUrl: string | null
   nextAction: string
   stages: PlatformOrchestrationStage[]
+  youtubeReadiness?: YouTubePublishingReadiness
 }
 
 export type PlatformOrchestrationPlan = {
@@ -60,6 +61,37 @@ export type PlatformAssetReadiness = {
   detail: string
 }
 
+export type YouTubePublishingReadinessCheckKey =
+  | 'context_source_basis'
+  | 'script_copy_review'
+  | 'video_asset_privacy_qa'
+  | 'platform_draft_readiness'
+  | 'final_human_submission_gate'
+  | 'configured_youtube_upload_adapter'
+
+export type YouTubePublishingReadinessCheck = {
+  key: YouTubePublishingReadinessCheckKey
+  label: string
+  state: PlatformOrchestrationStageState
+  detail: string
+}
+
+export type YouTubePublishingReadiness = {
+  ready: boolean
+  blockers: string[]
+  reviewValues: {
+    title: string | null
+    description: string | null
+    thumbnail: string | null
+    finalVideoUrl: string | null
+    privacyRightsRedaction: string
+    visibility: string
+    targetChannel: string
+    providerConfig: string
+  }
+  checks: YouTubePublishingReadinessCheck[]
+}
+
 const PLATFORM_LABELS: Record<SocialPlatform, string> = {
   linkedin: 'LinkedIn',
   youtube: 'YouTube',
@@ -81,7 +113,13 @@ export type BuildPlatformOrchestrationInput = {
     | 'image_url'
     | 'video_url'
     | 'carousel_slide_urls'
-  > | null
+  > & Partial<Pick<SocialContentItem,
+    | 'meeting_record_id'
+    | 'youtube_title'
+    | 'youtube_description'
+    | 'topic_extracted'
+    | 'rag_context'
+  >> | null
   targetPlatforms?: SocialPlatform[]
   publishRecords?: Pick<SocialContentPublish, 'platform' | 'status' | 'platform_post_url'>[]
   platformConfigs?: Pick<SocialContentConfig, 'platform' | 'credentials' | 'settings' | 'is_active'>[]
@@ -171,6 +209,165 @@ function hasListItems(value: unknown) {
   return Array.isArray(value) && value.some((item) => hasText(item))
 }
 
+function recordString(record: Record<string, unknown> | null | undefined, key: string) {
+  const value = record?.[key]
+  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null
+}
+
+function firstRecordString(record: Record<string, unknown> | null | undefined, keys: string[]) {
+  for (const key of keys) {
+    const value = recordString(record, key)
+    if (value) return value
+  }
+  return null
+}
+
+function booleanOrStringReady(value: unknown) {
+  if (value === true) return true
+  return typeof value === 'string' && ['approved', 'ready', 'complete', 'completed', 'passed'].includes(value.toLowerCase())
+}
+
+function youtubeConfigVisibility(
+  config: Pick<SocialContentConfig, 'settings'> | undefined,
+) {
+  const settings = configSettings(config)
+  const configured = firstRecordString(settings, ['default_privacy', 'privacy_status', 'visibility'])
+  if (configured && ['private', 'unlisted', 'public'].includes(configured.toLowerCase())) {
+    return configured.toLowerCase()
+  }
+  return 'private'
+}
+
+function youtubeTargetChannel(config: Pick<SocialContentConfig, 'credentials' | 'settings'> | undefined) {
+  const credentials = config?.credentials as Record<string, unknown> | undefined
+  const settings = config?.settings as Record<string, unknown> | undefined
+  return firstRecordString(settings, ['channel_title', 'channel_name', 'channel_id', 'target_channel'])
+    ?? firstRecordString(credentials, ['channel_title', 'channel_name', 'channel_id', 'target_channel'])
+    ?? 'Connected OAuth channel'
+}
+
+export function getYouTubePublishingReadiness(input: {
+  item?: BuildPlatformOrchestrationInput['item']
+  config?: Pick<SocialContentConfig, 'platform' | 'credentials' | 'settings' | 'is_active'>
+  redactionReady?: boolean
+  draftHandoffReady?: boolean
+  finalSubmissionGateReady?: boolean
+  publishRecord?: Pick<SocialContentPublish, 'platform' | 'status' | 'platform_post_url'> | null
+}): YouTubePublishingReadiness {
+  const item = input.item
+  const ragContext = asRecord(item?.rag_context)
+  const youtubeRelease = asRecord(ragContext?.youtube_release)
+    ?? asRecord(ragContext?.youtube_video_release)
+    ?? {}
+  const productionAssets = asRecord(ragContext?.production_assets)
+  const visualQa = asRecord(productionAssets?.visual_qa)
+  const sourceBasisReady = Boolean(
+    item?.meeting_record_id
+    || item?.topic_extracted
+    || ragContext?.source
+    || ragContext?.source_packet_path
+    || ragContext?.calendar_item_id
+    || ragContext?.campaign_id,
+  )
+  const title = hasText(item?.youtube_title) ? item!.youtube_title!.trim() : null
+  const description = hasText(item?.youtube_description) ? item!.youtube_description!.trim() : null
+  const thumbnail = firstRecordString(youtubeRelease, ['thumbnail_url', 'thumbnail_asset_url', 'thumbnail_path'])
+    ?? firstRecordString(visualQa, ['selected_asset_url', 'thumbnail_url'])
+    ?? (hasText(item?.image_url) ? item!.image_url!.trim() : null)
+  const thumbnailReady = Boolean(thumbnail)
+    || booleanOrStringReady(youtubeRelease.thumbnail_ready)
+    || booleanOrStringReady(youtubeRelease.thumbnail_review_status)
+  const finalVideoUrl = hasText(item?.video_url) ? item!.video_url!.trim() : null
+  const redactionReady = input.redactionReady ?? true
+  const visibility = youtubeConfigVisibility(input.config)
+  const targetChannel = youtubeTargetChannel(input.config)
+  const configReady = Boolean(input.config?.is_active && truthyString(configField(input.config, 'access_token')))
+  const draftReady = Boolean(input.draftHandoffReady || input.publishRecord)
+  const finalGateReady = Boolean(input.finalSubmissionGateReady)
+  const copyReady = isCopyApproved(item?.status)
+
+  const assetBlockers = [
+    !title ? 'YouTube title is required.' : null,
+    !description ? 'YouTube description is required.' : null,
+    !thumbnailReady ? 'Reviewed thumbnail or thumbnail readiness is required.' : null,
+    !finalVideoUrl ? 'YouTube needs a final video URL before submission.' : null,
+    !redactionReady ? 'Privacy, rights, and redaction review must be clear.' : null,
+  ].filter((blocker): blocker is string => Boolean(blocker))
+
+  const checks: YouTubePublishingReadinessCheck[] = [
+    {
+      key: 'context_source_basis',
+      label: 'Context/source basis',
+      state: sourceBasisReady ? 'complete' : 'pending',
+      detail: sourceBasisReady
+        ? 'Source basis is attached to the Social Content item.'
+        : 'Attach the source basis, calendar item, research packet, or meeting context before release review.',
+    },
+    {
+      key: 'script_copy_review',
+      label: 'Script/copy review',
+      state: copyReady && title && description ? 'complete' : copyReady ? 'pending' : 'blocked',
+      detail: copyReady && title && description
+        ? 'Copy is approved with YouTube title and description ready.'
+        : !copyReady
+          ? 'Approve the script/copy packet before YouTube release readiness.'
+          : 'Add the final YouTube title and description before submission.',
+    },
+    {
+      key: 'video_asset_privacy_qa',
+      label: 'Video/asset/privacy QA',
+      state: assetBlockers.length === 0 ? 'complete' : copyReady ? 'blocked' : 'pending',
+      detail: assetBlockers.length === 0
+        ? 'Final video URL, thumbnail readiness, and privacy/rights/redaction review are ready.'
+        : assetBlockers.join(' '),
+    },
+    {
+      key: 'platform_draft_readiness',
+      label: 'Platform draft/readiness',
+      state: draftReady ? 'complete' : assetBlockers.length === 0 ? 'pending' : 'blocked',
+      detail: draftReady
+        ? 'Internal YouTube publish row or draft handoff exists.'
+        : 'Create or authorize the internal YouTube publish row before final submission.',
+    },
+    {
+      key: 'final_human_submission_gate',
+      label: 'Final human submission gate',
+      state: finalGateReady ? 'complete' : draftReady ? 'pending' : 'blocked',
+      detail: finalGateReady
+        ? 'Final human submission approval is recorded for YouTube.'
+        : 'Approve the YouTube final submission gate as a separate action.',
+    },
+    {
+      key: 'configured_youtube_upload_adapter',
+      label: 'Configured YouTube upload adapter',
+      state: configReady ? 'complete' : 'blocked',
+      detail: configReady
+        ? `YouTube adapter is active. Visibility: ${visibility}. Target channel: ${targetChannel}.`
+        : 'Connect and activate YouTube upload credentials before submission.',
+    },
+  ]
+
+  const blockers = checks
+    .filter((check) => check.state === 'blocked')
+    .map((check) => check.detail)
+
+  return {
+    ready: blockers.length === 0 && checks.every((check) => check.state === 'complete'),
+    blockers,
+    reviewValues: {
+      title,
+      description,
+      thumbnail: thumbnail ?? (thumbnailReady ? 'Marked ready without attached URL' : null),
+      finalVideoUrl,
+      privacyRightsRedaction: redactionReady ? 'Clear for submission' : 'Blocked by privacy, rights, or redaction review',
+      visibility,
+      targetChannel,
+      providerConfig: configReady ? 'YouTube Data API upload adapter active' : 'YouTube upload adapter not configured',
+    },
+    checks,
+  }
+}
+
 export function getPlatformAssetReadiness(
   item: Pick<SocialContentItem, 'post_text' | 'image_url' | 'video_url' | 'carousel_slide_urls'> | null | undefined,
   platform: SocialPlatform,
@@ -196,12 +393,7 @@ export function getPlatformAssetReadiness(
           : 'LinkedIn needs post text before submission.',
       }
     case 'youtube':
-      return {
-        ready: hasVideo,
-        detail: hasVideo
-          ? 'YouTube has a final video URL.'
-          : 'YouTube needs a final video URL before submission.',
-      }
+      return getYouTubeAssetReadiness(item)
     case 'instagram':
       return {
         ready: hasImage || hasVideo || hasCarousel,
@@ -231,6 +423,30 @@ export function getPlatformAssetReadiness(
   }
 }
 
+function getYouTubeAssetReadiness(
+  item: Pick<SocialContentItem,
+    'post_text'
+    | 'image_url'
+    | 'video_url'
+    | 'carousel_slide_urls'
+  > | BuildPlatformOrchestrationInput['item'],
+): PlatformAssetReadiness {
+  const readiness = getYouTubePublishingReadiness({ item: item as BuildPlatformOrchestrationInput['item'] })
+  const assetCheck = readiness.checks.find((check) => check.key === 'video_asset_privacy_qa')
+  const copyCheck = readiness.checks.find((check) => check.key === 'script_copy_review')
+  const blockers = [
+    copyCheck?.state !== 'complete' ? copyCheck?.detail : null,
+    assetCheck?.state !== 'complete' ? assetCheck?.detail : null,
+  ].filter((blocker): blocker is string => Boolean(blocker))
+
+  return {
+    ready: blockers.length === 0,
+    detail: blockers.length
+      ? blockers.join(' ')
+      : 'YouTube release metadata, thumbnail readiness, final video URL, and privacy review are ready.',
+  }
+}
+
 function hasPlatformConfiguration(
   platform: SocialPlatform,
   config: Pick<SocialContentConfig, 'platform' | 'credentials' | 'settings' | 'is_active'> | undefined,
@@ -255,10 +471,12 @@ function hasPlatformConfiguration(
     }
     case 'youtube': {
       const hasToken = truthyString(configField(config, 'access_token'))
+      const visibility = youtubeConfigVisibility(config)
+      const targetChannel = youtubeTargetChannel(config)
       return {
         ready: hasToken,
         detail: hasToken
-          ? 'YouTube upload credentials are configured.'
+          ? `YouTube upload credentials are configured. Visibility: ${visibility}. Target channel: ${targetChannel}.`
           : 'YouTube needs an access token before upload.',
       }
     }
@@ -322,15 +540,40 @@ export function buildPlatformOrchestrationPlan(input: BuildPlatformOrchestration
   const platforms = targetPlatforms.map((platform) => {
     const publishRecord = publishRecords.find((record) => record.platform === platform)
     const platformConfig = input.platformConfigs?.find((config) => config.platform === platform)
-    const assetReadiness = input.platformAssetReadiness?.[platform] ?? getPlatformAssetReadiness(input.item, platform)
+    const publishStatus = publishRecord?.status ?? null
+    const submissionComplete = Boolean(publishStatus && SUBMITTED_STATUSES.has(publishStatus))
+    const finalSubmissionGateReady = input.finalSubmissionGateReady ?? submissionComplete
+    const youtubeReadiness = platform === 'youtube'
+      ? getYouTubePublishingReadiness({
+        item: input.item,
+        config: platformConfig,
+        redactionReady: input.redactionReady,
+        draftHandoffReady: input.draftHandoffReady ?? false,
+        finalSubmissionGateReady,
+        publishRecord,
+      })
+      : undefined
+    const assetReadiness = input.platformAssetReadiness?.[platform]
+      ?? (platform === 'youtube'
+        ? {
+          ready: !youtubeReadiness?.checks.some((check) => (
+            (check.key === 'script_copy_review' || check.key === 'video_asset_privacy_qa')
+            && check.state !== 'complete'
+          )),
+          detail: youtubeReadiness?.checks
+            .filter((check) => (
+              (check.key === 'script_copy_review' || check.key === 'video_asset_privacy_qa')
+              && check.state !== 'complete'
+            ))
+            .map((check) => check.detail)
+            .join(' ') || 'YouTube release metadata, thumbnail readiness, final video URL, and privacy review are ready.',
+        }
+        : getPlatformAssetReadiness(input.item, platform))
     const configuration = input.platformConfigs ? hasPlatformConfiguration(platform, platformConfig) : {
       ready: true,
       detail: `${PLATFORM_LABELS[platform]} configuration check was not requested.`,
     }
-    const publishStatus = publishRecord?.status ?? null
     const automaticSubmissionSupported = AUTOMATIC_SUBMISSION_SUPPORTED.has(platform)
-    const submissionComplete = Boolean(publishStatus && SUBMITTED_STATUSES.has(publishStatus))
-    const finalSubmissionGateReady = input.finalSubmissionGateReady ?? submissionComplete
 
     const humanApprovalState: PlatformOrchestrationStageState = copyReady ? 'complete' : 'pending'
     const assetState: PlatformOrchestrationStageState = !copyReady
@@ -431,6 +674,7 @@ export function buildPlatformOrchestrationPlan(input: BuildPlatformOrchestration
       platformPostUrl: publishRecord?.platform_post_url ?? null,
       nextAction: nextActionFor(stages, platform),
       stages,
+      youtubeReadiness,
     }
   })
 

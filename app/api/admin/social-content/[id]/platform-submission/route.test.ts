@@ -296,6 +296,59 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
     expect(fetchSpy).not.toHaveBeenCalled()
   })
 
+  it('records YouTube final approval without auto-triggering upload from the readiness gate', async () => {
+    const { publishUpsert, queueUpdate } = installSupabase({
+      item: {
+        id: 'social-1',
+        status: 'approved',
+        platform: 'youtube',
+        target_platforms: ['youtube'],
+        post_text: 'Post text',
+        image_url: 'https://cdn.example.com/youtube-thumbnail.png',
+        video_url: 'https://cdn.example.com/video.mp4',
+        youtube_title: 'YouTube title',
+        youtube_description: 'YouTube description',
+        carousel_slide_urls: null,
+        rag_context: { source_packet_path: 'docs/youtube/source-packet.md' },
+      },
+      publishes: [
+        { platform: 'youtube', status: 'pending', platform_post_url: null },
+      ],
+      configs: [
+        {
+          platform: 'youtube',
+          is_active: true,
+          credentials: { access_token: 'token' },
+          settings: { default_privacy: 'unlisted', channel_title: 'AmaduTown' },
+        },
+      ],
+    })
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+      new Response(JSON.stringify({ published: true }), { status: 200 }),
+    )
+
+    const response = await POST(request({ platforms: ['youtube'], submit_after_approval: true }), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    expect(body.submit_triggered).toBe(false)
+    expect(body.auto_submit_blocked_platforms).toEqual(['youtube'])
+    expect(publishUpsert).toHaveBeenCalledWith([
+      { content_id: 'social-1', platform: 'youtube', status: 'pending' },
+    ], { onConflict: 'content_id,platform', ignoreDuplicates: true })
+    expect(queueUpdate).toHaveBeenCalledWith(expect.objectContaining({
+      rag_context: expect.objectContaining({
+        platform_submission_gate: expect.objectContaining({
+          status: 'approved',
+          platforms: ['youtube'],
+          submit_after_approval: false,
+          auto_submit_blocked_platforms: ['youtube'],
+        }),
+      }),
+    }))
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
   it('does not approve final submission while video redaction items are unresolved', async () => {
     const { publishUpsert, queueUpdateSingle } = installSupabase({
       item: {
@@ -397,8 +450,10 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
         platform: 'youtube',
         target_platforms: ['youtube', 'tiktok'],
         post_text: 'Post text',
-        image_url: null,
+        image_url: 'https://cdn.example.com/youtube-thumbnail.png',
         video_url: null,
+        youtube_title: 'YouTube title',
+        youtube_description: 'YouTube description',
         carousel_slide_urls: null,
         rag_context: null,
       },
@@ -407,7 +462,12 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
         { platform: 'tiktok', status: 'pending', platform_post_url: null },
       ],
       configs: [
-        { platform: 'youtube', is_active: true, credentials: { access_token: 'token' }, settings: {} },
+        {
+          platform: 'youtube',
+          is_active: true,
+          credentials: { access_token: 'token' },
+          settings: { default_privacy: 'private', channel_title: 'AmaduTown' },
+        },
         {
           platform: 'tiktok',
           is_active: true,
@@ -429,6 +489,57 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
       'YouTube: YouTube needs a final video URL before submission.',
       'TikTok: TikTok needs a final video URL before Direct Post submission.',
     ])
+    expect(queueUpdateSingle).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('does not approve YouTube final submission when release metadata and thumbnail readiness are missing', async () => {
+    const { queueUpdateSingle } = installSupabase({
+      item: {
+        id: 'social-1',
+        status: 'approved',
+        platform: 'youtube',
+        target_platforms: ['youtube'],
+        post_text: 'Post text',
+        image_url: null,
+        video_url: 'https://cdn.example.com/video.mp4',
+        youtube_title: null,
+        youtube_description: null,
+        carousel_slide_urls: null,
+        rag_context: { source_packet_path: 'docs/youtube/source-packet.md' },
+      },
+      publishes: [
+        { platform: 'youtube', status: 'pending', platform_post_url: null },
+      ],
+      configs: [
+        {
+          platform: 'youtube',
+          is_active: true,
+          credentials: { access_token: 'token' },
+          settings: { default_privacy: 'unlisted', channel_title: 'AmaduTown' },
+        },
+      ],
+    })
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+      new Response(JSON.stringify({ published: true }), { status: 200 }),
+    )
+
+    const response = await POST(request({ platforms: ['youtube'] }), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(409)
+    const body = await response.json()
+    expect(body.error).toBe('Platform submission is blocked.')
+    expect(body.blockers).toEqual([
+      'YouTube: Add the final YouTube title and description before submission. YouTube title is required. YouTube description is required. Reviewed thumbnail or thumbnail readiness is required.',
+    ])
+    expect(body.platform_submission_orchestration.platforms[0].youtubeReadiness.reviewValues).toMatchObject({
+      title: null,
+      description: null,
+      thumbnail: null,
+      finalVideoUrl: 'https://cdn.example.com/video.mp4',
+      visibility: 'unlisted',
+      targetChannel: 'AmaduTown',
+    })
     expect(queueUpdateSingle).not.toHaveBeenCalled()
     expect(fetchSpy).not.toHaveBeenCalled()
   })
