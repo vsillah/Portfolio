@@ -3,6 +3,8 @@
  * Used by admin UI, API routes, and n8n workflow integration
  */
 
+import type { SocialVideoProductionProjection } from '@/lib/social-video-production'
+
 // ============================================================================
 // Types
 // ============================================================================
@@ -97,6 +99,8 @@ export interface SocialContentItem {
   }
   // Joined from social_content_publishes
   publishes?: SocialContentPublish[]
+  // Hydrated by the detail route from rag_context + video_generation_jobs.
+  social_video_production?: SocialVideoProductionProjection
 }
 
 export interface SocialContentPublish {

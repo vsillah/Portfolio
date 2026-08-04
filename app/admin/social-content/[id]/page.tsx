@@ -48,6 +48,7 @@ import {
   FRAMEWORK_VISUAL_TYPES,
   getFullPostText,
 } from '@/lib/social-content'
+import { buildVideoRenderApproval } from '@/lib/video-render-approval'
 import {
   getProductionAssets,
   getVideoRedactionGate,
@@ -379,6 +380,7 @@ function SocialContentDetailPage() {
   const [convertingFormat, setConvertingFormat] = useState(false)
   const [capturingAppCarousel, setCapturingAppCarousel] = useState(false)
   const [preparingAssetPacket, setPreparingAssetPacket] = useState(false)
+  const [preparingAvatarVideo, setPreparingAvatarVideo] = useState(false)
   const [creatingLinkedInDraft, setCreatingLinkedInDraft] = useState(false)
   const [reviewingRedactionId, setReviewingRedactionId] = useState<string | null>(null)
   const [selectedSlide, setSelectedSlide] = useState(0)
@@ -1538,6 +1540,47 @@ function SocialContentDetailPage() {
     }
   }
 
+  const handlePrepareAvatarVideo = async () => {
+    if (!confirm('Start the internal HeyGen avatar render for this YouTube draft? This can consume HeyGen credits. It will not upload to YouTube, schedule, create a provider draft, or publish.')) return
+    setPreparingAvatarVideo(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const res = await fetch(`/api/admin/social-content/${id}/prepare-avatar-video`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          renderApproval: buildVideoRenderApproval(true),
+          brollAssetIds: item?.social_video_production?.broll.selectedAssetIds ?? [],
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        showMsg('error', data.error || 'Failed to prepare HeyGen avatar video')
+        if (data.social_video_production) {
+          setItem(prev => prev ? { ...prev, social_video_production: data.social_video_production } : prev)
+        }
+        return
+      }
+
+      setItem(prev => prev ? {
+        ...prev,
+        rag_context: data.rag_context || prev.rag_context,
+        video_generation_method: 'heygen_avatar',
+        social_video_production: data.social_video_production || prev.social_video_production,
+      } : prev)
+      showMsg('success', 'HeyGen avatar video job created for internal review')
+    } catch {
+      showMsg('error', 'Failed to prepare HeyGen avatar video')
+    } finally {
+      setPreparingAvatarVideo(false)
+    }
+  }
+
   const handleCreateLinkedInDraft = async () => {
     if (!confirm('Create a LinkedIn-ready draft packet? This queues an internal draft handoff only. It will not publish, schedule, send to LinkedIn, or create a public post.')) return
     setCreatingLinkedInDraft(true)
@@ -1713,6 +1756,8 @@ function SocialContentDetailPage() {
   const usingDraftTopicFallback = topicBacklogItems.length === 0 && agentPilotTopicTriggerCandidates.length > 0
   const productionAssets = getProductionAssets(ragContext)
   const redactionGate = getVideoRedactionGate(productionAssets)
+  const socialVideoProduction = item.social_video_production
+  const isYouTubeTarget = item.platform === 'youtube' || targetPlatforms.includes('youtube')
   const agentifiedVisualQaPacket = getAgentifiedVisualStrategyQaBySocialContentId(item.id)
   const agentifiedVisualQaReady = Boolean(agentifiedVisualQaPacket?.allQaPassed)
   const agentifiedVisualPrivacyReady = Boolean(agentifiedVisualQaPacket?.privacyRightsFinding?.result === 'pass')
@@ -1869,7 +1914,7 @@ function SocialContentDetailPage() {
       </div>
     </div>
   ) : null
-  const canEditVisualProduction = isEditable || (isDraftOnlyPilot && item.status === 'approved')
+  const canEditVisualProduction = isEditable || (item.status === 'approved' && (isDraftOnlyPilot || isYouTubeTarget))
   const visualProductionUnlocked = canEditVisualProduction && isDraftOnlyPilot
   const frameworkIllustrationLabel = item.image_url
     ? 'Regenerate Framework Illustration'
@@ -3754,6 +3799,138 @@ function SocialContentDetailPage() {
                     </div>
                   ) : (
                         null
+                  )}
+
+                  {isYouTubeTarget && socialVideoProduction && (
+                    <div className="mt-4 space-y-4 rounded-lg border border-red-500/25 bg-red-500/10 p-4">
+                      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="min-w-0">
+                          <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-red-100">
+                            <Youtube className="h-3.5 w-3.5" />
+                            YouTube avatar video preparation
+                          </p>
+                          <p className="mt-2 text-sm leading-6 text-red-50/85">
+                            Uses the configured Vambah HeyGen avatar and voice, selected B-roll, and the prepared video script. This panel does not upload, schedule, create a provider draft, or publish.
+                          </p>
+                        </div>
+                        <div className="flex shrink-0 flex-wrap gap-2 lg:justify-end">
+                          <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
+                            socialVideoProduction.status === 'completed'
+                              ? 'border-emerald-400/35 bg-emerald-400/10 text-emerald-100'
+                              : socialVideoProduction.status === 'blocked' || socialVideoProduction.status === 'failed'
+                                ? 'border-red-300/45 bg-red-300/10 text-red-100'
+                                : 'border-amber-300/40 bg-amber-300/10 text-amber-100'
+                          }`}>
+                            {socialVideoProduction.status.replace(/_/g, ' ')}
+                          </span>
+                          <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
+                            socialVideoProduction.broll.status === 'ready'
+                              ? 'border-emerald-400/35 bg-emerald-400/10 text-emerald-100'
+                              : 'border-red-300/45 bg-red-300/10 text-red-100'
+                          }`}>
+                            B-roll {socialVideoProduction.broll.status}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                        <div className="rounded-lg border border-red-300/20 bg-gray-950/45 p-3">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-red-100/60">Avatar</p>
+                          <p className="mt-1 break-all text-sm text-red-50">{socialVideoProduction.selectedAvatarId || 'Default missing'}</p>
+                        </div>
+                        <div className="rounded-lg border border-red-300/20 bg-gray-950/45 p-3">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-red-100/60">Voice</p>
+                          <p className="mt-1 break-all text-sm text-red-50">{socialVideoProduction.selectedVoiceId || 'Default missing'}</p>
+                        </div>
+                        <div className="rounded-lg border border-red-300/20 bg-gray-950/45 p-3">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-red-100/60">HeyGen job</p>
+                          <p className="mt-1 break-all text-sm text-red-50">{socialVideoProduction.job?.id || 'Not created'}</p>
+                          {socialVideoProduction.job?.heygenStatus && (
+                            <p className="mt-1 text-xs text-red-50/60">{socialVideoProduction.job.heygenStatus}</p>
+                          )}
+                        </div>
+                        <div className="rounded-lg border border-red-300/20 bg-gray-950/45 p-3">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-red-100/60">Final assets</p>
+                          <p className="mt-1 text-sm text-red-50">
+                            {socialVideoProduction.finalVideoUrl ? 'Video ready' : 'Final video pending'}
+                          </p>
+                          <p className="mt-1 text-xs text-red-50/60">
+                            {socialVideoProduction.thumbnailUrl ? 'Thumbnail available' : 'Thumbnail pending'}
+                          </p>
+                        </div>
+                      </div>
+
+                      {socialVideoProduction.broll.candidates.length > 0 ? (
+                        <div className="rounded-lg border border-red-300/20 bg-gray-950/45 p-3">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-red-100/60">Selected B-roll provenance</p>
+                          <ul className="mt-2 space-y-1 text-xs leading-5 text-red-50/75">
+                            {socialVideoProduction.broll.candidates.slice(0, 5).map((asset) => (
+                              <li key={asset.id} className="break-words">
+                                {asset.route || asset.filename} · {asset.route_description || asset.filename}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ) : (
+                        <div className="rounded-lg border border-red-300/30 bg-gray-950/45 p-3 text-sm text-red-50">
+                          No B-roll candidates are attached yet. Prepare the asset packet, then capture or select B-roll from the video-generation B-roll library.
+                        </div>
+                      )}
+
+                      {(socialVideoProduction.finalVideoUrl || socialVideoProduction.thumbnailUrl) && (
+                        <div className="grid gap-2 lg:grid-cols-2">
+                          {socialVideoProduction.finalVideoUrl && (
+                            <a
+                              href={socialVideoProduction.finalVideoUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 rounded-lg border border-red-300/25 px-3 py-2 text-sm font-semibold text-red-50 transition-colors hover:bg-red-400/10"
+                            >
+                              Final video URL
+                              <ExternalLink className="h-3.5 w-3.5" />
+                            </a>
+                          )}
+                          {socialVideoProduction.thumbnailUrl && (
+                            <a
+                              href={socialVideoProduction.thumbnailUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 rounded-lg border border-red-300/25 px-3 py-2 text-sm font-semibold text-red-50 transition-colors hover:bg-red-400/10"
+                            >
+                              Thumbnail URL
+                              <ExternalLink className="h-3.5 w-3.5" />
+                            </a>
+                          )}
+                        </div>
+                      )}
+
+                      {(socialVideoProduction.readiness.blockers.length > 0 || socialVideoProduction.readiness.warnings.length > 0) && (
+                        <div className="rounded-lg border border-amber-300/25 bg-amber-300/10 p-3 text-sm leading-6 text-amber-50">
+                          {socialVideoProduction.readiness.blockers.length > 0 && (
+                            <p>{socialVideoProduction.readiness.blockers[0]}</p>
+                          )}
+                          {socialVideoProduction.readiness.blockers.length === 0 && socialVideoProduction.readiness.warnings.length > 0 && (
+                            <p>{socialVideoProduction.readiness.warnings[0]}</p>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="flex flex-col gap-3 rounded-lg border border-red-300/20 bg-gray-950/45 p-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <p className="text-sm font-semibold text-red-50">Next action</p>
+                          <p className="mt-1 text-xs leading-5 text-red-50/70">{socialVideoProduction.readiness.nextAction}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handlePrepareAvatarVideo}
+                          disabled={preparingAvatarVideo || !socialVideoProduction.readiness.readyForRenderApproval}
+                          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-red-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-400 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {preparingAvatarVideo ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Youtube className="h-3.5 w-3.5" />}
+                          Prepare HeyGen Avatar Video
+                        </button>
+                      </div>
+                    </div>
                   )}
                     </div>
                   </div>
