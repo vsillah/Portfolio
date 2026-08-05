@@ -43,6 +43,9 @@ It does not publish, schedule, upload, generate provider media, send external me
 
 - `accelerated-whisper-to-shout-campaign-plan.md`: 14-day campaign plan, calendar, topic backlog, source map, and review gates.
 - `agentic-book-rollout-campaign-plan.md`: 14-day Agentic book rollout campaign plan using Portfolio Agent Ops proof and multi-channel approval gates.
+- `agentified-youtube-x-calendar-brief.md`: Agentified YouTube and X calendar integration brief, including source-distance and provider boundaries.
+- `agentified-x-research-evidence-2026-08-05.md`: Public-safe X pattern evidence packet for `AGT-X-01` through `AGT-X-04`.
+- `agentified-x-review-packets-2026-08-05.md`: Human review packet for the four Agentified X draft threads, source-distance review, and privacy review.
 - `social-draft-workflow.md`: draft creation workflow, approval checklist, review packet template, and publishing prep boundary.
 
 ## Current roadmap status

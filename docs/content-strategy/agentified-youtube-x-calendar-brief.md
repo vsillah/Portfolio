@@ -105,7 +105,7 @@ Use these as hypotheses, not finished copy:
 
 ## Backlog
 
-Execution note: the P0 public-safe X evidence pass is recorded in `docs/content-strategy/agentified-x-research-evidence-2026-08-05.md`. It links source patterns to `AGT-X-01` through `AGT-X-04` without mutating calendar rows, copy, visuals, provider settings, or publication state.
+Execution note: the P0 public-safe X evidence pass is recorded in `docs/content-strategy/agentified-x-research-evidence-2026-08-05.md`. The batch copy, source-distance review, and privacy review packet is recorded in `docs/content-strategy/agentified-x-review-packets-2026-08-05.md`. These packets link source patterns to `AGT-X-01` through `AGT-X-04` without mutating calendar rows, visuals, provider settings, or publication state.
 
 | Priority | Owner lane | Work item | Scope | Acceptance criteria |
 | --- | --- | --- | --- | --- |
