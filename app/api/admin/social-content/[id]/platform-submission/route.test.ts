@@ -176,7 +176,7 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
         id: 'social-1',
         status: 'approved',
         platform: 'linkedin',
-        target_platforms: ['instagram', 'tiktok'],
+        target_platforms: ['linkedin', 'tiktok'],
         post_text: 'Post text',
         image_url: 'https://cdn.example.com/image.png',
         video_url: 'https://cdn.example.com/video.mp4',
@@ -184,14 +184,14 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
         rag_context: null,
       },
       publishes: [
-        { platform: 'instagram', status: 'pending', platform_post_url: null },
+        { platform: 'linkedin', status: 'pending', platform_post_url: null },
         { platform: 'tiktok', status: 'pending', platform_post_url: null },
       ],
       configs: [
         {
-          platform: 'instagram',
+          platform: 'linkedin',
           is_active: true,
-          credentials: { access_token: 'token', ig_user_id: 'ig-user-1' },
+          credentials: { access_token: 'token', author_urn: 'urn:li:person:123' },
           settings: {},
         },
         {
@@ -206,13 +206,13 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
       new Response(JSON.stringify({ published: true }), { status: 200 }),
     )
 
-    const response = await POST(request({ platforms: ['instagram', 'tiktok'] }), { params: { id: 'social-1' } })
+    const response = await POST(request({ platforms: ['linkedin', 'tiktok'] }), { params: { id: 'social-1' } })
 
     expect(response.status).toBe(200)
     const body = await response.json()
     expect(body.submit_triggered).toBe(true)
     expect(publishUpsert).toHaveBeenCalledWith([
-      { content_id: 'social-1', platform: 'instagram', status: 'pending' },
+      { content_id: 'social-1', platform: 'linkedin', status: 'pending' },
       { content_id: 'social-1', platform: 'tiktok', status: 'pending' },
     ], { onConflict: 'content_id,platform', ignoreDuplicates: true })
     expect(queueUpdate).toHaveBeenCalledWith({
@@ -220,7 +220,7 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
         platform_submission_gate: expect.objectContaining({
           status: 'approved',
           approved_by: 'admin-1',
-          platforms: ['instagram', 'tiktok'],
+          platforms: ['linkedin', 'tiktok'],
         }),
       }),
     })
@@ -230,7 +230,7 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
       event: expect.objectContaining({
         type: 'platform_submission_approved',
         userId: 'admin-1',
-        platforms: ['instagram', 'tiktok'],
+        platforms: ['linkedin', 'tiktok'],
         submitAfterApproval: true,
       }),
     })
@@ -238,12 +238,12 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
       'http://localhost/api/admin/social-content/social-1/publish',
       expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ platforms: ['instagram', 'tiktok'] }),
+        body: JSON.stringify({ platforms: ['linkedin', 'tiktok'] }),
       }),
     )
   })
 
-  it('records final approval without calling publish when auto-submit is disabled', async () => {
+  it('records Instagram final approval without auto-triggering publish from the readiness gate', async () => {
     const { publishUpsert, queueUpdate } = installSupabase({
       item: {
         id: 'social-1',
@@ -264,7 +264,11 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
           platform: 'instagram',
           is_active: true,
           credentials: { access_token: 'token', ig_user_id: 'ig-user-1' },
-          settings: {},
+          settings: {
+            instagram_account_type: 'business',
+            meta_page_linked: true,
+            app_review_permissions_confirmed: true,
+          },
         },
       ],
     })
@@ -273,13 +277,14 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
     )
 
     const response = await POST(
-      request({ platforms: ['instagram'], submit_after_approval: false }),
+      request({ platforms: ['instagram'], submit_after_approval: true }),
       { params: { id: 'social-1' } },
     )
 
     expect(response.status).toBe(200)
     const body = await response.json()
     expect(body.submit_triggered).toBe(false)
+    expect(body.auto_submit_blocked_platforms).toEqual(['instagram'])
     expect(body.publish_response).toBeNull()
     expect(publishUpsert).toHaveBeenCalledWith([
       { content_id: 'social-1', platform: 'instagram', status: 'pending' },
@@ -290,6 +295,7 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
           status: 'approved',
           platforms: ['instagram'],
           submit_after_approval: false,
+          auto_submit_blocked_platforms: ['instagram'],
         }),
       }),
     }))

@@ -46,6 +46,7 @@ It does not publish, schedule, upload, generate provider media, send external me
 - `agentified-youtube-x-calendar-brief.md`: Agentified YouTube and X calendar integration brief, including source-distance and provider boundaries.
 - `agentified-x-research-evidence-2026-08-05.md`: Public-safe X pattern evidence packet for `AGT-X-01` through `AGT-X-04`.
 - `agentified-x-review-packets-2026-08-05.md`: Human review packet for the four Agentified X draft threads, source-distance review, and privacy review.
+- `agentified-instagram-research-calendar-brief-2026-08-05.md`: Instagram research/calendar brief for Agentified, reusing the existing YouTube/X evidence chain and keeping Meta/provider actions gated.
 - `social-draft-workflow.md`: draft creation workflow, approval checklist, review packet template, and publishing prep boundary.
 
 ## Current roadmap status

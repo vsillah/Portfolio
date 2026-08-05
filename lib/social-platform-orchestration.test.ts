@@ -356,8 +356,82 @@ describe('buildPlatformOrchestrationPlan', () => {
     })
 
     expect(plan.anyAutomaticSubmissionAvailable).toBe(false)
-    expect(plan.platforms[0].nextAction).toBe('Instagram needs an image, carousel slide URLs, or final Reel video URL before submission.')
+    expect(plan.platforms[0].nextAction).toBe('Instagram needs a rights-cleared image, carousel slide URLs, or final Reel video URL before submission.')
     expect(plan.platforms[0].stages.find((stage) => stage.key === 'asset_readiness')?.state).toBe('blocked')
+  })
+
+  it('blocks Instagram submission until Meta account prerequisites are confirmed', () => {
+    const plan = buildPlatformOrchestrationPlan({
+      item: {
+        status: 'approved',
+        platform: 'instagram',
+        target_platforms: ['instagram'],
+        publishes: [{ platform: 'instagram', status: 'pending', platform_post_url: null } as never],
+        post_text: 'Approved caption',
+        image_url: 'https://cdn.example.com/instagram.png',
+        video_url: null,
+        carousel_slide_urls: [],
+      },
+      copyApproved: true,
+      productionReady: true,
+      redactionReady: true,
+      draftHandoffReady: true,
+      finalSubmissionGateReady: true,
+      platformConfigs: [{
+        platform: 'instagram',
+        is_active: true,
+        credentials: { access_token: 'token', ig_user_id: 'ig-user-1' },
+        settings: {},
+      }],
+    })
+
+    expect(plan.anyAutomaticSubmissionAvailable).toBe(false)
+    expect(plan.platforms[0].nextAction).toBe('Instagram needs professional Instagram account confirmation, Meta Page linkage, Meta app review and publishing permissions confirmation.')
+    expect(plan.platforms[0].stages.find((stage) => stage.key === 'platform_configuration')).toMatchObject({
+      state: 'blocked',
+      detail: 'Instagram needs professional Instagram account confirmation, Meta Page linkage, Meta app review and publishing permissions confirmation.',
+    })
+  })
+
+  it('makes Instagram submission available after media, privacy, final gate, and Meta setup are ready', () => {
+    const plan = buildPlatformOrchestrationPlan({
+      item: {
+        status: 'approved',
+        platform: 'instagram',
+        target_platforms: ['instagram'],
+        publishes: [{ platform: 'instagram', status: 'pending', platform_post_url: null } as never],
+        post_text: 'Approved caption',
+        image_url: null,
+        video_url: 'https://cdn.example.com/reel.mp4',
+        carousel_slide_urls: [],
+      },
+      copyApproved: true,
+      productionReady: true,
+      redactionReady: true,
+      draftHandoffReady: true,
+      finalSubmissionGateReady: true,
+      platformConfigs: [{
+        platform: 'instagram',
+        is_active: true,
+        credentials: { access_token: 'token', ig_user_id: 'ig-user-1' },
+        settings: {
+          instagram_account_type: 'business',
+          meta_page_linked: true,
+          app_review_permissions_confirmed: true,
+        } as never,
+      }],
+    })
+
+    expect(plan.anyAutomaticSubmissionAvailable).toBe(true)
+    expect(plan.platforms[0].nextAction).toBe('Submit to Instagram through the configured platform integration.')
+    expect(plan.platforms[0].stages.map((stage) => [stage.key, stage.state])).toEqual([
+      ['human_approval', 'complete'],
+      ['asset_readiness', 'complete'],
+      ['platform_draft_handoff', 'complete'],
+      ['platform_configuration', 'complete'],
+      ['final_submission_gate', 'complete'],
+      ['automatic_submission', 'available'],
+    ])
   })
 })
 

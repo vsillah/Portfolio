@@ -33,6 +33,7 @@ import {
   Plus,
   Youtube,
   AtSign,
+  Instagram,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -66,6 +67,12 @@ type SafePlatformConfig = {
   settings: Record<string, unknown>
   is_active: boolean
   credentials_configured: boolean
+  provider_setup?: {
+    provider: string
+    requirements: Record<string, boolean>
+    ready: boolean
+    human_gate: string
+  } | null
   created_at: string
   updated_at: string
 }
@@ -329,6 +336,16 @@ function SocialContentQueuePage() {
     : typeof xConfig?.settings?.connected_account === 'string'
       ? xConfig.settings.connected_account
       : '@amadutown'
+  const instagramConfig = platformConfigs.find((config) => config.platform === 'instagram')
+  const instagramSetup = instagramConfig?.provider_setup
+  const instagramReady = Boolean(instagramConfig?.is_active && instagramSetup?.ready)
+  const instagramRequirements = [
+    ['Professional Instagram account', instagramSetup?.requirements?.professional_account],
+    ['Meta Page linkage', instagramSetup?.requirements?.meta_page_linked],
+    ['Access token stored', instagramSetup?.requirements?.access_token],
+    ['IG user/business account ID', instagramSetup?.requirements?.ig_user_business_id],
+    ['App review/permissions', instagramSetup?.requirements?.app_review_permissions],
+  ] as const
 
   const handleConnectYouTube = async () => {
     setYoutubeConnecting(true)
@@ -840,6 +857,52 @@ function SocialContentQueuePage() {
               </button>
             )
           })}
+        </div>
+      </div>
+
+      <div className="admin-console-card mb-6 rounded-lg border p-4">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="flex min-w-0 items-start gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-pink-400/30 bg-pink-500/10 text-pink-200">
+              <Instagram className="h-5 w-5" />
+            </span>
+            <div className="min-w-0">
+              <div className="admin-console-eyebrow mb-1">Provider setup</div>
+              <h2 className="text-base font-semibold text-foreground">Instagram Graph readiness</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {instagramReady
+                  ? 'Instagram is ready for governed image, carousel, or Reel submission. Final posting still requires asset, rights/privacy, and submit gates.'
+                  : 'Prepare Instagram before posts, Reels, or carousels are submitted: Professional account, Meta Page linkage, token, IG user/business ID, and app review or publishing permissions.'}
+              </p>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                {instagramRequirements.map(([label, ready]) => (
+                  <div
+                    key={label}
+                    className={`flex items-center gap-2 rounded-md border px-2.5 py-2 text-xs ${
+                      ready
+                        ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+                        : 'border-silicon-slate bg-imperial-navy/40 text-gray-400'
+                    }`}
+                  >
+                    <CheckCircle2 className={`h-3.5 w-3.5 shrink-0 ${ready ? 'text-emerald-300' : 'text-gray-600'}`} />
+                    <span>{label}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                Secrets are not displayed or seeded here. Provider configuration does not create drafts, schedule, or publish.
+              </p>
+            </div>
+          </div>
+          <span className={`w-fit rounded-full border px-3 py-1 text-xs font-medium ${
+            platformConfigsLoading
+              ? 'border-silicon-slate bg-imperial-navy/50 text-gray-400'
+              : instagramReady
+                ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+                : 'border-amber-500/30 bg-amber-500/10 text-amber-300'
+          }`}>
+            {platformConfigsLoading ? 'Checking' : instagramReady ? 'Ready' : 'Blocked'}
+          </span>
         </div>
       </div>
 

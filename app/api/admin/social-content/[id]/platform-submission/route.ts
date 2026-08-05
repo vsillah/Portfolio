@@ -20,6 +20,8 @@ const PLATFORM_LABELS: Record<SocialPlatform, string> = {
   x: 'X',
 }
 
+const FINAL_GATE_ONLY_PLATFORMS = new Set<SocialPlatform>(['youtube', 'instagram'])
+
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === 'object' && !Array.isArray(value)
     ? value as Record<string, unknown>
@@ -97,7 +99,7 @@ export async function POST(
 
     const targetPlatforms = targetPlatformsFor(itemRecord, requestedPlatforms)
     const autoSubmitBlockedPlatforms = targetPlatforms.filter((platform) => (
-      platform === 'youtube' || !isAutomaticSubmissionSupported(platform)
+      FINAL_GATE_ONLY_PLATFORMS.has(platform) || !isAutomaticSubmissionSupported(platform)
     ))
     const submitAfterApproval = requestedSubmitAfterApproval && autoSubmitBlockedPlatforms.length === 0
     const productionAssets = getProductionAssets(itemRecord.rag_context)

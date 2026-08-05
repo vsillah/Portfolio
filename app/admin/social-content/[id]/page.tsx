@@ -90,6 +90,8 @@ const PLATFORM_COLORS: Record<string, { active: string; inactive: string }> = {
   x: { active: 'bg-gray-100/15 border-gray-300 text-gray-100', inactive: 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600' },
 }
 
+const FINAL_GATE_ONLY_PLATFORMS = new Set<SocialPlatform>(['youtube', 'instagram'])
+
 type GateState = 'approved' | 'in_review' | 'pending' | 'blocked' | 'rejected'
 type SectionGateKey = 'visual_assets' | 'asset_packet' | 'privacy' | 'linkedin_draft'
 type SectionGateDecision = 'approved' | 'rejected'
@@ -4638,10 +4640,10 @@ function SocialContentDetailPage() {
                   const finalGateStage = platformPlan.stages.find((stage) => stage.key === 'final_submission_gate')
                   const canSubmitPlatform = automaticStage?.state === 'available'
                   const canApproveFinalSubmission = finalGateStage?.state === 'pending'
-                  const shouldAutoSubmit = platformPlan.automaticSubmissionSupported && platformPlan.platform !== 'youtube'
+                  const shouldAutoSubmit = platformPlan.automaticSubmissionSupported && !FINAL_GATE_ONLY_PLATFORMS.has(platformPlan.platform)
                   const approveSubmissionLabel = shouldAutoSubmit
                     ? 'Approve & submit'
-                    : platformPlan.platform === 'youtube'
+                    : FINAL_GATE_ONLY_PLATFORMS.has(platformPlan.platform)
                       ? 'Approve final gate'
                       : 'Approve manual handoff'
                   return (
@@ -4771,6 +4773,17 @@ function SocialContentDetailPage() {
                         {connectingX ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ExternalLink className="h-3.5 w-3.5" />}
                         {connectingX ? 'Opening X...' : 'Connect X'}
                       </button>
+                    </div>
+                  ) : null}
+
+                  {platformPlan.platform === 'instagram' && configurationStage?.state === 'blocked' ? (
+                    <div className="mt-3 rounded-md border border-amber-500/30 bg-amber-500/10 p-3">
+                      <p className="text-xs font-semibold text-amber-50">
+                        Instagram provider setup is blocked.
+                      </p>
+                      <p className="mt-1 text-xs leading-5 text-amber-50/85">
+                        Confirm a Professional Instagram account, Meta Page linkage, access token, IG user/business account ID, and Meta app review or publishing permissions before final handoff. Secrets stay in the approved config path and are not shown here.
+                      </p>
                     </div>
                   ) : null}
 

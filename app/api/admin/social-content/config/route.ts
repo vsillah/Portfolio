@@ -14,6 +14,63 @@ type PlatformConfigRow = {
   updated_at: string
 }
 
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {}
+}
+
+function hasString(record: Record<string, unknown>, keys: string[]) {
+  return keys.some((key) => typeof record[key] === 'string' && String(record[key]).trim().length > 0)
+}
+
+function hasTruthy(record: Record<string, unknown>, keys: string[]) {
+  return keys.some((key) => {
+    const value = record[key]
+    if (value === true) return true
+    return typeof value === 'string' && value.trim().length > 0
+  })
+}
+
+function instagramProviderSetup(config: PlatformConfigRow) {
+  if (config.platform !== 'instagram') return null
+
+  const credentials = asRecord(config.credentials)
+  const settings = asRecord(config.settings)
+  const accountType = typeof settings.instagram_account_type === 'string'
+    ? settings.instagram_account_type.trim().toLowerCase()
+    : ''
+  const requirements = {
+    professional_account: hasTruthy(settings, [
+      'professional_account_confirmed',
+      'professional_account_confirmed_at',
+      'instagram_professional_account_id',
+    ]) || ['business', 'creator', 'professional'].includes(accountType),
+    meta_page_linked: hasTruthy({ ...credentials, ...settings }, [
+      'meta_page_linked',
+      'meta_page_linked_at',
+      'meta_page_id',
+      'page_id',
+      'connected_page_id',
+    ]),
+    access_token: hasString(credentials, ['access_token']),
+    ig_user_business_id: hasString(credentials, ['ig_user_id', 'instagram_user_id', 'business_account_id']),
+    app_review_permissions: hasTruthy(settings, [
+      'app_review_permissions_confirmed',
+      'app_review_permissions_confirmed_at',
+      'instagram_content_publish_permission',
+      'instagram_basic_permission',
+    ]),
+  }
+
+  return {
+    provider: 'meta_instagram_graph',
+    requirements,
+    ready: Object.values(requirements).every(Boolean),
+    human_gate: 'Store credentials through the approved secret/config path only. Final Instagram publish remains separately human-submitted.',
+  }
+}
+
 /**
  * GET /api/admin/social-content/config
  * Get all platform configurations
@@ -56,6 +113,7 @@ export async function GET(request: NextRequest) {
           && typeof config.credentials === 'object'
           && Object.keys(config.credentials).length > 0,
         ),
+        provider_setup: instagramProviderSetup(config),
         created_at: config.created_at,
         updated_at: config.updated_at,
       }))

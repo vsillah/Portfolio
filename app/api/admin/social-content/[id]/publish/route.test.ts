@@ -183,7 +183,11 @@ function platformConfigsFor(publishes: Array<Record<string, unknown>>) {
         platform,
         is_active: true,
         credentials: { access_token: 'token', ig_user_id: 'ig-user-1' },
-        settings: {},
+        settings: {
+          instagram_account_type: 'business',
+          meta_page_linked: true,
+          app_review_permissions_confirmed: true,
+        },
       }
     }
     if (platform === 'facebook') {
