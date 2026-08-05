@@ -303,6 +303,77 @@ describe('social-content-calendar-handoff', () => {
     })
   })
 
+  it('authorizes X calendar items by creating a manual-handoff Social Content draft', async () => {
+    const item = baseCalendarItem({
+      channel: 'x',
+      social_content_id: null,
+    })
+    mockReadCalendarItem(item)
+    mockExistingDraftLookup(null)
+    const draftInsert = mockDraftInsert('x-draft-1')
+    const calendarUpdate = mockCalendarUpdate({
+      ...item,
+      authorization_status: 'authorized',
+      social_content_id: 'x-draft-1',
+    })
+
+    const result = await authorizeCalendarDraftHandoff('calendar-1', auth)
+
+    expect(draftInsert.insert).toHaveBeenCalledWith(expect.objectContaining({
+      platform: 'x',
+      status: 'draft',
+      target_platforms: ['x'],
+      scheduled_for: null,
+      rag_context: expect.objectContaining({
+        source: 'social_content_calendar_authorization',
+        calendar_item_id: 'calendar-1',
+        publish_gate: 'manual_handoff_gated',
+        external_execution_enabled: false,
+        platform_submission_orchestration: expect.objectContaining({
+          anyAutomaticSubmissionAvailable: false,
+          platforms: expect.arrayContaining([
+            expect.objectContaining({
+              platform: 'x',
+              automaticSubmissionSupported: false,
+            }),
+          ]),
+        }),
+      }),
+    }))
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
+      objective: expect.stringContaining('Continue in the Social Content draft at /admin/social-content/x-draft-1.'),
+      metadata: expect.objectContaining({
+        channel: 'x',
+        social_content_id: 'x-draft-1',
+        external_execution_enabled: false,
+        side_effects: expect.objectContaining({
+          publish: false,
+          external_post: false,
+          social_content_draft_created: true,
+        }),
+      }),
+    }))
+    expect(calendarUpdate.update).toHaveBeenCalledWith(expect.objectContaining({
+      authorization_status: 'authorized',
+      social_content_id: 'x-draft-1',
+      metadata: expect.objectContaining({
+        platform_draft_handoff: expect.objectContaining({
+          kind: 'x_social_content_draft',
+          social_content_id: 'x-draft-1',
+        }),
+        platform_submission_orchestration: expect.objectContaining({
+          platforms: expect.arrayContaining([
+            expect.objectContaining({ platform: 'x' }),
+          ]),
+        }),
+      }),
+    }))
+    expect(result).toMatchObject({
+      socialContentId: 'x-draft-1',
+      handoffKind: 'x_social_content_draft',
+    })
+  })
+
   it('keeps unsupported channels as planning-only handoffs without social queue inserts', async () => {
     const item = baseCalendarItem({
       channel: 'thumbnail',

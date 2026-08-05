@@ -42,6 +42,7 @@ const CHANNEL_LABELS: Record<SocialContentIntelligenceChannel, string> = {
   youtube_shorts: 'YouTube Shorts',
   instagram_reels: 'Instagram Reels',
   tiktok: 'TikTok',
+  x: 'X',
   thumbnail: 'Thumbnail',
 }
 
@@ -51,6 +52,7 @@ const CHANNEL_ICONS: Record<SocialContentIntelligenceChannel, ReactNode> = {
   youtube_shorts: <Youtube className="h-4 w-4" />,
   instagram_reels: <Instagram className="h-4 w-4" />,
   tiktok: <Hash className="h-4 w-4" />,
+  x: <MessageSquare className="h-4 w-4" />,
   thumbnail: <ImageIcon className="h-4 w-4" />,
 }
 
@@ -680,6 +682,9 @@ function defaultInputs(channel: SocialContentIntelligenceChannel) {
   }
   if (channel === 'tiktok') {
     return ['hook', 'script', 'target duration', 'storyboard scenes', 'cover frame', 'caption', 'hashtags', 'b-roll assets', 'audio rights', 'safe-area notes', 'export readiness']
+  }
+  if (channel === 'x') {
+    return ['post text', 'thread option', 'CTA', 'CTA URL', 'hashtags', 'manual handoff gate', 'references']
   }
   return ['source thumbnail reference', 'pattern explanation', 'AmaduTown adaptation direction', 'short thumbnail text', 'face/photo/avatar choice', 'brand colors/style', '2-3 variants', 'approval state']
 }

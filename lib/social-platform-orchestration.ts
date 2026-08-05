@@ -98,9 +98,14 @@ const PLATFORM_LABELS: Record<SocialPlatform, string> = {
   instagram: 'Instagram',
   facebook: 'Facebook',
   tiktok: 'TikTok',
+  x: 'X',
 }
 
 const AUTOMATIC_SUBMISSION_SUPPORTED = new Set<SocialPlatform>(['linkedin', 'youtube', 'instagram', 'facebook', 'tiktok'])
+
+export function isAutomaticSubmissionSupported(platform: SocialPlatform) {
+  return AUTOMATIC_SUBMISSION_SUPPORTED.has(platform)
+}
 
 const SUBMITTED_STATUSES = new Set<PublishStatus>(['published'])
 export type BuildPlatformOrchestrationInput = {
@@ -415,6 +420,13 @@ export function getPlatformAssetReadiness(
           ? 'TikTok has a final video URL.'
           : 'TikTok needs a final video URL before Direct Post submission.',
       }
+    case 'x':
+      return {
+        ready: hasPostText,
+        detail: hasPostText
+          ? 'X copy is ready for manual handoff.'
+          : 'X needs post text before manual handoff.',
+      }
     default:
       return {
         ready: false,
@@ -451,6 +463,13 @@ function hasPlatformConfiguration(
   platform: SocialPlatform,
   config: Pick<SocialContentConfig, 'platform' | 'credentials' | 'settings' | 'is_active'> | undefined,
 ) {
+  if (platform === 'x') {
+    return {
+      ready: true,
+      detail: 'X is configured for manual review and handoff. Automatic posting is not connected.',
+    }
+  }
+
   if (!config?.is_active) {
     return {
       ready: false,
@@ -573,7 +592,7 @@ export function buildPlatformOrchestrationPlan(input: BuildPlatformOrchestration
       ready: true,
       detail: `${PLATFORM_LABELS[platform]} configuration check was not requested.`,
     }
-    const automaticSubmissionSupported = AUTOMATIC_SUBMISSION_SUPPORTED.has(platform)
+    const automaticSubmissionSupported = isAutomaticSubmissionSupported(platform)
 
     const humanApprovalState: PlatformOrchestrationStageState = copyReady ? 'complete' : 'pending'
     const assetState: PlatformOrchestrationStageState = !copyReady

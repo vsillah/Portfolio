@@ -6,6 +6,7 @@ export const SOCIAL_CONTENT_CALENDAR_CHANNELS = [
   'youtube_shorts',
   'instagram_reels',
   'tiktok',
+  'x',
   'thumbnail',
 ] as const
 
@@ -98,6 +99,7 @@ export const CALENDAR_CHANNEL_LABELS: Record<SocialContentCalendarChannel, strin
   youtube_shorts: 'YouTube Shorts',
   instagram_reels: 'Instagram Reels',
   tiktok: 'TikTok',
+  x: 'X',
   thumbnail: 'Thumbnail',
 }
 
@@ -227,6 +229,19 @@ export const SOCIAL_CONTENT_CALENDAR_TEMPLATES: Record<
         recommended_lead_time_days: 3,
         required_assets: ['offer', 'cta_url', 'publishing_gate'],
         approval_gates: ['copy_review', 'authorization_gate'],
+        source_urls: [SOURCE_URLS.hubspotCalendar],
+      },
+      {
+        key: 'x_conversation_starter',
+        campaign_phase: 'offer',
+        channel: 'x',
+        title_prefix: 'X conversation',
+        planned_angle: 'Turn the shout moment into a concise conversation starter that points people back to the release without implying automated posting.',
+        relative_position: 0.95,
+        fallback_day_offset: 10,
+        recommended_lead_time_days: 2,
+        required_assets: ['approved_copy', 'cta_url', 'manual_handoff_gate'],
+        approval_gates: ['copy_review', 'manual_platform_handoff'],
         source_urls: [SOURCE_URLS.hubspotCalendar],
       },
     ],

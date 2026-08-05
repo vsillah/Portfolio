@@ -9,6 +9,7 @@ export const SOCIAL_CONTENT_INTELLIGENCE_CHANNELS = [
   'youtube_shorts',
   'instagram_reels',
   'tiktok',
+  'x',
   'thumbnail',
 ] as const
 
@@ -196,6 +197,7 @@ const CHANNEL_LABELS: Record<SocialContentIntelligenceChannel, string> = {
   youtube_shorts: 'YouTube Shorts',
   instagram_reels: 'Instagram Reels',
   tiktok: 'TikTok',
+  x: 'X',
   thumbnail: 'Thumbnail',
 }
 
@@ -256,6 +258,15 @@ const CHANNEL_INPUTS: Record<SocialContentIntelligenceChannel, string[]> = {
     'audio rights',
     'safe-area notes',
     'export readiness',
+  ],
+  x: [
+    'post text',
+    'thread option',
+    'CTA',
+    'CTA URL',
+    'hashtags',
+    'manual handoff gate',
+    'references',
   ],
   thumbnail: [
     'source thumbnail reference',
@@ -897,6 +908,31 @@ function channelOrchestrationEvidence(input: {
       recommended_assets: ['Original narration', 'Platform-safe b-roll', 'First-frame cover', 'Caption-safe proof cuts'],
       portfolio_snapshots: ['/admin/content/video-generation', '/admin/agents/content-intelligence', '/admin/agents/coordination'],
       illustration_direction: 'Use quick proof cuts rather than a dense diagram; keep the operating path visible but simple.',
+    },
+    x: {
+      format: 'Short-form X post or lightweight thread prepared for manual handoff.',
+      structure: [
+        'Lead with the strongest tension in the first sentence.',
+        'Translate the source packet into one clear claim or thread spine.',
+        'Keep the CTA specific and avoid unsupported platform-native promises.',
+        'Route through manual handoff until a connected X provider path exists.',
+      ],
+      success_criteria: [
+        'The post can stand alone inside X length constraints or expand into a thread.',
+        'Source and claim boundaries remain visible before handoff.',
+        'No automatic posting, scheduling, or provider action is implied.',
+      ],
+      portfolio_surfaces: [
+        ...sharedSurfaces,
+        {
+          label: 'Social Content Review',
+          route: '/admin/social-content',
+          purpose: 'X copy, references, CTA, and final manual handoff gate.',
+        },
+      ],
+      recommended_assets: ['Concise post copy', 'Optional thread outline', 'CTA/URL', 'Source references'],
+      portfolio_snapshots: ['/admin/social-content', '/admin/agents/content-intelligence', '/admin/agents/coordination'],
+      illustration_direction: 'Prefer text-first framing; use visuals only when the proof or framework needs more than a post can carry.',
     },
   }
   const detail = channelDetails[input.channel]
