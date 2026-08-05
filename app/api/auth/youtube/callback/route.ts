@@ -26,6 +26,11 @@ type YouTubeChannelsResponse = {
   }
 }
 
+type StoredYouTubeConfig = {
+  credentials?: Record<string, unknown> | null
+  settings?: Record<string, unknown> | null
+}
+
 function compactRecord(record: Record<string, unknown>) {
   return Object.fromEntries(
     Object.entries(record).filter(([, value]) => value !== undefined),
@@ -125,19 +130,36 @@ export async function GET(request: NextRequest) {
       return redirectWith(request, { youtube_error: 'token_exchange_failed' })
     }
 
+    const { data: existingConfigData, error: existingConfigError } = await supabaseAdmin
+      .from('social_content_config')
+      .select('credentials, settings')
+      .eq('platform', 'youtube')
+      .maybeSingle()
+
+    if (existingConfigError) {
+      console.error('YouTube config lookup failed:', existingConfigError.message)
+      return redirectWith(request, { youtube_error: 'config_lookup_failed' })
+    }
+
+    const existingConfig = existingConfigData as StoredYouTubeConfig | null
+    const existingCredentials = existingConfig?.credentials ?? {}
+    const existingSettings = existingConfig?.settings ?? {}
+
     const channel = await fetchYouTubeChannel(tokenData.access_token)
     const credentials = compactRecord({
+      ...existingCredentials,
       access_token: tokenData.access_token,
-      refresh_token: tokenData.refresh_token,
+      refresh_token: tokenData.refresh_token || existingCredentials.refresh_token,
       expires_in: tokenData.expires_in,
       token_type: tokenData.token_type,
       scope: tokenData.scope,
       token_obtained_at: new Date().toISOString(),
     })
     const settings = compactRecord({
-      default_privacy: 'private',
-      made_for_kids: false,
-      notify_subscribers: false,
+      ...existingSettings,
+      default_privacy: existingSettings.default_privacy ?? 'private',
+      made_for_kids: existingSettings.made_for_kids ?? false,
+      notify_subscribers: existingSettings.notify_subscribers ?? false,
       ...(channel ?? {}),
     })
 

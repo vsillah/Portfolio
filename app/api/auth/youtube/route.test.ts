@@ -32,7 +32,7 @@ describe('GET /api/auth/youtube', () => {
     process.env = { ...BASE_ENV }
   })
 
-  it('returns a Google OAuth URL with upload scope, offline access, and state cookie', async () => {
+  it('returns a Google OAuth URL with upload, playlist, offline access, and state cookie', async () => {
     const response = await GET(request())
 
     expect(response.status).toBe(200)
@@ -45,6 +45,7 @@ describe('GET /api/auth/youtube', () => {
     expect(authUrl.searchParams.get('prompt')).toBe('consent')
     expect(authUrl.searchParams.get('scope')).toContain('https://www.googleapis.com/auth/youtube.upload')
     expect(authUrl.searchParams.get('scope')).toContain('https://www.googleapis.com/auth/youtube.readonly')
+    expect(authUrl.searchParams.get('scope')).toContain('https://www.googleapis.com/auth/youtube.force-ssl')
     expect(response.headers.get('set-cookie')).toContain('youtube_oauth_state=')
     expect(response.headers.get('set-cookie')).toContain('HttpOnly')
   })
@@ -85,5 +86,6 @@ describe('GET /api/auth/youtube', () => {
     expect(response.status).toBe(200)
     expect(authUrl.searchParams.get('client_id')).toBe('gmail-google-client-id')
     expect(authUrl.searchParams.get('scope')).toContain('https://www.googleapis.com/auth/youtube.upload')
+    expect(authUrl.searchParams.get('scope')).toContain('https://www.googleapis.com/auth/youtube.force-ssl')
   })
 })

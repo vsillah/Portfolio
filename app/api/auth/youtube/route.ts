@@ -5,6 +5,12 @@ export const dynamic = 'force-dynamic'
 
 const YOUTUBE_UPLOAD_SCOPE = 'https://www.googleapis.com/auth/youtube.upload'
 const YOUTUBE_READONLY_SCOPE = 'https://www.googleapis.com/auth/youtube.readonly'
+const YOUTUBE_FORCE_SSL_SCOPE = 'https://www.googleapis.com/auth/youtube.force-ssl'
+const YOUTUBE_OAUTH_SCOPES = [
+  YOUTUBE_UPLOAD_SCOPE,
+  YOUTUBE_READONLY_SCOPE,
+  YOUTUBE_FORCE_SSL_SCOPE,
+]
 
 function getGoogleOAuthClientId() {
   return process.env.YOUTUBE_CLIENT_ID
@@ -14,7 +20,7 @@ function getGoogleOAuthClientId() {
 
 /**
  * GET /api/auth/youtube
- * Initiate Google OAuth for YouTube upload access.
+ * Initiate Google OAuth for YouTube upload and playlist access.
  */
 export async function GET(request: NextRequest) {
   try {
@@ -40,7 +46,7 @@ export async function GET(request: NextRequest) {
     authUrl.searchParams.set('client_id', clientId)
     authUrl.searchParams.set('redirect_uri', redirectUri)
     authUrl.searchParams.set('state', state)
-    authUrl.searchParams.set('scope', `${YOUTUBE_UPLOAD_SCOPE} ${YOUTUBE_READONLY_SCOPE}`)
+    authUrl.searchParams.set('scope', YOUTUBE_OAUTH_SCOPES.join(' '))
     authUrl.searchParams.set('access_type', 'offline')
     authUrl.searchParams.set('prompt', 'consent')
     authUrl.searchParams.set('include_granted_scopes', 'true')
