@@ -69,6 +69,12 @@ These decisions were confirmed by Vambah on 2026-08-04 and should guide the next
 
 The public sidecar sampled creator pages and recent visible videos on 2026-08-04. The scan is directional because YouTube metrics change.
 
+Use the same decision-window rule as the social research loop:
+
+- 24-48 hour directional review: useful for hook resonance, visible comment quality, and obvious packaging issues only. It cannot declare a winner or final lesson.
+- Seven-day decision review: can support repeat, revise, pause, or scale recommendations only when the packet cites the metric window, visible sample basis, source-distance/originality boundary, and confidence.
+- If the seven-day read lacks enough visible signal, mark it `directional_insufficient_sample` and keep the recommendation observational.
+
 | Pattern | Transferable lesson for Agentified |
 | --- | --- |
 | AI-agent diagnosis videos | Start from the bottleneck the audience already feels, then move to operating discipline. |

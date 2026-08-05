@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   SOCIAL_RESEARCH_ACTORS,
   buildLinkedInYoutubeReviewDrafts,
+  classifySocialResearchDecisionWindow,
   defaultSocialChannelLanes,
   normalizeResearchActorKey,
   normalizeSocialChannelLanes,
@@ -13,6 +14,52 @@ import {
 import type { AgentWorkItem } from './agent-work-items'
 
 describe('social-content-intelligence', () => {
+  it('classifies public research decision windows without promoting weak signals', () => {
+    expect(classifySocialResearchDecisionWindow({
+      observedAt: '2026-08-05T08:00:00.000Z',
+      retrievedAt: '2026-08-05T20:00:00.000Z',
+      visibleSampleSize: 4,
+    })).toMatchObject({
+      key: 'pre_directional_review',
+      state: 'collecting',
+      can_declare_winner: false,
+      next_checkpoint: '24_48h_directional_review',
+    })
+
+    expect(classifySocialResearchDecisionWindow({
+      observedAt: '2026-08-04T08:00:00.000Z',
+      retrievedAt: '2026-08-05T14:00:00.000Z',
+      visibleSampleSize: 3,
+    })).toMatchObject({
+      key: 'directional_24_48h_review',
+      state: 'directional_signal',
+      can_declare_winner: false,
+      next_checkpoint: '7d_decision_review',
+    })
+
+    expect(classifySocialResearchDecisionWindow({
+      observedAt: '2026-07-29T08:00:00.000Z',
+      retrievedAt: '2026-08-05T08:00:00.000Z',
+      visibleSampleSize: 3,
+    })).toMatchObject({
+      key: 'decision_7d_review',
+      state: 'directional_insufficient_sample',
+      can_declare_winner: false,
+      minimum_visible_sample_size: 8,
+    })
+
+    expect(classifySocialResearchDecisionWindow({
+      observedAt: '2026-07-29T08:00:00.000Z',
+      retrievedAt: '2026-08-05T08:00:00.000Z',
+      visibleSampleSize: 8,
+    })).toMatchObject({
+      key: 'decision_7d_review',
+      state: 'decision_grade',
+      can_declare_winner: true,
+      minimum_visible_sample_size: 8,
+    })
+  })
+
   it('scores creator assets deterministically with a small-creator outlier boost', () => {
     const score = scoreCreatorAsset({
       views: 120_000,
@@ -137,8 +184,16 @@ describe('social-content-intelligence', () => {
       retrieval_method: 'codex_browser',
       actor_label: 'Manual public review',
       cost_usd: 0,
+      decision_window: expect.objectContaining({
+        key: 'pre_directional_review',
+        can_declare_winner: false,
+      }),
     })
     expect(packet.pattern_packet.source_use_boundary).toContain('Reusable framework only')
+    expect(packet.pattern_packet.research_decision_window).toMatchObject({
+      state: 'collecting',
+      next_checkpoint: '24_48h_directional_review',
+    })
     expect(packet.privacy_notes).toContain('do not copy source script')
   })
 
@@ -147,10 +202,11 @@ describe('social-content-intelligence', () => {
       linkedin: { status: 'selected', decision_note: 'Use as first channel.' },
     })
 
-    expect(Object.keys(lanes)).toEqual(['linkedin', 'youtube', 'youtube_shorts', 'instagram_reels', 'tiktok', 'thumbnail'])
+    expect(Object.keys(lanes)).toEqual(['linkedin', 'youtube', 'youtube_shorts', 'instagram_reels', 'tiktok', 'x', 'thumbnail'])
     expect(lanes.linkedin.status).toBe('selected')
     expect(lanes.youtube.status).toBe('not_started')
     expect(lanes.youtube_shorts.status).toBe('not_started')
+    expect(lanes.x.required_inputs).toContain('thread option')
     expect(lanes.tiktok.required_inputs).toContain('audio rights')
     expect(lanes.thumbnail.required_inputs).toContain('2-3 variants')
   })

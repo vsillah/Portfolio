@@ -104,6 +104,29 @@ export type SocialResearchPatternStatus =
   | 'too_close_to_source'
   | 'not_relevant'
 
+export type SocialResearchDecisionWindowKey =
+  | 'pre_directional_review'
+  | 'directional_24_48h_review'
+  | 'decision_7d_review'
+
+export type SocialResearchDecisionState =
+  | 'collecting'
+  | 'directional_signal'
+  | 'directional_insufficient_sample'
+  | 'decision_grade'
+
+export type SocialResearchDecisionWindow = {
+  key: SocialResearchDecisionWindowKey
+  label: string
+  elapsed_hours: number
+  visible_sample_size: number
+  minimum_visible_sample_size: number
+  state: SocialResearchDecisionState
+  can_declare_winner: boolean
+  next_checkpoint: '24_48h_directional_review' | '7d_decision_review' | 'human_review'
+  rationale: string
+}
+
 export type CreatorAssetScoreInput = {
   views?: number | null
   likes?: number | null
@@ -188,6 +211,8 @@ export type SocialResearchEvidenceItem = {
   metrics?: Record<string, unknown> | null
   pattern_packet?: Record<string, unknown> | null
   pattern_status?: SocialResearchPatternStatus | null
+  observed_at?: string | null
+  visible_sample_size?: number | null
   retrieval_method?: 'codex_browser' | 'manual_public_review' | 'public_page_fetch' | 'apify' | 'other'
   retrieval_notes?: string | null
 }
@@ -355,6 +380,30 @@ function numberOrNull(value: unknown) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null
 }
 
+function parsedTimeOrNull(value: unknown) {
+  const text = asString(value).trim()
+  if (!text) return null
+  const parsed = Date.parse(text)
+  return Number.isFinite(parsed) ? parsed : null
+}
+
+function visibleSampleSizeFrom(value: unknown) {
+  const record = asRecord(value) ?? {}
+  const explicitSampleSize = numberOrNull(record.visible_sample_size) ?? numberOrNull(record.sample_size)
+  if (explicitSampleSize !== null) {
+    return Math.max(0, Math.floor(explicitSampleSize))
+  }
+
+  const hasVisibleMetric = [
+    record.views,
+    record.likes,
+    record.comments,
+    record.shares,
+  ].some((metric) => numberOrNull(metric) !== null)
+
+  return hasVisibleMetric ? 1 : 0
+}
+
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value))
 }
@@ -443,6 +492,63 @@ export function normalizeResearchPlatform(value: unknown): SocialResearchPlatfor
     return value
   }
   return 'other'
+}
+
+export function classifySocialResearchDecisionWindow(input: {
+  observedAt?: string | null
+  retrievedAt?: string | null
+  visibleSampleSize?: number | null
+}): SocialResearchDecisionWindow {
+  const retrievedAt = parsedTimeOrNull(input.retrievedAt) ?? Date.now()
+  const observedAt = parsedTimeOrNull(input.observedAt) ?? retrievedAt
+  const elapsedHours = Math.max(0, Math.floor((retrievedAt - observedAt) / 3_600_000))
+  const visibleSampleSize = Math.max(0, Math.floor(input.visibleSampleSize ?? 0))
+
+  if (elapsedHours < 24) {
+    return {
+      key: 'pre_directional_review',
+      label: 'Pre-directional collection',
+      elapsed_hours: elapsedHours,
+      visible_sample_size: visibleSampleSize,
+      minimum_visible_sample_size: 1,
+      state: 'collecting',
+      can_declare_winner: false,
+      next_checkpoint: '24_48h_directional_review',
+      rationale: 'Collect public signal until the 24-48 hour directional checkpoint; do not call a winner.',
+    }
+  }
+
+  if (elapsedHours < 168) {
+    const hasVisibleSignal = visibleSampleSize >= 1
+    return {
+      key: 'directional_24_48h_review',
+      label: '24-48 hour directional review',
+      elapsed_hours: elapsedHours,
+      visible_sample_size: visibleSampleSize,
+      minimum_visible_sample_size: 1,
+      state: hasVisibleSignal ? 'directional_signal' : 'directional_insufficient_sample',
+      can_declare_winner: false,
+      next_checkpoint: '7d_decision_review',
+      rationale: hasVisibleSignal
+        ? 'Use this as an early directional read only; wait for the seven-day/sample-size gate before declaring a winner.'
+        : 'The directional window is open, but visible signal is too thin to support even an early read.',
+    }
+  }
+
+  const hasDecisionSample = visibleSampleSize >= 8
+  return {
+    key: 'decision_7d_review',
+    label: 'Seven-day decision review',
+    elapsed_hours: elapsedHours,
+    visible_sample_size: visibleSampleSize,
+    minimum_visible_sample_size: 8,
+    state: hasDecisionSample ? 'decision_grade' : 'directional_insufficient_sample',
+    can_declare_winner: hasDecisionSample,
+    next_checkpoint: 'human_review',
+    rationale: hasDecisionSample
+      ? 'This signal can support a decision-grade recommendation when source distance, voice, privacy, and campaign fit also pass.'
+      : 'Seven days have elapsed, but the visible sample is too small; keep the finding directional and avoid winner/loser claims.',
+  }
 }
 
 export function normalizeResearchActorKey(value: unknown, sourceUrl = ''): SocialResearchActorKey {
@@ -606,7 +712,7 @@ export function researchPacketDraftFromApifyItem(input: {
   const caption = firstString(item.caption, item.description, item.text)
   const hookTranscript = extractHookTranscript(item)
   const thumbnailUrl = firstString(item.thumbnailUrl, item.thumbnail, item.displayUrl, item.imageUrl)
-  const metrics = {
+  const metrics: Record<string, unknown> = {
     views: numberOrNull(item.views) ?? numberOrNull(item.viewCount) ?? numberOrNull(item.playCount),
     likes: numberOrNull(item.likes) ?? numberOrNull(item.likeCount),
     comments: numberOrNull(item.comments) ?? numberOrNull(item.commentCount),
@@ -616,6 +722,11 @@ export function researchPacketDraftFromApifyItem(input: {
     retrieved_at: input.retrievedAt,
   }
   const score = scoreCreatorAsset(socialMetricsFromUnknown(metrics))
+  const decisionWindow = classifySocialResearchDecisionWindow({
+    observedAt: firstString(metrics.published_at) || null,
+    retrievedAt: input.retrievedAt,
+    visibleSampleSize: visibleSampleSizeFrom(metrics),
+  })
   return {
     source_url: sourceUrl,
     platform: input.source.platform ?? input.config.platform,
@@ -635,13 +746,17 @@ export function researchPacketDraftFromApifyItem(input: {
       source_label: input.source.label ?? null,
       input_url: input.source.url,
       score_breakdown: score,
+      decision_window: decisionWindow,
     },
-    pattern_packet: extractReusablePattern({
-      title,
-      caption,
-      hookTranscript,
-      thumbnailUrl,
-    }),
+    pattern_packet: {
+      ...extractReusablePattern({
+        title,
+        caption,
+        hookTranscript,
+        thumbnailUrl,
+      }),
+      research_decision_window: decisionWindow,
+    },
     pattern_status: 'needs_brand_translation',
     privacy_notes: 'Public creator research packet. Use patterns only; do not copy source script, title, thumbnail, or visual identity.',
     retrieved_at: input.retrievedAt,
@@ -654,11 +769,16 @@ export function researchPacketDraftFromRecordedEvidence(input: {
   actorLabel?: string | null
 }): SocialResearchPacketDraft {
   const evidence = input.evidence
-  const metrics = {
+  const metrics: Record<string, unknown> = {
     ...(asRecord(evidence.metrics) ?? {}),
     retrieved_at: input.retrievedAt,
   }
   const hookTranscript = evidence.hook_transcript ? truncate(evidence.hook_transcript, 500) : null
+  const decisionWindow = classifySocialResearchDecisionWindow({
+    observedAt: firstString(evidence.observed_at, metrics.published_at, metrics.observed_at) || null,
+    retrievedAt: input.retrievedAt,
+    visibleSampleSize: evidence.visible_sample_size ?? visibleSampleSizeFrom(metrics),
+  })
   const patternPacket = asRecord(evidence.pattern_packet)
     ?? extractReusablePattern({
       title: evidence.title,
@@ -683,8 +803,12 @@ export function researchPacketDraftFromRecordedEvidence(input: {
       actor_label: input.actorLabel ?? null,
       source_url: evidence.source_url,
       cost_usd: 0,
+      decision_window: decisionWindow,
     },
-    pattern_packet: patternPacket,
+    pattern_packet: {
+      ...patternPacket,
+      research_decision_window: decisionWindow,
+    },
     pattern_status: normalizePatternStatus(evidence.pattern_status),
     privacy_notes: 'Free public research packet. Use patterns only; do not copy source script, title, thumbnail, or visual identity.',
     retrieved_at: input.retrievedAt,
