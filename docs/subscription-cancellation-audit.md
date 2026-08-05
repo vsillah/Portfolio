@@ -10,6 +10,154 @@ no meaningful usage signal, or after clear redundancy plus a lower-risk
 replacement path. Production changes require explicit approval in the form
 `Cancel <tool/vendor> for Portfolio`.
 
+## 2026-08-05 Daily Monitor Run
+
+Status: YELLOW
+
+Detailed run artifact: [`docs/subscription-monitor-runs/2026-08-05.md`](subscription-monitor-runs/2026-08-05.md)
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- Repo checkout started on `codex/subscription-weekly-2026-08-03` with existing monitor-owned dirty work; today's edits stayed scoped to monitor outputs.
+- Supabase production MCP was readable, DB health passed, and aggregate timestamps showed analytics/work-item movement on `2026-08-05`, agent tables on `2026-08-04`, social content on `2026-08-04`, and report/media rows still older.
+- n8n Cloud returned 85 workflows and 25/25 sampled executions successful through `2026-08-05T12:00:52Z`; the drift checker still returned 403 for all four tracked workflow reads.
+- Vercel deployment watcher passed both `portfolio` and `portfolio-staging` with `2026-08-05` successful deployments; Vercel connector deployment listing remained 403 for the `vsillahs-projects` scope.
+- OpenAI, Anthropic, Gemini/Google AI, Gamma, Pinecone, Apify, Hunter, Printful, Stripe, Slack, BuiltWith, OpenRouter, ElevenLabs, HeyGen voices, HeyGen avatars, and core app-side integrations were readable or dependency-backed.
+- Gamma recovered to HTTP 200 after yesterday's 401; ElevenLabs usage rose to 4,249/300,000 characters; Vapi still returned zero sampled calls; Resend had no local safe key; Calendly direct API returned HTTP 401 despite 3 Calendly-linked calendar events; Read AI had no local safe key and 0 calendar keyword matches.
+- BuiltWith remains active/watch during the outreach ramp; Fireflies remains resolved canceled unless new paid-plan evidence appears.
+
+## 2026-08-04 Daily Monitor Run
+
+Status: YELLOW
+
+Detailed run artifact: [`docs/subscription-monitor-runs/2026-08-04.md`](subscription-monitor-runs/2026-08-04.md)
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- Repo checkout started on `codex/subscription-weekly-2026-08-03` with existing monitor-owned dirty work; today's edits stayed scoped to monitor outputs.
+- Supabase production MCP was readable, DB health passed, and aggregate timestamps showed social content/work-item movement on `2026-08-04`, agent tables on `2026-08-03`, and several media/report rows still older.
+- n8n Cloud returned 85 workflows with 72 active and 25/25 sampled executions successful through `2026-08-04T12:00:52Z`; the drift checker still returned 403 for all four tracked workflow reads.
+- Vercel deployment watcher passed both `portfolio` and `portfolio-staging` with `2026-08-04` successful deployments; Vercel connector deployment listing remained 403 for the `vsillahs-projects` scope.
+- OpenAI, Anthropic, Gemini/Google AI, Pinecone, Apify, Hunter, Printful, Stripe, Slack, BuiltWith, OpenRouter, ElevenLabs, HeyGen voices, HeyGen avatars, and core app-side integrations were readable or dependency-backed.
+- Gamma regressed to HTTP 401, Vapi returned zero sampled calls, Resend had no local safe key, Calendly direct API returned HTTP 401 despite 3 Calendly-linked calendar events, and Read AI direct API returned HTTP 401 with 0 calendar keyword matches.
+- BuiltWith remains active/watch during the outreach ramp; Fireflies remains resolved canceled unless new paid-plan evidence appears.
+
+## 2026-08-03 Weekly Subscription Report
+
+Status: YELLOW
+
+Source set:
+
+- Primary tracker/status files: `docs/subscription-cancellation-audit.md` and `docs/subscription-status.json`.
+- Current durable daily evidence artifact: [`docs/subscription-monitor-runs/2026-08-03.md`](subscription-monitor-runs/2026-08-03.md).
+- Prior weekly comparison point: `2026-07-27 Weekly Subscription Report`.
+- Action tracker feedback: 12 open actions for `portfolio-subscription-weekly-report`, with 0 in progress, 0 blocked, 0 done, and no progress notes.
+
+Summary:
+
+- No cancellation approvals requested and no cancellation, deactivation, downgrade, provider-setting change, secret removal, data deletion, or code deprecation action taken.
+- Active keep items remain Supabase, n8n Cloud, Vercel, Stripe, OpenAI, Slack, Apify, Hunter.io, Google Cloud, and the core app-side integration footprint. Anthropic, Gemini/Google AI, BuiltWith, HeyGen, Gamma, Printful, Pinecone, OpenRouter, ElevenLabs, Read AI, Calendly, and design/media tools still carry billing, quota, traffic, access, or plan-fit checks.
+- BuiltWith remains a protected outreach-ramp watch item, not a current cancellation candidate.
+- Fireflies.ai remains resolved/canceled per Vambah confirmation on 2026-05-01 unless new paid-plan evidence appears.
+- No vendor crossed the approval-ready cancellation threshold. Future cancellation still requires the exact approval phrase `Cancel <tool/vendor> for Portfolio`.
+
+Derived movement since the prior weekly report:
+
+- Gamma moved from 2026-07-26 HTTP 401 access drift to HTTP 200 on 2026-08-03 with 50 themes visible. It remains a watch item because dashboard credits and recent report/deck workflow need are still unverified, and `gamma_reports` rows remain stale since 2026-05-02.
+- Printful moved from split store-readable/sync-products HTTP 400 evidence to recovered store and sync-products visibility: two stores and 10 sync products were readable on 2026-08-03. It remains unresolved until dashboard order history and merchandise strategy are reviewed.
+- Read AI moved from connector-readable July meeting metadata in the prior weekly report to blocked direct API evidence plus no July/August Calendar keyword hits in the latest run. Treat this as plan-fit/dashboard visibility debt, not cancellation-ready proof.
+- n8n stayed operationally healthy with 85 workflows, 72 active workflows, and 25/25 sampled executions successful through 2026-08-03T12:00:52Z; drift-check workflow reads still return HTTP 403.
+- Supabase and Vercel remained keep posture: Supabase production MCP was readable with current table movement, and Vercel deployment watch passed both `portfolio` and `portfolio-staging` on 2026-08-03 while connector-scope reads remained blocked or invalid.
+- Vapi stayed a high-priority deprecation-review candidate because repeated read-only probes show zero sampled calls, but billing and product voice-scope decisions are still missing.
+- ElevenLabs stayed low-use at 1,047 of 300,000 current-cycle characters; campaign fit remains the decision gate.
+- OpenRouter credits stayed visible at 71.55 total credits, but sampled usage detail and current workflow role remain unclear.
+
+Current buckets:
+
+- Active keep: Supabase, n8n Cloud, Vercel, Stripe, OpenAI, Slack, Apify, Hunter.io, Google Cloud, Calendly, Printful, BuiltWith during outreach ramp, HeyGen for video workflows, and core app-side integrations.
+- Watch items: BuiltWith, Vapi, Gamma, ElevenLabs, HeyGen, OpenRouter, Pinecone, Read AI, Calendly, Resend, Anthropic billing transition, Gemini/Google AI billing/project status, Apify actor-level pruning, Printful store strategy, and design/media-tool billing.
+- Unresolved items needing dashboard/login or owner review: Vapi billing and voice scope, Resend production env/billing, Gamma credits and report need, Read AI dashboard/connector evidence, HeyGen quota/avatar health, Pinecone traffic/billing, OpenRouter role/spend, Printful order history, and Figma/Paper/Excalidraw/Canva billing.
+- Candidate cancellation/deprecation packet candidates to investigate, not approve: Vapi, Resend, Gamma, Read AI, ElevenLabs, Calendly, HeyGen, OpenRouter, Pinecone, and design/media subscriptions.
+- Resolved/canceled: Fireflies.ai.
+
+Next weekly focus:
+
+- Follow the 12 open action-tracker items; no completed or dismissed feedback was present.
+- Keep direct checks read-only and separate raw findings, derived movement, and recommendations.
+- Prioritize dashboard/login review for Vapi, Resend, Gamma, Read AI, HeyGen, Pinecone, OpenRouter, Printful, ElevenLabs, Calendly, Anthropic, Gemini/Google AI, and design/media tools.
+- Repair n8n drift-check credential scope and Vercel connector scope without treating either access issue as inactivity.
+- Keep BuiltWith active while collecting outreach-ramp outcome evidence, and keep Fireflies out of the active queue unless new paid-plan evidence appears.
+
+## 2026-08-03 Daily Monitor Run
+
+Status: YELLOW
+
+Detailed run artifact: [`docs/subscription-monitor-runs/2026-08-03.md`](subscription-monitor-runs/2026-08-03.md)
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- Repo checkout started on `codex/auth-validation-production-env...origin/codex/auth-validation-production-env [gone]` with existing subscription-monitor dirty work; today's edits stayed scoped to monitor outputs.
+- Supabase production MCP was readable, DB health passed, and aggregate timestamps showed analytics latest on `2026-08-02`, agent/work-item/social tables latest on `2026-07-31`, and several media/report rows still older.
+- n8n Cloud returned 85 workflows with 72 active and 25/25 sampled executions successful through `2026-08-03T12:00:52Z`; the drift checker still returned 403 for all four tracked workflow reads.
+- Vercel deployment watcher passed both `portfolio` and `portfolio-staging` with `2026-08-03` successful deployments; Vercel connector reads remained invalid or 403 for the `vsillahs-projects` scope.
+- OpenAI, Anthropic, Gemini/Google AI, Gamma, Pinecone, Apify, Hunter, Printful, Stripe, Slack, BuiltWith, OpenRouter, ElevenLabs, HeyGen voices, and core app-side integrations were readable or dependency-backed.
+- Vapi returned zero sampled calls, Resend had no local safe key, Calendly direct API returned HTTP 401 despite 3 Calendly-linked calendar events, Read AI direct API returned HTTP 401 with 0 calendar keyword matches, and HeyGen avatars timed out again.
+- BuiltWith remains active/watch during the outreach ramp; Fireflies remains resolved canceled unless new paid-plan evidence appears.
+
+## 2026-08-02 Daily Monitor Run
+
+Status: YELLOW
+
+Detailed run artifact: [`docs/subscription-monitor-runs/2026-08-02.md`](subscription-monitor-runs/2026-08-02.md)
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- Repo checkout started on `codex/auth-validation-reliability` with unrelated auth-validation dirty work plus prior monitor artifacts; today's subscription edits stayed scoped to monitor outputs.
+- Supabase production was directly readable through MCP: `analytics_events` moved on `2026-08-02`, agent/work-item/social tables moved on `2026-07-31`, and DB health passed.
+- n8n Cloud returned 85 workflows with 72 active and 25/25 sampled executions successful through `2026-08-02T12:00:52Z`; the drift checker still returned 403 for all four tracked workflow reads.
+- Vercel connector grouped runtime-log read returned `INVALID_ARGUMENT`, but `npm run deploy:watch:once` passed both `Vercel - portfolio` and `Vercel - portfolio-staging`.
+- OpenAI, Anthropic, Gemini/Google AI, Pinecone, Apify, Hunter, Printful, Stripe, Slack, BuiltWith, OpenRouter, ElevenLabs, Read AI connector metadata, HeyGen voices, and core app-side integrations were readable or dependency-backed.
+- Vapi returned zero sampled calls, Gamma and Calendly direct APIs returned HTTP 401, Resend had no local safe key, Read AI direct key was absent, HeyGen avatars timed out again, and Apify recent account runs remained mixed.
+- BuiltWith remains active/watch during the outreach ramp; Fireflies remains resolved canceled unless new paid-plan evidence appears.
+
+## 2026-08-01 Daily Monitor Run
+
+Status: YELLOW
+
+Detailed run artifact: [`docs/subscription-monitor-runs/2026-08-01.md`](subscription-monitor-runs/2026-08-01.md)
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- Repo checkout started on detached `HEAD` at `7591da2d` with prior monitor-owned dirty files; today's edits stayed scoped to subscription monitor artifacts.
+- Supabase production was directly readable through MCP: analytics moved on `2026-08-01`, agent tables moved on `2026-07-31`, social content moved on `2026-07-31`, and DB health passed.
+- n8n Cloud returned 85 workflows with 72 active and 25/25 sampled executions successful through `2026-08-01T12:00:52Z`; the drift checker still returned 403 for all four tracked workflow reads.
+- Vercel connector reads remained blocked or invalid for the project scope, but `npm run deploy:watch:once` passed both `Vercel - portfolio` and `Vercel - portfolio-staging`.
+- OpenAI, Anthropic, Gemini/Google AI, Pinecone, Apify, Hunter, Printful, Stripe, Slack, BuiltWith, OpenRouter, ElevenLabs, Read AI connector metadata, HeyGen voices, and core app-side integrations were readable or dependency-backed.
+- Vapi returned zero sampled calls, Gamma returned HTTP 401, Calendly direct API returned HTTP 401, Resend had no local safe key, Read AI direct key was absent, and HeyGen avatars timed out again.
+- BuiltWith remains active/watch during the outreach ramp; Fireflies remains resolved canceled unless new paid-plan evidence appears.
+
+## 2026-07-31 Daily Monitor Run
+
+Status: YELLOW
+
+Detailed run artifact: [`docs/subscription-monitor-runs/2026-07-31.md`](subscription-monitor-runs/2026-07-31.md)
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- Repo checkout started clean on detached `HEAD` at `7591da2d`; today's edits stayed scoped to subscription monitor artifacts.
+- Supabase production was directly readable through MCP: agent tables moved on `2026-07-30`, social content moved on `2026-07-29`, analytics moved on `2026-07-28`, and DB health passed.
+- n8n Cloud returned 85 workflows with 72 active and 25/25 sampled executions successful through `2026-07-31T12:00:52Z`; the drift checker still returned 403 for all four tracked workflow reads.
+- Vercel deployment watch passed both `Vercel - portfolio` and `Vercel - portfolio-staging` with same-day successful deployments.
+- OpenAI, Anthropic, Gemini/Google AI, Pinecone, Apify, Hunter, Printful, Stripe, Slack, BuiltWith, OpenRouter, ElevenLabs, HeyGen voices, and core app-side integrations were readable or dependency-backed.
+- Vapi returned zero sampled calls, Gamma returned HTTP 401 after yesterday's readable probe, Calendly and Read AI direct API returned HTTP 401, Resend had no local safe key, and HeyGen avatars timed out again.
+- BuiltWith remains active/watch during the outreach ramp; Fireflies remains resolved canceled unless new paid-plan evidence appears.
+
 ## 2026-07-30 Daily Monitor Run
 
 Status: YELLOW
