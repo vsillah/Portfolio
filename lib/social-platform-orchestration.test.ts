@@ -91,7 +91,7 @@ describe('buildPlatformOrchestrationPlan', () => {
     ))).toEqual(['available'])
   })
 
-  it('routes X through manual handoff instead of automatic submission', () => {
+  it('connects X to automatic submission when user posting credentials are active', () => {
     const plan = buildPlatformOrchestrationPlan({
       targetPlatforms: ['x'],
       copyApproved: true,
@@ -104,16 +104,21 @@ describe('buildPlatformOrchestrationPlan', () => {
         status: 'pending',
         platform_post_url: null,
       }],
-      platformConfigs: [],
+      platformConfigs: [{
+        platform: 'x',
+        is_active: true,
+        credentials: { access_token: 'token' },
+        settings: { profile_handle: 'amadutown' },
+      }],
     })
 
-    expect(plan.anyAutomaticSubmissionAvailable).toBe(false)
+    expect(plan.anyAutomaticSubmissionAvailable).toBe(true)
     expect(plan.platforms[0]).toMatchObject({
       platform: 'x',
       label: 'X',
-      automaticSubmissionSupported: false,
+      automaticSubmissionSupported: true,
       publishStatus: 'pending',
-      nextAction: 'X automatic submission is not connected yet.',
+      nextAction: 'Submit to X through the configured platform integration.',
     })
     expect(plan.platforms[0].stages.map((stage) => [stage.key, stage.state])).toEqual([
       ['human_approval', 'complete'],
@@ -121,8 +126,26 @@ describe('buildPlatformOrchestrationPlan', () => {
       ['platform_draft_handoff', 'complete'],
       ['platform_configuration', 'complete'],
       ['final_submission_gate', 'complete'],
-      ['automatic_submission', 'blocked'],
+      ['automatic_submission', 'available'],
     ])
+  })
+
+  it('blocks X automatic submission until provider credentials are active', () => {
+    const plan = buildPlatformOrchestrationPlan({
+      targetPlatforms: ['x'],
+      copyApproved: true,
+      productionReady: true,
+      redactionReady: true,
+      draftHandoffReady: true,
+      finalSubmissionGateReady: true,
+      platformConfigs: [],
+    })
+
+    expect(plan.anyAutomaticSubmissionAvailable).toBe(false)
+    expect(plan.platforms[0].nextAction).toBe('Connect and activate X in Social Content settings.')
+    expect(plan.platforms[0].stages.find((stage) => stage.key === 'platform_configuration')).toMatchObject({
+      state: 'blocked',
+    })
   })
 
   it('keeps platform submission blocked until privacy and asset readiness clear', () => {

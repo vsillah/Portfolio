@@ -101,7 +101,7 @@ const PLATFORM_LABELS: Record<SocialPlatform, string> = {
   x: 'X',
 }
 
-const AUTOMATIC_SUBMISSION_SUPPORTED = new Set<SocialPlatform>(['linkedin', 'youtube', 'instagram', 'facebook', 'tiktok'])
+const AUTOMATIC_SUBMISSION_SUPPORTED = new Set<SocialPlatform>(['linkedin', 'youtube', 'instagram', 'facebook', 'tiktok', 'x'])
 
 export function isAutomaticSubmissionSupported(platform: SocialPlatform) {
   return AUTOMATIC_SUBMISSION_SUPPORTED.has(platform)
@@ -424,8 +424,8 @@ export function getPlatformAssetReadiness(
       return {
         ready: hasPostText,
         detail: hasPostText
-          ? 'X copy is ready for manual handoff.'
-          : 'X needs post text before manual handoff.',
+          ? 'X copy is ready for submission.'
+          : 'X needs post text before submission.',
       }
     default:
       return {
@@ -463,13 +463,6 @@ function hasPlatformConfiguration(
   platform: SocialPlatform,
   config: Pick<SocialContentConfig, 'platform' | 'credentials' | 'settings' | 'is_active'> | undefined,
 ) {
-  if (platform === 'x') {
-    return {
-      ready: true,
-      detail: 'X is configured for manual review and handoff. Automatic posting is not connected.',
-    }
-  }
-
   if (!config?.is_active) {
     return {
       ready: false,
@@ -538,6 +531,16 @@ function hasPlatformConfiguration(
         detail: hasToken && creatorConfirmed && sourceUrlApproved
           ? 'TikTok Direct Post credentials and URL ingestion approval are configured.'
           : `TikTok needs ${missing.join(', ')}.`,
+      }
+    }
+    case 'x': {
+      const hasToken = truthyString(configField(config, 'access_token'))
+      const handle = configField(config, 'profile_handle')
+      return {
+        ready: hasToken,
+        detail: hasToken
+          ? `X credentials are configured${truthyString(handle) ? ` for @${String(handle).replace(/^@/, '')}` : ''}.`
+          : 'X needs a user access token with posting scope.',
       }
     }
     default:

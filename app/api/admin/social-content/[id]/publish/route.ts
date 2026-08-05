@@ -6,6 +6,7 @@ import { publishToYouTube } from '@/lib/publishing/youtube'
 import { publishToInstagram } from '@/lib/publishing/instagram'
 import { publishToFacebook } from '@/lib/publishing/facebook'
 import { publishToTikTok } from '@/lib/publishing/tiktok'
+import { publishToX } from '@/lib/publishing/x'
 import type { SocialPlatform } from '@/lib/social-content'
 import { getProductionAssets, getVideoRedactionGate } from '@/lib/social-production-assets'
 import { buildPlatformOrchestrationPlan, isPlatformSubmissionGateApproved } from '@/lib/social-platform-orchestration'
@@ -166,6 +167,7 @@ export async function POST(
           carouselSlideUrls: item.carousel_slide_urls,
           youtubeTitle: item.youtube_title,
           youtubeDescription: item.youtube_description,
+          ragContext: item.rag_context,
         }
 
         switch (platform) {
@@ -183,6 +185,9 @@ export async function POST(
 
           case 'tiktok':
             return { platform, result: await publishToTikTok(payload) }
+
+          case 'x':
+            return { platform, result: await publishToX(payload) }
 
           default:
             // Mark as skipped until these modules are implemented

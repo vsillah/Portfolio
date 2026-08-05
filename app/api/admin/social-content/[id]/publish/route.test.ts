@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
   publishToInstagram: vi.fn(),
   publishToFacebook: vi.fn(),
   publishToTikTok: vi.fn(),
+  publishToX: vi.fn(),
   syncCampaignCalendarForSocialContent: vi.fn(),
 }))
 
@@ -45,6 +46,10 @@ vi.mock('@/lib/publishing/facebook', () => ({
 
 vi.mock('@/lib/publishing/tiktok', () => ({
   publishToTikTok: mocks.publishToTikTok,
+}))
+
+vi.mock('@/lib/publishing/x', () => ({
+  publishToX: mocks.publishToX,
 }))
 
 vi.mock('@/lib/social-content-calendar-linkage', () => ({
@@ -195,6 +200,14 @@ function platformConfigsFor(publishes: Array<Record<string, unknown>>) {
         is_active: true,
         credentials: { access_token: 'token' },
         settings: { creator_info_confirmed: true, source_url_approved: true },
+      }
+    }
+    if (platform === 'x') {
+      return {
+        platform,
+        is_active: true,
+        credentials: { access_token: 'token' },
+        settings: { profile_handle: 'amadutown', thread_reply_enabled: true },
       }
     }
     return { platform, is_active: false, credentials: {}, settings: {} }
@@ -640,5 +653,52 @@ describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => 
     const body = await response.json()
     expect(body.published).toBe(false)
     expect(queueUpdate).not.toHaveBeenCalled()
+  })
+
+  it('dispatches X publishing with approved thread context', async () => {
+    const { queueUpdate } = installPublishRouteSupabase({
+      item: {
+        id: 'social-1',
+        status: 'approved',
+        post_text: 'Thread seed',
+        cta_text: null,
+        cta_url: null,
+        hashtags: [],
+        image_url: null,
+        video_url: null,
+        youtube_title: null,
+        youtube_description: null,
+        carousel_slide_urls: null,
+        rag_context: {
+          ...approvedGate(['x']),
+          x_thread_posts: ['First X post.', 'Second X post.'],
+        },
+      },
+      publishes: [
+        { platform: 'x', status: 'pending' },
+      ],
+    })
+    mocks.publishToX.mockResolvedValue({
+      success: true,
+      platformPostId: 'x-post-1',
+      platformPostUrl: 'https://x.com/amadutown/status/x-post-1',
+      threadPostIds: ['x-post-1', 'x-post-2'],
+    })
+
+    const response = await POST(request({ platforms: ['x'] }), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    expect(body.published).toBe(true)
+    expect(mocks.publishToX).toHaveBeenCalledWith(expect.objectContaining({
+      contentId: 'social-1',
+      postText: 'Thread seed',
+      ragContext: expect.objectContaining({
+        x_thread_posts: ['First X post.', 'Second X post.'],
+      }),
+    }))
+    expect(queueUpdate).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'published',
+    }))
   })
 })

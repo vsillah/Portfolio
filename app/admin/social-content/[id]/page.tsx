@@ -388,6 +388,7 @@ function SocialContentDetailPage() {
   const [selectedSlide, setSelectedSlide] = useState(0)
   const [publishing, setPublishing] = useState(false)
   const [connectingYouTube, setConnectingYouTube] = useState(false)
+  const [connectingX, setConnectingX] = useState(false)
   const [refreshingEngagement, setRefreshingEngagement] = useState(false)
   const [savingCalibration, setSavingCalibration] = useState(false)
   const [savingGoldStandard, setSavingGoldStandard] = useState(false)
@@ -1388,6 +1389,34 @@ function SocialContentDetailPage() {
       showMsg('error', 'YouTube connection could not start')
     } finally {
       setConnectingYouTube(false)
+    }
+  }
+
+  const handleConnectX = async () => {
+    setConnectingX(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) {
+        showMsg('error', 'Sign in before connecting X')
+        return
+      }
+
+      const res = await fetch('/api/auth/x', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      })
+      const data = await res.json().catch(() => null)
+      if (!res.ok || !data?.auth_url) {
+        showMsg('error', data?.error || 'X connection could not start')
+        return
+      }
+
+      window.location.assign(data.auth_url)
+    } catch {
+      showMsg('error', 'X connection could not start')
+    } finally {
+      setConnectingX(false)
     }
   }
 
@@ -4605,6 +4634,7 @@ function SocialContentDetailPage() {
           <div className="mt-4 grid gap-3 lg:grid-cols-2">
             {platformSubmissionPlan.platforms.map((platformPlan) => {
                   const automaticStage = platformPlan.stages.find((stage) => stage.key === 'automatic_submission')
+                  const configurationStage = platformPlan.stages.find((stage) => stage.key === 'platform_configuration')
                   const finalGateStage = platformPlan.stages.find((stage) => stage.key === 'final_submission_gate')
                   const canSubmitPlatform = automaticStage?.state === 'available'
                   const canApproveFinalSubmission = finalGateStage?.state === 'pending'
@@ -4724,6 +4754,23 @@ function SocialContentDetailPage() {
                           </button>
                         </div>
                       ) : null}
+                    </div>
+                  ) : null}
+
+                  {platformPlan.platform === 'x' && configurationStage?.state === 'blocked' ? (
+                    <div className="mt-3 flex flex-col gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 sm:flex-row sm:items-center sm:justify-between">
+                      <p className="text-xs leading-5 text-amber-50/85">
+                        Connect @amadutown before final X submission. This authorizes the adapter only; it does not post this item until the final submit action runs.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={handleConnectX}
+                        disabled={connectingX}
+                        className="inline-flex min-h-9 shrink-0 items-center justify-center gap-2 rounded-lg border border-amber-400/50 bg-amber-400/15 px-3 py-2 text-xs font-semibold text-amber-50 transition-colors hover:bg-amber-400/25 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {connectingX ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ExternalLink className="h-3.5 w-3.5" />}
+                        {connectingX ? 'Opening X...' : 'Connect X'}
+                      </button>
                     </div>
                   ) : null}
 

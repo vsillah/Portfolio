@@ -113,7 +113,7 @@ function handoffKindFor(item: SocialContentCalendarItem, socialContentId: string
 }
 
 function publishGateFor(item: SocialContentCalendarItem) {
-  if (item.channel === 'x') return 'manual_handoff_gated'
+  if (item.channel === 'x') return 'platform_review_gated'
   return item.channel === 'linkedin' ? 'draft_only' : 'platform_review_gated'
 }
 

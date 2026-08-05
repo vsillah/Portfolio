@@ -349,7 +349,7 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
     expect(fetchSpy).not.toHaveBeenCalled()
   })
 
-  it('records X final approval as a manual handoff without auto-triggering publish', async () => {
+  it('records X final approval and auto-triggers publish when the provider is configured', async () => {
     const { publishUpsert, queueUpdate } = installSupabase({
       item: {
         id: 'social-1',
@@ -365,7 +365,14 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
       publishes: [
         { platform: 'x', status: 'pending', platform_post_url: null },
       ],
-      configs: [],
+      configs: [
+        {
+          platform: 'x',
+          is_active: true,
+          credentials: { access_token: 'token' },
+          settings: { profile_handle: 'amadutown', thread_reply_enabled: true },
+        },
+      ],
     })
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
       new Response(JSON.stringify({ published: true }), { status: 200 }),
@@ -375,8 +382,8 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
 
     expect(response.status).toBe(200)
     const body = await response.json()
-    expect(body.submit_triggered).toBe(false)
-    expect(body.auto_submit_blocked_platforms).toEqual(['x'])
+    expect(body.submit_triggered).toBe(true)
+    expect(body.auto_submit_blocked_platforms).toEqual([])
     expect(publishUpsert).toHaveBeenCalledWith([
       { content_id: 'social-1', platform: 'x', status: 'pending' },
     ], { onConflict: 'content_id,platform', ignoreDuplicates: true })
@@ -385,12 +392,18 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
         platform_submission_gate: expect.objectContaining({
           status: 'approved',
           platforms: ['x'],
-          submit_after_approval: false,
-          auto_submit_blocked_platforms: ['x'],
+          submit_after_approval: true,
+          auto_submit_blocked_platforms: [],
         }),
       }),
     }))
-    expect(fetchSpy).not.toHaveBeenCalled()
+    expect(fetchSpy).toHaveBeenCalledWith(
+      'http://localhost/api/admin/social-content/social-1/publish',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ platforms: ['x'] }),
+      }),
+    )
   })
 
   it('does not approve final submission while video redaction items are unresolved', async () => {
