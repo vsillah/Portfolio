@@ -15,6 +15,10 @@
     {
       "path": "/api/cron/social-topic-backlog",
       "schedule": "0 16 * * 1-5"
+    },
+    {
+      "path": "/api/cron/social-content-scheduled-publish",
+      "schedule": "0 * * * *"
     }
   ]
 }
