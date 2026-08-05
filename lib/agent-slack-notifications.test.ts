@@ -31,10 +31,12 @@ import { buildAgentSlackNotificationPayload, sendAgentSlackNotification } from '
 
 const ORIGINAL_ENV = process.env
 
-function queryResult(result: unknown, promiseMethods: Array<'in' | 'limit' | 'maybeSingle'> = ['limit', 'maybeSingle']) {
+function queryResult(result: unknown, promiseMethods: Array<'select' | 'in' | 'limit' | 'maybeSingle'> = ['limit', 'maybeSingle']) {
   const query: Record<string, unknown> = {
-    select: vi.fn(() => query),
+    select: vi.fn(() => (promiseMethods.includes('select') ? Promise.resolve(result) : query)),
     eq: vi.fn(() => query),
+    gte: vi.fn(() => query),
+    lte: vi.fn(() => query),
     in: vi.fn(() => (promiseMethods.includes('in') ? Promise.resolve(result) : query)),
     order: vi.fn(() => query),
     limit: vi.fn(() => (promiseMethods.includes('limit') ? Promise.resolve(result) : query)),
@@ -352,6 +354,113 @@ describe('Agent Ops Slack notifications', () => {
     expect(blocks).toContain('approval.ask_shaka')
     expect(blocks).not.toContain('agent_approval_approve')
     expect(blocks).not.toContain('approval.approve')
+  })
+
+  it('surfaces near-due Social Content publish blockers without Slack approval controls', async () => {
+    process.env.NEXT_PUBLIC_BASE_URL = 'https://amadutown.com'
+    mocks.from
+      .mockReturnValueOnce(queryResult({
+        data: [
+          {
+            id: 'social-x-due',
+            topic_extracted: { topic: 'Agentified X thread' },
+            platform: 'x',
+            target_platforms: ['x'],
+            status: 'scheduled',
+            scheduled_for: '2026-08-05T20:00:00.000Z',
+            post_text: 'Approved X copy',
+            rag_context: null,
+          },
+        ],
+        error: null,
+      }))
+      .mockReturnValueOnce(queryResult({
+        data: [
+          {
+            content_id: 'social-x-due',
+            platform: 'x',
+            status: 'pending',
+            platform_post_url: null,
+          },
+        ],
+        error: null,
+      }, ['in']))
+      .mockReturnValueOnce(queryResult({
+        data: [
+          {
+            platform: 'x',
+            is_active: true,
+            credentials: { access_token: 'redacted-test-token' },
+            settings: { profile_handle: 'amadutown' },
+          },
+        ],
+        error: null,
+      }, ['select']))
+
+    const payload = await buildAgentSlackNotificationPayload({ kind: 'social_publish_gate_due' })
+
+    expect(payload).toMatchObject({
+      itemCount: 1,
+      text: '1 near-due Social Content item(s) need human QA before scheduled publishing.',
+    })
+    const blocks = JSON.stringify(payload.blocks)
+    expect(blocks).toContain('Scheduled Social Content needs human QA')
+    expect(blocks).toContain('Agentified X thread')
+    expect(blocks).toContain('Approve X platform submission as a separate gate.')
+    expect(blocks).toContain('/admin/social-content/social-x-due?step=submit')
+    expect(blocks).toContain('Review gate')
+    expect(blocks).not.toContain('approval.approve')
+    expect(blocks).not.toContain('agent_approval_approve')
+  })
+
+  it('does not alert when the provider publish record is already complete', async () => {
+    process.env.NEXT_PUBLIC_BASE_URL = 'https://amadutown.com'
+    mocks.from
+      .mockReturnValueOnce(queryResult({
+        data: [
+          {
+            id: 'social-published-row',
+            topic_extracted: { topic: 'Already posted item' },
+            platform: 'x',
+            target_platforms: ['x'],
+            status: 'scheduled',
+            scheduled_for: '2026-08-05T20:00:00.000Z',
+            post_text: 'Approved X copy',
+            rag_context: null,
+          },
+        ],
+        error: null,
+      }))
+      .mockReturnValueOnce(queryResult({
+        data: [
+          {
+            content_id: 'social-published-row',
+            platform: 'x',
+            status: 'published',
+            platform_post_url: 'https://x.com/amadutown/status/1',
+          },
+        ],
+        error: null,
+      }, ['in']))
+      .mockReturnValueOnce(queryResult({
+        data: [
+          {
+            platform: 'x',
+            is_active: true,
+            credentials: { access_token: 'redacted-test-token' },
+            settings: { profile_handle: 'amadutown' },
+          },
+        ],
+        error: null,
+      }, ['select']))
+
+    const payload = await buildAgentSlackNotificationPayload({ kind: 'social_publish_gate_due' })
+
+    expect(payload).toMatchObject({
+      itemCount: 0,
+      text: 'No near-due Social Content publish gates need human QA.',
+    })
+    expect(JSON.stringify(payload.blocks)).not.toContain('Already posted item')
   })
 
   it('uses review-ready work item actions for owned cards waiting on inspection', async () => {

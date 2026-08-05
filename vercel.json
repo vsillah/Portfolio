@@ -19,6 +19,10 @@
     {
       "path": "/api/cron/social-content-scheduled-publish",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/social-content-human-gate-reminders",
+      "schedule": "0 * * * *"
     }
   ]
 }

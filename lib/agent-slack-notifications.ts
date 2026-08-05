@@ -8,6 +8,11 @@ import {
   highSignalInsightsSlackText,
 } from '@/lib/agent-slack-insights'
 import { supabaseAdmin } from '@/lib/supabase'
+import type { PublishStatus, SocialPlatform } from '@/lib/social-content'
+import {
+  buildPlatformOrchestrationPlan,
+  isPlatformSubmissionGateApproved,
+} from '@/lib/social-platform-orchestration'
 
 export type AgentSlackNotificationKind =
   | 'pending_approvals'
@@ -16,6 +21,7 @@ export type AgentSlackNotificationKind =
   | 'review_ready'
   | 'goal_decisions'
   | 'high_signal_insights'
+  | 'social_publish_gate_due'
   | 'standup_blockers'
   | 'selected_agent_question'
 
@@ -68,6 +74,36 @@ type SlackDeliveryResult = {
   ts?: string | null
 }
 
+type ScheduledSocialContentRow = {
+  id: string
+  topic_extracted?: unknown
+  platform?: SocialPlatform | null
+  target_platforms?: SocialPlatform[] | null
+  status?: string | null
+  scheduled_for?: string | null
+  post_text?: string | null
+  image_url?: string | null
+  video_url?: string | null
+  carousel_slide_urls?: string[] | null
+  youtube_title?: string | null
+  youtube_description?: string | null
+  rag_context?: unknown
+}
+
+type SocialPublishRow = {
+  content_id: string
+  platform: SocialPlatform
+  status: PublishStatus
+  platform_post_url: string | null
+}
+
+type SocialContentConfigRow = {
+  platform: SocialPlatform
+  credentials: Record<string, string>
+  settings: Record<string, string>
+  is_active: boolean
+}
+
 function baseUrl() {
   return (
     process.env.NEXT_PUBLIC_BASE_URL ||
@@ -75,6 +111,16 @@ function baseUrl() {
     process.env.NEXT_PUBLIC_SITE_URL ||
     'https://amadutown.com'
   ).replace(/\/$/, '')
+}
+
+function socialContentGateReminderWindowHours() {
+  const value = Number(process.env.SOCIAL_CONTENT_GATE_REMINDER_WINDOW_HOURS ?? 48)
+  return Number.isFinite(value) && value > 0 ? value : 48
+}
+
+function socialContentGateReminderLookbackHours() {
+  const value = Number(process.env.SOCIAL_CONTENT_GATE_REMINDER_LOOKBACK_HOURS ?? 24)
+  return Number.isFinite(value) && value > 0 ? value : 24
 }
 
 function agentUrl(path: string) {
@@ -204,6 +250,198 @@ function workItemContextButton(item: AgentWorkItem) {
     actionId: item.active_run_id || item.source_run_id ? 'open_trace' : 'open_kanban',
     url: workItemHref(item),
   })
+}
+
+function formatScheduledFor(value: string | null | undefined) {
+  if (!value) return 'No scheduled time'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZone: 'America/New_York',
+    timeZoneName: 'short',
+  }).format(date)
+}
+
+function socialContentTitle(row: ScheduledSocialContentRow) {
+  const topicExtracted = row.topic_extracted && typeof row.topic_extracted === 'object'
+    ? row.topic_extracted as Record<string, unknown>
+    : null
+  const topic = typeof topicExtracted?.topic === 'string' ? topicExtracted.topic.trim() : ''
+  const angle = typeof topicExtracted?.angle === 'string' ? topicExtracted.angle.trim() : ''
+  return topic
+    || angle
+    || row.youtube_title?.trim()
+    || truncateSlack(row.post_text, 80)
+    || row.id
+}
+
+function asSocialPlatforms(values: unknown[]): SocialPlatform[] {
+  const labels = new Set(['linkedin', 'youtube', 'instagram', 'facebook', 'tiktok', 'x'])
+  return Array.from(new Set(values)).filter((value): value is SocialPlatform => (
+    typeof value === 'string' && labels.has(value)
+  ))
+}
+
+async function scheduledSocialContentRows(limit = 10) {
+  if (!supabaseAdmin) throw new Error('Database not available')
+
+  const now = new Date()
+  const startsAt = new Date(now.getTime() - socialContentGateReminderLookbackHours() * 60 * 60 * 1000)
+  const endsAt = new Date(now.getTime() + socialContentGateReminderWindowHours() * 60 * 60 * 1000)
+
+  const { data, error } = await supabaseAdmin
+    .from('social_content_queue')
+    .select('id, topic_extracted, platform, target_platforms, status, scheduled_for, post_text, image_url, video_url, carousel_slide_urls, youtube_title, youtube_description, rag_context')
+    .eq('status', 'scheduled')
+    .gte('scheduled_for', startsAt.toISOString())
+    .lte('scheduled_for', endsAt.toISOString())
+    .order('scheduled_for', { ascending: true })
+    .limit(limit)
+
+  if (error) throw new Error(`Failed to read scheduled Social Content rows: ${error.message}`)
+  return (data ?? []) as ScheduledSocialContentRow[]
+}
+
+async function socialPublishRows(contentIds: string[]) {
+  if (!supabaseAdmin || !contentIds.length) return [] as SocialPublishRow[]
+  const { data, error } = await supabaseAdmin
+    .from('social_content_publishes')
+    .select('content_id, platform, status, platform_post_url')
+    .in('content_id', contentIds)
+  if (error) throw new Error(`Failed to read Social Content publish rows: ${error.message}`)
+  return (data ?? []) as SocialPublishRow[]
+}
+
+async function socialPlatformConfigs() {
+  if (!supabaseAdmin) return [] as SocialContentConfigRow[]
+  const { data, error } = await supabaseAdmin
+    .from('social_content_config')
+    .select('platform, credentials, settings, is_active')
+  if (error) throw new Error(`Failed to read Social Content platform config: ${error.message}`)
+  return (data ?? []) as SocialContentConfigRow[]
+}
+
+function blockedPlatformDetails(input: {
+  row: ScheduledSocialContentRow
+  publishes: SocialPublishRow[]
+  configs: SocialContentConfigRow[]
+}) {
+  const matchingPublishes = input.publishes.filter((publish) => publish.content_id === input.row.id)
+  const pendingPublishes = input.publishes.filter((publish) => (
+    publish.content_id === input.row.id && (publish.status === 'pending' || publish.status === 'failed')
+  ))
+  const targetPlatforms = asSocialPlatforms(
+    pendingPublishes.length
+      ? pendingPublishes.map((publish) => publish.platform)
+      : [
+        ...(Array.isArray(input.row.target_platforms) ? input.row.target_platforms : []),
+        input.row.platform,
+      ],
+  )
+  if (!targetPlatforms.length) return []
+
+  const plan = buildPlatformOrchestrationPlan({
+    item: input.row as never,
+    targetPlatforms,
+    publishRecords: matchingPublishes,
+    platformConfigs: input.configs,
+    copyApproved: true,
+    draftHandoffReady: matchingPublishes.length > 0,
+    finalSubmissionGateReady: isPlatformSubmissionGateApproved(input.row.rag_context, targetPlatforms),
+  })
+
+  return plan.platforms
+    .map((platformPlan) => {
+      const blocker = platformPlan.stages.find((stage) => (
+        stage.state === 'blocked' || stage.state === 'pending'
+      ))
+      const automaticStage = platformPlan.stages.find((stage) => stage.key === 'automatic_submission')
+      if (!blocker && automaticStage?.state === 'available') return null
+      if (!blocker) return null
+      return {
+        platform: platformPlan.platform,
+        label: platformPlan.label,
+        detail: blocker.detail,
+        nextAction: platformPlan.nextAction,
+      }
+    })
+    .filter((detail): detail is { platform: SocialPlatform; label: string; detail: string; nextAction: string } => Boolean(detail))
+}
+
+async function buildSocialPublishGateDuePayload() {
+  const rows = await scheduledSocialContentRows()
+  const publishes = await socialPublishRows(rows.map((row) => row.id))
+  const configs = await socialPlatformConfigs()
+  const items = rows
+    .map((row) => ({
+      row,
+      blockedDetails: blockedPlatformDetails({ row, publishes, configs }),
+    }))
+    .filter((item) => item.blockedDetails.length > 0)
+
+  const blocks: SlackBlock[] = [
+    {
+      type: 'section',
+      text: mrkdwn([
+        '*Scheduled Social Content needs human QA*',
+        `These items are scheduled within ${socialContentGateReminderWindowHours()} hours, or recently missed their window, but still have a publish blocker. Slack is only the reminder surface; approval stays in Portfolio.`,
+      ].join('\n')),
+    },
+  ]
+
+  if (!items.length) {
+    blocks.push({ type: 'section', text: mrkdwn('No near-due scheduled Social Content rows are blocked by human QA or provider readiness.') })
+    blocks.push({
+      type: 'actions',
+      elements: [slackButton({ label: 'Open Social Content', actionId: 'open_social_content', url: agentUrl('/admin/social-content') })],
+    })
+    return {
+      text: 'No near-due Social Content publish gates need human QA.',
+      blocks,
+      itemCount: 0,
+    }
+  }
+
+  for (const item of items.slice(0, 5)) {
+    const details = item.blockedDetails
+      .slice(0, 3)
+      .map((detail) => `• *${detail.label}:* ${truncateSlack(detail.detail, 180)}`)
+      .join('\n')
+    blocks.push({
+      type: 'section',
+      text: mrkdwn([
+        `*${truncateSlack(socialContentTitle(item.row), 120)}*`,
+        `Scheduled: \`${formatScheduledFor(item.row.scheduled_for)}\``,
+        details,
+      ].join('\n')),
+    })
+    blocks.push({
+      type: 'actions',
+      elements: [
+        slackButton({
+          label: 'Review gate',
+          actionId: 'open_social_content_submission_gate',
+          url: agentUrl(`/admin/social-content/${item.row.id}?step=submit`),
+          style: 'primary',
+        }),
+        slackButton({
+          label: 'Open queue',
+          actionId: 'open_social_content_queue',
+          url: agentUrl('/admin/social-content'),
+        }),
+      ],
+    })
+  }
+
+  return {
+    text: `${items.length} near-due Social Content item(s) need human QA before scheduled publishing.`,
+    blocks,
+    itemCount: items.length,
+  }
 }
 
 function workItemBlocks(title: string, intro: string, items: AgentWorkItem[], kind: AgentSlackNotificationKind) {
@@ -461,6 +699,7 @@ export async function buildAgentSlackNotificationPayload(input: AgentSlackNotifi
   if (input.kind === 'pending_approvals') return buildPendingApprovalPayload()
   if (input.kind === 'stale_runs') return buildStaleRunsPayload()
   if (input.kind === 'high_signal_insights') return buildHighSignalInsightsPayload()
+  if (input.kind === 'social_publish_gate_due') return buildSocialPublishGateDuePayload()
   return buildWorkItemPayload(input)
 }
 
