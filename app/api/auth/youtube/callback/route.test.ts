@@ -21,6 +21,13 @@ function request(url: string, stateCookie = 'state-1') {
   })
 }
 
+function mockExistingConfig(data: Record<string, unknown> | null = null) {
+  const maybeSingle = vi.fn().mockResolvedValue({ data, error: null })
+  const eq = vi.fn().mockReturnValue({ maybeSingle })
+  const select = vi.fn().mockReturnValue({ eq })
+  return { select, eq, maybeSingle }
+}
+
 describe('GET /api/auth/youtube/callback', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -48,14 +55,17 @@ describe('GET /api/auth/youtube/callback', () => {
 
   it('exchanges the code, stores credentials, and activates the youtube config row', async () => {
     const upsert = vi.fn().mockResolvedValue({ error: null })
-    mocks.from.mockReturnValue({ upsert })
+    const existingConfig = mockExistingConfig()
+    mocks.from
+      .mockReturnValueOnce(existingConfig)
+      .mockReturnValueOnce({ upsert })
     const fetchSpy = vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(new Response(JSON.stringify({
         access_token: 'access-token',
         refresh_token: 'refresh-token',
         expires_in: 3600,
         token_type: 'Bearer',
-        scope: 'https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.readonly',
+        scope: 'https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/youtube.force-ssl',
       }), { status: 200 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({
         items: [{
@@ -82,17 +92,70 @@ describe('GET /api/auth/youtube/callback', () => {
       }),
     )
     expect(mocks.from).toHaveBeenCalledWith('social_content_config')
+    expect(existingConfig.select).toHaveBeenCalledWith('credentials, settings')
+    expect(existingConfig.eq).toHaveBeenCalledWith('platform', 'youtube')
     expect(upsert).toHaveBeenCalledWith(expect.objectContaining({
       platform: 'youtube',
       is_active: true,
       credentials: expect.objectContaining({
         access_token: 'access-token',
         refresh_token: 'refresh-token',
+        scope: expect.stringContaining('youtube.force-ssl'),
       }),
       settings: expect.objectContaining({
         default_privacy: 'private',
         channel_id: 'UC123',
         channel_title: 'Vambah Sillah',
+      }),
+    }), { onConflict: 'platform' })
+  })
+
+  it('preserves the existing refresh token and settings when Google omits a new refresh token', async () => {
+    const upsert = vi.fn().mockResolvedValue({ error: null })
+    mocks.from
+      .mockReturnValueOnce(mockExistingConfig({
+        credentials: {
+          refresh_token: 'existing-refresh-token',
+          stale_field: 'keep-me',
+        },
+        settings: {
+          default_privacy: 'unlisted',
+          notify_subscribers: true,
+          channel_id: 'OLD',
+        },
+      }))
+      .mockReturnValueOnce({ upsert })
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        access_token: 'new-access-token',
+        expires_in: 3600,
+        token_type: 'Bearer',
+        scope: 'https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.force-ssl',
+      }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        items: [{
+          id: 'UC123',
+          snippet: {
+            title: 'AmaduTown Automation Solutions',
+            customUrl: '@amadutownautomation',
+          },
+        }],
+      }), { status: 200 }))
+
+    const response = await GET(request('https://amadutown.com/api/auth/youtube/callback?code=code-1&state=state-1'))
+
+    expect(response.status).toBe(307)
+    expect(upsert).toHaveBeenCalledWith(expect.objectContaining({
+      credentials: expect.objectContaining({
+        access_token: 'new-access-token',
+        refresh_token: 'existing-refresh-token',
+        stale_field: 'keep-me',
+      }),
+      settings: expect.objectContaining({
+        default_privacy: 'unlisted',
+        notify_subscribers: true,
+        channel_id: 'UC123',
+        channel_title: 'AmaduTown Automation Solutions',
       }),
     }), { onConflict: 'platform' })
   })
@@ -106,7 +169,9 @@ describe('GET /api/auth/youtube/callback', () => {
     process.env.GOOGLE_GMAIL_OAUTH_CLIENT_SECRET = 'gmail-google-client-secret'
 
     const upsert = vi.fn().mockResolvedValue({ error: null })
-    mocks.from.mockReturnValue({ upsert })
+    mocks.from
+      .mockReturnValueOnce(mockExistingConfig())
+      .mockReturnValueOnce({ upsert })
     const fetchSpy = vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(new Response(JSON.stringify({
         access_token: 'access-token',
