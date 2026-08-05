@@ -58,6 +58,8 @@ The long-form YouTube pilot is `AGT-YT-EP01`, "The Receipt Every Agent Needs." I
 
 Amina should run the X research process the same way she ran the YouTube lane: pattern-first, source-safe, original output only.
 
+Current public-safe evidence packet: `docs/content-strategy/agentified-x-research-evidence-2026-08-05.md`.
+
 Research targets should be selected from these comparable persona groups:
 
 - AI product operators explaining workflow and governance;
@@ -102,6 +104,8 @@ Use these as hypotheses, not finished copy:
 | Release thread | Use final shout date to connect problem, framework, proof, and CTA in one concise sequence. |
 
 ## Backlog
+
+Execution note: the P0 public-safe X evidence pass is recorded in `docs/content-strategy/agentified-x-research-evidence-2026-08-05.md`. It links source patterns to `AGT-X-01` through `AGT-X-04` without mutating calendar rows, copy, visuals, provider settings, or publication state.
 
 | Priority | Owner lane | Work item | Scope | Acceptance criteria |
 | --- | --- | --- | --- | --- |
