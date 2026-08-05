@@ -122,8 +122,8 @@ describe('/api/admin/content/agentified/campaign/import', () => {
         first_review_packet_path: 'agentified/campaign/launch-review-packet-2026-07-27.md',
         starts_at: '2026-07-27T15:00:00-04:00',
         ends_at: '2026-08-09T18:00:00-04:00',
-        calendar_item_count: 12,
-        supported_channels: ['linkedin', 'youtube_shorts', 'thumbnail'],
+        calendar_item_count: 17,
+        supported_channels: ['linkedin', 'x', 'youtube_shorts', 'youtube', 'thumbnail'],
         side_effects: expect.objectContaining({
           social_drafts_created: false,
           publish: false,
@@ -161,7 +161,7 @@ describe('/api/admin/content/agentified/campaign/import', () => {
       status: 'draft',
       created_by: 'admin-user',
     }))
-    expect(mocks.createAgentWorkItem).toHaveBeenCalledTimes(12)
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledTimes(17)
     expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
       source: expect.objectContaining({ type: 'social_topic_trigger', id: 'AGT-LI-01' }),
       metadata: expect.objectContaining({
@@ -185,7 +185,35 @@ describe('/api/admin/content/agentified/campaign/import', () => {
       }),
       idempotencyKey: 'agentified-launch:AGT-LI-01',
     }))
-    expect(calendarCreate.insert).toHaveBeenCalledTimes(12)
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
+      source: expect.objectContaining({ type: 'social_topic_trigger', id: 'AGT-X-04' }),
+      metadata: expect.objectContaining({
+        agentified_asset_id: 'AGT-X-04',
+        calendar_channel: 'x',
+        channel_lanes: expect.objectContaining({
+          x: expect.objectContaining({ status: 'selected' }),
+        }),
+        insight: expect.objectContaining({
+          content_angle: expect.stringContaining('final shout moment'),
+          approved_research_patterns: expect.arrayContaining([
+            expect.objectContaining({ pattern_status: 'usable_framework' }),
+          ]),
+        }),
+      }),
+      idempotencyKey: 'agentified-launch:AGT-X-04',
+    }))
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
+      source: expect.objectContaining({ type: 'social_topic_trigger', id: 'AGT-YT-EP01' }),
+      metadata: expect.objectContaining({
+        agentified_asset_id: 'AGT-YT-EP01',
+        calendar_channel: 'youtube',
+        channel_lanes: expect.objectContaining({
+          youtube: expect.objectContaining({ status: 'selected' }),
+        }),
+      }),
+      idempotencyKey: 'agentified-launch:AGT-YT-EP01',
+    }))
+    expect(calendarCreate.insert).toHaveBeenCalledTimes(17)
     expect(calendarCreate.insert).toHaveBeenCalledWith(expect.objectContaining({
       campaign_id: 'campaign-agentified',
       agent_work_item_id: 'work-AGT-LI-01',
@@ -197,8 +225,8 @@ describe('/api/admin/content/agentified/campaign/import', () => {
         agentified_asset_id: 'AGT-LI-01',
         schedule_mode: 'relative_to_final_shout',
         schedule_anchor: expect.objectContaining({
-          final_asset_id: 'AGT-PAGE-01',
-          final_release_at: '2026-08-09T16:00:00.000Z',
+          final_asset_id: 'AGT-X-04',
+          final_release_at: '2026-08-09T22:00:00.000Z',
         }),
         first_review_packet_path: 'agentified/campaign/launch-review-packet-2026-07-27.md',
         external_execution_enabled: false,
@@ -212,8 +240,8 @@ describe('/api/admin/content/agentified/campaign/import', () => {
     expect(await response.json()).toMatchObject({
       ok: true,
       campaign: { id: 'campaign-agentified', created: true },
-      work_items: { total: 12 },
-      calendar_items: { inserted_count: 12, updated_count: 0, total: 12 },
+      work_items: { total: 17 },
+      calendar_items: { inserted_count: 17, updated_count: 0, total: 17 },
       side_effects: {
         provider_generation: false,
         upload: false,
@@ -259,11 +287,11 @@ describe('/api/admin/content/agentified/campaign/import', () => {
       agent_work_item_id: 'work-AGT-LI-01',
       metadata: expect.objectContaining({ agentified_asset_id: 'AGT-LI-01' }),
     }))
-    expect(calendarCreate.insert).toHaveBeenCalledTimes(11)
+    expect(calendarCreate.insert).toHaveBeenCalledTimes(16)
     expect(await response.json()).toMatchObject({
       ok: true,
       campaign: { id: 'campaign-updated-1', created: false, updated: true },
-      calendar_items: { inserted_count: 11, updated_count: 1, total: 12 },
+      calendar_items: { inserted_count: 16, updated_count: 1, total: 17 },
     })
   })
 })

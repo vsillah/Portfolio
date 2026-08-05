@@ -57,6 +57,7 @@ const baseWorkItem = {
       youtube_shorts: { status: 'not_started', label: 'YouTube Shorts', required_inputs: ['hook', 'script'] },
       instagram_reels: { status: 'not_started', label: 'Instagram Reels', required_inputs: ['hook', 'caption'] },
       tiktok: { status: 'not_started', label: 'TikTok', required_inputs: ['hook', 'caption', 'audio rights'] },
+      x: { status: 'not_started', label: 'X', required_inputs: ['post text', 'thread option', 'CTA'] },
     },
   },
 }
@@ -139,7 +140,7 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
       metadata: expect.objectContaining({
         channel_review_workflow: expect.objectContaining({
           status: 'human_review_ready',
-          prepared_channels: ['linkedin', 'youtube_shorts', 'instagram_reels', 'tiktok'],
+          prepared_channels: ['linkedin', 'youtube_shorts', 'instagram_reels', 'tiktok', 'x'],
           prepared_at: '2026-06-24T15:00:00.000Z',
         }),
         channel_lanes: expect.objectContaining({
@@ -226,6 +227,31 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
               fields: expect.objectContaining({
                 audio_rights: expect.stringContaining('platform-safe audio'),
                 export_readiness: 'pending_human_approval',
+              }),
+            }),
+          }),
+          x: expect.objectContaining({
+            status: 'in_review',
+            review_requested_at: '2026-06-24T15:00:00.000Z',
+            draft_packet: expect.objectContaining({
+              channel: 'x',
+              orchestration_evidence: expect.objectContaining({
+                channel_structure: expect.objectContaining({
+                  format: expect.stringContaining('X post'),
+                  success_criteria: expect.arrayContaining([
+                    expect.stringContaining('X length constraints'),
+                  ]),
+                }),
+                portfolio_surfaces: expect.arrayContaining([
+                  expect.objectContaining({ route: '/admin/social-content' }),
+                ]),
+              }),
+              fields: expect.objectContaining({
+                post_text: expect.stringContaining('The Social Content review flow made the gate visible.'),
+                thread_option: expect.arrayContaining([
+                  expect.stringContaining('The Social Content review flow made the gate visible.'),
+                ]),
+                manual_handoff_gate: 'pending_human_approval_and_connected_x_provider',
               }),
             }),
           }),

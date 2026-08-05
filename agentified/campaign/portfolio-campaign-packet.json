@@ -67,6 +67,27 @@
       }
     },
     {
+      "asset_id": "AGT-X-01",
+      "campaign_slug": "agentified-trust-scale-2026-07",
+      "campaign_phase": "tease",
+      "channel": "x",
+      "title": "What breaks first when AI gets faster?",
+      "planned_angle": "Open the X thread with the same speed-versus-trust tension, then invite operators to name where their handoffs lose context.",
+      "scheduled_for": "2026-07-28T16:00:00-04:00",
+      "due_status": "planned",
+      "authorization_status": "pending",
+      "authorization_due_at": "2026-07-28T14:00:00-04:00",
+      "autonomy_eligible": false,
+      "metadata": {
+        "template_key": "whisper_to_shout",
+        "campaign_arc": "agentified_book_launch",
+        "human_gate_required": true,
+        "draft_asset_path": "agentified/campaign/draft-assets.md#agt-x-01",
+        "research_lane": "amina_x_research_to_calendar",
+        "source_distance_boundary": "Use public X creator patterns only as structural inputs; do not copy posts, hooks, threads, catchphrases, or distinctive visual identity."
+      }
+    },
+    {
       "asset_id": "AGT-CAR-01",
       "campaign_slug": "agentified-trust-scale-2026-07",
       "campaign_phase": "teach",
@@ -105,6 +126,27 @@
       }
     },
     {
+      "asset_id": "AGT-X-02",
+      "campaign_slug": "agentified-trust-scale-2026-07",
+      "campaign_phase": "teach",
+      "channel": "x",
+      "title": "The operating layer behind AMINA",
+      "planned_angle": "Turn the AMINA teaching frame into a concise X thread: Align, Map, Instrument, Negotiate, and Audit as the trust loop behind agentic work.",
+      "scheduled_for": "2026-07-30T16:00:00-04:00",
+      "due_status": "planned",
+      "authorization_status": "pending",
+      "authorization_due_at": "2026-07-30T14:00:00-04:00",
+      "autonomy_eligible": false,
+      "metadata": {
+        "template_key": "whisper_to_shout",
+        "campaign_arc": "agentified_book_launch",
+        "human_gate_required": true,
+        "draft_asset_path": "agentified/campaign/draft-assets.md#agt-x-02",
+        "research_lane": "amina_x_research_to_calendar",
+        "source_distance_boundary": "Use public X creator patterns only as structural inputs; do not copy posts, hooks, threads, catchphrases, or distinctive visual identity."
+      }
+    },
+    {
       "asset_id": "AGT-SHORT-01",
       "campaign_slug": "agentified-trust-scale-2026-07",
       "campaign_phase": "teach",
@@ -121,6 +163,29 @@
         "campaign_arc": "agentified_book_launch",
         "human_gate_required": true,
         "draft_asset_path": "agentified/campaign/draft-assets.md#agt-short-01"
+      }
+    },
+    {
+      "asset_id": "AGT-YT-EP01",
+      "campaign_slug": "agentified-trust-scale-2026-07",
+      "campaign_phase": "teach",
+      "channel": "youtube",
+      "title": "The Receipt Every Agent Needs",
+      "planned_angle": "Use the long-form YouTube pilot to show why agentic systems need receipts before the campaign reaches the proof and offer moments.",
+      "scheduled_for": "2026-08-01T10:00:00-04:00",
+      "due_status": "planned",
+      "authorization_status": "pending",
+      "authorization_due_at": "2026-07-31T17:00:00-04:00",
+      "autonomy_eligible": false,
+      "metadata": {
+        "template_key": "youtube_video_release",
+        "campaign_arc": "agentified_book_launch",
+        "human_gate_required": true,
+        "draft_asset_path": "docs/agentic-content-video-scripts/wave-1-youtube-scripts.md#episode-1-the-receipt-every-agent-needs",
+        "review_package_path": "docs/agentic-content-video-scripts/agentified-youtube-review-package.md",
+        "target_channel": "AmaduTown Automation Solutions",
+        "target_playlist": "Agentified",
+        "existing_queue_item_id": "9f9dd8f1-9d19-48ff-bedf-2a5779a44be8"
       }
     },
     {
@@ -179,6 +244,27 @@
         "campaign_arc": "agentified_book_launch",
         "human_gate_required": true,
         "draft_asset_path": "agentified/campaign/draft-assets.md#agt-li-05"
+      }
+    },
+    {
+      "asset_id": "AGT-X-03",
+      "campaign_slug": "agentified-trust-scale-2026-07",
+      "campaign_phase": "proof",
+      "channel": "x",
+      "title": "The workbook is the receipt path",
+      "planned_angle": "Use X to connect the workbook proof to a practical question: can a leader point to the source, boundary, gate, and receipt?",
+      "scheduled_for": "2026-08-05T16:00:00-04:00",
+      "due_status": "planned",
+      "authorization_status": "pending",
+      "authorization_due_at": "2026-08-05T14:00:00-04:00",
+      "autonomy_eligible": false,
+      "metadata": {
+        "template_key": "whisper_to_shout",
+        "campaign_arc": "agentified_book_launch",
+        "human_gate_required": true,
+        "draft_asset_path": "agentified/campaign/draft-assets.md#agt-x-03",
+        "research_lane": "amina_x_research_to_calendar",
+        "source_distance_boundary": "Use public X creator patterns only as structural inputs; do not copy posts, hooks, threads, catchphrases, or distinctive visual identity."
       }
     },
     {
@@ -257,6 +343,28 @@
         "human_gate_required": true,
         "draft_asset_path": "agentified/campaign/draft-assets.md#agt-page-01",
         "channel_note": "Portfolio social content calendar uses thumbnail as the closest internal creative placeholder channel for page CTA review."
+      }
+    },
+    {
+      "asset_id": "AGT-X-04",
+      "campaign_slug": "agentified-trust-scale-2026-07",
+      "campaign_phase": "offer",
+      "channel": "x",
+      "title": "Agentified release thread: build trust before scale",
+      "planned_angle": "Use the final shout moment as a concise release thread that points to the Agentified page and keeps provider posting behind explicit human authorization.",
+      "scheduled_for": "2026-08-09T18:00:00-04:00",
+      "due_status": "planned",
+      "authorization_status": "pending",
+      "authorization_due_at": "2026-08-09T16:00:00-04:00",
+      "autonomy_eligible": false,
+      "metadata": {
+        "template_key": "whisper_to_shout",
+        "campaign_arc": "agentified_book_launch",
+        "human_gate_required": true,
+        "draft_asset_path": "agentified/campaign/draft-assets.md#agt-x-04",
+        "research_lane": "amina_x_research_to_calendar",
+        "source_distance_boundary": "Use public X creator patterns only as structural inputs; do not copy posts, hooks, threads, catchphrases, or distinctive visual identity.",
+        "final_shout_anchor": true
       }
     }
   ]
