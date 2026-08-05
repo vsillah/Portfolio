@@ -13,20 +13,26 @@ Baseline note: Rebased on 2026-07-27. No item in this calendar has been posted, 
 | --- | ---: | --- | --- | --- | --- | --- | --- |
 | 2026-07-27 | 3:00 PM | `AGT-LI-01` | `tease` | LinkedIn | The speed problem is becoming a trust problem | Open the campaign with the central operating tension. | `pending` |
 | 2026-07-28 | 12:00 PM | `AGT-LI-02` | `tease` | LinkedIn | The first agentic failure is usually a handoff failure | Make the issue concrete for product leaders. | `pending` |
+| 2026-07-28 | 4:00 PM | `AGT-X-01` | `tease` | X | What breaks first when AI gets faster? | Turn the speed-versus-trust tension into an X conversation starter. | `pending` |
 | 2026-07-29 | 9:00 AM | `AGT-CAR-01` | `teach` | LinkedIn carousel | AMINA: the operating loop for agentic work | Teach the five-part frame. | `pending` |
 | 2026-07-30 | 12:00 PM | `AGT-LI-03` | `teach` | LinkedIn | What "Accelerated" taught me about Agentified | Tie the new book to the SAM loop lineage. | `pending` |
+| 2026-07-30 | 4:00 PM | `AGT-X-02` | `teach` | X | The operating layer behind AMINA | Convert the AMINA teaching frame into a concise X post or thread. | `pending` |
 | 2026-07-31 | 3:00 PM | `AGT-SHORT-01` | `teach` | YouTube Shorts / Reels | Agentic work needs an operating system | Short spoken teaching clip. | `pending` |
+| 2026-08-01 | 10:00 AM | `AGT-YT-EP01` | `teach` | YouTube | The Receipt Every Agent Needs | Long-form pilot that shows why agentic systems need receipts. | `pending` |
 | 2026-08-03 | 9:00 AM | `AGT-LI-04` | `proof` | LinkedIn | Cover reveal: Agentified | Reveal the cover direction and campaign promise. | `pending` |
 | 2026-08-04 | 12:00 PM | `AGT-CAR-02` | `proof` | LinkedIn carousel | From SAM to AMINA | Show the lineage from "Accelerated" to Agentified. | `pending` |
 | 2026-08-05 | 9:00 AM | `AGT-LI-05` | `proof` | LinkedIn | The workbook is where the book becomes operational | Preview the workbook as a reader tool. | `pending` |
+| 2026-08-05 | 4:00 PM | `AGT-X-03` | `proof` | X | The workbook is the receipt path | Translate the workbook proof into a practical X question. | `pending` |
 | 2026-08-06 | 3:00 PM | `AGT-SHORT-02` | `proof` | YouTube Shorts / Reels | What the cover is really showing | Explain the SAM/Amina visual metaphor. | `pending` |
 | 2026-08-07 | 9:00 AM | `AGT-LI-06` | `offer` | LinkedIn | Agentified is for the product leader carrying the risk | Make the release path clear. | `pending` |
 | 2026-08-08 | 10:00 AM | `AGT-EMAIL-01` | `offer` | Email/newsletter | Agentified: achieve agentic scale through trust | Owned-channel launch note. | `pending` |
 | 2026-08-09 | 12:00 PM | `AGT-PAGE-01` | `offer` | Portfolio page | Agentified campaign CTA block | Update `/agentified` after author approval. | `pending` |
+| 2026-08-09 | 6:00 PM | `AGT-X-04` | `offer` | X | Agentified release thread: build trust before scale | Final shout thread pointing to `/agentified` after approval. | `pending` |
 
 ## Calendar notes
 
 - Dates are proposed review slots, not external publishing commitments.
+- Calendar rows are recalculated backward from final shout asset `AGT-X-04`.
 - The first item starts after the 2026-07-27 morning rebaseline so the queue does not import an already-past launch slot.
 - Each item should enter Portfolio's Social Content calendar with `authorization_status: pending`.
 - `autonomy_eligible` should stay `false`.

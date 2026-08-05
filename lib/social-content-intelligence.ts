@@ -95,6 +95,7 @@ export type LinkedInYoutubeReviewDrafts = {
   youtube_shorts: SocialChannelReviewDraftPacket
   instagram_reels: SocialChannelReviewDraftPacket
   tiktok: SocialChannelReviewDraftPacket
+  x: SocialChannelReviewDraftPacket
 }
 
 export type SocialResearchPatternStatus =
@@ -1198,6 +1199,45 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
       },
       orchestration_evidence: channelOrchestrationEvidence({
         channel: 'tiktok',
+        contentAngle,
+        patternPromise,
+      }),
+      source_research_patterns: patterns,
+      side_effects: reviewDraftSideEffects(),
+    },
+    x: {
+      channel: 'x',
+      generated_at: generatedAt,
+      approval_status: 'in_review',
+      shared_source: sharedSource,
+      source_insight_title: title,
+      source_use_boundary: sourceBoundary,
+      fields: {
+        post_text: truncate([
+          triggeringEvent,
+          contentAngle,
+          `Why it matters: ${whyVambahCanSpeak}`,
+          'The practical test: can the system show the source, owner, approval gate, and public-action boundary before it reaches the audience?',
+        ].join('\n\n'), 1100),
+        thread_option: [
+          `1. ${truncate(triggeringEvent, 240)}`,
+          `2. ${truncate(contentAngle, 240)}`,
+          `3. ${truncate(evidenceSummary, 240)}`,
+          '4. The trust move is not more output. It is a visible handoff before public action.',
+          patternPromise ? `5. Pattern to adapt: ${truncate(patternPromise, 220)}` : '5. Pattern to adapt: use the approved research packet without copying source language.',
+        ],
+        cta: 'Where does your AI workflow lose trust between draft and public action?',
+        cta_url: null,
+        hashtags: ['#AIProduct', '#AgenticAI', '#ProductManagement'],
+        manual_handoff_gate: 'pending_human_approval_and_connected_x_provider',
+        references: [
+          evidenceSummary,
+          ...patterns.map((pattern) => pattern.source_url).filter(Boolean),
+        ],
+        claim_boundaries: claimBoundaries,
+      },
+      orchestration_evidence: channelOrchestrationEvidence({
+        channel: 'x',
         contentAngle,
         patternPromise,
       }),

@@ -562,6 +562,117 @@ Review notes:
 - Requires decision on actual conversion path.
 - Do not replace existing public page copy without checking current `/agentified` page state.
 
+## AGT-X-01
+
+Phase: `tease`
+Channel: X
+Working title: What breaks first when AI gets faster?
+Status: Draft seed
+
+```text
+AI got faster.
+
+Trust did not.
+
+The first thing that breaks is usually not the model. It is the handoff.
+
+Who gave the agent the work?
+What source did it use?
+Where is the boundary?
+Who approves the public action?
+
+Agentified starts there.
+```
+
+Review notes:
+
+- Amina should compare against public X launch and AI-operator patterns before finalizing.
+- Keep this as a post or short thread; no provider posting before approval.
+
+## AGT-X-02
+
+Phase: `teach`
+Channel: X
+Working title: The operating layer behind AMINA
+Status: Draft seed
+
+```text
+AMINA is not a slogan.
+
+It is the operating loop I want around agentic work:
+
+Align the job.
+Map the source.
+Instrument the receipt.
+Negotiate the boundary.
+Audit the result.
+
+That is how speed becomes reviewable.
+```
+
+Review notes:
+
+- Spell out AMINA on first use in any final version.
+- Amina should validate whether this works better as one post or a five-reply thread.
+
+## AGT-X-03
+
+Phase: `proof`
+Channel: X
+Working title: The workbook is the receipt path
+Status: Draft seed
+
+```text
+The workbook may be the most practical part of Agentified.
+
+The book makes the argument.
+
+The workbook asks the leader to point to the actual system:
+
+source,
+role,
+boundary,
+gate,
+receipt,
+proof.
+
+That is where trust becomes operational.
+```
+
+Review notes:
+
+- Tie to approved workbook/cover assets only.
+- Do not imply the workbook is publicly available until the release path is confirmed.
+
+## AGT-X-04
+
+Phase: `offer`
+Channel: X
+Working title: Agentified release thread: build trust before scale
+Status: Draft seed
+
+```text
+Agentified is for the leader who knows AI can move faster than the organization can govern.
+
+The question is no longer whether agents can produce work.
+
+The question is whether the system can show:
+
+what happened,
+who owned it,
+what source it used,
+where the boundary was,
+and who approved the public step.
+
+Follow the Agentified release:
+/agentified
+```
+
+Review notes:
+
+- Final shout anchor for the backward-relative calendar.
+- Requires final CTA URL and X provider/manual handoff approval before external posting.
+
 ## Human review summary
 
 Items that are strongest as-is:
@@ -577,6 +688,7 @@ Items needing a decision before release:
 - `AGT-EMAIL-01`: audience/list.
 - `AGT-PAGE-01`: conversion path.
 - `AGT-SHORT-01` and `AGT-SHORT-02`: whether to use HeyGen, native recording, or text-over-cover video.
+- `AGT-X-01` through `AGT-X-04`: Amina X research/source-distance pass and final copy review.
 
 Blocked content:
 

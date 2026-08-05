@@ -80,6 +80,14 @@ export async function POST(
       review_requested_at: now,
       updated_at: now,
     }
+    lanes.x = {
+      ...lanes.x,
+      status: 'in_review',
+      draft_packet: drafts.x,
+      decision_note: null,
+      review_requested_at: now,
+      updated_at: now,
+    }
 
     const updated = await updateAgentWorkItemMetadata({
       id: workItem.id,
@@ -88,7 +96,7 @@ export async function POST(
         channel_lanes: lanes,
         channel_review_workflow: {
           status: 'human_review_ready',
-          prepared_channels: ['linkedin', 'youtube_shorts', 'instagram_reels', 'tiktok'],
+          prepared_channels: ['linkedin', 'youtube_shorts', 'instagram_reels', 'tiktok', 'x'],
           prepared_at: now,
           source_use_boundary: drafts.linkedin.source_use_boundary,
           side_effects: {
