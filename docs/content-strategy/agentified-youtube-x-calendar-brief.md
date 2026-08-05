@@ -78,6 +78,17 @@ For each source candidate, Amina records:
 
 If live X metrics are unavailable or gated, Amina can use manual public review and mark the evidence as directional. Do not infer private analytics.
 
+### Decision windows
+
+Amina should separate early signal from decision-grade signal for X, YouTube, and LinkedIn refinements:
+
+| Window | Use | Required handling |
+| --- | --- | --- |
+| 24-48 hour directional review | Check whether the hook, topic frame, and visible conversation quality are moving in the right direction. | Mark as `directional_signal` or `directional_insufficient_sample`. Do not declare a winner, loser, or final lesson. |
+| Seven-day decision review | Decide whether the pattern should be repeated, revised, paused, or scaled. | Require the visible sample basis, metric window, source-distance/originality boundary, and confidence note. If sample is thin, keep the finding `directional_insufficient_sample`. |
+
+The seven-day review can produce a decision-grade recommendation only when enough public or first-party approved signal exists to support it. Otherwise Amina should recommend the next observation or revision path rather than inventing certainty.
+
 ## Transferable X patterns to test
 
 Use these as hypotheses, not finished copy:
@@ -94,7 +105,7 @@ Use these as hypotheses, not finished copy:
 
 | Priority | Owner lane | Work item | Scope | Acceptance criteria |
 | --- | --- | --- | --- | --- |
-| P0 | Amina | Run X persona/outlier research | Collect public X examples across the comparable persona groups and score transferable patterns. | At least 8 public X examples are recorded with URL, pattern, fit, source-distance boundary, and directional engagement rationale. |
+| P0 | Amina | Run X persona/outlier research | Collect public X examples across the comparable persona groups and score transferable patterns. | At least 8 public X examples are recorded with URL, pattern, fit, source-distance boundary, directional engagement rationale, and the applicable decision-window state. |
 | P0 | Amina | Generate Agentified X phase backlog | Draft internal X post/thread packets for `AGT-X-01` through `AGT-X-04`. | Each packet has phase, hook, post text, optional thread, CTA, source pattern, originality note, and human review state. |
 | P0 | Shaka | Keep YouTube and X in one campaign calendar | Use `agentified/campaign/portfolio-campaign-packet.json` as the shared source. | Calendar import reports 17 Agentified rows and supported channels include `linkedin`, `x`, `youtube_shorts`, `youtube`, and `thumbnail`. |
 | P1 | Piye | Ensure X review drafts are generated | Include X in channel review draft preparation and tests. | Preparing channel drafts marks the X lane `in_review` with post/thread fields and no external side effects. |
@@ -122,6 +133,7 @@ Before any X or YouTube item can move toward provider handoff, the packet must s
 - approved source basis;
 - public pattern used;
 - originality/source-distance note;
+- review window, visible sample basis, and confidence state;
 - Vambah voice/humanizer pass;
 - privacy and rights notes;
 - exact next action;

@@ -119,6 +119,15 @@ If any check fails, mark the packet `blocked` or return it to the topic backlog 
 
 Review released content at the end of the evaluation window chosen for the channel.
 
+Use two explicit signal windows:
+
+| Window | Meaning | Decision authority |
+| --- | --- | --- |
+| 24-48 hour directional review | Early read on visible public signal, hook resonance, replies, reposts, saves, profile visits when available, and obvious quality problems. | Directional only. Do not call a winner, loser, saturation point, or final lesson from this window. |
+| Seven-day decision review | Decision-grade review after the post has had time to settle. | Can support a recommendation only when the packet cites the metric window, visible sample basis, source-distance notes, and confidence. |
+
+If the seven-day window arrives without enough visible signal, mark the finding `directional_insufficient_sample` instead of forcing a winner or loser call.
+
 Compare against:
 
 - Vambah's recent LinkedIn baseline
@@ -138,6 +147,13 @@ Record:
 - recommended next test
 
 The next loop should change one main variable when possible: topic, hook, proof source, format, CTA, or publish window.
+
+Every recommendation must name:
+
+- the review window used;
+- visible sample size or why sample size is unavailable;
+- whether the signal is `directional_signal`, `directional_insufficient_sample`, or `decision_grade`;
+- the confidence level and what would change that confidence.
 
 ## Saturation and equivalence thresholds
 
