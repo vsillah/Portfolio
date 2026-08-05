@@ -8,7 +8,7 @@ import {
 
 export type ProactiveSlackNotificationKind = Extract<
   AgentSlackNotificationKind,
-  'pending_approvals' | 'blockers' | 'stale_runs' | 'review_ready' | 'goal_decisions'
+  'pending_approvals' | 'blockers' | 'stale_runs' | 'review_ready' | 'goal_decisions' | 'social_publish_gate_due'
 >
 
 export type ProactiveSlackNotificationMode = 'scheduled' | 'immediate' | 'all'
@@ -95,6 +95,15 @@ export const PROACTIVE_SLACK_NOTIFICATION_RULES: ProactiveSlackNotificationRule[
     priority: 'urgent',
     minimumItemCount: 1,
     dedupeWindowHours: 4,
+  },
+  {
+    kind: 'social_publish_gate_due',
+    label: 'Scheduled content publish gates',
+    description: 'Near-due Social Content rows whose final publishing gate, assets, privacy, or provider readiness would block the scheduled publish.',
+    triggerModes: ['scheduled'],
+    priority: 'urgent',
+    minimumItemCount: 1,
+    dedupeWindowHours: 6,
   },
 ]
 

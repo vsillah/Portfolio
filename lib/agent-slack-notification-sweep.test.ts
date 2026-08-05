@@ -139,17 +139,18 @@ describe('Agent Ops proactive Slack notification sweep', () => {
     expect(result).toMatchObject({
       ok: true,
       mode: 'all',
-      totalRules: 5,
-      sentCount: 5,
-      itemCount: 10,
+      totalRules: 6,
+      sentCount: 6,
+      itemCount: 12,
     })
-    expect(mocks.buildAgentSlackNotificationPayload).toHaveBeenCalledTimes(5)
+    expect(mocks.buildAgentSlackNotificationPayload).toHaveBeenCalledTimes(6)
     expect(mocks.buildAgentSlackNotificationPayload.mock.calls.map(([input]) => input.kind)).toEqual([
       'pending_approvals',
       'blockers',
       'stale_runs',
       'review_ready',
       'goal_decisions',
+      'social_publish_gate_due',
     ])
   })
 
@@ -206,6 +207,43 @@ describe('Agent Ops proactive Slack notification sweep', () => {
       triggerSource: 'test_sweep',
       dedupeKey: expect.stringMatching(/^stale_runs:2:[a-f0-9]{16}$/),
       dedupeWindowHours: 4,
+    }))
+  })
+
+  it('sends near-due Social Content gate packets with a longer dedupe window', async () => {
+    mocks.buildAgentSlackNotificationPayload.mockResolvedValue({
+      text: '1 scheduled content item needs QA',
+      blocks: [{ type: 'section', text: { type: 'mrkdwn', text: 'Social gate' } }],
+      itemCount: 1,
+    })
+    mocks.sendAgentSlackNotification.mockResolvedValueOnce({
+      ok: true,
+      runId: 'run-social-gate',
+      sent: true,
+      skipped: false,
+      deduped: false,
+      itemCount: 1,
+      text: '1 scheduled content item needs QA',
+    })
+
+    const result = await runAgentSlackNotificationSweep({
+      kinds: ['social_publish_gate_due'],
+      actorLabel: 'cron',
+      triggerSource: 'test_social_gate_sweep',
+    })
+
+    expect(result).toMatchObject({
+      ok: true,
+      totalRules: 1,
+      sentCount: 1,
+      itemCount: 1,
+    })
+    expect(mocks.sendAgentSlackNotification).toHaveBeenCalledWith(expect.objectContaining({
+      kind: 'social_publish_gate_due',
+      actorLabel: 'cron',
+      triggerSource: 'test_social_gate_sweep',
+      dedupeKey: expect.stringMatching(/^social_publish_gate_due:1:[a-f0-9]{16}$/),
+      dedupeWindowHours: 6,
     }))
   })
 
