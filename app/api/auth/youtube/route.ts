@@ -1,22 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
+import {
+  buildYouTubeOAuthUrl,
+  getGoogleOAuthClientId,
+  setYouTubeOAuthStateCookie,
+} from '@/lib/youtube-oauth'
 
 export const dynamic = 'force-dynamic'
-
-const YOUTUBE_UPLOAD_SCOPE = 'https://www.googleapis.com/auth/youtube.upload'
-const YOUTUBE_READONLY_SCOPE = 'https://www.googleapis.com/auth/youtube.readonly'
-const YOUTUBE_FORCE_SSL_SCOPE = 'https://www.googleapis.com/auth/youtube.force-ssl'
-const YOUTUBE_OAUTH_SCOPES = [
-  YOUTUBE_UPLOAD_SCOPE,
-  YOUTUBE_READONLY_SCOPE,
-  YOUTUBE_FORCE_SSL_SCOPE,
-]
-
-function getGoogleOAuthClientId() {
-  return process.env.YOUTUBE_CLIENT_ID
-    || process.env.GOOGLE_CLIENT_ID
-    || process.env.GOOGLE_GMAIL_OAUTH_CLIENT_ID
-}
 
 /**
  * GET /api/auth/youtube
@@ -38,27 +28,11 @@ export async function GET(request: NextRequest) {
     }
 
     const origin = new URL(request.url).origin
-    const redirectUri = `${origin}/api/auth/youtube/callback`
     const state = crypto.randomUUID()
-
-    const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth')
-    authUrl.searchParams.set('response_type', 'code')
-    authUrl.searchParams.set('client_id', clientId)
-    authUrl.searchParams.set('redirect_uri', redirectUri)
-    authUrl.searchParams.set('state', state)
-    authUrl.searchParams.set('scope', YOUTUBE_OAUTH_SCOPES.join(' '))
-    authUrl.searchParams.set('access_type', 'offline')
-    authUrl.searchParams.set('prompt', 'consent')
-    authUrl.searchParams.set('include_granted_scopes', 'true')
+    const authUrl = buildYouTubeOAuthUrl({ clientId, origin, state })
 
     const response = NextResponse.json({ auth_url: authUrl.toString() })
-    response.cookies.set('youtube_oauth_state', state, {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: origin.startsWith('https://'),
-      maxAge: 10 * 60,
-      path: '/',
-    })
+    setYouTubeOAuthStateCookie(response, { origin, state })
 
     return response
   } catch (error) {
