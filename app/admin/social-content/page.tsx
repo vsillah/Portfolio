@@ -32,6 +32,7 @@ import {
   Sparkles,
   Plus,
   Youtube,
+  AtSign,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -62,7 +63,7 @@ interface Stats {
 type SafePlatformConfig = {
   id: string
   platform: SocialPlatform
-  settings: Record<string, string>
+  settings: Record<string, unknown>
   is_active: boolean
   credentials_configured: boolean
   created_at: string
@@ -163,6 +164,11 @@ function SocialContentQueuePage() {
     type: 'success' | 'error'
     message: string
   } | null>(null)
+  const [xConnecting, setXConnecting] = useState(false)
+  const [xConnectionNotice, setXConnectionNotice] = useState<{
+    type: 'success' | 'error'
+    message: string
+  } | null>(null)
 
   // Extraction trigger state
   const [meetings, setMeetings] = useState<MeetingRecord[]>([])
@@ -243,7 +249,7 @@ function SocialContentQueuePage() {
       const session = await getCurrentSession()
       if (!session) return
 
-      const res = await fetch('/api/admin/social-content/config?safe=true&platform=youtube', {
+      const res = await fetch('/api/admin/social-content/config?safe=true', {
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
       if (!res.ok) return
@@ -266,6 +272,9 @@ function SocialContentQueuePage() {
     const youtubeConnected = params.get('youtube_connected')
     const youtubeError = params.get('youtube_error')
     const youtubeChannel = params.get('youtube_channel')
+    const xConnected = params.get('x_connected')
+    const xError = params.get('x_error')
+    const xHandle = params.get('x_handle')
 
     if (youtubeConnected === 'true') {
       setYoutubeConnectionNotice({
@@ -284,6 +293,24 @@ function SocialContentQueuePage() {
         message: `YouTube connection did not complete (${youtubeError.replace(/_/g, ' ')}).`,
       })
     }
+
+    if (xConnected === 'true') {
+      setXConnectionNotice({
+        type: 'success',
+        message: xHandle
+          ? `X connected to @${xHandle.replace(/^@/, '')}. Posting remains gated by final submission approval.`
+          : 'X connected. Posting remains gated by final submission approval.',
+      })
+      fetchPlatformConfigs()
+      return
+    }
+
+    if (xError) {
+      setXConnectionNotice({
+        type: 'error',
+        message: `X connection did not complete (${xError.replace(/_/g, ' ')}).`,
+      })
+    }
   }, [fetchPlatformConfigs])
 
   const extractionStatus = useExtractionStatus(() => fetchItems())
@@ -295,6 +322,13 @@ function SocialContentQueuePage() {
     : typeof youtubeConfig?.settings?.channel_id === 'string' && youtubeConfig.settings.channel_id
       ? youtubeConfig.settings.channel_id
       : null
+  const xConfig = platformConfigs.find((config) => config.platform === 'x')
+  const xConnected = Boolean(xConfig?.is_active && xConfig.credentials_configured)
+  const xHandleLabel = typeof xConfig?.settings?.profile_handle === 'string'
+    ? `@${xConfig.settings.profile_handle.replace(/^@/, '')}`
+    : typeof xConfig?.settings?.connected_account === 'string'
+      ? xConfig.settings.connected_account
+      : '@amadutown'
 
   const handleConnectYouTube = async () => {
     setYoutubeConnecting(true)
@@ -325,6 +359,38 @@ function SocialContentQueuePage() {
       setYoutubeConnectionNotice({ type: 'error', message: 'YouTube connection could not start.' })
     } finally {
       setYoutubeConnecting(false)
+    }
+  }
+
+  const handleConnectX = async () => {
+    setXConnecting(true)
+    setXConnectionNotice(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session) {
+        setXConnectionNotice({ type: 'error', message: 'Sign in before connecting X.' })
+        return
+      }
+
+      const res = await fetch('/api/auth/x', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      })
+      const data = await res.json().catch(() => null)
+      if (!res.ok || !data?.auth_url) {
+        setXConnectionNotice({
+          type: 'error',
+          message: data?.error || 'X connection could not start.',
+        })
+        return
+      }
+
+      window.location.assign(data.auth_url)
+    } catch {
+      setXConnectionNotice({ type: 'error', message: 'X connection could not start.' })
+    } finally {
+      setXConnecting(false)
     }
   }
 
@@ -816,6 +882,50 @@ function SocialContentQueuePage() {
             >
               {youtubeConnecting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Youtube className="h-4 w-4" />}
               {youtubeConnecting ? 'Opening YouTube...' : youtubeConnected ? 'Reconnect YouTube' : 'Connect YouTube'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="admin-console-card mb-6 rounded-lg border p-4">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex min-w-0 items-start gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-gray-300/30 bg-gray-100/10 text-gray-100">
+              <AtSign className="h-5 w-5" />
+            </span>
+            <div className="min-w-0">
+              <div className="admin-console-eyebrow mb-1">Provider setup</div>
+              <h2 className="text-base font-semibold text-foreground">X account connection</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {xConnected
+                  ? `Connected${xHandleLabel ? ` to ${xHandleLabel}` : ''}. Posting still requires an approved draft and explicit platform submission.`
+                  : 'Connect @amadutown before X posts or threads can be submitted. This authorizes the provider adapter only; it does not post, schedule, or alter copy.'}
+              </p>
+              {xConnectionNotice && (
+                <p className={`mt-2 text-xs ${xConnectionNotice.type === 'success' ? 'text-emerald-300' : 'text-red-300'}`}>
+                  {xConnectionNotice.message}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="flex shrink-0 flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+            <span className={`rounded-full border px-3 py-1 text-xs font-medium ${
+              platformConfigsLoading
+                ? 'border-silicon-slate bg-imperial-navy/50 text-gray-400'
+                : xConnected
+                  ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+                  : 'border-amber-500/30 bg-amber-500/10 text-amber-300'
+            }`}>
+              {platformConfigsLoading ? 'Checking' : xConnected ? 'Connected' : 'Not connected'}
+            </span>
+            <button
+              type="button"
+              onClick={handleConnectX}
+              disabled={xConnecting}
+              className="admin-console-button-secondary justify-center disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {xConnecting ? <Loader2 className="h-4 w-4 animate-spin" /> : <AtSign className="h-4 w-4" />}
+              {xConnecting ? 'Opening X...' : xConnected ? 'Reconnect X' : 'Connect X'}
             </button>
           </div>
         </div>
