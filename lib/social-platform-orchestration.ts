@@ -214,6 +214,17 @@ function hasListItems(value: unknown) {
   return Array.isArray(value) && value.some((item) => hasText(item))
 }
 
+function hasTruthySetting(
+  config: Pick<SocialContentConfig, 'credentials' | 'settings'> | undefined,
+  keys: string[],
+) {
+  return keys.some((key) => {
+    const value = configField(config, key)
+    if (value === true) return true
+    return typeof value === 'string' && value.trim().length > 0
+  })
+}
+
 function recordString(record: Record<string, unknown> | null | undefined, key: string) {
   const value = record?.[key]
   return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null
@@ -403,8 +414,8 @@ export function getPlatformAssetReadiness(
       return {
         ready: hasImage || hasVideo || hasCarousel,
         detail: hasImage || hasVideo || hasCarousel
-          ? 'Instagram has a publishable image, carousel, or Reel video asset.'
-          : 'Instagram needs an image, carousel slide URLs, or final Reel video URL before submission.',
+          ? 'Instagram media is ready for rights and privacy review: image, carousel, or Reel asset is attached.'
+          : 'Instagram needs a rights-cleared image, carousel slide URLs, or final Reel video URL before submission.',
       }
     case 'facebook':
       return {
@@ -497,11 +508,38 @@ function hasPlatformConfiguration(
       const hasAccount = truthyString(configField(config, 'ig_user_id'))
         || truthyString(configField(config, 'instagram_user_id'))
         || truthyString(configField(config, 'business_account_id'))
+      const instagramAccountType = configField(config, 'instagram_account_type')
+      const hasProfessionalAccount = hasTruthySetting(config, [
+        'professional_account_confirmed',
+        'professional_account_confirmed_at',
+        'instagram_professional_account_id',
+      ]) || (typeof instagramAccountType === 'string'
+        && ['business', 'creator', 'professional'].includes(instagramAccountType.trim().toLowerCase()))
+      const hasMetaPageLink = hasTruthySetting(config, [
+        'meta_page_linked',
+        'meta_page_linked_at',
+        'meta_page_id',
+        'page_id',
+        'connected_page_id',
+      ])
+      const hasAppReview = hasTruthySetting(config, [
+        'app_review_permissions_confirmed',
+        'app_review_permissions_confirmed_at',
+        'instagram_content_publish_permission',
+        'instagram_basic_permission',
+      ])
+      const missing = [
+        !hasProfessionalAccount ? 'professional Instagram account confirmation' : null,
+        !hasMetaPageLink ? 'Meta Page linkage' : null,
+        !hasToken ? 'access token' : null,
+        !hasAccount ? 'IG user/business account ID' : null,
+        !hasAppReview ? 'Meta app review and publishing permissions confirmation' : null,
+      ].filter((item): item is string => Boolean(item))
       return {
-        ready: hasToken && hasAccount,
-        detail: hasToken && hasAccount
-          ? 'Instagram business publishing credentials are configured.'
-          : 'Instagram needs an access token and business/IG user ID.',
+        ready: missing.length === 0,
+        detail: missing.length === 0
+          ? 'Instagram Graph publishing prerequisites are configured for a professional account linked to a Meta Page.'
+          : `Instagram needs ${missing.join(', ')}.`,
       }
     }
     case 'facebook': {

@@ -266,6 +266,118 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByRole('button', { name: /Approve final gate/i })).toBeInTheDocument()
   })
 
+  it('shows Instagram setup blockers and keeps final gate separate from publishing', async () => {
+    const instagramItem = {
+      ...baseItem,
+      platform: 'instagram',
+      target_platforms: ['instagram'],
+      status: 'approved',
+      post_text: 'Approved Instagram caption.',
+      image_url: 'https://cdn.example.com/instagram.png',
+      rag_context: {
+        source: 'agentified_calendar',
+      },
+      publishes: [
+        { platform: 'instagram', status: 'pending', platform_post_url: null },
+      ],
+    }
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/api/admin/social-content/config')) {
+        return {
+          ok: true,
+          json: async () => ({
+            configs: [{
+              id: 'config-instagram',
+              platform: 'instagram',
+              credentials: { access_token: 'token', ig_user_id: 'ig-user-1' },
+              settings: {},
+              is_active: true,
+              created_at: '2026-08-05T10:00:00.000Z',
+              updated_at: '2026-08-05T10:00:00.000Z',
+            }],
+          }),
+        } as Response
+      }
+      if (url.includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [] }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: instagramItem }),
+      } as Response
+    }))
+
+    renderAtStep('submit')
+
+    expect(await screen.findByText('Platform Submission Path')).toBeInTheDocument()
+    expect(screen.getByText('Instagram provider setup is blocked.')).toBeInTheDocument()
+    expect(screen.getByText(/Professional Instagram account, Meta Page linkage, access token, IG user\/business account ID/i)).toBeInTheDocument()
+    expect(screen.getAllByText('Instagram needs professional Instagram account confirmation, Meta Page linkage, Meta app review and publishing permissions confirmation.').length).toBeGreaterThan(0)
+    expect(screen.queryByRole('button', { name: /Approve final gate/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Approve & submit/i })).not.toBeInTheDocument()
+  })
+
+  it('shows Instagram final gate approval without immediate publish labeling when setup is ready', async () => {
+    const instagramItem = {
+      ...baseItem,
+      platform: 'instagram',
+      target_platforms: ['instagram'],
+      status: 'approved',
+      post_text: 'Approved Instagram caption.',
+      image_url: 'https://cdn.example.com/instagram.png',
+      rag_context: {
+        source: 'agentified_calendar',
+      },
+      publishes: [
+        { platform: 'instagram', status: 'pending', platform_post_url: null },
+      ],
+    }
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/api/admin/social-content/config')) {
+        return {
+          ok: true,
+          json: async () => ({
+            configs: [{
+              id: 'config-instagram',
+              platform: 'instagram',
+              credentials: { access_token: 'token', ig_user_id: 'ig-user-1' },
+              settings: {
+                instagram_account_type: 'business',
+                meta_page_linked: true,
+                app_review_permissions_confirmed: true,
+              },
+              is_active: true,
+              created_at: '2026-08-05T10:00:00.000Z',
+              updated_at: '2026-08-05T10:00:00.000Z',
+            }],
+          }),
+        } as Response
+      }
+      if (url.includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [] }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: instagramItem }),
+      } as Response
+    }))
+
+    renderAtStep('submit')
+
+    expect(await screen.findByText('Platform Submission Path')).toBeInTheDocument()
+    expect(screen.getByText('Instagram Graph publishing prerequisites are configured for a professional account linked to a Meta Page.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Approve final gate/i })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Approve & submit/i })).not.toBeInTheDocument()
+  })
+
   it('shows YouTube avatar video preparation state on the visuals step', async () => {
     const youtubeItem = {
       ...baseItem,
