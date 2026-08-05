@@ -78,6 +78,7 @@ const PLATFORM_ICONS: Record<string, React.ReactNode> = {
   instagram: <Instagram className="w-4 h-4" />,
   facebook: <Facebook className="w-4 h-4" />,
   tiktok: <Hash className="w-4 h-4" />,
+  x: <X className="w-4 h-4" />,
 }
 
 const PLATFORM_COLORS: Record<string, { active: string; inactive: string }> = {
@@ -86,6 +87,7 @@ const PLATFORM_COLORS: Record<string, { active: string; inactive: string }> = {
   instagram: { active: 'bg-pink-600/20 border-pink-500 text-pink-300', inactive: 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600' },
   facebook: { active: 'bg-blue-600/20 border-blue-500 text-blue-300', inactive: 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600' },
   tiktok: { active: 'bg-cyan-600/20 border-cyan-500 text-cyan-200', inactive: 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600' },
+  x: { active: 'bg-gray-100/15 border-gray-300 text-gray-100', inactive: 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600' },
 }
 
 type GateState = 'approved' | 'in_review' | 'pending' | 'blocked' | 'rejected'
@@ -1319,7 +1321,10 @@ function SocialContentDetailPage() {
     }
   }
 
-  const handleApprovePlatformSubmission = async (platforms?: SocialPlatform[]) => {
+  const handleApprovePlatformSubmission = async (
+    platforms?: SocialPlatform[],
+    submitAfterApproval?: boolean,
+  ) => {
     if (videoPrivacyBlocked) {
       showMsg('error', redactionGate.message || 'Video privacy review required before platform submission')
       return
@@ -1336,15 +1341,17 @@ function SocialContentDetailPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(platforms
-          ? { platforms, submit_after_approval: !platforms.includes('youtube') }
-          : { submit_after_approval: !platformSubmissionTargets.includes('youtube') }),
+          ? { platforms, submit_after_approval: submitAfterApproval ?? !platforms.includes('youtube') }
+          : { submit_after_approval: submitAfterApproval ?? !platformSubmissionTargets.includes('youtube') }),
       })
 
       const data = await res.json()
       if (res.ok) {
         if (data.item) setItem(data.item)
         showMsg('success',
-          data.submit_triggered ? 'Final gate approved. Platform submission started.' : 'Final gate approved. YouTube upload remains separately gated.')
+          data.submit_triggered
+            ? 'Final gate approved. Platform submission started.'
+            : 'Final gate approved. Manual or separately guarded platform handoff remains queued.')
         fetchItem()
       } else {
         showMsg('error', data.error || 'Platform submission approval failed')
@@ -4601,7 +4608,12 @@ function SocialContentDetailPage() {
                   const finalGateStage = platformPlan.stages.find((stage) => stage.key === 'final_submission_gate')
                   const canSubmitPlatform = automaticStage?.state === 'available'
                   const canApproveFinalSubmission = finalGateStage?.state === 'pending'
-                  const approveSubmissionLabel = platformPlan.platform === 'youtube' ? 'Approve final gate' : 'Approve & submit'
+                  const shouldAutoSubmit = platformPlan.automaticSubmissionSupported && platformPlan.platform !== 'youtube'
+                  const approveSubmissionLabel = shouldAutoSubmit
+                    ? 'Approve & submit'
+                    : platformPlan.platform === 'youtube'
+                      ? 'Approve final gate'
+                      : 'Approve manual handoff'
                   return (
                 <div key={platformPlan.platform} className="rounded-lg border border-gray-800 bg-gray-950/45 p-4">
                   <div className="flex items-start justify-between gap-3">
@@ -4720,7 +4732,7 @@ function SocialContentDetailPage() {
                     {canApproveFinalSubmission ? (
                       <button
                         type="button"
-                        onClick={() => handleApprovePlatformSubmission([platformPlan.platform])}
+                        onClick={() => handleApprovePlatformSubmission([platformPlan.platform], shouldAutoSubmit)}
                         disabled={publishing}
                         className="inline-flex min-h-9 shrink-0 items-center justify-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-100 transition-colors hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60"
                       >

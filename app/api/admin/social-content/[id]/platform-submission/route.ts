@@ -3,7 +3,10 @@ import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
 import type { SocialPlatform } from '@/lib/social-content'
 import { getProductionAssets, getVideoRedactionGate } from '@/lib/social-production-assets'
-import { buildPlatformOrchestrationPlan } from '@/lib/social-platform-orchestration'
+import {
+  buildPlatformOrchestrationPlan,
+  isAutomaticSubmissionSupported,
+} from '@/lib/social-platform-orchestration'
 import { syncCampaignCalendarForSocialContent } from '@/lib/social-content-calendar-linkage'
 
 export const dynamic = 'force-dynamic'
@@ -14,6 +17,7 @@ const PLATFORM_LABELS: Record<SocialPlatform, string> = {
   instagram: 'Instagram',
   facebook: 'Facebook',
   tiktok: 'TikTok',
+  x: 'X',
 }
 
 function asRecord(value: unknown): Record<string, unknown> {
@@ -39,7 +43,9 @@ function targetPlatformsFor(item: Record<string, unknown>, requested: SocialPlat
 function gateBlockers(plan: ReturnType<typeof buildPlatformOrchestrationPlan>) {
   return plan.platforms
     .map((platformPlan) => {
-      const blockedStage = platformPlan.stages.find((stage) => stage.state === 'blocked')
+      const blockedStage = platformPlan.stages.find((stage) => (
+        stage.key !== 'automatic_submission' && stage.state === 'blocked'
+      ))
       return blockedStage ? `${platformPlan.label}: ${blockedStage.detail}` : null
     })
     .filter((blocker): blocker is string => Boolean(blocker))
@@ -90,7 +96,9 @@ export async function POST(
     }
 
     const targetPlatforms = targetPlatformsFor(itemRecord, requestedPlatforms)
-    const autoSubmitBlockedPlatforms = targetPlatforms.includes('youtube') ? ['youtube' as SocialPlatform] : []
+    const autoSubmitBlockedPlatforms = targetPlatforms.filter((platform) => (
+      platform === 'youtube' || !isAutomaticSubmissionSupported(platform)
+    ))
     const submitAfterApproval = requestedSubmitAfterApproval && autoSubmitBlockedPlatforms.length === 0
     const productionAssets = getProductionAssets(itemRecord.rag_context)
     const redactionGate = getVideoRedactionGate(productionAssets)
@@ -161,7 +169,7 @@ export async function POST(
         submit_after_approval: submitAfterApproval,
         auto_submit_blocked_platforms: autoSubmitBlockedPlatforms,
         boundary: autoSubmitBlockedPlatforms.length
-          ? 'Final human approval recorded for platform submission readiness. YouTube upload is not auto-triggered from this readiness gate; a separately guarded configured adapter call is required.'
+          ? 'Final human approval recorded for platform submission readiness. Manual-only or separately guarded platforms are not auto-triggered from this readiness gate.'
           : 'Final human approval for automatic platform submission. Provider generation, rendering, uploads, scheduling, and publishing remain limited to configured platform adapters.',
       },
     }

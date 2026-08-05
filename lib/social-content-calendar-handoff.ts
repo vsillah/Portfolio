@@ -22,7 +22,11 @@ type HandoffResult = {
   calendarItem: SocialContentCalendarItem
   socialContentId: string | null
   handoffWorkItemId: string
-  handoffKind: 'linkedin_social_content_draft' | 'youtube_social_content_draft' | 'channel_planning_handoff'
+  handoffKind:
+    | 'linkedin_social_content_draft'
+    | 'youtube_social_content_draft'
+    | 'x_social_content_draft'
+    | 'channel_planning_handoff'
 }
 
 function calendarSelect() {
@@ -53,6 +57,8 @@ function calendarPlatformTargets(item: SocialContentCalendarItem): SocialPlatfor
       return ['instagram']
     case 'tiktok':
       return ['tiktok']
+    case 'x':
+      return ['x']
     case 'thumbnail':
       return []
     default:
@@ -88,23 +94,26 @@ function platformOrchestrationForCalendarItem(item: SocialContentCalendarItem): 
 }
 
 function supportsSocialContentDraft(item: SocialContentCalendarItem) {
-  return item.channel === 'linkedin' || item.channel === 'youtube' || item.channel === 'youtube_shorts'
+  return item.channel === 'linkedin' || item.channel === 'youtube' || item.channel === 'youtube_shorts' || item.channel === 'x'
 }
 
 function socialPlatformForCalendarItem(item: SocialContentCalendarItem): SocialPlatform | null {
   if (item.channel === 'linkedin') return 'linkedin'
   if (item.channel === 'youtube' || item.channel === 'youtube_shorts') return 'youtube'
+  if (item.channel === 'x') return 'x'
   return null
 }
 
 function handoffKindFor(item: SocialContentCalendarItem, socialContentId: string | null): HandoffResult['handoffKind'] {
   if (!socialContentId) return 'channel_planning_handoff'
   if (item.channel === 'youtube' || item.channel === 'youtube_shorts') return 'youtube_social_content_draft'
+  if (item.channel === 'x') return 'x_social_content_draft'
   if (item.channel === 'linkedin') return 'linkedin_social_content_draft'
   return 'channel_planning_handoff'
 }
 
 function publishGateFor(item: SocialContentCalendarItem) {
+  if (item.channel === 'x') return 'manual_handoff_gated'
   return item.channel === 'linkedin' ? 'draft_only' : 'platform_review_gated'
 }
 

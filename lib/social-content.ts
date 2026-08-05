@@ -9,7 +9,7 @@ import type { SocialVideoProductionProjection } from '@/lib/social-video-product
 // Types
 // ============================================================================
 
-export type SocialPlatform = 'linkedin' | 'instagram' | 'facebook' | 'youtube' | 'tiktok'
+export type SocialPlatform = 'linkedin' | 'instagram' | 'facebook' | 'youtube' | 'tiktok' | 'x'
 
 export type ContentStatus = 'draft' | 'approved' | 'scheduled' | 'published' | 'rejected'
 
@@ -136,6 +136,7 @@ export const PLATFORMS: { value: SocialPlatform; label: string; enabled: boolean
   { value: 'instagram', label: 'Instagram', enabled: true },
   { value: 'facebook', label: 'Facebook', enabled: true },
   { value: 'tiktok', label: 'TikTok', enabled: true },
+  { value: 'x', label: 'X', enabled: true },
 ]
 
 export const PUBLISH_STATUS_CONFIG: Record<PublishStatus, {

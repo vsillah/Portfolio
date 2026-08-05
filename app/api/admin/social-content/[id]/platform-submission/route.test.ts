@@ -349,6 +349,50 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
     expect(fetchSpy).not.toHaveBeenCalled()
   })
 
+  it('records X final approval as a manual handoff without auto-triggering publish', async () => {
+    const { publishUpsert, queueUpdate } = installSupabase({
+      item: {
+        id: 'social-1',
+        status: 'approved',
+        platform: 'x',
+        target_platforms: ['x'],
+        post_text: 'A reviewed X post.',
+        image_url: null,
+        video_url: null,
+        carousel_slide_urls: null,
+        rag_context: null,
+      },
+      publishes: [
+        { platform: 'x', status: 'pending', platform_post_url: null },
+      ],
+      configs: [],
+    })
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+      new Response(JSON.stringify({ published: true }), { status: 200 }),
+    )
+
+    const response = await POST(request({ platforms: ['x'], submit_after_approval: true }), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    expect(body.submit_triggered).toBe(false)
+    expect(body.auto_submit_blocked_platforms).toEqual(['x'])
+    expect(publishUpsert).toHaveBeenCalledWith([
+      { content_id: 'social-1', platform: 'x', status: 'pending' },
+    ], { onConflict: 'content_id,platform', ignoreDuplicates: true })
+    expect(queueUpdate).toHaveBeenCalledWith(expect.objectContaining({
+      rag_context: expect.objectContaining({
+        platform_submission_gate: expect.objectContaining({
+          status: 'approved',
+          platforms: ['x'],
+          submit_after_approval: false,
+          auto_submit_blocked_platforms: ['x'],
+        }),
+      }),
+    }))
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
   it('does not approve final submission while video redaction items are unresolved', async () => {
     const { publishUpsert, queueUpdateSingle } = installSupabase({
       item: {

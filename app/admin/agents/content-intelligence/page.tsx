@@ -128,7 +128,7 @@ type CalendarItem = {
   campaign_id: string | null
   agent_work_item_id: string | null
   social_content_id: string | null
-  channel: 'linkedin' | 'youtube' | 'youtube_shorts' | 'instagram_reels' | 'tiktok' | 'thumbnail'
+  channel: 'linkedin' | 'youtube' | 'youtube_shorts' | 'instagram_reels' | 'tiktok' | 'x' | 'thumbnail'
   campaign_phase: 'tease' | 'teach' | 'proof' | 'offer'
   title: string
   planned_angle: string | null
@@ -206,6 +206,7 @@ const CALENDAR_CHANNEL_LABELS: Record<CalendarItem['channel'], string> = {
   youtube_shorts: 'YouTube Shorts',
   instagram_reels: 'Instagram Reels',
   tiktok: 'TikTok',
+  x: 'X',
   thumbnail: 'Thumbnail',
 }
 
@@ -1620,6 +1621,7 @@ function ContentIntelligenceContent() {
                   <option value="instagram">Instagram</option>
                   <option value="instagram_reels">Instagram Reels</option>
                   <option value="tiktok">TikTok</option>
+                  <option value="x">X</option>
                   <option value="linkedin">LinkedIn</option>
                   <option value="other">Other</option>
                 </select>

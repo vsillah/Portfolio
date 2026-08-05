@@ -91,6 +91,40 @@ describe('buildPlatformOrchestrationPlan', () => {
     ))).toEqual(['available'])
   })
 
+  it('routes X through manual handoff instead of automatic submission', () => {
+    const plan = buildPlatformOrchestrationPlan({
+      targetPlatforms: ['x'],
+      copyApproved: true,
+      productionReady: true,
+      redactionReady: true,
+      draftHandoffReady: true,
+      finalSubmissionGateReady: true,
+      publishRecords: [{
+        platform: 'x',
+        status: 'pending',
+        platform_post_url: null,
+      }],
+      platformConfigs: [],
+    })
+
+    expect(plan.anyAutomaticSubmissionAvailable).toBe(false)
+    expect(plan.platforms[0]).toMatchObject({
+      platform: 'x',
+      label: 'X',
+      automaticSubmissionSupported: false,
+      publishStatus: 'pending',
+      nextAction: 'X automatic submission is not connected yet.',
+    })
+    expect(plan.platforms[0].stages.map((stage) => [stage.key, stage.state])).toEqual([
+      ['human_approval', 'complete'],
+      ['asset_readiness', 'complete'],
+      ['platform_draft_handoff', 'complete'],
+      ['platform_configuration', 'complete'],
+      ['final_submission_gate', 'complete'],
+      ['automatic_submission', 'blocked'],
+    ])
+  })
+
   it('keeps platform submission blocked until privacy and asset readiness clear', () => {
     const plan = buildPlatformOrchestrationPlan({
       targetPlatforms: ['linkedin'],
@@ -339,14 +373,14 @@ describe('platform submission gate helpers', () => {
         status: 'approved',
         approved_at: 123,
         approved_by: false,
-        platforms: ['linkedin', 'mastodon', null, 'linkedin'],
+        platforms: ['linkedin', 'x', 'mastodon', null, 'linkedin'],
         decision_note: 456,
       },
     })
 
     expect(gate).toMatchObject({
       status: 'approved',
-      platforms: ['linkedin'],
+      platforms: ['linkedin', 'x'],
     })
     expect(gate?.approved_at).toBeUndefined()
     expect(gate?.approved_by).toBeUndefined()
