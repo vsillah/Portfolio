@@ -38,7 +38,7 @@ describe('publishToFacebook', () => {
   })
 
   it('publishes a Facebook Page feed post when no media exists', async () => {
-    installSupabase({
+    const { update } = installSupabase({
       is_active: true,
       credentials: {
         page_access_token: 'page-token',
@@ -72,6 +72,17 @@ describe('publishToFacebook', () => {
         method: 'POST',
       }),
     )
+    expect(update).toHaveBeenNthCalledWith(1, expect.objectContaining({
+      status: 'publishing',
+      error_message: null,
+    }))
+    expect(update).toHaveBeenNthCalledWith(2, expect.objectContaining({
+      status: 'published',
+      error_message: null,
+      platform_post_id: 'page-1_post-1',
+      platform_post_url: 'https://www.facebook.com/page-1/posts/page-1_post-1',
+      published_at: expect.any(String),
+    }))
   })
 
   it('uses approved companion copy for Facebook companion posts', async () => {

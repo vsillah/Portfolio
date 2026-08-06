@@ -78,6 +78,7 @@ async function updatePublishStatus(
     .from('social_content_publishes')
     .update({
       status,
+      ...(status === 'publishing' || status === 'published' ? { error_message: null } : {}),
       ...(status === 'published' ? { published_at: new Date().toISOString() } : {}),
       ...extra,
     })
