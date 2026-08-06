@@ -13,6 +13,14 @@ import {
   buildPlatformOrchestrationPlan,
   isPlatformSubmissionGateApproved,
 } from '@/lib/social-platform-orchestration'
+import {
+  canSlackDecideCommentReply,
+  listSocialCommentAttentionRows,
+  socialCommentDeepLink,
+  socialCommentDraftState,
+  socialCommentPostTitle,
+  type SocialCommentAttentionRow,
+} from '@/lib/social-comment-attention'
 
 export type AgentSlackNotificationKind =
   | 'pending_approvals'
@@ -22,6 +30,7 @@ export type AgentSlackNotificationKind =
   | 'goal_decisions'
   | 'high_signal_insights'
   | 'social_publish_gate_due'
+  | 'social_comment_attention_due'
   | 'standup_blockers'
   | 'selected_agent_question'
 
@@ -444,6 +453,134 @@ async function buildSocialPublishGateDuePayload() {
   }
 }
 
+function socialPlatformLabel(platform: string | null | undefined) {
+  const labels: Record<string, string> = {
+    linkedin: 'LinkedIn',
+    youtube: 'YouTube',
+    instagram: 'Instagram',
+    facebook: 'Facebook',
+    tiktok: 'TikTok',
+    x: 'X',
+  }
+  return labels[String(platform ?? '').toLowerCase()] ?? (platform || 'Unknown platform')
+}
+
+function commentPolicyLine(row: SocialCommentAttentionRow) {
+  if (canSlackDecideCommentReply(row)) {
+    return 'Slack can approve or reject this prepared low-risk reply. Approval starts a 15-minute hold; Portfolio remains canonical.'
+  }
+  if (!row.reply_draft?.trim()) return 'No prepared reply draft yet. Review in Portfolio.'
+  return 'Portfolio review required before this reply can move forward.'
+}
+
+async function buildSocialCommentAttentionPayload() {
+  const read = await listSocialCommentAttentionRows()
+  const blocks: SlackBlock[] = [
+    {
+      type: 'section',
+      text: mrkdwn([
+        '*Social comments need attention*',
+        'Slack is the alert and lightweight approval surface. Portfolio remains the canonical review queue.',
+      ].join('\n')),
+    },
+  ]
+
+  if (!read.dataSurfaceReady) {
+    blocks.push({
+      type: 'section',
+      text: mrkdwn(read.reason ?? 'Comment inbox data is not available yet. Provider ingestion remains manual.'),
+    })
+    blocks.push({
+      type: 'actions',
+      elements: [slackButton({ label: 'Open Social Content', actionId: 'open_social_content', url: agentUrl('/admin/social-content') })],
+    })
+    return {
+      text: 'Social comment attention sweep is waiting on the comment inbox data surface.',
+      blocks,
+      itemCount: 0,
+    }
+  }
+
+  if (!read.rows.length) {
+    blocks.push({ type: 'section', text: mrkdwn('No unresolved high-priority Social Content comments need Slack attention.') })
+    blocks.push({
+      type: 'actions',
+      elements: [slackButton({ label: 'Open Social Content', actionId: 'open_social_content', url: agentUrl('/admin/social-content') })],
+    })
+    return {
+      text: 'No Social Content comments need Slack attention.',
+      blocks,
+      itemCount: 0,
+    }
+  }
+
+  for (const row of read.rows.slice(0, 5)) {
+    const canDecide = canSlackDecideCommentReply(row)
+    const comment = truncateSlack(row.comment_text, 220)
+    const draft = truncateSlack(row.reply_draft, 180)
+    blocks.push({
+      type: 'section',
+      text: mrkdwn([
+        `*${truncateSlack(socialCommentPostTitle(row), 120)}*`,
+        `Platform: \`${socialPlatformLabel(row.platform)}\` - Classification: \`${row.classification || 'unclassified'}\` - Priority: \`${row.priority || 'normal'}\``,
+        row.author_display_name ? `From: ${truncateSlack(row.author_display_name, 80)}` : null,
+        comment ? `Comment: ${comment}` : null,
+        `Draft state: \`${socialCommentDraftState(row)}\``,
+        draft ? `Draft: ${draft}` : null,
+        commentPolicyLine(row),
+      ].filter(Boolean).join('\n')),
+    })
+    blocks.push({
+      type: 'actions',
+      elements: canDecide
+        ? [
+            slackButton({
+              label: 'Approve reply',
+              actionId: 'social_comment_reply_approve',
+              style: 'primary',
+              value: {
+                action: 'social_comment_reply.approve',
+                commentId: row.id,
+                contentId: row.content_id ?? undefined,
+                note: 'Approved from Slack. Start the 15-minute hold before any provider-send eligibility check.',
+              },
+              confirmText: 'Approve this prepared low-risk reply? It will be held for 15 minutes and will not be sent by Slack.',
+            }),
+            slackButton({
+              label: 'Reject reply',
+              actionId: 'social_comment_reply_reject',
+              style: 'danger',
+              value: {
+                action: 'social_comment_reply.reject',
+                commentId: row.id,
+                contentId: row.content_id ?? undefined,
+                note: 'Rejected from Slack.',
+              },
+            }),
+            slackButton({
+              label: 'Open review',
+              actionId: 'open_social_comment_review',
+              url: agentUrl(socialCommentDeepLink(row)),
+            }),
+          ]
+        : [
+            slackButton({
+              label: 'Open review',
+              actionId: 'open_social_comment_review',
+              url: agentUrl(socialCommentDeepLink(row)),
+              style: 'primary',
+            }),
+          ],
+    })
+  }
+
+  return {
+    text: `${read.rows.length} Social Content comment(s) need attention.`,
+    blocks,
+    itemCount: read.rows.length,
+  }
+}
+
 function workItemBlocks(title: string, intro: string, items: AgentWorkItem[], kind: AgentSlackNotificationKind) {
   const blocks: SlackBlock[] = [
     { type: 'section', text: mrkdwn(`*${title}*\n${intro}`) },
@@ -700,6 +837,7 @@ export async function buildAgentSlackNotificationPayload(input: AgentSlackNotifi
   if (input.kind === 'stale_runs') return buildStaleRunsPayload()
   if (input.kind === 'high_signal_insights') return buildHighSignalInsightsPayload()
   if (input.kind === 'social_publish_gate_due') return buildSocialPublishGateDuePayload()
+  if (input.kind === 'social_comment_attention_due') return buildSocialCommentAttentionPayload()
   return buildWorkItemPayload(input)
 }
 

@@ -463,6 +463,83 @@ describe('Agent Ops Slack notifications', () => {
     expect(JSON.stringify(payload.blocks)).not.toContain('Already posted item')
   })
 
+  it('surfaces high-priority comment attention with canonical Portfolio review links', async () => {
+    process.env.NEXT_PUBLIC_BASE_URL = 'https://amadutown.com'
+    mocks.from.mockReturnValueOnce(queryResult({
+      data: [
+        {
+          id: 'comment-1',
+          content_id: 'social-post-1',
+          platform: 'linkedin',
+          post_title: 'Agentified operating model',
+          author_display_name: 'Community Builder',
+          comment_text: 'Can this help a small nonprofit respond faster?',
+          classification: 'lead_opportunity',
+          priority: 'high',
+          status: 'needs_attention',
+          reply_draft: 'Yes. Start with the intake map, then decide which replies deserve automation.',
+          reply_status: 'prepared',
+          policy_eligibility: 'low_risk',
+          provider_capability: 'thread_reply',
+          provider_verified: true,
+          received_at: '2026-08-06T14:00:00.000Z',
+          metadata: {},
+        },
+      ],
+      error: null,
+    }))
+
+    const payload = await buildAgentSlackNotificationPayload({ kind: 'social_comment_attention_due' })
+
+    expect(payload).toMatchObject({
+      itemCount: 1,
+      text: '1 Social Content comment(s) need attention.',
+    })
+    const blocks = JSON.stringify(payload.blocks)
+    expect(blocks).toContain('Social comments need attention')
+    expect(blocks).toContain('Agentified operating model')
+    expect(blocks).toContain('LinkedIn')
+    expect(blocks).toContain('lead_opportunity')
+    expect(blocks).toContain('prepared')
+    expect(blocks).toContain('/admin/social-content/social-post-1?comment=comment-1')
+    expect(blocks).toContain('social_comment_reply.approve')
+    expect(blocks).toContain('social_comment_reply.reject')
+    expect(blocks).toContain('15-minute hold')
+  })
+
+  it('routes unverified provider comment replies to Portfolio review instead of Slack approval', async () => {
+    mocks.from.mockReturnValueOnce(queryResult({
+      data: [
+        {
+          id: 'comment-manual',
+          content_id: 'social-post-2',
+          platform: 'instagram',
+          post_title: 'Instagram launch post',
+          comment_text: 'Where do I sign up?',
+          classification: 'question',
+          priority: 'high',
+          status: 'needs_attention',
+          reply_draft: 'Open the intake form from the profile link.',
+          reply_status: 'prepared',
+          policy_eligibility: 'low_risk',
+          provider_capability: 'thread_reply',
+          provider_verified: false,
+          metadata: {},
+        },
+      ],
+      error: null,
+    }))
+
+    const payload = await buildAgentSlackNotificationPayload({ kind: 'social_comment_attention_due' })
+
+    expect(payload.itemCount).toBe(1)
+    const blocks = JSON.stringify(payload.blocks)
+    expect(blocks).toContain('Portfolio review required')
+    expect(blocks).toContain('Open review')
+    expect(blocks).not.toContain('social_comment_reply.approve')
+    expect(blocks).not.toContain('social_comment_reply.reject')
+  })
+
   it('uses review-ready work item actions for owned cards waiting on inspection', async () => {
     mocks.listAgentWorkItems.mockResolvedValue([
       {

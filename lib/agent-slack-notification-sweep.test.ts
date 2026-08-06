@@ -139,11 +139,11 @@ describe('Agent Ops proactive Slack notification sweep', () => {
     expect(result).toMatchObject({
       ok: true,
       mode: 'all',
-      totalRules: 6,
-      sentCount: 6,
-      itemCount: 12,
+      totalRules: 7,
+      sentCount: 7,
+      itemCount: 14,
     })
-    expect(mocks.buildAgentSlackNotificationPayload).toHaveBeenCalledTimes(6)
+    expect(mocks.buildAgentSlackNotificationPayload).toHaveBeenCalledTimes(7)
     expect(mocks.buildAgentSlackNotificationPayload.mock.calls.map(([input]) => input.kind)).toEqual([
       'pending_approvals',
       'blockers',
@@ -151,6 +151,7 @@ describe('Agent Ops proactive Slack notification sweep', () => {
       'review_ready',
       'goal_decisions',
       'social_publish_gate_due',
+      'social_comment_attention_due',
     ])
   })
 
@@ -244,6 +245,43 @@ describe('Agent Ops proactive Slack notification sweep', () => {
       triggerSource: 'test_social_gate_sweep',
       dedupeKey: expect.stringMatching(/^social_publish_gate_due:1:[a-f0-9]{16}$/),
       dedupeWindowHours: 6,
+    }))
+  })
+
+  it('sends social comment attention packets with one-hour dedupe metadata', async () => {
+    mocks.buildAgentSlackNotificationPayload.mockResolvedValue({
+      text: '1 Social Content comment needs attention',
+      blocks: [{ type: 'section', text: { type: 'mrkdwn', text: 'Comment attention' } }],
+      itemCount: 1,
+    })
+    mocks.sendAgentSlackNotification.mockResolvedValueOnce({
+      ok: true,
+      runId: 'run-social-comment',
+      sent: true,
+      skipped: false,
+      deduped: false,
+      itemCount: 1,
+      text: '1 Social Content comment needs attention',
+    })
+
+    const result = await runAgentSlackNotificationSweep({
+      kinds: ['social_comment_attention_due'],
+      actorLabel: 'cron',
+      triggerSource: 'test_social_comment_sweep',
+    })
+
+    expect(result).toMatchObject({
+      ok: true,
+      totalRules: 1,
+      sentCount: 1,
+      itemCount: 1,
+    })
+    expect(mocks.sendAgentSlackNotification).toHaveBeenCalledWith(expect.objectContaining({
+      kind: 'social_comment_attention_due',
+      actorLabel: 'cron',
+      triggerSource: 'test_social_comment_sweep',
+      dedupeKey: expect.stringMatching(/^social_comment_attention_due:1:[a-f0-9]{16}$/),
+      dedupeWindowHours: 1,
     }))
   })
 

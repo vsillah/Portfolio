@@ -8,7 +8,13 @@ import {
 
 export type ProactiveSlackNotificationKind = Extract<
   AgentSlackNotificationKind,
-  'pending_approvals' | 'blockers' | 'stale_runs' | 'review_ready' | 'goal_decisions' | 'social_publish_gate_due'
+  | 'pending_approvals'
+  | 'blockers'
+  | 'stale_runs'
+  | 'review_ready'
+  | 'goal_decisions'
+  | 'social_publish_gate_due'
+  | 'social_comment_attention_due'
 >
 
 export type ProactiveSlackNotificationMode = 'scheduled' | 'immediate' | 'all'
@@ -104,6 +110,15 @@ export const PROACTIVE_SLACK_NOTIFICATION_RULES: ProactiveSlackNotificationRule[
     priority: 'urgent',
     minimumItemCount: 1,
     dedupeWindowHours: 6,
+  },
+  {
+    kind: 'social_comment_attention_due',
+    label: 'Social comment attention',
+    description: 'Recently published Social Content posts with unresolved high-priority comments, prepared low-risk reply drafts, or manual provider blockers.',
+    triggerModes: ['scheduled'],
+    priority: 'urgent',
+    minimumItemCount: 1,
+    dedupeWindowHours: 1,
   },
 ]
 

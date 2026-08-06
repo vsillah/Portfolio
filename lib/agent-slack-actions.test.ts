@@ -132,6 +132,26 @@ describe('Agent Ops Slack actions', () => {
     expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
   })
 
+  it('uses comment id in Slack action idempotency keys for comment reply buttons', async () => {
+    const recordedActionQuery = queryResult({
+      data: { id: 'event-1' },
+      error: null,
+    })
+    mocks.from.mockReturnValueOnce(recordedActionQuery)
+
+    const result = await handleSlackAgentAction(payload({
+      action: 'social_comment_reply.approve',
+      commentId: 'comment-1',
+      contentId: 'social-post-1',
+    }))
+
+    expect(result.text).toContain('Already handled this Slack action')
+    expect(recordedActionQuery.eq).toHaveBeenCalledWith(
+      'idempotency_key',
+      'slack-agent-action:U123:1716400000.000:social_comment_reply.approve:comment-1',
+    )
+  })
+
   it('requires Portfolio review for high-risk approvals', async () => {
     mocks.from
       .mockReturnValueOnce(queryResult({ data: null, error: null }))
@@ -296,6 +316,76 @@ describe('Agent Ops Slack actions', () => {
     expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
     expect(result.text).toContain('Draft a research proposal first')
     expect(result.text).toContain('/admin/agents/runs/shaka-insight-run')
+  })
+
+  it('approves prepared low-risk comment replies into a 15-minute hold without provider submission', async () => {
+    const commentUpdate = queryResult({ error: null })
+    mocks.from
+      .mockReturnValueOnce(queryResult({ data: null, error: null }))
+      .mockReturnValueOnce(queryResult({
+        data: {
+          id: 'comment-1',
+          content_id: 'social-post-1',
+          platform: 'linkedin',
+          reply_draft: 'Thanks for asking. The intake map is the best first step.',
+          reply_status: 'prepared',
+          policy_eligibility: 'low_risk',
+          provider_capability: 'thread_reply',
+          provider_verified: true,
+          metadata: {},
+        },
+        error: null,
+      }))
+      .mockReturnValueOnce(commentUpdate)
+
+    const result = await handleSlackAgentAction(payload({
+      action: 'social_comment_reply.approve',
+      commentId: 'comment-1',
+      contentId: 'social-post-1',
+      note: 'Looks safe from mobile.',
+    }))
+
+    expect(result.text).toContain('Reply approved from Slack')
+    expect(result.text).toContain('held for 15 minutes')
+    expect(commentUpdate.update).toHaveBeenCalledWith(expect.objectContaining({
+      reply_status: 'approved',
+      reply_hold_until: expect.any(String),
+      metadata: expect.objectContaining({
+        slack_reply_decision: expect.objectContaining({
+          status: 'approved',
+          decision_notes: 'Looks safe from mobile.',
+          external_submission_performed: false,
+        }),
+      }),
+    }))
+  })
+
+  it('blocks Slack approval for unverified comment providers', async () => {
+    mocks.from
+      .mockReturnValueOnce(queryResult({ data: null, error: null }))
+      .mockReturnValueOnce(queryResult({
+        data: {
+          id: 'comment-2',
+          content_id: 'social-post-2',
+          platform: 'instagram',
+          reply_draft: 'Use the link in bio.',
+          reply_status: 'prepared',
+          policy_eligibility: 'low_risk',
+          provider_capability: 'thread_reply',
+          provider_verified: false,
+          metadata: {},
+        },
+        error: null,
+      }))
+
+    const result = await handleSlackAgentAction(payload({
+      action: 'social_comment_reply.approve',
+      commentId: 'comment-2',
+      contentId: 'social-post-2',
+    }))
+
+    expect(result.text).toContain('Portfolio review required')
+    expect(mocks.from).toHaveBeenCalledTimes(2)
   })
 
   it('drafts a proposed AutoResearch work item from a high-signal insight Slack action', async () => {
