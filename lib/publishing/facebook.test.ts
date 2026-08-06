@@ -74,6 +74,32 @@ describe('publishToFacebook', () => {
     )
   })
 
+  it('uses approved companion copy for Facebook companion posts', async () => {
+    installSupabase({
+      is_active: true,
+      credentials: {
+        page_access_token: 'page-token',
+        page_id: 'page-1',
+      },
+      settings: {
+        graph_api_version: 'v20.0',
+      },
+    })
+
+    mocks.fetch.mockResolvedValueOnce(new Response(JSON.stringify({
+      id: 'page-1_post-1',
+    }), { status: 200 }))
+
+    await publishToFacebook({
+      contentId: 'content-1',
+      postText: 'Instagram source copy',
+      companionPostText: 'Facebook companion copy',
+    })
+
+    const requestBody = (mocks.fetch.mock.calls[0]?.[1] as RequestInit).body as URLSearchParams
+    expect(requestBody.get('message')).toBe('Facebook companion copy')
+  })
+
   it('fails closed when Page credentials are missing', async () => {
     const { update } = installSupabase({
       is_active: true,

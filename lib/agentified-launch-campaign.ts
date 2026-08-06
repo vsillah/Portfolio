@@ -54,6 +54,8 @@ function channelLabel(channel: string) {
 
 function channelToSelectedLane(channel: SocialContentCalendarChannel): SocialContentIntelligenceChannel {
   if (channel === 'thumbnail') return 'thumbnail'
+  if (channel === 'instagram') return 'instagram_reels'
+  if (channel === 'facebook') return 'linkedin'
   return channel
 }
 

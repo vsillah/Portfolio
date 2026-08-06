@@ -149,6 +149,7 @@ export async function publishSocialContentItem(input: {
       const payload = {
         contentId: id,
         postText: item.post_text,
+        companionPostText: item.companion_post_text,
         ctaText: item.cta_text,
         ctaUrl: item.cta_url,
         hashtags: item.hashtags,

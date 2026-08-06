@@ -25,6 +25,8 @@ type HandoffResult = {
   handoffKind:
     | 'linkedin_social_content_draft'
     | 'youtube_social_content_draft'
+    | 'instagram_social_content_draft'
+    | 'facebook_social_content_draft'
     | 'x_social_content_draft'
     | 'channel_planning_handoff'
 }
@@ -53,8 +55,11 @@ function calendarPlatformTargets(item: SocialContentCalendarItem): SocialPlatfor
     case 'youtube':
     case 'youtube_shorts':
       return ['youtube']
+    case 'instagram':
     case 'instagram_reels':
       return ['instagram']
+    case 'facebook':
+      return ['facebook']
     case 'tiktok':
       return ['tiktok']
     case 'x':
@@ -94,12 +99,20 @@ function platformOrchestrationForCalendarItem(item: SocialContentCalendarItem): 
 }
 
 function supportsSocialContentDraft(item: SocialContentCalendarItem) {
-  return item.channel === 'linkedin' || item.channel === 'youtube' || item.channel === 'youtube_shorts' || item.channel === 'x'
+  return item.channel === 'linkedin'
+    || item.channel === 'youtube'
+    || item.channel === 'youtube_shorts'
+    || item.channel === 'instagram'
+    || item.channel === 'instagram_reels'
+    || item.channel === 'facebook'
+    || item.channel === 'x'
 }
 
 function socialPlatformForCalendarItem(item: SocialContentCalendarItem): SocialPlatform | null {
   if (item.channel === 'linkedin') return 'linkedin'
   if (item.channel === 'youtube' || item.channel === 'youtube_shorts') return 'youtube'
+  if (item.channel === 'instagram' || item.channel === 'instagram_reels') return 'instagram'
+  if (item.channel === 'facebook') return 'facebook'
   if (item.channel === 'x') return 'x'
   return null
 }
@@ -107,6 +120,8 @@ function socialPlatformForCalendarItem(item: SocialContentCalendarItem): SocialP
 function handoffKindFor(item: SocialContentCalendarItem, socialContentId: string | null): HandoffResult['handoffKind'] {
   if (!socialContentId) return 'channel_planning_handoff'
   if (item.channel === 'youtube' || item.channel === 'youtube_shorts') return 'youtube_social_content_draft'
+  if (item.channel === 'instagram' || item.channel === 'instagram_reels') return 'instagram_social_content_draft'
+  if (item.channel === 'facebook') return 'facebook_social_content_draft'
   if (item.channel === 'x') return 'x_social_content_draft'
   if (item.channel === 'linkedin') return 'linkedin_social_content_draft'
   return 'channel_planning_handoff'
