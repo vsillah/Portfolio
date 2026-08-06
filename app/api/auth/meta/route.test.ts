@@ -48,6 +48,17 @@ describe('GET /api/auth/meta', () => {
     expect(response.headers.get('set-cookie')).toContain('HttpOnly')
   })
 
+  it('includes the Facebook Login for Business configuration id when configured', async () => {
+    process.env.META_CONFIG_ID = 'meta-config-id'
+
+    const response = await GET(request())
+
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    const authUrl = new URL(body.auth_url)
+    expect(authUrl.searchParams.get('config_id')).toBe('meta-config-id')
+  })
+
   it('requires admin authorization before creating the oauth state cookie', async () => {
     mocks.verifyAdmin.mockResolvedValueOnce({ error: 'Authentication required', status: 401 })
     mocks.isAuthError.mockReturnValueOnce(true)

@@ -20,6 +20,11 @@ export function getMetaOAuthClientSecret() {
     || process.env.FACEBOOK_CLIENT_SECRET
 }
 
+export function getMetaOAuthConfigId() {
+  return process.env.META_CONFIG_ID
+    || process.env.FACEBOOK_CONFIG_ID
+}
+
 export function buildMetaRedirectUri(origin: string) {
   return `${origin}/api/auth/meta/callback`
 }
@@ -33,6 +38,8 @@ export function buildMetaOAuthUrl(input: {
   authUrl.searchParams.set('client_id', input.clientId)
   authUrl.searchParams.set('redirect_uri', buildMetaRedirectUri(input.origin))
   authUrl.searchParams.set('state', input.state)
+  const configId = getMetaOAuthConfigId()
+  if (configId) authUrl.searchParams.set('config_id', configId)
   authUrl.searchParams.set('scope', META_OAUTH_SCOPES.join(','))
   authUrl.searchParams.set('response_type', 'code')
   authUrl.searchParams.set('auth_type', 'rerequest')
