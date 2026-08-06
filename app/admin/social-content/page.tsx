@@ -35,6 +35,7 @@ import {
   AtSign,
   Instagram,
   Facebook,
+  MessageSquare,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -883,7 +884,7 @@ function SocialContentQueuePage() {
       <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Social Content' }]} />
 
       {/* Header */}
-      <div className="admin-console-surface-header mb-6 mt-5 flex items-center gap-4 rounded-xl border p-5">
+      <div className="admin-console-surface-header mb-6 mt-5 flex flex-col items-start gap-4 rounded-xl border p-5 sm:flex-row sm:items-center">
         <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-radiant-gold/40 bg-radiant-gold/15 text-radiant-gold">
           <Share2 className="h-6 w-6" />
         </div>
@@ -892,6 +893,13 @@ function SocialContentQueuePage() {
           <h1 className="text-2xl font-bold text-foreground">Social Content Queue</h1>
           <p className="text-muted-foreground text-sm">Review draft content first. Evidence packets and creation tools stay available without taking over the approval queue.</p>
         </div>
+        <Link
+          href="/admin/social-content/engagement-inbox"
+          className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-radiant-gold/45 bg-radiant-gold/10 px-3 py-2 text-sm font-semibold text-radiant-gold transition-colors hover:bg-radiant-gold/20"
+        >
+          <MessageSquare className="h-4 w-4" />
+          Engagement Inbox
+        </Link>
       </div>
 
       <MobileWorkflowSummary

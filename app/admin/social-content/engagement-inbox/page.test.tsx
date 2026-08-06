@@ -1,0 +1,122 @@
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import type { ReactNode } from 'react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import SocialCommentInboxPage from './page'
+
+vi.mock('@/components/ProtectedRoute', () => ({
+  default: ({ children }: { children: ReactNode }) => <>{children}</>,
+}))
+
+vi.mock('@/components/admin/Breadcrumbs', () => ({
+  default: () => null,
+}))
+
+vi.mock('@/lib/auth', () => ({
+  getCurrentSession: vi.fn(async () => ({ access_token: 'admin-token' })),
+}))
+
+const comment = {
+  id: 'comment-1',
+  socialContentId: 'social-1',
+  platform: 'linkedin',
+  providerCommentId: 'urn:comment:1',
+  providerPermalink: 'https://linkedin.example/comment/1',
+  authorDisplayName: 'Potential Client',
+  body: 'Can this workflow help our nonprofit intake?',
+  status: 'lead',
+  classification: { label: 'Lead', priority: 'high', reason: 'Direct service question' },
+  draftReply: 'Yes, it can help triage intake while keeping a human approval gate.',
+  approvalState: 'drafted',
+  providerCapability: {
+    provider: 'linkedin',
+    automaticReply: false,
+    verified: false,
+    humanGateSatisfied: false,
+    blocker: 'LinkedIn reply adapter is not verified.',
+    recoveryPath: 'Reply manually from the provider permalink.',
+  },
+  actionHistory: [],
+  createdAt: '2026-08-06T12:00:00.000Z',
+  updatedAt: '2026-08-06T12:00:00.000Z',
+  campaignId: 'campaign-1',
+  campaignLabel: 'Agentified launch',
+  postLabel: 'Agentified Episode 1',
+  postExcerpt: 'Original post copy',
+}
+
+describe('SocialCommentInboxPage', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (init?.method === 'POST') {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({ ok: true, message: 'Comment action recorded.', comments: [{ ...comment, approvalState: 'approved' }] }),
+        } as Response
+      }
+
+      const noMatches = url.includes('status=ignored')
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          items: noMatches ? [] : [comment],
+          summary: { total: 1, new: 0, needs_qa: 0, auto_send_pending: 0, lead: 1, escalated: 0, responded: 0, ignored: 0 },
+          filteredSummary: noMatches
+            ? { total: 0, new: 0, needs_qa: 0, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 }
+            : { total: 1, new: 0, needs_qa: 0, auto_send_pending: 0, lead: 1, escalated: 0, responded: 0, ignored: 0 },
+        }),
+      } as Response
+    }))
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('renders filters, blocked/manual provider state, and distinct actions', async () => {
+    render(<SocialCommentInboxPage />)
+
+    expect(await screen.findByText('Engagement Inbox')).toBeInTheDocument()
+    expect(screen.getByText('Potential Client')).toBeInTheDocument()
+    expect(screen.getByText('Can this workflow help our nonprofit intake?')).toBeInTheDocument()
+    expect(screen.getByText('Blocked/manual state')).toBeInTheDocument()
+    expect(screen.getByText('LinkedIn reply adapter is not verified.')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Open Post/i })).toHaveAttribute('href', '/admin/social-content/social-1')
+    expect(screen.getByRole('link', { name: /Provider/i })).toHaveAttribute('href', 'https://linkedin.example/comment/1')
+
+    const article = screen.getByText('Potential Client').closest('article')
+    expect(article).toBeTruthy()
+    const panel = within(article as HTMLElement)
+    expect(panel.getByRole('button', { name: /Draft Response/i })).toBeInTheDocument()
+    expect(panel.getByRole('button', { name: /^Approve$/i })).not.toBeDisabled()
+    expect(panel.getByRole('button', { name: /^Reject$/i })).toBeInTheDocument()
+    expect(panel.getByRole('button', { name: /^Ignore$/i })).toBeInTheDocument()
+    expect(panel.getByRole('button', { name: /^Submit$/i })).toBeDisabled()
+  })
+
+  it('shows a clear empty state when filters remove all rows', async () => {
+    render(<SocialCommentInboxPage />)
+
+    expect(await screen.findByText('Potential Client')).toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText(/Status/i), { target: { value: 'ignored' } })
+
+    expect(await screen.findByText('No comments match these filters')).toBeInTheDocument()
+    expect(screen.getByText(/Unsupported providers will appear here once their comments are imported/i)).toBeInTheDocument()
+  })
+
+  it('records approve actions without submitting externally', async () => {
+    render(<SocialCommentInboxPage />)
+
+    const approve = await screen.findByRole('button', { name: /^Approve$/i })
+    fireEvent.click(approve)
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/admin/social-content/social-1/engagement/comments', expect.objectContaining({
+        method: 'POST',
+      }))
+    })
+    expect(await screen.findByText('Comment action recorded.')).toBeInTheDocument()
+  })
+})

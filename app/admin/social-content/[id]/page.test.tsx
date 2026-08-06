@@ -1448,4 +1448,79 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(revisionBody.operator_feedback.revision_request).toBe(feedback)
     expect(await screen.findByDisplayValue('Revised draft from Shaka.')).toBeInTheDocument()
   })
+
+  it('projects imported comments on the Social Content detail status step', async () => {
+    const commentItem = {
+      ...baseItem,
+      rag_context: {
+        ...baseItem.rag_context,
+      },
+    }
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [] }),
+        } as Response
+      }
+      if (url.includes('/engagement/comments')) {
+        return {
+          ok: true,
+          json: async () => ({
+            comments: [{
+              id: 'comment-1',
+              socialContentId: 'social-1',
+              platform: 'linkedin',
+              authorDisplayName: 'Potential Client',
+              body: 'Can this help our nonprofit intake?',
+              status: 'needs_qa',
+              classification: {
+                label: 'buying lead intent',
+                priority: 'high',
+                reason: 'Direct service question',
+              },
+              providerCommentId: 'urn:li:comment:1',
+              draftReply: 'Yes, it can help triage intake while keeping a human approval gate.',
+              approvalState: 'drafted',
+              providerPermalink: 'https://linkedin.example/comment/1',
+              providerCapability: {
+                provider: 'linkedin',
+                automaticReply: false,
+                verified: false,
+                humanGateSatisfied: false,
+                blocker: 'LinkedIn reply adapter is not verified.',
+                recoveryPath: 'Reply manually from LinkedIn.',
+              },
+              actionHistory: [{
+                action: 'draft_response',
+                at: '2026-08-06T12:00:00.000Z',
+                by: 'admin-user',
+                note: 'Drafted for QA.',
+              }],
+              postLabel: 'Agentified Episode 1',
+              postExcerpt: 'Original post copy',
+            }],
+          }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: commentItem }),
+      } as Response
+    }))
+
+    renderAtStep('status')
+
+    expect(await screen.findByText('Comment response panel')).toBeInTheDocument()
+    expect(screen.getByText('Potential Client')).toBeInTheDocument()
+    expect(screen.getByText('Can this help our nonprofit intake?')).toBeInTheDocument()
+    expect(screen.getByText('Blocked/manual provider')).toBeInTheDocument()
+    expect(screen.getByText('LinkedIn reply adapter is not verified.')).toBeInTheDocument()
+    expect(screen.getByText('drafted')).toBeInTheDocument()
+    expect(screen.getByText('urn:li:comment:1')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Provider comment/i })).toHaveAttribute('href', 'https://linkedin.example/comment/1')
+    expect(screen.getByRole('button', { name: /^Submit$/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /^Approve$/i })).not.toBeDisabled()
+  })
 })
