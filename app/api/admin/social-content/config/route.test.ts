@@ -52,6 +52,19 @@ const configs = [{
   is_active: true,
   created_at: '2026-08-04T00:00:00.000Z',
   updated_at: '2026-08-04T00:00:00.000Z',
+}, {
+  id: 'config-facebook',
+  platform: 'facebook',
+  credentials: {
+    page_access_token: 'secret-facebook-token',
+    page_id: 'secret-page-id',
+  },
+  settings: {
+    connected_page_name: 'AmaduTown',
+  },
+  is_active: true,
+  created_at: '2026-08-05T00:00:00.000Z',
+  updated_at: '2026-08-05T00:00:00.000Z',
 }]
 
 function request(url = 'https://amadutown.com/api/admin/social-content/config') {
@@ -141,5 +154,34 @@ describe('GET /api/admin/social-content/config', () => {
 
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toEqual({ configs })
+  })
+
+  it('returns Facebook setup requirements without exposing Page token values', async () => {
+    const response = await GET(request('https://amadutown.com/api/admin/social-content/config?safe=true&platform=facebook'))
+
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    expect(body.configs).toEqual([{
+      id: 'config-facebook',
+      platform: 'facebook',
+      settings: {
+        connected_page_name: 'AmaduTown',
+      },
+      is_active: true,
+      credentials_configured: true,
+      provider_setup: {
+        provider: 'meta_facebook_graph',
+        ready: true,
+        requirements: {
+          page_access_token: true,
+          page_id: true,
+        },
+        human_gate: 'Store credentials through the approved secret/config path only. Final Facebook publish remains separately human-submitted.',
+      },
+      created_at: '2026-08-05T00:00:00.000Z',
+      updated_at: '2026-08-05T00:00:00.000Z',
+    }])
+    expect(JSON.stringify(body)).not.toContain('secret-facebook-token')
+    expect(JSON.stringify(body)).not.toContain('secret-page-id')
   })
 })

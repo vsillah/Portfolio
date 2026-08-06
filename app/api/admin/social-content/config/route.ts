@@ -71,6 +71,24 @@ function instagramProviderSetup(config: PlatformConfigRow) {
   }
 }
 
+function facebookProviderSetup(config: PlatformConfigRow) {
+  if (config.platform !== 'facebook') return null
+
+  const credentials = asRecord(config.credentials)
+  const settings = asRecord(config.settings)
+  const requirements = {
+    page_access_token: hasString(credentials, ['page_access_token', 'access_token']),
+    page_id: hasString({ ...credentials, ...settings }, ['page_id', 'connected_page_id']),
+  }
+
+  return {
+    provider: 'meta_facebook_graph',
+    requirements,
+    ready: Object.values(requirements).every(Boolean),
+    human_gate: 'Store credentials through the approved secret/config path only. Final Facebook publish remains separately human-submitted.',
+  }
+}
+
 /**
  * GET /api/admin/social-content/config
  * Get all platform configurations
@@ -113,7 +131,7 @@ export async function GET(request: NextRequest) {
           && typeof config.credentials === 'object'
           && Object.keys(config.credentials).length > 0,
         ),
-        provider_setup: instagramProviderSetup(config),
+        provider_setup: instagramProviderSetup(config) ?? facebookProviderSetup(config),
         created_at: config.created_at,
         updated_at: config.updated_at,
       }))

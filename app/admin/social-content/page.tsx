@@ -34,6 +34,7 @@ import {
   Youtube,
   AtSign,
   Instagram,
+  Facebook,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -176,6 +177,11 @@ function SocialContentQueuePage() {
     type: 'success' | 'error'
     message: string
   } | null>(null)
+  const [metaConnecting, setMetaConnecting] = useState(false)
+  const [metaConnectionNotice, setMetaConnectionNotice] = useState<{
+    type: 'success' | 'error'
+    message: string
+  } | null>(null)
 
   // Extraction trigger state
   const [meetings, setMeetings] = useState<MeetingRecord[]>([])
@@ -282,6 +288,10 @@ function SocialContentQueuePage() {
     const xConnected = params.get('x_connected')
     const xError = params.get('x_error')
     const xHandle = params.get('x_handle')
+    const metaConnected = params.get('meta_connected')
+    const metaError = params.get('meta_error')
+    const facebookPage = params.get('facebook_page')
+    const instagramHandle = params.get('instagram_handle')
 
     if (youtubeConnected === 'true') {
       setYoutubeConnectionNotice({
@@ -318,6 +328,26 @@ function SocialContentQueuePage() {
         message: `X connection did not complete (${xError.replace(/_/g, ' ')}).`,
       })
     }
+
+    if (metaConnected === 'true') {
+      setMetaConnectionNotice({
+        type: 'success',
+        message: [
+          facebookPage ? `Facebook connected to ${facebookPage}.` : 'Facebook connected.',
+          instagramHandle ? `Instagram connected to @${instagramHandle.replace(/^@/, '')}.` : null,
+          'Posting remains gated by final submission approval.',
+        ].filter(Boolean).join(' '),
+      })
+      fetchPlatformConfigs()
+      return
+    }
+
+    if (metaError) {
+      setMetaConnectionNotice({
+        type: 'error',
+        message: `Meta connection did not complete (${metaError.replace(/_/g, ' ')}).`,
+      })
+    }
   }, [fetchPlatformConfigs])
 
   const extractionStatus = useExtractionStatus(() => fetchItems())
@@ -339,12 +369,18 @@ function SocialContentQueuePage() {
   const instagramConfig = platformConfigs.find((config) => config.platform === 'instagram')
   const instagramSetup = instagramConfig?.provider_setup
   const instagramReady = Boolean(instagramConfig?.is_active && instagramSetup?.ready)
+  const facebookConfig = platformConfigs.find((config) => config.platform === 'facebook')
+  const facebookSetup = facebookConfig?.provider_setup
+  const facebookReady = Boolean(facebookConfig?.is_active && facebookSetup?.ready)
+  const metaReady = instagramReady && facebookReady
   const instagramRequirements = [
     ['Professional Instagram account', instagramSetup?.requirements?.professional_account],
     ['Meta Page linkage', instagramSetup?.requirements?.meta_page_linked],
     ['Access token stored', instagramSetup?.requirements?.access_token],
     ['IG user/business account ID', instagramSetup?.requirements?.ig_user_business_id],
     ['App review/permissions', instagramSetup?.requirements?.app_review_permissions],
+    ['Facebook Page token', facebookSetup?.requirements?.page_access_token],
+    ['Facebook Page ID', facebookSetup?.requirements?.page_id],
   ] as const
 
   const handleConnectYouTube = async () => {
@@ -408,6 +444,38 @@ function SocialContentQueuePage() {
       setXConnectionNotice({ type: 'error', message: 'X connection could not start.' })
     } finally {
       setXConnecting(false)
+    }
+  }
+
+  const handleConnectMeta = async () => {
+    setMetaConnecting(true)
+    setMetaConnectionNotice(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session) {
+        setMetaConnectionNotice({ type: 'error', message: 'Sign in before connecting Meta.' })
+        return
+      }
+
+      const res = await fetch('/api/auth/meta', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      })
+      const data = await res.json().catch(() => null)
+      if (!res.ok || !data?.auth_url) {
+        setMetaConnectionNotice({
+          type: 'error',
+          message: data?.error || 'Meta connection could not start.',
+        })
+        return
+      }
+
+      window.location.assign(data.auth_url)
+    } catch {
+      setMetaConnectionNotice({ type: 'error', message: 'Meta connection could not start.' })
+    } finally {
+      setMetaConnecting(false)
     }
   }
 
@@ -868,12 +936,17 @@ function SocialContentQueuePage() {
             </span>
             <div className="min-w-0">
               <div className="admin-console-eyebrow mb-1">Provider setup</div>
-              <h2 className="text-base font-semibold text-foreground">Instagram Graph readiness</h2>
+              <h2 className="text-base font-semibold text-foreground">Meta Instagram/Facebook readiness</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                {instagramReady
-                  ? 'Instagram is ready for governed image, carousel, or Reel submission. Final posting still requires asset, rights/privacy, and submit gates.'
-                  : 'Prepare Instagram before posts, Reels, or carousels are submitted: Professional account, Meta Page linkage, token, IG user/business ID, and app review or publishing permissions.'}
+                {metaReady
+                  ? 'Instagram and Facebook are ready for governed image, carousel, Reel, or Page submission. Final posting still requires asset, rights/privacy, and submit gates.'
+                  : 'Connect Meta before Instagram or Facebook companion posts can be submitted. This stores the provider adapter only; it does not post, schedule, or alter copy.'}
               </p>
+              {metaConnectionNotice && (
+                <p className={`mt-2 text-xs ${metaConnectionNotice.type === 'success' ? 'text-emerald-300' : 'text-red-300'}`}>
+                  {metaConnectionNotice.message}
+                </p>
+              )}
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 {instagramRequirements.map(([label, ready]) => (
                   <div
@@ -894,15 +967,26 @@ function SocialContentQueuePage() {
               </p>
             </div>
           </div>
-          <span className={`w-fit rounded-full border px-3 py-1 text-xs font-medium ${
-            platformConfigsLoading
-              ? 'border-silicon-slate bg-imperial-navy/50 text-gray-400'
-              : instagramReady
-                ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
-                : 'border-amber-500/30 bg-amber-500/10 text-amber-300'
-          }`}>
-            {platformConfigsLoading ? 'Checking' : instagramReady ? 'Ready' : 'Blocked'}
-          </span>
+          <div className="flex shrink-0 flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+            <span className={`w-fit rounded-full border px-3 py-1 text-xs font-medium ${
+              platformConfigsLoading
+                ? 'border-silicon-slate bg-imperial-navy/50 text-gray-400'
+                : metaReady
+                  ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+                  : 'border-amber-500/30 bg-amber-500/10 text-amber-300'
+            }`}>
+              {platformConfigsLoading ? 'Checking' : metaReady ? 'Ready' : 'Blocked'}
+            </span>
+            <button
+              type="button"
+              onClick={handleConnectMeta}
+              disabled={metaConnecting}
+              className="admin-console-button-secondary justify-center disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {metaConnecting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Facebook className="h-4 w-4" />}
+              {metaConnecting ? 'Opening Meta...' : metaReady ? 'Reconnect Meta' : 'Connect Meta'}
+            </button>
+          </div>
         </div>
       </div>
 

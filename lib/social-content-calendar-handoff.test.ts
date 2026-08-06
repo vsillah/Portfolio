@@ -303,7 +303,7 @@ describe('social-content-calendar-handoff', () => {
     })
   })
 
-  it('authorizes X calendar items by creating a manual-handoff Social Content draft', async () => {
+  it('authorizes X calendar items by creating a gated X Social Content draft', async () => {
     const item = baseCalendarItem({
       channel: 'x',
       social_content_id: null,
@@ -327,14 +327,14 @@ describe('social-content-calendar-handoff', () => {
       rag_context: expect.objectContaining({
         source: 'social_content_calendar_authorization',
         calendar_item_id: 'calendar-1',
-        publish_gate: 'manual_handoff_gated',
+        publish_gate: 'platform_review_gated',
         external_execution_enabled: false,
         platform_submission_orchestration: expect.objectContaining({
           anyAutomaticSubmissionAvailable: false,
           platforms: expect.arrayContaining([
             expect.objectContaining({
               platform: 'x',
-              automaticSubmissionSupported: false,
+              automaticSubmissionSupported: true,
             }),
           ]),
         }),
@@ -371,6 +371,46 @@ describe('social-content-calendar-handoff', () => {
     expect(result).toMatchObject({
       socialContentId: 'x-draft-1',
       handoffKind: 'x_social_content_draft',
+    })
+  })
+
+  it('authorizes Facebook calendar items by creating a gated Facebook Social Content draft', async () => {
+    const item = baseCalendarItem({
+      channel: 'facebook',
+      social_content_id: null,
+    })
+    mockReadCalendarItem(item)
+    mockExistingDraftLookup(null)
+    const draftInsert = mockDraftInsert('facebook-draft-1')
+    mockCalendarUpdate({
+      ...item,
+      authorization_status: 'authorized',
+      social_content_id: 'facebook-draft-1',
+    })
+
+    const result = await authorizeCalendarDraftHandoff('calendar-1', auth)
+
+    expect(draftInsert.insert).toHaveBeenCalledWith(expect.objectContaining({
+      platform: 'facebook',
+      status: 'draft',
+      target_platforms: ['facebook'],
+      scheduled_for: null,
+      rag_context: expect.objectContaining({
+        publish_gate: 'platform_review_gated',
+        external_execution_enabled: false,
+        platform_submission_orchestration: expect.objectContaining({
+          platforms: expect.arrayContaining([
+            expect.objectContaining({
+              platform: 'facebook',
+              automaticSubmissionSupported: true,
+            }),
+          ]),
+        }),
+      }),
+    }))
+    expect(result).toMatchObject({
+      socialContentId: 'facebook-draft-1',
+      handoffKind: 'facebook_social_content_draft',
     })
   })
 

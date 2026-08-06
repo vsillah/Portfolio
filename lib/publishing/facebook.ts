@@ -11,6 +11,7 @@ import type { PublishStatus, SocialPlatform } from '@/lib/social-content'
 export interface FacebookPublishPayload {
   contentId: string
   postText: string
+  companionPostText?: string | null
   ctaText?: string | null
   ctaUrl?: string | null
   hashtags?: string[] | null
@@ -79,7 +80,7 @@ async function updatePublishStatus(
 }
 
 function buildMessage(payload: FacebookPublishPayload) {
-  const parts = [payload.postText]
+  const parts = [payload.companionPostText || payload.postText]
   if (payload.ctaText) parts.push(payload.ctaText)
   if (payload.ctaUrl) parts.push(payload.ctaUrl)
   if (payload.hashtags?.length) {
