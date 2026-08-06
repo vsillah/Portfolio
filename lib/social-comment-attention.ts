@@ -5,21 +5,24 @@ export type SocialCommentAttentionRow = {
   id: string
   content_id: string | null
   platform: SocialPlatform | string | null
-  platform_post_url?: string | null
-  post_title?: string | null
+  publish_id?: string | null
+  provider?: string | null
+  provider_comment_id?: string | null
+  comment_url?: string | null
   author_display_name?: string | null
-  comment_text?: string | null
-  classification?: string | null
+  body?: string | null
+  classification_status?: string | null
+  classification_reason?: string | null
+  sentiment?: string | null
   priority?: string | null
   status?: string | null
-  received_at?: string | null
+  response_approval_state?: string | null
+  reply_submission_state?: string | null
+  proposed_reply_text?: string | null
+  approved_reply_text?: string | null
+  provider_capability?: Record<string, unknown> | null
+  captured_at?: string | null
   updated_at?: string | null
-  reply_draft?: string | null
-  reply_status?: string | null
-  reply_hold_until?: string | null
-  policy_eligibility?: string | boolean | null
-  provider_capability?: string | boolean | null
-  provider_verified?: boolean | null
   metadata?: Record<string, unknown> | null
 }
 
@@ -56,18 +59,19 @@ export type SocialCommentAttentionCronResult = {
   }>
 }
 
-const LOW_RISK_POLICY_VALUES = new Set(['low_risk', 'slack_approvable', 'auto_reply_low_risk', 'approved'])
-const PREPARED_REPLY_STATUSES = new Set(['prepared', 'drafted', 'pending_approval', 'ready_for_approval'])
-const ATTENTION_STATUSES = new Set(['new', 'unresolved', 'needs_attention', 'reply_drafted', 'pending_approval'])
-const RESOLVED_STATUSES = new Set(['resolved', 'closed', 'hidden', 'spam', 'ignored'])
+const POLICY_LOW_RISK_CLASSIFICATIONS = new Set(['low_risk_acknowledgement'])
+const ATTENTION_CLASSIFICATION_STATUSES = new Set(['unreviewed', 'needs_response'])
+const ATTENTION_REPLY_STATES = new Set(['draft', 'failed', 'blocked'])
+const RESOLVED_CLASSIFICATION_STATUSES = new Set(['answered', 'spam', 'blocked', 'ignored'])
+const RESOLVED_VISIBILITY_STATUSES = new Set(['hidden', 'deleted', 'blocked'])
 const HIGH_ATTENTION_CLASSIFICATIONS = new Set([
-  'complaint',
-  'question',
-  'support_request',
-  'lead_opportunity',
-  'high_intent',
-  'safety',
-  'reputation_risk',
+  'substantive_question',
+  'buying_lead_intent',
+  'partnership_intent',
+  'criticism_negative',
+  'misinformation_unsupported_claim',
+  'sensitive_privacy_legal_financial',
+  'provider_manual_ambiguity',
 ])
 
 function isMissingCommentSurfaceError(error: { message?: string; code?: string } | null | undefined) {
@@ -103,14 +107,44 @@ function booleanSetting(value: unknown) {
   return ['true', 'yes', 'enabled', 'supported', 'verified', 'ready'].includes(value.trim().toLowerCase())
 }
 
-function providerReplySupported(row: SocialCommentAttentionRow) {
-  return row.provider_capability === true
-    || ['reply', 'thread_reply', 'auto_reply', 'automatic_reply'].includes(normalized(row.provider_capability))
-    || booleanSetting(record(row.metadata)?.provider_reply_supported)
+function policyDecision(row: SocialCommentAttentionRow) {
+  const metadata = record(row.metadata)
+  return record(metadata?.policy_decision)
+    ?? record(metadata?.comment_policy_decision)
+    ?? record(metadata?.policyDecision)
 }
 
-function providerVerified(row: SocialCommentAttentionRow) {
-  return row.provider_verified === true || booleanSetting(record(row.metadata)?.provider_verified)
+function autoSendDecision(row: SocialCommentAttentionRow) {
+  return record(policyDecision(row)?.autoSend)
+}
+
+function policyClassification(row: SocialCommentAttentionRow) {
+  const decision = policyDecision(row)
+  const value = decision?.classification
+  return typeof value === 'string' ? value : null
+}
+
+function isPolicyLowRisk(row: SocialCommentAttentionRow) {
+  const decision = policyDecision(row)
+  const classification = policyClassification(row)
+  const humanQaRequired = decision?.humanQaRequired === true
+  const autoSend = autoSendDecision(row)
+  return Boolean(
+    classification
+    && POLICY_LOW_RISK_CLASSIFICATIONS.has(classification)
+    && !humanQaRequired
+    && autoSend?.eligible === true,
+  )
+}
+
+function providerReplySupported(row: SocialCommentAttentionRow) {
+  const capability = record(row.provider_capability)
+  return capability?.supports_reply_submission === true || booleanSetting(record(row.metadata)?.provider_reply_supported)
+}
+
+function providerExternalSubmissionEnabled(row: SocialCommentAttentionRow) {
+  const capability = record(row.provider_capability)
+  return capability?.external_submission_enabled === true || booleanSetting(record(row.metadata)?.external_submission_enabled)
 }
 
 export function socialCommentDeepLink(row: Pick<SocialCommentAttentionRow, 'id' | 'content_id'>) {
@@ -121,35 +155,39 @@ export function socialCommentDeepLink(row: Pick<SocialCommentAttentionRow, 'id' 
 }
 
 export function socialCommentPostTitle(row: SocialCommentAttentionRow) {
-  return row.post_title?.trim()
-    || metadataString(row, ['post_title', 'social_content_title', 'title'])
+  return metadataString(row, ['post_title', 'social_content_title', 'title', 'post_label'])
     || row.content_id
     || 'Unknown post'
 }
 
 export function socialCommentDraftState(row: SocialCommentAttentionRow) {
-  const replyStatus = row.reply_status?.trim() || metadataString(row, ['reply_status', 'draft_state'])
-  if (replyStatus) return replyStatus
-  return row.reply_draft?.trim() ? 'drafted' : 'no draft'
+  const state = row.reply_submission_state?.trim() || metadataString(row, ['reply_submission_state', 'draft_state'])
+  if (state) return state
+  return row.proposed_reply_text?.trim() || row.approved_reply_text?.trim() ? 'draft' : 'no draft'
+}
+
+function replyText(row: SocialCommentAttentionRow) {
+  return row.approved_reply_text?.trim() || row.proposed_reply_text?.trim() || ''
 }
 
 export function needsCommentAttention(row: SocialCommentAttentionRow) {
-  if (RESOLVED_STATUSES.has(normalized(row.status))) return false
+  if (RESOLVED_VISIBILITY_STATUSES.has(normalized(row.status))) return false
+  if (RESOLVED_CLASSIFICATION_STATUSES.has(normalized(row.classification_status))) return false
   if (['urgent', 'high'].includes(normalized(row.priority))) return true
-  if (HIGH_ATTENTION_CLASSIFICATIONS.has(normalized(row.classification))) return true
-  if (ATTENTION_STATUSES.has(normalized(row.status))) return true
-  return Boolean(row.reply_draft?.trim() && PREPARED_REPLY_STATUSES.has(normalized(row.reply_status)))
+  if (HIGH_ATTENTION_CLASSIFICATIONS.has(normalized(policyClassification(row)))) return true
+  if (ATTENTION_CLASSIFICATION_STATUSES.has(normalized(row.classification_status))) return true
+  if (ATTENTION_REPLY_STATES.has(normalized(row.reply_submission_state))) return true
+  return Boolean(replyText(row) && row.response_approval_state === 'pending')
 }
 
 export function canSlackDecideCommentReply(row: SocialCommentAttentionRow) {
-  const policyValue = row.policy_eligibility === true
-    ? 'approved'
-    : normalized(row.policy_eligibility || record(row.metadata)?.policy_eligibility)
-  const replyPrepared = Boolean(row.reply_draft?.trim()) && PREPARED_REPLY_STATUSES.has(normalized(row.reply_status))
+  const replyPrepared = Boolean(replyText(row))
+    && row.response_approval_state === 'pending'
+    && row.reply_submission_state === 'draft'
   return replyPrepared
-    && LOW_RISK_POLICY_VALUES.has(policyValue)
+    && isPolicyLowRisk(row)
     && providerReplySupported(row)
-    && providerVerified(row)
+    && providerExternalSubmissionEnabled(row)
 }
 
 export function commentReplyHoldUntil(now = new Date(), holdMinutes = 15) {
@@ -157,11 +195,14 @@ export function commentReplyHoldUntil(now = new Date(), holdMinutes = 15) {
 }
 
 export function evaluateCommentReplyHold(row: SocialCommentAttentionRow, now = new Date()): CommentReplyHoldEvaluation {
-  const holdUntil = row.reply_hold_until ?? metadataString(row, ['reply_hold_until'])
+  const slackDecision = record(record(row.metadata)?.slack_reply_decision)
+  const holdUntil = metadataString(row, ['reply_hold_until']) ?? (
+    typeof slackDecision?.hold_until === 'string' ? slackDecision.hold_until : null
+  )
   const holdTime = holdUntil ? new Date(holdUntil).getTime() : Number.NaN
   const remainingMs = Number.isFinite(holdTime) ? Math.max(0, holdTime - now.getTime()) : 0
 
-  if (normalized(row.reply_status) !== 'approved') {
+  if (normalized(row.response_approval_state) !== 'approved' || normalized(row.reply_submission_state) !== 'approved') {
     return {
       state: 'not_ready',
       reason: 'Reply is not approved for the hold queue.',
@@ -170,7 +211,7 @@ export function evaluateCommentReplyHold(row: SocialCommentAttentionRow, now = n
       externalSubmissionAllowed: false,
     }
   }
-  if (!row.reply_draft?.trim()) {
+  if (!replyText(row)) {
     return {
       state: 'blocked',
       reason: 'Approved comment has no prepared reply draft.',
@@ -188,7 +229,7 @@ export function evaluateCommentReplyHold(row: SocialCommentAttentionRow, now = n
       externalSubmissionAllowed: false,
     }
   }
-  if (!providerReplySupported(row) || !providerVerified(row)) {
+  if (!providerReplySupported(row) || !providerExternalSubmissionEnabled(row)) {
     return {
       state: 'manual_required',
       reason: 'Provider reply capability is unsupported or unverified; keep the reply in Portfolio for manual handling.',
@@ -197,7 +238,7 @@ export function evaluateCommentReplyHold(row: SocialCommentAttentionRow, now = n
       externalSubmissionAllowed: false,
     }
   }
-  if (!canSlackDecideCommentReply({ ...row, reply_status: 'prepared' })) {
+  if (!isPolicyLowRisk(row)) {
     return {
       state: 'blocked',
       reason: 'Policy or data state no longer qualifies the reply for low-risk send evaluation.',
@@ -220,9 +261,9 @@ export async function listSocialCommentAttentionRows(limit = 10): Promise<Social
 
   const { data, error } = await supabaseAdmin
     .from('social_content_comments')
-    .select('id, content_id, platform, platform_post_url, post_title, author_display_name, comment_text, classification, priority, status, received_at, updated_at, reply_draft, reply_status, reply_hold_until, policy_eligibility, provider_capability, provider_verified, metadata')
-    .in('status', ['new', 'unresolved', 'needs_attention', 'reply_drafted', 'pending_approval'])
-    .order('received_at', { ascending: false })
+    .select('id, publish_id, content_id, platform, provider, provider_comment_id, comment_url, author_display_name, body, classification_status, classification_reason, sentiment, priority, status, response_approval_state, reply_submission_state, proposed_reply_text, approved_reply_text, provider_capability, captured_at, updated_at, metadata')
+    .in('classification_status', ['unreviewed', 'needs_response'])
+    .order('captured_at', { ascending: false })
     .limit(limit)
 
   if (error) {
@@ -247,9 +288,10 @@ async function listApprovedHoldRows(limit = 25): Promise<SocialCommentAttentionR
 
   const { data, error } = await supabaseAdmin
     .from('social_content_comments')
-    .select('id, content_id, platform, reply_draft, reply_status, reply_hold_until, policy_eligibility, provider_capability, provider_verified, metadata')
-    .eq('reply_status', 'approved')
-    .order('reply_hold_until', { ascending: true })
+    .select('id, publish_id, content_id, platform, provider, provider_comment_id, response_approval_state, reply_submission_state, proposed_reply_text, approved_reply_text, provider_capability, metadata')
+    .eq('response_approval_state', 'approved')
+    .eq('reply_submission_state', 'approved')
+    .order('updated_at', { ascending: true })
     .limit(limit)
 
   if (error) {
@@ -270,13 +312,13 @@ async function updateCommentHoldEvaluation(row: SocialCommentAttentionRow, evalu
   if (!supabaseAdmin || evaluation.state === 'waiting_hold' || evaluation.state === 'not_ready') return
   const metadata = record(row.metadata) ?? {}
   const replyStatus = evaluation.state === 'ready_for_provider_send'
-    ? 'ready_to_send'
-    : evaluation.state
+    ? 'approved'
+    : 'blocked'
 
   await supabaseAdmin
     .from('social_content_comments')
     .update({
-      reply_status: replyStatus,
+      reply_submission_state: replyStatus,
       metadata: {
         ...metadata,
         auto_send_hold_evaluation: {
@@ -341,7 +383,7 @@ export async function decideSocialCommentReplyFromSlack(input: {
 
   const { data, error } = await supabaseAdmin
     .from('social_content_comments')
-    .select('id, content_id, platform, reply_draft, reply_status, policy_eligibility, provider_capability, provider_verified, metadata')
+    .select('id, publish_id, content_id, platform, provider, provider_comment_id, response_approval_state, reply_submission_state, proposed_reply_text, approved_reply_text, provider_capability, metadata')
     .eq('id', input.commentId)
     .maybeSingle()
 
@@ -354,14 +396,24 @@ export async function decideSocialCommentReplyFromSlack(input: {
   const metadata = record(row.metadata) ?? {}
   const decidedAt = new Date().toISOString()
   const holdUntil = input.status === 'approved' ? commentReplyHoldUntil(new Date(decidedAt)) : null
+  const update = input.status === 'approved'
+    ? {
+        response_approval_state: 'approved',
+        reply_submission_state: 'approved',
+        approved_reply_text: row.approved_reply_text || row.proposed_reply_text || null,
+      }
+    : {
+        response_approval_state: 'rejected',
+        reply_submission_state: 'blocked',
+      }
 
   const { error: updateError } = await supabaseAdmin
     .from('social_content_comments')
     .update({
-      reply_status: input.status,
-      reply_hold_until: holdUntil,
+      ...update,
       metadata: {
         ...metadata,
+        reply_hold_until: holdUntil,
         slack_reply_decision: {
           status: input.status,
           decision_notes: input.decisionNotes,

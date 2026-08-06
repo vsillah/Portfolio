@@ -326,13 +326,24 @@ describe('Agent Ops Slack actions', () => {
         data: {
           id: 'comment-1',
           content_id: 'social-post-1',
+          publish_id: 'publish-1',
           platform: 'linkedin',
-          reply_draft: 'Thanks for asking. The intake map is the best first step.',
-          reply_status: 'prepared',
-          policy_eligibility: 'low_risk',
-          provider_capability: 'thread_reply',
-          provider_verified: true,
-          metadata: {},
+          provider: 'linkedin_organization',
+          provider_comment_id: 'provider-comment-1',
+          proposed_reply_text: 'Thanks for asking. The intake map is the best first step.',
+          response_approval_state: 'pending',
+          reply_submission_state: 'draft',
+          provider_capability: {
+            supports_reply_submission: true,
+            external_submission_enabled: true,
+          },
+          metadata: {
+            policy_decision: {
+              classification: 'low_risk_acknowledgement',
+              humanQaRequired: false,
+              autoSend: { eligible: true, canSendNow: true },
+            },
+          },
         },
         error: null,
       }))
@@ -348,9 +359,11 @@ describe('Agent Ops Slack actions', () => {
     expect(result.text).toContain('Reply approved from Slack')
     expect(result.text).toContain('held for 15 minutes')
     expect(commentUpdate.update).toHaveBeenCalledWith(expect.objectContaining({
-      reply_status: 'approved',
-      reply_hold_until: expect.any(String),
+      response_approval_state: 'approved',
+      reply_submission_state: 'approved',
+      approved_reply_text: 'Thanks for asking. The intake map is the best first step.',
       metadata: expect.objectContaining({
+        reply_hold_until: expect.any(String),
         slack_reply_decision: expect.objectContaining({
           status: 'approved',
           decision_notes: 'Looks safe from mobile.',
@@ -367,13 +380,24 @@ describe('Agent Ops Slack actions', () => {
         data: {
           id: 'comment-2',
           content_id: 'social-post-2',
+          publish_id: 'publish-2',
           platform: 'instagram',
-          reply_draft: 'Use the link in bio.',
-          reply_status: 'prepared',
-          policy_eligibility: 'low_risk',
-          provider_capability: 'thread_reply',
-          provider_verified: false,
-          metadata: {},
+          provider: 'meta_graph',
+          provider_comment_id: 'provider-comment-2',
+          proposed_reply_text: 'Use the link in bio.',
+          response_approval_state: 'pending',
+          reply_submission_state: 'draft',
+          provider_capability: {
+            supports_reply_submission: true,
+            external_submission_enabled: false,
+          },
+          metadata: {
+            policy_decision: {
+              classification: 'low_risk_acknowledgement',
+              humanQaRequired: false,
+              autoSend: { eligible: true, canSendNow: true },
+            },
+          },
         },
         error: null,
       }))

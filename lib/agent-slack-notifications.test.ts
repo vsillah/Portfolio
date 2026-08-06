@@ -470,20 +470,29 @@ describe('Agent Ops Slack notifications', () => {
         {
           id: 'comment-1',
           content_id: 'social-post-1',
+          publish_id: 'publish-1',
           platform: 'linkedin',
-          post_title: 'Agentified operating model',
           author_display_name: 'Community Builder',
-          comment_text: 'Can this help a small nonprofit respond faster?',
-          classification: 'lead_opportunity',
+          body: 'Can this help a small nonprofit respond faster?',
+          classification_status: 'needs_response',
           priority: 'high',
-          status: 'needs_attention',
-          reply_draft: 'Yes. Start with the intake map, then decide which replies deserve automation.',
-          reply_status: 'prepared',
-          policy_eligibility: 'low_risk',
-          provider_capability: 'thread_reply',
-          provider_verified: true,
-          received_at: '2026-08-06T14:00:00.000Z',
-          metadata: {},
+          status: 'visible',
+          response_approval_state: 'pending',
+          reply_submission_state: 'draft',
+          proposed_reply_text: 'Yes. Start with the intake map, then decide which replies deserve automation.',
+          provider_capability: {
+            supports_reply_submission: true,
+            external_submission_enabled: true,
+          },
+          captured_at: '2026-08-06T14:00:00.000Z',
+          metadata: {
+            post_title: 'Agentified operating model',
+            policy_decision: {
+              classification: 'low_risk_acknowledgement',
+              humanQaRequired: false,
+              autoSend: { eligible: true, canSendNow: true },
+            },
+          },
         },
       ],
       error: null,
@@ -499,8 +508,8 @@ describe('Agent Ops Slack notifications', () => {
     expect(blocks).toContain('Social comments need attention')
     expect(blocks).toContain('Agentified operating model')
     expect(blocks).toContain('LinkedIn')
-    expect(blocks).toContain('lead_opportunity')
-    expect(blocks).toContain('prepared')
+    expect(blocks).toContain('needs_response')
+    expect(blocks).toContain('draft')
     expect(blocks).toContain('/admin/social-content/social-post-1?comment=comment-1')
     expect(blocks).toContain('social_comment_reply.approve')
     expect(blocks).toContain('social_comment_reply.reject')
@@ -513,18 +522,27 @@ describe('Agent Ops Slack notifications', () => {
         {
           id: 'comment-manual',
           content_id: 'social-post-2',
+          publish_id: 'publish-2',
           platform: 'instagram',
-          post_title: 'Instagram launch post',
-          comment_text: 'Where do I sign up?',
-          classification: 'question',
+          body: 'Where do I sign up?',
+          classification_status: 'needs_response',
           priority: 'high',
-          status: 'needs_attention',
-          reply_draft: 'Open the intake form from the profile link.',
-          reply_status: 'prepared',
-          policy_eligibility: 'low_risk',
-          provider_capability: 'thread_reply',
-          provider_verified: false,
-          metadata: {},
+          status: 'visible',
+          response_approval_state: 'pending',
+          reply_submission_state: 'draft',
+          proposed_reply_text: 'Open the intake form from the profile link.',
+          provider_capability: {
+            supports_reply_submission: true,
+            external_submission_enabled: false,
+          },
+          metadata: {
+            post_title: 'Instagram launch post',
+            policy_decision: {
+              classification: 'low_risk_acknowledgement',
+              humanQaRequired: false,
+              autoSend: { eligible: true, canSendNow: true },
+            },
+          },
         },
       ],
       error: null,

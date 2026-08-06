@@ -469,7 +469,7 @@ function commentPolicyLine(row: SocialCommentAttentionRow) {
   if (canSlackDecideCommentReply(row)) {
     return 'Slack can approve or reject this prepared low-risk reply. Approval starts a 15-minute hold; Portfolio remains canonical.'
   }
-  if (!row.reply_draft?.trim()) return 'No prepared reply draft yet. Review in Portfolio.'
+  if (!(row.proposed_reply_text?.trim() || row.approved_reply_text?.trim())) return 'No prepared reply draft yet. Review in Portfolio.'
   return 'Portfolio review required before this reply can move forward.'
 }
 
@@ -516,13 +516,13 @@ async function buildSocialCommentAttentionPayload() {
 
   for (const row of read.rows.slice(0, 5)) {
     const canDecide = canSlackDecideCommentReply(row)
-    const comment = truncateSlack(row.comment_text, 220)
-    const draft = truncateSlack(row.reply_draft, 180)
+    const comment = truncateSlack(row.body, 220)
+    const draft = truncateSlack(row.approved_reply_text || row.proposed_reply_text, 180)
     blocks.push({
       type: 'section',
       text: mrkdwn([
         `*${truncateSlack(socialCommentPostTitle(row), 120)}*`,
-        `Platform: \`${socialPlatformLabel(row.platform)}\` - Classification: \`${row.classification || 'unclassified'}\` - Priority: \`${row.priority || 'normal'}\``,
+        `Platform: \`${socialPlatformLabel(row.platform)}\` - Classification: \`${row.classification_status || 'unreviewed'}\` - Priority: \`${row.priority || 'normal'}\``,
         row.author_display_name ? `From: ${truncateSlack(row.author_display_name, 80)}` : null,
         comment ? `Comment: ${comment}` : null,
         `Draft state: \`${socialCommentDraftState(row)}\``,
