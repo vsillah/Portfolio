@@ -30,7 +30,9 @@ import {
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
+import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
 import { getCurrentSession } from '@/lib/auth'
+import { OUTREACH_MODE_GATING_NOTE, OUTREACH_MODE_POLICIES } from '@/lib/outreach-mode-gating'
 import Link from 'next/link'
 
 interface FunnelData {
@@ -171,6 +173,7 @@ function DashboardContent() {
     google_contacts: 500,
     linkedin: 200
   })
+  const modePolicyCount = Object.keys(OUTREACH_MODE_POLICIES).length
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -341,6 +344,24 @@ function DashboardContent() {
             <RefreshCw size={16} />
             Refresh
           </button>
+        </div>
+
+        <MobileWorkflowSummary
+          title="Outreach dashboard"
+          currentState={tempFilter === 'all' ? 'All modes' : `${tempFilter} mode`}
+          owner="Vambah / Outreach"
+          nextAction="Use metrics to choose the next internal review queue; send and schedule gates remain in the canonical outreach workroom."
+          waitingOnYou="No"
+          blocker={triggerMessage?.type === 'error' ? triggerMessage.text : null}
+          canonicalHref="/admin/outreach?tab=leads"
+          canonicalLabel="Open lead workroom"
+          tone={triggerMessage?.type === 'error' ? 'red' : 'blue'}
+        />
+        <div className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-4 lg:hidden">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            {modePolicyCount} outreach modes are policy-only
+          </p>
+          <p className="mt-2 text-xs leading-5 text-muted-foreground">{OUTREACH_MODE_GATING_NOTE}</p>
         </div>
 
         {/* Temperature Filter Toggle */}

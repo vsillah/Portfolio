@@ -40,6 +40,8 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import AgenticContentReviewPacketPager from '@/components/admin/AgenticContentReviewPacketPager'
 import { ExtractionStatusChip } from '@/components/admin/ExtractionStatusChip'
+import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
+import { useSearchParams } from 'next/navigation'
 import { useExtractionStatus } from '@/lib/hooks/useExtractionStatus'
 import { getCurrentSession } from '@/lib/auth'
 import { getAgenticContentReviewPacketsForSurface } from '@/lib/agentic-content-review-packets'
@@ -152,8 +154,10 @@ const VOICE_NOTE_OUTPUTS = [
 
 const MEETINGS_PER_PAGE = 5
 const AGENTIC_SOCIAL_REVIEW_PACKETS = getAgenticContentReviewPacketsForSurface('social')
+const WORKFLOW_VIEWS = new Set<WorkflowView>(['review', 'evidence', 'create'])
 
 function SocialContentQueuePage() {
+  const searchParams = useSearchParams()
   const [items, setItems] = useState<SocialContentItem[]>([])
   const [stats, setStats] = useState<Stats>({ draft: 0, approved: 0, scheduled: 0, published: 0, rejected: 0, total: 0 })
   const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 20, total: 0, totalPages: 0 })
@@ -164,7 +168,10 @@ function SocialContentQueuePage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [launchApprovalRunning, setLaunchApprovalRunning] = useState(false)
   const [launchApprovalResult, setLaunchApprovalResult] = useState<LaunchApprovalResult | null>(null)
-  const [activeWorkflowView, setActiveWorkflowView] = useState<WorkflowView>('review')
+  const [activeWorkflowView, setActiveWorkflowView] = useState<WorkflowView>(() => {
+    const workflow = searchParams?.get('workflow')
+    return WORKFLOW_VIEWS.has(workflow as WorkflowView) ? workflow as WorkflowView : 'review'
+  })
   const [platformConfigs, setPlatformConfigs] = useState<SafePlatformConfig[]>([])
   const [platformConfigsLoading, setPlatformConfigsLoading] = useState(true)
   const [youtubeConnecting, setYoutubeConnecting] = useState(false)
@@ -255,6 +262,13 @@ function SocialContentQueuePage() {
   useEffect(() => {
     fetchItems()
   }, [fetchItems])
+
+  useEffect(() => {
+    const workflow = searchParams?.get('workflow')
+    if (WORKFLOW_VIEWS.has(workflow as WorkflowView)) {
+      setActiveWorkflowView(workflow as WorkflowView)
+    }
+  }, [searchParams])
 
   const fetchPlatformConfigs = useCallback(async () => {
     setPlatformConfigsLoading(true)
@@ -861,6 +875,8 @@ function SocialContentQueuePage() {
       icon: <Sparkles className="h-4 w-4" />,
     },
   ]
+  const activeWorkflow = workflowViews.find((view) => view.id === activeWorkflowView) ?? workflowViews[0]
+  const activeWorkflowHref = `/admin/social-content?workflow=${activeWorkflowView}`
 
   return (
     <div className="admin-console-page min-h-screen p-6 text-foreground lg:p-8">
@@ -877,6 +893,22 @@ function SocialContentQueuePage() {
           <p className="text-muted-foreground text-sm">Review draft content first. Evidence packets and creation tools stay available without taking over the approval queue.</p>
         </div>
       </div>
+
+      <MobileWorkflowSummary
+        title="Social Content Queue"
+        currentState={activeWorkflow.label}
+        owner="Shaka / Amina"
+        nextAction={activeWorkflowView === 'review'
+          ? 'Open a draft, preserve the selected approval step, and clear the next human gate.'
+          : activeWorkflowView === 'evidence'
+            ? 'Review source packets before creating or approving draft work.'
+            : 'Create only internal draft packages; provider submission stays gated.'}
+        waitingOnYou={stats.draft ? `Yes - ${stats.draft} draft(s) need review` : 'No'}
+        blocker={launchApprovalResult?.remainingExternalGates.length ? launchApprovalResult.remainingExternalGates[0] : null}
+        canonicalHref={activeWorkflowHref}
+        canonicalLabel="Open Social Content queue"
+        tone={stats.draft ? 'yellow' : 'blue'}
+      />
 
       <div className="admin-console-card mb-6 rounded-lg border p-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
@@ -897,7 +929,12 @@ function SocialContentQueuePage() {
                 type="button"
                 role="tab"
                 aria-selected={isActive}
-                onClick={() => setActiveWorkflowView(view.id)}
+                onClick={() => {
+                  setActiveWorkflowView(view.id)
+                  const params = new URLSearchParams(window.location.search)
+                  params.set('workflow', view.id)
+                  window.history.replaceState({}, '', `/admin/social-content?${params.toString()}`)
+                }}
                 className={`rounded-lg border p-4 text-left transition-colors ${
                   isActive
                     ? 'border-radiant-gold/70 bg-radiant-gold/15 text-foreground shadow-[0_0_0_1px_rgba(226,194,93,0.22)]'

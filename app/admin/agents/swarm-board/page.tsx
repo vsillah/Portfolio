@@ -24,6 +24,7 @@ import {
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import AgentAvatar from '@/components/admin/AgentAvatar'
+import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
 import { getCurrentSession } from '@/lib/auth'
 import type {
   AgentOrgBoardActivity,
@@ -444,9 +445,36 @@ function KanbanBoard({
   const sourceScopeActive = Boolean(sourceScope.sourceType || sourceScope.sourceId || sourceScope.socialContentId)
   const focusedScopeActive = Boolean(focusedScope.workItemId || focusedScope.productionLane !== 'all' || focusedScope.remediationId !== 'all')
   const filtersActive = selectedGoalId !== 'all' || ownerFilter !== 'all' || statusFilter !== 'all' || attentionFilter !== 'all' || dependencyFilter !== 'all' || sourceScopeActive || focusedScopeActive
+  const primaryVisibleTask = filteredTasks[0] ?? null
+  const primaryNextAction = primaryVisibleTask
+    ? nextActionForTask(primaryVisibleTask).label
+    : filtersActive
+      ? 'Clear or adjust the current scope to recover matching Kanban cards.'
+      : 'Review blocked and ready-for-review cards before broad board scanning.'
+  const primaryBlocker = primaryVisibleTask?.status === 'blocked'
+    ? primaryVisibleTask.blockerSummary || 'This scoped Kanban card is blocked and needs owner recovery.'
+    : null
+  const boardCanonicalHref = sourceScope.socialContentId
+    ? `/admin/agents/swarm-board?social_content_id=${encodeURIComponent(sourceScope.socialContentId)}`
+    : focusedScope.workItemId
+      ? `/admin/agents/swarm-board?work_item=${encodeURIComponent(focusedScope.workItemId)}`
+      : selectedGoalId !== 'all'
+        ? `/admin/agents/swarm-board?goal=${encodeURIComponent(selectedGoalId)}`
+        : '/admin/agents/swarm-board'
 
   return (
     <div className="space-y-4" role="tabpanel" aria-label="Kanban lanes">
+      <MobileWorkflowSummary
+        title={filtersActive ? 'Scoped Kanban review' : 'Agent Kanban'}
+        currentState={primaryVisibleTask ? primaryVisibleTask.status.replace(/_/g, ' ') : `${filteredTasks.length} visible`}
+        owner={primaryVisibleTask?.ownerAgentName ?? 'Integration Captain'}
+        nextAction={primaryNextAction}
+        waitingOnYou={primaryVisibleTask?.status === 'blocked' || primaryVisibleTask?.status === 'ready_for_review' || primaryVisibleTask?.status === 'ready_for_merge' ? 'Yes - review scoped card' : 'No'}
+        blocker={primaryBlocker}
+        canonicalHref={boardCanonicalHref}
+        canonicalLabel="Open canonical Kanban link"
+        tone={primaryVisibleTask?.status === 'blocked' ? 'red' : filtersActive ? 'yellow' : 'blue'}
+      />
       {filtersActive ? (
         <FocusedReviewWorkspace
           tasks={filteredTasks}

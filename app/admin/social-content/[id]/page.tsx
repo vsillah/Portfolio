@@ -40,6 +40,7 @@ import {
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
+import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
 import { getCurrentSession } from '@/lib/auth'
 import {
   STATUS_CONFIG,
@@ -2277,6 +2278,9 @@ function SocialContentDetailPage() {
     },
   }
   const activeApprovalStepDetail = approvalStepDetails[activeApprovalStep]
+  const activeStepParams = new URLSearchParams(searchParams.toString())
+  activeStepParams.set('step', activeApprovalStep)
+  const activeStepHref = `/admin/social-content/${id}?${activeStepParams.toString()}`
   const setApprovalStep = (step: ApprovalStep) => {
     const params = new URLSearchParams(searchParams.toString())
     params.set('step', step)
@@ -2480,6 +2484,17 @@ function SocialContentDetailPage() {
       </div>
 
       <div className="mx-auto w-full max-w-[90rem] space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+        <MobileWorkflowSummary
+          title={activeApprovalStepDetail.title}
+          currentState={GATE_STATE_CONFIG[approvalStepTabs.find((step) => step.step === activeApprovalStep)?.state ?? overallGateState].label}
+          owner={activeApprovalStepDetail.owner}
+          nextAction={activeApprovalStepDetail.nextAction}
+          waitingOnYou={activeApprovalStepDetail.waitingOnYou}
+          blocker={overallGateState === 'blocked' ? activeApprovalStepDetail.body : null}
+          canonicalHref={activeStepHref}
+          canonicalLabel="Open selected approval step"
+          tone={overallGateState === 'blocked' ? 'red' : activeApprovalStepDetail.waitingOnYou.startsWith('Yes') ? 'yellow' : 'blue'}
+        />
 	        {isAgentSocialPilot && (
 	          <section className="admin-console-card rounded-xl border border-radiant-gold/25 p-4 sm:p-5">
             <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,auto)] xl:items-start">
