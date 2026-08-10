@@ -120,6 +120,53 @@ describe('SocialContentDetailRoute visual production review', () => {
     return render(<SocialContentDetailRoute />)
   }
 
+  it('preserves the selected step in the mobile workflow summary deep link', async () => {
+    mocks.search = 'returnTo=%2Fadmin%2Fsocial-content&step=submit'
+
+    render(<SocialContentDetailRoute />)
+
+    expect(await screen.findByLabelText('Explicit submit gate mobile workflow summary')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Open selected approval step' })).toHaveAttribute(
+      'href',
+      '/admin/social-content/social-1?returnTo=%2Fadmin%2Fsocial-content&step=submit',
+    )
+  })
+
+  it('shows a mobile recovery summary when detail hydration is blocked', async () => {
+    mocks.search = 'returnTo=%2Fadmin%2Fsocial-content&step=submit'
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [] }),
+        } as Response
+      }
+      if (url.includes('/api/admin/social-content/social-1')) {
+        return {
+          ok: false,
+          status: 404,
+          json: async () => ({ error: 'Content not found' }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ configs: [] }),
+      } as Response
+    }))
+
+    render(<SocialContentDetailRoute />)
+
+    expect(await screen.findByLabelText('Social content detail mobile workflow summary')).toBeInTheDocument()
+    expect(screen.getByText('Load blocked')).toBeInTheDocument()
+    expect(screen.getAllByText('Content not found').length).toBeGreaterThan(0)
+    expect(screen.getByRole('link', { name: 'Retry selected detail step' })).toHaveAttribute(
+      'href',
+      '/admin/social-content/social-1?returnTo=%2Fadmin%2Fsocial-content&step=submit',
+    )
+    expect(screen.getByRole('link', { name: 'Back to Social Content' })).toHaveAttribute('href', '/admin/social-content')
+  })
+
   it('keeps approved copy locked while exposing visual production actions', async () => {
     const view = renderAtStep('copy')
 

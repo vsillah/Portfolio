@@ -376,8 +376,14 @@ function SocialContentDetailPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const backUrl = getBackUrl(searchParams, '/admin/social-content')
+  const rawRecoveryStep = searchParams.get('step')
+  const recoveryStep: ApprovalStep = isApprovalStep(rawRecoveryStep) ? rawRecoveryStep : 'copy'
+  const recoveryStepParams = new URLSearchParams(searchParams.toString())
+  recoveryStepParams.set('step', recoveryStep)
+  const recoveryStepHref = `/admin/social-content/${id}?${recoveryStepParams.toString()}`
   const [item, setItem] = useState<SocialContentItem | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [approving, setApproving] = useState(false)
   const [regeneratingImage, setRegeneratingImage] = useState(false)
@@ -539,49 +545,70 @@ function SocialContentDetailPage() {
   }, [])
 
   const fetchItem = useCallback(async (options: { silent?: boolean } = {}) => {
-    if (!options.silent) setLoading(true)
+    if (!options.silent) {
+      setLoading(true)
+      setLoadError(null)
+    }
     try {
       const session = await getCurrentSession()
-      if (!session) return
+      if (!session) {
+        setLoadError('Admin session is unavailable for this social content detail.')
+        if (!options.silent) setItem(null)
+        return
+      }
 
       const res = await fetch(`/api/admin/social-content/${id}`, {
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
+      const data = await res.json().catch(() => ({}))
 
-      if (res.ok) {
-        const data = await res.json()
-        const i = data.item as SocialContentItem
-        setItem(i)
-        setPostText(i.post_text || '')
-        setCtaText(i.cta_text || '')
-        setCtaUrl(i.cta_url || '')
-        setHashtags(i.hashtags?.join(', ') || '')
-        setImagePrompt(i.image_prompt || '')
-        setVoiceoverText(i.voiceover_text || '')
-        setFrameworkVisualType(i.framework_visual_type || '')
-        setScheduledFor(i.scheduled_for ? new Date(i.scheduled_for).toISOString().slice(0, 16) : '')
-        setAdminNotes(i.admin_notes || '')
-        setTargetPlatforms(i.target_platforms?.length ? i.target_platforms : ['linkedin'])
-        const rag = asRecord(i.rag_context)
-        const calibration = asRecord(rag?.content_calibration)
-        const operatorFeedback = asRecord(calibration?.operator_feedback)
-        const priorPostExcerpt = asString(operatorFeedback?.prior_post_excerpt)
-        const engagementSignal = asString(operatorFeedback?.engagement_signal)
-        setCalibrationFeedback({
-          triggering_event: asString(operatorFeedback?.triggering_event),
-          prior_post_excerpt: priorPostExcerpt,
-          success_examples: normalizeSuccessExamples(operatorFeedback?.success_examples, priorPostExcerpt, engagementSignal),
-          engagement_signal: engagementSignal,
-          audience_context: asString(operatorFeedback?.audience_context),
-          revision_request: asString(operatorFeedback?.revision_request),
-          claim_boundaries: asString(operatorFeedback?.claim_boundaries),
-        })
-        setSelectedComparisonReferenceIds(asStringArray(operatorFeedback?.comparison_reference_ids))
-        setCopyRevisionRequest(asString(operatorFeedback?.revision_request))
-        void fetchReviewQueue(i)
+      if (!res.ok) {
+        setLoadError(asString((data as { error?: unknown }).error) || `Social content detail failed to load with status ${res.status}.`)
+        if (!options.silent) setItem(null)
+        return
       }
+
+      const itemRecord = asRecord((data as { item?: unknown }).item)
+      if (!itemRecord || !asString(itemRecord.id)) {
+        setLoadError('Social content detail response did not include a usable item.')
+        if (!options.silent) setItem(null)
+        return
+      }
+
+      const i = itemRecord as unknown as SocialContentItem
+      setLoadError(null)
+      setItem(i)
+      setPostText(i.post_text || '')
+      setCtaText(i.cta_text || '')
+      setCtaUrl(i.cta_url || '')
+      setHashtags(i.hashtags?.join(', ') || '')
+      setImagePrompt(i.image_prompt || '')
+      setVoiceoverText(i.voiceover_text || '')
+      setFrameworkVisualType(i.framework_visual_type || '')
+      setScheduledFor(i.scheduled_for ? new Date(i.scheduled_for).toISOString().slice(0, 16) : '')
+      setAdminNotes(i.admin_notes || '')
+      setTargetPlatforms(i.target_platforms?.length ? i.target_platforms : ['linkedin'])
+      const rag = asRecord(i.rag_context)
+      const calibration = asRecord(rag?.content_calibration)
+      const operatorFeedback = asRecord(calibration?.operator_feedback)
+      const priorPostExcerpt = asString(operatorFeedback?.prior_post_excerpt)
+      const engagementSignal = asString(operatorFeedback?.engagement_signal)
+      setCalibrationFeedback({
+        triggering_event: asString(operatorFeedback?.triggering_event),
+        prior_post_excerpt: priorPostExcerpt,
+        success_examples: normalizeSuccessExamples(operatorFeedback?.success_examples, priorPostExcerpt, engagementSignal),
+        engagement_signal: engagementSignal,
+        audience_context: asString(operatorFeedback?.audience_context),
+        revision_request: asString(operatorFeedback?.revision_request),
+        claim_boundaries: asString(operatorFeedback?.claim_boundaries),
+      })
+      setSelectedComparisonReferenceIds(asStringArray(operatorFeedback?.comparison_reference_ids))
+      setCopyRevisionRequest(asString(operatorFeedback?.revision_request))
+      void fetchReviewQueue(i)
     } catch (err) {
       console.error('Failed to fetch item:', err)
+      setLoadError(err instanceof Error ? err.message : 'Social content detail failed to load.')
+      if (!options.silent) setItem(null)
     } finally {
       if (!options.silent) setLoading(false)
     }
@@ -1735,11 +1762,34 @@ function SocialContentDetailPage() {
 
   if (!item) {
     return (
-      <div className="min-h-screen bg-background text-foreground p-8">
-        <p className="text-gray-400">Content not found.</p>
-        <Link href={backUrl} className="text-blue-400 hover:underline text-sm mt-2 inline-block">
-          Back
-        </Link>
+      <div className="min-h-screen bg-background text-foreground">
+        <div className="mx-auto w-full max-w-[90rem] space-y-4 px-4 py-6 sm:px-6 lg:px-8">
+          <MobileWorkflowSummary
+            title="Social content detail"
+            currentState="Load blocked"
+            owner="Social Content"
+            nextAction="Confirm the draft still exists in the canonical queue, then retry the selected approval step."
+            waitingOnYou="Yes - confirm draft source"
+            blocker={loadError || 'Content not found.'}
+            canonicalHref={recoveryStepHref}
+            canonicalLabel="Retry selected detail step"
+            tone="red"
+          />
+          <section className="rounded-xl border border-red-500/25 bg-red-950/20 p-4 sm:p-5">
+            <p className="text-sm font-semibold text-red-100">Content not found.</p>
+            <p className="mt-2 text-sm leading-6 text-red-100/80">
+              {loadError || 'The social content detail route did not receive a usable item from the canonical API.'}
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Link href={backUrl} className="inline-flex items-center rounded-lg border border-gray-700 px-3 py-2 text-sm text-gray-100 transition-colors hover:bg-gray-800">
+                Back to Social Content
+              </Link>
+              <Link href={recoveryStepHref} className="inline-flex items-center rounded-lg border border-red-400/40 bg-red-500/10 px-3 py-2 text-sm text-red-100 transition-colors hover:bg-red-500/20">
+                Retry selected step
+              </Link>
+            </div>
+          </section>
+        </div>
       </div>
     )
   }
