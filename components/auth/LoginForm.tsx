@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Github, Lock, LogIn, Mail } from 'lucide-react'
-import { signIn, signInWithOAuth } from '@/lib/auth'
+import { normalizeAuthRedirectPath, signIn, signInWithOAuth } from '@/lib/auth'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function LoginForm() {
@@ -12,7 +12,13 @@ export default function LoginForm() {
   const [error, setError] = useState('')
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirectTo = searchParams.get('redirect') || '/'
+  const redirectTo = normalizeAuthRedirectPath(searchParams.get('redirect'))
+
+  useEffect(() => {
+    if (redirectTo === '/') return
+    sessionStorage.setItem('auth_next_path', redirectTo)
+    localStorage.setItem('auth_next_path', redirectTo)
+  }, [redirectTo])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

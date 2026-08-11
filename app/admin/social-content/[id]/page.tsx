@@ -136,6 +136,15 @@ const SECTION_GATE_HREFS: Record<SectionGateKey, string> = {
   linkedin_draft: '#social-draft-approval-gate',
 }
 
+const APPROVAL_STEP_SECTION_IDS: Record<ApprovalStep, string> = {
+  context: 'social-supporting-context-gate',
+  copy: 'social-copy-gate',
+  visuals: 'social-visual-assets-gate',
+  draft: 'social-draft-approval-gate',
+  submit: 'social-platform-submission-gate',
+  status: 'social-publication-status-gate',
+}
+
 const SECTION_GATE_LABELS: Record<SectionGateKey, string> = {
   visual_assets: 'Visual assets',
   asset_packet: 'Asset packet',
@@ -2330,7 +2339,7 @@ function SocialContentDetailPage() {
   const activeApprovalStepDetail = approvalStepDetails[activeApprovalStep]
   const activeStepParams = new URLSearchParams(searchParams.toString())
   activeStepParams.set('step', activeApprovalStep)
-  const activeStepHref = `/admin/social-content/${id}?${activeStepParams.toString()}`
+  const activeStepHref = `/admin/social-content/${id}?${activeStepParams.toString()}#${APPROVAL_STEP_SECTION_IDS[activeApprovalStep]}`
   const setApprovalStep = (step: ApprovalStep) => {
     const params = new URLSearchParams(searchParams.toString())
     params.set('step', step)
@@ -2502,21 +2511,23 @@ function SocialContentDetailPage() {
       </AnimatePresence>
 
       {/* Sticky Header — slim, Save Draft only */}
-      <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-gray-800 px-8 py-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+      <div className="sticky top-0 z-40 border-b border-gray-800 bg-background/80 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
             <button
               onClick={() => router.push(backUrl)}
-              className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors"
+              className="shrink-0 rounded-lg bg-gray-800 p-2 transition-colors hover:bg-gray-700"
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
-            <Breadcrumbs items={[
-              { label: 'Admin', href: '/admin' },
-              { label: 'Social Content', href: '/admin/social-content' },
-              { label: isEditable ? 'Edit Post' : 'View Post' },
-            ]} />
-            <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${statusCfg.bgColor} ${statusCfg.color} border ${statusCfg.borderColor}`}>
+            <div className="min-w-0 [&_nav]:mb-0 [&_nav]:flex-wrap">
+              <Breadcrumbs items={[
+                { label: 'Admin', href: '/admin' },
+                { label: 'Social Content', href: '/admin/social-content' },
+                { label: isEditable ? 'Edit Post' : 'View Post' },
+              ]} />
+            </div>
+            <span className={`shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-medium ${statusCfg.bgColor} ${statusCfg.color} ${statusCfg.borderColor}`}>
               {statusCfg.label}
             </span>
           </div>
@@ -4897,7 +4908,7 @@ function SocialContentDetailPage() {
 	        {/* SECTION 2B: Engagement Metrics                                   */}
 	        {/* ================================================================ */}
 	        {activeApprovalStep === 'status' && (
-	        <>
+	        <div id="social-publication-status-gate" className="scroll-mt-28 space-y-6">
 	        {(item.status === 'published' || engagementLatest) && (
 	          <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -5044,8 +5055,8 @@ function SocialContentDetailPage() {
 	          <div>Updated: {new Date(item.updated_at).toLocaleString()}</div>
 	          <div>ID: <span className="font-mono text-gray-600">{item.id}</span></div>
 	        </div>
-	        </>
-	        )}
+        </div>
+        )}
 	      </div>
 
       {/* ================================================================ */}

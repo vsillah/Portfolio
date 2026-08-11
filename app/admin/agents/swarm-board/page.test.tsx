@@ -479,6 +479,12 @@ describe('AgentSwarmBoardPage', () => {
     expect(screen.getByLabelText('Production lane')).toHaveValue('visual_strategy_qa')
     expect(screen.getByLabelText('Remediation')).toHaveValue('agentified_visual_strategy_qa_2026_07_31')
     expect(screen.getByText('Board context')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Open canonical Kanban link' })).toHaveAttribute(
+      'href',
+      '/admin/agents/swarm-board?source_type=social_content_approval&source_id=social-visual-1&social_content_id=social-visual-1',
+    )
+    expect(screen.getByRole('region', { name: 'Kanban board region' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Scrollable Kanban lanes')).toHaveClass('overflow-x-auto')
   })
 
   it('shows a recovery state when a focused review link has no matching cards', async () => {

@@ -128,8 +128,9 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(await screen.findByLabelText('Explicit submit gate mobile workflow summary')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Open selected approval step' })).toHaveAttribute(
       'href',
-      '/admin/social-content/social-1?returnTo=%2Fadmin%2Fsocial-content&step=submit',
+      '/admin/social-content/social-1?returnTo=%2Fadmin%2Fsocial-content&step=submit#social-platform-submission-gate',
     )
+    expect(document.getElementById('social-platform-submission-gate')).not.toBeNull()
   })
 
   it('shows a mobile recovery summary when detail hydration is blocked', async () => {

@@ -543,9 +543,12 @@ function AgentCoordinationContent() {
   const highlightedProposal = n8nDeepLink.proposalId
     ? n8nWorkflowProposals.find((item) => item.id === n8nDeepLink.proposalId) ?? null
     : null
-  const primaryDecisionItem = highlightedProposal ?? controllerQueueItems[0] ?? n8nWorkflowProposals[0] ?? null
+  const missingLinkedProposalId = n8nDeepLink.proposalId && !highlightedProposal ? n8nDeepLink.proposalId : null
+  const primaryDecisionItem = missingLinkedProposalId ? null : highlightedProposal ?? controllerQueueItems[0] ?? n8nWorkflowProposals[0] ?? null
   const decisionBlocker = primaryDecisionItem?.status === 'blocked'
     ? primaryDecisionItem.blocker_summary || 'This controller item is blocked pending an owner decision.'
+    : missingLinkedProposalId
+      ? `Proposal ${missingLinkedProposalId} is not visible in the canonical Decision Queue. It may have merged, been archived, or the link may be stale.`
     : null
   const decisionHref = highlightedProposal
     ? `/admin/agents/coordination?proposal=${encodeURIComponent(highlightedProposal.id)}`
@@ -835,15 +838,21 @@ function AgentCoordinationContent() {
         </header>
 
         <MobileWorkflowSummary
-          title={highlightedProposal ? 'Highlighted proposal' : 'Decision Queue'}
-          currentState={primaryDecisionItem ? primaryDecisionItem.status.replace(/_/g, ' ') : 'clear'}
+          title={missingLinkedProposalId ? 'Missing proposal link' : highlightedProposal ? 'Highlighted proposal' : 'Decision Queue'}
+          currentState={missingLinkedProposalId ? 'blocked' : primaryDecisionItem ? primaryDecisionItem.status.replace(/_/g, ' ') : 'clear'}
           owner={primaryDecisionItem?.owner_agent_key ?? 'Integration Captain'}
-          nextAction={primaryDecisionItem ? decisionQueueModel(primaryDecisionItem).actionRequired : 'No controller decision is waiting.'}
-          waitingOnYou={primaryDecisionItem ? 'Yes - controller decision' : 'No'}
+          nextAction={
+            missingLinkedProposalId
+              ? 'Clear the stale proposal filter or open the canonical queue to choose a visible decision item.'
+              : primaryDecisionItem
+                ? decisionQueueModel(primaryDecisionItem).actionRequired
+                : 'No controller decision is waiting.'
+          }
+          waitingOnYou={missingLinkedProposalId || primaryDecisionItem ? 'Yes - controller decision' : 'No'}
           blocker={decisionBlocker}
           canonicalHref={decisionHref}
-          canonicalLabel={highlightedProposal ? 'Open proposal link' : 'Open Decision Queue'}
-          tone={primaryDecisionItem?.status === 'blocked' ? 'red' : primaryDecisionItem ? 'yellow' : 'green'}
+          canonicalLabel={highlightedProposal ? 'Open proposal link' : missingLinkedProposalId ? 'Open unfiltered Decision Queue' : 'Open Decision Queue'}
+          tone={missingLinkedProposalId || primaryDecisionItem?.status === 'blocked' ? 'red' : primaryDecisionItem ? 'yellow' : 'green'}
         />
 
         <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-5">

@@ -111,4 +111,13 @@ describe('OutreachAdminPage deep links', () => {
       expect(screen.getByText('Ops Lab')).toBeInTheDocument()
     })
   })
+
+  it('wraps the hero action group for selected-lead mobile widths', async () => {
+    render(<OutreachAdminPage />)
+
+    await screen.findByLabelText('Lead: Ada Operator mobile workflow summary')
+    const actions = screen.getByLabelText('Outreach workroom actions')
+    expect(actions).toHaveClass('flex-wrap')
+    expect(within(actions).getByRole('button', { name: /Refresh/i })).toBeInTheDocument()
+  })
 })

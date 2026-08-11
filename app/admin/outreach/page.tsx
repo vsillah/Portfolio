@@ -820,7 +820,7 @@ function OutreachContent() {
               </span>
             </div>
           )}
-          <div className="flex items-center gap-3">
+          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end" aria-label="Outreach workroom actions">
             {activeTab === 'leads' && (
               <button
                 type="button"
