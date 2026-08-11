@@ -78,8 +78,16 @@ const baseItem = {
     source: 'agent_ops_social_outreach_goal',
     publish_gate: 'draft_only',
     goal_id: 'goal-1',
+    platform: 'linkedin',
+    approval_boundary: 'human gated',
+    pass_to_human: true,
     content_packet_id: 'packet-1',
     production_assets: readyProductionAssets,
+    section_gate_reviews: {
+      visual_assets: { status: 'approved' },
+      asset_packet: { status: 'approved' },
+      privacy: { status: 'approved' },
+    },
   },
 }
 
@@ -140,6 +148,32 @@ describe('POST /api/admin/social-content/[id]/create-linkedin-draft', () => {
       'Choose and generate a visual asset first.',
       'Prepare the asset packet first.',
     ])
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
+    expect(mocks.queueUpdate).not.toHaveBeenCalled()
+  })
+
+  it('rejects out-of-order draft handoff when lifecycle prerequisites are missing', async () => {
+    mocks.queueSingle.mockResolvedValueOnce({
+      data: {
+        ...baseItem,
+        rag_context: {
+          source: 'agent_ops_social_outreach_goal',
+          publish_gate: 'draft_only',
+          production_assets: readyProductionAssets,
+        },
+      },
+      error: null,
+    })
+
+    const response = await POST(request(), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(409)
+    const json = await response.json()
+    expect(json).toEqual(expect.objectContaining({
+      error: 'Social Content lifecycle prerequisite blocked.',
+      lifecycle_step: 'draft',
+      missing_prerequisite: 'context',
+    }))
     expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
     expect(mocks.queueUpdate).not.toHaveBeenCalled()
   })

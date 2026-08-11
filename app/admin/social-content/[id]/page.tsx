@@ -62,6 +62,10 @@ import {
   isPlatformSubmissionGateApproved,
   type PlatformOrchestrationStageState,
 } from '@/lib/social-platform-orchestration'
+import {
+  deriveSocialContentLifecycleProjection,
+  isDurableCopyApprovedStatus,
+} from '@/lib/social-content-lifecycle'
 import type {
   SocialContentItem,
   SocialContentPublish,
@@ -2072,7 +2076,7 @@ function SocialContentDetailPage() {
     : scheduledFor
       ? 'Approve & Schedule'
       : 'Approve & Publish'
-  const copyGateState: GateState = item.status === 'approved'
+  const copyGateRawState: GateState = isDurableCopyApprovedStatus(item.status)
     ? 'approved'
     : isEditable
       ? 'in_review'
@@ -2102,7 +2106,7 @@ function SocialContentDetailPage() {
     || asString(ragContext?.approval_boundary)
   )
   const contextRecorded = contextSourceRecorded && (contextCalibrationRecorded || contextClaimsRecorded || agentPilotPassToHuman)
-  const contextMissingAfterCopyApproval = copyGateState === 'approved' && !contextRecorded
+  const contextMissingAfterCopyApproval = copyGateRawState === 'approved' && !contextRecorded
   const contextSourceState: GateState = contextSourceRecorded
     ? 'approved'
     : contextMissingAfterCopyApproval
@@ -2153,7 +2157,7 @@ function SocialContentDetailPage() {
   const linkedinDraftHandoff = asRecord(ragContext?.linkedin_draft_handoff)
   const linkedinDraftWorkItem = asRecord(linkedinDraftHandoff?.work_item) ?? {}
   const linkedinDraftBlockers = [
-    item.status !== 'approved' ? 'Copy must be approved first.' : '',
+    !isDurableCopyApprovedStatus(item.status) ? 'Copy must be approved first.' : '',
     !visualAssetReady ? 'Choose and generate a visual asset first.' : '',
     visualAssetsGateState !== 'approved' ? 'Approve the visual assets section first.' : '',
     !assetPacketReady ? 'Prepare the asset packet first.' : '',
@@ -2172,12 +2176,21 @@ function SocialContentDetailPage() {
   const canCreateLinkedInDraft = isDraftOnlyPilot && linkedinDraftBlockers.length === 0 && linkedinDraftGateState === 'approved'
   const platformSubmissionTargets = isDraftOnlyPilot ? ['linkedin' as SocialPlatform] : targetPlatforms
   const finalPlatformSubmissionApproved = isPlatformSubmissionGateApproved(ragContext, platformSubmissionTargets)
+  const historicalPublishEvidence = item.status === 'scheduled'
+    || item.status === 'published'
+    || Boolean(item.platform_post_id || item.published_at)
+    || Boolean(item.publishes?.some((publish) => (
+      publish.status === 'published'
+      || Boolean(publish.platform_post_id)
+      || Boolean(publish.platform_post_url)
+      || Boolean(publish.published_at)
+    )))
   const platformSubmissionPlan = buildPlatformOrchestrationPlan({
     item,
     targetPlatforms: platformSubmissionTargets,
     publishRecords: item.publishes ?? [],
     platformConfigs,
-    copyApproved: item.status === 'approved' || item.status === 'scheduled' || item.status === 'published',
+    copyApproved: isDurableCopyApprovedStatus(item.status),
     productionReady: isDraftOnlyPilot
       ? visualAssetsGateState === 'approved' && assetPacketGateState === 'approved' && privacyGateState === 'approved'
       : !videoPrivacyBlocked,
@@ -2197,36 +2210,63 @@ function SocialContentDetailPage() {
         : 'pending'
   const visualWorkflowGateState: GateState = visualAssetsGateState === 'approved' && assetPacketGateState === 'approved' && privacyGateState === 'approved'
     ? 'approved'
+    : historicalPublishEvidence && visualAssetReady && assetPacketReady && visualPrivacyReady
+      ? 'approved'
     : [visualAssetsGateState, assetPacketGateState, privacyGateState].some((state) => state === 'blocked' || state === 'rejected')
       ? 'blocked'
       : [visualAssetsGateState, assetPacketGateState, privacyGateState].some((state) => state === 'in_review')
         ? 'in_review'
         : 'pending'
+  const draftGateRawState: GateState = isDraftOnlyPilot
+    ? (historicalPublishEvidence ? 'approved' : linkedinDraftGateState)
+    : (historicalPublishEvidence ? 'approved' : gateStateFromRawStatus(agentPilotPublishGate))
+  const submitGateRawState: GateState = historicalPublishEvidence || finalPlatformSubmissionApproved
+    ? 'approved'
+    : platformSubmissionGateState
+  const statusGateRawState: GateState = historicalPublishEvidence ? 'approved' : 'pending'
+  const lifecycleProjection = deriveSocialContentLifecycleProjection({
+    item,
+    rawStates: {
+      context: contextRecorded ? 'approved' : supportingContextGateState,
+      copy: copyGateRawState,
+      visuals: visualWorkflowGateState,
+      draft: draftGateRawState,
+      submit: submitGateRawState,
+      status: statusGateRawState,
+    },
+  })
+  const copyGateState = lifecycleProjection.steps.copy.state as GateState
+  const effectiveSupportingContextGateState = lifecycleProjection.steps.context.state as GateState
+  const effectiveVisualWorkflowGateState = lifecycleProjection.steps.visuals.state as GateState
+  const effectiveDraftGateState = lifecycleProjection.steps.draft.state as GateState
+  const effectivePlatformSubmissionGateState = lifecycleProjection.steps.submit.state as GateState
+  const effectiveStatusGateState = lifecycleProjection.steps.status.state as GateState
+  const lifecycleMismatchByStep = lifecycleProjection.steps
   const canonicalKanbanHref = `/admin/agents/swarm-board?source_type=social_content_approval&source_id=${encodeURIComponent(item.id)}&social_content_id=${encodeURIComponent(item.id)}`
   const reviewGateSummary: Array<{ label: string; state: GateState; step: ApprovalStep }> = [
+    {
+      label: contextRecorded ? 'Context recorded' : 'Context',
+      state: effectiveSupportingContextGateState,
+      step: 'context',
+    },
     {
       label: 'Copy',
       state: copyGateState,
       step: 'copy',
     },
     {
-      label: contextRecorded ? 'Context recorded' : 'Context',
-      state: supportingContextGateState,
-      step: 'context',
-    },
-    {
       label: 'Amina visual QA',
-      state: visualWorkflowGateState,
+      state: effectiveVisualWorkflowGateState,
       step: 'visuals',
     },
     {
       label: isDraftOnlyPilot ? 'LinkedIn draft' : 'Publish',
-      state: isDraftOnlyPilot ? linkedinDraftGateState : gateStateFromRawStatus(agentPilotPublishGate),
+      state: effectiveDraftGateState,
       step: 'draft',
     },
     {
       label: 'Platform submit',
-      state: platformSubmissionGateState,
+      state: effectivePlatformSubmissionGateState,
       step: 'submit',
     },
   ]
@@ -2251,7 +2291,7 @@ function SocialContentDetailPage() {
       step: 'context',
       label: 'Context',
       description: contextRecorded ? 'Source basis recorded' : 'Source basis required',
-      state: supportingContextGateState,
+      state: effectiveSupportingContextGateState,
     },
     {
       step: 'copy',
@@ -2262,28 +2302,34 @@ function SocialContentDetailPage() {
     {
       step: 'visuals',
       label: 'Amina Visuals',
-      description: visualWorkflowGateState === 'pending' ? 'Strategy not started' : 'Strategy, QA, privacy',
-      state: visualWorkflowGateState,
+      description: effectiveVisualWorkflowGateState === 'pending' ? 'Strategy not started' : 'Strategy, QA, privacy',
+      state: effectiveVisualWorkflowGateState,
     },
     {
       step: 'draft',
       label: isDraftOnlyPilot ? 'Draft' : 'Publish gate',
       description: isDraftOnlyPilot ? 'Platform draft handoff' : 'Channel and schedule',
-      state: isDraftOnlyPilot ? linkedinDraftGateState : gateStateFromRawStatus(agentPilotPublishGate),
+      state: effectiveDraftGateState,
     },
     {
       step: 'submit',
       label: 'Submit',
       description: 'Platform automation',
-      state: platformSubmissionGateState,
+      state: effectivePlatformSubmissionGateState,
     },
     {
       step: 'status',
       label: 'Status',
       description: 'Signals and metadata',
-      state: item.status === 'published' || item.publishes?.some((publish) => publish.status === 'published') ? 'approved' : 'pending',
+      state: effectiveStatusGateState,
     },
   ]
+  const lifecycleBlockedDetail = (step: ApprovalStep) => {
+    const mismatch = lifecycleMismatchByStep[step]?.mismatch
+    return mismatch
+      ? `Lifecycle mismatch: ${mismatch.message} ${mismatch.recoveryAction}`
+      : null
+  }
   const approvalStepDetails: Record<ApprovalStep, {
     title: string
     body: string
@@ -2315,56 +2361,57 @@ function SocialContentDetailPage() {
       waitingOnYou: copyGateState === 'approved' ? 'No' : 'Yes - editorial decision',
     },
     visuals: {
-      title: visualWorkflowGateState === 'approved'
+      title: lifecycleBlockedDetail('visuals') ? 'Visual lifecycle mismatch'
+        : effectiveVisualWorkflowGateState === 'approved'
         ? 'Visuals and privacy approved'
-        : visualWorkflowGateState === 'pending'
+        : effectiveVisualWorkflowGateState === 'pending'
           ? 'Amina visual strategy not started'
           : agentifiedVisualQaPacket
             ? 'Amina visual strategy ready for human review'
             : 'Amina visual strategy in progress',
-      body: agentifiedVisualQaPacket
+      body: lifecycleBlockedDetail('visuals') ?? (agentifiedVisualQaPacket
         ? `${agentifiedVisualQaPacket.ownerDisplayName} selected ${agentifiedVisualQaPacket.selectedForm}, attached source provenance, drafted alt text, and passed agent QA for human visual/privacy review.`
-        : 'Amina owns visual form selection, approved asset reuse, original candidate generation when needed, provenance, agent QA, accessibility, rights, and privacy checks before final human visual/privacy review.',
+        : 'Amina owns visual form selection, approved asset reuse, original candidate generation when needed, provenance, agent QA, accessibility, rights, and privacy checks before final human visual/privacy review.'),
       owner: 'Amina',
       lastUpdate: agentifiedVisualQaPacket
         ? agentifiedVisualQaPacket.reportDate
         : productionAssets
           ? new Date(item.updated_at).toLocaleString()
           : 'No asset packet recorded',
-      nextAction: visualWorkflowGateState === 'approved'
+      nextAction: lifecycleMismatchByStep.visuals.mismatch?.recoveryAction ?? (effectiveVisualWorkflowGateState === 'approved'
         ? 'Proceed to governed platform draft handoff.'
         : agentifiedVisualQaPacket
           ? 'Review the candidate, rationale, provenance, QA findings, and privacy/rights result below, then approve or reject each visual gate.'
-          : 'Use the canonical Kanban view to track source research, candidate creation, QA, blockers, and final review readiness.',
-      waitingOnYou: [visualAssetsGateState, assetPacketGateState, privacyGateState].some((state) => state === 'blocked' || state === 'rejected')
+          : 'Use the canonical Kanban view to track source research, candidate creation, QA, blockers, and final review readiness.'),
+      waitingOnYou: lifecycleMismatchByStep.visuals.mismatch || [visualAssetsGateState, assetPacketGateState, privacyGateState].some((state) => state === 'blocked' || state === 'rejected')
         ? 'Yes - visual/privacy exception'
         : 'No',
     },
     draft: {
-      title: isDraftOnlyPilot ? 'Platform draft handoff' : 'Publishing gate',
-      body: isDraftOnlyPilot
+      title: lifecycleBlockedDetail('draft') ? 'Draft lifecycle mismatch' : isDraftOnlyPilot ? 'Platform draft handoff' : 'Publishing gate',
+      body: lifecycleBlockedDetail('draft') ?? (isDraftOnlyPilot
         ? 'The platform draft is a separate governed handoff after copy, visuals, asset packet, and privacy are approved.'
-        : 'Publishing remains gated by channel, schedule, and explicit submission controls.',
+        : 'Publishing remains gated by channel, schedule, and explicit submission controls.'),
       owner: isDraftOnlyPilot ? 'Hannibal / Publishing lane' : 'Publishing lane',
       lastUpdate: asString(linkedinDraftHandoff?.created_at) ? new Date(asString(linkedinDraftHandoff?.created_at)).toLocaleString() : 'No platform draft handoff yet',
-      nextAction: linkedinDraftBlockers.length ? linkedinDraftBlockers[0] : 'Create or inspect the governed platform draft.',
-      waitingOnYou: linkedinDraftGateState === 'in_review' ? 'Yes - draft handoff approval' : 'No',
+      nextAction: lifecycleMismatchByStep.draft.mismatch?.recoveryAction ?? (linkedinDraftBlockers.length ? linkedinDraftBlockers[0] : 'Create or inspect the governed platform draft.'),
+      waitingOnYou: lifecycleMismatchByStep.draft.mismatch || effectiveDraftGateState === 'in_review' ? 'Yes - draft handoff approval' : 'No',
     },
     submit: {
-      title: 'Explicit submit gate',
-      body: 'Provider submission, scheduling, and publication stay behind their own approval boundary. Internal approval does not create background external execution.',
+      title: lifecycleBlockedDetail('submit') ? 'Submit lifecycle mismatch' : 'Explicit submit gate',
+      body: lifecycleBlockedDetail('submit') ?? 'Provider submission, scheduling, and publication stay behind their own approval boundary. Internal approval does not create background external execution.',
       owner: 'Publishing lane',
       lastUpdate: item.updated_at ? new Date(item.updated_at).toLocaleString() : 'Not recorded',
-      nextAction: platformNextStages[0]?.label ?? 'No provider submission action is currently available.',
-      waitingOnYou: platformSubmissionGateState === 'in_review' ? 'Yes - submit decision' : 'No',
+      nextAction: lifecycleMismatchByStep.submit.mismatch?.recoveryAction ?? (platformNextStages[0]?.label ?? 'No provider submission action is currently available.'),
+      waitingOnYou: lifecycleMismatchByStep.submit.mismatch || effectivePlatformSubmissionGateState === 'in_review' ? 'Yes - submit decision' : 'No',
     },
     status: {
-      title: 'Publication and signal status',
-      body: 'Signals summarize what happened after provider submission or publication. They should not be confused with copy approval or visual readiness.',
+      title: lifecycleBlockedDetail('status') ? 'Status lifecycle mismatch' : 'Publication and signal status',
+      body: lifecycleBlockedDetail('status') ?? 'Signals summarize what happened after provider submission or publication. They should not be confused with copy approval or visual readiness.',
       owner: 'Publishing / analytics lane',
       lastUpdate: item.published_at ? new Date(item.published_at).toLocaleString() : 'No publication signal yet',
-      nextAction: item.status === 'published' ? 'Monitor post signals.' : 'Complete upstream gates before status signals are expected.',
-      waitingOnYou: 'No',
+      nextAction: lifecycleMismatchByStep.status.mismatch?.recoveryAction ?? (item.status === 'published' ? 'Monitor post signals.' : 'Complete upstream gates before status signals are expected.'),
+      waitingOnYou: lifecycleMismatchByStep.status.mismatch ? 'Yes - lifecycle recovery' : 'No',
     },
   }
   const activeApprovalStepDetail = approvalStepDetails[activeApprovalStep]

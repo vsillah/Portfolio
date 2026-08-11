@@ -8,6 +8,10 @@ import type { SocialPlatform } from '@/lib/social-content'
 import { syncCampaignCalendarForSocialContent } from '@/lib/social-content-calendar-linkage'
 import { buildPlatformOrchestrationPlan, isPlatformSubmissionGateApproved } from '@/lib/social-platform-orchestration'
 import { getProductionAssets, getVideoRedactionGate } from '@/lib/social-production-assets'
+import {
+  deriveSocialContentLifecycleProjection,
+  lifecyclePrerequisiteFailure,
+} from '@/lib/social-content-lifecycle'
 
 type AdminClient = {
   from: (table: string) => unknown
@@ -79,6 +83,19 @@ export async function publishSocialContentItem(input: {
 
   if (!publishes?.length) {
     return { status: 400, body: { error: 'No publish records found - approve the content first' } }
+  }
+
+  const lifecycleFailure = lifecyclePrerequisiteFailure(
+    deriveSocialContentLifecycleProjection({
+      item: {
+        ...item,
+        publishes,
+      },
+    }),
+    'submit',
+  )
+  if (lifecycleFailure) {
+    return { status: 409, body: lifecycleFailure }
   }
 
   let pendingPublishes = publishes.filter((publish: PublishRecord) => (

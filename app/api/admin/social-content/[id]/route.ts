@@ -8,6 +8,10 @@ import {
   getSocialVideoProductionState,
   type SocialVideoGenerationJobProjection,
 } from '@/lib/social-video-production'
+import {
+  deriveSocialContentLifecycleProjection,
+  lifecyclePrerequisiteFailure,
+} from '@/lib/social-content-lifecycle'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,6 +27,15 @@ function asStringArray(value: unknown): string[] {
   return Array.isArray(value)
     ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
     : []
+}
+
+function sectionGateApprovalTarget(bodyRagContext: unknown): 'visuals' | 'draft' | null {
+  const reviews = asRecord(asRecord(bodyRagContext)?.section_gate_reviews)
+  if (!reviews) return null
+  const approvedKeys = ['visual_assets', 'asset_packet', 'privacy', 'linkedin_draft']
+    .filter((key) => asString(asRecord(reviews[key])?.status) === 'approved')
+  if (approvedKeys.includes('linkedin_draft')) return 'draft'
+  return approvedKeys.length ? 'visuals' : null
 }
 
 function mapVideoGenerationJob(row: Record<string, unknown> | null): SocialVideoGenerationJobProjection | null {
@@ -166,6 +179,33 @@ export async function PUT(
 
     if (Object.keys(sanitized).length === 0) {
       return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 })
+    }
+
+    const lifecycleTarget = sanitized.status === 'approved'
+      ? 'copy'
+      : sectionGateApprovalTarget(sanitized.rag_context)
+
+    if (lifecycleTarget) {
+      const { data: currentItem, error: currentError } = await supabaseAdmin
+        .from('social_content_queue')
+        .select('*')
+        .eq('id', id)
+        .single()
+
+      if (currentError || !currentItem) {
+        return NextResponse.json({ error: 'Content not found' }, { status: 404 })
+      }
+
+      const projection = deriveSocialContentLifecycleProjection({
+        item: {
+          ...currentItem,
+          ...sanitized,
+        },
+      })
+      const failure = lifecyclePrerequisiteFailure(projection, lifecycleTarget)
+      if (failure) {
+        return NextResponse.json(failure, { status: 409 })
+      }
     }
 
     const { data, error } = await supabaseAdmin

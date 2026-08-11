@@ -191,6 +191,79 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(await screen.findByRole('heading', { name: 'Publication and signal status' })).toBeInTheDocument()
   })
 
+  it('projects scheduled and published queue status as copy approved instead of pending', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input).includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [] }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({
+          item: {
+            ...baseItem,
+            status: 'scheduled',
+            scheduled_for: '2026-08-12T14:00:00.000Z',
+          },
+        }),
+      } as Response
+    }))
+
+    renderAtStep('copy')
+
+    expect(await screen.findByRole('button', { name: 'Copy: Approved' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Copy: Pending' })).not.toBeInTheDocument()
+  })
+
+  it('blocks downstream lifecycle evidence instead of approving later steps when context is missing', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input).includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [] }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({
+          item: {
+            ...baseItem,
+            status: 'published',
+            image_url: 'https://cdn.example.com/published.png',
+            published_at: '2026-08-10T14:00:00.000Z',
+            rag_context: {
+              platform_submission_gate: { status: 'approved', platforms: ['linkedin'] },
+            },
+            publishes: [
+              {
+                id: 'publish-1',
+                content_id: 'social-1',
+                platform: 'linkedin',
+                status: 'published',
+                platform_post_id: 'post-1',
+                platform_post_url: 'https://linkedin.com/posts/post-1',
+                error_message: null,
+                published_at: '2026-08-10T14:00:00.000Z',
+                created_at: '2026-08-10T13:00:00.000Z',
+                updated_at: '2026-08-10T14:00:00.000Z',
+              },
+            ],
+          },
+        }),
+      } as Response
+    }))
+
+    renderAtStep('submit')
+
+    expect(await screen.findByLabelText('Submit lifecycle mismatch mobile workflow summary')).toBeInTheDocument()
+    expect(screen.getAllByText('Blocked').length).toBeGreaterThan(0)
+    expect(screen.queryByRole('button', { name: 'Submit: Approved' })).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Submit lifecycle mismatch' })).toBeInTheDocument()
+    expect(screen.getAllByText(/Lifecycle mismatch: Submit has downstream evidence, but Context is not approved/i).length).toBeGreaterThan(0)
+  })
+
   it('shows a mobile recovery summary when detail hydration is blocked', async () => {
     mocks.search = 'returnTo=%2Fadmin%2Fsocial-content&step=submit'
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
@@ -238,14 +311,14 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.queryByText(/Copy is approved and locked/i)).not.toBeInTheDocument()
     expect(screen.getByText('Review path')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Copy: Approved' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Context recorded: Pending' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Context recorded: Approved' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Human review: Approved' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Challenger: Pending' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Chronicle: Pending' })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Amina visual QA: Pending' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'LinkedIn draft: Pending' })).toBeInTheDocument()
     expect(screen.getAllByText('Copy: Approved').length).toBeGreaterThan(1)
-    expect(screen.getAllByText('Context recorded: Pending').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Context recorded: Approved').length).toBeGreaterThan(0)
     expect(screen.queryByText('Request copy revision')).not.toBeInTheDocument()
     expect(screen.queryByText(/Mark this draft rejected/i)).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Triggering event or recent proof')).not.toBeInTheDocument()

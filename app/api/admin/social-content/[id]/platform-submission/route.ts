@@ -8,6 +8,10 @@ import {
   isAutomaticSubmissionSupported,
 } from '@/lib/social-platform-orchestration'
 import { syncCampaignCalendarForSocialContent } from '@/lib/social-content-calendar-linkage'
+import {
+  deriveSocialContentLifecycleProjection,
+  lifecyclePrerequisiteFailure,
+} from '@/lib/social-content-lifecycle'
 
 export const dynamic = 'force-dynamic'
 
@@ -112,6 +116,24 @@ export async function POST(
         },
         { status: 409 },
       )
+    }
+
+    const { data: existingPublishes } = await admin
+      .from('social_content_publishes')
+      .select('*')
+      .eq('content_id', id)
+
+    const lifecycleFailure = lifecyclePrerequisiteFailure(
+      deriveSocialContentLifecycleProjection({
+        item: {
+          ...itemRecord,
+          publishes: existingPublishes ?? [],
+        },
+      }),
+      'submit',
+    )
+    if (lifecycleFailure) {
+      return NextResponse.json(lifecycleFailure, { status: 409 })
     }
 
     const publishRows = targetPlatforms.map((platform) => ({
