@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { Suspense, useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { getBackUrl } from '@/lib/admin-return-context'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -40,6 +40,7 @@ import {
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
+import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
 import { getCurrentSession } from '@/lib/auth'
 import {
   STATUS_CONFIG,
@@ -61,6 +62,10 @@ import {
   isPlatformSubmissionGateApproved,
   type PlatformOrchestrationStageState,
 } from '@/lib/social-platform-orchestration'
+import {
+  deriveSocialContentLifecycleProjection,
+  isDurableCopyApprovedStatus,
+} from '@/lib/social-content-lifecycle'
 import type {
   SocialContentItem,
   SocialContentPublish,
@@ -133,6 +138,15 @@ const SECTION_GATE_HREFS: Record<SectionGateKey, string> = {
   asset_packet: '#social-asset-packet-gate',
   privacy: '#social-asset-packet-gate',
   linkedin_draft: '#social-draft-approval-gate',
+}
+
+const APPROVAL_STEP_SECTION_IDS: Record<ApprovalStep, string> = {
+  context: 'social-supporting-context-gate',
+  copy: 'social-copy-gate',
+  visuals: 'social-visual-assets-gate',
+  draft: 'social-draft-approval-gate',
+  submit: 'social-platform-submission-gate',
+  status: 'social-publication-status-gate',
 }
 
 const SECTION_GATE_LABELS: Record<SectionGateKey, string> = {
@@ -370,13 +384,54 @@ function formatSuccessExamplesForPrompt(examples: CalibrationSuccessExample[]): 
     .join('\n\n')
 }
 
+function SocialContentDetailLoadingState({ canonicalHref }: { canonicalHref?: string | null }) {
+  const currentHref = typeof window !== 'undefined'
+    ? `${window.location.pathname}${window.location.search}${window.location.hash}`
+    : null
+  const href = canonicalHref || currentHref || '/admin/social-content'
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="mx-auto w-full max-w-[90rem] space-y-4 px-4 py-6 sm:px-6 lg:px-8">
+        <MobileWorkflowSummary
+          title="Social content detail"
+          currentState="Loading"
+          owner="Social Content"
+          nextAction="Loading the selected draft and approval step from the canonical Social Content API."
+          waitingOnYou="No"
+          canonicalHref={href}
+          canonicalLabel="Loading selected approval step"
+          tone="blue"
+        />
+        <section className="rounded-xl border border-silicon-slate/70 bg-silicon-slate/15 p-4 sm:p-5" aria-label="Social content detail loading">
+          <div className="flex items-start gap-3">
+            <Loader2 className="mt-0.5 h-5 w-5 shrink-0 animate-spin text-radiant-gold" />
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-foreground">Loading selected workflow</p>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                The draft detail, review gates, and selected step are loading. The route and query are preserved.
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  )
+}
+
 function SocialContentDetailPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
   const searchParams = useSearchParams()
   const backUrl = getBackUrl(searchParams, '/admin/social-content')
+  const rawRecoveryStep = searchParams.get('step')
+  const recoveryStep: ApprovalStep = isApprovalStep(rawRecoveryStep) ? rawRecoveryStep : 'copy'
+  const recoveryStepParams = new URLSearchParams(searchParams.toString())
+  recoveryStepParams.set('step', recoveryStep)
+  const recoveryStepHref = `/admin/social-content/${id}?${recoveryStepParams.toString()}`
   const [item, setItem] = useState<SocialContentItem | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [approving, setApproving] = useState(false)
   const [regeneratingImage, setRegeneratingImage] = useState(false)
@@ -538,49 +593,70 @@ function SocialContentDetailPage() {
   }, [])
 
   const fetchItem = useCallback(async (options: { silent?: boolean } = {}) => {
-    if (!options.silent) setLoading(true)
+    if (!options.silent) {
+      setLoading(true)
+      setLoadError(null)
+    }
     try {
       const session = await getCurrentSession()
-      if (!session) return
+      if (!session) {
+        setLoadError('Admin session is unavailable for this social content detail.')
+        if (!options.silent) setItem(null)
+        return
+      }
 
       const res = await fetch(`/api/admin/social-content/${id}`, {
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
+      const data = await res.json().catch(() => ({}))
 
-      if (res.ok) {
-        const data = await res.json()
-        const i = data.item as SocialContentItem
-        setItem(i)
-        setPostText(i.post_text || '')
-        setCtaText(i.cta_text || '')
-        setCtaUrl(i.cta_url || '')
-        setHashtags(i.hashtags?.join(', ') || '')
-        setImagePrompt(i.image_prompt || '')
-        setVoiceoverText(i.voiceover_text || '')
-        setFrameworkVisualType(i.framework_visual_type || '')
-        setScheduledFor(i.scheduled_for ? new Date(i.scheduled_for).toISOString().slice(0, 16) : '')
-        setAdminNotes(i.admin_notes || '')
-        setTargetPlatforms(i.target_platforms?.length ? i.target_platforms : ['linkedin'])
-        const rag = asRecord(i.rag_context)
-        const calibration = asRecord(rag?.content_calibration)
-        const operatorFeedback = asRecord(calibration?.operator_feedback)
-        const priorPostExcerpt = asString(operatorFeedback?.prior_post_excerpt)
-        const engagementSignal = asString(operatorFeedback?.engagement_signal)
-        setCalibrationFeedback({
-          triggering_event: asString(operatorFeedback?.triggering_event),
-          prior_post_excerpt: priorPostExcerpt,
-          success_examples: normalizeSuccessExamples(operatorFeedback?.success_examples, priorPostExcerpt, engagementSignal),
-          engagement_signal: engagementSignal,
-          audience_context: asString(operatorFeedback?.audience_context),
-          revision_request: asString(operatorFeedback?.revision_request),
-          claim_boundaries: asString(operatorFeedback?.claim_boundaries),
-        })
-        setSelectedComparisonReferenceIds(asStringArray(operatorFeedback?.comparison_reference_ids))
-        setCopyRevisionRequest(asString(operatorFeedback?.revision_request))
-        void fetchReviewQueue(i)
+      if (!res.ok) {
+        setLoadError(asString((data as { error?: unknown }).error) || `Social content detail failed to load with status ${res.status}.`)
+        if (!options.silent) setItem(null)
+        return
       }
+
+      const itemRecord = asRecord((data as { item?: unknown }).item)
+      if (!itemRecord || !asString(itemRecord.id)) {
+        setLoadError('Social content detail response did not include a usable item.')
+        if (!options.silent) setItem(null)
+        return
+      }
+
+      const i = itemRecord as unknown as SocialContentItem
+      setLoadError(null)
+      setItem(i)
+      setPostText(i.post_text || '')
+      setCtaText(i.cta_text || '')
+      setCtaUrl(i.cta_url || '')
+      setHashtags(i.hashtags?.join(', ') || '')
+      setImagePrompt(i.image_prompt || '')
+      setVoiceoverText(i.voiceover_text || '')
+      setFrameworkVisualType(i.framework_visual_type || '')
+      setScheduledFor(i.scheduled_for ? new Date(i.scheduled_for).toISOString().slice(0, 16) : '')
+      setAdminNotes(i.admin_notes || '')
+      setTargetPlatforms(i.target_platforms?.length ? i.target_platforms : ['linkedin'])
+      const rag = asRecord(i.rag_context)
+      const calibration = asRecord(rag?.content_calibration)
+      const operatorFeedback = asRecord(calibration?.operator_feedback)
+      const priorPostExcerpt = asString(operatorFeedback?.prior_post_excerpt)
+      const engagementSignal = asString(operatorFeedback?.engagement_signal)
+      setCalibrationFeedback({
+        triggering_event: asString(operatorFeedback?.triggering_event),
+        prior_post_excerpt: priorPostExcerpt,
+        success_examples: normalizeSuccessExamples(operatorFeedback?.success_examples, priorPostExcerpt, engagementSignal),
+        engagement_signal: engagementSignal,
+        audience_context: asString(operatorFeedback?.audience_context),
+        revision_request: asString(operatorFeedback?.revision_request),
+        claim_boundaries: asString(operatorFeedback?.claim_boundaries),
+      })
+      setSelectedComparisonReferenceIds(asStringArray(operatorFeedback?.comparison_reference_ids))
+      setCopyRevisionRequest(asString(operatorFeedback?.revision_request))
+      void fetchReviewQueue(i)
     } catch (err) {
       console.error('Failed to fetch item:', err)
+      setLoadError(err instanceof Error ? err.message : 'Social content detail failed to load.')
+      if (!options.silent) setItem(null)
     } finally {
       if (!options.silent) setLoading(false)
     }
@@ -1725,20 +1801,39 @@ function SocialContentDetailPage() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-6 h-6 text-gray-400 animate-spin" />
-      </div>
-    )
+    return <SocialContentDetailLoadingState canonicalHref={recoveryStepHref} />
   }
 
   if (!item) {
     return (
-      <div className="min-h-screen bg-background text-foreground p-8">
-        <p className="text-gray-400">Content not found.</p>
-        <Link href={backUrl} className="text-blue-400 hover:underline text-sm mt-2 inline-block">
-          Back
-        </Link>
+      <div className="min-h-screen bg-background text-foreground">
+        <div className="mx-auto w-full max-w-[90rem] space-y-4 px-4 py-6 sm:px-6 lg:px-8">
+          <MobileWorkflowSummary
+            title="Social content detail"
+            currentState="Load blocked"
+            owner="Social Content"
+            nextAction="Confirm the draft still exists in the canonical queue, then retry the selected approval step."
+            waitingOnYou="Yes - confirm draft source"
+            blocker={loadError || 'Content not found.'}
+            canonicalHref={recoveryStepHref}
+            canonicalLabel="Retry selected detail step"
+            tone="red"
+          />
+          <section className="rounded-xl border border-red-500/25 bg-red-950/20 p-4 sm:p-5">
+            <p className="text-sm font-semibold text-red-100">Content not found.</p>
+            <p className="mt-2 text-sm leading-6 text-red-100/80">
+              {loadError || 'The social content detail route did not receive a usable item from the canonical API.'}
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Link href={backUrl} className="inline-flex items-center rounded-lg border border-gray-700 px-3 py-2 text-sm text-gray-100 transition-colors hover:bg-gray-800">
+                Back to Social Content
+              </Link>
+              <Link href={recoveryStepHref} className="inline-flex items-center rounded-lg border border-red-400/40 bg-red-500/10 px-3 py-2 text-sm text-red-100 transition-colors hover:bg-red-500/20">
+                Retry selected step
+              </Link>
+            </div>
+          </section>
+        </div>
       </div>
     )
   }
@@ -1981,7 +2076,7 @@ function SocialContentDetailPage() {
     : scheduledFor
       ? 'Approve & Schedule'
       : 'Approve & Publish'
-  const copyGateState: GateState = item.status === 'approved'
+  const copyGateRawState: GateState = isDurableCopyApprovedStatus(item.status)
     ? 'approved'
     : isEditable
       ? 'in_review'
@@ -2011,7 +2106,7 @@ function SocialContentDetailPage() {
     || asString(ragContext?.approval_boundary)
   )
   const contextRecorded = contextSourceRecorded && (contextCalibrationRecorded || contextClaimsRecorded || agentPilotPassToHuman)
-  const contextMissingAfterCopyApproval = copyGateState === 'approved' && !contextRecorded
+  const contextMissingAfterCopyApproval = copyGateRawState === 'approved' && !contextRecorded
   const contextSourceState: GateState = contextSourceRecorded
     ? 'approved'
     : contextMissingAfterCopyApproval
@@ -2062,7 +2157,7 @@ function SocialContentDetailPage() {
   const linkedinDraftHandoff = asRecord(ragContext?.linkedin_draft_handoff)
   const linkedinDraftWorkItem = asRecord(linkedinDraftHandoff?.work_item) ?? {}
   const linkedinDraftBlockers = [
-    item.status !== 'approved' ? 'Copy must be approved first.' : '',
+    !isDurableCopyApprovedStatus(item.status) ? 'Copy must be approved first.' : '',
     !visualAssetReady ? 'Choose and generate a visual asset first.' : '',
     visualAssetsGateState !== 'approved' ? 'Approve the visual assets section first.' : '',
     !assetPacketReady ? 'Prepare the asset packet first.' : '',
@@ -2081,12 +2176,29 @@ function SocialContentDetailPage() {
   const canCreateLinkedInDraft = isDraftOnlyPilot && linkedinDraftBlockers.length === 0 && linkedinDraftGateState === 'approved'
   const platformSubmissionTargets = isDraftOnlyPilot ? ['linkedin' as SocialPlatform] : targetPlatforms
   const finalPlatformSubmissionApproved = isPlatformSubmissionGateApproved(ragContext, platformSubmissionTargets)
+  const historicalSubmissionEvidence = item.status === 'scheduled'
+    || item.status === 'published'
+    || Boolean(item.platform_post_id || item.published_at)
+    || Boolean(item.publishes?.some((publish) => (
+      publish.status === 'published'
+      || Boolean(publish.platform_post_id)
+      || Boolean(publish.platform_post_url)
+      || Boolean(publish.published_at)
+    )))
+  const actualPublishedEvidence = item.status === 'published'
+    || Boolean(item.platform_post_id || item.published_at)
+    || Boolean(item.publishes?.some((publish) => (
+      publish.status === 'published'
+      || Boolean(publish.platform_post_id)
+      || Boolean(publish.platform_post_url)
+      || Boolean(publish.published_at)
+    )))
   const platformSubmissionPlan = buildPlatformOrchestrationPlan({
     item,
     targetPlatforms: platformSubmissionTargets,
     publishRecords: item.publishes ?? [],
     platformConfigs,
-    copyApproved: item.status === 'approved' || item.status === 'scheduled' || item.status === 'published',
+    copyApproved: isDurableCopyApprovedStatus(item.status),
     productionReady: isDraftOnlyPilot
       ? visualAssetsGateState === 'approved' && assetPacketGateState === 'approved' && privacyGateState === 'approved'
       : !videoPrivacyBlocked,
@@ -2106,36 +2218,63 @@ function SocialContentDetailPage() {
         : 'pending'
   const visualWorkflowGateState: GateState = visualAssetsGateState === 'approved' && assetPacketGateState === 'approved' && privacyGateState === 'approved'
     ? 'approved'
+    : historicalSubmissionEvidence && visualAssetReady && assetPacketReady && visualPrivacyReady
+      ? 'approved'
     : [visualAssetsGateState, assetPacketGateState, privacyGateState].some((state) => state === 'blocked' || state === 'rejected')
       ? 'blocked'
       : [visualAssetsGateState, assetPacketGateState, privacyGateState].some((state) => state === 'in_review')
         ? 'in_review'
         : 'pending'
+  const draftGateRawState: GateState = isDraftOnlyPilot
+    ? (historicalSubmissionEvidence ? 'approved' : linkedinDraftGateState)
+    : (historicalSubmissionEvidence ? 'approved' : gateStateFromRawStatus(agentPilotPublishGate))
+  const submitGateRawState: GateState = historicalSubmissionEvidence || finalPlatformSubmissionApproved
+    ? 'approved'
+    : platformSubmissionGateState
+  const statusGateRawState: GateState = actualPublishedEvidence ? 'approved' : 'pending'
+  const lifecycleProjection = deriveSocialContentLifecycleProjection({
+    item,
+    rawStates: {
+      context: contextRecorded ? 'approved' : supportingContextGateState,
+      copy: copyGateRawState,
+      visuals: visualWorkflowGateState,
+      draft: draftGateRawState,
+      submit: submitGateRawState,
+      status: statusGateRawState,
+    },
+  })
+  const copyGateState = lifecycleProjection.steps.copy.state as GateState
+  const effectiveSupportingContextGateState = lifecycleProjection.steps.context.state as GateState
+  const effectiveVisualWorkflowGateState = lifecycleProjection.steps.visuals.state as GateState
+  const effectiveDraftGateState = lifecycleProjection.steps.draft.state as GateState
+  const effectivePlatformSubmissionGateState = lifecycleProjection.steps.submit.state as GateState
+  const effectiveStatusGateState = lifecycleProjection.steps.status.state as GateState
+  const lifecycleMismatchByStep = lifecycleProjection.steps
   const canonicalKanbanHref = `/admin/agents/swarm-board?source_type=social_content_approval&source_id=${encodeURIComponent(item.id)}&social_content_id=${encodeURIComponent(item.id)}`
   const reviewGateSummary: Array<{ label: string; state: GateState; step: ApprovalStep }> = [
+    {
+      label: contextRecorded ? 'Context recorded' : 'Context',
+      state: effectiveSupportingContextGateState,
+      step: 'context',
+    },
     {
       label: 'Copy',
       state: copyGateState,
       step: 'copy',
     },
     {
-      label: contextRecorded ? 'Context recorded' : 'Context',
-      state: supportingContextGateState,
-      step: 'context',
-    },
-    {
       label: 'Amina visual QA',
-      state: visualWorkflowGateState,
+      state: effectiveVisualWorkflowGateState,
       step: 'visuals',
     },
     {
       label: isDraftOnlyPilot ? 'LinkedIn draft' : 'Publish',
-      state: isDraftOnlyPilot ? linkedinDraftGateState : gateStateFromRawStatus(agentPilotPublishGate),
+      state: effectiveDraftGateState,
       step: 'draft',
     },
     {
       label: 'Platform submit',
-      state: platformSubmissionGateState,
+      state: effectivePlatformSubmissionGateState,
       step: 'submit',
     },
   ]
@@ -2160,7 +2299,7 @@ function SocialContentDetailPage() {
       step: 'context',
       label: 'Context',
       description: contextRecorded ? 'Source basis recorded' : 'Source basis required',
-      state: supportingContextGateState,
+      state: effectiveSupportingContextGateState,
     },
     {
       step: 'copy',
@@ -2171,28 +2310,34 @@ function SocialContentDetailPage() {
     {
       step: 'visuals',
       label: 'Amina Visuals',
-      description: visualWorkflowGateState === 'pending' ? 'Strategy not started' : 'Strategy, QA, privacy',
-      state: visualWorkflowGateState,
+      description: effectiveVisualWorkflowGateState === 'pending' ? 'Strategy not started' : 'Strategy, QA, privacy',
+      state: effectiveVisualWorkflowGateState,
     },
     {
       step: 'draft',
       label: isDraftOnlyPilot ? 'Draft' : 'Publish gate',
       description: isDraftOnlyPilot ? 'Platform draft handoff' : 'Channel and schedule',
-      state: isDraftOnlyPilot ? linkedinDraftGateState : gateStateFromRawStatus(agentPilotPublishGate),
+      state: effectiveDraftGateState,
     },
     {
       step: 'submit',
       label: 'Submit',
       description: 'Platform automation',
-      state: platformSubmissionGateState,
+      state: effectivePlatformSubmissionGateState,
     },
     {
       step: 'status',
       label: 'Status',
       description: 'Signals and metadata',
-      state: item.status === 'published' || item.publishes?.some((publish) => publish.status === 'published') ? 'approved' : 'pending',
+      state: effectiveStatusGateState,
     },
   ]
+  const lifecycleBlockedDetail = (step: ApprovalStep) => {
+    const mismatch = lifecycleMismatchByStep[step]?.mismatch
+    return mismatch
+      ? `Lifecycle mismatch: ${mismatch.message} ${mismatch.recoveryAction}`
+      : null
+  }
   const approvalStepDetails: Record<ApprovalStep, {
     title: string
     body: string
@@ -2224,59 +2369,63 @@ function SocialContentDetailPage() {
       waitingOnYou: copyGateState === 'approved' ? 'No' : 'Yes - editorial decision',
     },
     visuals: {
-      title: visualWorkflowGateState === 'approved'
+      title: lifecycleBlockedDetail('visuals') ? 'Visual lifecycle mismatch'
+        : effectiveVisualWorkflowGateState === 'approved'
         ? 'Visuals and privacy approved'
-        : visualWorkflowGateState === 'pending'
+        : effectiveVisualWorkflowGateState === 'pending'
           ? 'Amina visual strategy not started'
           : agentifiedVisualQaPacket
             ? 'Amina visual strategy ready for human review'
             : 'Amina visual strategy in progress',
-      body: agentifiedVisualQaPacket
+      body: lifecycleBlockedDetail('visuals') ?? (agentifiedVisualQaPacket
         ? `${agentifiedVisualQaPacket.ownerDisplayName} selected ${agentifiedVisualQaPacket.selectedForm}, attached source provenance, drafted alt text, and passed agent QA for human visual/privacy review.`
-        : 'Amina owns visual form selection, approved asset reuse, original candidate generation when needed, provenance, agent QA, accessibility, rights, and privacy checks before final human visual/privacy review.',
+        : 'Amina owns visual form selection, approved asset reuse, original candidate generation when needed, provenance, agent QA, accessibility, rights, and privacy checks before final human visual/privacy review.'),
       owner: 'Amina',
       lastUpdate: agentifiedVisualQaPacket
         ? agentifiedVisualQaPacket.reportDate
         : productionAssets
           ? new Date(item.updated_at).toLocaleString()
           : 'No asset packet recorded',
-      nextAction: visualWorkflowGateState === 'approved'
+      nextAction: lifecycleMismatchByStep.visuals.mismatch?.recoveryAction ?? (effectiveVisualWorkflowGateState === 'approved'
         ? 'Proceed to governed platform draft handoff.'
         : agentifiedVisualQaPacket
           ? 'Review the candidate, rationale, provenance, QA findings, and privacy/rights result below, then approve or reject each visual gate.'
-          : 'Use the canonical Kanban view to track source research, candidate creation, QA, blockers, and final review readiness.',
-      waitingOnYou: [visualAssetsGateState, assetPacketGateState, privacyGateState].some((state) => state === 'blocked' || state === 'rejected')
+          : 'Use the canonical Kanban view to track source research, candidate creation, QA, blockers, and final review readiness.'),
+      waitingOnYou: lifecycleMismatchByStep.visuals.mismatch || [visualAssetsGateState, assetPacketGateState, privacyGateState].some((state) => state === 'blocked' || state === 'rejected')
         ? 'Yes - visual/privacy exception'
         : 'No',
     },
     draft: {
-      title: isDraftOnlyPilot ? 'Platform draft handoff' : 'Publishing gate',
-      body: isDraftOnlyPilot
+      title: lifecycleBlockedDetail('draft') ? 'Draft lifecycle mismatch' : isDraftOnlyPilot ? 'Platform draft handoff' : 'Publishing gate',
+      body: lifecycleBlockedDetail('draft') ?? (isDraftOnlyPilot
         ? 'The platform draft is a separate governed handoff after copy, visuals, asset packet, and privacy are approved.'
-        : 'Publishing remains gated by channel, schedule, and explicit submission controls.',
+        : 'Publishing remains gated by channel, schedule, and explicit submission controls.'),
       owner: isDraftOnlyPilot ? 'Hannibal / Publishing lane' : 'Publishing lane',
       lastUpdate: asString(linkedinDraftHandoff?.created_at) ? new Date(asString(linkedinDraftHandoff?.created_at)).toLocaleString() : 'No platform draft handoff yet',
-      nextAction: linkedinDraftBlockers.length ? linkedinDraftBlockers[0] : 'Create or inspect the governed platform draft.',
-      waitingOnYou: linkedinDraftGateState === 'in_review' ? 'Yes - draft handoff approval' : 'No',
+      nextAction: lifecycleMismatchByStep.draft.mismatch?.recoveryAction ?? (linkedinDraftBlockers.length ? linkedinDraftBlockers[0] : 'Create or inspect the governed platform draft.'),
+      waitingOnYou: lifecycleMismatchByStep.draft.mismatch || effectiveDraftGateState === 'in_review' ? 'Yes - draft handoff approval' : 'No',
     },
     submit: {
-      title: 'Explicit submit gate',
-      body: 'Provider submission, scheduling, and publication stay behind their own approval boundary. Internal approval does not create background external execution.',
+      title: lifecycleBlockedDetail('submit') ? 'Submit lifecycle mismatch' : 'Explicit submit gate',
+      body: lifecycleBlockedDetail('submit') ?? 'Provider submission, scheduling, and publication stay behind their own approval boundary. Internal approval does not create background external execution.',
       owner: 'Publishing lane',
       lastUpdate: item.updated_at ? new Date(item.updated_at).toLocaleString() : 'Not recorded',
-      nextAction: platformNextStages[0]?.label ?? 'No provider submission action is currently available.',
-      waitingOnYou: platformSubmissionGateState === 'in_review' ? 'Yes - submit decision' : 'No',
+      nextAction: lifecycleMismatchByStep.submit.mismatch?.recoveryAction ?? (platformNextStages[0]?.label ?? 'No provider submission action is currently available.'),
+      waitingOnYou: lifecycleMismatchByStep.submit.mismatch || effectivePlatformSubmissionGateState === 'in_review' ? 'Yes - submit decision' : 'No',
     },
     status: {
-      title: 'Publication and signal status',
-      body: 'Signals summarize what happened after provider submission or publication. They should not be confused with copy approval or visual readiness.',
+      title: lifecycleBlockedDetail('status') ? 'Status lifecycle mismatch' : 'Publication and signal status',
+      body: lifecycleBlockedDetail('status') ?? 'Signals summarize what happened after provider submission or publication. They should not be confused with copy approval or visual readiness.',
       owner: 'Publishing / analytics lane',
       lastUpdate: item.published_at ? new Date(item.published_at).toLocaleString() : 'No publication signal yet',
-      nextAction: item.status === 'published' ? 'Monitor post signals.' : 'Complete upstream gates before status signals are expected.',
-      waitingOnYou: 'No',
+      nextAction: lifecycleMismatchByStep.status.mismatch?.recoveryAction ?? (item.status === 'published' ? 'Monitor post signals.' : 'Complete upstream gates before status signals are expected.'),
+      waitingOnYou: lifecycleMismatchByStep.status.mismatch ? 'Yes - lifecycle recovery' : 'No',
     },
   }
   const activeApprovalStepDetail = approvalStepDetails[activeApprovalStep]
+  const activeStepParams = new URLSearchParams(searchParams.toString())
+  activeStepParams.set('step', activeApprovalStep)
+  const activeStepHref = `/admin/social-content/${id}?${activeStepParams.toString()}#${APPROVAL_STEP_SECTION_IDS[activeApprovalStep]}`
   const setApprovalStep = (step: ApprovalStep) => {
     const params = new URLSearchParams(searchParams.toString())
     params.set('step', step)
@@ -2448,21 +2597,23 @@ function SocialContentDetailPage() {
       </AnimatePresence>
 
       {/* Sticky Header — slim, Save Draft only */}
-      <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-gray-800 px-8 py-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+      <div className="sticky top-0 z-40 border-b border-gray-800 bg-background/80 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
             <button
               onClick={() => router.push(backUrl)}
-              className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors"
+              className="shrink-0 rounded-lg bg-gray-800 p-2 transition-colors hover:bg-gray-700"
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
-            <Breadcrumbs items={[
-              { label: 'Admin', href: '/admin' },
-              { label: 'Social Content', href: '/admin/social-content' },
-              { label: isEditable ? 'Edit Post' : 'View Post' },
-            ]} />
-            <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${statusCfg.bgColor} ${statusCfg.color} border ${statusCfg.borderColor}`}>
+            <div className="min-w-0 [&_nav]:mb-0 [&_nav]:flex-wrap">
+              <Breadcrumbs items={[
+                { label: 'Admin', href: '/admin' },
+                { label: 'Social Content', href: '/admin/social-content' },
+                { label: isEditable ? 'Edit Post' : 'View Post' },
+              ]} />
+            </div>
+            <span className={`shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-medium ${statusCfg.bgColor} ${statusCfg.color} ${statusCfg.borderColor}`}>
               {statusCfg.label}
             </span>
           </div>
@@ -2480,6 +2631,17 @@ function SocialContentDetailPage() {
       </div>
 
       <div className="mx-auto w-full max-w-[90rem] space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+        <MobileWorkflowSummary
+          title={activeApprovalStepDetail.title}
+          currentState={GATE_STATE_CONFIG[approvalStepTabs.find((step) => step.step === activeApprovalStep)?.state ?? overallGateState].label}
+          owner={activeApprovalStepDetail.owner}
+          nextAction={activeApprovalStepDetail.nextAction}
+          waitingOnYou={activeApprovalStepDetail.waitingOnYou}
+          blocker={overallGateState === 'blocked' ? activeApprovalStepDetail.body : null}
+          canonicalHref={activeStepHref}
+          canonicalLabel="Open selected approval step"
+          tone={overallGateState === 'blocked' ? 'red' : activeApprovalStepDetail.waitingOnYou.startsWith('Yes') ? 'yellow' : 'blue'}
+        />
 	        {isAgentSocialPilot && (
 	          <section className="admin-console-card rounded-xl border border-radiant-gold/25 p-4 sm:p-5">
             <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,auto)] xl:items-start">
@@ -3163,15 +3325,16 @@ function SocialContentDetailPage() {
 	          </section>
 	        )}
 
-		        <div aria-label="Social content approval process" className="admin-console-card flex items-stretch gap-1 overflow-x-auto rounded-xl border p-1">
+		        <div aria-label="Social content approval process" className="admin-console-card grid grid-cols-1 gap-2 rounded-xl border p-2 md:flex md:items-stretch md:gap-1 md:overflow-x-auto md:p-1">
 		          {approvalStepTabs.map((tab, index) => {
 		            const isActive = activeApprovalStep === tab.step
 		            return (
-		              <div key={tab.step} className="flex shrink-0 items-stretch">
+		              <div key={tab.step} className="flex min-w-0 items-stretch md:shrink-0">
 		                <button
 		                  type="button"
+		                  aria-label={`Approval step ${index + 1}: ${tab.label}`}
 		                  onClick={() => setApprovalStep(tab.step)}
-		                  className={`flex w-[10rem] shrink-0 items-center gap-2 rounded-lg border px-2.5 py-2.5 text-left text-sm font-medium transition-all lg:w-[10.75rem] ${
+		                  className={`flex min-h-11 w-full min-w-0 items-start gap-2 rounded-lg border px-2.5 py-2.5 text-left text-sm font-medium transition-all md:w-[10rem] md:shrink-0 md:items-center lg:w-[10.75rem] ${
 		                    isActive
 		                      ? 'border-green-500/55 bg-green-600/25 text-green-100 shadow-inner shadow-green-950/30'
 		                      : 'border-gray-800/80 text-muted-foreground hover:border-gray-700 hover:bg-silicon-slate/50 hover:text-foreground'
@@ -3185,10 +3348,10 @@ function SocialContentDetailPage() {
 		                    {index + 1}
 		                  </span>
 		                  <span className="min-w-0 flex-1">
-		                    <span className="block truncate">{tab.label}</span>
-		                    <span className="mt-0.5 block truncate text-[11px] font-normal opacity-75">{tab.description}</span>
+		                    <span className="block leading-snug md:truncate">{tab.label}</span>
+		                    <span className="mt-0.5 block text-[11px] font-normal leading-snug opacity-75 md:truncate">{tab.description}</span>
 		                  </span>
-		                  <span className={`shrink-0 rounded-full border px-1.5 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[tab.state].className}`}>
+		                  <span className={`rounded-full border px-1.5 py-0.5 text-[10px] font-semibold md:shrink-0 ${GATE_STATE_CONFIG[tab.state].className}`}>
 		                    {GATE_STATE_CONFIG[tab.state].label}
 		                  </span>
 		                </button>
@@ -4832,7 +4995,7 @@ function SocialContentDetailPage() {
 	        {/* SECTION 2B: Engagement Metrics                                   */}
 	        {/* ================================================================ */}
 	        {activeApprovalStep === 'status' && (
-	        <>
+	        <div id="social-publication-status-gate" className="scroll-mt-28 space-y-6">
 	        {(item.status === 'published' || engagementLatest) && (
 	          <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -4979,8 +5142,8 @@ function SocialContentDetailPage() {
 	          <div>Updated: {new Date(item.updated_at).toLocaleString()}</div>
 	          <div>ID: <span className="font-mono text-gray-600">{item.id}</span></div>
 	        </div>
-	        </>
-	        )}
+        </div>
+        )}
 	      </div>
 
       {/* ================================================================ */}
@@ -5070,7 +5233,9 @@ function SocialContentDetailPage() {
 export default function SocialContentDetailRoute() {
   return (
     <ProtectedRoute requireAdmin>
-      <SocialContentDetailPage />
+      <Suspense fallback={<SocialContentDetailLoadingState />}>
+        <SocialContentDetailPage />
+      </Suspense>
     </ProtectedRoute>
   )
 }

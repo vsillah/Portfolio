@@ -85,6 +85,16 @@ function installSupabase({
   return { publishUpsert, queueUpdate, queueUpdateSingle }
 }
 
+const lifecycleReadyRagContext = {
+  source_packet_path: 'docs/social-content/source-packet.md',
+  approval_boundary: 'human gated',
+  section_gate_reviews: {
+    visual_assets: { status: 'approved' },
+    asset_packet: { status: 'approved' },
+    privacy: { status: 'approved' },
+  },
+}
+
 describe('POST /api/admin/social-content/[id]/platform-submission', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -170,6 +180,42 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
     expect(fetchSpy).not.toHaveBeenCalled()
   })
 
+  it('rejects final submission before lifecycle prerequisites and publish-row preparation', async () => {
+    const { publishUpsert, queueUpdate } = installSupabase({
+      item: {
+        id: 'social-1',
+        status: 'approved',
+        platform: 'linkedin',
+        target_platforms: ['linkedin'],
+        post_text: 'Post text',
+        image_url: 'https://cdn.example.com/image.png',
+        video_url: null,
+        carousel_slide_urls: null,
+        rag_context: null,
+      },
+      publishes: [
+        { platform: 'linkedin', status: 'pending', platform_post_url: null },
+      ],
+      configs: [],
+    })
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ published: true }), { status: 200 }),
+    )
+
+    const response = await POST(request({ platforms: ['linkedin'] }), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(409)
+    const body = await response.json()
+    expect(body).toEqual(expect.objectContaining({
+      error: 'Social Content lifecycle prerequisite blocked.',
+      lifecycle_step: 'submit',
+      missing_prerequisite: 'context',
+    }))
+    expect(publishUpsert).not.toHaveBeenCalled()
+    expect(queueUpdate).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
   it('records final approval and triggers automatic submission through the publish route', async () => {
     const { publishUpsert, queueUpdate } = installSupabase({
       item: {
@@ -181,7 +227,7 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
         image_url: 'https://cdn.example.com/image.png',
         video_url: 'https://cdn.example.com/video.mp4',
         carousel_slide_urls: null,
-        rag_context: null,
+        rag_context: lifecycleReadyRagContext,
       },
       publishes: [
         { platform: 'linkedin', status: 'pending', platform_post_url: null },
@@ -254,7 +300,7 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
         image_url: 'https://cdn.example.com/image.png',
         video_url: null,
         carousel_slide_urls: null,
-        rag_context: null,
+        rag_context: lifecycleReadyRagContext,
       },
       publishes: [
         { platform: 'instagram', status: 'pending', platform_post_url: null },
@@ -315,7 +361,7 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
         youtube_title: 'YouTube title',
         youtube_description: 'YouTube description',
         carousel_slide_urls: null,
-        rag_context: { source_packet_path: 'docs/youtube/source-packet.md' },
+        rag_context: lifecycleReadyRagContext,
       },
       publishes: [
         { platform: 'youtube', status: 'pending', platform_post_url: null },
@@ -366,7 +412,7 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
         image_url: null,
         video_url: null,
         carousel_slide_urls: null,
-        rag_context: null,
+        rag_context: lifecycleReadyRagContext,
       },
       publishes: [
         { platform: 'x', status: 'pending', platform_post_url: null },
@@ -484,7 +530,7 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
         image_url: null,
         video_url: 'https://cdn.example.com/video.mp4',
         carousel_slide_urls: null,
-        rag_context: null,
+        rag_context: lifecycleReadyRagContext,
       },
       publishes: [
         { platform: 'tiktok', status: 'pending', platform_post_url: null },
@@ -518,7 +564,7 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
         youtube_title: 'YouTube title',
         youtube_description: 'YouTube description',
         carousel_slide_urls: null,
-        rag_context: null,
+        rag_context: lifecycleReadyRagContext,
       },
       publishes: [
         { platform: 'youtube', status: 'pending', platform_post_url: null },
@@ -569,7 +615,7 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
         youtube_title: null,
         youtube_description: null,
         carousel_slide_urls: null,
-        rag_context: { source_packet_path: 'docs/youtube/source-packet.md' },
+        rag_context: lifecycleReadyRagContext,
       },
       publishes: [
         { platform: 'youtube', status: 'pending', platform_post_url: null },

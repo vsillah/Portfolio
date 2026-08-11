@@ -3,6 +3,10 @@ import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { createAgentWorkItem } from '@/lib/agent-work-items'
 import { getFullPostText } from '@/lib/social-content'
 import { getProductionAssets, getVideoRedactionGate } from '@/lib/social-production-assets'
+import {
+  deriveSocialContentLifecycleProjection,
+  lifecyclePrerequisiteFailure,
+} from '@/lib/social-content-lifecycle'
 import { supabaseAdmin } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
@@ -91,6 +95,13 @@ export async function POST(
 
     const productionAssets = getProductionAssets(ragContext)
     const blockers = readinessBlockers(itemRecord, productionAssets)
+    const lifecycleFailure = lifecyclePrerequisiteFailure(
+      deriveSocialContentLifecycleProjection({ item: itemRecord }),
+      'draft',
+    )
+    if (lifecycleFailure) {
+      return NextResponse.json(lifecycleFailure, { status: 409 })
+    }
     if (blockers.length) {
       return NextResponse.json({ error: 'LinkedIn draft is not ready.', blockers }, { status: 409 })
     }

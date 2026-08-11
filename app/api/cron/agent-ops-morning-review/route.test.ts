@@ -8,7 +8,7 @@ vi.mock('@/lib/agent-ops-morning-review', () => ({
   runAgentOpsMorningReview: mocks.runAgentOpsMorningReview,
 }))
 
-import { POST } from './route'
+import { GET, POST } from './route'
 
 function makeRequest(token?: string) {
   return new Request('http://localhost/api/cron/agent-ops-morning-review', {
@@ -20,6 +20,7 @@ function makeRequest(token?: string) {
 describe('POST /api/cron/agent-ops-morning-review', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    process.env.CRON_SECRET = 'cron-secret'
     process.env.N8N_INGEST_SECRET = 'secret'
     mocks.runAgentOpsMorningReview.mockResolvedValue({
       runId: 'review-run-1',
@@ -45,6 +46,15 @@ describe('POST /api/cron/agent-ops-morning-review', () => {
     expect(response.status).toBe(401)
     expect(await response.json()).toEqual({ error: 'Unauthorized' })
     expect(mocks.runAgentOpsMorningReview).not.toHaveBeenCalled()
+  })
+
+  it('supports Vercel cron GET requests with the cron secret', async () => {
+    const response = await GET(new Request('http://localhost/api/cron/agent-ops-morning-review', {
+      headers: { authorization: 'Bearer cron-secret' },
+    }) as never)
+
+    expect(response.status).toBe(200)
+    expect(mocks.runAgentOpsMorningReview).toHaveBeenCalledWith('cron_agent_ops_morning_review')
   })
 
   it('runs the morning review and returns the trace summary', async () => {

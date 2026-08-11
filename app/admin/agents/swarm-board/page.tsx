@@ -24,6 +24,7 @@ import {
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import AgentAvatar from '@/components/admin/AgentAvatar'
+import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
 import { getCurrentSession } from '@/lib/auth'
 import type {
   AgentOrgBoardActivity,
@@ -227,8 +228,8 @@ function AgentSwarmBoardContent() {
   }, [activityFilter, organization?.activity])
 
   return (
-    <div className="agent-ops-page min-h-screen p-5 text-foreground lg:p-7">
-      <div className="mx-auto max-w-[1680px]">
+    <div className="agent-ops-page min-h-screen overflow-x-hidden p-4 text-foreground sm:p-5 lg:p-7">
+      <div className="mx-auto w-full max-w-[1680px] min-w-0">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
           { label: 'Agent Operations', href: '/admin/agents' },
@@ -270,8 +271,8 @@ function AgentSwarmBoardContent() {
         ) : error ? (
           <FailureState message={error} />
         ) : snapshot && organization ? (
-          <div className="grid gap-5 xl:grid-cols-[220px_minmax(0,1fr)]">
-            <aside className="agent-ops-card rounded-lg border p-3">
+          <div className="grid min-w-0 gap-5 xl:grid-cols-[220px_minmax(0,1fr)]">
+            <aside className="agent-ops-card min-w-0 rounded-lg border p-3">
               <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Board views</p>
               <div className="space-y-1" role="tablist" aria-label="Agent board views">
                 {MODES.map((item) => {
@@ -306,7 +307,7 @@ function AgentSwarmBoardContent() {
               </div>
             </aside>
 
-            <main className="min-w-0">
+            <main className="min-w-0 overflow-hidden">
               {mode === 'kanban' && (
                 <KanbanBoard
                   organization={organization}
@@ -444,9 +445,37 @@ function KanbanBoard({
   const sourceScopeActive = Boolean(sourceScope.sourceType || sourceScope.sourceId || sourceScope.socialContentId)
   const focusedScopeActive = Boolean(focusedScope.workItemId || focusedScope.productionLane !== 'all' || focusedScope.remediationId !== 'all')
   const filtersActive = selectedGoalId !== 'all' || ownerFilter !== 'all' || statusFilter !== 'all' || attentionFilter !== 'all' || dependencyFilter !== 'all' || sourceScopeActive || focusedScopeActive
+  const primaryVisibleTask = filteredTasks[0] ?? null
+  const primaryNextAction = primaryVisibleTask
+    ? nextActionForTask(primaryVisibleTask).label
+    : filtersActive
+      ? 'Clear or adjust the current scope to recover matching Kanban cards.'
+      : 'Review blocked and ready-for-review cards before broad board scanning.'
+  const primaryBlocker = primaryVisibleTask?.status === 'blocked'
+    ? primaryVisibleTask.blockerSummary || 'This scoped Kanban card is blocked and needs owner recovery.'
+    : null
+  const canonicalParams = new URLSearchParams()
+  if (sourceScope.sourceType) canonicalParams.set('source_type', sourceScope.sourceType)
+  if (sourceScope.sourceId) canonicalParams.set('source_id', sourceScope.sourceId)
+  if (sourceScope.socialContentId) canonicalParams.set('social_content_id', sourceScope.socialContentId)
+  if (!canonicalParams.toString() && focusedScope.workItemId) canonicalParams.set('work_item', focusedScope.workItemId)
+  if (!canonicalParams.toString() && selectedGoalId !== 'all') canonicalParams.set('goal', selectedGoalId)
+  const boardCanonicalQuery = canonicalParams.toString()
+  const boardCanonicalHref = boardCanonicalQuery ? `/admin/agents/swarm-board?${boardCanonicalQuery}` : '/admin/agents/swarm-board'
 
   return (
-    <div className="space-y-4" role="tabpanel" aria-label="Kanban lanes">
+    <div className="min-w-0 space-y-4" role="tabpanel" aria-label="Kanban lanes">
+      <MobileWorkflowSummary
+        title={filtersActive ? 'Scoped Kanban review' : 'Agent Kanban'}
+        currentState={primaryVisibleTask ? primaryVisibleTask.status.replace(/_/g, ' ') : `${filteredTasks.length} visible`}
+        owner={primaryVisibleTask?.ownerAgentName ?? 'Integration Captain'}
+        nextAction={primaryNextAction}
+        waitingOnYou={primaryVisibleTask?.status === 'blocked' || primaryVisibleTask?.status === 'ready_for_review' || primaryVisibleTask?.status === 'ready_for_merge' ? 'Yes - review scoped card' : 'No'}
+        blocker={primaryBlocker}
+        canonicalHref={boardCanonicalHref}
+        canonicalLabel="Open canonical Kanban link"
+        tone={primaryVisibleTask?.status === 'blocked' ? 'red' : filtersActive ? 'yellow' : 'blue'}
+      />
       {filtersActive ? (
         <FocusedReviewWorkspace
           tasks={filteredTasks}
@@ -537,11 +566,16 @@ function KanbanBoard({
           </div>
         </div>
       </section>
-      <div className="grid items-start gap-3 xl:grid-cols-4">
-        {statusLanes.map((lane) => (
-          <TaskLane key={lane.key} lane={lane} onOpenDependencies={setDependencyDrawerTaskId} />
-        ))}
-      </div>
+      <section className="min-w-0 rounded-lg border border-silicon-slate/60 bg-background/20 p-2" aria-label="Kanban board region">
+        <p className="sr-only">Kanban lanes may scroll horizontally inside this board region on narrow screens.</p>
+        <div className="-mx-2 overflow-x-auto px-2" aria-label="Scrollable Kanban lanes" tabIndex={0}>
+          <div className="grid min-w-0 items-start gap-3 xl:min-w-[72rem] xl:grid-cols-4">
+            {statusLanes.map((lane) => (
+              <TaskLane key={lane.key} lane={lane} onOpenDependencies={setDependencyDrawerTaskId} />
+            ))}
+          </div>
+        </div>
+      </section>
     </div>
   )
 }
@@ -1043,7 +1077,7 @@ function KanbanFilterPanel({
             <p className="text-sm text-muted-foreground">Filter by source draft, goal, owner, status, attention state, or dependency relationship without leaving the Kanban surface.</p>
           </div>
         </div>
-        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground sm:gap-3">
           {sourceScope.socialContentId ? (
             <span className="rounded-full border border-radiant-gold/35 bg-radiant-gold/10 px-2 py-1 text-radiant-gold">
               Social draft {sourceScope.socialContentId.slice(0, 8)}
@@ -1403,7 +1437,7 @@ function WorkItemCard({ task, onOpenDependencies }: { task: AgentOrgBoardTask; o
           >
             {task.title}
           </p>
-          <div className="mt-1.5 flex min-w-0 items-center gap-1.5 text-[11px] text-muted-foreground">
+          <div className="mt-1.5 flex min-w-0 flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">
             <span className="inline-flex min-w-0 flex-1 items-center gap-1.5 rounded-full border border-silicon-slate/70 bg-silicon-slate/20 px-1.5 py-0.5 text-foreground/85">
               <AgentAvatar agentKey={task.ownerAgentKey} size="sm" className="h-5 w-5 rounded-md text-[8px]" />
               <span className="truncate">{displayDetailValue('Owner', task.ownerAgentName)}</span>
@@ -1476,20 +1510,20 @@ function WorkItemCard({ task, onOpenDependencies }: { task: AgentOrgBoardTask; o
         </button>
       ) : null}
 
-      <div className="mt-1.5 flex items-center gap-1.5 text-[11px]">
-        <span className={`min-w-0 flex-1 truncate rounded-md border px-1.5 py-1 ${nextAction.tone}`} title={nextAction.detail}>
+      <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11px]">
+        <span className={`min-w-[9rem] flex-1 truncate rounded-md border px-1.5 py-1 ${nextAction.tone}`} title={nextAction.detail}>
           {nextAction.label}
         </span>
         {task.activeRunId ? (
           <a
             href={`/admin/agents/runs/${task.activeRunId}`}
             aria-label={`Open trace ${task.activeRunId} for ${task.title}`}
-            className="inline-flex shrink-0 items-center justify-center rounded-md border border-radiant-gold/45 bg-radiant-gold/10 px-1.5 py-1 text-radiant-gold hover:bg-radiant-gold/15"
+            className="inline-flex flex-1 items-center justify-center rounded-md border border-radiant-gold/45 bg-radiant-gold/10 px-1.5 py-1 text-radiant-gold hover:bg-radiant-gold/15 sm:flex-none"
           >
             Trace
           </a>
         ) : (
-          <span className="inline-flex shrink-0 items-center justify-center rounded-md border border-dashed border-silicon-slate/50 bg-transparent px-1.5 py-1 text-muted-foreground/75" aria-label={`Trace unavailable for ${task.title}`}>
+          <span className="inline-flex flex-1 items-center justify-center rounded-md border border-dashed border-silicon-slate/50 bg-transparent px-1.5 py-1 text-muted-foreground/75 sm:flex-none" aria-label={`Trace unavailable for ${task.title}`}>
             No trace
           </span>
         )}
@@ -1497,13 +1531,13 @@ function WorkItemCard({ task, onOpenDependencies }: { task: AgentOrgBoardTask; o
           <a
             href={task.prUrl}
             aria-label={`Open pull request ${task.prNumber ?? ''} for ${task.title}`.trim()}
-            className="inline-flex shrink-0 items-center justify-center gap-1 rounded-md border border-silicon-slate/70 bg-silicon-slate/20 px-1.5 py-1 text-radiant-gold hover:border-radiant-gold/45"
+            className="inline-flex flex-1 items-center justify-center gap-1 rounded-md border border-silicon-slate/70 bg-silicon-slate/20 px-1.5 py-1 text-radiant-gold hover:border-radiant-gold/45 sm:flex-none"
           >
             <GitPullRequest size={13} />
             PR
           </a>
         ) : (
-          <span className="inline-flex shrink-0 items-center justify-center rounded-md border border-dashed border-silicon-slate/50 bg-transparent px-1.5 py-1 text-muted-foreground/75" aria-label={`Pull request unavailable for ${task.title}`}>
+          <span className="inline-flex flex-1 items-center justify-center rounded-md border border-dashed border-silicon-slate/50 bg-transparent px-1.5 py-1 text-muted-foreground/75 sm:flex-none" aria-label={`Pull request unavailable for ${task.title}`}>
             No PR
           </span>
         )}

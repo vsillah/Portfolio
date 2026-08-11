@@ -53,7 +53,9 @@ import SocialIntelModal from '@/components/admin/outreach/SocialIntelModal'
 import EvidenceDrawer from '@/components/admin/outreach/EvidenceDrawer'
 import AddLeadModal from '@/components/admin/outreach/AddLeadModal'
 import { OutreachEmailGenerateRow } from '@/components/admin/OutreachEmailGenerateRow'
+import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
 import { useRealtimeOutreach } from '@/lib/hooks/useRealtimeOutreach'
+import { OUTREACH_MODE_GATING_NOTE, OUTREACH_MODE_POLICIES } from '@/lib/outreach-mode-gating'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 
@@ -180,7 +182,7 @@ function OutreachContent() {
   })
   const [leadsSearch, setLeadsSearch] = useState('')
   const [expandedLeadId, setExpandedLeadId] = useState<number | null>(() => {
-    const id = searchParams?.get('id')
+    const id = searchParams?.get('id') ?? searchParams?.get('contact')
     return id ? parseInt(id) : null
   })
   const [leadsPage, setLeadsPage] = useState(1)
@@ -713,6 +715,19 @@ function OutreachContent() {
     setShowEnrichModal(true)
   }, [])
 
+  const setExpandedLeadFromControl = useCallback((leadId: number | null) => {
+    setExpandedLeadId(leadId)
+    const params = new URLSearchParams(searchParams?.toString() || '')
+    params.set('tab', 'leads')
+    params.delete('contact')
+    if (leadId) {
+      params.set('id', String(leadId))
+    } else {
+      params.delete('id')
+    }
+    router.replace(`/admin/outreach?${params.toString()}`, { scroll: false })
+  }, [router, searchParams])
+
   const updateLeadDncOrRemoved = useCallback(
     async (leadId: number, payload: { do_not_contact?: boolean; removed_at?: string | null }) => {
       const session = await getCurrentSession()
@@ -743,6 +758,25 @@ function OutreachContent() {
     if (score >= 40) return 'bg-yellow-900/50 text-yellow-400 border border-yellow-700'
     return 'bg-red-900/50 text-red-400 border border-red-700'
   }
+  const expandedLead = expandedLeadId ? leads.find((lead) => lead.id === expandedLeadId) ?? null : null
+  const modePolicies = Object.values(OUTREACH_MODE_POLICIES)
+  const outreachModeLabel = expandedLead
+    ? `${isWarmLeadSource(expandedLead.lead_source) ? 'Warm' : 'Cold'} 1:1`
+    : activeTab === 'escalations'
+      ? 'Warm 1:1 review'
+      : `${leadsTempFilter === 'all' ? 'Cold/warm' : leadsTempFilter === 'warm' ? 'Warm' : 'Cold'} lead review`
+  const outreachNextAction = expandedLead
+    ? expandedLead.do_not_contact || expandedLead.removed_at
+      ? 'Resolve contact status before any draft or evidence work continues.'
+      : 'Review evidence, recent drafts, meetings, and contact status before preparing internal outreach.'
+    : selectedLeadIds.size
+      ? `Review or enrich ${selectedLeadIds.size} selected lead(s).`
+      : 'Select a lead to inspect the canonical outreach workroom.'
+  const outreachBlocker = expandedLead?.do_not_contact
+    ? 'This lead is marked do not contact.'
+    : expandedLead?.removed_at
+      ? 'This lead is removed from the active list.'
+      : null
 
   return (
     <div className="admin-console-page min-h-screen px-4 py-6 text-foreground sm:px-6 lg:px-8">
@@ -786,7 +820,7 @@ function OutreachContent() {
               </span>
             </div>
           )}
-          <div className="flex items-center gap-3">
+          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end" aria-label="Outreach workroom actions">
             {activeTab === 'leads' && (
               <button
                 type="button"
@@ -820,6 +854,30 @@ function OutreachContent() {
               Refresh
             </button>
           </div>
+        </div>
+
+        <MobileWorkflowSummary
+          title={expandedLead ? `Lead: ${expandedLead.name}` : 'Outreach workroom'}
+          currentState={outreachModeLabel}
+          owner="Vambah / Outreach"
+          nextAction={outreachNextAction}
+          waitingOnYou={expandedLead || selectedLeadIds.size ? 'Yes - review before action' : 'No'}
+          blocker={outreachBlocker}
+          canonicalHref={expandedLead ? `/admin/outreach?tab=leads&id=${expandedLead.id}` : '/admin/outreach?tab=leads'}
+          canonicalLabel={expandedLead ? 'Open selected lead' : 'Open lead workroom'}
+          tone={outreachBlocker ? 'red' : expandedLead || selectedLeadIds.size ? 'yellow' : 'blue'}
+        />
+
+        <div className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-4 lg:hidden">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Outreach modes</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {modePolicies.map((mode) => (
+              <span key={mode.key} className="rounded-full border border-silicon-slate/70 bg-background/50 px-2.5 py-1 text-xs text-muted-foreground">
+                {mode.label}
+              </span>
+            ))}
+          </div>
+          <p className="mt-3 text-xs leading-5 text-muted-foreground">{OUTREACH_MODE_GATING_NOTE}</p>
         </div>
 
         {/* Tabs */}
@@ -1561,7 +1619,7 @@ function OutreachContent() {
                             {/* Expand / collapse */}
                             <button
                               onClick={() =>
-                                setExpandedLeadId(expandedLeadId === lead.id ? null : lead.id)
+                                setExpandedLeadFromControl(expandedLeadId === lead.id ? null : lead.id)
                               }
                               aria-expanded={expandedLeadId === lead.id}
                               aria-label={`${expandedLeadId === lead.id ? 'Collapse' : 'Expand'} details for ${lead.name}`}

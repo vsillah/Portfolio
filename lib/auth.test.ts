@@ -20,7 +20,7 @@ vi.mock('./supabase', () => ({
   },
 }))
 
-import { getStoredAuthNextPath, signInWithOAuth } from './auth'
+import { getStoredAuthNextPath, normalizeAuthRedirectPath, signInWithOAuth } from './auth'
 
 describe('auth redirect helpers', () => {
   beforeEach(() => {
@@ -33,10 +33,10 @@ describe('auth redirect helpers', () => {
   it('stores the post-OAuth path while keeping Supabase callback URLs bare', async () => {
     window.history.replaceState({}, '', '/store')
 
-    await signInWithOAuth('google', '/admin/outreach?tab=queue#drafts')
+    await signInWithOAuth('google', '/admin/social-content/social-1?returnTo=%2Fadmin%2Fsocial-content&step=submit')
 
-    expect(sessionStorage.getItem('auth_next_path')).toBe('/admin/outreach?tab=queue#drafts')
-    expect(localStorage.getItem('auth_next_path')).toBe('/admin/outreach?tab=queue#drafts')
+    expect(sessionStorage.getItem('auth_next_path')).toBe('/admin/social-content/social-1?returnTo=%2Fadmin%2Fsocial-content&step=submit')
+    expect(localStorage.getItem('auth_next_path')).toBe('/admin/social-content/social-1?returnTo=%2Fadmin%2Fsocial-content&step=submit')
     expect(mocks.signInWithOAuth).toHaveBeenCalledWith({
       provider: 'google',
       options: {
@@ -59,6 +59,17 @@ describe('auth redirect helpers', () => {
     localStorage.setItem('auth_next_path', '/client/projects/project-1?tab=roadmap')
 
     expect(getStoredAuthNextPath()).toBe('/client/projects/project-1?tab=roadmap')
+    expect(localStorage.getItem('auth_next_path')).toBeNull()
+  })
+
+  it('rejects external auth redirect targets', async () => {
+    expect(normalizeAuthRedirectPath('https://evil.test/admin')).toBe('/')
+    expect(normalizeAuthRedirectPath('//evil.test/admin')).toBe('/')
+    expect(normalizeAuthRedirectPath('admin/social-content')).toBe('/')
+
+    await signInWithOAuth('google', 'https://evil.test/admin')
+
+    expect(sessionStorage.getItem('auth_next_path')).toBeNull()
     expect(localStorage.getItem('auth_next_path')).toBeNull()
   })
 })

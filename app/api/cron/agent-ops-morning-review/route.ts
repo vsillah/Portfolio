@@ -1,8 +1,8 @@
 /**
- * POST /api/cron/agent-ops-morning-review
+ * GET/POST /api/cron/agent-ops-morning-review
  *
  * Runs the daily Agent Operations review without a human in the loop.
- * Auth: Bearer N8N_INGEST_SECRET, matching the existing n8n-owned cron pattern.
+ * Auth: Bearer CRON_SECRET or N8N_INGEST_SECRET.
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -11,12 +11,12 @@ import { runAgentOpsMorningReview } from '@/lib/agent-ops-morning-review'
 export const dynamic = 'force-dynamic'
 
 function isAuthorized(request: NextRequest) {
-  const expectedSecret = process.env.N8N_INGEST_SECRET
   const token = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '')
-  return Boolean(expectedSecret && token === expectedSecret)
+  const allowedTokens = [process.env.CRON_SECRET, process.env.N8N_INGEST_SECRET].filter(Boolean)
+  return Boolean(token && allowedTokens.includes(token))
 }
 
-export async function POST(request: NextRequest) {
+async function runMorningReview(request: NextRequest) {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
@@ -39,4 +39,12 @@ export async function POST(request: NextRequest) {
       { status: 500 },
     )
   }
+}
+
+export async function GET(request: NextRequest) {
+  return runMorningReview(request)
+}
+
+export async function POST(request: NextRequest) {
+  return runMorningReview(request)
 }

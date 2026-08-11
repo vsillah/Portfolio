@@ -2,6 +2,10 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { SocialPlatform } from '@/lib/social-content'
 import { createAgentWorkItem } from '@/lib/agent-work-items'
 import { syncCampaignCalendarForSocialContent } from '@/lib/social-content-calendar-linkage'
+import {
+  deriveSocialContentLifecycleProjection,
+  lifecyclePrerequisiteFailure,
+} from '@/lib/social-content-lifecycle'
 
 type SocialContentApprovalPayload = Record<string, unknown>
 
@@ -115,6 +119,14 @@ export async function approveSocialContentItem({
   }
 
   const ragContext = recordValue(item.rag_context)
+  const copyPrerequisiteFailure = lifecyclePrerequisiteFailure(
+    deriveSocialContentLifecycleProjection({ item: { ...item, rag_context: ragContext } }),
+    'copy',
+  )
+  if (copyPrerequisiteFailure) {
+    throw new SocialContentApprovalError(409, copyPrerequisiteFailure)
+  }
+
   const isAgenticLaunchDraft = ragContext?.source === 'agentic_sales_outreach_launch_draft'
   const isDraftOnlyReview = ragContext?.publish_gate === 'draft_only' || isAgenticLaunchDraft
   const isAgentOpsDraftOnly = ragContext?.source === 'agent_ops_social_outreach_goal' && isDraftOnlyReview

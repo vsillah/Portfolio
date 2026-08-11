@@ -31,6 +31,7 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import AgentAvatar from '@/components/admin/AgentAvatar'
 import AgentActivityRadar from '@/components/admin/AgentActivityRadar'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
+import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
 import type { AgentGovernanceSnapshot } from '@/components/admin/agents/AgentGovernancePanel'
 import { getCurrentSession } from '@/lib/auth'
 import type { AgentOrgBoardGoalMetric } from '@/lib/agent-swarm-board'
@@ -814,6 +815,17 @@ export default function AgentOperationsPage() {
   const operatingSignalCount = snapshot?.operating_signals.length ?? 0
   const dependencyBlockers = snapshot?.dependency_blockers ?? []
   const dependencyBlockerCount = dependencyBlockers.length
+  const missionWaitingOnYou = decisionQueueCount ? `Yes - ${decisionQueueCount} controller decision(s)` : 'No'
+  const missionNextAction = decisionQueueCount
+    ? 'Open the Decision Queue and clear the highest-risk controller packet.'
+    : failedOrStaleCount
+      ? 'Inspect failed or stale traces from Run Console before approving new work.'
+      : snapshot?.daily_brief.next_actions[0] ?? 'Review the daily brief and active Kanban lanes.'
+  const missionBlocker = failedOrStaleCount
+    ? `${failedOrStaleCount} failed or stale run(s) need recovery before this loop is fully healthy.`
+    : dependencyBlockerCount
+      ? `${dependencyBlockerCount} dependency blocker(s) need owner recovery.`
+      : null
   const moremiWarningCount = moremiReview?.warning_count ?? 0
   const qualityScore = snapshot?.quality_summary.average_score === null || snapshot?.quality_summary.average_score === undefined
     ? 'No score'
@@ -948,6 +960,20 @@ export default function AgentOperationsPage() {
                   Refresh
                 </button>
               </div>
+            </div>
+
+            <div className="px-5 pt-5 lg:hidden">
+              <MobileWorkflowSummary
+                title="Mission Control"
+                currentState={healthLabel}
+                owner="Shaka / Integration Captain"
+                nextAction={missionNextAction}
+                waitingOnYou={missionWaitingOnYou}
+                blocker={missionBlocker}
+                canonicalHref={decisionQueueCount ? '/admin/agents/coordination' : '/admin/agents/swarm-board'}
+                canonicalLabel={decisionQueueCount ? 'Open Decision Queue' : 'Open Kanban'}
+                tone={failedOrStaleCount ? 'red' : decisionQueueCount ? 'yellow' : 'green'}
+              />
             </div>
 
             <div className="grid gap-5 p-5 xl:grid-cols-[minmax(0,1fr)_340px]">

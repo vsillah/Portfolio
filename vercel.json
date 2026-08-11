@@ -13,8 +13,16 @@
       "schedule": "0 15 * * *"
     },
     {
+      "path": "/api/cron/agent-ops-morning-review",
+      "schedule": "30 12 * * 1-5"
+    },
+    {
       "path": "/api/cron/social-topic-backlog",
       "schedule": "0 16 * * 1-5"
+    },
+    {
+      "path": "/api/cron/social-content-calendar-due-gates",
+      "schedule": "30 * * * *"
     },
     {
       "path": "/api/cron/social-content-scheduled-publish",

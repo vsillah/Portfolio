@@ -599,6 +599,18 @@ describe('AgentCoordinationPage decision queue controller', () => {
     expect(within(linkedProposal).getByText('linked from Mission Control')).toBeInTheDocument()
   })
 
+  it('shows recovery state instead of substituting the first decision for a missing proposal link', async () => {
+    window.history.replaceState({}, '', '/admin/agents/coordination?proposal=missing-proposal-smoke')
+    render(<AgentCoordinationPage />)
+
+    const summary = await screen.findByLabelText('Missing proposal link mobile workflow summary')
+    expect(summary).toBeInTheDocument()
+    expect(within(summary).getByText('blocked')).toBeInTheDocument()
+    expect(within(summary).getByText(/Proposal missing-proposal-smoke is not visible/i)).toBeInTheDocument()
+    expect(within(summary).getByRole('link', { name: 'Open unfiltered Decision Queue' })).toHaveAttribute('href', '/admin/agents/coordination')
+    expect(within(summary).queryByText('chief-of-staff')).not.toBeInTheDocument()
+  })
+
   it('highlights the first n8n proposal that matches a linked goal', async () => {
     window.history.replaceState({}, '', '/admin/agents/coordination?goal=automation%3Ameeting-intake-follow-up-drafts')
     render(<AgentCoordinationPage />)

@@ -220,6 +220,13 @@ function platformConfigsFor(publishes: Array<Record<string, unknown>>) {
 
 function approvedGate(platforms: string[]) {
   return {
+    source_packet_path: 'docs/social-content/source-packet.md',
+    approval_boundary: 'human gated',
+    section_gate_reviews: {
+      visual_assets: { status: 'approved' },
+      asset_packet: { status: 'approved' },
+      privacy: { status: 'approved' },
+    },
     platform_submission_gate: {
       status: 'approved',
       approved_at: '2026-07-01T00:00:00.000Z',
@@ -259,7 +266,15 @@ describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => 
         image_url: 'https://cdn.example.com/image.png',
         video_url: null,
         carousel_slide_urls: null,
-        rag_context: null,
+        rag_context: {
+          source_packet_path: 'docs/social-content/source-packet.md',
+          approval_boundary: 'human gated',
+          section_gate_reviews: {
+            visual_assets: { status: 'approved' },
+            asset_packet: { status: 'approved' },
+            privacy: { status: 'approved' },
+          },
+        },
       },
       publishes: [
         { platform: 'linkedin', status: 'pending' },

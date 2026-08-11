@@ -20,6 +20,7 @@ import {
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import AgentAvatar from '@/components/admin/AgentAvatar'
+import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
 import { getCurrentSession } from '@/lib/auth'
 import {
   getAgenticContentReviewPacketByAssetId,
@@ -373,6 +374,15 @@ function StandupRoomContent() {
     }
     return session
   }, [participants, standupQuestions, transcript])
+  const standupBlockedCount = organization?.summary.blocked_work_items ?? 0
+  const standupNextAction = focusedGoal
+    ? `Run standup against ${focusedGoal.title} or open the Kanban focus.`
+    : selectedAgents.length
+      ? `Start selected standup with ${selectedAgents.length} participant(s).`
+      : 'Select at least one participant before starting standup.'
+  const standupBlocker = selectedAgents.length
+    ? standupBlockedCount ? `${standupBlockedCount} blocked Kanban item(s) are visible in the current organization snapshot.` : null
+    : 'No standup participant is selected.'
 
   function focusGoal(goalId: string | null) {
     setFocusedGoalId(goalId)
@@ -690,6 +700,20 @@ function StandupRoomContent() {
             </Link>
           </div>
         </header>
+
+        <div className="mt-5 lg:hidden">
+          <MobileWorkflowSummary
+            title={focusedGoal ? 'Goal standup session' : 'Standup Room'}
+            currentState={focusedGoal ? `${focusedGoal.open} open` : `${selectedAgents.length}/${participants.length} selected`}
+            owner="Shaka"
+            nextAction={standupNextAction}
+            waitingOnYou={selectedAgents.length ? 'No' : 'Yes - select participants'}
+            blocker={standupBlocker}
+            canonicalHref={focusedGoalId ? `/admin/agents/swarm-board?goal=${encodeURIComponent(focusedGoalId)}` : '/admin/agents/swarm-board'}
+            canonicalLabel="Open mobile Kanban focus"
+            tone={selectedAgents.length ? (standupBlockedCount ? 'yellow' : 'green') : 'red'}
+          />
+        </div>
 
         {loading ? (
           <div className="py-16 text-center text-muted-foreground">Loading Standup Room...</div>
