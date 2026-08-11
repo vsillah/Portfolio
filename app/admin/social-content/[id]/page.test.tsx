@@ -148,6 +148,49 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(document.getElementById('social-platform-submission-gate')).not.toBeNull()
   })
 
+  it('exposes all mobile approval steps and activates later steps through the canonical query', async () => {
+    mocks.search = 'returnTo=%2Fadmin%2Fsocial-content&step=copy'
+
+    const view = render(<SocialContentDetailRoute />)
+
+    const approvalRail = await screen.findByLabelText('Social content approval process')
+    expect(approvalRail).toHaveClass('grid', 'grid-cols-2', 'md:flex', 'md:overflow-x-auto')
+    const stepLabels = [
+      'Approval step 1: Context',
+      'Approval step 2: Copy',
+      'Approval step 3: Amina Visuals',
+      'Approval step 4: Draft',
+      'Approval step 5: Submit',
+      'Approval step 6: Status',
+    ]
+    for (const label of stepLabels) {
+      const control = within(approvalRail).getByRole('button', { name: label })
+      expect(control).toBeInTheDocument()
+      expect(control).toHaveClass('min-h-11')
+    }
+
+    fireEvent.click(within(approvalRail).getByRole('button', { name: 'Approval step 5: Submit' }))
+    expect(mocks.replace).toHaveBeenLastCalledWith(
+      '/admin/social-content/social-1?returnTo=%2Fadmin%2Fsocial-content&step=submit',
+      { scroll: false },
+    )
+
+    mocks.search = 'returnTo=%2Fadmin%2Fsocial-content&step=submit'
+    view.rerender(<SocialContentDetailRoute />)
+    expect(await screen.findByRole('heading', { name: 'Explicit submit gate' })).toBeInTheDocument()
+    expect(screen.getByText('Platform Submission Path')).toBeInTheDocument()
+
+    fireEvent.click(within(screen.getByLabelText('Social content approval process')).getByRole('button', { name: 'Approval step 6: Status' }))
+    expect(mocks.replace).toHaveBeenLastCalledWith(
+      '/admin/social-content/social-1?returnTo=%2Fadmin%2Fsocial-content&step=status',
+      { scroll: false },
+    )
+
+    mocks.search = 'returnTo=%2Fadmin%2Fsocial-content&step=status'
+    view.rerender(<SocialContentDetailRoute />)
+    expect(await screen.findByRole('heading', { name: 'Publication and signal status' })).toBeInTheDocument()
+  })
+
   it('shows a mobile recovery summary when detail hydration is blocked', async () => {
     mocks.search = 'returnTo=%2Fadmin%2Fsocial-content&step=submit'
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {

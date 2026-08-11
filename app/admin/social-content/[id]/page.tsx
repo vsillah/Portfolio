@@ -3270,15 +3270,16 @@ function SocialContentDetailPage() {
 	          </section>
 	        )}
 
-		        <div aria-label="Social content approval process" className="admin-console-card flex items-stretch gap-1 overflow-x-auto rounded-xl border p-1">
+		        <div aria-label="Social content approval process" className="admin-console-card grid grid-cols-2 gap-2 rounded-xl border p-2 md:flex md:items-stretch md:gap-1 md:overflow-x-auto md:p-1">
 		          {approvalStepTabs.map((tab, index) => {
 		            const isActive = activeApprovalStep === tab.step
 		            return (
-		              <div key={tab.step} className="flex shrink-0 items-stretch">
+		              <div key={tab.step} className="flex min-w-0 items-stretch md:shrink-0">
 		                <button
 		                  type="button"
+		                  aria-label={`Approval step ${index + 1}: ${tab.label}`}
 		                  onClick={() => setApprovalStep(tab.step)}
-		                  className={`flex w-[10rem] shrink-0 items-center gap-2 rounded-lg border px-2.5 py-2.5 text-left text-sm font-medium transition-all lg:w-[10.75rem] ${
+		                  className={`flex min-h-11 w-full min-w-0 items-start gap-2 rounded-lg border px-2.5 py-2.5 text-left text-sm font-medium transition-all md:w-[10rem] md:shrink-0 md:items-center lg:w-[10.75rem] ${
 		                    isActive
 		                      ? 'border-green-500/55 bg-green-600/25 text-green-100 shadow-inner shadow-green-950/30'
 		                      : 'border-gray-800/80 text-muted-foreground hover:border-gray-700 hover:bg-silicon-slate/50 hover:text-foreground'
@@ -3292,10 +3293,10 @@ function SocialContentDetailPage() {
 		                    {index + 1}
 		                  </span>
 		                  <span className="min-w-0 flex-1">
-		                    <span className="block truncate">{tab.label}</span>
-		                    <span className="mt-0.5 block truncate text-[11px] font-normal opacity-75">{tab.description}</span>
+		                    <span className="block leading-snug md:truncate">{tab.label}</span>
+		                    <span className="mt-0.5 block text-[11px] font-normal leading-snug opacity-75 md:truncate">{tab.description}</span>
 		                  </span>
-		                  <span className={`shrink-0 rounded-full border px-1.5 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[tab.state].className}`}>
+		                  <span className={`rounded-full border px-1.5 py-0.5 text-[10px] font-semibold md:shrink-0 ${GATE_STATE_CONFIG[tab.state].className}`}>
 		                    {GATE_STATE_CONFIG[tab.state].label}
 		                  </span>
 		                </button>
