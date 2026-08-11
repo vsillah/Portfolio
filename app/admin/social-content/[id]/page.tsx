@@ -3270,7 +3270,7 @@ function SocialContentDetailPage() {
 	          </section>
 	        )}
 
-		        <div aria-label="Social content approval process" className="admin-console-card grid grid-cols-2 gap-2 rounded-xl border p-2 md:flex md:items-stretch md:gap-1 md:overflow-x-auto md:p-1">
+		        <div aria-label="Social content approval process" className="admin-console-card grid grid-cols-1 gap-2 rounded-xl border p-2 md:flex md:items-stretch md:gap-1 md:overflow-x-auto md:p-1">
 		          {approvalStepTabs.map((tab, index) => {
 		            const isActive = activeApprovalStep === tab.step
 		            return (

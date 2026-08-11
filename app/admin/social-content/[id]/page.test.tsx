@@ -154,7 +154,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     const view = render(<SocialContentDetailRoute />)
 
     const approvalRail = await screen.findByLabelText('Social content approval process')
-    expect(approvalRail).toHaveClass('grid', 'grid-cols-2', 'md:flex', 'md:overflow-x-auto')
+    expect(approvalRail).toHaveClass('grid', 'grid-cols-1', 'md:flex', 'md:overflow-x-auto')
     const stepLabels = [
       'Approval step 1: Context',
       'Approval step 2: Copy',
