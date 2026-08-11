@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
   deriveSocialContentLifecycleProjection,
+  hasActualPublishedEvidence,
+  hasSubmissionOrPublishEvidence,
   isDurableCopyApprovedStatus,
   lifecyclePrerequisiteFailure,
 } from './social-content-lifecycle'
@@ -53,6 +55,24 @@ describe('social content lifecycle projection', () => {
     expect(isDurableCopyApprovedStatus('scheduled')).toBe(true)
     expect(isDurableCopyApprovedStatus('published')).toBe(true)
     expect(isDurableCopyApprovedStatus('draft')).toBe(false)
+  })
+
+  it('keeps scheduled evidence valid for draft and submit without approving final status', () => {
+    const scheduledItem = {
+      status: 'scheduled' as const,
+      target_platforms: ['linkedin'],
+      image_url: 'https://cdn.example.com/image.png',
+      rag_context: completeRagContext,
+      publishes: [{ status: 'pending' as const }],
+    }
+    const projection = deriveSocialContentLifecycleProjection({ item: scheduledItem })
+
+    expect(hasSubmissionOrPublishEvidence(scheduledItem)).toBe(true)
+    expect(hasActualPublishedEvidence(scheduledItem)).toBe(false)
+    expect(projection.steps.copy.state).toBe('approved')
+    expect(projection.steps.draft.state).toBe('approved')
+    expect(projection.steps.submit.state).toBe('approved')
+    expect(projection.steps.status.state).toBe('pending')
   })
 
   it('blocks downstream evidence when an upstream prerequisite is missing', () => {

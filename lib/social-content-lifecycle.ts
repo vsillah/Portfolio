@@ -65,8 +65,19 @@ export function isDurableCopyApprovedStatus(status: unknown): status is Extract<
   return status === 'approved' || status === 'scheduled' || status === 'published'
 }
 
-export function hasSuccessfulPublishEvidence(item: LifecycleItem) {
+export function hasSubmissionOrPublishEvidence(item: LifecycleItem) {
   if (item.status === 'scheduled' || item.status === 'published') return true
+  if (asString(item.platform_post_id) || asString(item.published_at)) return true
+  return (item.publishes ?? []).some((publish) => (
+    publish.status === 'published'
+    || Boolean(asString(publish.platform_post_id))
+    || Boolean(asString(publish.platform_post_url))
+    || Boolean(asString(publish.published_at))
+  ))
+}
+
+export function hasActualPublishedEvidence(item: LifecycleItem) {
+  if (item.status === 'published') return true
   if (asString(item.platform_post_id) || asString(item.published_at)) return true
   return (item.publishes ?? []).some((publish) => (
     publish.status === 'published'
@@ -121,7 +132,7 @@ export function hasSocialContentVisualPrerequisites(item: LifecycleItem) {
     gateApproved(ragContext, 'visual_assets')
     && gateApproved(ragContext, 'asset_packet')
     && gateApproved(ragContext, 'privacy')
-  ) || Boolean(hasSuccessfulPublishEvidence(item) && hasVisualAsset && (productionAssets || privacyReady))
+  ) || Boolean(hasSubmissionOrPublishEvidence(item) && hasVisualAsset && (productionAssets || privacyReady))
 }
 
 export function deriveSocialContentLifecycleProjection(input: {
@@ -130,14 +141,15 @@ export function deriveSocialContentLifecycleProjection(input: {
 }): SocialContentLifecycleProjection {
   const { item } = input
   const ragContext = asRecord(item.rag_context)
-  const successfulPublishEvidence = hasSuccessfulPublishEvidence(item)
+  const submissionOrPublishEvidence = hasSubmissionOrPublishEvidence(item)
+  const actualPublishedEvidence = hasActualPublishedEvidence(item)
   const rawStates: Record<SocialContentLifecycleStep, SocialContentLifecycleState> = {
     context: hasSocialContentContextEvidence(item) ? 'approved' : 'pending',
     copy: isDurableCopyApprovedStatus(item.status) ? 'approved' : item.status === 'rejected' ? 'rejected' : 'pending',
     visuals: hasSocialContentVisualPrerequisites(item) ? 'approved' : 'pending',
-    draft: asRecord(ragContext?.linkedin_draft_handoff) || (item.publishes?.length ?? 0) > 0 || successfulPublishEvidence ? 'approved' : 'pending',
-    submit: asString(asRecord(ragContext?.platform_submission_gate)?.status) === 'approved' || successfulPublishEvidence ? 'approved' : 'pending',
-    status: successfulPublishEvidence ? 'approved' : 'pending',
+    draft: asRecord(ragContext?.linkedin_draft_handoff) || (item.publishes?.length ?? 0) > 0 || submissionOrPublishEvidence ? 'approved' : 'pending',
+    submit: asString(asRecord(ragContext?.platform_submission_gate)?.status) === 'approved' || submissionOrPublishEvidence ? 'approved' : 'pending',
+    status: actualPublishedEvidence ? 'approved' : 'pending',
     ...input.rawStates,
   }
   const steps = {} as SocialContentLifecycleProjection['steps']

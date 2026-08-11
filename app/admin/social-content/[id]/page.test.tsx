@@ -191,7 +191,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(await screen.findByRole('heading', { name: 'Publication and signal status' })).toBeInTheDocument()
   })
 
-  it('projects scheduled and published queue status as copy approved instead of pending', async () => {
+  it('projects scheduled status as copy approved without approving final status', async () => {
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
       if (String(input).includes('/topic-backlog')) {
         return {
@@ -211,10 +211,12 @@ describe('SocialContentDetailRoute visual production review', () => {
       } as Response
     }))
 
-    renderAtStep('copy')
+    renderAtStep('status')
 
     expect(await screen.findByRole('button', { name: 'Copy: Approved' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Copy: Pending' })).not.toBeInTheDocument()
+    expect(within(screen.getByLabelText('Publication and signal status mobile workflow summary')).getByText('Pending')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Status: Approved' })).not.toBeInTheDocument()
   })
 
   it('blocks downstream lifecycle evidence instead of approving later steps when context is missing', async () => {

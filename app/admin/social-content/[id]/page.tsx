@@ -2176,8 +2176,16 @@ function SocialContentDetailPage() {
   const canCreateLinkedInDraft = isDraftOnlyPilot && linkedinDraftBlockers.length === 0 && linkedinDraftGateState === 'approved'
   const platformSubmissionTargets = isDraftOnlyPilot ? ['linkedin' as SocialPlatform] : targetPlatforms
   const finalPlatformSubmissionApproved = isPlatformSubmissionGateApproved(ragContext, platformSubmissionTargets)
-  const historicalPublishEvidence = item.status === 'scheduled'
+  const historicalSubmissionEvidence = item.status === 'scheduled'
     || item.status === 'published'
+    || Boolean(item.platform_post_id || item.published_at)
+    || Boolean(item.publishes?.some((publish) => (
+      publish.status === 'published'
+      || Boolean(publish.platform_post_id)
+      || Boolean(publish.platform_post_url)
+      || Boolean(publish.published_at)
+    )))
+  const actualPublishedEvidence = item.status === 'published'
     || Boolean(item.platform_post_id || item.published_at)
     || Boolean(item.publishes?.some((publish) => (
       publish.status === 'published'
@@ -2210,7 +2218,7 @@ function SocialContentDetailPage() {
         : 'pending'
   const visualWorkflowGateState: GateState = visualAssetsGateState === 'approved' && assetPacketGateState === 'approved' && privacyGateState === 'approved'
     ? 'approved'
-    : historicalPublishEvidence && visualAssetReady && assetPacketReady && visualPrivacyReady
+    : historicalSubmissionEvidence && visualAssetReady && assetPacketReady && visualPrivacyReady
       ? 'approved'
     : [visualAssetsGateState, assetPacketGateState, privacyGateState].some((state) => state === 'blocked' || state === 'rejected')
       ? 'blocked'
@@ -2218,12 +2226,12 @@ function SocialContentDetailPage() {
         ? 'in_review'
         : 'pending'
   const draftGateRawState: GateState = isDraftOnlyPilot
-    ? (historicalPublishEvidence ? 'approved' : linkedinDraftGateState)
-    : (historicalPublishEvidence ? 'approved' : gateStateFromRawStatus(agentPilotPublishGate))
-  const submitGateRawState: GateState = historicalPublishEvidence || finalPlatformSubmissionApproved
+    ? (historicalSubmissionEvidence ? 'approved' : linkedinDraftGateState)
+    : (historicalSubmissionEvidence ? 'approved' : gateStateFromRawStatus(agentPilotPublishGate))
+  const submitGateRawState: GateState = historicalSubmissionEvidence || finalPlatformSubmissionApproved
     ? 'approved'
     : platformSubmissionGateState
-  const statusGateRawState: GateState = historicalPublishEvidence ? 'approved' : 'pending'
+  const statusGateRawState: GateState = actualPublishedEvidence ? 'approved' : 'pending'
   const lifecycleProjection = deriveSocialContentLifecycleProjection({
     item,
     rawStates: {
