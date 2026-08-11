@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { Suspense, useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { getBackUrl } from '@/lib/admin-return-context'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -378,6 +378,41 @@ function formatSuccessExamplesForPrompt(examples: CalibrationSuccessExample[]): 
       example.why_it_worked.trim() ? `Why it worked: ${example.why_it_worked.trim()}` : '',
     ].filter(Boolean).join('\n'))
     .join('\n\n')
+}
+
+function SocialContentDetailLoadingState({ canonicalHref }: { canonicalHref?: string | null }) {
+  const currentHref = typeof window !== 'undefined'
+    ? `${window.location.pathname}${window.location.search}${window.location.hash}`
+    : null
+  const href = canonicalHref || currentHref || '/admin/social-content'
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="mx-auto w-full max-w-[90rem] space-y-4 px-4 py-6 sm:px-6 lg:px-8">
+        <MobileWorkflowSummary
+          title="Social content detail"
+          currentState="Loading"
+          owner="Social Content"
+          nextAction="Loading the selected draft and approval step from the canonical Social Content API."
+          waitingOnYou="No"
+          canonicalHref={href}
+          canonicalLabel="Loading selected approval step"
+          tone="blue"
+        />
+        <section className="rounded-xl border border-silicon-slate/70 bg-silicon-slate/15 p-4 sm:p-5" aria-label="Social content detail loading">
+          <div className="flex items-start gap-3">
+            <Loader2 className="mt-0.5 h-5 w-5 shrink-0 animate-spin text-radiant-gold" />
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-foreground">Loading selected workflow</p>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                The draft detail, review gates, and selected step are loading. The route and query are preserved.
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  )
 }
 
 function SocialContentDetailPage() {
@@ -1762,11 +1797,7 @@ function SocialContentDetailPage() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-6 h-6 text-gray-400 animate-spin" />
-      </div>
-    )
+    return <SocialContentDetailLoadingState canonicalHref={recoveryStepHref} />
   }
 
   if (!item) {
@@ -5146,7 +5177,9 @@ function SocialContentDetailPage() {
 export default function SocialContentDetailRoute() {
   return (
     <ProtectedRoute requireAdmin>
-      <SocialContentDetailPage />
+      <Suspense fallback={<SocialContentDetailLoadingState />}>
+        <SocialContentDetailPage />
+      </Suspense>
     </ProtectedRoute>
   )
 }

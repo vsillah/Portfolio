@@ -120,6 +120,21 @@ describe('SocialContentDetailRoute visual production review', () => {
     return render(<SocialContentDetailRoute />)
   }
 
+  it('shows a compact mobile loading state while the selected detail is hydrating', () => {
+    mocks.search = 'returnTo=%2Fadmin%2Fsocial-content&step=submit'
+    vi.stubGlobal('fetch', vi.fn(() => new Promise<Response>(() => {})))
+
+    render(<SocialContentDetailRoute />)
+
+    expect(screen.getByLabelText('Social content detail mobile workflow summary')).toBeInTheDocument()
+    expect(screen.getByText('Loading')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Loading selected approval step' })).toHaveAttribute(
+      'href',
+      '/admin/social-content/social-1?returnTo=%2Fadmin%2Fsocial-content&step=submit',
+    )
+    expect(screen.getByLabelText('Social content detail loading')).toBeInTheDocument()
+  })
+
   it('preserves the selected step in the mobile workflow summary deep link', async () => {
     mocks.search = 'returnTo=%2Fadmin%2Fsocial-content&step=submit'
 
@@ -158,8 +173,8 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     render(<SocialContentDetailRoute />)
 
-    expect(await screen.findByLabelText('Social content detail mobile workflow summary')).toBeInTheDocument()
-    expect(screen.getByText('Load blocked')).toBeInTheDocument()
+    expect(await screen.findByText('Load blocked')).toBeInTheDocument()
+    expect(screen.getByLabelText('Social content detail mobile workflow summary')).toBeInTheDocument()
     expect(screen.getAllByText('Content not found').length).toBeGreaterThan(0)
     expect(screen.getByRole('link', { name: 'Retry selected detail step' })).toHaveAttribute(
       'href',
