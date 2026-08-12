@@ -6,18 +6,55 @@ const OTHER_CONTENT_ID = '22222222-2222-4222-8222-222222222222'
 const VIDEO_ID = 'abc123DEF45'
 const CHANNEL_ID = 'UC-amadutown'
 
+const approvedRagContext = {
+  source_packet_path: 'docs/youtube/source-packet.md',
+  platform: 'youtube',
+  approval_boundary: 'final submission gated',
+  pass_to_human: true,
+  production_assets: {
+    video_redaction_manifest: { status: 'ready' },
+  },
+  section_gate_reviews: {
+    visual_assets: { status: 'approved' },
+    asset_packet: { status: 'approved' },
+    privacy: { status: 'approved' },
+  },
+  platform_submission_gate: {
+    status: 'approved',
+    approved_at: '2026-08-12T11:00:00.000Z',
+    approved_by: 'admin-user',
+    platforms: ['youtube'],
+  },
+}
+
 const contentRow = {
   id: CONTENT_ID,
   platform: 'youtube',
-  status: 'draft',
+  status: 'approved',
   post_text: 'Draft body',
+  image_url: 'https://cdn.example.com/thumb.jpg',
+  video_url: 'https://cdn.example.com/final-video.mp4',
+  carousel_slide_urls: [],
   youtube_title: 'Reviewed YouTube title',
   youtube_description: 'Reviewed YouTube description',
   target_platforms: ['youtube'],
   platform_post_id: null,
   published_at: null,
-  rag_context: { source: 'youtube_release_packet' },
+  rag_context: approvedRagContext,
   updated_at: '2026-08-12T10:00:00.000Z',
+}
+
+const draftPublishRow = {
+  id: '33333333-3333-4333-8333-333333333333',
+  content_id: CONTENT_ID,
+  platform: 'youtube',
+  status: 'pending',
+  platform_post_id: null,
+  platform_post_url: null,
+  error_message: null,
+  published_at: null,
+  created_at: '2026-08-12T10:10:00.000Z',
+  updated_at: '2026-08-12T10:10:00.000Z',
 }
 
 const configRow = {
@@ -75,7 +112,7 @@ function createDb(options: DbOptions = {}) {
       return {
         data: hasPlatformPostIdFilter
           ? (options.conflictPublish ?? null)
-          : (options.existingPublish ?? null),
+          : (options.existingPublish === undefined ? draftPublishRow : options.existingPublish),
         error: null,
       }
     }
@@ -190,10 +227,10 @@ describe('previewYouTubePublicationReconciliation', () => {
       videoId: VIDEO_ID,
       selectedContent: expect.objectContaining({
         id: CONTENT_ID,
-        status: 'draft',
+        status: 'approved',
         youtube_title: 'Reviewed YouTube title',
       }),
-      existingPublishState: null,
+      existingPublishState: expect.objectContaining({ id: draftPublishRow.id }),
       providerVideo: expect.objectContaining({
         id: VIDEO_ID,
         title: 'Published YouTube video',
@@ -226,6 +263,53 @@ describe('previewYouTubePublicationReconciliation', () => {
     expect(url.searchParams.has('mine')).toBe(false)
     expect(url.searchParams.has('channelId')).toBe(false)
     expect(url.searchParams.has('q')).toBe(false)
+    expect(mutations).toHaveLength(0)
+  })
+
+  it('blocks draft or missing-gate rows even when the external video exists', async () => {
+    const { db, mutations } = createDb({
+      content: {
+        ...contentRow,
+        status: 'draft',
+        rag_context: {
+          ...approvedRagContext,
+          platform_submission_gate: undefined,
+        },
+      },
+    })
+    const fetchImpl = createFetchMock(() => response(videoResponse))
+
+    const result = await previewYouTubePublicationReconciliation({
+      db,
+      contentId: CONTENT_ID,
+      videoId: VIDEO_ID,
+      fetchImpl: asFetch(fetchImpl),
+    })
+
+    expect(result).toMatchObject({
+      ok: false,
+      blockers: expect.arrayContaining([
+        expect.objectContaining({ code: 'lifecycle_prerequisite_blocked' }),
+        expect.objectContaining({ code: 'youtube_submission_gate_required' }),
+      ]),
+    })
+    expect(fetchImpl).not.toHaveBeenCalled()
+    expect(mutations).toHaveLength(0)
+  })
+
+  it('allows a fully approved YouTube row through to exact video verification', async () => {
+    const { db, mutations } = createDb()
+    const fetchImpl = createFetchMock(() => response(videoResponse))
+
+    const result = await previewYouTubePublicationReconciliation({
+      db,
+      contentId: CONTENT_ID,
+      videoId: VIDEO_ID,
+      fetchImpl: asFetch(fetchImpl),
+    })
+
+    expect(result.ok).toBe(true)
+    expect(fetchImpl).toHaveBeenCalledTimes(1)
     expect(mutations).toHaveLength(0)
   })
 
@@ -283,16 +367,11 @@ describe('previewYouTubePublicationReconciliation', () => {
   it('blocks when the selected content is already linked to a video', async () => {
     const { db, mutations } = createDb({
       existingPublish: {
-        id: '33333333-3333-4333-8333-333333333333',
-        content_id: CONTENT_ID,
-        platform: 'youtube',
+        ...draftPublishRow,
         status: 'published',
         platform_post_id: VIDEO_ID,
         platform_post_url: `https://www.youtube.com/watch?v=${VIDEO_ID}`,
-        error_message: null,
         published_at: '2026-08-12T12:00:00.000Z',
-        created_at: '2026-08-12T12:00:00.000Z',
-        updated_at: '2026-08-12T12:00:00.000Z',
       },
     })
     const fetchImpl = createFetchMock(() => response(videoResponse))
@@ -308,6 +387,31 @@ describe('previewYouTubePublicationReconciliation', () => {
       ok: false,
       blockers: [expect.objectContaining({ code: 'already_linked_video' })],
       existingPublishState: expect.objectContaining({ platform_post_id: VIDEO_ID }),
+    })
+    expect(fetchImpl).not.toHaveBeenCalled()
+    expect(mutations).toHaveLength(0)
+  })
+
+  it('treats an existing YouTube URL as linked even when platform_post_id is null', async () => {
+    const { db, mutations } = createDb({
+      existingPublish: {
+        ...draftPublishRow,
+        platform_post_id: null,
+        platform_post_url: `https://youtu.be/${VIDEO_ID}`,
+      },
+    })
+    const fetchImpl = createFetchMock(() => response(videoResponse))
+
+    const result = await previewYouTubePublicationReconciliation({
+      db,
+      contentId: CONTENT_ID,
+      videoId: VIDEO_ID,
+      fetchImpl: asFetch(fetchImpl),
+    })
+
+    expect(result).toMatchObject({
+      ok: false,
+      blockers: [expect.objectContaining({ code: 'already_linked_video' })],
     })
     expect(fetchImpl).not.toHaveBeenCalled()
     expect(mutations).toHaveLength(0)
@@ -346,6 +450,34 @@ describe('previewYouTubePublicationReconciliation', () => {
       })],
     })
     expect(fetchImpl).not.toHaveBeenCalled()
+    expect(mutations).toHaveLength(0)
+  })
+
+  it('blocks when channel identity is missing from config or provider metadata', async () => {
+    const { db, mutations } = createDb({
+      config: {
+        ...configRow,
+        settings: { channel_title: 'AmaduTown Automation Solutions' },
+      },
+    })
+    const fetchImpl = createFetchMock(() => response(videoResponse))
+
+    const result = await previewYouTubePublicationReconciliation({
+      db,
+      contentId: CONTENT_ID,
+      videoId: VIDEO_ID,
+      fetchImpl: asFetch(fetchImpl),
+    })
+
+    expect(result).toMatchObject({
+      ok: false,
+      channelMatch: {
+        configuredChannelId: null,
+        providerChannelId: CHANNEL_ID,
+        matches: null,
+      },
+      blockers: [expect.objectContaining({ code: 'channel_identity_unverified' })],
+    })
     expect(mutations).toHaveLength(0)
   })
 
@@ -469,7 +601,108 @@ describe('previewYouTubePublicationReconciliation', () => {
     expect(result).toMatchObject({
       ok: false,
       providerVideo: expect.objectContaining({ privacyStatus: 'private' }),
-      blockers: [expect.objectContaining({ code: 'private_video' })],
+      blockers: [expect.objectContaining({ code: 'video_not_public' })],
+    })
+    expect(mutations).toHaveLength(0)
+  })
+
+  it('blocks mismatched provider video ids before proposing published state', async () => {
+    const { db, mutations } = createDb()
+    const fetchImpl = createFetchMock(() => response({
+      items: [{
+        ...videoResponse.items[0],
+        id: 'ZZZ123DEF45',
+      }],
+    }))
+
+    const result = await previewYouTubePublicationReconciliation({
+      db,
+      contentId: CONTENT_ID,
+      videoId: VIDEO_ID,
+      fetchImpl: asFetch(fetchImpl),
+    })
+
+    expect(result).toMatchObject({
+      ok: false,
+      blockers: [expect.objectContaining({ code: 'provider_video_id_mismatch' })],
+    })
+    expect(mutations).toHaveLength(0)
+  })
+
+  it('blocks unprocessed videos before proposing published state', async () => {
+    const { db, mutations } = createDb()
+    const fetchImpl = createFetchMock(() => response({
+      items: [{
+        ...videoResponse.items[0],
+        status: {
+          ...videoResponse.items[0].status,
+          uploadStatus: 'processing',
+        },
+      }],
+    }))
+
+    const result = await previewYouTubePublicationReconciliation({
+      db,
+      contentId: CONTENT_ID,
+      videoId: VIDEO_ID,
+      fetchImpl: asFetch(fetchImpl),
+    })
+
+    expect(result).toMatchObject({
+      ok: false,
+      blockers: [expect.objectContaining({ code: 'video_not_processed' })],
+    })
+    expect(mutations).toHaveLength(0)
+  })
+
+  it('blocks unlisted or missing privacy before proposing published state', async () => {
+    const { db, mutations } = createDb()
+    const fetchImpl = createFetchMock(() => response({
+      items: [{
+        ...videoResponse.items[0],
+        status: {
+          ...videoResponse.items[0].status,
+          privacyStatus: 'unlisted',
+        },
+      }],
+    }))
+
+    const result = await previewYouTubePublicationReconciliation({
+      db,
+      contentId: CONTENT_ID,
+      videoId: VIDEO_ID,
+      fetchImpl: asFetch(fetchImpl),
+    })
+
+    expect(result).toMatchObject({
+      ok: false,
+      blockers: [expect.objectContaining({ code: 'video_not_public' })],
+    })
+    expect(mutations).toHaveLength(0)
+  })
+
+  it('blocks missing or invalid publishedAt before proposing published state', async () => {
+    const { db, mutations } = createDb()
+    const fetchImpl = createFetchMock(() => response({
+      items: [{
+        ...videoResponse.items[0],
+        snippet: {
+          ...videoResponse.items[0].snippet,
+          publishedAt: 'not-a-date',
+        },
+      }],
+    }))
+
+    const result = await previewYouTubePublicationReconciliation({
+      db,
+      contentId: CONTENT_ID,
+      videoId: VIDEO_ID,
+      fetchImpl: asFetch(fetchImpl),
+    })
+
+    expect(result).toMatchObject({
+      ok: false,
+      blockers: [expect.objectContaining({ code: 'published_at_unverified' })],
     })
     expect(mutations).toHaveLength(0)
   })

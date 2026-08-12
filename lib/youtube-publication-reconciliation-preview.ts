@@ -1,4 +1,9 @@
 import { extractYouTubeVideoId } from './youtube-comment-ingestion'
+import {
+  deriveSocialContentLifecycleProjection,
+  lifecyclePrerequisiteFailure,
+} from './social-content-lifecycle'
+import { getPlatformSubmissionGate } from './social-platform-orchestration'
 
 type SupabaseClientLike = {
   from: (table: string) => any
@@ -11,6 +16,9 @@ type SocialContentRow = {
   platform: string
   status: string
   post_text: string | null
+  image_url: string | null
+  video_url: string | null
+  carousel_slide_urls: string[] | null
   youtube_title: string | null
   youtube_description: string | null
   target_platforms: string[] | null
@@ -246,7 +254,7 @@ async function readYouTubeConfig(db: SupabaseClientLike): Promise<YouTubeConfigR
 async function readContent(db: SupabaseClientLike, contentId: string): Promise<SocialContentRow | null> {
   const result = await db
     .from('social_content_queue')
-    .select('id, platform, status, post_text, youtube_title, youtube_description, target_platforms, platform_post_id, published_at, rag_context, updated_at')
+    .select('id, platform, status, post_text, image_url, video_url, carousel_slide_urls, youtube_title, youtube_description, target_platforms, platform_post_id, published_at, rag_context, updated_at')
     .eq('id', contentId)
     .maybeSingle()
 
@@ -403,8 +411,41 @@ export async function previewYouTubePublicationReconciliation(
   const conflict = await readPublishConflict(input.db, contentId, videoId)
   const conflicts: YouTubePublicationReconciliationPreview['conflicts'] = []
   const blockers: YouTubePublicationPreviewBlocker[] = []
+  const lifecycle = deriveSocialContentLifecycleProjection({
+    item: {
+      status: content.status as never,
+      rag_context: content.rag_context,
+      target_platforms: content.target_platforms as never,
+      image_url: content.image_url,
+      video_url: content.video_url,
+      carousel_slide_urls: content.carousel_slide_urls,
+      platform_post_id: content.platform_post_id,
+      published_at: content.published_at,
+      publishes: existingPublish ? [existingPublish as never] : [],
+    },
+  })
+  const lifecycleFailure = lifecyclePrerequisiteFailure(lifecycle, 'submit')
+  const platformGate = getPlatformSubmissionGate(content.rag_context)
+  const youtubeGateApproved = platformGate?.status === 'approved'
+    && Boolean(platformGate.platforms?.includes('youtube'))
 
-  if (existingPublish?.platform_post_id) {
+  if (lifecycleFailure) {
+    blockers.push({
+      code: 'lifecycle_prerequisite_blocked',
+      message: lifecycleFailure.recovery_action,
+    })
+  }
+  if (!youtubeGateApproved) {
+    blockers.push({
+      code: 'youtube_submission_gate_required',
+      message: 'Approve the platform_submission_gate for YouTube before previewing canonical published reconciliation.',
+    })
+  }
+
+  if (
+    existingPublish?.platform_post_id
+    || extractYouTubeVideoId({ platformPostUrl: existingPublish?.platform_post_url })
+  ) {
     blockers.push({
       code: 'already_linked_video',
       message: 'Selected Social Content row already has a canonical YouTube provider video ID.',
@@ -513,7 +554,9 @@ export async function previewYouTubePublicationReconciliation(
     providerChannelId,
     matches: configuredChannelId && providerChannelId ? configuredChannelId === providerChannelId : null,
   }
-  if (providerVideo.privacyStatus === 'private') {
+  const parsedPublishedAt = providerVideo.publishedAt ? Date.parse(providerVideo.publishedAt) : Number.NaN
+
+  if (!configuredChannelId || !providerChannelId) {
     return blocked({
       contentId,
       videoId,
@@ -522,10 +565,70 @@ export async function previewYouTubePublicationReconciliation(
       providerVideo,
       channelMatch,
       blockers: [{
-        code: 'private_video',
-        message: 'The selected YouTube video is private and cannot be reconciled as a published Social Content row.',
+        code: 'channel_identity_unverified',
+        message: 'Configured YouTube channel ID and provider video channel ID must both be present before reconciliation can be proposed.',
       }],
-      recoveryAction: 'Confirm a public or otherwise approved published YouTube URL before requesting reconciliation.',
+      recoveryAction: 'Reconnect YouTube or confirm the provider returned channel identity before requesting reconciliation.',
+    })
+  }
+  if (providerVideo.id !== videoId) {
+    return blocked({
+      contentId,
+      videoId,
+      selectedContent: contentSnapshot,
+      existingPublishState: existingPublish,
+      providerVideo,
+      channelMatch,
+      blockers: [{
+        code: 'provider_video_id_mismatch',
+        message: 'YouTube videos.list returned a different video ID than the requested candidate.',
+      }],
+      recoveryAction: 'Confirm the exact YouTube video URL before requesting reconciliation.',
+    })
+  }
+  if (providerVideo.uploadStatus !== 'processed') {
+    return blocked({
+      contentId,
+      videoId,
+      selectedContent: contentSnapshot,
+      existingPublishState: existingPublish,
+      providerVideo,
+      channelMatch,
+      blockers: [{
+        code: 'video_not_processed',
+        message: 'The selected YouTube video is not fully processed.',
+      }],
+      recoveryAction: 'Wait for YouTube processing to complete before requesting reconciliation.',
+    })
+  }
+  if (providerVideo.privacyStatus !== 'public') {
+    return blocked({
+      contentId,
+      videoId,
+      selectedContent: contentSnapshot,
+      existingPublishState: existingPublish,
+      providerVideo,
+      channelMatch,
+      blockers: [{
+        code: 'video_not_public',
+        message: 'The selected YouTube video must be public before canonical published reconciliation can be proposed.',
+      }],
+      recoveryAction: 'Confirm a public YouTube URL before requesting reconciliation.',
+    })
+  }
+  if (!providerVideo.publishedAt || Number.isNaN(parsedPublishedAt)) {
+    return blocked({
+      contentId,
+      videoId,
+      selectedContent: contentSnapshot,
+      existingPublishState: existingPublish,
+      providerVideo,
+      channelMatch,
+      blockers: [{
+        code: 'published_at_unverified',
+        message: 'YouTube videos.list did not return a parseable publishedAt timestamp.',
+      }],
+      recoveryAction: 'Confirm the exact published YouTube URL and provider metadata before requesting reconciliation.',
     })
   }
   if (channelMatch.matches === false) {

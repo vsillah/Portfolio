@@ -28,9 +28,8 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json(result)
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'YouTube publication preview failed'
-    console.error('[youtube-publication-preview] failed:', error)
-    return NextResponse.json({ error: message }, { status: 500 })
+  } catch {
+    console.error('[youtube-publication-preview] failed')
+    return NextResponse.json({ error: 'YouTube publication preview failed' }, { status: 500 })
   }
 }

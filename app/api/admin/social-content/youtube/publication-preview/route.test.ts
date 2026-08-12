@@ -84,4 +84,20 @@ describe('POST /api/admin/social-content/youtube/publication-preview', () => {
       videoUrl: 'https://www.youtube.com/watch?v=abc123DEF45',
     })
   })
+
+  it('returns a sanitized generic error when preview construction throws', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    mocks.previewYouTubePublicationReconciliation.mockRejectedValue(new Error('database secret raw exception'))
+
+    const response = await POST(request({
+      content_id: '11111111-1111-4111-8111-111111111111',
+      youtube_video_id: 'abc123DEF45',
+    }) as never)
+
+    expect(response.status).toBe(500)
+    expect(await response.json()).toEqual({ error: 'YouTube publication preview failed' })
+    expect(consoleSpy).toHaveBeenCalledWith('[youtube-publication-preview] failed')
+    expect(JSON.stringify(consoleSpy.mock.calls)).not.toContain('database secret raw exception')
+    consoleSpy.mockRestore()
+  })
 })
