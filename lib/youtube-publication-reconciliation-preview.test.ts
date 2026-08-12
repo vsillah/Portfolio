@@ -95,6 +95,7 @@ type DbOptions = {
   content?: Record<string, unknown> | null
   existingPublish?: Record<string, unknown> | null
   conflictPublish?: Record<string, unknown> | null
+  urlConflictPublish?: Record<string, unknown> | null
   config?: Record<string, unknown> | null
 }
 
@@ -109,6 +110,15 @@ function createDb(options: DbOptions = {}) {
       const hasPlatformPostIdFilter = filters.some((filter) => (
         filter.table === table && filter.column === 'platform_post_id'
       ))
+      const hasPlatformPostUrlFilter = filters.some((filter) => (
+        filter.table === table && filter.column === 'platform_post_url'
+      ))
+      if (hasPlatformPostUrlFilter) {
+        return {
+          data: options.urlConflictPublish ? [options.urlConflictPublish] : [],
+          error: null,
+        }
+      }
       return {
         data: hasPlatformPostIdFilter
           ? (options.conflictPublish ?? null)
@@ -126,8 +136,13 @@ function createDb(options: DbOptions = {}) {
         filters.push({ table, column, value })
         return api
       }),
+      ilike: vi.fn((column: string, value: unknown) => {
+        filters.push({ table, column, value })
+        return api
+      }),
       limit: vi.fn(() => api),
       maybeSingle: vi.fn(() => Promise.resolve(result(table))),
+      then: (resolve: (value: unknown) => void) => resolve(result(table)),
       insert: vi.fn((payload: unknown) => {
         mutations.push({ table, operation: 'insert', payload })
         return api
@@ -292,6 +307,7 @@ describe('previewYouTubePublicationReconciliation', () => {
         expect.objectContaining({ code: 'lifecycle_prerequisite_blocked' }),
         expect.objectContaining({ code: 'youtube_submission_gate_required' }),
       ]),
+      recoveryAction: 'Recover the missing canonical approvals through Draft and approve the YouTube platform submission gate before requesting reconciliation preview.',
     })
     expect(fetchImpl).not.toHaveBeenCalled()
     expect(mutations).toHaveLength(0)
@@ -417,6 +433,56 @@ describe('previewYouTubePublicationReconciliation', () => {
     expect(mutations).toHaveLength(0)
   })
 
+  it('blocks queue-level YouTube provider evidence before provider calls', async () => {
+    const { db, mutations } = createDb({
+      content: {
+        ...contentRow,
+        platform_post_id: VIDEO_ID,
+      },
+    })
+    const fetchImpl = createFetchMock(() => response(videoResponse))
+
+    const result = await previewYouTubePublicationReconciliation({
+      db,
+      contentId: CONTENT_ID,
+      videoId: VIDEO_ID,
+      fetchImpl: asFetch(fetchImpl),
+    })
+
+    expect(result).toMatchObject({
+      ok: false,
+      blockers: [expect.objectContaining({ code: 'queue_level_publication_evidence' })],
+    })
+    expect(fetchImpl).not.toHaveBeenCalled()
+    expect(mutations).toHaveLength(0)
+  })
+
+  it('blocks ambiguous queue-level published evidence without a reconcilable publish row', async () => {
+    const { db, mutations } = createDb({
+      content: {
+        ...contentRow,
+        status: 'published',
+        published_at: '2026-08-12T12:00:00.000Z',
+      },
+      existingPublish: null,
+    })
+    const fetchImpl = createFetchMock(() => response(videoResponse))
+
+    const result = await previewYouTubePublicationReconciliation({
+      db,
+      contentId: CONTENT_ID,
+      videoId: VIDEO_ID,
+      fetchImpl: asFetch(fetchImpl),
+    })
+
+    expect(result).toMatchObject({
+      ok: false,
+      blockers: [expect.objectContaining({ code: 'ambiguous_queue_publication_evidence' })],
+    })
+    expect(fetchImpl).not.toHaveBeenCalled()
+    expect(mutations).toHaveLength(0)
+  })
+
   it('blocks conflicting existing publish rows for the same video id', async () => {
     const { db, mutations } = createDb({
       conflictPublish: {
@@ -449,6 +515,45 @@ describe('previewYouTubePublicationReconciliation', () => {
         contentId: OTHER_CONTENT_ID,
       })],
     })
+    expect(fetchImpl).not.toHaveBeenCalled()
+    expect(mutations).toHaveLength(0)
+  })
+
+  it('blocks conflicting existing publish rows whose URL resolves to the same video id', async () => {
+    const { db, filters, mutations } = createDb({
+      urlConflictPublish: {
+        id: '55555555-5555-4555-8555-555555555555',
+        content_id: OTHER_CONTENT_ID,
+        platform: 'youtube',
+        status: 'published',
+        platform_post_id: null,
+        platform_post_url: `https://www.youtube.com/watch?v=${VIDEO_ID}`,
+        error_message: null,
+        published_at: '2026-08-12T12:00:00.000Z',
+        created_at: '2026-08-12T12:00:00.000Z',
+        updated_at: '2026-08-12T12:00:00.000Z',
+      },
+    })
+    const fetchImpl = createFetchMock(() => response(videoResponse))
+
+    const result = await previewYouTubePublicationReconciliation({
+      db,
+      contentId: CONTENT_ID,
+      videoId: VIDEO_ID,
+      fetchImpl: asFetch(fetchImpl),
+    })
+
+    expect(result).toMatchObject({
+      ok: false,
+      blockers: [expect.objectContaining({ code: 'conflicting_existing_publish_row' })],
+      conflicts: [expect.objectContaining({
+        publishId: '55555555-5555-4555-8555-555555555555',
+        contentId: OTHER_CONTENT_ID,
+      })],
+    })
+    expect(filters).toEqual(expect.arrayContaining([
+      { table: 'social_content_publishes', column: 'platform_post_url', value: `%${VIDEO_ID}%` },
+    ]))
     expect(fetchImpl).not.toHaveBeenCalled()
     expect(mutations).toHaveLength(0)
   })

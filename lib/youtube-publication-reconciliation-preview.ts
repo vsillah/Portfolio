@@ -275,7 +275,7 @@ async function readExistingPublish(db: SupabaseClientLike, contentId: string): P
 }
 
 async function readPublishConflict(db: SupabaseClientLike, contentId: string, videoId: string): Promise<PublishRow | null> {
-  const result = await db
+  const idResult = await db
     .from('social_content_publishes')
     .select('id, content_id, platform, status, platform_post_id, platform_post_url, error_message, published_at, created_at, updated_at')
     .eq('platform', 'youtube')
@@ -283,8 +283,25 @@ async function readPublishConflict(db: SupabaseClientLike, contentId: string, vi
     .limit(1)
     .maybeSingle()
 
-  if (result.error) throw new Error(result.error.message)
-  const row = result.data as PublishRow | null
+  if (idResult.error) throw new Error(idResult.error.message)
+  const row = idResult.data as PublishRow | null
+  if (row && row.content_id !== contentId) return row
+
+  const urlResult = await db
+    .from('social_content_publishes')
+    .select('id, content_id, platform, status, platform_post_id, platform_post_url, error_message, published_at, created_at, updated_at')
+    .eq('platform', 'youtube')
+    .ilike('platform_post_url', `%${videoId}%`)
+    .limit(10)
+
+  if (urlResult.error) throw new Error(urlResult.error.message)
+  const urlRows = (urlResult.data ?? []) as PublishRow[]
+  const urlConflict = urlRows.find((candidate) => (
+    candidate.content_id !== contentId
+    && extractYouTubeVideoId({ platformPostUrl: candidate.platform_post_url }) === videoId
+  ))
+  if (urlConflict) return urlConflict
+
   return row && row.content_id !== contentId ? row : null
 }
 
@@ -451,6 +468,22 @@ export async function previewYouTubePublicationReconciliation(
       message: 'Selected Social Content row already has a canonical YouTube provider video ID.',
     })
   }
+  if (content.platform_post_id && extractYouTubeVideoId({ platformPostId: content.platform_post_id })) {
+    blockers.push({
+      code: 'queue_level_publication_evidence',
+      message: 'Selected Social Content row already carries queue-level YouTube provider video evidence.',
+    })
+  }
+  if (
+    (content.status === 'published' || content.published_at)
+    && !existingPublish?.platform_post_id
+    && !extractYouTubeVideoId({ platformPostUrl: existingPublish?.platform_post_url })
+  ) {
+    blockers.push({
+      code: 'ambiguous_queue_publication_evidence',
+      message: 'Selected Social Content row has queue-level published evidence without a reconcilable YouTube publish row.',
+    })
+  }
   if (conflict) {
     conflicts.push({
       code: 'conflicting_existing_publish_row',
@@ -464,6 +497,10 @@ export async function previewYouTubePublicationReconciliation(
     })
   }
   if (blockers.length) {
+    const hasLifecycleOrGateBlocker = blockers.some((blocker) => (
+      blocker.code === 'lifecycle_prerequisite_blocked'
+      || blocker.code === 'youtube_submission_gate_required'
+    ))
     return blocked({
       contentId,
       videoId,
@@ -471,7 +508,9 @@ export async function previewYouTubePublicationReconciliation(
       existingPublishState: existingPublish,
       blockers,
       conflicts,
-      recoveryAction: 'Review existing YouTube publish linkage before proposing a new mapping.',
+      recoveryAction: hasLifecycleOrGateBlocker
+        ? 'Recover the missing canonical approvals through Draft and approve the YouTube platform submission gate before requesting reconciliation preview.'
+        : 'Review existing YouTube publish linkage before proposing a new mapping.',
     })
   }
 
