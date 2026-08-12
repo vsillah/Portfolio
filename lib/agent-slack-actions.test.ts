@@ -340,8 +340,8 @@ describe('Agent Ops Slack actions', () => {
           metadata: {
             policy_decision: {
               classification: 'low_risk_acknowledgement',
-              humanQaRequired: false,
-              autoSend: { eligible: true, canSendNow: true },
+              human_qa_required: false,
+              auto_send: { eligible: true, can_send_now: true },
             },
           },
         },
@@ -364,6 +364,13 @@ describe('Agent Ops Slack actions', () => {
       approved_reply_text: 'Thanks for asking. The intake map is the best first step.',
       metadata: expect.objectContaining({
         reply_hold_until: expect.any(String),
+        ui_action_history: [
+          expect.objectContaining({
+            action: 'approve',
+            by: 'slack:U123',
+            note: 'Looks safe from mobile.',
+          }),
+        ],
         slack_reply_decision: expect.objectContaining({
           status: 'approved',
           decision_notes: 'Looks safe from mobile.',
@@ -394,8 +401,8 @@ describe('Agent Ops Slack actions', () => {
           metadata: {
             policy_decision: {
               classification: 'low_risk_acknowledgement',
-              humanQaRequired: false,
-              autoSend: { eligible: true, canSendNow: true },
+              human_qa_required: false,
+              auto_send: { eligible: true, can_send_now: true },
             },
           },
         },

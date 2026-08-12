@@ -489,8 +489,8 @@ describe('Agent Ops Slack notifications', () => {
             post_title: 'Agentified operating model',
             policy_decision: {
               classification: 'low_risk_acknowledgement',
-              humanQaRequired: false,
-              autoSend: { eligible: true, canSendNow: true },
+              human_qa_required: false,
+              auto_send: { eligible: true, can_send_now: true },
             },
           },
         },
@@ -510,7 +510,7 @@ describe('Agent Ops Slack notifications', () => {
     expect(blocks).toContain('LinkedIn')
     expect(blocks).toContain('needs_response')
     expect(blocks).toContain('draft')
-    expect(blocks).toContain('/admin/social-content/social-post-1?comment=comment-1')
+    expect(blocks).toContain('/admin/social-content/engagement-inbox?comment=comment-1&post=social-post-1')
     expect(blocks).toContain('social_comment_reply.approve')
     expect(blocks).toContain('social_comment_reply.reject')
     expect(blocks).toContain('15-minute hold')
@@ -539,8 +539,8 @@ describe('Agent Ops Slack notifications', () => {
             post_title: 'Instagram launch post',
             policy_decision: {
               classification: 'low_risk_acknowledgement',
-              humanQaRequired: false,
-              autoSend: { eligible: true, canSendNow: true },
+              human_qa_required: false,
+              auto_send: { eligible: true, can_send_now: true },
             },
           },
         },

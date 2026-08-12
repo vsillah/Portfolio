@@ -60,10 +60,10 @@ export type SocialCommentAttentionCronResult = {
 }
 
 const POLICY_LOW_RISK_CLASSIFICATIONS = new Set(['low_risk_acknowledgement'])
-const ATTENTION_CLASSIFICATION_STATUSES = new Set(['unreviewed', 'needs_response'])
+const ATTENTION_CLASSIFICATION_STATUSES = new Set(['unreviewed', 'needs_response', 'blocked'])
 const ATTENTION_REPLY_STATES = new Set(['draft', 'failed', 'blocked'])
-const RESOLVED_CLASSIFICATION_STATUSES = new Set(['answered', 'spam', 'blocked', 'ignored'])
-const RESOLVED_VISIBILITY_STATUSES = new Set(['hidden', 'deleted', 'blocked'])
+const RESOLVED_CLASSIFICATION_STATUSES = new Set(['answered', 'spam', 'ignored'])
+const RESOLVED_VISIBILITY_STATUSES = new Set(['hidden', 'deleted'])
 const HIGH_ATTENTION_CLASSIFICATIONS = new Set([
   'substantive_question',
   'buying_lead_intent',
@@ -101,12 +101,6 @@ function normalized(value: unknown) {
   return typeof value === 'string' ? value.trim().toLowerCase() : ''
 }
 
-function booleanSetting(value: unknown) {
-  if (value === true) return true
-  if (typeof value !== 'string') return false
-  return ['true', 'yes', 'enabled', 'supported', 'verified', 'ready'].includes(value.trim().toLowerCase())
-}
-
 function policyDecision(row: SocialCommentAttentionRow) {
   const metadata = record(row.metadata)
   return record(metadata?.policy_decision)
@@ -115,7 +109,8 @@ function policyDecision(row: SocialCommentAttentionRow) {
 }
 
 function autoSendDecision(row: SocialCommentAttentionRow) {
-  return record(policyDecision(row)?.autoSend)
+  const decision = policyDecision(row)
+  return record(decision?.auto_send) ?? record(decision?.autoSend)
 }
 
 function policyClassification(row: SocialCommentAttentionRow) {
@@ -127,7 +122,7 @@ function policyClassification(row: SocialCommentAttentionRow) {
 function isPolicyLowRisk(row: SocialCommentAttentionRow) {
   const decision = policyDecision(row)
   const classification = policyClassification(row)
-  const humanQaRequired = decision?.humanQaRequired === true
+  const humanQaRequired = decision?.human_qa_required === true || decision?.humanQaRequired === true
   const autoSend = autoSendDecision(row)
   return Boolean(
     classification
@@ -139,19 +134,18 @@ function isPolicyLowRisk(row: SocialCommentAttentionRow) {
 
 function providerReplySupported(row: SocialCommentAttentionRow) {
   const capability = record(row.provider_capability)
-  return capability?.supports_reply_submission === true || booleanSetting(record(row.metadata)?.provider_reply_supported)
+  return capability?.supports_reply_submission === true
 }
 
 function providerExternalSubmissionEnabled(row: SocialCommentAttentionRow) {
   const capability = record(row.provider_capability)
-  return capability?.external_submission_enabled === true || booleanSetting(record(row.metadata)?.external_submission_enabled)
+  return capability?.external_submission_enabled === true
 }
 
 export function socialCommentDeepLink(row: Pick<SocialCommentAttentionRow, 'id' | 'content_id'>) {
-  const base = row.content_id
-    ? `/admin/social-content/${row.content_id}`
-    : '/admin/social-content/comments'
-  return `${base}?comment=${encodeURIComponent(row.id)}`
+  const params = new URLSearchParams({ comment: row.id })
+  if (row.content_id) params.set('post', row.content_id)
+  return `/admin/social-content/engagement-inbox?${params.toString()}`
 }
 
 export function socialCommentPostTitle(row: SocialCommentAttentionRow) {
@@ -211,6 +205,15 @@ export function evaluateCommentReplyHold(row: SocialCommentAttentionRow, now = n
       externalSubmissionAllowed: false,
     }
   }
+  if (!holdUntil) {
+    return {
+      state: 'not_ready',
+      reason: 'No 15-minute hold marker is recorded for this approved reply.',
+      holdUntil: null,
+      remainingMs: 0,
+      externalSubmissionAllowed: false,
+    }
+  }
   if (!replyText(row)) {
     return {
       state: 'blocked',
@@ -262,7 +265,7 @@ export async function listSocialCommentAttentionRows(limit = 10): Promise<Social
   const { data, error } = await supabaseAdmin
     .from('social_content_comments')
     .select('id, publish_id, content_id, platform, provider, provider_comment_id, comment_url, author_display_name, body, classification_status, classification_reason, sentiment, priority, status, response_approval_state, reply_submission_state, proposed_reply_text, approved_reply_text, provider_capability, captured_at, updated_at, metadata')
-    .in('classification_status', ['unreviewed', 'needs_response'])
+    .in('classification_status', ['unreviewed', 'needs_response', 'blocked'])
     .order('captured_at', { ascending: false })
     .limit(limit)
 
@@ -396,15 +399,16 @@ export async function decideSocialCommentReplyFromSlack(input: {
   const metadata = record(row.metadata) ?? {}
   const decidedAt = new Date().toISOString()
   const holdUntil = input.status === 'approved' ? commentReplyHoldUntil(new Date(decidedAt)) : null
+  const reply = replyText(row)
   const update = input.status === 'approved'
     ? {
         response_approval_state: 'approved',
         reply_submission_state: 'approved',
-        approved_reply_text: row.approved_reply_text || row.proposed_reply_text || null,
+        approved_reply_text: reply || null,
       }
     : {
         response_approval_state: 'rejected',
-        reply_submission_state: 'blocked',
+        reply_submission_state: reply ? 'draft' : 'not_applicable',
       }
 
   const { error: updateError } = await supabaseAdmin
@@ -414,6 +418,15 @@ export async function decideSocialCommentReplyFromSlack(input: {
       metadata: {
         ...metadata,
         reply_hold_until: holdUntil,
+        ui_action_history: [
+          {
+            action: input.status === 'approved' ? 'approve' : 'reject',
+            at: decidedAt,
+            by: `slack:${input.slackUserId}`,
+            note: input.decisionNotes,
+          },
+          ...(Array.isArray(metadata.ui_action_history) ? metadata.ui_action_history : []),
+        ].slice(0, 25),
         slack_reply_decision: {
           status: input.status,
           decision_notes: input.decisionNotes,

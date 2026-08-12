@@ -8,6 +8,7 @@ import {
   commentReplyHoldUntil,
   evaluateCommentReplyHold,
   needsCommentAttention,
+  socialCommentDeepLink,
   type SocialCommentAttentionRow,
 } from '@/lib/social-comment-attention'
 
@@ -30,8 +31,8 @@ function row(overrides: Partial<SocialCommentAttentionRow> = {}): SocialCommentA
     metadata: {
       policy_decision: {
         classification: 'low_risk_acknowledgement',
-        humanQaRequired: false,
-        autoSend: { eligible: true, canSendNow: true },
+        human_qa_required: false,
+        auto_send: { eligible: true, can_send_now: true },
       },
     },
     ...overrides,
@@ -44,6 +45,26 @@ describe('Social comment attention plumbing', () => {
     expect(needsCommentAttention(row({ classification_status: 'answered', priority: 'high' }))).toBe(false)
   })
 
+  it('keeps canonical blocked/manual comment states in the attention queue', () => {
+    expect(needsCommentAttention(row({
+      classification_status: 'blocked',
+      priority: 'normal',
+      metadata: {
+        policy_decision: {
+          classification: 'provider_manual_ambiguity',
+          human_qa_required: true,
+          auto_send: { eligible: false },
+        },
+      },
+    }))).toBe(true)
+  })
+
+  it('links Slack review actions to the Engagement Inbox route', () => {
+    expect(socialCommentDeepLink(row())).toBe(
+      '/admin/social-content/engagement-inbox?comment=comment-1&post=social-post-1',
+    )
+  })
+
   it('allows Slack decisions only for prepared low-risk verified provider replies', () => {
     expect(canSlackDecideCommentReply(row())).toBe(true)
     expect(canSlackDecideCommentReply(row({ proposed_reply_text: null }))).toBe(false)
@@ -51,8 +72,8 @@ describe('Social comment attention plumbing', () => {
       metadata: {
         policy_decision: {
           classification: 'buying_lead_intent',
-          humanQaRequired: true,
-          autoSend: { eligible: false },
+          human_qa_required: true,
+          auto_send: { eligible: false },
         },
       },
     }))).toBe(false)
@@ -73,8 +94,8 @@ describe('Social comment attention plumbing', () => {
       metadata: {
         policy_decision: {
           classification: 'low_risk_acknowledgement',
-          humanQaRequired: false,
-          autoSend: { eligible: true, canSendNow: true },
+          human_qa_required: false,
+          auto_send: { eligible: true, can_send_now: true },
         },
         reply_hold_until: holdUntil,
       },
@@ -95,8 +116,8 @@ describe('Social comment attention plumbing', () => {
       metadata: {
         policy_decision: {
           classification: 'low_risk_acknowledgement',
-          humanQaRequired: false,
-          autoSend: { eligible: true, canSendNow: true },
+          human_qa_required: false,
+          auto_send: { eligible: true, can_send_now: true },
         },
         reply_hold_until: '2026-08-06T14:15:00.000Z',
       },
@@ -120,8 +141,8 @@ describe('Social comment attention plumbing', () => {
       metadata: {
         policy_decision: {
           classification: 'low_risk_acknowledgement',
-          humanQaRequired: false,
-          autoSend: { eligible: true, canSendNow: true },
+          human_qa_required: false,
+          auto_send: { eligible: true, can_send_now: true },
         },
         reply_hold_until: '2026-08-06T14:15:00.000Z',
       },
@@ -129,6 +150,26 @@ describe('Social comment attention plumbing', () => {
 
     expect(evaluation).toMatchObject({
       state: 'manual_required',
+      externalSubmissionAllowed: false,
+    })
+  })
+
+  it('does not evaluate approved replies that were not placed into the Slack hold queue', () => {
+    const evaluation = evaluateCommentReplyHold(row({
+      response_approval_state: 'approved',
+      reply_submission_state: 'approved',
+      metadata: {
+        policy_decision: {
+          classification: 'low_risk_acknowledgement',
+          human_qa_required: false,
+          auto_send: { eligible: true, can_send_now: true },
+        },
+      },
+    }), new Date('2026-08-06T14:16:00.000Z'))
+
+    expect(evaluation).toMatchObject({
+      state: 'not_ready',
+      reason: 'No 15-minute hold marker is recorded for this approved reply.',
       externalSubmissionAllowed: false,
     })
   })
