@@ -46,6 +46,20 @@ const comment = {
 
 describe('SocialCommentInboxPage', () => {
   beforeEach(() => {
+    vi.clearAllMocks()
+    window.history.replaceState({}, '', '/admin/social-content/engagement-inbox')
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
+      callback(0)
+      return 0
+    })
+    Object.defineProperty(window.HTMLElement.prototype, 'scrollIntoView', {
+      configurable: true,
+      value: vi.fn(),
+    })
+    Object.defineProperty(window.HTMLElement.prototype, 'focus', {
+      configurable: true,
+      value: vi.fn(),
+    })
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input)
       if (init?.method === 'POST') {
@@ -73,6 +87,7 @@ describe('SocialCommentInboxPage', () => {
 
   afterEach(() => {
     vi.unstubAllGlobals()
+    vi.restoreAllMocks()
   })
 
   it('renders filters, blocked/manual provider state, and distinct actions', async () => {
@@ -104,6 +119,64 @@ describe('SocialCommentInboxPage', () => {
 
     expect(await screen.findByText('No comments match these filters')).toBeInTheDocument()
     expect(screen.getByText(/Unsupported providers will appear here once their comments are imported/i)).toBeInTheDocument()
+  })
+
+  it('hydrates the initial post filter from the deep-link query', async () => {
+    window.history.replaceState({}, '', '/admin/social-content/engagement-inbox?comment=comment-1&post=social-1')
+
+    render(<SocialCommentInboxPage />)
+
+    expect(await screen.findByText('Potential Client')).toBeInTheDocument()
+    expect(screen.getByLabelText(/Post/i)).toHaveValue('social-1')
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith(
+        expect.stringContaining('post=social-1'),
+        expect.any(Object),
+      )
+    })
+    expect(window.location.search).toContain('comment=comment-1')
+    expect(window.location.search).toContain('post=social-1')
+  })
+
+  it('focuses and highlights the linked comment after comments load', async () => {
+    window.history.replaceState({}, '', '/admin/social-content/engagement-inbox?comment=comment-1&post=social-1')
+
+    render(<SocialCommentInboxPage />)
+
+    const focusedCard = await screen.findByLabelText('Focused comment from Potential Client')
+    expect(focusedCard).toHaveClass('ring-2')
+    await waitFor(() => {
+      expect(window.HTMLElement.prototype.scrollIntoView).toHaveBeenCalled()
+      expect(window.HTMLElement.prototype.focus).toHaveBeenCalledWith({ preventScroll: true })
+    })
+  })
+
+  it('shows recovery when the linked comment is absent or filtered out', async () => {
+    window.history.replaceState({}, '', '/admin/social-content/engagement-inbox?comment=missing-comment&post=social-1')
+
+    render(<SocialCommentInboxPage />)
+
+    expect(await screen.findByText('Linked comment not visible')).toBeInTheDocument()
+    expect(screen.getByText(/missing-comment/i)).toBeInTheDocument()
+    expect(screen.getByText(/absent from this environment or filtered out/i)).toBeInTheDocument()
+  })
+
+  it('clears hydrated filters and comment focus from the query state', async () => {
+    window.history.replaceState({}, '', '/admin/social-content/engagement-inbox?comment=missing-comment&post=social-1&status=lead')
+
+    render(<SocialCommentInboxPage />)
+
+    expect(await screen.findByText('Linked comment not visible')).toBeInTheDocument()
+    expect(screen.getByLabelText(/Post/i)).toHaveValue('social-1')
+
+    fireEvent.click(screen.getByRole('button', { name: /^Clear Filters$/i }))
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Post/i)).toHaveValue('')
+      expect(window.location.search).not.toContain('comment=')
+      expect(window.location.search).not.toContain('post=')
+      expect(window.location.search).not.toContain('status=')
+    })
   })
 
   it('renders an explicit unavailable state when the canonical table is missing', async () => {
