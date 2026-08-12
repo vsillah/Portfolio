@@ -11,6 +11,7 @@ import {
 import { routeAgentInboxItem } from '@/lib/agent-inbox-routing'
 import { supabaseAdmin } from '@/lib/supabase'
 import { decodeSlackActionValue, type SlackAgentActionValue } from '@/lib/agent-slack-blocks'
+import { decideSocialCommentReplyFromSlack } from '@/lib/social-comment-attention'
 
 export type SlackInteractivePayload = {
   type?: string
@@ -117,7 +118,7 @@ function idempotencyKey(payload: SlackInteractivePayload, value: SlackAgentActio
     payload.user?.id ?? 'unknown-user',
     payload.container?.message_ts ?? payload.message?.ts ?? payload.action_ts ?? 'unknown-ts',
     value.action,
-    value.approvalId ?? value.workItemId ?? value.runId ?? value.contentId ?? 'unknown-target',
+    value.approvalId ?? value.workItemId ?? value.runId ?? value.commentId ?? value.contentId ?? 'unknown-target',
   ].join(':')
 }
 
@@ -450,6 +451,20 @@ export async function handleSlackAgentAction(payload: SlackInteractivePayload): 
       contextRef,
     })
     return { responseType: 'ephemeral', text: `${result.reply}\n\nTrace: ${agentRunsUrl(result.runId)}` }
+  }
+
+  if (value.action === 'social_comment_reply.approve' || value.action === 'social_comment_reply.reject') {
+    if (!value.commentId) return { responseType: 'ephemeral', text: 'Missing comment id.' }
+    const status = value.action === 'social_comment_reply.approve' ? 'approved' : 'rejected'
+    const text = await decideSocialCommentReplyFromSlack({
+      commentId: value.commentId,
+      status,
+      actorLabel: authorization.actorLabel,
+      slackUserId: authorization.userId,
+      decisionNotes: value.note || (status === 'approved' ? 'Approved from Slack.' : 'Rejected from Slack.'),
+      idempotencyKey: key,
+    })
+    return { responseType: 'ephemeral', text }
   }
 
   if (value.action === 'insight.ask_shaka') {
