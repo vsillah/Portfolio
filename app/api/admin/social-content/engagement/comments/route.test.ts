@@ -118,4 +118,30 @@ describe('GET /api/admin/social-content/engagement/comments', () => {
     expect(body.summary.total).toBe(1)
     expect(body.filteredSummary.total).toBe(0)
   })
+
+  it('returns a blocked unavailable state when canonical storage is not migrated', async () => {
+    const commentsLimit = vi.fn().mockResolvedValue({
+      data: null,
+      error: {
+        code: '42P01',
+        message: 'relation "public.social_content_comments" does not exist',
+      },
+    })
+    const commentsOrder = vi.fn().mockReturnValue({ limit: commentsLimit })
+    const commentsSelect = vi.fn().mockReturnValue({ order: commentsOrder })
+    mocks.from.mockReturnValue({ select: commentsSelect })
+
+    const response = await GET(request() as never)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({
+      unavailable: true,
+      blocked: true,
+      items: [],
+      message: 'Comment inbox storage is not available in this environment.',
+    })
+    expect(body.recovery).toContain('migration 20260806163011')
+    expect(body.integration_note).toContain('No provider ingestion or external comment replies')
+  })
 })

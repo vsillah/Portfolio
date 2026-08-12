@@ -40,6 +40,8 @@ const COMMENT_SELECT = [
 ].join(', ')
 
 const POST_SELECT = 'id, platform, post_text, cta_text, youtube_title, rag_context'
+const COMMENT_INBOX_UNAVAILABLE_MESSAGE = 'Comment inbox storage is not available in this environment.'
+const COMMENT_INBOX_UNAVAILABLE_RECOVERY = 'Apply migration 20260806163011 to the bound Supabase project before validating populated comment inbox rows. Do not submit external replies from this UI lane.'
 
 const ACTIONS = new Set<SocialCommentAction>([
   'refresh_request',
@@ -79,6 +81,31 @@ function appendActionHistory(
     ...current,
     ui_action_history: [event, ...history].slice(0, 25),
   }
+}
+
+function isCommentInboxStorageUnavailable(error: unknown) {
+  const record = error && typeof error === 'object' ? error as Record<string, unknown> : {}
+  const code = typeof record.code === 'string' ? record.code : ''
+  const text = [record.message, record.details, record.hint]
+    .filter((value): value is string => typeof value === 'string')
+    .join(' ')
+    .toLowerCase()
+
+  return code === '42P01'
+    || code === 'PGRST205'
+    || text.includes('social_content_comments')
+    || text.includes('relation') && text.includes('does not exist')
+}
+
+function unavailableResponse(status = 200) {
+  return NextResponse.json({
+    unavailable: true,
+    blocked: true,
+    comments: [],
+    message: COMMENT_INBOX_UNAVAILABLE_MESSAGE,
+    recovery: COMMENT_INBOX_UNAVAILABLE_RECOVERY,
+    integration_note: 'The canonical comment inbox table is missing from the bound database. No provider ingestion or external comment replies were attempted.',
+  }, { status })
 }
 
 async function fetchPost(id: string) {
@@ -142,6 +169,10 @@ export async function GET(
 
   const { comments, error } = await fetchComments(params.id, post)
   if (error) {
+    if (isCommentInboxStorageUnavailable(error)) {
+      return unavailableResponse()
+    }
+
     console.error('Error fetching social content comments:', error)
     return NextResponse.json({ error: 'Failed to fetch social content comments' }, { status: 500 })
   }
@@ -181,7 +212,11 @@ export async function POST(
   }
 
   if (action === 'refresh_request') {
-    const { comments } = await fetchComments(params.id, post)
+    const { comments, error } = await fetchComments(params.id, post)
+    if (error && isCommentInboxStorageUnavailable(error)) {
+      return unavailableResponse()
+    }
+
     return NextResponse.json({
       ok: true,
       blocked: false,
@@ -197,6 +232,10 @@ export async function POST(
   }
 
   const { comment, error: commentError } = await fetchComment(params.id, commentId)
+  if (commentError && isCommentInboxStorageUnavailable(commentError)) {
+    return unavailableResponse(409)
+  }
+
   if (commentError || !comment) {
     return NextResponse.json({ error: 'Comment not found in the canonical inbox table' }, { status: 404 })
   }
@@ -299,10 +338,17 @@ export async function POST(
     .single()
 
   if (updateError) {
+    if (isCommentInboxStorageUnavailable(updateError)) {
+      return unavailableResponse(409)
+    }
+
     return NextResponse.json({ error: 'Failed to record comment inbox action' }, { status: 500 })
   }
 
-  const { comments } = await fetchComments(params.id, post)
+  const { comments, error } = await fetchComments(params.id, post)
+  if (error && isCommentInboxStorageUnavailable(error)) {
+    return unavailableResponse(409)
+  }
 
   return NextResponse.json({
     ok,

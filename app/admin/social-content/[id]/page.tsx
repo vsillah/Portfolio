@@ -104,6 +104,10 @@ type GateState = 'approved' | 'in_review' | 'pending' | 'blocked' | 'rejected'
 type SectionGateKey = 'visual_assets' | 'asset_packet' | 'privacy' | 'linkedin_draft'
 type SectionGateDecision = 'approved' | 'rejected'
 type ApprovalStep = 'context' | 'copy' | 'visuals' | 'draft' | 'submit' | 'status'
+type CommentInboxUnavailableState = {
+  message: string
+  recovery: string
+}
 
 const APPROVAL_STEPS: ApprovalStep[] = ['context', 'copy', 'visuals', 'draft', 'submit', 'status']
 
@@ -471,6 +475,7 @@ function SocialContentDetailPage() {
   const [calibrationFeedback, setCalibrationFeedback] = useState<CalibrationFeedback>(EMPTY_CALIBRATION_FEEDBACK)
   const [commentInboxItems, setCommentInboxItems] = useState<SocialCommentInboxItem[]>([])
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({})
+  const [commentInboxUnavailable, setCommentInboxUnavailable] = useState<CommentInboxUnavailableState | null>(null)
 
   const [postText, setPostText] = useState('')
   const [ctaText, setCtaText] = useState('')
@@ -599,6 +604,7 @@ function SocialContentDetailPage() {
   }, [])
 
   const fetchCommentInboxItems = useCallback(async () => {
+    setCommentInboxUnavailable(null)
     try {
       const session = await getCurrentSession()
       if (!session) return
@@ -607,6 +613,15 @@ function SocialContentDetailPage() {
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
       const data = await res.json().catch(() => ({}))
+      if (data.unavailable) {
+        setCommentInboxUnavailable({
+          message: asString(data.message) || 'Comment inbox storage is unavailable.',
+          recovery: asString(data.recovery) || 'Apply the comment inbox migration to the bound database before validating populated rows.',
+        })
+        setCommentInboxItems([])
+        setCommentDrafts({})
+        return
+      }
       if (!res.ok) {
         console.error('Failed to fetch social comment inbox:', data.error || res.status)
         setCommentInboxItems([])
@@ -1596,6 +1611,12 @@ function SocialContentDetailPage() {
       if (Array.isArray(data.comments)) {
         setCommentInboxItems(data.comments)
         setCommentDrafts(Object.fromEntries(data.comments.map((item: SocialCommentInboxItem) => [item.id, item.draftReply])))
+      }
+      if (data.unavailable) {
+        setCommentInboxUnavailable({
+          message: asString(data.message) || 'Comment inbox storage is unavailable.',
+          recovery: asString(data.recovery) || 'Apply the comment inbox migration to the bound database before validating populated rows.',
+        })
       }
       showMsg(res.ok ? 'success' : 'error', data.message || (res.ok ? 'Comment action recorded' : 'Comment action blocked'))
       if (res.ok) {
@@ -5176,7 +5197,26 @@ function SocialContentDetailPage() {
             </div>
           </div>
 
-          {commentInboxItems.length === 0 ? (
+          {commentInboxUnavailable ? (
+            <div className="mt-4 rounded-lg border border-amber-500/35 bg-amber-500/10 p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+                <ShieldAlert className="h-5 w-5 shrink-0 text-amber-200" />
+                <div className="min-w-0">
+                  <h3 className="text-sm font-semibold text-amber-100">Comment inbox unavailable</h3>
+                  <p className="mt-2 text-sm leading-6 text-amber-50">{commentInboxUnavailable.message}</p>
+                  <p className="mt-2 break-words text-xs leading-5 text-amber-100/85">{commentInboxUnavailable.recovery}</p>
+                  <button
+                    type="button"
+                    onClick={() => void fetchCommentInboxItems()}
+                    className="mt-3 inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/15 px-3 py-2 text-xs font-semibold text-amber-100 hover:bg-amber-500/20"
+                  >
+                    <RefreshCw className="h-3.5 w-3.5" />
+                    Retry Check
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : commentInboxItems.length === 0 ? (
             <div className="mt-4 rounded-lg border border-dashed border-gray-700 bg-gray-950/45 p-4 text-sm leading-6 text-gray-400">
               No comment projection is attached to this post yet. Request a refresh or import provider comments through the ingestion lane; unsupported providers should be imported as blocked/manual rows rather than hidden.
             </div>

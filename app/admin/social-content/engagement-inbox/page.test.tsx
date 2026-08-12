@@ -106,6 +106,29 @@ describe('SocialCommentInboxPage', () => {
     expect(screen.getByText(/Unsupported providers will appear here once their comments are imported/i)).toBeInTheDocument()
   })
 
+  it('renders an explicit unavailable state when the canonical table is missing', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        unavailable: true,
+        blocked: true,
+        items: [],
+        summary: { total: 0, new: 0, needs_qa: 0, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 },
+        filteredSummary: { total: 0, new: 0, needs_qa: 0, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 },
+        message: 'Comment inbox storage is not available in this environment.',
+        recovery: 'Apply migration 20260806163011 to the bound Supabase project before validating populated comment inbox rows.',
+      }),
+    } as Response)))
+
+    render(<SocialCommentInboxPage />)
+
+    expect(await screen.findByRole('heading', { name: 'Comment inbox unavailable' })).toBeInTheDocument()
+    expect(screen.getByText('Comment inbox storage is not available in this environment.')).toBeInTheDocument()
+    expect(screen.getByText(/migration 20260806163011/i)).toBeInTheDocument()
+    expect(screen.queryByText('Failed to load comment inbox')).not.toBeInTheDocument()
+  })
+
   it('records approve actions without submitting externally', async () => {
     render(<SocialCommentInboxPage />)
 

@@ -33,6 +33,11 @@ type FilterState = {
   post: string
 }
 
+type InboxUnavailableState = {
+  message: string
+  recovery: string
+}
+
 const EMPTY_SUMMARY: SocialCommentInboxSummary = {
   total: 0,
   new: 0,
@@ -84,9 +89,11 @@ export default function SocialCommentInboxPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [notice, setNotice] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [drafts, setDrafts] = useState<Record<string, string>>({})
+  const [unavailable, setUnavailable] = useState<InboxUnavailableState | null>(null)
 
   const fetchComments = useCallback(async () => {
     setLoading(true)
+    setUnavailable(null)
     try {
       const session = await getCurrentSession()
       if (!session) return
@@ -101,6 +108,10 @@ export default function SocialCommentInboxPage() {
       })
       const data = await response.json()
       if (!response.ok) throw new Error(data.error || 'Failed to load comment inbox')
+      setUnavailable(data.unavailable ? {
+        message: typeof data.message === 'string' ? data.message : 'Comment inbox storage is unavailable.',
+        recovery: typeof data.recovery === 'string' ? data.recovery : 'Apply the comment inbox migration to the bound database before validating populated rows.',
+      } : null)
       setComments(Array.isArray(data.items) ? data.items : [])
       setSummary(data.summary ?? EMPTY_SUMMARY)
       setFilteredSummary(data.filteredSummary ?? EMPTY_SUMMARY)
@@ -303,6 +314,33 @@ export default function SocialCommentInboxPage() {
             <div className="flex min-h-48 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground">
               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
               Loading comments
+            </div>
+          ) : unavailable ? (
+            <div className="rounded-lg border border-amber-500/35 bg-amber-500/10 p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+                <ShieldAlert className="h-5 w-5 shrink-0 text-amber-200" />
+                <div className="min-w-0">
+                  <h2 className="text-base font-semibold text-amber-100">Comment inbox unavailable</h2>
+                  <p className="mt-2 text-sm leading-6 text-amber-50">{unavailable.message}</p>
+                  <p className="mt-2 break-words text-sm leading-6 text-amber-100/85">{unavailable.recovery}</p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Link
+                      href="/admin/social-content"
+                      className="inline-flex min-h-10 items-center justify-center rounded-lg border border-amber-500/40 px-3 py-2 text-sm font-semibold text-amber-100 hover:bg-amber-500/10"
+                    >
+                      Social Content
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={fetchComments}
+                      className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/15 px-3 py-2 text-sm font-semibold text-amber-100 hover:bg-amber-500/20"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                      Retry Check
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           ) : comments.length === 0 ? (
             <div className="rounded-lg border border-dashed border-border bg-card p-8 text-center">

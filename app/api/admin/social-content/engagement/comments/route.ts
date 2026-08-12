@@ -36,6 +36,8 @@ const COMMENT_SELECT = [
 ].join(', ')
 
 const POST_SELECT = 'id, platform, post_text, cta_text, youtube_title, rag_context'
+const COMMENT_INBOX_UNAVAILABLE_MESSAGE = 'Comment inbox storage is not available in this environment.'
+const COMMENT_INBOX_UNAVAILABLE_RECOVERY = 'Apply migration 20260806163011 to the bound Supabase project before validating populated comment inbox rows. Do not submit external replies from this UI lane.'
 const PLATFORM_VALUES = new Set<SocialPlatform>(['linkedin', 'instagram', 'facebook', 'youtube', 'tiktok', 'x'])
 const STATUS_VALUES = new Set<SocialCommentStatus>([
   'new',
@@ -54,6 +56,39 @@ function socialPlatform(value: string | null): SocialPlatform | 'all' {
 function socialCommentStatus(value: string | null): SocialCommentStatus | 'all' {
   const normalized = value?.replace(/-/g, '_')
   return normalized && STATUS_VALUES.has(normalized as SocialCommentStatus) ? normalized as SocialCommentStatus : 'all'
+}
+
+function isCommentInboxStorageUnavailable(error: unknown) {
+  const record = error && typeof error === 'object' ? error as Record<string, unknown> : {}
+  const code = typeof record.code === 'string' ? record.code : ''
+  const text = [record.message, record.details, record.hint]
+    .filter((value): value is string => typeof value === 'string')
+    .join(' ')
+    .toLowerCase()
+
+  return code === '42P01'
+    || code === 'PGRST205'
+    || text.includes('social_content_comments')
+    || text.includes('relation') && text.includes('does not exist')
+}
+
+function unavailableResponse(filters: {
+  status: SocialCommentStatus | 'all'
+  platform: SocialPlatform | 'all'
+  campaign: string
+  post: string
+}) {
+  return NextResponse.json({
+    unavailable: true,
+    blocked: true,
+    items: [],
+    summary: summarizeSocialCommentInbox([]),
+    filteredSummary: summarizeSocialCommentInbox([]),
+    filters,
+    message: COMMENT_INBOX_UNAVAILABLE_MESSAGE,
+    recovery: COMMENT_INBOX_UNAVAILABLE_RECOVERY,
+    integration_note: 'The canonical comment inbox table is missing from the bound database. No provider ingestion or external comment replies were attempted.',
+  })
 }
 
 async function fetchPostsByContentId(contentIds: string[]) {
@@ -111,6 +146,10 @@ export async function GET(request: NextRequest) {
     .limit(200)
 
   if (error) {
+    if (isCommentInboxStorageUnavailable(error)) {
+      return unavailableResponse(filters)
+    }
+
     console.error('Error fetching social comment inbox:', error)
     return NextResponse.json({ error: 'Failed to fetch social comment inbox' }, { status: 500 })
   }

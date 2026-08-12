@@ -123,6 +123,40 @@ describe('/api/admin/social-content/[id]/engagement/comments', () => {
     })
   })
 
+  it('returns a blocked unavailable state when canonical storage is not migrated', async () => {
+    const postSingle = vi.fn().mockResolvedValue({ data: postRow, error: null })
+    const postEq = vi.fn().mockReturnValue({ single: postSingle })
+    const postSelect = vi.fn().mockReturnValue({ eq: postEq })
+
+    const commentsOrder = vi.fn().mockResolvedValue({
+      data: null,
+      error: {
+        code: 'PGRST205',
+        message: 'Could not find the table public.social_content_comments in the schema cache',
+      },
+    })
+    const commentsEq = vi.fn().mockReturnValue({ order: commentsOrder })
+    const commentsSelect = vi.fn().mockReturnValue({ eq: commentsEq })
+
+    mocks.from.mockImplementation((table: string) => {
+      if (table === 'social_content_queue') return { select: postSelect }
+      if (table === 'social_content_comments') return { select: commentsSelect, update: mocks.update }
+      throw new Error(`Unexpected table ${table}`)
+    })
+
+    const response = await GET(request() as never, { params: { id: 'social-1' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({
+      unavailable: true,
+      blocked: true,
+      comments: [],
+      message: 'Comment inbox storage is not available in this environment.',
+    })
+    expect(body.recovery).toContain('migration 20260806163011')
+  })
+
   it('blocks submit when provider capability and fail-closed policy are not satisfied', async () => {
     const response = await POST(request({
       action: 'submit',

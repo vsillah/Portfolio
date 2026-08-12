@@ -1523,4 +1523,40 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByRole('button', { name: /^Submit$/i })).toBeDisabled()
     expect(screen.getByRole('button', { name: /^Approve$/i })).not.toBeDisabled()
   })
+
+  it('shows comment inbox unavailable state on the detail status panel', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [] }),
+        } as Response
+      }
+      if (url.includes('/engagement/comments')) {
+        return {
+          ok: true,
+          json: async () => ({
+            unavailable: true,
+            blocked: true,
+            comments: [],
+            message: 'Comment inbox storage is not available in this environment.',
+            recovery: 'Apply migration 20260806163011 to the bound Supabase project before validating populated comment inbox rows.',
+          }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: baseItem }),
+      } as Response
+    }))
+
+    renderAtStep('status')
+
+    expect(await screen.findByText('Comment response panel')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Comment inbox unavailable' })).toBeInTheDocument()
+    expect(screen.getByText('Comment inbox storage is not available in this environment.')).toBeInTheDocument()
+    expect(screen.getByText(/migration 20260806163011/i)).toBeInTheDocument()
+    expect(screen.queryByText('No comment projection is attached to this post yet.')).not.toBeInTheDocument()
+  })
 })
