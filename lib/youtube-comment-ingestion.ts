@@ -140,9 +140,19 @@ const REQUIRED_SCOPES = [
   'https://www.googleapis.com/auth/youtube.readonly',
   'https://www.googleapis.com/auth/youtube.force-ssl',
 ]
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+const YOUTUBE_VIDEO_ID_PATTERN = /^[A-Za-z0-9_-]{11}$/
 
 function asString(value: unknown) {
   return typeof value === 'string' && value.trim() ? value.trim() : null
+}
+
+function isUuid(value: string) {
+  return UUID_PATTERN.test(value)
+}
+
+function validYouTubeVideoId(value: string | null) {
+  return value && YOUTUBE_VIDEO_ID_PATTERN.test(value) ? value : null
 }
 
 function isTokenExpired(credentials: YouTubeCredentials, now: Date, bufferMs = 10 * 60 * 1000) {
@@ -163,10 +173,8 @@ export function extractYouTubeVideoId(input: {
   platformPostUrl?: string | null
 }) {
   const id = asString(input.platformPostId)
-  if (id) {
-    const direct = id.match(/^[A-Za-z0-9_-]{11}$/)
-    if (direct) return id
-  }
+  const direct = validYouTubeVideoId(id)
+  if (direct) return direct
 
   const url = asString(input.platformPostUrl)
   if (!url) return null
@@ -174,11 +182,13 @@ export function extractYouTubeVideoId(input: {
   try {
     const parsed = new URL(url)
     const host = parsed.hostname.replace(/^www\./, '')
-    if (host === 'youtu.be') return parsed.pathname.split('/').filter(Boolean)[0] ?? null
+    if (host === 'youtu.be') return validYouTubeVideoId(parsed.pathname.split('/').filter(Boolean)[0] ?? null)
     if (host.endsWith('youtube.com')) {
-      return parsed.searchParams.get('v')
-        || parsed.pathname.match(/\/(?:shorts|embed|live)\/([^/?#]+)/)?.[1]
-        || null
+      return validYouTubeVideoId(
+        parsed.searchParams.get('v')
+          || parsed.pathname.match(/\/(?:shorts|embed|live)\/([^/?#]+)/)?.[1]
+          || null,
+      )
     }
   } catch {
     return null
@@ -214,7 +224,18 @@ function mapYouTubeApiError(response: Response, data: GoogleApiError): YouTubeEr
 }
 
 async function readPublish(input: YouTubeCommentRefreshInput): Promise<{ row: PublishRow | null; error?: string }> {
-  if (!asString(input.publishId) && !asString(input.contentId)) {
+  const publishId = asString(input.publishId)
+  const contentId = asString(input.contentId)
+
+  if (publishId && !isUuid(publishId)) {
+    return { row: null, error: 'invalid_selected_publish_id' }
+  }
+
+  if (contentId && !isUuid(contentId)) {
+    return { row: null, error: 'invalid_selected_content_id' }
+  }
+
+  if (!publishId && !contentId) {
     return { row: null, error: 'no_selected_publish' }
   }
 
@@ -225,10 +246,10 @@ async function readPublish(input: YouTubeCommentRefreshInput): Promise<{ row: Pu
     .eq('status', 'published')
     .limit(1)
 
-  if (asString(input.publishId)) {
-    query = query.eq('id', asString(input.publishId))
+  if (publishId) {
+    query = query.eq('id', publishId)
   } else {
-    query = query.eq('content_id', asString(input.contentId))
+    query = query.eq('content_id', contentId)
   }
 
   const result = await query.maybeSingle()
@@ -436,6 +457,14 @@ async function completeRun(input: {
   if (result.error) throw new Error(result.error.message)
 }
 
+function sanitizedUnexpectedError(error: unknown): YouTubeErrorDetail {
+  const errorName = error instanceof Error && error.name ? error.name : 'Error'
+  return {
+    code: 'youtube_comment_ingestion_failed',
+    message: `YouTube comment ingestion failed unexpectedly (${errorName}).`,
+  }
+}
+
 function commentPermalink(videoId: string, commentId: string) {
   return `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}&lc=${encodeURIComponent(commentId)}`
 }
@@ -512,6 +541,7 @@ async function fetchReplyComments(input: {
   fetchImpl: FetchLike
   accessToken: string
   parentId: string
+  limit: number
   pageSize: number
   cursor: Record<string, unknown>
 }) {
@@ -519,12 +549,21 @@ async function fetchReplyComments(input: {
   const errors: YouTubeErrorDetail[] = []
   let pageToken: string | undefined
   let pages = 0
+  if (input.limit <= 0) {
+    input.cursor[`replies:${input.parentId}`] = {
+      pages,
+      nextPageToken: null,
+      limitReached: true,
+    }
+    return { replies, errors }
+  }
 
   do {
+    const remaining = input.limit - replies.length
     const url = new URL(YOUTUBE_COMMENTS_URL)
     url.searchParams.set('part', 'snippet')
     url.searchParams.set('parentId', input.parentId)
-    url.searchParams.set('maxResults', String(input.pageSize))
+    url.searchParams.set('maxResults', String(Math.min(input.pageSize, remaining)))
     url.searchParams.set('textFormat', 'plainText')
     if (pageToken) url.searchParams.set('pageToken', pageToken)
 
@@ -539,11 +578,15 @@ async function fetchReplyComments(input: {
       break
     }
 
-    replies.push(...(result.data?.items ?? []))
+    replies.push(...(result.data?.items ?? []).slice(0, remaining))
     pageToken = result.data?.nextPageToken
-  } while (pageToken)
+  } while (pageToken && replies.length < input.limit)
 
-  input.cursor[`replies:${input.parentId}`] = { pages, nextPageToken: pageToken ?? null }
+  input.cursor[`replies:${input.parentId}`] = {
+    pages,
+    nextPageToken: pageToken ?? null,
+    limitReached: replies.length >= input.limit,
+  }
   return { replies, errors }
 }
 
@@ -602,13 +645,15 @@ async function collectYouTubeComments(input: {
         skipped += 1
       }
 
+      const remainingBudget = input.limit - comments.length
       const parentId = asString(topLevel?.id)
       const totalReplyCount = thread.snippet?.totalReplyCount ?? 0
-      if (parentId && totalReplyCount > 0) {
+      if (parentId && totalReplyCount > 0 && remainingBudget > 0) {
         const replies = await fetchReplyComments({
           fetchImpl: input.fetchImpl,
           accessToken: input.accessToken,
           parentId,
+          limit: remainingBudget,
           pageSize: input.pageSize,
           cursor,
         })
@@ -635,8 +680,10 @@ async function collectYouTubeComments(input: {
       if (comments.length >= input.limit) break
     }
 
-    pageToken = comments.length >= input.limit ? undefined : result.data?.nextPageToken
-    cursor.threadNextPageToken = pageToken ?? null
+    const providerNextPageToken = result.data?.nextPageToken
+    pageToken = comments.length >= input.limit ? undefined : providerNextPageToken
+    cursor.threadNextPageToken = providerNextPageToken ?? null
+    cursor.limitReached = comments.length >= input.limit
   } while (pageToken)
 
   return {
@@ -681,19 +728,27 @@ export async function refreshPublishedYouTubeComments(input: YouTubeCommentRefre
   const selectedContentId = asString(input.contentId)
 
   if (!publishLookup.row) {
+    const invalidSelection = publishLookup.error === 'invalid_selected_publish_id'
+      || publishLookup.error === 'invalid_selected_content_id'
     const error: YouTubeErrorDetail = {
       code: publishLookup.error ?? 'no_eligible_published_youtube_row',
-      message: 'No eligible published YouTube row with a canonical provider video ID was selected; reconcile publication first.',
+      message: invalidSelection
+        ? 'Selected YouTube row id is malformed; choose a canonical published YouTube row or reconcile publication first.'
+        : 'No eligible published YouTube row with a canonical provider video ID was selected; reconcile publication first.',
     }
     const runId = await insertRun({
       db: input.db,
-      publishId: selectedPublishId,
-      contentId: selectedContentId,
+      publishId: null,
+      contentId: null,
       videoId: null,
       status: 'manual_blocked',
       errors: [error],
       counts: { error_count: 1 },
-      metadata: { recovery: 'reconcile_youtube_publication' },
+      metadata: {
+        recovery: 'reconcile_youtube_publication',
+        requested_publish_id: selectedPublishId,
+        requested_content_id: selectedContentId,
+      },
     })
     return blockedResult({
       publishId: selectedPublishId,
@@ -768,53 +823,83 @@ export async function refreshPublishedYouTubeComments(input: YouTubeCommentRefre
   })
   if (!runId) throw new Error('YouTube comment ingestion run insert did not return an id')
 
-  const collected = await collectYouTubeComments({
-    publish,
-    videoId,
-    runId,
-    accessToken: token.accessToken,
-    fetchImpl,
-    limit,
-    pageSize,
-    now,
-  })
-
-  let upserted = 0
-  if (collected.comments.length) {
-    const upsert = await upsertSocialContentComments({
-      db: input.db,
-      comments: collected.comments,
+  try {
+    const collected = await collectYouTubeComments({
+      publish,
+      videoId,
+      runId,
+      accessToken: token.accessToken,
+      fetchImpl,
+      limit,
+      pageSize,
+      now,
     })
-    upserted = upsert.upserted
-  }
 
-  const status: SocialCommentIngestionRunStatus = collected.errors.length
-    ? (collected.comments.length ? 'partial' : 'failed')
-    : 'succeeded'
-  await completeRun({
-    db: input.db,
-    runId,
-    status,
-    cursorMetadata: collected.cursor,
-    fetched: collected.comments.length,
-    upserted,
-    skipped: collected.skipped,
-    errors: collected.errors,
-    now,
-  })
+    let upserted = 0
+    if (collected.comments.length) {
+      const upsert = await upsertSocialContentComments({
+        db: input.db,
+        comments: collected.comments,
+      })
+      upserted = upsert.upserted
+    }
 
-  return {
-    platform: 'youtube',
-    provider: YOUTUBE_PROVIDER,
-    status,
-    publishId: publish.id,
-    contentId: publish.content_id,
-    videoId,
-    runId,
-    fetched: collected.comments.length,
-    upserted,
-    skipped: collected.skipped,
-    errors: collected.errors,
-    cursor: collected.cursor,
+    const status: SocialCommentIngestionRunStatus = collected.errors.length
+      ? (collected.comments.length ? 'partial' : 'failed')
+      : 'succeeded'
+    await completeRun({
+      db: input.db,
+      runId,
+      status,
+      cursorMetadata: collected.cursor,
+      fetched: collected.comments.length,
+      upserted,
+      skipped: collected.skipped,
+      errors: collected.errors,
+      now,
+    })
+
+    return {
+      platform: 'youtube',
+      provider: YOUTUBE_PROVIDER,
+      status,
+      publishId: publish.id,
+      contentId: publish.content_id,
+      videoId,
+      runId,
+      fetched: collected.comments.length,
+      upserted,
+      skipped: collected.skipped,
+      errors: collected.errors,
+      cursor: collected.cursor,
+    }
+  } catch (error) {
+    const sanitizedError = sanitizedUnexpectedError(error)
+    await completeRun({
+      db: input.db,
+      runId,
+      status: 'failed',
+      cursorMetadata: { failed: true },
+      fetched: 0,
+      upserted: 0,
+      skipped: 0,
+      errors: [sanitizedError],
+      now,
+    })
+
+    return {
+      platform: 'youtube',
+      provider: YOUTUBE_PROVIDER,
+      status: 'failed',
+      publishId: publish.id,
+      contentId: publish.content_id,
+      videoId,
+      runId,
+      fetched: 0,
+      upserted: 0,
+      skipped: 0,
+      errors: [sanitizedError],
+      cursor: { failed: true },
+    }
   }
 }

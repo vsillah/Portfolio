@@ -5,8 +5,8 @@ import {
 } from './youtube-comment-ingestion'
 
 const publish = {
-  id: 'publish-youtube-1',
-  content_id: 'content-youtube-1',
+  id: '11111111-1111-4111-8111-111111111111',
+  content_id: '22222222-2222-4222-8222-222222222222',
   platform: 'youtube',
   status: 'published',
   platform_post_id: 'abc123DEF45',
@@ -152,6 +152,7 @@ describe('youtube comment ingestion', () => {
     expect(extractYouTubeVideoId({ platformPostId: 'abc123DEF45' })).toBe('abc123DEF45')
     expect(extractYouTubeVideoId({ platformPostUrl: 'https://youtu.be/abc123DEF45' })).toBe('abc123DEF45')
     expect(extractYouTubeVideoId({ platformPostUrl: 'https://youtube.com/shorts/abc123DEF45' })).toBe('abc123DEF45')
+    expect(extractYouTubeVideoId({ platformPostUrl: 'https://youtube.com/watch?v=too-short' })).toBeNull()
     expect(extractYouTubeVideoId({ platformPostUrl: 'not-a-url' })).toBeNull()
   })
 
@@ -257,6 +258,75 @@ describe('youtube comment ingestion', () => {
     ]))
   })
 
+  it('does not call comments.list when the top-level comment fills the request limit', async () => {
+    const { db } = createDb()
+    const fetchImpl = createFetchMock(() => response({
+      nextPageToken: 'more-threads',
+      items: [thread('comment-1', 'Parent fills budget', 50)],
+    }))
+
+    const result = await refreshPublishedYouTubeComments({
+      db,
+      publishId: publish.id,
+      limit: 1,
+      fetchImpl: asFetch(fetchImpl),
+    })
+
+    expect(result).toMatchObject({
+      status: 'succeeded',
+      fetched: 1,
+      cursor: expect.objectContaining({
+        limitReached: true,
+        threadNextPageToken: 'more-threads',
+      }),
+    })
+    expect(fetchImpl).toHaveBeenCalledTimes(1)
+    expect(String(fetchImpl.mock.calls[0][0])).toContain('/youtube/v3/commentThreads')
+  })
+
+  it('stops reply pagination at the remaining budget and retains the reply cursor', async () => {
+    const { db, calls } = createDb()
+    const fetchImpl = createFetchMock(() => response({ items: [] }))
+      .mockImplementationOnce(() => response({ items: [thread('comment-1', 'Parent', 100)] }))
+      .mockImplementationOnce(() => response({
+        nextPageToken: 'more-replies',
+        items: [
+          {
+            id: 'reply-1',
+            snippet: { parentId: 'comment-1', textOriginal: 'Reply one' },
+          },
+          {
+            id: 'reply-2',
+            snippet: { parentId: 'comment-1', textOriginal: 'Reply two' },
+          },
+        ],
+      }))
+
+    const result = await refreshPublishedYouTubeComments({
+      db,
+      publishId: publish.id,
+      limit: 3,
+      pageSize: 100,
+      fetchImpl: asFetch(fetchImpl),
+    })
+
+    expect(result).toMatchObject({
+      status: 'succeeded',
+      fetched: 3,
+      cursor: expect.objectContaining({
+        'replies:comment-1': {
+          pages: 1,
+          nextPageToken: 'more-replies',
+          limitReached: true,
+        },
+      }),
+    })
+    expect(fetchImpl).toHaveBeenCalledTimes(2)
+    expect(String(fetchImpl.mock.calls[1][0])).toContain('/youtube/v3/comments')
+    expect(String(fetchImpl.mock.calls[1][0])).toContain('maxResults=2')
+    expect(calls.commentUpserts[0]).toHaveLength(3)
+  })
+
   it('records zero-comment success without writing comment rows', async () => {
     const { db, calls } = createDb()
     const fetchImpl = createFetchMock(() => response({ items: [], pageInfo: { totalResults: 0 } }))
@@ -300,8 +370,9 @@ describe('youtube comment ingestion', () => {
   it('blocks without provider calls when no eligible published YouTube row exists', async () => {
     const { db, calls } = createDb({ publishRow: null })
     const fetchImpl = createFetchMock(() => response({ items: [] }))
+    const missingContentId = '33333333-3333-4333-8333-333333333333'
 
-    const result = await refreshPublishedYouTubeComments({ db, contentId: 'draft-youtube-1', fetchImpl: asFetch(fetchImpl) })
+    const result = await refreshPublishedYouTubeComments({ db, contentId: missingContentId, fetchImpl: asFetch(fetchImpl) })
 
     expect(result).toMatchObject({
       status: 'manual_blocked',
@@ -311,8 +382,48 @@ describe('youtube comment ingestion', () => {
     expect(fetchImpl).not.toHaveBeenCalled()
     expect(calls.runInserts[0]).toMatchObject({
       status: 'manual_blocked',
-      content_id: 'draft-youtube-1',
-      metadata: expect.objectContaining({ recovery: 'reconcile_youtube_publication' }),
+      publish_id: null,
+      content_id: null,
+      metadata: expect.objectContaining({
+        recovery: 'reconcile_youtube_publication',
+        requested_content_id: missingContentId,
+      }),
+    })
+  })
+
+  it('blocks malformed selected publish ids before lookup or provider calls', async () => {
+    const { db, calls } = createDb()
+    const fetchImpl = createFetchMock(() => response({ items: [] }))
+
+    const result = await refreshPublishedYouTubeComments({ db, publishId: 'not-a-uuid', fetchImpl: asFetch(fetchImpl) })
+
+    expect(result).toMatchObject({
+      status: 'manual_blocked',
+      errors: [expect.objectContaining({ code: 'invalid_selected_publish_id' })],
+    })
+    expect(fetchImpl).not.toHaveBeenCalled()
+    expect(calls.publishFilters).toHaveLength(0)
+  })
+
+  it('records well-formed nonexistent publish ids in metadata instead of FK columns', async () => {
+    const { db, calls } = createDb({ publishRow: null })
+    const fetchImpl = createFetchMock(() => response({ items: [] }))
+    const missingPublishId = '44444444-4444-4444-8444-444444444444'
+
+    const result = await refreshPublishedYouTubeComments({ db, publishId: missingPublishId, fetchImpl: asFetch(fetchImpl) })
+
+    expect(result).toMatchObject({
+      status: 'manual_blocked',
+      publishId: missingPublishId,
+      errors: [expect.objectContaining({ code: 'no_eligible_published_youtube_row' })],
+    })
+    expect(fetchImpl).not.toHaveBeenCalled()
+    expect(calls.runInserts[0]).toMatchObject({
+      publish_id: null,
+      content_id: null,
+      metadata: expect.objectContaining({
+        requested_publish_id: missingPublishId,
+      }),
     })
   })
 
@@ -322,6 +433,25 @@ describe('youtube comment ingestion', () => {
         ...publish,
         platform_post_id: null,
         platform_post_url: 'https://example.com/not-youtube',
+      },
+    })
+    const fetchImpl = createFetchMock(() => response({ items: [] }))
+
+    const result = await refreshPublishedYouTubeComments({ db, publishId: publish.id, fetchImpl: asFetch(fetchImpl) })
+
+    expect(result).toMatchObject({
+      status: 'manual_blocked',
+      errors: [expect.objectContaining({ code: 'malformed_provider_video_id' })],
+    })
+    expect(fetchImpl).not.toHaveBeenCalled()
+  })
+
+  it('blocks malformed YouTube URL video ids before calling YouTube', async () => {
+    const { db } = createDb({
+      publishRow: {
+        ...publish,
+        platform_post_id: null,
+        platform_post_url: 'https://www.youtube.com/watch?v=too-short',
       },
     })
     const fetchImpl = createFetchMock(() => response({ items: [] }))
@@ -414,6 +544,29 @@ describe('youtube comment ingestion', () => {
     expect(result).toMatchObject({
       status: 'failed',
       errors: [expect.objectContaining({ code: 'comments_disabled', reason: 'commentsDisabled' })],
+    })
+  })
+
+  it('finalizes a running ingestion run as failed when fetch throws unexpectedly', async () => {
+    const { db, calls } = createDb()
+    const fetchImpl = createFetchMock(() => Promise.reject(new Error('network failed with youtube-access-token')))
+
+    const result = await refreshPublishedYouTubeComments({ db, publishId: publish.id, fetchImpl: asFetch(fetchImpl) })
+
+    expect(result).toMatchObject({
+      status: 'failed',
+      errors: [expect.objectContaining({
+        code: 'youtube_comment_ingestion_failed',
+        message: 'YouTube comment ingestion failed unexpectedly (Error).',
+      })],
+    })
+    expect(calls.runUpdates[0]).toMatchObject({
+      status: 'failed',
+      completed_at: expect.any(String),
+      errors: [expect.objectContaining({
+        code: 'youtube_comment_ingestion_failed',
+        message: expect.not.stringContaining('youtube-access-token'),
+      })],
     })
   })
 
