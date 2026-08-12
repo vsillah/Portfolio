@@ -3,10 +3,11 @@ import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { refreshPublishedSocialEngagement } from '@/lib/social-engagement-refresh'
 import { supabaseAdmin } from '@/lib/supabase'
 import type { SocialPlatform } from '@/lib/social-content'
+import { refreshPublishedYouTubeComments } from '@/lib/youtube-comment-ingestion'
 
 export const dynamic = 'force-dynamic'
 
-const SUPPORTED_PLATFORMS = new Set<SocialPlatform>(['linkedin'])
+const SUPPORTED_PLATFORMS = new Set<SocialPlatform>(['linkedin', 'youtube'])
 
 function socialPlatform(value: unknown): SocialPlatform {
   return typeof value === 'string' && SUPPORTED_PLATFORMS.has(value as SocialPlatform)
@@ -30,8 +31,32 @@ export async function POST(request: NextRequest) {
     const body = await request.json().catch(() => ({}))
     const platform = socialPlatform(body.platform)
     const contentId = typeof body.content_id === 'string' && body.content_id.trim() ? body.content_id.trim() : null
+    const publishId = typeof body.publish_id === 'string' && body.publish_id.trim() ? body.publish_id.trim() : null
     const limit = Number.isFinite(Number(body.limit)) ? Number(body.limit) : 20
     const force = body.force === true
+
+    if (platform === 'youtube') {
+      const result = await refreshPublishedYouTubeComments({
+        db: supabaseAdmin,
+        publishId,
+        contentId,
+        limit,
+      })
+      const {
+        platform: _resultPlatform,
+        publishId: resultPublishId,
+        contentId: resultContentId,
+        ...resultBody
+      } = result
+
+      return NextResponse.json({
+        ok: result.status === 'succeeded' || result.status === 'partial',
+        platform,
+        content_id: resultContentId ?? contentId,
+        publish_id: resultPublishId ?? publishId,
+        ...resultBody,
+      })
+    }
 
     const result = await refreshPublishedSocialEngagement({
       db: supabaseAdmin,

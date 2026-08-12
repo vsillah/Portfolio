@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({
   verifyAdmin: vi.fn(),
   isAuthError: vi.fn(),
   refreshPublishedSocialEngagement: vi.fn(),
+  refreshPublishedYouTubeComments: vi.fn(),
   supabaseAdmin: { from: vi.fn() },
 }))
 
@@ -14,6 +15,10 @@ vi.mock('@/lib/auth-server', () => ({
 
 vi.mock('@/lib/social-engagement-refresh', () => ({
   refreshPublishedSocialEngagement: mocks.refreshPublishedSocialEngagement,
+}))
+
+vi.mock('@/lib/youtube-comment-ingestion', () => ({
+  refreshPublishedYouTubeComments: mocks.refreshPublishedYouTubeComments,
 }))
 
 vi.mock('@/lib/supabase', () => ({
@@ -44,6 +49,20 @@ describe('POST /api/admin/social-content/engagement/refresh', () => {
       errors: [],
       insights: [{ contentId: 'content-1', theme: 'Agentic operating system', score: 88 }],
     })
+    mocks.refreshPublishedYouTubeComments.mockResolvedValue({
+      platform: 'youtube',
+      provider: 'youtube_data_api',
+      status: 'succeeded',
+      publishId: 'publish-youtube-1',
+      contentId: 'content-youtube-1',
+      videoId: 'abc123DEF45',
+      runId: 'run-youtube-1',
+      fetched: 2,
+      upserted: 2,
+      skipped: 0,
+      errors: [],
+      cursor: { threadPages: 1 },
+    })
   })
 
   it('requires admin auth', async () => {
@@ -55,6 +74,7 @@ describe('POST /api/admin/social-content/engagement/refresh', () => {
     expect(response.status).toBe(401)
     expect(await response.json()).toEqual({ error: 'Unauthorized' })
     expect(mocks.refreshPublishedSocialEngagement).not.toHaveBeenCalled()
+    expect(mocks.refreshPublishedYouTubeComments).not.toHaveBeenCalled()
   })
 
   it('refreshes LinkedIn engagement through the guarded service', async () => {
@@ -83,8 +103,73 @@ describe('POST /api/admin/social-content/engagement/refresh', () => {
     })
   })
 
+  it('refreshes YouTube comments through the read-only adapter only when explicitly requested', async () => {
+    const response = await POST(request({
+      platform: 'youtube',
+      publish_id: 'publish-youtube-1',
+      limit: 10,
+    }) as never)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({
+      ok: true,
+      platform: 'youtube',
+      content_id: 'content-youtube-1',
+      publish_id: 'publish-youtube-1',
+      fetched: 2,
+      upserted: 2,
+    })
+    expect(mocks.refreshPublishedYouTubeComments).toHaveBeenCalledWith({
+      db: mocks.supabaseAdmin,
+      publishId: 'publish-youtube-1',
+      contentId: null,
+      limit: 10,
+    })
+    expect(mocks.refreshPublishedSocialEngagement).not.toHaveBeenCalled()
+  })
+
+  it('returns a blocked YouTube recovery outcome without falling back to channel-wide refresh', async () => {
+    mocks.refreshPublishedYouTubeComments.mockResolvedValue({
+      platform: 'youtube',
+      provider: 'youtube_data_api',
+      status: 'manual_blocked',
+      publishId: null,
+      contentId: 'draft-youtube-1',
+      videoId: null,
+      runId: 'run-blocked-1',
+      fetched: 0,
+      upserted: 0,
+      skipped: 0,
+      errors: [{ code: 'no_eligible_published_youtube_row' }],
+      cursor: {},
+      blockedReason: 'No eligible published YouTube row with a canonical provider video ID was selected; reconcile publication first.',
+    })
+
+    const response = await POST(request({
+      platform: 'youtube',
+      content_id: 'draft-youtube-1',
+    }) as never)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({
+      ok: false,
+      platform: 'youtube',
+      content_id: 'draft-youtube-1',
+      status: 'manual_blocked',
+      blockedReason: 'No eligible published YouTube row with a canonical provider video ID was selected; reconcile publication first.',
+    })
+    expect(mocks.refreshPublishedYouTubeComments).toHaveBeenCalledWith({
+      db: mocks.supabaseAdmin,
+      publishId: null,
+      contentId: 'draft-youtube-1',
+      limit: 20,
+    })
+  })
+
   it('defaults unsupported platform input to LinkedIn for V1', async () => {
-    const response = await POST(request({ platform: 'youtube' }) as never)
+    const response = await POST(request({ platform: 'instagram' }) as never)
     const body = await response.json()
 
     expect(response.status).toBe(200)
@@ -95,6 +180,7 @@ describe('POST /api/admin/social-content/engagement/refresh', () => {
       limit: 20,
       force: false,
     }))
+    expect(mocks.refreshPublishedYouTubeComments).not.toHaveBeenCalled()
   })
 
   it('returns service unavailable when Apify credentials are missing', async () => {

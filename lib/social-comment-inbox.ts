@@ -58,7 +58,7 @@ export const COMMENT_INBOX_PLATFORM_CAPABILITIES: Record<SocialPlatform, SocialC
     platform: 'youtube',
     provider: 'youtube_data_api',
     capabilityStatus: 'manual',
-    supportsCommentIngestion: false,
+    supportsCommentIngestion: true,
     supportsReplyDraft: true,
     supportsReplySubmission: false,
     supportsPermalink: true,
