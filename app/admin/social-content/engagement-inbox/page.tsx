@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import {
   AlertTriangle,
@@ -38,6 +38,11 @@ type InboxUnavailableState = {
   recovery: string
 }
 
+type FocusRecoveryState = {
+  commentId: string
+  message: string
+}
+
 const EMPTY_SUMMARY: SocialCommentInboxSummary = {
   total: 0,
   new: 0,
@@ -65,6 +70,28 @@ const PRIORITY_CLASS: Record<SocialCommentInboxItem['classification']['priority'
   high: 'text-red-200',
 }
 
+function queryParams() {
+  if (typeof window === 'undefined') return new URLSearchParams()
+  return new URLSearchParams(window.location.search)
+}
+
+function initialFilters(): FilterState {
+  const params = queryParams()
+  const status = params.get('status')?.replace(/-/g, '_') as FilterState['status'] | null
+  const platform = params.get('platform') as FilterState['platform'] | null
+
+  return {
+    status: status && (status === 'all' || SOCIAL_COMMENT_STATUSES.some((item) => item.value === status)) ? status : 'all',
+    platform: platform && (platform === 'all' || PLATFORMS.some((item) => item.value === platform)) ? platform : 'all',
+    campaign: params.get('campaign') || '',
+    post: params.get('post') || '',
+  }
+}
+
+function initialFocusedCommentId() {
+  return queryParams().get('comment') || null
+}
+
 function statusLabel(status: SocialCommentStatus) {
   return SOCIAL_COMMENT_STATUSES.find((item) => item.value === status)?.label ?? status
 }
@@ -81,7 +108,10 @@ function canSubmit(comment: SocialCommentInboxItem) {
 }
 
 export default function SocialCommentInboxPage() {
-  const [filters, setFilters] = useState<FilterState>({ status: 'all', platform: 'all', campaign: '', post: '' })
+  const commentRefs = useRef<Record<string, HTMLElement | null>>({})
+  const [filters, setFilters] = useState<FilterState>(() => initialFilters())
+  const [focusedCommentId, setFocusedCommentId] = useState<string | null>(() => initialFocusedCommentId())
+  const [focusRecovery, setFocusRecovery] = useState<FocusRecoveryState | null>(null)
   const [comments, setComments] = useState<SocialCommentInboxItem[]>([])
   const [summary, setSummary] = useState<SocialCommentInboxSummary>(EMPTY_SUMMARY)
   const [filteredSummary, setFilteredSummary] = useState<SocialCommentInboxSummary>(EMPTY_SUMMARY)
@@ -90,6 +120,29 @@ export default function SocialCommentInboxPage() {
   const [notice, setNotice] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [drafts, setDrafts] = useState<Record<string, string>>({})
   const [unavailable, setUnavailable] = useState<InboxUnavailableState | null>(null)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const params = new URLSearchParams(window.location.search)
+    const setOrDelete = (key: string, value: string, emptyValue = '') => {
+      if (value && value !== emptyValue) params.set(key, value)
+      else params.delete(key)
+    }
+
+    setOrDelete('status', filters.status, 'all')
+    setOrDelete('platform', filters.platform, 'all')
+    setOrDelete('campaign', filters.campaign.trim())
+    setOrDelete('post', filters.post.trim())
+    setOrDelete('comment', focusedCommentId ?? '')
+
+    const nextQuery = params.toString()
+    const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ''}${window.location.hash}`
+    const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`
+    if (nextUrl !== currentUrl) {
+      window.history.replaceState(window.history.state, '', nextUrl)
+    }
+  }, [filters, focusedCommentId])
 
   const fetchComments = useCallback(async () => {
     setLoading(true)
@@ -130,6 +183,40 @@ export default function SocialCommentInboxPage() {
   useEffect(() => {
     fetchComments()
   }, [fetchComments])
+
+  useEffect(() => {
+    if (loading || unavailable || !focusedCommentId) {
+      if (!focusedCommentId) setFocusRecovery(null)
+      return
+    }
+
+    const focusedComment = comments.find((comment) => (
+      comment.id === focusedCommentId || comment.providerCommentId === focusedCommentId
+    ))
+
+    if (!focusedComment) {
+      setFocusRecovery({
+        commentId: focusedCommentId,
+        message: 'The linked comment is not visible with the current filters. It may be absent from this environment or filtered out.',
+      })
+      return
+    }
+
+    setFocusRecovery(null)
+    const element = commentRefs.current[focusedComment.id]
+    if (!element) return
+
+    window.requestAnimationFrame(() => {
+      element.scrollIntoView({ block: 'center', behavior: 'smooth' })
+      element.focus({ preventScroll: true })
+    })
+  }, [comments, focusedCommentId, loading, unavailable])
+
+  const clearFilters = useCallback(() => {
+    setFilters({ status: 'all', platform: 'all', campaign: '', post: '' })
+    setFocusedCommentId(null)
+    setFocusRecovery(null)
+  }, [])
 
   const statusCounts = useMemo(() => SOCIAL_COMMENT_STATUSES.map((status) => ({
     ...status,
@@ -309,6 +396,28 @@ export default function SocialCommentInboxPage() {
           </div>
         )}
 
+        {focusRecovery && !loading && !unavailable && (
+          <div className="mt-4 rounded-lg border border-amber-500/35 bg-amber-500/10 p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 shrink-0 text-amber-200" />
+                  <h2 className="text-sm font-semibold text-amber-100">Linked comment not visible</h2>
+                </div>
+                <p className="mt-2 break-words text-sm leading-6 text-amber-50">{focusRecovery.message}</p>
+                <p className="mt-1 break-all text-xs leading-5 text-amber-100/80">Comment: {focusRecovery.commentId}</p>
+              </div>
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-lg border border-amber-500/40 px-3 py-2 text-sm font-semibold text-amber-100 hover:bg-amber-500/10"
+              >
+                Clear Filters
+              </button>
+            </div>
+          </div>
+        )}
+
         <main className="mt-5 space-y-4">
           {loading ? (
             <div className="flex min-h-48 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground">
@@ -351,7 +460,7 @@ export default function SocialCommentInboxPage() {
               </p>
               <button
                 type="button"
-                onClick={() => setFilters({ status: 'all', platform: 'all', campaign: '', post: '' })}
+                onClick={clearFilters}
                 className="mt-4 inline-flex min-h-10 items-center justify-center rounded-lg border border-border px-3 py-2 text-sm font-semibold text-foreground hover:bg-muted"
               >
                 Clear Filters
@@ -360,8 +469,17 @@ export default function SocialCommentInboxPage() {
           ) : comments.map((comment) => {
             const submitReady = canSubmit(comment)
             const actionKey = (action: string) => `${comment.id}:${action}`
+            const isFocused = focusedCommentId === comment.id || focusedCommentId === comment.providerCommentId
             return (
-              <article key={comment.id} className="rounded-lg border border-border bg-card p-4 shadow-sm">
+              <article
+                key={comment.id}
+                ref={(element) => {
+                  commentRefs.current[comment.id] = element
+                }}
+                tabIndex={isFocused ? -1 : undefined}
+                aria-label={isFocused ? `Focused comment from ${comment.authorDisplayName}` : undefined}
+                className={`rounded-lg border bg-card p-4 shadow-sm outline-none transition-colors ${isFocused ? 'border-amber-400 ring-2 ring-amber-300/60 ring-offset-2 ring-offset-background' : 'border-border'}`}
+              >
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
