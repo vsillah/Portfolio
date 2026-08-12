@@ -37,6 +37,8 @@ import {
   Trash2,
   Lightbulb,
   Star,
+  MessageSquare,
+  ShieldAlert,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -74,6 +76,7 @@ import type {
   FrameworkVisualType,
   SocialPlatform,
 } from '@/lib/social-content'
+import type { SocialCommentInboxItem } from '@/lib/social-comment-inbox-ui'
 import type { SocialContentCalibrationReference } from '@/lib/social-content-calibration-library'
 import Link from 'next/link'
 
@@ -101,6 +104,10 @@ type GateState = 'approved' | 'in_review' | 'pending' | 'blocked' | 'rejected'
 type SectionGateKey = 'visual_assets' | 'asset_packet' | 'privacy' | 'linkedin_draft'
 type SectionGateDecision = 'approved' | 'rejected'
 type ApprovalStep = 'context' | 'copy' | 'visuals' | 'draft' | 'submit' | 'status'
+type CommentInboxUnavailableState = {
+  message: string
+  recovery: string
+}
 
 const APPROVAL_STEPS: ApprovalStep[] = ['context', 'copy', 'visuals', 'draft', 'submit', 'status']
 
@@ -447,6 +454,7 @@ function SocialContentDetailPage() {
   const [connectingYouTube, setConnectingYouTube] = useState(false)
   const [connectingX, setConnectingX] = useState(false)
   const [refreshingEngagement, setRefreshingEngagement] = useState(false)
+  const [commentActionLoading, setCommentActionLoading] = useState<string | null>(null)
   const [savingCalibration, setSavingCalibration] = useState(false)
   const [savingGoldStandard, setSavingGoldStandard] = useState(false)
   const [revisingCalibration, setRevisingCalibration] = useState(false)
@@ -465,6 +473,9 @@ function SocialContentDetailPage() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [targetPlatforms, setTargetPlatforms] = useState<SocialPlatform[]>(['linkedin'])
   const [calibrationFeedback, setCalibrationFeedback] = useState<CalibrationFeedback>(EMPTY_CALIBRATION_FEEDBACK)
+  const [commentInboxItems, setCommentInboxItems] = useState<SocialCommentInboxItem[]>([])
+  const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({})
+  const [commentInboxUnavailable, setCommentInboxUnavailable] = useState<CommentInboxUnavailableState | null>(null)
 
   const [postText, setPostText] = useState('')
   const [ctaText, setCtaText] = useState('')
@@ -592,6 +603,42 @@ function SocialContentDetailPage() {
     }
   }, [])
 
+  const fetchCommentInboxItems = useCallback(async () => {
+    setCommentInboxUnavailable(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const res = await fetch(`/api/admin/social-content/${id}/engagement/comments`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const data = await res.json().catch(() => ({}))
+      if (data.unavailable) {
+        setCommentInboxUnavailable({
+          message: asString(data.message) || 'Comment inbox storage is unavailable.',
+          recovery: asString(data.recovery) || 'Apply the comment inbox migration to the bound database before validating populated rows.',
+        })
+        setCommentInboxItems([])
+        setCommentDrafts({})
+        return
+      }
+      if (!res.ok) {
+        console.error('Failed to fetch social comment inbox:', data.error || res.status)
+        setCommentInboxItems([])
+        setCommentDrafts({})
+        return
+      }
+
+      const comments = Array.isArray(data.comments) ? data.comments as SocialCommentInboxItem[] : []
+      setCommentInboxItems(comments)
+      setCommentDrafts(Object.fromEntries(comments.map((comment) => [comment.id, comment.draftReply])))
+    } catch (err) {
+      console.error('Failed to fetch social comment inbox:', err)
+      setCommentInboxItems([])
+      setCommentDrafts({})
+    }
+  }, [id])
+
   const fetchItem = useCallback(async (options: { silent?: boolean } = {}) => {
     if (!options.silent) {
       setLoading(true)
@@ -653,6 +700,7 @@ function SocialContentDetailPage() {
       setSelectedComparisonReferenceIds(asStringArray(operatorFeedback?.comparison_reference_ids))
       setCopyRevisionRequest(asString(operatorFeedback?.revision_request))
       void fetchReviewQueue(i)
+      void fetchCommentInboxItems()
     } catch (err) {
       console.error('Failed to fetch item:', err)
       setLoadError(err instanceof Error ? err.message : 'Social content detail failed to load.')
@@ -660,7 +708,7 @@ function SocialContentDetailPage() {
     } finally {
       if (!options.silent) setLoading(false)
     }
-  }, [fetchReviewQueue, id])
+  }, [fetchCommentInboxItems, fetchReviewQueue, id])
 
   useEffect(() => {
     fetchItem()
@@ -1523,6 +1571,61 @@ function SocialContentDetailPage() {
       showMsg('error', 'Engagement refresh failed')
     } finally {
       setRefreshingEngagement(false)
+    }
+  }
+
+  const canSubmitCommentReply = (comment: SocialCommentInboxItem) => (
+    comment.approvalState === 'approved'
+    && comment.providerCapability.automaticReply
+    && comment.providerCapability.verified
+    && comment.providerCapability.humanGateSatisfied
+  )
+
+  const handleCommentInboxAction = async (
+    comment: SocialCommentInboxItem | null,
+    action: 'refresh_request' | 'draft_response' | 'approve' | 'reject' | 'ignore' | 'submit',
+  ) => {
+    const actionKey = comment ? `${comment.id}:${action}` : action
+    setCommentActionLoading(actionKey)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const res = await fetch(`/api/admin/social-content/${id}/engagement/comments`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action,
+          comment_id: comment?.id,
+          draft_reply: comment ? commentDrafts[comment.id] ?? '' : undefined,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok && res.status !== 409) {
+        showMsg('error', data.error || data.message || 'Comment action failed')
+        return
+      }
+      if (Array.isArray(data.comments)) {
+        setCommentInboxItems(data.comments)
+        setCommentDrafts(Object.fromEntries(data.comments.map((item: SocialCommentInboxItem) => [item.id, item.draftReply])))
+      }
+      if (data.unavailable) {
+        setCommentInboxUnavailable({
+          message: asString(data.message) || 'Comment inbox storage is unavailable.',
+          recovery: asString(data.recovery) || 'Apply the comment inbox migration to the bound database before validating populated rows.',
+        })
+      }
+      showMsg(res.ok ? 'success' : 'error', data.message || (res.ok ? 'Comment action recorded' : 'Comment action blocked'))
+      if (res.ok) {
+        await fetchItem({ silent: true })
+      }
+    } catch {
+      showMsg('error', 'Comment action failed')
+    } finally {
+      setCommentActionLoading(null)
     }
   }
 
@@ -5059,6 +5162,196 @@ function SocialContentDetailPage() {
             )}
           </motion.div>
         )}
+
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-xl border border-gray-800 bg-gray-900 p-5"
+        >
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-200">
+                <MessageSquare className="h-5 w-5 text-amber-300" />
+                Comment response panel
+              </h2>
+              <p className="mt-1 text-sm leading-6 text-gray-400">
+                Review imported provider comments and record local reply decisions. This panel does not submit external replies without a verified provider capability and human gate.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href="/admin/social-content/engagement-inbox"
+                className="inline-flex min-h-9 items-center justify-center rounded-lg border border-gray-700 px-3 py-2 text-xs font-semibold text-gray-200 transition-colors hover:bg-gray-800"
+              >
+                Engagement Inbox
+              </Link>
+              <button
+                type="button"
+                onClick={() => handleCommentInboxAction(null, 'refresh_request')}
+                disabled={commentActionLoading === 'refresh_request'}
+                className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-100 transition-colors hover:bg-amber-500/20 disabled:opacity-60"
+              >
+                {commentActionLoading === 'refresh_request' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+                Refresh Request
+              </button>
+            </div>
+          </div>
+
+          {commentInboxUnavailable ? (
+            <div className="mt-4 rounded-lg border border-amber-500/35 bg-amber-500/10 p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+                <ShieldAlert className="h-5 w-5 shrink-0 text-amber-200" />
+                <div className="min-w-0">
+                  <h3 className="text-sm font-semibold text-amber-100">Comment inbox unavailable</h3>
+                  <p className="mt-2 text-sm leading-6 text-amber-50">{commentInboxUnavailable.message}</p>
+                  <p className="mt-2 break-words text-xs leading-5 text-amber-100/85">{commentInboxUnavailable.recovery}</p>
+                  <button
+                    type="button"
+                    onClick={() => void fetchCommentInboxItems()}
+                    className="mt-3 inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/15 px-3 py-2 text-xs font-semibold text-amber-100 hover:bg-amber-500/20"
+                  >
+                    <RefreshCw className="h-3.5 w-3.5" />
+                    Retry Check
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : commentInboxItems.length === 0 ? (
+            <div className="mt-4 rounded-lg border border-dashed border-gray-700 bg-gray-950/45 p-4 text-sm leading-6 text-gray-400">
+              No comment projection is attached to this post yet. Request a refresh or import provider comments through the ingestion lane; unsupported providers should be imported as blocked/manual rows rather than hidden.
+            </div>
+          ) : (
+            <div className="mt-4 space-y-3">
+              {commentInboxItems.map((comment) => {
+                const submitReady = canSubmitCommentReply(comment)
+                const actionKey = (action: string) => `${comment.id}:${action}`
+                const platformName = PLATFORMS.find((platform) => platform.value === comment.platform)?.label ?? comment.platform
+                return (
+                  <div key={comment.id} className="rounded-lg border border-gray-800 bg-gray-950/45 p-4">
+                    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,24rem)]">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="rounded-full border border-gray-700 bg-gray-800 px-2.5 py-1 text-xs font-semibold text-gray-200">{platformName}</span>
+                          <span className="rounded-full border border-amber-500/35 bg-amber-500/10 px-2.5 py-1 text-xs font-semibold text-amber-100">{comment.status.replace(/_/g, ' ')}</span>
+                          <span className="rounded-full border border-blue-500/35 bg-blue-500/10 px-2.5 py-1 text-xs font-semibold text-blue-100">{comment.classification.label}</span>
+                        </div>
+                        <p className="mt-3 text-sm font-semibold text-gray-100">{comment.authorDisplayName}</p>
+                        <p className="mt-2 break-words text-sm leading-6 text-gray-200">{comment.body}</p>
+                        <div className="mt-3 rounded-lg border border-gray-800 bg-gray-900 p-3">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Original post</p>
+                          <p className="mt-1 text-sm leading-6 text-gray-200">{comment.postLabel}</p>
+                          <p className="mt-1 line-clamp-3 text-xs leading-5 text-gray-500">{comment.postExcerpt}</p>
+                        </div>
+                        <label className="mt-3 block text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                          Draft reply
+                          <textarea
+                            value={commentDrafts[comment.id] ?? ''}
+                            onChange={(event) => setCommentDrafts((current) => ({ ...current, [comment.id]: event.target.value }))}
+                            rows={3}
+                            className="mt-1 w-full resize-y rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-sm leading-6 text-gray-100 placeholder:text-gray-600"
+                            placeholder="Draft a reviewed reply. This does not send externally."
+                          />
+                        </label>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleCommentInboxAction(comment, 'draft_response')}
+                            disabled={commentActionLoading === actionKey('draft_response')}
+                            className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-blue-500/40 bg-blue-500/10 px-3 py-2 text-xs font-semibold text-blue-100 hover:bg-blue-500/20 disabled:opacity-60"
+                          >
+                            <MessageSquare className="h-3.5 w-3.5" />
+                            Draft Response
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleCommentInboxAction(comment, 'approve')}
+                            disabled={commentActionLoading === actionKey('approve') || !(commentDrafts[comment.id] ?? '').trim()}
+                            className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-100 hover:bg-emerald-500/20 disabled:opacity-60"
+                          >
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                            Approve
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleCommentInboxAction(comment, 'reject')}
+                            disabled={commentActionLoading === actionKey('reject')}
+                            className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-100 hover:bg-red-500/20 disabled:opacity-60"
+                          >
+                            <XCircle className="h-3.5 w-3.5" />
+                            Reject
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleCommentInboxAction(comment, 'ignore')}
+                            disabled={commentActionLoading === actionKey('ignore')}
+                            className="inline-flex min-h-9 items-center justify-center rounded-lg border border-gray-700 px-3 py-2 text-xs font-semibold text-gray-300 hover:bg-gray-800 disabled:opacity-60"
+                          >
+                            Ignore
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleCommentInboxAction(comment, 'submit')}
+                            disabled={commentActionLoading === actionKey('submit') || !submitReady}
+                            title={submitReady ? 'Queue guarded provider submission request' : comment.providerCapability.blocker || comment.providerCapability.recoveryPath}
+                            className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-100 hover:bg-amber-500/20 disabled:cursor-not-allowed disabled:opacity-55"
+                          >
+                            <Send className="h-3.5 w-3.5" />
+                            Submit
+                          </button>
+                        </div>
+                      </div>
+                      <aside className="min-w-0 rounded-lg border border-gray-800 bg-gray-900 p-3">
+                        <div className="flex items-center gap-2">
+                          {submitReady ? <CheckCircle2 className="h-4 w-4 text-emerald-300" /> : <ShieldAlert className="h-4 w-4 text-amber-300" />}
+                          <p className="text-sm font-semibold text-gray-100">{submitReady ? 'Provider ready' : 'Blocked/manual provider'}</p>
+                        </div>
+                        <p className="mt-2 break-words text-xs leading-5 text-gray-400">
+                          {comment.providerCapability.blocker || comment.providerCapability.recoveryPath}
+                        </p>
+                        <dl className="mt-3 space-y-2 text-xs leading-5">
+                          <div>
+                            <dt className="font-semibold uppercase tracking-[0.12em] text-gray-500">Approval state</dt>
+                            <dd className="mt-0.5 text-gray-200">{comment.approvalState.replace(/_/g, ' ')}</dd>
+                          </div>
+                          <div>
+                            <dt className="font-semibold uppercase tracking-[0.12em] text-gray-500">Provider comment</dt>
+                            <dd className="mt-0.5 break-words text-gray-400">{comment.providerCommentId || 'No provider comment ID imported.'}</dd>
+                          </div>
+                        </dl>
+                        {comment.providerPermalink && (
+                          <a
+                            href={comment.providerPermalink}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="mt-3 inline-flex min-h-8 items-center gap-2 rounded-lg border border-gray-700 px-2.5 py-1.5 text-xs font-semibold text-gray-200 hover:bg-gray-800"
+                          >
+                            Provider comment
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                        )}
+                        <div className="mt-4">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Action history</p>
+                          {comment.actionHistory.length ? (
+                            <ul className="mt-2 space-y-2">
+                              {comment.actionHistory.slice(0, 3).map((event, index) => (
+                                <li key={`${event.at}-${index}`} className="rounded-md border border-gray-800 bg-gray-950 px-2.5 py-2 text-xs leading-5 text-gray-400">
+                                  <span className="font-semibold text-gray-200">{event.action.replace(/_/g, ' ')}</span>
+                                  {event.note ? `: ${event.note}` : ''}
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="mt-2 rounded-md border border-gray-800 bg-gray-950 px-2.5 py-2 text-xs leading-5 text-gray-500">No actions recorded.</p>
+                          )}
+                        </div>
+                      </aside>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </motion.div>
 
         {/* ================================================================ */}
         {/* SECTION 3: Publish Status                                         */}
