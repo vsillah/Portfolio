@@ -32,18 +32,19 @@ describe('/api/cron/social-content-comment-attention', () => {
     vi.clearAllMocks()
     process.env.CRON_SECRET = 'cron-secret'
     process.env.N8N_INGEST_SECRET = ''
-    mocks.runAgentSlackNotificationSweep.mockResolvedValue({
+    delete process.env.SOCIAL_COMMENT_SLACK_ATTENTION_ENABLED
+    mocks.runAgentSlackNotificationSweep.mockImplementation(async (input: { dryRun?: boolean }) => ({
       ok: true,
-      dryRun: false,
+      dryRun: Boolean(input.dryRun),
       mode: 'scheduled',
       totalRules: 1,
-      sentCount: 1,
+      sentCount: input.dryRun ? 0 : 1,
       dedupedCount: 0,
-      skippedCount: 0,
+      skippedCount: input.dryRun ? 1 : 0,
       errorCount: 0,
       itemCount: 1,
       results: [],
-    })
+    }))
     mocks.evaluateSocialCommentReplyHolds.mockResolvedValue({
       ok: true,
       checkedCount: 2,
@@ -65,7 +66,42 @@ describe('/api/cron/social-content-comment-attention', () => {
     expect(mocks.evaluateSocialCommentReplyHolds).not.toHaveBeenCalled()
   })
 
-  it('runs comment attention Slack sweep and hold evaluation without external replies', async () => {
+  it('defaults scheduled GET to activation-disabled dry run with no Slack delivery or external replies', async () => {
+    const response = await GET(request('http://localhost/api/cron/social-content-comment-attention?limit=10') as never)
+
+    expect(response.status).toBe(200)
+    expect(mocks.runAgentSlackNotificationSweep).toHaveBeenCalledWith({
+      kinds: ['social_comment_attention_due'],
+      mode: 'scheduled',
+      dryRun: true,
+      force: false,
+      actorLabel: 'Vercel cron',
+      triggerSource: 'vercel_cron_social_content_comment_attention',
+    })
+    expect(mocks.evaluateSocialCommentReplyHolds).not.toHaveBeenCalled()
+    await expect(response.json()).resolves.toMatchObject({
+      ok: true,
+      dry_run: true,
+      activation: {
+        enabled: false,
+        disabled: true,
+        reason: 'activation_disabled_default_off',
+        force_applied: false,
+      },
+      side_effects: {
+        slack_messages_sent: 0,
+        reply_hold_state_updated: false,
+        provider_generation: false,
+        provider_refresh: false,
+        external_reply_send: false,
+        external_post: false,
+      },
+    })
+  })
+
+  it('runs activated Slack sweep and hold evaluation without enabling external replies', async () => {
+    process.env.SOCIAL_COMMENT_SLACK_ATTENTION_ENABLED = 'true'
+
     const response = await GET(request('http://localhost/api/cron/social-content-comment-attention?limit=10') as never)
 
     expect(response.status).toBe(200)
@@ -80,6 +116,12 @@ describe('/api/cron/social-content-comment-attention', () => {
     expect(mocks.evaluateSocialCommentReplyHolds).toHaveBeenCalledWith(10)
     await expect(response.json()).resolves.toMatchObject({
       ok: true,
+      dry_run: false,
+      activation: {
+        enabled: true,
+        disabled: false,
+        reason: 'enabled',
+      },
       side_effects: {
         slack_messages_sent: 1,
         reply_hold_state_updated: true,
@@ -91,7 +133,39 @@ describe('/api/cron/social-content-comment-attention', () => {
     })
   })
 
+  it('does not let force bypass the default-off activation gate', async () => {
+    const response = await POST(request('http://localhost/api/cron/social-content-comment-attention', 'POST', {
+      force: true,
+    }) as never)
+
+    expect(response.status).toBe(200)
+    expect(mocks.runAgentSlackNotificationSweep).toHaveBeenCalledWith(expect.objectContaining({
+      dryRun: true,
+      force: false,
+      actorLabel: 'Manual cron trigger',
+      triggerSource: 'manual_cron_social_content_comment_attention',
+    }))
+    expect(mocks.evaluateSocialCommentReplyHolds).not.toHaveBeenCalled()
+    await expect(response.json()).resolves.toMatchObject({
+      dry_run: true,
+      activation: {
+        enabled: false,
+        disabled: true,
+        reason: 'activation_disabled_default_off',
+        force_requested: true,
+        force_applied: false,
+      },
+      side_effects: {
+        slack_messages_sent: 0,
+        reply_hold_state_updated: false,
+        external_reply_send: false,
+      },
+    })
+  })
+
   it('supports dry-run POST slices without evaluating hold mutations', async () => {
+    process.env.SOCIAL_COMMENT_SLACK_ATTENTION_ENABLED = 'true'
+
     const response = await POST(request('http://localhost/api/cron/social-content-comment-attention', 'POST', {
       dry_run: true,
       force: true,

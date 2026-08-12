@@ -33,6 +33,10 @@ function flagValue(request: NextRequest, body: Record<string, unknown>, key: str
   return body[key] === true || searchParams.get(key) === '1' || searchParams.get(key) === 'true'
 }
 
+function socialCommentSlackAttentionEnabled() {
+  return process.env.SOCIAL_COMMENT_SLACK_ATTENTION_ENABLED === 'true'
+}
+
 function limitFrom(request: NextRequest, body: Record<string, unknown>) {
   const searchParams = new URL(request.url).searchParams
   const raw = searchParams.get('limit') ?? body.limit
@@ -47,8 +51,12 @@ async function runCommentAttentionSweep(request: NextRequest) {
   }
 
   const body = await parsePostBody(request)
-  const dryRun = flagValue(request, body, 'dry_run') || body.dryRun === true
-  const force = flagValue(request, body, 'force')
+  const requestedDryRun = flagValue(request, body, 'dry_run') || body.dryRun === true
+  const activationEnabled = socialCommentSlackAttentionEnabled()
+  const activationDisabled = !activationEnabled
+  const dryRun = requestedDryRun || activationDisabled
+  const requestedForce = flagValue(request, body, 'force')
+  const force = requestedForce && activationEnabled
   const limit = limitFrom(request, body)
 
   const slack = await runAgentSlackNotificationSweep({
@@ -78,6 +86,17 @@ async function runCommentAttentionSweep(request: NextRequest) {
   return NextResponse.json({
     ok: slack.ok && holds.ok,
     dry_run: dryRun,
+    activation: {
+      enabled: activationEnabled,
+      disabled: activationDisabled,
+      reason: activationDisabled
+        ? 'activation_disabled_default_off'
+        : requestedDryRun
+          ? 'manual_dry_run'
+          : 'enabled',
+      force_requested: requestedForce,
+      force_applied: force,
+    },
     slack,
     holds,
     side_effects: {
