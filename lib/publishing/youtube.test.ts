@@ -38,7 +38,7 @@ describe('publishToYouTube', () => {
   })
 
   it('uploads a final video asset to YouTube with private default privacy', async () => {
-    installSupabase({
+    const { update } = installSupabase({
       is_active: true,
       credentials: {
         access_token: 'token',
@@ -76,6 +76,15 @@ describe('publishToYouTube', () => {
     expect(mocks.fetch.mock.calls[1][1]).toEqual(expect.objectContaining({
       method: 'POST',
       headers: expect.objectContaining({ Authorization: 'Bearer token' }),
+    }))
+    expect(update).toHaveBeenNthCalledWith(1, expect.objectContaining({
+      status: 'publishing',
+      error_message: null,
+    }))
+    expect(update).toHaveBeenNthCalledWith(2, expect.objectContaining({
+      status: 'published',
+      error_message: null,
+      platform_post_id: 'youtube-video-1',
     }))
   })
 

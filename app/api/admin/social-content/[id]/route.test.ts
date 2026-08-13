@@ -41,10 +41,10 @@ describe('PUT /api/admin/social-content/[id]', () => {
       data: { id: 'social-1', rag_context: { source: 'agent_ops_social_outreach_goal' } },
       error: null,
     })
-    mocks.select.mockReturnValue({ single: mocks.single })
-    mocks.eq.mockReturnValue({ select: mocks.select })
+    mocks.select.mockReturnValue({ eq: mocks.eq, single: mocks.single })
+    mocks.eq.mockReturnValue({ select: mocks.select, single: mocks.single })
     mocks.update.mockReturnValue({ eq: mocks.eq })
-    mocks.from.mockReturnValue({ update: mocks.update })
+    mocks.from.mockReturnValue({ update: mocks.update, select: mocks.select })
   })
 
   it('allows Agent Ops calibration feedback to be saved in rag_context', async () => {
@@ -92,6 +92,89 @@ describe('PUT /api/admin/social-content/[id]', () => {
 
     expect(response.status).toBe(400)
     expect(await response.json()).toEqual({ error: 'No valid fields to update' })
+    expect(mocks.update).not.toHaveBeenCalled()
+  })
+
+  it('blocks copy approval when Context is not approved', async () => {
+    mocks.single.mockResolvedValueOnce({
+      data: { id: 'social-1', status: 'draft', rag_context: null },
+      error: null,
+    })
+
+    const response = await PUT(request({ status: 'approved' }) as never, {
+      params: { id: 'social-1' },
+    })
+
+    expect(response.status).toBe(409)
+    expect(await response.json()).toEqual(expect.objectContaining({
+      error: 'Social Content lifecycle prerequisite blocked.',
+      lifecycle_step: 'copy',
+      missing_prerequisite: 'context',
+    }))
+    expect(mocks.update).not.toHaveBeenCalled()
+  })
+
+  it('blocks section-gate visual approval when Context is not approved', async () => {
+    mocks.single.mockResolvedValueOnce({
+      data: { id: 'social-1', status: 'draft', rag_context: {} },
+      error: null,
+    })
+
+    const response = await PUT(request({
+      rag_context: {
+        section_gate_reviews: {
+          visual_assets: { status: 'approved' },
+        },
+      },
+    }) as never, {
+      params: { id: 'social-1' },
+    })
+
+    expect(response.status).toBe(409)
+    expect(await response.json()).toEqual(expect.objectContaining({
+      error: 'Social Content lifecycle prerequisite blocked.',
+      lifecycle_step: 'visuals',
+      missing_prerequisite: 'context',
+    }))
+    expect(mocks.update).not.toHaveBeenCalled()
+  })
+
+  it('allows copy approval after Context evidence is present', async () => {
+    const currentItem = {
+      id: 'social-1',
+      status: 'draft',
+      rag_context: {
+        goal_id: 'goal-1',
+        platform: 'linkedin',
+        pass_to_human: true,
+      },
+    }
+    const updatedItem = { ...currentItem, status: 'approved', reviewed_by: 'admin-1' }
+    mocks.single
+      .mockResolvedValueOnce({ data: currentItem, error: null })
+      .mockResolvedValueOnce({ data: updatedItem, error: null })
+
+    const response = await PUT(request({ status: 'approved' }) as never, {
+      params: { id: 'social-1' },
+    })
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ item: updatedItem })
+    expect(mocks.update).toHaveBeenCalledWith({
+      status: 'approved',
+      reviewed_by: 'admin-1',
+    })
+  })
+
+  it('returns 404 when a gated update cannot load the current item', async () => {
+    mocks.single.mockResolvedValueOnce({ data: null, error: { message: 'not found' } })
+
+    const response = await PUT(request({ status: 'approved' }) as never, {
+      params: { id: 'social-1' },
+    })
+
+    expect(response.status).toBe(404)
+    expect(await response.json()).toEqual({ error: 'Content not found' })
     expect(mocks.update).not.toHaveBeenCalled()
   })
 })

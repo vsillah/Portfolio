@@ -378,8 +378,11 @@ export function filterSocialCommentInboxItems(
   filters: SocialCommentInboxFilters,
 ) {
   return items.filter((item) => {
+    // filter === 'all' → no restriction on status
     if (filters.status && filters.status !== 'all' && item.status !== filters.status) return false
+    // filter === 'all' → no restriction on platform
     if (filters.platform && filters.platform !== 'all' && item.platform !== filters.platform) return false
+    // filter === 'all' → no restriction on campaign
     if (filters.campaign && filters.campaign !== 'all') {
       const campaignNeedle = filters.campaign.toLowerCase()
       if (![item.campaignId, item.campaignLabel].filter(Boolean).some((value) => value?.toLowerCase().includes(campaignNeedle))) {
@@ -387,6 +390,7 @@ export function filterSocialCommentInboxItems(
       }
     }
     if (filters.post && filters.post !== 'all') {
+      // filter === 'all' → no restriction on post
       const postNeedle = filters.post.toLowerCase()
       if (![item.socialContentId, item.postLabel, item.postExcerpt].some((value) => value.toLowerCase().includes(postNeedle))) {
         return false

@@ -137,6 +137,7 @@ export async function GET(request: NextRequest) {
     .from('social_content_comments')
     .select(COMMENT_SELECT)
 
+  // filter === 'all' → no restriction on platform
   if (filters.platform !== 'all') {
     query = query.eq('platform', filters.platform)
   }

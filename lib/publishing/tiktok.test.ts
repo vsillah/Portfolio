@@ -38,7 +38,7 @@ describe('publishToTikTok', () => {
   })
 
   it('submits a Direct Post request when creator and media URL gates are configured', async () => {
-    installSupabase({
+    const { update } = installSupabase({
       is_active: true,
       credentials: {
         access_token: 'token',
@@ -73,6 +73,10 @@ describe('publishToTikTok', () => {
         headers: expect.objectContaining({ Authorization: 'Bearer token' }),
       }),
     )
+    expect(update).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'publishing',
+      error_message: null,
+    }))
   })
 
   it('fails closed until creator-info review is confirmed', async () => {
