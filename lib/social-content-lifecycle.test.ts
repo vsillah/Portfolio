@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   deriveSocialContentLifecycleProjection,
   hasActualPublishedEvidence,
+  hasSocialContentVisualPrerequisites,
   hasSubmissionOrPublishEvidence,
   isDurableCopyApprovedStatus,
   lifecyclePrerequisiteFailure,
@@ -25,6 +26,18 @@ const completeRagContext = {
     status: 'approved',
     platforms: ['linkedin'],
   },
+}
+
+const completeTextOnlyXRagContext = {
+  source_packet_path: 'docs/content-strategy/x-source-packet.md',
+  platform: 'x',
+  approval_boundary: 'human gated',
+  x_batch_approval: {
+    status: 'approved',
+    approved_scope: ['copy', 'source_distance_review', 'privacy_review'],
+  },
+  privacy_review: { status: 'approved' },
+  source_distance_review: { status: 'approved' },
 }
 
 describe('social content lifecycle projection', () => {
@@ -60,7 +73,7 @@ describe('social content lifecycle projection', () => {
   it('keeps scheduled evidence valid for draft and submit without approving final status', () => {
     const scheduledItem = {
       status: 'scheduled' as const,
-      target_platforms: ['linkedin'],
+      target_platforms: ['linkedin' as const],
       image_url: 'https://cdn.example.com/image.png',
       rag_context: completeRagContext,
       publishes: [{ status: 'pending' as const }],
@@ -73,6 +86,70 @@ describe('social content lifecycle projection', () => {
     expect(projection.steps.draft.state).toBe('approved')
     expect(projection.steps.submit.state).toBe('approved')
     expect(projection.steps.status.state).toBe('pending')
+  })
+
+  it('approves Visuals for text-only X when the complete explicit review evidence exists', () => {
+    const projection = deriveSocialContentLifecycleProjection({
+      item: {
+        status: 'approved',
+        target_platforms: ['x'],
+        rag_context: completeTextOnlyXRagContext,
+      },
+    })
+
+    expect(projection.steps.visuals.state).toBe('approved')
+    expect(projection.steps.visuals.rawState).toBe('approved')
+  })
+
+  it.each([
+    ['approved batch status', { x_batch_approval: { status: 'pending' } }],
+    ['copy approval scope', { x_batch_approval: { approved_scope: ['source_distance_review', 'privacy_review'] } }],
+    ['source-distance approval scope', { x_batch_approval: { approved_scope: ['copy', 'privacy_review'] } }],
+    ['privacy approval scope', { x_batch_approval: { approved_scope: ['copy', 'source_distance_review'] } }],
+    ['approved privacy review', { privacy_review: { status: 'pending' } }],
+    ['approved source-distance review', { source_distance_review: { status: 'pending' } }],
+  ])('keeps text-only X Visuals pending without %s', (_condition, override) => {
+    const ragContext = {
+      ...completeTextOnlyXRagContext,
+      ...override,
+      x_batch_approval: {
+        ...completeTextOnlyXRagContext.x_batch_approval,
+        ...('x_batch_approval' in override ? override.x_batch_approval : {}),
+      },
+    }
+
+    expect(hasSocialContentVisualPrerequisites({
+      target_platforms: ['x'],
+      rag_context: ragContext,
+    })).toBe(false)
+  })
+
+  it('keeps text-only mixed-platform Visuals pending despite complete X evidence', () => {
+    expect(hasSocialContentVisualPrerequisites({
+      target_platforms: ['x', 'linkedin'],
+      rag_context: completeTextOnlyXRagContext,
+    })).toBe(false)
+  })
+
+  it('preserves existing Visuals approval behavior for other platforms', () => {
+    expect(hasSocialContentVisualPrerequisites({
+      target_platforms: ['linkedin'],
+      rag_context: completeRagContext,
+    })).toBe(true)
+  })
+
+  it('preserves sequential mismatch blocking for approved text-only X evidence', () => {
+    const projection = deriveSocialContentLifecycleProjection({
+      item: {
+        status: 'draft',
+        target_platforms: ['x'],
+        rag_context: completeTextOnlyXRagContext,
+      },
+    })
+
+    expect(projection.steps.visuals.rawState).toBe('approved')
+    expect(projection.steps.visuals.state).toBe('blocked')
+    expect(projection.steps.visuals.mismatch?.missingStep).toBe('copy')
   })
 
   it('blocks downstream evidence when an upstream prerequisite is missing', () => {
