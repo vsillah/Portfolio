@@ -358,6 +358,7 @@ describe('Agent Ops Slack notifications', () => {
 
   it('surfaces overdue or near-due Social Content publish blockers without Slack approval controls', async () => {
     process.env.NEXT_PUBLIC_BASE_URL = 'https://amadutown.com'
+    const scheduledFor = new Date(Date.now() + 60 * 60 * 1000).toISOString()
     mocks.from
       .mockReturnValueOnce(queryResult({
         data: [
@@ -367,7 +368,7 @@ describe('Agent Ops Slack notifications', () => {
             platform: 'x',
             target_platforms: ['x'],
             status: 'scheduled',
-            scheduled_for: '2026-08-05T20:00:00.000Z',
+            scheduled_for: scheduledFor,
             post_text: 'Approved X copy',
             rag_context: null,
           },
@@ -461,6 +462,119 @@ describe('Agent Ops Slack notifications', () => {
       text: 'No overdue or near-due Social Content publish gates need human QA.',
     })
     expect(JSON.stringify(payload.blocks)).not.toContain('Already posted item')
+  })
+
+  it('surfaces gate-approved stale X rows as recovery attention without approving or publishing', async () => {
+    process.env.NEXT_PUBLIC_BASE_URL = 'https://amadutown.com'
+    process.env.SOCIAL_CONTENT_SCHEDULED_PUBLISH_STALE_HOURS = '999'
+    const scheduledFor = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString()
+    mocks.from
+      .mockReturnValueOnce(queryResult({
+        data: [{
+          id: 'social-x-stale-approved',
+          topic_extracted: { topic: 'Stale approved X post' },
+          platform: 'x',
+          target_platforms: ['x'],
+          status: 'scheduled',
+          scheduled_for: scheduledFor,
+          post_text: 'Approved X copy ready for provider submission.',
+          rag_context: {
+            platform_submission_gate: {
+              status: 'approved',
+              approved_at: '2026-08-13T12:00:00.000Z',
+              approved_by: 'admin-1',
+              platforms: ['x'],
+            },
+          },
+        }],
+        error: null,
+      }))
+      .mockReturnValueOnce(queryResult({
+        data: [{
+          content_id: 'social-x-stale-approved',
+          platform: 'x',
+          status: 'pending',
+          platform_post_url: null,
+        }],
+        error: null,
+      }, ['in']))
+      .mockReturnValueOnce(queryResult({
+        data: [{
+          platform: 'x',
+          is_active: true,
+          credentials: { access_token: 'redacted-test-token' },
+          settings: { profile_handle: 'amadutown' },
+        }],
+        error: null,
+      }, ['select']))
+
+    const payload = await buildAgentSlackNotificationPayload({ kind: 'social_publish_gate_due' })
+
+    expect(payload.itemCount).toBe(1)
+    const blocks = JSON.stringify(payload.blocks)
+    expect(blocks).toContain('Stale approved X post')
+    expect(blocks).toContain('Stale X schedule')
+    expect(blocks).toContain('Reschedule and reconfirm, or cancel, in Social Content.')
+    expect(blocks).toContain('This reminder does not approve or publish the item.')
+    expect(blocks).toContain('Review recovery')
+    expect(blocks).toContain('/admin/social-content/social-x-stale-approved')
+    expect(blocks).not.toContain('open_social_content_submission_gate')
+    expect(blocks).not.toContain('approval.approve')
+    expect(blocks).not.toContain('agent_approval_approve')
+  })
+
+  it('does not classify a near-due gate-approved ready X row as blocked', async () => {
+    process.env.NEXT_PUBLIC_BASE_URL = 'https://amadutown.com'
+    const scheduledFor = new Date(Date.now() + 60 * 60 * 1000).toISOString()
+    mocks.from
+      .mockReturnValueOnce(queryResult({
+        data: [{
+          id: 'social-x-near-ready',
+          topic_extracted: { topic: 'Near-due ready X post' },
+          platform: 'x',
+          target_platforms: ['x'],
+          status: 'scheduled',
+          scheduled_for: scheduledFor,
+          post_text: 'Approved X copy ready for provider submission.',
+          rag_context: {
+            platform_submission_gate: {
+              status: 'approved',
+              approved_at: '2026-08-13T12:00:00.000Z',
+              approved_by: 'admin-1',
+              platforms: ['x'],
+            },
+          },
+        }],
+        error: null,
+      }))
+      .mockReturnValueOnce(queryResult({
+        data: [{
+          content_id: 'social-x-near-ready',
+          platform: 'x',
+          status: 'pending',
+          platform_post_url: null,
+        }],
+        error: null,
+      }, ['in']))
+      .mockReturnValueOnce(queryResult({
+        data: [{
+          platform: 'x',
+          is_active: true,
+          credentials: { access_token: 'redacted-test-token' },
+          settings: { profile_handle: 'amadutown' },
+        }],
+        error: null,
+      }, ['select']))
+
+    const payload = await buildAgentSlackNotificationPayload({ kind: 'social_publish_gate_due' })
+
+    expect(payload).toMatchObject({
+      itemCount: 0,
+      text: 'No overdue or near-due Social Content publish gates need human QA.',
+    })
+    const blocks = JSON.stringify(payload.blocks)
+    expect(blocks).not.toContain('Near-due ready X post')
+    expect(blocks).not.toContain('Stale X schedule')
   })
 
   it('uses a capped 30-day lookback, orders overdue blockers first, and dedupes queue rows', async () => {

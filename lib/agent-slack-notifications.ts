@@ -113,6 +113,17 @@ type SocialContentConfigRow = {
   is_active: boolean
 }
 
+type SocialPublishAttentionDetail = {
+  platform: SocialPlatform
+  label: string
+  detail: string
+  nextAction: string
+  kind: 'orchestration_blocker' | 'stale_schedule'
+}
+
+const DEFAULT_SCHEDULED_PUBLISH_STALE_HOURS = 24
+const MAX_SCHEDULED_PUBLISH_STALE_HOURS = 7 * 24
+
 function baseUrl() {
   return (
     process.env.NEXT_PUBLIC_BASE_URL ||
@@ -132,6 +143,15 @@ function socialContentGateReminderLookbackHours() {
   const value = Number(process.env.SOCIAL_CONTENT_GATE_REMINDER_LOOKBACK_HOURS ?? maximumHours)
   if (!Number.isFinite(value) || value <= 0) return maximumHours
   return Math.min(value, maximumHours)
+}
+
+function socialContentScheduledPublishStaleHours() {
+  const value = Number(
+    process.env.SOCIAL_CONTENT_SCHEDULED_PUBLISH_STALE_HOURS
+      ?? DEFAULT_SCHEDULED_PUBLISH_STALE_HOURS,
+  )
+  if (!Number.isFinite(value) || value <= 0) return DEFAULT_SCHEDULED_PUBLISH_STALE_HOURS
+  return Math.min(Math.max(value, 1), MAX_SCHEDULED_PUBLISH_STALE_HOURS)
 }
 
 function agentUrl(path: string) {
@@ -380,8 +400,8 @@ function blockedPlatformDetails(input: {
     finalSubmissionGateReady: isPlatformSubmissionGateApproved(input.row.rag_context, targetPlatforms),
   })
 
-  return plan.platforms
-    .map((platformPlan) => {
+  const details: Array<SocialPublishAttentionDetail | null> = plan.platforms
+    .map((platformPlan): SocialPublishAttentionDetail | null => {
       const blocker = platformPlan.stages.find((stage) => (
         stage.state === 'blocked' || stage.state === 'pending'
       ))
@@ -393,20 +413,58 @@ function blockedPlatformDetails(input: {
         label: platformPlan.label,
         detail: blocker.detail,
         nextAction: platformPlan.nextAction,
+        kind: 'orchestration_blocker' as const,
       }
     })
-    .filter((detail): detail is { platform: SocialPlatform; label: string; detail: string; nextAction: string } => Boolean(detail))
+
+  return details.filter((detail): detail is SocialPublishAttentionDetail => detail !== null)
+}
+
+function staleScheduleAttentionDetail(input: {
+  row: ScheduledSocialContentRow
+  publishes: SocialPublishRow[]
+  now: Date
+}): SocialPublishAttentionDetail | null {
+  const scheduledAt = new Date(input.row.scheduled_for ?? '').getTime()
+  const staleBefore = input.now.getTime()
+    - socialContentScheduledPublishStaleHours() * 60 * 60 * 1000
+  if (!Number.isFinite(scheduledAt) || scheduledAt >= staleBefore) return null
+
+  const pendingPlatforms = asSocialPlatforms(input.publishes
+    .filter((publish) => (
+      publish.content_id === input.row.id
+      && (publish.status === 'pending' || publish.status === 'failed')
+    ))
+    .map((publish) => publish.platform))
+  if (!pendingPlatforms.length) return null
+
+  const platform = pendingPlatforms[0]
+  return {
+    platform,
+    label: `Stale ${socialPlatformLabel(platform)} schedule`,
+    detail: 'Scheduled time is outside the automatic publish safety window. Reschedule and reconfirm, or cancel, in Social Content. This reminder does not approve or publish the item.',
+    nextAction: 'Review the canonical Social Content item, then reschedule and reconfirm or cancel it.',
+    kind: 'stale_schedule',
+  }
 }
 
 async function buildSocialPublishGateDuePayload() {
   const rows = await scheduledSocialContentRows()
   const publishes = await socialPublishRows(rows.map((row) => row.id))
   const configs = await socialPlatformConfigs()
+  const now = new Date()
   const items = rows
-    .map((row) => ({
-      row,
-      blockedDetails: blockedPlatformDetails({ row, publishes, configs }),
-    }))
+    .map((row) => {
+      const staleSchedule = staleScheduleAttentionDetail({ row, publishes, now })
+      return {
+        row,
+        staleSchedule: Boolean(staleSchedule),
+        blockedDetails: [
+          ...(staleSchedule ? [staleSchedule] : []),
+          ...blockedPlatformDetails({ row, publishes, configs }),
+        ],
+      }
+    })
     .filter((item) => item.blockedDetails.length > 0)
 
   const blocks: SlackBlock[] = [
@@ -449,9 +507,13 @@ async function buildSocialPublishGateDuePayload() {
       type: 'actions',
       elements: [
         slackButton({
-          label: 'Review gate',
-          actionId: 'open_social_content_submission_gate',
-          url: agentUrl(`/admin/social-content/${item.row.id}?step=submit`),
+          label: item.staleSchedule ? 'Review recovery' : 'Review gate',
+          actionId: item.staleSchedule
+            ? 'open_social_content_stale_schedule_recovery'
+            : 'open_social_content_submission_gate',
+          url: agentUrl(item.staleSchedule
+            ? `/admin/social-content/${item.row.id}`
+            : `/admin/social-content/${item.row.id}?step=submit`),
           style: 'primary',
         }),
         slackButton({
