@@ -116,7 +116,7 @@ describe('/api/cron/social-content-comment-attention', () => {
       publishLimit: 2,
       commentLimit: 25,
       refreshCooldownMinutes: 15,
-      recentPublishedHours: 72,
+      recentPublishedHours: 720,
       force: false,
       dryRun: false,
       refreshPublishedYouTubeComments: expect.any(Function),

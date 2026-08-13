@@ -86,11 +86,12 @@ export type SocialCommentAttentionRefreshSummary = {
 
 const DEFAULT_PUBLISH_LIMIT = 3
 const DEFAULT_COMMENT_LIMIT = 50
-const DEFAULT_RECENT_PUBLISHED_HOURS = 72
+const DEFAULT_RECENT_PUBLISHED_HOURS = 24 * 30
 const DEFAULT_REFRESH_COOLDOWN_MINUTES = 15
 const MAX_PUBLISH_LIMIT = 10
 const MAX_COMMENT_LIMIT = 100
 const MAX_CANDIDATE_LIMIT = 100
+const MAX_RECENT_PUBLISHED_HOURS = 24 * 90
 const UNRESOLVED_CLASSIFICATION_STATUSES = new Set(['unreviewed', 'needs_response', 'blocked'])
 const ACTIVE_VISIBILITY_STATUSES = new Set(['visible', 'held_for_review', 'blocked', 'unknown'])
 
@@ -139,6 +140,23 @@ async function readPublishedYouTubeRows(db: SupabaseClientLike, limit: number) {
     .order('published_at', { ascending: false, nullsFirst: false })
     .order('id', { ascending: true })
     .limit(limit)
+
+  if (result.error) throw new Error(result.error.message)
+  return (result.data ?? []) as PublishRow[]
+}
+
+async function readPublishedYouTubeRowsByIds(db: SupabaseClientLike, publishIds: string[]) {
+  const ids = [...new Set(publishIds)].filter(Boolean)
+  if (!ids.length) return []
+  const result = await db
+    .from('social_content_publishes')
+    .select('id, content_id, platform, status, platform_post_id, platform_post_url, published_at, created_at')
+    .eq('platform', 'youtube')
+    .eq('status', 'published')
+    .in('id', ids)
+    .order('published_at', { ascending: false, nullsFirst: false })
+    .order('id', { ascending: true })
+    .limit(Math.min(ids.length, MAX_CANDIDATE_LIMIT))
 
   if (result.error) throw new Error(result.error.message)
   return (result.data ?? []) as PublishRow[]
@@ -193,33 +211,46 @@ export async function runSocialCommentAttentionYouTubeRefresh(
     MAX_CANDIDATE_LIMIT,
   )
   const unresolvedCommentScanLimit = boundedInt(options.unresolvedCommentScanLimit, 200, publishLimit, 500)
-  const recentPublishedHours = boundedInt(options.recentPublishedHours, DEFAULT_RECENT_PUBLISHED_HOURS, 1, 24 * 14)
+  const recentPublishedHours = boundedInt(options.recentPublishedHours, DEFAULT_RECENT_PUBLISHED_HOURS, 1, MAX_RECENT_PUBLISHED_HOURS)
   const refreshCooldownMinutes = boundedInt(options.refreshCooldownMinutes, DEFAULT_REFRESH_COOLDOWN_MINUTES, 1, 24 * 60)
   const recentCutoffMs = now.getTime() - recentPublishedHours * 60 * 60 * 1000
   const cooldownCutoffMs = now.getTime() - refreshCooldownMinutes * 60 * 1000
   const dryRun = options.dryRun === true
   const force = options.force === true
 
-  const [publishedRows, activityRows] = await Promise.all([
+  const [recentRows, activityRows] = await Promise.all([
     readPublishedYouTubeRows(db, candidateLimit),
     readUnresolvedCommentActivity(db, unresolvedCommentScanLimit),
   ])
-  const publishedById = new Map(publishedRows.filter(hasProviderIdentity).map((row) => [row.id, row]))
-  const unresolvedPublishIds = new Set(activityRows.filter(isUnresolvedActivity).map((row) => row.publish_id as string))
+  const unresolvedPublishIds = [...new Set(activityRows.filter(isUnresolvedActivity).map((row) => row.publish_id as string))]
+  const unresolvedRows = await readPublishedYouTubeRowsByIds(db, unresolvedPublishIds)
 
-  const candidates = [...publishedById.values()]
-    .map((row) => {
-      const publishedAt = timestamp(row.published_at ?? row.created_at)
-      const hasUnresolved = unresolvedPublishIds.has(row.id)
-      const isRecent = publishedAt >= recentCutoffMs
-      if (!hasUnresolved && !isRecent) return null
-      return {
-        row,
-        reason: hasUnresolved ? 'unresolved_activity' as const : 'recently_published' as const,
-        publishedAt,
-      }
+  const candidatesById = new Map<string, {
+    row: PublishRow
+    reason: SocialCommentAttentionRefreshOutcome['selectedReason']
+    publishedAt: number
+  }>()
+
+  for (const row of recentRows) {
+    const publishedAt = timestamp(row.published_at ?? row.created_at)
+    if (!hasProviderIdentity(row) || publishedAt < recentCutoffMs) continue
+    candidatesById.set(row.id, {
+      row,
+      reason: 'recently_published',
+      publishedAt,
     })
-    .filter(Boolean) as Array<{ row: PublishRow; reason: SocialCommentAttentionRefreshOutcome['selectedReason']; publishedAt: number }>
+  }
+
+  for (const row of unresolvedRows) {
+    if (!hasProviderIdentity(row)) continue
+    candidatesById.set(row.id, {
+      row,
+      reason: 'unresolved_activity',
+      publishedAt: timestamp(row.published_at ?? row.created_at),
+    })
+  }
+
+  const candidates = [...candidatesById.values()]
 
   candidates.sort((a, b) => {
     const reasonDelta = Number(b.reason === 'unresolved_activity') - Number(a.reason === 'unresolved_activity')

@@ -72,7 +72,7 @@ async function runCommentAttentionSweep(request: NextRequest) {
   const publishLimit = numericOption(request, body, 'publish_limit', 3, 10)
   const commentLimit = numericOption(request, body, 'comment_limit', 50, 100)
   const refreshCooldownMinutes = numericOption(request, body, 'refresh_cooldown_minutes', 15, 24 * 60)
-  const recentPublishedHours = numericOption(request, body, 'recent_published_hours', 72, 24 * 14)
+  const recentPublishedHours = numericOption(request, body, 'recent_published_hours', 24 * 30, 24 * 90)
 
   const youtubeRefresh = await runSocialCommentAttentionYouTubeRefresh(supabaseAdmin, {
     publishLimit,

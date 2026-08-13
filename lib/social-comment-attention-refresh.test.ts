@@ -101,6 +101,7 @@ describe('runSocialCommentAttentionYouTubeRefresh', () => {
       social_content_publishes: [
         publish('recent-a', '2026-08-13T12:00:00.000Z'),
         publish('recent-b', '2026-08-13T11:00:00.000Z'),
+        publish('recent-c', '2026-08-13T10:00:00.000Z'),
         publish('old-unresolved', '2026-08-01T12:00:00.000Z'),
         publish('old-resolved', '2026-08-01T11:00:00.000Z'),
       ],
@@ -126,6 +127,7 @@ describe('runSocialCommentAttentionYouTubeRefresh', () => {
 
     const result = await runSocialCommentAttentionYouTubeRefresh(db, {
       publishLimit: 3,
+      candidateLimit: 2,
       commentLimit: 25,
       refreshCooldownMinutes: 15,
       now: () => new Date('2026-08-13T13:00:00.000Z'),
@@ -150,6 +152,44 @@ describe('runSocialCommentAttentionYouTubeRefresh', () => {
       publishId: 'old-unresolved',
       contentId: 'content-old-unresolved',
       limit: 25,
+    }))
+  })
+
+  it('includes old unresolved publishes outside the bounded recent candidate set', async () => {
+    const db = createDb({
+      social_content_publishes: [
+        publish('newest-a', '2026-08-13T12:00:00.000Z'),
+        publish('newest-b', '2026-08-13T11:00:00.000Z'),
+        publish('old-unresolved', '2026-07-01T12:00:00.000Z'),
+      ],
+      social_content_comments: [
+        {
+          publish_id: 'old-unresolved',
+          platform: 'youtube',
+          classification_status: 'needs_response',
+          status: 'visible',
+          updated_at: '2026-08-13T12:30:00.000Z',
+        },
+      ],
+      social_comment_ingestion_runs: [],
+    })
+    const refresh = vi.fn(async (input: YouTubeCommentRefreshInput) => succeeded(input))
+
+    const result = await runSocialCommentAttentionYouTubeRefresh(db, {
+      publishLimit: 3,
+      candidateLimit: 2,
+      recentPublishedHours: 24,
+      now: () => new Date('2026-08-13T13:00:00.000Z'),
+      refreshPublishedYouTubeComments: refresh,
+    })
+
+    expect(result.outcomes.map((outcome) => [outcome.publishId, outcome.selectedReason])).toEqual([
+      ['old-unresolved', 'unresolved_activity'],
+      ['newest-a', 'recently_published'],
+      ['newest-b', 'recently_published'],
+    ])
+    expect(refresh).toHaveBeenCalledWith(expect.objectContaining({
+      publishId: 'old-unresolved',
     }))
   })
 
@@ -178,7 +218,7 @@ describe('runSocialCommentAttentionYouTubeRefresh', () => {
   it('deduplicates unresolved comment activity by publish before refresh', async () => {
     const db = createDb({
       social_content_publishes: [
-        publish('publish-1', '2026-08-01T12:00:00.000Z'),
+        publish('publish-1', '2026-08-13T12:00:00.000Z'),
       ],
       social_content_comments: [
         { publish_id: 'publish-1', platform: 'youtube', classification_status: 'needs_response', status: 'visible', updated_at: '2026-08-13T12:00:00.000Z' },
@@ -189,17 +229,52 @@ describe('runSocialCommentAttentionYouTubeRefresh', () => {
     const refresh = vi.fn(async (input: YouTubeCommentRefreshInput) => succeeded(input))
 
     const result = await runSocialCommentAttentionYouTubeRefresh(db, {
-      recentPublishedHours: 1,
       now: () => new Date('2026-08-13T13:00:00.000Z'),
       refreshPublishedYouTubeComments: refresh,
     })
 
     expect(result.selectedCount).toBe(1)
+    expect(result.outcomes[0]).toMatchObject({
+      publishId: 'publish-1',
+      selectedReason: 'unresolved_activity',
+    })
     expect(refresh).toHaveBeenCalledTimes(1)
     expect(refresh).toHaveBeenCalledWith(expect.not.objectContaining({
       approvedReplyText: expect.anything(),
       replyText: expect.anything(),
     }))
+  })
+
+  it('selects an eight-day-old campaign publish under the default watch window', async () => {
+    const verifiedPublishId = '16aebaf3-251f-42c4-8fcf-00d3899f8a5e'
+    const db = createDb({
+      social_content_publishes: [
+        publish(verifiedPublishId, '2026-08-05T13:07:29.000Z', {
+          content_id: '41ddfcdf-e4ad-4b4f-a9ef-6f5860c06b91',
+          platform_post_id: 'abc123DEF45',
+          platform_post_url: 'https://www.youtube.com/watch?v=abc123DEF45',
+        }),
+      ],
+      social_content_comments: [],
+      social_comment_ingestion_runs: [],
+    })
+    const refresh = vi.fn(async (input: YouTubeCommentRefreshInput) => succeeded(input))
+
+    const result = await runSocialCommentAttentionYouTubeRefresh(db, {
+      now: () => new Date('2026-08-13T13:07:29.000Z'),
+      refreshPublishedYouTubeComments: refresh,
+    })
+
+    expect(result).toMatchObject({
+      selectedCount: 1,
+      attemptedCount: 1,
+      succeededCount: 1,
+    })
+    expect(result.outcomes[0]).toMatchObject({
+      publishId: verifiedPublishId,
+      contentId: '41ddfcdf-e4ad-4b4f-a9ef-6f5860c06b91',
+      selectedReason: 'recently_published',
+    })
   })
 
   it('keeps token and scope blockers manual without marking provider writes', async () => {
