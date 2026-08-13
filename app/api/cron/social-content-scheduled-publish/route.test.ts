@@ -45,14 +45,50 @@ function installSupabase({
   items: Array<Record<string, unknown>>
   publishesByContentId: Record<string, Array<Record<string, unknown>>>
 }) {
-  const queueQuery: Record<string, unknown> = {
-    data: items,
-    error: null,
-    eq: vi.fn(() => queueQuery),
-    lte: vi.fn(() => queueQuery),
-    order: vi.fn(() => queueQuery),
-    limit: vi.fn(() => queueQuery),
-  }
+  const queueQueries: Array<Record<string, unknown>> = []
+  const queueSelect = vi.fn(() => {
+    let lowerBound: string | null = null
+    let upperBound: string | null = null
+    let staleBefore: string | null = null
+    let ascending = true
+    const queueQuery: Record<string, unknown> = {
+      eq: vi.fn(() => queueQuery),
+      gte: vi.fn((_column: string, value: string) => {
+        lowerBound = value
+        return queueQuery
+      }),
+      lte: vi.fn((_column: string, value: string) => {
+        upperBound = value
+        return queueQuery
+      }),
+      lt: vi.fn((_column: string, value: string) => {
+        staleBefore = value
+        return queueQuery
+      }),
+      order: vi.fn((_column: string, options: { ascending: boolean }) => {
+        ascending = options.ascending
+        return queueQuery
+      }),
+      limit: vi.fn(async (limit: number) => {
+        const rows = items
+          .filter((item) => {
+            const scheduledAt = new Date(String(item.scheduled_for)).getTime()
+            return (!lowerBound || scheduledAt >= new Date(lowerBound).getTime())
+              && (!upperBound || scheduledAt <= new Date(upperBound).getTime())
+              && (!staleBefore || scheduledAt < new Date(staleBefore).getTime())
+          })
+          .sort((left, right) => {
+            const difference = new Date(String(left.scheduled_for)).getTime()
+              - new Date(String(right.scheduled_for)).getTime()
+            return ascending ? difference : -difference
+          })
+          .slice(0, limit)
+        return { data: rows, error: null }
+      }),
+    }
+    queueQueries.push(queueQuery)
+    return queueQuery
+  })
 
   const publishEq = vi.fn(async (_column: string, id: string) => ({
     data: publishesByContentId[id] ?? [],
@@ -66,7 +102,7 @@ function installSupabase({
 
   mocks.from.mockImplementation((table: string) => {
     if (table === 'social_content_queue') {
-      return { select: vi.fn(() => queueQuery) }
+      return { select: queueSelect }
     }
     if (table === 'social_content_publishes') {
       return { select: publishSelect, update: publishUpdate }
@@ -74,7 +110,7 @@ function installSupabase({
     return {}
   })
 
-  return { queueQuery, publishEq, publishUpdate, publishUpdateEq, publishStatusIn, publishPlatformIn }
+  return { queueQueries, publishEq, publishUpdate, publishUpdateEq, publishStatusIn, publishPlatformIn }
 }
 
 describe('/api/cron/social-content-scheduled-publish', () => {
@@ -98,7 +134,7 @@ describe('/api/cron/social-content-scheduled-publish', () => {
 
   it('dry-runs due approved scheduled rows without publishing', async () => {
     const scheduledFor = new Date(Date.now() - 60 * 60 * 1000).toISOString()
-    const { queueQuery } = installSupabase({
+    const { queueQueries } = installSupabase({
       items: [{
         id: 'social-x-3',
         status: 'scheduled',
@@ -113,9 +149,13 @@ describe('/api/cron/social-content-scheduled-publish', () => {
     const response = await GET(request('http://localhost/api/cron/social-content-scheduled-publish?dry_run=1&limit=5') as never)
 
     expect(response.status).toBe(200)
-    expect(queueQuery.eq).toHaveBeenCalledWith('status', 'scheduled')
-    expect(queueQuery.lte).toHaveBeenCalledWith('scheduled_for', expect.any(String))
-    expect(queueQuery.limit).toHaveBeenCalledWith(5)
+    expect(queueQueries).toHaveLength(2)
+    expect(queueQueries[0].eq).toHaveBeenCalledWith('status', 'scheduled')
+    expect(queueQueries[0].gte).toHaveBeenCalledWith('scheduled_for', expect.any(String))
+    expect(queueQueries[0].lte).toHaveBeenCalledWith('scheduled_for', expect.any(String))
+    expect(queueQueries[0].limit).toHaveBeenCalledWith(5)
+    expect(queueQueries[1].lt).toHaveBeenCalledWith('scheduled_for', expect.any(String))
+    expect(queueQueries[1].limit).toHaveBeenCalledWith(5)
     expect(mocks.publishSocialContentItem).not.toHaveBeenCalled()
     await expect(response.json()).resolves.toMatchObject({
       ok: true,
@@ -284,6 +324,89 @@ describe('/api/cron/social-content-scheduled-publish', () => {
       evaluated: [
         expect.objectContaining({ id: 'provider-blocked', status: 'blocked', blocker_persisted: true }),
         expect.objectContaining({ id: 'later-success', status: 'published' }),
+      ],
+    })
+  })
+
+  it('does not let a full stale partition starve an in-window row during dry-run', async () => {
+    const inWindowAt = new Date(Date.now() - 60 * 60 * 1000).toISOString()
+    const staleAt = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+    installSupabase({
+      items: [
+        { id: 'stale-1', status: 'scheduled', scheduled_for: staleAt, rag_context: approvedGate(['x']) },
+        { id: 'stale-2', status: 'scheduled', scheduled_for: staleAt, rag_context: approvedGate(['x']) },
+        { id: 'stale-3', status: 'scheduled', scheduled_for: staleAt, rag_context: approvedGate(['x']) },
+        { id: 'in-window', status: 'scheduled', scheduled_for: inWindowAt, rag_context: approvedGate(['x']) },
+      ],
+      publishesByContentId: {
+        'stale-1': [{ platform: 'x', status: 'pending' }],
+        'stale-2': [{ platform: 'x', status: 'pending' }],
+        'stale-3': [{ platform: 'x', status: 'pending' }],
+        'in-window': [{ platform: 'x', status: 'pending' }],
+      },
+    })
+
+    const response = await GET(request(
+      'http://localhost/api/cron/social-content-scheduled-publish?dry_run=1&limit=2',
+    ) as never)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(mocks.publishSocialContentItem).not.toHaveBeenCalled()
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
+    expect(body).toMatchObject({
+      checked_count: 3,
+      in_window_checked_count: 1,
+      stale_checked_count: 2,
+      evaluated: [
+        expect.objectContaining({ id: 'in-window', status: 'eligible' }),
+        expect.objectContaining({ status: 'stale', dry_run: true }),
+        expect.objectContaining({ status: 'stale', dry_run: true }),
+      ],
+      side_effects: { publish: false, external_post: false },
+    })
+  })
+
+  it('blocks zero publish rows with readiness recovery but skips terminal-only records', async () => {
+    const scheduledFor = new Date(Date.now() - 60 * 60 * 1000).toISOString()
+    installSupabase({
+      items: [
+        { id: 'missing-publishes', status: 'scheduled', scheduled_for: scheduledFor, rag_context: approvedGate(['instagram']) },
+        { id: 'terminal-publishes', status: 'scheduled', scheduled_for: scheduledFor, rag_context: approvedGate(['x']) },
+      ],
+      publishesByContentId: {
+        'missing-publishes': [],
+        'terminal-publishes': [{ platform: 'x', status: 'published' }],
+      },
+    })
+
+    const response = await POST(request('http://localhost/api/cron/social-content-scheduled-publish', 'POST') as never)
+
+    expect(response.status).toBe(200)
+    expect(mocks.publishSocialContentItem).not.toHaveBeenCalled()
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledTimes(1)
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
+      idempotencyKey: 'social-content-scheduled-publish-recovery:publish_blocked:missing-publishes',
+      metadata: expect.objectContaining({
+        social_content_id: 'missing-publishes',
+        target_platforms: [],
+        blocker: expect.stringContaining('publish readiness could not be verified'),
+      }),
+    }))
+    await expect(response.json()).resolves.toMatchObject({
+      blocked_count: 1,
+      evaluated: [
+        expect.objectContaining({
+          id: 'missing-publishes',
+          status: 'blocked',
+          readiness: 'unverified',
+          blocker_persisted: false,
+        }),
+        expect.objectContaining({
+          id: 'terminal-publishes',
+          status: 'skipped',
+          reason: 'No pending or failed publish rows remain.',
+        }),
       ],
     })
   })

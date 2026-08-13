@@ -29,13 +29,11 @@ function request(url: string, method = 'GET') {
 
 function mockDueGateQuery(items: unknown[]) {
   const query: Record<string, unknown> = {
-    data: items,
-    error: null,
     in: vi.fn(() => query),
     gte: vi.fn(() => query),
     lte: vi.fn(() => query),
     order: vi.fn(() => query),
-    limit: vi.fn(() => query),
+    range: vi.fn(async () => ({ data: items, error: null })),
   }
   mocks.from.mockReturnValue({ select: vi.fn(() => query) })
   return query
@@ -113,7 +111,7 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
       gte: vi.fn(() => selectQuery),
       lte: vi.fn(() => selectQuery),
       order: vi.fn(() => selectQuery),
-      limit: vi.fn(() => selectQuery),
+      range: vi.fn(async () => ({ data: selectQuery.data, error: null })),
     }
     const updateEq = vi.fn(async () => ({ data: null, error: null }))
     const update = vi.fn(() => ({ eq: updateEq }))
@@ -186,12 +184,11 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
     }
     const selectQuery: Record<string, unknown> = {
       data: [authorizedDraft, { ...authorizedDraft }],
-      error: null,
       in: vi.fn(() => selectQuery),
       gte: vi.fn(() => selectQuery),
       lte: vi.fn(() => selectQuery),
       order: vi.fn(() => selectQuery),
-      limit: vi.fn(() => selectQuery),
+      range: vi.fn(async () => ({ data: selectQuery.data, error: null })),
     }
     const updateEq = vi.fn(async () => ({ data: null, error: null }))
     const update = vi.fn(() => ({ eq: updateEq }))
@@ -259,6 +256,84 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
         external_post: false,
         internal_work_items_created: 1,
       },
+    })
+  })
+
+  it('pages past recorded old rows so a newer actionable preparation item is not starved', async () => {
+    const oldScheduledFor = new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString()
+    const actionableScheduledFor = new Date(Date.now() - 60 * 60 * 1000).toISOString()
+    const recordedRows = Array.from({ length: 50 }, (_, index) => ({
+      id: `calendar-recorded-${index}`,
+      title: `Recorded preparation ${index}`,
+      campaign_id: 'campaign-1',
+      agent_work_item_id: null,
+      social_content_id: `social-recorded-${index}`,
+      channel: 'instagram',
+      campaign_phase: 'teach',
+      scheduled_for: oldScheduledFor,
+      authorization_status: 'authorized',
+      metadata: {
+        publish_preparation: { work_item_id: `work-recorded-${index}` },
+      },
+      social_content_queue: {
+        id: `social-recorded-${index}`,
+        status: 'draft',
+        social_content_publishes: [],
+      },
+    }))
+    const actionableRow = {
+      id: 'calendar-actionable-newer',
+      title: 'Prepare newer Instagram item',
+      campaign_id: 'campaign-1',
+      agent_work_item_id: null,
+      social_content_id: 'social-actionable-newer',
+      channel: 'instagram',
+      campaign_phase: 'offer',
+      scheduled_for: actionableScheduledFor,
+      authorization_status: 'authorized',
+      metadata: {},
+      social_content_queue: {
+        id: 'social-actionable-newer',
+        status: 'draft',
+        social_content_publishes: [],
+      },
+    }
+    const firstPage = mockDueGateQuery(recordedRows)
+    const secondPage: Record<string, unknown> = {
+      in: vi.fn(() => secondPage),
+      gte: vi.fn(() => secondPage),
+      lte: vi.fn(() => secondPage),
+      order: vi.fn(() => secondPage),
+      range: vi.fn(async () => ({ data: [actionableRow], error: null })),
+    }
+    const updateEq = vi.fn(async () => ({ data: null, error: null }))
+    const update = vi.fn(() => ({ eq: updateEq }))
+    mocks.from
+      .mockReturnValueOnce({ select: vi.fn(() => firstPage) })
+      .mockReturnValueOnce({ select: vi.fn(() => secondPage) })
+      .mockReturnValue({ update })
+    mocks.createAgentWorkItem.mockResolvedValue({ id: 'work-actionable-newer' })
+    mocks.runAgentSlackNotificationSweep.mockResolvedValue({ sentCount: 1 })
+
+    const response = await POST(request('http://localhost/api/cron/social-content-calendar-due-gates', 'POST') as never)
+
+    expect(response.status).toBe(200)
+    expect(firstPage.range).toHaveBeenCalledWith(0, 49)
+    expect(secondPage.range).toHaveBeenCalledWith(50, 99)
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledTimes(1)
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
+      idempotencyKey: 'social-content-calendar-publish-preparation:calendar-actionable-newer',
+    }))
+    await expect(response.json()).resolves.toMatchObject({
+      scanned_count: 51,
+      candidate_count: 1,
+      preparation_count: 1,
+      prepared: [{
+        calendar_item_id: 'calendar-actionable-newer',
+        social_content_id: 'social-actionable-newer',
+        work_item_id: 'work-actionable-newer',
+      }],
+      side_effects: { publish: false, external_post: false },
     })
   })
 })

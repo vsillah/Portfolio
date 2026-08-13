@@ -24,6 +24,14 @@ export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
 const CALENDAR_LOOKBACK_HOURS = 30 * 24
+const CALENDAR_SCAN_PAGE_SIZE = 50
+const CALENDAR_MAX_SCAN_ROWS = 250
+const CALENDAR_MAX_CANDIDATES = 50
+
+type AuthorizationCandidate = {
+  item: SocialContentCalendarItem
+  window: '24h' | '2h'
+}
 
 function isAuthorizedCronRequest(request: NextRequest): boolean {
   const token = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '')
@@ -112,18 +120,17 @@ async function createPublishPreparationWorkItem(item: SocialContentCalendarItem,
   })
 }
 
-async function runDueGateSweep(request: NextRequest) {
-  if (!isAuthorizedCronRequest(request)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+async function collectDueGateCandidates(input: {
+  now: Date
+  windowStart: Date
+  windowEnd: Date
+}) {
+  const candidates: AuthorizationCandidate[] = []
+  const preparationCandidates: SocialContentCalendarItem[] = []
+  const seenItemIds = new Set<string>()
+  let scannedCount = 0
 
-  try {
-    const body = await bodyOrEmpty(request)
-    const dryRun = isDryRun(request, body)
-    const now = new Date()
-    const windowStart = new Date(now.getTime() - CALENDAR_LOOKBACK_HOURS * 60 * 60 * 1000)
-    const windowEnd = new Date(now.getTime() + 24 * 60 * 60 * 1000)
-
+  for (let offset = 0; offset < CALENDAR_MAX_SCAN_ROWS; offset += CALENDAR_SCAN_PAGE_SIZE) {
     const { data, error } = await supabaseAdmin
       .from('social_content_calendar_items')
       .select(`
@@ -136,10 +143,64 @@ async function runDueGateSweep(request: NextRequest) {
         )
       `)
       .in('authorization_status', ['pending', 'authorized'])
-      .gte('scheduled_for', windowStart.toISOString())
-      .lte('scheduled_for', windowEnd.toISOString())
+      .gte('scheduled_for', input.windowStart.toISOString())
+      .lte('scheduled_for', input.windowEnd.toISOString())
       .order('scheduled_for', { ascending: true })
-      .limit(50)
+      .range(offset, offset + CALENDAR_SCAN_PAGE_SIZE - 1)
+
+    if (error) {
+      return { error, candidates, preparationCandidates, scannedCount }
+    }
+
+    const rows = (data ?? []) as SocialContentCalendarItem[]
+    scannedCount += rows.length
+
+    for (const item of rows) {
+      if (seenItemIds.has(item.id)) continue
+      seenItemIds.add(item.id)
+
+      if (item.authorization_status === 'pending') {
+        const window = dueGateWindow(item.scheduled_for, input.now)
+        if (window && !pingAlreadySent(item, window)) {
+          candidates.push({ item, window })
+        }
+      } else if (needsPublishPreparation(item, input.now)) {
+        preparationCandidates.push(item)
+      }
+
+      if (candidates.length + preparationCandidates.length >= CALENDAR_MAX_CANDIDATES) break
+    }
+
+    if (
+      candidates.length + preparationCandidates.length >= CALENDAR_MAX_CANDIDATES
+      || rows.length < CALENDAR_SCAN_PAGE_SIZE
+    ) break
+  }
+
+  preparationCandidates.sort(
+    (left, right) => new Date(left.scheduled_for).getTime() - new Date(right.scheduled_for).getTime(),
+  )
+  return { error: null, candidates, preparationCandidates, scannedCount }
+}
+
+async function runDueGateSweep(request: NextRequest) {
+  if (!isAuthorizedCronRequest(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  try {
+    const body = await bodyOrEmpty(request)
+    const dryRun = isDryRun(request, body)
+    const now = new Date()
+    const windowStart = new Date(now.getTime() - CALENDAR_LOOKBACK_HOURS * 60 * 60 * 1000)
+    const windowEnd = new Date(now.getTime() + 24 * 60 * 60 * 1000)
+
+    const {
+      error,
+      candidates,
+      preparationCandidates,
+      scannedCount,
+    } = await collectDueGateCandidates({ now, windowStart, windowEnd })
 
     if (error) {
       if (error.code === '42P01' || error.code === 'PGRST205') {
@@ -147,6 +208,7 @@ async function runDueGateSweep(request: NextRequest) {
           ok: true,
           dry_run: dryRun,
           candidate_count: 0,
+          scanned_count: scannedCount,
           pinged_count: 0,
           candidates: [],
           side_effects: CALENDAR_SIDE_EFFECTS,
@@ -155,27 +217,12 @@ async function runDueGateSweep(request: NextRequest) {
       throw error
     }
 
-    const seenItemIds = new Set<string>()
-    const items = ((data ?? []) as SocialContentCalendarItem[]).filter((item) => {
-      if (seenItemIds.has(item.id)) return false
-      seenItemIds.add(item.id)
-      return true
-    })
-    const candidates = items
-      .filter((item) => item.authorization_status === 'pending')
-      .map((item) => ({ item, window: dueGateWindow(item.scheduled_for, now) }))
-      .filter((entry): entry is { item: SocialContentCalendarItem; window: '24h' | '2h' } => (
-        Boolean(entry.window) && !pingAlreadySent(entry.item, entry.window as '24h' | '2h')
-      ))
-    const preparationCandidates = items
-      .filter((item) => needsPublishPreparation(item, now))
-      .sort((left, right) => new Date(left.scheduled_for).getTime() - new Date(right.scheduled_for).getTime())
-
     if (dryRun) {
       return NextResponse.json({
         ok: true,
         dry_run: true,
         candidate_count: candidates.length + preparationCandidates.length,
+        scanned_count: scannedCount,
         pinged_count: 0,
         preparation_count: 0,
         candidates: [
@@ -319,6 +366,7 @@ async function runDueGateSweep(request: NextRequest) {
       ok: true,
       dry_run: false,
       candidate_count: candidates.length + preparationCandidates.length,
+      scanned_count: scannedCount,
       pinged_count: pinged.length,
       preparation_count: prepared.length,
       pinged,

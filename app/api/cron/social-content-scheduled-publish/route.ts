@@ -79,6 +79,27 @@ function isStaleSchedule(value: unknown, now: Date, thresholdHours: number) {
   return scheduledAt < now.getTime() - thresholdHours * 60 * 60 * 1000
 }
 
+async function scheduledRowsForWindow(input: {
+  admin: NonNullable<typeof supabaseAdmin>
+  cutoff: string
+  now: string
+  limit: number
+  window: 'in_window' | 'stale'
+}) {
+  let query = input.admin
+    .from('social_content_queue')
+    .select('id, platform, target_platforms, status, scheduled_for, rag_context')
+    .eq('status', 'scheduled')
+
+  query = input.window === 'in_window'
+    ? query.gte('scheduled_for', input.cutoff).lte('scheduled_for', input.now)
+    : query.lt('scheduled_for', input.cutoff)
+
+  return query
+    .order('scheduled_for', { ascending: input.window === 'in_window' })
+    .limit(input.limit)
+}
+
 async function persistPublishBlocker(input: {
   contentId: string
   platforms: SocialPlatform[]
@@ -180,6 +201,29 @@ async function recordBlockedItem(input: {
   }
 }
 
+async function recordReadinessUnverified(input: {
+  contentId: string
+  scheduledFor: string | null
+  dryRun: boolean
+}) {
+  if (input.dryRun) {
+    return { blocker_persisted: false, recovery_work_item_id: null, dry_run: true }
+  }
+
+  const recovery = await createScheduledPublishRecovery({
+    contentId: input.contentId,
+    scheduledFor: input.scheduledFor,
+    platforms: [],
+    blocker: PUBLISH_ROWS_BLOCKER,
+    kind: 'publish_blocked',
+  }).catch(() => null)
+
+  return {
+    blocker_persisted: false,
+    recovery_work_item_id: recovery?.id ?? null,
+  }
+}
+
 async function runScheduledPublishSweep(request: NextRequest) {
   if (!isAuthorizedCronRequest(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -197,18 +241,33 @@ async function runScheduledPublishSweep(request: NextRequest) {
     const staleThresholdHours = staleThresholdHoursFrom(request, body)
     const nowDate = new Date()
     const now = nowDate.toISOString()
+    const staleCutoff = new Date(
+      nowDate.getTime() - staleThresholdHours * 60 * 60 * 1000,
+    ).toISOString()
 
-    const { data, error } = await admin
-      .from('social_content_queue')
-      .select('id, platform, target_platforms, status, scheduled_for, rag_context')
-      .eq('status', 'scheduled')
-      .lte('scheduled_for', now)
-      .order('scheduled_for', { ascending: true })
-      .limit(limit)
+    const [inWindowRead, staleRead] = await Promise.all([
+      scheduledRowsForWindow({
+        admin,
+        cutoff: staleCutoff,
+        now,
+        limit,
+        window: 'in_window',
+      }),
+      scheduledRowsForWindow({
+        admin,
+        cutoff: staleCutoff,
+        now,
+        limit,
+        window: 'stale',
+      }),
+    ])
 
-    if (error) throw error
+    if (inWindowRead.error) throw inWindowRead.error
+    if (staleRead.error) throw staleRead.error
 
-    const items = data ?? []
+    const inWindowItems = inWindowRead.data ?? []
+    const staleItems = staleRead.data ?? []
+    const items = [...inWindowItems, ...staleItems]
     const evaluated: Array<Record<string, unknown>> = []
     let publishedCount = 0
     let blockedCount = 0
@@ -221,25 +280,40 @@ async function runScheduledPublishSweep(request: NextRequest) {
 
       if (publishError) {
         blockedCount += 1
-        const recovery = dryRun
-          ? { recovery_work_item_id: null, dry_run: true }
-          : await createScheduledPublishRecovery({
-              contentId: item.id,
-              scheduledFor: item.scheduled_for,
-              platforms: [],
-              blocker: PUBLISH_ROWS_BLOCKER,
-              kind: 'publish_blocked',
-            }).then((workItem) => ({ recovery_work_item_id: workItem.id })).catch(() => ({ recovery_work_item_id: null }))
+        const recovery = await recordReadinessUnverified({
+          contentId: item.id,
+          scheduledFor: item.scheduled_for,
+          dryRun,
+        })
         evaluated.push({
           id: item.id,
           status: 'blocked',
+          readiness: 'unverified',
           reason: PUBLISH_ROWS_BLOCKER,
           ...recovery,
         })
         continue
       }
 
-      const pendingPlatforms = ((publishRows ?? []) as PublishRow[])
+      const publishes = (publishRows ?? []) as PublishRow[]
+      if (!publishes.length) {
+        blockedCount += 1
+        const recovery = await recordReadinessUnverified({
+          contentId: item.id,
+          scheduledFor: item.scheduled_for,
+          dryRun,
+        })
+        evaluated.push({
+          id: item.id,
+          status: 'blocked',
+          readiness: 'unverified',
+          reason: PUBLISH_ROWS_BLOCKER,
+          ...recovery,
+        })
+        continue
+      }
+
+      const pendingPlatforms = publishes
         .filter((publish) => publish.status === 'pending' || publish.status === 'failed')
         .map((publish) => asPlatform(publish.platform))
         .filter((platform): platform is SocialPlatform => Boolean(platform))
@@ -336,6 +410,8 @@ async function runScheduledPublishSweep(request: NextRequest) {
       dry_run: dryRun,
       stale_threshold_hours: staleThresholdHours,
       checked_count: items.length,
+      in_window_checked_count: inWindowItems.length,
+      stale_checked_count: staleItems.length,
       published_count: publishedCount,
       blocked_count: blockedCount,
       evaluated,
