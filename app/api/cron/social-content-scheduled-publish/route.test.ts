@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const mocks = vi.hoisted(() => ({
   from: vi.fn(),
   publishSocialContentItem: vi.fn(),
+  createAgentWorkItem: vi.fn(),
 }))
 
 vi.mock('@/lib/supabase', () => ({
@@ -11,6 +12,10 @@ vi.mock('@/lib/supabase', () => ({
 
 vi.mock('@/lib/social-content-publisher', () => ({
   publishSocialContentItem: mocks.publishSocialContentItem,
+}))
+
+vi.mock('@/lib/agent-work-items', () => ({
+  createAgentWorkItem: mocks.createAgentWorkItem,
 }))
 
 import { GET, POST } from './route'
@@ -54,18 +59,22 @@ function installSupabase({
     error: null,
   }))
   const publishSelect = vi.fn(() => ({ eq: publishEq }))
+  const publishPlatformIn = vi.fn(async () => ({ error: null }))
+  const publishStatusIn = vi.fn(() => ({ in: publishPlatformIn }))
+  const publishUpdateEq = vi.fn(() => ({ in: publishStatusIn }))
+  const publishUpdate = vi.fn(() => ({ eq: publishUpdateEq }))
 
   mocks.from.mockImplementation((table: string) => {
     if (table === 'social_content_queue') {
       return { select: vi.fn(() => queueQuery) }
     }
     if (table === 'social_content_publishes') {
-      return { select: publishSelect }
+      return { select: publishSelect, update: publishUpdate }
     }
     return {}
   })
 
-  return { queueQuery, publishEq }
+  return { queueQuery, publishEq, publishUpdate, publishUpdateEq, publishStatusIn, publishPlatformIn }
 }
 
 describe('/api/cron/social-content-scheduled-publish', () => {
@@ -73,6 +82,10 @@ describe('/api/cron/social-content-scheduled-publish', () => {
     vi.clearAllMocks()
     process.env.CRON_SECRET = 'cron-secret'
     process.env.N8N_INGEST_SECRET = ''
+    delete process.env.SOCIAL_CONTENT_SCHEDULED_PUBLISH_STALE_HOURS
+    mocks.createAgentWorkItem.mockImplementation(async (input) => ({
+      id: `work-${String(input.idempotencyKey)}`,
+    }))
   })
 
   it('rejects unauthenticated requests', async () => {
@@ -84,11 +97,12 @@ describe('/api/cron/social-content-scheduled-publish', () => {
   })
 
   it('dry-runs due approved scheduled rows without publishing', async () => {
+    const scheduledFor = new Date(Date.now() - 60 * 60 * 1000).toISOString()
     const { queueQuery } = installSupabase({
       items: [{
         id: 'social-x-3',
         status: 'scheduled',
-        scheduled_for: '2026-08-05T20:00:00.000Z',
+        scheduled_for: scheduledFor,
         rag_context: approvedGate(['x']),
       }],
       publishesByContentId: {
@@ -106,6 +120,7 @@ describe('/api/cron/social-content-scheduled-publish', () => {
     await expect(response.json()).resolves.toMatchObject({
       ok: true,
       dry_run: true,
+      stale_threshold_hours: 24,
       checked_count: 1,
       published_count: 0,
       evaluated: [{
@@ -121,18 +136,19 @@ describe('/api/cron/social-content-scheduled-publish', () => {
   })
 
   it('publishes due scheduled rows only when the final submission gate is approved', async () => {
-    installSupabase({
+    const scheduledFor = new Date(Date.now() - 60 * 60 * 1000).toISOString()
+    const { publishUpdate, publishStatusIn, publishPlatformIn } = installSupabase({
       items: [
         {
           id: 'approved-social',
           status: 'scheduled',
-          scheduled_for: '2026-08-05T20:00:00.000Z',
+          scheduled_for: scheduledFor,
           rag_context: approvedGate(['x']),
         },
         {
           id: 'blocked-social',
           status: 'scheduled',
-          scheduled_for: '2026-08-05T20:00:00.000Z',
+          scheduled_for: scheduledFor,
           rag_context: null,
         },
       ],
@@ -154,6 +170,18 @@ describe('/api/cron/social-content-scheduled-publish', () => {
       id: 'approved-social',
       targetPlatforms: ['x'],
     }))
+    expect(publishUpdate).toHaveBeenCalledWith({
+      error_message: expect.stringContaining('final platform submission approval is incomplete'),
+    })
+    expect(publishStatusIn).toHaveBeenCalledWith('status', ['pending', 'failed'])
+    expect(publishPlatformIn).toHaveBeenCalledWith('platform', ['x'])
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
+      idempotencyKey: 'social-content-scheduled-publish-recovery:publish_blocked:blocked-social',
+      metadata: expect.objectContaining({
+        recovery_action: 'resolve_blocker_and_reconfirm',
+        social_content_path: '/admin/social-content/blocked-social',
+      }),
+    }))
     await expect(response.json()).resolves.toMatchObject({
       ok: true,
       dry_run: false,
@@ -168,6 +196,95 @@ describe('/api/cron/social-content-scheduled-publish', () => {
         publish: true,
         external_post: true,
       },
+    })
+  })
+
+  it('never publishes stale rows and creates one idempotent reschedule-or-cancel recovery item', async () => {
+    const scheduledFor = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString()
+    const { publishUpdate } = installSupabase({
+      items: [{
+        id: 'stale-social-x',
+        status: 'scheduled',
+        scheduled_for: scheduledFor,
+        rag_context: approvedGate(['x']),
+      }],
+      publishesByContentId: {
+        'stale-social-x': [{ platform: 'x', status: 'pending' }],
+      },
+    })
+
+    const response = await POST(request('http://localhost/api/cron/social-content-scheduled-publish?stale_hours=999', 'POST') as never)
+
+    expect(response.status).toBe(200)
+    expect(mocks.publishSocialContentItem).not.toHaveBeenCalled()
+    expect(publishUpdate).toHaveBeenCalledWith({
+      error_message: expect.stringContaining('outside the automatic publish safety window'),
+    })
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledTimes(1)
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
+      priority: 'urgent',
+      idempotencyKey: 'social-content-scheduled-publish-recovery:stale_schedule:stale-social-x',
+      metadata: expect.objectContaining({
+        recovery_action: 'reschedule_reconfirm_or_cancel',
+        external_execution_enabled: false,
+        side_effects: expect.objectContaining({ publish: false, external_post: false }),
+      }),
+    }))
+    await expect(response.json()).resolves.toMatchObject({
+      ok: true,
+      stale_threshold_hours: 168,
+      published_count: 0,
+      blocked_count: 1,
+      evaluated: [{
+        id: 'stale-social-x',
+        status: 'stale',
+        blocker_persisted: true,
+      }],
+      side_effects: { publish: false, external_post: false },
+    })
+  })
+
+  it('persists sanitized attempt blockers and continues to later rows', async () => {
+    const scheduledFor = new Date(Date.now() - 60 * 60 * 1000).toISOString()
+    const { publishUpdate } = installSupabase({
+      items: [
+        {
+          id: 'provider-blocked',
+          status: 'scheduled',
+          scheduled_for: scheduledFor,
+          rag_context: approvedGate(['x']),
+        },
+        {
+          id: 'later-success',
+          status: 'scheduled',
+          scheduled_for: scheduledFor,
+          rag_context: approvedGate(['x']),
+        },
+      ],
+      publishesByContentId: {
+        'provider-blocked': [{ platform: 'x', status: 'pending' }],
+        'later-success': [{ platform: 'x', status: 'pending' }],
+      },
+    })
+    mocks.publishSocialContentItem
+      .mockResolvedValueOnce({ status: 409, body: { error: 'secret provider detail' } })
+      .mockResolvedValueOnce({ status: 200, body: { published: true } })
+
+    const response = await POST(request('http://localhost/api/cron/social-content-scheduled-publish', 'POST') as never)
+    const body = await response.json()
+
+    expect(mocks.publishSocialContentItem).toHaveBeenCalledTimes(2)
+    expect(publishUpdate).toHaveBeenCalledWith({
+      error_message: 'Scheduled publish did not complete. Review the publish blocker in Social Content before retrying.',
+    })
+    expect(JSON.stringify(body)).not.toContain('secret provider detail')
+    expect(body).toMatchObject({
+      published_count: 1,
+      blocked_count: 1,
+      evaluated: [
+        expect.objectContaining({ id: 'provider-blocked', status: 'blocked', blocker_persisted: true }),
+        expect.objectContaining({ id: 'later-success', status: 'published' }),
+      ],
     })
   })
 })

@@ -128,8 +128,10 @@ function socialContentGateReminderWindowHours() {
 }
 
 function socialContentGateReminderLookbackHours() {
-  const value = Number(process.env.SOCIAL_CONTENT_GATE_REMINDER_LOOKBACK_HOURS ?? 24)
-  return Number.isFinite(value) && value > 0 ? value : 24
+  const maximumHours = 30 * 24
+  const value = Number(process.env.SOCIAL_CONTENT_GATE_REMINDER_LOOKBACK_HOURS ?? maximumHours)
+  if (!Number.isFinite(value) || value <= 0) return maximumHours
+  return Math.min(value, maximumHours)
 }
 
 function agentUrl(path: string) {
@@ -312,7 +314,22 @@ async function scheduledSocialContentRows(limit = 10) {
     .limit(limit)
 
   if (error) throw new Error(`Failed to read scheduled Social Content rows: ${error.message}`)
-  return (data ?? []) as ScheduledSocialContentRow[]
+  const seenIds = new Set<string>()
+  const uniqueRows = ((data ?? []) as ScheduledSocialContentRow[]).filter((row) => {
+    if (seenIds.has(row.id)) return false
+    seenIds.add(row.id)
+    return true
+  })
+
+  return uniqueRows.sort((left, right) => {
+    const leftTime = new Date(left.scheduled_for ?? '').getTime()
+    const rightTime = new Date(right.scheduled_for ?? '').getTime()
+    const leftOverdue = Number.isFinite(leftTime) && leftTime < now.getTime()
+    const rightOverdue = Number.isFinite(rightTime) && rightTime < now.getTime()
+    if (leftOverdue !== rightOverdue) return leftOverdue ? -1 : 1
+    return (Number.isFinite(leftTime) ? leftTime : Number.MAX_SAFE_INTEGER)
+      - (Number.isFinite(rightTime) ? rightTime : Number.MAX_SAFE_INTEGER)
+  }).slice(0, limit)
 }
 
 async function socialPublishRows(contentIds: string[]) {
@@ -397,7 +414,7 @@ async function buildSocialPublishGateDuePayload() {
       type: 'section',
       text: mrkdwn([
         '*Scheduled Social Content needs human QA*',
-        `These items are scheduled within ${socialContentGateReminderWindowHours()} hours, or recently missed their window, but still have a publish blocker. Slack is only the reminder surface; approval stays in Portfolio.`,
+        `These items are overdue within the ${socialContentGateReminderLookbackHours()}-hour safety lookback or scheduled within ${socialContentGateReminderWindowHours()} hours, but still have a publish blocker. Slack is only the reminder surface; approval stays in Portfolio.`,
       ].join('\n')),
     },
   ]
@@ -409,7 +426,7 @@ async function buildSocialPublishGateDuePayload() {
       elements: [slackButton({ label: 'Open Social Content', actionId: 'open_social_content', url: agentUrl('/admin/social-content') })],
     })
     return {
-      text: 'No near-due Social Content publish gates need human QA.',
+      text: 'No overdue or near-due Social Content publish gates need human QA.',
       blocks,
       itemCount: 0,
     }
@@ -447,7 +464,7 @@ async function buildSocialPublishGateDuePayload() {
   }
 
   return {
-    text: `${items.length} near-due Social Content item(s) need human QA before scheduled publishing.`,
+    text: `${items.length} overdue or near-due Social Content item(s) need human QA before scheduled publishing.`,
     blocks,
     itemCount: items.length,
   }

@@ -356,7 +356,7 @@ describe('Agent Ops Slack notifications', () => {
     expect(blocks).not.toContain('approval.approve')
   })
 
-  it('surfaces near-due Social Content publish blockers without Slack approval controls', async () => {
+  it('surfaces overdue or near-due Social Content publish blockers without Slack approval controls', async () => {
     process.env.NEXT_PUBLIC_BASE_URL = 'https://amadutown.com'
     mocks.from
       .mockReturnValueOnce(queryResult({
@@ -401,7 +401,7 @@ describe('Agent Ops Slack notifications', () => {
 
     expect(payload).toMatchObject({
       itemCount: 1,
-      text: '1 near-due Social Content item(s) need human QA before scheduled publishing.',
+      text: '1 overdue or near-due Social Content item(s) need human QA before scheduled publishing.',
     })
     const blocks = JSON.stringify(payload.blocks)
     expect(blocks).toContain('Scheduled Social Content needs human QA')
@@ -458,9 +458,82 @@ describe('Agent Ops Slack notifications', () => {
 
     expect(payload).toMatchObject({
       itemCount: 0,
-      text: 'No near-due Social Content publish gates need human QA.',
+      text: 'No overdue or near-due Social Content publish gates need human QA.',
     })
     expect(JSON.stringify(payload.blocks)).not.toContain('Already posted item')
+  })
+
+  it('uses a capped 30-day lookback, orders overdue blockers first, and dedupes queue rows', async () => {
+    process.env.NEXT_PUBLIC_BASE_URL = 'https://amadutown.com'
+    process.env.SOCIAL_CONTENT_GATE_REMINDER_LOOKBACK_HOURS = '9999'
+    const now = Date.now()
+    const overdueAt = new Date(now - 20 * 24 * 60 * 60 * 1000).toISOString()
+    const upcomingAt = new Date(now + 2 * 60 * 60 * 1000).toISOString()
+    const queueQuery = queryResult({
+      data: [
+        {
+          id: 'social-upcoming',
+          topic_extracted: { topic: 'Upcoming blocked item' },
+          platform: 'x',
+          target_platforms: ['x'],
+          status: 'scheduled',
+          scheduled_for: upcomingAt,
+          post_text: 'Upcoming copy',
+          rag_context: null,
+        },
+        {
+          id: 'social-overdue',
+          topic_extracted: { topic: 'Overdue blocked item' },
+          platform: 'x',
+          target_platforms: ['x'],
+          status: 'scheduled',
+          scheduled_for: overdueAt,
+          post_text: 'Overdue copy',
+          rag_context: null,
+        },
+        {
+          id: 'social-overdue',
+          topic_extracted: { topic: 'Duplicate overdue item' },
+          platform: 'x',
+          target_platforms: ['x'],
+          status: 'scheduled',
+          scheduled_for: overdueAt,
+          post_text: 'Duplicate copy',
+          rag_context: null,
+        },
+      ],
+      error: null,
+    })
+    mocks.from
+      .mockReturnValueOnce(queueQuery)
+      .mockReturnValueOnce(queryResult({
+        data: [
+          { content_id: 'social-overdue', platform: 'x', status: 'pending', platform_post_url: null },
+          { content_id: 'social-upcoming', platform: 'x', status: 'pending', platform_post_url: null },
+        ],
+        error: null,
+      }, ['in']))
+      .mockReturnValueOnce(queryResult({
+        data: [{
+          platform: 'x',
+          is_active: true,
+          credentials: { access_token: 'redacted-test-token' },
+          settings: { profile_handle: 'amadutown' },
+        }],
+        error: null,
+      }, ['select']))
+
+    const payload = await buildAgentSlackNotificationPayload({ kind: 'social_publish_gate_due' })
+    const blocks = JSON.stringify(payload.blocks)
+    const gteCalls = (queueQuery.gte as { mock: { calls: unknown[][] } }).mock.calls
+    const lookbackStart = new Date(String(gteCalls[0][1])).getTime()
+
+    expect(payload.itemCount).toBe(2)
+    expect(now - lookbackStart).toBeGreaterThanOrEqual(30 * 24 * 60 * 60 * 1000 - 1000)
+    expect(now - lookbackStart).toBeLessThanOrEqual(30 * 24 * 60 * 60 * 1000 + 1000)
+    expect(blocks.indexOf('Overdue blocked item')).toBeLessThan(blocks.indexOf('Upcoming blocked item'))
+    expect(blocks).not.toContain('Duplicate overdue item')
+    expect(blocks).toContain('720-hour safety lookback')
   })
 
   it('surfaces high-priority comment attention with canonical Portfolio review links', async () => {

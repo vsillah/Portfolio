@@ -1,8 +1,9 @@
 /**
  * GET/POST /api/cron/social-content-calendar-due-gates
  *
- * Finds pending calendar authorization gates due within 24h/2h and creates
- * internal Agent Ops work items. Auth: Bearer CRON_SECRET or N8N_INGEST_SECRET.
+ * Finds pending authorization gates and authorized draft preparation gaps due
+ * within 24h or overdue within 30 days, then creates internal Agent Ops work.
+ * Auth: Bearer CRON_SECRET or N8N_INGEST_SECRET.
  * This route does not publish, upload, schedule externally, or call providers.
  */
 
@@ -11,6 +12,7 @@ import { createAgentWorkItem } from '@/lib/agent-work-items'
 import { runAgentSlackNotificationSweep } from '@/lib/agent-slack-notification-sweep'
 import { supabaseAdmin } from '@/lib/supabase'
 import {
+  CALENDAR_CHANNEL_LABELS,
   CALENDAR_SIDE_EFFECTS,
   dueGateWindow,
   deriveDueStatus,
@@ -20,6 +22,8 @@ import {
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
+
+const CALENDAR_LOOKBACK_HOURS = 30 * 24
 
 function isAuthorizedCronRequest(request: NextRequest): boolean {
   const token = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '')
@@ -45,6 +49,69 @@ function pingAlreadySent(item: SocialContentCalendarItem, window: '24h' | '2h') 
   return Boolean(pings[window])
 }
 
+function preparationAlreadyRecorded(item: SocialContentCalendarItem) {
+  const metadata = parseMetadata(item.metadata)
+  const preparation = parseMetadata(metadata.publish_preparation)
+  return typeof preparation.work_item_id === 'string' && preparation.work_item_id.length > 0
+}
+
+function isWithinPreparationWindow(item: SocialContentCalendarItem, now: Date) {
+  const scheduledAt = new Date(item.scheduled_for).getTime()
+  if (!Number.isFinite(scheduledAt)) return false
+  return scheduledAt >= now.getTime() - CALENDAR_LOOKBACK_HOURS * 60 * 60 * 1000
+    && scheduledAt <= now.getTime() + 24 * 60 * 60 * 1000
+}
+
+function needsPublishPreparation(item: SocialContentCalendarItem, now: Date) {
+  if (item.authorization_status !== 'authorized' || !isWithinPreparationWindow(item, now)) return false
+  const queue = item.social_content_queue
+  if (!queue || !['draft', 'approved'].includes(queue.status)) return false
+  return !preparationAlreadyRecorded(item)
+}
+
+async function createPublishPreparationWorkItem(item: SocialContentCalendarItem, now: Date) {
+  const socialContentId = item.social_content_queue?.id ?? item.social_content_id
+  const channelLabel = CALENDAR_CHANNEL_LABELS[item.channel]
+  const publishes = item.social_content_queue?.social_content_publishes ?? []
+  const missingPublishRows = publishes.length === 0
+
+  return createAgentWorkItem({
+    title: `Prepare authorized ${channelLabel} Social Content item: ${item.title}`,
+    objective: [
+      `Continue in the canonical Social Content item at /admin/social-content/${socialContentId}.`,
+      'Prepare the internal publish records and review gates needed for a human readiness decision.',
+      'Do not approve a gate, generate provider media, upload, schedule, publish, or call a provider from this work item.',
+    ].join(' '),
+    priority: new Date(item.scheduled_for).getTime() < now.getTime() ? 'urgent' : 'high',
+    status: 'queued',
+    ownerAgentKey: 'content-repurposing',
+    ownerRuntime: 'codex',
+    source: {
+      type: 'social_content_calendar_publish_preparation',
+      id: item.id,
+      label: item.title,
+    },
+    overlapGroup: 'social-content-calendar',
+    metadata: {
+      goal_id: 'social-content-calendar',
+      calendar_item_id: item.id,
+      campaign_id: item.campaign_id,
+      social_content_id: socialContentId,
+      social_content_path: `/admin/social-content/${socialContentId}`,
+      queue_status: item.social_content_queue?.status ?? null,
+      channel: item.channel,
+      campaign_phase: item.campaign_phase,
+      scheduled_for: item.scheduled_for,
+      preparation_action: 'prepare_publish_rows_and_gates_for_human_review',
+      missing_publish_rows: missingPublishRows,
+      existing_publish_row_count: publishes.length,
+      external_execution_enabled: false,
+      side_effects: CALENDAR_SIDE_EFFECTS,
+    },
+    idempotencyKey: `social-content-calendar-publish-preparation:${item.id}`,
+  })
+}
+
 async function runDueGateSweep(request: NextRequest) {
   if (!isAuthorizedCronRequest(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -54,6 +121,7 @@ async function runDueGateSweep(request: NextRequest) {
     const body = await bodyOrEmpty(request)
     const dryRun = isDryRun(request, body)
     const now = new Date()
+    const windowStart = new Date(now.getTime() - CALENDAR_LOOKBACK_HOURS * 60 * 60 * 1000)
     const windowEnd = new Date(now.getTime() + 24 * 60 * 60 * 1000)
 
     const { data, error } = await supabaseAdmin
@@ -62,9 +130,13 @@ async function runDueGateSweep(request: NextRequest) {
         *,
         attraction_campaigns (id, name, slug, status, starts_at, ends_at),
         agent_work_items (id, title, status, priority),
-        social_content_queue (id, status, post_text, scheduled_for)
+        social_content_queue (
+          id, status, platform, target_platforms, post_text, scheduled_for, rag_context,
+          social_content_publishes (id, platform, status)
+        )
       `)
-      .eq('authorization_status', 'pending')
+      .in('authorization_status', ['pending', 'authorized'])
+      .gte('scheduled_for', windowStart.toISOString())
       .lte('scheduled_for', windowEnd.toISOString())
       .order('scheduled_for', { ascending: true })
       .limit(50)
@@ -83,32 +155,57 @@ async function runDueGateSweep(request: NextRequest) {
       throw error
     }
 
-    const candidates = ((data ?? []) as SocialContentCalendarItem[])
+    const seenItemIds = new Set<string>()
+    const items = ((data ?? []) as SocialContentCalendarItem[]).filter((item) => {
+      if (seenItemIds.has(item.id)) return false
+      seenItemIds.add(item.id)
+      return true
+    })
+    const candidates = items
+      .filter((item) => item.authorization_status === 'pending')
       .map((item) => ({ item, window: dueGateWindow(item.scheduled_for, now) }))
       .filter((entry): entry is { item: SocialContentCalendarItem; window: '24h' | '2h' } => (
         Boolean(entry.window) && !pingAlreadySent(entry.item, entry.window as '24h' | '2h')
       ))
+    const preparationCandidates = items
+      .filter((item) => needsPublishPreparation(item, now))
+      .sort((left, right) => new Date(left.scheduled_for).getTime() - new Date(right.scheduled_for).getTime())
 
     if (dryRun) {
       return NextResponse.json({
         ok: true,
         dry_run: true,
-        candidate_count: candidates.length,
+        candidate_count: candidates.length + preparationCandidates.length,
         pinged_count: 0,
-        candidates: candidates.map(({ item, window }) => ({
-          id: item.id,
-          title: item.title,
-          scheduled_for: item.scheduled_for,
-          due_gate_window: window,
-          campaign_id: item.campaign_id,
-          channel: item.channel,
-          campaign_phase: item.campaign_phase,
-        })),
+        preparation_count: 0,
+        candidates: [
+          ...candidates.map(({ item, window }) => ({
+            id: item.id,
+            title: item.title,
+            scheduled_for: item.scheduled_for,
+            due_gate_window: window,
+            gate_type: 'authorization',
+            campaign_id: item.campaign_id,
+            channel: item.channel,
+            campaign_phase: item.campaign_phase,
+          })),
+          ...preparationCandidates.map((item) => ({
+            id: item.id,
+            title: item.title,
+            scheduled_for: item.scheduled_for,
+            gate_type: 'publish_preparation',
+            social_content_id: item.social_content_queue?.id ?? item.social_content_id,
+            campaign_id: item.campaign_id,
+            channel: item.channel,
+            campaign_phase: item.campaign_phase,
+          })),
+        ],
         side_effects: CALENDAR_SIDE_EFFECTS,
       })
     }
 
     const pinged: Array<{ calendar_item_id: string; work_item_id: string; window: '24h' | '2h' }> = []
+    const prepared: Array<{ calendar_item_id: string; social_content_id: string | null; work_item_id: string }> = []
 
     for (const { item, window } of candidates) {
       const idempotencyKey = `social-content-calendar-due:${item.id}:${window}`
@@ -175,7 +272,36 @@ async function runDueGateSweep(request: NextRequest) {
       pinged.push({ calendar_item_id: item.id, work_item_id: workItem.id, window })
     }
 
-    const slackResult = pinged.length > 0
+    for (const item of preparationCandidates) {
+      const workItem = await createPublishPreparationWorkItem(item, now)
+      const metadata = parseMetadata(item.metadata)
+      const socialContentId = item.social_content_queue?.id ?? item.social_content_id
+      await supabaseAdmin
+        .from('social_content_calendar_items')
+        .update({
+          due_status: deriveDueStatus(item.scheduled_for, now),
+          last_pinged_at: now.toISOString(),
+          metadata: {
+            ...metadata,
+            publish_preparation: {
+              prepared_at: now.toISOString(),
+              work_item_id: workItem.id,
+              social_content_id: socialContentId,
+              action: 'prepare_publish_rows_and_gates_for_human_review',
+            },
+            external_execution_enabled: false,
+          },
+        })
+        .eq('id', item.id)
+
+      prepared.push({
+        calendar_item_id: item.id,
+        social_content_id: socialContentId,
+        work_item_id: workItem.id,
+      })
+    }
+
+    const slackResult = pinged.length + prepared.length > 0
       ? await runAgentSlackNotificationSweep({
           mode: 'immediate',
           kinds: ['goal_decisions'],
@@ -192,14 +318,16 @@ async function runDueGateSweep(request: NextRequest) {
     return NextResponse.json({
       ok: true,
       dry_run: false,
-      candidate_count: candidates.length,
+      candidate_count: candidates.length + preparationCandidates.length,
       pinged_count: pinged.length,
+      preparation_count: prepared.length,
       pinged,
+      prepared,
       slack_notification_result: slackResult,
       side_effects: {
         ...CALENDAR_SIDE_EFFECTS,
-        internal_work_items_created: pinged.length,
-        slack_notification_requested: pinged.length > 0,
+        internal_work_items_created: pinged.length + prepared.length,
+        slack_notification_requested: pinged.length + prepared.length > 0,
       },
     })
   } catch (error) {
