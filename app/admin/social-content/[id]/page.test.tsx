@@ -1524,6 +1524,401 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByRole('button', { name: /^Approve$/i })).not.toBeDisabled()
   })
 
+  it('refreshes YouTube comments through the governed endpoint when zero comments are fetched', async () => {
+    const youtubeItem = {
+      ...baseItem,
+      platform: 'youtube',
+      target_platforms: ['youtube'],
+    }
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [] }),
+        } as Response
+      }
+      if (url.includes('/engagement/comments')) {
+        return {
+          ok: true,
+          json: async () => ({ comments: [] }),
+        } as Response
+      }
+      if (url.includes('/engagement/refresh')) {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            platform: 'youtube',
+            content_id: 'social-1',
+            provider: 'youtube_data_api',
+            fetched: 0,
+            upserted: 0,
+            skipped: 0,
+            errors: [],
+          }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: youtubeItem }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAtStep('status')
+
+    const refreshButton = await screen.findByRole('button', { name: 'Refresh comments' })
+    fireEvent.click(refreshButton)
+
+    await screen.findByRole('heading', { name: 'Comment refresh completed' })
+    expect(screen.getByText('Governed comment ingestion completed. The canonical comment projection has been reloaded.')).toBeInTheDocument()
+    expect(screen.getByText('youtube_data_api')).toBeInTheDocument()
+    expect(screen.getByText('Upserted')).toBeInTheDocument()
+    expect(screen.getAllByText('0').length).toBeGreaterThanOrEqual(3)
+
+    const refreshCall = fetchMock.mock.calls.find(([url]) => String(url).includes('/engagement/refresh'))
+    expect(refreshCall?.[1]).toMatchObject({ method: 'POST' })
+    expect(JSON.parse(String(refreshCall?.[1]?.body))).toEqual({
+      platform: 'youtube',
+      content_id: 'social-1',
+    })
+    expect(fetchMock.mock.calls.some(([url, init]) => (
+      String(url).includes('/engagement/comments') && init?.method === 'POST'
+    ))).toBe(false)
+  })
+
+  it('reloads the canonical comment projection after a successful YouTube import', async () => {
+    const youtubeItem = {
+      ...baseItem,
+      platform: 'youtube',
+      target_platforms: ['youtube'],
+    }
+    let commentProjectionLoads = 0
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [] }),
+        } as Response
+      }
+      if (url.includes('/engagement/comments') && init?.method !== 'POST') {
+        commentProjectionLoads += 1
+        return {
+          ok: true,
+          json: async () => ({
+            comments: commentProjectionLoads > 1
+              ? [{
+                id: 'youtube-comment-1',
+                socialContentId: 'social-1',
+                platform: 'youtube',
+                authorDisplayName: 'YouTube Viewer',
+                body: 'This imported comment should show after refresh.',
+                status: 'new',
+                classification: {
+                  label: 'general',
+                  priority: 'medium',
+                  reason: 'Fresh import',
+                },
+                providerCommentId: 'yt-comment-1',
+                draftReply: null,
+                approvalState: 'none',
+                providerPermalink: 'https://youtube.example/comment/1',
+                providerCapability: {
+                  provider: 'youtube',
+                  automaticReply: false,
+                  verified: false,
+                  humanGateSatisfied: false,
+                  blocker: 'YouTube reply provider remains manual.',
+                  recoveryPath: 'Reply manually in YouTube Studio.',
+                },
+                actionHistory: [],
+                postLabel: 'YouTube post',
+                postExcerpt: 'Original YouTube description',
+              }]
+              : [],
+          }),
+        } as Response
+      }
+      if (url.includes('/engagement/refresh')) {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            platform: 'youtube',
+            content_id: 'social-1',
+            provider: 'youtube_data_api',
+            fetched: 1,
+            upserted: 1,
+            skipped: 0,
+            errors: [],
+          }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: youtubeItem }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAtStep('status')
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Refresh comments' }))
+
+    expect(await screen.findByText('This imported comment should show after refresh.')).toBeInTheDocument()
+    expect(commentProjectionLoads).toBeGreaterThanOrEqual(2)
+    expect(screen.getByRole('heading', { name: 'Comment refresh completed' })).toBeInTheDocument()
+  })
+
+  it('shows a partial YouTube refresh warning while reloading imported comments', async () => {
+    const youtubeItem = {
+      ...baseItem,
+      platform: 'youtube',
+      target_platforms: ['youtube'],
+    }
+    let commentProjectionLoads = 0
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [] }),
+        } as Response
+      }
+      if (url.includes('/engagement/comments') && init?.method !== 'POST') {
+        commentProjectionLoads += 1
+        return {
+          ok: true,
+          json: async () => ({
+            comments: commentProjectionLoads > 1
+              ? [{
+                id: 'youtube-comment-partial-1',
+                socialContentId: 'social-1',
+                platform: 'youtube',
+                authorDisplayName: 'Partial Import Viewer',
+                body: 'This comment imported before the endpoint warning.',
+                status: 'new',
+                classification: {
+                  label: 'general',
+                  priority: 'medium',
+                  reason: 'Partial import still yielded a comment',
+                },
+                providerCommentId: 'yt-comment-partial-1',
+                draftReply: null,
+                approvalState: 'none',
+                providerPermalink: 'https://youtube.example/comment/partial-1',
+                providerCapability: {
+                  provider: 'youtube',
+                  automaticReply: false,
+                  verified: false,
+                  humanGateSatisfied: false,
+                  blocker: 'YouTube reply provider remains manual.',
+                  recoveryPath: 'Reply manually in YouTube Studio.',
+                },
+                actionHistory: [],
+                postLabel: 'YouTube post',
+                postExcerpt: 'Original YouTube description',
+              }]
+              : [],
+          }),
+        } as Response
+      }
+      if (url.includes('/engagement/refresh')) {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            status: 'partial',
+            platform: 'youtube',
+            content_id: 'social-1',
+            provider: 'youtube_data_api',
+            fetched: 2,
+            upserted: 1,
+            skipped: 1,
+            errors: [{
+              code: 'youtube_scope_warning',
+              message: 'One YouTube comment page could not be fetched because the OAuth scope expired.',
+            }],
+          }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: youtubeItem }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAtStep('status')
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Refresh comments' }))
+
+    expect(await screen.findByRole('heading', { name: 'Comment refresh partially completed' })).toBeInTheDocument()
+    expect(screen.getByText('Endpoint warnings')).toBeInTheDocument()
+    expect(screen.getByText('One YouTube comment page could not be fetched because the OAuth scope expired.')).toBeInTheDocument()
+    expect(screen.getByText(/Check provider authorization, YouTube scope, publication reconciliation, and the ingestion lane before retrying./i)).toBeInTheDocument()
+    expect(screen.getByText('youtube_data_api')).toBeInTheDocument()
+    expect(screen.getAllByText('2').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('1').length).toBeGreaterThanOrEqual(2)
+    expect(await screen.findByText('This comment imported before the endpoint warning.')).toBeInTheDocument()
+    expect(commentProjectionLoads).toBeGreaterThanOrEqual(2)
+    expect(screen.queryByRole('heading', { name: 'Comment refresh completed' })).not.toBeInTheDocument()
+  })
+
+  it('shows recovery guidance when the governed YouTube refresh endpoint returns an error', async () => {
+    const youtubeItem = {
+      ...baseItem,
+      platform: 'youtube',
+      target_platforms: ['youtube'],
+    }
+    const longScopeError = 'YouTube Data API scope missing for this authenticated preview account, publication reconciliation could not verify the provider video, and the ingestion lane must repair provider authorization before another refresh attempt.'
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [] }),
+        } as Response
+      }
+      if (url.includes('/engagement/comments')) {
+        return {
+          ok: true,
+          json: async () => ({ comments: [] }),
+        } as Response
+      }
+      if (url.includes('/engagement/refresh')) {
+        return {
+          ok: false,
+          status: 403,
+          json: async () => ({
+            error: longScopeError,
+            provider: 'youtube_data_api',
+            fetched: 0,
+            upserted: 0,
+            skipped: 0,
+          }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: youtubeItem }),
+      } as Response
+    }))
+
+    renderAtStep('status')
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Refresh comments' }))
+
+    expect(await screen.findByRole('heading', { name: 'Comment refresh blocked' })).toBeInTheDocument()
+    expect(screen.getByText(new RegExp(longScopeError))).toBeInTheDocument()
+    expect(screen.getByText(/Check provider authorization, YouTube scope, publication reconciliation, and the ingestion lane before retrying./i)).toBeInTheDocument()
+    expect(screen.getByText('youtube_data_api')).toBeInTheDocument()
+  })
+
+  it('keeps unsupported providers fail-closed without calling the governed refresh endpoint', async () => {
+    const instagramItem = {
+      ...baseItem,
+      platform: 'instagram',
+      target_platforms: ['instagram'],
+    }
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [] }),
+        } as Response
+      }
+      if (url.includes('/engagement/comments')) {
+        return {
+          ok: true,
+          json: async () => ({ comments: [] }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: instagramItem }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAtStep('status')
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Refresh comments' }))
+
+    expect(await screen.findByRole('heading', { name: 'Instagram comment refresh is manual' })).toBeInTheDocument()
+    expect(screen.getByText(/do not substitute the LinkedIn metrics refresh/i)).toBeInTheDocument()
+    expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/engagement/refresh'))).toBe(false)
+  })
+
+  it('prevents duplicate governed refresh clicks while a request is in flight', async () => {
+    const youtubeItem = {
+      ...baseItem,
+      platform: 'youtube',
+      target_platforms: ['youtube'],
+    }
+    const refreshResolvers: Array<(response: Response) => void> = []
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [] }),
+        } as Response
+      }
+      if (url.includes('/engagement/comments')) {
+        return {
+          ok: true,
+          json: async () => ({ comments: [] }),
+        } as Response
+      }
+      if (url.includes('/engagement/refresh')) {
+        return new Promise<Response>((resolve) => {
+          refreshResolvers.push(resolve)
+        })
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: youtubeItem }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAtStep('status')
+
+    const refreshButton = await screen.findByRole('button', { name: 'Refresh comments' })
+    fireEvent.click(refreshButton)
+
+    await waitFor(() => {
+      expect(fetchMock.mock.calls.filter(([url]) => String(url).includes('/engagement/refresh'))).toHaveLength(1)
+    })
+    fireEvent.click(refreshButton)
+    expect(fetchMock.mock.calls.filter(([url]) => String(url).includes('/engagement/refresh'))).toHaveLength(1)
+    expect(screen.getByRole('button', { name: 'Refreshing comments' })).toBeDisabled()
+
+    const resolveRefresh = refreshResolvers[0]
+    if (!resolveRefresh) {
+      throw new Error('Expected refresh request to be pending')
+    }
+
+    resolveRefresh({
+      ok: true,
+      json: async () => ({
+        ok: true,
+        platform: 'youtube',
+        content_id: 'social-1',
+        provider: 'youtube_data_api',
+        fetched: 0,
+        upserted: 0,
+        skipped: 0,
+      }),
+    } as Response)
+
+    expect(await screen.findByRole('heading', { name: 'Comment refresh completed' })).toBeInTheDocument()
+  })
+
   it('shows comment inbox unavailable state on the detail status panel', async () => {
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input)
