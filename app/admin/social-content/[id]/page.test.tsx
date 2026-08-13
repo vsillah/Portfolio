@@ -1672,6 +1672,101 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByRole('heading', { name: 'Comment refresh completed' })).toBeInTheDocument()
   })
 
+  it('shows a partial YouTube refresh warning while reloading imported comments', async () => {
+    const youtubeItem = {
+      ...baseItem,
+      platform: 'youtube',
+      target_platforms: ['youtube'],
+    }
+    let commentProjectionLoads = 0
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [] }),
+        } as Response
+      }
+      if (url.includes('/engagement/comments') && init?.method !== 'POST') {
+        commentProjectionLoads += 1
+        return {
+          ok: true,
+          json: async () => ({
+            comments: commentProjectionLoads > 1
+              ? [{
+                id: 'youtube-comment-partial-1',
+                socialContentId: 'social-1',
+                platform: 'youtube',
+                authorDisplayName: 'Partial Import Viewer',
+                body: 'This comment imported before the endpoint warning.',
+                status: 'new',
+                classification: {
+                  label: 'general',
+                  priority: 'medium',
+                  reason: 'Partial import still yielded a comment',
+                },
+                providerCommentId: 'yt-comment-partial-1',
+                draftReply: null,
+                approvalState: 'none',
+                providerPermalink: 'https://youtube.example/comment/partial-1',
+                providerCapability: {
+                  provider: 'youtube',
+                  automaticReply: false,
+                  verified: false,
+                  humanGateSatisfied: false,
+                  blocker: 'YouTube reply provider remains manual.',
+                  recoveryPath: 'Reply manually in YouTube Studio.',
+                },
+                actionHistory: [],
+                postLabel: 'YouTube post',
+                postExcerpt: 'Original YouTube description',
+              }]
+              : [],
+          }),
+        } as Response
+      }
+      if (url.includes('/engagement/refresh')) {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            status: 'partial',
+            platform: 'youtube',
+            content_id: 'social-1',
+            provider: 'youtube_data_api',
+            fetched: 2,
+            upserted: 1,
+            skipped: 1,
+            errors: [{
+              code: 'youtube_scope_warning',
+              message: 'One YouTube comment page could not be fetched because the OAuth scope expired.',
+            }],
+          }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: youtubeItem }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAtStep('status')
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Refresh comments' }))
+
+    expect(await screen.findByRole('heading', { name: 'Comment refresh partially completed' })).toBeInTheDocument()
+    expect(screen.getByText('Endpoint warnings')).toBeInTheDocument()
+    expect(screen.getByText('One YouTube comment page could not be fetched because the OAuth scope expired.')).toBeInTheDocument()
+    expect(screen.getByText(/Check provider authorization, YouTube scope, publication reconciliation, and the ingestion lane before retrying./i)).toBeInTheDocument()
+    expect(screen.getByText('youtube_data_api')).toBeInTheDocument()
+    expect(screen.getAllByText('2').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('1').length).toBeGreaterThanOrEqual(2)
+    expect(await screen.findByText('This comment imported before the endpoint warning.')).toBeInTheDocument()
+    expect(commentProjectionLoads).toBeGreaterThanOrEqual(2)
+    expect(screen.queryByRole('heading', { name: 'Comment refresh completed' })).not.toBeInTheDocument()
+  })
+
   it('shows recovery guidance when the governed YouTube refresh endpoint returns an error', async () => {
     const youtubeItem = {
       ...baseItem,

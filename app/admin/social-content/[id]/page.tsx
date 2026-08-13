@@ -105,9 +105,10 @@ type SectionGateKey = 'visual_assets' | 'asset_packet' | 'privacy' | 'linkedin_d
 type SectionGateDecision = 'approved' | 'rejected'
 type ApprovalStep = 'context' | 'copy' | 'visuals' | 'draft' | 'submit' | 'status'
 type CommentRefreshState = {
-  status: 'success' | 'error' | 'blocked'
+  status: 'success' | 'partial' | 'error' | 'blocked'
   title: string
   message: string
+  errorMessages: string[]
   provider: string | null
   fetched: number | null
   insertedOrUpserted: number | null
@@ -121,6 +122,8 @@ type CommentInboxUnavailableState = {
 
 const APPROVAL_STEPS: ApprovalStep[] = ['context', 'copy', 'visuals', 'draft', 'submit', 'status']
 const COMMENT_REFRESH_SUPPORTED_PLATFORMS = new Set<SocialPlatform>(['youtube'])
+const COMMENT_REFRESH_RECOVERY_GUIDANCE = 'Check provider authorization, YouTube scope, publication reconciliation, and the ingestion lane before retrying.'
+const COMMENT_REFRESH_ERROR_LIMIT = 3
 
 function isApprovalStep(value: string | null): value is ApprovalStep {
   return Boolean(value && APPROVAL_STEPS.includes(value as ApprovalStep))
@@ -205,6 +208,21 @@ function asRecord(value: unknown): Record<string, unknown> | null {
 
 function asString(value: unknown): string {
   return typeof value === 'string' ? value : ''
+}
+
+function sanitizeCommentRefreshError(value: unknown): string | null {
+  const record = asRecord(value)
+  const raw = typeof value === 'string'
+    ? value
+    : record
+      ? asString(record.message) || asString(record.code)
+      : ''
+  const sanitized = raw
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '[redacted email]')
+    .replace(/(bearer|token|api[_-]?key|authorization)(\s*[:=]\s*)\S+/gi, '$1$2[redacted]')
+    .replace(/\s+/g, ' ')
+    .trim()
+  return sanitized ? sanitized.slice(0, 240) : null
 }
 
 function asStringArray(value: unknown): string[] {
@@ -1654,6 +1672,7 @@ function SocialContentDetailPage() {
         status: 'blocked',
         title: `${platformLabel} comment refresh is manual`,
         message: `${platformLabel} does not have a verified governed comment ingestion path in this panel. Use the provider permalink or the owning ingestion lane; do not substitute the LinkedIn metrics refresh.`,
+        errorMessages: [],
         provider: platform,
         fetched: null,
         insertedOrUpserted: null,
@@ -1672,6 +1691,7 @@ function SocialContentDetailPage() {
           status: 'error',
           title: 'Comment refresh blocked',
           message: 'Admin authentication is required before the governed comment ingestion endpoint can run. Sign in again, then retry from this panel.',
+          errorMessages: [],
           provider: platform,
           fetched: null,
           insertedOrUpserted: null,
@@ -1706,22 +1726,25 @@ function SocialContentDetailPage() {
       const skipped = Number.isFinite(Number(data.skipped)) ? Number(data.skipped) : null
       const errorText = asString(data.error)
       const blockedReason = asString(data.blockedReason)
-      const errors = Array.isArray(data.errors)
-        ? data.errors.map((entry: unknown) => {
-          const record = asRecord(entry)
-          if (!record) return null
-          return asString(record.message) || asString(record.code) || JSON.stringify(record)
-        }).filter(Boolean)
-        : []
+      const endpointStatus = asString(data.status)
+      const endpointErrors: unknown[] = Array.isArray(data.errors) ? data.errors : []
+      const errors = endpointErrors
+        .map((entry) => sanitizeCommentRefreshError(entry))
+        .filter((entry): entry is string => Boolean(entry))
+        .slice(0, COMMENT_REFRESH_ERROR_LIMIT)
 
-      if (!res.ok || data.ok === false) {
+      const isManualBlocked = endpointStatus === 'manual_blocked'
+      const isFailed = endpointStatus === 'failed'
+
+      if (!res.ok || data.ok === false || isManualBlocked || isFailed) {
         setCommentRefreshState({
-          status: 'error',
+          status: isManualBlocked ? 'blocked' : 'error',
           title: 'Comment refresh blocked',
           message: [
             errorText || blockedReason || errors[0] || 'The governed comment ingestion endpoint did not complete.',
-            'Check provider authorization, YouTube scope, publication reconciliation, and the ingestion lane before retrying.',
+            COMMENT_REFRESH_RECOVERY_GUIDANCE,
           ].filter(Boolean).join(' '),
+          errorMessages: errors,
           provider,
           fetched,
           insertedOrUpserted,
@@ -1731,10 +1754,30 @@ function SocialContentDetailPage() {
         return
       }
 
+      if (endpointStatus === 'partial' || errors.length > 0) {
+        setCommentRefreshState({
+          status: 'partial',
+          title: 'Comment refresh partially completed',
+          message: [
+            'Governed comment ingestion imported the available comments, but the endpoint returned warnings.',
+            COMMENT_REFRESH_RECOVERY_GUIDANCE,
+          ].join(' '),
+          errorMessages: errors,
+          provider,
+          fetched,
+          insertedOrUpserted,
+          insertedOrUpsertedLabel,
+          skipped,
+        })
+        await fetchCommentInboxItems()
+        return
+      }
+
       setCommentRefreshState({
         status: 'success',
         title: 'Comment refresh completed',
         message: 'Governed comment ingestion completed. The canonical comment projection has been reloaded.',
+        errorMessages: [],
         provider,
         fetched,
         insertedOrUpserted,
@@ -1749,6 +1792,7 @@ function SocialContentDetailPage() {
         message: error instanceof Error
           ? `${error.message} Check provider authorization, YouTube scope, publication reconciliation, and the ingestion lane before retrying.`
           : 'Comment refresh failed. Check provider authorization, YouTube scope, publication reconciliation, and the ingestion lane before retrying.',
+        errorMessages: [],
         provider: item.platform,
         fetched: null,
         insertedOrUpserted: null,
@@ -5335,7 +5379,7 @@ function SocialContentDetailPage() {
                 'mt-4 rounded-lg border p-4',
                 commentRefreshState.status === 'success'
                   ? 'border-emerald-500/35 bg-emerald-500/10'
-                  : commentRefreshState.status === 'blocked'
+                  : commentRefreshState.status === 'blocked' || commentRefreshState.status === 'partial'
                     ? 'border-amber-500/35 bg-amber-500/10'
                     : 'border-red-500/35 bg-red-500/10',
               ].join(' ')}
@@ -5344,14 +5388,14 @@ function SocialContentDetailPage() {
                 {commentRefreshState.status === 'success' ? (
                   <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-200" />
                 ) : (
-                  <ShieldAlert className={commentRefreshState.status === 'blocked' ? 'h-5 w-5 shrink-0 text-amber-200' : 'h-5 w-5 shrink-0 text-red-200'} />
+                  <ShieldAlert className={commentRefreshState.status === 'blocked' || commentRefreshState.status === 'partial' ? 'h-5 w-5 shrink-0 text-amber-200' : 'h-5 w-5 shrink-0 text-red-200'} />
                 )}
                 <div className="min-w-0 flex-1">
                   <h3 className={[
                     'text-sm font-semibold',
                     commentRefreshState.status === 'success'
                       ? 'text-emerald-100'
-                      : commentRefreshState.status === 'blocked'
+                      : commentRefreshState.status === 'blocked' || commentRefreshState.status === 'partial'
                         ? 'text-amber-100'
                         : 'text-red-100',
                   ].join(' ')}
@@ -5362,13 +5406,29 @@ function SocialContentDetailPage() {
                     'mt-2 break-words text-sm leading-6',
                     commentRefreshState.status === 'success'
                       ? 'text-emerald-50/90'
-                      : commentRefreshState.status === 'blocked'
+                      : commentRefreshState.status === 'blocked' || commentRefreshState.status === 'partial'
                         ? 'text-amber-50/90'
                         : 'text-red-50/90',
                   ].join(' ')}
                   >
                     {commentRefreshState.message}
                   </p>
+                  {commentRefreshState.errorMessages.length > 0 ? (
+                    <div className={[
+                      'mt-3 rounded-md border p-3',
+                      commentRefreshState.status === 'partial'
+                        ? 'border-amber-500/25 bg-amber-500/10'
+                        : 'border-red-500/25 bg-red-500/10',
+                    ].join(' ')}
+                    >
+                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-300">Endpoint warnings</p>
+                      <ul className="mt-2 space-y-1 text-xs leading-5 text-gray-100">
+                        {commentRefreshState.errorMessages.map((errorMessage) => (
+                          <li key={errorMessage} className="break-words">{errorMessage}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
                   <div className="mt-3 grid gap-2 text-xs sm:grid-cols-2 lg:grid-cols-4">
                     <div className="min-w-0 rounded-md border border-white/10 bg-black/20 p-2">
                       <p className="font-semibold uppercase tracking-[0.12em] text-gray-400">Provider</p>
