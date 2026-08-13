@@ -219,6 +219,103 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.queryByRole('button', { name: 'Status: Approved' })).not.toBeInTheDocument()
   })
 
+  it('exposes responsive stale-schedule recovery controls and requires explicit reconfirmation', async () => {
+    const recoveryItem = {
+      ...baseItem,
+      status: 'scheduled',
+      scheduled_for: '2026-08-10T14:00:00.000Z',
+      schedule_recovery: {
+        state: 'action_required',
+        work_item_id: 'recovery-1',
+        owner: 'chief-of-staff',
+        stale_reason: 'Scheduled time is outside the automatic publish safety window.',
+        prior_scheduled_for: '2026-08-10T14:00:00.000Z',
+        next_action: 'Choose a future schedule and reconfirm publication intent, or cancel this scheduled publication.',
+        automatic_publication_blocked: true,
+      },
+    }
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.includes('/topic-backlog')) {
+        return { ok: true, json: async () => ({ items: [] }) } as Response
+      }
+      if (url.endsWith('/schedule-recovery') && init?.method === 'POST') {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            side_effects: { provider_call: false, publish: false, external_schedule: false },
+          }),
+        } as Response
+      }
+      return { ok: true, json: async () => ({ item: recoveryItem }) } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAtStep('status')
+
+    const panel = await screen.findByLabelText('Scheduled publication recovery')
+    expect(panel).toHaveClass('p-4', 'sm:p-5')
+    expect(screen.getByText('No automatic publication')).toBeInTheDocument()
+    expect(screen.getByText(/8\/10\/2026/)).toBeInTheDocument()
+    expect(screen.getByText('chief-of-staff')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Reschedule and reconfirm' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Cancel scheduled publication' })).toBeInTheDocument()
+
+    fireEvent.change(screen.getByLabelText('New future schedule'), {
+      target: { value: '2099-08-20T10:00' },
+    })
+    fireEvent.click(screen.getByLabelText(/I explicitly reconfirm publication intent/i))
+    fireEvent.click(screen.getByRole('button', { name: 'Reschedule and reconfirm' }))
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/admin/social-content/social-1/schedule-recovery',
+        expect.objectContaining({
+          method: 'POST',
+          body: expect.stringContaining('"reconfirm_publication_intent":true'),
+        }),
+      )
+    })
+    expect(fetchMock).not.toHaveBeenCalledWith(
+      expect.stringMatching(/publish|platform-submission/),
+      expect.objectContaining({ method: 'POST' }),
+    )
+  })
+
+  it('fails closed in the UI when canonical recovery records are ambiguous', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input).includes('/topic-backlog')) {
+        return { ok: true, json: async () => ({ items: [] }) } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({
+          item: {
+            ...baseItem,
+            status: 'scheduled',
+            scheduled_for: '2026-08-10T14:00:00.000Z',
+            schedule_recovery: {
+              state: 'blocked',
+              work_item_id: null,
+              owner: 'Integration Captain',
+              stale_reason: 'Multiple active stale-schedule recovery records reference this Social Content item.',
+              prior_scheduled_for: null,
+              next_action: 'Resolve duplicate canonical recovery records.',
+              automatic_publication_blocked: true,
+            },
+          },
+        }),
+      } as Response
+    }))
+
+    renderAtStep('status')
+
+    expect(await screen.findByText(/Recovery controls are disabled/i)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Reschedule and reconfirm' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Cancel scheduled publication' })).not.toBeInTheDocument()
+  })
+
   it('blocks downstream lifecycle evidence instead of approving later steps when context is missing', async () => {
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
       if (String(input).includes('/topic-backlog')) {

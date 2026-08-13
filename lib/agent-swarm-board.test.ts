@@ -843,6 +843,37 @@ describe('buildAgentOrgBoardSnapshotFromRows', () => {
     })
   })
 
+  it('deep-links stale schedule recovery cards to the canonical Social Content decision', () => {
+    const snapshot = buildAgentOrgBoardSnapshotFromRows({
+      now: new Date('2026-08-13T16:00:00.000Z'),
+      runs: [],
+      events: [],
+      workItems: [
+        orgWorkItem({
+          id: 'recovery-work-1',
+          title: 'Recover stale scheduled publication',
+          source_type: 'social_content_scheduled_publish_recovery',
+          source_id: 'social-1',
+          metadata: {
+            social_content_id: 'social-1',
+            recovery_kind: 'stale_schedule',
+            recovery_action: 'reschedule_reconfirm_or_cancel',
+          },
+        }),
+      ],
+      approvals: [],
+    })
+
+    const recoveryTask = snapshot.lanes
+      .flatMap((lane) => lane.tasks)
+      .find((task) => task.id === 'recovery-work-1')
+
+    expect(recoveryTask?.socialContent).toEqual(expect.objectContaining({
+      id: 'social-1',
+      href: '/admin/social-content/social-1?step=status#scheduled-publish-recovery',
+    }))
+  })
+
   it('resolves dependency and handoff relationships without a schema migration', () => {
     const snapshot = buildAgentOrgBoardSnapshotFromRows({
       now: new Date('2026-05-05T16:00:00.000Z'),

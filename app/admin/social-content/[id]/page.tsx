@@ -517,6 +517,9 @@ function SocialContentDetailPage() {
   const [voiceoverText, setVoiceoverText] = useState('')
   const [frameworkVisualType, setFrameworkVisualType] = useState<FrameworkVisualType | ''>('')
   const [scheduledFor, setScheduledFor] = useState('')
+  const [recoveryScheduledFor, setRecoveryScheduledFor] = useState('')
+  const [reconfirmPublicationIntent, setReconfirmPublicationIntent] = useState(false)
+  const [applyingScheduleRecovery, setApplyingScheduleRecovery] = useState<'reschedule_reconfirm' | 'cancel_scheduled_publication' | null>(null)
   const [adminNotes, setAdminNotes] = useState('')
   const [copyRevisionRequest, setCopyRevisionRequest] = useState('')
   const [copyRevisionAction, setCopyRevisionAction] = useState<CopyRevisionAction>(null)
@@ -713,6 +716,10 @@ function SocialContentDetailPage() {
       setVoiceoverText(i.voiceover_text || '')
       setFrameworkVisualType(i.framework_visual_type || '')
       setScheduledFor(i.scheduled_for ? new Date(i.scheduled_for).toISOString().slice(0, 16) : '')
+      if (!options.silent) {
+        setRecoveryScheduledFor('')
+        setReconfirmPublicationIntent(false)
+      }
       setAdminNotes(i.admin_notes || '')
       setTargetPlatforms(i.target_platforms?.length ? i.target_platforms : ['linkedin'])
       const rag = asRecord(i.rag_context)
@@ -890,6 +897,63 @@ function SocialContentDetailPage() {
     const saved = await saveForm()
     showMsg(saved ? 'success' : 'error', saved ? 'Saved successfully' : 'Failed to save')
     setSaving(false)
+  }
+
+  const handleScheduleRecovery = async (action: 'reschedule_reconfirm' | 'cancel_scheduled_publication') => {
+    const recovery = item?.schedule_recovery
+    if (!recovery?.work_item_id || recovery.state !== 'action_required') {
+      showMsg('error', 'Canonical recovery work item is unavailable. Refresh before deciding.')
+      return
+    }
+    if (action === 'reschedule_reconfirm' && (!recoveryScheduledFor || !reconfirmPublicationIntent)) {
+      showMsg('error', 'Choose a future schedule and explicitly reconfirm publication intent.')
+      return
+    }
+    if (action === 'cancel_scheduled_publication' && !window.confirm('Cancel this scheduled publication? The content and provider history will be preserved.')) {
+      return
+    }
+
+    setApplyingScheduleRecovery(action)
+    try {
+      const session = await getCurrentSession()
+      if (!session) {
+        showMsg('error', 'Admin session is unavailable.')
+        return
+      }
+      const response = await fetch(`/api/admin/social-content/${id}/schedule-recovery`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action,
+          work_item_id: recovery.work_item_id,
+          scheduled_for: action === 'reschedule_reconfirm'
+            ? new Date(recoveryScheduledFor).toISOString()
+            : null,
+          reconfirm_publication_intent: action === 'reschedule_reconfirm' && reconfirmPublicationIntent,
+        }),
+      })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        showMsg('error', asString(data.error) || 'Schedule recovery decision failed.')
+        return
+      }
+      showMsg(
+        'success',
+        action === 'reschedule_reconfirm'
+          ? 'Publication intent reconfirmed and rescheduled. Nothing was published immediately.'
+          : 'Scheduled publication cancelled. Content and provider history were preserved.',
+      )
+      setReconfirmPublicationIntent(false)
+      setRecoveryScheduledFor('')
+      await fetchItem({ silent: true })
+    } catch (error) {
+      showMsg('error', error instanceof Error ? error.message : 'Schedule recovery decision failed.')
+    } finally {
+      setApplyingScheduleRecovery(null)
+    }
   }
 
   const handleExpandKnownAcronyms = () => {
@@ -5275,6 +5339,87 @@ function SocialContentDetailPage() {
 	        {/* ================================================================ */}
 	        {activeApprovalStep === 'status' && (
 	        <div id="social-publication-status-gate" className="scroll-mt-28 space-y-6">
+	        {item.schedule_recovery ? (
+	          <section id="scheduled-publish-recovery" className="scroll-mt-28 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 sm:p-5" aria-label="Scheduled publication recovery">
+	            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+	              <div className="min-w-0">
+	                <p className="text-xs font-semibold uppercase tracking-wide text-amber-200">Scheduled publication paused</p>
+	                <h2 className="mt-1 text-lg font-semibold text-amber-50">Human schedule decision required</h2>
+	                <p className="mt-2 break-words text-sm leading-6 text-amber-50/90">{item.schedule_recovery.stale_reason}</p>
+	              </div>
+	              <span className="inline-flex w-fit shrink-0 rounded-full border border-amber-400/40 px-2.5 py-1 text-xs font-semibold text-amber-100">
+	                No automatic publication
+	              </span>
+	            </div>
+
+	            <dl className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+	              <div className="min-w-0 rounded-lg border border-amber-500/25 bg-gray-950/35 p-3">
+	                <dt className="text-xs font-semibold uppercase tracking-wide text-amber-100/70">Prior scheduled time</dt>
+	                <dd className="mt-1 break-words text-sm text-amber-50">{item.schedule_recovery.prior_scheduled_for ? new Date(item.schedule_recovery.prior_scheduled_for).toLocaleString() : 'Unavailable'}</dd>
+	              </div>
+	              <div className="min-w-0 rounded-lg border border-amber-500/25 bg-gray-950/35 p-3">
+	                <dt className="text-xs font-semibold uppercase tracking-wide text-amber-100/70">Owner</dt>
+	                <dd className="mt-1 break-words text-sm text-amber-50">{item.schedule_recovery.owner}</dd>
+	              </div>
+	              <div className="min-w-0 rounded-lg border border-amber-500/25 bg-gray-950/35 p-3 sm:col-span-2">
+	                <dt className="text-xs font-semibold uppercase tracking-wide text-amber-100/70">Next action</dt>
+	                <dd className="mt-1 break-words text-sm leading-6 text-amber-50">{item.schedule_recovery.next_action}</dd>
+	              </div>
+	            </dl>
+
+	            {item.schedule_recovery.state === 'blocked' ? (
+	              <div className="mt-4 rounded-lg border border-red-500/35 bg-red-500/10 p-3 text-sm leading-6 text-red-100">
+	                Recovery controls are disabled until the canonical work-item ambiguity is resolved.
+	              </div>
+	            ) : (
+	              <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+	                <div className="min-w-0 space-y-3">
+	                  <label className="block min-w-0">
+	                    <span className="text-sm font-semibold text-amber-50">New future schedule</span>
+	                    <input
+	                      type="datetime-local"
+	                      value={recoveryScheduledFor}
+	                      min={new Date().toISOString().slice(0, 16)}
+	                      onChange={(event) => setRecoveryScheduledFor(event.target.value)}
+	                      disabled={Boolean(applyingScheduleRecovery)}
+	                      className="mt-2 block min-h-11 w-full min-w-0 rounded-lg border border-amber-500/35 bg-gray-950/50 px-3 py-2 text-sm text-amber-50 disabled:opacity-60"
+	                    />
+	                  </label>
+	                  <label className="flex min-h-11 items-start gap-3 rounded-lg border border-amber-500/25 bg-gray-950/35 p-3 text-sm leading-6 text-amber-50">
+	                    <input
+	                      type="checkbox"
+	                      checked={reconfirmPublicationIntent}
+	                      onChange={(event) => setReconfirmPublicationIntent(event.target.checked)}
+	                      disabled={Boolean(applyingScheduleRecovery)}
+	                      className="mt-1 h-4 w-4 shrink-0"
+	                    />
+	                    <span>I explicitly reconfirm publication intent for the new future schedule.</span>
+	                  </label>
+	                </div>
+	                <div className="grid w-full gap-2 sm:grid-cols-2 lg:w-auto lg:grid-cols-1">
+	                  <button
+	                    type="button"
+	                    onClick={() => void handleScheduleRecovery('reschedule_reconfirm')}
+	                    disabled={Boolean(applyingScheduleRecovery) || !recoveryScheduledFor || !reconfirmPublicationIntent}
+	                    className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-amber-400 px-4 py-2 text-sm font-semibold text-gray-950 hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-50"
+	                  >
+	                    {applyingScheduleRecovery === 'reschedule_reconfirm' ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+	                    Reschedule and reconfirm
+	                  </button>
+	                  <button
+	                    type="button"
+	                    onClick={() => void handleScheduleRecovery('cancel_scheduled_publication')}
+	                    disabled={Boolean(applyingScheduleRecovery)}
+	                    className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-red-500/45 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-100 hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+	                  >
+	                    {applyingScheduleRecovery === 'cancel_scheduled_publication' ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
+	                    Cancel scheduled publication
+	                  </button>
+	                </div>
+	              </div>
+	            )}
+	          </section>
+	        ) : null}
 	        {(item.status === 'published' || engagementLatest) && (
 	          <motion.div
             initial={{ opacity: 0, y: 12 }}

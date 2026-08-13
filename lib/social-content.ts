@@ -101,6 +101,16 @@ export interface SocialContentItem {
   publishes?: SocialContentPublish[]
   // Hydrated by the detail route from rag_context + video_generation_jobs.
   social_video_production?: SocialVideoProductionProjection
+  // Hydrated from the canonical stale-schedule Agent Kanban work item.
+  schedule_recovery?: {
+    state: 'action_required' | 'blocked'
+    work_item_id: string | null
+    owner: string
+    stale_reason: string
+    prior_scheduled_for: string | null
+    next_action: string
+    automatic_publication_blocked: true
+  } | null
 }
 
 export interface SocialContentPublish {

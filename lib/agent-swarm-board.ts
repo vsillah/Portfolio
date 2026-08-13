@@ -1212,7 +1212,10 @@ export function buildAgentOrgBoardSnapshotFromRows(input: AgentOrgBoardBuildInpu
     blockedActions: stringArrayValue(item.metadata?.blocked_actions),
     socialContent: {
       id: stringValue(item.metadata?.social_content_id) ?? (item.source_type === 'social_content_approval' ? item.source_id ?? null : null),
-      href: stringValue(item.metadata?.social_content_href),
+      href: stringValue(item.metadata?.social_content_href)
+        ?? (item.source_type === 'social_content_scheduled_publish_recovery' && item.source_id
+          ? `/admin/social-content/${item.source_id}?step=status#scheduled-publish-recovery`
+          : null),
       productionLane: stringValue(item.metadata?.production_lane),
       launchDraftAssetId: stringValue(item.metadata?.launch_draft_asset_id),
       contentPacketId: stringValue(item.metadata?.content_packet_id),

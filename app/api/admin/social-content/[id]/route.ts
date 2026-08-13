@@ -12,6 +12,10 @@ import {
   deriveSocialContentLifecycleProjection,
   lifecyclePrerequisiteFailure,
 } from '@/lib/social-content-lifecycle'
+import {
+  buildScheduleRecoveryProjection,
+  createSupabaseSocialScheduleRecoveryRepository,
+} from '@/lib/social-schedule-recovery'
 
 export const dynamic = 'force-dynamic'
 
@@ -105,6 +109,12 @@ export async function GET(
       .eq('content_id', id)
       .order('created_at', { ascending: true })
 
+    const recoveryRepository = createSupabaseSocialScheduleRecoveryRepository(supabaseAdmin)
+    const scheduleRecovery = buildScheduleRecoveryProjection(
+      await recoveryRepository.readRecoveryItems(id),
+      id,
+    )
+
     const [defaults, avatars, voices] = await Promise.all([
       getHeyGenDefaults(),
       getHeyGenConfigByType('avatar'),
@@ -134,6 +144,7 @@ export async function GET(
         meeting_record: meetingRecord,
         publishes: publishes || [],
         social_video_production: socialVideoProduction,
+        schedule_recovery: scheduleRecovery,
       },
     })
   } catch (error) {

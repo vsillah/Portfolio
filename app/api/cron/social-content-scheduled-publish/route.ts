@@ -157,6 +157,7 @@ async function createScheduledPublishRecovery(input: {
       requires_approval: true,
       social_content_id: input.contentId,
       social_content_path: `/admin/social-content/${input.contentId}`,
+      social_content_href: `/admin/social-content/${input.contentId}?step=status#scheduled-publish-recovery`,
       scheduled_for: input.scheduledFor,
       target_platforms: input.platforms,
       blocker: input.blocker,
