@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   runSocialCommentAttentionYouTubeRefresh: vi.fn(),
   evaluateSocialCommentReplyHolds: vi.fn(),
   refreshPublishedMetaComments: vi.fn(),
+  refreshPublishedXComments: vi.fn(),
 }))
 
 vi.mock('@/lib/agent-slack-notification-sweep', () => ({
@@ -30,6 +31,10 @@ vi.mock('@/lib/youtube-comment-ingestion', () => ({
 
 vi.mock('@/lib/meta-comment-ingestion', () => ({
   refreshPublishedMetaComments: mocks.refreshPublishedMetaComments,
+}))
+
+vi.mock('@/lib/x-comment-ingestion', () => ({
+  refreshPublishedXComments: mocks.refreshPublishedXComments,
 }))
 
 import { GET, POST } from './route'
@@ -67,13 +72,13 @@ describe('/api/cron/social-content-comment-attention', () => {
       ok: true,
       status: 'succeeded',
       dryRun: false,
-      selectedCount: 3,
-      attemptedCount: 3,
-      providerReadAttemptCount: 3,
+      selectedCount: 4,
+      attemptedCount: 4,
+      providerReadAttemptCount: 4,
       skippedCooldownCount: 0,
       capabilityBlockedCount: 0,
       identityBlockedCount: 0,
-      succeededCount: 3,
+      succeededCount: 4,
       partialCount: 0,
       manualBlockedCount: 0,
       failedCount: 0,
@@ -153,6 +158,25 @@ describe('/api/cron/social-content-comment-attention', () => {
           refreshCooldownMinutes: 15,
           outcomes: [],
         },
+        x: {
+          ok: true,
+          status: 'succeeded',
+          dryRun: false,
+          selectedCount: 1,
+          attemptedCount: 1,
+          providerReadAttemptCount: 1,
+          skippedCooldownCount: 0,
+          capabilityBlockedCount: 0,
+          identityBlockedCount: 0,
+          succeededCount: 1,
+          partialCount: 0,
+          manualBlockedCount: 0,
+          failedCount: 0,
+          commentLimit: 50,
+          publishLimit: 3,
+          refreshCooldownMinutes: 15,
+          outcomes: [],
+        },
       },
     })
     mocks.evaluateSocialCommentReplyHolds.mockResolvedValue({
@@ -190,6 +214,7 @@ describe('/api/cron/social-content-comment-attention', () => {
       dryRun: false,
       refreshPublishedYouTubeComments: expect.any(Function),
       refreshPublishedMetaComments: mocks.refreshPublishedMetaComments,
+      refreshPublishedXComments: mocks.refreshPublishedXComments,
     }))
     expect(mocks.runAgentSlackNotificationSweep).toHaveBeenCalledWith({
       kinds: ['social_comment_attention_due'],
@@ -216,7 +241,7 @@ describe('/api/cron/social-content-comment-attention', () => {
       },
       comment_refresh: {
         status: 'succeeded',
-        attemptedCount: 3,
+        attemptedCount: 4,
       },
       meta_refresh: {
         facebook: {
@@ -224,6 +249,13 @@ describe('/api/cron/social-content-comment-attention', () => {
         },
         instagram: {
           attemptedCount: 1,
+        },
+      },
+      provider_refreshes: {
+        x: {
+          status: 'succeeded',
+          attemptedCount: 1,
+          providerReadAttemptCount: 1,
         },
       },
       side_effects: {
