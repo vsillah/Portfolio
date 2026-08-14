@@ -2286,7 +2286,12 @@ describe('SocialContentDetailRoute visual production review', () => {
             status: 'succeeded',
             fetched: 0,
             upserted: 0,
-            skipped: 0,
+            skipped: 1,
+            cursor: {
+              pages: 1,
+              rootExcludedCount: 0,
+              ownerExcludedCount: 1,
+            },
             errors: [],
           }),
         } as Response
@@ -2302,7 +2307,9 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     fireEvent.click(await screen.findByRole('button', { name: 'Refresh comments' }))
 
-    expect(await screen.findByRole('heading', { name: 'Comment refresh completed' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Comment refresh completed with skipped items' })).toBeInTheDocument()
+    expect(screen.getByText(/no inbound comment projection was created because 1 provider item was skipped/i)).toBeInTheDocument()
+    expect(screen.getByText(/owner-authored X thread post was intentionally excluded/i)).toBeInTheDocument()
     expect(screen.getByText('x_api')).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'X comment refresh is manual' })).not.toBeInTheDocument()
     const refreshCall = fetchMock.mock.calls.find(([url]) => String(url).includes('/engagement/refresh'))

@@ -233,6 +233,11 @@ function asString(value: unknown): string {
   return typeof value === 'string' ? value : ''
 }
 
+function asFiniteNumber(value: unknown): number | null {
+  const numberValue = Number(value)
+  return Number.isFinite(numberValue) ? numberValue : null
+}
+
 function sanitizeCommentRefreshError(value: unknown): string | null {
   const record = asRecord(value)
   const raw = typeof value === 'string'
@@ -246,6 +251,39 @@ function sanitizeCommentRefreshError(value: unknown): string | null {
     .replace(/\s+/g, ' ')
     .trim()
   return sanitized ? sanitized.slice(0, 240) : null
+}
+
+function buildCommentRefreshSuccessCopy(input: {
+  fetched: number | null
+  insertedOrUpserted: number | null
+  skipped: number | null
+  cursor: Record<string, unknown> | null
+  platform: SocialPlatform
+}) {
+  const fetched = input.fetched ?? 0
+  const imported = input.insertedOrUpserted ?? 0
+  const skipped = input.skipped ?? 0
+  const onlySkipped = fetched === 0 && imported === 0 && skipped > 0
+
+  if (!onlySkipped) {
+    return {
+      title: 'Comment refresh completed',
+      message: 'Governed comment ingestion completed. The canonical comment projection has been reloaded.',
+    }
+  }
+
+  const ownerExcluded = asFiniteNumber(input.cursor?.ownerExcludedCount)
+  const rootExcluded = asFiniteNumber(input.cursor?.rootExcludedCount)
+  const reason = input.platform === 'x' && ownerExcluded && ownerExcluded > 0
+    ? ` ${ownerExcluded} owner-authored X thread post${ownerExcluded === 1 ? '' : 's'} ${ownerExcluded === 1 ? 'was' : 'were'} intentionally excluded so Portfolio does not treat AmaduTown's own thread or test replies as inbound engagement.`
+    : rootExcluded && rootExcluded > 0
+      ? ` ${rootExcluded} root provider post${rootExcluded === 1 ? '' : 's'} ${rootExcluded === 1 ? 'was' : 'were'} intentionally excluded before comment projection.`
+      : ' Skipped items can include owner-authored posts, root provider posts, duplicates, hidden or deleted comments, or rows outside the bounded import rules.'
+
+  return {
+    title: 'Comment refresh completed with skipped items',
+    message: `Governed comment ingestion completed, but no inbound comment projection was created because ${skipped} provider item${skipped === 1 ? '' : 's'} ${skipped === 1 ? 'was' : 'were'} skipped.${reason}`,
+  }
 }
 
 function asStringArray(value: unknown): string[] {
@@ -1810,16 +1848,19 @@ function SocialContentDetailPage() {
       })
       const data = await res.json().catch(() => ({}))
       const provider = asString(data.provider) || platform
-      const fetched = Number.isFinite(Number(data.fetched)) ? Number(data.fetched) : null
+      const fetched = asFiniteNumber(data.fetched)
       const hasUpserted = data.upserted !== undefined && data.upserted !== null
       const hasInserted = data.inserted !== undefined && data.inserted !== null
-      const insertedOrUpserted = hasUpserted && Number.isFinite(Number(data.upserted))
-        ? Number(data.upserted)
-        : hasInserted && Number.isFinite(Number(data.inserted))
-          ? Number(data.inserted)
+      const upserted = asFiniteNumber(data.upserted)
+      const inserted = asFiniteNumber(data.inserted)
+      const insertedOrUpserted = hasUpserted && upserted !== null
+        ? upserted
+        : hasInserted && inserted !== null
+          ? inserted
           : null
       const insertedOrUpsertedLabel = hasUpserted ? 'Upserted' : hasInserted ? 'Inserted' : 'Inserted/upserted'
-      const skipped = Number.isFinite(Number(data.skipped)) ? Number(data.skipped) : null
+      const skipped = asFiniteNumber(data.skipped)
+      const cursor = asRecord(data.cursor)
       const errorText = asString(data.error)
       const blockedReason = asString(data.blockedReason)
       const endpointStatus = asString(data.status)
@@ -1869,10 +1910,17 @@ function SocialContentDetailPage() {
         return
       }
 
+      const successCopy = buildCommentRefreshSuccessCopy({
+        fetched,
+        insertedOrUpserted,
+        skipped,
+        cursor,
+        platform,
+      })
       setCommentRefreshState({
         status: 'success',
-        title: 'Comment refresh completed',
-        message: 'Governed comment ingestion completed. The canonical comment projection has been reloaded.',
+        title: successCopy.title,
+        message: successCopy.message,
         errorMessages: [],
         provider,
         fetched,
