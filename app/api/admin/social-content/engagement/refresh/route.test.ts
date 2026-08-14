@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   isAuthError: vi.fn(),
   refreshPublishedSocialEngagement: vi.fn(),
   refreshPublishedYouTubeComments: vi.fn(),
+  refreshPublishedMetaComments: vi.fn(),
   supabaseAdmin: { from: vi.fn() },
 }))
 
@@ -19,6 +20,10 @@ vi.mock('@/lib/social-engagement-refresh', () => ({
 
 vi.mock('@/lib/youtube-comment-ingestion', () => ({
   refreshPublishedYouTubeComments: mocks.refreshPublishedYouTubeComments,
+}))
+
+vi.mock('@/lib/meta-comment-ingestion', () => ({
+  refreshPublishedMetaComments: mocks.refreshPublishedMetaComments,
 }))
 
 vi.mock('@/lib/supabase', () => ({
@@ -63,6 +68,21 @@ describe('POST /api/admin/social-content/engagement/refresh', () => {
       errors: [],
       cursor: { threadPages: 1 },
     })
+    mocks.refreshPublishedMetaComments.mockResolvedValue({
+      platform: 'instagram',
+      provider: 'meta_graph',
+      status: 'manual_blocked',
+      publishId: 'publish-instagram-1',
+      contentId: 'content-instagram-1',
+      objectId: '17900000000000000',
+      runId: 'run-meta-1',
+      fetched: 0,
+      upserted: 0,
+      skipped: 0,
+      errors: [{ code: 'meta_comment_ingestion_capability_blocked' }],
+      cursor: {},
+      blockedReason: 'Canonical Meta comment ingestion capability is not verified or enabled; complete a read-only Meta scope smoke before refreshing comments.',
+    })
   })
 
   it('requires admin auth', async () => {
@@ -75,6 +95,7 @@ describe('POST /api/admin/social-content/engagement/refresh', () => {
     expect(await response.json()).toEqual({ error: 'Unauthorized' })
     expect(mocks.refreshPublishedSocialEngagement).not.toHaveBeenCalled()
     expect(mocks.refreshPublishedYouTubeComments).not.toHaveBeenCalled()
+    expect(mocks.refreshPublishedMetaComments).not.toHaveBeenCalled()
   })
 
   it('refreshes LinkedIn engagement through the guarded service', async () => {
@@ -168,8 +189,36 @@ describe('POST /api/admin/social-content/engagement/refresh', () => {
     })
   })
 
+  it('refreshes Meta comments through the read-only adapter only when explicitly requested', async () => {
+    const response = await POST(request({
+      platform: 'instagram',
+      publish_id: 'publish-instagram-1',
+      limit: 7,
+    }) as never)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({
+      ok: false,
+      platform: 'instagram',
+      content_id: 'content-instagram-1',
+      publish_id: 'publish-instagram-1',
+      status: 'manual_blocked',
+      blockedReason: 'Canonical Meta comment ingestion capability is not verified or enabled; complete a read-only Meta scope smoke before refreshing comments.',
+    })
+    expect(mocks.refreshPublishedMetaComments).toHaveBeenCalledWith({
+      db: mocks.supabaseAdmin,
+      platform: 'instagram',
+      publishId: 'publish-instagram-1',
+      contentId: null,
+      limit: 7,
+    })
+    expect(mocks.refreshPublishedSocialEngagement).not.toHaveBeenCalled()
+    expect(mocks.refreshPublishedYouTubeComments).not.toHaveBeenCalled()
+  })
+
   it('defaults unsupported platform input to LinkedIn for V1', async () => {
-    const response = await POST(request({ platform: 'instagram' }) as never)
+    const response = await POST(request({ platform: 'tiktok' }) as never)
     const body = await response.json()
 
     expect(response.status).toBe(200)
@@ -181,6 +230,7 @@ describe('POST /api/admin/social-content/engagement/refresh', () => {
       force: false,
     }))
     expect(mocks.refreshPublishedYouTubeComments).not.toHaveBeenCalled()
+    expect(mocks.refreshPublishedMetaComments).not.toHaveBeenCalled()
   })
 
   it('returns service unavailable when Apify credentials are missing', async () => {
