@@ -2186,11 +2186,67 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByText('youtube_data_api')).toBeInTheDocument()
   })
 
-  it('keeps unsupported providers fail-closed without calling the governed refresh endpoint', async () => {
+  it('runs governed Instagram comment refresh through the shared ingestion endpoint', async () => {
     const instagramItem = {
       ...baseItem,
       platform: 'instagram',
       target_platforms: ['instagram'],
+    }
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [] }),
+        } as Response
+      }
+      if (url.includes('/engagement/comments')) {
+        return {
+          ok: true,
+          json: async () => ({ comments: [] }),
+        } as Response
+      }
+      if (url.includes('/engagement/refresh')) {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            platform: 'instagram',
+            content_id: 'social-1',
+            provider: 'meta_graph_api',
+            fetched: 0,
+            upserted: 0,
+            skipped: 0,
+            errors: [],
+          }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: instagramItem }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAtStep('status')
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Refresh comments' }))
+
+    expect(await screen.findByRole('heading', { name: 'Comment refresh completed' })).toBeInTheDocument()
+    expect(screen.getByText('meta_graph_api')).toBeInTheDocument()
+    const refreshCall = fetchMock.mock.calls.find(([url]) => String(url).includes('/engagement/refresh'))
+    expect(refreshCall?.[1]).toMatchObject({ method: 'POST' })
+    expect(JSON.parse(String(refreshCall?.[1]?.body))).toEqual({
+      platform: 'instagram',
+      content_id: 'social-1',
+    })
+  })
+
+  it('keeps unsupported providers fail-closed without calling the governed refresh endpoint', async () => {
+    const linkedinItem = {
+      ...baseItem,
+      platform: 'linkedin',
+      target_platforms: ['linkedin'],
     }
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input)
@@ -2208,7 +2264,7 @@ describe('SocialContentDetailRoute visual production review', () => {
       }
       return {
         ok: true,
-        json: async () => ({ item: instagramItem }),
+        json: async () => ({ item: linkedinItem }),
       } as Response
     })
     vi.stubGlobal('fetch', fetchMock)
@@ -2217,7 +2273,7 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     fireEvent.click(await screen.findByRole('button', { name: 'Refresh comments' }))
 
-    expect(await screen.findByRole('heading', { name: 'Instagram comment refresh is manual' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'LinkedIn comment refresh is manual' })).toBeInTheDocument()
     expect(screen.getByText(/do not substitute the LinkedIn metrics refresh/i)).toBeInTheDocument()
     expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/engagement/refresh'))).toBe(false)
   })

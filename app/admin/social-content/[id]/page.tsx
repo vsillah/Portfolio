@@ -127,9 +127,15 @@ type CommentInboxUnavailableState = {
 }
 
 const APPROVAL_STEPS: ApprovalStep[] = ['context', 'copy', 'visuals', 'draft', 'submit', 'status']
-const COMMENT_REFRESH_SUPPORTED_PLATFORMS = new Set<SocialPlatform>(['youtube'])
-const COMMENT_REFRESH_RECOVERY_GUIDANCE = 'Check provider authorization, YouTube scope, publication reconciliation, and the ingestion lane before retrying.'
+const COMMENT_REFRESH_SUPPORTED_PLATFORMS = new Set<SocialPlatform>(['youtube', 'instagram', 'facebook'])
 const COMMENT_REFRESH_ERROR_LIMIT = 3
+
+function getCommentRefreshRecoveryGuidance(platform: SocialPlatform): string {
+  if (platform === 'instagram' || platform === 'facebook') {
+    return 'Check Meta authorization, required comment scopes, publication reconciliation, and the ingestion lane before retrying.'
+  }
+  return 'Check provider authorization, YouTube scope, publication reconciliation, and the ingestion lane before retrying.'
+}
 
 function isApprovalStep(value: string | null): value is ApprovalStep {
   return Boolean(value && APPROVAL_STEPS.includes(value as ApprovalStep))
@@ -1820,7 +1826,7 @@ function SocialContentDetailPage() {
           title: 'Comment refresh blocked',
           message: [
             errorText || blockedReason || errors[0] || 'The governed comment ingestion endpoint did not complete.',
-            COMMENT_REFRESH_RECOVERY_GUIDANCE,
+            getCommentRefreshRecoveryGuidance(platform),
           ].filter(Boolean).join(' '),
           errorMessages: errors,
           provider,
@@ -1838,7 +1844,7 @@ function SocialContentDetailPage() {
           title: 'Comment refresh partially completed',
           message: [
             'Governed comment ingestion imported the available comments, but the endpoint returned warnings.',
-            COMMENT_REFRESH_RECOVERY_GUIDANCE,
+            getCommentRefreshRecoveryGuidance(platform),
           ].join(' '),
           errorMessages: errors,
           provider,
