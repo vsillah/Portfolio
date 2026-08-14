@@ -15,10 +15,12 @@ import {
 } from '@/lib/social-comment-inbox-ui'
 import {
   evaluateYouTubeReplyReadiness,
+  refreshYouTubeReplyConfigIfNeeded,
   submitYouTubeCommentReply,
   YOUTUBE_REPLY_PROVIDER,
   type YouTubeReplyCanonicalCapability,
   type YouTubeReplyConfig,
+  type YouTubeReplyCredentials,
   type YouTubeReplySubmitResult,
 } from '@/lib/youtube-comment-reply-readiness'
 
@@ -66,6 +68,11 @@ const ACTIONS = new Set<SocialCommentAction>([
   'ignore',
   'submit',
 ])
+
+type SocialCommentSubmissionEvidenceRow = SocialCommentCanonicalRow & {
+  reply_provider_comment_id?: unknown
+  reply_submitted_at?: unknown
+}
 
 function asAction(value: unknown): SocialCommentAction | null {
   return typeof value === 'string' && ACTIONS.has(value as SocialCommentAction)
@@ -171,6 +178,16 @@ async function fetchYouTubeConfig() {
   return { config: data as YouTubeReplyConfig | null, error }
 }
 
+async function persistYouTubeCredentials(credentials: YouTubeReplyCredentials) {
+  if (!supabaseAdmin) return { error: new Error('Server configuration error') }
+  const { error } = await supabaseAdmin
+    .from('social_content_config')
+    .update({ credentials })
+    .eq('platform', 'youtube')
+
+  return { error }
+}
+
 async function fetchYouTubeCanonicalCapability() {
   if (!supabaseAdmin) return { capability: null, error: new Error('Server configuration error') }
   const { data, error } = await supabaseAdmin
@@ -208,6 +225,12 @@ function youtubeReplyMetadata(input: {
       external_submission_attempted: input.externalSubmissionAttempted,
     },
   }
+}
+
+function hasSubmittedYouTubeReplyEvidence(comment: SocialCommentSubmissionEvidenceRow) {
+  return comment.reply_submission_state === 'submitted'
+    || Boolean(optionalText(comment.reply_provider_comment_id))
+    || Boolean(optionalText(comment.reply_submitted_at))
 }
 
 async function claimYouTubeReplySubmission(input: {
@@ -384,7 +407,8 @@ export async function POST(
     return NextResponse.json({ error: 'Comment not found in the canonical inbox table' }, { status: 404 })
   }
 
-  const now = new Date().toISOString()
+  const nowDate = new Date()
+  const now = nowDate.toISOString()
   const actorId = auth.user.id
   const draftReply = optionalText(body.draft_reply) ?? optionalText(comment.proposed_reply_text)
   const currentItem = getSocialCommentInboxItem(comment, post)
@@ -450,6 +474,18 @@ export async function POST(
       || 'Provider reply submission is blocked until capability and human gate checks pass.'
 
     if (isYouTubeProvider) {
+      if (hasSubmittedYouTubeReplyEvidence(comment)) {
+        submitBlocker = 'This canonical comment already has submitted reply evidence. Recovery: review the existing reply evidence before attempting another public reply.'
+        return responseWithComments({
+          post,
+          contentId: params.id,
+          status: 409,
+          ok: false,
+          blocked: true,
+          message: submitBlocker,
+          integrationNote: 'No external YouTube reply was submitted. Existing canonical submitted evidence stopped the request before any provider call or row mutation.',
+        })
+      }
       const { config, error: configError } = await fetchYouTubeConfig()
       if (configError) {
         console.error('Error fetching YouTube comment reply config:', configError)
@@ -461,9 +497,75 @@ export async function POST(
         return NextResponse.json({ error: 'Failed to verify YouTube reply capability' }, { status: 500 })
       }
 
+      let refreshedConfig = config
+      const tokenRefresh = await refreshYouTubeReplyConfigIfNeeded({
+        config,
+        fetchImpl: fetch,
+        now: nowDate,
+      })
+      if (tokenRefresh.blocker) {
+        ok = false
+        blocked = true
+        status = 409
+        message = `${tokenRefresh.blocker.message} Recovery: ${tokenRefresh.blocker.recoveryAction}`
+        integrationNote = 'No external YouTube reply was submitted. Token refresh blockers stopped the request before any provider reply call.'
+        patch = {
+          ...patch,
+          reply_submission_state: 'blocked',
+          metadata: appendActionHistory({
+            ...asRecord(comment.metadata),
+            ...youtubeReplyMetadata({
+              status: 'blocked',
+              blocked: true,
+              blockerCodes: [tokenRefresh.blocker.code],
+              idempotencyKey: null,
+              externalSubmissionAttempted: false,
+            }),
+          }, {
+            action: 'submit_blocked',
+            at: now,
+            by: actorId,
+            note: message,
+          }),
+        }
+      } else {
+        refreshedConfig = tokenRefresh.config
+        if (tokenRefresh.refreshed && refreshedConfig?.credentials) {
+          const persistRefresh = await persistYouTubeCredentials(refreshedConfig.credentials)
+          if (persistRefresh.error) {
+            console.error('Error persisting refreshed YouTube credentials:', persistRefresh.error instanceof Error ? persistRefresh.error.name : 'Error')
+            ok = false
+            blocked = true
+            status = 409
+            message = 'YouTube token refresh succeeded but Portfolio could not persist freshness metadata. Recovery: retry after credential storage is healthy; do not submit until freshness is recorded.'
+            integrationNote = 'No external YouTube reply was submitted. Refreshed token metadata could not be persisted, so the request stopped before any provider reply call.'
+            patch = {
+              ...patch,
+              reply_submission_state: 'blocked',
+              metadata: appendActionHistory({
+                ...asRecord(comment.metadata),
+                ...youtubeReplyMetadata({
+                  status: 'blocked',
+                  blocked: true,
+                  blockerCodes: ['youtube_token_refresh_failed'],
+                  idempotencyKey: null,
+                  externalSubmissionAttempted: false,
+                }),
+              }, {
+                action: 'submit_blocked',
+                at: now,
+                by: actorId,
+                note: message,
+              }),
+            }
+          }
+        }
+      }
+
+      if (!blocked) {
       const readiness = evaluateYouTubeReplyReadiness({
         comment,
-        config,
+        config: refreshedConfig,
         canonicalCapability,
       })
 
@@ -538,7 +640,7 @@ export async function POST(
         try {
           submission = await submitYouTubeCommentReply({
             comment,
-            config,
+            config: refreshedConfig,
             canonicalCapability,
           })
         } catch (error) {
@@ -674,6 +776,7 @@ export async function POST(
           message: submitBlocker,
           integrationNote: 'No external YouTube reply was submitted. Readiness became blocked after the claim.',
         })
+      }
       }
     } else {
       const policyInput = buildCommentInboxPolicyInputFromSocialComment(comment as SocialCommentPolicyRecord, {

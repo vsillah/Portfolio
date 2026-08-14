@@ -2,7 +2,9 @@ import {
   buildSocialCommentIngestionRunInsert,
   upsertSocialContentComments,
   type NormalizedSocialCommentInput,
+  type SocialCommentCapabilityStatus,
   type SocialCommentIngestionRunStatus,
+  type SocialCommentProviderCapabilitySnapshot,
 } from './social-comment-inbox'
 
 type SupabaseClientLike = {
@@ -33,6 +35,19 @@ type YouTubeConfigRow = {
   credentials: YouTubeCredentials | null
   settings: Record<string, unknown> | null
   is_active: boolean
+}
+
+type CanonicalCapabilityRow = {
+  capability_status: SocialCommentCapabilityStatus
+  supports_comment_ingestion: boolean
+  supports_reply_draft: boolean
+  supports_reply_submission: boolean
+  supports_permalink: boolean
+  supports_author_profile: boolean
+  supports_threading: boolean
+  supports_cursor: boolean
+  external_submission_enabled: boolean
+  gate_notes: string
 }
 
 type YouTubeErrorDetail = {
@@ -268,6 +283,44 @@ async function readYouTubeConfig(db: SupabaseClientLike): Promise<YouTubeConfigR
   return result.data as YouTubeConfigRow | null
 }
 
+function canonicalCapabilitySnapshot(row: CanonicalCapabilityRow | null): SocialCommentProviderCapabilitySnapshot | null {
+  if (!row) return null
+  return {
+    capability_status: row.capability_status,
+    supports_comment_ingestion: row.supports_comment_ingestion,
+    supports_reply_draft: row.supports_reply_draft,
+    supports_reply_submission: row.supports_reply_submission,
+    supports_permalink: row.supports_permalink,
+    supports_author_profile: row.supports_author_profile,
+    supports_threading: row.supports_threading,
+    supports_cursor: row.supports_cursor,
+    external_submission_enabled: row.external_submission_enabled,
+    gate_notes: row.gate_notes,
+  }
+}
+
+async function readYouTubeCanonicalCapability(db: SupabaseClientLike) {
+  const result = await db
+    .from('social_comment_provider_capabilities')
+    .select([
+      'capability_status',
+      'supports_comment_ingestion',
+      'supports_reply_draft',
+      'supports_reply_submission',
+      'supports_permalink',
+      'supports_author_profile',
+      'supports_threading',
+      'supports_cursor',
+      'external_submission_enabled',
+      'gate_notes',
+    ].join(', '))
+    .eq('platform', 'youtube')
+    .maybeSingle()
+
+  if (result.error) return null
+  return canonicalCapabilitySnapshot(result.data as CanonicalCapabilityRow | null)
+}
+
 async function updateYouTubeCredentials(db: SupabaseClientLike, credentials: YouTubeCredentials) {
   const result = await db
     .from('social_content_config')
@@ -473,6 +526,7 @@ function mapComment(input: {
   publish: PublishRow
   videoId: string
   runId: string
+  providerCapability: SocialCommentProviderCapabilitySnapshot | null
   thread: YouTubeCommentThread
   comment: YouTubeComment
   recordType: 'comment' | 'reply'
@@ -502,6 +556,7 @@ function mapComment(input: {
     providerUpdatedAt: snippet?.updatedAt,
     capturedAt: input.now.toISOString(),
     status: input.thread.snippet?.isPublic === false ? 'hidden' : 'visible',
+    providerCapability: input.providerCapability,
     ingestionRunId: input.runId,
     rawPayload: {
       source: 'youtube_data_api',
@@ -515,7 +570,7 @@ function mapComment(input: {
         provider_parent_comment_id: input.providerParentCommentId ?? null,
         total_reply_count: input.thread.snippet?.totalReplyCount ?? 0,
         can_reply: input.thread.snippet?.canReply ?? null,
-        external_submission_enabled: false,
+        external_submission_enabled: input.providerCapability?.external_submission_enabled ?? false,
       },
     },
   }
@@ -595,6 +650,7 @@ async function collectYouTubeComments(input: {
   videoId: string
   runId: string
   accessToken: string
+  providerCapability: SocialCommentProviderCapabilitySnapshot | null
   fetchImpl: FetchLike
   limit: number
   pageSize: number
@@ -633,6 +689,7 @@ async function collectYouTubeComments(input: {
           publish: input.publish,
           videoId: input.videoId,
           runId: input.runId,
+          providerCapability: input.providerCapability,
           thread,
           comment: topLevel,
           recordType: 'comment',
@@ -663,6 +720,7 @@ async function collectYouTubeComments(input: {
             publish: input.publish,
             videoId: input.videoId,
             runId: input.runId,
+            providerCapability: input.providerCapability,
             thread,
             comment: reply,
             recordType: 'reply',
@@ -824,11 +882,13 @@ export async function refreshPublishedYouTubeComments(input: YouTubeCommentRefre
   if (!runId) throw new Error('YouTube comment ingestion run insert did not return an id')
 
   try {
+    const providerCapability = await readYouTubeCanonicalCapability(input.db)
     const collected = await collectYouTubeComments({
       publish,
       videoId,
       runId,
       accessToken: token.accessToken,
+      providerCapability,
       fetchImpl,
       limit,
       pageSize,
