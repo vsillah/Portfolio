@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   extractXPostId,
   refreshPublishedXComments,
@@ -65,6 +65,7 @@ function createDb(options: DbOptions = {}) {
     runUpdates: [] as unknown[],
     commentUpserts: [] as unknown[],
     commentUpdates: [] as unknown[],
+    configUpdates: [] as unknown[],
   }
 
   function tableResult(table: string, operation: 'select' | 'insert' | 'update' | 'upsert') {
@@ -72,6 +73,9 @@ function createDb(options: DbOptions = {}) {
       return { data: options.publishRow === undefined ? publish : options.publishRow, error: null }
     }
     if (table === 'social_content_config') {
+      if (operation === 'update') {
+        return { data: { credentials: calls.configUpdates.at(-1) }, error: null }
+      }
       return { data: options.configRow === undefined ? config : options.configRow, error: null }
     }
     if (table === 'social_comment_provider_capabilities') {
@@ -107,6 +111,7 @@ function createDb(options: DbOptions = {}) {
         if (table === 'social_content_publishes') calls.publishFilters.push([column, value])
         return api
       }),
+      is: vi.fn(() => api),
       limit: vi.fn(() => api),
       maybeSingle: vi.fn(() => Promise.resolve(tableResult(table, operation))),
       single: vi.fn(() => Promise.resolve(tableResult(table, operation))),
@@ -117,6 +122,7 @@ function createDb(options: DbOptions = {}) {
       }),
       update: vi.fn((payload: unknown) => {
         operation = 'update'
+        if (table === 'social_content_config') calls.configUpdates.push((payload as { credentials?: unknown }).credentials)
         if (table === 'social_comment_ingestion_runs') calls.runUpdates.push(payload)
         if (table === 'social_content_comments') calls.commentUpdates.push(payload)
         return api
@@ -186,6 +192,10 @@ function expandedUser(id: string, username: string, name = username) {
 }
 
 describe('x comment ingestion', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
+
   it('extracts canonical X post ids from publish linkage', () => {
     expect(extractXPostId({ platformPostId: publish.platform_post_id })).toBe(publish.platform_post_id)
     expect(extractXPostId({ platformPostUrl: publish.platform_post_url })).toBe(publish.platform_post_id)
@@ -220,6 +230,37 @@ describe('x comment ingestion', () => {
         external_submission_enabled: false,
       }),
     }))
+  })
+
+  it('does not refresh a stale token before canonical capability gates pass', async () => {
+    vi.stubEnv('X_CLIENT_ID', 'client-id')
+    vi.stubEnv('X_CLIENT_SECRET', 'client-secret')
+    const { db, calls } = createDb({
+      capabilityRow: manualCapability,
+      configRow: {
+        ...config,
+        credentials: {
+          ...config.credentials,
+          token_obtained_at: '2026-08-12T10:00:00.000Z',
+          expires_in: 60,
+        },
+      },
+    })
+    const fetchImpl = createFetchMock(() => response({ access_token: 'fresh-token' }))
+
+    const result = await refreshPublishedXComments({
+      db,
+      publishId: publish.id,
+      fetchImpl: asFetch(fetchImpl),
+      now: () => new Date('2026-08-12T12:00:00.000Z'),
+    })
+
+    expect(result).toMatchObject({
+      status: 'manual_blocked',
+      errors: [expect.objectContaining({ code: 'x_comment_ingestion_capability_blocked' })],
+    })
+    expect(fetchImpl).not.toHaveBeenCalled()
+    expect(calls.configUpdates).toEqual([])
   })
 
   it('uses recent-search conversation_id with GET only while excluding root and owner-authored thread posts', async () => {
@@ -430,8 +471,107 @@ describe('x comment ingestion', () => {
     expect(update).not.toHaveProperty('metadata')
   })
 
-  it('blocks stale or unverifiable X tokens before provider calls', async () => {
-    const { db } = createDb({
+  it('refreshes stale X tokens before the read-only provider call', async () => {
+    vi.stubEnv('X_CLIENT_ID', 'client-id')
+    vi.stubEnv('X_CLIENT_SECRET', 'client-secret')
+    const { db, calls } = createDb({
+      configRow: {
+        ...config,
+        credentials: {
+          ...config.credentials,
+          token_obtained_at: '2026-08-12T10:00:00.000Z',
+          expires_in: 60,
+        },
+      },
+    })
+    const fetchImpl = createFetchMock(() => response({ data: [] }))
+      .mockImplementationOnce(() => response({
+        access_token: 'fresh-x-access-token',
+        refresh_token: 'rotated-x-refresh-token',
+        expires_in: 7200,
+        token_type: 'bearer',
+        scope: 'tweet.read tweet.write users.read offline.access',
+      }))
+      .mockImplementationOnce(() => response({
+        data: [tweet('2085056671248765117', 'Refreshed token works')],
+        includes: { users: [user('2085056671248765117', 'viewer_one')] },
+      }))
+
+    const result = await refreshPublishedXComments({
+      db,
+      publishId: publish.id,
+      fetchImpl: asFetch(fetchImpl),
+      now: () => new Date('2026-08-12T12:00:00.000Z'),
+    })
+
+    expect(result).toMatchObject({
+      status: 'succeeded',
+      fetched: 1,
+      upserted: 1,
+    })
+    expect(fetchImpl).toHaveBeenCalledTimes(2)
+    expect(fetchImpl).toHaveBeenNthCalledWith(1, 'https://api.x.com/2/oauth2/token', expect.objectContaining({
+      method: 'POST',
+      body: expect.any(URLSearchParams),
+    }))
+    expect((fetchImpl.mock.calls[0][1]?.body as URLSearchParams).get('refresh_token')).toBe('x-refresh-token')
+    expect(fetchImpl).toHaveBeenNthCalledWith(2, expect.stringContaining('/2/tweets/search/recent'), expect.objectContaining({
+      method: 'GET',
+      headers: expect.objectContaining({
+        Authorization: 'Bearer fresh-x-access-token',
+      }),
+    }))
+    expect(calls.configUpdates[0]).toEqual(expect.objectContaining({
+      access_token: 'fresh-x-access-token',
+      refresh_token: 'rotated-x-refresh-token',
+      token_obtained_at: '2026-08-12T12:00:00.000Z',
+    }))
+  })
+
+  it('blocks stale X tokens with sanitized evidence when refresh fails', async () => {
+    vi.stubEnv('X_CLIENT_ID', 'client-id')
+    vi.stubEnv('X_CLIENT_SECRET', 'client-secret')
+    const { db, calls } = createDb({
+      configRow: {
+        ...config,
+        credentials: {
+          ...config.credentials,
+          token_obtained_at: '2026-08-12T10:00:00.000Z',
+          expires_in: 60,
+        },
+      },
+    })
+    const fetchImpl = createFetchMock(() => response({
+      error: 'invalid_grant',
+      error_description: 'provider detail with secrets',
+    }, 400))
+
+    const result = await refreshPublishedXComments({
+      db,
+      publishId: publish.id,
+      fetchImpl: asFetch(fetchImpl),
+      now: () => new Date('2026-08-12T12:00:00.000Z'),
+    })
+
+    expect(result).toMatchObject({
+      status: 'manual_blocked',
+      errors: [expect.objectContaining({
+        code: 'x_token_refresh_failed',
+        message: 'X token refresh failed (400); reconnect X before retrying.',
+      })],
+    })
+    expect(fetchImpl).toHaveBeenCalledTimes(1)
+    expect(String(fetchImpl.mock.calls[0][0])).toBe('https://api.x.com/2/oauth2/token')
+    expect(calls.configUpdates).toEqual([])
+    expect(calls.commentUpserts).toEqual([])
+  })
+
+  it('blocks stale X tokens before provider reads when OAuth client config is missing', async () => {
+    vi.stubEnv('X_CLIENT_ID', '')
+    vi.stubEnv('X_CLIENT_SECRET', '')
+    vi.stubEnv('TWITTER_CLIENT_ID', '')
+    vi.stubEnv('TWITTER_CLIENT_SECRET', '')
+    const { db, calls } = createDb({
       configRow: {
         ...config,
         credentials: {
@@ -452,9 +592,10 @@ describe('x comment ingestion', () => {
 
     expect(result).toMatchObject({
       status: 'manual_blocked',
-      errors: [expect.objectContaining({ code: 'token_expired' })],
+      errors: [expect.objectContaining({ code: 'x_oauth_client_config_missing' })],
     })
     expect(fetchImpl).not.toHaveBeenCalled()
+    expect(calls.configUpdates).toEqual([])
   })
 
   it('blocks insufficient X OAuth scope evidence before provider calls', async () => {

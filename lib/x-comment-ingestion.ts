@@ -7,6 +7,11 @@ import {
   type SocialCommentProviderCapabilitySnapshot,
 } from './social-comment-inbox'
 import { X_TWEET_READ_SCOPE, X_USER_READ_SCOPE } from './x-oauth'
+import {
+  isXAccessTokenStale,
+  refreshXOAuthCredentials,
+  type XOAuthCredentials,
+} from './x-oauth-refresh'
 
 type SupabaseClientLike = {
   from: (table: string) => any
@@ -24,17 +29,8 @@ type PublishRow = {
   published_at: string | null
 }
 
-type XCredentials = {
-  access_token?: string
-  refresh_token?: string
-  expires_in?: number | null
-  token_obtained_at?: string | null
-  scope?: string | null
-  user_id?: string | null
-}
-
 type XConfigRow = {
-  credentials: XCredentials | null
+  credentials: XOAuthCredentials | null
   settings: Record<string, unknown> | null
   is_active: boolean
 }
@@ -157,28 +153,9 @@ function scopeSet(scope: string | null | undefined) {
   return new Set((scope ?? '').split(/[,\s]+/).filter(Boolean))
 }
 
-function missingScopes(credentials: XCredentials) {
+function missingScopes(credentials: XOAuthCredentials) {
   const scopes = scopeSet(credentials.scope)
   return REQUIRED_SCOPES.filter((scope) => !scopes.has(scope))
-}
-
-function tokenFreshnessError(credentials: XCredentials, now: Date, bufferMs = 10 * 60 * 1000): XCommentIngestionError | null {
-  if (!credentials.token_obtained_at || typeof credentials.expires_in !== 'number' || !Number.isFinite(credentials.expires_in) || credentials.expires_in <= 0) {
-    return {
-      code: 'token_freshness_unverified',
-      message: 'Stored X OAuth freshness metadata is missing or invalid; reconnect X or add the governed refresh-token helper before refreshing comments.',
-    }
-  }
-
-  const obtainedAt = new Date(credentials.token_obtained_at).getTime()
-  if (Number.isNaN(obtainedAt) || now.getTime() + bufferMs >= obtainedAt + credentials.expires_in * 1000) {
-    return {
-      code: 'token_expired',
-      message: 'Stored X access token is expired or stale; reconnect X or add the governed refresh-token helper before refreshing comments.',
-    }
-  }
-
-  return null
 }
 
 function canonicalCapabilitySnapshot(row: CanonicalCapabilityRow | null): SocialCommentProviderCapabilitySnapshot | null {
@@ -702,6 +679,12 @@ function ingestionStatus(input: {
   const recoverableManualCodes = new Set([
     'token_expired',
     'token_freshness_unverified',
+    'x_credentials_incomplete',
+    'x_refresh_token_missing',
+    'x_oauth_client_config_missing',
+    'x_token_refresh_failed',
+    'x_token_refresh_persist_failed',
+    'x_token_refresh_concurrent_update',
     'insufficient_scope',
     'x_access_tier_blocked',
     'rate_limited',
@@ -821,9 +804,8 @@ export async function refreshPublishedXComments(input: XCommentRefreshInput): Pr
   }
 
   const config = await readXConfig(input.db)
-  const credentials = config?.credentials ?? null
-  const accessToken = asString(credentials?.access_token)
-  if (!config?.is_active || !credentials || !accessToken) {
+  let credentials = config?.credentials ?? null
+  if (!config?.is_active || !credentials || (!asString(credentials.access_token) && !asString(credentials.refresh_token))) {
     const error: XCommentIngestionError = {
       code: 'x_not_connected',
       message: 'X provider is not connected or active; reconnect X before refreshing comments.',
@@ -871,24 +853,68 @@ export async function refreshPublishedXComments(input: XCommentRefreshInput): Pr
     })
   }
 
-  const freshnessError = tokenFreshnessError(credentials, now)
-  if (freshnessError) {
+  let accessToken = asString(credentials.access_token)
+  if (!accessToken || isXAccessTokenStale({
+    credentials,
+    now,
+    missingMetadataIsStale: true,
+  })) {
+    const refresh = await refreshXOAuthCredentials({
+      db: input.db,
+      credentials,
+      fetchImpl,
+      now,
+    })
+    if (!refresh.refreshed || refresh.error) {
+      const error: XCommentIngestionError = {
+        code: refresh.error?.code ?? 'token_expired',
+        message: refresh.error?.message ?? 'Stored X access token is expired or stale; reconnect X before refreshing comments.',
+        status: refresh.error?.status,
+      }
+      const runId = await insertRun({
+        db: input.db,
+        publishId: publish.id,
+        contentId: publish.content_id,
+        postId,
+        status: 'manual_blocked',
+        errors: [error],
+        counts: { error_count: 1 },
+        metadata: { recovery: 'reconnect_x_or_restore_refresh_configuration' },
+      })
+      return blockedResult({
+        publishId: publish.id,
+        contentId: publish.content_id,
+        postId,
+        runId,
+        error,
+      })
+    }
+
+    credentials = refresh.credentials
+    accessToken = asString(credentials.access_token)
+  }
+
+  if (!accessToken) {
+    const error: XCommentIngestionError = {
+      code: 'x_credentials_incomplete',
+      message: 'X credentials are missing a user access token after refresh; reconnect X before refreshing comments.',
+    }
     const runId = await insertRun({
       db: input.db,
       publishId: publish.id,
       contentId: publish.content_id,
       postId,
       status: 'manual_blocked',
-      errors: [freshnessError],
+      errors: [error],
       counts: { error_count: 1 },
-      metadata: { recovery: 'reconnect_x_or_add_refresh_helper' },
+      metadata: { recovery: 'reconnect_x' },
     })
     return blockedResult({
       publishId: publish.id,
       contentId: publish.content_id,
       postId,
       runId,
-      error: freshnessError,
+      error,
     })
   }
 

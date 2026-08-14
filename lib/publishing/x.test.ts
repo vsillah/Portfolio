@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({
   from: vi.fn(),
@@ -19,15 +19,20 @@ function installSupabase(configData: Record<string, unknown>) {
   const select = vi.fn(() => ({ eq: selectEq }))
   const secondEq = vi.fn().mockResolvedValue({ data: null, error: null })
   const firstEq = vi.fn(() => ({ eq: secondEq }))
-  const update = vi.fn(() => ({ eq: firstEq }))
+  const publishUpdate = vi.fn(() => ({ eq: firstEq }))
+  const configUpdateMaybeSingle = vi.fn().mockResolvedValue({ data: { credentials: configData.credentials }, error: null })
+  const configUpdateSelect = vi.fn(() => ({ maybeSingle: configUpdateMaybeSingle }))
+  const configUpdateEq = vi.fn(() => ({ eq: configUpdateEq, is: configUpdateIs, select: configUpdateSelect }))
+  const configUpdateIs = vi.fn(() => ({ eq: configUpdateEq, is: configUpdateIs, select: configUpdateSelect }))
+  const configUpdate = vi.fn(() => ({ eq: configUpdateEq, is: configUpdateIs }))
 
   mocks.from.mockImplementation((table: string) => (
     table === 'social_content_config'
-      ? { select }
-      : { update }
+      ? { select, update: configUpdate }
+      : { update: publishUpdate }
   ))
 
-  return { update }
+  return { update: publishUpdate, configUpdate }
 }
 
 describe('buildXPostSequence', () => {
@@ -50,6 +55,10 @@ describe('publishToX', () => {
     vi.clearAllMocks()
     vi.spyOn(console, 'error').mockImplementation(() => {})
     global.fetch = mocks.fetch
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
   })
 
   it('publishes a reviewed thread in sequence through the X create-post endpoint', async () => {
@@ -154,5 +163,47 @@ describe('publishToX', () => {
       threadPostIds: ['post-1'],
       threadPostUrls: ['https://x.com/amadutown/status/post-1'],
     })
+  })
+
+  it('refreshes a stale X token through the shared governed helper before publishing', async () => {
+    vi.stubEnv('X_CLIENT_ID', 'client-id')
+    vi.stubEnv('X_CLIENT_SECRET', 'client-secret')
+    const { update, configUpdate } = installSupabase({
+      is_active: true,
+      credentials: {
+        access_token: 'stale-access-token',
+        refresh_token: 'old-refresh-token',
+        expires_in: 60,
+        token_obtained_at: '2026-08-12T10:00:00.000Z',
+      },
+      settings: { profile_handle: 'amadutown', thread_reply_enabled: true },
+    })
+    mocks.fetch
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        access_token: 'fresh-access-token',
+        refresh_token: 'rotated-refresh-token',
+        expires_in: 7200,
+      }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: { id: 'post-1' } }), { status: 201 }))
+
+    const result = await publishToX({
+      contentId: 'content-1',
+      postText: 'Fresh token post',
+    })
+
+    expect(result).toMatchObject({
+      success: true,
+      platformPostId: 'post-1',
+    })
+    expect(configUpdate).toHaveBeenCalledWith({
+      credentials: expect.objectContaining({
+        access_token: 'fresh-access-token',
+        refresh_token: 'rotated-refresh-token',
+      }),
+    })
+    expect(mocks.fetch).toHaveBeenNthCalledWith(2, 'https://api.x.com/2/tweets', expect.objectContaining({
+      headers: expect.objectContaining({ Authorization: 'Bearer fresh-access-token' }),
+    }))
+    expect(update).toHaveBeenCalledWith(expect.objectContaining({ status: 'published' }))
   })
 })
