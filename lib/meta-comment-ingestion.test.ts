@@ -523,6 +523,93 @@ describe('meta comment ingestion', () => {
     }))
   })
 
+  it('stops top-level pagination on an unchanged cursor with partial evidence', async () => {
+    const { db, calls } = createDb()
+    const fetchImpl = createFetchMock(() => response({ data: [] }))
+      .mockImplementationOnce(() => response({
+        data: [{ id: 'comment-1', message: 'First page', from: { id: 'viewer-1', name: 'Viewer One' } }],
+        paging: { cursors: { after: 'same-cursor' } },
+      }))
+      .mockImplementationOnce(() => response({
+        data: [],
+        paging: { cursors: { after: 'same-cursor' } },
+      }))
+
+    const result = await refreshPublishedMetaComments({
+      db,
+      platform: 'facebook',
+      publishId: facebookPublish.id,
+      fetchImpl: asFetch(fetchImpl),
+      limit: 5,
+      pageSize: 1,
+    })
+
+    expect(result).toMatchObject({
+      status: 'partial',
+      fetched: 1,
+      errors: [expect.objectContaining({ code: 'pagination_stalled' })],
+      cursor: expect.objectContaining({
+        pages: 2,
+        nextAfter: 'same-cursor',
+        limitReached: false,
+      }),
+    })
+    expect(fetchImpl).toHaveBeenCalledTimes(2)
+    expect(calls.runUpdates[0]).toEqual(expect.objectContaining({
+      status: 'partial',
+      fetched_count: 1,
+      error_count: 1,
+    }))
+  })
+
+  it('stops child pagination on an unchanged empty-page cursor with partial evidence', async () => {
+    const { db, calls } = createDb()
+    const fetchImpl = createFetchMock(() => response({ data: [] }))
+      .mockImplementationOnce(() => response({
+        data: [{
+          id: 'comment-1',
+          message: 'Parent comment',
+          from: { id: 'viewer-1', name: 'Viewer One' },
+          comments: {
+            data: [],
+            paging: { cursors: { after: 'same-child-cursor' } },
+          },
+        }],
+      }))
+      .mockImplementationOnce(() => response({
+        data: [],
+        paging: { cursors: { after: 'same-child-cursor' } },
+      }))
+
+    const result = await refreshPublishedMetaComments({
+      db,
+      platform: 'facebook',
+      publishId: facebookPublish.id,
+      fetchImpl: asFetch(fetchImpl),
+      limit: 5,
+      pageSize: 1,
+    })
+
+    expect(result).toMatchObject({
+      status: 'partial',
+      fetched: 1,
+      errors: [expect.objectContaining({ code: 'pagination_stalled' })],
+      cursor: {
+        'children:comment-1': expect.objectContaining({
+          pages: 1,
+          nextAfter: 'same-child-cursor',
+          paginationGuarded: true,
+        }),
+      },
+    })
+    expect(fetchImpl).toHaveBeenCalledTimes(2)
+    expect(calls.runUpdates[0]).toEqual(expect.objectContaining({
+      status: 'partial',
+      fetched_count: 1,
+      error_count: 1,
+    }))
+  })
+
   it('returns manual_blocked for zero-data provider token or scope denials', async () => {
     for (const providerError of [
       { body: { error: { code: 190, type: 'OAuthException' } }, status: 401, expected: 'token_expired' },

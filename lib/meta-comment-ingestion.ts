@@ -335,6 +335,14 @@ function mapMetaApiError(response: Response, data: MetaGraphError): MetaCommentI
   }
 }
 
+function paginationError(code: 'pagination_stalled' | 'pagination_limit', message: string): MetaCommentIngestionError {
+  return { code, message }
+}
+
+function pageCap(limit: number, pageSize: number) {
+  return Math.max(1, Math.ceil(limit / Math.max(pageSize, 1)) + 1)
+}
+
 async function insertRun(input: {
   db: SupabaseClientLike
   platform: MetaCommentPlatform
@@ -635,6 +643,8 @@ async function fetchChildReplies(input: {
 }) {
   const replies: MetaComment[] = input.inlineReplies.slice(0, Math.max(input.limit, 0))
   const errors: MetaCommentIngestionError[] = []
+  const seenAfter = new Set<string>()
+  const maxPages = pageCap(input.limit, input.pageSize)
   let after = input.inlinePaging?.cursors?.after ?? null
   let pages = 0
 
@@ -649,6 +659,22 @@ async function fetchChildReplies(input: {
   }
 
   while (after && replies.length < input.limit) {
+    if (seenAfter.has(after)) {
+      errors.push(paginationError(
+        'pagination_stalled',
+        'Meta child comment pagination returned a repeated cursor; refresh stopped before retrying the same page.',
+      ))
+      break
+    }
+    if (pages >= maxPages) {
+      errors.push(paginationError(
+        'pagination_limit',
+        'Meta child comment pagination reached the bounded page limit before the provider cursor was exhausted.',
+      ))
+      break
+    }
+
+    seenAfter.add(after)
     const remaining = input.limit - replies.length
     const result: { data?: MetaCommentsResponse; error?: MetaCommentIngestionError } = await fetchJson<MetaCommentsResponse>({
       fetchImpl: input.fetchImpl,
@@ -668,8 +694,32 @@ async function fetchChildReplies(input: {
       break
     }
 
-    replies.push(...(result.data?.data ?? []).slice(0, remaining))
-    after = result.data?.paging?.cursors?.after ?? null
+    const pageItems = result.data?.data ?? []
+    replies.push(...pageItems.slice(0, remaining))
+    const providerNextAfter = result.data?.paging?.cursors?.after ?? null
+    after = providerNextAfter
+
+    if (providerNextAfter && pageItems.length === 0) {
+      errors.push(paginationError(
+        'pagination_stalled',
+        'Meta child comment pagination returned an empty page with a continuation cursor; refresh stopped to avoid looping.',
+      ))
+      break
+    }
+    if (providerNextAfter && seenAfter.has(providerNextAfter)) {
+      errors.push(paginationError(
+        'pagination_stalled',
+        'Meta child comment pagination returned a repeated cursor; refresh stopped before retrying the same page.',
+      ))
+      break
+    }
+    if (providerNextAfter && pages >= maxPages && replies.length < input.limit) {
+      errors.push(paginationError(
+        'pagination_limit',
+        'Meta child comment pagination reached the bounded page limit before the provider cursor was exhausted.',
+      ))
+      break
+    }
   }
 
   input.cursor[`children:${input.parentCommentId}`] = {
@@ -677,6 +727,7 @@ async function fetchChildReplies(input: {
     pages,
     nextAfter: after,
     limitReached: replies.length >= input.limit,
+    paginationGuarded: errors.some((error) => error.code === 'pagination_stalled' || error.code === 'pagination_limit'),
   }
   return { replies: replies.slice(0, input.limit), errors }
 }
@@ -697,10 +748,30 @@ async function collectMetaComments(input: {
   const comments: NormalizedSocialCommentInput[] = []
   const errors: MetaCommentIngestionError[] = []
   const cursor: Record<string, unknown> = { pages: 0, nextAfter: null, limitReached: false }
+  const seenAfter = new Set<string>()
+  const maxPages = pageCap(input.limit, input.pageSize)
   let after: string | null = null
   let skipped = 0
 
-  do {
+  while (comments.length < input.limit) {
+    if (after) {
+      if (seenAfter.has(after)) {
+        errors.push(paginationError(
+          'pagination_stalled',
+          'Meta top-level comment pagination returned a repeated cursor; refresh stopped before retrying the same page.',
+        ))
+        break
+      }
+      seenAfter.add(after)
+    }
+    if (Number(cursor.pages) >= maxPages) {
+      errors.push(paginationError(
+        'pagination_limit',
+        'Meta top-level comment pagination reached the bounded page limit before the provider cursor was exhausted.',
+      ))
+      break
+    }
+
     const result: { data?: MetaCommentsResponse; error?: MetaCommentIngestionError } = await fetchJson<MetaCommentsResponse>({
       fetchImpl: input.fetchImpl,
       accessToken: input.accessToken,
@@ -718,7 +789,8 @@ async function collectMetaComments(input: {
       break
     }
 
-    for (const comment of result.data?.data ?? []) {
+    const pageItems = result.data?.data ?? []
+    for (const comment of pageItems) {
       const id = asString(comment.id)
       const mapped = id
         ? mapComment({
@@ -785,7 +857,30 @@ async function collectMetaComments(input: {
     after = comments.length >= input.limit ? null : providerNextAfter
     cursor.nextAfter = providerNextAfter
     cursor.limitReached = comments.length >= input.limit
-  } while (after)
+
+    if (comments.length >= input.limit || !providerNextAfter) break
+    if (pageItems.length === 0) {
+      errors.push(paginationError(
+        'pagination_stalled',
+        'Meta top-level comment pagination returned an empty page with a continuation cursor; refresh stopped to avoid looping.',
+      ))
+      break
+    }
+    if (seenAfter.has(providerNextAfter)) {
+      errors.push(paginationError(
+        'pagination_stalled',
+        'Meta top-level comment pagination returned a repeated cursor; refresh stopped before retrying the same page.',
+      ))
+      break
+    }
+    if (Number(cursor.pages) >= maxPages) {
+      errors.push(paginationError(
+        'pagination_limit',
+        'Meta top-level comment pagination reached the bounded page limit before the provider cursor was exhausted.',
+      ))
+      break
+    }
+  }
 
   return {
     comments: comments.slice(0, input.limit),
