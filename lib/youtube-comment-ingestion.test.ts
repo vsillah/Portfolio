@@ -19,16 +19,31 @@ const config = {
     access_token: 'youtube-access-token',
     refresh_token: 'youtube-refresh-token',
     expires_in: 3600,
-    token_obtained_at: '2026-08-12T11:50:00.000Z',
+    token_obtained_at: '2099-01-01T00:00:00.000Z',
     scope: 'https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/youtube.force-ssl',
   },
   settings: { channel_title: 'AmaduTown Automation Solutions' },
   is_active: true,
 }
 
+const verifiedCapability = {
+  capability_status: 'verified',
+  supports_comment_ingestion: true,
+  supports_reply_draft: true,
+  supports_reply_submission: true,
+  supports_permalink: true,
+  supports_author_profile: true,
+  supports_threading: true,
+  supports_cursor: true,
+  external_submission_enabled: true,
+  gate_notes: 'YouTube capability verified by read-only provider smoke.',
+}
+
 type DbOptions = {
   publishRow?: Record<string, unknown> | null
   configRow?: Record<string, unknown> | null
+  capabilityRow?: Record<string, unknown> | null
+  capabilityError?: Record<string, unknown> | null
   insertedRunId?: string
   insertedComments?: unknown[]
 }
@@ -49,6 +64,12 @@ function createDb(options: DbOptions = {}) {
     }
     if (table === 'social_content_config') {
       return { data: options.configRow === undefined ? config : options.configRow, error: null }
+    }
+    if (table === 'social_comment_provider_capabilities') {
+      return {
+        data: options.capabilityRow === undefined ? null : options.capabilityRow,
+        error: options.capabilityError ?? null,
+      }
     }
     if (table === 'social_comment_ingestion_runs' && operation === 'insert') {
       return { data: { id: options.insertedRunId ?? 'run-youtube-1' }, error: null }
@@ -225,6 +246,68 @@ describe('youtube comment ingestion', () => {
     expect(calls.commentUpserts[0]).toEqual([
       expect.objectContaining({ provider_comment_id: 'comment-1', body: 'Refreshed copy' }),
     ])
+  })
+
+  it('projects the canonical verified YouTube capability snapshot into refreshed comments', async () => {
+    const { db, calls } = createDb({ capabilityRow: verifiedCapability })
+    const fetchImpl = createFetchMock(() => response({ items: [thread('comment-1', 'Provider refresh body')] }))
+
+    await refreshPublishedYouTubeComments({ db, publishId: publish.id, fetchImpl: asFetch(fetchImpl) })
+
+    expect(calls.commentUpserts[0]).toEqual([
+      expect.objectContaining({
+        provider_comment_id: 'comment-1',
+        provider_capability: expect.objectContaining({
+          capability_status: 'verified',
+          supports_comment_ingestion: true,
+          supports_reply_submission: true,
+          external_submission_enabled: true,
+          gate_notes: 'YouTube capability verified by read-only provider smoke.',
+        }),
+        metadata: expect.objectContaining({
+          youtube: expect.objectContaining({
+            external_submission_enabled: true,
+          }),
+        }),
+      }),
+    ])
+    expect(calls.commentUpdates[0]).toMatchObject({
+      provider_capability: expect.objectContaining({
+        capability_status: 'verified',
+        supports_reply_submission: true,
+        external_submission_enabled: true,
+      }),
+    })
+    expect(calls.commentUpdates[0]).not.toHaveProperty('classification_status')
+    expect(calls.commentUpdates[0]).not.toHaveProperty('response_approval_state')
+    expect(calls.commentUpdates[0]).not.toHaveProperty('reply_submission_state')
+    expect(calls.commentUpdates[0]).not.toHaveProperty('reply_provider_comment_id')
+  })
+
+  it('falls back to disabled static capability when the canonical lookup is unavailable', async () => {
+    const { db, calls } = createDb({
+      capabilityError: { message: 'capability lookup unavailable' },
+    })
+    const fetchImpl = createFetchMock(() => response({ items: [thread('comment-1', 'Provider refresh body')] }))
+
+    await refreshPublishedYouTubeComments({ db, publishId: publish.id, fetchImpl: asFetch(fetchImpl) })
+
+    expect(calls.commentUpserts[0]).toEqual([
+      expect.objectContaining({
+        provider_capability: expect.objectContaining({
+          capability_status: 'manual',
+          supports_reply_submission: false,
+          external_submission_enabled: false,
+        }),
+      }),
+    ])
+    expect(calls.commentUpdates[0]).toMatchObject({
+      provider_capability: expect.objectContaining({
+        capability_status: 'manual',
+        supports_reply_submission: false,
+        external_submission_enabled: false,
+      }),
+    })
   })
 
   it('loads replies with comments.list and maps provider parent ids without local parent mutation', async () => {

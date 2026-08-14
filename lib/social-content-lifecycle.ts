@@ -61,6 +61,15 @@ function gateApproved(ragContext: Record<string, unknown> | null, key: string) {
   return asString(asRecord(asRecord(ragContext?.section_gate_reviews)?.[key])?.status) === 'approved'
 }
 
+function hasApprovedTextOnlyXEvidence(ragContext: Record<string, unknown> | null) {
+  const batchApproval = asRecord(ragContext?.x_batch_approval)
+  const approvedScope = new Set(asArray(batchApproval?.approved_scope).map(asString))
+  return asString(batchApproval?.status) === 'approved'
+    && ['copy', 'source_distance_review', 'privacy_review'].every((scope) => approvedScope.has(scope))
+    && asString(asRecord(ragContext?.privacy_review)?.status) === 'approved'
+    && asString(asRecord(ragContext?.source_distance_review)?.status) === 'approved'
+}
+
 export function isDurableCopyApprovedStatus(status: unknown): status is Extract<ContentStatus, 'approved' | 'scheduled' | 'published'> {
   return status === 'approved' || status === 'scheduled' || status === 'published'
 }
@@ -125,6 +134,13 @@ export function hasSocialContentVisualPrerequisites(item: LifecycleItem) {
     || asString(item.video_url)
     || asArray(item.carousel_slide_urls).length
   )
+  const targetPlatforms = asArray(item.target_platforms).map(asString).filter(Boolean)
+  const targetsX = targetPlatforms.some((platform) => platform.toLowerCase() === 'x')
+  const targetsOnlyX = targetPlatforms.length > 0
+    && targetPlatforms.every((platform) => platform.toLowerCase() === 'x')
+  if (!hasVisualAsset && targetsX) {
+    return targetsOnlyX && hasApprovedTextOnlyXEvidence(ragContext)
+  }
   const productionAssets = asRecord(ragContext?.production_assets)
   const privacyReady = asString(asRecord(productionAssets?.video_redaction_manifest)?.status) === 'ready'
     || gateApproved(ragContext, 'privacy')

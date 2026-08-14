@@ -1589,6 +1589,13 @@ function WorkItemCard({ task, onOpenDependencies }: { task: AgentOrgBoardTask; o
 }
 
 function nextActionForTask(task: AgentOrgBoardTask) {
+  if (task.sourceType === 'social_content_scheduled_publish_recovery' && task.socialContent?.id) {
+    return {
+      label: 'Review schedule recovery',
+      detail: 'Choose a future schedule and reconfirm publication intent, or cancel the stale scheduled publication in Social Content.',
+      tone: 'border-yellow-500/35 bg-yellow-500/10 text-yellow-100',
+    }
+  }
   const dependencyIds = task.dependencyIds ?? []
   const blockingDependencies = (task.dependencies ?? []).filter((dependency) => dependency.blocking)
   const pendingHandoffs = (task.handoffs ?? []).filter((handoff) => handoff.status === 'pending')

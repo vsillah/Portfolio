@@ -46,7 +46,6 @@ import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
 import { getCurrentSession } from '@/lib/auth'
 import {
   STATUS_CONFIG,
-  PUBLISH_STATUS_CONFIG,
   PLATFORMS,
   FRAMEWORK_VISUAL_TYPES,
   getFullPostText,
@@ -66,8 +65,15 @@ import {
 } from '@/lib/social-platform-orchestration'
 import {
   deriveSocialContentLifecycleProjection,
+  hasSocialContentVisualPrerequisites,
   isDurableCopyApprovedStatus,
 } from '@/lib/social-content-lifecycle'
+import {
+  derivePublicationProjection,
+  reconcilePublicationProjectionWithLifecycle,
+  summarizePublicationProjections,
+  type PublicationProjectionTone,
+} from '@/lib/social-publication-status'
 import type {
   SocialContentItem,
   SocialContentPublish,
@@ -150,6 +156,14 @@ const GATE_STATE_CONFIG: Record<GateState, { label: string; className: string }>
     label: 'Rejected',
     className: 'border-red-500/40 bg-red-500/10 text-red-200',
   },
+}
+
+const PUBLICATION_TONE_CLASSES: Record<PublicationProjectionTone, string> = {
+  green: 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100',
+  yellow: 'border-amber-500/40 bg-amber-500/10 text-amber-100',
+  red: 'border-red-500/40 bg-red-500/10 text-red-100',
+  blue: 'border-blue-500/35 bg-blue-500/10 text-blue-100',
+  slate: 'border-gray-600/60 bg-gray-800/60 text-gray-200',
 }
 
 const SECTION_GATE_KEYS: SectionGateKey[] = ['visual_assets', 'asset_packet', 'privacy', 'linkedin_draft']
@@ -517,6 +531,9 @@ function SocialContentDetailPage() {
   const [voiceoverText, setVoiceoverText] = useState('')
   const [frameworkVisualType, setFrameworkVisualType] = useState<FrameworkVisualType | ''>('')
   const [scheduledFor, setScheduledFor] = useState('')
+  const [recoveryScheduledFor, setRecoveryScheduledFor] = useState('')
+  const [reconfirmPublicationIntent, setReconfirmPublicationIntent] = useState(false)
+  const [applyingScheduleRecovery, setApplyingScheduleRecovery] = useState<'reschedule_reconfirm' | 'cancel_scheduled_publication' | null>(null)
   const [adminNotes, setAdminNotes] = useState('')
   const [copyRevisionRequest, setCopyRevisionRequest] = useState('')
   const [copyRevisionAction, setCopyRevisionAction] = useState<CopyRevisionAction>(null)
@@ -713,6 +730,10 @@ function SocialContentDetailPage() {
       setVoiceoverText(i.voiceover_text || '')
       setFrameworkVisualType(i.framework_visual_type || '')
       setScheduledFor(i.scheduled_for ? new Date(i.scheduled_for).toISOString().slice(0, 16) : '')
+      if (!options.silent) {
+        setRecoveryScheduledFor('')
+        setReconfirmPublicationIntent(false)
+      }
       setAdminNotes(i.admin_notes || '')
       setTargetPlatforms(i.target_platforms?.length ? i.target_platforms : ['linkedin'])
       const rag = asRecord(i.rag_context)
@@ -890,6 +911,63 @@ function SocialContentDetailPage() {
     const saved = await saveForm()
     showMsg(saved ? 'success' : 'error', saved ? 'Saved successfully' : 'Failed to save')
     setSaving(false)
+  }
+
+  const handleScheduleRecovery = async (action: 'reschedule_reconfirm' | 'cancel_scheduled_publication') => {
+    const recovery = item?.schedule_recovery
+    if (!recovery?.work_item_id || recovery.state !== 'action_required') {
+      showMsg('error', 'Canonical recovery work item is unavailable. Refresh before deciding.')
+      return
+    }
+    if (action === 'reschedule_reconfirm' && (!recoveryScheduledFor || !reconfirmPublicationIntent)) {
+      showMsg('error', 'Choose a future schedule and explicitly reconfirm publication intent.')
+      return
+    }
+    if (action === 'cancel_scheduled_publication' && !window.confirm('Cancel this scheduled publication? The content and provider history will be preserved.')) {
+      return
+    }
+
+    setApplyingScheduleRecovery(action)
+    try {
+      const session = await getCurrentSession()
+      if (!session) {
+        showMsg('error', 'Admin session is unavailable.')
+        return
+      }
+      const response = await fetch(`/api/admin/social-content/${id}/schedule-recovery`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action,
+          work_item_id: recovery.work_item_id,
+          scheduled_for: action === 'reschedule_reconfirm'
+            ? new Date(recoveryScheduledFor).toISOString()
+            : null,
+          reconfirm_publication_intent: action === 'reschedule_reconfirm' && reconfirmPublicationIntent,
+        }),
+      })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        showMsg('error', asString(data.error) || 'Schedule recovery decision failed.')
+        return
+      }
+      showMsg(
+        'success',
+        action === 'reschedule_reconfirm'
+          ? 'Publication intent reconfirmed and rescheduled. Nothing was published immediately.'
+          : 'Scheduled publication cancelled. Content and provider history were preserved.',
+      )
+      setReconfirmPublicationIntent(false)
+      setRecoveryScheduledFor('')
+      await fetchItem({ silent: true })
+    } catch (error) {
+      showMsg('error', error instanceof Error ? error.message : 'Schedule recovery decision failed.')
+    } finally {
+      setApplyingScheduleRecovery(null)
+    }
   }
 
   const handleExpandKnownAcronyms = () => {
@@ -2495,7 +2573,10 @@ function SocialContentDetailPage() {
       : platformNextStages.some((stage) => stage.state === 'available')
         ? 'in_review'
         : 'pending'
-  const visualWorkflowGateState: GateState = visualAssetsGateState === 'approved' && assetPacketGateState === 'approved' && privacyGateState === 'approved'
+  const canonicalVisualPrerequisitesReady = hasSocialContentVisualPrerequisites(item)
+  const visualWorkflowGateState: GateState = canonicalVisualPrerequisitesReady
+    ? 'approved'
+    : visualAssetsGateState === 'approved' && assetPacketGateState === 'approved' && privacyGateState === 'approved'
     ? 'approved'
     : historicalSubmissionEvidence && visualAssetReady && assetPacketReady && visualPrivacyReady
       ? 'approved'
@@ -2529,6 +2610,15 @@ function SocialContentDetailPage() {
   const effectivePlatformSubmissionGateState = lifecycleProjection.steps.submit.state as GateState
   const effectiveStatusGateState = lifecycleProjection.steps.status.state as GateState
   const lifecycleMismatchByStep = lifecycleProjection.steps
+  const publicationProjections = (item.publishes ?? []).map((publish) => (
+    reconcilePublicationProjectionWithLifecycle({
+      projection: derivePublicationProjection({ item, publish }),
+      lifecycle: lifecycleProjection,
+    })
+  ))
+  const publicationSummary = publicationProjections.length
+    ? summarizePublicationProjections(publicationProjections)
+    : null
   const canonicalKanbanHref = `/admin/agents/swarm-board?source_type=social_content_approval&source_id=${encodeURIComponent(item.id)}&social_content_id=${encodeURIComponent(item.id)}`
   const reviewGateSummary: Array<{ label: string; state: GateState; step: ApprovalStep }> = [
     {
@@ -2573,6 +2663,8 @@ function SocialContentDetailPage() {
     label: string
     description: string
     state: GateState
+    displayStateLabel?: string
+    displayStateClassName?: string
   }> = [
     {
       step: 'context',
@@ -2607,8 +2699,12 @@ function SocialContentDetailPage() {
     {
       step: 'status',
       label: 'Status',
-      description: 'Signals and metadata',
+      description: publicationSummary?.stateLabel ?? 'Signals and metadata',
       state: effectiveStatusGateState,
+      displayStateLabel: publicationSummary?.stateLabel,
+      displayStateClassName: publicationSummary
+        ? PUBLICATION_TONE_CLASSES[publicationSummary.tone]
+        : undefined,
     },
   ]
   const lifecycleBlockedDetail = (step: ApprovalStep) => {
@@ -2693,15 +2789,38 @@ function SocialContentDetailPage() {
       waitingOnYou: lifecycleMismatchByStep.submit.mismatch || effectivePlatformSubmissionGateState === 'in_review' ? 'Yes - submit decision' : 'No',
     },
     status: {
-      title: lifecycleBlockedDetail('status') ? 'Status lifecycle mismatch' : 'Publication and signal status',
-      body: lifecycleBlockedDetail('status') ?? 'Signals summarize what happened after provider submission or publication. They should not be confused with copy approval or visual readiness.',
-      owner: 'Publishing / analytics lane',
-      lastUpdate: item.published_at ? new Date(item.published_at).toLocaleString() : 'No publication signal yet',
-      nextAction: lifecycleMismatchByStep.status.mismatch?.recoveryAction ?? (item.status === 'published' ? 'Monitor post signals.' : 'Complete upstream gates before status signals are expected.'),
-      waitingOnYou: lifecycleMismatchByStep.status.mismatch ? 'Yes - lifecycle recovery' : 'No',
+      title: publicationSummary?.headline
+        ?? (lifecycleBlockedDetail('status') ? 'Status lifecycle mismatch' : 'Publication and signal status'),
+      body: publicationSummary?.explanation
+        ?? lifecycleBlockedDetail('status')
+        ?? 'Signals summarize what happened after provider submission or publication. They should not be confused with copy approval or visual readiness.',
+      owner: publicationSummary?.owner ?? 'Publishing / analytics lane',
+      lastUpdate: publicationSummary?.lastMaterialUpdate ?? 'No publication signal yet',
+      nextAction: publicationSummary?.nextAction
+        ?? lifecycleMismatchByStep.status.mismatch?.recoveryAction
+        ?? 'Complete the upstream platform handoff before status signals are expected.',
+      waitingOnYou: publicationSummary?.waitingOnYou
+        ?? (lifecycleMismatchByStep.status.mismatch ? 'Yes - lifecycle recovery' : 'No'),
     },
   }
   const activeApprovalStepDetail = approvalStepDetails[activeApprovalStep]
+  const mobileSummaryState = activeApprovalStep === 'status' && publicationSummary
+    ? publicationSummary.stateLabel
+    : GATE_STATE_CONFIG[approvalStepTabs.find((step) => step.step === activeApprovalStep)?.state ?? overallGateState].label
+  const mobileSummaryTone = activeApprovalStep === 'status' && publicationSummary
+    ? publicationSummary.tone
+    : overallGateState === 'blocked'
+      ? 'red'
+      : activeApprovalStepDetail.waitingOnYou.startsWith('Yes')
+        ? 'yellow'
+        : 'blue'
+  const mobileSummaryBlocker = activeApprovalStep === 'status'
+    ? publicationSummary && ['failed', 'blocked', 'ambiguous'].includes(publicationSummary.state)
+      ? publicationSummary.reason ?? publicationSummary.explanation
+      : null
+    : overallGateState === 'blocked'
+      ? activeApprovalStepDetail.body
+      : null
   const activeStepParams = new URLSearchParams(searchParams.toString())
   activeStepParams.set('step', activeApprovalStep)
   const activeStepHref = `/admin/social-content/${id}?${activeStepParams.toString()}#${APPROVAL_STEP_SECTION_IDS[activeApprovalStep]}`
@@ -2912,14 +3031,14 @@ function SocialContentDetailPage() {
       <div className="mx-auto w-full max-w-[90rem] space-y-6 px-4 py-6 sm:px-6 lg:px-8">
         <MobileWorkflowSummary
           title={activeApprovalStepDetail.title}
-          currentState={GATE_STATE_CONFIG[approvalStepTabs.find((step) => step.step === activeApprovalStep)?.state ?? overallGateState].label}
+          currentState={mobileSummaryState}
           owner={activeApprovalStepDetail.owner}
           nextAction={activeApprovalStepDetail.nextAction}
           waitingOnYou={activeApprovalStepDetail.waitingOnYou}
-          blocker={overallGateState === 'blocked' ? activeApprovalStepDetail.body : null}
+          blocker={mobileSummaryBlocker}
           canonicalHref={activeStepHref}
           canonicalLabel="Open selected approval step"
-          tone={overallGateState === 'blocked' ? 'red' : activeApprovalStepDetail.waitingOnYou.startsWith('Yes') ? 'yellow' : 'blue'}
+          tone={mobileSummaryTone}
         />
 	        {isAgentSocialPilot && (
 	          <section className="admin-console-card rounded-xl border border-radiant-gold/25 p-4 sm:p-5">
@@ -3604,16 +3723,18 @@ function SocialContentDetailPage() {
 	          </section>
 	        )}
 
-		        <div aria-label="Social content approval process" className="admin-console-card grid grid-cols-1 gap-2 rounded-xl border p-2 md:flex md:items-stretch md:gap-1 md:overflow-x-auto md:p-1">
+		        <div aria-label="Social content approval process" className="admin-console-card social-approval-process rounded-xl border p-2">
+		          <div className="social-approval-step-grid">
 		          {approvalStepTabs.map((tab, index) => {
 		            const isActive = activeApprovalStep === tab.step
 		            return (
-		              <div key={tab.step} className="flex min-w-0 items-stretch md:shrink-0">
+		              <div key={tab.step} className="flex min-w-0 items-stretch">
 		                <button
 		                  type="button"
 		                  aria-label={`Approval step ${index + 1}: ${tab.label}`}
+		                  aria-current={isActive ? 'step' : undefined}
 		                  onClick={() => setApprovalStep(tab.step)}
-		                  className={`flex min-h-11 w-full min-w-0 items-start gap-2 rounded-lg border px-2.5 py-2.5 text-left text-sm font-medium transition-all md:w-[10rem] md:shrink-0 md:items-center lg:w-[10.75rem] ${
+		                  className={`grid min-h-[5.5rem] w-full min-w-0 grid-cols-[auto_minmax(0,1fr)] content-start items-start gap-x-2 gap-y-1 rounded-lg border px-2.5 py-2.5 text-left text-sm font-medium transition-all ${
 		                    isActive
 		                      ? 'border-green-500/55 bg-green-600/25 text-green-100 shadow-inner shadow-green-950/30'
 		                      : 'border-gray-800/80 text-muted-foreground hover:border-gray-700 hover:bg-silicon-slate/50 hover:text-foreground'
@@ -3626,17 +3747,18 @@ function SocialContentDetailPage() {
 		                  }`}>
 		                    {index + 1}
 		                  </span>
-		                  <span className="min-w-0 flex-1">
-		                    <span className="block leading-snug md:truncate">{tab.label}</span>
-		                    <span className="mt-0.5 block text-[11px] font-normal leading-snug opacity-75 md:truncate">{tab.description}</span>
+		                  <span className="min-w-0 self-center">
+		                    <span className="block break-words leading-snug">{tab.label}</span>
+		                    <span className="mt-0.5 block break-words text-[11px] font-normal leading-snug opacity-75">{tab.description}</span>
 		                  </span>
-		                  <span className={`rounded-full border px-1.5 py-0.5 text-[10px] font-semibold md:shrink-0 ${GATE_STATE_CONFIG[tab.state].className}`}>
-		                    {GATE_STATE_CONFIG[tab.state].label}
+		                  <span className={`col-start-2 w-fit max-w-full whitespace-normal rounded-full border px-1.5 py-0.5 text-[10px] font-semibold leading-snug ${tab.displayStateClassName ?? GATE_STATE_CONFIG[tab.state].className}`}>
+		                    {tab.displayStateLabel ?? GATE_STATE_CONFIG[tab.state].label}
 		                  </span>
 		                </button>
 		              </div>
 		            )
 		          })}
+		          </div>
 		        </div>
             <section className="rounded-xl border border-silicon-slate/80 bg-background/35 p-4" aria-label="Current approval step details">
               <div className="grid gap-3 xl:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,0.9fr))]">
@@ -5275,6 +5397,87 @@ function SocialContentDetailPage() {
 	        {/* ================================================================ */}
 	        {activeApprovalStep === 'status' && (
 	        <div id="social-publication-status-gate" className="scroll-mt-28 space-y-6">
+	        {item.schedule_recovery ? (
+	          <section id="scheduled-publish-recovery" className="scroll-mt-28 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 sm:p-5" aria-label="Scheduled publication recovery">
+	            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+	              <div className="min-w-0">
+	                <p className="text-xs font-semibold uppercase tracking-wide text-amber-200">Scheduled publication paused</p>
+	                <h2 className="mt-1 text-lg font-semibold text-amber-50">Human schedule decision required</h2>
+	                <p className="mt-2 break-words text-sm leading-6 text-amber-50/90">{item.schedule_recovery.stale_reason}</p>
+	              </div>
+	              <span className="inline-flex w-fit shrink-0 rounded-full border border-amber-400/40 px-2.5 py-1 text-xs font-semibold text-amber-100">
+	                No automatic publication
+	              </span>
+	            </div>
+
+	            <dl className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+	              <div className="min-w-0 rounded-lg border border-amber-500/25 bg-gray-950/35 p-3">
+	                <dt className="text-xs font-semibold uppercase tracking-wide text-amber-100/70">Prior scheduled time</dt>
+	                <dd className="mt-1 break-words text-sm text-amber-50">{item.schedule_recovery.prior_scheduled_for ? new Date(item.schedule_recovery.prior_scheduled_for).toLocaleString() : 'Unavailable'}</dd>
+	              </div>
+	              <div className="min-w-0 rounded-lg border border-amber-500/25 bg-gray-950/35 p-3">
+	                <dt className="text-xs font-semibold uppercase tracking-wide text-amber-100/70">Owner</dt>
+	                <dd className="mt-1 break-words text-sm text-amber-50">{item.schedule_recovery.owner}</dd>
+	              </div>
+	              <div className="min-w-0 rounded-lg border border-amber-500/25 bg-gray-950/35 p-3 sm:col-span-2">
+	                <dt className="text-xs font-semibold uppercase tracking-wide text-amber-100/70">Next action</dt>
+	                <dd className="mt-1 break-words text-sm leading-6 text-amber-50">{item.schedule_recovery.next_action}</dd>
+	              </div>
+	            </dl>
+
+	            {item.schedule_recovery.state === 'blocked' ? (
+	              <div className="mt-4 rounded-lg border border-red-500/35 bg-red-500/10 p-3 text-sm leading-6 text-red-100">
+	                Recovery controls are disabled until the canonical work-item ambiguity is resolved.
+	              </div>
+	            ) : (
+	              <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+	                <div className="min-w-0 space-y-3">
+	                  <label className="block min-w-0">
+	                    <span className="text-sm font-semibold text-amber-50">New future schedule</span>
+	                    <input
+	                      type="datetime-local"
+	                      value={recoveryScheduledFor}
+	                      min={new Date().toISOString().slice(0, 16)}
+	                      onChange={(event) => setRecoveryScheduledFor(event.target.value)}
+	                      disabled={Boolean(applyingScheduleRecovery)}
+	                      className="mt-2 block min-h-11 w-full min-w-0 rounded-lg border border-amber-500/35 bg-gray-950/50 px-3 py-2 text-sm text-amber-50 disabled:opacity-60"
+	                    />
+	                  </label>
+	                  <label className="flex min-h-11 items-start gap-3 rounded-lg border border-amber-500/25 bg-gray-950/35 p-3 text-sm leading-6 text-amber-50">
+	                    <input
+	                      type="checkbox"
+	                      checked={reconfirmPublicationIntent}
+	                      onChange={(event) => setReconfirmPublicationIntent(event.target.checked)}
+	                      disabled={Boolean(applyingScheduleRecovery)}
+	                      className="mt-1 h-4 w-4 shrink-0"
+	                    />
+	                    <span>I explicitly reconfirm publication intent for the new future schedule.</span>
+	                  </label>
+	                </div>
+	                <div className="grid w-full gap-2 sm:grid-cols-2 lg:w-auto lg:grid-cols-1">
+	                  <button
+	                    type="button"
+	                    onClick={() => void handleScheduleRecovery('reschedule_reconfirm')}
+	                    disabled={Boolean(applyingScheduleRecovery) || !recoveryScheduledFor || !reconfirmPublicationIntent}
+	                    className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-amber-400 px-4 py-2 text-sm font-semibold text-gray-950 hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-50"
+	                  >
+	                    {applyingScheduleRecovery === 'reschedule_reconfirm' ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+	                    Reschedule and reconfirm
+	                  </button>
+	                  <button
+	                    type="button"
+	                    onClick={() => void handleScheduleRecovery('cancel_scheduled_publication')}
+	                    disabled={Boolean(applyingScheduleRecovery)}
+	                    className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-red-500/45 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-100 hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+	                  >
+	                    {applyingScheduleRecovery === 'cancel_scheduled_publication' ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
+	                    Cancel scheduled publication
+	                  </button>
+	                </div>
+	              </div>
+	            )}
+	          </section>
+	        ) : null}
 	        {(item.status === 'published' || engagementLatest) && (
 	          <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -5623,60 +5826,86 @@ function SocialContentDetailPage() {
               Publish Status
             </h2>
 
-            {item.publishes.map((pub: SocialContentPublish) => {
-              const pubStatusCfg = PUBLISH_STATUS_CONFIG[pub.status] || PUBLISH_STATUS_CONFIG.pending
+            {item.publishes.map((pub: SocialContentPublish, index) => {
+              const statusProjection = publicationProjections[index]
               const platformLabel = PLATFORMS.find(p => p.value === pub.platform)?.label || pub.platform
               return (
-                <motion.div
+                <motion.article
                   key={pub.id}
+                  aria-label={`${platformLabel} publication status`}
                   variants={{
                     hidden: { opacity: 0, y: 12 },
                     visible: { opacity: 1, y: 0 },
                   }}
-                  className="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center justify-between"
+                  className="rounded-xl border border-gray-800 bg-gray-900 p-4 sm:p-5"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-gray-800 flex items-center justify-center text-gray-400">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-800 text-gray-400">
                       {PLATFORM_ICONS[pub.platform]}
                     </div>
-                    <div>
-                      <div className="text-sm font-medium text-gray-200">{platformLabel}</div>
-                      {pub.published_at && (
-                        <div className="text-xs text-gray-500">
-                          {new Date(pub.published_at).toLocaleString()}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-500">{platformLabel}</p>
+                          <h3 className="mt-1 break-words text-base font-semibold leading-6 text-gray-100">
+                            {statusProjection.headline}
+                          </h3>
                         </div>
-                      )}
-                      {pub.error_message && (
-                        <div className="text-xs text-red-400 mt-0.5">{pub.error_message}</div>
-                      )}
+                        <span
+                          role="status"
+                          className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold ${PUBLICATION_TONE_CLASSES[statusProjection.tone]}`}
+                        >
+                          {statusProjection.stateLabel}
+                        </span>
+                      </div>
+                      <p className="mt-2 break-words text-sm leading-6 text-gray-300">
+                        {statusProjection.explanation}
+                      </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${pubStatusCfg.bgColor} ${pubStatusCfg.color} border ${pubStatusCfg.borderColor}`}>
-                      {pubStatusCfg.label}
-                    </span>
-                    {pub.platform_post_url && (
+
+                  <dl className="mt-4 grid gap-x-6 gap-y-3 border-t border-gray-800 pt-4 text-sm sm:grid-cols-2 xl:grid-cols-4">
+                    <div className="min-w-0">
+                      <dt className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">Owner</dt>
+                      <dd className="mt-1 break-words text-gray-200">{statusProjection.owner}</dd>
+                    </div>
+                    <div className="min-w-0 sm:col-span-2 xl:col-span-1">
+                      <dt className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">Next action</dt>
+                      <dd className="mt-1 break-words leading-6 text-gray-200">{statusProjection.nextAction}</dd>
+                    </div>
+                    <div className="min-w-0">
+                      <dt className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">Waiting on you?</dt>
+                      <dd className="mt-1 break-words text-gray-200">{statusProjection.waitingOnYou}</dd>
+                    </div>
+                    <div className="min-w-0">
+                      <dt className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">Provider record</dt>
+                      <dd className="mt-1 break-words text-gray-400">{statusProjection.rawStatus}</dd>
+                    </div>
+                  </dl>
+
+                  <div className="mt-4 flex flex-wrap items-center gap-3">
+                    {statusProjection.permalink && (
                       <a
-                        href={pub.platform_post_url}
+                        href={statusProjection.permalink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300"
+                        className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-blue-500/35 bg-blue-500/10 px-3 py-2 text-xs font-semibold text-blue-200 hover:bg-blue-500/20"
                       >
                         View post <ExternalLink className="w-3 h-3" />
                       </a>
                     )}
-                      {pub.status === 'failed' && (
-                        <button
-                          onClick={() => handleRetryPublish([pub.platform as SocialPlatform])}
-                          disabled={publishing || videoPrivacyBlocked}
-                        className="flex items-center gap-1 px-3 py-1 bg-red-900/50 hover:bg-red-900/70 text-red-300 rounded-lg text-xs transition-colors disabled:opacity-50"
+                    {pub.status === 'failed' && (
+                      <button
+                        onClick={() => handleRetryPublish([pub.platform as SocialPlatform])}
+                        disabled={publishing || videoPrivacyBlocked}
+                        className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-red-500/35 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-200 transition-colors hover:bg-red-500/20 disabled:opacity-50"
                       >
                         {publishing ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
                         Retry
                       </button>
                     )}
                   </div>
-                </motion.div>
+                </motion.article>
               )
             })}
           </motion.div>

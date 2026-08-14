@@ -1,4 +1,5 @@
 import type { AttractionCampaign } from '@/lib/campaigns'
+import type { SocialPlatform } from '@/lib/social-content'
 
 export const SOCIAL_CONTENT_CALENDAR_CHANNELS = [
   'linkedin',
@@ -82,8 +83,16 @@ export type SocialContentCalendarItem = {
   social_content_queue?: {
     id: string
     status: string
+    platform?: SocialPlatform | null
+    target_platforms?: SocialPlatform[] | null
     post_text?: string | null
     scheduled_for?: string | null
+    rag_context?: Record<string, unknown> | null
+    social_content_publishes?: Array<{
+      id: string
+      platform: string
+      status: string
+    }> | null
   } | null
 }
 
