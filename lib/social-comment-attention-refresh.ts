@@ -6,13 +6,18 @@ import type {
   MetaCommentRefreshInput,
   MetaCommentRefreshResult,
 } from '@/lib/meta-comment-ingestion'
+import {
+  extractXPostId,
+  type XCommentRefreshInput,
+  type XCommentRefreshResult,
+} from '@/lib/x-comment-ingestion'
 
 type SupabaseClientLike = {
   from: (table: string) => any
 }
 
-type CommentRefreshPlatform = 'youtube' | 'facebook' | 'instagram'
-type CommentRefreshResult = YouTubeCommentRefreshResult | MetaCommentRefreshResult
+type CommentRefreshPlatform = 'youtube' | 'facebook' | 'instagram' | 'x'
+type CommentRefreshResult = YouTubeCommentRefreshResult | MetaCommentRefreshResult | XCommentRefreshResult
 
 type PublishRow = {
   id: string
@@ -64,6 +69,7 @@ export type SocialCommentAttentionRefreshOptions = {
   now?: () => Date
   refreshPublishedYouTubeComments?: (input: YouTubeCommentRefreshInput) => Promise<YouTubeCommentRefreshResult>
   refreshPublishedMetaComments?: (input: MetaCommentRefreshInput) => Promise<MetaCommentRefreshResult>
+  refreshPublishedXComments?: (input: XCommentRefreshInput) => Promise<XCommentRefreshResult>
 }
 
 export type SocialCommentAttentionRefreshOutcome = {
@@ -154,6 +160,12 @@ function hasProviderIdentity(row: PublishRow) {
 
 function hasCanonicalProviderIdentity(row: PublishRow, platform: CommentRefreshPlatform) {
   if (platform === 'youtube') return hasProviderIdentity(row)
+  if (platform === 'x') {
+    return Boolean(extractXPostId({
+      platformPostId: row.platform_post_id,
+      platformPostUrl: row.platform_post_url,
+    }))
+  }
   const providerPostId = row.platform_post_id?.trim()
   return Boolean(providerPostId && META_PROVIDER_POST_ID_PATTERN.test(providerPostId))
 }
@@ -543,6 +555,17 @@ async function refreshProviderComments(input: {
     })
   }
 
+  if (input.platform === 'x') {
+    const refresh = input.options.refreshPublishedXComments
+    if (!refresh) throw new Error('refreshPublishedXComments adapter was not provided')
+    return refresh({
+      db: input.db,
+      publishId: input.publishId,
+      contentId: input.contentId,
+      limit: input.commentLimit,
+    })
+  }
+
   const refresh = input.options.refreshPublishedMetaComments
   if (!refresh) throw new Error('refreshPublishedMetaComments adapter was not provided')
   return refresh({
@@ -667,15 +690,16 @@ export async function runSocialCommentAttentionYouTubeRefresh(
     recentPublishedHours,
     refreshCooldownMinutes,
   }
-  const [youtube, facebook, instagram] = await Promise.all([
+  const [youtube, facebook, instagram, x] = await Promise.all([
     runProviderRefreshSafely({ ...shared, platform: 'youtube' }),
     runProviderRefreshSafely({ ...shared, platform: 'facebook' }),
     runProviderRefreshSafely({ ...shared, platform: 'instagram' }),
+    runProviderRefreshSafely({ ...shared, platform: 'x' }),
   ])
 
   return aggregateProviderSummaries({
     dryRun,
-    providerSummaries: { youtube, facebook, instagram },
+    providerSummaries: { youtube, facebook, instagram, x },
     commentLimit,
     publishLimit,
     refreshCooldownMinutes,

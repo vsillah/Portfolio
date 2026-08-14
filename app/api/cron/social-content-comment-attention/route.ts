@@ -14,6 +14,7 @@ import { evaluateSocialCommentReplyHolds } from '@/lib/social-comment-attention'
 import { supabaseAdmin } from '@/lib/supabase'
 import { refreshPublishedYouTubeComments } from '@/lib/youtube-comment-ingestion'
 import { refreshPublishedMetaComments } from '@/lib/meta-comment-ingestion'
+import { refreshPublishedXComments } from '@/lib/x-comment-ingestion'
 
 export const dynamic = 'force-dynamic'
 
@@ -84,6 +85,7 @@ async function runCommentAttentionSweep(request: NextRequest) {
     dryRun,
     refreshPublishedYouTubeComments,
     refreshPublishedMetaComments,
+    refreshPublishedXComments,
   })
 
   const slack = await runAgentSlackNotificationSweep({

@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { runSocialCommentAttentionYouTubeRefresh } from '@/lib/social-comment-attention-refresh'
 import type { YouTubeCommentRefreshInput, YouTubeCommentRefreshResult } from '@/lib/youtube-comment-ingestion'
 import type { MetaCommentRefreshInput, MetaCommentRefreshResult } from '@/lib/meta-comment-ingestion'
+import type { XCommentRefreshInput, XCommentRefreshResult } from '@/lib/x-comment-ingestion'
 
 type TableRows = Record<string, Array<Record<string, unknown>>>
 
@@ -120,7 +121,24 @@ function metaSucceeded(input: MetaCommentRefreshInput): MetaCommentRefreshResult
   }
 }
 
-function capability(platform: 'facebook' | 'instagram', verified = true) {
+function xSucceeded(input: XCommentRefreshInput): XCommentRefreshResult {
+  return {
+    platform: 'x',
+    provider: 'x_api',
+    status: 'succeeded',
+    publishId: input.publishId ?? null,
+    contentId: input.contentId ?? null,
+    postId: '2085056671248765116',
+    runId: `run-x-${input.publishId}`,
+    fetched: 1,
+    upserted: 1,
+    skipped: 0,
+    errors: [],
+    cursor: {},
+  }
+}
+
+function capability(platform: 'facebook' | 'instagram' | 'x', verified = true) {
   return {
     platform,
     capability_status: verified ? 'verified' : 'manual',
@@ -737,5 +755,123 @@ describe('runSocialCommentAttentionYouTubeRefresh', () => {
       errorCount: 1,
     })
     expect(metaRefresh).not.toHaveBeenCalled()
+  })
+
+  it('selects verified X publishes and delegates to the X read-only adapter', async () => {
+    const db = createDb({
+      social_content_publishes: [
+        publish('x-publish-1', '2026-08-13T12:00:00.000Z', {
+          platform: 'x',
+          platform_post_id: '2085056671248765116',
+        }),
+      ],
+      social_content_comments: [],
+      social_comment_ingestion_runs: [],
+      social_comment_provider_capabilities: [capability('x')],
+    })
+    const youtubeRefresh = vi.fn(async (input: YouTubeCommentRefreshInput) => succeeded(input))
+    const metaRefresh = vi.fn(async (input: MetaCommentRefreshInput) => metaSucceeded(input))
+    const xRefresh = vi.fn(async (input: XCommentRefreshInput) => xSucceeded(input))
+
+    const result = await runSocialCommentAttentionYouTubeRefresh(db, {
+      now: () => new Date('2026-08-13T13:00:00.000Z'),
+      refreshPublishedYouTubeComments: youtubeRefresh,
+      refreshPublishedMetaComments: metaRefresh,
+      refreshPublishedXComments: xRefresh,
+    })
+
+    expect(result.providerSummaries.x).toMatchObject({
+      selectedCount: 1,
+      attemptedCount: 1,
+      providerReadAttemptCount: 1,
+      succeededCount: 1,
+    })
+    expect(xRefresh).toHaveBeenCalledTimes(1)
+    expect(xRefresh).toHaveBeenCalledWith({
+      db,
+      publishId: 'x-publish-1',
+      contentId: 'content-x-publish-1',
+      limit: 50,
+    })
+    expect(xRefresh).toHaveBeenCalledWith(expect.not.objectContaining({
+      approvedReplyText: expect.anything(),
+      replyText: expect.anything(),
+    }))
+    expect(youtubeRefresh).not.toHaveBeenCalled()
+    expect(metaRefresh).not.toHaveBeenCalled()
+  })
+
+  it('reports manual X capability as skipped blocked evidence without provider calls', async () => {
+    const db = createDb({
+      social_content_publishes: [
+        publish('x-publish-1', '2026-08-13T12:00:00.000Z', {
+          platform: 'x',
+          platform_post_id: '2085056671248765116',
+        }),
+      ],
+      social_content_comments: [],
+      social_comment_ingestion_runs: [],
+      social_comment_provider_capabilities: [capability('x', false)],
+    })
+    const xRefresh = vi.fn(async (input: XCommentRefreshInput) => xSucceeded(input))
+
+    const result = await runSocialCommentAttentionYouTubeRefresh(db, {
+      now: () => new Date('2026-08-13T13:00:00.000Z'),
+      refreshPublishedYouTubeComments: vi.fn(async (input: YouTubeCommentRefreshInput) => succeeded(input)),
+      refreshPublishedXComments: xRefresh,
+    })
+
+    expect(result.providerSummaries.x).toMatchObject({
+      status: 'manual_blocked',
+      selectedCount: 1,
+      attemptedCount: 0,
+      providerReadAttemptCount: 0,
+      capabilityBlockedCount: 1,
+    })
+    expect(result.providerSummaries.x.outcomes[0]).toMatchObject({
+      platform: 'x',
+      status: 'skipped',
+      skippedReason: 'capability_blocked',
+      errorCount: 1,
+    })
+    expect(xRefresh).not.toHaveBeenCalled()
+  })
+
+  it('skips missing X provider identities before adapter invocation', async () => {
+    const db = createDb({
+      social_content_publishes: [
+        publish('x-missing-id', '2026-08-13T12:00:00.000Z', {
+          platform: 'x',
+          platform_post_id: null,
+          platform_post_url: null,
+        }),
+      ],
+      social_content_comments: [],
+      social_comment_ingestion_runs: [],
+      social_comment_provider_capabilities: [capability('x')],
+    })
+    const xRefresh = vi.fn(async (input: XCommentRefreshInput) => xSucceeded(input))
+
+    const result = await runSocialCommentAttentionYouTubeRefresh(db, {
+      now: () => new Date('2026-08-13T13:00:00.000Z'),
+      refreshPublishedYouTubeComments: vi.fn(async (input: YouTubeCommentRefreshInput) => succeeded(input)),
+      refreshPublishedXComments: xRefresh,
+    })
+
+    expect(result.providerSummaries.x).toMatchObject({
+      status: 'manual_blocked',
+      selectedCount: 1,
+      attemptedCount: 0,
+      providerReadAttemptCount: 0,
+      identityBlockedCount: 1,
+    })
+    expect(result.providerSummaries.x.outcomes[0]).toMatchObject({
+      platform: 'x',
+      publishId: 'x-missing-id',
+      status: 'skipped',
+      skippedReason: 'provider_identity_blocked',
+      errorCount: 1,
+    })
+    expect(xRefresh).not.toHaveBeenCalled()
   })
 })
