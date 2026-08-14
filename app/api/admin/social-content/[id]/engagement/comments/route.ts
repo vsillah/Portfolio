@@ -13,15 +13,27 @@ import {
   type SocialCommentCanonicalRow,
   type SocialCommentPostProjection,
 } from '@/lib/social-comment-inbox-ui'
+import {
+  evaluateYouTubeReplyReadiness,
+  submitYouTubeCommentReply,
+  YOUTUBE_REPLY_PROVIDER,
+  type YouTubeReplyCanonicalCapability,
+  type YouTubeReplyConfig,
+  type YouTubeReplySubmitResult,
+} from '@/lib/youtube-comment-reply-readiness'
 
 export const dynamic = 'force-dynamic'
 
 const COMMENT_SELECT = [
   'id',
+  'publish_id',
   'content_id',
   'platform',
   'provider',
   'provider_comment_id',
+  'provider_parent_comment_id',
+  'thread_id',
+  'record_type',
   'author_display_name',
   'author_public_handle',
   'body',
@@ -33,9 +45,12 @@ const COMMENT_SELECT = [
   'reply_submission_state',
   'proposed_reply_text',
   'approved_reply_text',
+  'reply_provider_comment_id',
+  'reply_submitted_at',
   'provider_capability',
   'captured_at',
   'updated_at',
+  'raw_payload',
   'metadata',
 ].join(', ')
 
@@ -145,6 +160,133 @@ async function fetchComment(contentId: string, commentId: string) {
   return { comment: data as SocialCommentCanonicalRow | null, error }
 }
 
+async function fetchYouTubeConfig() {
+  if (!supabaseAdmin) return { config: null, error: new Error('Server configuration error') }
+  const { data, error } = await supabaseAdmin
+    .from('social_content_config')
+    .select('credentials, settings, is_active')
+    .eq('platform', 'youtube')
+    .maybeSingle()
+
+  return { config: data as YouTubeReplyConfig | null, error }
+}
+
+async function fetchYouTubeCanonicalCapability() {
+  if (!supabaseAdmin) return { capability: null, error: new Error('Server configuration error') }
+  const { data, error } = await supabaseAdmin
+    .from('social_comment_provider_capabilities')
+    .select('platform, provider, capability_status, supports_reply_submission, external_submission_enabled, gate_notes')
+    .eq('platform', 'youtube')
+    .maybeSingle()
+
+  return { capability: data as YouTubeReplyCanonicalCapability | null, error }
+}
+
+function youtubeReplyMetadata(input: {
+  status: YouTubeReplySubmitResult['status'] | 'ready' | 'claiming'
+  blocked: boolean
+  blockerCodes: string[]
+  idempotencyKey: string | null
+  providerReplyId?: string | null
+  providerError?: YouTubeReplySubmitResult['error']
+  externalSubmissionAttempted: boolean
+}) {
+  return {
+    youtube_reply_readiness: {
+      status: input.status,
+      blocked: input.blocked,
+      blocker_codes: input.blockerCodes,
+      idempotency_key: input.idempotencyKey,
+      provider_reply_id: input.providerReplyId ?? null,
+      provider_error: input.providerError
+        ? {
+          code: input.providerError.code,
+          status: input.providerError.status ?? null,
+          reason: input.providerError.reason ?? null,
+        }
+        : null,
+      external_submission_attempted: input.externalSubmissionAttempted,
+    },
+  }
+}
+
+async function claimYouTubeReplySubmission(input: {
+  commentId: string
+  contentId: string
+  actorId: string
+  metadata: Record<string, unknown>
+}) {
+  if (!supabaseAdmin) return { claimed: false, error: new Error('Server configuration error') }
+  const { data, error } = await supabaseAdmin
+    .from('social_content_comments')
+    .update({
+      reply_submission_state: 'blocked',
+      updated_by: input.actorId,
+      metadata: input.metadata,
+    })
+    .eq('id', input.commentId)
+    .eq('content_id', input.contentId)
+    .eq('reply_submission_state', 'approved')
+    .is('reply_provider_comment_id', null)
+    .is('reply_submitted_at', null)
+    .select('id')
+    .maybeSingle()
+
+  return { claimed: Boolean(data), error }
+}
+
+async function persistClaimedYouTubeReplySubmission(input: {
+  commentId: string
+  contentId: string
+  idempotencyKey: string
+  patch: Record<string, unknown>
+}) {
+  if (!supabaseAdmin) return { persisted: false, error: new Error('Server configuration error') }
+  const { data, error } = await supabaseAdmin
+    .from('social_content_comments')
+    .update(input.patch)
+    .eq('id', input.commentId)
+    .eq('content_id', input.contentId)
+    .eq('reply_submission_state', 'blocked')
+    .is('reply_provider_comment_id', null)
+    .is('reply_submitted_at', null)
+    .contains('metadata', {
+      youtube_reply_readiness: {
+        status: 'claiming',
+        idempotency_key: input.idempotencyKey,
+      },
+    })
+    .select(COMMENT_SELECT)
+    .maybeSingle()
+
+  return { persisted: Boolean(data), error }
+}
+
+async function responseWithComments(input: {
+  post: SocialCommentPostProjection
+  contentId: string
+  status: number
+  ok: boolean
+  blocked: boolean
+  message: string
+  integrationNote: string
+  extra?: Record<string, unknown>
+}) {
+  const { comments, error } = await fetchComments(input.contentId, input.post)
+  if (error && isCommentInboxStorageUnavailable(error)) {
+    return unavailableResponse(409)
+  }
+
+  return NextResponse.json({
+    ok: input.ok,
+    blocked: input.blocked,
+    message: input.message,
+    comments,
+    integration_note: input.integrationNote,
+    ...(input.extra ?? {}),
+  }, { status: input.status })
+}
+
 /**
  * GET /api/admin/social-content/[id]/engagement/comments
  * Returns the per-post local comment projection for the Social Content detail panel.
@@ -185,7 +327,9 @@ export async function GET(
 
 /**
  * POST /api/admin/social-content/[id]/engagement/comments
- * Records local operator actions. It never calls an external provider.
+ * Records local operator actions. A future fully gated YouTube submit path may
+ * call the provider only after canonical capability, environment, human,
+ * policy, identity, and idempotency gates pass.
  */
 export async function POST(
   request: NextRequest,
@@ -259,6 +403,7 @@ export async function POST(
   let ok = true
   let blocked = false
   let message = 'Comment inbox action recorded.'
+  let integrationNote = 'No external comment reply was submitted. This action only updated canonical local workflow state.'
 
   if (action === 'draft_response') {
     patch = {
@@ -300,32 +445,265 @@ export async function POST(
   }
 
   if (action === 'submit') {
-    const policyInput = buildCommentInboxPolicyInputFromSocialComment(comment as SocialCommentPolicyRecord, {
-      confidence: 0.5,
-      draft: {
-        text: draftReply,
-        confidence: 0.5,
-        tone: 'neutral',
-      },
-    })
-    const policyDecision = evaluateCommentInboxPolicy(policyInput)
-    const submitBlocker = currentItem.providerCapability.blocker
-      || policyDecision.autoSend.blockedReasons.join(', ')
+    const isYouTubeProvider = comment.platform === 'youtube' && comment.provider === YOUTUBE_REPLY_PROVIDER
+    let submitBlocker = currentItem.providerCapability.blocker
       || 'Provider reply submission is blocked until capability and human gate checks pass.'
 
-    ok = false
-    blocked = true
-    status = 409
-    message = submitBlocker
-    patch = {
-      ...patch,
-      reply_submission_state: 'blocked',
-      metadata: appendActionHistory(comment.metadata, {
-        action: 'submit_blocked',
-        at: now,
-        by: actorId,
-        note: submitBlocker,
-      }),
+    if (isYouTubeProvider) {
+      const { config, error: configError } = await fetchYouTubeConfig()
+      if (configError) {
+        console.error('Error fetching YouTube comment reply config:', configError)
+        return NextResponse.json({ error: 'Failed to verify YouTube reply readiness' }, { status: 500 })
+      }
+      const { capability: canonicalCapability, error: capabilityError } = await fetchYouTubeCanonicalCapability()
+      if (capabilityError) {
+        console.error('Error fetching canonical YouTube comment capability:', capabilityError)
+        return NextResponse.json({ error: 'Failed to verify YouTube reply capability' }, { status: 500 })
+      }
+
+      const readiness = evaluateYouTubeReplyReadiness({
+        comment,
+        config,
+        canonicalCapability,
+      })
+
+      if (!readiness.ready) {
+        submitBlocker = readiness.blockers
+          .map((blocker) => `${blocker.message} Recovery: ${blocker.recoveryAction}`)
+          .join(' ')
+          || submitBlocker
+        ok = false
+        blocked = true
+        status = 409
+        message = submitBlocker
+        integrationNote = 'No external YouTube reply was submitted. Readiness blockers stopped the request before any provider call.'
+        patch = {
+          ...patch,
+          reply_submission_state: 'blocked',
+          metadata: appendActionHistory({
+            ...asRecord(comment.metadata),
+            ...youtubeReplyMetadata({
+              status: 'blocked',
+              blocked: true,
+              blockerCodes: readiness.blockers.map((blocker) => blocker.code),
+              idempotencyKey: readiness.idempotencyKey,
+              externalSubmissionAttempted: false,
+            }),
+          }, {
+            action: 'submit_blocked',
+            at: now,
+            by: actorId,
+            note: submitBlocker,
+          }),
+        }
+      } else {
+        const idempotencyKey = readiness.idempotencyKey
+        if (!idempotencyKey) {
+          return NextResponse.json({ error: 'Failed to build YouTube reply idempotency evidence' }, { status: 500 })
+        }
+        const claimMetadata = {
+          ...asRecord(metadata),
+          ...youtubeReplyMetadata({
+            status: 'claiming',
+            blocked: false,
+            blockerCodes: [],
+            idempotencyKey,
+            externalSubmissionAttempted: false,
+          }),
+        }
+        const claim = await claimYouTubeReplySubmission({
+          commentId,
+          contentId: params.id,
+          actorId,
+          metadata: claimMetadata,
+        })
+        if (claim.error) {
+          console.error('Error claiming YouTube comment reply submission:', claim.error)
+          return NextResponse.json({ error: 'Failed to claim YouTube reply submission' }, { status: 500 })
+        }
+        if (!claim.claimed) {
+          submitBlocker = 'This canonical comment already has reply submission evidence or is no longer approved for submission. Recovery: review the existing reply evidence before attempting another public reply.'
+          return responseWithComments({
+            post,
+            contentId: params.id,
+            status: 409,
+            ok: false,
+            blocked: true,
+            message: submitBlocker,
+            integrationNote: 'No external YouTube reply was submitted. The canonical claim failed, so this request did not mutate reply evidence.',
+          })
+        }
+
+        let submission: YouTubeReplySubmitResult
+        try {
+          submission = await submitYouTubeCommentReply({
+            comment,
+            config,
+            canonicalCapability,
+          })
+        } catch (error) {
+          console.error('YouTube comment reply submission failed unexpectedly:', error instanceof Error ? error.name : 'Error')
+          submission = {
+            ok: false,
+            blocked: false,
+            status: 'failed',
+            providerReplyId: null,
+            submittedAt: null,
+            blockers: [],
+            error: {
+              code: 'provider_failure',
+              message: 'YouTube comment reply submission failed unexpectedly.',
+            },
+            request: readiness.request,
+          }
+        }
+
+        const submissionMetadata = youtubeReplyMetadata({
+          status: submission.status,
+          blocked: submission.blocked,
+          blockerCodes: submission.blockers.map((blocker) => blocker.code),
+          idempotencyKey: submission.request?.idempotencyKey ?? idempotencyKey,
+          providerReplyId: submission.providerReplyId,
+          providerError: submission.error,
+          externalSubmissionAttempted: submission.request !== null && !submission.blocked,
+        })
+
+        if (submission.ok) {
+          const persistence = await persistClaimedYouTubeReplySubmission({
+            commentId,
+            contentId: params.id,
+            idempotencyKey,
+            patch: {
+              updated_by: actorId,
+              reply_submission_state: 'submitted',
+              reply_provider_comment_id: submission.providerReplyId,
+              reply_submitted_at: submission.submittedAt,
+              metadata: {
+                ...asRecord(metadata),
+                ...submissionMetadata,
+              },
+            },
+          })
+          if (persistence.error || !persistence.persisted) {
+            if (persistence.error) {
+              console.error('Error persisting submitted YouTube reply evidence:', persistence.error)
+            }
+            return responseWithComments({
+              post,
+              contentId: params.id,
+              status: 409,
+              ok: false,
+              blocked: true,
+              message: 'YouTube reply submission may have succeeded; reconcile canonical reply evidence before retry.',
+              integrationNote: 'A YouTube reply request may have succeeded, but Portfolio could not persist submitted evidence. The canonical row remains fail-closed; reconcile manually before any retry.',
+              extra: {
+                submission_may_have_succeeded: true,
+                provider_reply_id: submission.providerReplyId,
+              },
+            })
+          }
+          return responseWithComments({
+            post,
+            contentId: params.id,
+            status: 200,
+            ok: true,
+            blocked: false,
+            message: 'YouTube reply submitted and recorded in the canonical comment inbox.',
+            integrationNote: 'A gated YouTube reply was submitted and canonical submitted evidence was recorded.',
+          })
+        }
+
+        if (submission.error) {
+          const persistence = await persistClaimedYouTubeReplySubmission({
+            commentId,
+            contentId: params.id,
+            idempotencyKey,
+            patch: {
+              updated_by: actorId,
+              reply_submission_state: 'failed',
+              metadata: {
+                ...asRecord(metadata),
+                ...submissionMetadata,
+              },
+            },
+          })
+          if (persistence.error) {
+            console.error('Error persisting failed YouTube reply evidence:', persistence.error)
+          }
+          return responseWithComments({
+            post,
+            contentId: params.id,
+            status: 502,
+            ok: false,
+            blocked: false,
+            message: 'YouTube provider rejected or failed the reply request.',
+            integrationNote: persistence.persisted
+              ? 'A gated YouTube reply request was attempted, the provider failed it, and canonical failed evidence was recorded.'
+              : 'A gated YouTube reply request was attempted and failed, but Portfolio could not persist failed evidence. Review before retry.',
+          })
+        }
+
+        submitBlocker = submission.blockers
+          .map((blocker) => `${blocker.message} Recovery: ${blocker.recoveryAction}`)
+          .join(' ')
+          || submitBlocker
+        await persistClaimedYouTubeReplySubmission({
+          commentId,
+          contentId: params.id,
+          idempotencyKey,
+          patch: {
+            updated_by: actorId,
+            reply_submission_state: 'blocked',
+            metadata: appendActionHistory({
+              ...asRecord(comment.metadata),
+              ...submissionMetadata,
+            }, {
+              action: 'submit_blocked',
+              at: now,
+              by: actorId,
+              note: submitBlocker,
+            }),
+          },
+        })
+        return responseWithComments({
+          post,
+          contentId: params.id,
+          status: 409,
+          ok: false,
+          blocked: true,
+          message: submitBlocker,
+          integrationNote: 'No external YouTube reply was submitted. Readiness became blocked after the claim.',
+        })
+      }
+    } else {
+      const policyInput = buildCommentInboxPolicyInputFromSocialComment(comment as SocialCommentPolicyRecord, {
+        confidence: 0.5,
+        draft: {
+          text: draftReply,
+          confidence: 0.5,
+          tone: 'neutral',
+        },
+      })
+      const policyDecision = evaluateCommentInboxPolicy(policyInput)
+      submitBlocker = currentItem.providerCapability.blocker
+        || policyDecision.autoSend.blockedReasons.join(', ')
+        || submitBlocker
+
+      ok = false
+      blocked = true
+      status = 409
+      message = submitBlocker
+      integrationNote = 'No external comment reply was submitted. Provider submission remains blocked by capability and human-gate checks.'
+      patch = {
+        ...patch,
+        reply_submission_state: 'blocked',
+        metadata: appendActionHistory(comment.metadata, {
+          action: 'submit_blocked',
+          at: now,
+          by: actorId,
+          note: submitBlocker,
+        }),
+      }
     }
   }
 
@@ -355,6 +733,6 @@ export async function POST(
     blocked,
     message,
     comments,
-    integration_note: 'No external comment reply was submitted. Provider submission remains guarded by capability and human-gate checks.',
+    integration_note: integrationNote,
   }, { status })
 }

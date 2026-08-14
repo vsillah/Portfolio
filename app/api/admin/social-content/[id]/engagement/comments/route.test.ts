@@ -33,10 +33,14 @@ const postRow = {
 
 const commentRow = {
   id: 'comment-1',
+  publish_id: 'publish-1',
   content_id: 'social-1',
   platform: 'linkedin',
   provider: 'linkedin_organization',
   provider_comment_id: 'urn:li:comment:1',
+  provider_parent_comment_id: null,
+  thread_id: 'thread-1',
+  record_type: 'comment',
   author_display_name: 'Potential Client',
   author_public_handle: null,
   body: 'Can this help intake?',
@@ -48,6 +52,8 @@ const commentRow = {
   reply_submission_state: 'approved',
   proposed_reply_text: 'Yes.',
   approved_reply_text: 'Yes.',
+  reply_provider_comment_id: null,
+  reply_submitted_at: null,
   provider_capability: {
     capability_status: 'manual',
     supports_reply_submission: false,
@@ -56,10 +62,58 @@ const commentRow = {
   },
   captured_at: '2026-08-06T12:00:00.000Z',
   updated_at: '2026-08-06T12:00:00.000Z',
+  raw_payload: {},
   metadata: {
     policy_decision: { classification: 'buying_lead_intent' },
     ui_action_history: [],
   },
+}
+
+const youtubeCommentRow = {
+  ...commentRow,
+  platform: 'youtube',
+  provider: 'youtube_data_api',
+  provider_comment_id: 'UgzcTopLevel1',
+  comment_url: 'https://www.youtube.com/watch?v=abc123DEF45&lc=UgzcTopLevel1',
+  provider_capability: {
+    capability_status: 'verified',
+    supports_reply_submission: true,
+    external_submission_enabled: true,
+    gate_notes: 'YouTube reply capability verified in a later smoke.',
+  },
+  approved_reply_text: 'Appreciate you watching. The short answer is yes.',
+  raw_payload: {
+    thread: {
+      snippet: {
+        channelId: 'channel-1',
+      },
+    },
+  },
+  metadata: {
+    policy_decision: {
+      classification: 'low_risk_acknowledgement',
+      provenance_summary: 'No private source claims are introduced.',
+      source_distance_note: 'Original public-safe reply.',
+      auto_send: { blocked_reasons: [] },
+    },
+    ui_action_history: [],
+  },
+}
+
+const currentCanonicalYouTubeCapability = {
+  platform: 'youtube',
+  provider: 'youtube_data_api',
+  capability_status: 'manual',
+  supports_reply_submission: false,
+  external_submission_enabled: false,
+  gate_notes: 'Current schema keeps external submission disabled.',
+}
+
+const futureCanonicalYouTubeCapability = {
+  ...currentCanonicalYouTubeCapability,
+  capability_status: 'verified',
+  supports_reply_submission: true,
+  external_submission_enabled: true,
 }
 
 function request(body?: Record<string, unknown>) {
@@ -73,27 +127,81 @@ function request(body?: Record<string, unknown>) {
   })
 }
 
-function installDbMocks() {
+function installDbMocks(options: {
+  comment?: typeof commentRow
+  claimData?: Record<string, unknown> | null
+  persistenceData?: Record<string, unknown> | null
+  persistenceError?: Record<string, unknown> | null
+  canonicalCapability?: Record<string, unknown> | null
+} = {}) {
+  const selectedComment = options.comment ?? commentRow
   const postSingle = vi.fn().mockResolvedValue({ data: postRow, error: null })
   const postEq = vi.fn().mockReturnValue({ single: postSingle })
   const postSelect = vi.fn().mockReturnValue({ eq: postEq })
 
-  const commentsOrder = vi.fn().mockResolvedValue({ data: [commentRow], error: null })
+  const commentsOrder = vi.fn().mockResolvedValue({ data: [selectedComment], error: null })
   const commentsByContentEq = vi.fn().mockReturnValue({ order: commentsOrder })
-  const commentSingle = vi.fn().mockResolvedValue({ data: commentRow, error: null })
+  const commentSingle = vi.fn().mockResolvedValue({ data: selectedComment, error: null })
   const commentByIdEq = vi.fn().mockReturnValue({ single: commentSingle })
   const commentByContentEq = vi.fn().mockReturnValue({ eq: commentByIdEq, order: commentsOrder })
   const commentsSelect = vi.fn().mockReturnValue({ eq: commentByContentEq })
 
-  const updateSingle = vi.fn().mockResolvedValue({ data: { ...commentRow, ...mocks.update.mock.calls.at(-1)?.[0] }, error: null })
-  const updateSelect = vi.fn().mockReturnValue({ single: updateSingle })
-  const updateContentEq = vi.fn().mockReturnValue({ select: updateSelect })
-  const updateIdEq = vi.fn().mockReturnValue({ eq: updateContentEq })
-  mocks.update.mockReturnValue({ eq: updateIdEq })
+  const updateSingle = vi.fn().mockResolvedValue({ data: { ...selectedComment, ...mocks.update.mock.calls.at(-1)?.[0] }, error: null })
+  let hasContains = false
+  const claimMaybeSingle = vi.fn().mockImplementation(() => {
+    if (hasContains) {
+      return Promise.resolve({
+        data: options.persistenceData === undefined ? { id: selectedComment.id } : options.persistenceData,
+        error: options.persistenceError ?? null,
+      })
+    }
+    return Promise.resolve({
+      data: options.claimData === undefined ? { id: selectedComment.id } : options.claimData,
+      error: null,
+    })
+  })
+  const updateBuilder: Record<string, unknown> = {
+    eq: vi.fn(() => updateBuilder),
+    is: vi.fn(() => updateBuilder),
+    contains: vi.fn(() => {
+      hasContains = true
+      return updateBuilder
+    }),
+    select: vi.fn(() => updateBuilder),
+    single: updateSingle,
+    maybeSingle: claimMaybeSingle,
+  }
+  mocks.update.mockReturnValue(updateBuilder)
+
+  const configMaybeSingle = vi.fn().mockResolvedValue({
+    data: {
+      is_active: true,
+      credentials: {
+        access_token: 'youtube-access-token',
+        refresh_token: 'youtube-refresh-token',
+        expires_in: 3600,
+        token_obtained_at: '2099-01-01T00:00:00.000Z',
+        scope: 'https://www.googleapis.com/auth/youtube.force-ssl',
+      },
+      settings: { channel_id: 'channel-1' },
+    },
+    error: null,
+  })
+  const configEq = vi.fn().mockReturnValue({ maybeSingle: configMaybeSingle })
+  const configSelect = vi.fn().mockReturnValue({ eq: configEq })
+
+  const capabilityMaybeSingle = vi.fn().mockResolvedValue({
+    data: options.canonicalCapability === undefined ? currentCanonicalYouTubeCapability : options.canonicalCapability,
+    error: null,
+  })
+  const capabilityEq = vi.fn().mockReturnValue({ maybeSingle: capabilityMaybeSingle })
+  const capabilitySelect = vi.fn().mockReturnValue({ eq: capabilityEq })
 
   mocks.from.mockImplementation((table: string) => {
     if (table === 'social_content_queue') return { select: postSelect }
     if (table === 'social_content_comments') return { select: commentsSelect, update: mocks.update }
+    if (table === 'social_content_config') return { select: configSelect }
+    if (table === 'social_comment_provider_capabilities') return { select: capabilitySelect }
     throw new Error(`Unexpected table ${table}`)
   })
 }
@@ -101,6 +209,8 @@ function installDbMocks() {
 describe('/api/admin/social-content/[id]/engagement/comments', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.unstubAllGlobals()
+    vi.unstubAllEnvs()
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-user' } })
     mocks.isAuthError.mockReturnValue(false)
     installDbMocks()
@@ -181,6 +291,152 @@ describe('/api/admin/social-content/[id]/engagement/comments', () => {
     }))
     expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('reply_provider_comment_id')
     expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('reply_submitted_at')
+  })
+
+  it('blocks disabled YouTube reply readiness without external provider calls', async () => {
+    installDbMocks({ comment: youtubeCommentRow })
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+
+    const response = await POST(request({
+      action: 'submit',
+      comment_id: 'comment-1',
+    }) as never, { params: { id: 'social-1' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(409)
+    expect(body).toMatchObject({
+      ok: false,
+      blocked: true,
+    })
+    expect(body.message).toContain('YouTube reply submission is disabled by environment')
+    expect(body.message).toContain('Canonical YouTube external submission is disabled')
+    expect(fetchMock).not.toHaveBeenCalled()
+    expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({
+      reply_submission_state: 'blocked',
+      metadata: expect.objectContaining({
+        youtube_reply_readiness: expect.objectContaining({
+          status: 'blocked',
+          blocked: true,
+          external_submission_attempted: false,
+          blocker_codes: expect.arrayContaining([
+            'youtube_reply_submission_disabled',
+            'canonical_external_submission_disabled',
+          ]),
+        }),
+        ui_action_history: expect.arrayContaining([
+          expect.objectContaining({ action: 'submit_blocked' }),
+        ]),
+      }),
+    }))
+    expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('reply_provider_comment_id')
+    expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('reply_submitted_at')
+  })
+
+  it('lets only the claimant persist submitted evidence while a stale concurrent request exits without overwrite', async () => {
+    installDbMocks({
+      comment: youtubeCommentRow,
+      claimData: { id: 'comment-1' },
+      persistenceData: { id: 'comment-1' },
+      canonicalCapability: futureCanonicalYouTubeCapability,
+    })
+    vi.stubEnv('SOCIAL_COMMENT_YOUTUBE_REPLY_SUBMISSION_ENABLED', 'true')
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ id: 'reply-1' }), { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const winner = await POST(request({
+      action: 'submit',
+      comment_id: 'comment-1',
+    }) as never, { params: { id: 'social-1' } })
+    const winnerBody = await winner.json()
+
+    expect(winner.status).toBe(200)
+    expect(winnerBody).toMatchObject({
+      ok: true,
+      blocked: false,
+      integration_note: 'A gated YouTube reply was submitted and canonical submitted evidence was recorded.',
+    })
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(mocks.update.mock.calls.at(-1)?.[0]).toMatchObject({
+      reply_submission_state: 'submitted',
+      reply_provider_comment_id: 'reply-1',
+    })
+
+    vi.clearAllMocks()
+    mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-user' } })
+    mocks.isAuthError.mockReturnValue(false)
+    installDbMocks({
+      comment: youtubeCommentRow,
+      claimData: null,
+      canonicalCapability: futureCanonicalYouTubeCapability,
+    })
+    fetchMock.mockClear()
+
+    const response = await POST(request({
+      action: 'submit',
+      comment_id: 'comment-1',
+    }) as never, { params: { id: 'social-1' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(409)
+    expect(body).toMatchObject({
+      ok: false,
+      blocked: true,
+    })
+    expect(body.message).toContain('already has reply submission evidence')
+    expect(fetchMock).not.toHaveBeenCalled()
+    expect(mocks.update).toHaveBeenCalledTimes(1)
+    expect(mocks.update.mock.calls[0][0]).toMatchObject({
+      reply_submission_state: 'blocked',
+      metadata: expect.objectContaining({
+        youtube_reply_readiness: expect.objectContaining({
+          status: 'claiming',
+          blocked: false,
+          external_submission_attempted: false,
+        }),
+      }),
+    })
+    expect(body.integration_note).toContain('did not mutate reply evidence')
+  })
+
+  it('reports provider success that cannot be persisted as reconcile-before-retry', async () => {
+    installDbMocks({
+      comment: youtubeCommentRow,
+      claimData: { id: 'comment-1' },
+      persistenceData: null,
+      canonicalCapability: futureCanonicalYouTubeCapability,
+    })
+    vi.stubEnv('SOCIAL_COMMENT_YOUTUBE_REPLY_SUBMISSION_ENABLED', 'true')
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ id: 'reply-1' }), { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const response = await POST(request({
+      action: 'submit',
+      comment_id: 'comment-1',
+    }) as never, { params: { id: 'social-1' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(409)
+    expect(body).toMatchObject({
+      ok: false,
+      blocked: true,
+      submission_may_have_succeeded: true,
+      provider_reply_id: 'reply-1',
+    })
+    expect(body.message).toContain('may have succeeded')
+    expect(body.integration_note).toContain('reconcile manually before any retry')
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(mocks.update).toHaveBeenCalledTimes(2)
+    expect(mocks.update.mock.calls[0][0]).toMatchObject({
+      reply_submission_state: 'blocked',
+      metadata: expect.objectContaining({
+        youtube_reply_readiness: expect.objectContaining({ status: 'claiming' }),
+      }),
+    })
+    expect(mocks.update.mock.calls[1][0]).toMatchObject({
+      reply_submission_state: 'submitted',
+      reply_provider_comment_id: 'reply-1',
+    })
   })
 
   it('records approve decisions locally on workflow-owned fields', async () => {
