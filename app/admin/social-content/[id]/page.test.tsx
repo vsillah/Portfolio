@@ -72,6 +72,18 @@ describe('SocialContentDetailRoute visual production review', () => {
     publishes: [],
   }
 
+  const completeTextOnlyXRagContext = {
+    source_packet_path: 'docs/content-strategy/agentified-x-source-packet.md',
+    platform: 'x',
+    approval_boundary: 'human gated',
+    x_batch_approval: {
+      status: 'approved',
+      approved_scope: ['copy', 'source_distance_review', 'privacy_review'],
+    },
+    privacy_review: { status: 'approved' },
+    source_distance_review: { status: 'approved' },
+  }
+
   const topicBacklogItem = {
     id: 'topic-backlog-1',
     candidate_key: 'approval-gates-review-meeting-1',
@@ -217,6 +229,254 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.queryByRole('button', { name: 'Copy: Pending' })).not.toBeInTheDocument()
     expect(within(screen.getByLabelText('Publication and signal status mobile workflow summary')).getByText('Pending')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Status: Approved' })).not.toBeInTheDocument()
+  })
+
+  it.each([
+    {
+      name: 'scheduled hosted automation',
+      item: {
+        status: 'scheduled',
+        scheduled_for: '2026-08-15T13:00:00.000Z',
+        target_platforms: ['x'],
+        rag_context: completeTextOnlyXRagContext,
+        publishes: [{
+          id: 'publish-x-1',
+          content_id: 'social-1',
+          platform: 'x',
+          status: 'pending',
+          platform_post_id: null,
+          platform_post_url: null,
+          error_message: null,
+          published_at: null,
+          created_at: '2026-08-13T20:00:00.000Z',
+          updated_at: '2026-08-13T20:01:00.000Z',
+        }],
+      },
+      headline: /Scheduled for/,
+      stateLabel: 'Scheduled',
+      explanation: /provider submission has not happened yet/i,
+      waiting: 'No',
+      rawStatus: 'pending',
+    },
+    {
+      name: 'ambiguous legacy evidence',
+      item: {
+        status: 'published',
+        publishes: [{
+          id: 'publish-x-2',
+          content_id: 'social-1',
+          platform: 'x',
+          status: 'pending',
+          platform_post_id: null,
+          platform_post_url: null,
+          error_message: null,
+          published_at: null,
+          created_at: '2026-08-13T20:00:00.000Z',
+          updated_at: '2026-08-13T20:01:00.000Z',
+        }],
+      },
+      headline: 'X status needs reconciliation',
+      stateLabel: 'Needs reconciliation',
+      explanation: /provider publication evidence is missing/i,
+      waiting: 'No - internal reconciliation required',
+      rawStatus: 'pending',
+    },
+    {
+      name: 'provider failure',
+      item: {
+        status: 'scheduled',
+        scheduled_for: '2026-08-15T13:00:00.000Z',
+        publishes: [{
+          id: 'publish-x-3',
+          content_id: 'social-1',
+          platform: 'x',
+          status: 'failed',
+          platform_post_id: null,
+          platform_post_url: null,
+          error_message: 'Provider token expired.',
+          published_at: null,
+          created_at: '2026-08-13T20:00:00.000Z',
+          updated_at: '2026-08-13T20:01:00.000Z',
+        }],
+      },
+      headline: 'X submission failed',
+      stateLabel: 'Failed',
+      explanation: /Provider token expired/i,
+      waiting: 'Yes - review the failure and recovery action',
+      rawStatus: 'failed',
+    },
+    {
+      name: 'confirmed publication',
+      item: {
+        status: 'published',
+        publishes: [{
+          id: 'publish-x-4',
+          content_id: 'social-1',
+          platform: 'x',
+          status: 'published',
+          platform_post_id: 'post-123',
+          platform_post_url: 'https://x.com/amadutown/status/123',
+          error_message: null,
+          published_at: '2026-08-15T13:00:00.000Z',
+          created_at: '2026-08-13T20:00:00.000Z',
+          updated_at: '2026-08-15T13:00:00.000Z',
+        }],
+      },
+      headline: 'Published on X',
+      stateLabel: 'Published',
+      explanation: /provider confirmed publication/i,
+      waiting: 'No',
+      rawStatus: 'published',
+    },
+    {
+      name: 'cancelled publication',
+      item: {
+        status: 'approved',
+        publishes: [{
+          id: 'publish-x-5',
+          content_id: 'social-1',
+          platform: 'x',
+          status: 'skipped',
+          platform_post_id: null,
+          platform_post_url: null,
+          error_message: 'Scheduled publication cancelled by admin-1 at 2026-08-13T14:00:00.000Z.',
+          published_at: null,
+          created_at: '2026-08-13T20:00:00.000Z',
+          updated_at: '2026-08-13T20:01:00.000Z',
+        }],
+      },
+      headline: 'X publication cancelled',
+      stateLabel: 'Cancelled',
+      explanation: /cancelled before provider submission/i,
+      waiting: 'No',
+      rawStatus: 'skipped',
+    },
+  ])('projects $name consistently in the workflow summary and provider card', async ({
+    item: publicationItem,
+    headline,
+    stateLabel,
+    explanation,
+    waiting,
+    rawStatus,
+  }) => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input).includes('/topic-backlog')) {
+        return { ok: true, json: async () => ({ items: [] }) } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: { ...baseItem, ...publicationItem } }),
+      } as Response
+    }))
+
+    renderAtStep('status')
+
+    const providerCard = await screen.findByLabelText('X publication status')
+    expect(within(providerCard).getByRole('heading', { name: headline })).toBeInTheDocument()
+    expect(within(providerCard).getByRole('status')).toHaveTextContent(stateLabel)
+    expect(within(providerCard).getByText(explanation)).toBeInTheDocument()
+    expect(within(providerCard).getByText(waiting)).toBeInTheDocument()
+    expect(within(providerCard).getByText(rawStatus)).toBeInTheDocument()
+
+    const statusStep = screen.getByRole('button', { name: 'Approval step 6: Status' })
+    expect(within(statusStep).getAllByText(stateLabel).length).toBeGreaterThan(0)
+
+    const workflowSummary = screen.getByLabelText(`${typeof headline === 'string' ? headline : within(providerCard).getByRole('heading').textContent} mobile workflow summary`)
+    expect(within(workflowSummary).getByText(stateLabel)).toBeInTheDocument()
+    expect(within(workflowSummary).getByText(waiting)).toBeInTheDocument()
+  })
+
+  it('uses canonical text-only X evidence so scheduled status does not contradict lifecycle gates', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input).includes('/topic-backlog')) {
+        return { ok: true, json: async () => ({ items: [] }) } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({
+          item: {
+            ...baseItem,
+            status: 'scheduled',
+            scheduled_for: '2099-08-15T13:00:00.000Z',
+            target_platforms: ['x'],
+            rag_context: completeTextOnlyXRagContext,
+            publishes: [{
+              id: 'publish-x-text-only',
+              content_id: 'social-1',
+              platform: 'x',
+              status: 'pending',
+              platform_post_id: null,
+              platform_post_url: null,
+              error_message: null,
+              published_at: null,
+              created_at: '2026-08-13T20:00:00.000Z',
+              updated_at: '2026-08-13T20:01:00.000Z',
+            }],
+          },
+        }),
+      } as Response
+    }))
+
+    renderAtStep('status')
+
+    const providerCard = await screen.findByLabelText('X publication status')
+    expect(within(providerCard).getByRole('status')).toHaveTextContent('Scheduled')
+    expect(within(providerCard).getByText(/hosted scheduler runs hourly/i)).toBeInTheDocument()
+    expect(within(providerCard).getAllByText(/at or after/i)).toHaveLength(2)
+
+    const approvalRail = screen.getByLabelText('Social content approval process')
+    expect(within(within(approvalRail).getByRole('button', { name: 'Approval step 3: Amina Visuals' })).getByText('Approved')).toBeInTheDocument()
+    expect(within(within(approvalRail).getByRole('button', { name: 'Approval step 4: Publish gate' })).getByText('Approved')).toBeInTheDocument()
+    expect(within(within(approvalRail).getByRole('button', { name: 'Approval step 5: Submit' })).getByText('Approved')).toBeInTheDocument()
+  })
+
+  it('reconciles a scheduled provider record as blocked when Amina prerequisites are genuinely missing', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input).includes('/topic-backlog')) {
+        return { ok: true, json: async () => ({ items: [] }) } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({
+          item: {
+            ...baseItem,
+            status: 'scheduled',
+            scheduled_for: '2099-08-15T13:00:00.000Z',
+            target_platforms: ['x'],
+            rag_context: {
+              source_packet_path: 'docs/content-strategy/agentified-x-source-packet.md',
+              platform: 'x',
+              approval_boundary: 'human gated',
+            },
+            publishes: [{
+              id: 'publish-x-missing-visual-evidence',
+              content_id: 'social-1',
+              platform: 'x',
+              status: 'pending',
+              platform_post_id: null,
+              platform_post_url: null,
+              error_message: null,
+              published_at: null,
+              created_at: '2026-08-13T20:00:00.000Z',
+              updated_at: '2026-08-13T20:01:00.000Z',
+            }],
+          },
+        }),
+      } as Response
+    }))
+
+    renderAtStep('status')
+
+    const providerCard = await screen.findByLabelText('X publication status')
+    expect(within(providerCard).getByRole('heading', { name: 'X publication blocked by Amina Visuals' })).toBeInTheDocument()
+    expect(within(providerCard).getByRole('status')).toHaveTextContent('Blocked')
+    expect(within(providerCard).getByText('Amina')).toBeInTheDocument()
+    expect(within(providerCard).getByText('No - Amina owns the next action')).toBeInTheDocument()
+    expect(within(providerCard).getByText(/must complete the applicable visual, privacy, rights, and source-distance evidence/i)).toBeInTheDocument()
+
+    const workflowSummary = screen.getByLabelText('X publication blocked by Amina Visuals mobile workflow summary')
+    expect(within(workflowSummary).getByText('Blocked')).toBeInTheDocument()
+    expect(within(workflowSummary).getByText('No - Amina owns the next action')).toBeInTheDocument()
   })
 
   it('exposes responsive stale-schedule recovery controls and requires explicit reconfirmation', async () => {

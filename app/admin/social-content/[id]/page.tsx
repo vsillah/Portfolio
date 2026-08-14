@@ -46,7 +46,6 @@ import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
 import { getCurrentSession } from '@/lib/auth'
 import {
   STATUS_CONFIG,
-  PUBLISH_STATUS_CONFIG,
   PLATFORMS,
   FRAMEWORK_VISUAL_TYPES,
   getFullPostText,
@@ -66,8 +65,15 @@ import {
 } from '@/lib/social-platform-orchestration'
 import {
   deriveSocialContentLifecycleProjection,
+  hasSocialContentVisualPrerequisites,
   isDurableCopyApprovedStatus,
 } from '@/lib/social-content-lifecycle'
+import {
+  derivePublicationProjection,
+  reconcilePublicationProjectionWithLifecycle,
+  summarizePublicationProjections,
+  type PublicationProjectionTone,
+} from '@/lib/social-publication-status'
 import type {
   SocialContentItem,
   SocialContentPublish,
@@ -150,6 +156,14 @@ const GATE_STATE_CONFIG: Record<GateState, { label: string; className: string }>
     label: 'Rejected',
     className: 'border-red-500/40 bg-red-500/10 text-red-200',
   },
+}
+
+const PUBLICATION_TONE_CLASSES: Record<PublicationProjectionTone, string> = {
+  green: 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100',
+  yellow: 'border-amber-500/40 bg-amber-500/10 text-amber-100',
+  red: 'border-red-500/40 bg-red-500/10 text-red-100',
+  blue: 'border-blue-500/35 bg-blue-500/10 text-blue-100',
+  slate: 'border-gray-600/60 bg-gray-800/60 text-gray-200',
 }
 
 const SECTION_GATE_KEYS: SectionGateKey[] = ['visual_assets', 'asset_packet', 'privacy', 'linkedin_draft']
@@ -2559,7 +2573,10 @@ function SocialContentDetailPage() {
       : platformNextStages.some((stage) => stage.state === 'available')
         ? 'in_review'
         : 'pending'
-  const visualWorkflowGateState: GateState = visualAssetsGateState === 'approved' && assetPacketGateState === 'approved' && privacyGateState === 'approved'
+  const canonicalVisualPrerequisitesReady = hasSocialContentVisualPrerequisites(item)
+  const visualWorkflowGateState: GateState = canonicalVisualPrerequisitesReady
+    ? 'approved'
+    : visualAssetsGateState === 'approved' && assetPacketGateState === 'approved' && privacyGateState === 'approved'
     ? 'approved'
     : historicalSubmissionEvidence && visualAssetReady && assetPacketReady && visualPrivacyReady
       ? 'approved'
@@ -2593,6 +2610,15 @@ function SocialContentDetailPage() {
   const effectivePlatformSubmissionGateState = lifecycleProjection.steps.submit.state as GateState
   const effectiveStatusGateState = lifecycleProjection.steps.status.state as GateState
   const lifecycleMismatchByStep = lifecycleProjection.steps
+  const publicationProjections = (item.publishes ?? []).map((publish) => (
+    reconcilePublicationProjectionWithLifecycle({
+      projection: derivePublicationProjection({ item, publish }),
+      lifecycle: lifecycleProjection,
+    })
+  ))
+  const publicationSummary = publicationProjections.length
+    ? summarizePublicationProjections(publicationProjections)
+    : null
   const canonicalKanbanHref = `/admin/agents/swarm-board?source_type=social_content_approval&source_id=${encodeURIComponent(item.id)}&social_content_id=${encodeURIComponent(item.id)}`
   const reviewGateSummary: Array<{ label: string; state: GateState; step: ApprovalStep }> = [
     {
@@ -2637,6 +2663,8 @@ function SocialContentDetailPage() {
     label: string
     description: string
     state: GateState
+    displayStateLabel?: string
+    displayStateClassName?: string
   }> = [
     {
       step: 'context',
@@ -2671,8 +2699,12 @@ function SocialContentDetailPage() {
     {
       step: 'status',
       label: 'Status',
-      description: 'Signals and metadata',
+      description: publicationSummary?.stateLabel ?? 'Signals and metadata',
       state: effectiveStatusGateState,
+      displayStateLabel: publicationSummary?.stateLabel,
+      displayStateClassName: publicationSummary
+        ? PUBLICATION_TONE_CLASSES[publicationSummary.tone]
+        : undefined,
     },
   ]
   const lifecycleBlockedDetail = (step: ApprovalStep) => {
@@ -2757,15 +2789,38 @@ function SocialContentDetailPage() {
       waitingOnYou: lifecycleMismatchByStep.submit.mismatch || effectivePlatformSubmissionGateState === 'in_review' ? 'Yes - submit decision' : 'No',
     },
     status: {
-      title: lifecycleBlockedDetail('status') ? 'Status lifecycle mismatch' : 'Publication and signal status',
-      body: lifecycleBlockedDetail('status') ?? 'Signals summarize what happened after provider submission or publication. They should not be confused with copy approval or visual readiness.',
-      owner: 'Publishing / analytics lane',
-      lastUpdate: item.published_at ? new Date(item.published_at).toLocaleString() : 'No publication signal yet',
-      nextAction: lifecycleMismatchByStep.status.mismatch?.recoveryAction ?? (item.status === 'published' ? 'Monitor post signals.' : 'Complete upstream gates before status signals are expected.'),
-      waitingOnYou: lifecycleMismatchByStep.status.mismatch ? 'Yes - lifecycle recovery' : 'No',
+      title: publicationSummary?.headline
+        ?? (lifecycleBlockedDetail('status') ? 'Status lifecycle mismatch' : 'Publication and signal status'),
+      body: publicationSummary?.explanation
+        ?? lifecycleBlockedDetail('status')
+        ?? 'Signals summarize what happened after provider submission or publication. They should not be confused with copy approval or visual readiness.',
+      owner: publicationSummary?.owner ?? 'Publishing / analytics lane',
+      lastUpdate: publicationSummary?.lastMaterialUpdate ?? 'No publication signal yet',
+      nextAction: publicationSummary?.nextAction
+        ?? lifecycleMismatchByStep.status.mismatch?.recoveryAction
+        ?? 'Complete the upstream platform handoff before status signals are expected.',
+      waitingOnYou: publicationSummary?.waitingOnYou
+        ?? (lifecycleMismatchByStep.status.mismatch ? 'Yes - lifecycle recovery' : 'No'),
     },
   }
   const activeApprovalStepDetail = approvalStepDetails[activeApprovalStep]
+  const mobileSummaryState = activeApprovalStep === 'status' && publicationSummary
+    ? publicationSummary.stateLabel
+    : GATE_STATE_CONFIG[approvalStepTabs.find((step) => step.step === activeApprovalStep)?.state ?? overallGateState].label
+  const mobileSummaryTone = activeApprovalStep === 'status' && publicationSummary
+    ? publicationSummary.tone
+    : overallGateState === 'blocked'
+      ? 'red'
+      : activeApprovalStepDetail.waitingOnYou.startsWith('Yes')
+        ? 'yellow'
+        : 'blue'
+  const mobileSummaryBlocker = activeApprovalStep === 'status'
+    ? publicationSummary && ['failed', 'blocked', 'ambiguous'].includes(publicationSummary.state)
+      ? publicationSummary.reason ?? publicationSummary.explanation
+      : null
+    : overallGateState === 'blocked'
+      ? activeApprovalStepDetail.body
+      : null
   const activeStepParams = new URLSearchParams(searchParams.toString())
   activeStepParams.set('step', activeApprovalStep)
   const activeStepHref = `/admin/social-content/${id}?${activeStepParams.toString()}#${APPROVAL_STEP_SECTION_IDS[activeApprovalStep]}`
@@ -2976,14 +3031,14 @@ function SocialContentDetailPage() {
       <div className="mx-auto w-full max-w-[90rem] space-y-6 px-4 py-6 sm:px-6 lg:px-8">
         <MobileWorkflowSummary
           title={activeApprovalStepDetail.title}
-          currentState={GATE_STATE_CONFIG[approvalStepTabs.find((step) => step.step === activeApprovalStep)?.state ?? overallGateState].label}
+          currentState={mobileSummaryState}
           owner={activeApprovalStepDetail.owner}
           nextAction={activeApprovalStepDetail.nextAction}
           waitingOnYou={activeApprovalStepDetail.waitingOnYou}
-          blocker={overallGateState === 'blocked' ? activeApprovalStepDetail.body : null}
+          blocker={mobileSummaryBlocker}
           canonicalHref={activeStepHref}
           canonicalLabel="Open selected approval step"
-          tone={overallGateState === 'blocked' ? 'red' : activeApprovalStepDetail.waitingOnYou.startsWith('Yes') ? 'yellow' : 'blue'}
+          tone={mobileSummaryTone}
         />
 	        {isAgentSocialPilot && (
 	          <section className="admin-console-card rounded-xl border border-radiant-gold/25 p-4 sm:p-5">
@@ -3694,8 +3749,8 @@ function SocialContentDetailPage() {
 		                    <span className="block leading-snug md:truncate">{tab.label}</span>
 		                    <span className="mt-0.5 block text-[11px] font-normal leading-snug opacity-75 md:truncate">{tab.description}</span>
 		                  </span>
-		                  <span className={`rounded-full border px-1.5 py-0.5 text-[10px] font-semibold md:shrink-0 ${GATE_STATE_CONFIG[tab.state].className}`}>
-		                    {GATE_STATE_CONFIG[tab.state].label}
+		                  <span className={`rounded-full border px-1.5 py-0.5 text-[10px] font-semibold md:shrink-0 ${tab.displayStateClassName ?? GATE_STATE_CONFIG[tab.state].className}`}>
+		                    {tab.displayStateLabel ?? GATE_STATE_CONFIG[tab.state].label}
 		                  </span>
 		                </button>
 		              </div>
@@ -5768,60 +5823,86 @@ function SocialContentDetailPage() {
               Publish Status
             </h2>
 
-            {item.publishes.map((pub: SocialContentPublish) => {
-              const pubStatusCfg = PUBLISH_STATUS_CONFIG[pub.status] || PUBLISH_STATUS_CONFIG.pending
+            {item.publishes.map((pub: SocialContentPublish, index) => {
+              const statusProjection = publicationProjections[index]
               const platformLabel = PLATFORMS.find(p => p.value === pub.platform)?.label || pub.platform
               return (
-                <motion.div
+                <motion.article
                   key={pub.id}
+                  aria-label={`${platformLabel} publication status`}
                   variants={{
                     hidden: { opacity: 0, y: 12 },
                     visible: { opacity: 1, y: 0 },
                   }}
-                  className="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center justify-between"
+                  className="rounded-xl border border-gray-800 bg-gray-900 p-4 sm:p-5"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-gray-800 flex items-center justify-center text-gray-400">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-800 text-gray-400">
                       {PLATFORM_ICONS[pub.platform]}
                     </div>
-                    <div>
-                      <div className="text-sm font-medium text-gray-200">{platformLabel}</div>
-                      {pub.published_at && (
-                        <div className="text-xs text-gray-500">
-                          {new Date(pub.published_at).toLocaleString()}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-500">{platformLabel}</p>
+                          <h3 className="mt-1 break-words text-base font-semibold leading-6 text-gray-100">
+                            {statusProjection.headline}
+                          </h3>
                         </div>
-                      )}
-                      {pub.error_message && (
-                        <div className="text-xs text-red-400 mt-0.5">{pub.error_message}</div>
-                      )}
+                        <span
+                          role="status"
+                          className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold ${PUBLICATION_TONE_CLASSES[statusProjection.tone]}`}
+                        >
+                          {statusProjection.stateLabel}
+                        </span>
+                      </div>
+                      <p className="mt-2 break-words text-sm leading-6 text-gray-300">
+                        {statusProjection.explanation}
+                      </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${pubStatusCfg.bgColor} ${pubStatusCfg.color} border ${pubStatusCfg.borderColor}`}>
-                      {pubStatusCfg.label}
-                    </span>
-                    {pub.platform_post_url && (
+
+                  <dl className="mt-4 grid gap-x-6 gap-y-3 border-t border-gray-800 pt-4 text-sm sm:grid-cols-2 xl:grid-cols-4">
+                    <div className="min-w-0">
+                      <dt className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">Owner</dt>
+                      <dd className="mt-1 break-words text-gray-200">{statusProjection.owner}</dd>
+                    </div>
+                    <div className="min-w-0 sm:col-span-2 xl:col-span-1">
+                      <dt className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">Next action</dt>
+                      <dd className="mt-1 break-words leading-6 text-gray-200">{statusProjection.nextAction}</dd>
+                    </div>
+                    <div className="min-w-0">
+                      <dt className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">Waiting on you?</dt>
+                      <dd className="mt-1 break-words text-gray-200">{statusProjection.waitingOnYou}</dd>
+                    </div>
+                    <div className="min-w-0">
+                      <dt className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">Provider record</dt>
+                      <dd className="mt-1 break-words text-gray-400">{statusProjection.rawStatus}</dd>
+                    </div>
+                  </dl>
+
+                  <div className="mt-4 flex flex-wrap items-center gap-3">
+                    {statusProjection.permalink && (
                       <a
-                        href={pub.platform_post_url}
+                        href={statusProjection.permalink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300"
+                        className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-blue-500/35 bg-blue-500/10 px-3 py-2 text-xs font-semibold text-blue-200 hover:bg-blue-500/20"
                       >
                         View post <ExternalLink className="w-3 h-3" />
                       </a>
                     )}
-                      {pub.status === 'failed' && (
-                        <button
-                          onClick={() => handleRetryPublish([pub.platform as SocialPlatform])}
-                          disabled={publishing || videoPrivacyBlocked}
-                        className="flex items-center gap-1 px-3 py-1 bg-red-900/50 hover:bg-red-900/70 text-red-300 rounded-lg text-xs transition-colors disabled:opacity-50"
+                    {pub.status === 'failed' && (
+                      <button
+                        onClick={() => handleRetryPublish([pub.platform as SocialPlatform])}
+                        disabled={publishing || videoPrivacyBlocked}
+                        className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-red-500/35 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-200 transition-colors hover:bg-red-500/20 disabled:opacity-50"
                       >
                         {publishing ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
                         Retry
                       </button>
                     )}
                   </div>
-                </motion.div>
+                </motion.article>
               )
             })}
           </motion.div>
