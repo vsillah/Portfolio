@@ -59,6 +59,15 @@ const activeConfig = {
   },
 }
 
+const activeCanonicalCapability = {
+  platform: 'youtube',
+  provider: 'youtube_data_api',
+  capability_status: 'verified',
+  supports_reply_submission: true,
+  external_submission_enabled: true,
+  gate_notes: 'Future verified canary capability.',
+}
+
 function response(body: unknown, status = 200) {
   return Promise.resolve(new Response(JSON.stringify(body), { status }))
 }
@@ -74,6 +83,7 @@ describe('youtube reply readiness', () => {
     const result = await submitYouTubeCommentReply({
       comment: approvedComment,
       config: activeConfig,
+      canonicalCapability: activeCanonicalCapability,
       fetchImpl: asFetch(fetchImpl),
       env: {},
       now: () => new Date('2026-08-13T12:05:00.000Z'),
@@ -121,6 +131,7 @@ describe('youtube reply readiness', () => {
     const readiness = evaluateYouTubeReplyReadiness({
       comment: approvedComment,
       config: activeConfig,
+      canonicalCapability: activeCanonicalCapability,
       env: { [YOUTUBE_COMMENT_REPLY_SUBMISSION_ENV]: 'true' },
       now: new Date('2026-08-13T12:05:00.000Z'),
     })
@@ -136,6 +147,31 @@ describe('youtube reply readiness', () => {
     })
   })
 
+  it('blocks against the current canonical capability table until a later migration allows external submission', () => {
+    const readiness = evaluateYouTubeReplyReadiness({
+      comment: approvedComment,
+      config: activeConfig,
+      canonicalCapability: {
+        ...activeCanonicalCapability,
+        capability_status: 'manual',
+        supports_reply_submission: false,
+        external_submission_enabled: false,
+      },
+      env: { [YOUTUBE_COMMENT_REPLY_SUBMISSION_ENV]: 'true' },
+      now: new Date('2026-08-13T12:05:00.000Z'),
+    })
+
+    expect(readiness.ready).toBe(false)
+    expect(readiness.blockers).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: 'canonical_capability_unverified' }),
+      expect.objectContaining({ code: 'canonical_reply_submission_unsupported' }),
+      expect.objectContaining({ code: 'canonical_external_submission_disabled' }),
+    ]))
+    expect(readiness.blockers.find((blocker) => blocker.code === 'canonical_external_submission_disabled')?.recoveryAction)
+      .toContain('later authorized migration')
+    expect(readiness.request).toBeNull()
+  })
+
   it('blocks duplicate submissions with existing reply evidence', () => {
     const readiness = evaluateYouTubeReplyReadiness({
       comment: {
@@ -145,6 +181,7 @@ describe('youtube reply readiness', () => {
         reply_submitted_at: '2026-08-13T12:10:00.000Z',
       },
       config: activeConfig,
+      canonicalCapability: activeCanonicalCapability,
       env: { [YOUTUBE_COMMENT_REPLY_SUBMISSION_ENV]: 'true' },
       now: new Date('2026-08-13T12:05:00.000Z'),
     })
@@ -165,6 +202,7 @@ describe('youtube reply readiness', () => {
         approved_reply_text: '',
       },
       config: activeConfig,
+      canonicalCapability: activeCanonicalCapability,
       env: { [YOUTUBE_COMMENT_REPLY_SUBMISSION_ENV]: 'true' },
       now: new Date('2026-08-13T12:05:00.000Z'),
     })
@@ -188,12 +226,36 @@ describe('youtube reply readiness', () => {
           expires_in: 60,
         },
       },
+      canonicalCapability: activeCanonicalCapability,
       env: { [YOUTUBE_COMMENT_REPLY_SUBMISSION_ENV]: 'true' },
       now: new Date('2026-08-13T12:05:00.000Z'),
     })
 
     expect(readiness.blockers).toEqual(expect.arrayContaining([
       expect.objectContaining({ code: 'youtube_insufficient_scope' }),
+      expect.objectContaining({ code: 'youtube_token_expired' }),
+    ]))
+    expect(readiness.request).toBeNull()
+  })
+
+  it('blocks unverifiable token freshness metadata', () => {
+    const readiness = evaluateYouTubeReplyReadiness({
+      comment: approvedComment,
+      config: {
+        ...activeConfig,
+        credentials: {
+          ...activeConfig.credentials,
+          token_obtained_at: 'not-a-date',
+          expires_in: null,
+        },
+      },
+      canonicalCapability: activeCanonicalCapability,
+      env: { [YOUTUBE_COMMENT_REPLY_SUBMISSION_ENV]: 'true' },
+      now: new Date('2026-08-13T12:05:00.000Z'),
+    })
+
+    expect(readiness.ready).toBe(false)
+    expect(readiness.blockers).toEqual(expect.arrayContaining([
       expect.objectContaining({ code: 'youtube_token_expired' }),
     ]))
     expect(readiness.request).toBeNull()
@@ -215,6 +277,7 @@ describe('youtube reply readiness', () => {
         },
       },
       config: activeConfig,
+      canonicalCapability: activeCanonicalCapability,
       env: { [YOUTUBE_COMMENT_REPLY_SUBMISSION_ENV]: 'true' },
       now: new Date('2026-08-13T12:05:00.000Z'),
     })
@@ -233,6 +296,7 @@ describe('youtube reply readiness', () => {
         ...activeConfig,
         settings: { channel_id: 'different-channel' },
       },
+      canonicalCapability: activeCanonicalCapability,
       env: { [YOUTUBE_COMMENT_REPLY_SUBMISSION_ENV]: 'true' },
       now: new Date('2026-08-13T12:05:00.000Z'),
     })
@@ -255,6 +319,7 @@ describe('youtube reply readiness', () => {
     const result = await submitYouTubeCommentReply({
       comment: approvedComment,
       config: activeConfig,
+      canonicalCapability: activeCanonicalCapability,
       fetchImpl: asFetch(fetchImpl),
       env: { [YOUTUBE_COMMENT_REPLY_SUBMISSION_ENV]: 'true' },
       now: () => new Date('2026-08-13T12:05:00.000Z'),
@@ -283,6 +348,7 @@ describe('youtube reply readiness', () => {
     const result = await submitYouTubeCommentReply({
       comment: approvedComment,
       config: activeConfig,
+      canonicalCapability: activeCanonicalCapability,
       fetchImpl: asFetch(fetchImpl),
       env: { [YOUTUBE_COMMENT_REPLY_SUBMISSION_ENV]: 'true' },
       now: () => new Date('2026-08-13T12:05:00.000Z'),
@@ -301,6 +367,7 @@ describe('youtube reply readiness', () => {
     const insufficient = await submitYouTubeCommentReply({
       comment: approvedComment,
       config: activeConfig,
+      canonicalCapability: activeCanonicalCapability,
       fetchImpl: asFetch(fetchImpl),
       env: { [YOUTUBE_COMMENT_REPLY_SUBMISSION_ENV]: 'true' },
       now: () => new Date('2026-08-13T12:05:00.000Z'),

@@ -20,6 +20,15 @@ export type YouTubeReplyConfig = {
   is_active?: boolean | null
 }
 
+export type YouTubeReplyCanonicalCapability = {
+  platform?: unknown
+  provider?: unknown
+  capability_status?: unknown
+  supports_reply_submission?: unknown
+  external_submission_enabled?: unknown
+  gate_notes?: unknown
+}
+
 export type YouTubeReplyCommentRow = {
   id?: unknown
   publish_id?: unknown
@@ -46,6 +55,10 @@ export type YouTubeReplyBlockerCode =
   | 'provider_capability_unverified'
   | 'provider_reply_submission_unsupported'
   | 'provider_external_submission_disabled'
+  | 'canonical_capability_missing'
+  | 'canonical_capability_unverified'
+  | 'canonical_reply_submission_unsupported'
+  | 'canonical_external_submission_disabled'
   | 'youtube_not_connected'
   | 'youtube_credentials_incomplete'
   | 'youtube_token_expired'
@@ -131,18 +144,16 @@ function asString(value: unknown) {
   return typeof value === 'string' && value.trim() ? value.trim() : null
 }
 
-function asBoolean(value: unknown) {
-  return value === true
-}
-
 function scopeSet(scope: string | null | undefined) {
   return new Set((scope ?? '').split(/\s+/).filter(Boolean))
 }
 
 function tokenExpired(credentials: YouTubeReplyCredentials, now: Date, bufferMs = 10 * 60 * 1000) {
-  if (!credentials.token_obtained_at || !credentials.expires_in) return false
+  if (!credentials.token_obtained_at || typeof credentials.expires_in !== 'number' || !Number.isFinite(credentials.expires_in) || credentials.expires_in <= 0) {
+    return true
+  }
   const obtained = new Date(credentials.token_obtained_at).getTime()
-  if (Number.isNaN(obtained)) return false
+  if (Number.isNaN(obtained)) return true
   return now.getTime() + bufferMs >= obtained + credentials.expires_in * 1000
 }
 
@@ -244,6 +255,7 @@ export function buildYouTubeReplyIdempotencyKey(comment: YouTubeReplyCommentRow)
 export function evaluateYouTubeReplyReadiness(input: {
   comment: YouTubeReplyCommentRow
   config?: YouTubeReplyConfig | null
+  canonicalCapability?: YouTubeReplyCanonicalCapability | null
   env?: NodeJS.ProcessEnv
   now?: Date
 }): YouTubeReplyReadiness {
@@ -252,6 +264,7 @@ export function evaluateYouTubeReplyReadiness(input: {
   const comment = input.comment
   const config = input.config
   const capability = asRecord(comment.provider_capability)
+  const canonicalCapability = asRecord(input.canonicalCapability)
   const credentials = config?.credentials ?? null
   const blockers: YouTubeReplyBlocker[] = []
   const reply = approvedReply(comment)
@@ -295,6 +308,43 @@ export function evaluateYouTubeReplyReadiness(input: {
     ))
   }
 
+  if (!input.canonicalCapability || Object.keys(canonicalCapability).length === 0) {
+    blockers.push(blocker(
+      'canonical_capability_missing',
+      'Canonical YouTube reply capability record is missing.',
+      'Restore the social_comment_provider_capabilities YouTube row before considering any reply canary.',
+    ))
+  } else {
+    if (asString(canonicalCapability.platform) !== 'youtube' || asString(canonicalCapability.provider) !== YOUTUBE_REPLY_PROVIDER) {
+      blockers.push(blocker(
+        'canonical_capability_unverified',
+        'Canonical YouTube capability record does not match the YouTube Data API provider.',
+        'Repair the canonical provider capability row before considering any reply canary.',
+      ))
+    }
+    if (canonicalCapability.capability_status !== 'verified') {
+      blockers.push(blocker(
+        'canonical_capability_unverified',
+        'Canonical YouTube reply capability is not verified.',
+        'Run a separately authorized provider capability smoke before any reply canary.',
+      ))
+    }
+    if (canonicalCapability.supports_reply_submission !== true) {
+      blockers.push(blocker(
+        'canonical_reply_submission_unsupported',
+        'Canonical YouTube capability does not support reply submission.',
+        'Keep YouTube replies manual until a later authorized capability update records support.',
+      ))
+    }
+    if (canonicalCapability.external_submission_enabled !== true) {
+      blockers.push(blocker(
+        'canonical_external_submission_disabled',
+        'Canonical YouTube external submission is disabled by the provider capability table.',
+        'Current schema intentionally CHECKs external_submission_enabled=false; a later authorized migration and capability update are required before any public reply canary.',
+      ))
+    }
+  }
+
   if (!config?.is_active || !credentials) {
     blockers.push(blocker(
       'youtube_not_connected',
@@ -319,8 +369,8 @@ export function evaluateYouTubeReplyReadiness(input: {
     if (tokenExpired(credentials, now)) {
       blockers.push(blocker(
         'youtube_token_expired',
-        'Stored YouTube access token is expired or too close to expiry.',
-        'Refresh or reconnect YouTube before attempting a reply canary.',
+        'Stored YouTube access token is expired or has unverifiable expiry metadata.',
+        'Refresh or reconnect YouTube with verifiable token expiry metadata before attempting a reply canary.',
       ))
     }
   }
@@ -434,6 +484,7 @@ function mapProviderError(response: Response, data: GoogleApiError): YouTubeRepl
 export async function submitYouTubeCommentReply(input: {
   comment: YouTubeReplyCommentRow
   config?: YouTubeReplyConfig | null
+  canonicalCapability?: YouTubeReplyCanonicalCapability | null
   fetchImpl?: FetchLike
   env?: NodeJS.ProcessEnv
   now?: () => Date
@@ -442,6 +493,7 @@ export async function submitYouTubeCommentReply(input: {
   const readiness = evaluateYouTubeReplyReadiness({
     comment: input.comment,
     config: input.config,
+    canonicalCapability: input.canonicalCapability,
     env: input.env,
     now,
   })
