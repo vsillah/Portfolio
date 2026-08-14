@@ -66,7 +66,9 @@ describe('GET /api/auth/meta/callback', () => {
       }), { status: 200 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({
         data: [
+          { permission: 'pages_read_engagement', status: 'granted' },
           { permission: 'instagram_basic', status: 'granted' },
+          { permission: 'instagram_manage_comments', status: 'granted' },
           { permission: 'instagram_content_publish', status: 'granted' },
         ],
       }), { status: 200 }))
@@ -105,10 +107,16 @@ describe('GET /api/auth/meta/callback', () => {
           access_token: 'user-token',
           page_access_token: 'page-token',
           page_id: 'page-1',
+          scope: expect.stringContaining('pages_read_engagement'),
         }),
         settings: expect.objectContaining({
           page_name: 'AmaduTown',
           connected_page_id: 'page-1',
+          pages_read_engagement_permission: true,
+          meta_granted_permissions: expect.arrayContaining([
+            'instagram_manage_comments',
+            'pages_read_engagement',
+          ]),
         }),
       }),
       expect.objectContaining({
@@ -119,15 +127,24 @@ describe('GET /api/auth/meta/callback', () => {
           user_access_token: 'user-token',
           ig_user_id: 'ig-1',
           business_account_id: 'ig-1',
+          scope: expect.stringContaining('instagram_manage_comments'),
         }),
         settings: expect.objectContaining({
           instagram_account_type: 'business',
           professional_account_confirmed: true,
           meta_page_linked: true,
           instagram_username: 'amadutown',
+          instagram_manage_comments_permission: true,
           app_review_permissions_confirmed: true,
         }),
       }),
     ], { onConflict: 'platform' })
+    const [facebookRow, instagramRow] = upsert.mock.calls[0][0]
+    expect(facebookRow.credentials.scope).toContain('instagram_manage_comments')
+    expect(instagramRow.credentials.scope).toContain('instagram_manage_comments')
+    expect(instagramRow.settings.meta_granted_permissions).toEqual(expect.arrayContaining([
+      'instagram_manage_comments',
+      'pages_read_engagement',
+    ]))
   })
 })

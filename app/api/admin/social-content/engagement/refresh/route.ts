@@ -4,10 +4,11 @@ import { refreshPublishedSocialEngagement } from '@/lib/social-engagement-refres
 import { supabaseAdmin } from '@/lib/supabase'
 import type { SocialPlatform } from '@/lib/social-content'
 import { refreshPublishedYouTubeComments } from '@/lib/youtube-comment-ingestion'
+import { refreshPublishedMetaComments } from '@/lib/meta-comment-ingestion'
 
 export const dynamic = 'force-dynamic'
 
-const SUPPORTED_PLATFORMS = new Set<SocialPlatform>(['linkedin', 'youtube'])
+const SUPPORTED_PLATFORMS = new Set<SocialPlatform>(['linkedin', 'youtube', 'facebook', 'instagram'])
 
 function socialPlatform(value: unknown): SocialPlatform {
   return typeof value === 'string' && SUPPORTED_PLATFORMS.has(value as SocialPlatform)
@@ -38,6 +39,30 @@ export async function POST(request: NextRequest) {
     if (platform === 'youtube') {
       const result = await refreshPublishedYouTubeComments({
         db: supabaseAdmin,
+        publishId,
+        contentId,
+        limit,
+      })
+      const {
+        platform: _resultPlatform,
+        publishId: resultPublishId,
+        contentId: resultContentId,
+        ...resultBody
+      } = result
+
+      return NextResponse.json({
+        ok: result.status === 'succeeded' || result.status === 'partial',
+        platform,
+        content_id: resultContentId ?? contentId,
+        publish_id: resultPublishId ?? publishId,
+        ...resultBody,
+      })
+    }
+
+    if (platform === 'facebook' || platform === 'instagram') {
+      const result = await refreshPublishedMetaComments({
+        db: supabaseAdmin,
+        platform,
         publishId,
         contentId,
         limit,
