@@ -128,6 +128,20 @@ describe('GET /api/admin/social-content/engagement/comments', () => {
       },
     })
     expect(body.summary).toMatchObject({ total: 1, lead: 1 })
+    expect(body.alertReliability).toMatchObject({
+      state: 'disabled',
+      deliveryMode: 'disabled',
+      activation: {
+        enabled: false,
+      },
+      counts: {
+        itemCount: 1,
+        sent: 0,
+        deduped: 0,
+        skipped: 0,
+        errors: 0,
+      },
+    })
     expect(body.integration_note).toContain('No external comment replies')
   })
 
@@ -162,6 +176,13 @@ describe('GET /api/admin/social-content/engagement/comments', () => {
       blocked: true,
       items: [],
       message: 'Comment inbox storage is not available in this environment.',
+      alertReliability: {
+        state: 'disabled',
+        deliveryMode: 'disabled',
+        counts: {
+          itemCount: 0,
+        },
+      },
     })
     expect(body.recovery).toContain('migration 20260806163011')
     expect(body.integration_note).toContain('No provider ingestion or external comment replies')

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import {
   AlertTriangle,
+  BellRing,
   CheckCircle2,
   ExternalLink,
   Filter,
@@ -43,6 +44,47 @@ type FocusRecoveryState = {
   message: string
 }
 
+type AlertReliabilityState =
+  | 'disabled'
+  | 'dry_run'
+  | 'deduped'
+  | 'skipped'
+  | 'no_eligible_items'
+  | 'sent'
+  | 'errored'
+  | 'ready'
+
+type AlertReliabilityStatus = {
+  state: AlertReliabilityState
+  label: string
+  summary: string
+  deliveryMode: 'disabled' | 'dry_run' | 'live'
+  activation: {
+    enabled: boolean
+    reason: string
+  }
+  counts: {
+    itemCount: number
+    sent: number
+    deduped: number
+    skipped: number
+    errors: number
+  }
+  reasons: string[]
+  lastActionableNextStep: string
+  nextStep: {
+    label: string
+    href: string
+  }
+  lastRun?: {
+    id: string
+    status: string | null
+    at: string | null
+    outcome: string
+    reason: string | null
+  } | null
+}
+
 const EMPTY_SUMMARY: SocialCommentInboxSummary = {
   total: 0,
   new: 0,
@@ -68,6 +110,17 @@ const PRIORITY_CLASS: Record<SocialCommentInboxItem['classification']['priority'
   low: 'text-gray-400',
   medium: 'text-amber-200',
   high: 'text-red-200',
+}
+
+const ALERT_RELIABILITY_CLASS: Record<AlertReliabilityState, string> = {
+  disabled: 'border-gray-600 bg-gray-900/65 text-gray-100',
+  dry_run: 'border-cyan-500/35 bg-cyan-500/10 text-cyan-100',
+  deduped: 'border-blue-500/35 bg-blue-500/10 text-blue-100',
+  skipped: 'border-amber-500/35 bg-amber-500/10 text-amber-100',
+  no_eligible_items: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100',
+  sent: 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100',
+  errored: 'border-red-500/40 bg-red-500/10 text-red-100',
+  ready: 'border-amber-500/35 bg-amber-500/10 text-amber-100',
 }
 
 function queryParams() {
@@ -120,6 +173,7 @@ export default function SocialCommentInboxPage() {
   const [notice, setNotice] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [drafts, setDrafts] = useState<Record<string, string>>({})
   const [unavailable, setUnavailable] = useState<InboxUnavailableState | null>(null)
+  const [alertReliability, setAlertReliability] = useState<AlertReliabilityStatus | null>(null)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -168,6 +222,7 @@ export default function SocialCommentInboxPage() {
       setComments(Array.isArray(data.items) ? data.items : [])
       setSummary(data.summary ?? EMPTY_SUMMARY)
       setFilteredSummary(data.filteredSummary ?? EMPTY_SUMMARY)
+      setAlertReliability(data.alertReliability && typeof data.alertReliability === 'object' ? data.alertReliability : null)
       const nextDrafts: Record<string, string> = {}
       for (const comment of data.items ?? []) {
         nextDrafts[comment.id] = comment.draftReply ?? ''
@@ -340,6 +395,58 @@ export default function SocialCommentInboxPage() {
             </button>
           ))}
         </section>
+
+        {alertReliability && (
+          <section className={`mt-5 rounded-lg border p-4 ${ALERT_RELIABILITY_CLASS[alertReliability.state]}`}>
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <BellRing className="h-4 w-4 shrink-0" />
+                  <h2 className="text-sm font-semibold text-current">Alert reliability</h2>
+                  <span className="rounded-full border border-current/30 px-2.5 py-1 text-xs font-semibold uppercase">
+                    {alertReliability.label}
+                  </span>
+                  <span className="rounded-full border border-current/25 px-2.5 py-1 text-xs font-semibold uppercase">
+                    {alertReliability.deliveryMode.replace(/_/g, ' ')}
+                  </span>
+                </div>
+                <p className="mt-2 break-words text-sm leading-6 text-current/90">{alertReliability.summary}</p>
+                <p className="mt-1 break-words text-xs leading-5 text-current/75">{alertReliability.lastActionableNextStep}</p>
+                {alertReliability.reasons.length > 0 && (
+                  <ul className="mt-3 grid gap-2 text-xs leading-5 text-current/80 sm:grid-cols-2">
+                    {alertReliability.reasons.slice(0, 4).map((reason) => (
+                      <li key={reason} className="min-w-0 break-words rounded-md border border-current/20 bg-black/10 px-2.5 py-2">
+                        {reason}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <div className="grid w-full shrink-0 grid-cols-2 gap-2 sm:w-auto sm:min-w-80">
+                {[
+                  ['Items', alertReliability.counts.itemCount],
+                  ['Sent', alertReliability.counts.sent],
+                  ['Deduped', alertReliability.counts.deduped],
+                  ['Skipped', alertReliability.counts.skipped],
+                  ['Errors', alertReliability.counts.errors],
+                  ['Enabled', alertReliability.activation.enabled ? 'Yes' : 'No'],
+                ].map(([label, value]) => (
+                  <div key={label} className="min-w-0 rounded-md border border-current/20 bg-black/10 px-3 py-2">
+                    <p className="text-[11px] font-semibold uppercase text-current/65">{label}</p>
+                    <p className="mt-1 break-words text-sm font-semibold text-current">{value}</p>
+                  </div>
+                ))}
+                <Link
+                  href={alertReliability.nextStep.href}
+                  className="col-span-2 inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-current/30 px-3 py-2 text-sm font-semibold text-current hover:bg-black/10"
+                >
+                  {alertReliability.nextStep.label}
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            </div>
+          </section>
+        )}
 
         <section className="mt-5 rounded-lg border border-border bg-card p-4">
           <div className="flex items-center gap-2 text-sm font-semibold text-foreground">

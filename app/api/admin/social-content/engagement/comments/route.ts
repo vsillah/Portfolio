@@ -9,6 +9,12 @@ import {
   type SocialCommentPostProjection,
   type SocialCommentStatus,
 } from '@/lib/social-comment-inbox-ui'
+import {
+  buildSocialCommentAlertReliabilityStatus,
+  needsCommentAttention,
+  type SocialCommentAlertReliabilityStatus,
+  type SocialCommentAttentionRow,
+} from '@/lib/social-comment-attention'
 
 export const dynamic = 'force-dynamic'
 
@@ -72,12 +78,72 @@ function isCommentInboxStorageUnavailable(error: unknown) {
     || text.includes('relation') && text.includes('does not exist')
 }
 
+function socialCommentSlackAttentionEnabled() {
+  return process.env.SOCIAL_COMMENT_SLACK_ATTENTION_ENABLED === 'true'
+}
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : null
+}
+
+function stringValue(value: unknown) {
+  return typeof value === 'string' && value.trim() ? value.trim() : null
+}
+
+function boolValue(value: unknown) {
+  return typeof value === 'boolean' ? value : null
+}
+
+function lastRunOutcome(row: Record<string, unknown>): NonNullable<SocialCommentAlertReliabilityStatus['lastRun']>['outcome'] {
+  const outcome = asRecord(row.outcome)
+  const metadata = asRecord(row.metadata)
+  if (boolValue(outcome?.sent) === true) return 'sent'
+  if (boolValue(outcome?.deduped) === true || stringValue(outcome?.reason)?.toLowerCase().includes('already prepared')) return 'deduped'
+  if (boolValue(outcome?.skipped) === true) return 'skipped'
+  if (String(row.status ?? '').toLowerCase() === 'failed' || Boolean(outcome?.error) || Boolean(metadata?.error)) return 'errored'
+  return 'unknown'
+}
+
+async function fetchLastSocialCommentAlertRun(): Promise<SocialCommentAlertReliabilityStatus['lastRun']> {
+  if (!supabaseAdmin) return null
+
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('agent_runs')
+      .select('id, status, current_step, metadata, outcome, started_at, ended_at, updated_at')
+      .eq('kind', 'slack_mobile_notification')
+      .order('started_at', { ascending: false })
+      .limit(10)
+
+    if (error || !Array.isArray(data)) return null
+
+    const row = data.find((item: Record<string, unknown>) => {
+      const metadata = asRecord(item.metadata)
+      return metadata?.notification_kind === 'social_comment_attention_due'
+    }) as Record<string, unknown> | undefined
+    if (!row) return null
+
+    const outcome = asRecord(row.outcome)
+    const metadata = asRecord(row.metadata)
+    return {
+      id: String(row.id),
+      status: stringValue(row.status),
+      at: stringValue(row.ended_at) || stringValue(row.updated_at) || stringValue(row.started_at),
+      outcome: lastRunOutcome(row),
+      reason: stringValue(outcome?.reason) || stringValue(metadata?.reason) || stringValue(row.current_step),
+    }
+  } catch {
+    return null
+  }
+}
+
 function unavailableResponse(filters: {
   status: SocialCommentStatus | 'all'
   platform: SocialPlatform | 'all'
   campaign: string
   post: string
 }) {
+  const activationEnabled = socialCommentSlackAttentionEnabled()
   return NextResponse.json({
     unavailable: true,
     blocked: true,
@@ -87,6 +153,15 @@ function unavailableResponse(filters: {
     filters,
     message: COMMENT_INBOX_UNAVAILABLE_MESSAGE,
     recovery: COMMENT_INBOX_UNAVAILABLE_RECOVERY,
+    alertReliability: buildSocialCommentAlertReliabilityStatus({
+      activationEnabled,
+      activationReason: activationEnabled ? 'enabled' : 'activation_disabled_default_off',
+      deliveryDryRun: !activationEnabled,
+      itemCount: 0,
+      dataSurfaceReady: false,
+      dataSurfaceReason: COMMENT_INBOX_UNAVAILABLE_MESSAGE,
+      reasons: [COMMENT_INBOX_UNAVAILABLE_RECOVERY],
+    }),
     integration_note: 'The canonical comment inbox table is missing from the bound database. No provider ingestion or external comment replies were attempted.',
   })
 }
@@ -160,12 +235,21 @@ export async function GET(request: NextRequest) {
   const postsByContentId = await fetchPostsByContentId(contentIds)
   const allItems = getSocialCommentInboxItems(rows, postsByContentId)
   const items = filterSocialCommentInboxItems(allItems, filters)
+  const activationEnabled = socialCommentSlackAttentionEnabled()
+  const alertReliability = buildSocialCommentAlertReliabilityStatus({
+    activationEnabled,
+    activationReason: activationEnabled ? 'enabled' : 'activation_disabled_default_off',
+    deliveryDryRun: !activationEnabled,
+    itemCount: rows.filter((row) => needsCommentAttention(row as SocialCommentAttentionRow)).length,
+    lastRun: await fetchLastSocialCommentAlertRun(),
+  })
 
   return NextResponse.json({
     items,
     summary: summarizeSocialCommentInbox(allItems),
     filteredSummary: summarizeSocialCommentInbox(items),
     filters,
+    alertReliability,
     integration_note: 'Provider ingestion and outbound reply adapters are intentionally outside this UI lane. No external comment replies are submitted by this route.',
   })
 }

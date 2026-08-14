@@ -4,6 +4,7 @@ vi.mock('@/lib/supabase', () => ({
   supabaseAdmin: null,
 }))
 import {
+  buildSocialCommentAlertReliabilityStatus,
   canSlackDecideCommentReply,
   commentReplyHoldUntil,
   evaluateCommentReplyHold,
@@ -40,6 +41,96 @@ function row(overrides: Partial<SocialCommentAttentionRow> = {}): SocialCommentA
 }
 
 describe('Social comment attention plumbing', () => {
+  it('summarizes default-off alert reliability without enabling Slack delivery', () => {
+    const status = buildSocialCommentAlertReliabilityStatus({
+      activationEnabled: false,
+      activationReason: 'activation_disabled_default_off',
+      deliveryDryRun: true,
+      itemCount: 2,
+      skippedCount: 1,
+      reasons: ['Dry run only.'],
+    })
+
+    expect(status).toMatchObject({
+      state: 'disabled',
+      deliveryMode: 'disabled',
+      activation: {
+        enabled: false,
+        reason: 'activation_disabled_default_off',
+      },
+      counts: {
+        itemCount: 2,
+        sent: 0,
+        deduped: 0,
+        skipped: 1,
+        errors: 0,
+      },
+      nextStep: {
+        href: '/admin/social-content/engagement-inbox',
+      },
+    })
+  })
+
+  it('summarizes dry-run alert reliability as evaluation-only', () => {
+    const status = buildSocialCommentAlertReliabilityStatus({
+      activationEnabled: true,
+      activationReason: 'manual_dry_run',
+      deliveryDryRun: true,
+      itemCount: 1,
+      skippedCount: 1,
+      reasons: ['Dry run only.'],
+    })
+
+    expect(status).toMatchObject({
+      state: 'dry_run',
+      deliveryMode: 'dry_run',
+      label: 'Dry run',
+      counts: {
+        itemCount: 1,
+        skipped: 1,
+      },
+    })
+    expect(status.lastActionableNextStep).toContain('cron response')
+  })
+
+  it('prioritizes deduped, sent, skipped, error, and no-item alert states', () => {
+    expect(buildSocialCommentAlertReliabilityStatus({
+      activationEnabled: true,
+      deliveryDryRun: false,
+      itemCount: 2,
+      dedupedCount: 1,
+    }).state).toBe('deduped')
+
+    expect(buildSocialCommentAlertReliabilityStatus({
+      activationEnabled: true,
+      deliveryDryRun: false,
+      itemCount: 2,
+      sentCount: 1,
+    }).state).toBe('sent')
+
+    expect(buildSocialCommentAlertReliabilityStatus({
+      activationEnabled: true,
+      deliveryDryRun: false,
+      itemCount: 2,
+      skippedCount: 1,
+      reasons: ['Slack bot channel and webhook are not configured.'],
+    }).state).toBe('skipped')
+
+    expect(buildSocialCommentAlertReliabilityStatus({
+      activationEnabled: true,
+      deliveryDryRun: false,
+      itemCount: 2,
+      errorCount: 1,
+      reasons: ['database unavailable'],
+    }).state).toBe('errored')
+
+    expect(buildSocialCommentAlertReliabilityStatus({
+      activationEnabled: true,
+      deliveryDryRun: false,
+      itemCount: 0,
+    }).state).toBe('no_eligible_items')
+  })
+
   it('identifies high-priority unresolved comments as attention candidates', () => {
     expect(needsCommentAttention(row())).toBe(true)
     expect(needsCommentAttention(row({ classification_status: 'answered', priority: 'high' }))).toBe(false)

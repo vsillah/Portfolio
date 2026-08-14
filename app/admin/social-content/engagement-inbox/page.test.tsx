@@ -44,6 +44,31 @@ const comment = {
   postExcerpt: 'Original post copy',
 }
 
+const alertReliability = {
+  state: 'disabled',
+  label: 'Alerts disabled',
+  summary: 'Slack alert delivery is default-off. The inbox remains the recovery surface.',
+  deliveryMode: 'disabled',
+  activation: {
+    enabled: false,
+    reason: 'activation_disabled_default_off',
+  },
+  counts: {
+    itemCount: 1,
+    sent: 0,
+    deduped: 0,
+    skipped: 1,
+    errors: 0,
+  },
+  reasons: ['Dry run only.'],
+  lastActionableNextStep: 'Review eligible comments in the Engagement Inbox or run an authorized dry-run cron check.',
+  nextStep: {
+    label: 'Open inbox',
+    href: '/admin/social-content/engagement-inbox',
+  },
+  lastRun: null,
+}
+
 describe('SocialCommentInboxPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -80,6 +105,7 @@ describe('SocialCommentInboxPage', () => {
           filteredSummary: noMatches
             ? { total: 0, new: 0, needs_qa: 0, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 }
             : { total: 1, new: 0, needs_qa: 0, auto_send_pending: 0, lead: 1, escalated: 0, responded: 0, ignored: 0 },
+          alertReliability,
         }),
       } as Response
     }))
@@ -94,6 +120,13 @@ describe('SocialCommentInboxPage', () => {
     render(<SocialCommentInboxPage />)
 
     expect(await screen.findByText('Engagement Inbox')).toBeInTheDocument()
+    expect(screen.getByText('Alert reliability')).toBeInTheDocument()
+    expect(screen.getByText('Alerts disabled')).toBeInTheDocument()
+    expect(screen.getByText('Slack alert delivery is default-off. The inbox remains the recovery surface.')).toBeInTheDocument()
+    expect(screen.getByText('Review eligible comments in the Engagement Inbox or run an authorized dry-run cron check.')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Open inbox/i })).toHaveAttribute('href', '/admin/social-content/engagement-inbox')
+    expect(screen.getByText('Deduped')).toBeInTheDocument()
+    expect(screen.getByText('Enabled')).toBeInTheDocument()
     expect(screen.getByText('Potential Client')).toBeInTheDocument()
     expect(screen.getByText('Can this workflow help our nonprofit intake?')).toBeInTheDocument()
     expect(screen.getByText('Blocked/manual state')).toBeInTheDocument()
@@ -109,6 +142,17 @@ describe('SocialCommentInboxPage', () => {
     expect(panel.getByRole('button', { name: /^Reject$/i })).toBeInTheDocument()
     expect(panel.getByRole('button', { name: /^Ignore$/i })).toBeInTheDocument()
     expect(panel.getByRole('button', { name: /^Submit$/i })).toBeDisabled()
+  })
+
+  it.each([360, 390, 430])('keeps the reliability panel available at %ipx mobile width', async (width) => {
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: width })
+    window.dispatchEvent(new Event('resize'))
+
+    render(<SocialCommentInboxPage />)
+
+    expect(await screen.findByText('Alert reliability')).toBeInTheDocument()
+    expect(screen.getByText('Alerts disabled')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Open inbox/i })).toBeInTheDocument()
   })
 
   it('shows a clear empty state when filters remove all rows', async () => {
@@ -189,6 +233,12 @@ describe('SocialCommentInboxPage', () => {
         items: [],
         summary: { total: 0, new: 0, needs_qa: 0, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 },
         filteredSummary: { total: 0, new: 0, needs_qa: 0, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 },
+        alertReliability: {
+          ...alertReliability,
+          state: 'no_eligible_items',
+          label: 'No eligible items',
+          counts: { ...alertReliability.counts, itemCount: 0, skipped: 0 },
+        },
         message: 'Comment inbox storage is not available in this environment.',
         recovery: 'Apply migration 20260806163011 to the bound Supabase project before validating populated comment inbox rows.',
       }),

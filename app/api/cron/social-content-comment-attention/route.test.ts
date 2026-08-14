@@ -13,9 +13,13 @@ vi.mock('@/lib/agent-slack-notification-sweep', () => ({
   runAgentSlackNotificationSweep: mocks.runAgentSlackNotificationSweep,
 }))
 
-vi.mock('@/lib/social-comment-attention', () => ({
-  evaluateSocialCommentReplyHolds: mocks.evaluateSocialCommentReplyHolds,
-}))
+vi.mock('@/lib/social-comment-attention', async () => {
+  const actual = await vi.importActual<typeof import('@/lib/social-comment-attention')>('@/lib/social-comment-attention')
+  return {
+    ...actual,
+    evaluateSocialCommentReplyHolds: mocks.evaluateSocialCommentReplyHolds,
+  }
+})
 
 vi.mock('@/lib/social-comment-attention-refresh', () => ({
   runSocialCommentAttentionYouTubeRefresh: mocks.runSocialCommentAttentionYouTubeRefresh,
@@ -235,6 +239,17 @@ describe('/api/cron/social-content-comment-attention', () => {
         reason: 'activation_disabled_default_off',
         force_applied: false,
       },
+      alert_reliability: {
+        state: 'disabled',
+        deliveryMode: 'disabled',
+        counts: {
+          itemCount: 1,
+          sent: 0,
+          skipped: 1,
+          errors: 0,
+        },
+        lastActionableNextStep: expect.stringContaining('Engagement Inbox'),
+      },
       youtube_refresh: {
         status: 'succeeded',
         attemptedCount: 1,
@@ -377,6 +392,13 @@ describe('/api/cron/social-content-comment-attention', () => {
         attemptedCount: 1,
         providerReadAttemptCount: 0,
       },
+      alert_reliability: {
+        state: 'disabled',
+        deliveryMode: 'disabled',
+        counts: {
+          errors: 0,
+        },
+      },
       side_effects: {
         provider_comment_read: false,
         provider_refresh: false,
@@ -413,6 +435,16 @@ describe('/api/cron/social-content-comment-attention', () => {
         enabled: true,
         disabled: false,
         reason: 'enabled',
+      },
+      alert_reliability: {
+        state: 'sent',
+        deliveryMode: 'live',
+        counts: {
+          itemCount: 1,
+          sent: 1,
+          skipped: 0,
+          errors: 0,
+        },
       },
       side_effects: {
         slack_messages_sent: 1,
@@ -453,6 +485,13 @@ describe('/api/cron/social-content-comment-attention', () => {
         reason: 'activation_disabled_default_off',
         force_requested: true,
         force_applied: false,
+      },
+      alert_reliability: {
+        state: 'disabled',
+        deliveryMode: 'disabled',
+        activation: {
+          enabled: false,
+        },
       },
       side_effects: {
         slack_messages_sent: 0,
@@ -564,11 +603,157 @@ describe('/api/cron/social-content-comment-attention', () => {
     await expect(response.json()).resolves.toMatchObject({
       dry_run: true,
       slack_delivery_dry_run: true,
+      alert_reliability: {
+        state: 'dry_run',
+        deliveryMode: 'dry_run',
+        counts: {
+          itemCount: 1,
+          sent: 0,
+          skipped: 1,
+        },
+      },
       side_effects: {
         provider_comment_read: false,
         reply_hold_state_updated: false,
         external_reply_send: false,
       },
     })
+  })
+
+  it('reports deduped comment alerts as actionable without sending another Slack message', async () => {
+    process.env.SOCIAL_COMMENT_SLACK_ATTENTION_ENABLED = 'true'
+    mocks.runAgentSlackNotificationSweep.mockResolvedValueOnce({
+      ok: true,
+      dryRun: false,
+      mode: 'scheduled',
+      totalRules: 1,
+      sentCount: 0,
+      dedupedCount: 1,
+      skippedCount: 1,
+      errorCount: 0,
+      itemCount: 2,
+      results: [{
+        kind: 'social_comment_attention_due',
+        label: 'Social comment attention',
+        itemCount: 2,
+        sent: false,
+        skipped: true,
+        deduped: true,
+        dryRun: false,
+        mode: 'scheduled',
+        priority: 'urgent',
+        triggerModes: ['scheduled'],
+        text: '2 Social Content comments need attention.',
+        reason: 'A matching Slack mobile notification was already prepared in this hourly window.',
+      }],
+    })
+
+    const response = await GET(request('http://localhost/api/cron/social-content-comment-attention') as never)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.alert_reliability).toMatchObject({
+      state: 'deduped',
+      deliveryMode: 'live',
+      counts: {
+        itemCount: 2,
+        sent: 0,
+        deduped: 1,
+        skipped: 1,
+        errors: 0,
+      },
+      reasons: expect.arrayContaining(['A matching Slack mobile notification was already prepared in this hourly window.']),
+    })
+    expect(body.side_effects.slack_messages_sent).toBe(0)
+    expect(body.side_effects.external_reply_send).toBe(false)
+  })
+
+  it('reports no eligible comment alert items without treating it as a send failure', async () => {
+    process.env.SOCIAL_COMMENT_SLACK_ATTENTION_ENABLED = 'true'
+    mocks.runAgentSlackNotificationSweep.mockResolvedValueOnce({
+      ok: true,
+      dryRun: false,
+      mode: 'scheduled',
+      totalRules: 1,
+      sentCount: 0,
+      dedupedCount: 0,
+      skippedCount: 1,
+      errorCount: 0,
+      itemCount: 0,
+      results: [{
+        kind: 'social_comment_attention_due',
+        label: 'Social comment attention',
+        itemCount: 0,
+        sent: false,
+        skipped: true,
+        deduped: false,
+        dryRun: false,
+        mode: 'scheduled',
+        priority: 'urgent',
+        triggerModes: ['scheduled'],
+        text: 'No Social Content comments need Slack attention.',
+        reason: 'No matching Agent Ops work needs mobile attention.',
+      }],
+    })
+
+    const response = await GET(request('http://localhost/api/cron/social-content-comment-attention') as never)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.alert_reliability).toMatchObject({
+      state: 'no_eligible_items',
+      deliveryMode: 'live',
+      counts: {
+        itemCount: 0,
+        sent: 0,
+        skipped: 1,
+        errors: 0,
+      },
+    })
+    expect(body.ok).toBe(true)
+  })
+
+  it('reports alert sweep errors separately from provider reply gates', async () => {
+    process.env.SOCIAL_COMMENT_SLACK_ATTENTION_ENABLED = 'true'
+    mocks.runAgentSlackNotificationSweep.mockResolvedValueOnce({
+      ok: false,
+      dryRun: false,
+      mode: 'scheduled',
+      totalRules: 1,
+      sentCount: 0,
+      dedupedCount: 0,
+      skippedCount: 0,
+      errorCount: 1,
+      itemCount: 0,
+      results: [{
+        kind: 'social_comment_attention_due',
+        label: 'Social comment attention',
+        itemCount: 0,
+        sent: false,
+        skipped: false,
+        deduped: false,
+        dryRun: false,
+        mode: 'scheduled',
+        priority: 'urgent',
+        triggerModes: ['scheduled'],
+        text: 'Social comment attention failed.',
+        error: 'database unavailable',
+      }],
+    })
+
+    const response = await GET(request('http://localhost/api/cron/social-content-comment-attention') as never)
+    const body = await response.json()
+
+    expect(response.status).toBe(500)
+    expect(body.alert_reliability).toMatchObject({
+      state: 'errored',
+      deliveryMode: 'live',
+      counts: {
+        errors: 1,
+      },
+      reasons: expect.arrayContaining(['database unavailable']),
+    })
+    expect(body.side_effects.provider_reply_write).toBe(false)
+    expect(body.side_effects.external_reply_send).toBe(false)
   })
 })
