@@ -93,6 +93,14 @@ codex mcp list | rg 'supabase|Name|Url|Command|Status|Auth'
 
 If the CLI state is correct but direct Supabase tools are absent, stop captain work and report the Codex Desktop MCP hydration blocker. Do not create a non-migration exception.
 
+## Integration Captain Migration Authorization Rule
+
+After a migration PR is merged and its focused tests and captain review pass, the Integration Captain may apply that migration to the Portfolio staging database and run read-only or rolled-back validation without requesting another human approval. Record the migration identity, validation evidence, and persisted row state in the captain handoff.
+
+Require explicit current approval before applying a migration to production when it is destructive, rewrites or deletes data, changes authentication, authorization, RLS, grants, privacy, billing, or another security boundary, enables a provider or external side effect, or has an uncertain rollback path. Non-destructive production migrations with no permission, provider, or external-execution impact may follow the normal captain merge and deployment authority after staging validation.
+
+Migration approval is distinct from UX human QA. Reserve rendered human QA for meaningful user-facing workflow changes. Provider activation, external publishing, scheduling, outreach, public replies, and other irreversible external actions retain their existing explicit human gates regardless of migration status.
+
 ## Integration Captain Review Identity Rule
 
 Formal GitHub approval requires a reviewer account that is different from the PR author. If the active `gh` identity is also the PR author, do not attempt to approve the PR with `gh pr review --approve`; GitHub will reject it and the transcript will imply a review state that does not exist.
@@ -111,4 +119,3 @@ After code merges or captain sweep merges complete:
 - Keep the active integration captain lane visible unless Vambah explicitly asks to close it.
 - Back up Codex local state before directly editing the thread registry for records that cannot be archived through the Codex app tool.
 - Include archived thread names/counts, kept-active tasks, backup path, and ambiguous tasks left alone in the captain cleanup report.
-
