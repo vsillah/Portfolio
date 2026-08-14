@@ -67,6 +67,7 @@ describe('GET /api/auth/meta/callback', () => {
       .mockResolvedValueOnce(new Response(JSON.stringify({
         data: [
           { permission: 'pages_read_engagement', status: 'granted' },
+          { permission: 'pages_read_user_content', status: 'granted' },
           { permission: 'instagram_basic', status: 'granted' },
           { permission: 'instagram_manage_comments', status: 'granted' },
           { permission: 'instagram_content_publish', status: 'granted' },
@@ -113,9 +114,12 @@ describe('GET /api/auth/meta/callback', () => {
           page_name: 'AmaduTown',
           connected_page_id: 'page-1',
           pages_read_engagement_permission: true,
+          pages_read_user_content_permission: true,
+          facebook_comment_read_permissions_confirmed: true,
           meta_granted_permissions: expect.arrayContaining([
             'instagram_manage_comments',
             'pages_read_engagement',
+            'pages_read_user_content',
           ]),
         }),
       }),
@@ -145,6 +149,7 @@ describe('GET /api/auth/meta/callback', () => {
     expect(instagramRow.settings.meta_granted_permissions).toEqual(expect.arrayContaining([
       'instagram_manage_comments',
       'pages_read_engagement',
+      'pages_read_user_content',
     ]))
   })
 })

@@ -42,6 +42,7 @@ describe('GET /api/auth/meta', () => {
     expect(authUrl.pathname).toBe('/v20.0/dialog/oauth')
     expect(authUrl.searchParams.get('client_id')).toBe('meta-client-id')
     expect(authUrl.searchParams.get('redirect_uri')).toBe('https://amadutown.com/api/auth/meta/callback')
+    expect(authUrl.searchParams.get('scope')).toContain('pages_read_user_content')
     expect(authUrl.searchParams.get('scope')).toContain('pages_manage_posts')
     expect(authUrl.searchParams.get('scope')).toContain('instagram_manage_comments')
     expect(authUrl.searchParams.get('scope')).toContain('instagram_content_publish')
