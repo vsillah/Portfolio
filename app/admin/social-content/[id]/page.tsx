@@ -3723,16 +3723,18 @@ function SocialContentDetailPage() {
 	          </section>
 	        )}
 
-		        <div aria-label="Social content approval process" className="admin-console-card grid grid-cols-1 gap-2 rounded-xl border p-2 md:flex md:items-stretch md:gap-1 md:overflow-x-auto md:p-1">
+		        <div aria-label="Social content approval process" className="admin-console-card social-approval-process rounded-xl border p-2">
+		          <div className="social-approval-step-grid">
 		          {approvalStepTabs.map((tab, index) => {
 		            const isActive = activeApprovalStep === tab.step
 		            return (
-		              <div key={tab.step} className="flex min-w-0 items-stretch md:shrink-0">
+		              <div key={tab.step} className="flex min-w-0 items-stretch">
 		                <button
 		                  type="button"
 		                  aria-label={`Approval step ${index + 1}: ${tab.label}`}
+		                  aria-current={isActive ? 'step' : undefined}
 		                  onClick={() => setApprovalStep(tab.step)}
-		                  className={`flex min-h-11 w-full min-w-0 items-start gap-2 rounded-lg border px-2.5 py-2.5 text-left text-sm font-medium transition-all md:w-[10rem] md:shrink-0 md:items-center lg:w-[10.75rem] ${
+		                  className={`grid min-h-[5.5rem] w-full min-w-0 grid-cols-[auto_minmax(0,1fr)] content-start items-start gap-x-2 gap-y-1 rounded-lg border px-2.5 py-2.5 text-left text-sm font-medium transition-all ${
 		                    isActive
 		                      ? 'border-green-500/55 bg-green-600/25 text-green-100 shadow-inner shadow-green-950/30'
 		                      : 'border-gray-800/80 text-muted-foreground hover:border-gray-700 hover:bg-silicon-slate/50 hover:text-foreground'
@@ -3745,17 +3747,18 @@ function SocialContentDetailPage() {
 		                  }`}>
 		                    {index + 1}
 		                  </span>
-		                  <span className="min-w-0 flex-1">
-		                    <span className="block leading-snug md:truncate">{tab.label}</span>
-		                    <span className="mt-0.5 block text-[11px] font-normal leading-snug opacity-75 md:truncate">{tab.description}</span>
+		                  <span className="min-w-0 self-center">
+		                    <span className="block break-words leading-snug">{tab.label}</span>
+		                    <span className="mt-0.5 block break-words text-[11px] font-normal leading-snug opacity-75">{tab.description}</span>
 		                  </span>
-		                  <span className={`rounded-full border px-1.5 py-0.5 text-[10px] font-semibold md:shrink-0 ${tab.displayStateClassName ?? GATE_STATE_CONFIG[tab.state].className}`}>
+		                  <span className={`col-start-2 w-fit max-w-full whitespace-normal rounded-full border px-1.5 py-0.5 text-[10px] font-semibold leading-snug ${tab.displayStateClassName ?? GATE_STATE_CONFIG[tab.state].className}`}>
 		                    {tab.displayStateLabel ?? GATE_STATE_CONFIG[tab.state].label}
 		                  </span>
 		                </button>
 		              </div>
 		            )
 		          })}
+		          </div>
 		        </div>
             <section className="rounded-xl border border-silicon-slate/80 bg-background/35 p-4" aria-label="Current approval step details">
               <div className="grid gap-3 xl:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,0.9fr))]">
