@@ -52,6 +52,11 @@ function compactRecord(record: Record<string, unknown>) {
   )
 }
 
+function grantedScopeString(permissions: Set<string>) {
+  const granted = [...permissions].sort()
+  return granted.length ? granted.join(' ') : undefined
+}
+
 function redirectWith(request: NextRequest, params: Record<string, string>) {
   const url = new URL('/admin/social-content', request.url)
   for (const [key, value] of Object.entries(params)) {
@@ -184,8 +189,12 @@ export async function GET(request: NextRequest) {
     const existingFacebookSettings = existingConfigs.facebook?.settings ?? {}
     const existingInstagramCredentials = existingConfigs.instagram?.credentials ?? {}
     const existingInstagramSettings = existingConfigs.instagram?.settings ?? {}
+    const scope = grantedScopeString(permissions)
+    const grantedPermissions = [...permissions].sort()
+    const hasFacebookPageRead = permissions.has('pages_read_engagement')
     const hasInstagramPublishing = permissions.has('instagram_content_publish')
     const hasInstagramBasic = permissions.has('instagram_basic')
+    const hasInstagramManageComments = permissions.has('instagram_manage_comments')
 
     const facebookCredentials = compactRecord({
       ...existingFacebookCredentials,
@@ -195,6 +204,7 @@ export async function GET(request: NextRequest) {
       token_type: tokenData.token_type,
       expires_in: tokenData.expires_in,
       token_obtained_at: connectedAt,
+      scope,
     })
     const facebookSettings = compactRecord({
       ...existingFacebookSettings,
@@ -205,6 +215,8 @@ export async function GET(request: NextRequest) {
       connected_page_id: page.id,
       connected_page_name: page.name,
       connected_at: connectedAt,
+      pages_read_engagement_permission: hasFacebookPageRead,
+      meta_granted_permissions: grantedPermissions,
     })
 
     const instagramCredentials = compactRecord({
@@ -219,6 +231,7 @@ export async function GET(request: NextRequest) {
       token_type: tokenData.token_type,
       expires_in: tokenData.expires_in,
       token_obtained_at: connectedAt,
+      scope,
     })
     const instagramSettings = compactRecord({
       ...existingInstagramSettings,
@@ -235,6 +248,8 @@ export async function GET(request: NextRequest) {
       instagram_username: instagramAccount?.username,
       instagram_content_publish_permission: hasInstagramPublishing,
       instagram_basic_permission: hasInstagramBasic,
+      instagram_manage_comments_permission: hasInstagramManageComments,
+      meta_granted_permissions: grantedPermissions,
       app_review_permissions_confirmed: hasInstagramPublishing && hasInstagramBasic,
       app_review_permissions_confirmed_at: hasInstagramPublishing && hasInstagramBasic ? connectedAt : undefined,
     })

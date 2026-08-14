@@ -561,6 +561,39 @@ function commentsUrl(input: {
   return url
 }
 
+function childRepliesUrl(input: {
+  apiVersion: string
+  parentCommentId: string
+  platform: MetaCommentPlatform
+  pageSize: number
+  after?: string | null
+}) {
+  const edge = input.platform === 'instagram' ? 'replies' : 'comments'
+  const url = new URL(`${GRAPH_BASE_URL}/${input.apiVersion}/${encodeURIComponent(input.parentCommentId)}/${edge}`)
+  url.searchParams.set('limit', String(input.pageSize))
+  url.searchParams.set('fields', input.platform === 'instagram'
+    ? [
+      'id',
+      'text',
+      'timestamp',
+      'username',
+      'hidden',
+      'parent_id',
+    ].join(',')
+    : [
+      'id',
+      'message',
+      'created_time',
+      'from{id,name,link}',
+      'permalink_url',
+      'parent{id}',
+      'is_hidden',
+      'is_private',
+    ].join(','))
+  if (input.after) url.searchParams.set('after', input.after)
+  return url
+}
+
 async function fetchJson<T>(input: {
   fetchImpl: FetchLike
   url: URL
@@ -586,6 +619,66 @@ async function fetchJson<T>(input: {
   const data = await response.json().catch(() => ({})) as T & MetaGraphError
   if (!response.ok) return { error: mapMetaApiError(response, data) }
   return { data }
+}
+
+async function fetchChildReplies(input: {
+  fetchImpl: FetchLike
+  accessToken: string
+  apiVersion: string
+  platform: MetaCommentPlatform
+  parentCommentId: string
+  inlineReplies: MetaComment[]
+  inlinePaging: MetaPaging | null
+  limit: number
+  pageSize: number
+  cursor: Record<string, unknown>
+}) {
+  const replies: MetaComment[] = input.inlineReplies.slice(0, Math.max(input.limit, 0))
+  const errors: MetaCommentIngestionError[] = []
+  let after = input.inlinePaging?.cursors?.after ?? null
+  let pages = 0
+
+  if (input.limit <= 0) {
+    input.cursor[`children:${input.parentCommentId}`] = {
+      inlineCount: input.inlineReplies.length,
+      pages,
+      nextAfter: after,
+      limitReached: true,
+    }
+    return { replies: [], errors }
+  }
+
+  while (after && replies.length < input.limit) {
+    const remaining = input.limit - replies.length
+    const result: { data?: MetaCommentsResponse; error?: MetaCommentIngestionError } = await fetchJson<MetaCommentsResponse>({
+      fetchImpl: input.fetchImpl,
+      accessToken: input.accessToken,
+      url: childRepliesUrl({
+        apiVersion: input.apiVersion,
+        parentCommentId: input.parentCommentId,
+        platform: input.platform,
+        pageSize: Math.min(input.pageSize, remaining),
+        after,
+      }),
+    })
+    pages += 1
+
+    if (result.error) {
+      errors.push(result.error)
+      break
+    }
+
+    replies.push(...(result.data?.data ?? []).slice(0, remaining))
+    after = result.data?.paging?.cursors?.after ?? null
+  }
+
+  input.cursor[`children:${input.parentCommentId}`] = {
+    inlineCount: input.inlineReplies.length,
+    pages,
+    nextAfter: after,
+    limitReached: replies.length >= input.limit,
+  }
+  return { replies: replies.slice(0, input.limit), errors }
 }
 
 async function collectMetaComments(input: {
@@ -646,7 +739,23 @@ async function collectMetaComments(input: {
         skipped += 1
       }
 
-      for (const reply of childComments(comment)) {
+      const replies = id
+        ? await fetchChildReplies({
+          fetchImpl: input.fetchImpl,
+          accessToken: input.accessToken,
+          apiVersion: input.apiVersion,
+          platform: input.platform,
+          parentCommentId: id,
+          inlineReplies: childComments(comment),
+          inlinePaging: childPaging(comment),
+          limit: input.limit - comments.length,
+          pageSize: input.pageSize,
+          cursor,
+        })
+        : { replies: [], errors: [] }
+      errors.push(...replies.errors)
+
+      for (const reply of replies.replies) {
         if (comments.length >= input.limit) break
         const replyMapped = id
           ? mapComment({
@@ -684,6 +793,19 @@ async function collectMetaComments(input: {
     cursor,
     skipped: skipped + Math.max(0, comments.length - input.limit),
   }
+}
+
+function ingestionStatus(input: {
+  fetched: number
+  errors: MetaCommentIngestionError[]
+}): SocialCommentIngestionRunStatus {
+  if (!input.errors.length) return 'succeeded'
+  if (input.fetched > 0) return 'partial'
+
+  const recoverableAuthCodes = new Set(['token_expired', 'insufficient_scope'])
+  return input.errors.every((error) => recoverableAuthCodes.has(error.code))
+    ? 'manual_blocked'
+    : 'failed'
 }
 
 export async function refreshPublishedMetaComments(input: MetaCommentRefreshInput): Promise<MetaCommentRefreshResult> {
@@ -873,9 +995,10 @@ export async function refreshPublishedMetaComments(input: MetaCommentRefreshInpu
       upserted = upsert.upserted
     }
 
-    const status: SocialCommentIngestionRunStatus = collected.errors.length
-      ? (collected.comments.length ? 'partial' : 'failed')
-      : 'succeeded'
+    const status = ingestionStatus({
+      fetched: collected.comments.length,
+      errors: collected.errors,
+    })
     await completeRun({
       db: input.db,
       runId,
@@ -901,6 +1024,9 @@ export async function refreshPublishedMetaComments(input: MetaCommentRefreshInpu
       skipped: collected.skipped,
       errors: collected.errors,
       cursor: collected.cursor,
+      blockedReason: status === 'manual_blocked'
+        ? collected.errors.map((error) => error.message).join(' ')
+        : undefined,
     }
   } catch {
     const error = sanitizedUnexpectedError()

@@ -362,6 +362,198 @@ describe('meta comment ingestion', () => {
     }))
   })
 
+  it('follows multi-page Facebook child reply cursors within the overall limit', async () => {
+    const { db, calls } = createDb()
+    const fetchImpl = createFetchMock((url, init) => {
+      expect(init?.method).toBeUndefined()
+      expect(init?.body).toBeUndefined()
+      expect(String(url)).not.toContain('access_token')
+      return response({ data: [] })
+    })
+      .mockImplementationOnce((url, init) => {
+        expect(init?.method).toBeUndefined()
+        expect(init?.body).toBeUndefined()
+        expect(String(url)).toContain('/v20.0/123456789_987654321/comments')
+        return response({
+          data: [{
+            id: 'comment-1',
+            message: 'Parent comment',
+            from: { id: 'viewer-1', name: 'Viewer One' },
+            comments: {
+              data: [{ id: 'reply-1', message: 'Inline reply', from: { id: 'viewer-2', name: 'Viewer Two' } }],
+              paging: { cursors: { after: 'child-page-2' } },
+            },
+          }],
+        })
+      })
+      .mockImplementationOnce((url, init) => {
+        expect(init?.method).toBeUndefined()
+        expect(init?.body).toBeUndefined()
+        expect(String(url)).toContain('/v20.0/comment-1/comments')
+        expect(String(url)).toContain('after=child-page-2')
+        return response({
+          data: [{ id: 'reply-2', message: 'Fetched child reply', from: { id: 'viewer-3', name: 'Viewer Three' } }],
+          paging: { cursors: { after: 'child-page-3' } },
+        })
+      })
+      .mockImplementationOnce((url, init) => {
+        expect(init?.method).toBeUndefined()
+        expect(init?.body).toBeUndefined()
+        expect(String(url)).toContain('/v20.0/comment-1/comments')
+        expect(String(url)).toContain('after=child-page-3')
+        return response({
+          data: [{ id: 'reply-3', message: 'Final child reply', from: { id: 'viewer-4', name: 'Viewer Four' } }],
+        })
+      })
+
+    const result = await refreshPublishedMetaComments({
+      db,
+      platform: 'facebook',
+      publishId: facebookPublish.id,
+      fetchImpl: asFetch(fetchImpl),
+      limit: 4,
+      pageSize: 1,
+    })
+
+    expect(result).toMatchObject({
+      status: 'succeeded',
+      fetched: 4,
+      cursor: {
+        'children:comment-1': {
+          inlineCount: 1,
+          pages: 2,
+          nextAfter: null,
+          limitReached: true,
+        },
+      },
+    })
+    expect(fetchImpl).toHaveBeenCalledTimes(3)
+    expect(calls.commentUpserts[0]).toEqual([
+      expect.objectContaining({ provider_comment_id: 'comment-1', record_type: 'comment' }),
+      expect.objectContaining({ provider_comment_id: 'reply-1', provider_parent_comment_id: 'comment-1', record_type: 'reply' }),
+      expect.objectContaining({ provider_comment_id: 'reply-2', provider_parent_comment_id: 'comment-1', record_type: 'reply' }),
+      expect.objectContaining({ provider_comment_id: 'reply-3', provider_parent_comment_id: 'comment-1', record_type: 'reply' }),
+    ])
+  })
+
+  it('follows Instagram child reply cursors through the replies edge', async () => {
+    const { db, calls } = createDb({ publishRow: instagramPublish, configRow: instagramConfig })
+    const fetchImpl = createFetchMock(() => response({ data: [] }))
+      .mockImplementationOnce((url, init) => {
+        expect(init?.method).toBeUndefined()
+        expect(init?.body).toBeUndefined()
+        expect(String(url)).toContain('/v20.0/17900000000000000/comments')
+        return response({
+          data: [{
+            id: 'ig-comment-1',
+            text: 'Parent',
+            username: 'viewer_one',
+            replies: {
+              data: [],
+              paging: { cursors: { after: 'ig-child-page-2' } },
+            },
+          }],
+        })
+      })
+      .mockImplementationOnce((url, init) => {
+        expect(init?.method).toBeUndefined()
+        expect(init?.body).toBeUndefined()
+        expect(String(url)).toContain('/v20.0/ig-comment-1/replies')
+        expect(String(url)).toContain('after=ig-child-page-2')
+        return response({
+          data: [{ id: 'ig-reply-1', text: 'Fetched IG reply', username: 'viewer_two', parent_id: 'ig-comment-1' }],
+        })
+      })
+
+    const result = await refreshPublishedMetaComments({
+      db,
+      platform: 'instagram',
+      publishId: instagramPublish.id,
+      fetchImpl: asFetch(fetchImpl),
+      limit: 2,
+      pageSize: 1,
+    })
+
+    expect(result.status).toBe('succeeded')
+    expect(fetchImpl).toHaveBeenCalledTimes(2)
+    expect(calls.commentUpserts[0]).toEqual([
+      expect.objectContaining({ provider_comment_id: 'ig-comment-1', record_type: 'comment' }),
+      expect.objectContaining({ provider_comment_id: 'ig-reply-1', provider_parent_comment_id: 'ig-comment-1', record_type: 'reply' }),
+    ])
+  })
+
+  it('records partial evidence when a child reply cursor cannot be fetched', async () => {
+    const { db, calls } = createDb()
+    const fetchImpl = createFetchMock(() => response({ data: [] }))
+      .mockImplementationOnce(() => response({
+        data: [{
+          id: 'comment-1',
+          message: 'Parent comment',
+          from: { id: 'viewer-1', name: 'Viewer One' },
+          comments: {
+            data: [],
+            paging: { cursors: { after: 'child-page-2' } },
+          },
+        }],
+      }))
+      .mockImplementationOnce(() => response({ error: { code: 200, type: 'OAuthException' } }, 403))
+
+    const result = await refreshPublishedMetaComments({
+      db,
+      platform: 'facebook',
+      publishId: facebookPublish.id,
+      fetchImpl: asFetch(fetchImpl),
+    })
+
+    expect(result).toMatchObject({
+      status: 'partial',
+      fetched: 1,
+      errors: [expect.objectContaining({ code: 'insufficient_scope', status: 403 })],
+      cursor: {
+        'children:comment-1': expect.objectContaining({
+          pages: 1,
+          nextAfter: 'child-page-2',
+        }),
+      },
+    })
+    expect(calls.runUpdates[0]).toEqual(expect.objectContaining({
+      status: 'partial',
+      fetched_count: 1,
+      error_count: 1,
+    }))
+  })
+
+  it('returns manual_blocked for zero-data provider token or scope denials', async () => {
+    for (const providerError of [
+      { body: { error: { code: 190, type: 'OAuthException' } }, status: 401, expected: 'token_expired' },
+      { body: { error: { code: 200, type: 'OAuthException' } }, status: 403, expected: 'insufficient_scope' },
+    ]) {
+      const { db, calls } = createDb()
+      const fetchImpl = createFetchMock(() => response(providerError.body, providerError.status))
+
+      const result = await refreshPublishedMetaComments({
+        db,
+        platform: 'facebook',
+        publishId: facebookPublish.id,
+        fetchImpl: asFetch(fetchImpl),
+      })
+
+      expect(result).toMatchObject({
+        status: 'manual_blocked',
+        fetched: 0,
+        upserted: 0,
+        blockedReason: expect.any(String),
+        errors: [expect.objectContaining({ code: providerError.expected })],
+      })
+      expect(calls.commentUpserts).toEqual([])
+      expect(calls.runUpdates[0]).toEqual(expect.objectContaining({
+        status: 'manual_blocked',
+        fetched_count: 0,
+        error_count: 1,
+      }))
+    }
+  })
+
   it('blocks expired Meta token metadata before any provider call', async () => {
     const { db } = createDb({
       configRow: {

@@ -43,6 +43,7 @@ describe('GET /api/auth/meta', () => {
     expect(authUrl.searchParams.get('client_id')).toBe('meta-client-id')
     expect(authUrl.searchParams.get('redirect_uri')).toBe('https://amadutown.com/api/auth/meta/callback')
     expect(authUrl.searchParams.get('scope')).toContain('pages_manage_posts')
+    expect(authUrl.searchParams.get('scope')).toContain('instagram_manage_comments')
     expect(authUrl.searchParams.get('scope')).toContain('instagram_content_publish')
     expect(response.headers.get('set-cookie')).toContain('meta_oauth_state=')
     expect(response.headers.get('set-cookie')).toContain('HttpOnly')
