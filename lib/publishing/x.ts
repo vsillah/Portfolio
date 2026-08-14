@@ -1,5 +1,10 @@
 import { supabaseAdmin } from '@/lib/supabase'
 import type { PublishStatus } from '@/lib/social-content'
+import {
+  isXAccessTokenStale,
+  refreshXOAuthCredentials,
+  type XOAuthCredentials,
+} from '@/lib/x-oauth-refresh'
 
 export interface XPublishPayload {
   contentId: string
@@ -17,16 +22,6 @@ export interface XPublishResult {
   threadPostIds?: string[]
   threadPostUrls?: string[]
   error?: string
-}
-
-interface XCredentials {
-  access_token?: string
-  refresh_token?: string
-  expires_in?: number
-  token_obtained_at?: string
-  token_type?: string
-  scope?: string
-  user_id?: string
 }
 
 interface XSettings {
@@ -47,7 +42,7 @@ type XCreatePostResponse = {
 }
 
 async function getXConfig(): Promise<{
-  credentials: XCredentials
+  credentials: XOAuthCredentials
   settings: XSettings
 } | null> {
   const admin = supabaseAdmin
@@ -62,19 +57,9 @@ async function getXConfig(): Promise<{
   if (!data || !data.is_active) return null
 
   return {
-    credentials: data.credentials as XCredentials,
+    credentials: data.credentials as XOAuthCredentials,
     settings: data.settings as XSettings,
   }
-}
-
-async function updateXCredentials(credentials: XCredentials) {
-  const admin = supabaseAdmin
-  if (!admin) return
-
-  await admin
-    .from('social_content_config')
-    .update({ credentials })
-    .eq('platform', 'x')
 }
 
 async function updatePublishStatus(
@@ -180,71 +165,6 @@ function validatePostSequence(posts: string[], maxPostLength: number) {
   return null
 }
 
-function isTokenExpired(credentials: XCredentials, bufferMs = 10 * 60 * 1000) {
-  if (!credentials.token_obtained_at || !credentials.expires_in) return false
-  const obtainedAt = new Date(credentials.token_obtained_at).getTime()
-  const expiresAt = obtainedAt + credentials.expires_in * 1000
-  return Date.now() + bufferMs >= expiresAt
-}
-
-async function refreshXToken(credentials: XCredentials): Promise<{
-  success: boolean
-  credentials?: XCredentials
-  error?: string
-}> {
-  if (!credentials.refresh_token) {
-    return { success: false, error: 'X token expired - reconnect X before publishing' }
-  }
-
-  const clientId = process.env.X_CLIENT_ID || process.env.TWITTER_CLIENT_ID
-  const clientSecret = process.env.X_CLIENT_SECRET || process.env.TWITTER_CLIENT_SECRET
-  if (!clientId || !clientSecret) {
-    return { success: false, error: 'X OAuth client credentials are not configured' }
-  }
-
-  const response = await fetch('https://api.x.com/2/oauth2/token', {
-    method: 'POST',
-    headers: {
-      Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams({
-      grant_type: 'refresh_token',
-      refresh_token: credentials.refresh_token,
-      client_id: clientId,
-    }),
-  })
-
-  const data = await response.json().catch(() => ({})) as {
-    access_token?: string
-    refresh_token?: string
-    expires_in?: number
-    token_type?: string
-    scope?: string
-    error_description?: string
-    error?: string
-  }
-
-  if (!response.ok || !data.access_token) {
-    return {
-      success: false,
-      error: data.error_description || data.error || 'X token refresh failed - reconnect X before publishing',
-    }
-  }
-
-  const updated = {
-    ...credentials,
-    access_token: data.access_token,
-    refresh_token: data.refresh_token || credentials.refresh_token,
-    expires_in: data.expires_in,
-    token_type: data.token_type || credentials.token_type,
-    scope: data.scope || credentials.scope,
-    token_obtained_at: new Date().toISOString(),
-  }
-  await updateXCredentials(updated)
-  return { success: true, credentials: updated }
-}
-
 function parseXResponse(text: string): XCreatePostResponse {
   if (!text) return {}
   try {
@@ -313,10 +233,21 @@ export async function publishToX(payload: XPublishPayload): Promise<XPublishResu
   }
 
   let credentials = config.credentials
-  if (isTokenExpired(credentials)) {
-    const refresh = await refreshXToken(credentials)
-    if (!refresh.success || !refresh.credentials) {
-      const error = refresh.error || 'X token refresh failed - reconnect X before publishing'
+  if (isXAccessTokenStale({ credentials })) {
+    const admin = supabaseAdmin
+    if (!admin) {
+      const error = 'X token refresh requires Supabase admin access'
+      await updatePublishStatus(payload.contentId, 'failed', { error_message: error })
+      return { success: false, error }
+    }
+    const refresh = await refreshXOAuthCredentials({
+      db: admin,
+      credentials,
+      fetchImpl: fetch,
+      now: new Date(),
+    })
+    if (!refresh.refreshed || refresh.error) {
+      const error = refresh.error?.message || 'X token refresh failed - reconnect X before publishing'
       await updatePublishStatus(payload.contentId, 'failed', { error_message: error })
       return { success: false, error }
     }
