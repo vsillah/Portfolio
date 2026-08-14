@@ -19,7 +19,7 @@ const config = {
     access_token: 'youtube-access-token',
     refresh_token: 'youtube-refresh-token',
     expires_in: 3600,
-    token_obtained_at: '2026-08-12T11:50:00.000Z',
+    token_obtained_at: '2099-01-01T00:00:00.000Z',
     scope: 'https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/youtube.force-ssl',
   },
   settings: { channel_title: 'AmaduTown Automation Solutions' },
