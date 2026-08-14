@@ -98,6 +98,7 @@ export type SocialCommentAlertReliabilityStatus = {
     at: string | null
     outcome: 'sent' | 'deduped' | 'skipped' | 'errored' | 'unknown'
     reason: string | null
+    itemCount?: number
   } | null
 }
 

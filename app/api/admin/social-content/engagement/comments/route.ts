@@ -94,6 +94,10 @@ function boolValue(value: unknown) {
   return typeof value === 'boolean' ? value : null
 }
 
+function numberValue(value: unknown) {
+  return typeof value === 'number' && Number.isFinite(value) ? Math.max(0, Math.floor(value)) : null
+}
+
 function lastRunOutcome(row: Record<string, unknown>): NonNullable<SocialCommentAlertReliabilityStatus['lastRun']>['outcome'] {
   const outcome = asRecord(row.outcome)
   const metadata = asRecord(row.metadata)
@@ -102,6 +106,29 @@ function lastRunOutcome(row: Record<string, unknown>): NonNullable<SocialComment
   if (boolValue(outcome?.skipped) === true) return 'skipped'
   if (String(row.status ?? '').toLowerCase() === 'failed' || Boolean(outcome?.error) || Boolean(metadata?.error)) return 'errored'
   return 'unknown'
+}
+
+function lastRunItemCount(row: Record<string, unknown>) {
+  const outcome = asRecord(row.outcome)
+  const metadata = asRecord(row.metadata)
+  return numberValue(outcome?.item_count)
+    ?? numberValue(outcome?.itemCount)
+    ?? numberValue(metadata?.item_count)
+    ?? numberValue(metadata?.itemCount)
+    ?? 0
+}
+
+function alertReliabilityCountsFromLastRun(lastRun: SocialCommentAlertReliabilityStatus['lastRun']) {
+  if (!lastRun) {
+    return { sentCount: 0, dedupedCount: 0, skippedCount: 0, errorCount: 0 }
+  }
+
+  return {
+    sentCount: lastRun.outcome === 'sent' ? 1 : 0,
+    dedupedCount: lastRun.outcome === 'deduped' ? 1 : 0,
+    skippedCount: lastRun.outcome === 'skipped' ? 1 : 0,
+    errorCount: lastRun.outcome === 'errored' ? 1 : 0,
+  }
 }
 
 async function fetchLastSocialCommentAlertRun(): Promise<SocialCommentAlertReliabilityStatus['lastRun']> {
@@ -125,12 +152,15 @@ async function fetchLastSocialCommentAlertRun(): Promise<SocialCommentAlertRelia
 
     const outcome = asRecord(row.outcome)
     const metadata = asRecord(row.metadata)
+    const alertOutcome = lastRunOutcome(row)
+    const itemCount = lastRunItemCount(row)
     return {
       id: String(row.id),
       status: stringValue(row.status),
       at: stringValue(row.ended_at) || stringValue(row.updated_at) || stringValue(row.started_at),
-      outcome: lastRunOutcome(row),
+      outcome: alertOutcome,
       reason: stringValue(outcome?.reason) || stringValue(metadata?.reason) || stringValue(row.current_step),
+      itemCount,
     }
   } catch {
     return null
@@ -236,12 +266,16 @@ export async function GET(request: NextRequest) {
   const allItems = getSocialCommentInboxItems(rows, postsByContentId)
   const items = filterSocialCommentInboxItems(allItems, filters)
   const activationEnabled = socialCommentSlackAttentionEnabled()
+  const lastRun = await fetchLastSocialCommentAlertRun()
+  const lastRunCounts = alertReliabilityCountsFromLastRun(lastRun)
+  const currentAttentionItemCount = rows.filter((row) => needsCommentAttention(row as SocialCommentAttentionRow)).length
   const alertReliability = buildSocialCommentAlertReliabilityStatus({
     activationEnabled,
     activationReason: activationEnabled ? 'enabled' : 'activation_disabled_default_off',
     deliveryDryRun: !activationEnabled,
-    itemCount: rows.filter((row) => needsCommentAttention(row as SocialCommentAttentionRow)).length,
-    lastRun: await fetchLastSocialCommentAlertRun(),
+    itemCount: lastRun && lastRun.outcome !== 'unknown' ? lastRun.itemCount : currentAttentionItemCount,
+    ...lastRunCounts,
+    lastRun,
   })
 
   return NextResponse.json({
