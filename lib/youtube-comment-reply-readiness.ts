@@ -2,6 +2,7 @@ import { YOUTUBE_FORCE_SSL_SCOPE } from './youtube-oauth'
 
 export const YOUTUBE_COMMENT_REPLY_SUBMISSION_ENV = 'SOCIAL_COMMENT_YOUTUBE_REPLY_SUBMISSION_ENABLED'
 export const YOUTUBE_COMMENTS_INSERT_URL = 'https://www.googleapis.com/youtube/v3/comments'
+export const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token'
 export const YOUTUBE_REPLY_PROVIDER = 'youtube_data_api'
 
 type FetchLike = typeof fetch
@@ -62,6 +63,7 @@ export type YouTubeReplyBlockerCode =
   | 'youtube_not_connected'
   | 'youtube_credentials_incomplete'
   | 'youtube_token_expired'
+  | 'youtube_token_refresh_failed'
   | 'youtube_insufficient_scope'
   | 'reply_already_submitted'
   | 'human_approval_required'
@@ -108,6 +110,12 @@ export type YouTubeReplyProviderError = {
   message: string
   status?: number
   reason?: string
+}
+
+export type YouTubeReplyTokenRefreshResult = {
+  config: YouTubeReplyConfig | null
+  refreshed: boolean
+  blocker: YouTubeReplyBlocker | null
 }
 
 type GoogleApiError = {
@@ -157,6 +165,109 @@ function tokenExpired(credentials: YouTubeReplyCredentials, now: Date, bufferMs 
   return now.getTime() + bufferMs >= obtained + credentials.expires_in * 1000
 }
 
+function tokenRefreshBlocker(message: string): YouTubeReplyBlocker {
+  return blocker(
+    'youtube_token_refresh_failed',
+    message,
+    'Refresh or reconnect YouTube with verifiable OAuth token metadata before attempting a public reply canary.',
+  )
+}
+
+export async function refreshYouTubeReplyConfigIfNeeded(input: {
+  config?: YouTubeReplyConfig | null
+  fetchImpl?: FetchLike
+  env?: Partial<NodeJS.ProcessEnv>
+  now?: Date
+}): Promise<YouTubeReplyTokenRefreshResult> {
+  const config = input.config ?? null
+  const credentials = config?.credentials ?? null
+  const now = input.now ?? new Date()
+
+  if (!config?.is_active || !credentials) {
+    return { config, refreshed: false, blocker: null }
+  }
+
+  if (!tokenExpired(credentials, now)) {
+    return { config, refreshed: false, blocker: null }
+  }
+
+  const refreshToken = asString(credentials.refresh_token)
+  if (!refreshToken) {
+    return {
+      config,
+      refreshed: false,
+      blocker: tokenRefreshBlocker('Stored YouTube access token is stale and no refresh token is available.'),
+    }
+  }
+
+  const env = input.env ?? process.env
+  const clientId = asString(env.YOUTUBE_CLIENT_ID) || asString(env.GOOGLE_CLIENT_ID)
+  const clientSecret = asString(env.YOUTUBE_CLIENT_SECRET) || asString(env.GOOGLE_CLIENT_SECRET)
+  if (!clientId || !clientSecret) {
+    return {
+      config,
+      refreshed: false,
+      blocker: tokenRefreshBlocker('YouTube OAuth client credentials are not configured for token refresh.'),
+    }
+  }
+
+  let response: Response
+  try {
+    response = await (input.fetchImpl ?? fetch)(GOOGLE_TOKEN_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        refresh_token: refreshToken,
+        grant_type: 'refresh_token',
+      }),
+    })
+  } catch {
+    return {
+      config,
+      refreshed: false,
+      blocker: tokenRefreshBlocker('YouTube token refresh failed before a provider reply request could be attempted.'),
+    }
+  }
+  const data = await response.json().catch(() => ({})) as {
+    access_token?: unknown
+    expires_in?: unknown
+    refresh_token?: unknown
+    scope?: unknown
+    error?: unknown
+    error_description?: unknown
+  }
+
+  const accessToken = asString(data.access_token)
+  const expiresIn = typeof data.expires_in === 'number' && Number.isFinite(data.expires_in) && data.expires_in > 0
+    ? data.expires_in
+    : null
+  if (!response.ok || !accessToken || !expiresIn) {
+    return {
+      config,
+      refreshed: false,
+      blocker: tokenRefreshBlocker(`YouTube token refresh failed (${response.status}).`),
+    }
+  }
+
+  return {
+    config: {
+      ...config,
+      credentials: {
+        ...credentials,
+        access_token: accessToken,
+        refresh_token: asString(data.refresh_token) || refreshToken,
+        expires_in: expiresIn,
+        token_obtained_at: now.toISOString(),
+        scope: asString(data.scope) || credentials.scope,
+      },
+    },
+    refreshed: true,
+    blocker: null,
+  }
+}
+
 function blocker(code: YouTubeReplyBlockerCode, message: string, recoveryAction: string): YouTubeReplyBlocker {
   return { code, message, recoveryAction }
 }
@@ -203,7 +314,7 @@ function hasPolicyEvidence(comment: YouTubeReplyCommentRow) {
   )
 }
 
-function enabledByEnv(env: NodeJS.ProcessEnv) {
+function enabledByEnv(env: Partial<NodeJS.ProcessEnv>) {
   return env[YOUTUBE_COMMENT_REPLY_SUBMISSION_ENV] === 'true'
 }
 
@@ -256,7 +367,7 @@ export function evaluateYouTubeReplyReadiness(input: {
   comment: YouTubeReplyCommentRow
   config?: YouTubeReplyConfig | null
   canonicalCapability?: YouTubeReplyCanonicalCapability | null
-  env?: NodeJS.ProcessEnv
+  env?: Partial<NodeJS.ProcessEnv>
   now?: Date
 }): YouTubeReplyReadiness {
   const env = input.env ?? process.env
@@ -486,7 +597,7 @@ export async function submitYouTubeCommentReply(input: {
   config?: YouTubeReplyConfig | null
   canonicalCapability?: YouTubeReplyCanonicalCapability | null
   fetchImpl?: FetchLike
-  env?: NodeJS.ProcessEnv
+  env?: Partial<NodeJS.ProcessEnv>
   now?: () => Date
 }): Promise<YouTubeReplySubmitResult> {
   const now = input.now?.() ?? new Date()

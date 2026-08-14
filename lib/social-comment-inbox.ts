@@ -22,7 +22,7 @@ export type SocialCommentProviderCapability = {
   supportsAuthorProfile: boolean
   supportsThreading: boolean
   supportsCursor: boolean
-  externalSubmissionEnabled: false
+  externalSubmissionEnabled: boolean
   gateNotes: string
 }
 
@@ -35,7 +35,7 @@ export type SocialCommentProviderCapabilitySnapshot = {
   supports_author_profile: boolean
   supports_threading: boolean
   supports_cursor: boolean
-  external_submission_enabled: false
+  external_submission_enabled: boolean
   gate_notes: string
 }
 
@@ -156,6 +156,7 @@ export type NormalizedSocialCommentInput = {
   approvedReplyText?: string | null
   replyProviderCommentId?: string | null
   replySubmittedAt?: string | null
+  providerCapability?: SocialCommentProviderCapabilitySnapshot | null
   ingestionRunId?: string | null
   rawPayload?: Record<string, unknown>
   metadata?: Record<string, unknown>
@@ -349,7 +350,7 @@ export function buildSocialCommentUpsertPayload(input: NormalizedSocialCommentIn
     approved_reply_text: optionalTrimmed(input.approvedReplyText),
     reply_provider_comment_id: optionalTrimmed(input.replyProviderCommentId),
     reply_submitted_at: optionalTrimmed(input.replySubmittedAt),
-    provider_capability: serializeCommentProviderCapability(capability),
+    provider_capability: input.providerCapability ?? serializeCommentProviderCapability(capability),
     ingestion_run_id: optionalTrimmed(input.ingestionRunId),
     raw_payload: input.rawPayload ?? {},
     metadata: input.metadata ?? {},

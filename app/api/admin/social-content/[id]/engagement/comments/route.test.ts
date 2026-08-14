@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   isAuthError: vi.fn(),
   from: vi.fn(),
   update: vi.fn(),
+  configUpdate: vi.fn(),
 }))
 
 vi.mock('@/lib/auth-server', () => ({
@@ -116,6 +117,27 @@ const futureCanonicalYouTubeCapability = {
   external_submission_enabled: true,
 }
 
+const staleYouTubeConfig = {
+  is_active: true,
+  credentials: {
+    access_token: 'expired-youtube-access-token',
+    refresh_token: 'youtube-refresh-token',
+    expires_in: 60,
+    token_obtained_at: '2026-08-13T10:00:00.000Z',
+    scope: 'https://www.googleapis.com/auth/youtube.force-ssl',
+  },
+  settings: { channel_id: 'channel-1' },
+}
+
+const submittedYouTubeCommentRow = {
+  ...youtubeCommentRow,
+  reply_submission_state: 'submitted',
+  reply_provider_comment_id: 'reply-existing',
+  reply_submitted_at: '2026-08-13T12:10:00.000Z',
+}
+
+type TestCommentRow = Record<string, unknown> & { id: string; content_id: string }
+
 function request(body?: Record<string, unknown>) {
   return new Request('http://localhost/api/admin/social-content/social-1/engagement/comments', {
     method: body ? 'POST' : 'GET',
@@ -128,7 +150,9 @@ function request(body?: Record<string, unknown>) {
 }
 
 function installDbMocks(options: {
-  comment?: typeof commentRow
+  comment?: TestCommentRow
+  config?: Record<string, unknown> | null
+  configUpdateError?: Record<string, unknown> | null
   claimData?: Record<string, unknown> | null
   persistenceData?: Record<string, unknown> | null
   persistenceError?: Record<string, unknown> | null
@@ -174,7 +198,7 @@ function installDbMocks(options: {
   mocks.update.mockReturnValue(updateBuilder)
 
   const configMaybeSingle = vi.fn().mockResolvedValue({
-    data: {
+    data: options.config === undefined ? {
       is_active: true,
       credentials: {
         access_token: 'youtube-access-token',
@@ -184,11 +208,13 @@ function installDbMocks(options: {
         scope: 'https://www.googleapis.com/auth/youtube.force-ssl',
       },
       settings: { channel_id: 'channel-1' },
-    },
+    } : options.config,
     error: null,
   })
   const configEq = vi.fn().mockReturnValue({ maybeSingle: configMaybeSingle })
   const configSelect = vi.fn().mockReturnValue({ eq: configEq })
+  const configUpdateEq = vi.fn().mockResolvedValue({ data: null, error: options.configUpdateError ?? null })
+  mocks.configUpdate.mockReturnValue({ eq: configUpdateEq })
 
   const capabilityMaybeSingle = vi.fn().mockResolvedValue({
     data: options.canonicalCapability === undefined ? currentCanonicalYouTubeCapability : options.canonicalCapability,
@@ -200,7 +226,7 @@ function installDbMocks(options: {
   mocks.from.mockImplementation((table: string) => {
     if (table === 'social_content_queue') return { select: postSelect }
     if (table === 'social_content_comments') return { select: commentsSelect, update: mocks.update }
-    if (table === 'social_content_config') return { select: configSelect }
+    if (table === 'social_content_config') return { select: configSelect, update: mocks.configUpdate }
     if (table === 'social_comment_provider_capabilities') return { select: capabilitySelect }
     throw new Error(`Unexpected table ${table}`)
   })
@@ -397,6 +423,89 @@ describe('/api/admin/social-content/[id]/engagement/comments', () => {
       }),
     })
     expect(body.integration_note).toContain('did not mutate reply evidence')
+  })
+
+  it('refreshes stale YouTube credentials before a gated reply and blocks duplicate attempts before provider calls', async () => {
+    installDbMocks({
+      comment: youtubeCommentRow,
+      config: staleYouTubeConfig,
+      claimData: { id: 'comment-1' },
+      persistenceData: { id: 'comment-1' },
+      canonicalCapability: futureCanonicalYouTubeCapability,
+    })
+    vi.stubEnv('SOCIAL_COMMENT_YOUTUBE_REPLY_SUBMISSION_ENABLED', 'true')
+    vi.stubEnv('YOUTUBE_CLIENT_ID', 'client-id')
+    vi.stubEnv('YOUTUBE_CLIENT_SECRET', 'client-secret')
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        access_token: 'fresh-youtube-access-token',
+        expires_in: 3600,
+        scope: 'https://www.googleapis.com/auth/youtube.force-ssl',
+      }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ id: 'reply-1' }), { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const response = await POST(request({
+      action: 'submit',
+      comment_id: 'comment-1',
+    }) as never, { params: { id: 'social-1' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({
+      ok: true,
+      blocked: false,
+      integration_note: 'A gated YouTube reply was submitted and canonical submitted evidence was recorded.',
+    })
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(String(fetchMock.mock.calls[0][0])).toBe('https://oauth2.googleapis.com/token')
+    expect(String(fetchMock.mock.calls[1][0])).toBe('https://www.googleapis.com/youtube/v3/comments?part=snippet')
+    expect(mocks.configUpdate).toHaveBeenCalledWith({
+      credentials: expect.objectContaining({
+        access_token: 'fresh-youtube-access-token',
+        refresh_token: 'youtube-refresh-token',
+        expires_in: 3600,
+        token_obtained_at: expect.any(String),
+        scope: 'https://www.googleapis.com/auth/youtube.force-ssl',
+      }),
+    })
+    expect(mocks.update.mock.calls.at(-1)?.[0]).toMatchObject({
+      reply_submission_state: 'submitted',
+      reply_provider_comment_id: 'reply-1',
+      metadata: expect.objectContaining({
+        youtube_reply_readiness: expect.objectContaining({
+          status: 'submitted',
+          external_submission_attempted: true,
+        }),
+      }),
+    })
+
+    vi.clearAllMocks()
+    mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-user' } })
+    mocks.isAuthError.mockReturnValue(false)
+    installDbMocks({
+      comment: submittedYouTubeCommentRow,
+      config: staleYouTubeConfig,
+      canonicalCapability: futureCanonicalYouTubeCapability,
+    })
+    fetchMock.mockClear()
+
+    const duplicate = await POST(request({
+      action: 'submit',
+      comment_id: 'comment-1',
+    }) as never, { params: { id: 'social-1' } })
+    const duplicateBody = await duplicate.json()
+
+    expect(duplicate.status).toBe(409)
+    expect(duplicateBody).toMatchObject({
+      ok: false,
+      blocked: true,
+    })
+    expect(duplicateBody.message).toContain('already has submitted reply evidence')
+    expect(duplicateBody.integration_note).toContain('before any provider call or row mutation')
+    expect(fetchMock).not.toHaveBeenCalled()
+    expect(mocks.configUpdate).not.toHaveBeenCalled()
+    expect(mocks.update).not.toHaveBeenCalled()
   })
 
   it('reports provider success that cannot be persisted as reconcile-before-retry', async () => {

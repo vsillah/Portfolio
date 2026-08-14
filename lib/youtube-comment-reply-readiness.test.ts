@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   buildYouTubeCommentInsertRequest,
   evaluateYouTubeReplyReadiness,
+  refreshYouTubeReplyConfigIfNeeded,
   submitYouTubeCommentReply,
   YOUTUBE_COMMENT_REPLY_SUBMISSION_ENV,
   YOUTUBE_COMMENTS_INSERT_URL,
@@ -259,6 +260,116 @@ describe('youtube reply readiness', () => {
       expect.objectContaining({ code: 'youtube_token_expired' }),
     ]))
     expect(readiness.request).toBeNull()
+  })
+
+  it('refreshes stale reply credentials without exposing the refresh token', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(() => response({
+      access_token: 'fresh-access-token',
+      expires_in: 3600,
+      scope: YOUTUBE_FORCE_SSL_SCOPE,
+    }))
+
+    const result = await refreshYouTubeReplyConfigIfNeeded({
+      config: {
+        ...activeConfig,
+        credentials: {
+          ...activeConfig.credentials,
+          access_token: 'expired-access-token',
+          token_obtained_at: '2026-08-13T10:00:00.000Z',
+          expires_in: 60,
+        },
+      },
+      fetchImpl: asFetch(fetchImpl),
+      env: {
+        YOUTUBE_CLIENT_ID: 'client-id',
+        YOUTUBE_CLIENT_SECRET: 'client-secret',
+      },
+      now: new Date('2026-08-13T12:05:00.000Z'),
+    })
+
+    expect(result).toMatchObject({
+      refreshed: true,
+      blocker: null,
+      config: {
+        credentials: expect.objectContaining({
+          access_token: 'fresh-access-token',
+          refresh_token: 'youtube-refresh-token',
+          expires_in: 3600,
+          token_obtained_at: '2026-08-13T12:05:00.000Z',
+          scope: YOUTUBE_FORCE_SSL_SCOPE,
+        }),
+      },
+    })
+    expect(String(fetchImpl.mock.calls[0][0])).toBe('https://oauth2.googleapis.com/token')
+    expect(String((fetchImpl.mock.calls[0][1]?.body as URLSearchParams).get('refresh_token'))).toBe('youtube-refresh-token')
+  })
+
+  it('blocks stale reply credentials when refresh fails without calling comments.insert', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(() => response({ error_description: 'invalid_grant' }, 400))
+
+    const result = await refreshYouTubeReplyConfigIfNeeded({
+      config: {
+        ...activeConfig,
+        credentials: {
+          ...activeConfig.credentials,
+          token_obtained_at: 'not-a-date',
+          expires_in: null,
+        },
+      },
+      fetchImpl: asFetch(fetchImpl),
+      env: {
+        YOUTUBE_CLIENT_ID: 'client-id',
+        YOUTUBE_CLIENT_SECRET: 'client-secret',
+      },
+      now: new Date('2026-08-13T12:05:00.000Z'),
+    })
+
+    expect(result).toMatchObject({
+      refreshed: false,
+      blocker: expect.objectContaining({
+        code: 'youtube_token_refresh_failed',
+        message: 'YouTube token refresh failed (400).',
+      }),
+    })
+    expect(fetchImpl).toHaveBeenCalledTimes(1)
+    expect(String(fetchImpl.mock.calls[0][0])).toBe('https://oauth2.googleapis.com/token')
+  })
+
+  it('sanitizes network failures during reply token refresh without calling comments.insert', async () => {
+    const originalConfig = {
+      ...activeConfig,
+      credentials: {
+        ...activeConfig.credentials,
+        access_token: 'expired-access-token',
+        token_obtained_at: '2026-08-13T10:00:00.000Z',
+        expires_in: 60,
+      },
+    }
+    const fetchImpl = vi.fn<typeof fetch>(() => Promise.reject(new Error('network failed with youtube-refresh-token')))
+
+    const result = await refreshYouTubeReplyConfigIfNeeded({
+      config: originalConfig,
+      fetchImpl: asFetch(fetchImpl),
+      env: {
+        YOUTUBE_CLIENT_ID: 'client-id',
+        YOUTUBE_CLIENT_SECRET: 'client-secret',
+      },
+      now: new Date('2026-08-13T12:05:00.000Z'),
+    })
+
+    expect(result.config).toBe(originalConfig)
+    expect(result).toMatchObject({
+      refreshed: false,
+      blocker: expect.objectContaining({
+        code: 'youtube_token_refresh_failed',
+        message: 'YouTube token refresh failed before a provider reply request could be attempted.',
+      }),
+    })
+    expect(result.blocker?.message).not.toContain('network failed')
+    expect(result.blocker?.message).not.toContain('youtube-refresh-token')
+    expect(fetchImpl).toHaveBeenCalledTimes(1)
+    expect(String(fetchImpl.mock.calls[0][0])).toBe('https://oauth2.googleapis.com/token')
+    expect(fetchImpl.mock.calls.map(([url]) => String(url))).not.toContain('https://www.googleapis.com/youtube/v3/comments?part=snippet')
   })
 
   it('inherits policy provenance and source-distance public reply blockers', () => {
