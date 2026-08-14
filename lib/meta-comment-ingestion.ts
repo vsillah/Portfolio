@@ -144,7 +144,7 @@ const META_PROVIDER = 'meta_graph'
 const GRAPH_BASE_URL = 'https://graph.facebook.com'
 const META_OBJECT_ID_PATTERN = /^[A-Za-z0-9_:-]{3,256}$/
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-const FACEBOOK_REQUIRED_SCOPES = ['pages_read_engagement']
+const FACEBOOK_REQUIRED_SCOPES = ['pages_read_engagement', 'pages_read_user_content']
 const INSTAGRAM_REQUIRED_SCOPES = ['instagram_basic', 'instagram_manage_comments']
 
 function asString(value: unknown) {
@@ -299,7 +299,7 @@ function localScopeError(platform: MetaCommentPlatform, config: MetaConfigRow, n
       code: 'insufficient_scope',
       message: platform === 'instagram'
         ? 'Stored Instagram OAuth evidence is missing instagram_basic or instagram_manage_comments; reconnect Meta before refreshing Instagram comments.'
-        : 'Stored Facebook OAuth evidence is missing pages_read_engagement; reconnect Meta before refreshing Facebook comments.',
+        : 'Stored Facebook OAuth evidence is missing pages_read_engagement or pages_read_user_content; reconnect Meta before refreshing Facebook comments.',
     }
   }
 

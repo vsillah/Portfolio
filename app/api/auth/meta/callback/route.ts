@@ -192,6 +192,7 @@ export async function GET(request: NextRequest) {
     const scope = grantedScopeString(permissions)
     const grantedPermissions = [...permissions].sort()
     const hasFacebookPageRead = permissions.has('pages_read_engagement')
+    const hasFacebookUserContentRead = permissions.has('pages_read_user_content')
     const hasInstagramPublishing = permissions.has('instagram_content_publish')
     const hasInstagramBasic = permissions.has('instagram_basic')
     const hasInstagramManageComments = permissions.has('instagram_manage_comments')
@@ -216,6 +217,8 @@ export async function GET(request: NextRequest) {
       connected_page_name: page.name,
       connected_at: connectedAt,
       pages_read_engagement_permission: hasFacebookPageRead,
+      pages_read_user_content_permission: hasFacebookUserContentRead,
+      facebook_comment_read_permissions_confirmed: hasFacebookPageRead && hasFacebookUserContentRead,
       meta_granted_permissions: grantedPermissions,
     })
 

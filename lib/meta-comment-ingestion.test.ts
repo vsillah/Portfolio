@@ -24,7 +24,7 @@ const facebookConfig = {
     page_access_token: 'facebook-page-token',
     expires_in: 3600,
     token_obtained_at: '2099-01-01T00:00:00.000Z',
-    scope: 'pages_show_list pages_read_engagement',
+    scope: 'pages_show_list pages_read_engagement pages_read_user_content',
   },
   settings: {
     graph_api_version: 'v20.0',
@@ -684,6 +684,30 @@ describe('meta comment ingestion', () => {
       db,
       platform: 'instagram',
       publishId: instagramPublish.id,
+      fetchImpl: asFetch(fetchImpl),
+    })
+
+    expect(result.status).toBe('manual_blocked')
+    expect(result.errors[0]).toMatchObject({ code: 'insufficient_scope' })
+    expect(fetchImpl).not.toHaveBeenCalled()
+  })
+
+  it('blocks Facebook before provider access when user-content read scope is missing', async () => {
+    const { db } = createDb({
+      configRow: {
+        ...facebookConfig,
+        credentials: {
+          ...facebookConfig.credentials,
+          scope: 'pages_show_list pages_read_engagement',
+        },
+      },
+    })
+    const fetchImpl = createFetchMock(() => response({ data: [] }))
+
+    const result = await refreshPublishedMetaComments({
+      db,
+      platform: 'facebook',
+      publishId: facebookPublish.id,
       fetchImpl: asFetch(fetchImpl),
     })
 

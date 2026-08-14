@@ -5,6 +5,7 @@ export const META_GRAPH_API_VERSION = process.env.META_GRAPH_API_VERSION || 'v20
 export const META_OAUTH_SCOPES = [
   'pages_show_list',
   'pages_read_engagement',
+  'pages_read_user_content',
   'pages_manage_posts',
   'instagram_basic',
   'instagram_manage_comments',
