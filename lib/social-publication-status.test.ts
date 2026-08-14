@@ -3,7 +3,9 @@ import type { SocialContentItem, SocialContentPublish } from '@/lib/social-conte
 import {
   derivePublicationProjection,
   formatPublicationDate,
+  reconcilePublicationProjectionWithLifecycle,
 } from '@/lib/social-publication-status'
+import { deriveSocialContentLifecycleProjection } from '@/lib/social-content-lifecycle'
 
 const item = (overrides: Partial<SocialContentItem> = {}) => ({
   status: 'approved',
@@ -43,6 +45,10 @@ describe('publication status projection', () => {
       rawStatus: 'pending',
     })
     expect(result.explanation).toContain('provider submission has not happened yet')
+    expect(result.explanation).toContain('hosted scheduler runs hourly')
+    expect(result.explanation).toContain('at or after Aug 15, 2026, 9:00 AM')
+    expect(result.nextAction).toContain('next hosted scheduler run at or after')
+    expect(result.explanation).not.toContain('pick up this post at the scheduled time')
   })
 
   it('fails closed when legacy queue and provider states are ambiguous', () => {
@@ -94,18 +100,69 @@ describe('publication status projection', () => {
     })
   })
 
-  it('distinguishes cancelled and skipped provider records', () => {
-    expect(derivePublicationProjection({
+  it('projects the schedule-recovery skipped marker as cancelled and preserves generic skipped', () => {
+    const cancelled = derivePublicationProjection({
       item: item(),
-      publish: publish({ status: 'cancelled' as SocialContentPublish['status'] }),
+      publish: publish({
+        status: 'skipped',
+        error_message: 'Scheduled publication cancelled by admin-1 at 2026-08-13T14:00:00.000Z.',
+      }),
       ...dateOptions,
-    }).state).toBe('cancelled')
+    })
+    expect(cancelled).toMatchObject({
+      state: 'cancelled',
+      stateLabel: 'Cancelled',
+      rawStatus: 'skipped',
+    })
 
-    expect(derivePublicationProjection({
+    const skipped = derivePublicationProjection({
       item: item(),
-      publish: publish({ status: 'skipped' }),
+      publish: publish({ status: 'skipped', error_message: 'Excluded from this provider batch.' }),
       ...dateOptions,
-    }).state).toBe('skipped')
+    })
+    expect(skipped).toMatchObject({
+      state: 'skipped',
+      stateLabel: 'Skipped',
+      rawStatus: 'skipped',
+    })
+    expect(skipped.explanation).toContain('Excluded from this provider batch.')
+  })
+
+  it('blocks a scheduled provider projection when canonical lifecycle prerequisites are unresolved', () => {
+    const projection = derivePublicationProjection({
+      item: item({ status: 'scheduled', scheduled_for: '2026-08-15T13:00:00.000Z' }),
+      publish: publish(),
+      now: new Date('2026-08-13T20:00:00.000Z'),
+      ...dateOptions,
+    })
+    const lifecycle = deriveSocialContentLifecycleProjection({
+      item: {
+        status: 'scheduled',
+        target_platforms: ['x'],
+        rag_context: {
+          source_packet_path: 'docs/content-strategy/x-source-packet.md',
+          platform: 'x',
+        },
+        publishes: [{ status: 'pending' }],
+      },
+      rawStates: {
+        context: 'approved',
+        copy: 'approved',
+        visuals: 'pending',
+        draft: 'approved',
+        submit: 'approved',
+        status: 'pending',
+      },
+    })
+
+    expect(reconcilePublicationProjectionWithLifecycle({ projection, lifecycle })).toMatchObject({
+      state: 'blocked',
+      stateLabel: 'Blocked',
+      headline: 'X publication blocked by Amina Visuals',
+      owner: 'Amina',
+      nextAction: 'Amina must complete the applicable visual, privacy, rights, and source-distance evidence.',
+      waitingOnYou: 'No - Amina owns the next action',
+    })
   })
 
   it('formats the same instant safely in the requested user timezone', () => {

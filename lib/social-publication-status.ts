@@ -1,4 +1,10 @@
 import type { SocialContentItem, SocialContentPublish, SocialPlatform } from '@/lib/social-content'
+import type {
+  SocialContentLifecycleProjection,
+  SocialContentLifecycleState,
+  SocialContentLifecycleStep,
+} from '@/lib/social-content-lifecycle'
+import vercelConfig from '@/vercel.json'
 
 export type PublicationProjectionState =
   | 'scheduled'
@@ -60,6 +66,74 @@ const PLATFORM_LABELS: Record<SocialPlatform, string> = {
   x: 'X',
 }
 
+const SCHEDULED_PUBLISH_CRON = vercelConfig.crons.find(
+  (cron) => cron.path === '/api/cron/social-content-scheduled-publish',
+)
+
+const SCHEDULED_PUBLISH_CADENCE = SCHEDULED_PUBLISH_CRON?.schedule === '0 * * * *'
+  ? 'hourly'
+  : null
+
+const PUBLICATION_PREREQUISITE_STEPS: SocialContentLifecycleStep[] = [
+  'context',
+  'copy',
+  'visuals',
+  'draft',
+  'submit',
+]
+
+const LIFECYCLE_STEP_DETAILS: Record<SocialContentLifecycleStep, {
+  label: string
+  owner: string
+  nextAction: (state: SocialContentLifecycleState) => string
+  waitingOnYou: (state: SocialContentLifecycleState) => string
+}> = {
+  context: {
+    label: 'Context',
+    owner: 'Shaka / Amina',
+    nextAction: () => 'Record or recover the attributable source basis, audience calibration, and claim constraints.',
+    waitingOnYou: () => 'Yes - context recovery decision',
+  },
+  copy: {
+    label: 'Copy',
+    owner: 'Vambah / Shaka',
+    nextAction: () => 'Complete the editorial decision before downstream publication work can proceed.',
+    waitingOnYou: () => 'Yes - editorial decision',
+  },
+  visuals: {
+    label: 'Amina Visuals',
+    owner: 'Amina',
+    nextAction: (state) => state === 'pending'
+      ? 'Amina must complete the applicable visual, privacy, rights, and source-distance evidence.'
+      : 'Resolve or approve the visual, privacy, and rights review before publication can proceed.',
+    waitingOnYou: (state) => state === 'pending'
+      ? 'No - Amina owns the next action'
+      : 'Yes - visual/privacy review or exception',
+  },
+  draft: {
+    label: 'Draft',
+    owner: 'Publishing lane',
+    nextAction: (state) => state === 'pending'
+      ? 'Create the governed platform draft handoff.'
+      : 'Resolve or approve the platform draft handoff.',
+    waitingOnYou: (state) => state === 'pending'
+      ? 'No - Publishing lane owns the next action'
+      : 'Yes - draft handoff review',
+  },
+  submit: {
+    label: 'Submit',
+    owner: 'Publishing lane',
+    nextAction: () => 'Complete the explicit provider-submission gate before hosted automation can run.',
+    waitingOnYou: () => 'Yes - submit decision',
+  },
+  status: {
+    label: 'Status',
+    owner: 'Publishing reconciliation lane',
+    nextAction: () => 'Reconcile provider evidence before treating publication as complete.',
+    waitingOnYou: () => 'No - internal reconciliation required',
+  },
+}
+
 export function formatPublicationDate(
   value: string | null | undefined,
   options: ProjectionDateOptions = {},
@@ -101,6 +175,9 @@ export function derivePublicationProjection(input: PublicationProjectionInput): 
     || input.publish.platform_post_url
     || input.publish.published_at,
   )
+  const cancellationMessage = input.publish.error_message?.startsWith('Scheduled publication cancelled by ')
+    ? input.publish.error_message
+    : null
 
   if (rawStatus === 'published' && providerEvidence) {
     return projection(input, {
@@ -118,6 +195,42 @@ export function derivePublicationProjection(input: PublicationProjectionInput): 
       publishedTime,
       permalink: input.publish.platform_post_url,
       reason: null,
+    })
+  }
+
+  if (rawStatus === 'cancelled' || queueStatus === 'cancelled' || (rawStatus === 'skipped' && cancellationMessage)) {
+    return projection(input, {
+      state: 'cancelled',
+      stateLabel: 'Cancelled',
+      headline: `${platformLabel} publication cancelled`,
+      explanation: 'Scheduled publication intent was cancelled before provider submission. The content and provider history were preserved.',
+      owner: 'Publishing lane',
+      nextAction: 'No provider action will run unless a new governed publication intent is created.',
+      waitingOnYou: 'No',
+      tone: 'slate',
+      scheduledTime,
+      publishedTime,
+      permalink: input.publish.platform_post_url,
+      reason: cancellationMessage,
+    })
+  }
+
+  if (rawStatus === 'skipped') {
+    return projection(input, {
+      state: 'skipped',
+      stateLabel: 'Skipped',
+      headline: `${platformLabel} publication skipped`,
+      explanation: input.publish.error_message
+        ? `The provider handoff was skipped; no publication was confirmed. ${input.publish.error_message}`
+        : 'The provider handoff was intentionally skipped; no publication was confirmed.',
+      owner: 'Publishing lane',
+      nextAction: 'Review the recorded decision before creating a new publication intent.',
+      waitingOnYou: 'No',
+      tone: 'slate',
+      scheduledTime,
+      publishedTime,
+      permalink: input.publish.platform_post_url,
+      reason: input.publish.error_message,
     })
   }
 
@@ -149,40 +262,6 @@ export function derivePublicationProjection(input: PublicationProjectionInput): 
       nextAction: 'Wait for provider confirmation or a recorded failure.',
       waitingOnYou: 'No',
       tone: 'blue',
-      scheduledTime,
-      publishedTime,
-      permalink: input.publish.platform_post_url,
-      reason: null,
-    })
-  }
-
-  if (rawStatus === 'cancelled' || queueStatus === 'cancelled') {
-    return projection(input, {
-      state: 'cancelled',
-      stateLabel: 'Cancelled',
-      headline: `${platformLabel} publication cancelled`,
-      explanation: 'Publication intent was cancelled before provider submission.',
-      owner: 'Publishing lane',
-      nextAction: 'No provider action will run unless a new governed publication intent is created.',
-      waitingOnYou: 'No',
-      tone: 'slate',
-      scheduledTime,
-      publishedTime,
-      permalink: input.publish.platform_post_url,
-      reason: null,
-    })
-  }
-
-  if (rawStatus === 'skipped') {
-    return projection(input, {
-      state: 'skipped',
-      stateLabel: 'Skipped',
-      headline: `${platformLabel} publication skipped`,
-      explanation: 'The provider handoff was intentionally skipped; no publication was confirmed.',
-      owner: 'Publishing lane',
-      nextAction: 'Review the recorded decision before creating a new publication intent.',
-      waitingOnYou: 'No',
-      tone: 'slate',
       scheduledTime,
       publishedTime,
       permalink: input.publish.platform_post_url,
@@ -231,9 +310,9 @@ export function derivePublicationProjection(input: PublicationProjectionInput): 
       state: 'scheduled',
       stateLabel: 'Scheduled',
       headline: `Scheduled for ${scheduledTime}`,
-      explanation: `${platformLabel} provider submission has not happened yet. Portfolio hosted automation will pick up this post at the scheduled time.`,
+      explanation: `${platformLabel} provider submission has not happened yet. ${SCHEDULED_PUBLISH_CADENCE ? `The hosted scheduler runs ${SCHEDULED_PUBLISH_CADENCE} and` : 'The hosted scheduler'} may submit this post at or after ${scheduledTime}; it will not submit before the scheduled time.`,
       owner: 'Portfolio hosted scheduler',
-      nextAction: `Hosted automation will submit to ${platformLabel} at ${scheduledTime}.`,
+      nextAction: `The next hosted scheduler run at or after ${scheduledTime} will attempt submission to ${platformLabel}.`,
       waitingOnYou: 'No',
       tone: 'blue',
       scheduledTime,
@@ -280,6 +359,41 @@ export function derivePublicationProjection(input: PublicationProjectionInput): 
     permalink: input.publish.platform_post_url,
     reason,
   })
+}
+
+export function reconcilePublicationProjectionWithLifecycle(input: {
+  projection: PublicationProjection
+  lifecycle: SocialContentLifecycleProjection
+}): PublicationProjection {
+  if (!['scheduled', 'ready_unscheduled', 'submitting'].includes(input.projection.state)) {
+    return input.projection
+  }
+
+  const unresolvedStep = PUBLICATION_PREREQUISITE_STEPS.find(
+    (step) => input.lifecycle.steps[step].state !== 'approved',
+  )
+  if (!unresolvedStep) return input.projection
+
+  const step = input.lifecycle.steps[unresolvedStep]
+  const details = LIFECYCLE_STEP_DETAILS[unresolvedStep]
+  const lifecycleState = step.state.replace('_', ' ')
+  const scheduleContext = input.projection.scheduledTime
+    ? `A provider schedule is recorded for ${input.projection.scheduledTime}, but ${details.label} is ${lifecycleState}.`
+    : `${details.label} is ${lifecycleState}.`
+  const reason = `${scheduleContext} Provider submission must remain blocked until the canonical lifecycle prerequisite is complete.`
+
+  return {
+    ...input.projection,
+    state: 'blocked',
+    stateLabel: 'Blocked',
+    headline: `${PLATFORM_LABELS[input.projection.platform]} publication blocked by ${details.label}`,
+    explanation: reason,
+    owner: details.owner,
+    nextAction: step.mismatch?.recoveryAction ?? details.nextAction(step.state),
+    waitingOnYou: details.waitingOnYou(step.state),
+    tone: 'red',
+    reason,
+  }
 }
 
 export function summarizePublicationProjections(projections: PublicationProjection[]): PublicationProjection {

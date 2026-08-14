@@ -65,10 +65,12 @@ import {
 } from '@/lib/social-platform-orchestration'
 import {
   deriveSocialContentLifecycleProjection,
+  hasSocialContentVisualPrerequisites,
   isDurableCopyApprovedStatus,
 } from '@/lib/social-content-lifecycle'
 import {
   derivePublicationProjection,
+  reconcilePublicationProjectionWithLifecycle,
   summarizePublicationProjections,
   type PublicationProjectionTone,
 } from '@/lib/social-publication-status'
@@ -2571,7 +2573,10 @@ function SocialContentDetailPage() {
       : platformNextStages.some((stage) => stage.state === 'available')
         ? 'in_review'
         : 'pending'
-  const visualWorkflowGateState: GateState = visualAssetsGateState === 'approved' && assetPacketGateState === 'approved' && privacyGateState === 'approved'
+  const canonicalVisualPrerequisitesReady = hasSocialContentVisualPrerequisites(item)
+  const visualWorkflowGateState: GateState = canonicalVisualPrerequisitesReady
+    ? 'approved'
+    : visualAssetsGateState === 'approved' && assetPacketGateState === 'approved' && privacyGateState === 'approved'
     ? 'approved'
     : historicalSubmissionEvidence && visualAssetReady && assetPacketReady && visualPrivacyReady
       ? 'approved'
@@ -2605,10 +2610,12 @@ function SocialContentDetailPage() {
   const effectivePlatformSubmissionGateState = lifecycleProjection.steps.submit.state as GateState
   const effectiveStatusGateState = lifecycleProjection.steps.status.state as GateState
   const lifecycleMismatchByStep = lifecycleProjection.steps
-  const publicationProjections = (item.publishes ?? []).map((publish) => derivePublicationProjection({
-    item,
-    publish,
-  }))
+  const publicationProjections = (item.publishes ?? []).map((publish) => (
+    reconcilePublicationProjectionWithLifecycle({
+      projection: derivePublicationProjection({ item, publish }),
+      lifecycle: lifecycleProjection,
+    })
+  ))
   const publicationSummary = publicationProjections.length
     ? summarizePublicationProjections(publicationProjections)
     : null
