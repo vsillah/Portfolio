@@ -2242,6 +2242,78 @@ describe('SocialContentDetailRoute visual production review', () => {
     })
   })
 
+  it('runs governed X comment refresh with the exact canonical publish row id', async () => {
+    const xItem = {
+      ...baseItem,
+      platform: 'x',
+      target_platforms: ['x'],
+      publishes: [{
+        id: '0ac0d839-0d8f-499d-8453-6cc1060991f1',
+        content_id: 'e593ded0-6a5b-4777-a60c-94e9c8300429',
+        platform: 'x',
+        status: 'published',
+        platform_post_id: '2085056671248765116',
+        platform_post_url: 'https://x.com/amadutown/status/2085056671248765116',
+        error_message: null,
+        published_at: '2026-08-12T12:00:00.000Z',
+        created_at: '2026-08-12T12:00:00.000Z',
+        updated_at: '2026-08-12T12:00:00.000Z',
+      }],
+    }
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [] }),
+        } as Response
+      }
+      if (url.includes('/engagement/comments')) {
+        return {
+          ok: true,
+          json: async () => ({ comments: [] }),
+        } as Response
+      }
+      if (url.includes('/engagement/refresh')) {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            platform: 'x',
+            content_id: 'e593ded0-6a5b-4777-a60c-94e9c8300429',
+            publish_id: '0ac0d839-0d8f-499d-8453-6cc1060991f1',
+            provider: 'x_api',
+            status: 'succeeded',
+            fetched: 0,
+            upserted: 0,
+            skipped: 0,
+            errors: [],
+          }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: xItem }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAtStep('status')
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Refresh comments' }))
+
+    expect(await screen.findByRole('heading', { name: 'Comment refresh completed' })).toBeInTheDocument()
+    expect(screen.getByText('x_api')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'X comment refresh is manual' })).not.toBeInTheDocument()
+    const refreshCall = fetchMock.mock.calls.find(([url]) => String(url).includes('/engagement/refresh'))
+    expect(refreshCall?.[1]).toMatchObject({ method: 'POST' })
+    expect(JSON.parse(String(refreshCall?.[1]?.body))).toEqual({
+      platform: 'x',
+      content_id: 'social-1',
+      publish_id: '0ac0d839-0d8f-499d-8453-6cc1060991f1',
+    })
+  })
+
   it('keeps unsupported providers fail-closed without calling the governed refresh endpoint', async () => {
     const linkedinItem = {
       ...baseItem,
