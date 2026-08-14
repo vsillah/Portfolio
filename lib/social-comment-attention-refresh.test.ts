@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { runSocialCommentAttentionYouTubeRefresh } from '@/lib/social-comment-attention-refresh'
 import type { YouTubeCommentRefreshInput, YouTubeCommentRefreshResult } from '@/lib/youtube-comment-ingestion'
+import type { MetaCommentRefreshInput, MetaCommentRefreshResult } from '@/lib/meta-comment-ingestion'
 
 type TableRows = Record<string, Array<Record<string, unknown>>>
 
@@ -37,7 +38,7 @@ class Query {
   }
 
   then<TResult1 = unknown, TResult2 = never>(
-    onfulfilled?: ((value: { data: Record<string, unknown>[]; error: null }) => TResult1 | PromiseLike<TResult1>) | null,
+    onfulfilled?: ((value: { data: Record<string, unknown>[]; error: { message: string } | null }) => TResult1 | PromiseLike<TResult1>) | null,
     onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
   ) {
     return Promise.resolve(this.execute()).then(onfulfilled, onrejected)
@@ -54,6 +55,13 @@ class Query {
       })
     }
     if (this.maxRows !== null) data = data.slice(0, this.maxRows)
+    const errorRow = data.find((row) => typeof row.__error === 'string')
+    if (errorRow) {
+      return {
+        data: [],
+        error: { message: String(errorRow.__error) },
+      }
+    }
     return { data, error: null }
   }
 }
@@ -92,6 +100,32 @@ function succeeded(input: YouTubeCommentRefreshInput): YouTubeCommentRefreshResu
     skipped: 0,
     errors: [],
     cursor: {},
+  }
+}
+
+function metaSucceeded(input: MetaCommentRefreshInput): MetaCommentRefreshResult {
+  return {
+    platform: input.platform,
+    provider: 'meta_graph',
+    status: 'succeeded',
+    publishId: input.publishId ?? null,
+    contentId: input.contentId ?? null,
+    objectId: 'meta-object-1',
+    runId: `run-${input.platform}-${input.publishId}`,
+    fetched: 1,
+    upserted: 1,
+    skipped: 0,
+    errors: [],
+    cursor: {},
+  }
+}
+
+function capability(platform: 'facebook' | 'instagram', verified = true) {
+  return {
+    platform,
+    capability_status: verified ? 'verified' : 'manual',
+    supports_comment_ingestion: verified,
+    gate_notes: verified ? 'Read-only comment ingestion verified.' : 'Awaiting read-only smoke.',
   }
 }
 
@@ -371,5 +405,337 @@ describe('runSocialCommentAttentionYouTubeRefresh', () => {
       skippedReason: 'dry_run',
     })
     expect(refresh).not.toHaveBeenCalled()
+  })
+
+  it('selects verified Facebook publishes and delegates to the Meta adapter once', async () => {
+    const db = createDb({
+      social_content_publishes: [
+        publish('fb-publish-1', '2026-08-13T12:00:00.000Z', {
+          platform: 'facebook',
+          platform_post_id: '123_456',
+        }),
+      ],
+      social_content_comments: [],
+      social_comment_ingestion_runs: [],
+      social_comment_provider_capabilities: [capability('facebook')],
+    })
+    const youtubeRefresh = vi.fn(async (input: YouTubeCommentRefreshInput) => succeeded(input))
+    const metaRefresh = vi.fn(async (input: MetaCommentRefreshInput) => metaSucceeded(input))
+
+    const result = await runSocialCommentAttentionYouTubeRefresh(db, {
+      now: () => new Date('2026-08-13T13:00:00.000Z'),
+      refreshPublishedYouTubeComments: youtubeRefresh,
+      refreshPublishedMetaComments: metaRefresh,
+    })
+
+    expect(result.providerSummaries.facebook).toMatchObject({
+      selectedCount: 1,
+      attemptedCount: 1,
+      succeededCount: 1,
+    })
+    expect(metaRefresh).toHaveBeenCalledTimes(1)
+    expect(metaRefresh).toHaveBeenCalledWith({
+      db,
+      platform: 'facebook',
+      publishId: 'fb-publish-1',
+      contentId: 'content-fb-publish-1',
+      limit: 50,
+    })
+    expect(youtubeRefresh).not.toHaveBeenCalled()
+  })
+
+  it('selects verified Instagram publishes and delegates independently', async () => {
+    const db = createDb({
+      social_content_publishes: [
+        publish('ig-publish-1', '2026-08-13T12:00:00.000Z', {
+          platform: 'instagram',
+          platform_post_id: '17900000000000000',
+        }),
+      ],
+      social_content_comments: [],
+      social_comment_ingestion_runs: [],
+      social_comment_provider_capabilities: [capability('instagram')],
+    })
+    const metaRefresh = vi.fn(async (input: MetaCommentRefreshInput) => metaSucceeded(input))
+
+    const result = await runSocialCommentAttentionYouTubeRefresh(db, {
+      now: () => new Date('2026-08-13T13:00:00.000Z'),
+      refreshPublishedYouTubeComments: vi.fn(async (input: YouTubeCommentRefreshInput) => succeeded(input)),
+      refreshPublishedMetaComments: metaRefresh,
+    })
+
+    expect(result.providerSummaries.instagram).toMatchObject({
+      selectedCount: 1,
+      attemptedCount: 1,
+      succeededCount: 1,
+    })
+    expect(metaRefresh).toHaveBeenCalledWith(expect.objectContaining({
+      platform: 'instagram',
+      publishId: 'ig-publish-1',
+    }))
+  })
+
+  it('reports manual Meta capability as skipped blocked evidence without provider calls', async () => {
+    const db = createDb({
+      social_content_publishes: [
+        publish('fb-publish-1', '2026-08-13T12:00:00.000Z', {
+          platform: 'facebook',
+          platform_post_id: '123_456',
+        }),
+      ],
+      social_content_comments: [],
+      social_comment_ingestion_runs: [],
+      social_comment_provider_capabilities: [capability('facebook', false)],
+    })
+    const metaRefresh = vi.fn(async (input: MetaCommentRefreshInput) => metaSucceeded(input))
+
+    const result = await runSocialCommentAttentionYouTubeRefresh(db, {
+      now: () => new Date('2026-08-13T13:00:00.000Z'),
+      refreshPublishedYouTubeComments: vi.fn(async (input: YouTubeCommentRefreshInput) => succeeded(input)),
+      refreshPublishedMetaComments: metaRefresh,
+    })
+
+    expect(result.providerSummaries.facebook).toMatchObject({
+      status: 'manual_blocked',
+      selectedCount: 1,
+      attemptedCount: 0,
+      capabilityBlockedCount: 1,
+    })
+    expect(result.providerSummaries.facebook.outcomes[0]).toMatchObject({
+      platform: 'facebook',
+      status: 'skipped',
+      skippedReason: 'capability_blocked',
+      errorCount: 1,
+    })
+    expect(metaRefresh).not.toHaveBeenCalled()
+  })
+
+  it('honors Meta cooldown dedupe before provider calls', async () => {
+    const db = createDb({
+      social_content_publishes: [
+        publish('fb-publish-1', '2026-08-13T12:00:00.000Z', {
+          platform: 'facebook',
+          platform_post_id: '123_456',
+        }),
+      ],
+      social_content_comments: [],
+      social_comment_ingestion_runs: [{
+        publish_id: 'fb-publish-1',
+        platform: 'facebook',
+        status: 'succeeded',
+        started_at: '2026-08-13T12:55:00.000Z',
+      }],
+      social_comment_provider_capabilities: [capability('facebook')],
+    })
+    const metaRefresh = vi.fn(async (input: MetaCommentRefreshInput) => metaSucceeded(input))
+
+    const result = await runSocialCommentAttentionYouTubeRefresh(db, {
+      refreshCooldownMinutes: 15,
+      now: () => new Date('2026-08-13T13:00:00.000Z'),
+      refreshPublishedYouTubeComments: vi.fn(async (input: YouTubeCommentRefreshInput) => succeeded(input)),
+      refreshPublishedMetaComments: metaRefresh,
+    })
+
+    expect(result.providerSummaries.facebook).toMatchObject({
+      selectedCount: 1,
+      attemptedCount: 0,
+      skippedCooldownCount: 1,
+    })
+    expect(metaRefresh).not.toHaveBeenCalled()
+  })
+
+  it('keeps dry-run Meta selection free of provider calls', async () => {
+    const db = createDb({
+      social_content_publishes: [
+        publish('fb-publish-1', '2026-08-13T12:00:00.000Z', {
+          platform: 'facebook',
+          platform_post_id: '123_456',
+        }),
+      ],
+      social_content_comments: [],
+      social_comment_ingestion_runs: [],
+      social_comment_provider_capabilities: [capability('facebook')],
+    })
+    const metaRefresh = vi.fn(async (input: MetaCommentRefreshInput) => metaSucceeded(input))
+
+    const result = await runSocialCommentAttentionYouTubeRefresh(db, {
+      dryRun: true,
+      now: () => new Date('2026-08-13T13:00:00.000Z'),
+      refreshPublishedYouTubeComments: vi.fn(async (input: YouTubeCommentRefreshInput) => succeeded(input)),
+      refreshPublishedMetaComments: metaRefresh,
+    })
+
+    expect(result.providerSummaries.facebook).toMatchObject({
+      dryRun: true,
+      selectedCount: 1,
+      attemptedCount: 0,
+    })
+    expect(result.providerSummaries.facebook.outcomes[0]).toMatchObject({
+      skippedReason: 'dry_run',
+    })
+    expect(metaRefresh).not.toHaveBeenCalled()
+  })
+
+  it('keeps Facebook failure isolated from Instagram and YouTube refreshes', async () => {
+    const db = createDb({
+      social_content_publishes: [
+        publish('yt-publish-1', '2026-08-13T12:00:00.000Z'),
+        publish('fb-publish-1', '2026-08-13T12:00:00.000Z', {
+          platform: 'facebook',
+          platform_post_id: '123_456',
+        }),
+        publish('ig-publish-1', '2026-08-13T12:00:00.000Z', {
+          platform: 'instagram',
+          platform_post_id: '17900000000000000',
+        }),
+      ],
+      social_content_comments: [],
+      social_comment_ingestion_runs: [],
+      social_comment_provider_capabilities: [capability('facebook'), capability('instagram')],
+    })
+    const youtubeRefresh = vi.fn(async (input: YouTubeCommentRefreshInput) => succeeded(input))
+    const metaRefresh = vi.fn(async (input: MetaCommentRefreshInput) => {
+      if (input.platform === 'facebook') throw new Error('Facebook provider unavailable')
+      return metaSucceeded(input)
+    })
+
+    const result = await runSocialCommentAttentionYouTubeRefresh(db, {
+      publishLimit: 1,
+      now: () => new Date('2026-08-13T13:00:00.000Z'),
+      refreshPublishedYouTubeComments: youtubeRefresh,
+      refreshPublishedMetaComments: metaRefresh,
+    })
+
+    expect(result).toMatchObject({
+      status: 'partial',
+      attemptedCount: 3,
+      providerReadAttemptCount: 3,
+      succeededCount: 2,
+      failedCount: 1,
+    })
+    expect(result.providerSummaries.facebook.failedCount).toBe(1)
+    expect(result.providerSummaries.instagram.succeededCount).toBe(1)
+    expect(result.providerSummaries.youtube.succeededCount).toBe(1)
+    expect(youtubeRefresh).toHaveBeenCalledTimes(1)
+    expect(metaRefresh).toHaveBeenCalledTimes(2)
+  })
+
+  it('keeps Facebook setup read failures isolated from Instagram and YouTube refreshes', async () => {
+    const db = createDb({
+      social_content_publishes: [
+        publish('yt-publish-1', '2026-08-13T12:00:00.000Z'),
+        publish('fb-publish-1', '2026-08-13T12:00:00.000Z', {
+          platform: 'facebook',
+          platform_post_id: '123_456',
+        }),
+        publish('ig-publish-1', '2026-08-13T12:00:00.000Z', {
+          platform: 'instagram',
+          platform_post_id: '17900000000000000',
+        }),
+      ],
+      social_content_comments: [],
+      social_comment_ingestion_runs: [],
+      social_comment_provider_capabilities: [
+        { ...capability('facebook'), __error: 'capability read failed' },
+        capability('instagram'),
+      ],
+    })
+    const youtubeRefresh = vi.fn(async (input: YouTubeCommentRefreshInput) => succeeded(input))
+    const metaRefresh = vi.fn(async (input: MetaCommentRefreshInput) => metaSucceeded(input))
+
+    const result = await runSocialCommentAttentionYouTubeRefresh(db, {
+      publishLimit: 1,
+      now: () => new Date('2026-08-13T13:00:00.000Z'),
+      refreshPublishedYouTubeComments: youtubeRefresh,
+      refreshPublishedMetaComments: metaRefresh,
+    })
+
+    expect(result).toMatchObject({
+      status: 'partial',
+      attemptedCount: 3,
+      providerReadAttemptCount: 2,
+      succeededCount: 2,
+      failedCount: 1,
+    })
+    expect(result.providerSummaries.facebook).toMatchObject({
+      status: 'failed',
+      selectedCount: 1,
+      attemptedCount: 1,
+      providerReadAttemptCount: 0,
+      failedCount: 1,
+    })
+    expect(result.providerSummaries.facebook.outcomes[0]).toMatchObject({
+      platform: 'facebook',
+      publishId: null,
+      status: 'failed',
+      errors: [{
+        code: 'facebook_comment_refresh_setup_failed',
+        message: 'facebook comment attention refresh setup failed.',
+      }],
+    })
+    expect(result.providerSummaries.instagram.succeededCount).toBe(1)
+    expect(result.providerSummaries.youtube.succeededCount).toBe(1)
+    expect(youtubeRefresh).toHaveBeenCalledTimes(1)
+    expect(metaRefresh).toHaveBeenCalledTimes(1)
+    expect(metaRefresh).toHaveBeenCalledWith(expect.objectContaining({
+      platform: 'instagram',
+      publishId: 'ig-publish-1',
+    }))
+  })
+
+  it('skips malformed Meta provider identities before adapter invocation', async () => {
+    const db = createDb({
+      social_content_publishes: [
+        publish('fb-missing-id', '2026-08-13T12:00:00.000Z', {
+          platform: 'facebook',
+          platform_post_id: null,
+        }),
+        publish('ig-malformed-id', '2026-08-13T11:00:00.000Z', {
+          platform: 'instagram',
+          platform_post_id: 'not a canonical id',
+        }),
+      ],
+      social_content_comments: [],
+      social_comment_ingestion_runs: [],
+      social_comment_provider_capabilities: [capability('facebook'), capability('instagram')],
+    })
+    const metaRefresh = vi.fn(async (input: MetaCommentRefreshInput) => metaSucceeded(input))
+
+    const result = await runSocialCommentAttentionYouTubeRefresh(db, {
+      publishLimit: 1,
+      now: () => new Date('2026-08-13T13:00:00.000Z'),
+      refreshPublishedYouTubeComments: vi.fn(async (input: YouTubeCommentRefreshInput) => succeeded(input)),
+      refreshPublishedMetaComments: metaRefresh,
+    })
+
+    expect(result.providerSummaries.facebook).toMatchObject({
+      status: 'manual_blocked',
+      selectedCount: 1,
+      attemptedCount: 0,
+      providerReadAttemptCount: 0,
+      identityBlockedCount: 1,
+    })
+    expect(result.providerSummaries.facebook.outcomes[0]).toMatchObject({
+      platform: 'facebook',
+      publishId: 'fb-missing-id',
+      status: 'skipped',
+      skippedReason: 'provider_identity_blocked',
+      errorCount: 1,
+    })
+    expect(result.providerSummaries.instagram).toMatchObject({
+      status: 'manual_blocked',
+      selectedCount: 1,
+      attemptedCount: 0,
+      providerReadAttemptCount: 0,
+      identityBlockedCount: 1,
+    })
+    expect(result.providerSummaries.instagram.outcomes[0]).toMatchObject({
+      platform: 'instagram',
+      publishId: 'ig-malformed-id',
+      status: 'skipped',
+      skippedReason: 'provider_identity_blocked',
+      errorCount: 1,
+    })
+    expect(metaRefresh).not.toHaveBeenCalled()
   })
 })

@@ -13,6 +13,7 @@ import { runSocialCommentAttentionYouTubeRefresh } from '@/lib/social-comment-at
 import { evaluateSocialCommentReplyHolds } from '@/lib/social-comment-attention'
 import { supabaseAdmin } from '@/lib/supabase'
 import { refreshPublishedYouTubeComments } from '@/lib/youtube-comment-ingestion'
+import { refreshPublishedMetaComments } from '@/lib/meta-comment-ingestion'
 
 export const dynamic = 'force-dynamic'
 
@@ -74,7 +75,7 @@ async function runCommentAttentionSweep(request: NextRequest) {
   const refreshCooldownMinutes = numericOption(request, body, 'refresh_cooldown_minutes', 15, 24 * 60)
   const recentPublishedHours = numericOption(request, body, 'recent_published_hours', 24 * 30, 24 * 90)
 
-  const youtubeRefresh = await runSocialCommentAttentionYouTubeRefresh(supabaseAdmin, {
+  const commentRefresh = await runSocialCommentAttentionYouTubeRefresh(supabaseAdmin, {
     publishLimit,
     commentLimit,
     refreshCooldownMinutes,
@@ -82,6 +83,7 @@ async function runCommentAttentionSweep(request: NextRequest) {
     force: requestedForce,
     dryRun,
     refreshPublishedYouTubeComments,
+    refreshPublishedMetaComments,
   })
 
   const slack = await runAgentSlackNotificationSweep({
@@ -109,7 +111,7 @@ async function runCommentAttentionSweep(request: NextRequest) {
     : await evaluateSocialCommentReplyHolds(limit)
 
   return NextResponse.json({
-    ok: youtubeRefresh.ok && slack.ok && holds.ok,
+    ok: commentRefresh.ok && slack.ok && holds.ok,
     dry_run: dryRun,
     slack_delivery_dry_run: slackDryRun,
     activation: {
@@ -123,21 +125,27 @@ async function runCommentAttentionSweep(request: NextRequest) {
       force_requested: requestedForce,
       force_applied: slackForce,
     },
-    youtube_refresh: youtubeRefresh,
+    youtube_refresh: commentRefresh.providerSummaries.youtube,
+    comment_refresh: commentRefresh,
+    meta_refresh: {
+      facebook: commentRefresh.providerSummaries.facebook,
+      instagram: commentRefresh.providerSummaries.instagram,
+    },
+    provider_refreshes: commentRefresh.providerSummaries,
     slack,
     holds,
     side_effects: {
       slack_messages_sent: slack.sentCount,
       reply_hold_state_updated: !dryRun && holds.checkedCount > 0,
-      provider_comment_read: !dryRun && youtubeRefresh.attemptedCount > 0,
+      provider_comment_read: !dryRun && commentRefresh.providerReadAttemptCount > 0,
       provider_generation: false,
-      provider_refresh: !dryRun && youtubeRefresh.attemptedCount > 0,
+      provider_refresh: !dryRun && commentRefresh.providerReadAttemptCount > 0,
       provider_reply_write: false,
       external_schedule: false,
       external_reply_send: false,
       external_post: false,
     },
-  }, { status: youtubeRefresh.ok && slack.ok && holds.ok ? 200 : 500 })
+  }, { status: commentRefresh.ok && slack.ok && holds.ok ? 200 : 500 })
 }
 
 export async function GET(request: NextRequest) {
