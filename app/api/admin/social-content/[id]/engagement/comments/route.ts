@@ -23,6 +23,7 @@ import {
   type YouTubeReplyCredentials,
   type YouTubeReplySubmitResult,
 } from '@/lib/youtube-comment-reply-readiness'
+import { refreshPublishedXComments } from '@/lib/x-comment-ingestion'
 
 export const dynamic = 'force-dynamic'
 
@@ -379,6 +380,42 @@ export async function POST(
   }
 
   if (action === 'refresh_request') {
+    const refreshPlatform = optionalText(body.platform) ?? optionalText(body.refresh_platform)
+    if (refreshPlatform === 'x') {
+      const publishId = optionalText(body.publish_id)
+      if (!publishId) {
+        return NextResponse.json({
+          ok: false,
+          blocked: true,
+          error: 'publish_id is required for X comment refresh',
+          message: 'Select an exact canonical published X row before refreshing comments.',
+          integration_note: 'No X provider read or external comment reply was attempted.',
+        }, { status: 400 })
+      }
+
+      const refresh = await refreshPublishedXComments({
+        db: supabaseAdmin,
+        publishId,
+        contentId: params.id,
+      })
+      const { comments, error } = await fetchComments(params.id, post)
+      if (error && isCommentInboxStorageUnavailable(error)) {
+        return unavailableResponse()
+      }
+
+      const blocked = refresh.status === 'manual_blocked' || refresh.status === 'failed'
+      return NextResponse.json({
+        ok: refresh.status === 'succeeded' || refresh.status === 'partial',
+        blocked,
+        message: blocked
+          ? refresh.blockedReason ?? 'X comment refresh is blocked; review provider evidence and recovery details.'
+          : 'X comments refreshed into the canonical Comment Inbox.',
+        comments,
+        x_refresh: refresh,
+        integration_note: 'X comment refresh uses read-only recent-search GET requests only. No external comment reply, post, schedule, or provider write was attempted.',
+      }, { status: refresh.status === 'failed' ? 502 : 200 })
+    }
+
     const { comments, error } = await fetchComments(params.id, post)
     if (error && isCommentInboxStorageUnavailable(error)) {
       return unavailableResponse()

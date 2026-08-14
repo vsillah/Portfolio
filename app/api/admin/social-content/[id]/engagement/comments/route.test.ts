@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   from: vi.fn(),
   update: vi.fn(),
   configUpdate: vi.fn(),
+  refreshPublishedXComments: vi.fn(),
 }))
 
 vi.mock('@/lib/auth-server', () => ({
@@ -15,6 +16,10 @@ vi.mock('@/lib/auth-server', () => ({
 
 vi.mock('@/lib/supabase', () => ({
   supabaseAdmin: { from: mocks.from },
+}))
+
+vi.mock('@/lib/x-comment-ingestion', () => ({
+  refreshPublishedXComments: mocks.refreshPublishedXComments,
 }))
 
 import { GET, POST } from './route'
@@ -150,6 +155,7 @@ function request(body?: Record<string, unknown>) {
 }
 
 function installDbMocks(options: {
+  post?: Record<string, unknown>
   comment?: TestCommentRow
   config?: Record<string, unknown> | null
   configUpdateError?: Record<string, unknown> | null
@@ -159,7 +165,8 @@ function installDbMocks(options: {
   canonicalCapability?: Record<string, unknown> | null
 } = {}) {
   const selectedComment = options.comment ?? commentRow
-  const postSingle = vi.fn().mockResolvedValue({ data: postRow, error: null })
+  const selectedPost = options.post ?? postRow
+  const postSingle = vi.fn().mockResolvedValue({ data: selectedPost, error: null })
   const postEq = vi.fn().mockReturnValue({ single: postSingle })
   const postSelect = vi.fn().mockReturnValue({ eq: postEq })
 
@@ -239,6 +246,24 @@ describe('/api/admin/social-content/[id]/engagement/comments', () => {
     vi.unstubAllEnvs()
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-user' } })
     mocks.isAuthError.mockReturnValue(false)
+    mocks.refreshPublishedXComments.mockResolvedValue({
+      platform: 'x',
+      provider: 'x_api',
+      status: 'manual_blocked',
+      publishId: '11111111-1111-4111-8111-111111111111',
+      contentId: 'social-1',
+      postId: '2085056671248765116',
+      runId: 'run-x-1',
+      fetched: 0,
+      upserted: 0,
+      skipped: 0,
+      errors: [{
+        code: 'x_comment_ingestion_capability_blocked',
+        message: 'Canonical X comment ingestion capability is not verified or enabled; complete a read-only X scope smoke before refreshing comments.',
+      }],
+      cursor: {},
+      blockedReason: 'Canonical X comment ingestion capability is not verified or enabled; complete a read-only X scope smoke before refreshing comments.',
+    })
     installDbMocks()
   })
 
@@ -257,6 +282,86 @@ describe('/api/admin/social-content/[id]/engagement/comments', () => {
         automaticReply: false,
       },
     })
+  })
+
+  it('does not run X refresh without admin auth', async () => {
+    mocks.verifyAdmin.mockResolvedValue({ error: 'Unauthorized', status: 401 })
+    mocks.isAuthError.mockReturnValue(true)
+
+    const response = await POST(request({
+      action: 'refresh_request',
+      platform: 'x',
+      publish_id: '11111111-1111-4111-8111-111111111111',
+    }) as never, { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(401)
+    expect(mocks.refreshPublishedXComments).not.toHaveBeenCalled()
+  })
+
+  it('requires an explicit selected X publish row before provider refresh', async () => {
+    const response = await POST(request({
+      action: 'refresh_request',
+      platform: 'x',
+    }) as never, { params: { id: 'social-1' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(400)
+    expect(body).toMatchObject({
+      ok: false,
+      blocked: true,
+      error: 'publish_id is required for X comment refresh',
+      integration_note: 'No X provider read or external comment reply was attempted.',
+    })
+    expect(mocks.refreshPublishedXComments).not.toHaveBeenCalled()
+  })
+
+  it('invokes read-only X refresh only for explicit selected refresh requests', async () => {
+    installDbMocks({
+      post: {
+        ...postRow,
+        platform: 'x',
+      },
+    })
+    mocks.refreshPublishedXComments.mockResolvedValueOnce({
+      platform: 'x',
+      provider: 'x_api',
+      status: 'succeeded',
+      publishId: '11111111-1111-4111-8111-111111111111',
+      contentId: 'social-1',
+      postId: '2085056671248765116',
+      runId: 'run-x-1',
+      fetched: 1,
+      upserted: 1,
+      skipped: 0,
+      errors: [],
+      cursor: { pages: 1 },
+    })
+
+    const response = await POST(request({
+      action: 'refresh_request',
+      platform: 'x',
+      publish_id: '11111111-1111-4111-8111-111111111111',
+    }) as never, { params: { id: 'social-1' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(mocks.refreshPublishedXComments).toHaveBeenCalledWith({
+      db: expect.anything(),
+      publishId: '11111111-1111-4111-8111-111111111111',
+      contentId: 'social-1',
+    })
+    expect(body).toMatchObject({
+      ok: true,
+      blocked: false,
+      message: 'X comments refreshed into the canonical Comment Inbox.',
+      x_refresh: {
+        status: 'succeeded',
+        fetched: 1,
+        upserted: 1,
+      },
+    })
+    expect(body.integration_note).toContain('read-only recent-search GET requests only')
+    expect(body.integration_note).toContain('No external comment reply')
   })
 
   it('returns a blocked unavailable state when canonical storage is not migrated', async () => {
