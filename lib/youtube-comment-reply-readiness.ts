@@ -211,16 +211,25 @@ export async function refreshYouTubeReplyConfigIfNeeded(input: {
     }
   }
 
-  const response = await (input.fetchImpl ?? fetch)(GOOGLE_TOKEN_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id: clientId,
-      client_secret: clientSecret,
-      refresh_token: refreshToken,
-      grant_type: 'refresh_token',
-    }),
-  })
+  let response: Response
+  try {
+    response = await (input.fetchImpl ?? fetch)(GOOGLE_TOKEN_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        refresh_token: refreshToken,
+        grant_type: 'refresh_token',
+      }),
+    })
+  } catch {
+    return {
+      config,
+      refreshed: false,
+      blocker: tokenRefreshBlocker('YouTube token refresh failed before a provider reply request could be attempted.'),
+    }
+  }
   const data = await response.json().catch(() => ({})) as {
     access_token?: unknown
     expires_in?: unknown
