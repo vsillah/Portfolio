@@ -5,10 +5,11 @@ import { supabaseAdmin } from '@/lib/supabase'
 import type { SocialPlatform } from '@/lib/social-content'
 import { refreshPublishedYouTubeComments } from '@/lib/youtube-comment-ingestion'
 import { refreshPublishedMetaComments } from '@/lib/meta-comment-ingestion'
+import { refreshPublishedXComments } from '@/lib/x-comment-ingestion'
 
 export const dynamic = 'force-dynamic'
 
-const SUPPORTED_PLATFORMS = new Set<SocialPlatform>(['linkedin', 'youtube', 'facebook', 'instagram'])
+const SUPPORTED_PLATFORMS = new Set<SocialPlatform>(['linkedin', 'youtube', 'facebook', 'instagram', 'x'])
 
 function socialPlatform(value: unknown): SocialPlatform {
   return typeof value === 'string' && SUPPORTED_PLATFORMS.has(value as SocialPlatform)
@@ -63,6 +64,44 @@ export async function POST(request: NextRequest) {
       const result = await refreshPublishedMetaComments({
         db: supabaseAdmin,
         platform,
+        publishId,
+        contentId,
+        limit,
+      })
+      const {
+        platform: _resultPlatform,
+        publishId: resultPublishId,
+        contentId: resultContentId,
+        ...resultBody
+      } = result
+
+      return NextResponse.json({
+        ok: result.status === 'succeeded' || result.status === 'partial',
+        platform,
+        content_id: resultContentId ?? contentId,
+        publish_id: resultPublishId ?? publishId,
+        ...resultBody,
+      })
+    }
+
+    if (platform === 'x') {
+      if (!publishId) {
+        return NextResponse.json({
+          ok: false,
+          platform,
+          content_id: contentId,
+          publish_id: null,
+          status: 'manual_blocked',
+          blockedReason: 'Select an exact canonical published X row before refreshing comments.',
+          errors: [{
+            code: 'x_publish_id_required',
+            message: 'X comment refresh requires an explicit social_content_publishes row id.',
+          }],
+        }, { status: 400 })
+      }
+
+      const result = await refreshPublishedXComments({
+        db: supabaseAdmin,
         publishId,
         contentId,
         limit,

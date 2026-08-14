@@ -127,10 +127,13 @@ type CommentInboxUnavailableState = {
 }
 
 const APPROVAL_STEPS: ApprovalStep[] = ['context', 'copy', 'visuals', 'draft', 'submit', 'status']
-const COMMENT_REFRESH_SUPPORTED_PLATFORMS = new Set<SocialPlatform>(['youtube', 'instagram', 'facebook'])
+const COMMENT_REFRESH_SUPPORTED_PLATFORMS = new Set<SocialPlatform>(['youtube', 'instagram', 'facebook', 'x'])
 const COMMENT_REFRESH_ERROR_LIMIT = 3
 
 function getCommentRefreshRecoveryGuidance(platform: SocialPlatform): string {
+  if (platform === 'x') {
+    return 'Check X authorization, tweet.read/users.read scope, publication reconciliation, and the ingestion lane before retrying.'
+  }
   if (platform === 'instagram' || platform === 'facebook') {
     return 'Check Meta authorization, required comment scopes, publication reconciliation, and the ingestion lane before retrying.'
   }
@@ -1794,6 +1797,15 @@ function SocialContentDetailPage() {
         body: JSON.stringify({
           platform,
           content_id: id,
+          ...(platform === 'x'
+            ? {
+              publish_id: item.publishes?.find((publish) => (
+                publish.platform === 'x'
+                && publish.status === 'published'
+                && (publish.platform_post_id || publish.platform_post_url)
+              ))?.id,
+            }
+            : {}),
         }),
       })
       const data = await res.json().catch(() => ({}))

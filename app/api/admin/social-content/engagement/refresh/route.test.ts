@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   refreshPublishedSocialEngagement: vi.fn(),
   refreshPublishedYouTubeComments: vi.fn(),
   refreshPublishedMetaComments: vi.fn(),
+  refreshPublishedXComments: vi.fn(),
   supabaseAdmin: { from: vi.fn() },
 }))
 
@@ -24,6 +25,10 @@ vi.mock('@/lib/youtube-comment-ingestion', () => ({
 
 vi.mock('@/lib/meta-comment-ingestion', () => ({
   refreshPublishedMetaComments: mocks.refreshPublishedMetaComments,
+}))
+
+vi.mock('@/lib/x-comment-ingestion', () => ({
+  refreshPublishedXComments: mocks.refreshPublishedXComments,
 }))
 
 vi.mock('@/lib/supabase', () => ({
@@ -82,6 +87,20 @@ describe('POST /api/admin/social-content/engagement/refresh', () => {
       errors: [{ code: 'meta_comment_ingestion_capability_blocked' }],
       cursor: {},
       blockedReason: 'Canonical Meta comment ingestion capability is not verified or enabled; complete a read-only Meta scope smoke before refreshing comments.',
+    })
+    mocks.refreshPublishedXComments.mockResolvedValue({
+      platform: 'x',
+      provider: 'x_api',
+      status: 'succeeded',
+      publishId: '0ac0d839-0d8f-499d-8453-6cc1060991f1',
+      contentId: 'e593ded0-6a5b-4777-a60c-94e9c8300429',
+      postId: '2085056671248765116',
+      runId: 'run-x-1',
+      fetched: 1,
+      upserted: 1,
+      skipped: 0,
+      errors: [],
+      cursor: { pages: 1 },
     })
   })
 
@@ -217,6 +236,56 @@ describe('POST /api/admin/social-content/engagement/refresh', () => {
     expect(mocks.refreshPublishedYouTubeComments).not.toHaveBeenCalled()
   })
 
+  it('refreshes X comments through the read-only adapter for an explicit canonical publish row', async () => {
+    const response = await POST(request({
+      platform: 'x',
+      publish_id: '0ac0d839-0d8f-499d-8453-6cc1060991f1',
+      content_id: 'e593ded0-6a5b-4777-a60c-94e9c8300429',
+      limit: 12,
+    }) as never)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({
+      ok: true,
+      platform: 'x',
+      content_id: 'e593ded0-6a5b-4777-a60c-94e9c8300429',
+      publish_id: '0ac0d839-0d8f-499d-8453-6cc1060991f1',
+      provider: 'x_api',
+      status: 'succeeded',
+      fetched: 1,
+      upserted: 1,
+    })
+    expect(mocks.refreshPublishedXComments).toHaveBeenCalledWith({
+      db: mocks.supabaseAdmin,
+      publishId: '0ac0d839-0d8f-499d-8453-6cc1060991f1',
+      contentId: 'e593ded0-6a5b-4777-a60c-94e9c8300429',
+      limit: 12,
+    })
+    expect(mocks.refreshPublishedSocialEngagement).not.toHaveBeenCalled()
+    expect(mocks.refreshPublishedYouTubeComments).not.toHaveBeenCalled()
+    expect(mocks.refreshPublishedMetaComments).not.toHaveBeenCalled()
+  })
+
+  it('requires an exact X publish row instead of falling back to LinkedIn refresh', async () => {
+    const response = await POST(request({
+      platform: 'x',
+      content_id: 'e593ded0-6a5b-4777-a60c-94e9c8300429',
+    }) as never)
+    const body = await response.json()
+
+    expect(response.status).toBe(400)
+    expect(body).toMatchObject({
+      ok: false,
+      platform: 'x',
+      status: 'manual_blocked',
+      blockedReason: 'Select an exact canonical published X row before refreshing comments.',
+      errors: [expect.objectContaining({ code: 'x_publish_id_required' })],
+    })
+    expect(mocks.refreshPublishedXComments).not.toHaveBeenCalled()
+    expect(mocks.refreshPublishedSocialEngagement).not.toHaveBeenCalled()
+  })
+
   it('defaults unsupported platform input to LinkedIn for V1', async () => {
     const response = await POST(request({ platform: 'tiktok' }) as never)
     const body = await response.json()
@@ -231,6 +300,7 @@ describe('POST /api/admin/social-content/engagement/refresh', () => {
     }))
     expect(mocks.refreshPublishedYouTubeComments).not.toHaveBeenCalled()
     expect(mocks.refreshPublishedMetaComments).not.toHaveBeenCalled()
+    expect(mocks.refreshPublishedXComments).not.toHaveBeenCalled()
   })
 
   it('returns service unavailable when Apify credentials are missing', async () => {
