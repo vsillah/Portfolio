@@ -138,6 +138,7 @@ describe('publishToLinkedIn', () => {
       throw new Error(`Unexpected fetch: ${url}`)
     })
     vi.stubGlobal('fetch', fetchMock)
+    const { publishUpdate } = installSupabase()
 
     const result = await publishToLinkedIn({
       contentId: 'social-1',
@@ -159,6 +160,15 @@ describe('publishToLinkedIn', () => {
     })
     expect(fetchMock).not.toHaveBeenCalledWith('https://amadutown.com/fallback.png', expect.anything())
     expect(fetchMock).toHaveBeenCalledTimes(10)
+    expect(publishUpdate).toHaveBeenNthCalledWith(1, expect.objectContaining({
+      status: 'publishing',
+      error_message: null,
+    }))
+    expect(publishUpdate).toHaveBeenNthCalledWith(2, expect.objectContaining({
+      status: 'published',
+      error_message: null,
+      platform_post_id: 'urn:li:share:post-123',
+    }))
   })
 
   it('fails closed when a multi-image slide cannot be uploaded', async () => {

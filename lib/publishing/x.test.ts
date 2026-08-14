@@ -92,8 +92,13 @@ describe('publishToX', () => {
         reply: { in_reply_to_tweet_id: 'post-1' },
       }),
     }))
+    expect(update).toHaveBeenNthCalledWith(1, expect.objectContaining({
+      status: 'publishing',
+      error_message: null,
+    }))
     expect(update).toHaveBeenCalledWith(expect.objectContaining({
       status: 'published',
+      error_message: null,
       platform_post_id: 'post-1',
       platform_post_url: 'https://x.com/amadutown/status/post-1',
     }))

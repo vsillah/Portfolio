@@ -38,7 +38,7 @@ describe('publishToInstagram', () => {
   })
 
   it('publishes an image post through the configured Instagram Graph account', async () => {
-    installSupabase({
+    const { update } = installSupabase({
       is_active: true,
       credentials: {
         access_token: 'token',
@@ -68,6 +68,15 @@ describe('publishToInstagram', () => {
     expect(mocks.fetch).toHaveBeenCalledTimes(2)
     expect(mocks.fetch.mock.calls[0][0]).toBe('https://graph.facebook.com/v20.0/ig-1/media')
     expect(mocks.fetch.mock.calls[1][0]).toBe('https://graph.facebook.com/v20.0/ig-1/media_publish')
+    expect(update).toHaveBeenNthCalledWith(1, expect.objectContaining({
+      status: 'publishing',
+      error_message: null,
+    }))
+    expect(update).toHaveBeenNthCalledWith(2, expect.objectContaining({
+      status: 'published',
+      error_message: null,
+      platform_post_id: 'media-1',
+    }))
   })
 
   it('fails closed when no media is ready for Instagram', async () => {

@@ -90,6 +90,28 @@ describe('GET /api/admin/social-content/engagement/comments', () => {
     installDbMocks()
   })
 
+  it('does not apply a platform condition when filter is all or omitted', async () => {
+    const commentsLimit = vi.fn().mockResolvedValue({ data: [commentRow], error: null })
+    const commentsOrder = vi.fn().mockReturnValue({ limit: commentsLimit })
+    const commentsEq = vi.fn().mockReturnValue({ order: commentsOrder })
+    const commentsSelect = vi.fn().mockReturnValue({ eq: commentsEq, order: commentsOrder })
+    const postsIn = vi.fn().mockResolvedValue({ data: [postRow], error: null })
+    mocks.from.mockImplementation((table: string) => {
+      if (table === 'social_content_comments') return { select: commentsSelect }
+      if (table === 'social_content_queue') return { select: vi.fn().mockReturnValue({ in: postsIn }) }
+      throw new Error(`Unexpected table ${table}`)
+    })
+
+    const allResponse = await GET(request('http://localhost/api/admin/social-content/engagement/comments?status=all&platform=all') as never)
+    const omittedResponse = await GET(request() as never)
+
+    expect(allResponse.status).toBe(200)
+    expect(omittedResponse.status).toBe(200)
+    expect((await allResponse.json()).items).toHaveLength(1)
+    expect((await omittedResponse.json()).items).toHaveLength(1)
+    expect(commentsEq).not.toHaveBeenCalled()
+  })
+
   it('filters canonical comments by status and returns counts', async () => {
     const response = await GET(request('http://localhost/api/admin/social-content/engagement/comments?status=lead') as never)
     const body = await response.json()
