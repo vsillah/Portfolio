@@ -160,13 +160,15 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(document.getElementById('social-platform-submission-gate')).not.toBeNull()
   })
 
-  it('exposes all mobile approval steps and activates later steps through the canonical query', async () => {
+  it('exposes every responsive approval step without a horizontal scroll rail and activates later steps through the canonical query', async () => {
     mocks.search = 'returnTo=%2Fadmin%2Fsocial-content&step=copy'
 
     const view = render(<SocialContentDetailRoute />)
 
     const approvalRail = await screen.findByLabelText('Social content approval process')
-    expect(approvalRail).toHaveClass('grid', 'grid-cols-1', 'md:flex', 'md:overflow-x-auto')
+    expect(approvalRail).toHaveClass('social-approval-process')
+    expect(approvalRail).not.toHaveClass('overflow-x-auto', 'md:overflow-x-auto')
+    expect(approvalRail.querySelector('.social-approval-step-grid')).not.toBeNull()
     const stepLabels = [
       'Approval step 1: Context',
       'Approval step 2: Copy',
@@ -178,8 +180,18 @@ describe('SocialContentDetailRoute visual production review', () => {
     for (const label of stepLabels) {
       const control = within(approvalRail).getByRole('button', { name: label })
       expect(control).toBeInTheDocument()
-      expect(control).toHaveClass('min-h-11')
+      expect(control).toHaveClass('min-h-[5.5rem]')
+      expect(control).not.toHaveClass('truncate')
     }
+
+    expect(within(approvalRail).getByText('Source basis recorded')).toBeInTheDocument()
+    expect(within(approvalRail).getByText('Post, CTA, hashtags')).toBeInTheDocument()
+    expect(within(approvalRail).getByText('Strategy not started')).toBeInTheDocument()
+    expect(within(approvalRail).getByText('Platform draft handoff')).toBeInTheDocument()
+    expect(within(approvalRail).getByText('Platform automation')).toBeInTheDocument()
+    expect(within(approvalRail).getByText('Signals and metadata')).toBeInTheDocument()
+    expect(within(approvalRail).getByRole('button', { name: 'Approval step 2: Copy' })).toHaveAttribute('aria-current', 'step')
+    expect(within(approvalRail).getByRole('button', { name: 'Approval step 1: Context' })).not.toHaveAttribute('aria-current')
 
     fireEvent.click(within(approvalRail).getByRole('button', { name: 'Approval step 5: Submit' }))
     expect(mocks.replace).toHaveBeenLastCalledWith(
