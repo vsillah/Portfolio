@@ -267,6 +267,10 @@ function optionalNumber(value: string) {
   return Number.isFinite(parsed) ? parsed : null
 }
 
+function errorMessage(value: unknown, fallback: string) {
+  return typeof value === 'string' && value.trim() ? value : fallback
+}
+
 function insightFor(item: AgentWorkItem) {
   const metadata = item.metadata ?? {}
   const insight = metadata.insight && typeof metadata.insight === 'object' && !Array.isArray(metadata.insight)
@@ -427,6 +431,22 @@ function normalizeAutoResearchBacklogResponse(body: unknown): AutoResearchBacklo
   return null
 }
 
+async function readJsonResponse(response: Response): Promise<unknown> {
+  const fallback = typeof response.clone === 'function' ? response.clone() : null
+  try {
+    return await response.json()
+  } catch {
+    if (!fallback) return {}
+    const text = await fallback.text().catch(() => '')
+    if (!text.trim()) return {}
+    try {
+      return JSON.parse(text) as unknown
+    } catch {
+      return {}
+    }
+  }
+}
+
 export default function ContentIntelligencePage() {
   return (
     <ProtectedRoute requireAdmin>
@@ -506,34 +526,42 @@ function ContentIntelligenceContent() {
     })
   }, [])
 
+  const loadAutoResearchBacklog = useCallback(async () => {
+    try {
+      const response = await authedFetch('/api/admin/social-content/intelligence/autoresearch-backlog')
+      const body = await readJsonResponse(response)
+      if (!response.ok) return
+      const projection = normalizeAutoResearchBacklogResponse(body)
+      setAutoResearchBacklog((current) => projection ?? current)
+    } catch {
+      setAutoResearchBacklog((current) => current)
+    }
+  }, [authedFetch])
+
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
-      const [packetResponse, insightResponse, digestResponse, autoResearchResponse, calendarResponse, campaignResponse] = await Promise.all([
+      const [packetResponse, insightResponse, digestResponse, calendarResponse, campaignResponse] = await Promise.all([
         authedFetch('/api/admin/social-content/intelligence/research-packets?limit=12'),
         authedFetch('/api/admin/agents/work-items?source_type=social_topic_trigger&limit=12'),
         authedFetch('/api/admin/social-content/intelligence/daily-digest?lookback_days=5&limit=12'),
-        authedFetch('/api/admin/social-content/intelligence/autoresearch-backlog'),
         authedFetch('/api/admin/social-content/calendar?limit=50'),
         authedFetch('/api/admin/campaigns?limit=50'),
       ])
-      const packetBody = await packetResponse.json().catch(() => ({}))
-      const insightBody = await insightResponse.json().catch(() => ({}))
-      const digestBody = await digestResponse.json().catch(() => ({}))
-      const autoResearchBody = await autoResearchResponse.json().catch(() => ({}))
-      const calendarBody = await calendarResponse.json().catch(() => ({}))
-      const campaignBody = await campaignResponse.json().catch(() => ({}))
-      if (!packetResponse.ok) throw new Error(packetBody.error || `Research packets HTTP ${packetResponse.status}`)
-      if (!insightResponse.ok) throw new Error(insightBody.error || `Insights HTTP ${insightResponse.status}`)
-      if (!digestResponse.ok) throw new Error(digestBody.error || `Digest HTTP ${digestResponse.status}`)
-      if (!autoResearchResponse.ok) throw new Error(autoResearchBody.error || `AutoResearch HTTP ${autoResearchResponse.status}`)
-      if (!calendarResponse.ok) throw new Error(calendarBody.error || `Calendar HTTP ${calendarResponse.status}`)
-      if (!campaignResponse.ok) throw new Error(campaignBody.error || `Campaigns HTTP ${campaignResponse.status}`)
+      const packetBody = recordValue(await readJsonResponse(packetResponse))
+      const insightBody = recordValue(await readJsonResponse(insightResponse))
+      const digestBody = recordValue(await readJsonResponse(digestResponse))
+      const calendarBody = recordValue(await readJsonResponse(calendarResponse))
+      const campaignBody = recordValue(await readJsonResponse(campaignResponse))
+      if (!packetResponse.ok) throw new Error(errorMessage(packetBody.error, `Research packets HTTP ${packetResponse.status}`))
+      if (!insightResponse.ok) throw new Error(errorMessage(insightBody.error, `Insights HTTP ${insightResponse.status}`))
+      if (!digestResponse.ok) throw new Error(errorMessage(digestBody.error, `Digest HTTP ${digestResponse.status}`))
+      if (!calendarResponse.ok) throw new Error(errorMessage(calendarBody.error, `Calendar HTTP ${calendarResponse.status}`))
+      if (!campaignResponse.ok) throw new Error(errorMessage(campaignBody.error, `Campaigns HTTP ${campaignResponse.status}`))
       setPackets(Array.isArray(packetBody.packets) ? packetBody.packets : [])
       setInsights(Array.isArray(insightBody.work_items) ? insightBody.work_items : [])
-      setDigest(digestBody.digest ?? null)
-      setAutoResearchBacklog(normalizeAutoResearchBacklogResponse(autoResearchBody))
+      setDigest(digestBody.digest ? digestBody.digest as DailyDigest : null)
       setCalendarItems(Array.isArray(calendarBody.items) ? calendarBody.items : [])
       setCampaigns(Array.isArray(campaignBody.data) ? campaignBody.data : [])
     } catch (err) {
@@ -541,7 +569,6 @@ function ContentIntelligenceContent() {
       setPackets([])
       setInsights([])
       setDigest(null)
-      setAutoResearchBacklog(null)
       setCalendarItems([])
       setCampaigns([])
     } finally {
@@ -551,7 +578,13 @@ function ContentIntelligenceContent() {
 
   useEffect(() => {
     load()
-  }, [load])
+    loadAutoResearchBacklog()
+  }, [load, loadAutoResearchBacklog])
+
+  const refreshAll = useCallback(() => {
+    load()
+    loadAutoResearchBacklog()
+  }, [load, loadAutoResearchBacklog])
 
   const strongestPacket = useMemo(() => packets[0] ?? null, [packets])
 
@@ -1111,7 +1144,7 @@ function ContentIntelligenceContent() {
           </div>
           <button
             type="button"
-            onClick={load}
+            onClick={refreshAll}
             disabled={loading}
             className="agent-ops-button-secondary w-full justify-center disabled:opacity-60 sm:w-fit"
           >
