@@ -614,7 +614,12 @@ describe('ContentIntelligencePage', () => {
 
     expect(await screen.findByRole('heading', { name: 'Research and Shaka insight queue' })).toBeInTheDocument()
     expect(screen.getByRole('navigation', { name: 'Content intelligence sections' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Campaign arc and due gates' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Release dates and approval gates' })).toBeInTheDocument()
+    for (const label of ['Campaign', 'Channel', 'Phase', 'Authorization']) {
+      const control = screen.getAllByLabelText(label)[0]
+      expect(control.className).toContain('[color-scheme:light]')
+      expect(control.className).toContain('dark:[color-scheme:dark]')
+    }
     expect(screen.getByRole('button', { name: /Template research library/ })).toBeInTheDocument()
     expect(screen.getByText('YouTube video release')).toBeInTheDocument()
     expect(screen.getByText('Short-form series')).toBeInTheDocument()
@@ -624,7 +629,15 @@ describe('ContentIntelligencePage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Next' }))
     expect(screen.getByText('Case study proof drop')).toBeInTheDocument()
     expect(screen.getByText('Tease: Approval gates')).toBeInTheDocument()
-    expect(screen.getByText('Why this exists:')).toBeInTheDocument()
+    expect(screen.getByText('Content')).toBeInTheDocument()
+    expect(screen.getByText('Work item: Approval gates create trust')).toBeInTheDocument()
+    expect(screen.getByText('Planned content angle')).toBeInTheDocument()
+    expect(screen.getByText('Release date')).toBeInTheDocument()
+    expect(screen.getByText(/Jun 24, 2026/)).toBeInTheDocument()
+    expect(screen.getByText('Approval due')).toBeInTheDocument()
+    expect(screen.getByText(/Jun 23, 2026/)).toBeInTheDocument()
+    expect(screen.getByText('Template basis')).toBeInTheDocument()
+    expect(screen.getAllByText('Whisper-to-shout launch').length).toBeGreaterThan(0)
     expect(screen.getByText(/Tease milestone for LinkedIn/)).toBeInTheDocument()
     expect(screen.getAllByText('Agent Ops Campaign').length).toBeGreaterThan(0)
     expect(screen.getByRole('button', { name: /Plan calendar item/ })).toBeInTheDocument()
@@ -680,6 +693,21 @@ describe('ContentIntelligencePage', () => {
     expect(screen.getByRole('button', { name: 'Link Suggested Research' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Prepare Review Drafts' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Prepare Review Drafts' })).toBeDisabled()
+  })
+
+  it('filters release calendar rows by content title and linked work item', async () => {
+    render(<ContentIntelligencePage />)
+
+    await screen.findByRole('heading', { name: 'Release dates and approval gates' })
+    const contentSearch = screen.getByLabelText('Content title')
+
+    fireEvent.change(contentSearch, { target: { value: 'Approval gates create trust' } })
+    expect(screen.getByText('Tease: Approval gates')).toBeInTheDocument()
+    expect(screen.getByText('Showing 1 release row after filters. Search checks the content title, linked work item, planned angle, campaign, template label, and source basis.')).toBeInTheDocument()
+
+    fireEvent.change(contentSearch, { target: { value: 'missing content title' } })
+    expect(screen.queryByText('Tease: Approval gates')).not.toBeInTheDocument()
+    expect(screen.getByText('Showing 0 release rows after filters. Search checks the content title, linked work item, planned angle, campaign, template label, and source basis.')).toBeInTheDocument()
   })
 
   it('stores recorded evidence without paid scraper fields', async () => {
