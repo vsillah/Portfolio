@@ -29,7 +29,11 @@ export function usage() {
 function readArg(argv: string[], name: string): string | undefined {
   const index = argv.indexOf(name)
   if (index === -1) return undefined
-  return argv[index + 1]
+  const value = argv[index + 1]
+  if (!value || value.startsWith('--')) {
+    throw new Error(`${name} requires a value.`)
+  }
+  return value
 }
 
 export function sanitizeAuthStateName(baseUrl: string) {

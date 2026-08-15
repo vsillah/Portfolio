@@ -61,6 +61,18 @@ describe('vercel preview admin QA helper', () => {
 
   it('requires a base URL and preserves explicit auth-state and headed flags', () => {
     expect(() => parsePreviewAdminQaArgs(['--route', '/admin'], tempRoot)).toThrow('Missing required --base-url')
+    expect(() => parsePreviewAdminQaArgs([
+      '--base-url',
+      'https://portfolio.example.vercel.app',
+      '--route',
+      '--headed',
+    ], tempRoot)).toThrow('--route requires a value.')
+    expect(() => parsePreviewAdminQaArgs([
+      '--base-url',
+      'https://portfolio.example.vercel.app',
+      '--auth-state',
+      '--no-create-auth',
+    ], tempRoot)).toThrow('--auth-state requires a value.')
 
     const options = parsePreviewAdminQaArgs([
       '--base-url',
