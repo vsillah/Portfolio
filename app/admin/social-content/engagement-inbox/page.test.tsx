@@ -127,16 +127,19 @@ describe('SocialCommentInboxPage', () => {
     expect(screen.getByRole('link', { name: /Open inbox/i })).toHaveAttribute('href', '/admin/social-content/engagement-inbox')
     expect(screen.getByText('Deduped')).toBeInTheDocument()
     expect(screen.getByText('Enabled')).toBeInTheDocument()
-    expect(screen.getByText('Potential Client')).toBeInTheDocument()
-    expect(screen.getByText('Can this workflow help our nonprofit intake?')).toBeInTheDocument()
+    expect(screen.getAllByText('Potential Client').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('Can this workflow help our nonprofit intake?').length).toBeGreaterThanOrEqual(1)
     expect(screen.getByText('Blocked/manual state')).toBeInTheDocument()
     expect(screen.getByText('LinkedIn reply adapter is not verified.')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Open Post/i })).toHaveAttribute('href', '/admin/social-content/social-1')
     expect(screen.getByRole('link', { name: /Provider/i })).toHaveAttribute('href', 'https://linkedin.example/comment/1')
 
-    const article = screen.getByText('Potential Client').closest('article')
+    const article = screen.getAllByText('Potential Client')[0].closest('article')
     expect(article).toBeTruthy()
     const panel = within(article as HTMLElement)
+    expect(panel.getByText('Inbound comment')).toBeInTheDocument()
+    expect(panel.getByText('Original post')).toBeInTheDocument()
+    expect(panel.getByText('Draft reply')).toBeInTheDocument()
     expect(panel.getByRole('button', { name: /Draft Response/i })).toBeInTheDocument()
     expect(panel.getByRole('button', { name: /^Approve$/i })).not.toBeDisabled()
     expect(panel.getByRole('button', { name: /^Reject$/i })).toBeInTheDocument()
@@ -204,7 +207,9 @@ describe('SocialCommentInboxPage', () => {
   it('shows a clear empty state when filters remove all rows', async () => {
     render(<SocialCommentInboxPage />)
 
-    expect(await screen.findByText('Potential Client')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getAllByText('Potential Client').length).toBeGreaterThanOrEqual(1)
+    })
     fireEvent.change(screen.getByLabelText(/Status/i), { target: { value: 'ignored' } })
 
     expect(await screen.findByText('No comments match these filters')).toBeInTheDocument()
@@ -216,7 +221,9 @@ describe('SocialCommentInboxPage', () => {
 
     render(<SocialCommentInboxPage />)
 
-    expect(await screen.findByText('Potential Client')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getAllByText('Potential Client').length).toBeGreaterThanOrEqual(1)
+    })
     expect(screen.getByLabelText(/Post/i)).toHaveValue('social-1')
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith(

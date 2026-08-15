@@ -636,6 +636,14 @@ export default function SocialCommentInboxPage() {
 
                 <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(280px,360px)]">
                   <div className="space-y-3">
+                    <div className="rounded-lg border border-blue-500/35 bg-blue-500/10 p-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-100">Inbound comment</p>
+                      <p className="mt-1 text-xs font-semibold text-blue-100">{comment.authorDisplayName}</p>
+                      <p className="mt-2 break-words text-sm leading-6 text-foreground">{comment.body}</p>
+                      <p className="mt-2 text-xs leading-5 text-blue-100/85">
+                        {comment.classification.label}{comment.classification.reason ? `: ${comment.classification.reason}` : ''}
+                      </p>
+                    </div>
                     <div className="rounded-lg border border-border bg-background/70 p-3">
                       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Original post</p>
                       <p className="mt-1 text-sm leading-6 text-foreground">{comment.postLabel}</p>
