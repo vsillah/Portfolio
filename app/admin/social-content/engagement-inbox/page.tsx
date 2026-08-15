@@ -650,7 +650,7 @@ export default function SocialCommentInboxPage() {
                             >
                               <Info className="h-3.5 w-3.5" />
                             </button>
-                            <span className="pointer-events-none absolute left-0 top-7 z-10 w-64 rounded-md border border-blue-500/35 bg-background px-3 py-2 text-xs font-normal normal-case leading-5 tracking-normal text-blue-100 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+                            <span className="pointer-events-none absolute left-0 top-7 z-10 hidden w-64 rounded-md border border-blue-500/35 bg-background px-3 py-2 text-xs font-normal normal-case leading-5 tracking-normal text-blue-100 shadow-lg group-hover:block group-focus-within:block">
                               This generated response stays local until approval and provider submission gates pass.
                             </span>
                           </span>
