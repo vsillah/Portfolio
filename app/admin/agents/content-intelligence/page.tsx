@@ -169,6 +169,12 @@ type SortDirection = 'asc' | 'desc'
 type ResearchSortKey = 'score' | 'retrieved' | 'title'
 type InsightSortKey = 'updated' | 'title' | 'priority'
 
+type AutoResearchTakeaway = {
+  label: string
+  title: string
+  detail: string
+}
+
 const EMPTY_EVIDENCE_FORM: EvidenceForm = {
   source_url: '',
   platform: 'youtube',
@@ -259,6 +265,89 @@ function stringValue(value: unknown) {
 
 function numberValue(value: unknown) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null
+}
+
+function autoResearchVariantScore(channelFit: string) {
+  const normalized = channelFit.toLowerCase()
+  if (normalized === 'strong') return 3
+  if (normalized === 'medium') return 2
+  if (normalized === 'emerging') return 1
+  return 0
+}
+
+function bestAutoResearchVariant(item: AutoResearchAdminProjection) {
+  return [...item.variants].sort((left, right) => autoResearchVariantScore(right.channelFit) - autoResearchVariantScore(left.channelFit))[0] ?? null
+}
+
+function formatAutoResearchGate(gate: AutoResearchAdminProjection['firstBlockedOrPendingGate']) {
+  return gate ? gate.replace(/_/g, ' ') : 'internal handoff ready'
+}
+
+function formatAutoResearchLabel(value: string) {
+  const normalized = value.replace(/_/g, ' ')
+  return normalized === 'x' ? 'X' : normalized
+}
+
+function buildAutoResearchTakeaways(items: AutoResearchAdminProjection[]): AutoResearchTakeaway[] {
+  if (items.length === 0) return []
+
+  const strongest = [...items].sort((left, right) => {
+    const leftReady = left.firstBlockedOrPendingGate === null || left.firstBlockedOrPendingGate === 'final_submission' ? 1 : 0
+    const rightReady = right.firstBlockedOrPendingGate === null || right.firstBlockedOrPendingGate === 'final_submission' ? 1 : 0
+    const leftFit = bestAutoResearchVariant(left)?.channelFit ?? ''
+    const rightFit = bestAutoResearchVariant(right)?.channelFit ?? ''
+    return rightReady - leftReady || autoResearchVariantScore(rightFit) - autoResearchVariantScore(leftFit)
+  })[0]
+  const strongestVariant = bestAutoResearchVariant(strongest)
+  const improvementItem = items.find((item) => item.improvement.state !== 'none')
+    ?? items.find((item) => item.learningWindows?.trackedSignals.length)
+    ?? strongest
+  const learningSignals = improvementItem.learningWindows?.trackedSignals
+    .map((signal) => signal.replace(/_/g, ' '))
+    .slice(0, 2)
+    .join(', ')
+  const blockedItem = items.find((item) => item.firstBlockedOrPendingGate && item.firstBlockedOrPendingGate !== 'final_submission')
+    ?? items.find((item) => item.blockers.length > 0)
+    ?? strongest
+  const channelPriorityItem = items
+    .flatMap((item) => item.variants.map((variant) => ({ item, variant })))
+    .sort((left, right) => autoResearchVariantScore(right.variant.channelFit) - autoResearchVariantScore(left.variant.channelFit))[0]
+
+  return [
+    {
+      label: 'Strongest bet',
+      title: strongest.title,
+      detail: strongestVariant
+        ? `Move the ${formatAutoResearchLabel(strongestVariant.channel)} ${formatAutoResearchLabel(strongestVariant.recommendedFormat)} through ${formatAutoResearchGate(strongest.firstBlockedOrPendingGate)}.`
+        : `Move this item through ${formatAutoResearchGate(strongest.firstBlockedOrPendingGate)}.`,
+    },
+    {
+      label: 'Improvement lever',
+      title: improvementItem.improvement.canBeDecisionGrade ? 'Use the decision-grade signal' : 'Keep the learning loop directional',
+      detail: learningSignals
+        ? `Review ${learningSignals} before revising the next variant.`
+        : 'Use the seven-day learning window before calling the recommendation decision-grade.',
+    },
+    {
+      label: 'Missing gate',
+      title: formatAutoResearchGate(blockedItem.firstBlockedOrPendingGate),
+      detail: blockedItem.nextHumanDecision ?? 'Clear this gate before draft handoff or provider preparation.',
+    },
+    {
+      label: 'Channel priority',
+      title: channelPriorityItem
+        ? `${formatAutoResearchLabel(channelPriorityItem.variant.channel)}: ${channelPriorityItem.variant.channelFit}`
+        : 'No channel variant',
+      detail: channelPriorityItem
+        ? `${formatAutoResearchLabel(channelPriorityItem.variant.ctaRole)} CTA; boundary stays ${formatAutoResearchLabel(channelPriorityItem.variant.providerBoundary)}.`
+        : 'Add a channel variant before handoff.',
+    },
+    {
+      label: 'Boundary',
+      title: 'Internal next step only',
+      detail: 'No provider, schedule, publish, or upload action is available from this view.',
+    },
+  ]
 }
 
 function optionalNumber(value: string) {
@@ -511,6 +600,10 @@ function ContentIntelligenceContent() {
   const [insightSort, setInsightSort] = useState<InsightSortKey>('updated')
   const [insightSortDirection, setInsightSortDirection] = useState<SortDirection>('desc')
   const [insightPage, setInsightPage] = useState(1)
+  const autoResearchTakeaways = useMemo(
+    () => buildAutoResearchTakeaways(autoResearchBacklog?.items ?? []),
+    [autoResearchBacklog],
+  )
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -1665,6 +1758,28 @@ function ContentIntelligenceContent() {
                   </button>
                 </div>
               </div>
+              {autoResearchTakeaways.length ? (
+                <div className="rounded-lg border border-blue-500/25 bg-blue-500/10 p-3">
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-blue-100/75">Recommended next moves</p>
+                      <h3 className="text-sm font-semibold text-blue-50">Takeaways from the projected backlog</h3>
+                    </div>
+                    <span className="text-xs font-medium text-blue-100/70">
+                      Internal planning only
+                    </span>
+                  </div>
+                  <div className="mt-3 grid gap-2 md:grid-cols-2 xl:grid-cols-5">
+                    {autoResearchTakeaways.map((takeaway) => (
+                      <div key={`${takeaway.label}-${takeaway.title}`} className="min-w-0 rounded-md border border-blue-500/20 bg-background/35 p-2">
+                        <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-blue-100/70">{takeaway.label}</p>
+                        <p className="mt-1 break-words text-xs font-semibold text-blue-50">{takeaway.title}</p>
+                        <p className="mt-1 text-[0.68rem] leading-5 text-blue-100/75">{takeaway.detail}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
               <div className="grid gap-4 xl:grid-cols-2">
                 {autoResearchBacklog.items.map((item) => (
                   <AutoResearchBacklogCard key={item.id} item={item} />
