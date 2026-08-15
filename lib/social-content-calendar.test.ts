@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
   campaignContentPlanSlots,
+  calendarMissedReleaseWindow,
+  calendarRecalibrationAnchor,
   defaultAuthorizationDueAt,
   deriveDueStatus,
   dueGateWindow,
@@ -10,6 +12,7 @@ import {
   normalizeCampaignPhase,
   normalizeCalendarTemplateKey,
   normalizeDueStatus,
+  recalibrateCalendarSequence,
   recommendCalendarTemplates,
 } from './social-content-calendar'
 
@@ -37,12 +40,84 @@ describe('social-content-calendar helpers', () => {
     expect(dueGateWindow('invalid-date', now)).toBeNull()
   })
 
+  it('detects missed unreleased release windows only after the grace period', () => {
+    const now = new Date('2026-06-24T10:00:00.000Z')
+
+    expect(calendarMissedReleaseWindow('2026-06-24T08:00:00.001Z', now)).toBe(false)
+    expect(calendarMissedReleaseWindow('2026-06-24T08:00:00.000Z', now)).toBe(false)
+    expect(calendarMissedReleaseWindow('2026-06-24T07:59:59.999Z', now)).toBe(true)
+    expect(calendarMissedReleaseWindow('not-a-date', now)).toBe(false)
+  })
+
+  it('recalibrates missed unreleased campaign rows while preserving relative spacing', () => {
+    const now = new Date('2026-08-15T12:00:00.000Z')
+    const rows = [
+      {
+        id: 'calendar-1',
+        scheduled_for: '2026-08-14T12:00:00.000Z',
+        authorization_status: 'pending' as const,
+        due_status: 'past_due' as const,
+        metadata: { source: 'test' },
+      },
+      {
+        id: 'calendar-2',
+        scheduled_for: '2026-08-16T12:00:00.000Z',
+        authorization_status: 'pending' as const,
+        due_status: 'planned' as const,
+        metadata: {},
+      },
+      {
+        id: 'calendar-3',
+        scheduled_for: '2026-08-17T12:00:00.000Z',
+        authorization_status: 'authorized' as const,
+        due_status: 'planned' as const,
+        metadata: {},
+      },
+    ]
+
+    expect(calendarRecalibrationAnchor(now).toISOString()).toBe('2026-08-16T12:00:00.000Z')
+    const updates = recalibrateCalendarSequence({
+      rows,
+      anchorItemId: 'calendar-1',
+      now,
+      leadHours: 24,
+      actor: 'test',
+    })
+
+    expect(updates).toEqual([
+      expect.objectContaining({
+        id: 'calendar-1',
+        prior_scheduled_for: '2026-08-14T12:00:00.000Z',
+        scheduled_for: '2026-08-16T12:00:00.000Z',
+        authorization_due_at: '2026-08-15T12:00:00.000Z',
+        due_status: 'due_soon',
+        metadata: expect.objectContaining({
+          source: 'test',
+          external_execution_enabled: false,
+          calendar_recalibration: expect.objectContaining({
+            actor: 'test',
+            reason: 'missed_unreleased_calendar_approval',
+            anchor_item_id: 'calendar-1',
+            shifted_by_ms: 2 * 24 * 60 * 60 * 1000,
+          }),
+        }),
+      }),
+      expect.objectContaining({
+        id: 'calendar-2',
+        prior_scheduled_for: '2026-08-16T12:00:00.000Z',
+        scheduled_for: '2026-08-18T12:00:00.000Z',
+        authorization_due_at: '2026-08-17T12:00:00.000Z',
+        due_status: 'planned',
+      }),
+    ])
+  })
+
   it('sets authorization due time 24 hours before the scheduled publish intent', () => {
     expect(defaultAuthorizationDueAt('2026-06-25T15:30:00.000Z')).toBe('2026-06-24T15:30:00.000Z')
     expect(defaultAuthorizationDueAt('not-a-date')).toBeNull()
   })
 
-  it('generates four pending campaign slots with safe defaults and fallback spacing', () => {
+  it('generates pending campaign slots with safe defaults and fallback spacing', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-06-24T10:00:00.000Z'))
 
@@ -53,7 +128,8 @@ describe('social-content-calendar helpers', () => {
         ends_at: '2026-07-01T00:00:00.000Z',
       })
 
-      expect(slots.map((slot) => slot.campaign_phase)).toEqual(['tease', 'teach', 'proof', 'offer'])
+      expect(slots.map((slot) => slot.campaign_phase)).toEqual(['tease', 'teach', 'proof', 'offer', 'offer'])
+      expect(slots.map((slot) => slot.channel)).toEqual(['linkedin', 'linkedin', 'linkedin', 'linkedin', 'x'])
       expect(slots).toEqual(expect.arrayContaining([
         expect.objectContaining({
           channel: 'linkedin',
@@ -77,6 +153,7 @@ describe('social-content-calendar helpers', () => {
       expect(scheduledTimes[1] - scheduledTimes[0]).toBe(3 * 86_400_000)
       expect(scheduledTimes[2] - scheduledTimes[1]).toBe(3 * 86_400_000)
       expect(scheduledTimes[3] - scheduledTimes[2]).toBe(3 * 86_400_000)
+      expect(scheduledTimes[4] - scheduledTimes[3]).toBe(1 * 86_400_000)
       slots.forEach((slot) => {
         expect(slot.authorization_due_at).toBe(defaultAuthorizationDueAt(slot.scheduled_for))
       })

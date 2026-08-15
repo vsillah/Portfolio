@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({
   from: vi.fn(),
@@ -44,6 +44,10 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
     vi.clearAllMocks()
     process.env.CRON_SECRET = 'cron-secret'
     process.env.N8N_INGEST_SECRET = ''
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   it('rejects unauthenticated cron requests', async () => {
@@ -255,6 +259,153 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
         publish: false,
         external_post: false,
         internal_work_items_created: 1,
+      },
+    })
+  })
+
+  it('recalibrates missed unreleased calendar dates without external execution', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-08-15T12:00:00.000Z'))
+    const missedItem = {
+      id: 'calendar-missed-1',
+      title: 'Missed X campaign post',
+      campaign_id: 'campaign-recalibrate',
+      agent_work_item_id: 'work-social-1',
+      social_content_id: null,
+      channel: 'x',
+      campaign_phase: 'tease',
+      scheduled_for: '2026-08-14T12:00:00.000Z',
+      authorization_status: 'pending',
+      due_status: 'past_due',
+      metadata: {},
+    }
+    const selectQuery: Record<string, unknown> = {
+      data: [missedItem],
+      in: vi.fn(() => selectQuery),
+      gte: vi.fn(() => selectQuery),
+      lte: vi.fn(() => selectQuery),
+      order: vi.fn(() => selectQuery),
+      range: vi.fn(async () => ({ data: selectQuery.data, error: null })),
+    }
+    const recalibrationQuery: Record<string, unknown> = {
+      eq: vi.fn(() => recalibrationQuery),
+      gte: vi.fn(() => recalibrationQuery),
+      order: vi.fn(async () => ({
+        data: [
+          {
+            id: 'calendar-missed-1',
+            scheduled_for: '2026-08-14T12:00:00.000Z',
+            authorization_status: 'pending',
+            due_status: 'past_due',
+            metadata: {},
+          },
+          {
+            id: 'calendar-future-1',
+            scheduled_for: '2026-08-16T12:00:00.000Z',
+            authorization_status: 'pending',
+            due_status: 'planned',
+            metadata: { source: 'calendar' },
+          },
+          {
+            id: 'calendar-authorized-1',
+            scheduled_for: '2026-08-17T12:00:00.000Z',
+            authorization_status: 'authorized',
+            due_status: 'planned',
+            metadata: {},
+          },
+        ],
+        error: null,
+      })),
+    }
+    const updateEq = vi.fn(async () => ({ data: null, error: null }))
+    const update = vi.fn(() => ({ eq: updateEq }))
+    mocks.from
+      .mockReturnValueOnce({ select: vi.fn(() => selectQuery) })
+      .mockReturnValueOnce({ select: vi.fn(() => recalibrationQuery) })
+      .mockReturnValue({ update })
+    mocks.createAgentWorkItem.mockResolvedValue({ id: 'work-recalibration' })
+    mocks.runAgentSlackNotificationSweep.mockResolvedValue({ sentCount: 1 })
+
+    const response = await POST(request('http://localhost/api/cron/social-content-calendar-due-gates', 'POST') as never)
+
+    expect(response.status).toBe(200)
+    expect(recalibrationQuery.eq).toHaveBeenCalledWith('campaign_id', 'campaign-recalibrate')
+    expect(recalibrationQuery.gte).toHaveBeenCalledWith('scheduled_for', '2026-08-14T12:00:00.000Z')
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'Recalibrate X calendar sequence: Missed X campaign post',
+      priority: 'urgent',
+      ownerAgentKey: 'chief-of-staff',
+      source: {
+        type: 'social_content_calendar_recalibration',
+        id: 'calendar-missed-1',
+        label: 'Missed X campaign post',
+      },
+      idempotencyKey: 'social-content-calendar-recalibration:campaign-recalibrate:calendar-missed-1',
+      metadata: expect.objectContaining({
+        affected_calendar_item_ids: ['calendar-missed-1', 'calendar-future-1'],
+        affected_count: 2,
+        recalibration_action: 'move_unreleased_calendar_sequence_forward',
+        external_execution_enabled: false,
+        side_effects: expect.objectContaining({ publish: false, external_post: false }),
+      }),
+    }))
+    expect(update).toHaveBeenCalledTimes(2)
+    expect(update).toHaveBeenNthCalledWith(1, expect.objectContaining({
+      scheduled_for: '2026-08-16T12:00:00.000Z',
+      authorization_due_at: '2026-08-15T12:00:00.000Z',
+      due_status: 'due_soon',
+      metadata: expect.objectContaining({
+        external_execution_enabled: false,
+        calendar_recalibration: expect.objectContaining({
+          work_item_id: 'work-recalibration',
+          reason: 'missed_unreleased_calendar_approval',
+        }),
+      }),
+    }))
+    expect(update).toHaveBeenNthCalledWith(2, expect.objectContaining({
+      scheduled_for: '2026-08-18T12:00:00.000Z',
+      authorization_due_at: '2026-08-17T12:00:00.000Z',
+      due_status: 'planned',
+      metadata: expect.objectContaining({
+        source: 'calendar',
+        external_execution_enabled: false,
+      }),
+    }))
+    expect(mocks.runAgentSlackNotificationSweep).toHaveBeenCalledWith(expect.objectContaining({
+      mode: 'immediate',
+      kinds: ['goal_decisions'],
+      goalId: 'social-content-calendar',
+      triggerSource: 'manual_social_content_calendar_due_gates',
+    }))
+    await expect(response.json()).resolves.toMatchObject({
+      ok: true,
+      candidate_count: 1,
+      pinged_count: 0,
+      preparation_count: 0,
+      recalibrated_count: 1,
+      recalibrated: [{
+        anchor_calendar_item_id: 'calendar-missed-1',
+        work_item_id: 'work-recalibration',
+        affected_count: 2,
+        updates: [
+          {
+            calendar_item_id: 'calendar-missed-1',
+            prior_scheduled_for: '2026-08-14T12:00:00.000Z',
+            scheduled_for: '2026-08-16T12:00:00.000Z',
+          },
+          {
+            calendar_item_id: 'calendar-future-1',
+            prior_scheduled_for: '2026-08-16T12:00:00.000Z',
+            scheduled_for: '2026-08-18T12:00:00.000Z',
+          },
+        ],
+      }],
+      side_effects: {
+        publish: false,
+        external_post: false,
+        internal_work_items_created: 1,
+        internal_calendar_recalibration: 2,
+        slack_notification_requested: true,
       },
     })
   })

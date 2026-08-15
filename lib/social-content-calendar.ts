@@ -732,6 +732,107 @@ export function dueGateWindow(scheduledFor: string | Date, now: Date = new Date(
   return '24h'
 }
 
+export function calendarMissedReleaseWindow(
+  scheduledFor: string | Date,
+  now: Date = new Date(),
+  graceHours = 2,
+) {
+  const scheduled = typeof scheduledFor === 'string' ? new Date(scheduledFor) : scheduledFor
+  if (!Number.isFinite(scheduled.getTime())) return false
+  const graceMs = Math.max(0, graceHours) * 60 * 60 * 1000
+  return scheduled.getTime() + graceMs < now.getTime()
+}
+
+export function calendarRecalibrationAnchor(now: Date = new Date(), leadHours = 24) {
+  const leadMs = Math.max(1, leadHours) * 60 * 60 * 1000
+  return new Date(now.getTime() + leadMs)
+}
+
+export type CalendarRecalibrationRow = Pick<
+  SocialContentCalendarItem,
+  | 'id'
+  | 'scheduled_for'
+  | 'authorization_status'
+  | 'due_status'
+  | 'metadata'
+>
+
+export type CalendarRecalibrationUpdate = {
+  id: string
+  prior_scheduled_for: string
+  scheduled_for: string
+  authorization_due_at: string | null
+  due_status: SocialContentCalendarDueStatus
+  metadata: Record<string, unknown>
+}
+
+const NON_RECALIBRATABLE_DUE_STATUSES = new Set<SocialContentCalendarDueStatus>(['completed', 'cancelled'])
+
+export function unreleasedCalendarRowCanRecalibrate(row: CalendarRecalibrationRow) {
+  if (row.authorization_status === 'authorized') return false
+  if (NON_RECALIBRATABLE_DUE_STATUSES.has(row.due_status)) return false
+  const scheduled = new Date(row.scheduled_for)
+  return Number.isFinite(scheduled.getTime())
+}
+
+export function recalibrateCalendarSequence(input: {
+  rows: CalendarRecalibrationRow[]
+  anchorItemId: string
+  now?: Date
+  leadHours?: number
+  actor?: string
+}) {
+  const now = input.now ?? new Date()
+  const anchor = input.rows.find((row) => row.id === input.anchorItemId)
+  if (!anchor || !unreleasedCalendarRowCanRecalibrate(anchor)) return []
+
+  const anchorDate = new Date(anchor.scheduled_for)
+  if (!Number.isFinite(anchorDate.getTime())) return []
+
+  const targetAnchorDate = calendarRecalibrationAnchor(now, input.leadHours)
+  const shiftMs = targetAnchorDate.getTime() - anchorDate.getTime()
+
+  return input.rows
+    .filter((row) => {
+      if (!unreleasedCalendarRowCanRecalibrate(row)) return false
+      const scheduled = new Date(row.scheduled_for)
+      return Number.isFinite(scheduled.getTime()) && scheduled.getTime() >= anchorDate.getTime()
+    })
+    .sort((left, right) => new Date(left.scheduled_for).getTime() - new Date(right.scheduled_for).getTime())
+    .map((row): CalendarRecalibrationUpdate => {
+      const priorDate = new Date(row.scheduled_for)
+      const nextDate = new Date(priorDate.getTime() + shiftMs)
+      const priorMetadata = parseMetadata(row.metadata)
+      const recalibrationHistory = Array.isArray(priorMetadata.calendar_recalibration_history)
+        ? priorMetadata.calendar_recalibration_history
+        : []
+      const recalibration = {
+        recalibrated_at: now.toISOString(),
+        actor: input.actor ?? 'social_content_calendar_due_gates',
+        reason: 'missed_unreleased_calendar_approval',
+        anchor_item_id: input.anchorItemId,
+        prior_scheduled_for: priorDate.toISOString(),
+        shifted_by_ms: shiftMs,
+      }
+      return {
+        id: row.id,
+        prior_scheduled_for: priorDate.toISOString(),
+        scheduled_for: nextDate.toISOString(),
+        authorization_due_at: defaultAuthorizationDueAt(nextDate),
+        due_status: deriveDueStatus(nextDate, now),
+        metadata: {
+          ...priorMetadata,
+          calendar_recalibration: recalibration,
+          calendar_recalibration_history: [
+            ...recalibrationHistory.slice(-4),
+            recalibration,
+          ],
+          external_execution_enabled: false,
+        },
+      }
+    })
+}
+
 export function parseMetadata(value: unknown): Record<string, unknown> {
   return value && typeof value === 'object' && !Array.isArray(value)
     ? value as Record<string, unknown>
