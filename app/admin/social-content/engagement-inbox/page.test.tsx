@@ -123,23 +123,27 @@ describe('SocialCommentInboxPage', () => {
     expect(screen.getByText('Alert reliability')).toBeInTheDocument()
     expect(screen.getByText('Alerts disabled')).toBeInTheDocument()
     expect(screen.getByText('Slack alert delivery is default-off. The inbox remains the recovery surface.')).toBeInTheDocument()
-    expect(screen.getByText('Review eligible comments in the Engagement Inbox or run an authorized dry-run cron check.')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Open inbox/i })).toHaveAttribute('href', '/admin/social-content/engagement-inbox')
-    expect(screen.getByText('Deduped')).toBeInTheDocument()
-    expect(screen.getByText('Enabled')).toBeInTheDocument()
+    expect(screen.getByText('Enabled No')).toBeInTheDocument()
     expect(screen.getAllByText('Potential Client').length).toBeGreaterThanOrEqual(1)
-    expect(screen.getAllByText('Can this workflow help our nonprofit intake?').length).toBeGreaterThanOrEqual(1)
-    expect(screen.getByText('Blocked/manual state')).toBeInTheDocument()
+    expect(screen.getAllByText('Can this workflow help our nonprofit intake?')).toHaveLength(1)
+    expect(screen.getByText('Provider guardrails')).toBeInTheDocument()
     expect(screen.getByText('LinkedIn reply adapter is not verified.')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Open Post/i })).toHaveAttribute('href', '/admin/social-content/social-1')
+    expect(screen.getByRole('link', { name: /Details/i })).toHaveAttribute('href', '/admin/social-content/social-1')
     expect(screen.getByRole('link', { name: /Provider/i })).toHaveAttribute('href', 'https://linkedin.example/comment/1')
 
     const article = screen.getAllByText('Potential Client')[0].closest('article')
     expect(article).toBeTruthy()
     const panel = within(article as HTMLElement)
-    expect(panel.getByText('Inbound comment')).toBeInTheDocument()
     expect(panel.getByText('Original post')).toBeInTheDocument()
+    expect(panel.getByText('Inbound comment')).toBeInTheDocument()
     expect(panel.getByText('Draft reply')).toBeInTheDocument()
+    const cardText = (article as HTMLElement).textContent ?? ''
+    const originalPostIndex = cardText.indexOf('Original post')
+    const inboundCommentIndex = cardText.indexOf('Inbound comment')
+    const draftReplyIndex = cardText.indexOf('Draft reply')
+    expect(originalPostIndex).toBeGreaterThanOrEqual(0)
+    expect(inboundCommentIndex).toBeGreaterThan(originalPostIndex)
+    expect(draftReplyIndex).toBeGreaterThan(inboundCommentIndex)
     expect(panel.getByRole('button', { name: /Draft Response/i })).toBeInTheDocument()
     expect(panel.getByRole('button', { name: /^Approve$/i })).not.toBeDisabled()
     expect(panel.getByRole('button', { name: /^Reject$/i })).toBeInTheDocument()
@@ -183,7 +187,10 @@ describe('SocialCommentInboxPage', () => {
     expect(await screen.findByDisplayValue(generatedReply)).toBeInTheDocument()
     expect(await screen.findByText(/Draft response generated in the Draft reply box/i)).toBeInTheDocument()
     expect(screen.getByText(/Generated response ready for review/i)).toBeInTheDocument()
-    expect(screen.getByText(/This is the generated response/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Generated reply guardrail/i })).toHaveAttribute(
+      'title',
+      'This generated response stays local until approval and provider submission gates pass.',
+    )
     expect(fetchMock).toHaveBeenCalledWith(
       '/api/admin/social-content/social-1/engagement/comments',
       expect.objectContaining({
@@ -201,7 +208,7 @@ describe('SocialCommentInboxPage', () => {
 
     expect(await screen.findByText('Alert reliability')).toBeInTheDocument()
     expect(screen.getByText('Alerts disabled')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Open inbox/i })).toBeInTheDocument()
+    expect(screen.getByText('Enabled No')).toBeInTheDocument()
   })
 
   it('shows a clear empty state when filters remove all rows', async () => {

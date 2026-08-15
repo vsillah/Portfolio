@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   ExternalLink,
   Filter,
+  Info,
   Loader2,
   MessageSquare,
   RefreshCw,
@@ -151,6 +152,16 @@ function statusLabel(status: SocialCommentStatus) {
 
 function platformLabel(platform: SocialPlatform) {
   return PLATFORMS.find((item) => item.value === platform)?.label ?? platform
+}
+
+function formatActionLabel(action: SocialCommentInboxItem['actionHistory'][number]['action']) {
+  return action.replace(/_/g, ' ')
+}
+
+function formatActionTime(value: string) {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return 'Time unavailable'
+  return date.toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
 }
 
 function canSubmit(comment: SocialCommentInboxItem) {
@@ -382,76 +393,50 @@ export default function SocialCommentInboxPage() {
           </div>
         </div>
 
-        <section className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-lg border border-border bg-card p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Total</p>
-            <p className="mt-1 text-2xl font-semibold text-foreground">{summary.total}</p>
-            <p className="mt-1 text-xs text-muted-foreground">{filteredSummary.total} visible after filters</p>
-          </div>
-          {statusCounts.slice(0, 7).map((status) => (
-            <button
-              type="button"
-              key={status.value}
-              onClick={() => setFilters((current) => ({ ...current, status: current.status === status.value ? 'all' : status.value }))}
-              className={`rounded-lg border p-4 text-left transition-colors hover:bg-muted/60 ${filters.status === status.value ? STATUS_CLASS[status.value] : 'border-border bg-card text-foreground'}`}
-            >
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] opacity-75">{status.label}</p>
-              <p className="mt-1 text-2xl font-semibold">{status.count}</p>
-            </button>
-          ))}
-        </section>
-
-        {alertReliability && (
-          <section className={`mt-5 rounded-lg border p-4 ${ALERT_RELIABILITY_CLASS[alertReliability.state]}`}>
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-              <div className="min-w-0">
+        <section className="mt-5 rounded-lg border border-border bg-card p-3">
+          <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(280px,380px)]">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="rounded-lg border border-border bg-background px-3 py-2">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Visible</p>
+                  <p className="mt-0.5 text-xl font-semibold text-foreground">{filteredSummary.total} / {summary.total}</p>
+                </div>
+                {statusCounts.slice(0, 7).map((status) => (
+                  <button
+                    type="button"
+                    key={status.value}
+                    onClick={() => setFilters((current) => ({ ...current, status: current.status === status.value ? 'all' : status.value }))}
+                    className={`min-h-14 rounded-lg border px-3 py-2 text-left transition-colors hover:bg-muted/60 ${filters.status === status.value ? STATUS_CLASS[status.value] : 'border-border bg-background text-foreground'}`}
+                  >
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] opacity-75">{status.label}</p>
+                    <p className="mt-0.5 text-lg font-semibold">{status.count}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+            {alertReliability && (
+              <div className={`rounded-lg border px-3 py-2 ${ALERT_RELIABILITY_CLASS[alertReliability.state]}`}>
                 <div className="flex flex-wrap items-center gap-2">
                   <BellRing className="h-4 w-4 shrink-0" />
                   <h2 className="text-sm font-semibold text-current">Alert reliability</h2>
-                  <span className="rounded-full border border-current/30 px-2.5 py-1 text-xs font-semibold uppercase">
+                  <span className="rounded-full border border-current/30 px-2 py-0.5 text-[0.7rem] font-semibold uppercase">
                     {alertReliability.label}
                   </span>
-                  <span className="rounded-full border border-current/25 px-2.5 py-1 text-xs font-semibold uppercase">
+                  <span className="rounded-full border border-current/25 px-2 py-0.5 text-[0.7rem] font-semibold uppercase">
                     {alertReliability.deliveryMode.replace(/_/g, ' ')}
                   </span>
                 </div>
-                <p className="mt-2 break-words text-sm leading-6 text-current/90">{alertReliability.summary}</p>
-                <p className="mt-1 break-words text-xs leading-5 text-current/75">{alertReliability.lastActionableNextStep}</p>
-                {alertReliability.reasons.length > 0 && (
-                  <ul className="mt-3 grid gap-2 text-xs leading-5 text-current/80 sm:grid-cols-2">
-                    {alertReliability.reasons.slice(0, 4).map((reason) => (
-                      <li key={reason} className="min-w-0 break-words rounded-md border border-current/20 bg-black/10 px-2.5 py-2">
-                        {reason}
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                <p className="mt-2 text-xs leading-5 text-current/80">{alertReliability.summary}</p>
+                <div className="mt-2 flex flex-wrap gap-2 text-[0.7rem] font-semibold uppercase text-current/75">
+                  <span>Items {alertReliability.counts.itemCount}</span>
+                  <span>Sent {alertReliability.counts.sent}</span>
+                  <span>Errors {alertReliability.counts.errors}</span>
+                  <span>Enabled {alertReliability.activation.enabled ? 'Yes' : 'No'}</span>
+                </div>
               </div>
-              <div className="grid w-full shrink-0 grid-cols-2 gap-2 sm:w-auto sm:min-w-80">
-                {[
-                  ['Items', alertReliability.counts.itemCount],
-                  ['Sent', alertReliability.counts.sent],
-                  ['Deduped', alertReliability.counts.deduped],
-                  ['Skipped', alertReliability.counts.skipped],
-                  ['Errors', alertReliability.counts.errors],
-                  ['Enabled', alertReliability.activation.enabled ? 'Yes' : 'No'],
-                ].map(([label, value]) => (
-                  <div key={label} className="min-w-0 rounded-md border border-current/20 bg-black/10 px-3 py-2">
-                    <p className="text-[11px] font-semibold uppercase text-current/65">{label}</p>
-                    <p className="mt-1 break-words text-sm font-semibold text-current">{value}</p>
-                  </div>
-                ))}
-                <Link
-                  href={alertReliability.nextStep.href}
-                  className="col-span-2 inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-current/30 px-3 py-2 text-sm font-semibold text-current hover:bg-black/10"
-                >
-                  {alertReliability.nextStep.label}
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </Link>
-              </div>
-            </div>
-          </section>
-        )}
+            )}
+          </div>
+        </section>
 
         <section className="mt-5 rounded-lg border border-border bg-card p-4">
           <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
@@ -607,47 +592,45 @@ export default function SocialCommentInboxPage() {
                       </span>
                     </div>
                     <h2 className="mt-3 text-base font-semibold text-foreground">{comment.authorDisplayName}</h2>
-                    <p className="mt-2 max-w-4xl break-words text-sm leading-6 text-foreground">{comment.body}</p>
-                    <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                      {comment.classification.label}{comment.classification.reason ? `: ${comment.classification.reason}` : ''}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 flex-wrap gap-2">
-                    <Link
-                      href={`/admin/social-content/${comment.socialContentId}`}
-                      className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-border px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted"
-                    >
-                      Open Post
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </Link>
-                    {comment.providerPermalink && (
-                      <a
-                        href={comment.providerPermalink}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-border px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted"
-                      >
-                        Provider
-                        <ExternalLink className="h-3.5 w-3.5" />
-                      </a>
-                    )}
                   </div>
                 </div>
 
                 <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(280px,360px)]">
                   <div className="space-y-3">
+                    <div className="rounded-lg border border-border bg-background/70 p-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Original post</p>
+                        <Link
+                          href={`/admin/social-content/${comment.socialContentId}`}
+                          className="inline-flex min-h-8 items-center justify-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-semibold text-foreground hover:bg-muted"
+                        >
+                          Details
+                          <ExternalLink className="h-3.5 w-3.5" />
+                        </Link>
+                      </div>
+                      <p className="mt-2 text-sm leading-6 text-foreground">{comment.postLabel}</p>
+                      <p className="mt-1 line-clamp-3 text-xs leading-5 text-muted-foreground">{comment.postExcerpt}</p>
+                    </div>
                     <div className="rounded-lg border border-blue-500/35 bg-blue-500/10 p-3">
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-100">Inbound comment</p>
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-100">Inbound comment</p>
+                        {comment.providerPermalink && (
+                          <a
+                            href={comment.providerPermalink}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex min-h-8 items-center justify-center gap-1.5 rounded-lg border border-blue-500/35 px-2.5 py-1.5 text-xs font-semibold text-blue-100 hover:bg-blue-500/15"
+                          >
+                            Provider
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                        )}
+                      </div>
                       <p className="mt-1 text-xs font-semibold text-blue-100">{comment.authorDisplayName}</p>
                       <p className="mt-2 break-words text-sm leading-6 text-foreground">{comment.body}</p>
                       <p className="mt-2 text-xs leading-5 text-blue-100/85">
                         {comment.classification.label}{comment.classification.reason ? `: ${comment.classification.reason}` : ''}
                       </p>
-                    </div>
-                    <div className="rounded-lg border border-border bg-background/70 p-3">
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Original post</p>
-                      <p className="mt-1 text-sm leading-6 text-foreground">{comment.postLabel}</p>
-                      <p className="mt-1 line-clamp-3 text-xs leading-5 text-muted-foreground">{comment.postExcerpt}</p>
                     </div>
                     <label className="block text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                       <span className="flex flex-wrap items-center gap-2">
@@ -655,6 +638,21 @@ export default function SocialCommentInboxPage() {
                         {draftText && (
                           <span className="rounded-full border border-blue-500/35 bg-blue-500/10 px-2 py-0.5 text-[0.65rem] font-semibold tracking-normal text-blue-100">
                             Generated response ready for review
+                          </span>
+                        )}
+                        {draftText && (
+                          <span className="group relative inline-flex">
+                            <button
+                              type="button"
+                              aria-label="Generated reply guardrail"
+                              title="This generated response stays local until approval and provider submission gates pass."
+                              className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-blue-500/35 bg-blue-500/10 text-blue-100"
+                            >
+                              <Info className="h-3.5 w-3.5" />
+                            </button>
+                            <span className="pointer-events-none absolute left-0 top-7 z-10 w-64 rounded-md border border-blue-500/35 bg-background px-3 py-2 text-xs font-normal normal-case leading-5 tracking-normal text-blue-100 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+                              This generated response stays local until approval and provider submission gates pass.
+                            </span>
                           </span>
                         )}
                       </span>
@@ -666,11 +664,6 @@ export default function SocialCommentInboxPage() {
                         placeholder="Draft a reply for review. This does not send externally."
                       />
                     </label>
-                    {draftText && (
-                      <p className="rounded-lg border border-blue-500/35 bg-blue-500/10 px-3 py-2 text-xs leading-5 text-blue-100">
-                        This is the generated response. It stays local until approval and provider submission gates pass.
-                      </p>
-                    )}
                     <div className="flex flex-wrap gap-2">
                       <button
                         type="button"
@@ -720,45 +713,47 @@ export default function SocialCommentInboxPage() {
                     </div>
                   </div>
 
-                  <aside className="rounded-lg border border-border bg-background/70 p-3">
-                    <div className="flex items-center gap-2">
-                      {submitReady ? <CheckCircle2 className="h-4 w-4 text-emerald-300" /> : <ShieldAlert className="h-4 w-4 text-amber-300" />}
-                      <p className="text-sm font-semibold text-foreground">
-                        {submitReady ? 'Provider ready' : 'Blocked/manual state'}
-                      </p>
-                    </div>
-                    <dl className="mt-3 space-y-2 text-sm">
-                      <div>
-                        <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Provider</dt>
-                        <dd className="mt-1 break-words text-foreground">{comment.providerCapability.provider}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Approval</dt>
-                        <dd className="mt-1 text-foreground">{comment.approvalState.replace(/_/g, ' ')}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Recovery path</dt>
-                        <dd className="mt-1 text-muted-foreground">{comment.providerCapability.blocker || comment.providerCapability.recoveryPath}</dd>
-                      </div>
-                    </dl>
-                    {comment.actionHistory.length > 0 ? (
-                      <div className="mt-4">
-                        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Action history</p>
-                        <ul className="mt-2 space-y-2">
-                          {comment.actionHistory.slice(0, 4).map((event, index) => (
-                            <li key={`${event.at}-${index}`} className="rounded-md border border-border bg-card px-2.5 py-2 text-xs leading-5 text-muted-foreground">
-                              <span className="font-semibold text-foreground">{event.action.replace(/_/g, ' ')}</span>
-                              {event.note ? `: ${event.note}` : ''}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ) : (
-                      <div className="mt-4 flex gap-2 rounded-lg border border-amber-500/25 bg-amber-500/10 p-3 text-xs leading-5 text-amber-100">
-                        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-                        No action history recorded yet.
-                      </div>
-                    )}
+                  <aside>
+                    <details className="rounded-lg border border-border bg-background/70 p-3">
+                      <summary className="flex cursor-pointer list-none flex-wrap items-center gap-2 text-sm font-semibold text-foreground">
+                        {submitReady ? <CheckCircle2 className="h-4 w-4 text-emerald-300" /> : <ShieldAlert className="h-4 w-4 text-amber-300" />}
+                        <span>{submitReady ? 'Provider ready' : 'Provider guardrails'}</span>
+                        <span className="rounded-full border border-border px-2 py-0.5 text-[0.7rem] font-semibold uppercase text-muted-foreground">
+                          {comment.providerCapability.provider}
+                        </span>
+                        <span className="rounded-full border border-border px-2 py-0.5 text-[0.7rem] font-semibold uppercase text-muted-foreground">
+                          {comment.approvalState.replace(/_/g, ' ')}
+                        </span>
+                      </summary>
+                      <dl className="mt-3 space-y-2 text-sm">
+                        <div>
+                          <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Recovery path</dt>
+                          <dd className="mt-1 text-muted-foreground">{comment.providerCapability.blocker || comment.providerCapability.recoveryPath}</dd>
+                        </div>
+                      </dl>
+                      {comment.actionHistory.length > 0 ? (
+                        <div className="mt-4">
+                          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Action history</p>
+                          <ul className="mt-2 space-y-2">
+                            {comment.actionHistory.slice(0, 4).map((event, index) => (
+                              <li key={`${event.at}-${index}`} className="rounded-md border border-border bg-card px-2.5 py-2 text-xs leading-5 text-muted-foreground">
+                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                                  <span className="font-semibold text-foreground">{formatActionLabel(event.action)}</span>
+                                  <span>{formatActionTime(event.at)}</span>
+                                  {event.by && <span>by {event.by}</span>}
+                                </div>
+                                {event.note && <p className="mt-1 break-words">{event.note}</p>}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ) : (
+                        <div className="mt-4 flex gap-2 rounded-lg border border-amber-500/25 bg-amber-500/10 p-3 text-xs leading-5 text-amber-100">
+                          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                          No action history recorded yet.
+                        </div>
+                      )}
+                    </details>
                   </aside>
                 </div>
               </article>
