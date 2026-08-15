@@ -49,6 +49,7 @@ It does not publish, schedule, upload, generate provider media, send external me
 - `agentified-instagram-research-calendar-brief-2026-08-05.md`: Instagram research/calendar brief for Agentified, reusing the existing YouTube/X evidence chain and keeping Meta/provider actions gated.
 - `agentified-instagram-research-evidence-2026-08-06.md`: Public-safe Instagram/Facebook companion pattern evidence for `AGT-IG-01` through `AGT-IG-04`.
 - `agentified-instagram-review-packets-2026-08-06.md`: Human review packet for the four Agentified Instagram/Facebook companion drafts, source-distance review, and privacy review.
+- `cross-channel-autoresearch-backlog-contract.md`: draft contract that unifies Amina AutoResearch backlog rows, channel variants, provenance, source-distance, visual/media needs, signal windows, improvement recommendations, and gated internal handoff across LinkedIn, X, YouTube, Instagram, Facebook, and future manual channels.
 - `social-draft-workflow.md`: draft creation workflow, approval checklist, review packet template, and publishing prep boundary.
 
 ## Current roadmap status
