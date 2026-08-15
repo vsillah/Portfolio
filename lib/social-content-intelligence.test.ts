@@ -292,6 +292,7 @@ describe('social-content-intelligence', () => {
 
     expect(drafts.linkedin.shared_source).toEqual(drafts.youtube.shared_source)
     expect(drafts.linkedin.shared_source).toEqual(drafts.youtube_shorts.shared_source)
+    expect(drafts.linkedin.shared_source).toEqual(drafts.thumbnail.shared_source)
     expect(drafts.linkedin.shared_source).toEqual({
       insight_title: 'Approval gates create trust',
       triggering_event: 'The Social Content review flow made the gate visible.',
@@ -335,6 +336,30 @@ describe('social-content-intelligence', () => {
       }),
       visual_reinforcement: expect.objectContaining({
         recommended_assets: expect.arrayContaining(['Full-video script', 'Thumbnail/title variants']),
+      }),
+    })
+    expect(drafts.thumbnail.fields).toMatchObject({
+      primary_text: expect.any(String),
+      alternate_text_options: expect.arrayContaining([
+        expect.stringContaining('Receipts before autonomy'),
+      ]),
+      review_readiness: 'pending_visual_privacy_qa',
+      source_thumbnail_references: expect.arrayContaining([
+        'Show the operating layer behind the content.',
+      ]),
+      layout_requirements: expect.arrayContaining([
+        expect.stringContaining('Do not copy any source creator thumbnail'),
+      ]),
+    })
+    expect(drafts.thumbnail.orchestration_evidence).toMatchObject({
+      channel_structure: expect.objectContaining({
+        format: expect.stringContaining('thumbnail review packet'),
+        success_criteria: expect.arrayContaining([
+          expect.stringContaining('read on mobile'),
+        ]),
+      }),
+      visual_reinforcement: expect.objectContaining({
+        recommended_assets: expect.arrayContaining(['AmaduTown shield', 'Portfolio proof screenshot']),
       }),
     })
     expect(drafts.youtube_shorts.fields).toMatchObject({
@@ -386,5 +411,6 @@ describe('social-content-intelligence', () => {
     expect(drafts.youtube_shorts.side_effects).toEqual(drafts.linkedin.side_effects)
     expect(drafts.instagram_reels.side_effects).toEqual(drafts.linkedin.side_effects)
     expect(drafts.tiktok.side_effects).toEqual(drafts.linkedin.side_effects)
+    expect(drafts.thumbnail.side_effects).toEqual(drafts.linkedin.side_effects)
   })
 })

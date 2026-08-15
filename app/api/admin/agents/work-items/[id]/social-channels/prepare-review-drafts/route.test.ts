@@ -58,6 +58,7 @@ const baseWorkItem = {
       instagram_reels: { status: 'not_started', label: 'Instagram Reels', required_inputs: ['hook', 'caption'] },
       tiktok: { status: 'not_started', label: 'TikTok', required_inputs: ['hook', 'caption', 'audio rights'] },
       x: { status: 'not_started', label: 'X', required_inputs: ['post text', 'thread option', 'CTA'] },
+      thumbnail: { status: 'not_started', label: 'Thumbnail', required_inputs: ['promise', '2-3 variants'] },
     },
   },
 }
@@ -140,7 +141,7 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
       metadata: expect.objectContaining({
         channel_review_workflow: expect.objectContaining({
           status: 'human_review_ready',
-          prepared_channels: ['linkedin', 'youtube_shorts', 'instagram_reels', 'tiktok', 'x'],
+          prepared_channels: ['linkedin', 'youtube', 'youtube_shorts', 'instagram_reels', 'tiktok', 'x', 'thumbnail'],
           prepared_at: '2026-06-24T15:00:00.000Z',
         }),
         channel_lanes: expect.objectContaining({
@@ -168,6 +169,28 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
               fields: expect.objectContaining({
                 post_text: expect.stringContaining('The Social Content review flow made the gate visible.'),
                 cta: expect.stringContaining('Where have you seen AI'),
+              }),
+            }),
+          }),
+          youtube: expect.objectContaining({
+            status: 'in_review',
+            review_requested_at: '2026-06-24T15:00:00.000Z',
+            draft_packet: expect.objectContaining({
+              channel: 'youtube',
+              orchestration_evidence: expect.objectContaining({
+                channel_structure: expect.objectContaining({
+                  format: expect.stringContaining('Long-form YouTube video packet'),
+                }),
+                visual_reinforcement: expect.objectContaining({
+                  recommended_assets: expect.arrayContaining(['Full-video script', 'Thumbnail/title variants']),
+                }),
+              }),
+              fields: expect.objectContaining({
+                full_video_script: expect.arrayContaining([
+                  expect.stringContaining('Core argument: AI should reduce burden'),
+                ]),
+                upload_readiness: 'pending_final_human_submission_gate',
+                visibility_default: 'private',
               }),
             }),
           }),
@@ -252,6 +275,25 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
                   expect.stringContaining('The Social Content review flow made the gate visible.'),
                 ]),
                 manual_handoff_gate: 'pending_human_approval_and_connected_x_provider',
+              }),
+            }),
+          }),
+          thumbnail: expect.objectContaining({
+            status: 'in_review',
+            review_requested_at: '2026-06-24T15:00:00.000Z',
+            draft_packet: expect.objectContaining({
+              channel: 'thumbnail',
+              orchestration_evidence: expect.objectContaining({
+                channel_structure: expect.objectContaining({
+                  format: expect.stringContaining('thumbnail review packet'),
+                }),
+                visual_reinforcement: expect.objectContaining({
+                  recommended_assets: expect.arrayContaining(['AmaduTown shield', 'Portfolio proof screenshot']),
+                }),
+              }),
+              fields: expect.objectContaining({
+                primary_text: expect.any(String),
+                review_readiness: 'pending_visual_privacy_qa',
               }),
             }),
           }),
