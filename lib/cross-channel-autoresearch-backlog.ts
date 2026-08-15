@@ -263,6 +263,7 @@ export type AutoResearchAdminProjection = {
     visualNeeds: string[]
   }>
   gates: AutoResearchBacklogProjection['gates']
+  firstBlockedOrPendingGate: AutoResearchBacklogGateKey | null
   learningWindows: {
     directional: '24_48h'
     decision: 'seven_day'
@@ -270,9 +271,22 @@ export type AutoResearchAdminProjection = {
     trackedSignals: AutoResearchPostReleaseSignalPlan['trackedSignals']
   } | null
   improvement: AutoResearchImprovementEvaluation
+  externalActions: typeof AUTORESEARCH_BACKLOG_SIDE_EFFECTS
   callableExternalActions: []
   nextHumanDecision?: string
   blockers: string[]
+}
+
+export type AutoResearchBacklogReadOnlyResponse = {
+  items: AutoResearchAdminProjection[]
+  summary: {
+    total: number
+    readyForInternalHandoff: number
+    blockedOrManual: number
+    callableExternalActions: 0
+  }
+  side_effects: typeof AUTORESEARCH_BACKLOG_SIDE_EFFECTS
+  callable_external_actions: []
 }
 
 function gateState(item: CrossChannelAutoResearchBacklogItem, key: AutoResearchBacklogGateKey) {
@@ -473,6 +487,7 @@ export function buildAutoResearchBacklogAdminProjection(
         visualNeeds: variant.visualNeeds.map((need) => need.kind),
       })),
       gates: projection.gates,
+      firstBlockedOrPendingGate: projection.firstBlockedOrPendingGate,
       learningWindows: item.postReleaseSignals
         ? {
           directional: item.postReleaseSignals.directionalWindow,
@@ -482,11 +497,29 @@ export function buildAutoResearchBacklogAdminProjection(
         }
         : null,
       improvement: evaluateAutoResearchImprovementRecommendation(item.improvementRecommendation),
+      externalActions: projection.externalActions,
       callableExternalActions: projection.callableExternalActions,
       nextHumanDecision: item.nextHumanDecision,
       blockers: projection.blockers,
     }
   })
+}
+
+export function buildAutoResearchBacklogReadOnlyResponse(
+  items: CrossChannelAutoResearchBacklogItem[] = AGENTIFIED_AUTORESEARCH_BACKLOG_FIXTURES,
+): AutoResearchBacklogReadOnlyResponse {
+  const projectedItems = buildAutoResearchBacklogAdminProjection(items)
+  return {
+    items: projectedItems,
+    summary: {
+      total: projectedItems.length,
+      readyForInternalHandoff: projectedItems.filter((item) => item.status === 'approved_for_internal_handoff').length,
+      blockedOrManual: projectedItems.filter((item) => item.firstBlockedOrPendingGate !== null || item.blockers.length > 0).length,
+      callableExternalActions: 0,
+    },
+    side_effects: AUTORESEARCH_BACKLOG_SIDE_EFFECTS,
+    callable_external_actions: [],
+  }
 }
 
 export const AGENTIFIED_AUTORESEARCH_BACKLOG_FIXTURES = [

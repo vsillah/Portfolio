@@ -287,6 +287,89 @@ describe('ContentIntelligencePage', () => {
           }),
         }
       }
+      if (url === '/api/admin/social-content/intelligence/autoresearch-backlog') {
+        return {
+          ok: true,
+          json: async () => ({
+            items: [
+              {
+                id: 'autoresearch-agentified-agt-x-01',
+                title: 'What breaks first when AI gets faster?',
+                status: 'approved_for_internal_handoff',
+                targetAvatar: 'AI product operators and agent-builder educators carrying workflow risk.',
+                campaign: { slug: 'agentified-trust-scale-2026-07', phase: 'tease' },
+                sourcePacketPaths: [
+                  'docs/content-strategy/agentified-x-research-evidence-2026-08-05.md',
+                  'agentified/campaign/portfolio-campaign-packet.json',
+                ],
+                variants: [
+                  {
+                    channel: 'x',
+                    recommendedFormat: 'thread',
+                    channelFit: 'strong',
+                    ctaRole: 'conversation',
+                    providerBoundary: 'publish_gate_required',
+                    visualNeeds: ['none'],
+                  },
+                ],
+                gates: {
+                  source_basis: { key: 'source_basis', state: 'approved', rawState: 'approved', missingPrerequisite: null, blockers: [] },
+                  copy: { key: 'copy', state: 'approved', rawState: 'approved', missingPrerequisite: null, blockers: [] },
+                  visual_media: { key: 'visual_media', state: 'approved', rawState: 'approved', missingPrerequisite: null, blockers: [] },
+                  privacy_rights: { key: 'privacy_rights', state: 'approved', rawState: 'approved', missingPrerequisite: null, blockers: [] },
+                  draft_handoff: { key: 'draft_handoff', state: 'approved', rawState: 'approved', missingPrerequisite: null, blockers: [] },
+                  final_submission: { key: 'final_submission', state: 'pending', rawState: 'pending', missingPrerequisite: null, blockers: [] },
+                  provider_execution: { key: 'provider_execution', state: 'pending', rawState: 'pending', missingPrerequisite: 'final_submission', blockers: [] },
+                  status_reconciliation: { key: 'status_reconciliation', state: 'pending', rawState: 'pending', missingPrerequisite: 'final_submission', blockers: [] },
+                },
+                firstBlockedOrPendingGate: 'final_submission',
+                learningWindows: {
+                  directional: '24_48h',
+                  decision: 'seven_day',
+                  visibleSampleBasis: 'Public visible replies and manual qualitative review.',
+                  trackedSignals: ['hook_resonance', 'comment_quality'],
+                },
+                improvement: {
+                  allowed: true,
+                  state: 'directional_signal',
+                  canBeDecisionGrade: false,
+                  blockers: [],
+                },
+                externalActions: {
+                  provider_call: false,
+                  slack_send: false,
+                  cron_activation: false,
+                  migration: false,
+                  publish: false,
+                  schedule: false,
+                  upload: false,
+                  production_mutation: false,
+                },
+                callableExternalActions: [],
+                nextHumanDecision: 'Approve or revise AGT-X-01 for final X provider preparation; this does not authorize posting.',
+                blockers: [],
+              },
+            ],
+            summary: {
+              total: 1,
+              readyForInternalHandoff: 1,
+              blockedOrManual: 1,
+              callableExternalActions: 0,
+            },
+            side_effects: {
+              provider_call: false,
+              slack_send: false,
+              cron_activation: false,
+              migration: false,
+              publish: false,
+              schedule: false,
+              upload: false,
+              production_mutation: false,
+            },
+            callable_external_actions: [],
+          }),
+        }
+      }
       if (url.startsWith('/api/admin/social-content/intelligence/research-packets')) {
         return {
           ok: true,
@@ -503,7 +586,15 @@ describe('ContentIntelligencePage', () => {
     expect(screen.getByRole('heading', { name: 'Channel lanes' })).toBeInTheDocument()
     expect(screen.getByText('YouTube Shorts: Approval gates create trust')).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: /Research/ }))
+    fireEvent.click(screen.getByRole('button', { name: /AutoResearch/ }))
+    expect(screen.getByRole('heading', { name: 'Read-only backlog projection' })).toBeInTheDocument()
+    expect(screen.getByText('What breaks first when AI gets faster?')).toBeInTheDocument()
+    expect(screen.getByText('docs/content-strategy/agentified-x-research-evidence-2026-08-05.md')).toBeInTheDocument()
+    expect(screen.getByText('final submission')).toBeInTheDocument()
+    expect(screen.getByText('provider call: locked')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Callable external actions: 0' })).toBeDisabled()
+
+    fireEvent.click(screen.getByRole('button', { name: /ResearchCreator evidence/ }))
     expect(screen.getByRole('heading', { name: 'Public creator research' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Link pattern to Shaka insight/ })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Outlier research process' })).toBeInTheDocument()
@@ -566,7 +657,7 @@ describe('ContentIntelligencePage', () => {
     render(<ContentIntelligencePage />)
 
     await screen.findByRole('heading', { name: 'Research and Shaka insight queue' })
-    fireEvent.click(screen.getByRole('button', { name: /Research/ }))
+    fireEvent.click(screen.getByRole('button', { name: /ResearchCreator evidence/ }))
     fireEvent.click(screen.getByRole('button', { name: /Link pattern to Shaka insight/ }))
 
     fireEvent.change(screen.getByLabelText('Decision note'), {
