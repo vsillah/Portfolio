@@ -89,6 +89,15 @@ function optionalText(value: unknown) {
   return typeof value === 'string' && value.trim() ? value.trim() : null
 }
 
+function policyDraftReply(comment: SocialCommentPolicyRecord, now: string) {
+  const policyInput = buildCommentInboxPolicyInputFromSocialComment(comment, {
+    confidence: 0.72,
+    now,
+  })
+  const decision = evaluateCommentInboxPolicy(policyInput)
+  return optionalText(decision.replyDraft.text)
+}
+
 function appendActionHistory(
   metadata: unknown,
   event: {
@@ -467,11 +476,12 @@ export async function POST(
   let integrationNote = 'No external comment reply was submitted. This action only updated canonical local workflow state.'
 
   if (action === 'draft_response') {
+    const generatedDraftReply = draftReply ?? policyDraftReply(comment as SocialCommentPolicyRecord, now)
     patch = {
       ...patch,
-      proposed_reply_text: draftReply,
+      proposed_reply_text: generatedDraftReply,
       response_approval_state: 'pending',
-      reply_submission_state: draftReply ? 'draft' : 'not_applicable',
+      reply_submission_state: generatedDraftReply ? 'draft' : 'not_applicable',
     }
   }
 

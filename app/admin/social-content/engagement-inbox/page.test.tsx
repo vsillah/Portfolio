@@ -123,25 +123,81 @@ describe('SocialCommentInboxPage', () => {
     expect(screen.getByText('Alert reliability')).toBeInTheDocument()
     expect(screen.getByText('Alerts disabled')).toBeInTheDocument()
     expect(screen.getByText('Slack alert delivery is default-off. The inbox remains the recovery surface.')).toBeInTheDocument()
-    expect(screen.getByText('Review eligible comments in the Engagement Inbox or run an authorized dry-run cron check.')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Open inbox/i })).toHaveAttribute('href', '/admin/social-content/engagement-inbox')
-    expect(screen.getByText('Deduped')).toBeInTheDocument()
-    expect(screen.getByText('Enabled')).toBeInTheDocument()
-    expect(screen.getByText('Potential Client')).toBeInTheDocument()
-    expect(screen.getByText('Can this workflow help our nonprofit intake?')).toBeInTheDocument()
-    expect(screen.getByText('Blocked/manual state')).toBeInTheDocument()
+    expect(screen.getByText('Enabled No')).toBeInTheDocument()
+    expect(screen.getAllByText('Potential Client').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('Can this workflow help our nonprofit intake?')).toHaveLength(1)
+    expect(screen.getByText('Provider guardrails')).toBeInTheDocument()
     expect(screen.getByText('LinkedIn reply adapter is not verified.')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Open Post/i })).toHaveAttribute('href', '/admin/social-content/social-1')
+    expect(screen.getByRole('link', { name: /Details/i })).toHaveAttribute('href', '/admin/social-content/social-1')
     expect(screen.getByRole('link', { name: /Provider/i })).toHaveAttribute('href', 'https://linkedin.example/comment/1')
 
-    const article = screen.getByText('Potential Client').closest('article')
+    const article = screen.getAllByText('Potential Client')[0].closest('article')
     expect(article).toBeTruthy()
     const panel = within(article as HTMLElement)
+    expect(panel.getByText('Original post')).toBeInTheDocument()
+    expect(panel.getByText('Inbound comment')).toBeInTheDocument()
+    expect(panel.getByText('Draft reply')).toBeInTheDocument()
+    const cardText = (article as HTMLElement).textContent ?? ''
+    const originalPostIndex = cardText.indexOf('Original post')
+    const inboundCommentIndex = cardText.indexOf('Inbound comment')
+    const draftReplyIndex = cardText.indexOf('Draft reply')
+    expect(originalPostIndex).toBeGreaterThanOrEqual(0)
+    expect(inboundCommentIndex).toBeGreaterThan(originalPostIndex)
+    expect(draftReplyIndex).toBeGreaterThan(inboundCommentIndex)
     expect(panel.getByRole('button', { name: /Draft Response/i })).toBeInTheDocument()
     expect(panel.getByRole('button', { name: /^Approve$/i })).not.toBeDisabled()
     expect(panel.getByRole('button', { name: /^Reject$/i })).toBeInTheDocument()
     expect(panel.getByRole('button', { name: /^Ignore$/i })).toBeInTheDocument()
     expect(panel.getByRole('button', { name: /^Submit$/i })).toBeDisabled()
+  })
+
+  it('shows the generated draft after clicking Draft Response', async () => {
+    const generatedReply = 'Appreciate you reading and engaging with this.'
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const noDraftComment = { ...comment, draftReply: '', approvalState: 'unreviewed' }
+      const draftedComment = { ...comment, draftReply: generatedReply, approvalState: 'drafted' }
+      if (init?.method === 'POST') {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({ ok: true, message: 'Comment action recorded.', comments: [draftedComment] }),
+        } as Response
+      }
+
+      const url = String(input)
+      const isAfterPostRefresh = fetchMock.mock.calls.some(([, requestInit]) => requestInit?.method === 'POST')
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          items: url.includes('status=ignored') ? [] : [isAfterPostRefresh ? draftedComment : noDraftComment],
+          summary: { total: 1, new: 1, needs_qa: 0, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 },
+          filteredSummary: { total: 1, new: 1, needs_qa: 0, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 },
+          alertReliability,
+        }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<SocialCommentInboxPage />)
+
+    expect(await screen.findByLabelText(/Draft reply/i)).toHaveValue('')
+    fireEvent.click(screen.getByRole('button', { name: /Draft Response/i }))
+
+    expect(await screen.findByDisplayValue(generatedReply)).toBeInTheDocument()
+    expect(await screen.findByText(/Draft response generated in the Draft reply box/i)).toBeInTheDocument()
+    expect(screen.getByText(/Generated response ready for review/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Generated reply guardrail/i })).toHaveAttribute(
+      'title',
+      'This generated response stays local until approval and provider submission gates pass.',
+    )
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/admin/social-content/social-1/engagement/comments',
+      expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('"action":"draft_response"'),
+      }),
+    )
   })
 
   it.each([360, 390, 430])('keeps the reliability panel available at %ipx mobile width', async (width) => {
@@ -152,13 +208,15 @@ describe('SocialCommentInboxPage', () => {
 
     expect(await screen.findByText('Alert reliability')).toBeInTheDocument()
     expect(screen.getByText('Alerts disabled')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Open inbox/i })).toBeInTheDocument()
+    expect(screen.getByText('Enabled No')).toBeInTheDocument()
   })
 
   it('shows a clear empty state when filters remove all rows', async () => {
     render(<SocialCommentInboxPage />)
 
-    expect(await screen.findByText('Potential Client')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getAllByText('Potential Client').length).toBeGreaterThanOrEqual(1)
+    })
     fireEvent.change(screen.getByLabelText(/Status/i), { target: { value: 'ignored' } })
 
     expect(await screen.findByText('No comments match these filters')).toBeInTheDocument()
@@ -170,7 +228,9 @@ describe('SocialCommentInboxPage', () => {
 
     render(<SocialCommentInboxPage />)
 
-    expect(await screen.findByText('Potential Client')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getAllByText('Potential Client').length).toBeGreaterThanOrEqual(1)
+    })
     expect(screen.getByLabelText(/Post/i)).toHaveValue('social-1')
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith(
