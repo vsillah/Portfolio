@@ -4,6 +4,7 @@ import {
   AUTORESEARCH_BACKLOG_EXTERNAL_ACTIONS,
   AUTORESEARCH_BACKLOG_SIDE_EFFECTS,
   buildAutoResearchBacklogAdminProjection,
+  buildAutoResearchBacklogReadOnlyResponse,
   callableAutoResearchExternalActions,
   evaluateAutoResearchImprovementRecommendation,
   externalAutoResearchActionPermission,
@@ -204,9 +205,27 @@ describe('cross-channel autoresearch backlog', () => {
         directional: '24_48h',
         decision: 'seven_day',
       },
+      firstBlockedOrPendingGate: 'final_submission',
+      externalActions: AUTORESEARCH_BACKLOG_SIDE_EFFECTS,
       callableExternalActions: [],
     })
     expect(projection[0].variants.map((variant) => variant.channel)).toEqual(['x', 'linkedin'])
+    expect(projection[1].firstBlockedOrPendingGate).toBe('copy')
     expect(projection[1].variants[0].visualNeeds).toEqual(['b_roll', 'thumbnail'])
+  })
+
+  it('serializes the read-only response with empty callable external actions', () => {
+    const response = buildAutoResearchBacklogReadOnlyResponse()
+
+    expect(response.summary).toEqual({
+      total: 2,
+      readyForInternalHandoff: 1,
+      blockedOrManual: 2,
+      callableExternalActions: 0,
+    })
+    expect(response.side_effects).toBe(AUTORESEARCH_BACKLOG_SIDE_EFFECTS)
+    expect(response.callable_external_actions).toEqual([])
+    expect(response.items[0].sourcePacketPaths).toContain('agentified/campaign/portfolio-campaign-packet.json')
+    expect(JSON.stringify(response)).not.toContain('provider_token')
   })
 })

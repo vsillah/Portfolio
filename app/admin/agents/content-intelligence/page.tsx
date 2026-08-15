@@ -37,6 +37,7 @@ import {
   SOCIAL_CONTENT_CALENDAR_TEMPLATES,
   calendarMilestoneRationale,
 } from '@/lib/social-content-calendar'
+import type { AutoResearchAdminProjection, AutoResearchBacklogReadOnlyResponse } from '@/lib/cross-channel-autoresearch-backlog'
 
 type ResearchPacket = {
   id: string
@@ -163,7 +164,7 @@ type CalendarForm = {
   metadata?: Record<string, unknown>
 }
 
-type IntelligenceSection = 'calendar' | 'digest' | 'evidence' | 'research' | 'insights'
+type IntelligenceSection = 'calendar' | 'digest' | 'autoresearch' | 'evidence' | 'research' | 'insights'
 type SortDirection = 'asc' | 'desc'
 type ResearchSortKey = 'score' | 'retrieved' | 'title'
 type InsightSortKey = 'updated' | 'title' | 'priority'
@@ -228,6 +229,11 @@ const SECTION_TABS: Array<{
     description: 'Read-only summary of what Shaka should review next.',
   },
   {
+    key: 'autoresearch',
+    label: 'AutoResearch',
+    description: 'Cross-channel backlog projection and fail-closed gates.',
+  },
+  {
     key: 'evidence',
     label: 'Evidence',
     description: 'Free-first source capture and paid-scraper approval boundaries.',
@@ -259,6 +265,10 @@ function optionalNumber(value: string) {
   if (!value.trim()) return null
   const parsed = Number(value)
   return Number.isFinite(parsed) ? parsed : null
+}
+
+function errorMessage(value: unknown, fallback: string) {
+  return typeof value === 'string' && value.trim() ? value : fallback
 }
 
 function insightFor(item: AgentWorkItem) {
@@ -403,6 +413,40 @@ function templateMetadataFor(
   }
 }
 
+function normalizeAutoResearchBacklogResponse(body: unknown): AutoResearchBacklogReadOnlyResponse | null {
+  const candidates = [
+    body,
+    recordValue(body).projection,
+    recordValue(body).backlog,
+    recordValue(body).data,
+  ]
+
+  for (const candidate of candidates) {
+    const record = recordValue(candidate)
+    if (Array.isArray(record.items)) {
+      return candidate as AutoResearchBacklogReadOnlyResponse
+    }
+  }
+
+  return null
+}
+
+async function readJsonResponse(response: Response): Promise<unknown> {
+  const fallback = typeof response.clone === 'function' ? response.clone() : null
+  try {
+    return await response.json()
+  } catch {
+    if (!fallback) return {}
+    const text = await fallback.text().catch(() => '')
+    if (!text.trim()) return {}
+    try {
+      return JSON.parse(text) as unknown
+    } catch {
+      return {}
+    }
+  }
+}
+
 export default function ContentIntelligencePage() {
   return (
     <ProtectedRoute requireAdmin>
@@ -430,6 +474,7 @@ function ContentIntelligenceContent() {
   const [preparingReviewInsightId, setPreparingReviewInsightId] = useState<string | null>(null)
   const [reviewDraftNotice, setReviewDraftNotice] = useState<string | null>(null)
   const [digest, setDigest] = useState<DailyDigest | null>(null)
+  const [autoResearchBacklog, setAutoResearchBacklog] = useState<AutoResearchBacklogReadOnlyResponse | null>(null)
   const [activationScopeNote, setActivationScopeNote] = useState('')
   const [requestingActivation, setRequestingActivation] = useState(false)
   const [activationNotice, setActivationNotice] = useState<string | null>(null)
@@ -481,6 +526,18 @@ function ContentIntelligenceContent() {
     })
   }, [])
 
+  const loadAutoResearchBacklog = useCallback(async () => {
+    try {
+      const response = await authedFetch('/api/admin/social-content/intelligence/autoresearch-backlog')
+      const body = await readJsonResponse(response)
+      if (!response.ok) return
+      const projection = normalizeAutoResearchBacklogResponse(body)
+      setAutoResearchBacklog((current) => projection ?? current)
+    } catch {
+      setAutoResearchBacklog((current) => current)
+    }
+  }, [authedFetch])
+
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
@@ -492,19 +549,19 @@ function ContentIntelligenceContent() {
         authedFetch('/api/admin/social-content/calendar?limit=50'),
         authedFetch('/api/admin/campaigns?limit=50'),
       ])
-      const packetBody = await packetResponse.json().catch(() => ({}))
-      const insightBody = await insightResponse.json().catch(() => ({}))
-      const digestBody = await digestResponse.json().catch(() => ({}))
-      const calendarBody = await calendarResponse.json().catch(() => ({}))
-      const campaignBody = await campaignResponse.json().catch(() => ({}))
-      if (!packetResponse.ok) throw new Error(packetBody.error || `Research packets HTTP ${packetResponse.status}`)
-      if (!insightResponse.ok) throw new Error(insightBody.error || `Insights HTTP ${insightResponse.status}`)
-      if (!digestResponse.ok) throw new Error(digestBody.error || `Digest HTTP ${digestResponse.status}`)
-      if (!calendarResponse.ok) throw new Error(calendarBody.error || `Calendar HTTP ${calendarResponse.status}`)
-      if (!campaignResponse.ok) throw new Error(campaignBody.error || `Campaigns HTTP ${campaignResponse.status}`)
+      const packetBody = recordValue(await readJsonResponse(packetResponse))
+      const insightBody = recordValue(await readJsonResponse(insightResponse))
+      const digestBody = recordValue(await readJsonResponse(digestResponse))
+      const calendarBody = recordValue(await readJsonResponse(calendarResponse))
+      const campaignBody = recordValue(await readJsonResponse(campaignResponse))
+      if (!packetResponse.ok) throw new Error(errorMessage(packetBody.error, `Research packets HTTP ${packetResponse.status}`))
+      if (!insightResponse.ok) throw new Error(errorMessage(insightBody.error, `Insights HTTP ${insightResponse.status}`))
+      if (!digestResponse.ok) throw new Error(errorMessage(digestBody.error, `Digest HTTP ${digestResponse.status}`))
+      if (!calendarResponse.ok) throw new Error(errorMessage(calendarBody.error, `Calendar HTTP ${calendarResponse.status}`))
+      if (!campaignResponse.ok) throw new Error(errorMessage(campaignBody.error, `Campaigns HTTP ${campaignResponse.status}`))
       setPackets(Array.isArray(packetBody.packets) ? packetBody.packets : [])
       setInsights(Array.isArray(insightBody.work_items) ? insightBody.work_items : [])
-      setDigest(digestBody.digest ?? null)
+      setDigest(digestBody.digest ? digestBody.digest as DailyDigest : null)
       setCalendarItems(Array.isArray(calendarBody.items) ? calendarBody.items : [])
       setCampaigns(Array.isArray(campaignBody.data) ? campaignBody.data : [])
     } catch (err) {
@@ -521,7 +578,13 @@ function ContentIntelligenceContent() {
 
   useEffect(() => {
     load()
-  }, [load])
+    loadAutoResearchBacklog()
+  }, [load, loadAutoResearchBacklog])
+
+  const refreshAll = useCallback(() => {
+    load()
+    loadAutoResearchBacklog()
+  }, [load, loadAutoResearchBacklog])
 
   const strongestPacket = useMemo(() => packets[0] ?? null, [packets])
 
@@ -1060,30 +1123,30 @@ function ContentIntelligenceContent() {
   }, [authedFetch, calendarEditForms, load])
 
   return (
-    <div className="agent-ops-page min-h-screen p-5 text-foreground lg:p-7">
-      <div className="mx-auto max-w-7xl">
+    <div className="agent-ops-page min-h-screen overflow-x-hidden px-4 py-5 text-foreground sm:px-5 lg:p-7">
+      <div className="mx-auto w-full max-w-7xl min-w-0">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
           { label: 'Agent Operations', href: '/admin/agents' },
           { label: 'Content Intelligence' },
         ]} />
 
-        <header className="agent-ops-surface-header mb-6 mt-5 flex flex-col gap-4 rounded-xl border p-5 lg:flex-row lg:items-center lg:justify-between">
-          <div>
+        <header className="agent-ops-surface-header mb-6 mt-5 flex min-w-0 flex-col gap-4 rounded-xl border p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0">
             <div className="agent-ops-eyebrow mb-2">
               <FileSearch size={16} />
               Content Intelligence
             </div>
-            <h1 className="text-3xl font-bold">Research and Shaka insight queue</h1>
+            <h1 className="text-2xl font-bold sm:text-3xl">Research and Shaka insight queue</h1>
             <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
               Public creator research stays read-only. Shaka insights stay centralized in the Agentic Dashboard backlog, then feed LinkedIn, YouTube, YouTube Shorts, Instagram Reels, and thumbnail lanes.
             </p>
           </div>
           <button
             type="button"
-            onClick={load}
+            onClick={refreshAll}
             disabled={loading}
-            className="agent-ops-button-secondary disabled:opacity-60"
+            className="agent-ops-button-secondary w-full justify-center disabled:opacity-60 sm:w-fit"
           >
             <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
             Refresh
@@ -1109,6 +1172,7 @@ function ContentIntelligenceContent() {
           counts={{
             calendar: calendarItems.length,
             digest: digest ? digest.summary.new_research_packets + digest.summary.shaka_insights : 0,
+            autoresearch: autoResearchBacklog?.summary.total ?? 0,
             evidence: researchPlatforms.length,
             research: packets.length,
             insights: insights.length,
@@ -1549,6 +1613,67 @@ function ContentIntelligenceContent() {
           ) : (
             <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-4 py-8 text-center text-sm text-muted-foreground">
               {loading ? 'Loading daily digest...' : 'Daily digest is not available yet.'}
+            </div>
+          )}
+        </section>
+        ) : null}
+
+        {activeSection === 'autoresearch' ? (
+        <section className="agent-ops-card mb-6 rounded-lg border p-4">
+          <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <div className="agent-ops-eyebrow mb-2">
+                <FileSearch size={16} />
+                Cross-channel AutoResearch
+              </div>
+              <h2 className="text-lg font-semibold">Read-only backlog projection</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Amina backlog rows reference source packets by path, show channel-fit variants, and keep every external action disabled.
+              </p>
+            </div>
+            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-500/35 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-100">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              Read-only
+            </span>
+          </div>
+
+          {autoResearchBacklog ? (
+            <div className="space-y-4">
+              <div className="grid gap-3 md:grid-cols-4">
+                <DigestMetric label="Backlog items" value={autoResearchBacklog.summary.total} />
+                <DigestMetric label="Internal handoff" value={autoResearchBacklog.summary.readyForInternalHandoff} />
+                <DigestMetric label="Blocked/manual" value={autoResearchBacklog.summary.blockedOrManual} tone="amber" />
+                <DigestMetric label="Callable actions" value={autoResearchBacklog.summary.callableExternalActions} />
+              </div>
+              <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-3">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">External actions</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {Object.entries(autoResearchBacklog.side_effects).map(([action, enabled]) => (
+                    <span
+                      key={action}
+                      className={`inline-flex rounded-full border px-2.5 py-1 text-xs ${enabled ? 'border-red-500/35 bg-red-500/10 text-red-100' : 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'}`}
+                    >
+                      {action.replace(/_/g, ' ')}: {enabled ? 'enabled' : 'locked'}
+                    </span>
+                  ))}
+                  <button
+                    type="button"
+                    disabled
+                    className="inline-flex rounded-full border border-silicon-slate/70 px-2.5 py-1 text-xs text-muted-foreground disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    Callable external actions: {autoResearchBacklog.callable_external_actions.length}
+                  </button>
+                </div>
+              </div>
+              <div className="grid gap-4 xl:grid-cols-2">
+                {autoResearchBacklog.items.map((item) => (
+                  <AutoResearchBacklogCard key={item.id} item={item} />
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-4 py-10 text-center text-sm text-muted-foreground">
+              No AutoResearch backlog projection loaded.
             </div>
           )}
         </section>
@@ -2103,8 +2228,8 @@ function SectionTabs({
   counts: Record<IntelligenceSection, number>
 }) {
   return (
-    <nav aria-label="Content intelligence sections" className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-2">
-      <div className="grid gap-2 md:grid-cols-5">
+    <nav aria-label="Content intelligence sections" className="mb-6 min-w-0 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-2">
+      <div className="grid min-w-0 grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">
         {SECTION_TABS.map((section) => {
           const isActive = section.key === activeSection
           return (
@@ -2114,7 +2239,7 @@ function SectionTabs({
               onClick={() => onChange(section.key)}
               aria-pressed={isActive}
               title={section.description}
-              className={`flex min-h-16 items-center justify-between gap-3 rounded-md border px-3 py-2 text-left transition ${
+              className={`flex min-h-20 min-w-0 items-center justify-between gap-2 rounded-md border px-2.5 py-2 text-left transition sm:min-h-16 sm:gap-3 sm:px-3 ${
                 isActive
                   ? 'border-radiant-gold/55 bg-radiant-gold/15 text-radiant-gold'
                   : 'border-silicon-slate/60 bg-background/30 text-muted-foreground hover:border-white/30 hover:text-foreground'
@@ -2122,7 +2247,7 @@ function SectionTabs({
             >
               <span className="min-w-0">
                 <span className="block text-sm font-semibold">{section.label}</span>
-                <span className="mt-0.5 block truncate text-[0.68rem] opacity-80">{section.description}</span>
+                <span className="mt-0.5 hidden text-[0.68rem] leading-4 opacity-80 sm:block">{section.description}</span>
               </span>
               <span className="shrink-0 rounded-full border border-current/30 px-2 py-0.5 text-xs font-semibold">
                 {counts[section.key]}
@@ -2132,6 +2257,118 @@ function SectionTabs({
         })}
       </div>
     </nav>
+  )
+}
+
+function gateTone(state: string) {
+  if (state === 'approved') return 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
+  if (state === 'blocked') return 'border-red-500/35 bg-red-500/10 text-red-100'
+  if (state === 'manual_review') return 'border-blue-500/35 bg-blue-500/10 text-blue-100'
+  return 'border-amber-500/35 bg-amber-500/10 text-amber-100'
+}
+
+function AutoResearchBacklogCard({ item }: { item: AutoResearchAdminProjection }) {
+  const gates = Object.values(item.gates)
+  return (
+    <article className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-sm font-semibold">{item.title}</p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">{item.targetAvatar}</p>
+        </div>
+        <span className={`shrink-0 rounded-full border px-2.5 py-1 text-[0.68rem] font-semibold ${item.firstBlockedOrPendingGate ? gateTone(item.gates[item.firstBlockedOrPendingGate].state) : gateTone('approved')}`}>
+          {item.firstBlockedOrPendingGate ? item.firstBlockedOrPendingGate.replace(/_/g, ' ') : 'ready'}
+        </span>
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-2 text-[0.68rem] text-muted-foreground">
+        <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5">
+          {item.campaign.slug ?? 'No campaign'}
+        </span>
+        {item.campaign.phase ? (
+          <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5">
+            {CAMPAIGN_PHASE_LABELS[item.campaign.phase]}
+          </span>
+        ) : null}
+        <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5">
+          {item.status.replace(/_/g, ' ')}
+        </span>
+      </div>
+
+      <div className="mt-4">
+        <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Source packets</p>
+        <div className="mt-2 space-y-1">
+          {item.sourcePacketPaths.map((path) => (
+            <p key={path} className="break-words rounded-md border border-silicon-slate/60 bg-background/35 px-2 py-1.5 font-mono text-[0.68rem] text-muted-foreground">
+              {path}
+            </p>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-3 lg:grid-cols-2">
+        <div>
+          <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Channel variants</p>
+          <div className="mt-2 space-y-2">
+            {item.variants.map((variant) => (
+              <div key={`${item.id}-${variant.channel}-${variant.recommendedFormat}`} className="rounded-md border border-silicon-slate/60 bg-background/35 p-2">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs font-semibold">{variant.channel.replace(/_/g, ' ')}</p>
+                  <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5 text-[0.62rem] text-muted-foreground">
+                    {variant.channelFit}
+                  </span>
+                </div>
+                <p className="mt-1 text-[0.68rem] text-muted-foreground">{variant.recommendedFormat.replace(/_/g, ' ')} · {variant.ctaRole.replace(/_/g, ' ')}</p>
+                <p className="mt-1 text-[0.68rem] text-muted-foreground">Provider boundary: {variant.providerBoundary.replace(/_/g, ' ')}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Gate states</p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {gates.map((gate) => (
+              <span key={gate.key} className={`rounded-full border px-2 py-0.5 text-[0.62rem] ${gateTone(gate.state)}`}>
+                {gate.key.replace(/_/g, ' ')}: {gate.state.replace(/_/g, ' ')}
+              </span>
+            ))}
+          </div>
+          {item.learningWindows ? (
+            <div className="mt-3 rounded-md border border-blue-500/25 bg-blue-500/10 p-2">
+              <p className="text-[0.68rem] font-semibold text-blue-100">Learning windows</p>
+              <p className="mt-1 text-[0.68rem] leading-5 text-blue-100/80">
+                {item.learningWindows.directional.replace(/_/g, '-')} directional · {item.learningWindows.decision.replace(/_/g, ' ')} decision
+              </p>
+              <p className="mt-1 line-clamp-2 text-[0.68rem] leading-5 text-blue-100/70">
+                {item.learningWindows.visibleSampleBasis}
+              </p>
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-md border border-silicon-slate/60 bg-background/35 p-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Improvement recommendation</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {item.improvement.state.replace(/_/g, ' ')} · decision-grade {item.improvement.canBeDecisionGrade ? 'available' : 'locked'}
+            </p>
+          </div>
+          <button
+            type="button"
+            disabled
+            className="inline-flex min-h-9 items-center justify-center rounded-md border border-silicon-slate/70 px-3 py-2 text-xs font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            Callable actions: {item.callableExternalActions.length}
+          </button>
+        </div>
+        {item.nextHumanDecision ? (
+          <p className="mt-2 text-xs leading-5 text-muted-foreground">{item.nextHumanDecision}</p>
+        ) : null}
+      </div>
+    </article>
   )
 }
 
