@@ -46,6 +46,42 @@ describe('cross-channel autoresearch backlog', () => {
     expect(projection.blockers.join(' ')).toMatch(/source-distance/i)
   })
 
+  it('keeps explicit blocked source basis fail-closed even when evidence exists', () => {
+    const item = cloneFixture()
+    item.gates = item.gates.map((gate) => (
+      gate.key === 'source_basis'
+        ? { ...gate, state: 'blocked' as const, note: 'Source owner rejected this packet.' }
+        : gate
+    ))
+
+    const projection = projectAutoResearchBacklogItem(item)
+
+    expect(projection.gates.source_basis.state).toBe('blocked')
+    expect(projection.gates.source_basis.rawState).toBe('blocked')
+    expect(projection.gates.draft_handoff.state).toBe('blocked')
+    expect(projection.gates.draft_handoff.missingPrerequisite).toBe('source_basis')
+    expect(projection.canDraftHandoff).toBe(false)
+    expect(projection.failClosed).toBe(true)
+  })
+
+  it('keeps explicit manual-review source basis fail-closed even when evidence exists', () => {
+    const item = cloneFixture()
+    item.gates = item.gates.map((gate) => (
+      gate.key === 'source_basis'
+        ? { ...gate, state: 'manual_review' as const, note: 'Human source review is required.' }
+        : gate
+    ))
+
+    const projection = projectAutoResearchBacklogItem(item)
+
+    expect(projection.gates.source_basis.state).toBe('manual_review')
+    expect(projection.gates.source_basis.rawState).toBe('manual_review')
+    expect(projection.gates.draft_handoff.state).toBe('blocked')
+    expect(projection.gates.draft_handoff.missingPrerequisite).toBe('source_basis')
+    expect(projection.canDraftHandoff).toBe(false)
+    expect(projection.failClosed).toBe(true)
+  })
+
   it('enforces sequential gate ordering', () => {
     const item = cloneFixture()
     item.gates = item.gates.map((gate) => {

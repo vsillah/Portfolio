@@ -303,11 +303,18 @@ function rawGateProjection(
   item: CrossChannelAutoResearchBacklogItem,
   key: AutoResearchBacklogGateKey,
 ): Omit<AutoResearchGateProjection, 'missingPrerequisite'> {
+  const explicitGateState = gateState(item, key)
   const rawState = key === 'source_basis'
-    ? hasSourceBasis(item) ? 'approved' : 'pending'
-    : gateState(item, key)
+    ? explicitGateState === 'blocked' || explicitGateState === 'manual_review'
+      ? explicitGateState
+      : hasSourceBasis(item) ? 'approved' : explicitGateState === 'approved' ? 'blocked' : explicitGateState
+    : explicitGateState
   const blockers: string[] = []
   let state = rawState
+
+  if (key === 'source_basis' && rawState === 'blocked') {
+    blockers.push('Source basis is blocked and must be resolved before draft handoff.')
+  }
 
   if (key === 'privacy_rights' && rawState === 'approved' && !hasApprovedSourceDistance(item)) {
     state = 'blocked'
