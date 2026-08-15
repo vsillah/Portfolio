@@ -175,6 +175,23 @@ type AutoResearchTakeaway = {
   detail: string
 }
 
+type AutoResearchReleaseLink = {
+  id: string
+  title: string
+  channel: CalendarItem['channel']
+  phase: CalendarItem['campaign_phase']
+  scheduledFor: string
+  authorizationDueAt: string | null
+  approvalLead: string
+  authorizationStatus: string
+  plannedAngle: string | null
+  workItemTitle: string | null
+  workItemId: string | null
+  socialContentId: string | null
+  socialContentStatus: string | null
+  templateLabel: string | null
+}
+
 const EMPTY_EVIDENCE_FORM: EvidenceForm = {
   source_url: '',
   platform: 'youtube',
@@ -286,6 +303,52 @@ function formatAutoResearchGate(gate: AutoResearchAdminProjection['firstBlockedO
 function formatAutoResearchLabel(value: string) {
   const normalized = value.replace(/_/g, ' ')
   return normalized === 'x' ? 'X' : normalized
+}
+
+function calendarApprovalLeadLabel(item: CalendarItem) {
+  if (!item.authorization_due_at) return 'approval due not set'
+  const release = Date.parse(item.scheduled_for)
+  const approval = Date.parse(item.authorization_due_at)
+  if (!Number.isFinite(release) || !Number.isFinite(approval)) return 'approval lead unavailable'
+  const days = Math.max(0, Math.round((release - approval) / 86_400_000))
+  return days === 1 ? '1 day approval lead' : `${days} day approval lead`
+}
+
+function autoResearchReleaseLinksForItem(
+  item: AutoResearchAdminProjection,
+  calendarItems: CalendarItem[],
+): AutoResearchReleaseLink[] {
+  const channels = new Set(item.variants.map((variant) => variant.channel))
+  return calendarItems
+    .filter((calendarItem) => {
+      const campaignMatches = item.campaign.slug
+        ? calendarItem.attraction_campaigns?.slug === item.campaign.slug
+        : true
+      const phaseMatches = item.campaign.phase ? calendarItem.campaign_phase === item.campaign.phase : true
+      return campaignMatches && phaseMatches && channels.has(calendarItem.channel)
+    })
+    .map((calendarItem) => {
+      const metadata = recordValue(calendarItem.metadata)
+      const platformDraftHandoff = recordValue(metadata.platform_draft_handoff)
+      const socialContentId = calendarItem.social_content_id
+        ?? (typeof platformDraftHandoff.social_content_id === 'string' ? platformDraftHandoff.social_content_id : null)
+      return {
+        id: calendarItem.id,
+        title: calendarItem.title,
+        channel: calendarItem.channel,
+        phase: calendarItem.campaign_phase,
+        scheduledFor: calendarItem.scheduled_for,
+        authorizationDueAt: calendarItem.authorization_due_at,
+        approvalLead: calendarApprovalLeadLabel(calendarItem),
+        authorizationStatus: calendarItem.authorization_status,
+        plannedAngle: calendarItem.planned_angle,
+        workItemTitle: calendarItem.agent_work_items?.title ?? null,
+        workItemId: calendarItem.agent_work_item_id,
+        socialContentId,
+        socialContentStatus: calendarItem.social_content_queue?.status ?? null,
+        templateLabel: typeof metadata.template_label === 'string' ? metadata.template_label : null,
+      }
+    })
 }
 
 function buildAutoResearchTakeaways(items: AutoResearchAdminProjection[]): AutoResearchTakeaway[] {
@@ -570,6 +633,7 @@ function ContentIntelligenceContent() {
   const [reviewDraftNotice, setReviewDraftNotice] = useState<string | null>(null)
   const [digest, setDigest] = useState<DailyDigest | null>(null)
   const [autoResearchBacklog, setAutoResearchBacklog] = useState<AutoResearchBacklogReadOnlyResponse | null>(null)
+  const [autoResearchSearch, setAutoResearchSearch] = useState('')
   const [activationScopeNote, setActivationScopeNote] = useState('')
   const [requestingActivation, setRequestingActivation] = useState(false)
   const [activationNotice, setActivationNotice] = useState<string | null>(null)
@@ -611,6 +675,50 @@ function ContentIntelligenceContent() {
     () => buildAutoResearchTakeaways(autoResearchBacklog?.items ?? []),
     [autoResearchBacklog],
   )
+  const autoResearchReleaseLinksById = useMemo(() => {
+    return (autoResearchBacklog?.items ?? []).reduce((linksById, item) => {
+      linksById[item.id] = autoResearchReleaseLinksForItem(item, calendarItems)
+      return linksById
+    }, {} as Record<string, AutoResearchReleaseLink[]>)
+  }, [autoResearchBacklog, calendarItems])
+  const filteredAutoResearchItems = useMemo(() => {
+    const items = autoResearchBacklog?.items ?? []
+    const search = normalizeSearch(autoResearchSearch)
+    if (!search) return items
+    return items.filter((item) => {
+      const releaseLinks = autoResearchReleaseLinksById[item.id] ?? []
+      const searchableValues = [
+        item.title,
+        item.targetAvatar,
+        item.status,
+        item.campaign.slug,
+        item.campaign.phase,
+        item.nextHumanDecision,
+        ...item.sourcePacketPaths,
+        ...item.variants.flatMap((variant) => [
+          variant.channel,
+          variant.recommendedFormat,
+          variant.channelFit,
+          variant.ctaRole,
+          variant.providerBoundary,
+          variant.manualState,
+          ...variant.visualNeeds,
+        ]),
+        ...releaseLinks.flatMap((link) => [
+          link.title,
+          link.workItemTitle,
+          link.socialContentId,
+          link.socialContentStatus,
+          CALENDAR_CHANNEL_LABELS[link.channel],
+          CAMPAIGN_PHASE_LABELS[link.phase],
+          link.authorizationStatus,
+          link.plannedAngle,
+          link.templateLabel,
+        ]),
+      ]
+      return searchableValues.some((value) => normalizeSearch(value).includes(search))
+    })
+  }, [autoResearchBacklog, autoResearchReleaseLinksById, autoResearchSearch])
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -1787,6 +1895,24 @@ function ContentIntelligenceContent() {
                 <DigestMetric label="Callable actions" value={autoResearchBacklog.summary.callableExternalActions} />
               </div>
               <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-3">
+                <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Backlog search
+                  <div className={CONTENT_INTELLIGENCE_SEARCH_SHELL_CLASS}>
+                    <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    <input
+                      type="search"
+                      value={autoResearchSearch}
+                      onChange={(event) => setAutoResearchSearch(event.target.value)}
+                      placeholder="Search title, work item, channel, source"
+                      className={CONTENT_INTELLIGENCE_SEARCH_INPUT_CLASS}
+                    />
+                  </div>
+                </label>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Showing {filteredAutoResearchItems.length} of {autoResearchBacklog.items.length} backlog {autoResearchBacklog.items.length === 1 ? 'item' : 'items'}. Search checks generated backlog titles, work items, release rows, channel variants, and research/source basis.
+                </p>
+              </div>
+              <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-3">
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">External actions</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {Object.entries(autoResearchBacklog.side_effects).map(([action, enabled]) => (
@@ -1829,9 +1955,17 @@ function ContentIntelligenceContent() {
                 </div>
               ) : null}
               <div className="grid gap-4 xl:grid-cols-2">
-                {autoResearchBacklog.items.map((item) => (
-                  <AutoResearchBacklogCard key={item.id} item={item} />
-                ))}
+                {filteredAutoResearchItems.length ? filteredAutoResearchItems.map((item) => (
+                  <AutoResearchBacklogCard
+                    key={item.id}
+                    item={item}
+                    releaseLinks={autoResearchReleaseLinksById[item.id] ?? []}
+                  />
+                )) : (
+                  <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-4 py-8 text-center text-sm text-muted-foreground xl:col-span-2">
+                    No AutoResearch backlog items match the current search.
+                  </div>
+                )}
               </div>
             </div>
           ) : (
@@ -2430,12 +2564,19 @@ function gateTone(state: string) {
   return 'border-amber-500/35 bg-amber-500/10 text-amber-100'
 }
 
-function AutoResearchBacklogCard({ item }: { item: AutoResearchAdminProjection }) {
+function AutoResearchBacklogCard({
+  item,
+  releaseLinks,
+}: {
+  item: AutoResearchAdminProjection
+  releaseLinks: AutoResearchReleaseLink[]
+}) {
   const gates = Object.values(item.gates)
   return (
     <article className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
+          <p className="mb-1 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Generated backlog item</p>
           <p className="text-sm font-semibold">{item.title}</p>
           <p className="mt-1 text-xs leading-5 text-muted-foreground">{item.targetAvatar}</p>
         </div>
@@ -2459,7 +2600,10 @@ function AutoResearchBacklogCard({ item }: { item: AutoResearchAdminProjection }
       </div>
 
       <div className="mt-4">
-        <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Source packets</p>
+        <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Research and pattern basis</p>
+        <p className="mt-1 text-[0.68rem] leading-5 text-muted-foreground">
+          Source packets explain why the backlog item exists; they are not generated draft content.
+        </p>
         <div className="mt-2 space-y-1">
           {item.sourcePacketPaths.map((path) => (
             <p key={path} className="break-words rounded-md border border-silicon-slate/60 bg-background/35 px-2 py-1.5 font-mono text-[0.68rem] text-muted-foreground">
@@ -2471,7 +2615,7 @@ function AutoResearchBacklogCard({ item }: { item: AutoResearchAdminProjection }
 
       <div className="mt-4 grid gap-3 lg:grid-cols-2">
         <div>
-          <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Channel variants</p>
+          <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Draft/backlog variants</p>
           <div className="mt-2 space-y-2">
             {item.variants.map((variant) => (
               <div key={`${item.id}-${variant.channel}-${variant.recommendedFormat}`} className="rounded-md border border-silicon-slate/60 bg-background/35 p-2">
@@ -2509,6 +2653,69 @@ function AutoResearchBacklogCard({ item }: { item: AutoResearchAdminProjection }
             </div>
           ) : null}
         </div>
+      </div>
+
+      <div className="mt-4 rounded-md border border-emerald-500/25 bg-emerald-500/10 p-2">
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-emerald-100/80">Release calendar linkage</p>
+          <span className="text-[0.68rem] text-emerald-100/70">
+            {releaseLinks.length ? `${releaseLinks.length} connected row${releaseLinks.length === 1 ? '' : 's'}` : 'No connected release row'}
+          </span>
+        </div>
+        {releaseLinks.length ? (
+          <div className="mt-2 space-y-2">
+            {releaseLinks.map((link) => (
+              <div key={link.id} className="rounded-md border border-emerald-500/20 bg-background/35 p-2">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="break-words text-xs font-semibold text-emerald-50">{link.title}</p>
+                    <p className="mt-1 text-[0.68rem] leading-5 text-emerald-100/75">
+                      {CALENDAR_CHANNEL_LABELS[link.channel]} · {CAMPAIGN_PHASE_LABELS[link.phase]} · {link.authorizationStatus.replace(/_/g, ' ')}
+                    </p>
+                  </div>
+                  <span className="shrink-0 rounded-full border border-emerald-500/25 px-2 py-0.5 text-[0.62rem] font-semibold text-emerald-100/80">
+                    {link.approvalLead}
+                  </span>
+                </div>
+                <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                  <div>
+                    <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-emerald-100/65">Release date</p>
+                    <p className="mt-1 text-[0.68rem] font-semibold text-emerald-50">{formatCalendarDate(link.scheduledFor)}</p>
+                  </div>
+                  <div>
+                    <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-emerald-100/65">Approval due</p>
+                    <p className="mt-1 text-[0.68rem] font-semibold text-emerald-50">
+                      {link.authorizationDueAt ? formatCalendarDate(link.authorizationDueAt) : 'No approval deadline'}
+                    </p>
+                  </div>
+                </div>
+                {link.workItemTitle ? (
+                  <p className="mt-2 text-[0.68rem] leading-5 text-emerald-100/75">
+                    Work item: {link.workItemTitle}
+                  </p>
+                ) : null}
+                {link.socialContentId ? (
+                  <p className="mt-1 text-[0.68rem] leading-5 text-emerald-100/75">
+                    Connected content row:{' '}
+                    <Link href={`/admin/social-content/${link.socialContentId}`} className="font-semibold text-emerald-50 hover:text-white">
+                      {link.socialContentId}
+                    </Link>
+                    {link.socialContentStatus ? ` (${link.socialContentStatus.replace(/_/g, ' ')})` : ''}
+                  </p>
+                ) : null}
+                {link.templateLabel ? (
+                  <p className="mt-1 text-[0.68rem] leading-5 text-emerald-100/65">
+                    Template basis: {link.templateLabel}
+                  </p>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-2 text-[0.68rem] leading-5 text-emerald-100/70">
+            Add or connect a release-calendar row before this becomes an operator-ready channel backlog item.
+          </p>
+        )}
       </div>
 
       <div className="mt-4 rounded-md border border-silicon-slate/60 bg-background/35 p-2">
