@@ -226,8 +226,8 @@ const SECTION_TABS: Array<{
 }> = [
   {
     key: 'calendar',
-    label: 'Calendar',
-    description: 'Campaign arc lanes and due authorization gates.',
+    label: 'Release Calendar',
+    description: 'Scheduled content releases, template basis, and due authorization gates.',
   },
   {
     key: 'digest',
@@ -423,7 +423,7 @@ function platformIcon(platform: string) {
 function formatCalendarDate(value: string) {
   const date = new Date(value)
   return Number.isFinite(date.getTime())
-    ? date.toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+    ? date.toLocaleString([], { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })
     : 'Unscheduled'
 }
 
@@ -571,6 +571,7 @@ function ContentIntelligenceContent() {
   const [calendarNotice, setCalendarNotice] = useState<string | null>(null)
   const [creatingCalendarItem, setCreatingCalendarItem] = useState(false)
   const [calendarCampaignFilter, setCalendarCampaignFilter] = useState('')
+  const [calendarContentSearch, setCalendarContentSearch] = useState('')
   const [calendarChannelFilter, setCalendarChannelFilter] = useState('')
   const [calendarPhaseFilter, setCalendarPhaseFilter] = useState('')
   const [calendarAuthorizationFilter, setCalendarAuthorizationFilter] = useState('')
@@ -682,16 +683,40 @@ function ContentIntelligenceContent() {
   const strongestPacket = useMemo(() => packets[0] ?? null, [packets])
 
   const filteredCalendarItems = useMemo(() => {
+    const search = normalizeSearch(calendarContentSearch)
     return calendarItems.filter((item) => {
       if (calendarCampaignFilter && item.campaign_id !== calendarCampaignFilter) return false
       if (calendarChannelFilter && item.channel !== calendarChannelFilter) return false
       if (calendarPhaseFilter && item.campaign_phase !== calendarPhaseFilter) return false
       if (calendarAuthorizationFilter && item.authorization_status !== calendarAuthorizationFilter) return false
+      if (search) {
+        const metadata = recordValue(item.metadata)
+        const rationale = recordValue(metadata.milestone_rationale)
+        const sourceLabels = metadataStringArray(metadata.source_labels)
+        const searchableValues = [
+          item.title,
+          item.planned_angle,
+          item.agent_work_items?.title,
+          item.social_content_queue?.id,
+          item.social_content_queue?.status,
+          item.attraction_campaigns?.name,
+          item.attraction_campaigns?.slug,
+          CALENDAR_CHANNEL_LABELS[item.channel],
+          CAMPAIGN_PHASE_LABELS[item.campaign_phase],
+          typeof metadata.template_label === 'string' ? metadata.template_label : '',
+          typeof metadata.milestone_key === 'string' ? metadata.milestone_key.replace(/_/g, ' ') : '',
+          typeof rationale.summary === 'string' ? rationale.summary : '',
+          typeof rationale.timing === 'string' ? rationale.timing : '',
+          ...sourceLabels,
+        ]
+        if (!searchableValues.some((value) => normalizeSearch(value).includes(search))) return false
+      }
       return true
     })
   }, [
     calendarAuthorizationFilter,
     calendarCampaignFilter,
+    calendarContentSearch,
     calendarChannelFilter,
     calendarItems,
     calendarPhaseFilter,
@@ -1280,9 +1305,9 @@ function ContentIntelligenceContent() {
                 <CalendarDays size={16} />
                 Content Calendar
               </div>
-              <h2 className="text-lg font-semibold">Campaign arc and due gates</h2>
+              <h2 className="text-lg font-semibold">Release dates and approval gates</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Channel-agnostic plan tied to campaigns and Shaka insights. Authorization prepares internal draft handoffs only.
+                Campaign rows show the concrete content, the template basis that shaped it, and the scheduled release date. Authorization prepares internal draft handoffs only.
               </p>
             </div>
             <span className="inline-flex w-fit items-center gap-2 rounded-full border border-amber-500/35 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-100">
@@ -1370,7 +1395,20 @@ function ContentIntelligenceContent() {
             />
           </CollapsiblePanel>
 
-          <div className="mb-4 grid gap-3 md:grid-cols-4">
+          <div className="mb-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+            <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground md:col-span-2 xl:col-span-1">
+              Content title
+              <div className="mt-1 flex items-center gap-2 rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2">
+                <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <input
+                  type="search"
+                  value={calendarContentSearch}
+                  onChange={(event) => setCalendarContentSearch(event.target.value)}
+                  placeholder="Search title, work item, angle"
+                  className="w-full bg-transparent text-sm normal-case tracking-normal text-foreground outline-none placeholder:text-muted-foreground"
+                />
+              </div>
+            </label>
             <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Campaign
               <select
@@ -1426,6 +1464,10 @@ function ContentIntelligenceContent() {
               </select>
             </label>
           </div>
+
+          <p className="mb-4 text-xs text-muted-foreground">
+            Showing {filteredCalendarItems.length} release {filteredCalendarItems.length === 1 ? 'row' : 'rows'} after filters. Search checks the content title, linked work item, planned angle, campaign, template label, and source basis.
+          </p>
 
           <div className="grid gap-3 xl:grid-cols-4">
             {CALENDAR_PHASES.map((phase) => (
@@ -2688,6 +2730,17 @@ function CalendarItemCard({
   const campaignName = item.attraction_campaigns?.name ?? 'No campaign'
   const metadata = recordValue(item.metadata)
   const platformDraftHandoff = recordValue(metadata.platform_draft_handoff)
+  const rationale = recordValue(metadata.milestone_rationale)
+  const templateLabel = typeof metadata.template_label === 'string' ? metadata.template_label : null
+  const milestoneKey = typeof metadata.milestone_key === 'string' ? metadata.milestone_key : null
+  const sourceLabels = metadataStringArray(metadata.source_labels)
+  const rationaleSummary = typeof rationale.summary === 'string'
+    ? rationale.summary
+    : typeof metadata.campaign_fit_summary === 'string'
+      ? metadata.campaign_fit_summary
+      : ''
+  const rationaleTiming = typeof rationale.timing === 'string' ? rationale.timing : ''
+  const hasTemplateBasis = Boolean(templateLabel || milestoneKey || rationaleSummary || rationaleTiming || sourceLabels.length)
   const handoffWorkItemId = typeof platformDraftHandoff.work_item_id === 'string'
     ? platformDraftHandoff.work_item_id
     : null
@@ -2798,54 +2851,75 @@ function CalendarItemCard({
         <>
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
+              <p className="agent-ops-eyebrow mb-1 text-[0.62rem]">Content</p>
               <p className="text-sm font-semibold leading-5">{item.title}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{formatCalendarDate(item.scheduled_for)}</p>
+              {item.agent_work_items?.title ? (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Work item: {item.agent_work_items.title}
+                </p>
+              ) : null}
             </div>
             <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[0.68rem] font-semibold ${calendarAuthorizationTone(item.authorization_status)}`}>
               {item.authorization_status.replace(/_/g, ' ')}
             </span>
           </div>
           {item.planned_angle ? (
-            <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">{item.planned_angle}</p>
+            <div className="mt-3 rounded-md border border-silicon-slate/60 bg-background/35 p-2">
+              <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-muted-foreground">Planned content angle</p>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">{item.planned_angle}</p>
+            </div>
           ) : null}
-          {(() => {
-            const rationale = recordValue(metadata.milestone_rationale)
-            const summary = typeof rationale.summary === 'string'
-              ? rationale.summary
-              : typeof metadata.campaign_fit_summary === 'string'
-                ? metadata.campaign_fit_summary
-                : ''
-            const sourceLabels = metadataStringArray(metadata.source_labels)
-
-            if (!summary && sourceLabels.length === 0) return null
-
-            return (
-              <div className="mt-3 rounded-md border border-silicon-slate/60 bg-background/40 p-2">
-                {summary ? (
-                  <p className="text-[0.68rem] leading-5 text-muted-foreground">
-                    <span className="font-semibold text-foreground/80">Why this exists: </span>
-                    {summary}
-                  </p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            <div className="rounded-md border border-blue-500/25 bg-blue-500/10 p-2">
+              <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-blue-100/75">Release date</p>
+              <p className="mt-1 text-xs font-semibold text-blue-50">{formatCalendarDate(item.scheduled_for)}</p>
+            </div>
+            <div className="rounded-md border border-amber-500/25 bg-amber-500/10 p-2">
+              <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-amber-100/75">Approval due</p>
+              <p className="mt-1 text-xs font-semibold text-amber-50">
+                {item.authorization_due_at ? formatCalendarDate(item.authorization_due_at) : 'No approval deadline'}
+              </p>
+            </div>
+          </div>
+          {hasTemplateBasis ? (
+            <div className="mt-3 rounded-md border border-silicon-slate/60 bg-background/40 p-2">
+              <div className="mb-1 flex flex-wrap items-center gap-1.5">
+                <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-muted-foreground">Template basis</p>
+                {templateLabel ? (
+                  <span className="rounded-full border border-blue-300/20 px-2 py-0.5 text-[0.62rem] font-semibold text-blue-100/80">
+                    {templateLabel}
+                  </span>
                 ) : null}
-                {sourceLabels.length > 0 ? (
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    {sourceLabels.slice(0, 2).map((label) => (
-                      <span key={label} className="rounded-full border border-silicon-slate/70 px-2 py-0.5 text-[0.62rem] text-muted-foreground">
-                        {label}
-                      </span>
-                    ))}
-                  </div>
+                {milestoneKey ? (
+                  <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5 text-[0.62rem] text-muted-foreground">
+                    {milestoneKey.replace(/_/g, ' ')}
+                  </span>
                 ) : null}
               </div>
-            )
-          })()}
+              {rationaleSummary ? (
+                <p className="text-[0.68rem] leading-5 text-muted-foreground">{rationaleSummary}</p>
+              ) : null}
+              {rationaleTiming ? (
+                <p className="mt-1 text-[0.68rem] leading-5 text-muted-foreground">
+                  <span className="font-semibold text-foreground/80">Timing: </span>
+                  {rationaleTiming}
+                </p>
+              ) : null}
+              {sourceLabels.length > 0 ? (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {sourceLabels.slice(0, 2).map((label) => (
+                    <span key={label} className="rounded-full border border-silicon-slate/70 px-2 py-0.5 text-[0.62rem] text-muted-foreground">
+                      {label}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
           <div className="mt-3 flex flex-wrap gap-2 text-[0.68rem] text-muted-foreground">
-            <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5">
-              {CALENDAR_CHANNEL_LABELS[item.channel]}
-            </span>
-            <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5">
-              {item.due_status.replace(/_/g, ' ')}
-            </span>
+            <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5">{CALENDAR_CHANNEL_LABELS[item.channel]}</span>
+            <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5">{CAMPAIGN_PHASE_LABELS[item.campaign_phase]}</span>
+            <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5">{item.due_status.replace(/_/g, ' ')}</span>
           </div>
         </>
       )}
