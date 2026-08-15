@@ -158,4 +158,64 @@ describe('/api/admin/social-content/intelligence/research-runs', () => {
       triggerSource: 'admin_social_content_intelligence_apify_confirmed',
     }))
   })
+
+  it('keeps X and LinkedIn dry-run sources manual without inferred Apify actor keys', async () => {
+    mocks.runSocialContentResearchCollection.mockResolvedValueOnce({
+      ok: true,
+      mode: 'dry_run',
+      packets: [],
+      plan: [
+        { platform: 'x', actor_key: null, actor_id: null, callable_external_actor: false },
+        { platform: 'linkedin', actor_key: null, actor_id: null, callable_external_actor: false },
+      ],
+      side_effects: {
+        apify_collection: false,
+        provider_generation: false,
+        upload: false,
+        publish: false,
+        schedule: false,
+        external_post: false,
+      },
+    })
+
+    const response = await POST(new NextRequest('http://localhost/api/admin/social-content/intelligence/research-runs', {
+      method: 'POST',
+      body: JSON.stringify({
+        mode: 'dry_run',
+        sources: [
+          { url: ' https://x.com/amadutown ', platform: 'x' },
+          { url: 'https://www.linkedin.com/company/amadutown', platform: 'linkedin' },
+        ],
+      }),
+    }))
+
+    expect(response.status).toBe(200)
+    expect(mocks.runSocialContentResearchCollection).toHaveBeenCalledWith(expect.objectContaining({
+      mode: 'dry_run',
+      confirmApifyCost: false,
+      triggerSource: 'admin_social_content_intelligence_dry_run',
+      sources: [
+        {
+          url: 'https://x.com/amadutown',
+          platform: 'x',
+          actor_key: null,
+          label: null,
+        },
+        {
+          url: 'https://www.linkedin.com/company/amadutown',
+          platform: 'linkedin',
+          actor_key: null,
+          label: null,
+        },
+      ],
+    }))
+    await expect(response.json()).resolves.toMatchObject({
+      ok: true,
+      mode: 'dry_run',
+      side_effects: {
+        apify_collection: false,
+        provider_generation: false,
+      },
+    })
+  })
 })

@@ -551,7 +551,7 @@ export function classifySocialResearchDecisionWindow(input: {
   }
 }
 
-export function normalizeResearchActorKey(value: unknown, sourceUrl = ''): SocialResearchActorKey {
+export function normalizeResearchActorKey(value: unknown, sourceUrl = ''): SocialResearchActorKey | null {
   if (
     value === 'youtube_transcript'
     || value === 'youtube_video'
@@ -566,7 +566,7 @@ export function normalizeResearchActorKey(value: unknown, sourceUrl = ''): Socia
   if (url.includes('instagram.com/reel')) return 'instagram_reel'
   if (url.includes('instagram.com')) return 'instagram_post'
   if (url.includes('tiktok.com')) return 'tiktok_video'
-  return 'youtube_transcript'
+  return null
 }
 
 export function apifyInputForResearchSource(source: SocialResearchSource, config: SocialResearchActorConfig) {

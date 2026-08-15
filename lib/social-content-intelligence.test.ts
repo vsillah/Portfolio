@@ -90,6 +90,9 @@ describe('social-content-intelligence', () => {
     expect(normalizeResearchActorKey(null, 'https://instagram.com/reel/abc')).toBe('instagram_reel')
     expect(normalizeResearchActorKey(null, 'https://instagram.com/p/abc')).toBe('instagram_post')
     expect(normalizeResearchActorKey(null, 'https://tiktok.com/@creator/video/123')).toBe('tiktok_video')
+    expect(normalizeResearchActorKey(null, 'https://x.com/amadutown')).toBeNull()
+    expect(normalizeResearchActorKey(null, 'https://www.linkedin.com/company/amadutown')).toBeNull()
+    expect(normalizeResearchActorKey(null, 'https://example.com/public-post')).toBeNull()
   })
 
   it('normalizes alternate Apify result fields into a source-safe research packet', () => {
