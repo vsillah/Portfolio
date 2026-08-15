@@ -476,7 +476,7 @@ export async function POST(
   let integrationNote = 'No external comment reply was submitted. This action only updated canonical local workflow state.'
 
   if (action === 'draft_response') {
-    const generatedDraftReply = draftReply ?? policyDraftReply(comment, now)
+    const generatedDraftReply = draftReply ?? policyDraftReply(comment as SocialCommentPolicyRecord, now)
     patch = {
       ...patch,
       proposed_reply_text: generatedDraftReply,
