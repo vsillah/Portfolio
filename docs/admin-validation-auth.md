@@ -71,6 +71,11 @@ Use an approved admin validation account with email/password enabled in Supabase
 
 Do not depend on a shared human browser session or a specific password-manager extension for routine validation. If Chrome does not have the 1Password extension mounted in the active profile, agents should stop at the human login gate instead of hunting through 1Password or attempting to handle secrets manually.
 
+For Vercel preview QA, do not start by debugging 1Password or Portfolio login when the browser lands on `vercel.com/login`. That usually means Vercel Deployment Protection intercepted the request before Portfolio auth ran. Use the preview helper first so the browser has both:
+
+- the Vercel automation bypass header/cookie, resolved through `getVercelAutomationBypassSecretForBaseUrl()`;
+- a Portfolio admin Playwright storage-state file generated for the exact preview origin.
+
 Required local env, from 1Password or another approved secret source:
 
 ```bash
@@ -123,6 +128,30 @@ By default, the session file is written to:
 ```
 
 `.auth/` is gitignored because it contains live session tokens.
+
+## Protected Preview QA Helper
+
+Use this helper for captain rendered QA on protected Vercel previews:
+
+```bash
+npm run qa:preview-admin -- --base-url https://portfolio-git-example-vsillahs-projects.vercel.app --route /admin/agents/content-intelligence
+```
+
+The helper:
+
+1. Derives a gitignored auth-state path under `.auth/` for the preview host.
+2. Creates the auth state if it is missing by running `admin:auth:save` with the exact `--base-url` and `--out` path.
+3. Launches Playwright with that storage state.
+4. Applies the Vercel protection bypass headers when the bypass secret can be resolved.
+5. Fails if the route lands on Vercel login/protection, leaves the expected Portfolio host, or returns an HTTP error.
+
+To reuse a specific existing state file:
+
+```bash
+npm run qa:preview-admin -- --base-url https://portfolio-git-example-vsillahs-projects.vercel.app --route /admin/agents/content-intelligence --auth-state .auth/portfolio-git-example-admin.json --no-create-auth
+```
+
+The helper logs only metadata: base URL, route, auth-state path, and whether a bypass header was configured. It must not print passwords, Supabase tokens, storage-state contents, or Vercel bypass values.
 
 ## Validation policy
 
