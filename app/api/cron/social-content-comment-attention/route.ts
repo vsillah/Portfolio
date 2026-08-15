@@ -10,7 +10,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { runAgentSlackNotificationSweep } from '@/lib/agent-slack-notification-sweep'
 import { runSocialCommentAttentionYouTubeRefresh } from '@/lib/social-comment-attention-refresh'
-import { evaluateSocialCommentReplyHolds } from '@/lib/social-comment-attention'
+import {
+  buildSocialCommentAlertReliabilityStatus,
+  evaluateSocialCommentReplyHolds,
+} from '@/lib/social-comment-attention'
 import { supabaseAdmin } from '@/lib/supabase'
 import { refreshPublishedYouTubeComments } from '@/lib/youtube-comment-ingestion'
 import { refreshPublishedMetaComments } from '@/lib/meta-comment-ingestion'
@@ -111,6 +114,25 @@ async function runCommentAttentionSweep(request: NextRequest) {
         evaluations: [],
       }
     : await evaluateSocialCommentReplyHolds(limit)
+  const activationReason = activationDisabled
+    ? 'activation_disabled_default_off'
+    : dryRun
+      ? 'manual_dry_run'
+      : 'enabled'
+  const alertReliability = buildSocialCommentAlertReliabilityStatus({
+    activationEnabled,
+    activationReason,
+    deliveryDryRun: slackDryRun,
+    itemCount: slack.itemCount,
+    sentCount: slack.sentCount,
+    dedupedCount: slack.dedupedCount,
+    skippedCount: slack.skippedCount,
+    errorCount: slack.errorCount,
+    reasons: [
+      ...slack.results.map((result) => result.error || result.reason),
+      holds.reason,
+    ],
+  })
 
   return NextResponse.json({
     ok: commentRefresh.ok && slack.ok && holds.ok,
@@ -119,14 +141,11 @@ async function runCommentAttentionSweep(request: NextRequest) {
     activation: {
       enabled: activationEnabled,
       disabled: activationDisabled,
-      reason: activationDisabled
-        ? 'activation_disabled_default_off'
-        : dryRun
-          ? 'manual_dry_run'
-          : 'enabled',
+      reason: activationReason,
       force_requested: requestedForce,
       force_applied: slackForce,
     },
+    alert_reliability: alertReliability,
     youtube_refresh: commentRefresh.providerSummaries.youtube,
     comment_refresh: commentRefresh,
     meta_refresh: {

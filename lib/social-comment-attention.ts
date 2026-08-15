@@ -59,6 +59,64 @@ export type SocialCommentAttentionCronResult = {
   }>
 }
 
+export type SocialCommentAlertReliabilityState =
+  | 'disabled'
+  | 'dry_run'
+  | 'deduped'
+  | 'skipped'
+  | 'no_eligible_items'
+  | 'sent'
+  | 'errored'
+  | 'ready'
+
+export type SocialCommentAlertReliabilityStatus = {
+  generatedAt: string
+  state: SocialCommentAlertReliabilityState
+  label: string
+  summary: string
+  deliveryMode: 'disabled' | 'dry_run' | 'live'
+  activation: {
+    enabled: boolean
+    reason: string
+  }
+  counts: {
+    itemCount: number
+    sent: number
+    deduped: number
+    skipped: number
+    errors: number
+  }
+  reasons: string[]
+  lastActionableNextStep: string
+  nextStep: {
+    label: string
+    href: string
+  }
+  lastRun?: {
+    id: string
+    status: string | null
+    at: string | null
+    outcome: 'sent' | 'deduped' | 'skipped' | 'errored' | 'unknown'
+    reason: string | null
+    itemCount?: number
+  } | null
+}
+
+export type SocialCommentAlertReliabilityInput = {
+  activationEnabled: boolean
+  activationReason?: string | null
+  deliveryDryRun: boolean
+  itemCount?: number | null
+  sentCount?: number | null
+  dedupedCount?: number | null
+  skippedCount?: number | null
+  errorCount?: number | null
+  dataSurfaceReady?: boolean
+  dataSurfaceReason?: string | null
+  reasons?: Array<string | null | undefined>
+  lastRun?: SocialCommentAlertReliabilityStatus['lastRun']
+}
+
 const POLICY_LOW_RISK_CLASSIFICATIONS = new Set(['low_risk_acknowledgement'])
 const ATTENTION_CLASSIFICATION_STATUSES = new Set(['unreviewed', 'needs_response', 'blocked'])
 const ATTENTION_REPLY_STATES = new Set(['draft', 'failed', 'blocked'])
@@ -99,6 +157,128 @@ function metadataString(row: SocialCommentAttentionRow, keys: string[]) {
 
 function normalized(value: unknown) {
   return typeof value === 'string' ? value.trim().toLowerCase() : ''
+}
+
+function numberOrZero(value: unknown) {
+  return typeof value === 'number' && Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0
+}
+
+function uniqueReasons(reasons: Array<string | null | undefined>) {
+  return [...new Set(reasons.map((reason) => reason?.trim()).filter((reason): reason is string => Boolean(reason)))]
+}
+
+export function buildSocialCommentAlertReliabilityStatus(
+  input: SocialCommentAlertReliabilityInput,
+): SocialCommentAlertReliabilityStatus {
+  const counts = {
+    itemCount: numberOrZero(input.itemCount),
+    sent: numberOrZero(input.sentCount),
+    deduped: numberOrZero(input.dedupedCount),
+    skipped: numberOrZero(input.skippedCount),
+    errors: numberOrZero(input.errorCount),
+  }
+  const deliveryMode = input.activationEnabled
+    ? input.deliveryDryRun ? 'dry_run' : 'live'
+    : 'disabled'
+  const reasons = uniqueReasons([
+    input.activationReason,
+    input.dataSurfaceReady === false ? input.dataSurfaceReason || 'Comment inbox data surface is not available.' : null,
+    ...(input.reasons ?? []),
+  ])
+
+  let state: SocialCommentAlertReliabilityState = 'ready'
+  if (counts.errors > 0 || input.lastRun?.outcome === 'errored') state = 'errored'
+  else if (counts.sent > 0 || input.lastRun?.outcome === 'sent') state = 'sent'
+  else if (counts.deduped > 0 || input.lastRun?.outcome === 'deduped') state = 'deduped'
+  else if (!input.activationEnabled) state = 'disabled'
+  else if (input.deliveryDryRun) state = 'dry_run'
+  else if (counts.itemCount === 0) state = 'no_eligible_items'
+  else if (counts.skipped > 0 || input.lastRun?.outcome === 'skipped') state = 'skipped'
+
+  const copy: Record<SocialCommentAlertReliabilityState, {
+    label: string
+    summary: string
+    next: string
+    nextLabel: string
+    href: string
+  }> = {
+    disabled: {
+      label: 'Alerts disabled',
+      summary: 'Slack alert delivery is default-off. The inbox remains the recovery surface.',
+      next: 'Review eligible comments in the Engagement Inbox or run an authorized dry-run cron check.',
+      nextLabel: 'Open inbox',
+      href: '/admin/social-content/engagement-inbox',
+    },
+    dry_run: {
+      label: 'Dry run',
+      summary: 'The sweep evaluated attention items without sending Slack.',
+      next: 'Use the cron response for operator review before enabling Slack delivery.',
+      nextLabel: 'Cron path',
+      href: '/api/cron/social-content-comment-attention?dry_run=1',
+    },
+    deduped: {
+      label: 'Deduped',
+      summary: 'A matching Slack alert was already prepared inside the dedupe window.',
+      next: 'Open the inbox and continue review from the canonical comment queue.',
+      nextLabel: 'Open inbox',
+      href: '/admin/social-content/engagement-inbox',
+    },
+    skipped: {
+      label: 'Skipped',
+      summary: 'The sweep skipped Slack delivery without creating an external send.',
+      next: 'Refresh visible posts or inspect the cron response reason before retrying.',
+      nextLabel: 'Open inbox',
+      href: '/admin/social-content/engagement-inbox',
+    },
+    no_eligible_items: {
+      label: 'No eligible items',
+      summary: 'No unresolved comments currently qualify for Slack attention.',
+      next: 'Refresh the visible post set if provider ingestion is expected to add comments.',
+      nextLabel: 'Open inbox',
+      href: '/admin/social-content/engagement-inbox',
+    },
+    sent: {
+      label: 'Alert sent',
+      summary: 'Slack reported a sent alert for the comment attention sweep.',
+      next: 'Use the inbox as the canonical review and approval surface.',
+      nextLabel: 'Open inbox',
+      href: '/admin/social-content/engagement-inbox',
+    },
+    errored: {
+      label: 'Alert error',
+      summary: 'The alert sweep hit an error before a reliable notification state could be established.',
+      next: 'Run the authorized cron check and inspect the structured error counts and reasons.',
+      nextLabel: 'Cron path',
+      href: '/api/cron/social-content-comment-attention?dry_run=1',
+    },
+    ready: {
+      label: 'Ready',
+      summary: 'Eligible comments exist and Slack delivery is gated by the current activation mode.',
+      next: 'Run an authorized cron check when operator review is needed.',
+      nextLabel: 'Cron path',
+      href: '/api/cron/social-content-comment-attention?dry_run=1',
+    },
+  }
+
+  return {
+    generatedAt: new Date().toISOString(),
+    state,
+    label: copy[state].label,
+    summary: copy[state].summary,
+    deliveryMode,
+    activation: {
+      enabled: input.activationEnabled,
+      reason: input.activationReason || (input.activationEnabled ? 'enabled' : 'activation_disabled_default_off'),
+    },
+    counts,
+    reasons,
+    lastActionableNextStep: copy[state].next,
+    nextStep: {
+      label: copy[state].nextLabel,
+      href: copy[state].href,
+    },
+    lastRun: input.lastRun ?? null,
+  }
 }
 
 function policyDecision(row: SocialCommentAttentionRow) {
