@@ -615,6 +615,11 @@ describe('ContentIntelligencePage', () => {
     expect(await screen.findByRole('heading', { name: 'Research and Shaka insight queue' })).toBeInTheDocument()
     expect(screen.getByRole('navigation', { name: 'Content intelligence sections' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Release dates and approval gates' })).toBeInTheDocument()
+    for (const label of ['Campaign', 'Channel', 'Phase', 'Authorization']) {
+      const control = screen.getAllByLabelText(label)[0]
+      expect(control.className).toContain('[color-scheme:light]')
+      expect(control.className).toContain('dark:[color-scheme:dark]')
+    }
     expect(screen.getByRole('button', { name: /Template research library/ })).toBeInTheDocument()
     expect(screen.getByText('YouTube video release')).toBeInTheDocument()
     expect(screen.getByText('Short-form series')).toBeInTheDocument()
