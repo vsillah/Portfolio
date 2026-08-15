@@ -56,6 +56,14 @@ export async function POST(
       review_requested_at: now,
       updated_at: now,
     }
+    lanes.youtube = {
+      ...lanes.youtube,
+      status: 'in_review',
+      draft_packet: drafts.youtube,
+      decision_note: null,
+      review_requested_at: now,
+      updated_at: now,
+    }
     lanes.youtube_shorts = {
       ...lanes.youtube_shorts,
       status: 'in_review',
@@ -88,6 +96,14 @@ export async function POST(
       review_requested_at: now,
       updated_at: now,
     }
+    lanes.thumbnail = {
+      ...lanes.thumbnail,
+      status: 'in_review',
+      draft_packet: drafts.thumbnail,
+      decision_note: null,
+      review_requested_at: now,
+      updated_at: now,
+    }
 
     const updated = await updateAgentWorkItemMetadata({
       id: workItem.id,
@@ -96,7 +112,7 @@ export async function POST(
         channel_lanes: lanes,
         channel_review_workflow: {
           status: 'human_review_ready',
-          prepared_channels: ['linkedin', 'youtube_shorts', 'instagram_reels', 'tiktok', 'x'],
+          prepared_channels: ['linkedin', 'youtube', 'youtube_shorts', 'instagram_reels', 'tiktok', 'x', 'thumbnail'],
           prepared_at: now,
           source_use_boundary: drafts.linkedin.source_use_boundary,
           side_effects: {

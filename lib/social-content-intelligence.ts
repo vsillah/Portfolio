@@ -96,6 +96,7 @@ export type LinkedInYoutubeReviewDrafts = {
   instagram_reels: SocialChannelReviewDraftPacket
   tiktok: SocialChannelReviewDraftPacket
   x: SocialChannelReviewDraftPacket
+  thumbnail: SocialChannelReviewDraftPacket
 }
 
 export type SocialResearchPatternStatus =
@@ -841,7 +842,7 @@ function reviewDraftSideEffects(): SocialChannelReviewDraftPacket['side_effects'
 }
 
 function channelOrchestrationEvidence(input: {
-  channel: Exclude<SocialContentIntelligenceChannel, 'thumbnail'>
+  channel: SocialContentIntelligenceChannel
   contentAngle: string
   patternPromise: string
 }) {
@@ -895,7 +896,7 @@ function channelOrchestrationEvidence(input: {
     'Redact private names, client data, tokens, raw Chronicle notes, and personal account details.',
     'Provider generation, upload, scheduling, and publishing remain separate approval gates.',
   ]
-  const channelDetails: Record<Exclude<SocialContentIntelligenceChannel, 'thumbnail'>, {
+  const channelDetails: Record<SocialContentIntelligenceChannel, {
     format: string
     structure: string[]
     success_criteria: string[]
@@ -1059,6 +1060,36 @@ function channelOrchestrationEvidence(input: {
       portfolio_snapshots: ['/admin/social-content', '/admin/agents/content-intelligence', '/admin/agents/coordination'],
       illustration_direction: 'Prefer text-first framing; use visuals only when the proof or framework needs more than a post can carry.',
     },
+    thumbnail: {
+      format: 'YouTube thumbnail review packet with original AmaduTown-owned visual direction.',
+      structure: [
+        'One mobile-readable promise tied to the approved insight.',
+        'One original visual metaphor or Portfolio proof object.',
+        'Clear subject, contrast, and safe-area spacing for the final export.',
+        'Source-distance notes that prevent copying creator thumbnail identity.',
+      ],
+      success_criteria: [
+        'Thumbnail text is short enough to read on mobile.',
+        'Visual direction uses AmaduTown-owned assets, approved avatar imagery, or original illustration.',
+        'No campaign mechanics, private admin data, or source creator visual identity are exposed.',
+      ],
+      portfolio_surfaces: [
+        ...sharedSurfaces,
+        {
+          label: 'Visual Assets',
+          route: '/admin/content/visual-assets',
+          purpose: 'Thumbnail concepts, source-distance review, rights/privacy, and export readiness.',
+        },
+        {
+          label: 'Social Content Review',
+          route: '/admin/social-content',
+          purpose: 'Thumbnail attachment, privacy/rights QA, and final platform submission gate.',
+        },
+      ],
+      recommended_assets: ['AmaduTown shield', 'Approved avatar image', 'Portfolio proof screenshot', 'Original framework illustration'],
+      portfolio_snapshots: ['/admin/content/visual-assets', '/admin/social-content', '/admin/agents/content-intelligence'],
+      illustration_direction: `Create a thumbnail that visualizes the proof behind the point: ${input.patternPromise || input.contentAngle}`,
+    },
   }
   const detail = channelDetails[input.channel]
   return {
@@ -1165,6 +1196,10 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
     'Every risky action needs a gate.',
     'Trust is an operating layer.',
   ]
+  const thumbnailText = truncate(patternPromise || contentAngle, 48)
+  const thumbnailSourcePatterns = patterns
+    .map((pattern) => pattern.thumbnail_pattern || pattern.promise_value || pattern.hook_structure)
+    .filter(Boolean)
 
   return {
     linkedin: {
@@ -1362,6 +1397,45 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
       },
       orchestration_evidence: channelOrchestrationEvidence({
         channel: 'x',
+        contentAngle,
+        patternPromise,
+      }),
+      source_research_patterns: patterns,
+      side_effects: reviewDraftSideEffects(),
+    },
+    thumbnail: {
+      channel: 'thumbnail',
+      generated_at: generatedAt,
+      approval_status: 'in_review',
+      shared_source: sharedSource,
+      source_insight_title: title,
+      source_use_boundary: sourceBoundary,
+      fields: {
+        primary_text: thumbnailText,
+        alternate_text_options: [
+          truncate(youtubeHook, 44),
+          truncate('Receipts before autonomy', 44),
+          truncate('Show the gate before the output', 44),
+        ],
+        visual_direction: 'Use an original AmaduTown visual: Vambah or approved avatar in front of a simplified Portfolio approval path, with enough gutter between text and proof object.',
+        source_thumbnail_references: thumbnailSourcePatterns,
+        layout_requirements: [
+          'Keep all text inside thumbnail safe areas with generous padding.',
+          'Use one focal image or proof object instead of a cluttered diagram.',
+          'Do not print campaign phase names, source-safe disclaimers, or internal strategy labels on the public asset.',
+          'Do not copy any source creator thumbnail, title treatment, pose, colors, or visual identity.',
+        ],
+        asset_inputs: [
+          'AmaduTown shield logo',
+          'Approved Vambah/avatar image if available',
+          'Portfolio proof screenshot with private data redacted',
+          'Original framework illustration derived from the approved insight',
+        ],
+        review_readiness: 'pending_visual_privacy_qa',
+        claim_boundaries: claimBoundaries,
+      },
+      orchestration_evidence: channelOrchestrationEvidence({
+        channel: 'thumbnail',
         contentAngle,
         patternPromise,
       }),
