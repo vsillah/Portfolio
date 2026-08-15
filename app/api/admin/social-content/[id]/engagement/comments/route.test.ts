@@ -424,6 +424,33 @@ describe('/api/admin/social-content/[id]/engagement/comments', () => {
     expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('reply_submitted_at')
   })
 
+  it('generates a visible local draft when draft response is requested without textarea copy', async () => {
+    installDbMocks({
+      comment: {
+        ...commentRow,
+        proposed_reply_text: null,
+        approved_reply_text: null,
+        response_approval_state: 'not_required',
+        reply_submission_state: 'not_applicable',
+      },
+    })
+
+    const response = await POST(request({
+      action: 'draft_response',
+      comment_id: 'comment-1',
+      draft_reply: '',
+    }) as never, { params: { id: 'social-1' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.comments[0]).toMatchObject({ id: 'comment-1' })
+    expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({
+      proposed_reply_text: expect.stringMatching(/\S/),
+      response_approval_state: 'pending',
+      reply_submission_state: 'draft',
+    }))
+  })
+
   it('blocks disabled YouTube reply readiness without external provider calls', async () => {
     installDbMocks({ comment: youtubeCommentRow })
     const fetchMock = vi.fn()

@@ -144,6 +144,49 @@ describe('SocialCommentInboxPage', () => {
     expect(panel.getByRole('button', { name: /^Submit$/i })).toBeDisabled()
   })
 
+  it('shows the generated draft after clicking Draft Response', async () => {
+    const generatedReply = 'Appreciate you reading and engaging with this.'
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const noDraftComment = { ...comment, draftReply: '', approvalState: 'unreviewed' }
+      const draftedComment = { ...comment, draftReply: generatedReply, approvalState: 'drafted' }
+      if (init?.method === 'POST') {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({ ok: true, message: 'Comment action recorded.', comments: [draftedComment] }),
+        } as Response
+      }
+
+      const url = String(input)
+      const isAfterPostRefresh = fetchMock.mock.calls.some(([, requestInit]) => requestInit?.method === 'POST')
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          items: url.includes('status=ignored') ? [] : [isAfterPostRefresh ? draftedComment : noDraftComment],
+          summary: { total: 1, new: 1, needs_qa: 0, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 },
+          filteredSummary: { total: 1, new: 1, needs_qa: 0, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 },
+          alertReliability,
+        }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<SocialCommentInboxPage />)
+
+    expect(await screen.findByLabelText(/Draft reply/i)).toHaveValue('')
+    fireEvent.click(screen.getByRole('button', { name: /Draft Response/i }))
+
+    expect(await screen.findByDisplayValue(generatedReply)).toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/admin/social-content/social-1/engagement/comments',
+      expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('"action":"draft_response"'),
+      }),
+    )
+  })
+
   it.each([360, 390, 430])('keeps the reliability panel available at %ipx mobile width', async (width) => {
     Object.defineProperty(window, 'innerWidth', { configurable: true, value: width })
     window.dispatchEvent(new Event('resize'))
