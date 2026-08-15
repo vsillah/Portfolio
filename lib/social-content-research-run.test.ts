@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({
   from: vi.fn(),
@@ -17,6 +17,10 @@ import {
 } from './social-content-research-run'
 
 describe('social-content-research-run', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
   beforeEach(() => {
     vi.clearAllMocks()
     mocks.insertSingle.mockResolvedValue({
@@ -51,6 +55,36 @@ describe('social-content-research-run', () => {
     expect(plan[0].free_first_steps.join(' ')).toContain('Codex/browser/public page review')
   })
 
+  it('keeps X and LinkedIn sources on the manual free-first path without Apify actors', () => {
+    const plan = buildSocialResearchRunPlan([
+      { url: 'https://x.com/amadutown', label: 'AmaduTown X profile' },
+      { url: 'https://www.linkedin.com/company/amadutown', platform: 'linkedin', label: 'AmaduTown LinkedIn' },
+    ])
+
+    expect(plan).toHaveLength(2)
+    expect(plan[0]).toMatchObject({
+      platform: 'x',
+      actor_key: null,
+      actor_id: null,
+      actor_label: 'Manual/public review',
+      input: null,
+      apify_supported: false,
+      callable_external_actor: false,
+    })
+    expect(plan[0].free_first_steps.join(' ')).toContain('no configured Apify actor')
+    expect(plan[1]).toMatchObject({
+      platform: 'linkedin',
+      actor_key: null,
+      actor_id: null,
+      input: null,
+      apify_supported: false,
+      callable_external_actor: false,
+    })
+    expect(JSON.stringify(plan)).not.toContain('pintostudio/youtube-transcript-scraper')
+    expect(JSON.stringify(plan)).not.toContain('apify/instagram')
+    expect(JSON.stringify(plan)).not.toContain('clockworks/tiktok')
+  })
+
   it('normalizes research sources, filters unsafe URLs, and caps paid-scraper plans', () => {
     const plan = buildSocialResearchRunPlan([
       { url: 'javascript:alert(1)' },
@@ -71,6 +105,34 @@ describe('social-content-research-run', () => {
       },
     })
     expect(plan.every((step) => step.source.url.startsWith('http'))).toBe(true)
+  })
+
+  it('returns a dry-run manual plan for unsupported sources with external actions disabled', async () => {
+    const result = await runSocialContentResearchCollection({
+      mode: 'dry_run',
+      sources: [
+        { url: 'https://x.com/amadutown', platform: 'x' },
+        { url: 'https://www.linkedin.com/company/amadutown', platform: 'linkedin' },
+      ],
+      triggerSource: 'test',
+    })
+
+    expect(result).toMatchObject({
+      ok: true,
+      mode: 'dry_run',
+      packets: [],
+      side_effects: {
+        provider_generation: false,
+        upload: false,
+        publish: false,
+        schedule: false,
+        external_post: false,
+        apify_collection: false,
+        estimated_scraper_cost_usd: 0,
+      },
+    })
+    expect(result.plan.map((step) => step.actor_id)).toEqual([null, null])
+    expect(result.plan.every((step) => step.callable_external_actor === false)).toBe(true)
   })
 
   it('stores recorded public evidence without paid scraper side effects', async () => {
@@ -138,5 +200,39 @@ describe('social-content-research-run', () => {
       sources: [{ url: 'https://youtube.com/watch?v=abc' }],
       triggerSource: 'test',
     })).rejects.toThrow('confirm_apify_cost=true')
+  })
+
+  it('does not run Apify for unsupported manual sources even when apify mode is requested', async () => {
+    const fetchSpy = vi.fn()
+    vi.stubGlobal('fetch', fetchSpy)
+
+    const result = await runSocialContentResearchCollection({
+      mode: 'apify',
+      sources: [{ url: 'https://x.com/amadutown', platform: 'x' }],
+      triggerSource: 'test',
+    })
+
+    expect(fetchSpy).not.toHaveBeenCalled()
+    expect(result).toMatchObject({
+      ok: true,
+      mode: 'apify',
+      packets: [],
+      side_effects: {
+        provider_generation: false,
+        upload: false,
+        publish: false,
+        schedule: false,
+        external_post: false,
+        apify_collection: false,
+        estimated_scraper_cost_usd: 0,
+      },
+    })
+    expect(result.plan[0]).toMatchObject({
+      platform: 'x',
+      actor_key: null,
+      actor_id: null,
+      apify_supported: false,
+      callable_external_actor: false,
+    })
   })
 })
