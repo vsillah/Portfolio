@@ -18,18 +18,21 @@ function cloneFixture(index = 0): CrossChannelAutoResearchBacklogItem {
 
 describe('cross-channel autoresearch backlog', () => {
   it('keeps fixtures linked to existing packet paths and campaign IDs', () => {
-    const [xItem, youtubeItem] = AGENTIFIED_AUTORESEARCH_BACKLOG_FIXTURES
+    const xItem = AGENTIFIED_AUTORESEARCH_BACKLOG_FIXTURES.find((item) => item.id === 'autoresearch-agentified-agt-x-01')
+    const youtubeItem = AGENTIFIED_AUTORESEARCH_BACKLOG_FIXTURES.find((item) => item.id === 'autoresearch-agentified-agt-yt-ep01')
 
-    expect(xItem.campaignSlug).toBe('agentified-trust-scale-2026-07')
-    expect(xItem.releaseLinkage?.calendarAssetId).toBe('AGT-X-01')
-    expect(xItem.sourcePacketPaths).toEqual(expect.arrayContaining([
+    expect(xItem).toBeDefined()
+    expect(youtubeItem).toBeDefined()
+    expect(xItem?.campaignSlug).toBe('agentified-trust-scale-2026-07')
+    expect(xItem?.releaseLinkage?.calendarAssetId).toBe('AGT-X-01')
+    expect(xItem?.sourcePacketPaths).toEqual(expect.arrayContaining([
       'docs/content-strategy/agentified-x-research-evidence-2026-08-05.md',
       'docs/content-strategy/agentified-x-review-packets-2026-08-05.md',
       'agentified/campaign/portfolio-campaign-packet.json',
     ]))
 
-    expect(youtubeItem.releaseLinkage?.calendarAssetId).toBe('AGT-YT-EP01')
-    expect(youtubeItem.sourcePacketPaths).toContain('docs/agentic-content-video-scripts/agentified-youtube-amina-research-to-video-packet.md')
+    expect(youtubeItem?.releaseLinkage?.calendarAssetId).toBe('AGT-YT-EP01')
+    expect(youtubeItem?.sourcePacketPaths).toContain('docs/agentic-content-video-scripts/agentified-youtube-amina-research-to-video-packet.md')
   })
 
   it('requires source-distance approval before draft handoff', () => {
@@ -194,7 +197,7 @@ describe('cross-channel autoresearch backlog', () => {
   it('builds a read-only admin projection without adding callable actions', () => {
     const projection = buildAutoResearchBacklogAdminProjection(AGENTIFIED_AUTORESEARCH_BACKLOG_FIXTURES)
 
-    expect(projection).toHaveLength(2)
+    expect(projection).toHaveLength(7)
     expect(projection[0]).toMatchObject({
       id: 'autoresearch-agentified-agt-x-01',
       campaign: {
@@ -210,22 +213,41 @@ describe('cross-channel autoresearch backlog', () => {
       callableExternalActions: [],
     })
     expect(projection[0].variants.map((variant) => variant.channel)).toEqual(['x', 'linkedin'])
-    expect(projection[1].firstBlockedOrPendingGate).toBe('copy')
-    expect(projection[1].variants[0].visualNeeds).toEqual(['b_roll', 'thumbnail'])
+    expect(projection.map((item) => item.title)).toEqual(expect.arrayContaining([
+      'The operating layer behind AMINA',
+      'The workbook is the receipt path',
+      'Agentified release thread: build trust before scale',
+      'Agentic work needs an operating system',
+      'The Receipt Every Agent Needs',
+      'What the cover is really showing',
+    ]))
+
+    const youtubeItem = projection.find((item) => item.id === 'autoresearch-agentified-agt-yt-ep01')
+    expect(youtubeItem?.firstBlockedOrPendingGate).toBe('copy')
+    expect(youtubeItem?.variants[0].visualNeeds).toEqual(['b_roll', 'thumbnail'])
   })
 
   it('serializes the read-only response with empty callable external actions', () => {
     const response = buildAutoResearchBacklogReadOnlyResponse()
 
     expect(response.summary).toEqual({
-      total: 2,
-      readyForInternalHandoff: 1,
-      blockedOrManual: 2,
+      total: 7,
+      readyForInternalHandoff: 4,
+      blockedOrManual: 7,
       callableExternalActions: 0,
     })
     expect(response.side_effects).toBe(AUTORESEARCH_BACKLOG_SIDE_EFFECTS)
     expect(response.callable_external_actions).toEqual([])
     expect(response.items[0].sourcePacketPaths).toContain('agentified/campaign/portfolio-campaign-packet.json')
+    expect(response.items.map((item) => item.title)).toEqual(expect.arrayContaining([
+      'What breaks first when AI gets faster?',
+      'The operating layer behind AMINA',
+      'The workbook is the receipt path',
+      'Agentified release thread: build trust before scale',
+      'Agentic work needs an operating system',
+      'The Receipt Every Agent Needs',
+      'What the cover is really showing',
+    ]))
     expect(JSON.stringify(response)).not.toContain('provider_token')
   })
 })

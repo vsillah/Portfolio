@@ -41,9 +41,9 @@ describe('/api/admin/social-content/intelligence/autoresearch-backlog', () => {
     expect(response.status).toBe(200)
     const body = await response.json()
     expect(body.summary).toEqual({
-      total: 2,
-      readyForInternalHandoff: 1,
-      blockedOrManual: 2,
+      total: 7,
+      readyForInternalHandoff: 4,
+      blockedOrManual: 7,
       callableExternalActions: 0,
     })
     expect(body.side_effects).toEqual({
@@ -67,5 +67,10 @@ describe('/api/admin/social-content/intelligence/autoresearch-backlog', () => {
       },
     })
     expect(body.items[0].sourcePacketPaths).toContain('agentified/campaign/portfolio-campaign-packet.json')
+    expect(body.items.map((item: { title: string }) => item.title)).toEqual(expect.arrayContaining([
+      'The operating layer behind AMINA',
+      'The Receipt Every Agent Needs',
+      'What the cover is really showing',
+    ]))
   })
 })
