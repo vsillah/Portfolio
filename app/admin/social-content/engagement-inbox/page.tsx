@@ -303,8 +303,13 @@ export default function SocialCommentInboxPage() {
       if (!response.ok && response.status !== 409) throw new Error(data.error || data.message || 'Comment action failed')
       setNotice({
         type: response.ok ? 'success' : 'error',
-        text: data.message || (response.ok ? 'Comment action recorded.' : 'Comment action blocked.'),
+        text: action === 'draft_response' && response.ok
+          ? 'Draft response generated in the Draft reply box. Review it before approval.'
+          : data.message || (response.ok ? 'Comment action recorded.' : 'Comment action blocked.'),
       })
+      if (action === 'draft_response' && response.ok) {
+        setFocusedCommentId(comment.id)
+      }
       await fetchComments()
     } catch (error) {
       setNotice({ type: 'error', text: error instanceof Error ? error.message : 'Comment action failed' })
@@ -577,6 +582,7 @@ export default function SocialCommentInboxPage() {
             const submitReady = canSubmit(comment)
             const actionKey = (action: string) => `${comment.id}:${action}`
             const isFocused = focusedCommentId === comment.id || focusedCommentId === comment.providerCommentId
+            const draftText = drafts[comment.id]?.trim() ?? ''
             return (
               <article
                 key={comment.id}
@@ -636,15 +642,27 @@ export default function SocialCommentInboxPage() {
                       <p className="mt-1 line-clamp-3 text-xs leading-5 text-muted-foreground">{comment.postExcerpt}</p>
                     </div>
                     <label className="block text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                      Draft reply
+                      <span className="flex flex-wrap items-center gap-2">
+                        <span>Draft reply</span>
+                        {draftText && (
+                          <span className="rounded-full border border-blue-500/35 bg-blue-500/10 px-2 py-0.5 text-[0.65rem] font-semibold tracking-normal text-blue-100">
+                            Generated response ready for review
+                          </span>
+                        )}
+                      </span>
                       <textarea
                         value={drafts[comment.id] ?? ''}
                         onChange={(event) => setDrafts((current) => ({ ...current, [comment.id]: event.target.value }))}
                         rows={4}
-                        className="mt-1 w-full resize-y rounded-lg border border-border bg-background px-3 py-2 text-sm leading-6 text-foreground placeholder:text-muted-foreground"
+                        className={`mt-1 w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm leading-6 text-foreground placeholder:text-muted-foreground ${draftText ? 'border-blue-500/50 shadow-[0_0_0_1px_rgba(96,165,250,0.28)]' : 'border-border'}`}
                         placeholder="Draft a reply for review. This does not send externally."
                       />
                     </label>
+                    {draftText && (
+                      <p className="rounded-lg border border-blue-500/35 bg-blue-500/10 px-3 py-2 text-xs leading-5 text-blue-100">
+                        This is the generated response. It stays local until approval and provider submission gates pass.
+                      </p>
+                    )}
                     <div className="flex flex-wrap gap-2">
                       <button
                         type="button"

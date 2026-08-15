@@ -178,6 +178,9 @@ describe('SocialCommentInboxPage', () => {
     fireEvent.click(screen.getByRole('button', { name: /Draft Response/i }))
 
     expect(await screen.findByDisplayValue(generatedReply)).toBeInTheDocument()
+    expect(await screen.findByText(/Draft response generated in the Draft reply box/i)).toBeInTheDocument()
+    expect(screen.getByText(/Generated response ready for review/i)).toBeInTheDocument()
+    expect(screen.getByText(/This is the generated response/i)).toBeInTheDocument()
     expect(fetchMock).toHaveBeenCalledWith(
       '/api/admin/social-content/social-1/engagement/comments',
       expect.objectContaining({
