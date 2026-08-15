@@ -409,6 +409,24 @@ function templateMetadataFor(
   }
 }
 
+function normalizeAutoResearchBacklogResponse(body: unknown): AutoResearchBacklogReadOnlyResponse | null {
+  const candidates = [
+    body,
+    recordValue(body).projection,
+    recordValue(body).backlog,
+    recordValue(body).data,
+  ]
+
+  for (const candidate of candidates) {
+    const record = recordValue(candidate)
+    if (Array.isArray(record.items)) {
+      return candidate as AutoResearchBacklogReadOnlyResponse
+    }
+  }
+
+  return null
+}
+
 export default function ContentIntelligencePage() {
   return (
     <ProtectedRoute requireAdmin>
@@ -515,7 +533,7 @@ function ContentIntelligenceContent() {
       setPackets(Array.isArray(packetBody.packets) ? packetBody.packets : [])
       setInsights(Array.isArray(insightBody.work_items) ? insightBody.work_items : [])
       setDigest(digestBody.digest ?? null)
-      setAutoResearchBacklog(autoResearchBody && Array.isArray(autoResearchBody.items) ? autoResearchBody as AutoResearchBacklogReadOnlyResponse : null)
+      setAutoResearchBacklog(normalizeAutoResearchBacklogResponse(autoResearchBody))
       setCalendarItems(Array.isArray(calendarBody.items) ? calendarBody.items : [])
       setCampaigns(Array.isArray(campaignBody.data) ? campaignBody.data : [])
     } catch (err) {
@@ -1072,21 +1090,21 @@ function ContentIntelligenceContent() {
   }, [authedFetch, calendarEditForms, load])
 
   return (
-    <div className="agent-ops-page min-h-screen p-5 text-foreground lg:p-7">
-      <div className="mx-auto max-w-7xl">
+    <div className="agent-ops-page min-h-screen overflow-x-hidden px-4 py-5 text-foreground sm:px-5 lg:p-7">
+      <div className="mx-auto w-full max-w-7xl min-w-0">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
           { label: 'Agent Operations', href: '/admin/agents' },
           { label: 'Content Intelligence' },
         ]} />
 
-        <header className="agent-ops-surface-header mb-6 mt-5 flex flex-col gap-4 rounded-xl border p-5 lg:flex-row lg:items-center lg:justify-between">
-          <div>
+        <header className="agent-ops-surface-header mb-6 mt-5 flex min-w-0 flex-col gap-4 rounded-xl border p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0">
             <div className="agent-ops-eyebrow mb-2">
               <FileSearch size={16} />
               Content Intelligence
             </div>
-            <h1 className="text-3xl font-bold">Research and Shaka insight queue</h1>
+            <h1 className="text-2xl font-bold sm:text-3xl">Research and Shaka insight queue</h1>
             <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
               Public creator research stays read-only. Shaka insights stay centralized in the Agentic Dashboard backlog, then feed LinkedIn, YouTube, YouTube Shorts, Instagram Reels, and thumbnail lanes.
             </p>
@@ -1095,7 +1113,7 @@ function ContentIntelligenceContent() {
             type="button"
             onClick={load}
             disabled={loading}
-            className="agent-ops-button-secondary disabled:opacity-60"
+            className="agent-ops-button-secondary w-full justify-center disabled:opacity-60 sm:w-fit"
           >
             <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
             Refresh
@@ -2177,8 +2195,8 @@ function SectionTabs({
   counts: Record<IntelligenceSection, number>
 }) {
   return (
-    <nav aria-label="Content intelligence sections" className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-2">
-      <div className="grid gap-2 md:grid-cols-3 xl:grid-cols-6">
+    <nav aria-label="Content intelligence sections" className="mb-6 min-w-0 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-2">
+      <div className="grid min-w-0 grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">
         {SECTION_TABS.map((section) => {
           const isActive = section.key === activeSection
           return (
@@ -2188,7 +2206,7 @@ function SectionTabs({
               onClick={() => onChange(section.key)}
               aria-pressed={isActive}
               title={section.description}
-              className={`flex min-h-16 items-center justify-between gap-3 rounded-md border px-3 py-2 text-left transition ${
+              className={`flex min-h-20 min-w-0 items-center justify-between gap-2 rounded-md border px-2.5 py-2 text-left transition sm:min-h-16 sm:gap-3 sm:px-3 ${
                 isActive
                   ? 'border-radiant-gold/55 bg-radiant-gold/15 text-radiant-gold'
                   : 'border-silicon-slate/60 bg-background/30 text-muted-foreground hover:border-white/30 hover:text-foreground'
@@ -2196,7 +2214,7 @@ function SectionTabs({
             >
               <span className="min-w-0">
                 <span className="block text-sm font-semibold">{section.label}</span>
-                <span className="mt-0.5 block truncate text-[0.68rem] opacity-80">{section.description}</span>
+                <span className="mt-0.5 hidden text-[0.68rem] leading-4 opacity-80 sm:block">{section.description}</span>
               </span>
               <span className="shrink-0 rounded-full border border-current/30 px-2 py-0.5 text-xs font-semibold">
                 {counts[section.key]}
