@@ -646,6 +646,30 @@ describe('ContentIntelligencePage', () => {
           }),
         }
       }
+      if (url === '/api/admin/agents/work-items/work-social-1/autoresearch-feedback') {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            feedback_handoff: {
+              id: 'autoresearch-feedback-1',
+              backlog_item_id: 'autoresearch-agentified-agt-x-01',
+              feedback_target: 'both',
+              feedback: 'Strengthen the CTA and carry the b-roll lesson into the next pass.',
+              status: 'recorded',
+            },
+            side_effects: {
+              provider_generation: false,
+              provider_call: false,
+              upload: false,
+              schedule: false,
+              publish: false,
+              external_post: false,
+              production_mutation: false,
+            },
+          }),
+        }
+      }
       if (url.startsWith('/api/admin/agents/work-items')) {
         return {
           ok: true,
@@ -770,6 +794,32 @@ describe('ContentIntelligencePage', () => {
     expect(connectedContentLink).toHaveAttribute('href', '/admin/social-content/social-1')
     expect(connectedContentLink.closest('p')?.textContent).toContain('Connected content row: social-1 (draft)')
     expect(screen.getAllByText('Template basis: Whisper-to-shout launch').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Operator action').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Approve the direction as-is, or leave commentary so Amina can revise this item, carry it into the next AutoResearch pass, or both.').length).toBeGreaterThan(0)
+    expect(screen.getByText('Feedback routable')).toBeInTheDocument()
+    expect(screen.getByText('Needs work-item link')).toBeInTheDocument()
+    const feedbackAreas = screen.getAllByLabelText('Commentary for Amina')
+    const feedbackButtons = screen.getAllByRole('button', { name: 'Record feedback handoff' })
+    expect(feedbackButtons[0]).toBeDisabled()
+    fireEvent.change(feedbackAreas[0], {
+      target: { value: 'Strengthen the CTA and carry the b-roll lesson into the next pass.' },
+    })
+    expect(feedbackButtons[0]).not.toBeDisabled()
+    fireEvent.click(feedbackButtons[0])
+    expect(await screen.findByText('Feedback recorded for this item and the next AutoResearch pass.')).toBeInTheDocument()
+    const feedbackCall = vi.mocked(fetch).mock.calls.find(([input]) => String(input) === '/api/admin/agents/work-items/work-social-1/autoresearch-feedback')
+    expect(feedbackCall).toBeTruthy()
+    expect(feedbackCall?.[1]).toMatchObject({ method: 'POST' })
+    expect(JSON.parse(String(feedbackCall?.[1]?.body))).toMatchObject({
+      backlog_item_id: 'autoresearch-agentified-agt-x-01',
+      backlog_item_title: 'What breaks first when AI gets faster?',
+      feedback_target: 'both',
+      feedback: 'Strengthen the CTA and carry the b-roll lesson into the next pass.',
+      current_gate: 'final_submission',
+      release_link_id: 'calendar-1',
+      release_title: 'Tease: Approval gates',
+      release_scheduled_for: '2026-06-24T14:00:00.000Z',
+    })
     expect(screen.getByText('Ranked content opportunities')).toBeInTheDocument()
     expect(screen.getByText('Content generation queue')).toBeInTheDocument()
     expect(screen.getByText('1 high priority · 2 gated')).toBeInTheDocument()

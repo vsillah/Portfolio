@@ -172,6 +172,7 @@ type IntelligenceSection = 'calendar' | 'digest' | 'autoresearch' | 'evidence' |
 type SortDirection = 'asc' | 'desc'
 type ResearchSortKey = 'score' | 'retrieved' | 'title'
 type InsightSortKey = 'updated' | 'title' | 'priority'
+type AutoResearchFeedbackTarget = 'current_backlog_item' | 'next_autoresearch_pass' | 'both'
 
 type AutoResearchTakeaway = {
   label: string
@@ -239,6 +240,28 @@ const CALENDAR_CHANNEL_LABELS: Record<CalendarItem['channel'], string> = {
   x: 'X',
   thumbnail: 'Thumbnail',
 }
+
+const AUTORESEARCH_FEEDBACK_TARGET_OPTIONS: Array<{
+  value: AutoResearchFeedbackTarget
+  label: string
+  description: string
+}> = [
+  {
+    value: 'current_backlog_item',
+    label: 'Revise this item',
+    description: 'Route the note to the linked backlog/content item before draft handoff.',
+  },
+  {
+    value: 'next_autoresearch_pass',
+    label: 'Use next pass',
+    description: 'Keep the current item intact and feed the instruction into the next AutoResearch cycle.',
+  },
+  {
+    value: 'both',
+    label: 'Do both',
+    description: 'Revise this item and carry the learning into the next AutoResearch pass.',
+  },
+]
 
 const SECTION_TABS: Array<{
   key: IntelligenceSection
@@ -643,6 +666,10 @@ function ContentIntelligenceContent() {
   const [digest, setDigest] = useState<DailyDigest | null>(null)
   const [autoResearchBacklog, setAutoResearchBacklog] = useState<AutoResearchBacklogReadOnlyResponse | null>(null)
   const [autoResearchSearch, setAutoResearchSearch] = useState('')
+  const [autoResearchFeedbackNotes, setAutoResearchFeedbackNotes] = useState<Record<string, string>>({})
+  const [autoResearchFeedbackTargets, setAutoResearchFeedbackTargets] = useState<Record<string, AutoResearchFeedbackTarget>>({})
+  const [autoResearchFeedbackSubmittingId, setAutoResearchFeedbackSubmittingId] = useState<string | null>(null)
+  const [autoResearchFeedbackNotice, setAutoResearchFeedbackNotice] = useState<string | null>(null)
   const [activationScopeNote, setActivationScopeNote] = useState('')
   const [requestingActivation, setRequestingActivation] = useState(false)
   const [activationNotice, setActivationNotice] = useState<string | null>(null)
@@ -1192,6 +1219,59 @@ function ContentIntelligenceContent() {
       setLinkingSuggestedInsightId(null)
     }
   }, [authedFetch, packets])
+
+  const submitAutoResearchFeedback = useCallback(async (
+    item: AutoResearchAdminProjection,
+    releaseLinks: AutoResearchReleaseLink[],
+    event: FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault()
+    setError(null)
+    setAutoResearchFeedbackNotice(null)
+
+    const feedback = (autoResearchFeedbackNotes[item.id] ?? '').trim()
+    const target = autoResearchFeedbackTargets[item.id] ?? 'both'
+    const primaryRelease = primaryAutoResearchReleaseLink(releaseLinks)
+    const workItemId = primaryRelease?.workItemId
+
+    if (!feedback) {
+      setError('Add commentary before recording an AutoResearch feedback handoff.')
+      return
+    }
+    if (!workItemId) {
+      setError('This AutoResearch item needs a linked Agent Ops work item before feedback can circle back.')
+      return
+    }
+
+    setAutoResearchFeedbackSubmittingId(item.id)
+    try {
+      const response = await authedFetch(`/api/admin/agents/work-items/${workItemId}/autoresearch-feedback`, {
+        method: 'POST',
+        body: JSON.stringify({
+          backlog_item_id: item.id,
+          backlog_item_title: item.title,
+          feedback_target: target,
+          feedback,
+          current_gate: item.firstBlockedOrPendingGate,
+          release_link_id: primaryRelease?.id ?? null,
+          release_title: primaryRelease?.title ?? null,
+          release_scheduled_for: primaryRelease?.scheduledFor ?? null,
+        }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `AutoResearch feedback HTTP ${response.status}`)
+      setAutoResearchFeedbackNotes((current) => ({ ...current, [item.id]: '' }))
+      setAutoResearchFeedbackNotice(target === 'current_backlog_item'
+        ? 'Feedback recorded for this backlog item.'
+        : target === 'next_autoresearch_pass'
+          ? 'Feedback recorded for the next AutoResearch pass.'
+          : 'Feedback recorded for this item and the next AutoResearch pass.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to record AutoResearch feedback')
+    } finally {
+      setAutoResearchFeedbackSubmittingId(null)
+    }
+  }, [authedFetch, autoResearchFeedbackNotes, autoResearchFeedbackTargets])
 
   const prepareChannelReviewDrafts = useCallback(async (insightId: string) => {
     setError(null)
@@ -2089,6 +2169,12 @@ function ContentIntelligenceContent() {
                     key={item.id}
                     item={item}
                     releaseLinks={autoResearchReleaseLinksById[item.id] ?? []}
+                    feedbackNote={autoResearchFeedbackNotes[item.id] ?? ''}
+                    feedbackTarget={autoResearchFeedbackTargets[item.id] ?? 'both'}
+                    feedbackSubmitting={autoResearchFeedbackSubmittingId === item.id}
+                    onFeedbackNoteChange={(value) => setAutoResearchFeedbackNotes((current) => ({ ...current, [item.id]: value }))}
+                    onFeedbackTargetChange={(value) => setAutoResearchFeedbackTargets((current) => ({ ...current, [item.id]: value }))}
+                    onSubmitFeedback={(event) => submitAutoResearchFeedback(item, autoResearchReleaseLinksById[item.id] ?? [], event)}
                   />
                 )) : (
                   <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-4 py-8 text-center text-sm text-muted-foreground xl:col-span-2">
@@ -2102,6 +2188,11 @@ function ContentIntelligenceContent() {
               No AutoResearch backlog projection loaded.
             </div>
           )}
+          {autoResearchFeedbackNotice ? (
+            <p className="mt-3 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-100">
+              {autoResearchFeedbackNotice}
+            </p>
+          ) : null}
         </section>
         ) : null}
 
@@ -2761,13 +2852,26 @@ function AutoResearchOpportunityCard({
 function AutoResearchBacklogCard({
   item,
   releaseLinks,
+  feedbackNote,
+  feedbackTarget,
+  feedbackSubmitting,
+  onFeedbackNoteChange,
+  onFeedbackTargetChange,
+  onSubmitFeedback,
 }: {
   item: AutoResearchAdminProjection
   releaseLinks: AutoResearchReleaseLink[]
+  feedbackNote: string
+  feedbackTarget: AutoResearchFeedbackTarget
+  feedbackSubmitting: boolean
+  onFeedbackNoteChange: (value: string) => void
+  onFeedbackTargetChange: (value: AutoResearchFeedbackTarget) => void
+  onSubmitFeedback: (event: FormEvent<HTMLFormElement>) => void
 }) {
   const gates = Object.values(item.gates)
   const bestVariant = bestAutoResearchVariant(item)
   const primaryRelease = primaryAutoResearchReleaseLink(releaseLinks)
+  const feedbackWorkItemId = primaryRelease?.workItemId ?? null
   const sourceReferences = item.sourceReferences ?? []
   const primarySourceReference = sourceReferences[0] ?? null
   const firstSourcePacket = item.sourcePacketPaths[0] ?? null
@@ -2860,6 +2964,68 @@ function AutoResearchBacklogCard({
           </button>
         </div>
       </div>
+
+      <form onSubmit={onSubmitFeedback} className="mt-3 rounded-md border border-radiant-gold/35 bg-radiant-gold/10 p-3">
+        <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-radiant-gold">Operator action</p>
+            <p className="mt-1 text-xs leading-5 text-amber-100/80">
+              Approve the direction as-is, or leave commentary so Amina can revise this item, carry it into the next AutoResearch pass, or both.
+            </p>
+          </div>
+          <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[0.62rem] font-semibold ${feedbackWorkItemId ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100' : 'border-amber-500/35 bg-amber-500/10 text-amber-100'}`}>
+            {feedbackWorkItemId ? 'Feedback routable' : 'Needs work-item link'}
+          </span>
+        </div>
+
+        <fieldset className="mt-3 grid gap-2 md:grid-cols-3">
+          <legend className="sr-only">AutoResearch feedback routing</legend>
+          {AUTORESEARCH_FEEDBACK_TARGET_OPTIONS.map((option) => (
+            <label
+              key={option.value}
+              className={`cursor-pointer rounded-md border p-2 transition ${feedbackTarget === option.value ? 'border-radiant-gold/70 bg-radiant-gold/15' : 'border-silicon-slate/60 bg-background/35 hover:border-radiant-gold/45'}`}
+            >
+              <span className="flex items-center gap-2 text-xs font-semibold">
+                <input
+                  type="radio"
+                  name={`autoresearch-feedback-target-${item.id}`}
+                  value={option.value}
+                  checked={feedbackTarget === option.value}
+                  onChange={() => onFeedbackTargetChange(option.value)}
+                  className="h-3.5 w-3.5 accent-radiant-gold"
+                />
+                {option.label}
+              </span>
+              <span className="mt-1 block text-[0.68rem] leading-5 text-muted-foreground">{option.description}</span>
+            </label>
+          ))}
+        </fieldset>
+
+        <label className="mt-3 block text-xs font-semibold uppercase tracking-wide text-amber-100/80" htmlFor={`autoresearch-feedback-${item.id}`}>
+          Commentary for Amina
+        </label>
+        <textarea
+          id={`autoresearch-feedback-${item.id}`}
+          rows={3}
+          value={feedbackNote}
+          onChange={(event) => onFeedbackNoteChange(event.target.value)}
+          placeholder="Example: strengthen the CTA, use real Portfolio b-roll, or make this the reference point for the next research pass."
+          className={`${CONTENT_INTELLIGENCE_FIELD_COMPACT_CLASS} mt-1 min-h-24 resize-y`}
+        />
+        <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[0.68rem] leading-5 text-amber-100/70">
+            Records an internal feedback handoff only. It does not generate media, publish, schedule, upload, or call providers.
+          </p>
+          <button
+            type="submit"
+            disabled={!feedbackNote.trim() || !feedbackWorkItemId || feedbackSubmitting}
+            className="inline-flex min-h-9 items-center justify-center gap-2 rounded-md border border-radiant-gold/55 px-3 py-2 text-xs font-semibold text-radiant-gold transition hover:border-radiant-gold hover:bg-radiant-gold/10 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <Save className="h-3.5 w-3.5" />
+            {feedbackSubmitting ? 'Recording...' : 'Record feedback handoff'}
+          </button>
+        </div>
+      </form>
 
       <details className="mt-4 rounded-md border border-silicon-slate/60 bg-background/30 p-3">
         <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-muted-foreground">
