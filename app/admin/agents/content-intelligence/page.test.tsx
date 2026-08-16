@@ -150,7 +150,7 @@ describe('ContentIntelligencePage', () => {
                 id: 'calendar-1',
                 campaign_id: 'campaign-1',
                 agent_work_item_id: 'work-social-1',
-                social_content_id: null,
+                social_content_id: 'social-1',
                 channel: 'linkedin',
                 campaign_phase: 'tease',
                 title: 'Tease: Approval gates',
@@ -173,9 +173,9 @@ describe('ContentIntelligencePage', () => {
                     source_labels: ['HubSpot social calendar template'],
                   },
                 },
-                attraction_campaigns: { id: 'campaign-1', name: 'Agent Ops Campaign', slug: 'agent-ops' },
+                attraction_campaigns: { id: 'campaign-1', name: 'Agent Ops Campaign', slug: 'agentified-trust-scale-2026-07' },
                 agent_work_items: { id: 'work-social-1', title: 'Approval gates create trust', status: 'proposed' },
-                social_content_queue: null,
+                social_content_queue: { id: 'social-1', status: 'draft' },
               },
             ],
           }),
@@ -309,6 +309,14 @@ describe('ContentIntelligencePage', () => {
                     channelFit: 'strong',
                     ctaRole: 'conversation',
                     providerBoundary: 'publish_gate_required',
+                    visualNeeds: ['none'],
+                  },
+                  {
+                    channel: 'linkedin',
+                    recommendedFormat: 'text_post',
+                    channelFit: 'medium',
+                    ctaRole: 'discussion',
+                    providerBoundary: 'draft_only',
                     visualNeeds: ['none'],
                   },
                 ],
@@ -620,7 +628,8 @@ describe('ContentIntelligencePage', () => {
       expect(control.className).toContain('[color-scheme:light]')
       expect(control.className).toContain('dark:[color-scheme:dark]')
     }
-    expect(screen.getByRole('button', { name: /Template research library/ })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Source-backed campaign patterns' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Template details/ })).toBeInTheDocument()
     expect(screen.getByText('YouTube video release')).toBeInTheDocument()
     expect(screen.getByText('Short-form series')).toBeInTheDocument()
     expect(screen.getAllByRole('link', { name: /YouTube creator optimization guidance/ }).length).toBeGreaterThan(0)
@@ -629,14 +638,12 @@ describe('ContentIntelligencePage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Next' }))
     expect(screen.getByText('Case study proof drop')).toBeInTheDocument()
     expect(screen.getByText('Tease: Approval gates')).toBeInTheDocument()
-    expect(screen.getByText('Content')).toBeInTheDocument()
-    expect(screen.getByText('Work item: Approval gates create trust')).toBeInTheDocument()
-    expect(screen.getByText('Planned content angle')).toBeInTheDocument()
-    expect(screen.getByText('Release date')).toBeInTheDocument()
+    expect(screen.getAllByText('Content').length).toBeGreaterThan(0)
+    expect(screen.getByText('Approval gates create trust')).toBeInTheDocument()
+    expect(screen.getByText('Open with the moment an approval path created extra work.')).toBeInTheDocument()
+    expect(screen.getAllByText('Release').length).toBeGreaterThan(0)
     expect(screen.getByText(/Jun 24, 2026/)).toBeInTheDocument()
-    expect(screen.getByText('Approval due')).toBeInTheDocument()
-    expect(screen.getByText(/Jun 23, 2026/)).toBeInTheDocument()
-    expect(screen.getByText('Template basis')).toBeInTheDocument()
+    expect(screen.getByText(/1 day approval lead/)).toBeInTheDocument()
     expect(screen.getAllByText('Whisper-to-shout launch').length).toBeGreaterThan(0)
     expect(screen.getByText(/Tease milestone for LinkedIn/)).toBeInTheDocument()
     expect(screen.getAllByText('Agent Ops Campaign').length).toBeGreaterThan(0)
@@ -661,10 +668,30 @@ describe('ContentIntelligencePage', () => {
     fireEvent.click(autoResearchTab)
     expect(screen.getByRole('heading', { name: 'Read-only backlog projection' })).toBeInTheDocument()
     expect(screen.queryByText('No AutoResearch backlog projection loaded.')).not.toBeInTheDocument()
+    const backlogSearch = screen.getByLabelText('Backlog search')
+    expect(backlogSearch.parentElement?.className).toContain('[color-scheme:light]')
+    expect(backlogSearch.parentElement?.className).toContain('dark:[color-scheme:dark]')
+    expect(screen.getByText('Showing 2 of 2 backlog items. Search checks generated backlog titles, work items, release rows, channel variants, and research/source basis.')).toBeInTheDocument()
     expect(screen.getAllByText('What breaks first when AI gets faster?').length).toBeGreaterThan(0)
     expect(screen.getByText('What makes proof feel credible before a launch?')).toBeInTheDocument()
     expect(screen.getByText('docs/content-strategy/agentified-x-research-evidence-2026-08-05.md')).toBeInTheDocument()
     expect(screen.getByText('final submission')).toBeInTheDocument()
+    expect(screen.getAllByText('Generated backlog item').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Research and pattern basis').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Source packets explain why the backlog item exists; they are not generated draft content.').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Draft/backlog variants').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Release calendar linkage').length).toBeGreaterThan(0)
+    expect(screen.getByText('1 connected row')).toBeInTheDocument()
+    expect(screen.getByText('Tease: Approval gates')).toBeInTheDocument()
+    expect(screen.getByText('LinkedIn · Tease · pending')).toBeInTheDocument()
+    expect(screen.getByText('1 day approval lead')).toBeInTheDocument()
+    expect(screen.getAllByText(/Jun 24, 2026/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Jun 23, 2026/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Work item: Approval gates create trust').length).toBeGreaterThan(0)
+    const connectedContentLink = screen.getByRole('link', { name: 'social-1' })
+    expect(connectedContentLink).toHaveAttribute('href', '/admin/social-content/social-1')
+    expect(connectedContentLink.closest('p')?.textContent).toContain('Connected content row: social-1 (draft)')
+    expect(screen.getAllByText('Template basis: Whisper-to-shout launch').length).toBeGreaterThan(0)
     expect(screen.getByText('Recommended next moves')).toBeInTheDocument()
     expect(screen.getByText('Takeaways from the projected backlog')).toBeInTheDocument()
     expect(screen.getByText('Strongest bet')).toBeInTheDocument()
@@ -679,6 +706,12 @@ describe('ContentIntelligencePage', () => {
     expect(screen.getByText('No provider, schedule, publish, or upload action is available from this view.')).toBeInTheDocument()
     expect(screen.getByText('provider call: locked')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Callable external actions: 0' })).toBeDisabled()
+    fireEvent.change(screen.getByLabelText('Backlog search'), { target: { value: 'Approval gates create trust' } })
+    expect(screen.getByText('Showing 1 of 2 backlog items. Search checks generated backlog titles, work items, release rows, channel variants, and research/source basis.')).toBeInTheDocument()
+    expect(screen.getAllByText('What breaks first when AI gets faster?').length).toBeGreaterThan(0)
+    expect(screen.queryByText('What makes proof feel credible before a launch?')).not.toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('Backlog search'), { target: { value: 'missing release row' } })
+    expect(screen.getByText('No AutoResearch backlog items match the current search.')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: /ResearchCreator evidence/ }))
     expect(screen.getByRole('heading', { name: 'Public creator research' })).toBeInTheDocument()
@@ -703,11 +736,11 @@ describe('ContentIntelligencePage', () => {
 
     fireEvent.change(contentSearch, { target: { value: 'Approval gates create trust' } })
     expect(screen.getByText('Tease: Approval gates')).toBeInTheDocument()
-    expect(screen.getByText('Showing 1 release row after filters. Search checks the content title, linked work item, planned angle, campaign, template label, and source basis.')).toBeInTheDocument()
+    expect(screen.getByText('Showing 1-1 of 1 release row. Search checks content title, work item, planned angle, campaign, template label, and source basis.')).toBeInTheDocument()
 
     fireEvent.change(contentSearch, { target: { value: 'missing content title' } })
     expect(screen.queryByText('Tease: Approval gates')).not.toBeInTheDocument()
-    expect(screen.getByText('Showing 0 release rows after filters. Search checks the content title, linked work item, planned angle, campaign, template label, and source basis.')).toBeInTheDocument()
+    expect(screen.getByText('Showing 0-0 of 0 release rows. Search checks content title, work item, planned angle, campaign, template label, and source basis.')).toBeInTheDocument()
   })
 
   it('stores recorded evidence without paid scraper fields', async () => {
@@ -873,7 +906,7 @@ describe('ContentIntelligencePage', () => {
   it('applies a researched template milestone to the calendar planner metadata', async () => {
     render(<ContentIntelligencePage />)
 
-    await screen.findByRole('button', { name: /Template research library/ })
+    await screen.findByRole('button', { name: /Template details/ })
 
     fireEvent.change(screen.getAllByLabelText('Campaign')[1], {
       target: { value: 'campaign-1' },

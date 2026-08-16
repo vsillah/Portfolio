@@ -3,6 +3,9 @@
  *
  * Finds pending authorization gates and authorized draft preparation gaps due
  * within 24h or overdue within 30 days, then creates internal Agent Ops work.
+ * If an unreleased calendar approval date has already elapsed, the cron
+ * recalibrates the unreleased campaign sequence forward and creates a review
+ * item instead of leaving stale dates visible.
  * Auth: Bearer CRON_SECRET or N8N_INGEST_SECRET.
  * This route does not publish, upload, schedule externally, or call providers.
  */
@@ -14,9 +17,12 @@ import { supabaseAdmin } from '@/lib/supabase'
 import {
   CALENDAR_CHANNEL_LABELS,
   CALENDAR_SIDE_EFFECTS,
+  calendarMissedReleaseWindow,
   dueGateWindow,
   deriveDueStatus,
   parseMetadata,
+  recalibrateCalendarSequence,
+  type CalendarRecalibrationRow,
   type SocialContentCalendarItem,
 } from '@/lib/social-content-calendar'
 
@@ -33,10 +39,20 @@ type AuthorizationCandidate = {
   window: '24h' | '2h'
 }
 
+type CalendarRecalibrationCandidate = {
+  item: SocialContentCalendarItem
+}
+
 function isAuthorizedCronRequest(request: NextRequest): boolean {
   const token = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '')
   const allowedTokens = [process.env.CRON_SECRET, process.env.N8N_INGEST_SECRET].filter(Boolean)
   return Boolean(token && allowedTokens.includes(token))
+}
+
+function assertSupabaseWriteSucceeded(result: { error?: { message?: string } | null }, action: string) {
+  if (result.error) {
+    throw new Error(`${action}: ${result.error.message ?? 'Supabase write failed'}`)
+  }
 }
 
 async function bodyOrEmpty(request: NextRequest) {
@@ -75,6 +91,12 @@ function needsPublishPreparation(item: SocialContentCalendarItem, now: Date) {
   const queue = item.social_content_queue
   if (!queue || !['draft', 'approved'].includes(queue.status)) return false
   return !preparationAlreadyRecorded(item)
+}
+
+function calendarNeedsRecalibration(item: SocialContentCalendarItem, now: Date) {
+  if (item.authorization_status === 'authorized') return false
+  if (item.due_status === 'completed' || item.due_status === 'cancelled') return false
+  return calendarMissedReleaseWindow(item.scheduled_for, now)
 }
 
 async function createPublishPreparationWorkItem(item: SocialContentCalendarItem, now: Date) {
@@ -127,6 +149,7 @@ async function collectDueGateCandidates(input: {
 }) {
   const candidates: AuthorizationCandidate[] = []
   const preparationCandidates: SocialContentCalendarItem[] = []
+  const recalibrationCandidates: CalendarRecalibrationCandidate[] = []
   const seenItemIds = new Set<string>()
   let scannedCount = 0
 
@@ -149,7 +172,7 @@ async function collectDueGateCandidates(input: {
       .range(offset, offset + CALENDAR_SCAN_PAGE_SIZE - 1)
 
     if (error) {
-      return { error, candidates, preparationCandidates, scannedCount }
+      return { error, candidates, preparationCandidates, recalibrationCandidates, scannedCount }
     }
 
     const rows = (data ?? []) as SocialContentCalendarItem[]
@@ -163,16 +186,26 @@ async function collectDueGateCandidates(input: {
         const window = dueGateWindow(item.scheduled_for, input.now)
         if (window && !pingAlreadySent(item, window)) {
           candidates.push({ item, window })
+        } else if (calendarNeedsRecalibration(item, input.now)) {
+          recalibrationCandidates.push({ item })
         }
       } else if (needsPublishPreparation(item, input.now)) {
         preparationCandidates.push(item)
       }
 
-      if (candidates.length + preparationCandidates.length >= CALENDAR_MAX_CANDIDATES) break
+      if (
+        candidates.length
+          + preparationCandidates.length
+          + recalibrationCandidates.length
+          >= CALENDAR_MAX_CANDIDATES
+      ) break
     }
 
     if (
-      candidates.length + preparationCandidates.length >= CALENDAR_MAX_CANDIDATES
+      candidates.length
+        + preparationCandidates.length
+        + recalibrationCandidates.length
+        >= CALENDAR_MAX_CANDIDATES
       || rows.length < CALENDAR_SCAN_PAGE_SIZE
     ) break
   }
@@ -180,7 +213,81 @@ async function collectDueGateCandidates(input: {
   preparationCandidates.sort(
     (left, right) => new Date(left.scheduled_for).getTime() - new Date(right.scheduled_for).getTime(),
   )
-  return { error: null, candidates, preparationCandidates, scannedCount }
+  recalibrationCandidates.sort(
+    (left, right) => new Date(left.item.scheduled_for).getTime() - new Date(right.item.scheduled_for).getTime(),
+  )
+  return { error: null, candidates, preparationCandidates, recalibrationCandidates, scannedCount }
+}
+
+function recalibrationScopeKey(item: SocialContentCalendarItem) {
+  return item.campaign_id ?? `calendar-item:${item.id}`
+}
+
+async function loadRecalibrationRows(item: SocialContentCalendarItem): Promise<CalendarRecalibrationRow[]> {
+  if (!item.campaign_id) {
+    return [{
+      id: item.id,
+      scheduled_for: item.scheduled_for,
+      authorization_status: item.authorization_status,
+      due_status: item.due_status,
+      metadata: item.metadata,
+    }]
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from('social_content_calendar_items')
+    .select('id, scheduled_for, authorization_status, due_status, metadata')
+    .eq('campaign_id', item.campaign_id)
+    .gte('scheduled_for', item.scheduled_for)
+    .order('scheduled_for', { ascending: true })
+
+  if (error) throw error
+  return (data ?? []) as CalendarRecalibrationRow[]
+}
+
+async function createRecalibrationWorkItem(input: {
+  item: SocialContentCalendarItem
+  updates: ReturnType<typeof recalibrateCalendarSequence>
+  now: Date
+  triggerSource: string
+}) {
+  const channelLabel = CALENDAR_CHANNEL_LABELS[input.item.channel]
+  return createAgentWorkItem({
+    title: `Recalibrate ${channelLabel} calendar sequence: ${input.item.title}`,
+    objective: [
+      `The planned release time elapsed before ${input.item.title} was released.`,
+      'Portfolio recalibrated the unreleased campaign-calendar rows forward so the sequence is not anchored to stale past dates.',
+      'Review the updated dates and approval gates in Content Intelligence.',
+      'Do not publish, upload, schedule externally, or call providers from this work item.',
+    ].join(' '),
+    priority: 'urgent',
+    status: 'queued',
+    ownerAgentKey: 'chief-of-staff',
+    ownerRuntime: 'codex',
+    source: {
+      type: 'social_content_calendar_recalibration',
+      id: input.item.id,
+      label: input.item.title,
+    },
+    overlapGroup: 'social-content-calendar',
+    metadata: {
+      goal_id: 'social-content-calendar',
+      requires_approval: true,
+      calendar_item_id: input.item.id,
+      campaign_id: input.item.campaign_id,
+      channel: input.item.channel,
+      campaign_phase: input.item.campaign_phase,
+      prior_scheduled_for: input.item.scheduled_for,
+      affected_calendar_item_ids: input.updates.map((update) => update.id),
+      affected_count: input.updates.length,
+      recalibration_action: 'move_unreleased_calendar_sequence_forward',
+      trigger_source: input.triggerSource,
+      recalibrated_at: input.now.toISOString(),
+      side_effects: CALENDAR_SIDE_EFFECTS,
+      external_execution_enabled: false,
+    },
+    idempotencyKey: `social-content-calendar-recalibration:${recalibrationScopeKey(input.item)}:${input.item.id}`,
+  })
 }
 
 async function runDueGateSweep(request: NextRequest) {
@@ -199,6 +306,7 @@ async function runDueGateSweep(request: NextRequest) {
       error,
       candidates,
       preparationCandidates,
+      recalibrationCandidates,
       scannedCount,
     } = await collectDueGateCandidates({ now, windowStart, windowEnd })
 
@@ -210,6 +318,7 @@ async function runDueGateSweep(request: NextRequest) {
           candidate_count: 0,
           scanned_count: scannedCount,
           pinged_count: 0,
+          recalibrated_count: 0,
           candidates: [],
           side_effects: CALENDAR_SIDE_EFFECTS,
         })
@@ -221,10 +330,11 @@ async function runDueGateSweep(request: NextRequest) {
       return NextResponse.json({
         ok: true,
         dry_run: true,
-        candidate_count: candidates.length + preparationCandidates.length,
+        candidate_count: candidates.length + preparationCandidates.length + recalibrationCandidates.length,
         scanned_count: scannedCount,
         pinged_count: 0,
         preparation_count: 0,
+        recalibrated_count: 0,
         candidates: [
           ...candidates.map(({ item, window }) => ({
             id: item.id,
@@ -246,6 +356,15 @@ async function runDueGateSweep(request: NextRequest) {
             channel: item.channel,
             campaign_phase: item.campaign_phase,
           })),
+          ...recalibrationCandidates.map(({ item }) => ({
+            id: item.id,
+            title: item.title,
+            scheduled_for: item.scheduled_for,
+            gate_type: 'calendar_recalibration',
+            campaign_id: item.campaign_id,
+            channel: item.channel,
+            campaign_phase: item.campaign_phase,
+          })),
         ],
         side_effects: CALENDAR_SIDE_EFFECTS,
       })
@@ -253,6 +372,13 @@ async function runDueGateSweep(request: NextRequest) {
 
     const pinged: Array<{ calendar_item_id: string; work_item_id: string; window: '24h' | '2h' }> = []
     const prepared: Array<{ calendar_item_id: string; social_content_id: string | null; work_item_id: string }> = []
+    const recalibrated: Array<{
+      anchor_calendar_item_id: string
+      work_item_id: string
+      affected_count: number
+      updates: Array<{ calendar_item_id: string; prior_scheduled_for: string; scheduled_for: string }>
+    }> = []
+    const recalibratedScopes = new Set<string>()
 
     for (const { item, window } of candidates) {
       const idempotencyKey = `social-content-calendar-due:${item.id}:${window}`
@@ -297,7 +423,7 @@ async function runDueGateSweep(request: NextRequest) {
 
       const metadata = parseMetadata(item.metadata)
       const dueGatePings = parseMetadata(metadata.due_gate_pings)
-      await supabaseAdmin
+      const updateResult = await supabaseAdmin
         .from('social_content_calendar_items')
         .update({
           due_status: deriveDueStatus(item.scheduled_for, now),
@@ -315,6 +441,7 @@ async function runDueGateSweep(request: NextRequest) {
           },
         })
         .eq('id', item.id)
+      assertSupabaseWriteSucceeded(updateResult, `Record due-gate ping for ${item.id}`)
 
       pinged.push({ calendar_item_id: item.id, work_item_id: workItem.id, window })
     }
@@ -323,7 +450,7 @@ async function runDueGateSweep(request: NextRequest) {
       const workItem = await createPublishPreparationWorkItem(item, now)
       const metadata = parseMetadata(item.metadata)
       const socialContentId = item.social_content_queue?.id ?? item.social_content_id
-      await supabaseAdmin
+      const updateResult = await supabaseAdmin
         .from('social_content_calendar_items')
         .update({
           due_status: deriveDueStatus(item.scheduled_for, now),
@@ -340,6 +467,7 @@ async function runDueGateSweep(request: NextRequest) {
           },
         })
         .eq('id', item.id)
+      assertSupabaseWriteSucceeded(updateResult, `Record publish preparation for ${item.id}`)
 
       prepared.push({
         calendar_item_id: item.id,
@@ -348,15 +476,70 @@ async function runDueGateSweep(request: NextRequest) {
       })
     }
 
-    const slackResult = pinged.length + prepared.length > 0
+    const triggerSource = request.method === 'GET'
+      ? 'vercel_cron_social_content_calendar_due_gates'
+      : 'manual_social_content_calendar_due_gates'
+
+    for (const { item } of recalibrationCandidates) {
+      const scopeKey = recalibrationScopeKey(item)
+      if (recalibratedScopes.has(scopeKey)) continue
+      recalibratedScopes.add(scopeKey)
+
+      const rows = await loadRecalibrationRows(item)
+      const updates = recalibrateCalendarSequence({
+        rows,
+        anchorItemId: item.id,
+        now,
+        actor: triggerSource,
+      })
+      if (!updates.length) continue
+
+      const workItem = await createRecalibrationWorkItem({
+        item,
+        updates,
+        now,
+        triggerSource,
+      })
+
+      for (const update of updates) {
+        const updateResult = await supabaseAdmin
+          .from('social_content_calendar_items')
+          .update({
+            scheduled_for: update.scheduled_for,
+            authorization_due_at: update.authorization_due_at,
+            due_status: update.due_status,
+            last_pinged_at: now.toISOString(),
+            metadata: {
+              ...update.metadata,
+              calendar_recalibration: {
+                ...parseMetadata(update.metadata.calendar_recalibration),
+                work_item_id: workItem.id,
+              },
+            },
+          })
+          .eq('id', update.id)
+        assertSupabaseWriteSucceeded(updateResult, `Recalibrate calendar item ${update.id}`)
+      }
+
+      recalibrated.push({
+        anchor_calendar_item_id: item.id,
+        work_item_id: workItem.id,
+        affected_count: updates.length,
+        updates: updates.map((update) => ({
+          calendar_item_id: update.id,
+          prior_scheduled_for: update.prior_scheduled_for,
+          scheduled_for: update.scheduled_for,
+        })),
+      })
+    }
+
+    const slackResult = pinged.length + prepared.length + recalibrated.length > 0
       ? await runAgentSlackNotificationSweep({
           mode: 'immediate',
           kinds: ['goal_decisions'],
           goalId: 'social-content-calendar',
           actorLabel: request.method === 'GET' ? 'Calendar due-gate cron' : 'Manual calendar due-gate sweep',
-          triggerSource: request.method === 'GET'
-            ? 'vercel_cron_social_content_calendar_due_gates'
-            : 'manual_social_content_calendar_due_gates',
+          triggerSource,
         }).catch((notificationError) => ({
           error: notificationError instanceof Error ? notificationError.message : 'Slack sweep failed',
         }))
@@ -365,17 +548,20 @@ async function runDueGateSweep(request: NextRequest) {
     return NextResponse.json({
       ok: true,
       dry_run: false,
-      candidate_count: candidates.length + preparationCandidates.length,
+      candidate_count: candidates.length + preparationCandidates.length + recalibrationCandidates.length,
       scanned_count: scannedCount,
       pinged_count: pinged.length,
       preparation_count: prepared.length,
+      recalibrated_count: recalibrated.length,
       pinged,
       prepared,
+      recalibrated,
       slack_notification_result: slackResult,
       side_effects: {
         ...CALENDAR_SIDE_EFFECTS,
-        internal_work_items_created: pinged.length + prepared.length,
-        slack_notification_requested: pinged.length + prepared.length > 0,
+        internal_work_items_created: pinged.length + prepared.length + recalibrated.length,
+        internal_calendar_recalibration: recalibrated.reduce((sum, item) => sum + item.affected_count, 0),
+        slack_notification_requested: pinged.length + prepared.length + recalibrated.length > 0,
       },
     })
   } catch (error) {
