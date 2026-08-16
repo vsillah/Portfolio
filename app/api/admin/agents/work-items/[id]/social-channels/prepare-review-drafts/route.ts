@@ -45,7 +45,11 @@ export async function POST(
     }
 
     const now = new Date().toISOString()
-    const drafts = buildLinkedInYoutubeReviewDrafts({ insight, generatedAt: now })
+    const drafts = buildLinkedInYoutubeReviewDrafts({
+      insight,
+      generatedAt: now,
+      latestFeedback: asRecord(metadata.autoresearch_feedback_latest),
+    })
     const lanes = normalizeSocialChannelLanes(metadata.channel_lanes)
 
     lanes.linkedin = {
