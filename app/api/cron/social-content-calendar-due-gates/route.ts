@@ -172,7 +172,7 @@ async function collectDueGateCandidates(input: {
       .range(offset, offset + CALENDAR_SCAN_PAGE_SIZE - 1)
 
     if (error) {
-      return { error, candidates, preparationCandidates, scannedCount }
+      return { error, candidates, preparationCandidates, recalibrationCandidates, scannedCount }
     }
 
     const rows = (data ?? []) as SocialContentCalendarItem[]
