@@ -60,7 +60,57 @@ const baseWorkItem = {
       x: { status: 'not_started', label: 'X', required_inputs: ['post text', 'thread option', 'CTA'] },
       thumbnail: { status: 'not_started', label: 'Thumbnail', required_inputs: ['promise', '2-3 variants'] },
     },
+    autoresearch_feedback_latest: {
+      feedback_target: 'both',
+      feedback: 'Make the next operator action explicit and route commentary into this item and the next AutoResearch pass.',
+      backlog_item_id: 'autoresearch-agentified-agt-x-01',
+      status: 'recorded',
+    },
   },
+}
+
+function cloneBaseWorkItem() {
+  return structuredClone(baseWorkItem)
+}
+
+function preparedLanes() {
+  return mocks.updateAgentWorkItemMetadata.mock.calls[0][0].metadata.channel_lanes
+}
+
+function nonXPublicDraftText(lanes: Record<string, { draft_packet: { fields: Record<string, unknown> } }>) {
+  return JSON.stringify({
+    youtube: {
+      title_variants: lanes.youtube.draft_packet.fields.title_variants,
+      description: lanes.youtube.draft_packet.fields.description,
+      opening_hook: lanes.youtube.draft_packet.fields.opening_hook,
+      first_30_seconds: lanes.youtube.draft_packet.fields.first_30_seconds,
+      full_video_script: lanes.youtube.draft_packet.fields.full_video_script,
+    },
+    youtube_shorts: {
+      hook: lanes.youtube_shorts.draft_packet.fields.hook,
+      first_30_seconds: lanes.youtube_shorts.draft_packet.fields.first_30_seconds,
+      script: lanes.youtube_shorts.draft_packet.fields.script,
+      caption: lanes.youtube_shorts.draft_packet.fields.caption,
+      on_screen_text: lanes.youtube_shorts.draft_packet.fields.on_screen_text,
+    },
+    instagram_reels: {
+      hook: lanes.instagram_reels.draft_packet.fields.hook,
+      script: lanes.instagram_reels.draft_packet.fields.script,
+      cover_text: lanes.instagram_reels.draft_packet.fields.cover_text,
+      caption: lanes.instagram_reels.draft_packet.fields.caption,
+    },
+    tiktok: {
+      hook: lanes.tiktok.draft_packet.fields.hook,
+      script: lanes.tiktok.draft_packet.fields.script,
+      cover_frame: lanes.tiktok.draft_packet.fields.cover_frame,
+      caption: lanes.tiktok.draft_packet.fields.caption,
+    },
+    thumbnail: {
+      primary_text: lanes.thumbnail.draft_packet.fields.primary_text,
+      alternate_text_options: lanes.thumbnail.draft_packet.fields.alternate_text_options,
+      visual_direction: lanes.thumbnail.draft_packet.fields.visual_direction,
+    },
+  })
 }
 
 describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-drafts', () => {
@@ -209,7 +259,7 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
               }),
               fields: expect.objectContaining({
                 hook: 'AI should reduce burden.',
-                first_30_seconds: expect.stringContaining('I noticed this through the social content review flow'),
+                first_30_seconds: expect.stringContaining('The mistake is thinking the demo is the finish line'),
               }),
             }),
           }),
@@ -311,5 +361,68 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
         external_post: false,
       },
     })
+
+    const lanes = preparedLanes()
+    expect(lanes.linkedin.draft_packet.reviewer_action_guidance).toMatchObject({
+      feedback_target: 'both',
+      feedback: 'Make the next operator action explicit and route commentary into this item and the next AutoResearch pass.',
+      current_item_action: expect.stringContaining('current channel drafts'),
+      next_autoresearch_pass_action: expect.stringContaining('next AutoResearch loop'),
+      next_operator_action: expect.stringContaining('current draft packet'),
+    })
+    expect(lanes.linkedin.draft_packet.reviewer_action_guidance.next_operator_action).toContain('next AutoResearch pass')
+    expect(lanes.youtube.draft_packet.fields.reviewer_trace).toMatchObject({
+      evidence_summary: 'Review path and visual gate work shipped locally.',
+      source_urls: ['https://youtube.com/watch?v=abc'],
+      approved_pattern_count: 1,
+      transformation_boundary: expect.stringContaining('Do not paste source summaries'),
+    })
+    expect(lanes.linkedin.draft_packet.fields.post_text).not.toContain('Review path and visual gate work shipped locally.')
+    expect(lanes.youtube.draft_packet.fields.description).not.toContain('Source basis:')
+    expect(lanes.thumbnail.draft_packet.fields.primary_text).not.toContain('Open the X thread')
+  })
+
+  it('keeps source summaries and X-specific instructions out of non-X public copy', async () => {
+    const workItem = cloneBaseWorkItem()
+    workItem.metadata.insight = {
+      ...workItem.metadata.insight,
+      title: 'Agentified book and workbook rollout campaign',
+      triggering_event: 'Agentified book and workbook rollout campaign',
+      evidence_summary: 'Prepared from the Agentified campaign packet and internal source basis.',
+      content_angle: 'Prepared from the Agentified campaign packet for the next operator.',
+      suggested_hook: 'Open the X thread with the Agentified book and workbook rollout campaign.',
+      approved_research_patterns: [
+        {
+          source_url: 'https://example.com/public-pattern',
+          platform: 'x',
+          creator_name: 'Creator',
+          pattern_status: 'usable_framework',
+          pattern_packet: {
+            hook_structure: 'Open the X thread with the planning phrase.',
+            promise_value: 'Open the X thread for the Agentified book and workbook rollout campaign.',
+            thumbnail_pattern: 'Do not copy this packet title.',
+          },
+        },
+      ],
+    }
+    mocks.getAgentWorkItem.mockResolvedValue(workItem)
+
+    const response = await POST(request() as never, {
+      params: { id: 'work-1' },
+    })
+
+    expect(response.status).toBe(200)
+    const lanes = preparedLanes()
+    const publicText = nonXPublicDraftText(lanes)
+    expect(publicText).not.toContain('Open the X thread')
+    expect(publicText).not.toContain('Agentified book and workbook rollout campaign')
+    expect(publicText).not.toContain('Prepared from the Agentified campaign packet')
+    expect(publicText).not.toContain('internal source basis')
+    expect(lanes.youtube.draft_packet.fields.reviewer_trace).toMatchObject({
+      evidence_summary: 'Prepared from the Agentified campaign packet and internal source basis.',
+      source_urls: ['https://example.com/public-pattern'],
+    })
+    expect(lanes.thumbnail.draft_packet.fields.primary_text).toBe('Receipts Before Reach')
+    expect(lanes.thumbnail.draft_packet.fields.primary_text).not.toContain('Agentified')
   })
 })

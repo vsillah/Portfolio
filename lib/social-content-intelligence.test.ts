@@ -267,6 +267,10 @@ describe('social-content-intelligence', () => {
   it('builds channel review drafts from the same source while adapting fields by channel', () => {
     const drafts = buildLinkedInYoutubeReviewDrafts({
       generatedAt: '2026-06-24T15:00:00.000Z',
+      latestFeedback: {
+        feedback_target: 'both',
+        feedback: 'Make the next operator action explicit.',
+      },
       insight: {
         title: 'Approval gates create trust',
         triggering_event: 'The Social Content review flow made the gate visible.',
@@ -304,6 +308,13 @@ describe('social-content-intelligence', () => {
       cta: expect.stringContaining('Where have you seen AI'),
       visual_mode: 'carousel_or_framework_illustration_review',
     })
+    expect(drafts.linkedin.fields.post_text).not.toContain('The work item links public research')
+    expect(drafts.linkedin.reviewer_action_guidance).toMatchObject({
+      feedback_target: 'both',
+      feedback: 'Make the next operator action explicit.',
+      current_item_action: expect.stringContaining('current channel drafts'),
+      next_autoresearch_pass_action: expect.stringContaining('next AutoResearch loop'),
+    })
     expect(drafts.linkedin.orchestration_evidence).toMatchObject({
       agents: expect.arrayContaining([
         expect.objectContaining({ name: 'Shaka' }),
@@ -323,12 +334,17 @@ describe('social-content-intelligence', () => {
     })
     expect(drafts.youtube.fields).toMatchObject({
       opening_hook: 'AI should reduce burden.',
-      first_30_seconds: expect.stringContaining('I noticed this through the social content review flow'),
+      first_30_seconds: expect.stringContaining('The mistake is thinking the demo is the finish line'),
       full_video_script: expect.arrayContaining([
         expect.stringContaining('Core argument: AI should reduce burden'),
       ]),
       upload_readiness: 'pending_final_human_submission_gate',
       visibility_default: 'private',
+      reviewer_trace: expect.objectContaining({
+        evidence_summary: 'The work item links public research, channel drafts, and human decisions.',
+        source_urls: ['https://youtube.com/watch?v=abc'],
+        approved_pattern_count: 1,
+      }),
     })
     expect(drafts.youtube.orchestration_evidence).toMatchObject({
       channel_structure: expect.objectContaining({
@@ -364,7 +380,7 @@ describe('social-content-intelligence', () => {
     })
     expect(drafts.youtube_shorts.fields).toMatchObject({
       hook: 'AI should reduce burden.',
-      first_30_seconds: expect.stringContaining('I noticed this through the social content review flow'),
+      first_30_seconds: expect.stringContaining('The mistake is thinking the demo is the finish line'),
       target_duration_seconds: 45,
       render_readiness: 'pending_human_approval',
     })

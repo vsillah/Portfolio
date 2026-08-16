@@ -50,6 +50,13 @@ export type SocialChannelReviewDraftPacket = {
   }
   source_insight_title: string
   source_use_boundary: string
+  reviewer_action_guidance?: {
+    next_operator_action: string
+    feedback_target: string | null
+    feedback: string | null
+    current_item_action: string | null
+    next_autoresearch_pass_action: string | null
+  }
   fields: Record<string, unknown>
   orchestration_evidence?: {
     agents: Array<{
@@ -831,6 +838,54 @@ function compactResearchPattern(pattern: Record<string, unknown>) {
   }
 }
 
+function latestFeedbackGuidance(feedback: Record<string, unknown> | null | undefined): SocialChannelReviewDraftPacket['reviewer_action_guidance'] | undefined {
+  if (!feedback || !Object.keys(feedback).length) return undefined
+  const feedbackText = firstString(feedback.feedback)
+  const feedbackTarget = firstString(feedback.feedback_target) || null
+  if (!feedbackText && !feedbackTarget) return undefined
+
+  const appliesToCurrentItem = feedbackTarget === 'current_backlog_item' || feedbackTarget === 'both'
+  const appliesToNextPass = feedbackTarget === 'next_autoresearch_pass' || feedbackTarget === 'both'
+
+  return {
+    next_operator_action: appliesToCurrentItem && appliesToNextPass
+      ? 'Apply this feedback to the current draft packet before approval, then carry the lesson into the next AutoResearch pass.'
+      : appliesToCurrentItem
+        ? 'Apply this feedback to the current draft packet before approval.'
+        : appliesToNextPass
+          ? 'Route this feedback into the next AutoResearch pass before generating another draft.'
+          : 'Review this feedback before approving the draft packet.',
+    feedback_target: feedbackTarget,
+    feedback: feedbackText || null,
+    current_item_action: appliesToCurrentItem ? 'Revise current channel drafts against this feedback before any approval.' : null,
+    next_autoresearch_pass_action: appliesToNextPass ? 'Record the lesson for the next AutoResearch loop and recommendation pass.' : null,
+  }
+}
+
+function isInternalPlanningPhrase(value: string) {
+  return /open the x thread|prepared from|source basis|campaign packet|rollout campaign|agentified book and workbook/i.test(value)
+}
+
+function publicText(value: string, fallback: string) {
+  const trimmed = value.trim()
+  if (!trimmed || isInternalPlanningPhrase(trimmed)) return fallback
+  return trimmed
+}
+
+function reviewerTrace(input: {
+  evidenceSummary: string
+  patterns: Array<Record<string, unknown>>
+  claimBoundaries: string[]
+}) {
+  return {
+    evidence_summary: input.evidenceSummary,
+    source_urls: input.patterns.map((pattern) => pattern.source_url).filter(Boolean),
+    approved_pattern_count: input.patterns.length,
+    claim_boundaries: input.claimBoundaries,
+    transformation_boundary: 'Use source material for reviewer trace, proof direction, and claim boundaries only. Do not paste source summaries, packet titles, campaign mechanics, or platform instructions into public copy.',
+  }
+}
+
 function reviewDraftSideEffects(): SocialChannelReviewDraftPacket['side_effects'] {
   return {
     provider_generation: false,
@@ -1113,6 +1168,7 @@ function channelOrchestrationEvidence(input: {
 export function buildLinkedInYoutubeReviewDrafts(input: {
   insight: Record<string, unknown>
   generatedAt?: string
+  latestFeedback?: Record<string, unknown> | null
 }): LinkedInYoutubeReviewDrafts {
   const insight = input.insight
   const generatedAt = input.generatedAt ?? new Date().toISOString()
@@ -1133,6 +1189,14 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
   const patternHook = firstString(...patterns.map((pattern) => pattern.hook_structure))
   const patternPromise = firstString(...patterns.map((pattern) => pattern.promise_value))
   const sourceBoundary = 'Drafts are generated for human review only. Public research patterns are framework inputs, not source copy.'
+  const guidance = latestFeedbackGuidance(input.latestFeedback)
+  const trace = reviewerTrace({ evidenceSummary, patterns, claimBoundaries })
+  const publicAngle = publicText(contentAngle, 'AI tools earn trust when the handoff is visible before public action.')
+  const publicTrigger = publicText(triggeringEvent, 'A working AI workflow still needs a visible approval path.')
+  const publicHook = publicText(hook, 'AI speed means less if nobody can see the handoff.')
+  const publicTitle = publicText(title, 'Visible review gates for AI content')
+  const proofCue = 'Show the reviewed Portfolio workflow: source, owner, approval gate, and final human decision.'
+  const publicPrinciple = 'Trust is not created by more output. It is created by a visible handoff before the output reaches people.'
   const sharedSource = {
     insight_title: title,
     triggering_event: triggeringEvent,
@@ -1141,42 +1205,48 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
   }
 
   const linkedinPostText = [
-    triggeringEvent,
+    publicTrigger,
     '',
-    contentAngle,
+    publicAngle,
     '',
     `That matters because ${whyVambahCanSpeak}`,
     '',
-    evidenceSummary,
-    '',
     'The practical test is simple: can the system show what the draft is based on, who touched it, and what still needs review before it reaches the public?',
     '',
-    patternPromise ? `The outside pattern I want to adapt: ${patternPromise}` : '',
+    'That is the difference between automation that creates more burden and automation that earns the right to move.',
   ].filter((line) => line !== '').join('\n')
 
-  const youtubeHook = hook.length <= 120 ? hook : truncate(hook, 120)
+  const youtubeHook = truncate(publicHook, 120)
   const firstThirtySeconds = [
     youtubeHook,
-    `I noticed this through ${triggeringEvent.toLowerCase()}.`,
-    'The lesson was not that AI can create more content.',
-    'The lesson was that trust gets built when every risky output has evidence, ownership, and a visible approval gate.',
+    'The mistake is thinking the demo is the finish line.',
+    'The real test starts when the output needs evidence, ownership, and a human approval gate before it reaches the public.',
   ].join(' ')
-  const shortScript = [
-    `Opening: ${youtubeHook}`,
-    `Trigger: ${triggeringEvent}`,
-    `Authority: ${whyVambahCanSpeak}`,
-    `Point: ${contentAngle}`,
-    `Proof: ${evidenceSummary}`,
-    patternHook ? `Pattern to adapt: ${patternHook}` : 'Pattern to adapt: use the approved research packet without copying source language.',
-    'Close: AI earns trust when the handoff is visible before the output goes public.',
+  const youtubeShortsScript = [
+    `0-3s hook: ${youtubeHook}`,
+    '3-12s tension: The output may be fast, but speed does not answer who checked the source, who owns the decision, or what is still blocked.',
+    `12-30s proof cue: ${proofCue}`,
+    'Close: If the handoff is invisible, the automation is not ready.',
+  ]
+  const instagramReelsScript = [
+    `Cover/opening: ${truncate(publicPrinciple, 70)}`,
+    `Voiceover: ${publicAngle}`,
+    `Proof moment: ${proofCue}`,
+    'Caption bridge: Save this as a review checklist before turning any AI draft into public content.',
+  ]
+  const tiktokScript = [
+    `Hook: ${youtubeHook}`,
+    'Quick cut: show the draft, then the approval gate.',
+    'Plain-language point: the risky part is not that AI wrote something. The risky part is when nobody can tell what it was based on.',
+    'Close: If you cannot show the receipt, slow the handoff down.',
   ]
   const fullVideoScript = [
     `Opening hook: ${youtubeHook}`,
-    `Context: ${triggeringEvent}`,
+    `Context: ${publicTrigger}`,
     `Why Vambah can speak to it: ${whyVambahCanSpeak}`,
-    `Core argument: ${contentAngle}`,
-    `Evidence walkthrough: ${evidenceSummary}`,
-    patternHook ? `Transferable pattern: ${patternHook}` : 'Transferable pattern: use the approved research packet without copying source language.',
+    `Core argument: ${publicAngle}`,
+    `Proof walkthrough: ${proofCue}`,
+    patternHook ? 'Reviewer note: adapt the approved pattern structure without copying source language.' : 'Reviewer note: use the approved research packet for structure only.',
     'Operating takeaway: make the source, owner, approval gate, final asset, and provider boundary visible before upload.',
     'Close: invite the viewer to compare where their own AI or content workflow loses trust between draft and public action.',
   ]
@@ -1196,7 +1266,8 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
     'Every risky action needs a gate.',
     'Trust is an operating layer.',
   ]
-  const thumbnailText = truncate(patternPromise || contentAngle, 48)
+  const nativeThumbnailText = truncate(publicText(patternPromise, 'Receipts Before Reach'), 34)
+  const nativeCoverText = truncate(publicText(patternPromise, 'Show the gate before the output'), 52)
   const thumbnailSourcePatterns = patterns
     .map((pattern) => pattern.thumbnail_pattern || pattern.promise_value || pattern.hook_structure)
     .filter(Boolean)
@@ -1209,6 +1280,7 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
       shared_source: sharedSource,
       source_insight_title: title,
       source_use_boundary: sourceBoundary,
+      reviewer_action_guidance: guidance,
       fields: {
         post_text: linkedinPostText,
         cta: 'Where have you seen AI create more work because the approval path was never designed?',
@@ -1216,10 +1288,8 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
         hashtags: ['#AIProduct', '#ProductManagement', '#AmaduTownAdvisory', '#TechForGood'],
         visual_mode: 'carousel_or_framework_illustration_review',
         screenshot_routes: ['/admin/agents/content-intelligence', '/admin/agents/coordination'],
-        references: [
-          evidenceSummary,
-          ...patterns.map((pattern) => pattern.source_url).filter(Boolean),
-        ],
+        references: patterns.map((pattern) => pattern.source_url).filter(Boolean),
+        reviewer_trace: trace,
         claim_boundaries: claimBoundaries,
       },
       orchestration_evidence: channelOrchestrationEvidence({
@@ -1237,15 +1307,16 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
       shared_source: sharedSource,
       source_insight_title: title,
       source_use_boundary: sourceBoundary,
+      reviewer_action_guidance: guidance,
       fields: {
         title_variants: [
-          truncate(`${title}: the operating layer behind AI trust`, 90),
+          truncate(`${publicTitle}: the operating layer behind AI trust`, 90),
           truncate(`${youtubeHook} | AmaduTown`, 90),
         ],
         description: [
-          contentAngle,
+          publicAngle,
           '',
-          `Source basis: ${evidenceSummary}`,
+          'A practical look at the review path behind trustworthy AI-enabled content: source, owner, approval gate, final asset, and provider boundary.',
           '',
           'Provider upload, scheduling, and publication require a separate final human gate.',
         ].join('\n'),
@@ -1262,6 +1333,7 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
         final_video_url: null,
         visibility_default: 'private',
         upload_readiness: 'pending_final_human_submission_gate',
+        reviewer_trace: trace,
         claim_boundaries: claimBoundaries,
       },
       orchestration_evidence: channelOrchestrationEvidence({
@@ -1279,16 +1351,23 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
       shared_source: sharedSource,
       source_insight_title: title,
       source_use_boundary: sourceBoundary,
+      reviewer_action_guidance: guidance,
       fields: {
         hook: youtubeHook,
         first_30_seconds: firstThirtySeconds,
-        script: shortScript,
+        script: youtubeShortsScript,
         target_duration_seconds: 45,
-        storyboard_scenes: storyboardScenes,
+        storyboard_scenes: [
+          'Face-to-camera hook naming the invisible handoff.',
+          'Fast screen cut showing source and approval state.',
+          'Proof b-roll of the review gate.',
+          'End card with one principle.',
+        ],
         b_roll_hints: bRollHints,
         on_screen_text: onScreenText,
-        caption: contentAngle,
+        caption: 'Speed only helps when the handoff is visible before the output goes public.',
         render_readiness: 'pending_human_approval',
+        reviewer_trace: trace,
         claim_boundaries: claimBoundaries,
       },
       orchestration_evidence: channelOrchestrationEvidence({
@@ -1306,13 +1385,19 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
       shared_source: sharedSource,
       source_insight_title: title,
       source_use_boundary: sourceBoundary,
+      reviewer_action_guidance: guidance,
       fields: {
         hook: youtubeHook,
-        script: shortScript,
+        script: instagramReelsScript,
         target_duration_seconds: 45,
-        storyboard_scenes: storyboardScenes,
-        cover_text: patternPromise ? truncate(patternPromise, 52) : truncate(contentAngle, 52),
-        caption: contentAngle,
+        storyboard_scenes: [
+          'Cover frame with the trust principle.',
+          'Vertical proof clip of the review path.',
+          'Captioned checklist: source, owner, gate.',
+          'Save/share close.',
+        ],
+        cover_text: nativeCoverText,
+        caption: 'Before an AI draft becomes public content, the source, owner, approval gate, and final action boundary should be visible.',
         hashtags: ['#AIProduct', '#ProductManagement', '#AmaduTownAdvisory', '#TechForGood'],
         b_roll_assets: bRollHints,
         safe_area_notes: [
@@ -1321,6 +1406,7 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
           'Avoid exposing admin names, client data, private notes, or raw Chronicle material.',
         ],
         export_readiness: 'pending_human_approval',
+        reviewer_trace: trace,
         claim_boundaries: claimBoundaries,
       },
       orchestration_evidence: channelOrchestrationEvidence({
@@ -1338,13 +1424,19 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
       shared_source: sharedSource,
       source_insight_title: title,
       source_use_boundary: sourceBoundary,
+      reviewer_action_guidance: guidance,
       fields: {
         hook: youtubeHook,
-        script: shortScript,
+        script: tiktokScript,
         target_duration_seconds: 45,
-        storyboard_scenes: storyboardScenes,
-        cover_frame: patternPromise ? truncate(patternPromise, 48) : truncate(contentAngle, 48),
-        caption: contentAngle,
+        storyboard_scenes: [
+          'Start with the draft on screen.',
+          'Cut to the missing handoff question.',
+          'Show proof of source and approval status.',
+          'End with a direct receipt-check prompt.',
+        ],
+        cover_frame: truncate('Show the receipt first', 48),
+        caption: 'Fast AI output still needs a visible source, owner, and approval gate.',
         hashtags: ['#AIProduct', '#ProductOps', '#Automation', '#AmaduTown'],
         b_roll_assets: bRollHints,
         audio_rights: 'Use original narration, approved provider voiceover, or platform-safe audio only.',
@@ -1354,6 +1446,7 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
           'Redact any private admin, client, Chronicle, or meeting-derived detail before export.',
         ],
         export_readiness: 'pending_human_approval',
+        reviewer_trace: trace,
         claim_boundaries: claimBoundaries,
       },
       orchestration_evidence: channelOrchestrationEvidence({
@@ -1371,28 +1464,27 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
       shared_source: sharedSource,
       source_insight_title: title,
       source_use_boundary: sourceBoundary,
+      reviewer_action_guidance: guidance,
       fields: {
         post_text: truncate([
-          triggeringEvent,
-          contentAngle,
+          publicTrigger,
+          publicAngle,
           `Why it matters: ${whyVambahCanSpeak}`,
           'The practical test: can the system show the source, owner, approval gate, and public-action boundary before it reaches the audience?',
         ].join('\n\n'), 1100),
         thread_option: [
-          `1. ${truncate(triggeringEvent, 240)}`,
-          `2. ${truncate(contentAngle, 240)}`,
-          `3. ${truncate(evidenceSummary, 240)}`,
+          `1. ${truncate(publicTrigger, 240)}`,
+          `2. ${truncate(publicAngle, 240)}`,
+          `3. ${truncate(publicPrinciple, 240)}`,
           '4. The trust move is not more output. It is a visible handoff before public action.',
-          patternPromise ? `5. Pattern to adapt: ${truncate(patternPromise, 220)}` : '5. Pattern to adapt: use the approved research packet without copying source language.',
+          '5. Manual handoff stays blocked until the final human approval gate clears.',
         ],
         cta: 'Where does your AI workflow lose trust between draft and public action?',
         cta_url: null,
         hashtags: ['#AIProduct', '#AgenticAI', '#ProductManagement'],
         manual_handoff_gate: 'pending_human_approval_and_connected_x_provider',
-        references: [
-          evidenceSummary,
-          ...patterns.map((pattern) => pattern.source_url).filter(Boolean),
-        ],
+        references: patterns.map((pattern) => pattern.source_url).filter(Boolean),
+        reviewer_trace: trace,
         claim_boundaries: claimBoundaries,
       },
       orchestration_evidence: channelOrchestrationEvidence({
@@ -1410,10 +1502,11 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
       shared_source: sharedSource,
       source_insight_title: title,
       source_use_boundary: sourceBoundary,
+      reviewer_action_guidance: guidance,
       fields: {
-        primary_text: thumbnailText,
+        primary_text: nativeThumbnailText,
         alternate_text_options: [
-          truncate(youtubeHook, 44),
+          truncate('Show the receipt first', 44),
           truncate('Receipts before autonomy', 44),
           truncate('Show the gate before the output', 44),
         ],
@@ -1432,6 +1525,7 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
           'Original framework illustration derived from the approved insight',
         ],
         review_readiness: 'pending_visual_privacy_qa',
+        reviewer_trace: trace,
         claim_boundaries: claimBoundaries,
       },
       orchestration_evidence: channelOrchestrationEvidence({
