@@ -37,7 +37,11 @@ import {
   SOCIAL_CONTENT_CALENDAR_TEMPLATES,
   calendarMilestoneRationale,
 } from '@/lib/social-content-calendar'
-import type { AutoResearchAdminProjection, AutoResearchBacklogReadOnlyResponse } from '@/lib/cross-channel-autoresearch-backlog'
+import type {
+  AutoResearchAdminProjection,
+  AutoResearchBacklogReadOnlyResponse,
+  AutoResearchContentOpportunity,
+} from '@/lib/cross-channel-autoresearch-backlog'
 
 type ResearchPacket = {
   id: string
@@ -168,6 +172,7 @@ type IntelligenceSection = 'calendar' | 'digest' | 'autoresearch' | 'evidence' |
 type SortDirection = 'asc' | 'desc'
 type ResearchSortKey = 'score' | 'retrieved' | 'title'
 type InsightSortKey = 'updated' | 'title' | 'priority'
+type AutoResearchFeedbackTarget = 'current_backlog_item' | 'next_autoresearch_pass' | 'both'
 
 type AutoResearchTakeaway = {
   label: string
@@ -236,6 +241,28 @@ const CALENDAR_CHANNEL_LABELS: Record<CalendarItem['channel'], string> = {
   thumbnail: 'Thumbnail',
 }
 
+const AUTORESEARCH_FEEDBACK_TARGET_OPTIONS: Array<{
+  value: AutoResearchFeedbackTarget
+  label: string
+  description: string
+}> = [
+  {
+    value: 'current_backlog_item',
+    label: 'Revise this item',
+    description: 'Route the note to the linked backlog/content item before draft handoff.',
+  },
+  {
+    value: 'next_autoresearch_pass',
+    label: 'Use next pass',
+    description: 'Keep the current item intact and feed the instruction into the next AutoResearch cycle.',
+  },
+  {
+    value: 'both',
+    label: 'Do both',
+    description: 'Revise this item and carry the learning into the next AutoResearch pass.',
+  },
+]
+
 const SECTION_TABS: Array<{
   key: IntelligenceSection
   label: string
@@ -295,6 +322,10 @@ function autoResearchVariantScore(channelFit: string) {
 
 function bestAutoResearchVariant(item: AutoResearchAdminProjection) {
   return [...item.variants].sort((left, right) => autoResearchVariantScore(right.channelFit) - autoResearchVariantScore(left.channelFit))[0] ?? null
+}
+
+function primaryAutoResearchReleaseLink(releaseLinks: AutoResearchReleaseLink[]) {
+  return [...releaseLinks].sort((left, right) => Date.parse(left.scheduledFor) - Date.parse(right.scheduledFor))[0] ?? null
 }
 
 function formatAutoResearchGate(gate: AutoResearchAdminProjection['firstBlockedOrPendingGate']) {
@@ -635,6 +666,10 @@ function ContentIntelligenceContent() {
   const [digest, setDigest] = useState<DailyDigest | null>(null)
   const [autoResearchBacklog, setAutoResearchBacklog] = useState<AutoResearchBacklogReadOnlyResponse | null>(null)
   const [autoResearchSearch, setAutoResearchSearch] = useState('')
+  const [autoResearchFeedbackNotes, setAutoResearchFeedbackNotes] = useState<Record<string, string>>({})
+  const [autoResearchFeedbackTargets, setAutoResearchFeedbackTargets] = useState<Record<string, AutoResearchFeedbackTarget>>({})
+  const [autoResearchFeedbackSubmittingId, setAutoResearchFeedbackSubmittingId] = useState<string | null>(null)
+  const [autoResearchFeedbackNotice, setAutoResearchFeedbackNotice] = useState<string | null>(null)
   const [activationScopeNote, setActivationScopeNote] = useState('')
   const [requestingActivation, setRequestingActivation] = useState(false)
   const [activationNotice, setActivationNotice] = useState<string | null>(null)
@@ -683,12 +718,42 @@ function ContentIntelligenceContent() {
       return linksById
     }, {} as Record<string, AutoResearchReleaseLink[]>)
   }, [autoResearchBacklog, calendarItems])
+  const filteredAutoResearchOpportunities = useMemo(() => {
+    const opportunities = autoResearchBacklog?.opportunities ?? []
+    const search = normalizeSearch(autoResearchSearch)
+    if (!search) return opportunities
+    return opportunities.filter((opportunity) => {
+      const searchableValues = [
+        opportunity.title,
+        opportunity.priority,
+        opportunity.channel,
+        opportunity.recommendedFormat,
+        opportunity.campaign.slug,
+        opportunity.campaign.phase,
+        opportunity.targetAvatarFit,
+        opportunity.whyNow,
+        opportunity.nextContentMove,
+        opportunity.measurementHypothesis,
+        opportunity.recommendedImprovement,
+        opportunity.requiredGate,
+        opportunity.evidenceBasis,
+        opportunity.sourceDistanceBoundary,
+        opportunity.calendarLinkage.calendarAssetId,
+        opportunity.calendarLinkage.socialContentId,
+        opportunity.calendarLinkage.workItemId,
+        opportunity.calendarLinkage.manualPacketPath,
+        opportunity.blockedReason,
+      ]
+      return searchableValues.some((value) => normalizeSearch(value).includes(search))
+    })
+  }, [autoResearchBacklog, autoResearchSearch])
   const filteredAutoResearchItems = useMemo(() => {
     const items = autoResearchBacklog?.items ?? []
     const search = normalizeSearch(autoResearchSearch)
     if (!search) return items
     return items.filter((item) => {
       const releaseLinks = autoResearchReleaseLinksById[item.id] ?? []
+      const matchingOpportunities = autoResearchBacklog?.opportunities.filter((opportunity) => opportunity.itemId === item.id) ?? []
       const searchableValues = [
         item.title,
         item.targetAvatar,
@@ -716,6 +781,21 @@ function ContentIntelligenceContent() {
           link.authorizationStatus,
           link.plannedAngle,
           link.templateLabel,
+        ]),
+        ...matchingOpportunities.flatMap((opportunity) => [
+          opportunity.title,
+          opportunity.priority,
+          opportunity.channel,
+          opportunity.recommendedFormat,
+          opportunity.targetAvatarFit,
+          opportunity.whyNow,
+          opportunity.nextContentMove,
+          opportunity.measurementHypothesis,
+          opportunity.recommendedImprovement,
+          opportunity.requiredGate,
+          opportunity.evidenceBasis,
+          opportunity.sourceDistanceBoundary,
+          opportunity.blockedReason,
         ]),
       ]
       return searchableValues.some((value) => normalizeSearch(value).includes(search))
@@ -1139,6 +1219,59 @@ function ContentIntelligenceContent() {
       setLinkingSuggestedInsightId(null)
     }
   }, [authedFetch, packets])
+
+  const submitAutoResearchFeedback = useCallback(async (
+    item: AutoResearchAdminProjection,
+    releaseLinks: AutoResearchReleaseLink[],
+    event: FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault()
+    setError(null)
+    setAutoResearchFeedbackNotice(null)
+
+    const feedback = (autoResearchFeedbackNotes[item.id] ?? '').trim()
+    const target = autoResearchFeedbackTargets[item.id] ?? 'both'
+    const primaryRelease = primaryAutoResearchReleaseLink(releaseLinks)
+    const workItemId = primaryRelease?.workItemId
+
+    if (!feedback) {
+      setError('Add commentary before recording an AutoResearch feedback handoff.')
+      return
+    }
+    if (!workItemId) {
+      setError('This AutoResearch item needs a linked Agent Ops work item before feedback can circle back.')
+      return
+    }
+
+    setAutoResearchFeedbackSubmittingId(item.id)
+    try {
+      const response = await authedFetch(`/api/admin/agents/work-items/${workItemId}/autoresearch-feedback`, {
+        method: 'POST',
+        body: JSON.stringify({
+          backlog_item_id: item.id,
+          backlog_item_title: item.title,
+          feedback_target: target,
+          feedback,
+          current_gate: item.firstBlockedOrPendingGate,
+          release_link_id: primaryRelease?.id ?? null,
+          release_title: primaryRelease?.title ?? null,
+          release_scheduled_for: primaryRelease?.scheduledFor ?? null,
+        }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `AutoResearch feedback HTTP ${response.status}`)
+      setAutoResearchFeedbackNotes((current) => ({ ...current, [item.id]: '' }))
+      setAutoResearchFeedbackNotice(target === 'current_backlog_item'
+        ? 'Feedback recorded for this backlog item.'
+        : target === 'next_autoresearch_pass'
+          ? 'Feedback recorded for the next AutoResearch pass.'
+          : 'Feedback recorded for this item and the next AutoResearch pass.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to record AutoResearch feedback')
+    } finally {
+      setAutoResearchFeedbackSubmittingId(null)
+    }
+  }, [authedFetch, autoResearchFeedbackNotes, autoResearchFeedbackTargets])
 
   const prepareChannelReviewDrafts = useCallback(async (insightId: string) => {
     setError(null)
@@ -1960,7 +2093,7 @@ function ContentIntelligenceContent() {
                   </div>
                 </label>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  Showing {filteredAutoResearchItems.length} of {autoResearchBacklog.items.length} backlog {autoResearchBacklog.items.length === 1 ? 'item' : 'items'}. Search checks generated backlog titles, work items, release rows, channel variants, and research/source basis.
+                  Showing {filteredAutoResearchItems.length} of {autoResearchBacklog.items.length} backlog {autoResearchBacklog.items.length === 1 ? 'item' : 'items'} and {filteredAutoResearchOpportunities.length} of {autoResearchBacklog.opportunities.length} ranked {autoResearchBacklog.opportunities.length === 1 ? 'opportunity' : 'opportunities'}. Search checks titles, work items, release rows, channel variants, opportunity rationale, and research/source basis.
                 </p>
               </div>
               <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-3">
@@ -1982,6 +2115,31 @@ function ContentIntelligenceContent() {
                     Callable external actions: {autoResearchBacklog.callable_external_actions.length}
                   </button>
                 </div>
+              </div>
+              <div className="rounded-lg border border-amber-500/25 bg-amber-500/10 p-3">
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-amber-100/75">Content generation queue</p>
+                    <h3 className="text-sm font-semibold text-amber-50">Ranked content opportunities</h3>
+                  </div>
+                  <span className="text-xs font-medium text-amber-100/70">
+                    {autoResearchBacklog.opportunity_summary.highPriority} high priority · {autoResearchBacklog.opportunity_summary.requiresHumanGate} gated
+                  </span>
+                </div>
+                {filteredAutoResearchOpportunities.length ? (
+                  <div className="mt-3 grid gap-3 xl:grid-cols-2">
+                    {filteredAutoResearchOpportunities.slice(0, 6).map((opportunity) => (
+                      <AutoResearchOpportunityCard
+                        key={opportunity.id}
+                        opportunity={opportunity}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="mt-3 rounded-md border border-amber-500/20 bg-background/35 px-3 py-5 text-center text-sm text-amber-100/75">
+                    No ranked content opportunities match the current search.
+                  </div>
+                )}
               </div>
               {autoResearchTakeaways.length ? (
                 <div className="rounded-lg border border-blue-500/25 bg-blue-500/10 p-3">
@@ -2011,6 +2169,12 @@ function ContentIntelligenceContent() {
                     key={item.id}
                     item={item}
                     releaseLinks={autoResearchReleaseLinksById[item.id] ?? []}
+                    feedbackNote={autoResearchFeedbackNotes[item.id] ?? ''}
+                    feedbackTarget={autoResearchFeedbackTargets[item.id] ?? 'both'}
+                    feedbackSubmitting={autoResearchFeedbackSubmittingId === item.id}
+                    onFeedbackNoteChange={(value) => setAutoResearchFeedbackNotes((current) => ({ ...current, [item.id]: value }))}
+                    onFeedbackTargetChange={(value) => setAutoResearchFeedbackTargets((current) => ({ ...current, [item.id]: value }))}
+                    onSubmitFeedback={(event) => submitAutoResearchFeedback(item, autoResearchReleaseLinksById[item.id] ?? [], event)}
                   />
                 )) : (
                   <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-4 py-8 text-center text-sm text-muted-foreground xl:col-span-2">
@@ -2024,6 +2188,11 @@ function ContentIntelligenceContent() {
               No AutoResearch backlog projection loaded.
             </div>
           )}
+          {autoResearchFeedbackNotice ? (
+            <p className="mt-3 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-100">
+              {autoResearchFeedbackNotice}
+            </p>
+          ) : null}
         </section>
         ) : null}
 
@@ -2615,14 +2784,97 @@ function gateTone(state: string) {
   return 'border-amber-500/35 bg-amber-500/10 text-amber-100'
 }
 
+function opportunityPriorityTone(priority: AutoResearchContentOpportunity['priority']) {
+  if (priority === 'high') return 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
+  if (priority === 'medium') return 'border-amber-500/35 bg-amber-500/10 text-amber-100'
+  return 'border-silicon-slate/70 bg-silicon-slate/30 text-muted-foreground'
+}
+
+function AutoResearchOpportunityCard({
+  opportunity,
+}: {
+  opportunity: AutoResearchContentOpportunity
+}) {
+  return (
+    <article className="min-w-0 rounded-md border border-amber-500/20 bg-background/35 p-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="break-words text-sm font-semibold text-amber-50">{opportunity.title}</p>
+          <p className="mt-1 text-[0.68rem] leading-5 text-amber-100/75">
+            {formatAutoResearchLabel(opportunity.channel)} · {formatAutoResearchLabel(opportunity.recommendedFormat)}
+            {opportunity.campaign.phase ? ` · ${CAMPAIGN_PHASE_LABELS[opportunity.campaign.phase]}` : ''}
+          </p>
+        </div>
+        <span className={`w-fit shrink-0 rounded-full border px-2.5 py-1 text-[0.68rem] font-semibold ${opportunityPriorityTone(opportunity.priority)}`}>
+          {opportunity.priority} priority
+        </span>
+      </div>
+
+      <dl className="mt-3 grid gap-3 sm:grid-cols-2">
+        <div>
+          <dt className="text-[0.62rem] font-semibold uppercase tracking-wide text-amber-100/65">Target-avatar fit</dt>
+          <dd className="mt-1 text-[0.68rem] leading-5 text-amber-50">{opportunity.targetAvatarFit}</dd>
+        </div>
+        <div>
+          <dt className="text-[0.62rem] font-semibold uppercase tracking-wide text-amber-100/65">Required gate</dt>
+          <dd className="mt-1 text-[0.68rem] leading-5 text-amber-50">
+            {formatAutoResearchGate(opportunity.requiredGate)}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-[0.62rem] font-semibold uppercase tracking-wide text-amber-100/65">Next content move</dt>
+          <dd className="mt-1 text-[0.68rem] leading-5 text-amber-50">{opportunity.nextContentMove}</dd>
+        </div>
+        <div>
+          <dt className="text-[0.62rem] font-semibold uppercase tracking-wide text-amber-100/65">Measurement hypothesis</dt>
+          <dd className="mt-1 text-[0.68rem] leading-5 text-amber-50">{opportunity.measurementHypothesis}</dd>
+        </div>
+      </dl>
+
+      <div className="mt-3 rounded-md border border-amber-500/20 bg-silicon-slate/20 p-2">
+        <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-amber-100/65">Evidence boundary</p>
+        <p className="mt-1 text-[0.68rem] leading-5 text-amber-100/75">{opportunity.evidenceBasis}</p>
+        <p className="mt-1 text-[0.68rem] leading-5 text-amber-100/65">{opportunity.sourceDistanceBoundary}</p>
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5 text-[0.62rem] text-muted-foreground">
+          Improvement: {formatAutoResearchLabel(opportunity.recommendedImprovement)}
+        </span>
+        <span className="rounded-full border border-emerald-500/35 bg-emerald-500/10 px-2 py-0.5 text-[0.62rem] font-semibold text-emerald-100">
+          No external action
+        </span>
+      </div>
+    </article>
+  )
+}
+
 function AutoResearchBacklogCard({
   item,
   releaseLinks,
+  feedbackNote,
+  feedbackTarget,
+  feedbackSubmitting,
+  onFeedbackNoteChange,
+  onFeedbackTargetChange,
+  onSubmitFeedback,
 }: {
   item: AutoResearchAdminProjection
   releaseLinks: AutoResearchReleaseLink[]
+  feedbackNote: string
+  feedbackTarget: AutoResearchFeedbackTarget
+  feedbackSubmitting: boolean
+  onFeedbackNoteChange: (value: string) => void
+  onFeedbackTargetChange: (value: AutoResearchFeedbackTarget) => void
+  onSubmitFeedback: (event: FormEvent<HTMLFormElement>) => void
 }) {
   const gates = Object.values(item.gates)
+  const bestVariant = bestAutoResearchVariant(item)
+  const primaryRelease = primaryAutoResearchReleaseLink(releaseLinks)
+  const feedbackWorkItemId = primaryRelease?.workItemId ?? null
+  const sourceReferences = item.sourceReferences ?? []
+  const primarySourceReference = sourceReferences[0] ?? null
+  const firstSourcePacket = item.sourcePacketPaths[0] ?? null
   return (
     <article className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -2636,145 +2888,71 @@ function AutoResearchBacklogCard({
         </span>
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-2 text-[0.68rem] text-muted-foreground">
-        <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5">
-          {item.campaign.slug ?? 'No campaign'}
-        </span>
-        {item.campaign.phase ? (
-          <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5">
-            {CAMPAIGN_PHASE_LABELS[item.campaign.phase]}
-          </span>
-        ) : null}
-        <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5">
-          {item.status.replace(/_/g, ' ')}
-        </span>
-      </div>
-
-      <div className="mt-4">
-        <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Research and pattern basis</p>
-        <p className="mt-1 text-[0.68rem] leading-5 text-muted-foreground">
-          Source packets explain why the backlog item exists; they are not generated draft content.
-        </p>
-        <div className="mt-2 space-y-1">
-          {item.sourcePacketPaths.map((path) => (
-            <p key={path} className="break-words rounded-md border border-silicon-slate/60 bg-background/35 px-2 py-1.5 font-mono text-[0.68rem] text-muted-foreground">
-              {path}
-            </p>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-4 grid gap-3 lg:grid-cols-2">
-        <div>
-          <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Draft/backlog variants</p>
-          <div className="mt-2 space-y-2">
-            {item.variants.map((variant) => (
-              <div key={`${item.id}-${variant.channel}-${variant.recommendedFormat}`} className="rounded-md border border-silicon-slate/60 bg-background/35 p-2">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-xs font-semibold">{variant.channel.replace(/_/g, ' ')}</p>
-                  <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5 text-[0.62rem] text-muted-foreground">
-                    {variant.channelFit}
-                  </span>
-                </div>
-                <p className="mt-1 text-[0.68rem] text-muted-foreground">{variant.recommendedFormat.replace(/_/g, ' ')} · {variant.ctaRole.replace(/_/g, ' ')}</p>
-                <p className="mt-1 text-[0.68rem] text-muted-foreground">Provider boundary: {variant.providerBoundary.replace(/_/g, ' ')}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Gate states</p>
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {gates.map((gate) => (
-              <span key={gate.key} className={`rounded-full border px-2 py-0.5 text-[0.62rem] ${gateTone(gate.state)}`}>
-                {gate.key.replace(/_/g, ' ')}: {gate.state.replace(/_/g, ' ')}
-              </span>
-            ))}
-          </div>
-          {item.learningWindows ? (
-            <div className="mt-3 rounded-md border border-blue-500/25 bg-blue-500/10 p-2">
-              <p className="text-[0.68rem] font-semibold text-blue-100">Learning windows</p>
-              <p className="mt-1 text-[0.68rem] leading-5 text-blue-100/80">
-                {item.learningWindows.directional.replace(/_/g, '-')} directional · {item.learningWindows.decision.replace(/_/g, ' ')} decision
-              </p>
-              <p className="mt-1 line-clamp-2 text-[0.68rem] leading-5 text-blue-100/70">
-                {item.learningWindows.visibleSampleBasis}
-              </p>
-            </div>
-          ) : null}
-        </div>
-      </div>
-
-      <div className="mt-4 rounded-md border border-emerald-500/25 bg-emerald-500/10 p-2">
-        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-emerald-100/80">Release calendar linkage</p>
-          <span className="text-[0.68rem] text-emerald-100/70">
-            {releaseLinks.length ? `${releaseLinks.length} connected row${releaseLinks.length === 1 ? '' : 's'}` : 'No connected release row'}
-          </span>
-        </div>
-        {releaseLinks.length ? (
-          <div className="mt-2 space-y-2">
-            {releaseLinks.map((link) => (
-              <div key={link.id} className="rounded-md border border-emerald-500/20 bg-background/35 p-2">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="min-w-0">
-                    <p className="break-words text-xs font-semibold text-emerald-50">{link.title}</p>
-                    <p className="mt-1 text-[0.68rem] leading-5 text-emerald-100/75">
-                      {CALENDAR_CHANNEL_LABELS[link.channel]} · {CAMPAIGN_PHASE_LABELS[link.phase]} · {link.authorizationStatus.replace(/_/g, ' ')}
-                    </p>
-                  </div>
-                  <span className="shrink-0 rounded-full border border-emerald-500/25 px-2 py-0.5 text-[0.62rem] font-semibold text-emerald-100/80">
-                    {link.approvalLead}
-                  </span>
-                </div>
-                <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                  <div>
-                    <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-emerald-100/65">Release date</p>
-                    <p className="mt-1 text-[0.68rem] font-semibold text-emerald-50">{formatCalendarDate(link.scheduledFor)}</p>
-                  </div>
-                  <div>
-                    <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-emerald-100/65">Approval due</p>
-                    <p className="mt-1 text-[0.68rem] font-semibold text-emerald-50">
-                      {link.authorizationDueAt ? formatCalendarDate(link.authorizationDueAt) : 'No approval deadline'}
-                    </p>
-                  </div>
-                </div>
-                {link.workItemTitle ? (
-                  <p className="mt-2 text-[0.68rem] leading-5 text-emerald-100/75">
-                    Work item: {link.workItemTitle}
-                  </p>
-                ) : null}
-                {link.socialContentId ? (
-                  <p className="mt-1 text-[0.68rem] leading-5 text-emerald-100/75">
-                    Connected content row:{' '}
-                    <Link href={`/admin/social-content/${link.socialContentId}`} className="font-semibold text-emerald-50 hover:text-white">
-                      {link.socialContentId}
-                    </Link>
-                    {link.socialContentStatus ? ` (${link.socialContentStatus.replace(/_/g, ' ')})` : ''}
-                  </p>
-                ) : null}
-                {link.templateLabel ? (
-                  <p className="mt-1 text-[0.68rem] leading-5 text-emerald-100/65">
-                    Template basis: {link.templateLabel}
-                  </p>
-                ) : null}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="mt-2 text-[0.68rem] leading-5 text-emerald-100/70">
-            Add or connect a release-calendar row before this becomes an operator-ready channel backlog item.
+      <div className="mt-4 grid gap-3 lg:grid-cols-4">
+        <div className="rounded-md border border-silicon-slate/60 bg-background/35 p-3">
+          <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-muted-foreground">Content</p>
+          <p className="mt-1 text-xs font-semibold">
+            {bestVariant ? `${formatAutoResearchLabel(bestVariant.channel)} ${bestVariant.recommendedFormat.replace(/_/g, ' ')}` : 'No channel variant'}
           </p>
-        )}
+          <p className="mt-1 text-[0.68rem] leading-5 text-muted-foreground">
+            {item.campaign.phase ? `${CAMPAIGN_PHASE_LABELS[item.campaign.phase]} phase` : 'No campaign phase'} · {item.status.replace(/_/g, ' ')}
+          </p>
+        </div>
+        <div className="rounded-md border border-silicon-slate/60 bg-background/35 p-3">
+          <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-muted-foreground">Backlog linkage</p>
+          <p className="mt-1 text-xs font-semibold">{item.campaign.slug ?? 'No campaign'}</p>
+          <p className="mt-1 text-[0.68rem] leading-5 text-muted-foreground">
+            Next gate: {formatAutoResearchGate(item.firstBlockedOrPendingGate)}
+          </p>
+        </div>
+        <div className="rounded-md border border-emerald-500/25 bg-emerald-500/10 p-3">
+          <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-emerald-100/65">Due date</p>
+          <p className="mt-1 text-xs font-semibold text-emerald-50">
+            {primaryRelease ? formatCalendarDate(primaryRelease.scheduledFor) : 'No release row'}
+          </p>
+          <p className="mt-1 text-[0.68rem] leading-5 text-emerald-100/75">
+            {primaryRelease?.authorizationDueAt ? `Approval due ${formatCalendarDate(primaryRelease.authorizationDueAt)}` : 'Approval due not set'}
+          </p>
+        </div>
+        <div className="rounded-md border border-blue-500/25 bg-blue-500/10 p-3">
+          <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-blue-100/65">Learning window</p>
+          <p className="mt-1 text-xs font-semibold text-blue-50">
+            {item.learningWindows ? `${item.learningWindows.directional.replace(/_/g, '-')} + ${item.learningWindows.decision.replace(/_/g, ' ')}` : 'No learning window'}
+          </p>
+          <p className="mt-1 line-clamp-2 text-[0.68rem] leading-5 text-blue-100/75">
+            {item.learningWindows?.visibleSampleBasis ?? 'Add post-release signal basis before optimization.'}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-md border border-blue-500/25 bg-blue-500/10 p-3">
+        <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-blue-100/70">Reference basis</p>
+            <p className="mt-1 break-words text-xs font-semibold text-blue-50">
+              {primarySourceReference?.urlOrPath ?? firstSourcePacket ?? 'No source reference attached'}
+            </p>
+            <p className="mt-1 text-[0.68rem] leading-5 text-blue-100/75">
+              {primarySourceReference?.transferablePattern ?? 'Source packets explain why the backlog item exists; they are not generated draft content.'}
+            </p>
+          </div>
+          <span className="shrink-0 rounded-full border border-blue-500/25 px-2 py-0.5 text-[0.62rem] font-semibold text-blue-100/80">
+            {primarySourceReference ? `${primarySourceReference.sourceType.replace(/_/g, ' ')} · ${primarySourceReference.confidence}` : 'source packet'}
+          </span>
+        </div>
+        {primarySourceReference?.visibleSignalBasis ? (
+          <p className="mt-2 text-[0.68rem] leading-5 text-blue-100/70">
+            Signal basis: {primarySourceReference.visibleSignalBasis}
+          </p>
+        ) : null}
       </div>
 
       <div className="mt-4 rounded-md border border-silicon-slate/60 bg-background/35 p-2">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Improvement recommendation</p>
+            <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Next decision</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {item.improvement.state.replace(/_/g, ' ')} · decision-grade {item.improvement.canBeDecisionGrade ? 'available' : 'locked'}
+              {item.nextHumanDecision ?? 'Review the connected backlog row before any provider handoff.'}
             </p>
           </div>
           <button
@@ -2785,10 +2963,195 @@ function AutoResearchBacklogCard({
             Callable actions: {item.callableExternalActions.length}
           </button>
         </div>
-        {item.nextHumanDecision ? (
-          <p className="mt-2 text-xs leading-5 text-muted-foreground">{item.nextHumanDecision}</p>
-        ) : null}
       </div>
+
+      <form onSubmit={onSubmitFeedback} className="mt-3 rounded-md border border-radiant-gold/35 bg-radiant-gold/10 p-3">
+        <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-radiant-gold">Operator action</p>
+            <p className="mt-1 text-xs leading-5 text-amber-100/80">
+              Approve the direction as-is, or leave commentary so Amina can revise this item, carry it into the next AutoResearch pass, or both.
+            </p>
+          </div>
+          <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[0.62rem] font-semibold ${feedbackWorkItemId ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100' : 'border-amber-500/35 bg-amber-500/10 text-amber-100'}`}>
+            {feedbackWorkItemId ? 'Feedback routable' : 'Needs work-item link'}
+          </span>
+        </div>
+
+        <fieldset className="mt-3 grid gap-2 md:grid-cols-3">
+          <legend className="sr-only">AutoResearch feedback routing</legend>
+          {AUTORESEARCH_FEEDBACK_TARGET_OPTIONS.map((option) => (
+            <label
+              key={option.value}
+              className={`cursor-pointer rounded-md border p-2 transition ${feedbackTarget === option.value ? 'border-radiant-gold/70 bg-radiant-gold/15' : 'border-silicon-slate/60 bg-background/35 hover:border-radiant-gold/45'}`}
+            >
+              <span className="flex items-center gap-2 text-xs font-semibold">
+                <input
+                  type="radio"
+                  name={`autoresearch-feedback-target-${item.id}`}
+                  value={option.value}
+                  checked={feedbackTarget === option.value}
+                  onChange={() => onFeedbackTargetChange(option.value)}
+                  className="h-3.5 w-3.5 accent-radiant-gold"
+                />
+                {option.label}
+              </span>
+              <span className="mt-1 block text-[0.68rem] leading-5 text-muted-foreground">{option.description}</span>
+            </label>
+          ))}
+        </fieldset>
+
+        <label className="mt-3 block text-xs font-semibold uppercase tracking-wide text-amber-100/80" htmlFor={`autoresearch-feedback-${item.id}`}>
+          Commentary for Amina
+        </label>
+        <textarea
+          id={`autoresearch-feedback-${item.id}`}
+          rows={3}
+          value={feedbackNote}
+          onChange={(event) => onFeedbackNoteChange(event.target.value)}
+          placeholder="Example: strengthen the CTA, use real Portfolio b-roll, or make this the reference point for the next research pass."
+          className={`${CONTENT_INTELLIGENCE_FIELD_COMPACT_CLASS} mt-1 min-h-24 resize-y`}
+        />
+        <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[0.68rem] leading-5 text-amber-100/70">
+            Records an internal feedback handoff only. It does not generate media, publish, schedule, upload, or call providers.
+          </p>
+          <button
+            type="submit"
+            disabled={!feedbackNote.trim() || !feedbackWorkItemId || feedbackSubmitting}
+            className="inline-flex min-h-9 items-center justify-center gap-2 rounded-md border border-radiant-gold/55 px-3 py-2 text-xs font-semibold text-radiant-gold transition hover:border-radiant-gold hover:bg-radiant-gold/10 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <Save className="h-3.5 w-3.5" />
+            {feedbackSubmitting ? 'Recording...' : 'Record feedback handoff'}
+          </button>
+        </div>
+      </form>
+
+      <details className="mt-4 rounded-md border border-silicon-slate/60 bg-background/30 p-3">
+        <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Full audit details
+        </summary>
+
+        <div className="mt-4">
+          <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Research and pattern basis</p>
+          <p className="mt-1 text-[0.68rem] leading-5 text-muted-foreground">
+            Source packets explain why the backlog item exists; they are not generated draft content.
+          </p>
+          <div className="mt-2 space-y-1">
+            {sourceReferences.map((source) => (
+              <div key={`${source.urlOrPath}-${source.transferablePattern}`} className="rounded-md border border-blue-500/20 bg-blue-500/10 px-2 py-1.5">
+                <p className="break-words font-mono text-[0.68rem] text-blue-100/80">{source.urlOrPath}</p>
+                <p className="mt-1 text-[0.68rem] leading-5 text-blue-100/70">{source.transferablePattern}</p>
+              </div>
+            ))}
+            {item.sourcePacketPaths.map((path) => (
+              <p key={path} className="break-words rounded-md border border-silicon-slate/60 bg-background/35 px-2 py-1.5 font-mono text-[0.68rem] text-muted-foreground">
+                {path}
+              </p>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-3 lg:grid-cols-2">
+          <div>
+            <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Draft/backlog variants</p>
+            <div className="mt-2 space-y-2">
+              {item.variants.map((variant) => (
+                <div key={`${item.id}-${variant.channel}-${variant.recommendedFormat}`} className="rounded-md border border-silicon-slate/60 bg-background/35 p-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-xs font-semibold">{variant.channel.replace(/_/g, ' ')}</p>
+                    <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5 text-[0.62rem] text-muted-foreground">
+                      {variant.channelFit}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-[0.68rem] text-muted-foreground">{variant.recommendedFormat.replace(/_/g, ' ')} · {variant.ctaRole.replace(/_/g, ' ')}</p>
+                  <p className="mt-1 text-[0.68rem] text-muted-foreground">Provider boundary: {variant.providerBoundary.replace(/_/g, ' ')}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Gate states</p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {gates.map((gate) => (
+                <span key={gate.key} className={`rounded-full border px-2 py-0.5 text-[0.62rem] ${gateTone(gate.state)}`}>
+                  {gate.key.replace(/_/g, ' ')}: {gate.state.replace(/_/g, ' ')}
+                </span>
+              ))}
+            </div>
+            <div className="mt-3 rounded-md border border-silicon-slate/60 bg-background/35 p-2">
+              <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Improvement recommendation</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {item.improvement.state.replace(/_/g, ' ')} · decision-grade {item.improvement.canBeDecisionGrade ? 'available' : 'locked'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 rounded-md border border-emerald-500/25 bg-emerald-500/10 p-2">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-emerald-100/80">Release calendar linkage</p>
+            <span className="text-[0.68rem] text-emerald-100/70">
+              {releaseLinks.length ? `${releaseLinks.length} connected row${releaseLinks.length === 1 ? '' : 's'}` : 'No connected release row'}
+            </span>
+          </div>
+          {releaseLinks.length ? (
+            <div className="mt-2 space-y-2">
+              {releaseLinks.map((link) => (
+                <div key={link.id} className="rounded-md border border-emerald-500/20 bg-background/35 p-2">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <p className="break-words text-xs font-semibold text-emerald-50">{link.title}</p>
+                      <p className="mt-1 text-[0.68rem] leading-5 text-emerald-100/75">
+                        {CALENDAR_CHANNEL_LABELS[link.channel]} · {CAMPAIGN_PHASE_LABELS[link.phase]} · {link.authorizationStatus.replace(/_/g, ' ')}
+                      </p>
+                    </div>
+                    <span className="shrink-0 rounded-full border border-emerald-500/25 px-2 py-0.5 text-[0.62rem] font-semibold text-emerald-100/80">
+                      {link.approvalLead}
+                    </span>
+                  </div>
+                  <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                    <div>
+                      <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-emerald-100/65">Release date</p>
+                      <p className="mt-1 text-[0.68rem] font-semibold text-emerald-50">{formatCalendarDate(link.scheduledFor)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-emerald-100/65">Approval due</p>
+                      <p className="mt-1 text-[0.68rem] font-semibold text-emerald-50">
+                        {link.authorizationDueAt ? formatCalendarDate(link.authorizationDueAt) : 'No approval deadline'}
+                      </p>
+                    </div>
+                  </div>
+                  {link.workItemTitle ? (
+                    <p className="mt-2 text-[0.68rem] leading-5 text-emerald-100/75">
+                      Work item: {link.workItemTitle}
+                    </p>
+                  ) : null}
+                  {link.socialContentId ? (
+                    <p className="mt-1 text-[0.68rem] leading-5 text-emerald-100/75">
+                      Connected content row:{' '}
+                      <Link href={`/admin/social-content/${link.socialContentId}`} className="font-semibold text-emerald-50 hover:text-white">
+                        {link.socialContentId}
+                      </Link>
+                      {link.socialContentStatus ? ` (${link.socialContentStatus.replace(/_/g, ' ')})` : ''}
+                    </p>
+                  ) : null}
+                  {link.templateLabel ? (
+                    <p className="mt-1 text-[0.68rem] leading-5 text-emerald-100/65">
+                      Template basis: {link.templateLabel}
+                    </p>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-2 text-[0.68rem] leading-5 text-emerald-100/70">
+              Add or connect a release-calendar row before this becomes an operator-ready channel backlog item.
+            </p>
+          )}
+        </div>
+      </details>
     </article>
   )
 }

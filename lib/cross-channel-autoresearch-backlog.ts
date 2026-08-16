@@ -253,6 +253,13 @@ export type AutoResearchAdminProjection = {
     phase?: SocialContentCampaignPhase
   }
   sourcePacketPaths: string[]
+  sourceReferences: Array<Pick<AutoResearchProvenance,
+    'sourceType'
+    | 'urlOrPath'
+    | 'visibleSignalBasis'
+    | 'transferablePattern'
+    | 'confidence'
+  >>
   variants: Array<Pick<AutoResearchChannelVariantRecommendation,
     'channel'
     | 'recommendedFormat'
@@ -278,6 +285,31 @@ export type AutoResearchAdminProjection = {
   blockers: string[]
 }
 
+export type AutoResearchOpportunityPriority = 'high' | 'medium' | 'low'
+
+export type AutoResearchContentOpportunity = {
+  id: string
+  itemId: string
+  title: string
+  priority: AutoResearchOpportunityPriority
+  channel: AutoResearchBacklogChannel
+  recommendedFormat: AutoResearchRecommendedFormat
+  campaign: {
+    slug?: string
+    phase?: SocialContentCampaignPhase
+  }
+  targetAvatarFit: string
+  whyNow: string
+  nextContentMove: string
+  measurementHypothesis: string
+  recommendedImprovement: AutoResearchImprovementRecommendation['changeType'] | 'none'
+  requiredGate: AutoResearchBacklogGateKey | null
+  evidenceBasis: string
+  sourceDistanceBoundary: string
+  calendarLinkage: AutoResearchReleaseLinkage
+  blockedReason?: string
+}
+
 export type AutoResearchBacklogReadOnlyResponse = {
   items: AutoResearchAdminProjection[]
   summary: {
@@ -286,6 +318,13 @@ export type AutoResearchBacklogReadOnlyResponse = {
     blockedOrManual: number
     callableExternalActions: 0
   }
+  opportunity_summary: {
+    total: number
+    highPriority: number
+    channels: AutoResearchBacklogChannel[]
+    requiresHumanGate: number
+  }
+  opportunities: AutoResearchContentOpportunity[]
   side_effects: typeof AUTORESEARCH_BACKLOG_SIDE_EFFECTS
   callable_external_actions: []
 }
@@ -478,6 +517,13 @@ export function buildAutoResearchBacklogAdminProjection(
         phase: item.campaignPhase,
       },
       sourcePacketPaths: item.sourcePacketPaths,
+      sourceReferences: item.provenance.map((source) => ({
+        sourceType: source.sourceType,
+        urlOrPath: source.urlOrPath,
+        visibleSignalBasis: source.visibleSignalBasis,
+        transferablePattern: source.transferablePattern,
+        confidence: source.confidence,
+      })),
       variants: item.channelVariants.map((variant) => ({
         channel: variant.channel,
         recommendedFormat: variant.recommendedFormat,
@@ -506,10 +552,104 @@ export function buildAutoResearchBacklogAdminProjection(
   })
 }
 
+function channelFitScore(fit: AutoResearchChannelVariantRecommendation['channelFit']) {
+  if (fit === 'strong') return 3
+  if (fit === 'medium') return 2
+  if (fit === 'weak') return 1
+  return 0
+}
+
+function bestChannelVariant(item: CrossChannelAutoResearchBacklogItem) {
+  return [...item.channelVariants]
+    .sort((left, right) => channelFitScore(right.channelFit) - channelFitScore(left.channelFit))[0] ?? null
+}
+
+function opportunityPriority(
+  item: CrossChannelAutoResearchBacklogItem,
+  projection: AutoResearchBacklogProjection,
+  variant: AutoResearchChannelVariantRecommendation,
+): AutoResearchOpportunityPriority {
+  if (
+    variant.channelFit === 'strong'
+    && (projection.firstBlockedOrPendingGate === null || projection.firstBlockedOrPendingGate === 'final_submission')
+  ) {
+    return 'high'
+  }
+
+  if (variant.channelFit === 'blocked' || item.status === 'blocked' || item.status === 'manual_hold') {
+    return 'low'
+  }
+
+  return 'medium'
+}
+
+function opportunityRank(priority: AutoResearchOpportunityPriority) {
+  if (priority === 'high') return 3
+  if (priority === 'medium') return 2
+  return 1
+}
+
+function summarizeTrackedSignals(signals: AutoResearchPostReleaseSignalPlan['trackedSignals'] = []) {
+  return signals
+    .map((signal) => signal.replace(/_/g, ' '))
+    .slice(0, 3)
+    .join(', ')
+}
+
+export function buildAutoResearchContentOpportunities(
+  items: CrossChannelAutoResearchBacklogItem[],
+): AutoResearchContentOpportunity[] {
+  return items
+    .flatMap((item) => {
+      const projection = projectAutoResearchBacklogItem(item)
+      const variant = bestChannelVariant(item)
+      if (!variant) return []
+
+      const priority = opportunityPriority(item, projection, variant)
+      const evidenceBasis = item.improvementRecommendation?.evidenceBasis
+        ?? item.provenance[0]?.visibleSignalBasis
+        ?? 'Source packet and campaign calendar linkage.'
+      const trackedSignals = summarizeTrackedSignals(item.postReleaseSignals?.trackedSignals)
+      const requiredGate = projection.firstBlockedOrPendingGate
+      const blockedReason = projection.blockers[0] ?? item.blockedReason
+
+      return [{
+        id: `opportunity-${item.id}-${variant.channel}`,
+        itemId: item.id,
+        title: item.title,
+        priority,
+        channel: variant.channel,
+        recommendedFormat: variant.recommendedFormat,
+        campaign: {
+          slug: item.campaignSlug,
+          phase: item.campaignPhase,
+        },
+        targetAvatarFit: variant.fitReason || item.targetAvatar,
+        whyNow: variant.hookHypothesis,
+        nextContentMove: variant.proofPlacement,
+        measurementHypothesis: item.improvementRecommendation?.nextTest
+          ?? (trackedSignals
+            ? `Review ${trackedSignals} across the 24-48 hour and seven-day windows before revising the next release.`
+            : 'Collect directional and seven-day signal before changing the next release.'),
+        recommendedImprovement: item.improvementRecommendation?.changeType ?? 'none',
+        requiredGate,
+        evidenceBasis,
+        sourceDistanceBoundary: item.sourceDistance.allowedPatternUse,
+        calendarLinkage: item.releaseLinkage ?? {},
+        blockedReason,
+      } satisfies AutoResearchContentOpportunity]
+    })
+    .sort((left, right) => (
+      opportunityRank(right.priority) - opportunityRank(left.priority)
+      || left.title.localeCompare(right.title)
+    ))
+}
+
 export function buildAutoResearchBacklogReadOnlyResponse(
   items: CrossChannelAutoResearchBacklogItem[] = AGENTIFIED_AUTORESEARCH_BACKLOG_FIXTURES,
 ): AutoResearchBacklogReadOnlyResponse {
   const projectedItems = buildAutoResearchBacklogAdminProjection(items)
+  const opportunities = buildAutoResearchContentOpportunities(items)
   return {
     items: projectedItems,
     summary: {
@@ -518,6 +658,13 @@ export function buildAutoResearchBacklogReadOnlyResponse(
       blockedOrManual: projectedItems.filter((item) => item.firstBlockedOrPendingGate !== null || item.blockers.length > 0).length,
       callableExternalActions: 0,
     },
+    opportunity_summary: {
+      total: opportunities.length,
+      highPriority: opportunities.filter((opportunity) => opportunity.priority === 'high').length,
+      channels: [...new Set(opportunities.map((opportunity) => opportunity.channel))],
+      requiresHumanGate: opportunities.filter((opportunity) => opportunity.requiredGate !== null).length,
+    },
+    opportunities,
     side_effects: AUTORESEARCH_BACKLOG_SIDE_EFFECTS,
     callable_external_actions: [],
   }

@@ -302,6 +302,15 @@ describe('ContentIntelligencePage', () => {
                   'docs/content-strategy/agentified-x-research-evidence-2026-08-05.md',
                   'agentified/campaign/portfolio-campaign-packet.json',
                 ],
+                sourceReferences: [
+                  {
+                    sourceType: 'public_post',
+                    urlOrPath: 'https://x.com/example/status/receipt-path',
+                    visibleSignalBasis: 'Visible thread structure and public replies.',
+                    transferablePattern: 'Open with the handoff failure before naming the receipt path.',
+                    confidence: 'high',
+                  },
+                ],
                 variants: [
                   {
                     channel: 'x',
@@ -367,6 +376,15 @@ describe('ContentIntelligencePage', () => {
                   'docs/content-strategy/linkedin-autoresearch-loop.md',
                   'docs/agentified-visual-autoresearch.md',
                 ],
+                sourceReferences: [
+                  {
+                    sourceType: 'public_video',
+                    urlOrPath: 'https://www.youtube.com/watch?v=proof-pattern',
+                    visibleSignalBasis: 'Visible proof framing and thumbnail pattern.',
+                    transferablePattern: 'Show proof before inviting the audience to believe the launch claim.',
+                    confidence: 'medium',
+                  },
+                ],
                 variants: [
                   {
                     channel: 'linkedin',
@@ -421,6 +439,58 @@ describe('ContentIntelligencePage', () => {
               blockedOrManual: 2,
               callableExternalActions: 0,
             },
+            opportunity_summary: {
+              total: 2,
+              highPriority: 1,
+              channels: ['x', 'linkedin'],
+              requiresHumanGate: 2,
+            },
+            opportunities: [
+              {
+                id: 'opportunity-autoresearch-agentified-agt-x-01-x',
+                itemId: 'autoresearch-agentified-agt-x-01',
+                title: 'What breaks first when AI gets faster?',
+                priority: 'high',
+                channel: 'x',
+                recommendedFormat: 'thread',
+                campaign: { slug: 'agentified-trust-scale-2026-07', phase: 'tease' },
+                targetAvatarFit: 'The idea works as a compact tension-first thread tied to the Agentified tease phase.',
+                whyNow: 'AI got faster; the first failure is usually the handoff.',
+                nextContentMove: 'Name the receipt path before asking operators where trust breaks.',
+                measurementHypothesis: 'Seven-day review decides whether to repeat as LinkedIn proof post.',
+                recommendedImprovement: 'hook',
+                requiredGate: 'final_submission',
+                evidenceBasis: 'Early public conversation quality only.',
+                sourceDistanceBoundary: 'Use public creator patterns only for tension, structure, and proof placement.',
+                calendarLinkage: {
+                  campaignSlug: 'agentified-trust-scale-2026-07',
+                  calendarAssetId: 'AGT-X-01',
+                  socialContentId: 'social-1',
+                },
+              },
+              {
+                id: 'opportunity-autoresearch-agentified-agt-li-02-linkedin',
+                itemId: 'autoresearch-agentified-agt-li-02',
+                title: 'What makes proof feel credible before a launch?',
+                priority: 'medium',
+                channel: 'linkedin',
+                recommendedFormat: 'document_post',
+                campaign: { slug: 'agentified-trust-scale-2026-07', phase: 'proof' },
+                targetAvatarFit: 'Founder-operators need credible proof before the launch claim becomes a carousel.',
+                whyNow: 'Proof is the missing bridge between campaign interest and release readiness.',
+                nextContentMove: 'Turn the proof packet into a document post only after source review clears.',
+                measurementHypothesis: 'Review source click quality and save behavior before changing the next proof asset.',
+                recommendedImprovement: 'thumbnail',
+                requiredGate: 'source_basis',
+                evidenceBasis: 'Manual source review required.',
+                sourceDistanceBoundary: 'Use Portfolio proof surfaces and avoid external creator wording.',
+                calendarLinkage: {
+                  campaignSlug: 'agentified-trust-scale-2026-07',
+                  calendarAssetId: 'AGT-LI-02',
+                },
+                blockedReason: 'manual source review required',
+              },
+            ],
             side_effects: {
               provider_call: false,
               slack_send: false,
@@ -576,6 +646,30 @@ describe('ContentIntelligencePage', () => {
           }),
         }
       }
+      if (url === '/api/admin/agents/work-items/work-social-1/autoresearch-feedback') {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            feedback_handoff: {
+              id: 'autoresearch-feedback-1',
+              backlog_item_id: 'autoresearch-agentified-agt-x-01',
+              feedback_target: 'both',
+              feedback: 'Strengthen the CTA and carry the b-roll lesson into the next pass.',
+              status: 'recorded',
+            },
+            side_effects: {
+              provider_generation: false,
+              provider_call: false,
+              upload: false,
+              schedule: false,
+              publish: false,
+              external_post: false,
+              production_mutation: false,
+            },
+          }),
+        }
+      }
       if (url.startsWith('/api/admin/agents/work-items')) {
         return {
           ok: true,
@@ -671,12 +765,20 @@ describe('ContentIntelligencePage', () => {
     const backlogSearch = screen.getByLabelText('Backlog search')
     expect(backlogSearch.parentElement?.className).toContain('[color-scheme:light]')
     expect(backlogSearch.parentElement?.className).toContain('dark:[color-scheme:dark]')
-    expect(screen.getByText('Showing 2 of 2 backlog items. Search checks generated backlog titles, work items, release rows, channel variants, and research/source basis.')).toBeInTheDocument()
+    expect(screen.getByText('Showing 2 of 2 backlog items and 2 of 2 ranked opportunities. Search checks titles, work items, release rows, channel variants, opportunity rationale, and research/source basis.')).toBeInTheDocument()
     expect(screen.getAllByText('What breaks first when AI gets faster?').length).toBeGreaterThan(0)
-    expect(screen.getByText('What makes proof feel credible before a launch?')).toBeInTheDocument()
+    expect(screen.getAllByText('What makes proof feel credible before a launch?').length).toBeGreaterThan(0)
     expect(screen.getByText('docs/content-strategy/agentified-x-research-evidence-2026-08-05.md')).toBeInTheDocument()
-    expect(screen.getByText('final submission')).toBeInTheDocument()
+    expect(screen.getAllByText('final submission').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Generated backlog item').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Content').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Backlog linkage').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Due date').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Learning window').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Reference basis').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('https://x.com/example/status/receipt-path').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Open with the handoff failure before naming the receipt path.').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Full audit details').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Research and pattern basis').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Source packets explain why the backlog item exists; they are not generated draft content.').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Draft/backlog variants').length).toBeGreaterThan(0)
@@ -692,6 +794,40 @@ describe('ContentIntelligencePage', () => {
     expect(connectedContentLink).toHaveAttribute('href', '/admin/social-content/social-1')
     expect(connectedContentLink.closest('p')?.textContent).toContain('Connected content row: social-1 (draft)')
     expect(screen.getAllByText('Template basis: Whisper-to-shout launch').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Operator action').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Approve the direction as-is, or leave commentary so Amina can revise this item, carry it into the next AutoResearch pass, or both.').length).toBeGreaterThan(0)
+    expect(screen.getByText('Feedback routable')).toBeInTheDocument()
+    expect(screen.getByText('Needs work-item link')).toBeInTheDocument()
+    const feedbackAreas = screen.getAllByLabelText('Commentary for Amina')
+    const feedbackButtons = screen.getAllByRole('button', { name: 'Record feedback handoff' })
+    expect(feedbackButtons[0]).toBeDisabled()
+    fireEvent.change(feedbackAreas[0], {
+      target: { value: 'Strengthen the CTA and carry the b-roll lesson into the next pass.' },
+    })
+    expect(feedbackButtons[0]).not.toBeDisabled()
+    fireEvent.click(feedbackButtons[0])
+    expect(await screen.findByText('Feedback recorded for this item and the next AutoResearch pass.')).toBeInTheDocument()
+    const feedbackCall = vi.mocked(fetch).mock.calls.find(([input]) => String(input) === '/api/admin/agents/work-items/work-social-1/autoresearch-feedback')
+    expect(feedbackCall).toBeTruthy()
+    expect(feedbackCall?.[1]).toMatchObject({ method: 'POST' })
+    expect(JSON.parse(String(feedbackCall?.[1]?.body))).toMatchObject({
+      backlog_item_id: 'autoresearch-agentified-agt-x-01',
+      backlog_item_title: 'What breaks first when AI gets faster?',
+      feedback_target: 'both',
+      feedback: 'Strengthen the CTA and carry the b-roll lesson into the next pass.',
+      current_gate: 'final_submission',
+      release_link_id: 'calendar-1',
+      release_title: 'Tease: Approval gates',
+      release_scheduled_for: '2026-06-24T14:00:00.000Z',
+    })
+    expect(screen.getByText('Ranked content opportunities')).toBeInTheDocument()
+    expect(screen.getByText('Content generation queue')).toBeInTheDocument()
+    expect(screen.getByText('1 high priority · 2 gated')).toBeInTheDocument()
+    expect(screen.getAllByText('Target-avatar fit').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Measurement hypothesis').length).toBeGreaterThan(0)
+    expect(screen.getByText('Name the receipt path before asking operators where trust breaks.')).toBeInTheDocument()
+    expect(screen.getByText('Seven-day review decides whether to repeat as LinkedIn proof post.')).toBeInTheDocument()
+    expect(screen.getAllByText('No external action').length).toBeGreaterThan(0)
     expect(screen.getByText('Recommended next moves')).toBeInTheDocument()
     expect(screen.getByText('Takeaways from the projected backlog')).toBeInTheDocument()
     expect(screen.getByText('Strongest bet')).toBeInTheDocument()
@@ -707,11 +843,15 @@ describe('ContentIntelligencePage', () => {
     expect(screen.getByText('provider call: locked')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Callable external actions: 0' })).toBeDisabled()
     fireEvent.change(screen.getByLabelText('Backlog search'), { target: { value: 'Approval gates create trust' } })
-    expect(screen.getByText('Showing 1 of 2 backlog items. Search checks generated backlog titles, work items, release rows, channel variants, and research/source basis.')).toBeInTheDocument()
+    expect(screen.getByText('Showing 1 of 2 backlog items and 0 of 2 ranked opportunities. Search checks titles, work items, release rows, channel variants, opportunity rationale, and research/source basis.')).toBeInTheDocument()
     expect(screen.getAllByText('What breaks first when AI gets faster?').length).toBeGreaterThan(0)
     expect(screen.queryByText('What makes proof feel credible before a launch?')).not.toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('Backlog search'), { target: { value: 'receipt path' } })
+    expect(screen.getByText('Showing 1 of 2 backlog items and 1 of 2 ranked opportunities. Search checks titles, work items, release rows, channel variants, opportunity rationale, and research/source basis.')).toBeInTheDocument()
+    expect(screen.getByText('Name the receipt path before asking operators where trust breaks.')).toBeInTheDocument()
     fireEvent.change(screen.getByLabelText('Backlog search'), { target: { value: 'missing release row' } })
     expect(screen.getByText('No AutoResearch backlog items match the current search.')).toBeInTheDocument()
+    expect(screen.getByText('No ranked content opportunities match the current search.')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: /ResearchCreator evidence/ }))
     expect(screen.getByRole('heading', { name: 'Public creator research' })).toBeInTheDocument()
