@@ -5,6 +5,7 @@ import {
   AUTORESEARCH_BACKLOG_SIDE_EFFECTS,
   buildAutoResearchBacklogAdminProjection,
   buildAutoResearchBacklogReadOnlyResponse,
+  buildAutoResearchContentOpportunities,
   callableAutoResearchExternalActions,
   evaluateAutoResearchImprovementRecommendation,
   externalAutoResearchActionPermission,
@@ -227,6 +228,38 @@ describe('cross-channel autoresearch backlog', () => {
     expect(youtubeItem?.variants[0].visualNeeds).toEqual(['b_roll', 'thumbnail'])
   })
 
+  it('ranks content opportunities with avatar fit, gates, and measurement hypotheses', () => {
+    const opportunities = buildAutoResearchContentOpportunities(AGENTIFIED_AUTORESEARCH_BACKLOG_FIXTURES)
+
+    expect(opportunities).toHaveLength(7)
+    expect(opportunities[0]).toMatchObject({
+      title: 'Agentified release thread: build trust before scale',
+      priority: 'high',
+      channel: 'x',
+      recommendedFormat: 'thread',
+      requiredGate: 'final_submission',
+      recommendedImprovement: 'cta',
+      calendarLinkage: {
+        campaignSlug: 'agentified-trust-scale-2026-07',
+        calendarAssetId: 'AGT-X-04',
+      },
+    })
+    expect(opportunities[0].targetAvatarFit).toContain('offer phase')
+    expect(opportunities[0].nextContentMove).toContain('release path')
+    expect(opportunities[0].measurementHypothesis).toContain('Seven-day review')
+    expect(opportunities[0].sourceDistanceBoundary).toContain('Use public creator patterns')
+
+    const videoOpportunity = opportunities.find((opportunity) => opportunity.itemId === 'autoresearch-agentified-agt-yt-ep01')
+    expect(videoOpportunity).toMatchObject({
+      priority: 'medium',
+      channel: 'youtube',
+      recommendedFormat: 'long_form_video',
+      requiredGate: 'copy',
+      recommendedImprovement: 'none',
+    })
+    expect(videoOpportunity?.measurementHypothesis).toContain('Review hook resonance, watch time, retention')
+  })
+
   it('serializes the read-only response with empty callable external actions', () => {
     const response = buildAutoResearchBacklogReadOnlyResponse()
 
@@ -235,6 +268,18 @@ describe('cross-channel autoresearch backlog', () => {
       readyForInternalHandoff: 4,
       blockedOrManual: 7,
       callableExternalActions: 0,
+    })
+    expect(response.opportunity_summary).toEqual({
+      total: 7,
+      highPriority: 4,
+      channels: ['x', 'youtube_shorts', 'youtube'],
+      requiresHumanGate: 7,
+    })
+    expect(response.opportunities[0]).toMatchObject({
+      priority: 'high',
+      channel: 'x',
+      recommendedFormat: 'thread',
+      requiredGate: 'final_submission',
     })
     expect(response.side_effects).toBe(AUTORESEARCH_BACKLOG_SIDE_EFFECTS)
     expect(response.callable_external_actions).toEqual([])

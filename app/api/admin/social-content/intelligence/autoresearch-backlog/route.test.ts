@@ -46,6 +46,19 @@ describe('/api/admin/social-content/intelligence/autoresearch-backlog', () => {
       blockedOrManual: 7,
       callableExternalActions: 0,
     })
+    expect(body.opportunity_summary).toEqual({
+      total: 7,
+      highPriority: 4,
+      channels: ['x', 'youtube_shorts', 'youtube'],
+      requiresHumanGate: 7,
+    })
+    expect(body.opportunities[0]).toMatchObject({
+      title: 'Agentified release thread: build trust before scale',
+      priority: 'high',
+      channel: 'x',
+      requiredGate: 'final_submission',
+    })
+    expect(body.opportunities[0].measurementHypothesis).toContain('Seven-day review')
     expect(body.side_effects).toEqual({
       provider_call: false,
       slack_send: false,

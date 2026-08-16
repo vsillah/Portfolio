@@ -37,7 +37,11 @@ import {
   SOCIAL_CONTENT_CALENDAR_TEMPLATES,
   calendarMilestoneRationale,
 } from '@/lib/social-content-calendar'
-import type { AutoResearchAdminProjection, AutoResearchBacklogReadOnlyResponse } from '@/lib/cross-channel-autoresearch-backlog'
+import type {
+  AutoResearchAdminProjection,
+  AutoResearchBacklogReadOnlyResponse,
+  AutoResearchContentOpportunity,
+} from '@/lib/cross-channel-autoresearch-backlog'
 
 type ResearchPacket = {
   id: string
@@ -683,12 +687,42 @@ function ContentIntelligenceContent() {
       return linksById
     }, {} as Record<string, AutoResearchReleaseLink[]>)
   }, [autoResearchBacklog, calendarItems])
+  const filteredAutoResearchOpportunities = useMemo(() => {
+    const opportunities = autoResearchBacklog?.opportunities ?? []
+    const search = normalizeSearch(autoResearchSearch)
+    if (!search) return opportunities
+    return opportunities.filter((opportunity) => {
+      const searchableValues = [
+        opportunity.title,
+        opportunity.priority,
+        opportunity.channel,
+        opportunity.recommendedFormat,
+        opportunity.campaign.slug,
+        opportunity.campaign.phase,
+        opportunity.targetAvatarFit,
+        opportunity.whyNow,
+        opportunity.nextContentMove,
+        opportunity.measurementHypothesis,
+        opportunity.recommendedImprovement,
+        opportunity.requiredGate,
+        opportunity.evidenceBasis,
+        opportunity.sourceDistanceBoundary,
+        opportunity.calendarLinkage.calendarAssetId,
+        opportunity.calendarLinkage.socialContentId,
+        opportunity.calendarLinkage.workItemId,
+        opportunity.calendarLinkage.manualPacketPath,
+        opportunity.blockedReason,
+      ]
+      return searchableValues.some((value) => normalizeSearch(value).includes(search))
+    })
+  }, [autoResearchBacklog, autoResearchSearch])
   const filteredAutoResearchItems = useMemo(() => {
     const items = autoResearchBacklog?.items ?? []
     const search = normalizeSearch(autoResearchSearch)
     if (!search) return items
     return items.filter((item) => {
       const releaseLinks = autoResearchReleaseLinksById[item.id] ?? []
+      const matchingOpportunities = autoResearchBacklog?.opportunities.filter((opportunity) => opportunity.itemId === item.id) ?? []
       const searchableValues = [
         item.title,
         item.targetAvatar,
@@ -716,6 +750,21 @@ function ContentIntelligenceContent() {
           link.authorizationStatus,
           link.plannedAngle,
           link.templateLabel,
+        ]),
+        ...matchingOpportunities.flatMap((opportunity) => [
+          opportunity.title,
+          opportunity.priority,
+          opportunity.channel,
+          opportunity.recommendedFormat,
+          opportunity.targetAvatarFit,
+          opportunity.whyNow,
+          opportunity.nextContentMove,
+          opportunity.measurementHypothesis,
+          opportunity.recommendedImprovement,
+          opportunity.requiredGate,
+          opportunity.evidenceBasis,
+          opportunity.sourceDistanceBoundary,
+          opportunity.blockedReason,
         ]),
       ]
       return searchableValues.some((value) => normalizeSearch(value).includes(search))
@@ -1960,7 +2009,7 @@ function ContentIntelligenceContent() {
                   </div>
                 </label>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  Showing {filteredAutoResearchItems.length} of {autoResearchBacklog.items.length} backlog {autoResearchBacklog.items.length === 1 ? 'item' : 'items'}. Search checks generated backlog titles, work items, release rows, channel variants, and research/source basis.
+                  Showing {filteredAutoResearchItems.length} of {autoResearchBacklog.items.length} backlog {autoResearchBacklog.items.length === 1 ? 'item' : 'items'} and {filteredAutoResearchOpportunities.length} of {autoResearchBacklog.opportunities.length} ranked {autoResearchBacklog.opportunities.length === 1 ? 'opportunity' : 'opportunities'}. Search checks titles, work items, release rows, channel variants, opportunity rationale, and research/source basis.
                 </p>
               </div>
               <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-3">
@@ -1982,6 +2031,31 @@ function ContentIntelligenceContent() {
                     Callable external actions: {autoResearchBacklog.callable_external_actions.length}
                   </button>
                 </div>
+              </div>
+              <div className="rounded-lg border border-amber-500/25 bg-amber-500/10 p-3">
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-amber-100/75">Content generation queue</p>
+                    <h3 className="text-sm font-semibold text-amber-50">Ranked content opportunities</h3>
+                  </div>
+                  <span className="text-xs font-medium text-amber-100/70">
+                    {autoResearchBacklog.opportunity_summary.highPriority} high priority · {autoResearchBacklog.opportunity_summary.requiresHumanGate} gated
+                  </span>
+                </div>
+                {filteredAutoResearchOpportunities.length ? (
+                  <div className="mt-3 grid gap-3 xl:grid-cols-2">
+                    {filteredAutoResearchOpportunities.slice(0, 6).map((opportunity) => (
+                      <AutoResearchOpportunityCard
+                        key={opportunity.id}
+                        opportunity={opportunity}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="mt-3 rounded-md border border-amber-500/20 bg-background/35 px-3 py-5 text-center text-sm text-amber-100/75">
+                    No ranked content opportunities match the current search.
+                  </div>
+                )}
               </div>
               {autoResearchTakeaways.length ? (
                 <div className="rounded-lg border border-blue-500/25 bg-blue-500/10 p-3">
@@ -2613,6 +2687,71 @@ function gateTone(state: string) {
   if (state === 'blocked') return 'border-red-500/35 bg-red-500/10 text-red-100'
   if (state === 'manual_review') return 'border-blue-500/35 bg-blue-500/10 text-blue-100'
   return 'border-amber-500/35 bg-amber-500/10 text-amber-100'
+}
+
+function opportunityPriorityTone(priority: AutoResearchContentOpportunity['priority']) {
+  if (priority === 'high') return 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
+  if (priority === 'medium') return 'border-amber-500/35 bg-amber-500/10 text-amber-100'
+  return 'border-silicon-slate/70 bg-silicon-slate/30 text-muted-foreground'
+}
+
+function AutoResearchOpportunityCard({
+  opportunity,
+}: {
+  opportunity: AutoResearchContentOpportunity
+}) {
+  return (
+    <article className="min-w-0 rounded-md border border-amber-500/20 bg-background/35 p-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="break-words text-sm font-semibold text-amber-50">{opportunity.title}</p>
+          <p className="mt-1 text-[0.68rem] leading-5 text-amber-100/75">
+            {formatAutoResearchLabel(opportunity.channel)} · {formatAutoResearchLabel(opportunity.recommendedFormat)}
+            {opportunity.campaign.phase ? ` · ${CAMPAIGN_PHASE_LABELS[opportunity.campaign.phase]}` : ''}
+          </p>
+        </div>
+        <span className={`w-fit shrink-0 rounded-full border px-2.5 py-1 text-[0.68rem] font-semibold ${opportunityPriorityTone(opportunity.priority)}`}>
+          {opportunity.priority} priority
+        </span>
+      </div>
+
+      <dl className="mt-3 grid gap-3 sm:grid-cols-2">
+        <div>
+          <dt className="text-[0.62rem] font-semibold uppercase tracking-wide text-amber-100/65">Target-avatar fit</dt>
+          <dd className="mt-1 text-[0.68rem] leading-5 text-amber-50">{opportunity.targetAvatarFit}</dd>
+        </div>
+        <div>
+          <dt className="text-[0.62rem] font-semibold uppercase tracking-wide text-amber-100/65">Required gate</dt>
+          <dd className="mt-1 text-[0.68rem] leading-5 text-amber-50">
+            {formatAutoResearchGate(opportunity.requiredGate)}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-[0.62rem] font-semibold uppercase tracking-wide text-amber-100/65">Next content move</dt>
+          <dd className="mt-1 text-[0.68rem] leading-5 text-amber-50">{opportunity.nextContentMove}</dd>
+        </div>
+        <div>
+          <dt className="text-[0.62rem] font-semibold uppercase tracking-wide text-amber-100/65">Measurement hypothesis</dt>
+          <dd className="mt-1 text-[0.68rem] leading-5 text-amber-50">{opportunity.measurementHypothesis}</dd>
+        </div>
+      </dl>
+
+      <div className="mt-3 rounded-md border border-amber-500/20 bg-silicon-slate/20 p-2">
+        <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-amber-100/65">Evidence boundary</p>
+        <p className="mt-1 text-[0.68rem] leading-5 text-amber-100/75">{opportunity.evidenceBasis}</p>
+        <p className="mt-1 text-[0.68rem] leading-5 text-amber-100/65">{opportunity.sourceDistanceBoundary}</p>
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5 text-[0.62rem] text-muted-foreground">
+          Improvement: {formatAutoResearchLabel(opportunity.recommendedImprovement)}
+        </span>
+        <span className="rounded-full border border-emerald-500/35 bg-emerald-500/10 px-2 py-0.5 text-[0.62rem] font-semibold text-emerald-100">
+          No external action
+        </span>
+      </div>
+    </article>
+  )
 }
 
 function AutoResearchBacklogCard({
