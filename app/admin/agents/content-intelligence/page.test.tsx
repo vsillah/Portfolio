@@ -302,6 +302,15 @@ describe('ContentIntelligencePage', () => {
                   'docs/content-strategy/agentified-x-research-evidence-2026-08-05.md',
                   'agentified/campaign/portfolio-campaign-packet.json',
                 ],
+                sourceReferences: [
+                  {
+                    sourceType: 'public_post',
+                    urlOrPath: 'https://x.com/example/status/receipt-path',
+                    visibleSignalBasis: 'Visible thread structure and public replies.',
+                    transferablePattern: 'Open with the handoff failure before naming the receipt path.',
+                    confidence: 'high',
+                  },
+                ],
                 variants: [
                   {
                     channel: 'x',
@@ -366,6 +375,15 @@ describe('ContentIntelligencePage', () => {
                 sourcePacketPaths: [
                   'docs/content-strategy/linkedin-autoresearch-loop.md',
                   'docs/agentified-visual-autoresearch.md',
+                ],
+                sourceReferences: [
+                  {
+                    sourceType: 'public_video',
+                    urlOrPath: 'https://www.youtube.com/watch?v=proof-pattern',
+                    visibleSignalBasis: 'Visible proof framing and thumbnail pattern.',
+                    transferablePattern: 'Show proof before inviting the audience to believe the launch claim.',
+                    confidence: 'medium',
+                  },
                 ],
                 variants: [
                   {
@@ -729,6 +747,14 @@ describe('ContentIntelligencePage', () => {
     expect(screen.getByText('docs/content-strategy/agentified-x-research-evidence-2026-08-05.md')).toBeInTheDocument()
     expect(screen.getAllByText('final submission').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Generated backlog item').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Content').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Backlog linkage').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Due date').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Learning window').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Reference basis').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('https://x.com/example/status/receipt-path').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Open with the handoff failure before naming the receipt path.').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Full audit details').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Research and pattern basis').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Source packets explain why the backlog item exists; they are not generated draft content.').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Draft/backlog variants').length).toBeGreaterThan(0)

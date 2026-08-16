@@ -80,6 +80,11 @@ describe('/api/admin/social-content/intelligence/autoresearch-backlog', () => {
       },
     })
     expect(body.items[0].sourcePacketPaths).toContain('agentified/campaign/portfolio-campaign-packet.json')
+    expect(body.items[0].sourceReferences[0]).toEqual(expect.objectContaining({
+      sourceType: 'public_post',
+      confidence: 'medium',
+      transferablePattern: expect.stringContaining('workflow tension'),
+    }))
     expect(body.items.map((item: { title: string }) => item.title)).toEqual(expect.arrayContaining([
       'The operating layer behind AMINA',
       'The Receipt Every Agent Needs',

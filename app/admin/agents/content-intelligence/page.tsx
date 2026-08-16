@@ -301,6 +301,10 @@ function bestAutoResearchVariant(item: AutoResearchAdminProjection) {
   return [...item.variants].sort((left, right) => autoResearchVariantScore(right.channelFit) - autoResearchVariantScore(left.channelFit))[0] ?? null
 }
 
+function primaryAutoResearchReleaseLink(releaseLinks: AutoResearchReleaseLink[]) {
+  return [...releaseLinks].sort((left, right) => Date.parse(left.scheduledFor) - Date.parse(right.scheduledFor))[0] ?? null
+}
+
 function formatAutoResearchGate(gate: AutoResearchAdminProjection['firstBlockedOrPendingGate']) {
   return gate ? gate.replace(/_/g, ' ') : 'internal handoff ready'
 }
@@ -2762,6 +2766,11 @@ function AutoResearchBacklogCard({
   releaseLinks: AutoResearchReleaseLink[]
 }) {
   const gates = Object.values(item.gates)
+  const bestVariant = bestAutoResearchVariant(item)
+  const primaryRelease = primaryAutoResearchReleaseLink(releaseLinks)
+  const sourceReferences = item.sourceReferences ?? []
+  const primarySourceReference = sourceReferences[0] ?? null
+  const firstSourcePacket = item.sourcePacketPaths[0] ?? null
   return (
     <article className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -2775,145 +2784,71 @@ function AutoResearchBacklogCard({
         </span>
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-2 text-[0.68rem] text-muted-foreground">
-        <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5">
-          {item.campaign.slug ?? 'No campaign'}
-        </span>
-        {item.campaign.phase ? (
-          <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5">
-            {CAMPAIGN_PHASE_LABELS[item.campaign.phase]}
-          </span>
-        ) : null}
-        <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5">
-          {item.status.replace(/_/g, ' ')}
-        </span>
-      </div>
-
-      <div className="mt-4">
-        <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Research and pattern basis</p>
-        <p className="mt-1 text-[0.68rem] leading-5 text-muted-foreground">
-          Source packets explain why the backlog item exists; they are not generated draft content.
-        </p>
-        <div className="mt-2 space-y-1">
-          {item.sourcePacketPaths.map((path) => (
-            <p key={path} className="break-words rounded-md border border-silicon-slate/60 bg-background/35 px-2 py-1.5 font-mono text-[0.68rem] text-muted-foreground">
-              {path}
-            </p>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-4 grid gap-3 lg:grid-cols-2">
-        <div>
-          <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Draft/backlog variants</p>
-          <div className="mt-2 space-y-2">
-            {item.variants.map((variant) => (
-              <div key={`${item.id}-${variant.channel}-${variant.recommendedFormat}`} className="rounded-md border border-silicon-slate/60 bg-background/35 p-2">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-xs font-semibold">{variant.channel.replace(/_/g, ' ')}</p>
-                  <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5 text-[0.62rem] text-muted-foreground">
-                    {variant.channelFit}
-                  </span>
-                </div>
-                <p className="mt-1 text-[0.68rem] text-muted-foreground">{variant.recommendedFormat.replace(/_/g, ' ')} · {variant.ctaRole.replace(/_/g, ' ')}</p>
-                <p className="mt-1 text-[0.68rem] text-muted-foreground">Provider boundary: {variant.providerBoundary.replace(/_/g, ' ')}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Gate states</p>
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {gates.map((gate) => (
-              <span key={gate.key} className={`rounded-full border px-2 py-0.5 text-[0.62rem] ${gateTone(gate.state)}`}>
-                {gate.key.replace(/_/g, ' ')}: {gate.state.replace(/_/g, ' ')}
-              </span>
-            ))}
-          </div>
-          {item.learningWindows ? (
-            <div className="mt-3 rounded-md border border-blue-500/25 bg-blue-500/10 p-2">
-              <p className="text-[0.68rem] font-semibold text-blue-100">Learning windows</p>
-              <p className="mt-1 text-[0.68rem] leading-5 text-blue-100/80">
-                {item.learningWindows.directional.replace(/_/g, '-')} directional · {item.learningWindows.decision.replace(/_/g, ' ')} decision
-              </p>
-              <p className="mt-1 line-clamp-2 text-[0.68rem] leading-5 text-blue-100/70">
-                {item.learningWindows.visibleSampleBasis}
-              </p>
-            </div>
-          ) : null}
-        </div>
-      </div>
-
-      <div className="mt-4 rounded-md border border-emerald-500/25 bg-emerald-500/10 p-2">
-        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-emerald-100/80">Release calendar linkage</p>
-          <span className="text-[0.68rem] text-emerald-100/70">
-            {releaseLinks.length ? `${releaseLinks.length} connected row${releaseLinks.length === 1 ? '' : 's'}` : 'No connected release row'}
-          </span>
-        </div>
-        {releaseLinks.length ? (
-          <div className="mt-2 space-y-2">
-            {releaseLinks.map((link) => (
-              <div key={link.id} className="rounded-md border border-emerald-500/20 bg-background/35 p-2">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="min-w-0">
-                    <p className="break-words text-xs font-semibold text-emerald-50">{link.title}</p>
-                    <p className="mt-1 text-[0.68rem] leading-5 text-emerald-100/75">
-                      {CALENDAR_CHANNEL_LABELS[link.channel]} · {CAMPAIGN_PHASE_LABELS[link.phase]} · {link.authorizationStatus.replace(/_/g, ' ')}
-                    </p>
-                  </div>
-                  <span className="shrink-0 rounded-full border border-emerald-500/25 px-2 py-0.5 text-[0.62rem] font-semibold text-emerald-100/80">
-                    {link.approvalLead}
-                  </span>
-                </div>
-                <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                  <div>
-                    <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-emerald-100/65">Release date</p>
-                    <p className="mt-1 text-[0.68rem] font-semibold text-emerald-50">{formatCalendarDate(link.scheduledFor)}</p>
-                  </div>
-                  <div>
-                    <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-emerald-100/65">Approval due</p>
-                    <p className="mt-1 text-[0.68rem] font-semibold text-emerald-50">
-                      {link.authorizationDueAt ? formatCalendarDate(link.authorizationDueAt) : 'No approval deadline'}
-                    </p>
-                  </div>
-                </div>
-                {link.workItemTitle ? (
-                  <p className="mt-2 text-[0.68rem] leading-5 text-emerald-100/75">
-                    Work item: {link.workItemTitle}
-                  </p>
-                ) : null}
-                {link.socialContentId ? (
-                  <p className="mt-1 text-[0.68rem] leading-5 text-emerald-100/75">
-                    Connected content row:{' '}
-                    <Link href={`/admin/social-content/${link.socialContentId}`} className="font-semibold text-emerald-50 hover:text-white">
-                      {link.socialContentId}
-                    </Link>
-                    {link.socialContentStatus ? ` (${link.socialContentStatus.replace(/_/g, ' ')})` : ''}
-                  </p>
-                ) : null}
-                {link.templateLabel ? (
-                  <p className="mt-1 text-[0.68rem] leading-5 text-emerald-100/65">
-                    Template basis: {link.templateLabel}
-                  </p>
-                ) : null}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="mt-2 text-[0.68rem] leading-5 text-emerald-100/70">
-            Add or connect a release-calendar row before this becomes an operator-ready channel backlog item.
+      <div className="mt-4 grid gap-3 lg:grid-cols-4">
+        <div className="rounded-md border border-silicon-slate/60 bg-background/35 p-3">
+          <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-muted-foreground">Content</p>
+          <p className="mt-1 text-xs font-semibold">
+            {bestVariant ? `${formatAutoResearchLabel(bestVariant.channel)} ${bestVariant.recommendedFormat.replace(/_/g, ' ')}` : 'No channel variant'}
           </p>
-        )}
+          <p className="mt-1 text-[0.68rem] leading-5 text-muted-foreground">
+            {item.campaign.phase ? `${CAMPAIGN_PHASE_LABELS[item.campaign.phase]} phase` : 'No campaign phase'} · {item.status.replace(/_/g, ' ')}
+          </p>
+        </div>
+        <div className="rounded-md border border-silicon-slate/60 bg-background/35 p-3">
+          <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-muted-foreground">Backlog linkage</p>
+          <p className="mt-1 text-xs font-semibold">{item.campaign.slug ?? 'No campaign'}</p>
+          <p className="mt-1 text-[0.68rem] leading-5 text-muted-foreground">
+            Next gate: {formatAutoResearchGate(item.firstBlockedOrPendingGate)}
+          </p>
+        </div>
+        <div className="rounded-md border border-emerald-500/25 bg-emerald-500/10 p-3">
+          <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-emerald-100/65">Due date</p>
+          <p className="mt-1 text-xs font-semibold text-emerald-50">
+            {primaryRelease ? formatCalendarDate(primaryRelease.scheduledFor) : 'No release row'}
+          </p>
+          <p className="mt-1 text-[0.68rem] leading-5 text-emerald-100/75">
+            {primaryRelease?.authorizationDueAt ? `Approval due ${formatCalendarDate(primaryRelease.authorizationDueAt)}` : 'Approval due not set'}
+          </p>
+        </div>
+        <div className="rounded-md border border-blue-500/25 bg-blue-500/10 p-3">
+          <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-blue-100/65">Learning window</p>
+          <p className="mt-1 text-xs font-semibold text-blue-50">
+            {item.learningWindows ? `${item.learningWindows.directional.replace(/_/g, '-')} + ${item.learningWindows.decision.replace(/_/g, ' ')}` : 'No learning window'}
+          </p>
+          <p className="mt-1 line-clamp-2 text-[0.68rem] leading-5 text-blue-100/75">
+            {item.learningWindows?.visibleSampleBasis ?? 'Add post-release signal basis before optimization.'}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-md border border-blue-500/25 bg-blue-500/10 p-3">
+        <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-blue-100/70">Reference basis</p>
+            <p className="mt-1 break-words text-xs font-semibold text-blue-50">
+              {primarySourceReference?.urlOrPath ?? firstSourcePacket ?? 'No source reference attached'}
+            </p>
+            <p className="mt-1 text-[0.68rem] leading-5 text-blue-100/75">
+              {primarySourceReference?.transferablePattern ?? 'Source packets explain why the backlog item exists; they are not generated draft content.'}
+            </p>
+          </div>
+          <span className="shrink-0 rounded-full border border-blue-500/25 px-2 py-0.5 text-[0.62rem] font-semibold text-blue-100/80">
+            {primarySourceReference ? `${primarySourceReference.sourceType.replace(/_/g, ' ')} · ${primarySourceReference.confidence}` : 'source packet'}
+          </span>
+        </div>
+        {primarySourceReference?.visibleSignalBasis ? (
+          <p className="mt-2 text-[0.68rem] leading-5 text-blue-100/70">
+            Signal basis: {primarySourceReference.visibleSignalBasis}
+          </p>
+        ) : null}
       </div>
 
       <div className="mt-4 rounded-md border border-silicon-slate/60 bg-background/35 p-2">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Improvement recommendation</p>
+            <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Next decision</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {item.improvement.state.replace(/_/g, ' ')} · decision-grade {item.improvement.canBeDecisionGrade ? 'available' : 'locked'}
+              {item.nextHumanDecision ?? 'Review the connected backlog row before any provider handoff.'}
             </p>
           </div>
           <button
@@ -2924,10 +2859,133 @@ function AutoResearchBacklogCard({
             Callable actions: {item.callableExternalActions.length}
           </button>
         </div>
-        {item.nextHumanDecision ? (
-          <p className="mt-2 text-xs leading-5 text-muted-foreground">{item.nextHumanDecision}</p>
-        ) : null}
       </div>
+
+      <details className="mt-4 rounded-md border border-silicon-slate/60 bg-background/30 p-3">
+        <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Full audit details
+        </summary>
+
+        <div className="mt-4">
+          <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Research and pattern basis</p>
+          <p className="mt-1 text-[0.68rem] leading-5 text-muted-foreground">
+            Source packets explain why the backlog item exists; they are not generated draft content.
+          </p>
+          <div className="mt-2 space-y-1">
+            {sourceReferences.map((source) => (
+              <div key={`${source.urlOrPath}-${source.transferablePattern}`} className="rounded-md border border-blue-500/20 bg-blue-500/10 px-2 py-1.5">
+                <p className="break-words font-mono text-[0.68rem] text-blue-100/80">{source.urlOrPath}</p>
+                <p className="mt-1 text-[0.68rem] leading-5 text-blue-100/70">{source.transferablePattern}</p>
+              </div>
+            ))}
+            {item.sourcePacketPaths.map((path) => (
+              <p key={path} className="break-words rounded-md border border-silicon-slate/60 bg-background/35 px-2 py-1.5 font-mono text-[0.68rem] text-muted-foreground">
+                {path}
+              </p>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-3 lg:grid-cols-2">
+          <div>
+            <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Draft/backlog variants</p>
+            <div className="mt-2 space-y-2">
+              {item.variants.map((variant) => (
+                <div key={`${item.id}-${variant.channel}-${variant.recommendedFormat}`} className="rounded-md border border-silicon-slate/60 bg-background/35 p-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-xs font-semibold">{variant.channel.replace(/_/g, ' ')}</p>
+                    <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5 text-[0.62rem] text-muted-foreground">
+                      {variant.channelFit}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-[0.68rem] text-muted-foreground">{variant.recommendedFormat.replace(/_/g, ' ')} · {variant.ctaRole.replace(/_/g, ' ')}</p>
+                  <p className="mt-1 text-[0.68rem] text-muted-foreground">Provider boundary: {variant.providerBoundary.replace(/_/g, ' ')}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Gate states</p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {gates.map((gate) => (
+                <span key={gate.key} className={`rounded-full border px-2 py-0.5 text-[0.62rem] ${gateTone(gate.state)}`}>
+                  {gate.key.replace(/_/g, ' ')}: {gate.state.replace(/_/g, ' ')}
+                </span>
+              ))}
+            </div>
+            <div className="mt-3 rounded-md border border-silicon-slate/60 bg-background/35 p-2">
+              <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Improvement recommendation</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {item.improvement.state.replace(/_/g, ' ')} · decision-grade {item.improvement.canBeDecisionGrade ? 'available' : 'locked'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 rounded-md border border-emerald-500/25 bg-emerald-500/10 p-2">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-emerald-100/80">Release calendar linkage</p>
+            <span className="text-[0.68rem] text-emerald-100/70">
+              {releaseLinks.length ? `${releaseLinks.length} connected row${releaseLinks.length === 1 ? '' : 's'}` : 'No connected release row'}
+            </span>
+          </div>
+          {releaseLinks.length ? (
+            <div className="mt-2 space-y-2">
+              {releaseLinks.map((link) => (
+                <div key={link.id} className="rounded-md border border-emerald-500/20 bg-background/35 p-2">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <p className="break-words text-xs font-semibold text-emerald-50">{link.title}</p>
+                      <p className="mt-1 text-[0.68rem] leading-5 text-emerald-100/75">
+                        {CALENDAR_CHANNEL_LABELS[link.channel]} · {CAMPAIGN_PHASE_LABELS[link.phase]} · {link.authorizationStatus.replace(/_/g, ' ')}
+                      </p>
+                    </div>
+                    <span className="shrink-0 rounded-full border border-emerald-500/25 px-2 py-0.5 text-[0.62rem] font-semibold text-emerald-100/80">
+                      {link.approvalLead}
+                    </span>
+                  </div>
+                  <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                    <div>
+                      <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-emerald-100/65">Release date</p>
+                      <p className="mt-1 text-[0.68rem] font-semibold text-emerald-50">{formatCalendarDate(link.scheduledFor)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-emerald-100/65">Approval due</p>
+                      <p className="mt-1 text-[0.68rem] font-semibold text-emerald-50">
+                        {link.authorizationDueAt ? formatCalendarDate(link.authorizationDueAt) : 'No approval deadline'}
+                      </p>
+                    </div>
+                  </div>
+                  {link.workItemTitle ? (
+                    <p className="mt-2 text-[0.68rem] leading-5 text-emerald-100/75">
+                      Work item: {link.workItemTitle}
+                    </p>
+                  ) : null}
+                  {link.socialContentId ? (
+                    <p className="mt-1 text-[0.68rem] leading-5 text-emerald-100/75">
+                      Connected content row:{' '}
+                      <Link href={`/admin/social-content/${link.socialContentId}`} className="font-semibold text-emerald-50 hover:text-white">
+                        {link.socialContentId}
+                      </Link>
+                      {link.socialContentStatus ? ` (${link.socialContentStatus.replace(/_/g, ' ')})` : ''}
+                    </p>
+                  ) : null}
+                  {link.templateLabel ? (
+                    <p className="mt-1 text-[0.68rem] leading-5 text-emerald-100/65">
+                      Template basis: {link.templateLabel}
+                    </p>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-2 text-[0.68rem] leading-5 text-emerald-100/70">
+              Add or connect a release-calendar row before this becomes an operator-ready channel backlog item.
+            </p>
+          )}
+        </div>
+      </details>
     </article>
   )
 }

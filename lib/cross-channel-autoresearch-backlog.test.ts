@@ -213,6 +213,12 @@ describe('cross-channel autoresearch backlog', () => {
       externalActions: AUTORESEARCH_BACKLOG_SIDE_EFFECTS,
       callableExternalActions: [],
     })
+    expect(projection[0].sourceReferences[0]).toEqual(expect.objectContaining({
+      sourceType: 'public_post',
+      confidence: 'medium',
+      urlOrPath: expect.stringContaining('agentified-x-research-evidence'),
+      transferablePattern: expect.stringContaining('workflow tension'),
+    }))
     expect(projection[0].variants.map((variant) => variant.channel)).toEqual(['x', 'linkedin'])
     expect(projection.map((item) => item.title)).toEqual(expect.arrayContaining([
       'The operating layer behind AMINA',

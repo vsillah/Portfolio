@@ -253,6 +253,13 @@ export type AutoResearchAdminProjection = {
     phase?: SocialContentCampaignPhase
   }
   sourcePacketPaths: string[]
+  sourceReferences: Array<Pick<AutoResearchProvenance,
+    'sourceType'
+    | 'urlOrPath'
+    | 'visibleSignalBasis'
+    | 'transferablePattern'
+    | 'confidence'
+  >>
   variants: Array<Pick<AutoResearchChannelVariantRecommendation,
     'channel'
     | 'recommendedFormat'
@@ -510,6 +517,13 @@ export function buildAutoResearchBacklogAdminProjection(
         phase: item.campaignPhase,
       },
       sourcePacketPaths: item.sourcePacketPaths,
+      sourceReferences: item.provenance.map((source) => ({
+        sourceType: source.sourceType,
+        urlOrPath: source.urlOrPath,
+        visibleSignalBasis: source.visibleSignalBasis,
+        transferablePattern: source.transferablePattern,
+        confidence: source.confidence,
+      })),
       variants: item.channelVariants.map((variant) => ({
         channel: variant.channel,
         recommendedFormat: variant.recommendedFormat,
