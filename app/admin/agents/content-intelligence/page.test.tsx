@@ -647,16 +647,49 @@ describe('ContentIntelligencePage', () => {
         }
       }
       if (url === '/api/admin/agents/work-items/work-social-1/autoresearch-feedback') {
+        const recordedFeedbackHandoff = {
+          id: 'autoresearch-feedback-1',
+          created_at: '2026-06-23T15:00:00.000Z',
+          created_by: 'vambah@amadutown.com',
+          backlog_item_id: 'autoresearch-agentified-agt-x-01',
+          backlog_item_title: 'What breaks first when AI gets faster?',
+          feedback_target: 'both',
+          feedback: 'Strengthen the CTA and carry the b-roll lesson into the next pass.',
+          status: 'recorded',
+          current_gate: 'final_submission',
+          release_title: 'Tease: Approval gates',
+          release_scheduled_for: '2026-06-24T14:00:00.000Z',
+        }
         return {
           ok: true,
           json: async () => ({
             ok: true,
-            feedback_handoff: {
-              id: 'autoresearch-feedback-1',
-              backlog_item_id: 'autoresearch-agentified-agt-x-01',
-              feedback_target: 'both',
-              feedback: 'Strengthen the CTA and carry the b-roll lesson into the next pass.',
-              status: 'recorded',
+            feedback_handoff: recordedFeedbackHandoff,
+            work_item: {
+              id: 'work-social-1',
+              title: 'Approval gates create trust',
+              status: 'proposed',
+              priority: 'high',
+              source_type: 'social_topic_trigger',
+              metadata: {
+                suggested_research_packet_ids: ['packet-1'],
+                insight: {
+                  title: 'Approval gates create trust',
+                  triggering_event: 'A shipped review gate changed the work.',
+                  why_vambah_can_speak: 'Vambah built the system.',
+                  approved_research_patterns: [],
+                },
+                channel_lanes: {
+                  linkedin: { status: 'selected', label: 'LinkedIn', required_inputs: ['post text', 'CTA'] },
+                  youtube: { status: 'not_started', label: 'YouTube', required_inputs: ['title', 'description', 'script'] },
+                  youtube_shorts: { status: 'not_started', label: 'YouTube Shorts', required_inputs: ['hook', 'script'] },
+                  instagram_reels: { status: 'not_started', label: 'Instagram Reels', required_inputs: ['hook', 'caption'] },
+                  tiktok: { status: 'not_started', label: 'TikTok', required_inputs: ['hook', 'caption', 'audio rights'] },
+                },
+                autoresearch_feedback_handoffs: [recordedFeedbackHandoff],
+                autoresearch_feedback_latest: recordedFeedbackHandoff,
+              },
+              updated_at: '2026-06-23T15:00:00.000Z',
             },
             side_effects: {
               provider_generation: false,
@@ -798,6 +831,9 @@ describe('ContentIntelligencePage', () => {
     expect(screen.getAllByText('Approve the direction as-is, or leave commentary so Amina can revise this item, carry it into the next AutoResearch pass, or both.').length).toBeGreaterThan(0)
     expect(screen.getByText('Feedback routable')).toBeInTheDocument()
     expect(screen.getByText('Needs work-item link')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Feedback follow-through' })).toBeInTheDocument()
+    expect(screen.getByText('0 handoffs')).toBeInTheDocument()
+    expect(screen.getByText(/No operator feedback handoffs recorded yet/)).toBeInTheDocument()
     const feedbackAreas = screen.getAllByLabelText('Commentary for Amina')
     const feedbackButtons = screen.getAllByRole('button', { name: 'Record feedback handoff' })
     expect(feedbackButtons[0]).toBeDisabled()
@@ -820,6 +856,11 @@ describe('ContentIntelligencePage', () => {
       release_title: 'Tease: Approval gates',
       release_scheduled_for: '2026-06-24T14:00:00.000Z',
     })
+    expect(screen.getByText('1 handoff')).toBeInTheDocument()
+    expect(screen.getAllByText('Do both').length).toBeGreaterThan(0)
+    expect(screen.getByText('Strengthen the CTA and carry the b-roll lesson into the next pass.')).toBeInTheDocument()
+    expect(screen.getAllByText('Work item: Approval gates create trust').length).toBeGreaterThan(0)
+    expect(screen.getByRole('link', { name: /Open work item/ })).toHaveAttribute('href', '/admin/agents/social-insights/work-social-1')
     expect(screen.getByText('Ranked content opportunities')).toBeInTheDocument()
     expect(screen.getByText('Content generation queue')).toBeInTheDocument()
     expect(screen.getByText('1 high priority · 2 gated')).toBeInTheDocument()

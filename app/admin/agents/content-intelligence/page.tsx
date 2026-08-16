@@ -197,6 +197,22 @@ type AutoResearchReleaseLink = {
   templateLabel: string | null
 }
 
+type AutoResearchFeedbackHandoff = {
+  id: string
+  workItemId: string
+  workItemTitle: string
+  backlogItemId: string
+  backlogItemTitle: string | null
+  feedbackTarget: AutoResearchFeedbackTarget
+  feedback: string
+  status: string
+  currentGate: string | null
+  releaseTitle: string | null
+  releaseScheduledFor: string | null
+  createdAt: string
+  createdBy: string | null
+}
+
 const EMPTY_EVIDENCE_FORM: EvidenceForm = {
   source_url: '',
   platform: 'youtube',
@@ -335,6 +351,46 @@ function formatAutoResearchGate(gate: AutoResearchAdminProjection['firstBlockedO
 function formatAutoResearchLabel(value: string) {
   const normalized = value.replace(/_/g, ' ')
   return normalized === 'x' ? 'X' : normalized
+}
+
+function formatAutoResearchFeedbackTarget(target: AutoResearchFeedbackTarget) {
+  return AUTORESEARCH_FEEDBACK_TARGET_OPTIONS.find((option) => option.value === target)?.label ?? target.replace(/_/g, ' ')
+}
+
+function autoResearchFeedbackTarget(value: unknown): AutoResearchFeedbackTarget {
+  return value === 'current_backlog_item' || value === 'next_autoresearch_pass' || value === 'both'
+    ? value
+    : 'both'
+}
+
+function autoResearchFeedbackHandoffsForInsights(items: AgentWorkItem[]): AutoResearchFeedbackHandoff[] {
+  return items
+    .flatMap((item) => {
+      const metadata = recordValue(item.metadata)
+      const handoffs = Array.isArray(metadata.autoresearch_feedback_handoffs)
+        ? metadata.autoresearch_feedback_handoffs
+        : []
+      return handoffs.map((handoff) => {
+        const record = recordValue(handoff)
+        return {
+          id: stringValue(record.id) ?? `${item.id}-${String(record.created_at ?? record.backlog_item_id ?? 'feedback')}`,
+          workItemId: item.id,
+          workItemTitle: item.title,
+          backlogItemId: stringValue(record.backlog_item_id) ?? 'unknown-backlog-item',
+          backlogItemTitle: stringValue(record.backlog_item_title),
+          feedbackTarget: autoResearchFeedbackTarget(record.feedback_target),
+          feedback: stringValue(record.feedback) ?? '',
+          status: stringValue(record.status) ?? 'recorded',
+          currentGate: stringValue(record.current_gate),
+          releaseTitle: stringValue(record.release_title),
+          releaseScheduledFor: stringValue(record.release_scheduled_for),
+          createdAt: stringValue(record.created_at) ?? '',
+          createdBy: stringValue(record.created_by),
+        }
+      })
+    })
+    .filter((handoff) => handoff.feedback.trim().length > 0)
+    .sort((left, right) => sortableDate(right.createdAt) - sortableDate(left.createdAt))
 }
 
 function calendarApprovalLeadLabel(item: CalendarItem) {
@@ -801,6 +857,10 @@ function ContentIntelligenceContent() {
       return searchableValues.some((value) => normalizeSearch(value).includes(search))
     })
   }, [autoResearchBacklog, autoResearchReleaseLinksById, autoResearchSearch])
+  const autoResearchFeedbackHandoffs = useMemo(
+    () => autoResearchFeedbackHandoffsForInsights(insights),
+    [insights],
+  )
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -1260,6 +1320,15 @@ function ContentIntelligenceContent() {
       })
       const body = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(body.error || `AutoResearch feedback HTTP ${response.status}`)
+      if (body.work_item) {
+        const updatedWorkItem = body.work_item as AgentWorkItem
+        setInsights((current) => {
+          const exists = current.some((candidate) => candidate.id === updatedWorkItem.id)
+          return exists
+            ? current.map((candidate) => (candidate.id === updatedWorkItem.id ? updatedWorkItem : candidate))
+            : [updatedWorkItem, ...current]
+        })
+      }
       setAutoResearchFeedbackNotes((current) => ({ ...current, [item.id]: '' }))
       setAutoResearchFeedbackNotice(target === 'current_backlog_item'
         ? 'Feedback recorded for this backlog item.'
@@ -2078,6 +2147,7 @@ function ContentIntelligenceContent() {
                 <DigestMetric label="Blocked/manual" value={autoResearchBacklog.summary.blockedOrManual} tone="amber" />
                 <DigestMetric label="Callable actions" value={autoResearchBacklog.summary.callableExternalActions} />
               </div>
+              <AutoResearchFeedbackFollowThroughPanel handoffs={autoResearchFeedbackHandoffs} />
               <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-3">
                 <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Backlog search
@@ -2788,6 +2858,85 @@ function opportunityPriorityTone(priority: AutoResearchContentOpportunity['prior
   if (priority === 'high') return 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
   if (priority === 'medium') return 'border-amber-500/35 bg-amber-500/10 text-amber-100'
   return 'border-silicon-slate/70 bg-silicon-slate/30 text-muted-foreground'
+}
+
+function AutoResearchFeedbackFollowThroughPanel({
+  handoffs,
+}: {
+  handoffs: AutoResearchFeedbackHandoff[]
+}) {
+  const visibleHandoffs = handoffs.slice(0, 3)
+  return (
+    <section className="rounded-lg border border-blue-500/30 bg-blue-500/10 p-3">
+      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+        <div>
+          <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-blue-100/70">Amina feedback loop</p>
+          <h3 className="text-sm font-semibold text-blue-50">Feedback follow-through</h3>
+          <p className="mt-1 max-w-3xl text-xs leading-5 text-blue-100/75">
+            Recorded commentary is routed back to the linked backlog item, the next AutoResearch pass, or both. This stays internal until a normal content gate authorizes the next action.
+          </p>
+        </div>
+        <span className="w-fit shrink-0 rounded-full border border-blue-400/40 bg-background/35 px-2.5 py-1 text-[0.68rem] font-semibold text-blue-100">
+          {handoffs.length} {handoffs.length === 1 ? 'handoff' : 'handoffs'}
+        </span>
+      </div>
+
+      {visibleHandoffs.length > 0 ? (
+        <div className="mt-3 grid gap-2">
+          {visibleHandoffs.map((handoff) => (
+            <article key={handoff.id} className="rounded-md border border-blue-400/25 bg-background/35 p-3">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <p className="break-words text-xs font-semibold text-blue-50">
+                    {handoff.backlogItemTitle ?? handoff.backlogItemId}
+                  </p>
+                  <p className="mt-1 text-[0.68rem] leading-5 text-blue-100/70">
+                    Work item: {handoff.workItemTitle}
+                  </p>
+                </div>
+                <span className="w-fit shrink-0 rounded-full border border-radiant-gold/45 bg-radiant-gold/10 px-2 py-0.5 text-[0.62rem] font-semibold text-radiant-gold">
+                  {formatAutoResearchFeedbackTarget(handoff.feedbackTarget)}
+                </span>
+              </div>
+              <blockquote className="mt-2 rounded-md border border-silicon-slate/60 bg-silicon-slate/20 px-3 py-2 text-xs leading-5 text-foreground">
+                {handoff.feedback}
+              </blockquote>
+              <dl className="mt-3 grid gap-2 text-[0.68rem] leading-5 text-blue-100/75 sm:grid-cols-3">
+                <div>
+                  <dt className="font-semibold uppercase tracking-wide text-blue-100/55">Current gate</dt>
+                  <dd>{handoff.currentGate ? handoff.currentGate.replace(/_/g, ' ') : 'Not recorded'}</dd>
+                </div>
+                <div>
+                  <dt className="font-semibold uppercase tracking-wide text-blue-100/55">Release row</dt>
+                  <dd>
+                    {handoff.releaseTitle ?? 'No release row'}
+                    {handoff.releaseScheduledFor ? ` · ${formatCalendarDate(handoff.releaseScheduledFor)}` : ''}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="font-semibold uppercase tracking-wide text-blue-100/55">Recorded</dt>
+                  <dd>{handoff.createdAt ? formatCalendarDate(handoff.createdAt) : 'Recorded'}</dd>
+                </div>
+              </dl>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Link
+                  href={`/admin/agents/social-insights/${handoff.workItemId}`}
+                  className="inline-flex min-h-8 items-center justify-center gap-1.5 rounded-md border border-blue-400/35 px-2.5 py-1 text-[0.68rem] font-semibold text-blue-100 transition hover:border-blue-300 hover:bg-blue-400/10"
+                >
+                  Open work item
+                  <ExternalLink className="h-3 w-3" />
+                </Link>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div className="mt-3 rounded-md border border-dashed border-blue-400/30 bg-background/25 px-3 py-4 text-xs leading-5 text-blue-100/70">
+          No operator feedback handoffs recorded yet. Use a backlog row&apos;s Operator action panel to tell Amina whether to revise the current item, carry the learning into the next pass, or do both.
+        </div>
+      )}
+    </section>
+  )
 }
 
 function AutoResearchOpportunityCard({
