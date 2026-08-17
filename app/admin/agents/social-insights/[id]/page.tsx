@@ -391,7 +391,7 @@ function SocialInsightDetailContent() {
                       onChange={(event) => setDecisionNote(event.target.value)}
                       rows={3}
                       placeholder="What should Shaka or the production agent change before this lane moves forward?"
-                      className="mt-2 w-full rounded-md border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm normal-case tracking-normal text-foreground"
+                      className="mt-2 w-full rounded-md border border-silicon-slate/70 bg-gray-950/80 px-3 py-2 text-sm normal-case tracking-normal text-slate-100 [color-scheme:dark] placeholder:text-slate-500 focus:border-radiant-gold/60 focus:outline-none focus:ring-2 focus:ring-radiant-gold/25"
                     />
                   </label>
                   <div className="mt-3 flex flex-col gap-2 md:flex-row md:justify-end">

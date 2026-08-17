@@ -336,6 +336,7 @@ describe('SocialInsightDetailPage', () => {
     expect(screen.getByText('Approved research patterns')).toBeInTheDocument()
     expect(screen.getByText('Useful outlier')).toBeInTheDocument()
     expect(screen.getByText('Hook: Start with the missed approval gate.')).toBeInTheDocument()
+    expect(screen.getByLabelText('Decision note')).toHaveClass('bg-gray-950/80', 'text-slate-100', '[color-scheme:dark]', 'placeholder:text-slate-500')
 
     fireEvent.click(screen.getByRole('tab', { name: /Thumbnail/ }))
 
