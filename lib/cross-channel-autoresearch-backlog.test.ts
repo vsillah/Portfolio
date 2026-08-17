@@ -197,9 +197,13 @@ describe('cross-channel autoresearch backlog', () => {
 
   it('builds a read-only admin projection without adding callable actions', () => {
     const projection = buildAutoResearchBacklogAdminProjection(AGENTIFIED_AUTORESEARCH_BACKLOG_FIXTURES)
+    const xProjection = projection.find((item) => item.id === 'autoresearch-agentified-agt-x-01')
+    const metaProjection = projection.find((item) => item.id === 'autoresearch-agentified-agt-ig-fb-02')
+    const manualProjection = projection.find((item) => item.id === 'autoresearch-agentified-agt-tiktok-manual-01')
+    const thumbnailProjection = projection.find((item) => item.id === 'autoresearch-agentified-agt-thumbnail-yt-ep01')
 
-    expect(projection).toHaveLength(7)
-    expect(projection[0]).toMatchObject({
+    expect(projection).toHaveLength(11)
+    expect(xProjection).toMatchObject({
       id: 'autoresearch-agentified-agt-x-01',
       campaign: {
         slug: 'agentified-trust-scale-2026-07',
@@ -213,20 +217,45 @@ describe('cross-channel autoresearch backlog', () => {
       externalActions: AUTORESEARCH_BACKLOG_SIDE_EFFECTS,
       callableExternalActions: [],
     })
-    expect(projection[0].sourceReferences[0]).toEqual(expect.objectContaining({
+    expect(xProjection?.sourceReferences[0]).toEqual(expect.objectContaining({
       sourceType: 'public_post',
       confidence: 'medium',
       urlOrPath: expect.stringContaining('agentified-x-research-evidence'),
       transferablePattern: expect.stringContaining('workflow tension'),
     }))
-    expect(projection[0].variants.map((variant) => variant.channel)).toEqual(['x', 'linkedin'])
+    expect(xProjection?.variants.map((variant) => variant.channel)).toEqual(['x', 'linkedin'])
+    expect(metaProjection).toMatchObject({
+      title: 'AMINA is the operating loop',
+      firstBlockedOrPendingGate: 'visual_media',
+      releaseLinkage: {
+        calendarAssetId: 'AGT-IG-02',
+      },
+    })
+    expect(metaProjection?.variants.map((variant) => variant.channel)).toEqual(['instagram', 'facebook'])
+    expect(manualProjection).toMatchObject({
+      status: 'manual_hold',
+      firstBlockedOrPendingGate: 'copy',
+      blockers: expect.arrayContaining(['Backlog item status manual_hold is fail-closed.']),
+    })
+    expect(manualProjection?.variants.map((variant) => variant.channel)).toEqual(['tiktok', 'manual'])
+    expect(thumbnailProjection).toMatchObject({
+      title: 'The Receipt Every Agent Needs thumbnail promise',
+      firstBlockedOrPendingGate: 'copy',
+      releaseLinkage: {
+        calendarAssetId: 'AGT-YT-EP01',
+      },
+    })
     expect(projection.map((item) => item.title)).toEqual(expect.arrayContaining([
+      'The speed problem is becoming a trust problem',
       'The operating layer behind AMINA',
       'The workbook is the receipt path',
       'Agentified release thread: build trust before scale',
       'Agentic work needs an operating system',
       'The Receipt Every Agent Needs',
       'What the cover is really showing',
+      'AMINA is the operating loop',
+      'Short-form proof cutdown needs a platform review',
+      'The Receipt Every Agent Needs thumbnail promise',
     ]))
 
     const youtubeItem = projection.find((item) => item.id === 'autoresearch-agentified-agt-yt-ep01')
@@ -237,7 +266,18 @@ describe('cross-channel autoresearch backlog', () => {
   it('ranks content opportunities with avatar fit, gates, and measurement hypotheses', () => {
     const opportunities = buildAutoResearchContentOpportunities(AGENTIFIED_AUTORESEARCH_BACKLOG_FIXTURES)
 
-    expect(opportunities).toHaveLength(7)
+    expect(opportunities).toHaveLength(17)
+    expect([...new Set(opportunities.map((opportunity) => opportunity.channel))]).toEqual([
+      'x',
+      'linkedin',
+      'youtube_shorts',
+      'instagram',
+      'facebook',
+      'youtube',
+      'thumbnail',
+      'tiktok',
+      'manual',
+    ])
     expect(opportunities[0]).toMatchObject({
       title: 'Agentified release thread: build trust before scale',
       priority: 'high',
@@ -264,22 +304,52 @@ describe('cross-channel autoresearch backlog', () => {
       recommendedImprovement: 'none',
     })
     expect(videoOpportunity?.measurementHypothesis).toContain('Review hook resonance, watch time, retention')
+
+    const metaOpportunity = opportunities.find((opportunity) => opportunity.channel === 'instagram')
+    expect(metaOpportunity).toMatchObject({
+      title: 'AMINA is the operating loop',
+      priority: 'medium',
+      recommendedFormat: 'carousel',
+      requiredGate: 'visual_media',
+    })
+    expect(metaOpportunity?.measurementHypothesis).toContain('Seven-day review')
+
+    const facebookOpportunity = opportunities.find((opportunity) => opportunity.channel === 'facebook')
+    expect(facebookOpportunity).toMatchObject({
+      title: 'AMINA is the operating loop',
+      recommendedFormat: 'single_image',
+      requiredGate: 'visual_media',
+    })
+
+    const thumbnailOpportunity = opportunities.find((opportunity) => opportunity.channel === 'thumbnail')
+    expect(thumbnailOpportunity).toMatchObject({
+      title: 'The Receipt Every Agent Needs thumbnail promise',
+      recommendedFormat: 'thumbnail',
+      requiredGate: 'copy',
+    })
+
+    const manualOpportunity = opportunities.find((opportunity) => opportunity.channel === 'manual')
+    expect(manualOpportunity).toMatchObject({
+      title: 'Short-form proof cutdown needs a platform review',
+      priority: 'low',
+      blockedReason: 'Backlog item status manual_hold is fail-closed.',
+    })
   })
 
   it('serializes the read-only response with empty callable external actions', () => {
     const response = buildAutoResearchBacklogReadOnlyResponse()
 
     expect(response.summary).toEqual({
-      total: 7,
-      readyForInternalHandoff: 4,
-      blockedOrManual: 7,
+      total: 11,
+      readyForInternalHandoff: 5,
+      blockedOrManual: 11,
       callableExternalActions: 0,
     })
     expect(response.opportunity_summary).toEqual({
-      total: 7,
-      highPriority: 4,
-      channels: ['x', 'youtube_shorts', 'youtube'],
-      requiresHumanGate: 7,
+      total: 17,
+      highPriority: 5,
+      channels: ['x', 'linkedin', 'youtube_shorts', 'instagram', 'facebook', 'youtube', 'thumbnail', 'tiktok', 'manual'],
+      requiresHumanGate: 17,
     })
     expect(response.opportunities[0]).toMatchObject({
       priority: 'high',
@@ -291,6 +361,7 @@ describe('cross-channel autoresearch backlog', () => {
     expect(response.callable_external_actions).toEqual([])
     expect(response.items[0].sourcePacketPaths).toContain('agentified/campaign/portfolio-campaign-packet.json')
     expect(response.items.map((item) => item.title)).toEqual(expect.arrayContaining([
+      'The speed problem is becoming a trust problem',
       'What breaks first when AI gets faster?',
       'The operating layer behind AMINA',
       'The workbook is the receipt path',
@@ -298,6 +369,20 @@ describe('cross-channel autoresearch backlog', () => {
       'Agentic work needs an operating system',
       'The Receipt Every Agent Needs',
       'What the cover is really showing',
+      'AMINA is the operating loop',
+      'Short-form proof cutdown needs a platform review',
+      'The Receipt Every Agent Needs thumbnail promise',
+    ]))
+    expect(response.items.flatMap((item) => item.variants.map((variant) => variant.channel))).toEqual(expect.arrayContaining([
+      'linkedin',
+      'x',
+      'youtube',
+      'youtube_shorts',
+      'instagram',
+      'facebook',
+      'tiktok',
+      'manual',
+      'thumbnail',
     ]))
     expect(JSON.stringify(response)).not.toContain('provider_token')
   })

@@ -216,6 +216,7 @@ type AutoResearchFeedbackHandoff = {
 type AutoResearchOperatorAction = {
   id: string
   title: string
+  channelLabel: string
   badge: string
   tone: 'emerald' | 'amber' | 'blue' | 'slate'
   nextAction: string
@@ -421,13 +422,16 @@ function buildAutoResearchOperatorActions(
       const rightReady = right.firstBlockedOrPendingGate === 'final_submission' ? 0 : 1
       return leftReady - rightReady || sortableDate(leftRelease?.scheduledFor) - sortableDate(rightRelease?.scheduledFor)
     })
-    .slice(0, 4)
     .map((item) => {
       const release = primaryAutoResearchReleaseLink(releaseLinksById[item.id] ?? [])
       const gate = item.firstBlockedOrPendingGate
       const hasFeedback = feedbackByBacklogItem.has(item.id)
       const bestVariant = bestAutoResearchVariant(item)
+      const channelLabel = item.variants.map((variant) => formatAutoResearchLabel(variant.channel)).join(' + ')
       const primarySource = item.sourceReferences[0]?.urlOrPath ?? item.sourcePacketPaths[0] ?? 'No source reference attached'
+      const fallbackReleaseLabel = item.releaseLinkage?.calendarAssetId
+        ?? item.releaseLinkage?.manualPacketPath
+        ?? 'No release row'
       const href = release?.socialContentId
         ? `/admin/social-content/${release.socialContentId}`
         : release?.workItemId
@@ -438,13 +442,14 @@ function buildAutoResearchOperatorActions(
         return {
           id: item.id,
           title: item.title,
+          channelLabel,
           badge: 'Ready for approval',
           tone: 'emerald',
           nextAction: 'Open the connected content row and approve or revise the final submission direction.',
           detail: item.nextHumanDecision ?? 'Final submission is the next human-controlled gate.',
           href,
           hrefLabel: release?.socialContentId ? 'Open content row' : 'Open work item',
-          releaseLabel: release ? formatCalendarDate(release.scheduledFor) : 'No release row',
+          releaseLabel: release ? formatCalendarDate(release.scheduledFor) : fallbackReleaseLabel,
           sourceBasis: primarySource,
         }
       }
@@ -453,13 +458,14 @@ function buildAutoResearchOperatorActions(
         return {
           id: item.id,
           title: item.title,
+          channelLabel,
           badge: 'Needs operator direction',
           tone: 'amber',
           nextAction: 'Leave commentary for Amina: revise this item, carry it into the next pass, or do both.',
           detail: item.nextHumanDecision ?? `Next gate: ${formatAutoResearchGate(gate)}.`,
           href,
           hrefLabel: release?.socialContentId ? 'Open content row' : 'Open work item',
-          releaseLabel: release ? formatCalendarDate(release.scheduledFor) : 'No release row',
+          releaseLabel: release ? formatCalendarDate(release.scheduledFor) : fallbackReleaseLabel,
           sourceBasis: primarySource,
         }
       }
@@ -468,13 +474,14 @@ function buildAutoResearchOperatorActions(
         return {
           id: item.id,
           title: item.title,
+          channelLabel,
           badge: 'Gate pending',
           tone: 'blue',
           nextAction: `Clear the ${formatAutoResearchGate(gate)} gate before this can advance.`,
           detail: item.nextHumanDecision ?? 'Amina has feedback; the next gate still needs normal review.',
           href,
           hrefLabel: release?.socialContentId ? 'Open content row' : 'Open work item',
-          releaseLabel: release ? formatCalendarDate(release.scheduledFor) : 'No release row',
+          releaseLabel: release ? formatCalendarDate(release.scheduledFor) : fallbackReleaseLabel,
           sourceBasis: primarySource,
         }
       }
@@ -482,6 +489,7 @@ function buildAutoResearchOperatorActions(
       return {
         id: item.id,
         title: item.title,
+        channelLabel,
         badge: 'Monitor learning window',
         tone: 'slate',
         nextAction: 'Wait for directional signals before changing the next AutoResearch pass.',
@@ -490,7 +498,7 @@ function buildAutoResearchOperatorActions(
           : 'No channel variant is attached yet.',
         href,
         hrefLabel: release?.socialContentId ? 'Open content row' : 'Open work item',
-        releaseLabel: release ? formatCalendarDate(release.scheduledFor) : 'No release row',
+        releaseLabel: release ? formatCalendarDate(release.scheduledFor) : fallbackReleaseLabel,
         sourceBasis: primarySource,
       }
     })
@@ -919,6 +927,10 @@ function ContentIntelligenceContent() {
         item.status,
         item.campaign.slug,
         item.campaign.phase,
+        item.releaseLinkage?.calendarAssetId,
+        item.releaseLinkage?.socialContentId,
+        item.releaseLinkage?.workItemId,
+        item.releaseLinkage?.manualPacketPath,
         item.nextHumanDecision,
         ...item.sourcePacketPaths,
         ...item.variants.flatMap((variant) => [
@@ -3003,6 +3015,9 @@ function AutoResearchOperatorActionQueue({
                 <div className="min-w-0">
                   <p className="break-words text-sm font-semibold text-amber-50">{action.title}</p>
                   <p className="mt-1 text-[0.68rem] leading-5 text-amber-100/70">
+                    Channels: {action.channelLabel}
+                  </p>
+                  <p className="mt-1 break-words text-[0.68rem] leading-5 text-amber-100/70">
                     Release: {action.releaseLabel}
                   </p>
                 </div>
@@ -3238,6 +3253,11 @@ function AutoResearchBacklogCard({
           <p className="mt-1 text-[0.68rem] leading-5 text-muted-foreground">
             Next gate: {formatAutoResearchGate(item.firstBlockedOrPendingGate)}
           </p>
+          {item.releaseLinkage?.calendarAssetId ? (
+            <p className="mt-1 break-words font-mono text-[0.65rem] text-muted-foreground">
+              {item.releaseLinkage.calendarAssetId}
+            </p>
+          ) : null}
         </div>
         <div className="rounded-md border border-emerald-500/25 bg-emerald-500/10 p-3">
           <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-emerald-100/65">Due date</p>
@@ -3481,7 +3501,9 @@ function AutoResearchBacklogCard({
             </div>
           ) : (
             <p className="mt-2 text-[0.68rem] leading-5 text-emerald-100/70">
-              Add or connect a release-calendar row before this becomes an operator-ready channel backlog item.
+              {item.releaseLinkage?.manualPacketPath
+                ? `Planned linkage: ${item.releaseLinkage.calendarAssetId ?? 'manual packet'} via ${item.releaseLinkage.manualPacketPath}. Connect a release-calendar row before external preparation.`
+                : 'Add or connect a release-calendar row before this becomes an operator-ready channel backlog item.'}
             </p>
           )}
         </div>
