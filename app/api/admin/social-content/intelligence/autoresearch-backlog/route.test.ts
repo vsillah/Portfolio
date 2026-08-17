@@ -41,16 +41,16 @@ describe('/api/admin/social-content/intelligence/autoresearch-backlog', () => {
     expect(response.status).toBe(200)
     const body = await response.json()
     expect(body.summary).toEqual({
-      total: 7,
-      readyForInternalHandoff: 4,
-      blockedOrManual: 7,
+      total: 11,
+      readyForInternalHandoff: 5,
+      blockedOrManual: 11,
       callableExternalActions: 0,
     })
     expect(body.opportunity_summary).toEqual({
-      total: 7,
-      highPriority: 4,
-      channels: ['x', 'youtube_shorts', 'youtube'],
-      requiresHumanGate: 7,
+      total: 17,
+      highPriority: 5,
+      channels: ['x', 'linkedin', 'youtube_shorts', 'instagram', 'facebook', 'youtube', 'thumbnail', 'tiktok', 'manual'],
+      requiresHumanGate: 17,
     })
     expect(body.opportunities[0]).toMatchObject({
       title: 'Agentified release thread: build trust before scale',
@@ -70,7 +70,8 @@ describe('/api/admin/social-content/intelligence/autoresearch-backlog', () => {
       production_mutation: false,
     })
     expect(body.callable_external_actions).toEqual([])
-    expect(body.items[0]).toMatchObject({
+    const xItem = body.items.find((item: { id: string }) => item.id === 'autoresearch-agentified-agt-x-01')
+    expect(xItem).toMatchObject({
       id: 'autoresearch-agentified-agt-x-01',
       firstBlockedOrPendingGate: 'final_submission',
       callableExternalActions: [],
@@ -79,16 +80,33 @@ describe('/api/admin/social-content/intelligence/autoresearch-backlog', () => {
         phase: 'tease',
       },
     })
-    expect(body.items[0].sourcePacketPaths).toContain('agentified/campaign/portfolio-campaign-packet.json')
-    expect(body.items[0].sourceReferences[0]).toEqual(expect.objectContaining({
+    expect(xItem.sourcePacketPaths).toContain('agentified/campaign/portfolio-campaign-packet.json')
+    expect(xItem.sourceReferences[0]).toEqual(expect.objectContaining({
       sourceType: 'public_post',
       confidence: 'medium',
       transferablePattern: expect.stringContaining('workflow tension'),
     }))
     expect(body.items.map((item: { title: string }) => item.title)).toEqual(expect.arrayContaining([
+      'The speed problem is becoming a trust problem',
       'The operating layer behind AMINA',
       'The Receipt Every Agent Needs',
       'What the cover is really showing',
+      'AMINA is the operating loop',
+      'Short-form proof cutdown needs a platform review',
+      'The Receipt Every Agent Needs thumbnail promise',
+    ]))
+    expect(body.items.flatMap((item: { variants: Array<{ channel: string }> }) => (
+      item.variants.map((variant) => variant.channel)
+    ))).toEqual(expect.arrayContaining([
+      'linkedin',
+      'x',
+      'youtube',
+      'youtube_shorts',
+      'instagram',
+      'facebook',
+      'tiktok',
+      'manual',
+      'thumbnail',
     ]))
   })
 })

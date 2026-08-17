@@ -252,6 +252,7 @@ export type AutoResearchAdminProjection = {
     slug?: string
     phase?: SocialContentCampaignPhase
   }
+  releaseLinkage?: AutoResearchReleaseLinkage
   sourcePacketPaths: string[]
   sourceReferences: Array<Pick<AutoResearchProvenance,
     'sourceType'
@@ -516,6 +517,7 @@ export function buildAutoResearchBacklogAdminProjection(
         slug: item.campaignSlug,
         phase: item.campaignPhase,
       },
+      releaseLinkage: item.releaseLinkage,
       sourcePacketPaths: item.sourcePacketPaths,
       sourceReferences: item.provenance.map((source) => ({
         sourceType: source.sourceType,
@@ -602,10 +604,6 @@ export function buildAutoResearchContentOpportunities(
   return items
     .flatMap((item) => {
       const projection = projectAutoResearchBacklogItem(item)
-      const variant = bestChannelVariant(item)
-      if (!variant) return []
-
-      const priority = opportunityPriority(item, projection, variant)
       const evidenceBasis = item.improvementRecommendation?.evidenceBasis
         ?? item.provenance[0]?.visibleSignalBasis
         ?? 'Source packet and campaign calendar linkage.'
@@ -613,7 +611,9 @@ export function buildAutoResearchContentOpportunities(
       const requiredGate = projection.firstBlockedOrPendingGate
       const blockedReason = projection.blockers[0] ?? item.blockedReason
 
-      return [{
+      return item.channelVariants.map((variant) => {
+        const priority = opportunityPriority(item, projection, variant)
+        return {
         id: `opportunity-${item.id}-${variant.channel}`,
         itemId: item.id,
         title: item.title,
@@ -637,7 +637,8 @@ export function buildAutoResearchContentOpportunities(
         sourceDistanceBoundary: item.sourceDistance.allowedPatternUse,
         calendarLinkage: item.releaseLinkage ?? {},
         blockedReason,
-      } satisfies AutoResearchContentOpportunity]
+        } satisfies AutoResearchContentOpportunity
+      })
     })
     .sort((left, right) => (
       opportunityRank(right.priority) - opportunityRank(left.priority)
@@ -683,6 +684,25 @@ const AGENTIFIED_VIDEO_SOURCE_PACKET_PATHS = [
   'agentified/campaign/portfolio-campaign-packet.json',
 ]
 
+const AGENTIFIED_LINKEDIN_SOURCE_PACKET_PATHS = [
+  'docs/content-strategy/linkedin-autoresearch-loop.md',
+  'docs/linkedin-voice.md',
+  'agentified/campaign/portfolio-campaign-packet.json',
+]
+
+const AGENTIFIED_META_SOURCE_PACKET_PATHS = [
+  'docs/content-strategy/agentified-instagram-research-calendar-brief-2026-08-05.md',
+  'docs/content-strategy/agentified-instagram-research-evidence-2026-08-06.md',
+  'docs/content-strategy/agentified-instagram-review-packets-2026-08-06.md',
+  'agentified/campaign/portfolio-campaign-packet.json',
+]
+
+const AGENTIFIED_VISUAL_SOURCE_PACKET_PATHS = [
+  'docs/agentified-visual-autoresearch.md',
+  'docs/agentic-content-video-scripts/agentified-youtube-review-package.md',
+  'agentified/campaign/portfolio-campaign-packet.json',
+]
+
 function approvedTextOnlyGates(): AutoResearchGateState[] {
   return [
     { key: 'source_basis', state: 'approved' },
@@ -707,6 +727,377 @@ function videoPlanningGates(): AutoResearchGateState[] {
     { key: 'provider_execution', state: 'pending' },
     { key: 'status_reconciliation', state: 'pending' },
   ]
+}
+
+function manualPlanningGates(firstManualGate: AutoResearchBacklogGateKey = 'copy'): AutoResearchGateState[] {
+  return AUTORESEARCH_BACKLOG_GATE_ORDER.map((key) => ({
+    key,
+    state: key === 'source_basis' ? 'approved' : key === firstManualGate ? 'manual_review' : 'pending',
+  }))
+}
+
+function agentifiedLinkedInBacklogItem(): CrossChannelAutoResearchBacklogItem {
+  return {
+    id: 'autoresearch-agentified-agt-li-01',
+    title: 'The speed problem is becoming a trust problem',
+    status: 'approved_for_internal_handoff',
+    targetAvatar: 'AI product operators and founder-led teams who need a plain-language bridge from prototype speed to accountable operating practice.',
+    campaignSlug: 'agentified-trust-scale-2026-07',
+    campaignPhase: 'tease',
+    sourcePacketPaths: AGENTIFIED_LINKEDIN_SOURCE_PACKET_PATHS,
+    provenance: [
+      {
+        sourceId: 'LINKEDIN-AUTORESEARCH-LOOP',
+        sourceType: 'review_packet',
+        urlOrPath: 'docs/content-strategy/linkedin-autoresearch-loop.md',
+        capturedAt: '2026-08-06T12:00:00.000Z',
+        visibleSignalBasis: 'LinkedIn-first loop defines comparable-creator, source-distance, and seven-day learning review discipline.',
+        transferablePattern: 'Use a concrete operating tension, plain proof, and a discussion CTA without copying outside creator language.',
+        internalProofSurface: 'agentified/campaign/portfolio-campaign-packet.json#agt-li-01',
+        confidence: 'high',
+      },
+      {
+        sourceId: 'AGT-LI-01',
+        sourceType: 'campaign_packet',
+        urlOrPath: 'agentified/campaign/portfolio-campaign-packet.json',
+        capturedAt: '2026-08-06T12:00:00.000Z',
+        transferablePattern: 'Tease phase LinkedIn row for the Agentified trust-scale campaign.',
+        internalProofSurface: 'agentified/campaign/draft-assets.md#agt-li-01',
+        confidence: 'high',
+      },
+    ],
+    sourceDistance: {
+      status: 'approved',
+      allowedPatternUse: 'Use comparable public LinkedIn patterns only for hook discipline, proof placement, CTA shape, and learning windows.',
+      disallowedReuse: ['creator wording', 'private analytics', 'personal anecdotes from sources', 'distinctive formats', 'unapproved claims'],
+      privacyNotes: 'Keep Vambah voice and Portfolio proof public-safe; do not expose private workflow details.',
+      rightsNotes: 'Text-only draft basis; any visual expansion must use approved AmaduTown/Agentified assets.',
+      reviewerLane: 'Nefertiti',
+    },
+    channelVariants: [
+      {
+        channel: 'linkedin',
+        recommendedFormat: 'text_post',
+        channelFit: 'strong',
+        fitReason: 'LinkedIn is the primary narrative channel for the trust-before-scale campaign opening.',
+        hookHypothesis: 'Teams can move faster than their review systems can trust.',
+        proofPlacement: 'Move from a concrete handoff failure into Agentified as the receipt path for accountable agentic work.',
+        ctaRole: 'conversation',
+        visualNeeds: [{ kind: 'alt_text', description: 'Text post can run without a visual; add alt text if adapted to a proof card.', rightsState: 'approved_source' }],
+        hashtagNeeds: {
+          strategy: 'linkedin_3_to_5',
+          candidateTags: ['#AIProduct', '#ProductLeadership', '#AgenticAI', '#AmaduTownAdvisory'],
+          reviewState: 'draft',
+        },
+        providerBoundary: 'internal_only',
+        manualState: 'needs_final_submit_approval',
+      },
+    ],
+    ctaHypothesis: {
+      role: 'conversation',
+      hypothesis: 'Conversation CTA should ask where trust breaks first when agentic work leaves the demo phase.',
+      reviewState: 'approved',
+    },
+    releaseLinkage: {
+      campaignSlug: 'agentified-trust-scale-2026-07',
+      calendarAssetId: 'AGT-LI-01',
+      manualPacketPath: 'agentified/campaign/draft-assets.md#agt-li-01',
+    },
+    postReleaseSignals: {
+      directionalWindow: '24_48h',
+      decisionWindow: 'seven_day',
+      baselineComparison: 'Compare against recent Vambah LinkedIn baseline after first-party signal is approved.',
+      benchmarkComparison: 'Use comparable-creator cohorts only as directional structure and saturation context.',
+      visibleSampleBasis: 'Visible comments, saves, shares, profile visits if available, and qualitative reply quality.',
+      trackedSignals: ['hook_resonance', 'comment_quality', 'saves', 'shares', 'profile_visits'],
+    },
+    improvementRecommendation: {
+      recommendationState: 'directional_signal',
+      reviewWindowUsed: '24_48h',
+      changeType: 'hook',
+      recommendation: 'Keep the trust-before-speed opening if operators reply with concrete review or handoff failures.',
+      evidenceBasis: 'LinkedIn loop and campaign packet; no provider or posting signal yet.',
+      visibleSampleBasis: 'Manual public review after 24-48 hours.',
+      confidence: 'medium',
+      nextTest: 'Seven-day review decides whether to expand this into a carousel or proof post.',
+    },
+    gates: approvedTextOnlyGates(),
+    nextHumanDecision: 'Approve or revise AGT-LI-01 for internal LinkedIn final-submission review; this does not authorize publishing.',
+  }
+}
+
+function agentifiedMetaCompanionBacklogItem(): CrossChannelAutoResearchBacklogItem {
+  return {
+    id: 'autoresearch-agentified-agt-ig-fb-02',
+    title: 'AMINA is the operating loop',
+    status: 'human_review_ready',
+    targetAvatar: 'Product managers, operators, and community-minded founders who need a saveable operating frame before trusting agentic workflows.',
+    campaignSlug: 'agentified-trust-scale-2026-07',
+    campaignPhase: 'teach',
+    sourcePacketPaths: AGENTIFIED_META_SOURCE_PACKET_PATHS,
+    provenance: [
+      {
+        sourceId: 'IGEV-02, IGEV-05, IGEV-08, IGEV-11',
+        sourceType: 'public_post',
+        urlOrPath: 'docs/content-strategy/agentified-instagram-research-evidence-2026-08-06.md#agentified-row--phase--recommended-instagram-format--facebook-companion--reason',
+        capturedAt: '2026-08-06T12:00:00.000Z',
+        visibleSignalBasis: 'Public Instagram and Meta-adjacent evidence supports a saveable carousel, but metrics remain directional.',
+        transferablePattern: 'Use carousel and companion-caption structure only; do not copy source taxonomies, templates, visuals, or claims.',
+        internalProofSurface: 'docs/content-strategy/agentified-instagram-review-packets-2026-08-06.md#agt-ig-02-amina-is-the-operating-loop',
+        confidence: 'medium',
+      },
+    ],
+    sourceDistance: {
+      status: 'approved',
+      allowedPatternUse: 'Use Instagram and Facebook evidence for format, caption pacing, and companion mapping only.',
+      disallowedReuse: ['creator visuals', 'caption language', 'automation workflow stack', 'private metrics', 'unapproved Meta claims'],
+      privacyNotes: 'No private Portfolio screenshots or third-party comments are used.',
+      rightsNotes: 'Carousel and Page visuals must use original AmaduTown/Agentified assets and pass mobile-legibility review.',
+      reviewerLane: 'Moremi',
+    },
+    channelVariants: [
+      {
+        channel: 'instagram',
+        recommendedFormat: 'carousel',
+        channelFit: 'strong',
+        fitReason: 'AMINA becomes saveable when each operating move has one slide and one decision question.',
+        hookHypothesis: 'AMINA is the operating loop I want around agentic work.',
+        proofPlacement: 'Use one slide each for Align, Map, Instrument, Negotiate, and Audit, then close with the receipt principle.',
+        ctaRole: 'save_share',
+        visualNeeds: [
+          { kind: 'carousel', description: 'Seven-slide AMINA carousel with mobile-safe typography and original branded system.', rightsState: 'needs_generation_qa' },
+          { kind: 'alt_text', description: 'Accessibility copy for every carousel slide before internal handoff.', rightsState: 'needs_audit' },
+        ],
+        hashtagNeeds: {
+          strategy: 'instagram_3_to_5',
+          candidateTags: ['#AIProduct', '#ProductManagement', '#AgenticAI', '#AmaduTownAdvisory'],
+          reviewState: 'draft',
+        },
+        providerBoundary: 'provider_setup_required',
+        manualState: 'needs_visual_review',
+      },
+      {
+        channel: 'facebook',
+        recommendedFormat: 'single_image',
+        channelFit: 'medium',
+        fitReason: 'Facebook is a companion Page channel that can carry more context after the Instagram carousel direction is approved.',
+        hookHypothesis: 'Before agentic work moves faster, the operating loop has to be visible.',
+        proofPlacement: 'Use a condensed caption and the same approved visual basis without forcing a carousel-first Facebook experience.',
+        ctaRole: 'conversation',
+        visualNeeds: [{ kind: 'screenshot', description: 'Reuse the approved carousel cover or framework visual after rights and crop review.', rightsState: 'needs_generation_qa' }],
+        hashtagNeeds: { strategy: 'none', candidateTags: [], reviewState: 'approved' },
+        providerBoundary: 'provider_setup_required',
+        manualState: 'needs_final_submit_approval',
+      },
+    ],
+    ctaHypothesis: {
+      role: 'save_share',
+      hypothesis: 'Instagram should test saves/shares; Facebook should test whether a companion caption invites concrete operator replies.',
+      reviewState: 'draft',
+    },
+    releaseLinkage: {
+      campaignSlug: 'agentified-trust-scale-2026-07',
+      calendarAssetId: 'AGT-IG-02',
+      manualPacketPath: 'docs/content-strategy/agentified-instagram-review-packets-2026-08-06.md#agt-ig-02-amina-is-the-operating-loop',
+    },
+    postReleaseSignals: {
+      directionalWindow: '24_48h',
+      decisionWindow: 'seven_day',
+      baselineComparison: 'Compare against the first approved Agentified Instagram/Facebook organic baseline when available.',
+      benchmarkComparison: 'Use public Instagram evidence only as directional structure.',
+      visibleSampleBasis: 'Saves, shares, comments, profile visits, hashtag discovery, and manual reply quality where visible.',
+      trackedSignals: ['saves', 'shares', 'comment_quality', 'hashtag_discovery', 'profile_visits', 'manual_replies'],
+    },
+    improvementRecommendation: {
+      recommendationState: 'draft',
+      reviewWindowUsed: '24_48h',
+      changeType: 'format',
+      recommendation: 'Test whether AMINA performs better as a saveable carousel before expanding the same proof into Facebook context.',
+      evidenceBasis: 'Instagram/Facebook review packet is ready for internal human review; provider setup and final submission remain separate gates.',
+      visibleSampleBasis: 'Wait for organic visible signal after release.',
+      confidence: 'low',
+      nextTest: 'Seven-day review decides whether to repeat the carousel structure, convert to Reel, or keep Facebook as context-only companion.',
+    },
+    gates: [
+      { key: 'source_basis', state: 'approved' },
+      { key: 'copy', state: 'approved' },
+      { key: 'visual_media', state: 'manual_review', note: 'Carousel and companion visual need mobile/rights QA.' },
+      { key: 'privacy_rights', state: 'pending' },
+      { key: 'draft_handoff', state: 'pending' },
+      { key: 'final_submission', state: 'pending' },
+      { key: 'provider_execution', state: 'pending' },
+      { key: 'status_reconciliation', state: 'pending' },
+    ],
+    nextHumanDecision: 'Approve or revise AGT-IG-02 visual format and Meta companion path; then confirm Instagram/Facebook provider setup separately.',
+  }
+}
+
+function agentifiedTikTokManualBacklogItem(): CrossChannelAutoResearchBacklogItem {
+  return {
+    id: 'autoresearch-agentified-agt-tiktok-manual-01',
+    title: 'Short-form proof cutdown needs a platform review',
+    status: 'manual_hold',
+    targetAvatar: 'Short-form viewers who need one clear proof cue, not an abstract agentic-AI explainer.',
+    campaignSlug: 'agentified-trust-scale-2026-07',
+    campaignPhase: 'teach',
+    sourcePacketPaths: [
+      'docs/agentic-content-video-scripts/agentified-youtube-amina-research-to-video-packet.md',
+      'docs/content-strategy/agentified-instagram-research-calendar-brief-2026-08-05.md',
+      'agentified/campaign/portfolio-campaign-packet.json',
+    ],
+    provenance: [
+      {
+        sourceId: 'AGT-SHORT-01',
+        sourceType: 'campaign_packet',
+        urlOrPath: 'agentified/campaign/portfolio-campaign-packet.json',
+        capturedAt: '2026-08-06T12:00:00.000Z',
+        visibleSignalBasis: 'YouTube Shorts script exists, but TikTok channel strategy and rights path are not approved.',
+        transferablePattern: 'Use the same one-tension, one-proof, one-action sequence only after platform and audio rights review.',
+        internalProofSurface: 'docs/agentic-content-video-scripts/agentified-youtube-review-package.md#draft-package-map',
+        confidence: 'medium',
+      },
+    ],
+    sourceDistance: {
+      status: 'manual_review',
+      allowedPatternUse: 'Use short-form sequencing only after TikTok strategy, audio rights, and source-distance review complete.',
+      disallowedReuse: ['trending audio without rights', 'platform-native creator hooks', 'unredacted product footage', 'third-party clips'],
+      privacyNotes: 'Any proof cue must use redacted Portfolio surfaces or original branded motion.',
+      rightsNotes: 'Audio, captions, B-roll, and cover frame require explicit review before provider preparation.',
+      reviewerLane: 'human',
+    },
+    channelVariants: [
+      {
+        channel: 'tiktok',
+        recommendedFormat: 'short_form_video',
+        channelFit: 'blocked',
+        fitReason: 'TikTok remains manual until channel strategy, audio rights, provider setup, and final submission authority are approved.',
+        hookHypothesis: 'Agentic work needs an operating system.',
+        proofPlacement: 'Use one redacted proof cue only after rights review.',
+        ctaRole: 'follow',
+        visualNeeds: [
+          { kind: 'b_roll', description: 'Rights-cleared short proof cue adapted from AGT-SHORT-01.', rightsState: 'blocked' },
+          { kind: 'caption_card', description: 'Platform-safe caption card after TikTok style and accessibility review.', rightsState: 'needs_generation_qa' },
+        ],
+        hashtagNeeds: { strategy: 'instagram_3_to_5', candidateTags: ['#AgenticAI', '#AIAgents', '#WorkflowDesign'], reviewState: 'blocked' },
+        providerBoundary: 'provider_setup_required',
+        manualState: 'manual_hold',
+      },
+      {
+        channel: 'manual',
+        recommendedFormat: 'manual_review_packet',
+        channelFit: 'medium',
+        fitReason: 'Keep the idea as a manual review packet until Vambah approves whether TikTok belongs in this campaign.',
+        hookHypothesis: 'Use the AGT-SHORT-01 sequence as a review prompt, not a generated asset.',
+        proofPlacement: 'Document the platform decision, rights state, and recovery path before any short-form adaptation.',
+        ctaRole: 'manual_review',
+        visualNeeds: [{ kind: 'none', description: 'Manual packet only.', rightsState: 'approved_source' }],
+        hashtagNeeds: { strategy: 'none', candidateTags: [], reviewState: 'blocked' },
+        providerBoundary: 'internal_only',
+        manualState: 'manual_hold',
+      },
+    ],
+    ctaHypothesis: {
+      role: 'manual_review',
+      hypothesis: 'First decision is whether TikTok should be a campaign channel at all.',
+      reviewState: 'blocked',
+    },
+    releaseLinkage: {
+      campaignSlug: 'agentified-trust-scale-2026-07',
+      calendarAssetId: 'AGT-SHORT-01',
+      manualPacketPath: 'docs/agentic-content-video-scripts/agentified-youtube-review-package.md#agt-short-01',
+    },
+    postReleaseSignals: {
+      directionalWindow: '24_48h',
+      decisionWindow: 'seven_day',
+      baselineComparison: 'No TikTok baseline exists; compare only after an approved organic test exists.',
+      benchmarkComparison: 'Use public short-form patterns as structure only.',
+      visibleSampleBasis: 'Manual hold: no measurement until platform and rights approvals exist.',
+      trackedSignals: ['watch_time', 'retention', 'comment_quality', 'manual_replies'],
+    },
+    gates: manualPlanningGates('copy'),
+    blockedReason: 'TikTok/manual path needs platform strategy, audio rights, provider setup, and final submission approval.',
+    nextHumanDecision: 'Decide whether TikTok belongs in the Agentified campaign; if yes, approve a manual platform/rights review packet first.',
+  }
+}
+
+function agentifiedThumbnailBacklogItem(): CrossChannelAutoResearchBacklogItem {
+  return {
+    id: 'autoresearch-agentified-agt-thumbnail-yt-ep01',
+    title: 'The Receipt Every Agent Needs thumbnail promise',
+    status: 'channel_fit_recommended',
+    targetAvatar: 'YouTube viewers deciding whether Agentified offers concrete operating proof or another abstract AI-governance claim.',
+    campaignSlug: 'agentified-trust-scale-2026-07',
+    campaignPhase: 'proof',
+    sourcePacketPaths: AGENTIFIED_VISUAL_SOURCE_PACKET_PATHS,
+    provenance: [
+      {
+        sourceId: 'AGT-YT-EP01-THUMBNAIL',
+        sourceType: 'review_packet',
+        urlOrPath: 'docs/agentified-visual-autoresearch.md',
+        capturedAt: '2026-08-06T12:00:00.000Z',
+        visibleSignalBasis: 'Visual AutoResearch defines a bounded thumbnail and visual QA loop, but no final asset is approved.',
+        transferablePattern: 'Use the receipt/operating-system promise and approved Agentified visual system; avoid stock abstraction.',
+        internalProofSurface: 'docs/agentic-content-video-scripts/agentified-youtube-review-package.md',
+        confidence: 'medium',
+      },
+    ],
+    sourceDistance: {
+      status: 'manual_review',
+      allowedPatternUse: 'Use YouTube thumbnail patterns only for promise clarity, face/object hierarchy, and mobile readability.',
+      disallowedReuse: ['creator thumbnail layouts', 'stock AI imagery', 'third-party screenshots', 'private dashboards', 'unapproved cover crops'],
+      privacyNotes: 'Any dashboard or workflow proof in the thumbnail must be redacted and approved.',
+      rightsNotes: 'Final thumbnail asset needs visual QA, rights review, and YouTube metadata review before upload.',
+      reviewerLane: 'Moremi',
+    },
+    channelVariants: [
+      {
+        channel: 'thumbnail',
+        recommendedFormat: 'thumbnail',
+        channelFit: 'strong',
+        fitReason: 'The long-form episode needs a proof-led thumbnail that makes the receipt promise inspectable before click.',
+        hookHypothesis: 'Every agent needs a receipt.',
+        proofPlacement: 'Show a clean receipt/workflow artifact or approved Agentified cover detail, not a generic AI face/glow.',
+        ctaRole: 'playlist',
+        visualNeeds: [
+          { kind: 'thumbnail', description: 'YouTube thumbnail for AGT-YT-EP01 with mobile crop, contrast, and rights review.', rightsState: 'needs_generation_qa' },
+          { kind: 'alt_text', description: 'Metadata/alt-text description for accessibility and source trace.', rightsState: 'needs_audit' },
+        ],
+        hashtagNeeds: { strategy: 'youtube_metadata', candidateTags: ['Agentified', 'AI governance', 'AI agents'], reviewState: 'draft' },
+        providerBoundary: 'upload_gate_required',
+        manualState: 'needs_visual_review',
+      },
+    ],
+    ctaHypothesis: {
+      role: 'playlist',
+      hypothesis: 'Thumbnail should earn the click by making the receipt promise concrete, then the video can route to the Agentified playlist after upload approval.',
+      reviewState: 'draft',
+    },
+    releaseLinkage: {
+      campaignSlug: 'agentified-trust-scale-2026-07',
+      calendarAssetId: 'AGT-YT-EP01',
+      manualPacketPath: 'docs/agentic-content-video-scripts/agentified-youtube-review-package.md#episode-1-pilot-packet',
+    },
+    postReleaseSignals: {
+      directionalWindow: '24_48h',
+      decisionWindow: 'seven_day',
+      baselineComparison: 'Compare against future AmaduTown YouTube thumbnail baseline after first release.',
+      benchmarkComparison: 'Use public YouTube thumbnail patterns only as source-distance context.',
+      visibleSampleBasis: 'Thumbnail CTR, watch starts, retention after click, and comment quality.',
+      trackedSignals: ['thumbnail_ctr', 'watch_time', 'retention', 'comment_quality'],
+    },
+    improvementRecommendation: {
+      recommendationState: 'draft',
+      reviewWindowUsed: '24_48h',
+      changeType: 'thumbnail',
+      recommendation: 'Test a receipt-led thumbnail before trying abstract Agentified cover art alone.',
+      evidenceBasis: 'Visual AutoResearch and YouTube review packet; no upload or YouTube signal yet.',
+      visibleSampleBasis: 'Wait for 24-48 hour visible signal after release.',
+      confidence: 'low',
+      nextTest: 'Seven-day review decides whether to keep receipt-led thumbnailing for later long-form episodes.',
+    },
+    gates: videoPlanningGates(),
+    nextHumanDecision: 'Approve thumbnail visual direction and rights/privacy review before any YouTube upload or metadata handoff.',
+  }
 }
 
 function agentifiedXBacklogItem(input: {
@@ -921,6 +1312,7 @@ function agentifiedVideoBacklogItem(input: {
 }
 
 export const AGENTIFIED_AUTORESEARCH_BACKLOG_FIXTURES = [
+  agentifiedLinkedInBacklogItem(),
   {
     id: 'autoresearch-agentified-agt-x-01',
     title: 'What breaks first when AI gets faster?',
@@ -1181,6 +1573,9 @@ export const AGENTIFIED_AUTORESEARCH_BACKLOG_FIXTURES = [
     improvementChangeType: 'thumbnail',
     recommendation: 'Use cover-led motion only if the small-screen frame clearly communicates the receipt/operating-system promise.',
   }),
+  agentifiedMetaCompanionBacklogItem(),
+  agentifiedTikTokManualBacklogItem(),
+  agentifiedThumbnailBacklogItem(),
 ] satisfies CrossChannelAutoResearchBacklogItem[]
 
 export function channelToCalendarChannel(
