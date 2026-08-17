@@ -165,7 +165,8 @@ function formatActionTime(value: string) {
 }
 
 function canSubmit(comment: SocialCommentInboxItem) {
-  return comment.approvalState === 'approved'
+  return comment.status !== 'responded'
+    && comment.approvalState === 'approved'
     && comment.providerCapability.automaticReply
     && comment.providerCapability.verified
     && comment.providerCapability.humanGateSatisfied

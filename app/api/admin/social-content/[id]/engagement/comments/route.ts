@@ -243,6 +243,24 @@ function hasSubmittedYouTubeReplyEvidence(comment: SocialCommentSubmissionEviden
     || Boolean(optionalText(comment.reply_submitted_at))
 }
 
+function submittedYouTubeReplyAlreadyRecordedResponse(input: {
+  post: SocialCommentPostProjection
+  contentId: string
+}) {
+  return responseWithComments({
+    post: input.post,
+    contentId: input.contentId,
+    status: 200,
+    ok: true,
+    blocked: false,
+    message: 'YouTube reply was already submitted and canonical reply evidence is recorded.',
+    integrationNote: 'No external YouTube reply was submitted. Existing canonical submitted evidence was treated as an idempotent completed state.',
+    extra: {
+      already_submitted: true,
+    },
+  })
+}
+
 async function claimYouTubeReplySubmission(input: {
   commentId: string
   contentId: string
@@ -522,16 +540,7 @@ export async function POST(
 
     if (isYouTubeProvider) {
       if (hasSubmittedYouTubeReplyEvidence(comment)) {
-        submitBlocker = 'This canonical comment already has submitted reply evidence. Recovery: review the existing reply evidence before attempting another public reply.'
-        return responseWithComments({
-          post,
-          contentId: params.id,
-          status: 409,
-          ok: false,
-          blocked: true,
-          message: submitBlocker,
-          integrationNote: 'No external YouTube reply was submitted. Existing canonical submitted evidence stopped the request before any provider call or row mutation.',
-        })
+        return submittedYouTubeReplyAlreadyRecordedResponse({ post, contentId: params.id })
       }
       const { config, error: configError } = await fetchYouTubeConfig()
       if (configError) {
@@ -671,6 +680,10 @@ export async function POST(
             return NextResponse.json({ error: 'Failed to claim YouTube reply submission' }, { status: 500 })
           }
           if (!claim.claimed) {
+            const { comment: latestComment, error: latestCommentError } = await fetchComment(params.id, commentId)
+            if (!latestCommentError && latestComment && hasSubmittedYouTubeReplyEvidence(latestComment)) {
+              return submittedYouTubeReplyAlreadyRecordedResponse({ post, contentId: params.id })
+            }
             submitBlocker = 'This canonical comment already has reply submission evidence or is no longer approved for submission. Recovery: review the existing reply evidence before attempting another public reply.'
             return responseWithComments({
               post,

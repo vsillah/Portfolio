@@ -628,13 +628,14 @@ describe('/api/admin/social-content/[id]/engagement/comments', () => {
     }) as never, { params: { id: 'social-1' } })
     const duplicateBody = await duplicate.json()
 
-    expect(duplicate.status).toBe(409)
+    expect(duplicate.status).toBe(200)
     expect(duplicateBody).toMatchObject({
-      ok: false,
-      blocked: true,
+      ok: true,
+      blocked: false,
+      already_submitted: true,
     })
-    expect(duplicateBody.message).toContain('already has submitted reply evidence')
-    expect(duplicateBody.integration_note).toContain('before any provider call or row mutation')
+    expect(duplicateBody.message).toContain('already submitted')
+    expect(duplicateBody.integration_note).toContain('idempotent completed state')
     expect(fetchMock).not.toHaveBeenCalled()
     expect(mocks.configUpdate).not.toHaveBeenCalled()
     expect(mocks.update).not.toHaveBeenCalled()

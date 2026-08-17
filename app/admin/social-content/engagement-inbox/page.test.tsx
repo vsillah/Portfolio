@@ -325,4 +325,33 @@ describe('SocialCommentInboxPage', () => {
     })
     expect(await screen.findByText('Comment action recorded.')).toBeInTheDocument()
   })
+
+  it('does not offer provider submit for already responded comments', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        items: [{
+          ...comment,
+          status: 'responded',
+          approvalState: 'approved',
+          providerCapability: {
+            provider: 'youtube_data_api',
+            automaticReply: true,
+            verified: true,
+            humanGateSatisfied: true,
+            blocker: null,
+            recoveryPath: 'YouTube reply capability verified.',
+          },
+        }],
+        summary: { total: 1, new: 0, needs_qa: 0, auto_send_pending: 0, lead: 0, escalated: 0, responded: 1, ignored: 0 },
+        filteredSummary: { total: 1, new: 0, needs_qa: 0, auto_send_pending: 0, lead: 0, escalated: 0, responded: 1, ignored: 0 },
+        alertReliability,
+      }),
+    } as Response)))
+
+    render(<SocialCommentInboxPage />)
+
+    expect(await screen.findByRole('button', { name: /^Submit$/i })).toBeDisabled()
+  })
 })
