@@ -213,6 +213,19 @@ type AutoResearchFeedbackHandoff = {
   createdBy: string | null
 }
 
+type AutoResearchOperatorAction = {
+  id: string
+  title: string
+  badge: string
+  tone: 'emerald' | 'amber' | 'blue' | 'slate'
+  nextAction: string
+  detail: string
+  href: string | null
+  hrefLabel: string
+  releaseLabel: string
+  sourceBasis: string
+}
+
 const EMPTY_EVIDENCE_FORM: EvidenceForm = {
   source_url: '',
   platform: 'youtube',
@@ -391,6 +404,96 @@ function autoResearchFeedbackHandoffsForInsights(items: AgentWorkItem[]): AutoRe
     })
     .filter((handoff) => handoff.feedback.trim().length > 0)
     .sort((left, right) => sortableDate(right.createdAt) - sortableDate(left.createdAt))
+}
+
+function buildAutoResearchOperatorActions(
+  items: AutoResearchAdminProjection[],
+  releaseLinksById: Record<string, AutoResearchReleaseLink[]>,
+  feedbackHandoffs: AutoResearchFeedbackHandoff[],
+): AutoResearchOperatorAction[] {
+  const feedbackByBacklogItem = new Set(feedbackHandoffs.map((handoff) => handoff.backlogItemId))
+
+  return [...items]
+    .sort((left, right) => {
+      const leftRelease = primaryAutoResearchReleaseLink(releaseLinksById[left.id] ?? [])
+      const rightRelease = primaryAutoResearchReleaseLink(releaseLinksById[right.id] ?? [])
+      const leftReady = left.firstBlockedOrPendingGate === 'final_submission' ? 0 : 1
+      const rightReady = right.firstBlockedOrPendingGate === 'final_submission' ? 0 : 1
+      return leftReady - rightReady || sortableDate(leftRelease?.scheduledFor) - sortableDate(rightRelease?.scheduledFor)
+    })
+    .slice(0, 4)
+    .map((item) => {
+      const release = primaryAutoResearchReleaseLink(releaseLinksById[item.id] ?? [])
+      const gate = item.firstBlockedOrPendingGate
+      const hasFeedback = feedbackByBacklogItem.has(item.id)
+      const bestVariant = bestAutoResearchVariant(item)
+      const primarySource = item.sourceReferences[0]?.urlOrPath ?? item.sourcePacketPaths[0] ?? 'No source reference attached'
+      const href = release?.socialContentId
+        ? `/admin/social-content/${release.socialContentId}`
+        : release?.workItemId
+          ? `/admin/agents/social-insights/${release.workItemId}`
+          : null
+
+      if (gate === 'final_submission') {
+        return {
+          id: item.id,
+          title: item.title,
+          badge: 'Ready for approval',
+          tone: 'emerald',
+          nextAction: 'Open the connected content row and approve or revise the final submission direction.',
+          detail: item.nextHumanDecision ?? 'Final submission is the next human-controlled gate.',
+          href,
+          hrefLabel: release?.socialContentId ? 'Open content row' : 'Open work item',
+          releaseLabel: release ? formatCalendarDate(release.scheduledFor) : 'No release row',
+          sourceBasis: primarySource,
+        }
+      }
+
+      if (!hasFeedback) {
+        return {
+          id: item.id,
+          title: item.title,
+          badge: 'Needs operator direction',
+          tone: 'amber',
+          nextAction: 'Leave commentary for Amina: revise this item, carry it into the next pass, or do both.',
+          detail: item.nextHumanDecision ?? `Next gate: ${formatAutoResearchGate(gate)}.`,
+          href,
+          hrefLabel: release?.socialContentId ? 'Open content row' : 'Open work item',
+          releaseLabel: release ? formatCalendarDate(release.scheduledFor) : 'No release row',
+          sourceBasis: primarySource,
+        }
+      }
+
+      if (gate) {
+        return {
+          id: item.id,
+          title: item.title,
+          badge: 'Gate pending',
+          tone: 'blue',
+          nextAction: `Clear the ${formatAutoResearchGate(gate)} gate before this can advance.`,
+          detail: item.nextHumanDecision ?? 'Amina has feedback; the next gate still needs normal review.',
+          href,
+          hrefLabel: release?.socialContentId ? 'Open content row' : 'Open work item',
+          releaseLabel: release ? formatCalendarDate(release.scheduledFor) : 'No release row',
+          sourceBasis: primarySource,
+        }
+      }
+
+      return {
+        id: item.id,
+        title: item.title,
+        badge: 'Monitor learning window',
+        tone: 'slate',
+        nextAction: 'Wait for directional signals before changing the next AutoResearch pass.',
+        detail: bestVariant
+          ? `${formatAutoResearchLabel(bestVariant.channel)} ${bestVariant.recommendedFormat.replace(/_/g, ' ')} is the current best-fit variant.`
+          : 'No channel variant is attached yet.',
+        href,
+        hrefLabel: release?.socialContentId ? 'Open content row' : 'Open work item',
+        releaseLabel: release ? formatCalendarDate(release.scheduledFor) : 'No release row',
+        sourceBasis: primarySource,
+      }
+    })
 }
 
 function calendarApprovalLeadLabel(item: CalendarItem) {
@@ -860,6 +963,10 @@ function ContentIntelligenceContent() {
   const autoResearchFeedbackHandoffs = useMemo(
     () => autoResearchFeedbackHandoffsForInsights(insights),
     [insights],
+  )
+  const autoResearchOperatorActions = useMemo(
+    () => buildAutoResearchOperatorActions(filteredAutoResearchItems, autoResearchReleaseLinksById, autoResearchFeedbackHandoffs),
+    [autoResearchFeedbackHandoffs, autoResearchReleaseLinksById, filteredAutoResearchItems],
   )
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
@@ -2147,6 +2254,7 @@ function ContentIntelligenceContent() {
                 <DigestMetric label="Blocked/manual" value={autoResearchBacklog.summary.blockedOrManual} tone="amber" />
                 <DigestMetric label="Callable actions" value={autoResearchBacklog.summary.callableExternalActions} />
               </div>
+              <AutoResearchOperatorActionQueue actions={autoResearchOperatorActions} />
               <AutoResearchFeedbackFollowThroughPanel handoffs={autoResearchFeedbackHandoffs} />
               <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-3">
                 <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -2858,6 +2966,83 @@ function opportunityPriorityTone(priority: AutoResearchContentOpportunity['prior
   if (priority === 'high') return 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
   if (priority === 'medium') return 'border-amber-500/35 bg-amber-500/10 text-amber-100'
   return 'border-silicon-slate/70 bg-silicon-slate/30 text-muted-foreground'
+}
+
+function operatorActionTone(tone: AutoResearchOperatorAction['tone']) {
+  if (tone === 'emerald') return 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
+  if (tone === 'amber') return 'border-amber-500/35 bg-amber-500/10 text-amber-100'
+  if (tone === 'blue') return 'border-blue-500/35 bg-blue-500/10 text-blue-100'
+  return 'border-silicon-slate/70 bg-silicon-slate/30 text-muted-foreground'
+}
+
+function AutoResearchOperatorActionQueue({
+  actions,
+}: {
+  actions: AutoResearchOperatorAction[]
+}) {
+  return (
+    <section className="rounded-lg border border-radiant-gold/30 bg-radiant-gold/10 p-3">
+      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+        <div>
+          <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-radiant-gold/80">Operator action queue</p>
+          <h3 className="text-sm font-semibold text-radiant-gold">What needs a decision next</h3>
+          <p className="mt-1 max-w-3xl text-xs leading-5 text-amber-100/75">
+            Use this as the top-level readout before drilling into the backlog cards. It points to the existing content or work-item record and keeps feedback, approval, and signal-waiting separate.
+          </p>
+        </div>
+        <span className="w-fit shrink-0 rounded-full border border-radiant-gold/40 bg-background/35 px-2.5 py-1 text-[0.68rem] font-semibold text-radiant-gold">
+          {actions.length} visible
+        </span>
+      </div>
+
+      {actions.length ? (
+        <div className="mt-3 grid gap-2 xl:grid-cols-2">
+          {actions.map((action) => (
+            <article key={action.id} className="rounded-md border border-radiant-gold/20 bg-background/35 p-3">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <p className="break-words text-sm font-semibold text-amber-50">{action.title}</p>
+                  <p className="mt-1 text-[0.68rem] leading-5 text-amber-100/70">
+                    Release: {action.releaseLabel}
+                  </p>
+                </div>
+                <span className={`w-fit shrink-0 rounded-full border px-2 py-0.5 text-[0.62rem] font-semibold ${operatorActionTone(action.tone)}`}>
+                  {action.badge}
+                </span>
+              </div>
+              <p className="mt-3 text-xs font-semibold leading-5 text-amber-50">{action.nextAction}</p>
+              <p className="mt-1 text-[0.68rem] leading-5 text-amber-100/75">{action.detail}</p>
+              <p className="mt-2 break-words rounded-md border border-silicon-slate/60 bg-silicon-slate/20 px-2 py-1.5 font-mono text-[0.65rem] leading-5 text-muted-foreground">
+                Source: {action.sourceBasis}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {action.href ? (
+                  <Link
+                    href={action.href}
+                    className="inline-flex min-h-8 items-center justify-center gap-1.5 rounded-md border border-radiant-gold/45 px-2.5 py-1 text-[0.68rem] font-semibold text-radiant-gold transition hover:border-radiant-gold hover:bg-radiant-gold/10"
+                  >
+                    {action.hrefLabel}
+                    <ExternalLink className="h-3 w-3" />
+                  </Link>
+                ) : (
+                  <span className="inline-flex min-h-8 items-center rounded-md border border-silicon-slate/70 px-2.5 py-1 text-[0.68rem] font-semibold text-muted-foreground">
+                    Link a release row first
+                  </span>
+                )}
+                <span className="inline-flex min-h-8 items-center rounded-md border border-emerald-500/35 bg-emerald-500/10 px-2.5 py-1 text-[0.68rem] font-semibold text-emerald-100">
+                  No external action
+                </span>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div className="mt-3 rounded-md border border-dashed border-radiant-gold/30 bg-background/25 px-3 py-4 text-xs leading-5 text-amber-100/70">
+          No AutoResearch actions are visible yet. Load the backlog projection or clear the current filters.
+        </div>
+      )}
+    </section>
+  )
 }
 
 function AutoResearchFeedbackFollowThroughPanel({
