@@ -104,4 +104,29 @@ describe('publishToTikTok', () => {
       error_message: expect.stringContaining('creator info'),
     }))
   })
+
+  it('fails closed when TikTok is active but the access token is missing', async () => {
+    const { update } = installSupabase({
+      is_active: true,
+      credentials: {},
+      settings: {
+        creator_info_confirmed: true,
+        source_url_approved: true,
+      },
+    })
+
+    const result = await publishToTikTok({
+      contentId: 'content-1',
+      postText: 'Post text',
+      videoUrl: 'https://cdn.example.com/video.mp4',
+    })
+
+    expect(result.success).toBe(false)
+    expect(result.error).toContain('missing access token')
+    expect(mocks.fetch).not.toHaveBeenCalled()
+    expect(update).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'failed',
+      error_message: expect.stringContaining('missing access token'),
+    }))
+  })
 })
