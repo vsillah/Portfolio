@@ -53,4 +53,38 @@ describe('startTikTokReconnect', () => {
     expect(result).toEqual({ status: 'error', message: 'Admin access required' })
     expect(redirect).not.toHaveBeenCalled()
   })
+
+  it('uses a generic error when the auth URL payload cannot be parsed', async () => {
+    const redirect = vi.fn()
+
+    const result = await startTikTokReconnect({
+      getSession: async () => ({ data: { session: { access_token: 'admin-token' } } }),
+      fetchAuthUrl: async () => ({
+        ok: true,
+        json: async () => {
+          throw new Error('unexpected token')
+        },
+      }),
+      redirect,
+    })
+
+    expect(result).toEqual({ status: 'error', message: 'TikTok connection could not start.' })
+    expect(redirect).not.toHaveBeenCalled()
+  })
+
+  it('does not follow a successful response that omits auth_url', async () => {
+    const redirect = vi.fn()
+
+    const result = await startTikTokReconnect({
+      getSession: async () => ({ data: { session: { access_token: 'admin-token' } } }),
+      fetchAuthUrl: async () => ({
+        ok: true,
+        json: async () => ({ redirect_uri: 'https://amadutown.com/api/auth/tiktok/callback' }),
+      }),
+      redirect,
+    })
+
+    expect(result).toEqual({ status: 'error', message: 'TikTok connection could not start.' })
+    expect(redirect).not.toHaveBeenCalled()
+  })
 })

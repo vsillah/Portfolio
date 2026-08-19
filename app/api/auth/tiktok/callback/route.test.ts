@@ -155,4 +155,147 @@ describe('GET /api/auth/tiktok/callback', () => {
       }),
     }), { onConflict: 'platform' })
   })
+
+  it('redirects provider denials without exchanging the authorization code', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+
+    const response = await GET(request(
+      'https://amadutown.com/api/auth/tiktok/callback?error=access_denied&code=code-1&state=state-1',
+    ))
+
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location')).toBe('https://amadutown.com/admin/social-content?tiktok_error=access_denied')
+    expect(response.headers.get('set-cookie') ?? '').toMatch(/tiktok_oauth_state=;/i)
+    expect(fetchSpy).not.toHaveBeenCalled()
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+
+  it('fails closed when the authorization code is missing', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+
+    const response = await GET(request('https://amadutown.com/api/auth/tiktok/callback?state=state-1'))
+
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location')).toBe('https://amadutown.com/admin/social-content?tiktok_error=no_code')
+    expect(fetchSpy).not.toHaveBeenCalled()
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+
+  it('rejects callbacks with no oauth state cookie before token exchange', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+
+    const response = await GET(request(
+      'https://amadutown.com/api/auth/tiktok/callback?code=code-1&state=state-1',
+      '',
+    ))
+
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location')).toBe('https://amadutown.com/admin/social-content?tiktok_error=invalid_state')
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('fails closed when TikTok client credentials are missing', async () => {
+    delete process.env.TIKTOK_CLIENT_KEY
+    delete process.env.TIKTOK_CLIENT_ID
+    delete process.env.TIKTOK_CLIENT_SECRET
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+
+    const response = await GET(request('https://amadutown.com/api/auth/tiktok/callback?code=code-1&state=state-1'))
+
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location')).toBe('https://amadutown.com/admin/social-content?tiktok_error=missing_config')
+    expect(fetchSpy).not.toHaveBeenCalled()
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+
+  it('uses TIKTOK_CLIENT_ID as the token-exchange client key fallback', async () => {
+    delete process.env.TIKTOK_CLIENT_KEY
+    process.env.TIKTOK_CLIENT_ID = 'legacy-tiktok-client-id'
+    const upsert = vi.fn().mockResolvedValue({ error: null })
+    mocks.from
+      .mockReturnValueOnce(mockExistingConfig())
+      .mockReturnValueOnce({ upsert })
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        access_token: 'access-token',
+        refresh_token: 'refresh-token',
+        scope: 'user.info.basic,video.publish',
+      }), { status: 200 }))
+
+    await GET(request('https://amadutown.com/api/auth/tiktok/callback?code=code-1&state=state-1'))
+
+    const tokenRequest = fetchSpy.mock.calls[0]?.[1] as RequestInit
+    const body = tokenRequest.body as URLSearchParams
+    expect(body.get('client_key')).toBe('legacy-tiktok-client-id')
+    expect(body.get('client_secret')).toBe('tiktok-client-secret')
+  })
+
+  it('fails closed when TikTok token exchange is rejected', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({
+      error: 'invalid_grant',
+      error_description: 'Authorization code expired',
+    }), { status: 400 }))
+
+    const response = await GET(request('https://amadutown.com/api/auth/tiktok/callback?code=code-1&state=state-1'))
+
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location')).toBe('https://amadutown.com/admin/social-content?tiktok_error=token_exchange_failed')
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+
+  it('fails closed when TikTok returns a 200 response without an access token', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({
+      error: 'invalid_client',
+    }), { status: 200 }))
+
+    const response = await GET(request('https://amadutown.com/api/auth/tiktok/callback?code=code-1&state=state-1'))
+
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location')).toBe('https://amadutown.com/admin/social-content?tiktok_error=token_exchange_failed')
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+
+  it('fails closed when the existing TikTok config cannot be loaded', async () => {
+    const maybeSingle = vi.fn().mockResolvedValue({ data: null, error: { message: 'relation missing' } })
+    mocks.from.mockReturnValueOnce({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({ maybeSingle }),
+      }),
+    })
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({
+      access_token: 'access-token',
+    }), { status: 200 }))
+
+    const response = await GET(request('https://amadutown.com/api/auth/tiktok/callback?code=code-1&state=state-1'))
+
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location')).toBe('https://amadutown.com/admin/social-content?tiktok_error=config_lookup_failed')
+    expect(mocks.from).toHaveBeenCalledTimes(1)
+  })
+
+  it('fails closed when the TikTok config upsert is rejected', async () => {
+    const upsert = vi.fn().mockResolvedValue({ error: { message: 'unique constraint' } })
+    mocks.from
+      .mockReturnValueOnce(mockExistingConfig())
+      .mockReturnValueOnce({ upsert })
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({
+      access_token: 'access-token',
+    }), { status: 200 }))
+
+    const response = await GET(request('https://amadutown.com/api/auth/tiktok/callback?code=code-1&state=state-1'))
+
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location')).toBe('https://amadutown.com/admin/social-content?tiktok_error=config_update_failed')
+    expect(upsert).toHaveBeenCalled()
+  })
+
+  it('fails closed with a generic redirect when callback setup throws', async () => {
+    vi.spyOn(globalThis, 'fetch').mockRejectedValueOnce(new Error('network down'))
+
+    const response = await GET(request('https://amadutown.com/api/auth/tiktok/callback?code=code-1&state=state-1'))
+
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location')).toBe('https://amadutown.com/admin/social-content?tiktok_error=internal_error')
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
 })

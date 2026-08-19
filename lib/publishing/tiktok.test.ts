@@ -129,4 +129,161 @@ describe('publishToTikTok', () => {
       error_message: expect.stringContaining('missing access token'),
     }))
   })
+
+  it('fails closed when TikTok remains inactive after reconnect', async () => {
+    const { update } = installSupabase({
+      is_active: false,
+      credentials: {
+        access_token: 'token',
+      },
+      settings: {
+        creator_info_confirmed: true,
+        source_url_approved: true,
+      },
+    })
+
+    const result = await publishToTikTok({
+      contentId: 'content-1',
+      postText: 'Post text',
+      videoUrl: 'https://cdn.example.com/video.mp4',
+    })
+
+    expect(result).toMatchObject({
+      success: false,
+      error: 'TikTok is not connected or inactive',
+    })
+    expect(mocks.fetch).not.toHaveBeenCalled()
+    expect(update).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'failed',
+      error_message: 'TikTok is not connected or inactive',
+    }))
+  })
+
+  it('fails closed when the payload has no video URL', async () => {
+    const { update } = installSupabase({
+      is_active: true,
+      credentials: { access_token: 'token' },
+      settings: {
+        creator_info_confirmed: true,
+        source_url_approved: true,
+      },
+    })
+
+    const result = await publishToTikTok({
+      contentId: 'content-1',
+      postText: 'Post text',
+    })
+
+    expect(result.success).toBe(false)
+    expect(result.error).toContain('final video URL')
+    expect(mocks.fetch).not.toHaveBeenCalled()
+    expect(update).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'failed',
+      error_message: expect.stringContaining('final video URL'),
+    }))
+  })
+
+  it('allows PULL_FROM_URL only for approved media domains when source_url_approved is unset', async () => {
+    const { update } = installSupabase({
+      is_active: true,
+      credentials: { access_token: 'token' },
+      settings: {
+        creator_info_confirmed: true,
+        approved_media_domains: ['assets.amadutown.com'],
+      },
+    })
+
+    const rejected = await publishToTikTok({
+      contentId: 'content-1',
+      postText: 'Post text',
+      videoUrl: 'https://cdn.example.com/video.mp4',
+    })
+
+    expect(rejected.success).toBe(false)
+    expect(rejected.error).toContain('media URL domain is not approved')
+    expect(mocks.fetch).not.toHaveBeenCalled()
+    expect(update).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'failed',
+      error_message: expect.stringContaining('media URL domain is not approved'),
+    }))
+
+    mocks.fetch.mockResolvedValueOnce(new Response(JSON.stringify({
+      data: { publish_id: 'publish-2' },
+    }), { status: 200 }))
+
+    const allowed = await publishToTikTok({
+      contentId: 'content-1',
+      postText: 'Post text',
+      videoUrl: 'https://cdn.assets.amadutown.com/video.mp4',
+    })
+
+    expect(allowed.success).toBe(true)
+    expect(mocks.fetch).toHaveBeenCalledTimes(1)
+  })
+
+  it('fails closed when TikTok returns an error or omits publish_id', async () => {
+    installSupabase({
+      is_active: true,
+      credentials: { access_token: 'token' },
+      settings: {
+        creator_info_confirmed: true,
+        source_url_approved: true,
+      },
+    })
+
+    mocks.fetch.mockResolvedValueOnce(new Response(JSON.stringify({
+      error: { message: 'creator_info invalid' },
+    }), { status: 400 }))
+
+    const apiError = await publishToTikTok({
+      contentId: 'content-1',
+      postText: 'Post text',
+      videoUrl: 'https://cdn.example.com/video.mp4',
+    })
+
+    expect(apiError).toMatchObject({
+      success: false,
+      error: 'creator_info invalid',
+    })
+
+    mocks.fetch.mockResolvedValueOnce(new Response(JSON.stringify({ data: {} }), { status: 200 }))
+
+    const missingId = await publishToTikTok({
+      contentId: 'content-1',
+      postText: 'Post text',
+      videoUrl: 'https://cdn.example.com/video.mp4',
+    })
+
+    expect(missingId).toMatchObject({
+      success: false,
+      error: 'TikTok publish response missing publish_id',
+    })
+  })
+
+  it('fails closed when the TikTok request throws', async () => {
+    const { update } = installSupabase({
+      is_active: true,
+      credentials: { access_token: 'token' },
+      settings: {
+        creator_info_confirmed: true,
+        source_url_approved: true,
+      },
+    })
+    mocks.fetch.mockRejectedValueOnce(new Error('socket hang up'))
+
+    const result = await publishToTikTok({
+      contentId: 'content-1',
+      postText: 'Post text',
+      videoUrl: 'https://cdn.example.com/video.mp4',
+    })
+
+    expect(result).toMatchObject({
+      success: false,
+      error: 'socket hang up',
+    })
+    expect(update).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'failed',
+      error_message: 'socket hang up',
+    }))
+  })
 })

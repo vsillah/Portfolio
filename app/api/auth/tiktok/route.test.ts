@@ -29,6 +29,7 @@ describe('GET /api/auth/tiktok', () => {
   })
 
   afterEach(() => {
+    vi.restoreAllMocks()
     process.env = { ...BASE_ENV }
   })
 
@@ -74,5 +75,39 @@ describe('GET /api/auth/tiktok', () => {
     await expect(response.json()).resolves.toEqual({
       error: 'TIKTOK_CLIENT_KEY or TIKTOK_CLIENT_ID is not configured',
     })
+  })
+
+  it('can reuse TIKTOK_CLIENT_ID as a compatibility fallback', async () => {
+    delete process.env.TIKTOK_CLIENT_KEY
+    process.env.TIKTOK_CLIENT_ID = 'legacy-tiktok-client-id'
+
+    const response = await GET(request())
+    const body = await response.json()
+    const authUrl = new URL(body.auth_url)
+
+    expect(response.status).toBe(200)
+    expect(authUrl.searchParams.get('client_key')).toBe('legacy-tiktok-client-id')
+    expect(authUrl.searchParams.get('scope')).toBe('user.info.basic,video.publish')
+  })
+
+  it('keeps the oauth state cookie off Secure for http origins', async () => {
+    const response = await GET(request('http://localhost:3000/api/auth/tiktok'))
+    const cookie = response.headers.get('set-cookie') ?? ''
+
+    expect(response.status).toBe(200)
+    expect(cookie).toContain('tiktok_oauth_state=')
+    expect(cookie).toContain('HttpOnly')
+    expect(cookie).not.toContain('Secure')
+  })
+
+  it('returns a generic 500 when oauth setup throws', async () => {
+    mocks.verifyAdmin.mockRejectedValueOnce(new Error('session lookup failed'))
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    const response = await GET(request())
+
+    expect(response.status).toBe(500)
+    await expect(response.json()).resolves.toEqual({ error: 'Internal server error' })
+    expect(response.headers.get('set-cookie')).toBeNull()
   })
 })
