@@ -162,20 +162,39 @@ describe('POST /api/discount-codes/validate', () => {
     expect(usage.eqCodeId).toHaveBeenCalledWith('discount_code_id', 'dc-1')
   })
 
-  it('requires login and matching account for user-restricted codes', async () => {
-    const restricted = validCode({ applicable_user_ids: ['user-allowed'] })
-    mocks.from.mockReturnValue(discountLookup({ data: restricted, error: null }))
+  it('requires login for user-restricted codes', async () => {
+    mocks.from.mockReturnValue(
+      discountLookup({
+        data: validCode({ applicable_user_ids: ['user-allowed'] }),
+        error: null,
+      }),
+    )
 
-    const anon = await POST(makeRequest({ code: 'SAVE10' }))
-    expect(anon.status).toBe(401)
-    expect(await anon.json()).toEqual({
+    const response = await POST(makeRequest({ code: 'SAVE10' }))
+
+    expect(response.status).toBe(401)
+    expect(await response.json()).toEqual({
       error: 'This discount code requires you to be logged in',
     })
+  })
 
+  it('returns 403 when a signed-in user is not on the restricted allowlist', async () => {
     mocks.getCurrentUser.mockResolvedValue({ id: 'user-other' })
-    const forbidden = await POST(makeRequest({ code: 'SAVE10' }))
-    expect(forbidden.status).toBe(403)
-    expect(await forbidden.json()).toEqual({
+    const codes = discountLookup({
+      data: validCode({ applicable_user_ids: ['user-allowed'] }),
+      error: null,
+    })
+    const usage = userUsageLookup({ data: null, error: { code: 'PGRST116' } })
+    mocks.from.mockImplementation((table: string) => {
+      if (table === 'discount_codes') return codes
+      if (table === 'user_discount_codes') return usage
+      return {}
+    })
+
+    const response = await POST(makeRequest({ code: 'SAVE10' }))
+
+    expect(response.status).toBe(403)
+    expect(await response.json()).toEqual({
       error: 'This discount code is not valid for your account',
     })
   })

@@ -44,13 +44,29 @@ function projectChain(data: unknown) {
   return { select }
 }
 
+function thenableQuery(data: unknown) {
+  const resolved = { data, error: null }
+  return {
+    then(
+      resolve: (value: typeof resolved) => unknown,
+      reject?: (reason: unknown) => unknown,
+    ) {
+      return Promise.resolve(resolved).then(resolve, reject)
+    },
+    single: () => Promise.resolve(resolved),
+  }
+}
+
 function snapshotChain(data: unknown) {
-  const single = vi.fn().mockResolvedValue({ data, error: null })
-  const limit = vi.fn().mockReturnValue({ single })
-  const order = vi.fn().mockReturnValue({ limit })
-  const eq = vi.fn().mockReturnValue({ order })
-  const select = vi.fn().mockReturnValue({ eq })
-  return { select }
+  return {
+    select: () => ({
+      eq: () => ({
+        order: () => ({
+          limit: () => thenableQuery(data),
+        }),
+      }),
+    }),
+  }
 }
 
 function tasksChain(data: unknown) {
@@ -115,7 +131,14 @@ describe('POST /api/webhooks/n8n/milestone-notify', () => {
   })
 
   it('reports newly crossed score thresholds using prior snapshot rows', async () => {
-    let snapshotCalls = 0
+    const snapshotResults = [
+      {
+        overall_score: 80,
+        category_scores: {},
+        snapshot_date: '2026-08-20',
+      },
+      [{ overall_score: 80 }, { overall_score: 40 }],
+    ]
     mocks.from.mockImplementation((table: string) => {
       if (table === 'client_projects') {
         return projectChain({
@@ -127,18 +150,7 @@ describe('POST /api/webhooks/n8n/milestone-notify', () => {
         })
       }
       if (table === 'score_snapshots') {
-        snapshotCalls += 1
-        if (snapshotCalls === 1) {
-          return snapshotChain({
-            overall_score: 80,
-            category_scores: {},
-            snapshot_date: '2026-08-20',
-          })
-        }
-        return snapshotChain([
-          { overall_score: 80 },
-          { overall_score: 40 },
-        ])
+        return snapshotChain(snapshotResults.shift() ?? null)
       }
       if (table === 'dashboard_tasks') {
         return tasksChain([
