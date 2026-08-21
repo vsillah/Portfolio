@@ -20,6 +20,8 @@ export type SocialCommentAttentionRow = {
   reply_submission_state?: string | null
   proposed_reply_text?: string | null
   approved_reply_text?: string | null
+  reply_provider_comment_id?: string | null
+  reply_submitted_at?: string | null
   provider_capability?: Record<string, unknown> | null
   captured_at?: string | null
   updated_at?: string | null
@@ -344,6 +346,12 @@ function replyText(row: SocialCommentAttentionRow) {
   return row.approved_reply_text?.trim() || row.proposed_reply_text?.trim() || ''
 }
 
+function hasSubmittedReplyEvidence(row: SocialCommentAttentionRow) {
+  return normalized(row.reply_submission_state) === 'submitted'
+    || Boolean(row.reply_provider_comment_id?.trim())
+    || Boolean(row.reply_submitted_at?.trim())
+}
+
 export function needsCommentAttention(row: SocialCommentAttentionRow) {
   if (RESOLVED_VISIBILITY_STATUSES.has(normalized(row.status))) return false
   if (RESOLVED_CLASSIFICATION_STATUSES.has(normalized(row.classification_status))) return false
@@ -566,17 +574,56 @@ export async function decideSocialCommentReplyFromSlack(input: {
 
   const { data, error } = await supabaseAdmin
     .from('social_content_comments')
-    .select('id, publish_id, content_id, platform, provider, provider_comment_id, response_approval_state, reply_submission_state, proposed_reply_text, approved_reply_text, provider_capability, metadata')
+    .select('id, publish_id, content_id, platform, provider, provider_comment_id, response_approval_state, reply_submission_state, proposed_reply_text, approved_reply_text, reply_provider_comment_id, reply_submitted_at, provider_capability, metadata')
     .eq('id', input.commentId)
     .maybeSingle()
 
   if (error || !data?.id) throw new Error('Comment not found')
   const row = data as SocialCommentAttentionRow
+  const metadata = record(row.metadata) ?? {}
+  const existingSlackDecision = record(metadata.slack_reply_decision)
+  if (existingSlackDecision?.idempotency_key === input.idempotencyKey) {
+    return `Already handled this Slack comment reply action. Portfolio: ${socialCommentDeepLink(row)}`
+  }
+  if (hasSubmittedReplyEvidence(row)) {
+    const decidedAt = new Date().toISOString()
+    const { error: submittedUpdateError } = await supabaseAdmin
+      .from('social_content_comments')
+      .update({
+        metadata: {
+          ...metadata,
+          ui_action_history: [
+            {
+              action: input.status === 'approved' ? 'approve' : 'reject',
+              at: decidedAt,
+              by: `slack:${input.slackUserId}`,
+              note: `${input.decisionNotes} Existing provider reply evidence remained authoritative.`,
+            },
+            ...(Array.isArray(metadata.ui_action_history) ? metadata.ui_action_history : []),
+          ].slice(0, 25),
+          slack_reply_decision: {
+            status: input.status,
+            decision_notes: input.decisionNotes,
+            decided_by_slack_user_id: input.slackUserId,
+            decided_by_label: input.actorLabel,
+            decided_at: decidedAt,
+            idempotency_key: input.idempotencyKey,
+            existing_submission_preserved: true,
+            external_submission_performed: false,
+          },
+        },
+        updated_at: decidedAt,
+      })
+      .eq('id', row.id)
+    if (submittedUpdateError) {
+      throw new Error(`Failed to record submitted comment reply Slack decision: ${submittedUpdateError.message}`)
+    }
+    return `Reply already has submitted provider evidence. Slack action was recorded without changing submitted state. Portfolio: ${socialCommentDeepLink(row)}`
+  }
   if (!canSlackDecideCommentReply(row)) {
     return `Portfolio review required for this comment reply. Open: ${socialCommentDeepLink(row)}`
   }
 
-  const metadata = record(row.metadata) ?? {}
   const decidedAt = new Date().toISOString()
   const holdUntil = input.status === 'approved' ? commentReplyHoldUntil(new Date(decidedAt)) : null
   const reply = replyText(row)

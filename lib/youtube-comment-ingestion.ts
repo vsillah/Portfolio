@@ -537,6 +537,10 @@ function mapComment(input: {
   const snippet = input.comment.snippet
   const body = asString(snippet?.textOriginal) || asString(snippet?.textDisplay)
   if (!id || !body) return null
+  const authorChannelId = asString(snippet?.authorChannelId?.value)
+  const threadChannelId = asString(input.thread.snippet?.channelId)
+  const authorIsChannelOwner = Boolean(authorChannelId && threadChannelId && authorChannelId === threadChannelId)
+  const ownerReply = input.recordType === 'reply' && authorIsChannelOwner
 
   return {
     publishId: input.publish.id,
@@ -547,15 +551,19 @@ function mapComment(input: {
     providerParentCommentId: input.providerParentCommentId,
     threadId: input.thread.id || id,
     recordType: input.recordType,
-    authorPublicHandle: snippet?.authorChannelId?.value,
+    authorPublicHandle: authorChannelId,
     authorDisplayName: snippet?.authorDisplayName,
     authorProfileUrl: snippet?.authorChannelUrl,
+    authorIsChannelOwner,
     body,
     commentUrl: commentPermalink(input.videoId, id),
     providerCreatedAt: snippet?.publishedAt,
     providerUpdatedAt: snippet?.updatedAt,
     capturedAt: input.now.toISOString(),
     status: input.thread.snippet?.isPublic === false ? 'hidden' : 'visible',
+    classificationStatus: ownerReply ? 'ignored' : undefined,
+    responseApprovalState: ownerReply ? 'not_required' : undefined,
+    replySubmissionState: ownerReply ? 'not_applicable' : undefined,
     providerCapability: input.providerCapability,
     ingestionRunId: input.runId,
     rawPayload: {
@@ -571,6 +579,8 @@ function mapComment(input: {
         total_reply_count: input.thread.snippet?.totalReplyCount ?? 0,
         can_reply: input.thread.snippet?.canReply ?? null,
         external_submission_enabled: input.providerCapability?.external_submission_enabled ?? false,
+        author_is_channel_owner: authorIsChannelOwner,
+        owner_reply: ownerReply,
       },
     },
   }

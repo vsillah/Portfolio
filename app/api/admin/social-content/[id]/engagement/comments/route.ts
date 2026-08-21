@@ -483,6 +483,7 @@ export async function POST(
     note: optionalText(body.note),
   }
   const metadata = appendActionHistory(comment.metadata, historyEvent)
+  const hasSubmittedEvidence = hasSubmittedYouTubeReplyEvidence(comment)
   let patch: Record<string, unknown> = {
     updated_by: actorId,
     metadata,
@@ -492,6 +493,48 @@ export async function POST(
   let blocked = false
   let message = 'Comment inbox action recorded.'
   let integrationNote = 'No external comment reply was submitted. This action only updated canonical local workflow state.'
+
+  if (hasSubmittedEvidence && action !== 'submit') {
+    patch = {
+      updated_by: actorId,
+      metadata: appendActionHistory(comment.metadata, {
+        ...historyEvent,
+        note: historyEvent.note
+          || 'Reply already has submitted provider evidence; local review action was recorded without changing submitted state.',
+      }),
+    }
+    message = 'Reply already has submitted provider evidence. The local action was recorded without changing submitted state.'
+    integrationNote = 'No external comment reply was submitted. Existing provider reply evidence remains authoritative.'
+    const { error: updateError } = await supabaseAdmin
+      .from('social_content_comments')
+      .update(patch)
+      .eq('id', commentId)
+      .eq('content_id', params.id)
+      .select(COMMENT_SELECT)
+      .single()
+
+    if (updateError) {
+      if (isCommentInboxStorageUnavailable(updateError)) {
+        return unavailableResponse(409)
+      }
+
+      return NextResponse.json({ error: 'Failed to record comment inbox action' }, { status: 500 })
+    }
+
+    const { comments, error } = await fetchComments(params.id, post)
+    if (error && isCommentInboxStorageUnavailable(error)) {
+      return unavailableResponse(409)
+    }
+
+    return NextResponse.json({
+      ok,
+      blocked,
+      already_submitted: true,
+      message,
+      comments,
+      integration_note: integrationNote,
+    })
+  }
 
   if (action === 'draft_response') {
     const generatedDraftReply = draftReply ?? policyDraftReply(comment as SocialCommentPolicyRecord, now)

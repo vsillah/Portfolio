@@ -35,6 +35,8 @@ const COMMENT_SELECT = [
   'reply_submission_state',
   'proposed_reply_text',
   'approved_reply_text',
+  'reply_provider_comment_id',
+  'reply_submitted_at',
   'provider_capability',
   'captured_at',
   'updated_at',

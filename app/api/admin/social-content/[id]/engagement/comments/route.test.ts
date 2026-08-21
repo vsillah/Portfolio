@@ -701,4 +701,41 @@ describe('/api/admin/social-content/[id]/engagement/comments', () => {
       reply_submission_state: 'approved',
     }))
   })
+
+  it('preserves submitted provider evidence when later review actions are clicked', async () => {
+    installDbMocks({ comment: submittedYouTubeCommentRow })
+
+    const response = await POST(request({
+      action: 'approve',
+      comment_id: 'comment-1',
+      draft_reply: 'Edited after submit.',
+    }) as never, { params: { id: 'social-1' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({
+      ok: true,
+      blocked: false,
+      already_submitted: true,
+      message: expect.stringContaining('submitted provider evidence'),
+    })
+    expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({
+      updated_by: 'admin-user',
+      metadata: expect.objectContaining({
+        ui_action_history: expect.arrayContaining([
+          expect.objectContaining({
+            action: 'approve',
+            note: expect.stringContaining('submitted provider evidence'),
+          }),
+        ]),
+      }),
+    }))
+    expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('response_approval_state')
+    expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('reply_submission_state')
+    expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('reply_provider_comment_id')
+    expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('reply_submitted_at')
+    expect(body.comments[0]).toMatchObject({
+      status: 'responded',
+    })
+  })
 })
