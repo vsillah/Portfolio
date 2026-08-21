@@ -16,13 +16,15 @@ import {
 import {
   evaluateYouTubeReplyReadiness,
   refreshYouTubeReplyConfigIfNeeded,
-  submitYouTubeCommentReply,
   YOUTUBE_REPLY_PROVIDER,
   type YouTubeReplyCanonicalCapability,
   type YouTubeReplyConfig,
   type YouTubeReplyCredentials,
-  type YouTubeReplySubmitResult,
 } from '@/lib/youtube-comment-reply-readiness'
+import {
+  submitCommentProviderReply,
+  type CommentReplySubmissionResult,
+} from '@/lib/social-comment-reply-submission'
 import { refreshPublishedXComments } from '@/lib/x-comment-ingestion'
 
 export const dynamic = 'force-dynamic'
@@ -210,12 +212,12 @@ async function fetchYouTubeCanonicalCapability() {
 }
 
 function youtubeReplyMetadata(input: {
-  status: YouTubeReplySubmitResult['status'] | 'ready' | 'claiming'
+  status: CommentReplySubmissionResult['status'] | 'ready' | 'claiming'
   blocked: boolean
   blockerCodes: string[]
   idempotencyKey: string | null
   providerReplyId?: string | null
-  providerError?: YouTubeReplySubmitResult['error']
+  providerError?: CommentReplySubmissionResult['error']
   externalSubmissionAttempted: boolean
 }) {
   return {
@@ -739,12 +741,14 @@ export async function POST(
             })
           }
 
-          let submission: YouTubeReplySubmitResult
+          let submission: CommentReplySubmissionResult
           try {
-            submission = await submitYouTubeCommentReply({
+            submission = await submitCommentProviderReply({
               comment,
-              config: refreshedConfig,
-              canonicalCapability,
+              youtube: {
+                config: refreshedConfig,
+                canonicalCapability,
+              },
             })
           } catch (error) {
             console.error('YouTube comment reply submission failed unexpectedly:', error instanceof Error ? error.name : 'Error')
@@ -882,6 +886,10 @@ export async function POST(
         }
       }
     } else {
+      const providerSubmission = await submitCommentProviderReply({ comment })
+      const providerSubmissionBlocker = providerSubmission.blockers
+        .map((blocker) => `${blocker.message} Recovery: ${blocker.recoveryAction}`)
+        .join(' ')
       const policyInput = buildCommentInboxPolicyInputFromSocialComment(comment as SocialCommentPolicyRecord, {
         confidence: 0.5,
         draft: {
@@ -893,6 +901,7 @@ export async function POST(
       const policyDecision = evaluateCommentInboxPolicy(policyInput)
       submitBlocker = currentItem.providerCapability.blocker
         || policyDecision.autoSend.blockedReasons.join(', ')
+        || providerSubmissionBlocker
         || submitBlocker
 
       ok = false
