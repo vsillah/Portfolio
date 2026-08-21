@@ -145,6 +145,7 @@ function thread(commentId: string, text = 'Top-level comment', totalReplyCount =
   return {
     id: `thread-${commentId}`,
     snippet: {
+      channelId: 'owner-channel',
       videoId: publish.platform_post_id,
       canReply: true,
       totalReplyCount,
@@ -338,6 +339,45 @@ describe('youtube comment ingestion', () => {
     ]))
     expect(calls.commentUpdates).toEqual(expect.arrayContaining([
       expect.not.objectContaining({ parent_comment_id: expect.anything() }),
+    ]))
+  })
+
+  it('marks channel-owner replies as ignored records instead of response candidates', async () => {
+    const { db, calls } = createDb()
+    const fetchImpl = createFetchMock(() => response({ items: [] }))
+      .mockImplementationOnce(() => response({ items: [thread('comment-1', 'Parent', 1)] }))
+      .mockImplementationOnce(() => response({
+        items: [{
+          id: 'reply-1',
+          snippet: {
+            parentId: 'comment-1',
+            authorDisplayName: '@AmadutownAutomation',
+            authorChannelId: { value: 'owner-channel' },
+            textOriginal: 'Thanks for watching.',
+            publishedAt: '2026-08-12T11:05:00.000Z',
+            updatedAt: '2026-08-12T11:06:00.000Z',
+          },
+        }],
+      }))
+
+    await refreshPublishedYouTubeComments({ db, publishId: publish.id, fetchImpl: asFetch(fetchImpl) })
+
+    expect(calls.commentUpserts[0]).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        provider_comment_id: 'reply-1',
+        provider_parent_comment_id: 'comment-1',
+        record_type: 'reply',
+        author_is_channel_owner: true,
+        classification_status: 'ignored',
+        response_approval_state: 'not_required',
+        reply_submission_state: 'not_applicable',
+        metadata: expect.objectContaining({
+          youtube: expect.objectContaining({
+            owner_reply: true,
+            author_is_channel_owner: true,
+          }),
+        }),
+      }),
     ]))
   })
 

@@ -105,6 +105,18 @@ describe('getSocialCommentInboxItem', () => {
 
   it('maps submitted replies and answered comments into responded', () => {
     expect(getSocialCommentInboxItem(row({ reply_submission_state: 'submitted' })).status).toBe('responded')
+    expect(getSocialCommentInboxItem(row({
+      classification_status: 'ignored',
+      response_approval_state: 'rejected',
+      reply_submission_state: 'draft',
+      reply_provider_comment_id: 'provider-reply-1',
+    })).status).toBe('responded')
+    expect(getSocialCommentInboxItem(row({
+      classification_status: 'ignored',
+      response_approval_state: 'rejected',
+      reply_submission_state: 'draft',
+      reply_submitted_at: '2026-08-14T10:57:44.773Z',
+    })).status).toBe('responded')
     expect(getSocialCommentInboxItem(row({ classification_status: 'answered' })).status).toBe('responded')
   })
 

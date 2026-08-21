@@ -380,6 +380,113 @@ describe('Agent Ops Slack actions', () => {
     }))
   })
 
+  it('treats duplicate Slack comment reply approvals as already handled from comment metadata', async () => {
+    const idempotencyKey = 'slack-agent-action:U123:1716400000.000:social_comment_reply.approve:comment-1'
+    mocks.from
+      .mockReturnValueOnce(queryResult({ data: null, error: null }))
+      .mockReturnValueOnce(queryResult({
+        data: {
+          id: 'comment-1',
+          content_id: 'social-post-1',
+          publish_id: 'publish-1',
+          platform: 'youtube',
+          provider: 'youtube_data_api',
+          provider_comment_id: 'provider-comment-1',
+          proposed_reply_text: 'Thanks for asking.',
+          response_approval_state: 'approved',
+          reply_submission_state: 'approved',
+          provider_capability: {
+            supports_reply_submission: true,
+            external_submission_enabled: true,
+          },
+          metadata: {
+            slack_reply_decision: {
+              idempotency_key: idempotencyKey,
+            },
+            policy_decision: {
+              classification: 'low_risk_acknowledgement',
+              human_qa_required: false,
+              auto_send: { eligible: true, can_send_now: true },
+            },
+          },
+        },
+        error: null,
+      }))
+
+    const result = await handleSlackAgentAction(payload({
+      action: 'social_comment_reply.approve',
+      commentId: 'comment-1',
+      contentId: 'social-post-1',
+    }))
+
+    expect(result.text).toContain('Already handled this Slack comment reply action')
+    expect(mocks.from).toHaveBeenCalledTimes(2)
+  })
+
+  it('preserves submitted provider evidence when stale Slack reply buttons are clicked', async () => {
+    const commentUpdate = queryResult({ error: null })
+    mocks.from
+      .mockReturnValueOnce(queryResult({ data: null, error: null }))
+      .mockReturnValueOnce(queryResult({
+        data: {
+          id: 'comment-1',
+          content_id: 'social-post-1',
+          publish_id: 'publish-1',
+          platform: 'youtube',
+          provider: 'youtube_data_api',
+          provider_comment_id: 'provider-comment-1',
+          proposed_reply_text: 'Thanks for asking.',
+          approved_reply_text: 'Thanks for asking.',
+          response_approval_state: 'rejected',
+          reply_submission_state: 'draft',
+          reply_provider_comment_id: 'provider-reply-1',
+          reply_submitted_at: '2026-08-14T10:57:44.773Z',
+          provider_capability: {
+            supports_reply_submission: true,
+            external_submission_enabled: true,
+          },
+          metadata: {
+            policy_decision: {
+              classification: 'low_risk_acknowledgement',
+              human_qa_required: false,
+              auto_send: { eligible: true, can_send_now: true },
+            },
+          },
+        },
+        error: null,
+      }))
+      .mockReturnValueOnce(commentUpdate)
+
+    const result = await handleSlackAgentAction(payload({
+      action: 'social_comment_reply.approve',
+      commentId: 'comment-1',
+      contentId: 'social-post-1',
+      note: 'Approved from stale Slack alert.',
+    }))
+
+    expect(result.text).toContain('submitted provider evidence')
+    expect(commentUpdate.update).toHaveBeenCalledWith(expect.objectContaining({
+      metadata: expect.objectContaining({
+        ui_action_history: [
+          expect.objectContaining({
+            action: 'approve',
+            by: 'slack:U123',
+            note: expect.stringContaining('Existing provider reply evidence remained authoritative.'),
+          }),
+        ],
+        slack_reply_decision: expect.objectContaining({
+          status: 'approved',
+          existing_submission_preserved: true,
+          external_submission_performed: false,
+        }),
+      }),
+    }))
+    expect(commentUpdate.update.mock.calls[0][0]).not.toHaveProperty('response_approval_state')
+    expect(commentUpdate.update.mock.calls[0][0]).not.toHaveProperty('reply_submission_state')
+    expect(commentUpdate.update.mock.calls[0][0]).not.toHaveProperty('reply_provider_comment_id')
+    expect(commentUpdate.update.mock.calls[0][0]).not.toHaveProperty('reply_submitted_at')
+  })
+
   it('blocks Slack approval for unverified comment providers', async () => {
     mocks.from
       .mockReturnValueOnce(queryResult({ data: null, error: null }))

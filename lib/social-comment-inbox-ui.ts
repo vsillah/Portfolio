@@ -106,6 +106,8 @@ export type SocialCommentCanonicalRow = {
   reply_submission_state?: unknown
   proposed_reply_text?: unknown
   approved_reply_text?: unknown
+  reply_provider_comment_id?: unknown
+  reply_submitted_at?: unknown
   provider_capability?: unknown
   captured_at?: unknown
   updated_at?: unknown
@@ -265,6 +267,7 @@ function uiStatus(input: {
   classificationStatus: SocialCommentClassificationStatus
   approvalState: SocialCommentResponseApprovalState
   replyState: SocialCommentReplySubmissionState
+  hasSubmittedEvidence: boolean
   priority: SocialCommentPriority
   metadata: Record<string, unknown>
 }) {
@@ -274,8 +277,9 @@ function uiStatus(input: {
     ? policyDecision.human_qa_reasons.map(String)
     : []
 
+  if (input.replyState === 'submitted' || input.hasSubmittedEvidence) return 'responded'
   if (input.classificationStatus === 'ignored' || input.classificationStatus === 'spam') return 'ignored'
-  if (input.replyState === 'submitted' || input.classificationStatus === 'answered') return 'responded'
+  if (input.classificationStatus === 'answered') return 'responded'
   if (
     input.classificationStatus === 'blocked'
     || input.approvalState === 'blocked'
@@ -321,6 +325,10 @@ export function getSocialCommentInboxItem(
   const priority = asPriority(row.priority)
   const socialContentId = asString(row.content_id) || asString(post?.id)
   const postInfo = postProjection(post, socialContentId || 'unknown')
+  const hasSubmittedEvidence = Boolean(
+    asString(row.reply_provider_comment_id)
+    || asString(row.reply_submitted_at)
+  )
 
   return {
     id: asString(row.id) || asString(row.provider_comment_id) || `${socialContentId || platform}-comment`,
@@ -330,7 +338,7 @@ export function getSocialCommentInboxItem(
     providerPermalink: asStringOrNull(row.comment_url),
     authorDisplayName: asString(row.author_display_name) || asString(row.author_public_handle) || 'Unknown commenter',
     body: asString(row.body) || 'No comment text imported.',
-    status: uiStatus({ classificationStatus, approvalState, replyState, priority, metadata }),
+    status: uiStatus({ classificationStatus, approvalState, replyState, hasSubmittedEvidence, priority, metadata }),
     classification: {
       label: classificationLabel(classificationStatus, metadata),
       priority: uiPriority(priority),
