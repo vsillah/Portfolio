@@ -29,6 +29,7 @@ type CalendarRow = {
 
 type SocialContentRow = {
   id: string
+  platform?: SocialPlatform | null
   rag_context?: Record<string, unknown> | null
 }
 
@@ -357,14 +358,14 @@ async function maybeFindByJsonContains<T>(
   table: string,
   column: string,
   value: Record<string, unknown>,
-  channel?: SocialContentCalendarChannel,
+  eqFilter?: { column: string; value: string },
 ) {
   const query = asSelectQuery<T>(admin.from(table)).select('*')
   const contains = query.contains?.(column, value)
   if (!contains) return null
-  const channelFiltered = channel && contains.eq ? contains.eq('channel', channel) : contains
-  const result = channelFiltered.maybeSingle
-    ? await channelFiltered.maybeSingle()
+  const filtered = eqFilter && contains.eq ? contains.eq(eqFilter.column, eqFilter.value) : contains
+  const result = filtered.maybeSingle
+    ? await filtered.maybeSingle()
     : null
   if (!result) return null
   if (result.error) throw new Error(errorMessage(result.error, `Failed to read ${table}`))
@@ -391,7 +392,7 @@ async function findExistingCalendarRow(input: {
     'social_content_calendar_items',
     'metadata',
     { autoresearch_activation: { idempotency_key: input.idempotencyKey } },
-    input.channel,
+    { column: 'channel', value: input.channel },
   )
   if (byIdempotency) return byIdempotency
 
@@ -401,13 +402,14 @@ async function findExistingCalendarRow(input: {
     'social_content_calendar_items',
     'metadata',
     { agentified_asset_id: input.calendarAssetId },
-    input.channel,
+    { column: 'channel', value: input.channel },
   )
 }
 
 async function findExistingSocialContentRow(input: {
   admin: SupabaseLike
   idempotencyKey: string
+  platform: SocialPlatform
   calendarAssetId?: string | null
 }) {
   const byIdempotency = await maybeFindByJsonContains<SocialContentRow>(
@@ -415,6 +417,7 @@ async function findExistingSocialContentRow(input: {
     'social_content_queue',
     'rag_context',
     { autoresearch_activation: { idempotency_key: input.idempotencyKey } },
+    { column: 'platform', value: input.platform },
   )
   if (byIdempotency) return byIdempotency
 
@@ -424,11 +427,13 @@ async function findExistingSocialContentRow(input: {
     'social_content_queue',
     'rag_context',
     { agentified_asset_id: input.calendarAssetId },
+    { column: 'platform', value: input.platform },
   ) ?? maybeFindByJsonContains<SocialContentRow>(
     input.admin,
     'social_content_queue',
     'rag_context',
     { launch_draft_asset_id: input.calendarAssetId },
+    { column: 'platform', value: input.platform },
   )
 }
 
@@ -575,13 +580,17 @@ export async function activateAutoResearchBacklogItem(input: {
     let socialState: 'inserted' | 'existing' | null = null
 
     if (!providerBlocked && supportsSocialContentQueue(channel)) {
+      const expectedPlatform = QUEUE_CHANNELS[channel]
       const existingSocial = socialContentId
         ? { id: socialContentId }
-        : await findExistingSocialContentRow({
-          admin: input.admin,
-          idempotencyKey,
-          calendarAssetId,
-        })
+        : expectedPlatform
+          ? await findExistingSocialContentRow({
+            admin: input.admin,
+            idempotencyKey,
+            platform: expectedPlatform,
+            calendarAssetId,
+          })
+          : null
       if (existingSocial?.id) {
         socialContentId = existingSocial.id
         socialState = 'existing'

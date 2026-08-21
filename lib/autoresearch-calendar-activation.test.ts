@@ -204,6 +204,104 @@ describe('autoresearch calendar activation', () => {
     expect(tables.social_content_queue).toHaveLength(1)
   })
 
+  it('does not reuse an Instagram draft when activating a Facebook companion for the same asset', async () => {
+    const { admin, tables } = createFakeAdmin({
+      attraction_campaigns: [{ id: 'campaign-1', slug: 'agentified-trust-scale-2026-07' }],
+      social_content_queue: [{
+        id: 'social-instagram-existing',
+        platform: 'instagram',
+        rag_context: {
+          agentified_asset_id: 'AGT-IG-02',
+          external_execution_enabled: false,
+        },
+      }],
+    })
+
+    const result = await activateAutoResearchBacklogItem({
+      admin,
+      item: requireFixture('autoresearch-agentified-agt-ig-fb-02'),
+      actorUserId: 'admin-user',
+      channels: ['facebook'],
+      now: new Date('2026-08-21T12:00:00.000Z'),
+    })
+
+    const facebookDraft = tables.social_content_queue.find((row) => row.platform === 'facebook')
+
+    expect(result.records[0]).toMatchObject({
+      channel: 'facebook',
+      state: 'inserted',
+      socialContentId: facebookDraft?.id,
+      providerBlocked: false,
+    })
+    expect(result.records[0].socialContentId).not.toBe('social-instagram-existing')
+    expect(result.summary).toMatchObject({
+      insertedCalendarItems: 1,
+      insertedSocialContentRows: 1,
+      reusedCalendarItems: 0,
+      reusedSocialContentRows: 0,
+    })
+    expect(tables.social_content_queue).toHaveLength(2)
+    expect(facebookDraft).toMatchObject({
+      platform: 'facebook',
+      rag_context: expect.objectContaining({
+        agentified_asset_id: 'AGT-IG-02',
+      }),
+    })
+    expect(tables.social_content_calendar_items[0]).toMatchObject({
+      channel: 'facebook',
+      social_content_id: facebookDraft?.id,
+    })
+  })
+
+  it('does not reuse an X draft when activating a LinkedIn companion for the same asset', async () => {
+    const { admin, tables } = createFakeAdmin({
+      attraction_campaigns: [{ id: 'campaign-1', slug: 'agentified-trust-scale-2026-07' }],
+      social_content_queue: [{
+        id: 'social-x-existing',
+        platform: 'x',
+        rag_context: {
+          agentified_asset_id: 'AGT-X-01',
+          external_execution_enabled: false,
+        },
+      }],
+    })
+
+    const result = await activateAutoResearchBacklogItem({
+      admin,
+      item: requireFixture('autoresearch-agentified-agt-x-01'),
+      actorUserId: 'admin-user',
+      channels: ['linkedin'],
+      now: new Date('2026-08-21T12:00:00.000Z'),
+    })
+
+    const linkedInDraft = tables.social_content_queue.find((row) => row.platform === 'linkedin')
+
+    expect(result.records[0]).toMatchObject({
+      channel: 'linkedin',
+      state: 'inserted',
+      socialContentId: linkedInDraft?.id,
+      providerBlocked: false,
+    })
+    expect(result.records[0].socialContentId).not.toBe('social-x-existing')
+    expect(result.summary).toMatchObject({
+      insertedCalendarItems: 1,
+      insertedSocialContentRows: 1,
+      reusedCalendarItems: 0,
+      reusedSocialContentRows: 0,
+    })
+    expect(tables.social_content_queue).toHaveLength(2)
+    expect(linkedInDraft).toMatchObject({
+      platform: 'linkedin',
+      rag_context: expect.objectContaining({
+        agentified_asset_id: 'AGT-X-01',
+      }),
+    })
+    expect(tables.social_content_calendar_items[0]).toMatchObject({
+      channel: 'linkedin',
+      social_content_id: linkedInDraft?.id,
+    })
+  })
+
   it('keeps TikTok as a future manual calendar candidate without creating a provider draft', async () => {
     const { admin, tables } = createFakeAdmin({
       attraction_campaigns: [{ id: 'campaign-1', slug: 'agentified-trust-scale-2026-07' }],
