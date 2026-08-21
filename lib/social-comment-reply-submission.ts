@@ -11,6 +11,7 @@ import {
 
 type FetchLike = typeof fetch
 type MetaReplyPlatform = Extract<SocialPlatform, 'facebook' | 'instagram'>
+type MetaInstagramLoginMode = 'facebook_login' | 'instagram_login'
 
 export type CommentReplySubmissionBlocker = {
   code: string
@@ -177,7 +178,11 @@ function metaAccessToken(config: MetaReplyConfig | null | undefined, platform: M
   if (platform === 'facebook') {
     return asString(credentials.page_access_token) ?? asString(credentials.access_token)
   }
-  return asString(credentials.access_token) ?? asString(credentials.page_access_token) ?? asString(credentials.user_access_token)
+  const loginMode = metaInstagramLoginMode(config)
+  if (loginMode === 'instagram_login') {
+    return asString(credentials.user_access_token) ?? asString(credentials.access_token)
+  }
+  return asString(credentials.page_access_token) ?? asString(credentials.access_token)
 }
 
 function graphApiVersion(config: MetaReplyConfig | null | undefined) {
@@ -196,6 +201,62 @@ function metaIdentity(config: MetaReplyConfig | null | undefined, platform: Meta
 
 function arrayOfStrings(value: unknown) {
   return Array.isArray(value) ? value.map(String).filter(Boolean) : []
+}
+
+function normalizedString(value: unknown) {
+  return asString(value)?.toLowerCase().replace(/[-\s]+/g, '_') ?? null
+}
+
+function explicitInstagramLoginMode(config: MetaReplyConfig | null | undefined): MetaInstagramLoginMode | null {
+  const settings = asRecord(config?.settings)
+  const credentials = asRecord(config?.credentials)
+  const candidates = [
+    settings.instagram_login_mode,
+    settings.meta_login_mode,
+    settings.login_mode,
+    settings.auth_mode,
+    credentials.instagram_login_mode,
+    credentials.meta_login_mode,
+    credentials.login_mode,
+    credentials.auth_mode,
+  ].map(normalizedString)
+
+  if (candidates.some((candidate) => candidate === 'instagram_login' || candidate === 'instagram_api_with_instagram_login')) {
+    return 'instagram_login'
+  }
+  if (candidates.some((candidate) => candidate === 'facebook_login' || candidate === 'facebook_login_for_business' || candidate === 'instagram_api_with_facebook_login')) {
+    return 'facebook_login'
+  }
+  return null
+}
+
+function metaInstagramLoginMode(config: MetaReplyConfig | null | undefined): MetaInstagramLoginMode {
+  const explicit = explicitInstagramLoginMode(config)
+  if (explicit) return explicit
+
+  const credentials = config?.credentials ?? {}
+  const scopes = scopeSet(credentials.scope)
+  const hasInstagramLoginScopes = INSTAGRAM_REPLY_INSTAGRAM_LOGIN_REQUIRED_SCOPES.every((scope) => scopes.has(scope))
+  const hasFacebookLoginScopes = INSTAGRAM_REPLY_FACEBOOK_LOGIN_REQUIRED_SCOPES.every((scope) => scopes.has(scope))
+  if (hasInstagramLoginScopes && !hasFacebookLoginScopes) return 'instagram_login'
+  if (hasFacebookLoginScopes) return 'facebook_login'
+
+  const settings = asRecord(config?.settings)
+  const hasPageIdentity = Boolean(
+    asString(credentials.page_access_token)
+    || asString(settings.page_id)
+    || asString(settings.meta_page_id)
+    || asString(settings.connected_page_id),
+  )
+  if (hasPageIdentity) return 'facebook_login'
+  return 'instagram_login'
+}
+
+function metaGraphBaseUrl(config: MetaReplyConfig | null | undefined, platform: MetaReplyPlatform) {
+  if (platform === 'facebook') return META_FACEBOOK_GRAPH_BASE_URL
+  return metaInstagramLoginMode(config) === 'instagram_login'
+    ? META_INSTAGRAM_GRAPH_BASE_URL
+    : META_FACEBOOK_GRAPH_BASE_URL
 }
 
 function metaTaskEvidence(config: MetaReplyConfig | null | undefined, platform: MetaReplyPlatform) {
@@ -237,14 +298,14 @@ function missingMetaScopes(config: MetaReplyConfig | null | undefined, platform:
 export function buildMetaCommentReplyRequest(input: {
   platform: MetaReplyPlatform
   apiVersion: string
+  baseUrl: string
   accessToken: string
   parentId: string
   message: string
   idempotencyKey: string
 }): CommentReplySubmissionRequest {
   const edge = input.platform === 'instagram' ? 'replies' : 'comments'
-  const baseUrl = input.platform === 'instagram' ? META_INSTAGRAM_GRAPH_BASE_URL : META_FACEBOOK_GRAPH_BASE_URL
-  const url = new URL(`${baseUrl}/${input.apiVersion}/${encodeURIComponent(input.parentId)}/${edge}`)
+  const url = new URL(`${input.baseUrl}/${input.apiVersion}/${encodeURIComponent(input.parentId)}/${edge}`)
   return {
     url: url.toString(),
     init: {
@@ -459,6 +520,7 @@ function evaluateMetaReplyReadiness(input: {
     ? buildMetaCommentReplyRequest({
       platform: input.platform,
       apiVersion: graphApiVersion(config),
+      baseUrl: metaGraphBaseUrl(config, input.platform),
       accessToken,
       parentId,
       message: reply,

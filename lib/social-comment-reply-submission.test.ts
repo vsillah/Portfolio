@@ -108,15 +108,36 @@ const facebookMetaConfig = {
 const instagramMetaConfig = {
   is_active: true,
   credentials: {
-    access_token: 'instagram-access-token',
+    access_token: 'instagram-page-token',
+    page_access_token: 'instagram-page-token',
+    user_access_token: 'instagram-user-token',
     expires_in: 3600,
     token_obtained_at: '2026-08-21T12:00:00.000Z',
     scope: 'instagram_basic instagram_manage_comments pages_read_engagement',
   },
   settings: {
     graph_api_version: 'v20.0',
+    page_id: '123456789',
+    meta_page_id: '123456789',
     instagram_business_account_id: '17841400000000000',
     instagram_comment_reply_capability_verified: true,
+  },
+}
+
+const instagramLoginMetaConfig = {
+  is_active: true,
+  credentials: {
+    access_token: 'instagram-login-access-token',
+    user_access_token: 'instagram-login-user-token',
+    expires_in: 3600,
+    token_obtained_at: '2026-08-21T12:00:00.000Z',
+    scope: 'instagram_business_basic instagram_business_manage_comments',
+  },
+  settings: {
+    graph_api_version: 'v20.0',
+    instagram_login_mode: 'instagram_login',
+    instagram_business_account_id: '17841400000000000',
+    instagram_business_manage_comments_permission: true,
   },
 }
 
@@ -359,7 +380,7 @@ describe('comment reply provider submission adapter', () => {
 
   it.each([
     ['facebook', facebookMetaConfig, facebookMetaCapability, META_FACEBOOK_GRAPH_BASE_URL, '/comments'],
-    ['instagram', instagramMetaConfig, instagramMetaCapability, META_INSTAGRAM_GRAPH_BASE_URL, '/replies'],
+    ['instagram', instagramMetaConfig, instagramMetaCapability, META_FACEBOOK_GRAPH_BASE_URL, '/replies'],
   ] as const)('constructs the intended mocked %s Graph reply request when all gates pass', async (platform, config, canonicalCapability, baseUrl, edge) => {
     const fetchImpl = vi.fn<typeof fetch>(() => Promise.resolve(new Response(JSON.stringify({ id: `${platform}-reply-1` }), { status: 200 })))
 
@@ -395,10 +416,47 @@ describe('comment reply provider submission adapter', () => {
     expect(fetchImpl.mock.calls[0][1]).toMatchObject({
       method: 'POST',
       headers: expect.objectContaining({
-        Authorization: `Bearer ${platform === 'facebook' ? 'facebook-page-token' : 'instagram-access-token'}`,
+        Authorization: `Bearer ${platform === 'facebook' ? 'facebook-page-token' : 'instagram-page-token'}`,
         'Content-Type': 'application/x-www-form-urlencoded',
       }),
     })
     expect(String(fetchImpl.mock.calls[0][1]?.body)).toBe('message=Thanks+for+reaching+out.')
+  })
+
+  it('constructs Instagram Login replies against graph.instagram.com with the Instagram user token', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(() => Promise.resolve(new Response(JSON.stringify({ id: 'instagram-login-reply-1' }), { status: 200 })))
+
+    const result = await submitCommentProviderReply({
+      comment: { ...approvedMetaComment, platform: 'instagram' },
+      meta: {
+        config: instagramLoginMetaConfig,
+        canonicalCapability: instagramMetaCapability,
+      },
+      fetchImpl,
+      env: {
+        [META_COMMENT_REPLY_SUBMISSION_ENV]: 'true',
+      },
+      now: () => new Date('2026-08-21T12:05:00.000Z'),
+    })
+
+    expect(result).toMatchObject({
+      ok: true,
+      blocked: false,
+      status: 'submitted',
+      providerReplyId: 'instagram-login-reply-1',
+      request: expect.objectContaining({
+        platform: 'instagram',
+        parentId: approvedMetaComment.provider_comment_id,
+      }),
+    })
+    expect(fetchImpl).toHaveBeenCalledTimes(1)
+    expect(String(fetchImpl.mock.calls[0][0])).toBe(`${META_INSTAGRAM_GRAPH_BASE_URL}/v20.0/${encodeURIComponent(approvedMetaComment.provider_comment_id)}/replies`)
+    expect(fetchImpl.mock.calls[0][1]).toMatchObject({
+      method: 'POST',
+      headers: expect.objectContaining({
+        Authorization: 'Bearer instagram-login-user-token',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      }),
+    })
   })
 })
