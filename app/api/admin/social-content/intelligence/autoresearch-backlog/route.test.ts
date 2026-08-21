@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const mocks = vi.hoisted(() => ({
   verifyAdmin: vi.fn(),
   isAuthError: vi.fn(),
+  activateAutoResearchBacklogItem: vi.fn(),
+  findAutoResearchBacklogItem: vi.fn(),
 }))
 
 vi.mock('@/lib/auth-server', () => ({
@@ -10,11 +12,31 @@ vi.mock('@/lib/auth-server', () => ({
   isAuthError: mocks.isAuthError,
 }))
 
-import { GET } from './route'
+vi.mock('@/lib/supabase', () => ({
+  supabaseAdmin: { from: vi.fn() },
+}))
+
+vi.mock('@/lib/autoresearch-calendar-activation', () => ({
+  activateAutoResearchBacklogItem: mocks.activateAutoResearchBacklogItem,
+  findAutoResearchBacklogItem: mocks.findAutoResearchBacklogItem,
+}))
+
+import { GET, POST } from './route'
 
 function request(url = 'http://localhost/api/admin/social-content/intelligence/autoresearch-backlog') {
   return new Request(url, {
     headers: { authorization: 'Bearer admin-token' },
+  })
+}
+
+function postRequest(body: Record<string, unknown>) {
+  return new Request('http://localhost/api/admin/social-content/intelligence/autoresearch-backlog', {
+    method: 'POST',
+    headers: {
+      authorization: 'Bearer admin-token',
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify(body),
   })
 }
 
@@ -23,6 +45,48 @@ describe('/api/admin/social-content/intelligence/autoresearch-backlog', () => {
     vi.clearAllMocks()
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-user', email: 'admin@example.com' } })
     mocks.isAuthError.mockReturnValue(false)
+    mocks.findAutoResearchBacklogItem.mockReturnValue({
+      id: 'autoresearch-agentified-agt-x-01',
+      title: 'Agentified release thread: build trust before scale',
+    })
+    mocks.activateAutoResearchBacklogItem.mockResolvedValue({
+      itemId: 'autoresearch-agentified-agt-x-01',
+      title: 'Agentified release thread: build trust before scale',
+      records: [{
+        channel: 'x',
+        state: 'inserted',
+        calendarItemId: 'calendar-x',
+        socialContentId: 'social-x',
+        providerBlocked: false,
+        manualOnly: false,
+        reason: 'Internal records created.',
+      }],
+      blocked: [],
+      summary: {
+        requested: 1,
+        insertedCalendarItems: 1,
+        insertedSocialContentRows: 1,
+        reusedCalendarItems: 0,
+        reusedSocialContentRows: 0,
+        blocked: 0,
+      },
+      side_effects: {
+        provider_call: false,
+        slack_send: false,
+        cron_activation: false,
+        migration: false,
+        publish: false,
+        schedule: false,
+        upload: false,
+        production_mutation: false,
+        provider_generation: false,
+        external_schedule: false,
+        external_post: false,
+        social_content_draft_created: true,
+        calendar_rows_created: true,
+      },
+      callable_external_actions: [],
+    })
   })
 
   it('requires admin auth', async () => {
@@ -108,5 +172,48 @@ describe('/api/admin/social-content/intelligence/autoresearch-backlog', () => {
       'manual',
       'thumbnail',
     ]))
+  })
+
+  it('activates an approved backlog item into internal records without callable external actions', async () => {
+    const response = await POST(postRequest({
+      item_id: 'autoresearch-agentified-agt-x-01',
+      channels: ['x', 'not-a-channel'],
+    }) as never)
+
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    expect(mocks.findAutoResearchBacklogItem).toHaveBeenCalledWith('autoresearch-agentified-agt-x-01')
+    expect(mocks.activateAutoResearchBacklogItem).toHaveBeenCalledWith(expect.objectContaining({
+      actorUserId: 'admin-user',
+      channels: ['x'],
+    }))
+    expect(body.activation).toMatchObject({
+      itemId: 'autoresearch-agentified-agt-x-01',
+      summary: {
+        insertedCalendarItems: 1,
+        insertedSocialContentRows: 1,
+      },
+      side_effects: expect.objectContaining({
+        provider_call: false,
+        slack_send: false,
+        publish: false,
+        schedule: false,
+        upload: false,
+        provider_generation: false,
+        external_post: false,
+      }),
+      callable_external_actions: [],
+    })
+    expect(body.projection.callable_external_actions).toEqual([])
+  })
+
+  it('rejects activation for unknown backlog items', async () => {
+    mocks.findAutoResearchBacklogItem.mockReturnValue(null)
+
+    const response = await POST(postRequest({ item_id: 'missing-item' }) as never)
+
+    expect(response.status).toBe(404)
+    expect(await response.json()).toEqual({ error: 'AutoResearch backlog item not found' })
+    expect(mocks.activateAutoResearchBacklogItem).not.toHaveBeenCalled()
   })
 })

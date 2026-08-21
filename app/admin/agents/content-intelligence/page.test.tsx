@@ -17,7 +17,7 @@ vi.mock('@/lib/auth', () => ({
 
 describe('ContentIntelligencePage', () => {
   beforeEach(() => {
-    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input)
       if (url === '/api/admin/social-content/intelligence/research-runs') {
         return {
@@ -283,6 +283,62 @@ describe('ContentIntelligencePage', () => {
                 external_post: false,
                 apify_run: false,
               },
+            },
+          }),
+        }
+      }
+      if (url === '/api/admin/social-content/intelligence/autoresearch-backlog' && init?.method === 'POST') {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            activation: {
+              itemId: 'autoresearch-agentified-agt-x-01',
+              title: 'What breaks first when AI gets faster?',
+              records: [
+                {
+                  channel: 'x',
+                  state: 'linked',
+                  calendarItemId: 'calendar-x',
+                  socialContentId: 'social-x',
+                  providerBlocked: false,
+                  manualOnly: false,
+                  reason: 'Existing Portfolio records reused.',
+                },
+                {
+                  channel: 'linkedin',
+                  state: 'existing',
+                  calendarItemId: 'calendar-1',
+                  socialContentId: 'social-1',
+                  providerBlocked: false,
+                  manualOnly: false,
+                  reason: 'Existing Portfolio records reused.',
+                },
+              ],
+              summary: {
+                requested: 2,
+                insertedCalendarItems: 0,
+                insertedSocialContentRows: 0,
+                reusedCalendarItems: 2,
+                reusedSocialContentRows: 2,
+                blocked: 0,
+              },
+              side_effects: {
+                provider_call: false,
+                slack_send: false,
+                cron_activation: false,
+                migration: false,
+                publish: false,
+                schedule: false,
+                upload: false,
+                production_mutation: false,
+                provider_generation: false,
+                external_schedule: false,
+                external_post: false,
+                social_content_draft_created: false,
+                calendar_rows_created: false,
+              },
+              callable_external_actions: [],
             },
           }),
         }
@@ -793,7 +849,7 @@ describe('ContentIntelligencePage', () => {
     const autoResearchTab = screen.getByRole('button', { name: /AutoResearch/ })
     expect(autoResearchTab).toHaveTextContent('2')
     fireEvent.click(autoResearchTab)
-    expect(screen.getByRole('heading', { name: 'Read-only backlog projection' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Governed internal activation' })).toBeInTheDocument()
     expect(screen.queryByText('No AutoResearch backlog projection loaded.')).not.toBeInTheDocument()
     const backlogSearch = screen.getByLabelText('Backlog search')
     expect(backlogSearch.parentElement?.className).toContain('[color-scheme:light]')
@@ -834,6 +890,19 @@ describe('ContentIntelligencePage', () => {
     expect(screen.getAllByText('Template basis: Whisper-to-shout launch').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Operator action').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Approve the direction as-is, or leave commentary so Amina can revise this item, carry it into the next AutoResearch pass, or both.').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Calendar activation bridge').length).toBeGreaterThan(0)
+    expect(screen.getAllByRole('button', { name: 'Activate internal records' }).length).toBeGreaterThan(0)
+    fireEvent.click(screen.getAllByRole('button', { name: 'Activate internal records' })[0])
+    expect(await screen.findByText(/Activated What breaks first when AI gets faster/)).toBeInTheDocument()
+    const activationCall = vi.mocked(fetch).mock.calls.find(([input, init]) => (
+      String(input) === '/api/admin/social-content/intelligence/autoresearch-backlog'
+      && init?.method === 'POST'
+    ))
+    expect(activationCall).toBeTruthy()
+    expect(JSON.parse(String(activationCall?.[1]?.body))).toEqual({
+      item_id: 'autoresearch-agentified-agt-x-01',
+      channels: ['x', 'linkedin'],
+    })
     expect(screen.getByText('Feedback routable')).toBeInTheDocument()
     expect(screen.getByText('Needs work-item link')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Feedback follow-through' })).toBeInTheDocument()

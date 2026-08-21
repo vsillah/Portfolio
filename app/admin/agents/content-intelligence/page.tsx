@@ -227,6 +227,31 @@ type AutoResearchOperatorAction = {
   sourceBasis: string
 }
 
+type AutoResearchActivationResponse = {
+  activation?: {
+    itemId: string
+    title: string
+    records: Array<{
+      channel: CalendarItem['channel']
+      state: 'inserted' | 'existing' | 'linked' | 'blocked'
+      calendarItemId: string | null
+      socialContentId: string | null
+      providerBlocked: boolean
+      manualOnly: boolean
+      reason: string
+    }>
+    summary: {
+      requested: number
+      insertedCalendarItems: number
+      insertedSocialContentRows: number
+      reusedCalendarItems: number
+      reusedSocialContentRows: number
+      blocked: number
+    }
+  }
+  projection?: AutoResearchBacklogReadOnlyResponse
+}
+
 const EMPTY_EVIDENCE_FORM: EvidenceForm = {
   source_url: '',
   platform: 'youtube',
@@ -837,6 +862,8 @@ function ContentIntelligenceContent() {
   const [autoResearchFeedbackTargets, setAutoResearchFeedbackTargets] = useState<Record<string, AutoResearchFeedbackTarget>>({})
   const [autoResearchFeedbackSubmittingId, setAutoResearchFeedbackSubmittingId] = useState<string | null>(null)
   const [autoResearchFeedbackNotice, setAutoResearchFeedbackNotice] = useState<string | null>(null)
+  const [autoResearchActivatingId, setAutoResearchActivatingId] = useState<string | null>(null)
+  const [autoResearchActivationNotice, setAutoResearchActivationNotice] = useState<string | null>(null)
   const [activationScopeNote, setActivationScopeNote] = useState('')
   const [requestingActivation, setRequestingActivation] = useState(false)
   const [activationNotice, setActivationNotice] = useState<string | null>(null)
@@ -1460,6 +1487,41 @@ function ContentIntelligenceContent() {
       setAutoResearchFeedbackSubmittingId(null)
     }
   }, [authedFetch, autoResearchFeedbackNotes, autoResearchFeedbackTargets])
+
+  const activateAutoResearchItem = useCallback(async (item: AutoResearchAdminProjection) => {
+    setError(null)
+    setAutoResearchActivationNotice(null)
+    setAutoResearchActivatingId(item.id)
+    try {
+      const response = await authedFetch('/api/admin/social-content/intelligence/autoresearch-backlog', {
+        method: 'POST',
+        body: JSON.stringify({
+          item_id: item.id,
+          channels: item.variants.map((variant) => variant.channel),
+        }),
+      })
+      const body = await readJsonResponse(response) as AutoResearchActivationResponse & { error?: string }
+      if (!response.ok) throw new Error(body.error || `AutoResearch activation HTTP ${response.status}`)
+      if (body.projection) {
+        setAutoResearchBacklog(body.projection)
+      }
+      const summary = body.activation?.summary
+      const records = body.activation?.records ?? []
+      const linkedChannels = records
+        .filter((record) => record.calendarItemId)
+        .map((record) => CALENDAR_CHANNEL_LABELS[record.channel])
+        .join(', ')
+      setAutoResearchActivationNotice(summary
+        ? `Activated ${body.activation?.title ?? item.title}: ${summary.insertedCalendarItems} calendar created, ${summary.insertedSocialContentRows} draft seeds created, ${summary.reusedCalendarItems + summary.reusedSocialContentRows} reused, ${summary.blocked} manual/provider-blocked. ${linkedChannels ? `Channels: ${linkedChannels}.` : ''}`
+        : 'AutoResearch activation completed.')
+      await load()
+      await loadAutoResearchBacklog()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to activate AutoResearch backlog item')
+    } finally {
+      setAutoResearchActivatingId(null)
+    }
+  }, [authedFetch, load, loadAutoResearchBacklog])
 
   const prepareChannelReviewDrafts = useCallback(async (insightId: string) => {
     setError(null)
@@ -2247,14 +2309,14 @@ function ContentIntelligenceContent() {
                 <FileSearch size={16} />
                 Cross-channel AutoResearch
               </div>
-              <h2 className="text-lg font-semibold">Read-only backlog projection</h2>
+              <h2 className="text-lg font-semibold">Governed internal activation</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Amina backlog rows reference source packets by path, show channel-fit variants, and keep every external action disabled.
+                Amina backlog rows reference source packets by path, show channel-fit variants, and can create internal calendar/draft records while every external action stays disabled.
               </p>
             </div>
             <span className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-500/35 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-100">
               <ShieldCheck className="h-3.5 w-3.5" />
-              Read-only
+              Internal only
             </span>
           </div>
 
@@ -2268,6 +2330,11 @@ function ContentIntelligenceContent() {
               </div>
               <AutoResearchOperatorActionQueue actions={autoResearchOperatorActions} />
               <AutoResearchFeedbackFollowThroughPanel handoffs={autoResearchFeedbackHandoffs} />
+              {autoResearchActivationNotice ? (
+                <div className="rounded-lg border border-emerald-500/35 bg-emerald-500/10 p-3 text-sm text-emerald-100">
+                  {autoResearchActivationNotice}
+                </div>
+              ) : null}
               <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-3">
                 <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Backlog search
@@ -2365,6 +2432,8 @@ function ContentIntelligenceContent() {
                     onFeedbackNoteChange={(value) => setAutoResearchFeedbackNotes((current) => ({ ...current, [item.id]: value }))}
                     onFeedbackTargetChange={(value) => setAutoResearchFeedbackTargets((current) => ({ ...current, [item.id]: value }))}
                     onSubmitFeedback={(event) => submitAutoResearchFeedback(item, autoResearchReleaseLinksById[item.id] ?? [], event)}
+                    activationSubmitting={autoResearchActivatingId === item.id}
+                    onActivate={() => activateAutoResearchItem(item)}
                   />
                 )) : (
                   <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-4 py-8 text-center text-sm text-muted-foreground xl:col-span-2">
@@ -3207,6 +3276,8 @@ function AutoResearchBacklogCard({
   onFeedbackNoteChange,
   onFeedbackTargetChange,
   onSubmitFeedback,
+  activationSubmitting,
+  onActivate,
 }: {
   item: AutoResearchAdminProjection
   releaseLinks: AutoResearchReleaseLink[]
@@ -3216,6 +3287,8 @@ function AutoResearchBacklogCard({
   onFeedbackNoteChange: (value: string) => void
   onFeedbackTargetChange: (value: AutoResearchFeedbackTarget) => void
   onSubmitFeedback: (event: FormEvent<HTMLFormElement>) => void
+  activationSubmitting: boolean
+  onActivate: () => void
 }) {
   const gates = Object.values(item.gates)
   const bestVariant = bestAutoResearchVariant(item)
@@ -3315,6 +3388,29 @@ function AutoResearchBacklogCard({
             className="inline-flex min-h-9 items-center justify-center rounded-md border border-silicon-slate/70 px-3 py-2 text-xs font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-70"
           >
             Callable actions: {item.callableExternalActions.length}
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-3 rounded-md border border-emerald-500/30 bg-emerald-500/10 p-3">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-emerald-100/70">Calendar activation bridge</p>
+            <p className="mt-1 text-xs leading-5 text-emerald-100/80">
+              Create or link internal calendar candidates and draft seeds for these channel variants. Copy, visual/media, platform handoff, final submit, provider execution, and status reconciliation stay pending.
+            </p>
+            <p className="mt-1 text-[0.68rem] leading-5 text-emerald-100/65">
+              Records use AutoResearch/backlog/channel idempotency and reuse existing Agentified calendar or Social Content rows when present.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onActivate}
+            disabled={activationSubmitting}
+            className="inline-flex min-h-9 shrink-0 items-center justify-center gap-2 rounded-md border border-emerald-400/55 px-3 py-2 text-xs font-semibold text-emerald-100 transition hover:border-emerald-300 hover:bg-emerald-500/15 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <CalendarDays className="h-3.5 w-3.5" />
+            {activationSubmitting ? 'Activating...' : 'Activate internal records'}
           </button>
         </div>
       </div>
