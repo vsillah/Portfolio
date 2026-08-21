@@ -177,7 +177,7 @@ describe('GET /api/admin/social-content/engagement/comments', () => {
         },
         outcome: { sent: true, item_count: 3 },
         started_at: '2026-08-14T12:00:00.000Z',
-        ended_at: '2026-08-14T12:01:00.000Z',
+        completed_at: '2026-08-14T12:01:00.000Z',
       },
       expected: {
         state: 'sent',
@@ -200,7 +200,7 @@ describe('GET /api/admin/social-content/engagement/comments', () => {
           reason: 'A matching Slack mobile notification was already prepared in this hourly window.',
         },
         started_at: '2026-08-14T13:00:00.000Z',
-        ended_at: '2026-08-14T13:01:00.000Z',
+        completed_at: '2026-08-14T13:01:00.000Z',
       },
       expected: {
         state: 'deduped',
@@ -223,7 +223,7 @@ describe('GET /api/admin/social-content/engagement/comments', () => {
           reason: 'Slack bot channel and webhook are not configured.',
         },
         started_at: '2026-08-14T14:00:00.000Z',
-        ended_at: '2026-08-14T14:01:00.000Z',
+        completed_at: '2026-08-14T14:01:00.000Z',
       },
       expected: {
         state: 'skipped',

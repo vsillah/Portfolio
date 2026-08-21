@@ -139,7 +139,7 @@ async function fetchLastSocialCommentAlertRun(): Promise<SocialCommentAlertRelia
   try {
     const { data, error } = await supabaseAdmin
       .from('agent_runs')
-      .select('id, status, current_step, metadata, outcome, started_at, ended_at, updated_at')
+      .select('id, status, current_step, metadata, outcome, started_at, completed_at, updated_at')
       .eq('kind', 'slack_mobile_notification')
       .order('started_at', { ascending: false })
       .limit(10)
@@ -159,7 +159,7 @@ async function fetchLastSocialCommentAlertRun(): Promise<SocialCommentAlertRelia
     return {
       id: String(row.id),
       status: stringValue(row.status),
-      at: stringValue(row.ended_at) || stringValue(row.updated_at) || stringValue(row.started_at),
+      at: stringValue(row.completed_at) || stringValue(row.ended_at) || stringValue(row.updated_at) || stringValue(row.started_at),
       outcome: alertOutcome,
       reason: stringValue(outcome?.reason) || stringValue(metadata?.reason) || stringValue(row.current_step),
       itemCount,
