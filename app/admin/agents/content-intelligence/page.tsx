@@ -15,6 +15,7 @@ import {
   Film,
   Info,
   Instagram,
+  ListChecks,
   Pencil,
   Plus,
   RefreshCw,
@@ -1852,12 +1853,14 @@ function ContentIntelligenceContent() {
           </div>
         ) : null}
 
-        <div className="mb-6 grid gap-3 md:grid-cols-4">
-          <MetricCard label="Research packets" value={packets.length} />
-          <MetricCard label="Shaka insights" value={insights.length} />
-          <MetricCard label="Top outlier score" value={strongestPacket ? Math.round(Number(strongestPacket.outlier_score)) : 0} />
-          <MetricCard label="Paid scraper runs" value={0} tone="amber" />
-        </div>
+        {activeSection === 'autoresearch' ? null : (
+          <div className="mb-6 grid gap-3 md:grid-cols-4">
+            <MetricCard label="Research packets" value={packets.length} />
+            <MetricCard label="Shaka insights" value={insights.length} />
+            <MetricCard label="Top outlier score" value={strongestPacket ? Math.round(Number(strongestPacket.outlier_score)) : 0} />
+            <MetricCard label="Paid scraper runs" value={0} tone="amber" />
+          </div>
+        )}
 
         <SectionTabs
           activeSection={activeSection}
@@ -2362,17 +2365,14 @@ function ContentIntelligenceContent() {
         ) : null}
 
         {activeSection === 'autoresearch' ? (
-        <section className="agent-ops-card mb-6 rounded-lg border p-4">
-          <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-            <div>
+        <section className="agent-ops-card mb-6 rounded-lg border p-3 sm:p-4">
+          <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
               <div className="agent-ops-eyebrow mb-2">
                 <FileSearch size={16} />
                 Cross-channel AutoResearch
               </div>
-              <h2 className="text-lg font-semibold">Governed internal activation</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Amina backlog rows reference source packets by path, show channel-fit variants, and can create internal calendar/draft records while every external action stays disabled.
-              </p>
+              <h2 className="text-lg font-semibold">Decision workspace</h2>
             </div>
             <span className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-500/35 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-100">
               <ShieldCheck className="h-3.5 w-3.5" />
@@ -2387,70 +2387,86 @@ function ContentIntelligenceContent() {
                   {autoResearchActivationNotice}
                 </div>
               ) : null}
-              <AutoResearchOperatorActionQueue actions={autoResearchOperatorActions} maxVisible={1} />
-              <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-3">
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-                  <label className="block min-w-0 flex-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Backlog search
-                    <div className={CONTENT_INTELLIGENCE_SEARCH_SHELL_CLASS}>
-                      <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
-                      <input
-                        type="search"
-                        value={autoResearchSearch}
-                        onChange={(event) => setAutoResearchSearch(event.target.value)}
-                        placeholder="Search title, work item, channel, source"
-                        className={CONTENT_INTELLIGENCE_SEARCH_INPUT_CLASS}
-                      />
-                    </div>
-                  </label>
-                  <Pagination
-                    page={autoResearchPage}
-                    totalPages={autoResearchTotalPages}
-                    total={filteredAutoResearchItems.length}
-                    pageSize={AUTORESEARCH_BACKLOG_PAGE_SIZE}
-                    onPageChange={setAutoResearchPage}
-                  />
-                </div>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Showing {pagedAutoResearchItems.length ? ((autoResearchPage - 1) * AUTORESEARCH_BACKLOG_PAGE_SIZE) + 1 : 0}-{Math.min(autoResearchPage * AUTORESEARCH_BACKLOG_PAGE_SIZE, filteredAutoResearchItems.length)} of {filteredAutoResearchItems.length} backlog {filteredAutoResearchItems.length === 1 ? 'item' : 'items'}. Search also matches {filteredAutoResearchOpportunities.length} ranked {filteredAutoResearchOpportunities.length === 1 ? 'opportunity' : 'opportunities'} and connected release rows.
-                </p>
-              </div>
 
-              <section aria-label="Paginated AutoResearch backlog actions" className="space-y-3">
-                <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+              <section aria-label="AutoResearch decision workspace" className="rounded-lg border border-radiant-gold/30 bg-radiant-gold/10 p-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                   <div>
-                    <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Backlog action list</p>
-                    <h3 className="text-sm font-semibold">Review these items next</h3>
+                    <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-radiant-gold/80">Active backlog action</p>
+                    <h3 className="text-sm font-semibold text-amber-50">Review this item next</h3>
                   </div>
-                  <span className="text-xs text-muted-foreground">
-                    Page {autoResearchPage} of {autoResearchTotalPages}
-                  </span>
-                </div>
-
-                <div className="grid gap-4 xl:grid-cols-2">
-                  {pagedAutoResearchItems.length ? pagedAutoResearchItems.map((item) => (
-                    <AutoResearchBacklogCard
-                      key={item.id}
-                      item={item}
-                      releaseLinks={autoResearchReleaseLinksById[item.id] ?? []}
-                      feedbackNote={autoResearchFeedbackNotes[item.id] ?? ''}
-                      feedbackTarget={autoResearchFeedbackTargets[item.id] ?? 'both'}
-                      feedbackSubmitting={autoResearchFeedbackSubmittingId === item.id}
-                      onFeedbackNoteChange={(value) => setAutoResearchFeedbackNotes((current) => ({ ...current, [item.id]: value }))}
-                      onFeedbackTargetChange={(value) => setAutoResearchFeedbackTargets((current) => ({ ...current, [item.id]: value }))}
-                      onSubmitFeedback={(event) => submitAutoResearchFeedback(item, autoResearchReleaseLinksById[item.id] ?? [], event)}
-                      activationSubmitting={autoResearchActivatingId === item.id}
-                      onActivate={() => activateAutoResearchItem(item)}
+                  <div className="flex flex-col gap-1 sm:items-end">
+                    <span className="text-xs text-amber-100/75">
+                      Page {autoResearchPage} of {autoResearchTotalPages}
+                    </span>
+                    <Pagination
+                      page={autoResearchPage}
+                      totalPages={autoResearchTotalPages}
+                      total={filteredAutoResearchItems.length}
+                      pageSize={AUTORESEARCH_BACKLOG_PAGE_SIZE}
+                      onPageChange={setAutoResearchPage}
                     />
-                  )) : (
-                    <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-4 py-8 text-center text-sm text-muted-foreground xl:col-span-2">
-                      No AutoResearch backlog items match the current search.
-                    </div>
-                  )}
+                  </div>
                 </div>
+                <p className="mt-2 text-[0.68rem] text-amber-100/75">
+                  Showing {pagedAutoResearchItems.length ? ((autoResearchPage - 1) * AUTORESEARCH_BACKLOG_PAGE_SIZE) + 1 : 0}-{Math.min(autoResearchPage * AUTORESEARCH_BACKLOG_PAGE_SIZE, filteredAutoResearchItems.length)} of {filteredAutoResearchItems.length} backlog {filteredAutoResearchItems.length === 1 ? 'item' : 'items'} · {filteredAutoResearchOpportunities.length} ranked {filteredAutoResearchOpportunities.length === 1 ? 'opportunity' : 'opportunities'} match.
+                </p>
+
+                <section aria-label="Paginated AutoResearch backlog actions" className="mt-3 space-y-3">
+                  <div className="grid gap-4">
+                    {pagedAutoResearchItems.length ? pagedAutoResearchItems.map((item) => (
+                      <AutoResearchBacklogCard
+                        key={item.id}
+                        item={item}
+                        releaseLinks={autoResearchReleaseLinksById[item.id] ?? []}
+                        feedbackNote={autoResearchFeedbackNotes[item.id] ?? ''}
+                        feedbackTarget={autoResearchFeedbackTargets[item.id] ?? 'both'}
+                        feedbackSubmitting={autoResearchFeedbackSubmittingId === item.id}
+                        onFeedbackNoteChange={(value) => setAutoResearchFeedbackNotes((current) => ({ ...current, [item.id]: value }))}
+                        onFeedbackTargetChange={(value) => setAutoResearchFeedbackTargets((current) => ({ ...current, [item.id]: value }))}
+                        onSubmitFeedback={(event) => submitAutoResearchFeedback(item, autoResearchReleaseLinksById[item.id] ?? [], event)}
+                        activationSubmitting={autoResearchActivatingId === item.id}
+                        onActivate={() => activateAutoResearchItem(item)}
+                      />
+                    )) : (
+                      <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-4 py-8 text-center text-sm text-muted-foreground">
+                        No AutoResearch backlog items match the current search.
+                      </div>
+                    )}
+                  </div>
+                </section>
+
+                <label className="mt-3 block min-w-0 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Backlog search
+                  <div className={CONTENT_INTELLIGENCE_SEARCH_SHELL_CLASS}>
+                    <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    <input
+                      type="search"
+                      value={autoResearchSearch}
+                      onChange={(event) => setAutoResearchSearch(event.target.value)}
+                      placeholder="Search title, work item, channel, source"
+                      className={CONTENT_INTELLIGENCE_SEARCH_INPUT_CLASS}
+                    />
+                  </div>
+                </label>
               </section>
 
               <div className="grid gap-3 xl:grid-cols-2">
+                <CollapsiblePanel
+                  title="Queue summary"
+                  panelKey="autoResearchQueueSummary"
+                  expanded={Boolean(expandedPanels.autoResearchQueueSummary)}
+                  onToggle={togglePanel}
+                  className="border-radiant-gold/25 bg-radiant-gold/10"
+                  icon={<ListChecks className="h-4 w-4 text-radiant-gold" />}
+                  rightSlot={(
+                    <span className="rounded-full border border-radiant-gold/40 bg-background/35 px-2.5 py-1 text-[0.68rem] font-semibold text-radiant-gold">
+                      {autoResearchOperatorActions.length} actions
+                    </span>
+                  )}
+                >
+                  <AutoResearchOperatorActionQueue actions={autoResearchOperatorActions} maxVisible={2} />
+                </CollapsiblePanel>
+
                 <CollapsiblePanel
                   title="Feedback follow-through"
                   panelKey="autoResearchFeedbackFollowThrough"
@@ -3127,8 +3143,8 @@ function SectionTabs({
   counts: Record<IntelligenceSection, number>
 }) {
   return (
-    <nav aria-label="Content intelligence sections" className="mb-6 min-w-0 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-2">
-      <div className="grid min-w-0 grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">
+    <nav aria-label="Content intelligence sections" className="mb-4 min-w-0 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-2 sm:mb-6">
+      <div className="grid min-w-0 grid-cols-3 gap-1.5 sm:gap-2 md:grid-cols-3 xl:grid-cols-6">
         {SECTION_TABS.map((section) => {
           const isActive = section.key === activeSection
           return (
@@ -3138,17 +3154,17 @@ function SectionTabs({
               onClick={() => onChange(section.key)}
               aria-pressed={isActive}
               title={section.description}
-              className={`flex min-h-20 min-w-0 items-center justify-between gap-2 rounded-md border px-2.5 py-2 text-left transition sm:min-h-16 sm:gap-3 sm:px-3 ${
+              className={`flex min-h-14 min-w-0 items-center justify-between gap-1.5 rounded-md border px-2 py-1.5 text-left transition sm:min-h-16 sm:gap-3 sm:px-3 sm:py-2 ${
                 isActive
                   ? 'border-radiant-gold/55 bg-radiant-gold/15 text-radiant-gold'
                   : 'border-silicon-slate/60 bg-background/30 text-muted-foreground hover:border-white/30 hover:text-foreground'
               }`}
             >
               <span className="min-w-0">
-                <span className="block text-sm font-semibold">{section.label}</span>
+                <span className="block text-[0.72rem] font-semibold leading-4 sm:text-sm">{section.label}</span>
                 <span className="mt-0.5 hidden text-[0.68rem] leading-4 opacity-80 sm:block">{section.description}</span>
               </span>
-              <span className="shrink-0 rounded-full border border-current/30 px-2 py-0.5 text-xs font-semibold">
+              <span className="shrink-0 rounded-full border border-current/30 px-1.5 py-0.5 text-[0.68rem] font-semibold sm:px-2 sm:text-xs">
                 {counts[section.key]}
               </span>
             </button>
@@ -3437,19 +3453,19 @@ function AutoResearchBacklogCard({
   const nextGateLabel = formatAutoResearchGate(item.firstBlockedOrPendingGate)
   const connectedContentHref = primaryRelease?.socialContentId ? `/admin/social-content/${primaryRelease.socialContentId}` : null
   return (
-    <article className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <article className="rounded-lg border border-silicon-slate/70 bg-background/45 p-3 sm:p-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <p className="mb-1 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Generated backlog item</p>
-          <p className="text-sm font-semibold">{item.title}</p>
-          <p className="mt-1 text-xs leading-5 text-muted-foreground">{item.targetAvatar}</p>
+          <p className="break-words text-sm font-semibold">{item.title}</p>
+          <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">{item.targetAvatar}</p>
         </div>
         <span className={`shrink-0 rounded-full border px-2.5 py-1 text-[0.68rem] font-semibold ${gateTone(firstGateState)}`}>
           {item.firstBlockedOrPendingGate ? item.firstBlockedOrPendingGate.replace(/_/g, ' ') : 'ready'}
         </span>
       </div>
 
-      <div aria-label="Mobile action summary" className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+      <div aria-label="Mobile action summary" className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)]">
         <section className="rounded-md border border-radiant-gold/35 bg-radiant-gold/10 p-3">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
@@ -3464,41 +3480,32 @@ function AutoResearchBacklogCard({
             </span>
           </div>
 
-          <div className="mt-3 grid gap-2 text-[0.68rem] sm:grid-cols-3">
-            <div className="rounded-md border border-amber-500/20 bg-background/35 p-2">
-              <p className="font-semibold uppercase tracking-wide text-amber-100/65">Item</p>
-              <p className="mt-1 line-clamp-2 text-xs font-semibold text-amber-50">{item.title}</p>
-              <p className="mt-1 text-amber-100/70">{bestVariant ? `${formatAutoResearchLabel(bestVariant.channel)} · ${bestVariant.recommendedFormat.replace(/_/g, ' ')}` : 'No channel variant'}</p>
-            </div>
-            <div className="rounded-md border border-emerald-500/25 bg-emerald-500/10 p-2">
-              <p className="font-semibold uppercase tracking-wide text-emerald-100/65">Calendar link</p>
-              <p className="mt-1 text-xs font-semibold text-emerald-50">
-                {primaryRelease ? formatCalendarDate(primaryRelease.scheduledFor) : 'No release row'}
-              </p>
-              <p className="mt-1 text-emerald-100/70">
-                {primaryRelease?.authorizationDueAt ? `Approval due ${formatCalendarDate(primaryRelease.authorizationDueAt)}` : 'Approval due not set'}
-              </p>
-            </div>
-            <div className="rounded-md border border-blue-500/25 bg-blue-500/10 p-2">
-              <p className="font-semibold uppercase tracking-wide text-blue-100/65">Backlog/content</p>
-              <p className="mt-1 line-clamp-2 text-xs font-semibold text-blue-50">
-                {primaryRelease?.workItemTitle ?? item.campaign.slug ?? 'No linked work item'}
-              </p>
-              {connectedContentHref ? (
-                <Link href={connectedContentHref} className="mt-1 block break-words text-blue-100 underline-offset-2 hover:underline">
-                  Content row: {primaryRelease?.socialContentId}
-                </Link>
-              ) : (
-                <p className="mt-1 text-blue-100/70">Content row not connected yet</p>
-              )}
-            </div>
+          <div className="mt-3 flex flex-wrap gap-1.5 text-[0.68rem]">
+            <span className="rounded-full border border-amber-500/25 bg-background/35 px-2 py-1 font-semibold text-amber-50">
+              {bestVariant ? `${formatAutoResearchLabel(bestVariant.channel)} · ${bestVariant.recommendedFormat.replace(/_/g, ' ')}` : 'No channel variant'}
+            </span>
+            <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-1 font-semibold text-emerald-50">
+              {primaryRelease ? formatCalendarDate(primaryRelease.scheduledFor) : 'No release row'}
+            </span>
+            <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-1 text-emerald-100/80">
+              {primaryRelease?.authorizationDueAt ? `Due ${formatCalendarDate(primaryRelease.authorizationDueAt)}` : 'No approval due'}
+            </span>
+            {connectedContentHref ? (
+              <Link href={connectedContentHref} className="rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-1 font-semibold text-blue-100 underline-offset-2 hover:underline">
+                Content row: {primaryRelease?.socialContentId}
+              </Link>
+            ) : (
+              <span className="rounded-full border border-blue-500/25 bg-blue-500/10 px-2 py-1 text-blue-100/75">
+                Content row not connected
+              </span>
+            )}
           </div>
 
           <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-emerald-100/70">Calendar activation bridge</p>
-              <p className="mt-1 text-[0.68rem] leading-5 text-amber-100/70">
-                Calendar activation creates or reuses internal records only; provider execution stays locked.
+              <p className="mt-1 text-[0.68rem] leading-5 text-amber-100/70 sm:max-w-sm">
+                Creates or reuses internal calendar and draft rows only.
               </p>
             </div>
             <button
@@ -3518,19 +3525,19 @@ function AutoResearchBacklogCard({
             <div>
               <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-radiant-gold">Operator action</p>
               <p className="mt-1 text-xs leading-5 text-amber-100/80">
-                Approve the direction as-is, or leave commentary so Amina can revise this item, carry it into the next AutoResearch pass, or both.
+                Route commentary to this item, the next AutoResearch pass, or both.
               </p>
             </div>
           </div>
 
-          <fieldset className="mt-3 grid gap-2 md:grid-cols-3">
+          <fieldset className="mt-3 grid grid-cols-3 gap-1.5">
             <legend className="sr-only">AutoResearch feedback routing</legend>
             {AUTORESEARCH_FEEDBACK_TARGET_OPTIONS.map((option) => (
               <label
                 key={option.value}
                 className={`cursor-pointer rounded-md border p-2 transition ${feedbackTarget === option.value ? 'border-radiant-gold/70 bg-radiant-gold/15' : 'border-silicon-slate/60 bg-background/35 hover:border-radiant-gold/45'}`}
               >
-                <span className="flex items-center gap-2 text-xs font-semibold">
+                <span className="flex items-center gap-1.5 text-[0.68rem] font-semibold sm:text-xs">
                   <input
                     type="radio"
                     name={`autoresearch-feedback-target-${item.id}`}
@@ -3541,24 +3548,24 @@ function AutoResearchBacklogCard({
                   />
                   {option.label}
                 </span>
-                <span className="mt-1 block text-[0.68rem] leading-5 text-muted-foreground">{option.description}</span>
+                <span className="mt-1 hidden text-[0.68rem] leading-5 text-muted-foreground sm:block">{option.description}</span>
               </label>
             ))}
           </fieldset>
 
-          <label className="mt-3 block text-xs font-semibold uppercase tracking-wide text-amber-100/80" htmlFor={`autoresearch-feedback-${item.id}`}>
+          <label className="mt-2 block text-xs font-semibold uppercase tracking-wide text-amber-100/80" htmlFor={`autoresearch-feedback-${item.id}`}>
             Commentary for Amina
           </label>
           <textarea
             id={`autoresearch-feedback-${item.id}`}
-            rows={3}
+            rows={2}
             value={feedbackNote}
             onChange={(event) => onFeedbackNoteChange(event.target.value)}
             placeholder="Example: strengthen the CTA, use real Portfolio b-roll, or make this the reference point for the next research pass."
-            className={`${CONTENT_INTELLIGENCE_FIELD_COMPACT_CLASS} mt-1 min-h-24 resize-y`}
+            className={`${CONTENT_INTELLIGENCE_FIELD_COMPACT_CLASS} mt-1 min-h-16 resize-y`}
           />
-          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-[0.68rem] leading-5 text-amber-100/70">
+          <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <p className="hidden text-[0.68rem] leading-5 text-amber-100/70 sm:block">
               Records an internal feedback handoff only. It does not generate media, publish, schedule, upload, or call providers.
             </p>
             <button
