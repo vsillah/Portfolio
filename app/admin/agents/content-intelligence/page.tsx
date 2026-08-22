@@ -358,7 +358,7 @@ const SECTION_TABS: Array<{
 ]
 
 const TABLE_PAGE_SIZE = 6
-const TEMPLATE_PAGE_SIZE = 4
+const TEMPLATE_PAGE_SIZE = 1
 const CALENDAR_PAGE_SIZE = 8
 const AUTORESEARCH_BACKLOG_PAGE_SIZE = 1
 
@@ -1210,6 +1210,9 @@ function ContentIntelligenceContent() {
     return SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS.slice(start, start + TEMPLATE_PAGE_SIZE)
   }, [templatePage])
 
+  const activeTemplateKey = pagedTemplateKeys[0] ?? SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS[0]
+  const activeTemplate = SOCIAL_CONTENT_CALENDAR_TEMPLATES[activeTemplateKey]
+
   const togglePanel = useCallback((key: string) => {
     setExpandedPanels((current) => ({ ...current, [key]: !current[key] }))
   }, [])
@@ -1905,7 +1908,18 @@ function ContentIntelligenceContent() {
             tooltip="Source-backed milestone models available before any campaign plan is generated."
             rightSlot={null}
           >
-            <div className="grid gap-2 xl:grid-cols-4">
+            <div className="mb-3 flex flex-col gap-2 rounded-lg border border-blue-300/15 bg-background/25 px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <p className="text-[0.66rem] font-semibold uppercase tracking-[0.08em] text-blue-100/65">
+                  Template {templatePage} of {templateTotalPages}
+                </p>
+                <p className="truncate text-sm font-semibold text-blue-50">{activeTemplate.label}</p>
+              </div>
+              <span className="w-fit rounded-full border border-blue-300/20 px-2 py-0.5 text-[0.62rem] font-semibold text-blue-100/75">
+                {templatePage} / {templateTotalPages}
+              </span>
+            </div>
+            <div className="grid gap-2">
               {pagedTemplateKeys.map((key) => {
                 const template = SOCIAL_CONTENT_CALENDAR_TEMPLATES[key]
                 return (
