@@ -3342,6 +3342,11 @@ function AutoResearchBacklogCard({
   const sourceReferences = item.sourceReferences ?? []
   const primarySourceReference = sourceReferences[0] ?? null
   const firstSourcePacket = item.sourcePacketPaths[0] ?? null
+  const firstGateState = item.firstBlockedOrPendingGate
+    ? item.gates[item.firstBlockedOrPendingGate]?.state ?? 'pending'
+    : 'approved'
+  const nextGateLabel = formatAutoResearchGate(item.firstBlockedOrPendingGate)
+  const connectedContentHref = primaryRelease?.socialContentId ? `/admin/social-content/${primaryRelease.socialContentId}` : null
   return (
     <article className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -3350,12 +3355,136 @@ function AutoResearchBacklogCard({
           <p className="text-sm font-semibold">{item.title}</p>
           <p className="mt-1 text-xs leading-5 text-muted-foreground">{item.targetAvatar}</p>
         </div>
-        <span className={`shrink-0 rounded-full border px-2.5 py-1 text-[0.68rem] font-semibold ${item.firstBlockedOrPendingGate ? gateTone(item.gates[item.firstBlockedOrPendingGate].state) : gateTone('approved')}`}>
+        <span className={`shrink-0 rounded-full border px-2.5 py-1 text-[0.68rem] font-semibold ${gateTone(firstGateState)}`}>
           {item.firstBlockedOrPendingGate ? item.firstBlockedOrPendingGate.replace(/_/g, ' ') : 'ready'}
         </span>
       </div>
 
-      <div className="mt-4 grid gap-3 lg:grid-cols-4">
+      <div aria-label="Mobile action summary" className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+        <section className="rounded-md border border-radiant-gold/35 bg-radiant-gold/10 p-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-radiant-gold">Action summary</p>
+              <h3 className="mt-1 text-sm font-semibold text-amber-50">{nextGateLabel}</h3>
+              <p className="mt-1 text-xs leading-5 text-amber-100/80">
+                {item.nextHumanDecision ?? 'Review the connected backlog row before any provider handoff.'}
+              </p>
+            </div>
+            <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[0.62rem] font-semibold ${feedbackWorkItemId ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100' : 'border-amber-500/35 bg-amber-500/10 text-amber-100'}`}>
+              {feedbackWorkItemId ? 'Feedback routable' : 'Needs work-item link'}
+            </span>
+          </div>
+
+          <div className="mt-3 grid gap-2 text-[0.68rem] sm:grid-cols-3">
+            <div className="rounded-md border border-amber-500/20 bg-background/35 p-2">
+              <p className="font-semibold uppercase tracking-wide text-amber-100/65">Item</p>
+              <p className="mt-1 line-clamp-2 text-xs font-semibold text-amber-50">{item.title}</p>
+              <p className="mt-1 text-amber-100/70">{bestVariant ? `${formatAutoResearchLabel(bestVariant.channel)} · ${bestVariant.recommendedFormat.replace(/_/g, ' ')}` : 'No channel variant'}</p>
+            </div>
+            <div className="rounded-md border border-emerald-500/25 bg-emerald-500/10 p-2">
+              <p className="font-semibold uppercase tracking-wide text-emerald-100/65">Calendar link</p>
+              <p className="mt-1 text-xs font-semibold text-emerald-50">
+                {primaryRelease ? formatCalendarDate(primaryRelease.scheduledFor) : 'No release row'}
+              </p>
+              <p className="mt-1 text-emerald-100/70">
+                {primaryRelease?.authorizationDueAt ? `Approval due ${formatCalendarDate(primaryRelease.authorizationDueAt)}` : 'Approval due not set'}
+              </p>
+            </div>
+            <div className="rounded-md border border-blue-500/25 bg-blue-500/10 p-2">
+              <p className="font-semibold uppercase tracking-wide text-blue-100/65">Backlog/content</p>
+              <p className="mt-1 line-clamp-2 text-xs font-semibold text-blue-50">
+                {primaryRelease?.workItemTitle ?? item.campaign.slug ?? 'No linked work item'}
+              </p>
+              {connectedContentHref ? (
+                <Link href={connectedContentHref} className="mt-1 block break-words text-blue-100 underline-offset-2 hover:underline">
+                  Content row: {primaryRelease?.socialContentId}
+                </Link>
+              ) : (
+                <p className="mt-1 text-blue-100/70">Content row not connected yet</p>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-emerald-100/70">Calendar activation bridge</p>
+              <p className="mt-1 text-[0.68rem] leading-5 text-amber-100/70">
+                Calendar activation creates or reuses internal records only; provider execution stays locked.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={onActivate}
+              disabled={activationSubmitting}
+              className="inline-flex min-h-9 shrink-0 items-center justify-center gap-2 rounded-md border border-emerald-400/55 px-3 py-2 text-xs font-semibold text-emerald-100 transition hover:border-emerald-300 hover:bg-emerald-500/15 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <CalendarDays className="h-3.5 w-3.5" />
+              {activationSubmitting ? 'Activating...' : 'Activate internal records'}
+            </button>
+          </div>
+        </section>
+
+        <form onSubmit={onSubmitFeedback} className="rounded-md border border-radiant-gold/35 bg-radiant-gold/10 p-3">
+          <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-radiant-gold">Operator action</p>
+              <p className="mt-1 text-xs leading-5 text-amber-100/80">
+                Approve the direction as-is, or leave commentary so Amina can revise this item, carry it into the next AutoResearch pass, or both.
+              </p>
+            </div>
+          </div>
+
+          <fieldset className="mt-3 grid gap-2 md:grid-cols-3">
+            <legend className="sr-only">AutoResearch feedback routing</legend>
+            {AUTORESEARCH_FEEDBACK_TARGET_OPTIONS.map((option) => (
+              <label
+                key={option.value}
+                className={`cursor-pointer rounded-md border p-2 transition ${feedbackTarget === option.value ? 'border-radiant-gold/70 bg-radiant-gold/15' : 'border-silicon-slate/60 bg-background/35 hover:border-radiant-gold/45'}`}
+              >
+                <span className="flex items-center gap-2 text-xs font-semibold">
+                  <input
+                    type="radio"
+                    name={`autoresearch-feedback-target-${item.id}`}
+                    value={option.value}
+                    checked={feedbackTarget === option.value}
+                    onChange={() => onFeedbackTargetChange(option.value)}
+                    className="h-3.5 w-3.5 accent-radiant-gold"
+                  />
+                  {option.label}
+                </span>
+                <span className="mt-1 block text-[0.68rem] leading-5 text-muted-foreground">{option.description}</span>
+              </label>
+            ))}
+          </fieldset>
+
+          <label className="mt-3 block text-xs font-semibold uppercase tracking-wide text-amber-100/80" htmlFor={`autoresearch-feedback-${item.id}`}>
+            Commentary for Amina
+          </label>
+          <textarea
+            id={`autoresearch-feedback-${item.id}`}
+            rows={3}
+            value={feedbackNote}
+            onChange={(event) => onFeedbackNoteChange(event.target.value)}
+            placeholder="Example: strengthen the CTA, use real Portfolio b-roll, or make this the reference point for the next research pass."
+            className={`${CONTENT_INTELLIGENCE_FIELD_COMPACT_CLASS} mt-1 min-h-24 resize-y`}
+          />
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-[0.68rem] leading-5 text-amber-100/70">
+              Records an internal feedback handoff only. It does not generate media, publish, schedule, upload, or call providers.
+            </p>
+            <button
+              type="submit"
+              disabled={!feedbackNote.trim() || !feedbackWorkItemId || feedbackSubmitting}
+              className="inline-flex min-h-9 items-center justify-center gap-2 rounded-md border border-radiant-gold/55 px-3 py-2 text-xs font-semibold text-radiant-gold transition hover:border-radiant-gold hover:bg-radiant-gold/10 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Save className="h-3.5 w-3.5" />
+              {feedbackSubmitting ? 'Recording...' : 'Record feedback handoff'}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div className="mt-4 hidden gap-3 md:grid md:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-md border border-silicon-slate/60 bg-background/35 p-3">
           <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-muted-foreground">Content</p>
           <p className="mt-1 text-xs font-semibold">
@@ -3397,7 +3526,7 @@ function AutoResearchBacklogCard({
         </div>
       </div>
 
-      <div className="mt-4 rounded-md border border-blue-500/25 bg-blue-500/10 p-3">
+      <div className="mt-4 hidden rounded-md border border-blue-500/25 bg-blue-500/10 p-3 md:block">
         <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">
             <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-blue-100/70">Reference basis</p>
@@ -3418,109 +3547,6 @@ function AutoResearchBacklogCard({
           </p>
         ) : null}
       </div>
-
-      <div className="mt-4 rounded-md border border-silicon-slate/60 bg-background/35 p-2">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Next decision</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {item.nextHumanDecision ?? 'Review the connected backlog row before any provider handoff.'}
-            </p>
-          </div>
-          <button
-            type="button"
-            disabled
-            className="inline-flex min-h-9 items-center justify-center rounded-md border border-silicon-slate/70 px-3 py-2 text-xs font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            Callable actions: {item.callableExternalActions.length}
-          </button>
-        </div>
-      </div>
-
-      <div className="mt-3 rounded-md border border-emerald-500/30 bg-emerald-500/10 p-3">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="min-w-0">
-            <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-emerald-100/70">Calendar activation bridge</p>
-            <p className="mt-1 text-xs leading-5 text-emerald-100/80">
-              Create or link internal calendar candidates and draft seeds for these channel variants. Copy, visual/media, platform handoff, final submit, provider execution, and status reconciliation stay pending.
-            </p>
-            <p className="mt-1 text-[0.68rem] leading-5 text-emerald-100/65">
-              Records use AutoResearch/backlog/channel idempotency and reuse existing Agentified calendar or Social Content rows when present.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onActivate}
-            disabled={activationSubmitting}
-            className="inline-flex min-h-9 shrink-0 items-center justify-center gap-2 rounded-md border border-emerald-400/55 px-3 py-2 text-xs font-semibold text-emerald-100 transition hover:border-emerald-300 hover:bg-emerald-500/15 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <CalendarDays className="h-3.5 w-3.5" />
-            {activationSubmitting ? 'Activating...' : 'Activate internal records'}
-          </button>
-        </div>
-      </div>
-
-      <form onSubmit={onSubmitFeedback} className="mt-3 rounded-md border border-radiant-gold/35 bg-radiant-gold/10 p-3">
-        <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-radiant-gold">Operator action</p>
-            <p className="mt-1 text-xs leading-5 text-amber-100/80">
-              Approve the direction as-is, or leave commentary so Amina can revise this item, carry it into the next AutoResearch pass, or both.
-            </p>
-          </div>
-          <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[0.62rem] font-semibold ${feedbackWorkItemId ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100' : 'border-amber-500/35 bg-amber-500/10 text-amber-100'}`}>
-            {feedbackWorkItemId ? 'Feedback routable' : 'Needs work-item link'}
-          </span>
-        </div>
-
-        <fieldset className="mt-3 grid gap-2 md:grid-cols-3">
-          <legend className="sr-only">AutoResearch feedback routing</legend>
-          {AUTORESEARCH_FEEDBACK_TARGET_OPTIONS.map((option) => (
-            <label
-              key={option.value}
-              className={`cursor-pointer rounded-md border p-2 transition ${feedbackTarget === option.value ? 'border-radiant-gold/70 bg-radiant-gold/15' : 'border-silicon-slate/60 bg-background/35 hover:border-radiant-gold/45'}`}
-            >
-              <span className="flex items-center gap-2 text-xs font-semibold">
-                <input
-                  type="radio"
-                  name={`autoresearch-feedback-target-${item.id}`}
-                  value={option.value}
-                  checked={feedbackTarget === option.value}
-                  onChange={() => onFeedbackTargetChange(option.value)}
-                  className="h-3.5 w-3.5 accent-radiant-gold"
-                />
-                {option.label}
-              </span>
-              <span className="mt-1 block text-[0.68rem] leading-5 text-muted-foreground">{option.description}</span>
-            </label>
-          ))}
-        </fieldset>
-
-        <label className="mt-3 block text-xs font-semibold uppercase tracking-wide text-amber-100/80" htmlFor={`autoresearch-feedback-${item.id}`}>
-          Commentary for Amina
-        </label>
-        <textarea
-          id={`autoresearch-feedback-${item.id}`}
-          rows={3}
-          value={feedbackNote}
-          onChange={(event) => onFeedbackNoteChange(event.target.value)}
-          placeholder="Example: strengthen the CTA, use real Portfolio b-roll, or make this the reference point for the next research pass."
-          className={`${CONTENT_INTELLIGENCE_FIELD_COMPACT_CLASS} mt-1 min-h-24 resize-y`}
-        />
-        <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-[0.68rem] leading-5 text-amber-100/70">
-            Records an internal feedback handoff only. It does not generate media, publish, schedule, upload, or call providers.
-          </p>
-          <button
-            type="submit"
-            disabled={!feedbackNote.trim() || !feedbackWorkItemId || feedbackSubmitting}
-            className="inline-flex min-h-9 items-center justify-center gap-2 rounded-md border border-radiant-gold/55 px-3 py-2 text-xs font-semibold text-radiant-gold transition hover:border-radiant-gold hover:bg-radiant-gold/10 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <Save className="h-3.5 w-3.5" />
-            {feedbackSubmitting ? 'Recording...' : 'Record feedback handoff'}
-          </button>
-        </div>
-      </form>
 
       <details className="mt-4 rounded-md border border-silicon-slate/60 bg-background/30 p-3">
         <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-muted-foreground">

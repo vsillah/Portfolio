@@ -930,6 +930,15 @@ describe('ContentIntelligencePage', () => {
     expect(screen.getAllByText('What makes proof feel credible before a launch?').length).toBeGreaterThan(0)
     expect(screen.getByText('docs/content-strategy/agentified-x-research-evidence-2026-08-05.md')).toBeInTheDocument()
     expect(screen.getAllByText('final submission').length).toBeGreaterThan(0)
+    const actionSummary = screen.getAllByText('Action summary')[0]
+    const operatorAction = screen.getAllByText('Operator action')[0]
+    const auditSummary = screen.getAllByText('Full audit details')[0]
+    expect(actionSummary.compareDocumentPosition(operatorAction) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(operatorAction.compareDocumentPosition(auditSummary) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(auditSummary.closest('details')).not.toHaveAttribute('open')
+    expect(screen.getAllByText('Calendar link').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Backlog/content').length).toBeGreaterThan(0)
+    expect(screen.getAllByRole('link', { name: 'Content row: social-1' })[0]).toHaveAttribute('href', '/admin/social-content/social-1')
     expect(screen.getAllByText('Generated backlog item').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Content').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Backlog linkage').length).toBeGreaterThan(0)
