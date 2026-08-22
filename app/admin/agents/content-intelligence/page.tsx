@@ -931,8 +931,8 @@ function ContentIntelligenceContent() {
   const [calendarEditForms, setCalendarEditForms] = useState<Record<string, CalendarForm>>({})
   const [activeSection, setActiveSection] = useState<IntelligenceSection>('calendar')
   const [expandedPanels, setExpandedPanels] = useState<Record<string, boolean>>({
-    templateLibrary: true,
-    calendarPlanner: true,
+    templateLibrary: false,
+    calendarPlanner: false,
     digestActivation: false,
     evidenceSources: false,
     evidenceForm: true,
@@ -1697,6 +1697,7 @@ function ContentIntelligenceContent() {
       }
     })
     setCalendarNotice(`${template.label}: ${milestone.title_prefix} loaded into the planner.`)
+    setExpandedPanels((current) => ({ ...current, calendarPlanner: true }))
   }, [campaigns])
 
   const authorizeCalendarItem = useCallback(async (item: CalendarItem) => {
@@ -1988,6 +1989,133 @@ function ContentIntelligenceContent() {
             </span>
           </div>
 
+          <CollapsiblePanel
+            title="+ Plan item"
+            panelKey="calendarPlanner"
+            expanded={expandedPanels.calendarPlanner}
+            onToggle={togglePanel}
+            className="mb-4 border-radiant-gold/35 bg-radiant-gold/10"
+            icon={<Plus className="h-4 w-4 text-radiant-gold" />}
+            tooltip="Creates a pending calendar gate only. Use a template milestone above or plan manually."
+            rightSlot={(
+              <div className="flex flex-wrap justify-end gap-2">
+                <span className="inline-flex w-fit rounded-full border border-radiant-gold/35 bg-background/35 px-2.5 py-1 text-[0.68rem] font-semibold text-radiant-gold">
+                  Pending internal gate only
+                </span>
+                {calendarNotice ? (
+                  <span className="inline-flex w-fit rounded-full border border-emerald-500/35 bg-emerald-500/10 px-2.5 py-1 text-[0.68rem] font-semibold text-emerald-100">
+                    {calendarNotice}
+                  </span>
+                ) : null}
+              </div>
+            )}
+          >
+          <form onSubmit={createCalendarItem}>
+            {(() => {
+              const metadata = recordValue(calendarForm.metadata)
+              const templateLabel = typeof metadata.template_label === 'string' ? metadata.template_label : null
+              const milestoneKey = typeof metadata.milestone_key === 'string' ? metadata.milestone_key : null
+              const sourceLabels = metadataStringArray(metadata.source_labels)
+              if (!templateLabel) return null
+
+              return (
+                <div className="mb-3 rounded-md border border-radiant-gold/30 bg-background/35 p-2 text-xs text-muted-foreground">
+                  <span className="font-semibold text-radiant-gold">Template applied: </span>
+                  {templateLabel}{milestoneKey ? ` · ${milestoneKey.replace(/_/g, ' ')}` : ''}
+                  {sourceLabels.length > 0 ? (
+                    <span className="ml-2 text-muted-foreground">
+                      Source: {sourceLabels.slice(0, 2).join(', ')}
+                    </span>
+                  ) : null}
+                </div>
+              )
+            })()}
+            <p className="mb-3 rounded-md border border-radiant-gold/25 bg-background/35 px-3 py-2 text-xs leading-5 text-amber-100/75">
+              Manual planning creates a pending internal calendar gate for later human authorization. It does not schedule, publish, upload, or call a provider.
+            </p>
+            <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_14rem_12rem]">
+              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Title
+                <input
+                  required
+                  type="text"
+                  value={calendarForm.title}
+                  onChange={(event) => setCalendarForm((current) => ({ ...current, title: event.target.value }))}
+                  className={CONTENT_INTELLIGENCE_FIELD_CLASS}
+                />
+              </label>
+              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Scheduled for
+                <input
+                  required
+                  type="datetime-local"
+                  value={calendarForm.scheduled_for}
+                  onChange={(event) => setCalendarForm((current) => ({ ...current, scheduled_for: event.target.value }))}
+                  className={CONTENT_INTELLIGENCE_FIELD_CLASS}
+                />
+              </label>
+              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Channel
+                <select
+                  value={calendarForm.channel}
+                  onChange={(event) => setCalendarForm((current) => ({ ...current, channel: event.target.value as CalendarItem['channel'] }))}
+                  className={CONTENT_INTELLIGENCE_FIELD_CLASS}
+                >
+                  {Object.entries(CALENDAR_CHANNEL_LABELS).map(([value, label]) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <div className="mt-3 grid gap-3 lg:grid-cols-[14rem_1fr]">
+              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Phase
+                <select
+                  value={calendarForm.campaign_phase}
+                  onChange={(event) => setCalendarForm((current) => ({ ...current, campaign_phase: event.target.value as CalendarItem['campaign_phase'] }))}
+                  className={CONTENT_INTELLIGENCE_FIELD_CLASS}
+                >
+                  {CALENDAR_PHASES.map((phase) => (
+                    <option key={phase.key} value={phase.key}>{phase.label}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Campaign
+                <select
+                  value={calendarForm.campaign_id}
+                  onChange={(event) => setCalendarForm((current) => ({ ...current, campaign_id: event.target.value }))}
+                  className={CONTENT_INTELLIGENCE_FIELD_CLASS}
+                >
+                  <option value="">No campaign</option>
+                  {campaigns.map((campaign) => (
+                    <option key={campaign.id} value={campaign.id}>{campaign.name}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <label className="mt-3 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Planned angle
+              <textarea
+                value={calendarForm.planned_angle}
+                onChange={(event) => setCalendarForm((current) => ({ ...current, planned_angle: event.target.value }))}
+                rows={2}
+                className={CONTENT_INTELLIGENCE_FIELD_CLASS}
+              />
+            </label>
+            <div className="mt-3 flex justify-end">
+              <button
+                type="submit"
+                disabled={creatingCalendarItem}
+                className="agent-ops-button-primary disabled:opacity-60"
+              >
+                <Plus size={16} />
+                {creatingCalendarItem ? 'Planning...' : 'Plan Item'}
+              </button>
+            </div>
+          </form>
+          </CollapsiblePanel>
+
           <div className="mb-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
             <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground md:col-span-2 xl:col-span-1">
               Content title
@@ -2121,122 +2249,6 @@ function ContentIntelligenceContent() {
             />
           </div>
 
-          <CollapsiblePanel
-            title="Plan calendar item"
-            panelKey="calendarPlanner"
-            expanded={expandedPanels.calendarPlanner}
-            onToggle={togglePanel}
-            className="mt-4 border-radiant-gold/35 bg-radiant-gold/10"
-            icon={<Plus className="h-4 w-4 text-radiant-gold" />}
-            tooltip="Creates a pending calendar gate only. Use a template milestone above or plan manually."
-            rightSlot={calendarNotice ? (
-              <span className="inline-flex w-fit rounded-full border border-emerald-500/35 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-100">
-                {calendarNotice}
-              </span>
-            ) : null}
-          >
-          <form onSubmit={createCalendarItem}>
-            {(() => {
-              const metadata = recordValue(calendarForm.metadata)
-              const templateLabel = typeof metadata.template_label === 'string' ? metadata.template_label : null
-              const milestoneKey = typeof metadata.milestone_key === 'string' ? metadata.milestone_key : null
-              const sourceLabels = metadataStringArray(metadata.source_labels)
-              if (!templateLabel) return null
-
-              return (
-                <div className="mb-3 rounded-md border border-radiant-gold/30 bg-background/35 p-2 text-xs text-muted-foreground">
-                  <span className="font-semibold text-radiant-gold">Template applied: </span>
-                  {templateLabel}{milestoneKey ? ` · ${milestoneKey.replace(/_/g, ' ')}` : ''}
-                  {sourceLabels.length > 0 ? (
-                    <span className="ml-2 text-muted-foreground">
-                      Source: {sourceLabels.slice(0, 2).join(', ')}
-                    </span>
-                  ) : null}
-                </div>
-              )
-            })()}
-            <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_14rem_12rem]">
-              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Title
-                <input
-                  required
-                  type="text"
-                  value={calendarForm.title}
-                  onChange={(event) => setCalendarForm((current) => ({ ...current, title: event.target.value }))}
-                  className={CONTENT_INTELLIGENCE_FIELD_CLASS}
-                />
-              </label>
-              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Scheduled for
-                <input
-                  required
-                  type="datetime-local"
-                  value={calendarForm.scheduled_for}
-                  onChange={(event) => setCalendarForm((current) => ({ ...current, scheduled_for: event.target.value }))}
-                  className={CONTENT_INTELLIGENCE_FIELD_CLASS}
-                />
-              </label>
-              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Channel
-                <select
-                  value={calendarForm.channel}
-                  onChange={(event) => setCalendarForm((current) => ({ ...current, channel: event.target.value as CalendarItem['channel'] }))}
-                  className={CONTENT_INTELLIGENCE_FIELD_CLASS}
-                >
-                  {Object.entries(CALENDAR_CHANNEL_LABELS).map(([value, label]) => (
-                    <option key={value} value={value}>{label}</option>
-                  ))}
-                </select>
-              </label>
-            </div>
-            <div className="mt-3 grid gap-3 lg:grid-cols-[14rem_1fr]">
-              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Phase
-                <select
-                  value={calendarForm.campaign_phase}
-                  onChange={(event) => setCalendarForm((current) => ({ ...current, campaign_phase: event.target.value as CalendarItem['campaign_phase'] }))}
-                  className={CONTENT_INTELLIGENCE_FIELD_CLASS}
-                >
-                  {CALENDAR_PHASES.map((phase) => (
-                    <option key={phase.key} value={phase.key}>{phase.label}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Campaign
-                <select
-                  value={calendarForm.campaign_id}
-                  onChange={(event) => setCalendarForm((current) => ({ ...current, campaign_id: event.target.value }))}
-                  className={CONTENT_INTELLIGENCE_FIELD_CLASS}
-                >
-                  <option value="">No campaign</option>
-                  {campaigns.map((campaign) => (
-                    <option key={campaign.id} value={campaign.id}>{campaign.name}</option>
-                  ))}
-                </select>
-              </label>
-            </div>
-            <label className="mt-3 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Planned angle
-              <textarea
-                value={calendarForm.planned_angle}
-                onChange={(event) => setCalendarForm((current) => ({ ...current, planned_angle: event.target.value }))}
-                rows={2}
-                className={CONTENT_INTELLIGENCE_FIELD_CLASS}
-              />
-            </label>
-            <div className="mt-3 flex justify-end">
-              <button
-                type="submit"
-                disabled={creatingCalendarItem}
-                className="agent-ops-button-primary disabled:opacity-60"
-              >
-                <Plus size={16} />
-                {creatingCalendarItem ? 'Planning...' : 'Plan Item'}
-              </button>
-            </div>
-          </form>
-          </CollapsiblePanel>
         </section>
         </>
         ) : null}

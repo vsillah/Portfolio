@@ -878,7 +878,12 @@ describe('ContentIntelligencePage', () => {
       expect(control.className).toContain('dark:[color-scheme:dark]')
     }
     expect(screen.getByRole('heading', { name: 'Source-backed campaign patterns' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Template details/ })).toBeInTheDocument()
+    const templateDetailsButton = screen.getByRole('button', { name: /Template details/ })
+    expect(templateDetailsButton).toBeInTheDocument()
+    expect(templateDetailsButton).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByText('YouTube video release')).not.toBeInTheDocument()
+    fireEvent.click(templateDetailsButton)
+    expect(templateDetailsButton).toHaveAttribute('aria-expanded', 'true')
     expect(screen.getByText('YouTube video release')).toBeInTheDocument()
     expect(screen.getByText('Short-form series')).toBeInTheDocument()
     expect(screen.getAllByRole('link', { name: /YouTube creator optimization guidance/ }).length).toBeGreaterThan(0)
@@ -901,7 +906,11 @@ describe('ContentIntelligencePage', () => {
     expect(screen.getAllByText('Recalibrated').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Learning window').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Visual/media readiness').length).toBeGreaterThan(0)
-    expect(screen.getByRole('button', { name: /Plan calendar item/ })).toBeInTheDocument()
+    const planItemButton = screen.getByRole('button', { name: /\+ Plan item/ })
+    expect(planItemButton).toBeInTheDocument()
+    expect(planItemButton).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.getByText('Pending internal gate only')).toBeInTheDocument()
+    expect(screen.queryByText(/Manual planning creates a pending internal calendar gate/)).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: /Evidence/ }))
     expect(screen.getByRole('heading', { name: 'Free-first evidence layer' })).toBeInTheDocument()
@@ -1222,7 +1231,12 @@ describe('ContentIntelligencePage', () => {
   it('creates a pending calendar item without publishing side effects', async () => {
     render(<ContentIntelligencePage />)
 
-    await screen.findByRole('button', { name: /Plan calendar item/ })
+    const planItemButton = await screen.findByRole('button', { name: /\+ Plan item/ })
+    expect(planItemButton).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByLabelText('Scheduled for')).not.toBeInTheDocument()
+    fireEvent.click(planItemButton)
+    expect(planItemButton).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByText(/Manual planning creates a pending internal calendar gate/)).toBeInTheDocument()
 
     fireEvent.change(screen.getAllByLabelText('Title')[0], {
       target: { value: 'Teach: Campaign operating lesson' },
@@ -1230,7 +1244,7 @@ describe('ContentIntelligencePage', () => {
     fireEvent.change(screen.getByLabelText('Scheduled for'), {
       target: { value: '2026-06-25T10:00' },
     })
-    fireEvent.change(screen.getAllByLabelText('Campaign')[1], {
+    fireEvent.change(screen.getAllByLabelText('Campaign')[0], {
       target: { value: 'campaign-1' },
     })
     fireEvent.change(screen.getByLabelText('Planned angle'), {
@@ -1256,16 +1270,24 @@ describe('ContentIntelligencePage', () => {
   it('applies a researched template milestone to the calendar planner metadata', async () => {
     render(<ContentIntelligencePage />)
 
-    await screen.findByRole('button', { name: /Template details/ })
+    const templateDetailsButton = await screen.findByRole('button', { name: /Template details/ })
+    fireEvent.click(templateDetailsButton)
+    const planItemButton = screen.getByRole('button', { name: /\+ Plan item/ })
+    expect(planItemButton).toHaveAttribute('aria-expanded', 'false')
+    fireEvent.click(planItemButton)
 
-    fireEvent.change(screen.getAllByLabelText('Campaign')[1], {
+    fireEvent.change(screen.getAllByLabelText('Campaign')[0], {
       target: { value: 'campaign-1' },
     })
+    fireEvent.click(planItemButton)
+    expect(planItemButton).toHaveAttribute('aria-expanded', 'false')
+
     fireEvent.click(screen.getByRole('button', { name: 'Use YouTube video release Proof milestone' }))
 
+    expect(planItemButton).toHaveAttribute('aria-expanded', 'true')
     expect(screen.getAllByLabelText('Title')[0]).toHaveValue('Thumbnail and title: Agent Ops Campaign')
-    expect(screen.getAllByLabelText('Channel')[1]).toHaveValue('thumbnail')
-    expect(screen.getAllByLabelText('Phase')[1]).toHaveValue('proof')
+    expect(screen.getAllByLabelText('Channel')[0]).toHaveValue('thumbnail')
+    expect(screen.getAllByLabelText('Phase')[0]).toHaveValue('proof')
     expect(screen.getByText('Template applied:')).toBeInTheDocument()
     expect(screen.getAllByText(/YouTube video release/).length).toBeGreaterThan(0)
 
