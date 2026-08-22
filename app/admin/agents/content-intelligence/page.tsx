@@ -359,6 +359,7 @@ const SECTION_TABS: Array<{
 const TABLE_PAGE_SIZE = 6
 const TEMPLATE_PAGE_SIZE = 4
 const CALENDAR_PAGE_SIZE = 8
+const AUTORESEARCH_BACKLOG_PAGE_SIZE = 1
 
 function stringValue(value: unknown) {
   return typeof value === 'string' && value.trim() ? value.trim() : null
@@ -909,6 +910,7 @@ function ContentIntelligenceContent() {
   const [autoResearchFeedbackNotice, setAutoResearchFeedbackNotice] = useState<string | null>(null)
   const [autoResearchActivatingId, setAutoResearchActivatingId] = useState<string | null>(null)
   const [autoResearchActivationNotice, setAutoResearchActivationNotice] = useState<string | null>(null)
+  const [autoResearchPage, setAutoResearchPage] = useState(1)
   const [activationScopeNote, setActivationScopeNote] = useState('')
   const [requestingActivation, setRequestingActivation] = useState(false)
   const [activationNotice, setActivationNotice] = useState<string | null>(null)
@@ -1044,6 +1046,11 @@ function ContentIntelligenceContent() {
       return searchableValues.some((value) => normalizeSearch(value).includes(search))
     })
   }, [autoResearchBacklog, autoResearchReleaseLinksById, autoResearchSearch])
+  const autoResearchTotalPages = Math.max(1, Math.ceil(filteredAutoResearchItems.length / AUTORESEARCH_BACKLOG_PAGE_SIZE))
+  const pagedAutoResearchItems = useMemo(() => {
+    const start = (autoResearchPage - 1) * AUTORESEARCH_BACKLOG_PAGE_SIZE
+    return filteredAutoResearchItems.slice(start, start + AUTORESEARCH_BACKLOG_PAGE_SIZE)
+  }, [autoResearchPage, filteredAutoResearchItems])
   const autoResearchFeedbackHandoffs = useMemo(
     () => autoResearchFeedbackHandoffsForInsights(insights),
     [insights],
@@ -1313,6 +1320,14 @@ function ContentIntelligenceContent() {
   useEffect(() => {
     setInsightPage(1)
   }, [insightSearch, insightSort, insightSortDirection, insightStatusFilter])
+
+  useEffect(() => {
+    setAutoResearchPage(1)
+  }, [autoResearchSearch])
+
+  useEffect(() => {
+    if (autoResearchPage > autoResearchTotalPages) setAutoResearchPage(autoResearchTotalPages)
+  }, [autoResearchPage, autoResearchTotalPages])
 
   const selectedCalendarCampaign = useMemo(() => {
     return campaigns.find((campaign) => campaign.id === calendarForm.campaign_id) ?? null
@@ -2367,124 +2382,187 @@ function ContentIntelligenceContent() {
 
           {autoResearchBacklog ? (
             <div className="space-y-4">
-              <div className="grid gap-3 md:grid-cols-4">
-                <DigestMetric label="Backlog items" value={autoResearchBacklog.summary.total} />
-                <DigestMetric label="Internal handoff" value={autoResearchBacklog.summary.readyForInternalHandoff} />
-                <DigestMetric label="Blocked/manual" value={autoResearchBacklog.summary.blockedOrManual} tone="amber" />
-                <DigestMetric label="Callable actions" value={autoResearchBacklog.summary.callableExternalActions} />
-              </div>
-              <AutoResearchOperatorActionQueue actions={autoResearchOperatorActions} />
-              <AutoResearchFeedbackFollowThroughPanel handoffs={autoResearchFeedbackHandoffs} />
               {autoResearchActivationNotice ? (
                 <div className="rounded-lg border border-emerald-500/35 bg-emerald-500/10 p-3 text-sm text-emerald-100">
                   {autoResearchActivationNotice}
                 </div>
               ) : null}
+              <AutoResearchOperatorActionQueue actions={autoResearchOperatorActions} maxVisible={1} />
               <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-3">
-                <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Backlog search
-                  <div className={CONTENT_INTELLIGENCE_SEARCH_SHELL_CLASS}>
-                    <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
-                    <input
-                      type="search"
-                      value={autoResearchSearch}
-                      onChange={(event) => setAutoResearchSearch(event.target.value)}
-                      placeholder="Search title, work item, channel, source"
-                      className={CONTENT_INTELLIGENCE_SEARCH_INPUT_CLASS}
-                    />
-                  </div>
-                </label>
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                  <label className="block min-w-0 flex-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Backlog search
+                    <div className={CONTENT_INTELLIGENCE_SEARCH_SHELL_CLASS}>
+                      <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      <input
+                        type="search"
+                        value={autoResearchSearch}
+                        onChange={(event) => setAutoResearchSearch(event.target.value)}
+                        placeholder="Search title, work item, channel, source"
+                        className={CONTENT_INTELLIGENCE_SEARCH_INPUT_CLASS}
+                      />
+                    </div>
+                  </label>
+                  <Pagination
+                    page={autoResearchPage}
+                    totalPages={autoResearchTotalPages}
+                    total={filteredAutoResearchItems.length}
+                    pageSize={AUTORESEARCH_BACKLOG_PAGE_SIZE}
+                    onPageChange={setAutoResearchPage}
+                  />
+                </div>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  Showing {filteredAutoResearchItems.length} of {autoResearchBacklog.items.length} backlog {autoResearchBacklog.items.length === 1 ? 'item' : 'items'} and {filteredAutoResearchOpportunities.length} of {autoResearchBacklog.opportunities.length} ranked {autoResearchBacklog.opportunities.length === 1 ? 'opportunity' : 'opportunities'}. Search checks titles, work items, release rows, channel variants, opportunity rationale, and research/source basis.
+                  Showing {pagedAutoResearchItems.length ? ((autoResearchPage - 1) * AUTORESEARCH_BACKLOG_PAGE_SIZE) + 1 : 0}-{Math.min(autoResearchPage * AUTORESEARCH_BACKLOG_PAGE_SIZE, filteredAutoResearchItems.length)} of {filteredAutoResearchItems.length} backlog {filteredAutoResearchItems.length === 1 ? 'item' : 'items'}. Search also matches {filteredAutoResearchOpportunities.length} ranked {filteredAutoResearchOpportunities.length === 1 ? 'opportunity' : 'opportunities'} and connected release rows.
                 </p>
               </div>
-              <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-3">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">External actions</p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {Object.entries(autoResearchBacklog.side_effects).map(([action, enabled]) => (
-                    <span
-                      key={action}
-                      className={`inline-flex rounded-full border px-2.5 py-1 text-xs ${enabled ? 'border-red-500/35 bg-red-500/10 text-red-100' : 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'}`}
-                    >
-                      {action.replace(/_/g, ' ')}: {enabled ? 'enabled' : 'locked'}
-                    </span>
-                  ))}
-                  <button
-                    type="button"
-                    disabled
-                    className="inline-flex rounded-full border border-silicon-slate/70 px-2.5 py-1 text-xs text-muted-foreground disabled:cursor-not-allowed disabled:opacity-70"
-                  >
-                    Callable external actions: {autoResearchBacklog.callable_external_actions.length}
-                  </button>
-                </div>
-              </div>
-              <div className="rounded-lg border border-amber-500/25 bg-amber-500/10 p-3">
+
+              <section aria-label="Paginated AutoResearch backlog actions" className="space-y-3">
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
                   <div>
-                    <p className="text-xs uppercase tracking-wide text-amber-100/75">Content generation queue</p>
-                    <h3 className="text-sm font-semibold text-amber-50">Ranked content opportunities</h3>
+                    <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Backlog action list</p>
+                    <h3 className="text-sm font-semibold">Review these items next</h3>
                   </div>
-                  <span className="text-xs font-medium text-amber-100/70">
-                    {autoResearchBacklog.opportunity_summary.highPriority} high priority · {autoResearchBacklog.opportunity_summary.requiresHumanGate} gated
+                  <span className="text-xs text-muted-foreground">
+                    Page {autoResearchPage} of {autoResearchTotalPages}
                   </span>
                 </div>
-                {filteredAutoResearchOpportunities.length ? (
-                  <div className="mt-3 grid gap-3 xl:grid-cols-2">
-                    {filteredAutoResearchOpportunities.slice(0, 6).map((opportunity) => (
-                      <AutoResearchOpportunityCard
-                        key={opportunity.id}
-                        opportunity={opportunity}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="mt-3 rounded-md border border-amber-500/20 bg-background/35 px-3 py-5 text-center text-sm text-amber-100/75">
-                    No ranked content opportunities match the current search.
-                  </div>
-                )}
-              </div>
-              {autoResearchTakeaways.length ? (
-                <div className="rounded-lg border border-blue-500/25 bg-blue-500/10 p-3">
-                  <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                      <p className="text-xs uppercase tracking-wide text-blue-100/75">Recommended next moves</p>
-                      <h3 className="text-sm font-semibold text-blue-50">Takeaways from the projected backlog</h3>
+
+                <div className="grid gap-4 xl:grid-cols-2">
+                  {pagedAutoResearchItems.length ? pagedAutoResearchItems.map((item) => (
+                    <AutoResearchBacklogCard
+                      key={item.id}
+                      item={item}
+                      releaseLinks={autoResearchReleaseLinksById[item.id] ?? []}
+                      feedbackNote={autoResearchFeedbackNotes[item.id] ?? ''}
+                      feedbackTarget={autoResearchFeedbackTargets[item.id] ?? 'both'}
+                      feedbackSubmitting={autoResearchFeedbackSubmittingId === item.id}
+                      onFeedbackNoteChange={(value) => setAutoResearchFeedbackNotes((current) => ({ ...current, [item.id]: value }))}
+                      onFeedbackTargetChange={(value) => setAutoResearchFeedbackTargets((current) => ({ ...current, [item.id]: value }))}
+                      onSubmitFeedback={(event) => submitAutoResearchFeedback(item, autoResearchReleaseLinksById[item.id] ?? [], event)}
+                      activationSubmitting={autoResearchActivatingId === item.id}
+                      onActivate={() => activateAutoResearchItem(item)}
+                    />
+                  )) : (
+                    <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-4 py-8 text-center text-sm text-muted-foreground xl:col-span-2">
+                      No AutoResearch backlog items match the current search.
                     </div>
-                    <span className="text-xs font-medium text-blue-100/70">
-                      Internal planning only
-                    </span>
-                  </div>
-                  <div className="mt-3 grid gap-2 md:grid-cols-2 xl:grid-cols-5">
-                    {autoResearchTakeaways.map((takeaway) => (
-                      <div key={`${takeaway.label}-${takeaway.title}`} className="min-w-0 rounded-md border border-blue-500/20 bg-background/35 p-2">
-                        <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-blue-100/70">{takeaway.label}</p>
-                        <p className="mt-1 break-words text-xs font-semibold text-blue-50">{takeaway.title}</p>
-                        <p className="mt-1 text-[0.68rem] leading-5 text-blue-100/75">{takeaway.detail}</p>
-                      </div>
-                    ))}
-                  </div>
+                  )}
                 </div>
-              ) : null}
-              <div className="grid gap-4 xl:grid-cols-2">
-                {filteredAutoResearchItems.length ? filteredAutoResearchItems.map((item) => (
-                  <AutoResearchBacklogCard
-                    key={item.id}
-                    item={item}
-                    releaseLinks={autoResearchReleaseLinksById[item.id] ?? []}
-                    feedbackNote={autoResearchFeedbackNotes[item.id] ?? ''}
-                    feedbackTarget={autoResearchFeedbackTargets[item.id] ?? 'both'}
-                    feedbackSubmitting={autoResearchFeedbackSubmittingId === item.id}
-                    onFeedbackNoteChange={(value) => setAutoResearchFeedbackNotes((current) => ({ ...current, [item.id]: value }))}
-                    onFeedbackTargetChange={(value) => setAutoResearchFeedbackTargets((current) => ({ ...current, [item.id]: value }))}
-                    onSubmitFeedback={(event) => submitAutoResearchFeedback(item, autoResearchReleaseLinksById[item.id] ?? [], event)}
-                    activationSubmitting={autoResearchActivatingId === item.id}
-                    onActivate={() => activateAutoResearchItem(item)}
-                  />
-                )) : (
-                  <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-4 py-8 text-center text-sm text-muted-foreground xl:col-span-2">
-                    No AutoResearch backlog items match the current search.
+              </section>
+
+              <div className="grid gap-3 xl:grid-cols-2">
+                <CollapsiblePanel
+                  title="Feedback follow-through"
+                  panelKey="autoResearchFeedbackFollowThrough"
+                  expanded={Boolean(expandedPanels.autoResearchFeedbackFollowThrough)}
+                  onToggle={togglePanel}
+                  className="border-blue-500/25 bg-blue-500/10"
+                  icon={<FileText className="h-4 w-4 text-blue-100" />}
+                  rightSlot={(
+                    <span className="rounded-full border border-blue-400/40 bg-background/35 px-2.5 py-1 text-[0.68rem] font-semibold text-blue-100">
+                      {autoResearchFeedbackHandoffs.length} {autoResearchFeedbackHandoffs.length === 1 ? 'handoff' : 'handoffs'}
+                    </span>
+                  )}
+                >
+                  <AutoResearchFeedbackFollowThroughPanel handoffs={autoResearchFeedbackHandoffs} framed={false} />
+                </CollapsiblePanel>
+
+                <CollapsiblePanel
+                  title="Ranked opportunities"
+                  panelKey="autoResearchOpportunities"
+                  expanded={Boolean(expandedPanels.autoResearchOpportunities)}
+                  onToggle={togglePanel}
+                  className="border-amber-500/25 bg-amber-500/10"
+                  icon={<BarChart3 className="h-4 w-4 text-amber-100" />}
+                  rightSlot={(
+                    <span className="rounded-full border border-amber-400/35 bg-background/35 px-2.5 py-1 text-[0.68rem] font-semibold text-amber-100">
+                      {autoResearchBacklog.opportunity_summary.highPriority} high · {autoResearchBacklog.opportunity_summary.requiresHumanGate} gated
+                    </span>
+                  )}
+                >
+                  {filteredAutoResearchOpportunities.length ? (
+                    <div className="grid gap-3 xl:grid-cols-2">
+                      {filteredAutoResearchOpportunities.slice(0, 6).map((opportunity) => (
+                        <AutoResearchOpportunityCard
+                          key={opportunity.id}
+                          opportunity={opportunity}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="rounded-md border border-amber-500/20 bg-background/35 px-3 py-5 text-center text-sm text-amber-100/75">
+                      No ranked content opportunities match the current search.
+                    </div>
+                  )}
+                </CollapsiblePanel>
+
+                <CollapsiblePanel
+                  title="Recommended next moves"
+                  panelKey="autoResearchTakeaways"
+                  expanded={Boolean(expandedPanels.autoResearchTakeaways)}
+                  onToggle={togglePanel}
+                  className="border-blue-500/25 bg-blue-500/10"
+                  icon={<Info className="h-4 w-4 text-blue-100" />}
+                  rightSlot={(
+                    <span className="rounded-full border border-blue-400/35 bg-background/35 px-2.5 py-1 text-[0.68rem] font-semibold text-blue-100">
+                      {autoResearchTakeaways.length} moves
+                    </span>
+                  )}
+                >
+                  {autoResearchTakeaways.length ? (
+                    <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-5">
+                      {autoResearchTakeaways.map((takeaway) => (
+                        <div key={`${takeaway.label}-${takeaway.title}`} className="min-w-0 rounded-md border border-blue-500/20 bg-background/35 p-2">
+                          <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-blue-100/70">{takeaway.label}</p>
+                          <p className="mt-1 break-words text-xs font-semibold text-blue-50">{takeaway.title}</p>
+                          <p className="mt-1 text-[0.68rem] leading-5 text-blue-100/75">{takeaway.detail}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="rounded-md border border-blue-500/20 bg-background/35 px-3 py-5 text-center text-sm text-blue-100/75">
+                      No recommended next moves are available for the current filter.
+                    </div>
+                  )}
+                </CollapsiblePanel>
+
+                <CollapsiblePanel
+                  title="Diagnostics and external-action state"
+                  panelKey="autoResearchDiagnostics"
+                  expanded={Boolean(expandedPanels.autoResearchDiagnostics)}
+                  onToggle={togglePanel}
+                  className="border-silicon-slate/70 bg-silicon-slate/20"
+                  icon={<ShieldCheck className="h-4 w-4 text-emerald-100" />}
+                  rightSlot={(
+                    <span className="rounded-full border border-emerald-500/35 bg-emerald-500/10 px-2.5 py-1 text-[0.68rem] font-semibold text-emerald-100">
+                      Callable: {autoResearchBacklog.callable_external_actions.length}
+                    </span>
+                  )}
+                >
+                  <div className="grid gap-3 md:grid-cols-4">
+                    <DigestMetric label="Backlog items" value={autoResearchBacklog.summary.total} />
+                    <DigestMetric label="Internal handoff" value={autoResearchBacklog.summary.readyForInternalHandoff} />
+                    <DigestMetric label="Blocked/manual" value={autoResearchBacklog.summary.blockedOrManual} tone="amber" />
+                    <DigestMetric label="Callable actions" value={autoResearchBacklog.summary.callableExternalActions} />
                   </div>
-                )}
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {Object.entries(autoResearchBacklog.side_effects).map(([action, enabled]) => (
+                      <span
+                        key={action}
+                        className={`inline-flex rounded-full border px-2.5 py-1 text-xs ${enabled ? 'border-red-500/35 bg-red-500/10 text-red-100' : 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'}`}
+                      >
+                        {action.replace(/_/g, ' ')}: {enabled ? 'enabled' : 'locked'}
+                      </span>
+                    ))}
+                    <button
+                      type="button"
+                      disabled
+                      className="inline-flex rounded-full border border-silicon-slate/70 px-2.5 py-1 text-xs text-muted-foreground disabled:cursor-not-allowed disabled:opacity-70"
+                    >
+                      Callable external actions: {autoResearchBacklog.callable_external_actions.length}
+                    </button>
+                  </div>
+                </CollapsiblePanel>
               </div>
             </div>
           ) : (
@@ -3103,9 +3181,13 @@ function operatorActionTone(tone: AutoResearchOperatorAction['tone']) {
 
 function AutoResearchOperatorActionQueue({
   actions,
+  maxVisible = 2,
 }: {
   actions: AutoResearchOperatorAction[]
+  maxVisible?: number
 }) {
+  const visibleActions = actions.slice(0, maxVisible)
+  const hiddenCount = Math.max(0, actions.length - visibleActions.length)
   return (
     <section className="rounded-lg border border-radiant-gold/30 bg-radiant-gold/10 p-3">
       <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
@@ -3121,9 +3203,9 @@ function AutoResearchOperatorActionQueue({
         </span>
       </div>
 
-      {actions.length ? (
+      {visibleActions.length ? (
         <div className="mt-3 grid gap-2 xl:grid-cols-2">
-          {actions.map((action) => (
+          {visibleActions.map((action) => (
             <article key={action.id} className="rounded-md border border-radiant-gold/20 bg-background/35 p-3">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
@@ -3170,18 +3252,25 @@ function AutoResearchOperatorActionQueue({
           No AutoResearch actions are visible yet. Load the backlog projection or clear the current filters.
         </div>
       )}
+      {hiddenCount > 0 ? (
+        <p className="mt-2 text-[0.68rem] leading-5 text-amber-100/70">
+          {hiddenCount} more action{hiddenCount === 1 ? '' : 's'} stay available in the paginated backlog list below.
+        </p>
+      ) : null}
     </section>
   )
 }
 
 function AutoResearchFeedbackFollowThroughPanel({
   handoffs,
+  framed = true,
 }: {
   handoffs: AutoResearchFeedbackHandoff[]
+  framed?: boolean
 }) {
   const visibleHandoffs = handoffs.slice(0, 3)
   return (
-    <section className="rounded-lg border border-blue-500/30 bg-blue-500/10 p-3">
+    <section className={framed ? 'rounded-lg border border-blue-500/30 bg-blue-500/10 p-3' : ''}>
       <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
         <div>
           <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-blue-100/70">Amina feedback loop</p>
