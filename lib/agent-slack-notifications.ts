@@ -1,3 +1,4 @@
+import { createHash } from 'crypto'
 import { endAgentRun, recordAgentEvent, startAgentRun } from '@/lib/agent-run'
 import { listAgentWorkItems, type AgentWorkItem } from '@/lib/agent-work-items'
 import { AGENT_ORGANIZATION } from '@/lib/agent-organization'
@@ -21,6 +22,13 @@ import {
   socialCommentPostTitle,
   type SocialCommentAttentionRow,
 } from '@/lib/social-comment-attention'
+import {
+  CALENDAR_CHANNEL_LABELS,
+  calendarApprovalGateSummary,
+  dueGateWindow,
+  parseMetadata,
+  type SocialContentCalendarItem,
+} from '@/lib/social-content-calendar'
 
 export type AgentSlackNotificationKind =
   | 'pending_approvals'
@@ -29,6 +37,7 @@ export type AgentSlackNotificationKind =
   | 'review_ready'
   | 'goal_decisions'
   | 'high_signal_insights'
+  | 'social_calendar_approval_due'
   | 'social_publish_gate_due'
   | 'social_comment_attention_due'
   | 'standup_blockers'
@@ -121,6 +130,12 @@ type SocialPublishAttentionDetail = {
   kind: 'orchestration_blocker' | 'stale_schedule'
 }
 
+type SocialCalendarApprovalAttentionItem = {
+  row: SocialContentCalendarItem
+  window: '24h' | '2h' | 'stale'
+  stale: boolean
+}
+
 const DEFAULT_SCHEDULED_PUBLISH_STALE_HOURS = 24
 const MAX_SCHEDULED_PUBLISH_STALE_HOURS = 7 * 24
 
@@ -152,6 +167,18 @@ function socialContentScheduledPublishStaleHours() {
   )
   if (!Number.isFinite(value) || value <= 0) return DEFAULT_SCHEDULED_PUBLISH_STALE_HOURS
   return Math.min(Math.max(value, 1), MAX_SCHEDULED_PUBLISH_STALE_HOURS)
+}
+
+function socialCalendarApprovalReminderWindowHours() {
+  const value = Number(process.env.SOCIAL_CALENDAR_APPROVAL_REMINDER_WINDOW_HOURS ?? 24)
+  return Number.isFinite(value) && value > 0 ? value : 24
+}
+
+function socialCalendarApprovalReminderLookbackHours() {
+  const maximumHours = 30 * 24
+  const value = Number(process.env.SOCIAL_CALENDAR_APPROVAL_REMINDER_LOOKBACK_HOURS ?? maximumHours)
+  if (!Number.isFinite(value) || value <= 0) return maximumHours
+  return Math.min(value, maximumHours)
 }
 
 function agentUrl(path: string) {
@@ -295,6 +322,72 @@ function formatScheduledFor(value: string | null | undefined) {
     timeZone: 'America/New_York',
     timeZoneName: 'short',
   }).format(date)
+}
+
+function socialCalendarApprovalDeepLink(row: SocialContentCalendarItem) {
+  const gate = calendarApprovalGateSummary(row)
+  const socialContentId = row.social_content_queue?.id ?? row.social_content_id
+  if (socialContentId) return `/admin/social-content/${socialContentId}?step=${gate.deepLinkStep}`
+  return `/admin/agents/content-intelligence?section=calendar&calendar_item=${encodeURIComponent(row.id)}`
+}
+
+function socialCalendarApprovalDedupeKey(items: SocialCalendarApprovalAttentionItem[]) {
+  if (!items.length) return 'social_calendar_approval_due:none'
+  const parts = items
+    .map(({ row, window }) => {
+      const gate = calendarApprovalGateSummary(row)
+      return `${row.id}:${gate.kind}:${window}`
+    })
+    .sort()
+    .join('|')
+  return `social_calendar_approval_due:${createHash('sha256').update(parts).digest('hex').slice(0, 16)}`
+}
+
+function calendarPingAlreadySent(row: SocialContentCalendarItem, window: '24h' | '2h') {
+  const metadata = parseMetadata(row.metadata)
+  const pings = parseMetadata(metadata.due_gate_pings)
+  return Boolean(pings[window])
+}
+
+async function socialCalendarApprovalRows(limit = 10): Promise<SocialCalendarApprovalAttentionItem[]> {
+  if (!supabaseAdmin) throw new Error('Database not available')
+
+  const now = new Date()
+  const startsAt = new Date(now.getTime() - socialCalendarApprovalReminderLookbackHours() * 60 * 60 * 1000)
+  const endsAt = new Date(now.getTime() + socialCalendarApprovalReminderWindowHours() * 60 * 60 * 1000)
+  const { data, error } = await supabaseAdmin
+    .from('social_content_calendar_items')
+    .select(`
+      *,
+      social_content_queue (
+        id, status, platform, target_platforms, post_text, scheduled_for, rag_context,
+        social_content_publishes (id, platform, status)
+      )
+    `)
+    .eq('authorization_status', 'pending')
+    .gte('scheduled_for', startsAt.toISOString())
+    .lte('scheduled_for', endsAt.toISOString())
+    .order('scheduled_for', { ascending: true })
+    .limit(limit)
+
+  if (error) throw new Error(`Failed to read calendar approval gates: ${error.message}`)
+  const seenIds = new Set<string>()
+  return ((data ?? []) as SocialContentCalendarItem[])
+    .filter((row) => {
+      if (seenIds.has(row.id)) return false
+      seenIds.add(row.id)
+      return row.due_status !== 'completed' && row.due_status !== 'cancelled'
+    })
+    .map((row): SocialCalendarApprovalAttentionItem | null => {
+      const window = dueGateWindow(row.scheduled_for, now)
+      const scheduledAt = new Date(row.scheduled_for).getTime()
+      const stale = Number.isFinite(scheduledAt) && scheduledAt + 2 * 60 * 60 * 1000 < now.getTime()
+      if (stale) return { row, window: 'stale', stale: true }
+      if (!window || calendarPingAlreadySent(row, window)) return null
+      return { row, window, stale: false }
+    })
+    .filter((item): item is SocialCalendarApprovalAttentionItem => item !== null)
+    .slice(0, limit)
 }
 
 function socialContentTitle(row: ScheduledSocialContentRow) {
@@ -529,6 +622,71 @@ async function buildSocialPublishGateDuePayload() {
     text: `${items.length} overdue or near-due Social Content item(s) need human QA before scheduled publishing.`,
     blocks,
     itemCount: items.length,
+  }
+}
+
+async function buildSocialCalendarApprovalDuePayload() {
+  const items = await socialCalendarApprovalRows()
+  const blocks: SlackBlock[] = [
+    {
+      type: 'section',
+      text: mrkdwn([
+        '*Content calendar approvals are due*',
+        `These unreleased calendar rows are stale or scheduled within ${socialCalendarApprovalReminderWindowHours()} hours with an outstanding approval gate. Slack is the reminder surface; Portfolio is the canonical decision path.`,
+      ].join('\n')),
+    },
+  ]
+
+  if (!items.length) {
+    blocks.push({ type: 'section', text: mrkdwn('No unreleased calendar approvals are stale or due soon.') })
+    blocks.push({
+      type: 'actions',
+      elements: [slackButton({ label: 'Open calendar', actionId: 'open_content_calendar', url: agentUrl('/admin/agents/content-intelligence?section=calendar') })],
+    })
+    return {
+      text: 'No Content Intelligence calendar approvals are due soon.',
+      blocks,
+      itemCount: 0,
+      dedupeKey: 'social_calendar_approval_due:none',
+    }
+  }
+
+  for (const item of items.slice(0, 5)) {
+    const gate = calendarApprovalGateSummary(item.row)
+    blocks.push({
+      type: 'section',
+      text: mrkdwn([
+        `*${truncateSlack(item.row.title, 120)}*`,
+        `Channel: \`${CALENDAR_CHANNEL_LABELS[item.row.channel]}\` - Release: \`${formatScheduledFor(item.row.scheduled_for)}\` - Window: \`${item.window}\``,
+        `Gate: *${gate.label}* - Owner: \`${gate.owner}\``,
+        `Action: ${truncateSlack(gate.action, 180)}`,
+        gate.manualOnly ? 'Provider/manual path is visible and fail-closed.' : null,
+        item.stale ? 'Release window elapsed before approval. Review recalibration in Content Intelligence.' : null,
+      ].filter(Boolean).join('\n')),
+    })
+    blocks.push({
+      type: 'actions',
+      elements: [
+        slackButton({
+          label: item.stale ? 'Review recovery' : 'Open gate',
+          actionId: item.stale ? 'open_social_calendar_recalibration' : 'open_social_calendar_approval_gate',
+          url: agentUrl(socialCalendarApprovalDeepLink(item.row)),
+          style: 'primary',
+        }),
+        slackButton({
+          label: 'Open calendar',
+          actionId: 'open_content_calendar',
+          url: agentUrl('/admin/agents/content-intelligence?section=calendar'),
+        }),
+      ],
+    })
+  }
+
+  return {
+    text: `${items.length} Content Intelligence calendar approval(s) are stale or due soon.`,
+    blocks,
+    itemCount: items.length,
+    dedupeKey: socialCalendarApprovalDedupeKey(items),
   }
 }
 
@@ -915,6 +1073,7 @@ export async function buildAgentSlackNotificationPayload(input: AgentSlackNotifi
   if (input.kind === 'pending_approvals') return buildPendingApprovalPayload()
   if (input.kind === 'stale_runs') return buildStaleRunsPayload()
   if (input.kind === 'high_signal_insights') return buildHighSignalInsightsPayload()
+  if (input.kind === 'social_calendar_approval_due') return buildSocialCalendarApprovalDuePayload()
   if (input.kind === 'social_publish_gate_due') return buildSocialPublishGateDuePayload()
   if (input.kind === 'social_comment_attention_due') return buildSocialCommentAttentionPayload()
   return buildWorkItemPayload(input)

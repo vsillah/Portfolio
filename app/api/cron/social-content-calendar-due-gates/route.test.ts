@@ -44,6 +44,7 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
     vi.clearAllMocks()
     process.env.CRON_SECRET = 'cron-secret'
     process.env.N8N_INGEST_SECRET = ''
+    mocks.runAgentSlackNotificationSweep.mockResolvedValue({ sentCount: 0, dryRun: true })
   })
 
   afterEach(() => {
@@ -82,13 +83,23 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
     expect(query.gte).toHaveBeenCalledWith('scheduled_for', expect.any(String))
     expect(query.lte).toHaveBeenCalledWith('scheduled_for', expect.any(String))
     expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
-    expect(mocks.runAgentSlackNotificationSweep).not.toHaveBeenCalled()
+    expect(mocks.runAgentSlackNotificationSweep).toHaveBeenCalledWith(expect.objectContaining({
+      mode: 'immediate',
+      kinds: ['social_calendar_approval_due'],
+      dryRun: true,
+      goalId: 'social-content-calendar',
+    }))
     expect(await response.json()).toMatchObject({
       ok: true,
       dry_run: true,
       candidate_count: 1,
       pinged_count: 0,
-      candidates: [expect.objectContaining({ id: 'calendar-1', due_gate_window: '2h' })],
+      candidates: [expect.objectContaining({
+        id: 'calendar-1',
+        due_gate_window: '2h',
+        kind: 'platform_draft_handoff',
+        owner: 'Shaka / Vambah',
+      })],
       side_effects: { publish: false, external_post: false },
     })
   })
@@ -138,7 +149,9 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
         label: 'Authorize tomorrow post',
       },
       metadata: expect.objectContaining({
-        approval_action: 'authorize_internal_platform_draft_handoff',
+        approval_action: 'Authorize or complete the internal draft handoff before launch timing is trusted.',
+        blocker_kind: 'platform_draft_handoff',
+        blocker_owner: 'Shaka / Vambah',
         side_effects: expect.objectContaining({ publish: false, external_post: false }),
       }),
       idempotencyKey: 'social-content-calendar-due:calendar-1:2h',
@@ -373,7 +386,7 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
     }))
     expect(mocks.runAgentSlackNotificationSweep).toHaveBeenCalledWith(expect.objectContaining({
       mode: 'immediate',
-      kinds: ['goal_decisions'],
+      kinds: ['social_calendar_approval_due'],
       goalId: 'social-content-calendar',
       triggerSource: 'manual_social_content_calendar_due_gates',
     }))

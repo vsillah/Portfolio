@@ -76,6 +76,7 @@ describe('Agent Ops Slack notifications', () => {
 
   afterEach(() => {
     process.env = ORIGINAL_ENV
+    vi.useRealTimers()
     vi.unstubAllGlobals()
   })
 
@@ -353,6 +354,89 @@ describe('Agent Ops Slack notifications', () => {
     expect(blocks).toContain('/admin/agents/coordination?approvalRunId=run-protected')
     expect(blocks).toContain('approval.ask_shaka')
     expect(blocks).not.toContain('agent_approval_approve')
+    expect(blocks).not.toContain('approval.approve')
+  })
+
+  it('builds Content Intelligence calendar approval due packets with exact gate links', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-08-15T12:00:00.000Z'))
+    process.env.NEXT_PUBLIC_BASE_URL = 'https://amadutown.com'
+    mocks.from.mockReturnValueOnce(queryResult({
+      data: [{
+        id: 'calendar-approval-1',
+        title: 'Agentified TikTok proof cutdown',
+        campaign_id: 'campaign-1',
+        agent_work_item_id: 'work-1',
+        social_content_id: 'social-1',
+        channel: 'tiktok',
+        campaign_phase: 'proof',
+        scheduled_for: '2026-08-15T13:00:00.000Z',
+        authorization_status: 'pending',
+        due_status: 'due_now',
+        metadata: {
+          provider_blocked: true,
+          provider_boundary: 'TikTok direct post remains manual until app review is approved.',
+        },
+        social_content_queue: {
+          id: 'social-1',
+          status: 'draft',
+          platform: 'tiktok',
+          target_platforms: ['tiktok'],
+          social_content_publishes: [],
+        },
+      }],
+      error: null,
+    }))
+
+    const payload = await buildAgentSlackNotificationPayload({ kind: 'social_calendar_approval_due' })
+
+    expect(payload).toMatchObject({
+      itemCount: 1,
+      text: '1 Content Intelligence calendar approval(s) are stale or due soon.',
+      dedupeKey: expect.stringMatching(/^social_calendar_approval_due:[a-f0-9]{16}$/),
+    })
+    const blocks = JSON.stringify(payload.blocks)
+    expect(blocks).toContain('Content calendar approvals are due')
+    expect(blocks).toContain('Agentified TikTok proof cutdown')
+    expect(blocks).toContain('Visual/media readiness')
+    expect(blocks).toContain('Integration Captain / Vambah')
+    expect(blocks).toContain('Provider/manual path is visible and fail-closed.')
+    expect(blocks).toContain('/admin/social-content/social-1?step=visuals')
+    expect(blocks).not.toContain('approval.approve')
+    expect(blocks).not.toContain('agent_approval_approve')
+  })
+
+  it('keeps stale calendar rows visible as recovery reminders without sending approvals', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-08-15T12:00:00.000Z'))
+    process.env.NEXT_PUBLIC_BASE_URL = 'https://amadutown.com'
+    mocks.from.mockReturnValueOnce(queryResult({
+      data: [{
+        id: 'calendar-stale-1',
+        title: 'Stale LinkedIn launch post',
+        campaign_id: 'campaign-1',
+        agent_work_item_id: 'work-1',
+        social_content_id: null,
+        channel: 'linkedin',
+        campaign_phase: 'offer',
+        scheduled_for: '2026-08-14T12:00:00.000Z',
+        authorization_status: 'pending',
+        due_status: 'past_due',
+        metadata: {},
+        social_content_queue: null,
+      }],
+      error: null,
+    }))
+
+    const payload = await buildAgentSlackNotificationPayload({ kind: 'social_calendar_approval_due' })
+
+    expect(payload.itemCount).toBe(1)
+    const blocks = JSON.stringify(payload.blocks)
+    expect(blocks).toContain('Stale LinkedIn launch post')
+    expect(blocks).toContain('Window: `stale`')
+    expect(blocks).toContain('Release window elapsed before approval.')
+    expect(blocks).toContain('/admin/agents/content-intelligence?section=calendar')
+    expect(blocks).toContain('Review recovery')
     expect(blocks).not.toContain('approval.approve')
   })
 

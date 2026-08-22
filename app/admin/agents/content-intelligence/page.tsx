@@ -15,6 +15,7 @@ import {
   Film,
   Info,
   Instagram,
+  ListChecks,
   Pencil,
   Plus,
   RefreshCw,
@@ -35,6 +36,7 @@ import {
   SOCIAL_CONTENT_CALENDAR_SOURCE_LABELS,
   SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS,
   SOCIAL_CONTENT_CALENDAR_TEMPLATES,
+  calendarApprovalGateSummary,
   calendarMilestoneRationale,
 } from '@/lib/social-content-calendar'
 import type {
@@ -356,8 +358,9 @@ const SECTION_TABS: Array<{
 ]
 
 const TABLE_PAGE_SIZE = 6
-const TEMPLATE_PAGE_SIZE = 4
+const TEMPLATE_PAGE_SIZE = 1
 const CALENDAR_PAGE_SIZE = 8
+const AUTORESEARCH_BACKLOG_PAGE_SIZE = 1
 
 function stringValue(value: unknown) {
   return typeof value === 'string' && value.trim() ? value.trim() : null
@@ -714,6 +717,50 @@ function formatCalendarDate(value: string) {
     : 'Unscheduled'
 }
 
+function calendarTimingState(item: CalendarItem) {
+  const scheduledAt = Date.parse(item.scheduled_for)
+  const now = Date.now()
+  const unresolved = !['authorized', 'not_required'].includes(item.authorization_status)
+    && !['completed', 'cancelled'].includes(item.due_status)
+  const metadata = recordValue(item.metadata)
+  const recalibration = recordValue(metadata.calendar_recalibration)
+  const hasRecalibration = Boolean(recalibration.recalibrated_at)
+
+  if (unresolved && Number.isFinite(scheduledAt) && scheduledAt + 2 * 60 * 60 * 1000 < now) {
+    return {
+      tone: 'border-red-500/35 bg-red-500/10 text-red-100',
+      label: 'Stale date',
+      detail: 'Release window elapsed before approval. Recalibrate or reject before treating this as active schedule.',
+    }
+  }
+  if (hasRecalibration) {
+    return {
+      tone: 'border-amber-500/35 bg-amber-500/10 text-amber-100',
+      label: 'Recalibrated',
+      detail: `Moved from ${typeof recalibration.prior_scheduled_for === 'string' ? formatCalendarDate(recalibration.prior_scheduled_for) : 'an earlier date'} because approval missed the prior window.`,
+    }
+  }
+  if (item.due_status === 'due_soon' || item.due_status === 'due_now') {
+    return {
+      tone: 'border-amber-500/35 bg-amber-500/10 text-amber-100',
+      label: item.due_status === 'due_now' ? 'Due now' : 'Due soon',
+      detail: 'Approval is close enough to affect launch timing.',
+    }
+  }
+  if (item.due_status === 'completed') {
+    return {
+      tone: 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100',
+      label: 'Learning window',
+      detail: 'Release is complete; use the post-release learning window before revising the next pass.',
+    }
+  }
+  return {
+    tone: 'border-silicon-slate/70 bg-background/35 text-muted-foreground',
+    label: item.due_status.replace(/_/g, ' '),
+    detail: item.authorization_due_at ? 'No timing recovery needed yet.' : 'Approval deadline is not set.',
+  }
+}
+
 function toDatetimeLocalValue(value: string) {
   const date = new Date(value)
   if (!Number.isFinite(date.getTime())) return ''
@@ -864,6 +911,7 @@ function ContentIntelligenceContent() {
   const [autoResearchFeedbackNotice, setAutoResearchFeedbackNotice] = useState<string | null>(null)
   const [autoResearchActivatingId, setAutoResearchActivatingId] = useState<string | null>(null)
   const [autoResearchActivationNotice, setAutoResearchActivationNotice] = useState<string | null>(null)
+  const [autoResearchPage, setAutoResearchPage] = useState(1)
   const [activationScopeNote, setActivationScopeNote] = useState('')
   const [requestingActivation, setRequestingActivation] = useState(false)
   const [activationNotice, setActivationNotice] = useState<string | null>(null)
@@ -883,8 +931,8 @@ function ContentIntelligenceContent() {
   const [calendarEditForms, setCalendarEditForms] = useState<Record<string, CalendarForm>>({})
   const [activeSection, setActiveSection] = useState<IntelligenceSection>('calendar')
   const [expandedPanels, setExpandedPanels] = useState<Record<string, boolean>>({
-    templateLibrary: true,
-    calendarPlanner: true,
+    templateLibrary: false,
+    calendarPlanner: false,
     digestActivation: false,
     evidenceSources: false,
     evidenceForm: true,
@@ -999,6 +1047,11 @@ function ContentIntelligenceContent() {
       return searchableValues.some((value) => normalizeSearch(value).includes(search))
     })
   }, [autoResearchBacklog, autoResearchReleaseLinksById, autoResearchSearch])
+  const autoResearchTotalPages = Math.max(1, Math.ceil(filteredAutoResearchItems.length / AUTORESEARCH_BACKLOG_PAGE_SIZE))
+  const pagedAutoResearchItems = useMemo(() => {
+    const start = (autoResearchPage - 1) * AUTORESEARCH_BACKLOG_PAGE_SIZE
+    return filteredAutoResearchItems.slice(start, start + AUTORESEARCH_BACKLOG_PAGE_SIZE)
+  }, [autoResearchPage, filteredAutoResearchItems])
   const autoResearchFeedbackHandoffs = useMemo(
     () => autoResearchFeedbackHandoffsForInsights(insights),
     [insights],
@@ -1157,6 +1210,9 @@ function ContentIntelligenceContent() {
     return SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS.slice(start, start + TEMPLATE_PAGE_SIZE)
   }, [templatePage])
 
+  const activeTemplateKey = pagedTemplateKeys[0] ?? SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS[0]
+  const activeTemplate = SOCIAL_CONTENT_CALENDAR_TEMPLATES[activeTemplateKey]
+
   const togglePanel = useCallback((key: string) => {
     setExpandedPanels((current) => ({ ...current, [key]: !current[key] }))
   }, [])
@@ -1268,6 +1324,14 @@ function ContentIntelligenceContent() {
   useEffect(() => {
     setInsightPage(1)
   }, [insightSearch, insightSort, insightSortDirection, insightStatusFilter])
+
+  useEffect(() => {
+    setAutoResearchPage(1)
+  }, [autoResearchSearch])
+
+  useEffect(() => {
+    if (autoResearchPage > autoResearchTotalPages) setAutoResearchPage(autoResearchTotalPages)
+  }, [autoResearchPage, autoResearchTotalPages])
 
   const selectedCalendarCampaign = useMemo(() => {
     return campaigns.find((campaign) => campaign.id === calendarForm.campaign_id) ?? null
@@ -1636,6 +1700,7 @@ function ContentIntelligenceContent() {
       }
     })
     setCalendarNotice(`${template.label}: ${milestone.title_prefix} loaded into the planner.`)
+    setExpandedPanels((current) => ({ ...current, calendarPlanner: true }))
   }, [campaigns])
 
   const authorizeCalendarItem = useCallback(async (item: CalendarItem) => {
@@ -1792,12 +1857,14 @@ function ContentIntelligenceContent() {
           </div>
         ) : null}
 
-        <div className="mb-6 grid gap-3 md:grid-cols-4">
-          <MetricCard label="Research packets" value={packets.length} />
-          <MetricCard label="Shaka insights" value={insights.length} />
-          <MetricCard label="Top outlier score" value={strongestPacket ? Math.round(Number(strongestPacket.outlier_score)) : 0} />
-          <MetricCard label="Paid scraper runs" value={0} tone="amber" />
-        </div>
+        {activeSection === 'autoresearch' ? null : (
+          <div className="mb-6 grid gap-3 md:grid-cols-4">
+            <MetricCard label="Research packets" value={packets.length} />
+            <MetricCard label="Shaka insights" value={insights.length} />
+            <MetricCard label="Top outlier score" value={strongestPacket ? Math.round(Number(strongestPacket.outlier_score)) : 0} />
+            <MetricCard label="Paid scraper runs" value={0} tone="amber" />
+          </div>
+        )}
 
         <SectionTabs
           activeSection={activeSection}
@@ -1841,7 +1908,18 @@ function ContentIntelligenceContent() {
             tooltip="Source-backed milestone models available before any campaign plan is generated."
             rightSlot={null}
           >
-            <div className="grid gap-2 xl:grid-cols-4">
+            <div className="mb-3 flex flex-col gap-2 rounded-lg border border-blue-300/15 bg-background/25 px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <p className="text-[0.66rem] font-semibold uppercase tracking-[0.08em] text-blue-100/65">
+                  Template {templatePage} of {templateTotalPages}
+                </p>
+                <p className="truncate text-sm font-semibold text-blue-50">{activeTemplate.label}</p>
+              </div>
+              <span className="w-fit rounded-full border border-blue-300/20 px-2 py-0.5 text-[0.62rem] font-semibold text-blue-100/75">
+                {templatePage} / {templateTotalPages}
+              </span>
+            </div>
+            <div className="grid gap-2">
               {pagedTemplateKeys.map((key) => {
                 const template = SOCIAL_CONTENT_CALENDAR_TEMPLATES[key]
                 return (
@@ -1924,6 +2002,133 @@ function ContentIntelligenceContent() {
               External publishing locked
             </span>
           </div>
+
+          <CollapsiblePanel
+            title="+ Plan item"
+            panelKey="calendarPlanner"
+            expanded={expandedPanels.calendarPlanner}
+            onToggle={togglePanel}
+            className="mb-4 border-radiant-gold/35 bg-radiant-gold/10"
+            icon={<Plus className="h-4 w-4 text-radiant-gold" />}
+            tooltip="Creates a pending calendar gate only. Use a template milestone above or plan manually."
+            rightSlot={(
+              <div className="flex flex-wrap justify-end gap-2">
+                <span className="inline-flex w-fit rounded-full border border-radiant-gold/35 bg-background/35 px-2.5 py-1 text-[0.68rem] font-semibold text-radiant-gold">
+                  Pending internal gate only
+                </span>
+                {calendarNotice ? (
+                  <span className="inline-flex w-fit rounded-full border border-emerald-500/35 bg-emerald-500/10 px-2.5 py-1 text-[0.68rem] font-semibold text-emerald-100">
+                    {calendarNotice}
+                  </span>
+                ) : null}
+              </div>
+            )}
+          >
+          <form onSubmit={createCalendarItem}>
+            {(() => {
+              const metadata = recordValue(calendarForm.metadata)
+              const templateLabel = typeof metadata.template_label === 'string' ? metadata.template_label : null
+              const milestoneKey = typeof metadata.milestone_key === 'string' ? metadata.milestone_key : null
+              const sourceLabels = metadataStringArray(metadata.source_labels)
+              if (!templateLabel) return null
+
+              return (
+                <div className="mb-3 rounded-md border border-radiant-gold/30 bg-background/35 p-2 text-xs text-muted-foreground">
+                  <span className="font-semibold text-radiant-gold">Template applied: </span>
+                  {templateLabel}{milestoneKey ? ` · ${milestoneKey.replace(/_/g, ' ')}` : ''}
+                  {sourceLabels.length > 0 ? (
+                    <span className="ml-2 text-muted-foreground">
+                      Source: {sourceLabels.slice(0, 2).join(', ')}
+                    </span>
+                  ) : null}
+                </div>
+              )
+            })()}
+            <p className="mb-3 rounded-md border border-radiant-gold/25 bg-background/35 px-3 py-2 text-xs leading-5 text-amber-100/75">
+              Manual planning creates a pending internal calendar gate for later human authorization. It does not schedule, publish, upload, or call a provider.
+            </p>
+            <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_14rem_12rem]">
+              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Title
+                <input
+                  required
+                  type="text"
+                  value={calendarForm.title}
+                  onChange={(event) => setCalendarForm((current) => ({ ...current, title: event.target.value }))}
+                  className={CONTENT_INTELLIGENCE_FIELD_CLASS}
+                />
+              </label>
+              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Scheduled for
+                <input
+                  required
+                  type="datetime-local"
+                  value={calendarForm.scheduled_for}
+                  onChange={(event) => setCalendarForm((current) => ({ ...current, scheduled_for: event.target.value }))}
+                  className={CONTENT_INTELLIGENCE_FIELD_CLASS}
+                />
+              </label>
+              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Channel
+                <select
+                  value={calendarForm.channel}
+                  onChange={(event) => setCalendarForm((current) => ({ ...current, channel: event.target.value as CalendarItem['channel'] }))}
+                  className={CONTENT_INTELLIGENCE_FIELD_CLASS}
+                >
+                  {Object.entries(CALENDAR_CHANNEL_LABELS).map(([value, label]) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <div className="mt-3 grid gap-3 lg:grid-cols-[14rem_1fr]">
+              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Phase
+                <select
+                  value={calendarForm.campaign_phase}
+                  onChange={(event) => setCalendarForm((current) => ({ ...current, campaign_phase: event.target.value as CalendarItem['campaign_phase'] }))}
+                  className={CONTENT_INTELLIGENCE_FIELD_CLASS}
+                >
+                  {CALENDAR_PHASES.map((phase) => (
+                    <option key={phase.key} value={phase.key}>{phase.label}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Campaign
+                <select
+                  value={calendarForm.campaign_id}
+                  onChange={(event) => setCalendarForm((current) => ({ ...current, campaign_id: event.target.value }))}
+                  className={CONTENT_INTELLIGENCE_FIELD_CLASS}
+                >
+                  <option value="">No campaign</option>
+                  {campaigns.map((campaign) => (
+                    <option key={campaign.id} value={campaign.id}>{campaign.name}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <label className="mt-3 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Planned angle
+              <textarea
+                value={calendarForm.planned_angle}
+                onChange={(event) => setCalendarForm((current) => ({ ...current, planned_angle: event.target.value }))}
+                rows={2}
+                className={CONTENT_INTELLIGENCE_FIELD_CLASS}
+              />
+            </label>
+            <div className="mt-3 flex justify-end">
+              <button
+                type="submit"
+                disabled={creatingCalendarItem}
+                className="agent-ops-button-primary disabled:opacity-60"
+              >
+                <Plus size={16} />
+                {creatingCalendarItem ? 'Planning...' : 'Plan Item'}
+              </button>
+            </div>
+          </form>
+          </CollapsiblePanel>
 
           <div className="mb-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
             <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground md:col-span-2 xl:col-span-1">
@@ -2058,122 +2263,6 @@ function ContentIntelligenceContent() {
             />
           </div>
 
-          <CollapsiblePanel
-            title="Plan calendar item"
-            panelKey="calendarPlanner"
-            expanded={expandedPanels.calendarPlanner}
-            onToggle={togglePanel}
-            className="mt-4 border-radiant-gold/35 bg-radiant-gold/10"
-            icon={<Plus className="h-4 w-4 text-radiant-gold" />}
-            tooltip="Creates a pending calendar gate only. Use a template milestone above or plan manually."
-            rightSlot={calendarNotice ? (
-              <span className="inline-flex w-fit rounded-full border border-emerald-500/35 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-100">
-                {calendarNotice}
-              </span>
-            ) : null}
-          >
-          <form onSubmit={createCalendarItem}>
-            {(() => {
-              const metadata = recordValue(calendarForm.metadata)
-              const templateLabel = typeof metadata.template_label === 'string' ? metadata.template_label : null
-              const milestoneKey = typeof metadata.milestone_key === 'string' ? metadata.milestone_key : null
-              const sourceLabels = metadataStringArray(metadata.source_labels)
-              if (!templateLabel) return null
-
-              return (
-                <div className="mb-3 rounded-md border border-radiant-gold/30 bg-background/35 p-2 text-xs text-muted-foreground">
-                  <span className="font-semibold text-radiant-gold">Template applied: </span>
-                  {templateLabel}{milestoneKey ? ` · ${milestoneKey.replace(/_/g, ' ')}` : ''}
-                  {sourceLabels.length > 0 ? (
-                    <span className="ml-2 text-muted-foreground">
-                      Source: {sourceLabels.slice(0, 2).join(', ')}
-                    </span>
-                  ) : null}
-                </div>
-              )
-            })()}
-            <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_14rem_12rem]">
-              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Title
-                <input
-                  required
-                  type="text"
-                  value={calendarForm.title}
-                  onChange={(event) => setCalendarForm((current) => ({ ...current, title: event.target.value }))}
-                  className={CONTENT_INTELLIGENCE_FIELD_CLASS}
-                />
-              </label>
-              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Scheduled for
-                <input
-                  required
-                  type="datetime-local"
-                  value={calendarForm.scheduled_for}
-                  onChange={(event) => setCalendarForm((current) => ({ ...current, scheduled_for: event.target.value }))}
-                  className={CONTENT_INTELLIGENCE_FIELD_CLASS}
-                />
-              </label>
-              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Channel
-                <select
-                  value={calendarForm.channel}
-                  onChange={(event) => setCalendarForm((current) => ({ ...current, channel: event.target.value as CalendarItem['channel'] }))}
-                  className={CONTENT_INTELLIGENCE_FIELD_CLASS}
-                >
-                  {Object.entries(CALENDAR_CHANNEL_LABELS).map(([value, label]) => (
-                    <option key={value} value={value}>{label}</option>
-                  ))}
-                </select>
-              </label>
-            </div>
-            <div className="mt-3 grid gap-3 lg:grid-cols-[14rem_1fr]">
-              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Phase
-                <select
-                  value={calendarForm.campaign_phase}
-                  onChange={(event) => setCalendarForm((current) => ({ ...current, campaign_phase: event.target.value as CalendarItem['campaign_phase'] }))}
-                  className={CONTENT_INTELLIGENCE_FIELD_CLASS}
-                >
-                  {CALENDAR_PHASES.map((phase) => (
-                    <option key={phase.key} value={phase.key}>{phase.label}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Campaign
-                <select
-                  value={calendarForm.campaign_id}
-                  onChange={(event) => setCalendarForm((current) => ({ ...current, campaign_id: event.target.value }))}
-                  className={CONTENT_INTELLIGENCE_FIELD_CLASS}
-                >
-                  <option value="">No campaign</option>
-                  {campaigns.map((campaign) => (
-                    <option key={campaign.id} value={campaign.id}>{campaign.name}</option>
-                  ))}
-                </select>
-              </label>
-            </div>
-            <label className="mt-3 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Planned angle
-              <textarea
-                value={calendarForm.planned_angle}
-                onChange={(event) => setCalendarForm((current) => ({ ...current, planned_angle: event.target.value }))}
-                rows={2}
-                className={CONTENT_INTELLIGENCE_FIELD_CLASS}
-              />
-            </label>
-            <div className="mt-3 flex justify-end">
-              <button
-                type="submit"
-                disabled={creatingCalendarItem}
-                className="agent-ops-button-primary disabled:opacity-60"
-              >
-                <Plus size={16} />
-                {creatingCalendarItem ? 'Planning...' : 'Plan Item'}
-              </button>
-            </div>
-          </form>
-          </CollapsiblePanel>
         </section>
         </>
         ) : null}
@@ -2302,17 +2391,14 @@ function ContentIntelligenceContent() {
         ) : null}
 
         {activeSection === 'autoresearch' ? (
-        <section className="agent-ops-card mb-6 rounded-lg border p-4">
-          <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-            <div>
+        <section className="agent-ops-card mb-6 rounded-lg border p-3 sm:p-4">
+          <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
               <div className="agent-ops-eyebrow mb-2">
                 <FileSearch size={16} />
                 Cross-channel AutoResearch
               </div>
-              <h2 className="text-lg font-semibold">Governed internal activation</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Amina backlog rows reference source packets by path, show channel-fit variants, and can create internal calendar/draft records while every external action stays disabled.
-              </p>
+              <h2 className="text-lg font-semibold">Decision workspace</h2>
             </div>
             <span className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-500/35 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-100">
               <ShieldCheck className="h-3.5 w-3.5" />
@@ -2322,21 +2408,60 @@ function ContentIntelligenceContent() {
 
           {autoResearchBacklog ? (
             <div className="space-y-4">
-              <div className="grid gap-3 md:grid-cols-4">
-                <DigestMetric label="Backlog items" value={autoResearchBacklog.summary.total} />
-                <DigestMetric label="Internal handoff" value={autoResearchBacklog.summary.readyForInternalHandoff} />
-                <DigestMetric label="Blocked/manual" value={autoResearchBacklog.summary.blockedOrManual} tone="amber" />
-                <DigestMetric label="Callable actions" value={autoResearchBacklog.summary.callableExternalActions} />
-              </div>
-              <AutoResearchOperatorActionQueue actions={autoResearchOperatorActions} />
-              <AutoResearchFeedbackFollowThroughPanel handoffs={autoResearchFeedbackHandoffs} />
               {autoResearchActivationNotice ? (
                 <div className="rounded-lg border border-emerald-500/35 bg-emerald-500/10 p-3 text-sm text-emerald-100">
                   {autoResearchActivationNotice}
                 </div>
               ) : null}
-              <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-3">
-                <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+
+              <section aria-label="AutoResearch decision workspace" className="rounded-lg border border-radiant-gold/30 bg-radiant-gold/10 p-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                  <div>
+                    <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-radiant-gold/80">Active backlog action</p>
+                    <h3 className="text-sm font-semibold text-amber-50">Review this item next</h3>
+                  </div>
+                  <div className="flex flex-col gap-1 sm:items-end">
+                    <span className="text-xs text-amber-100/75">
+                      Page {autoResearchPage} of {autoResearchTotalPages}
+                    </span>
+                    <Pagination
+                      page={autoResearchPage}
+                      totalPages={autoResearchTotalPages}
+                      total={filteredAutoResearchItems.length}
+                      pageSize={AUTORESEARCH_BACKLOG_PAGE_SIZE}
+                      onPageChange={setAutoResearchPage}
+                    />
+                  </div>
+                </div>
+                <p className="mt-2 text-[0.68rem] text-amber-100/75">
+                  Showing {pagedAutoResearchItems.length ? ((autoResearchPage - 1) * AUTORESEARCH_BACKLOG_PAGE_SIZE) + 1 : 0}-{Math.min(autoResearchPage * AUTORESEARCH_BACKLOG_PAGE_SIZE, filteredAutoResearchItems.length)} of {filteredAutoResearchItems.length} backlog {filteredAutoResearchItems.length === 1 ? 'item' : 'items'} · {filteredAutoResearchOpportunities.length} ranked {filteredAutoResearchOpportunities.length === 1 ? 'opportunity' : 'opportunities'} match.
+                </p>
+
+                <section aria-label="Paginated AutoResearch backlog actions" className="mt-3 space-y-3">
+                  <div className="grid gap-4">
+                    {pagedAutoResearchItems.length ? pagedAutoResearchItems.map((item) => (
+                      <AutoResearchBacklogCard
+                        key={item.id}
+                        item={item}
+                        releaseLinks={autoResearchReleaseLinksById[item.id] ?? []}
+                        feedbackNote={autoResearchFeedbackNotes[item.id] ?? ''}
+                        feedbackTarget={autoResearchFeedbackTargets[item.id] ?? 'both'}
+                        feedbackSubmitting={autoResearchFeedbackSubmittingId === item.id}
+                        onFeedbackNoteChange={(value) => setAutoResearchFeedbackNotes((current) => ({ ...current, [item.id]: value }))}
+                        onFeedbackTargetChange={(value) => setAutoResearchFeedbackTargets((current) => ({ ...current, [item.id]: value }))}
+                        onSubmitFeedback={(event) => submitAutoResearchFeedback(item, autoResearchReleaseLinksById[item.id] ?? [], event)}
+                        activationSubmitting={autoResearchActivatingId === item.id}
+                        onActivate={() => activateAutoResearchItem(item)}
+                      />
+                    )) : (
+                      <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-4 py-8 text-center text-sm text-muted-foreground">
+                        No AutoResearch backlog items match the current search.
+                      </div>
+                    )}
+                  </div>
+                </section>
+
+                <label className="mt-3 block min-w-0 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Backlog search
                   <div className={CONTENT_INTELLIGENCE_SEARCH_SHELL_CLASS}>
                     <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -2349,97 +2474,137 @@ function ContentIntelligenceContent() {
                     />
                   </div>
                 </label>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Showing {filteredAutoResearchItems.length} of {autoResearchBacklog.items.length} backlog {autoResearchBacklog.items.length === 1 ? 'item' : 'items'} and {filteredAutoResearchOpportunities.length} of {autoResearchBacklog.opportunities.length} ranked {autoResearchBacklog.opportunities.length === 1 ? 'opportunity' : 'opportunities'}. Search checks titles, work items, release rows, channel variants, opportunity rationale, and research/source basis.
-                </p>
-              </div>
-              <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-3">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">External actions</p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {Object.entries(autoResearchBacklog.side_effects).map(([action, enabled]) => (
-                    <span
-                      key={action}
-                      className={`inline-flex rounded-full border px-2.5 py-1 text-xs ${enabled ? 'border-red-500/35 bg-red-500/10 text-red-100' : 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'}`}
-                    >
-                      {action.replace(/_/g, ' ')}: {enabled ? 'enabled' : 'locked'}
+              </section>
+
+              <div className="grid gap-3 xl:grid-cols-2">
+                <CollapsiblePanel
+                  title="Queue summary"
+                  panelKey="autoResearchQueueSummary"
+                  expanded={Boolean(expandedPanels.autoResearchQueueSummary)}
+                  onToggle={togglePanel}
+                  className="border-radiant-gold/25 bg-radiant-gold/10"
+                  icon={<ListChecks className="h-4 w-4 text-radiant-gold" />}
+                  rightSlot={(
+                    <span className="rounded-full border border-radiant-gold/40 bg-background/35 px-2.5 py-1 text-[0.68rem] font-semibold text-radiant-gold">
+                      {autoResearchOperatorActions.length} actions
                     </span>
-                  ))}
-                  <button
-                    type="button"
-                    disabled
-                    className="inline-flex rounded-full border border-silicon-slate/70 px-2.5 py-1 text-xs text-muted-foreground disabled:cursor-not-allowed disabled:opacity-70"
-                  >
-                    Callable external actions: {autoResearchBacklog.callable_external_actions.length}
-                  </button>
-                </div>
-              </div>
-              <div className="rounded-lg border border-amber-500/25 bg-amber-500/10 p-3">
-                <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-                  <div>
-                    <p className="text-xs uppercase tracking-wide text-amber-100/75">Content generation queue</p>
-                    <h3 className="text-sm font-semibold text-amber-50">Ranked content opportunities</h3>
-                  </div>
-                  <span className="text-xs font-medium text-amber-100/70">
-                    {autoResearchBacklog.opportunity_summary.highPriority} high priority · {autoResearchBacklog.opportunity_summary.requiresHumanGate} gated
-                  </span>
-                </div>
-                {filteredAutoResearchOpportunities.length ? (
-                  <div className="mt-3 grid gap-3 xl:grid-cols-2">
-                    {filteredAutoResearchOpportunities.slice(0, 6).map((opportunity) => (
-                      <AutoResearchOpportunityCard
-                        key={opportunity.id}
-                        opportunity={opportunity}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="mt-3 rounded-md border border-amber-500/20 bg-background/35 px-3 py-5 text-center text-sm text-amber-100/75">
-                    No ranked content opportunities match the current search.
-                  </div>
-                )}
-              </div>
-              {autoResearchTakeaways.length ? (
-                <div className="rounded-lg border border-blue-500/25 bg-blue-500/10 p-3">
-                  <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                      <p className="text-xs uppercase tracking-wide text-blue-100/75">Recommended next moves</p>
-                      <h3 className="text-sm font-semibold text-blue-50">Takeaways from the projected backlog</h3>
+                  )}
+                >
+                  <AutoResearchOperatorActionQueue actions={autoResearchOperatorActions} maxVisible={2} />
+                </CollapsiblePanel>
+
+                <CollapsiblePanel
+                  title="Feedback follow-through"
+                  panelKey="autoResearchFeedbackFollowThrough"
+                  expanded={Boolean(expandedPanels.autoResearchFeedbackFollowThrough)}
+                  onToggle={togglePanel}
+                  className="border-blue-500/25 bg-blue-500/10"
+                  icon={<FileText className="h-4 w-4 text-blue-100" />}
+                  rightSlot={(
+                    <span className="rounded-full border border-blue-400/40 bg-background/35 px-2.5 py-1 text-[0.68rem] font-semibold text-blue-100">
+                      {autoResearchFeedbackHandoffs.length} {autoResearchFeedbackHandoffs.length === 1 ? 'handoff' : 'handoffs'}
+                    </span>
+                  )}
+                >
+                  <AutoResearchFeedbackFollowThroughPanel handoffs={autoResearchFeedbackHandoffs} framed={false} />
+                </CollapsiblePanel>
+
+                <CollapsiblePanel
+                  title="Ranked opportunities"
+                  panelKey="autoResearchOpportunities"
+                  expanded={Boolean(expandedPanels.autoResearchOpportunities)}
+                  onToggle={togglePanel}
+                  className="border-amber-500/25 bg-amber-500/10"
+                  icon={<BarChart3 className="h-4 w-4 text-amber-100" />}
+                  rightSlot={(
+                    <span className="rounded-full border border-amber-400/35 bg-background/35 px-2.5 py-1 text-[0.68rem] font-semibold text-amber-100">
+                      {autoResearchBacklog.opportunity_summary.highPriority} high · {autoResearchBacklog.opportunity_summary.requiresHumanGate} gated
+                    </span>
+                  )}
+                >
+                  {filteredAutoResearchOpportunities.length ? (
+                    <div className="grid gap-3 xl:grid-cols-2">
+                      {filteredAutoResearchOpportunities.slice(0, 6).map((opportunity) => (
+                        <AutoResearchOpportunityCard
+                          key={opportunity.id}
+                          opportunity={opportunity}
+                        />
+                      ))}
                     </div>
-                    <span className="text-xs font-medium text-blue-100/70">
-                      Internal planning only
+                  ) : (
+                    <div className="rounded-md border border-amber-500/20 bg-background/35 px-3 py-5 text-center text-sm text-amber-100/75">
+                      No ranked content opportunities match the current search.
+                    </div>
+                  )}
+                </CollapsiblePanel>
+
+                <CollapsiblePanel
+                  title="Recommended next moves"
+                  panelKey="autoResearchTakeaways"
+                  expanded={Boolean(expandedPanels.autoResearchTakeaways)}
+                  onToggle={togglePanel}
+                  className="border-blue-500/25 bg-blue-500/10"
+                  icon={<Info className="h-4 w-4 text-blue-100" />}
+                  rightSlot={(
+                    <span className="rounded-full border border-blue-400/35 bg-background/35 px-2.5 py-1 text-[0.68rem] font-semibold text-blue-100">
+                      {autoResearchTakeaways.length} moves
                     </span>
+                  )}
+                >
+                  {autoResearchTakeaways.length ? (
+                    <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-5">
+                      {autoResearchTakeaways.map((takeaway) => (
+                        <div key={`${takeaway.label}-${takeaway.title}`} className="min-w-0 rounded-md border border-blue-500/20 bg-background/35 p-2">
+                          <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-blue-100/70">{takeaway.label}</p>
+                          <p className="mt-1 break-words text-xs font-semibold text-blue-50">{takeaway.title}</p>
+                          <p className="mt-1 text-[0.68rem] leading-5 text-blue-100/75">{takeaway.detail}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="rounded-md border border-blue-500/20 bg-background/35 px-3 py-5 text-center text-sm text-blue-100/75">
+                      No recommended next moves are available for the current filter.
+                    </div>
+                  )}
+                </CollapsiblePanel>
+
+                <CollapsiblePanel
+                  title="Diagnostics and external-action state"
+                  panelKey="autoResearchDiagnostics"
+                  expanded={Boolean(expandedPanels.autoResearchDiagnostics)}
+                  onToggle={togglePanel}
+                  className="border-silicon-slate/70 bg-silicon-slate/20"
+                  icon={<ShieldCheck className="h-4 w-4 text-emerald-100" />}
+                  rightSlot={(
+                    <span className="rounded-full border border-emerald-500/35 bg-emerald-500/10 px-2.5 py-1 text-[0.68rem] font-semibold text-emerald-100">
+                      Callable: {autoResearchBacklog.callable_external_actions.length}
+                    </span>
+                  )}
+                >
+                  <div className="grid gap-3 md:grid-cols-4">
+                    <DigestMetric label="Backlog items" value={autoResearchBacklog.summary.total} />
+                    <DigestMetric label="Internal handoff" value={autoResearchBacklog.summary.readyForInternalHandoff} />
+                    <DigestMetric label="Blocked/manual" value={autoResearchBacklog.summary.blockedOrManual} tone="amber" />
+                    <DigestMetric label="Callable actions" value={autoResearchBacklog.summary.callableExternalActions} />
                   </div>
-                  <div className="mt-3 grid gap-2 md:grid-cols-2 xl:grid-cols-5">
-                    {autoResearchTakeaways.map((takeaway) => (
-                      <div key={`${takeaway.label}-${takeaway.title}`} className="min-w-0 rounded-md border border-blue-500/20 bg-background/35 p-2">
-                        <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-blue-100/70">{takeaway.label}</p>
-                        <p className="mt-1 break-words text-xs font-semibold text-blue-50">{takeaway.title}</p>
-                        <p className="mt-1 text-[0.68rem] leading-5 text-blue-100/75">{takeaway.detail}</p>
-                      </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {Object.entries(autoResearchBacklog.side_effects).map(([action, enabled]) => (
+                      <span
+                        key={action}
+                        className={`inline-flex rounded-full border px-2.5 py-1 text-xs ${enabled ? 'border-red-500/35 bg-red-500/10 text-red-100' : 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'}`}
+                      >
+                        {action.replace(/_/g, ' ')}: {enabled ? 'enabled' : 'locked'}
+                      </span>
                     ))}
+                    <button
+                      type="button"
+                      disabled
+                      className="inline-flex rounded-full border border-silicon-slate/70 px-2.5 py-1 text-xs text-muted-foreground disabled:cursor-not-allowed disabled:opacity-70"
+                    >
+                      Callable external actions: {autoResearchBacklog.callable_external_actions.length}
+                    </button>
                   </div>
-                </div>
-              ) : null}
-              <div className="grid gap-4 xl:grid-cols-2">
-                {filteredAutoResearchItems.length ? filteredAutoResearchItems.map((item) => (
-                  <AutoResearchBacklogCard
-                    key={item.id}
-                    item={item}
-                    releaseLinks={autoResearchReleaseLinksById[item.id] ?? []}
-                    feedbackNote={autoResearchFeedbackNotes[item.id] ?? ''}
-                    feedbackTarget={autoResearchFeedbackTargets[item.id] ?? 'both'}
-                    feedbackSubmitting={autoResearchFeedbackSubmittingId === item.id}
-                    onFeedbackNoteChange={(value) => setAutoResearchFeedbackNotes((current) => ({ ...current, [item.id]: value }))}
-                    onFeedbackTargetChange={(value) => setAutoResearchFeedbackTargets((current) => ({ ...current, [item.id]: value }))}
-                    onSubmitFeedback={(event) => submitAutoResearchFeedback(item, autoResearchReleaseLinksById[item.id] ?? [], event)}
-                    activationSubmitting={autoResearchActivatingId === item.id}
-                    onActivate={() => activateAutoResearchItem(item)}
-                  />
-                )) : (
-                  <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-4 py-8 text-center text-sm text-muted-foreground xl:col-span-2">
-                    No AutoResearch backlog items match the current search.
-                  </div>
-                )}
+                </CollapsiblePanel>
               </div>
             </div>
           ) : (
@@ -3004,8 +3169,8 @@ function SectionTabs({
   counts: Record<IntelligenceSection, number>
 }) {
   return (
-    <nav aria-label="Content intelligence sections" className="mb-6 min-w-0 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-2">
-      <div className="grid min-w-0 grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">
+    <nav aria-label="Content intelligence sections" className="mb-4 min-w-0 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-2 sm:mb-6">
+      <div className="grid min-w-0 grid-cols-3 gap-1.5 sm:gap-2 md:grid-cols-3 xl:grid-cols-6">
         {SECTION_TABS.map((section) => {
           const isActive = section.key === activeSection
           return (
@@ -3015,17 +3180,17 @@ function SectionTabs({
               onClick={() => onChange(section.key)}
               aria-pressed={isActive}
               title={section.description}
-              className={`flex min-h-20 min-w-0 items-center justify-between gap-2 rounded-md border px-2.5 py-2 text-left transition sm:min-h-16 sm:gap-3 sm:px-3 ${
+              className={`flex min-h-14 min-w-0 items-center justify-between gap-1.5 rounded-md border px-2 py-1.5 text-left transition sm:min-h-16 sm:gap-3 sm:px-3 sm:py-2 ${
                 isActive
                   ? 'border-radiant-gold/55 bg-radiant-gold/15 text-radiant-gold'
                   : 'border-silicon-slate/60 bg-background/30 text-muted-foreground hover:border-white/30 hover:text-foreground'
               }`}
             >
               <span className="min-w-0">
-                <span className="block text-sm font-semibold">{section.label}</span>
+                <span className="block text-[0.72rem] font-semibold leading-4 sm:text-sm">{section.label}</span>
                 <span className="mt-0.5 hidden text-[0.68rem] leading-4 opacity-80 sm:block">{section.description}</span>
               </span>
-              <span className="shrink-0 rounded-full border border-current/30 px-2 py-0.5 text-xs font-semibold">
+              <span className="shrink-0 rounded-full border border-current/30 px-1.5 py-0.5 text-[0.68rem] font-semibold sm:px-2 sm:text-xs">
                 {counts[section.key]}
               </span>
             </button>
@@ -3058,9 +3223,13 @@ function operatorActionTone(tone: AutoResearchOperatorAction['tone']) {
 
 function AutoResearchOperatorActionQueue({
   actions,
+  maxVisible = 2,
 }: {
   actions: AutoResearchOperatorAction[]
+  maxVisible?: number
 }) {
+  const visibleActions = actions.slice(0, maxVisible)
+  const hiddenCount = Math.max(0, actions.length - visibleActions.length)
   return (
     <section className="rounded-lg border border-radiant-gold/30 bg-radiant-gold/10 p-3">
       <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
@@ -3076,9 +3245,9 @@ function AutoResearchOperatorActionQueue({
         </span>
       </div>
 
-      {actions.length ? (
+      {visibleActions.length ? (
         <div className="mt-3 grid gap-2 xl:grid-cols-2">
-          {actions.map((action) => (
+          {visibleActions.map((action) => (
             <article key={action.id} className="rounded-md border border-radiant-gold/20 bg-background/35 p-3">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
@@ -3125,18 +3294,25 @@ function AutoResearchOperatorActionQueue({
           No AutoResearch actions are visible yet. Load the backlog projection or clear the current filters.
         </div>
       )}
+      {hiddenCount > 0 ? (
+        <p className="mt-2 text-[0.68rem] leading-5 text-amber-100/70">
+          {hiddenCount} more action{hiddenCount === 1 ? '' : 's'} stay available in the paginated backlog list below.
+        </p>
+      ) : null}
     </section>
   )
 }
 
 function AutoResearchFeedbackFollowThroughPanel({
   handoffs,
+  framed = true,
 }: {
   handoffs: AutoResearchFeedbackHandoff[]
+  framed?: boolean
 }) {
   const visibleHandoffs = handoffs.slice(0, 3)
   return (
-    <section className="rounded-lg border border-blue-500/30 bg-blue-500/10 p-3">
+    <section className={framed ? 'rounded-lg border border-blue-500/30 bg-blue-500/10 p-3' : ''}>
       <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
         <div>
           <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-blue-100/70">Amina feedback loop</p>
@@ -3297,20 +3473,140 @@ function AutoResearchBacklogCard({
   const sourceReferences = item.sourceReferences ?? []
   const primarySourceReference = sourceReferences[0] ?? null
   const firstSourcePacket = item.sourcePacketPaths[0] ?? null
+  const firstGateState = item.firstBlockedOrPendingGate
+    ? item.gates[item.firstBlockedOrPendingGate]?.state ?? 'pending'
+    : 'approved'
+  const nextGateLabel = formatAutoResearchGate(item.firstBlockedOrPendingGate)
+  const connectedContentHref = primaryRelease?.socialContentId ? `/admin/social-content/${primaryRelease.socialContentId}` : null
   return (
-    <article className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <article className="rounded-lg border border-silicon-slate/70 bg-background/45 p-3 sm:p-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <p className="mb-1 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Generated backlog item</p>
-          <p className="text-sm font-semibold">{item.title}</p>
-          <p className="mt-1 text-xs leading-5 text-muted-foreground">{item.targetAvatar}</p>
+          <p className="break-words text-sm font-semibold">{item.title}</p>
+          <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">{item.targetAvatar}</p>
         </div>
-        <span className={`shrink-0 rounded-full border px-2.5 py-1 text-[0.68rem] font-semibold ${item.firstBlockedOrPendingGate ? gateTone(item.gates[item.firstBlockedOrPendingGate].state) : gateTone('approved')}`}>
+        <span className={`shrink-0 rounded-full border px-2.5 py-1 text-[0.68rem] font-semibold ${gateTone(firstGateState)}`}>
           {item.firstBlockedOrPendingGate ? item.firstBlockedOrPendingGate.replace(/_/g, ' ') : 'ready'}
         </span>
       </div>
 
-      <div className="mt-4 grid gap-3 lg:grid-cols-4">
+      <div aria-label="Mobile action summary" className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)]">
+        <section className="rounded-md border border-radiant-gold/35 bg-radiant-gold/10 p-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-radiant-gold">Action summary</p>
+              <h3 className="mt-1 text-sm font-semibold text-amber-50">{nextGateLabel}</h3>
+              <p className="mt-1 text-xs leading-5 text-amber-100/80">
+                {item.nextHumanDecision ?? 'Review the connected backlog row before any provider handoff.'}
+              </p>
+            </div>
+            <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[0.62rem] font-semibold ${feedbackWorkItemId ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100' : 'border-amber-500/35 bg-amber-500/10 text-amber-100'}`}>
+              {feedbackWorkItemId ? 'Feedback routable' : 'Needs work-item link'}
+            </span>
+          </div>
+
+          <div className="mt-3 flex flex-wrap gap-1.5 text-[0.68rem]">
+            <span className="rounded-full border border-amber-500/25 bg-background/35 px-2 py-1 font-semibold text-amber-50">
+              {bestVariant ? `${formatAutoResearchLabel(bestVariant.channel)} · ${bestVariant.recommendedFormat.replace(/_/g, ' ')}` : 'No channel variant'}
+            </span>
+            <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-1 font-semibold text-emerald-50">
+              {primaryRelease ? formatCalendarDate(primaryRelease.scheduledFor) : 'No release row'}
+            </span>
+            <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-1 text-emerald-100/80">
+              {primaryRelease?.authorizationDueAt ? `Due ${formatCalendarDate(primaryRelease.authorizationDueAt)}` : 'No approval due'}
+            </span>
+            {connectedContentHref ? (
+              <Link href={connectedContentHref} className="rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-1 font-semibold text-blue-100 underline-offset-2 hover:underline">
+                Content row: {primaryRelease?.socialContentId}
+              </Link>
+            ) : (
+              <span className="rounded-full border border-blue-500/25 bg-blue-500/10 px-2 py-1 text-blue-100/75">
+                Content row not connected
+              </span>
+            )}
+          </div>
+
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-emerald-100/70">Calendar activation bridge</p>
+              <p className="mt-1 text-[0.68rem] leading-5 text-amber-100/70 sm:max-w-sm">
+                Creates or reuses internal calendar and draft rows only.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={onActivate}
+              disabled={activationSubmitting}
+              className="inline-flex min-h-9 shrink-0 items-center justify-center gap-2 rounded-md border border-emerald-400/55 px-3 py-2 text-xs font-semibold text-emerald-100 transition hover:border-emerald-300 hover:bg-emerald-500/15 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <CalendarDays className="h-3.5 w-3.5" />
+              {activationSubmitting ? 'Activating...' : 'Activate internal records'}
+            </button>
+          </div>
+        </section>
+
+        <form onSubmit={onSubmitFeedback} className="rounded-md border border-radiant-gold/35 bg-radiant-gold/10 p-3">
+          <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-radiant-gold">Operator action</p>
+              <p className="mt-1 text-xs leading-5 text-amber-100/80">
+                Route commentary to this item, the next AutoResearch pass, or both.
+              </p>
+            </div>
+          </div>
+
+          <fieldset className="mt-3 grid grid-cols-3 gap-1.5">
+            <legend className="sr-only">AutoResearch feedback routing</legend>
+            {AUTORESEARCH_FEEDBACK_TARGET_OPTIONS.map((option) => (
+              <label
+                key={option.value}
+                className={`cursor-pointer rounded-md border p-2 transition ${feedbackTarget === option.value ? 'border-radiant-gold/70 bg-radiant-gold/15' : 'border-silicon-slate/60 bg-background/35 hover:border-radiant-gold/45'}`}
+              >
+                <span className="flex items-center gap-1.5 text-[0.68rem] font-semibold sm:text-xs">
+                  <input
+                    type="radio"
+                    name={`autoresearch-feedback-target-${item.id}`}
+                    value={option.value}
+                    checked={feedbackTarget === option.value}
+                    onChange={() => onFeedbackTargetChange(option.value)}
+                    className="h-3.5 w-3.5 accent-radiant-gold"
+                  />
+                  {option.label}
+                </span>
+                <span className="mt-1 hidden text-[0.68rem] leading-5 text-muted-foreground sm:block">{option.description}</span>
+              </label>
+            ))}
+          </fieldset>
+
+          <label className="mt-2 block text-xs font-semibold uppercase tracking-wide text-amber-100/80" htmlFor={`autoresearch-feedback-${item.id}`}>
+            Commentary for Amina
+          </label>
+          <textarea
+            id={`autoresearch-feedback-${item.id}`}
+            rows={2}
+            value={feedbackNote}
+            onChange={(event) => onFeedbackNoteChange(event.target.value)}
+            placeholder="Example: strengthen the CTA, use real Portfolio b-roll, or make this the reference point for the next research pass."
+            className={`${CONTENT_INTELLIGENCE_FIELD_COMPACT_CLASS} mt-1 min-h-16 resize-y`}
+          />
+          <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <p className="hidden text-[0.68rem] leading-5 text-amber-100/70 sm:block">
+              Records an internal feedback handoff only. It does not generate media, publish, schedule, upload, or call providers.
+            </p>
+            <button
+              type="submit"
+              disabled={!feedbackNote.trim() || !feedbackWorkItemId || feedbackSubmitting}
+              className="inline-flex min-h-9 items-center justify-center gap-2 rounded-md border border-radiant-gold/55 px-3 py-2 text-xs font-semibold text-radiant-gold transition hover:border-radiant-gold hover:bg-radiant-gold/10 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Save className="h-3.5 w-3.5" />
+              {feedbackSubmitting ? 'Recording...' : 'Record feedback handoff'}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div className="mt-4 hidden gap-3 md:grid md:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-md border border-silicon-slate/60 bg-background/35 p-3">
           <p className="text-[0.62rem] font-semibold uppercase tracking-wide text-muted-foreground">Content</p>
           <p className="mt-1 text-xs font-semibold">
@@ -3352,7 +3648,7 @@ function AutoResearchBacklogCard({
         </div>
       </div>
 
-      <div className="mt-4 rounded-md border border-blue-500/25 bg-blue-500/10 p-3">
+      <div className="mt-4 hidden rounded-md border border-blue-500/25 bg-blue-500/10 p-3 md:block">
         <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">
             <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-blue-100/70">Reference basis</p>
@@ -3373,109 +3669,6 @@ function AutoResearchBacklogCard({
           </p>
         ) : null}
       </div>
-
-      <div className="mt-4 rounded-md border border-silicon-slate/60 bg-background/35 p-2">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">Next decision</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {item.nextHumanDecision ?? 'Review the connected backlog row before any provider handoff.'}
-            </p>
-          </div>
-          <button
-            type="button"
-            disabled
-            className="inline-flex min-h-9 items-center justify-center rounded-md border border-silicon-slate/70 px-3 py-2 text-xs font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            Callable actions: {item.callableExternalActions.length}
-          </button>
-        </div>
-      </div>
-
-      <div className="mt-3 rounded-md border border-emerald-500/30 bg-emerald-500/10 p-3">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="min-w-0">
-            <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-emerald-100/70">Calendar activation bridge</p>
-            <p className="mt-1 text-xs leading-5 text-emerald-100/80">
-              Create or link internal calendar candidates and draft seeds for these channel variants. Copy, visual/media, platform handoff, final submit, provider execution, and status reconciliation stay pending.
-            </p>
-            <p className="mt-1 text-[0.68rem] leading-5 text-emerald-100/65">
-              Records use AutoResearch/backlog/channel idempotency and reuse existing Agentified calendar or Social Content rows when present.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onActivate}
-            disabled={activationSubmitting}
-            className="inline-flex min-h-9 shrink-0 items-center justify-center gap-2 rounded-md border border-emerald-400/55 px-3 py-2 text-xs font-semibold text-emerald-100 transition hover:border-emerald-300 hover:bg-emerald-500/15 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <CalendarDays className="h-3.5 w-3.5" />
-            {activationSubmitting ? 'Activating...' : 'Activate internal records'}
-          </button>
-        </div>
-      </div>
-
-      <form onSubmit={onSubmitFeedback} className="mt-3 rounded-md border border-radiant-gold/35 bg-radiant-gold/10 p-3">
-        <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-radiant-gold">Operator action</p>
-            <p className="mt-1 text-xs leading-5 text-amber-100/80">
-              Approve the direction as-is, or leave commentary so Amina can revise this item, carry it into the next AutoResearch pass, or both.
-            </p>
-          </div>
-          <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[0.62rem] font-semibold ${feedbackWorkItemId ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100' : 'border-amber-500/35 bg-amber-500/10 text-amber-100'}`}>
-            {feedbackWorkItemId ? 'Feedback routable' : 'Needs work-item link'}
-          </span>
-        </div>
-
-        <fieldset className="mt-3 grid gap-2 md:grid-cols-3">
-          <legend className="sr-only">AutoResearch feedback routing</legend>
-          {AUTORESEARCH_FEEDBACK_TARGET_OPTIONS.map((option) => (
-            <label
-              key={option.value}
-              className={`cursor-pointer rounded-md border p-2 transition ${feedbackTarget === option.value ? 'border-radiant-gold/70 bg-radiant-gold/15' : 'border-silicon-slate/60 bg-background/35 hover:border-radiant-gold/45'}`}
-            >
-              <span className="flex items-center gap-2 text-xs font-semibold">
-                <input
-                  type="radio"
-                  name={`autoresearch-feedback-target-${item.id}`}
-                  value={option.value}
-                  checked={feedbackTarget === option.value}
-                  onChange={() => onFeedbackTargetChange(option.value)}
-                  className="h-3.5 w-3.5 accent-radiant-gold"
-                />
-                {option.label}
-              </span>
-              <span className="mt-1 block text-[0.68rem] leading-5 text-muted-foreground">{option.description}</span>
-            </label>
-          ))}
-        </fieldset>
-
-        <label className="mt-3 block text-xs font-semibold uppercase tracking-wide text-amber-100/80" htmlFor={`autoresearch-feedback-${item.id}`}>
-          Commentary for Amina
-        </label>
-        <textarea
-          id={`autoresearch-feedback-${item.id}`}
-          rows={3}
-          value={feedbackNote}
-          onChange={(event) => onFeedbackNoteChange(event.target.value)}
-          placeholder="Example: strengthen the CTA, use real Portfolio b-roll, or make this the reference point for the next research pass."
-          className={`${CONTENT_INTELLIGENCE_FIELD_COMPACT_CLASS} mt-1 min-h-24 resize-y`}
-        />
-        <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-[0.68rem] leading-5 text-amber-100/70">
-            Records an internal feedback handoff only. It does not generate media, publish, schedule, upload, or call providers.
-          </p>
-          <button
-            type="submit"
-            disabled={!feedbackNote.trim() || !feedbackWorkItemId || feedbackSubmitting}
-            className="inline-flex min-h-9 items-center justify-center gap-2 rounded-md border border-radiant-gold/55 px-3 py-2 text-xs font-semibold text-radiant-gold transition hover:border-radiant-gold hover:bg-radiant-gold/10 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <Save className="h-3.5 w-3.5" />
-            {feedbackSubmitting ? 'Recording...' : 'Record feedback handoff'}
-          </button>
-        </div>
-      </form>
 
       <details className="mt-4 rounded-md border border-silicon-slate/60 bg-background/30 p-3">
         <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -3820,6 +4013,8 @@ function CalendarItemQueueRow(props: CalendarItemRowProps) {
   const isRejected = item.authorization_status === 'rejected'
   const isBusy = actionItemId === item.id
   const showExpandedWorkflow = isEditing || rejectingItemId === item.id
+  const gateSummary = calendarApprovalGateSummary(item)
+  const timing = calendarTimingState(item)
 
   if (showExpandedWorkflow) {
     return (
@@ -3882,13 +4077,17 @@ function CalendarItemQueueRow(props: CalendarItemRowProps) {
         <p className="mb-1 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground md:hidden">Channel</p>
         <p className="font-semibold text-foreground">{CALENDAR_CHANNEL_LABELS[item.channel]}</p>
         <p className="mt-1 text-xs text-muted-foreground">{CAMPAIGN_PHASE_LABELS[item.campaign_phase]}</p>
-        <p className="mt-1 text-[0.68rem] text-muted-foreground">{item.due_status.replace(/_/g, ' ')}</p>
+        <span className={`mt-2 inline-flex rounded-full border px-2 py-0.5 text-[0.68rem] font-semibold ${timing.tone}`}>
+          {timing.label}
+        </span>
       </div>
       <div>
         <p className="mb-1 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground md:hidden">Gate</p>
         <span className={`inline-flex rounded-full border px-2 py-0.5 text-[0.68rem] font-semibold ${calendarAuthorizationTone(item.authorization_status)}`}>
           {item.authorization_status.replace(/_/g, ' ')}
         </span>
+        <p className="mt-1 text-[0.68rem] font-semibold text-foreground">{gateSummary.label}</p>
+        <p className="mt-1 line-clamp-2 text-[0.68rem] leading-5 text-muted-foreground">{gateSummary.action}</p>
       </div>
       <div>
         <p className="mb-1 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground md:hidden">Actions</p>
@@ -3986,6 +4185,8 @@ function CalendarItemCard({
   const showRejectNote = rejectingItemId === item.id || isRejected
   const isBusy = actionItemId === item.id
   const canEdit = isPending || isRejected
+  const gateSummary = calendarApprovalGateSummary(item)
+  const timing = calendarTimingState(item)
   return (
     <div className="rounded-md border border-silicon-slate/60 bg-background/35 p-3">
       {isEditing && editForm ? (
@@ -4115,6 +4316,21 @@ function CalendarItemCard({
                 {item.authorization_due_at ? formatCalendarDate(item.authorization_due_at) : 'No approval deadline'}
               </p>
             </div>
+          </div>
+          <div className={`mt-3 rounded-md border p-2 ${timing.tone}`}>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[0.62rem] font-semibold uppercase tracking-wide">{timing.label}</span>
+              <span className="rounded-full border border-current/25 px-2 py-0.5 text-[0.62rem] font-semibold">
+                {gateSummary.label}
+              </span>
+              {gateSummary.manualOnly ? (
+                <span className="rounded-full border border-current/25 px-2 py-0.5 text-[0.62rem] font-semibold">
+                  Manual/provider blocked
+                </span>
+              ) : null}
+            </div>
+            <p className="mt-1 text-[0.68rem] leading-5">{timing.detail}</p>
+            <p className="mt-1 text-[0.68rem] leading-5">{gateSummary.action}</p>
           </div>
           {hasTemplateBasis ? (
             <div className="mt-3 rounded-md border border-silicon-slate/60 bg-background/40 p-2">

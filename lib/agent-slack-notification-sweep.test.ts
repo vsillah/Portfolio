@@ -83,11 +83,11 @@ describe('Agent Ops proactive Slack notification sweep', () => {
     expect(result).toMatchObject({
       ok: true,
       mode: 'immediate',
-      totalRules: 2,
-      sentCount: 2,
-      itemCount: 4,
+      totalRules: 3,
+      sentCount: 3,
+      itemCount: 6,
     })
-    expect(mocks.sendAgentSlackNotification).toHaveBeenCalledTimes(2)
+    expect(mocks.sendAgentSlackNotification).toHaveBeenCalledTimes(3)
     expect(mocks.sendAgentSlackNotification).toHaveBeenNthCalledWith(1, expect.objectContaining({
       kind: 'pending_approvals',
       dedupeWindowHours: 1,
@@ -95,6 +95,10 @@ describe('Agent Ops proactive Slack notification sweep', () => {
     expect(mocks.sendAgentSlackNotification).toHaveBeenNthCalledWith(2, expect.objectContaining({
       kind: 'goal_decisions',
       dedupeWindowHours: 4,
+    }))
+    expect(mocks.sendAgentSlackNotification).toHaveBeenNthCalledWith(3, expect.objectContaining({
+      kind: 'social_calendar_approval_due',
+      dedupeWindowHours: 6,
     }))
     expect(result.results.every((item) => item.triggerModes.includes('immediate'))).toBe(true)
   })
@@ -139,17 +143,18 @@ describe('Agent Ops proactive Slack notification sweep', () => {
     expect(result).toMatchObject({
       ok: true,
       mode: 'all',
-      totalRules: 7,
-      sentCount: 7,
-      itemCount: 14,
+      totalRules: 8,
+      sentCount: 8,
+      itemCount: 16,
     })
-    expect(mocks.buildAgentSlackNotificationPayload).toHaveBeenCalledTimes(7)
+    expect(mocks.buildAgentSlackNotificationPayload).toHaveBeenCalledTimes(8)
     expect(mocks.buildAgentSlackNotificationPayload.mock.calls.map(([input]) => input.kind)).toEqual([
       'pending_approvals',
       'blockers',
       'stale_runs',
       'review_ready',
       'goal_decisions',
+      'social_calendar_approval_due',
       'social_publish_gate_due',
       'social_comment_attention_due',
     ])
@@ -244,6 +249,45 @@ describe('Agent Ops proactive Slack notification sweep', () => {
       actorLabel: 'cron',
       triggerSource: 'test_social_gate_sweep',
       dedupeKey: expect.stringMatching(/^social_publish_gate_due:1:[a-f0-9]{16}$/),
+      dedupeWindowHours: 6,
+    }))
+  })
+
+  it('uses calendar item, gate, and due-window dedupe for calendar approval packets', async () => {
+    mocks.buildAgentSlackNotificationPayload.mockResolvedValue({
+      text: '1 calendar approval needs review',
+      blocks: [{ type: 'section', text: { type: 'mrkdwn', text: 'Calendar gate' } }],
+      itemCount: 1,
+      dedupeKey: 'social_calendar_approval_due:calendar-1:platform_draft_handoff:2h',
+    })
+    mocks.sendAgentSlackNotification.mockResolvedValueOnce({
+      ok: true,
+      runId: 'run-calendar-gate',
+      sent: false,
+      skipped: true,
+      deduped: true,
+      itemCount: 1,
+      text: '1 calendar approval needs review',
+    })
+
+    const result = await runAgentSlackNotificationSweep({
+      mode: 'immediate',
+      kinds: ['social_calendar_approval_due'],
+      actorLabel: 'cron',
+      triggerSource: 'test_calendar_gate_sweep',
+    })
+
+    expect(result).toMatchObject({
+      ok: true,
+      totalRules: 1,
+      dedupedCount: 1,
+      itemCount: 1,
+    })
+    expect(mocks.sendAgentSlackNotification).toHaveBeenCalledWith(expect.objectContaining({
+      kind: 'social_calendar_approval_due',
+      actorLabel: 'cron',
+      triggerSource: 'test_calendar_gate_sweep',
+      dedupeKey: 'social_calendar_approval_due:calendar-1:platform_draft_handoff:2h',
       dedupeWindowHours: 6,
     }))
   })

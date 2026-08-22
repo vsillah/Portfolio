@@ -17,6 +17,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 import {
   CALENDAR_CHANNEL_LABELS,
   CALENDAR_SIDE_EFFECTS,
+  calendarApprovalGateSummary,
   calendarMissedReleaseWindow,
   dueGateWindow,
   deriveDueStatus,
@@ -327,6 +328,18 @@ async function runDueGateSweep(request: NextRequest) {
     }
 
     if (dryRun) {
+      const slackDryRun = candidates.length + preparationCandidates.length + recalibrationCandidates.length > 0
+        ? await runAgentSlackNotificationSweep({
+            mode: 'immediate',
+            kinds: ['social_calendar_approval_due'],
+            goalId: 'social-content-calendar',
+            dryRun: true,
+            actorLabel: request.method === 'GET' ? 'Calendar due-gate cron dry run' : 'Manual calendar due-gate dry run',
+            triggerSource: 'dry_run_social_content_calendar_due_gates',
+          }).catch((notificationError) => ({
+            error: notificationError instanceof Error ? notificationError.message : 'Slack dry-run sweep failed',
+          }))
+        : null
       return NextResponse.json({
         ok: true,
         dry_run: true,
@@ -337,6 +350,7 @@ async function runDueGateSweep(request: NextRequest) {
         recalibrated_count: 0,
         candidates: [
           ...candidates.map(({ item, window }) => ({
+            ...calendarApprovalGateSummary(item),
             id: item.id,
             title: item.title,
             scheduled_for: item.scheduled_for,
@@ -347,6 +361,7 @@ async function runDueGateSweep(request: NextRequest) {
             campaign_phase: item.campaign_phase,
           })),
           ...preparationCandidates.map((item) => ({
+            ...calendarApprovalGateSummary(item),
             id: item.id,
             title: item.title,
             scheduled_for: item.scheduled_for,
@@ -357,6 +372,7 @@ async function runDueGateSweep(request: NextRequest) {
             campaign_phase: item.campaign_phase,
           })),
           ...recalibrationCandidates.map(({ item }) => ({
+            ...calendarApprovalGateSummary(item),
             id: item.id,
             title: item.title,
             scheduled_for: item.scheduled_for,
@@ -366,6 +382,7 @@ async function runDueGateSweep(request: NextRequest) {
             campaign_phase: item.campaign_phase,
           })),
         ],
+        slack_notification_result: slackDryRun,
         side_effects: CALENDAR_SIDE_EFFECTS,
       })
     }
@@ -382,12 +399,14 @@ async function runDueGateSweep(request: NextRequest) {
 
     for (const { item, window } of candidates) {
       const idempotencyKey = `social-content-calendar-due:${item.id}:${window}`
+      const gate = calendarApprovalGateSummary(item)
       const workItem = await createAgentWorkItem({
         title: `Authorize content calendar item: ${item.title}`,
         objective: [
-          `Review the ${window} due gate for ${item.channel.replace(/_/g, ' ')} content.`,
-          'Authorize only the internal platform draft handoff if the item is ready.',
-          'Reject with a decision note if Shaka or research should revise it.',
+          `Review the ${window} ${gate.label.toLowerCase()} gate for ${item.channel.replace(/_/g, ' ')} content.`,
+          gate.action,
+          `Owner: ${gate.owner}.`,
+          gate.detail,
           'Do not publish, upload, schedule externally, or call media providers from this gate.',
         ].join(' '),
         priority: window === '2h' ? 'urgent' : 'high',
@@ -411,7 +430,14 @@ async function runDueGateSweep(request: NextRequest) {
           campaign_phase: item.campaign_phase,
           scheduled_for: item.scheduled_for,
           due_gate_window: window,
-          approval_action: 'authorize_internal_platform_draft_handoff',
+          blocker_kind: gate.kind,
+          blocker_label: gate.label,
+          blocker_owner: gate.owner,
+          blocker_detail: gate.detail,
+          approval_action: gate.action,
+          social_content_deep_link: item.social_content_queue?.id || item.social_content_id
+            ? `/admin/social-content/${item.social_content_queue?.id ?? item.social_content_id}?step=${gate.deepLinkStep}`
+            : `/admin/agents/content-intelligence?section=calendar&calendar_item=${item.id}`,
           rejection_action: 'return_to_shaka_or_research_revision',
           side_effects: {
             ...CALENDAR_SIDE_EFFECTS,
@@ -536,7 +562,7 @@ async function runDueGateSweep(request: NextRequest) {
     const slackResult = pinged.length + prepared.length + recalibrated.length > 0
       ? await runAgentSlackNotificationSweep({
           mode: 'immediate',
-          kinds: ['goal_decisions'],
+          kinds: ['social_calendar_approval_due'],
           goalId: 'social-content-calendar',
           actorLabel: request.method === 'GET' ? 'Calendar due-gate cron' : 'Manual calendar due-gate sweep',
           triggerSource,
