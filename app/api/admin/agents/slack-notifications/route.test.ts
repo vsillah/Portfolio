@@ -109,12 +109,19 @@ describe('POST /api/admin/agents/slack-notifications', () => {
     }))
   })
 
-  it('accepts Social Content publish gate and comment attention packets', async () => {
+  it('accepts Social Content calendar, publish gate, and comment attention packets', async () => {
+    const calendarGate = await POST(request({ kind: 'social_calendar_approval_due' }) as never)
     const publishGate = await POST(request({ kind: 'social_publish_gate_due' }) as never)
     const commentAttention = await POST(request({ kind: 'social_comment_attention_due' }) as never)
 
+    expect(calendarGate.status).toBe(200)
     expect(publishGate.status).toBe(200)
     expect(commentAttention.status).toBe(200)
+    expect(mocks.sendAgentSlackNotification).toHaveBeenCalledWith(expect.objectContaining({
+      kind: 'social_calendar_approval_due',
+      actorLabel: 'admin@example.com',
+      triggerSource: 'admin_agent_slack_notification',
+    }))
     expect(mocks.sendAgentSlackNotification).toHaveBeenCalledWith(expect.objectContaining({
       kind: 'social_publish_gate_due',
       actorLabel: 'admin@example.com',

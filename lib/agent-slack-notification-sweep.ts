@@ -13,6 +13,7 @@ export type ProactiveSlackNotificationKind = Extract<
   | 'stale_runs'
   | 'review_ready'
   | 'goal_decisions'
+  | 'social_calendar_approval_due'
   | 'social_publish_gate_due'
   | 'social_comment_attention_due'
 >
@@ -103,6 +104,15 @@ export const PROACTIVE_SLACK_NOTIFICATION_RULES: ProactiveSlackNotificationRule[
     dedupeWindowHours: 4,
   },
   {
+    kind: 'social_calendar_approval_due',
+    label: 'Content calendar approval gates',
+    description: 'Stale or near-due Content Intelligence calendar rows whose copy, media, draft handoff, final submit, provider, or publication gate blocks launch timing.',
+    triggerModes: ['immediate', 'scheduled'],
+    priority: 'urgent',
+    minimumItemCount: 1,
+    dedupeWindowHours: 6,
+  },
+  {
     kind: 'social_publish_gate_due',
     label: 'Scheduled content publish gates',
     description: 'Near-due Social Content rows whose final publishing gate, assets, privacy, or provider readiness would block the scheduled publish.',
@@ -132,6 +142,9 @@ function selectedRules(kinds?: ProactiveSlackNotificationKind[], mode: Proactive
 }
 
 function payloadDedupeKey(kind: ProactiveSlackNotificationKind, payload: Awaited<ReturnType<typeof buildAgentSlackNotificationPayload>>) {
+  if ('dedupeKey' in payload && typeof payload.dedupeKey === 'string' && payload.dedupeKey.trim()) {
+    return payload.dedupeKey.trim()
+  }
   const fingerprint = createHash('sha256')
     .update(payload.text)
     .update(JSON.stringify(payload.blocks))

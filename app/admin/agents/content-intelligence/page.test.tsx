@@ -177,6 +177,72 @@ describe('ContentIntelligencePage', () => {
                 agent_work_items: { id: 'work-social-1', title: 'Approval gates create trust', status: 'proposed' },
                 social_content_queue: { id: 'social-1', status: 'draft' },
               },
+              {
+                id: 'calendar-due-now',
+                campaign_id: 'campaign-1',
+                agent_work_item_id: 'work-social-2',
+                social_content_id: 'social-due-now',
+                channel: 'tiktok',
+                campaign_phase: 'proof',
+                title: 'Due-now TikTok proof cutdown',
+                planned_angle: 'Prepare the manual proof cutdown gate.',
+                scheduled_for: '2099-08-21T14:00:00.000Z',
+                due_status: 'due_now',
+                authorization_status: 'pending',
+                authorization_due_at: '2099-08-20T14:00:00.000Z',
+                autonomy_eligible: false,
+                metadata: {
+                  provider_blocked: true,
+                  provider_boundary: 'TikTok direct post remains manual.',
+                },
+                attraction_campaigns: { id: 'campaign-1', name: 'Agent Ops Campaign', slug: 'agentified-trust-scale-2026-07' },
+                agent_work_items: { id: 'work-social-2', title: 'TikTok proof handoff', status: 'proposed' },
+                social_content_queue: { id: 'social-due-now', status: 'draft' },
+              },
+              {
+                id: 'calendar-recalibrated',
+                campaign_id: 'campaign-1',
+                agent_work_item_id: 'work-social-3',
+                social_content_id: 'social-recalibrated',
+                channel: 'x',
+                campaign_phase: 'teach',
+                title: 'Recalibrated X conversation starter',
+                planned_angle: 'Move the campaign sequence forward.',
+                scheduled_for: '2099-08-23T14:00:00.000Z',
+                due_status: 'planned',
+                authorization_status: 'pending',
+                authorization_due_at: '2099-08-22T14:00:00.000Z',
+                autonomy_eligible: false,
+                metadata: {
+                  provider_blocked: true,
+                  calendar_recalibration: {
+                    recalibrated_at: '2026-08-15T12:00:00.000Z',
+                    prior_scheduled_for: '2026-08-14T12:00:00.000Z',
+                  },
+                },
+                attraction_campaigns: { id: 'campaign-1', name: 'Agent Ops Campaign', slug: 'agentified-trust-scale-2026-07' },
+                agent_work_items: { id: 'work-social-3', title: 'X proof handoff', status: 'proposed' },
+                social_content_queue: { id: 'social-recalibrated', status: 'draft' },
+              },
+              {
+                id: 'calendar-learning',
+                campaign_id: 'campaign-1',
+                agent_work_item_id: 'work-social-4',
+                social_content_id: 'social-learning',
+                channel: 'linkedin',
+                campaign_phase: 'proof',
+                title: 'Published LinkedIn learning window',
+                planned_angle: 'Wait for signal review.',
+                scheduled_for: '2026-08-12T14:00:00.000Z',
+                due_status: 'completed',
+                authorization_status: 'authorized',
+                authorization_due_at: '2026-08-11T14:00:00.000Z',
+                autonomy_eligible: false,
+                metadata: {},
+                attraction_campaigns: { id: 'campaign-1', name: 'Agent Ops Campaign', slug: 'agentified-trust-scale-2026-07' },
+                agent_work_items: { id: 'work-social-4', title: 'Learning window', status: 'completed' },
+                social_content_queue: { id: 'social-learning', status: 'published' },
+              },
             ],
           }),
         }
@@ -826,10 +892,15 @@ describe('ContentIntelligencePage', () => {
     expect(screen.getByText('Open with the moment an approval path created extra work.')).toBeInTheDocument()
     expect(screen.getAllByText('Release').length).toBeGreaterThan(0)
     expect(screen.getByText(/Jun 24, 2026/)).toBeInTheDocument()
-    expect(screen.getByText(/1 day approval lead/)).toBeInTheDocument()
+    expect(screen.getAllByText(/1 day approval lead/).length).toBeGreaterThan(0)
     expect(screen.getAllByText('Whisper-to-shout launch').length).toBeGreaterThan(0)
     expect(screen.getByText(/Tease milestone for LinkedIn/)).toBeInTheDocument()
     expect(screen.getAllByText('Agent Ops Campaign').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Stale date').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Due now').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Recalibrated').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Learning window').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Visual/media readiness').length).toBeGreaterThan(0)
     expect(screen.getByRole('button', { name: /Plan calendar item/ })).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: /Evidence/ }))
@@ -872,10 +943,10 @@ describe('ContentIntelligencePage', () => {
     expect(screen.getAllByText('Source packets explain why the backlog item exists; they are not generated draft content.').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Draft/backlog variants').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Release calendar linkage').length).toBeGreaterThan(0)
-    expect(screen.getByText('1 connected row')).toBeInTheDocument()
+    expect(screen.getAllByText('1 connected row').length).toBeGreaterThan(0)
     expect(screen.getByText('Tease: Approval gates')).toBeInTheDocument()
     expect(screen.getByText('LinkedIn · Tease · pending')).toBeInTheDocument()
-    expect(screen.getByText('1 day approval lead')).toBeInTheDocument()
+    expect(screen.getAllByText('1 day approval lead').length).toBeGreaterThan(0)
     expect(screen.getAllByText(/Jun 24, 2026/).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/Jun 23, 2026/).length).toBeGreaterThan(0)
     expect(screen.getAllByText('Work item: Approval gates create trust').length).toBeGreaterThan(0)
@@ -903,8 +974,7 @@ describe('ContentIntelligencePage', () => {
       item_id: 'autoresearch-agentified-agt-x-01',
       channels: ['x', 'linkedin'],
     })
-    expect(screen.getByText('Feedback routable')).toBeInTheDocument()
-    expect(screen.getByText('Needs work-item link')).toBeInTheDocument()
+    expect(screen.getAllByText('Feedback routable').length).toBeGreaterThan(0)
     expect(screen.getByRole('heading', { name: 'Feedback follow-through' })).toBeInTheDocument()
     expect(screen.getByText('0 handoffs')).toBeInTheDocument()
     expect(screen.getByText(/No operator feedback handoffs recorded yet/)).toBeInTheDocument()
@@ -1210,7 +1280,7 @@ describe('ContentIntelligencePage', () => {
 
     await screen.findByText('Tease: Approval gates')
 
-    fireEvent.click(screen.getByRole('button', { name: 'Authorize Draft Handoff' }))
+    fireEvent.click(screen.getAllByRole('button', { name: 'Authorize Draft Handoff' })[0])
 
     await screen.findByText('Draft handoff authorized and Social Content draft created.')
 
@@ -1227,7 +1297,7 @@ describe('ContentIntelligencePage', () => {
 
     await screen.findByText('Tease: Approval gates')
 
-    fireEvent.click(screen.getByRole('button', { name: 'Edit' }))
+    fireEvent.click(screen.getAllByRole('button', { name: 'Edit' })[0])
     fireEvent.change(screen.getAllByLabelText('Title')[0], {
       target: { value: 'Tease: Edited approval gates' },
     })
@@ -1260,7 +1330,7 @@ describe('ContentIntelligencePage', () => {
 
     await screen.findByText('Tease: Approval gates')
 
-    fireEvent.click(screen.getByRole('button', { name: 'Reject' }))
+    fireEvent.click(screen.getAllByRole('button', { name: 'Reject' })[0])
     fireEvent.change(screen.getAllByLabelText('Decision note')[0], {
       target: { value: 'Needs stronger proof before this is due.' },
     })

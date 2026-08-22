@@ -96,6 +96,40 @@ export type SocialContentCalendarItem = {
   } | null
 }
 
+export type SocialContentCalendarGateKind =
+  | 'copy'
+  | 'visual_media'
+  | 'platform_draft_handoff'
+  | 'final_submission'
+  | 'provider_configuration'
+  | 'publication_status'
+
+export type SocialContentCalendarGateSummary = {
+  kind: SocialContentCalendarGateKind
+  label: string
+  owner: string
+  action: string
+  detail: string
+  deepLinkStep: 'copy' | 'visuals' | 'draft' | 'submit' | 'status'
+  manualOnly: boolean
+}
+
+export type SocialContentCalendarGateRow = {
+  id: string
+  social_content_id: string | null
+  channel: SocialContentCalendarChannel
+  due_status: string
+  authorization_status: string
+  metadata?: unknown
+  social_content_queue?: {
+    id: string
+    status?: string | null
+    social_content_publishes?: Array<{
+      status?: string | null
+    }> | null
+  } | null
+}
+
 export const CALENDAR_SIDE_EFFECTS = {
   provider_generation: false,
   upload: false,
@@ -114,6 +148,34 @@ export const CALENDAR_CHANNEL_LABELS: Record<SocialContentCalendarChannel, strin
   tiktok: 'TikTok',
   x: 'X',
   thumbnail: 'Thumbnail',
+}
+
+const CALENDAR_MANUAL_PROVIDER_CHANNELS = new Set<SocialContentCalendarChannel>([
+  'facebook',
+  'instagram',
+  'instagram_reels',
+  'tiktok',
+  'x',
+  'youtube',
+  'youtube_shorts',
+])
+
+const CALENDAR_VISUAL_CHANNELS = new Set<SocialContentCalendarChannel>([
+  'instagram',
+  'instagram_reels',
+  'tiktok',
+  'youtube',
+  'youtube_shorts',
+  'thumbnail',
+])
+
+export const CALENDAR_GATE_LABELS: Record<SocialContentCalendarGateKind, string> = {
+  copy: 'Copy approval',
+  visual_media: 'Visual/media readiness',
+  platform_draft_handoff: 'Platform draft handoff',
+  final_submission: 'Final submission gate',
+  provider_configuration: 'Provider configuration',
+  publication_status: 'Publication status',
 }
 
 export const CAMPAIGN_PHASE_LABELS: Record<SocialContentCampaignPhase, string> = {
@@ -837,6 +899,124 @@ export function parseMetadata(value: unknown): Record<string, unknown> {
   return value && typeof value === 'object' && !Array.isArray(value)
     ? value as Record<string, unknown>
     : {}
+}
+
+function metadataString(value: unknown) {
+  return typeof value === 'string' && value.trim() ? value.trim() : null
+}
+
+function calendarGateSummary(
+  kind: SocialContentCalendarGateKind,
+  detail: string,
+  input: { channel: SocialContentCalendarChannel; manualOnly?: boolean },
+): SocialContentCalendarGateSummary {
+  const steps: Record<SocialContentCalendarGateKind, SocialContentCalendarGateSummary['deepLinkStep']> = {
+    copy: 'copy',
+    visual_media: 'visuals',
+    platform_draft_handoff: 'draft',
+    final_submission: 'submit',
+    provider_configuration: 'submit',
+    publication_status: 'status',
+  }
+  const actions: Record<SocialContentCalendarGateKind, string> = {
+    copy: 'Review and approve the channel copy in Social Content.',
+    visual_media: 'Review the media, cover, carousel, thumbnail, or video readiness before handoff.',
+    platform_draft_handoff: 'Authorize or complete the internal draft handoff before launch timing is trusted.',
+    final_submission: 'Approve the final platform submission gate inside Portfolio.',
+    provider_configuration: 'Keep the row visible as blocked/manual until the provider setup is approved.',
+    publication_status: 'Confirm publication status or recover the stale schedule before moving forward.',
+  }
+  return {
+    kind,
+    label: CALENDAR_GATE_LABELS[kind],
+    owner: kind === 'provider_configuration' || input.manualOnly ? 'Integration Captain / Vambah' : 'Shaka / Vambah',
+    action: actions[kind],
+    detail,
+    deepLinkStep: steps[kind],
+    manualOnly: Boolean(input.manualOnly),
+  }
+}
+
+export function calendarApprovalGateSummary(item: SocialContentCalendarGateRow): SocialContentCalendarGateSummary {
+  const metadata = parseMetadata(item.metadata)
+  const activation = parseMetadata(metadata.autoresearch_activation)
+  const manualOnly = metadata.manual_only === true
+    || metadata.provider_blocked === true
+    || CALENDAR_MANUAL_PROVIDER_CHANNELS.has(item.channel)
+  const queue = item.social_content_queue
+  const publishes = queue?.social_content_publishes ?? []
+  const queueStatus = queue?.status ?? null
+  const providerBoundary = metadataString(metadata.provider_boundary)
+  const firstGate = parseMetadata(metadata.first_blocked_or_pending_gate)
+  const firstGateLabel = metadataString(firstGate.label) ?? metadataString(firstGate.key)
+
+  if (item.due_status === 'completed' || publishes.some((publish) => publish.status === 'published')) {
+    return calendarGateSummary(
+      'publication_status',
+      'Publication evidence is present. Confirm the status window and learning follow-up before closing the row.',
+      { channel: item.channel, manualOnly },
+    )
+  }
+
+  if (!queue && !item.social_content_id) {
+    return calendarGateSummary(
+      metadata.provider_blocked === true ? 'provider_configuration' : 'platform_draft_handoff',
+      providerBoundary
+        ?? firstGateLabel
+        ?? 'No linked Social Content draft exists yet. Authorize only the internal draft handoff or keep this row blocked/manual.',
+      { channel: item.channel, manualOnly },
+    )
+  }
+
+  if (queueStatus === 'rejected' || item.authorization_status === 'rejected') {
+    return calendarGateSummary(
+      'copy',
+      'The linked draft is rejected or returned for revision. Copy approval is the next gate before launch timing can be trusted.',
+      { channel: item.channel, manualOnly },
+    )
+  }
+
+  if (queueStatus === 'draft' || item.authorization_status === 'pending') {
+    if (CALENDAR_VISUAL_CHANNELS.has(item.channel)) {
+      return calendarGateSummary(
+        'visual_media',
+        firstGateLabel ?? 'Media, cover, carousel, thumbnail, video, or visual QA is still unresolved for this channel.',
+        { channel: item.channel, manualOnly },
+      )
+    }
+    return calendarGateSummary(
+      'copy',
+      firstGateLabel ?? 'Copy approval is still unresolved for the linked draft.',
+      { channel: item.channel, manualOnly },
+    )
+  }
+
+  if (publishes.some((publish) => publish.status === 'pending' || publish.status === 'failed')) {
+    return calendarGateSummary(
+      manualOnly ? 'provider_configuration' : 'final_submission',
+      manualOnly
+        ? (providerBoundary ?? 'The provider path is unsupported, manual, or not fully configured. Keep the row visible and fail closed.')
+        : 'A publish row is pending or failed. Review the final submission gate before any provider action.',
+      { channel: item.channel, manualOnly },
+    )
+  }
+
+  if (queueStatus === 'scheduled') {
+    return calendarGateSummary(
+      'publication_status',
+      'The item is scheduled internally. Confirm provider publication status and stale-window recovery before launch timing advances.',
+      { channel: item.channel, manualOnly },
+    )
+  }
+
+  const socialContentId = metadataString(activation.social_content_id) ?? item.social_content_id ?? queue?.id ?? null
+  return calendarGateSummary(
+    socialContentId ? 'final_submission' : 'platform_draft_handoff',
+    socialContentId
+      ? 'The linked draft exists, but final submission/publication evidence is not complete.'
+      : 'The calendar row still needs an internal draft handoff before it can move toward submission.',
+    { channel: item.channel, manualOnly },
+  )
 }
 
 function dateOrNull(value: string | null | undefined) {

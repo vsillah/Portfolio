@@ -113,4 +113,62 @@ describe('SocialContentQueuePage Instagram provider setup', () => {
     expect(screen.queryByText('secret-instagram-token')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Connect Instagram/i })).not.toBeInTheDocument()
   })
+
+  it('warns when scheduled content has a stale unreleased date', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/api/admin/social-content/config')) {
+        return { ok: true, json: async () => ({ configs: [] }) } as Response
+      }
+      if (url.includes('/api/admin/social-content/voice-notes')) {
+        return { ok: true, json: async () => ({ intakes: [] }) } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({
+          items: [{
+            id: 'social-stale',
+            meeting_record_id: null,
+            platform: 'x',
+            status: 'scheduled',
+            post_text: 'Approved X copy whose scheduled time elapsed before publication.',
+            cta_text: null,
+            cta_url: null,
+            hashtags: ['#AgentOps'],
+            image_url: null,
+            image_prompt: null,
+            framework_visual_type: null,
+            voiceover_url: null,
+            voiceover_text: null,
+            video_url: null,
+            topic_extracted: { topic: 'Stale approved X post' },
+            hormozi_framework: null,
+            rag_context: {},
+            scheduled_for: '2026-08-14T12:00:00.000Z',
+            published_at: null,
+            platform_post_id: null,
+            admin_notes: null,
+            reviewed_by: null,
+            target_platforms: ['x'],
+            video_generation_method: 'none',
+            youtube_title: null,
+            youtube_description: null,
+            created_at: '2026-08-10T12:00:00.000Z',
+            updated_at: '2026-08-15T12:00:00.000Z',
+          }],
+          stats: { draft: 0, approved: 0, scheduled: 1, published: 0, rejected: 0, total: 1 },
+          pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+        }),
+      } as Response
+    }))
+
+    render(<SocialContentQueuePage />)
+
+    expect(await screen.findByText('Stale schedule')).toBeInTheDocument()
+    expect(screen.getByText('Scheduled time has elapsed. Review status recovery before treating this as launch-ready.')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Approved X copy whose scheduled time elapsed before publication/i })).toHaveAttribute(
+      'href',
+      expect.stringContaining('/admin/social-content/social-stale?step=status'),
+    )
+  })
 })

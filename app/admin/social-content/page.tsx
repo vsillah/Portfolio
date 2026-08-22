@@ -157,6 +157,31 @@ const MEETINGS_PER_PAGE = 5
 const AGENTIC_SOCIAL_REVIEW_PACKETS = getAgenticContentReviewPacketsForSurface('social')
 const WORKFLOW_VIEWS = new Set<WorkflowView>(['review', 'evidence', 'create'])
 
+function socialContentScheduleState(contentItem: Pick<SocialContentItem, 'status' | 'scheduled_for' | 'schedule_recovery'>) {
+  if (contentItem.schedule_recovery) {
+    return {
+      stale: true,
+      label: 'Schedule recovery required',
+      detail: contentItem.schedule_recovery.next_action,
+    }
+  }
+  const scheduledAt = Date.parse(contentItem.scheduled_for || '')
+  const stale = contentItem.status === 'scheduled'
+    && Number.isFinite(scheduledAt)
+    && scheduledAt + 2 * 60 * 60 * 1000 < Date.now()
+  return stale
+    ? {
+        stale: true,
+        label: 'Stale schedule',
+        detail: 'Scheduled time has elapsed. Review status recovery before treating this as launch-ready.',
+      }
+    : {
+        stale: false,
+        label: contentItem.scheduled_for ? `Scheduled: ${new Date(contentItem.scheduled_for).toLocaleDateString()}` : null,
+        detail: null,
+      }
+}
+
 function SocialContentQueuePage() {
   const searchParams = useSearchParams()
   const [items, setItems] = useState<SocialContentItem[]>([])
@@ -1846,6 +1871,7 @@ function SocialContentQueuePage() {
         <div className="space-y-3">
           {items.map((item, i) => {
             const statusCfg = STATUS_CONFIG[item.status] || STATUS_CONFIG.draft
+            const scheduleState = socialContentScheduleState(item)
             return (
               <motion.div
                 key={item.id}
@@ -1854,7 +1880,7 @@ function SocialContentQueuePage() {
                 transition={{ delay: i * 0.03 }}
               >
                 <Link
-                  href={buildLinkWithReturn(`/admin/social-content/${item.id}`, '/admin/social-content')}
+                  href={buildLinkWithReturn(`/admin/social-content/${item.id}${scheduleState.stale ? '?step=status' : ''}`, '/admin/social-content')}
                   className="admin-console-card admin-console-interactive block rounded-xl border p-4 transition-colors"
                 >
                   <div className="flex items-start gap-4">
@@ -1899,13 +1925,18 @@ function SocialContentQueuePage() {
                             {formatHashtags(item.hashtags.slice(0, 3))}
                           </span>
                         )}
-                        {item.scheduled_for && (
-                          <span className="flex items-center gap-1">
+                        {scheduleState.label && (
+                          <span className={`flex items-center gap-1 ${scheduleState.stale ? 'text-amber-300' : ''}`}>
                             <Clock className="w-3 h-3" />
-                            Scheduled: {new Date(item.scheduled_for).toLocaleDateString()}
+                            {scheduleState.label}
                           </span>
                         )}
                       </div>
+                      {scheduleState.stale && scheduleState.detail ? (
+                        <div className="mt-2 rounded-lg border border-amber-500/35 bg-amber-500/10 px-3 py-2 text-xs leading-5 text-amber-50">
+                          {scheduleState.detail}
+                        </div>
+                      ) : null}
                     </div>
 
                     {/* Quick actions */}

@@ -35,6 +35,7 @@ import {
   SOCIAL_CONTENT_CALENDAR_SOURCE_LABELS,
   SOCIAL_CONTENT_CALENDAR_TEMPLATE_KEYS,
   SOCIAL_CONTENT_CALENDAR_TEMPLATES,
+  calendarApprovalGateSummary,
   calendarMilestoneRationale,
 } from '@/lib/social-content-calendar'
 import type {
@@ -712,6 +713,50 @@ function formatCalendarDate(value: string) {
   return Number.isFinite(date.getTime())
     ? date.toLocaleString([], { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })
     : 'Unscheduled'
+}
+
+function calendarTimingState(item: CalendarItem) {
+  const scheduledAt = Date.parse(item.scheduled_for)
+  const now = Date.now()
+  const unresolved = !['authorized', 'not_required'].includes(item.authorization_status)
+    && !['completed', 'cancelled'].includes(item.due_status)
+  const metadata = recordValue(item.metadata)
+  const recalibration = recordValue(metadata.calendar_recalibration)
+  const hasRecalibration = Boolean(recalibration.recalibrated_at)
+
+  if (unresolved && Number.isFinite(scheduledAt) && scheduledAt + 2 * 60 * 60 * 1000 < now) {
+    return {
+      tone: 'border-red-500/35 bg-red-500/10 text-red-100',
+      label: 'Stale date',
+      detail: 'Release window elapsed before approval. Recalibrate or reject before treating this as active schedule.',
+    }
+  }
+  if (hasRecalibration) {
+    return {
+      tone: 'border-amber-500/35 bg-amber-500/10 text-amber-100',
+      label: 'Recalibrated',
+      detail: `Moved from ${typeof recalibration.prior_scheduled_for === 'string' ? formatCalendarDate(recalibration.prior_scheduled_for) : 'an earlier date'} because approval missed the prior window.`,
+    }
+  }
+  if (item.due_status === 'due_soon' || item.due_status === 'due_now') {
+    return {
+      tone: 'border-amber-500/35 bg-amber-500/10 text-amber-100',
+      label: item.due_status === 'due_now' ? 'Due now' : 'Due soon',
+      detail: 'Approval is close enough to affect launch timing.',
+    }
+  }
+  if (item.due_status === 'completed') {
+    return {
+      tone: 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100',
+      label: 'Learning window',
+      detail: 'Release is complete; use the post-release learning window before revising the next pass.',
+    }
+  }
+  return {
+    tone: 'border-silicon-slate/70 bg-background/35 text-muted-foreground',
+    label: item.due_status.replace(/_/g, ' '),
+    detail: item.authorization_due_at ? 'No timing recovery needed yet.' : 'Approval deadline is not set.',
+  }
 }
 
 function toDatetimeLocalValue(value: string) {
@@ -3820,6 +3865,8 @@ function CalendarItemQueueRow(props: CalendarItemRowProps) {
   const isRejected = item.authorization_status === 'rejected'
   const isBusy = actionItemId === item.id
   const showExpandedWorkflow = isEditing || rejectingItemId === item.id
+  const gateSummary = calendarApprovalGateSummary(item)
+  const timing = calendarTimingState(item)
 
   if (showExpandedWorkflow) {
     return (
@@ -3882,13 +3929,17 @@ function CalendarItemQueueRow(props: CalendarItemRowProps) {
         <p className="mb-1 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground md:hidden">Channel</p>
         <p className="font-semibold text-foreground">{CALENDAR_CHANNEL_LABELS[item.channel]}</p>
         <p className="mt-1 text-xs text-muted-foreground">{CAMPAIGN_PHASE_LABELS[item.campaign_phase]}</p>
-        <p className="mt-1 text-[0.68rem] text-muted-foreground">{item.due_status.replace(/_/g, ' ')}</p>
+        <span className={`mt-2 inline-flex rounded-full border px-2 py-0.5 text-[0.68rem] font-semibold ${timing.tone}`}>
+          {timing.label}
+        </span>
       </div>
       <div>
         <p className="mb-1 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground md:hidden">Gate</p>
         <span className={`inline-flex rounded-full border px-2 py-0.5 text-[0.68rem] font-semibold ${calendarAuthorizationTone(item.authorization_status)}`}>
           {item.authorization_status.replace(/_/g, ' ')}
         </span>
+        <p className="mt-1 text-[0.68rem] font-semibold text-foreground">{gateSummary.label}</p>
+        <p className="mt-1 line-clamp-2 text-[0.68rem] leading-5 text-muted-foreground">{gateSummary.action}</p>
       </div>
       <div>
         <p className="mb-1 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground md:hidden">Actions</p>
@@ -3986,6 +4037,8 @@ function CalendarItemCard({
   const showRejectNote = rejectingItemId === item.id || isRejected
   const isBusy = actionItemId === item.id
   const canEdit = isPending || isRejected
+  const gateSummary = calendarApprovalGateSummary(item)
+  const timing = calendarTimingState(item)
   return (
     <div className="rounded-md border border-silicon-slate/60 bg-background/35 p-3">
       {isEditing && editForm ? (
@@ -4115,6 +4168,21 @@ function CalendarItemCard({
                 {item.authorization_due_at ? formatCalendarDate(item.authorization_due_at) : 'No approval deadline'}
               </p>
             </div>
+          </div>
+          <div className={`mt-3 rounded-md border p-2 ${timing.tone}`}>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[0.62rem] font-semibold uppercase tracking-wide">{timing.label}</span>
+              <span className="rounded-full border border-current/25 px-2 py-0.5 text-[0.62rem] font-semibold">
+                {gateSummary.label}
+              </span>
+              {gateSummary.manualOnly ? (
+                <span className="rounded-full border border-current/25 px-2 py-0.5 text-[0.62rem] font-semibold">
+                  Manual/provider blocked
+                </span>
+              ) : null}
+            </div>
+            <p className="mt-1 text-[0.68rem] leading-5">{timing.detail}</p>
+            <p className="mt-1 text-[0.68rem] leading-5">{gateSummary.action}</p>
           </div>
           {hasTemplateBasis ? (
             <div className="mt-3 rounded-md border border-silicon-slate/60 bg-background/40 p-2">
