@@ -46,6 +46,14 @@ type CalendarRecalibrationCandidate = {
   item: SocialContentCalendarItem
 }
 
+type DueGatePingUpdate = {
+  item: SocialContentCalendarItem
+  window: '24h' | '2h'
+  workItemId: string
+  scheduleKey: string
+  dueStatus: ReturnType<typeof deriveDueStatus>
+}
+
 function isAuthorizedCronRequest(request: NextRequest): boolean {
   const token = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '')
   const allowedTokens = [process.env.CRON_SECRET, process.env.N8N_INGEST_SECRET].filter(Boolean)
@@ -395,7 +403,11 @@ async function runDueGateSweep(request: NextRequest) {
       affected_count: number
       updates: Array<{ calendar_item_id: string; prior_scheduled_for: string; scheduled_for: string }>
     }> = []
+    const dueGatePingUpdates: DueGatePingUpdate[] = []
     const recalibratedScopes = new Set<string>()
+    const triggerSource = request.method === 'GET'
+      ? 'vercel_cron_social_content_calendar_due_gates'
+      : 'manual_social_content_calendar_due_gates'
 
     for (const { item, window } of candidates) {
       const scheduleKey = calendarDueGateScheduleKey(item)
@@ -448,33 +460,14 @@ async function runDueGateSweep(request: NextRequest) {
         idempotencyKey,
       })
 
-      const metadata = parseMetadata(item.metadata)
-      const dueGatePings = parseMetadata(metadata.due_gate_pings)
       const dueStatus = deriveDueStatus(item.scheduled_for, now)
-      const updateResult = await supabaseAdmin
-        .from('social_content_calendar_items')
-        .update({
-          due_status: dueStatus,
-          last_pinged_at: now.toISOString(),
-          metadata: {
-            ...metadata,
-            due_gate_pings: {
-              ...dueGatePings,
-              [window]: {
-                pinged_at: now.toISOString(),
-                work_item_id: workItem.id,
-                schedule_key: scheduleKey,
-                scheduled_for: item.scheduled_for,
-                authorization_due_at: item.authorization_due_at ?? null,
-                due_status: dueStatus,
-              },
-            },
-            external_execution_enabled: false,
-          },
-        })
-        .eq('id', item.id)
-      assertSupabaseWriteSucceeded(updateResult, `Record due-gate ping for ${item.id}`)
-
+      dueGatePingUpdates.push({
+        item,
+        window,
+        workItemId: workItem.id,
+        scheduleKey,
+        dueStatus,
+      })
       pinged.push({ calendar_item_id: item.id, work_item_id: workItem.id, window })
     }
 
@@ -507,10 +500,6 @@ async function runDueGateSweep(request: NextRequest) {
         work_item_id: workItem.id,
       })
     }
-
-    const triggerSource = request.method === 'GET'
-      ? 'vercel_cron_social_content_calendar_due_gates'
-      : 'manual_social_content_calendar_due_gates'
 
     for (const { item } of recalibrationCandidates) {
       const scopeKey = recalibrationScopeKey(item)
@@ -565,6 +554,9 @@ async function runDueGateSweep(request: NextRequest) {
       })
     }
 
+    // Slack selects eligible rows from the calendar table. Persisting due_gate_pings
+    // before this sweep makes the same row look already notified and suppresses
+    // the alert that the work item was created for.
     const slackResult = pinged.length + prepared.length + recalibrated.length > 0
       ? await runAgentSlackNotificationSweep({
           mode: 'immediate',
@@ -576,6 +568,34 @@ async function runDueGateSweep(request: NextRequest) {
           error: notificationError instanceof Error ? notificationError.message : 'Slack sweep failed',
         }))
       : null
+
+    for (const update of dueGatePingUpdates) {
+      const metadata = parseMetadata(update.item.metadata)
+      const dueGatePings = parseMetadata(metadata.due_gate_pings)
+      const updateResult = await supabaseAdmin
+        .from('social_content_calendar_items')
+        .update({
+          due_status: update.dueStatus,
+          last_pinged_at: now.toISOString(),
+          metadata: {
+            ...metadata,
+            due_gate_pings: {
+              ...dueGatePings,
+              [update.window]: {
+                pinged_at: now.toISOString(),
+                work_item_id: update.workItemId,
+                schedule_key: update.scheduleKey,
+                scheduled_for: update.item.scheduled_for,
+                authorization_due_at: update.item.authorization_due_at ?? null,
+                due_status: update.dueStatus,
+              },
+            },
+            external_execution_enabled: false,
+          },
+        })
+        .eq('id', update.item.id)
+      assertSupabaseWriteSucceeded(updateResult, `Record due-gate ping for ${update.item.id}`)
+    }
 
     return NextResponse.json({
       ok: true,
