@@ -154,13 +154,18 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
         blocker_owner: 'Shaka / Vambah',
         side_effects: expect.objectContaining({ publish: false, external_post: false }),
       }),
-      idempotencyKey: 'social-content-calendar-due:calendar-1:2h',
+      idempotencyKey: expect.stringContaining('social-content-calendar-due:calendar-1:2h:scheduled_for='),
     }))
     expect(update).toHaveBeenCalledWith(expect.objectContaining({
       metadata: expect.objectContaining({
         external_execution_enabled: false,
         due_gate_pings: expect.objectContaining({
-          '2h': expect.objectContaining({ work_item_id: 'work-due-gate' }),
+          '2h': expect.objectContaining({
+            work_item_id: 'work-due-gate',
+            schedule_key: expect.stringContaining(`scheduled_for=${scheduledFor}`),
+            scheduled_for: scheduledFor,
+            authorization_due_at: null,
+          }),
         }),
       }),
     }))
@@ -310,7 +315,12 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
             scheduled_for: '2026-08-14T12:00:00.000Z',
             authorization_status: 'pending',
             due_status: 'past_due',
-            metadata: {},
+            metadata: {
+              due_gate_pings: {
+                '24h': { pinged_at: '2026-08-13T12:00:00.000Z', work_item_id: 'work-old-24h' },
+                '2h': { pinged_at: '2026-08-14T10:00:00.000Z', work_item_id: 'work-old-2h' },
+              },
+            },
           },
           {
             id: 'calendar-future-1',
@@ -368,6 +378,16 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
       authorization_due_at: '2026-08-15T12:00:00.000Z',
       due_status: 'due_soon',
       metadata: expect.objectContaining({
+        due_gate_pings: {},
+        due_gate_ping_history: [
+          expect.objectContaining({
+            reason: 'schedule_recalibrated',
+            due_gate_pings: {
+              '24h': { pinged_at: '2026-08-13T12:00:00.000Z', work_item_id: 'work-old-24h' },
+              '2h': { pinged_at: '2026-08-14T10:00:00.000Z', work_item_id: 'work-old-2h' },
+            },
+          }),
+        ],
         external_execution_enabled: false,
         calendar_recalibration: expect.objectContaining({
           work_item_id: 'work-recalibration',
@@ -419,6 +439,117 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
         internal_work_items_created: 1,
         internal_calendar_recalibration: 2,
         slack_notification_requested: true,
+      },
+    })
+  })
+
+  it('re-detects a recalibrated pending row when legacy ping metadata belongs to the old schedule', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-08-22T08:00:00.000Z'))
+    const scheduledFor = '2026-08-23T07:30:16.971Z'
+    mockDueGateQuery([
+      {
+        id: 'calendar-recalibrated-pending',
+        title: 'The speed problem is becoming a trust problem',
+        campaign_id: 'campaign-recalibrated',
+        agent_work_item_id: 'work-social-1',
+        social_content_id: null,
+        channel: 'linkedin',
+        campaign_phase: 'teach',
+        scheduled_for: scheduledFor,
+        authorization_due_at: '2026-08-22T07:30:16.971Z',
+        authorization_status: 'pending',
+        due_status: 'due_soon',
+        metadata: {
+          due_gate_pings: {
+            '24h': { pinged_at: '2026-08-19T07:30:16.971Z', work_item_id: 'work-old-24h' },
+            '2h': { pinged_at: '2026-08-19T05:30:16.971Z', work_item_id: 'work-old-2h' },
+          },
+          calendar_recalibration: {
+            recalibrated_at: '2026-08-22T02:00:00.000Z',
+            prior_scheduled_for: '2026-08-19T07:30:16.971Z',
+            shifted_by_ms: 4 * 24 * 60 * 60 * 1000,
+          },
+        },
+      },
+    ])
+
+    const response = await GET(request('http://localhost/api/cron/social-content-calendar-due-gates?dry_run=1') as never)
+
+    expect(response.status).toBe(200)
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
+    expect(mocks.runAgentSlackNotificationSweep).toHaveBeenCalledWith(expect.objectContaining({
+      mode: 'immediate',
+      kinds: ['social_calendar_approval_due'],
+      dryRun: true,
+    }))
+    await expect(response.json()).resolves.toMatchObject({
+      ok: true,
+      dry_run: true,
+      candidate_count: 1,
+      pinged_count: 0,
+      candidates: [{
+        id: 'calendar-recalibrated-pending',
+        due_gate_window: '24h',
+        gate_type: 'authorization',
+        scheduled_for: scheduledFor,
+      }],
+      side_effects: { publish: false, external_post: false },
+    })
+  })
+
+  it('does not duplicate a ping already recorded for the same recalibrated schedule', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-08-23T06:00:00.000Z'))
+    const scheduledFor = '2026-08-23T07:30:16.971Z'
+    const authorizationDueAt = '2026-08-22T07:30:16.971Z'
+    mockDueGateQuery([
+      {
+        id: 'calendar-recalibrated-pending',
+        title: 'The speed problem is becoming a trust problem',
+        campaign_id: 'campaign-recalibrated',
+        agent_work_item_id: 'work-social-1',
+        social_content_id: null,
+        channel: 'linkedin',
+        campaign_phase: 'teach',
+        scheduled_for: scheduledFor,
+        authorization_due_at: authorizationDueAt,
+        authorization_status: 'pending',
+        due_status: 'due_now',
+        metadata: {
+          due_gate_pings: {
+            '2h': {
+              pinged_at: '2026-08-23T05:45:00.000Z',
+              work_item_id: 'work-current-2h',
+              schedule_key: `scheduled_for=${scheduledFor}|authorization_due_at=${authorizationDueAt}`,
+              scheduled_for: scheduledFor,
+              authorization_due_at: authorizationDueAt,
+            },
+          },
+          calendar_recalibration: {
+            recalibrated_at: '2026-08-22T02:00:00.000Z',
+            prior_scheduled_for: '2026-08-19T07:30:16.971Z',
+            shifted_by_ms: 4 * 24 * 60 * 60 * 1000,
+          },
+        },
+      },
+    ])
+
+    const response = await POST(request('http://localhost/api/cron/social-content-calendar-due-gates', 'POST') as never)
+
+    expect(response.status).toBe(200)
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
+    expect(mocks.runAgentSlackNotificationSweep).not.toHaveBeenCalled()
+    await expect(response.json()).resolves.toMatchObject({
+      ok: true,
+      candidate_count: 0,
+      pinged_count: 0,
+      recalibrated_count: 0,
+      side_effects: {
+        publish: false,
+        external_post: false,
+        internal_work_items_created: 0,
+        slack_notification_requested: false,
       },
     })
   })

@@ -794,6 +794,66 @@ export function dueGateWindow(scheduledFor: string | Date, now: Date = new Date(
   return '24h'
 }
 
+type CalendarDueGateScheduleInput = {
+  scheduled_for: string
+  authorization_due_at?: string | null
+  metadata?: unknown
+}
+
+function normalizedIsoOrString(value: unknown) {
+  const text = metadataString(value)
+  if (!text) return null
+  const date = new Date(text)
+  return Number.isFinite(date.getTime()) ? date.toISOString() : text
+}
+
+export function calendarDueGateScheduleKey(item: CalendarDueGateScheduleInput) {
+  return [
+    `scheduled_for=${normalizedIsoOrString(item.scheduled_for) ?? 'invalid'}`,
+    `authorization_due_at=${normalizedIsoOrString(item.authorization_due_at ?? null) ?? 'none'}`,
+  ].join('|')
+}
+
+function calendarDueGatePingMatchesSchedule(ping: unknown, item: CalendarDueGateScheduleInput) {
+  if (!ping) return false
+
+  const pingMetadata = parseMetadata(ping)
+  const pingScheduleKey = metadataString(pingMetadata.schedule_key)
+  if (pingScheduleKey) {
+    return pingScheduleKey === calendarDueGateScheduleKey(item)
+  }
+
+  const pingScheduledFor = normalizedIsoOrString(pingMetadata.scheduled_for)
+  if (pingScheduledFor) {
+    if (pingScheduledFor !== normalizedIsoOrString(item.scheduled_for)) return false
+
+    const pingAuthorizationDueAt = normalizedIsoOrString(pingMetadata.authorization_due_at)
+    if (pingAuthorizationDueAt) {
+      return pingAuthorizationDueAt === normalizedIsoOrString(item.authorization_due_at ?? null)
+    }
+
+    return true
+  }
+
+  const itemMetadata = parseMetadata(item.metadata)
+  const recalibration = parseMetadata(itemMetadata.calendar_recalibration)
+  const priorScheduledFor = normalizedIsoOrString(recalibration.prior_scheduled_for)
+  if (priorScheduledFor && priorScheduledFor !== normalizedIsoOrString(item.scheduled_for)) {
+    return false
+  }
+
+  return true
+}
+
+export function calendarDueGatePingAlreadySent(
+  item: CalendarDueGateScheduleInput,
+  window: '24h' | '2h',
+) {
+  const metadata = parseMetadata(item.metadata)
+  const pings = parseMetadata(metadata.due_gate_pings)
+  return calendarDueGatePingMatchesSchedule(pings[window], item)
+}
+
 export function calendarMissedReleaseWindow(
   scheduledFor: string | Date,
   now: Date = new Date(),
@@ -865,6 +925,10 @@ export function recalibrateCalendarSequence(input: {
       const priorDate = new Date(row.scheduled_for)
       const nextDate = new Date(priorDate.getTime() + shiftMs)
       const priorMetadata = parseMetadata(row.metadata)
+      const dueGatePings = parseMetadata(priorMetadata.due_gate_pings)
+      const dueGatePingHistory = Array.isArray(priorMetadata.due_gate_ping_history)
+        ? priorMetadata.due_gate_ping_history
+        : []
       const recalibrationHistory = Array.isArray(priorMetadata.calendar_recalibration_history)
         ? priorMetadata.calendar_recalibration_history
         : []
@@ -876,6 +940,16 @@ export function recalibrateCalendarSequence(input: {
         prior_scheduled_for: priorDate.toISOString(),
         shifted_by_ms: shiftMs,
       }
+      const dueGatePingReset = Object.keys(dueGatePings).length > 0
+        ? {
+            reset_at: now.toISOString(),
+            actor: input.actor ?? 'social_content_calendar_due_gates',
+            reason: 'schedule_recalibrated',
+            prior_scheduled_for: priorDate.toISOString(),
+            scheduled_for: nextDate.toISOString(),
+            due_gate_pings: dueGatePings,
+          }
+        : null
       return {
         id: row.id,
         prior_scheduled_for: priorDate.toISOString(),
@@ -889,6 +963,10 @@ export function recalibrateCalendarSequence(input: {
             ...recalibrationHistory.slice(-4),
             recalibration,
           ],
+          due_gate_pings: {},
+          ...(dueGatePingReset
+            ? { due_gate_ping_history: [...dueGatePingHistory.slice(-4), dueGatePingReset] }
+            : {}),
           external_execution_enabled: false,
         },
       }
