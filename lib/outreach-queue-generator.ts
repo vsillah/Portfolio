@@ -58,6 +58,7 @@ import {
   type OutreachChannel,
 } from '@/lib/constants/prompt-keys'
 import { getEmailFromName } from '@/lib/business-email-config'
+import type { WarmOutreachContextSummary } from '@/lib/warm-outreach-relationship-intelligence'
 
 const DEFAULT_EMAIL_TEMPLATE_KEY: EmailTemplateKey = 'email_cold_outreach'
 const DEFAULT_LINKEDIN_TEMPLATE_KEY: LinkedInTemplateKey = 'linkedin_cold_outreach'
@@ -280,6 +281,13 @@ export interface GenerationInputs {
   budget_limit_usd: number
   budget_rule_key: string
   budget_reason: string
+  warm_relationship_present: boolean
+  warm_relationship_channel: string | null
+  warm_relationship_template: string | null
+  warm_relationship_status: string | null
+  warm_relationship_source_count: number
+  warm_relationship_human_review_required: boolean
+  warm_relationship_approval_boundary: string | null
 }
 
 function buildGenerationInputs(args: {
@@ -288,8 +296,16 @@ function buildGenerationInputs(args: {
   channel: OutreachChannel
   sequenceStep: number
   budgetDecision: AgentBudgetDecision
+  warmRelationshipSummary?: WarmOutreachContextSummary | null
 }): GenerationInputs {
-  const { ctx, templateKey, channel, sequenceStep, budgetDecision } = args
+  const {
+    ctx,
+    templateKey,
+    channel,
+    sequenceStep,
+    budgetDecision,
+    warmRelationshipSummary,
+  } = args
   return {
     template_key: templateKey,
     prompt_version: ctx.promptRow?.version ?? null,
@@ -325,6 +341,18 @@ function buildGenerationInputs(args: {
     budget_limit_usd: budgetDecision.limitUsd,
     budget_rule_key: budgetDecision.rule.key,
     budget_reason: budgetDecision.reason,
+    warm_relationship_present: warmRelationshipSummary != null,
+    warm_relationship_channel:
+      warmRelationshipSummary?.selected_channel ?? null,
+    warm_relationship_template:
+      warmRelationshipSummary?.recommended_template ?? null,
+    warm_relationship_status: warmRelationshipSummary?.readiness_status ?? null,
+    warm_relationship_source_count:
+      warmRelationshipSummary?.source_summaries.length ?? 0,
+    warm_relationship_human_review_required:
+      warmRelationshipSummary?.human_review_required ?? false,
+    warm_relationship_approval_boundary:
+      warmRelationshipSummary?.approval_boundary ?? null,
   }
 }
 
@@ -655,6 +683,7 @@ export async function generateOutreachDraftInApp(params: {
   sourceTaskId?: string | null
   templateKey?: EmailTemplateKey
   agentRunId?: string | null
+  warmRelationshipSummary?: WarmOutreachContextSummary | null
 }): Promise<InAppOutreachGenerateResult> {
   if (!isInAppOutreachGenerationEnabled()) {
     throw new Error('In-app outreach generation is disabled (ENABLE_IN_APP_OUTREACH_GEN=false)')
@@ -816,6 +845,7 @@ export async function generateOutreachDraftInApp(params: {
     channel: 'email',
     sequenceStep,
     budgetDecision,
+    warmRelationshipSummary: params.warmRelationshipSummary ?? null,
   })
 
   const { data: inserted, error: insertErr } = await supabaseAdmin
@@ -905,6 +935,7 @@ export async function generateLinkedInDraftInApp(params: {
   sourceTaskId?: string | null
   templateKey?: LinkedInTemplateKey
   agentRunId?: string | null
+  warmRelationshipSummary?: WarmOutreachContextSummary | null
 }): Promise<InAppOutreachGenerateResult> {
   if (!isInAppOutreachGenerationEnabled()) {
     throw new Error('In-app outreach generation is disabled (ENABLE_IN_APP_OUTREACH_GEN=false)')
@@ -1083,6 +1114,7 @@ export async function generateLinkedInDraftInApp(params: {
     channel: 'linkedin',
     sequenceStep,
     budgetDecision,
+    warmRelationshipSummary: params.warmRelationshipSummary ?? null,
   })
 
   const { data: inserted, error: insertErr } = await supabaseAdmin

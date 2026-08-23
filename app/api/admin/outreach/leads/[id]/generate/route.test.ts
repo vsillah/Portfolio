@@ -61,11 +61,11 @@ type LeadRow = {
   last_n8n_outreach_template_key?: string | null
 }
 
-function makeRequest() {
+function makeRequest(body: Record<string, unknown> = {}) {
   return new NextRequest('http://localhost/api/admin/outreach/leads/42/generate', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({}),
+    body: JSON.stringify(body),
   })
 }
 
@@ -211,6 +211,146 @@ describe('POST /api/admin/outreach/leads/[id]/generate', () => {
         meetingRecordId: null,
       })
     )
+  })
+
+  it('accepts a warm relationship packet for email draft generation', async () => {
+    mockContactSubmissions({
+      id: 42,
+      name: 'Alice',
+      email: 'alice@example.com',
+      company: 'Acme',
+      rep_pain_points: null,
+      quick_wins: 'Automate weekly reporting',
+      do_not_contact: false,
+      removed_at: null,
+      lead_source: 'warm_referral',
+      last_n8n_outreach_status: null,
+      last_n8n_outreach_triggered_at: null,
+      last_n8n_outreach_template_key: null,
+    })
+
+    const response = await POST(makeRequest({
+      warm_relationship: {
+        version: 'warm-outreach-relationship/v1',
+        contactId: 42,
+        contactName: 'Alice',
+        objective: 'Prepare a warm email draft.',
+        relationshipBasis: 'Existing warm referral in Portfolio.',
+        sourceRefs: [
+          {
+            sourceType: 'portfolio_contact',
+            sourceId: '42',
+            summary: 'Warm referral record.',
+            privateSource: false,
+          },
+        ],
+        confidence: 'high',
+        suppression: {
+          doNotContact: false,
+          unsubscribed: false,
+        },
+        channelCapabilities: {
+          email: {
+            available: true,
+            providerConfigured: true,
+            supportsExternalSend: false,
+            manualOnly: false,
+          },
+        },
+        preferredChannel: 'email',
+      },
+    }), { params: { id: '42' } })
+
+    expect(response.status).toBe(200)
+    const json = await response.json()
+    expect(json).toMatchObject({
+      triggered: true,
+      outcome: 'created',
+      warmRelationshipReadiness: {
+        selectedChannel: 'email',
+        humanReviewRequired: true,
+        approvalBoundary: 'draft_only_no_external_send',
+      },
+    })
+    expect(mocks.generateOutreachDraftInApp).toHaveBeenCalledWith(
+      expect.objectContaining({
+        contactId: 42,
+        warmRelationshipSummary: expect.objectContaining({
+          selected_channel: 'email',
+          recommended_template: expect.any(String),
+          human_review_required: true,
+        }),
+      }),
+    )
+  })
+
+  it('blocks warm relationship packets for a different lead before generation starts', async () => {
+    const response = await POST(makeRequest({
+      warm_relationship: {
+        version: 'warm-outreach-relationship/v1',
+        contactId: 99,
+        objective: 'Prepare a warm email draft.',
+        relationshipBasis: 'Existing warm referral in Portfolio.',
+        sourceRefs: [
+          {
+            sourceType: 'portfolio_contact',
+            sourceId: '99',
+            summary: 'Warm referral record.',
+            privateSource: false,
+          },
+        ],
+        channelCapabilities: {
+          email: {
+            available: true,
+            providerConfigured: true,
+            supportsExternalSend: false,
+            manualOnly: false,
+          },
+        },
+        preferredChannel: 'email',
+      },
+    }), { params: { id: '42' } })
+
+    expect(response.status).toBe(400)
+    await expect(response.json()).resolves.toMatchObject({
+      error: 'Warm relationship packet does not match this lead.',
+    })
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(mocks.generateOutreachDraftInApp).not.toHaveBeenCalled()
+  })
+
+  it('keeps unsupported warm relationship channels manual', async () => {
+    const response = await POST(makeRequest({
+      warm_relationship: {
+        version: 'warm-outreach-relationship/v1',
+        contactId: 42,
+        objective: 'Prepare a warm Facebook draft.',
+        relationshipBasis: 'Existing Facebook relationship in Portfolio.',
+        sourceRefs: [
+          {
+            sourceType: 'facebook',
+            summary: 'Facebook relationship is recorded.',
+            privateSource: true,
+          },
+        ],
+        channelCapabilities: {
+          facebook: {
+            available: true,
+            providerConfigured: false,
+            supportsExternalSend: false,
+            manualOnly: true,
+          },
+        },
+        preferredChannel: 'facebook',
+      },
+    }), { params: { id: '42' } })
+
+    expect(response.status).toBe(409)
+    await expect(response.json()).resolves.toMatchObject({
+      error: expect.stringContaining('email and LinkedIn only'),
+    })
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(mocks.generateOutreachDraftInApp).not.toHaveBeenCalled()
   })
 
   it('returns in-app fallback when generator reports LLM unavailable', async () => {

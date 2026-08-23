@@ -2,7 +2,7 @@
 
 Welcome! This is the **single source of truth** for admin and sales associates at Amadutown. It covers every operator-facing procedure — from triggering a scrape to closing a deal and delivering post-sale. Use the table of contents below to jump to any section.
 
-> **Related docs:** Technical integration details live in [warm-lead-workflow-integration.md](./warm-lead-workflow-integration.md). For audit-to-sales data mapping, see [audit-inputs-and-client-data.md](./audit-inputs-and-client-data.md).
+> **Related docs:** Technical integration details live in [warm-lead-workflow-integration.md](./warm-lead-workflow-integration.md). Relationship-aware warm outreach planning lives in [warm-outreach-automation-process.md](./warm-outreach-automation-process.md). For audit-to-sales data mapping, see [audit-inputs-and-client-data.md](./audit-inputs-and-client-data.md).
 
 ---
 
