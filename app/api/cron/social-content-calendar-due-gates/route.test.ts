@@ -169,6 +169,9 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
         }),
       }),
     }))
+    expect(mocks.runAgentSlackNotificationSweep.mock.invocationCallOrder[0]).toBeLessThan(
+      update.mock.invocationCallOrder[0],
+    )
     expect(await response.json()).toMatchObject({
       ok: true,
       dry_run: false,
