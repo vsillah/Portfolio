@@ -79,6 +79,8 @@ export interface UseOutreachGenerationReturn {
     channel?: OutreachChannel,
     /** Optional `meeting_records.id` — omitted means server uses latest for this lead. */
     meetingRecordId?: string | null,
+    /** Optional extra API payload, such as warm relationship metadata. */
+    extraBody?: Record<string, unknown>,
   ) => Promise<void>
   cancel: () => void
   retry: () => Promise<void>
@@ -146,6 +148,7 @@ export function useOutreachGeneration({
   const mountedRef = useRef(true)
   /** Set on each /generate so Retry uses the same meeting scope. */
   const lastMeetingRecordIdRef = useRef<string | undefined>(undefined)
+  const lastExtraBodyRef = useRef<Record<string, unknown> | undefined>(undefined)
   /**
    * Snapshot of `n8nTriggeredAt` at run start. The server bumps this value on
    * every trigger, so once the incoming prop is different we know the new run
@@ -309,6 +312,7 @@ export function useOutreachGeneration({
     channel: OutreachChannel = 'email',
     /** When set, scopes context + dedup to this `meeting_records` row. Omit to use server default (latest). */
     meetingRecordId?: string | null,
+    extraBody?: Record<string, unknown>,
   ) => {
     const session = await getCurrentSession()
     if (!session) {
@@ -320,6 +324,7 @@ export function useOutreachGeneration({
     setLastChannel(channel)
     const trimmed = meetingRecordId?.trim() ?? ''
     lastMeetingRecordIdRef.current = trimmed || undefined
+    lastExtraBodyRef.current = extraBody
 
     // Optimistic: hide any previous "fallback available" UI; a fresh run is starting.
     onFallbackCleared?.()
@@ -339,6 +344,7 @@ export function useOutreachGeneration({
           channel,
           ...(templateKey ? { templateKey } : {}),
           ...(trimmed ? { meeting_record_id: trimmed } : {}),
+          ...(extraBody ?? {}),
         }),
       })
       const data = (await res.json().catch(() => ({}))) as {
@@ -450,8 +456,9 @@ export function useOutreachGeneration({
       templateKey?: OutreachTemplateKey,
       channel: OutreachChannel = 'email',
       meetingRecordId?: string | null,
+      extraBody?: Record<string, unknown>,
     ) => {
-      await performGenerate(templateKey, channel, meetingRecordId)
+      await performGenerate(templateKey, channel, meetingRecordId, extraBody)
     },
     [performGenerate],
   )
@@ -461,6 +468,7 @@ export function useOutreachGeneration({
       lastTemplateKey ?? undefined,
       lastChannel,
       lastMeetingRecordIdRef.current,
+      lastExtraBodyRef.current,
     )
   }, [performGenerate, lastTemplateKey, lastChannel])
 

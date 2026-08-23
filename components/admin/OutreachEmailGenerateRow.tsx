@@ -10,6 +10,7 @@ import {
   FileText,
   Loader2,
   Mail,
+  Users,
   X,
   AlertCircle,
   RotateCcw,
@@ -53,6 +54,57 @@ const INAPP_STAGES: PipelineStage[] = [
 const INAPP_TYPICAL_S = 42
 
 type Channel = OutreachChannel
+type WarmChannel = 'email' | 'linkedin'
+
+type WarmRelationshipPacket = {
+  version: 'warm-outreach-relationship/v1'
+  contactId: number
+  contactName: string
+  objective: string
+  relationshipBasis: string
+  sourceRefs: {
+    sourceType:
+      | 'portfolio_contact'
+      | 'meeting_record'
+      | 'prior_outreach'
+      | 'google_contacts'
+      | 'linkedin'
+      | 'facebook'
+      | 'phone_contact'
+      | 'manual_note'
+      | 'public_profile'
+    sourceId?: string
+    summary: string
+    privateSource: boolean
+  }[]
+  relationshipSignals: string[]
+  commonalities: string[]
+  riskFlags: string[]
+  confidence: 'low' | 'medium' | 'high'
+  suppression: {
+    doNotContact: boolean
+    unsubscribed: boolean
+    removedAt?: string | null
+    suppressionReason?: string
+  }
+  channelCapabilities: {
+    email?: {
+      available: boolean
+      providerConfigured: boolean
+      supportsExternalSend: boolean
+      manualOnly: boolean
+      reason?: string
+    }
+    linkedin?: {
+      available: boolean
+      providerConfigured: boolean
+      supportsExternalSend: boolean
+      manualOnly: boolean
+      reason?: string
+    }
+  }
+  preferredChannel: WarmChannel
+}
 
 type SuggestedReason =
   | 'converted_client'
@@ -86,6 +138,16 @@ function timeAgo(date: string): string {
   return `${Math.floor(hr / 24)}d ago`
 }
 
+function compactText(value: string | null | undefined, max = 180): string | null {
+  const trimmed = value?.replace(/\s+/g, ' ').trim()
+  if (!trimmed) return null
+  return trimmed.length > max ? `${trimmed.slice(0, max - 1)}…` : trimmed
+}
+
+function sourceLabel(value: string | null | undefined): string {
+  return value?.replace(/_/g, ' ').trim() || 'Portfolio contact'
+}
+
 export interface RecentEmailDraftItem {
   id: string
   subject: string | null
@@ -103,6 +165,16 @@ export interface OutreachEmailGenerateRowProps {
   lead: {
     id: number
     name: string
+    email?: string | null
+    company?: string | null
+    job_title?: string | null
+    industry?: string | null
+    phone_number?: string | null
+    lead_source?: string | null
+    linkedin_url?: string | null
+    quick_wins?: string | null
+    message?: string | null
+    rep_pain_points?: string | null
     messages_count: number
     messages_sent?: number
     do_not_contact?: boolean
@@ -423,12 +495,132 @@ export function OutreachEmailGenerateRow({
   const emailCenterHref = `/admin/email-center?contact=${lead.id}`
 
   const meetingIdForRequest = outreachMeetingId.trim() || undefined
+  const isWarmLead = Boolean(lead.lead_source?.startsWith('warm_'))
+  const warmEvidenceLabels = [
+    sourceLabel(lead.lead_source),
+    lead.linkedin_url ? 'LinkedIn profile' : null,
+    lead.phone_number ? 'phone contact' : null,
+    compactText(lead.quick_wins, 42) ? 'quick wins' : null,
+    compactText(lead.message, 42) ? 'lead notes' : null,
+    compactText(lead.rep_pain_points, 42) ? 'pain points' : null,
+  ].filter(Boolean) as string[]
+  const warmDefaultChannel: WarmChannel =
+    channel === 'linkedin' && lead.linkedin_url ? 'linkedin' : 'email'
+  const warmRelationshipSummary =
+    warmEvidenceLabels.length > 0
+      ? `${warmEvidenceLabels.slice(0, 3).join(', ')}${
+          warmEvidenceLabels.length > 3 ? ` +${warmEvidenceLabels.length - 3}` : ''
+        }`
+      : 'No relationship evidence recorded'
+  const warmDraftEnabled =
+    !anyRun && Boolean(lead.email || (warmDefaultChannel === 'linkedin' && lead.linkedin_url))
+
+  const buildWarmRelationshipPacket = (targetChannel: WarmChannel): WarmRelationshipPacket => {
+    const companyPhrase = lead.company ? ` at ${lead.company}` : ''
+    const rolePhrase = lead.job_title ? `${lead.job_title}${companyPhrase}` : lead.company ?? 'Portfolio contact'
+    const sourceRefs: WarmRelationshipPacket['sourceRefs'] = [
+      {
+        sourceType: 'portfolio_contact',
+        sourceId: String(lead.id),
+        summary: `${sourceLabel(lead.lead_source)} record for ${rolePhrase}.`,
+        privateSource: false,
+      },
+    ]
+
+    if (lead.linkedin_url) {
+      sourceRefs.push({
+        sourceType: 'linkedin',
+        summary: 'LinkedIn profile URL is recorded on the lead.',
+        privateSource: false,
+      })
+    }
+    if (lead.phone_number) {
+      sourceRefs.push({
+        sourceType: 'phone_contact',
+        summary: 'Phone contact detail exists in Portfolio.',
+        privateSource: true,
+      })
+    }
+    const message = compactText(lead.message)
+    if (message) {
+      sourceRefs.push({
+        sourceType: 'manual_note',
+        summary: message,
+        privateSource: true,
+      })
+    }
+    const quickWins = compactText(lead.quick_wins)
+    if (quickWins) {
+      sourceRefs.push({
+        sourceType: 'manual_note',
+        summary: quickWins,
+        privateSource: true,
+      })
+    }
+    const painPoints = compactText(lead.rep_pain_points)
+    if (painPoints) {
+      sourceRefs.push({
+        sourceType: 'manual_note',
+        summary: painPoints,
+        privateSource: true,
+      })
+    }
+
+    return {
+      version: 'warm-outreach-relationship/v1',
+      contactId: lead.id,
+      contactName: lead.name,
+      objective: `Prepare a warm ${targetChannel === 'linkedin' ? 'LinkedIn' : 'email'} outreach draft for human review.`,
+      relationshipBasis: `Existing Portfolio relationship from ${sourceLabel(lead.lead_source)}.`,
+      sourceRefs,
+      relationshipSignals: [
+        isWarmLead ? 'warm lead source' : 'existing Portfolio contact',
+        lead.company ? `company: ${lead.company}` : null,
+        lead.industry ? `industry: ${lead.industry}` : null,
+      ].filter(Boolean) as string[],
+      commonalities: [
+        compactText(lead.quick_wins, 80),
+        compactText(lead.rep_pain_points, 80),
+      ].filter(Boolean) as string[],
+      riskFlags: [],
+      confidence: isWarmLead || sourceRefs.length > 1 ? 'medium' : 'low',
+      suppression: {
+        doNotContact: Boolean(lead.do_not_contact),
+        unsubscribed: false,
+        removedAt: lead.removed_at ?? null,
+      },
+      channelCapabilities: {
+        email: {
+          available: Boolean(lead.email),
+          providerConfigured: true,
+          supportsExternalSend: false,
+          manualOnly: false,
+          reason: 'Email draft creation is supported; sending still requires approval.',
+        },
+        linkedin: {
+          available: Boolean(lead.linkedin_url),
+          providerConfigured: false,
+          supportsExternalSend: false,
+          manualOnly: true,
+          reason: 'LinkedIn draft text is supported; external LinkedIn sending remains manual.',
+        },
+      },
+      preferredChannel: targetChannel,
+    }
+  }
 
   const runGenerate = (
     key?: EmailTemplateKey | LinkedInTemplateKey,
     targetChannel: Channel = channel,
   ) => {
     void start(key, targetChannel, meetingIdForRequest)
+  }
+
+  const runWarmGenerate = (targetChannel: WarmChannel = warmDefaultChannel) => {
+    const packet = buildWarmRelationshipPacket(targetChannel)
+    void start(undefined, targetChannel, meetingIdForRequest, {
+      warm_relationship: packet,
+    })
   }
 
   const saveToGmailDraft = useCallback(
@@ -865,6 +1057,60 @@ export function OutreachEmailGenerateRow({
                   Could not load meetings. Latest is still available.
                 </p>
               )}
+            </div>
+            <div className="border-b border-silicon-slate/80 px-3 py-2.5">
+              <div className="mb-1.5 flex items-center justify-between gap-2">
+                <p className="flex items-center gap-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground/80">
+                  <Users className="h-3 w-3 shrink-0 opacity-80" aria-hidden />
+                  Warm relationship
+                </p>
+                <span
+                  className={`shrink-0 rounded-full border px-1.5 py-0.5 text-[9px] font-semibold uppercase ${
+                    isWarmLead
+                      ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-200'
+                      : 'border-amber-500/35 bg-amber-500/10 text-amber-100'
+                  }`}
+                >
+                  {isWarmLead ? 'Warm' : 'Review'}
+                </span>
+              </div>
+              <p className="text-[11px] leading-snug text-muted-foreground">
+                {warmRelationshipSummary}. Drafts stay internal and require human approval before send.
+              </p>
+              <div className="mt-2 grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+                <button
+                  type="button"
+                  disabled={!warmDraftEnabled || anyRun || !lead.email}
+                  onClick={() => {
+                    runWarmGenerate('email')
+                  }}
+                  className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md border border-emerald-500/35 bg-emerald-500/10 px-2 text-xs font-medium text-emerald-100 hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                  title={
+                    lead.email
+                      ? 'Create a warm email draft in the outreach queue. This does not send email.'
+                      : 'Add an email before creating a warm email draft.'
+                  }
+                >
+                  <Mail size={13} aria-hidden />
+                  Draft warm email
+                </button>
+                <button
+                  type="button"
+                  disabled={!warmDraftEnabled || anyRun || !lead.linkedin_url}
+                  onClick={() => {
+                    runWarmGenerate('linkedin')
+                  }}
+                  className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md border border-sky-500/35 bg-sky-500/10 px-2 text-xs font-medium text-sky-100 hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                  title={
+                    lead.linkedin_url
+                      ? 'Create warm LinkedIn draft text. External LinkedIn sending remains manual.'
+                      : 'Add a LinkedIn URL before creating a warm LinkedIn draft.'
+                  }
+                >
+                  <MessageSquare size={13} aria-hidden />
+                  Draft warm LinkedIn
+                </button>
+              </div>
             </div>
             <div
               className="flex border-b border-silicon-slate/80"

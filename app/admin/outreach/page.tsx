@@ -77,6 +77,9 @@ interface Lead {
   ai_readiness_score: number | null
   competitive_pressure_score: number | null
   quick_wins: string | null
+  message: string | null
+  full_report: string | null
+  rep_pain_points: string | null
   messages_count: number
   messages_sent: number
   has_reply: boolean
