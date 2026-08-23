@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   buildWarmOutreachContextSummary,
   evaluateWarmOutreachReadiness,
+  prepareWarmOutreachDraftRequest,
   recommendWarmOutreachTemplate,
   type WarmOutreachRelationshipPacket,
 } from './warm-outreach-relationship-intelligence'
@@ -34,6 +35,7 @@ const basePacket: WarmOutreachRelationshipPacket = {
       available: true,
       providerConfigured: true,
       supportsExternalSend: true,
+      manualOnly: false,
     },
   },
   preferredChannel: 'email',
@@ -142,5 +144,58 @@ describe('warm outreach relationship intelligence', () => {
       private_source: true,
     })
     expect(summary.warnings).toContain('Private source context must be summarized, not quoted.')
+  })
+
+  it('prepares email warm packets for draft-only generation', () => {
+    const prepared = prepareWarmOutreachDraftRequest({
+      routeContactId: 42,
+      packetInput: basePacket,
+    })
+
+    expect(prepared.status).toBe('ready')
+    if (prepared.status !== 'ready') return
+    expect(prepared.channel).toBe('email')
+    expect(prepared.contextSummary).toMatchObject({
+      contact_id: '42',
+      selected_channel: 'email',
+      human_review_required: true,
+      approval_boundary: 'draft_only_no_external_send',
+    })
+  })
+
+  it('blocks warm packets that do not match the route contact', () => {
+    const prepared = prepareWarmOutreachDraftRequest({
+      routeContactId: 7,
+      packetInput: basePacket,
+    })
+
+    expect(prepared).toMatchObject({
+      status: 'blocked',
+      statusCode: 400,
+      error: 'Warm relationship packet does not match this lead.',
+    })
+  })
+
+  it('keeps Facebook and phone contacts manual until channel drafting is supported', () => {
+    const prepared = prepareWarmOutreachDraftRequest({
+      routeContactId: 42,
+      packetInput: {
+        ...basePacket,
+        preferredChannel: 'facebook',
+        channelCapabilities: {
+          facebook: {
+            available: true,
+            providerConfigured: false,
+            supportsExternalSend: false,
+            manualOnly: true,
+          },
+        },
+      },
+    })
+
+    expect(prepared.status).toBe('blocked')
+    if (prepared.status !== 'blocked') return
+    expect(prepared.statusCode).toBe(409)
+    expect(prepared.error).toContain('email and LinkedIn only')
   })
 })

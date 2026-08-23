@@ -64,7 +64,10 @@ export const warmOutreachRelationshipPacketSchema = z.object({
     unsubscribed: z.boolean().default(false),
     removedAt: z.string().trim().min(1).nullable().optional(),
     suppressionReason: z.string().trim().max(240).optional(),
-  }).default({}),
+  }).default({
+    doNotContact: false,
+    unsubscribed: false,
+  }),
   channelCapabilities: z.object({
     email: channelCapabilitySchema.optional(),
     linkedin: channelCapabilitySchema.optional(),
@@ -88,6 +91,25 @@ export type WarmOutreachReadiness = {
   warnings: string[]
   approvalBoundary: 'draft_only_no_external_send'
 }
+
+export type WarmOutreachContextSummary = ReturnType<typeof buildWarmOutreachContextSummary>
+
+export type WarmOutreachDraftPreparation =
+  | {
+      status: 'ready'
+      packet: WarmOutreachRelationshipPacket
+      readiness: WarmOutreachReadiness
+      contextSummary: WarmOutreachContextSummary
+      channel: Extract<WarmOutreachChannel, 'email' | 'linkedin'>
+    }
+  | {
+      status: 'blocked'
+      statusCode: 400 | 409
+      error: string
+      packet?: WarmOutreachRelationshipPacket
+      readiness?: WarmOutreachReadiness
+      contextSummary?: WarmOutreachContextSummary
+    }
 
 const channelPriority: WarmOutreachChannel[] = [
   'email',
@@ -254,5 +276,63 @@ export function buildWarmOutreachContextSummary(
     warnings: readiness.warnings,
     human_review_required: readiness.humanReviewRequired,
     approval_boundary: readiness.approvalBoundary,
+  }
+}
+
+export function prepareWarmOutreachDraftRequest(args: {
+  routeContactId: number
+  packetInput: unknown
+}): WarmOutreachDraftPreparation {
+  const parsed = warmOutreachRelationshipPacketSchema.safeParse(args.packetInput)
+  if (!parsed.success) {
+    return {
+      status: 'blocked',
+      statusCode: 400,
+      error: 'Warm relationship packet is invalid.',
+    }
+  }
+
+  const packet = parsed.data
+  if (String(packet.contactId) !== String(args.routeContactId)) {
+    return {
+      status: 'blocked',
+      statusCode: 400,
+      error: 'Warm relationship packet does not match this lead.',
+      packet,
+    }
+  }
+
+  const readiness = evaluateWarmOutreachReadiness(packet)
+  const contextSummary = buildWarmOutreachContextSummary(packet)
+
+  if (readiness.status === 'blocked') {
+    return {
+      status: 'blocked',
+      statusCode: 400,
+      error: readiness.blockers[0] ?? 'Warm relationship packet is blocked.',
+      packet,
+      readiness,
+      contextSummary,
+    }
+  }
+
+  if (readiness.selectedChannel !== 'email' && readiness.selectedChannel !== 'linkedin') {
+    return {
+      status: 'blocked',
+      statusCode: 409,
+      error:
+        'Warm outreach draft generation currently supports email and LinkedIn only. Keep this contact in manual review for Facebook or phone-contact outreach.',
+      packet,
+      readiness,
+      contextSummary,
+    }
+  }
+
+  return {
+    status: 'ready',
+    packet,
+    readiness,
+    contextSummary,
+    channel: readiness.selectedChannel,
   }
 }

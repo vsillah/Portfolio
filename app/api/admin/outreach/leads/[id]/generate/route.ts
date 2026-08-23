@@ -16,6 +16,10 @@ import {
 } from '@/lib/constants/prompt-keys'
 import { notifyOutreachDraftReady } from '@/lib/slack-outreach-notification'
 import {
+  prepareWarmOutreachDraftRequest,
+  type WarmOutreachDraftPreparation,
+} from '@/lib/warm-outreach-relationship-intelligence'
+import {
   endAgentRun,
   markAgentRunFailed,
   recordAgentEvent,
@@ -72,12 +76,42 @@ export async function POST(
     force?: boolean
     /** Optional: scope the draft to this meeting (must belong to the lead). */
     meeting_record_id?: string
+    /** Optional warm relationship packet. Draft-only; no external send authority. */
+    warm_relationship?: unknown
   }
 
-  const channel: OutreachChannel =
+  let channel: OutreachChannel =
     typeof body.channel === 'string' && CHANNEL_SET.has(body.channel)
       ? (body.channel as OutreachChannel)
       : 'email'
+
+  let warmRelationship: Extract<WarmOutreachDraftPreparation, { status: 'ready' }> | null = null
+  if (body.warm_relationship != null) {
+    const prepared = prepareWarmOutreachDraftRequest({
+      routeContactId: contactId,
+      packetInput: body.warm_relationship,
+    })
+    if (prepared.status === 'blocked') {
+      return NextResponse.json(
+        {
+          error: prepared.error,
+          warmRelationshipReadiness: prepared.readiness ?? null,
+        },
+        { status: prepared.statusCode },
+      )
+    }
+    if (typeof body.channel === 'string' && body.channel !== prepared.channel) {
+      return NextResponse.json(
+        {
+          error: `Warm relationship packet selected '${prepared.channel}', but request channel was '${body.channel}'.`,
+          warmRelationshipReadiness: prepared.readiness,
+        },
+        { status: 400 },
+      )
+    }
+    warmRelationship = prepared
+    channel = prepared.channel
+  }
 
   const allowedKeys = channel === 'linkedin' ? LINKEDIN_KEY_SET : EMAIL_KEY_SET
   let templateKey: EmailTemplateKey | LinkedInTemplateKey | undefined
@@ -165,6 +199,10 @@ export async function POST(
       sequence_step: sequenceStep,
       force,
       meeting_record_id: meetingRecordId,
+      warm_relationship_present: warmRelationship != null,
+      warm_relationship_channel: warmRelationship?.channel ?? null,
+      warm_relationship_template:
+        warmRelationship?.readiness.recommendedTemplate ?? null,
     },
   })
   const agentRunId = agentRun.id
@@ -201,6 +239,8 @@ export async function POST(
             meetingRecordId,
             templateKey: templateKey as LinkedInTemplateKey | undefined,
             agentRunId,
+            warmRelationshipSummary:
+              warmRelationship?.contextSummary ?? null,
           })
         : await generateOutreachDraftInApp({
             contactId,
@@ -209,6 +249,8 @@ export async function POST(
             meetingRecordId,
             templateKey: templateKey as EmailTemplateKey | undefined,
             agentRunId,
+            warmRelationshipSummary:
+              warmRelationship?.contextSummary ?? null,
           })
 
     if (result.outcome === 'existing') {
@@ -254,6 +296,7 @@ export async function POST(
         agentRunId,
         emailMessageId,
         openDraftUrl,
+        warmRelationshipReadiness: warmRelationship?.readiness ?? null,
       })
     }
 
@@ -344,6 +387,7 @@ export async function POST(
       ...(templateKey ? { templateKey } : {}),
       id: result.id,
       subject: result.subject,
+      warmRelationshipReadiness: warmRelationship?.readiness ?? null,
     })
   } catch (err) {
     console.error('[generate] in-app generation failed:', err)
