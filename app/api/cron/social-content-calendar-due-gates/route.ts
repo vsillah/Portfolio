@@ -18,6 +18,8 @@ import {
   CALENDAR_CHANNEL_LABELS,
   CALENDAR_SIDE_EFFECTS,
   calendarApprovalGateSummary,
+  calendarDueGatePingAlreadySent,
+  calendarDueGateScheduleKey,
   calendarMissedReleaseWindow,
   dueGateWindow,
   deriveDueStatus,
@@ -69,9 +71,7 @@ function isDryRun(request: NextRequest, body: Record<string, unknown>) {
 }
 
 function pingAlreadySent(item: SocialContentCalendarItem, window: '24h' | '2h') {
-  const metadata = parseMetadata(item.metadata)
-  const pings = parseMetadata(metadata.due_gate_pings)
-  return Boolean(pings[window])
+  return calendarDueGatePingAlreadySent(item, window)
 }
 
 function preparationAlreadyRecorded(item: SocialContentCalendarItem) {
@@ -398,7 +398,8 @@ async function runDueGateSweep(request: NextRequest) {
     const recalibratedScopes = new Set<string>()
 
     for (const { item, window } of candidates) {
-      const idempotencyKey = `social-content-calendar-due:${item.id}:${window}`
+      const scheduleKey = calendarDueGateScheduleKey(item)
+      const idempotencyKey = `social-content-calendar-due:${item.id}:${window}:${scheduleKey}`
       const gate = calendarApprovalGateSummary(item)
       const workItem = await createAgentWorkItem({
         title: `Authorize content calendar item: ${item.title}`,
@@ -449,10 +450,11 @@ async function runDueGateSweep(request: NextRequest) {
 
       const metadata = parseMetadata(item.metadata)
       const dueGatePings = parseMetadata(metadata.due_gate_pings)
+      const dueStatus = deriveDueStatus(item.scheduled_for, now)
       const updateResult = await supabaseAdmin
         .from('social_content_calendar_items')
         .update({
-          due_status: deriveDueStatus(item.scheduled_for, now),
+          due_status: dueStatus,
           last_pinged_at: now.toISOString(),
           metadata: {
             ...metadata,
@@ -461,6 +463,10 @@ async function runDueGateSweep(request: NextRequest) {
               [window]: {
                 pinged_at: now.toISOString(),
                 work_item_id: workItem.id,
+                schedule_key: scheduleKey,
+                scheduled_for: item.scheduled_for,
+                authorization_due_at: item.authorization_due_at ?? null,
+                due_status: dueStatus,
               },
             },
             external_execution_enabled: false,

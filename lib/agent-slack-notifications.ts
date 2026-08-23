@@ -25,8 +25,8 @@ import {
 import {
   CALENDAR_CHANNEL_LABELS,
   calendarApprovalGateSummary,
+  calendarDueGatePingAlreadySent,
   dueGateWindow,
-  parseMetadata,
   type SocialContentCalendarItem,
 } from '@/lib/social-content-calendar'
 
@@ -344,9 +344,7 @@ function socialCalendarApprovalDedupeKey(items: SocialCalendarApprovalAttentionI
 }
 
 function calendarPingAlreadySent(row: SocialContentCalendarItem, window: '24h' | '2h') {
-  const metadata = parseMetadata(row.metadata)
-  const pings = parseMetadata(metadata.due_gate_pings)
-  return Boolean(pings[window])
+  return calendarDueGatePingAlreadySent(row, window)
 }
 
 async function socialCalendarApprovalRows(limit = 10): Promise<SocialCalendarApprovalAttentionItem[]> {

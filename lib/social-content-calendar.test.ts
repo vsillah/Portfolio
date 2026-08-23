@@ -3,6 +3,7 @@ import {
   campaignContentPlanSlots,
   calendarMissedReleaseWindow,
   calendarRecalibrationAnchor,
+  calendarDueGatePingAlreadySent,
   defaultAuthorizationDueAt,
   deriveDueStatus,
   dueGateWindow,
@@ -57,7 +58,13 @@ describe('social-content-calendar helpers', () => {
         scheduled_for: '2026-08-14T12:00:00.000Z',
         authorization_status: 'pending' as const,
         due_status: 'past_due' as const,
-        metadata: { source: 'test' },
+        metadata: {
+          source: 'test',
+          due_gate_pings: {
+            '24h': { pinged_at: '2026-08-13T12:00:00.000Z', work_item_id: 'work-24h' },
+            '2h': { pinged_at: '2026-08-14T10:00:00.000Z', work_item_id: 'work-2h' },
+          },
+        },
       },
       {
         id: 'calendar-2',
@@ -100,6 +107,18 @@ describe('social-content-calendar helpers', () => {
             anchor_item_id: 'calendar-1',
             shifted_by_ms: 2 * 24 * 60 * 60 * 1000,
           }),
+          due_gate_pings: {},
+          due_gate_ping_history: [
+            expect.objectContaining({
+              reason: 'schedule_recalibrated',
+              prior_scheduled_for: '2026-08-14T12:00:00.000Z',
+              scheduled_for: '2026-08-16T12:00:00.000Z',
+              due_gate_pings: {
+                '24h': { pinged_at: '2026-08-13T12:00:00.000Z', work_item_id: 'work-24h' },
+                '2h': { pinged_at: '2026-08-14T10:00:00.000Z', work_item_id: 'work-2h' },
+              },
+            }),
+          ],
         }),
       }),
       expect.objectContaining({
@@ -110,6 +129,40 @@ describe('social-content-calendar helpers', () => {
         due_status: 'planned',
       }),
     ])
+  })
+
+  it('treats legacy due-gate pings as stale after recalibration changes the schedule', () => {
+    expect(calendarDueGatePingAlreadySent({
+      scheduled_for: '2026-08-23T07:30:16.971Z',
+      authorization_due_at: '2026-08-22T07:30:16.971Z',
+      metadata: {
+        due_gate_pings: {
+          '24h': { pinged_at: '2026-08-19T07:30:16.971Z', work_item_id: 'work-old' },
+        },
+        calendar_recalibration: {
+          prior_scheduled_for: '2026-08-19T07:30:16.971Z',
+          shifted_by_ms: 4 * 24 * 60 * 60 * 1000,
+        },
+      },
+    }, '24h')).toBe(false)
+
+    expect(calendarDueGatePingAlreadySent({
+      scheduled_for: '2026-08-23T07:30:16.971Z',
+      authorization_due_at: '2026-08-22T07:30:16.971Z',
+      metadata: {
+        due_gate_pings: {
+          '24h': {
+            pinged_at: '2026-08-22T07:00:00.000Z',
+            work_item_id: 'work-current',
+            schedule_key: 'scheduled_for=2026-08-23T07:30:16.971Z|authorization_due_at=2026-08-22T07:30:16.971Z',
+          },
+        },
+        calendar_recalibration: {
+          prior_scheduled_for: '2026-08-19T07:30:16.971Z',
+          shifted_by_ms: 4 * 24 * 60 * 60 * 1000,
+        },
+      },
+    }, '24h')).toBe(true)
   })
 
   it('sets authorization due time 24 hours before the scheduled publish intent', () => {
