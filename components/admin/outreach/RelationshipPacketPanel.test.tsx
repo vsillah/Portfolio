@@ -1,0 +1,200 @@
+import { render, screen, within } from '@testing-library/react'
+import { describe, expect, it } from 'vitest'
+import RelationshipPacketPanel, {
+  describeChannelCapability,
+  relationshipReadinessLabel,
+  type RelationshipPacketApiResponse,
+} from './RelationshipPacketPanel'
+
+const packetResponse: RelationshipPacketApiResponse = {
+  packet: {
+    version: 'warm-outreach-relationship/v1',
+    contactId: 42,
+    contactName: 'Ada Operator',
+    objective: 'Prepare warm outreach context.',
+    relationshipBasis: 'Met through a Portfolio meeting and has prior email replies.',
+    sourceRefs: [
+      {
+        sourceType: 'meeting_record',
+        sourceId: 'meeting-1',
+        summary: 'Meeting summary says the team discussed operations follow-up.',
+        privateSource: true,
+        visibility: 'portfolio_internal',
+        mentionSafety: 'summarize_only',
+        sourceStatus: 'present',
+      },
+      {
+        sourceType: 'portfolio_contact',
+        summary: 'Contact record includes company and channel information.',
+        privateSource: false,
+        visibility: 'portfolio_internal',
+        mentionSafety: 'safe_to_mention',
+        sourceStatus: 'present',
+      },
+    ],
+    relationshipSignals: ['Prior reply exists', 'Meeting follow-up is pending'],
+    commonalities: ['Community operations', 'AI workflow interest'],
+    riskFlags: ['Private source context must stay summarized'],
+    sourceInventory: {
+      sourceStatus: [
+        { sourceType: 'contact_submissions', status: 'present' },
+        { sourceType: 'meeting_records', status: 'present' },
+      ],
+      safeToMention: ['Company and public role'],
+      summarizeOnly: ['Meeting notes'],
+      doNotMention: ['Raw transcript'],
+    },
+    openingPitchGuidance: {
+      safeCommonalities: ['Community operations'],
+      openingAngle: 'Reconnect around the meeting follow-up.',
+      channelNotes: {
+        email: 'Use email for the internal draft.',
+        linkedin: 'Keep LinkedIn short.',
+      },
+    },
+    suggestedNextStep: 'Review an internal draft.',
+    avoidContext: ['Do not quote private notes.'],
+    responseMonitoringPlan: {
+      enabled: false,
+      plan: 'Reply monitoring requires a provider gate.',
+      externalActivationRequired: true,
+    },
+    confidence: 'medium',
+    suppression: {
+      doNotContact: false,
+      unsubscribed: false,
+      removedAt: null,
+    },
+    channelCapabilities: {
+      email: {
+        available: true,
+        providerConfigured: false,
+        supportsExternalSend: false,
+        manualOnly: false,
+        reason: 'Email can prepare a draft only.',
+      },
+      linkedin: {
+        available: true,
+        providerConfigured: false,
+        supportsExternalSend: false,
+        manualOnly: false,
+        reason: 'LinkedIn draft text only.',
+      },
+      facebook: {
+        available: true,
+        providerConfigured: false,
+        supportsExternalSend: false,
+        manualOnly: true,
+        reason: 'Facebook remains manual.',
+      },
+      phone_contact: {
+        available: true,
+        providerConfigured: false,
+        supportsExternalSend: false,
+        manualOnly: true,
+        reason: 'Phone remains manual.',
+      },
+    },
+    preferredChannel: 'email',
+  },
+  readiness: {
+    status: 'needs_review',
+    humanReviewRequired: true,
+    selectedChannel: 'email',
+    recommendedTemplate: 'follow_up',
+    blockers: [],
+    warnings: ['Private source context must be summarized, not quoted.'],
+    approvalBoundary: 'draft_only_no_external_send',
+  },
+  contextSummary: {
+    version: 'warm-outreach-relationship/v1',
+    contact_id: '42',
+    contact_name: 'Ada Operator',
+    objective: 'Prepare warm outreach context.',
+    relationship_basis: 'Met through a Portfolio meeting and has prior email replies.',
+    selected_channel: 'email',
+    recommended_template: 'follow_up',
+    confidence: 'medium',
+    source_summaries: [],
+    relationship_signals: [],
+    commonalities: [],
+    risk_flags: [],
+    source_inventory: null,
+    opening_pitch_guidance: null,
+    suggested_next_step: null,
+    avoid_context: [],
+    response_monitoring_plan: null,
+    readiness_status: 'needs_review',
+    blockers: [],
+    warnings: [],
+    human_review_required: true,
+    approval_boundary: 'draft_only_no_external_send',
+  },
+  executionBoundary: {
+    source: 'local_portfolio_rows',
+    readOnly: true,
+    providerCalls: false,
+    createsDraft: false,
+    externalSend: false,
+    n8nDispatch: false,
+    slackAction: false,
+    responseMonitoring: false,
+  },
+}
+
+describe('RelationshipPacketPanel', () => {
+  it('renders readiness, provenance, channel capabilities, and execution boundaries', () => {
+    render(<RelationshipPacketPanel loading={false} error={null} data={packetResponse} />)
+
+    expect(screen.getByText('Relationship packet')).toBeInTheDocument()
+    expect(screen.getAllByText('Needs human review')).toHaveLength(2)
+    expect(screen.getByText('Met through a Portfolio meeting and has prior email replies.')).toBeInTheDocument()
+    expect(screen.getByText('Meeting notes')).toBeInTheDocument()
+    expect(screen.getByText('Raw transcript')).toBeInTheDocument()
+    expect(screen.getByText('private summary')).toBeInTheDocument()
+
+    const channelRegion = screen.getByText('Channel capability state').closest('div')
+    expect(channelRegion).not.toBeNull()
+    expect(within(channelRegion!).getByText('Email')).toBeInTheDocument()
+    expect(within(channelRegion!).getByText('Facebook / manual')).toBeInTheDocument()
+    expect(within(channelRegion!).getAllByText('Manual review only')).toHaveLength(2)
+
+    expect(screen.getByText('Provider calls: off')).toBeInTheDocument()
+    expect(screen.getByText('Draft creation: off')).toBeInTheDocument()
+    expect(screen.getByText('External send: off')).toBeInTheDocument()
+    expect(screen.getByText('Reply monitoring: off')).toBeInTheDocument()
+  })
+
+  it('shows suppressed contacts as blocked readiness', () => {
+    const blocked: RelationshipPacketApiResponse = {
+      ...packetResponse,
+      packet: {
+        ...packetResponse.packet,
+        suppression: {
+          doNotContact: true,
+          unsubscribed: false,
+          removedAt: null,
+          suppressionReason: 'Contact is marked do not contact in Portfolio.',
+        },
+      },
+      readiness: {
+        ...packetResponse.readiness,
+        status: 'blocked',
+        blockers: ['Contact is marked do not contact in Portfolio.'],
+      },
+    }
+
+    render(<RelationshipPacketPanel loading={false} error={null} data={blocked} />)
+
+    expect(screen.getAllByText('Blocked')).toHaveLength(2)
+    expect(screen.getAllByText('Contact is marked do not contact in Portfolio.').length).toBeGreaterThan(0)
+    expect(screen.queryByText('Ready means the operator has enough local context to review an internal draft.')).not.toBeInTheDocument()
+  })
+
+  it('exports stable label helpers for adapter tests', () => {
+    expect(relationshipReadinessLabel('draft_ready')).toBe('Ready for draft review')
+    expect(relationshipReadinessLabel('needs_review')).toBe('Needs human review')
+    expect(describeChannelCapability()).toBe('Not recorded')
+    expect(describeChannelCapability(packetResponse.packet.channelCapabilities.facebook)).toBe('Manual review only')
+  })
+})

@@ -52,6 +52,9 @@ import TechStackModal from '@/components/admin/outreach/TechStackModal'
 import SocialIntelModal from '@/components/admin/outreach/SocialIntelModal'
 import EvidenceDrawer from '@/components/admin/outreach/EvidenceDrawer'
 import AddLeadModal from '@/components/admin/outreach/AddLeadModal'
+import RelationshipPacketPanel, {
+  type RelationshipPacketApiResponse,
+} from '@/components/admin/outreach/RelationshipPacketPanel'
 import { OutreachEmailGenerateRow } from '@/components/admin/OutreachEmailGenerateRow'
 import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
 import { useRealtimeOutreach } from '@/lib/hooks/useRealtimeOutreach'
@@ -231,6 +234,12 @@ function OutreachContent() {
     meeting_record_id: string | null
   }>>([])
   const [leadActionTasksLoading, setLeadActionTasksLoading] = useState(false)
+
+  const [relationshipPacketData, setRelationshipPacketData] =
+    useState<RelationshipPacketApiResponse | null>(null)
+  const [relationshipPacketLeadId, setRelationshipPacketLeadId] = useState<number | null>(null)
+  const [relationshipPacketLoading, setRelationshipPacketLoading] = useState(false)
+  const [relationshipPacketError, setRelationshipPacketError] = useState<string | null>(null)
 
   // Add lead modal
   const [showAddLeadModal, setShowAddLeadModal] = useState(false)
@@ -679,6 +688,64 @@ function OutreachContent() {
         .catch(() => { if (!cancelled) setLeadActionTasks([]) })
         .finally(() => { if (!cancelled) setLeadActionTasksLoading(false) })
     })
+    return () => { cancelled = true }
+  }, [activeTab, expandedLeadId])
+
+  useEffect(() => {
+    if (activeTab !== 'leads' || !expandedLeadId) {
+      setRelationshipPacketData(null)
+      setRelationshipPacketLeadId(null)
+      setRelationshipPacketError(null)
+      setRelationshipPacketLoading(false)
+      return
+    }
+
+    let cancelled = false
+    const leadId = expandedLeadId
+    setRelationshipPacketLeadId(leadId)
+    setRelationshipPacketData(null)
+    setRelationshipPacketError(null)
+    setRelationshipPacketLoading(true)
+
+    getCurrentSession().then((session) => {
+      if (cancelled) return
+      if (!session?.access_token) {
+        setRelationshipPacketError('Admin session is required to load the relationship packet.')
+        setRelationshipPacketLoading(false)
+        return
+      }
+      fetch(`/api/admin/outreach/leads/${leadId}/relationship-packet`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+        .then(async (res) => {
+          const body = await res.json().catch(() => null)
+          if (!res.ok) {
+            throw new Error(
+              typeof body?.error === 'string'
+                ? body.error
+                : 'Relationship packet could not be loaded.',
+            )
+          }
+          return body as RelationshipPacketApiResponse
+        })
+        .then((data) => {
+          if (!cancelled) setRelationshipPacketData(data)
+        })
+        .catch((error: unknown) => {
+          if (!cancelled) {
+            setRelationshipPacketData(null)
+            setRelationshipPacketError(
+              error instanceof Error
+                ? error.message
+                : 'Relationship packet could not be loaded.',
+            )
+          }
+        })
+        .finally(() => {
+          if (!cancelled) setRelationshipPacketLoading(false)
+        })
+    })
+
     return () => { cancelled = true }
   }, [activeTab, expandedLeadId])
 
@@ -1647,6 +1714,12 @@ function OutreachContent() {
                               className="border-t border-silicon-slate overflow-hidden rounded-b-xl"
                             >
                               <div className="p-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <RelationshipPacketPanel
+                                  loading={relationshipPacketLeadId === lead.id && relationshipPacketLoading}
+                                  error={relationshipPacketLeadId === lead.id ? relationshipPacketError : null}
+                                  data={relationshipPacketLeadId === lead.id ? relationshipPacketData : null}
+                                />
+
                                 {/* Contact Info */}
                                 <div>
                                   <h4 className="text-sm font-medium text-muted-foreground mb-3">Contact Information</h4>
