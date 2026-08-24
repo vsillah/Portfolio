@@ -25,6 +25,7 @@ const basePacket: WarmOutreachRelationshipPacket = {
   relationshipSignals: ['prior conversation'],
   commonalities: ['agent operations'],
   riskFlags: [],
+  avoidContext: [],
   confidence: 'high',
   suppression: {
     doNotContact: false,

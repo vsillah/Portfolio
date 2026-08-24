@@ -38,6 +38,9 @@ const sourceRefSchema = z.object({
   sourceId: z.string().trim().min(1).optional(),
   summary: z.string().trim().min(1).max(500),
   privateSource: z.boolean().default(false),
+  visibility: z.enum(['public', 'portfolio_internal', 'private_sensitive']).optional(),
+  mentionSafety: z.enum(['safe_to_mention', 'summarize_only', 'do_not_mention']).optional(),
+  sourceStatus: z.enum(['present', 'missing', 'blocked', 'suppressed']).optional(),
 })
 
 const channelCapabilitySchema = z.object({
@@ -58,6 +61,33 @@ export const warmOutreachRelationshipPacketSchema = z.object({
   relationshipSignals: z.array(z.string().trim().min(1).max(240)).default([]),
   commonalities: z.array(z.string().trim().min(1).max(240)).default([]),
   riskFlags: z.array(z.string().trim().min(1).max(160)).default([]),
+  sourceInventory: z.object({
+    sourceStatus: z.array(z.object({
+      sourceType: z.string().trim().min(1),
+      status: z.enum(['present', 'missing', 'blocked', 'suppressed']),
+      detail: z.string().trim().max(240).optional(),
+    })).default([]),
+    safeToMention: z.array(z.string().trim().min(1).max(240)).default([]),
+    summarizeOnly: z.array(z.string().trim().min(1).max(240)).default([]),
+    doNotMention: z.array(z.string().trim().min(1).max(240)).default([]),
+  }).optional(),
+  openingPitchGuidance: z.object({
+    safeCommonalities: z.array(z.string().trim().min(1).max(240)).default([]),
+    openingAngle: z.string().trim().min(1).max(500),
+    channelNotes: z.object({
+      email: z.string().trim().max(300).optional(),
+      linkedin: z.string().trim().max(300).optional(),
+      facebook: z.string().trim().max(300).optional(),
+      phone_contact: z.string().trim().max(300).optional(),
+    }).default({}),
+  }).optional(),
+  suggestedNextStep: z.string().trim().min(1).max(300).optional(),
+  avoidContext: z.array(z.string().trim().min(1).max(240)).default([]),
+  responseMonitoringPlan: z.object({
+    enabled: z.literal(false).default(false),
+    plan: z.string().trim().min(1).max(400),
+    externalActivationRequired: z.literal(true).default(true),
+  }).optional(),
   confidence: z.enum(['low', 'medium', 'high']).default('medium'),
   suppression: z.object({
     doNotContact: z.boolean().default(false),
@@ -267,10 +297,18 @@ export function buildWarmOutreachContextSummary(
       source_id: source.sourceId ?? null,
       summary: source.summary,
       private_source: source.privateSource,
+      visibility: source.visibility ?? null,
+      mention_safety: source.mentionSafety ?? null,
+      source_status: source.sourceStatus ?? null,
     })),
     relationship_signals: packet.relationshipSignals,
     commonalities: packet.commonalities,
     risk_flags: packet.riskFlags,
+    source_inventory: packet.sourceInventory ?? null,
+    opening_pitch_guidance: packet.openingPitchGuidance ?? null,
+    suggested_next_step: packet.suggestedNextStep ?? null,
+    avoid_context: packet.avoidContext,
+    response_monitoring_plan: packet.responseMonitoringPlan ?? null,
     readiness_status: readiness.status,
     blockers: readiness.blockers,
     warnings: readiness.warnings,
