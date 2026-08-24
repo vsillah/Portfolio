@@ -1,0 +1,384 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { NextRequest } from 'next/server'
+
+const mocks = vi.hoisted(() => ({
+  verifyAdmin: vi.fn(),
+  isAuthError: vi.fn(),
+  from: vi.fn(),
+}))
+
+vi.mock('@/lib/auth-server', () => ({
+  verifyAdmin: mocks.verifyAdmin,
+  isAuthError: mocks.isAuthError,
+}))
+
+vi.mock('@/lib/supabase', () => ({
+  supabaseAdmin: {
+    from: mocks.from,
+  },
+}))
+
+import { GET } from './route'
+
+type TableRows = Record<string, unknown[]>
+
+function request(url = 'http://localhost/api/admin/outreach/leads/42/relationship-packet') {
+  return new NextRequest(url)
+}
+
+function singleQuery(data: unknown | null) {
+  return {
+    select: vi.fn(() => ({
+      eq: vi.fn(() => ({
+        single: vi.fn(() =>
+          Promise.resolve({
+            data,
+            error: data ? null : { message: 'not found' },
+          }),
+        ),
+      })),
+    })),
+  }
+}
+
+function listQuery(data: unknown[]) {
+  const limit = vi.fn(() => Promise.resolve({ data, error: null }))
+  const order = vi.fn(() => ({ limit }))
+  const eq = vi.fn(() => ({ order }))
+  const select = vi.fn(() => ({ eq }))
+  return { select, eq, order, limit }
+}
+
+function setupRows(rows: TableRows) {
+  mocks.from.mockImplementation((table: string) => {
+    if (table === 'contact_submissions') {
+      return singleQuery(rows.contact_submissions?.[0] ?? null)
+    }
+
+    if (table in rows) {
+      return listQuery(rows[table] ?? [])
+    }
+
+    throw new Error(`Unexpected table: ${table}`)
+  })
+}
+
+const lead = {
+  id: 42,
+  name: 'Anna Berin',
+  email: 'anna@example.com',
+  company: 'MENTOR Rhode Island',
+  industry: 'Nonprofit',
+  lead_source: 'warm_referral',
+  outreach_status: 'not_contacted',
+  do_not_contact: false,
+  removed_at: null,
+  phone_number: '555-0100',
+  linkedin_url: 'https://linkedin.com/in/anna',
+  facebook_profile_url: 'https://facebook.com/anna',
+  relationship_strength: 'strong',
+  warm_source_detail: 'Prior community introduction',
+  created_at: '2026-08-20T00:00:00Z',
+}
+
+describe('GET /api/admin/outreach/leads/[id]/relationship-packet', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-user' } })
+    mocks.isAuthError.mockReturnValue(false)
+  })
+
+  it('returns a relationship packet from local Portfolio rows only', async () => {
+    setupRows({
+      contact_submissions: [lead],
+      contact_communications: [
+        {
+          id: 'comm-1',
+          contact_submission_id: 42,
+          channel: 'email',
+          direction: 'inbound',
+          message_type: 'reply',
+          subject: 'Re: intro',
+          body: 'raw private body must not be selected or returned',
+          source_system: 'manual',
+          source_id: 'manual-1',
+          status: 'replied',
+          sent_at: '2026-08-21T00:00:00Z',
+          metadata: {},
+          created_at: '2026-08-21T00:00:00Z',
+        },
+      ],
+      outreach_queue: [
+        {
+          id: 'queue-1',
+          contact_submission_id: 42,
+          channel: 'email',
+          subject: 'Draft',
+          sequence_step: 1,
+          status: 'draft',
+          created_at: '2026-08-22T00:00:00Z',
+        },
+      ],
+      email_messages: [
+        {
+          id: 'email-1',
+          contact_submission_id: 42,
+          email_kind: 'reply',
+          channel: 'email',
+          direction: 'inbound',
+          status: 'replied',
+          subject: 'Re: intro',
+          body_preview: 'private preview must not be selected or returned',
+          source_system: 'manual',
+          source_id: 'email-source-1',
+          created_at: '2026-08-22T00:00:00Z',
+        },
+      ],
+      meeting_records: [
+        {
+          id: 'meeting-1',
+          contact_submission_id: 42,
+          meeting_type: 'discovery',
+          meeting_date: '2026-08-19T00:00:00Z',
+          structured_notes: { summary: 'Discussed nonprofit operations.' },
+          transcript: 'raw transcript must not be selected or returned',
+          created_at: '2026-08-19T00:00:00Z',
+        },
+      ],
+      meeting_action_tasks: [
+        {
+          id: 'task-1',
+          contact_submission_id: 42,
+          meeting_record_id: 'meeting-1',
+          title: 'Send follow-up packet',
+          status: 'pending',
+          due_date: '2026-08-25',
+          created_at: '2026-08-19T00:00:00Z',
+        },
+      ],
+    })
+
+    const response = await GET(request(), { params: Promise.resolve({ id: '42' }) })
+
+    expect(response.status).toBe(200)
+    const json = await response.json()
+    expect(json.packet).toMatchObject({
+      version: 'warm-outreach-relationship/v1',
+      contactId: 42,
+      contactName: 'Anna Berin',
+      suppression: {
+        doNotContact: false,
+        unsubscribed: false,
+      },
+      channelCapabilities: {
+        email: expect.objectContaining({
+          available: true,
+          supportsExternalSend: false,
+          manualOnly: false,
+        }),
+        linkedin: expect.objectContaining({
+          available: true,
+          supportsExternalSend: false,
+        }),
+        facebook: expect.objectContaining({
+          available: true,
+          supportsExternalSend: false,
+          manualOnly: true,
+        }),
+        phone_contact: expect.objectContaining({
+          available: true,
+          supportsExternalSend: false,
+          manualOnly: true,
+        }),
+      },
+    })
+    expect(json.readiness).toMatchObject({
+      humanReviewRequired: true,
+      approvalBoundary: 'draft_only_no_external_send',
+    })
+    expect(json.executionBoundary).toEqual({
+      source: 'local_portfolio_rows',
+      readOnly: true,
+      providerCalls: false,
+      createsDraft: false,
+      externalSend: false,
+      n8nDispatch: false,
+      slackAction: false,
+      responseMonitoring: false,
+    })
+    expect(JSON.stringify(json)).not.toContain('raw private body')
+    expect(JSON.stringify(json)).not.toContain('private preview')
+    expect(JSON.stringify(json)).not.toContain('raw transcript')
+  })
+
+  it('returns 404 when the lead does not exist', async () => {
+    setupRows({
+      contact_submissions: [],
+    })
+
+    const response = await GET(request(), { params: Promise.resolve({ id: '42' }) })
+
+    expect(response.status).toBe(404)
+    await expect(response.json()).resolves.toEqual({ error: 'Lead not found' })
+    expect(mocks.from).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps do-not-contact leads blocked in readiness', async () => {
+    setupRows({
+      contact_submissions: [{ ...lead, do_not_contact: true }],
+      contact_communications: [],
+      outreach_queue: [],
+      email_messages: [],
+      meeting_records: [],
+      meeting_action_tasks: [],
+    })
+
+    const response = await GET(request(), { params: Promise.resolve({ id: '42' }) })
+
+    expect(response.status).toBe(200)
+    const json = await response.json()
+    expect(json.packet.suppression.doNotContact).toBe(true)
+    expect(json.readiness).toMatchObject({
+      status: 'blocked',
+      blockers: expect.arrayContaining(['Contact is marked do not contact in Portfolio.']),
+    })
+  })
+
+  it('keeps removed leads blocked in readiness', async () => {
+    setupRows({
+      contact_submissions: [{ ...lead, removed_at: '2026-08-22T00:00:00Z' }],
+      contact_communications: [],
+      outreach_queue: [],
+      email_messages: [],
+      meeting_records: [],
+      meeting_action_tasks: [],
+    })
+
+    const response = await GET(request(), { params: Promise.resolve({ id: '42' }) })
+
+    expect(response.status).toBe(200)
+    const json = await response.json()
+    expect(json.packet.suppression.removedAt).toBe('2026-08-22T00:00:00Z')
+    expect(json.readiness.blockers).toContain('Contact was removed from outreach.')
+  })
+
+  it('keeps unsubscribed local rows blocked in readiness', async () => {
+    setupRows({
+      contact_submissions: [lead],
+      contact_communications: [
+        {
+          id: 'comm-1',
+          contact_submission_id: 42,
+          direction: 'inbound',
+          channel: 'email',
+          message_type: 'reply',
+          subject: 'Unsubscribe',
+          status: 'sent',
+          metadata: { unsubscribed: true },
+        },
+      ],
+      outreach_queue: [],
+      email_messages: [],
+      meeting_records: [],
+      meeting_action_tasks: [],
+    })
+
+    const response = await GET(request(), { params: Promise.resolve({ id: '42' }) })
+
+    expect(response.status).toBe(200)
+    const json = await response.json()
+    expect(json.packet.suppression.unsubscribed).toBe(true)
+    expect(json.readiness).toMatchObject({
+      status: 'blocked',
+      blockers: expect.arrayContaining(['Contact is unsubscribed.']),
+    })
+  })
+
+  it('makes missing source categories explicit without inventing evidence', async () => {
+    setupRows({
+      contact_submissions: [lead],
+      contact_communications: [],
+      outreach_queue: [],
+      email_messages: [],
+      meeting_records: [],
+      meeting_action_tasks: [],
+    })
+
+    const response = await GET(request(), { params: Promise.resolve({ id: '42' }) })
+
+    expect(response.status).toBe(200)
+    const json = await response.json()
+    expect(json.packet.relationshipBasis).toContain('limited local relationship evidence')
+    expect(json.packet.sourceInventory.sourceStatus).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ sourceType: 'meeting_records', status: 'missing' }),
+        expect.objectContaining({ sourceType: 'meeting_action_tasks', status: 'missing' }),
+        expect.objectContaining({ sourceType: 'outreach_queue/contact_communications', status: 'missing' }),
+        expect.objectContaining({ sourceType: 'email_messages/contact_communications', status: 'missing' }),
+      ]),
+    )
+  })
+
+  it('uses manual-only capability for Facebook and phone-contact preferred channels', async () => {
+    setupRows({
+      contact_submissions: [{ ...lead, email: null, linkedin_url: null }],
+      contact_communications: [],
+      outreach_queue: [],
+      email_messages: [],
+      meeting_records: [],
+      meeting_action_tasks: [],
+    })
+
+    const response = await GET(
+      request('http://localhost/api/admin/outreach/leads/42/relationship-packet?preferred_channel=facebook'),
+      { params: Promise.resolve({ id: '42' }) },
+    )
+
+    expect(response.status).toBe(200)
+    const json = await response.json()
+    expect(json.packet.preferredChannel).toBe('facebook')
+    expect(json.readiness).toMatchObject({
+      selectedChannel: 'facebook',
+      warnings: expect.arrayContaining([
+        'Facebook outreach remains manual-only; no DM provider action is enabled.',
+      ]),
+    })
+    expect(json.packet.channelCapabilities.phone_contact).toMatchObject({
+      available: true,
+      manualOnly: true,
+      supportsExternalSend: false,
+    })
+  })
+
+  it('does not call write or provider-style operations while building the packet', async () => {
+    const writes = {
+      insert: vi.fn(),
+      update: vi.fn(),
+      upsert: vi.fn(),
+      delete: vi.fn(),
+      rpc: vi.fn(),
+    }
+    setupRows({
+      contact_submissions: [lead],
+      contact_communications: [],
+      outreach_queue: [],
+      email_messages: [],
+      meeting_records: [],
+      meeting_action_tasks: [],
+    })
+
+    await GET(request(), { params: Promise.resolve({ id: '42' }) })
+
+    expect(writes.insert).not.toHaveBeenCalled()
+    expect(writes.update).not.toHaveBeenCalled()
+    expect(writes.upsert).not.toHaveBeenCalled()
+    expect(writes.delete).not.toHaveBeenCalled()
+    expect(writes.rpc).not.toHaveBeenCalled()
+    expect(mocks.from).toHaveBeenCalledWith('contact_submissions')
+    expect(mocks.from).toHaveBeenCalledWith('contact_communications')
+    expect(mocks.from).toHaveBeenCalledWith('outreach_queue')
+    expect(mocks.from).toHaveBeenCalledWith('email_messages')
+    expect(mocks.from).toHaveBeenCalledWith('meeting_records')
+    expect(mocks.from).toHaveBeenCalledWith('meeting_action_tasks')
+  })
+})
