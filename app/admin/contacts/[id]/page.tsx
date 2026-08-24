@@ -7,6 +7,9 @@ import Link from 'next/link'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import Pagination from '@/components/admin/Pagination'
+import RelationshipPacketPanel, {
+  type RelationshipPacketApiResponse,
+} from '@/components/admin/outreach/RelationshipPacketPanel'
 import { getCurrentSession } from '@/lib/auth'
 import { EMAIL_TEMPLATE_KEYS, PROMPT_DISPLAY_NAMES, type EmailTemplateKey } from '@/lib/constants/prompt-keys'
 import {
@@ -227,6 +230,10 @@ function ContactDetailPage() {
   const [commsChannelFilter, setCommsChannelFilter] = useState<string>('all')
   const [commsTypeFilter, setCommsTypeFilter] = useState<string>('all')
   const [expandedCommId, setExpandedCommId] = useState<string | null>(null)
+  const [relationshipPacketData, setRelationshipPacketData] =
+    useState<RelationshipPacketApiResponse | null>(null)
+  const [relationshipPacketLoading, setRelationshipPacketLoading] = useState(false)
+  const [relationshipPacketError, setRelationshipPacketError] = useState<string | null>(null)
 
   const getToken = useCallback(async () => {
     const s = await getCurrentSession()
@@ -270,6 +277,54 @@ function ContactDetailPage() {
   }, [id, getToken])
 
   useEffect(() => { fetchData() }, [fetchData])
+
+  useEffect(() => {
+    let cancelled = false
+    setRelationshipPacketData(null)
+    setRelationshipPacketError(null)
+    setRelationshipPacketLoading(true)
+
+    getToken().then((token) => {
+      if (cancelled) return
+      if (!token) {
+        setRelationshipPacketError('Admin session is required to load the relationship packet.')
+        setRelationshipPacketLoading(false)
+        return
+      }
+      fetch(`/api/admin/outreach/leads/${id}/relationship-packet`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then(async (res) => {
+          const body = await res.json().catch(() => null)
+          if (!res.ok) {
+            throw new Error(
+              typeof body?.error === 'string'
+                ? body.error
+                : 'Relationship packet could not be loaded.',
+            )
+          }
+          return body as RelationshipPacketApiResponse
+        })
+        .then((packetData) => {
+          if (!cancelled) setRelationshipPacketData(packetData)
+        })
+        .catch((error: unknown) => {
+          if (!cancelled) {
+            setRelationshipPacketData(null)
+            setRelationshipPacketError(
+              error instanceof Error
+                ? error.message
+                : 'Relationship packet could not be loaded.',
+            )
+          }
+        })
+        .finally(() => {
+          if (!cancelled) setRelationshipPacketLoading(false)
+        })
+    })
+
+    return () => { cancelled = true }
+  }, [id, getToken])
 
   // Deep-link from the outreach pill: ?focus=compose[&template=<key>]#compose
   // Opens the Compose Delivery Email section, pre-selects the template, and scrolls to it.
@@ -470,6 +525,12 @@ function ContactDetailPage() {
               </div>
             </div>
           </div>
+
+          <RelationshipPacketPanel
+            loading={relationshipPacketLoading}
+            error={relationshipPacketError}
+            data={relationshipPacketData}
+          />
 
           {/* ── Assets ── */}
           {(() => {
