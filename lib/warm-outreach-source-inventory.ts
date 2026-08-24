@@ -241,7 +241,12 @@ function suppressionFromContact(row: PortfolioRow | null | undefined) {
 function channelCapabilities(row: PortfolioRow | null | undefined) {
   const hasEmail = Boolean(contactEmail(row))
   const hasLinkedIn = hasValue(row, ['linkedin_url', 'linkedin', 'linkedin_profile'])
-  const hasFacebook = hasValue(row, ['facebook_url', 'facebook', 'facebook_profile'])
+  const hasFacebook = hasValue(row, [
+    'facebook_url',
+    'facebook',
+    'facebook_profile',
+    'facebook_profile_url',
+  ])
   const hasPhone = hasValue(row, ['phone', 'phone_number', 'mobile'])
 
   return {
