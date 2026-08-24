@@ -3,8 +3,6 @@ import { supabaseAdmin } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
 
-const WEBHOOK_SECRET = process.env.N8N_WEBHOOK_SECRET
-
 /**
  * POST /api/lead-magnets/nurture-webhook
  * Called by n8n WF-LMN-001 after each nurture email is sent.
@@ -13,7 +11,8 @@ const WEBHOOK_SECRET = process.env.N8N_WEBHOOK_SECRET
 export async function POST(request: NextRequest) {
   try {
     const secret = request.headers.get('x-webhook-secret')
-    if (!WEBHOOK_SECRET || secret !== WEBHOOK_SECRET) {
+    const webhookSecret = process.env.N8N_WEBHOOK_SECRET
+    if (!webhookSecret || secret !== webhookSecret) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
