@@ -705,7 +705,7 @@ export function OutreachEmailGenerateRow({
     if (anyRun && progress) {
       return `${runningHeadline} — ${progress.currentStageLabel}`
     }
-    if (state === 'succeeded' || serverN8nSuccess) return 'Draft created'
+    if (state === 'succeeded' || serverN8nSuccess) return 'Draft generated, not sent'
     if (state === 'cancelled') return 'Stopped'
     if (state === 'failed' && n8nFallback) return 'Generation failed'
     if (state === 'failed' || serverN8nFailed) return 'Generation failed'
@@ -757,11 +757,11 @@ export function OutreachEmailGenerateRow({
           onClick={() => {
             setPanelOpen(true)
           }}
-          title="Outreach options and email history for this lead"
-          aria-label={`Draft ready for ${lead.name} — open Outreach panel`}
+          title="Draft generated in the outreach queue. This is not a send confirmation."
+          aria-label={`Draft generated for ${lead.name}, not sent — open Outreach panel`}
         >
           <CheckCircle size={14} className="shrink-0" />
-          <span className="truncate">Draft ready</span>
+          <span className="truncate">Draft generated</span>
           {queueCountLabel && (
             <span className="ml-0.5 hidden truncate text-xs font-normal text-white/80 sm:inline" title={queueCountLabel}>
               · {queueCountLabel}
@@ -772,7 +772,7 @@ export function OutreachEmailGenerateRow({
         <Link
           href={emailCenterHref}
           className="inline-flex max-w-[45%] shrink-0 items-center justify-center gap-1 border-l border-white/20 px-2.5 text-xs font-semibold text-white/95 no-underline hover:bg-white/10"
-          title="View this lead in Email center (queue and send history)"
+          title="View this lead in Email center for queue and send history"
           onClick={() => {
             setPanelOpen(false)
           }}
@@ -783,8 +783,8 @@ export function OutreachEmailGenerateRow({
         <button
           type="button"
           className="shrink-0 border-l border-white/20 px-1.5 text-white/90 hover:bg-white/15"
-          title="Clear this success state (draft stays in the queue)"
-          aria-label="Dismiss draft ready"
+          title="Clear this generated-draft state. The draft stays in the queue and is not marked sent."
+          aria-label="Dismiss draft generated"
           onClick={() => {
             void dismissN8nBar()
           }}
@@ -1007,7 +1007,7 @@ export function OutreachEmailGenerateRow({
                     Open Email center
                   </Link>
                   <span className="text-emerald-100/75">
-                    {" — this contact's email queue. Refresh the list below if the new row is still syncing."}
+                    {" — this contact's draft queue and send history. Draft generated does not mean sent."}
                   </span>
                 </p>
               </div>
@@ -1292,8 +1292,8 @@ export function OutreachEmailGenerateRow({
                   </div>
                   {recent.length === 0 && (state === 'succeeded' || serverN8nSuccess) && (
                     <p className="mb-1.5 text-[11px] leading-relaxed text-emerald-200/90">
-                      Draft is in the queue. This list updates when the row syncs — tap Refresh or use View all if you
-                      do not see it yet.
+                      Draft generated in the queue, not sent. This list updates when the row syncs — tap Refresh or use
+                      View all if you do not see it yet.
                     </p>
                   )}
                   {recent.length === 0 && !serverN8nSuccess && state !== 'succeeded' && (
