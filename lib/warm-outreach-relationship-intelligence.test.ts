@@ -146,6 +146,49 @@ describe('warm outreach relationship intelligence', () => {
     expect(summary.warnings).toContain('Private source context must be summarized, not quoted.')
   })
 
+  it('surfaces source visibility, mention safety, opening guidance, and monitoring plan', () => {
+    const summary = buildWarmOutreachContextSummary({
+      ...basePacket,
+      sourceRefs: [
+        {
+          sourceType: 'manual_note',
+          sourceId: '42',
+          summary: 'Private context is summarized for operator review.',
+          privateSource: true,
+          visibility: 'operator_only',
+          sourceStatus: 'manual',
+          safeToMention: false,
+          avoidInDraftReason: 'Do not quote private notes.',
+        },
+      ],
+      openingPitchGuidance: 'Open with a relationship-first reconnect note.',
+      suggestedNextStep: 'Review the Lead Pipeline relationship packet before drafting.',
+      avoidContext: ['Do not quote private notes.'],
+      responseMonitoringPlan: {
+        enabled: false,
+        status: 'provider_gate_required',
+        summary: 'Monitoring requires a later provider/thread tracking gate.',
+        channels: ['email'],
+        humanApprovalRequired: true,
+      },
+    })
+
+    expect(summary.source_summaries[0]).toMatchObject({
+      visibility: 'operator_only',
+      source_status: 'manual',
+      safe_to_mention: false,
+      avoid_in_draft_reason: 'Do not quote private notes.',
+    })
+    expect(summary.opening_pitch_guidance).toBe('Open with a relationship-first reconnect note.')
+    expect(summary.suggested_next_step).toBe('Review the Lead Pipeline relationship packet before drafting.')
+    expect(summary.avoid_context).toEqual(['Do not quote private notes.'])
+    expect(summary.response_monitoring_plan).toMatchObject({
+      enabled: false,
+      status: 'provider_gate_required',
+      channels: ['email'],
+    })
+  })
+
   it('prepares email warm packets for draft-only generation', () => {
     const prepared = prepareWarmOutreachDraftRequest({
       routeContactId: 42,

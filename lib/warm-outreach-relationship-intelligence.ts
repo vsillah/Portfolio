@@ -24,6 +24,9 @@ export type WarmOutreachTemplateFamily = (typeof warmOutreachTemplateFamilies)[n
 const sourceRefSchema = z.object({
   sourceType: z.enum([
     'portfolio_contact',
+    'contact_communication',
+    'outreach_queue',
+    'email_message',
     'meeting_record',
     'meeting_action_task',
     'prior_outreach',
@@ -38,14 +41,30 @@ const sourceRefSchema = z.object({
   sourceId: z.string().trim().min(1).optional(),
   summary: z.string().trim().min(1).max(500),
   privateSource: z.boolean().default(false),
+  visibility: z.enum(['public_profile', 'private_summary', 'operator_only']).default('private_summary'),
+  sourceStatus: z.enum(['verified', 'manual', 'unverified', 'blocked']).default('verified'),
+  safeToMention: z.boolean().default(false),
+  avoidInDraftReason: z.string().trim().max(240).optional(),
 })
 
 const channelCapabilitySchema = z.object({
   available: z.boolean(),
   providerConfigured: z.boolean().default(false),
   supportsExternalSend: z.boolean().default(false),
+  supportsDraftCreation: z.boolean().default(false),
+  supportsReplyMonitoring: z.boolean().default(false),
   manualOnly: z.boolean().default(false),
+  provider: z.string().trim().max(80).optional(),
+  providerAccountLabel: z.string().trim().max(160).optional(),
   reason: z.string().trim().max(240).optional(),
+})
+
+const responseMonitoringPlanSchema = z.object({
+  enabled: z.boolean().default(false),
+  status: z.enum(['not_enabled', 'manual_only', 'provider_gate_required']).default('not_enabled'),
+  summary: z.string().trim().min(1).max(500),
+  channels: z.array(z.enum(warmOutreachChannels)).default([]),
+  humanApprovalRequired: z.literal(true).default(true),
 })
 
 export const warmOutreachRelationshipPacketSchema = z.object({
@@ -76,6 +95,10 @@ export const warmOutreachRelationshipPacketSchema = z.object({
   }).default({}),
   preferredChannel: z.enum(warmOutreachChannels).optional(),
   relationshipEventId: z.string().trim().min(1).optional(),
+  openingPitchGuidance: z.string().trim().min(1).max(500).optional(),
+  suggestedNextStep: z.string().trim().min(1).max(500).optional(),
+  avoidContext: z.array(z.string().trim().min(1).max(240)).default([]),
+  responseMonitoringPlan: responseMonitoringPlanSchema.optional(),
 })
 
 export type WarmOutreachRelationshipPacket = z.infer<
@@ -267,10 +290,18 @@ export function buildWarmOutreachContextSummary(
       source_id: source.sourceId ?? null,
       summary: source.summary,
       private_source: source.privateSource,
+      visibility: source.visibility,
+      source_status: source.sourceStatus,
+      safe_to_mention: source.safeToMention,
+      avoid_in_draft_reason: source.avoidInDraftReason ?? null,
     })),
     relationship_signals: packet.relationshipSignals,
     commonalities: packet.commonalities,
     risk_flags: packet.riskFlags,
+    opening_pitch_guidance: packet.openingPitchGuidance ?? null,
+    suggested_next_step: packet.suggestedNextStep ?? null,
+    avoid_context: packet.avoidContext,
+    response_monitoring_plan: packet.responseMonitoringPlan ?? null,
     readiness_status: readiness.status,
     blockers: readiness.blockers,
     warnings: readiness.warnings,
