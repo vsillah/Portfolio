@@ -139,6 +139,7 @@ export interface OutreachEmailGenerateRowProps {
   relationshipPacketData?: RelationshipPacketApiResponse | null
   relationshipPacketLoading?: boolean
   relationshipPacketError?: string | null
+  presentation?: 'menu' | 'workroom'
 }
 
 export function OutreachEmailGenerateRow({
@@ -152,6 +153,7 @@ export function OutreachEmailGenerateRow({
   relationshipPacketData = null,
   relationshipPacketLoading = false,
   relationshipPacketError = null,
+  presentation = 'menu',
 }: OutreachEmailGenerateRowProps) {
   const { state, elapsedMs, phaseLabel, start, cancel, retry, dismissResult } = useOutreachGeneration({
     leadId: lead.id,
@@ -165,7 +167,8 @@ export function OutreachEmailGenerateRow({
     onFallbackCleared,
   })
 
-  const [panelOpen, setPanelOpen] = useState(false)
+  const isWorkroomPresentation = presentation === 'workroom'
+  const [panelOpen, setPanelOpen] = useState(isWorkroomPresentation)
   const [channel, setChannel] = useState<Channel>('email')
   const [suggested, setSuggested] = useState<{ template: EmailTemplateKey; reason: SuggestedReason } | null>(null)
   const [suggestLoading, setSuggestLoading] = useState(false)
@@ -230,7 +233,8 @@ export function OutreachEmailGenerateRow({
     setWarmPacketCache({})
     setWarmPacketError(null)
     setWarmPacketLoadingChannel(null)
-  }, [lead.id])
+    if (isWorkroomPresentation) setPanelOpen(true)
+  }, [isWorkroomPresentation, lead.id])
 
   useEffect(() => {
     void loadMeetingsForLead()
@@ -331,6 +335,7 @@ export function OutreachEmailGenerateRow({
   }, [panelOpen, onOutreachOpen])
 
   useEffect(() => {
+    if (isWorkroomPresentation) return
     if (!panelOpen) return
     const onDoc = (e: MouseEvent) => {
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) setPanelOpen(false)
@@ -344,7 +349,7 @@ export function OutreachEmailGenerateRow({
       document.removeEventListener('mousedown', onDoc)
       document.removeEventListener('keydown', onKey)
     }
-  }, [panelOpen])
+  }, [isWorkroomPresentation, panelOpen])
 
   const runInApp = useCallback(
     async (force?: boolean) => {
@@ -870,9 +875,11 @@ export function OutreachEmailGenerateRow({
 
   return (
     <div className="relative w-full min-w-0 basis-full sm:basis-auto" ref={panelRef}>
-      <div className="flex min-w-0 flex-wrap items-center gap-1.5">{outreachBar}</div>
+      {!isWorkroomPresentation && (
+        <div className="flex min-w-0 flex-wrap items-center gap-1.5">{outreachBar}</div>
+      )}
 
-      {showProgressCard && (
+      {!isWorkroomPresentation && showProgressCard && (
         <div
           className="mt-1.5 w-full min-w-0 max-w-sm rounded-md border border-emerald-500/30 bg-emerald-950/20 p-2"
           aria-label={`Outreach: ${runningHeadline}`}
@@ -896,14 +903,18 @@ export function OutreachEmailGenerateRow({
       )}
 
       <AnimatePresence>
-        {panelOpen && (
+        {(panelOpen || isWorkroomPresentation) && (
           <motion.div
             key="outreach-panel"
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.12 }}
-            className="relative z-40 mt-1.5 max-h-[min(80vh,44rem)] w-full min-w-0 max-w-full overflow-y-auto overflow-x-hidden break-words rounded-lg border border-silicon-slate bg-imperial-navy text-foreground shadow-2xl overscroll-contain sm:absolute sm:right-0 sm:top-full sm:w-[min(100vw-1.5rem,28rem)]"
+            className={
+              isWorkroomPresentation
+                ? 'relative w-full min-w-0 max-w-full overflow-hidden break-words rounded-xl border border-silicon-slate bg-imperial-navy text-foreground'
+                : 'relative z-40 mt-1.5 max-h-[min(80vh,44rem)] w-full min-w-0 max-w-full overflow-y-auto overflow-x-hidden break-words rounded-lg border border-silicon-slate bg-imperial-navy text-foreground shadow-2xl overscroll-contain sm:absolute sm:right-0 sm:top-full sm:w-[min(100vw-1.5rem,28rem)]'
+            }
             role="dialog"
             aria-label="Outreach options"
           >

@@ -191,6 +191,10 @@ function OutreachContent() {
     const id = searchParams?.get('id') ?? searchParams?.get('contact')
     return id ? parseInt(id) : null
   })
+  const [outreachWorkroomLeadId, setOutreachWorkroomLeadId] = useState<number | null>(() => {
+    const id = searchParams?.get('id') ?? searchParams?.get('contact')
+    return id ? parseInt(id) : null
+  })
   const [leadsPage, setLeadsPage] = useState(1)
   const leadsPerPage = 50
   const [leadActionId, setLeadActionId] = useState<number | null>(null)
@@ -692,7 +696,7 @@ function OutreachContent() {
   }, [activeTab, expandedLeadId])
 
   useEffect(() => {
-    if (activeTab !== 'leads' || !expandedLeadId) {
+    if (activeTab !== 'leads' || !outreachWorkroomLeadId) {
       setRelationshipPacketData(null)
       setRelationshipPacketLeadId(null)
       setRelationshipPacketError(null)
@@ -701,7 +705,7 @@ function OutreachContent() {
     }
 
     let cancelled = false
-    const leadId = expandedLeadId
+    const leadId = outreachWorkroomLeadId
     setRelationshipPacketLeadId(leadId)
     setRelationshipPacketData(null)
     setRelationshipPacketError(null)
@@ -747,7 +751,7 @@ function OutreachContent() {
     })
 
     return () => { cancelled = true }
-  }, [activeTab, expandedLeadId])
+  }, [activeTab, outreachWorkroomLeadId])
 
   useEffect(() => {
     if (leadRowMenuOpenId == null) return
@@ -829,22 +833,25 @@ function OutreachContent() {
     return 'bg-red-900/50 text-red-400 border border-red-700'
   }
   const expandedLead = expandedLeadId ? leads.find((lead) => lead.id === expandedLeadId) ?? null : null
+  const outreachWorkroomLead = outreachWorkroomLeadId
+    ? leads.find((lead) => lead.id === outreachWorkroomLeadId) ?? null
+    : null
   const modePolicies = Object.values(OUTREACH_MODE_POLICIES)
-  const outreachModeLabel = expandedLead
-    ? `${isWarmLeadSource(expandedLead.lead_source) ? 'Warm' : 'Cold'} 1:1`
+  const outreachModeLabel = outreachWorkroomLead
+    ? `${isWarmLeadSource(outreachWorkroomLead.lead_source) ? 'Warm' : 'Cold'} 1:1`
     : activeTab === 'escalations'
       ? 'Warm 1:1 review'
       : `${leadsTempFilter === 'all' ? 'Cold/warm' : leadsTempFilter === 'warm' ? 'Warm' : 'Cold'} lead review`
-  const outreachNextAction = expandedLead
-    ? expandedLead.do_not_contact || expandedLead.removed_at
+  const outreachNextAction = outreachWorkroomLead
+    ? outreachWorkroomLead.do_not_contact || outreachWorkroomLead.removed_at
       ? 'Resolve contact status before any draft or evidence work continues.'
       : 'Review evidence, recent drafts, meetings, and contact status before preparing internal outreach.'
     : selectedLeadIds.size
       ? `Review or enrich ${selectedLeadIds.size} selected lead(s).`
       : 'Select a lead to inspect the canonical outreach workroom.'
-  const outreachBlocker = expandedLead?.do_not_contact
+  const outreachBlocker = outreachWorkroomLead?.do_not_contact
     ? 'This lead is marked do not contact.'
-    : expandedLead?.removed_at
+    : outreachWorkroomLead?.removed_at
       ? 'This lead is removed from the active list.'
       : null
 
@@ -927,15 +934,15 @@ function OutreachContent() {
         </div>
 
         <MobileWorkflowSummary
-          title={expandedLead ? `Lead: ${expandedLead.name}` : 'Outreach workroom'}
+          title={outreachWorkroomLead ? `Lead: ${outreachWorkroomLead.name}` : 'Outreach workroom'}
           currentState={outreachModeLabel}
           owner="Vambah / Outreach"
           nextAction={outreachNextAction}
-          waitingOnYou={expandedLead || selectedLeadIds.size ? 'Yes - review before action' : 'No'}
+          waitingOnYou={outreachWorkroomLead || selectedLeadIds.size ? 'Yes - review before action' : 'No'}
           blocker={outreachBlocker}
-          canonicalHref={expandedLead ? `/admin/outreach?tab=leads&id=${expandedLead.id}` : '/admin/outreach?tab=leads'}
-          canonicalLabel={expandedLead ? 'Open selected lead' : 'Open lead workroom'}
-          tone={outreachBlocker ? 'red' : expandedLead || selectedLeadIds.size ? 'yellow' : 'blue'}
+          canonicalHref={outreachWorkroomLead ? `/admin/outreach?tab=leads&id=${outreachWorkroomLead.id}` : '/admin/outreach?tab=leads'}
+          canonicalLabel={outreachWorkroomLead ? 'Open selected lead' : 'Open lead workroom'}
+          tone={outreachBlocker ? 'red' : outreachWorkroomLead || selectedLeadIds.size ? 'yellow' : 'blue'}
         />
 
         <div className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-4 lg:hidden">
@@ -1131,6 +1138,70 @@ function OutreachContent() {
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {outreachWorkroomLead && !outreachWorkroomLead.do_not_contact && !outreachWorkroomLead.removed_at && (
+              <section
+                className="mb-6 rounded-xl border border-emerald-500/30 bg-emerald-950/10 p-3 shadow-[0_18px_60px_rgba(0,0,0,0.22)] sm:p-4"
+                aria-label={`Outreach workroom for ${outreachWorkroomLead.name}`}
+              >
+                <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-emerald-200/80">
+                      Selected outreach workroom
+                    </p>
+                    <h2 className="mt-1 truncate text-lg font-semibold text-foreground">
+                      {outreachWorkroomLead.name}
+                    </h2>
+                    <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
+                      Review the relationship packet and prepare internal email or LinkedIn drafts here. The lead list stays a list; provider sends remain gated.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setOutreachWorkroomLeadId(null)}
+                    className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-silicon-slate/80 bg-silicon-slate/35 px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-silicon-slate/55 hover:text-foreground"
+                    aria-label={`Close outreach workroom for ${outreachWorkroomLead.name}`}
+                  >
+                    <X size={15} aria-hidden />
+                    Close
+                  </button>
+                </div>
+                <OutreachEmailGenerateRow
+                  lead={outreachWorkroomLead}
+                  presentation="workroom"
+                  n8nFallback={n8nFailedLeadIds.has(outreachWorkroomLead.id)}
+                  relationshipPacketData={
+                    relationshipPacketLeadId === outreachWorkroomLead.id ? relationshipPacketData : null
+                  }
+                  relationshipPacketLoading={
+                    relationshipPacketLeadId === outreachWorkroomLead.id && relationshipPacketLoading
+                  }
+                  relationshipPacketError={
+                    relationshipPacketLeadId === outreachWorkroomLead.id ? relationshipPacketError : null
+                  }
+                  onToast={(msg) => {
+                    setGenerateOutreachToast(msg)
+                    setTimeout(() => setGenerateOutreachToast(null), 6000)
+                  }}
+                  onFallbackAvailable={() => {
+                    setN8nFailedLeadIds((prev) => new Set([...prev, outreachWorkroomLead.id]))
+                  }}
+                  onFallbackCleared={() => {
+                    setN8nFailedLeadIds((prev) => {
+                      const next = new Set(prev)
+                      next.delete(outreachWorkroomLead.id)
+                      return next
+                    })
+                  }}
+                  onSettled={() => {
+                    void fetchLeads({ silent: true })
+                  }}
+                  onOutreachOpen={() => {
+                    void fetchLeads({ silent: true })
+                  }}
+                />
+              </section>
+            )}
 
             {/* Leads List */}
             {leadsLoading ? (
@@ -1411,40 +1482,24 @@ function OutreachContent() {
 
                           {/* Actions — primary CTA + progressive fallback + More + expand */}
                           <div className="flex w-full min-w-0 flex-wrap items-start justify-end gap-2 sm:flex-nowrap xl:w-[min(36rem,42vw)]">
-                            {/* Primary CTA: pipeline-style pill (idle / running / succeeded / failed / cancelled / link). */}
-                            <OutreachEmailGenerateRow
-                              lead={lead}
-                              n8nFallback={n8nFailedLeadIds.has(lead.id)}
-                              relationshipPacketData={
-                                relationshipPacketLeadId === lead.id ? relationshipPacketData : null
-                              }
-                              relationshipPacketLoading={
-                                relationshipPacketLeadId === lead.id && relationshipPacketLoading
-                              }
-                              relationshipPacketError={
-                                relationshipPacketLeadId === lead.id ? relationshipPacketError : null
-                              }
-                              onToast={(msg) => {
-                                setGenerateOutreachToast(msg)
-                                setTimeout(() => setGenerateOutreachToast(null), 6000)
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setOutreachWorkroomLeadId(lead.id)
+                                setLeadRowMenuOpenId(null)
                               }}
-                              onFallbackAvailable={() => {
-                                setN8nFailedLeadIds((prev) => new Set([...prev, lead.id]))
-                              }}
-                              onFallbackCleared={() => {
-                                setN8nFailedLeadIds((prev) => {
-                                  const next = new Set(prev)
-                                  next.delete(lead.id)
-                                  return next
-                                })
-                              }}
-                              onSettled={() => {
-                                void fetchLeads({ silent: true })
-                              }}
-                              onOutreachOpen={() => {
-                                void fetchLeads({ silent: true })
-                              }}
-                            />
+                              className={`inline-flex min-h-11 w-full min-w-0 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-semibold transition-colors sm:w-auto sm:min-w-[10rem] ${
+                                outreachWorkroomLeadId === lead.id
+                                  ? 'border-emerald-400/60 bg-emerald-500/20 text-emerald-100'
+                                  : 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100 hover:bg-emerald-500/20'
+                              }`}
+                              aria-current={outreachWorkroomLeadId === lead.id ? 'true' : undefined}
+                            >
+                              <MessageSquare size={16} className="shrink-0" aria-hidden />
+                              <span className="truncate">
+                                {outreachWorkroomLeadId === lead.id ? 'Workroom open' : 'Open Outreach'}
+                              </span>
+                            </button>
 
                             {/* More actions — grouped dropdown */}
                             <div className="relative shrink-0" id={`lead-actions-wrap-${lead.id}`}>

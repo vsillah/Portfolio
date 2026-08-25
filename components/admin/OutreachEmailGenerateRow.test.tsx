@@ -265,4 +265,24 @@ describe('OutreachEmailGenerateRow status language', () => {
       expect.anything(),
     )
   })
+
+  it('renders warm outreach as an embedded workroom without the row dropdown container', async () => {
+    render(
+      <OutreachEmailGenerateRow
+        lead={{ ...lead, last_n8n_outreach_status: null }}
+        relationshipPacketData={relationshipPacketData}
+        presentation="workroom"
+      />,
+    )
+
+    expect(screen.queryByRole('button', { name: /Outreach\./i })).not.toBeInTheDocument()
+    const outreachPanel = screen.getByRole('dialog', { name: /Outreach options/i })
+    expect(outreachPanel).toHaveClass('relative')
+    expect(outreachPanel).toHaveClass('w-full')
+    expect(outreachPanel).toHaveClass('overflow-hidden')
+    expect(outreachPanel).not.toHaveClass('sm:absolute')
+    expect(screen.getByRole('button', { name: /Email draft/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /LinkedIn draft/i })).toBeInTheDocument()
+    expect(screen.getByText('Review source boundaries').closest('details')).not.toHaveAttribute('open')
+  })
 })
