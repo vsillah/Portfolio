@@ -226,11 +226,11 @@ describe('OutreachAdminPage deep links', () => {
 
     render(<OutreachAdminPage />)
 
-    expect(await screen.findByText('Relationship packet')).toBeInTheDocument()
-    expect(screen.getByText('Prior Portfolio conversation and meeting follow-up context exist.')).toBeInTheDocument()
-    expect(screen.getByText('Provider calls: off')).toBeInTheDocument()
-    expect(screen.getByText('External send: off')).toBeInTheDocument()
-    expect(screen.getByText('Meeting summary')).toBeInTheDocument()
+    expect((await screen.findAllByText('Relationship packet')).length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('Prior Portfolio conversation and meeting follow-up context exist.').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('Provider calls: off').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('External send: off').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('Meeting summary').length).toBeGreaterThanOrEqual(1)
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
@@ -260,6 +260,68 @@ describe('OutreachAdminPage deep links', () => {
       'workroom',
     )
     expect(screen.getByRole('button', { name: /Workroom open/i })).toBeInTheDocument()
+  })
+
+  it('keeps the selected workroom read-only when a lead is do not contact', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&visibility=all')
+    const blockedLead = { ...lead, do_not_contact: true }
+    const blockedPacket = {
+      ...relationshipPacketResponse,
+      packet: {
+        ...relationshipPacketResponse.packet,
+        suppression: {
+          ...relationshipPacketResponse.packet.suppression,
+          doNotContact: true,
+          suppressionReason: 'do_not_contact',
+        },
+      },
+      readiness: {
+        ...relationshipPacketResponse.readiness,
+        status: 'blocked',
+        blockers: ['Contact is marked do not contact.'],
+      },
+    }
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url.startsWith('/api/admin/outreach/leads/42/relationship-packet')) {
+        return Response.json(blockedPacket)
+      }
+      if (url.startsWith('/api/admin/outreach/leads')) {
+        return Response.json({ leads: [blockedLead], total: 1, page: 1 })
+      }
+      if (url.startsWith('/api/admin/value-evidence/workflow-status')) {
+        return Response.json({})
+      }
+      if (url.startsWith('/api/admin/chat-escalations')) {
+        return Response.json({ escalations: [], total: 0 })
+      }
+      if (url.startsWith('/api/admin/sales/contact-meetings')) {
+        return Response.json({ meetings: [] })
+      }
+      if (url.startsWith('/api/meeting-action-tasks')) {
+        return Response.json({ tasks: [] })
+      }
+      return Response.json({})
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<OutreachAdminPage />)
+
+    await screen.findByText('Ada Operator')
+    fireEvent.click(screen.getByRole('button', { name: /Open Outreach/i }))
+
+    const workroom = await screen.findByLabelText('Outreach workroom for Ada Operator')
+    expect(within(workroom).getByText('Draft generation blocked')).toBeInTheDocument()
+    expect(within(workroom).getByText(/no local draft, provider call, Gmail draft, DM, or send/i)).toBeInTheDocument()
+    expect(within(workroom).queryByTestId('outreach-generator')).not.toBeInTheDocument()
+    expect(await within(workroom).findByText('Relationship packet')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/admin/outreach/leads/42/relationship-packet',
+        expect.objectContaining({
+          headers: { Authorization: 'Bearer admin-token' },
+        }),
+      )
+    })
   })
 
   it('wraps the hero action group for selected-lead mobile widths', async () => {

@@ -283,6 +283,30 @@ describe('OutreachEmailGenerateRow status language', () => {
     expect(outreachPanel).not.toHaveClass('sm:absolute')
     expect(screen.getByRole('button', { name: /Email draft/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /LinkedIn draft/i })).toBeInTheDocument()
+    expect(screen.getByText('Warm email templates')).toBeInTheDocument()
+    expect(screen.getByText('Warm Outreach Email')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Draft warm email/i })).toBeInTheDocument()
+    expect(screen.queryByText('Cold Outreach Email')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Draft cold email/i })).not.toBeInTheDocument()
     expect(screen.getByText('Review source boundaries').closest('details')).not.toHaveAttribute('open')
+  })
+
+  it('keeps cold draft labels for cold leads', async () => {
+    render(
+      <OutreachEmailGenerateRow
+        lead={{
+          ...lead,
+          lead_source: 'cold_website',
+          last_n8n_outreach_status: null,
+        }}
+        presentation="workroom"
+      />,
+    )
+
+    expect(screen.getByText('Email templates')).toBeInTheDocument()
+    expect(screen.getByText('Cold Outreach Email')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Draft cold email/i })).toBeInTheDocument()
+    expect(screen.queryByText('Warm Outreach Email')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Draft warm email/i })).not.toBeInTheDocument()
   })
 })

@@ -495,6 +495,16 @@ export function OutreachEmailGenerateRow({
   const warmPacketInventory = warmPacketPreview?.contextSummary.source_inventory ?? null
   const warmPacketSources = warmPacketPreview?.packet.sourceRefs ?? []
   const warmDraftEnabled = !anyRun && !lead.do_not_contact && !lead.removed_at
+  const isWarmRelationshipFlow = isWarmLead || Boolean(warmPacketPreview)
+  const emailTemplatesLabel = isWarmRelationshipFlow ? 'Warm email templates' : 'Email templates'
+  const quickDraftLabel = isWarmRelationshipFlow ? 'Quick draft - warm outreach' : 'Quick draft - cold outreach'
+  const quickDraftButtonLabel = isWarmRelationshipFlow ? 'Draft warm email' : 'Draft cold email'
+  const fallbackDraftLabel = isWarmRelationshipFlow ? 'warm draft' : 'cold draft'
+  const getOutreachTemplateDisplayName = (key: string) => {
+    if (isWarmRelationshipFlow && key === 'email_cold_outreach') return 'Warm Outreach Email'
+    if (isWarmRelationshipFlow && key === 'linkedin_cold_outreach') return 'Warm LinkedIn Outreach'
+    return getPromptDisplayName(key)
+  }
 
   const loadWarmPacketForChannel = async (
     targetChannel: WarmChannel,
@@ -644,6 +654,14 @@ export function OutreachEmailGenerateRow({
     key: EmailTemplateKey | LinkedInTemplateKey,
     targetChannel: Channel = channel,
   ) => {
+    if (isWarmRelationshipFlow && key === 'email_cold_outreach' && targetChannel === 'email') {
+      void runWarmGenerate('email')
+      return
+    }
+    if (isWarmRelationshipFlow && key === 'linkedin_cold_outreach' && targetChannel === 'linkedin') {
+      void runWarmGenerate('linkedin')
+      return
+    }
     runGenerate(key, targetChannel)
   }
 
@@ -1181,12 +1199,16 @@ export function OutreachEmailGenerateRow({
                 {n8nFallback && !inAppLoading && !anyRun && (
                   <div className="m-2 rounded-md border border-violet-500/30 bg-violet-950/25 p-2 text-[12px] text-violet-100/95">
                     <p className="mb-0.5 font-medium">Generation failed for this run</p>
-                    <p className="text-[11px] text-violet-200/80">Try again with the cold draft below.</p>
+                    <p className="text-[11px] text-violet-200/80">Try again with the {fallbackDraftLabel} below.</p>
                     <button
                       type="button"
                       disabled={anyRun}
                       onClick={() => {
-                        void runInApp()
+                        if (isWarmRelationshipFlow) {
+                          void runWarmGenerate('email')
+                        } else {
+                          void runInApp()
+                        }
                       }}
                       className="mt-2 flex w-full min-h-9 items-center justify-center gap-1.5 rounded-md border border-violet-400/40 bg-violet-500/20 px-2 text-xs font-medium text-violet-100 hover:bg-violet-500/30 disabled:cursor-not-allowed disabled:opacity-50"
                     >
@@ -1198,7 +1220,7 @@ export function OutreachEmailGenerateRow({
 
                 <div className="px-3 pt-2.5">
                   <p className="mb-1.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground/80">
-                    Email templates
+                    {emailTemplatesLabel}
                   </p>
                   {suggestLoading && (
                     <p className="mb-1.5 text-[11px] text-muted-foreground">
@@ -1218,7 +1240,7 @@ export function OutreachEmailGenerateRow({
                       }}
                       className="flex w-full min-h-11 items-center justify-between gap-2 rounded-md border border-emerald-500/30 bg-gradient-to-r from-emerald-600/20 to-teal-600/15 px-2.5 py-2 text-left text-sm font-medium text-foreground disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      <span>Generate: {getPromptDisplayName(suggested.template)}</span>
+                      <span>Generate: {getOutreachTemplateDisplayName(suggested.template)}</span>
                       <span
                         className="shrink-0 rounded border border-white/20 px-1.5 text-[9px] font-semibold uppercase text-emerald-200/90"
                         title={REASON_LABELS[suggested.reason]}
@@ -1231,7 +1253,7 @@ export function OutreachEmailGenerateRow({
 
                 <ul
                   className="max-h-32 space-y-0.5 overflow-y-auto px-1.5 py-0.5 text-xs"
-                  aria-label="Email templates"
+                  aria-label={emailTemplatesLabel}
                 >
                   {EMAIL_TEMPLATE_KEYS.map((key) => {
                     const isSug = suggested?.template === key
@@ -1240,14 +1262,14 @@ export function OutreachEmailGenerateRow({
                         <button
                           type="button"
                           disabled={anyRun}
-                          title={`Run ${getPromptDisplayName(key)} — generate a draft with the LLM`}
-                          aria-label={`Run template: ${getPromptDisplayName(key)}`}
+                          title={`Run ${getOutreachTemplateDisplayName(key)} — generate a draft with the LLM`}
+                          aria-label={`Run template: ${getOutreachTemplateDisplayName(key)}`}
                           className="flex min-h-9 flex-1 items-center justify-between gap-2 rounded-md px-2.5 text-left text-foreground hover:bg-silicon-slate/50 disabled:cursor-not-allowed disabled:opacity-50"
                           onClick={() => {
                             pickTemplate(key, 'email')
                           }}
                         >
-                          <span className="min-w-0 flex-1 truncate">{getPromptDisplayName(key)}</span>
+                          <span className="min-w-0 flex-1 truncate">{getOutreachTemplateDisplayName(key)}</span>
                           <span className="flex shrink-0 items-center gap-1">
                             {isSug && <span className="text-[9px] text-purple-300">★</span>}
                             <Play
@@ -1270,8 +1292,8 @@ export function OutreachEmailGenerateRow({
                               templateKey: key,
                             })
                           }}
-                          title={`View assembled prompt for ${getPromptDisplayName(key)} (no LLM call, no draft saved)`}
-                          aria-label={`View prompt only: ${getPromptDisplayName(key)}`}
+                          title={`View assembled prompt for ${getOutreachTemplateDisplayName(key)} (no LLM call, no draft saved)`}
+                          aria-label={`View prompt only: ${getOutreachTemplateDisplayName(key)}`}
                           className="flex min-h-9 shrink-0 items-center justify-center rounded-md px-1.5 text-muted-foreground transition-colors hover:bg-silicon-slate/40 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
                         >
                           <Eye size={12} aria-hidden />
@@ -1282,18 +1304,22 @@ export function OutreachEmailGenerateRow({
                 </ul>
 
                 <div className="h-px bg-border/50" />
-                <p className="px-3 pt-1.5 text-[10px] text-muted-foreground">Quick draft — cold outreach</p>
+                <p className="px-3 pt-1.5 text-[10px] text-muted-foreground">{quickDraftLabel}</p>
                 <div className="px-2.5 pb-2">
                   <button
                     type="button"
                     className="flex w-full min-h-11 items-center justify-center gap-2 rounded-md border border-silicon-slate/80 bg-silicon-slate/30 px-2.5 text-sm text-foreground hover:bg-silicon-slate/50 disabled:cursor-not-allowed disabled:opacity-50"
                     disabled={inAppLoading || anyRun}
                     onClick={() => {
-                      void runInApp()
+                      if (isWarmRelationshipFlow) {
+                        void runWarmGenerate('email')
+                      } else {
+                        void runInApp()
+                      }
                     }}
                   >
                     {inAppLoading ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                    Draft cold email
+                    {quickDraftButtonLabel}
                   </button>
                 </div>
 
@@ -1467,14 +1493,14 @@ export function OutreachEmailGenerateRow({
                       <button
                         type="button"
                         disabled={anyRun}
-                        title={`Run ${getPromptDisplayName(key)} — generate queue draft with the LLM`}
-                        aria-label={`Run template: ${getPromptDisplayName(key)}`}
+                        title={`Run ${getOutreachTemplateDisplayName(key)} — generate queue draft with the LLM`}
+                        aria-label={`Run template: ${getOutreachTemplateDisplayName(key)}`}
                         className="flex min-h-9 flex-1 items-center justify-between gap-2 rounded-md px-2.5 text-left text-foreground hover:bg-silicon-slate/50 disabled:cursor-not-allowed disabled:opacity-50"
                         onClick={() => {
                           pickTemplate(key, 'linkedin')
                         }}
                       >
-                        <span className="min-w-0 flex-1 truncate">{getPromptDisplayName(key)}</span>
+                        <span className="min-w-0 flex-1 truncate">{getOutreachTemplateDisplayName(key)}</span>
                         <Play
                           size={12}
                           className="shrink-0 text-emerald-400/90"
@@ -1494,8 +1520,8 @@ export function OutreachEmailGenerateRow({
                             templateKey: key,
                           })
                         }}
-                        title={`View assembled prompt for ${getPromptDisplayName(key)} (no LLM call, no draft saved)`}
-                        aria-label={`View prompt only: ${getPromptDisplayName(key)}`}
+                        title={`View assembled prompt for ${getOutreachTemplateDisplayName(key)} (no LLM call, no draft saved)`}
+                        aria-label={`View prompt only: ${getOutreachTemplateDisplayName(key)}`}
                         className="flex min-h-9 shrink-0 items-center justify-center rounded-md px-1.5 text-muted-foreground transition-colors hover:bg-silicon-slate/40 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         <Eye size={12} aria-hidden />
