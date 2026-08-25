@@ -225,7 +225,16 @@ describe('OutreachEmailGenerateRow status language', () => {
       />,
     )
 
-    fireEvent.click(screen.getByRole('button', { name: /Outreach\./i }))
+    const outreachButton = screen.getByRole('button', { name: /Outreach\./i })
+    expect(outreachButton.closest('.basis-full')).not.toBeNull()
+
+    fireEvent.click(outreachButton)
+    const outreachPanel = screen.getByRole('dialog', { name: /Outreach options/i })
+    expect(outreachPanel).toHaveClass('relative')
+    expect(outreachPanel).toHaveClass('w-full')
+    expect(outreachPanel).toHaveClass('max-w-full')
+    expect(outreachPanel).toHaveClass('overflow-x-hidden')
+    expect(outreachPanel).toHaveClass('sm:absolute')
     expect(screen.getByText(/Needs human review/i)).toBeInTheDocument()
     expect(screen.getByText(/summarize-only 1/i)).toBeInTheDocument()
     expect(screen.getByText(/excluded 1/i)).toBeInTheDocument()

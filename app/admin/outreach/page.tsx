@@ -1410,7 +1410,7 @@ function OutreachContent() {
                           </div>
 
                           {/* Actions — primary CTA + progressive fallback + More + expand */}
-                          <div className="flex w-full min-w-0 items-start justify-end gap-2 xl:w-[min(36rem,42vw)]">
+                          <div className="flex w-full min-w-0 flex-wrap items-start justify-end gap-2 sm:flex-nowrap xl:w-[min(36rem,42vw)]">
                             {/* Primary CTA: pipeline-style pill (idle / running / succeeded / failed / cancelled / link). */}
                             <OutreachEmailGenerateRow
                               lead={lead}

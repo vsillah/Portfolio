@@ -869,7 +869,7 @@ export function OutreachEmailGenerateRow({
   }
 
   return (
-    <div className="relative w-full min-w-0" ref={panelRef}>
+    <div className="relative w-full min-w-0 basis-full sm:basis-auto" ref={panelRef}>
       <div className="flex min-w-0 flex-wrap items-center gap-1.5">{outreachBar}</div>
 
       {showProgressCard && (
@@ -903,13 +903,13 @@ export function OutreachEmailGenerateRow({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.12 }}
-            className="absolute right-0 top-full z-40 mt-1.5 w-[min(100vw-1.5rem,28rem)] overflow-hidden rounded-lg border border-silicon-slate bg-imperial-navy text-foreground shadow-2xl"
+            className="relative z-40 mt-1.5 max-h-[min(80vh,44rem)] w-full min-w-0 max-w-full overflow-y-auto overflow-x-hidden break-words rounded-lg border border-silicon-slate bg-imperial-navy text-foreground shadow-2xl overscroll-contain sm:absolute sm:right-0 sm:top-full sm:w-[min(100vw-1.5rem,28rem)]"
             role="dialog"
             aria-label="Outreach options"
           >
-            <div className="border-b border-silicon-slate px-3 py-2.5">
+            <div className="min-w-0 border-b border-silicon-slate px-3 py-2.5">
               <p className="text-sm font-medium text-foreground">Outreach</p>
-              <p className="text-[11px] text-muted-foreground">{lead.name}</p>
+              <p className="min-w-0 text-[11px] leading-snug text-muted-foreground">{lead.name}</p>
             </div>
             {anyRun && progress && (
               <div
@@ -953,9 +953,9 @@ export function OutreachEmailGenerateRow({
                 </p>
               </div>
             )}
-            <div className="border-b border-silicon-slate/80 px-3 py-2.5">
-              <div className="mb-1.5 flex items-center justify-between gap-2">
-                <p className="flex items-center gap-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground/80">
+            <div className="min-w-0 border-b border-silicon-slate/80 px-3 py-2.5">
+              <div className="mb-1.5 flex min-w-0 items-center justify-between gap-2">
+                <p className="flex min-w-0 items-center gap-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground/80">
                   <Users className="h-3 w-3 shrink-0 opacity-80" aria-hidden />
                   Warm relationship
                 </p>
@@ -969,11 +969,11 @@ export function OutreachEmailGenerateRow({
                   {isWarmLead ? 'Warm' : 'Review'}
                 </span>
               </div>
-              <p className="text-[11px] leading-snug text-muted-foreground">
+              <p className="min-w-0 text-[11px] leading-snug text-muted-foreground">
                 {warmRelationshipSummary}. Drafts stay internal and require human approval before send.
               </p>
               {warmPacketPreview && (
-                <p className="mt-1 text-[10px] leading-snug text-muted-foreground/85">
+                <p className="mt-1 min-w-0 text-[10px] leading-snug text-muted-foreground/85">
                   Sources: safe-to-mention{' '}
                   {warmPacketPreview.contextSummary.source_inventory?.safeToMention.length ?? 0};
                   summarize-only{' '}
@@ -1037,8 +1037,8 @@ export function OutreachEmailGenerateRow({
                   <summary className="cursor-pointer px-2 py-1.5 text-[11px] font-medium text-muted-foreground hover:text-foreground">
                     Review source boundaries
                   </summary>
-                  <div className="space-y-2 border-t border-silicon-slate/80 p-2 text-[11px] leading-snug text-muted-foreground">
-                    <div className="grid grid-cols-2 gap-1.5">
+                  <div className="min-w-0 space-y-2 border-t border-silicon-slate/80 p-2 text-[11px] leading-snug text-muted-foreground">
+                    <div className="grid min-w-0 grid-cols-2 gap-1.5">
                       <span>Sources: {warmPacketSources.length}</span>
                       <span>Safe: {warmPacketInventory?.safeToMention.length ?? 0}</span>
                       <span>Summarize: {warmPacketInventory?.summarizeOnly.length ?? 0}</span>
@@ -1064,7 +1064,7 @@ export function OutreachEmailGenerateRow({
                       </p>
                     ) : null}
                     {warmPacketSources.length ? (
-                      <ul className="max-h-32 space-y-1 overflow-y-auto border-t border-silicon-slate/70 pt-2">
+                      <ul className="max-h-32 min-w-0 space-y-1 overflow-y-auto overflow-x-hidden border-t border-silicon-slate/70 pt-2">
                         {warmPacketSources.map((source, index) => (
                           <li key={`${source.sourceType}-${source.sourceId ?? index}`}>
                             {source.sourceType.replace(/_/g, ' ')}
