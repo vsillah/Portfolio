@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import type { HTMLAttributes, ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import OutreachAdminPage from './page'
@@ -24,7 +24,11 @@ vi.mock('@/components/admin/outreach/SocialIntelModal', () => ({ default: () => 
 vi.mock('@/components/admin/outreach/EvidenceDrawer', () => ({ default: () => null }))
 vi.mock('@/components/admin/outreach/AddLeadModal', () => ({ default: () => null }))
 vi.mock('@/components/admin/OutreachEmailGenerateRow', () => ({
-  OutreachEmailGenerateRow: () => <div>Email draft row</div>,
+  OutreachEmailGenerateRow: ({ lead, presentation }: { lead: { name: string }; presentation?: string }) => (
+    <div data-testid="outreach-generator" data-presentation={presentation ?? 'menu'}>
+      Outreach generator for {lead.name}
+    </div>
+  ),
 }))
 
 vi.mock('@/lib/auth', () => ({
@@ -236,6 +240,26 @@ describe('OutreachAdminPage deep links', () => {
         }),
       )
     })
+  })
+
+  it('opens outreach in a dedicated selected workroom instead of rendering the generator inside each lead row', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads')
+
+    render(<OutreachAdminPage />)
+
+    await screen.findByText('Ada Operator')
+    expect(screen.queryByText('Selected outreach workroom')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('outreach-generator')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /Open Outreach/i }))
+
+    const workroom = await screen.findByLabelText('Outreach workroom for Ada Operator')
+    expect(within(workroom).getByText('Selected outreach workroom')).toBeInTheDocument()
+    expect(within(workroom).getByTestId('outreach-generator')).toHaveAttribute(
+      'data-presentation',
+      'workroom',
+    )
+    expect(screen.getByRole('button', { name: /Workroom open/i })).toBeInTheDocument()
   })
 
   it('wraps the hero action group for selected-lead mobile widths', async () => {
