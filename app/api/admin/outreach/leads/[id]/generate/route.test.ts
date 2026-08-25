@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
   recordAgentEvent: vi.fn(),
   endAgentRun: vi.fn(),
   markAgentRunFailed: vi.fn(),
+  notifyOutreachDraftReady: vi.fn(),
 }))
 
 vi.mock('@/lib/auth-server', () => ({
@@ -33,7 +34,7 @@ vi.mock('@/lib/outreach-queue-generator', () => ({
 }))
 
 vi.mock('@/lib/slack-outreach-notification', () => ({
-  notifyOutreachDraftReady: vi.fn().mockResolvedValue(undefined),
+  notifyOutreachDraftReady: mocks.notifyOutreachDraftReady,
 }))
 
 vi.mock('@/lib/agent-run', () => ({
@@ -110,6 +111,7 @@ describe('POST /api/admin/outreach/leads/[id]/generate', () => {
     mocks.recordAgentEvent.mockResolvedValue({ id: 'event-1' })
     mocks.endAgentRun.mockResolvedValue({ id: 'agent-run-1' })
     mocks.markAgentRunFailed.mockResolvedValue({ id: 'agent-run-1' })
+    mocks.notifyOutreachDraftReady.mockResolvedValue(undefined)
   })
 
   it('returns auth error response when admin verification fails', async () => {
@@ -282,6 +284,57 @@ describe('POST /api/admin/outreach/leads/[id]/generate', () => {
         }),
       }),
     )
+    expect(mocks.notifyOutreachDraftReady).not.toHaveBeenCalled()
+    expect(mocks.recordAgentEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: 'notification_skipped',
+        message: expect.stringContaining('Slack notification skipped'),
+      }),
+    )
+  })
+
+  it('blocks suppressed warm relationship packets before generation starts', async () => {
+    const response = await POST(makeRequest({
+      warm_relationship: {
+        version: 'warm-outreach-relationship/v1',
+        contactId: 42,
+        objective: 'Prepare a warm email draft.',
+        relationshipBasis: 'Existing warm referral in Portfolio.',
+        sourceRefs: [
+          {
+            sourceType: 'portfolio_contact',
+            sourceId: '42',
+            summary: 'Warm referral record.',
+            privateSource: false,
+          },
+        ],
+        suppression: {
+          doNotContact: true,
+          unsubscribed: false,
+          suppressionReason: 'Contact is marked do not contact in Portfolio.',
+        },
+        channelCapabilities: {
+          email: {
+            available: true,
+            providerConfigured: false,
+            supportsExternalSend: false,
+            manualOnly: false,
+          },
+        },
+        preferredChannel: 'email',
+      },
+    }), { params: { id: '42' } })
+
+    expect(response.status).toBe(400)
+    await expect(response.json()).resolves.toMatchObject({
+      error: 'Contact is marked do not contact in Portfolio.',
+      warmRelationshipReadiness: {
+        status: 'blocked',
+      },
+    })
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(mocks.generateOutreachDraftInApp).not.toHaveBeenCalled()
+    expect(mocks.notifyOutreachDraftReady).not.toHaveBeenCalled()
   })
 
   it('blocks warm relationship packets for a different lead before generation starts', async () => {

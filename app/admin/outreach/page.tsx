@@ -1415,6 +1415,15 @@ function OutreachContent() {
                             <OutreachEmailGenerateRow
                               lead={lead}
                               n8nFallback={n8nFailedLeadIds.has(lead.id)}
+                              relationshipPacketData={
+                                relationshipPacketLeadId === lead.id ? relationshipPacketData : null
+                              }
+                              relationshipPacketLoading={
+                                relationshipPacketLeadId === lead.id && relationshipPacketLoading
+                              }
+                              relationshipPacketError={
+                                relationshipPacketLeadId === lead.id ? relationshipPacketError : null
+                              }
                               onToast={(msg) => {
                                 setGenerateOutreachToast(msg)
                                 setTimeout(() => setGenerateOutreachToast(null), 6000)

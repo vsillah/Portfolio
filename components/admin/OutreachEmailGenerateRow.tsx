@@ -36,6 +36,10 @@ import { estimateMilestoneProgress, type PipelineStage } from '@/lib/pipeline-pr
 import WhyThisDraftModal, {
   type WhyThisDraftRequest,
 } from '@/components/admin/outreach/WhyThisDraftModal'
+import {
+  relationshipReadinessLabel,
+  type RelationshipPacketApiResponse,
+} from '@/components/admin/outreach/RelationshipPacketPanel'
 
 // Generation pipeline stages used by the in-flight progress bar. The same
 // labels apply to the in-app path because /generate is now the in-app generator.
@@ -55,56 +59,6 @@ const INAPP_TYPICAL_S = 42
 
 type Channel = OutreachChannel
 type WarmChannel = 'email' | 'linkedin'
-
-type WarmRelationshipPacket = {
-  version: 'warm-outreach-relationship/v1'
-  contactId: number
-  contactName: string
-  objective: string
-  relationshipBasis: string
-  sourceRefs: {
-    sourceType:
-      | 'portfolio_contact'
-      | 'meeting_record'
-      | 'prior_outreach'
-      | 'google_contacts'
-      | 'linkedin'
-      | 'facebook'
-      | 'phone_contact'
-      | 'manual_note'
-      | 'public_profile'
-    sourceId?: string
-    summary: string
-    privateSource: boolean
-  }[]
-  relationshipSignals: string[]
-  commonalities: string[]
-  riskFlags: string[]
-  confidence: 'low' | 'medium' | 'high'
-  suppression: {
-    doNotContact: boolean
-    unsubscribed: boolean
-    removedAt?: string | null
-    suppressionReason?: string
-  }
-  channelCapabilities: {
-    email?: {
-      available: boolean
-      providerConfigured: boolean
-      supportsExternalSend: boolean
-      manualOnly: boolean
-      reason?: string
-    }
-    linkedin?: {
-      available: boolean
-      providerConfigured: boolean
-      supportsExternalSend: boolean
-      manualOnly: boolean
-      reason?: string
-    }
-  }
-  preferredChannel: WarmChannel
-}
 
 type SuggestedReason =
   | 'converted_client'
@@ -136,16 +90,6 @@ function timeAgo(date: string): string {
   const hr = Math.floor(min / 60)
   if (hr < 24) return `${hr}h ago`
   return `${Math.floor(hr / 24)}d ago`
-}
-
-function compactText(value: string | null | undefined, max = 180): string | null {
-  const trimmed = value?.replace(/\s+/g, ' ').trim()
-  if (!trimmed) return null
-  return trimmed.length > max ? `${trimmed.slice(0, max - 1)}…` : trimmed
-}
-
-function sourceLabel(value: string | null | undefined): string {
-  return value?.replace(/_/g, ' ').trim() || 'Portfolio contact'
 }
 
 export interface RecentEmailDraftItem {
@@ -192,6 +136,9 @@ export interface OutreachEmailGenerateRowProps {
   onOutreachOpen?: () => void
   onFallbackCleared?: () => void
   n8nFallback?: boolean
+  relationshipPacketData?: RelationshipPacketApiResponse | null
+  relationshipPacketLoading?: boolean
+  relationshipPacketError?: string | null
 }
 
 export function OutreachEmailGenerateRow({
@@ -202,6 +149,9 @@ export function OutreachEmailGenerateRow({
   onOutreachOpen,
   onFallbackCleared,
   n8nFallback = false,
+  relationshipPacketData = null,
+  relationshipPacketLoading = false,
+  relationshipPacketError = null,
 }: OutreachEmailGenerateRowProps) {
   const { state, elapsedMs, phaseLabel, start, cancel, retry, dismissResult } = useOutreachGeneration({
     leadId: lead.id,
@@ -229,6 +179,12 @@ export function OutreachEmailGenerateRow({
   const [whyRequest, setWhyRequest] = useState<WhyThisDraftRequest | null>(null)
   const [gmailDraftSavingId, setGmailDraftSavingId] = useState<string | null>(null)
   const [gmailDraftSmokeId, setGmailDraftSmokeId] = useState<string | null>(null)
+  const [warmPacketCache, setWarmPacketCache] = useState<
+    Partial<Record<WarmChannel, RelationshipPacketApiResponse>>
+  >({})
+  const [warmPacketLoadingChannel, setWarmPacketLoadingChannel] =
+    useState<WarmChannel | null>(null)
+  const [warmPacketError, setWarmPacketError] = useState<string | null>(null)
 
   /** `meeting_records.id` for prompt + dedup; empty = server uses latest meeting for this lead. */
   const [outreachMeetingId, setOutreachMeetingId] = useState('')
@@ -271,6 +227,9 @@ export function OutreachEmailGenerateRow({
   useEffect(() => {
     setOutreachMeetingId('')
     setMeetingsList([])
+    setWarmPacketCache({})
+    setWarmPacketError(null)
+    setWarmPacketLoadingChannel(null)
   }, [lead.id])
 
   useEffect(() => {
@@ -496,116 +455,81 @@ export function OutreachEmailGenerateRow({
 
   const meetingIdForRequest = outreachMeetingId.trim() || undefined
   const isWarmLead = Boolean(lead.lead_source?.startsWith('warm_'))
-  const warmEvidenceLabels = [
-    sourceLabel(lead.lead_source),
-    lead.linkedin_url ? 'LinkedIn profile' : null,
-    lead.phone_number ? 'phone contact' : null,
-    compactText(lead.quick_wins, 42) ? 'quick wins' : null,
-    compactText(lead.message, 42) ? 'lead notes' : null,
-    compactText(lead.rep_pain_points, 42) ? 'pain points' : null,
-  ].filter(Boolean) as string[]
   const warmDefaultChannel: WarmChannel =
     channel === 'linkedin' && lead.linkedin_url ? 'linkedin' : 'email'
-  const warmRelationshipSummary =
-    warmEvidenceLabels.length > 0
-      ? `${warmEvidenceLabels.slice(0, 3).join(', ')}${
-          warmEvidenceLabels.length > 3 ? ` +${warmEvidenceLabels.length - 3}` : ''
-        }`
-      : 'No relationship evidence recorded'
-  const warmDraftEnabled =
-    !anyRun && Boolean(lead.email || (warmDefaultChannel === 'linkedin' && lead.linkedin_url))
+  const parentWarmPacket =
+    relationshipPacketData &&
+    String(relationshipPacketData.packet.contactId) === String(lead.id)
+      ? relationshipPacketData
+      : null
+  const warmPacketForDefault =
+    warmPacketCache[warmDefaultChannel] ??
+    (parentWarmPacket?.readiness.selectedChannel === warmDefaultChannel ? parentWarmPacket : null)
+  const warmPacketForEmail =
+    warmPacketCache.email ??
+    (parentWarmPacket?.readiness.selectedChannel === 'email' ? parentWarmPacket : null)
+  const warmPacketForLinkedIn =
+    warmPacketCache.linkedin ??
+    (parentWarmPacket?.readiness.selectedChannel === 'linkedin' ? parentWarmPacket : null)
+  const warmPacketPreview = warmPacketForDefault ?? parentWarmPacket
+  const warmRelationshipSummary = warmPacketPreview
+    ? `${relationshipReadinessLabel(warmPacketPreview.readiness.status)}. ${
+        warmPacketPreview.packet.sourceRefs.length
+      } local source${warmPacketPreview.packet.sourceRefs.length === 1 ? '' : 's'}; ${
+        warmPacketPreview.contextSummary.source_inventory?.summarizeOnly.length ?? 0
+      } summarize-only; ${
+        warmPacketPreview.contextSummary.source_inventory?.doNotMention.length ?? 0
+      } excluded.`
+    : relationshipPacketLoading
+      ? 'Loading the server relationship packet from local Portfolio rows.'
+      : relationshipPacketError || warmPacketError
+        ? relationshipPacketError ?? warmPacketError
+        : 'Server relationship packet required; click draft to load local Portfolio context before generation.'
+  const emailWarmCapability = warmPacketForEmail?.packet.channelCapabilities.email
+  const linkedInWarmCapability = warmPacketForLinkedIn?.packet.channelCapabilities.linkedin
+  const warmDraftEnabled = !anyRun && !lead.do_not_contact && !lead.removed_at
 
-  const buildWarmRelationshipPacket = (targetChannel: WarmChannel): WarmRelationshipPacket => {
-    const companyPhrase = lead.company ? ` at ${lead.company}` : ''
-    const rolePhrase = lead.job_title ? `${lead.job_title}${companyPhrase}` : lead.company ?? 'Portfolio contact'
-    const sourceRefs: WarmRelationshipPacket['sourceRefs'] = [
-      {
-        sourceType: 'portfolio_contact',
-        sourceId: String(lead.id),
-        summary: `${sourceLabel(lead.lead_source)} record for ${rolePhrase}.`,
-        privateSource: false,
-      },
-    ]
+  const loadWarmPacketForChannel = async (
+    targetChannel: WarmChannel,
+  ): Promise<RelationshipPacketApiResponse | null> => {
+    const cached =
+      warmPacketCache[targetChannel] ??
+      (parentWarmPacket?.readiness.selectedChannel === targetChannel ? parentWarmPacket : null)
+    if (cached) return cached
 
-    if (lead.linkedin_url) {
-      sourceRefs.push({
-        sourceType: 'linkedin',
-        summary: 'LinkedIn profile URL is recorded on the lead.',
-        privateSource: false,
-      })
-    }
-    if (lead.phone_number) {
-      sourceRefs.push({
-        sourceType: 'phone_contact',
-        summary: 'Phone contact detail exists in Portfolio.',
-        privateSource: true,
-      })
-    }
-    const message = compactText(lead.message)
-    if (message) {
-      sourceRefs.push({
-        sourceType: 'manual_note',
-        summary: message,
-        privateSource: true,
-      })
-    }
-    const quickWins = compactText(lead.quick_wins)
-    if (quickWins) {
-      sourceRefs.push({
-        sourceType: 'manual_note',
-        summary: quickWins,
-        privateSource: true,
-      })
-    }
-    const painPoints = compactText(lead.rep_pain_points)
-    if (painPoints) {
-      sourceRefs.push({
-        sourceType: 'manual_note',
-        summary: painPoints,
-        privateSource: true,
-      })
-    }
-
-    return {
-      version: 'warm-outreach-relationship/v1',
-      contactId: lead.id,
-      contactName: lead.name,
-      objective: `Prepare a warm ${targetChannel === 'linkedin' ? 'LinkedIn' : 'email'} outreach draft for human review.`,
-      relationshipBasis: `Existing Portfolio relationship from ${sourceLabel(lead.lead_source)}.`,
-      sourceRefs,
-      relationshipSignals: [
-        isWarmLead ? 'warm lead source' : 'existing Portfolio contact',
-        lead.company ? `company: ${lead.company}` : null,
-        lead.industry ? `industry: ${lead.industry}` : null,
-      ].filter(Boolean) as string[],
-      commonalities: [
-        compactText(lead.quick_wins, 80),
-        compactText(lead.rep_pain_points, 80),
-      ].filter(Boolean) as string[],
-      riskFlags: [],
-      confidence: isWarmLead || sourceRefs.length > 1 ? 'medium' : 'low',
-      suppression: {
-        doNotContact: Boolean(lead.do_not_contact),
-        unsubscribed: false,
-        removedAt: lead.removed_at ?? null,
-      },
-      channelCapabilities: {
-        email: {
-          available: Boolean(lead.email),
-          providerConfigured: true,
-          supportsExternalSend: false,
-          manualOnly: false,
-          reason: 'Email draft creation is supported; sending still requires approval.',
-        },
-        linkedin: {
-          available: Boolean(lead.linkedin_url),
-          providerConfigured: false,
-          supportsExternalSend: false,
-          manualOnly: true,
-          reason: 'LinkedIn draft text is supported; external LinkedIn sending remains manual.',
-        },
-      },
-      preferredChannel: targetChannel,
+    setWarmPacketLoadingChannel(targetChannel)
+    setWarmPacketError(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) {
+        setWarmPacketError('Admin session is required to load the relationship packet.')
+        onToast?.('Please sign in to load the relationship packet.')
+        return null
+      }
+      const res = await fetch(
+        `/api/admin/outreach/leads/${lead.id}/relationship-packet?preferred_channel=${targetChannel}`,
+        { headers: { Authorization: `Bearer ${session.access_token}` } },
+      )
+      const data = (await res.json().catch(() => ({}))) as
+        | RelationshipPacketApiResponse
+        | { error?: string }
+      if (!res.ok || !('packet' in data)) {
+        const message = 'error' in data && data.error
+          ? data.error
+          : 'Could not load the relationship packet.'
+        setWarmPacketError(message)
+        onToast?.(message)
+        return null
+      }
+      setWarmPacketCache((prev) => ({ ...prev, [targetChannel]: data }))
+      return data
+    } catch {
+      const message = 'Could not load the relationship packet.'
+      setWarmPacketError(message)
+      onToast?.(message)
+      return null
+    } finally {
+      setWarmPacketLoadingChannel(null)
     }
   }
 
@@ -616,10 +540,25 @@ export function OutreachEmailGenerateRow({
     void start(key, targetChannel, meetingIdForRequest)
   }
 
-  const runWarmGenerate = (targetChannel: WarmChannel = warmDefaultChannel) => {
-    const packet = buildWarmRelationshipPacket(targetChannel)
+  const runWarmGenerate = async (targetChannel: WarmChannel = warmDefaultChannel) => {
+    if (lead.do_not_contact || lead.removed_at) {
+      onToast?.('This contact is blocked before draft generation.')
+      return
+    }
+    const packetData = await loadWarmPacketForChannel(targetChannel)
+    if (!packetData) return
+    if (packetData.readiness.status === 'blocked') {
+      onToast?.(packetData.readiness.blockers[0] ?? 'Relationship packet is blocked.')
+      return
+    }
+    if (packetData.readiness.selectedChannel !== targetChannel) {
+      onToast?.(
+        `Relationship packet selected ${packetData.readiness.selectedChannel ?? 'no channel'} for this contact.`,
+      )
+      return
+    }
     void start(undefined, targetChannel, meetingIdForRequest, {
-      warm_relationship: packet,
+      warm_relationship: packetData.packet,
     })
   }
 
@@ -1077,38 +1016,64 @@ export function OutreachEmailGenerateRow({
               <p className="text-[11px] leading-snug text-muted-foreground">
                 {warmRelationshipSummary}. Drafts stay internal and require human approval before send.
               </p>
+              {warmPacketPreview && (
+                <p className="mt-1 text-[10px] leading-snug text-muted-foreground/85">
+                  Sources: safe-to-mention{' '}
+                  {warmPacketPreview.contextSummary.source_inventory?.safeToMention.length ?? 0};
+                  summarize-only{' '}
+                  {warmPacketPreview.contextSummary.source_inventory?.summarizeOnly.length ?? 0};
+                  excluded{' '}
+                  {warmPacketPreview.contextSummary.source_inventory?.doNotMention.length ?? 0}.
+                </p>
+              )}
               <div className="mt-2 grid grid-cols-1 gap-1.5 sm:grid-cols-2">
                 <button
                   type="button"
-                  disabled={!warmDraftEnabled || anyRun || !lead.email}
+                  disabled={
+                    !warmDraftEnabled ||
+                    warmPacketLoadingChannel === 'email' ||
+                    (Boolean(warmPacketForEmail) && emailWarmCapability?.available !== true)
+                  }
                   onClick={() => {
-                    runWarmGenerate('email')
+                    void runWarmGenerate('email')
                   }}
                   className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md border border-emerald-500/35 bg-emerald-500/10 px-2 text-xs font-medium text-emerald-100 hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50"
                   title={
-                    lead.email
-                      ? 'Create a warm email draft in the outreach queue. This does not send email.'
-                      : 'Add an email before creating a warm email draft.'
+                    emailWarmCapability?.available === false
+                      ? emailWarmCapability.reason ?? 'Email is not available in the relationship packet.'
+                      : 'Create a warm email draft from the server relationship packet. This does not send email.'
                   }
                 >
-                  <Mail size={13} aria-hidden />
-                  Draft warm email
+                  {warmPacketLoadingChannel === 'email' ? (
+                    <Loader2 size={13} className="animate-spin" aria-hidden />
+                  ) : (
+                    <Mail size={13} aria-hidden />
+                  )}
+                  Email draft
                 </button>
                 <button
                   type="button"
-                  disabled={!warmDraftEnabled || anyRun || !lead.linkedin_url}
+                  disabled={
+                    !warmDraftEnabled ||
+                    warmPacketLoadingChannel === 'linkedin' ||
+                    (Boolean(warmPacketForLinkedIn) && linkedInWarmCapability?.available !== true)
+                  }
                   onClick={() => {
-                    runWarmGenerate('linkedin')
+                    void runWarmGenerate('linkedin')
                   }}
                   className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md border border-sky-500/35 bg-sky-500/10 px-2 text-xs font-medium text-sky-100 hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-50"
                   title={
-                    lead.linkedin_url
-                      ? 'Create warm LinkedIn draft text. External LinkedIn sending remains manual.'
-                      : 'Add a LinkedIn URL before creating a warm LinkedIn draft.'
+                    linkedInWarmCapability?.available === false
+                      ? linkedInWarmCapability.reason ?? 'LinkedIn is not available in the relationship packet.'
+                      : 'Create warm LinkedIn draft text from the server relationship packet. External LinkedIn sending remains manual.'
                   }
                 >
-                  <MessageSquare size={13} aria-hidden />
-                  Draft warm LinkedIn
+                  {warmPacketLoadingChannel === 'linkedin' ? (
+                    <Loader2 size={13} className="animate-spin" aria-hidden />
+                  ) : (
+                    <MessageSquare size={13} aria-hidden />
+                  )}
+                  LinkedIn draft
                 </button>
               </div>
             </div>

@@ -126,8 +126,8 @@ function ListBlock({ title, items }: { title: string; items: string[] }) {
         {title}
       </p>
       <ul className="mt-1 space-y-1">
-        {items.map((item) => (
-          <li key={item} className="text-sm leading-5 text-foreground">
+        {items.map((item, index) => (
+          <li key={`${item}-${index}`} className="text-sm leading-5 text-foreground">
             {item}
           </li>
         ))}

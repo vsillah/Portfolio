@@ -426,6 +426,94 @@ describe('generateOutreachDraftInApp', () => {
     expect(inputs?.budget_limit_usd).toBe(0.25)
   })
 
+  it('injects bounded warm relationship context and withholds do-not-mention source text', async () => {
+    const { generateOutreachDraftInApp } = await import('../outreach-queue-generator')
+    await generateOutreachDraftInApp({
+      contactId: 99,
+      templateKey: 'email_cold_outreach',
+      force: true,
+      warmRelationshipSummary: {
+        version: 'warm-outreach-relationship/v1',
+        contact_id: '99',
+        contact_name: 'Warm Lead',
+        objective: 'Prepare a governed warm email draft.',
+        relationship_basis: 'Portfolio shows prior meeting follow-up context.',
+        selected_channel: 'email',
+        recommended_template: 'follow_up',
+        confidence: 'medium',
+        source_summaries: [
+          {
+            source_type: 'meeting_record',
+            source_id: 'meeting-1',
+            summary: 'Meeting summary is available as private context.',
+            private_source: true,
+            visibility: 'private_sensitive',
+            mention_safety: 'summarize_only',
+            source_status: 'present',
+          },
+        ],
+        relationship_signals: ['prior meeting context'],
+        commonalities: ['operations workflow'],
+        risk_flags: [],
+        source_inventory: {
+          sourceStatus: [{ sourceType: 'meeting_records', status: 'present' }],
+          safeToMention: ['Their company context: Acme.'],
+          summarizeOnly: ['Private meeting summary about operational workflow.'],
+          doNotMention: ['RAW PRIVATE TRANSCRIPT QUOTE'],
+        },
+        opening_pitch_guidance: {
+          safeCommonalities: ['Acme'],
+          openingAngle: 'Open around the prior meeting follow-up.',
+          channelNotes: {},
+        },
+        suggested_next_step: 'Prepare a human-reviewed draft.',
+        avoid_context: [
+          'Do not imply provider authorization.',
+          'RAW PRIVATE TRANSCRIPT QUOTE',
+        ],
+        response_monitoring_plan: {
+          enabled: false,
+          plan: 'No response monitoring is active.',
+          externalActivationRequired: true,
+        },
+        readiness_status: 'needs_review',
+        blockers: [],
+        warnings: ['Private source context must be summarized, not quoted.'],
+        human_review_required: true,
+        approval_boundary: 'draft_only_no_external_send',
+      },
+    })
+
+    const requestBody = JSON.parse(String(mockFetch.mock.calls[0][1]?.body)) as {
+      messages: Array<{ role: string; content: string }>
+    }
+    const systemPrompt = requestBody.messages.find((message) => message.role === 'system')?.content ?? ''
+    expect(systemPrompt).toContain('## Warm relationship packet')
+    expect(systemPrompt).toContain('Safe to mention directly: Their company context: Acme.')
+    expect(systemPrompt).toContain('Summarize only, do not quote: Private meeting summary')
+    expect(systemPrompt).toContain('1 item withheld from prompt context and draft copy')
+    expect(systemPrompt).not.toContain('RAW PRIVATE TRANSCRIPT QUOTE')
+
+    const inputs = lastOutreachInsertPayload?.generation_inputs as
+      | Record<string, unknown>
+      | undefined
+    expect(inputs).toMatchObject({
+      warm_relationship_present: true,
+      warm_relationship_channel: 'email',
+      warm_relationship_status: 'needs_review',
+      warm_relationship_source_count: 1,
+      warm_relationship_safe_to_mention_count: 1,
+      warm_relationship_summarize_only_count: 1,
+      warm_relationship_do_not_mention_count: 1,
+      warm_relationship_avoid_context_count: 2,
+      warm_relationship_confidence: 'medium',
+      warm_relationship_human_review_required: true,
+      warm_relationship_approval_boundary: 'draft_only_no_external_send',
+    })
+    expect(inputs?.warm_relationship_source_types).toEqual(['meeting_record'])
+    expect(inputs?.warm_relationship_context_chars).toEqual(expect.any(Number))
+  })
+
   it('rejects an email draft before dispatch when the budget check blocks it', async () => {
     mockGetSystemPrompt.mockResolvedValueOnce({
       prompt: 'x'.repeat(2_000_000),

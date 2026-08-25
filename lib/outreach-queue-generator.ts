@@ -196,6 +196,8 @@ interface PromptContextRequest {
   includeLatestMeeting?: boolean
   /** Step 1 surfaces meeting action items; later steps blank them. */
   sequenceStep: number
+  /** Approved relationship packet summary. Used for local draft context only. */
+  warmRelationshipSummary?: WarmOutreachContextSummary | null
 }
 
 interface PromptContext {
@@ -233,6 +235,7 @@ interface PromptContext {
     ragHttpStatus: number | null
     ragLatencyMs: number | null
     ragEmptyResponse: boolean
+    warmRelationshipChars: number
   }
 }
 
@@ -286,8 +289,15 @@ export interface GenerationInputs {
   warm_relationship_template: string | null
   warm_relationship_status: string | null
   warm_relationship_source_count: number
+  warm_relationship_source_types: string[]
+  warm_relationship_safe_to_mention_count: number
+  warm_relationship_summarize_only_count: number
+  warm_relationship_do_not_mention_count: number
+  warm_relationship_avoid_context_count: number
+  warm_relationship_confidence: string | null
   warm_relationship_human_review_required: boolean
   warm_relationship_approval_boundary: string | null
+  warm_relationship_context_chars: number
 }
 
 function buildGenerationInputs(args: {
@@ -349,11 +359,73 @@ function buildGenerationInputs(args: {
     warm_relationship_status: warmRelationshipSummary?.readiness_status ?? null,
     warm_relationship_source_count:
       warmRelationshipSummary?.source_summaries.length ?? 0,
+    warm_relationship_source_types:
+      warmRelationshipSummary?.source_summaries.map((source) => source.source_type) ?? [],
+    warm_relationship_safe_to_mention_count:
+      warmRelationshipSummary?.source_inventory?.safeToMention.length ?? 0,
+    warm_relationship_summarize_only_count:
+      warmRelationshipSummary?.source_inventory?.summarizeOnly.length ?? 0,
+    warm_relationship_do_not_mention_count:
+      warmRelationshipSummary?.source_inventory?.doNotMention.length ?? 0,
+    warm_relationship_avoid_context_count:
+      warmRelationshipSummary?.avoid_context.length ?? 0,
+    warm_relationship_confidence: warmRelationshipSummary?.confidence ?? null,
     warm_relationship_human_review_required:
       warmRelationshipSummary?.human_review_required ?? false,
     warm_relationship_approval_boundary:
       warmRelationshipSummary?.approval_boundary ?? null,
+    warm_relationship_context_chars: ctx.contextSizes.warmRelationshipChars,
   }
+}
+
+function warmRelationshipPromptBlock(
+  summary: WarmOutreachContextSummary | null | undefined,
+): string | null {
+  if (!summary) return null
+
+  const sourceInventory = summary.source_inventory
+  const safeToMention = sourceInventory?.safeToMention ?? []
+  const summarizeOnly = sourceInventory?.summarizeOnly ?? []
+  const doNotMention = sourceInventory?.doNotMention ?? []
+  const avoidInstructions = summary.avoid_context.filter(
+    (item) => !doNotMention.includes(item),
+  )
+  const sourceTypes = summary.source_summaries
+    .map((source) => source.source_type.replace(/_/g, ' '))
+    .filter(Boolean)
+  const lines = [
+    '## Warm relationship packet',
+    `Status: ${summary.readiness_status}; confidence: ${summary.confidence}; selected channel: ${summary.selected_channel ?? 'none'}.`,
+    `Human review required: ${summary.human_review_required ? 'yes' : 'no'}. Approval boundary: ${summary.approval_boundary}.`,
+    `Relationship basis: ${summary.relationship_basis}`,
+    summary.objective ? `Objective: ${summary.objective}` : null,
+    sourceTypes.length > 0 ? `Local Portfolio sources used: ${[...new Set(sourceTypes)].join(', ')}.` : null,
+    safeToMention.length > 0
+      ? `Safe to mention directly: ${safeToMention.slice(0, 5).join(' | ')}`
+      : 'Safe to mention directly: none recorded.',
+    summarizeOnly.length > 0
+      ? `Summarize only, do not quote: ${summarizeOnly.slice(0, 6).join(' | ')}`
+      : null,
+    summary.relationship_signals.length > 0
+      ? `Relationship signals: ${summary.relationship_signals.slice(0, 6).join(' | ')}`
+      : null,
+    summary.commonalities.length > 0
+      ? `Commonalities: ${summary.commonalities.slice(0, 6).join(' | ')}`
+      : null,
+    summary.opening_pitch_guidance?.openingAngle
+      ? `Opening guidance: ${summary.opening_pitch_guidance.openingAngle}`
+      : null,
+    summary.suggested_next_step ? `Suggested next step: ${summary.suggested_next_step}` : null,
+    doNotMention.length > 0
+      ? `Excluded source-sensitive context: ${doNotMention.length} item${doNotMention.length === 1 ? '' : 's'} withheld from prompt context and draft copy.`
+      : null,
+    avoidInstructions.length > 0
+      ? `Do not mention or imply: ${avoidInstructions.slice(0, 5).join(' | ')}`
+      : null,
+    'Write a local internal draft only. Do not imply that an email, DM, call, scheduling workflow, reply monitor, provider, Slack action, or n8n dispatch is authorized.',
+  ].filter(Boolean)
+
+  return lines.join('\n')
 }
 
 function meetingTextFromRow(meeting: {
@@ -478,6 +550,11 @@ export async function buildOutreachPromptContext(
       ? `${baseBrief}\n\n## Recent meeting context\n${meetingSnippet}`
       : baseBrief
 
+  const warmRelationshipBlock = warmRelationshipPromptBlock(req.warmRelationshipSummary)
+  if (warmRelationshipBlock) {
+    researchBrief = `${researchBrief}\n\n${warmRelationshipBlock}`
+  }
+
   const valueEvidence = await fetchIndustryValueEvidenceExcerpt(contact.industry)
   if (valueEvidence.block) {
     researchBrief = `${researchBrief}\n\n${valueEvidence.block}`
@@ -557,6 +634,7 @@ export async function buildOutreachPromptContext(
       ragHttpStatus: ragMeta.ragHttpStatus,
       ragLatencyMs: ragMeta.ragLatencyMs,
       ragEmptyResponse: ragMeta.ragEmptyResponse,
+      warmRelationshipChars: warmRelationshipBlock?.length ?? 0,
     },
   }
 }
@@ -747,6 +825,7 @@ export async function generateOutreachDraftInApp(params: {
     meetingRecordId: contextMeetingRecordId ?? undefined,
     includeLatestMeeting: hasSummary ? false : includeLatest,
     sequenceStep,
+    warmRelationshipSummary: params.warmRelationshipSummary ?? null,
   })
 
   if (params.agentRunId) {
@@ -999,6 +1078,7 @@ export async function generateLinkedInDraftInApp(params: {
     meetingRecordId: contextMeetingRecordId ?? undefined,
     includeLatestMeeting: hasSummary ? false : includeLatest,
     sequenceStep,
+    warmRelationshipSummary: params.warmRelationshipSummary ?? null,
   })
 
   if (params.agentRunId) {
