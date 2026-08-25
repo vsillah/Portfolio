@@ -1410,11 +1410,20 @@ function OutreachContent() {
                           </div>
 
                           {/* Actions — primary CTA + progressive fallback + More + expand */}
-                          <div className="flex w-full min-w-0 items-start justify-end gap-2 xl:w-[min(36rem,42vw)]">
+                          <div className="flex w-full min-w-0 flex-wrap items-start justify-end gap-2 sm:flex-nowrap xl:w-[min(36rem,42vw)]">
                             {/* Primary CTA: pipeline-style pill (idle / running / succeeded / failed / cancelled / link). */}
                             <OutreachEmailGenerateRow
                               lead={lead}
                               n8nFallback={n8nFailedLeadIds.has(lead.id)}
+                              relationshipPacketData={
+                                relationshipPacketLeadId === lead.id ? relationshipPacketData : null
+                              }
+                              relationshipPacketLoading={
+                                relationshipPacketLeadId === lead.id && relationshipPacketLoading
+                              }
+                              relationshipPacketError={
+                                relationshipPacketLeadId === lead.id ? relationshipPacketError : null
+                              }
                               onToast={(msg) => {
                                 setGenerateOutreachToast(msg)
                                 setTimeout(() => setGenerateOutreachToast(null), 6000)

@@ -335,7 +335,7 @@ export async function POST(
       })
       .eq('id', contactId)
 
-    if (result.outcome === 'created') {
+    if (result.outcome === 'created' && !warmRelationship) {
       // Fire-and-forget Slack ping so reps see new drafts even when the panel
       // is closed. Failure here must not break the API response.
       notifyOutreachDraftReady({
@@ -355,6 +355,19 @@ export async function POST(
         message: 'Slack draft-ready notification queued.',
         metadata: { queue_id: result.id, channel },
         idempotencyKey: `${agentRunId}:notification_dispatched`,
+      }).catch((err) => console.warn('[generate] agent event failed', err))
+    } else if (result.outcome === 'created' && warmRelationship) {
+      await recordAgentEvent({
+        runId: agentRunId,
+        eventType: 'notification_skipped',
+        severity: 'info',
+        message: 'Slack notification skipped for governed warm draft generation.',
+        metadata: {
+          queue_id: result.id,
+          channel,
+          approval_boundary: warmRelationship.readiness.approvalBoundary,
+        },
+        idempotencyKey: `${agentRunId}:notification_skipped`,
       }).catch((err) => console.warn('[generate] agent event failed', err))
     }
 
