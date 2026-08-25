@@ -77,10 +77,115 @@ const lead = {
   recent_email_drafts: [],
 }
 
+const relationshipPacketResponse = {
+  packet: {
+    version: 'warm-outreach-relationship/v1',
+    contactId: 42,
+    contactName: 'Ada Operator',
+    objective: 'Prepare warm outreach context.',
+    relationshipBasis: 'Prior Portfolio conversation and meeting follow-up context exist.',
+    sourceRefs: [
+      {
+        sourceType: 'meeting_record',
+        sourceId: 'meeting-1',
+        summary: 'Meeting summary is available for operator review.',
+        privateSource: true,
+        visibility: 'portfolio_internal',
+        mentionSafety: 'summarize_only',
+        sourceStatus: 'present',
+      },
+    ],
+    relationshipSignals: ['Meeting follow-up is pending'],
+    commonalities: ['Operations improvement'],
+    riskFlags: [],
+    sourceInventory: {
+      sourceStatus: [{ sourceType: 'meeting_records', status: 'present' }],
+      safeToMention: ['Company context'],
+      summarizeOnly: ['Meeting summary'],
+      doNotMention: ['Raw transcript'],
+    },
+    openingPitchGuidance: {
+      safeCommonalities: ['Operations improvement'],
+      openingAngle: 'Reconnect around the follow-up.',
+      channelNotes: {
+        email: 'Email draft only.',
+      },
+    },
+    suggestedNextStep: 'Review the internal draft context.',
+    avoidContext: ['Do not quote private notes.'],
+    responseMonitoringPlan: {
+      enabled: false,
+      plan: 'Reply monitoring requires provider approval.',
+      externalActivationRequired: true,
+    },
+    confidence: 'medium',
+    suppression: {
+      doNotContact: false,
+      unsubscribed: false,
+      removedAt: null,
+    },
+    channelCapabilities: {
+      email: {
+        available: true,
+        providerConfigured: false,
+        supportsExternalSend: false,
+        manualOnly: false,
+        reason: 'Email draft only.',
+      },
+      linkedin: {
+        available: false,
+        providerConfigured: false,
+        supportsExternalSend: false,
+        manualOnly: false,
+      },
+      facebook: {
+        available: true,
+        providerConfigured: false,
+        supportsExternalSend: false,
+        manualOnly: true,
+        reason: 'Manual Facebook review only.',
+      },
+      phone_contact: {
+        available: true,
+        providerConfigured: false,
+        supportsExternalSend: false,
+        manualOnly: true,
+        reason: 'Manual phone review only.',
+      },
+    },
+    preferredChannel: 'email',
+  },
+  readiness: {
+    status: 'needs_review',
+    humanReviewRequired: true,
+    selectedChannel: 'email',
+    recommendedTemplate: 'follow_up',
+    blockers: [],
+    warnings: ['Private source context must be summarized, not quoted.'],
+    approvalBoundary: 'draft_only_no_external_send',
+  },
+  contextSummary: {
+    readiness_status: 'needs_review',
+  },
+  executionBoundary: {
+    source: 'local_portfolio_rows',
+    readOnly: true,
+    providerCalls: false,
+    createsDraft: false,
+    externalSend: false,
+    n8nDispatch: false,
+    slackAction: false,
+    responseMonitoring: false,
+  },
+}
+
 describe('OutreachAdminPage deep links', () => {
   beforeEach(() => {
     window.history.replaceState({}, '', '/admin/outreach?tab=leads&id=42')
     vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+      if (url.startsWith('/api/admin/outreach/leads/42/relationship-packet')) {
+        return Response.json(relationshipPacketResponse)
+      }
       if (url.startsWith('/api/admin/outreach/leads')) {
         return Response.json({ leads: [lead], total: 1, page: 1 })
       }
@@ -109,6 +214,27 @@ describe('OutreachAdminPage deep links', () => {
     expect(screen.getByRole('link', { name: 'Open selected lead' })).toHaveAttribute('href', '/admin/outreach?tab=leads&id=42')
     await waitFor(() => {
       expect(screen.getByText('Ops Lab')).toBeInTheDocument()
+    })
+  })
+
+  it('fetches and displays the relationship packet for the selected lead', async () => {
+    const fetchMock = vi.mocked(fetch)
+
+    render(<OutreachAdminPage />)
+
+    expect(await screen.findByText('Relationship packet')).toBeInTheDocument()
+    expect(screen.getByText('Prior Portfolio conversation and meeting follow-up context exist.')).toBeInTheDocument()
+    expect(screen.getByText('Provider calls: off')).toBeInTheDocument()
+    expect(screen.getByText('External send: off')).toBeInTheDocument()
+    expect(screen.getByText('Meeting summary')).toBeInTheDocument()
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/admin/outreach/leads/42/relationship-packet',
+        expect.objectContaining({
+          headers: { Authorization: 'Bearer admin-token' },
+        }),
+      )
     })
   })
 
