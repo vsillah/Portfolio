@@ -479,7 +479,7 @@ export function OutreachEmailGenerateRow({
         warmPacketPreview.contextSummary.source_inventory?.summarizeOnly.length ?? 0
       } summarize-only; ${
         warmPacketPreview.contextSummary.source_inventory?.doNotMention.length ?? 0
-      } excluded.`
+      } excluded`
     : relationshipPacketLoading
       ? 'Loading the server relationship packet from local Portfolio rows.'
       : relationshipPacketError || warmPacketError
@@ -487,6 +487,8 @@ export function OutreachEmailGenerateRow({
         : 'Server relationship packet required; click draft to load local Portfolio context before generation.'
   const emailWarmCapability = warmPacketForEmail?.packet.channelCapabilities.email
   const linkedInWarmCapability = warmPacketForLinkedIn?.packet.channelCapabilities.linkedin
+  const warmPacketInventory = warmPacketPreview?.contextSummary.source_inventory ?? null
+  const warmPacketSources = warmPacketPreview?.packet.sourceRefs ?? []
   const warmDraftEnabled = !anyRun && !lead.do_not_contact && !lead.removed_at
 
   const loadWarmPacketForChannel = async (
@@ -952,52 +954,6 @@ export function OutreachEmailGenerateRow({
               </div>
             )}
             <div className="border-b border-silicon-slate/80 px-3 py-2.5">
-              <label
-                htmlFor={`outreach-meeting-${lead.id}`}
-                className="mb-1 flex items-center gap-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground/80"
-              >
-                <Calendar className="h-3 w-3 shrink-0 opacity-80" aria-hidden />
-                Meeting context
-              </label>
-              <select
-                id={`outreach-meeting-${lead.id}`}
-                className="h-9 w-full min-w-0 rounded-md border border-silicon-slate/90 bg-silicon-slate/30 px-2 pr-6 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/40 disabled:cursor-not-allowed disabled:opacity-50"
-                value={outreachMeetingId}
-                onChange={(e) => {
-                  setOutreachMeetingId(e.target.value)
-                }}
-                disabled={anyRun || inAppLoading}
-                title="Notes from this meeting feed prompts and duplicate detection. Default: latest by date."
-              >
-                <option value="">
-                  {meetingsLoading ? 'Loading meetings…' : 'Latest meeting (default)'}
-                </option>
-                {meetingsList.map((m) => {
-                  const when = m.meeting_date
-                    ? new Date(m.meeting_date).toLocaleDateString(undefined, {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric',
-                      })
-                    : '—'
-                  const type = (m.meeting_type && m.meeting_type.trim()) || 'Meeting'
-                  return (
-                    <option key={m.id} value={m.id}>
-                      {when} · {type}
-                    </option>
-                  )
-                })}
-              </select>
-              <p className="mt-1 text-[10px] leading-snug text-muted-foreground/85">
-                Used for suggestions, cold draft, and duplicate detection (template + meeting).
-              </p>
-              {meetingsError && (
-                <p className="mt-1 text-[10px] text-amber-200/90">
-                  Could not load meetings. Latest is still available.
-                </p>
-              )}
-            </div>
-            <div className="border-b border-silicon-slate/80 px-3 py-2.5">
               <div className="mb-1.5 flex items-center justify-between gap-2">
                 <p className="flex items-center gap-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground/80">
                   <Users className="h-3 w-3 shrink-0 opacity-80" aria-hidden />
@@ -1076,6 +1032,97 @@ export function OutreachEmailGenerateRow({
                   LinkedIn draft
                 </button>
               </div>
+              {warmPacketPreview && (
+                <details className="mt-2 rounded-md border border-silicon-slate/80 bg-silicon-slate/20">
+                  <summary className="cursor-pointer px-2 py-1.5 text-[11px] font-medium text-muted-foreground hover:text-foreground">
+                    Review source boundaries
+                  </summary>
+                  <div className="space-y-2 border-t border-silicon-slate/80 p-2 text-[11px] leading-snug text-muted-foreground">
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <span>Sources: {warmPacketSources.length}</span>
+                      <span>Safe: {warmPacketInventory?.safeToMention.length ?? 0}</span>
+                      <span>Summarize: {warmPacketInventory?.summarizeOnly.length ?? 0}</span>
+                      <span>Excluded: {warmPacketInventory?.doNotMention.length ?? 0}</span>
+                    </div>
+                    {warmPacketInventory?.safeToMention.length ? (
+                      <p>
+                        <span className="text-foreground/90">Safe:</span>{' '}
+                        {warmPacketInventory.safeToMention.slice(0, 3).join(' | ')}
+                      </p>
+                    ) : null}
+                    {warmPacketInventory?.summarizeOnly.length ? (
+                      <p>
+                        <span className="text-foreground/90">Summarize only:</span>{' '}
+                        {warmPacketInventory.summarizeOnly.slice(0, 3).join(' | ')}
+                      </p>
+                    ) : null}
+                    {warmPacketInventory?.doNotMention.length ? (
+                      <p>
+                        <span className="text-foreground/90">Excluded:</span>{' '}
+                        {warmPacketInventory.doNotMention.length} source-sensitive item
+                        {warmPacketInventory.doNotMention.length === 1 ? '' : 's'} withheld by default.
+                      </p>
+                    ) : null}
+                    {warmPacketSources.length ? (
+                      <ul className="max-h-32 space-y-1 overflow-y-auto border-t border-silicon-slate/70 pt-2">
+                        {warmPacketSources.map((source, index) => (
+                          <li key={`${source.sourceType}-${source.sourceId ?? index}`}>
+                            {source.sourceType.replace(/_/g, ' ')}
+                            {source.privateSource ? ' · private summary' : ''}
+                            {source.mentionSafety ? ` · ${source.mentionSafety.replace(/_/g, ' ')}` : ''}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </div>
+                </details>
+              )}
+            </div>
+            <div className="border-b border-silicon-slate/80 px-3 py-2.5">
+              <label
+                htmlFor={`outreach-meeting-${lead.id}`}
+                className="mb-1 flex items-center gap-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground/80"
+              >
+                <Calendar className="h-3 w-3 shrink-0 opacity-80" aria-hidden />
+                Meeting context
+              </label>
+              <select
+                id={`outreach-meeting-${lead.id}`}
+                className="h-9 w-full min-w-0 rounded-md border border-silicon-slate/90 bg-silicon-slate/30 px-2 pr-6 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/40 disabled:cursor-not-allowed disabled:opacity-50"
+                value={outreachMeetingId}
+                onChange={(e) => {
+                  setOutreachMeetingId(e.target.value)
+                }}
+                disabled={anyRun || inAppLoading}
+                title="Notes from this meeting feed prompts and duplicate detection. Default: latest by date."
+              >
+                <option value="">
+                  {meetingsLoading ? 'Loading meetings…' : 'Latest meeting (default)'}
+                </option>
+                {meetingsList.map((m) => {
+                  const when = m.meeting_date
+                    ? new Date(m.meeting_date).toLocaleDateString(undefined, {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })
+                    : '—'
+                  const type = (m.meeting_type && m.meeting_type.trim()) || 'Meeting'
+                  return (
+                    <option key={m.id} value={m.id}>
+                      {when} · {type}
+                    </option>
+                  )
+                })}
+              </select>
+              <p className="mt-1 text-[10px] leading-snug text-muted-foreground/85">
+                Used for suggestions, cold draft, and duplicate detection (template + meeting).
+              </p>
+              {meetingsError && (
+                <p className="mt-1 text-[10px] text-amber-200/90">
+                  Could not load meetings. Latest is still available.
+                </p>
+              )}
             </div>
             <div
               className="flex border-b border-silicon-slate/80"

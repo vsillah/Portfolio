@@ -136,6 +136,14 @@ function ListBlock({ title, items }: { title: string; items: string[] }) {
   )
 }
 
+function CountPill({ label, count }: { label: string; count: number }) {
+  return (
+    <span className="inline-flex min-h-7 items-center rounded-md border border-silicon-slate bg-silicon-slate/25 px-2 py-1 text-xs text-muted-foreground">
+      {label}: {count}
+    </span>
+  )
+}
+
 export default function RelationshipPacketPanel({
   loading,
   error,
@@ -245,13 +253,20 @@ export default function RelationshipPacketPanel({
             </div>
           )}
 
-          <div className="grid gap-3 md:grid-cols-2">
-            <ListBlock title="Relationship signals" items={packet.relationshipSignals} />
-            <ListBlock title="Commonality cues" items={packet.commonalities} />
-            <ListBlock title="Safe to mention" items={sourceInventory?.safeToMention ?? []} />
-            <ListBlock title="Summarize only" items={sourceInventory?.summarizeOnly ?? []} />
-            <ListBlock title="Do not mention" items={sourceInventory?.doNotMention ?? []} />
-            <ListBlock title="Avoid in draft context" items={packet.avoidContext} />
+          <div className="rounded-md border border-silicon-slate/70 bg-silicon-slate/20 p-3">
+            <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
+              Source and provenance summary
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <CountPill label="Sources" count={packet.sourceRefs.length} />
+              <CountPill label="Safe to mention" count={sourceInventory?.safeToMention.length ?? 0} />
+              <CountPill label="Summarize only" count={sourceInventory?.summarizeOnly.length ?? 0} />
+              <CountPill label="Excluded" count={sourceInventory?.doNotMention.length ?? 0} />
+              <CountPill label="Avoid rules" count={packet.avoidContext.length} />
+            </div>
+            <p className="mt-2 text-xs leading-5 text-muted-foreground">
+              Private and source-sensitive evidence stays summarized by default. Open the full inventory only when reviewing provenance.
+            </p>
           </div>
 
           {!hasInventoryEvidence && packet.sourceRefs.length === 0 && (
@@ -260,49 +275,65 @@ export default function RelationshipPacketPanel({
             </div>
           )}
 
-          <div>
-            <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
-              Source and provenance summary
-            </p>
-            <div className="grid gap-2 md:grid-cols-2">
-              {packet.sourceRefs.map((source) => (
-                <div key={`${source.sourceType}-${source.sourceId ?? source.summary}`} className="rounded-md border border-silicon-slate/70 bg-silicon-slate/20 p-3">
-                  <div className="mb-1 flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center rounded-full border border-white/10 bg-background/70 px-2 py-0.5 text-[11px] capitalize text-foreground">
-                      {sourceLabel(source.sourceType)}
-                    </span>
-                    {source.privateSource && (
-                      <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[11px] text-amber-100">
-                        <LockKeyhole size={11} aria-hidden />
-                        private summary
-                      </span>
-                    )}
-                    {source.mentionSafety && (
-                      <span className="rounded-full border border-silicon-slate px-2 py-0.5 text-[11px] text-muted-foreground">
-                        {source.sourceStatus ?? 'present'} / {source.mentionSafety.replace(/_/g, ' ')}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm leading-5 text-muted-foreground">{source.summary}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {sourceInventory?.sourceStatus.length ? (
-            <div>
-              <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
-                Inventory coverage
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {sourceInventory.sourceStatus.map((source) => (
-                  <span key={`${source.sourceType}-${source.status}`} className="inline-flex min-h-7 items-center rounded-md border border-silicon-slate bg-silicon-slate/25 px-2 py-1 text-xs text-muted-foreground">
-                    {sourceLabel(source.sourceType)}: {source.status}
-                  </span>
-                ))}
+          <details className="rounded-md border border-silicon-slate/70 bg-silicon-slate/20">
+            <summary className="cursor-pointer px-3 py-2 text-sm font-medium text-foreground">
+              Full source inventory and review lists
+            </summary>
+            <div className="space-y-4 border-t border-silicon-slate/70 p-3">
+              <div className="grid gap-3 md:grid-cols-2">
+                <ListBlock title="Relationship signals" items={packet.relationshipSignals} />
+                <ListBlock title="Commonality cues" items={packet.commonalities} />
+                <ListBlock title="Safe to mention" items={sourceInventory?.safeToMention ?? []} />
+                <ListBlock title="Summarize only" items={sourceInventory?.summarizeOnly ?? []} />
+                <ListBlock title="Do not mention" items={sourceInventory?.doNotMention ?? []} />
+                <ListBlock title="Avoid in draft context" items={packet.avoidContext} />
               </div>
+
+              <div>
+                <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
+                  Source details
+                </p>
+                <div className="grid gap-2 md:grid-cols-2">
+                  {packet.sourceRefs.map((source) => (
+                    <div key={`${source.sourceType}-${source.sourceId ?? source.summary}`} className="rounded-md border border-silicon-slate/70 bg-background/30 p-3">
+                      <div className="mb-1 flex flex-wrap items-center gap-2">
+                        <span className="inline-flex items-center rounded-full border border-white/10 bg-background/70 px-2 py-0.5 text-[11px] capitalize text-foreground">
+                          {sourceLabel(source.sourceType)}
+                        </span>
+                        {source.privateSource && (
+                          <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[11px] text-amber-100">
+                            <LockKeyhole size={11} aria-hidden />
+                            private summary
+                          </span>
+                        )}
+                        {source.mentionSafety && (
+                          <span className="rounded-full border border-silicon-slate px-2 py-0.5 text-[11px] text-muted-foreground">
+                            {source.sourceStatus ?? 'present'} / {source.mentionSafety.replace(/_/g, ' ')}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm leading-5 text-muted-foreground">{source.summary}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {sourceInventory?.sourceStatus.length ? (
+                <div>
+                  <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
+                    Inventory coverage
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {sourceInventory.sourceStatus.map((source) => (
+                      <span key={`${source.sourceType}-${source.status}`} className="inline-flex min-h-7 items-center rounded-md border border-silicon-slate bg-silicon-slate/25 px-2 py-1 text-xs text-muted-foreground">
+                        {sourceLabel(source.sourceType)}: {source.status}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </div>
-          ) : null}
+          </details>
 
           <div>
             <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">

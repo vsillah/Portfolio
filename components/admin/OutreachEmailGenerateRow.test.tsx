@@ -229,8 +229,17 @@ describe('OutreachEmailGenerateRow status language', () => {
     expect(screen.getByText(/Needs human review/i)).toBeInTheDocument()
     expect(screen.getByText(/summarize-only 1/i)).toBeInTheDocument()
     expect(screen.getByText(/excluded 1/i)).toBeInTheDocument()
+    const emailDraft = screen.getByRole('button', { name: /Email draft/i })
+    const meetingContext = screen.getByLabelText(/Meeting context/i)
+    expect(
+      emailDraft.compareDocumentPosition(meetingContext) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+    const sourceDisclosure = screen.getByText('Review source boundaries').closest('details')
+    expect(sourceDisclosure).not.toBeNull()
+    expect(sourceDisclosure).not.toHaveAttribute('open')
 
-    fireEvent.click(screen.getByRole('button', { name: /Email draft/i }))
+    fireEvent.click(emailDraft)
 
     await waitFor(() => {
       expect(mocks.start).toHaveBeenCalledWith(
