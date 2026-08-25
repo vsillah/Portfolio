@@ -1139,7 +1139,7 @@ function OutreachContent() {
               )}
             </AnimatePresence>
 
-            {outreachWorkroomLead && !outreachWorkroomLead.do_not_contact && !outreachWorkroomLead.removed_at && (
+            {outreachWorkroomLead && (
               <section
                 className="mb-6 rounded-xl border border-emerald-500/30 bg-emerald-950/10 p-3 shadow-[0_18px_60px_rgba(0,0,0,0.22)] sm:p-4"
                 aria-label={`Outreach workroom for ${outreachWorkroomLead.name}`}
@@ -1166,40 +1166,63 @@ function OutreachContent() {
                     Close
                   </button>
                 </div>
-                <OutreachEmailGenerateRow
-                  lead={outreachWorkroomLead}
-                  presentation="workroom"
-                  n8nFallback={n8nFailedLeadIds.has(outreachWorkroomLead.id)}
-                  relationshipPacketData={
-                    relationshipPacketLeadId === outreachWorkroomLead.id ? relationshipPacketData : null
-                  }
-                  relationshipPacketLoading={
-                    relationshipPacketLeadId === outreachWorkroomLead.id && relationshipPacketLoading
-                  }
-                  relationshipPacketError={
-                    relationshipPacketLeadId === outreachWorkroomLead.id ? relationshipPacketError : null
-                  }
-                  onToast={(msg) => {
-                    setGenerateOutreachToast(msg)
-                    setTimeout(() => setGenerateOutreachToast(null), 6000)
-                  }}
-                  onFallbackAvailable={() => {
-                    setN8nFailedLeadIds((prev) => new Set([...prev, outreachWorkroomLead.id]))
-                  }}
-                  onFallbackCleared={() => {
-                    setN8nFailedLeadIds((prev) => {
-                      const next = new Set(prev)
-                      next.delete(outreachWorkroomLead.id)
-                      return next
-                    })
-                  }}
-                  onSettled={() => {
-                    void fetchLeads({ silent: true })
-                  }}
-                  onOutreachOpen={() => {
-                    void fetchLeads({ silent: true })
-                  }}
-                />
+                <div className="space-y-3">
+                  {outreachBlocker ? (
+                    <div
+                      role="alert"
+                      className="rounded-lg border border-amber-500/35 bg-amber-500/10 p-3 text-sm text-amber-100"
+                    >
+                      <p className="flex items-center gap-2 font-semibold">
+                        <ShieldOff size={15} className="shrink-0" aria-hidden />
+                        Draft generation blocked
+                      </p>
+                      <p className="mt-1 leading-6 text-amber-100/85">
+                        {outreachBlocker} This workroom remains read-only for relationship review; no local draft,
+                        provider call, Gmail draft, DM, or send can start until the contact status is resolved.
+                      </p>
+                    </div>
+                  ) : (
+                    <OutreachEmailGenerateRow
+                      lead={outreachWorkroomLead}
+                      presentation="workroom"
+                      n8nFallback={n8nFailedLeadIds.has(outreachWorkroomLead.id)}
+                      relationshipPacketData={
+                        relationshipPacketLeadId === outreachWorkroomLead.id ? relationshipPacketData : null
+                      }
+                      relationshipPacketLoading={
+                        relationshipPacketLeadId === outreachWorkroomLead.id && relationshipPacketLoading
+                      }
+                      relationshipPacketError={
+                        relationshipPacketLeadId === outreachWorkroomLead.id ? relationshipPacketError : null
+                      }
+                      onToast={(msg) => {
+                        setGenerateOutreachToast(msg)
+                        setTimeout(() => setGenerateOutreachToast(null), 6000)
+                      }}
+                      onFallbackAvailable={() => {
+                        setN8nFailedLeadIds((prev) => new Set([...prev, outreachWorkroomLead.id]))
+                      }}
+                      onFallbackCleared={() => {
+                        setN8nFailedLeadIds((prev) => {
+                          const next = new Set(prev)
+                          next.delete(outreachWorkroomLead.id)
+                          return next
+                        })
+                      }}
+                      onSettled={() => {
+                        void fetchLeads({ silent: true })
+                      }}
+                      onOutreachOpen={() => {
+                        void fetchLeads({ silent: true })
+                      }}
+                    />
+                  )}
+                  <RelationshipPacketPanel
+                    loading={relationshipPacketLeadId === outreachWorkroomLead.id && relationshipPacketLoading}
+                    error={relationshipPacketLeadId === outreachWorkroomLead.id ? relationshipPacketError : null}
+                    data={relationshipPacketLeadId === outreachWorkroomLead.id ? relationshipPacketData : null}
+                  />
+                </div>
               </section>
             )}
 
