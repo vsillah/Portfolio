@@ -137,6 +137,14 @@ function BoundaryFlag({
   )
 }
 
+function LocalEvidenceFlag({ visible }: { visible: boolean }) {
+  return (
+    <span className="inline-flex min-h-7 items-center rounded-md border border-sky-500/25 bg-sky-500/10 px-2 py-1 text-xs text-sky-100">
+      Local response evidence: {visible ? 'visible' : 'not recorded'}
+    </span>
+  )
+}
+
 function ListBlock({ title, items }: { title: string; items: string[] }) {
   if (items.length === 0) return null
   return (
@@ -456,9 +464,12 @@ export default function RelationshipPacketPanel({
               <BoundaryFlag active={data.executionBoundary.externalSend} label="External send" />
               <BoundaryFlag active={data.executionBoundary.n8nDispatch} label="n8n dispatch" />
               <BoundaryFlag active={data.executionBoundary.slackAction} label="Slack action" />
-              <BoundaryFlag active={data.executionBoundary.responseMonitoring} label="Reply monitoring" />
+              <BoundaryFlag active={data.executionBoundary.responseMonitoring} label="Provider monitoring" />
               {responseMonitoring && (
-                <BoundaryFlag active={responseMonitoring.executionBoundary.externalMonitoringEnabled} label="External monitoring" />
+                <>
+                  <BoundaryFlag active={responseMonitoring.executionBoundary.externalMonitoringEnabled} label="External monitoring" />
+                  <LocalEvidenceFlag visible={responseMonitoring.evidence.length > 0} />
+                </>
               )}
             </div>
             <p className="mt-2 flex items-start gap-2 text-xs leading-5 text-muted-foreground">

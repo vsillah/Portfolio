@@ -53,6 +53,14 @@ function BoundaryFlag({ label, active }: { label: string; active: boolean }) {
   )
 }
 
+function LocalEvidenceFlag() {
+  return (
+    <span className="inline-flex min-h-7 items-center rounded-md border border-sky-500/25 bg-sky-500/10 px-2 py-1 text-xs text-sky-100">
+      Local response evidence: visible
+    </span>
+  )
+}
+
 function RecipientRow({ recipient }: { recipient: WarmBatchReviewRecipient }) {
   const primaryBlocker = recipient.blockers[0]
   const monitoring = recipient.responseMonitoring
@@ -200,7 +208,8 @@ export default function WarmBatchReviewPanel({
             <BoundaryFlag label="Draft creation" active={data.executionBoundary.createsDraft} />
             <BoundaryFlag label="External send" active={data.executionBoundary.externalSend} />
             <BoundaryFlag label="Gmail draft" active={data.executionBoundary.gmailDraft} />
-            <BoundaryFlag label="Response monitoring" active={data.executionBoundary.responseMonitoring} />
+            <BoundaryFlag label="External monitoring" active={data.executionBoundary.responseMonitoring} />
+            <LocalEvidenceFlag />
             <BoundaryFlag label="n8n" active={data.executionBoundary.n8nDispatch} />
             <BoundaryFlag label="Slack" active={data.executionBoundary.slackAction} />
           </div>

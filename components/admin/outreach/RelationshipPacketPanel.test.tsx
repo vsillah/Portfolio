@@ -288,13 +288,14 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Provider calls: off')).toBeInTheDocument()
     expect(screen.getByText('Draft creation: off')).toBeInTheDocument()
     expect(screen.getByText('External send: off')).toBeInTheDocument()
-    expect(screen.getByText('Reply monitoring: off')).toBeInTheDocument()
+    expect(screen.getByText('Provider monitoring: off')).toBeInTheDocument()
     expect(screen.getByText('Response monitoring')).toBeInTheDocument()
     expect(screen.getByText('Review stale no-response follow-up')).toBeInTheDocument()
     expect(screen.getByText('stale no response')).toBeInTheDocument()
     expect(screen.getByText('Send-readiness gates')).toBeInTheDocument()
     expect(screen.getByText('Gmail / email provider gate required')).toBeInTheDocument()
     expect(screen.getByText('External monitoring: off')).toBeInTheDocument()
+    expect(screen.getByText('Local response evidence: visible')).toBeInTheDocument()
   })
 
   it('shows suppressed contacts as blocked readiness', () => {

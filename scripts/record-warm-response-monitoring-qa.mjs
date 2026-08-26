@@ -115,8 +115,9 @@ await writeFile(htmlPath, `<!doctype html>
             <span class="flag">Provider calls: off</span>
             <span class="flag">Draft creation: off</span>
             <span class="flag">External send: off</span>
-            <span class="flag">Reply monitoring: off</span>
+            <span class="flag">Provider monitoring: off</span>
             <span class="flag">External monitoring: off</span>
+            <span class="flag info">Local response evidence: visible</span>
           </div>
         </div>
       </section>
@@ -136,7 +137,8 @@ await writeFile(htmlPath, `<!doctype html>
             <span class="flag">Provider calls: off</span>
             <span class="flag">External send: off</span>
             <span class="flag">Gmail draft: off</span>
-            <span class="flag">Response monitoring: off</span>
+            <span class="flag">External monitoring: off</span>
+            <span class="flag info">Local response evidence: visible</span>
           </div>
           <div class="recipients" id="recipients">
             <div class="recipient">
