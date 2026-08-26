@@ -5,6 +5,104 @@ import RelationshipPacketPanel, {
   relationshipReadinessLabel,
   type RelationshipPacketApiResponse,
 } from './RelationshipPacketPanel'
+import type { WarmOutreachChannel } from '@/lib/warm-outreach-relationship-intelligence'
+import type {
+  WarmOutreachChannelSendReadiness,
+  WarmOutreachSendAuthority,
+  WarmOutreachSendMode,
+} from '@/lib/warm-outreach-response-monitoring'
+
+const gateKeys = [
+  'target_source_provenance',
+  'relationship_basis',
+  'consent_suppression',
+  'personalization',
+  'human_approval',
+  'provider_capability',
+  'idempotency',
+  'send_scheduling',
+  'outcome_tracking',
+  'response_follow_up',
+] as const
+
+function sendAuthority(
+  mode: WarmOutreachSendMode,
+  channel: WarmOutreachChannel,
+  state: WarmOutreachSendAuthority['state'],
+): WarmOutreachSendAuthority {
+  return {
+    version: 'warm-outreach-send-authority/v1',
+    mode,
+    channel,
+    label: `${channel} ${state}`,
+    state,
+    futureActivationEligible: state === 'eligible_for_future_activation',
+    externalSendApproved: false,
+    externalSendEnabled: false,
+    providerExecutionEnabled: false,
+    gmailDraftCreationEnabled: false,
+    schedulingEnabled: false,
+    outcomeTrackingEnabled: false,
+    humanApprovalRequired: true,
+    idempotencyKey: `warm-outreach:send-readiness:v1:${mode}:${channel}`,
+    gates: gateKeys.map((key) => ({
+      key,
+      label: key.replace(/_/g, ' '),
+      status:
+        key === 'provider_capability'
+          ? state === 'manual_only'
+            ? 'manual_required'
+            : 'future_gate'
+          : key === 'human_approval' || key === 'send_scheduling' || key === 'outcome_tracking' || key === 'response_follow_up'
+            ? 'future_gate'
+            : 'satisfied',
+      requiredForActivation: true,
+      detail: `${key} detail`,
+      externalExecutionEnabled: false,
+    })),
+    blockers: [],
+    manualSteps: state === 'manual_only' ? ['Review the relationship packet in Portfolio.'] : [],
+    nextReviewAction:
+      state === 'manual_only'
+        ? 'Manual-only channel: prepare an operator review packet; no provider action is available.'
+        : 'Prepare send packet for a future approval request; external sends remain disabled.',
+  }
+}
+
+function sendReadiness(
+  mode: WarmOutreachSendMode,
+  channel: WarmOutreachChannel,
+  state: WarmOutreachChannelSendReadiness['state'],
+  authorityState: WarmOutreachSendAuthority['state'],
+): WarmOutreachChannelSendReadiness {
+  return {
+    mode,
+    channel,
+    label:
+      state === 'manual_review_only'
+        ? `${channel} manual review only`
+        : `${channel} provider gate required`,
+    state,
+    sendReady: false,
+    externalSendEnabled: false,
+    providerExecutionEnabled: false,
+    humanApprovalRequired: true,
+    idempotencyKey: `warm-outreach:send-readiness:v1:${mode}:${channel}`,
+    blockers: [],
+    gatesRemaining: ['human_reply_or_draft_approval', 'external_send_authority', 'provider_execution_gate'],
+    auditNotes: ['Scaffold only.'],
+    sendAuthority: sendAuthority(mode, channel, authorityState),
+  }
+}
+
+function readinessForMode(mode: WarmOutreachSendMode): WarmOutreachChannelSendReadiness[] {
+  return [
+    sendReadiness(mode, 'email', 'provider_gate_required', 'eligible_for_future_activation'),
+    sendReadiness(mode, 'linkedin', 'provider_gate_required', 'eligible_for_future_activation'),
+    sendReadiness(mode, 'facebook', 'manual_review_only', 'manual_only'),
+    sendReadiness(mode, 'phone_contact', 'manual_review_only', 'manual_only'),
+  ]
+}
 
 const packetResponse: RelationshipPacketApiResponse = {
   packet: {
@@ -174,65 +272,8 @@ const packetResponse: RelationshipPacketApiResponse = {
       contactId: 42,
       perRecipientIdempotencyKey: 'warm-outreach:recipient:v1:recipient42',
       modes: {
-        warm_1_to_1: [
-          {
-            mode: 'warm_1_to_1',
-            channel: 'email',
-            label: 'Gmail / email provider gate required',
-            state: 'provider_gate_required',
-            sendReady: false,
-            externalSendEnabled: false,
-            providerExecutionEnabled: false,
-            humanApprovalRequired: true,
-            idempotencyKey: 'warm-outreach:send-readiness:v1:email',
-            blockers: [],
-            gatesRemaining: ['human_reply_or_draft_approval', 'external_send_authority', 'provider_execution_gate'],
-            auditNotes: ['Scaffold only.'],
-          },
-          {
-            mode: 'warm_1_to_1',
-            channel: 'linkedin',
-            label: 'LinkedIn provider gate required',
-            state: 'provider_gate_required',
-            sendReady: false,
-            externalSendEnabled: false,
-            providerExecutionEnabled: false,
-            humanApprovalRequired: true,
-            idempotencyKey: 'warm-outreach:send-readiness:v1:linkedin',
-            blockers: [],
-            gatesRemaining: ['human_reply_or_draft_approval', 'external_send_authority', 'provider_execution_gate'],
-            auditNotes: ['Scaffold only.'],
-          },
-          {
-            mode: 'warm_1_to_1',
-            channel: 'facebook',
-            label: 'Facebook manual review only',
-            state: 'manual_review_only',
-            sendReady: false,
-            externalSendEnabled: false,
-            providerExecutionEnabled: false,
-            humanApprovalRequired: true,
-            idempotencyKey: 'warm-outreach:send-readiness:v1:facebook',
-            blockers: [],
-            gatesRemaining: ['human_reply_or_draft_approval', 'external_send_authority', 'provider_execution_gate'],
-            auditNotes: ['Scaffold only.'],
-          },
-          {
-            mode: 'warm_1_to_1',
-            channel: 'phone_contact',
-            label: 'Phone / manual manual review only',
-            state: 'manual_review_only',
-            sendReady: false,
-            externalSendEnabled: false,
-            providerExecutionEnabled: false,
-            humanApprovalRequired: true,
-            idempotencyKey: 'warm-outreach:send-readiness:v1:phone',
-            blockers: [],
-            gatesRemaining: ['human_reply_or_draft_approval', 'external_send_authority', 'provider_execution_gate'],
-            auditNotes: ['Scaffold only.'],
-          },
-        ],
-        warm_1_to_many: [],
+        warm_1_to_1: readinessForMode('warm_1_to_1'),
+        warm_1_to_many: readinessForMode('warm_1_to_many'),
       },
       executionBoundary: {
         gmailEmailSend: false,
@@ -242,6 +283,8 @@ const packetResponse: RelationshipPacketApiResponse = {
         providerExecution: false,
         scheduling: false,
         externalMonitoring: false,
+        gmailDraftCreation: false,
+        outcomeTracking: false,
       },
     },
     executionBoundary: {
@@ -292,8 +335,13 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Response monitoring')).toBeInTheDocument()
     expect(screen.getByText('Review stale no-response follow-up')).toBeInTheDocument()
     expect(screen.getByText('stale no response')).toBeInTheDocument()
-    expect(screen.getByText('Send-readiness gates')).toBeInTheDocument()
-    expect(screen.getByText('Gmail / email provider gate required')).toBeInTheDocument()
+    expect(screen.getByText('Send authority review')).toBeInTheDocument()
+    expect(screen.getByText('Warm one-to-one')).toBeInTheDocument()
+    expect(screen.getByText('Warm one-to-many')).toBeInTheDocument()
+    expect(screen.getAllByText('Future eligible')).toHaveLength(4)
+    expect(screen.getAllByText('Manual only')).toHaveLength(4)
+    expect(screen.getAllByText(/Prepare send packet for a future approval request/)).toHaveLength(4)
+    expect(screen.getAllByText(/Manual-only channel: prepare an operator review packet/)).toHaveLength(4)
     expect(screen.getByText('External monitoring: off')).toBeInTheDocument()
     expect(screen.getByText('Local response evidence: visible')).toBeInTheDocument()
   })

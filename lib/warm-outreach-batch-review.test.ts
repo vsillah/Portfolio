@@ -104,8 +104,30 @@ describe('warm outreach batch review', () => {
         executionBoundary: {
           providerExecution: false,
           externalMonitoring: false,
+          gmailDraftCreation: false,
+          outcomeTracking: false,
         },
       },
+    })
+    expect(review.recipients[0].sendReadiness.modes.warm_1_to_1).toHaveLength(4)
+    expect(review.recipients[0].sendReadiness.modes.warm_1_to_many).toHaveLength(4)
+    expect(
+      review.recipients[0].sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')?.sendAuthority,
+    ).toMatchObject({
+      version: 'warm-outreach-send-authority/v1',
+      state: 'eligible_for_future_activation',
+      futureActivationEligible: true,
+      externalSendEnabled: false,
+      providerExecutionEnabled: false,
+      schedulingEnabled: false,
+      outcomeTrackingEnabled: false,
+    })
+    expect(
+      review.recipients[0].sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'phone_contact')?.sendAuthority,
+    ).toMatchObject({
+      state: 'blocked',
+      futureActivationEligible: false,
+      providerExecutionEnabled: false,
     })
     expect(review.recipients[0].draftIdempotencyKey).toMatch(/^warm-outreach:batch-draft:v1:/)
     expect(review.recipients[0].sendReadiness.perRecipientIdempotencyKey).toMatch(

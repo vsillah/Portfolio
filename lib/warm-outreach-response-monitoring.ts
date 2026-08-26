@@ -23,6 +23,48 @@ export type WarmOutreachResponseMonitoringStatus =
 
 export type WarmOutreachSendMode = 'warm_1_to_1' | 'warm_1_to_many'
 
+export type WarmOutreachSendAuthorityGateKey =
+  | 'target_source_provenance'
+  | 'relationship_basis'
+  | 'consent_suppression'
+  | 'personalization'
+  | 'human_approval'
+  | 'provider_capability'
+  | 'idempotency'
+  | 'send_scheduling'
+  | 'outcome_tracking'
+  | 'response_follow_up'
+
+export type WarmOutreachSendAuthorityGate = {
+  key: WarmOutreachSendAuthorityGateKey
+  label: string
+  status: 'satisfied' | 'blocked' | 'manual_required' | 'future_gate'
+  requiredForActivation: true
+  detail: string
+  externalExecutionEnabled: false
+}
+
+export type WarmOutreachSendAuthority = {
+  version: 'warm-outreach-send-authority/v1'
+  mode: WarmOutreachSendMode
+  channel: WarmOutreachChannel
+  label: string
+  state: 'eligible_for_future_activation' | 'blocked' | 'manual_only'
+  futureActivationEligible: boolean
+  externalSendApproved: false
+  externalSendEnabled: false
+  providerExecutionEnabled: false
+  gmailDraftCreationEnabled: false
+  schedulingEnabled: false
+  outcomeTrackingEnabled: false
+  humanApprovalRequired: true
+  idempotencyKey: string
+  gates: WarmOutreachSendAuthorityGate[]
+  blockers: string[]
+  manualSteps: string[]
+  nextReviewAction: string
+}
+
 export type WarmOutreachChannelSendReadiness = {
   mode: WarmOutreachSendMode
   channel: WarmOutreachChannel
@@ -40,6 +82,7 @@ export type WarmOutreachChannelSendReadiness = {
   blockers: string[]
   gatesRemaining: string[]
   auditNotes: string[]
+  sendAuthority: WarmOutreachSendAuthority
 }
 
 export type WarmOutreachSendReadiness = {
@@ -55,6 +98,8 @@ export type WarmOutreachSendReadiness = {
     providerExecution: false
     scheduling: false
     externalMonitoring: false
+    gmailDraftCreation: false
+    outcomeTracking: false
   }
 }
 
@@ -236,6 +281,29 @@ function weakRelationshipBasis(packet: WarmOutreachRelationshipPacket): boolean 
   )
 }
 
+function hasSourceProvenance(packet: WarmOutreachRelationshipPacket): boolean {
+  return packet.sourceRefs.some((source) => {
+    if (
+      source.sourceStatus === 'missing' ||
+      source.sourceStatus === 'blocked' ||
+      source.sourceStatus === 'suppressed'
+    ) {
+      return false
+    }
+    return source.sourceType !== 'portfolio_contact'
+  })
+}
+
+function hasPersonalizationBasis(packet: WarmOutreachRelationshipPacket): boolean {
+  const inventory = packet.sourceInventory
+  return Boolean(
+    packet.relationshipSignals.length > 0 ||
+      packet.commonalities.length > 0 ||
+      inventory?.safeToMention.length ||
+      inventory?.summarizeOnly.length,
+  )
+}
+
 function suppressionBlockers(packet: WarmOutreachRelationshipPacket, readiness: WarmOutreachReadiness): string[] {
   return [
     packet.suppression.doNotContact
@@ -247,6 +315,19 @@ function suppressionBlockers(packet: WarmOutreachRelationshipPacket, readiness: 
   ].filter(Boolean) as string[]
 }
 
+function gate(args: {
+  key: WarmOutreachSendAuthorityGateKey
+  label: string
+  status: WarmOutreachSendAuthorityGate['status']
+  detail: string
+}): WarmOutreachSendAuthorityGate {
+  return {
+    ...args,
+    requiredForActivation: true,
+    externalExecutionEnabled: false,
+  }
+}
+
 function baseSendBlockers(args: {
   packet: WarmOutreachRelationshipPacket
   readiness: WarmOutreachReadiness
@@ -256,10 +337,156 @@ function baseSendBlockers(args: {
   if (weakRelationshipBasis(args.packet)) {
     blockers.push('Relationship basis is too weak for send readiness.')
   }
+  if (!hasSourceProvenance(args.packet)) {
+    blockers.push('Target/source provenance is missing or only uses the contact record.')
+  }
+  if (!hasPersonalizationBasis(args.packet)) {
+    blockers.push('Personalization basis is missing from local relationship evidence.')
+  }
   if (args.mode === 'warm_1_to_many' && args.readiness.status !== 'draft_ready') {
     blockers.push('Batch recipients require per-contact review before any send-readiness state.')
   }
   return blockers
+}
+
+function buildSendAuthority(args: {
+  packet: WarmOutreachRelationshipPacket
+  readiness: WarmOutreachReadiness
+  channel: WarmOutreachChannel
+  mode: WarmOutreachSendMode
+  idempotencyKey: string
+  blockers: string[]
+}): WarmOutreachSendAuthority {
+  const capability = args.packet.channelCapabilities[args.channel]
+  const channelLabel = CHANNEL_LABELS[args.channel]
+  const suppressionReasons = suppressionBlockers(args.packet, args.readiness)
+  const manualOnly = Boolean(capability?.manualOnly || args.channel === 'facebook' || args.channel === 'phone_contact')
+  const unavailable = !capability?.available
+  const providerStatus: WarmOutreachSendAuthorityGate['status'] =
+    unavailable ? 'blocked' : manualOnly ? 'manual_required' : 'future_gate'
+  const sourceProvenance = hasSourceProvenance(args.packet)
+  const relationshipIsWeak = weakRelationshipBasis(args.packet)
+  const personalization = hasPersonalizationBasis(args.packet)
+  const gates = [
+    gate({
+      key: 'target_source_provenance',
+      label: 'Target and source provenance',
+      status: sourceProvenance ? 'satisfied' : 'blocked',
+      detail: sourceProvenance
+        ? 'Portfolio-local relationship evidence is attached beyond the contact row.'
+        : 'Add a meeting, prior outreach row, reply, task, manual note, or approved source record before activation review.',
+    }),
+    gate({
+      key: 'relationship_basis',
+      label: 'Relationship basis',
+      status: relationshipIsWeak ? 'blocked' : 'satisfied',
+      detail: relationshipIsWeak
+        ? 'Warm basis is too thin for governed send authority.'
+        : 'Warm basis has local supporting evidence.',
+    }),
+    gate({
+      key: 'consent_suppression',
+      label: 'Consent and suppression',
+      status: suppressionReasons.length > 0 ? 'blocked' : 'satisfied',
+      detail: suppressionReasons[0] ?? 'No DNC, unsubscribe, removed, or readiness suppression blocker is recorded.',
+    }),
+    gate({
+      key: 'personalization',
+      label: 'Personalization',
+      status: personalization ? 'satisfied' : 'blocked',
+      detail: personalization
+        ? 'Local relationship context can support a personalized review packet.'
+        : 'Add safe-to-mention, summarize-only, signal, or commonality context before activation review.',
+    }),
+    gate({
+      key: 'human_approval',
+      label: 'Human approval',
+      status: 'future_gate',
+      detail: 'A future activation request still needs explicit human approval for this channel and mode.',
+    }),
+    gate({
+      key: 'provider_capability',
+      label: 'Provider capability',
+      status: providerStatus,
+      detail: unavailable
+        ? `${channelLabel} is not available for this contact.`
+        : manualOnly
+          ? `${channelLabel} remains a manual operator channel outside Portfolio provider execution.`
+          : `${channelLabel} can be reviewed for future provider capability, but provider execution is disabled now.`,
+    }),
+    gate({
+      key: 'idempotency',
+      label: 'Idempotency',
+      status: 'satisfied',
+      detail: `Stable activation-review key: ${args.idempotencyKey}.`,
+    }),
+    gate({
+      key: 'send_scheduling',
+      label: 'Send scheduling',
+      status: 'future_gate',
+      detail: 'Scheduling is modeled as a future gate and is disabled in this scaffold.',
+    }),
+    gate({
+      key: 'outcome_tracking',
+      label: 'Outcome tracking',
+      status: 'future_gate',
+      detail: 'Outcome tracking must connect to local rows before any provider send can be activated.',
+    }),
+    gate({
+      key: 'response_follow_up',
+      label: 'Response follow-up',
+      status: 'future_gate',
+      detail: 'Response follow-up remains local review-only; provider polling and external monitoring are disabled.',
+    }),
+  ]
+  const gateBlockers = gates
+    .filter((item) => item.status === 'blocked')
+    .map((item) => `${item.label}: ${item.detail}`)
+  const blockers = [...new Set([...args.blockers, ...gateBlockers])]
+  const state: WarmOutreachSendAuthority['state'] =
+    blockers.length > 0 || unavailable
+      ? 'blocked'
+      : manualOnly
+        ? 'manual_only'
+        : 'eligible_for_future_activation'
+  const futureActivationEligible = state === 'eligible_for_future_activation'
+
+  return {
+    version: 'warm-outreach-send-authority/v1',
+    mode: args.mode,
+    channel: args.channel,
+    label:
+      state === 'blocked'
+        ? `${channelLabel} send authority blocked`
+        : state === 'manual_only'
+          ? `${channelLabel} manual authority review`
+          : `${channelLabel} eligible for future send-authority review`,
+    state,
+    futureActivationEligible,
+    externalSendApproved: false,
+    externalSendEnabled: false,
+    providerExecutionEnabled: false,
+    gmailDraftCreationEnabled: false,
+    schedulingEnabled: false,
+    outcomeTrackingEnabled: false,
+    humanApprovalRequired: true,
+    idempotencyKey: args.idempotencyKey,
+    gates,
+    blockers,
+    manualSteps: manualOnly
+      ? [
+          'Review the relationship packet in Portfolio.',
+          `Complete ${channelLabel} contact manually outside provider automation if approved later.`,
+          'Record the outcome back into local Portfolio rows.',
+        ]
+      : [],
+    nextReviewAction:
+      state === 'blocked'
+        ? blockers[0] ?? 'Resolve send-authority blockers before activation review.'
+        : state === 'manual_only'
+          ? 'Manual-only channel: prepare an operator review packet; no provider action is available.'
+          : 'Prepare send packet for a future approval request; external sends remain disabled.',
+  }
 }
 
 function buildChannelReadiness(args: {
@@ -271,81 +498,107 @@ function buildChannelReadiness(args: {
 }): WarmOutreachChannelSendReadiness {
   const capability = args.packet.channelCapabilities[args.channel]
   const blockers = baseSendBlockers(args)
+  const idempotencyKey = `warm-outreach:send-readiness:v1:${stableHash({
+    contactId: args.contactId,
+    mode: args.mode,
+    channel: args.channel,
+  })}`
   const gatesRemaining = [
+    'target_source_provenance',
+    'relationship_basis',
+    'consent_suppression',
+    'personalization',
     'human_reply_or_draft_approval',
     'external_send_authority',
     'provider_execution_gate',
+    'send_scheduling',
+    'outcome_tracking',
+    'response_follow_up',
   ]
   const auditNotes = [
     `${args.mode} ${CHANNEL_LABELS[args.channel]} readiness is scaffold-only.`,
     'No provider, scheduling, draft creation, or external send execution is enabled.',
   ]
+  const readinessBase = {
+    mode: args.mode,
+    channel: args.channel,
+    sendReady: false as const,
+    externalSendEnabled: false as const,
+    providerExecutionEnabled: false as const,
+    humanApprovalRequired: true as const,
+    idempotencyKey,
+    blockers,
+    gatesRemaining,
+    auditNotes,
+  }
 
   if (!capability?.available) {
     blockers.push(`${CHANNEL_LABELS[args.channel]} is not available for this contact.`)
-    return {
-      mode: args.mode,
+    const sendAuthority = buildSendAuthority({
+      packet: args.packet,
+      readiness: args.readiness,
       channel: args.channel,
+      mode: args.mode,
+      idempotencyKey,
+      blockers,
+    })
+    return {
+      ...readinessBase,
       label: `${CHANNEL_LABELS[args.channel]} unavailable`,
       state: 'unavailable',
-      sendReady: false,
-      externalSendEnabled: false,
-      providerExecutionEnabled: false,
-      humanApprovalRequired: true,
-      idempotencyKey: `warm-outreach:send-readiness:v1:${stableHash({ contactId: args.contactId, mode: args.mode, channel: args.channel })}`,
-      blockers,
-      gatesRemaining,
-      auditNotes,
+      sendAuthority,
     }
   }
 
   if (blockers.length > 0) {
-    return {
-      mode: args.mode,
+    const sendAuthority = buildSendAuthority({
+      packet: args.packet,
+      readiness: args.readiness,
       channel: args.channel,
+      mode: args.mode,
+      idempotencyKey,
+      blockers,
+    })
+    return {
+      ...readinessBase,
       label: `${CHANNEL_LABELS[args.channel]} blocked`,
       state: 'blocked',
-      sendReady: false,
-      externalSendEnabled: false,
-      providerExecutionEnabled: false,
-      humanApprovalRequired: true,
-      idempotencyKey: `warm-outreach:send-readiness:v1:${stableHash({ contactId: args.contactId, mode: args.mode, channel: args.channel })}`,
-      blockers,
-      gatesRemaining,
-      auditNotes,
+      sendAuthority,
     }
   }
 
   if (capability.manualOnly || args.channel === 'facebook' || args.channel === 'phone_contact') {
-    return {
-      mode: args.mode,
+    const manualGates = [...gatesRemaining, 'manual_operator_action_outside_portfolio']
+    const sendAuthority = buildSendAuthority({
+      packet: args.packet,
+      readiness: args.readiness,
       channel: args.channel,
+      mode: args.mode,
+      idempotencyKey,
+      blockers,
+    })
+    return {
+      ...readinessBase,
       label: `${CHANNEL_LABELS[args.channel]} manual review only`,
       state: 'manual_review_only',
-      sendReady: false,
-      externalSendEnabled: false,
-      providerExecutionEnabled: false,
-      humanApprovalRequired: true,
-      idempotencyKey: `warm-outreach:send-readiness:v1:${stableHash({ contactId: args.contactId, mode: args.mode, channel: args.channel })}`,
-      blockers,
-      gatesRemaining: [...gatesRemaining, 'manual_operator_action_outside_portfolio'],
-      auditNotes,
+      gatesRemaining: manualGates,
+      sendAuthority,
     }
   }
 
-  return {
-    mode: args.mode,
+  const sendAuthority = buildSendAuthority({
+    packet: args.packet,
+    readiness: args.readiness,
     channel: args.channel,
+    mode: args.mode,
+    idempotencyKey,
+    blockers,
+  })
+  return {
+    ...readinessBase,
     label: `${CHANNEL_LABELS[args.channel]} provider gate required`,
     state: 'provider_gate_required',
-    sendReady: false,
-    externalSendEnabled: false,
-    providerExecutionEnabled: false,
-    humanApprovalRequired: true,
-    idempotencyKey: `warm-outreach:send-readiness:v1:${stableHash({ contactId: args.contactId, mode: args.mode, channel: args.channel })}`,
-    blockers,
-    gatesRemaining,
-    auditNotes,
+    sendAuthority,
   }
 }
 
@@ -387,6 +640,8 @@ export function buildWarmOutreachSendReadiness(args: {
       providerExecution: false,
       scheduling: false,
       externalMonitoring: false,
+      gmailDraftCreation: false,
+      outcomeTracking: false,
     },
   }
 }

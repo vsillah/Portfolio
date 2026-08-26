@@ -22,6 +22,9 @@ import type {
 } from '@/lib/warm-outreach-relationship-intelligence'
 import type { WarmOutreachResponseMonitoring } from '@/lib/warm-outreach-response-monitoring'
 
+type SendReadinessItem =
+  WarmOutreachResponseMonitoring['sendReadiness']['modes']['warm_1_to_1'][number]
+
 type ChannelCapability = NonNullable<
   WarmOutreachRelationshipPacket['channelCapabilities'][WarmOutreachChannel]
 >
@@ -113,6 +116,87 @@ function sendReadinessClasses(state: string) {
   return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
 }
 
+function sendAuthorityClasses(state: SendReadinessItem['sendAuthority']['state']) {
+  if (state === 'blocked') return 'border-red-500/25 bg-red-500/10 text-red-100'
+  if (state === 'manual_only') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+}
+
+function sendAuthorityStateLabel(state: SendReadinessItem['sendAuthority']['state']) {
+  if (state === 'eligible_for_future_activation') return 'Future eligible'
+  if (state === 'manual_only') return 'Manual only'
+  return 'Blocked'
+}
+
+function summarizeAuthority(items: SendReadinessItem[]) {
+  return items.reduce(
+    (summary, item) => {
+      if (item.sendAuthority.state === 'blocked') summary.blocked += 1
+      if (item.sendAuthority.state === 'eligible_for_future_activation') summary.future += 1
+      if (item.sendAuthority.state === 'manual_only') summary.manual += 1
+      return summary
+    },
+    { blocked: 0, future: 0, manual: 0 },
+  )
+}
+
+function SendAuthorityCompactRow({
+  label,
+  items,
+}: {
+  label: string
+  items: SendReadinessItem[]
+}) {
+  const summary = summarizeAuthority(items)
+
+  return (
+    <div className="rounded-md border border-silicon-slate/70 bg-background/30 p-2.5">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-foreground">{label}</p>
+          <p className="mt-1 text-[11px] leading-4 text-muted-foreground">
+            {summary.future} future eligible / {summary.manual} manual / {summary.blocked} blocked
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {items.map((item) => (
+            <span
+              key={item.channel}
+              className={`inline-flex min-h-7 items-center rounded-full border px-2 py-1 text-[11px] font-semibold ${sendAuthorityClasses(item.sendAuthority.state)}`}
+              title={item.sendAuthority.nextReviewAction}
+            >
+              {CHANNEL_LABELS[item.channel]}: {sendAuthorityStateLabel(item.sendAuthority.state)}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function SendAuthorityDetailCard({ item }: { item: SendReadinessItem }) {
+  const authority = item.sendAuthority
+  const blockedCount = authority.gates.filter((gate) => gate.status === 'blocked').length
+  const futureGateCount = authority.gates.filter((gate) => gate.status === 'future_gate').length
+  const manualGateCount = authority.gates.filter((gate) => gate.status === 'manual_required').length
+
+  return (
+    <div className={`rounded-md border p-2 ${sendAuthorityClasses(authority.state)}`}>
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-xs font-semibold">{CHANNEL_LABELS[item.channel]}</p>
+        <span className="shrink-0 rounded-full border border-current/25 px-1.5 py-0.5 text-[10px] font-semibold">
+          {sendAuthorityStateLabel(authority.state)}
+        </span>
+      </div>
+      <p className="mt-1 text-[11px] leading-4">{authority.nextReviewAction}</p>
+      <p className="mt-2 text-[11px] leading-4 opacity-90">
+        Gates: {blockedCount} blocked / {futureGateCount} future / {manualGateCount} manual
+      </p>
+      <p className="mt-1 break-all text-[10px] leading-4 opacity-80">{authority.idempotencyKey}</p>
+    </div>
+  )
+}
+
 function sourceLabel(value: string) {
   return value.replace(/_/g, ' ')
 }
@@ -171,6 +255,14 @@ function CountPill({ label, count }: { label: string; count: number }) {
   )
 }
 
+function ValuePill({ label, value }: { label: string; value: string }) {
+  return (
+    <span className="inline-flex min-h-7 items-center rounded-md border border-silicon-slate bg-silicon-slate/25 px-2 py-1 text-xs text-muted-foreground">
+      {label}: {value}
+    </span>
+  )
+}
+
 export default function RelationshipPacketPanel({
   loading,
   error,
@@ -208,26 +300,26 @@ export default function RelationshipPacketPanel({
       </div>
 
       {loading && (
-        <div className="mt-4 flex items-center gap-2 rounded-md border border-silicon-slate bg-silicon-slate/25 p-3 text-sm text-muted-foreground">
+        <div className="mt-3 flex items-center gap-2 rounded-md border border-silicon-slate bg-silicon-slate/25 p-3 text-sm text-muted-foreground">
           <Database size={14} className="animate-pulse" aria-hidden />
           Loading relationship packet from local Portfolio rows...
         </div>
       )}
 
       {!loading && error && (
-        <div role="alert" className="mt-4 rounded-md border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-100">
+        <div role="alert" className="mt-3 rounded-md border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-100">
           {error}
         </div>
       )}
 
       {!loading && !error && !data && (
-        <div className="mt-4 rounded-md border border-silicon-slate bg-silicon-slate/25 p-3 text-sm text-muted-foreground">
+        <div className="mt-3 rounded-md border border-silicon-slate bg-silicon-slate/25 p-3 text-sm text-muted-foreground">
           No relationship packet is available for this lead yet.
         </div>
       )}
 
       {!loading && !error && data && packet && readiness && (
-        <div className="mt-4 space-y-4">
+        <div className="mt-3 space-y-3">
           <div className="grid gap-3 md:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
             <div className="rounded-md border border-silicon-slate/70 bg-silicon-slate/20 p-3">
               <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
@@ -307,56 +399,76 @@ export default function RelationshipPacketPanel({
                   <p className="text-sm leading-5 text-foreground">
                     {responseMonitoring.proposedFollowUp.label}
                   </p>
-                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                    {responseMonitoring.proposedFollowUp.description}
-                  </p>
                 </div>
                 <span className={`inline-flex w-fit rounded-full border px-2.5 py-1 text-xs font-semibold ${monitoringClasses(responseMonitoring.status)}`}>
                   {responseMonitoring.label}
                 </span>
               </div>
-              <div className="mt-3 grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-                <div className="space-y-2 text-xs leading-5 text-muted-foreground">
-                  <p>Mode: {responseMonitoring.mode}</p>
-                  <p>Latest outbound: {responseMonitoring.latestOutboundAt ?? 'none recorded'}</p>
-                  <p>Latest response: {responseMonitoring.latestResponseAt ?? 'none recorded'}</p>
-                  <p>Expected reply by: {responseMonitoring.expectedReplyBy ?? 'not set'}</p>
-                  <p className="break-all">Recipient key: {responseMonitoring.perRecipientIdempotencyKey}</p>
-                </div>
-                <div>
-                  <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
-                    Evidence
-                  </p>
-                  {responseMonitoring.evidence.length > 0 ? (
-                    <ul className="space-y-1">
-                      {responseMonitoring.evidence.slice(0, 4).map((item) => (
-                        <li key={`${item.sourceType}-${item.sourceId}`} className="text-xs leading-5 text-muted-foreground">
-                          {item.sourceType}: {item.evidenceType.replace(/_/g, ' ')}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-xs leading-5 text-muted-foreground">
-                      No reply evidence is recorded yet. Manual import remains the only enabled monitoring action.
-                    </p>
-                  )}
-                </div>
+              <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                <ValuePill label="Mode" value={responseMonitoring.mode.replace(/_/g, ' ')} />
+                <CountPill label="Evidence" count={responseMonitoring.evidence.length} />
+                <CountPill label="Blocked" count={responseMonitoring.blockedReasons.length} />
               </div>
               <div className="mt-3">
                 <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
-                  Send-readiness gates
+                  Send authority review
                 </p>
-                <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-                  {responseMonitoring.sendReadiness.modes.warm_1_to_1.map((item) => (
-                    <div key={item.channel} className={`rounded-md border p-2 ${sendReadinessClasses(item.state)}`}>
-                      <p className="text-xs font-semibold">{item.label}</p>
-                      <p className="mt-1 text-[11px] leading-4">
-                        {item.gatesRemaining.slice(0, 3).map(gate => gate.replace(/_/g, ' ')).join(', ')}
-                      </p>
-                    </div>
-                  ))}
+                <div className="space-y-2">
+                  <SendAuthorityCompactRow
+                    label="Warm one-to-one"
+                    items={responseMonitoring.sendReadiness.modes.warm_1_to_1}
+                  />
+                  <SendAuthorityCompactRow
+                    label="Warm one-to-many"
+                    items={responseMonitoring.sendReadiness.modes.warm_1_to_many}
+                  />
                 </div>
               </div>
+
+              <details className="mt-3 rounded-md border border-silicon-slate/70 bg-background/25">
+                <summary className="cursor-pointer px-3 py-2 text-xs font-medium text-muted-foreground">
+                  Monitoring evidence and send gate details
+                </summary>
+                <div className="space-y-3 border-t border-silicon-slate/70 p-3">
+                  <p className="text-xs leading-5 text-muted-foreground">
+                    {responseMonitoring.proposedFollowUp.description}
+                  </p>
+                  <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+                    <div className="space-y-2 text-xs leading-5 text-muted-foreground">
+                      <p>Latest outbound: {responseMonitoring.latestOutboundAt ?? 'none recorded'}</p>
+                      <p>Latest response: {responseMonitoring.latestResponseAt ?? 'none recorded'}</p>
+                      <p>Expected reply by: {responseMonitoring.expectedReplyBy ?? 'not set'}</p>
+                      <p className="break-all">Recipient key: {responseMonitoring.perRecipientIdempotencyKey}</p>
+                    </div>
+                    <div>
+                      <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
+                        Evidence
+                      </p>
+                      {responseMonitoring.evidence.length > 0 ? (
+                        <ul className="space-y-1">
+                          {responseMonitoring.evidence.slice(0, 4).map((item) => (
+                            <li key={`${item.sourceType}-${item.sourceId}`} className="text-xs leading-5 text-muted-foreground">
+                              {item.sourceType}: {item.evidenceType.replace(/_/g, ' ')}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-xs leading-5 text-muted-foreground">
+                          No reply evidence is recorded yet. Manual import remains the only enabled monitoring action.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                    {[
+                      ...responseMonitoring.sendReadiness.modes.warm_1_to_1,
+                      ...responseMonitoring.sendReadiness.modes.warm_1_to_many,
+                    ].map((item) => (
+                      <SendAuthorityDetailCard key={`${item.mode}-${item.channel}`} item={item} />
+                    ))}
+                  </div>
+                </div>
+              </details>
             </div>
           )}
 
@@ -426,57 +538,64 @@ export default function RelationshipPacketPanel({
             </div>
           </details>
 
-          <div>
-            <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
-              Channel capability state
-            </p>
-            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-              {(['email', 'linkedin', 'facebook', 'phone_contact'] as WarmOutreachChannel[]).map((channel) => {
-                const capability = packet.channelCapabilities[channel]
-                const Icon = CHANNEL_ICONS[channel]
-                return (
-                  <div key={channel} className={`rounded-md border p-3 ${capabilityClasses(capability)}`}>
-                    <p className="flex items-center gap-2 text-sm font-medium">
-                      <Icon size={14} aria-hidden />
-                      {CHANNEL_LABELS[channel]}
-                    </p>
-                    <p className="mt-1 text-xs">{describeChannelCapability(capability)}</p>
-                    {capability?.reason && (
-                      <p className="mt-1 text-xs opacity-85">{capability.reason}</p>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          </div>
+          <details className="rounded-md border border-silicon-slate/70 bg-silicon-slate/20">
+            <summary className="cursor-pointer px-3 py-2 text-sm font-medium text-foreground">
+              Channel capability and execution boundary
+            </summary>
+            <div className="space-y-3 border-t border-silicon-slate/70 p-3">
+              <div>
+                <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
+                  Channel capability state
+                </p>
+                <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                  {(['email', 'linkedin', 'facebook', 'phone_contact'] as WarmOutreachChannel[]).map((channel) => {
+                    const capability = packet.channelCapabilities[channel]
+                    const Icon = CHANNEL_ICONS[channel]
+                    return (
+                      <div key={channel} className={`rounded-md border p-3 ${capabilityClasses(capability)}`}>
+                        <p className="flex items-center gap-2 text-sm font-medium">
+                          <Icon size={14} aria-hidden />
+                          {CHANNEL_LABELS[channel]}
+                        </p>
+                        <p className="mt-1 text-xs">{describeChannelCapability(capability)}</p>
+                        {capability?.reason && (
+                          <p className="mt-1 text-xs opacity-85">{capability.reason}</p>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
 
-          <div className="rounded-md border border-silicon-slate/70 bg-silicon-slate/20 p-3">
-            <p className="mb-2 flex items-center gap-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
-              <FileText size={13} aria-hidden />
-              Execution boundary
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <span className="inline-flex min-h-7 items-center rounded-md border border-emerald-500/25 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-100">
-                Read-only local rows
-              </span>
-              <BoundaryFlag active={data.executionBoundary.providerCalls} label="Provider calls" />
-              <BoundaryFlag active={data.executionBoundary.createsDraft} label="Draft creation" />
-              <BoundaryFlag active={data.executionBoundary.externalSend} label="External send" />
-              <BoundaryFlag active={data.executionBoundary.n8nDispatch} label="n8n dispatch" />
-              <BoundaryFlag active={data.executionBoundary.slackAction} label="Slack action" />
-              <BoundaryFlag active={data.executionBoundary.responseMonitoring} label="Provider monitoring" />
-              {responseMonitoring && (
-                <>
-                  <BoundaryFlag active={responseMonitoring.executionBoundary.externalMonitoringEnabled} label="External monitoring" />
-                  <LocalEvidenceFlag visible={responseMonitoring.evidence.length > 0} />
-                </>
-              )}
+              <div>
+                <p className="mb-2 flex items-center gap-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
+                  <FileText size={13} aria-hidden />
+                  Execution boundary
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <span className="inline-flex min-h-7 items-center rounded-md border border-emerald-500/25 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-100">
+                    Read-only local rows
+                  </span>
+                  <BoundaryFlag active={data.executionBoundary.providerCalls} label="Provider calls" />
+                  <BoundaryFlag active={data.executionBoundary.createsDraft} label="Draft creation" />
+                  <BoundaryFlag active={data.executionBoundary.externalSend} label="External send" />
+                  <BoundaryFlag active={data.executionBoundary.n8nDispatch} label="n8n dispatch" />
+                  <BoundaryFlag active={data.executionBoundary.slackAction} label="Slack action" />
+                  <BoundaryFlag active={data.executionBoundary.responseMonitoring} label="Provider monitoring" />
+                  {responseMonitoring && (
+                    <>
+                      <BoundaryFlag active={responseMonitoring.executionBoundary.externalMonitoringEnabled} label="External monitoring" />
+                      <LocalEvidenceFlag visible={responseMonitoring.evidence.length > 0} />
+                    </>
+                  )}
+                </div>
+                <p className="mt-2 flex items-start gap-2 text-xs leading-5 text-muted-foreground">
+                  <AlertTriangle size={13} className="mt-0.5 shrink-0 text-amber-200" aria-hidden />
+                  Email and LinkedIn can inform internal drafts only. Facebook and phone remain manual review channels when present.
+                </p>
+              </div>
             </div>
-            <p className="mt-2 flex items-start gap-2 text-xs leading-5 text-muted-foreground">
-              <AlertTriangle size={13} className="mt-0.5 shrink-0 text-amber-200" aria-hidden />
-              Email and LinkedIn can inform internal drafts only. Facebook and phone remain manual review channels when present.
-            </p>
-          </div>
+          </details>
 
           {readiness.status === 'draft_ready' && (
             <p className="flex items-start gap-2 text-xs leading-5 text-emerald-100">

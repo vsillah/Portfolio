@@ -150,6 +150,22 @@ describe('POST /api/admin/outreach/batch-review', () => {
       promptTemplateKey: 'email_follow_up',
       suppressionStatus: 'clear',
       weakBasis: false,
+      sendReadiness: {
+        version: 'warm-outreach-send-readiness/v1',
+        executionBoundary: {
+          providerExecution: false,
+          gmailDraftCreation: false,
+          outcomeTracking: false,
+        },
+      },
+    })
+    expect(json.recipients[0].sendReadiness.modes.warm_1_to_many[0].sendAuthority).toMatchObject({
+      version: 'warm-outreach-send-authority/v1',
+      mode: 'warm_1_to_many',
+      externalSendEnabled: false,
+      providerExecutionEnabled: false,
+      schedulingEnabled: false,
+      outcomeTrackingEnabled: false,
     })
     expect(json.recipients[0].individualizedDraftPreview).toContain('Amina')
   })
