@@ -27,7 +27,7 @@ await writeFile(htmlPath, `<!doctype html>
       main { max-width: 1120px; margin: 0 auto; padding: 18px 12px 44px; }
       h1, h2, h3, p { margin: 0; }
       h1 { font-size: 22px; line-height: 1.2; margin-bottom: 12px; }
-      .toolbar { display: grid; gap: 10px; border: 1px solid #1f2937; background: rgba(15, 23, 42, .92); border-radius: 12px; padding: 12px; margin-bottom: 12px; position: sticky; top: 0; z-index: 10; }
+      .toolbar { display: grid; gap: 10px; border: 1px solid #1f2937; background: rgba(15, 23, 42, .92); border-radius: 12px; padding: 12px; margin-bottom: 18px; }
       .toolbar-actions { display: grid; grid-template-columns: 1fr; gap: 8px; }
       .toolbar strong { font-size: 14px; }
       button { min-height: 40px; border: 1px solid #0ea5e9; border-radius: 8px; background: rgba(14, 165, 233, .14); color: #e0f2fe; font-weight: 700; padding: 8px 12px; font-size: 14px; }
@@ -39,10 +39,10 @@ await writeFile(htmlPath, `<!doctype html>
       .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
       .chip { border: 1px solid #374151; border-radius: 999px; padding: 3px 7px; color: #d1d5db; font-size: 11px; }
       .chip.warm { border-color: #f59e0b; color: #fde68a; background: rgba(120, 53, 15, .3); }
-      .batch { display: none; border: 1px solid rgba(14, 165, 233, .36); border-radius: 12px; background: rgba(8, 47, 73, .28); padding: 12px; margin-bottom: 12px; }
+      .batch { display: none; border: 1px solid rgba(14, 165, 233, .36); border-radius: 12px; background: rgba(8, 47, 73, .28); padding: 12px; margin-bottom: 14px; }
       .batch.show { display: block; }
       .batch-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; }
-      .summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 12px; }
+      .summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 18px; }
       .metric { border: 1px solid #1f2937; border-radius: 8px; background: rgba(2, 6, 23, .46); padding: 9px; }
       .metric span { color: #9ca3af; font-size: 12px; }
       .metric strong { display: block; font-size: 18px; margin-top: 2px; }

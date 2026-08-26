@@ -1291,17 +1291,8 @@ function OutreachContent() {
               </div>
             ) : (
               <>
-                {(selectedLeadIds.size > 0 || warmBatchReview || warmBatchReviewError) && (
-                  <WarmBatchReviewPanel
-                    data={warmBatchReview}
-                    loading={warmBatchReviewLoading}
-                    error={warmBatchReviewError}
-                    selectedCount={selectedLeadIds.size}
-                    onReview={reviewWarmBatch}
-                  />
-                )}
                 {selectedLeadIds.size > 0 && (
-                  <div className="sticky top-0 z-10 mb-4 grid gap-3 rounded-xl border border-silicon-slate bg-background/95 p-3 sm:flex sm:items-center sm:justify-between">
+                  <div className="relative z-10 mb-4 grid gap-3 rounded-xl border border-silicon-slate bg-background/95 p-3 sm:sticky sm:top-0 sm:flex sm:items-center sm:justify-between">
                     <div className="min-w-0">
                       <span className="block text-sm font-medium text-foreground">
                         {selectedLeadIds.size} lead(s) selected
@@ -1345,6 +1336,15 @@ function OutreachContent() {
                       </button>
                     </div>
                   </div>
+                )}
+                {(selectedLeadIds.size > 0 || warmBatchReview || warmBatchReviewError) && (
+                  <WarmBatchReviewPanel
+                    data={warmBatchReview}
+                    loading={warmBatchReviewLoading}
+                    error={warmBatchReviewError}
+                    selectedCount={selectedLeadIds.size}
+                    onReview={reviewWarmBatch}
+                  />
                 )}
                 <div className="flex items-center gap-2 mb-3">
                   <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
