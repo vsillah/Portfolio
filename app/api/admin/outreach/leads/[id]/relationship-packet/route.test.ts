@@ -226,10 +226,30 @@ describe('GET /api/admin/outreach/leads/[id]/relationship-packet', () => {
         linkedinAction: false,
         providerExecution: false,
         externalMonitoring: false,
+        gmailDraftCreation: false,
+        outcomeTracking: false,
       },
     })
     expect(json.sendReadiness.modes.warm_1_to_1).toHaveLength(4)
     expect(json.sendReadiness.modes.warm_1_to_many).toHaveLength(4)
+    expect(json.sendReadiness.modes.warm_1_to_1[0].sendAuthority).toMatchObject({
+      version: 'warm-outreach-send-authority/v1',
+      mode: 'warm_1_to_1',
+      externalSendApproved: false,
+      externalSendEnabled: false,
+      providerExecutionEnabled: false,
+      gmailDraftCreationEnabled: false,
+      schedulingEnabled: false,
+      outcomeTrackingEnabled: false,
+    })
+    expect(json.sendReadiness.modes.warm_1_to_1[0].sendAuthority.gates).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ key: 'target_source_provenance' }),
+        expect.objectContaining({ key: 'human_approval', status: 'future_gate' }),
+        expect.objectContaining({ key: 'provider_capability' }),
+        expect.objectContaining({ key: 'response_follow_up', status: 'future_gate' }),
+      ]),
+    )
     expect(JSON.stringify(json)).not.toContain('raw private body')
     expect(JSON.stringify(json)).not.toContain('private preview')
     expect(JSON.stringify(json)).not.toContain('raw transcript')

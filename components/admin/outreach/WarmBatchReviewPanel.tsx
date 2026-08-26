@@ -39,6 +39,21 @@ function monitoringLabel(status: WarmBatchReviewRecipient['responseMonitoring'][
   return status.replace(/_/g, ' ')
 }
 
+type BatchAuthority =
+  WarmBatchReviewRecipient['sendReadiness']['modes']['warm_1_to_many'][number]['sendAuthority']
+
+function authorityStateLabel(state: BatchAuthority['state']) {
+  if (state === 'eligible_for_future_activation') return 'future eligible'
+  if (state === 'manual_only') return 'manual only'
+  return 'blocked'
+}
+
+function authorityClasses(state: BatchAuthority['state']) {
+  if (state === 'eligible_for_future_activation') return 'text-emerald-100'
+  if (state === 'manual_only') return 'text-sky-100'
+  return 'text-red-100'
+}
+
 function BoundaryFlag({ label, active }: { label: string; active: boolean }) {
   return (
     <span
@@ -65,6 +80,11 @@ function RecipientRow({ recipient }: { recipient: WarmBatchReviewRecipient }) {
   const primaryBlocker = recipient.blockers[0]
   const monitoring = recipient.responseMonitoring
   const recipientKey = recipient.sendReadiness?.perRecipientIdempotencyKey
+  const batchAuthorities = recipient.sendReadiness.modes.warm_1_to_many.map((item) => item.sendAuthority)
+  const futureEligible = batchAuthorities.filter((authority) => authority.futureActivationEligible).length
+  const manualOnly = batchAuthorities.filter((authority) => authority.state === 'manual_only').length
+  const blocked = batchAuthorities.filter((authority) => authority.state === 'blocked').length
+  const emailAuthority = batchAuthorities.find((authority) => authority.channel === 'email')
 
   return (
     <li className="grid gap-3 border-t border-silicon-slate/70 py-3 first:border-t-0 md:grid-cols-[minmax(10rem,0.9fr)_minmax(0,1.35fr)_minmax(9rem,0.7fr)]">
@@ -99,6 +119,10 @@ function RecipientRow({ recipient }: { recipient: WarmBatchReviewRecipient }) {
         <p>Suppression: {recipient.suppressionStatus}</p>
         <p>Monitoring: {monitoring ? monitoringLabel(monitoring.status) : 'not loaded'}</p>
         <p>Next: {monitoring?.proposedFollowUp.label ?? 'Review per-recipient state'}</p>
+        <p className={authorityClasses(emailAuthority?.state ?? 'blocked')}>
+          Send authority: {emailAuthority ? authorityStateLabel(emailAuthority.state) : 'blocked'}
+        </p>
+        <p>Future eligible: {futureEligible} / Manual: {manualOnly} / Blocked: {blocked}</p>
         {recipient.existingQueueId && <p className="truncate">Queue: {recipient.existingQueueId}</p>}
         {recipientKey && <p className="truncate">Recipient key: {recipientKey}</p>}
       </div>
@@ -115,6 +139,15 @@ export default function WarmBatchReviewPanel({
 }: WarmBatchReviewPanelProps) {
   const sample = data?.samplePreview
   const hasSelection = selectedCount > 0
+  const batchAuthorities =
+    data?.recipients.flatMap((recipient) =>
+      recipient.sendReadiness.modes.warm_1_to_many.map((item) => item.sendAuthority),
+    ) ?? []
+  const authoritySummary = {
+    futureEligible: batchAuthorities.filter((authority) => authority.futureActivationEligible).length,
+    manualOnly: batchAuthorities.filter((authority) => authority.state === 'manual_only').length,
+    blocked: batchAuthorities.filter((authority) => authority.state === 'blocked').length,
+  }
 
   return (
     <section
@@ -212,6 +245,21 @@ export default function WarmBatchReviewPanel({
             <LocalEvidenceFlag />
             <BoundaryFlag label="n8n" active={data.executionBoundary.n8nDispatch} />
             <BoundaryFlag label="Slack" active={data.executionBoundary.slackAction} />
+          </div>
+
+          <div className="grid gap-2 sm:grid-cols-3">
+            <div className="rounded-lg border border-emerald-500/25 bg-emerald-500/10 p-3 text-sm text-emerald-100">
+              <p className="text-xs text-emerald-100/80">Future eligible gates</p>
+              <p className="text-lg font-semibold">{authoritySummary.futureEligible}</p>
+            </div>
+            <div className="rounded-lg border border-sky-500/25 bg-sky-500/10 p-3 text-sm text-sky-100">
+              <p className="text-xs text-sky-100/80">Manual channel gates</p>
+              <p className="text-lg font-semibold">{authoritySummary.manualOnly}</p>
+            </div>
+            <div className="rounded-lg border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-100">
+              <p className="text-xs text-red-100/80">Blocked gates</p>
+              <p className="text-lg font-semibold">{authoritySummary.blocked}</p>
+            </div>
           </div>
 
           <details className="rounded-lg border border-silicon-slate/70 bg-background/45 p-3">

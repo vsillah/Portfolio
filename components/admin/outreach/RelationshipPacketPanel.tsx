@@ -22,6 +22,9 @@ import type {
 } from '@/lib/warm-outreach-relationship-intelligence'
 import type { WarmOutreachResponseMonitoring } from '@/lib/warm-outreach-response-monitoring'
 
+type SendReadinessItem =
+  WarmOutreachResponseMonitoring['sendReadiness']['modes']['warm_1_to_1'][number]
+
 type ChannelCapability = NonNullable<
   WarmOutreachRelationshipPacket['channelCapabilities'][WarmOutreachChannel]
 >
@@ -111,6 +114,41 @@ function sendReadinessClasses(state: string) {
   }
   if (state === 'manual_review_only') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
   return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+}
+
+function sendAuthorityClasses(state: SendReadinessItem['sendAuthority']['state']) {
+  if (state === 'blocked') return 'border-red-500/25 bg-red-500/10 text-red-100'
+  if (state === 'manual_only') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+}
+
+function sendAuthorityStateLabel(state: SendReadinessItem['sendAuthority']['state']) {
+  if (state === 'eligible_for_future_activation') return 'Future eligible'
+  if (state === 'manual_only') return 'Manual only'
+  return 'Blocked'
+}
+
+function SendAuthorityCard({ item }: { item: SendReadinessItem }) {
+  const authority = item.sendAuthority
+  const blockedCount = authority.gates.filter((gate) => gate.status === 'blocked').length
+  const futureGateCount = authority.gates.filter((gate) => gate.status === 'future_gate').length
+  const manualGateCount = authority.gates.filter((gate) => gate.status === 'manual_required').length
+
+  return (
+    <div className={`rounded-md border p-2 ${sendAuthorityClasses(authority.state)}`}>
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-xs font-semibold">{CHANNEL_LABELS[item.channel]}</p>
+        <span className="shrink-0 rounded-full border border-current/25 px-1.5 py-0.5 text-[10px] font-semibold">
+          {sendAuthorityStateLabel(authority.state)}
+        </span>
+      </div>
+      <p className="mt-1 text-[11px] leading-4">{authority.nextReviewAction}</p>
+      <p className="mt-2 text-[11px] leading-4 opacity-90">
+        Gates: {blockedCount} blocked / {futureGateCount} future / {manualGateCount} manual
+      </p>
+      <p className="mt-1 break-all text-[10px] leading-4 opacity-80">{authority.idempotencyKey}</p>
+    </div>
+  )
 }
 
 function sourceLabel(value: string) {
@@ -344,17 +382,29 @@ export default function RelationshipPacketPanel({
               </div>
               <div className="mt-3">
                 <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
-                  Send-readiness gates
+                  Send authority review
                 </p>
-                <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-                  {responseMonitoring.sendReadiness.modes.warm_1_to_1.map((item) => (
-                    <div key={item.channel} className={`rounded-md border p-2 ${sendReadinessClasses(item.state)}`}>
-                      <p className="text-xs font-semibold">{item.label}</p>
-                      <p className="mt-1 text-[11px] leading-4">
-                        {item.gatesRemaining.slice(0, 3).map(gate => gate.replace(/_/g, ' ')).join(', ')}
-                      </p>
+                <div className="space-y-3">
+                  <div>
+                    <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
+                      Warm one-to-one
+                    </p>
+                    <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                      {responseMonitoring.sendReadiness.modes.warm_1_to_1.map((item) => (
+                        <SendAuthorityCard key={item.channel} item={item} />
+                      ))}
                     </div>
-                  ))}
+                  </div>
+                  <div>
+                    <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
+                      Warm one-to-many
+                    </p>
+                    <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                      {responseMonitoring.sendReadiness.modes.warm_1_to_many.map((item) => (
+                        <SendAuthorityCard key={item.channel} item={item} />
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

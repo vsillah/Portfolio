@@ -305,6 +305,124 @@ describe('warm outreach response monitoring', () => {
       providerExecution: false,
       scheduling: false,
       externalMonitoring: false,
+      gmailDraftCreation: false,
+      outcomeTracking: false,
     })
+  })
+
+  it('builds governed send-authority gates without approving external sends', () => {
+    const inputPacket = packet()
+    const readiness = buildWarmOutreachSendReadiness({
+      contactId: 42,
+      packet: inputPacket,
+      readiness: evaluateWarmOutreachReadiness(inputPacket),
+    })
+    const emailAuthority = readiness.modes.warm_1_to_1.find((item) => item.channel === 'email')?.sendAuthority
+    const facebookAuthority = readiness.modes.warm_1_to_1.find((item) => item.channel === 'facebook')?.sendAuthority
+    const batchEmailAuthority = readiness.modes.warm_1_to_many.find((item) => item.channel === 'email')?.sendAuthority
+
+    expect(emailAuthority).toMatchObject({
+      version: 'warm-outreach-send-authority/v1',
+      mode: 'warm_1_to_1',
+      channel: 'email',
+      state: 'eligible_for_future_activation',
+      futureActivationEligible: true,
+      externalSendApproved: false,
+      externalSendEnabled: false,
+      providerExecutionEnabled: false,
+      gmailDraftCreationEnabled: false,
+      schedulingEnabled: false,
+      outcomeTrackingEnabled: false,
+      humanApprovalRequired: true,
+    })
+    expect(emailAuthority?.gates.map((gate) => gate.key)).toEqual([
+      'target_source_provenance',
+      'relationship_basis',
+      'consent_suppression',
+      'personalization',
+      'human_approval',
+      'provider_capability',
+      'idempotency',
+      'send_scheduling',
+      'outcome_tracking',
+      'response_follow_up',
+    ])
+    expect(emailAuthority?.gates.find((gate) => gate.key === 'provider_capability')).toMatchObject({
+      status: 'future_gate',
+      externalExecutionEnabled: false,
+    })
+    expect(emailAuthority?.idempotencyKey).toMatch(/^warm-outreach:send-readiness:v1:/)
+
+    expect(facebookAuthority).toMatchObject({
+      state: 'manual_only',
+      futureActivationEligible: false,
+      manualSteps: expect.arrayContaining([
+        'Review the relationship packet in Portfolio.',
+        'Record the outcome back into local Portfolio rows.',
+      ]),
+    })
+    expect(facebookAuthority?.gates.find((gate) => gate.key === 'provider_capability')).toMatchObject({
+      status: 'manual_required',
+    })
+
+    expect(batchEmailAuthority).toMatchObject({
+      mode: 'warm_1_to_many',
+      state: 'blocked',
+      futureActivationEligible: false,
+      externalSendEnabled: false,
+    })
+    expect(batchEmailAuthority?.blockers).toContain(
+      'Batch recipients require per-contact review before any send-readiness state.',
+    )
+  })
+
+  it('blocks send authority when provenance, personalization, or suppression gates fail', () => {
+    const weakSuppressed = packet({
+      relationshipBasis: 'Limited local relationship evidence is available.',
+      sourceRefs: [
+        {
+          sourceType: 'portfolio_contact',
+          summary: 'Contact row only.',
+          privateSource: false,
+          sourceStatus: 'present',
+        },
+      ],
+      relationshipSignals: [],
+      commonalities: [],
+      sourceInventory: {
+        sourceStatus: [{ sourceType: 'contact_submissions', status: 'present' }],
+        safeToMention: [],
+        summarizeOnly: [],
+        doNotMention: [],
+      },
+      suppression: {
+        doNotContact: true,
+        unsubscribed: false,
+        removedAt: null,
+        suppressionReason: 'Manual DNC review is active.',
+      },
+    })
+    const readiness = buildWarmOutreachSendReadiness({
+      contactId: 42,
+      packet: weakSuppressed,
+      readiness: evaluateWarmOutreachReadiness(weakSuppressed),
+    })
+    const authority = readiness.modes.warm_1_to_1.find((item) => item.channel === 'email')?.sendAuthority
+
+    expect(authority).toMatchObject({
+      state: 'blocked',
+      futureActivationEligible: false,
+      externalSendApproved: false,
+      externalSendEnabled: false,
+      providerExecutionEnabled: false,
+    })
+    expect(authority?.gates).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ key: 'target_source_provenance', status: 'blocked' }),
+        expect.objectContaining({ key: 'relationship_basis', status: 'blocked' }),
+        expect.objectContaining({ key: 'consent_suppression', status: 'blocked' }),
+        expect.objectContaining({ key: 'personalization', status: 'blocked' }),
+      ]),
+    )
   })
 })
