@@ -15,5 +15,6 @@ Required gates:
 - Do-not-contact, suppression, and privacy checks must pass where applicable.
 - Message or segment fit must be reviewed before any execution request.
 - Human approval before send or schedule remains a separate gate.
+- Captured replies, response classification, reply drafts, next-touch tasks, and suppression proposals remain internal workflow state until a human approves the next action.
 
 Implementation note: `lib/outreach-mode-gating.ts` is the typed policy reference. It intentionally sets `externalExecutionEnabled: false` for every mode.

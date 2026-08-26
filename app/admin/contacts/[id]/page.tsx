@@ -43,6 +43,21 @@ interface Delivery { id: string; subject: string; recipient_email: string; asset
 interface DashboardAccess { access_token: string; client_email: string }
 interface SalesSession { id: string; created_at: string }
 interface TimelineEvent { type: string; date: string; title: string; detail?: string; id?: string }
+type WarmResponseChannel = 'email' | 'linkedin' | 'facebook' | 'phone_contact'
+
+interface WarmLifecycleRow {
+  id: string
+  channel: string
+  direction: string
+  message_type: string
+  subject: string | null
+  body: string
+  source_id: string | null
+  status: string
+  sent_at: string | null
+  metadata: Record<string, unknown>
+  created_at: string
+}
 
 interface Communication {
   id: string
@@ -192,6 +207,21 @@ const timelineIcons: Record<string, typeof User> = {
 }
 
 const TIMELINE_PAGE_SIZE = 10
+const WARM_RESPONSE_CHANNEL_LABELS: Record<WarmResponseChannel, string> = {
+  email: 'Email',
+  linkedin: 'LinkedIn',
+  facebook: 'Facebook / manual',
+  phone_contact: 'Phone / manual',
+}
+
+function metadataString(metadata: Record<string, unknown> | null | undefined, key: string) {
+  const value = metadata?.[key]
+  return typeof value === 'string' ? value : null
+}
+
+function metadataBoolean(metadata: Record<string, unknown> | null | undefined, key: string) {
+  return metadata?.[key] === true
+}
 
 /* ───────── Page ───────── */
 
@@ -234,6 +264,20 @@ function ContactDetailPage() {
     useState<RelationshipPacketApiResponse | null>(null)
   const [relationshipPacketLoading, setRelationshipPacketLoading] = useState(false)
   const [relationshipPacketError, setRelationshipPacketError] = useState<string | null>(null)
+  const [warmResponseChannel, setWarmResponseChannel] = useState<WarmResponseChannel>('email')
+  const [warmResponseText, setWarmResponseText] = useState('')
+  const [warmResponseOutreachQueueId, setWarmResponseOutreachQueueId] = useState('')
+  const [warmResponses, setWarmResponses] = useState<WarmLifecycleRow[]>([])
+  const [warmResponsesLoading, setWarmResponsesLoading] = useState(false)
+  const [warmResponseSubmitting, setWarmResponseSubmitting] = useState(false)
+  const [warmResponseError, setWarmResponseError] = useState<string | null>(null)
+  const [warmResponseResult, setWarmResponseResult] = useState<{
+    outcome: string
+    responseClass?: string
+    replyDraftCommunicationId?: string | null
+    followUpTaskId?: string | null
+    suppressionProposed?: boolean
+  } | null>(null)
 
   const getToken = useCallback(async () => {
     const s = await getCurrentSession()
@@ -277,6 +321,41 @@ function ContactDetailPage() {
   }, [id, getToken])
 
   useEffect(() => { fetchData() }, [fetchData])
+
+  const fetchWarmResponses = useCallback(async () => {
+    setWarmResponsesLoading(true)
+    setWarmResponseError(null)
+    try {
+      const token = await getToken()
+      if (!token) {
+        setWarmResponseError('Admin session is required to load warm responses.')
+        setWarmResponses([])
+        return
+      }
+      const res = await fetch(`/api/admin/outreach/leads/${id}/responses`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const d = (await res.json().catch(() => ({}))) as {
+        responses?: WarmLifecycleRow[]
+        error?: string
+      }
+      if (!res.ok) {
+        setWarmResponseError(d.error || 'Warm responses could not be loaded.')
+        setWarmResponses([])
+        return
+      }
+      setWarmResponses(d.responses ?? [])
+    } catch {
+      setWarmResponseError('Warm responses could not be loaded.')
+      setWarmResponses([])
+    } finally {
+      setWarmResponsesLoading(false)
+    }
+  }, [id, getToken])
+
+  useEffect(() => {
+    void fetchWarmResponses()
+  }, [fetchWarmResponses])
 
   useEffect(() => {
     let cancelled = false
@@ -385,6 +464,48 @@ function ContactDetailPage() {
       setSendResult({ success: false, error: 'Failed to generate draft' })
     } finally {
       setDrafting(false)
+    }
+  }
+
+  async function handleCaptureWarmResponse() {
+    const text = warmResponseText.trim()
+    if (!text) {
+      setWarmResponseError('Paste or summarize the response before capturing it.')
+      return
+    }
+    setWarmResponseSubmitting(true)
+    setWarmResponseError(null)
+    setWarmResponseResult(null)
+    try {
+      const token = await getToken()
+      const res = await fetch(`/api/admin/outreach/leads/${id}/responses`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          channel: warmResponseChannel,
+          responseText: text,
+          outreachQueueId: warmResponseOutreachQueueId || undefined,
+        }),
+      })
+      const d = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setWarmResponseError(d.error || 'Could not capture the warm response.')
+        return
+      }
+      setWarmResponseResult({
+        outcome: d.outcome || 'created',
+        responseClass: d.decision?.responseClass,
+        replyDraftCommunicationId: d.replyDraftCommunicationId ?? null,
+        followUpTaskId: d.followUpTask?.id ?? null,
+        suppressionProposed: Boolean(d.suppressionProposal),
+      })
+      setWarmResponseText('')
+      await fetchWarmResponses()
+      await fetchData()
+    } catch {
+      setWarmResponseError('Could not capture the warm response.')
+    } finally {
+      setWarmResponseSubmitting(false)
     }
   }
 
@@ -531,6 +652,124 @@ function ContactDetailPage() {
             error={relationshipPacketError}
             data={relationshipPacketData}
           />
+
+          <div className="bg-gray-900/60 border border-gray-800 rounded-xl overflow-hidden">
+            <div className="px-6 py-4 flex flex-col gap-1 border-b border-gray-800">
+              <div className="flex items-center gap-2">
+                <MessageSquare className="w-5 h-5 text-sky-400" />
+                <h2 className="text-base font-semibold text-white">Warm response lifecycle</h2>
+              </div>
+              <p className="text-xs leading-5 text-gray-400">
+                Capture a manual or approved warm reply, classify it, create a local reply draft, and expose the human-gated follow-up or suppression path. No provider monitoring, Gmail draft, DM, Slack, or send action runs here.
+              </p>
+            </div>
+            <div className="px-6 py-4 space-y-4">
+              <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+                <label className="space-y-1">
+                  <span className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Response channel</span>
+                  <select
+                    value={warmResponseChannel}
+                    onChange={e => setWarmResponseChannel(e.target.value as WarmResponseChannel)}
+                    className="w-full rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-sm text-white focus:border-sky-500 focus:ring-2 focus:ring-sky-500/30"
+                  >
+                    {(Object.keys(WARM_RESPONSE_CHANNEL_LABELS) as WarmResponseChannel[]).map(channel => (
+                      <option key={channel} value={channel}>{WARM_RESPONSE_CHANNEL_LABELS[channel]}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="space-y-1">
+                  <span className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Linked outreach draft</span>
+                  <select
+                    value={warmResponseOutreachQueueId}
+                    onChange={e => setWarmResponseOutreachQueueId(e.target.value)}
+                    className="w-full rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-sm text-white focus:border-sky-500 focus:ring-2 focus:ring-sky-500/30"
+                  >
+                    <option value="">No queue row selected</option>
+                    {data.outreach.map(item => (
+                      <option key={item.id} value={item.id}>
+                        {item.channel} · {item.subject || 'No subject'} · {item.status}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <label className="block space-y-1">
+                <span className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Captured response</span>
+                <textarea
+                  value={warmResponseText}
+                  onChange={e => setWarmResponseText(e.target.value)}
+                  rows={5}
+                  placeholder="Paste or summarize the response Vambah received. Keep private source details summarized when possible."
+                  className="w-full resize-y rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-sm leading-5 text-white placeholder:text-gray-600 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/30"
+                />
+              </label>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="text-xs leading-5 text-gray-400">
+                  Reply drafts and next-touch decisions stay pending human QA. External execution remains blocked.
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { void handleCaptureWarmResponse() }}
+                  disabled={warmResponseSubmitting || warmResponseText.trim().length === 0}
+                  className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {warmResponseSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+                  Capture response
+                </button>
+              </div>
+              {warmResponseError && (
+                <div role="alert" className="rounded-lg border border-red-800 bg-red-950/40 p-3 text-sm text-red-200">
+                  {warmResponseError}
+                </div>
+              )}
+              {warmResponseResult && (
+                <div className="rounded-lg border border-emerald-800 bg-emerald-950/30 p-3 text-sm text-emerald-100">
+                  Captured as {warmResponseResult.responseClass?.replace(/_/g, ' ') || 'warm response'}.
+                  {warmResponseResult.replyDraftCommunicationId && ' Local reply draft created.'}
+                  {warmResponseResult.followUpTaskId && ` Follow-up task: ${warmResponseResult.followUpTaskId}.`}
+                  {warmResponseResult.suppressionProposed && ' Suppression review proposal created.'}
+                </div>
+              )}
+
+              <div className="rounded-lg border border-gray-800 bg-gray-950/40">
+                <div className="flex items-center justify-between gap-3 border-b border-gray-800 px-3 py-2">
+                  <p className="text-sm font-medium text-white">Recent lifecycle rows</p>
+                  <button
+                    type="button"
+                    onClick={() => { void fetchWarmResponses() }}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-gray-700 px-2 py-1 text-xs text-gray-300 hover:bg-gray-800"
+                  >
+                    <RefreshCw className="h-3.5 w-3.5" /> Refresh
+                  </button>
+                </div>
+                <div className="divide-y divide-gray-800/70">
+                  {warmResponsesLoading && (
+                    <p className="px-3 py-3 text-sm text-gray-500">Loading warm response lifecycle...</p>
+                  )}
+                  {!warmResponsesLoading && warmResponses.length === 0 && (
+                    <p className="px-3 py-3 text-sm text-gray-500">No warm responses captured yet.</p>
+                  )}
+                  {!warmResponsesLoading && warmResponses.map(row => {
+                    const responseClass = metadataString(row.metadata, 'response_class')
+                    const lifecycle = metadataString(row.metadata, 'lifecycle')
+                    const humanQaRequired = metadataBoolean(row.metadata, 'human_qa_required')
+                    return (
+                      <div key={row.id} className="px-3 py-3">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <StatusBadge status={row.status} />
+                          {responseClass && <StatusBadge status={responseClass.replace(/_/g, ' ')} />}
+                          {humanQaRequired && <span className="text-[10px] rounded border border-amber-800 bg-amber-950/40 px-1.5 py-0.5 text-amber-200">Human QA</span>}
+                          <span className="text-[10px] text-gray-500">{row.direction} · {row.channel}</span>
+                        </div>
+                        <p className="mt-1 text-sm text-white">{row.subject || lifecycle || 'Warm lifecycle row'}</p>
+                        <p className="mt-1 line-clamp-2 text-xs leading-5 text-gray-400">{row.body}</p>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* ── Assets ── */}
           {(() => {
