@@ -206,6 +206,30 @@ describe('GET /api/admin/outreach/leads/[id]/relationship-packet', () => {
       slackAction: false,
       responseMonitoring: false,
     })
+    expect(json.responseMonitoring).toMatchObject({
+      version: 'warm-outreach-response-monitoring/v1',
+      contactId: 42,
+      status: 'manual_response_captured',
+      mode: 'manual',
+      executionBoundary: {
+        localRowsOnly: true,
+        providerPollingEnabled: false,
+        externalMonitoringEnabled: false,
+        externalSendEnabled: false,
+      },
+    })
+    expect(json.sendReadiness).toMatchObject({
+      version: 'warm-outreach-send-readiness/v1',
+      contactId: 42,
+      executionBoundary: {
+        gmailEmailSend: false,
+        linkedinAction: false,
+        providerExecution: false,
+        externalMonitoring: false,
+      },
+    })
+    expect(json.sendReadiness.modes.warm_1_to_1).toHaveLength(4)
+    expect(json.sendReadiness.modes.warm_1_to_many).toHaveLength(4)
     expect(JSON.stringify(json)).not.toContain('raw private body')
     expect(JSON.stringify(json)).not.toContain('private preview')
     expect(JSON.stringify(json)).not.toContain('raw transcript')

@@ -11,6 +11,7 @@ import {
   warmOutreachChannels,
   type WarmOutreachChannel,
 } from '@/lib/warm-outreach-relationship-intelligence'
+import { buildWarmOutreachResponseMonitoring } from '@/lib/warm-outreach-response-monitoring'
 
 export const dynamic = 'force-dynamic'
 
@@ -188,11 +189,24 @@ export async function GET(
     })
     const readiness = evaluateWarmOutreachReadiness(packet)
     const contextSummary = buildWarmOutreachContextSummary(packet)
+    const responseMonitoring = buildWarmOutreachResponseMonitoring({
+      contactId,
+      packet,
+      readiness,
+      rows: {
+        contactCommunications,
+        outreachQueue,
+        emailMessages,
+        actionTasks,
+      },
+    })
 
     return NextResponse.json({
       packet,
       readiness,
       contextSummary,
+      responseMonitoring,
+      sendReadiness: responseMonitoring.sendReadiness,
       executionBoundary: {
         source: 'local_portfolio_rows',
         readOnly: true,

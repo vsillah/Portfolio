@@ -20,6 +20,7 @@ import type {
   WarmOutreachReadiness,
   WarmOutreachRelationshipPacket,
 } from '@/lib/warm-outreach-relationship-intelligence'
+import type { WarmOutreachResponseMonitoring } from '@/lib/warm-outreach-response-monitoring'
 
 type ChannelCapability = NonNullable<
   WarmOutreachRelationshipPacket['channelCapabilities'][WarmOutreachChannel]
@@ -39,6 +40,7 @@ export interface RelationshipPacketApiResponse {
     slackAction: boolean
     responseMonitoring: boolean
   }
+  responseMonitoring?: WarmOutreachResponseMonitoring
 }
 
 interface RelationshipPacketPanelProps {
@@ -94,6 +96,23 @@ function capabilityClasses(capability?: ChannelCapability) {
   return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
 }
 
+function monitoringClasses(status?: WarmOutreachResponseMonitoring['status']) {
+  if (status === 'manual_response_captured' || status === 'imported_response_captured') {
+    return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100'
+  }
+  if (status === 'stale_no_response') return 'border-amber-500/30 bg-amber-500/10 text-amber-100'
+  if (status === 'blocked') return 'border-red-500/30 bg-red-500/10 text-red-100'
+  return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+}
+
+function sendReadinessClasses(state: string) {
+  if (state === 'blocked' || state === 'unavailable') {
+    return 'border-red-500/25 bg-red-500/10 text-red-100'
+  }
+  if (state === 'manual_review_only') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+}
+
 function sourceLabel(value: string) {
   return value.replace(/_/g, ' ')
 }
@@ -114,6 +133,14 @@ function BoundaryFlag({
       }`}
     >
       {label}: {active ? 'enabled' : 'off'}
+    </span>
+  )
+}
+
+function LocalEvidenceFlag({ visible }: { visible: boolean }) {
+  return (
+    <span className="inline-flex min-h-7 items-center rounded-md border border-sky-500/25 bg-sky-500/10 px-2 py-1 text-xs text-sky-100">
+      Local response evidence: {visible ? 'visible' : 'not recorded'}
     </span>
   )
 }
@@ -151,6 +178,7 @@ export default function RelationshipPacketPanel({
 }: RelationshipPacketPanelProps) {
   const readiness = data?.readiness
   const packet = data?.packet
+  const responseMonitoring = data?.responseMonitoring
   const sourceInventory = packet?.sourceInventory
   const hasInventoryEvidence =
     Boolean(sourceInventory) &&
@@ -269,6 +297,69 @@ export default function RelationshipPacketPanel({
             </p>
           </div>
 
+          {responseMonitoring && (
+            <div className="rounded-md border border-silicon-slate/70 bg-silicon-slate/20 p-3">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
+                    Response monitoring
+                  </p>
+                  <p className="text-sm leading-5 text-foreground">
+                    {responseMonitoring.proposedFollowUp.label}
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                    {responseMonitoring.proposedFollowUp.description}
+                  </p>
+                </div>
+                <span className={`inline-flex w-fit rounded-full border px-2.5 py-1 text-xs font-semibold ${monitoringClasses(responseMonitoring.status)}`}>
+                  {responseMonitoring.label}
+                </span>
+              </div>
+              <div className="mt-3 grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+                <div className="space-y-2 text-xs leading-5 text-muted-foreground">
+                  <p>Mode: {responseMonitoring.mode}</p>
+                  <p>Latest outbound: {responseMonitoring.latestOutboundAt ?? 'none recorded'}</p>
+                  <p>Latest response: {responseMonitoring.latestResponseAt ?? 'none recorded'}</p>
+                  <p>Expected reply by: {responseMonitoring.expectedReplyBy ?? 'not set'}</p>
+                  <p className="break-all">Recipient key: {responseMonitoring.perRecipientIdempotencyKey}</p>
+                </div>
+                <div>
+                  <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
+                    Evidence
+                  </p>
+                  {responseMonitoring.evidence.length > 0 ? (
+                    <ul className="space-y-1">
+                      {responseMonitoring.evidence.slice(0, 4).map((item) => (
+                        <li key={`${item.sourceType}-${item.sourceId}`} className="text-xs leading-5 text-muted-foreground">
+                          {item.sourceType}: {item.evidenceType.replace(/_/g, ' ')}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-xs leading-5 text-muted-foreground">
+                      No reply evidence is recorded yet. Manual import remains the only enabled monitoring action.
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="mt-3">
+                <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
+                  Send-readiness gates
+                </p>
+                <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                  {responseMonitoring.sendReadiness.modes.warm_1_to_1.map((item) => (
+                    <div key={item.channel} className={`rounded-md border p-2 ${sendReadinessClasses(item.state)}`}>
+                      <p className="text-xs font-semibold">{item.label}</p>
+                      <p className="mt-1 text-[11px] leading-4">
+                        {item.gatesRemaining.slice(0, 3).map(gate => gate.replace(/_/g, ' ')).join(', ')}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           {!hasInventoryEvidence && packet.sourceRefs.length === 0 && (
             <div className="rounded-md border border-amber-500/25 bg-amber-500/10 p-3 text-sm text-amber-100">
               No relationship evidence is available yet. Keep this lead in review until Portfolio-local context is added.
@@ -373,7 +464,13 @@ export default function RelationshipPacketPanel({
               <BoundaryFlag active={data.executionBoundary.externalSend} label="External send" />
               <BoundaryFlag active={data.executionBoundary.n8nDispatch} label="n8n dispatch" />
               <BoundaryFlag active={data.executionBoundary.slackAction} label="Slack action" />
-              <BoundaryFlag active={data.executionBoundary.responseMonitoring} label="Reply monitoring" />
+              <BoundaryFlag active={data.executionBoundary.responseMonitoring} label="Provider monitoring" />
+              {responseMonitoring && (
+                <>
+                  <BoundaryFlag active={responseMonitoring.executionBoundary.externalMonitoringEnabled} label="External monitoring" />
+                  <LocalEvidenceFlag visible={responseMonitoring.evidence.length > 0} />
+                </>
+              )}
             </div>
             <p className="mt-2 flex items-start gap-2 text-xs leading-5 text-muted-foreground">
               <AlertTriangle size={13} className="mt-0.5 shrink-0 text-amber-200" aria-hidden />
