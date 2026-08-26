@@ -107,6 +107,17 @@ Formal GitHub approval requires a reviewer account that is different from the PR
 
 When a distinct reviewer identity is not available, the integration captain should instead add a PR comment headed `Captain Review: PASS` or `Captain Review: REJECT` with the exact validation performed, then merge or return the PR based on that review. State in the handoff that no formal GitHub approval was possible because the available reviewer identity matched the author.
 
+## Human QA Video Evidence Rule
+
+Whenever a Portfolio change reaches Vambah's human QA gate for changed product behavior, the captain handoff must include a short video walkthrough or equivalent screen-recorded test artifact showing the exact operator path being reviewed.
+
+- Record the behavior on the same preview, staging, production, or production-equivalent route that Vambah is being asked to approve.
+- Show the setup state, the primary action path, blocked or disabled states when relevant, and the expected completion or handoff state.
+- For responsive or mobile workflow changes, include the narrow-width path in the recording or provide a separate mobile-width clip.
+- Keep recordings privacy-safe: use synthetic, fixture, redacted, or already-public data when possible, and avoid exposing secrets, private messages, raw contact details, or unrelated browser/app state.
+- Store or reference the video alongside the PR, captain review comment, QA packet, or handoff summary so the reviewed evidence is durable.
+- Do not ask Vambah for human QA on changed behavior with only automated test output unless video capture is technically blocked; if blocked, state why and provide screenshots plus exact reproduction steps.
+
 ## Human And Task-Thread Closeout Rule
 
 Merge and deployment success are not always the end of the lane. Keep implementation, review-helper, or smoke-test task threads visible when Vambah still needs to complete human QA or visible approval.
