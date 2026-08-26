@@ -31,6 +31,9 @@ const contact = {
 let existingResponse: Record<string, unknown> | null = null
 let existingDraft: Record<string, unknown> | null = null
 let existingTask: Record<string, unknown> | null = null
+let linkedQueueRow: Record<string, unknown> | null = null
+let queueUpdateError: { message: string } | null = null
+let queueUpdateMatched = true
 let insertedCommunications: Record<string, unknown>[] = []
 let insertedTasks: Record<string, unknown>[] = []
 let updatedOutreachRows: Record<string, unknown>[] = []
@@ -118,9 +121,30 @@ function setupSupabase() {
 
     if (table === 'outreach_queue') {
       return {
+        select: () => ({
+          eq: () => ({
+            single: () =>
+              Promise.resolve({
+                data: linkedQueueRow,
+                error: linkedQueueRow ? null : { message: 'not found' },
+              }),
+          }),
+        }),
         update: (payload: Record<string, unknown>) => {
           updatedOutreachRows.push(payload)
-          return { eq: () => ({ eq: () => Promise.resolve({ data: null, error: null }) }) }
+          return {
+            eq: () => ({
+              eq: () => ({
+                select: () => ({
+                  maybeSingle: () =>
+                    Promise.resolve({
+                      data: queueUpdateMatched ? { id: linkedQueueRow?.id ?? 'queue-1' } : null,
+                      error: queueUpdateError,
+                    }),
+                }),
+              }),
+            }),
+          }
         },
       }
     }
@@ -137,6 +161,9 @@ describe('POST /api/admin/outreach/leads/[id]/responses', () => {
     existingResponse = null
     existingDraft = null
     existingTask = null
+    linkedQueueRow = null
+    queueUpdateError = null
+    queueUpdateMatched = true
     insertedCommunications = []
     insertedTasks = []
     updatedOutreachRows = []
@@ -185,6 +212,75 @@ describe('POST /api/admin/outreach/leads/[id]/responses', () => {
     expect(mocks.from.mock.calls.map(([table]) => table)).not.toContain('email_messages')
     expect(mocks.from.mock.calls.map(([table]) => table)).not.toContain('gmail')
     expect(mocks.from.mock.calls.map(([table]) => table)).not.toContain('slack')
+  })
+
+  it('marks a linked outreach queue row replied before creating draft and task rows', async () => {
+    linkedQueueRow = {
+      id: 'queue-1',
+      contact_submission_id: 42,
+      channel: 'email',
+      subject: 'Warm intro',
+      status: 'sent',
+      thread_id: 'thread-1',
+      message_id: 'message-1',
+    }
+
+    const response = await POST(request({
+      channel: 'email',
+      outreachQueueId: 'queue-1',
+      responseText: 'Interested. Can we schedule a quick demo?',
+      receivedAt: '2026-08-26T12:00:00.000Z',
+    }), { params: { id: '42' } })
+
+    expect(response.status).toBe(201)
+    const json = await response.json()
+    expect(json.outcome).toBe('created')
+    expect(updatedOutreachRows).toEqual([
+      {
+        status: 'replied',
+        replied_at: '2026-08-26T12:00:00.000Z',
+        reply_content: 'Interested. Can we schedule a quick demo?',
+      },
+    ])
+    expect(insertedCommunications).toHaveLength(2)
+    expect(insertedTasks).toHaveLength(1)
+  })
+
+  it('fails closed before downstream draft or task rows when linked queue update fails', async () => {
+    linkedQueueRow = {
+      id: 'queue-1',
+      contact_submission_id: 42,
+      channel: 'email',
+      subject: 'Warm intro',
+      status: 'sent',
+      thread_id: 'thread-1',
+      message_id: 'message-1',
+    }
+    queueUpdateError = { message: 'update failed' }
+
+    const response = await POST(request({
+      channel: 'email',
+      outreachQueueId: 'queue-1',
+      responseText: 'Interested. Can we schedule a quick demo?',
+      receivedAt: '2026-08-26T12:00:00.000Z',
+    }), { params: { id: '42' } })
+
+    expect(response.status).toBe(409)
+    const json = await response.json()
+    expect(json).toMatchObject({
+      outcome: 'blocked_linked_queue_update_failed',
+      error: 'Linked outreach queue row could not be marked replied. No response draft or follow-up task was created.',
+      detail: 'update failed',
+    })
+    expect(updatedOutreachRows).toHaveLength(1)
+    expect(insertedCommunications).toHaveLength(0)
+    expect(insertedTasks).toHaveLength(0)
+    expect(json.executionBoundary).toMatchObject({
+      providerIngestionEnabled: false,
+      externalMonitoringEnabled: false,
+      replySubmissionEnabled: false,
+      externalSendEnabled: false,
+    })
   })
 
   it('returns the existing response for duplicate capture before writing drafts or tasks', async () => {

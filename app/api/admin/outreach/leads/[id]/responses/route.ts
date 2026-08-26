@@ -141,6 +141,38 @@ async function maybeCreateFollowUpTask(input: {
   return { outcome: 'created' as const, id: String(data.id) }
 }
 
+async function markOutreachQueueReplied(input: {
+  contactId: number
+  outreachQueueId: string
+  receivedAt: string
+  responseText: string
+}) {
+  const { data, error } = await supabaseAdmin!
+    .from('outreach_queue')
+    .update({
+      status: 'replied',
+      replied_at: input.receivedAt,
+      reply_content: input.responseText,
+    })
+    .eq('id', input.outreachQueueId)
+    .eq('contact_submission_id', input.contactId)
+    .select('id')
+    .maybeSingle()
+
+  if (error) {
+    return { ok: false as const, reason: error.message }
+  }
+
+  if (!data?.id) {
+    return {
+      ok: false as const,
+      reason: 'Linked outreach queue row could not be marked replied.',
+    }
+  }
+
+  return { ok: true as const, id: String(data.id) }
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } },
@@ -254,6 +286,29 @@ export async function POST(
     })
   }
 
+  if (outreachQueueId) {
+    const queueUpdate = await markOutreachQueueReplied({
+      contactId,
+      outreachQueueId,
+      receivedAt,
+      responseText,
+    })
+
+    if (!queueUpdate.ok) {
+      return NextResponse.json(
+        {
+          outcome: 'blocked_linked_queue_update_failed',
+          error:
+            'Linked outreach queue row could not be marked replied. No response draft or follow-up task was created.',
+          detail: queueUpdate.reason,
+          decision,
+          executionBoundary: decision.executionBoundary,
+        },
+        { status: 409 },
+      )
+    }
+  }
+
   const commChannel = communicationChannelForWarmResponse(channel as WarmOutreachResponseChannel)
   const responseCommunication = await insertCommunication({
     contactId,
@@ -285,18 +340,6 @@ export async function POST(
       execution_boundary: decision.executionBoundary,
     },
   })
-
-  if (outreachQueueId) {
-    await supabaseAdmin
-      .from('outreach_queue')
-      .update({
-        status: 'replied',
-        replied_at: receivedAt,
-        reply_content: responseText,
-      })
-      .eq('id', outreachQueueId)
-      .eq('contact_submission_id', contactId)
-  }
 
   let replyDraftCommunication: CommunicationRow | null = null
   const existingReplyDraft = await findCommunicationBySourceId(
