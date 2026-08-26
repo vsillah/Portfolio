@@ -15,16 +15,31 @@ describe('warm outreach response lifecycle policy', () => {
       provider: 'manual',
       providerThreadId: 'thread-1',
       providerMessageId: 'message-1',
+      relationshipContext: {
+        safeToMention: ['prior community operations context'],
+        summarizeOnly: ['private meeting notes'],
+        suggestedNextStep: 'Review a short next-step reply.',
+      },
     })
 
-    expect(decision.responseClass).toBe('interested')
+    expect(decision.responseClass).toBe('interest')
     expect(decision.humanQaRequired).toBe(true)
     expect(decision.humanQaReasons).toContain('buying_or_sales_intent_review')
+    expect(decision.interpretation.recommendedNextAction).toMatchObject({
+      label: 'Review short next-step reply',
+      priority: 'high',
+    })
+    expect(decision.approvalGate).toMatchObject({
+      state: 'pending_human_reply_review',
+      humanActionRequired: expect.stringContaining('Review and edit'),
+    })
     expect(decision.followUpTaskProposal).toMatchObject({
       priority: 'high',
       taskCategory: 'outreach',
     })
     expect(decision.replyDraft.status).toBe('draft')
+    expect(decision.replyDraft.body).toContain('prior community operations context')
+    expect(decision.replyDraft.reviewerNotes).toContain('Summarize only: private meeting notes.')
     expect(decision.executionBoundary).toMatchObject({
       providerIngestionEnabled: false,
       replySubmissionEnabled: false,
@@ -43,12 +58,59 @@ describe('warm outreach response lifecycle policy', () => {
       responseText: 'Please remove me and do not contact me again.',
     })
 
-    expect(decision.responseClass).toBe('unsubscribe_or_do_not_contact')
+    expect(decision.responseClass).toBe('unsubscribe_suppression')
     expect(decision.suppressionProposal).toMatchObject({
       action: 'mark_do_not_contact',
       requiresHumanApproval: true,
     })
+    expect(decision.approvalGate).toMatchObject({
+      state: 'blocked_suppression_review',
+      recoveryPath: expect.stringContaining('relationship packet suppression state'),
+    })
     expect(decision.humanQaReasons).toContain('suppression_update_requires_human_approval')
+  })
+
+  it.each([
+    ['question', 'How would this work with our current process?'],
+    ['objection', 'We already have a tool and this is too expensive.'],
+    ['not_now', 'Can you circle back next quarter?'],
+    ['referral', 'You should talk to my partner and I can make an intro.'],
+    ['positive_acknowledgement', 'Thanks, got it and appreciate the note.'],
+    ['negative', 'This feels like spam and is inappropriate.'],
+    ['ambiguous', 'Okay.'],
+  ] as const)('classifies %s responses', (expectedClass, responseText) => {
+    const decision = buildWarmOutreachResponseLifecycleDecision({
+      contactId: 42,
+      contactName: 'Anna',
+      channel: 'email',
+      responseText,
+    })
+
+    expect(decision.responseClass).toBe(expectedClass)
+    expect(decision.humanQaRequired).toBe(true)
+    expect(decision.interpretation.classificationLabel).toBe(expectedClass.replace(/_/g, ' '))
+  })
+
+  it('fails closed for negative and uncertain responses with in-context recovery paths', () => {
+    const negative = buildWarmOutreachResponseLifecycleDecision({
+      contactId: 42,
+      channel: 'email',
+      responseText: 'This is inappropriate and feels like spam.',
+    })
+    const ambiguous = buildWarmOutreachResponseLifecycleDecision({
+      contactId: 42,
+      channel: 'email',
+      responseText: 'Okay.',
+    })
+
+    expect(negative.approvalGate).toMatchObject({
+      state: 'blocked_negative_review',
+      blockedExternalActions: expect.arrayContaining(['gmail_draft_creation', 'provider_monitoring']),
+    })
+    expect(ambiguous.approvalGate).toMatchObject({
+      state: 'blocked_uncertain_review',
+      recoveryPath: expect.stringContaining('relationship packet'),
+    })
   })
 
   it('uses provider message ids when present and hashes manual captures otherwise', () => {

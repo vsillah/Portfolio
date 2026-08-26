@@ -223,6 +223,18 @@ function metadataBoolean(metadata: Record<string, unknown> | null | undefined, k
   return metadata?.[key] === true
 }
 
+function metadataRecord(metadata: Record<string, unknown> | null | undefined, key: string) {
+  const value = metadata?.[key]
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null
+}
+
+function recordString(record: Record<string, unknown> | null | undefined, key: string) {
+  const value = record?.[key]
+  return typeof value === 'string' ? value : null
+}
+
 /* ───────── Page ───────── */
 
 function ContactDetailPage() {
@@ -274,6 +286,9 @@ function ContactDetailPage() {
   const [warmResponseResult, setWarmResponseResult] = useState<{
     outcome: string
     responseClass?: string
+    recommendedNextAction?: string | null
+    approvalGate?: string | null
+    recoveryPath?: string | null
     replyDraftCommunicationId?: string | null
     followUpTaskId?: string | null
     suppressionProposed?: boolean
@@ -495,6 +510,9 @@ function ContactDetailPage() {
       setWarmResponseResult({
         outcome: d.outcome || 'created',
         responseClass: d.decision?.responseClass,
+        recommendedNextAction: d.decision?.interpretation?.recommendedNextAction?.label ?? null,
+        approvalGate: d.decision?.approvalGate?.label ?? null,
+        recoveryPath: d.decision?.approvalGate?.recoveryPath ?? null,
         replyDraftCommunicationId: d.replyDraftCommunicationId ?? null,
         followUpTaskId: d.followUpTask?.id ?? null,
         suppressionProposed: Boolean(d.suppressionProposal),
@@ -724,16 +742,27 @@ function ContactDetailPage() {
               )}
               {warmResponseResult && (
                 <div className="rounded-lg border border-emerald-800 bg-emerald-950/30 p-3 text-sm text-emerald-100">
-                  Captured as {warmResponseResult.responseClass?.replace(/_/g, ' ') || 'warm response'}.
-                  {warmResponseResult.replyDraftCommunicationId && ' Local reply draft created.'}
-                  {warmResponseResult.followUpTaskId && ` Follow-up task: ${warmResponseResult.followUpTaskId}.`}
-                  {warmResponseResult.suppressionProposed && ' Suppression review proposal created.'}
+                  <p className="font-medium">
+                    Captured as {warmResponseResult.responseClass?.replace(/_/g, ' ') || 'warm response'}.
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-emerald-100/90">
+                    {warmResponseResult.recommendedNextAction || 'Review the local next action.'}
+                    {warmResponseResult.approvalGate ? ` ${warmResponseResult.approvalGate}.` : ' Human approval remains required.'}
+                    {warmResponseResult.replyDraftCommunicationId && ' Local reply draft created.'}
+                    {warmResponseResult.followUpTaskId && ` Follow-up task: ${warmResponseResult.followUpTaskId}.`}
+                    {warmResponseResult.suppressionProposed && ' Suppression review proposal created.'}
+                  </p>
+                  {warmResponseResult.recoveryPath && (
+                    <p className="mt-1 text-xs leading-5 text-emerald-100/80">
+                      Recovery path: {warmResponseResult.recoveryPath}
+                    </p>
+                  )}
                 </div>
               )}
 
-              <div className="rounded-lg border border-gray-800 bg-gray-950/40">
-                <div className="flex items-center justify-between gap-3 border-b border-gray-800 px-3 py-2">
-                  <p className="text-sm font-medium text-white">Recent lifecycle rows</p>
+              <div>
+                <div className="flex items-center justify-between gap-3 py-2">
+                  <p className="text-sm font-medium text-white">Recent response sequences</p>
                   <button
                     type="button"
                     onClick={() => { void fetchWarmResponses() }}
@@ -742,31 +771,62 @@ function ContactDetailPage() {
                     <RefreshCw className="h-3.5 w-3.5" /> Refresh
                   </button>
                 </div>
-                <div className="divide-y divide-gray-800/70">
-                  {warmResponsesLoading && (
-                    <p className="px-3 py-3 text-sm text-gray-500">Loading warm response lifecycle...</p>
-                  )}
-                  {!warmResponsesLoading && warmResponses.length === 0 && (
-                    <p className="px-3 py-3 text-sm text-gray-500">No warm responses captured yet.</p>
-                  )}
-                  {!warmResponsesLoading && warmResponses.map(row => {
-                    const responseClass = metadataString(row.metadata, 'response_class')
-                    const lifecycle = metadataString(row.metadata, 'lifecycle')
-                    const humanQaRequired = metadataBoolean(row.metadata, 'human_qa_required')
-                    return (
-                      <div key={row.id} className="px-3 py-3">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <StatusBadge status={row.status} />
-                          {responseClass && <StatusBadge status={responseClass.replace(/_/g, ' ')} />}
-                          {humanQaRequired && <span className="text-[10px] rounded border border-amber-800 bg-amber-950/40 px-1.5 py-0.5 text-amber-200">Human QA</span>}
-                          <span className="text-[10px] text-gray-500">{row.direction} · {row.channel}</span>
-                        </div>
-                        <p className="mt-1 text-sm text-white">{row.subject || lifecycle || 'Warm lifecycle row'}</p>
-                        <p className="mt-1 line-clamp-2 text-xs leading-5 text-gray-400">{row.body}</p>
-                      </div>
-                    )
-                  })}
-                </div>
+                {warmResponsesLoading && (
+                  <p className="py-3 text-sm text-gray-500">Loading warm response lifecycle...</p>
+                )}
+                {!warmResponsesLoading && warmResponses.filter(row => metadataString(row.metadata, 'lifecycle') === 'warm_outreach_response').length === 0 && (
+                  <p className="py-3 text-sm text-gray-500">No warm responses captured yet.</p>
+                )}
+                {!warmResponsesLoading && (
+                  <div className="space-y-3">
+                    {warmResponses
+                      .filter(row => metadataString(row.metadata, 'lifecycle') === 'warm_outreach_response')
+                      .map(row => {
+                        const responseClass = metadataString(row.metadata, 'response_class')
+                        const humanQaRequired = metadataBoolean(row.metadata, 'human_qa_required')
+                        const nextAction = metadataRecord(row.metadata, 'recommended_next_action')
+                        const approvalGate = metadataRecord(row.metadata, 'approval_gate')
+                        const draft = metadataRecord(row.metadata, 'local_draft_recommendation')
+                        return (
+                          <div key={row.id} className="border-t border-gray-800 pt-3">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <StatusBadge status={row.status} />
+                              {responseClass && <StatusBadge status={responseClass.replace(/_/g, ' ')} />}
+                              {humanQaRequired && <span className="text-[10px] rounded border border-amber-800 bg-amber-950/40 px-1.5 py-0.5 text-amber-200">Human QA</span>}
+                              <span className="text-[10px] text-gray-500">{row.channel} · {formatDateTime(row.created_at)}</span>
+                            </div>
+                            <div className="mt-3 grid gap-3 md:grid-cols-5">
+                              <div>
+                                <p className="text-[10px] font-medium uppercase tracking-wide text-gray-500">Captured response</p>
+                                <p className="mt-1 line-clamp-3 text-xs leading-5 text-gray-300">{row.body}</p>
+                              </div>
+                              <div>
+                                <p className="text-[10px] font-medium uppercase tracking-wide text-gray-500">Classification</p>
+                                <p className="mt-1 text-xs leading-5 text-white">{responseClass?.replace(/_/g, ' ') || 'Pending review'}</p>
+                              </div>
+                              <div>
+                                <p className="text-[10px] font-medium uppercase tracking-wide text-gray-500">Recommended next action</p>
+                                <p className="mt-1 text-xs leading-5 text-white">{recordString(nextAction, 'label') || 'Review locally'}</p>
+                              </div>
+                              <div>
+                                <p className="text-[10px] font-medium uppercase tracking-wide text-gray-500">Local draft</p>
+                                <p className="mt-1 line-clamp-3 text-xs leading-5 text-gray-300">{recordString(draft, 'subject') || 'Draft row pending'}</p>
+                              </div>
+                              <div>
+                                <p className="text-[10px] font-medium uppercase tracking-wide text-gray-500">Approval boundary</p>
+                                <p className="mt-1 text-xs leading-5 text-amber-100">{recordString(approvalGate, 'label') || 'Human approval required'}</p>
+                              </div>
+                            </div>
+                            {recordString(approvalGate, 'recoveryPath') && (
+                              <p className="mt-2 text-xs leading-5 text-gray-400">
+                                Recovery path: {recordString(approvalGate, 'recoveryPath')}
+                              </p>
+                            )}
+                          </div>
+                        )
+                      })}
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -6,7 +6,16 @@ import {
   buildWarmOutreachResponseLifecycleDecision,
   communicationChannelForWarmResponse,
   type WarmOutreachResponseChannel,
+  type WarmOutreachResponseRelationshipContext,
 } from '@/lib/warm-outreach-response-lifecycle'
+import {
+  buildWarmOutreachContextSummary,
+  evaluateWarmOutreachReadiness,
+} from '@/lib/warm-outreach-relationship-intelligence'
+import {
+  buildWarmOutreachSourceInventoryPacket,
+  type WarmOutreachSourceInventoryRows,
+} from '@/lib/warm-outreach-source-inventory'
 
 export const dynamic = 'force-dynamic'
 
@@ -38,6 +47,8 @@ type CommunicationRow = {
   created_at?: string | null
 }
 
+type InventoryRow = NonNullable<WarmOutreachSourceInventoryRows['contactCommunications']>[number]
+
 function parseContactId(value: string) {
   const contactId = Number.parseInt(value, 10)
   return Number.isFinite(contactId) && contactId > 0 ? contactId : null
@@ -57,6 +68,144 @@ function receivedAtOrNow(value: unknown) {
   if (!raw) return new Date().toISOString()
   const date = new Date(raw)
   return Number.isNaN(date.getTime()) ? null : date.toISOString()
+}
+
+function listData<T extends InventoryRow>(result: { data?: T[] | null }): T[] {
+  return Array.isArray(result.data) ? result.data : []
+}
+
+function hasSuppressedStatus(rows: InventoryRow[]): boolean {
+  return rows.some((row) => {
+    const status = typeof row.status === 'string' ? row.status.toLowerCase() : ''
+    const outreachStatus =
+      typeof row.outreach_status === 'string' ? row.outreach_status.toLowerCase() : ''
+    const metadata = row.metadata && typeof row.metadata === 'object'
+      ? row.metadata as InventoryRow
+      : null
+    const metadataStatus =
+      typeof metadata?.status === 'string' ? metadata.status.toLowerCase() : ''
+    const metadataSuppressed =
+      metadata?.unsubscribed === true ||
+      metadata?.do_not_contact === true ||
+      metadata?.suppressed === true
+
+    return (
+      metadataSuppressed ||
+      status === 'opted_out' ||
+      status === 'unsubscribed' ||
+      status === 'suppressed' ||
+      outreachStatus === 'opted_out' ||
+      outreachStatus === 'unsubscribed' ||
+      metadataStatus === 'opted_out' ||
+      metadataStatus === 'unsubscribed' ||
+      metadataStatus === 'suppressed'
+    )
+  })
+}
+
+async function loadWarmRelationshipContext(input: {
+  contactId: number
+  contact: ContactRow
+  preferredChannel: WarmOutreachResponseChannel
+}): Promise<WarmOutreachResponseRelationshipContext> {
+  const [
+    contactCommunicationsRes,
+    outreachQueueRes,
+    emailMessagesRes,
+    meetingSummariesRes,
+    actionTasksRes,
+  ] = await Promise.all([
+    supabaseAdmin!
+      .from('contact_communications')
+      .select(
+        'id, contact_submission_id, channel, direction, message_type, subject, source_system, source_id, status, sent_at, metadata, created_at',
+      )
+      .eq('contact_submission_id', input.contactId)
+      .order('sent_at', { ascending: false })
+      .limit(20),
+    supabaseAdmin!
+      .from('outreach_queue')
+      .select(
+        'id, contact_submission_id, channel, subject, sequence_step, status, thread_id, sent_at, replied_at, created_at',
+      )
+      .eq('contact_submission_id', input.contactId)
+      .order('created_at', { ascending: false })
+      .limit(20),
+    supabaseAdmin!
+      .from('email_messages')
+      .select(
+        'id, contact_submission_id, email_kind, channel, direction, status, subject, source_system, source_id, sent_at, metadata, created_at',
+      )
+      .eq('contact_submission_id', input.contactId)
+      .order('created_at', { ascending: false })
+      .limit(20),
+    supabaseAdmin!
+      .from('meeting_records')
+      .select(
+        'id, contact_submission_id, meeting_type, meeting_date, structured_notes, key_decisions, created_at',
+      )
+      .eq('contact_submission_id', input.contactId)
+      .order('meeting_date', { ascending: false })
+      .limit(10),
+    supabaseAdmin!
+      .from('meeting_action_tasks')
+      .select(
+        'id, contact_submission_id, meeting_record_id, title, status, due_date, task_category, outreach_queue_id, created_at',
+      )
+      .eq('contact_submission_id', input.contactId)
+      .order('created_at', { ascending: false })
+      .limit(20),
+  ])
+
+  const contactCommunications = listData(contactCommunicationsRes)
+  const outreachQueue = listData(outreachQueueRes)
+  const emailMessages = listData(emailMessagesRes)
+  const meetingSummaries = listData(meetingSummariesRes)
+  const actionTasks = listData(actionTasksRes)
+  const unsubscribed = hasSuppressedStatus([
+    input.contact as InventoryRow,
+    ...contactCommunications,
+    ...outreachQueue,
+    ...emailMessages,
+  ])
+
+  const rows: WarmOutreachSourceInventoryRows = {
+    contactSubmission: {
+      ...(input.contact as InventoryRow),
+      unsubscribed,
+      suppression_reason: unsubscribed
+        ? 'Contact has an unsubscribed, opted-out, or suppressed local Portfolio status.'
+        : undefined,
+    },
+    contactCommunications,
+    outreachQueue,
+    emailMessages,
+    meetingSummaries,
+    actionTasks,
+  }
+
+  const packet = buildWarmOutreachSourceInventoryPacket({
+    contactId: input.contactId,
+    objective: 'Interpret a captured warm outreach response and prepare local review-only next steps.',
+    preferredChannel: input.preferredChannel,
+    rows,
+  })
+  const readiness = evaluateWarmOutreachReadiness(packet)
+  const contextSummary = buildWarmOutreachContextSummary(packet)
+
+  return {
+    relationshipBasis: contextSummary.relationship_basis,
+    openingAngle: contextSummary.opening_pitch_guidance?.openingAngle ?? null,
+    suggestedNextStep: contextSummary.suggested_next_step,
+    safeToMention: contextSummary.source_inventory?.safeToMention ?? [],
+    summarizeOnly: contextSummary.source_inventory?.summarizeOnly ?? [],
+    doNotMention: contextSummary.source_inventory?.doNotMention ?? [],
+    commonalities: contextSummary.commonalities,
+    riskFlags: contextSummary.risk_flags,
+    warnings: readiness.warnings,
+    blockers: readiness.blockers,
+    readinessStatus: readiness.status,
+  }
 }
 
 async function findCommunicationBySourceId(contactId: number, sourceId: string) {
@@ -271,6 +420,11 @@ export async function POST(
     providerThreadId: stringOrNull(body.providerThreadId) ?? outreachQueue?.thread_id ?? null,
     providerMessageId: stringOrNull(body.providerMessageId),
     originalSubject: stringOrNull(body.originalSubject) ?? outreachQueue?.subject ?? null,
+    relationshipContext: await loadWarmRelationshipContext({
+      contactId,
+      contact: contact as ContactRow,
+      preferredChannel: channel as WarmOutreachResponseChannel,
+    }),
   })
 
   const existingResponse = await findCommunicationBySourceId(
@@ -330,6 +484,9 @@ export async function POST(
       outreach_queue_id: outreachQueueId,
       response_class: decision.responseClass,
       classification_confidence: decision.confidence,
+      interpretation: decision.interpretation,
+      recommended_next_action: decision.interpretation.recommendedNextAction,
+      approval_gate: decision.approvalGate,
       human_qa_required: decision.humanQaRequired,
       human_qa_reasons: decision.humanQaReasons,
       provider: stringOrNull(body.provider) ?? 'manual',
@@ -337,7 +494,9 @@ export async function POST(
       provider_message_id: stringOrNull(body.providerMessageId),
       suppression_proposal: decision.suppressionProposal,
       follow_up_task_proposal: decision.followUpTaskProposal,
+      local_draft_recommendation: decision.replyDraft,
       execution_boundary: decision.executionBoundary,
+      source_use_boundary: decision.sourceUseBoundary,
     },
   })
 
@@ -364,10 +523,15 @@ export async function POST(
         response_source_id: decision.idempotency.responseKey,
         response_class: decision.responseClass,
         original_channel: channel,
+        interpretation: decision.interpretation,
+        recommended_next_action: decision.interpretation.recommendedNextAction,
+        approval_gate: decision.approvalGate,
         approval_state: decision.replyDraft.approvalState,
+        reviewer_notes: decision.replyDraft.reviewerNotes,
         human_qa_required: true,
         human_qa_reasons: decision.humanQaReasons,
         execution_boundary: decision.executionBoundary,
+        source_use_boundary: decision.sourceUseBoundary,
       },
     })
   } else {
