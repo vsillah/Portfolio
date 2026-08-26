@@ -55,10 +55,12 @@ import AddLeadModal from '@/components/admin/outreach/AddLeadModal'
 import RelationshipPacketPanel, {
   type RelationshipPacketApiResponse,
 } from '@/components/admin/outreach/RelationshipPacketPanel'
+import WarmBatchReviewPanel from '@/components/admin/outreach/WarmBatchReviewPanel'
 import { OutreachEmailGenerateRow } from '@/components/admin/OutreachEmailGenerateRow'
 import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
 import { useRealtimeOutreach } from '@/lib/hooks/useRealtimeOutreach'
 import { OUTREACH_MODE_GATING_NOTE, OUTREACH_MODE_POLICIES } from '@/lib/outreach-mode-gating'
+import type { WarmBatchReview } from '@/lib/warm-outreach-batch-review'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 
@@ -250,6 +252,9 @@ function OutreachContent() {
 
   // Value evidence: lead selection and push
   const [selectedLeadIds, setSelectedLeadIds] = useState<Set<number>>(new Set())
+  const [warmBatchReview, setWarmBatchReview] = useState<WarmBatchReview | null>(null)
+  const [warmBatchReviewLoading, setWarmBatchReviewLoading] = useState(false)
+  const [warmBatchReviewError, setWarmBatchReviewError] = useState<string | null>(null)
   const [showEnrichModal, setShowEnrichModal] = useState(false)
   const [enrichModalLeadIds, setEnrichModalLeadIds] = useState<number[]>([])
   const [pushLoading, setPushLoading] = useState(false)
@@ -789,6 +794,49 @@ function OutreachContent() {
     setShowEnrichModal(true)
   }, [])
 
+  const reviewWarmBatch = useCallback(async () => {
+    const contactIds = [...selectedLeadIds]
+    if (contactIds.length === 0) return
+
+    setWarmBatchReviewLoading(true)
+    setWarmBatchReviewError(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) {
+        setWarmBatchReviewError('Admin session is required to review a warm batch.')
+        return
+      }
+
+      const res = await fetch('/api/admin/outreach/batch-review', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          contact_ids: contactIds,
+          cohort_label: `${contactIds.length} selected outreach lead${contactIds.length === 1 ? '' : 's'}`,
+        }),
+      })
+      const body = await res.json().catch(() => null)
+      if (!res.ok) {
+        throw new Error(
+          typeof body?.error === 'string'
+            ? body.error
+            : 'Warm batch review could not be loaded.',
+        )
+      }
+      setWarmBatchReview(body as WarmBatchReview)
+    } catch (error) {
+      setWarmBatchReview(null)
+      setWarmBatchReviewError(
+        error instanceof Error ? error.message : 'Warm batch review could not be loaded.',
+      )
+    } finally {
+      setWarmBatchReviewLoading(false)
+    }
+  }, [selectedLeadIds])
+
   const setExpandedLeadFromControl = useCallback((leadId: number | null) => {
     setExpandedLeadId(leadId)
     const params = new URLSearchParams(searchParams?.toString() || '')
@@ -1243,12 +1291,34 @@ function OutreachContent() {
               </div>
             ) : (
               <>
+                {(selectedLeadIds.size > 0 || warmBatchReview || warmBatchReviewError) && (
+                  <WarmBatchReviewPanel
+                    data={warmBatchReview}
+                    loading={warmBatchReviewLoading}
+                    error={warmBatchReviewError}
+                    selectedCount={selectedLeadIds.size}
+                    onReview={reviewWarmBatch}
+                  />
+                )}
                 {selectedLeadIds.size > 0 && (
                   <div className="sticky top-0 z-10 mb-4 p-3 bg-background/95 border border-silicon-slate rounded-xl flex flex-wrap items-center justify-between gap-3">
                     <span className="text-sm text-foreground">
                       {selectedLeadIds.size} lead(s) selected
                     </span>
                     <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={reviewWarmBatch}
+                        disabled={warmBatchReviewLoading || selectedLeadIds.size === 0 || selectedLeadIds.size > 50}
+                        className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-sky-500/35 bg-sky-500/10 px-4 text-sm font-semibold text-sky-100 transition-colors hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {warmBatchReviewLoading ? (
+                          <RefreshCw size={15} className="animate-spin" aria-hidden />
+                        ) : (
+                          <Users size={15} aria-hidden />
+                        )}
+                        Warm batch review
+                      </button>
                       <button
                         type="button"
                         onClick={() => openReviewEnrichModal([...selectedLeadIds])}
@@ -1259,7 +1329,11 @@ function OutreachContent() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => setSelectedLeadIds(new Set())}
+                        onClick={() => {
+                          setSelectedLeadIds(new Set())
+                          setWarmBatchReview(null)
+                          setWarmBatchReviewError(null)
+                        }}
                         className="text-sm text-muted-foreground hover:text-foreground"
                       >
                         Clear selection

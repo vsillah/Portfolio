@@ -50,8 +50,8 @@ export const OUTREACH_MODE_POLICIES: Record<OutreachModeKey, OutreachModePolicy>
     temperature: 'warm',
     audienceMode: 'one_to_many',
     canonicalSurface: '/admin/outreach',
-    allowedInternalActions: ['audience context review', 'relationship-safe segmentation', 'draft preparation', 'human approval packet'],
-    requiredGates: ['audience relationship basis', 'suppression list check', 'privacy review', 'human approval before scheduling'],
+    allowedInternalActions: ['audience context review', 'relationship-safe segmentation', 'batch recipient review', 'individualized draft planning', 'human approval packet'],
+    requiredGates: ['per-recipient relationship basis', 'per-recipient suppression check', 'privacy review', 'human approval before draft generation', 'human approval before scheduling'],
     externalExecutionEnabled: false,
   },
 }

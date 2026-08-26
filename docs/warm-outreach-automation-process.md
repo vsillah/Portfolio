@@ -125,19 +125,21 @@ Workflow:
 1. Define the cohort and source basis.
 2. Confirm every recipient passes suppression and relationship checks.
 3. Segment by relationship type and channel.
-4. Generate individualized drafts, not a generic blast.
-5. Batch for review with sample expansion.
-6. Hold sends behind explicit batch approval.
-7. Monitor responses and route every response back to the contact and outreach queue.
+4. Review individualized draft plans, not a generic blast row.
+5. Show a concise sample preview with full recipient-list access.
+6. Hold draft generation, scheduling, provider actions, and sends behind explicit approval.
+7. Route any approved future draft or response back to the contact and outreach queue.
 
 Required gates:
 
 - cohort provenance recorded,
 - suppression checked per recipient,
 - personalization basis per recipient,
+- weak relationship basis blocked before draft generation,
 - batch preview approved,
+- deterministic batch and recipient draft idempotency keys active,
 - per-channel send authority verified,
-- throttle and idempotency keys active.
+- external execution disabled until a later explicitly approved phase.
 
 ## Template Families
 
@@ -260,10 +262,13 @@ Add a batch review path for one-to-many warm outreach while preserving per-conta
 
 Acceptance:
 
-- batch rows are individualized,
-- sample preview and full recipient list available,
-- suppression failures are visible,
-- no batch send without explicit approval.
+- batch rows are individualized and preserve per-contact approval state,
+- cohort provenance, relationship basis, selected channel, selected template, suppression status, and individualized draft preview are visible per recipient,
+- concise sample preview and accessible full recipient list are available in the existing `/admin/outreach` workroom,
+- suppression failures and weak relationship-basis gaps are visible and blocked before draft generation,
+- duplicate review/draft planning uses deterministic idempotency and returns existing draft rows where present,
+- no provider call, external send, Gmail draft, LinkedIn/Facebook/phone action, Slack action, n8n dispatch, scheduling, or monitoring path is enabled,
+- `externalExecutionEnabled` remains false.
 
 ### Phase 4: Response And Follow-Up Lifecycle
 
