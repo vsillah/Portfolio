@@ -1,5 +1,6 @@
 import { chromium } from '@playwright/test'
 import { execFile } from 'node:child_process'
+import { existsSync } from 'node:fs'
 import { mkdir } from 'fs/promises'
 import path from 'path'
 import { promisify } from 'node:util'
@@ -14,6 +15,11 @@ const desktopBatchScreenshotPath = path.join(outputDir, 'warm-send-authority-bat
 const mp4Path = path.join(outputDir, 'warm-send-authority-mobile.mp4')
 
 const baseUrl = process.env.QA_BASE_URL || 'http://localhost:3011'
+const authStatePath = process.env.PLAYWRIGHT_AUTH_STATE
+const supabaseProjectRef = new URL(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://example.supabase.co',
+).hostname.split('.')[0]
+const supabaseAuthStorageKey = `sb-${supabaseProjectRef}-auth-token`
 
 await mkdir(outputDir, { recursive: true })
 await mkdir(rawVideoDir, { recursive: true })
@@ -28,12 +34,31 @@ const user = {
   created_at: '2026-08-26T00:00:00.000Z',
 }
 
+function base64Url(value) {
+  return Buffer.from(JSON.stringify(value)).toString('base64url')
+}
+
+const now = Math.floor(Date.now() / 1000)
+const expiresAt = now + 3600
+const qaAccessToken = [
+  base64Url({ alg: 'none', typ: 'JWT' }),
+  base64Url({
+    aud: 'authenticated',
+    exp: expiresAt,
+    iat: now,
+    sub: user.id,
+    email: user.email,
+    role: 'authenticated',
+  }),
+  'qa-signature',
+].join('.')
+
 const session = {
-  access_token: 'qa-access-token',
+  access_token: qaAccessToken,
   refresh_token: 'qa-refresh-token',
   token_type: 'bearer',
   expires_in: 3600,
-  expires_at: Math.floor(Date.now() / 1000) + 3600,
+  expires_at: expiresAt,
   user,
 }
 
@@ -569,30 +594,37 @@ async function installRoutes(page) {
   await page.route('**/api/admin/outreach/batch-review**', (route) =>
     route.fulfill({ json: batchReview }),
   )
-  await page.route('**/api/admin/outreach/leads**', (route) =>
-    route.fulfill({
+  await page.route('**/api/admin/outreach/leads**', (route) => {
+    if (route.request().url().includes('/relationship-packet')) {
+      return route.fallback()
+    }
+    return route.fulfill({
       json: {
         leads,
         total: leads.length,
         page: 1,
       },
-    }),
-  )
+    })
+  })
   await page.route('**/api/admin/outreach/last-run**', (route) =>
     route.fulfill({ json: { lastRun: null } }),
   )
 }
 
 async function seedSession(page) {
-  await page.addInitScript((storedSession) => {
+  await page.addInitScript(({ storageKey, storedSession }) => {
+    window.localStorage.setItem(storageKey, JSON.stringify(storedSession))
     window.localStorage.setItem('sb-127-auth-token', JSON.stringify(storedSession))
-  }, session)
+  }, { storageKey: supabaseAuthStorageKey, storedSession: session })
 }
 
 async function assertNoExternalRequests(page) {
   const blockedHosts = []
   page.on('request', (request) => {
     const url = request.url()
+    if (/supabase\.co\/auth\/v1\/user/i.test(url)) {
+      return
+    }
     if (/gmail|linkedin|facebook|slack|n8n|supabase\.co/i.test(url)) {
       blockedHosts.push(url)
     }
@@ -604,9 +636,12 @@ const browser = await chromium.launch()
 const mobile = await browser.newContext({
   viewport: { width: 390, height: 844 },
   recordVideo: { dir: rawVideoDir, size: { width: 390, height: 844 } },
+  ...(authStatePath && existsSync(authStatePath) ? { storageState: authStatePath } : {}),
 })
 const mobilePage = await mobile.newPage()
-await seedSession(mobilePage)
+if (!authStatePath) {
+  await seedSession(mobilePage)
+}
 await installRoutes(mobilePage)
 const mobileBlockedRequests = await assertNoExternalRequests(mobilePage)
 
@@ -620,7 +655,7 @@ await mobilePage.locator('input[type="checkbox"]').nth(1).check()
 await mobilePage.locator('input[type="checkbox"]').nth(2).check()
 await mobilePage.getByRole('button', { name: 'Warm batch review' }).click()
 await mobilePage.getByText('Future eligible gates').waitFor({ timeout: 15_000 })
-await mobilePage.getByText('Send authority: blocked').scrollIntoViewIfNeeded()
+await mobilePage.getByText('Send authority: blocked').first().scrollIntoViewIfNeeded()
 await mobilePage.waitForTimeout(900)
 await mobilePage.screenshot({ path: mobileScreenshotPath, fullPage: true })
 const video = mobilePage.video()
@@ -641,9 +676,14 @@ if (rawVideoPath) {
   ])
 }
 
-const desktop = await browser.newContext({ viewport: { width: 1280, height: 900 } })
+const desktop = await browser.newContext({
+  viewport: { width: 1280, height: 900 },
+  ...(authStatePath && existsSync(authStatePath) ? { storageState: authStatePath } : {}),
+})
 const desktopPage = await desktop.newPage()
-await seedSession(desktopPage)
+if (!authStatePath) {
+  await seedSession(desktopPage)
+}
 await installRoutes(desktopPage)
 const desktopBlockedRequests = await assertNoExternalRequests(desktopPage)
 
