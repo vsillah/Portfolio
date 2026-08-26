@@ -91,8 +91,26 @@ describe('warm outreach batch review', () => {
       suppressionStatus: 'clear',
       weakBasis: false,
       status: 'ready_for_review',
+      responseMonitoring: {
+        status: 'awaiting_response',
+        mode: 'pending',
+        executionBoundary: {
+          externalSendEnabled: false,
+          providerPollingEnabled: false,
+        },
+      },
+      sendReadiness: {
+        version: 'warm-outreach-send-readiness/v1',
+        executionBoundary: {
+          providerExecution: false,
+          externalMonitoring: false,
+        },
+      },
     })
     expect(review.recipients[0].draftIdempotencyKey).toMatch(/^warm-outreach:batch-draft:v1:/)
+    expect(review.recipients[0].sendReadiness.perRecipientIdempotencyKey).toMatch(
+      /^warm-outreach:recipient:v1:/,
+    )
   })
 
   it('blocks suppressed recipients before draft generation authority', () => {
@@ -200,6 +218,9 @@ describe('warm outreach batch review', () => {
 
     expect(first.batchIdempotencyKey).toBe(second.batchIdempotencyKey)
     expect(first.recipients[0].draftIdempotencyKey).toBe(second.recipients[0].draftIdempotencyKey)
+    expect(first.recipients[0].sendReadiness.perRecipientIdempotencyKey).toBe(
+      second.recipients[0].sendReadiness.perRecipientIdempotencyKey,
+    )
     expect(first.recipients[0]).toMatchObject({
       status: 'existing_draft',
       existingQueueId: 'queue-existing',

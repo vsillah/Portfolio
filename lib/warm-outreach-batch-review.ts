@@ -13,6 +13,11 @@ import {
   buildWarmOutreachSourceInventoryPacket,
   type WarmOutreachSourceInventoryRows,
 } from './warm-outreach-source-inventory'
+import {
+  buildWarmOutreachResponseMonitoring,
+  type WarmOutreachResponseMonitoring,
+  type WarmOutreachSendReadiness,
+} from './warm-outreach-response-monitoring'
 import type { OutreachChannel } from './constants/prompt-keys'
 
 type PortfolioRow = NonNullable<WarmOutreachSourceInventoryRows['contactSubmission']>
@@ -40,6 +45,8 @@ export type WarmBatchReviewRecipient = {
   draftIdempotencyKey: string
   existingQueueId: string | null
   individualizedDraftPreview: string
+  responseMonitoring: WarmOutreachResponseMonitoring
+  sendReadiness: WarmOutreachSendReadiness
   packet: WarmOutreachRelationshipPacket
   readiness: WarmOutreachReadiness
   contextSummary: WarmOutreachContextSummary
@@ -247,6 +254,17 @@ export function buildWarmBatchReview(args: {
     })
     const readiness = evaluateWarmOutreachReadiness(packet)
     const contextSummary = buildWarmOutreachContextSummary(packet)
+    const responseMonitoring = buildWarmOutreachResponseMonitoring({
+      contactId,
+      packet,
+      readiness,
+      rows: {
+        contactCommunications: entry.rows.contactCommunications,
+        outreachQueue: entry.rows.outreachQueue,
+        emailMessages: entry.rows.emailMessages,
+        actionTasks: entry.rows.actionTasks,
+      },
+    })
     const weakBasis = relationshipBasisIsWeak(packet)
     const promptTemplateKey = promptTemplateKeyFor(
       readiness.selectedChannel,
@@ -305,6 +323,8 @@ export function buildWarmBatchReview(args: {
         readiness,
         weakBasis,
       }),
+      responseMonitoring,
+      sendReadiness: responseMonitoring.sendReadiness,
       packet,
       readiness,
       contextSummary,

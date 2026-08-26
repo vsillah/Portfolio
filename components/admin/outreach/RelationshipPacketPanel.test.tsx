@@ -140,6 +140,125 @@ const packetResponse: RelationshipPacketApiResponse = {
     slackAction: false,
     responseMonitoring: false,
   },
+  responseMonitoring: {
+    version: 'warm-outreach-response-monitoring/v1',
+    contactId: 42,
+    status: 'stale_no_response',
+    mode: 'pending',
+    label: 'stale no response',
+    expectedReplyBy: '2026-08-24T00:00:00.000Z',
+    latestOutboundAt: '2026-08-17T00:00:00.000Z',
+    latestResponseAt: null,
+    staleAfterDays: 7,
+    perRecipientIdempotencyKey: 'warm-outreach:monitoring-recipient:v1:recipient42',
+    evidence: [
+      {
+        sourceType: 'outreach_queue',
+        sourceId: 'queue-1',
+        status: 'sent',
+        summary: 'Email queue row sent.',
+        evidenceType: 'expected_reply',
+      },
+    ],
+    proposedFollowUp: {
+      state: 'stale_follow_up_review',
+      label: 'Review stale no-response follow-up',
+      description: 'Review relationship evidence before proposing another touch.',
+      requiresHumanApproval: true,
+      idempotencyKey: 'warm-outreach:monitoring-follow-up:v1:followup42',
+    },
+    blockedReasons: [],
+    auditNotes: ['Monitoring is derived from local Portfolio rows only.'],
+    sendReadiness: {
+      version: 'warm-outreach-send-readiness/v1',
+      contactId: 42,
+      perRecipientIdempotencyKey: 'warm-outreach:recipient:v1:recipient42',
+      modes: {
+        warm_1_to_1: [
+          {
+            mode: 'warm_1_to_1',
+            channel: 'email',
+            label: 'Gmail / email provider gate required',
+            state: 'provider_gate_required',
+            sendReady: false,
+            externalSendEnabled: false,
+            providerExecutionEnabled: false,
+            humanApprovalRequired: true,
+            idempotencyKey: 'warm-outreach:send-readiness:v1:email',
+            blockers: [],
+            gatesRemaining: ['human_reply_or_draft_approval', 'external_send_authority', 'provider_execution_gate'],
+            auditNotes: ['Scaffold only.'],
+          },
+          {
+            mode: 'warm_1_to_1',
+            channel: 'linkedin',
+            label: 'LinkedIn provider gate required',
+            state: 'provider_gate_required',
+            sendReady: false,
+            externalSendEnabled: false,
+            providerExecutionEnabled: false,
+            humanApprovalRequired: true,
+            idempotencyKey: 'warm-outreach:send-readiness:v1:linkedin',
+            blockers: [],
+            gatesRemaining: ['human_reply_or_draft_approval', 'external_send_authority', 'provider_execution_gate'],
+            auditNotes: ['Scaffold only.'],
+          },
+          {
+            mode: 'warm_1_to_1',
+            channel: 'facebook',
+            label: 'Facebook manual review only',
+            state: 'manual_review_only',
+            sendReady: false,
+            externalSendEnabled: false,
+            providerExecutionEnabled: false,
+            humanApprovalRequired: true,
+            idempotencyKey: 'warm-outreach:send-readiness:v1:facebook',
+            blockers: [],
+            gatesRemaining: ['human_reply_or_draft_approval', 'external_send_authority', 'provider_execution_gate'],
+            auditNotes: ['Scaffold only.'],
+          },
+          {
+            mode: 'warm_1_to_1',
+            channel: 'phone_contact',
+            label: 'Phone / manual manual review only',
+            state: 'manual_review_only',
+            sendReady: false,
+            externalSendEnabled: false,
+            providerExecutionEnabled: false,
+            humanApprovalRequired: true,
+            idempotencyKey: 'warm-outreach:send-readiness:v1:phone',
+            blockers: [],
+            gatesRemaining: ['human_reply_or_draft_approval', 'external_send_authority', 'provider_execution_gate'],
+            auditNotes: ['Scaffold only.'],
+          },
+        ],
+        warm_1_to_many: [],
+      },
+      executionBoundary: {
+        gmailEmailSend: false,
+        linkedinAction: false,
+        facebookAction: false,
+        phoneAction: false,
+        providerExecution: false,
+        scheduling: false,
+        externalMonitoring: false,
+      },
+    },
+    executionBoundary: {
+      localRowsOnly: true,
+      manualImportEnabled: true,
+      providerResponseImportEnabled: false,
+      providerPollingEnabled: false,
+      externalMonitoringEnabled: false,
+      externalSendEnabled: false,
+      gmailDraftCreationEnabled: false,
+      linkedinActionEnabled: false,
+      facebookActionEnabled: false,
+      phoneActionEnabled: false,
+      slackActionEnabled: false,
+      n8nDispatchEnabled: false,
+    },
+  },
 }
 
 describe('RelationshipPacketPanel', () => {
@@ -170,6 +289,12 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Draft creation: off')).toBeInTheDocument()
     expect(screen.getByText('External send: off')).toBeInTheDocument()
     expect(screen.getByText('Reply monitoring: off')).toBeInTheDocument()
+    expect(screen.getByText('Response monitoring')).toBeInTheDocument()
+    expect(screen.getByText('Review stale no-response follow-up')).toBeInTheDocument()
+    expect(screen.getByText('stale no response')).toBeInTheDocument()
+    expect(screen.getByText('Send-readiness gates')).toBeInTheDocument()
+    expect(screen.getByText('Gmail / email provider gate required')).toBeInTheDocument()
+    expect(screen.getByText('External monitoring: off')).toBeInTheDocument()
   })
 
   it('shows suppressed contacts as blocked readiness', () => {

@@ -35,6 +35,10 @@ function statusClasses(status: WarmBatchReviewRecipient['status']) {
   return 'border-red-500/35 bg-red-500/10 text-red-100'
 }
 
+function monitoringLabel(status: WarmBatchReviewRecipient['responseMonitoring']['status']) {
+  return status.replace(/_/g, ' ')
+}
+
 function BoundaryFlag({ label, active }: { label: string; active: boolean }) {
   return (
     <span
@@ -51,6 +55,8 @@ function BoundaryFlag({ label, active }: { label: string; active: boolean }) {
 
 function RecipientRow({ recipient }: { recipient: WarmBatchReviewRecipient }) {
   const primaryBlocker = recipient.blockers[0]
+  const monitoring = recipient.responseMonitoring
+  const recipientKey = recipient.sendReadiness?.perRecipientIdempotencyKey
 
   return (
     <li className="grid gap-3 border-t border-silicon-slate/70 py-3 first:border-t-0 md:grid-cols-[minmax(10rem,0.9fr)_minmax(0,1.35fr)_minmax(9rem,0.7fr)]">
@@ -83,7 +89,10 @@ function RecipientRow({ recipient }: { recipient: WarmBatchReviewRecipient }) {
       <div className="min-w-0 text-xs leading-5 text-muted-foreground">
         <p>Signals: {recipient.relationshipSignalCount}</p>
         <p>Suppression: {recipient.suppressionStatus}</p>
+        <p>Monitoring: {monitoring ? monitoringLabel(monitoring.status) : 'not loaded'}</p>
+        <p>Next: {monitoring?.proposedFollowUp.label ?? 'Review per-recipient state'}</p>
         {recipient.existingQueueId && <p className="truncate">Queue: {recipient.existingQueueId}</p>}
+        {recipientKey && <p className="truncate">Recipient key: {recipientKey}</p>}
       </div>
     </li>
   )
@@ -191,6 +200,7 @@ export default function WarmBatchReviewPanel({
             <BoundaryFlag label="Draft creation" active={data.executionBoundary.createsDraft} />
             <BoundaryFlag label="External send" active={data.executionBoundary.externalSend} />
             <BoundaryFlag label="Gmail draft" active={data.executionBoundary.gmailDraft} />
+            <BoundaryFlag label="Response monitoring" active={data.executionBoundary.responseMonitoring} />
             <BoundaryFlag label="n8n" active={data.executionBoundary.n8nDispatch} />
             <BoundaryFlag label="Slack" active={data.executionBoundary.slackAction} />
           </div>
