@@ -183,12 +183,94 @@ const relationshipPacketResponse = {
   },
 }
 
+const warmBatchReviewResponse = {
+  mode: 'warm_1_to_many',
+  batchIdempotencyKey: 'warm-outreach:batch-review:v1:test-batch',
+  cohort: {
+    label: '1 selected outreach lead',
+    recipientCount: 1,
+    source: 'selected_outreach_leads',
+    provenance: 'Selected 1 existing /admin/outreach lead from local Portfolio rows.',
+  },
+  summary: {
+    readyCount: 1,
+    existingDraftCount: 0,
+    blockedCount: 0,
+    weakBasisCount: 0,
+    suppressionBlockedCount: 0,
+  },
+  samplePreview: {
+    contactId: 42,
+    contactName: 'Ada Operator',
+    company: 'Ops Lab',
+    relationshipBasis: 'Portfolio shows prior meeting context for this contact.',
+    relationshipSignalCount: 1,
+    selectedChannel: 'email',
+    selectedTemplate: 'follow_up',
+    promptTemplateKey: 'email_follow_up',
+    suppressionStatus: 'clear',
+    suppressionReasons: [],
+    weakBasis: false,
+    blockers: [],
+    warnings: ['Private source context must be summarized, not quoted.'],
+    status: 'ready_for_review',
+    draftIdempotencyKey: 'warm-outreach:batch-draft:v1:test-recipient',
+    existingQueueId: null,
+    individualizedDraftPreview: 'Hi Ada, The warm basis is prior meeting context.',
+    packet: relationshipPacketResponse.packet,
+    readiness: relationshipPacketResponse.readiness,
+    contextSummary: relationshipPacketResponse.contextSummary,
+  },
+  recipients: [
+    {
+      contactId: 42,
+      contactName: 'Ada Operator',
+      company: 'Ops Lab',
+      relationshipBasis: 'Portfolio shows prior meeting context for this contact.',
+      relationshipSignalCount: 1,
+      selectedChannel: 'email',
+      selectedTemplate: 'follow_up',
+      promptTemplateKey: 'email_follow_up',
+      suppressionStatus: 'clear',
+      suppressionReasons: [],
+      weakBasis: false,
+      blockers: [],
+      warnings: ['Private source context must be summarized, not quoted.'],
+      status: 'ready_for_review',
+      draftIdempotencyKey: 'warm-outreach:batch-draft:v1:test-recipient',
+      existingQueueId: null,
+      individualizedDraftPreview: 'Hi Ada, The warm basis is prior meeting context.',
+      packet: relationshipPacketResponse.packet,
+      readiness: relationshipPacketResponse.readiness,
+      contextSummary: relationshipPacketResponse.contextSummary,
+    },
+  ],
+  executionBoundary: {
+    source: 'local_portfolio_rows',
+    readOnly: true,
+    providerCalls: false,
+    createsDraft: false,
+    externalSend: false,
+    scheduling: false,
+    gmailDraft: false,
+    linkedinAction: false,
+    facebookAction: false,
+    phoneAction: false,
+    n8nDispatch: false,
+    slackAction: false,
+    responseMonitoring: false,
+  },
+}
+
 describe('OutreachAdminPage deep links', () => {
   beforeEach(() => {
     window.history.replaceState({}, '', '/admin/outreach?tab=leads&id=42')
     vi.stubGlobal('fetch', vi.fn(async (url: string) => {
       if (url.startsWith('/api/admin/outreach/leads/42/relationship-packet')) {
         return Response.json(relationshipPacketResponse)
+      }
+      if (url.startsWith('/api/admin/outreach/batch-review')) {
+        return Response.json(warmBatchReviewResponse)
       }
       if (url.startsWith('/api/admin/outreach/leads')) {
         return Response.json({ leads: [lead], total: 1, page: 1 })
@@ -331,5 +413,37 @@ describe('OutreachAdminPage deep links', () => {
     const actions = screen.getByLabelText('Outreach workroom actions')
     expect(actions).toHaveClass('flex-wrap')
     expect(within(actions).getByRole('button', { name: /Refresh/i })).toBeInTheDocument()
+  })
+
+  it('reviews a selected warm batch in the existing outreach workroom', async () => {
+    const fetchMock = vi.mocked(fetch)
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads')
+
+    render(<OutreachAdminPage />)
+
+    await screen.findByText('Ada Operator')
+    fireEvent.click(screen.getByLabelText('Select all on this page'))
+    fireEvent.click(screen.getByRole('button', { name: /Review 1 selected/i }))
+
+    const batchReview = await screen.findByLabelText('Warm batch review')
+    expect(within(batchReview).getByText('Cohort provenance')).toBeInTheDocument()
+    expect(within(batchReview).getByText('Sample individualized preview')).toBeInTheDocument()
+    expect(within(batchReview).getByText('Provider calls: off')).toBeInTheDocument()
+    expect(within(batchReview).getByText('External send: off')).toBeInTheDocument()
+    expect(within(batchReview).getByText('Full recipient list (1)')).toBeInTheDocument()
+    expect(within(batchReview).getByText('Hi Ada, The warm basis is prior meeting context.')).toBeInTheDocument()
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/admin/outreach/batch-review',
+        expect.objectContaining({
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer admin-token',
+          },
+        }),
+      )
+    })
   })
 })
