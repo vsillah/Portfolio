@@ -189,7 +189,20 @@ describe('ContactDetailPage relationship packet', () => {
               sent_at: '2026-08-26T12:00:00.000Z',
               metadata: {
                 lifecycle: 'warm_outreach_response',
-                response_class: 'interested',
+                response_class: 'interest',
+                recommended_next_action: {
+                  label: 'Review short next-step reply',
+                  description: 'Prepare a concise next-step reply.',
+                  priority: 'high',
+                },
+                approval_gate: {
+                  state: 'pending_human_reply_review',
+                  label: 'Pending: human reply approval',
+                  recoveryPath: 'Approve the local draft in the contact workroom.',
+                },
+                local_draft_recommendation: {
+                  subject: 'Draft reply: interest',
+                },
                 human_qa_required: true,
               },
               created_at: '2026-08-26T12:00:00.000Z',
@@ -213,7 +226,10 @@ describe('ContactDetailPage relationship packet', () => {
     expect(screen.getByText('Draft creation: off')).toBeInTheDocument()
     expect(screen.getByText('Warm response lifecycle')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Capture response/i })).toBeDisabled()
-    expect(await screen.findByText('Warm outreach response: interested')).toBeInTheDocument()
+    expect(await screen.findByText('Recent response sequences')).toBeInTheDocument()
+    expect(screen.getByText('Review short next-step reply')).toBeInTheDocument()
+    expect(screen.getByText('Draft reply: interest')).toBeInTheDocument()
+    expect(screen.getByText('Pending: human reply approval')).toBeInTheDocument()
     expect(screen.getByText('Human QA')).toBeInTheDocument()
 
     await waitFor(() => {

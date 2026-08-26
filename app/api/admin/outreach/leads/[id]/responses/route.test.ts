@@ -61,22 +61,21 @@ function setupSupabase() {
     }
 
     if (table === 'contact_communications') {
-      return {
-        select: () => ({
-          eq: () => ({
-            eq: () => ({
-              eq: () => ({
-                maybeSingle: () => {
-                  commReadCount += 1
-                  return Promise.resolve({
-                    data: commReadCount === 1 ? existingResponse : existingDraft,
-                    error: null,
-                  })
-                },
-              }),
-            }),
-          }),
+      const selectBuilder = {
+        eq: () => selectBuilder,
+        order: () => ({
+          limit: () => Promise.resolve({ data: [], error: null }),
         }),
+        maybeSingle: () => {
+          commReadCount += 1
+          return Promise.resolve({
+            data: commReadCount === 1 ? existingResponse : existingDraft,
+            error: null,
+          })
+        },
+      }
+      return {
+        select: () => selectBuilder,
         insert: (payload: Record<string, unknown>) => {
           insertedCommunications.push(payload)
           return {
@@ -98,12 +97,15 @@ function setupSupabase() {
     }
 
     if (table === 'meeting_action_tasks') {
-      return {
-        select: () => ({
-          eq: () => ({
-            maybeSingle: () => Promise.resolve({ data: existingTask, error: null }),
-          }),
+      const selectBuilder = {
+        eq: () => selectBuilder,
+        order: () => ({
+          limit: () => Promise.resolve({ data: [], error: null }),
         }),
+        maybeSingle: () => Promise.resolve({ data: existingTask, error: null }),
+      }
+      return {
+        select: () => selectBuilder,
         insert: (payload: Record<string, unknown>) => {
           insertedTasks.push(payload)
           return {
@@ -120,16 +122,19 @@ function setupSupabase() {
     }
 
     if (table === 'outreach_queue') {
-      return {
-        select: () => ({
-          eq: () => ({
-            single: () =>
-              Promise.resolve({
-                data: linkedQueueRow,
-                error: linkedQueueRow ? null : { message: 'not found' },
-              }),
-          }),
+      const selectBuilder = {
+        eq: () => selectBuilder,
+        order: () => ({
+          limit: () => Promise.resolve({ data: [], error: null }),
         }),
+        single: () =>
+          Promise.resolve({
+            data: linkedQueueRow,
+            error: linkedQueueRow ? null : { message: 'not found' },
+          }),
+      }
+      return {
+        select: () => selectBuilder,
         update: (payload: Record<string, unknown>) => {
           updatedOutreachRows.push(payload)
           return {
@@ -146,6 +151,18 @@ function setupSupabase() {
             }),
           }
         },
+      }
+    }
+
+    if (table === 'email_messages' || table === 'meeting_records') {
+      return {
+        select: () => ({
+          eq: () => ({
+            order: () => ({
+              limit: () => Promise.resolve({ data: [], error: null }),
+            }),
+          }),
+        }),
       }
     }
 
@@ -180,7 +197,14 @@ describe('POST /api/admin/outreach/leads/[id]/responses', () => {
     expect(response.status).toBe(201)
     const json = await response.json()
     expect(json.outcome).toBe('created')
-    expect(json.decision.responseClass).toBe('interested')
+    expect(json.decision.responseClass).toBe('interest')
+    expect(json.decision.interpretation.recommendedNextAction).toMatchObject({
+      label: 'Review short next-step reply',
+      priority: 'high',
+    })
+    expect(json.decision.approvalGate).toMatchObject({
+      state: 'pending_human_reply_review',
+    })
     expect(json.executionBoundary).toMatchObject({
       providerIngestionEnabled: false,
       externalMonitoringEnabled: false,
@@ -197,6 +221,19 @@ describe('POST /api/admin/outreach/leads/[id]/responses', () => {
       status: 'replied',
       source_system: 'manual',
     })
+    expect(insertedCommunications[0].metadata).toMatchObject({
+      response_class: 'interest',
+      recommended_next_action: expect.objectContaining({
+        label: 'Review short next-step reply',
+      }),
+      approval_gate: expect.objectContaining({
+        state: 'pending_human_reply_review',
+      }),
+      source_use_boundary: expect.objectContaining({
+        portfolioLocalContextOnly: true,
+        privateEvidencePolicy: 'summarize_private_sources_do_not_quote_raw',
+      }),
+    })
     expect(insertedCommunications[1]).toMatchObject({
       direction: 'outbound',
       message_type: 'follow_up',
@@ -209,9 +246,9 @@ describe('POST /api/admin/outreach/leads/[id]/responses', () => {
       task_category: 'outreach',
       status: 'pending',
     })
-    expect(mocks.from.mock.calls.map(([table]) => table)).not.toContain('email_messages')
     expect(mocks.from.mock.calls.map(([table]) => table)).not.toContain('gmail')
     expect(mocks.from.mock.calls.map(([table]) => table)).not.toContain('slack')
+    expect(mocks.from.mock.calls.map(([table]) => table)).not.toContain('n8n')
   })
 
   it('marks a linked outreach queue row replied before creating draft and task rows', async () => {
@@ -312,15 +349,40 @@ describe('POST /api/admin/outreach/leads/[id]/responses', () => {
 
     expect(response.status).toBe(201)
     const json = await response.json()
-    expect(json.decision.responseClass).toBe('unsubscribe_or_do_not_contact')
+    expect(json.decision.responseClass).toBe('unsubscribe_suppression')
     expect(json.suppressionProposal).toMatchObject({
       action: 'mark_do_not_contact',
       requiresHumanApproval: true,
     })
     expect(insertedCommunications[0].metadata).toMatchObject({
       lifecycle: 'warm_outreach_response',
-      response_class: 'unsubscribe_or_do_not_contact',
+      response_class: 'unsubscribe_suppression',
       human_qa_required: true,
+      approval_gate: expect.objectContaining({
+        state: 'blocked_suppression_review',
+      }),
     })
+  })
+
+  it('keeps ambiguous responses blocked with a recovery path and no provider side effects', async () => {
+    const response = await POST(request({
+      channel: 'email',
+      responseText: 'Okay.',
+    }), { params: { id: '42' } })
+
+    expect(response.status).toBe(201)
+    const json = await response.json()
+    expect(json.decision.responseClass).toBe('ambiguous')
+    expect(json.decision.approvalGate).toMatchObject({
+      state: 'blocked_uncertain_review',
+      blockedExternalActions: expect.arrayContaining(['n8n_dispatch', 'provider_monitoring']),
+    })
+    expect(insertedCommunications[0].metadata).toMatchObject({
+      approval_gate: expect.objectContaining({
+        recoveryPath: expect.stringContaining('relationship packet'),
+      }),
+    })
+    expect(mocks.from.mock.calls.map(([table]) => table)).not.toContain('gmail')
+    expect(mocks.from.mock.calls.map(([table]) => table)).not.toContain('slack')
   })
 })
