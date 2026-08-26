@@ -20,7 +20,10 @@ vi.mock('@/lib/supabase', () => ({
 
 import { POST } from './route'
 
-type TableRows = Record<string, unknown[]>
+type TableRows = Record<
+  string,
+  unknown[] | { data: unknown[]; error: { message: string } | null }
+>
 
 function request(body: Record<string, unknown>) {
   return new NextRequest('http://localhost/api/admin/outreach/batch-review', {
@@ -29,17 +32,21 @@ function request(body: Record<string, unknown>) {
   })
 }
 
-function listQuery(data: unknown[]) {
-  const limit = vi.fn(() => Promise.resolve({ data, error: null }))
+function listQuery(data: unknown[], error: { message: string } | null = null) {
+  const limit = vi.fn(() => Promise.resolve({ data, error }))
   const order = vi.fn(() => ({ limit }))
-  const inFilter = vi.fn(() => ({ data, error: null, order, limit }))
+  const inFilter = vi.fn(() => ({ data, error, order, limit }))
   const select = vi.fn(() => ({ in: inFilter }))
   return { select, in: inFilter, order, limit }
 }
 
 function setupRows(rows: TableRows) {
   mocks.from.mockImplementation((table: string) => {
-    if (table in rows) return listQuery(rows[table] ?? [])
+    if (table in rows) {
+      const result = rows[table]
+      if (Array.isArray(result)) return listQuery(result)
+      return listQuery(result.data, result.error)
+    }
     throw new Error(`Unexpected table: ${table}`)
   })
 }
@@ -262,6 +269,32 @@ describe('POST /api/admin/outreach/batch-review', () => {
     expect(mocks.from).toHaveBeenCalledWith('email_messages')
     expect(mocks.from).toHaveBeenCalledWith('meeting_records')
     expect(mocks.from).toHaveBeenCalledWith('meeting_action_tasks')
+  })
+
+  it('fails closed when related relationship evidence cannot be loaded', async () => {
+    setupRows({
+      contact_submissions: [warmLead],
+      contact_communications: [],
+      outreach_queue: {
+        data: [],
+        error: { message: 'permission denied for table outreach_queue' },
+      },
+      email_messages: [],
+      meeting_records: [],
+      meeting_action_tasks: [],
+    })
+
+    const response = await POST(request({ contact_ids: [42] }))
+
+    expect(response.status).toBe(500)
+    const json = await response.json()
+    expect(json).toEqual({
+      error: 'Unable to load warm outreach relationship evidence.',
+      source: 'outreach_queue',
+    })
+    expect(JSON.stringify(json)).not.toContain('permission denied')
+    expect(JSON.stringify(json)).not.toContain('recipients')
+    expect(JSON.stringify(json)).not.toContain('warm_1_to_many')
   })
 
   it('rejects empty or oversized selections with a clear blocker', async () => {

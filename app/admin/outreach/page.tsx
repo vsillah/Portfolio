@@ -1301,16 +1301,21 @@ function OutreachContent() {
                   />
                 )}
                 {selectedLeadIds.size > 0 && (
-                  <div className="sticky top-0 z-10 mb-4 p-3 bg-background/95 border border-silicon-slate rounded-xl flex flex-wrap items-center justify-between gap-3">
-                    <span className="text-sm text-foreground">
-                      {selectedLeadIds.size} lead(s) selected
-                    </span>
-                    <div className="flex flex-wrap items-center gap-2">
+                  <div className="sticky top-0 z-10 mb-4 grid gap-3 rounded-xl border border-silicon-slate bg-background/95 p-3 sm:flex sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                      <span className="block text-sm font-medium text-foreground">
+                        {selectedLeadIds.size} lead(s) selected
+                      </span>
+                      <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                        Review warm batches or enrich selected leads from this existing outreach list.
+                      </p>
+                    </div>
+                    <div className="grid w-full grid-cols-1 gap-2 sm:w-auto sm:grid-cols-none sm:flex sm:flex-wrap sm:items-center">
                       <button
                         type="button"
                         onClick={reviewWarmBatch}
                         disabled={warmBatchReviewLoading || selectedLeadIds.size === 0 || selectedLeadIds.size > 50}
-                        className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-sky-500/35 bg-sky-500/10 px-4 text-sm font-semibold text-sky-100 transition-colors hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-sky-500/35 bg-sky-500/10 px-4 text-sm font-semibold text-sky-100 transition-colors hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                       >
                         {warmBatchReviewLoading ? (
                           <RefreshCw size={15} className="animate-spin" aria-hidden />
@@ -1323,7 +1328,7 @@ function OutreachContent() {
                         type="button"
                         onClick={() => openReviewEnrichModal([...selectedLeadIds])}
                         disabled={pushLoading || selectedLeadIds.size === 0 || selectedLeadIds.size > 50}
-                        className="px-4 py-2 btn-gold text-imperial-navy hover:opacity-90 disabled:opacity-50 rounded-lg font-medium text-sm"
+                        className="min-h-10 w-full rounded-lg px-4 py-2 text-sm font-medium btn-gold text-imperial-navy hover:opacity-90 disabled:opacity-50 sm:w-auto"
                       >
                         {pushLoading ? 'Loading...' : 'Push to Value Evidence'}
                       </button>
@@ -1334,7 +1339,7 @@ function OutreachContent() {
                           setWarmBatchReview(null)
                           setWarmBatchReviewError(null)
                         }}
-                        className="text-sm text-muted-foreground hover:text-foreground"
+                        className="inline-flex min-h-10 w-full items-center justify-center rounded-lg border border-silicon-slate/80 px-3 text-sm text-muted-foreground hover:text-foreground sm:w-auto sm:border-transparent"
                       >
                         Clear selection
                       </button>

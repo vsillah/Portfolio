@@ -27,7 +27,8 @@ await writeFile(htmlPath, `<!doctype html>
       main { max-width: 1120px; margin: 0 auto; padding: 18px 12px 44px; }
       h1, h2, h3, p { margin: 0; }
       h1 { font-size: 22px; line-height: 1.2; margin-bottom: 12px; }
-      .toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; border: 1px solid #1f2937; background: rgba(15, 23, 42, .92); border-radius: 12px; padding: 12px; margin-bottom: 12px; position: sticky; top: 0; z-index: 10; }
+      .toolbar { display: grid; gap: 10px; border: 1px solid #1f2937; background: rgba(15, 23, 42, .92); border-radius: 12px; padding: 12px; margin-bottom: 12px; position: sticky; top: 0; z-index: 10; }
+      .toolbar-actions { display: grid; grid-template-columns: 1fr; gap: 8px; }
       .toolbar strong { font-size: 14px; }
       button { min-height: 40px; border: 1px solid #0ea5e9; border-radius: 8px; background: rgba(14, 165, 233, .14); color: #e0f2fe; font-weight: 700; padding: 8px 12px; font-size: 14px; }
       button.secondary { border-color: #334155; background: rgba(15, 23, 42, .75); color: #cbd5e1; }
@@ -60,6 +61,8 @@ await writeFile(htmlPath, `<!doctype html>
       @media (min-width: 760px) {
         main { padding: 28px 20px 56px; }
         h1 { font-size: 28px; }
+        .toolbar { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+        .toolbar-actions { display: flex; flex-wrap: wrap; }
         .summary { grid-template-columns: repeat(4, 1fr); }
         .lead-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         .recipient { grid-template-columns: minmax(9rem, .75fr) minmax(0, 1fr) minmax(7rem, .45fr); align-items: start; }
@@ -74,7 +77,7 @@ await writeFile(htmlPath, `<!doctype html>
           <strong id="selection">0 selected</strong>
           <p class="muted">Existing lead list selection; no new dashboard surface.</p>
         </div>
-        <div>
+        <div class="toolbar-actions">
           <button id="review">Warm batch review</button>
           <button class="secondary" id="clear">Clear</button>
         </div>

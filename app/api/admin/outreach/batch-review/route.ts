@@ -171,6 +171,24 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const relatedQueryErrors = [
+      { source: 'contact_communications', error: contactCommunicationsRes.error },
+      { source: 'outreach_queue', error: outreachQueueRes.error },
+      { source: 'email_messages', error: emailMessagesRes.error },
+      { source: 'meeting_records', error: meetingSummariesRes.error },
+      { source: 'meeting_action_tasks', error: actionTasksRes.error },
+    ].filter((result) => result.error)
+
+    if (relatedQueryErrors.length > 0) {
+      return NextResponse.json(
+        {
+          error: 'Unable to load warm outreach relationship evidence.',
+          source: relatedQueryErrors[0].source,
+        },
+        { status: 500 },
+      )
+    }
+
     const contacts = Array.isArray(contactsRes.data) ? contactsRes.data as PortfolioRow[] : []
     const foundIds = new Set(contacts.map((contact) => Number(contact.id)))
     const missingIds = contactIds.filter((id) => !foundIds.has(id))
