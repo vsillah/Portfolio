@@ -174,6 +174,29 @@ describe('ContactDetailPage relationship packet', () => {
       if (url === '/api/admin/outreach/leads/42/relationship-packet') {
         return Response.json(relationshipPacketResponse)
       }
+      if (url === '/api/admin/outreach/leads/42/responses') {
+        return Response.json({
+          responses: [
+            {
+              id: 'comm-response-1',
+              channel: 'email',
+              direction: 'inbound',
+              message_type: 'reply',
+              subject: 'Warm outreach response: interested',
+              body: 'Interested in talking next week.',
+              source_id: 'warm-outreach:reply:manual:abc',
+              status: 'replied',
+              sent_at: '2026-08-26T12:00:00.000Z',
+              metadata: {
+                lifecycle: 'warm_outreach_response',
+                response_class: 'interested',
+                human_qa_required: true,
+              },
+              created_at: '2026-08-26T12:00:00.000Z',
+            },
+          ],
+        })
+      }
       return Response.json({ error: 'not found' }, { status: 404 })
     }))
   })
@@ -188,9 +211,18 @@ describe('ContactDetailPage relationship packet', () => {
     expect(screen.getByText('Provider calls: off')).toBeInTheDocument()
     expect(screen.getByText('External send: off')).toBeInTheDocument()
     expect(screen.getByText('Draft creation: off')).toBeInTheDocument()
+    expect(screen.getByText('Warm response lifecycle')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Capture response/i })).toBeDisabled()
+    expect(await screen.findByText('Warm outreach response: interested')).toBeInTheDocument()
+    expect(screen.getByText('Human QA')).toBeInTheDocument()
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith('/api/admin/outreach/leads/42/relationship-packet', {
+        headers: { Authorization: 'Bearer admin-token' },
+      })
+    })
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/admin/outreach/leads/42/responses', {
         headers: { Authorization: 'Bearer admin-token' },
       })
     })

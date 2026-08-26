@@ -265,7 +265,21 @@ Acceptance:
 - suppression failures are visible,
 - no batch send without explicit approval.
 
-### Phase 4: Response Monitoring
+### Phase 4: Response And Follow-Up Lifecycle
+
+Capture warm outreach responses inside the existing contact workroom and communication history. This phase remains internal-only: it can record a manually captured or approved inbound reply, classify it, draft a contextual reply, create a next-touch task, and propose suppression review. It does not activate provider monitoring, Gmail drafts, Slack actions, DMs, sends, or scheduled follow-ups.
+
+Acceptance:
+
+- responses are tied to the contact and optional `outreach_queue` row,
+- response classes include interested, question, referral, objection, not now, unsubscribe / do not contact, negative / sensitive, and ambiguous,
+- reply drafts and next-touch decisions require human QA by default,
+- unsubscribe / do-not-contact replies create a clear human-gated suppression proposal,
+- interested or sales-intent replies expose an outreach task/decision path,
+- duplicate response capture and reply draft generation are idempotent,
+- provider execution remains blocked unless a later explicit provider lane is approved.
+
+### Phase 5: Provider-Assisted Response Monitoring
 
 Reuse Engagement Inbox patterns to classify inbound warm outreach responses and draft replies.
 
@@ -276,7 +290,7 @@ Acceptance:
 - do-not-contact and unsubscribe responses update suppression state,
 - Slack alerts summarize only safe metadata and deep-link back to Portfolio.
 
-### Phase 5: Provider Activation
+### Phase 6: Provider Activation
 
 Enable each channel only after capability proof.
 
