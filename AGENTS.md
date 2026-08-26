@@ -80,6 +80,8 @@ If two lanes both modify the same schema, API contract, shared type model, migra
 
 The integration captain owns merge sequencing, conflict resolution, deployment verification, Supabase migration verification, branch cleanup, and task-thread cleanup. Non-captain worktrees should stop at validated PR-ready state unless explicitly delegated merge authority.
 
+After the Integration Captain records a passing captain review and Vambah approves human QA for a validated product PR, the captain may mark the PR ready, squash-merge it, and proceed through normal deployment verification without asking for a second approval that only restates the merge action. Explicit current approval is still required for production migrations that meet the migration-authorization rule, provider activation, external publishing or scheduling, outreach sends, public replies, destructive actions, credential changes, security or privacy boundary changes, or when Vambah explicitly asks to hold the merge.
+
 ## Portfolio Captain Startup Gate
 
 Before any captain repo, PR, merge, deployment, or migration work, verify both:
@@ -114,6 +116,7 @@ Whenever a Portfolio change reaches Vambah's human QA gate for changed product b
 - Record the behavior on the same preview, staging, production, or production-equivalent route that Vambah is being asked to approve.
 - Show the setup state, the primary action path, blocked or disabled states when relevant, and the expected completion or handoff state.
 - For responsive or mobile workflow changes, include the narrow-width path in the recording or provide a separate mobile-width clip.
+- Deliver the user-facing video artifact as MP4 by default so it renders reliably in Codex and browser review surfaces. WebM may be kept as an intermediate/source capture or used only when MP4 conversion is technically blocked.
 - Keep recordings privacy-safe: use synthetic, fixture, redacted, or already-public data when possible, and avoid exposing secrets, private messages, raw contact details, or unrelated browser/app state.
 - Store or reference the video alongside the PR, captain review comment, QA packet, or handoff summary so the reviewed evidence is durable.
 - Do not ask Vambah for human QA on changed behavior with only automated test output unless video capture is technically blocked; if blocked, state why and provide screenshots plus exact reproduction steps.
