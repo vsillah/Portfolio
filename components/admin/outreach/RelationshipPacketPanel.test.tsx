@@ -93,6 +93,7 @@ function sendReadiness(
         messageVersionKey: `warm-outreach:email-message-version:v1:${mode}`,
         sendQueueIdempotencyKey: `warm-outreach:email-send-queue:v1:${mode}`,
         providerCapabilitySmokeKey: `warm-outreach:gmail-capability-smoke:v1:${mode}`,
+        gmailDraftCreationGateKey: `warm-outreach:gmail-draft-creation-gate:v1:${mode}`,
         submittedEvidenceKey: `warm-outreach:email-submitted-evidence:v1:${mode}`,
         gmailDraftHandoffPacket: {
           version: 'warm-outreach-gmail-draft-handoff/v1',
@@ -147,6 +148,8 @@ function sendReadiness(
           status: 'not_configured',
           label: 'Gmail provider not activated',
           smokeKey: `warm-outreach:gmail-capability-smoke:v1:${mode}`,
+          oauthConfigured: false,
+          connectedProfileAvailable: false,
           providerConfigured: false,
           readOnlySmokeReady: false,
           readOnlySmokeEnabled: false,
@@ -168,12 +171,40 @@ function sendReadiness(
             'Gmail draft creation, send, scheduling, Slack action, and provider calls remain disabled.',
           ],
         },
+        gmailDraftCreationGate: {
+          version: 'warm-outreach-gmail-draft-creation-gate/v1',
+          status: 'provider_smoke_required',
+          label: 'Gmail provider smoke required before draft creation',
+          draftCreationKey: `warm-outreach:gmail-draft-creation-gate:v1:${mode}`,
+          internalHandoffReady: true,
+          providerSmokeStatus: 'not_configured',
+          providerSmokePassed: false,
+          draftCreationAuthority: false,
+          gmailDraftCreationEnabled: false,
+          providerCallsEnabled: false,
+          externalSendEnabled: false,
+          externalSendBlocked: true,
+          blockedReasons: [],
+          requiredGates: [
+            'internal_gmail_draft_handoff',
+            'read_only_gmail_provider_smoke',
+            'gmail_draft_creation_authority',
+            'duplicate_prevention',
+            'external_send_authority_separate_future_gate',
+          ],
+          notes: [
+            'This gate does not create Gmail drafts.',
+            'Draft creation stays disabled even when readiness evidence is complete.',
+            'External send authority remains a separate future gate.',
+          ],
+        },
         duplicatePrevention: {
           scope: 'contact_channel_message_version',
           duplicateDetected: false,
           existingEvidenceIds: [],
           requiredUniqueKeys: [
             `warm-outreach:email-message-version:v1:${mode}`,
+            `warm-outreach:gmail-draft-creation-gate:v1:${mode}`,
             `warm-outreach:email-send-queue:v1:${mode}`,
             `warm-outreach:gmail-capability-smoke:v1:${mode}`,
             `warm-outreach:email-submitted-evidence:v1:${mode}`,
@@ -527,6 +558,10 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Gmail provider smoke')).toBeInTheDocument()
     expect(screen.getAllByText('not configured')).toHaveLength(1)
     expect(screen.getByText('Gmail provider not activated. Provider calls off.')).toBeInTheDocument()
+    expect(screen.getByText('OAuth: missing / Profile: missing.')).toBeInTheDocument()
+    expect(screen.getByText('Gmail draft creation availability')).toBeInTheDocument()
+    expect(screen.getByText('provider smoke required')).toBeInTheDocument()
+    expect(screen.getByText('Gmail provider smoke required before draft creation. Draft creation off. External send blocked.')).toBeInTheDocument()
     expect(screen.getByText('Warm one-to-one')).toBeInTheDocument()
     expect(screen.getByText('Warm one-to-many')).toBeInTheDocument()
     expect(screen.getAllByText('Future eligible')).toHaveLength(4)
