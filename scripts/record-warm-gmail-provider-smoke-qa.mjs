@@ -58,7 +58,7 @@ await writeFile(htmlPath, `<!doctype html>
       <h1>Warm outreach Gmail provider activation readiness</h1>
       <div class="toolbar">
         <strong>Relationship packet loaded</strong>
-        <p class="muted">Operator reviews local handoff evidence, sender readiness, live canary readiness, duplicate evidence, and send blocking as separate gates.</p>
+        <p class="muted">Operator reviews local handoff evidence, sender readiness, no-send canary readiness, Gmail draft tracking, and send blocking as separate gates.</p>
         <button id="review">Review Gmail readiness</button>
       </div>
 
@@ -75,7 +75,7 @@ await writeFile(htmlPath, `<!doctype html>
           <div class="headline">
             <div>
               <h3>Gmail provider activation readiness</h3>
-              <p>Draft readiness, connected sender readiness, live draft canary readiness, duplicate evidence, and send authority stay separate.</p>
+              <p>Draft readiness, connected sender readiness, no-send canary readiness, Gmail draft tracking, and send authority stay separate.</p>
             </div>
             <span class="badge blocked">External send blocked</span>
           </div>
@@ -93,12 +93,13 @@ await writeFile(htmlPath, `<!doctype html>
             <div class="card">
               <h3>Live draft canary readiness</h3>
               <span class="badge good">No-send canary passed</span>
-              <p>Gmail calls: off / Drafts: not created / Tracking: not written.</p>
+              <p>No-send canary: provider calls off / creates draft: no.</p>
             </div>
             <div class="card">
-              <h3>Duplicate draft evidence</h3>
-              <span class="badge blocked">Created once / duplicate blocked</span>
-              <p>Draft: gmail-draft-1 / Thread: gmail-thread-1 / Message: gmail-message-1</p>
+              <h3>Gmail draft tracking</h3>
+              <span class="badge">Gmail draft exists and is tracked</span>
+              <p>Draft: r3600377219184694601 / Thread: 1a043d900ee02b0f / Message: 1a043d900ee02b0f</p>
+              <p>Reuse the saved Gmail draft record. It is tracking evidence only; external send still needs separate approval.</p>
             </div>
           </div>
           <div class="flags">

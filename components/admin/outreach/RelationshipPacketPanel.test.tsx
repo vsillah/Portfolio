@@ -613,8 +613,9 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Connected sender not checked in relationship packet')).toBeInTheDocument()
     expect(screen.getByText('Live draft canary readiness')).toBeInTheDocument()
     expect(screen.getByText('Ready for no-send canary')).toBeInTheDocument()
-    expect(screen.getByText('Duplicate draft evidence')).toBeInTheDocument()
-    expect(screen.getByText('No duplicate draft evidence')).toBeInTheDocument()
+    expect(screen.getByText('No-send canary: provider calls off / creates draft: no')).toBeInTheDocument()
+    expect(screen.getByText('Gmail draft tracking')).toBeInTheDocument()
+    expect(screen.getByText('No tracked Gmail draft')).toBeInTheDocument()
     expect(screen.getByText('captain authorize specific live draft canary')).toBeInTheDocument()
     expect(screen.getByText('explicit per recipient gmail draft authorization')).toBeInTheDocument()
     expect(screen.getByText('separate external send authority')).toBeInTheDocument()
@@ -685,6 +686,62 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText(/Run a no-send canary to confirm the contact/)).toBeInTheDocument()
     expect(screen.getByText(/No-send Gmail draft creation canary passed/)).toBeInTheDocument()
     expect(screen.getByText('Gmail draft: not created / Tracking: not written / External send: blocked.')).toBeInTheDocument()
+    expect(screen.getByText('Draft creation: off')).toBeInTheDocument()
+    expect(screen.getByText('External send: off')).toBeInTheDocument()
+  })
+
+  it('shows tracked Gmail draft evidence without enabling external send authority', () => {
+    const emailItem = packetResponse.responseMonitoring!.sendReadiness.modes.warm_1_to_1
+      .find((item) => item.channel === 'email')!
+    const trackedDraftResponse: RelationshipPacketApiResponse = {
+      ...packetResponse,
+      responseMonitoring: {
+        ...packetResponse.responseMonitoring!,
+        sendReadiness: {
+          ...packetResponse.responseMonitoring!.sendReadiness,
+          modes: {
+            ...packetResponse.responseMonitoring!.sendReadiness.modes,
+            warm_1_to_1: packetResponse.responseMonitoring!.sendReadiness.modes.warm_1_to_1.map((item) => (
+              item.channel === 'email'
+                ? {
+                    ...item,
+                    emailSendLifecycle: {
+                      ...emailItem.emailSendLifecycle!,
+                      gmailProviderActivationReadiness: {
+                        ...emailItem.emailSendLifecycle!.gmailProviderActivationReadiness,
+                        liveDraftCanaryReadiness: {
+                          ...emailItem.emailSendLifecycle!.gmailProviderActivationReadiness.liveDraftCanaryReadiness,
+                          state: 'blocked_no_send',
+                          label: 'No-send canary blocked',
+                          detail: 'Existing Gmail draft metadata is already present; duplicate draft creation remains blocked.',
+                        },
+                        duplicateDraftEvidence: {
+                          createdOnce: true,
+                          duplicatePrevented: true,
+                          draftId: 'r3600377219184694601',
+                          threadId: '1a043d900ee02b0f',
+                          messageId: '1a043d900ee02b0f',
+                          sourceIds: ['outreach_queue:70e2adea-3bfa-4920-8cd9-5531234d8d02'],
+                          noSendStatus: 'no_send',
+                          detail: 'Existing Gmail draft metadata is present.',
+                        },
+                      },
+                    },
+                  }
+                : item
+            )),
+          },
+        },
+      },
+    }
+
+    render(<RelationshipPacketPanel loading={false} error={null} data={trackedDraftResponse} />)
+
+    expect(screen.getByText('Gmail draft exists and is tracked')).toBeInTheDocument()
+    expect(screen.getByText(/Draft: r3600377219184694601 \/ Thread: 1a043d900ee02b0f \/ Message: 1a043d900ee02b0f/)).toBeInTheDocument()
+    expect(screen.getByText(/tracking evidence only; external send still needs separate approval/i)).toBeInTheDocument()
+    expect(screen.getByText('External send blocked')).toBeInTheDocument()
+    expect(screen.getByText('separate external send authority')).toBeInTheDocument()
     expect(screen.getByText('Draft creation: off')).toBeInTheDocument()
     expect(screen.getByText('External send: off')).toBeInTheDocument()
   })

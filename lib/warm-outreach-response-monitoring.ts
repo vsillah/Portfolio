@@ -383,7 +383,10 @@ function bool(value: unknown): boolean {
 }
 
 function metadata(row: PortfolioRow): PortfolioRow {
-  const value = row.metadata
+  return record(row.metadata)
+}
+
+function record(value: unknown): PortfolioRow {
   return value && typeof value === 'object' && !Array.isArray(value)
     ? value as PortfolioRow
     : {}
@@ -594,16 +597,20 @@ function metadataValue(row: PortfolioRow, key: string): unknown {
 }
 
 function nestedMetadata(row: PortfolioRow, key: string): PortfolioRow {
-  const value = metadata(row)[key]
-  return value && typeof value === 'object' && !Array.isArray(value)
-    ? value as PortfolioRow
-    : {}
+  return record(metadata(row)[key])
 }
 
 function firstGmailDraftEvidence(rows: PortfolioRow[]): WarmOutreachGmailProviderActivationReadiness['duplicateDraftEvidence'] {
   for (const row of rows) {
-    const draftCreation = nestedMetadata(row, 'gmail_draft_creation')
-    const authorization = nestedMetadata(row, 'warm_outreach_gmail_draft_authorization')
+    const generationInputs = record(row.generation_inputs)
+    const draftCreation = {
+      ...record(generationInputs.gmail_draft_creation),
+      ...nestedMetadata(row, 'gmail_draft_creation'),
+    }
+    const authorization = {
+      ...record(generationInputs.warm_outreach_gmail_draft_authorization),
+      ...nestedMetadata(row, 'warm_outreach_gmail_draft_authorization'),
+    }
     const draftId =
       text(metadataValue(row, 'gmail_user_draft_id')) ??
       text(metadataValue(row, 'gmail_draft_id')) ??

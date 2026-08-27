@@ -199,11 +199,12 @@ function ActivationReadinessPacket({
 }) {
   if (!readiness) return null
   const duplicate = readiness.duplicateDraftEvidence
-  const duplicateLabel = duplicate.createdOnce
-    ? duplicate.duplicatePrevented
-      ? 'Created once / duplicate blocked'
-      : 'Created once'
-    : 'No duplicate draft evidence'
+  const trackingLabel = duplicate.createdOnce
+    ? 'Gmail draft exists and is tracked'
+    : 'No tracked Gmail draft'
+  const trackingDetail = duplicate.createdOnce
+    ? 'Reuse the saved Gmail draft record. It is tracking evidence only; external send still needs separate approval.'
+    : 'No Gmail draft tracking is recorded for this contact, channel, and message version.'
 
   return (
     <div className="mt-2 rounded-md border border-sky-500/25 bg-sky-500/10 p-2 text-sky-50">
@@ -234,14 +235,15 @@ function ActivationReadinessPacket({
         <div className={`rounded-md border p-2 ${activationStepClasses(readiness.liveDraftCanaryReadiness.state)}`}>
           <p className="text-[10px] font-semibold uppercase tracking-wide">Live draft canary readiness</p>
           <p className="mt-1 text-[11px] leading-4">{readiness.liveDraftCanaryReadiness.label}</p>
-          <p className="mt-1 text-[10px] leading-4 opacity-80">Gmail calls: off / Drafts: not created</p>
+          <p className="mt-1 text-[10px] leading-4 opacity-80">No-send canary: provider calls off / creates draft: no</p>
         </div>
-        <div className={`rounded-md border p-2 ${duplicate.createdOnce ? 'border-red-500/25 bg-red-500/10 text-red-100' : 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'}`}>
-          <p className="text-[10px] font-semibold uppercase tracking-wide">Duplicate draft evidence</p>
-          <p className="mt-1 text-[11px] leading-4">{duplicateLabel}</p>
+        <div className={`rounded-md border p-2 ${duplicate.createdOnce ? 'border-amber-500/25 bg-amber-500/10 text-amber-100' : 'border-silicon-slate bg-background/25 text-muted-foreground'}`}>
+          <p className="text-[10px] font-semibold uppercase tracking-wide">Gmail draft tracking</p>
+          <p className="mt-1 text-[11px] leading-4">{trackingLabel}</p>
           <p className="mt-1 break-all text-[10px] leading-4 opacity-80">
             Draft: {duplicate.draftId ?? 'none'} / Thread: {duplicate.threadId ?? 'none'} / Message: {duplicate.messageId ?? 'none'}
           </p>
+          <p className="mt-1 text-[10px] leading-4 opacity-80">{trackingDetail}</p>
         </div>
       </div>
       <div className="mt-2 flex flex-wrap gap-1.5">
