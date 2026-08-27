@@ -198,6 +198,53 @@ function sendReadiness(
             'External send authority remains a separate future gate.',
           ],
         },
+        gmailProviderActivationReadiness: {
+          version: 'warm-outreach-gmail-provider-activation-readiness/v1',
+          localDraftReadiness: {
+            state: 'ready',
+            label: 'Local draft handoff ready',
+            detail: 'Operator can review the internal Gmail draft handoff packet; Gmail draft creation and send stay blocked.',
+            idempotencyKey: `warm-outreach:gmail-draft-handoff:v1:${mode}`,
+          },
+          connectedSenderReadiness: {
+            state: 'requires_no_send_canary',
+            label: 'Connected sender not checked in relationship packet',
+            requiredSender: null,
+            connectedAs: null,
+            recoveryAction: 'Run the no-send canary or open Admin Credentials to verify the connected Gmail sender before any live draft canary request.',
+          },
+          liveDraftCanaryReadiness: {
+            state: 'ready_for_no_send_canary',
+            label: 'Ready for no-send canary',
+            detail: 'The operator may run the no-send canary. It verifies local readiness and connected sender gates without calling Gmail.',
+            providerCallsEnabled: false,
+            gmailDraftCreated: false,
+            trackingPersisted: false,
+            externalSendEnabled: false,
+          },
+          duplicateDraftEvidence: {
+            createdOnce: false,
+            duplicatePrevented: false,
+            draftId: null,
+            threadId: null,
+            messageId: null,
+            sourceIds: [],
+            noSendStatus: 'no_send',
+            detail: 'No prior Gmail draft metadata was found in local Portfolio rows for this contact/channel/message path.',
+          },
+          externalSendBoundary: {
+            blocked: true,
+            label: 'External send blocked',
+            detail: 'Gmail draft creation and Gmail send authority are separate gates. A draft, smoke, or canary never authorizes sending.',
+          },
+          remainingHumanGates: [
+            'review_local_draft_handoff_packet',
+            'verify_connected_sender_identity',
+            'captain_authorize_specific_live_draft_canary',
+            'explicit_per_recipient_gmail_draft_authorization',
+            'separate_external_send_authority',
+          ],
+        },
         duplicatePrevention: {
           scope: 'contact_channel_message_version',
           duplicateDetected: false,
@@ -559,6 +606,18 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getAllByText('not configured')).toHaveLength(1)
     expect(screen.getByText('Gmail provider not activated. Provider calls off.')).toBeInTheDocument()
     expect(screen.getByText('OAuth: missing / Profile: missing.')).toBeInTheDocument()
+    expect(screen.getByText('Gmail provider activation readiness')).toBeInTheDocument()
+    expect(screen.getByText('Local draft readiness')).toBeInTheDocument()
+    expect(screen.getByText('Local draft handoff ready')).toBeInTheDocument()
+    expect(screen.getByText('Connected sender readiness')).toBeInTheDocument()
+    expect(screen.getByText('Connected sender not checked in relationship packet')).toBeInTheDocument()
+    expect(screen.getByText('Live draft canary readiness')).toBeInTheDocument()
+    expect(screen.getByText('Ready for no-send canary')).toBeInTheDocument()
+    expect(screen.getByText('Duplicate draft evidence')).toBeInTheDocument()
+    expect(screen.getByText('No duplicate draft evidence')).toBeInTheDocument()
+    expect(screen.getByText('captain authorize specific live draft canary')).toBeInTheDocument()
+    expect(screen.getByText('explicit per recipient gmail draft authorization')).toBeInTheDocument()
+    expect(screen.getByText('separate external send authority')).toBeInTheDocument()
     expect(screen.getByText('Gmail draft creation availability')).toBeInTheDocument()
     expect(screen.getByText('provider smoke required')).toBeInTheDocument()
     expect(screen.getByText('Gmail provider smoke required before draft creation. Draft creation off. External send blocked.')).toBeInTheDocument()

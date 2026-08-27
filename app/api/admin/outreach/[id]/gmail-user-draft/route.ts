@@ -131,6 +131,30 @@ function existingDraftEvidence(
   return null
 }
 
+function duplicateDraftResponse(input: {
+  draftId: string | null
+  messageId: string | null
+  threadId: string | null
+  communicationId: string | null
+  idempotencyKey: string
+  duplicatePrevented: boolean
+}) {
+  return {
+    duplicateDraftEvidence: {
+      createdOnce: Boolean(input.draftId || input.messageId || input.threadId),
+      duplicatePrevented: input.duplicatePrevented,
+      draftId: input.draftId,
+      messageId: input.messageId,
+      threadId: input.threadId,
+      communicationId: input.communicationId,
+      idempotencyKey: input.idempotencyKey,
+      noSendStatus: 'no_send',
+    },
+    externalSendBlocked: true,
+    externalSendEnabled: false,
+  }
+}
+
 function parseBody(raw: unknown): RequestBody {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {}
   const o = raw as Record<string, unknown>
@@ -469,7 +493,14 @@ export async function POST(
         messageId: existing?.messageId ?? item.message_id ?? null,
         communicationId: existing?.communicationId ?? null,
         idempotencyKey: expectedIdempotencyKey,
-        externalSendBlocked: true,
+        ...duplicateDraftResponse({
+          draftId: existing?.draftId ?? null,
+          threadId: existing?.threadId ?? item.thread_id ?? null,
+          messageId: existing?.messageId ?? item.message_id ?? null,
+          communicationId: existing?.communicationId ?? null,
+          idempotencyKey: expectedIdempotencyKey,
+          duplicatePrevented: true,
+        }),
       })
     }
 
@@ -600,10 +631,19 @@ export async function POST(
       message:
         'Draft saved in Gmail for review. No email was sent; sending remains blocked.',
       draftId: draft.id,
+      messageId: draft.messageId ?? null,
       threadId: draft.threadId,
       openGmailUrl: 'https://mail.google.com/mail/#drafts',
       idempotencyKey: expectedIdempotencyKey,
-      externalSendBlocked: true,
+      gmailDraftCreated: true,
+      ...duplicateDraftResponse({
+        draftId: draft.id,
+        messageId: draft.messageId ?? null,
+        threadId: draft.threadId,
+        communicationId: null,
+        idempotencyKey: expectedIdempotencyKey,
+        duplicatePrevented: false,
+      }),
     })
   } catch (error) {
     console.error('POST /api/admin/outreach/[id]/gmail-user-draft:', error)
