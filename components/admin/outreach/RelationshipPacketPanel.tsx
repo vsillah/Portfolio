@@ -196,17 +196,28 @@ function activationStepClasses(state: string) {
 }
 
 function realRecipientRolloutClasses(state: WarmOutreachRealRecipientGmailRolloutReadiness['state']) {
-  if (state === 'ready_for_send_request') return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100'
+  if (state === 'ready_for_send_request' || state === 'eligible_for_execution') {
+    return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100'
+  }
   if (state === 'authorization_recorded_execution_blocked') return 'border-sky-500/30 bg-sky-500/10 text-sky-100'
   if (state === 'already_sent') return 'border-silicon-slate bg-silicon-slate/25 text-muted-foreground'
   return 'border-red-500/30 bg-red-500/10 text-red-100'
 }
 
 function rolloutRequirementClasses(state: string) {
-  if (state === 'tracked' || state === 'matched' || state === 'clear' || state === 'configured') {
+  if (
+    state === 'tracked' ||
+    state === 'matched' ||
+    state === 'clear' ||
+    state === 'configured' ||
+    state === 'eligible_for_execution' ||
+    state === 'sent'
+  ) {
     return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
   }
-  if (state === 'approved') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  if (state === 'approved' || state === 'approved_for_send' || state === 'approval_requested') {
+    return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  }
   if (state === 'missing') return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
   return 'border-red-500/25 bg-red-500/10 text-red-100'
 }
@@ -285,12 +296,15 @@ function RealRecipientRolloutCard({
     ['Suppression', readiness.requirements.suppression.state],
     ['Provider', readiness.requirements.provider.state],
     ['Authorization', readiness.requirements.authorization.state],
+    ['Execution', readiness.requirements.execution.state],
     ['Submitted evidence', readiness.requirements.submittedEvidence.state],
   ] as const
   const primaryDetail =
     readiness.blockers[0] ??
     (readiness.state === 'ready_for_send_request'
       ? readiness.requirements.authorization.detail
+      : readiness.state === 'eligible_for_execution'
+        ? readiness.requirements.execution.detail
       : readiness.state === 'authorization_recorded_execution_blocked'
         ? 'Execution still requires the captain to enable the production flag and call the exact per-recipient send route.'
         : readiness.requirements.submittedEvidence.detail)
@@ -302,6 +316,8 @@ function RealRecipientRolloutCard({
           <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide">
             {readiness.state === 'ready_for_send_request' ? (
               <ShieldCheck size={14} aria-hidden />
+            ) : readiness.state === 'eligible_for_execution' ? (
+              <CheckCircle2 size={14} aria-hidden />
             ) : (
               <ShieldAlert size={14} aria-hidden />
             )}
@@ -339,6 +355,9 @@ function RealRecipientRolloutCard({
         </p>
         <p>
           Exact execution still needs per-recipient authorization and captain flag.
+        </p>
+        <p>
+          Operator state: {readiness.requirements.execution.state.replace(/_/g, ' ')}.
         </p>
       </div>
       <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">

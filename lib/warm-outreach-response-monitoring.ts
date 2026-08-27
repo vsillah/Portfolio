@@ -266,6 +266,7 @@ export type WarmOutreachRealRecipientGmailRolloutReadiness = {
   state:
     | 'ready_for_send_request'
     | 'authorization_recorded_execution_blocked'
+    | 'eligible_for_execution'
     | 'blocked'
     | 'already_sent'
   label: string
@@ -308,6 +309,18 @@ export type WarmOutreachRealRecipientGmailRolloutReadiness = {
     }
     submittedEvidence: {
       state: 'missing' | 'submitted'
+      sourceIds: string[]
+      detail: string
+    }
+    execution: {
+      state:
+        | 'approval_needed'
+        | 'approval_requested'
+        | 'approved_for_send'
+        | 'eligible_for_execution'
+        | 'sent'
+        | 'blocked'
+        | 'failed'
       sourceIds: string[]
       detail: string
     }
@@ -904,8 +917,7 @@ function firstSubmittedWarmGmailEvidence(rows: PortfolioRow[], input: {
       executionStatus === 'sent' ||
       execution.gmail_send_called === true ||
       execution.external_send_performed === true ||
-      submittedEvidenceKey === input.submittedEvidenceKey ||
-      sendQueueKey === input.sendQueueIdempotencyKey && executionStatus === 'sent'
+      (sendQueueKey === input.sendQueueIdempotencyKey && executionStatus === 'sent')
 
     if (submitted) sourceIds.push(sourceId(row, 'submitted-gmail-send-evidence'))
   }
@@ -913,6 +925,70 @@ function firstSubmittedWarmGmailEvidence(rows: PortfolioRow[], input: {
   return {
     submitted: sourceIds.length > 0,
     sourceIds: [...new Set(sourceIds)],
+  }
+}
+
+function firstWarmGmailExecutionState(rows: PortfolioRow[], input: {
+  sendQueueIdempotencyKey: string
+  submittedEvidenceKey: string
+}) {
+  for (const row of rows) {
+    const generationInputs = record(row.generation_inputs)
+    const execution = {
+      ...record(generationInputs.warm_gmail_send_execution),
+      ...nestedMetadata(row, 'warm_gmail_send_execution'),
+    }
+    const executionStatus = text(execution.status)?.toLowerCase()
+    const submittedEvidenceKey = text(execution.submitted_evidence_key)
+    const sendQueueKey =
+      text(execution.send_queue_idempotency_key) ??
+      text(execution.idempotency_key)
+    const matchesScope =
+      submittedEvidenceKey === input.submittedEvidenceKey ||
+      sendQueueKey === input.sendQueueIdempotencyKey
+    if (!matchesScope || !executionStatus) continue
+
+    const evidenceSource = sourceId(row, 'warm-gmail-send-execution')
+    if (
+      executionStatus === 'failed' ||
+      executionStatus === 'failed_provider_call' ||
+      executionStatus === 'failed_before_provider_call' ||
+      executionStatus === 'tracking_failed_after_send'
+    ) {
+      return {
+        state: 'failed' as const,
+        sourceIds: [evidenceSource],
+        detail: text(execution.failure_reason) ??
+          'A prior execution attempt failed. Repair the failure before another send attempt.',
+      }
+    }
+    if (executionStatus === 'sent') {
+      return {
+        state: 'sent' as const,
+        sourceIds: [evidenceSource],
+        detail: 'Portfolio has sent execution evidence for this recipient and message version.',
+      }
+    }
+    if (executionStatus === 'eligible_for_execution') {
+      return {
+        state: 'eligible_for_execution' as const,
+        sourceIds: [evidenceSource],
+        detail: 'Portfolio verified approval, draft, sender, suppression, and idempotency evidence. Gmail remains unsent until the exact execution gate is enabled and submitted.',
+      }
+    }
+    if (executionStatus === 'sending') {
+      return {
+        state: 'eligible_for_execution' as const,
+        sourceIds: [evidenceSource],
+        detail: 'Portfolio already has an active execution claim for this recipient and message version. Do not submit a duplicate.',
+      }
+    }
+  }
+
+  return {
+    state: null,
+    sourceIds: [] as string[],
+    detail: null as string | null,
   }
 }
 
@@ -933,6 +1009,7 @@ function buildRealRecipientGmailRolloutReadiness(args: {
   const authorization = firstWarmGmailAuthorization(args.localEmailRows)
   const slackApprovalRequest = firstWarmGmailSlackApprovalRequest(args.localEmailRows)
   const submitted = firstSubmittedWarmGmailEvidence(args.localEmailRows, args.lifecycle)
+  const execution = firstWarmGmailExecutionState(args.localEmailRows, args.lifecycle)
   const hasDraftEvidence = Boolean(draft.draftId || draft.threadId || draft.messageId)
   const senderState: WarmOutreachRealRecipientGmailRolloutReadiness['requirements']['senderMatch']['state'] =
     !draft.requiredSender || !draft.connectedAs
@@ -960,21 +1037,42 @@ function buildRealRecipientGmailRolloutReadiness(args: {
         ? 'Prior send authorization requested revision; update the draft before approval.'
         : null,
   ].filter(Boolean) as string[]
+  const executionState:
+    WarmOutreachRealRecipientGmailRolloutReadiness['requirements']['execution']['state'] =
+      submitted.submitted
+        ? 'sent'
+        : execution.state === 'failed'
+          ? 'failed'
+          : blockers.length > 0
+            ? 'blocked'
+            : execution.state === 'eligible_for_execution'
+              ? 'eligible_for_execution'
+              : authorizationState === 'approved'
+                ? 'approved_for_send'
+                : slackApprovalRequest.status === 'pending'
+                  ? 'approval_requested'
+                  : 'approval_needed'
 
   const state: WarmOutreachRealRecipientGmailRolloutReadiness['state'] =
     submitted.submitted
       ? 'already_sent'
-      : blockers.length > 0
+      : execution.state === 'failed'
         ? 'blocked'
-        : authorizationState === 'approved'
-          ? 'authorization_recorded_execution_blocked'
-          : 'ready_for_send_request'
+        : blockers.length > 0
+          ? 'blocked'
+          : execution.state === 'eligible_for_execution'
+            ? 'eligible_for_execution'
+            : authorizationState === 'approved'
+              ? 'authorization_recorded_execution_blocked'
+              : 'ready_for_send_request'
   const actionLabel =
     state === 'already_sent'
       ? 'Do not resend'
       : state === 'blocked'
         ? 'Resolve blocker'
-        : state === 'authorization_recorded_execution_blocked'
+        : state === 'eligible_for_execution'
+          ? 'Ready for exact execution gate'
+          : state === 'authorization_recorded_execution_blocked'
           ? 'Captain can run exact execution gate'
           : 'Approve send request'
   const exactNextAction: WarmOutreachRealRecipientGmailRolloutReadiness['exactNextAction'] =
@@ -982,7 +1080,7 @@ function buildRealRecipientGmailRolloutReadiness(args: {
       ? 'do_not_send_duplicate'
       : state === 'blocked'
         ? 'resolve_blocker'
-        : state === 'authorization_recorded_execution_blocked'
+        : state === 'eligible_for_execution' || state === 'authorization_recorded_execution_blocked'
           ? 'captain_enable_exact_execution'
           : 'approve_send_request'
 
@@ -994,9 +1092,11 @@ function buildRealRecipientGmailRolloutReadiness(args: {
         ? 'Real Gmail send already recorded'
         : state === 'blocked'
           ? 'Real Gmail send request blocked'
-          : state === 'authorization_recorded_execution_blocked'
-            ? 'Send authorization recorded; execution still gated'
-            : 'Ready for one-step send approval request',
+          : state === 'eligible_for_execution'
+            ? 'Eligible for exact send execution'
+            : state === 'authorization_recorded_execution_blocked'
+              ? 'Send authorization recorded; execution still gated'
+              : 'Ready for one-step send approval request',
     eligibleForSendApprovalRequest: state === 'ready_for_send_request',
     canBuildSlackApprovalPayload: state === 'ready_for_send_request',
     exactNextAction,
@@ -1052,6 +1152,24 @@ function buildRealRecipientGmailRolloutReadiness(args: {
         detail: submitted.submitted
           ? 'Submitted Gmail send evidence already exists. Do not replay this message.'
           : 'No submitted send evidence is recorded for this contact, channel, and message version.',
+      },
+      execution: {
+        state: executionState,
+        sourceIds: execution.sourceIds,
+        detail:
+          executionState === 'sent'
+            ? 'Sent evidence is recorded. Do not resend.'
+            : executionState === 'failed'
+              ? execution.detail ?? 'Execution failed. Repair the failed state before another attempt.'
+              : executionState === 'blocked'
+                ? blockers[0] ?? 'Resolve blockers before execution eligibility.'
+                : executionState === 'eligible_for_execution'
+                  ? execution.detail ?? 'Portfolio has prepared exact execution eligibility evidence. Gmail remains unsent until the execution gate is explicitly enabled and submitted.'
+                  : executionState === 'approved_for_send'
+                    ? 'Portfolio approval evidence matches this contact, queue row, and message version. Record the local execution eligibility receipt before any send.'
+                    : executionState === 'approval_requested'
+                      ? 'Approval has been requested for this exact recipient/message. Wait for Portfolio approval before execution eligibility.'
+                      : 'No send approval is recorded yet. Build the one-recipient approval request first.',
       },
     },
     blockers: [...new Set(blockers)],
