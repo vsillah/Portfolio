@@ -381,7 +381,6 @@ describe('POST /api/admin/outreach/[id]/gmail-user-send', () => {
       },
     })
     expect(updatePayloads[0]).toMatchObject({
-      status: 'queued',
       generation_inputs: {
         warm_gmail_send_execution: expect.objectContaining({
           status: 'sending',

@@ -622,7 +622,6 @@ export async function POST(
     const claimRes = await supabaseAdmin
       .from('outreach_queue')
       .update({
-        status: 'queued',
         generation_inputs: {
           ...generationInputs,
           warm_gmail_send_execution: claim,
