@@ -81,6 +81,70 @@ export type WarmOutreachEmailSendLifecycleStage = {
   externalExecutionEnabled: false
 }
 
+export type WarmOutreachGmailDraftHandoffPacket = {
+  version: 'warm-outreach-gmail-draft-handoff/v1'
+  state: 'ready_for_internal_handoff' | 'blocked' | 'per_recipient_gate_required'
+  label: string
+  internalHandoffReady: boolean
+  channel: 'email'
+  contactReference: {
+    contactId: number
+    contactName: string | null
+    reference: string
+  }
+  messageVersionKey: string
+  templateDraftBasis: {
+    recommendedTemplate: WarmOutreachReadiness['recommendedTemplate']
+    selectedChannel: WarmOutreachReadiness['selectedChannel']
+    relationshipEventId: string | null
+    detail: string
+  }
+  provenanceSummary: {
+    relationshipSourceCount: number
+    relationshipSignalCount: number
+    safeToMentionCount: number
+    summarizeOnlyCount: number
+    commonalityCount: number
+    detail: string
+  }
+  suppressionStatus: 'clear' | 'blocked'
+  suppressionReasons: string[]
+  idempotencyKey: string
+  futureApprovalGates: string[]
+  gmailProviderActivated: false
+  gmailDraftCreationEnabled: false
+  providerCallsEnabled: false
+  externalSendBlocked: true
+  detail: string
+}
+
+export type WarmOutreachGmailProviderCapabilitySmokeState =
+  | 'not_configured'
+  | 'ready_for_read_only_smoke'
+  | 'smoke_passed'
+  | 'smoke_failed'
+  | 'blocked'
+
+export type WarmOutreachGmailProviderCapabilitySmokeReadiness = {
+  version: 'warm-outreach-gmail-provider-smoke/v1'
+  provider: 'gmail'
+  status: WarmOutreachGmailProviderCapabilitySmokeState
+  label: string
+  smokeKey: string
+  providerConfigured: boolean
+  readOnlySmokeReady: boolean
+  readOnlySmokeEnabled: false
+  providerCallsEnabled: false
+  externalSendEnabled: false
+  gmailDraftCreationEnabled: false
+  requiredConfig: string[]
+  blockedReasons: string[]
+  lastSmokeAt: string | null
+  lastSmokeError: string | null
+  futureActivationGate: string
+  notes: string[]
+}
+
 export type WarmOutreachEmailSendLifecycle = {
   version: 'warm-outreach-email-send-lifecycle/v1'
   contactId: number
@@ -101,6 +165,8 @@ export type WarmOutreachEmailSendLifecycle = {
   sendQueueIdempotencyKey: string
   providerCapabilitySmokeKey: string
   submittedEvidenceKey: string
+  gmailDraftHandoffPacket: WarmOutreachGmailDraftHandoffPacket
+  providerCapabilitySmoke: WarmOutreachGmailProviderCapabilitySmokeReadiness
   duplicatePrevention: {
     scope: 'contact_channel_message_version'
     duplicateDetected: boolean
@@ -448,6 +514,144 @@ function isBatchModeGateBlocker(blocker: string): boolean {
   )
 }
 
+export function buildWarmOutreachGmailProviderCapabilitySmokeReadiness(args: {
+  smokeKey: string
+  providerConfigured?: boolean
+  readOnlySmokeAuthority?: boolean
+  blockedReasons?: string[]
+  lastSmokeStatus?: Extract<WarmOutreachGmailProviderCapabilitySmokeState, 'smoke_passed' | 'smoke_failed'> | null
+  lastSmokeAt?: string | null
+  lastSmokeError?: string | null
+}): WarmOutreachGmailProviderCapabilitySmokeReadiness {
+  const providerConfigured = args.providerConfigured === true
+  const blockedReasons = [...new Set(args.blockedReasons ?? [])]
+  const status: WarmOutreachGmailProviderCapabilitySmokeState =
+    blockedReasons.length > 0
+      ? 'blocked'
+      : args.lastSmokeStatus ?? (
+          providerConfigured && args.readOnlySmokeAuthority === true
+            ? 'ready_for_read_only_smoke'
+            : 'not_configured'
+        )
+
+  return {
+    version: 'warm-outreach-gmail-provider-smoke/v1',
+    provider: 'gmail',
+    status,
+    label:
+      status === 'ready_for_read_only_smoke'
+        ? 'Ready for read-only Gmail smoke'
+        : status === 'smoke_passed'
+          ? 'Read-only Gmail smoke passed'
+          : status === 'smoke_failed'
+            ? 'Read-only Gmail smoke failed'
+            : status === 'blocked'
+              ? 'Gmail smoke blocked'
+              : 'Gmail provider not activated',
+    smokeKey: args.smokeKey,
+    providerConfigured,
+    readOnlySmokeReady: status === 'ready_for_read_only_smoke',
+    readOnlySmokeEnabled: false,
+    providerCallsEnabled: false,
+    externalSendEnabled: false,
+    gmailDraftCreationEnabled: false,
+    requiredConfig: [
+      'Gmail OAuth configuration',
+      'Connected Gmail profile',
+      'Future explicit read-only smoke authority',
+    ],
+    blockedReasons,
+    lastSmokeAt: args.lastSmokeAt ?? null,
+    lastSmokeError: status === 'smoke_failed' ? args.lastSmokeError ?? 'Read-only smoke failed.' : null,
+    futureActivationGate:
+      'A later captain-lane approval must authorize any Gmail provider smoke; this scaffold records readiness only.',
+    notes: [
+      'This model does not call Gmail.',
+      'Read-only smoke readiness is separate from Gmail draft creation and external send authority.',
+      'Gmail draft creation, send, scheduling, Slack action, and provider calls remain disabled.',
+    ],
+  }
+}
+
+function buildGmailDraftHandoffPacket(args: {
+  contactId: number
+  packet: WarmOutreachRelationshipPacket
+  readiness: WarmOutreachReadiness
+  mode: WarmOutreachSendMode
+  messageVersionKey: string
+  handoffIdempotencyKey: string
+  draftPacketReady: boolean
+  relationshipSourceCount: number
+  safeToMentionCount: number
+  summarizeOnlyCount: number
+  commonalityCount: number
+  suppressionReasons: string[]
+}): WarmOutreachGmailDraftHandoffPacket {
+  const state: WarmOutreachGmailDraftHandoffPacket['state'] =
+    args.draftPacketReady
+      ? args.mode === 'warm_1_to_many'
+        ? 'per_recipient_gate_required'
+        : 'ready_for_internal_handoff'
+      : 'blocked'
+  const contactName = text(args.packet.contactName) ?? null
+
+  return {
+    version: 'warm-outreach-gmail-draft-handoff/v1',
+    state,
+    label:
+      state === 'ready_for_internal_handoff'
+        ? 'Internal Gmail draft handoff ready'
+        : state === 'per_recipient_gate_required'
+          ? 'Internal draft handoff is per-recipient only'
+          : 'Internal Gmail draft handoff blocked',
+    internalHandoffReady: state !== 'blocked',
+    channel: 'email',
+    contactReference: {
+      contactId: args.contactId,
+      contactName,
+      reference: `contact_submission:${args.contactId}${contactName ? `:${contactName}` : ''}`,
+    },
+    messageVersionKey: args.messageVersionKey,
+    templateDraftBasis: {
+      recommendedTemplate: args.readiness.recommendedTemplate,
+      selectedChannel: args.readiness.selectedChannel,
+      relationshipEventId: args.packet.relationshipEventId ?? null,
+      detail: `Use ${args.readiness.recommendedTemplate.replace(/_/g, ' ')} as the internal draft basis for the current message version.`,
+    },
+    provenanceSummary: {
+      relationshipSourceCount: args.relationshipSourceCount,
+      relationshipSignalCount: args.packet.relationshipSignals.length,
+      safeToMentionCount: args.safeToMentionCount,
+      summarizeOnlyCount: args.summarizeOnlyCount,
+      commonalityCount: args.commonalityCount,
+      detail: hasSourceProvenance(args.packet)
+        ? 'Portfolio-local relationship provenance is summarized for the handoff packet.'
+        : 'Relationship provenance is missing or only uses the contact record.',
+    },
+    suppressionStatus: args.suppressionReasons.length > 0 ? 'blocked' : 'clear',
+    suppressionReasons: args.suppressionReasons,
+    idempotencyKey: args.handoffIdempotencyKey,
+    futureApprovalGates: [
+      'human_reply_or_draft_approval',
+      'provider_capability_smoke',
+      'gmail_draft_creation_authority',
+      'external_send_authority',
+      'send_scheduling',
+      'submitted_sent_evidence',
+    ],
+    gmailProviderActivated: false,
+    gmailDraftCreationEnabled: false,
+    providerCallsEnabled: false,
+    externalSendBlocked: true,
+    detail:
+      state === 'blocked'
+        ? 'Resolve relationship, provenance, personalization, suppression, or duplicate blockers before handoff.'
+        : state === 'per_recipient_gate_required'
+          ? 'Batch review can prepare handoff evidence only one recipient at a time; no batch Gmail drafts can be created.'
+          : 'Operator can review the internal Gmail draft handoff packet; Gmail draft creation and send stay blocked.',
+  }
+}
+
 function buildEmailSendLifecycle(args: {
   contactId: number
   packet: WarmOutreachRelationshipPacket
@@ -491,6 +695,11 @@ function buildEmailSendLifecycle(args: {
     channel: 'email',
     messageVersionKey,
   })}`
+  const gmailDraftHandoffKey = `warm-outreach:gmail-draft-handoff:v1:${stableHash({
+    contactId: args.contactId,
+    channel: 'email',
+    messageVersionKey,
+  })}`
   const localEmailRows = [
     ...asRows(args.rows?.outreachQueue),
     ...asRows(args.rows?.emailMessages),
@@ -504,6 +713,34 @@ function buildEmailSendLifecycle(args: {
   )
   const hardBlockers = args.blockers.filter((blocker) => !isBatchModeGateBlocker(blocker))
   const draftPacketReady = hardBlockers.length === 0
+  const providerCapabilitySmoke = buildWarmOutreachGmailProviderCapabilitySmokeReadiness({
+    smokeKey: providerCapabilitySmokeKey,
+    providerConfigured: args.packet.channelCapabilities.email?.providerConfigured,
+    readOnlySmokeAuthority: false,
+    blockedReasons: [
+      ...hardBlockers,
+      ...(args.mode === 'warm_1_to_many'
+        ? ['Batch Gmail provider smoke remains per-recipient only and cannot run from the batch surface.']
+        : []),
+      ...(duplicateDetected
+        ? ['Duplicate prevention found an active local email queue/submission state.']
+        : []),
+    ],
+  })
+  const gmailDraftHandoffPacket = buildGmailDraftHandoffPacket({
+    contactId: args.contactId,
+    packet: args.packet,
+    readiness: args.readiness,
+    mode: args.mode,
+    messageVersionKey,
+    handoffIdempotencyKey: gmailDraftHandoffKey,
+    draftPacketReady,
+    relationshipSourceCount,
+    safeToMentionCount,
+    summarizeOnlyCount,
+    commonalityCount,
+    suppressionReasons,
+  })
   const state: WarmOutreachEmailSendLifecycle['state'] =
     args.mode === 'warm_1_to_many' && hardBlockers.length === 0
         ? 'per_recipient_gate_required'
@@ -533,12 +770,15 @@ function buildEmailSendLifecycle(args: {
     sendQueueIdempotencyKey,
     providerCapabilitySmokeKey,
     submittedEvidenceKey,
+    gmailDraftHandoffPacket,
+    providerCapabilitySmoke,
     duplicatePrevention: {
       scope: 'contact_channel_message_version',
       duplicateDetected,
       existingEvidenceIds,
       requiredUniqueKeys: [
         messageVersionKey,
+        gmailDraftHandoffKey,
         sendQueueIdempotencyKey,
         providerCapabilitySmokeKey,
         submittedEvidenceKey,

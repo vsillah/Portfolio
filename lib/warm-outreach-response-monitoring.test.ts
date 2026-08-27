@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { evaluateWarmOutreachReadiness, type WarmOutreachRelationshipPacket } from './warm-outreach-relationship-intelligence'
 import {
+  buildWarmOutreachGmailProviderCapabilitySmokeReadiness,
   buildWarmOutreachResponseMonitoring,
   buildWarmOutreachSendReadiness,
 } from './warm-outreach-response-monitoring'
@@ -398,6 +399,48 @@ describe('warm outreach response monitoring', () => {
     expect(emailLifecycle?.sendQueueIdempotencyKey).toMatch(/^warm-outreach:email-send-queue:v1:/)
     expect(emailLifecycle?.providerCapabilitySmokeKey).toMatch(/^warm-outreach:gmail-capability-smoke:v1:/)
     expect(emailLifecycle?.submittedEvidenceKey).toMatch(/^warm-outreach:email-submitted-evidence:v1:/)
+    expect(emailLifecycle?.gmailDraftHandoffPacket).toMatchObject({
+      version: 'warm-outreach-gmail-draft-handoff/v1',
+      state: 'ready_for_internal_handoff',
+      internalHandoffReady: true,
+      channel: 'email',
+      contactReference: {
+        contactId: 42,
+        contactName: 'Amina Example',
+      },
+      templateDraftBasis: {
+        recommendedTemplate: 'follow_up',
+        selectedChannel: 'email',
+      },
+      suppressionStatus: 'clear',
+      gmailProviderActivated: false,
+      gmailDraftCreationEnabled: false,
+      providerCallsEnabled: false,
+      externalSendBlocked: true,
+    })
+    expect(emailLifecycle?.gmailDraftHandoffPacket.idempotencyKey).toMatch(
+      /^warm-outreach:gmail-draft-handoff:v1:/,
+    )
+    expect(emailLifecycle?.gmailDraftHandoffPacket.messageVersionKey).toBe(emailLifecycle?.messageVersionKey)
+    expect(emailLifecycle?.gmailDraftHandoffPacket.futureApprovalGates).toEqual(
+      expect.arrayContaining([
+        'provider_capability_smoke',
+        'gmail_draft_creation_authority',
+        'external_send_authority',
+      ]),
+    )
+    expect(emailLifecycle?.providerCapabilitySmoke).toMatchObject({
+      version: 'warm-outreach-gmail-provider-smoke/v1',
+      provider: 'gmail',
+      status: 'not_configured',
+      label: 'Gmail provider not activated',
+      providerConfigured: false,
+      readOnlySmokeReady: false,
+      readOnlySmokeEnabled: false,
+      providerCallsEnabled: false,
+      externalSendEnabled: false,
+      gmailDraftCreationEnabled: false,
+    })
     expect(emailLifecycle?.stages.map((stage) => stage.key)).toEqual([
       'draft_packet',
       'human_reply_or_draft_approval',
@@ -443,7 +486,60 @@ describe('warm outreach response monitoring', () => {
       mode: 'warm_1_to_many',
       state: 'per_recipient_gate_required',
       sendReady: false,
+      gmailDraftHandoffPacket: {
+        state: 'per_recipient_gate_required',
+        internalHandoffReady: true,
+        gmailDraftCreationEnabled: false,
+        externalSendBlocked: true,
+      },
+      providerCapabilitySmoke: {
+        status: 'blocked',
+        providerCallsEnabled: false,
+      },
     })
+  })
+
+  it('represents Gmail provider smoke states without calling Gmail', () => {
+    const smokeKey = 'warm-outreach:gmail-capability-smoke:v1:test'
+    const variants = [
+      buildWarmOutreachGmailProviderCapabilitySmokeReadiness({ smokeKey }),
+      buildWarmOutreachGmailProviderCapabilitySmokeReadiness({
+        smokeKey,
+        providerConfigured: true,
+        readOnlySmokeAuthority: true,
+      }),
+      buildWarmOutreachGmailProviderCapabilitySmokeReadiness({
+        smokeKey,
+        providerConfigured: true,
+        lastSmokeStatus: 'smoke_passed',
+        lastSmokeAt: '2026-08-26T12:00:00.000Z',
+      }),
+      buildWarmOutreachGmailProviderCapabilitySmokeReadiness({
+        smokeKey,
+        providerConfigured: true,
+        lastSmokeStatus: 'smoke_failed',
+        lastSmokeError: 'OAuth profile missing.',
+      }),
+      buildWarmOutreachGmailProviderCapabilitySmokeReadiness({
+        smokeKey,
+        providerConfigured: true,
+        blockedReasons: ['Suppression gate is blocked.'],
+      }),
+    ]
+
+    expect(variants.map((variant) => variant.status)).toEqual([
+      'not_configured',
+      'ready_for_read_only_smoke',
+      'smoke_passed',
+      'smoke_failed',
+      'blocked',
+    ])
+    for (const variant of variants) {
+      expect(variant.providerCallsEnabled).toBe(false)
+      expect(variant.gmailDraftCreationEnabled).toBe(false)
+      expect(variant.externalSendEnabled).toBe(false)
+      expect(variant.notes).toContain('This model does not call Gmail.')
+    }
   })
 
   it('detects duplicate local email queue states without enabling Gmail execution', () => {

@@ -94,6 +94,80 @@ function sendReadiness(
         sendQueueIdempotencyKey: `warm-outreach:email-send-queue:v1:${mode}`,
         providerCapabilitySmokeKey: `warm-outreach:gmail-capability-smoke:v1:${mode}`,
         submittedEvidenceKey: `warm-outreach:email-submitted-evidence:v1:${mode}`,
+        gmailDraftHandoffPacket: {
+          version: 'warm-outreach-gmail-draft-handoff/v1',
+          state: mode === 'warm_1_to_many' ? 'per_recipient_gate_required' : 'ready_for_internal_handoff',
+          label: mode === 'warm_1_to_many'
+            ? 'Internal draft handoff is per-recipient only'
+            : 'Internal Gmail draft handoff ready',
+          internalHandoffReady: true,
+          channel: 'email',
+          contactReference: {
+            contactId: 42,
+            contactName: 'Ada Operator',
+            reference: 'contact_submission:42:Ada Operator',
+          },
+          messageVersionKey: `warm-outreach:email-message-version:v1:${mode}`,
+          templateDraftBasis: {
+            recommendedTemplate: 'follow_up',
+            selectedChannel: 'email',
+            relationshipEventId: null,
+            detail: 'Use follow up as the internal draft basis for the current message version.',
+          },
+          provenanceSummary: {
+            relationshipSourceCount: 2,
+            relationshipSignalCount: 2,
+            safeToMentionCount: 1,
+            summarizeOnlyCount: 1,
+            commonalityCount: 2,
+            detail: 'Portfolio-local relationship provenance is summarized for the handoff packet.',
+          },
+          suppressionStatus: 'clear',
+          suppressionReasons: [],
+          idempotencyKey: `warm-outreach:gmail-draft-handoff:v1:${mode}`,
+          futureApprovalGates: [
+            'human_reply_or_draft_approval',
+            'provider_capability_smoke',
+            'gmail_draft_creation_authority',
+            'external_send_authority',
+            'send_scheduling',
+            'submitted_sent_evidence',
+          ],
+          gmailProviderActivated: false,
+          gmailDraftCreationEnabled: false,
+          providerCallsEnabled: false,
+          externalSendBlocked: true,
+          detail: mode === 'warm_1_to_many'
+            ? 'Batch review can prepare handoff evidence only one recipient at a time; no batch Gmail drafts can be created.'
+            : 'Operator can review the internal Gmail draft handoff packet; Gmail draft creation and send stay blocked.',
+        },
+        providerCapabilitySmoke: {
+          version: 'warm-outreach-gmail-provider-smoke/v1',
+          provider: 'gmail',
+          status: 'not_configured',
+          label: 'Gmail provider not activated',
+          smokeKey: `warm-outreach:gmail-capability-smoke:v1:${mode}`,
+          providerConfigured: false,
+          readOnlySmokeReady: false,
+          readOnlySmokeEnabled: false,
+          providerCallsEnabled: false,
+          externalSendEnabled: false,
+          gmailDraftCreationEnabled: false,
+          requiredConfig: [
+            'Gmail OAuth configuration',
+            'Connected Gmail profile',
+            'Future explicit read-only smoke authority',
+          ],
+          blockedReasons: [],
+          lastSmokeAt: null,
+          lastSmokeError: null,
+          futureActivationGate: 'A later captain-lane approval must authorize any Gmail provider smoke; this scaffold records readiness only.',
+          notes: [
+            'This model does not call Gmail.',
+            'Read-only smoke readiness is separate from Gmail draft creation and external send authority.',
+            'Gmail draft creation, send, scheduling, Slack action, and provider calls remain disabled.',
+          ],
+        },
         duplicatePrevention: {
           scope: 'contact_channel_message_version',
           duplicateDetected: false,
@@ -447,6 +521,12 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Draft packet: ready for review')).toBeInTheDocument()
     expect(screen.getByText('Provider capability smoke: blocked')).toBeInTheDocument()
     expect(screen.getByText(/Queue key: warm-outreach:email-send-queue:v1:/)).toBeInTheDocument()
+    expect(screen.getByText('Internal draft handoff')).toBeInTheDocument()
+    expect(screen.getByText('contact_submission:42:Ada Operator / follow up')).toBeInTheDocument()
+    expect(screen.getByText('Suppression: clear. Gmail draft creation off. External send blocked.')).toBeInTheDocument()
+    expect(screen.getByText('Gmail provider smoke')).toBeInTheDocument()
+    expect(screen.getAllByText('not configured')).toHaveLength(1)
+    expect(screen.getByText('Gmail provider not activated. Provider calls off.')).toBeInTheDocument()
     expect(screen.getByText('Warm one-to-one')).toBeInTheDocument()
     expect(screen.getByText('Warm one-to-many')).toBeInTheDocument()
     expect(screen.getAllByText('Future eligible')).toHaveLength(4)
