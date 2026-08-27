@@ -290,6 +290,73 @@ function sendReadiness(
             nextStep: 'Ask the Integration Captain for explicit per-recipient external-send authority after readiness review.',
           },
         },
+        realRecipientRolloutReadiness: {
+          version: 'warm-outreach-real-gmail-rollout-readiness/v1',
+          state: 'blocked',
+          label: 'Real Gmail send request blocked',
+          eligibleForSendApprovalRequest: false,
+          canBuildSlackApprovalPayload: false,
+          exactNextAction: 'resolve_blocker',
+          actionLabel: 'Resolve blocker',
+          requirements: {
+            draftEvidence: {
+              state: 'missing',
+              draftId: null,
+              threadId: null,
+              messageId: null,
+              sourceIds: [],
+              detail: 'Create and track the per-recipient Gmail draft before requesting real-recipient send approval.',
+            },
+            senderMatch: {
+              state: 'missing',
+              requiredSender: null,
+              connectedAs: null,
+              detail: 'Sender identity must be recorded on the tracked Gmail draft evidence.',
+            },
+            suppression: {
+              state: 'clear',
+              reasons: [],
+              detail: 'No suppression blocker is recorded.',
+            },
+            provider: {
+              state: 'missing',
+              detail: 'Reconnect or verify Gmail provider readiness before asking for real-recipient approval.',
+            },
+            authorization: {
+              state: 'missing',
+              decisionKey: null,
+              detail: 'No Portfolio or Slack send authorization decision is recorded yet.',
+            },
+            submittedEvidence: {
+              state: 'missing',
+              sourceIds: [],
+              detail: 'No submitted send evidence is recorded for this contact, channel, and message version.',
+            },
+          },
+          blockers: [
+            'Tracked Gmail draft evidence is required before a real-recipient send request.',
+            'Gmail provider configuration or connected profile evidence is missing.',
+            'Tracked Gmail draft sender evidence is missing.',
+          ],
+          slackApprovalContract: {
+            route: '/api/admin/outreach/[id]/slack-send-approval',
+            method: 'POST',
+            dispatchEnabled: false,
+            actionIds: ['warm_gmail_send.approve', 'warm_gmail_send.reject', 'warm_gmail_send.revise'],
+            payloadDedupeKey: `warm-outreach:slack-gmail-send-card:v1:${mode}`,
+            recordsAuthorizationIntentOnly: true,
+            gmailSendCalled: false,
+            providerExecutionEnabled: false,
+          },
+          executionBoundary: {
+            slackDispatch: false,
+            gmailSend: false,
+            providerCalls: false,
+            productionEnvChange: false,
+            perRecipientExecutionAuthorizationRequired: true,
+            captainFlagRequiredForExecution: true,
+          },
+        },
         duplicatePrevention: {
           scope: 'contact_channel_message_version',
           duplicateDetected: false,
@@ -641,6 +708,16 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Email first candidate')).toBeInTheDocument()
     expect(screen.getByText(/Provider\/send activation blocked/)).toBeInTheDocument()
     expect(screen.getByText('Provider/send off')).toBeInTheDocument()
+    expect(screen.getByText('Real-recipient Gmail rollout')).toBeInTheDocument()
+    expect(screen.getByText('Real Gmail send request blocked')).toBeInTheDocument()
+    expect(screen.getByText('Resolve blocker')).toBeInTheDocument()
+    expect(screen.getByText('Draft: missing')).toBeInTheDocument()
+    expect(screen.getByText('Sender: missing')).toBeInTheDocument()
+    expect(screen.getByText('Provider: missing')).toBeInTheDocument()
+    expect(screen.getByText('Authorization: missing')).toBeInTheDocument()
+    expect(screen.getByText('Submitted evidence: missing')).toBeInTheDocument()
+    expect(screen.getByText(/Slack payload: \/api\/admin\/outreach\/\[id\]\/slack-send-approval/)).toBeInTheDocument()
+    expect(screen.getByText('Approval records intent only. Gmail send: off.')).toBeInTheDocument()
     expect(screen.getByText('Draft packet: ready for review')).toBeInTheDocument()
     expect(screen.getByText('Provider capability smoke: blocked')).toBeInTheDocument()
     expect(screen.getByText(/Queue key: warm-outreach:email-send-queue:v1:/)).toBeInTheDocument()

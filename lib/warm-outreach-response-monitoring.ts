@@ -261,6 +261,78 @@ export type WarmOutreachGmailProviderActivationReadiness = {
   remainingHumanGates: string[]
 }
 
+export type WarmOutreachRealRecipientGmailRolloutReadiness = {
+  version: 'warm-outreach-real-gmail-rollout-readiness/v1'
+  state:
+    | 'ready_for_send_request'
+    | 'authorization_recorded_execution_blocked'
+    | 'blocked'
+    | 'already_sent'
+  label: string
+  eligibleForSendApprovalRequest: boolean
+  canBuildSlackApprovalPayload: boolean
+  exactNextAction:
+    | 'approve_send_request'
+    | 'resolve_blocker'
+    | 'do_not_send_duplicate'
+    | 'captain_enable_exact_execution'
+  actionLabel: string
+  requirements: {
+    draftEvidence: {
+      state: 'tracked' | 'missing'
+      draftId: string | null
+      threadId: string | null
+      messageId: string | null
+      sourceIds: string[]
+      detail: string
+    }
+    senderMatch: {
+      state: 'matched' | 'missing' | 'mismatch'
+      requiredSender: string | null
+      connectedAs: string | null
+      detail: string
+    }
+    suppression: {
+      state: 'clear' | 'blocked'
+      reasons: string[]
+      detail: string
+    }
+    provider: {
+      state: 'configured' | 'missing'
+      detail: string
+    }
+    authorization: {
+      state: 'missing' | 'approved' | 'rejected' | 'revision_requested'
+      decisionKey: string | null
+      detail: string
+    }
+    submittedEvidence: {
+      state: 'missing' | 'submitted'
+      sourceIds: string[]
+      detail: string
+    }
+  }
+  blockers: string[]
+  slackApprovalContract: {
+    route: string
+    method: 'POST'
+    dispatchEnabled: false
+    actionIds: ['warm_gmail_send.approve', 'warm_gmail_send.reject', 'warm_gmail_send.revise']
+    payloadDedupeKey: string
+    recordsAuthorizationIntentOnly: true
+    gmailSendCalled: false
+    providerExecutionEnabled: false
+  }
+  executionBoundary: {
+    slackDispatch: false
+    gmailSend: false
+    providerCalls: false
+    productionEnvChange: false
+    perRecipientExecutionAuthorizationRequired: true
+    captainFlagRequiredForExecution: true
+  }
+}
+
 export type WarmOutreachEmailSendLifecycle = {
   version: 'warm-outreach-email-send-lifecycle/v1'
   contactId: number
@@ -287,6 +359,7 @@ export type WarmOutreachEmailSendLifecycle = {
   gmailDraftCreationGate: WarmOutreachGmailDraftCreationGate
   gmailProviderActivationReadiness: WarmOutreachGmailProviderActivationReadiness
   externalSendReadiness: WarmOutreachExternalSendReadiness
+  realRecipientRolloutReadiness: WarmOutreachRealRecipientGmailRolloutReadiness
   duplicatePrevention: {
     scope: 'contact_channel_message_version'
     duplicateDetected: boolean
@@ -703,6 +776,278 @@ function firstGmailDraftEvidence(rows: PortfolioRow[]): WarmOutreachGmailProvide
   }
 }
 
+function normalizeEmail(value: unknown): string | null {
+  const email = text(value)?.toLowerCase()
+  return email && email.includes('@') ? email : null
+}
+
+function firstGmailDraftRolloutEvidence(rows: PortfolioRow[]) {
+  for (const row of rows) {
+    const generationInputs = record(row.generation_inputs)
+    const draftCreation = {
+      ...record(generationInputs.gmail_draft_creation),
+      ...nestedMetadata(row, 'gmail_draft_creation'),
+    }
+    const draftId =
+      text(metadataValue(row, 'gmail_user_draft_id')) ??
+      text(metadataValue(row, 'gmail_draft_id')) ??
+      text(draftCreation.draft_id)
+    const threadId =
+      text(metadataValue(row, 'gmail_user_thread_id')) ??
+      text(metadataValue(row, 'thread_id')) ??
+      text(draftCreation.thread_id)
+    const messageId =
+      text(metadataValue(row, 'gmail_user_message_id')) ??
+      text(metadataValue(row, 'message_id')) ??
+      text(draftCreation.message_id)
+    const idempotencyKey =
+      text(metadataValue(row, 'gmail_draft_idempotency_key')) ??
+      text(draftCreation.idempotency_key)
+
+    if (draftId || threadId || messageId || idempotencyKey) {
+      return {
+        draftId,
+        threadId,
+        messageId,
+        sourceIds: [sourceId(row, 'gmail-draft-evidence')],
+        connectedAs: normalizeEmail(draftCreation.connected_as ?? metadataValue(row, 'connected_as')),
+        requiredSender: normalizeEmail(draftCreation.required_sender ?? metadataValue(row, 'required_sender')),
+      }
+    }
+  }
+
+  return {
+    draftId: null,
+    threadId: null,
+    messageId: null,
+    sourceIds: [] as string[],
+    connectedAs: null,
+    requiredSender: null,
+  }
+}
+
+function firstWarmGmailAuthorization(rows: PortfolioRow[]) {
+  for (const row of rows) {
+    const generationInputs = record(row.generation_inputs)
+    const authorization = {
+      ...record(generationInputs.warm_gmail_send_authorization),
+      ...nestedMetadata(row, 'warm_gmail_send_authorization'),
+    }
+    const status = text(authorization.status)?.toLowerCase()
+    if (status === 'approved' || status === 'rejected' || status === 'revision_requested') {
+      return {
+        status: status as 'approved' | 'rejected' | 'revision_requested',
+        decisionKey: text(authorization.decision_key),
+      }
+    }
+  }
+
+  return {
+    status: null,
+    decisionKey: null,
+  }
+}
+
+function firstSubmittedWarmGmailEvidence(rows: PortfolioRow[], input: {
+  sendQueueIdempotencyKey: string
+  submittedEvidenceKey: string
+}) {
+  const sourceIds: string[] = []
+  for (const row of rows) {
+    const generationInputs = record(row.generation_inputs)
+    const execution = {
+      ...record(generationInputs.warm_gmail_send_execution),
+      ...nestedMetadata(row, 'warm_gmail_send_execution'),
+    }
+    const rowMetadata = metadata(row)
+    const status = text(row.status)?.toLowerCase()
+    const executionStatus = text(execution.status)?.toLowerCase()
+    const submittedEvidenceKey =
+      text(rowMetadata.submitted_evidence_key) ??
+      text(execution.submitted_evidence_key)
+    const sendQueueKey =
+      text(rowMetadata.send_queue_idempotency_key) ??
+      text(execution.send_queue_idempotency_key) ??
+      text(execution.idempotency_key)
+    const submitted =
+      ['sent', 'submitted', 'delivered'].includes(status ?? '') ||
+      executionStatus === 'sent' ||
+      execution.gmail_send_called === true ||
+      execution.external_send_performed === true ||
+      submittedEvidenceKey === input.submittedEvidenceKey ||
+      sendQueueKey === input.sendQueueIdempotencyKey && executionStatus === 'sent'
+
+    if (submitted) sourceIds.push(sourceId(row, 'submitted-gmail-send-evidence'))
+  }
+
+  return {
+    submitted: sourceIds.length > 0,
+    sourceIds: [...new Set(sourceIds)],
+  }
+}
+
+function buildRealRecipientGmailRolloutReadiness(args: {
+  contactId: number
+  handoff: WarmOutreachGmailDraftHandoffPacket
+  providerSmoke: WarmOutreachGmailProviderCapabilitySmokeReadiness
+  lifecycle: {
+    messageVersionKey: string
+    sendQueueIdempotencyKey: string
+    submittedEvidenceKey: string
+  }
+  localEmailRows: PortfolioRow[]
+  hardBlockers: string[]
+  suppressionReasons: string[]
+}): WarmOutreachRealRecipientGmailRolloutReadiness {
+  const draft = firstGmailDraftRolloutEvidence(args.localEmailRows)
+  const authorization = firstWarmGmailAuthorization(args.localEmailRows)
+  const submitted = firstSubmittedWarmGmailEvidence(args.localEmailRows, args.lifecycle)
+  const hasDraftEvidence = Boolean(draft.draftId || draft.threadId || draft.messageId)
+  const senderState: WarmOutreachRealRecipientGmailRolloutReadiness['requirements']['senderMatch']['state'] =
+    !draft.requiredSender || !draft.connectedAs
+      ? 'missing'
+      : draft.requiredSender === draft.connectedAs
+        ? 'matched'
+        : 'mismatch'
+  const providerConfigured = args.providerSmoke.providerConfigured
+  const authorizationState: WarmOutreachRealRecipientGmailRolloutReadiness['requirements']['authorization']['state'] =
+    authorization.status ?? 'missing'
+
+  const blockers = [
+    ...args.hardBlockers,
+    hasDraftEvidence ? null : 'Tracked Gmail draft evidence is required before a real-recipient send request.',
+    providerConfigured ? null : 'Gmail provider configuration or connected profile evidence is missing.',
+    senderState === 'matched'
+      ? null
+      : senderState === 'missing'
+        ? 'Tracked Gmail draft sender evidence is missing.'
+        : `Tracked Gmail draft sender must match ${draft.requiredSender}; current sender is ${draft.connectedAs}.`,
+    args.suppressionReasons.length === 0 ? null : args.suppressionReasons[0],
+    authorizationState === 'rejected'
+      ? 'Prior send authorization was rejected; revise before requesting another approval.'
+      : authorizationState === 'revision_requested'
+        ? 'Prior send authorization requested revision; update the draft before approval.'
+        : null,
+  ].filter(Boolean) as string[]
+
+  const state: WarmOutreachRealRecipientGmailRolloutReadiness['state'] =
+    submitted.submitted
+      ? 'already_sent'
+      : blockers.length > 0
+        ? 'blocked'
+        : authorizationState === 'approved'
+          ? 'authorization_recorded_execution_blocked'
+          : 'ready_for_send_request'
+  const actionLabel =
+    state === 'already_sent'
+      ? 'Do not resend'
+      : state === 'blocked'
+        ? 'Resolve blocker'
+        : state === 'authorization_recorded_execution_blocked'
+          ? 'Captain can run exact execution gate'
+          : 'Approve send request'
+  const exactNextAction: WarmOutreachRealRecipientGmailRolloutReadiness['exactNextAction'] =
+    state === 'already_sent'
+      ? 'do_not_send_duplicate'
+      : state === 'blocked'
+        ? 'resolve_blocker'
+        : state === 'authorization_recorded_execution_blocked'
+          ? 'captain_enable_exact_execution'
+          : 'approve_send_request'
+
+  return {
+    version: 'warm-outreach-real-gmail-rollout-readiness/v1',
+    state,
+    label:
+      state === 'already_sent'
+        ? 'Real Gmail send already recorded'
+        : state === 'blocked'
+          ? 'Real Gmail send request blocked'
+          : state === 'authorization_recorded_execution_blocked'
+            ? 'Send authorization recorded; execution still gated'
+            : 'Ready for one-step send approval request',
+    eligibleForSendApprovalRequest: state === 'ready_for_send_request',
+    canBuildSlackApprovalPayload: state === 'ready_for_send_request',
+    exactNextAction,
+    actionLabel,
+    requirements: {
+      draftEvidence: {
+        state: hasDraftEvidence ? 'tracked' : 'missing',
+        draftId: draft.draftId,
+        threadId: draft.threadId,
+        messageId: draft.messageId,
+        sourceIds: draft.sourceIds,
+        detail: hasDraftEvidence
+          ? 'Tracked Gmail draft evidence is present. This is the message to approve; it is not a send.'
+          : 'Create and track the per-recipient Gmail draft before requesting real-recipient send approval.',
+      },
+      senderMatch: {
+        state: senderState,
+        requiredSender: draft.requiredSender,
+        connectedAs: draft.connectedAs,
+        detail:
+          senderState === 'matched'
+            ? 'Tracked draft sender matches the required AmaduTown sender.'
+            : senderState === 'missing'
+              ? 'Sender identity must be recorded on the tracked Gmail draft evidence.'
+              : 'Tracked draft sender does not match the required sender.',
+      },
+      suppression: {
+        state: args.suppressionReasons.length > 0 ? 'blocked' : 'clear',
+        reasons: args.suppressionReasons,
+        detail: args.suppressionReasons[0] ?? 'No suppression blocker is recorded.',
+      },
+      provider: {
+        state: providerConfigured ? 'configured' : 'missing',
+        detail: providerConfigured
+          ? 'Gmail provider configuration is present for readiness review; this contract still does not call Gmail.'
+          : 'Reconnect or verify Gmail provider readiness before asking for real-recipient approval.',
+      },
+      authorization: {
+        state: authorizationState,
+        decisionKey: authorization.decisionKey,
+        detail:
+          authorizationState === 'approved'
+            ? 'Portfolio has recorded explicit per-recipient send authorization intent.'
+            : authorizationState === 'rejected'
+              ? 'Portfolio has a rejected send authorization decision for this message version.'
+              : authorizationState === 'revision_requested'
+                ? 'Portfolio has a revision request for this message version.'
+                : 'No Portfolio or Slack send authorization decision is recorded yet.',
+      },
+      submittedEvidence: {
+        state: submitted.submitted ? 'submitted' : 'missing',
+        sourceIds: submitted.sourceIds,
+        detail: submitted.submitted
+          ? 'Submitted Gmail send evidence already exists. Do not replay this message.'
+          : 'No submitted send evidence is recorded for this contact, channel, and message version.',
+      },
+    },
+    blockers: [...new Set(blockers)],
+    slackApprovalContract: {
+      route: `/api/admin/outreach/[id]/slack-send-approval`,
+      method: 'POST',
+      dispatchEnabled: false,
+      actionIds: ['warm_gmail_send.approve', 'warm_gmail_send.reject', 'warm_gmail_send.revise'],
+      payloadDedupeKey: `warm-outreach:slack-gmail-send-card:v1:${stableHash({
+        contactId: args.contactId,
+        messageVersionKey: args.lifecycle.messageVersionKey,
+      })}`,
+      recordsAuthorizationIntentOnly: true,
+      gmailSendCalled: false,
+      providerExecutionEnabled: false,
+    },
+    executionBoundary: {
+      slackDispatch: false,
+      gmailSend: false,
+      providerCalls: false,
+      productionEnvChange: false,
+      perRecipientExecutionAuthorizationRequired: true,
+      captainFlagRequiredForExecution: true,
+    },
+  }
+}
+
 export function buildWarmOutreachGmailProviderActivationReadiness(args: {
   handoff: WarmOutreachGmailDraftHandoffPacket
   providerSmoke: WarmOutreachGmailProviderCapabilitySmokeReadiness
@@ -1001,7 +1346,7 @@ function buildEmailSendLifecycle(args: {
   const safeToMentionCount = args.packet.sourceInventory?.safeToMention.length ?? 0
   const summarizeOnlyCount = args.packet.sourceInventory?.summarizeOnly.length ?? 0
   const commonalityCount = args.packet.commonalities.length
-  const suppressionReasons = suppressionBlockers(args.packet, args.readiness)
+  const suppressionReasons = [...new Set(suppressionBlockers(args.packet, args.readiness))]
   const messageVersionKey = `warm-outreach:email-message-version:v1:${stableHash({
     contactId: args.contactId,
     mode: args.mode,
@@ -1158,6 +1503,19 @@ function buildEmailSendLifecycle(args: {
         'Ask the Integration Captain for explicit per-recipient external-send authority after sender identity, suppression, draft evidence, and final copy are reviewed.',
     },
   }
+  const realRecipientRolloutReadiness = buildRealRecipientGmailRolloutReadiness({
+    contactId: args.contactId,
+    handoff: gmailDraftHandoffPacket,
+    providerSmoke: providerCapabilitySmoke,
+    lifecycle: {
+      messageVersionKey,
+      sendQueueIdempotencyKey,
+      submittedEvidenceKey,
+    },
+    localEmailRows,
+    hardBlockers,
+    suppressionReasons,
+  })
   const state: WarmOutreachEmailSendLifecycle['state'] =
     args.mode === 'warm_1_to_many' && hardBlockers.length === 0
         ? 'per_recipient_gate_required'
@@ -1193,6 +1551,7 @@ function buildEmailSendLifecycle(args: {
     gmailDraftCreationGate,
     gmailProviderActivationReadiness,
     externalSendReadiness,
+    realRecipientRolloutReadiness,
     duplicatePrevention: {
       scope: 'contact_channel_message_version',
       duplicateDetected,

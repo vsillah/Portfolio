@@ -242,19 +242,19 @@ export default function WarmBatchReviewPanel({
     ).length ?? 0,
     trackedDrafts: data?.recipients.filter((recipient) =>
       recipient.sendReadiness.modes.warm_1_to_many.find((item) => item.channel === 'email')
-        ?.emailSendLifecycle?.externalSendReadiness.draftEvidence.gmailDraftExists,
+        ?.emailSendLifecycle?.externalSendReadiness?.draftEvidence.gmailDraftExists,
     ).length ?? 0,
     recipientApprovalRequired: data?.recipients.filter((recipient) =>
       recipient.sendReadiness.modes.warm_1_to_many.find((item) => item.channel === 'email')
-        ?.emailSendLifecycle?.externalSendReadiness.recipientApproval.approved === false,
+        ?.emailSendLifecycle?.externalSendReadiness?.recipientApproval.approved === false,
     ).length ?? 0,
     senderNotVerified: data?.recipients.filter((recipient) =>
       recipient.sendReadiness.modes.warm_1_to_many.find((item) => item.channel === 'email')
-        ?.emailSendLifecycle?.externalSendReadiness.senderIdentity.state === 'not_verified',
+        ?.emailSendLifecycle?.externalSendReadiness?.senderIdentity.state === 'not_verified',
     ).length ?? 0,
     externalSendBlocked: data?.recipients.filter((recipient) =>
       recipient.sendReadiness.modes.warm_1_to_many.find((item) => item.channel === 'email')
-        ?.emailSendLifecycle?.externalSendReadiness.externalSend.blocked,
+        ?.emailSendLifecycle?.externalSendReadiness?.externalSend.blocked,
     ).length ?? 0,
   }
 
