@@ -344,6 +344,9 @@ function sendReadiness(
             dispatchEnabled: false,
             actionIds: ['warm_gmail_send.approve', 'warm_gmail_send.reject', 'warm_gmail_send.revise'],
             payloadDedupeKey: `warm-outreach:slack-gmail-send-card:v1:${mode}`,
+            status: 'not_sent',
+            requestKey: null,
+            slackDispatchStatus: 'not_sent',
             recordsAuthorizationIntentOnly: true,
             gmailSendCalled: false,
             providerExecutionEnabled: false,
@@ -717,7 +720,9 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Authorization: missing')).toBeInTheDocument()
     expect(screen.getByText('Submitted evidence: missing')).toBeInTheDocument()
     expect(screen.getByText(/Slack payload: \/api\/admin\/outreach\/\[id\]\/slack-send-approval/)).toBeInTheDocument()
+    expect(screen.getByText('Slack approval: not sent. Slack dispatch: not sent.')).toBeInTheDocument()
     expect(screen.getByText('Approval records intent only. Gmail send: off.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Build Slack approval card' })).toBeDisabled()
     expect(screen.getByText('Draft packet: ready for review')).toBeInTheDocument()
     expect(screen.getByText('Provider capability smoke: blocked')).toBeInTheDocument()
     expect(screen.getByText(/Queue key: warm-outreach:email-send-queue:v1:/)).toBeInTheDocument()
@@ -901,5 +906,74 @@ describe('RelationshipPacketPanel', () => {
     expect(relationshipReadinessLabel('needs_review')).toBe('Needs human review')
     expect(describeChannelCapability()).toBe('Not recorded')
     expect(describeChannelCapability(packetResponse.packet.channelCapabilities.facebook)).toBe('Manual review only')
+  })
+
+  it('surfaces Slack approval decision states without implying Gmail was sent', () => {
+    const responseWithSlackStatus = (
+      status: NonNullable<WarmOutreachEmailSendLifecycle['realRecipientRolloutReadiness']>['slackApprovalContract']['status'],
+    ): RelationshipPacketApiResponse => {
+      const emailItem = packetResponse.responseMonitoring!.sendReadiness.modes.warm_1_to_1
+        .find((item) => item.channel === 'email')!
+      return {
+        ...packetResponse,
+        responseMonitoring: {
+          ...packetResponse.responseMonitoring!,
+          sendReadiness: {
+            ...packetResponse.responseMonitoring!.sendReadiness,
+            modes: {
+              ...packetResponse.responseMonitoring!.sendReadiness.modes,
+              warm_1_to_1: packetResponse.responseMonitoring!.sendReadiness.modes.warm_1_to_1.map((item) => item.channel === 'email'
+                ? {
+                    ...item,
+                    emailSendLifecycle: {
+                      ...emailItem.emailSendLifecycle!,
+                      realRecipientRolloutReadiness: {
+                        ...emailItem.emailSendLifecycle!.realRecipientRolloutReadiness,
+                        canBuildSlackApprovalPayload: true,
+                        slackApprovalContract: {
+                          ...emailItem.emailSendLifecycle!.realRecipientRolloutReadiness.slackApprovalContract,
+                          status,
+                        },
+                        requirements: {
+                          ...emailItem.emailSendLifecycle!.realRecipientRolloutReadiness.requirements,
+                          draftEvidence: {
+                            ...emailItem.emailSendLifecycle!.realRecipientRolloutReadiness.requirements.draftEvidence,
+                            sourceIds: ['queue-ready'],
+                          },
+                        },
+                      },
+                    },
+                  }
+                : item),
+            },
+          },
+        },
+      }
+    }
+
+    const { rerender } = render(
+      <RelationshipPacketPanel
+        loading={false}
+        error={null}
+        data={responseWithSlackStatus('pending')}
+      />,
+    )
+
+    expect(screen.getByText('Slack approval: pending. Slack dispatch: not sent.')).toBeInTheDocument()
+    expect(screen.getByText('Local request only; no Slack or Gmail send runs here.')).toBeInTheDocument()
+
+    for (const status of ['approved', 'rejected', 'revision_requested'] as const) {
+      rerender(
+          <RelationshipPacketPanel
+            loading={false}
+            error={null}
+            data={responseWithSlackStatus(status)}
+          />,
+      )
+      expect(screen.getByText(
+        `Slack approval: ${status === 'revision_requested' ? 'revision requested' : status}. Slack dispatch: not sent.`,
+      )).toBeInTheDocument()
+      expect(screen.getByText('Approval records intent only. Gmail send: off.')).toBeInTheDocument()
+    }
   })
 })

@@ -210,12 +210,60 @@ function rolloutRequirementClasses(state: string) {
   return 'border-red-500/25 bg-red-500/10 text-red-100'
 }
 
+function slackApprovalStatusLabel(status: WarmOutreachRealRecipientGmailRolloutReadiness['slackApprovalContract']['status']) {
+  if (status === 'not_sent') return 'not sent'
+  if (status === 'pending') return 'pending'
+  if (status === 'approved') return 'approved'
+  if (status === 'rejected') return 'rejected'
+  return 'revision requested'
+}
+
 function RealRecipientRolloutCard({
   readiness,
 }: {
   readiness?: WarmOutreachRealRecipientGmailRolloutReadiness | null
 }) {
+  const [requestLoading, setRequestLoading] = useState(false)
+  const [requestError, setRequestError] = useState<string | null>(null)
+  const [localApprovalStatus, setLocalApprovalStatus] = useState<
+    WarmOutreachRealRecipientGmailRolloutReadiness['slackApprovalContract']['status'] | null
+  >(null)
   if (!readiness) return null
+
+  const queueId = readiness.requirements.draftEvidence.sourceIds[0] ?? null
+  const slackStatus = localApprovalStatus ?? readiness.slackApprovalContract.status
+  const canBuildLocalPayload = readiness.canBuildSlackApprovalPayload && Boolean(queueId)
+  async function requestSlackPayload() {
+    if (!queueId) return
+    setRequestLoading(true)
+    setRequestError(null)
+    try {
+      const response = await fetch(`/api/admin/outreach/${encodeURIComponent(queueId)}/slack-send-approval`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+      })
+      const body = await response.json().catch(() => ({})) as {
+        error?: string
+        approvalRequest?: { status?: string }
+      }
+      if (!response.ok) throw new Error(body.error ?? 'Could not build Slack approval payload.')
+      const status = body.approvalRequest?.status
+      if (
+        status === 'pending' ||
+        status === 'approved' ||
+        status === 'rejected' ||
+        status === 'revision_requested'
+      ) {
+        setLocalApprovalStatus(status)
+      } else {
+        setLocalApprovalStatus('pending')
+      }
+    } catch (error) {
+      setRequestError(error instanceof Error ? error.message : 'Could not build Slack approval payload.')
+    } finally {
+      setRequestLoading(false)
+    }
+  }
 
   const requirements = [
     ['Draft', readiness.requirements.draftEvidence.state],
@@ -267,6 +315,9 @@ function RealRecipientRolloutCard({
           Slack payload: {readiness.slackApprovalContract.route}. Dispatch off.
         </p>
         <p className="break-words">
+          Slack approval: {slackApprovalStatusLabel(slackStatus)}. Slack dispatch: {readiness.slackApprovalContract.slackDispatchStatus.replace(/_/g, ' ')}.
+        </p>
+        <p className="break-words">
           Dedupe: {readiness.slackApprovalContract.payloadDedupeKey}
         </p>
         <p>
@@ -276,6 +327,25 @@ function RealRecipientRolloutCard({
           Exact execution still needs per-recipient authorization and captain flag.
         </p>
       </div>
+      <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <button
+          type="button"
+          disabled={!canBuildLocalPayload || requestLoading}
+          onClick={() => { void requestSlackPayload() }}
+          className="inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-md border border-sky-500/35 bg-sky-500/10 px-3 text-xs font-semibold text-sky-100 transition-colors hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:border-silicon-slate disabled:bg-silicon-slate/20 disabled:text-muted-foreground sm:w-auto"
+        >
+          <MessageSquare size={13} aria-hidden />
+          {requestLoading ? 'Building payload' : 'Build Slack approval card'}
+        </button>
+        <p className="text-[10px] leading-4 text-current/80">
+          Local request only; no Slack or Gmail send runs here.
+        </p>
+      </div>
+      {requestError && (
+        <p role="alert" className="mt-2 rounded-md border border-red-500/35 bg-red-500/10 p-2 text-[11px] leading-4 text-red-100">
+          {requestError}
+        </p>
+      )}
     </div>
   )
 }

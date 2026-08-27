@@ -904,9 +904,76 @@ describe('warm outreach response monitoring', () => {
     expect(rollout?.slackApprovalContract).toMatchObject({
       route: '/api/admin/outreach/[id]/slack-send-approval',
       dispatchEnabled: false,
+      status: 'not_sent',
+      slackDispatchStatus: 'not_sent',
       recordsAuthorizationIntentOnly: true,
       gmailSendCalled: false,
       providerExecutionEnabled: false,
+    })
+  })
+
+  it('surfaces a pending Slack approval request from local Portfolio evidence', () => {
+    const base = packet()
+    const providerPacket = packet({
+      channelCapabilities: {
+        ...base.channelCapabilities,
+        email: {
+          available: true,
+          providerConfigured: true,
+          supportsExternalSend: false,
+          manualOnly: false,
+          reason: 'Gmail OAuth profile is connected for gated send review.',
+        },
+      },
+    })
+    const monitoring = buildWarmOutreachResponseMonitoring({
+      contactId: 42,
+      packet: providerPacket,
+      readiness: evaluateWarmOutreachReadiness(providerPacket),
+      rows: {
+        outreachQueue: [
+          {
+            id: 'queue-pending-slack',
+            channel: 'email',
+            status: 'draft',
+            generation_inputs: {
+              gmail_draft_creation: {
+                draft_id: 'gmail-draft-42',
+                message_id: 'gmail-message-42',
+                thread_id: 'gmail-thread-42',
+                connected_as: 'vambah@amadutown.com',
+                required_sender: 'vambah@amadutown.com',
+                external_send_blocked: true,
+              },
+              warm_gmail_send_slack_approval_request: {
+                status: 'pending',
+                request_key: 'warm-outreach:slack-gmail-send-card:v1:pending',
+                gmail_send_called: false,
+                external_send_performed: false,
+              },
+            },
+          },
+        ],
+      },
+    })
+    const rollout = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
+      ?.emailSendLifecycle?.realRecipientRolloutReadiness
+
+    expect(rollout?.slackApprovalContract).toMatchObject({
+      status: 'pending',
+      requestKey: 'warm-outreach:slack-gmail-send-card:v1:pending',
+      slackDispatchStatus: 'not_sent',
+      recordsAuthorizationIntentOnly: true,
+      gmailSendCalled: false,
+      providerExecutionEnabled: false,
+    })
+    expect(rollout).toMatchObject({
+      state: 'ready_for_send_request',
+      eligibleForSendApprovalRequest: true,
+      canBuildSlackApprovalPayload: true,
+      requirements: {
+        authorization: { state: 'missing' },
+      },
     })
   })
 

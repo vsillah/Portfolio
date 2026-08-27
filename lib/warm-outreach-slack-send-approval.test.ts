@@ -123,6 +123,22 @@ function lifecycle(overrides: Partial<WarmOutreachEmailSendLifecycle> = {}) {
   } as WarmOutreachEmailSendLifecycle
 }
 
+function slackApprovalRequest(overrides: Record<string, unknown> = {}) {
+  return {
+    version: 'warm-outreach-slack-gmail-send-approval-request/v1',
+    status: 'pending',
+    request_key: 'warm-outreach:slack-gmail-send-card:v1:message-1',
+    contact_submission_id: 42,
+    outreach_queue_id: 'queue-1',
+    message_version_key: 'warm-outreach:email-message-version:v1:message-1',
+    send_queue_idempotency_key: 'warm-outreach:email-send-queue:v1:message-1',
+    records_authorization_intent_only: true,
+    gmail_send_called: false,
+    external_send_performed: false,
+    ...overrides,
+  }
+}
+
 describe('warm Gmail send Slack approval', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -219,6 +235,7 @@ describe('warm Gmail send Slack approval', () => {
               draft_id: 'r123',
               external_send_blocked: true,
             },
+            warm_gmail_send_slack_approval_request: slackApprovalRequest(),
           },
         },
         error: null,
@@ -253,6 +270,63 @@ describe('warm Gmail send Slack approval', () => {
           external_send_authorization_intent: true,
           external_send_enabled: false,
           provider_execution_enabled: false,
+          gmail_send_called: false,
+          external_send_performed: false,
+        }),
+        warm_gmail_send_slack_approval_request: expect.objectContaining({
+          status: 'approved',
+          decision_key: expect.stringMatching(/^warm-outreach:slack-gmail-send-decision:v1:/),
+          gmail_send_called: false,
+          external_send_performed: false,
+        }),
+      }),
+    }))
+  })
+
+  it.each([
+    ['rejected', 'rejected'],
+    ['revision_requested', 'revision requested'],
+  ] as const)('records Slack %s decisions without approval intent', async (status, label) => {
+    const updateQuery = queryResult({ error: null })
+    mocks.from
+      .mockReturnValueOnce(queryResult({
+        data: {
+          id: 'queue-1',
+          contact_submission_id: 42,
+          channel: 'email',
+          status: 'draft',
+          generation_inputs: {
+            warm_gmail_send_slack_approval_request: slackApprovalRequest(),
+          },
+        },
+        error: null,
+      }))
+      .mockReturnValueOnce(updateQuery)
+
+    const result = await decideWarmGmailSendAuthorizationFromSlack({
+      contactId: 42,
+      outreachQueueId: 'queue-1',
+      messageVersionKey: 'warm-outreach:email-message-version:v1:message-1',
+      sendQueueIdempotencyKey: 'warm-outreach:email-send-queue:v1:message-1',
+      status,
+      actorLabel: 'vambah',
+      slackUserId: 'U123',
+      decisionNotes: `${label} from Slack.`,
+      idempotencyKey: `slack-action-${status}`,
+    })
+
+    expect(result).toContain(label)
+    expect(updateQuery.update).toHaveBeenCalledWith(expect.objectContaining({
+      generation_inputs: expect.objectContaining({
+        warm_gmail_send_authorization: expect.objectContaining({
+          status,
+          approval_intent_recorded: false,
+          external_send_authorization_intent: false,
+          gmail_send_called: false,
+          external_send_performed: false,
+        }),
+        warm_gmail_send_slack_approval_request: expect.objectContaining({
+          status,
           gmail_send_called: false,
           external_send_performed: false,
         }),
@@ -295,6 +369,64 @@ describe('warm Gmail send Slack approval', () => {
     })
 
     expect(result).toContain('already recorded')
+    expect(mocks.from).toHaveBeenCalledTimes(1)
+  })
+
+  it('refuses Slack decisions when the stored approval request has a mismatched message version', async () => {
+    mocks.from.mockReturnValueOnce(queryResult({
+      data: {
+        id: 'queue-1',
+        contact_submission_id: 42,
+        channel: 'email',
+        status: 'draft',
+        generation_inputs: {
+          warm_gmail_send_slack_approval_request: slackApprovalRequest({
+            message_version_key: 'warm-outreach:email-message-version:v1:old-message',
+          }),
+        },
+      },
+      error: null,
+    }))
+
+    await expect(decideWarmGmailSendAuthorizationFromSlack({
+      contactId: 42,
+      outreachQueueId: 'queue-1',
+      messageVersionKey: 'warm-outreach:email-message-version:v1:message-1',
+      sendQueueIdempotencyKey: 'warm-outreach:email-send-queue:v1:message-1',
+      status: 'approved',
+      actorLabel: 'vambah',
+      slackUserId: 'U123',
+      decisionNotes: 'Approved from stale Slack card.',
+      idempotencyKey: 'slack-action-stale',
+    })).rejects.toThrow('message version is stale or mismatched')
+    expect(mocks.from).toHaveBeenCalledTimes(1)
+  })
+
+  it('refuses Slack decisions when the target contact does not match the queue row', async () => {
+    mocks.from.mockReturnValueOnce(queryResult({
+      data: {
+        id: 'queue-1',
+        contact_submission_id: 99,
+        channel: 'email',
+        status: 'draft',
+        generation_inputs: {
+          warm_gmail_send_slack_approval_request: slackApprovalRequest(),
+        },
+      },
+      error: null,
+    }))
+
+    await expect(decideWarmGmailSendAuthorizationFromSlack({
+      contactId: 42,
+      outreachQueueId: 'queue-1',
+      messageVersionKey: 'warm-outreach:email-message-version:v1:message-1',
+      sendQueueIdempotencyKey: 'warm-outreach:email-send-queue:v1:message-1',
+      status: 'approved',
+      actorLabel: 'vambah',
+      slackUserId: 'U123',
+      decisionNotes: 'Approved from copied Slack card.',
+      idempotencyKey: 'slack-action-contact-mismatch',
+    })).rejects.toThrow('target does not match the recipient')
     expect(mocks.from).toHaveBeenCalledTimes(1)
   })
 })
