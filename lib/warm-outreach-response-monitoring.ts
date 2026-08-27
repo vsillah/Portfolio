@@ -81,6 +81,52 @@ export type WarmOutreachEmailSendLifecycleStage = {
   externalExecutionEnabled: false
 }
 
+export type WarmOutreachExternalSendReadiness = {
+  version: 'warm-outreach-external-send-readiness/v1'
+  state: 'blocked_pending_authority'
+  label: string
+  senderIdentity: {
+    state: 'not_verified' | 'verified_for_draft_only'
+    requiredSender: string | null
+    connectedAs: string | null
+    detail: string
+  }
+  recipientApproval: {
+    state: 'required'
+    contactId: number
+    approved: false
+    detail: string
+  }
+  draftEvidence: {
+    state: 'missing' | 'tracked'
+    gmailDraftExists: boolean
+    draftId: string | null
+    threadId: string | null
+    messageId: string | null
+    sourceIds: string[]
+    detail: string
+  }
+  suppressionConsent: {
+    state: 'clear' | 'blocked'
+    reasons: string[]
+    detail: string
+  }
+  idempotency: {
+    messageVersionKey: string
+    sendQueueIdempotencyKey: string
+    submittedEvidenceKey: string
+    duplicateDetected: boolean
+    detail: string
+  }
+  externalSend: {
+    enabled: false
+    approved: false
+    blocked: true
+    detail: string
+    nextStep: string
+  }
+}
+
 export type WarmOutreachGmailDraftHandoffPacket = {
   version: 'warm-outreach-gmail-draft-handoff/v1'
   state: 'ready_for_internal_handoff' | 'blocked' | 'per_recipient_gate_required'
@@ -240,6 +286,7 @@ export type WarmOutreachEmailSendLifecycle = {
   providerCapabilitySmoke: WarmOutreachGmailProviderCapabilitySmokeReadiness
   gmailDraftCreationGate: WarmOutreachGmailDraftCreationGate
   gmailProviderActivationReadiness: WarmOutreachGmailProviderActivationReadiness
+  externalSendReadiness: WarmOutreachExternalSendReadiness
   duplicatePrevention: {
     scope: 'contact_channel_message_version'
     duplicateDetected: boolean
@@ -1056,6 +1103,61 @@ function buildEmailSendLifecycle(args: {
     draftCreationGate: gmailDraftCreationGate,
     duplicateDraftEvidence,
   })
+  const externalSendReadiness: WarmOutreachExternalSendReadiness = {
+    version: 'warm-outreach-external-send-readiness/v1',
+    state: 'blocked_pending_authority',
+    label: 'External Gmail send authority blocked',
+    senderIdentity: {
+      state: gmailProviderActivationReadiness.connectedSenderReadiness.connectedAs
+        ? 'verified_for_draft_only'
+        : 'not_verified',
+      requiredSender: gmailProviderActivationReadiness.connectedSenderReadiness.requiredSender,
+      connectedAs: gmailProviderActivationReadiness.connectedSenderReadiness.connectedAs,
+      detail:
+        'Sender identity must be verified for this contact and message version before a separate external-send authority request.',
+    },
+    recipientApproval: {
+      state: 'required',
+      contactId: args.contactId,
+      approved: false,
+      detail:
+        'No per-recipient external-send approval is recorded. Draft approval and draft existence do not authorize sending.',
+    },
+    draftEvidence: {
+      state: duplicateDraftEvidence.createdOnce ? 'tracked' : 'missing',
+      gmailDraftExists: duplicateDraftEvidence.createdOnce,
+      draftId: duplicateDraftEvidence.draftId,
+      threadId: duplicateDraftEvidence.threadId,
+      messageId: duplicateDraftEvidence.messageId,
+      sourceIds: duplicateDraftEvidence.sourceIds,
+      detail: duplicateDraftEvidence.createdOnce
+        ? 'A Gmail draft exists as tracking evidence only. It does not grant send authority.'
+        : 'No tracked Gmail draft evidence is recorded. External send still remains blocked.',
+    },
+    suppressionConsent: {
+      state: suppressionReasons.length > 0 ? 'blocked' : 'clear',
+      reasons: suppressionReasons,
+      detail: suppressionReasons[0] ?? 'No suppression blocker is recorded, but explicit per-recipient send approval is still required.',
+    },
+    idempotency: {
+      messageVersionKey,
+      sendQueueIdempotencyKey,
+      submittedEvidenceKey,
+      duplicateDetected,
+      detail: duplicateDetected
+        ? 'Duplicate prevention found existing local email evidence; do not create another send path.'
+        : 'Future external-send review must reuse the stable contact/channel/message-version keys.',
+    },
+    externalSend: {
+      enabled: false,
+      approved: false,
+      blocked: true,
+      detail:
+        'Portfolio cannot send this Gmail message from this state. Gmail drafts, canaries, and provider smoke evidence are not send permission.',
+      nextStep:
+        'Ask the Integration Captain for explicit per-recipient external-send authority after sender identity, suppression, draft evidence, and final copy are reviewed.',
+    },
+  }
   const state: WarmOutreachEmailSendLifecycle['state'] =
     args.mode === 'warm_1_to_many' && hardBlockers.length === 0
         ? 'per_recipient_gate_required'
@@ -1090,6 +1192,7 @@ function buildEmailSendLifecycle(args: {
     providerCapabilitySmoke,
     gmailDraftCreationGate,
     gmailProviderActivationReadiness,
+    externalSendReadiness,
     duplicatePrevention: {
       scope: 'contact_channel_message_version',
       duplicateDetected,
