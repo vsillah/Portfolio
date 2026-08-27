@@ -151,7 +151,15 @@ function gmailHandoffClasses(state: NonNullable<SendReadinessItem['emailSendLife
 function providerSmokeClasses(status: NonNullable<SendReadinessItem['emailSendLifecycle']>['providerCapabilitySmoke']['status']) {
   if (status === 'smoke_passed') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
   if (status === 'smoke_failed' || status === 'blocked') return 'border-red-500/25 bg-red-500/10 text-red-100'
-  if (status === 'ready_for_read_only_smoke') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  if (status === 'ready_for_read_only_smoke' || status === 'waiting_read_only_smoke_authority') {
+    return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  }
+  return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+}
+
+function draftCreationGateClasses(status: NonNullable<SendReadinessItem['emailSendLifecycle']>['gmailDraftCreationGate']['status']) {
+  if (status === 'ready_for_disabled_activation') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  if (status === 'blocked' || status === 'handoff_blocked') return 'border-red-500/25 bg-red-500/10 text-red-100'
   return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
 }
 
@@ -172,6 +180,7 @@ function EmailLifecycleCompact({ item }: { item?: SendReadinessItem }) {
   if (!lifecycle) return null
   const handoff = lifecycle.gmailDraftHandoffPacket
   const smoke = lifecycle.providerCapabilitySmoke
+  const draftGate = lifecycle.gmailDraftCreationGate
 
   return (
     <div className="rounded-md border border-amber-500/25 bg-amber-500/10 p-2.5 text-amber-50">
@@ -228,10 +237,25 @@ function EmailLifecycleCompact({ item }: { item?: SendReadinessItem }) {
           </div>
           <p className="mt-1 text-[11px] leading-4">{smoke.label}. Provider calls off.</p>
           <p className="mt-1 text-[11px] leading-4">
+            OAuth: {smoke.oauthConfigured ? 'configured' : 'missing'} / Profile: {smoke.connectedProfileAvailable ? 'available' : 'missing'}.
+          </p>
+          <p className="mt-1 text-[11px] leading-4">
             Draft handoff ready is separate from provider activation and send authority.
           </p>
           <p className="mt-1 break-all text-[10px] leading-4 opacity-80">{smoke.smokeKey}</p>
         </div>
+      </div>
+      <div className={`mt-2 rounded-md border p-2 ${draftCreationGateClasses(draftGate.status)}`}>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-[11px] font-semibold uppercase tracking-wide">Gmail draft creation availability</p>
+          <span className="rounded-full border border-current/25 px-2 py-0.5 text-[10px] font-semibold">
+            {draftGate.status.replace(/_/g, ' ')}
+          </span>
+        </div>
+        <p className="mt-1 text-[11px] leading-4">
+          {draftGate.label}. Draft creation off. External send blocked.
+        </p>
+        <p className="mt-1 break-all text-[10px] leading-4 opacity-80">{draftGate.draftCreationKey}</p>
       </div>
     </div>
   )

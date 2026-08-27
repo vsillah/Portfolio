@@ -120,6 +120,7 @@ export type WarmOutreachGmailDraftHandoffPacket = {
 
 export type WarmOutreachGmailProviderCapabilitySmokeState =
   | 'not_configured'
+  | 'waiting_read_only_smoke_authority'
   | 'ready_for_read_only_smoke'
   | 'smoke_passed'
   | 'smoke_failed'
@@ -131,6 +132,8 @@ export type WarmOutreachGmailProviderCapabilitySmokeReadiness = {
   status: WarmOutreachGmailProviderCapabilitySmokeState
   label: string
   smokeKey: string
+  oauthConfigured: boolean
+  connectedProfileAvailable: boolean
   providerConfigured: boolean
   readOnlySmokeReady: boolean
   readOnlySmokeEnabled: false
@@ -142,6 +145,31 @@ export type WarmOutreachGmailProviderCapabilitySmokeReadiness = {
   lastSmokeAt: string | null
   lastSmokeError: string | null
   futureActivationGate: string
+  notes: string[]
+}
+
+export type WarmOutreachGmailDraftCreationGateState =
+  | 'handoff_blocked'
+  | 'provider_smoke_required'
+  | 'draft_creation_authority_required'
+  | 'ready_for_disabled_activation'
+  | 'blocked'
+
+export type WarmOutreachGmailDraftCreationGate = {
+  version: 'warm-outreach-gmail-draft-creation-gate/v1'
+  status: WarmOutreachGmailDraftCreationGateState
+  label: string
+  draftCreationKey: string
+  internalHandoffReady: boolean
+  providerSmokeStatus: WarmOutreachGmailProviderCapabilitySmokeState
+  providerSmokePassed: boolean
+  draftCreationAuthority: boolean
+  gmailDraftCreationEnabled: false
+  providerCallsEnabled: false
+  externalSendEnabled: false
+  externalSendBlocked: true
+  blockedReasons: string[]
+  requiredGates: string[]
   notes: string[]
 }
 
@@ -164,9 +192,11 @@ export type WarmOutreachEmailSendLifecycle = {
   messageVersionKey: string
   sendQueueIdempotencyKey: string
   providerCapabilitySmokeKey: string
+  gmailDraftCreationGateKey: string
   submittedEvidenceKey: string
   gmailDraftHandoffPacket: WarmOutreachGmailDraftHandoffPacket
   providerCapabilitySmoke: WarmOutreachGmailProviderCapabilitySmokeReadiness
+  gmailDraftCreationGate: WarmOutreachGmailDraftCreationGate
   duplicatePrevention: {
     scope: 'contact_channel_message_version'
     duplicateDetected: boolean
@@ -516,6 +546,8 @@ function isBatchModeGateBlocker(blocker: string): boolean {
 
 export function buildWarmOutreachGmailProviderCapabilitySmokeReadiness(args: {
   smokeKey: string
+  oauthConfigured?: boolean
+  connectedProfileAvailable?: boolean
   providerConfigured?: boolean
   readOnlySmokeAuthority?: boolean
   blockedReasons?: string[]
@@ -523,7 +555,9 @@ export function buildWarmOutreachGmailProviderCapabilitySmokeReadiness(args: {
   lastSmokeAt?: string | null
   lastSmokeError?: string | null
 }): WarmOutreachGmailProviderCapabilitySmokeReadiness {
-  const providerConfigured = args.providerConfigured === true
+  const oauthConfigured = args.oauthConfigured ?? args.providerConfigured === true
+  const connectedProfileAvailable = args.connectedProfileAvailable ?? args.providerConfigured === true
+  const providerConfigured = args.providerConfigured ?? (oauthConfigured && connectedProfileAvailable)
   const blockedReasons = [...new Set(args.blockedReasons ?? [])]
   const status: WarmOutreachGmailProviderCapabilitySmokeState =
     blockedReasons.length > 0
@@ -531,7 +565,9 @@ export function buildWarmOutreachGmailProviderCapabilitySmokeReadiness(args: {
       : args.lastSmokeStatus ?? (
           providerConfigured && args.readOnlySmokeAuthority === true
             ? 'ready_for_read_only_smoke'
-            : 'not_configured'
+            : providerConfigured
+              ? 'waiting_read_only_smoke_authority'
+              : 'not_configured'
         )
 
   return {
@@ -541,6 +577,8 @@ export function buildWarmOutreachGmailProviderCapabilitySmokeReadiness(args: {
     label:
       status === 'ready_for_read_only_smoke'
         ? 'Ready for read-only Gmail smoke'
+        : status === 'waiting_read_only_smoke_authority'
+          ? 'Gmail provider configured, smoke authority required'
         : status === 'smoke_passed'
           ? 'Read-only Gmail smoke passed'
           : status === 'smoke_failed'
@@ -549,6 +587,8 @@ export function buildWarmOutreachGmailProviderCapabilitySmokeReadiness(args: {
               ? 'Gmail smoke blocked'
               : 'Gmail provider not activated',
     smokeKey: args.smokeKey,
+    oauthConfigured,
+    connectedProfileAvailable,
     providerConfigured,
     readOnlySmokeReady: status === 'ready_for_read_only_smoke',
     readOnlySmokeEnabled: false,
@@ -569,6 +609,65 @@ export function buildWarmOutreachGmailProviderCapabilitySmokeReadiness(args: {
       'This model does not call Gmail.',
       'Read-only smoke readiness is separate from Gmail draft creation and external send authority.',
       'Gmail draft creation, send, scheduling, Slack action, and provider calls remain disabled.',
+    ],
+  }
+}
+
+export function buildWarmOutreachGmailDraftCreationGate(args: {
+  draftCreationKey: string
+  internalHandoffReady: boolean
+  providerSmoke: WarmOutreachGmailProviderCapabilitySmokeReadiness
+  draftCreationAuthority?: boolean
+  blockedReasons?: string[]
+}): WarmOutreachGmailDraftCreationGate {
+  const blockedReasons = [...new Set(args.blockedReasons ?? [])]
+  const providerSmokePassed = args.providerSmoke.status === 'smoke_passed'
+  const draftCreationAuthority = args.draftCreationAuthority === true
+  const status: WarmOutreachGmailDraftCreationGateState =
+    blockedReasons.length > 0
+      ? 'blocked'
+      : !args.internalHandoffReady
+        ? 'handoff_blocked'
+        : !providerSmokePassed
+          ? 'provider_smoke_required'
+          : !draftCreationAuthority
+            ? 'draft_creation_authority_required'
+            : 'ready_for_disabled_activation'
+
+  return {
+    version: 'warm-outreach-gmail-draft-creation-gate/v1',
+    status,
+    label:
+      status === 'ready_for_disabled_activation'
+        ? 'Ready for disabled Gmail draft creation activation'
+        : status === 'draft_creation_authority_required'
+          ? 'Gmail draft creation authority required'
+          : status === 'provider_smoke_required'
+            ? 'Gmail provider smoke required before draft creation'
+            : status === 'handoff_blocked'
+              ? 'Internal handoff blocked before Gmail draft creation'
+              : 'Gmail draft creation blocked',
+    draftCreationKey: args.draftCreationKey,
+    internalHandoffReady: args.internalHandoffReady,
+    providerSmokeStatus: args.providerSmoke.status,
+    providerSmokePassed,
+    draftCreationAuthority,
+    gmailDraftCreationEnabled: false,
+    providerCallsEnabled: false,
+    externalSendEnabled: false,
+    externalSendBlocked: true,
+    blockedReasons,
+    requiredGates: [
+      'internal_gmail_draft_handoff',
+      'read_only_gmail_provider_smoke',
+      'gmail_draft_creation_authority',
+      'duplicate_prevention',
+      'external_send_authority_separate_future_gate',
+    ],
+    notes: [
+      'This gate does not create Gmail drafts.',
+      'Draft creation stays disabled even when readiness evidence is complete.',
+      'External send authority remains a separate future gate.',
     ],
   }
 }
@@ -700,6 +799,11 @@ function buildEmailSendLifecycle(args: {
     channel: 'email',
     messageVersionKey,
   })}`
+  const gmailDraftCreationGateKey = `warm-outreach:gmail-draft-creation-gate:v1:${stableHash({
+    contactId: args.contactId,
+    channel: 'email',
+    messageVersionKey,
+  })}`
   const localEmailRows = [
     ...asRows(args.rows?.outreachQueue),
     ...asRows(args.rows?.emailMessages),
@@ -741,6 +845,21 @@ function buildEmailSendLifecycle(args: {
     commonalityCount,
     suppressionReasons,
   })
+  const gmailDraftCreationGate = buildWarmOutreachGmailDraftCreationGate({
+    draftCreationKey: gmailDraftCreationGateKey,
+    internalHandoffReady: gmailDraftHandoffPacket.internalHandoffReady,
+    providerSmoke: providerCapabilitySmoke,
+    draftCreationAuthority: false,
+    blockedReasons: [
+      ...hardBlockers,
+      ...(args.mode === 'warm_1_to_many'
+        ? ['Batch Gmail draft creation remains per-recipient only and cannot run from the batch surface.']
+        : []),
+      ...(duplicateDetected
+        ? ['Duplicate prevention found an active local email queue/submission state.']
+        : []),
+    ],
+  })
   const state: WarmOutreachEmailSendLifecycle['state'] =
     args.mode === 'warm_1_to_many' && hardBlockers.length === 0
         ? 'per_recipient_gate_required'
@@ -769,9 +888,11 @@ function buildEmailSendLifecycle(args: {
     messageVersionKey,
     sendQueueIdempotencyKey,
     providerCapabilitySmokeKey,
+    gmailDraftCreationGateKey,
     submittedEvidenceKey,
     gmailDraftHandoffPacket,
     providerCapabilitySmoke,
+    gmailDraftCreationGate,
     duplicatePrevention: {
       scope: 'contact_channel_message_version',
       duplicateDetected,
@@ -779,6 +900,7 @@ function buildEmailSendLifecycle(args: {
       requiredUniqueKeys: [
         messageVersionKey,
         gmailDraftHandoffKey,
+        gmailDraftCreationGateKey,
         sendQueueIdempotencyKey,
         providerCapabilitySmokeKey,
         submittedEvidenceKey,
@@ -835,14 +957,25 @@ function buildEmailSendLifecycle(args: {
       lifecycleStage({
         key: 'send_authority_review',
         label: 'Send authority review',
-        status: 'future_gate',
-        detail: 'Future explicit authority is required for this contact, channel, and message version.',
+        status: gmailDraftCreationGate.status === 'ready_for_disabled_activation' ? 'ready_for_review' : 'future_gate',
+        detail:
+          gmailDraftCreationGate.status === 'ready_for_disabled_activation'
+            ? 'All readiness evidence is present, but Gmail draft creation remains disabled until the feature flag and human gate are approved.'
+            : 'Future explicit authority is required for this contact, channel, and message version.',
       }),
       lifecycleStage({
         key: 'provider_capability_smoke',
         label: 'Provider capability smoke',
-        status: 'blocked',
-        detail: 'Gmail/provider capability smoke is intentionally blocked in this scaffold.',
+        status:
+          providerCapabilitySmoke.status === 'smoke_passed'
+            ? 'ready_for_review'
+            : providerCapabilitySmoke.status === 'ready_for_read_only_smoke' || providerCapabilitySmoke.status === 'waiting_read_only_smoke_authority'
+              ? 'future_gate'
+              : 'blocked',
+        detail:
+          providerCapabilitySmoke.status === 'smoke_passed'
+            ? 'Read-only Gmail provider smoke evidence is present; no draft creation or send authority is implied.'
+            : providerCapabilitySmoke.futureActivationGate,
       }),
       lifecycleStage({
         key: 'scheduled_send_queue',
