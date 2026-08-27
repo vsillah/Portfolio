@@ -148,7 +148,8 @@ describe('POST /api/admin/outreach/[id]/slack-send-approval', () => {
     const response = await POST(makeRequest(), params())
 
     expect(response.status).toBe(200)
-    await expect(response.json()).resolves.toMatchObject({
+    const body = await response.json()
+    expect(body).toMatchObject({
       card: {
         text: 'Warm Gmail send approval needed: Amina Example',
         actionScope: {
@@ -186,6 +187,9 @@ describe('POST /api/admin/outreach/[id]/slack-send-approval', () => {
         providerExecutionEnabled: false,
       },
     })
+    expect(JSON.stringify(body.card.blocks)).toContain(
+      '/admin/outreach?tab=leads&id=42&contactId=42&queueId=queue-1',
+    )
     expect(update).toHaveBeenCalledTimes(1)
     expect(updatePayloads[0]).toMatchObject({
       generation_inputs: {

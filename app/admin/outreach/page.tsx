@@ -56,6 +56,11 @@ import RelationshipPacketPanel, {
   type GmailDraftCanaryResult,
   type RelationshipPacketApiResponse,
 } from '@/components/admin/outreach/RelationshipPacketPanel'
+import {
+  WARM_SLACK_SEND_APPROVAL_QA_CONTACT_ID,
+  warmSlackSendApprovalQaLead,
+  warmSlackSendApprovalQaRelationshipPacket,
+} from '@/components/admin/outreach/warmSlackSendApprovalQaFixture'
 import WarmBatchReviewPanel from '@/components/admin/outreach/WarmBatchReviewPanel'
 import { OutreachEmailGenerateRow } from '@/components/admin/OutreachEmailGenerateRow'
 import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
@@ -134,6 +139,16 @@ const OUTREACH_REALTIME_DEBOUNCE_MS = 1500
 const ACTIVE_N8N_PENDING_MS = 20 * 60 * 1000
 const ACTIVE_VEP_PENDING_MS = 10 * 60 * 1000
 
+function selectedLeadIdFromParams(searchParams: { get(name: string): string | null } | null): number | null {
+  const id =
+    searchParams?.get('id') ??
+    searchParams?.get('contactId') ??
+    searchParams?.get('contact')
+  if (!id) return null
+  const parsed = parseInt(id, 10)
+  return Number.isFinite(parsed) ? parsed : null
+}
+
 type TabType = 'leads' | 'escalations'
 
 interface ChatEscalationRow {
@@ -164,6 +179,7 @@ export default function OutreachAdminPage() {
 function OutreachContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const warmSlackSendApprovalQaMode = searchParams?.get('qa') === 'warm-slack-send-approval'
 
   // Tab management (default: All Leads)
   const [activeTab, setActiveTab] = useState<TabType>(() => {
@@ -191,12 +207,11 @@ function OutreachContent() {
   })
   const [leadsSearch, setLeadsSearch] = useState('')
   const [expandedLeadId, setExpandedLeadId] = useState<number | null>(() => {
-    const id = searchParams?.get('id') ?? searchParams?.get('contact')
-    return id ? parseInt(id) : null
+    if (warmSlackSendApprovalQaMode) return null
+    return selectedLeadIdFromParams(searchParams)
   })
   const [outreachWorkroomLeadId, setOutreachWorkroomLeadId] = useState<number | null>(() => {
-    const id = searchParams?.get('id') ?? searchParams?.get('contact')
-    return id ? parseInt(id) : null
+    return selectedLeadIdFromParams(searchParams)
   })
   const [leadsPage, setLeadsPage] = useState(1)
   const leadsPerPage = 50
@@ -346,6 +361,20 @@ function OutreachContent() {
       if (!silent) setLeadsLoading(true)
       leadsListFetchInFlightRef.current = true
       try {
+        if (warmSlackSendApprovalQaMode) {
+          const data: LeadsResponse = {
+            leads: [warmSlackSendApprovalQaLead as Lead],
+            total: 1,
+            page: 1,
+          }
+          setLeads(data.leads)
+          setLeadsTotal(data.total)
+          if (silent) {
+            lastSilentLeadsListFetchAtRef.current = Date.now()
+          }
+          return data
+        }
+
         const session = await getCurrentSession()
         if (!session) return null
 
@@ -381,7 +410,16 @@ function OutreachContent() {
         if (!silent) setLeadsLoading(false)
       }
     },
-    [leadsTempFilter, leadsStatusFilter, leadsSourceFilter, leadsVisibilityFilter, leadsSearch, leadsPage, leadsPerPage],
+    [
+      leadsTempFilter,
+      leadsStatusFilter,
+      leadsSourceFilter,
+      leadsVisibilityFilter,
+      leadsSearch,
+      leadsPage,
+      leadsPerPage,
+      warmSlackSendApprovalQaMode,
+    ],
   )
 
   /**
@@ -594,6 +632,11 @@ function OutreachContent() {
       setLeadEscalations([])
       return
     }
+    if (warmSlackSendApprovalQaMode && expandedLeadId === WARM_SLACK_SEND_APPROVAL_QA_CONTACT_ID) {
+      setLeadEscalations([])
+      setLeadEscalationsLoading(false)
+      return
+    }
     let cancelled = false
     setLeadEscalationsLoading(true)
     getCurrentSession().then((session) => {
@@ -609,13 +652,19 @@ function OutreachContent() {
         .finally(() => { if (!cancelled) setLeadEscalationsLoading(false) })
     })
     return () => { cancelled = true }
-  }, [activeTab, expandedLeadId])
+  }, [activeTab, expandedLeadId, warmSlackSendApprovalQaMode])
 
   // Fetch related meetings for the expanded lead
   useEffect(() => {
     if (activeTab !== 'leads' || !expandedLeadId) {
       setLeadMeetings([])
       setLeadMeetingsContactId(null)
+      return
+    }
+    if (warmSlackSendApprovalQaMode && expandedLeadId === WARM_SLACK_SEND_APPROVAL_QA_CONTACT_ID) {
+      setLeadMeetings([])
+      setLeadMeetingsContactId(expandedLeadId)
+      setLeadMeetingsLoading(false)
       return
     }
     let cancelled = false
@@ -661,12 +710,17 @@ function OutreachContent() {
         .finally(() => { if (!cancelled) setLeadMeetingsLoading(false) })
     })
     return () => { cancelled = true }
-  }, [activeTab, expandedLeadId])
+  }, [activeTab, expandedLeadId, warmSlackSendApprovalQaMode])
 
   // Fetch meeting action tasks attributed to this contact (via contact_submission_id)
   useEffect(() => {
     if (activeTab !== 'leads' || !expandedLeadId) {
       setLeadActionTasks([])
+      return
+    }
+    if (warmSlackSendApprovalQaMode && expandedLeadId === WARM_SLACK_SEND_APPROVAL_QA_CONTACT_ID) {
+      setLeadActionTasks([])
+      setLeadActionTasksLoading(false)
       return
     }
     let cancelled = false
@@ -702,7 +756,7 @@ function OutreachContent() {
         .finally(() => { if (!cancelled) setLeadActionTasksLoading(false) })
     })
     return () => { cancelled = true }
-  }, [activeTab, expandedLeadId])
+  }, [activeTab, expandedLeadId, warmSlackSendApprovalQaMode])
 
   useEffect(() => {
     if (activeTab !== 'leads' || !outreachWorkroomLeadId) {
@@ -721,6 +775,12 @@ function OutreachContent() {
     setGmailDraftCanaryErrors((prev) => ({ ...prev, [leadId]: null }))
     setGmailDraftCanaryResults((prev) => ({ ...prev, [leadId]: null }))
     setRelationshipPacketLoading(true)
+
+    if (warmSlackSendApprovalQaMode && leadId === WARM_SLACK_SEND_APPROVAL_QA_CONTACT_ID) {
+      setRelationshipPacketData(warmSlackSendApprovalQaRelationshipPacket)
+      setRelationshipPacketLoading(false)
+      return () => { cancelled = true }
+    }
 
     getCurrentSession().then((session) => {
       if (cancelled) return
@@ -762,7 +822,7 @@ function OutreachContent() {
     })
 
     return () => { cancelled = true }
-  }, [activeTab, outreachWorkroomLeadId])
+  }, [activeTab, outreachWorkroomLeadId, warmSlackSendApprovalQaMode])
 
   const runGmailDraftCanary = useCallback(async (leadId: number) => {
     if (gmailDraftCanaryLoadingLeadId != null) return
@@ -1314,6 +1374,7 @@ function OutreachContent() {
                     loading={relationshipPacketLeadId === outreachWorkroomLead.id && relationshipPacketLoading}
                     error={relationshipPacketLeadId === outreachWorkroomLead.id ? relationshipPacketError : null}
                     data={relationshipPacketLeadId === outreachWorkroomLead.id ? relationshipPacketData : null}
+                    inertSlackApprovalRequest={warmSlackSendApprovalQaMode}
                     gmailDraftCanaryLoading={gmailDraftCanaryLoadingLeadId === outreachWorkroomLead.id}
                     gmailDraftCanaryError={gmailDraftCanaryErrors[outreachWorkroomLead.id] ?? null}
                     gmailDraftCanaryResult={gmailDraftCanaryResults[outreachWorkroomLead.id] ?? null}
@@ -1933,6 +1994,7 @@ function OutreachContent() {
                                   loading={relationshipPacketLeadId === lead.id && relationshipPacketLoading}
                                   error={relationshipPacketLeadId === lead.id ? relationshipPacketError : null}
                                   data={relationshipPacketLeadId === lead.id ? relationshipPacketData : null}
+                                  inertSlackApprovalRequest={warmSlackSendApprovalQaMode}
                                   gmailDraftCanaryLoading={gmailDraftCanaryLoadingLeadId === lead.id}
                                   gmailDraftCanaryError={gmailDraftCanaryErrors[lead.id] ?? null}
                                   gmailDraftCanaryResult={gmailDraftCanaryResults[lead.id] ?? null}

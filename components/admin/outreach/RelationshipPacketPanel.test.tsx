@@ -12,6 +12,10 @@ import type {
   WarmOutreachSendAuthority,
   WarmOutreachSendMode,
 } from '@/lib/warm-outreach-response-monitoring'
+import {
+  WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID,
+  warmSlackSendApprovalQaRelationshipPacket,
+} from './warmSlackSendApprovalQaFixture'
 
 const gateKeys = [
   'target_source_provenance',
@@ -975,5 +979,33 @@ describe('RelationshipPacketPanel', () => {
       )).toBeInTheDocument()
       expect(screen.getByText('Approval records intent only. Gmail send: off.')).toBeInTheDocument()
     }
+  })
+
+  it('records an inert QA Slack approval request without calling the API', async () => {
+    const previousFetch = globalThis.fetch
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(
+      <RelationshipPacketPanel
+        loading={false}
+        error={null}
+        data={warmSlackSendApprovalQaRelationshipPacket}
+        inertSlackApprovalRequest
+      />,
+    )
+
+    const button = screen.getByRole('button', { name: 'Build Slack approval card' })
+    expect(button).toBeEnabled()
+
+    fireEvent.click(button)
+
+    expect(await screen.findByText(
+      `QA local Slack approval request recorded for ${WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID}. Slack dispatch off. Gmail send off. Provider calls off.`,
+    )).toBeInTheDocument()
+    expect(screen.getByText('Slack approval: pending. Slack dispatch: not sent.')).toBeInTheDocument()
+    expect(fetchMock).not.toHaveBeenCalled()
+
+    vi.stubGlobal('fetch', previousFetch)
   })
 })

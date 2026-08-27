@@ -71,6 +71,7 @@ interface RelationshipPacketPanelProps {
   gmailDraftCanaryError?: string | null
   gmailDraftCanaryResult?: GmailDraftCanaryResult | null
   onGmailDraftCanary?: () => void
+  inertSlackApprovalRequest?: boolean
 }
 
 const CHANNEL_LABELS: Record<WarmOutreachChannel, string> = {
@@ -219,12 +220,15 @@ function slackApprovalStatusLabel(status: WarmOutreachRealRecipientGmailRolloutR
 }
 
 function RealRecipientRolloutCard({
+  inertSlackApprovalRequest = false,
   readiness,
 }: {
+  inertSlackApprovalRequest?: boolean
   readiness?: WarmOutreachRealRecipientGmailRolloutReadiness | null
 }) {
   const [requestLoading, setRequestLoading] = useState(false)
   const [requestError, setRequestError] = useState<string | null>(null)
+  const [requestReceipt, setRequestReceipt] = useState<string | null>(null)
   const [localApprovalStatus, setLocalApprovalStatus] = useState<
     WarmOutreachRealRecipientGmailRolloutReadiness['slackApprovalContract']['status'] | null
   >(null)
@@ -237,7 +241,16 @@ function RealRecipientRolloutCard({
     if (!queueId) return
     setRequestLoading(true)
     setRequestError(null)
+    setRequestReceipt(null)
     try {
+      if (inertSlackApprovalRequest) {
+        setLocalApprovalStatus('pending')
+        setRequestReceipt(
+          `QA local Slack approval request recorded for ${queueId}. Slack dispatch off. Gmail send off. Provider calls off.`,
+        )
+        return
+      }
+
       const response = await fetch(`/api/admin/outreach/${encodeURIComponent(queueId)}/slack-send-approval`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -258,6 +271,7 @@ function RealRecipientRolloutCard({
       } else {
         setLocalApprovalStatus('pending')
       }
+      setRequestReceipt('Local Slack approval request recorded in Portfolio. Slack dispatch off. Gmail send off.')
     } catch (error) {
       setRequestError(error instanceof Error ? error.message : 'Could not build Slack approval payload.')
     } finally {
@@ -344,6 +358,11 @@ function RealRecipientRolloutCard({
       {requestError && (
         <p role="alert" className="mt-2 rounded-md border border-red-500/35 bg-red-500/10 p-2 text-[11px] leading-4 text-red-100">
           {requestError}
+        </p>
+      )}
+      {requestReceipt && (
+        <p role="status" className="mt-2 rounded-md border border-sky-500/30 bg-sky-500/10 p-2 text-[11px] leading-4 text-sky-100">
+          {requestReceipt}
         </p>
       )}
     </div>
@@ -434,12 +453,14 @@ function EmailLifecycleCompact({
   canaryError,
   canaryLoading,
   canaryResult,
+  inertSlackApprovalRequest,
   item,
   onRunCanary,
 }: {
   canaryError?: string | null
   canaryLoading?: boolean
   canaryResult?: RelationshipPacketPanelProps['gmailDraftCanaryResult']
+  inertSlackApprovalRequest?: boolean
   item?: SendReadinessItem
   onRunCanary?: () => void
 }) {
@@ -484,7 +505,10 @@ function EmailLifecycleCompact({
       <p className="mt-2 break-all text-[10px] leading-4 text-amber-100/80">
         Queue key: {lifecycle.sendQueueIdempotencyKey}
       </p>
-      <RealRecipientRolloutCard readiness={realRecipientRollout} />
+      <RealRecipientRolloutCard
+        inertSlackApprovalRequest={inertSlackApprovalRequest}
+        readiness={realRecipientRollout}
+      />
       <div className="mt-2 grid gap-2 md:grid-cols-2">
         <div className={`rounded-md border p-2 ${gmailHandoffClasses(handoff.state)}`}>
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -742,6 +766,7 @@ export default function RelationshipPacketPanel({
   loading,
   error,
   data,
+  inertSlackApprovalRequest,
   onGmailDraftCanary,
 }: RelationshipPacketPanelProps) {
   const readiness = data?.readiness
@@ -895,6 +920,7 @@ export default function RelationshipPacketPanel({
                     canaryError={gmailDraftCanaryError}
                     canaryLoading={gmailDraftCanaryLoading}
                     canaryResult={gmailDraftCanaryResult}
+                    inertSlackApprovalRequest={inertSlackApprovalRequest}
                     onRunCanary={onGmailDraftCanary}
                   />
                   <SendAuthorityCompactRow

@@ -165,7 +165,7 @@ export async function POST(
 
   const generationInputs = record(item.generation_inputs)
   const contact = item.contact_submissions
-  const portfolioUrl = `${baseUrl()}/admin/outreach?contactId=${item.contact_submission_id}&queueId=${encodeURIComponent(item.id)}`
+  const portfolioUrl = `${baseUrl()}/admin/outreach?tab=leads&id=${item.contact_submission_id}&contactId=${item.contact_submission_id}&queueId=${encodeURIComponent(item.id)}`
   const card = buildWarmGmailSendApprovalSlackPayload({
     contactId: item.contact_submission_id,
     outreachQueueId: item.id,
