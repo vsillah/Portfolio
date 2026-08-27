@@ -12,6 +12,7 @@ import { routeAgentInboxItem } from '@/lib/agent-inbox-routing'
 import { supabaseAdmin } from '@/lib/supabase'
 import { decodeSlackActionValue, type SlackAgentActionValue } from '@/lib/agent-slack-blocks'
 import { decideSocialCommentReplyFromSlack } from '@/lib/social-comment-attention'
+import { decideWarmGmailSendAuthorizationFromSlack } from '@/lib/warm-outreach-slack-send-approval'
 
 export type SlackInteractivePayload = {
   type?: string
@@ -113,12 +114,27 @@ function actionFromPayload(payload: SlackInteractivePayload): SlackAgentActionVa
 }
 
 function idempotencyKey(payload: SlackInteractivePayload, value: SlackAgentActionValue) {
+  const warmSendTarget = value.action.startsWith('warm_gmail_send.')
+    ? value.sendQueueIdempotencyKey ?? value.messageVersionKey ?? value.outreachQueueId
+    : null
+  const target =
+    warmSendTarget ??
+    value.approvalId ??
+    value.workItemId ??
+    value.runId ??
+    value.commentId ??
+    value.contentId ??
+    value.sendQueueIdempotencyKey ??
+    value.messageVersionKey ??
+    value.outreachQueueId ??
+    (typeof value.contactId === 'number' ? `contact-${value.contactId}` : 'unknown-target')
+
   return [
     'slack-agent-action',
     payload.user?.id ?? 'unknown-user',
     payload.container?.message_ts ?? payload.message?.ts ?? payload.action_ts ?? 'unknown-ts',
     value.action,
-    value.approvalId ?? value.workItemId ?? value.runId ?? value.commentId ?? value.contentId ?? 'unknown-target',
+    target,
   ].join(':')
 }
 
@@ -462,6 +478,47 @@ export async function handleSlackAgentAction(payload: SlackInteractivePayload): 
       actorLabel: authorization.actorLabel,
       slackUserId: authorization.userId,
       decisionNotes: value.note || (status === 'approved' ? 'Approved from Slack.' : 'Rejected from Slack.'),
+      idempotencyKey: key,
+    })
+    return { responseType: 'ephemeral', text }
+  }
+
+  if (
+    value.action === 'warm_gmail_send.approve' ||
+    value.action === 'warm_gmail_send.reject' ||
+    value.action === 'warm_gmail_send.revise'
+  ) {
+    if (
+      typeof value.contactId !== 'number' ||
+      !value.outreachQueueId ||
+      !value.messageVersionKey ||
+      !value.sendQueueIdempotencyKey
+    ) {
+      return {
+        responseType: 'ephemeral',
+        text: 'Missing warm Gmail send authorization scope. Open Portfolio and review this recipient there.',
+      }
+    }
+    const status = value.action === 'warm_gmail_send.approve'
+      ? 'approved'
+      : value.action === 'warm_gmail_send.reject'
+        ? 'rejected'
+        : 'revision_requested'
+    const text = await decideWarmGmailSendAuthorizationFromSlack({
+      contactId: value.contactId,
+      outreachQueueId: value.outreachQueueId,
+      messageVersionKey: value.messageVersionKey,
+      sendQueueIdempotencyKey: value.sendQueueIdempotencyKey,
+      status,
+      actorLabel: authorization.actorLabel,
+      slackUserId: authorization.userId,
+      decisionNotes: value.note || (
+        status === 'approved'
+          ? 'Approve Send tapped in Slack. Record approval intent only; do not call Gmail send.'
+          : status === 'rejected'
+            ? 'Rejected from Slack. Keep Gmail send blocked.'
+            : 'Revision requested from Slack. Keep Gmail send blocked.'
+      ),
       idempotencyKey: key,
     })
     return { responseType: 'ephemeral', text }

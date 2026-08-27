@@ -52,6 +52,10 @@ export type SlackAgentActionValue = {
   agentKey?: string
   contentId?: string
   commentId?: string
+  contactId?: number
+  outreachQueueId?: string
+  messageVersionKey?: string
+  sendQueueIdempotencyKey?: string
   note?: string
 }
 

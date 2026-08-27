@@ -152,6 +152,28 @@ describe('Agent Ops Slack actions', () => {
     )
   })
 
+  it('uses warm Gmail send key in Slack action idempotency keys', async () => {
+    const recordedActionQuery = queryResult({
+      data: { id: 'event-1' },
+      error: null,
+    })
+    mocks.from.mockReturnValueOnce(recordedActionQuery)
+
+    const result = await handleSlackAgentAction(payload({
+      action: 'warm_gmail_send.approve',
+      contactId: 42,
+      outreachQueueId: 'queue-1',
+      messageVersionKey: 'warm-outreach:email-message-version:v1:message-1',
+      sendQueueIdempotencyKey: 'warm-outreach:email-send-queue:v1:message-1',
+    }))
+
+    expect(result.text).toContain('Already handled this Slack action')
+    expect(recordedActionQuery.eq).toHaveBeenCalledWith(
+      'idempotency_key',
+      'slack-agent-action:U123:1716400000.000:warm_gmail_send.approve:warm-outreach:email-send-queue:v1:message-1',
+    )
+  })
+
   it('requires Portfolio review for high-risk approvals', async () => {
     mocks.from
       .mockReturnValueOnce(queryResult({ data: null, error: null }))
