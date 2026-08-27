@@ -90,6 +90,7 @@ describe('WarmBatchReviewPanel', () => {
     expect(screen.getByText('Duplicate-blocked recipients: 0. Gmail drafts, scheduling, and sends are disabled.')).toBeInTheDocument()
     expect(screen.getByText('Internal draft handoffs ready: 1. Gmail provider not activated: 1. Batch draft creation remains unavailable.')).toBeInTheDocument()
     expect(screen.getByText('Provider smoke ready or passed: 0. Gmail draft creation ready but disabled: 0. External send remains a separate future gate.')).toBeInTheDocument()
+    expect(screen.getByText(/No-send Gmail draft canaries run from the individual contact relationship packet only/)).toBeInTheDocument()
     expect(screen.getByText(textContent('Email path: per-recipient gate required'))).toBeInTheDocument()
     expect(screen.getByText(textContent('Draft: ready for review / Provider: blocked'))).toBeInTheDocument()
     expect(screen.getByText(textContent('Handoff: per-recipient handoff / Smoke: blocked'))).toBeInTheDocument()

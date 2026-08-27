@@ -345,6 +345,9 @@ export default function WarmBatchReviewPanel({
             <p className="mt-1 text-xs leading-5 text-amber-100/85">
               Provider smoke ready or passed: {emailLifecycleSummary.providerSmokeReady}. Gmail draft creation ready but disabled: {emailLifecycleSummary.draftCreationReady}. External send remains a separate future gate.
             </p>
+            <p className="mt-1 text-xs leading-5 text-amber-100/85">
+              No-send Gmail draft canaries run from the individual contact relationship packet only, using contact/message-version idempotency keys. This batch panel does not create Gmail drafts or call Gmail.
+            </p>
           </div>
 
           <div className="grid gap-2 sm:grid-cols-3">

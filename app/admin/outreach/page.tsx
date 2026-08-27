@@ -53,6 +53,7 @@ import SocialIntelModal from '@/components/admin/outreach/SocialIntelModal'
 import EvidenceDrawer from '@/components/admin/outreach/EvidenceDrawer'
 import AddLeadModal from '@/components/admin/outreach/AddLeadModal'
 import RelationshipPacketPanel, {
+  type GmailDraftCanaryResult,
   type RelationshipPacketApiResponse,
 } from '@/components/admin/outreach/RelationshipPacketPanel'
 import WarmBatchReviewPanel from '@/components/admin/outreach/WarmBatchReviewPanel'
@@ -246,6 +247,9 @@ function OutreachContent() {
   const [relationshipPacketLeadId, setRelationshipPacketLeadId] = useState<number | null>(null)
   const [relationshipPacketLoading, setRelationshipPacketLoading] = useState(false)
   const [relationshipPacketError, setRelationshipPacketError] = useState<string | null>(null)
+  const [gmailDraftCanaryLoadingLeadId, setGmailDraftCanaryLoadingLeadId] = useState<number | null>(null)
+  const [gmailDraftCanaryErrors, setGmailDraftCanaryErrors] = useState<Record<number, string | null>>({})
+  const [gmailDraftCanaryResults, setGmailDraftCanaryResults] = useState<Record<number, GmailDraftCanaryResult | null>>({})
 
   // Add lead modal
   const [showAddLeadModal, setShowAddLeadModal] = useState(false)
@@ -714,6 +718,8 @@ function OutreachContent() {
     setRelationshipPacketLeadId(leadId)
     setRelationshipPacketData(null)
     setRelationshipPacketError(null)
+    setGmailDraftCanaryErrors((prev) => ({ ...prev, [leadId]: null }))
+    setGmailDraftCanaryResults((prev) => ({ ...prev, [leadId]: null }))
     setRelationshipPacketLoading(true)
 
     getCurrentSession().then((session) => {
@@ -757,6 +763,45 @@ function OutreachContent() {
 
     return () => { cancelled = true }
   }, [activeTab, outreachWorkroomLeadId])
+
+  const runGmailDraftCanary = useCallback(async (leadId: number) => {
+    if (gmailDraftCanaryLoadingLeadId != null) return
+    setGmailDraftCanaryLoadingLeadId(leadId)
+    setGmailDraftCanaryErrors((prev) => ({ ...prev, [leadId]: null }))
+    setGmailDraftCanaryResults((prev) => ({ ...prev, [leadId]: null }))
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) {
+        setGmailDraftCanaryErrors((prev) => ({
+          ...prev,
+          [leadId]: 'Admin session is required to run the no-send Gmail draft canary.',
+        }))
+        return
+      }
+      const res = await fetch(`/api/admin/outreach/leads/${leadId}/gmail-draft-canary`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const body = (await res.json().catch(() => ({}))) as GmailDraftCanaryResult & { error?: string }
+      if (!res.ok) {
+        setGmailDraftCanaryErrors((prev) => ({
+          ...prev,
+          [leadId]: body.error || 'No-send Gmail draft canary failed.',
+        }))
+        return
+      }
+      setGmailDraftCanaryResults((prev) => ({ ...prev, [leadId]: body }))
+      setGenerateOutreachToast(body.message || 'No-send Gmail draft canary passed.')
+      setTimeout(() => setGenerateOutreachToast(null), 7000)
+    } catch {
+      setGmailDraftCanaryErrors((prev) => ({
+        ...prev,
+        [leadId]: 'No-send Gmail draft canary failed.',
+      }))
+    } finally {
+      setGmailDraftCanaryLoadingLeadId(null)
+    }
+  }, [gmailDraftCanaryLoadingLeadId])
 
   useEffect(() => {
     if (leadRowMenuOpenId == null) return
@@ -1269,6 +1314,10 @@ function OutreachContent() {
                     loading={relationshipPacketLeadId === outreachWorkroomLead.id && relationshipPacketLoading}
                     error={relationshipPacketLeadId === outreachWorkroomLead.id ? relationshipPacketError : null}
                     data={relationshipPacketLeadId === outreachWorkroomLead.id ? relationshipPacketData : null}
+                    gmailDraftCanaryLoading={gmailDraftCanaryLoadingLeadId === outreachWorkroomLead.id}
+                    gmailDraftCanaryError={gmailDraftCanaryErrors[outreachWorkroomLead.id] ?? null}
+                    gmailDraftCanaryResult={gmailDraftCanaryResults[outreachWorkroomLead.id] ?? null}
+                    onGmailDraftCanary={() => { void runGmailDraftCanary(outreachWorkroomLead.id) }}
                   />
                 </div>
               </section>
@@ -1884,6 +1933,10 @@ function OutreachContent() {
                                   loading={relationshipPacketLeadId === lead.id && relationshipPacketLoading}
                                   error={relationshipPacketLeadId === lead.id ? relationshipPacketError : null}
                                   data={relationshipPacketLeadId === lead.id ? relationshipPacketData : null}
+                                  gmailDraftCanaryLoading={gmailDraftCanaryLoadingLeadId === lead.id}
+                                  gmailDraftCanaryError={gmailDraftCanaryErrors[lead.id] ?? null}
+                                  gmailDraftCanaryResult={gmailDraftCanaryResults[lead.id] ?? null}
+                                  onGmailDraftCanary={() => { void runGmailDraftCanary(lead.id) }}
                                 />
 
                                 {/* Contact Info */}

@@ -59,6 +59,16 @@ interface WarmLifecycleRow {
   created_at: string
 }
 
+interface GmailDraftCanaryResult {
+  status: string
+  message: string
+  draftCreationEnabled: false
+  providerCallsEnabled: false
+  externalSendEnabled: false
+  gmailDraftCreated: false
+  trackingPersisted: false
+}
+
 interface Communication {
   id: string
   channel: string
@@ -276,6 +286,9 @@ function ContactDetailPage() {
     useState<RelationshipPacketApiResponse | null>(null)
   const [relationshipPacketLoading, setRelationshipPacketLoading] = useState(false)
   const [relationshipPacketError, setRelationshipPacketError] = useState<string | null>(null)
+  const [gmailDraftCanaryLoading, setGmailDraftCanaryLoading] = useState(false)
+  const [gmailDraftCanaryError, setGmailDraftCanaryError] = useState<string | null>(null)
+  const [gmailDraftCanaryResult, setGmailDraftCanaryResult] = useState<GmailDraftCanaryResult | null>(null)
   const [warmResponseChannel, setWarmResponseChannel] = useState<WarmResponseChannel>('email')
   const [warmResponseText, setWarmResponseText] = useState('')
   const [warmResponseOutreachQueueId, setWarmResponseOutreachQueueId] = useState('')
@@ -376,6 +389,8 @@ function ContactDetailPage() {
     let cancelled = false
     setRelationshipPacketData(null)
     setRelationshipPacketError(null)
+    setGmailDraftCanaryError(null)
+    setGmailDraftCanaryResult(null)
     setRelationshipPacketLoading(true)
 
     getToken().then((token) => {
@@ -419,6 +434,34 @@ function ContactDetailPage() {
 
     return () => { cancelled = true }
   }, [id, getToken])
+
+  const runGmailDraftCanary = useCallback(async () => {
+    if (gmailDraftCanaryLoading) return
+    setGmailDraftCanaryLoading(true)
+    setGmailDraftCanaryError(null)
+    setGmailDraftCanaryResult(null)
+    try {
+      const token = await getToken()
+      if (!token) {
+        setGmailDraftCanaryError('Admin session is required to run the no-send Gmail draft canary.')
+        return
+      }
+      const res = await fetch(`/api/admin/outreach/leads/${id}/gmail-draft-canary`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const body = (await res.json().catch(() => ({}))) as GmailDraftCanaryResult & { error?: string }
+      if (!res.ok) {
+        setGmailDraftCanaryError(body.error || 'No-send Gmail draft canary failed.')
+        return
+      }
+      setGmailDraftCanaryResult(body)
+    } catch {
+      setGmailDraftCanaryError('No-send Gmail draft canary failed.')
+    } finally {
+      setGmailDraftCanaryLoading(false)
+    }
+  }, [getToken, gmailDraftCanaryLoading, id])
 
   // Deep-link from the outreach pill: ?focus=compose[&template=<key>]#compose
   // Opens the Compose Delivery Email section, pre-selects the template, and scrolls to it.
@@ -669,6 +712,10 @@ function ContactDetailPage() {
             loading={relationshipPacketLoading}
             error={relationshipPacketError}
             data={relationshipPacketData}
+            gmailDraftCanaryLoading={gmailDraftCanaryLoading}
+            gmailDraftCanaryError={gmailDraftCanaryError}
+            gmailDraftCanaryResult={gmailDraftCanaryResult}
+            onGmailDraftCanary={runGmailDraftCanary}
           />
 
           <div className="bg-gray-900/60 border border-gray-800 rounded-xl overflow-hidden">

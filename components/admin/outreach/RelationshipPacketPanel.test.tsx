@@ -1,5 +1,5 @@
-import { render, screen, within } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { fireEvent, render, screen, within } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
 import RelationshipPacketPanel, {
   describeChannelCapability,
   relationshipReadinessLabel,
@@ -596,6 +596,38 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getAllByText('Blocked')).toHaveLength(2)
     expect(screen.getAllByText('Contact is marked do not contact in Portfolio.').length).toBeGreaterThan(0)
     expect(screen.queryByText('Ready means the operator has enough local context to review an internal draft.')).not.toBeInTheDocument()
+  })
+
+  it('surfaces the no-send Gmail draft canary without implying draft creation', () => {
+    const onGmailDraftCanary = vi.fn()
+
+    render(
+      <RelationshipPacketPanel
+        loading={false}
+        error={null}
+        data={packetResponse}
+        onGmailDraftCanary={onGmailDraftCanary}
+        gmailDraftCanaryResult={{
+          status: 'passed_no_send',
+          message:
+            'No-send Gmail draft creation canary passed. No Gmail draft was created, no tracking was written, and no email was sent.',
+          draftCreationEnabled: false,
+          providerCallsEnabled: false,
+          externalSendEnabled: false,
+          gmailDraftCreated: false,
+          trackingPersisted: false,
+        }}
+      />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Run no-send canary' }))
+
+    expect(onGmailDraftCanary).toHaveBeenCalledTimes(1)
+    expect(screen.getByText(/Run a no-send canary to confirm the contact/)).toBeInTheDocument()
+    expect(screen.getByText(/No-send Gmail draft creation canary passed/)).toBeInTheDocument()
+    expect(screen.getByText('Gmail draft: not created / Tracking: not written / External send: blocked.')).toBeInTheDocument()
+    expect(screen.getByText('Draft creation: off')).toBeInTheDocument()
+    expect(screen.getByText('External send: off')).toBeInTheDocument()
   })
 
   it('exports stable label helpers for adapter tests', () => {
