@@ -134,7 +134,129 @@ function authority(mode, channel, state, blocked = false) {
   }
 }
 
-function readiness(mode, channel, state, authorityState, blocked = false) {
+function emailLifecycle(mode, blocked = false, batchGateOnly = false) {
+  const state = batchGateOnly
+    ? 'per_recipient_gate_required'
+    : blocked
+      ? 'blocked'
+      : 'blocked_before_provider_activation'
+  const messageVersionKey = `warm-outreach:email-message-version:v1:${mode}:qa42`
+  const sendQueueIdempotencyKey = `warm-outreach:email-send-queue:v1:${mode}:qa42`
+
+  return {
+    version: 'warm-outreach-email-send-lifecycle/v1',
+    contactId: 42,
+    mode,
+    channel: 'email',
+    label:
+      state === 'per_recipient_gate_required'
+        ? 'Email is first candidate, per-recipient gate required'
+        : state === 'blocked'
+          ? 'Email send path blocked'
+          : 'Email is first candidate, provider/send activation blocked',
+    state,
+    firstCandidateChannel: true,
+    sendReady: false,
+    providerExecutionEnabled: false,
+    externalSendEnabled: false,
+    gmailDraftCreationEnabled: false,
+    schedulingEnabled: false,
+    messageVersionKey,
+    sendQueueIdempotencyKey,
+    providerCapabilitySmokeKey: `warm-outreach:gmail-capability-smoke:v1:${mode}:qa42`,
+    submittedEvidenceKey: `warm-outreach:email-submitted-evidence:v1:${mode}:qa42`,
+    duplicatePrevention: {
+      scope: 'contact_channel_message_version',
+      duplicateDetected: false,
+      existingEvidenceIds: [],
+      requiredUniqueKeys: [
+        messageVersionKey,
+        sendQueueIdempotencyKey,
+        `warm-outreach:gmail-capability-smoke:v1:${mode}:qa42`,
+        `warm-outreach:email-submitted-evidence:v1:${mode}:qa42`,
+      ],
+      detail: 'Future send activation must reuse these keys to prevent duplicate contact/channel/message-version execution.',
+    },
+    suppressionCheck: {
+      status: blocked ? 'blocked' : 'clear',
+      reasons: blocked ? ['Relationship basis is too weak for send readiness.'] : [],
+    },
+    relationshipProvenance: {
+      status: blocked ? 'missing' : 'present',
+      sourceCount: blocked ? 0 : 2,
+      signalCount: blocked ? 0 : 2,
+      relationshipEventId: null,
+      detail: blocked
+        ? 'Relationship provenance must be added before send authority review.'
+        : 'Portfolio-local relationship provenance is attached.',
+    },
+    personalizationProvenance: {
+      status: blocked ? 'missing' : 'present',
+      safeToMentionCount: blocked ? 0 : 1,
+      summarizeOnlyCount: blocked ? 0 : 1,
+      commonalityCount: blocked ? 0 : 1,
+      detail: blocked
+        ? 'Personalization context is missing; add safe-to-mention, summarize-only, or commonality evidence.'
+        : 'Personalization context is available from local evidence.',
+    },
+    auditState: {
+      status: 'scaffold_only',
+      notes: [
+        'Email is the first candidate channel for future activation review.',
+        'No Gmail draft, Gmail send, provider smoke, schedule, or submitted evidence mutation is enabled.',
+        'A later explicit provider/send approval gate is required before any external action.',
+      ],
+    },
+    stages: [
+      {
+        key: 'draft_packet',
+        label: 'Draft packet',
+        status: blocked ? 'blocked' : 'ready_for_review',
+        detail: blocked
+          ? 'Resolve readiness blockers before draft packet review.'
+          : 'Local relationship and personalization context can be reviewed as a draft packet.',
+        externalExecutionEnabled: false,
+      },
+      {
+        key: 'human_reply_or_draft_approval',
+        label: 'Human draft approval',
+        status: 'future_gate',
+        detail: 'A human must approve the exact reply or draft packet before any send authority review.',
+        externalExecutionEnabled: false,
+      },
+      {
+        key: 'send_authority_review',
+        label: 'Send authority review',
+        status: 'future_gate',
+        detail: 'Future explicit authority is required for this contact, channel, and message version.',
+        externalExecutionEnabled: false,
+      },
+      {
+        key: 'provider_capability_smoke',
+        label: 'Provider capability smoke',
+        status: 'blocked',
+        detail: 'Gmail/provider capability smoke is intentionally blocked in this scaffold.',
+        externalExecutionEnabled: false,
+      },
+      {
+        key: 'scheduled_send_queue',
+        label: 'Scheduled send queue',
+        status: 'disabled',
+        detail: 'Scheduling is modeled but disabled until provider/send activation.',
+        externalExecutionEnabled: false,
+      },
+      {
+        key: 'submitted_sent_evidence',
+        label: 'Submitted/sent evidence',
+        status: 'evidence_required',
+        detail: 'Submitted or sent evidence must be recorded after a future approved provider action.',
+        externalExecutionEnabled: false,
+      },
+    ],
+  }
+}
+
+function readiness(mode, channel, state, authorityState, blocked = false, emailBatchGateOnly = false) {
   return {
     mode,
     channel,
@@ -165,6 +287,7 @@ function readiness(mode, channel, state, authorityState, blocked = false) {
     ],
     auditNotes: ['Scaffold only. No external execution is enabled.'],
     sendAuthority: authority(mode, channel, authorityState, blocked),
+    emailSendLifecycle: channel === 'email' ? emailLifecycle(mode, blocked, emailBatchGateOnly) : null,
   }
 }
 
@@ -177,7 +300,7 @@ function readinessModes(blocked = false) {
       readiness('warm_1_to_1', 'phone_contact', blocked ? 'blocked' : 'manual_review_only', blocked ? 'blocked' : 'manual_only', blocked),
     ],
     warm_1_to_many: [
-      readiness('warm_1_to_many', 'email', 'blocked', 'blocked', true),
+      readiness('warm_1_to_many', 'email', 'blocked', 'blocked', false, true),
       readiness('warm_1_to_many', 'linkedin', 'blocked', 'blocked', true),
       readiness('warm_1_to_many', 'facebook', 'blocked', 'blocked', true),
       readiness('warm_1_to_many', 'phone_contact', 'blocked', 'blocked', true),
@@ -609,6 +732,21 @@ async function installRoutes(page) {
   await page.route('**/api/admin/outreach/last-run**', (route) =>
     route.fulfill({ json: { lastRun: null } }),
   )
+  await page.route('**/api/admin/meetings**', (route) =>
+    route.fulfill({ json: { meetings: [], total: 0, limit: 50, offset: 0 } }),
+  )
+  await page.route('**/api/admin/sales/contact-meetings**', (route) =>
+    route.fulfill({ json: { meetings: [] } }),
+  )
+  await page.route('**/api/admin/chat-escalations**', (route) =>
+    route.fulfill({ json: { escalations: [], total: 0 } }),
+  )
+  await page.route('**/api/meeting-action-tasks**', (route) =>
+    route.fulfill({ json: { tasks: [] } }),
+  )
+  await page.route('**/api/admin/value-evidence/workflow-status**', (route) =>
+    route.fulfill({ json: { configured: false, status: 'disabled' } }),
+  )
 }
 
 async function seedSession(page) {
@@ -646,8 +784,8 @@ await installRoutes(mobilePage)
 const mobileBlockedRequests = await assertNoExternalRequests(mobilePage)
 
 await mobilePage.goto(`${baseUrl}/admin/contacts/42`)
-await mobilePage.getByText('Send authority review').waitFor({ timeout: 15_000 })
-await mobilePage.getByText('Warm one-to-one').scrollIntoViewIfNeeded()
+await mobilePage.getByText('Email first candidate').waitFor({ timeout: 15_000 })
+await mobilePage.getByText('Provider capability smoke: blocked').scrollIntoViewIfNeeded()
 await mobilePage.waitForTimeout(600)
 await mobilePage.goto(`${baseUrl}/admin/outreach?id=42&filter=warm`)
 await mobilePage.getByText('Selected outreach workroom').waitFor({ timeout: 15_000 })
@@ -655,7 +793,7 @@ await mobilePage.locator('input[type="checkbox"]').nth(1).check()
 await mobilePage.locator('input[type="checkbox"]').nth(2).check()
 await mobilePage.getByRole('button', { name: 'Warm batch review' }).click()
 await mobilePage.getByText('Future eligible gates').waitFor({ timeout: 15_000 })
-await mobilePage.getByText('Send authority: blocked').first().scrollIntoViewIfNeeded()
+await mobilePage.getByLabel('Warm batch review').getByText('Email first candidate').scrollIntoViewIfNeeded()
 await mobilePage.waitForTimeout(900)
 await mobilePage.screenshot({ path: mobileScreenshotPath, fullPage: true })
 const video = mobilePage.video()
@@ -688,7 +826,7 @@ await installRoutes(desktopPage)
 const desktopBlockedRequests = await assertNoExternalRequests(desktopPage)
 
 await desktopPage.goto(`${baseUrl}/admin/contacts/42`)
-await desktopPage.getByText('Send authority review').waitFor({ timeout: 15_000 })
+await desktopPage.getByText('Email first candidate').waitFor({ timeout: 15_000 })
 await desktopPage.screenshot({ path: desktopContactScreenshotPath, fullPage: true })
 await desktopPage.goto(`${baseUrl}/admin/outreach?id=42&filter=warm`)
 await desktopPage.getByText('Selected outreach workroom').waitFor({ timeout: 15_000 })
@@ -696,6 +834,7 @@ await desktopPage.locator('input[type="checkbox"]').nth(1).check()
 await desktopPage.locator('input[type="checkbox"]').nth(2).check()
 await desktopPage.getByRole('button', { name: 'Warm batch review' }).click()
 await desktopPage.getByText('Future eligible gates').waitFor({ timeout: 15_000 })
+await desktopPage.getByLabel('Warm batch review').getByText('Email first candidate').waitFor({ timeout: 15_000 })
 await desktopPage.screenshot({ path: desktopBatchScreenshotPath, fullPage: true })
 await desktop.close()
 await browser.close()

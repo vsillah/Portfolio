@@ -54,6 +54,14 @@ function authorityClasses(state: BatchAuthority['state']) {
   return 'text-red-100'
 }
 
+function emailLifecycleStateLabel(
+  state: NonNullable<WarmBatchReviewRecipient['sendReadiness']['modes']['warm_1_to_many'][number]['emailSendLifecycle']>['state'],
+) {
+  if (state === 'per_recipient_gate_required') return 'per-recipient gate required'
+  if (state === 'blocked_before_provider_activation') return 'provider/send activation blocked'
+  return 'blocked'
+}
+
 function BoundaryFlag({ label, active }: { label: string; active: boolean }) {
   return (
     <span
@@ -85,6 +93,10 @@ function RecipientRow({ recipient }: { recipient: WarmBatchReviewRecipient }) {
   const manualOnly = batchAuthorities.filter((authority) => authority.state === 'manual_only').length
   const blocked = batchAuthorities.filter((authority) => authority.state === 'blocked').length
   const emailAuthority = batchAuthorities.find((authority) => authority.channel === 'email')
+  const emailLifecycle = recipient.sendReadiness.modes.warm_1_to_many.find((item) => item.channel === 'email')
+    ?.emailSendLifecycle
+  const draftStage = emailLifecycle?.stages.find((stage) => stage.key === 'draft_packet')
+  const providerStage = emailLifecycle?.stages.find((stage) => stage.key === 'provider_capability_smoke')
 
   return (
     <li className="grid gap-3 border-t border-silicon-slate/70 py-3 first:border-t-0 md:grid-cols-[minmax(10rem,0.9fr)_minmax(0,1.35fr)_minmax(9rem,0.7fr)]">
@@ -122,6 +134,14 @@ function RecipientRow({ recipient }: { recipient: WarmBatchReviewRecipient }) {
         <p className={authorityClasses(emailAuthority?.state ?? 'blocked')}>
           Send authority: {emailAuthority ? authorityStateLabel(emailAuthority.state) : 'blocked'}
         </p>
+        {emailLifecycle && (
+          <>
+            <p className="text-amber-100">Email path: {emailLifecycleStateLabel(emailLifecycle.state)}</p>
+            <p>
+              Draft: {draftStage?.status.replace(/_/g, ' ') ?? 'blocked'} / Provider: {providerStage?.status.replace(/_/g, ' ') ?? 'blocked'}
+            </p>
+          </>
+        )}
         <p>Future eligible: {futureEligible} / Manual: {manualOnly} / Blocked: {blocked}</p>
         {recipient.existingQueueId && <p className="truncate">Queue: {recipient.existingQueueId}</p>}
         {recipientKey && <p className="truncate">Recipient key: {recipientKey}</p>}
@@ -147,6 +167,15 @@ export default function WarmBatchReviewPanel({
     futureEligible: batchAuthorities.filter((authority) => authority.futureActivationEligible).length,
     manualOnly: batchAuthorities.filter((authority) => authority.state === 'manual_only').length,
     blocked: batchAuthorities.filter((authority) => authority.state === 'blocked').length,
+  }
+  const emailLifecycleSummary = {
+    candidates: data?.recipients.filter((recipient) =>
+      Boolean(recipient.sendReadiness.modes.warm_1_to_many.find((item) => item.channel === 'email')?.emailSendLifecycle),
+    ).length ?? 0,
+    duplicateBlocked: data?.recipients.filter((recipient) =>
+      recipient.sendReadiness.modes.warm_1_to_many.find((item) => item.channel === 'email')
+        ?.emailSendLifecycle?.duplicatePrevention.duplicateDetected,
+    ).length ?? 0,
   }
 
   return (
@@ -245,6 +274,23 @@ export default function WarmBatchReviewPanel({
             <LocalEvidenceFlag />
             <BoundaryFlag label="n8n" active={data.executionBoundary.n8nDispatch} />
             <BoundaryFlag label="Slack" active={data.executionBoundary.slackAction} />
+          </div>
+
+          <div className="rounded-lg border border-amber-500/25 bg-amber-500/10 p-3 text-sm text-amber-50">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide">Email first candidate</p>
+                <p className="mt-1 text-xs leading-5 text-amber-100/90">
+                  {emailLifecycleSummary.candidates} recipient email path{emailLifecycleSummary.candidates === 1 ? '' : 's'} modeled. Batch send remains blocked until every recipient has individual readiness and future explicit authority.
+                </p>
+              </div>
+              <span className="w-fit rounded-full border border-current/25 px-2 py-0.5 text-[10px] font-semibold">
+                Provider/send off
+              </span>
+            </div>
+            <p className="mt-2 text-xs leading-5 text-amber-100/85">
+              Duplicate-blocked recipients: {emailLifecycleSummary.duplicateBlocked}. Gmail drafts, scheduling, and sends are disabled.
+            </p>
           </div>
 
           <div className="grid gap-2 sm:grid-cols-3">

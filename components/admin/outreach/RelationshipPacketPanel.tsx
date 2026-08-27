@@ -128,6 +128,20 @@ function sendAuthorityStateLabel(state: SendReadinessItem['sendAuthority']['stat
   return 'Blocked'
 }
 
+function emailLifecycleStateLabel(state: NonNullable<SendReadinessItem['emailSendLifecycle']>['state']) {
+  if (state === 'per_recipient_gate_required') return 'Per-recipient gate required'
+  if (state === 'blocked_before_provider_activation') return 'Provider/send activation blocked'
+  return 'Blocked'
+}
+
+function emailLifecycleStageClasses(status: NonNullable<SendReadinessItem['emailSendLifecycle']>['stages'][number]['status']) {
+  if (status === 'ready_for_review') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  if (status === 'blocked') return 'border-red-500/25 bg-red-500/10 text-red-100'
+  if (status === 'disabled') return 'border-silicon-slate bg-silicon-slate/25 text-muted-foreground'
+  if (status === 'evidence_required') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+}
+
 function summarizeAuthority(items: SendReadinessItem[]) {
   return items.reduce(
     (summary, item) => {
@@ -137,6 +151,44 @@ function summarizeAuthority(items: SendReadinessItem[]) {
       return summary
     },
     { blocked: 0, future: 0, manual: 0 },
+  )
+}
+
+function EmailLifecycleCompact({ item }: { item?: SendReadinessItem }) {
+  const lifecycle = item?.emailSendLifecycle
+  if (!lifecycle) return null
+
+  return (
+    <div className="rounded-md border border-amber-500/25 bg-amber-500/10 p-2.5 text-amber-50">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide">
+            <Mail size={14} aria-hidden />
+            Email first candidate
+          </p>
+          <p className="mt-1 text-[11px] leading-4 text-amber-100/90">
+            {emailLifecycleStateLabel(lifecycle.state)}. Future approval must cover this contact, channel, and message version.
+          </p>
+        </div>
+        <span className="w-fit shrink-0 rounded-full border border-current/25 px-2 py-0.5 text-[10px] font-semibold">
+          Provider/send off
+        </span>
+      </div>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {lifecycle.stages.map((stage) => (
+          <span
+            key={stage.key}
+            title={stage.detail}
+            className={`inline-flex min-h-7 items-center rounded-full border px-2 py-1 text-[11px] font-semibold ${emailLifecycleStageClasses(stage.status)}`}
+          >
+            {stage.label}: {stage.status.replace(/_/g, ' ')}
+          </span>
+        ))}
+      </div>
+      <p className="mt-2 break-all text-[10px] leading-4 text-amber-100/80">
+        Queue key: {lifecycle.sendQueueIdempotencyKey}
+      </p>
+    </div>
   )
 }
 
@@ -414,6 +466,9 @@ export default function RelationshipPacketPanel({
                   Send authority review
                 </p>
                 <div className="space-y-2">
+                  <EmailLifecycleCompact
+                    item={responseMonitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')}
+                  />
                   <SendAuthorityCompactRow
                     label="Warm one-to-one"
                     items={responseMonitoring.sendReadiness.modes.warm_1_to_1}

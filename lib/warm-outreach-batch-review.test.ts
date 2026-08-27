@@ -123,6 +123,30 @@ describe('warm outreach batch review', () => {
       outcomeTrackingEnabled: false,
     })
     expect(
+      review.recipients[0].sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')?.emailSendLifecycle,
+    ).toMatchObject({
+      state: 'blocked_before_provider_activation',
+      firstCandidateChannel: true,
+      sendReady: false,
+      duplicatePrevention: {
+        duplicateDetected: false,
+      },
+    })
+    expect(
+      review.recipients[0].sendReadiness.modes.warm_1_to_many.find((item) => item.channel === 'email')?.emailSendLifecycle,
+    ).toMatchObject({
+      state: 'per_recipient_gate_required',
+      firstCandidateChannel: true,
+      sendReady: false,
+      stages: expect.arrayContaining([
+        expect.objectContaining({
+          key: 'provider_capability_smoke',
+          status: 'blocked',
+          externalExecutionEnabled: false,
+        }),
+      ]),
+    })
+    expect(
       review.recipients[0].sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'phone_contact')?.sendAuthority,
     ).toMatchObject({
       state: 'blocked',
