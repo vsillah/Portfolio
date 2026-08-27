@@ -1,7 +1,11 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { HTMLAttributes, ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { OutreachEmailGenerateRow, type OutreachEmailGenerateRowProps } from './OutreachEmailGenerateRow'
+import {
+  OutreachEmailGenerateRow,
+  buildGmailDraftAuthorizationPayload,
+  type OutreachEmailGenerateRowProps,
+} from './OutreachEmailGenerateRow'
 import type { RelationshipPacketApiResponse } from './outreach/RelationshipPacketPanel'
 
 const mocks = vi.hoisted(() => ({
@@ -289,6 +293,74 @@ describe('OutreachEmailGenerateRow status language', () => {
     expect(screen.queryByText('Cold Outreach Email')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Draft cold email/i })).not.toBeInTheDocument()
     expect(screen.getByText('Review source boundaries').closest('details')).not.toHaveAttribute('open')
+  })
+
+  it('posts explicit per-recipient authorization when creating a Gmail draft', async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input).includes('/gmail-user-draft')) {
+        return Response.json({
+          message:
+            'Draft saved in Gmail for review. No email was sent; sending remains blocked.',
+          externalSendBlocked: true,
+        })
+      }
+      return Response.json({ meetings: [] })
+    })
+    const confirmMock = vi.fn(() => true)
+    const onToast = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    vi.stubGlobal('confirm', confirmMock)
+
+    render(
+      <OutreachEmailGenerateRow
+        lead={{
+          ...lead,
+          recent_email_drafts: [
+            {
+              id: 'queue-1',
+              subject: 'Queue subject',
+              status: 'draft',
+              created_at: '2026-08-23T13:19:33.595Z',
+              email_message_id: 'email-message-1',
+            },
+          ],
+        }}
+        onToast={onToast}
+      />,
+    )
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /Draft generated for ATAS Production Google Smoke Lead, not sent/i,
+      }),
+    )
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: /Create per-recipient Gmail draft for Queue subject/i,
+      }),
+    )
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/admin/outreach/queue-1/gmail-user-draft',
+        expect.objectContaining({
+          method: 'POST',
+          body: JSON.stringify(
+            buildGmailDraftAuthorizationPayload({
+              leadId: 13697,
+              recipientEmail: 'smoke@example.com',
+              draftId: 'queue-1',
+            }),
+          ),
+        }),
+      )
+    })
+    expect(confirmMock).toHaveBeenCalledWith(
+      'Create a Gmail draft for smoke@example.com? This creates a draft only; it does not send email.',
+    )
+    expect(onToast).toHaveBeenCalledWith(
+      'Draft saved in Gmail for review. No email was sent; sending remains blocked.',
+    )
   })
 
   it('keeps cold draft labels for cold leads', async () => {

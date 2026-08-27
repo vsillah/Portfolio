@@ -1,0 +1,52 @@
+{
+  "baseUrl": "http://localhost:3012",
+  "viewportChecks": [
+    {
+      "width": 390,
+      "height": 844,
+      "screenshot": "/Users/vambahsillah/.codex/worktrees/8d77/Portfolio/docs/warm-outreach-qa/warm-gmail-draft-gate-mobile.png"
+    },
+    {
+      "width": 1280,
+      "height": 900,
+      "screenshot": "/Users/vambahsillah/.codex/worktrees/8d77/Portfolio/docs/warm-outreach-qa/warm-gmail-draft-gate-desktop.png"
+    }
+  ],
+  "videoPath": "/Users/vambahsillah/.codex/worktrees/8d77/Portfolio/docs/warm-outreach-qa/warm-gmail-draft-gate-mobile.mp4",
+  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/8d77/Portfolio/test-results/warm-gmail-draft-gate-qa/2c83fd5ce1c6dff5a9504dfaee3eb48f.webm",
+  "capturedLocalGmailDraftRequests": [
+    {
+      "url": "http://localhost:3012/api/admin/outreach/queue-gmail-draft-1/gmail-user-draft",
+      "method": "POST",
+      "body": {
+        "createGmailDraft": true,
+        "draftAuthorization": "create_gmail_draft_for_recipient",
+        "idempotencyKey": "warm-outreach:gmail-draft:v1:queue-gmail-draft-1:42:email",
+        "contactSubmissionId": 42,
+        "recipientEmail": "amina@example.test",
+        "channel": "email"
+      }
+    },
+    {
+      "url": "http://localhost:3012/api/admin/outreach/queue-gmail-draft-1/gmail-user-draft",
+      "method": "POST",
+      "body": {
+        "createGmailDraft": true,
+        "draftAuthorization": "create_gmail_draft_for_recipient",
+        "idempotencyKey": "warm-outreach:gmail-draft:v1:queue-gmail-draft-1:42:email",
+        "contactSubmissionId": 42,
+        "recipientEmail": "amina@example.test",
+        "channel": "email"
+      }
+    }
+  ],
+  "expectedPayload": {
+    "createGmailDraft": true,
+    "draftAuthorization": "create_gmail_draft_for_recipient",
+    "idempotencyKey": "warm-outreach:gmail-draft:v1:queue-gmail-draft-1:42:email",
+    "contactSubmissionId": 42,
+    "recipientEmail": "amina@example.test",
+    "channel": "email"
+  },
+  "externalRequests": []
+}
