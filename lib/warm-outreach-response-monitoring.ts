@@ -65,6 +65,74 @@ export type WarmOutreachSendAuthority = {
   nextReviewAction: string
 }
 
+export type WarmOutreachEmailSendLifecycleStageKey =
+  | 'draft_packet'
+  | 'human_reply_or_draft_approval'
+  | 'send_authority_review'
+  | 'provider_capability_smoke'
+  | 'scheduled_send_queue'
+  | 'submitted_sent_evidence'
+
+export type WarmOutreachEmailSendLifecycleStage = {
+  key: WarmOutreachEmailSendLifecycleStageKey
+  label: string
+  status: 'ready_for_review' | 'blocked' | 'future_gate' | 'disabled' | 'evidence_required'
+  detail: string
+  externalExecutionEnabled: false
+}
+
+export type WarmOutreachEmailSendLifecycle = {
+  version: 'warm-outreach-email-send-lifecycle/v1'
+  contactId: number
+  mode: WarmOutreachSendMode
+  channel: 'email'
+  label: string
+  state:
+    | 'blocked'
+    | 'blocked_before_provider_activation'
+    | 'per_recipient_gate_required'
+  firstCandidateChannel: true
+  sendReady: false
+  providerExecutionEnabled: false
+  externalSendEnabled: false
+  gmailDraftCreationEnabled: false
+  schedulingEnabled: false
+  messageVersionKey: string
+  sendQueueIdempotencyKey: string
+  providerCapabilitySmokeKey: string
+  submittedEvidenceKey: string
+  duplicatePrevention: {
+    scope: 'contact_channel_message_version'
+    duplicateDetected: boolean
+    existingEvidenceIds: string[]
+    requiredUniqueKeys: string[]
+    detail: string
+  }
+  suppressionCheck: {
+    status: 'clear' | 'blocked'
+    reasons: string[]
+  }
+  relationshipProvenance: {
+    status: 'present' | 'missing'
+    sourceCount: number
+    signalCount: number
+    relationshipEventId: string | null
+    detail: string
+  }
+  personalizationProvenance: {
+    status: 'present' | 'missing'
+    safeToMentionCount: number
+    summarizeOnlyCount: number
+    commonalityCount: number
+    detail: string
+  }
+  auditState: {
+    status: 'scaffold_only'
+    notes: string[]
+  }
+  stages: WarmOutreachEmailSendLifecycleStage[]
+}
+
 export type WarmOutreachChannelSendReadiness = {
   mode: WarmOutreachSendMode
   channel: WarmOutreachChannel
@@ -83,6 +151,7 @@ export type WarmOutreachChannelSendReadiness = {
   gatesRemaining: string[]
   auditNotes: string[]
   sendAuthority: WarmOutreachSendAuthority
+  emailSendLifecycle: WarmOutreachEmailSendLifecycle | null
 }
 
 export type WarmOutreachSendReadiness = {
@@ -227,6 +296,16 @@ function isInboundResponse(row: PortfolioRow): boolean {
   )
 }
 
+function isEmailRow(row: PortfolioRow): boolean {
+  const channel = text(row.channel)?.toLowerCase()
+  const provider = text(row.provider)?.toLowerCase() ?? text(metadata(row).provider)?.toLowerCase()
+  return channel === 'email' || provider === 'gmail'
+}
+
+function statusIsActiveSendState(status: string | null): boolean {
+  return Boolean(status && ['queued', 'scheduled', 'submitted', 'sending', 'ready_to_send'].includes(status))
+}
+
 function isManualResponse(row: PortfolioRow): boolean {
   const sourceSystem = text(row.source_system)?.toLowerCase()
   const provider = text(row.provider)?.toLowerCase() ?? text(metadata(row).provider)?.toLowerCase()
@@ -343,10 +422,204 @@ function baseSendBlockers(args: {
   if (!hasPersonalizationBasis(args.packet)) {
     blockers.push('Personalization basis is missing from local relationship evidence.')
   }
-  if (args.mode === 'warm_1_to_many' && args.readiness.status !== 'draft_ready') {
+  if (args.mode === 'warm_1_to_many') {
     blockers.push('Batch recipients require per-contact review before any send-readiness state.')
+    blockers.push('Batch email sends require individual readiness and future explicit send authority per recipient.')
   }
   return blockers
+}
+
+function lifecycleStage(args: {
+  key: WarmOutreachEmailSendLifecycleStageKey
+  label: string
+  status: WarmOutreachEmailSendLifecycleStage['status']
+  detail: string
+}): WarmOutreachEmailSendLifecycleStage {
+  return {
+    ...args,
+    externalExecutionEnabled: false,
+  }
+}
+
+function isBatchModeGateBlocker(blocker: string): boolean {
+  return (
+    blocker === 'Batch recipients require per-contact review before any send-readiness state.' ||
+    blocker === 'Batch email sends require individual readiness and future explicit send authority per recipient.'
+  )
+}
+
+function buildEmailSendLifecycle(args: {
+  contactId: number
+  packet: WarmOutreachRelationshipPacket
+  readiness: WarmOutreachReadiness
+  mode: WarmOutreachSendMode
+  blockers: string[]
+  rows?: WarmOutreachMonitoringRows
+}): WarmOutreachEmailSendLifecycle {
+  const relationshipSourceCount = args.packet.sourceRefs.filter((source) => (
+    source.sourceStatus !== 'missing' &&
+    source.sourceStatus !== 'blocked' &&
+    source.sourceStatus !== 'suppressed'
+  )).length
+  const safeToMentionCount = args.packet.sourceInventory?.safeToMention.length ?? 0
+  const summarizeOnlyCount = args.packet.sourceInventory?.summarizeOnly.length ?? 0
+  const commonalityCount = args.packet.commonalities.length
+  const suppressionReasons = suppressionBlockers(args.packet, args.readiness)
+  const messageVersionKey = `warm-outreach:email-message-version:v1:${stableHash({
+    contactId: args.contactId,
+    mode: args.mode,
+    relationshipEventId: args.packet.relationshipEventId ?? null,
+    selectedChannel: args.readiness.selectedChannel,
+    recommendedTemplate: args.readiness.recommendedTemplate,
+    relationshipBasis: args.packet.relationshipBasis,
+    safeToMention: args.packet.sourceInventory?.safeToMention ?? [],
+    summarizeOnly: args.packet.sourceInventory?.summarizeOnly ?? [],
+    commonalities: args.packet.commonalities,
+  })}`
+  const sendQueueIdempotencyKey = `warm-outreach:email-send-queue:v1:${stableHash({
+    contactId: args.contactId,
+    channel: 'email',
+    messageVersionKey,
+  })}`
+  const providerCapabilitySmokeKey = `warm-outreach:gmail-capability-smoke:v1:${stableHash({
+    contactId: args.contactId,
+    channel: 'email',
+    messageVersionKey,
+  })}`
+  const submittedEvidenceKey = `warm-outreach:email-submitted-evidence:v1:${stableHash({
+    contactId: args.contactId,
+    channel: 'email',
+    messageVersionKey,
+  })}`
+  const localEmailRows = [
+    ...asRows(args.rows?.outreachQueue),
+    ...asRows(args.rows?.emailMessages),
+    ...asRows(args.rows?.contactCommunications),
+  ].filter(isEmailRow)
+  const existingEvidenceIds = localEmailRows
+    .map((row, index) => sourceId(row, `email-evidence-${index + 1}`))
+    .filter(Boolean)
+  const duplicateDetected = localEmailRows.some((row) =>
+    statusIsActiveSendState(text(row.status)?.toLowerCase() ?? null),
+  )
+  const hardBlockers = args.blockers.filter((blocker) => !isBatchModeGateBlocker(blocker))
+  const draftPacketReady = hardBlockers.length === 0
+  const state: WarmOutreachEmailSendLifecycle['state'] =
+    args.mode === 'warm_1_to_many' && hardBlockers.length === 0
+        ? 'per_recipient_gate_required'
+        : hardBlockers.length > 0
+          ? 'blocked'
+          : 'blocked_before_provider_activation'
+
+  return {
+    version: 'warm-outreach-email-send-lifecycle/v1',
+    contactId: args.contactId,
+    mode: args.mode,
+    channel: 'email',
+    label:
+      state === 'blocked'
+        ? 'Email send path blocked'
+        : state === 'per_recipient_gate_required'
+          ? 'Email is first candidate, per-recipient gate required'
+          : 'Email is first candidate, provider/send activation blocked',
+    state,
+    firstCandidateChannel: true,
+    sendReady: false,
+    providerExecutionEnabled: false,
+    externalSendEnabled: false,
+    gmailDraftCreationEnabled: false,
+    schedulingEnabled: false,
+    messageVersionKey,
+    sendQueueIdempotencyKey,
+    providerCapabilitySmokeKey,
+    submittedEvidenceKey,
+    duplicatePrevention: {
+      scope: 'contact_channel_message_version',
+      duplicateDetected,
+      existingEvidenceIds,
+      requiredUniqueKeys: [
+        messageVersionKey,
+        sendQueueIdempotencyKey,
+        providerCapabilitySmokeKey,
+        submittedEvidenceKey,
+      ],
+      detail: duplicateDetected
+        ? 'An active local email queue/submission state already exists; do not create a duplicate send path.'
+        : 'Future send activation must reuse these keys to prevent duplicate contact/channel/message-version execution.',
+    },
+    suppressionCheck: {
+      status: suppressionReasons.length > 0 ? 'blocked' : 'clear',
+      reasons: suppressionReasons,
+    },
+    relationshipProvenance: {
+      status: hasSourceProvenance(args.packet) ? 'present' : 'missing',
+      sourceCount: relationshipSourceCount,
+      signalCount: args.packet.relationshipSignals.length,
+      relationshipEventId: args.packet.relationshipEventId ?? null,
+      detail: hasSourceProvenance(args.packet)
+        ? 'Portfolio-local relationship provenance is attached.'
+        : 'Relationship provenance must be added before send authority review.',
+    },
+    personalizationProvenance: {
+      status: hasPersonalizationBasis(args.packet) ? 'present' : 'missing',
+      safeToMentionCount,
+      summarizeOnlyCount,
+      commonalityCount,
+      detail: hasPersonalizationBasis(args.packet)
+        ? 'Personalization context is available from local evidence.'
+        : 'Personalization context is missing; add safe-to-mention, summarize-only, or commonality evidence.',
+    },
+    auditState: {
+      status: 'scaffold_only',
+      notes: [
+        'Email is the first candidate channel for future activation review.',
+        'No Gmail draft, Gmail send, provider smoke, schedule, or submitted evidence mutation is enabled.',
+        'A later explicit provider/send approval gate is required before any external action.',
+      ],
+    },
+    stages: [
+      lifecycleStage({
+        key: 'draft_packet',
+        label: 'Draft packet',
+        status: draftPacketReady ? 'ready_for_review' : 'blocked',
+        detail: draftPacketReady
+          ? 'Local relationship and personalization context can be reviewed as a draft packet.'
+          : hardBlockers[0] ?? 'Resolve readiness blockers before draft packet review.',
+      }),
+      lifecycleStage({
+        key: 'human_reply_or_draft_approval',
+        label: 'Human draft approval',
+        status: 'future_gate',
+        detail: 'A human must approve the exact reply or draft packet before any send authority review.',
+      }),
+      lifecycleStage({
+        key: 'send_authority_review',
+        label: 'Send authority review',
+        status: 'future_gate',
+        detail: 'Future explicit authority is required for this contact, channel, and message version.',
+      }),
+      lifecycleStage({
+        key: 'provider_capability_smoke',
+        label: 'Provider capability smoke',
+        status: 'blocked',
+        detail: 'Gmail/provider capability smoke is intentionally blocked in this scaffold.',
+      }),
+      lifecycleStage({
+        key: 'scheduled_send_queue',
+        label: 'Scheduled send queue',
+        status: duplicateDetected ? 'blocked' : 'disabled',
+        detail: duplicateDetected
+          ? 'Duplicate prevention found an active local email queue/submission state.'
+          : 'Scheduling is modeled but disabled until provider/send activation.',
+      }),
+      lifecycleStage({
+        key: 'submitted_sent_evidence',
+        label: 'Submitted/sent evidence',
+        status: 'evidence_required',
+        detail: 'Submitted or sent evidence must be recorded after a future approved provider action.',
+      }),
+    ],
+  }
 }
 
 function buildSendAuthority(args: {
@@ -495,6 +768,7 @@ function buildChannelReadiness(args: {
   readiness: WarmOutreachReadiness
   channel: WarmOutreachChannel
   mode: WarmOutreachSendMode
+  rows?: WarmOutreachMonitoringRows
 }): WarmOutreachChannelSendReadiness {
   const capability = args.packet.channelCapabilities[args.channel]
   const blockers = baseSendBlockers(args)
@@ -534,6 +808,16 @@ function buildChannelReadiness(args: {
 
   if (!capability?.available) {
     blockers.push(`${CHANNEL_LABELS[args.channel]} is not available for this contact.`)
+    const emailSendLifecycle = args.channel === 'email'
+      ? buildEmailSendLifecycle({
+          contactId: args.contactId,
+          packet: args.packet,
+          readiness: args.readiness,
+          mode: args.mode,
+          blockers,
+          rows: args.rows,
+        })
+      : null
     const sendAuthority = buildSendAuthority({
       packet: args.packet,
       readiness: args.readiness,
@@ -547,10 +831,21 @@ function buildChannelReadiness(args: {
       label: `${CHANNEL_LABELS[args.channel]} unavailable`,
       state: 'unavailable',
       sendAuthority,
+      emailSendLifecycle,
     }
   }
 
   if (blockers.length > 0) {
+    const emailSendLifecycle = args.channel === 'email'
+      ? buildEmailSendLifecycle({
+          contactId: args.contactId,
+          packet: args.packet,
+          readiness: args.readiness,
+          mode: args.mode,
+          blockers,
+          rows: args.rows,
+        })
+      : null
     const sendAuthority = buildSendAuthority({
       packet: args.packet,
       readiness: args.readiness,
@@ -564,11 +859,22 @@ function buildChannelReadiness(args: {
       label: `${CHANNEL_LABELS[args.channel]} blocked`,
       state: 'blocked',
       sendAuthority,
+      emailSendLifecycle,
     }
   }
 
   if (capability.manualOnly || args.channel === 'facebook' || args.channel === 'phone_contact') {
     const manualGates = [...gatesRemaining, 'manual_operator_action_outside_portfolio']
+    const emailSendLifecycle = args.channel === 'email'
+      ? buildEmailSendLifecycle({
+          contactId: args.contactId,
+          packet: args.packet,
+          readiness: args.readiness,
+          mode: args.mode,
+          blockers,
+          rows: args.rows,
+        })
+      : null
     const sendAuthority = buildSendAuthority({
       packet: args.packet,
       readiness: args.readiness,
@@ -583,9 +889,20 @@ function buildChannelReadiness(args: {
       state: 'manual_review_only',
       gatesRemaining: manualGates,
       sendAuthority,
+      emailSendLifecycle,
     }
   }
 
+  const emailSendLifecycle = args.channel === 'email'
+    ? buildEmailSendLifecycle({
+        contactId: args.contactId,
+        packet: args.packet,
+        readiness: args.readiness,
+        mode: args.mode,
+        blockers,
+        rows: args.rows,
+      })
+    : null
   const sendAuthority = buildSendAuthority({
     packet: args.packet,
     readiness: args.readiness,
@@ -599,6 +916,7 @@ function buildChannelReadiness(args: {
     label: `${CHANNEL_LABELS[args.channel]} provider gate required`,
     state: 'provider_gate_required',
     sendAuthority,
+    emailSendLifecycle,
   }
 }
 
@@ -606,6 +924,7 @@ export function buildWarmOutreachSendReadiness(args: {
   contactId: number
   packet: WarmOutreachRelationshipPacket
   readiness: WarmOutreachReadiness
+  rows?: WarmOutreachMonitoringRows
 }): WarmOutreachSendReadiness {
   const channels: WarmOutreachChannel[] = ['email', 'linkedin', 'facebook', 'phone_contact']
   const modes: WarmOutreachSendMode[] = ['warm_1_to_1', 'warm_1_to_many']
@@ -628,6 +947,7 @@ export function buildWarmOutreachSendReadiness(args: {
             readiness: args.readiness,
             channel,
             mode,
+            rows: args.rows,
           }),
         ),
       ]),
@@ -751,6 +1071,7 @@ export function buildWarmOutreachResponseMonitoring(args: {
       contactId: args.contactId,
       packet: args.packet,
       readiness: args.readiness,
+      rows: args.rows,
     }),
     executionBoundary: {
       localRowsOnly: true,

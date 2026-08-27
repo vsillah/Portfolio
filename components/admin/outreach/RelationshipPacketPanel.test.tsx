@@ -8,6 +8,7 @@ import RelationshipPacketPanel, {
 import type { WarmOutreachChannel } from '@/lib/warm-outreach-relationship-intelligence'
 import type {
   WarmOutreachChannelSendReadiness,
+  WarmOutreachEmailSendLifecycle,
   WarmOutreachSendAuthority,
   WarmOutreachSendMode,
 } from '@/lib/warm-outreach-response-monitoring'
@@ -75,6 +76,109 @@ function sendReadiness(
   state: WarmOutreachChannelSendReadiness['state'],
   authorityState: WarmOutreachSendAuthority['state'],
 ): WarmOutreachChannelSendReadiness {
+  const emailSendLifecycle: WarmOutreachEmailSendLifecycle | null = channel === 'email'
+    ? {
+        version: 'warm-outreach-email-send-lifecycle/v1',
+        contactId: 42,
+        mode,
+        channel: 'email',
+        label: 'Email is first candidate, provider/send activation blocked',
+        state: mode === 'warm_1_to_many' ? 'per_recipient_gate_required' : 'blocked_before_provider_activation',
+        firstCandidateChannel: true,
+        sendReady: false,
+        providerExecutionEnabled: false,
+        externalSendEnabled: false,
+        gmailDraftCreationEnabled: false,
+        schedulingEnabled: false,
+        messageVersionKey: `warm-outreach:email-message-version:v1:${mode}`,
+        sendQueueIdempotencyKey: `warm-outreach:email-send-queue:v1:${mode}`,
+        providerCapabilitySmokeKey: `warm-outreach:gmail-capability-smoke:v1:${mode}`,
+        submittedEvidenceKey: `warm-outreach:email-submitted-evidence:v1:${mode}`,
+        duplicatePrevention: {
+          scope: 'contact_channel_message_version',
+          duplicateDetected: false,
+          existingEvidenceIds: [],
+          requiredUniqueKeys: [
+            `warm-outreach:email-message-version:v1:${mode}`,
+            `warm-outreach:email-send-queue:v1:${mode}`,
+            `warm-outreach:gmail-capability-smoke:v1:${mode}`,
+            `warm-outreach:email-submitted-evidence:v1:${mode}`,
+          ],
+          detail: 'Future send activation must reuse these keys to prevent duplicate contact/channel/message-version execution.',
+        },
+        suppressionCheck: {
+          status: 'clear',
+          reasons: [],
+        },
+        relationshipProvenance: {
+          status: 'present',
+          sourceCount: 2,
+          signalCount: 2,
+          relationshipEventId: null,
+          detail: 'Portfolio-local relationship provenance is attached.',
+        },
+        personalizationProvenance: {
+          status: 'present',
+          safeToMentionCount: 1,
+          summarizeOnlyCount: 1,
+          commonalityCount: 2,
+          detail: 'Personalization context is available from local evidence.',
+        },
+        auditState: {
+          status: 'scaffold_only',
+          notes: [
+            'Email is the first candidate channel for future activation review.',
+            'No Gmail draft, Gmail send, provider smoke, schedule, or submitted evidence mutation is enabled.',
+            'A later explicit provider/send approval gate is required before any external action.',
+          ],
+        },
+        stages: [
+          {
+            key: 'draft_packet',
+            label: 'Draft packet',
+            status: 'ready_for_review',
+            detail: 'Local relationship and personalization context can be reviewed as a draft packet.',
+            externalExecutionEnabled: false,
+          },
+          {
+            key: 'human_reply_or_draft_approval',
+            label: 'Human draft approval',
+            status: 'future_gate',
+            detail: 'A human must approve the exact reply or draft packet before any send authority review.',
+            externalExecutionEnabled: false,
+          },
+          {
+            key: 'send_authority_review',
+            label: 'Send authority review',
+            status: 'future_gate',
+            detail: 'Future explicit authority is required for this contact, channel, and message version.',
+            externalExecutionEnabled: false,
+          },
+          {
+            key: 'provider_capability_smoke',
+            label: 'Provider capability smoke',
+            status: 'blocked',
+            detail: 'Gmail/provider capability smoke is intentionally blocked in this scaffold.',
+            externalExecutionEnabled: false,
+          },
+          {
+            key: 'scheduled_send_queue',
+            label: 'Scheduled send queue',
+            status: 'disabled',
+            detail: 'Scheduling is modeled but disabled until provider/send activation.',
+            externalExecutionEnabled: false,
+          },
+          {
+            key: 'submitted_sent_evidence',
+            label: 'Submitted/sent evidence',
+            status: 'evidence_required',
+            detail: 'Submitted or sent evidence must be recorded after a future approved provider action.',
+            externalExecutionEnabled: false,
+          },
+        ],
+      }
+    : null
+
   return {
     mode,
     channel,
@@ -92,6 +196,7 @@ function sendReadiness(
     gatesRemaining: ['human_reply_or_draft_approval', 'external_send_authority', 'provider_execution_gate'],
     auditNotes: ['Scaffold only.'],
     sendAuthority: sendAuthority(mode, channel, authorityState),
+    emailSendLifecycle,
   }
 }
 
@@ -336,6 +441,12 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Review stale no-response follow-up')).toBeInTheDocument()
     expect(screen.getByText('stale no response')).toBeInTheDocument()
     expect(screen.getByText('Send authority review')).toBeInTheDocument()
+    expect(screen.getByText('Email first candidate')).toBeInTheDocument()
+    expect(screen.getByText(/Provider\/send activation blocked/)).toBeInTheDocument()
+    expect(screen.getByText('Provider/send off')).toBeInTheDocument()
+    expect(screen.getByText('Draft packet: ready for review')).toBeInTheDocument()
+    expect(screen.getByText('Provider capability smoke: blocked')).toBeInTheDocument()
+    expect(screen.getByText(/Queue key: warm-outreach:email-send-queue:v1:/)).toBeInTheDocument()
     expect(screen.getByText('Warm one-to-one')).toBeInTheDocument()
     expect(screen.getByText('Warm one-to-many')).toBeInTheDocument()
     expect(screen.getAllByText('Future eligible')).toHaveLength(4)

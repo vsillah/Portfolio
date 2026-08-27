@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 import { buildWarmBatchReview } from '@/lib/warm-outreach-batch-review'
@@ -52,6 +52,9 @@ function review() {
 
 describe('WarmBatchReviewPanel', () => {
   it('renders per-recipient response monitoring and send-disabled boundaries', () => {
+    const textContent = (expected: string) => (_content: string, element: Element | null) =>
+      element?.textContent === expected
+
     render(
       <WarmBatchReviewPanel
         data={review()}
@@ -63,12 +66,30 @@ describe('WarmBatchReviewPanel', () => {
     )
 
     expect(screen.getByLabelText('Warm batch review')).toBeInTheDocument()
-    expect(screen.getByText('Monitoring: awaiting response')).toBeInTheDocument()
-    expect(screen.getByText('Next: Await manual or imported response evidence')).toBeInTheDocument()
-    expect(screen.getByText(/^Recipient key: warm-outreach:recipient:v1:/)).toBeInTheDocument()
+    const recipientSummary = screen.getByText('Full recipient list (1)').closest('summary')
+    expect(recipientSummary).not.toBeNull()
+    fireEvent.click(recipientSummary!)
+    expect(screen.getByText((_content, element) =>
+      element?.tagName.toLowerCase() === 'p' &&
+      element.textContent === 'Monitoring: stale no response',
+    )).toBeInTheDocument()
+    expect(screen.getByText((_content, element) =>
+      element?.tagName.toLowerCase() === 'p' &&
+      element.textContent === 'Next: Review stale no-response follow-up',
+    )).toBeInTheDocument()
+    expect(screen.getByText((_content, element) =>
+      element?.tagName.toLowerCase() === 'p' &&
+      Boolean(element.textContent?.startsWith('Recipient key: warm-outreach:recipient:v1:')),
+    )).toBeInTheDocument()
     expect(screen.getByText('External monitoring: off')).toBeInTheDocument()
     expect(screen.getByText('Local response evidence: visible')).toBeInTheDocument()
     expect(screen.getByText('External send: off')).toBeInTheDocument()
+    expect(screen.getByText('Email first candidate')).toBeInTheDocument()
+    expect(screen.getByText(/1 recipient email path modeled/)).toBeInTheDocument()
+    expect(screen.getByText(/Batch send remains blocked until every recipient has individual readiness/)).toBeInTheDocument()
+    expect(screen.getByText('Duplicate-blocked recipients: 0. Gmail drafts, scheduling, and sends are disabled.')).toBeInTheDocument()
+    expect(screen.getByText(textContent('Email path: per-recipient gate required'))).toBeInTheDocument()
+    expect(screen.getByText(textContent('Draft: ready for review / Provider: blocked'))).toBeInTheDocument()
     expect(screen.getByText('Future eligible gates')).toBeInTheDocument()
     expect(screen.getByText('Manual channel gates')).toBeInTheDocument()
     expect(screen.getByText('Blocked gates')).toBeInTheDocument()

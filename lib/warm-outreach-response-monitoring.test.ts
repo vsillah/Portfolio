@@ -295,6 +295,26 @@ describe('warm outreach response monitoring', () => {
             'provider_execution_gate',
           ]),
         )
+        if (item.channel === 'email') {
+          expect(item.emailSendLifecycle).toMatchObject({
+            version: 'warm-outreach-email-send-lifecycle/v1',
+            channel: 'email',
+            firstCandidateChannel: true,
+            sendReady: false,
+            externalSendEnabled: false,
+            providerExecutionEnabled: false,
+            gmailDraftCreationEnabled: false,
+            schedulingEnabled: false,
+            auditState: {
+              status: 'scaffold_only',
+              notes: expect.arrayContaining([
+                'No Gmail draft, Gmail send, provider smoke, schedule, or submitted evidence mutation is enabled.',
+              ]),
+            },
+          })
+        } else {
+          expect(item.emailSendLifecycle).toBeNull()
+        }
       }
     }
     expect(readiness.executionBoundary).toEqual({
@@ -318,8 +338,10 @@ describe('warm outreach response monitoring', () => {
       readiness: evaluateWarmOutreachReadiness(inputPacket),
     })
     const emailAuthority = readiness.modes.warm_1_to_1.find((item) => item.channel === 'email')?.sendAuthority
+    const emailLifecycle = readiness.modes.warm_1_to_1.find((item) => item.channel === 'email')?.emailSendLifecycle
     const facebookAuthority = readiness.modes.warm_1_to_1.find((item) => item.channel === 'facebook')?.sendAuthority
     const batchEmailAuthority = readiness.modes.warm_1_to_many.find((item) => item.channel === 'email')?.sendAuthority
+    const batchEmailLifecycle = readiness.modes.warm_1_to_many.find((item) => item.channel === 'email')?.emailSendLifecycle
 
     expect(emailAuthority).toMatchObject({
       version: 'warm-outreach-send-authority/v1',
@@ -352,6 +374,46 @@ describe('warm outreach response monitoring', () => {
       externalExecutionEnabled: false,
     })
     expect(emailAuthority?.idempotencyKey).toMatch(/^warm-outreach:send-readiness:v1:/)
+    expect(emailLifecycle).toMatchObject({
+      state: 'blocked_before_provider_activation',
+      label: 'Email is first candidate, provider/send activation blocked',
+      suppressionCheck: { status: 'clear' },
+      relationshipProvenance: {
+        status: 'present',
+        sourceCount: 1,
+        signalCount: 1,
+      },
+      personalizationProvenance: {
+        status: 'present',
+        safeToMentionCount: 1,
+        summarizeOnlyCount: 1,
+        commonalityCount: 1,
+      },
+      duplicatePrevention: {
+        scope: 'contact_channel_message_version',
+        duplicateDetected: false,
+      },
+    })
+    expect(emailLifecycle?.messageVersionKey).toMatch(/^warm-outreach:email-message-version:v1:/)
+    expect(emailLifecycle?.sendQueueIdempotencyKey).toMatch(/^warm-outreach:email-send-queue:v1:/)
+    expect(emailLifecycle?.providerCapabilitySmokeKey).toMatch(/^warm-outreach:gmail-capability-smoke:v1:/)
+    expect(emailLifecycle?.submittedEvidenceKey).toMatch(/^warm-outreach:email-submitted-evidence:v1:/)
+    expect(emailLifecycle?.stages.map((stage) => stage.key)).toEqual([
+      'draft_packet',
+      'human_reply_or_draft_approval',
+      'send_authority_review',
+      'provider_capability_smoke',
+      'scheduled_send_queue',
+      'submitted_sent_evidence',
+    ])
+    expect(emailLifecycle?.stages.find((stage) => stage.key === 'draft_packet')).toMatchObject({
+      status: 'ready_for_review',
+      externalExecutionEnabled: false,
+    })
+    expect(emailLifecycle?.stages.find((stage) => stage.key === 'provider_capability_smoke')).toMatchObject({
+      status: 'blocked',
+      externalExecutionEnabled: false,
+    })
 
     expect(facebookAuthority).toMatchObject({
       state: 'manual_only',
@@ -374,6 +436,49 @@ describe('warm outreach response monitoring', () => {
     expect(batchEmailAuthority?.blockers).toContain(
       'Batch recipients require per-contact review before any send-readiness state.',
     )
+    expect(batchEmailAuthority?.blockers).toContain(
+      'Batch email sends require individual readiness and future explicit send authority per recipient.',
+    )
+    expect(batchEmailLifecycle).toMatchObject({
+      mode: 'warm_1_to_many',
+      state: 'per_recipient_gate_required',
+      sendReady: false,
+    })
+  })
+
+  it('detects duplicate local email queue states without enabling Gmail execution', () => {
+    const inputPacket = packet()
+    const monitoring = buildWarmOutreachResponseMonitoring({
+      contactId: 42,
+      packet: inputPacket,
+      readiness: evaluateWarmOutreachReadiness(inputPacket),
+      rows: {
+        outreachQueue: [
+          {
+            id: 'queue-scheduled',
+            channel: 'email',
+            status: 'scheduled',
+            subject: 'Warm note',
+          },
+        ],
+      },
+    })
+    const lifecycle = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
+      ?.emailSendLifecycle
+
+    expect(lifecycle).toMatchObject({
+      duplicatePrevention: {
+        duplicateDetected: true,
+        existingEvidenceIds: ['queue-scheduled'],
+      },
+      externalSendEnabled: false,
+      providerExecutionEnabled: false,
+      gmailDraftCreationEnabled: false,
+    })
+    expect(lifecycle?.stages.find((stage) => stage.key === 'scheduled_send_queue')).toMatchObject({
+      status: 'blocked',
+      externalExecutionEnabled: false,
+    })
   })
 
   it('blocks send authority when provenance, personalization, or suppression gates fail', () => {
