@@ -13,6 +13,147 @@ import { resolveBusinessEmailConfig } from '@/lib/business-email-config'
 export const dynamic = 'force-dynamic'
 
 const MAX_BODY_CHARS = 500_000
+const GMAIL_DRAFT_AUTHORIZATION = 'create_gmail_draft_for_recipient'
+
+type RequestBody = {
+  subject?: string
+  body?: string
+  noSendSmoke?: boolean
+  dryRun?: boolean
+  smokeMode?: boolean
+  createGmailDraft?: boolean
+  draftAuthorization?: string
+  idempotencyKey?: string
+  recipientEmail?: string
+  contactSubmissionId?: string | number
+  channel?: string
+}
+
+type MetadataRecord = Record<string, unknown>
+
+function metadataRecord(value: unknown): MetadataRecord {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? (value as MetadataRecord)
+    : {}
+}
+
+function normalizeEmail(value: unknown): string {
+  return String(value ?? '').trim().toLowerCase()
+}
+
+function buildGmailDraftIdempotencyKey(input: {
+  queueId: string
+  contactSubmissionId: number | string
+  channel: string
+}) {
+  return [
+    'warm-outreach',
+    'gmail-draft',
+    'v1',
+    input.queueId,
+    String(input.contactSubmissionId),
+    input.channel,
+  ].join(':')
+}
+
+function hasSuppressedStatus(row: unknown): boolean {
+  const record = metadataRecord(row)
+  const metadata = metadataRecord(record.metadata)
+  const status = String(record.status ?? '').toLowerCase()
+  const outreachStatus = String(record.outreach_status ?? '').toLowerCase()
+  const metadataStatus = String(metadata.status ?? '').toLowerCase()
+  return Boolean(
+    record.do_not_contact === true ||
+      record.unsubscribed === true ||
+      record.email_unsubscribed === true ||
+      record.suppressed === true ||
+      metadata.do_not_contact === true ||
+      metadata.unsubscribed === true ||
+      metadata.suppressed === true ||
+      status === 'opted_out' ||
+      status === 'unsubscribed' ||
+      status === 'suppressed' ||
+      outreachStatus === 'opted_out' ||
+      outreachStatus === 'unsubscribed' ||
+      outreachStatus === 'suppressed' ||
+      metadataStatus === 'opted_out' ||
+      metadataStatus === 'unsubscribed' ||
+      metadataStatus === 'suppressed',
+  )
+}
+
+function hasRelationshipEvidence(input: {
+  contact: MetadataRecord
+  item: MetadataRecord
+  contactCommunications: MetadataRecord[]
+  emailMessages: MetadataRecord[]
+}) {
+  const leadSource = String(input.contact.lead_source ?? '').toLowerCase()
+  const generationInputs = metadataRecord(input.item.generation_inputs)
+  return Boolean(
+    String(input.contact.relationship_strength ?? '').trim() ||
+      String(input.contact.warm_source_detail ?? '').trim() ||
+      /warm|referral|meeting|client|google_contacts|linkedin|facebook/.test(leadSource) ||
+      metadataRecord(generationInputs.warm_relationship).version ===
+        'warm-outreach-relationship/v1' ||
+      input.contactCommunications.length > 0 ||
+      input.emailMessages.length > 0,
+  )
+}
+
+function existingDraftEvidence(
+  rows: MetadataRecord[],
+  expectedIdempotencyKey: string,
+): {
+  draftId: string | null
+  messageId: string | null
+  threadId: string | null
+  communicationId: string | null
+} | null {
+  for (const row of rows) {
+    const metadata = metadataRecord(row.metadata)
+    const authorization = metadataRecord(
+      metadata.warm_outreach_gmail_draft_authorization,
+    )
+    const idempotencyKey =
+      String(metadata.gmail_draft_idempotency_key ?? '') ||
+      String(authorization.idempotency_key ?? '')
+    const draftId = String(metadata.gmail_user_draft_id ?? '')
+    if (idempotencyKey === expectedIdempotencyKey && draftId) {
+      return {
+        draftId,
+        messageId: String(metadata.gmail_user_message_id ?? '') || null,
+        threadId: String(metadata.gmail_user_thread_id ?? '') || null,
+        communicationId: String(row.id ?? '') || null,
+      }
+    }
+  }
+  return null
+}
+
+function parseBody(raw: unknown): RequestBody {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {}
+  const o = raw as Record<string, unknown>
+  return {
+    subject: typeof o.subject === 'string' ? o.subject : undefined,
+    body: typeof o.body === 'string' ? o.body : undefined,
+    noSendSmoke: o.noSendSmoke === true,
+    dryRun: o.dryRun === true,
+    smokeMode: o.smokeMode === true,
+    createGmailDraft: o.createGmailDraft === true,
+    draftAuthorization:
+      typeof o.draftAuthorization === 'string' ? o.draftAuthorization : undefined,
+    idempotencyKey:
+      typeof o.idempotencyKey === 'string' ? o.idempotencyKey : undefined,
+    recipientEmail: typeof o.recipientEmail === 'string' ? o.recipientEmail : undefined,
+    contactSubmissionId:
+      typeof o.contactSubmissionId === 'string' ||
+      typeof o.contactSubmissionId === 'number'
+        ? o.contactSubmissionId
+        : undefined,
+    channel: typeof o.channel === 'string' ? o.channel : undefined,
+  }
+}
 
 /**
  * POST /api/admin/outreach/[id]/gmail-user-draft
@@ -50,22 +191,17 @@ export async function POST(
 
     const { id } = await params
 
-    let bodyOverrides: { subject?: string; body?: string } = {}
-    let noSendSmoke = false
+    let bodyInput: RequestBody = {}
     try {
       const raw = await request.json()
-      if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
-        const o = raw as Record<string, unknown>
-        if (typeof o.subject === 'string') bodyOverrides.subject = o.subject
-        if (typeof o.body === 'string') bodyOverrides.body = o.body
-        noSendSmoke =
-          o.noSendSmoke === true ||
-          o.dryRun === true ||
-          o.smokeMode === true
-      }
+      bodyInput = parseBody(raw)
     } catch {
       // use DB only
     }
+    const noSendSmoke =
+      bodyInput.noSendSmoke === true ||
+      bodyInput.dryRun === true ||
+      bodyInput.smokeMode === true
 
     const { data: creds, error: credsError } = await supabaseAdmin
       .from('admin_gmail_user_credentials')
@@ -96,21 +232,6 @@ export async function POST(
       )
     }
 
-    let refreshToken: string
-    try {
-      refreshToken = decryptRefreshToken(
-        creds.refresh_token_cipher as string,
-        creds.refresh_token_iv as string,
-        creds.refresh_token_tag as string
-      )
-    } catch (e) {
-      console.error('[Gmail user draft] decrypt failed:', e)
-      return NextResponse.json(
-        { error: 'Something went wrong. Reconnect Gmail and try again.' },
-        { status: 500 }
-      )
-    }
-
     const { data: item, error: fetchError } = await supabaseAdmin
       .from('outreach_queue')
       .select(
@@ -120,7 +241,13 @@ export async function POST(
           id,
           name,
           email,
-          company
+          company,
+          lead_source,
+          outreach_status,
+          do_not_contact,
+          removed_at,
+          relationship_strength,
+          warm_source_detail
         )
       `
       )
@@ -149,7 +276,18 @@ export async function POST(
     }
 
     const contact = item.contact_submissions as
-      | { id: number; name: string; email: string; company: string | null }
+      | {
+          id: number
+          name: string
+          email: string
+          company: string | null
+          lead_source?: string | null
+          outreach_status?: string | null
+          do_not_contact?: boolean
+          removed_at?: string | null
+          relationship_strength?: string | null
+          warm_source_detail?: string | null
+        }
       | null
     const to = contact?.email?.trim()
     if (!to?.includes('@')) {
@@ -159,13 +297,81 @@ export async function POST(
       )
     }
 
+    const [contactCommunicationsRes, emailMessagesRes, existingDraftsRes] =
+      await Promise.all([
+        supabaseAdmin
+          .from('contact_communications')
+          .select('id, status, metadata, created_at')
+          .eq('contact_submission_id', item.contact_submission_id)
+          .order('created_at', { ascending: false })
+          .limit(20),
+        supabaseAdmin
+          .from('email_messages')
+          .select('id, status, metadata, created_at')
+          .eq('contact_submission_id', item.contact_submission_id)
+          .order('created_at', { ascending: false })
+          .limit(20),
+        supabaseAdmin
+          .from('contact_communications')
+          .select('id, metadata, created_at')
+          .eq('source_system', 'outreach_queue')
+          .eq('source_id', item.id)
+          .eq('status', 'draft')
+          .order('created_at', { ascending: false })
+          .limit(10),
+      ])
+
+    const contactCommunications = Array.isArray(contactCommunicationsRes.data)
+      ? (contactCommunicationsRes.data as MetadataRecord[])
+      : []
+    const emailMessages = Array.isArray(emailMessagesRes.data)
+      ? (emailMessagesRes.data as MetadataRecord[])
+      : []
+    if (contactCommunicationsRes.error || emailMessagesRes.error) {
+      return NextResponse.json(
+        { error: 'Could not verify relationship and suppression state.' },
+        { status: 503 },
+      )
+    }
+
+    if (
+      contact?.do_not_contact ||
+      contact?.removed_at ||
+      hasSuppressedStatus(contact) ||
+      contactCommunications.some(hasSuppressedStatus) ||
+      emailMessages.some(hasSuppressedStatus)
+    ) {
+      return NextResponse.json(
+        { error: 'This contact is suppressed or blocked from outreach.' },
+        { status: 409 },
+      )
+    }
+
+    if (
+      !hasRelationshipEvidence({
+        contact: metadataRecord(contact),
+        item: metadataRecord(item),
+        contactCommunications,
+        emailMessages,
+      })
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            'Relationship evidence is required before creating a Gmail draft for this warm outreach item.',
+        },
+        { status: 409 },
+      )
+    }
+
     const queueSubject = (item.subject as string | null)?.trim() ?? ''
     const queueBody = String(item.body ?? '')
     const subject =
-      (bodyOverrides.subject !== undefined ? bodyOverrides.subject : queueSubject).trim() ||
-      '(no subject)'
+      noSendSmoke && bodyInput.subject !== undefined
+        ? bodyInput.subject.trim() || '(no subject)'
+        : queueSubject || '(no subject)'
     const bodyText =
-      bodyOverrides.body !== undefined ? bodyOverrides.body : queueBody
+      noSendSmoke && bodyInput.body !== undefined ? bodyInput.body : queueBody
 
     if (bodyText.length > MAX_BODY_CHARS) {
       return NextResponse.json(
@@ -189,7 +395,97 @@ export async function POST(
         bodyChars: bodyText.length,
         requiredSender,
         connectedAs: creds.google_email,
+        expectedAuthorization: {
+          createGmailDraft: true,
+          draftAuthorization: GMAIL_DRAFT_AUTHORIZATION,
+          contactSubmissionId: item.contact_submission_id,
+          recipientEmail: to,
+          channel: item.channel,
+          idempotencyKey: buildGmailDraftIdempotencyKey({
+            queueId: item.id,
+            contactSubmissionId: item.contact_submission_id,
+            channel: item.channel,
+          }),
+        },
+        externalSendBlocked: true,
       })
+    }
+
+    const expectedIdempotencyKey = buildGmailDraftIdempotencyKey({
+      queueId: item.id,
+      contactSubmissionId: item.contact_submission_id,
+      channel: item.channel,
+    })
+    const authorizationErrors = [
+      bodyInput.createGmailDraft === true ? null : 'createGmailDraft must be true.',
+      bodyInput.draftAuthorization === GMAIL_DRAFT_AUTHORIZATION
+        ? null
+        : `draftAuthorization must be ${GMAIL_DRAFT_AUTHORIZATION}.`,
+      bodyInput.idempotencyKey === expectedIdempotencyKey
+        ? null
+        : 'idempotencyKey does not match this contact, channel, and message row.',
+      String(bodyInput.contactSubmissionId ?? '') === String(item.contact_submission_id)
+        ? null
+        : 'contactSubmissionId does not match this outreach item.',
+      normalizeEmail(bodyInput.recipientEmail) === normalizeEmail(to)
+        ? null
+        : 'recipientEmail does not match this outreach item.',
+      bodyInput.channel === item.channel ? null : 'channel does not match this outreach item.',
+    ].filter(Boolean) as string[]
+    if (authorizationErrors.length > 0) {
+      return NextResponse.json(
+        {
+          error:
+            'Explicit per-recipient Gmail draft authorization is required before creating a provider draft.',
+          authorizationErrors,
+          externalSendBlocked: true,
+        },
+        { status: 403 },
+      )
+    }
+
+    if (existingDraftsRes.error) {
+      return NextResponse.json(
+        { error: 'Could not verify existing Gmail draft state.' },
+        { status: 503 },
+      )
+    }
+
+    const existingDraftRows = Array.isArray(existingDraftsRes.data)
+      ? (existingDraftsRes.data as MetadataRecord[])
+      : []
+    const existing = existingDraftEvidence(
+      existingDraftRows,
+      expectedIdempotencyKey,
+    )
+    if (existing || item.thread_id || item.message_id) {
+      return NextResponse.json({
+        message:
+          'Gmail draft already exists for this recipient and message. No new draft was created.',
+        existingDraft: true,
+        duplicatePrevented: true,
+        draftId: existing?.draftId ?? null,
+        threadId: existing?.threadId ?? item.thread_id ?? null,
+        messageId: existing?.messageId ?? item.message_id ?? null,
+        communicationId: existing?.communicationId ?? null,
+        idempotencyKey: expectedIdempotencyKey,
+        externalSendBlocked: true,
+      })
+    }
+
+    let refreshToken: string
+    try {
+      refreshToken = decryptRefreshToken(
+        creds.refresh_token_cipher as string,
+        creds.refresh_token_iv as string,
+        creds.refresh_token_tag as string,
+      )
+    } catch (e) {
+      console.error('[Gmail user draft] decrypt failed:', e)
+      return NextResponse.json(
+        { error: 'Something went wrong. Reconnect Gmail and try again.' },
+        { status: 500 },
+      )
     }
 
     let draft: { id: string; messageId?: string; threadId?: string }
@@ -226,11 +522,31 @@ export async function POST(
     }
 
     const now = new Date().toISOString()
+    const generationInputs = metadataRecord(item.generation_inputs)
+    const gmailDraftCreation = {
+      provider: 'gmail_user_oauth',
+      provider_action: 'drafts.create',
+      draft_id: draft.id,
+      message_id: draft.messageId ?? null,
+      thread_id: draft.threadId,
+      connected_as: creds.google_email,
+      required_sender: requiredSender,
+      recipient_email: to,
+      idempotency_key: expectedIdempotencyKey,
+      authorization: GMAIL_DRAFT_AUTHORIZATION,
+      authorized_by: authResult.user.id,
+      created_at: now,
+      external_send_blocked: true,
+    }
     const { error: trackingError } = await supabaseAdmin
       .from('outreach_queue')
       .update({
         thread_id: draft.threadId,
         message_id: draft.messageId ?? null,
+        generation_inputs: {
+          ...generationInputs,
+          gmail_draft_creation: gmailDraftCreation,
+        },
         updated_at: now,
       })
       .eq('id', item.id)
@@ -258,20 +574,36 @@ export async function POST(
       status: 'draft',
       sentBy: authResult.user.id,
       emailTransport: 'logged_only',
+      recipientEmail: to,
       metadata: {
         outreach_queue_id: item.id,
         gmail_user_draft_id: draft.id,
         gmail_user_message_id: draft.messageId,
         gmail_user_thread_id: draft.threadId,
         gmail_connected_as: creds.google_email,
+        gmail_draft_idempotency_key: expectedIdempotencyKey,
+        warm_outreach_gmail_draft_authorization: {
+          idempotency_key: expectedIdempotencyKey,
+          authorization: GMAIL_DRAFT_AUTHORIZATION,
+          contact_submission_id: item.contact_submission_id,
+          recipient_email: to,
+          channel: item.channel,
+          authorized_by: authResult.user.id,
+          authorized_at: now,
+          external_send_blocked: true,
+        },
+        external_send_blocked: true,
       },
     })
 
     return NextResponse.json({
-      message: 'Draft saved in your Gmail. Open Gmail to review and send.',
+      message:
+        'Draft saved in Gmail for review. No email was sent; sending remains blocked.',
       draftId: draft.id,
       threadId: draft.threadId,
       openGmailUrl: 'https://mail.google.com/mail/#drafts',
+      idempotencyKey: expectedIdempotencyKey,
+      externalSendBlocked: true,
     })
   } catch (error) {
     console.error('POST /api/admin/outreach/[id]/gmail-user-draft:', error)
