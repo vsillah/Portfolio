@@ -24,6 +24,7 @@ import type {
 } from '@/lib/warm-outreach-relationship-intelligence'
 import type {
   WarmOutreachGmailProviderActivationReadiness,
+  WarmOutreachRealRecipientGmailRolloutReadiness,
   WarmOutreachResponseMonitoring,
 } from '@/lib/warm-outreach-response-monitoring'
 
@@ -193,6 +194,92 @@ function activationStepClasses(state: string) {
   return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
 }
 
+function realRecipientRolloutClasses(state: WarmOutreachRealRecipientGmailRolloutReadiness['state']) {
+  if (state === 'ready_for_send_request') return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100'
+  if (state === 'authorization_recorded_execution_blocked') return 'border-sky-500/30 bg-sky-500/10 text-sky-100'
+  if (state === 'already_sent') return 'border-silicon-slate bg-silicon-slate/25 text-muted-foreground'
+  return 'border-red-500/30 bg-red-500/10 text-red-100'
+}
+
+function rolloutRequirementClasses(state: string) {
+  if (state === 'tracked' || state === 'matched' || state === 'clear' || state === 'configured') {
+    return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  }
+  if (state === 'approved') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  if (state === 'missing') return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+  return 'border-red-500/25 bg-red-500/10 text-red-100'
+}
+
+function RealRecipientRolloutCard({
+  readiness,
+}: {
+  readiness?: WarmOutreachRealRecipientGmailRolloutReadiness | null
+}) {
+  if (!readiness) return null
+
+  const requirements = [
+    ['Draft', readiness.requirements.draftEvidence.state],
+    ['Sender', readiness.requirements.senderMatch.state],
+    ['Suppression', readiness.requirements.suppression.state],
+    ['Provider', readiness.requirements.provider.state],
+    ['Authorization', readiness.requirements.authorization.state],
+    ['Submitted evidence', readiness.requirements.submittedEvidence.state],
+  ] as const
+  const primaryDetail =
+    readiness.blockers[0] ??
+    (readiness.state === 'ready_for_send_request'
+      ? readiness.requirements.authorization.detail
+      : readiness.state === 'authorization_recorded_execution_blocked'
+        ? 'Execution still requires the captain to enable the production flag and call the exact per-recipient send route.'
+        : readiness.requirements.submittedEvidence.detail)
+
+  return (
+    <div className={`mt-2 rounded-md border p-2.5 ${realRecipientRolloutClasses(readiness.state)}`}>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide">
+            {readiness.state === 'ready_for_send_request' ? (
+              <ShieldCheck size={14} aria-hidden />
+            ) : (
+              <ShieldAlert size={14} aria-hidden />
+            )}
+            Real-recipient Gmail rollout
+          </p>
+          <p className="mt-1 text-[11px] leading-4">{readiness.label}</p>
+        </div>
+        <span className="w-fit shrink-0 rounded-full border border-current/25 px-2 py-0.5 text-[10px] font-semibold">
+          {readiness.actionLabel}
+        </span>
+      </div>
+      <p className="mt-2 text-[11px] leading-4">{primaryDetail}</p>
+      <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
+        {requirements.map(([label, state]) => (
+          <span
+            key={label}
+            className={`rounded-md border p-2 text-[10px] leading-4 ${rolloutRequirementClasses(state)}`}
+          >
+            {label}: {state.replace(/_/g, ' ')}
+          </span>
+        ))}
+      </div>
+      <div className="mt-2 grid gap-1.5 text-[10px] leading-4 text-current/85 sm:grid-cols-2">
+        <p className="break-words">
+          Slack payload: {readiness.slackApprovalContract.route}. Dispatch off.
+        </p>
+        <p className="break-words">
+          Dedupe: {readiness.slackApprovalContract.payloadDedupeKey}
+        </p>
+        <p>
+          Approval records intent only. Gmail send: off.
+        </p>
+        <p>
+          Exact execution still needs per-recipient authorization and captain flag.
+        </p>
+      </div>
+    </div>
+  )
+}
+
 function ActivationReadinessPacket({
   readiness,
 }: {
@@ -293,6 +380,7 @@ function EmailLifecycleCompact({
   const smoke = lifecycle.providerCapabilitySmoke
   const draftGate = lifecycle.gmailDraftCreationGate
   const externalSend = lifecycle.externalSendReadiness
+  const realRecipientRollout = lifecycle.realRecipientRolloutReadiness
   const activationReadiness =
     canaryResult?.activationReadiness ?? lifecycle.gmailProviderActivationReadiness
 
@@ -326,6 +414,7 @@ function EmailLifecycleCompact({
       <p className="mt-2 break-all text-[10px] leading-4 text-amber-100/80">
         Queue key: {lifecycle.sendQueueIdempotencyKey}
       </p>
+      <RealRecipientRolloutCard readiness={realRecipientRollout} />
       <div className="mt-2 grid gap-2 md:grid-cols-2">
         <div className={`rounded-md border p-2 ${gmailHandoffClasses(handoff.state)}`}>
           <div className="flex flex-wrap items-center justify-between gap-2">

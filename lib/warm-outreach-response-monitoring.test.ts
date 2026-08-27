@@ -829,4 +829,244 @@ describe('warm outreach response monitoring', () => {
       ]),
     )
   })
+
+  it('marks a real-recipient Gmail row ready for a one-step send approval request', () => {
+    const base = packet()
+    const providerPacket = packet({
+      channelCapabilities: {
+        ...base.channelCapabilities,
+        email: {
+          available: true,
+          providerConfigured: true,
+          supportsExternalSend: false,
+          manualOnly: false,
+          reason: 'Gmail OAuth profile is connected for gated send review.',
+        },
+      },
+    })
+    const monitoring = buildWarmOutreachResponseMonitoring({
+      contactId: 42,
+      packet: providerPacket,
+      readiness: evaluateWarmOutreachReadiness(providerPacket),
+      rows: {
+        outreachQueue: [
+          {
+            id: 'queue-ready',
+            channel: 'email',
+            status: 'draft',
+            generation_inputs: {
+              gmail_draft_creation: {
+                draft_id: 'gmail-draft-42',
+                message_id: 'gmail-message-42',
+                thread_id: 'gmail-thread-42',
+                connected_as: 'vambah@amadutown.com',
+                required_sender: 'vambah@amadutown.com',
+                external_send_blocked: true,
+              },
+            },
+          },
+        ],
+      },
+    })
+    const rollout = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
+      ?.emailSendLifecycle?.realRecipientRolloutReadiness
+
+    expect(rollout).toMatchObject({
+      version: 'warm-outreach-real-gmail-rollout-readiness/v1',
+      state: 'ready_for_send_request',
+      label: 'Ready for one-step send approval request',
+      eligibleForSendApprovalRequest: true,
+      canBuildSlackApprovalPayload: true,
+      exactNextAction: 'approve_send_request',
+      actionLabel: 'Approve send request',
+      requirements: {
+        draftEvidence: {
+          state: 'tracked',
+          draftId: 'gmail-draft-42',
+        },
+        senderMatch: {
+          state: 'matched',
+          requiredSender: 'vambah@amadutown.com',
+          connectedAs: 'vambah@amadutown.com',
+        },
+        suppression: { state: 'clear' },
+        provider: { state: 'configured' },
+        authorization: { state: 'missing' },
+        submittedEvidence: { state: 'missing' },
+      },
+      executionBoundary: {
+        slackDispatch: false,
+        gmailSend: false,
+        providerCalls: false,
+        productionEnvChange: false,
+      },
+    })
+    expect(rollout?.slackApprovalContract).toMatchObject({
+      route: '/api/admin/outreach/[id]/slack-send-approval',
+      dispatchEnabled: false,
+      recordsAuthorizationIntentOnly: true,
+      gmailSendCalled: false,
+      providerExecutionEnabled: false,
+    })
+  })
+
+  it('blocks real-recipient Gmail rollout when suppression is not clear', () => {
+    const suppressed = packet({
+      suppression: {
+        doNotContact: true,
+        unsubscribed: false,
+        removedAt: null,
+        suppressionReason: 'Manual DNC review is active.',
+      },
+    })
+    const providerPacket = packet({
+      ...suppressed,
+      channelCapabilities: {
+        ...suppressed.channelCapabilities,
+        email: {
+          available: true,
+          providerConfigured: true,
+          supportsExternalSend: false,
+          manualOnly: false,
+          reason: 'Gmail OAuth profile is connected for gated send review.',
+        },
+      },
+    })
+    const monitoring = buildWarmOutreachResponseMonitoring({
+      contactId: 42,
+      packet: providerPacket,
+      readiness: evaluateWarmOutreachReadiness(providerPacket),
+      rows: {
+        outreachQueue: [
+          {
+            id: 'queue-blocked',
+            channel: 'email',
+            status: 'draft',
+            generation_inputs: {
+              gmail_draft_creation: {
+                draft_id: 'gmail-draft-42',
+                thread_id: 'gmail-thread-42',
+                connected_as: 'vambah@amadutown.com',
+                required_sender: 'vambah@amadutown.com',
+              },
+            },
+          },
+        ],
+      },
+    })
+    const rollout = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
+      ?.emailSendLifecycle?.realRecipientRolloutReadiness
+
+    expect(rollout).toMatchObject({
+      state: 'blocked',
+      eligibleForSendApprovalRequest: false,
+      exactNextAction: 'resolve_blocker',
+      requirements: {
+        suppression: {
+          state: 'blocked',
+          reasons: ['Manual DNC review is active.'],
+        },
+      },
+    })
+    expect(rollout?.blockers).toContain('Manual DNC review is active.')
+  })
+
+  it('marks duplicate real-recipient Gmail rollout as already sent when submitted evidence exists', () => {
+    const base = packet()
+    const providerPacket = packet({
+      channelCapabilities: {
+        ...base.channelCapabilities,
+        email: {
+          available: true,
+          providerConfigured: true,
+          supportsExternalSend: false,
+          manualOnly: false,
+          reason: 'Gmail OAuth profile is connected for gated send review.',
+        },
+      },
+    })
+    const monitoring = buildWarmOutreachResponseMonitoring({
+      contactId: 42,
+      packet: providerPacket,
+      readiness: evaluateWarmOutreachReadiness(providerPacket),
+      rows: {
+        outreachQueue: [
+          {
+            id: 'queue-sent',
+            channel: 'email',
+            status: 'sent',
+            generation_inputs: {
+              gmail_draft_creation: {
+                draft_id: 'gmail-draft-42',
+                thread_id: 'gmail-thread-42',
+                connected_as: 'vambah@amadutown.com',
+                required_sender: 'vambah@amadutown.com',
+              },
+              warm_gmail_send_execution: {
+                status: 'sent',
+                gmail_send_called: true,
+                send_queue_idempotency_key: 'warm-outreach:email-send-queue:v1:any',
+              },
+            },
+          },
+        ],
+      },
+    })
+    const rollout = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
+      ?.emailSendLifecycle?.realRecipientRolloutReadiness
+
+    expect(rollout).toMatchObject({
+      state: 'already_sent',
+      label: 'Real Gmail send already recorded',
+      eligibleForSendApprovalRequest: false,
+      exactNextAction: 'do_not_send_duplicate',
+      actionLabel: 'Do not resend',
+      requirements: {
+        submittedEvidence: {
+          state: 'submitted',
+          sourceIds: ['queue-sent'],
+        },
+      },
+    })
+  })
+
+  it('blocks real-recipient Gmail rollout when provider evidence is missing', () => {
+    const inputPacket = packet()
+    const monitoring = buildWarmOutreachResponseMonitoring({
+      contactId: 42,
+      packet: inputPacket,
+      readiness: evaluateWarmOutreachReadiness(inputPacket),
+      rows: {
+        outreachQueue: [
+          {
+            id: 'queue-provider-missing',
+            channel: 'email',
+            status: 'draft',
+            generation_inputs: {
+              gmail_draft_creation: {
+                draft_id: 'gmail-draft-42',
+                thread_id: 'gmail-thread-42',
+                connected_as: 'vambah@amadutown.com',
+                required_sender: 'vambah@amadutown.com',
+              },
+            },
+          },
+        ],
+      },
+    })
+    const rollout = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
+      ?.emailSendLifecycle?.realRecipientRolloutReadiness
+
+    expect(rollout).toMatchObject({
+      state: 'blocked',
+      eligibleForSendApprovalRequest: false,
+      exactNextAction: 'resolve_blocker',
+      requirements: {
+        provider: {
+          state: 'missing',
+        },
+      },
+    })
+    expect(rollout?.blockers).toContain('Gmail provider configuration or connected profile evidence is missing.')
+  })
 })
