@@ -678,6 +678,69 @@ describe('warm outreach response monitoring', () => {
     })
   })
 
+  it('surfaces tracked Gmail draft metadata while keeping send authority disabled', () => {
+    const inputPacket = packet()
+    const monitoring = buildWarmOutreachResponseMonitoring({
+      contactId: 13697,
+      packet: inputPacket,
+      readiness: evaluateWarmOutreachReadiness(inputPacket),
+      rows: {
+        outreachQueue: [
+          {
+            id: '70e2adea-3bfa-4920-8cd9-5531234d8d02',
+            channel: 'email',
+            status: 'draft',
+            subject: 'Warm note',
+            generation_inputs: {
+              gmail_draft_creation: {
+                draft_id: 'r3600377219184694601',
+                message_id: '1a043d900ee02b0f',
+                thread_id: '1a043d900ee02b0f',
+                idempotency_key: 'warm-outreach:gmail-draft:v1:queue:13697:email',
+                external_send_blocked: true,
+              },
+            },
+          },
+        ],
+      },
+    })
+    const lifecycle = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
+      ?.emailSendLifecycle
+
+    expect(lifecycle).toMatchObject({
+      duplicatePrevention: {
+        duplicateDetected: true,
+        existingEvidenceIds: ['70e2adea-3bfa-4920-8cd9-5531234d8d02'],
+      },
+      externalSendEnabled: false,
+      providerExecutionEnabled: false,
+      gmailDraftCreationEnabled: false,
+      gmailProviderActivationReadiness: {
+        duplicateDraftEvidence: {
+          createdOnce: true,
+          duplicatePrevented: true,
+          draftId: 'r3600377219184694601',
+          messageId: '1a043d900ee02b0f',
+          threadId: '1a043d900ee02b0f',
+          noSendStatus: 'no_send',
+        },
+        externalSendBoundary: {
+          blocked: true,
+          label: 'External send blocked',
+        },
+      },
+    })
+    expect(lifecycle?.gmailProviderActivationReadiness.remainingHumanGates).toContain(
+      'separate_external_send_authority',
+    )
+    expect(lifecycle?.gmailProviderActivationReadiness.liveDraftCanaryReadiness).toMatchObject({
+      state: 'blocked_no_send',
+      gmailDraftCreated: false,
+      trackingPersisted: false,
+      externalSendEnabled: false,
+    })
+  })
+
   it('blocks send authority when provenance, personalization, or suppression gates fail', () => {
     const weakSuppressed = packet({
       relationshipBasis: 'Limited local relationship evidence is available.',
