@@ -165,12 +165,101 @@ function emailLifecycle(mode, blocked = false, batchGateOnly = false) {
     sendQueueIdempotencyKey,
     providerCapabilitySmokeKey: `warm-outreach:gmail-capability-smoke:v1:${mode}:qa42`,
     submittedEvidenceKey: `warm-outreach:email-submitted-evidence:v1:${mode}:qa42`,
+    gmailDraftHandoffPacket: {
+      version: 'warm-outreach-gmail-draft-handoff/v1',
+      state: blocked
+        ? 'blocked'
+        : batchGateOnly
+          ? 'per_recipient_gate_required'
+          : 'ready_for_internal_handoff',
+      label: blocked
+        ? 'Internal Gmail draft handoff blocked'
+        : batchGateOnly
+          ? 'Internal draft handoff is per-recipient only'
+          : 'Internal Gmail draft handoff ready',
+      internalHandoffReady: !blocked,
+      channel: 'email',
+      contactReference: {
+        contactId: 42,
+        contactName: 'Amina Example',
+        reference: 'contact_submission:42:Amina Example',
+      },
+      messageVersionKey,
+      templateDraftBasis: {
+        recommendedTemplate: 'follow_up',
+        selectedChannel: 'email',
+        relationshipEventId: null,
+        detail: 'Use follow up as the internal draft basis for the current message version.',
+      },
+      provenanceSummary: {
+        relationshipSourceCount: blocked ? 0 : 2,
+        relationshipSignalCount: blocked ? 0 : 2,
+        safeToMentionCount: blocked ? 0 : 1,
+        summarizeOnlyCount: blocked ? 0 : 1,
+        commonalityCount: blocked ? 0 : 1,
+        detail: blocked
+          ? 'Relationship provenance is missing or only uses the contact record.'
+          : 'Portfolio-local relationship provenance is summarized for the handoff packet.',
+      },
+      suppressionStatus: blocked ? 'blocked' : 'clear',
+      suppressionReasons: blocked ? ['Relationship basis is too weak for send readiness.'] : [],
+      idempotencyKey: `warm-outreach:gmail-draft-handoff:v1:${mode}:qa42`,
+      futureApprovalGates: [
+        'human_reply_or_draft_approval',
+        'provider_capability_smoke',
+        'gmail_draft_creation_authority',
+        'external_send_authority',
+        'send_scheduling',
+        'submitted_sent_evidence',
+      ],
+      gmailProviderActivated: false,
+      gmailDraftCreationEnabled: false,
+      providerCallsEnabled: false,
+      externalSendBlocked: true,
+      detail: blocked
+        ? 'Resolve relationship, provenance, personalization, suppression, or duplicate blockers before handoff.'
+        : batchGateOnly
+          ? 'Batch review can prepare handoff evidence only one recipient at a time; no batch Gmail drafts can be created.'
+          : 'Operator can review the internal Gmail draft handoff packet; Gmail draft creation and send stay blocked.',
+    },
+    providerCapabilitySmoke: {
+      version: 'warm-outreach-gmail-provider-smoke/v1',
+      provider: 'gmail',
+      status: blocked || batchGateOnly ? 'blocked' : 'not_configured',
+      label: blocked || batchGateOnly ? 'Gmail smoke blocked' : 'Gmail provider not activated',
+      smokeKey: `warm-outreach:gmail-capability-smoke:v1:${mode}:qa42`,
+      providerConfigured: false,
+      readOnlySmokeReady: false,
+      readOnlySmokeEnabled: false,
+      providerCallsEnabled: false,
+      externalSendEnabled: false,
+      gmailDraftCreationEnabled: false,
+      requiredConfig: [
+        'Gmail OAuth configuration',
+        'Connected Gmail profile',
+        'Future explicit read-only smoke authority',
+      ],
+      blockedReasons: blocked
+        ? ['Relationship basis is too weak for send readiness.']
+        : batchGateOnly
+          ? ['Batch Gmail provider smoke remains per-recipient only and cannot run from the batch surface.']
+          : [],
+      lastSmokeAt: null,
+      lastSmokeError: null,
+      futureActivationGate: 'A later captain-lane approval must authorize any Gmail provider smoke; this scaffold records readiness only.',
+      notes: [
+        'This model does not call Gmail.',
+        'Read-only smoke readiness is separate from Gmail draft creation and external send authority.',
+        'Gmail draft creation, send, scheduling, Slack action, and provider calls remain disabled.',
+      ],
+    },
     duplicatePrevention: {
       scope: 'contact_channel_message_version',
       duplicateDetected: false,
       existingEvidenceIds: [],
       requiredUniqueKeys: [
         messageVersionKey,
+        `warm-outreach:gmail-draft-handoff:v1:${mode}:qa42`,
         sendQueueIdempotencyKey,
         `warm-outreach:gmail-capability-smoke:v1:${mode}:qa42`,
         `warm-outreach:email-submitted-evidence:v1:${mode}:qa42`,

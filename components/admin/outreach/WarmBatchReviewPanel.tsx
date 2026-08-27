@@ -62,6 +62,14 @@ function emailLifecycleStateLabel(
   return 'blocked'
 }
 
+function handoffStateLabel(
+  state: NonNullable<WarmBatchReviewRecipient['sendReadiness']['modes']['warm_1_to_many'][number]['emailSendLifecycle']>['gmailDraftHandoffPacket']['state'],
+) {
+  if (state === 'ready_for_internal_handoff') return 'internal handoff ready'
+  if (state === 'per_recipient_gate_required') return 'per-recipient handoff'
+  return 'handoff blocked'
+}
+
 function BoundaryFlag({ label, active }: { label: string; active: boolean }) {
   return (
     <span
@@ -97,6 +105,8 @@ function RecipientRow({ recipient }: { recipient: WarmBatchReviewRecipient }) {
     ?.emailSendLifecycle
   const draftStage = emailLifecycle?.stages.find((stage) => stage.key === 'draft_packet')
   const providerStage = emailLifecycle?.stages.find((stage) => stage.key === 'provider_capability_smoke')
+  const handoff = emailLifecycle?.gmailDraftHandoffPacket
+  const providerSmoke = emailLifecycle?.providerCapabilitySmoke
 
   return (
     <li className="grid gap-3 border-t border-silicon-slate/70 py-3 first:border-t-0 md:grid-cols-[minmax(10rem,0.9fr)_minmax(0,1.35fr)_minmax(9rem,0.7fr)]">
@@ -140,6 +150,11 @@ function RecipientRow({ recipient }: { recipient: WarmBatchReviewRecipient }) {
             <p>
               Draft: {draftStage?.status.replace(/_/g, ' ') ?? 'blocked'} / Provider: {providerStage?.status.replace(/_/g, ' ') ?? 'blocked'}
             </p>
+            {handoff && (
+              <p>
+                Handoff: {handoffStateLabel(handoff.state)} / Smoke: {providerSmoke?.status.replace(/_/g, ' ') ?? 'blocked'}
+              </p>
+            )}
           </>
         )}
         <p>Future eligible: {futureEligible} / Manual: {manualOnly} / Blocked: {blocked}</p>
@@ -171,6 +186,14 @@ export default function WarmBatchReviewPanel({
   const emailLifecycleSummary = {
     candidates: data?.recipients.filter((recipient) =>
       Boolean(recipient.sendReadiness.modes.warm_1_to_many.find((item) => item.channel === 'email')?.emailSendLifecycle),
+    ).length ?? 0,
+    handoffReady: data?.recipients.filter((recipient) =>
+      recipient.sendReadiness.modes.warm_1_to_many.find((item) => item.channel === 'email')
+        ?.emailSendLifecycle?.gmailDraftHandoffPacket.internalHandoffReady,
+    ).length ?? 0,
+    providerNotConfigured: data?.recipients.filter((recipient) =>
+      recipient.sendReadiness.modes.warm_1_to_many.find((item) => item.channel === 'email')
+        ?.emailSendLifecycle?.providerCapabilitySmoke.providerConfigured === false,
     ).length ?? 0,
     duplicateBlocked: data?.recipients.filter((recipient) =>
       recipient.sendReadiness.modes.warm_1_to_many.find((item) => item.channel === 'email')
@@ -290,6 +313,9 @@ export default function WarmBatchReviewPanel({
             </div>
             <p className="mt-2 text-xs leading-5 text-amber-100/85">
               Duplicate-blocked recipients: {emailLifecycleSummary.duplicateBlocked}. Gmail drafts, scheduling, and sends are disabled.
+            </p>
+            <p className="mt-1 text-xs leading-5 text-amber-100/85">
+              Internal draft handoffs ready: {emailLifecycleSummary.handoffReady}. Gmail provider not activated: {emailLifecycleSummary.providerNotConfigured}. Batch draft creation remains unavailable.
             </p>
           </div>
 

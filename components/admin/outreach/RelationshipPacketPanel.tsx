@@ -142,6 +142,19 @@ function emailLifecycleStageClasses(status: NonNullable<SendReadinessItem['email
   return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
 }
 
+function gmailHandoffClasses(state: NonNullable<SendReadinessItem['emailSendLifecycle']>['gmailDraftHandoffPacket']['state']) {
+  if (state === 'blocked') return 'border-red-500/25 bg-red-500/10 text-red-100'
+  if (state === 'per_recipient_gate_required') return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+  return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+}
+
+function providerSmokeClasses(status: NonNullable<SendReadinessItem['emailSendLifecycle']>['providerCapabilitySmoke']['status']) {
+  if (status === 'smoke_passed') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  if (status === 'smoke_failed' || status === 'blocked') return 'border-red-500/25 bg-red-500/10 text-red-100'
+  if (status === 'ready_for_read_only_smoke') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+}
+
 function summarizeAuthority(items: SendReadinessItem[]) {
   return items.reduce(
     (summary, item) => {
@@ -157,6 +170,8 @@ function summarizeAuthority(items: SendReadinessItem[]) {
 function EmailLifecycleCompact({ item }: { item?: SendReadinessItem }) {
   const lifecycle = item?.emailSendLifecycle
   if (!lifecycle) return null
+  const handoff = lifecycle.gmailDraftHandoffPacket
+  const smoke = lifecycle.providerCapabilitySmoke
 
   return (
     <div className="rounded-md border border-amber-500/25 bg-amber-500/10 p-2.5 text-amber-50">
@@ -188,6 +203,36 @@ function EmailLifecycleCompact({ item }: { item?: SendReadinessItem }) {
       <p className="mt-2 break-all text-[10px] leading-4 text-amber-100/80">
         Queue key: {lifecycle.sendQueueIdempotencyKey}
       </p>
+      <div className="mt-2 grid gap-2 md:grid-cols-2">
+        <div className={`rounded-md border p-2 ${gmailHandoffClasses(handoff.state)}`}>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-[11px] font-semibold uppercase tracking-wide">Internal draft handoff</p>
+            <span className="rounded-full border border-current/25 px-2 py-0.5 text-[10px] font-semibold">
+              {handoff.internalHandoffReady ? 'Ready' : 'Blocked'}
+            </span>
+          </div>
+          <p className="mt-1 text-[11px] leading-4">
+            {handoff.contactReference.reference} / {handoff.templateDraftBasis.recommendedTemplate.replace(/_/g, ' ')}
+          </p>
+          <p className="mt-1 text-[11px] leading-4">
+            Suppression: {handoff.suppressionStatus}. Gmail draft creation off. External send blocked.
+          </p>
+          <p className="mt-1 break-all text-[10px] leading-4 opacity-80">{handoff.idempotencyKey}</p>
+        </div>
+        <div className={`rounded-md border p-2 ${providerSmokeClasses(smoke.status)}`}>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-[11px] font-semibold uppercase tracking-wide">Gmail provider smoke</p>
+            <span className="rounded-full border border-current/25 px-2 py-0.5 text-[10px] font-semibold">
+              {smoke.status.replace(/_/g, ' ')}
+            </span>
+          </div>
+          <p className="mt-1 text-[11px] leading-4">{smoke.label}. Provider calls off.</p>
+          <p className="mt-1 text-[11px] leading-4">
+            Draft handoff ready is separate from provider activation and send authority.
+          </p>
+          <p className="mt-1 break-all text-[10px] leading-4 opacity-80">{smoke.smokeKey}</p>
+        </div>
+      </div>
     </div>
   )
 }
