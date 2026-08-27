@@ -9,6 +9,7 @@ import {
   Mail,
   MessageSquare,
   Phone,
+  RefreshCw,
   ShieldAlert,
   ShieldCheck,
   Sparkles,
@@ -46,10 +47,24 @@ export interface RelationshipPacketApiResponse {
   responseMonitoring?: WarmOutreachResponseMonitoring
 }
 
+export interface GmailDraftCanaryResult {
+  status: string
+  message: string
+  draftCreationEnabled: false
+  providerCallsEnabled: false
+  externalSendEnabled: false
+  gmailDraftCreated: false
+  trackingPersisted: false
+}
+
 interface RelationshipPacketPanelProps {
   loading: boolean
   error: string | null
   data: RelationshipPacketApiResponse | null
+  gmailDraftCanaryLoading?: boolean
+  gmailDraftCanaryError?: string | null
+  gmailDraftCanaryResult?: GmailDraftCanaryResult | null
+  onGmailDraftCanary?: () => void
 }
 
 const CHANNEL_LABELS: Record<WarmOutreachChannel, string> = {
@@ -175,7 +190,19 @@ function summarizeAuthority(items: SendReadinessItem[]) {
   )
 }
 
-function EmailLifecycleCompact({ item }: { item?: SendReadinessItem }) {
+function EmailLifecycleCompact({
+  canaryError,
+  canaryLoading,
+  canaryResult,
+  item,
+  onRunCanary,
+}: {
+  canaryError?: string | null
+  canaryLoading?: boolean
+  canaryResult?: RelationshipPacketPanelProps['gmailDraftCanaryResult']
+  item?: SendReadinessItem
+  onRunCanary?: () => void
+}) {
   const lifecycle = item?.emailSendLifecycle
   if (!lifecycle) return null
   const handoff = lifecycle.gmailDraftHandoffPacket
@@ -256,6 +283,33 @@ function EmailLifecycleCompact({ item }: { item?: SendReadinessItem }) {
           {draftGate.label}. Draft creation off. External send blocked.
         </p>
         <p className="mt-1 break-all text-[10px] leading-4 opacity-80">{draftGate.draftCreationKey}</p>
+        <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[11px] leading-4 opacity-90">
+            Run a no-send canary to confirm the contact, message-version keys, and gates are wired. It does not call Gmail.
+          </p>
+          <button
+            type="button"
+            onClick={onRunCanary}
+            disabled={!onRunCanary || canaryLoading}
+            className="inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-md border border-sky-500/35 bg-sky-500/10 px-3 text-xs font-semibold text-sky-100 transition-colors hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:border-silicon-slate disabled:bg-silicon-slate/20 disabled:text-muted-foreground sm:w-auto"
+          >
+            {canaryLoading ? <RefreshCw size={13} className="animate-spin" aria-hidden /> : <CheckCircle2 size={13} aria-hidden />}
+            {canaryLoading ? 'Checking...' : 'Run no-send canary'}
+          </button>
+        </div>
+        {canaryError && (
+          <p role="alert" className="mt-2 rounded-md border border-red-500/30 bg-red-500/10 p-2 text-[11px] leading-4 text-red-100">
+            {canaryError}
+          </p>
+        )}
+        {canaryResult && (
+          <div className="mt-2 rounded-md border border-emerald-500/25 bg-emerald-500/10 p-2 text-[11px] leading-4 text-emerald-100">
+            <p className="font-semibold">{canaryResult.message}</p>
+            <p className="mt-1">
+              Gmail draft: {canaryResult.gmailDraftCreated ? 'created' : 'not created'} / Tracking: {canaryResult.trackingPersisted ? 'persisted' : 'not written'} / External send: {canaryResult.externalSendEnabled ? 'enabled' : 'blocked'}.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -385,9 +439,13 @@ function ValuePill({ label, value }: { label: string; value: string }) {
 }
 
 export default function RelationshipPacketPanel({
+  gmailDraftCanaryError,
+  gmailDraftCanaryLoading,
+  gmailDraftCanaryResult,
   loading,
   error,
   data,
+  onGmailDraftCanary,
 }: RelationshipPacketPanelProps) {
   const readiness = data?.readiness
   const packet = data?.packet
@@ -537,6 +595,10 @@ export default function RelationshipPacketPanel({
                 <div className="space-y-2">
                   <EmailLifecycleCompact
                     item={responseMonitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')}
+                    canaryError={gmailDraftCanaryError}
+                    canaryLoading={gmailDraftCanaryLoading}
+                    canaryResult={gmailDraftCanaryResult}
+                    onRunCanary={onGmailDraftCanary}
                   />
                   <SendAuthorityCompactRow
                     label="Warm one-to-one"
