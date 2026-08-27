@@ -2,6 +2,10 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import type { HTMLAttributes, ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import OutreachAdminPage from './page'
+import {
+  WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID,
+  warmSlackSendApprovalQaLead,
+} from '@/components/admin/outreach/warmSlackSendApprovalQaFixture'
 
 vi.mock('framer-motion', () => ({
   motion: {
@@ -363,6 +367,19 @@ describe('OutreachAdminPage deep links', () => {
     })
   })
 
+  it('hydrates the selected workroom from the contactId query alias', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&contactId=42')
+
+    render(<OutreachAdminPage />)
+
+    const workroom = await screen.findByLabelText('Outreach workroom for Ada Operator')
+    expect(within(workroom).getByText('Selected outreach workroom')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Open selected lead' })).toHaveAttribute(
+      'href',
+      '/admin/outreach?tab=leads&id=42',
+    )
+  })
+
   it('fetches and displays the relationship packet for the selected lead', async () => {
     const fetchMock = vi.mocked(fetch)
 
@@ -382,6 +399,32 @@ describe('OutreachAdminPage deep links', () => {
         }),
       )
     })
+  })
+
+  it('renders the inert warm Slack approval QA workroom with an enabled local request path', async () => {
+    window.history.replaceState(
+      {},
+      '',
+      '/admin/outreach?tab=leads&id=42&contactId=42&qa=warm-slack-send-approval',
+    )
+    const fetchMock = vi.mocked(fetch)
+
+    render(<OutreachAdminPage />)
+
+    const workroom = await screen.findByLabelText(`Outreach workroom for ${warmSlackSendApprovalQaLead.name}`)
+    expect(within(workroom).getByText('Selected outreach workroom')).toBeInTheDocument()
+    expect(await within(workroom).findByText('Ready for one-step send approval request')).toBeInTheDocument()
+
+    const button = within(workroom).getByRole('button', { name: 'Build Slack approval card' })
+    expect(button).toBeEnabled()
+    fireEvent.click(button)
+
+    expect(await within(workroom).findByText(
+      `QA local Slack approval request recorded for ${WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID}. Slack dispatch off. Gmail send off. Provider calls off.`,
+    )).toBeInTheDocument()
+    expect(within(workroom).getByText('Slack approval: pending. Slack dispatch: not sent.')).toBeInTheDocument()
+    expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/slack-send-approval'))).toBe(false)
+    expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/api/admin/outreach/leads/42/relationship-packet'))).toBe(false)
   })
 
   it('opens outreach in a dedicated selected workroom instead of rendering the generator inside each lead row', async () => {

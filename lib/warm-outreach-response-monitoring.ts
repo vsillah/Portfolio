@@ -319,6 +319,9 @@ export type WarmOutreachRealRecipientGmailRolloutReadiness = {
     dispatchEnabled: false
     actionIds: ['warm_gmail_send.approve', 'warm_gmail_send.reject', 'warm_gmail_send.revise']
     payloadDedupeKey: string
+    status: 'not_sent' | 'pending' | 'approved' | 'rejected' | 'revision_requested'
+    requestKey: string | null
+    slackDispatchStatus: 'not_sent'
     recordsAuthorizationIntentOnly: true
     gmailSendCalled: false
     providerExecutionEnabled: false
@@ -848,6 +851,33 @@ function firstWarmGmailAuthorization(rows: PortfolioRow[]) {
   }
 }
 
+function firstWarmGmailSlackApprovalRequest(rows: PortfolioRow[]) {
+  for (const row of rows) {
+    const generationInputs = record(row.generation_inputs)
+    const request = {
+      ...record(generationInputs.warm_gmail_send_slack_approval_request),
+      ...nestedMetadata(row, 'warm_gmail_send_slack_approval_request'),
+    }
+    const status = text(request.status)?.toLowerCase()
+    if (
+      status === 'pending' ||
+      status === 'approved' ||
+      status === 'rejected' ||
+      status === 'revision_requested'
+    ) {
+      return {
+        status: status as 'pending' | 'approved' | 'rejected' | 'revision_requested',
+        requestKey: text(request.request_key) ?? text(request.payload_dedupe_key),
+      }
+    }
+  }
+
+  return {
+    status: null,
+    requestKey: null,
+  }
+}
+
 function firstSubmittedWarmGmailEvidence(rows: PortfolioRow[], input: {
   sendQueueIdempotencyKey: string
   submittedEvidenceKey: string
@@ -901,6 +931,7 @@ function buildRealRecipientGmailRolloutReadiness(args: {
 }): WarmOutreachRealRecipientGmailRolloutReadiness {
   const draft = firstGmailDraftRolloutEvidence(args.localEmailRows)
   const authorization = firstWarmGmailAuthorization(args.localEmailRows)
+  const slackApprovalRequest = firstWarmGmailSlackApprovalRequest(args.localEmailRows)
   const submitted = firstSubmittedWarmGmailEvidence(args.localEmailRows, args.lifecycle)
   const hasDraftEvidence = Boolean(draft.draftId || draft.threadId || draft.messageId)
   const senderState: WarmOutreachRealRecipientGmailRolloutReadiness['requirements']['senderMatch']['state'] =
@@ -1033,6 +1064,9 @@ function buildRealRecipientGmailRolloutReadiness(args: {
         contactId: args.contactId,
         messageVersionKey: args.lifecycle.messageVersionKey,
       })}`,
+      status: authorization.status ?? slackApprovalRequest.status ?? 'not_sent',
+      requestKey: slackApprovalRequest.requestKey,
+      slackDispatchStatus: 'not_sent',
       recordsAuthorizationIntentOnly: true,
       gmailSendCalled: false,
       providerExecutionEnabled: false,

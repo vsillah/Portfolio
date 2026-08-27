@@ -70,6 +70,11 @@ function decisionLabel(status: WarmGmailSendApprovalDecisionStatus) {
   return 'revision requested'
 }
 
+function stringValue(value: unknown) {
+  const text = typeof value === 'string' ? value.trim() : ''
+  return text || null
+}
+
 export function warmGmailSendApprovalDedupeKey(input: {
   contactId: number
   messageVersionKey: string
@@ -265,6 +270,37 @@ export async function decideWarmGmailSendAuthorizationFromSlack(input: {
   if (existing.decision_key === decisionKey && typeof existing.status === 'string') {
     return `Warm Gmail send ${existing.status} was already recorded for this recipient and message version. No Gmail send was called.`
   }
+  if (stringValue(existing.decision_key) || stringValue(existing.status)) {
+    throw new Error('Existing warm Gmail send authorization is for a different recipient or message version. Open Portfolio and rebuild the Slack approval request.')
+  }
+
+  const slackRequest = record(generationInputs.warm_gmail_send_slack_approval_request)
+  const requestErrors = [
+    stringValue(slackRequest.request_key)
+      ? null
+      : 'Slack send approval request is not recorded for this outreach row.',
+    Number(slackRequest.contact_submission_id) === input.contactId
+      ? null
+      : 'Slack send approval request contact does not match this recipient.',
+    slackRequest.outreach_queue_id === input.outreachQueueId
+      ? null
+      : 'Slack send approval request queue row does not match this recipient.',
+    slackRequest.message_version_key === input.messageVersionKey
+      ? null
+      : 'Slack send approval request message version is stale or mismatched.',
+    slackRequest.send_queue_idempotency_key === input.sendQueueIdempotencyKey
+      ? null
+      : 'Slack send approval request send key is stale or mismatched.',
+    slackRequest.records_authorization_intent_only === true
+      ? null
+      : 'Slack send approval request must record authorization intent only.',
+    slackRequest.gmail_send_called === false && slackRequest.external_send_performed === false
+      ? null
+      : 'Slack send approval request has invalid external-send evidence.',
+  ].filter(Boolean) as string[]
+  if (requestErrors.length > 0) {
+    throw new Error(requestErrors[0])
+  }
 
   const decidedAt = new Date().toISOString()
   const decision = {
@@ -297,6 +333,17 @@ export async function decideWarmGmailSendAuthorizationFromSlack(input: {
     .update({
       generation_inputs: {
         ...generationInputs,
+        warm_gmail_send_slack_approval_request: {
+          ...slackRequest,
+          status: input.status,
+          decided_at: decidedAt,
+          decided_by_slack_user_id: input.slackUserId,
+          decided_by_label: input.actorLabel,
+          decision_key: decisionKey,
+          slack_action_idempotency_key: input.idempotencyKey,
+          gmail_send_called: false,
+          external_send_performed: false,
+        },
         warm_gmail_send_authorization: decision,
         warm_gmail_send_authorization_history: [decision, ...history].slice(0, 25),
       },
