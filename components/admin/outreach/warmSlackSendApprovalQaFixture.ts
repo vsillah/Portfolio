@@ -145,6 +145,11 @@ const realRecipientRolloutReadiness = {
       sourceIds: [],
       detail: 'No submitted send evidence is recorded for this contact, channel, and message version.',
     },
+    execution: {
+      state: 'approval_needed',
+      sourceIds: [],
+      detail: 'No send approval is recorded yet. Build the one-recipient approval request first.',
+    },
   },
   blockers: [],
   slackApprovalContract: {

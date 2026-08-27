@@ -336,6 +336,11 @@ function sendReadiness(
               sourceIds: [],
               detail: 'No submitted send evidence is recorded for this contact, channel, and message version.',
             },
+            execution: {
+              state: 'blocked',
+              sourceIds: [],
+              detail: 'Resolve blockers before execution eligibility.',
+            },
           },
           blockers: [
             'Tracked Gmail draft evidence is required before a real-recipient send request.',
@@ -978,6 +983,7 @@ describe('RelationshipPacketPanel', () => {
         `Slack approval: ${status === 'revision_requested' ? 'revision requested' : status}. Slack dispatch: not sent.`,
       )).toBeInTheDocument()
       expect(screen.getByText('Approval records intent only. Gmail send: off.')).toBeInTheDocument()
+      expect(screen.getByText(/Operator state:/)).toBeInTheDocument()
     }
   })
 

@@ -142,6 +142,22 @@ function sendExecutionEvidence(generationInputs: MetadataRecord): MetadataRecord
   return metadataRecord(generationInputs.warm_gmail_send_execution)
 }
 
+function executionScopeMatches(execution: MetadataRecord, input: {
+  item: QueueRow
+  lifecycle: WarmOutreachEmailSendLifecycle
+}) {
+  return (
+    execution.outreach_queue_id === input.item.id &&
+    Number(execution.contact_submission_id) === input.item.contact_submission_id &&
+    execution.message_version_key === input.lifecycle.messageVersionKey &&
+    (
+      execution.send_queue_idempotency_key === input.lifecycle.sendQueueIdempotencyKey ||
+      execution.idempotency_key === input.lifecycle.sendQueueIdempotencyKey
+    ) &&
+    execution.submitted_evidence_key === input.lifecycle.submittedEvidenceKey
+  )
+}
+
 function existingSubmittedEvidenceFromRows(rows: MetadataRecord[], input: {
   sendQueueIdempotencyKey: string
   submittedEvidenceKey: string
@@ -218,6 +234,31 @@ function duplicateResponse(input: {
     gmailSendCalled: false,
     externalSendPerformed: false,
     sentEvidence: input.evidence,
+    idempotency: {
+      messageVersionKey: input.lifecycle.messageVersionKey,
+      sendQueueIdempotencyKey: input.lifecycle.sendQueueIdempotencyKey,
+      submittedEvidenceKey: input.lifecycle.submittedEvidenceKey,
+    },
+    executionBoundary: executionBoundary(false),
+  })
+}
+
+function preparedResponse(input: {
+  message: string
+  lifecycle: WarmOutreachEmailSendLifecycle
+  evidence: MetadataRecord
+  duplicatePrevented: boolean
+  expectedAuthorization: Record<string, unknown>
+}) {
+  return NextResponse.json({
+    version: 'warm-outreach-gmail-send-execution/v1',
+    status: 'eligible_for_execution',
+    message: input.message,
+    duplicatePrevented: input.duplicatePrevented,
+    gmailSendCalled: false,
+    externalSendPerformed: false,
+    preparedExecutionEvidence: input.evidence,
+    expectedAuthorization: input.expectedAuthorization,
     idempotency: {
       messageVersionKey: input.lifecycle.messageVersionKey,
       sendQueueIdempotencyKey: input.lifecycle.sendQueueIdempotencyKey,
@@ -530,13 +571,30 @@ export async function POST(
     const statusBlockers = item.status === 'approved'
       ? []
       : [`Outreach item must be approved before Gmail send execution. Current status: ${item.status ?? 'unknown'}.`]
+    const authorizationStatus = stringValue(authorization.status)?.toLowerCase()
     const blockers = [
       ...authorizationBlockers,
+      authorization.approval_intent_recorded === true
+        ? null
+        : 'Portfolio authorization must record approval intent for this exact recipient and message version.',
+      authorization.external_send_authorization_intent === true
+        ? null
+        : 'Portfolio authorization must record external send authorization intent for this exact recipient and message version.',
+      authorization.gmail_send_called === false && authorization.external_send_performed === false
+        ? null
+        : 'Portfolio authorization evidence is invalid because it contains external-send execution evidence.',
+      authorizationStatus === 'revoked'
+        ? 'Portfolio warm Gmail send authorization was revoked.'
+        : authorizationStatus === 'expired'
+          ? 'Portfolio warm Gmail send authorization is expired.'
+          : authorizationStatus === 'stale'
+            ? 'Portfolio warm Gmail send authorization is stale.'
+            : null,
       ...senderBlockers,
       ...draftBlockers,
       ...suppressionBlockers,
       ...statusBlockers,
-    ]
+    ].filter(Boolean) as string[]
 
     const enabled = executionEnabled()
     if (blockers.length > 0) {
@@ -550,27 +608,84 @@ export async function POST(
     }
 
     if (!enabled || bodyInput.dryRun === true || bodyInput.executeGmailSend !== true) {
-      return NextResponse.json({
+      const alreadyPrepared =
+        executionScopeMatches(executionEvidence, { item, lifecycle }) &&
+        stringValue(executionEvidence.status) === 'eligible_for_execution'
+      if (alreadyPrepared) {
+        return preparedResponse({
+          message: 'Warm Gmail send execution is already eligible for this recipient and message version. No duplicate evidence was created and no Gmail send was called.',
+          lifecycle,
+          evidence: executionEvidence,
+          duplicatePrevented: true,
+          expectedAuthorization: expected,
+        })
+      }
+
+      const preparedAt = new Date().toISOString()
+      const preparedEvidence = {
         version: 'warm-outreach-gmail-send-execution/v1',
-        status: enabled ? 'dry_run_no_send' : 'disabled_no_send',
+        status: 'eligible_for_execution',
+        provider: 'gmail_user_oauth',
+        provider_action: 'drafts.send',
+        contact_submission_id: item.contact_submission_id,
+        outreach_queue_id: item.id,
+        recipient_email: recipientEmail,
+        connected_as: credential?.google_email ?? null,
+        required_sender: requiredSender,
+        gmail_draft_id: gmailDraftId,
+        gmail_thread_id: stringValue(draftEvidence.thread_id) ?? item.thread_id,
+        gmail_message_id: stringValue(draftEvidence.message_id) ?? item.message_id,
+        authorization_decision_key: stringValue(authorization.decision_key),
+        message_version_key: lifecycle.messageVersionKey,
+        send_queue_idempotency_key: lifecycle.sendQueueIdempotencyKey,
+        submitted_evidence_key: lifecycle.submittedEvidenceKey,
+        idempotency_key: lifecycle.sendQueueIdempotencyKey,
+        prepared_by: authResult.user.id,
+        prepared_at: preparedAt,
+        dry_run: bodyInput.dryRun === true,
+        execution_flag_enabled: enabled,
+        execute_request_submitted: bodyInput.executeGmailSend === true,
+        gmail_send_called: false,
+        external_send_performed: false,
+        external_send_enabled: false,
+        provider_execution_enabled: false,
+      }
+      const history = Array.isArray(generationInputs.warm_gmail_send_execution_history)
+        ? generationInputs.warm_gmail_send_execution_history
+        : []
+      const prepareRes = await supabaseAdmin
+        .from('outreach_queue')
+        .update({
+          generation_inputs: {
+            ...generationInputs,
+            warm_gmail_send_execution: preparedEvidence,
+            warm_gmail_send_execution_history: [preparedEvidence, ...history].slice(0, 25),
+          },
+          updated_at: preparedAt,
+        })
+        .eq('id', item.id)
+        .eq('status', 'approved')
+        .select('id')
+        .single()
+
+      if (prepareRes.error || !prepareRes.data?.id) {
+        return blockedResponse({
+          message: `Warm Gmail send execution gates passed, but Portfolio could not record eligible execution state. ${prepareRes.error?.message ?? 'The approved outreach row was not claimed.'}`,
+          blockers: ['eligible send execution evidence write failed'],
+          status: 503,
+          lifecycle,
+          expectedAuthorization: expected,
+        })
+      }
+
+      return preparedResponse({
         message: enabled
-          ? 'Warm Gmail send execution gates passed in dry-run mode. No Gmail send was called.'
-          : 'Warm Gmail send execution gates passed, but live Gmail send execution is disabled. No Gmail send was called.',
-        contactId: item.contact_submission_id,
-        outreachQueueId: item.id,
-        gmailDraftId,
-        recipientEmail,
-        requiredSender,
-        connectedAs: credential?.google_email ?? null,
-        gmailSendCalled: false,
-        externalSendPerformed: false,
+          ? 'Warm Gmail send execution gates passed in QA/dry-run mode. Portfolio recorded eligibility and no Gmail send was called.'
+          : 'Warm Gmail send execution gates passed, but live Gmail send execution is disabled. Portfolio recorded eligibility and no Gmail send was called.',
+        lifecycle,
+        evidence: preparedEvidence,
+        duplicatePrevented: false,
         expectedAuthorization: expected,
-        idempotency: {
-          messageVersionKey: lifecycle.messageVersionKey,
-          sendQueueIdempotencyKey: lifecycle.sendQueueIdempotencyKey,
-          submittedEvidenceKey: lifecycle.submittedEvidenceKey,
-        },
-        executionBoundary: executionBoundary(false),
       })
     }
 

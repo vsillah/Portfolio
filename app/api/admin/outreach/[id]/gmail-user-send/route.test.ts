@@ -322,17 +322,27 @@ describe('POST /api/admin/outreach/[id]/gmail-user-send', () => {
     mocks.logCommunication.mockResolvedValue({ id: 'comm-sent-1' })
   })
 
-  it('returns passed gate evidence by default without calling Gmail or mutating tracking', async () => {
-    const { outreachUpdate } = mockSupabase()
+  it('records an eligible execution state by default without calling Gmail', async () => {
+    const { outreachUpdate, updatePayloads } = mockSupabase()
 
     const response = await POST(makeRequest(), params())
 
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toMatchObject({
       version: 'warm-outreach-gmail-send-execution/v1',
-      status: 'disabled_no_send',
+      status: 'eligible_for_execution',
       gmailSendCalled: false,
       externalSendPerformed: false,
+      preparedExecutionEvidence: expect.objectContaining({
+        status: 'eligible_for_execution',
+        outreach_queue_id: 'queue-1',
+        contact_submission_id: 123,
+        message_version_key: MESSAGE_VERSION_KEY,
+        send_queue_idempotency_key: SEND_QUEUE_KEY,
+        submitted_evidence_key: SUBMITTED_EVIDENCE_KEY,
+        gmail_send_called: false,
+        external_send_performed: false,
+      }),
       expectedAuthorization: {
         executeGmailSend: true,
         sendAuthorization: 'execute_warm_gmail_send_for_authorized_recipient',
@@ -351,7 +361,16 @@ describe('POST /api/admin/outreach/[id]/gmail-user-send', () => {
       },
     })
     expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
-    expect(outreachUpdate).not.toHaveBeenCalled()
+    expect(outreachUpdate).toHaveBeenCalledTimes(1)
+    expect(updatePayloads[0]).toMatchObject({
+      generation_inputs: {
+        warm_gmail_send_execution: expect.objectContaining({
+          status: 'eligible_for_execution',
+          gmail_send_called: false,
+          external_send_performed: false,
+        }),
+      },
+    })
     expect(mocks.logCommunication).not.toHaveBeenCalled()
   })
 
@@ -486,6 +505,58 @@ describe('POST /api/admin/outreach/[id]/gmail-user-send', () => {
     expect(outreachUpdate).not.toHaveBeenCalled()
   })
 
+  it('blocks when Portfolio authorization intent is not approved for external send', async () => {
+    const row = outreachRow({
+      generation_inputs: {
+        gmail_draft_creation: draftEvidence(),
+        warm_gmail_send_authorization: authorization({
+          approval_intent_recorded: false,
+          external_send_authorization_intent: false,
+        }),
+      },
+    })
+    const { outreachUpdate } = mockSupabase({ outreachItem: row })
+
+    const response = await POST(makeRequest(executionPayload(row)), params())
+
+    expect(response.status).toBe(409)
+    await expect(response.json()).resolves.toMatchObject({
+      status: 'blocked_no_send',
+      blockers: expect.arrayContaining([
+        'Portfolio authorization must record approval intent for this exact recipient and message version.',
+        'Portfolio authorization must record external send authorization intent for this exact recipient and message version.',
+      ]),
+      gmailSendCalled: false,
+    })
+    expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
+    expect(outreachUpdate).not.toHaveBeenCalled()
+  })
+
+  it('blocks revoked Portfolio authorization evidence', async () => {
+    const row = outreachRow({
+      generation_inputs: {
+        gmail_draft_creation: draftEvidence(),
+        warm_gmail_send_authorization: authorization({
+          status: 'revoked',
+        }),
+      },
+    })
+    mockSupabase({ outreachItem: row })
+
+    const response = await POST(makeRequest(executionPayload(row)), params())
+
+    expect(response.status).toBe(403)
+    await expect(response.json()).resolves.toMatchObject({
+      status: 'blocked_no_send',
+      blockers: expect.arrayContaining([
+        'Portfolio warm Gmail send authorization is missing or not approved.',
+        'Portfolio warm Gmail send authorization was revoked.',
+      ]),
+      gmailSendCalled: false,
+    })
+    expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
+  })
+
   it('blocks stale authorization when the message version no longer matches lifecycle evidence', async () => {
     const row = outreachRow({
       generation_inputs: {
@@ -564,20 +635,20 @@ describe('POST /api/admin/outreach/[id]/gmail-user-send', () => {
     expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
   })
 
-  it('keeps an explicit execution request disabled when the enable flag is absent', async () => {
+  it('keeps an explicit execution request no-send when the enable flag is absent', async () => {
     const { outreachUpdate } = mockSupabase()
 
     const response = await POST(makeRequest(executionPayload()), params())
 
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toMatchObject({
-      status: 'disabled_no_send',
+      status: 'eligible_for_execution',
       gmailSendCalled: false,
       externalSendPerformed: false,
     })
     expect(mocks.decryptRefreshToken).not.toHaveBeenCalled()
     expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
-    expect(outreachUpdate).not.toHaveBeenCalled()
+    expect(outreachUpdate).toHaveBeenCalledTimes(1)
   })
 
   it('prevents duplicate replay when submitted send evidence already exists', async () => {
@@ -613,6 +684,42 @@ describe('POST /api/admin/outreach/[id]/gmail-user-send', () => {
     expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
   })
 
+  it('prevents duplicate eligible execution evidence for repeat no-send submits', async () => {
+    const row = outreachRow({
+      generation_inputs: {
+        gmail_draft_creation: draftEvidence(),
+        warm_gmail_send_authorization: authorization(),
+        warm_gmail_send_execution: {
+          status: 'eligible_for_execution',
+          contact_submission_id: 123,
+          outreach_queue_id: 'queue-1',
+          message_version_key: MESSAGE_VERSION_KEY,
+          send_queue_idempotency_key: SEND_QUEUE_KEY,
+          submitted_evidence_key: SUBMITTED_EVIDENCE_KEY,
+          gmail_send_called: false,
+          external_send_performed: false,
+        },
+      },
+    })
+    const { outreachUpdate } = mockSupabase({ outreachItem: row })
+
+    const response = await POST(makeRequest(executionPayload(row)), params())
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toMatchObject({
+      status: 'eligible_for_execution',
+      duplicatePrevented: true,
+      gmailSendCalled: false,
+      externalSendPerformed: false,
+      preparedExecutionEvidence: expect.objectContaining({
+        status: 'eligible_for_execution',
+        submitted_evidence_key: SUBMITTED_EVIDENCE_KEY,
+      }),
+    })
+    expect(outreachUpdate).not.toHaveBeenCalled()
+    expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
+  })
+
   it('keeps dry-run mode no-send even when live execution is enabled', async () => {
     process.env.ENABLE_WARM_GMAIL_SEND_EXECUTION = 'true'
     const { outreachUpdate } = mockSupabase()
@@ -621,11 +728,11 @@ describe('POST /api/admin/outreach/[id]/gmail-user-send', () => {
 
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toMatchObject({
-      status: 'dry_run_no_send',
+      status: 'eligible_for_execution',
       gmailSendCalled: false,
       externalSendPerformed: false,
     })
     expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
-    expect(outreachUpdate).not.toHaveBeenCalled()
+    expect(outreachUpdate).toHaveBeenCalledTimes(1)
   })
 })
