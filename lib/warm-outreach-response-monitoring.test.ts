@@ -911,6 +911,31 @@ describe('warm outreach response monitoring', () => {
       gmailSendCalled: false,
       providerExecutionEnabled: false,
     })
+    expect(rollout?.auditReceipt).toMatchObject({
+      version: 'warm-gmail-canary-proof-receipt/v1',
+      queueRow: {
+        sourceId: 'queue-ready',
+        contactId: 42,
+        relationshipPacketReference: 'contact_submission:42:Amina Example',
+        messageVersionKey: expect.stringMatching(/^warm-outreach:email-message-version:v1:/),
+        sendQueueIdempotencyKey: expect.stringMatching(/^warm-outreach:email-send-queue:v1:/),
+      },
+      approvalEvidence: {
+        slackApprovalStatus: 'not_sent',
+        portfolioAuthorizationState: 'missing',
+        recordsAuthorizationIntentOnly: true,
+        gmailSendCalledByApproval: false,
+      },
+      finalSendAuthority: {
+        state: 'awaiting_authorization',
+        liveSendActionEnabled: false,
+        nextStep: 'Build the Slack approval card for this exact queue row; Slack records intent only and does not send Gmail.',
+      },
+      suppressionAndIdempotency: {
+        suppressionState: 'clear',
+        submittedEvidenceRecorded: false,
+      },
+    })
   })
 
   it('surfaces a pending Slack approval request from local Portfolio evidence', () => {
@@ -977,6 +1002,79 @@ describe('warm outreach response monitoring', () => {
         execution: { state: 'approval_requested' },
       },
     })
+  })
+
+  it('fails closed when Slack approval exists without matching Portfolio send authorization', () => {
+    const base = packet()
+    const providerPacket = packet({
+      channelCapabilities: {
+        ...base.channelCapabilities,
+        email: {
+          available: true,
+          providerConfigured: true,
+          supportsExternalSend: false,
+          manualOnly: false,
+          reason: 'Gmail OAuth profile is connected for gated send review.',
+        },
+      },
+    })
+    const monitoring = buildWarmOutreachResponseMonitoring({
+      contactId: 42,
+      packet: providerPacket,
+      readiness: evaluateWarmOutreachReadiness(providerPacket),
+      rows: {
+        outreachQueue: [
+          {
+            id: 'queue-slack-approved-without-auth',
+            channel: 'email',
+            status: 'draft',
+            generation_inputs: {
+              gmail_draft_creation: {
+                draft_id: 'gmail-draft-42',
+                message_id: 'gmail-message-42',
+                thread_id: 'gmail-thread-42',
+                connected_as: 'vambah@amadutown.com',
+                required_sender: 'vambah@amadutown.com',
+                external_send_blocked: true,
+              },
+              warm_gmail_send_slack_approval_request: {
+                status: 'approved',
+                request_key: 'warm-outreach:slack-gmail-send-card:v1:approved',
+                gmail_send_called: false,
+                external_send_performed: false,
+              },
+            },
+          },
+        ],
+      },
+    })
+    const rollout = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
+      ?.emailSendLifecycle?.realRecipientRolloutReadiness
+
+    expect(rollout).toMatchObject({
+      state: 'blocked',
+      eligibleForSendApprovalRequest: false,
+      canBuildSlackApprovalPayload: false,
+      requirements: {
+        authorization: { state: 'missing' },
+        execution: { state: 'blocked' },
+      },
+      auditReceipt: {
+        approvalEvidence: {
+          slackApprovalStatus: 'approved',
+          portfolioAuthorizationState: 'missing',
+          recordsAuthorizationIntentOnly: true,
+          gmailSendCalledByApproval: false,
+        },
+        finalSendAuthority: {
+          state: 'blocked',
+          liveSendActionEnabled: false,
+        },
+      },
+    })
+    expect(rollout?.blockers).toContain(
+      'Slack approval status exists without matching Portfolio Gmail send authorization evidence.',
+    )
   })
 
   it('separates approved send authorization from prepared execution eligibility', () => {
@@ -1213,6 +1311,97 @@ describe('warm outreach response monitoring', () => {
         submittedEvidence: {
           state: 'submitted',
           sourceIds: ['queue-sent'],
+        },
+      },
+    })
+    expect(rollout?.auditReceipt).toMatchObject({
+      finalSendAuthority: {
+        state: 'sent_do_not_resend',
+        liveSendActionEnabled: false,
+      },
+      suppressionAndIdempotency: {
+        duplicateDetected: true,
+        submittedEvidenceRecorded: true,
+      },
+      lastActionEvidence: {
+        status: 'sent',
+        sourceIds: ['queue-sent'],
+        repairRequired: false,
+      },
+    })
+  })
+
+  it('surfaces secondary log repair as already sent evidence without reopening send execution', () => {
+    const base = packet()
+    const providerPacket = packet({
+      channelCapabilities: {
+        ...base.channelCapabilities,
+        email: {
+          available: true,
+          providerConfigured: true,
+          supportsExternalSend: false,
+          manualOnly: false,
+          reason: 'Gmail OAuth profile is connected for gated send review.',
+        },
+      },
+    })
+    const initial = buildWarmOutreachResponseMonitoring({
+      contactId: 42,
+      packet: providerPacket,
+      readiness: evaluateWarmOutreachReadiness(providerPacket),
+      rows: {},
+    })
+    const lifecycle = initial.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
+      ?.emailSendLifecycle
+    expect(lifecycle).toBeTruthy()
+    const monitoring = buildWarmOutreachResponseMonitoring({
+      contactId: 42,
+      packet: providerPacket,
+      readiness: evaluateWarmOutreachReadiness(providerPacket),
+      rows: {
+        outreachQueue: [
+          {
+            id: 'queue-repair-required',
+            channel: 'email',
+            status: 'sent',
+            generation_inputs: {
+              gmail_draft_creation: {
+                draft_id: 'gmail-draft-42',
+                thread_id: 'gmail-thread-42',
+                connected_as: 'vambah@amadutown.com',
+                required_sender: 'vambah@amadutown.com',
+              },
+              warm_gmail_send_execution: {
+                status: 'sent_secondary_log_repair_required',
+                gmail_send_called: true,
+                external_send_performed: true,
+                send_queue_idempotency_key: lifecycle!.sendQueueIdempotencyKey,
+                submitted_evidence_key: lifecycle!.submittedEvidenceKey,
+                secondary_log_status: 'repair_required',
+              },
+            },
+          },
+        ],
+      },
+    })
+    const rollout = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
+      ?.emailSendLifecycle?.realRecipientRolloutReadiness
+
+    expect(rollout).toMatchObject({
+      state: 'already_sent',
+      exactNextAction: 'do_not_send_duplicate',
+      requirements: {
+        submittedEvidence: { state: 'submitted' },
+        execution: { state: 'sent' },
+      },
+      auditReceipt: {
+        finalSendAuthority: {
+          state: 'repair_required_do_not_resend',
+          liveSendActionEnabled: false,
+          nextStep: 'Repair the secondary communication timeline log from queue evidence; do not send this Gmail draft again.',
+        },
+        lastActionEvidence: {
+          repairRequired: true,
         },
       },
     })

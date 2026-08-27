@@ -230,6 +230,16 @@ function slackApprovalStatusLabel(status: WarmOutreachRealRecipientGmailRolloutR
   return 'revision requested'
 }
 
+function canaryReceiptClasses(state: NonNullable<WarmOutreachRealRecipientGmailRolloutReadiness['auditReceipt']>['finalSendAuthority']['state']) {
+  if (state === 'eligible_for_exact_execution' || state === 'authorization_recorded_execution_blocked') {
+    return 'border-sky-500/25 bg-sky-500/10 text-sky-50'
+  }
+  if (state === 'sent_do_not_resend' || state === 'repair_required_do_not_resend') {
+    return 'border-amber-500/30 bg-amber-500/10 text-amber-50'
+  }
+  return 'border-red-500/25 bg-red-500/10 text-red-50'
+}
+
 function RealRecipientRolloutCard({
   inertSlackApprovalRequest = false,
   readiness,
@@ -248,6 +258,7 @@ function RealRecipientRolloutCard({
   const queueId = readiness.requirements.draftEvidence.sourceIds[0] ?? null
   const slackStatus = localApprovalStatus ?? readiness.slackApprovalContract.status
   const canBuildLocalPayload = readiness.canBuildSlackApprovalPayload && Boolean(queueId)
+  const receipt = readiness.auditReceipt
   async function requestSlackPayload() {
     if (!queueId) return
     setRequestLoading(true)
@@ -330,25 +341,94 @@ function RealRecipientRolloutCard({
         </span>
       </div>
       <p className="mt-2 text-[11px] leading-4">{primaryDetail}</p>
-      <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="mt-2 grid grid-cols-2 gap-1.5 xl:grid-cols-3">
         {requirements.map(([label, state]) => (
           <span
             key={label}
-            className={`rounded-md border p-2 text-[10px] leading-4 ${rolloutRequirementClasses(state)}`}
+            className={`rounded-md border px-2 py-1.5 text-[10px] leading-4 ${rolloutRequirementClasses(state)}`}
           >
             {label}: {state.replace(/_/g, ' ')}
           </span>
         ))}
       </div>
+      <div className={`mt-2 rounded-md border p-2 ${receipt ? canaryReceiptClasses(receipt.finalSendAuthority.state) : 'border-red-500/25 bg-red-500/10 text-red-50'}`}>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide">
+              <FileText size={13} aria-hidden />
+              Canary proof receipt
+            </p>
+            <p className="mt-1 text-[11px] leading-4">
+              {receipt
+                ? receipt.finalSendAuthority.detail
+                : 'No canary proof receipt is available. Keep live Gmail send blocked until readiness evidence is rebuilt.'}
+            </p>
+          </div>
+          <span
+            aria-label="Live Gmail send disabled"
+            className="inline-flex min-h-7 w-fit shrink-0 items-center gap-1.5 rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold"
+          >
+            <LockKeyhole size={12} aria-hidden />
+            Live send disabled
+          </span>
+        </div>
+        {receipt && (
+          <>
+            <p className="mt-2 text-[11px] leading-4">
+              Next step: {receipt.finalSendAuthority.nextStep}
+            </p>
+            <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-3">
+              <p className="rounded-md border border-current/20 bg-background/20 p-2">
+                Slack intent: {slackApprovalStatusLabel(receipt.approvalEvidence.slackApprovalStatus)}. Gmail auth: {receipt.approvalEvidence.portfolioAuthorizationState.replace(/_/g, ' ')}.
+              </p>
+              <p className="rounded-md border border-current/20 bg-background/20 p-2">
+                Draft evidence: {receipt.draftEvidence.state}. Sender: {receipt.recipientIdentity.senderState}.
+              </p>
+              <p className="rounded-md border border-current/20 bg-background/20 p-2">
+                Send evidence: {receipt.suppressionAndIdempotency.submittedEvidenceRecorded ? 'present' : 'none'}. Gmail execution: disabled.
+              </p>
+            </div>
+            {receipt.lastActionEvidence.repairRequired && (
+              <p className="mt-2 rounded-md border border-amber-400/35 bg-amber-400/10 p-2 text-[11px] leading-4">
+                Repair needed: {receipt.lastActionEvidence.detail}
+              </p>
+            )}
+            <details className="mt-2 rounded-md border border-current/20 bg-background/20 p-2">
+              <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide">
+                Proof details
+              </summary>
+              <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-2">
+                <p className="break-words">Queue row: {receipt.queueRow.sourceId ?? 'missing'}</p>
+                <p className="break-words">Relationship packet: {receipt.queueRow.relationshipPacketReference}</p>
+                <p className="break-words">
+                  Draft: {receipt.draftEvidence.state}{receipt.draftEvidence.draftId ? ` / ${receipt.draftEvidence.draftId}` : ''}
+                </p>
+                <p className="break-words">
+                  Provider: {receipt.gmailCapability.providerState}. Suppression: {receipt.suppressionAndIdempotency.suppressionState}.
+                </p>
+                <p className="break-words">
+                  Slack dispatch: {receipt.approvalEvidence.slackDispatchStatus.replace(/_/g, ' ')}. Approval records intent only.
+                </p>
+                <p className="break-words">
+                  Slack payload: {readiness.slackApprovalContract.route}.
+                </p>
+                <p className="break-all">
+                  Slack dedupe: {readiness.slackApprovalContract.payloadDedupeKey}
+                </p>
+                <p className="break-words">
+                  Last action: {receipt.lastActionEvidence.status.replace(/_/g, ' ')}.
+                </p>
+                <p className="break-all sm:col-span-2">
+                  Send key: {receipt.queueRow.sendQueueIdempotencyKey} / Submitted evidence: {receipt.queueRow.submittedEvidenceKey}
+                </p>
+              </div>
+            </details>
+          </>
+        )}
+      </div>
       <div className="mt-2 grid gap-1.5 text-[10px] leading-4 text-current/85 sm:grid-cols-2">
         <p className="break-words">
-          Slack payload: {readiness.slackApprovalContract.route}. Dispatch off.
-        </p>
-        <p className="break-words">
           Slack approval: {slackApprovalStatusLabel(slackStatus)}. Slack dispatch: {readiness.slackApprovalContract.slackDispatchStatus.replace(/_/g, ' ')}.
-        </p>
-        <p className="break-words">
-          Dedupe: {readiness.slackApprovalContract.payloadDedupeKey}
         </p>
         <p>
           Approval records intent only. Gmail send: off.

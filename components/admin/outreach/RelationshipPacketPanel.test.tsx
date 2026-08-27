@@ -728,7 +728,6 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Provider: missing')).toBeInTheDocument()
     expect(screen.getByText('Authorization: missing')).toBeInTheDocument()
     expect(screen.getByText('Submitted evidence: missing')).toBeInTheDocument()
-    expect(screen.getByText(/Slack payload: \/api\/admin\/outreach\/\[id\]\/slack-send-approval/)).toBeInTheDocument()
     expect(screen.getByText('Slack approval: not sent. Slack dispatch: not sent.')).toBeInTheDocument()
     expect(screen.getByText('Approval records intent only. Gmail send: off.')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Build Slack approval card' })).toBeDisabled()
@@ -1008,6 +1007,18 @@ describe('RelationshipPacketPanel', () => {
 
     expect(await screen.findByText(
       `QA local Slack approval request recorded for ${WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID}. Slack dispatch off. Gmail send off. Provider calls off.`,
+    )).toBeInTheDocument()
+    expect(screen.getByText('Canary proof receipt')).toBeInTheDocument()
+    expect(screen.getByLabelText('Live Gmail send disabled')).toBeInTheDocument()
+    expect(screen.getByText(
+      'Slack intent: not sent. Gmail auth: missing.',
+    )).toBeInTheDocument()
+    expect(screen.getByText('Draft evidence: tracked. Sender: matched.')).toBeInTheDocument()
+    expect(screen.getByText('Send evidence: none. Gmail execution: disabled.')).toBeInTheDocument()
+    expect(screen.getByText('Proof details')).toBeInTheDocument()
+    expect(screen.getByText(`Queue row: ${WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID}`)).toBeInTheDocument()
+    expect(screen.getByText(
+      'Next step: Build the Slack approval card for this exact queue row; Slack records intent only and does not send Gmail.',
     )).toBeInTheDocument()
     expect(screen.getByText('Slack approval: pending. Slack dispatch: not sent.')).toBeInTheDocument()
     expect(fetchMock).not.toHaveBeenCalled()
