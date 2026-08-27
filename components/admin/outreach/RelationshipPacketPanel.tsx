@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import {
   AlertTriangle,
   CheckCircle2,
@@ -285,11 +286,13 @@ function EmailLifecycleCompact({
   item?: SendReadinessItem
   onRunCanary?: () => void
 }) {
+  const [sendAuthorityNotice, setSendAuthorityNotice] = useState<string | null>(null)
   const lifecycle = item?.emailSendLifecycle
   if (!lifecycle) return null
   const handoff = lifecycle.gmailDraftHandoffPacket
   const smoke = lifecycle.providerCapabilitySmoke
   const draftGate = lifecycle.gmailDraftCreationGate
+  const externalSend = lifecycle.externalSendReadiness
   const activationReadiness =
     canaryResult?.activationReadiness ?? lifecycle.gmailProviderActivationReadiness
 
@@ -357,6 +360,56 @@ function EmailLifecycleCompact({
         </div>
       </div>
       <ActivationReadinessPacket readiness={activationReadiness} />
+      <div className="mt-2 rounded-md border border-red-500/25 bg-red-500/10 p-2 text-red-50">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide">
+              <LockKeyhole size={13} aria-hidden />
+              External send authority
+            </p>
+            <p className="mt-1 text-[11px] leading-4 text-red-100/90">{externalSend.label}</p>
+          </div>
+          <span className="w-fit shrink-0 rounded-full border border-current/25 px-2 py-0.5 text-[10px] font-semibold">
+            Disabled
+          </span>
+        </div>
+        <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-5">
+          <span className="rounded-md border border-current/20 bg-background/20 p-2 text-[10px] leading-4">
+            Sender: {externalSend.senderIdentity.state.replace(/_/g, ' ')}
+          </span>
+          <span className="rounded-md border border-current/20 bg-background/20 p-2 text-[10px] leading-4">
+            Recipient approval: {externalSend.recipientApproval.approved ? 'approved' : 'required'}
+          </span>
+          <span className="rounded-md border border-current/20 bg-background/20 p-2 text-[10px] leading-4">
+            Draft evidence: {externalSend.draftEvidence.gmailDraftExists ? 'tracked Gmail draft' : 'missing'}
+          </span>
+          <span className="rounded-md border border-current/20 bg-background/20 p-2 text-[10px] leading-4">
+            Suppression: {externalSend.suppressionConsent.state}
+          </span>
+          <span className="rounded-md border border-current/20 bg-background/20 p-2 text-[10px] leading-4">
+            External send: {externalSend.externalSend.blocked ? 'blocked' : 'enabled'}
+          </span>
+        </div>
+        <p className="mt-2 break-all text-[10px] leading-4 text-red-100/80">
+          Send key: {externalSend.idempotency.sendQueueIdempotencyKey}
+        </p>
+        <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[11px] leading-4 text-red-100/90">{externalSend.externalSend.detail}</p>
+          <button
+            type="button"
+            onClick={() => setSendAuthorityNotice(externalSend.externalSend.nextStep)}
+            className="inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-md border border-red-500/40 bg-red-500/10 px-3 text-xs font-semibold text-red-100 transition-colors hover:bg-red-500/20 sm:w-auto"
+          >
+            <ShieldAlert size={13} aria-hidden />
+            Check send authority
+          </button>
+        </div>
+        {sendAuthorityNotice && (
+          <p role="status" className="mt-2 rounded-md border border-red-500/35 bg-background/35 p-2 text-[11px] leading-4 text-red-100">
+            {sendAuthorityNotice}
+          </p>
+        )}
+      </div>
       <div className={`mt-2 rounded-md border p-2 ${draftCreationGateClasses(draftGate.status)}`}>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-[11px] font-semibold uppercase tracking-wide">Gmail draft creation availability</p>

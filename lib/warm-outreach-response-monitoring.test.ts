@@ -379,6 +379,27 @@ describe('warm outreach response monitoring', () => {
     expect(emailLifecycle).toMatchObject({
       state: 'blocked_before_provider_activation',
       label: 'Email is first candidate, provider/send activation blocked',
+      externalSendReadiness: {
+        version: 'warm-outreach-external-send-readiness/v1',
+        state: 'blocked_pending_authority',
+        label: 'External Gmail send authority blocked',
+        recipientApproval: {
+          state: 'required',
+          approved: false,
+        },
+        draftEvidence: {
+          state: 'missing',
+          gmailDraftExists: false,
+        },
+        suppressionConsent: {
+          state: 'clear',
+        },
+        externalSend: {
+          enabled: false,
+          approved: false,
+          blocked: true,
+        },
+      },
       suppressionCheck: { status: 'clear' },
       relationshipProvenance: {
         status: 'present',
@@ -727,6 +748,24 @@ describe('warm outreach response monitoring', () => {
         externalSendBoundary: {
           blocked: true,
           label: 'External send blocked',
+        },
+      },
+      externalSendReadiness: {
+        state: 'blocked_pending_authority',
+        draftEvidence: {
+          state: 'tracked',
+          gmailDraftExists: true,
+          draftId: 'r3600377219184694601',
+          messageId: '1a043d900ee02b0f',
+          threadId: '1a043d900ee02b0f',
+        },
+        recipientApproval: {
+          approved: false,
+        },
+        externalSend: {
+          enabled: false,
+          approved: false,
+          blocked: true,
         },
       },
     })

@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import {
   AlertTriangle,
   CheckCircle2,
@@ -118,6 +119,7 @@ function RecipientRow({ recipient }: { recipient: WarmBatchReviewRecipient }) {
   const handoff = emailLifecycle?.gmailDraftHandoffPacket
   const providerSmoke = emailLifecycle?.providerCapabilitySmoke
   const draftGate = emailLifecycle?.gmailDraftCreationGate
+  const externalSend = emailLifecycle?.externalSendReadiness
 
   return (
     <li className="grid gap-3 border-t border-silicon-slate/70 py-3 first:border-t-0 md:grid-cols-[minmax(10rem,0.9fr)_minmax(0,1.35fr)_minmax(9rem,0.7fr)]">
@@ -171,6 +173,19 @@ function RecipientRow({ recipient }: { recipient: WarmBatchReviewRecipient }) {
                 Draft creation: {draftCreationGateLabel(draftGate.status)}
               </p>
             )}
+            {externalSend && (
+              <>
+                <p className="text-red-100">
+                  External send: {externalSend.externalSend.blocked ? 'blocked' : 'enabled'}
+                </p>
+                <p>
+                  Sender: {externalSend.senderIdentity.state.replace(/_/g, ' ')} / Recipient approval: required
+                </p>
+                <p>
+                  Draft evidence: {externalSend.draftEvidence.gmailDraftExists ? 'tracked Gmail draft' : 'missing'}
+                </p>
+              </>
+            )}
           </>
         )}
         <p>Future eligible: {futureEligible} / Manual: {manualOnly} / Blocked: {blocked}</p>
@@ -188,6 +203,7 @@ export default function WarmBatchReviewPanel({
   selectedCount,
   onReview,
 }: WarmBatchReviewPanelProps) {
+  const [batchSendNotice, setBatchSendNotice] = useState<string | null>(null)
   const sample = data?.samplePreview
   const hasSelection = selectedCount > 0
   const batchAuthorities =
@@ -223,6 +239,22 @@ export default function WarmBatchReviewPanel({
     duplicateBlocked: data?.recipients.filter((recipient) =>
       recipient.sendReadiness.modes.warm_1_to_many.find((item) => item.channel === 'email')
         ?.emailSendLifecycle?.duplicatePrevention.duplicateDetected,
+    ).length ?? 0,
+    trackedDrafts: data?.recipients.filter((recipient) =>
+      recipient.sendReadiness.modes.warm_1_to_many.find((item) => item.channel === 'email')
+        ?.emailSendLifecycle?.externalSendReadiness.draftEvidence.gmailDraftExists,
+    ).length ?? 0,
+    recipientApprovalRequired: data?.recipients.filter((recipient) =>
+      recipient.sendReadiness.modes.warm_1_to_many.find((item) => item.channel === 'email')
+        ?.emailSendLifecycle?.externalSendReadiness.recipientApproval.approved === false,
+    ).length ?? 0,
+    senderNotVerified: data?.recipients.filter((recipient) =>
+      recipient.sendReadiness.modes.warm_1_to_many.find((item) => item.channel === 'email')
+        ?.emailSendLifecycle?.externalSendReadiness.senderIdentity.state === 'not_verified',
+    ).length ?? 0,
+    externalSendBlocked: data?.recipients.filter((recipient) =>
+      recipient.sendReadiness.modes.warm_1_to_many.find((item) => item.channel === 'email')
+        ?.emailSendLifecycle?.externalSendReadiness.externalSend.blocked,
     ).length ?? 0,
   }
 
@@ -346,8 +378,29 @@ export default function WarmBatchReviewPanel({
               Provider smoke ready or passed: {emailLifecycleSummary.providerSmokeReady}. Gmail draft creation ready but disabled: {emailLifecycleSummary.draftCreationReady}. External send remains a separate future gate.
             </p>
             <p className="mt-1 text-xs leading-5 text-amber-100/85">
+              Tracked Gmail drafts: {emailLifecycleSummary.trackedDrafts}. Recipient send approvals required: {emailLifecycleSummary.recipientApprovalRequired}. Sender not verified for send: {emailLifecycleSummary.senderNotVerified}. External send blocked: {emailLifecycleSummary.externalSendBlocked}.
+            </p>
+            <p className="mt-1 text-xs leading-5 text-amber-100/85">
               No-send Gmail draft canaries run from the individual contact relationship packet only, using contact/message-version idempotency keys. This batch panel does not create Gmail drafts or call Gmail.
             </p>
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-xs leading-5 text-amber-100/90">
+                A batch send click is blocked here; each recipient needs explicit sender, copy, suppression, draft-evidence, and external-send authority.
+              </p>
+              <button
+                type="button"
+                onClick={() => setBatchSendNotice('Batch Gmail send is disabled. Open each recipient relationship packet, verify sender identity, confirm suppression and final copy, then request explicit per-recipient external-send authority from the Integration Captain.')}
+                className="inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-md border border-red-500/35 bg-red-500/10 px-3 text-xs font-semibold text-red-100 transition-colors hover:bg-red-500/20 sm:w-auto"
+              >
+                <ShieldAlert size={13} aria-hidden />
+                Check batch send authority
+              </button>
+            </div>
+            {batchSendNotice && (
+              <p role="status" className="mt-2 rounded-md border border-red-500/30 bg-red-500/10 p-2 text-xs leading-5 text-red-100">
+                {batchSendNotice}
+              </p>
+            )}
           </div>
 
           <div className="grid gap-2 sm:grid-cols-3">

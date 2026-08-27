@@ -245,6 +245,51 @@ function sendReadiness(
             'separate_external_send_authority',
           ],
         },
+        externalSendReadiness: {
+          version: 'warm-outreach-external-send-readiness/v1',
+          state: 'blocked_pending_authority',
+          label: 'External Gmail send authority blocked',
+          senderIdentity: {
+            state: 'not_verified',
+            requiredSender: null,
+            connectedAs: null,
+            detail: 'Sender identity must be verified before external send authority.',
+          },
+          recipientApproval: {
+            state: 'required',
+            contactId: 42,
+            approved: false,
+            detail: 'No per-recipient external-send approval is recorded.',
+          },
+          draftEvidence: {
+            state: 'missing',
+            gmailDraftExists: false,
+            draftId: null,
+            threadId: null,
+            messageId: null,
+            sourceIds: [],
+            detail: 'No tracked Gmail draft evidence is recorded.',
+          },
+          suppressionConsent: {
+            state: 'clear',
+            reasons: [],
+            detail: 'No suppression blocker is recorded.',
+          },
+          idempotency: {
+            messageVersionKey: `warm-outreach:email-message-version:v1:${mode}`,
+            sendQueueIdempotencyKey: `warm-outreach:email-send-queue:v1:${mode}`,
+            submittedEvidenceKey: `warm-outreach:email-submitted-evidence:v1:${mode}`,
+            duplicateDetected: false,
+            detail: 'Future external-send review must reuse stable keys.',
+          },
+          externalSend: {
+            enabled: false,
+            approved: false,
+            blocked: true,
+            detail: 'Portfolio cannot send this Gmail message from this state.',
+            nextStep: 'Ask the Integration Captain for explicit per-recipient external-send authority after readiness review.',
+          },
+        },
         duplicatePrevention: {
           scope: 'contact_channel_message_version',
           duplicateDetected: false,
@@ -619,6 +664,15 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('captain authorize specific live draft canary')).toBeInTheDocument()
     expect(screen.getByText('explicit per recipient gmail draft authorization')).toBeInTheDocument()
     expect(screen.getByText('separate external send authority')).toBeInTheDocument()
+    expect(screen.getByText('External send authority')).toBeInTheDocument()
+    expect(screen.getByText('External Gmail send authority blocked')).toBeInTheDocument()
+    expect(screen.getByText('Sender: not verified')).toBeInTheDocument()
+    expect(screen.getByText('Recipient approval: required')).toBeInTheDocument()
+    expect(screen.getByText('Draft evidence: missing')).toBeInTheDocument()
+    expect(screen.getByText('External send: blocked')).toBeInTheDocument()
+    expect(screen.getByText(/Send key: warm-outreach:email-send-queue:v1:/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Check send authority' }))
+    expect(screen.getByText(/explicit per-recipient external-send authority after readiness review/i)).toBeInTheDocument()
     expect(screen.getByText('Gmail draft creation availability')).toBeInTheDocument()
     expect(screen.getByText('provider smoke required')).toBeInTheDocument()
     expect(screen.getByText('Gmail provider smoke required before draft creation. Draft creation off. External send blocked.')).toBeInTheDocument()
@@ -726,6 +780,22 @@ describe('RelationshipPacketPanel', () => {
                           detail: 'Existing Gmail draft metadata is present.',
                         },
                       },
+                      externalSendReadiness: {
+                        ...emailItem.emailSendLifecycle!.externalSendReadiness,
+                        draftEvidence: {
+                          state: 'tracked',
+                          gmailDraftExists: true,
+                          draftId: 'r3600377219184694601',
+                          threadId: '1a043d900ee02b0f',
+                          messageId: '1a043d900ee02b0f',
+                          sourceIds: ['outreach_queue:70e2adea-3bfa-4920-8cd9-5531234d8d02'],
+                          detail: 'A Gmail draft exists as tracking evidence only. It does not grant send authority.',
+                        },
+                        idempotency: {
+                          ...emailItem.emailSendLifecycle!.externalSendReadiness.idempotency,
+                          duplicateDetected: true,
+                        },
+                      },
                     },
                   }
                 : item
@@ -742,6 +812,9 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText(/tracking evidence only; external send still needs separate approval/i)).toBeInTheDocument()
     expect(screen.getByText('External send blocked')).toBeInTheDocument()
     expect(screen.getByText('separate external send authority')).toBeInTheDocument()
+    expect(screen.getByText('Draft evidence: tracked Gmail draft')).toBeInTheDocument()
+    expect(screen.getByText('Recipient approval: required')).toBeInTheDocument()
+    expect(screen.getByText('External Gmail send authority blocked')).toBeInTheDocument()
     expect(screen.getByText('Draft creation: off')).toBeInTheDocument()
     expect(screen.getByText('External send: off')).toBeInTheDocument()
   })
