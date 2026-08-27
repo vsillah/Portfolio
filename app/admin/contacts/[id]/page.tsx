@@ -8,6 +8,7 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import Pagination from '@/components/admin/Pagination'
 import RelationshipPacketPanel, {
+  type GmailDraftCanaryResult,
   type RelationshipPacketApiResponse,
 } from '@/components/admin/outreach/RelationshipPacketPanel'
 import { getCurrentSession } from '@/lib/auth'
@@ -57,16 +58,6 @@ interface WarmLifecycleRow {
   sent_at: string | null
   metadata: Record<string, unknown>
   created_at: string
-}
-
-interface GmailDraftCanaryResult {
-  status: string
-  message: string
-  draftCreationEnabled: false
-  providerCallsEnabled: false
-  externalSendEnabled: false
-  gmailDraftCreated: false
-  trackingPersisted: false
 }
 
 interface Communication {

@@ -183,6 +183,62 @@ const relationshipPacketResponse = {
   },
 }
 
+const warmBatchEmailLifecycle = {
+  state: 'per_recipient_gate_required',
+  stages: [
+    { key: 'draft_packet', status: 'ready_for_review' },
+    { key: 'provider_capability_smoke', status: 'future_gate' },
+  ],
+  gmailDraftHandoffPacket: {
+    state: 'ready_for_internal_handoff',
+    internalHandoffReady: true,
+  },
+  providerCapabilitySmoke: {
+    status: 'waiting_read_only_smoke_authority',
+    providerConfigured: false,
+  },
+  gmailDraftCreationGate: {
+    status: 'draft_creation_authority_required',
+  },
+  duplicatePrevention: {
+    duplicateDetected: false,
+  },
+}
+
+const warmBatchSendReadiness = {
+  version: 'warm-outreach-send-readiness/v1',
+  contactId: 42,
+  perRecipientIdempotencyKey: 'warm-outreach:recipient:v1:test-recipient',
+  modes: {
+    warm_1_to_1: [],
+    warm_1_to_many: [
+      {
+        channel: 'email',
+        sendAuthority: {
+          channel: 'email',
+          state: 'eligible_for_future_activation',
+          futureActivationEligible: true,
+        },
+        emailSendLifecycle: warmBatchEmailLifecycle,
+      },
+    ],
+  },
+  executionBoundary: {
+    providerExecution: false,
+    externalMonitoring: false,
+    gmailDraftCreation: false,
+    outcomeTracking: false,
+  },
+}
+
+const warmBatchResponseMonitoring = {
+  status: 'awaiting_response',
+  mode: 'pending',
+  proposedFollowUp: {
+    label: 'Review warm follow-up',
+  },
+}
+
 const warmBatchReviewResponse = {
   mode: 'warm_1_to_many',
   batchIdempotencyKey: 'warm-outreach:batch-review:v1:test-batch',
@@ -217,6 +273,8 @@ const warmBatchReviewResponse = {
     draftIdempotencyKey: 'warm-outreach:batch-draft:v1:test-recipient',
     existingQueueId: null,
     individualizedDraftPreview: 'Hi Ada, The warm basis is prior meeting context.',
+    responseMonitoring: warmBatchResponseMonitoring,
+    sendReadiness: warmBatchSendReadiness,
     packet: relationshipPacketResponse.packet,
     readiness: relationshipPacketResponse.readiness,
     contextSummary: relationshipPacketResponse.contextSummary,
@@ -240,6 +298,8 @@ const warmBatchReviewResponse = {
       draftIdempotencyKey: 'warm-outreach:batch-draft:v1:test-recipient',
       existingQueueId: null,
       individualizedDraftPreview: 'Hi Ada, The warm basis is prior meeting context.',
+      responseMonitoring: warmBatchResponseMonitoring,
+      sendReadiness: warmBatchSendReadiness,
       packet: relationshipPacketResponse.packet,
       readiness: relationshipPacketResponse.readiness,
       contextSummary: relationshipPacketResponse.contextSummary,

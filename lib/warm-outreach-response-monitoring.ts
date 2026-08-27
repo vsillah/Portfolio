@@ -173,6 +173,48 @@ export type WarmOutreachGmailDraftCreationGate = {
   notes: string[]
 }
 
+export type WarmOutreachGmailProviderActivationReadiness = {
+  version: 'warm-outreach-gmail-provider-activation-readiness/v1'
+  localDraftReadiness: {
+    state: 'ready' | 'blocked'
+    label: string
+    detail: string
+    idempotencyKey: string
+  }
+  connectedSenderReadiness: {
+    state: 'requires_no_send_canary' | 'ready' | 'blocked'
+    label: string
+    requiredSender: string | null
+    connectedAs: string | null
+    recoveryAction: string
+  }
+  liveDraftCanaryReadiness: {
+    state: 'ready_for_no_send_canary' | 'passed_no_send' | 'blocked_no_send'
+    label: string
+    detail: string
+    providerCallsEnabled: false
+    gmailDraftCreated: false
+    trackingPersisted: false
+    externalSendEnabled: false
+  }
+  duplicateDraftEvidence: {
+    createdOnce: boolean
+    duplicatePrevented: boolean
+    draftId: string | null
+    threadId: string | null
+    messageId: string | null
+    sourceIds: string[]
+    noSendStatus: 'no_send'
+    detail: string
+  }
+  externalSendBoundary: {
+    blocked: true
+    label: string
+    detail: string
+  }
+  remainingHumanGates: string[]
+}
+
 export type WarmOutreachEmailSendLifecycle = {
   version: 'warm-outreach-email-send-lifecycle/v1'
   contactId: number
@@ -197,6 +239,7 @@ export type WarmOutreachEmailSendLifecycle = {
   gmailDraftHandoffPacket: WarmOutreachGmailDraftHandoffPacket
   providerCapabilitySmoke: WarmOutreachGmailProviderCapabilitySmokeReadiness
   gmailDraftCreationGate: WarmOutreachGmailDraftCreationGate
+  gmailProviderActivationReadiness: WarmOutreachGmailProviderActivationReadiness
   duplicatePrevention: {
     scope: 'contact_channel_message_version'
     duplicateDetected: boolean
@@ -544,6 +587,143 @@ function isBatchModeGateBlocker(blocker: string): boolean {
   )
 }
 
+function metadataValue(row: PortfolioRow, key: string): unknown {
+  const direct = row[key]
+  if (direct !== undefined && direct !== null) return direct
+  return metadata(row)[key]
+}
+
+function nestedMetadata(row: PortfolioRow, key: string): PortfolioRow {
+  const value = metadata(row)[key]
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as PortfolioRow
+    : {}
+}
+
+function firstGmailDraftEvidence(rows: PortfolioRow[]): WarmOutreachGmailProviderActivationReadiness['duplicateDraftEvidence'] {
+  for (const row of rows) {
+    const draftCreation = nestedMetadata(row, 'gmail_draft_creation')
+    const authorization = nestedMetadata(row, 'warm_outreach_gmail_draft_authorization')
+    const draftId =
+      text(metadataValue(row, 'gmail_user_draft_id')) ??
+      text(metadataValue(row, 'gmail_draft_id')) ??
+      text(draftCreation.draft_id)
+    const threadId =
+      text(metadataValue(row, 'gmail_user_thread_id')) ??
+      text(metadataValue(row, 'thread_id')) ??
+      text(draftCreation.thread_id)
+    const messageId =
+      text(metadataValue(row, 'gmail_user_message_id')) ??
+      text(metadataValue(row, 'message_id')) ??
+      text(draftCreation.message_id)
+    const idempotencyKey =
+      text(metadataValue(row, 'gmail_draft_idempotency_key')) ??
+      text(draftCreation.idempotency_key) ??
+      text(authorization.idempotency_key)
+
+    if (draftId || threadId || messageId || idempotencyKey) {
+      return {
+        createdOnce: true,
+        duplicatePrevented: true,
+        draftId,
+        threadId,
+        messageId,
+        sourceIds: [sourceId(row, 'gmail-draft-evidence')],
+        noSendStatus: 'no_send',
+        detail:
+          'Existing Gmail draft metadata is present for this contact/channel/message path. Reuse the existing evidence instead of creating another provider draft.',
+      }
+    }
+  }
+
+  return {
+    createdOnce: false,
+    duplicatePrevented: false,
+    draftId: null,
+    threadId: null,
+    messageId: null,
+    sourceIds: [],
+    noSendStatus: 'no_send',
+    detail:
+      'No prior Gmail draft metadata was found in local Portfolio rows for this contact/channel/message path.',
+  }
+}
+
+export function buildWarmOutreachGmailProviderActivationReadiness(args: {
+  handoff: WarmOutreachGmailDraftHandoffPacket
+  providerSmoke: WarmOutreachGmailProviderCapabilitySmokeReadiness
+  draftCreationGate: WarmOutreachGmailDraftCreationGate
+  duplicateDraftEvidence: WarmOutreachGmailProviderActivationReadiness['duplicateDraftEvidence']
+  connectedSender?: {
+    state: WarmOutreachGmailProviderActivationReadiness['connectedSenderReadiness']['state']
+    label: string
+    requiredSender: string | null
+    connectedAs: string | null
+    recoveryAction: string
+  }
+  canaryState?: WarmOutreachGmailProviderActivationReadiness['liveDraftCanaryReadiness']['state']
+  canaryDetail?: string
+}): WarmOutreachGmailProviderActivationReadiness {
+  const localReady = args.handoff.internalHandoffReady && args.draftCreationGate.internalHandoffReady
+  const canaryState = args.canaryState ?? (
+    localReady && !args.duplicateDraftEvidence.createdOnce
+      ? 'ready_for_no_send_canary'
+      : 'blocked_no_send'
+  )
+
+  return {
+    version: 'warm-outreach-gmail-provider-activation-readiness/v1',
+    localDraftReadiness: {
+      state: localReady ? 'ready' : 'blocked',
+      label: localReady ? 'Local draft handoff ready' : 'Local draft handoff blocked',
+      detail: args.handoff.detail,
+      idempotencyKey: args.handoff.idempotencyKey,
+    },
+    connectedSenderReadiness: args.connectedSender ?? {
+      state: 'requires_no_send_canary',
+      label: 'Connected sender not checked in relationship packet',
+      requiredSender: null,
+      connectedAs: null,
+      recoveryAction:
+        'Run the no-send canary or open Admin Credentials to verify the connected Gmail sender before any live draft canary request.',
+    },
+    liveDraftCanaryReadiness: {
+      state: canaryState,
+      label:
+        canaryState === 'passed_no_send'
+          ? 'No-send canary passed'
+          : canaryState === 'ready_for_no_send_canary'
+            ? 'Ready for no-send canary'
+            : 'No-send canary blocked',
+      detail: args.canaryDetail ?? (
+        canaryState === 'ready_for_no_send_canary'
+          ? 'The operator may run the no-send canary. It verifies local readiness and connected sender gates without calling Gmail.'
+          : args.duplicateDraftEvidence.createdOnce
+            ? 'Existing Gmail draft metadata is already present; duplicate draft creation remains blocked.'
+            : 'Resolve local readiness or sender readiness blockers before canary review.'
+      ),
+      providerCallsEnabled: false,
+      gmailDraftCreated: false,
+      trackingPersisted: false,
+      externalSendEnabled: false,
+    },
+    duplicateDraftEvidence: args.duplicateDraftEvidence,
+    externalSendBoundary: {
+      blocked: true,
+      label: 'External send blocked',
+      detail:
+        'Gmail draft creation and Gmail send authority are separate gates. A draft, smoke, or canary never authorizes sending.',
+    },
+    remainingHumanGates: [
+      'review_local_draft_handoff_packet',
+      'verify_connected_sender_identity',
+      'captain_authorize_specific_live_draft_canary',
+      'explicit_per_recipient_gmail_draft_authorization',
+      'separate_external_send_authority',
+    ],
+  }
+}
+
 export function buildWarmOutreachGmailProviderCapabilitySmokeReadiness(args: {
   smokeKey: string
   oauthConfigured?: boolean
@@ -809,12 +989,15 @@ function buildEmailSendLifecycle(args: {
     ...asRows(args.rows?.emailMessages),
     ...asRows(args.rows?.contactCommunications),
   ].filter(isEmailRow)
+  const duplicateDraftEvidence = firstGmailDraftEvidence(localEmailRows)
   const existingEvidenceIds = localEmailRows
     .map((row, index) => sourceId(row, `email-evidence-${index + 1}`))
     .filter(Boolean)
-  const duplicateDetected = localEmailRows.some((row) =>
-    statusIsActiveSendState(text(row.status)?.toLowerCase() ?? null),
-  )
+  const duplicateDetected =
+    duplicateDraftEvidence.createdOnce ||
+    localEmailRows.some((row) =>
+      statusIsActiveSendState(text(row.status)?.toLowerCase() ?? null),
+    )
   const hardBlockers = args.blockers.filter((blocker) => !isBatchModeGateBlocker(blocker))
   const draftPacketReady = hardBlockers.length === 0
   const providerCapabilitySmoke = buildWarmOutreachGmailProviderCapabilitySmokeReadiness({
@@ -860,6 +1043,12 @@ function buildEmailSendLifecycle(args: {
         : []),
     ],
   })
+  const gmailProviderActivationReadiness = buildWarmOutreachGmailProviderActivationReadiness({
+    handoff: gmailDraftHandoffPacket,
+    providerSmoke: providerCapabilitySmoke,
+    draftCreationGate: gmailDraftCreationGate,
+    duplicateDraftEvidence,
+  })
   const state: WarmOutreachEmailSendLifecycle['state'] =
     args.mode === 'warm_1_to_many' && hardBlockers.length === 0
         ? 'per_recipient_gate_required'
@@ -893,6 +1082,7 @@ function buildEmailSendLifecycle(args: {
     gmailDraftHandoffPacket,
     providerCapabilitySmoke,
     gmailDraftCreationGate,
+    gmailProviderActivationReadiness,
     duplicatePrevention: {
       scope: 'contact_channel_message_version',
       duplicateDetected,

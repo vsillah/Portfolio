@@ -9,9 +9,10 @@ const execFileAsync = promisify(execFile)
 const root = process.cwd()
 const tmpDir = path.join(root, 'tmp', 'warm-gmail-provider-smoke-qa')
 const outputDir = path.join(root, 'docs', 'warm-outreach-qa')
-const htmlPath = path.join(tmpDir, 'warm-gmail-provider-smoke.html')
-const screenshotPath = path.join(outputDir, 'warm-gmail-provider-smoke-mobile.png')
-const mp4Path = path.join(outputDir, 'warm-gmail-provider-smoke-mobile.mp4')
+const htmlPath = path.join(tmpDir, 'warm-gmail-provider-activation.html')
+const mobileScreenshotPath = path.join(outputDir, 'warm-gmail-provider-activation-mobile.png')
+const desktopScreenshotPath = path.join(outputDir, 'warm-gmail-provider-activation-desktop.png')
+const mp4Path = path.join(outputDir, 'warm-gmail-provider-activation-mobile.mp4')
 
 await mkdir(tmpDir, { recursive: true })
 await mkdir(outputDir, { recursive: true })
@@ -21,10 +22,10 @@ await writeFile(htmlPath, `<!doctype html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Warm Gmail provider smoke QA</title>
+    <title>Warm Gmail provider activation QA</title>
     <style>
       body { margin: 0; background: #030712; color: #f9fafb; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      main { max-width: 720px; margin: 0 auto; padding: 18px 12px 44px; }
+      main { max-width: 980px; margin: 0 auto; padding: 18px 12px 44px; }
       h1, h2, h3, p { margin: 0; }
       h1 { font-size: 22px; line-height: 1.2; margin-bottom: 12px; }
       button { min-height: 40px; border: 1px solid #0ea5e9; border-radius: 8px; background: rgba(14, 165, 233, .14); color: #e0f2fe; font-weight: 700; padding: 8px 12px; font-size: 14px; }
@@ -35,6 +36,7 @@ await writeFile(htmlPath, `<!doctype html>
       .headline { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
       .badge { width: fit-content; border-radius: 999px; border: 1px solid rgba(251, 191, 36, .35); padding: 3px 8px; color: #fde68a; background: rgba(120, 53, 15, .28); font-size: 11px; font-weight: 700; }
       .badge.good { color: #bbf7d0; border-color: rgba(16, 185, 129, .35); background: rgba(16, 185, 129, .12); }
+      .badge.blocked { color: #fecaca; border-color: rgba(239, 68, 68, .35); background: rgba(127, 29, 29, .28); }
       .grid { display: grid; gap: 8px; margin-top: 12px; }
       .card { border: 1px solid rgba(55, 65, 81, .9); border-radius: 8px; background: rgba(2, 6, 23, .46); padding: 10px; }
       .card h3 { font-size: 11px; text-transform: uppercase; color: #cbd5e1; letter-spacing: 0; margin-bottom: 5px; }
@@ -42,6 +44,7 @@ await writeFile(htmlPath, `<!doctype html>
       .key { word-break: break-all; color: #94a3b8 !important; font-size: 10px !important; margin-top: 6px; }
       .flags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
       .flag { border: 1px solid rgba(16, 185, 129, .3); background: rgba(16, 185, 129, .12); color: #d1fae5; border-radius: 6px; padding: 5px 7px; font-size: 11px; }
+      .gate { border-color: rgba(148, 163, 184, .28); color: #cbd5e1; background: rgba(15, 23, 42, .55); }
       summary { cursor: pointer; font-size: 14px; font-weight: 700; }
       @media (min-width: 640px) {
         main { padding: 28px 20px 56px; }
@@ -52,10 +55,10 @@ await writeFile(htmlPath, `<!doctype html>
   </head>
   <body>
     <main>
-      <h1>Warm outreach Gmail provider readiness</h1>
+      <h1>Warm outreach Gmail provider activation readiness</h1>
       <div class="toolbar">
         <strong>Relationship packet loaded</strong>
-        <p class="muted">Operator reviews internal handoff evidence before any Gmail provider smoke, draft creation, or send authority.</p>
+        <p class="muted">Operator reviews local handoff evidence, sender readiness, live canary readiness, duplicate evidence, and send blocking as separate gates.</p>
         <button id="review">Review Gmail readiness</button>
       </div>
 
@@ -66,6 +69,45 @@ await writeFile(htmlPath, `<!doctype html>
             <p class="muted">Provider/send activation blocked. Future approval must cover this contact, channel, and message version.</p>
           </div>
           <span class="badge">Provider/send off</span>
+        </div>
+
+        <div class="card">
+          <div class="headline">
+            <div>
+              <h3>Gmail provider activation readiness</h3>
+              <p>Draft readiness, connected sender readiness, live draft canary readiness, duplicate evidence, and send authority stay separate.</p>
+            </div>
+            <span class="badge blocked">External send blocked</span>
+          </div>
+          <div class="grid">
+            <div class="card">
+              <h3>Local draft readiness</h3>
+              <span class="badge good">Local draft handoff ready</span>
+              <p class="key">warm-outreach:gmail-draft-handoff:v1:operator-path</p>
+            </div>
+            <div class="card">
+              <h3>Connected sender readiness</h3>
+              <span class="badge good">Connected sender verified</span>
+              <p>Required: vambah@amadutown.com / Connected: vambah@amadutown.com</p>
+            </div>
+            <div class="card">
+              <h3>Live draft canary readiness</h3>
+              <span class="badge good">No-send canary passed</span>
+              <p>Gmail calls: off / Drafts: not created / Tracking: not written.</p>
+            </div>
+            <div class="card">
+              <h3>Duplicate draft evidence</h3>
+              <span class="badge blocked">Created once / duplicate blocked</span>
+              <p>Draft: gmail-draft-1 / Thread: gmail-thread-1 / Message: gmail-message-1</p>
+            </div>
+          </div>
+          <div class="flags">
+            <span class="flag gate">review local draft handoff packet</span>
+            <span class="flag gate">verify connected sender identity</span>
+            <span class="flag gate">captain authorize specific live draft canary</span>
+            <span class="flag gate">explicit per-recipient Gmail draft authorization</span>
+            <span class="flag gate">separate external send authority</span>
+          </div>
         </div>
 
         <div class="grid">
@@ -125,7 +167,7 @@ const page = await context.newPage()
 await page.goto(pathToFileURL(htmlPath).href)
 await page.locator('#review').click()
 await page.waitForTimeout(1000)
-await page.screenshot({ path: screenshotPath, fullPage: true })
+await page.screenshot({ path: mobileScreenshotPath, fullPage: true })
 const video = page.video()
 await context.close()
 await browser.close()
@@ -146,9 +188,22 @@ if (rawVideoPath) {
   ])
 }
 
+const desktopBrowser = await chromium.launch()
+const desktopContext = await desktopBrowser.newContext({
+  viewport: { width: 1280, height: 900 },
+})
+const desktopPage = await desktopContext.newPage()
+await desktopPage.goto(pathToFileURL(htmlPath).href)
+await desktopPage.locator('#review').click()
+await desktopPage.waitForTimeout(500)
+await desktopPage.screenshot({ path: desktopScreenshotPath, fullPage: true })
+await desktopContext.close()
+await desktopBrowser.close()
+
 console.log(JSON.stringify({
   fixture: htmlPath,
-  screenshotPath,
+  mobileScreenshotPath,
+  desktopScreenshotPath,
   rawVideoPath,
   videoPath: rawVideoPath ? mp4Path : null,
 }, null, 2))

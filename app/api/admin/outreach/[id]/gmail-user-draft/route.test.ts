@@ -233,7 +233,7 @@ function credentialsRow(googleEmail: string): CredentialsRow {
   }
 }
 
-function outreachRow(): OutreachQueueRow {
+function outreachRow(overrides: Partial<OutreachQueueRow> = {}): OutreachQueueRow {
   return {
     id: 'queue-1',
     contact_submission_id: 123,
@@ -256,6 +256,7 @@ function outreachRow(): OutreachQueueRow {
       relationship_strength: 'moderate',
       warm_source_detail: 'Prior Portfolio relationship context',
     },
+    ...overrides,
   }
 }
 
@@ -370,14 +371,27 @@ describe('POST /api/admin/outreach/[id]/gmail-user-draft', () => {
     )
 
     expect(response.status).toBe(200)
-    await expect(response.json()).resolves.toEqual({
+    await expect(response.json()).resolves.toMatchObject({
       message:
         'Draft saved in Gmail for review. No email was sent; sending remains blocked.',
       draftId: 'gmail-draft-1',
+      messageId: 'gmail-message-1',
       threadId: 'gmail-thread-1',
       openGmailUrl: 'https://mail.google.com/mail/#drafts',
       idempotencyKey: expectedIdempotencyKey(row),
+      gmailDraftCreated: true,
       externalSendBlocked: true,
+      externalSendEnabled: false,
+      duplicateDraftEvidence: {
+        createdOnce: true,
+        duplicatePrevented: false,
+        draftId: 'gmail-draft-1',
+        messageId: 'gmail-message-1',
+        threadId: 'gmail-thread-1',
+        communicationId: null,
+        idempotencyKey: expectedIdempotencyKey(row),
+        noSendStatus: 'no_send',
+      },
     })
     expect(mocks.decryptRefreshToken).toHaveBeenCalledWith('cipher', 'iv', 'tag')
     expect(mocks.createUserGmailDraft).toHaveBeenCalledWith('refresh-token', {
@@ -562,7 +576,7 @@ describe('POST /api/admin/outreach/[id]/gmail-user-draft', () => {
     const response = await POST(makeRequest(authorizedPayload(row)), params())
 
     expect(response.status).toBe(200)
-    await expect(response.json()).resolves.toEqual({
+    await expect(response.json()).resolves.toMatchObject({
       message:
         'Gmail draft already exists for this recipient and message. No new draft was created.',
       existingDraft: true,
@@ -573,6 +587,17 @@ describe('POST /api/admin/outreach/[id]/gmail-user-draft', () => {
       communicationId: 'comm-1',
       idempotencyKey: expectedIdempotencyKey(row),
       externalSendBlocked: true,
+      externalSendEnabled: false,
+      duplicateDraftEvidence: {
+        createdOnce: true,
+        duplicatePrevented: true,
+        draftId: 'gmail-draft-1',
+        threadId: 'gmail-thread-1',
+        messageId: 'gmail-message-1',
+        communicationId: 'comm-1',
+        idempotencyKey: expectedIdempotencyKey(row),
+        noSendStatus: 'no_send',
+      },
     })
     expect(mocks.decryptRefreshToken).not.toHaveBeenCalled()
     expect(mocks.createUserGmailDraft).not.toHaveBeenCalled()

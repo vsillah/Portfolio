@@ -21,7 +21,10 @@ import type {
   WarmOutreachReadiness,
   WarmOutreachRelationshipPacket,
 } from '@/lib/warm-outreach-relationship-intelligence'
-import type { WarmOutreachResponseMonitoring } from '@/lib/warm-outreach-response-monitoring'
+import type {
+  WarmOutreachGmailProviderActivationReadiness,
+  WarmOutreachResponseMonitoring,
+} from '@/lib/warm-outreach-response-monitoring'
 
 type SendReadinessItem =
   WarmOutreachResponseMonitoring['sendReadiness']['modes']['warm_1_to_1'][number]
@@ -55,6 +58,7 @@ export interface GmailDraftCanaryResult {
   externalSendEnabled: false
   gmailDraftCreated: false
   trackingPersisted: false
+  activationReadiness?: WarmOutreachGmailProviderActivationReadiness
 }
 
 interface RelationshipPacketPanelProps {
@@ -178,6 +182,82 @@ function draftCreationGateClasses(status: NonNullable<SendReadinessItem['emailSe
   return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
 }
 
+function activationStepClasses(state: string) {
+  if (state === 'ready' || state === 'passed_no_send') {
+    return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  }
+  if (state === 'blocked' || state === 'blocked_no_send') {
+    return 'border-red-500/25 bg-red-500/10 text-red-100'
+  }
+  return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+}
+
+function ActivationReadinessPacket({
+  readiness,
+}: {
+  readiness?: WarmOutreachGmailProviderActivationReadiness | null
+}) {
+  if (!readiness) return null
+  const duplicate = readiness.duplicateDraftEvidence
+  const duplicateLabel = duplicate.createdOnce
+    ? duplicate.duplicatePrevented
+      ? 'Created once / duplicate blocked'
+      : 'Created once'
+    : 'No duplicate draft evidence'
+
+  return (
+    <div className="mt-2 rounded-md border border-sky-500/25 bg-sky-500/10 p-2 text-sky-50">
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-wide">Gmail provider activation readiness</p>
+          <p className="mt-1 text-[11px] leading-4 text-sky-100/90">
+            Draft readiness, sender readiness, canary readiness, duplicate evidence, and send authority are separate gates.
+          </p>
+        </div>
+        <span className="w-fit shrink-0 rounded-full border border-red-500/30 bg-red-500/10 px-2 py-0.5 text-[10px] font-semibold text-red-100">
+          {readiness.externalSendBoundary.label}
+        </span>
+      </div>
+      <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-4">
+        <div className={`rounded-md border p-2 ${activationStepClasses(readiness.localDraftReadiness.state)}`}>
+          <p className="text-[10px] font-semibold uppercase tracking-wide">Local draft readiness</p>
+          <p className="mt-1 text-[11px] leading-4">{readiness.localDraftReadiness.label}</p>
+        </div>
+        <div className={`rounded-md border p-2 ${activationStepClasses(readiness.connectedSenderReadiness.state)}`}>
+          <p className="text-[10px] font-semibold uppercase tracking-wide">Connected sender readiness</p>
+          <p className="mt-1 text-[11px] leading-4">{readiness.connectedSenderReadiness.label}</p>
+          <p className="mt-1 break-all text-[10px] leading-4 opacity-80">
+            Required: {readiness.connectedSenderReadiness.requiredSender ?? 'check via canary'}
+            {readiness.connectedSenderReadiness.connectedAs ? ` / Connected: ${readiness.connectedSenderReadiness.connectedAs}` : ''}
+          </p>
+        </div>
+        <div className={`rounded-md border p-2 ${activationStepClasses(readiness.liveDraftCanaryReadiness.state)}`}>
+          <p className="text-[10px] font-semibold uppercase tracking-wide">Live draft canary readiness</p>
+          <p className="mt-1 text-[11px] leading-4">{readiness.liveDraftCanaryReadiness.label}</p>
+          <p className="mt-1 text-[10px] leading-4 opacity-80">Gmail calls: off / Drafts: not created</p>
+        </div>
+        <div className={`rounded-md border p-2 ${duplicate.createdOnce ? 'border-red-500/25 bg-red-500/10 text-red-100' : 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'}`}>
+          <p className="text-[10px] font-semibold uppercase tracking-wide">Duplicate draft evidence</p>
+          <p className="mt-1 text-[11px] leading-4">{duplicateLabel}</p>
+          <p className="mt-1 break-all text-[10px] leading-4 opacity-80">
+            Draft: {duplicate.draftId ?? 'none'} / Thread: {duplicate.threadId ?? 'none'} / Message: {duplicate.messageId ?? 'none'}
+          </p>
+        </div>
+      </div>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {readiness.remainingHumanGates.map((gate) => (
+          <span
+            key={gate}
+            className="inline-flex min-h-7 items-center rounded-full border border-silicon-slate bg-background/35 px-2 py-1 text-[10px] font-semibold text-muted-foreground"
+          >
+            {gate.replace(/_/g, ' ')}
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function summarizeAuthority(items: SendReadinessItem[]) {
   return items.reduce(
     (summary, item) => {
@@ -208,6 +288,8 @@ function EmailLifecycleCompact({
   const handoff = lifecycle.gmailDraftHandoffPacket
   const smoke = lifecycle.providerCapabilitySmoke
   const draftGate = lifecycle.gmailDraftCreationGate
+  const activationReadiness =
+    canaryResult?.activationReadiness ?? lifecycle.gmailProviderActivationReadiness
 
   return (
     <div className="rounded-md border border-amber-500/25 bg-amber-500/10 p-2.5 text-amber-50">
@@ -272,6 +354,7 @@ function EmailLifecycleCompact({
           <p className="mt-1 break-all text-[10px] leading-4 opacity-80">{smoke.smokeKey}</p>
         </div>
       </div>
+      <ActivationReadinessPacket readiness={activationReadiness} />
       <div className={`mt-2 rounded-md border p-2 ${draftCreationGateClasses(draftGate.status)}`}>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-[11px] font-semibold uppercase tracking-wide">Gmail draft creation availability</p>
