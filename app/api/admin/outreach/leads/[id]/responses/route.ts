@@ -47,6 +47,11 @@ type CommunicationRow = {
   created_at?: string | null
 }
 
+type FollowUpTaskResult = {
+  outcome: 'created' | 'existing'
+  id: string
+}
+
 type InventoryRow = NonNullable<WarmOutreachSourceInventoryRows['contactCommunications']>[number]
 
 function parseContactId(value: string) {
@@ -261,7 +266,7 @@ async function maybeCreateFollowUpTask(input: {
   contactId: number
   responseCommunicationId: string
   proposal: NonNullable<ReturnType<typeof buildWarmOutreachResponseLifecycleDecision>['followUpTaskProposal']>
-}) {
+}): Promise<FollowUpTaskResult> {
   const { data: existing, error: existingError } = await supabaseAdmin!
     .from('meeting_action_tasks')
     .select('id')
@@ -288,6 +293,58 @@ async function maybeCreateFollowUpTask(input: {
 
   if (error) throw new Error(`Failed to create follow-up task: ${error.message}`)
   return { outcome: 'created' as const, id: String(data.id) }
+}
+
+async function maybeCreateReplyDraft(input: {
+  contactId: number
+  channel: ReturnType<typeof communicationChannelForWarmResponse>
+  responseCommunicationId: string
+  responseSourceId: string
+  originalChannel: WarmOutreachResponseChannel
+  decision: ReturnType<typeof buildWarmOutreachResponseLifecycleDecision>
+  sentBy: string
+}) {
+  const existingReplyDraft = await findCommunicationBySourceId(
+    input.contactId,
+    input.decision.idempotency.replyDraftKey,
+  )
+  if (existingReplyDraft) {
+    return { outcome: 'existing' as const, row: existingReplyDraft }
+  }
+
+  const row = await insertCommunication({
+    contactId: input.contactId,
+    channel: input.channel,
+    direction: 'outbound',
+    messageType: 'follow_up',
+    subject: input.decision.replyDraft.subject,
+    body: input.decision.replyDraft.body,
+    sourceId: input.decision.idempotency.replyDraftKey,
+    status: 'draft',
+    sentAt: null,
+    sentBy: input.sentBy,
+    metadata: {
+      lifecycle: 'warm_outreach_reply_draft',
+      response_communication_id: input.responseCommunicationId,
+      response_source_id: input.responseSourceId,
+      response_class: input.decision.responseClass,
+      response_class_label: input.decision.interpretation.classificationLabel,
+      original_channel: input.originalChannel,
+      interpretation: input.decision.interpretation,
+      recommended_next_action: input.decision.interpretation.recommendedNextAction,
+      next_touch_decision_required:
+        input.decision.interpretation.recommendedNextAction.requiresNextTouchDecision,
+      approval_gate: input.decision.approvalGate,
+      approval_state: input.decision.replyDraft.approvalState,
+      reviewer_notes: input.decision.replyDraft.reviewerNotes,
+      human_qa_required: true,
+      human_qa_reasons: input.decision.humanQaReasons,
+      execution_boundary: input.decision.executionBoundary,
+      source_use_boundary: input.decision.sourceUseBoundary,
+    },
+  })
+
+  return { outcome: 'created' as const, row }
 }
 
 async function markOutreachQueueReplied(input: {
@@ -419,6 +476,7 @@ export async function POST(
     provider: stringOrNull(body.provider),
     providerThreadId: stringOrNull(body.providerThreadId) ?? outreachQueue?.thread_id ?? null,
     providerMessageId: stringOrNull(body.providerMessageId),
+    messageKey: stringOrNull(body.messageKey),
     originalSubject: stringOrNull(body.originalSubject) ?? outreachQueue?.subject ?? null,
     relationshipContext: await loadWarmRelationshipContext({
       contactId,
@@ -432,9 +490,31 @@ export async function POST(
     decision.idempotency.responseKey,
   )
   if (existingResponse) {
+    const commChannel = communicationChannelForWarmResponse(channel as WarmOutreachResponseChannel)
+    const replyDraft = await maybeCreateReplyDraft({
+      contactId,
+      channel: commChannel,
+      responseCommunicationId: existingResponse.id,
+      responseSourceId: decision.idempotency.responseKey,
+      originalChannel: channel as WarmOutreachResponseChannel,
+      decision,
+      sentBy: auth.user.id,
+    })
+    const followUpTask = decision.followUpTaskProposal
+      ? await maybeCreateFollowUpTask({
+          contactId,
+          responseCommunicationId: existingResponse.id,
+          proposal: decision.followUpTaskProposal,
+        })
+      : null
+
     return NextResponse.json({
       outcome: 'existing',
       responseCommunicationId: existingResponse.id,
+      replyDraftCommunicationId: replyDraft.row.id,
+      replyDraftOutcome: replyDraft.outcome,
+      followUpTask,
+      suppressionProposal: decision.suppressionProposal,
       decision,
       executionBoundary: decision.executionBoundary,
     })
@@ -483,15 +563,19 @@ export async function POST(
       original_channel: channel,
       outreach_queue_id: outreachQueueId,
       response_class: decision.responseClass,
+      response_class_label: decision.interpretation.classificationLabel,
       classification_confidence: decision.confidence,
       interpretation: decision.interpretation,
       recommended_next_action: decision.interpretation.recommendedNextAction,
+      next_touch_decision_required:
+        decision.interpretation.recommendedNextAction.requiresNextTouchDecision,
       approval_gate: decision.approvalGate,
       human_qa_required: decision.humanQaRequired,
       human_qa_reasons: decision.humanQaReasons,
       provider: stringOrNull(body.provider) ?? 'manual',
       provider_thread_id: stringOrNull(body.providerThreadId) ?? outreachQueue?.thread_id ?? null,
       provider_message_id: stringOrNull(body.providerMessageId),
+      manual_message_key: stringOrNull(body.messageKey),
       suppression_proposal: decision.suppressionProposal,
       follow_up_task_proposal: decision.followUpTaskProposal,
       local_draft_recommendation: decision.replyDraft,
@@ -501,42 +585,16 @@ export async function POST(
   })
 
   let replyDraftCommunication: CommunicationRow | null = null
-  const existingReplyDraft = await findCommunicationBySourceId(
+  const replyDraft = await maybeCreateReplyDraft({
     contactId,
-    decision.idempotency.replyDraftKey,
-  )
-  if (!existingReplyDraft) {
-    replyDraftCommunication = await insertCommunication({
-      contactId,
-      channel: commChannel,
-      direction: 'outbound',
-      messageType: 'follow_up',
-      subject: decision.replyDraft.subject,
-      body: decision.replyDraft.body,
-      sourceId: decision.idempotency.replyDraftKey,
-      status: 'draft',
-      sentAt: null,
-      sentBy: auth.user.id,
-      metadata: {
-        lifecycle: 'warm_outreach_reply_draft',
-        response_communication_id: responseCommunication.id,
-        response_source_id: decision.idempotency.responseKey,
-        response_class: decision.responseClass,
-        original_channel: channel,
-        interpretation: decision.interpretation,
-        recommended_next_action: decision.interpretation.recommendedNextAction,
-        approval_gate: decision.approvalGate,
-        approval_state: decision.replyDraft.approvalState,
-        reviewer_notes: decision.replyDraft.reviewerNotes,
-        human_qa_required: true,
-        human_qa_reasons: decision.humanQaReasons,
-        execution_boundary: decision.executionBoundary,
-        source_use_boundary: decision.sourceUseBoundary,
-      },
-    })
-  } else {
-    replyDraftCommunication = existingReplyDraft
-  }
+    channel: commChannel,
+    responseCommunicationId: responseCommunication.id,
+    responseSourceId: decision.idempotency.responseKey,
+    originalChannel: channel as WarmOutreachResponseChannel,
+    decision,
+    sentBy: auth.user.id,
+  })
+  replyDraftCommunication = replyDraft.row
 
   let followUpTask: { outcome: 'created' | 'existing'; id: string } | null = null
   if (decision.followUpTaskProposal) {
@@ -552,6 +610,7 @@ export async function POST(
       outcome: 'created',
       responseCommunicationId: responseCommunication.id,
       replyDraftCommunicationId: replyDraftCommunication?.id ?? null,
+      replyDraftOutcome: replyDraft.outcome,
       followUpTask,
       suppressionProposal: decision.suppressionProposal,
       decision,

@@ -1,14 +1,13 @@
 import { createHash } from 'crypto'
 
 export const WARM_OUTREACH_RESPONSE_CLASSES = [
-  'interest',
+  'interested',
   'question',
+  'referral',
   'objection',
   'not_now',
-  'unsubscribe_suppression',
-  'referral',
-  'positive_acknowledgement',
-  'negative',
+  'unsubscribe_do_not_contact',
+  'negative_sensitive',
   'ambiguous',
 ] as const
 
@@ -38,6 +37,7 @@ export type WarmOutreachResponseInput = {
   provider?: string | null
   providerThreadId?: string | null
   providerMessageId?: string | null
+  messageKey?: string | null
   originalSubject?: string | null
   relationshipContext?: WarmOutreachResponseRelationshipContext | null
 }
@@ -58,7 +58,6 @@ export type WarmOutreachResponseRelationshipContext = {
 
 type WarmOutreachApprovalGateState =
   | 'pending_human_reply_review'
-  | 'pending_positive_acknowledgement_review'
   | 'blocked_next_touch_timing_review'
   | 'blocked_suppression_review'
   | 'blocked_negative_review'
@@ -76,6 +75,7 @@ export type WarmOutreachResponseLifecycleDecision = {
       label: string
       description: string
       priority: 'low' | 'medium' | 'high' | 'urgent'
+      requiresNextTouchDecision: boolean
     }
   }
   replyDraft: {
@@ -102,6 +102,7 @@ export type WarmOutreachResponseLifecycleDecision = {
   } | null
   suppressionProposal: {
     action: 'mark_do_not_contact'
+    state: 'pending_human_approval'
     reason: string
     requiresHumanApproval: true
     idempotencyKey: string
@@ -151,10 +152,6 @@ const UNSUBSCRIBE_PATTERNS = [
 const NEGATIVE_OR_SENSITIVE_PATTERNS = [
   /\b(angry|upset|offensive|inappropriate|scam|spam|harassment|legal|lawyer|confidential|private|sensitive)\b/i,
 ]
-const POSITIVE_ACKNOWLEDGEMENT_PATTERNS = [
-  /\b(thanks|thank you|appreciate|got it|sounds fair|makes sense|good to know|noted|received)\b/i,
-]
-
 function includesAny(text: string, patterns: readonly RegExp[]) {
   return patterns.some((pattern) => pattern.test(text))
 }
@@ -192,6 +189,7 @@ export function buildWarmOutreachResponseIdempotencyKey(
   const provider = normalizeProviderPart(input.provider, 'manual')
   const providerThreadId = normalizeProviderPart(input.providerThreadId, 'manual-thread')
   const providerMessageId = normalizeProviderPart(input.providerMessageId, '')
+  const messageKey = normalizeProviderPart(input.messageKey, '')
 
   if (providerMessageId) {
     return `warm-outreach:reply:${provider}:${providerThreadId}:${providerMessageId}`
@@ -201,7 +199,7 @@ export function buildWarmOutreachResponseIdempotencyKey(
     input.contactId,
     input.channel,
     input.outreachQueueId ?? 'no-queue',
-    compactText(input.responseText).toLowerCase(),
+    messageKey || compactText(input.responseText).toLowerCase(),
   ].join('|')
 
   return `warm-outreach:reply:manual:${shortHash(basis)}`
@@ -212,16 +210,16 @@ function classifyText(text: string): {
   confidence: number
 } {
   if (includesAny(text, UNSUBSCRIBE_PATTERNS)) {
-    return { responseClass: 'unsubscribe_suppression', confidence: 0.9 }
+    return { responseClass: 'unsubscribe_do_not_contact', confidence: 0.9 }
   }
   if (includesAny(text, NEGATIVE_OR_SENSITIVE_PATTERNS)) {
-    return { responseClass: 'negative', confidence: 0.82 }
+    return { responseClass: 'negative_sensitive', confidence: 0.82 }
   }
   if (includesAny(text, REFERRAL_PATTERNS)) {
     return { responseClass: 'referral', confidence: 0.78 }
   }
   if (includesAny(text, INTERESTED_PATTERNS)) {
-    return { responseClass: 'interest', confidence: 0.8 }
+    return { responseClass: 'interested', confidence: 0.8 }
   }
   if (includesAny(text, OBJECTION_PATTERNS)) {
     return { responseClass: 'objection', confidence: 0.75 }
@@ -232,22 +230,18 @@ function classifyText(text: string): {
   if (includesAny(text, QUESTION_PATTERNS)) {
     return { responseClass: 'question', confidence: 0.72 }
   }
-  if (includesAny(text, POSITIVE_ACKNOWLEDGEMENT_PATTERNS)) {
-    return { responseClass: 'positive_acknowledgement', confidence: 0.68 }
-  }
   return { responseClass: 'ambiguous', confidence: 0.45 }
 }
 
 function humanQaReasonsFor(responseClass: WarmOutreachResponseClass) {
   const reasons = new Set<string>(['warm_outreach_reply_requires_human_qa'])
-  if (responseClass === 'interest') reasons.add('buying_or_sales_intent_review')
+  if (responseClass === 'interested') reasons.add('buying_or_sales_intent_review')
   if (responseClass === 'question') reasons.add('question_requires_contextual_answer_review')
   if (responseClass === 'referral') reasons.add('referral_path_requires_relationship_review')
   if (responseClass === 'objection') reasons.add('objection_response_requires_review')
   if (responseClass === 'not_now') reasons.add('next_touch_timing_requires_human_decision')
-  if (responseClass === 'unsubscribe_suppression') reasons.add('suppression_update_requires_human_approval')
-  if (responseClass === 'negative') reasons.add('negative_response_boundary')
-  if (responseClass === 'positive_acknowledgement') reasons.add('positive_acknowledgement_requires_next_step_review')
+  if (responseClass === 'unsubscribe_do_not_contact') reasons.add('suppression_update_requires_human_approval')
+  if (responseClass === 'negative_sensitive') reasons.add('negative_response_boundary')
   if (responseClass === 'ambiguous') reasons.add('low_confidence_classification')
   return [...reasons]
 }
@@ -288,7 +282,7 @@ function draftBodyFor(input: WarmOutreachResponseInput, responseClass: WarmOutre
     : 'I am grounding this in the relationship context already in Portfolio.'
 
   switch (responseClass) {
-    case 'interest':
+    case 'interested':
       return `Hi ${name},\n\nThanks for the reply. ${contextSentence}\n\nA useful next step may be a short review of what would help most from here. Would that be helpful this week?`
     case 'question':
       return `Hi ${name},\n\nGood question. ${contextSentence}\n\nI want to answer this with the right context instead of guessing from the thread. I can send the clearest answer after reviewing the notes tied to this relationship.`
@@ -298,12 +292,10 @@ function draftBodyFor(input: WarmOutreachResponseInput, responseClass: WarmOutre
       return `Hi ${name},\n\nI appreciate the direct note. That context helps.\n\nNo pressure from my side. If there is a smaller angle worth clarifying, I can keep the follow-up focused there.`
     case 'not_now':
       return `Hi ${name},\n\nThat makes sense. I appreciate you letting me know.\n\nI can step back for now and reconnect only around the timing you are comfortable with.`
-    case 'unsubscribe_suppression':
+    case 'unsubscribe_do_not_contact':
       return `Hi ${name},\n\nUnderstood. I will mark this so you are not contacted again through this outreach path.`
-    case 'negative':
+    case 'negative_sensitive':
       return `Hi ${name},\n\nI hear the concern. I do not want to handle sensitive details casually or add pressure here.\n\nI will review the context before deciding whether any response is appropriate.`
-    case 'positive_acknowledgement':
-      return `Hi ${name},\n\nThank you for confirming. ${contextSentence}\n\nI will keep the next step practical and only follow up if there is something useful to add.`
     case 'ambiguous':
     default:
       return `Hi ${name},\n\nThanks for the reply. I want to make sure I understand the context correctly before responding.\n\nI will review the thread and relationship notes before deciding on the next step.`
@@ -311,15 +303,14 @@ function draftBodyFor(input: WarmOutreachResponseInput, responseClass: WarmOutre
 }
 
 function taskPriorityFor(responseClass: WarmOutreachResponseClass) {
-  if (responseClass === 'unsubscribe_suppression' || responseClass === 'negative') return 'urgent'
-  if (responseClass === 'interest' || responseClass === 'referral') return 'high'
-  if (responseClass === 'positive_acknowledgement') return 'low'
+  if (responseClass === 'unsubscribe_do_not_contact' || responseClass === 'negative_sensitive') return 'urgent'
+  if (responseClass === 'interested' || responseClass === 'referral') return 'high'
   return 'medium'
 }
 
 function followUpTitleFor(responseClass: WarmOutreachResponseClass, contactName: string) {
   switch (responseClass) {
-    case 'interest':
+    case 'interested':
       return `Review interested warm response from ${contactName}`
     case 'question':
       return `Answer warm outreach question from ${contactName}`
@@ -329,20 +320,18 @@ function followUpTitleFor(responseClass: WarmOutreachResponseClass, contactName:
       return `Review warm outreach objection from ${contactName}`
     case 'not_now':
       return `Set next-touch timing for ${contactName}`
-    case 'negative':
+    case 'negative_sensitive':
       return `Review sensitive warm response from ${contactName}`
-    case 'positive_acknowledgement':
-      return `Confirm warm acknowledgement next step for ${contactName}`
     case 'ambiguous':
       return `Classify ambiguous warm response from ${contactName}`
-    case 'unsubscribe_suppression':
+    case 'unsubscribe_do_not_contact':
     default:
       return `Review do-not-contact request from ${contactName}`
   }
 }
 
 function dueDateFor(responseClass: WarmOutreachResponseClass, now = new Date()) {
-  if (responseClass === 'unsubscribe_suppression' || responseClass === 'negative') {
+  if (responseClass === 'unsubscribe_do_not_contact' || responseClass === 'negative_sensitive') {
     return now.toISOString().slice(0, 10)
   }
   if (responseClass === 'not_now') return null
@@ -351,6 +340,8 @@ function dueDateFor(responseClass: WarmOutreachResponseClass, now = new Date()) 
 }
 
 function responseClassLabel(responseClass: WarmOutreachResponseClass) {
+  if (responseClass === 'unsubscribe_do_not_contact') return 'unsubscribe / do not contact'
+  if (responseClass === 'negative_sensitive') return 'negative / sensitive'
   return responseClass.replace(/_/g, ' ')
 }
 
@@ -360,51 +351,54 @@ function recommendedNextActionFor(
 ) {
   const suggested = context?.suggestedNextStep?.trim()
   switch (responseClass) {
-    case 'interest':
+    case 'interested':
       return {
         label: 'Review short next-step reply',
         description: suggested || 'Prepare a concise next-step reply grounded in the local relationship packet.',
+        requiresNextTouchDecision: true,
       }
     case 'question':
       return {
         label: 'Answer with relationship context',
         description: 'Review the packet, answer only what is supported, and keep private evidence summarized.',
+        requiresNextTouchDecision: true,
       }
     case 'objection':
       return {
         label: 'Decide whether a lower-pressure clarification helps',
         description: 'Review the objection and either approve a short clarification or stop the sequence.',
+        requiresNextTouchDecision: true,
       }
     case 'not_now':
       return {
         label: 'Set next-touch timing',
         description: 'Choose whether to pause, schedule a later reminder, or suppress the outreach path.',
+        requiresNextTouchDecision: true,
       }
-    case 'unsubscribe_suppression':
+    case 'unsubscribe_do_not_contact':
       return {
         label: 'Review suppression update',
         description: 'Confirm the unsubscribe or do-not-contact request before any further outreach is allowed.',
+        requiresNextTouchDecision: false,
       }
     case 'referral':
       return {
         label: 'Review referral path',
         description: 'Prepare a modest referral note and verify what can be safely mentioned.',
+        requiresNextTouchDecision: true,
       }
-    case 'positive_acknowledgement':
+    case 'negative_sensitive':
       return {
-        label: 'Confirm whether any reply is needed',
-        description: 'Treat acknowledgement as a low-pressure review item; a response may not be necessary.',
-      }
-    case 'negative':
-      return {
-        label: 'Stop and review negative response',
+        label: 'Stop and review negative or sensitive response',
         description: 'Do not reply or continue the sequence until a human reviews tone, risk, and suppression options.',
+        requiresNextTouchDecision: false,
       }
     case 'ambiguous':
     default:
       return {
         label: 'Clarify classification before acting',
         description: 'Review the captured response and relationship context before drafting or scheduling anything.',
+        requiresNextTouchDecision: true,
       }
   }
 }
@@ -426,7 +420,7 @@ function approvalGateFor(
     'provider_monitoring',
   ]
 
-  if (responseClass === 'unsubscribe_suppression' || hasSuppressionBlocker) {
+  if (responseClass === 'unsubscribe_do_not_contact' || hasSuppressionBlocker) {
     return {
       state: 'blocked_suppression_review',
       label: 'Blocked: suppression review required',
@@ -436,10 +430,10 @@ function approvalGateFor(
     }
   }
 
-  if (responseClass === 'negative') {
+  if (responseClass === 'negative_sensitive') {
     return {
       state: 'blocked_negative_review',
-      label: 'Blocked: negative response review required',
+      label: 'Blocked: negative or sensitive response review required',
       humanActionRequired: 'Review tone, safety, and whether no response is the correct path.',
       recoveryPath: 'Document the decision in the contact workroom; approve a short repair note only if the relationship context supports it.',
       blockedExternalActions,
@@ -462,16 +456,6 @@ function approvalGateFor(
       label: 'Blocked: timing decision required',
       humanActionRequired: 'Choose pause, reminder date, or suppression before the sequence continues.',
       recoveryPath: 'Set a local next-touch task only after the contact-provided timing is reviewed.',
-      blockedExternalActions,
-    }
-  }
-
-  if (responseClass === 'positive_acknowledgement') {
-    return {
-      state: 'pending_positive_acknowledgement_review',
-      label: 'Pending: acknowledgement review',
-      humanActionRequired: 'Decide whether no reply, a brief acknowledgement, or a later task is appropriate.',
-      recoveryPath: 'Approve no action or edit the local draft before any external channel is used.',
       blockedExternalActions,
     }
   }
@@ -503,9 +487,10 @@ export function buildWarmOutreachResponseLifecycleDecision(
   const approvalGate = approvalGateFor(classification.responseClass, input.relationshipContext)
   const priority = taskPriorityFor(classification.responseClass) as 'low' | 'medium' | 'high' | 'urgent'
   const suppressionProposal =
-    classification.responseClass === 'unsubscribe_suppression'
+    classification.responseClass === 'unsubscribe_do_not_contact'
       ? {
           action: 'mark_do_not_contact' as const,
+          state: 'pending_human_approval' as const,
           reason: 'Captured response requested unsubscribe, removal, or no further contact.',
           requiresHumanApproval: true as const,
           idempotencyKey: suppressionKey,
@@ -515,7 +500,7 @@ export function buildWarmOutreachResponseLifecycleDecision(
   const followUpTaskProposal = {
     title: followUpTitleFor(classification.responseClass, contactName),
     description: [
-      `Captured ${classification.responseClass.replace(/_/g, ' ')} warm outreach response on ${input.channel}.`,
+      `Captured ${responseClassLabel(classification.responseClass)} warm outreach response on ${input.channel}.`,
       `Recommended next action: ${recommendedNextAction.label}.`,
       `Approval gate: ${approvalGate.label}.`,
       `Human QA must approve the reply draft, next-touch decision, and any suppression change before external action.`,
@@ -541,7 +526,7 @@ export function buildWarmOutreachResponseLifecycleDecision(
       },
     },
     replyDraft: {
-      subject: `Draft reply: ${classification.responseClass.replace(/_/g, ' ')}`,
+      subject: `Draft reply: ${responseClassLabel(classification.responseClass)}`,
       body: draftBodyFor(input, classification.responseClass),
       reviewerNotes: reviewerNotesFor(input.relationshipContext),
       approvalState: 'pending_human_qa',

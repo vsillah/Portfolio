@@ -197,10 +197,11 @@ describe('POST /api/admin/outreach/leads/[id]/responses', () => {
     expect(response.status).toBe(201)
     const json = await response.json()
     expect(json.outcome).toBe('created')
-    expect(json.decision.responseClass).toBe('interest')
+    expect(json.decision.responseClass).toBe('interested')
     expect(json.decision.interpretation.recommendedNextAction).toMatchObject({
       label: 'Review short next-step reply',
       priority: 'high',
+      requiresNextTouchDecision: true,
     })
     expect(json.decision.approvalGate).toMatchObject({
       state: 'pending_human_reply_review',
@@ -222,10 +223,12 @@ describe('POST /api/admin/outreach/leads/[id]/responses', () => {
       source_system: 'manual',
     })
     expect(insertedCommunications[0].metadata).toMatchObject({
-      response_class: 'interest',
+      response_class: 'interested',
+      response_class_label: 'interested',
       recommended_next_action: expect.objectContaining({
         label: 'Review short next-step reply',
       }),
+      next_touch_decision_required: true,
       approval_gate: expect.objectContaining({
         state: 'pending_human_reply_review',
       }),
@@ -320,7 +323,40 @@ describe('POST /api/admin/outreach/leads/[id]/responses', () => {
     })
   })
 
-  it('returns the existing response for duplicate capture before writing drafts or tasks', async () => {
+  it('returns the existing response and reuses local draft and task rows for duplicate capture', async () => {
+    existingResponse = {
+      id: 'comm-existing',
+      source_id: 'warm-outreach:reply:manual:existing',
+      metadata: {},
+    }
+    existingDraft = {
+      id: 'comm-draft-existing',
+      source_id: 'warm-outreach:reply-draft:existing',
+      metadata: {},
+    }
+    existingTask = {
+      id: 'task-existing',
+    }
+
+    const response = await POST(request({
+      channel: 'email',
+      responseText: 'Interested. Can we schedule a quick demo?',
+      messageKey: 'thread-42-message-7',
+      receivedAt: '2026-08-26T12:00:00.000Z',
+    }), { params: { id: '42' } })
+
+    expect(response.status).toBe(200)
+    const json = await response.json()
+    expect(json.outcome).toBe('existing')
+    expect(json.responseCommunicationId).toBe('comm-existing')
+    expect(json.replyDraftCommunicationId).toBe('comm-draft-existing')
+    expect(json.replyDraftOutcome).toBe('existing')
+    expect(json.followUpTask).toEqual({ outcome: 'existing', id: 'task-existing' })
+    expect(insertedCommunications).toHaveLength(0)
+    expect(insertedTasks).toHaveLength(0)
+  })
+
+  it('repairs a missing local reply draft once for an existing captured response', async () => {
     existingResponse = {
       id: 'comm-existing',
       source_id: 'warm-outreach:reply:manual:existing',
@@ -330,15 +366,21 @@ describe('POST /api/admin/outreach/leads/[id]/responses', () => {
     const response = await POST(request({
       channel: 'email',
       responseText: 'Interested. Can we schedule a quick demo?',
-      receivedAt: '2026-08-26T12:00:00.000Z',
+      messageKey: 'thread-42-message-8',
     }), { params: { id: '42' } })
 
     expect(response.status).toBe(200)
     const json = await response.json()
     expect(json.outcome).toBe('existing')
-    expect(json.responseCommunicationId).toBe('comm-existing')
-    expect(insertedCommunications).toHaveLength(0)
-    expect(insertedTasks).toHaveLength(0)
+    expect(json.replyDraftOutcome).toBe('created')
+    expect(insertedCommunications).toHaveLength(1)
+    expect(insertedCommunications[0]).toMatchObject({
+      direction: 'outbound',
+      message_type: 'follow_up',
+      status: 'draft',
+      source_system: 'manual',
+    })
+    expect(insertedTasks).toHaveLength(1)
   })
 
   it('stores unsubscribe responses as suppression proposals pending human approval', async () => {
@@ -349,14 +391,16 @@ describe('POST /api/admin/outreach/leads/[id]/responses', () => {
 
     expect(response.status).toBe(201)
     const json = await response.json()
-    expect(json.decision.responseClass).toBe('unsubscribe_suppression')
+    expect(json.decision.responseClass).toBe('unsubscribe_do_not_contact')
     expect(json.suppressionProposal).toMatchObject({
       action: 'mark_do_not_contact',
+      state: 'pending_human_approval',
       requiresHumanApproval: true,
     })
     expect(insertedCommunications[0].metadata).toMatchObject({
       lifecycle: 'warm_outreach_response',
-      response_class: 'unsubscribe_suppression',
+      response_class: 'unsubscribe_do_not_contact',
+      response_class_label: 'unsubscribe / do not contact',
       human_qa_required: true,
       approval_gate: expect.objectContaining({
         state: 'blocked_suppression_review',
