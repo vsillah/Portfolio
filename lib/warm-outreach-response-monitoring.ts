@@ -797,33 +797,73 @@ function nestedMetadata(row: PortfolioRow, key: string): PortfolioRow {
   return record(metadata(row)[key])
 }
 
+function firstValue(row: PortfolioRow, keys: string[]): unknown {
+  for (const key of keys) {
+    const value = metadataValue(row, key)
+    if (value !== undefined && value !== null) return value
+  }
+  return undefined
+}
+
+function mergedEvidence(row: PortfolioRow, snakeKey: string, camelKey: string): PortfolioRow {
+  const generationInputs = record(row.generation_inputs)
+  return {
+    ...record(generationInputs[snakeKey]),
+    ...record(generationInputs[camelKey]),
+    ...nestedMetadata(row, snakeKey),
+    ...nestedMetadata(row, camelKey),
+  }
+}
+
+function gmailDraftCreationEvidence(row: PortfolioRow): PortfolioRow {
+  return mergedEvidence(row, 'gmail_draft_creation', 'gmailDraftCreation')
+}
+
+function warmGmailSendAuthorizationEvidence(row: PortfolioRow): PortfolioRow {
+  return mergedEvidence(row, 'warm_gmail_send_authorization', 'warmGmailSendAuthorization')
+}
+
+function warmGmailSlackApprovalRequestEvidence(row: PortfolioRow): PortfolioRow {
+  return mergedEvidence(
+    row,
+    'warm_gmail_send_slack_approval_request',
+    'warmGmailSendSlackApprovalRequest',
+  )
+}
+
+function warmGmailSendExecutionEvidence(row: PortfolioRow): PortfolioRow {
+  return mergedEvidence(row, 'warm_gmail_send_execution', 'warmGmailSendExecution')
+}
+
 function firstGmailDraftEvidence(rows: PortfolioRow[]): WarmOutreachGmailProviderActivationReadiness['duplicateDraftEvidence'] {
   for (const row of rows) {
-    const generationInputs = record(row.generation_inputs)
-    const draftCreation = {
-      ...record(generationInputs.gmail_draft_creation),
-      ...nestedMetadata(row, 'gmail_draft_creation'),
-    }
-    const authorization = {
-      ...record(generationInputs.warm_outreach_gmail_draft_authorization),
-      ...nestedMetadata(row, 'warm_outreach_gmail_draft_authorization'),
-    }
+    const draftCreation = gmailDraftCreationEvidence(row)
+    const authorization = mergedEvidence(
+      row,
+      'warm_outreach_gmail_draft_authorization',
+      'warmOutreachGmailDraftAuthorization',
+    )
     const draftId =
-      text(metadataValue(row, 'gmail_user_draft_id')) ??
-      text(metadataValue(row, 'gmail_draft_id')) ??
-      text(draftCreation.draft_id)
+      text(firstValue(row, ['gmail_user_draft_id', 'gmailUserDraftId'])) ??
+      text(firstValue(row, ['gmail_draft_id', 'gmailDraftId'])) ??
+      text(draftCreation.draft_id) ??
+      text(draftCreation.draftId)
     const threadId =
-      text(metadataValue(row, 'gmail_user_thread_id')) ??
-      text(metadataValue(row, 'thread_id')) ??
-      text(draftCreation.thread_id)
+      text(firstValue(row, ['gmail_user_thread_id', 'gmailUserThreadId'])) ??
+      text(firstValue(row, ['thread_id', 'threadId'])) ??
+      text(draftCreation.thread_id) ??
+      text(draftCreation.threadId)
     const messageId =
-      text(metadataValue(row, 'gmail_user_message_id')) ??
-      text(metadataValue(row, 'message_id')) ??
-      text(draftCreation.message_id)
+      text(firstValue(row, ['gmail_user_message_id', 'gmailUserMessageId'])) ??
+      text(firstValue(row, ['message_id', 'messageId'])) ??
+      text(draftCreation.message_id) ??
+      text(draftCreation.messageId)
     const idempotencyKey =
-      text(metadataValue(row, 'gmail_draft_idempotency_key')) ??
+      text(firstValue(row, ['gmail_draft_idempotency_key', 'gmailDraftIdempotencyKey'])) ??
       text(draftCreation.idempotency_key) ??
-      text(authorization.idempotency_key)
+      text(draftCreation.idempotencyKey) ??
+      text(authorization.idempotency_key) ??
+      text(authorization.idempotencyKey)
 
     if (draftId || threadId || messageId || idempotencyKey) {
       return {
@@ -860,26 +900,26 @@ function normalizeEmail(value: unknown): string | null {
 
 function firstGmailDraftRolloutEvidence(rows: PortfolioRow[]) {
   for (const row of rows) {
-    const generationInputs = record(row.generation_inputs)
-    const draftCreation = {
-      ...record(generationInputs.gmail_draft_creation),
-      ...nestedMetadata(row, 'gmail_draft_creation'),
-    }
+    const draftCreation = gmailDraftCreationEvidence(row)
     const draftId =
-      text(metadataValue(row, 'gmail_user_draft_id')) ??
-      text(metadataValue(row, 'gmail_draft_id')) ??
-      text(draftCreation.draft_id)
+      text(firstValue(row, ['gmail_user_draft_id', 'gmailUserDraftId'])) ??
+      text(firstValue(row, ['gmail_draft_id', 'gmailDraftId'])) ??
+      text(draftCreation.draft_id) ??
+      text(draftCreation.draftId)
     const threadId =
-      text(metadataValue(row, 'gmail_user_thread_id')) ??
-      text(metadataValue(row, 'thread_id')) ??
-      text(draftCreation.thread_id)
+      text(firstValue(row, ['gmail_user_thread_id', 'gmailUserThreadId'])) ??
+      text(firstValue(row, ['thread_id', 'threadId'])) ??
+      text(draftCreation.thread_id) ??
+      text(draftCreation.threadId)
     const messageId =
-      text(metadataValue(row, 'gmail_user_message_id')) ??
-      text(metadataValue(row, 'message_id')) ??
-      text(draftCreation.message_id)
+      text(firstValue(row, ['gmail_user_message_id', 'gmailUserMessageId'])) ??
+      text(firstValue(row, ['message_id', 'messageId'])) ??
+      text(draftCreation.message_id) ??
+      text(draftCreation.messageId)
     const idempotencyKey =
-      text(metadataValue(row, 'gmail_draft_idempotency_key')) ??
-      text(draftCreation.idempotency_key)
+      text(firstValue(row, ['gmail_draft_idempotency_key', 'gmailDraftIdempotencyKey'])) ??
+      text(draftCreation.idempotency_key) ??
+      text(draftCreation.idempotencyKey)
 
     if (draftId || threadId || messageId || idempotencyKey) {
       return {
@@ -887,8 +927,16 @@ function firstGmailDraftRolloutEvidence(rows: PortfolioRow[]) {
         threadId,
         messageId,
         sourceIds: [sourceId(row, 'gmail-draft-evidence')],
-        connectedAs: normalizeEmail(draftCreation.connected_as ?? metadataValue(row, 'connected_as')),
-        requiredSender: normalizeEmail(draftCreation.required_sender ?? metadataValue(row, 'required_sender')),
+        connectedAs: normalizeEmail(
+          draftCreation.connected_as ??
+          draftCreation.connectedAs ??
+          firstValue(row, ['connected_as', 'connectedAs']),
+        ),
+        requiredSender: normalizeEmail(
+          draftCreation.required_sender ??
+          draftCreation.requiredSender ??
+          firstValue(row, ['required_sender', 'requiredSender']),
+        ),
       }
     }
   }
@@ -905,16 +953,12 @@ function firstGmailDraftRolloutEvidence(rows: PortfolioRow[]) {
 
 function firstWarmGmailAuthorization(rows: PortfolioRow[]) {
   for (const row of rows) {
-    const generationInputs = record(row.generation_inputs)
-    const authorization = {
-      ...record(generationInputs.warm_gmail_send_authorization),
-      ...nestedMetadata(row, 'warm_gmail_send_authorization'),
-    }
+    const authorization = warmGmailSendAuthorizationEvidence(row)
     const status = text(authorization.status)?.toLowerCase()
     if (status === 'approved' || status === 'rejected' || status === 'revision_requested') {
       return {
         status: status as 'approved' | 'rejected' | 'revision_requested',
-        decisionKey: text(authorization.decision_key),
+        decisionKey: text(authorization.decision_key) ?? text(authorization.decisionKey),
       }
     }
   }
@@ -927,11 +971,7 @@ function firstWarmGmailAuthorization(rows: PortfolioRow[]) {
 
 function firstWarmGmailSlackApprovalRequest(rows: PortfolioRow[]) {
   for (const row of rows) {
-    const generationInputs = record(row.generation_inputs)
-    const request = {
-      ...record(generationInputs.warm_gmail_send_slack_approval_request),
-      ...nestedMetadata(row, 'warm_gmail_send_slack_approval_request'),
-    }
+    const request = warmGmailSlackApprovalRequestEvidence(row)
     const status = text(request.status)?.toLowerCase()
     if (
       status === 'pending' ||
@@ -941,7 +981,11 @@ function firstWarmGmailSlackApprovalRequest(rows: PortfolioRow[]) {
     ) {
       return {
         status: status as 'pending' | 'approved' | 'rejected' | 'revision_requested',
-        requestKey: text(request.request_key) ?? text(request.payload_dedupe_key),
+        requestKey:
+          text(request.request_key) ??
+          text(request.requestKey) ??
+          text(request.payload_dedupe_key) ??
+          text(request.payloadDedupeKey),
       }
     }
   }
@@ -958,26 +1002,31 @@ function firstSubmittedWarmGmailEvidence(rows: PortfolioRow[], input: {
 }) {
   const sourceIds: string[] = []
   for (const row of rows) {
-    const generationInputs = record(row.generation_inputs)
-    const execution = {
-      ...record(generationInputs.warm_gmail_send_execution),
-      ...nestedMetadata(row, 'warm_gmail_send_execution'),
-    }
+    const execution = warmGmailSendExecutionEvidence(row)
     const rowMetadata = metadata(row)
     const status = text(row.status)?.toLowerCase()
     const executionStatus = text(execution.status)?.toLowerCase()
+    const inboundResponse = isInboundResponse(row)
     const submittedEvidenceKey =
       text(rowMetadata.submitted_evidence_key) ??
-      text(execution.submitted_evidence_key)
+      text(rowMetadata.submittedEvidenceKey) ??
+      text(execution.submitted_evidence_key) ??
+      text(execution.submittedEvidenceKey)
     const sendQueueKey =
       text(rowMetadata.send_queue_idempotency_key) ??
+      text(rowMetadata.sendQueueIdempotencyKey) ??
       text(execution.send_queue_idempotency_key) ??
-      text(execution.idempotency_key)
+      text(execution.sendQueueIdempotencyKey) ??
+      text(execution.idempotency_key) ??
+      text(execution.idempotencyKey)
     const submitted =
-      ['sent', 'submitted', 'delivered'].includes(status ?? '') ||
+      (!inboundResponse && ['sent', 'submitted', 'delivered'].includes(status ?? '')) ||
+      (!inboundResponse && Boolean(text(row.sent_at) ?? text(row.sentAt))) ||
       executionStatus === 'sent' ||
       execution.gmail_send_called === true ||
+      execution.gmailSendCalled === true ||
       execution.external_send_performed === true ||
+      execution.externalSendPerformed === true ||
       (sendQueueKey === input.sendQueueIdempotencyKey && executionStatus === 'sent')
 
     if (submitted) sourceIds.push(sourceId(row, 'submitted-gmail-send-evidence'))
@@ -994,20 +1043,21 @@ function firstWarmGmailExecutionState(rows: PortfolioRow[], input: {
   submittedEvidenceKey: string
 }) {
   for (const row of rows) {
-    const generationInputs = record(row.generation_inputs)
-    const execution = {
-      ...record(generationInputs.warm_gmail_send_execution),
-      ...nestedMetadata(row, 'warm_gmail_send_execution'),
-    }
+    const execution = warmGmailSendExecutionEvidence(row)
     const executionStatus = text(execution.status)?.toLowerCase()
-    const communicationLog = record(execution.communication_log)
+    const communicationLog = record(execution.communication_log ?? execution.communicationLog)
     const secondaryLogStatus =
       text(execution.secondary_log_status)?.toLowerCase() ??
+      text(execution.secondaryLogStatus)?.toLowerCase() ??
       text(communicationLog.status)?.toLowerCase()
-    const submittedEvidenceKey = text(execution.submitted_evidence_key)
+    const submittedEvidenceKey =
+      text(execution.submitted_evidence_key) ??
+      text(execution.submittedEvidenceKey)
     const sendQueueKey =
       text(execution.send_queue_idempotency_key) ??
-      text(execution.idempotency_key)
+      text(execution.sendQueueIdempotencyKey) ??
+      text(execution.idempotency_key) ??
+      text(execution.idempotencyKey)
     const matchesScope =
       submittedEvidenceKey === input.submittedEvidenceKey ||
       sendQueueKey === input.sendQueueIdempotencyKey
@@ -1017,7 +1067,8 @@ function firstWarmGmailExecutionState(rows: PortfolioRow[], input: {
     if (
       executionStatus === 'sent_secondary_log_repair_required' ||
       secondaryLogStatus === 'repair_required' ||
-      execution.secondary_log_repair_required === true
+      execution.secondary_log_repair_required === true ||
+      execution.secondaryLogRepairRequired === true
     ) {
       return {
         state: 'sent' as const,
@@ -1100,7 +1151,9 @@ function buildRealRecipientGmailRolloutReadiness(args: {
       : draft.requiredSender === draft.connectedAs
         ? 'matched'
         : 'mismatch'
-  const providerConfigured = args.providerSmoke.providerConfigured
+  const providerConfigured =
+    args.providerSmoke.providerConfigured ||
+    (hasDraftEvidence && senderState === 'matched')
   const authorizationState: WarmOutreachRealRecipientGmailRolloutReadiness['requirements']['authorization']['state'] =
     authorization.status ?? 'missing'
   const slackDecisionWithoutPortfolioAuthorization =

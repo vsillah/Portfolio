@@ -123,7 +123,7 @@ export async function GET(
       supabaseAdmin
         .from('outreach_queue')
         .select(
-          'id, contact_submission_id, channel, subject, sequence_step, status, thread_id, sent_at, replied_at, created_at',
+          'id, contact_submission_id, channel, subject, sequence_step, status, thread_id, message_id, sent_at, replied_at, generation_inputs, created_at',
         )
         .eq('contact_submission_id', contactId)
         .order('created_at', { ascending: false })

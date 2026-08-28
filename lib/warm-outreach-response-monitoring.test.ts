@@ -939,6 +939,139 @@ describe('warm outreach response monitoring', () => {
     })
   })
 
+  it('normalizes production-shaped snake_case Gmail draft evidence for send approval readiness', () => {
+    const base = packet()
+    const providerPacket = packet({
+      channelCapabilities: {
+        ...base.channelCapabilities,
+        email: {
+          available: true,
+          providerConfigured: true,
+          supportsExternalSend: false,
+          manualOnly: false,
+          reason: 'Gmail OAuth profile is connected for gated send review.',
+        },
+      },
+    })
+    const monitoring = buildWarmOutreachResponseMonitoring({
+      contactId: 42,
+      packet: providerPacket,
+      readiness: evaluateWarmOutreachReadiness(providerPacket),
+      rows: {
+        outreachQueue: [
+          {
+            id: 'queue-production-shaped',
+            channel: 'email',
+            status: 'draft',
+            generation_inputs: {
+              gmail_draft_creation: {
+                draft_id: 'gmail-draft-production-shaped',
+                thread_id: 'gmail-thread-production-shaped',
+                message_id: 'gmail-message-production-shaped',
+                created_at: '2026-08-28T12:00:00.000Z',
+                connected_as: 'vambah@amadutown.com',
+                required_sender: 'vambah@amadutown.com',
+                authorization: 'create_gmail_draft_for_recipient',
+                authorized_by: 'admin-user',
+                provider: 'gmail_user_oauth',
+                provider_action: 'drafts.create',
+                idempotency_key: 'warm-outreach:gmail-draft:v1:queue-production-shaped:42:email',
+                external_send_blocked: true,
+              },
+            },
+          },
+        ],
+      },
+    })
+    const rollout = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
+      ?.emailSendLifecycle?.realRecipientRolloutReadiness
+
+    expect(rollout).toMatchObject({
+      state: 'ready_for_send_request',
+      eligibleForSendApprovalRequest: true,
+      canBuildSlackApprovalPayload: true,
+      requirements: {
+        draftEvidence: {
+          state: 'tracked',
+          draftId: 'gmail-draft-production-shaped',
+          threadId: 'gmail-thread-production-shaped',
+          messageId: 'gmail-message-production-shaped',
+        },
+        senderMatch: {
+          state: 'matched',
+          requiredSender: 'vambah@amadutown.com',
+          connectedAs: 'vambah@amadutown.com',
+        },
+        authorization: { state: 'missing' },
+        submittedEvidence: { state: 'missing' },
+      },
+      executionBoundary: {
+        slackDispatch: false,
+        gmailSend: false,
+        providerCalls: false,
+      },
+    })
+  })
+
+  it('normalizes camelCase Gmail draft evidence for send approval readiness', () => {
+    const base = packet()
+    const providerPacket = packet({
+      channelCapabilities: {
+        ...base.channelCapabilities,
+        email: {
+          available: true,
+          providerConfigured: true,
+          supportsExternalSend: false,
+          manualOnly: false,
+          reason: 'Gmail OAuth profile is connected for gated send review.',
+        },
+      },
+    })
+    const monitoring = buildWarmOutreachResponseMonitoring({
+      contactId: 42,
+      packet: providerPacket,
+      readiness: evaluateWarmOutreachReadiness(providerPacket),
+      rows: {
+        outreachQueue: [
+          {
+            id: 'queue-camel-draft',
+            channel: 'email',
+            status: 'draft',
+            generation_inputs: {
+              gmailDraftCreation: {
+                draftId: 'gmail-draft-camel',
+                threadId: 'gmail-thread-camel',
+                messageId: 'gmail-message-camel',
+                connectedAs: 'vambah@amadutown.com',
+                requiredSender: 'vambah@amadutown.com',
+                idempotencyKey: 'warm-outreach:gmail-draft:v1:queue-camel-draft:42:email',
+                externalSendBlocked: true,
+              },
+            },
+          },
+        ],
+      },
+    })
+    const rollout = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
+      ?.emailSendLifecycle?.realRecipientRolloutReadiness
+
+    expect(rollout).toMatchObject({
+      state: 'ready_for_send_request',
+      canBuildSlackApprovalPayload: true,
+      requirements: {
+        draftEvidence: {
+          state: 'tracked',
+          draftId: 'gmail-draft-camel',
+          threadId: 'gmail-thread-camel',
+          messageId: 'gmail-message-camel',
+        },
+        senderMatch: {
+          state: 'matched',
+        },
+      },
+    })
+  })
+
   it('surfaces a pending Slack approval request from local Portfolio evidence', () => {
     const base = packet()
     const providerPacket = packet({
@@ -1233,8 +1366,6 @@ describe('warm outreach response monitoring', () => {
               gmail_draft_creation: {
                 draft_id: 'gmail-draft-42',
                 thread_id: 'gmail-thread-42',
-                connected_as: 'vambah@amadutown.com',
-                required_sender: 'vambah@amadutown.com',
               },
             },
           },
@@ -1286,8 +1417,6 @@ describe('warm outreach response monitoring', () => {
               gmail_draft_creation: {
                 draft_id: 'gmail-draft-42',
                 thread_id: 'gmail-thread-42',
-                connected_as: 'vambah@amadutown.com',
-                required_sender: 'vambah@amadutown.com',
               },
               warm_gmail_send_execution: {
                 status: 'sent',
@@ -1424,8 +1553,6 @@ describe('warm outreach response monitoring', () => {
               gmail_draft_creation: {
                 draft_id: 'gmail-draft-42',
                 thread_id: 'gmail-thread-42',
-                connected_as: 'vambah@amadutown.com',
-                required_sender: 'vambah@amadutown.com',
               },
             },
           },
@@ -1443,8 +1570,12 @@ describe('warm outreach response monitoring', () => {
         provider: {
           state: 'missing',
         },
+        senderMatch: {
+          state: 'missing',
+        },
       },
     })
     expect(rollout?.blockers).toContain('Gmail provider configuration or connected profile evidence is missing.')
+    expect(rollout?.blockers).toContain('Tracked Gmail draft sender evidence is missing.')
   })
 })

@@ -19,6 +19,7 @@ type QueueRow = {
   body: string | null
   thread_id: string | null
   message_id: string | null
+  sent_at: string | null
   generation_inputs: Record<string, unknown> | null
   contact_submissions:
     | {
@@ -52,14 +53,25 @@ function record(value: unknown): Record<string, unknown> {
     : {}
 }
 
+function evidence(
+  generationInputs: Record<string, unknown>,
+  snakeKey: string,
+  camelKey: string,
+): Record<string, unknown> {
+  return {
+    ...record(generationInputs[snakeKey]),
+    ...record(generationInputs[camelKey]),
+  }
+}
+
 function stringValue(value: unknown) {
   const text = typeof value === 'string' ? value.trim() : ''
   return text || null
 }
 
 function gmailDraftUrl(generationInputs: Record<string, unknown>) {
-  const draft = record(generationInputs.gmail_draft_creation)
-  const draftId = stringValue(draft.draft_id)
+  const draft = evidence(generationInputs, 'gmail_draft_creation', 'gmailDraftCreation')
+  const draftId = stringValue(draft.draft_id) ?? stringValue(draft.draftId)
   return draftId ? `https://mail.google.com/mail/u/0/#drafts/${encodeURIComponent(draftId)}` : null
 }
 
@@ -75,12 +87,47 @@ function blockedBoundary() {
 }
 
 function existingAuthorization(generationInputs: Record<string, unknown>) {
-  const authorization = record(generationInputs.warm_gmail_send_authorization)
+  const authorization = evidence(
+    generationInputs,
+    'warm_gmail_send_authorization',
+    'warmGmailSendAuthorization',
+  )
   const status = stringValue(authorization.status)?.toLowerCase()
   if (status === 'approved' || status === 'rejected' || status === 'revision_requested') {
     return status
   }
   return null
+}
+
+function existingApprovalRequest(generationInputs: Record<string, unknown>) {
+  return evidence(
+    generationInputs,
+    'warm_gmail_send_slack_approval_request',
+    'warmGmailSendSlackApprovalRequest',
+  )
+}
+
+function requestDedupeKey(request: Record<string, unknown>) {
+  return (
+    stringValue(request.request_key) ??
+    stringValue(request.requestKey) ??
+    stringValue(request.payload_dedupe_key) ??
+    stringValue(request.payloadDedupeKey)
+  )
+}
+
+function requestTimestamp(request: Record<string, unknown>) {
+  return stringValue(request.requested_at) ?? stringValue(request.requestedAt)
+}
+
+function approvalRequestHistory(generationInputs: Record<string, unknown>) {
+  if (Array.isArray(generationInputs.warm_gmail_send_slack_approval_request_history)) {
+    return generationInputs.warm_gmail_send_slack_approval_request_history
+  }
+  if (Array.isArray(generationInputs.warmGmailSendSlackApprovalRequestHistory)) {
+    return generationInputs.warmGmailSendSlackApprovalRequestHistory
+  }
+  return []
 }
 
 function existingSubmittedEvidence(
@@ -91,8 +138,15 @@ function existingSubmittedEvidence(
   if (queueStatus === 'sent' || queueStatus === 'submitted' || queueStatus === 'delivered') {
     return queueStatus
   }
+  if (stringValue(item.sent_at)) {
+    return 'sent_at'
+  }
 
-  const execution = record(generationInputs.warm_gmail_send_execution)
+  const execution = evidence(
+    generationInputs,
+    'warm_gmail_send_execution',
+    'warmGmailSendExecution',
+  )
   const executionStatus = stringValue(execution.status)?.toLowerCase()
   if (
     executionStatus === 'sent' ||
@@ -102,7 +156,12 @@ function existingSubmittedEvidence(
   ) {
     return executionStatus
   }
-  if (execution.gmail_send_called === true || execution.external_send_performed === true) {
+  if (
+    execution.gmail_send_called === true ||
+    execution.gmailSendCalled === true ||
+    execution.external_send_performed === true ||
+    execution.externalSendPerformed === true
+  ) {
     return 'external_send_evidence'
   }
   return null
@@ -140,6 +199,7 @@ export async function POST(
       body,
       thread_id,
       message_id,
+      sent_at,
       generation_inputs,
       contact_submissions (
         id,
@@ -248,8 +308,9 @@ export async function POST(
     lifecycle,
   })
   const now = new Date().toISOString()
-  const existingRequest = record(generationInputs.warm_gmail_send_slack_approval_request)
-  const requestAlreadyRecorded = existingRequest.request_key === card.dedupeKey
+  const existingRequest = existingApprovalRequest(generationInputs)
+  const requestAlreadyRecorded = requestDedupeKey(existingRequest) === card.dedupeKey
+  const existingRequestedAt = requestTimestamp(existingRequest)
   const approvalRequest = {
     version: 'warm-outreach-slack-gmail-send-approval-request/v1',
     status: requestAlreadyRecorded && stringValue(existingRequest.status)
@@ -265,8 +326,8 @@ export async function POST(
     action_ids: ['warm_gmail_send.approve', 'warm_gmail_send.reject', 'warm_gmail_send.revise'],
     slack_dispatch_enabled: false,
     slack_dispatch_status: 'not_sent',
-    requested_at: requestAlreadyRecorded && stringValue(existingRequest.requested_at)
-      ? existingRequest.requested_at
+    requested_at: requestAlreadyRecorded && existingRequestedAt
+      ? existingRequestedAt
       : now,
     last_payload_built_at: now,
     records_authorization_intent_only: true,
@@ -274,9 +335,7 @@ export async function POST(
     external_send_performed: false,
     provider_execution_enabled: false,
   }
-  const requestHistory = Array.isArray(generationInputs.warm_gmail_send_slack_approval_request_history)
-    ? generationInputs.warm_gmail_send_slack_approval_request_history
-    : []
+  const requestHistory = approvalRequestHistory(generationInputs)
   const { error: requestError } = await supabaseAdmin
     .from('outreach_queue')
     .update({

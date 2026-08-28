@@ -415,14 +415,14 @@ describe('OutreachAdminPage deep links', () => {
     expect(within(workroom).getByText('Selected outreach workroom')).toBeInTheDocument()
     expect(await within(workroom).findByText('Ready for one-step send approval request')).toBeInTheDocument()
 
-    const button = within(workroom).getByRole('button', { name: 'Build Slack approval card' })
+    const button = within(workroom).getByRole('button', { name: 'Request send approval' })
     expect(button).toBeEnabled()
     fireEvent.click(button)
 
     expect(await within(workroom).findByText(
       `QA local Slack approval request recorded for ${WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID}. Slack dispatch off. Gmail send off. Provider calls off.`,
     )).toBeInTheDocument()
-    expect(within(workroom).getByText('Slack approval: pending. Slack dispatch: not sent.')).toBeInTheDocument()
+    expect(within(workroom).getByText('Approval request: pending. Slack dispatch: not sent.')).toBeInTheDocument()
     expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/slack-send-approval'))).toBe(false)
     expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/api/admin/outreach/leads/42/relationship-packet'))).toBe(false)
   })
