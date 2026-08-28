@@ -577,6 +577,61 @@ export type WarmOutreachResponseMonitoring = {
     requiresHumanApproval: true
     idempotencyKey: string
   }
+  providerCaptureReadiness: {
+    version: 'warm-outreach-provider-response-capture-readiness/v1'
+    state: 'manual_capture_ready' | 'provider_assisted_readiness' | 'blocked'
+    label: string
+    responseCaptureKey: string
+    supportedClassifications: Array<{
+      key:
+        | 'interested'
+        | 'question'
+        | 'referral'
+        | 'objection'
+        | 'not_now'
+        | 'unsubscribe_do_not_contact'
+        | 'negative_sensitive'
+        | 'ambiguous'
+      label: string
+      humanReviewRequired: true
+    }>
+    providers: Array<{
+      provider: 'gmail' | 'linkedin' | 'facebook' | 'phone_contact'
+      channel: WarmOutreachChannel
+      state: 'readiness_metadata_only' | 'manual_capture_only' | 'blocked_provider_gate'
+      label: string
+      detail: string
+      manualCaptureEnabled: boolean
+      providerIngestionEnabled: false
+      providerPollingEnabled: false
+      externalMonitoringEnabled: false
+      externalActionEnabled: false
+    }>
+    slackAlertReadiness: {
+      state: 'metadata_deeplink_only'
+      label: string
+      deepLinkReady: boolean
+      dispatchEnabled: false
+      slackActionEnabled: false
+      route: '/admin/contacts/[id]'
+      detail: string
+    }
+  }
+  operatorDecisionPaths: Array<{
+    key:
+      | 'capture_response'
+      | 'review_reply_draft'
+      | 'suppression_proposal'
+      | 'interested_task'
+      | 'next_touch_timing'
+      | 'slack_alert_metadata'
+    label: string
+    state: 'available' | 'pending_human_qa' | 'blocked' | 'readiness_only'
+    description: string
+    requiresHumanApproval: true
+    externalActionEnabled: false
+    idempotencyKey: string
+  }>
   blockedReasons: string[]
   auditNotes: string[]
   sendReadiness: WarmOutreachSendReadiness
@@ -734,6 +789,189 @@ function taskEvidence(row: PortfolioRow) {
     summary: `${title} (${status}).`,
     evidenceType: 'local_follow_up' as const,
   }
+}
+
+function supportedResponseClassifications(): WarmOutreachResponseMonitoring['providerCaptureReadiness']['supportedClassifications'] {
+  return [
+    ['interested', 'Interested'],
+    ['question', 'Question'],
+    ['referral', 'Referral'],
+    ['objection', 'Objection'],
+    ['not_now', 'Not now'],
+    ['unsubscribe_do_not_contact', 'Unsubscribe / do not contact'],
+    ['negative_sensitive', 'Negative / sensitive'],
+    ['ambiguous', 'Ambiguous'],
+  ].map(([key, label]) => ({
+    key: key as WarmOutreachResponseMonitoring['providerCaptureReadiness']['supportedClassifications'][number]['key'],
+    label,
+    humanReviewRequired: true,
+  }))
+}
+
+function buildProviderCaptureReadiness(args: {
+  contactId: number
+  packet: WarmOutreachRelationshipPacket
+  status: WarmOutreachResponseMonitoringStatus
+  blockedReasons: string[]
+  latestOutboundAt: string | null
+  latestResponseAt: string | null
+}): WarmOutreachResponseMonitoring['providerCaptureReadiness'] {
+  const responseCaptureKey = `warm-outreach:response-capture:v1:${stableHash({
+    contactId: args.contactId,
+    latestOutboundAt: args.latestOutboundAt,
+    latestResponseAt: args.latestResponseAt,
+  })}`
+  const providerRows: WarmOutreachResponseMonitoring['providerCaptureReadiness']['providers'] = [
+    ['gmail', 'email'],
+    ['linkedin', 'linkedin'],
+    ['facebook', 'facebook'],
+    ['phone_contact', 'phone_contact'],
+  ].map(([provider, channel]) => {
+    const typedChannel = channel as WarmOutreachChannel
+    const capability = args.packet.channelCapabilities[typedChannel]
+    const manualOnly = capability?.manualOnly || typedChannel === 'facebook' || typedChannel === 'phone_contact'
+    const providerConfigured = capability?.providerConfigured === true && !manualOnly
+    const state =
+      args.blockedReasons.length > 0
+        ? 'blocked_provider_gate'
+        : providerConfigured
+          ? 'readiness_metadata_only'
+          : manualOnly
+            ? 'manual_capture_only'
+            : 'blocked_provider_gate'
+    const label =
+      state === 'readiness_metadata_only'
+        ? `${CHANNEL_LABELS[typedChannel]} metadata ready`
+      : state === 'manual_capture_only'
+          ? typedChannel === 'phone_contact'
+            ? 'Phone manual capture only'
+            : typedChannel === 'facebook'
+              ? 'Facebook manual capture only'
+              : `${CHANNEL_LABELS[typedChannel]} manual capture only`
+          : `${CHANNEL_LABELS[typedChannel]} provider gate blocked`
+
+    return {
+      provider: provider as WarmOutreachResponseMonitoring['providerCaptureReadiness']['providers'][number]['provider'],
+      channel: typedChannel,
+      state,
+      label,
+      detail:
+        state === 'readiness_metadata_only'
+          ? 'Provider identifiers may be stored on a manually reviewed capture, but provider polling and import jobs remain disabled.'
+          : state === 'manual_capture_only'
+            ? 'Capture the response manually in Portfolio and link it to the contact or outreach queue row.'
+            : args.blockedReasons[0] ?? capability?.reason ?? 'A provider capability gate must clear before provider-assisted response capture can be represented.',
+      manualCaptureEnabled: args.blockedReasons.length === 0,
+      providerIngestionEnabled: false,
+      providerPollingEnabled: false,
+      externalMonitoringEnabled: false,
+      externalActionEnabled: false,
+    }
+  })
+  const hasProviderReadiness = providerRows.some((provider) => provider.state === 'readiness_metadata_only')
+  const state: WarmOutreachResponseMonitoring['providerCaptureReadiness']['state'] =
+    args.blockedReasons.length > 0
+      ? 'blocked'
+      : hasProviderReadiness
+        ? 'provider_assisted_readiness'
+        : 'manual_capture_ready'
+
+  return {
+    version: 'warm-outreach-provider-response-capture-readiness/v1',
+    state,
+    label:
+      state === 'blocked'
+        ? 'Response capture blocked by contact readiness'
+        : state === 'provider_assisted_readiness'
+          ? 'Provider-assisted metadata ready; polling disabled'
+          : 'Manual response capture ready',
+    responseCaptureKey,
+    supportedClassifications: supportedResponseClassifications(),
+    providers: providerRows,
+    slackAlertReadiness: {
+      state: 'metadata_deeplink_only',
+      label: 'Slack alert metadata only',
+      deepLinkReady: true,
+      dispatchEnabled: false,
+      slackActionEnabled: false,
+      route: '/admin/contacts/[id]',
+      detail:
+        'Response alerts may store a Portfolio contact deep link for later review, but this surface does not post Slack messages.',
+    },
+  }
+}
+
+function buildOperatorDecisionPaths(args: {
+  contactId: number
+  status: WarmOutreachResponseMonitoringStatus
+  hasResponse: boolean
+  blockedReasons: string[]
+  latestResponseAt: string | null
+  proposedFollowUp: WarmOutreachResponseMonitoring['proposedFollowUp']
+  providerCaptureReadiness: WarmOutreachResponseMonitoring['providerCaptureReadiness']
+}): WarmOutreachResponseMonitoring['operatorDecisionPaths'] {
+  const baseKey = {
+    contactId: args.contactId,
+    status: args.status,
+    latestResponseAt: args.latestResponseAt,
+    responseCaptureKey: args.providerCaptureReadiness.responseCaptureKey,
+  }
+  const blocked = args.blockedReasons.length > 0
+  const paths: Array<Omit<
+    WarmOutreachResponseMonitoring['operatorDecisionPaths'][number],
+    'requiresHumanApproval' | 'externalActionEnabled' | 'idempotencyKey'
+  >> = [
+    {
+      key: 'capture_response',
+      label: 'Capture response',
+      state: blocked ? 'blocked' : 'available',
+      description: blocked
+        ? args.blockedReasons[0]
+        : 'Record a manual or provider-assisted response as Portfolio contact communication evidence.',
+    },
+    {
+      key: 'review_reply_draft',
+      label: 'Review reply draft',
+      state: args.hasResponse ? 'pending_human_qa' as const : 'readiness_only' as const,
+      description: args.hasResponse
+        ? 'Review, revise, approve, or reject the local draft reply before any outbound channel is used.'
+        : 'A local draft decision becomes available after response evidence is captured.',
+    },
+    {
+      key: 'suppression_proposal',
+      label: 'Suppression proposal',
+      state: blocked || args.hasResponse ? 'pending_human_qa' as const : 'readiness_only' as const,
+      description:
+        'Unsubscribe or do-not-contact replies create a human-gated suppression proposal; this path does not mutate suppression directly.',
+    },
+    {
+      key: 'interested_task',
+      label: 'Interested task path',
+      state: args.hasResponse ? 'pending_human_qa' as const : 'readiness_only' as const,
+      description:
+        'Interested or sales-intent replies can create a local outreach task for the next decision; no provider execution is enabled.',
+    },
+    {
+      key: 'next_touch_timing',
+      label: 'Next-touch timing',
+      state: args.status === 'stale_no_response' || args.hasResponse ? 'pending_human_qa' : 'readiness_only',
+      description: args.proposedFollowUp.description,
+    },
+    {
+      key: 'slack_alert_metadata',
+      label: 'Slack alert metadata',
+      state: 'readiness_only' as const,
+      description:
+        'A future alert may deep-link to this contact workroom, but Slack dispatch and Slack actions stay disabled.',
+    },
+  ]
+
+  return paths.map((path) => ({
+    ...path,
+    requiresHumanApproval: true as const,
+    externalActionEnabled: false as const,
+    idempotencyKey: `warm-outreach:operator-decision:v1:${path.key}:${stableHash(baseKey)}`,
+  }))
 }
 
 function weakRelationshipBasis(packet: WarmOutreachRelationshipPacket): boolean {
@@ -2617,6 +2855,23 @@ export function buildWarmOutreachResponseMonitoring(args: {
               requiresHumanApproval: true as const,
               idempotencyKey: `warm-outreach:monitoring-follow-up:v1:${stableHash({ contactId: args.contactId, status, latestOutboundAt })}`,
             }
+  const providerCaptureReadiness = buildProviderCaptureReadiness({
+    contactId: args.contactId,
+    packet: args.packet,
+    status,
+    blockedReasons,
+    latestOutboundAt,
+    latestResponseAt,
+  })
+  const operatorDecisionPaths = buildOperatorDecisionPaths({
+    contactId: args.contactId,
+    status,
+    hasResponse,
+    blockedReasons,
+    latestResponseAt,
+    proposedFollowUp,
+    providerCaptureReadiness,
+  })
 
   return {
     version: 'warm-outreach-response-monitoring/v1',
@@ -2635,6 +2890,8 @@ export function buildWarmOutreachResponseMonitoring(args: {
     })}`,
     evidence,
     proposedFollowUp,
+    providerCaptureReadiness,
+    operatorDecisionPaths,
     blockedReasons,
     auditNotes: [
       'Monitoring is derived from local Portfolio rows only.',
