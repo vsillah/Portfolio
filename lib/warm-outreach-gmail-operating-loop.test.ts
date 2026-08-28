@@ -108,6 +108,17 @@ describe('warm Gmail operating loop', () => {
         exactLiveSendAuthorization:
           'execute_warm_gmail_send_for_authorized_recipient',
       },
+      executionGate: {
+        state: 'live_execution_eligible',
+        label: 'Live execution eligible',
+        liveSendEligible: true,
+        liveSendActionEnabledOnThisSurface: false,
+      },
+    })
+    expect(loop.executionGate.requiredEvidence).toMatchObject({
+      messageVersionKey: 'warm-outreach:email-message-version:v1:42',
+      sendQueueIdempotencyKey: 'warm-outreach:email-send-queue:v1:42',
+      submittedEvidenceKey: 'warm-outreach:email-submitted-evidence:v1:42',
     })
   })
 
@@ -137,6 +148,11 @@ describe('warm Gmail operating loop', () => {
         attachedToSameOutreachItem: true,
         livePollingEnabled: false,
         liveProviderImportEnabled: false,
+      },
+      executionGate: {
+        state: 'response_monitoring',
+        label: 'Response monitoring active',
+        liveSendEligible: false,
       },
     })
     expect(loop.nextAction.recovery).toContain('preserve the existing send')

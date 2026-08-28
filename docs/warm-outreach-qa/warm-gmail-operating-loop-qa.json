@@ -1,9 +1,9 @@
 {
   "version": "warm-gmail-operating-loop-qa/v1",
-  "generatedAt": "2026-08-28T22:28:09.717Z",
+  "generatedAt": "2026-08-28T23:20:17.453Z",
   "routes": {
-    "outreachUrl": "http://127.0.0.1:3064/admin/outreach?tab=leads&filter=warm&id=42&contactId=42&queueId=qa-warm-slack-send-approval-queue-42&qa=warm-slack-send-approval#warm-gmail-operating-loop",
-    "contactUrl": "http://127.0.0.1:3064/admin/contacts/42?qa=warm-slack-send-approval#warm-response-lifecycle"
+    "outreachUrl": "http://127.0.0.1:3128/admin/outreach?tab=leads&filter=warm&id=42&contactId=42&queueId=qa-warm-slack-send-approval-queue-42&qa=warm-slack-send-approval#warm-gmail-operating-loop",
+    "contactUrl": "http://127.0.0.1:3128/admin/contacts/42?qa=warm-slack-send-approval#warm-response-lifecycle"
   },
   "fixture": "warm-slack-send-approval",
   "syntheticContactId": 42,
@@ -15,7 +15,7 @@
         "width": 360,
         "height": 800
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/b5eb/Portfolio/docs/warm-outreach-qa/warm-gmail-operating-loop-mobile-360.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/4c1f/Portfolio/docs/warm-outreach-qa/warm-gmail-operating-loop-mobile-360.png",
       "overflow": {
         "clientWidth": 360,
         "scrollWidth": 360
@@ -29,7 +29,7 @@
         "width": 390,
         "height": 844
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/b5eb/Portfolio/docs/warm-outreach-qa/warm-gmail-operating-loop-mobile-390.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/4c1f/Portfolio/docs/warm-outreach-qa/warm-gmail-operating-loop-mobile-390.png",
       "overflow": {
         "clientWidth": 390,
         "scrollWidth": 390
@@ -43,7 +43,7 @@
         "width": 430,
         "height": 932
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/b5eb/Portfolio/docs/warm-outreach-qa/warm-gmail-operating-loop-mobile-430.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/4c1f/Portfolio/docs/warm-outreach-qa/warm-gmail-operating-loop-mobile-430.png",
       "overflow": {
         "clientWidth": 430,
         "scrollWidth": 430
@@ -57,7 +57,7 @@
         "width": 768,
         "height": 1024
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/b5eb/Portfolio/docs/warm-outreach-qa/warm-gmail-operating-loop-tablet-768.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/4c1f/Portfolio/docs/warm-outreach-qa/warm-gmail-operating-loop-tablet-768.png",
       "overflow": {
         "clientWidth": 768,
         "scrollWidth": 768
@@ -71,7 +71,7 @@
         "width": 1440,
         "height": 1000
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/b5eb/Portfolio/docs/warm-outreach-qa/warm-gmail-operating-loop-desktop-1440.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/4c1f/Portfolio/docs/warm-outreach-qa/warm-gmail-operating-loop-desktop-1440.png",
       "overflow": {
         "clientWidth": 1440,
         "scrollWidth": 1440
@@ -89,5 +89,5 @@
     "responsePollingEnabled": false,
     "providerReads": false
   },
-  "videoPath": "/Users/vambahsillah/.codex/worktrees/b5eb/Portfolio/docs/warm-outreach-qa/warm-gmail-operating-loop.mp4"
+  "videoPath": "/Users/vambahsillah/.codex/worktrees/4c1f/Portfolio/docs/warm-outreach-qa/warm-gmail-operating-loop.mp4"
 }
