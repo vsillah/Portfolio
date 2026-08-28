@@ -240,6 +240,47 @@ const realRecipientRolloutReadiness = {
   },
 }
 
+const gmailProviderExecutionReadiness = {
+  version: 'warm-outreach-gmail-provider-execution-readiness/v1',
+  state: 'approval_needed',
+  label: 'One-recipient approval needed',
+  liveExecutionEnabled: false,
+  providerCallsEnabled: false,
+  externalSendEnabled: false,
+  adminActivationGate: {
+    key: 'ENABLE_WARM_GMAIL_SEND_EXECUTION',
+    state: 'disabled',
+    detail:
+      'The relationship packet and workroom never enable Gmail execution. If production execution is required, this admin/provider gate must be intentionally enabled outside the operator review surface and then disabled again after the exact one-recipient run.',
+  },
+  operatorDecision: {
+    status: 'not_sent',
+    nextAction:
+      'Review the recipient, relationship context, and draft, then approve, reject, or request revision from Portfolio or Slack.',
+    approvalRoute: '/api/admin/outreach/[id]/slack-send-approval',
+    recordsAuthorizationIntentOnly: true,
+  },
+  exactExecutionGate: {
+    route: '/api/admin/outreach/[id]/gmail-user-send',
+    method: 'POST',
+    enabledOnThisSurface: false,
+    sendAuthorization: 'execute_warm_gmail_send_for_authorized_recipient',
+    messageVersionKey: WARM_SLACK_SEND_APPROVAL_QA_MESSAGE_VERSION_KEY,
+    sendQueueIdempotencyKey: 'warm-outreach:email-send-queue:v1:qa-warm-slack-send-approval',
+    submittedEvidenceKey: 'warm-outreach:email-submitted-evidence:v1:qa-warm-slack-send-approval',
+    detail:
+      'The execution route still requires exact per-recipient request keys, approved Portfolio authorization, draft evidence, sender match, suppression clearance, idempotency checks, and the admin activation gate.',
+  },
+  canaryTrace: {
+    queueId: WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID,
+    status: 'approval_needed',
+    sentEvidenceRecorded: false,
+    gmailMessageId: null,
+    gmailThreadId: null,
+    detail: 'No prior execution evidence is recorded for this contact, channel, and message version.',
+  },
+}
+
 const emailLifecycle = {
   version: 'warm-outreach-email-send-lifecycle/v1',
   contactId: WARM_SLACK_SEND_APPROVAL_QA_CONTACT_ID,
@@ -449,6 +490,7 @@ const emailLifecycle = {
     },
   },
   realRecipientRolloutReadiness,
+  gmailProviderExecutionReadiness,
   duplicatePrevention: {
     scope: 'contact_channel_message_version',
     duplicateDetected: true,

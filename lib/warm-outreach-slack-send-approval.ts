@@ -147,7 +147,7 @@ export function buildWarmGmailSendApprovalSlackPayload(
     sendQueueIdempotencyKey: input.lifecycle.sendQueueIdempotencyKey,
   }
   const warning =
-    'Approve Send records explicit external-send authorization in Portfolio for this recipient and message version. Gmail send execution remains disabled in this phase.'
+    'Review the recipient, message, and context, then approve, reject, or request revision. Portfolio records the decision for this recipient and message version; Gmail send execution remains disabled in this phase.'
   const text = `Warm Gmail send approval needed: ${input.recipientLabel}`
   const fields = [
     `*Recipient:*\n${input.recipientLabel}${input.recipientEmail ? ` <${input.recipientEmail}>` : ''}`,
@@ -328,7 +328,13 @@ export async function decideWarmGmailSendAuthorizationFromSlack(input: {
     provider_execution_enabled: false,
     gmail_send_called: false,
     external_send_performed: false,
-    send_execution_gate: 'disabled_until_separate_send_execution_pr',
+      send_execution_gate: 'disabled_until_separate_send_execution_pr',
+      provider_activation_gate: {
+        key: 'ENABLE_WARM_GMAIL_SEND_EXECUTION',
+        state: 'disabled',
+        detail:
+          'Provider execution is an admin readiness gate. Slack approval records operator intent only and does not enable Gmail send execution.',
+      },
   }
   const history = Array.isArray(generationInputs.warm_gmail_send_authorization_history)
     ? generationInputs.warm_gmail_send_authorization_history
@@ -362,6 +368,6 @@ export async function decideWarmGmailSendAuthorizationFromSlack(input: {
   }
 
   return input.status === 'approved'
-    ? 'Warm Gmail send approval intent recorded in Portfolio. Gmail send execution remains disabled and no email was sent.'
-    : `Warm Gmail send ${decisionLabel(input.status)} in Portfolio. Gmail send execution remains disabled and no email was sent.`
+    ? 'Warm Gmail send approved in Portfolio for this recipient and message version. Gmail send execution remains disabled until the separate provider activation and exact execution gate.'
+    : `Warm Gmail send ${decisionLabel(input.status)} in Portfolio for this recipient and message version. Gmail send execution remains disabled and no email was sent.`
 }

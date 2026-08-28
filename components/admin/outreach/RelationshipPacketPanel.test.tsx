@@ -377,6 +377,44 @@ function sendReadiness(
             captainFlagRequiredForExecution: true,
           },
         },
+        gmailProviderExecutionReadiness: {
+          version: 'warm-outreach-gmail-provider-execution-readiness/v1',
+          state: 'blocked',
+          label: 'Execution blocked',
+          liveExecutionEnabled: false,
+          providerCallsEnabled: false,
+          externalSendEnabled: false,
+          adminActivationGate: {
+            key: 'ENABLE_WARM_GMAIL_SEND_EXECUTION',
+            state: 'disabled',
+            detail:
+              'The relationship packet and workroom never enable Gmail execution.',
+          },
+          operatorDecision: {
+            status: 'not_sent',
+            nextAction: 'Review the recipient, context, and draft before any approval.',
+            approvalRoute: '/api/admin/outreach/[id]/slack-send-approval',
+            recordsAuthorizationIntentOnly: true,
+          },
+          exactExecutionGate: {
+            route: '/api/admin/outreach/[id]/gmail-user-send',
+            method: 'POST',
+            enabledOnThisSurface: false,
+            sendAuthorization: 'execute_warm_gmail_send_for_authorized_recipient',
+            messageVersionKey: `warm-outreach:email-message-version:v1:${mode}`,
+            sendQueueIdempotencyKey: `warm-outreach:email-send-queue:v1:${mode}`,
+            submittedEvidenceKey: `warm-outreach:email-submitted-evidence:v1:${mode}`,
+            detail: 'Exact execution remains separately gated.',
+          },
+          canaryTrace: {
+            queueId: null,
+            status: 'blocked',
+            sentEvidenceRecorded: false,
+            gmailMessageId: null,
+            gmailThreadId: null,
+            detail: 'No Gmail execution evidence is recorded.',
+          },
+        },
         duplicatePrevention: {
           scope: 'contact_channel_message_version',
           duplicateDetected: false,
@@ -770,7 +808,9 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Recipient approval: required')).toBeInTheDocument()
     expect(screen.getByText('Draft evidence: missing')).toBeInTheDocument()
     expect(screen.getByText('External send: blocked')).toBeInTheDocument()
-    expect(screen.getByText(/Send key: warm-outreach:email-send-queue:v1:/)).toBeInTheDocument()
+    expect(screen.getAllByText(/Send key: warm-outreach:email-send-queue:v1:/).length).toBeGreaterThan(0)
+    expect(screen.getByText('Provider execution readiness')).toBeInTheDocument()
+    expect(screen.getByText('Activation gate: ENABLE_WARM_GMAIL_SEND_EXECUTION is disabled.')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Check send authority' }))
     expect(screen.getByText(/explicit per-recipient external-send authority after readiness review/i)).toBeInTheDocument()
     expect(screen.getByText('Gmail draft creation availability')).toBeInTheDocument()

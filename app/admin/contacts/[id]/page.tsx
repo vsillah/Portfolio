@@ -11,6 +11,10 @@ import RelationshipPacketPanel, {
   type GmailDraftCanaryResult,
   type RelationshipPacketApiResponse,
 } from '@/components/admin/outreach/RelationshipPacketPanel'
+import {
+  warmSlackSendApprovalQaLead,
+  warmSlackSendApprovalQaRelationshipPacket,
+} from '@/components/admin/outreach/warmSlackSendApprovalQaFixture'
 import { getCurrentSession } from '@/lib/auth'
 import { EMAIL_TEMPLATE_KEYS, PROMPT_DISPLAY_NAMES, type EmailTemplateKey } from '@/lib/constants/prompt-keys'
 import {
@@ -242,6 +246,7 @@ function ContactDetailPage() {
   const { id } = useParams<{ id: string }>()
   const searchParams = useSearchParams()
   const backUrl = getBackUrl(searchParams, '/admin/outreach')
+  const warmSlackSendApprovalQaMode = searchParams?.get('qa') === 'warm-slack-send-approval'
   const [data, setData] = useState<ContactData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -307,6 +312,50 @@ function ContactDetailPage() {
     setLoading(true)
     setError(null)
     try {
+      if (warmSlackSendApprovalQaMode) {
+        const draft = warmSlackSendApprovalQaLead.recent_email_drafts[0]
+        setData({
+          contact: {
+            id: warmSlackSendApprovalQaLead.id,
+            name: warmSlackSendApprovalQaLead.name,
+            email: warmSlackSendApprovalQaLead.email,
+            company: warmSlackSendApprovalQaLead.company,
+            industry: warmSlackSendApprovalQaLead.industry,
+            lead_source: warmSlackSendApprovalQaLead.lead_source,
+            lead_score: warmSlackSendApprovalQaLead.lead_score,
+            outreach_status: warmSlackSendApprovalQaLead.outreach_status,
+            created_at: warmSlackSendApprovalQaLead.created_at,
+            employee_count: null,
+          },
+          gammaReports: [],
+          videos: [],
+          valueReports: [],
+          audits: [],
+          outreach: draft
+            ? [{
+                id: draft.id,
+                channel: 'email',
+                subject: draft.subject,
+                status: draft.status,
+                created_at: draft.created_at,
+              }]
+            : [],
+          deliveries: [],
+          communications: [],
+          dashboardAccess: null,
+          salesSessions: [],
+          timeline: [{
+            type: 'outreach',
+            date: warmSlackSendApprovalQaLead.created_at,
+            title: 'Warm Gmail approval packet prepared',
+            detail: 'QA fixture with tracked draft evidence and provider activation still fail-closed.',
+            id: draft?.id,
+          }],
+          suggestedTemplate: 'email_asset_delivery',
+        })
+        setSelectedAssets([])
+        return
+      }
       const token = await getToken()
       const res = await fetch(`/api/admin/contacts/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -337,7 +386,7 @@ function ContactDetailPage() {
     } finally {
       setLoading(false)
     }
-  }, [id, getToken])
+  }, [id, getToken, warmSlackSendApprovalQaMode])
 
   useEffect(() => { fetchData() }, [fetchData])
 
@@ -345,6 +394,10 @@ function ContactDetailPage() {
     setWarmResponsesLoading(true)
     setWarmResponseError(null)
     try {
+      if (warmSlackSendApprovalQaMode) {
+        setWarmResponses([])
+        return
+      }
       const token = await getToken()
       if (!token) {
         setWarmResponseError('Admin session is required to load warm responses.')
@@ -370,7 +423,7 @@ function ContactDetailPage() {
     } finally {
       setWarmResponsesLoading(false)
     }
-  }, [id, getToken])
+  }, [id, getToken, warmSlackSendApprovalQaMode])
 
   useEffect(() => {
     void fetchWarmResponses()
@@ -383,6 +436,12 @@ function ContactDetailPage() {
     setGmailDraftCanaryError(null)
     setGmailDraftCanaryResult(null)
     setRelationshipPacketLoading(true)
+
+    if (warmSlackSendApprovalQaMode) {
+      setRelationshipPacketData(warmSlackSendApprovalQaRelationshipPacket)
+      setRelationshipPacketLoading(false)
+      return () => { cancelled = true }
+    }
 
     getToken().then((token) => {
       if (cancelled) return
@@ -424,7 +483,7 @@ function ContactDetailPage() {
     })
 
     return () => { cancelled = true }
-  }, [id, getToken])
+  }, [id, getToken, warmSlackSendApprovalQaMode])
 
   const runGmailDraftCanary = useCallback(async () => {
     if (gmailDraftCanaryLoading) return
@@ -707,6 +766,7 @@ function ContactDetailPage() {
             gmailDraftCanaryError={gmailDraftCanaryError}
             gmailDraftCanaryResult={gmailDraftCanaryResult}
             onGmailDraftCanary={runGmailDraftCanary}
+            inertSlackApprovalRequest={warmSlackSendApprovalQaMode}
           />
 
           <div className="bg-gray-900/60 border border-gray-800 rounded-xl overflow-hidden">

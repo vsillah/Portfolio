@@ -868,8 +868,9 @@ describe('warm outreach response monitoring', () => {
         ],
       },
     })
-    const rollout = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
-      ?.emailSendLifecycle?.realRecipientRolloutReadiness
+    const emailLifecycle = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
+      ?.emailSendLifecycle
+    const rollout = emailLifecycle?.realRecipientRolloutReadiness
 
     expect(rollout).toMatchObject({
       version: 'warm-outreach-real-gmail-rollout-readiness/v1',
@@ -935,6 +936,37 @@ describe('warm outreach response monitoring', () => {
       suppressionAndIdempotency: {
         suppressionState: 'clear',
         submittedEvidenceRecorded: false,
+      },
+    })
+    expect(emailLifecycle?.gmailProviderExecutionReadiness).toMatchObject({
+      version: 'warm-outreach-gmail-provider-execution-readiness/v1',
+      state: 'approval_needed',
+      label: 'One-recipient approval needed',
+      liveExecutionEnabled: false,
+      providerCallsEnabled: false,
+      externalSendEnabled: false,
+      adminActivationGate: {
+        key: 'ENABLE_WARM_GMAIL_SEND_EXECUTION',
+        state: 'disabled',
+      },
+      operatorDecision: {
+        status: 'not_sent',
+        approvalRoute: '/api/admin/outreach/[id]/slack-send-approval',
+        recordsAuthorizationIntentOnly: true,
+      },
+      exactExecutionGate: {
+        route: '/api/admin/outreach/[id]/gmail-user-send',
+        method: 'POST',
+        enabledOnThisSurface: false,
+        sendAuthorization: 'execute_warm_gmail_send_for_authorized_recipient',
+        messageVersionKey: expect.stringMatching(/^warm-outreach:email-message-version:v1:/),
+        sendQueueIdempotencyKey: expect.stringMatching(/^warm-outreach:email-send-queue:v1:/),
+        submittedEvidenceKey: expect.stringMatching(/^warm-outreach:email-submitted-evidence:v1:/),
+      },
+      canaryTrace: {
+        queueId: 'queue-ready',
+        status: 'approval_needed',
+        sentEvidenceRecorded: false,
       },
     })
   })
