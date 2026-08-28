@@ -929,7 +929,8 @@ describe('warm outreach response monitoring', () => {
       finalSendAuthority: {
         state: 'awaiting_authorization',
         liveSendActionEnabled: false,
-        nextStep: 'Build the Slack approval card for this exact queue row; Slack records intent only and does not send Gmail.',
+        nextStep:
+          'Request send approval for this exact queue row from the relationship packet; Portfolio records intent only and Gmail send stays disabled.',
       },
       suppressionAndIdempotency: {
         suppressionState: 'clear',

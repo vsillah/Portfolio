@@ -199,7 +199,8 @@ const realRecipientRolloutReadiness = {
       state: 'awaiting_authorization',
       liveSendActionEnabled: false,
       detail: 'Readiness is prepared for an approval request, not Gmail execution.',
-      nextStep: 'Build the Slack approval card for this exact queue row; Slack records intent only and does not send Gmail.',
+      nextStep:
+        'Request send approval for this exact queue row from the relationship packet; Portfolio records intent only and Gmail send stays disabled.',
     },
     lastActionEvidence: {
       status: 'approval_needed',
@@ -220,6 +221,14 @@ const realRecipientRolloutReadiness = {
     recordsAuthorizationIntentOnly: true,
     gmailSendCalled: false,
     providerExecutionEnabled: false,
+    approvalRequestRecovery: {
+      status: 'portfolio_request_available_slack_dispatch_disabled',
+      label: 'Portfolio recovery path',
+      detail:
+        'Slack dispatch is disabled. The relationship packet can still record a local one-recipient approval request without posting to Slack or calling Gmail.',
+      nextAction:
+        'Use Request send approval in this contact workroom, then record approve, reject, or revise before any separate Gmail send execution gate.',
+    },
   },
   executionBoundary: {
     slackDispatch: false,
@@ -606,7 +615,7 @@ export const warmSlackSendApprovalQaRelationshipPacket = {
         email: 'Email is the only first-candidate channel for this QA path.',
       },
     },
-    suggestedNextStep: 'Build the local Slack approval card and verify the pending request state remains send-blocked.',
+    suggestedNextStep: 'Request send approval and verify the pending request state remains send-blocked.',
     avoidContext: ['Do not send Slack.', 'Do not send Gmail.', 'Do not activate providers.'],
     responseMonitoringPlan: {
       enabled: false,
