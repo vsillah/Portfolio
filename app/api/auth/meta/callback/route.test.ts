@@ -152,4 +152,68 @@ describe('GET /api/auth/meta/callback', () => {
       'pages_read_user_content',
     ]))
   })
+
+  it('redirects provider errors without exchanging a token', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+
+    const response = await GET(request('https://amadutown.com/api/auth/meta/callback?error=access_denied&state=state-1'))
+
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location')).toBe('https://amadutown.com/admin/social-content?meta_error=access_denied')
+    expect(fetchSpy).not.toHaveBeenCalled()
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+
+  it('fails closed when the authorization code is missing', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+
+    const response = await GET(request('https://amadutown.com/api/auth/meta/callback?state=state-1'))
+
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location')).toBe('https://amadutown.com/admin/social-content?meta_error=no_code')
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('fails closed when Meta client credentials are missing', async () => {
+    delete process.env.META_CLIENT_ID
+    delete process.env.FACEBOOK_CLIENT_ID
+    delete process.env.META_CLIENT_SECRET
+    delete process.env.FACEBOOK_CLIENT_SECRET
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+
+    const response = await GET(request('https://amadutown.com/api/auth/meta/callback?code=code-1&state=state-1'))
+
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location')).toBe('https://amadutown.com/admin/social-content?meta_error=missing_config')
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('fails closed when token exchange does not return an access token', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: { message: 'Invalid code' } }), { status: 400 }),
+    )
+
+    const response = await GET(request('https://amadutown.com/api/auth/meta/callback?code=code-1&state=state-1'))
+
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location')).toBe('https://amadutown.com/admin/social-content?meta_error=token_exchange_failed')
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(fetchSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('fails closed when no Page access token is available', async () => {
+    mocks.from.mockReturnValueOnce(mockExistingConfigs())
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        access_token: 'user-token',
+        token_type: 'Bearer',
+      }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: [] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: [] }), { status: 200 }))
+
+    const response = await GET(request('https://amadutown.com/api/auth/meta/callback?code=code-1&state=state-1'))
+
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location')).toBe('https://amadutown.com/admin/social-content?meta_error=no_page_token')
+  })
 })
