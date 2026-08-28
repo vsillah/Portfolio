@@ -263,6 +263,57 @@ describe('POST /api/admin/outreach/[id]/slack-send-approval', () => {
     })
   })
 
+  it('dedupes camelCase pending approval requests without appending history', async () => {
+    const requestKey = warmGmailSendApprovalDedupeKey({
+      contactId: 42,
+      outreachQueueId: 'queue-1',
+      channel: 'email',
+      messageVersionKey: MESSAGE_VERSION_KEY,
+    })
+    const existingRequest = {
+      status: 'pending',
+      requestKey,
+      payloadDedupeKey: requestKey,
+      requestedAt: '2026-08-27T12:00:00.000Z',
+    }
+    const { updatePayloads } = mockSupabase(outreachRow({
+      generation_inputs: {
+        gmailDraftCreation: {
+          draftId: 'gmail-draft-1',
+          messageId: 'gmail-message-1',
+          threadId: 'gmail-thread-1',
+          connectedAs: 'vambah@amadutown.com',
+          requiredSender: 'vambah@amadutown.com',
+          externalSendBlocked: true,
+        },
+        warmGmailSendSlackApprovalRequest: existingRequest,
+        warmGmailSendSlackApprovalRequestHistory: [existingRequest],
+      },
+    }))
+
+    const response = await POST(makeRequest(), params())
+
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    expect(body.approvalRequest).toMatchObject({
+      status: 'pending',
+      request_key: requestKey,
+      payload_dedupe_key: requestKey,
+      requested_at: '2026-08-27T12:00:00.000Z',
+      gmail_send_called: false,
+      external_send_performed: false,
+    })
+    expect(updatePayloads[0]).toMatchObject({
+      generation_inputs: {
+        warm_gmail_send_slack_approval_request: expect.objectContaining({
+          request_key: requestKey,
+          requested_at: '2026-08-27T12:00:00.000Z',
+        }),
+        warm_gmail_send_slack_approval_request_history: [existingRequest],
+      },
+    })
+  })
+
   it('refuses to build a Slack approval request while readiness blockers remain', async () => {
     const { update } = mockSupabase()
     mocks.getRelationshipPacket.mockResolvedValue(NextResponse.json(relationshipBody({
