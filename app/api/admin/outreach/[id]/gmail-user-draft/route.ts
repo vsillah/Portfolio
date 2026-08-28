@@ -150,6 +150,12 @@ function duplicateDraftResponse(input: {
       idempotencyKey: input.idempotencyKey,
       noSendStatus: 'no_send',
     },
+    operatingLoopTransition: {
+      state: 'draft_created',
+      nextState: 'send_approval_requested',
+      nextAction: 'request_send_approval',
+      gmailSendCalled: false,
+    },
     externalSendBlocked: true,
     externalSendEnabled: false,
   }

@@ -1,6 +1,7 @@
 'use client'
 
 import type { WarmOutreachChannel } from '@/lib/warm-outreach-relationship-intelligence'
+import { buildWarmGmailOperatingLoop } from '@/lib/warm-outreach-gmail-operating-loop'
 import type { RelationshipPacketApiResponse } from './RelationshipPacketPanel'
 
 export const WARM_SLACK_SEND_APPROVAL_QA_CONTACT_ID = 42
@@ -491,6 +492,24 @@ const emailLifecycle = {
   },
   realRecipientRolloutReadiness,
   gmailProviderExecutionReadiness,
+  gmailOperatingLoop: buildWarmGmailOperatingLoop({
+    contactId: WARM_SLACK_SEND_APPROVAL_QA_CONTACT_ID,
+    queueId: WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID,
+    messageVersionKey: WARM_SLACK_SEND_APPROVAL_QA_MESSAGE_VERSION_KEY,
+    sendQueueIdempotencyKey: 'warm-outreach:email-send-queue:v1:qa-warm-slack-send-approval',
+    submittedEvidenceKey: 'warm-outreach:email-submitted-evidence:v1:qa-warm-slack-send-approval',
+    internalDraftReady: true,
+    draftTracked: true,
+    providerConfigured: true,
+    senderMatched: true,
+    approvalRequestStatus: 'not_sent',
+    authorizationStatus: 'missing',
+    executionState: 'approval_needed',
+    submittedEvidenceRecorded: false,
+    secondaryLogRepairRequired: false,
+    responseMonitoringAttached: false,
+    hardBlockers: [],
+  }),
   duplicatePrevention: {
     scope: 'contact_channel_message_version',
     duplicateDetected: true,

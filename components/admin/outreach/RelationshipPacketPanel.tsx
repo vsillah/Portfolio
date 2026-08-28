@@ -28,6 +28,10 @@ import type {
   WarmOutreachRealRecipientGmailRolloutReadiness,
   WarmOutreachResponseMonitoring,
 } from '@/lib/warm-outreach-response-monitoring'
+import type {
+  WarmGmailOperatingLoop,
+  WarmGmailOperatingLoopState,
+} from '@/lib/warm-outreach-gmail-operating-loop'
 
 type SendReadinessItem =
   WarmOutreachResponseMonitoring['sendReadiness']['modes']['warm_1_to_1'][number]
@@ -295,25 +299,73 @@ function canaryReceiptClasses(state: NonNullable<WarmOutreachRealRecipientGmailR
   return 'border-red-500/25 bg-red-500/10 text-red-50'
 }
 
-function RealRecipientRolloutCard({
+function operatingLoopClasses(loop: WarmGmailOperatingLoop) {
+  if (loop.duplicateSendBlocked) {
+    return 'border-amber-400/35 bg-amber-400/10 text-amber-50'
+  }
+  if (loop.blocked) return 'border-red-500/35 bg-red-500/10 text-red-50'
+  if (loop.state === 'send_authorized') return 'border-sky-400/35 bg-sky-400/10 text-sky-50'
+  if (loop.state === 'response_monitoring') return 'border-emerald-400/35 bg-emerald-400/10 text-emerald-50'
+  return 'border-amber-400/35 bg-amber-400/10 text-amber-50'
+}
+
+function operatingLoopStageClasses(status: WarmGmailOperatingLoop['stages'][number]['status']) {
+  if (status === 'complete') return 'border-emerald-400/30 bg-emerald-400/10 text-emerald-100'
+  if (status === 'current') return 'border-sky-400/35 bg-sky-400/10 text-sky-50'
+  if (status === 'blocked') return 'border-red-400/35 bg-red-400/10 text-red-50'
+  return 'border-silicon-slate bg-background/25 text-muted-foreground'
+}
+
+function localRequestedStages(
+  stages: WarmGmailOperatingLoop['stages'],
+  localState: WarmGmailOperatingLoopState,
+) {
+  const currentIndex = stages.findIndex((stage) => stage.key === localState)
+  return stages.map((stage, index) => ({
+    ...stage,
+    status: index < currentIndex
+      ? 'complete' as const
+      : index === currentIndex
+        ? 'current' as const
+        : 'upcoming' as const,
+  }))
+}
+
+function GmailOperatingLoopCard({
   inertSlackApprovalRequest = false,
-  readiness,
+  loop,
 }: {
   inertSlackApprovalRequest?: boolean
-  readiness?: WarmOutreachRealRecipientGmailRolloutReadiness | null
+  loop: WarmGmailOperatingLoop
 }) {
   const [requestLoading, setRequestLoading] = useState(false)
   const [requestError, setRequestError] = useState<string | null>(null)
   const [requestReceipt, setRequestReceipt] = useState<string | null>(null)
-  const [localApprovalStatus, setLocalApprovalStatus] = useState<
-    WarmOutreachRealRecipientGmailRolloutReadiness['slackApprovalContract']['status'] | null
-  >(null)
-  if (!readiness) return null
+  const [localApprovalRequested, setLocalApprovalRequested] = useState(false)
+  const queueId = loop.queueId
+  const localState: WarmGmailOperatingLoopState = localApprovalRequested
+    ? 'send_approval_requested'
+    : loop.state
+  const stages = localApprovalRequested
+    ? localRequestedStages(loop.stages, localState)
+    : loop.stages
+  const currentLabel = stages.find((stage) => stage.key === localState)?.label ?? loop.label
+  const action = localApprovalRequested
+    ? {
+        ...loop.nextAction,
+        key: 'record_send_decision' as const,
+        label: 'Record approval decision',
+        detail: 'The single review request is recorded. Approve, reject, or request revision before any separate Gmail execution gate.',
+        enabledOnThisSurface: false,
+      }
+    : loop.nextAction
+  const authority = localApprovalRequested
+    ? {
+        ...loop.authority,
+        sendApproval: 'requested' as const,
+      }
+    : loop.authority
 
-  const queueId = readiness.requirements.draftEvidence.sourceIds[0] ?? null
-  const slackStatus = localApprovalStatus ?? readiness.slackApprovalContract.status
-  const canBuildLocalPayload = readiness.canBuildSlackApprovalPayload && Boolean(queueId)
-  const receipt = readiness.auditReceipt
   async function requestSlackPayload() {
     if (!queueId) return
     setRequestLoading(true)
@@ -321,7 +373,7 @@ function RealRecipientRolloutCard({
     setRequestReceipt(null)
     try {
       if (inertSlackApprovalRequest) {
-        setLocalApprovalStatus('pending')
+        setLocalApprovalRequested(true)
         setRequestReceipt(
           `QA local Slack approval request recorded for ${queueId}. Slack dispatch off. Gmail send off. Provider calls off.`,
         )
@@ -338,17 +390,7 @@ function RealRecipientRolloutCard({
         approvalRecovery?: { nextAction?: string }
       }
       if (!response.ok) throw new Error(body.error ?? 'Could not build Slack approval payload.')
-      const status = body.approvalRequest?.status
-      if (
-        status === 'pending' ||
-        status === 'approved' ||
-        status === 'rejected' ||
-        status === 'revision_requested'
-      ) {
-        setLocalApprovalStatus(status)
-      } else {
-        setLocalApprovalStatus('pending')
-      }
+      setLocalApprovalRequested(body.approvalRequest?.status === 'pending')
       setRequestReceipt(
         body.approvalRecovery?.nextAction ??
         'Local send approval request recorded in Portfolio. Slack dispatch off. Gmail send off.',
@@ -360,6 +402,116 @@ function RealRecipientRolloutCard({
     }
   }
 
+  return (
+    <div id="warm-gmail-operating-loop" className={`rounded-md border p-3 ${operatingLoopClasses(loop)}`}>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide">
+            <Mail size={14} aria-hidden />
+            Warm Gmail operating loop
+          </p>
+          <p className="mt-1 text-sm font-semibold">{currentLabel}</p>
+          <p className="mt-1 text-[11px] leading-4 opacity-85">
+            One recipient, one queue row, one message version, one next action.
+          </p>
+        </div>
+        <span className="w-fit shrink-0 rounded-full border border-current/25 px-2 py-0.5 text-[10px] font-semibold">
+          {loop.duplicateSendBlocked
+            ? 'Duplicate send locked'
+            : loop.blocked
+              ? 'Recovery required'
+              : 'Governed'}
+        </span>
+      </div>
+
+      <div className="mt-3 grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+        {stages.map((stage, index) => (
+          <div
+            key={stage.key}
+            className={`min-w-0 rounded-md border px-2 py-1.5 ${operatingLoopStageClasses(stage.status)}`}
+          >
+            <p className="text-[9px] font-semibold uppercase tracking-wide opacity-70">
+              {index + 1} / {stages.length}
+            </p>
+            <p className="mt-0.5 text-[10px] font-semibold leading-4">{stage.label}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-3 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-4">
+        <p className="rounded-md border border-current/20 bg-background/20 p-2">
+          Draft: {authority.draft}
+        </p>
+        <p className="rounded-md border border-current/20 bg-background/20 p-2">
+          Approval: {authority.sendApproval.replace(/_/g, ' ')}
+        </p>
+        <p className="rounded-md border border-current/20 bg-background/20 p-2">
+          Live send: {authority.liveSendExecution.replace(/_/g, ' ')}
+        </p>
+        <p className="rounded-md border border-current/20 bg-background/20 p-2">
+          Responses: {authority.responseImport.replace(/_/g, ' ')}
+        </p>
+      </div>
+
+      <div className="mt-3 rounded-md border border-current/25 bg-background/25 p-2.5">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-wide">One next action</p>
+            <p className="mt-1 text-sm font-semibold">{requestLoading ? 'Requesting approval' : action.label}</p>
+            <p className="mt-1 text-[11px] leading-4 opacity-85">{action.detail}</p>
+          </div>
+          {action.key === 'request_send_approval' && action.enabledOnThisSurface ? (
+            <button
+              type="button"
+              disabled={requestLoading}
+              onClick={() => { void requestSlackPayload() }}
+              className="inline-flex min-h-10 w-full shrink-0 items-center justify-center gap-2 rounded-md border border-sky-400/40 bg-sky-400/10 px-3 text-xs font-semibold text-sky-50 transition-colors hover:bg-sky-400/20 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+            >
+              {requestLoading ? <RefreshCw size={13} className="animate-spin" aria-hidden /> : <MessageSquare size={13} aria-hidden />}
+              {requestLoading ? 'Requesting approval' : 'Request send approval'}
+            </button>
+          ) : (
+            <span className="inline-flex min-h-8 w-fit shrink-0 items-center gap-1.5 rounded-full border border-current/25 px-2 py-1 text-[10px] font-semibold">
+              <LockKeyhole size={12} aria-hidden />
+              {loop.executionBoundary.gmailSendEnabledOnThisSurface ? 'Available' : 'No live execution'}
+            </span>
+          )}
+        </div>
+        <p className="mt-2 text-[10px] leading-4 opacity-80">Recovery: {action.recovery}</p>
+      </div>
+
+      {loop.duplicateSendBlocked && (
+        <p className="mt-2 rounded-md border border-amber-300/35 bg-amber-300/10 p-2 text-[11px] leading-4">
+          Sent evidence already owns this idempotency scope. Review or repair the recorded evidence; never replay the Gmail send.
+        </p>
+      )}
+      {requestError && (
+        <p role="alert" className="mt-2 rounded-md border border-red-500/35 bg-red-500/10 p-2 text-[11px] leading-4 text-red-100">
+          {requestError}
+        </p>
+      )}
+      {requestReceipt && (
+        <p role="status" className="mt-2 rounded-md border border-sky-500/30 bg-sky-500/10 p-2 text-[11px] leading-4 text-sky-100">
+          {requestReceipt}
+        </p>
+      )}
+      <p className="mt-2 text-[10px] leading-4 opacity-75">
+        Slack dispatch: off. Gmail send: off. Response polling: off. “Proceed” is never live-send authority.
+      </p>
+    </div>
+  )
+}
+
+function RealRecipientRolloutCard({
+  readiness,
+}: {
+  readiness?: WarmOutreachRealRecipientGmailRolloutReadiness | null
+}) {
+  if (!readiness) return null
+
+  const slackStatus = readiness.slackApprovalContract.status
+  const receipt = readiness.auditReceipt
+
   const requirements = [
     ['Draft', readiness.requirements.draftEvidence.state],
     ['Sender', readiness.requirements.senderMatch.state],
@@ -369,18 +521,6 @@ function RealRecipientRolloutCard({
     ['Execution', readiness.requirements.execution.state],
     ['Submitted evidence', readiness.requirements.submittedEvidence.state],
   ] as const
-  const requestButtonLabel =
-    requestLoading
-      ? 'Requesting approval'
-      : slackStatus === 'pending'
-        ? 'Refresh approval request'
-        : slackStatus === 'approved'
-          ? 'Approval recorded'
-          : slackStatus === 'rejected'
-            ? 'Approval rejected'
-            : slackStatus === 'revision_requested'
-              ? 'Revision requested'
-              : 'Request send approval'
   const recovery = readiness.slackApprovalContract.approvalRequestRecovery
   const primaryDetail =
     readiness.blockers[0] ??
@@ -518,30 +658,6 @@ function RealRecipientRolloutCard({
           <p className="mt-1">{recovery.detail}</p>
           <p className="mt-1">Next action: {recovery.nextAction}</p>
         </div>
-      )}
-      <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <button
-          type="button"
-          disabled={!canBuildLocalPayload || requestLoading}
-          onClick={() => { void requestSlackPayload() }}
-          className="inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-md border border-sky-500/35 bg-sky-500/10 px-3 text-xs font-semibold text-sky-100 transition-colors hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:border-silicon-slate disabled:bg-silicon-slate/20 disabled:text-muted-foreground sm:w-auto"
-        >
-          <MessageSquare size={13} aria-hidden />
-          {requestButtonLabel}
-        </button>
-        <p className="text-[10px] leading-4 text-current/80">
-          Approval request only; no Slack post or Gmail send runs here.
-        </p>
-      </div>
-      {requestError && (
-        <p role="alert" className="mt-2 rounded-md border border-red-500/35 bg-red-500/10 p-2 text-[11px] leading-4 text-red-100">
-          {requestError}
-        </p>
-      )}
-      {requestReceipt && (
-        <p role="status" className="mt-2 rounded-md border border-sky-500/30 bg-sky-500/10 p-2 text-[11px] leading-4 text-sky-100">
-          {requestReceipt}
-        </p>
       )}
     </div>
   )
@@ -878,7 +994,16 @@ function EmailLifecycleCompact({
     canaryResult?.activationReadiness ?? lifecycle.gmailProviderActivationReadiness
 
   return (
-    <div className="rounded-md border border-amber-500/25 bg-amber-500/10 p-2.5 text-amber-50">
+    <div className="space-y-2">
+      <GmailOperatingLoopCard
+        inertSlackApprovalRequest={inertSlackApprovalRequest}
+        loop={lifecycle.gmailOperatingLoop}
+      />
+      <details className="rounded-md border border-silicon-slate/70 bg-background/25">
+        <summary className="cursor-pointer px-3 py-2 text-xs font-medium text-muted-foreground">
+          Gmail audit and recovery details
+        </summary>
+        <div className="border-t border-silicon-slate/70 bg-amber-500/10 p-2.5 text-amber-50">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide">
@@ -907,10 +1032,7 @@ function EmailLifecycleCompact({
       <p className="mt-2 break-all text-[10px] leading-4 text-amber-100/80">
         Queue key: {lifecycle.sendQueueIdempotencyKey}
       </p>
-      <RealRecipientRolloutCard
-        inertSlackApprovalRequest={inertSlackApprovalRequest}
-        readiness={realRecipientRollout}
-      />
+      <RealRecipientRolloutCard readiness={realRecipientRollout} />
       <div className="mt-2 grid gap-2 md:grid-cols-2">
         <div className={`rounded-md border p-2 ${gmailHandoffClasses(handoff.state)}`}>
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -1035,6 +1157,8 @@ function EmailLifecycleCompact({
           </div>
         )}
       </div>
+        </div>
+      </details>
     </div>
   )
 }
@@ -1313,6 +1437,29 @@ export default function RelationshipPacketPanel({
                 <CountPill label="Evidence" count={responseMonitoring.evidence.length} />
                 <CountPill label="Blocked" count={responseMonitoring.blockedReasons.length} />
               </div>
+              <div className="mt-3">
+                <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
+                  Send authority review
+                </p>
+                <div className="space-y-2">
+                  <EmailLifecycleCompact
+                    item={responseMonitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')}
+                    canaryError={gmailDraftCanaryError}
+                    canaryLoading={gmailDraftCanaryLoading}
+                    canaryResult={gmailDraftCanaryResult}
+                    inertSlackApprovalRequest={inertSlackApprovalRequest}
+                    onRunCanary={onGmailDraftCanary}
+                  />
+                  <SendAuthorityCompactRow
+                    label="Warm one-to-one"
+                    items={responseMonitoring.sendReadiness.modes.warm_1_to_1}
+                  />
+                  <SendAuthorityCompactRow
+                    label="Warm one-to-many"
+                    items={responseMonitoring.sendReadiness.modes.warm_1_to_many}
+                  />
+                </div>
+              </div>
               <div className="mt-3 rounded-md border border-sky-500/25 bg-sky-500/10 p-3 text-sky-50">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
@@ -1386,30 +1533,6 @@ export default function RelationshipPacketPanel({
                   Capture key: {responseMonitoring.providerCaptureReadiness.responseCaptureKey}
                 </p>
               </div>
-              <div className="mt-3">
-                <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
-                  Send authority review
-                </p>
-                <div className="space-y-2">
-                  <EmailLifecycleCompact
-                    item={responseMonitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')}
-                    canaryError={gmailDraftCanaryError}
-                    canaryLoading={gmailDraftCanaryLoading}
-                    canaryResult={gmailDraftCanaryResult}
-                    inertSlackApprovalRequest={inertSlackApprovalRequest}
-                    onRunCanary={onGmailDraftCanary}
-                  />
-                  <SendAuthorityCompactRow
-                    label="Warm one-to-one"
-                    items={responseMonitoring.sendReadiness.modes.warm_1_to_1}
-                  />
-                  <SendAuthorityCompactRow
-                    label="Warm one-to-many"
-                    items={responseMonitoring.sendReadiness.modes.warm_1_to_many}
-                  />
-                </div>
-              </div>
-
               <details className="mt-3 rounded-md border border-silicon-slate/70 bg-background/25">
                 <summary className="cursor-pointer px-3 py-2 text-xs font-medium text-muted-foreground">
                   Monitoring evidence and send gate details

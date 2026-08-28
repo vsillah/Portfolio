@@ -6,6 +6,7 @@ import RelationshipPacketPanel, {
   type RelationshipPacketApiResponse,
 } from './RelationshipPacketPanel'
 import type { WarmOutreachChannel } from '@/lib/warm-outreach-relationship-intelligence'
+import { buildWarmGmailOperatingLoop } from '@/lib/warm-outreach-gmail-operating-loop'
 import type {
   WarmOutreachChannelSendReadiness,
   WarmOutreachEmailSendLifecycle,
@@ -419,6 +420,26 @@ function sendReadiness(
             detail: 'No Gmail execution evidence is recorded.',
           },
         },
+        gmailOperatingLoop: buildWarmGmailOperatingLoop({
+          contactId: 42,
+          queueId: null,
+          messageVersionKey: `warm-outreach:email-message-version:v1:${mode}`,
+          sendQueueIdempotencyKey: `warm-outreach:email-send-queue:v1:${mode}`,
+          submittedEvidenceKey: `warm-outreach:email-submitted-evidence:v1:${mode}`,
+          internalDraftReady: true,
+          draftTracked: false,
+          providerConfigured: false,
+          senderMatched: false,
+          approvalRequestStatus: 'not_sent',
+          authorizationStatus: 'missing',
+          executionState: 'blocked',
+          submittedEvidenceRecorded: false,
+          secondaryLogRepairRequired: false,
+          responseMonitoringAttached: false,
+          hardBlockers: mode === 'warm_1_to_many'
+            ? ['Batch Gmail actions remain per-recipient only. Open one warm contact before continuing.']
+            : [],
+        }),
         duplicatePrevention: {
           scope: 'contact_channel_message_version',
           duplicateDetected: false,
@@ -979,7 +1000,7 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Draft creation: off')).toBeInTheDocument()
     expect(screen.getByText('External send: off')).toBeInTheDocument()
     expect(screen.getByText('Provider monitoring: off')).toBeInTheDocument()
-    expect(screen.getByText('Response monitoring')).toBeInTheDocument()
+    expect(screen.getAllByText('Response monitoring')).not.toHaveLength(0)
     expect(screen.getByText('Review stale no-response follow-up')).toBeInTheDocument()
     expect(screen.getByText('stale no response')).toBeInTheDocument()
     expect(screen.getByText('Response capture readiness')).toBeInTheDocument()
@@ -1048,7 +1069,8 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Approval records intent only. Gmail send: off.')).toBeInTheDocument()
     expect(screen.getByText('Portfolio recovery path')).toBeInTheDocument()
     expect(screen.getByText(/Slack dispatch is disabled/i)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Request send approval' })).toBeDisabled()
+    expect(screen.queryByRole('button', { name: 'Request send approval' })).not.toBeInTheDocument()
+    expect(screen.getByText('Resolve draft blocker')).toBeInTheDocument()
     expect(screen.getByText('Draft packet: ready for review')).toBeInTheDocument()
     expect(screen.getByText('Provider capability smoke: blocked')).toBeInTheDocument()
     expect(screen.getByText(/Queue key: warm-outreach:email-send-queue:v1:/)).toBeInTheDocument()
@@ -1349,6 +1371,18 @@ describe('RelationshipPacketPanel', () => {
     ): RelationshipPacketApiResponse => {
       const emailItem = packetResponse.responseMonitoring!.sendReadiness.modes.warm_1_to_1
         .find((item) => item.channel === 'email')!
+      const authorizationStatus = status === 'approved'
+        ? 'approved' as const
+        : status === 'rejected'
+          ? 'rejected' as const
+          : status === 'revision_requested'
+            ? 'revision_requested' as const
+            : 'missing' as const
+      const executionState = status === 'approved'
+        ? 'approved_for_send' as const
+        : status === 'pending'
+          ? 'approval_requested' as const
+          : 'approval_needed' as const
       return {
         ...packetResponse,
         responseMonitoring: {
@@ -1362,6 +1396,24 @@ describe('RelationshipPacketPanel', () => {
                     ...item,
                     emailSendLifecycle: {
                       ...emailItem.emailSendLifecycle!,
+                      gmailOperatingLoop: buildWarmGmailOperatingLoop({
+                        contactId: 42,
+                        queueId: 'queue-ready',
+                        messageVersionKey: emailItem.emailSendLifecycle!.messageVersionKey,
+                        sendQueueIdempotencyKey: emailItem.emailSendLifecycle!.sendQueueIdempotencyKey,
+                        submittedEvidenceKey: emailItem.emailSendLifecycle!.submittedEvidenceKey,
+                        internalDraftReady: true,
+                        draftTracked: true,
+                        providerConfigured: true,
+                        senderMatched: true,
+                        approvalRequestStatus: status,
+                        authorizationStatus,
+                        executionState,
+                        submittedEvidenceRecorded: false,
+                        secondaryLogRepairRequired: false,
+                        responseMonitoringAttached: false,
+                        hardBlockers: [],
+                      }),
                       realRecipientRolloutReadiness: {
                         ...emailItem.emailSendLifecycle!.realRecipientRolloutReadiness,
                         canBuildSlackApprovalPayload: true,
@@ -1395,7 +1447,10 @@ describe('RelationshipPacketPanel', () => {
     )
 
     expect(screen.getByText('Approval request: pending. Slack dispatch: not sent.')).toBeInTheDocument()
-    expect(screen.getByText('Approval request only; no Slack post or Gmail send runs here.')).toBeInTheDocument()
+    expect(screen.getAllByText('Approval requested')).not.toHaveLength(0)
+    expect(screen.getByText('Approval: requested')).toBeInTheDocument()
+    expect(screen.getByText('Record approval decision')).toBeInTheDocument()
+    expect(screen.getByText(/Slack dispatch: off\. Gmail send: off\. Response polling: off/)).toBeInTheDocument()
 
     for (const status of ['approved', 'rejected', 'revision_requested'] as const) {
       rerender(
@@ -1449,7 +1504,8 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Live import off')).toBeInTheDocument()
     expect(screen.getByText(`Queue: ${WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID}`)).toBeInTheDocument()
     expect(screen.getByText(/Use Request send approval in this contact workroom/)).toBeInTheDocument()
-    expect(screen.getByText('Approval request: pending. Slack dispatch: not sent.')).toBeInTheDocument()
+    expect(screen.getAllByText('Approval requested')).not.toHaveLength(0)
+    expect(screen.getByText('Record approval decision')).toBeInTheDocument()
     expect(fetchMock).not.toHaveBeenCalled()
 
     vi.stubGlobal('fetch', previousFetch)

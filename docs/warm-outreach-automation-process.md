@@ -321,6 +321,7 @@ Operational model:
 - Slack may present the operator decision, but approve/reject/revise must write back to Portfolio and deep-link to the canonical workroom.
 - Gmail provider execution is an admin readiness gate. If `ENABLE_WARM_GMAIL_SEND_EXECUTION` is still required, expose it as disabled/enabled provider state rather than hiding it as a captain-only toggle.
 - The operator workroom may show eligibility and exact execution payload requirements, but it must not expose a broad auto-send action.
+- Generic instructions such as `proceed`, `continue`, `approved`, or `looks good` are not live Gmail send authorization. Execution requires the exact `execute_warm_gmail_send_for_authorized_recipient` value plus the one-recipient request scope.
 - Live execution remains one recipient, one queue row, one message version, and one submitted-evidence key unless a later phase explicitly expands the scope.
 
 ## Safest Next Development Slice
