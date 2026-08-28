@@ -151,6 +151,15 @@ function matchBasisClasses(available: boolean) {
     : 'border-silicon-slate bg-background/30 text-muted-foreground'
 }
 
+function activationGateClasses(state: NonNullable<WarmOutreachResponseMonitoring['gmailResponseImportReadiness']['activationReadiness']>['gateRows'][number]['state']) {
+  if (state === 'ready') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  if (state === 'disabled' || state === 'not_checked') {
+    return 'border-silicon-slate bg-background/30 text-muted-foreground'
+  }
+  if (state === 'missing') return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+  return 'border-red-500/25 bg-red-500/10 text-red-100'
+}
+
 function operatorDecisionClasses(state: WarmOutreachResponseMonitoring['operatorDecisionPaths'][number]['state']) {
   if (state === 'pending_human_qa') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
   if (state === 'available') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
@@ -656,6 +665,7 @@ function GmailResponseImportReadinessCard({
 }) {
   if (!readiness) return null
   const candidate = readiness.latestCandidate
+  const activation = readiness.activationReadiness
 
   return (
     <div className={`mt-2 rounded-md border p-2.5 ${gmailImportClasses(readiness.state)}`}>
@@ -705,6 +715,35 @@ function GmailResponseImportReadinessCard({
           Recovery: {candidate.recoveryPath}
         </p>
       </div>
+      {activation && (
+        <div className="mt-2 rounded-md border border-current/20 bg-background/20 p-2">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-[10px] font-semibold uppercase tracking-wide">
+              Activation readiness: {activation.label}
+            </p>
+            <p className="text-[10px] opacity-80">
+              Mock: {activation.canRunMockImport ? 'ready' : 'blocked'} / live: disabled
+            </p>
+          </div>
+          <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
+            {activation.gateRows.map((row) => (
+              <div
+                key={row.key}
+                className={`rounded-md border p-2 text-[10px] leading-4 ${activationGateClasses(row.state)}`}
+                title={row.detail}
+              >
+                <p className="font-semibold">{row.label}: {row.state.replace(/_/g, ' ')}</p>
+                <p className="mt-0.5 opacity-85">{row.nextAction}</p>
+              </div>
+            ))}
+          </div>
+          {activation.blockedReasons.length > 0 && (
+            <p className="mt-2 rounded-md border border-current/20 bg-background/20 p-2 text-[10px] leading-4">
+              Gate state: {activation.blockedReasons[0]}
+            </p>
+          )}
+        </div>
+      )}
       <details className="mt-2 rounded-md border border-current/20 bg-background/20 p-2">
         <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide">
           Import dedupe keys

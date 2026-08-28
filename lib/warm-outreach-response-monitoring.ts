@@ -5,6 +5,10 @@ import type {
   WarmOutreachReadiness,
   WarmOutreachRelationshipPacket,
 } from './warm-outreach-relationship-intelligence'
+import {
+  buildWarmOutreachGmailResponseImportActivationReadiness,
+  type WarmOutreachGmailResponseImportActivationReadiness,
+} from './warm-outreach-gmail-response-import'
 
 type PortfolioRow = Record<string, unknown>
 
@@ -565,6 +569,7 @@ export type WarmOutreachGmailResponseImportReadiness = {
   gmailDraftCreationEnabled: false
   slackDispatchEnabled: false
   n8nDispatchEnabled: false
+  activationReadiness?: WarmOutreachGmailResponseImportActivationReadiness
   matchBasis: Array<{
     key:
       | 'gmail_thread_id'
@@ -1127,6 +1132,21 @@ function buildGmailResponseImportReadiness(args: {
     subjectKey ? `subject:${subjectKey}` : null,
     provenanceSourceId,
   ].filter(Boolean) as string[]
+  const manualRecoveryRequired =
+    candidateStatus === 'blocked' ||
+    candidateStatus === 'imported_response_recorded' ||
+    candidateStatus === 'manual_recovery_required'
+  const activationReadiness = buildWarmOutreachGmailResponseImportActivationReadiness({
+    manualRecoveryRequired,
+    manualRecoveryReasons:
+      args.blockedReasons.length > 0
+        ? args.blockedReasons
+        : candidateStatus === 'imported_response_recorded'
+          ? ['Existing Gmail response evidence is already recorded in Portfolio.']
+          : candidateStatus === 'manual_recovery_required'
+            ? ['Local Gmail response import evidence needs queue, thread, message, or contact repair.']
+            : [],
+  })
 
   return {
     version: 'warm-outreach-gmail-response-import-readiness/v1',
@@ -1148,6 +1168,7 @@ function buildGmailResponseImportReadiness(args: {
     gmailDraftCreationEnabled: false,
     slackDispatchEnabled: false,
     n8nDispatchEnabled: false,
+    activationReadiness,
     matchBasis: [
       {
         key: 'gmail_thread_id',

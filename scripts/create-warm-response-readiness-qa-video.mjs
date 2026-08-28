@@ -45,9 +45,12 @@ const frames = [
     source: responseReadinessCropPath,
     output: path.join(compositeFrameDir, '01-response-capture-readiness.png'),
     durationSeconds: 3,
-    title: 'Response Capture Readiness',
-    body:
-      'Existing contact workroom. Provider-assisted response metadata is visible, but polling, imports, Slack dispatch, Gmail drafts, and sends are off.',
+    title: 'Controlled Import Readiness',
+    scenario: 'Operator reviews Gmail response import readiness in the existing contact workroom.',
+    changed:
+      'Mock import, live import, provider, token, scope, and manual recovery gates are visible in compact rows.',
+    expected:
+      'Mock planning can be ready while live Gmail polling/import, Slack, n8n, drafts, and sends stay off.',
     gate: 'Decision gate: human review before any reply, task, or suppression action.',
   },
   {
@@ -55,8 +58,11 @@ const frames = [
     output: path.join(compositeFrameDir, '02-classification-and-actions.png'),
     durationSeconds: 3,
     title: 'Classification And Actions',
-    body:
-      'Supported classes include interested, question, referral, objection, not now, unsubscribe or do-not-contact, negative or sensitive, and ambiguous.',
+    scenario: 'Operator inspects how a captured response will be classified after local evidence review.',
+    changed:
+      'Duplicate, ambiguous, suppressed, existing-evidence, and manual recovery states are separated before import.',
+    expected:
+      'Only reviewed Portfolio evidence moves forward; duplicate replay and existing response evidence stay idempotent.',
     gate: 'Decision gate: approve, reject, revise, or capture only as Portfolio records.',
   },
   {
@@ -64,8 +70,11 @@ const frames = [
     output: path.join(compositeFrameDir, '03-provider-metadata-only.png'),
     durationSeconds: 3,
     title: 'Provider Metadata Only',
-    body:
-      'Gmail and LinkedIn can show metadata readiness. Facebook and phone remain manual. No provider capability is activated here.',
+    scenario: 'Operator checks provider state before any future live-read smoke is authorized.',
+    changed:
+      'Missing Gmail provider config, token, or gmail.readonly scope become explicit blocked/manual recovery rows.',
+    expected:
+      'Provider rows explain the next recovery action without performing a Gmail API call.',
     gate: 'Expected result: provider rows stay blocked, manual, or readiness-only.',
   },
   {
@@ -73,8 +82,11 @@ const frames = [
     output: path.join(compositeFrameDir, '04-external-actions-blocked.png'),
     durationSeconds: 3,
     title: 'External Actions Blocked',
-    body:
-      'The workroom keeps Slack, Gmail send, Gmail draft creation, scheduling, provider polling, n8n, and external monitoring disabled.',
+    scenario: 'Operator verifies authority boundaries after import readiness appears.',
+    changed:
+      'Response import/read, response evidence, Slack alert, Gmail draft, send authorization, and live send remain separate gates.',
+    expected:
+      'Normal tests, preview QA, and default rendering make no live Gmail, Slack, n8n, or provider request.',
     gate: 'Expected result: no live external request is made.',
   },
   {
@@ -82,8 +94,11 @@ const frames = [
     output: path.join(compositeFrameDir, '05-human-qa-boundary.png'),
     durationSeconds: 3,
     title: 'Human QA Boundary',
-    body:
-      'The visible action records local intent in QA mode. It does not post Slack or send Gmail. Suppression changes remain proposals.',
+    scenario: 'Captain hands the route to Vambah for changed-behavior review.',
+    changed:
+      'The workroom shows readiness and recovery status without adding a parallel dashboard.',
+    expected:
+      'The reviewer can approve the UI behavior only; live Gmail reads still need a separate current captain authorization.',
     gate: 'Decision gate: captain review and Vambah human QA before any future execution lane.',
   },
 ]
@@ -155,6 +170,19 @@ function frameHtml(frame) {
       }
       h1 { margin: 0; font-size: 36px; line-height: 1.08; letter-spacing: 0; }
       p { margin: 0; color: #cbd5e1; font-size: 22px; line-height: 1.36; letter-spacing: 0; }
+      .label {
+        color: #93c5fd;
+        font-size: 13px;
+        line-height: 1.2;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+      }
+      .note {
+        color: #dbeafe;
+        font-size: 18px;
+        line-height: 1.32;
+      }
       .gate {
         border: 1px solid rgba(251, 191, 36, .45);
         background: rgba(146, 64, 14, .24);
@@ -197,7 +225,18 @@ function frameHtml(frame) {
       <aside>
         <div class="eyebrow">Warm Response QA</div>
         <h1>${escapeHtml(frame.title)}</h1>
-        <p>${escapeHtml(frame.body)}</p>
+        <div>
+          <div class="label">Scenario</div>
+          <p class="note">${escapeHtml(frame.scenario)}</p>
+        </div>
+        <div>
+          <div class="label">Changed Behavior</div>
+          <p class="note">${escapeHtml(frame.changed)}</p>
+        </div>
+        <div>
+          <div class="label">Expected Result</div>
+          <p class="note">${escapeHtml(frame.expected)}</p>
+        </div>
         <div class="gate">${escapeHtml(frame.gate)}</div>
         <div class="flags">
           <span class="flag">Gmail off</span>

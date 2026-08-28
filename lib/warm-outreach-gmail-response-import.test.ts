@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  buildWarmOutreachGmailResponseImportActivationReadiness,
   planWarmOutreachGmailResponseImport,
   type WarmOutreachGmailImportPortfolioRows,
   type WarmOutreachGmailReplyPayload,
@@ -109,6 +110,13 @@ describe('warm outreach Gmail response import planner', () => {
     expect(plan.candidates[0].localEvidence?.sourceId).toBe(
       'warm-outreach:reply:gmail:gmail-thread-42:gmail-reply-99',
     )
+    expect(plan.activationReadiness).toMatchObject({
+      state: 'ready_for_mock_import',
+      canRunMockImport: true,
+      canRunLiveImport: false,
+      gmailApiCalled: false,
+      databaseWritesEnabled: false,
+    })
   })
 
   it('blocks duplicate replay by Gmail provider message id', () => {
@@ -143,6 +151,13 @@ describe('warm outreach Gmail response import planner', () => {
       ]),
     })
     expect(plan.summary.duplicateReplay).toBe(1)
+    expect(plan.activationReadiness).toMatchObject({
+      state: 'blocked_manual_recovery',
+      canRunMockImport: false,
+      blockedReasons: expect.arrayContaining([
+        'Existing Gmail response evidence already matches this provider message.',
+      ]),
+    })
   })
 
   it('routes unmatched replies to manual recovery', () => {
@@ -262,12 +277,106 @@ describe('warm outreach Gmail response import planner', () => {
         providerDisabled: 1,
       },
     })
+    expect(plan.activationReadiness).toMatchObject({
+      state: 'provider_disabled',
+      canRunMockImport: false,
+      canRunLiveImport: false,
+    })
     expect(plan.candidates[0]).toMatchObject({
       status: 'provider_disabled',
       captureRequest: null,
       localEvidence: null,
       decision: null,
       nextAction: expect.stringContaining('dry-run import planner'),
+    })
+  })
+
+  it('reports provider-missing readiness without provider calls', () => {
+    const readiness = buildWarmOutreachGmailResponseImportActivationReadiness({
+      providerConfigured: false,
+    })
+
+    expect(readiness).toMatchObject({
+      state: 'provider_missing',
+      canRunMockImport: true,
+      canRunLiveImport: false,
+      providerConfigured: false,
+      gmailApiCalled: false,
+      databaseWritesEnabled: false,
+      blockedReasons: expect.arrayContaining([
+        'Gmail response import provider configuration is missing.',
+      ]),
+    })
+  })
+
+  it('reports missing Gmail token and recovery action', () => {
+    const readiness = buildWarmOutreachGmailResponseImportActivationReadiness({
+      providerConfigured: true,
+      gmailTokenAvailable: false,
+    })
+
+    expect(readiness).toMatchObject({
+      state: 'missing_gmail_token',
+      canRunMockImport: true,
+      gmailTokenAvailable: false,
+      nextOperatorAction: expect.stringContaining('Reconnect Gmail'),
+      blockedReasons: expect.arrayContaining([
+        'No connected Gmail token is available for this admin.',
+      ]),
+    })
+  })
+
+  it('reports missing Gmail readonly scope separately from token state', () => {
+    const readiness = buildWarmOutreachGmailResponseImportActivationReadiness({
+      providerConfigured: true,
+      gmailTokenAvailable: true,
+      grantedScopes: [
+        'https://www.googleapis.com/auth/gmail.compose',
+        'https://www.googleapis.com/auth/userinfo.email',
+      ],
+    })
+
+    expect(readiness).toMatchObject({
+      state: 'missing_gmail_scope',
+      canRunMockImport: true,
+      gmailTokenAvailable: true,
+      missingScopes: ['https://www.googleapis.com/auth/gmail.readonly'],
+      blockedReasons: expect.arrayContaining([
+        'Stored Gmail OAuth scope is missing: https://www.googleapis.com/auth/gmail.readonly.',
+      ]),
+    })
+  })
+
+  it('treats an explicitly empty scope list as missing readonly scope', () => {
+    const readiness = buildWarmOutreachGmailResponseImportActivationReadiness({
+      providerConfigured: true,
+      gmailTokenAvailable: true,
+      grantedScopes: [],
+    })
+
+    expect(readiness).toMatchObject({
+      state: 'missing_gmail_scope',
+      missingScopes: ['https://www.googleapis.com/auth/gmail.readonly'],
+    })
+  })
+
+  it('keeps live import disabled even when provider metadata is present', () => {
+    const readiness = buildWarmOutreachGmailResponseImportActivationReadiness({
+      providerConfigured: true,
+      gmailTokenAvailable: true,
+      grantedScopes: 'https://www.googleapis.com/auth/gmail.readonly',
+      liveImportRequested: true,
+    })
+
+    expect(readiness).toMatchObject({
+      state: 'live_import_disabled',
+      canRunMockImport: true,
+      canRunLiveImport: false,
+      liveProviderImportEnabled: false,
+      providerPollingEnabled: false,
+      blockedReasons: expect.arrayContaining([
+        'Live Gmail response reads are disabled by default.',
+      ]),
     })
   })
 })

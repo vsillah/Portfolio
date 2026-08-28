@@ -12,6 +12,7 @@ import type {
   WarmOutreachSendAuthority,
   WarmOutreachSendMode,
 } from '@/lib/warm-outreach-response-monitoring'
+import { buildWarmOutreachGmailResponseImportActivationReadiness } from '@/lib/warm-outreach-gmail-response-import'
 import {
   WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID,
   warmSlackSendApprovalQaRelationshipPacket,
@@ -780,6 +781,7 @@ const packetResponse: RelationshipPacketApiResponse = {
       gmailDraftCreationEnabled: false,
       slackDispatchEnabled: false,
       n8nDispatchEnabled: false,
+      activationReadiness: buildWarmOutreachGmailResponseImportActivationReadiness(),
       matchBasis: [
         {
           key: 'gmail_thread_id',
@@ -978,6 +980,14 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Mock Gmail response import ready')).toBeInTheDocument()
     expect(screen.getByText('Live import off')).toBeInTheDocument()
     expect(screen.getByText('Candidate: ready for mock import / confidence high')).toBeInTheDocument()
+    expect(screen.getByText('Activation readiness: Ready for mock import')).toBeInTheDocument()
+    expect(screen.getByText('Mock: ready / live: disabled')).toBeInTheDocument()
+    expect(screen.getByText('Mock import: ready')).toBeInTheDocument()
+    expect(screen.getByText('Live import: disabled')).toBeInTheDocument()
+    expect(screen.getByText('Provider: not checked')).toBeInTheDocument()
+    expect(screen.getByText('Gmail token: not checked')).toBeInTheDocument()
+    expect(screen.getByText('Gmail scope: not checked')).toBeInTheDocument()
+    expect(screen.getByText('Manual recovery: ready')).toBeInTheDocument()
     expect(screen.getByText('Queue: queue-1')).toBeInTheDocument()
     expect(screen.getByText('Thread: gmail-thread-42')).toBeInTheDocument()
     expect(screen.getByText('Message: missing')).toBeInTheDocument()
@@ -1011,7 +1021,7 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Resolve blocker')).toBeInTheDocument()
     expect(screen.getByText('Draft: missing')).toBeInTheDocument()
     expect(screen.getByText('Sender: missing')).toBeInTheDocument()
-    expect(screen.getByText('Provider: missing')).toBeInTheDocument()
+    expect(screen.getAllByText('Provider: missing').length).toBeGreaterThan(0)
     expect(screen.getByText('Authorization: missing')).toBeInTheDocument()
     expect(screen.getByText('Submitted evidence: missing')).toBeInTheDocument()
     expect(screen.getByText('Approval request: not sent. Slack dispatch: not sent.')).toBeInTheDocument()
@@ -1090,6 +1100,29 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getAllByText('Blocked')).toHaveLength(2)
     expect(screen.getAllByText('Contact is marked do not contact in Portfolio.').length).toBeGreaterThan(0)
     expect(screen.queryByText('Ready means the operator has enough local context to review an internal draft.')).not.toBeInTheDocument()
+  })
+
+  it('surfaces provider-missing Gmail import recovery in the existing readiness card', () => {
+    const responseMonitoring = packetResponse.responseMonitoring!
+    const providerMissing: RelationshipPacketApiResponse = {
+      ...packetResponse,
+      responseMonitoring: {
+        ...responseMonitoring,
+        gmailResponseImportReadiness: {
+          ...responseMonitoring.gmailResponseImportReadiness,
+          activationReadiness: buildWarmOutreachGmailResponseImportActivationReadiness({
+            providerConfigured: false,
+          }),
+        },
+      },
+    }
+
+    render(<RelationshipPacketPanel loading={false} error={null} data={providerMissing} />)
+
+    expect(screen.getByText('Activation readiness: Gmail provider missing')).toBeInTheDocument()
+    expect(screen.getByText('Mock: ready / live: disabled')).toBeInTheDocument()
+    expect(screen.getAllByText('Provider: missing').length).toBeGreaterThan(0)
+    expect(screen.getByText('Gate state: Gmail response import provider configuration is missing.')).toBeInTheDocument()
   })
 
   it('surfaces the no-send Gmail draft canary without implying draft creation', () => {
