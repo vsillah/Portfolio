@@ -177,6 +177,14 @@ describe('POST /api/admin/outreach/[id]/slack-send-approval', () => {
         records_authorization_intent_only: true,
         gmail_send_called: false,
         external_send_performed: false,
+        operating_loop_state: 'send_approval_requested',
+      },
+      operatingLoopTransition: {
+        state: 'send_approval_requested',
+        nextState: 'send_authorized',
+        nextAction: 'record_send_decision',
+        recordsAuthorizationIntentOnly: true,
+        gmailSendCalled: false,
       },
       slackDispatch: {
         requested: true,
@@ -193,7 +201,7 @@ describe('POST /api/admin/outreach/[id]/slack-send-approval', () => {
       },
     })
     expect(JSON.stringify(body.card.blocks)).toContain(
-      '/admin/outreach?tab=leads&id=42&contactId=42&queueId=queue-1',
+      '/admin/outreach?tab=leads&filter=warm&id=42&contactId=42&queueId=queue-1#warm-gmail-operating-loop',
     )
     expect(update).toHaveBeenCalledTimes(1)
     expect(updatePayloads[0]).toMatchObject({
@@ -212,6 +220,7 @@ describe('POST /api/admin/outreach/[id]/slack-send-approval', () => {
           status: 'pending',
           gmail_send_called: false,
           external_send_performed: false,
+          operating_loop_state: 'send_approval_requested',
         }),
       },
     })

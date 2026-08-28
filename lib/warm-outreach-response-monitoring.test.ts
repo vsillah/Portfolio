@@ -1177,6 +1177,18 @@ describe('warm outreach response monitoring', () => {
         sentEvidenceRecorded: false,
       },
     })
+    expect(emailLifecycle?.gmailOperatingLoop).toMatchObject({
+      state: 'draft_created',
+      blocked: false,
+      nextAction: {
+        key: 'request_send_approval',
+        enabledOnThisSurface: true,
+      },
+      reviewMoment: {
+        slackDispatchEnabled: false,
+        recordsAuthorizationIntentOnly: true,
+      },
+    })
   })
 
   it('normalizes production-shaped snake_case Gmail draft evidence for send approval readiness', () => {
@@ -1223,8 +1235,9 @@ describe('warm outreach response monitoring', () => {
         ],
       },
     })
-    const rollout = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
-      ?.emailSendLifecycle?.realRecipientRolloutReadiness
+    const emailLifecycle = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
+      ?.emailSendLifecycle
+    const rollout = emailLifecycle?.realRecipientRolloutReadiness
 
     expect(rollout).toMatchObject({
       state: 'ready_for_send_request',
@@ -1249,6 +1262,13 @@ describe('warm outreach response monitoring', () => {
         slackDispatch: false,
         gmailSend: false,
         providerCalls: false,
+      },
+    })
+    expect(emailLifecycle?.gmailOperatingLoop).toMatchObject({
+      state: 'draft_created',
+      nextAction: {
+        key: 'request_send_approval',
+        enabledOnThisSurface: true,
       },
     })
   })
@@ -1292,8 +1312,9 @@ describe('warm outreach response monitoring', () => {
         ],
       },
     })
-    const rollout = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
-      ?.emailSendLifecycle?.realRecipientRolloutReadiness
+    const emailLifecycle = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
+      ?.emailSendLifecycle
+    const rollout = emailLifecycle?.realRecipientRolloutReadiness
 
     expect(rollout).toMatchObject({
       state: 'ready_for_send_request',
@@ -1308,6 +1329,13 @@ describe('warm outreach response monitoring', () => {
         senderMatch: {
           state: 'matched',
         },
+      },
+    })
+    expect(emailLifecycle?.gmailOperatingLoop).toMatchObject({
+      state: 'draft_created',
+      nextAction: {
+        key: 'request_send_approval',
+        enabledOnThisSurface: true,
       },
     })
   })
@@ -1356,8 +1384,9 @@ describe('warm outreach response monitoring', () => {
         ],
       },
     })
-    const rollout = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
-      ?.emailSendLifecycle?.realRecipientRolloutReadiness
+    const emailLifecycle = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
+      ?.emailSendLifecycle
+    const rollout = emailLifecycle?.realRecipientRolloutReadiness
 
     expect(rollout?.slackApprovalContract).toMatchObject({
       status: 'pending',
@@ -1374,6 +1403,13 @@ describe('warm outreach response monitoring', () => {
       requirements: {
         authorization: { state: 'missing' },
         execution: { state: 'approval_requested' },
+      },
+    })
+    expect(emailLifecycle?.gmailOperatingLoop).toMatchObject({
+      state: 'send_approval_requested',
+      nextAction: {
+        key: 'record_send_decision',
+        enabledOnThisSurface: false,
       },
     })
   })
@@ -1422,8 +1458,9 @@ describe('warm outreach response monitoring', () => {
         ],
       },
     })
-    const rollout = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
-      ?.emailSendLifecycle?.realRecipientRolloutReadiness
+    const emailLifecycle = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
+      ?.emailSendLifecycle
+    const rollout = emailLifecycle?.realRecipientRolloutReadiness
 
     expect(rollout).toMatchObject({
       state: 'blocked',
@@ -1514,8 +1551,9 @@ describe('warm outreach response monitoring', () => {
       readiness: evaluateWarmOutreachReadiness(providerPacket),
       rows: { outreachQueue: [approvedRow] },
     })
-    const approvedRollout = approved.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
-      ?.emailSendLifecycle?.realRecipientRolloutReadiness
+    const approvedLifecycle = approved.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
+      ?.emailSendLifecycle
+    const approvedRollout = approvedLifecycle?.realRecipientRolloutReadiness
 
     expect(approvedRollout).toMatchObject({
       state: 'authorization_recorded_execution_blocked',
@@ -1524,6 +1562,18 @@ describe('warm outreach response monitoring', () => {
         authorization: { state: 'approved' },
         execution: { state: 'approved_for_send' },
         submittedEvidence: { state: 'missing' },
+      },
+    })
+    expect(approvedLifecycle?.gmailOperatingLoop).toMatchObject({
+      state: 'send_authorized',
+      authority: { liveSendExecution: 'explicit_gate_required' },
+      nextAction: {
+        key: 'run_exact_send_gate',
+        enabledOnThisSurface: false,
+      },
+      executionBoundary: {
+        gmailSendEnabledOnThisSurface: false,
+        genericProceedAuthorizesLiveSend: false,
       },
     })
 
@@ -1612,8 +1662,9 @@ describe('warm outreach response monitoring', () => {
         ],
       },
     })
-    const rollout = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
-      ?.emailSendLifecycle?.realRecipientRolloutReadiness
+    const emailLifecycle = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
+      ?.emailSendLifecycle
+    const rollout = emailLifecycle?.realRecipientRolloutReadiness
 
     expect(rollout).toMatchObject({
       state: 'blocked',
@@ -1739,8 +1790,9 @@ describe('warm outreach response monitoring', () => {
         ],
       },
     })
-    const rollout = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
-      ?.emailSendLifecycle?.realRecipientRolloutReadiness
+    const emailLifecycle = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
+      ?.emailSendLifecycle
+    const rollout = emailLifecycle?.realRecipientRolloutReadiness
 
     expect(rollout).toMatchObject({
       state: 'already_sent',
@@ -1768,6 +1820,18 @@ describe('warm outreach response monitoring', () => {
         status: 'sent',
         sourceIds: ['queue-sent'],
         repairRequired: false,
+      },
+    })
+    expect(emailLifecycle?.gmailOperatingLoop).toMatchObject({
+      state: 'response_monitoring',
+      duplicateSendBlocked: true,
+      authority: {
+        liveSendExecution: 'complete',
+        responseImport: 'manual_or_dry_run_only',
+      },
+      responseImport: {
+        attachedToSameOutreachItem: true,
+        livePollingEnabled: false,
       },
     })
   })
@@ -1825,8 +1889,9 @@ describe('warm outreach response monitoring', () => {
         ],
       },
     })
-    const rollout = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
-      ?.emailSendLifecycle?.realRecipientRolloutReadiness
+    const emailLifecycle = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
+      ?.emailSendLifecycle
+    const rollout = emailLifecycle?.realRecipientRolloutReadiness
 
     expect(rollout).toMatchObject({
       state: 'already_sent',
@@ -1844,6 +1909,14 @@ describe('warm outreach response monitoring', () => {
         lastActionEvidence: {
           repairRequired: true,
         },
+      },
+    })
+    expect(emailLifecycle?.gmailOperatingLoop).toMatchObject({
+      state: 'response_monitoring',
+      duplicateSendBlocked: true,
+      nextAction: {
+        key: 'repair_execution_evidence',
+        label: 'Repair communication log',
       },
     })
   })

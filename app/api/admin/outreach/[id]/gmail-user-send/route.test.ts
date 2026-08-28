@@ -461,6 +461,28 @@ describe('POST /api/admin/outreach/[id]/gmail-user-send', () => {
     )
   })
 
+  it('does not treat generic proceed as live Gmail send authorization', async () => {
+    process.env.ENABLE_WARM_GMAIL_SEND_EXECUTION = 'true'
+    const row = outreachRow()
+    const { outreachUpdate } = mockSupabase({ outreachItem: row })
+
+    const response = await POST(makeRequest(executionPayload(row, {
+      sendAuthorization: 'proceed',
+    })), params())
+
+    expect(response.status).toBe(403)
+    await expect(response.json()).resolves.toMatchObject({
+      status: 'blocked_no_send',
+      gmailSendCalled: false,
+      externalSendPerformed: false,
+      blockers: [
+        'sendAuthorization must be execute_warm_gmail_send_for_authorized_recipient.',
+      ],
+    })
+    expect(outreachUpdate).not.toHaveBeenCalled()
+    expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
+  })
+
   it('reports secondary communication-log repair without implying the Gmail send failed', async () => {
     process.env.ENABLE_WARM_GMAIL_SEND_EXECUTION = 'true'
     const { updatePayloads } = mockSupabase()

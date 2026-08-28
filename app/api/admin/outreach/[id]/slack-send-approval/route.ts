@@ -292,7 +292,7 @@ export async function POST(
   }
 
   const contact = item.contact_submissions
-  const portfolioUrl = `${baseUrl()}/admin/outreach?tab=leads&id=${item.contact_submission_id}&contactId=${item.contact_submission_id}&queueId=${encodeURIComponent(item.id)}`
+  const portfolioUrl = `${baseUrl()}/admin/outreach?tab=leads&filter=warm&id=${item.contact_submission_id}&contactId=${item.contact_submission_id}&queueId=${encodeURIComponent(item.id)}#warm-gmail-operating-loop`
   const card = buildWarmGmailSendApprovalSlackPayload({
     contactId: item.contact_submission_id,
     outreachQueueId: item.id,
@@ -334,6 +334,7 @@ export async function POST(
     gmail_send_called: false,
     external_send_performed: false,
     provider_execution_enabled: false,
+    operating_loop_state: 'send_approval_requested',
   }
   const requestHistory = approvalRequestHistory(generationInputs)
   const { error: requestError } = await supabaseAdmin
@@ -360,6 +361,14 @@ export async function POST(
   return NextResponse.json({
     card,
     approvalRequest,
+    operatingLoopTransition: {
+      state: 'send_approval_requested',
+      nextState: 'send_authorized',
+      nextAction: 'record_send_decision',
+      portfolioDeepLink: portfolioUrl,
+      recordsAuthorizationIntentOnly: true,
+      gmailSendCalled: false,
+    },
     slackDispatch: {
       requested: true,
       sent: false,

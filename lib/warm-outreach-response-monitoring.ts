@@ -11,6 +11,10 @@ import {
   type WarmOutreachGmailResponseImportActivationReadiness,
   type WarmOutreachGmailResponseImportCanaryReadiness,
 } from './warm-outreach-gmail-response-import'
+import {
+  buildWarmGmailOperatingLoop,
+  type WarmGmailOperatingLoop,
+} from './warm-outreach-gmail-operating-loop'
 
 type PortfolioRow = Record<string, unknown>
 
@@ -487,6 +491,7 @@ export type WarmOutreachEmailSendLifecycle = {
   externalSendReadiness: WarmOutreachExternalSendReadiness
   realRecipientRolloutReadiness: WarmOutreachRealRecipientGmailRolloutReadiness
   gmailProviderExecutionReadiness: WarmOutreachGmailProviderExecutionReadiness
+  gmailOperatingLoop: WarmGmailOperatingLoop
   duplicatePrevention: {
     scope: 'contact_channel_message_version'
     duplicateDetected: boolean
@@ -2402,6 +2407,8 @@ function buildEmailSendLifecycle(args: {
   mode: WarmOutreachSendMode
   blockers: string[]
   rows?: WarmOutreachMonitoringRows
+  responseMonitoringAttached?: boolean
+  responseMonitoringStatus?: WarmOutreachResponseMonitoringStatus
 }): WarmOutreachEmailSendLifecycle {
   const relationshipSourceCount = args.packet.sourceRefs.filter((source) => (
     source.sourceStatus !== 'missing' &&
@@ -2589,6 +2596,36 @@ function buildEmailSendLifecycle(args: {
       submittedEvidenceKey,
     },
   })
+  const queueId = text(asRows(args.rows?.outreachQueue).find(isEmailRow)?.id)
+  const gmailOperatingLoop = buildWarmGmailOperatingLoop({
+    contactId: args.contactId,
+    queueId,
+    messageVersionKey,
+    sendQueueIdempotencyKey,
+    submittedEvidenceKey,
+    internalDraftReady: gmailDraftHandoffPacket.internalHandoffReady,
+    draftTracked: realRecipientRolloutReadiness.requirements.draftEvidence.state === 'tracked',
+    providerConfigured: realRecipientRolloutReadiness.requirements.provider.state === 'configured',
+    senderMatched: realRecipientRolloutReadiness.requirements.senderMatch.state === 'matched',
+    approvalRequestStatus: realRecipientRolloutReadiness.slackApprovalContract.status,
+    authorizationStatus: realRecipientRolloutReadiness.requirements.authorization.state,
+    executionState: realRecipientRolloutReadiness.requirements.execution.state,
+    submittedEvidenceRecorded:
+      realRecipientRolloutReadiness.auditReceipt?.suppressionAndIdempotency.submittedEvidenceRecorded ?? false,
+    secondaryLogRepairRequired:
+      realRecipientRolloutReadiness.auditReceipt?.lastActionEvidence.repairRequired ?? false,
+    responseMonitoringAttached: args.responseMonitoringAttached === true,
+    responseMonitoringStatus: args.responseMonitoringStatus,
+    hardBlockers: [
+      ...hardBlockers,
+      ...(realRecipientRolloutReadiness.state === 'blocked'
+        ? realRecipientRolloutReadiness.blockers
+        : []),
+      ...(args.mode === 'warm_1_to_many'
+        ? ['Batch Gmail actions remain per-recipient only. Open one warm contact before continuing.']
+        : []),
+    ],
+  })
   const state: WarmOutreachEmailSendLifecycle['state'] =
     args.mode === 'warm_1_to_many' && hardBlockers.length === 0
         ? 'per_recipient_gate_required'
@@ -2626,6 +2663,7 @@ function buildEmailSendLifecycle(args: {
     externalSendReadiness,
     realRecipientRolloutReadiness,
     gmailProviderExecutionReadiness,
+    gmailOperatingLoop,
     duplicatePrevention: {
       scope: 'contact_channel_message_version',
       duplicateDetected,
@@ -2875,6 +2913,8 @@ function buildChannelReadiness(args: {
   channel: WarmOutreachChannel
   mode: WarmOutreachSendMode
   rows?: WarmOutreachMonitoringRows
+  responseMonitoringAttached?: boolean
+  responseMonitoringStatus?: WarmOutreachResponseMonitoringStatus
 }): WarmOutreachChannelSendReadiness {
   const capability = args.packet.channelCapabilities[args.channel]
   const blockers = baseSendBlockers(args)
@@ -2922,6 +2962,8 @@ function buildChannelReadiness(args: {
           mode: args.mode,
           blockers,
           rows: args.rows,
+          responseMonitoringAttached: args.responseMonitoringAttached,
+          responseMonitoringStatus: args.responseMonitoringStatus,
         })
       : null
     const sendAuthority = buildSendAuthority({
@@ -2950,6 +2992,8 @@ function buildChannelReadiness(args: {
           mode: args.mode,
           blockers,
           rows: args.rows,
+          responseMonitoringAttached: args.responseMonitoringAttached,
+          responseMonitoringStatus: args.responseMonitoringStatus,
         })
       : null
     const sendAuthority = buildSendAuthority({
@@ -2979,6 +3023,8 @@ function buildChannelReadiness(args: {
           mode: args.mode,
           blockers,
           rows: args.rows,
+          responseMonitoringAttached: args.responseMonitoringAttached,
+          responseMonitoringStatus: args.responseMonitoringStatus,
         })
       : null
     const sendAuthority = buildSendAuthority({
@@ -3007,6 +3053,8 @@ function buildChannelReadiness(args: {
         mode: args.mode,
         blockers,
         rows: args.rows,
+        responseMonitoringAttached: args.responseMonitoringAttached,
+        responseMonitoringStatus: args.responseMonitoringStatus,
       })
     : null
   const sendAuthority = buildSendAuthority({
@@ -3031,6 +3079,8 @@ export function buildWarmOutreachSendReadiness(args: {
   packet: WarmOutreachRelationshipPacket
   readiness: WarmOutreachReadiness
   rows?: WarmOutreachMonitoringRows
+  responseMonitoringAttached?: boolean
+  responseMonitoringStatus?: WarmOutreachResponseMonitoringStatus
 }): WarmOutreachSendReadiness {
   const channels: WarmOutreachChannel[] = ['email', 'linkedin', 'facebook', 'phone_contact']
   const modes: WarmOutreachSendMode[] = ['warm_1_to_1', 'warm_1_to_many']
@@ -3054,6 +3104,8 @@ export function buildWarmOutreachSendReadiness(args: {
             channel,
             mode,
             rows: args.rows,
+            responseMonitoringAttached: args.responseMonitoringAttached,
+            responseMonitoringStatus: args.responseMonitoringStatus,
           }),
         ),
       ]),
@@ -3206,6 +3258,8 @@ export function buildWarmOutreachResponseMonitoring(args: {
       packet: args.packet,
       readiness: args.readiness,
       rows: args.rows,
+      responseMonitoringAttached: true,
+      responseMonitoringStatus: status,
     }),
     executionBoundary: {
       localRowsOnly: true,
