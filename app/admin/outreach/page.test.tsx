@@ -414,6 +414,10 @@ describe('OutreachAdminPage deep links', () => {
     const workroom = await screen.findByLabelText(`Outreach workroom for ${warmSlackSendApprovalQaLead.name}`)
     expect(within(workroom).getByText('Selected outreach workroom')).toBeInTheDocument()
     expect(await within(workroom).findByText('Ready for one-step send approval request')).toBeInTheDocument()
+    expect(within(workroom).getByText('Gmail response import')).toBeInTheDocument()
+    expect(within(workroom).getByText('Mock Gmail response import ready')).toBeInTheDocument()
+    expect(within(workroom).getByText('Live import off')).toBeInTheDocument()
+    expect(within(workroom).getByText(`Queue: ${WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID}`)).toBeInTheDocument()
 
     const button = within(workroom).getByRole('button', { name: 'Request send approval' })
     expect(button).toBeEnabled()
