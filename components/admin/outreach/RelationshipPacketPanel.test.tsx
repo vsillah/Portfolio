@@ -692,6 +692,137 @@ const packetResponse: RelationshipPacketApiResponse = {
       requiresHumanApproval: true,
       idempotencyKey: 'warm-outreach:monitoring-follow-up:v1:followup42',
     },
+    providerCaptureReadiness: {
+      version: 'warm-outreach-provider-response-capture-readiness/v1',
+      state: 'provider_assisted_readiness',
+      label: 'Provider-assisted metadata ready; polling disabled',
+      responseCaptureKey: 'warm-outreach:response-capture:v1:response42',
+      supportedClassifications: [
+        { key: 'interested', label: 'Interested', humanReviewRequired: true },
+        { key: 'question', label: 'Question', humanReviewRequired: true },
+        { key: 'referral', label: 'Referral', humanReviewRequired: true },
+        { key: 'objection', label: 'Objection', humanReviewRequired: true },
+        { key: 'not_now', label: 'Not now', humanReviewRequired: true },
+        { key: 'unsubscribe_do_not_contact', label: 'Unsubscribe / do not contact', humanReviewRequired: true },
+        { key: 'negative_sensitive', label: 'Negative / sensitive', humanReviewRequired: true },
+        { key: 'ambiguous', label: 'Ambiguous', humanReviewRequired: true },
+      ],
+      providers: [
+        {
+          provider: 'gmail',
+          channel: 'email',
+          state: 'readiness_metadata_only',
+          label: 'Gmail / email metadata ready',
+          detail: 'Provider identifiers may be stored on a manually reviewed capture, but provider polling and import jobs remain disabled.',
+          manualCaptureEnabled: true,
+          providerIngestionEnabled: false,
+          providerPollingEnabled: false,
+          externalMonitoringEnabled: false,
+          externalActionEnabled: false,
+        },
+        {
+          provider: 'linkedin',
+          channel: 'linkedin',
+          state: 'blocked_provider_gate',
+          label: 'LinkedIn provider gate blocked',
+          detail: 'A provider capability gate must clear before provider-assisted response capture can be represented.',
+          manualCaptureEnabled: true,
+          providerIngestionEnabled: false,
+          providerPollingEnabled: false,
+          externalMonitoringEnabled: false,
+          externalActionEnabled: false,
+        },
+        {
+          provider: 'facebook',
+          channel: 'facebook',
+          state: 'manual_capture_only',
+          label: 'Facebook manual capture only',
+          detail: 'Capture the response manually in Portfolio and link it to the contact or outreach queue row.',
+          manualCaptureEnabled: true,
+          providerIngestionEnabled: false,
+          providerPollingEnabled: false,
+          externalMonitoringEnabled: false,
+          externalActionEnabled: false,
+        },
+        {
+          provider: 'phone_contact',
+          channel: 'phone_contact',
+          state: 'manual_capture_only',
+          label: 'Phone manual capture only',
+          detail: 'Capture the response manually in Portfolio and link it to the contact or outreach queue row.',
+          manualCaptureEnabled: true,
+          providerIngestionEnabled: false,
+          providerPollingEnabled: false,
+          externalMonitoringEnabled: false,
+          externalActionEnabled: false,
+        },
+      ],
+      slackAlertReadiness: {
+        state: 'metadata_deeplink_only',
+        label: 'Slack alert metadata only',
+        deepLinkReady: true,
+        dispatchEnabled: false,
+        slackActionEnabled: false,
+        route: '/admin/contacts/[id]',
+        detail: 'Response alerts may store a Portfolio contact deep link for later review, but this surface does not post Slack messages.',
+      },
+    },
+    operatorDecisionPaths: [
+      {
+        key: 'capture_response',
+        label: 'Capture response',
+        state: 'available',
+        description: 'Record a manual or provider-assisted response as Portfolio contact communication evidence.',
+        requiresHumanApproval: true,
+        externalActionEnabled: false,
+        idempotencyKey: 'warm-outreach:operator-decision:v1:capture-response',
+      },
+      {
+        key: 'review_reply_draft',
+        label: 'Review reply draft',
+        state: 'readiness_only',
+        description: 'A local draft decision becomes available after response evidence is captured.',
+        requiresHumanApproval: true,
+        externalActionEnabled: false,
+        idempotencyKey: 'warm-outreach:operator-decision:v1:review-reply',
+      },
+      {
+        key: 'suppression_proposal',
+        label: 'Suppression proposal',
+        state: 'readiness_only',
+        description: 'Unsubscribe or do-not-contact replies create a human-gated suppression proposal; this path does not mutate suppression directly.',
+        requiresHumanApproval: true,
+        externalActionEnabled: false,
+        idempotencyKey: 'warm-outreach:operator-decision:v1:suppression',
+      },
+      {
+        key: 'interested_task',
+        label: 'Interested task path',
+        state: 'readiness_only',
+        description: 'Interested or sales-intent replies can create a local outreach task for the next decision; no provider execution is enabled.',
+        requiresHumanApproval: true,
+        externalActionEnabled: false,
+        idempotencyKey: 'warm-outreach:operator-decision:v1:interested-task',
+      },
+      {
+        key: 'next_touch_timing',
+        label: 'Next-touch timing',
+        state: 'pending_human_qa',
+        description: 'Review relationship evidence before proposing another touch.',
+        requiresHumanApproval: true,
+        externalActionEnabled: false,
+        idempotencyKey: 'warm-outreach:operator-decision:v1:timing',
+      },
+      {
+        key: 'slack_alert_metadata',
+        label: 'Slack alert metadata',
+        state: 'readiness_only',
+        description: 'A future alert may deep-link to this contact workroom, but Slack dispatch and Slack actions stay disabled.',
+        requiresHumanApproval: true,
+        externalActionEnabled: false,
+        idempotencyKey: 'warm-outreach:operator-decision:v1:slack-alert',
+      },
+    ],
     blockedReasons: [],
     auditNotes: ['Monitoring is derived from local Portfolio rows only.'],
     sendReadiness: {
@@ -762,6 +893,23 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Response monitoring')).toBeInTheDocument()
     expect(screen.getByText('Review stale no-response follow-up')).toBeInTheDocument()
     expect(screen.getByText('stale no response')).toBeInTheDocument()
+    expect(screen.getByText('Response capture readiness')).toBeInTheDocument()
+    expect(screen.getByText('Provider-assisted metadata ready; polling disabled')).toBeInTheDocument()
+    expect(screen.getByText('Gmail / email metadata ready')).toBeInTheDocument()
+    expect(screen.getByText('Facebook manual capture only')).toBeInTheDocument()
+    expect(screen.getAllByText(/Provider import: off/).length).toBeGreaterThan(0)
+    expect(screen.getByText('Supported classifications')).toBeInTheDocument()
+    expect(screen.getByText('Interested')).toBeInTheDocument()
+    expect(screen.getByText('Unsubscribe / do not contact')).toBeInTheDocument()
+    expect(screen.getByText('Negative / sensitive')).toBeInTheDocument()
+    expect(screen.getByText('Slack alert metadata only')).toBeInTheDocument()
+    expect(screen.getByText(/this surface does not post Slack messages/i)).toBeInTheDocument()
+    expect(screen.getByText('Capture response')).toBeInTheDocument()
+    expect(screen.getByText('Review reply draft')).toBeInTheDocument()
+    expect(screen.getByText('Suppression proposal')).toBeInTheDocument()
+    expect(screen.getByText('Interested task path')).toBeInTheDocument()
+    expect(screen.getByText(/does not mutate suppression directly/i)).toBeInTheDocument()
+    expect(screen.getByText(/Capture key: warm-outreach:response-capture:v1:/)).toBeInTheDocument()
     expect(screen.getByText('Send authority review')).toBeInTheDocument()
     expect(screen.getByText('Email first candidate')).toBeInTheDocument()
     expect(screen.getByText(/Provider\/send activation blocked/)).toBeInTheDocument()

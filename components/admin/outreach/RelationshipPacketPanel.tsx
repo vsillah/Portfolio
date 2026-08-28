@@ -131,6 +131,19 @@ function monitoringClasses(status?: WarmOutreachResponseMonitoring['status']) {
   return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
 }
 
+function providerCaptureClasses(state: WarmOutreachResponseMonitoring['providerCaptureReadiness']['providers'][number]['state']) {
+  if (state === 'readiness_metadata_only') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  if (state === 'manual_capture_only') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+}
+
+function operatorDecisionClasses(state: WarmOutreachResponseMonitoring['operatorDecisionPaths'][number]['state']) {
+  if (state === 'pending_human_qa') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  if (state === 'available') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  if (state === 'blocked') return 'border-red-500/25 bg-red-500/10 text-red-100'
+  return 'border-silicon-slate bg-background/30 text-muted-foreground'
+}
+
 function sendReadinessClasses(state: string) {
   if (state === 'blocked' || state === 'unavailable') {
     return 'border-red-500/25 bg-red-500/10 text-red-100'
@@ -1095,6 +1108,78 @@ export default function RelationshipPacketPanel({
                 <ValuePill label="Mode" value={responseMonitoring.mode.replace(/_/g, ' ')} />
                 <CountPill label="Evidence" count={responseMonitoring.evidence.length} />
                 <CountPill label="Blocked" count={responseMonitoring.blockedReasons.length} />
+              </div>
+              <div className="mt-3 rounded-md border border-sky-500/25 bg-sky-500/10 p-3 text-sky-50">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide">
+                      <RefreshCw size={13} aria-hidden />
+                      Response capture readiness
+                    </p>
+                    <p className="mt-1 text-xs leading-5 text-sky-100/90">
+                      {responseMonitoring.providerCaptureReadiness.label}
+                    </p>
+                  </div>
+                  <span className="inline-flex min-h-7 w-fit shrink-0 items-center gap-1.5 rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+                    <LockKeyhole size={12} aria-hidden />
+                    Polling off
+                  </span>
+                </div>
+                <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-4">
+                  {responseMonitoring.providerCaptureReadiness.providers.map((provider) => (
+                    <div
+                      key={provider.provider}
+                      className={`rounded-md border p-2 ${providerCaptureClasses(provider.state)}`}
+                    >
+                      <p className="text-[11px] font-semibold">{provider.label}</p>
+                      <p className="mt-1 text-[10px] leading-4">
+                        Capture: {provider.manualCaptureEnabled ? 'manual allowed' : 'blocked'} / Provider import: off
+                      </p>
+                      <p className="mt-1 text-[10px] leading-4 opacity-85">{provider.detail}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-2 grid gap-2 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+                  <div className="rounded-md border border-current/20 bg-background/20 p-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide">Supported classifications</p>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {responseMonitoring.providerCaptureReadiness.supportedClassifications.map((item) => (
+                        <span
+                          key={item.key}
+                          className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold"
+                        >
+                          {item.label}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="rounded-md border border-current/20 bg-background/20 p-2 text-[10px] leading-4">
+                    <p className="font-semibold uppercase tracking-wide">{responseMonitoring.providerCaptureReadiness.slackAlertReadiness.label}</p>
+                    <p className="mt-1">{responseMonitoring.providerCaptureReadiness.slackAlertReadiness.detail}</p>
+                    <p className="mt-1 break-all">
+                      Deep link: {responseMonitoring.providerCaptureReadiness.slackAlertReadiness.route}. Slack dispatch: off.
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
+                  {responseMonitoring.operatorDecisionPaths.map((path) => (
+                    <div
+                      key={path.key}
+                      className={`rounded-md border p-2 ${operatorDecisionClasses(path.state)}`}
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-[11px] font-semibold">{path.label}</p>
+                        <span className="rounded-full border border-current/20 px-2 py-0.5 text-[10px] font-semibold">
+                          {path.state.replace(/_/g, ' ')}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-[10px] leading-4">{path.description}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-2 break-all text-[10px] leading-4 text-sky-100/80">
+                  Capture key: {responseMonitoring.providerCaptureReadiness.responseCaptureKey}
+                </p>
               </div>
               <div className="mt-3">
                 <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">

@@ -286,14 +286,19 @@ Acceptance:
 
 ### Phase 5: Provider-Assisted Response Monitoring
 
-Reuse Engagement Inbox patterns to classify inbound warm outreach responses and draft replies.
+Reuse Engagement Inbox patterns to classify inbound warm outreach responses and draft replies inside the existing contact and outreach workrooms. This phase models provider-assisted readiness only: provider identifiers, thread/message ids, and alert deep links may be represented in Portfolio metadata, but provider polling, provider imports, Slack dispatch, reply submission, sends, scheduling, and suppression mutation stay disabled until separate approval gates clear.
 
 Acceptance:
 
-- provider response rows link to contacts and outreach rows,
+- response capture readiness appears on `/admin/outreach` and `/admin/contacts/[id]` through the existing relationship-packet workroom,
+- manually captured or provider-assisted metadata rows link to contacts and optional `outreach_queue` rows,
+- supported classifications remain interested, question, referral, objection, not now, unsubscribe / do not contact, negative / sensitive, and ambiguous,
 - reply drafts require human QA by default,
-- do-not-contact and unsubscribe responses update suppression state,
-- Slack alerts summarize only safe metadata and deep-link back to Portfolio.
+- do-not-contact and unsubscribe responses expose a human-gated suppression proposal path and do not directly mutate suppression,
+- interested or sales-intent responses expose a local outreach task/decision path,
+- duplicate response capture and reply draft generation remain idempotent,
+- provider capability rows are shown as blocked, manual, or metadata-readiness state only,
+- Slack alert behavior is represented only as safe metadata/deep-link readiness; no Slack message is sent.
 
 ### Phase 6: Provider Activation
 

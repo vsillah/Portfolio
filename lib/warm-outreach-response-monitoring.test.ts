@@ -153,6 +153,67 @@ describe('warm outreach response monitoring', () => {
         }),
       ]),
     )
+    expect(monitoring.providerCaptureReadiness).toMatchObject({
+      version: 'warm-outreach-provider-response-capture-readiness/v1',
+      state: 'manual_capture_ready',
+      label: 'Manual response capture ready',
+      slackAlertReadiness: {
+        state: 'metadata_deeplink_only',
+        dispatchEnabled: false,
+        slackActionEnabled: false,
+        route: '/admin/contacts/[id]',
+      },
+    })
+    expect(monitoring.providerCaptureReadiness.supportedClassifications.map((item) => item.key)).toEqual([
+      'interested',
+      'question',
+      'referral',
+      'objection',
+      'not_now',
+      'unsubscribe_do_not_contact',
+      'negative_sensitive',
+      'ambiguous',
+    ])
+    expect(monitoring.providerCaptureReadiness.providers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          provider: 'gmail',
+          state: 'blocked_provider_gate',
+          manualCaptureEnabled: true,
+          providerIngestionEnabled: false,
+          providerPollingEnabled: false,
+          externalActionEnabled: false,
+        }),
+        expect.objectContaining({
+          provider: 'facebook',
+          state: 'manual_capture_only',
+          externalMonitoringEnabled: false,
+        }),
+      ]),
+    )
+    expect(monitoring.operatorDecisionPaths).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          key: 'review_reply_draft',
+          state: 'pending_human_qa',
+          externalActionEnabled: false,
+        }),
+        expect.objectContaining({
+          key: 'interested_task',
+          state: 'pending_human_qa',
+          externalActionEnabled: false,
+        }),
+        expect.objectContaining({
+          key: 'suppression_proposal',
+          description: expect.stringContaining('does not mutate suppression directly'),
+        }),
+        expect.objectContaining({
+          key: 'slack_alert_metadata',
+          state: 'readiness_only',
+          externalActionEnabled: false,
+        }),
+      ]),
+    )
   })
 
   it('derives imported response monitoring state without enabling provider polling', () => {
@@ -241,6 +302,27 @@ describe('warm outreach response monitoring', () => {
     expect(monitoring.status).toBe('blocked')
     expect(monitoring.mode).toBe('blocked')
     expect(monitoring.blockedReasons).toContain('Manual DNC review is active.')
+    expect(monitoring.providerCaptureReadiness).toMatchObject({
+      state: 'blocked',
+      label: 'Response capture blocked by contact readiness',
+    })
+    expect(monitoring.providerCaptureReadiness.providers.every((provider) => (
+      provider.state === 'blocked_provider_gate' &&
+      provider.manualCaptureEnabled === false &&
+      provider.providerIngestionEnabled === false
+    ))).toBe(true)
+    expect(monitoring.operatorDecisionPaths).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          key: 'capture_response',
+          state: 'blocked',
+        }),
+        expect.objectContaining({
+          key: 'suppression_proposal',
+          state: 'pending_human_qa',
+        }),
+      ]),
+    )
     for (const channel of monitoring.sendReadiness.modes.warm_1_to_1) {
       expect(channel.state === 'blocked' || channel.state === 'unavailable').toBe(true)
       expect(channel.sendReady).toBe(false)
@@ -272,6 +354,75 @@ describe('warm outreach response monitoring', () => {
     expect(first.perRecipientIdempotencyKey).not.toBe(second.perRecipientIdempotencyKey)
     expect(first.modes.warm_1_to_many.map((item) => item.idempotencyKey)).toHaveLength(4)
     expect(new Set(first.modes.warm_1_to_many.map((item) => item.idempotencyKey)).size).toBe(4)
+  })
+
+  it('represents provider-assisted response monitoring as metadata readiness only', () => {
+    const base = packet()
+    const providerPacket = packet({
+      channelCapabilities: {
+        ...base.channelCapabilities,
+        email: {
+          available: true,
+          providerConfigured: true,
+          supportsExternalSend: false,
+          manualOnly: false,
+          reason: 'Gmail OAuth profile is connected for gated response metadata review.',
+        },
+        linkedin: {
+          available: true,
+          providerConfigured: true,
+          supportsExternalSend: false,
+          manualOnly: false,
+          reason: 'LinkedIn provider metadata is present but actions are disabled.',
+        },
+      },
+    })
+    const monitoring = buildWarmOutreachResponseMonitoring({
+      contactId: 42,
+      packet: providerPacket,
+      readiness: evaluateWarmOutreachReadiness(providerPacket),
+      rows: {
+        outreachQueue: [
+          {
+            id: 'queue-provider-ready',
+            channel: 'email',
+            status: 'sent',
+            thread_id: 'gmail-thread-42',
+            message_id: 'gmail-message-42',
+            sent_at: '2026-08-24T12:00:00.000Z',
+          },
+        ],
+      },
+    })
+
+    expect(monitoring.providerCaptureReadiness).toMatchObject({
+      state: 'provider_assisted_readiness',
+      label: 'Provider-assisted metadata ready; polling disabled',
+      slackAlertReadiness: {
+        deepLinkReady: true,
+        dispatchEnabled: false,
+      },
+    })
+    expect(monitoring.providerCaptureReadiness.providers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          provider: 'gmail',
+          state: 'readiness_metadata_only',
+          manualCaptureEnabled: true,
+          providerIngestionEnabled: false,
+          providerPollingEnabled: false,
+          externalMonitoringEnabled: false,
+          externalActionEnabled: false,
+        }),
+        expect.objectContaining({
+          provider: 'linkedin',
+          state: 'readiness_metadata_only',
+          externalActionEnabled: false,
+        }),
+      ]),
+    )
+    expect(monitoring.executionBoundary.providerResponseImportEnabled).toBe(false)
+    expect(monitoring.executionBoundary.externalMonitoringEnabled).toBe(false)
   })
 
   it('exposes explicit send-disabled readiness for every mode and channel', () => {

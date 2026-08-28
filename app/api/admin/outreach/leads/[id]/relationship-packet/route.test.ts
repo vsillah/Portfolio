@@ -220,6 +220,29 @@ describe('GET /api/admin/outreach/leads/[id]/relationship-packet', () => {
       contactId: 42,
       status: 'manual_response_captured',
       mode: 'manual',
+      providerCaptureReadiness: {
+        version: 'warm-outreach-provider-response-capture-readiness/v1',
+        state: 'manual_capture_ready',
+        slackAlertReadiness: {
+          dispatchEnabled: false,
+          slackActionEnabled: false,
+          route: '/admin/contacts/[id]',
+        },
+      },
+      operatorDecisionPaths: expect.arrayContaining([
+        expect.objectContaining({
+          key: 'capture_response',
+          externalActionEnabled: false,
+        }),
+        expect.objectContaining({
+          key: 'review_reply_draft',
+          state: 'pending_human_qa',
+        }),
+        expect.objectContaining({
+          key: 'suppression_proposal',
+          description: expect.stringContaining('does not mutate suppression directly'),
+        }),
+      ]),
       executionBoundary: {
         localRowsOnly: true,
         providerPollingEnabled: false,
@@ -227,6 +250,28 @@ describe('GET /api/admin/outreach/leads/[id]/relationship-packet', () => {
         externalSendEnabled: false,
       },
     })
+    expect(json.responseMonitoring.providerCaptureReadiness.supportedClassifications.map(
+      (item: { key: string }) => item.key,
+    )).toEqual([
+      'interested',
+      'question',
+      'referral',
+      'objection',
+      'not_now',
+      'unsubscribe_do_not_contact',
+      'negative_sensitive',
+      'ambiguous',
+    ])
+    expect(json.responseMonitoring.providerCaptureReadiness.providers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          provider: 'gmail',
+          providerIngestionEnabled: false,
+          providerPollingEnabled: false,
+          externalActionEnabled: false,
+        }),
+      ]),
+    )
     expect(json.sendReadiness).toMatchObject({
       version: 'warm-outreach-send-readiness/v1',
       contactId: 42,
