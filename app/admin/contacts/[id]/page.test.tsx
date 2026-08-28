@@ -2,6 +2,10 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import ContactDetailPage from './page'
+import {
+  WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID,
+  warmSlackSendApprovalQaLead,
+} from '@/components/admin/outreach/warmSlackSendApprovalQaFixture'
 
 vi.mock('@/components/ProtectedRoute', () => ({
   default: ({ children }: { children: ReactNode }) => <>{children}</>,
@@ -285,6 +289,30 @@ describe('ContactDetailPage relationship packet', () => {
         headers: { Authorization: 'Bearer admin-token' },
       })
     })
+  })
+
+  it('renders Gmail import readiness on the warm Slack approval QA contact route', async () => {
+    window.history.replaceState(
+      {},
+      '',
+      '/admin/contacts/42?qa=warm-slack-send-approval#warm-response-lifecycle',
+    )
+
+    render(<ContactDetailPage />)
+
+    expect(await screen.findByRole('heading', { name: warmSlackSendApprovalQaLead.name })).toBeInTheDocument()
+    expect(await screen.findByText('Gmail response import')).toBeInTheDocument()
+    expect(screen.getByText('Mock Gmail response import ready')).toBeInTheDocument()
+    expect(screen.getByText('Live import off')).toBeInTheDocument()
+    expect(screen.getByText(`Queue: ${WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID}`)).toBeInTheDocument()
+    expect(screen.getByText('Thread: qa-gmail-thread-42')).toBeInTheDocument()
+    expect(screen.getByText('Message: qa-gmail-message-42')).toBeInTheDocument()
+    expect(screen.getByText('Dry-run import: on / Gmail API: not called / Slack and n8n: off.')).toBeInTheDocument()
+
+    const calledUrls = vi.mocked(fetch).mock.calls.map(([input]) => String(input))
+    expect(calledUrls.some(url => /gmail|slack|n8n|provider/i.test(url))).toBe(false)
+    expect(calledUrls.some(url => url.includes('/relationship-packet'))).toBe(false)
+    expect(calledUrls.some(url => url.includes('/responses'))).toBe(false)
   })
 
   it('captures a manual warm response in the existing contact workroom without external provider calls', async () => {

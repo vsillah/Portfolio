@@ -767,6 +767,83 @@ const packetResponse: RelationshipPacketApiResponse = {
         detail: 'Response alerts may store a Portfolio contact deep link for later review, but this surface does not post Slack messages.',
       },
     },
+    gmailResponseImportReadiness: {
+      version: 'warm-outreach-gmail-response-import-readiness/v1',
+      state: 'dry_run_ready',
+      label: 'Mock Gmail response import ready',
+      provider: 'gmail',
+      dryRunImportEnabled: true,
+      liveProviderImportEnabled: false,
+      providerPollingEnabled: false,
+      gmailApiCalled: false,
+      externalActionsEnabled: false,
+      gmailDraftCreationEnabled: false,
+      slackDispatchEnabled: false,
+      n8nDispatchEnabled: false,
+      matchBasis: [
+        {
+          key: 'gmail_thread_id',
+          label: 'Gmail thread',
+          available: true,
+          detail: 'gmail-thread-42',
+        },
+        {
+          key: 'gmail_message_id',
+          label: 'Gmail message',
+          available: false,
+          detail: 'No Gmail message id is recorded on local response or queue evidence.',
+        },
+        {
+          key: 'queue_id',
+          label: 'Queue row',
+          available: true,
+          detail: 'queue-1',
+        },
+        {
+          key: 'contact_id',
+          label: 'Contact',
+          available: true,
+          detail: 'contact_submission:42',
+        },
+        {
+          key: 'normalized_recipient',
+          label: 'Recipient identity',
+          available: true,
+          detail: 'The dry-run importer also compares mocked reply sender against the Portfolio contact email.',
+        },
+        {
+          key: 'subject_fingerprint',
+          label: 'Subject fingerprint',
+          available: true,
+          detail: 'subject-key',
+        },
+      ],
+      latestCandidate: {
+        status: 'ready_for_mock_import',
+        confidence: 'high',
+        providerThreadId: 'gmail-thread-42',
+        providerMessageId: null,
+        matchedOutreachQueueId: 'queue-1',
+        matchedContactId: 42,
+        provenanceSourceId: null,
+        nextAction:
+          'Run the dry-run admin test path with mocked Gmail payloads, then import through the existing response lifecycle after human review.',
+        recoveryPath:
+          'POST mocked payloads to the dry-run route; ready candidates still create only local response evidence through the existing lifecycle.',
+      },
+      dedupe: {
+        provider: 'gmail',
+        keys: ['gmail_thread:gmail-thread-42', 'queue:queue-1', 'contact:42', 'subject:subject-key'],
+        duplicateReplayBlocked: true,
+        detail:
+          'Replay checks use provider, Gmail thread/message id, queue id, contact id, normalized recipient, subject fingerprint, and existing warm response source ids.',
+      },
+      auditNotes: [
+        'This readiness packet is local Portfolio metadata only.',
+        'Live Gmail polling/import remains disabled; mocked dry-run planning is the only import path represented here.',
+        'No Gmail draft, Gmail send, Slack dispatch, n8n dispatch, or provider action is enabled.',
+      ],
+    },
     operatorDecisionPaths: [
       {
         key: 'capture_response',
@@ -897,6 +974,21 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Provider-assisted metadata ready; polling disabled')).toBeInTheDocument()
     expect(screen.getByText('Gmail / email metadata ready')).toBeInTheDocument()
     expect(screen.getByText('Facebook manual capture only')).toBeInTheDocument()
+    expect(screen.getByText('Gmail response import')).toBeInTheDocument()
+    expect(screen.getByText('Mock Gmail response import ready')).toBeInTheDocument()
+    expect(screen.getByText('Live import off')).toBeInTheDocument()
+    expect(screen.getByText('Candidate: ready for mock import / confidence high')).toBeInTheDocument()
+    expect(screen.getByText('Queue: queue-1')).toBeInTheDocument()
+    expect(screen.getByText('Thread: gmail-thread-42')).toBeInTheDocument()
+    expect(screen.getByText('Message: missing')).toBeInTheDocument()
+    expect(screen.getByText('Gmail thread: ready')).toBeInTheDocument()
+    expect(screen.getByText('Gmail message: missing')).toBeInTheDocument()
+    expect(screen.getByText('Recipient identity: ready')).toBeInTheDocument()
+    expect(screen.getByText(/Run the dry-run admin test path/)).toBeInTheDocument()
+    expect(screen.getByText(/ready candidates still create only local response evidence/)).toBeInTheDocument()
+    expect(screen.getByText('Import dedupe keys')).toBeInTheDocument()
+    expect(screen.getByText('gmail_thread:gmail-thread-42')).toBeInTheDocument()
+    expect(screen.getByText('Dry-run import: on / Gmail API: not called / Slack and n8n: off.')).toBeInTheDocument()
     expect(screen.getAllByText(/Provider import: off/).length).toBeGreaterThan(0)
     expect(screen.getByText('Supported classifications')).toBeInTheDocument()
     expect(screen.getByText('Interested')).toBeInTheDocument()
@@ -1215,6 +1307,10 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Send evidence: none. Gmail execution: disabled.')).toBeInTheDocument()
     expect(screen.getByText('Proof details')).toBeInTheDocument()
     expect(screen.getByText(`Queue row: ${WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID}`)).toBeInTheDocument()
+    expect(screen.getByText('Gmail response import')).toBeInTheDocument()
+    expect(screen.getByText('Mock Gmail response import ready')).toBeInTheDocument()
+    expect(screen.getByText('Live import off')).toBeInTheDocument()
+    expect(screen.getByText(`Queue: ${WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID}`)).toBeInTheDocument()
     expect(screen.getByText(/Use Request send approval in this contact workroom/)).toBeInTheDocument()
     expect(screen.getByText('Approval request: pending. Slack dispatch: not sent.')).toBeInTheDocument()
     expect(fetchMock).not.toHaveBeenCalled()

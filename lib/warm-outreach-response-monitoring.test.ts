@@ -191,6 +191,21 @@ describe('warm outreach response monitoring', () => {
         }),
       ]),
     )
+    expect(monitoring.gmailResponseImportReadiness).toMatchObject({
+      version: 'warm-outreach-gmail-response-import-readiness/v1',
+      state: 'dry_run_ready',
+      liveProviderImportEnabled: false,
+      providerPollingEnabled: false,
+      gmailApiCalled: false,
+      externalActionsEnabled: false,
+      gmailDraftCreationEnabled: false,
+      slackDispatchEnabled: false,
+      n8nDispatchEnabled: false,
+      latestCandidate: {
+        status: 'ready_for_mock_import',
+        matchedContactId: 42,
+      },
+    })
     expect(monitoring.operatorDecisionPaths).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -242,6 +257,16 @@ describe('warm outreach response monitoring', () => {
 
     expect(monitoring.mode).toBe('imported')
     expect(monitoring.status).toBe('imported_response_captured')
+    expect(monitoring.gmailResponseImportReadiness).toMatchObject({
+      state: 'response_evidence_ready',
+      label: 'Gmail response evidence recorded',
+      latestCandidate: {
+        status: 'imported_response_recorded',
+      },
+      dedupe: {
+        duplicateReplayBlocked: true,
+      },
+    })
     expect(monitoring.evidence).toContainEqual(
       expect.objectContaining({
         sourceType: 'email_messages',
@@ -276,6 +301,14 @@ describe('warm outreach response monitoring', () => {
 
     expect(monitoring.status).toBe('stale_no_response')
     expect(monitoring.mode).toBe('pending')
+    expect(monitoring.gmailResponseImportReadiness).toMatchObject({
+      state: 'dry_run_ready',
+      label: 'Mock Gmail response import ready',
+      latestCandidate: {
+        status: 'ready_for_mock_import',
+        matchedOutreachQueueId: 'queue-1',
+      },
+    })
     expect(monitoring.expectedReplyBy).toBe('2026-08-17T12:00:00.000Z')
     expect(monitoring.proposedFollowUp).toMatchObject({
       state: 'stale_follow_up_review',
@@ -301,6 +334,12 @@ describe('warm outreach response monitoring', () => {
 
     expect(monitoring.status).toBe('blocked')
     expect(monitoring.mode).toBe('blocked')
+    expect(monitoring.gmailResponseImportReadiness).toMatchObject({
+      state: 'blocked',
+      latestCandidate: {
+        status: 'blocked',
+      },
+    })
     expect(monitoring.blockedReasons).toContain('Manual DNC review is active.')
     expect(monitoring.providerCaptureReadiness).toMatchObject({
       state: 'blocked',

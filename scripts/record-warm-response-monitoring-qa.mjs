@@ -103,6 +103,29 @@ await writeFile(htmlPath, `<!doctype html>
                 <p class="small">meeting_action_tasks: local follow-up</p>
               </div>
             </div>
+            <div class="tile ok" style="margin-top: 10px;">
+              <div class="row">
+                <div>
+                  <p class="label">Gmail response import</p>
+                  <h3>Mock Gmail response import ready</h3>
+                  <p class="muted">A mocked Gmail reply can be matched to the tracked warm queue row, then reviewed through the existing local response lifecycle.</p>
+                </div>
+                <span class="pill info">Live import off</span>
+              </div>
+              <div class="grid two">
+                <div>
+                  <p class="small">Candidate: ready for mock import / confidence high</p>
+                  <p class="small">Queue: queue-1</p>
+                  <p class="small">Thread: gmail-thread-42</p>
+                  <p class="small">Message: gmail-reply-99</p>
+                </div>
+                <div>
+                  <p class="small">Next: dry-run planner only; import evidence still needs human review.</p>
+                  <p class="small">Recovery: unmatched, ambiguous, suppressed, duplicate, or already-replied cases stay manual.</p>
+                  <p class="small">Gmail API: not called. Slack/n8n: off.</p>
+                </div>
+              </div>
+            </div>
             <p class="label" style="margin-top: 10px;">Send-readiness gates</p>
             <div class="channels">
               <div class="tile warn"><h3>Gmail / email provider gate required</h3><p class="small">human reply approval, external send authority, provider execution gate</p></div>

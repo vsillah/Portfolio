@@ -137,6 +137,20 @@ function providerCaptureClasses(state: WarmOutreachResponseMonitoring['providerC
   return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
 }
 
+function gmailImportClasses(state: WarmOutreachResponseMonitoring['gmailResponseImportReadiness']['state']) {
+  if (state === 'dry_run_ready' || state === 'response_evidence_ready') {
+    return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  }
+  if (state === 'blocked') return 'border-red-500/25 bg-red-500/10 text-red-100'
+  return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+}
+
+function matchBasisClasses(available: boolean) {
+  return available
+    ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+    : 'border-silicon-slate bg-background/30 text-muted-foreground'
+}
+
 function operatorDecisionClasses(state: WarmOutreachResponseMonitoring['operatorDecisionPaths'][number]['state']) {
   if (state === 'pending_human_qa') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
   if (state === 'available') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
@@ -635,6 +649,86 @@ function ProviderExecutionReadinessPacket({
   )
 }
 
+function GmailResponseImportReadinessCard({
+  readiness,
+}: {
+  readiness?: WarmOutreachResponseMonitoring['gmailResponseImportReadiness'] | null
+}) {
+  if (!readiness) return null
+  const candidate = readiness.latestCandidate
+
+  return (
+    <div className={`mt-2 rounded-md border p-2.5 ${gmailImportClasses(readiness.state)}`}>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide">
+            <Mail size={13} aria-hidden />
+            Gmail response import
+          </p>
+          <p className="mt-1 text-[11px] leading-4">{readiness.label}</p>
+        </div>
+        <span className="inline-flex min-h-7 w-fit shrink-0 items-center gap-1.5 rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+          <LockKeyhole size={12} aria-hidden />
+          Live import off
+        </span>
+      </div>
+      <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-2 xl:grid-cols-4">
+        <p className="rounded-md border border-current/20 bg-background/20 p-2">
+          Candidate: {candidate.status.replace(/_/g, ' ')} / confidence {candidate.confidence}
+        </p>
+        <p className="rounded-md border border-current/20 bg-background/20 p-2 break-all">
+          Queue: {candidate.matchedOutreachQueueId ?? 'manual match needed'}
+        </p>
+        <p className="rounded-md border border-current/20 bg-background/20 p-2 break-all">
+          Thread: {candidate.providerThreadId ?? 'missing'}
+        </p>
+        <p className="rounded-md border border-current/20 bg-background/20 p-2 break-all">
+          Message: {candidate.providerMessageId ?? 'missing'}
+        </p>
+      </div>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {readiness.matchBasis.map((basis) => (
+          <span
+            key={basis.key}
+            title={basis.detail}
+            className={`inline-flex min-h-7 items-center rounded-full border px-2 py-1 text-[10px] font-semibold ${matchBasisClasses(basis.available)}`}
+          >
+            {basis.label}: {basis.available ? 'ready' : 'missing'}
+          </span>
+        ))}
+      </div>
+      <div className="mt-2 grid gap-2 text-[11px] leading-4 sm:grid-cols-2">
+        <p className="rounded-md border border-current/20 bg-background/20 p-2">
+          Next: {candidate.nextAction}
+        </p>
+        <p className="rounded-md border border-current/20 bg-background/20 p-2">
+          Recovery: {candidate.recoveryPath}
+        </p>
+      </div>
+      <details className="mt-2 rounded-md border border-current/20 bg-background/20 p-2">
+        <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide">
+          Import dedupe keys
+        </summary>
+        <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-2">
+          {readiness.dedupe.keys.length > 0 ? (
+            readiness.dedupe.keys.slice(0, 6).map((key) => (
+              <p key={key} className="break-all rounded-md border border-current/20 bg-background/20 p-2">
+                {key}
+              </p>
+            ))
+          ) : (
+            <p>No durable Gmail import dedupe key is available yet.</p>
+          )}
+        </div>
+        <p className="mt-2 text-[10px] leading-4 opacity-80">{readiness.dedupe.detail}</p>
+      </details>
+      <p className="mt-2 text-[10px] leading-4 opacity-85">
+        Dry-run import: {readiness.dryRunImportEnabled ? 'on' : 'off'} / Gmail API: {readiness.gmailApiCalled ? 'called' : 'not called'} / Slack and n8n: off.
+      </p>
+    </div>
+  )
+}
+
 function summarizeAuthority(items: SendReadinessItem[]) {
   return items.reduce(
     (summary, item) => {
@@ -1125,6 +1219,7 @@ export default function RelationshipPacketPanel({
                     Polling off
                   </span>
                 </div>
+                <GmailResponseImportReadinessCard readiness={responseMonitoring.gmailResponseImportReadiness} />
                 <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-4">
                   {responseMonitoring.providerCaptureReadiness.providers.map((provider) => (
                     <div

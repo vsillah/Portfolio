@@ -552,6 +552,55 @@ export type WarmOutreachSendReadiness = {
   }
 }
 
+export type WarmOutreachGmailResponseImportReadiness = {
+  version: 'warm-outreach-gmail-response-import-readiness/v1'
+  state: 'dry_run_ready' | 'response_evidence_ready' | 'manual_recovery_required' | 'blocked'
+  label: string
+  provider: 'gmail'
+  dryRunImportEnabled: true
+  liveProviderImportEnabled: false
+  providerPollingEnabled: false
+  gmailApiCalled: false
+  externalActionsEnabled: false
+  gmailDraftCreationEnabled: false
+  slackDispatchEnabled: false
+  n8nDispatchEnabled: false
+  matchBasis: Array<{
+    key:
+      | 'gmail_thread_id'
+      | 'gmail_message_id'
+      | 'queue_id'
+      | 'contact_id'
+      | 'normalized_recipient'
+      | 'subject_fingerprint'
+    label: string
+    available: boolean
+    detail: string
+  }>
+  latestCandidate: {
+    status:
+      | 'ready_for_mock_import'
+      | 'imported_response_recorded'
+      | 'manual_recovery_required'
+      | 'blocked'
+    confidence: 'none' | 'low' | 'medium' | 'high'
+    providerThreadId: string | null
+    providerMessageId: string | null
+    matchedOutreachQueueId: string | null
+    matchedContactId: number
+    provenanceSourceId: string | null
+    nextAction: string
+    recoveryPath: string
+  }
+  dedupe: {
+    provider: 'gmail'
+    keys: string[]
+    duplicateReplayBlocked: true
+    detail: string
+  }
+  auditNotes: string[]
+}
+
 export type WarmOutreachResponseMonitoring = {
   version: 'warm-outreach-response-monitoring/v1'
   contactId: number
@@ -634,6 +683,7 @@ export type WarmOutreachResponseMonitoring = {
   }>
   blockedReasons: string[]
   auditNotes: string[]
+  gmailResponseImportReadiness: WarmOutreachGmailResponseImportReadiness
   sendReadiness: WarmOutreachSendReadiness
   executionBoundary: {
     localRowsOnly: true
@@ -715,6 +765,10 @@ function newestRow(rows: PortfolioRow[]): PortfolioRow | null {
 
 function sourceId(row: PortfolioRow, fallback: string): string {
   return text(row.id) ?? text(row.source_id) ?? fallback
+}
+
+function rowSourceId(row: PortfolioRow): string | null {
+  return text(row.source_id) ?? text(metadata(row).source_id)
 }
 
 function isInboundResponse(row: PortfolioRow): boolean {
@@ -972,6 +1026,204 @@ function buildOperatorDecisionPaths(args: {
     externalActionEnabled: false as const,
     idempotencyKey: `warm-outreach:operator-decision:v1:${path.key}:${stableHash(baseKey)}`,
   }))
+}
+
+function providerThreadFromRow(row: PortfolioRow | null): string | null {
+  if (!row) return null
+  const provenance = record(metadata(row).source_provenance)
+  const draft = gmailDraftCreationEvidence(row)
+  return (
+    text(firstValue(row, ['provider_thread_id', 'providerThreadId', 'thread_id', 'threadId'])) ??
+    text(provenance.provider_thread_id) ??
+    text(provenance.providerThreadId) ??
+    text(draft.thread_id) ??
+    text(draft.threadId)
+  )
+}
+
+function providerMessageFromRow(row: PortfolioRow | null): string | null {
+  if (!row) return null
+  const provenance = record(metadata(row).source_provenance)
+  const draft = gmailDraftCreationEvidence(row)
+  return (
+    text(firstValue(row, ['provider_message_id', 'providerMessageId', 'message_id', 'messageId'])) ??
+    text(provenance.provider_message_id) ??
+    text(provenance.providerMessageId) ??
+    text(draft.message_id) ??
+    text(draft.messageId)
+  )
+}
+
+function normalizedSubjectFingerprint(value: unknown): string | null {
+  const subject = text(value)
+  if (!subject) return null
+  return stableHash(subject.replace(/^\s*(re|fw|fwd)\s*:\s*/i, '').replace(/\s+/g, ' ').trim().toLowerCase())
+}
+
+function buildGmailResponseImportReadiness(args: {
+  contactId: number
+  status: WarmOutreachResponseMonitoringStatus
+  rows: WarmOutreachMonitoringRows
+  blockedReasons: string[]
+  latestResponse: PortfolioRow | null
+  latestOutbound: PortfolioRow | null
+}): WarmOutreachGmailResponseImportReadiness {
+  const latestResponse = args.latestResponse
+  const latestOutbound = args.latestOutbound
+  const responseMetadata = latestResponse ? metadata(latestResponse) : {}
+  const responseProvenance = record(responseMetadata.source_provenance)
+  const providerThreadId =
+    text(responseProvenance.provider_thread_id) ??
+    text(responseProvenance.providerThreadId) ??
+    providerThreadFromRow(latestResponse) ??
+    providerThreadFromRow(latestOutbound)
+  const providerMessageId =
+    text(responseProvenance.provider_message_id) ??
+    text(responseProvenance.providerMessageId) ??
+    providerMessageFromRow(latestResponse) ??
+    providerMessageFromRow(latestOutbound)
+  const matchedOutreachQueueId = latestOutbound && isEmailRow(latestOutbound)
+    ? sourceId(latestOutbound, 'outreach-queue')
+    : null
+  const provenanceSourceId =
+    rowSourceId(latestResponse ?? {}) ??
+    text(responseProvenance.source_id) ??
+    text(responseProvenance.sourceId)
+  const subjectKey = normalizedSubjectFingerprint(latestResponse?.subject ?? latestOutbound?.subject)
+  const responseIsImportedGmail =
+    Boolean(latestResponse) &&
+    isEmailRow(latestResponse as PortfolioRow) &&
+    !isManualResponse(latestResponse as PortfolioRow)
+  const hasQueueBasis = Boolean(matchedOutreachQueueId)
+  const candidateStatus: WarmOutreachGmailResponseImportReadiness['latestCandidate']['status'] =
+    args.blockedReasons.length > 0
+      ? 'blocked'
+      : responseIsImportedGmail
+        ? 'imported_response_recorded'
+        : hasQueueBasis
+          ? 'ready_for_mock_import'
+          : 'manual_recovery_required'
+  const state: WarmOutreachGmailResponseImportReadiness['state'] =
+    candidateStatus === 'blocked'
+      ? 'blocked'
+      : candidateStatus === 'imported_response_recorded'
+        ? 'response_evidence_ready'
+        : candidateStatus === 'ready_for_mock_import'
+          ? 'dry_run_ready'
+          : 'manual_recovery_required'
+  const confidence: WarmOutreachGmailResponseImportReadiness['latestCandidate']['confidence'] =
+    providerThreadId && matchedOutreachQueueId
+      ? 'high'
+      : providerThreadId || matchedOutreachQueueId
+        ? 'medium'
+        : subjectKey
+          ? 'low'
+          : 'none'
+  const dedupeKeys = [
+    providerThreadId ? `gmail_thread:${providerThreadId}` : null,
+    providerMessageId ? `gmail_message:${providerMessageId}` : null,
+    matchedOutreachQueueId ? `queue:${matchedOutreachQueueId}` : null,
+    `contact:${args.contactId}`,
+    subjectKey ? `subject:${subjectKey}` : null,
+    provenanceSourceId,
+  ].filter(Boolean) as string[]
+
+  return {
+    version: 'warm-outreach-gmail-response-import-readiness/v1',
+    state,
+    label:
+      state === 'response_evidence_ready'
+        ? 'Gmail response evidence recorded'
+        : state === 'dry_run_ready'
+          ? 'Mock Gmail response import ready'
+          : state === 'blocked'
+            ? 'Gmail response import blocked'
+            : 'Gmail response import needs manual recovery',
+    provider: 'gmail',
+    dryRunImportEnabled: true,
+    liveProviderImportEnabled: false,
+    providerPollingEnabled: false,
+    gmailApiCalled: false,
+    externalActionsEnabled: false,
+    gmailDraftCreationEnabled: false,
+    slackDispatchEnabled: false,
+    n8nDispatchEnabled: false,
+    matchBasis: [
+      {
+        key: 'gmail_thread_id',
+        label: 'Gmail thread',
+        available: Boolean(providerThreadId),
+        detail: providerThreadId ?? 'No Gmail thread id is recorded on local response or queue evidence.',
+      },
+      {
+        key: 'gmail_message_id',
+        label: 'Gmail message',
+        available: Boolean(providerMessageId),
+        detail: providerMessageId ?? 'No Gmail message id is recorded on local response or queue evidence.',
+      },
+      {
+        key: 'queue_id',
+        label: 'Queue row',
+        available: Boolean(matchedOutreachQueueId),
+        detail: matchedOutreachQueueId ?? 'No email outreach queue row is available for durable matching.',
+      },
+      {
+        key: 'contact_id',
+        label: 'Contact',
+        available: true,
+        detail: `contact_submission:${args.contactId}`,
+      },
+      {
+        key: 'normalized_recipient',
+        label: 'Recipient identity',
+        available: true,
+        detail: 'The dry-run importer also compares mocked reply sender against the Portfolio contact email.',
+      },
+      {
+        key: 'subject_fingerprint',
+        label: 'Subject fingerprint',
+        available: Boolean(subjectKey),
+        detail: subjectKey ?? 'No subject is available for fallback matching.',
+      },
+    ],
+    latestCandidate: {
+      status: candidateStatus,
+      confidence,
+      providerThreadId,
+      providerMessageId,
+      matchedOutreachQueueId,
+      matchedContactId: args.contactId,
+      provenanceSourceId,
+      nextAction:
+        candidateStatus === 'imported_response_recorded'
+          ? 'Review existing Gmail response evidence and local follow-up state before any outbound action.'
+          : candidateStatus === 'ready_for_mock_import'
+            ? 'Run the dry-run admin test path with mocked Gmail payloads, then import through the existing response lifecycle after human review.'
+            : candidateStatus === 'blocked'
+              ? args.blockedReasons[0] ?? 'Resolve suppression or readiness blockers before import.'
+              : 'Add a queue id, Gmail thread/message id, or contact identity before importing a Gmail reply.',
+      recoveryPath:
+        candidateStatus === 'ready_for_mock_import'
+          ? 'POST mocked payloads to the dry-run route; ready candidates still create only local response evidence through the existing lifecycle.'
+          : candidateStatus === 'imported_response_recorded'
+            ? 'Use the contact workroom to review classification, reply draft, suppression proposal, and local task evidence.'
+            : candidateStatus === 'blocked'
+              ? 'Clear or approve suppression/recovery in Portfolio before any response import.'
+              : 'Resolve unmatched or ambiguous provider evidence manually in the contact workroom.',
+    },
+    dedupe: {
+      provider: 'gmail',
+      keys: [...new Set(dedupeKeys)],
+      duplicateReplayBlocked: true,
+      detail:
+        'Replay checks use provider, Gmail thread/message id, queue id, contact id, normalized recipient, subject fingerprint, and existing warm response source ids.',
+    },
+    auditNotes: [
+      'This readiness packet is local Portfolio metadata only.',
+      'Live Gmail polling/import remains disabled; mocked dry-run planning is the only import path represented here.',
+      'No Gmail draft, Gmail send, Slack dispatch, n8n dispatch, or provider action is enabled.',
+    ],
+  }
 }
 
 function weakRelationshipBasis(packet: WarmOutreachRelationshipPacket): boolean {
@@ -2872,6 +3124,14 @@ export function buildWarmOutreachResponseMonitoring(args: {
     proposedFollowUp,
     providerCaptureReadiness,
   })
+  const gmailResponseImportReadiness = buildGmailResponseImportReadiness({
+    contactId: args.contactId,
+    status,
+    rows: args.rows,
+    blockedReasons,
+    latestResponse,
+    latestOutbound,
+  })
 
   return {
     version: 'warm-outreach-response-monitoring/v1',
@@ -2898,6 +3158,7 @@ export function buildWarmOutreachResponseMonitoring(args: {
       'Manual/imported response evidence can be reviewed; provider polling remains disabled.',
       'No external send, provider action, Gmail draft, Slack action, n8n dispatch, or schedule is executed.',
     ],
+    gmailResponseImportReadiness,
     sendReadiness: buildWarmOutreachSendReadiness({
       contactId: args.contactId,
       packet: args.packet,

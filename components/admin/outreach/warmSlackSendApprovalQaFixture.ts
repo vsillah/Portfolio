@@ -816,6 +816,90 @@ export const warmSlackSendApprovalQaRelationshipPacket = {
         detail: 'Response alerts may store a Portfolio contact deep link for later review, but this surface does not post Slack messages.',
       },
     },
+    gmailResponseImportReadiness: {
+      version: 'warm-outreach-gmail-response-import-readiness/v1',
+      state: 'dry_run_ready',
+      label: 'Mock Gmail response import ready',
+      provider: 'gmail',
+      dryRunImportEnabled: true,
+      liveProviderImportEnabled: false,
+      providerPollingEnabled: false,
+      gmailApiCalled: false,
+      externalActionsEnabled: false,
+      gmailDraftCreationEnabled: false,
+      slackDispatchEnabled: false,
+      n8nDispatchEnabled: false,
+      matchBasis: [
+        {
+          key: 'gmail_thread_id',
+          label: 'Gmail thread',
+          available: true,
+          detail: 'qa-gmail-thread-42',
+        },
+        {
+          key: 'gmail_message_id',
+          label: 'Gmail message',
+          available: true,
+          detail: 'qa-gmail-message-42',
+        },
+        {
+          key: 'queue_id',
+          label: 'Queue row',
+          available: true,
+          detail: WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID,
+        },
+        {
+          key: 'contact_id',
+          label: 'Contact',
+          available: true,
+          detail: `contact_submission:${WARM_SLACK_SEND_APPROVAL_QA_CONTACT_ID}`,
+        },
+        {
+          key: 'normalized_recipient',
+          label: 'Recipient identity',
+          available: true,
+          detail: warmSlackSendApprovalQaLead.email,
+        },
+        {
+          key: 'subject_fingerprint',
+          label: 'Subject fingerprint',
+          available: true,
+          detail: 'qa-warm-slack-send-approval-subject',
+        },
+      ],
+      latestCandidate: {
+        status: 'ready_for_mock_import',
+        confidence: 'high',
+        providerThreadId: 'qa-gmail-thread-42',
+        providerMessageId: 'qa-gmail-message-42',
+        matchedOutreachQueueId: WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID,
+        matchedContactId: WARM_SLACK_SEND_APPROVAL_QA_CONTACT_ID,
+        provenanceSourceId: null,
+        nextAction:
+          'Run the dry-run admin test path with mocked Gmail payloads, then import through the existing response lifecycle after human review.',
+        recoveryPath:
+          'POST mocked payloads to the dry-run route; ready candidates still create only local response evidence through the existing lifecycle.',
+      },
+      dedupe: {
+        provider: 'gmail',
+        keys: [
+          'gmail_thread:qa-gmail-thread-42',
+          'gmail_message:qa-gmail-message-42',
+          `queue:${WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID}`,
+          `contact:${WARM_SLACK_SEND_APPROVAL_QA_CONTACT_ID}`,
+          `recipient:${warmSlackSendApprovalQaLead.email}`,
+          'subject:qa-warm-slack-send-approval-subject',
+        ],
+        duplicateReplayBlocked: true,
+        detail:
+          'Replay checks use provider, Gmail thread/message id, queue id, contact id, normalized recipient, subject fingerprint, and existing warm response source ids.',
+      },
+      auditNotes: [
+        'This readiness packet is synthetic QA metadata only.',
+        'Live Gmail polling/import remains disabled; mocked dry-run planning is the only import path represented here.',
+        'No Gmail draft, Gmail send, Slack dispatch, n8n dispatch, or provider action is enabled.',
+      ],
+    },
     operatorDecisionPaths: [
       {
         key: 'capture_response',
