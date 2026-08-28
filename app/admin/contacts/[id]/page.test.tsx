@@ -213,6 +213,18 @@ describe('ContactDetailPage relationship packet', () => {
               sent_at: '2026-08-26T12:00:00.000Z',
               metadata: {
                 lifecycle: 'warm_outreach_response',
+                source_type: 'manual',
+                source_label: 'Manual entry',
+                source_provenance: {
+                  source_type: 'manual',
+                  source_label: 'Manual entry',
+                  capture_method: 'operator_manual_entry',
+                  source_system: 'manual',
+                  provider: 'manual',
+                  provider_polling_enabled: false,
+                  provider_ingestion_enabled: false,
+                  external_action_enabled: false,
+                },
                 response_class: 'interested',
                 response_class_label: 'interested',
                 recommended_next_action: {
@@ -260,6 +272,7 @@ describe('ContactDetailPage relationship packet', () => {
     expect(screen.getByText('Pending: human reply approval')).toBeInTheDocument()
     expect(screen.getByText('Human QA')).toBeInTheDocument()
     expect(screen.getByText('Next touch')).toBeInTheDocument()
+    expect(screen.getAllByText('Manual entry').length).toBeGreaterThan(0)
     expect(screen.getByText('Manual message key: thread-42-message-7')).toBeInTheDocument()
 
     await waitFor(() => {
@@ -296,9 +309,13 @@ describe('ContactDetailPage relationship packet', () => {
         method: 'POST',
         body: JSON.stringify({
           channel: 'email',
+          sourceType: 'manual',
           responseText: 'Interested. Can we schedule a short call next week?',
           outreachQueueId: undefined,
           messageKey: 'thread-42-message-7',
+          providerThreadId: undefined,
+          providerMessageId: undefined,
+          sourceUrl: undefined,
         }),
       }))
     })

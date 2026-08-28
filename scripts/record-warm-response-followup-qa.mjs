@@ -22,6 +22,7 @@ const screenshotPaths = {
   mobile360: path.join(outputDir, 'warm-response-followup-contact-mobile-360.png'),
   mobile390: path.join(outputDir, 'warm-response-followup-contact-mobile-390.png'),
   mobile430: path.join(outputDir, 'warm-response-followup-contact-mobile-430.png'),
+  tablet768: path.join(outputDir, 'warm-response-followup-contact-tablet-768.png'),
   desktop: path.join(outputDir, 'warm-response-followup-contact-desktop.png'),
 }
 
@@ -165,6 +166,22 @@ function syntheticResponses() {
         sent_at: '2026-08-26T12:00:00.000Z',
         metadata: {
           lifecycle: 'warm_outreach_response',
+          source_type: 'gmail',
+          source_label: 'Gmail reply',
+          source_provenance: {
+            source_type: 'gmail',
+            source_label: 'Gmail reply',
+            capture_method: 'provider_shaped_manual_intake',
+            source_system: 'manual',
+            provider: 'gmail',
+            provider_thread_id: 'gmail-thread-qa',
+            provider_message_id: 'gmail-message-qa-1',
+            manual_message_key: 'qa-thread-42-message-1',
+            source_url: 'https://mail.google.com/mail/u/0/#inbox/gmail-thread-qa',
+            provider_polling_enabled: false,
+            provider_ingestion_enabled: false,
+            external_action_enabled: false,
+          },
           response_class: 'interested',
           response_class_label: 'interested',
           recommended_next_action: {
@@ -284,6 +301,20 @@ async function installRoutes(context, unexpectedRequests) {
           replyDraftOutcome: 'created',
           followUpTask: { outcome: 'created', id: 'task-created' },
           suppressionProposal: null,
+          sourceProvenance: {
+            source_type: 'gmail',
+            source_label: 'Gmail reply',
+            capture_method: 'provider_shaped_manual_intake',
+            source_system: 'manual',
+            provider: 'gmail',
+            provider_thread_id: 'gmail-thread-qa',
+            provider_message_id: 'gmail-message-qa-new',
+            manual_message_key: 'qa-thread-42-message-3',
+            source_url: null,
+            provider_polling_enabled: false,
+            provider_ingestion_enabled: false,
+            external_action_enabled: false,
+          },
           executionBoundary: {
             providerIngestionEnabled: false,
             externalMonitoringEnabled: false,
@@ -341,6 +372,7 @@ async function captureRouteScreenshot(width, height, screenshotPath) {
     )
   }
   await page.getByPlaceholder(/Optional stable source key/i).fill('qa-thread-42-message-2')
+  await page.getByLabel(/Response source/i).selectOption('gmail')
   await page.getByPlaceholder(/Paste or summarize the response/i).fill('Interested. Could we talk next week?')
   await page.getByRole('button', { name: /Capture response/i }).click()
   await page.getByText(/Response captured as interested/i).waitFor()
@@ -361,6 +393,9 @@ for (const [name, width] of [
   )
 }
 screenshotUnexpectedRequests.push(
+  ...(await captureRouteScreenshot(768, 900, screenshotPaths.tablet768)),
+)
+screenshotUnexpectedRequests.push(
   ...(await captureRouteScreenshot(1280, 900, screenshotPaths.desktop)),
 )
 
@@ -377,6 +412,7 @@ await page.goto(`file://${wrapperPath}`, { waitUntil: 'domcontentloaded' })
 const frame = page.frameLocator('iframe[title="Actual Portfolio contact workroom"]')
 await frame.getByRole('heading', { name: /Warm response lifecycle/i }).scrollIntoViewIfNeeded()
 await page.waitForTimeout(500)
+await frame.getByLabel(/Response source/i).selectOption('gmail')
 await frame.getByPlaceholder(/Optional stable source key/i).fill('qa-thread-42-message-3')
 await frame.getByPlaceholder(/Paste or summarize the response/i).fill('Interested. Could we review options next week?')
 await page.waitForTimeout(400)

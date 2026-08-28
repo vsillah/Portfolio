@@ -21,6 +21,16 @@ export const WARM_OUTREACH_RESPONSE_CHANNELS = [
 ] as const
 
 export type WarmOutreachResponseChannel = (typeof WARM_OUTREACH_RESPONSE_CHANNELS)[number]
+
+export const WARM_OUTREACH_RESPONSE_SOURCE_TYPES = [
+  'manual',
+  'gmail',
+  'linkedin',
+  'facebook',
+  'contact_phone',
+] as const
+
+export type WarmOutreachResponseSourceType = (typeof WARM_OUTREACH_RESPONSE_SOURCE_TYPES)[number]
 export type WarmOutreachContactCommunicationChannel =
   | 'email'
   | 'linkedin'
@@ -35,6 +45,7 @@ export type WarmOutreachResponseInput = {
   receivedAt?: string | null
   outreachQueueId?: string | null
   provider?: string | null
+  sourceType?: WarmOutreachResponseSourceType | null
   providerThreadId?: string | null
   providerMessageId?: string | null
   messageKey?: string | null
@@ -175,6 +186,24 @@ function normalizeProviderPart(value: string | null | undefined, fallback: strin
   return trimmed || fallback
 }
 
+export function providerForWarmResponseSource(sourceType: WarmOutreachResponseSourceType | null | undefined) {
+  if (sourceType === 'gmail') return 'gmail'
+  if (sourceType === 'linkedin') return 'linkedin'
+  if (sourceType === 'facebook') return 'facebook'
+  if (sourceType === 'contact_phone') return 'contact_phone'
+  return 'manual'
+}
+
+export function channelForWarmResponseSource(
+  sourceType: WarmOutreachResponseSourceType,
+): WarmOutreachResponseChannel | null {
+  if (sourceType === 'gmail') return 'email'
+  if (sourceType === 'linkedin') return 'linkedin'
+  if (sourceType === 'facebook') return 'facebook'
+  if (sourceType === 'contact_phone') return 'phone_contact'
+  return null
+}
+
 export function communicationChannelForWarmResponse(
   channel: WarmOutreachResponseChannel,
 ): WarmOutreachContactCommunicationChannel {
@@ -186,7 +215,10 @@ export function communicationChannelForWarmResponse(
 export function buildWarmOutreachResponseIdempotencyKey(
   input: WarmOutreachResponseInput,
 ) {
-  const provider = normalizeProviderPart(input.provider, 'manual')
+  const provider = normalizeProviderPart(
+    input.provider ?? providerForWarmResponseSource(input.sourceType),
+    'manual',
+  )
   const providerThreadId = normalizeProviderPart(input.providerThreadId, 'manual-thread')
   const providerMessageId = normalizeProviderPart(input.providerMessageId, '')
   const messageKey = normalizeProviderPart(input.messageKey, '')
@@ -198,11 +230,13 @@ export function buildWarmOutreachResponseIdempotencyKey(
   const basis = [
     input.contactId,
     input.channel,
+    input.sourceType ?? 'manual',
+    provider,
     input.outreachQueueId ?? 'no-queue',
     messageKey || compactText(input.responseText).toLowerCase(),
   ].join('|')
 
-  return `warm-outreach:reply:manual:${shortHash(basis)}`
+  return `warm-outreach:reply:${provider}:${shortHash(basis)}`
 }
 
 function classifyText(text: string): {

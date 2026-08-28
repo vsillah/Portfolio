@@ -49,6 +49,7 @@ interface DashboardAccess { access_token: string; client_email: string }
 interface SalesSession { id: string; created_at: string }
 interface TimelineEvent { type: string; date: string; title: string; detail?: string; id?: string }
 type WarmResponseChannel = 'email' | 'linkedin' | 'facebook' | 'phone_contact'
+type WarmResponseSourceType = 'manual' | 'gmail' | 'linkedin' | 'facebook' | 'contact_phone'
 
 interface WarmLifecycleRow {
   id: string
@@ -219,6 +220,22 @@ const WARM_RESPONSE_CHANNEL_LABELS: Record<WarmResponseChannel, string> = {
   phone_contact: 'Phone / manual',
 }
 
+const WARM_RESPONSE_SOURCE_LABELS: Record<WarmResponseSourceType, string> = {
+  manual: 'Manual entry',
+  gmail: 'Gmail reply',
+  linkedin: 'LinkedIn reply',
+  facebook: 'Facebook manual capture',
+  contact_phone: 'Contact phone capture',
+}
+
+function channelForResponseSource(sourceType: WarmResponseSourceType): WarmResponseChannel | null {
+  if (sourceType === 'gmail') return 'email'
+  if (sourceType === 'linkedin') return 'linkedin'
+  if (sourceType === 'facebook') return 'facebook'
+  if (sourceType === 'contact_phone') return 'phone_contact'
+  return null
+}
+
 function metadataString(metadata: Record<string, unknown> | null | undefined, key: string) {
   const value = metadata?.[key]
   return typeof value === 'string' ? value : null
@@ -286,6 +303,10 @@ function ContactDetailPage() {
   const [gmailDraftCanaryError, setGmailDraftCanaryError] = useState<string | null>(null)
   const [gmailDraftCanaryResult, setGmailDraftCanaryResult] = useState<GmailDraftCanaryResult | null>(null)
   const [warmResponseChannel, setWarmResponseChannel] = useState<WarmResponseChannel>('email')
+  const [warmResponseSourceType, setWarmResponseSourceType] = useState<WarmResponseSourceType>('manual')
+  const [warmResponseProviderThreadId, setWarmResponseProviderThreadId] = useState('')
+  const [warmResponseProviderMessageId, setWarmResponseProviderMessageId] = useState('')
+  const [warmResponseSourceUrl, setWarmResponseSourceUrl] = useState('')
   const [warmResponseText, setWarmResponseText] = useState('')
   const [warmResponseOutreachQueueId, setWarmResponseOutreachQueueId] = useState('')
   const [warmResponseMessageKey, setWarmResponseMessageKey] = useState('')
@@ -300,6 +321,7 @@ function ContactDetailPage() {
     recommendedNextAction?: string | null
     approvalGate?: string | null
     recoveryPath?: string | null
+    sourceLabel?: string | null
     replyDraftCommunicationId?: string | null
     replyDraftOutcome?: string | null
     followUpTaskId?: string | null
@@ -595,9 +617,13 @@ function ContactDetailPage() {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           channel: warmResponseChannel,
+          sourceType: warmResponseSourceType,
           responseText: text,
           outreachQueueId: warmResponseOutreachQueueId || undefined,
           messageKey: warmResponseMessageKey.trim() || undefined,
+          providerThreadId: warmResponseProviderThreadId.trim() || undefined,
+          providerMessageId: warmResponseProviderMessageId.trim() || undefined,
+          sourceUrl: warmResponseSourceUrl.trim() || undefined,
         }),
       })
       const d = await res.json().catch(() => ({}))
@@ -612,6 +638,7 @@ function ContactDetailPage() {
         recommendedNextAction: d.decision?.interpretation?.recommendedNextAction?.label ?? null,
         approvalGate: d.decision?.approvalGate?.label ?? null,
         recoveryPath: d.decision?.approvalGate?.recoveryPath ?? null,
+        sourceLabel: d.sourceProvenance?.source_label ?? null,
         replyDraftCommunicationId: d.replyDraftCommunicationId ?? null,
         replyDraftOutcome: d.replyDraftOutcome ?? null,
         followUpTaskId: d.followUpTask?.id ?? null,
@@ -621,6 +648,9 @@ function ContactDetailPage() {
       })
       setWarmResponseText('')
       setWarmResponseMessageKey('')
+      setWarmResponseProviderThreadId('')
+      setWarmResponseProviderMessageId('')
+      setWarmResponseSourceUrl('')
       await fetchWarmResponses()
       await fetchData()
     } catch {
@@ -790,12 +820,36 @@ function ContactDetailPage() {
               </p>
             </div>
             <div className="px-6 py-4 space-y-4">
-              <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+              <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-3">
+                <label className="space-y-1">
+                  <span className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Response source</span>
+                  <select
+                    value={warmResponseSourceType}
+                    onChange={e => {
+                      const nextSource = e.target.value as WarmResponseSourceType
+                      setWarmResponseSourceType(nextSource)
+                      const nextChannel = channelForResponseSource(nextSource)
+                      if (nextChannel) setWarmResponseChannel(nextChannel)
+                    }}
+                    className="w-full rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-sm text-white focus:border-sky-500 focus:ring-2 focus:ring-sky-500/30"
+                  >
+                    {(Object.keys(WARM_RESPONSE_SOURCE_LABELS) as WarmResponseSourceType[]).map(source => (
+                      <option key={source} value={source}>{WARM_RESPONSE_SOURCE_LABELS[source]}</option>
+                    ))}
+                  </select>
+                </label>
                 <label className="space-y-1">
                   <span className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Response channel</span>
                   <select
                     value={warmResponseChannel}
-                    onChange={e => setWarmResponseChannel(e.target.value as WarmResponseChannel)}
+                    onChange={e => {
+                      const nextChannel = e.target.value as WarmResponseChannel
+                      setWarmResponseChannel(nextChannel)
+                      const sourceChannel = channelForResponseSource(warmResponseSourceType)
+                      if (sourceChannel && sourceChannel !== nextChannel) {
+                        setWarmResponseSourceType('manual')
+                      }
+                    }}
                     className="w-full rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-sm text-white focus:border-sky-500 focus:ring-2 focus:ring-sky-500/30"
                   >
                     {(Object.keys(WARM_RESPONSE_CHANNEL_LABELS) as WarmResponseChannel[]).map(channel => (
@@ -818,7 +872,7 @@ function ContactDetailPage() {
                     ))}
                   </select>
                 </label>
-                <label className="space-y-1 md:col-span-2">
+                <label className="space-y-1 lg:col-span-3">
                   <span className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Manual message key</span>
                   <input
                     value={warmResponseMessageKey}
@@ -827,6 +881,43 @@ function ContactDetailPage() {
                     className="w-full rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-sm text-white placeholder:text-gray-600 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/30"
                   />
                 </label>
+                <details className="rounded-lg border border-gray-800 bg-gray-950/50 md:col-span-2 lg:col-span-3">
+                  <summary className="cursor-pointer px-3 py-2 text-xs font-medium text-gray-400">
+                    Provider-shaped source fields
+                  </summary>
+                  <div className="grid gap-3 border-t border-gray-800 p-3 md:grid-cols-3">
+                    <label className="space-y-1">
+                      <span className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Thread id</span>
+                      <input
+                        value={warmResponseProviderThreadId}
+                        onChange={e => setWarmResponseProviderThreadId(e.target.value)}
+                        placeholder="Optional provider thread id"
+                        className="w-full rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-sm text-white placeholder:text-gray-600 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/30"
+                      />
+                    </label>
+                    <label className="space-y-1">
+                      <span className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Message id</span>
+                      <input
+                        value={warmResponseProviderMessageId}
+                        onChange={e => setWarmResponseProviderMessageId(e.target.value)}
+                        placeholder="Optional provider message id"
+                        className="w-full rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-sm text-white placeholder:text-gray-600 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/30"
+                      />
+                    </label>
+                    <label className="space-y-1">
+                      <span className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Source URL</span>
+                      <input
+                        value={warmResponseSourceUrl}
+                        onChange={e => setWarmResponseSourceUrl(e.target.value)}
+                        placeholder="Optional internal/source link"
+                        className="w-full rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-sm text-white placeholder:text-gray-600 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/30"
+                      />
+                    </label>
+                    <p className="text-xs leading-5 text-gray-500 md:col-span-3">
+                      These fields record provenance only. Provider import, polling, Slack, Gmail drafts, DMs, and sends remain off.
+                    </p>
+                  </div>
+                </details>
               </div>
               <label className="block space-y-1">
                 <span className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Captured response</span>
@@ -863,6 +954,7 @@ function ContactDetailPage() {
                     {warmResponseResult.outcome === 'existing' ? 'Existing capture reused' : 'Response captured'} as {warmResponseResult.classificationLabel || warmResponseResult.responseClass?.replace(/_/g, ' ') || 'warm response'}.
                   </p>
                   <p className="mt-1 text-xs leading-5 text-emerald-100/90">
+                    {warmResponseResult.sourceLabel ? `Source: ${warmResponseResult.sourceLabel}. ` : ''}
                     {warmResponseResult.recommendedNextAction || 'Review the local next action.'}
                     {warmResponseResult.approvalGate ? ` ${warmResponseResult.approvalGate}.` : ' Human approval remains required.'}
                     {warmResponseResult.replyDraftCommunicationId && ` Local reply draft ${warmResponseResult.replyDraftOutcome === 'existing' ? 'reused' : 'created'}.`}
@@ -908,6 +1000,10 @@ function ContactDetailPage() {
                         const approvalGate = metadataRecord(row.metadata, 'approval_gate')
                         const draft = metadataRecord(row.metadata, 'local_draft_recommendation')
                         const suppressionProposal = metadataRecord(row.metadata, 'suppression_proposal')
+                        const sourceProvenance = metadataRecord(row.metadata, 'source_provenance')
+                        const sourceLabel = metadataString(row.metadata, 'source_label') || recordString(sourceProvenance, 'source_label')
+                        const providerMessageId = recordString(sourceProvenance, 'provider_message_id')
+                        const sourceUrl = recordString(sourceProvenance, 'source_url')
                         const manualMessageKey = metadataString(row.metadata, 'manual_message_key')
                         return (
                           <div key={row.id} className="border-t border-gray-800 pt-3">
@@ -917,6 +1013,7 @@ function ContactDetailPage() {
                               {humanQaRequired && <span className="text-[10px] rounded border border-amber-800 bg-amber-950/40 px-1.5 py-0.5 text-amber-200">Human QA</span>}
                               {nextTouchDecisionRequired && <span className="text-[10px] rounded border border-sky-800 bg-sky-950/40 px-1.5 py-0.5 text-sky-200">Next touch</span>}
                               {suppressionProposal && <span className="text-[10px] rounded border border-red-800 bg-red-950/40 px-1.5 py-0.5 text-red-200">Suppression proposal</span>}
+                              {sourceLabel && <span className="text-[10px] rounded border border-indigo-800 bg-indigo-950/40 px-1.5 py-0.5 text-indigo-200">{sourceLabel}</span>}
                               <span className="text-[10px] text-gray-500">{row.channel} · {formatDateTime(row.created_at)}</span>
                             </div>
                             <div className="mt-3 grid gap-3 md:grid-cols-5">
@@ -949,6 +1046,8 @@ function ContactDetailPage() {
                             <div className="mt-2 flex flex-wrap gap-2 text-[10px] leading-4 text-gray-500">
                               <span className="break-all">Response key: {row.source_id || 'not recorded'}</span>
                               {manualMessageKey && <span className="break-all">Manual message key: {manualMessageKey}</span>}
+                              {providerMessageId && <span className="break-all">Provider message: {providerMessageId}</span>}
+                              {sourceUrl && <span className="break-all">Source link: {sourceUrl}</span>}
                               {suppressionProposal && (
                                 <span className="break-all text-red-300">
                                   Suppression gate: {recordString(suppressionProposal, 'state')?.replace(/_/g, ' ') || 'pending human approval'}
