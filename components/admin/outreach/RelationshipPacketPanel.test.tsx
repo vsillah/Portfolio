@@ -12,7 +12,10 @@ import type {
   WarmOutreachSendAuthority,
   WarmOutreachSendMode,
 } from '@/lib/warm-outreach-response-monitoring'
-import { buildWarmOutreachGmailResponseImportActivationReadiness } from '@/lib/warm-outreach-gmail-response-import'
+import {
+  buildWarmOutreachGmailResponseImportActivationReadiness,
+  buildWarmOutreachGmailResponseImportCanaryReadiness,
+} from '@/lib/warm-outreach-gmail-response-import'
 import {
   WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID,
   warmSlackSendApprovalQaRelationshipPacket,
@@ -840,6 +843,13 @@ const packetResponse: RelationshipPacketApiResponse = {
         detail:
           'Replay checks use provider, Gmail thread/message id, queue id, contact id, normalized recipient, subject fingerprint, and existing warm response source ids.',
       },
+      canaryReadiness: buildWarmOutreachGmailResponseImportCanaryReadiness({
+        contactId: 42,
+        queueId: 'queue-1',
+        gmailThreadId: 'gmail-thread-42',
+        dedupeKey: 'gmail_thread:gmail-thread-42',
+        observedAt: '2026-08-28T10:00:00.000Z',
+      }),
       auditNotes: [
         'This readiness packet is local Portfolio metadata only.',
         'Live Gmail polling/import remains disabled; mocked dry-run planning is the only import path represented here.',
@@ -991,6 +1001,16 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Queue: queue-1')).toBeInTheDocument()
     expect(screen.getByText('Thread: gmail-thread-42')).toBeInTheDocument()
     expect(screen.getByText('Message: missing')).toBeInTheDocument()
+    expect(screen.getByText('Response import canary readiness')).toBeInTheDocument()
+    expect(screen.getByText('Ready for dry-run response import')).toBeInTheDocument()
+    expect(screen.getByText('Live read approval required')).toBeInTheDocument()
+    expect(screen.getByText('Decision: dry run only')).toBeInTheDocument()
+    expect(screen.getByText('Outcome: not checked')).toBeInTheDocument()
+    expect(screen.getByText('Dry-run fixture: ready')).toBeInTheDocument()
+    expect(screen.getByText('One-recipient scope: ready')).toBeInTheDocument()
+    expect(screen.getByText('Live Gmail read approval: required')).toBeInTheDocument()
+    expect(screen.getByText('Reply/send boundary: disabled')).toBeInTheDocument()
+    expect(screen.getByText('Gmail API: not called / DB writes: off / reply draft: not created.')).toBeInTheDocument()
     expect(screen.getByText('Gmail thread: ready')).toBeInTheDocument()
     expect(screen.getByText('Gmail message: missing')).toBeInTheDocument()
     expect(screen.getByText('Recipient identity: ready')).toBeInTheDocument()
@@ -1113,6 +1133,15 @@ describe('RelationshipPacketPanel', () => {
           activationReadiness: buildWarmOutreachGmailResponseImportActivationReadiness({
             providerConfigured: false,
           }),
+          canaryReadiness: buildWarmOutreachGmailResponseImportCanaryReadiness({
+            activationReadiness: buildWarmOutreachGmailResponseImportActivationReadiness({
+              providerConfigured: false,
+            }),
+            contactId: 42,
+            queueId: 'queue-1',
+            gmailThreadId: 'gmail-thread-42',
+            dedupeKey: 'gmail_thread:gmail-thread-42',
+          }),
         },
       },
     }
@@ -1123,6 +1152,81 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Mock: ready / live: disabled')).toBeInTheDocument()
     expect(screen.getAllByText('Provider: missing').length).toBeGreaterThan(0)
     expect(screen.getByText('Gate state: Gmail response import provider configuration is missing.')).toBeInTheDocument()
+    expect(screen.getByText('Gmail response import not connected')).toBeInTheDocument()
+  })
+
+  it('renders response-import canary found, no-response, duplicate, and retry states', () => {
+    const responseMonitoring = packetResponse.responseMonitoring!
+    const baseCanary = responseMonitoring.gmailResponseImportReadiness.canaryReadiness
+    const variants = [
+      {
+        state: 'imported_response_found',
+        label: 'Imported response found in dry-run',
+        outcome: 'mock_response_found',
+        retryAvailable: false,
+        decisionState: 'candidate_ready_for_import',
+      },
+      {
+        state: 'no_response_found',
+        label: 'No Gmail response found',
+        outcome: 'no_response_found',
+        retryAvailable: true,
+        decisionState: 'no_response_found',
+      },
+      {
+        state: 'duplicate_deduped',
+        label: 'Duplicate Gmail response deduped',
+        outcome: 'duplicate_deduped',
+        retryAvailable: false,
+        decisionState: 'duplicate_blocked',
+      },
+      {
+        state: 'error_retry',
+        label: 'Gmail response import retry required',
+        outcome: 'error',
+        retryAvailable: true,
+        decisionState: 'error_retry',
+      },
+    ] as const
+
+    for (const variant of variants) {
+      const { unmount } = render(
+        <RelationshipPacketPanel
+          loading={false}
+          error={null}
+          data={{
+            ...packetResponse,
+            responseMonitoring: {
+              ...responseMonitoring,
+              gmailResponseImportReadiness: {
+                ...responseMonitoring.gmailResponseImportReadiness,
+                canaryReadiness: {
+                  ...baseCanary,
+                  state: variant.state,
+                  label: variant.label,
+                  retryAvailable: variant.retryAvailable,
+                  latestOutcome: {
+                    ...baseCanary.latestOutcome,
+                    status: variant.outcome,
+                    detail: variant.label,
+                  },
+                  provenance: {
+                    ...baseCanary.provenance,
+                    decisionState: variant.decisionState,
+                  },
+                },
+              },
+            },
+          }}
+        />,
+      )
+
+      expect(screen.getByText(variant.label)).toBeInTheDocument()
+      expect(screen.getByText(`Decision: ${variant.decisionState.replace(/_/g, ' ')}`)).toBeInTheDocument()
+      expect(screen.getByText(`Outcome: ${variant.outcome.replace(/_/g, ' ')}`)).toBeInTheDocument()
+      expect(screen.getByText(`Retry: ${variant.retryAvailable ? 'available' : 'not needed'}`)).toBeInTheDocument()
+      unmount()
+    }
   })
 
   it('surfaces the no-send Gmail draft canary without implying draft creation', () => {

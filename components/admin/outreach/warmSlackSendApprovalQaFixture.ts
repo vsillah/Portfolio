@@ -967,6 +967,85 @@ export const warmSlackSendApprovalQaRelationshipPacket = {
         detail:
           'Replay checks use provider, Gmail thread/message id, queue id, contact id, normalized recipient, subject fingerprint, and existing warm response source ids.',
       },
+      canaryReadiness: {
+        version: 'warm-outreach-gmail-response-import-canary-readiness/v1',
+        provider: 'gmail',
+        state: 'live_read_approval_required',
+        label: 'Live Gmail read approval required',
+        detail:
+          'Provider readiness is present, but a live Gmail read requires a separate explicit approval gate.',
+        canRunDryRun: true,
+        liveReadApprovalRequired: true,
+        liveReadApproved: false,
+        liveProviderImportEnabled: false,
+        providerPollingEnabled: false,
+        gmailApiCalled: false,
+        databaseWritesEnabled: false,
+        externalActionsEnabled: false,
+        gmailDraftCreationEnabled: false,
+        gmailSendEnabled: false,
+        slackDispatchEnabled: false,
+        n8nDispatchEnabled: false,
+        responseDraftCreated: false,
+        retryAvailable: false,
+        latestOutcome: {
+          status: 'not_checked',
+          detail:
+            'Provider readiness is present, but a live Gmail read requires a separate explicit approval gate.',
+        },
+        provenance: {
+          version: 'warm-outreach-gmail-response-import-provenance/v1',
+          importRunId: 'warm-outreach:gmail-response-import-canary:v1:qa-live-read-gate',
+          queueId: WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID,
+          contactId: WARM_SLACK_SEND_APPROVAL_QA_CONTACT_ID,
+          gmailThreadId: 'qa-gmail-thread-42',
+          gmailMessageId: 'qa-gmail-message-42',
+          importRunTimestamp: timestamp,
+          actor: 'portfolio_qa_fixture',
+          decisionState: 'provider_read_approval_required',
+          dedupeKey: 'gmail_thread:qa-gmail-thread-42',
+        },
+        gates: [
+          {
+            key: 'dry_run_fixture',
+            label: 'Dry-run fixture',
+            state: 'ready',
+            detail: 'Fixture payloads and local Portfolio rows can prove matching without Gmail API reads.',
+          },
+          {
+            key: 'one_recipient_scope',
+            label: 'One-recipient scope',
+            state: 'ready',
+            detail: 'The canary is tied to one contact and one warm outreach queue row.',
+          },
+          {
+            key: 'live_gmail_read_approval',
+            label: 'Live Gmail read approval',
+            state: 'required',
+            detail: 'A future live Gmail read requires explicit current approval; a generic proceed is not enough.',
+          },
+          {
+            key: 'dedupe',
+            label: 'Dedupe',
+            state: 'ready',
+            detail:
+              'Replay checks use provider, thread id, message id, contact id, queue id, and response key.',
+          },
+          {
+            key: 'response_lifecycle',
+            label: 'Response lifecycle',
+            state: 'required',
+            detail: 'Import review feeds the existing response lifecycle; it does not create a reply automatically.',
+          },
+          {
+            key: 'reply_send_boundary',
+            label: 'Reply/send boundary',
+            state: 'disabled',
+            detail:
+              'Importing a response cannot create a Gmail draft, Slack action, n8n dispatch, or external send.',
+          },
+        ],
+      },
       auditNotes: [
         'This readiness packet is synthetic QA metadata only.',
         'Live Gmail polling/import remains disabled; mocked dry-run planning is the only import path represented here.',

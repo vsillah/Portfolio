@@ -6,8 +6,10 @@ import type {
   WarmOutreachRelationshipPacket,
 } from './warm-outreach-relationship-intelligence'
 import {
+  buildWarmOutreachGmailResponseImportCanaryReadiness,
   buildWarmOutreachGmailResponseImportActivationReadiness,
   type WarmOutreachGmailResponseImportActivationReadiness,
+  type WarmOutreachGmailResponseImportCanaryReadiness,
 } from './warm-outreach-gmail-response-import'
 
 type PortfolioRow = Record<string, unknown>
@@ -603,6 +605,7 @@ export type WarmOutreachGmailResponseImportReadiness = {
     duplicateReplayBlocked: true
     detail: string
   }
+  canaryReadiness: WarmOutreachGmailResponseImportCanaryReadiness
   auditNotes: string[]
 }
 
@@ -1147,6 +1150,23 @@ function buildGmailResponseImportReadiness(args: {
             ? ['Local Gmail response import evidence needs queue, thread, message, or contact repair.']
             : [],
   })
+  const canaryReadiness = buildWarmOutreachGmailResponseImportCanaryReadiness({
+    activationReadiness,
+    contactId: args.contactId,
+    queueId: matchedOutreachQueueId,
+    gmailThreadId: providerThreadId,
+    gmailMessageId: providerMessageId,
+    dedupeKey: dedupeKeys[0] ?? null,
+    observedAt: rowTimestamp(latestResponse ?? latestOutbound ?? {}),
+    hasDryRunPayload: false,
+    dryRunImportEnabled: true,
+    state:
+      candidateStatus === 'imported_response_recorded'
+        ? 'imported_response_found'
+        : candidateStatus === 'manual_recovery_required' || candidateStatus === 'blocked'
+          ? 'error_retry'
+          : 'ready_for_dry_run',
+  })
 
   return {
     version: 'warm-outreach-gmail-response-import-readiness/v1',
@@ -1239,6 +1259,7 @@ function buildGmailResponseImportReadiness(args: {
       detail:
         'Replay checks use provider, Gmail thread/message id, queue id, contact id, normalized recipient, subject fingerprint, and existing warm response source ids.',
     },
+    canaryReadiness,
     auditNotes: [
       'This readiness packet is local Portfolio metadata only.',
       'Live Gmail polling/import remains disabled; mocked dry-run planning is the only import path represented here.',
