@@ -1389,6 +1389,77 @@ describe('warm outreach response monitoring', () => {
     expect(rollout?.blockers).toContain('Manual DNC review is active.')
   })
 
+  it('does not treat a timestamped Gmail draft communication log as submitted send evidence', () => {
+    const base = packet()
+    const providerPacket = packet({
+      channelCapabilities: {
+        ...base.channelCapabilities,
+        email: {
+          available: true,
+          providerConfigured: true,
+          supportsExternalSend: false,
+          manualOnly: false,
+          reason: 'Gmail OAuth profile is connected for gated send review.',
+        },
+      },
+    })
+    const monitoring = buildWarmOutreachResponseMonitoring({
+      contactId: 42,
+      packet: providerPacket,
+      readiness: evaluateWarmOutreachReadiness(providerPacket),
+      rows: {
+        outreachQueue: [
+          {
+            id: 'queue-with-draft-log',
+            channel: 'email',
+            status: 'replied',
+            sent_at: null,
+            generation_inputs: {
+              gmail_draft_creation: {
+                draft_id: 'gmail-draft-from-log',
+                message_id: 'gmail-message-from-log',
+                thread_id: 'gmail-thread-from-log',
+                connected_as: 'vambah@amadutown.com',
+                required_sender: 'vambah@amadutown.com',
+                external_send_blocked: true,
+              },
+            },
+          },
+        ],
+        contactCommunications: [
+          {
+            id: 'communication-draft-log',
+            channel: 'email',
+            status: 'draft',
+            direction: 'outbound',
+            sent_at: '2026-08-28T01:34:00.549Z',
+            metadata: {
+              gmail_draft_id: 'gmail-draft-from-log',
+            },
+          },
+        ],
+      },
+    })
+    const rollout = monitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')
+      ?.emailSendLifecycle?.realRecipientRolloutReadiness
+
+    expect(rollout).toMatchObject({
+      state: 'ready_for_send_request',
+      eligibleForSendApprovalRequest: true,
+      canBuildSlackApprovalPayload: true,
+      requirements: {
+        submittedEvidence: { state: 'missing' },
+        execution: { state: 'approval_needed' },
+      },
+      auditReceipt: {
+        suppressionAndIdempotency: {
+          duplicateDetected: false,
+          submittedEvidenceRecorded: false,
+        },
+      },
+    })
+  })
+
   it('marks duplicate real-recipient Gmail rollout as already sent when submitted evidence exists', () => {
     const base = packet()
     const providerPacket = packet({
