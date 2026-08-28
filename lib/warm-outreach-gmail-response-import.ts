@@ -44,6 +44,25 @@ export type WarmOutreachGmailImportCandidateStatus =
   | 'blocked_existing_response'
   | 'provider_disabled'
 
+export type WarmOutreachGmailResponseImportCanaryState =
+  | 'not_connected'
+  | 'disabled'
+  | 'ready_for_dry_run'
+  | 'live_read_approval_required'
+  | 'imported_response_found'
+  | 'no_response_found'
+  | 'duplicate_deduped'
+  | 'error_retry'
+
+export type WarmOutreachGmailResponseImportDecisionState =
+  | 'dry_run_only'
+  | 'provider_read_approval_required'
+  | 'candidate_ready_for_import'
+  | 'duplicate_blocked'
+  | 'no_response_found'
+  | 'error_retry'
+  | 'blocked'
+
 export const WARM_OUTREACH_GMAIL_RESPONSE_IMPORT_REQUIRED_SCOPES = [
   'https://www.googleapis.com/auth/gmail.readonly',
 ] as const
@@ -183,7 +202,64 @@ export type WarmOutreachGmailResponseImportPlan = {
     providerDisabled: number
   }
   activationReadiness: WarmOutreachGmailResponseImportActivationReadiness
+  canaryReadiness: WarmOutreachGmailResponseImportCanaryReadiness
   auditNotes: string[]
+}
+
+export type WarmOutreachGmailResponseImportCanaryReadiness = {
+  version: 'warm-outreach-gmail-response-import-canary-readiness/v1'
+  provider: 'gmail'
+  state: WarmOutreachGmailResponseImportCanaryState
+  label: string
+  detail: string
+  canRunDryRun: boolean
+  liveReadApprovalRequired: boolean
+  liveReadApproved: false
+  liveProviderImportEnabled: false
+  providerPollingEnabled: false
+  gmailApiCalled: false
+  databaseWritesEnabled: false
+  externalActionsEnabled: false
+  gmailDraftCreationEnabled: false
+  gmailSendEnabled: false
+  slackDispatchEnabled: false
+  n8nDispatchEnabled: false
+  responseDraftCreated: false
+  retryAvailable: boolean
+  latestOutcome: {
+    status:
+      | 'not_checked'
+      | 'mock_response_found'
+      | 'no_response_found'
+      | 'duplicate_deduped'
+      | 'error'
+      | 'blocked'
+    detail: string
+  }
+  provenance: {
+    version: 'warm-outreach-gmail-response-import-provenance/v1'
+    importRunId: string
+    queueId: string | null
+    contactId: number | null
+    gmailThreadId: string | null
+    gmailMessageId: string | null
+    importRunTimestamp: string | null
+    actor: string
+    decisionState: WarmOutreachGmailResponseImportDecisionState
+    dedupeKey: string
+  }
+  gates: Array<{
+    key:
+      | 'dry_run_fixture'
+      | 'one_recipient_scope'
+      | 'live_gmail_read_approval'
+      | 'dedupe'
+      | 'response_lifecycle'
+      | 'reply_send_boundary'
+    label: string
+    state: 'ready' | 'required' | 'blocked' | 'disabled' | 'passed'
+    detail: string
+  }>
 }
 
 function text(value: unknown): string | null {
@@ -685,11 +761,251 @@ export function buildWarmOutreachGmailResponseImportActivationReadiness(
   }
 }
 
+function canaryStateLabel(state: WarmOutreachGmailResponseImportCanaryState) {
+  switch (state) {
+    case 'not_connected':
+      return 'Gmail response import not connected'
+    case 'disabled':
+      return 'Gmail response import disabled'
+    case 'ready_for_dry_run':
+      return 'Ready for dry-run response import'
+    case 'live_read_approval_required':
+      return 'Live Gmail read approval required'
+    case 'imported_response_found':
+      return 'Imported response found in dry-run'
+    case 'no_response_found':
+      return 'No Gmail response found'
+    case 'duplicate_deduped':
+      return 'Duplicate Gmail response deduped'
+    case 'error_retry':
+    default:
+      return 'Gmail response import retry required'
+  }
+}
+
+function canaryDecisionState(
+  state: WarmOutreachGmailResponseImportCanaryState,
+): WarmOutreachGmailResponseImportDecisionState {
+  switch (state) {
+    case 'live_read_approval_required':
+      return 'provider_read_approval_required'
+    case 'imported_response_found':
+      return 'candidate_ready_for_import'
+    case 'duplicate_deduped':
+      return 'duplicate_blocked'
+    case 'no_response_found':
+      return 'no_response_found'
+    case 'error_retry':
+      return 'error_retry'
+    case 'not_connected':
+    case 'disabled':
+      return 'blocked'
+    case 'ready_for_dry_run':
+    default:
+      return 'dry_run_only'
+  }
+}
+
+function canaryOutcome(
+  state: WarmOutreachGmailResponseImportCanaryState,
+  detail: string,
+): WarmOutreachGmailResponseImportCanaryReadiness['latestOutcome'] {
+  if (state === 'imported_response_found') return { status: 'mock_response_found', detail }
+  if (state === 'no_response_found') return { status: 'no_response_found', detail }
+  if (state === 'duplicate_deduped') return { status: 'duplicate_deduped', detail }
+  if (state === 'error_retry') return { status: 'error', detail }
+  if (state === 'not_connected' || state === 'disabled') return { status: 'blocked', detail }
+  return { status: 'not_checked', detail }
+}
+
+function deriveCanaryState(args: {
+  activationReadiness: WarmOutreachGmailResponseImportActivationReadiness
+  candidates?: WarmOutreachGmailResponseImportCandidate[]
+  hasDryRunPayload?: boolean
+  dryRunImportEnabled?: boolean
+  errorMessage?: string | null
+  liveReadApprovalRequested?: boolean
+  state?: WarmOutreachGmailResponseImportCanaryState
+}): WarmOutreachGmailResponseImportCanaryState {
+  if (args.state) return args.state
+  if (text(args.errorMessage)) return 'error_retry'
+  if (!args.dryRunImportEnabled) return 'disabled'
+  if (
+    args.activationReadiness.state === 'provider_missing' ||
+    args.activationReadiness.state === 'missing_gmail_token' ||
+    args.activationReadiness.state === 'missing_gmail_scope'
+  ) {
+    return 'not_connected'
+  }
+  if (args.activationReadiness.state === 'provider_disabled') return 'disabled'
+  if (args.liveReadApprovalRequested || args.activationReadiness.state === 'live_import_disabled') {
+    return 'live_read_approval_required'
+  }
+
+  const candidates = args.candidates ?? []
+  if (args.hasDryRunPayload && candidates.length === 0) return 'no_response_found'
+  if (
+    candidates.some((candidate) =>
+      candidate.status === 'duplicate_replay' ||
+      candidate.status === 'blocked_existing_response'
+    )
+  ) {
+    return 'duplicate_deduped'
+  }
+  if (candidates.some((candidate) => candidate.status === 'ready_for_review')) {
+    return 'imported_response_found'
+  }
+  if (candidates.length > 0 && candidates.every((candidate) => candidate.status !== 'ready_for_review')) {
+    return 'error_retry'
+  }
+  return 'ready_for_dry_run'
+}
+
+export function buildWarmOutreachGmailResponseImportCanaryReadiness(args: {
+  activationReadiness?: WarmOutreachGmailResponseImportActivationReadiness
+  candidates?: WarmOutreachGmailResponseImportCandidate[]
+  contactId?: number | string | null
+  queueId?: string | null
+  gmailThreadId?: string | null
+  gmailMessageId?: string | null
+  dedupeKey?: string | null
+  actor?: string | null
+  observedAt?: string | null
+  hasDryRunPayload?: boolean
+  dryRunImportEnabled?: boolean
+  errorMessage?: string | null
+  liveReadApprovalRequested?: boolean
+  state?: WarmOutreachGmailResponseImportCanaryState
+} = {}): WarmOutreachGmailResponseImportCanaryReadiness {
+  const activationReadiness =
+    args.activationReadiness ?? buildWarmOutreachGmailResponseImportActivationReadiness()
+  const firstCandidate = args.candidates?.[0]
+  const queueId = text(args.queueId) ?? firstCandidate?.matchedOutreachQueueId ?? null
+  const contactId = numberValue(args.contactId) ?? firstCandidate?.matchedContactId ?? null
+  const gmailThreadId = text(args.gmailThreadId) ?? firstCandidate?.providerThreadId ?? null
+  const gmailMessageId = text(args.gmailMessageId) ?? firstCandidate?.providerMessageId ?? null
+  const dedupeKey =
+    text(args.dedupeKey) ??
+    firstCandidate?.duplicateKeys[0] ??
+    `gmail-response-import:${stableHash({ queueId, contactId, gmailThreadId, gmailMessageId })}`
+  const state = deriveCanaryState({
+    activationReadiness,
+    candidates: args.candidates,
+    hasDryRunPayload: args.hasDryRunPayload,
+    dryRunImportEnabled: args.dryRunImportEnabled !== false,
+    errorMessage: args.errorMessage,
+    liveReadApprovalRequested: args.liveReadApprovalRequested,
+    state: args.state,
+  })
+  const decisionState = canaryDecisionState(state)
+  const importRunId = `warm-outreach:gmail-response-import-canary:v1:${stableHash({
+    state,
+    queueId,
+    contactId,
+    gmailThreadId,
+    gmailMessageId,
+    dedupeKey,
+  })}`
+  const baseDetail =
+    text(args.errorMessage) ??
+    (state === 'imported_response_found'
+      ? 'A mocked Gmail reply matched the warm outreach queue and is ready for local response lifecycle review.'
+      : state === 'duplicate_deduped'
+        ? 'A mocked Gmail reply matched existing response evidence and was blocked from replay.'
+        : state === 'no_response_found'
+          ? 'The dry-run completed with no mocked Gmail reply candidates.'
+          : state === 'live_read_approval_required'
+            ? 'Provider readiness is present, but a live Gmail read requires a separate explicit approval gate.'
+            : state === 'not_connected'
+              ? activationReadiness.blockedReasons[0] ?? 'Gmail provider readiness is incomplete.'
+              : state === 'disabled'
+                ? 'Gmail response import is disabled; use manual response capture or mock planning only.'
+                : 'The operator can run the fixture-based dry-run planner without provider access.')
+
+  return {
+    version: 'warm-outreach-gmail-response-import-canary-readiness/v1',
+    provider: 'gmail',
+    state,
+    label: canaryStateLabel(state),
+    detail: baseDetail,
+    canRunDryRun: activationReadiness.canRunMockImport && state !== 'disabled',
+    liveReadApprovalRequired: true,
+    liveReadApproved: false,
+    liveProviderImportEnabled: false,
+    providerPollingEnabled: false,
+    gmailApiCalled: false,
+    databaseWritesEnabled: false,
+    externalActionsEnabled: false,
+    gmailDraftCreationEnabled: false,
+    gmailSendEnabled: false,
+    slackDispatchEnabled: false,
+    n8nDispatchEnabled: false,
+    responseDraftCreated: false,
+    retryAvailable: state === 'error_retry' || state === 'no_response_found',
+    latestOutcome: canaryOutcome(state, baseDetail),
+    provenance: {
+      version: 'warm-outreach-gmail-response-import-provenance/v1',
+      importRunId,
+      queueId,
+      contactId,
+      gmailThreadId,
+      gmailMessageId,
+      importRunTimestamp: text(args.observedAt),
+      actor: text(args.actor) ?? 'portfolio_operator',
+      decisionState,
+      dedupeKey,
+    },
+    gates: [
+      {
+        key: 'dry_run_fixture',
+        label: 'Dry-run fixture',
+        state: state === 'disabled' ? 'blocked' : 'ready',
+        detail: 'Fixture payloads and local Portfolio rows can prove matching without Gmail API reads.',
+      },
+      {
+        key: 'one_recipient_scope',
+        label: 'One-recipient scope',
+        state: contactId && queueId ? 'ready' : 'required',
+        detail: contactId && queueId
+          ? 'The canary is tied to one contact and one warm outreach queue row.'
+          : 'Pick one contact and one queue row before live provider-read approval.',
+      },
+      {
+        key: 'live_gmail_read_approval',
+        label: 'Live Gmail read approval',
+        state: 'required',
+        detail: 'A future live Gmail read requires explicit current approval; a generic proceed is not enough.',
+      },
+      {
+        key: 'dedupe',
+        label: 'Dedupe',
+        state: state === 'duplicate_deduped' ? 'passed' : 'ready',
+        detail: 'Replay checks use provider, thread id, message id, contact id, queue id, and response key.',
+      },
+      {
+        key: 'response_lifecycle',
+        label: 'Response lifecycle',
+        state: state === 'imported_response_found' ? 'ready' : 'required',
+        detail: 'Import review feeds the existing response lifecycle; it does not create a reply automatically.',
+      },
+      {
+        key: 'reply_send_boundary',
+        label: 'Reply/send boundary',
+        state: 'disabled',
+        detail: 'Importing a response cannot create a Gmail draft, Slack action, n8n dispatch, or external send.',
+      },
+    ],
+  }
+}
+
 export function planWarmOutreachGmailResponseImport(args: {
   replies: WarmOutreachGmailReplyPayload[]
   rows: WarmOutreachGmailImportPortfolioRows
   dryRunImportEnabled?: boolean
   activation?: WarmOutreachGmailResponseImportActivationInput
+  actor?: string | null
+  observedAt?: string | null
+  liveReadApprovalRequested?: boolean
 }): WarmOutreachGmailResponseImportPlan {
   const dryRunImportEnabled = args.dryRunImportEnabled !== false
   const contacts = rows(args.rows.contacts)
@@ -912,6 +1228,21 @@ export function planWarmOutreachGmailResponseImport(args: {
       candidates.every((candidate) => candidate.status !== 'ready_for_review'),
     manualRecoveryReasons,
   })
+  const primaryCandidate = candidates[0]
+  const canaryReadiness = buildWarmOutreachGmailResponseImportCanaryReadiness({
+    activationReadiness,
+    candidates,
+    contactId: primaryCandidate?.matchedContactId ?? primaryCandidate?.captureRequest?.contactId ?? null,
+    queueId: primaryCandidate?.matchedOutreachQueueId ?? primaryCandidate?.captureRequest?.outreachQueueId ?? null,
+    gmailThreadId: primaryCandidate?.providerThreadId ?? primaryCandidate?.captureRequest?.providerThreadId ?? null,
+    gmailMessageId: primaryCandidate?.providerMessageId ?? primaryCandidate?.captureRequest?.providerMessageId ?? null,
+    dedupeKey: primaryCandidate?.duplicateKeys[0] ?? null,
+    actor: args.actor,
+    observedAt: args.observedAt,
+    hasDryRunPayload: true,
+    dryRunImportEnabled,
+    liveReadApprovalRequested: args.liveReadApprovalRequested,
+  })
 
   return {
     version: 'warm-outreach-gmail-response-import/v1',
@@ -937,6 +1268,7 @@ export function planWarmOutreachGmailResponseImport(args: {
     candidates,
     summary,
     activationReadiness,
+    canaryReadiness,
     auditNotes: [
       'This planner accepts mocked Gmail reply payloads and local Portfolio rows only.',
       'No Gmail API, Gmail draft, Gmail send, Slack dispatch, n8n dispatch, or provider polling is performed.',

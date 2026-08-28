@@ -117,6 +117,9 @@ export async function POST(request: NextRequest) {
     rows: portfolioRows,
     dryRunImportEnabled: body.dryRunImportEnabled !== false,
     activation,
+    actor: auth.user.id,
+    observedAt: new Date().toISOString(),
+    liveReadApprovalRequested: body.liveReadApprovalRequested === true,
   })
 
   return NextResponse.json({

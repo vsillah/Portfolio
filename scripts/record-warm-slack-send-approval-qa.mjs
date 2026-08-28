@@ -375,7 +375,7 @@ async function captureVideoFrame(name, durationSeconds) {
 }
 
 await captureVideoFrame('01-initial-workroom.png', 2.5)
-await mobileWorkroom.getByText('Activation readiness: Live import disabled').scrollIntoViewIfNeeded()
+await mobileWorkroom.getByText('Response import canary readiness').scrollIntoViewIfNeeded()
 await mobile.page.waitForTimeout(300)
 await captureVideoFrame('02-real-recipient-rollout.png', 2.5)
 await mobileWorkroom.getByText('Provider execution readiness').scrollIntoViewIfNeeded()

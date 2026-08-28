@@ -48,10 +48,10 @@ const frames = [
     title: 'Controlled Import Readiness',
     scenario: 'Operator reviews Gmail response import readiness in the existing contact workroom.',
     changed:
-      'Mock import, live import, provider, token, scope, and manual recovery gates are visible in compact rows.',
+      'Mock import, response canary, live import, provider, token, scope, and manual recovery gates are visible in compact rows.',
     expected:
       'Mock planning can be ready while live Gmail polling/import, Slack, n8n, drafts, and sends stay off.',
-    gate: 'Decision gate: human review before any reply, task, or suppression action.',
+    gate: 'Decision gate: explicit live-read approval is still required before any Gmail provider read.',
   },
   {
     source: path.join(sourceFrameDir, '02-real-recipient-rollout.png'),

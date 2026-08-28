@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   buildWarmOutreachGmailResponseImportActivationReadiness,
+  buildWarmOutreachGmailResponseImportCanaryReadiness,
   planWarmOutreachGmailResponseImport,
   type WarmOutreachGmailImportPortfolioRows,
   type WarmOutreachGmailReplyPayload,
@@ -117,6 +118,29 @@ describe('warm outreach Gmail response import planner', () => {
       gmailApiCalled: false,
       databaseWritesEnabled: false,
     })
+    expect(plan.canaryReadiness).toMatchObject({
+      state: 'imported_response_found',
+      canRunDryRun: true,
+      liveReadApprovalRequired: true,
+      liveReadApproved: false,
+      liveProviderImportEnabled: false,
+      gmailApiCalled: false,
+      databaseWritesEnabled: false,
+      gmailDraftCreationEnabled: false,
+      gmailSendEnabled: false,
+      responseDraftCreated: false,
+      latestOutcome: {
+        status: 'mock_response_found',
+      },
+      provenance: {
+        queueId: 'queue-42',
+        contactId: 42,
+        gmailThreadId: 'gmail-thread-42',
+        gmailMessageId: 'gmail-reply-99',
+        actor: 'portfolio_operator',
+        decisionState: 'candidate_ready_for_import',
+      },
+    })
   })
 
   it('blocks duplicate replay by Gmail provider message id', () => {
@@ -158,6 +182,17 @@ describe('warm outreach Gmail response import planner', () => {
         'Existing Gmail response evidence already matches this provider message.',
       ]),
     })
+    expect(plan.canaryReadiness).toMatchObject({
+      state: 'duplicate_deduped',
+      retryAvailable: false,
+      latestOutcome: {
+        status: 'duplicate_deduped',
+      },
+      provenance: {
+        decisionState: 'duplicate_blocked',
+        gmailMessageId: 'gmail-reply-99',
+      },
+    })
   })
 
   it('routes unmatched replies to manual recovery', () => {
@@ -182,6 +217,16 @@ describe('warm outreach Gmail response import planner', () => {
       recoveryPath: expect.stringContaining('queue id'),
     })
     expect(plan.summary.unmatched).toBe(1)
+    expect(plan.canaryReadiness).toMatchObject({
+      state: 'error_retry',
+      retryAvailable: true,
+      latestOutcome: {
+        status: 'error',
+      },
+      provenance: {
+        decisionState: 'error_retry',
+      },
+    })
   })
 
   it('fails closed when more than one queue row can match the reply', () => {
@@ -282,6 +327,13 @@ describe('warm outreach Gmail response import planner', () => {
       canRunMockImport: false,
       canRunLiveImport: false,
     })
+    expect(plan.canaryReadiness).toMatchObject({
+      state: 'disabled',
+      canRunDryRun: false,
+      liveReadApprovalRequired: true,
+      gmailApiCalled: false,
+      databaseWritesEnabled: false,
+    })
     expect(plan.candidates[0]).toMatchObject({
       status: 'provider_disabled',
       captureRequest: null,
@@ -377,6 +429,116 @@ describe('warm outreach Gmail response import planner', () => {
       blockedReasons: expect.arrayContaining([
         'Live Gmail response reads are disabled by default.',
       ]),
+    })
+  })
+
+  it('reports a no-response dry-run canary outcome without provider reads', () => {
+    const plan = planWarmOutreachGmailResponseImport({
+      replies: [],
+      rows: baseRows,
+      actor: 'admin-user',
+      observedAt: '2026-08-28T12:00:00.000Z',
+    })
+
+    expect(plan.canaryReadiness).toMatchObject({
+      state: 'no_response_found',
+      canRunDryRun: true,
+      retryAvailable: true,
+      gmailApiCalled: false,
+      databaseWritesEnabled: false,
+      latestOutcome: {
+        status: 'no_response_found',
+      },
+      provenance: {
+        actor: 'admin-user',
+        importRunTimestamp: '2026-08-28T12:00:00.000Z',
+        decisionState: 'no_response_found',
+      },
+    })
+  })
+
+  it('keeps live-read approval separate from ready provider metadata', () => {
+    const activationReadiness = buildWarmOutreachGmailResponseImportActivationReadiness({
+      providerConfigured: true,
+      gmailTokenAvailable: true,
+      grantedScopes: 'https://www.googleapis.com/auth/gmail.readonly',
+      liveImportRequested: true,
+    })
+    const canary = buildWarmOutreachGmailResponseImportCanaryReadiness({
+      activationReadiness,
+      contactId: 42,
+      queueId: 'queue-42',
+      gmailThreadId: 'gmail-thread-42',
+      dedupeKey: 'gmail_thread:gmail-thread-42',
+      liveReadApprovalRequested: true,
+    })
+
+    expect(canary).toMatchObject({
+      state: 'live_read_approval_required',
+      canRunDryRun: true,
+      liveReadApprovalRequired: true,
+      liveReadApproved: false,
+      liveProviderImportEnabled: false,
+      providerPollingEnabled: false,
+      provenance: {
+        decisionState: 'provider_read_approval_required',
+      },
+    })
+    expect(canary.gates).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        key: 'live_gmail_read_approval',
+        state: 'required',
+      }),
+      expect.objectContaining({
+        key: 'reply_send_boundary',
+        state: 'disabled',
+      }),
+    ]))
+  })
+
+  it('reports not-connected readiness when Gmail token or readonly scope is missing', () => {
+    const canary = buildWarmOutreachGmailResponseImportCanaryReadiness({
+      activationReadiness: buildWarmOutreachGmailResponseImportActivationReadiness({
+        providerConfigured: true,
+        gmailTokenAvailable: false,
+      }),
+      contactId: 42,
+      queueId: 'queue-42',
+    })
+
+    expect(canary).toMatchObject({
+      state: 'not_connected',
+      liveReadApproved: false,
+      gmailApiCalled: false,
+      latestOutcome: {
+        status: 'blocked',
+      },
+      provenance: {
+        decisionState: 'blocked',
+      },
+    })
+  })
+
+  it('exposes an error retry state without creating reply drafts or sends', () => {
+    const canary = buildWarmOutreachGmailResponseImportCanaryReadiness({
+      contactId: 42,
+      queueId: 'queue-42',
+      errorMessage: 'Fixture payload could not be matched to one recipient.',
+    })
+
+    expect(canary).toMatchObject({
+      state: 'error_retry',
+      retryAvailable: true,
+      gmailApiCalled: false,
+      databaseWritesEnabled: false,
+      responseDraftCreated: false,
+      gmailSendEnabled: false,
+      slackDispatchEnabled: false,
+      n8nDispatchEnabled: false,
+      latestOutcome: {
+        status: 'error',
+        detail: 'Fixture payload could not be matched to one recipient.',
+      },
     })
   })
 })

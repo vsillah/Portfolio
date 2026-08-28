@@ -101,6 +101,24 @@ describe('POST /api/admin/outreach/gmail-response-import/dry-run', () => {
         gmailApiCalled: false,
         databaseWritesEnabled: false,
       },
+      canaryReadiness: {
+        state: 'imported_response_found',
+        liveReadApprovalRequired: true,
+        liveReadApproved: false,
+        gmailApiCalled: false,
+        databaseWritesEnabled: false,
+        gmailDraftCreationEnabled: false,
+        gmailSendEnabled: false,
+        responseDraftCreated: false,
+        provenance: {
+          queueId: 'queue-42',
+          contactId: 42,
+          gmailThreadId: 'gmail-thread-42',
+          gmailMessageId: 'gmail-reply-99',
+          actor: 'admin-user',
+          decisionState: 'candidate_ready_for_import',
+        },
+      },
     })
     expect(json.plan.candidates[0]).toMatchObject({
       status: 'ready_for_review',
@@ -219,6 +237,12 @@ describe('POST /api/admin/outreach/gmail-response-import/dry-run', () => {
       status: 'provider_disabled',
       captureRequest: null,
       localEvidence: null,
+    })
+    expect(json.plan.canaryReadiness).toMatchObject({
+      state: 'disabled',
+      canRunDryRun: false,
+      gmailApiCalled: false,
+      databaseWritesEnabled: false,
     })
   })
 })
