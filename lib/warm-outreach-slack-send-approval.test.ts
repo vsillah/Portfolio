@@ -172,7 +172,7 @@ describe('warm Gmail send Slack approval', () => {
       externalSendEnabled: false,
       providerExecutionEnabled: false,
     })
-    expect(JSON.stringify(payload.blocks)).toContain('Approve Send records explicit external-send authorization')
+    expect(JSON.stringify(payload.blocks)).toContain('Review the recipient, message, and context')
     expect(JSON.stringify(payload.blocks)).toContain('r123')
     expect(JSON.stringify(payload.blocks)).toContain('warm-outreach:email-send-queue:v1:message-1')
 
@@ -256,7 +256,7 @@ describe('warm Gmail send Slack approval', () => {
       idempotencyKey: 'slack-agent-action:U123:ts:warm_gmail_send.approve:warm-outreach:email-send-queue:v1:message-1',
     })
 
-    expect(result).toContain('approval intent recorded')
+    expect(result).toContain('approved in Portfolio for this recipient and message version')
     expect(fetchMock).not.toHaveBeenCalled()
     expect(mocks.from).toHaveBeenCalledWith('outreach_queue')
     expect(updateQuery.update).toHaveBeenCalledWith(expect.objectContaining({
@@ -272,6 +272,10 @@ describe('warm Gmail send Slack approval', () => {
           provider_execution_enabled: false,
           gmail_send_called: false,
           external_send_performed: false,
+          provider_activation_gate: expect.objectContaining({
+            key: 'ENABLE_WARM_GMAIL_SEND_EXECUTION',
+            state: 'disabled',
+          }),
         }),
         warm_gmail_send_slack_approval_request: expect.objectContaining({
           status: 'approved',

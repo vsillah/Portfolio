@@ -306,6 +306,18 @@ Acceptance:
 - phone contacts remain manual note/call task until an approved provider exists,
 - every external send/reply remains approval-gated.
 
+### Phase 6a: Warm Gmail Operational Execution Readiness
+
+The successful one-recipient production canary is recorded in `docs/warm-outreach-qa/warm-gmail-send-canary-833e1019.md`. Treat that receipt as do-not-resend evidence for queue `833e1019-97c3-4059-8790-c590841328d1`, not as broad send authority.
+
+Operational model:
+
+- Portfolio remains the source of truth for recipient, draft, approval, idempotency, and submitted evidence.
+- Slack may present the operator decision, but approve/reject/revise must write back to Portfolio and deep-link to the canonical workroom.
+- Gmail provider execution is an admin readiness gate. If `ENABLE_WARM_GMAIL_SEND_EXECUTION` is still required, expose it as disabled/enabled provider state rather than hiding it as a captain-only toggle.
+- The operator workroom may show eligibility and exact execution payload requirements, but it must not expose a broad auto-send action.
+- Live execution remains one recipient, one queue row, one message version, and one submitted-evidence key unless a later phase explicitly expands the scope.
+
 ## Safest Next Development Slice
 
 The first code slice should be `relationship-intelligence contract + warm template selection`.

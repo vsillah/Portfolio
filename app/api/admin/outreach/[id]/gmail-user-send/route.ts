@@ -117,6 +117,43 @@ function executionEnabled(): boolean {
   return process.env.ENABLE_WARM_GMAIL_SEND_EXECUTION === 'true'
 }
 
+function providerExecutionReadiness(input?: {
+  enabled?: boolean
+  lifecycle?: WarmOutreachEmailSendLifecycle
+  state?: string
+  message?: string
+}) {
+  const enabled = input?.enabled ?? executionEnabled()
+  return {
+    version: 'warm-outreach-gmail-provider-execution-readiness/v1',
+    state: enabled ? 'admin_activation_enabled_requires_exact_scope' : 'admin_activation_required',
+    label: enabled ? 'Provider execution gate enabled' : 'Provider execution gate disabled',
+    liveExecutionEnabled: enabled,
+    providerCallsEnabled: enabled,
+    externalSendEnabled: enabled,
+    adminActivationGate: {
+      key: 'ENABLE_WARM_GMAIL_SEND_EXECUTION',
+      enabled,
+      detail: enabled
+        ? 'The admin/provider activation flag is enabled. This route still requires exact per-recipient authorization, matching idempotency keys, sender evidence, suppression clearance, and draft evidence.'
+        : 'The admin/provider activation flag is disabled. Portfolio can record readiness only; no Gmail send will be called.',
+    },
+    exactExecutionGate: {
+      route: '/api/admin/outreach/[id]/gmail-user-send',
+      method: 'POST',
+      sendAuthorization: GMAIL_SEND_AUTHORIZATION,
+      executeGmailSendRequired: true,
+      messageVersionKey: input?.lifecycle?.messageVersionKey ?? null,
+      sendQueueIdempotencyKey: input?.lifecycle?.sendQueueIdempotencyKey ?? null,
+      submittedEvidenceKey: input?.lifecycle?.submittedEvidenceKey ?? null,
+    },
+    currentCheck: {
+      state: input?.state ?? 'not_evaluated',
+      detail: input?.message ?? 'Warm Gmail execution readiness has not been evaluated for a specific queue row.',
+    },
+  }
+}
+
 function executionBoundary(enabled = false) {
   return {
     portfolioAuthorizationRequired: true,
@@ -208,6 +245,12 @@ function blockedResponse(input: {
       gmailSendCalled: false,
       externalSendPerformed: false,
       executionBoundary: executionBoundary(false),
+      providerExecutionReadiness: providerExecutionReadiness({
+        enabled: false,
+        lifecycle: input.lifecycle,
+        state: 'blocked_no_send',
+        message: input.message,
+      }),
       idempotency: input.lifecycle
         ? {
             messageVersionKey: input.lifecycle.messageVersionKey,
@@ -240,6 +283,12 @@ function duplicateResponse(input: {
       submittedEvidenceKey: input.lifecycle.submittedEvidenceKey,
     },
     executionBoundary: executionBoundary(false),
+    providerExecutionReadiness: providerExecutionReadiness({
+      enabled: false,
+      lifecycle: input.lifecycle,
+      state: 'duplicate_prevented',
+      message: input.message,
+    }),
   })
 }
 
@@ -265,6 +314,12 @@ function preparedResponse(input: {
       submittedEvidenceKey: input.lifecycle.submittedEvidenceKey,
     },
     executionBoundary: executionBoundary(false),
+    providerExecutionReadiness: providerExecutionReadiness({
+      enabled: false,
+      lifecycle: input.lifecycle,
+      state: 'eligible_for_execution',
+      message: input.message,
+    }),
   })
 }
 
@@ -867,6 +922,13 @@ export async function POST(
           externalSendPerformed: true,
           sentEvidence: finalEvidence,
           executionBoundary: executionBoundary(true),
+          providerExecutionReadiness: providerExecutionReadiness({
+            enabled: true,
+            lifecycle,
+            state: 'tracking_failed_after_send',
+            message:
+              'Gmail sent the authorized draft, but Portfolio could not persist final sent evidence. Repair tracking before any further send attempt.',
+          }),
         },
         { status: 502 },
       )
@@ -952,6 +1014,16 @@ export async function POST(
       sentEvidence: finalEvidence,
       communicationLog,
       executionBoundary: executionBoundary(true),
+      providerExecutionReadiness: providerExecutionReadiness({
+        enabled: true,
+        lifecycle,
+        state: communicationLog.status === 'recorded'
+          ? 'sent'
+          : 'sent_secondary_log_repair_required',
+        message: communicationLog.status === 'recorded'
+          ? 'Authorized warm Gmail draft sent and Portfolio sent evidence was recorded.'
+          : communicationLog.message,
+      }),
     })
   } catch (error) {
     console.error('POST /api/admin/outreach/[id]/gmail-user-send:', error)

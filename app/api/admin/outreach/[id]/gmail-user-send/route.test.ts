@@ -359,6 +359,26 @@ describe('POST /api/admin/outreach/[id]/gmail-user-send', () => {
         gmailSendEnabled: false,
         externalSendEnabled: false,
       },
+      providerExecutionReadiness: {
+        version: 'warm-outreach-gmail-provider-execution-readiness/v1',
+        state: 'admin_activation_required',
+        label: 'Provider execution gate disabled',
+        liveExecutionEnabled: false,
+        providerCallsEnabled: false,
+        externalSendEnabled: false,
+        adminActivationGate: {
+          key: 'ENABLE_WARM_GMAIL_SEND_EXECUTION',
+          enabled: false,
+        },
+        exactExecutionGate: {
+          route: '/api/admin/outreach/[id]/gmail-user-send',
+          method: 'POST',
+          sendAuthorization: 'execute_warm_gmail_send_for_authorized_recipient',
+          messageVersionKey: MESSAGE_VERSION_KEY,
+          sendQueueIdempotencyKey: SEND_QUEUE_KEY,
+          submittedEvidenceKey: SUBMITTED_EVIDENCE_KEY,
+        },
+      },
     })
     expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
     expect(outreachUpdate).toHaveBeenCalledTimes(1)

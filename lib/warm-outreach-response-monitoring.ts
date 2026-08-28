@@ -410,6 +410,49 @@ export type WarmOutreachRealRecipientGmailRolloutReadiness = {
   }
 }
 
+export type WarmOutreachGmailProviderExecutionReadiness = {
+  version: 'warm-outreach-gmail-provider-execution-readiness/v1'
+  state:
+    | 'blocked'
+    | 'approval_needed'
+    | 'approval_recorded_activation_required'
+    | 'eligible_when_admin_activation_enabled'
+    | 'sent_do_not_resend'
+  label: string
+  liveExecutionEnabled: false
+  providerCallsEnabled: false
+  externalSendEnabled: false
+  adminActivationGate: {
+    key: 'ENABLE_WARM_GMAIL_SEND_EXECUTION'
+    state: 'disabled'
+    detail: string
+  }
+  operatorDecision: {
+    status: WarmOutreachRealRecipientGmailRolloutReadiness['slackApprovalContract']['status']
+    nextAction: string
+    approvalRoute: string
+    recordsAuthorizationIntentOnly: true
+  }
+  exactExecutionGate: {
+    route: '/api/admin/outreach/[id]/gmail-user-send'
+    method: 'POST'
+    enabledOnThisSurface: false
+    sendAuthorization: 'execute_warm_gmail_send_for_authorized_recipient'
+    messageVersionKey: string
+    sendQueueIdempotencyKey: string
+    submittedEvidenceKey: string
+    detail: string
+  }
+  canaryTrace: {
+    queueId: string | null
+    status: WarmOutreachRealRecipientGmailRolloutReadiness['requirements']['execution']['state']
+    sentEvidenceRecorded: boolean
+    gmailMessageId: string | null
+    gmailThreadId: string | null
+    detail: string
+  }
+}
+
 export type WarmOutreachEmailSendLifecycle = {
   version: 'warm-outreach-email-send-lifecycle/v1'
   contactId: number
@@ -437,6 +480,7 @@ export type WarmOutreachEmailSendLifecycle = {
   gmailProviderActivationReadiness: WarmOutreachGmailProviderActivationReadiness
   externalSendReadiness: WarmOutreachExternalSendReadiness
   realRecipientRolloutReadiness: WarmOutreachRealRecipientGmailRolloutReadiness
+  gmailProviderExecutionReadiness: WarmOutreachGmailProviderExecutionReadiness
   duplicatePrevention: {
     scope: 'contact_channel_message_version'
     duplicateDetected: boolean
@@ -1455,6 +1499,88 @@ function buildRealRecipientGmailRolloutReadiness(args: {
   }
 }
 
+function buildGmailProviderExecutionReadiness(args: {
+  rollout: WarmOutreachRealRecipientGmailRolloutReadiness
+  lifecycle: {
+    messageVersionKey: string
+    sendQueueIdempotencyKey: string
+    submittedEvidenceKey: string
+  }
+}): WarmOutreachGmailProviderExecutionReadiness {
+  const receipt = args.rollout.auditReceipt
+  const executionState = args.rollout.requirements.execution.state
+  const sentEvidenceRecorded = args.rollout.state === 'already_sent'
+  const state: WarmOutreachGmailProviderExecutionReadiness['state'] =
+    sentEvidenceRecorded
+      ? 'sent_do_not_resend'
+      : args.rollout.state === 'eligible_for_execution'
+        ? 'eligible_when_admin_activation_enabled'
+        : args.rollout.state === 'authorization_recorded_execution_blocked'
+          ? 'approval_recorded_activation_required'
+          : args.rollout.state === 'ready_for_send_request'
+            ? 'approval_needed'
+            : 'blocked'
+  const label =
+    state === 'sent_do_not_resend'
+      ? 'Canary send recorded; do not resend'
+      : state === 'eligible_when_admin_activation_enabled'
+        ? 'Eligible after admin provider activation'
+        : state === 'approval_recorded_activation_required'
+          ? 'Approval recorded; admin activation required'
+          : state === 'approval_needed'
+            ? 'One-recipient approval needed'
+            : 'Execution blocked'
+  const nextAction =
+    state === 'sent_do_not_resend'
+      ? 'Review the sent evidence only. Do not replay this Gmail draft.'
+      : args.rollout.exactNextAction === 'approve_send_request'
+        ? 'Review the recipient, relationship context, and draft, then approve, reject, or request revision from Portfolio or Slack.'
+        : args.rollout.exactNextAction === 'captain_enable_exact_execution'
+          ? 'Keep the UI no-send. An admin must intentionally enable the provider execution gate and submit the exact per-recipient send route.'
+          : args.rollout.blockers[0] ?? 'Resolve blockers before requesting or executing a one-recipient Gmail send.'
+
+  return {
+    version: 'warm-outreach-gmail-provider-execution-readiness/v1',
+    state,
+    label,
+    liveExecutionEnabled: false,
+    providerCallsEnabled: false,
+    externalSendEnabled: false,
+    adminActivationGate: {
+      key: 'ENABLE_WARM_GMAIL_SEND_EXECUTION',
+      state: 'disabled',
+      detail:
+        'The relationship packet and workroom never enable Gmail execution. If production execution is required, this admin/provider gate must be intentionally enabled outside the operator review surface and then disabled again after the exact one-recipient run.',
+    },
+    operatorDecision: {
+      status: args.rollout.slackApprovalContract.status,
+      nextAction,
+      approvalRoute: args.rollout.slackApprovalContract.route,
+      recordsAuthorizationIntentOnly: true,
+    },
+    exactExecutionGate: {
+      route: '/api/admin/outreach/[id]/gmail-user-send',
+      method: 'POST',
+      enabledOnThisSurface: false,
+      sendAuthorization: 'execute_warm_gmail_send_for_authorized_recipient',
+      messageVersionKey: args.lifecycle.messageVersionKey,
+      sendQueueIdempotencyKey: args.lifecycle.sendQueueIdempotencyKey,
+      submittedEvidenceKey: args.lifecycle.submittedEvidenceKey,
+      detail:
+        'The execution route still requires exact per-recipient request keys, approved Portfolio authorization, draft evidence, sender match, suppression clearance, idempotency checks, and the admin activation gate.',
+    },
+    canaryTrace: {
+      queueId: receipt?.queueRow.sourceId ?? null,
+      status: executionState,
+      sentEvidenceRecorded,
+      gmailMessageId: sentEvidenceRecorded ? receipt?.draftEvidence.messageId ?? null : null,
+      gmailThreadId: sentEvidenceRecorded ? receipt?.draftEvidence.threadId ?? null : null,
+      detail: receipt?.lastActionEvidence.detail ??
+        'No Gmail execution evidence is recorded for this contact, channel, and message version.',
+    },
+  }
+}
+
 export function buildWarmOutreachGmailProviderActivationReadiness(args: {
   handoff: WarmOutreachGmailDraftHandoffPacket
   providerSmoke: WarmOutreachGmailProviderCapabilitySmokeReadiness
@@ -1923,6 +2049,14 @@ function buildEmailSendLifecycle(args: {
     hardBlockers,
     suppressionReasons,
   })
+  const gmailProviderExecutionReadiness = buildGmailProviderExecutionReadiness({
+    rollout: realRecipientRolloutReadiness,
+    lifecycle: {
+      messageVersionKey,
+      sendQueueIdempotencyKey,
+      submittedEvidenceKey,
+    },
+  })
   const state: WarmOutreachEmailSendLifecycle['state'] =
     args.mode === 'warm_1_to_many' && hardBlockers.length === 0
         ? 'per_recipient_gate_required'
@@ -1959,6 +2093,7 @@ function buildEmailSendLifecycle(args: {
     gmailProviderActivationReadiness,
     externalSendReadiness,
     realRecipientRolloutReadiness,
+    gmailProviderExecutionReadiness,
     duplicatePrevention: {
       scope: 'contact_channel_message_version',
       duplicateDetected,

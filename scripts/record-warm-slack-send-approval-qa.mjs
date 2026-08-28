@@ -1,7 +1,7 @@
 import { chromium } from '@playwright/test'
 import { execFile, execFileSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
-import { mkdir } from 'fs/promises'
+import { mkdir, writeFile } from 'fs/promises'
 import path from 'path'
 import os from 'node:os'
 import { promisify } from 'node:util'
@@ -10,18 +10,26 @@ const execFileAsync = promisify(execFile)
 const root = process.cwd()
 const outputDir = path.join(root, 'docs', 'warm-outreach-qa')
 const rawVideoDir = path.join(root, 'test-results', 'warm-slack-send-approval-qa')
+const videoFramesDir = path.join(rawVideoDir, 'frames')
 const mobileScreenshotPath = path.join(outputDir, 'warm-slack-send-approval-mobile.png')
+const mobile360ScreenshotPath = path.join(outputDir, 'warm-slack-send-approval-mobile-360.png')
+const mobile430ScreenshotPath = path.join(outputDir, 'warm-slack-send-approval-mobile-430.png')
 const desktopScreenshotPath = path.join(outputDir, 'warm-slack-send-approval-desktop.png')
+const contactMobileScreenshotPath = path.join(outputDir, 'warm-slack-send-approval-contact-mobile-390.png')
+const contactDesktopScreenshotPath = path.join(outputDir, 'warm-slack-send-approval-contact-desktop.png')
 const mp4Path = path.join(outputDir, 'warm-slack-send-approval-mobile.mp4')
 
 const baseUrl = (process.env.QA_BASE_URL || 'http://127.0.0.1:3064').replace(/\/$/, '')
 const qaPath = (process.env.QA_PATH || '/admin/outreach?tab=leads&id=42&contactId=42&qa=warm-slack-send-approval')
   .replaceAll('&amp;', '&')
 const qaUrl = new URL(qaPath, baseUrl).toString()
+const contactQaUrl = new URL('/admin/contacts/42?qa=warm-slack-send-approval', baseUrl).toString()
 const authStatePath = process.env.PLAYWRIGHT_AUTH_STATE
+const workroomSelector = 'section[aria-label="Outreach workroom for Amina QA Recipient"]'
 
 await mkdir(outputDir, { recursive: true })
 await mkdir(rawVideoDir, { recursive: true })
+await mkdir(videoFramesDir, { recursive: true })
 
 const user = {
   id: 'qa-admin-user',
@@ -219,7 +227,7 @@ function isVercelLoginUrl(value) {
   }
 }
 
-async function assertPortfolioRouteReached(page, response) {
+async function assertPortfolioRouteReached(page, response, targetUrl = qaUrl) {
   const finalUrl = page.url()
   const bodyText = await page.locator('body').innerText({ timeout: 5000 }).catch(() => '')
   const expectedHost = new URL(baseUrl).hostname
@@ -238,7 +246,7 @@ async function assertPortfolioRouteReached(page, response) {
 
   const status = response?.status()
   if (status && status >= 400) {
-    throw new Error(`Warm Slack send approval QA route returned HTTP ${status}: ${qaUrl}`)
+    throw new Error(`Warm Slack send approval QA route returned HTTP ${status}: ${targetUrl}`)
   }
 }
 
@@ -304,6 +312,7 @@ function collectUnexpectedRequests(page) {
 const bypassHeaders = vercelBypassHeaders(baseUrl)
 const seededStorageKeys = supabaseAuthStorageKeys()
 console.log(`Warm Slack send approval QA URL: ${qaUrl}`)
+console.log(`Warm Slack send approval contact QA URL: ${contactQaUrl}`)
 console.log(`Vercel protection bypass configured: ${bypassHeaders ? 'yes' : 'no'}`)
 console.log(`Synthetic Supabase auth storage keys seeded: ${seededStorageKeys.length}`)
 
@@ -323,39 +332,111 @@ async function openQaContext(browser, viewport, recordVideo = false) {
 
 const browser = await chromium.launch()
 
-const mobile = await openQaContext(browser, { width: 390, height: 844 }, true)
+async function createMp4FromFrames(frames, outputPath) {
+  const concatListPath = path.join(rawVideoDir, 'warm-slack-send-approval-mobile-frames.txt')
+  const escapeForConcat = (value) => value.replace(/'/g, "'\\''")
+  const lines = frames.flatMap((frame) => [
+    `file '${escapeForConcat(frame.path)}'`,
+    `duration ${frame.durationSeconds}`,
+  ])
+  lines.push(`file '${escapeForConcat(frames[frames.length - 1].path)}'`)
+  await writeFile(concatListPath, `${lines.join('\n')}\n`, 'utf8')
+
+  await execFileAsync('ffmpeg', [
+    '-y',
+    '-f',
+    'concat',
+    '-safe',
+    '0',
+    '-i',
+    concatListPath,
+    '-vf',
+    'scale=trunc(iw/2)*2:trunc(ih/2)*2,format=yuv420p',
+    '-r',
+    '30',
+    '-c:v',
+    'libx264',
+    '-movflags',
+    '+faststart',
+    outputPath,
+  ])
+}
+
+const mobile = await openQaContext(browser, { width: 390, height: 844 })
 const mobileResponse = await mobile.page.goto(qaUrl)
 await assertPortfolioRouteReached(mobile.page, mobileResponse)
-const mobileWorkroom = mobile.page.getByRole('region', { name: 'Outreach workroom for Amina QA Recipient' })
+const mobileWorkroom = mobile.page.locator(workroomSelector)
 await mobileWorkroom.waitFor({ timeout: 15_000 })
+const videoFrames = []
+async function captureVideoFrame(name, durationSeconds) {
+  const framePath = path.join(videoFramesDir, name)
+  await mobile.page.screenshot({ path: framePath })
+  videoFrames.push({ path: framePath, durationSeconds })
+}
+
+await captureVideoFrame('01-initial-workroom.png', 2.5)
 await mobileWorkroom.getByText('Ready for one-step send approval request').scrollIntoViewIfNeeded()
+await mobile.page.waitForTimeout(300)
+await captureVideoFrame('02-real-recipient-rollout.png', 2.5)
+await mobileWorkroom.getByText('Provider execution readiness').scrollIntoViewIfNeeded()
+await mobile.page.waitForTimeout(300)
+await captureVideoFrame('03-provider-readiness-summary.png', 3)
+await mobileWorkroom.locator('details').filter({ hasText: 'Execution gate details' }).locator('summary').click()
+await mobile.page.waitForTimeout(300)
+await captureVideoFrame('04-disabled-execution-gate-details.png', 3)
 await mobileWorkroom.getByRole('button', { name: 'Request send approval' }).click()
 await mobileWorkroom.getByText(/QA local Slack approval request recorded/).waitFor({ timeout: 10_000 })
 await mobile.page.waitForTimeout(800)
+await captureVideoFrame('05-inert-approval-request-receipt.png', 3)
 await mobile.page.screenshot({ path: mobileScreenshotPath, fullPage: true })
-const video = mobile.page.video()
 await mobile.context.close()
-const rawVideoPath = video ? await video.path() : null
+await createMp4FromFrames(videoFrames, mp4Path)
 
-if (rawVideoPath) {
-  await execFileAsync('ffmpeg', [
-    '-y',
-    '-i',
-    rawVideoPath,
-    '-c:v',
-    'libx264',
-    '-pix_fmt',
-    'yuv420p',
-    '-movflags',
-    '+faststart',
-    mp4Path,
-  ])
+async function captureMobileScreenshot(viewport, screenshotPath) {
+  const target = await openQaContext(browser, viewport)
+  const response = await target.page.goto(qaUrl)
+  await assertPortfolioRouteReached(target.page, response)
+  const workroom = target.page.locator(workroomSelector)
+  await workroom.waitFor({ timeout: 15_000 })
+  await workroom.getByText('Provider execution readiness').scrollIntoViewIfNeeded()
+  await workroom.getByText('Activation gate: ENABLE_WARM_GMAIL_SEND_EXECUTION is disabled.').waitFor({ timeout: 10_000 })
+  await target.page.waitForTimeout(300)
+  await target.page.screenshot({ path: screenshotPath, fullPage: true })
+  await target.context.close()
+  return target.unexpectedRequests()
 }
+
+const mobile360UnexpectedRequests = await captureMobileScreenshot({ width: 360, height: 800 }, mobile360ScreenshotPath)
+const mobile430UnexpectedRequests = await captureMobileScreenshot({ width: 430, height: 932 }, mobile430ScreenshotPath)
+
+async function captureContactScreenshot(viewport, screenshotPath) {
+  const target = await openQaContext(browser, viewport)
+  const response = await target.page.goto(contactQaUrl)
+  await assertPortfolioRouteReached(target.page, response, contactQaUrl)
+  await target.page.getByRole('heading', { name: /Amina QA Recipient/i }).waitFor({ timeout: 15_000 })
+  await target.page.getByText('Provider execution readiness').scrollIntoViewIfNeeded()
+  await target.page.getByText('Activation gate: ENABLE_WARM_GMAIL_SEND_EXECUTION is disabled.').waitFor({ timeout: 10_000 })
+  await target.page.getByRole('button', { name: 'Request send approval' }).click()
+  await target.page.getByText(/QA local Slack approval request recorded/).waitFor({ timeout: 10_000 })
+  await target.page.waitForTimeout(300)
+  await target.page.screenshot({ path: screenshotPath, fullPage: true })
+  await target.context.close()
+  return target.unexpectedRequests()
+}
+
+const contactMobileUnexpectedRequests = await captureContactScreenshot(
+  { width: 390, height: 844 },
+  contactMobileScreenshotPath,
+)
+const contactDesktopUnexpectedRequests = await captureContactScreenshot(
+  { width: 1280, height: 900 },
+  contactDesktopScreenshotPath,
+)
 
 const desktop = await openQaContext(browser, { width: 1280, height: 900 })
 const desktopResponse = await desktop.page.goto(qaUrl)
 await assertPortfolioRouteReached(desktop.page, desktopResponse)
-const desktopWorkroom = desktop.page.getByRole('region', { name: 'Outreach workroom for Amina QA Recipient' })
+const desktopWorkroom = desktop.page.locator(workroomSelector)
 await desktopWorkroom.waitFor({ timeout: 15_000 })
 await desktopWorkroom.getByText('Ready for one-step send approval request').scrollIntoViewIfNeeded()
 await desktopWorkroom.getByRole('button', { name: 'Request send approval' }).click()
@@ -365,7 +446,14 @@ await desktop.page.screenshot({ path: desktopScreenshotPath, fullPage: true })
 await desktop.context.close()
 await browser.close()
 
-const unexpectedRequests = [...mobile.unexpectedRequests(), ...desktop.unexpectedRequests()]
+const unexpectedRequests = [
+  ...mobile.unexpectedRequests(),
+  ...mobile360UnexpectedRequests,
+  ...mobile430UnexpectedRequests,
+  ...contactMobileUnexpectedRequests,
+  ...contactDesktopUnexpectedRequests,
+  ...desktop.unexpectedRequests(),
+]
 if (unexpectedRequests.length > 0) {
   throw new Error(`Unexpected external/provider request(s): ${unexpectedRequests.join(', ')}`)
 }
@@ -373,8 +461,12 @@ if (unexpectedRequests.length > 0) {
 console.log(JSON.stringify({
   qaUrl,
   mobileScreenshotPath,
+  mobile360ScreenshotPath,
+  mobile430ScreenshotPath,
   desktopScreenshotPath,
-  rawVideoPath,
-  videoPath: rawVideoPath ? mp4Path : null,
+  contactMobileScreenshotPath,
+  contactDesktopScreenshotPath,
+  videoFrames: videoFrames.map((frame) => frame.path),
+  videoPath: mp4Path,
   unexpectedRequests,
 }, null, 2))

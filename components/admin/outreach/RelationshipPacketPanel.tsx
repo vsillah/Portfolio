@@ -23,6 +23,7 @@ import type {
   WarmOutreachRelationshipPacket,
 } from '@/lib/warm-outreach-relationship-intelligence'
 import type {
+  WarmOutreachGmailProviderExecutionReadiness,
   WarmOutreachGmailProviderActivationReadiness,
   WarmOutreachRealRecipientGmailRolloutReadiness,
   WarmOutreachResponseMonitoring,
@@ -560,6 +561,67 @@ function ActivationReadinessPacket({
   )
 }
 
+function ProviderExecutionReadinessPacket({
+  readiness,
+}: {
+  readiness?: WarmOutreachGmailProviderExecutionReadiness | null
+}) {
+  if (!readiness) return null
+  const stateClasses =
+    readiness.state === 'sent_do_not_resend'
+      ? 'border-amber-500/30 bg-amber-500/10 text-amber-50'
+      : readiness.state === 'blocked'
+        ? 'border-red-500/30 bg-red-500/10 text-red-50'
+        : 'border-sky-500/30 bg-sky-500/10 text-sky-50'
+
+  return (
+    <div className={`mt-2 rounded-md border p-2 ${stateClasses}`}>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide">
+            <Database size={13} aria-hidden />
+            Provider execution readiness
+          </p>
+          <p className="mt-1 text-[11px] leading-4">{readiness.label}</p>
+        </div>
+        <span className="inline-flex min-h-7 w-fit shrink-0 items-center gap-1.5 rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+          <LockKeyhole size={12} aria-hidden />
+          Admin gate disabled
+        </span>
+      </div>
+      <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-2">
+        <p className="rounded-md border border-current/20 bg-background/20 p-2">
+          Operator decision: {slackApprovalStatusLabel(readiness.operatorDecision.status)}. Records authorization intent only.
+        </p>
+        <p className="rounded-md border border-current/20 bg-background/20 p-2">
+          Activation gate: {readiness.adminActivationGate.key} is {readiness.adminActivationGate.state}.
+        </p>
+        <p className="rounded-md border border-current/20 bg-background/20 p-2">
+          Canary trace: {readiness.canaryTrace.status.replace(/_/g, ' ')}{readiness.canaryTrace.queueId ? ` / ${readiness.canaryTrace.queueId}` : ''}.
+        </p>
+      </div>
+      <p className="mt-2 text-[11px] leading-4">{readiness.operatorDecision.nextAction}</p>
+      <details className="mt-2 rounded-md border border-current/20 bg-background/20 p-2">
+        <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide">
+          Execution gate details
+        </summary>
+        <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-2">
+          <p>{readiness.adminActivationGate.detail}</p>
+          <p>{readiness.exactExecutionGate.detail}</p>
+          <p className="break-all">Execution route: {readiness.exactExecutionGate.route}. UI action: disabled.</p>
+          <p className="break-all">Send key: {readiness.exactExecutionGate.sendQueueIdempotencyKey}</p>
+          <p className="break-all">Submitted evidence: {readiness.exactExecutionGate.submittedEvidenceKey}</p>
+          {readiness.canaryTrace.sentEvidenceRecorded && (
+            <p className="break-words sm:col-span-2">
+              Sent evidence exists: Gmail message {readiness.canaryTrace.gmailMessageId ?? 'unknown'} / thread {readiness.canaryTrace.gmailThreadId ?? 'unknown'}.
+            </p>
+          )}
+        </div>
+      </details>
+    </div>
+  )
+}
+
 function summarizeAuthority(items: SendReadinessItem[]) {
   return items.reduce(
     (summary, item) => {
@@ -666,6 +728,7 @@ function EmailLifecycleCompact({
         </div>
       </div>
       <ActivationReadinessPacket readiness={activationReadiness} />
+      <ProviderExecutionReadinessPacket readiness={lifecycle.gmailProviderExecutionReadiness} />
       <div className="mt-2 rounded-md border border-red-500/25 bg-red-500/10 p-2 text-red-50">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
