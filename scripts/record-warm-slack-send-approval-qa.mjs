@@ -266,6 +266,22 @@ async function installRoutes(page) {
       body: JSON.stringify(user),
     })
   })
+
+  await page.route('**/api/admin/meetings**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ meetings: [], total: 0 }),
+    })
+  })
+
+  await page.route('**/api/admin/value-evidence/workflow-status**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ runs: [] }),
+    })
+  })
 }
 
 function collectUnexpectedRequests(page) {
