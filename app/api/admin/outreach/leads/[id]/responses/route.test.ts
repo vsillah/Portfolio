@@ -190,6 +190,7 @@ describe('POST /api/admin/outreach/leads/[id]/responses', () => {
   it('captures an interested response, creates a local reply draft and follow-up task, and performs no provider calls', async () => {
     const response = await POST(request({
       channel: 'email',
+      sourceType: 'manual',
       responseText: 'Interested. Can we schedule a quick demo?',
       receivedAt: '2026-08-26T12:00:00.000Z',
     }), { params: { id: '42' } })
@@ -224,6 +225,17 @@ describe('POST /api/admin/outreach/leads/[id]/responses', () => {
     })
     expect(insertedCommunications[0].metadata).toMatchObject({
       response_class: 'interested',
+      source_type: 'manual',
+      source_label: 'Manual entry',
+      source_provenance: expect.objectContaining({
+        source_type: 'manual',
+        capture_method: 'operator_manual_entry',
+        source_system: 'manual',
+        provider: 'manual',
+        provider_polling_enabled: false,
+        provider_ingestion_enabled: false,
+        external_action_enabled: false,
+      }),
       response_class_label: 'interested',
       recommended_next_action: expect.objectContaining({
         label: 'Review short next-step reply',
@@ -252,6 +264,72 @@ describe('POST /api/admin/outreach/leads/[id]/responses', () => {
     expect(mocks.from.mock.calls.map(([table]) => table)).not.toContain('gmail')
     expect(mocks.from.mock.calls.map(([table]) => table)).not.toContain('slack')
     expect(mocks.from.mock.calls.map(([table]) => table)).not.toContain('n8n')
+  })
+
+  it('captures provider-shaped Gmail reply provenance without enabling provider ingestion', async () => {
+    const response = await POST(request({
+      channel: 'email',
+      sourceType: 'gmail',
+      responseText: 'Can you explain how this works with our team?',
+      providerThreadId: 'gmail-thread-42',
+      providerMessageId: 'gmail-message-99',
+      sourceUrl: 'https://mail.google.com/mail/u/0/#inbox/gmail-thread-42',
+    }), { params: { id: '42' } })
+
+    expect(response.status).toBe(201)
+    const json = await response.json()
+    expect(json.decision.responseClass).toBe('question')
+    expect(json.sourceProvenance).toMatchObject({
+      source_type: 'gmail',
+      source_label: 'Gmail reply',
+      capture_method: 'provider_shaped_manual_intake',
+      source_system: 'manual',
+      provider: 'gmail',
+      provider_thread_id: 'gmail-thread-42',
+      provider_message_id: 'gmail-message-99',
+      provider_polling_enabled: false,
+      provider_ingestion_enabled: false,
+      external_action_enabled: false,
+    })
+    expect(insertedCommunications[0]).toMatchObject({
+      direction: 'inbound',
+      source_system: 'manual',
+      source_id: 'warm-outreach:reply:gmail:gmail-thread-42:gmail-message-99',
+    })
+    expect(insertedCommunications[0].metadata).toMatchObject({
+      source_type: 'gmail',
+      source_label: 'Gmail reply',
+      provider: 'gmail',
+      provider_thread_id: 'gmail-thread-42',
+      provider_message_id: 'gmail-message-99',
+      source_url: 'https://mail.google.com/mail/u/0/#inbox/gmail-thread-42',
+      execution_boundary: expect.objectContaining({
+        providerIngestionEnabled: false,
+        externalMonitoringEnabled: false,
+        gmailDraftCreationEnabled: false,
+        slackActionEnabled: false,
+      }),
+    })
+    expect(insertedCommunications).toHaveLength(2)
+    expect(insertedTasks).toHaveLength(1)
+    expect(mocks.from.mock.calls.map(([table]) => table)).not.toContain('gmail')
+    expect(mocks.from.mock.calls.map(([table]) => table)).not.toContain('slack')
+    expect(mocks.from.mock.calls.map(([table]) => table)).not.toContain('n8n')
+  })
+
+  it('rejects incompatible source and channel pairs before creating local rows', async () => {
+    const response = await POST(request({
+      channel: 'linkedin',
+      sourceType: 'gmail',
+      responseText: 'Can you explain how this works with our team?',
+    }), { params: { id: '42' } })
+
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({
+      error: 'sourceType gmail must use channel email',
+    })
+    expect(insertedCommunications).toHaveLength(0)
+    expect(insertedTasks).toHaveLength(0)
   })
 
   it('marks a linked outreach queue row replied before creating draft and task rows', async () => {

@@ -3,10 +3,14 @@ import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
 import {
   WARM_OUTREACH_RESPONSE_CHANNELS,
+  WARM_OUTREACH_RESPONSE_SOURCE_TYPES,
   buildWarmOutreachResponseLifecycleDecision,
+  channelForWarmResponseSource,
   communicationChannelForWarmResponse,
+  providerForWarmResponseSource,
   type WarmOutreachResponseChannel,
   type WarmOutreachResponseRelationshipContext,
+  type WarmOutreachResponseSourceType,
 } from '@/lib/warm-outreach-response-lifecycle'
 import {
   buildWarmOutreachContextSummary,
@@ -20,6 +24,7 @@ import {
 export const dynamic = 'force-dynamic'
 
 const CHANNELS = new Set<string>(WARM_OUTREACH_RESPONSE_CHANNELS)
+const SOURCE_TYPES = new Set<string>(WARM_OUTREACH_RESPONSE_SOURCE_TYPES)
 const MAX_RESPONSE_TEXT_CHARS = 12_000
 
 type ContactRow = {
@@ -66,6 +71,36 @@ function jsonError(error: string, status: number) {
 function stringOrNull(value: unknown) {
   const trimmed = typeof value === 'string' ? value.trim() : ''
   return trimmed || null
+}
+
+function sourceLabelFor(sourceType: WarmOutreachResponseSourceType) {
+  switch (sourceType) {
+    case 'gmail':
+      return 'Gmail reply'
+    case 'linkedin':
+      return 'LinkedIn reply'
+    case 'facebook':
+      return 'Facebook manual capture'
+    case 'contact_phone':
+      return 'Contact phone capture'
+    case 'manual':
+    default:
+      return 'Manual entry'
+  }
+}
+
+function inferResponseSourceType(input: {
+  channel: WarmOutreachResponseChannel
+  provider: string | null
+}): WarmOutreachResponseSourceType {
+  const provider = input.provider?.toLowerCase()
+  if (provider === 'gmail' && input.channel === 'email') return 'gmail'
+  if (provider === 'linkedin' && input.channel === 'linkedin') return 'linkedin'
+  if (provider === 'facebook' && input.channel === 'facebook') return 'facebook'
+  if ((provider === 'contact_phone' || provider === 'phone') && input.channel === 'phone_contact') {
+    return 'contact_phone'
+  }
+  return 'manual'
 }
 
 function receivedAtOrNow(value: unknown) {
@@ -432,6 +467,27 @@ export async function POST(
   if (!channel || !CHANNELS.has(channel)) {
     return jsonError(`channel must be one of: ${WARM_OUTREACH_RESPONSE_CHANNELS.join(', ')}`, 400)
   }
+  const typedChannel = channel as WarmOutreachResponseChannel
+
+  const providerFromBody = stringOrNull(body.provider)
+  const sourceTypeRaw = stringOrNull(body.sourceType)
+  const sourceType = sourceTypeRaw ?? inferResponseSourceType({
+    channel: typedChannel,
+    provider: providerFromBody,
+  })
+  if (!SOURCE_TYPES.has(sourceType)) {
+    return jsonError(`sourceType must be one of: ${WARM_OUTREACH_RESPONSE_SOURCE_TYPES.join(', ')}`, 400)
+  }
+  const typedSourceType = sourceType as WarmOutreachResponseSourceType
+  const sourceChannel = channelForWarmResponseSource(typedSourceType)
+  if (sourceChannel && sourceChannel !== typedChannel) {
+    return jsonError(`sourceType ${typedSourceType} must use channel ${sourceChannel}`, 400)
+  }
+  const provider = providerFromBody ?? providerForWarmResponseSource(typedSourceType)
+  const providerThreadId = stringOrNull(body.providerThreadId)
+  const providerMessageId = stringOrNull(body.providerMessageId)
+  const manualMessageKey = stringOrNull(body.messageKey)
+  const sourceUrl = stringOrNull(body.sourceUrl)
 
   const responseText = stringOrNull(body.responseText)
   if (!responseText) return jsonError('responseText is required', 400)
@@ -469,34 +525,52 @@ export async function POST(
   const decision = buildWarmOutreachResponseLifecycleDecision({
     contactId,
     contactName: (contact as ContactRow).name,
-    channel: channel as WarmOutreachResponseChannel,
+    channel: typedChannel,
     responseText,
     receivedAt,
     outreachQueueId,
-    provider: stringOrNull(body.provider),
-    providerThreadId: stringOrNull(body.providerThreadId) ?? outreachQueue?.thread_id ?? null,
-    providerMessageId: stringOrNull(body.providerMessageId),
-    messageKey: stringOrNull(body.messageKey),
+    provider,
+    sourceType: typedSourceType,
+    providerThreadId: providerThreadId ?? outreachQueue?.thread_id ?? null,
+    providerMessageId,
+    messageKey: manualMessageKey,
     originalSubject: stringOrNull(body.originalSubject) ?? outreachQueue?.subject ?? null,
     relationshipContext: await loadWarmRelationshipContext({
       contactId,
       contact: contact as ContactRow,
-      preferredChannel: channel as WarmOutreachResponseChannel,
+      preferredChannel: typedChannel,
     }),
   })
+  const sourceProvenance = {
+    source_type: typedSourceType,
+    source_label: sourceLabelFor(typedSourceType),
+    capture_method:
+      typedSourceType === 'manual'
+        ? 'operator_manual_entry'
+        : 'provider_shaped_manual_intake',
+    source_system: 'manual',
+    provider,
+    provider_thread_id: providerThreadId ?? outreachQueue?.thread_id ?? null,
+    provider_message_id: providerMessageId,
+    manual_message_key: manualMessageKey,
+    source_url: sourceUrl,
+    provider_polling_enabled: false,
+    provider_ingestion_enabled: false,
+    external_action_enabled: false,
+  }
 
   const existingResponse = await findCommunicationBySourceId(
     contactId,
     decision.idempotency.responseKey,
   )
   if (existingResponse) {
-    const commChannel = communicationChannelForWarmResponse(channel as WarmOutreachResponseChannel)
+    const commChannel = communicationChannelForWarmResponse(typedChannel)
     const replyDraft = await maybeCreateReplyDraft({
       contactId,
       channel: commChannel,
       responseCommunicationId: existingResponse.id,
       responseSourceId: decision.idempotency.responseKey,
-      originalChannel: channel as WarmOutreachResponseChannel,
+      originalChannel: typedChannel,
       decision,
       sentBy: auth.user.id,
     })
@@ -515,6 +589,7 @@ export async function POST(
       replyDraftOutcome: replyDraft.outcome,
       followUpTask,
       suppressionProposal: decision.suppressionProposal,
+      sourceProvenance,
       decision,
       executionBoundary: decision.executionBoundary,
     })
@@ -543,7 +618,7 @@ export async function POST(
     }
   }
 
-  const commChannel = communicationChannelForWarmResponse(channel as WarmOutreachResponseChannel)
+  const commChannel = communicationChannelForWarmResponse(typedChannel)
   const responseCommunication = await insertCommunication({
     contactId,
     channel: commChannel,
@@ -560,6 +635,10 @@ export async function POST(
     sentBy: auth.user.id,
     metadata: {
       lifecycle: 'warm_outreach_response',
+      source_system: 'manual',
+      source_type: typedSourceType,
+      source_label: sourceProvenance.source_label,
+      source_provenance: sourceProvenance,
       original_channel: channel,
       outreach_queue_id: outreachQueueId,
       response_class: decision.responseClass,
@@ -572,10 +651,11 @@ export async function POST(
       approval_gate: decision.approvalGate,
       human_qa_required: decision.humanQaRequired,
       human_qa_reasons: decision.humanQaReasons,
-      provider: stringOrNull(body.provider) ?? 'manual',
-      provider_thread_id: stringOrNull(body.providerThreadId) ?? outreachQueue?.thread_id ?? null,
-      provider_message_id: stringOrNull(body.providerMessageId),
-      manual_message_key: stringOrNull(body.messageKey),
+      provider,
+      provider_thread_id: providerThreadId ?? outreachQueue?.thread_id ?? null,
+      provider_message_id: providerMessageId,
+      manual_message_key: manualMessageKey,
+      source_url: sourceUrl,
       suppression_proposal: decision.suppressionProposal,
       follow_up_task_proposal: decision.followUpTaskProposal,
       local_draft_recommendation: decision.replyDraft,
@@ -590,7 +670,7 @@ export async function POST(
     channel: commChannel,
     responseCommunicationId: responseCommunication.id,
     responseSourceId: decision.idempotency.responseKey,
-    originalChannel: channel as WarmOutreachResponseChannel,
+    originalChannel: typedChannel,
     decision,
     sentBy: auth.user.id,
   })
@@ -613,6 +693,7 @@ export async function POST(
       replyDraftOutcome: replyDraft.outcome,
       followUpTask,
       suppressionProposal: decision.suppressionProposal,
+      sourceProvenance,
       decision,
       executionBoundary: decision.executionBoundary,
     },

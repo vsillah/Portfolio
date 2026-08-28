@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest'
 import {
   buildWarmOutreachResponseIdempotencyKey,
   buildWarmOutreachResponseLifecycleDecision,
+  channelForWarmResponseSource,
   communicationChannelForWarmResponse,
+  providerForWarmResponseSource,
 } from './warm-outreach-response-lifecycle'
 
 describe('warm outreach response lifecycle policy', () => {
@@ -122,7 +124,7 @@ describe('warm outreach response lifecycle policy', () => {
       contactId: 42,
       channel: 'email',
       responseText: 'Thanks',
-      provider: 'gmail',
+      sourceType: 'gmail',
       providerThreadId: 'thread-1',
       providerMessageId: 'message-1',
     })
@@ -135,6 +137,20 @@ describe('warm outreach response lifecycle policy', () => {
 
     expect(providerKey).toBe('warm-outreach:reply:gmail:thread-1:message-1')
     expect(manualKey).toMatch(/^warm-outreach:reply:manual:[a-f0-9]{16}$/)
+  })
+
+  it('maps source provenance placeholders to providers and compatible channels', () => {
+    expect(providerForWarmResponseSource('manual')).toBe('manual')
+    expect(providerForWarmResponseSource('gmail')).toBe('gmail')
+    expect(providerForWarmResponseSource('linkedin')).toBe('linkedin')
+    expect(providerForWarmResponseSource('facebook')).toBe('facebook')
+    expect(providerForWarmResponseSource('contact_phone')).toBe('contact_phone')
+
+    expect(channelForWarmResponseSource('manual')).toBeNull()
+    expect(channelForWarmResponseSource('gmail')).toBe('email')
+    expect(channelForWarmResponseSource('linkedin')).toBe('linkedin')
+    expect(channelForWarmResponseSource('facebook')).toBe('facebook')
+    expect(channelForWarmResponseSource('contact_phone')).toBe('phone_contact')
   })
 
   it('uses a stable manual message key when provided instead of timestamp-sensitive capture data', () => {
